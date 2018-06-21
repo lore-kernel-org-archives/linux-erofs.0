@@ -1,32 +1,29 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 21 Jun 2018 21:40:17 +0800
-Subject: [erofs-dev] [RFC PATCH RESEND 03/12] erofs: add super block
- operations
+Date: Thu, 21 Jun 2018 21:40:20 +0800
+Subject: [erofs-dev] [RFC PATCH RESEND 06/12] erofs: add directory operations
 In-Reply-To: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
 References: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1529588426-111662-4-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1529588426-111662-7-git-send-email-gaoxiang25@huawei.com>
 
-This commit adds erofs super block operations, including (u)mount,
-remount_fs, show_options, statfs, in addition to some private
-icache management functions.
+This adds functions for directory, mainly readdir.
 
 Signed-off-by: Miao Xie <miaoxie at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/super.c | 362 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 362 insertions(+)
- create mode 100644 fs/erofs/super.c
+ fs/erofs/dir.c | 143 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 143 insertions(+)
+ create mode 100644 fs/erofs/dir.c
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
 new file mode 100644
-index 0000000..a2612e2
+index 0000000..7d3448b
 --- /dev/null
-+++ b/fs/erofs/super.c
-@@ -0,0 +1,362 @@
++++ b/fs/erofs/dir.c
+@@ -0,0 +1,143 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * linux/fs/erofs/super.c
++ * linux/fs/erofs/dir.c
 + *
 + * Copyright (C) 2017-2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
@@ -36,355 +33,136 @@ index 0000000..a2612e2
 + * License.  See the file COPYING in the main directory of the Linux
 + * distribution for more details.
 + */
-+#include <linux/module.h>
-+#include <linux/buffer_head.h>
-+#include <linux/slab.h>
-+#include <linux/statfs.h>
 +#include "internal.h"
 +
-+static struct kmem_cache *erofs_inode_cachep __read_mostly;
++const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
++	[EROFS_FT_UNKNOWN]	= DT_UNKNOWN,
++	[EROFS_FT_REG_FILE]	= DT_REG,
++	[EROFS_FT_DIR]		= DT_DIR,
++	[EROFS_FT_CHRDEV]	= DT_CHR,
++	[EROFS_FT_BLKDEV]	= DT_BLK,
++	[EROFS_FT_FIFO]		= DT_FIFO,
++	[EROFS_FT_SOCK]		= DT_SOCK,
++	[EROFS_FT_SYMLINK]	= DT_LNK,
++};
 +
-+static void init_once(void *ptr)
++static int erofs_fill_dentries(struct dir_context *ctx,
++	void *dentry_blk, unsigned *ofs,
++	unsigned nameoff, unsigned maxsize)
 +{
-+	struct erofs_vnode *vi = ptr;
++	struct erofs_dirent *de = dentry_blk;
++	const struct erofs_dirent *end = dentry_blk + nameoff;
 +
-+	inode_init_once(&vi->vfs_inode);
-+}
-+
-+static int erofs_init_inode_cache(void)
-+{
-+	erofs_inode_cachep = kmem_cache_create("erofs_inode",
-+		sizeof(struct erofs_vnode), 0,
-+		SLAB_RECLAIM_ACCOUNT, init_once);
-+
-+	return erofs_inode_cachep != NULL ? 0 : -ENOMEM;
-+}
-+
-+static struct inode *alloc_inode(struct super_block *sb)
-+{
-+	struct erofs_vnode *vi =
-+		kmem_cache_alloc(erofs_inode_cachep, GFP_KERNEL);
-+
-+	if (vi != NULL) {
-+		/* zero out everything except vfs_inode */
-+		memset(vi, 0, offsetof(struct erofs_vnode, vfs_inode));
-+		return &vi->vfs_inode;
-+	}
-+	return ERR_PTR(-ENOMEM);
-+}
-+
-+static void i_callback(struct rcu_head *head)
-+{
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
-+	if (is_inode_fast_symlink(inode))
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0))
-+		kfree(vi->i_link);
-+#else
-+		kfree(inode->i_link);
++	de = dentry_blk + *ofs;
++	while (de < end) {
++		const char *de_name;
++		int de_namelen;
++		unsigned char d_type;
++#ifdef CONFIG_EROFS_FS_DEBUG
++		unsigned dbg_namelen;
++		unsigned char dbg_namebuf[EROFS_NAME_LEN];
 +#endif
 +
-+	if (vi->xattr_shared_xattrs != NULL)
-+		kfree(vi->xattr_shared_xattrs);
++		if (unlikely(de->file_type < EROFS_FT_MAX))
++			d_type = erofs_filetype_table[de->file_type];
++		else
++			d_type = DT_UNKNOWN;
 +
-+	kmem_cache_free(erofs_inode_cachep, vi);
-+}
++		de_name = (char *)dentry_blk + de->nameoff;
 +
-+static void destroy_inode(struct inode *inode)
-+{
-+	call_rcu(&inode->i_rcu, i_callback);
-+}
++		de_namelen = unlikely(de + 1 >= end) ?
++			/* last directory entry */
++			strnlen(de_name, maxsize - de->nameoff) :
++			de[1].nameoff - de->nameoff;
 +
-+static int superblock_read(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi;
-+	struct buffer_head *bh;
-+	struct erofs_super_block *layout;
-+	unsigned blkszbits;
-+	int ret;
++		/* the corrupted directory found */
++		BUG_ON(de_namelen < 0);
 +
-+	bh = sb_bread(sb, 0);
++#ifdef CONFIG_EROFS_FS_DEBUG
++		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
++		memcpy(dbg_namebuf, de_name, dbg_namelen);
++		dbg_namebuf[dbg_namelen] = '\0';
 +
-+	if (bh == NULL) {
-+		errln("Cannot read erofs superblock");
-+		return -EIO;
-+	}
-+
-+	sbi = EROFS_SB(sb);
-+	layout = (struct erofs_super_block *)((u8 *)bh->b_data
-+		 + EROFS_SUPER_OFFSET);
-+
-+	ret = -EINVAL;
-+	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
-+		errln("Cannot find valid erofs superblock");
-+		goto out;
-+	}
-+
-+	blkszbits = layout->blkszbits;
-+	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
-+	if (unlikely(blkszbits != LOG_BLOCK_SIZE)) {
-+		errln("blksize %u isn't supported on this platform",
-+			1 << blkszbits);
-+		goto out;
-+	}
-+
-+	sbi->blocks = le32_to_cpu(layout->blocks);
-+	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
-+	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
-+
-+	sbi->root_nid = le64_to_cpu(layout->root_nid);
-+	sbi->inos = le64_to_cpu(layout->inos);
-+
-+	sbi->build_time = le64_to_cpu(layout->build_time);
-+	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
-+
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0))
-+	memcpy(sb->s_uuid, layout->uuid, sizeof(layout->uuid));
-+#else
-+	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
++		debugln("%s, found de_name %s de_len %d d_type %d", __func__,
++			dbg_namebuf, de_namelen, d_type);
 +#endif
-+	memcpy(sbi->volume_name, layout->volume_name,
-+		sizeof(layout->volume_name));
 +
-+	ret = 0;
-+out:
-+	brelse(bh);
-+	return ret;
-+}
-+
-+static void default_options(struct erofs_sb_info *sbi)
-+{
-+}
-+
-+static int erofs_read_super(struct super_block *sb,
-+	const char *dev_name, void *data, int silent)
-+{
-+	struct inode *inode;
-+	struct erofs_sb_info *sbi;
-+	int err = -EINVAL;
-+
-+	infoln("read_super, device -> %s", dev_name);
-+	infoln("options -> %s", (char *)data);
-+
-+	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
-+		errln("Failed to set erofs blksize");
-+		goto err;
++		if (!dir_emit(ctx, de_name, de_namelen, de->nid, d_type))
++			/* stoped by some reason */
++			return 1;
++		++de;
++		*ofs += sizeof(struct erofs_dirent);
 +	}
-+
-+	sbi = kzalloc(sizeof(struct erofs_sb_info), GFP_KERNEL);
-+	if (unlikely(sbi == NULL)) {
-+		err = -ENOMEM;
-+		goto err;
-+	}
-+	sb->s_fs_info = sbi;
-+
-+	err = superblock_read(sb);
-+	if (err)
-+		goto err_sbi;
-+
-+	sb->s_magic = EROFS_SUPER_MAGIC;
-+	sb->s_flags |= MS_RDONLY | MS_NOATIME;
-+	sb->s_maxbytes = MAX_LFS_FILESIZE;
-+	sb->s_time_gran = 1;
-+
-+	sb->s_op = &erofs_sops;
-+
-+	/* set erofs default mount options */
-+	default_options(sbi);
-+
-+	if (!silent)
-+		infoln("root inode @ nid %llu", ROOT_NID(sbi));
-+
-+	/* get the root inode */
-+	inode = erofs_iget(sb, ROOT_NID(sbi), true);
-+	if (IS_ERR(inode)) {
-+		err = PTR_ERR(inode);
-+		goto err_sbi;
-+	}
-+
-+	if (!S_ISDIR(inode->i_mode)) {
-+		errln("rootino(nid %llu) is not a directory(i_mode %o)",
-+			ROOT_NID(sbi), inode->i_mode);
-+		err = -EINVAL;
-+		goto err_iput;
-+	}
-+
-+	sb->s_root = d_make_root(inode);
-+	if (sb->s_root == NULL) {
-+		err = -ENOMEM;
-+		goto err_iput;
-+	}
-+
-+	/* save the device name to sbi */
-+	sbi->dev_name = __getname();
-+	if (sbi->dev_name == NULL) {
-+		err = -ENOMEM;
-+		goto err_dput;
-+	}
-+
-+	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
-+	sbi->dev_name[PATH_MAX - 1] = '\0';
-+
-+	/*
-+	 * We already have a positive dentry, which was instantiated
-+	 * by d_make_root. Just need to d_rehash it.
-+	 */
-+	d_rehash(sb->s_root);
-+
-+	if (!silent)
-+		infoln("mounted on %s with opts: %s.", dev_name,
-+			(char *)data);
++	*ofs = maxsize;
 +	return 0;
-+err_dput:
-+	dput(sb->s_root);
-+err_iput:
-+	if (sb->s_root == NULL)
-+		iput(inode);
-+err_sbi:
-+	sb->s_fs_info = NULL;
-+	kfree(sbi);
-+err:
-+	return err;
 +}
 +
-+/*
-+ * could be triggered after deactivate_locked_super()
-+ * is called, thus including umount and failed to initialize.
-+ */
-+static void erofs_put_super(struct super_block *sb)
++static int erofs_readdir(struct file *f, struct dir_context *ctx)
 +{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	struct inode *dir = file_inode(f);
++	struct address_space *mapping = dir->i_mapping;
++	const size_t dirsize = i_size_read(dir);
++	unsigned i = ctx->pos / EROFS_BLKSIZ;
++	unsigned ofs = ctx->pos % EROFS_BLKSIZ;
++	int err = 0;
++	bool initial = true;
 +
-+	/* for cases which are failed in "read_super" */
-+	if (sbi == NULL)
-+		return;
++	while (ctx->pos < dirsize) {
++		struct page *dentry_page;
++		struct erofs_dirent *de;
++		unsigned nameoff, maxsize;
 +
-+	infoln("unmounted for %s", sbi->dev_name);
-+	__putname(sbi->dev_name);
++		dentry_page = read_mapping_page(mapping, i, NULL);
++		if (IS_ERR(dentry_page))
++			continue;
 +
-+	kfree(sbi);
-+	sb->s_fs_info = NULL;
-+}
++		lock_page(dentry_page);
++		de = (struct erofs_dirent *)kmap(dentry_page);
 +
++		nameoff = de->nameoff;
 +
-+struct erofs_mount_private {
-+	const char *dev_name;
-+	char *options;
-+};
++		if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
++			nameoff >= PAGE_SIZE)) {
++			errln("%s, invalid de[0].nameoff %u",
++				__func__, nameoff);
 +
-+/* support mount_bdev() with options */
-+static int erofs_fill_super(struct super_block *sb,
-+	void *_priv, int silent)
-+{
-+	struct erofs_mount_private *priv = _priv;
-+
-+	return erofs_read_super(sb, priv->dev_name,
-+		priv->options, silent);
-+}
-+
-+static struct dentry *erofs_mount(
-+	struct file_system_type *fs_type, int flags,
-+	const char *dev_name, void *data)
-+{
-+	struct erofs_mount_private priv = {
-+		.dev_name = dev_name,
-+		.options = data
-+	};
-+
-+	return mount_bdev(fs_type, flags, dev_name,
-+		&priv, erofs_fill_super);
-+}
-+
-+static void erofs_kill_sb(struct super_block *sb)
-+{
-+	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
-+
-+	kill_block_super(sb);
-+}
-+
-+static struct file_system_type erofs_fs_type = {
-+	.owner          = THIS_MODULE,
-+	.name           = "erofs",
-+	.mount          = erofs_mount,
-+	.kill_sb        = erofs_kill_sb,
-+	.fs_flags       = FS_REQUIRES_DEV,
-+};
-+
-+int __init erofs_module_init(void)
-+{
-+	int err;
-+
-+	infoln("Initializing erofs " EROFS_VERSION);
-+
-+	err = erofs_init_inode_cache();
-+	if (!err) {
-+		err = register_filesystem(&erofs_fs_type);
-+		if (!err) {
-+			infoln("Successfully to initialize erofs");
-+			return 0;
++			err = -EIO;
++			goto skip_this;
 +		}
++
++		maxsize = min_t(unsigned, dirsize - ctx->pos + ofs, PAGE_SIZE);
++
++		/* search dirents at the arbitrary position */
++		if (unlikely(initial)) {
++			initial = false;
++
++			ofs = roundup(ofs, sizeof(struct erofs_dirent));
++			if (unlikely(ofs >= nameoff))
++				goto skip_this;
++		}
++
++		err = erofs_fill_dentries(ctx, de, &ofs, nameoff, maxsize);
++skip_this:
++		kunmap(dentry_page);
++
++		unlock_page(dentry_page);
++		put_page(dentry_page);
++
++		ctx->pos = i * EROFS_BLKSIZ + ofs;
++
++		if (unlikely(err))
++			break;
++		++i;
++		ofs = 0;
 +	}
-+	return err;
++	return err < 0 ? err : 0;
 +}
 +
-+void __exit erofs_module_exit(void)
-+{
-+	unregister_filesystem(&erofs_fs_type);
-+	infoln("Successfully finalize erofs");
-+}
-+
-+/* get filesystem statistics */
-+static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
-+{
-+	struct super_block *sb = dentry->d_sb;
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
-+
-+	buf->f_type = sb->s_magic;
-+	buf->f_bsize = EROFS_BLKSIZ;
-+	buf->f_blocks = sbi->blocks;
-+	buf->f_bfree = buf->f_bavail = 0;
-+
-+	buf->f_files = ULLONG_MAX;
-+	buf->f_ffree = ULLONG_MAX - sbi->inos;
-+
-+	buf->f_namelen = EROFS_NAME_LEN;
-+
-+	buf->f_fsid.val[0] = (u32)id;
-+	buf->f_fsid.val[1] = (u32)(id >> 32);
-+	return 0;
-+}
-+
-+static int erofs_show_options(struct seq_file *seq, struct dentry *root)
-+{
-+	return 0;
-+}
-+
-+static int erofs_remount(struct super_block *sb, int *flags, char *data)
-+{
-+	BUG_ON(!sb_rdonly(sb));
-+
-+	*flags |= MS_RDONLY;
-+	return 0;
-+}
-+
-+const struct super_operations erofs_sops = {
-+	.put_super = erofs_put_super,
-+	.alloc_inode = alloc_inode,
-+	.destroy_inode = destroy_inode,
-+	.statfs = erofs_statfs,
-+	.show_options = erofs_show_options,
-+	.remount_fs = erofs_remount,
++const struct file_operations erofs_dir_fops = {
++	.llseek		= generic_file_llseek,
++	.read		= generic_read_dir,
++	.iterate	= erofs_readdir,
 +};
-+
-+module_init(erofs_module_init);
-+module_exit(erofs_module_exit);
-+
-+MODULE_DESCRIPTION("Enhanced ROM File System");
-+MODULE_AUTHOR("Gao Xiang, Yu Chao, Miao Xie, CONSUMER BG, HUAWEI Inc.");
-+MODULE_LICENSE("GPL");
 +
 -- 
 1.9.1
