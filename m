@@ -1,6 +1,5 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 21 Jun 2018 22:12:43 +0800
-Subject: [erofs-dev] for test only
-Message-ID: <b3e9a966-c83b-fbf2-1ad2-bd904b1b3137@huawei.com>
+Date: Thu, 21 Jun 2018 23:15:30 +0800
+Subject: [erofs-dev] mailing list configuration test 2
+Message-ID: <0a00b8c6-4ad1-27b3-fc53-58e4c2ef5b62@huawei.com>
 
-for test only
