@@ -1,290 +1,227 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 21 Jun 2018 21:40:15 +0800
-Subject: [erofs-dev] [RFC PATCH RESEND 01/12] erofs: add on-disk layout
-In-Reply-To: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
-References: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1529588426-111662-2-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 21 Jun 2018 21:40:14 +0800
+Subject: [erofs-dev] [RFC PATCH RESEND 00/12] erofs: introduce erofs file
+ system
+Message-ID: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
 
-This commit adds the on-disk layout header file of erofs.
+Hi all,
 
-Note that the on-disk layout is still WIP, and some fields are
-reserved for the future use by design.
+Read-only file systems are used in many cases, such as read-only storage media.
+We are now focusing on the Android device which several read-only partitions exist.
+Due to limited read-only solutions, a new read-only file system EROFS
+(Extendable Read-Only File System) is introduced.
 
-Any comments are welcome.
+As the other read-only file systems, several meta regions in generic file systems
+such as free space bitmap are omitted. But the difference is that EROFS focuses
+more on performance than purely on saving storage space as much as possible.
 
-Thanks-to: Li Guifu <liguifu2 at huawei.com>
-Thanks-to: Sun Qiuyang <sunqiuyang at huawei.com>
-Signed-off-by: Miao Xie <miaoxie at huawei.com>
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- fs/erofs/erofs_fs.h | 258 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 258 insertions(+)
+Furthermore, we also add the compression support called z_erofs.
+
+Traditional file systems with the compression support use the fixed-sized input
+compression, the output compressed units could be arbitrary lengths.
+However, data is accessed in the block unit for block devices, which means
+(A) if the accessed compressed data is not buffered, some data read from
+the physical block cannot be further utilized, which is illustrated as follows:
+       
+   ++-----------++-----------++         ++-----------++-----------++
+...||           ||           ||   ...   ||           ||           ||  ... original data
+   ++-----------++-----------++         ++-----------++-----------++
+    \                         /          \                         /
+       \                   /                \                    /
+          \             /                      \               /
+      ++---|-------++--|--------++       ++-----|----++--------|--++
+      ||xxx|       ||  |xxxxxxxx||  ...  ||xxxxx|    ||        |xx||  compressed data
+      ++---|-------++--|--------++       ++-----|----++--------|--++
+
+The shadow regions read from the block device but cannot be used for decompression.
+
+(B) If the compressed data is also buffered, it will increase the memory overhead.
+Because these are compressed data, it cannot be directly used, and we don't know
+when the corresponding compressed blocks are accessed, which is not friendly to
+the random read.
+
+In order to reduce the proportion of the data which cannot be directly decompressed,
+larger compressed sizes are preferred to be selected, which is also not friendly to
+the random read.
+
+Erofs implements the compression in a different approach, the details of which will
+be discussed in the next section.
+
+In brief, the following points summarize our design at a high level:
+
+1) Use page-sized blocks so that there are no buffer heads.
+
+2) By introducing a more general inline data / xattr, metadata and small data have
+the opportunity to be read with the inode metadata at the same time.
+
+3) Introduce another shared xattr region in order to store the common xattrs (eg.
+selinux labels) or xattrs too large to be suitable for meta inline.
+
+4) Metadata and data could be mixed by design, so it could be more flexible for mkfs
+to organize files and data.
+
+5) instead of using the fixed-sized input compression, we put forward a new fixed
+output compression to make the full use of IO (which means all data from IO can be
+decompressed), reduce the read amplification, improve random read and keep the
+relatively lower compression ratios, illustrated as follows:
+
+
+        |---- varient-length extent ----|------ VLE ------|---  VLE ---|
+         /> clusterofs                  /> clusterofs     /> clusterofs /> clusterofs
+   ++---|-------++-----------++---------|-++-----------++-|---------++-|
+...||   |       ||           ||         | ||           || |         || | ... original data
+   ++---|-------++-----------++---------|-++-----------++-|---------++-|
+   ++->cluster<-++->cluster<-++->cluster<-++->cluster<-++->cluster<-++
+        size         size         size         size         size  
+         \                             /                 /            /
+          \                      /              /            /
+           \               /            /            /
+            ++-----------++-----------++-----------++
+        ... ||           ||           ||           || ... compressed clusters
+            ++-----------++-----------++-----------++
+            ++->cluster<-++->cluster<-++->cluster<-++
+                 size         size         size
+
+   A cluster could have more than one blocks by design, but currently we only have the
+page-sized cluster implementation (page-sized fixed output compression can also have
+better compression ratio than fixed input compression).
+
+   All compressed clusters have a fixed size but could be decompressed into extents with
+arbitrary lengths.
+
+   In addition, if a buffered IO reads the following shadow region (x), we could make a more
+   customized path (to replace generic_file_buffered_read) which only reads one compressed
+   cluster and makes the partial page available.
+         /> clusterofs
+   ++---|-------++
+...||   | xxxx  || ...
+   ||---|-------||
+
+Some numbers using fixed output compression (VLE, cluster size = block size = 4k) on
+the server and Android phone (kirin970 platform):
+
+Server (magnetic disk):
+
+compression  EROFS seq read  EXT4 seq read        EROFS random read  EXT4 random read
+ratio           bw[MB/s]       bw[MB/s]             bw[MB/s] (20%)    bw[MB/s] (20%)
+
+  4              480.3          502.5                   69.8               11.1
+ 10              472.3          503.3                   56.4               10.0
+ 15              457.6          495.3                   47.0               10.9
+ 26              401.5          511.2                   34.7               11.1
+ 35              389.1          512.5                   28.0               11.0
+ 48              375.4          496.5                   23.2               10.6
+ 53              370.2          512.0                   21.8               11.0
+ 66              349.2          512.0                   19.0               11.4
+ 76              310.5          497.3                   17.3               11.6
+ 85              301.2          512.0                   16.0               11.0
+ 94              292.7          496.5                   14.6               11.1
+100              538.9          512.0                   11.4               10.8
+
+Kirin970 (A73 Big-core 2361Mhz, A53 little-core 0Mhz, DDR 1866Mhz):
+
+compression  EROFS seq read  EXT4 seq read        EROFS random read  EXT4 random read
+ratio           bw[MB/s]       bw[MB/s]             bw[MB/s] (20%)    bw[MB/s] (20%)
+
+  4              546.7          544.3                    157.7              57.9
+ 10              535.7          521.0                    152.7              62.0
+ 15              529.0          520.3                    125.0              65.0
+ 26              418.0          526.3                     97.6              63.7
+ 35              367.7          511.7                     89.0              63.7
+ 48              415.7          500.7                     78.2              61.2
+ 53              423.0          566.7                     72.8              62.9
+ 66              334.3          537.3                     69.8              58.3
+ 76              387.3          546.0                     65.2              56.0
+ 85              306.3          546.0                     63.8              57.7
+ 94              345.0          589.7                     59.2              49.9
+100              579.7          556.7                     62.1              57.7
+
+* currently we use workqueue for the read-ahead process, which is still has some
+minor issues and the value of sequential read is effected by work queue scheduling.
+
+
+
+This patchset is only for opensource archive use, the file system still has issues
+and will be work in progress in the coming few months.
+
+
+We will make a developing tree and an independent mailing list in a few days.
+
+
+
+Any comments are welcome :-)
+
+
+
+Recently TODO list:
+1) Add a documentation on the on-disk layout and kernel file system design;
+
+2) Remove all Linux kernel version macros and devide it into separated kernel version tree;
+
+3) the open source of erofs-mkfs is _still_ in progress, it will be released as soon as
+   the internal process ends.
+   
+4) VLE decompression code still needs to do more optimization and cleanup.
+
+
+Thanks,
+
+
+Gao Xiang (12):
+  erofs: add on-disk layout
+  erofs: add erofs in-memory stuffs
+  erofs: add super block operations
+  erofs: add raw address_space operations
+  erofs: add inode operations
+  erofs: add directory operations
+  erofs: add namei functions
+  erofs: definitions for the various kernel version temporarily
+  erofs: update Kconfig and Makefile
+  erofs: introduce xattr & acl support
+  erofs: introduce a customized LZ4 decompression
+  erofs: introduce VLE decompression support (experimental)
+
+ fs/Kconfig               |    1 +
+ fs/Makefile              |    1 +
+ fs/erofs/Kconfig         |   88 ++++
+ fs/erofs/Makefile        |    9 +
+ fs/erofs/data.c          |  569 +++++++++++++++++++++++++
+ fs/erofs/dir.c           |  143 +++++++
+ fs/erofs/erofs_fs.h      |  258 ++++++++++++
+ fs/erofs/inode.c         |  287 +++++++++++++
+ fs/erofs/internal.h      |  413 ++++++++++++++++++
+ fs/erofs/lz4defs.h       |  227 ++++++++++
+ fs/erofs/namei.c         |  250 +++++++++++
+ fs/erofs/pagevec.h       |  184 ++++++++
+ fs/erofs/staging.h       |   83 ++++
+ fs/erofs/super.c         |  422 +++++++++++++++++++
+ fs/erofs/unzip.c         | 1039 ++++++++++++++++++++++++++++++++++++++++++++++
+ fs/erofs/unzip.h         |  119 ++++++
+ fs/erofs/unzip_generic.c |  295 +++++++++++++
+ fs/erofs/unzip_lz4.c     |  221 ++++++++++
+ fs/erofs/unzip_vle.h     |   79 ++++
+ fs/erofs/xattr.c         |  678 ++++++++++++++++++++++++++++++
+ fs/erofs/xattr.h         |   93 +++++
+ 21 files changed, 5459 insertions(+)
+ create mode 100644 fs/erofs/Kconfig
+ create mode 100644 fs/erofs/Makefile
+ create mode 100644 fs/erofs/data.c
+ create mode 100644 fs/erofs/dir.c
  create mode 100644 fs/erofs/erofs_fs.h
+ create mode 100644 fs/erofs/inode.c
+ create mode 100644 fs/erofs/internal.h
+ create mode 100644 fs/erofs/lz4defs.h
+ create mode 100644 fs/erofs/namei.c
+ create mode 100644 fs/erofs/pagevec.h
+ create mode 100644 fs/erofs/staging.h
+ create mode 100644 fs/erofs/super.c
+ create mode 100644 fs/erofs/unzip.c
+ create mode 100644 fs/erofs/unzip.h
+ create mode 100644 fs/erofs/unzip_generic.c
+ create mode 100644 fs/erofs/unzip_lz4.c
+ create mode 100644 fs/erofs/unzip_vle.h
+ create mode 100644 fs/erofs/xattr.c
+ create mode 100644 fs/erofs/xattr.h
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-new file mode 100644
-index 0000000..c08d982
---- /dev/null
-+++ b/fs/erofs/erofs_fs.h
-@@ -0,0 +1,258 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * linux/fs/erofs/erofs_fs.h
-+ *
-+ * Copyright (C) 2017-2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of the Linux
-+ * distribution for more details.
-+ */
-+#ifndef __EROFS_FS_H
-+#define __EROFS_FS_H
-+
-+/* Enhanced(Extended) ROM File System */
-+#define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
-+#define EROFS_SUPER_OFFSET      1024
-+
-+struct erofs_super_block {
-+/*  0 */__le32 magic;           /* in the little endian */
-+/*  4 */__le32 checksum;        /* crc32c(super_block) */
-+/*  8 */__le32 features;
-+/* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
-+/* 13 */__u8 reserved;
-+
-+/* 14 */__le16 root_nid;
-+/* 16 */__le64 inos;            /* total valid ino # (== f_files - f_favail) */
-+
-+/* 24 */__le64 build_time;      /* inode v1 time derivation */
-+/* 32 */__le32 build_time_nsec;
-+/* 36 */__le32 blocks;          /* used for statfs */
-+/* 40 */__le32 meta_blkaddr;
-+/* 44 */__le32 xattr_blkaddr;
-+/* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
-+/* 64 */__u8 volume_name[16];   /* volume name */
-+
-+/* 80 */__u8 reserved2[48];     /* 128 bytes */
-+} __packed;
-+
-+#define __EROFS_BIT(_prefix, _cur, _pre)	enum {	\
-+	_prefix ## _cur ## _BIT = _prefix ## _pre ## _BIT + \
-+		_prefix ## _pre ## _BITS }
-+
-+/*
-+ * erofs inode data mapping:
-+ * 0 - inode plain without inline data A:
-+ * inode, [xattrs], ... | ... | no-holed data
-+ * 1 - inode VLE compression B:
-+ * inode, [xattrs], extents ... | ...
-+ * 2 - inode plain with inline data C:
-+ * inode, [xattrs], last_inline_data, ... | ... | no-holed data
-+ * 3~7 - reserved
-+ */
-+enum {
-+	EROFS_INODE_LAYOUT_PLAIN,
-+	EROFS_INODE_LAYOUT_COMPRESSION,
-+	EROFS_INODE_LAYOUT_INLINE,
-+	EROFS_INODE_LAYOUT_MAX
-+};
-+#define EROFS_I_VERSION_BITS            1
-+#define EROFS_I_DATA_MAPPING_BITS       3
-+
-+#define EROFS_I_VERSION_BIT             0
-+__EROFS_BIT(EROFS_I_, DATA_MAPPING, VERSION);
-+
-+struct erofs_inode_v1 {
-+/*  0 */__le16 i_advise;
-+
-+/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
-+/*  2 */__le16 i_xattr_icount;
-+/*  4 */__le16 i_mode;
-+/*  6 */__le16 i_nlink;
-+/*  8 */__le32 i_size;
-+/* 12 */__le32 i_reserved;
-+/* 16 */union {
-+		/* file total compressed blocks for data mapping 1 */
-+		__le32 compressed_blocks;
-+		__le32 raw_blkaddr;
-+
-+		/* for device files, used to indicate old/new device # */
-+		__le32 rdev;
-+	} i_u __packed;
-+/* 20 */__le32 i_ino;           /* only used for 32-bit stat compatibility */
-+/* 24 */__le16 i_uid;
-+/* 26 */__le16 i_gid;
-+/* 28 */__le32 i_checksum;
-+} __packed;
-+
-+/* 32 bytes inode */
-+#define EROFS_INODE_V1      0
-+/* 64 bytes inode */
-+#define EROFS_INODE_V2      1
-+
-+struct erofs_inode_v2 {
-+	__le16 i_advise;
-+
-+	/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
-+	__le16 i_xattr_icount;
-+	__le16 i_mode;
-+	__le16 i_reserved;      /* 8 bytes */
-+	__le64 i_size;          /* 16 bytes */
-+	union {
-+		/* file total compressed blocks for data mapping 1 */
-+		__le32 compressed_blocks;
-+		__le32 raw_blkaddr;
-+
-+		/* for device files, used to indicate old/new device # */
-+		__le32 rdev;
-+	} i_u __packed;
-+
-+	/* only used for 32-bit stat compatibility */
-+	__le32 i_ino;           /* 24 bytes */
-+
-+	__le32 i_uid;
-+	__le32 i_gid;
-+	__le64 i_ctime;         /* 32 bytes */
-+	__le32 i_ctime_nsec;
-+	__le32 i_nlink;
-+	__u8   i_reserved2[12];
-+	__le32 i_checksum;      /* 64 bytes */
-+} __packed;
-+
-+#define EROFS_MAX_SHARED_XATTRS         (128)
-+/* h_shared_count between 129 ... 255 are special # */
-+#define EROFS_SHARED_XATTR_EXTENT       (255)
-+
-+/*
-+ * inline xattrs (n == i_xattr_icount):
-+ * erofs_xattr_ibody_header(1) + (n - 1) * 4 bytes
-+ *          12 bytes           /                   \
-+ *                            /                     \
-+ *                           /-----------------------\
-+ *                           |  erofs_xattr_entries+ |
-+ *                           +-----------------------+
-+ * inline xattrs must starts in erofs_xattr_ibody_header,
-+ * for read-only fs, no need to introduce h_refcount
-+ */
-+struct erofs_xattr_ibody_header {
-+	__le32 h_checksum;
-+	__u8   h_shared_count;
-+	__u8   h_reserved[7];
-+	__le32 h_shared_xattrs[0];      /* shared xattr id array */
-+} __packed;
-+
-+/* Name indexes */
-+#define EROFS_XATTR_INDEX_USER              1
-+#define EROFS_XATTR_INDEX_POSIX_ACL_ACCESS  2
-+#define EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT 3
-+#define EROFS_XATTR_INDEX_TRUSTED           4
-+#define EROFS_XATTR_INDEX_LUSTRE            5
-+#define EROFS_XATTR_INDEX_SECURITY          6
-+#define EROFS_XATTR_INDEX_ADVISE            7
-+
-+/* xattr entry (for both inline & shared xattrs) */
-+struct erofs_xattr_entry {
-+	__u8   e_name_len;      /* length of name */
-+	__u8   e_name_index;    /* attribute name index */
-+	__le16 e_value_size;    /* size of attribute value */
-+	/* followed by e_name and e_value */
-+	char   e_name[0];       /* attribute name */
-+} __packed;
-+
-+#define ondisk_xattr_ibody_size(count)	({\
-+	u32 __count = le16_to_cpu(count); \
-+	((__count) == 0) ? 0 : \
-+	sizeof(struct erofs_xattr_ibody_header) + \
-+		sizeof(__u32) * ((__count) - 1); })
-+
-+#define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
-+#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
-+	sizeof(struct erofs_xattr_entry) + \
-+	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
-+
-+/* have to be aligned with 8 bytes on disk */
-+struct erofs_extent_header {
-+	__le32 eh_checksum;
-+	__le32 eh_reserved[3];
-+} __packed;
-+
-+/*
-+ * EROFS Variable-sized Logical Extent cluster type:
-+ * 0 - uncompressed logical cluster
-+ * 1 - compressed logical cluster (for the head logical cluster)
-+ * 2 - compressed logical cluster (for the rest logical clusters)
-+ * For details:
-+ *   for the uncompressed logical cluster,
-+ *        di_advise = 0
-+ *        di_clusterofs =
-+ *           the uncompressed data offset of the cluster
-+ *        di_blkaddr = the blkaddr of the uncompressed cluster
-+ *   for the compressed head logical cluster,
-+ *        di_advise = 1
-+ *        di_clusterofs =
-+ *           the decompressed data offset of the cluster
-+ *        di_blkaddr = the blkaddr of the compressed cluster
-+ *   for the rest logical clusters,
-+ *        di_advise = 2
-+ *        di_clusterofs =
-+ *           the decompressed data offset in the head cluster
-+ *        di_u.delta[0] = pointing to the head cluster
-+ *        di_u.delta[1] = pointing to the tail cluster
-+ *                (di_advise could be 0, 1 or 2)
-+ */
-+#define EROFS_VLE_DI_CLUSTER_TYPE_BITS    2
-+#define EROFS_VLE_DI_CLUSTER_TYPE_BIT     0
-+
-+struct erofs_decompressed_index_vle {
-+	__le16 di_advise;
-+	/* where to decompress in the head cluster */
-+	__le16 di_clusterofs;
-+
-+	union {
-+		/* for the head cluster */
-+		__le32 blkaddr;
-+		/*
-+		 * for the rest clusters
-+		 * eg. for 4k page-sized cluster, maximum 4K*64k = 256M)
-+		 * [0] - pointing to the head cluster
-+		 * [1] - pointing to the tail cluster
-+		 */
-+		__le16 delta[2];
-+	} di_u __packed;		/* 8 bytes */
-+} __packed;
-+
-+#define EROFS_VLE_EXTENT_ALIGN(size) round_up(size, \
-+	sizeof(struct erofs_decompressed_index_vle))
-+
-+#define ondisk_extent_size(data_mapping_mode, count) \
-+	((data_mapping_mode) == EROFS_INODE_LAYOUT_COMPRESSION ? \
-+		(sizeof(struct erofs_extent_header) + \
-+		sizeof(__u32) * le32_to_cpu(count)) : 0)
-+
-+/* dirent sorts in alphabet order, thus we can do binary search */
-+struct erofs_dirent {
-+	__le64 nid;     /*  0, node number */
-+	__le16 nameoff; /*  8, start offset of file name */
-+	__u8 file_type; /* 10, file type */
-+	__u8 reserved;  /* 11, reserved */
-+} __packed;
-+
-+/* file types used in inode_info->flags */
-+enum {
-+	EROFS_FT_UNKNOWN,
-+	EROFS_FT_REG_FILE,
-+	EROFS_FT_DIR,
-+	EROFS_FT_CHRDEV,
-+	EROFS_FT_BLKDEV,
-+	EROFS_FT_FIFO,
-+	EROFS_FT_SOCK,
-+	EROFS_FT_SYMLINK,
-+	EROFS_FT_MAX
-+};
-+
-+#define EROFS_NAME_LEN      255
-+
-+#endif
-+
 -- 
 1.9.1
