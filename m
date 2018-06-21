@@ -1,114 +1,100 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 21 Jun 2018 21:55:12 +0800
-Subject: [erofs-dev] [RFC PATCH RESEND 08/12] erofs: definitions for the
- various kernel version temporarily
+Date: Thu, 21 Jun 2018 21:55:13 +0800
+Subject: [erofs-dev] [RFC PATCH RESEND 09/12] erofs: update Kconfig and
+ Makefile
 In-Reply-To: <1529589316-114929-1-git-send-email-gaoxiang25@huawei.com>
 References: <1529588426-111662-1-git-send-email-gaoxiang25@huawei.com>
  <1529589316-114929-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1529589316-114929-2-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1529589316-114929-3-git-send-email-gaoxiang25@huawei.com>
 
-the erofs file system is designed for 3.1x ~ latest kernel,
-staging.h is introduced for compatibility.
-
-This _should_ be avoided in the near future after we fork
-the needed kernel version public trees.
+This commit adds Makefile and Kconfig for erofs, and
+updates Makefile and Kconfig files in the fs directory.
 
 Signed-off-by: Miao Xie <miaoxie at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/staging.h | 83 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 83 insertions(+)
- create mode 100644 fs/erofs/staging.h
+ fs/Kconfig        |  1 +
+ fs/Makefile       |  1 +
+ fs/erofs/Kconfig  | 34 ++++++++++++++++++++++++++++++++++
+ fs/erofs/Makefile |  7 +++++++
+ 4 files changed, 43 insertions(+)
+ create mode 100644 fs/erofs/Kconfig
+ create mode 100644 fs/erofs/Makefile
 
-diff --git a/fs/erofs/staging.h b/fs/erofs/staging.h
+diff --git a/fs/Kconfig b/fs/Kconfig
+index bc821a8..c14ec12 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -251,6 +251,7 @@ source "fs/pstore/Kconfig"
+ source "fs/sysv/Kconfig"
+ source "fs/ufs/Kconfig"
+ source "fs/exofs/Kconfig"
++source "fs/erofs/Kconfig"
+ 
+ endif # MISC_FILESYSTEMS
+ 
+diff --git a/fs/Makefile b/fs/Makefile
+index c9375fd..9477dfc 100644
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -128,3 +128,4 @@ obj-y				+= exofs/ # Multiple modules
+ obj-$(CONFIG_CEPH_FS)		+= ceph/
+ obj-$(CONFIG_PSTORE)		+= pstore/
+ obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
++obj-$(CONFIG_EROFS_FS)		+= erofs/
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
 new file mode 100644
-index 0000000..7712a7b
+index 0000000..1c2f276
 --- /dev/null
-+++ b/fs/erofs/staging.h
-@@ -0,0 +1,83 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
++++ b/fs/erofs/Kconfig
+@@ -0,0 +1,34 @@
++config EROFS_FS
++	tristate "EROFS filesystem support"
++	depends on BLOCK
++	help
++	  EROFS(Enhanced Read-Only File System) is a lightweight
++	  read-only file system with modern designs (eg. page-sized
++	  blocks, inline xattrs/data, etc.) for scenarios which have
++	  high-performance read-only requirements, eg. firmwares in
++	  mobile phone or LIVECDs.
 +
-+/* should be avoid in the future */
-+#include <linux/version.h>
++	  It also provides VLE compression support, focusing on
++	  random read improvements, keeping relatively lower
++	  compression ratios, which is also useful for
++	  high-performance devices with limited ROM space.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 31))
-+__SETPAGEFLAG(Referenced, referenced)
-+#endif
++	  If unsure, say N.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0))
-+#define d_inode(d) ((d)->d_inode)
-+#endif
++config EROFS_FS_DEBUG
++	bool "EROFS debugging feature"
++	depends on EROFS_FS
++	help
++	  Print erofs debugging messages and enable more BUG_ONs
++	  which check the filesystem consistency aggressively.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0))
-+#define d_really_is_negative(d) (d_inode(d) == NULL)
-+#endif
++	  For daily use, say N.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0))
-+/* Restricts the given gfp_mask to what the mapping allows. */
-+static inline gfp_t mapping_gfp_constraint(
-+	struct address_space *mapping,
-+	gfp_t gfp_mask)
-+{
-+	return mapping_gfp_mask(mapping) & gfp_mask;
-+}
-+#endif
++config EROFS_FS_USE_VM_MAP_RAM
++	bool "EROFS VM_MAP_RAM Support"
++	depends on EROFS_FS
++	help
++	  use vm_map_ram/vm_unmap_ram instead of vmap/vunmap.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 116))
-+static inline void inode_nohighmem(struct inode *inode)
-+{
-+	mapping_set_gfp_mask(inode->i_mapping, GFP_USER);
-+}
-+#endif
++	  If you don't know what these are, say N.
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+new file mode 100644
+index 0000000..61dfcae
+--- /dev/null
++++ b/fs/erofs/Makefile
+@@ -0,0 +1,7 @@
++EROFS_VERSION = "1.0"
 +
-+/* bio stuffs */
-+#define REQ_OP_READ    READ
-+#define REQ_OP_WRITE   WRITE
-+#define bio_op(bio)    ((bio)->bi_rw & 1)
++EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
 +
-+static inline void bio_set_op_attrs(struct bio *bio,
-+	unsigned op, unsigned op_flags) {
-+	bio->bi_rw = op | op_flags;
-+}
-+
-+static inline gfp_t readahead_gfp_mask(struct address_space *x)
-+{
-+	return mapping_gfp_mask(x) |  __GFP_COLD |
-+	                              __GFP_NORETRY | __GFP_NOWARN;
-+}
-+#endif
-+
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 13))
-+#define READ_ONCE(x)		ACCESS_ONCE(x)
-+#define WRITE_ONCE(x, val)	(ACCESS_ONCE(x) = (val))
-+#endif
-+
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 40))
-+static inline int lockref_put_return(struct lockref *lockref)
-+{
-+	return -1;
-+}
-+#endif
-+
-+#ifndef WQ_NON_REENTRANT
-+#define WQ_NON_REENTRANT 0
-+#endif
-+
-+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 6, 0))
-+#define page_cache_get(page)            get_page(page)
-+#define page_cache_release(page)        put_page(page)
-+#endif
-+
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
-+static inline bool sb_rdonly(const struct super_block *sb) {
-+	return sb->s_flags & MS_RDONLY;
-+}
-+
-+#define bio_set_dev(bio, bdev)	((bio)->bi_bdev = (bdev))
-+
-+#endif
++obj-$(CONFIG_EROFS_FS) += erofs.o
++erofs-objs := super.o inode.o data.o namei.o dir.o
 +
 -- 
 1.9.1
