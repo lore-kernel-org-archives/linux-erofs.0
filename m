@@ -1,196 +1,223 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Fri, 22 Jun 2018 09:57:58 +0800
-Subject: [PATCH RESEND 2/2] erofs: update SPDX-License-Identifier
-In-Reply-To: <20180622015758.64935-1-yuchao0@huawei.com>
-References: <20180622015758.64935-1-yuchao0@huawei.com>
-Message-ID: <20180622015758.64935-2-yuchao0@huawei.com>
+Date: Fri, 22 Jun 2018 10:01:30 +0800
+Subject: [PATCH 10/11] erofs: introduce error injection infrastructure
+In-Reply-To: <20180622020131.65525-1-yuchao0@huawei.com>
+References: <20180622020131.65525-1-yuchao0@huawei.com>
+Message-ID: <20180622020131.65525-10-yuchao0@huawei.com>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+This patch introduces error injection infrastructure, with it, we can
+inject error in any kernel exported common functions which erofs used,
+so that it can force erofs running into error paths, it turns out that
+tests can cover real rare paths more easily to find bugs.
 
-Update the source code license to "GPLv2+" from patchset v2.
-(Could be updated suggested by Savannah in the future.)
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
- fs/erofs/data.c          | 2 +-
- fs/erofs/dir.c           | 2 +-
- fs/erofs/erofs_fs.h      | 2 +-
- fs/erofs/inode.c         | 2 +-
- fs/erofs/internal.h      | 2 +-
- fs/erofs/namei.c         | 2 +-
- fs/erofs/pagevec.h       | 2 +-
- fs/erofs/staging.h       | 2 +-
- fs/erofs/super.c         | 2 +-
- fs/erofs/unzip.c         | 2 +-
- fs/erofs/unzip.h         | 2 +-
- fs/erofs/unzip_generic.c | 2 +-
- fs/erofs/unzip_lz4.c     | 2 +-
- fs/erofs/unzip_vle.h     | 2 +-
- fs/erofs/xattr.c         | 2 +-
- fs/erofs/xattr.h         | 2 +-
- 16 files changed, 16 insertions(+), 16 deletions(-)
+ fs/erofs/Kconfig    |  6 +++++
+ fs/erofs/inode.c    |  3 ++-
+ fs/erofs/internal.h | 56 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/erofs/super.c    | 40 +++++++++++++++++++++++++++++++-
+ 4 files changed, 103 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index c54495d6e2f1..acd4ff41b3d7 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/data.c
-  *
-diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
-index 7d3448ba2458..39870e165007 100644
---- a/fs/erofs/dir.c
-+++ b/fs/erofs/dir.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/dir.c
-  *
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index c08d98295d76..96feebc0bbec 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/erofs_fs.h
-  *
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index 752f0e08d0b8..e9bab0f5600c 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -86,3 +86,9 @@ config EROFS_FS_ZIP
+ 
+ 	  If you don't want to use compression, say N.
+ 
++config EROFS_FAULT_INJECTION
++	bool "EROFS fault injection facility"
++	depends on EROFS_FS
++	help
++	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
++	  If unsure, say N.
 diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index 61010c03386e..94e827b57a5b 100644
+index 3dbce0cf41ff..78e94ddb3080 100644
 --- a/fs/erofs/inode.c
 +++ b/fs/erofs/inode.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/inode.c
-  *
+@@ -100,6 +100,7 @@ static int read_inode(struct inode *inode, void *data)
+ int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
+ {
+ 	struct erofs_vnode *vi = EROFS_V(inode);
++	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
+ 	int mode = vi->data_mapping_mode;
+ 
+ 	BUG_ON(mode >= EROFS_INODE_LAYOUT_MAX);
+@@ -110,7 +111,7 @@ int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
+ 
+ 	/* fast symlink (following ext4) */
+ 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
+-		char *lnk = kmalloc(inode->i_size + 1, GFP_KERNEL);
++		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
+ 
+ 		if (unlikely(lnk == NULL))
+ 			return -ENOMEM;
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 307f435d982d..934f750975f2 100644
+index 43620c07044d..eb482b54d4b2 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/internal.h
-  *
-diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
-index ae715842058c..506974fd3a88 100644
---- a/fs/erofs/namei.c
-+++ b/fs/erofs/namei.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/namei.c
-  *
-diff --git a/fs/erofs/pagevec.h b/fs/erofs/pagevec.h
-index 5a7ef76d3934..8ba78d52cb2d 100644
---- a/fs/erofs/pagevec.h
-+++ b/fs/erofs/pagevec.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/pagevec.h
-  *
-diff --git a/fs/erofs/staging.h b/fs/erofs/staging.h
-index 7712a7bf1add..5563dc96d1ab 100644
---- a/fs/erofs/staging.h
-+++ b/fs/erofs/staging.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0 */
-+/* SPDX-License-Identifier: GPL-2.0+ */
+@@ -45,6 +45,22 @@
+ #define DBG_BUGON(...)  ((void)0)
+ #endif
  
- /* should be avoid in the future */
- #include <linux/version.h>
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++enum {
++	FAULT_KMALLOC,
++	FAULT_MAX,
++};
++
++extern char *fault_name[FAULT_MAX];
++#define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
++
++struct erofs_fault_info {
++	atomic_t inject_ops;
++	unsigned int inject_rate;
++	unsigned int inject_type;
++};
++#endif
++
+ /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
+ #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
+ 
+@@ -81,14 +97,54 @@ struct erofs_sb_info {
+ 	char *dev_name;
+ 
+ 	unsigned int mount_opt;
++
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	struct erofs_fault_info fault_info;	/* For fault injection */
++#endif
+ };
+ 
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++#define erofs_show_injection_info(type)					\
++	infoln("inject %s in %s of %pS", fault_name[type], __func__,	\
++					__builtin_return_address(0))
++static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (!ffi->inject_rate)
++		return false;
++
++	if (!IS_FAULT_SET(ffi, type))
++		return false;
++
++	atomic_inc(&ffi->inject_ops);
++	if (atomic_read(&ffi->inject_ops) >= ffi->inject_rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		return true;
++	}
++	return false;
++}
++#endif
++
++static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
++					size_t size, gfp_t flags)
++{
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	if (time_to_inject(sbi, FAULT_KMALLOC)) {
++		erofs_show_injection_info(FAULT_KMALLOC);
++		return NULL;
++	}
++#endif
++	return kmalloc(size, flags);
++}
++
+ #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
+ #define EROFS_I_SB(inode) ((struct erofs_sb_info *)(inode)->i_sb->s_fs_info)
+ 
+ /* Mount flags set via mount options or defaults */
+ #define EROFS_MOUNT_XATTR_USER		0x00000010
+ #define EROFS_MOUNT_POSIX_ACL		0x00000020
++#define EROFS_MOUNT_FAULT_INJECTION	0x00000040
+ 
+ #define clear_opt(sbi, option)	((sbi)->mount_opt &= ~EROFS_MOUNT_##option)
+ #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 7e725bbd9a0e..8da471155da2 100644
+index 390a5217bbcc..b5af35ec2797 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/super.c
-  *
-diff --git a/fs/erofs/unzip.c b/fs/erofs/unzip.c
-index 171aec14272f..04df8e060594 100644
---- a/fs/erofs/unzip.c
-+++ b/fs/erofs/unzip.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/unzip.c
-  *
-diff --git a/fs/erofs/unzip.h b/fs/erofs/unzip.h
-index 45e4e1425bda..486a8fb515bf 100644
---- a/fs/erofs/unzip.h
-+++ b/fs/erofs/unzip.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/unzip.h
-  *
-diff --git a/fs/erofs/unzip_generic.c b/fs/erofs/unzip_generic.c
-index 5e0b0bcd157d..3282443e94cc 100644
---- a/fs/erofs/unzip_generic.c
-+++ b/fs/erofs/unzip_generic.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/unzip_generic.c
-  *
-diff --git a/fs/erofs/unzip_lz4.c b/fs/erofs/unzip_lz4.c
-index aa2e398e2cdb..f46aaa7e9ff8 100644
---- a/fs/erofs/unzip_lz4.c
-+++ b/fs/erofs/unzip_lz4.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/unzip_lz4.c
-  *
-diff --git a/fs/erofs/unzip_vle.h b/fs/erofs/unzip_vle.h
-index cf7ef9f006bf..4e3f0396d720 100644
---- a/fs/erofs/unzip_vle.h
-+++ b/fs/erofs/unzip_vle.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/unzip_vle.h
-  *
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index 6ee0f0c20a9a..f27ee416542d 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * linux/fs/erofs/xattr.c
-  *
-diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
-index b93ccdfffacc..7f3d2b87d7a7 100644
---- a/fs/erofs/xattr.h
-+++ b/fs/erofs/xattr.h
-@@ -1,4 +1,4 @@
--/* SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0+
-  *
-  * linux/fs/erofs/xattr.h
-  *
+@@ -135,6 +135,26 @@ static int superblock_read(struct super_block *sb)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++char *fault_name[FAULT_MAX] = {
++	[FAULT_KMALLOC]		= "kmalloc",
++};
++
++static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
++						unsigned int rate)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		ffi->inject_rate = rate;
++		ffi->inject_type = (1 << FAULT_MAX) - 1;
++	} else {
++		memset(ffi, 0, sizeof(struct erofs_fault_info));
++	}
++}
++#endif
++
+ static void default_options(struct erofs_sb_info *sbi)
+ {
+ #ifdef CONFIG_EROFS_FS_XATTR
+@@ -148,18 +168,21 @@ static void default_options(struct erofs_sb_info *sbi)
+ 
+ enum {
+ 	Opt_user_xattr,
+-	Opt_acl
++	Opt_acl,
++	Opt_fault_injection
+ };
+ 
+ static match_table_t erofs_tokens = {
+ 	{Opt_user_xattr, "user_xattr"},
+ 	{Opt_acl, "acl"},
++	{Opt_fault_injection, "fault_injection=%u"},
+ };
+ 
+ static int parse_options(struct super_block *sb, char *options)
+ {
+ 	substring_t args[MAX_OPT_ARGS];
+ 	char *p;
++	int arg = 0;
+ 
+ 	if (!options)
+ 		return 0;
+@@ -192,6 +215,16 @@ static int parse_options(struct super_block *sb, char *options)
+ 			infoln("acl options not supported");
+ 			break;
+ #endif
++		case Opt_fault_injection:
++			if (args->from && match_int(args, &arg))
++				return -EINVAL;
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++			erofs_build_fault_attr(EROFS_SB(sb), arg);
++			set_opt(EROFS_SB(sb), FAULT_INJECTION);
++#else
++			infoln("FAULT_INJECTION was not selected");
++#endif
++			break;
+ 		default:
+ 			infoln("Unrecognized mount option \"%s\" "
+ 					"or missing value", p);
+@@ -451,6 +484,11 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 		seq_puts(seq, ",acl");
+ 	else
+ 		seq_puts(seq, ",noacl");
++#endif
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	if (test_opt(sbi, FAULT_INJECTION))
++		seq_printf(seq, ",fault_injection=%u",
++				sbi->fault_info.inject_rate);
+ #endif
+ 	return 0;
+ }
 -- 
 2.18.0.rc1
