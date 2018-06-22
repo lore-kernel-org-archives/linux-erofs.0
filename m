@@ -1,77 +1,50 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Fri, 22 Jun 2018 10:01:23 +0800
-Subject: [PATCH 03/11] erofs: fix missing endian conversion
-In-Reply-To: <20180622020131.65525-1-yuchao0@huawei.com>
-References: <20180622020131.65525-1-yuchao0@huawei.com>
-Message-ID: <20180622020131.65525-3-yuchao0@huawei.com>
+Date: Fri, 22 Jun 2018 10:01:21 +0800
+Subject: [PATCH 01/11] erofs: fix compile error
+Message-ID: <20180622020131.65525-1-yuchao0@huawei.com>
 
-This patch fixes to add missing endian conversion.
+Without CONFIG_EROFS_FS_XATTR, compiler will complain us, fix it.
 
 Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
- fs/erofs/dir.c   | 13 ++++++++-----
- fs/erofs/namei.c |  2 +-
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ fs/erofs/internal.h | 2 ++
+ fs/erofs/xattr.c    | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
-index 39870e165007..5c5be7a88f71 100644
---- a/fs/erofs/dir.c
-+++ b/fs/erofs/dir.c
-@@ -40,17 +40,19 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 		unsigned char dbg_namebuf[EROFS_NAME_LEN];
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 934f750975f2..0606a50a0067 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -350,7 +350,9 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ 	erofs_nid_t *nid, unsigned *d_type);
+ 
+ /* xattr.c */
++#ifdef CONFIG_EROFS_FS_XATTR
+ extern const struct xattr_handler *erofs_xattr_handlers[];
++#endif
+ 
+ extern void test_meta_ops(struct super_block *sb);
+ 
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index f27ee416542d..fb8f3f1b3aab 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -512,6 +512,7 @@ const struct xattr_handler __maybe_unused erofs_xattr_security_handler = {
+ };
  #endif
  
-+		nameoff = le16_to_cpu(de->nameoff);
-+
- 		if (unlikely(de->file_type < EROFS_FT_MAX))
- 			d_type = erofs_filetype_table[de->file_type];
- 		else
- 			d_type = DT_UNKNOWN;
- 
--		de_name = (char *)dentry_blk + de->nameoff;
-+		de_name = (char *)dentry_blk + nameoff;
- 
- 		de_namelen = unlikely(de + 1 >= end) ?
- 			/* last directory entry */
--			strnlen(de_name, maxsize - de->nameoff) :
--			de[1].nameoff - de->nameoff;
-+			strnlen(de_name, maxsize - nameoff) :
-+			le16_to_cpu(de[1].nameoff) - nameoff;
- 
- 		/* the corrupted directory found */
- 		BUG_ON(de_namelen < 0);
-@@ -64,7 +66,8 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 			dbg_namebuf, de_namelen, d_type);
++#ifdef CONFIG_EROFS_FS_XATTR
+ const struct xattr_handler *erofs_xattr_handlers[] = {
+ 	&erofs_xattr_user_handler,
+ #ifdef CONFIG_EROFS_FS_POSIX_ACL
+@@ -524,6 +525,7 @@ const struct xattr_handler *erofs_xattr_handlers[] = {
  #endif
+ 	NULL,
+ };
++#endif
  
--		if (!dir_emit(ctx, de_name, de_namelen, de->nid, d_type))
-+		if (!dir_emit(ctx, de_name, de_namelen,
-+					le64_to_cpu(de->nid), d_type))
- 			/* stoped by some reason */
- 			return 1;
- 		++de;
-@@ -96,7 +99,7 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 		lock_page(dentry_page);
- 		de = (struct erofs_dirent *)kmap(dentry_page);
- 
--		nameoff = de->nameoff;
-+		nameoff = le16_to_cpu(de->nameoff);
- 
- 		if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
- 			nameoff >= PAGE_SIZE)) {
-diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
-index 506974fd3a88..e30294b279d1 100644
---- a/fs/erofs/namei.c
-+++ b/fs/erofs/namei.c
-@@ -125,7 +125,7 @@ static struct page *find_target_block_classic(
- 
- 			matched = min(startprfx, endprfx);
- 
--			dname.name = (u8 *)de + de->nameoff;
-+			dname.name = (u8 *)de + nameoff;
- 			dname.len = ndirents == 1 ?
- 				/* since the rest of the last page is 0 */
- 				EROFS_BLKSIZ - nameoff
+ struct listxattr_iter {
+ 	struct xattr_iter it;
 -- 
 2.18.0.rc1
