@@ -1,45 +1,231 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 28 Jun 2018 17:40:36 +0800
-Subject: [RFC PATCH] <linux/taggedptr.h>: Introduce tagged pointer
-In-Reply-To: <20180628092303.GD7646@bombadil.infradead.org>
+Date: Thu, 28 Jun 2018 22:17:18 +0800
+Subject: [RFC PATCH v2] <linux/tagptr.h>: Introduce tagged pointer
+In-Reply-To: <1530176789-107541-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530176789-107541-1-git-send-email-gaoxiang25@huawei.com>
- <20180628092303.GD7646@bombadil.infradead.org>
-Message-ID: <bcf7bc51-1689-fec5-f167-14fb46409b76@huawei.com>
+Message-ID: <1530195438-81985-1-git-send-email-gaoxiang25@huawei.com>
 
-Hi Matthew,
+Currently kernel has scattered tagged pointer usages hacked
+by hand in plain code, without a unique and portable functionset
+to highlight the tagged pointer itself and wrap these hacked code
+in order to clean up all over meaningless magic masks.
 
-On 2018/6/28 17:23, Matthew Wilcox wrote:
-> On Thu, Jun 28, 2018@05:06:29PM +0800, Gao Xiang wrote:
->> Therefore, this patch introduces simple generic methods to fold
->> tags into a pointer integer. It currently reuses the last 2 bits
->> of the pointer for tags, which are safely for all modern platforms.
-> 
-> The m68k people will have your head.  alignof(unsigned long) == 2 on
-> m68k.  Now, kmalloc always returns 8-byte aligned quantities, but
-> if you have:
-> 
-> static unsigned long foo;
-> 
-> then ((unsigned long)&foo & 2) may be non-zero.
-> 
+Therefore, this patch introduces simple generic methods to fold
+tags into a pointer integer. It currently supports the last n bits
+of the pointer for tags, which can be selected by users.
 
-Oh.. I missed it. How about covering dynamic allocation scenario only?
-(since 1 bit is too limited to be used for generic purposes... :( )
+In addition, it will also be used for the upcoming EROFS filesystem,
+which heavily uses tagged pointer approach for high performance
+and reducing extra memory allocation.
 
-Or generate different bit mask versions by using macro? --- I could try in the next patch.
+Refer to:
+https://en.wikipedia.org/wiki/Tagged_pointer
 
-Anyway, I think it is depended on specific use cases and corresponding architectures...
+To: Alexander Viro <viro at zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+Cc: Kate Stewart <kstewart at linuxfoundation.org>
+Cc: Matthew Wilcox <willy at infradead.org>
+Cc: Philippe Ombredanne <pombredanne at nexb.com>
+Cc: Thomas Gleixner <tglx at linutronix.de>
+Cc: Chao Yu <yuchao0 at huawei.com>
+Cc: Miao Xie <miaoxie at huawei.com>
+Cc: linux-fsdevel at vger.kernel.org
+Cc: linux-erofs at lists.ozlabs.org
+Cc: linux-kernel at vger.kernel.org
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+change log v2:
+  - add support to select the last {1,2,3,...} bits for tags
 
->> +/*
->> + * mark these special integers as another type
->> + * in order to highlight the tagged pointer usage.
->> + */
->> +typedef uintptr_t	taggedptr_t;
-> 
-> I find this a bit verbose.  How about tagptr_t ?
-> 
+Tagged pointers are good for performance and memory saving,
+hoping for a generic taggedptr approach to clean up redundant dirty code.
 
-Boths are ok for me :)
+Any comments, suggestions or alternative approaches are welcomed. :)
 
 Thanks,
 Gao Xiang
+
+ fs/file.c              | 23 ++++++++-------
+ include/linux/file.h   | 12 ++++----
+ include/linux/tagptr.h | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 97 insertions(+), 16 deletions(-)
+ create mode 100644 include/linux/tagptr.h
+
+diff --git a/fs/file.c b/fs/file.c
+index 7ffd6e9..5f1270b 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -727,7 +727,7 @@ struct file *fget_raw(unsigned int fd)
+  * The fput_needed flag returned by fget_light should be passed to the
+  * corresponding fput_light.
+  */
+-static unsigned long __fget_light(unsigned int fd, fmode_t mask)
++static tagptr2_t __fget_light(unsigned int fd, fmode_t mask)
+ {
+ 	struct files_struct *files = current->files;
+ 	struct file *file;
+@@ -735,34 +735,35 @@ static unsigned long __fget_light(unsigned int fd, fmode_t mask)
+ 	if (atomic_read(&files->count) == 1) {
+ 		file = __fcheck_files(files, fd);
+ 		if (!file || unlikely(file->f_mode & mask))
+-			return 0;
+-		return (unsigned long)file;
++			return tagptr_fold(tagptr2_t, NULL, 0);
++		return tagptr_fold(tagptr2_t, file, 0);
+ 	} else {
+ 		file = __fget(fd, mask);
+ 		if (!file)
+-			return 0;
+-		return FDPUT_FPUT | (unsigned long)file;
++			return tagptr_fold(tagptr2_t, NULL, 0);
++		return tagptr_fold(tagptr2_t, file, FDPUT_FPUT);
+ 	}
+ }
+-unsigned long __fdget(unsigned int fd)
++
++tagptr2_t __fdget(unsigned int fd)
+ {
+ 	return __fget_light(fd, FMODE_PATH);
+ }
+ EXPORT_SYMBOL(__fdget);
+ 
+-unsigned long __fdget_raw(unsigned int fd)
++tagptr2_t __fdget_raw(unsigned int fd)
+ {
+ 	return __fget_light(fd, 0);
+ }
+ 
+-unsigned long __fdget_pos(unsigned int fd)
++tagptr2_t __fdget_pos(unsigned int fd)
+ {
+-	unsigned long v = __fdget(fd);
+-	struct file *file = (struct file *)(v & ~3);
++	tagptr2_t v = __fdget(fd);
++	struct file *file = tagptr_unfold_ptr(v);
+ 
+ 	if (file && (file->f_mode & FMODE_ATOMIC_POS)) {
+ 		if (file_count(file) > 1) {
+-			v |= FDPUT_POS_UNLOCK;
++			tagptr_set_tags(&v, FDPUT_POS_UNLOCK);
+ 			mutex_lock(&file->f_pos_lock);
+ 		}
+ 	}
+diff --git a/include/linux/file.h b/include/linux/file.h
+index 279720d..dbaa915 100644
+--- a/include/linux/file.h
++++ b/include/linux/file.h
+@@ -9,6 +9,7 @@
+ #include <linux/compiler.h>
+ #include <linux/types.h>
+ #include <linux/posix_types.h>
++#include <linux/tagptr.h>
+ 
+ struct file;
+ 
+@@ -42,14 +43,15 @@ static inline void fdput(struct fd fd)
+ 
+ extern struct file *fget(unsigned int fd);
+ extern struct file *fget_raw(unsigned int fd);
+-extern unsigned long __fdget(unsigned int fd);
+-extern unsigned long __fdget_raw(unsigned int fd);
+-extern unsigned long __fdget_pos(unsigned int fd);
++extern tagptr2_t __fdget(unsigned int fd);
++extern tagptr2_t __fdget_raw(unsigned int fd);
++extern tagptr2_t __fdget_pos(unsigned int fd);
+ extern void __f_unlock_pos(struct file *);
+ 
+-static inline struct fd __to_fd(unsigned long v)
++static inline struct fd __to_fd(tagptr2_t v)
+ {
+-	return (struct fd){(struct file *)(v & ~3),v & 3};
++	return (struct fd){ tagptr_unfold_ptr(v),
++		tagptr_unfold_tags(v) };
+ }
+ 
+ static inline struct fd fdget(unsigned int fd)
+diff --git a/include/linux/tagptr.h b/include/linux/tagptr.h
+new file mode 100644
+index 0000000..6905b51
+--- /dev/null
++++ b/include/linux/tagptr.h
+@@ -0,0 +1,78 @@
++/* SPDX-License-Identifier: GPL-2.0
++ *
++ * Tagged pointer implementation
++ *
++ * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#ifndef _LINUX_TAGPTR_H
++#define _LINUX_TAGPTR_H
++
++#include <linux/types.h>
++#include <linux/build_bug.h>
++
++/* the name of types are tagptr{1, 2, 3...}_t */
++#define __MAKE_TAGPTR(n) \
++typedef struct tagptr##n {	\
++	uintptr_t v;	\
++} tagptr##n##_t;
++
++__MAKE_TAGPTR(1)
++__MAKE_TAGPTR(2)
++__MAKE_TAGPTR(3)
++__MAKE_TAGPTR(4)
++
++#undef __MAKE_TAGPTR
++
++extern void __compiletime_error("bad tagptr tags")
++	__bad_tagptr_tags(void);
++
++extern void __compiletime_error("bad tagptr type")
++	__bad_tagptr_type(void);
++
++#define __tagptr_mask_1(ptr, n)	\
++	__builtin_types_compatible_p(typeof(ptr), tagptr##n##_t) ? \
++		(1UL << (n)) - 1 :
++
++#define __tagptr_mask(ptr)	(\
++	__tagptr_mask_1(ptr, 1) ( \
++	__tagptr_mask_1(ptr, 2) ( \
++	__tagptr_mask_1(ptr, 3) ( \
++	__tagptr_mask_1(ptr, 4) ( \
++	__bad_tagptr_type(), 0)))))
++
++/* encode the tagged pointer */
++#define tagptr_fold(type, ptr, _tags) ({ \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
++		__bad_tagptr_tags(); \
++((typeof(type)){ .v = (uintptr_t)ptr | tags }); })
++
++#define tagptr_unfold_ptr(tptr) \
++	((void *)((tptr).v & ~__tagptr_mask(tptr)))
++
++#define tagptr_unfold_tags(tptr) \
++	((tptr).v & __tagptr_mask(tptr))
++
++#define tagptr_replace_tags(_ptptr, tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
++*ptptr; })
++
++#define tagptr_set_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v |= tags; \
++*ptptr; })
++
++#define tagptr_clear_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v &= ~tags; \
++*ptptr; })
++
++#endif
++
+-- 
+1.9.1
