@@ -1,9 +1,9 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 28 Jun 2018 22:17:18 +0800
-Subject: [RFC PATCH v2] <linux/tagptr.h>: Introduce tagged pointer
+Date: Thu, 28 Jun 2018 23:02:15 +0800
+Subject: [RFC PATCH RESEND v3] <linux/tagptr.h>: Introduce tagged pointer
 In-Reply-To: <1530176789-107541-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530176789-107541-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1530195438-81985-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1530198135-112481-1-git-send-email-gaoxiang25@huawei.com>
 
 Currently kernel has scattered tagged pointer usages hacked
 by hand in plain code, without a unique and portable functionset
@@ -34,8 +34,12 @@ Cc: linux-erofs at lists.ozlabs.org
 Cc: linux-kernel at vger.kernel.org
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+change log v3:
+  - include/linux/file.h: define a unique alias fdtagptr_t (tagptr2_t)
+
 change log v2:
   - add support to select the last {1,2,3,...} bits for tags
+
 
 Tagged pointers are good for performance and memory saving,
 hoping for a generic taggedptr approach to clean up redundant dirty code.
@@ -45,62 +49,63 @@ Any comments, suggestions or alternative approaches are welcomed. :)
 Thanks,
 Gao Xiang
 
- fs/file.c              | 23 ++++++++-------
- include/linux/file.h   | 12 ++++----
+ fs/file.c              | 24 +++++++++-------
+ include/linux/file.h   | 15 ++++++----
  include/linux/tagptr.h | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 97 insertions(+), 16 deletions(-)
+ 3 files changed, 101 insertions(+), 16 deletions(-)
  create mode 100644 include/linux/tagptr.h
 
 diff --git a/fs/file.c b/fs/file.c
-index 7ffd6e9..5f1270b 100644
+index 7ffd6e9..a54a551 100644
 --- a/fs/file.c
 +++ b/fs/file.c
-@@ -727,7 +727,7 @@ struct file *fget_raw(unsigned int fd)
+@@ -727,42 +727,44 @@ struct file *fget_raw(unsigned int fd)
   * The fput_needed flag returned by fget_light should be passed to the
   * corresponding fput_light.
   */
 -static unsigned long __fget_light(unsigned int fd, fmode_t mask)
-+static tagptr2_t __fget_light(unsigned int fd, fmode_t mask)
++static fdtagptr_t __fget_light(unsigned int fd, fmode_t mask)
  {
++	const fdtagptr_t nil = tagptr_fold(fdtagptr_t, NULL, 0);
  	struct files_struct *files = current->files;
  	struct file *file;
-@@ -735,34 +735,35 @@ static unsigned long __fget_light(unsigned int fd, fmode_t mask)
+ 
  	if (atomic_read(&files->count) == 1) {
  		file = __fcheck_files(files, fd);
  		if (!file || unlikely(file->f_mode & mask))
 -			return 0;
 -		return (unsigned long)file;
-+			return tagptr_fold(tagptr2_t, NULL, 0);
-+		return tagptr_fold(tagptr2_t, file, 0);
++			return nil;
++		return tagptr_fold(fdtagptr_t, file, 0);
  	} else {
  		file = __fget(fd, mask);
  		if (!file)
 -			return 0;
 -		return FDPUT_FPUT | (unsigned long)file;
-+			return tagptr_fold(tagptr2_t, NULL, 0);
-+		return tagptr_fold(tagptr2_t, file, FDPUT_FPUT);
++			return nil;
++		return tagptr_fold(fdtagptr_t, file, FDPUT_FPUT);
  	}
  }
 -unsigned long __fdget(unsigned int fd)
 +
-+tagptr2_t __fdget(unsigned int fd)
++fdtagptr_t __fdget(unsigned int fd)
  {
  	return __fget_light(fd, FMODE_PATH);
  }
  EXPORT_SYMBOL(__fdget);
  
 -unsigned long __fdget_raw(unsigned int fd)
-+tagptr2_t __fdget_raw(unsigned int fd)
++fdtagptr_t __fdget_raw(unsigned int fd)
  {
  	return __fget_light(fd, 0);
  }
  
 -unsigned long __fdget_pos(unsigned int fd)
-+tagptr2_t __fdget_pos(unsigned int fd)
++fdtagptr_t __fdget_pos(unsigned int fd)
  {
 -	unsigned long v = __fdget(fd);
 -	struct file *file = (struct file *)(v & ~3);
-+	tagptr2_t v = __fdget(fd);
++	fdtagptr_t v = __fdget(fd);
 +	struct file *file = tagptr_unfold_ptr(v);
  
  	if (file && (file->f_mode & FMODE_ATOMIC_POS)) {
@@ -111,7 +116,7 @@ index 7ffd6e9..5f1270b 100644
  		}
  	}
 diff --git a/include/linux/file.h b/include/linux/file.h
-index 279720d..dbaa915 100644
+index 279720d..38b6641 100644
 --- a/include/linux/file.h
 +++ b/include/linux/file.h
 @@ -9,6 +9,7 @@
@@ -122,20 +127,30 @@ index 279720d..dbaa915 100644
  
  struct file;
  
-@@ -42,14 +43,15 @@ static inline void fdput(struct fd fd)
+@@ -34,6 +35,9 @@ struct fd {
+ #define FDPUT_FPUT       1
+ #define FDPUT_POS_UNLOCK 2
+ 
++/* tagged pointer for fd */
++typedef tagptr2_t	fdtagptr_t;
++
+ static inline void fdput(struct fd fd)
+ {
+ 	if (fd.flags & FDPUT_FPUT)
+@@ -42,14 +46,15 @@ static inline void fdput(struct fd fd)
  
  extern struct file *fget(unsigned int fd);
  extern struct file *fget_raw(unsigned int fd);
 -extern unsigned long __fdget(unsigned int fd);
 -extern unsigned long __fdget_raw(unsigned int fd);
 -extern unsigned long __fdget_pos(unsigned int fd);
-+extern tagptr2_t __fdget(unsigned int fd);
-+extern tagptr2_t __fdget_raw(unsigned int fd);
-+extern tagptr2_t __fdget_pos(unsigned int fd);
++extern fdtagptr_t __fdget(unsigned int fd);
++extern fdtagptr_t __fdget_raw(unsigned int fd);
++extern fdtagptr_t __fdget_pos(unsigned int fd);
  extern void __f_unlock_pos(struct file *);
  
 -static inline struct fd __to_fd(unsigned long v)
-+static inline struct fd __to_fd(tagptr2_t v)
++static inline struct fd __to_fd(fdtagptr_t v)
  {
 -	return (struct fd){(struct file *)(v & ~3),v & 3};
 +	return (struct fd){ tagptr_unfold_ptr(v),
@@ -145,7 +160,7 @@ index 279720d..dbaa915 100644
  static inline struct fd fdget(unsigned int fd)
 diff --git a/include/linux/tagptr.h b/include/linux/tagptr.h
 new file mode 100644
-index 0000000..6905b51
+index 0000000..50d2f89
 --- /dev/null
 +++ b/include/linux/tagptr.h
 @@ -0,0 +1,78 @@
