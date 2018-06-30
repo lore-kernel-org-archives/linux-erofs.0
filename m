@@ -1,8 +1,10 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 30 Jun 2018 17:00:06 +0800
+Date: Sat, 30 Jun 2018 17:18:26 +0800
 Subject: [WIP] [NOMERGE] [RFC PATCH v0.2 1/2] <linux/tagptr.h>: Introduce
  tagged pointer
-Message-ID: <1530349207-71877-1-git-send-email-gaoxiang25@huawei.com>
+In-Reply-To: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
+References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1530350307-76310-1-git-send-email-gaoxiang25@huawei.com>
 
 Currently kernel has scattered tagged pointer usages hacked
 by hand in plain code, without a unique and portable functionset
@@ -20,17 +22,6 @@ and reducing extra memory allocation.
 Refer to:
 https://en.wikipedia.org/wiki/Tagged_pointer
 
-To: Alexander Viro <viro at zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
-Cc: Kate Stewart <kstewart at linuxfoundation.org>
-Cc: Matthew Wilcox <willy at infradead.org>
-Cc: Philippe Ombredanne <pombredanne at nexb.com>
-Cc: Thomas Gleixner <tglx at linutronix.de>
-Cc: Chao Yu <yuchao0 at huawei.com>
-Cc: Miao Xie <miaoxie at huawei.com>
-Cc: linux-fsdevel at vger.kernel.org
-Cc: linux-erofs at lists.ozlabs.org
-Cc: linux-kernel at vger.kernel.org
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
  fs/file.c              |  24 ++++++-----
