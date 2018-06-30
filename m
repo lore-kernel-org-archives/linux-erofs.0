@@ -1,298 +1,253 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 30 Jun 2018 23:17:30 +0800
-Subject: [WIP] [NOMERGE] [RFC PATCH v0.3 3/6] erofs: introduce
- erofs_map_blocks_iter
-In-Reply-To: <1530371853-104412-1-git-send-email-gaoxiang25@huawei.com>
+Date: Sat, 30 Jun 2018 23:17:28 +0800
+Subject: [WIP] [NOMERGE] [RFC PATCH v0.3 1/6] <linux/tagptr.h>: Introduce
+ tagged pointer
+In-Reply-To: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
- <1530371853-104412-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1530371853-104412-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1530371853-104412-1-git-send-email-gaoxiang25@huawei.com>
+
+Currently kernel has scattered tagged pointer usages hacked
+by hand in plain code, without a unique and portable functionset
+to highlight the tagged pointer itself and wrap these hacked code
+in order to clean up all over meaningless magic masks.
+
+Therefore, this patch introduces simple generic methods to fold
+tags into a pointer integer. It currently supports the last n bits
+of the pointer for tags, which can be selected by users.
+
+In addition, it will also be used for the upcoming EROFS filesystem,
+which heavily uses tagged pointer approach for high performance
+and reducing extra memory allocation.
+
+Refer to:
+https://en.wikipedia.org/wiki/Tagged_pointer
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Kconfig     |   8 ++
- fs/erofs/Makefile    |   1 +
- fs/erofs/internal.h  |   4 +
- fs/erofs/unzip_vle.c | 231 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 244 insertions(+)
- create mode 100644 fs/erofs/unzip_vle.c
+ fs/file.c              |  24 ++++++-----
+ include/linux/file.h   |  15 ++++---
+ include/linux/tagptr.h | 110 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 133 insertions(+), 16 deletions(-)
+ create mode 100644 include/linux/tagptr.h
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index c244cf3..3b34402 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -69,3 +69,11 @@ config EROFS_FS_USE_VM_MAP_RAM
+diff --git a/fs/file.c b/fs/file.c
+index 7ffd6e9..c54cb50 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -727,42 +727,44 @@ struct file *fget_raw(unsigned int fd)
+  * The fput_needed flag returned by fget_light should be passed to the
+  * corresponding fput_light.
+  */
+-static unsigned long __fget_light(unsigned int fd, fmode_t mask)
++static fdtagptr_t __fget_light(unsigned int fd, fmode_t mask)
+ {
++	const fdtagptr_t nil = tagptr_init(fdtagptr_t, NULL);
+ 	struct files_struct *files = current->files;
+ 	struct file *file;
  
- 	  If you don't know what these are, say N.
- 
-+config EROFS_FS_ZIP
-+	bool "EROFS Data Compresssion Support"
-+	depends on EROFS_FS
-+	help
-+	  Currently we support VLE Compression only.
-+	  Play at your own risk.
+ 	if (atomic_read(&files->count) == 1) {
+ 		file = __fcheck_files(files, fd);
+ 		if (!file || unlikely(file->f_mode & mask))
+-			return 0;
+-		return (unsigned long)file;
++			return nil;
++		return tagptr_fold(fdtagptr_t, file, 0);
+ 	} else {
+ 		file = __fget(fd, mask);
+ 		if (!file)
+-			return 0;
+-		return FDPUT_FPUT | (unsigned long)file;
++			return nil;
++		return tagptr_fold(fdtagptr_t, file, FDPUT_FPUT);
+ 	}
+ }
+-unsigned long __fdget(unsigned int fd)
 +
-+	  If you don't want to use compression feature, say N.
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 9d7f90a..0b3db0a 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -5,4 +5,5 @@ EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
++fdtagptr_t __fdget(unsigned int fd)
+ {
+ 	return __fget_light(fd, FMODE_PATH);
+ }
+ EXPORT_SYMBOL(__fdget);
  
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 1dd783c..d327de2 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -56,6 +56,10 @@ struct erofs_sb_info {
+-unsigned long __fdget_raw(unsigned int fd)
++fdtagptr_t __fdget_raw(unsigned int fd)
+ {
+ 	return __fget_light(fd, 0);
+ }
  
- 	/* inode slot unit size in bit shift */
- 	unsigned char islotbits;
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	/* cluster size in bit shift */
-+	unsigned char clusterbits;
-+#endif
+-unsigned long __fdget_pos(unsigned int fd)
++fdtagptr_t __fdget_pos(unsigned int fd)
+ {
+-	unsigned long v = __fdget(fd);
+-	struct file *file = (struct file *)(v & ~3);
++	fdtagptr_t v = __fdget(fd);
++	struct file *file = tagptr_unfold_ptr(v);
  
- 	u32 build_time_nsec;
- 	u64 build_time;
-diff --git a/fs/erofs/unzip_vle.c b/fs/erofs/unzip_vle.c
+ 	if (file && (file->f_mode & FMODE_ATOMIC_POS)) {
+ 		if (file_count(file) > 1) {
+-			v |= FDPUT_POS_UNLOCK;
++			tagptr_set_tags(&v, FDPUT_POS_UNLOCK);
+ 			mutex_lock(&file->f_pos_lock);
+ 		}
+ 	}
+diff --git a/include/linux/file.h b/include/linux/file.h
+index 279720d..e2bb489 100644
+--- a/include/linux/file.h
++++ b/include/linux/file.h
+@@ -9,6 +9,7 @@
+ #include <linux/compiler.h>
+ #include <linux/types.h>
+ #include <linux/posix_types.h>
++#include <linux/tagptr.h>
+ 
+ struct file;
+ 
+@@ -34,6 +35,9 @@ struct fd {
+ #define FDPUT_FPUT       1
+ #define FDPUT_POS_UNLOCK 2
+ 
++/* tagged pointer for fd */
++typedef tagptr2_t	fdtagptr_t;
++
+ static inline void fdput(struct fd fd)
+ {
+ 	if (fd.flags & FDPUT_FPUT)
+@@ -42,14 +46,15 @@ static inline void fdput(struct fd fd)
+ 
+ extern struct file *fget(unsigned int fd);
+ extern struct file *fget_raw(unsigned int fd);
+-extern unsigned long __fdget(unsigned int fd);
+-extern unsigned long __fdget_raw(unsigned int fd);
+-extern unsigned long __fdget_pos(unsigned int fd);
++extern fdtagptr_t __fdget(unsigned int fd);
++extern fdtagptr_t __fdget_raw(unsigned int fd);
++extern fdtagptr_t __fdget_pos(unsigned int fd);
+ extern void __f_unlock_pos(struct file *);
+ 
+-static inline struct fd __to_fd(unsigned long v)
++static inline struct fd __to_fd(fdtagptr_t v)
+ {
+-	return (struct fd){(struct file *)(v & ~3),v & 3};
++	return (struct fd){ tagptr_unfold_ptr(v),
++		tagptr_unfold_tags(v) };
+ }
+ 
+ static inline struct fd fdget(unsigned int fd)
+diff --git a/include/linux/tagptr.h b/include/linux/tagptr.h
 new file mode 100644
-index 0000000..300f556
+index 0000000..b5c6016
 --- /dev/null
-+++ b/fs/erofs/unzip_vle.c
-@@ -0,0 +1,231 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * linux/fs/erofs/unzip_vle.c
++++ b/include/linux/tagptr.h
+@@ -0,0 +1,110 @@
++/* SPDX-License-Identifier: GPL-2.0
 + *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ * Tagged pointer implementation
 + *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of the Linux
-+ * distribution for more details.
++ * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#include "internal.h"
++#ifndef _LINUX_TAGPTR_H
++#define _LINUX_TAGPTR_H
 +
-+#define __vle_cluster_advise(x, bit, bits) \
-+	((le16_to_cpu(x) >> (bit)) & ((1 << (bits)) - 1))
-+
-+#define __vle_cluster_type(advise) __vle_cluster_advise(advise, \
-+	EROFS_VLE_DI_CLUSTER_TYPE_BIT, EROFS_VLE_DI_CLUSTER_TYPE_BITS)
-+
-+enum {
-+	EROFS_VLE_CLUSTER_TYPE_PLAIN,
-+	EROFS_VLE_CLUSTER_TYPE_HEAD,
-+	EROFS_VLE_CLUSTER_TYPE_NONHEAD,
-+	EROFS_VLE_CLUSTER_TYPE_RESERVED,
-+	EROFS_VLE_CLUSTER_TYPE_MAX
-+};
-+
-+#define vle_cluster_type(di)	\
-+	__vle_cluster_type((di)->di_advise)
-+
-+static inline unsigned
-+vle_compressed_index_clusterofs(unsigned clustersize,
-+	struct erofs_decompressed_index_vle *di)
-+{
-+	debugln("%s, vle=%pK, advise=%x (type %u), clusterofs=%x blkaddr=%x",
-+		__func__, di, di->di_advise, vle_cluster_type(di),
-+		di->di_clusterofs, di->di_u.blkaddr);
-+
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		break;
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		return di->di_clusterofs;
-+	default:
-+		BUG_ON(1);
-+	}
-+	return clustersize;
-+}
-+
-+static inline erofs_blk_t
-+vle_extent_blkaddr(struct inode *inode, pgoff_t index)
-+{
-+	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	unsigned ofs = EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
-+		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
-+		index * sizeof(struct erofs_decompressed_index_vle);
-+
-+	return erofs_blknr(iloc(sbi, vi->nid) + ofs);
-+}
-+
-+static inline unsigned int
-+vle_extent_blkoff(struct inode *inode, pgoff_t index)
-+{
-+	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	unsigned ofs = EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
-+		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
-+		index * sizeof(struct erofs_decompressed_index_vle);
-+
-+	return erofs_blkoff(iloc(sbi, vi->nid) + ofs);
-+}
++#include <linux/types.h>
++#include <linux/build_bug.h>
 +
 +/*
-+ * Variable-sized Logical Extent (Fixed Physical Cluster) Compression Mode
-+ * ---
-+ * VLE compression mode attempts to compress a number of logical data into
-+ * a physical cluster with a fixed size.
-+ * VLE compression mode uses "struct erofs_decompressed_index_vle".
++ * the name of tagged pointer types are tagptr{1, 2, 3...}_t
++ * avoid directly using the internal structs __tagptr{1, 2, 3...}
 + */
-+static erofs_off_t vle_get_logical_extent_head(
-+	struct inode *inode,
-+	struct page **page_iter,
-+	void **kaddr_iter,
-+	unsigned lcn,	/* logical cluster number */
-+	erofs_blk_t *pcn,
-+	unsigned *flags)
-+{
-+	/* for extent meta */
-+	struct page *page = *page_iter;
-+	erofs_blk_t blkaddr = vle_extent_blkaddr(inode, lcn);
-+	struct erofs_decompressed_index_vle *di;
-+	unsigned long long ofs;
-+	unsigned clustersize = 1 << EROFS_SB(inode->i_sb)->clusterbits;
++#define __MAKE_TAGPTR(n) \
++typedef struct __tagptr##n {	\
++	uintptr_t v;	\
++} tagptr##n##_t;
 +
-+	if (page->index != blkaddr) {
-+		kunmap_atomic(*kaddr_iter);
-+		unlock_page(page);
-+		put_page(page);
++__MAKE_TAGPTR(1)
++__MAKE_TAGPTR(2)
++__MAKE_TAGPTR(3)
++__MAKE_TAGPTR(4)
 +
-+		*page_iter = page = erofs_get_meta_page(inode->i_sb,
-+			blkaddr, false);
-+		*kaddr_iter = kmap_atomic(page);
-+	}
++#undef __MAKE_TAGPTR
 +
-+	di = *kaddr_iter + vle_extent_blkoff(inode, lcn);
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		BUG_ON(!di->di_u.delta[0]);
-+		BUG_ON(lcn < di->di_u.delta[0]);
++extern void __compiletime_error("bad tagptr tags")
++	__bad_tagptr_tags(void);
 +
-+		ofs = vle_get_logical_extent_head(inode,
-+			page_iter, kaddr_iter,
-+			lcn - di->di_u.delta[0], pcn, flags);
-+		break;
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		*flags ^= EROFS_MAP_ZIPPED;
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		ofs = lcn * clustersize +
-+			(le16_to_cpu(di->di_clusterofs) & (clustersize - 1));
-+		*pcn = le32_to_cpu(di->di_u.blkaddr);
-+		break;
-+	default:
-+		BUG_ON(1);
-+	}
-+	return ofs;
-+}
++extern void __compiletime_error("bad tagptr type")
++	__bad_tagptr_type(void);
 +
-+int erofs_map_blocks_iter(struct inode *inode,
-+	struct erofs_map_blocks *map,
-+	struct page **mpage_ret, int flags)
-+{
-+	/* logicial extent (start, end) offset */
-+	unsigned long long ofs, end;
-+	struct erofs_decompressed_index_vle *di;
-+	erofs_blk_t e_blkaddr, pcn;
-+	unsigned lcn, logical_cluster_ofs;
-+	struct page *mpage = *mpage_ret;
-+	void *kaddr;
-+	bool initial;
-+	unsigned clustersize = 1 << EROFS_SB(inode->i_sb)->clusterbits;
++/* fix the broken usage of "#define tagptr2_t tagptr3_t" by users */
++#define __tagptr_mask_1(ptr, n)	\
++	__builtin_types_compatible_p(typeof(ptr), struct __tagptr##n) ? \
++		(1UL << (n)) - 1 :
 +
-+	/* if both m_(l,p)len are 0, regularize l_lblk, l_lofs, etc... */
-+	initial = !map->m_llen;
++#define __tagptr_mask(ptr)	(\
++	__tagptr_mask_1(ptr, 1) ( \
++	__tagptr_mask_1(ptr, 2) ( \
++	__tagptr_mask_1(ptr, 3) ( \
++	__tagptr_mask_1(ptr, 4) ( \
++	__bad_tagptr_type(), 0)))))
 +
-+	if (unlikely(map->m_la >= inode->i_size)) {
-+		BUG_ON(!initial);
-+		map->m_la = inode->i_size - 1;
-+	}
++/* generate a tagged pointer from a raw value */
++#define tagptr_init(type, val) \
++	((typeof(type)){ .v = (uintptr_t)(val) })
 +
-+	debugln("%s, m_la %llu m_llen %llu --- start", __func__,
-+		map->m_la, map->m_llen);
++/*
++ * directly cast a tagged pointer to the native pointer type, which
++ * could be used for backward compatibility of existing code.
++ */
++#define tagptr_cast_ptr(tptr) ((void *)(tptr).v)
 +
-+	ofs = map->m_la + map->m_llen;
++/* encode tagged pointers */
++#define tagptr_fold(type, ptr, _tags) ({ \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
++		__bad_tagptr_tags(); \
++tagptr_init(type, (uintptr_t)(ptr) | tags); })
 +
-+	lcn = ofs / clustersize;
-+	e_blkaddr = vle_extent_blkaddr(inode, lcn);
++/* decode tagged pointers */
++#define tagptr_unfold_ptr(tptr) \
++	((void *)((tptr).v & ~__tagptr_mask(tptr)))
 +
-+	if (mpage == NULL || mpage->index != e_blkaddr) {
-+		if (mpage != NULL)
-+			put_page(mpage);
++#define tagptr_unfold_tags(tptr) \
++	((tptr).v & __tagptr_mask(tptr))
 +
-+		mpage = erofs_get_meta_page(inode->i_sb, e_blkaddr, false);
-+		*mpage_ret = mpage;
-+	} else {
-+		lock_page(mpage);
-+		DBG_BUGON(!PageUptodate(mpage));
-+	}
++/* operations for the tagger pointer */
++#define tagptr_eq(_tptr1, _tptr2) ({ \
++	typeof(_tptr1) tptr1 = (_tptr1); \
++	typeof(_tptr2) tptr2 = (_tptr2); \
++	(void) (&tptr1 == &tptr2); \
++(tptr1).v == (tptr2).v; })
 +
-+	kaddr = kmap_atomic(mpage);
-+	di = kaddr + vle_extent_blkoff(inode, lcn);
++/* lock-free CAS operation */
++#define tagptr_cmpxchg(_ptptr, _o, _n) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	typeof(_o) o = (_o); \
++	typeof(_n) n = (_n); \
++	(void) (&o == &n); \
++	(void) (&o == ptptr); \
++tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
 +
-+	debugln("%s, lcn %u e_blkaddr %u e_blkoff %u", __func__, lcn,
-+		e_blkaddr, vle_extent_blkoff(inode, lcn));
++/* wrap WRITE_ONCE if atomic update is needed */
++#define tagptr_replace_tags(_ptptr, tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
++*ptptr; })
 +
-+	logical_cluster_ofs = vle_compressed_index_clusterofs(clustersize, di);
-+	if (!initial) {
-+		/* m_(l,p)blk, m_(l,p)ofs has been already initialized */
-+		map->m_llen += logical_cluster_ofs;
-+		goto out;
-+	}
++#define tagptr_set_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v |= tags; \
++*ptptr; })
 +
-+	/* by default, compressed */
-+	map->m_flags |= EROFS_MAP_ZIPPED;
++#define tagptr_clear_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v &= ~tags; \
++*ptptr; })
 +
-+	end = (u64)(lcn + 1) * clustersize;
-+
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		if (ofs % clustersize >= logical_cluster_ofs)
-+			map->m_flags ^= EROFS_MAP_ZIPPED;
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		if (ofs % clustersize == logical_cluster_ofs) {
-+			pcn = le32_to_cpu(di->di_u.blkaddr);
-+			goto unneed;
-+		}
-+
-+		if (ofs % clustersize > logical_cluster_ofs) {
-+			ofs = lcn * clustersize | logical_cluster_ofs;
-+			pcn = le32_to_cpu(di->di_u.blkaddr);
-+			break;
-+		}
-+
-+		BUG_ON(!lcn);	/* logical cluster number >= 1 */
-+		end = (lcn-- * clustersize) | logical_cluster_ofs;
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		/* get the correspoinding first chunk */
-+		ofs = vle_get_logical_extent_head(inode, mpage_ret,
-+			&kaddr, lcn, &pcn, &map->m_flags);
-+		mpage = *mpage_ret;
-+	}
-+
-+	map->m_la = ofs;
-+unneed:
-+	map->m_llen = end - ofs;
-+	map->m_plen = clustersize;
-+	map->m_pa = blknr_to_addr(pcn);
-+	map->m_flags |= EROFS_MAP_MAPPED;
-+	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags %u",
-+		__func__, map->m_la, map->m_pa,
-+		map->m_llen, map->m_plen, map->m_flags);
-+out:
-+	kunmap_atomic(kaddr);
-+	unlock_page(mpage);
-+	return 0;
-+}
++#endif
 +
 -- 
 1.9.1
