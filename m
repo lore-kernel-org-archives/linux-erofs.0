@@ -1,10 +1,10 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 4 Jul 2018 00:12:51 +0800
-Subject: [WIP] [NOMERGE] [RFC PATCH v0.4 0/7] erofs: introduce the new unzip
- subsystem
+Date: Wed, 4 Jul 2018 00:13:11 +0800
+Subject: [WIP] [NOMERGE] [RFC PATCH v0.4 RESEND 0/7] erofs: introduce the new
+ unzip subsystem
 In-Reply-To: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1530634378-37220-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1530634398-37351-1-git-send-email-gaoxiang25@huawei.com>
 
 change log v0.4:
  - bugfix (runable now for small files)
