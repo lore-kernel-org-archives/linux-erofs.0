@@ -1,79 +1,52 @@
-From: julia.lawall@lip6.fr (Julia Lawall)
-Date: Tue, 3 Jul 2018 10:26:25 +0200 (CEST)
-Subject: [chao-linux:erofs-dev 24/33] fs/erofs/unzip_vle.c:651:1-7:
- preceding lock on line 509
-In-Reply-To: <890665f7-3007-cb78-0f80-c1e1d591f12c@huawei.com>
-References: <201807031201.90hBVFTJ%fengguang.wu@intel.com>
- <alpine.DEB.2.20.1807030724250.2333@hadrien>
- <923d1ae9-3bc7-f070-050b-087a356c7702@huawei.com>
- <alpine.DEB.2.20.1807030911350.3965@hadrien>
- <890665f7-3007-cb78-0f80-c1e1d591f12c@huawei.com>
-Message-ID: <alpine.DEB.2.20.1807031025040.6020@hadrien>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Tue, 3 Jul 2018 17:44:19 +0800
+Subject: [PATCH 11/11] erofs: support tracepoint
+In-Reply-To: <20180622020131.65525-11-yuchao0@huawei.com>
+References: <20180622020131.65525-1-yuchao0@huawei.com>
+ <20180622020131.65525-11-yuchao0@huawei.com>
+Message-ID: <ad8b5812-699e-9c99-3d76-02fa65635c6c@huawei.com>
 
+Hi Chao,
 
+On 2018/6/22 10:01, Chao Yu wrote:
+> Add tracepoints for ->readpage{,s}, ->lookup.
+> 
+> Signed-off-by: Chao Yu <yuchao0 at huawei.com> ---
 
-On Tue, 3 Jul 2018, Gao Xiang wrote:
+Very useful feature (I could use it for the new unzip implementation :) )
 
-> Hi Julia,
->
-> On 2018/7/3 15:13, Julia Lawall wrote:
-> >
-> > On Tue, 3 Jul 2018, Gao Xiang wrote:
-> >
-> >> Hi Julia,
-> >>
-> >> On 2018/7/3 13:27, Julia Lawall wrote:
-> >>> Hello,
-> >>>
-> >>> There is not actually a bug here, but I wonder if the backwards goto int
-> >>> another if branch (use_global_pagemap) is really the best way to do this?
-> >>> I found it rather confusing to think about.  It could be better to just
-> >>> duplicate the assignment to pages, or make a flag that would be tested
-> >>> after the if-else.
-> >>>
-> >> I wrote this code just because of the designed pagemap allocation policy:
-> >>
-> >> If the pagemap is too large enough to alloc onstack, then
-> >>     I try to use the global pagemap with "trylock" if the global pagemap is not occupied.
-> >>     or if the global pagemap is occupied,
-> >>          alloc a pagemap if the corresponding memory allocation is ok,
-> >>          or if the memory allocation is failed, fall back to use the global pagemap with sleeping "lock" again.
-> >>
-> >> If the code style makes automatic testing confused, I could use alternative way to replace it in the next version.
-> > In the end, I understood the structure, but I think that a backwards goto
-> > into another if branch is a bit of mental overload.
->
-> In that case you are absolutely right. :)
->
-> However, in my opinion, if the use case is more complicated than just one statement
-> 	"pages = z_pagemap_global;"
->
-> I personally tend to leave a common label to merge these two if-s into a common snippet
-> (if and only if the snippet has understandable meaning), either backward or afterward is ok for me.
->
-> eg.
->    if (a) {
->        (diff)
->        goto common;
->    } else if (b) {
->        (diff)
->
-> /* iff it is a meaningful and understandable snippet */
-> common:
->        (more than one statements)
->    }
->
-> Using an extra flag is another way, it also has no runtime overhead.
->
-> But if functions already has too many local variables and if it is not a good idea to seperate it into sub-functions,
-> I think avoid more local variables is also good for understanding.
->
-> That is my personal code style tho. I could take care and use another way if needed.
+>  fs/erofs/data.c              |   8 +++
+>  fs/erofs/namei.c             |   5 ++
+>  fs/erofs/super.c             |   2 +
+>  fs/erofs/unzip.c             |  10 +++-
+>  include/trace/events/erofs.h | 109 +++++++++++++++++++++++++++++++++++
+>  5 files changed, 133 insertions(+), 1 deletion(-)
+>  create mode 100644 include/trace/events/erofs.h
+> 
+> +	trace_erofs_readpage(page, true);
+> +
+>  	bio = erofs_read_raw_page(NULL, page->mapping,
+>  		page, &last_block, 1, false);
+>  
+> @@ -354,6 +359,9 @@ static int erofs_raw_access_readpages(struct file *filp,
+>  	erofs_off_t last_block;
+>  	struct bio *bio = NULL;
+>  	gfp_t gfp = readahead_gfp_mask(mapping);
+> +	struct page *page = list_last_entry(pages, struct page, lru);
+> +
+> +	trace_erofs_readpages(mapping->host, page, nr_pages, true);
+>  
+>  	for (; nr_pages; --nr_pages) {
+>  		struct page *page = list_entry(pages->prev, struct page, lru);
 
-OK, if your style is consistent in your code, then I guess it's OK, but I
-have seen some people complaining about gotos into if branches, and in my
-opinion it makes the code hard to follow.
+minor, how about remove the in-loop 'page' defination?
 
-But anyway, thanks for the discussion :)
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 
-julia
+Thanks,
+Gao Xiang
+
+> diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
+> index e30294b279d1..b701d9ba52a6 100644
+> --- a/fs/erofs/namei.c
+> +++ b/fs/erofs/namei.c
