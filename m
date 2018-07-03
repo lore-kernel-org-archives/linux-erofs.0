@@ -1,31 +1,103 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 3 Jul 2018 22:22:01 +0800
-Subject: [PATCH 11/11] erofs: support tracepoint
-In-Reply-To: <080d2c39-83ee-9643-4ec6-0991ae31769c@kernel.org>
-References: <20180622020131.65525-1-yuchao0@huawei.com>
- <20180622020131.65525-11-yuchao0@huawei.com>
- <ad8b5812-699e-9c99-3d76-02fa65635c6c@huawei.com>
- <080d2c39-83ee-9643-4ec6-0991ae31769c@kernel.org>
-Message-ID: <d99617dd-b165-9e18-db16-2c34521f4d8a@huawei.com>
+From: chao@kernel.org (Chao Yu)
+Date: Tue,  3 Jul 2018 23:57:35 +0800
+Subject: [PATCH v2 8/11] erofs: support special inode
+Message-ID: <20180703155735.10475-1-chao@kernel.org>
 
+From: Chao Yu <yuchao0@huawei.com>
 
-On 2018/7/3 21:52, Chao Yu wrote:
-> Hi Xiang,
-> 
-> On 2018/7/3 17:44, Gao Xiang wrote:
->> Hi Chao,
->>
->> On 2018/6/22 10:01, Chao Yu wrote:
->>> Add tracepoints for ->readpage{,s}, ->lookup.
->>>
->>> Signed-off-by: Chao Yu <yuchao0 at huawei.com> ---
->> Very useful feature (I could use it for the new unzip implementation :) )
-> It seems we need more tracepoints for debug or accounting, but now I just add
-> basic ones, let's add more. ;)
-> 
+This patch adds to support special inode, such as block dev, char,
+socket, pipe inode.
 
-I am transfering some useful map_blocks debug messages to tracepoints, which
-seems more suitable :)
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+---
+v2: add default error handle case in read_inode().
+ fs/erofs/inode.c    | 37 +++++++++++++++++++++++++++++++++++--
+ fs/erofs/internal.h |  1 +
+ 2 files changed, 36 insertions(+), 2 deletions(-)
 
-Thanks,
-Gao Xiang
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 94e827b57a5b..e1a61c87680a 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -30,8 +30,18 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->inode_isize = sizeof(struct erofs_inode_v2);
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
+ 
+-		vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++						S_ISLNK(inode->i_mode)) {
++			vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v2->i_u.rdev));
++		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++			inode->i_rdev = 0;
++		} else {
++			return -EIO;
++		}
+ 
+ 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+@@ -50,8 +60,18 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->inode_isize = sizeof(struct erofs_inode_v1);
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
+ 
+-		vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++						S_ISLNK(inode->i_mode)) {
++			vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v1->i_u.rdev));
++		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++			inode->i_rdev = 0;
++		} else {
++			return -EIO;
++		}
+ 
+ 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
+@@ -168,6 +188,12 @@ int fill_inode(struct inode *inode, int isdir)
+ 				&page_symlink_inode_operations;
+ #endif
+ 			inode_nohighmem(inode);
++		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
++			S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++#ifdef CONFIG_EROFS_FS_XATTR
++			inode->i_op = &erofs_special_inode_operations;
++#endif
++			init_special_inode(inode, inode->i_mode, inode->i_rdev);
+ 		} else {
+ 			err = -EIO;
+ 			goto out_unlock;
+@@ -244,6 +270,13 @@ const struct inode_operations erofs_symlink_xattr_iops = {
+ 	.listxattr = erofs_listxattr,
+ #endif
+ };
++
++const struct inode_operations erofs_special_inode_operations = {
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0))
++		.listxattr = erofs_listxattr,
++#endif
++};
++
+ #endif
+ 
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0))
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 7670c2ed53d2..43620c07044d 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -364,6 +364,7 @@ extern const struct inode_operations simple_symlink_inode_operations;
+ #ifdef CONFIG_EROFS_FS_XATTR
+ extern const struct inode_operations erofs_symlink_xattr_iops;
+ extern const struct inode_operations erofs_fast_symlink_xattr_iops;
++extern const struct inode_operations erofs_special_inode_operations;
+ #endif
+ 
+ static inline void set_inode_fast_symlink(struct inode *inode)
+-- 
+2.16.2.17.g38e79b1fd
