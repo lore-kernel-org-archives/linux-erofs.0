@@ -1,7 +1,7 @@
 From: chao@kernel.org (Chao Yu)
-Date: Tue,  3 Jul 2018 23:59:37 +0800
-Subject: [PATCH v2 11/11] erofs: support tracepoint
-Message-ID: <20180703155937.10549-1-chao@kernel.org>
+Date: Wed,  4 Jul 2018 00:05:39 +0800
+Subject: [PATCH v2 RESEND 11/11] erofs: support tracepoint
+Message-ID: <20180703160539.11300-1-chao@kernel.org>
 
 From: Chao Yu <yuchao0@huawei.com>
 
@@ -11,16 +11,16 @@ Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
 v2: remove in-loop page defination.
- fs/erofs/data.c              |   8 ++++
+ fs/erofs/data.c              |  10 +++-
  fs/erofs/namei.c             |   5 ++
  fs/erofs/super.c             |   2 +
  fs/erofs/unzip.c             |   6 +++
  include/trace/events/erofs.h | 109 +++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 130 insertions(+)
+ 5 files changed, 131 insertions(+), 1 deletion(-)
  create mode 100644 include/trace/events/erofs.h
 
 diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index e76de71c85ff..401b79a6ecd9 100644
+index e76de71c85ff..1277beef6531 100644
 --- a/fs/erofs/data.c
 +++ b/fs/erofs/data.c
 @@ -13,6 +13,9 @@
@@ -42,7 +42,7 @@ index e76de71c85ff..401b79a6ecd9 100644
  	bio = erofs_read_raw_page(NULL, page->mapping,
  		page, &last_block, 1, false);
  
-@@ -354,6 +359,9 @@ static int erofs_raw_access_readpages(struct file *filp,
+@@ -354,9 +359,12 @@ static int erofs_raw_access_readpages(struct file *filp,
  	erofs_off_t last_block;
  	struct bio *bio = NULL;
  	gfp_t gfp = readahead_gfp_mask(mapping);
@@ -51,7 +51,11 @@ index e76de71c85ff..401b79a6ecd9 100644
 +	trace_erofs_readpages(mapping->host, page, nr_pages, true);
  
  	for (; nr_pages; --nr_pages) {
- 		struct page *page = list_entry(pages->prev, struct page, lru);
+-		struct page *page = list_entry(pages->prev, struct page, lru);
++		page = list_entry(pages->prev, struct page, lru);
+ 
+ 		prefetchw(&page->flags);
+ 		list_del(&page->lru);
 diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
 index e30294b279d1..b701d9ba52a6 100644
 --- a/fs/erofs/namei.c
