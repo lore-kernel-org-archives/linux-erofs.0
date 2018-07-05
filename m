@@ -1,162 +1,263 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 5 Jul 2018 16:44:05 +0800
-Subject: [WIP] [NOMERGE] [RFC PATCH v0.5 05/10] erofs: globalize prepare_bio
- and __submit_bio
-In-Reply-To: <1530780087-76872-1-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 5 Jul 2018 16:44:06 +0800
+Subject: [WIP] [NOMERGE] [RFC PATCH v0.5 06/10] erofs: add a generic z_erofs
+ VLE decompressor
+In-Reply-To: <1530780250-77563-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530780087-76872-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1530780250-77563-1-git-send-email-gaoxiang25@huawei.com>
+ <1530780250-77563-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1530780250-77563-2-git-send-email-gaoxiang25@huawei.com>
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/data.c     | 41 +++++++++--------------------------------
- fs/erofs/internal.h | 41 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+), 32 deletions(-)
+ fs/erofs/Kconfig         |  14 +++++
+ fs/erofs/Makefile        |   2 +-
+ fs/erofs/internal.h      |   5 ++
+ fs/erofs/unzip_vle.h     |  34 +++++++++++
+ fs/erofs/unzip_vle_lz4.c | 146 +++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 200 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/unzip_vle.h
+ create mode 100644 fs/erofs/unzip_vle_lz4.c
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index de99217..2efe69f 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -47,33 +47,6 @@ static inline void read_endio(struct bio *bio)
- 	bio_put(bio);
- }
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index ffbd5eb..00e811c 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -85,3 +85,17 @@ config EROFS_FS_ZIP
  
--static void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
--{
--	bio_set_op_attrs(bio, op, op_flags);
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
--	submit_bio(0, bio);
--#else
--	submit_bio(bio);
--#endif
--}
--
--static struct bio *prepare_bio(struct super_block *sb,
--	erofs_blk_t blkaddr, unsigned nr_pages)
--{
--	struct bio *bio = bio_alloc(GFP_NOIO | __GFP_NOFAIL, nr_pages);
--
--	BUG_ON(bio == NULL);
--
--	bio->bi_end_io = read_endio;
--	bio_set_dev(bio, sb->s_bdev);
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
--	bio->bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
--#else
--	bio->bi_iter.bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
--#endif
--	return bio;
--}
--
- /* prio -- true is used for dir */
- struct page *erofs_get_meta_page(struct super_block *sb,
- 	erofs_blk_t blkaddr, bool prio)
-@@ -96,7 +69,7 @@ struct page *erofs_get_meta_page(struct super_block *sb,
- 		struct bio *bio;
- 		int err;
+ 	  If you don't want to use compression feature, say N.
  
--		bio = prepare_bio(sb, blkaddr, 1);
-+		bio = prepare_bio(sb, blkaddr, 1, read_endio);
- 		err = bio_add_page(bio, page, PAGE_SIZE, 0);
- 		BUG_ON(err != PAGE_SIZE);
- 
-@@ -237,6 +210,8 @@ static inline struct bio *erofs_read_raw_page(
- 		struct erofs_map_blocks map = {
- 			.m_la = blknr_to_addr(current_block),
- 		};
-+		erofs_blk_t blknr;
-+		unsigned blkoff;
- 
- 		err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
- 		if (unlikely(err))
-@@ -254,6 +229,9 @@ static inline struct bio *erofs_read_raw_page(
- 		/* for RAW access mode, m_plen must be equal to m_llen */
- 		BUG_ON(map.m_plen != map.m_llen);
- 
-+		blknr = erofs_blknr(map.m_pa);
-+		blkoff = erofs_blkoff(map.m_pa);
++config EROFS_FS_CLUSTER_PAGE_LIMIT
++	int "EROFS Cluster Pages Hard Limit"
++	depends on EROFS_FS_ZIP
++	range 1 256
++	default "1"
++	help
++	  Indicates VLE compressed pages hard limit of a
++	  compressed cluster.
 +
- 		/* deal with inline page */
- 		if (map.m_flags & EROFS_MAP_META) {
- 			void *vsrc, *vto;
-@@ -261,8 +239,7 @@ static inline struct bio *erofs_read_raw_page(
++	  For example, if files of a image are compressed
++	  into 8k-unit, the hard limit should not be less
++	  than 2. Otherwise, the image cannot be mounted
++	  correctly on this kernel.
++
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index d717775..fa9d179 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -5,5 +5,5 @@ EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+ erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+-erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
++erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o unzip_vle_lz4.o unzip_lz4.o
  
- 			BUG_ON(map.m_plen > PAGE_SIZE);
- 
--			ipage = erofs_get_meta_page(inode->i_sb,
--				erofs_blknr(map.m_pa), 0);
-+			ipage = erofs_get_meta_page(inode->i_sb, blknr, 0);
- 
- 			if (IS_ERR(ipage)) {
- 				err = PTR_ERR(ipage);
-@@ -271,7 +248,7 @@ static inline struct bio *erofs_read_raw_page(
- 
- 			vsrc = kmap_atomic(ipage);
- 			vto = kmap_atomic(page);
--			memcpy(vto, vsrc + erofs_blkoff(map.m_pa), map.m_plen);
-+			memcpy(vto, vsrc + blkoff, map.m_plen);
- 			memset(vto + map.m_plen, 0, PAGE_SIZE - map.m_plen);
- 			kunmap_atomic(vto);
- 			kunmap_atomic(vsrc);
-@@ -295,7 +272,7 @@ static inline struct bio *erofs_read_raw_page(
- 		if (nblocks > BIO_MAX_PAGES)
- 			nblocks = BIO_MAX_PAGES;
- 
--		bio = prepare_bio(inode->i_sb, erofs_blknr(map.m_pa), nblocks);
-+		bio = prepare_bio(inode->i_sb, blknr, nblocks, read_endio);
- 	}
- 
- 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 07bab28..e60f535 100644
+index e60f535..038d77b 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -291,6 +291,47 @@ struct erofs_map_blocks {
- #define EROFS_GET_BLOCKS_RAW    0x0001
+@@ -162,6 +162,11 @@ static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
  
- /* data.c */
-+static inline struct bio *prepare_bio(
-+	struct super_block *sb,
-+	erofs_blk_t blkaddr, unsigned nr_pages,
-+	bio_end_io_t endio)
-+{
-+	gfp_t gfp = GFP_NOIO;
-+	struct bio *bio = bio_alloc(gfp, nr_pages);
+ #define ROOT_NID(sb)		((sb)->root_nid)
+ 
++#ifdef CONFIG_EROFS_FS_ZIP
++/* hard limit of pages per compressed cluster */
++#define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
++#endif
 +
-+	if (unlikely(bio == NULL) &&
-+		(current->flags & PF_MEMALLOC)) {
-+		do {
-+			nr_pages /= 2;
-+			if (unlikely(!nr_pages)) {
-+				bio = bio_alloc(gfp | __GFP_NOFAIL, 1);
-+				BUG_ON(bio == NULL);
-+				break;
-+			}
-+			bio = bio_alloc(gfp, nr_pages);
-+		} while (bio == NULL);
+ typedef u64 erofs_off_t;
+ 
+ /* data type for filesystem-wide blocks number */
+diff --git a/fs/erofs/unzip_vle.h b/fs/erofs/unzip_vle.h
+new file mode 100644
+index 0000000..143b6c3
+--- /dev/null
++++ b/fs/erofs/unzip_vle.h
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-2.0
++ *
++ * linux/fs/erofs/unzip_vle.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file COPYING in the main directory of the Linux
++ * distribution for more details.
++ */
++#ifndef __EROFS_FS_UNZIP_VLE_H
++#define __EROFS_FS_UNZIP_VLE_H
++
++#include "internal.h"
++
++#define Z_EROFS_VLE_INLINE_PAGEVECS     3
++
++/* unzip_vle_lz4.c */
++extern int z_erofs_vle_plain_copy(struct page **compressed_pages,
++	unsigned clusterpages, struct page **pages,
++	unsigned nr_pages, unsigned short pageofs);
++
++extern int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
++	unsigned clusterpages, struct page **pages,
++	unsigned llen, unsigned short pageofs);
++
++extern int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
++	unsigned clusterpages, void *vaddr, unsigned llen,
++	unsigned short pageofs, bool overlapped);
++
++#endif
++
+diff --git a/fs/erofs/unzip_vle_lz4.c b/fs/erofs/unzip_vle_lz4.c
+new file mode 100644
+index 0000000..c8b22a2
+--- /dev/null
++++ b/fs/erofs/unzip_vle_lz4.c
+@@ -0,0 +1,146 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/fs/erofs/unzip_vle_lz4.c
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file COPYING in the main directory of the Linux
++ * distribution for more details.
++ */
++#include "unzip_vle.h"
++
++#if Z_EROFS_CLUSTER_MAX_PAGES > Z_EROFS_VLE_INLINE_PAGEVECS
++#define EROFS_PERCPU_NR_PAGES   Z_EROFS_CLUSTER_MAX_PAGES
++#else
++#define EROFS_PERCPU_NR_PAGES   Z_EROFS_VLE_INLINE_PAGEVECS
++#endif
++
++static struct {
++	char data[PAGE_SIZE * EROFS_PERCPU_NR_PAGES];
++} erofs_pcpubuf[NR_CPUS];
++
++int z_erofs_vle_plain_copy(struct page **compressed_pages,
++			   unsigned clusterpages,
++			   struct page **pages,
++			   unsigned nr_pages,
++			   unsigned short pageofs)
++{
++	unsigned i, j;
++	void *src = NULL;
++	const unsigned righthalf = PAGE_SIZE - pageofs;
++	char *percpu_data;
++	bool backedup[Z_EROFS_CLUSTER_MAX_PAGES] = { 0 };
++
++	preempt_disable();
++	percpu_data = erofs_pcpubuf[smp_processor_id()].data;
++
++	for(i = 0; i < nr_pages; ++i) {
++		struct page *page = pages[i];
++		void *dst;
++
++		if (page == NULL) {
++			if (src != NULL && !backedup[i-1])
++				kunmap_atomic(src);
++
++			src = NULL;
++			continue;
++		}
++
++		dst = kmap_atomic(page);
++
++		for(j = 0; j < clusterpages; ++j) {
++			if (compressed_pages[j] != page)
++				continue;
++
++			BUG_ON(backedup[j]);
++			memcpy(percpu_data + j * PAGE_SIZE, dst, PAGE_SIZE);
++			backedup[j] = true;
++			break;
++		}
++
++		if (src == NULL && i) {
++			if (backedup[i-1])
++				src = percpu_data + i-1;
++			else
++				src = kmap_atomic(compressed_pages[i-1]);
++		}
++
++		memcpy(dst, src + righthalf, pageofs);
++
++		if (!backedup[i-1])
++			kunmap_atomic(src);
++
++		if (i >= clusterpages) {
++			kunmap_atomic(dst);
++			break;
++		}
++
++		if (backedup[i])
++			src = percpu_data + i;
++		else
++			src = kmap_atomic(compressed_pages[i]);
++		memcpy(dst + pageofs, src, righthalf);
++		kunmap_atomic(dst);
++	}
++	preempt_enable();
++	return 0;
++}
++
++int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
++				  unsigned clusterpages,
++				  struct page **pages,
++				  unsigned llen,
++				  unsigned short pageofs)
++{
++	return -ENOTSUPP;
++}
++
++extern int erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen);
++
++int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
++			   unsigned clusterpages,
++			   void *vout,
++			   unsigned llen,
++			   unsigned short pageofs,
++			   bool overlapped)
++{
++	void *vin;
++	unsigned i;
++	int ret;
++
++	if (overlapped) {
++		preempt_disable();
++		vin = erofs_pcpubuf[smp_processor_id()].data;
++
++		for(i = 0; i < clusterpages; ++i) {
++			void *t = kmap_atomic(compressed_pages[i]);
++
++			memcpy(vin + PAGE_SIZE *i, t, PAGE_SIZE);
++			kunmap_atomic(t);
++		}
++	} else if (clusterpages == 1)
++		vin = kmap_atomic(compressed_pages[0]);
++	else {
++		vin = erofs_vmap(compressed_pages, clusterpages);
 +	}
 +
-+	bio->bi_end_io = endio;
-+	bio_set_dev(bio, sb->s_bdev);
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-+	bio->bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
-+#else
-+	bio->bi_iter.bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
-+#endif
-+	return bio;
++	ret = erofs_unzip_lz4(vin, vout + pageofs,
++		clusterpages * PAGE_SIZE, llen);
++	if (ret > 0)
++		ret = 0;
++
++	if (!overlapped) {
++		if (clusterpages == 1)
++			kunmap_atomic(vin);
++		else {
++			erofs_vunmap(vin, clusterpages);
++		}
++	} else
++		preempt_enable();
++
++	return ret;
 +}
 +
-+static inline void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
-+{
-+	bio_set_op_attrs(bio, op, op_flags);
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
-+	submit_bio(0, bio);
-+#else
-+	submit_bio(bio);
-+#endif
-+}
-+
- extern struct page *erofs_get_meta_page(struct super_block *sb,
- 	erofs_blk_t blkaddr, bool prio);
- extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
 -- 
 1.9.1
