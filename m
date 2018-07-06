@@ -1,100 +1,35 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 6 Jul 2018 19:30:04 +0800
-Subject: [PATCH v2] erofs: fix erofs_module_init & exit
-In-Reply-To: <1530767030-86277-1-git-send-email-gaoxiang25@huawei.com>
+Date: Fri, 6 Jul 2018 19:34:44 +0800
+Subject: [PATCH] erofs: fix erofs_module_init & exit
+In-Reply-To: <ada61dd7-791f-7bc1-d8da-32a360d50889@huawei.com>
 References: <1530767030-86277-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1530876604-19477-1-git-send-email-gaoxiang25@huawei.com>
+ <b66fb258-e9af-1ad9-7613-92ad07ca75b3@kernel.org>
+ <a3348541-c140-94fc-95ec-6334c827e09e@huawei.com>
+ <c2dcf7f9-ab9e-29e5-4532-83ce5066d0c0@huawei.com>
+ <ada61dd7-791f-7bc1-d8da-32a360d50889@huawei.com>
+Message-ID: <987be359-1fdb-3ad9-bf58-15b83a43d934@huawei.com>
 
-This patch adds missing parts and EROFS ondisk
-layout check as well.
+Hi Chao,
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
-change log v2:
- - erofs_check_ondisk_layout => erofs_check_ondisk_layout_definitions
+On 2018/7/6 10:09, Gao Xiang wrote:
+>> Alright, it's trivial, let's keep the code as original state. :)
+>>
+>> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+>>
+> :), Thanks for the review~
+> 
+> It seems that 'erofs_check_ondisk_layout_definations' is more proper than 'erofs_check_ondisk_layout',
+> which seems used for the runtime sanity check..
+> 
+> Let me send the next version :)
+> 
+> 
+> Thanks,
+> Gao Xiang
+> 
 
- fs/erofs/erofs_fs.h | 13 +++++++++++++
- fs/erofs/super.c    | 28 +++++++++++++++++++++-------
- 2 files changed, 34 insertions(+), 7 deletions(-)
+Too many chores today... Sorry for late response..
+Could you check the v2 patch and merge it? :)
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index ed943d4..11300414 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -253,5 +253,18 @@ enum {
- 
- #define EROFS_NAME_LEN      255
- 
-+/* check the EROFS on-disk layout strictly at compile time */
-+static inline void erofs_check_ondisk_layout_definitions(void)
-+{
-+	BUILD_BUG_ON(sizeof(struct erofs_super_block) != 128);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_v1) != 32);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_v2) != 64);
-+	BUILD_BUG_ON(sizeof(struct erofs_xattr_ibody_header) != 12);
-+	BUILD_BUG_ON(sizeof(struct erofs_xattr_entry) != 4);
-+	BUILD_BUG_ON(sizeof(struct erofs_extent_header) != 16);
-+	BUILD_BUG_ON(sizeof(struct erofs_decompressed_index_vle) != 8);
-+	BUILD_BUG_ON(sizeof(struct erofs_dirent) != 12);
-+}
-+
- #endif
- 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index a1826b9..0dcf9c7 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -37,6 +37,12 @@ static int erofs_init_inode_cache(void)
- 	return erofs_inode_cachep != NULL ? 0 : -ENOMEM;
- }
- 
-+static void erofs_exit_inode_cache(void)
-+{
-+	BUG_ON(erofs_inode_cachep == NULL);
-+	kmem_cache_destroy(erofs_inode_cachep);
-+}
-+
- static struct inode *alloc_inode(struct super_block *sb)
- {
- 	struct erofs_vnode *vi =
-@@ -398,22 +404,30 @@ int __init erofs_module_init(void)
- {
- 	int err;
- 
-+	erofs_check_ondisk_layout_definitions();
- 	infoln("Initializing erofs " EROFS_VERSION);
- 
- 	err = erofs_init_inode_cache();
--	if (!err) {
--		err = register_filesystem(&erofs_fs_type);
--		if (!err) {
--			infoln("Successfully to initialize erofs");
--			return 0;
--		}
--	}
-+	if (err)
-+		goto icache_err;
-+
-+	err = register_filesystem(&erofs_fs_type);
-+	if (err)
-+		goto fs_err;
-+
-+	infoln("Successfully to initialize erofs");
-+	return 0;
-+
-+fs_err:
-+	erofs_exit_inode_cache();
-+icache_err:
- 	return err;
- }
- 
- void __exit erofs_module_exit(void)
- {
- 	unregister_filesystem(&erofs_fs_type);
-+	erofs_exit_inode_cache();
- 	infoln("Successfully finalize erofs");
- }
- 
--- 
-1.9.1
+Thanks,
+Gao Xiang
