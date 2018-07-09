@@ -1,88 +1,207 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 10 Jul 2018 03:17:16 +0800
-Subject: [WIP] [NOMERGE] [RFC PATCH v0.7 07/10] erofs: introduce superblock
- registration
+Date: Tue, 10 Jul 2018 03:17:17 +0800
+Subject: [WIP] [NOMERGE] [RFC PATCH v0.7 08/10] erofs: introduce erofs shrinker
 In-Reply-To: <1531163839-29830-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
  <1531163839-29830-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1531163839-29830-8-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1531163839-29830-9-git-send-email-gaoxiang25@huawei.com>
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/internal.h |  6 ++++++
- fs/erofs/super.c    |  4 ++++
- fs/erofs/utils.c    | 17 +++++++++++++++++
- 3 files changed, 27 insertions(+)
+ fs/erofs/internal.h |  7 +++++
+ fs/erofs/super.c    | 15 ++++++++++
+ fs/erofs/utils.c    | 85 +++++++++++++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 101 insertions(+), 6 deletions(-)
 
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 038d77b..cc898b4 100644
+index cc898b4..e202ef3 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -65,6 +65,9 @@ struct erofs_fault_info {
- typedef u64 erofs_nid_t;
- 
+@@ -67,6 +67,7 @@ struct erofs_fault_info {
  struct erofs_sb_info {
-+	/* list for all registered superblocks, mainly for shrinker */
-+	struct list_head list;
-+
+ 	/* list for all registered superblocks, mainly for shrinker */
+ 	struct list_head list;
++	struct mutex umount_mutex;
+ 
  	u32 blocks;
  	u32 meta_blkaddr;
- #ifdef CONFIG_EROFS_FS_XATTR
-@@ -430,5 +433,8 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
- /* utils.c */
- extern struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
+@@ -94,6 +95,7 @@ struct erofs_sb_info {
+ 	char *dev_name;
  
-+extern void erofs_register_super(struct super_block *sb);
-+extern void erofs_unregister_super(struct super_block *sb);
+ 	unsigned int mount_opt;
++	unsigned int shrinker_run_no;
+ 
+ #ifdef CONFIG_EROFS_FAULT_INJECTION
+ 	struct erofs_fault_info fault_info;	/* For fault injection */
+@@ -436,5 +438,10 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
+ extern void erofs_register_super(struct super_block *sb);
+ extern void erofs_unregister_super(struct super_block *sb);
+ 
++extern unsigned long erofs_shrink_count(struct shrinker *shrink,
++	struct shrink_control *sc);
++extern unsigned long erofs_shrink_scan(struct shrinker *shrink,
++	struct shrink_control *sc);
 +
  #endif
  
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 0dcf9c7..3d286f4 100644
+index 3d286f4..00ec621 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -315,6 +315,8 @@ static int erofs_read_super(struct super_block *sb,
- 	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
- 	sbi->dev_name[PATH_MAX - 1] = '\0';
- 
-+	erofs_register_super(sb);
-+
- 	/*
- 	 * We already have a positive dentry, which was instantiated
- 	 * by d_make_root. Just need to d_rehash it.
-@@ -352,6 +354,8 @@ static void erofs_put_super(struct super_block *sb)
+@@ -354,7 +354,9 @@ static void erofs_put_super(struct super_block *sb)
  	infoln("unmounted for %s", sbi->dev_name);
  	__putname(sbi->dev_name);
  
-+	erofs_unregister_super(sb);
-+
++	mutex_lock(&sbi->umount_mutex);
+ 	erofs_unregister_super(sb);
++	mutex_unlock(&sbi->umount_mutex);
+ 
  	kfree(sbi);
  	sb->s_fs_info = NULL;
+@@ -396,6 +398,12 @@ static void erofs_kill_sb(struct super_block *sb)
+ 	kill_block_super(sb);
+ }
+ 
++static struct shrinker erofs_shrinker_info = {
++	.scan_objects = erofs_shrink_scan,
++	.count_objects = erofs_shrink_count,
++	.seeks = DEFAULT_SEEKS,
++};
++
+ static struct file_system_type erofs_fs_type = {
+ 	.owner          = THIS_MODULE,
+ 	.name           = "erofs",
+@@ -415,6 +423,10 @@ int __init erofs_module_init(void)
+ 	if (err)
+ 		goto icache_err;
+ 
++	err = register_shrinker(&erofs_shrinker_info);
++	if (err)
++		goto shrinker_err;
++
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -423,6 +435,8 @@ int __init erofs_module_init(void)
+ 	return 0;
+ 
+ fs_err:
++	unregister_shrinker(&erofs_shrinker_info);
++shrinker_err:
+ 	erofs_exit_inode_cache();
+ icache_err:
+ 	return err;
+@@ -431,6 +445,7 @@ int __init erofs_module_init(void)
+ void __exit erofs_module_exit(void)
+ {
+ 	unregister_filesystem(&erofs_fs_type);
++	unregister_shrinker(&erofs_shrinker_info);
+ 	erofs_exit_inode_cache();
+ 	infoln("Successfully finalize erofs");
  }
 diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index dce5177..78731c5 100644
+index 78731c5..685e885 100644
 --- a/fs/erofs/utils.c
 +++ b/fs/erofs/utils.c
-@@ -29,3 +29,20 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+@@ -29,20 +29,93 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
  	return page;
  }
  
-+static DEFINE_MUTEX(erofs_sb_list_lock);
-+static LIST_HEAD(erofs_sb_list);
+-static DEFINE_MUTEX(erofs_sb_list_lock);
 +
-+void erofs_register_super(struct super_block *sb)
-+{
-+	mutex_lock(&erofs_sb_list_lock);
-+	list_add(&EROFS_SB(sb)->list, &erofs_sb_list);
-+	mutex_unlock(&erofs_sb_list_lock);
++/* protected by 'erofs_sb_list_lock' */
++static unsigned int shrinker_run_no;
++
++/* protects the mounted 'erofs_sb_list' */
++static DEFINE_SPINLOCK(erofs_sb_list_lock);
+ static LIST_HEAD(erofs_sb_list);
+ 
++/* global shrink count (for all mounted EROFS instances) */
++static atomic_long_t erofs_global_shrink_cnt;
++
+ void erofs_register_super(struct super_block *sb)
+ {
+-	mutex_lock(&erofs_sb_list_lock);
+-	list_add(&EROFS_SB(sb)->list, &erofs_sb_list);
+-	mutex_unlock(&erofs_sb_list_lock);
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++
++	mutex_init(&sbi->umount_mutex);
++
++	spin_lock(&erofs_sb_list_lock);
++	list_add(&sbi->list, &erofs_sb_list);
++	spin_unlock(&erofs_sb_list_lock);
+ }
+ 
+ void erofs_unregister_super(struct super_block *sb)
+ {
+-	mutex_lock(&erofs_sb_list_lock);
++	spin_lock(&erofs_sb_list_lock);
+ 	list_del(&EROFS_SB(sb)->list);
+-	mutex_unlock(&erofs_sb_list_lock);
++	spin_unlock(&erofs_sb_list_lock);
 +}
 +
-+void erofs_unregister_super(struct super_block *sb)
++unsigned long erofs_shrink_count(struct shrinker *shrink,
++				 struct shrink_control *sc)
 +{
-+	mutex_lock(&erofs_sb_list_lock);
-+	list_del(&EROFS_SB(sb)->list);
-+	mutex_unlock(&erofs_sb_list_lock);
++	return atomic_long_read(&erofs_global_shrink_cnt);
 +}
 +
++unsigned long erofs_shrink_scan(struct shrinker *shrink,
++				struct shrink_control *sc)
++{
++	struct erofs_sb_info *sbi;
++	struct list_head *p;
++
++	unsigned long nr = sc->nr_to_scan;
++	unsigned int run_no;
++	unsigned long freed = 0;
++
++	spin_lock(&erofs_sb_list_lock);
++	do
++		run_no = ++shrinker_run_no;
++	while (run_no == 0);
++
++	/* Iterate over all mounted superblocks and try to shrink them */
++	p = erofs_sb_list.next;
++	while (p != &erofs_sb_list) {
++		sbi = list_entry(p, struct erofs_sb_info, list);
++
++		/*
++		 * We move the ones we do to the end of the list, so we stop
++		 * when we see one we have already done.
++		 */
++		if (sbi->shrinker_run_no == run_no)
++			break;
++
++		if (!mutex_trylock(&sbi->umount_mutex)) {
++			p = p->next;
++			continue;
++		}
++
++		spin_unlock(&erofs_sb_list_lock);
++		sbi->shrinker_run_no = run_no;
++
++		/* add scan handlers here */
++
++		spin_lock(&erofs_sb_list_lock);
++		/* Get the next list element before we move this one */
++		p = p->next;
++
++		/*
++		 * Move this one to the end of the list to provide some
++		 * fairness.
++		 */
++		list_move_tail(&sbi->list, &erofs_sb_list);
++		mutex_unlock(&sbi->umount_mutex);
++
++		if (freed >= nr)
++			break;
++	}
++	spin_unlock(&erofs_sb_list_lock);
++	return freed;
+ }
+ 
 -- 
 1.9.1
