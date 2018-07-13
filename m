@@ -1,781 +1,27 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 13 Jul 2018 21:17:08 +0800
-Subject: [PATCH 1/2] temp commit 1
-In-Reply-To: <1531163839-29830-11-git-send-email-gaoxiang25@huawei.com>
+Date: Fri, 13 Jul 2018 21:17:09 +0800
+Subject: [PATCH 2/2] temp commit 2
+In-Reply-To: <1531487829-84202-1-git-send-email-gaoxiang25@huawei.com>
 References: <1531163839-29830-11-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1531487829-84202-1-git-send-email-gaoxiang25@huawei.com>
+ <1531487829-84202-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1531487829-84202-2-git-send-email-gaoxiang25@huawei.com>
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Kconfig     |  38 ++++++
- fs/erofs/Makefile    |   2 +-
- fs/erofs/unzip_vle.c | 374 +++++++++++++++++++++++++++++----------------------
- fs/erofs/unzip_vle.h | 103 +++++++-------
- 4 files changed, 308 insertions(+), 209 deletions(-)
+ fs/erofs/internal.h  |  61 ++++++++++++++++
+ fs/erofs/super.c     |  79 ++++++++++++++++++++-
+ fs/erofs/unzip_vle.c | 197 +++++++++++++++++++++++++++++++++++++++++++++++----
+ fs/erofs/unzip_vle.h |   8 ---
+ 4 files changed, 323 insertions(+), 22 deletions(-)
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 00e811c..583a7b3 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -99,3 +99,41 @@ config EROFS_FS_CLUSTER_PAGE_LIMIT
- 	  than 2. Otherwise, the image cannot be mounted
- 	  correctly on this kernel.
- 
-+choice
-+	prompt "EROFS VLE Data Decompression mode"
-+	depends on EROFS_FS_ZIP
-+	help
-+	  EROFS supports three options for VLE decompression.
-+	  "In-place Decompression Only" consumes the minimum memory
-+	  with lowest random read.
-+
-+	  "Bidirectional Cached Decompression" consumes the maximum memory
-+	  with highest random read.
-+
-+	  If unsure, select "Bidirectional Cached Decompression"
-+
-+config EROFS_FS_ZIP_0
-+	bool "In-place Decompression Only"
-+	help
-+	  Read compressed data into page cache and do in-place
-+	  decompression directly.
-+
-+config EROFS_FS_ZIP_UNIDIRECTIONAL
-+	bool "Unidirectional Cached Decompression"
-+	help
-+	  For each request, it caches the last compressed page
-+	  for further reading.
-+	  It still decompresses in place for the rest compressed pages.
-+
-+config EROFS_FS_ZIP_BIDIRECTIONAL
-+	bool "Bidirectional Cached Decompression"
-+	default y
-+	help
-+	  For each request, it caches the both end compressed pages
-+	  for further reading.
-+	  It still decompresses in place for the rest compressed pages.
-+
-+	  Recommended for performance priority.
-+
-+endchoice
-+
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index fa9d179..0c34265 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -1,6 +1,6 @@
- EROFS_VERSION = "1.0"
- 
--EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
-+EXTRA_CFLAGS += -g -O1 -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- 
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
-diff --git a/fs/erofs/unzip_vle.c b/fs/erofs/unzip_vle.c
-index 04c50cd..7ca1d5d 100644
---- a/fs/erofs/unzip_vle.c
-+++ b/fs/erofs/unzip_vle.c
-@@ -56,8 +56,16 @@ int z_erofs_init_zip_subsystem(void)
- 	return -ENOMEM;
- }
- 
-+enum z_erofs_vle_workrole {
-+	Z_EROFS_VLE_WORK_SECONDARY,
-+	Z_EROFS_VLE_WORK_PRIMARY,
-+	Z_EROFS_VLE_WORK_PRIMARY_OWNER,
-+	Z_EROFS_VLE_WORK_MAX
-+};
-+
- struct z_erofs_vle_work_handler {
--	bool owner;
-+	enum z_erofs_vle_workrole role;
-+
- 	struct z_erofs_vle_work *curr;
- 	struct z_erofs_pagevec_ctor vector;
- 
-@@ -66,6 +74,9 @@ struct z_erofs_vle_work_handler {
- 	unsigned compressed_deficit;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 8d7b6ab..edba0da 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -59,6 +59,22 @@ struct erofs_fault_info {
  };
- 
-+#define VLE_WORK_HANDLER_INIT()	\
-+	{ .curr = NULL, .role = Z_EROFS_VLE_WORK_PRIMARY_OWNER }
-+
- /* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
- static inline bool try_to_reuse_as_compressed_page(
- 	struct z_erofs_vle_work_handler *w,
-@@ -91,7 +102,8 @@ static int z_erofs_vle_work_add_page(
- 	bool occupied;
- 
- 	/* give priority for the compressed data storage */
--	if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
-+	if (w->role >= Z_EROFS_VLE_WORK_PRIMARY &&
-+		type == Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
- 		try_to_reuse_as_compressed_page(w, page))
- 		return 0;
- 
-@@ -102,16 +114,45 @@ static int z_erofs_vle_work_add_page(
- 	return ret ? 0 : -EAGAIN;
- }
- 
--static inline
--struct z_erofs_vle_work *z_erofs_vle_work_find(struct super_block *sb,
-+static inline bool try_to_claim_workgroup(
-+	struct z_erofs_vle_workgroup *grp,
-+	z_erofs_vle_owned_workgrp_t *owned_head)
-+{
-+	/* let's claim these following types of workgroup */
-+retry:
-+	if (grp->next == Z_EROFS_VLE_WORKGRP_NIL) {
-+		/* type 1, nil workgroup */
-+		if (Z_EROFS_VLE_WORKGRP_NIL != cmpxchg(&grp->next,
-+			Z_EROFS_VLE_WORKGRP_NIL, *owned_head))
-+			goto retry;
-+
-+		*owned_head = grp;
-+	} else if (grp->next == Z_EROFS_VLE_WORKGRP_TAIL) {
-+		/* type 2, link to the end of a existing chain */
-+		if (Z_EROFS_VLE_WORKGRP_TAIL != cmpxchg(&grp->next,
-+			Z_EROFS_VLE_WORKGRP_TAIL, *owned_head))
-+			goto retry;
-+
-+		*owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
-+	} else
-+		return false;	/* :( better luck next time */
-+
-+	return true;	/* lucky, I am the owner :) */
-+}
-+
-+struct z_erofs_vle_work *
-+z_erofs_vle_work_lookup(struct super_block *sb,
- 	pgoff_t idx, unsigned pageofs,
--	bool *cached_ret,
--	struct z_erofs_vle_workgroup **grp_ret)
-+	struct z_erofs_vle_workgroup **grp_ret,
-+	enum z_erofs_vle_workrole *role,
-+	z_erofs_vle_owned_workgrp_t *owned_head)
- {
--	bool cached;
--	struct erofs_workgroup *egrp = erofs_find_workgroup(sb, idx, &cached);
-+	bool tag, primary;
-+	struct erofs_workgroup *egrp;
- 	struct z_erofs_vle_workgroup *grp;
-+	struct z_erofs_vle_work *work;
- 
-+	egrp = erofs_find_workgroup(sb, idx, &tag);
- 	if (egrp == NULL) {
- 		*grp_ret = NULL;
- 		return NULL;
-@@ -119,21 +160,73 @@ struct z_erofs_vle_work *z_erofs_vle_work_find(struct super_block *sb,
- 
- 	*grp_ret = grp = container_of(egrp,
- 		struct z_erofs_vle_workgroup, obj);
--	*cached_ret = cached;
- 
--	return cached ? z_erofs_vle_work_cached(grp, pageofs) :
--		z_erofs_vle_work_uncached(grp, pageofs);
-+#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
-+	work = z_erofs_vle_grab_work(grp, pageofs);
-+	primary = true;
-+#else
-+	BUG();
-+#endif
-+
-+	/*
-+	 * lock must be taken first to avoid grp->next == NIL between
-+	 * claiming workgroup and adding pages:
-+	 *                        grp->next != NIL
-+	 *   grp->next = NIL
-+	 *   mutex_unlock_all
-+	 *                        mutex_lock(&work->lock)
-+	 *                        add all pages to pagevec
-+	 *
-+	 * [correct locking case 1]:
-+	 *   mutex_lock(grp->work[a])
-+	 *   ...
-+	 *   mutex_lock(grp->work[b])     mutex_lock(grp->work[c])
-+	 *   ...                          *role = SECONDARY
-+	 *                                add all pages to pagevec
-+	 *                                ...
-+	 *                                mutex_unlock(grp->work[c])
-+	 *   mutex_lock(grp->work[c])
-+	 *   ...
-+	 *   grp->next = NIL
-+	 *   mutex_unlock_all
-+	 *
-+	 * [correct locking case 2]:
-+	 *   mutex_lock(grp->work[b])
-+	 *   ...
-+	 *   mutex_lock(grp->work[a])
-+	 *   ...
-+	 *   mutex_lock(grp->work[c])
-+	 *   ...
-+	 *   grp->next = NIL
-+	 *   mutex_unlock_all
-+	 *                                mutex_lock(grp->work[a])
-+	 *                                *role = PRIMARY_OWNER
-+	 *                                add all pages to pagevec
-+	 *                                ...
-+	 */
-+	mutex_lock(&work->lock);
-+
-+	if (!primary)
-+		*role = Z_EROFS_VLE_WORK_SECONDARY;
-+	/* claim the workgroup if possible */
-+	else if (try_to_claim_workgroup(grp, owned_head))
-+		*role = Z_EROFS_VLE_WORK_PRIMARY_OWNER;
-+	else
-+		*role = Z_EROFS_VLE_WORK_PRIMARY;
-+
-+	return work;
- }
- 
--static inline struct z_erofs_vle_work *
-+struct z_erofs_vle_work *
- z_erofs_vle_work_register(struct super_block *sb,
--			  struct z_erofs_vle_workgroup *grp,
--			  bool cached,
-+			  struct z_erofs_vle_workgroup **grp_ret,
- 			  struct erofs_map_blocks *map,
- 			  pgoff_t index, unsigned pageofs,
--			  erofs_wtptr_t *owned_head)
-+			  enum z_erofs_vle_workrole *role,
-+			  z_erofs_vle_owned_workgrp_t *owned_head)
- {
- 	bool newgrp = false;
-+	struct z_erofs_vle_workgroup *grp = *grp_ret;
- 	struct z_erofs_vle_work *work;
- 
- #ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
-@@ -150,29 +243,31 @@ struct z_erofs_vle_work *z_erofs_vle_work_find(struct super_block *sb,
- 	grp->obj.index = index;
- 	grp->llen = map->m_llen;
- 
--	z_erofs_vle_set_work_format(grp,
-+	z_erofs_vle_set_workgrp_fmt(grp,
- 		(map->m_flags & EROFS_MAP_ZIPPED) ?
--			Z_EROFS_WORK_FORMAT_LZ4 :
--			Z_EROFS_WORK_FORMAT_PLAIN);
-+			Z_EROFS_VLE_WORKGRP_FMT_LZ4 :
-+			Z_EROFS_VLE_WORKGRP_FMT_PLAIN);
- 	atomic_set(&grp->obj.refcount, 1);
- 
-+	/* new workgrps have been claimed as type 1 */
-+	WRITE_ONCE(grp->next, *owned_head);
-+	/* primary & owner work role for new workgrps */
-+	*role = Z_EROFS_VLE_WORK_PRIMARY_OWNER;
-+
- 	newgrp = true;
- #ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
- skip:
--	/* currently not implemented */
-+	/* currently unimplemented */
- 	BUG();
- #else
--	work = cached ? z_erofs_vle_work_cached(grp, pageofs) :
--		z_erofs_vle_work_uncached(grp, pageofs);
-+	work = z_erofs_vle_grab_primary_work(grp);
  #endif
- 	work->pageofs = pageofs;
  
- 	mutex_init(&work->lock);
--	/* new works have been claimed as type 1 */
--	WRITE_ONCE(work->next, *owned_head);
- 
- 	if (newgrp) {
--		int err = erofs_register_workgroup(sb, &grp->obj, cached);
-+		int err = erofs_register_workgroup(sb, &grp->obj, 0);
- 
- 		if (err) {
- 			kmem_cache_free(z_erofs_workgroup_cachep, grp);
-@@ -180,61 +275,45 @@ struct z_erofs_vle_work *z_erofs_vle_work_find(struct super_block *sb,
- 		}
- 	}
- 
--	*owned_head = tagptr_fold(erofs_wtptr_t, work, cached);
--	return work;
--}
--
--static inline bool try_to_claim_work(struct z_erofs_vle_work *work,
--     erofs_wtptr_t *owned_head, bool cached)
--{
--	/* let's claim these following types of work */
--retry:
--	if (tagptr_eq(work->next, Z_EROFS_WORK_TPTR_TAIL)) {
--		/* type 2, link to a existing chain */
--		if (!tagptr_eq(tagptr_cmpxchg(&work->next,
--			Z_EROFS_WORK_TPTR_TAIL, *owned_head),
--			Z_EROFS_WORK_TPTR_TAIL))
--			goto retry;
--
--		*owned_head = Z_EROFS_WORK_TPTR_TAIL;
--	} else if (tagptr_eq(work->next, Z_EROFS_WORK_TPTR_NIL)) {
--		/* type 1 */
--		if (!tagptr_eq(tagptr_cmpxchg(&work->next,
--			Z_EROFS_WORK_TPTR_NIL, *owned_head),
--			Z_EROFS_WORK_TPTR_NIL))
--			goto retry;
--
--		*owned_head = tagptr_fold(erofs_wtptr_t, work, cached);
--	} else
--		return false;	/* :( better luck next time */
-+	*owned_head = *grp_ret = grp;
- 
--	return true;	/* lucky, I am the owner :) */
-+	mutex_lock(&work->lock);
-+	return work;
- }
- 
- static inline void __reset_compressed_pages(
- 	struct z_erofs_vle_work_handler *w,
--	struct z_erofs_vle_work *work, bool cached,
-+	struct z_erofs_vle_workgroup *grp, bool page_reuse,
- 	unsigned clusterpages)
- {
--	if (!cached) {
--		w->compressed_pages =
--			z_erofs_vle_work_uncached_mux(work);
-+	if (page_reuse) {
-+		w->compressed_pages = grp->compressed_pages;
- 		w->compressed_deficit = clusterpages;
- 		return;
- 	}
- 
--	/* TODO! get cached pages before submitting io */
- 	w->compressed_pages = NULL;
- 	w->compressed_deficit = 0;
- }
- 
-+static inline void __update_workgrp_llen(struct z_erofs_vle_workgroup *grp,
-+					 unsigned int llen)
-+{
-+	while(1) {
-+		unsigned int orig_llen = grp->llen;
-+
-+		if (orig_llen >= llen || cmpxchg(&grp->llen,
-+			orig_llen, llen) == orig_llen)
-+			break;
-+	}
-+}
-+
- static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_handler *w,
- 				       struct super_block *sb,
- 				       struct erofs_map_blocks *map,
--				       erofs_wtptr_t *owned_head)
-+				       z_erofs_vle_owned_workgrp_t *owned_head)
- {
- 	struct z_erofs_vle_workgroup *grp;
--	bool cached;
- 	pgoff_t index = map->m_pa / EROFS_BLKSIZ;
- 	struct z_erofs_vle_work *work;
- 	unsigned clusterpages = erofs_clusterpages(EROFS_SB(sb));
-@@ -243,48 +322,39 @@ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_handler *w,
- 	BUG_ON(w->curr != NULL);
- 
- 	/* must be Z_EROFS_WORK_TAIL or the next chained work */
--	BUG_ON(tagptr_cast_ptr(*owned_head) == NULL);
-+	BUG_ON(*owned_head == Z_EROFS_VLE_WORKGRP_NIL);
-+	BUG_ON(*owned_head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
-+
- 	BUG_ON(map->m_pa % EROFS_BLKSIZ);
- 
- repeat:
--	work = z_erofs_vle_work_find(sb, index,
--		pageofs, &cached, &grp);
-+	work = z_erofs_vle_work_lookup(sb, index,
-+		pageofs, &grp, &w->role, owned_head);
- 	if (work != NULL) {
- 		BUG_ON(index != grp->obj.index);
--
--		__reset_compressed_pages(w, work, cached, clusterpages);
- 		BUG_ON(work->pageofs != pageofs);
- 
--		mutex_lock(&work->lock);
--
--		if (grp->llen < map->m_llen)
--			grp->llen = map->m_llen;
--
--		w->owner = false;
--		/* claim the work if it can */
--		if (try_to_claim_work(work, owned_head, cached))
--			w->owner = true;
--
-+		__update_workgrp_llen(grp, map->m_llen);
- 		goto got_it;
- 	}
- 
--	work = z_erofs_vle_work_register(sb, grp,
--		false, map, index, pageofs, owned_head);
-+	work = z_erofs_vle_work_register(sb, &grp,
-+		map, index, pageofs, &w->role, owned_head);
- 
- 	if (unlikely(work == ERR_PTR(-EAGAIN)))
- 		goto repeat;
- 
- 	if (unlikely(IS_ERR(work)))
- 		return PTR_ERR(work);
--
--	__reset_compressed_pages(w, work, cached, clusterpages);
--	w->owner = true;
--
--	mutex_lock(&work->lock);
--
- got_it:
- 	z_erofs_pagevec_ctor_init(&w->vector,
- 		Z_EROFS_VLE_INLINE_PAGEVECS, work->pagevec, work->vcnt);
-+
-+	if (w->role >= Z_EROFS_VLE_WORK_PRIMARY)
-+		__reset_compressed_pages(w, grp, true, clusterpages);
-+	else
-+		__reset_compressed_pages(w, grp, false, 0);
-+
- 	w->curr = work;
- 	return 0;
- }
-@@ -293,7 +363,8 @@ static void z_erofs_rcu_callback(struct rcu_head *head)
- {
- 	struct z_erofs_vle_work *work =	container_of(head,
- 		struct z_erofs_vle_work, rcu);
--	struct z_erofs_vle_workgroup *grp = z_erofs_vle_work_workgroup(work);
-+	struct z_erofs_vle_workgroup *grp =
-+		z_erofs_vle_work_workgroup(work, true);
- 
- 	kmem_cache_free(z_erofs_workgroup_cachep, grp);
- }
-@@ -302,7 +373,7 @@ void erofs_workgroup_free_rcu(struct erofs_workgroup *grp)
- {
- 	struct z_erofs_vle_workgroup *const vgrp = container_of(grp,
- 		struct z_erofs_vle_workgroup, obj);
--	struct z_erofs_vle_work *const work = &vgrp->u.work;
-+	struct z_erofs_vle_work *const work = &vgrp->work;
- 
- 	call_rcu(&work->rcu, z_erofs_rcu_callback);
- }
-@@ -310,11 +381,13 @@ void erofs_workgroup_free_rcu(struct erofs_workgroup *grp)
- void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
- {
- 	struct z_erofs_vle_workgroup *grp =
--		z_erofs_vle_work_workgroup(work);
-+		z_erofs_vle_work_workgroup(work, true);
- 
- 	erofs_workgroup_put(&grp->obj);
- }
- 
-+#define handler_is_owner(w) ((w)->role >= Z_EROFS_VLE_WORK_PRIMARY_OWNER)
-+
- static inline void
- z_erofs_vle_work_iter_end(struct z_erofs_vle_work_handler *w)
- {
-@@ -327,7 +400,7 @@ void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
- 	 * if all pending pages are added, don't hold work reference
- 	 * any longer if the current handler is not the owner.
- 	 */
--	if (!w->owner)
-+	if (!handler_is_owner(w))
- 		z_erofs_vle_work_release(work);
- 
- 	z_erofs_pagevec_ctor_exit(&w->vector, false);
-@@ -338,13 +411,13 @@ void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
- static int z_erofs_do_read_page(struct page *page,
- 				struct z_erofs_vle_work_handler *h,
- 				struct erofs_map_blocks_iter *m,
--				erofs_wtptr_t *owned_head,
-+				z_erofs_vle_owned_workgrp_t *owned_head,
- 				struct list_head *page_pool)
- {
- 	struct inode *const inode = page->mapping->host;
- 	struct super_block *const sb = inode->i_sb;
- 	const loff_t offset = page_offset(page);
--	bool owned = h->owner;
-+	bool owned = handler_is_owner(h);
- 	struct z_erofs_vle_work *work = h->curr;
- 	enum z_erofs_page_type page_type;
- 	unsigned cur, end, spiltted, index;
-@@ -385,7 +458,7 @@ static int z_erofs_do_read_page(struct page *page,
- 	if (unlikely(err))
- 		goto err_out;
- 
--	owned &= h->owner;
-+	owned &= handler_is_owner(h);
- 	work = h->curr;
- hitted:
- 	cur = end - min_t(unsigned, offset + end - m->map.m_la, end);
-@@ -498,8 +571,8 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
- static DEFINE_MUTEX(z_pagemap_global_lock);
- 
- static int z_erofs_vle_unzip(struct super_block *sb,
--	struct z_erofs_vle_work *work,
--	bool cached, struct list_head *page_pool)
-+	struct z_erofs_vle_workgroup *grp,
-+	struct list_head *page_pool)
- {
- 	unsigned clusterpages = erofs_clusterpages(EROFS_SB(sb));
- 	struct z_erofs_pagevec_ctor ctor;
-@@ -513,12 +586,17 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 
- 	enum z_erofs_page_type page_type;
- 	bool overlapped;
--	struct z_erofs_vle_workgroup *grp;
-+	struct z_erofs_vle_work *work;
- 	void *vout;
- 	int err;
- 
--	BUG_ON(!READ_ONCE(work->nr_pages));
- 	might_sleep();
-+#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
-+	work = z_erofs_vle_grab_primary_work(grp);
-+#else
-+	BUG();
-+#endif
-+	BUG_ON(!READ_ONCE(work->nr_pages));
- 
- 	mutex_lock(&work->lock);
- 	nr_pages = work->nr_pages;
-@@ -578,38 +656,32 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	z_erofs_pagevec_ctor_exit(&ctor, true);
- 
- 	overlapped = false;
--	if (cached) {
--		grp = z_erofs_vle_work_workgroup(work);
--		compressed_pages = z_erofs_vle_cached_managed(grp);
--	} else {
--		grp = z_erofs_vle_work_workgroup(work);
--		compressed_pages = z_erofs_vle_work_uncached_mux(work);
-+	compressed_pages = grp->compressed_pages;
- 
--		for(i = 0; i < clusterpages; ++i) {
--			unsigned pagenr;
-+	for(i = 0; i < clusterpages; ++i) {
-+		unsigned pagenr;
- 
--			BUG_ON(compressed_pages[i] == NULL);
--			page = compressed_pages[i];
-+		BUG_ON(compressed_pages[i] == NULL);
-+		page = compressed_pages[i];
- 
--			if (page->mapping == NULL)
--				continue;
-+		if (page->mapping == NULL)
-+			continue;
- 
--			pagenr = z_erofs_onlinepage_index(page);
-+		pagenr = z_erofs_onlinepage_index(page);
- 
--			BUG_ON(pagenr >= nr_pages);
-+		BUG_ON(pagenr >= nr_pages);
- #ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
--			BUG_ON(pages[pagenr] != NULL);
--			++sparsemem_pages;
-+		BUG_ON(pages[pagenr] != NULL);
-+		++sparsemem_pages;
- #endif
--			pages[pagenr] = page;
-+		pages[pagenr] = page;
- 
--			overlapped = true;
--		}
-+		overlapped = true;
- 	}
- 
- 	llen = (nr_pages << PAGE_SHIFT) - work->pageofs;
- 
--	if (z_erofs_vle_workgroup_fmt(grp) == Z_EROFS_WORK_FORMAT_PLAIN) {
-+	if (z_erofs_vle_workgrp_fmt(grp) == Z_EROFS_VLE_WORKGRP_FMT_PLAIN) {
- 		BUG_ON(grp->llen != llen);
- 
- 		err = z_erofs_vle_plain_copy(compressed_pages, clusterpages,
-@@ -675,8 +747,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		if (page->mapping == NULL)
- 			list_add(&page->lru, page_pool);
- 
--		if (!cached)
--			WRITE_ONCE(compressed_pages[i], NULL);
-+		WRITE_ONCE(compressed_pages[i], NULL);
- 	}
- 
- 	if (pages == z_pagemap_global)
-@@ -687,8 +758,14 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	work->nr_pages = 0;
- 	work->vcnt = 0;
- 
--	WRITE_ONCE(work->next, Z_EROFS_WORK_TPTR_NIL);
-+	/* all work locks MUST be taken before */
-+
-+	WRITE_ONCE(grp->next, Z_EROFS_VLE_WORKGRP_NIL);
-+
-+	/* all work locks SHOULD be released right now */
- 	mutex_unlock(&work->lock);
-+
-+	z_erofs_vle_work_release(work);
- 	return err;
- }
- 
-@@ -696,26 +773,23 @@ static void z_erofs_vle_unzip_all(struct super_block *sb,
- 				  struct z_erofs_vle_unzip_io *io,
- 				  struct list_head *page_pool)
- {
--	erofs_wtptr_t owned = io->head;
--	struct z_erofs_vle_work *work;
--	bool cached;
-+	z_erofs_vle_owned_workgrp_t owned = io->head;
- 
--	BUG_ON(tagptr_eq(owned, Z_EROFS_WORK_TPTR_TAIL_CLOSED));
-+	BUG_ON(owned == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- 	do {
-+		struct z_erofs_vle_workgroup *grp;
-+
- 		/* no possible that 'owned' equals Z_EROFS_WORK_TPTR_TAIL */
--		BUG_ON(tagptr_eq(owned, Z_EROFS_WORK_TPTR_TAIL));
-+		BUG_ON(owned == Z_EROFS_VLE_WORKGRP_TAIL);
- 
- 		/* no possible that 'owned' equals NULL */
--		BUG_ON(tagptr_eq(owned, Z_EROFS_WORK_TPTR_NIL));
--
--		work = tagptr_unfold_ptr(owned);
--		cached = tagptr_unfold_tags(owned);
-+		BUG_ON(owned == Z_EROFS_VLE_WORKGRP_NIL);
- 
--		owned = READ_ONCE(work->next);
--		z_erofs_vle_unzip(sb, work, cached, page_pool);
-+		grp = owned;
-+		owned = READ_ONCE(grp->next);
- 
--		z_erofs_vle_work_release(work);
--	} while (!tagptr_eq(owned, Z_EROFS_WORK_TPTR_TAIL_CLOSED));
-+		z_erofs_vle_unzip(sb, grp, page_pool);
-+	} while (owned != Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- }
- 
- static void z_erofs_vle_unzip_wq(struct work_struct *work)
-@@ -762,7 +836,7 @@ static inline tagptr1_t prepare_io_handler(
- }
- 
- static bool z_erofs_vle_submit_all(struct super_block *sb,
--				   erofs_wtptr_t owned_head,
-+				   z_erofs_vle_owned_workgrp_t owned_head,
- 				   struct list_head *page_pool,
- 				   struct z_erofs_vle_unzip_io *io)
- {
-@@ -773,7 +847,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 	unsigned bios_submitted;
- 	tagptr1_t tio;
- 
--	if (unlikely(tagptr_eq(owned_head, Z_EROFS_WORK_TPTR_TAIL)))
-+	if (unlikely(owned_head == Z_EROFS_VLE_WORKGRP_TAIL))
- 		return false;
- 
- 	tio = prepare_io_handler(sb, io, &sync);
-@@ -784,36 +858,23 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 	bios_submitted = 0;
- 
- 	do {
--		struct z_erofs_vle_work *work;
- 		struct z_erofs_vle_workgroup *grp;
--		bool cached, locked;
- 		struct page **compressed_pages;
- 		pgoff_t current_page;
- 		unsigned i;
- 		int err;
- 
- 		/* no possible 'owned_head' equals the following */
--		BUG_ON(tagptr_eq(owned_head, Z_EROFS_WORK_TPTR_TAIL_CLOSED));
--		BUG_ON(tagptr_eq(owned_head, Z_EROFS_WORK_TPTR_NIL));
-+		BUG_ON(owned_head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
-+		BUG_ON(owned_head == Z_EROFS_VLE_WORKGRP_NIL);
- 
--		work = tagptr_unfold_ptr(owned_head);
--		cached = tagptr_unfold_tags(owned_head);
-+		grp = owned_head;
- 
- 		/* close the owned chain at first */
--		owned_head = tagptr_cmpxchg(&work->next,
--			Z_EROFS_WORK_TPTR_TAIL, Z_EROFS_WORK_TPTR_TAIL_CLOSED);
--
--		grp = z_erofs_vle_work_workgroup(work);
--
--		BUG_ON(cached);
-+		owned_head = cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
-+			Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- 
--		locked = false;
--		if (unlikely(mutex_is_locked(&work->lock))) {
--			mutex_lock(&work->lock);
--			locked = true;
--		}
--
--		compressed_pages = z_erofs_vle_work_uncached_mux(work);
-+		compressed_pages = grp->compressed_pages;
- 		/* fulfill all compressed pages */
- 		for (i = 0; i < clusterpages; ++i) {
- 			struct page *page;
-@@ -828,9 +889,6 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 				list_add(&page->lru, page_pool);
- 		}
- 
--		if (unlikely(locked))
--			mutex_unlock(&work->lock);
--
- 		current_page = grp->obj.index;
- 		i = 0;
- 
-@@ -857,7 +915,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 
- 		if (++i < clusterpages)
- 			goto repeat;
--	} while (!tagptr_eq(owned_head, Z_EROFS_WORK_TPTR_TAIL));
-+	} while (owned_head != Z_EROFS_VLE_WORKGRP_TAIL);
- 
- 	if (bio != NULL)
- 		__submit_bio(bio, REQ_OP_READ, 0);
-@@ -873,8 +931,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 		.map = { .m_llen = 0, .m_plen = 0 },
- 		.mpage = NULL
- 	};
--	struct z_erofs_vle_work_handler h = { .curr = NULL, .owner = true };
--	erofs_wtptr_t owned_head = Z_EROFS_WORK_TPTR_TAIL;
-+	struct z_erofs_vle_work_handler h = VLE_WORK_HANDLER_INIT();
-+	z_erofs_vle_owned_workgrp_t owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
- 	struct super_block *sb;
- 	struct z_erofs_vle_unzip_io io;
- 	LIST_HEAD(pagepool);
-@@ -917,12 +975,12 @@ static inline int __z_erofs_vle_normalaccess_readpages(
- 		.map = { .m_llen = 0, .m_plen = 0 },
- 		.mpage = NULL
- 	};
--	struct z_erofs_vle_work_handler h = { .curr = NULL, .owner = true };
-+	struct z_erofs_vle_work_handler h = VLE_WORK_HANDLER_INIT();
-+	z_erofs_vle_owned_workgrp_t owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
- 	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
- 	struct page *head = NULL;
- 	struct inode *inode = mapping->host;
- 	struct super_block *sb = inode->i_sb;
--	erofs_wtptr_t owned_head = Z_EROFS_WORK_TPTR_TAIL;
- 	LIST_HEAD(pagepool);
- 
- 	for (; nr_pages; --nr_pages) {
-diff --git a/fs/erofs/unzip_vle.h b/fs/erofs/unzip_vle.h
-index 7542aa8..2a446f9 100644
---- a/fs/erofs/unzip_vle.h
-+++ b/fs/erofs/unzip_vle.h
-@@ -16,22 +16,13 @@
- #include "internal.h"
- #include "unzip_pagevec.h"
- 
--/* (uncached/cached) work tagged pointer */
--typedef tagptr1_t       erofs_wtptr_t;
--
--/* let's avoid the 32-bit valid kernel address */
--
--/* the chained works haven't io submitted (still open) */
--#define Z_EROFS_WORK_TAIL               0x5F0ECAFE
--/* the chained works have already io submitted */
--#define Z_EROFS_WORK_TAIL_CLOSED        0x5F0EDEAD
--
--
--#define Z_EROFS_WORK_TPTR_TAIL  tagptr_init(erofs_wtptr_t, Z_EROFS_WORK_TAIL)
--#define Z_EROFS_WORK_TPTR_TAIL_CLOSED \
--	tagptr_init(erofs_wtptr_t, Z_EROFS_WORK_TAIL_CLOSED)
--
--#define Z_EROFS_WORK_TPTR_NIL   tagptr_init(erofs_wtptr_t, NULL)
 +#ifdef CONFIG_EROFS_FS_ZIP_BIDIRECTIONAL
 +#define EROFS_FS_ZIP_CACHE_LVL	(2)
 +#elif defined(CONFIG_EROFS_FS_ZIP_UNIDIRECTIONAL)
@@ -783,130 +29,550 @@ index 7542aa8..2a446f9 100644
 +#else
 +#define EROFS_FS_ZIP_CACHE_LVL	(0)
 +#endif
- 
- /*
-  * Structure fields follow one of the following exclusion rules.
-@@ -45,11 +36,13 @@
- 
- struct z_erofs_vle_work {
- 	/* struct z_erofs_vle_work *left, *right; */
--	struct mutex lock;
- 
- #ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
-+	struct list_head list;
 +
- 	atomic_t refcount;
- #endif
-+	struct mutex lock;
- 
- 	/* I: decompression offset in page */
- 	unsigned short pageofs;
-@@ -57,8 +50,6 @@ struct z_erofs_vle_work {
- 
- 	/* L: queued pages in pagevec[] */
- 	unsigned vcnt;
--	/* L: the next owned work */
--	erofs_wtptr_t next;
- 
- 	union {
- 		/* L: pagevec */
-@@ -67,54 +58,66 @@ struct z_erofs_vle_work {
- 	};
- };
- 
--#define Z_EROFS_WORK_FORMAT_PLAIN       0
--#define Z_EROFS_WORK_FORMAT_LZ4         1
--#define Z_EROFS_WORK_FORMAT_MASK        1
-+#define Z_EROFS_VLE_WORKGRP_FMT_PLAIN        0
-+#define Z_EROFS_VLE_WORKGRP_FMT_LZ4          1
-+#define Z_EROFS_VLE_WORKGRP_FMT_MASK         1
- 
--struct z_erofs_vle_work_uncached {
--	struct z_erofs_vle_work work;
-+typedef struct z_erofs_vle_workgroup *z_erofs_vle_owned_workgrp_t;
- 
--	/* multi-usage (both used for decompressed / compressed pages) */
--	struct page *mux[Z_EROFS_CLUSTER_MAX_PAGES];
--};
--
--struct z_erofs_vle_cached_header {
-+struct z_erofs_vle_workgroup {
-+	struct erofs_workgroup obj;
- 	struct z_erofs_vle_work work;
- 
--	struct page *managed[Z_EROFS_CLUSTER_MAX_PAGES];
--};
-+#if (EROFS_FS_ZIP_CACHE_LVL > 0)
-+	/* used for cached compressed pages reclaim serialization */
-+	rwlock_t reclaim_lock;
++#if (!defined(EROFS_FS_HAS_MANAGED_CACHE) && (EROFS_FS_ZIP_CACHE_LVL > 0))
++#define EROFS_FS_HAS_MANAGED_CACHE
++
++#define EROFS_UNALLOCATED_CACHED_PAGE	((void *)0x5F0EF00D)
++
++extern int try_to_free_cached_page(struct address_space *, struct page *);
 +#endif
++
+ /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
+ #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
  
--struct z_erofs_vle_workgroup {
--	struct erofs_workgroup obj;
--	union {
--		struct z_erofs_vle_work work;
--		struct z_erofs_vle_work_uncached uncached;
--		struct z_erofs_vle_cached_header cached;
--	} u;
-+	/* next owned workgroup */
-+	z_erofs_vle_owned_workgrp_t next;
+@@ -88,6 +104,11 @@ struct erofs_sb_info {
+ 		spinlock_t lock;
+ #endif
+ 	} workstn;
++
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	struct inode *managed_cache;
++#endif
++
+ #endif
  
-+	/* compressed pages (including multi-usage pages) */
-+	struct page *compressed_pages[Z_EROFS_CLUSTER_MAX_PAGES];
- 	unsigned int llen, flags;
+ 	u32 build_time_nsec;
+@@ -176,13 +197,53 @@ struct erofs_workgroup {
+ 	atomic_t refcount;
  };
  
--#define z_erofs_vle_workgroup_fmt(grp)	\
--	((grp)->flags & Z_EROFS_WORK_FORMAT_MASK)
-+/* let's avoid the valid 32-bit kernel addresses */
++#define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
 +
-+/* the chained workgroup has't submitted io (still open) */
-+#define Z_EROFS_VLE_WORKGRP_TAIL        ((void *)0x5F0ECAFE)
-+/* the chained workgroup has already submitted io */
-+#define Z_EROFS_VLE_WORKGRP_TAIL_CLOSED ((void *)0x5F0EDEAD)
- 
--#define z_erofs_vle_set_work_format(grp, fmt) \
--	((grp)->flags = ((grp)->flags & ~Z_EROFS_WORK_FORMAT_MASK) | (fmt))
-+#define Z_EROFS_VLE_WORKGRP_NIL         (NULL)
- 
--#define z_erofs_vle_work_uncached(grp, pageofs) (&(grp)->u.uncached.work)
--#define z_erofs_vle_work_uncached_mux(wrk)      \
--	(container_of(wrk, struct z_erofs_vle_work_uncached, work)->mux)
--#define z_erofs_vle_work_cached(grp, pageofs)   (&(grp)->u.cached.work)
--#define z_erofs_vle_cached_managed(grp)         ((grp)->u.cached.managed)
--#define z_erofs_vle_work_workgroup(wrk) \
--	container_of(wrk, struct z_erofs_vle_workgroup, u.work)
-+#define z_erofs_vle_workgrp_fmt(grp)	\
-+	((grp)->flags & Z_EROFS_VLE_WORKGRP_FMT_MASK)
- 
-+static inline void z_erofs_vle_set_workgrp_fmt(
-+	struct z_erofs_vle_workgroup *grp,
-+	unsigned int fmt)
++static inline bool erofs_workgroup_try_to_freeze(
++	struct erofs_workgroup *grp, int v)
 +{
-+	grp->flags = fmt | (grp->flags & ~Z_EROFS_VLE_WORKGRP_FMT_MASK);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++	if (v != atomic_cmpxchg(&grp->refcount,
++		v, EROFS_LOCKED_MAGIC))
++		return false;
++	preempt_disable();
++#else
++	preempt_disable();
++	if (atomic_read(&grp->refcount) != v) {
++		preempt_enable();
++		return false;
++	}
++#endif
++	return true;
 +}
 +
-+#ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
-+#error multiref decompression is unimplemented yet
-+#else
++static inline void erofs_workgroup_unfreeze(
++	struct erofs_workgroup *grp, int v)
++{
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++	atomic_set(&grp->refcount, v);
++#endif
++	preempt_enable();
++}
 +
-+#define z_erofs_vle_grab_primary_work(grp)	(&(grp)->work)
-+#define z_erofs_vle_grab_work(grp, pageofs)	(&(grp)->work)
-+#define z_erofs_vle_work_workgroup(wrk, primary)	\
-+	((primary) ? container_of(wrk,	\
-+		struct z_erofs_vle_workgroup, work) : \
-+		({ BUG(); (void *)NULL; }))
+ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+ {
++	const int locked = (int)EROFS_LOCKED_MAGIC;
+ 	int o;
+ 
+ repeat:
+ 	o = atomic_read(&grp->refcount);
+ 
++	/* spin if it is temporarily locked at the reclaim path */
++	if (unlikely(o == locked)) {
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++		do
++			cpu_relax();
++		while (atomic_read(&grp->refcount) == locked);
++#endif
++		goto repeat;
++	}
++
+ 	if (unlikely(o <= 0))
+ 		return -1;
+ 
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 546a308..fc4d750 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -245,6 +245,67 @@ static int parse_options(struct super_block *sb, char *options)
+ 	return 0;
+ }
+ 
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++
++static const struct address_space_operations managed_cache_aops;
++
++static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
++{
++	int ret = 1;	/* 0 - busy */
++	struct address_space *const mapping = page->mapping;
++
++	BUG_ON(!PageLocked(page));
++	BUG_ON(mapping->a_ops != &managed_cache_aops);
++
++	if (PagePrivate(page))
++		ret = try_to_free_cached_page(mapping, page);
++
++	return ret;
++}
++
++static void managed_cache_invalidatepage(struct page *page,
++	unsigned int offset, unsigned int length)
++{
++	const unsigned int stop = length + offset;
++
++	BUG_ON(!PageLocked(page));
++
++	/* Check for overflow */
++	BUG_ON(stop > PAGE_SIZE || stop < length);
++
++	if (offset == 0 && stop == PAGE_SIZE)
++		while(!managed_cache_releasepage(page, GFP_NOFS))
++			cond_resched();
++}
++
++static const struct address_space_operations managed_cache_aops = {
++	.releasepage = managed_cache_releasepage,
++	.invalidatepage = managed_cache_invalidatepage,
++};
++
++struct inode *erofs_init_managed_cache(struct super_block *sb)
++{
++	struct inode *inode = new_inode(sb);
++
++	if (unlikely(inode == NULL))
++		return ERR_PTR(-ENOMEM);
++
++	set_nlink(inode, 1);
++	inode->i_size = OFFSET_MAX;
++
++	inode->i_mapping->a_ops = &managed_cache_aops;
++	mapping_set_gfp_mask(inode->i_mapping,
++	                     GFP_NOFS | __GFP_HIGHMEM |
++	                     __GFP_MOVABLE |  __GFP_NOFAIL
++#if defined(CONFIG_CMA) && defined(___GFP_CMA)
++	                     | ___GFP_CMA
++#endif
++	                    );
++	return inode;
++}
 +
 +#endif
++
+ static int erofs_read_super(struct super_block *sb,
+ 	const char *dev_name, void *data, int silent)
+ {
+@@ -299,11 +360,19 @@ static int erofs_read_super(struct super_block *sb,
+ #endif
+ #endif
  
- #define Z_EROFS_WORKGROUP_SIZE       sizeof(struct z_erofs_vle_workgroup)
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	sbi->managed_cache = erofs_init_managed_cache(sb);
++	if (sbi->managed_cache == NULL) {
++		err = -ENOMEM;
++		goto err_sbi;
++	}
++#endif
++
+ 	/* get the root inode */
+ 	inode = erofs_iget(sb, ROOT_NID(sbi), true);
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+-		goto err_sbi;
++		goto iget_err;
+ 	}
  
- struct z_erofs_vle_unzip_io {
- 	atomic_t pending_bios;
--	erofs_wtptr_t head;
-+	z_erofs_vle_owned_workgrp_t head;
+ 	if (!S_ISDIR(inode->i_mode)) {
+@@ -346,6 +415,10 @@ static int erofs_read_super(struct super_block *sb,
+ err_iput:
+ 	if (sb->s_root == NULL)
+ 		iput(inode);
++iget_err:
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	iput(sbi->managed_cache);
++#endif
+ err_sbi:
+ 	sb->s_fs_info = NULL;
+ 	kfree(sbi);
+@@ -368,6 +441,10 @@ static void erofs_put_super(struct super_block *sb)
+ 	infoln("unmounted for %s", sbi->dev_name);
+ 	__putname(sbi->dev_name);
  
- 	union {
- 		wait_queue_head_t wait;
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	iput(sbi->managed_cache);
++#endif
++
+ 	mutex_lock(&sbi->umount_mutex);
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
+diff --git a/fs/erofs/unzip_vle.c b/fs/erofs/unzip_vle.c
+index 7ca1d5d..0920851 100644
+--- a/fs/erofs/unzip_vle.c
++++ b/fs/erofs/unzip_vle.c
+@@ -77,6 +77,107 @@ struct z_erofs_vle_work_handler {
+ #define VLE_WORK_HANDLER_INIT()	\
+ 	{ .curr = NULL, .role = Z_EROFS_VLE_WORK_PRIMARY_OWNER }
+ 
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++int try_to_free_cached_page(struct address_space *mapping, struct page *page)
++{
++	struct inode *inode = mapping->host;
++	unsigned clusterpages = erofs_clusterpages(EROFS_SB(inode->i_sb));
++	struct z_erofs_vle_workgroup *grp = (void *)page_private(page);
++	int i, ret = 0;
++
++	/* prevent the workgroup from being freed */
++	rcu_read_lock();
++
++	if (!erofs_workgroup_try_to_freeze(&grp->obj, 1))
++		goto out;
++
++	for(i = 0; i < clusterpages; ++i) {
++		if (grp->compressed_pages[i] == page) {
++			WRITE_ONCE(grp->compressed_pages[i], NULL);
++			ret = 1;
++			break;
++		}
++	}
++	erofs_workgroup_unfreeze(&grp->obj, 1);
++out:
++	rcu_read_unlock();
++
++	if (ret) {
++		ClearPagePrivate(page);
++		put_page(page);
++	}
++	return ret;
++}
++
++static inline void grab_compressed_pages_in_managed_cache(
++	struct super_block *sb,
++	pgoff_t start,
++	struct page **compressed_pages,
++	int clusterpages, bool alloc_reserve)
++{
++	pgoff_t cur;
++#if 0
++	struct page *pages[clusterpages];
++#endif
++	unsigned i, j, found;
++
++	for (i = 0; i < clusterpages; ++i) {
++		if (READ_ONCE(compressed_pages[i]) == NULL) {
++			cur = (start += i);
++			compressed_pages += i;
++			clusterpages -= i;		
++			goto hitted;
++		}
++	}
++
++	return;
++hitted:
++#if 0
++	found = find_get_pages_range(EROFS_SB(sb)->managed_cache->i_mapping,
++		&cur, start + clusterpages, clusterpages, pages);
++#endif
++
++	i = 0;
++	for (j = 0; i < clusterpages && j < found; ++i) {
++		struct page *page;
++
++#if 0
++		cur = pages[j]->index - start;
++		if (cur != i) {
++			if (!alloc_reserve)
++				continue;
++			page = EROFS_UNALLOCATED_CACHED_PAGE;
++		} else
++			page = pages[j++];
++#else
++		page = find_get_page(EROFS_SB(sb)->managed_cache->i_mapping,
++			start + j);
++		if (page == NULL) {
++			if (!alloc_reserve)
++				continue;
++			page = EROFS_UNALLOCATED_CACHED_PAGE;
++		}
++#endif
++
++		if (cmpxchg(compressed_pages + cur, NULL, page) == NULL)
++			continue;
++
++		if (cur == i)
++			put_page(page);
++	}
++
++	if (!alloc_reserve)
++		return;
++
++	while (i < clusterpages) {
++		cmpxchg(compressed_pages + i, NULL,
++			EROFS_UNALLOCATED_CACHED_PAGE);
++		++i;
++	}
++}
++
++#endif
++
+ /* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
+ static inline bool try_to_reuse_as_compressed_page(
+ 	struct z_erofs_vle_work_handler *w,
+@@ -308,6 +409,13 @@ static inline void __update_workgrp_llen(struct z_erofs_vle_workgroup *grp,
+ 	}
+ }
+ 
++#define handler_is_owner(w) ((w)->role >= Z_EROFS_VLE_WORK_PRIMARY_OWNER)
++
++struct z_erofs_vle_frontend {
++	bool initial;
++	erofs_off_t cachedzone_la;
++};
++
+ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_handler *w,
+ 				       struct super_block *sb,
+ 				       struct erofs_map_blocks *map,
+@@ -386,8 +494,6 @@ void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
+ 	erofs_workgroup_put(&grp->obj);
+ }
+ 
+-#define handler_is_owner(w) ((w)->role >= Z_EROFS_VLE_WORK_PRIMARY_OWNER)
+-
+ static inline void
+ z_erofs_vle_work_iter_end(struct z_erofs_vle_work_handler *w)
+ {
+@@ -408,7 +514,8 @@ void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
+ 	w->curr = NULL;
+ }
+ 
+-static int z_erofs_do_read_page(struct page *page,
++static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
++				struct page *page,
+ 				struct z_erofs_vle_work_handler *h,
+ 				struct erofs_map_blocks_iter *m,
+ 				z_erofs_vle_owned_workgrp_t *owned_head,
+@@ -458,6 +565,14 @@ static int z_erofs_do_read_page(struct page *page,
+ 	if (unlikely(err))
+ 		goto err_out;
+ 
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	grab_compressed_pages_in_managed_cache(sb,
++		m->map.m_pa / EROFS_BLKSIZ, h->compressed_pages,
++		h->compressed_deficit, fe->initial || m->map.m_la <= fe->cachedzone_la);
++
++	fe->initial = false;
++#endif
++
+ 	owned &= handler_is_owner(h);
+ 	work = h->curr;
+ hitted:
+@@ -542,6 +657,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ {
+ 	unsigned i;
+ 	struct bio_vec *bvec;
++
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 13, 0))
+ 	const int err = bio->bi_status;
+ #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 3, 0))
+@@ -550,16 +666,25 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 
+ 	bio_for_each_segment_all(bvec, bio, i) {
+ 		struct page *page = bvec->bv_page;
++		bool cachedpage = false;
+ 
+ 		DBG_BUGON(PageUptodate(page));
++
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++		if (page->mapping != NULL) {
++			struct inode *inode = page->mapping->host;
++
++			cachedpage = (inode ==
++				EROFS_SB(inode->i_sb)->managed_cache);
++		}
++#endif
++
+ 		if (unlikely(err))
+ 			SetPageError(page);
+-
+-		/* FIXME: the following snippets are for cached work */
+-		else if (0)
++		else if (cachedpage)
+ 			SetPageUptodate(page);
+ 
+-		if (0)
++		if (cachedpage)
+ 			unlock_page(page);
+ 	}
+ 
+@@ -574,7 +699,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	struct z_erofs_vle_workgroup *grp,
+ 	struct list_head *page_pool)
+ {
+-	unsigned clusterpages = erofs_clusterpages(EROFS_SB(sb));
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned clusterpages = erofs_clusterpages(sbi);
+ 	struct z_erofs_pagevec_ctor ctor;
+ 	unsigned nr_pages;
+ #ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
+@@ -666,6 +792,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 
+ 		if (page->mapping == NULL)
+ 			continue;
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++		if (page->mapping->host == sbi->managed_cache)
++			continue;
++#endif
+ 
+ 		pagenr = z_erofs_onlinepage_index(page);
+ 
+@@ -747,6 +877,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		if (page->mapping == NULL)
+ 			list_add(&page->lru, page_pool);
+ 
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++		else if (page->mapping->host == sbi->managed_cache)
++			continue;
++#endif
+ 		WRITE_ONCE(compressed_pages[i], NULL);
+ 	}
+ 
+@@ -841,7 +975,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 				   struct z_erofs_vle_unzip_io *io)
+ {
+ 	struct bio *bio = NULL;
+-	unsigned clusterpages = erofs_clusterpages(EROFS_SB(sb));
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned clusterpages = erofs_clusterpages(sbi);
+ 	pgoff_t last_page;
+ 	bool sync;
+ 	unsigned bios_submitted;
+@@ -878,15 +1013,34 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 		/* fulfill all compressed pages */
+ 		for (i = 0; i < clusterpages; ++i) {
+ 			struct page *page;
++			struct page *old = READ_ONCE(compressed_pages[i]);
++			bool cached = (old == EROFS_UNALLOCATED_CACHED_PAGE);
+ 
+-			if (READ_ONCE(compressed_pages[i]) != NULL)
++			if (old != NULL && !cached)
+ 				continue;
+ 
+ 			page = erofs_allocpage(page_pool, GFP_KERNEL);
+ 			page->mapping = NULL;
++			if (cached) {
++				if (add_to_page_cache_lru(page,
++					sbi->managed_cache->i_mapping,
++					grp->obj.index + i, GFP_KERNEL))
++					cached = false;
++				else {
++					if (cmpxchg(compressed_pages + i,
++						old, page) == old) {
++						set_page_private(page, (unsigned long)grp);
++						SetPagePrivate(page);
++					} else {
++						put_page(page);
++					}
++					continue;
++				}
++			}
+ 
+-			if (cmpxchg(compressed_pages + i, NULL, page) != NULL)
++			if (cmpxchg(compressed_pages + i, old, page) != old) {
+ 				list_add(&page->lru, page_pool);
++			}
+ 		}
+ 
+ 		current_page = grp->obj.index;
+@@ -898,6 +1052,19 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 			bio = NULL;
+ 		}
+ repeat:
++		if (compressed_pages[i]->mapping == sbi->managed_cache->i_mapping) {
++			if (PageUptodate(compressed_pages[i])) {
++				if (++i < clusterpages) {
++					if (bio != NULL)
++						goto submit_bio_retry;
++					else
++						goto repeat;
++				}
++				continue;
++			}
++			BUG_ON(!PageLocked(compressed_pages[i]));
++		}
++
+ 		if (bio == NULL) {
+ 			bio = prepare_bio(sb, current_page,
+ 				BIO_MAX_PAGES, z_erofs_vle_read_endio);
+@@ -927,6 +1094,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+                                              struct page *page)
+ {
++	struct z_erofs_vle_frontend fe = { .initial = true,
++		.cachedzone_la = page->index << PAGE_SHIFT };
+ 	struct erofs_map_blocks_iter m_iter = {
+ 		.map = { .m_llen = 0, .m_plen = 0 },
+ 		.mpage = NULL
+@@ -937,7 +1106,7 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	struct z_erofs_vle_unzip_io io;
+ 	LIST_HEAD(pagepool);
+ 
+-	int err = z_erofs_do_read_page(page,
++	int err = z_erofs_do_read_page(&fe, page,
+ 		&h, &m_iter, &owned_head, &pagepool);
+ 
+ 	z_erofs_vle_work_iter_end(&h);
+@@ -971,6 +1140,8 @@ static inline int __z_erofs_vle_normalaccess_readpages(
+ 	struct address_space *mapping,
+ 	struct list_head *pages, unsigned nr_pages, bool sync)
+ {
++	struct z_erofs_vle_frontend fe = { .initial = true,
++		.cachedzone_la = lru_to_page(pages)->index << PAGE_SHIFT };
+ 	struct erofs_map_blocks_iter m_iter = {
+ 		.map = { .m_llen = 0, .m_plen = 0 },
+ 		.mpage = NULL
+@@ -1006,7 +1177,7 @@ static inline int __z_erofs_vle_normalaccess_readpages(
+ 		/* traversal in reverse order */
+ 		head = (void *)page_private(page);
+ 
+-		err = z_erofs_do_read_page(page,
++		err = z_erofs_do_read_page(&fe, page,
+ 			&h, &m_iter, &owned_head, &pagepool);
+ 		if (err) {
+ 			struct erofs_vnode *vi = EROFS_V(inode);
+diff --git a/fs/erofs/unzip_vle.h b/fs/erofs/unzip_vle.h
+index 2a446f9..91e4a80 100644
+--- a/fs/erofs/unzip_vle.h
++++ b/fs/erofs/unzip_vle.h
+@@ -16,14 +16,6 @@
+ #include "internal.h"
+ #include "unzip_pagevec.h"
+ 
+-#ifdef CONFIG_EROFS_FS_ZIP_BIDIRECTIONAL
+-#define EROFS_FS_ZIP_CACHE_LVL	(2)
+-#elif defined(CONFIG_EROFS_FS_ZIP_UNIDIRECTIONAL)
+-#define EROFS_FS_ZIP_CACHE_LVL	(1)
+-#else
+-#define EROFS_FS_ZIP_CACHE_LVL	(0)
+-#endif
+-
+ /*
+  * Structure fields follow one of the following exclusion rules.
+  *
 -- 
 1.9.1
