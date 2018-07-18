@@ -1,187 +1,32 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 18 Jul 2018 21:51:12 +0800
-Subject: [PATCH 1/2] erofs: fix match_table with a NULL terminated pattern
-In-Reply-To: <1531706300-45908-1-git-send-email-gaoxiang25@huawei.com>
-References: <1531158912-84952-1-git-send-email-gaoxiang25@huawei.com>
- <1531706300-45908-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <7917d7ab-caf1-cc65-4a03-8da3a9fdac88@huawei.com>
+Date: Wed, 18 Jul 2018 23:16:14 +0800
+Subject: [PATCH] erofs: fix unrecognized mount option message level
+Message-ID: <1531926974-72570-1-git-send-email-gaoxiang25@huawei.com>
 
+Commonly 'unrecognized mount option' message should be
+printed at least in KERN_ERR message level rather than
+KERN_INFO level since it is important for the operating
+system that some filesytems cannot be mounted normally,
+therefore the level of 'invalid options' message should
+be bumped up.
 
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ fs/erofs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 2018/7/16 9:58, Gao Xiang wrote:
-> Without a NULL terminated pattern, it could cause memory
-> access violation.
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-A related memory violation just for recording,
-
-[   15.991760s][pid:1,cpu7,init]Unable to handle kernel paging request at virtual address 28203d2076656422
-[   15.991760s][pid:1,cpu7,init]pgd = ffffffdd5da00000
-[   15.991760s][28203d2076656422] *pgd=0000000000000000, *pud=0000000000000000
-[   15.991790s][pid:1,cpu7,init]Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[   15.991790s]Modules linked in:
-[   15.991821s][pid:1,cpu7,init]CPU: 7 PID: 1 Comm: init Not tainted 4.4.103+ #13
-[   15.991821s][pid:1,cpu7,init]TGID: 1 Comm: init
-[   15.991821s][pid:1,cpu7,init]Hardware name: ******** (DT)
-[   15.991821s][pid:1,cpu7,init]task: ffffffdf5e878000 task.stack: ffffffdf5e880000
-[   15.991821s][pid:1,cpu7,init]PC is at strchr+0x4/0x30
-[   15.991851s][pid:1,cpu7,init]LR is at match_token+0x78/0x22c
-[   15.991851s][pid:1,cpu7,init]pc : [<ffffff86f0cd61c8>] lr : [<ffffff86f0ce79bc>] pstate: 20000105
-[   15.991851s][pid:1,cpu7,init]sp : ffffffdf5e883a30
-[   15.991851s]x29: ffffffdf5e883a30 x28: ffffff86f249bb90 
-[   15.991851s]x27: ffffffdd5db8b000 x26: ffffff86f2050280 
-[   15.991882s]x25: ffffff86f305b760 x24: ffffff86f204fd78 
-[   15.991882s]x23: ffffffdf5e883b38 x22: 0000000000000000 
-[   15.991882s]x21: 0000000000000010 x20: 28203d2076656422 
-[   15.991882s]x19: ffffffdd5db8b000 x18: 000000000037dbe0 
-[   15.991912s]x17: ffffffdf5e8ffc20 x16: 000000000037dbe0 
-[   15.991912s]x15: 531b3a1d1e070004 x14: ffffffdf5e8fc000 
-[   15.991912s]x13: 0000000000000000 x12: 0000000000000005 
-[   15.991912s]x11: 0101010101010101 x10: 0101010101010101 
-[   15.991943s]x9 : 7f7f7f7f7f7f7f7f x8 : 6d685e736b746065 
-[   15.991943s]x7 : 0400071e1d3a1b53 x6 : 531b3a1d1e070004 
-[   15.991943s]x5 : 0000000000000000 x4 : 4c2e4e4d2cae47a0 
-[   15.991943s]x3 : 00000000000000cc x2 : 0000000000000010 
-[   15.991973s]x1 : 0000000000000025 x0 : 28203d2076656422 
-[   15.991973s][pid:1,cpu7,init]
-[   15.991973s]SP: 0xffffffdf5e8839b0:
-[   15.991973s]39b0  00000000 00000000 5e883b38 ffffffdf f204fd78 ffffff86 f305b760 ffffff86
-[   15.992004s]39d0  f2050280 ffffff86 5db8b000 ffffffdd f249bb90 ffffff86 5e883a30 ffffffdf
-[   15.992004s]39f0  f0ce79bc ffffff86 5e883a30 ffffffdf f0cd61c8 ffffff86 20000105 00000000
-[   15.992034s]3a10  f09069a4 ffffff86 5e883a18 ffffffdf 00000000 00000080 00000001 000000fc
-[   15.992065s]3a30  5e883ab0 ffffffdf f0bfe960 ffffff86 5c95b000 ffffffdf 5db8b000 ffffffdd
-[   15.992065s]3a50  15a2d300 ffffffde 5db8b000 ffffffdd f300c000 ffffff86 5db8a4c0 ffffffdd
-[   15.992095s]3a70  00000000 00000000 f2612ac8 ffffff86 f305b730 ffffff86 00000001 00000000
-[   15.992126s]3a90  5e883ab0 ffffffdf f0bfe8bc ffffff86 76656422 28203d20 dc8ba667 cb88537f
-[   15.992126s][pid:1,cpu7,init]
-[   15.992126s]X14: 0xffffffdf5e8fbf80:
-[   15.992126s]bf80  00000000 40000000 00000000 00000000 00000000 00000000 ffffffff 00000001
-[   15.992156s]bfa0  5e8fbfa0 ffffffdf 5e8fbfa0 ffffffdf 00000000 00000000 00000000 00000000
-[   15.992187s]bfc0  00000000 40000000 00000000 00000000 00000000 00000000 ffffffff 00000001
-[   15.992187s]bfe0  5e8fbfe0 ffffffdf 5e8fbfe0 ffffffdf 00000000 00000000 00000000 00000000
-[   15.992218s]c000  00000000 40000000 00000000 00000000 00000000 00000000 ffffffff 00000001
-[   15.992218s]c020  5e8fc020 ffffffdf 5e8fc020 ffffffdf 00000000 00000000 00000000 00000000
-[   15.992248s]c040  00000000 40000000 00000000 00000000 00000000 00000000 ffffffff 00000001
-[   15.992279s]c060  5e8fc060 ffffffdf 5e8fc060 ffffffdf 00000000 00000000 00000000 00000000
-[   15.992279s][pid:1,cpu7,init]
-[   15.992279s]X17: 0xffffffdf5e8ffba0:
-[   15.992279s]fba0  f288a000 ffffff86 f334f000 ffffff86 5e8ffbc0 ffffffdf f092e2b4 ffffff86
-[   15.992309s]fbc0  5e8ffc10 ffffffdf f09306b8 ffffff86 000001c0 00000000 f334f000 ffffff86
-[   15.992340s]fbe0  f288a000 ffffff86 00000000 00000000 f31f7f98 ffffff86 f288a008 ffffff86
-[   15.992340s]fc00  5e8ffc10 ffffffdf f093068c ffffff86 5e8ffc30 ffffffdf f08b0420 ffffff86
-[   15.992370s]fc20  f288a000 ffffff86 f08b03b0 ffffff86 5e8ffc50 ffffffdf f089305c ffffff86
-[   15.992401s]fc40  f2892000 ffffff86 00000001 00000000 5e8ffcb0 ffffffdf f0881944 ffffff86
-[   15.992401s]fc60  f306c000 ffffff86 0800200c ffffff80 5e8ffcf0 ffffffdf f300d000 ffffff86
-[   15.992431s]fc80  08002010 ffffff80 08003000 ffffff80 5e8fc000 ffffffdf f20089d8 ffffff86
-[   15.992431s][pid:1,cpu7,init]
-[   15.992431s]X19: 0xffffffdd5db8af80:
-[   15.992462s]af80  5db8afc0 ffffffdd 070b872c 70011044 796e2d0c 7c0800e2 00740500 11021d06
-[   15.992462s]afa0  051ea62c 2c13073e 2c1002ee 6420052f 18097665 0108732c 741602b2 6e140381
-[   15.992492s]afc0  00000000 00000000 056c0d00 0209fa0a 45040557 009f0100 156f6421 6570300b
-[   15.992492s]afe0  0000ea72 84020155 0e721003 00cd0a07 c007ce0e 6e61203b 0d0a0d64 2020200a
-[   15.992523s]b000  72726162 3d726569 00000031 00000000 7265762f 6e6f6973 00000000 00000000
-[   15.992553s]b020  72726162 3d726569 00000031 00000000 6f72702f 74637564 00000000 00000000
-[   15.992553s]b040  78e1a040 0000007f 78e1a060 0000007f 7366652f 2a2e2f28 00003f29 00000000
-[   15.992584s]b060  6d646f2f 2a2e2f28 00003f29 00000000 6d656f2f 2a2e2f28 00003f29 00000000
-[   15.992614s][pid:1,cpu7,init]
-[   15.992614s]X23: 0xffffffdf5e883ab8:
-[   15.992614s]3ab8  f0a33944 ffffff86 5c95b000 ffffffdf 42248000 ffffffdd 00000081 00000000
-[   15.992614s]3ad8  f300c000 ffffff86 422480f0 ffffffdd 00000001 00000000 f0bfe770 ffffff86
-[   15.992645s]3af8  5e883c48 ffffffdf 00000001 00000000 dc8ba667 cb88537f 5e883b20 ffffffdf
-[   15.992675s]3b18  5e883c48 ffffffdf 5e883b50 ffffffdf f0a75928 00000000 00000000 00000000
-[   15.992675s]3b38  00000000 00000000 00000000 00000000 f0a7591c ffffff86 5e883b70 ffffffdf
-[   15.992706s]3b58  f0a33928 ffffff86 5c95b000 ffffffdf dc8ba667 cb88537f 5e883c00 ffffffdf
-[   15.992706s]3b78  f0bfe304 ffffff86 f300c000 ffffff86 5db8a4c0 ffffffdd 5db8b000 ffffffdd
-[   15.992736s]3b98  f305b6b0 ffffff86 00000001 00000000 00000000 00000000 f305b6b0 ffffff86
-[   15.992767s][pid:1,cpu7,init]
-[   15.992767s]X27: 0xffffffdd5db8af80:
-[   15.992767s]af80  5db8afc0 ffffffdd 070b872c 70011044 796e2d0c 7c0800e2 00740500 11021d06
-[   15.992767s]afa0  051ea62c 2c13073e 2c1002ee 6420052f 18097665 0108732c 741602b2 6e140381
-[   15.992797s]afc0  00000000 00000000 056c0d00 0209fa0a 45040557 009f0100 156f6421 6570300b
-[   15.992828s]afe0  0000ea72 84020155 0e721003 00cd0a07 c007ce0e 6e61203b 0d0a0d64 2020200a
-[   15.992828s]b000  72726162 3d726569 00000031 00000000 7265762f 6e6f6973 00000000 00000000
-[   15.992858s]b020  72726162 3d726569 00000031 00000000 6f72702f 74637564 00000000 00000000
-[   15.992858s]b040  78e1a040 0000007f 78e1a060 0000007f 7366652f 2a2e2f28 00003f29 00000000
-[   15.992889s]b060  6d646f2f 2a2e2f28 00003f29 00000000 6d656f2f 2a2e2f28 00003f29 00000000
-[   15.992919s][pid:1,cpu7,init]
-[   15.992919s]X29: 0xffffffdf5e8839b0:
-[   15.992919s]39b0  00000000 00000000 5e883b38 ffffffdf f204fd78 ffffff86 f305b760 ffffff86
-[   15.992919s]39d0  f2050280 ffffff86 5db8b000 ffffffdd f249bb90 ffffff86 5e883a30 ffffffdf
-[   15.992950s]39f0  f0ce79bc ffffff86 5e883a30 ffffffdf f0cd61c8 ffffff86 20000105 00000000
-[   15.992980s]3a10  f09069a4 ffffff86 5e883a18 ffffffdf 00000000 00000080 00000001 000000fc
-[   15.992980s]3a30  5e883ab0 ffffffdf f0bfe960 ffffff86 5c95b000 ffffffdf 5db8b000 ffffffdd
-[   15.993011s]3a50  15a2d300 ffffffde 5db8b000 ffffffdd f300c000 ffffff86 5db8a4c0 ffffffdd
-[   15.993041s]3a70  00000000 00000000 f2612ac8 ffffff86 f305b730 ffffff86 00000001 00000000
-[   15.993041s]3a90  5e883ab0 ffffffdf f0bfe8bc ffffff86 76656422 28203d20 dc8ba667 cb88537f
-[   15.993072s][pid:1,cpu7,init]
-[   15.993072s][pid:1,cpu7,init]Process init (pid: 1, stack limit = 0xffffffdf5e880290)
-[   15.993072s][pid:1,cpu7,init]Stack: (0xffffffdf5e883a30 to 0xffffffdf5e884000)
-[   15.993072s][pid:1,cpu7,init]3a20:                                   ffffffdf5e883ab0 ffffff86f0bfe960
-[   15.993103s][pid:1,cpu7,init]3a40: ffffffdf5c95b000 ffffffdd5db8b000 ffffffde15a2d300 ffffffdd5db8b000
-[   15.993103s][pid:1,cpu7,init]3a60: ffffff86f300c000 ffffffdd5db8a4c0 0000000000000000 ffffff86f2612ac8
-[   15.993103s][pid:1,cpu7,init]3a80: ffffff86f305b730 0000000000000001 ffffffdf5e883ab0 ffffff86f0bfe8bc
-[   15.993103s][pid:1,cpu7,init]3aa0: 28203d2076656422 cb88537fdc8ba667 ffffffdf5e883b70 ffffff86f0a33944
-[   15.993103s][pid:1,cpu7,init]3ac0: ffffffdf5c95b000 ffffffdd42248000 0000000000000081 ffffff86f300c000
-[   15.993103s][pid:1,cpu7,init]3ae0: ffffffdd422480f0 0000000000000001 ffffff86f0bfe770 ffffffdf5e883c48
-[   15.993133s][pid:1,cpu7,init]3b00: 0000000000000001 cb88537fdc8ba667 ffffffdf5e883b20 ffffffdf5e883c48
-[   15.993133s][pid:1,cpu7,init]3b20: ffffffdf5e883b50 00000000f0a75928 0000000000000000 0000000000000000
-[   15.993133s][pid:1,cpu7,init]3b40: 0000000000000000 ffffff86f0a7591c ffffffdf5e883b70 ffffff86f0a33928
-[   15.993133s][pid:1,cpu7,init]3b60: ffffffdf5c95b000 cb88537fdc8ba667 ffffffdf5e883c00 ffffff86f0bfe304
-[   15.993133s][pid:1,cpu7,init]3b80: ffffff86f300c000 ffffffdd5db8a4c0 ffffffdd5db8b000 ffffff86f305b6b0
-[   15.993164s][pid:1,cpu7,init]3ba0: 0000000000000001 0000000000000000 ffffff86f305b6b0 ffffff86f334f000
-[   15.993164s][pid:1,cpu7,init]3bc0: ffffffdd5db8c000 ffffffdd5db8a4c0 0000000000000001 70306b6c62636d6d
-[   15.993164s][pid:1,cpu7,init]3be0: ffffff86f3003336 ffffff86f334f000 ffffffdf5e883c00 cb88537fdc8ba667
-[   15.993164s][pid:1,cpu7,init]3c00: ffffffdf5e883c60 ffffff86f0a34530 ffffffdf5e2cfb80 ffffff86f305b6b0
-[   15.993164s][pid:1,cpu7,init]3c20: ffffff86f305b6b0 ffffffdd5db8c000 ffffffdf5e883c60 0000000000000001
-[   15.993164s][pid:1,cpu7,init]3c40: ffffffdf5e2cfb80 ffffffdd5db8a4c0 ffffffdd5db8b000 cb88537fdc8ba667
-[   15.993194s][pid:1,cpu7,init]3c60: ffffffdf5e883cb0 ffffff86f0a548c4 ffffffdf5e2cfb80 ffffff86f305b6b0
-[   15.993194s][pid:1,cpu7,init]3c80: ffffffdd5db8a4c0 0000000000000001 ffffffdd5db8b000 0000000000000060
-[   15.993194s][pid:1,cpu7,init]3ca0: ffffffdd5db8b000 ffffffdd5db8a4c0 ffffffdf5e883cf0 ffffff86f0a58c14
-[   15.993194s][pid:1,cpu7,init]3cc0: ffffff86f30252b0 ffffffdd5db8a4c0 ffffffdd5db8b000 ffffff86f300c000
-[   15.993194s][pid:1,cpu7,init]3ce0: ffffffdd5db8a480 0000000000000015 ffffffdf5e883dd0 ffffff86f0a596c4
-[   15.993225s][pid:1,cpu7,init]3d00: 000000005db8a4c0 ffffffdd5db8a480 ffffffdd5db8a4c0 ffffff86f300c000
-[   15.993225s][pid:1,cpu7,init]3d20: 0000000000000001 0000007f78e19070 0000007f78e1b040 0000000000000028
-[   15.993225s][pid:1,cpu7,init]3d40: ffffff86f2002000 ffffffdf5e880270 ffffffdf57f632c0 0000000000000000
-[   15.993225s][pid:1,cpu7,init]3d60: ffffffdf5e883d90 ffffff86f0a584c4 0000007f78e1b040 ffffffdd5db8a480
-[   15.993225s][pid:1,cpu7,init]3d80: ffffffdf5e883e38 0000007f78e19070 ffffffdf5e883dd0 ffffffdf5e8501e0
-[   15.993225s][pid:1,cpu7,init]3da0: ffffffdf5ed05368 ffffffdd5db8a480 ffffffdd5db8a4c0 ffffff86f300c000
-[   15.993255s][pid:1,cpu7,init]3dc0: 0000000000000001 cb88537fdc8ba667 0000000000000000 ffffff86f0883bf0
-[   15.993255s][pid:1,cpu7,init]3de0: ffffffdf5e880000 0000007f78e14330 ffffffffffffffff 00000000005222cc
-[   15.993255s][pid:1,cpu7,init]3e00: 0000000020000000 0000000000000015 000000000000011d ffffff86f088bd50
-[   15.993255s][pid:1,cpu7,init]3e20: 0000000000000000 0000000000568bf4 ffffffdf5e880000 ffffffdd5db8b000
-[   15.993255s][pid:1,cpu7,init]3e40: ffffffffffffffff cb88537fdc8ba667 0000007f78e14330 0000007f78e19070
-[   15.993255s][pid:1,cpu7,init]3e60: 0000000000568bf4 0000000000000001 0000007f78e1b040 0000000000000000
-[   15.993286s][pid:1,cpu7,init]3e80: 0000000000000080 ff6c64737278722e 0000000000000028 674c0321316bd2e5
-[   15.993286s][pid:1,cpu7,init]3ea0: 0101010101010101 0000000000000038 000000000058686c 746e756f6d206e6f
-[   15.993286s][pid:1,cpu7,init]3ec0: 0000000000000000 0000000000000000 00000000ffffffe5 000000000000000d
-[   15.993286s][pid:1,cpu7,init]3ee0: 00000000005bd600 0000007f78e19070 0000007f78e14330 00000000005c2a60
-[   15.993286s][pid:1,cpu7,init]3f00: 0000007f78e49380 0000000000000001 0000000000000001 0000007f78e19070
-[   15.993316s][pid:1,cpu7,init]3f20: 00000000005c2a50 0000007f78e170a0 0000007f78e170d0 0000007feffd7480
-[   15.993316s][pid:1,cpu7,init]3f40: 0000000000450e30 0000007feffd73a0 00000000005222cc 0000000020000000
-[   15.993316s][pid:1,cpu7,init]3f60: 0000007f78e14330 0000000000000028 0000000000000000 0000000000000000
-[   15.993316s][pid:1,cpu7,init]3f80: 4000000000000000 0000000000000000 0000000000000000 00000001ffffffff
-[   15.993316s][pid:1,cpu7,init]3fa0: ffffffdf5e883fa0 ffffffdf5e883fa0 0000000000000000 0000000000000000
-[   15.993316s][pid:1,cpu7,init]3fc0: 4000000000000000 0000000000000000 0000000000000000 00000001ffffffff
-[   15.993347s][pid:1,cpu7,init]3fe0: ffffffdf5e883fe0 ffffffdf5e883fe0 0000000000000000 0000000000000000
-[   15.993347s][pid:1,cpu7,init]Call trace:
-[   15.993347s][pid:1,cpu7,init]Exception stack(0xffffffdf5e883840 to 0xffffffdf5e883970)
-[   15.993347s][pid:1,cpu7,init]3840: ffffffdd5db8b000 0000008000000000 ffffffdf5e883a30 ffffff86f0cd61c8
-[   15.993347s][pid:1,cpu7,init]3860: 0000000020000105 ffffff86f0984b3c ffffffdf5e80c098 ffffff86f0984b0c
-[   15.993377s][pid:1,cpu7,init]3880: ffffffdf5e80c098 0000000000000100 ffffffdf5e8838c0 ffffff86f1ea1f4c
-[   15.993377s][pid:1,cpu7,init]38a0: 0000000000000270 0000000000000000 ffffff86f334f000 7fffffffffffffff
-[   15.993377s][pid:1,cpu7,init]38c0: ffffffdf5e883900 ffffff86f1ea2ff4 ffffffdf577dcd20 ffffffdf5e883a00
-[   15.993377s][pid:1,cpu7,init]38e0: ffffffdf5e8838f0 ffffff86f09064fc ffffffdf5e883b38 cb88537fdc8ba667
-[   15.993377s][pid:1,cpu7,init]3900: 28203d2076656422 0000000000000025 0000000000000010 00000000000000cc
-[   15.993377s][pid:1,cpu7,init]3920: 4c2e4e4d2cae47a0 0000000000000000 531b3a1d1e070004 0400071e1d3a1b53
-[   15.993408s][pid:1,cpu7,init]3940: 6d685e736b746065 7f7f7f7f7f7f7f7f 0101010101010101 0101010101010101
-[   15.993408s][pid:1,cpu7,init]3960: 0000000000000005 0000000000000000
-[   15.993408s][pid:1,cpu7,init][<ffffff86f0cd61c8>] strchr+0x4/0x30
-[   15.993408s][pid:1,cpu7,init][<ffffff86f0bfe960>] erofs_fill_super+0x1f0/0x490
-[   15.993438s][pid:1,cpu7,init][<ffffff86f0a33944>] mount_bdev+0x1b4/0x1ec
-[   15.993438s][pid:1,cpu7,init][<ffffff86f0bfe304>] erofs_mount+0x58/0x80
-[   15.993438s][pid:1,cpu7,init][<ffffff86f0a34530>] mount_fs+0x60/0x180
-[   15.993438s][pid:1,cpu7,init][<ffffff86f0a548c4>] vfs_kern_mount+0x78/0x170
-[   15.993438s][pid:1,cpu7,init][<ffffff86f0a58c14>] do_mount+0x58c/0xc90
-[   15.993469s][pid:1,cpu7,init][<ffffff86f0a596c4>] SyS_mount+0xb8/0x178
-[   15.993469s][pid:1,cpu7,init][<ffffff86f0883bf0>] el0_svc_naked+0x24/0x28
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index de8ee81..ab0e4cd 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -232,7 +232,7 @@ static int parse_options(struct super_block *sb, char *options)
+ #endif
+ 			break;
+ 		default:
+-			infoln("Unrecognized mount option \"%s\" "
++			errln("Unrecognized mount option \"%s\" "
+ 					"or missing value", p);
+ 			return -EINVAL;
+ 		}
+-- 
+1.9.1
