@@ -1,652 +1,433 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 20 Jul 2018 10:52:46 +0800
-Subject: [RFC PATCH v2 11/11] erofs: introduce cached decompression
-In-Reply-To: <1532055166-96837-1-git-send-email-gaoxiang25@huawei.com>
-References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
- <1532055166-96837-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532055166-96837-12-git-send-email-gaoxiang25@huawei.com>
+Date: Fri, 20 Jul 2018 17:05:35 +0800
+Subject: [PATCH v3] erofs: support tracepoint
+In-Reply-To: <20180703160539.11300-1-chao@kernel.org>
+References: <20180703160539.11300-1-chao@kernel.org>
+Message-ID: <1532077535-65748-1-git-send-email-gaoxiang25@huawei.com>
 
-This patch adds an optional choice which can be
-enabled by users in order to cache both incomplete
-ends of compressed clusters as a complement to
-the in-place decompression in order to boost random
-read, but it costs more memory than the in-place
-decompression only.
+From: Chao Yu <yuchao0@huawei.com>
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Add basic tracepoints for ->readpage{,s}, ->lookup,
+->destroy_inode, fill_inode and map_blocks.
+
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
- fs/erofs/Kconfig     |  38 ++++++++
- fs/erofs/internal.h  |  25 +++++
- fs/erofs/super.c     |  75 ++++++++++++++-
- fs/erofs/unzip_vle.c | 257 +++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/erofs/utils.c     |  17 +++-
- 5 files changed, 410 insertions(+), 2 deletions(-)
+v3: 1) add tracepoints for ->destroy_inode, fill_inode and map_blocks;
+    2) rename ino to nid;
+    3) move '#define CREATE_TRACE_POINTS' to super.c;
+    4) tracepoints for unzip subsystem will be added separately later.
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 00e811c..d08c019 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -99,3 +99,41 @@ config EROFS_FS_CLUSTER_PAGE_LIMIT
- 	  than 2. Otherwise, the image cannot be mounted
- 	  correctly on this kernel.
+v2: remove in-loop page defination.
+
+Hi Chao,
+Could you please review this patch again when you are free?
+
+Thanks,
+
+ fs/erofs/data.c              |  13 ++-
+ fs/erofs/inode.c             |   4 +
+ fs/erofs/namei.c             |   5 +
+ fs/erofs/super.c             |   5 +
+ fs/erofs/unzip.c             |   6 ++
+ include/trace/events/erofs.h | 240 +++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 270 insertions(+), 3 deletions(-)
+ create mode 100644 include/trace/events/erofs.h
+
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index e76de71..ead83b6 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -13,6 +13,8 @@
+ #include "internal.h"
+ #include <linux/prefetch.h>
  
-+choice
-+	prompt "EROFS VLE Data Decompression mode"
-+	depends on EROFS_FS_ZIP
-+	default EROFS_FS_ZIP_CACHE_BIPOLAR
-+	help
-+	  EROFS supports three options for VLE decompression.
-+	  "In-place Decompression Only" consumes the minimum memory
-+	  with lowest random read.
++#include <trace/events/erofs.h>
 +
-+	  "Bipolar Cached Decompression" consumes the maximum memory
-+	  with highest random read.
-+
-+	  If unsure, select "Bipolar Cached Decompression"
-+
-+config EROFS_FS_ZIP_NO_CACHE
-+	bool "In-place Decompression Only"
-+	help
-+	  Read compressed data into page cache and do in-place
-+	  decompression directly.
-+
-+config EROFS_FS_ZIP_CACHE_UNIPOLAR
-+	bool "Unipolar Cached Decompression"
-+	help
-+	  For each request, it caches the last compressed page
-+	  for further reading.
-+	  It still decompresses in place for the rest compressed pages.
-+
-+config EROFS_FS_ZIP_CACHE_BIPOLAR
-+	bool "Bipolar Cached Decompression"
-+	help
-+	  For each request, it caches the both end compressed pages
-+	  for further reading.
-+	  It still decompresses in place for the rest compressed pages.
-+
-+	  Recommended for performance priority.
-+
-+endchoice
-+
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index fd444ec..5667f56 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -59,6 +59,18 @@ struct erofs_fault_info {
- };
- #endif
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0))
+ static inline void read_endio(struct bio *bio, int err)
+ #else
+@@ -144,6 +146,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	u64 offset = map->m_la;
+ 	struct erofs_vnode *vi = EROFS_V(inode);
  
-+#ifdef CONFIG_EROFS_FS_ZIP_CACHE_BIPOLAR
-+#define EROFS_FS_ZIP_CACHE_LVL	(2)
-+#elif defined(EROFS_FS_ZIP_CACHE_UNIPOLAR)
-+#define EROFS_FS_ZIP_CACHE_LVL	(1)
-+#else
-+#define EROFS_FS_ZIP_CACHE_LVL	(0)
-+#endif
-+
-+#if (!defined(EROFS_FS_HAS_MANAGED_CACHE) && (EROFS_FS_ZIP_CACHE_LVL > 0))
-+#define EROFS_FS_HAS_MANAGED_CACHE
-+#endif
-+
- /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
- #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
++	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
+ 	BUG_ON(is_inode_layout_compression(inode));
  
-@@ -88,6 +100,11 @@ struct erofs_sb_info {
- 		spinlock_t lock;
- #endif
- 	} workstn;
-+
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	struct inode *managed_cache;
-+#endif
-+
- #endif
+ 	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
+@@ -181,8 +184,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
  
- 	u32 build_time_nsec;
-@@ -251,6 +268,14 @@ static inline void erofs_workstation_cleanup_all(struct super_block *sb)
- 	erofs_shrink_workstation(EROFS_SB(sb), ~0UL, true);
- }
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+#define EROFS_UNALLOCATED_CACHED_PAGE	((void *)0x5F0EF00D)
-+
-+extern int try_to_free_cached_page(struct address_space *, struct page *);
-+extern int try_to_free_all_cached_pages(struct erofs_sb_info *,
-+	struct erofs_workgroup *);
-+#endif
-+
- #endif
- 
- /* we strictly follow PAGE_SIZE and no buffer head */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 7e5333c..5a940c7 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -247,6 +247,63 @@ static int parse_options(struct super_block *sb, char *options)
+ out:
+ 	map->m_llen = map->m_plen;
+-	debugln("%s, m_la 0x%llx m_pa %llx m_len %llu",
+-		__func__, map->m_la, map->m_pa, map->m_plen);
++	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
  	return 0;
  }
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
+@@ -337,6 +339,8 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 	erofs_off_t last_block;
+ 	struct bio *bio;
+ 
++	trace_erofs_readpage(page, true);
 +
-+static const struct address_space_operations managed_cache_aops;
+ 	bio = erofs_read_raw_page(NULL, page->mapping,
+ 		page, &last_block, 1, false);
+ 
+@@ -354,9 +358,12 @@ static int erofs_raw_access_readpages(struct file *filp,
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+ 	gfp_t gfp = readahead_gfp_mask(mapping);
++	struct page *page = list_last_entry(pages, struct page, lru);
 +
-+static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
-+{
-+	int ret = 1;	/* 0 - busy */
-+	struct address_space *const mapping = page->mapping;
++	trace_erofs_readpages(mapping->host, page, nr_pages, true);
+ 
+ 	for (; nr_pages; --nr_pages) {
+-		struct page *page = list_entry(pages->prev, struct page, lru);
++		page = list_entry(pages->prev, struct page, lru);
+ 
+ 		prefetchw(&page->flags);
+ 		list_del(&page->lru);
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index af23f8b..01eec816 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -13,6 +13,8 @@
+ #include "internal.h"
+ #include "xattr.h"
+ 
++#include <trace/events/erofs.h>
 +
-+	BUG_ON(!PageLocked(page));
-+	BUG_ON(mapping->a_ops != &managed_cache_aops);
-+
-+	if (PagePrivate(page))
-+		ret = try_to_free_cached_page(mapping, page);
-+
-+	return ret;
-+}
-+
-+static void managed_cache_invalidatepage(struct page *page,
-+	unsigned int offset, unsigned int length)
-+{
-+	const unsigned int stop = length + offset;
-+
-+	BUG_ON(!PageLocked(page));
-+
-+	/* Check for overflow */
-+	BUG_ON(stop > PAGE_SIZE || stop < length);
-+
-+	if (offset == 0 && stop == PAGE_SIZE)
-+		while(!managed_cache_releasepage(page, GFP_NOFS))
-+			cond_resched();
-+}
-+
-+static const struct address_space_operations managed_cache_aops = {
-+	.releasepage = managed_cache_releasepage,
-+	.invalidatepage = managed_cache_invalidatepage,
-+};
-+
-+struct inode *erofs_init_managed_cache(struct super_block *sb)
-+{
-+	struct inode *inode = new_inode(sb);
-+
-+	if (unlikely(inode == NULL))
-+		return ERR_PTR(-ENOMEM);
-+
-+	set_nlink(inode, 1);
-+	inode->i_size = OFFSET_MAX;
-+
-+	inode->i_mapping->a_ops = &managed_cache_aops;
-+	mapping_set_gfp_mask(inode->i_mapping,
-+	                     GFP_NOFS | __GFP_HIGHMEM |
-+	                     __GFP_MOVABLE |  __GFP_NOFAIL);
-+	return inode;
-+}
-+
-+#endif
-+
- static int erofs_read_super(struct super_block *sb,
- 	const char *dev_name, void *data, int silent)
+ /* no locking */
+ static int read_inode(struct inode *inode, void *data)
  {
-@@ -301,11 +358,19 @@ static int erofs_read_super(struct super_block *sb,
- #endif
- #endif
+@@ -146,6 +148,8 @@ int fill_inode(struct inode *inode, int isdir)
+ 	erofs_blk_t blkaddr;
+ 	unsigned ofs;
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	sbi->managed_cache = erofs_init_managed_cache(sb);
-+	if (IS_ERR(sbi->managed_cache)) {
-+		err = PTR_ERR(sbi->managed_cache);
-+		goto err_sbi;
-+	}
-+#endif
++	trace_erofs_fill_inode(inode, isdir);
 +
- 	/* get the root inode */
- 	inode = erofs_iget(sb, ROOT_NID(sbi), true);
- 	if (IS_ERR(inode)) {
- 		err = PTR_ERR(inode);
--		goto err_sbi;
-+		goto iget_err;
- 	}
+ 	blkaddr = erofs_blknr(iloc(sbi, vi->nid));
+ 	ofs = erofs_blkoff(iloc(sbi, vi->nid));
  
- 	if (!S_ISDIR(inode->i_mode)) {
-@@ -348,6 +413,10 @@ static int erofs_read_super(struct super_block *sb,
- err_iput:
- 	if (sb->s_root == NULL)
- 		iput(inode);
-+iget_err:
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	iput(sbi->managed_cache);
-+#endif
- err_sbi:
- 	sb->s_fs_info = NULL;
- 	kfree(sbi);
-@@ -370,6 +439,10 @@ static void erofs_put_super(struct super_block *sb)
- 	infoln("unmounted for %s", sbi->dev_name);
- 	__putname(sbi->dev_name);
+diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
+index e30294b..b701d9b 100644
+--- a/fs/erofs/namei.c
++++ b/fs/erofs/namei.c
+@@ -10,9 +10,12 @@
+  * License.  See the file COPYING in the main directory of the Linux
+  * distribution for more details.
+  */
++
+ #include "internal.h"
+ #include "xattr.h"
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	iput(sbi->managed_cache);
-+#endif
++#include <trace/events/erofs.h>
 +
- 	mutex_lock(&sbi->umount_mutex);
+ /* based on the value of qn->len is accurate */
+ static inline int dirnamecmp(struct qstr *qn,
+ 	struct qstr *qd, unsigned *matched)
+@@ -209,6 +212,8 @@ struct dentry *erofs_lookup(struct inode *dir,
+ 	/* dentry must be unhashed in lookup, no need to worry about */
+ 	BUG_ON(!d_unhashed(dentry));
  
- #ifdef CONFIG_EROFS_FS_ZIP
-diff --git a/fs/erofs/unzip_vle.c b/fs/erofs/unzip_vle.c
-index c113740..63e27bd 100644
---- a/fs/erofs/unzip_vle.c
-+++ b/fs/erofs/unzip_vle.c
-@@ -95,6 +95,111 @@ struct z_erofs_vle_work_builder {
- #define VLE_WORK_BUILDER_INIT()	\
- 	{ .work = NULL, .role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED }
++	trace_erofs_lookup(dir, dentry, flags);
++
+ 	/* file name exceeds fs limit */
+ 	if (unlikely(dentry->d_name.len > EROFS_NAME_LEN))
+ 		return ERR_PTR(-ENAMETOOLONG);
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index d6046d4..2a21d81 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -17,6 +17,9 @@
+ #include <linux/parser.h>
+ #include "internal.h"
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
++#define CREATE_TRACE_POINTS
++#include <trace/events/erofs.h>
 +
-+static bool grab_managed_cache_pages(struct address_space *mapping,
-+				     erofs_blk_t start,
-+				     struct page **compressed_pages,
-+				     int clusterblks,
-+				     bool reserve_allocation)
-+{
-+	bool noio = true;
-+	unsigned int i;
-+
-+	/* TODO: optimize by introducing find_get_pages_range */
-+	for (i = 0; i < clusterblks; ++i) {
-+		struct page *page, *found;
-+
-+		if (READ_ONCE(compressed_pages[i]) != NULL)
-+			continue;
-+
-+		page = found = find_get_page(mapping, start + i);
-+		if (found == NULL) {
-+			noio = false;
-+			if (!reserve_allocation)
-+				continue;
-+			page = EROFS_UNALLOCATED_CACHED_PAGE;
-+		}
-+
-+		if (NULL == cmpxchg(compressed_pages + i, NULL, page))
-+                        continue;
-+
-+		if (found != NULL)
-+			put_page(found);
-+	}
-+	return noio;
-+}
-+
-+/* called by erofs_shrinker to get rid of all compressed_pages */
-+int try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
-+				 struct erofs_workgroup *egrp)
-+{
-+	struct z_erofs_vle_workgroup *const grp =
-+		container_of(egrp, struct z_erofs_vle_workgroup, obj);
-+	struct address_space *const mapping = sbi->managed_cache->i_mapping;
-+	const int clusterpages = erofs_clusterpages(sbi);
-+	int i;
-+
-+	/*
-+	 * refcount of workgroup is now freezed as 1,
-+	 * therefore no need to worry about available decompression users.
-+	 */
-+	for (i = 0; i < clusterpages; ++i) {
-+		struct page *page = grp->compressed_pages[i];
-+
-+		if (page == NULL || page->mapping != mapping)
-+			continue;
-+
-+		/* block other users from reclaiming or migrating the page */
-+		if (!trylock_page(page))
-+			return -EBUSY;
-+
-+		/* barrier is implied in the following 'unlock_page' */
-+		WRITE_ONCE(grp->compressed_pages[i], NULL);
-+
-+		set_page_private(page, 0);
-+		ClearPagePrivate(page);
-+
-+		unlock_page(page);
-+		put_page(page);
-+	}
-+	return 0;
-+}
-+
-+int try_to_free_cached_page(struct address_space *mapping, struct page *page)
-+{
-+	struct erofs_sb_info *const sbi = EROFS_SB(mapping->host->i_sb);
-+	const unsigned clusterpages = erofs_clusterpages(sbi);
-+
-+	struct z_erofs_vle_workgroup *grp;
-+	int ret = 0;	/* 0 - busy */
-+
-+	/* prevent the workgroup from being freed */
-+	rcu_read_lock();
-+	grp = (void *)page_private(page);
-+
-+	if (erofs_workgroup_try_to_freeze(&grp->obj, 1)) {
-+		unsigned i;
-+
-+		for (i = 0; i < clusterpages; ++i) {
-+			if (grp->compressed_pages[i] == page) {
-+				WRITE_ONCE(grp->compressed_pages[i], NULL);
-+				ret = 1;
-+				break;
-+			}
-+		}
-+		erofs_workgroup_unfreeze(&grp->obj, 1);
-+	}
-+	rcu_read_unlock();
-+
-+	if (ret) {
-+		ClearPagePrivate(page);
-+		put_page(page);
-+	}
-+	return ret;
-+}
-+#endif
-+
- /* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
- static inline bool try_to_reuse_as_compressed_page(
- 	struct z_erofs_vle_work_builder *b,
-@@ -451,6 +556,9 @@ struct z_erofs_vle_frontend {
- 	z_erofs_vle_owned_workgrp_t owned_head;
+ static struct kmem_cache *erofs_inode_cachep __read_mostly;
  
- 	bool initial;
-+#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
-+	erofs_off_t cachedzone_la;
-+#endif
- };
+ static void init_once(void *ptr)
+@@ -68,6 +71,8 @@ static void i_callback(struct rcu_head *head)
  
- #define VLE_FRONTEND_INIT(__i) { \
-@@ -516,6 +624,26 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	if (unlikely(err))
- 		goto err_out;
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	else {
-+		struct z_erofs_vle_workgroup *grp = fe->builder.grp;
-+		struct address_space *mapping = sbi->managed_cache->i_mapping;
+ static void destroy_inode(struct inode *inode)
+ {
++	trace_erofs_destroy_inode(inode);
 +
-+		/* let's do out-of-order decompression for noio */
-+		bool noio_outoforder = grab_managed_cache_pages(mapping,
-+			erofs_blknr(map->m_pa),
-+			grp->compressed_pages, erofs_blknr(map->m_plen),
-+			fe->initial
-+#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
-+			| (map->m_la <= fe->cachedzone_la)
-+#endif
-+		);
-+
-+		if (noio_outoforder && builder_is_followed(builder))
-+			builder->role = Z_EROFS_VLE_WORK_PRIMARY;
-+	}
-+#endif
-+
- 	tight &= builder_is_followed(builder);
- 	work = builder->work;
- hitted:
-@@ -613,6 +741,15 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
- 
- 		DBG_BUGON(PageUptodate(page));
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		if (page->mapping != NULL) {
-+			struct inode *inode = page->mapping->host;
-+
-+			cachedpage = (inode ==
-+				EROFS_SB(inode->i_sb)->managed_cache);
-+		}
-+#endif
-+
- 		if (unlikely(err))
- 			SetPageError(page);
- 		else if (cachedpage)
-@@ -726,6 +863,13 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 
- 		if (page->mapping == NULL)
- 			continue;
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		if (page->mapping->host == sbi->managed_cache) {
-+			BUG_ON(PageLocked(page));
-+			BUG_ON(!PageUptodate(page));
-+			continue;
-+		}
-+#endif
- 
- 		pagenr = z_erofs_onlinepage_index(page);
- 
-@@ -807,6 +951,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		if (page->mapping == NULL)
- 			list_add(&page->lru, page_pool);
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		else if (page->mapping->host == sbi->managed_cache)
-+			continue;
-+#endif
- 		WRITE_ONCE(compressed_pages[i], NULL);
- 	}
- 
-@@ -898,7 +1046,32 @@ static void z_erofs_vle_unzip_wq(struct work_struct *work)
- 	return io;
+ 	call_rcu(&inode->i_rcu, i_callback);
  }
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+/* true - unlocked (noio), false - locked (need submit io) */
-+static inline bool recover_managed_page(
-+	struct z_erofs_vle_workgroup *grp,
-+	struct page *page)
-+{
-+	wait_on_page_locked(page);
-+	if (PagePrivate(page) && PageUptodate(page))
-+		return true;
-+
-+	lock_page(page);
-+	if (unlikely(!PagePrivate(page))) {
-+		set_page_private(page, (unsigned long)grp);
-+		SetPagePrivate(page);
-+	}
-+	if (unlikely(PageUptodate(page))) {
-+		unlock_page(page);
-+		return true;
-+	}
-+	return false;
-+}
-+
-+#define __FSIO_1 1
-+#else
- #define __FSIO_1 0
-+#endif
- 
- static bool z_erofs_vle_submit_all(struct super_block *sb,
- 				   z_erofs_vle_owned_workgrp_t owned_head,
-@@ -909,6 +1082,11 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
- 	const unsigned clusterpages = erofs_clusterpages(sbi);
- 	const gfp_t gfp = GFP_NOFS;
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	struct address_space *const managed_cache_mapping =
-+		sbi->managed_cache->i_mapping;
-+	struct z_erofs_vle_workgroup *lstgrp_noio = NULL, *lstgrp_io = NULL;
-+#endif
- 	struct z_erofs_vle_unzip_io *ios[1 + __FSIO_1];
- 	struct bio *bio;
- 	tagptr1_t bi_private;
-@@ -923,6 +1101,10 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 	 * force_fg == 1, (io, fg_io[0]) no io, (io, fg_io[1]) need submit io
-          * force_fg == 0, (io, fg_io[0]) no io; (io[1], bg_io) need submit io
- 	 */
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	ios[0] = prepare_io_handler(sb, fg_io + 0, false);
-+#endif
-+
- 	if (force_fg) {
- 		ios[__FSIO_1] = prepare_io_handler(sb, fg_io + __FSIO_1, false);
- 		bi_private = tagptr_fold(tagptr1_t, ios[__FSIO_1], 0);
-@@ -943,6 +1125,10 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 		struct page **compressed_pages, *oldpage, *page;
- 		pgoff_t first_index;
- 		unsigned i = 0;
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		unsigned noio = 0;
-+		bool cachemanaged;
-+#endif
- 		int err;
- 
- 		/* no possible 'owned_head' equals the following */
-@@ -963,9 +1149,28 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 		/* fulfill all compressed pages */
- 		oldpage = page = READ_ONCE(compressed_pages[i]);
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		cachemanaged = false;
-+
-+		if (page == EROFS_UNALLOCATED_CACHED_PAGE) {
-+			cachemanaged = true;
-+			goto do_allocpage;
-+		} else if (page != NULL) {
-+			if (page->mapping != managed_cache_mapping)
-+				BUG_ON(PageUptodate(page));
-+			else if (recover_managed_page(grp, page)) {
-+				/* page is uptodate, skip io submission */
-+				force_submit = true;
-+				++noio;
-+				goto skippage;
-+			}
-+		} else {
-+do_allocpage:
-+#else
- 		if (page != NULL)
- 			BUG_ON(PageUptodate(page));
- 		else {
-+#endif
- 			page = erofs_allocpage(pagepool, gfp);
- 			page->mapping = NULL;
- 
-@@ -973,6 +1178,12 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 				oldpage, page)) {
- 				list_add(&page->lru, pagepool);
- 				goto repeat;
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+			} else if (cachemanaged && !add_to_page_cache_lru(page,
-+				managed_cache_mapping, first_index + i, gfp)) {
-+				set_page_private(page, (unsigned long)grp);
-+				SetPagePrivate(page);
-+#endif
- 			}
- 		}
- 
-@@ -996,14 +1207,51 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 
- 		force_submit = false;
- 		last_index = first_index + i;
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+skippage:
-+#endif
- 		if (++i < clusterpages)
- 			goto repeat;
-+
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		if (noio < clusterpages)
-+			lstgrp_io = grp;
-+		else {
-+			z_erofs_vle_owned_workgrp_t iogrp_next =
-+				owned_head == Z_EROFS_VLE_WORKGRP_TAIL ?
-+				Z_EROFS_VLE_WORKGRP_TAIL_CLOSED :
-+				owned_head;
-+
-+			if (lstgrp_io == NULL)
-+				ios[1]->head = iogrp_next;
-+			else
-+				WRITE_ONCE(lstgrp_io->next, iogrp_next);
-+
-+			if (lstgrp_noio == NULL)
-+				ios[0]->head = grp;
-+			else
-+				WRITE_ONCE(lstgrp_noio->next, grp);
-+
-+			lstgrp_noio = grp;
-+		}
-+#endif
- 	} while (owned_head != Z_EROFS_VLE_WORKGRP_TAIL);
- 
- 	if (bio != NULL)
- 		__submit_bio(bio, REQ_OP_READ, 0);
- 
-+#ifndef EROFS_FS_HAS_MANAGED_CACHE
- 	BUG_ON(!nr_bios);
-+#else
-+	if (lstgrp_noio != NULL)
-+		WRITE_ONCE(lstgrp_noio->next, Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
-+
-+	if (!force_fg && !nr_bios) {
-+		kvfree(container_of(ios[1],
-+			struct z_erofs_vle_unzip_io_sb, io));
-+		return true;
-+	}
-+#endif
- 
- 	z_erofs_vle_unzip_kickoff(tagptr_cast_ptr(bi_private), nr_bios);
- 	return true;
-@@ -1019,6 +1267,9 @@ static void z_erofs_submit_and_unzip(struct z_erofs_vle_frontend *f,
- 	if (!z_erofs_vle_submit_all(sb, f->owned_head, pagepool, io, force_fg))
- 		return;
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	z_erofs_vle_unzip_all(sb, &io[0], pagepool);
-+#endif
- 	if (!force_fg)
- 		return;
- 
-@@ -1038,6 +1289,9 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 	int err;
+diff --git a/fs/erofs/unzip.c b/fs/erofs/unzip.c
+index 66ee557..58b3b2b 100644
+--- a/fs/erofs/unzip.c
++++ b/fs/erofs/unzip.c
+@@ -929,6 +929,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	};
  	LIST_HEAD(pagepool);
  
-+#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
-+	f.cachedzone_la = page->index << PAGE_SHIFT;
-+#endif
- 	err = z_erofs_do_read_page(&f, page, &pagepool);
- 	(void)z_erofs_vle_work_iter_end(&f.builder);
- 
-@@ -1068,6 +1322,9 @@ static inline int __z_erofs_vle_normalaccess_readpages(
- 	struct page *head = NULL;
- 	LIST_HEAD(pagepool);
- 
-+#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
-+	f.cachedzone_la = lru_to_page(pages)->index << PAGE_SHIFT;
-+#endif
- 	for (; nr_pages; --nr_pages) {
- 		struct page *page = lru_to_page(pages);
- 
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index dd1ce5f..b669ca3 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -143,13 +143,28 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 		if (cleanup)
- 			BUG_ON(cnt != 1);
- 
-+#ifndef EROFS_FS_HAS_MANAGED_CACHE
- 		else if (cnt > 1)
-+#else
-+		if (!erofs_workgroup_try_to_freeze(grp, 1))
-+#endif
- 			continue;
- 
- 		if (radix_tree_delete(&sbi->workstn.tree,
--			grp->index) != grp)
-+			grp->index) != grp) {
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+skip:
-+			erofs_workgroup_unfreeze(grp, 1);
-+#endif
- 			continue;
-+		}
- 
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+		if (try_to_free_all_cached_pages(sbi, grp))
-+			goto skip;
++	trace_erofs_readpage(page, false);
 +
-+		erofs_workgroup_unfreeze(grp, 1);
-+#endif
- 		/* (rarely) grabbed again when freeing */
- 		erofs_workgroup_put(grp);
+ 	int err = z_erofs_vle_do_read_page(page, &z_pvec,
+ 		&z_iter, &m_iter, &pagepool, &collector);
  
+@@ -1027,6 +1029,10 @@ static int z_erofs_vle_normalaccess_readpages(
+ 	struct address_space *mapping,
+ 	struct list_head *pages, unsigned nr_pages)
+ {
++	struct page *page = list_last_entry(pages, struct page, lru);
++
++	trace_erofs_readpages(mapping->host, page, nr_pages, false);
++
+ 	return __z_erofs_vle_normalaccess_readpages(filp,
+ 		mapping, pages, nr_pages,
+ 		nr_pages < 4 /* sync */);
+diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
+new file mode 100644
+index 0000000..5aead93
+--- /dev/null
++++ b/include/trace/events/erofs.h
+@@ -0,0 +1,240 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM erofs
++
++#if !defined(_TRACE_EROFS_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_EROFS_H
++
++#include <linux/tracepoint.h>
++
++#define show_dev(dev)		MAJOR(dev), MINOR(dev)
++#define show_dev_nid(entry)	show_dev(entry->dev), entry->nid
++
++#define show_file_type(type)						\
++	__print_symbolic(type,						\
++		{ 0,		"FILE" },				\
++		{ 1,		"DIR" })
++
++#define show_map_flags(flags) __print_flags(flags, "|",	\
++	{ EROFS_GET_BLOCKS_RAW,	"RAW" })
++
++#define show_mflags(flags) __print_flags(flags, "",	\
++	{ EROFS_MAP_MAPPED,	"M" },			\
++	{ EROFS_MAP_META,	"I" },			\
++	{ EROFS_MAP_ZIPPED,	"Z" })
++
++TRACE_EVENT(erofs_lookup,
++
++	TP_PROTO(struct inode *dir, struct dentry *dentry, unsigned int flags),
++
++	TP_ARGS(dir, dentry, flags),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(const char *,	name	)
++		__field(unsigned int,	flags	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= dir->i_sb->s_dev;
++		__entry->nid	= EROFS_V(dir)->nid;
++		__entry->name	= dentry->d_name.name;
++		__entry->flags	= flags;
++	),
++
++	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
++		show_dev_nid(__entry),
++		__entry->name,
++		__entry->flags)
++);
++
++TRACE_EVENT(erofs_fill_inode,
++	TP_PROTO(struct inode *inode, int isdir),
++	TP_ARGS(inode, isdir),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(erofs_blk_t,	blkaddr )
++		__field(unsigned int,	ofs	)
++		__field(int,		isdir	)
++	),
++
++	TP_fast_assign(
++		__entry->dev		= inode->i_sb->s_dev;
++		__entry->nid		= EROFS_V(inode)->nid;
++		__entry->blkaddr	= erofs_blknr(iloc(EROFS_I_SB(inode), __entry->nid));
++		__entry->ofs		= erofs_blkoff(iloc(EROFS_I_SB(inode), __entry->nid));
++		__entry->isdir		= isdir;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, blkaddr %u ofs %u, isdir %d",
++		  show_dev_nid(__entry),
++		  __entry->blkaddr, __entry->ofs,
++		  __entry->isdir)
++);
++
++TRACE_EVENT(erofs_readpage,
++
++	TP_PROTO(struct page *page, bool raw),
++
++	TP_ARGS(page, raw),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,    nid     )
++		__field(int,		dir	)
++		__field(pgoff_t,	index	)
++		__field(int,		uptodate)
++		__field(bool,		raw	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= page->mapping->host->i_sb->s_dev;
++		__entry->nid	= EROFS_V(page->mapping->host)->nid;
++		__entry->dir	= S_ISDIR(page->mapping->host->i_mode);
++		__entry->index	= page->index;
++		__entry->uptodate = PageUptodate(page);
++		__entry->raw = raw;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, %s, index = %lu, uptodate = %d "
++		"raw = %d",
++		show_dev_nid(__entry),
++		show_file_type(__entry->dir),
++		(unsigned long)__entry->index,
++		__entry->uptodate,
++		__entry->raw)
++);
++
++TRACE_EVENT(erofs_readpages,
++
++	TP_PROTO(struct inode *inode, struct page *page, unsigned int nrpage,
++		bool raw),
++
++	TP_ARGS(inode, page, nrpage, raw),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(pgoff_t,	start	)
++		__field(unsigned int,	nrpage	)
++		__field(bool,		raw	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_V(inode)->nid;
++		__entry->start	= page->index;
++		__entry->nrpage	= nrpage;
++		__entry->raw	= raw;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, start = %lu nrpage = %u raw = %d",
++		show_dev_nid(__entry),
++		(unsigned long)__entry->start,
++		__entry->nrpage,
++		__entry->raw)
++);
++
++DECLARE_EVENT_CLASS(erofs__map_blocks_enter,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned int flags),
++
++	TP_ARGS(inode, map, flags),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++		__field(	erofs_off_t,	la		)
++		__field(	u64,		llen		)
++		__field(	unsigned int,	flags		)
++	),
++
++	TP_fast_assign(
++		__entry->dev    = inode->i_sb->s_dev;
++		__entry->nid    = EROFS_V(inode)->nid;
++		__entry->la	= map->m_la;
++		__entry->llen	= map->m_llen;
++		__entry->flags	= flags;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, la %llu llen %llu flags %s",
++		  show_dev_nid(__entry),
++		  __entry->la, __entry->llen, show_map_flags(__entry->flags))
++);
++
++DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_flatmode_enter,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags),
++
++	TP_ARGS(inode, map, flags)
++);
++
++DECLARE_EVENT_CLASS(erofs__map_blocks_exit,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned int flags, int ret),
++
++	TP_ARGS(inode, map, flags, ret),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++		__field(        unsigned int,   flags           )
++		__field(	erofs_off_t,	la		)
++		__field(	erofs_off_t,	pa		)
++		__field(	u64,		llen		)
++		__field(	u64,		plen		)
++		__field(        unsigned int,	mflags		)
++		__field(	int,		ret		)
++	),
++
++	TP_fast_assign(
++		__entry->dev    = inode->i_sb->s_dev;
++		__entry->nid    = EROFS_V(inode)->nid;
++		__entry->flags	= flags;
++		__entry->la	= map->m_la;
++		__entry->pa	= map->m_pa;
++		__entry->llen	= map->m_llen;
++		__entry->plen	= map->m_plen;
++		__entry->mflags	= map->m_flags;
++		__entry->ret	= ret;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, flags %s "
++		  "la %llu pa %llu llen %llu plen %llu mflags %s ret %d",
++		  show_dev_nid(__entry), show_map_flags(__entry->flags),
++		  __entry->la, __entry->pa, __entry->llen, __entry->plen,
++		  show_mflags(__entry->mflags), __entry->ret)
++);
++
++DEFINE_EVENT(erofs__map_blocks_exit, erofs_map_blocks_flatmode_exit,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags, int ret),
++
++	TP_ARGS(inode, map, flags, ret)
++);
++
++TRACE_EVENT(erofs_destroy_inode,
++	TP_PROTO(struct inode *inode),
++
++	TP_ARGS(inode),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_V(inode)->nid;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu", show_dev_nid(__entry))
++);
++
++#endif /* _TRACE_EROFS_H */
++
++ /* This part must be outside protection */
++#include <trace/define_trace.h>
 -- 
 1.9.1
