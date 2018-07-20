@@ -1,133 +1,73 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 20 Jul 2018 10:52:38 +0800
-Subject: [RFC PATCH v2 03/11] erofs: add erofs_map_blocks_iter
+Date: Fri, 20 Jul 2018 10:52:39 +0800
+Subject: [RFC PATCH v2 04/11] erofs: add erofs_allocpage
 In-Reply-To: <1532055166-96837-1-git-send-email-gaoxiang25@huawei.com>
 References: <1530109204-7321-1-git-send-email-gaoxiang25@huawei.com>
  <1532055166-96837-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532055166-96837-4-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532055166-96837-5-git-send-email-gaoxiang25@huawei.com>
 
-This patch adds 'erofs_map_blocks_iter', which
-is designed for the iterable L2P mapping.
-Compared with 'erofs_map_blocks', it avoids
-the redundant 'release and regrab' process if
-these requests read the same meta page.
+This patch introduces an temporary _on-stack_ page
+pool to reuse the freed page directly as much as
+it can for better performance and release all pages
+at a time, it also slightly reduces the possibility of
+the potential memory allocation failure.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Kconfig     |  10 +++
- fs/erofs/Makefile    |   1 +
- fs/erofs/data.c      |  39 ++++++++-
- fs/erofs/internal.h  |   4 +
- fs/erofs/unzip_vle.c | 236 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 286 insertions(+), 4 deletions(-)
- create mode 100644 fs/erofs/unzip_vle.c
+ fs/erofs/Makefile   |  2 +-
+ fs/erofs/internal.h |  3 +++
+ fs/erofs/staging.h  |  4 ++++
+ fs/erofs/utils.c    | 31 +++++++++++++++++++++++++++++++
+ 4 files changed, 39 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/utils.c
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 9c8696e..ffbd5eb 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -75,3 +75,13 @@ config EROFS_FAULT_INJECTION
- 	help
- 	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
- 	  If unsure, say N.
-+
-+config EROFS_FS_ZIP
-+	bool "EROFS Data Compresssion Support"
-+	depends on EROFS_FS
-+	help
-+	  Currently we support VLE Compression only.
-+	  Play at your own risk.
-+
-+	  If you don't want to use compression feature, say N.
-+
 diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 9d7f90a..0b3db0a 100644
+index 0b3db0a..d717775 100644
 --- a/fs/erofs/Makefile
 +++ b/fs/erofs/Makefile
-@@ -5,4 +5,5 @@ EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+@@ -3,7 +3,7 @@ EROFS_VERSION = "1.0"
+ EXTRA_CFLAGS += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+ 
  obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o
+-erofs-objs := super.o inode.o data.o namei.o dir.o
++erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
  erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
  
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index de99217..faaec37 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -189,14 +189,45 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return 0;
- }
- 
-+#ifdef CONFIG_EROFS_FS_ZIP
-+extern int z_erofs_map_blocks_iter(struct inode *,
-+	struct erofs_map_blocks *, struct page **, int);
-+#endif
-+
-+int erofs_map_blocks_iter(struct inode *inode,
-+	struct erofs_map_blocks *map,
-+	struct page **mpage_ret, int flags)
-+{
-+	/* by default, reading raw data never use erofs_map_blocks_iter */
-+	if (unlikely(!is_inode_layout_compression(inode))) {
-+		if (*mpage_ret != NULL)
-+			put_page(*mpage_ret);
-+		*mpage_ret = NULL;
-+
-+		return erofs_map_blocks(inode, map, flags);
-+	}
-+
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	return z_erofs_map_blocks_iter(inode, map, mpage_ret, flags);
-+#else
-+	/* data compression is not available */
-+	return -ENOTSUPP;
-+#endif
-+}
-+
- int erofs_map_blocks(struct inode *inode,
- 	struct erofs_map_blocks *map, int flags)
- {
--	if (!is_inode_layout_compression(inode))
--		return erofs_map_blocks_flatmode(inode, map, flags);
-+	if (unlikely(is_inode_layout_compression(inode))) {
-+		struct page *mpage = NULL;
-+		int err;
- 
--	/* data compression unimplemented yet */
--	return -ENOTSUPP;
-+		err = erofs_map_blocks_iter(inode, map, &mpage, flags);
-+		if (mpage != NULL)
-+			put_page(mpage);
-+		return err;
-+	}
-+	return erofs_map_blocks_flatmode(inode, map, flags);
- }
- 
- static inline struct bio *erofs_read_raw_page(
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 3f3745f..c8e5703 100644
+index c8e5703..b19fd78 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -73,6 +73,10 @@ struct erofs_sb_info {
+@@ -382,5 +382,8 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
+ #endif
+ }
  
- 	/* inode slot unit size in bit shift */
- 	unsigned char islotbits;
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	/* cluster size in bit shift */
-+	unsigned char clusterbits;
++/* utils.c */
++extern struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
++
+ #endif
+ 
+diff --git a/fs/erofs/staging.h b/fs/erofs/staging.h
+index 7712a7b..a9bfd8c 100644
+--- a/fs/erofs/staging.h
++++ b/fs/erofs/staging.h
+@@ -81,3 +81,7 @@ static inline bool sb_rdonly(const struct super_block *sb) {
+ 
+ #endif
+ 
++#ifndef lru_to_page
++#define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
 +#endif
- 
- 	u32 build_time_nsec;
- 	u64 build_time;
-diff --git a/fs/erofs/unzip_vle.c b/fs/erofs/unzip_vle.c
++
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
 new file mode 100644
-index 0000000..96fd1114
+index 0000000..dce5177
 --- /dev/null
-+++ b/fs/erofs/unzip_vle.c
-@@ -0,0 +1,236 @@
++++ b/fs/erofs/utils.c
+@@ -0,0 +1,31 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * linux/fs/erofs/unzip_vle.c
++ * linux/fs/erofs/utils.c
 + *
 + * Copyright (C) 2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
@@ -137,228 +77,23 @@ index 0000000..96fd1114
 + * License.  See the file COPYING in the main directory of the Linux
 + * distribution for more details.
 + */
++
 +#include "internal.h"
 +
-+#define __vle_cluster_advise(x, bit, bits) \
-+	((le16_to_cpu(x) >> (bit)) & ((1 << (bits)) - 1))
-+
-+#define __vle_cluster_type(advise) __vle_cluster_advise(advise, \
-+	EROFS_VLE_DI_CLUSTER_TYPE_BIT, EROFS_VLE_DI_CLUSTER_TYPE_BITS)
-+
-+enum {
-+	EROFS_VLE_CLUSTER_TYPE_PLAIN,
-+	EROFS_VLE_CLUSTER_TYPE_HEAD,
-+	EROFS_VLE_CLUSTER_TYPE_NONHEAD,
-+	EROFS_VLE_CLUSTER_TYPE_RESERVED,
-+	EROFS_VLE_CLUSTER_TYPE_MAX
-+};
-+
-+#define vle_cluster_type(di)	\
-+	__vle_cluster_type((di)->di_advise)
-+
-+static inline unsigned
-+vle_compressed_index_clusterofs(unsigned clustersize,
-+	struct erofs_decompressed_index_vle *di)
++struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
 +{
-+	debugln("%s, vle=%pK, advise=%x (type %u), clusterofs=%x blkaddr=%x",
-+		__func__, di, di->di_advise, vle_cluster_type(di),
-+		di->di_clusterofs, di->di_u.blkaddr);
++	struct page *page;
 +
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		break;
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		return di->di_clusterofs;
-+	default:
-+		BUG_ON(1);
-+	}
-+	return clustersize;
-+}
-+
-+static inline erofs_blk_t
-+vle_extent_blkaddr(struct inode *inode, pgoff_t index)
-+{
-+	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	unsigned ofs = EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
-+		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
-+		index * sizeof(struct erofs_decompressed_index_vle);
-+
-+	return erofs_blknr(iloc(sbi, vi->nid) + ofs);
-+}
-+
-+static inline unsigned int
-+vle_extent_blkoff(struct inode *inode, pgoff_t index)
-+{
-+	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	unsigned ofs = EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
-+		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
-+		index * sizeof(struct erofs_decompressed_index_vle);
-+
-+	return erofs_blkoff(iloc(sbi, vi->nid) + ofs);
-+}
-+
-+/*
-+ * Variable-sized Logical Extent (Fixed Physical Cluster) Compression Mode
-+ * ---
-+ * VLE compression mode attempts to compress a number of logical data into
-+ * a physical cluster with a fixed size.
-+ * VLE compression mode uses "struct erofs_decompressed_index_vle".
-+ */
-+static erofs_off_t vle_get_logical_extent_head(
-+	struct inode *inode,
-+	struct page **page_iter,
-+	void **kaddr_iter,
-+	unsigned lcn,	/* logical cluster number */
-+	erofs_blk_t *pcn,
-+	unsigned *flags)
-+{
-+	/* for extent meta */
-+	struct page *page = *page_iter;
-+	erofs_blk_t blkaddr = vle_extent_blkaddr(inode, lcn);
-+	struct erofs_decompressed_index_vle *di;
-+	unsigned long long ofs;
-+	unsigned clustersize = 1 << EROFS_SB(inode->i_sb)->clusterbits;
-+
-+	if (page->index != blkaddr) {
-+		kunmap_atomic(*kaddr_iter);
-+		unlock_page(page);
-+		put_page(page);
-+
-+		*page_iter = page = erofs_get_meta_page(inode->i_sb,
-+			blkaddr, false);
-+		*kaddr_iter = kmap_atomic(page);
-+	}
-+
-+	di = *kaddr_iter + vle_extent_blkoff(inode, lcn);
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		BUG_ON(!di->di_u.delta[0]);
-+		BUG_ON(lcn < di->di_u.delta[0]);
-+
-+		ofs = vle_get_logical_extent_head(inode,
-+			page_iter, kaddr_iter,
-+			lcn - di->di_u.delta[0], pcn, flags);
-+		break;
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		*flags ^= EROFS_MAP_ZIPPED;
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		ofs = (unsigned long long)lcn * clustersize +
-+			(le16_to_cpu(di->di_clusterofs) & (clustersize - 1));
-+		*pcn = le32_to_cpu(di->di_u.blkaddr);
-+		break;
-+	default:
-+		BUG_ON(1);
-+	}
-+	return ofs;
-+}
-+
-+int z_erofs_map_blocks_iter(struct inode *inode,
-+	struct erofs_map_blocks *map,
-+	struct page **mpage_ret, int flags)
-+{
-+	/* logicial extent (start, end) offset */
-+	unsigned long long ofs, end;
-+	struct erofs_decompressed_index_vle *di;
-+	erofs_blk_t e_blkaddr, pcn;
-+	unsigned lcn, logical_cluster_ofs;
-+	struct page *mpage = *mpage_ret;
-+	void *kaddr;
-+	bool initial;
-+	unsigned clustersize = 1 << EROFS_SB(inode->i_sb)->clusterbits;
-+
-+	/* if both m_(l,p)len are 0, regularize l_lblk, l_lofs, etc... */
-+	initial = !map->m_llen;
-+
-+	/* when trying to read beyond EOF, leave it unmapped */
-+	if (unlikely(map->m_la >= inode->i_size)) {
-+		BUG_ON(!initial);
-+		map->m_llen = map->m_la + 1 - inode->i_size;
-+		map->m_la = inode->i_size - 1;
-+		map->m_flags = 0;
-+		goto out;
-+	}
-+
-+	debugln("%s, m_la %llu m_llen %llu --- start", __func__,
-+		map->m_la, map->m_llen);
-+
-+	ofs = map->m_la + map->m_llen;
-+
-+	lcn = ofs / clustersize;
-+	e_blkaddr = vle_extent_blkaddr(inode, lcn);
-+
-+	if (mpage == NULL || mpage->index != e_blkaddr) {
-+		if (mpage != NULL)
-+			put_page(mpage);
-+
-+		mpage = erofs_get_meta_page(inode->i_sb, e_blkaddr, false);
-+		*mpage_ret = mpage;
++	if (!list_empty(pool)) {
++		page = lru_to_page(pool);
++		list_del(&page->lru);
 +	} else {
-+		lock_page(mpage);
-+		DBG_BUGON(!PageUptodate(mpage));
++		page = alloc_pages(gfp | __GFP_NOFAIL, 0);
++
++		BUG_ON(page == NULL);
++		BUG_ON(page->mapping != NULL);
 +	}
-+
-+	kaddr = kmap_atomic(mpage);
-+	di = kaddr + vle_extent_blkoff(inode, lcn);
-+
-+	debugln("%s, lcn %u e_blkaddr %u e_blkoff %u", __func__, lcn,
-+		e_blkaddr, vle_extent_blkoff(inode, lcn));
-+
-+	logical_cluster_ofs = vle_compressed_index_clusterofs(clustersize, di);
-+	if (!initial) {
-+		/* [walking mode] 'map' has been already initialized */
-+		map->m_llen += logical_cluster_ofs;
-+		goto unmap_out;
-+	}
-+
-+	/* by default, compressed */
-+	map->m_flags |= EROFS_MAP_ZIPPED;
-+
-+	end = (u64)(lcn + 1) * clustersize;
-+
-+	switch(vle_cluster_type(di)) {
-+	case EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		if (ofs % clustersize >= logical_cluster_ofs)
-+			map->m_flags ^= EROFS_MAP_ZIPPED;
-+	case EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		if (ofs % clustersize == logical_cluster_ofs) {
-+			pcn = le32_to_cpu(di->di_u.blkaddr);
-+			goto exact_hitted;
-+		}
-+
-+		if (ofs % clustersize > logical_cluster_ofs) {
-+			ofs = lcn * clustersize | logical_cluster_ofs;
-+			pcn = le32_to_cpu(di->di_u.blkaddr);
-+			break;
-+		}
-+
-+		BUG_ON(!lcn);	/* logical cluster number >= 1 */
-+		end = (lcn-- * clustersize) | logical_cluster_ofs;
-+	case EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		/* get the correspoinding first chunk */
-+		ofs = vle_get_logical_extent_head(inode, mpage_ret,
-+			&kaddr, lcn, &pcn, &map->m_flags);
-+		mpage = *mpage_ret;
-+	}
-+
-+	map->m_la = ofs;
-+exact_hitted:
-+	map->m_llen = end - ofs;
-+	map->m_plen = clustersize;
-+	map->m_pa = blknr_to_addr(pcn);
-+	map->m_flags |= EROFS_MAP_MAPPED;
-+unmap_out:
-+	kunmap_atomic(kaddr);
-+	unlock_page(mpage);
-+out:
-+	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
-+		__func__, map->m_la, map->m_pa,
-+		map->m_llen, map->m_plen, map->m_flags);
-+	return 0;
++	return page;
 +}
 +
 -- 
