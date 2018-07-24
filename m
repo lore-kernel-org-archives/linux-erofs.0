@@ -1,37 +1,31 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 24 Jul 2018 10:36:22 +0800
-Subject: [RFC PATCH 02/25] staging: erofs: add erofs in-memory stuffs
+Date: Tue, 24 Jul 2018 10:36:23 +0800
+Subject: [RFC PATCH 03/25] staging: erofs: add super block operations
 In-Reply-To: <1532399805-65674-1-git-send-email-gaoxiang25@huawei.com>
 References: <1532399805-65674-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532399805-65674-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532399805-65674-4-git-send-email-gaoxiang25@huawei.com>
 
- - erofs_sb_info:
-   contains erofs-specific in-memory information.
-
- - erofs_vnode:
-   contains vfs_inode and other fs-specific information.
-   same as super block, the only one in-memory definition exists.
-
- - erofs_map_blocks
-   plays a role in the file L2P mapping
+This commit adds erofs super block operations, including (u)mount,
+remount_fs, show_options, statfs, in addition to some private
+icache management functions.
 
 Signed-off-by: Miao Xie <miaoxie at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 286 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 286 insertions(+)
- create mode 100644 drivers/staging/erofs/internal.h
+ drivers/staging/erofs/super.c | 423 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 423 insertions(+)
+ create mode 100644 drivers/staging/erofs/super.c
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
 new file mode 100644
-index 0000000..5056177
+index 0000000..31bfef0
 --- /dev/null
-+++ b/drivers/staging/erofs/internal.h
-@@ -0,0 +1,286 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * linux/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/super.c
+@@ -0,0 +1,423 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/drivers/staging/erofs/super.c
 + *
 + * Copyright (C) 2017-2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
@@ -41,279 +35,416 @@ index 0000000..5056177
 + * License.  See the file COPYING in the main directory of the Linux
 + * distribution for more details.
 + */
-+#ifndef __INTERNAL_H
-+#define __INTERNAL_H
-+
-+#include <linux/fs.h>
-+#include <linux/dcache.h>
-+#include <linux/mm.h>
-+#include <linux/pagemap.h>
-+#include <linux/bio.h>
++#include <linux/module.h>
 +#include <linux/buffer_head.h>
-+#include <linux/cleancache.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include "erofs_fs.h"
++#include <linux/statfs.h>
++#include <linux/parser.h>
++#include "internal.h"
 +
-+#include "staging.h"
++static struct kmem_cache *erofs_inode_cachep __read_mostly;
 +
-+/* redefine pr_fmt "erofs: " */
-+#undef pr_fmt
-+#define pr_fmt(fmt) "erofs: " fmt
-+
-+#define errln(x, ...)   pr_err(x "\n", ##__VA_ARGS__)
-+#define infoln(x, ...)  pr_info(x "\n", ##__VA_ARGS__)
-+#ifdef CONFIG_EROFS_FS_DEBUG
-+#define debugln(x, ...) pr_debug(x "\n", ##__VA_ARGS__)
-+
-+#define dbg_might_sleep         might_sleep
-+#define DBG_BUGON               BUG_ON
-+#else
-+#define debugln(x, ...)         ((void)0)
-+
-+#define dbg_might_sleep()       ((void)0)
-+#define DBG_BUGON(...)          ((void)0)
-+#endif
-+
-+/* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
-+#define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
-+
-+typedef u64 erofs_nid_t;
-+
-+struct erofs_sb_info {
-+	u32 blocks;
-+	u32 meta_blkaddr;
-+
-+	/* inode slot unit size in bit shift */
-+	unsigned char islotbits;
-+
-+	u32 build_time_nsec;
-+	u64 build_time;
-+
-+	/* what we really care is nid, rather than ino.. */
-+	erofs_nid_t root_nid;
-+	/* used for statfs, f_files - f_favail */
-+	u64 inos;
-+
-+	u8 uuid[16];                    /* 128-bit uuid for volume */
-+	u8 volume_name[16];             /* volume name */
-+	char *dev_name;
-+
-+	unsigned int mount_opt;
-+};
-+
-+#define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
-+#define EROFS_I_SB(inode) ((struct erofs_sb_info *)(inode)->i_sb->s_fs_info)
-+
-+#define clear_opt(sbi, option)	((sbi)->mount_opt &= ~EROFS_MOUNT_##option)
-+#define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
-+#define test_opt(sbi, option)	((sbi)->mount_opt & EROFS_MOUNT_##option)
-+
-+/* we strictly follow PAGE_SIZE and no buffer head yet */
-+#define LOG_BLOCK_SIZE		PAGE_SHIFT
-+
-+#undef LOG_SECTORS_PER_BLOCK
-+#define LOG_SECTORS_PER_BLOCK	(PAGE_SHIFT - 9)
-+
-+#undef SECTORS_PER_BLOCK
-+#define SECTORS_PER_BLOCK	(1 << SECTORS_PER_BLOCK)
-+
-+#define EROFS_BLKSIZ		(1 << LOG_BLOCK_SIZE)
-+
-+#if (EROFS_BLKSIZ % 4096 || !EROFS_BLKSIZ)
-+#error erofs cannot be used in this platform
-+#endif
-+
-+#define ROOT_NID(sb)		((sb)->root_nid)
-+
-+typedef u64 erofs_off_t;
-+
-+/* data type for filesystem-wide blocks number */
-+typedef u32 erofs_blk_t;
-+
-+#define erofs_blknr(addr)       ((addr) / EROFS_BLKSIZ)
-+#define erofs_blkoff(addr)      ((addr) % EROFS_BLKSIZ)
-+#define blknr_to_addr(nr)       ((erofs_off_t)(nr) * EROFS_BLKSIZ)
-+
-+static inline erofs_off_t iloc(struct erofs_sb_info *sbi, erofs_nid_t nid)
++static void init_once(void *ptr)
 +{
-+	return blknr_to_addr(sbi->meta_blkaddr) + (nid << sbi->islotbits);
++	struct erofs_vnode *vi = ptr;
++
++	inode_init_once(&vi->vfs_inode);
 +}
 +
-+#define inode_set_inited_xattr(inode)   (EROFS_V(inode)->flags |= 1)
-+#define inode_has_inited_xattr(inode)   (EROFS_V(inode)->flags & 1)
++static int erofs_init_inode_cache(void)
++{
++	erofs_inode_cachep = kmem_cache_create("erofs_inode",
++		sizeof(struct erofs_vnode), 0,
++		SLAB_RECLAIM_ACCOUNT, init_once);
 +
-+struct erofs_vnode {
-+	erofs_nid_t nid;
-+	unsigned int flags;
++	return erofs_inode_cachep != NULL ? 0 : -ENOMEM;
++}
 +
-+	unsigned char data_mapping_mode;
-+	/* inline size in bytes */
-+	unsigned char inode_isize;
-+	unsigned short xattr_isize;
++static void erofs_exit_inode_cache(void)
++{
++	BUG_ON(erofs_inode_cachep == NULL);
++	kmem_cache_destroy(erofs_inode_cachep);
++}
 +
++static struct inode *alloc_inode(struct super_block *sb)
++{
++	struct erofs_vnode *vi =
++		kmem_cache_alloc(erofs_inode_cachep, GFP_KERNEL);
++
++	if (vi == NULL)
++		return NULL;
++
++	/* zero out everything except vfs_inode */
++	memset(vi, 0, offsetof(struct erofs_vnode, vfs_inode));
++	return &vi->vfs_inode;
++}
++
++static void i_callback(struct rcu_head *head)
++{
++	struct inode *inode = container_of(head, struct inode, i_rcu);
++	struct erofs_vnode *vi = EROFS_V(inode);
++
++	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
++	if (is_inode_fast_symlink(inode))
 +#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0))
-+	char *i_link;
++		kfree(vi->i_link);
++#else
++		kfree(inode->i_link);
 +#endif
-+	unsigned xattr_shared_count;
-+	unsigned *xattr_shared_xattrs;
 +
-+	erofs_blk_t raw_blkaddr;
++	kfree(vi->xattr_shared_xattrs);
 +
-+	/* the corresponding vfs inode */
-+	struct inode vfs_inode;
++	kmem_cache_free(erofs_inode_cachep, vi);
++}
++
++static void destroy_inode(struct inode *inode)
++{
++	call_rcu(&inode->i_rcu, i_callback);
++}
++
++static int superblock_read(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi;
++	struct buffer_head *bh;
++	struct erofs_super_block *layout;
++	unsigned blkszbits;
++	int ret;
++
++	bh = sb_bread(sb, 0);
++
++	if (bh == NULL) {
++		errln("cannot read erofs superblock");
++		return -EIO;
++	}
++
++	sbi = EROFS_SB(sb);
++	layout = (struct erofs_super_block *)((u8 *)bh->b_data
++		 + EROFS_SUPER_OFFSET);
++
++	ret = -EINVAL;
++	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
++		errln("cannot find valid erofs superblock");
++		goto out;
++	}
++
++	blkszbits = layout->blkszbits;
++	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
++	if (unlikely(blkszbits != LOG_BLOCK_SIZE)) {
++		errln("blksize %u isn't supported on this platform",
++			1 << blkszbits);
++		goto out;
++	}
++
++	sbi->blocks = le32_to_cpu(layout->blocks);
++	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
++	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
++
++	sbi->root_nid = le16_to_cpu(layout->root_nid);
++	sbi->inos = le64_to_cpu(layout->inos);
++
++	sbi->build_time = le64_to_cpu(layout->build_time);
++	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
++
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0))
++	memcpy(sb->s_uuid, layout->uuid, sizeof(layout->uuid));
++#else
++	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
++#endif
++	memcpy(sbi->volume_name, layout->volume_name,
++		sizeof(layout->volume_name));
++
++	ret = 0;
++out:
++	brelse(bh);
++	return ret;
++}
++
++static void default_options(struct erofs_sb_info *sbi)
++{
++}
++
++enum {
++	Opt_err
 +};
 +
-+#define EROFS_V(ptr)	\
-+	container_of(ptr, struct erofs_vnode, vfs_inode)
++static match_table_t erofs_tokens = {
++	{Opt_err, NULL}
++};
 +
-+#define __inode_advise(x, bit, bits) \
-+	(((x) >> (bit)) & ((1 << (bits)) - 1))
-+
-+#define __inode_version(advise)	\
-+	__inode_advise(advise, EROFS_I_VERSION_BIT,	\
-+		EROFS_I_VERSION_BITS)
-+
-+#define __inode_data_mapping(advise)	\
-+	__inode_advise(advise, EROFS_I_DATA_MAPPING_BIT,\
-+		EROFS_I_DATA_MAPPING_BITS)
-+
-+static inline unsigned long inode_datablocks(struct inode *inode)
++static int parse_options(struct super_block *sb, char *options)
 +{
-+	/* since i_size cannot be changed */
-+	return DIV_ROUND_UP(inode->i_size, EROFS_BLKSIZ);
++	substring_t args[MAX_OPT_ARGS];
++	char *p;
++
++	if (!options)
++		return 0;
++
++	while ((p = strsep(&options, ",")) != NULL) {
++		int token;
++
++		if (!*p)
++			continue;
++
++		args[0].to = args[0].from = NULL;
++		token = match_token(p, erofs_tokens, args);
++
++		switch (token) {
++		default:
++			errln("Unrecognized mount option \"%s\" "
++					"or missing value", p);
++			return -EINVAL;
++		}
++	}
++	return 0;
 +}
 +
-+static inline bool is_inode_layout_plain(struct inode *inode)
++static int erofs_read_super(struct super_block *sb,
++	const char *dev_name, void *data, int silent)
 +{
-+	return EROFS_V(inode)->data_mapping_mode == EROFS_INODE_LAYOUT_PLAIN;
++	struct inode *inode;
++	struct erofs_sb_info *sbi;
++	int err = -EINVAL;
++
++	infoln("read_super, device -> %s", dev_name);
++	infoln("options -> %s", (char *)data);
++
++	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
++		errln("failed to set erofs blksize");
++		goto err;
++	}
++
++	sbi = kzalloc(sizeof(struct erofs_sb_info), GFP_KERNEL);
++	if (unlikely(sbi == NULL)) {
++		err = -ENOMEM;
++		goto err;
++	}
++	sb->s_fs_info = sbi;
++
++	err = superblock_read(sb);
++	if (err)
++		goto err_sbread;
++
++	sb->s_magic = EROFS_SUPER_MAGIC;
++	sb->s_flags |= MS_RDONLY | MS_NOATIME;
++	sb->s_maxbytes = MAX_LFS_FILESIZE;
++	sb->s_time_gran = 1;
++
++	sb->s_op = &erofs_sops;
++
++	/* set erofs default mount options */
++	default_options(sbi);
++
++	err = parse_options(sb, data);
++	if (err)
++		goto err_parseopt;
++
++	if (!silent)
++		infoln("root inode @ nid %llu", ROOT_NID(sbi));
++
++	/* get the root inode */
++	inode = erofs_iget(sb, ROOT_NID(sbi), true);
++	if (IS_ERR(inode)) {
++		err = PTR_ERR(inode);
++		goto err_iget;
++	}
++
++	if (!S_ISDIR(inode->i_mode)) {
++		errln("rootino(nid %llu) is not a directory(i_mode %o)",
++			ROOT_NID(sbi), inode->i_mode);
++		err = -EINVAL;
++		goto err_isdir;
++	}
++
++	sb->s_root = d_make_root(inode);
++	if (sb->s_root == NULL) {
++		err = -ENOMEM;
++		goto err_makeroot;
++	}
++
++	/* save the device name to sbi */
++	sbi->dev_name = __getname();
++	if (sbi->dev_name == NULL) {
++		err = -ENOMEM;
++		goto err_devname;
++	}
++
++	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
++	sbi->dev_name[PATH_MAX - 1] = '\0';
++
++	/*
++	 * We already have a positive dentry, which was instantiated
++	 * by d_make_root. Just need to d_rehash it.
++	 */
++	d_rehash(sb->s_root);
++
++	if (!silent)
++		infoln("mounted on %s with opts: %s.", dev_name,
++			(char *)data);
++	return 0;
++	/*
++	 * please add a label for each exit point and use
++	 * the following name convention, thus new features
++	 * can be integrated easily without renaming labels.
++	 */
++err_devname:
++	dput(sb->s_root);
++err_makeroot:
++err_isdir:
++	if (sb->s_root == NULL)
++		iput(inode);
++err_iget:
++err_parseopt:
++err_sbread:
++	sb->s_fs_info = NULL;
++	kfree(sbi);
++err:
++	return err;
 +}
-+
-+static inline bool is_inode_layout_compression(struct inode *inode)
-+{
-+	return EROFS_V(inode)->data_mapping_mode ==
-+					EROFS_INODE_LAYOUT_COMPRESSION;
-+}
-+
-+static inline bool is_inode_layout_inline(struct inode *inode)
-+{
-+	return EROFS_V(inode)->data_mapping_mode == EROFS_INODE_LAYOUT_INLINE;
-+}
-+
-+extern const struct super_operations erofs_sops;
-+extern const struct inode_operations erofs_dir_iops;
-+extern const struct file_operations erofs_dir_fops;
-+
-+extern const struct address_space_operations erofs_raw_access_aops;
 +
 +/*
-+ * Logical to physical block mapping, used by erofs_map_blocks()
-+ *
-+ * Different with other file systems, it is used for 2 access modes:
-+ *
-+ * 1) RAW access mode:
-+ *
-+ * Users pass a valid (m_lblk, m_lofs -- usually 0) pair,
-+ * and get the valid m_pblk, m_pofs and the longest m_len(in bytes).
-+ *
-+ * Note that m_lblk in the RAW access mode refers to the number of
-+ * the compressed ondisk block rather than the uncompressed
-+ * in-memory block for the compressed file.
-+ *
-+ * m_pofs equals to m_lofs except for the inline data page.
-+ *
-+ * 2) Normal access mode:
-+ *
-+ * If the inode is not compressed, it has no difference with
-+ * the RAW access mode. However, if the inode is compressed,
-+ * users should pass a valid (m_lblk, m_lofs) pair, and get
-+ * the needed m_pblk, m_pofs, m_len to get the compressed data
-+ * and the updated m_lblk, m_lofs which indicates the start
-+ * of the corresponding uncompressed data in the file.
++ * could be triggered after deactivate_locked_super()
++ * is called, thus including umount and failed to initialize.
 + */
-+enum {
-+	BH_Zipped = BH_PrivateStart,
++static void erofs_put_super(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++
++	/* for cases which are failed in "read_super" */
++	if (sbi == NULL)
++		return;
++
++	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
++
++	infoln("unmounted for %s", sbi->dev_name);
++	__putname(sbi->dev_name);
++
++	kfree(sbi);
++	sb->s_fs_info = NULL;
++}
++
++
++struct erofs_mount_private {
++	const char *dev_name;
++	char *options;
 +};
 +
-+/* Has a disk mapping */
-+#define EROFS_MAP_MAPPED	(1 << BH_Mapped)
-+/* Located in metadata (could be copied from bd_inode) */
-+#define EROFS_MAP_META		(1 << BH_Meta)
-+/* The extent has been compressed */
-+#define EROFS_MAP_ZIPPED	(1 << BH_Zipped)
++/* support mount_bdev() with options */
++static int erofs_fill_super(struct super_block *sb,
++	void *_priv, int silent)
++{
++	struct erofs_mount_private *priv = _priv;
 +
-+struct erofs_map_blocks {
-+	erofs_off_t m_pa, m_la;
-+	u64 m_plen, m_llen;
++	return erofs_read_super(sb, priv->dev_name,
++		priv->options, silent);
++}
 +
-+	unsigned int m_flags;
++static struct dentry *erofs_mount(
++	struct file_system_type *fs_type, int flags,
++	const char *dev_name, void *data)
++{
++	struct erofs_mount_private priv = {
++		.dev_name = dev_name,
++		.options = data
++	};
++
++	return mount_bdev(fs_type, flags, dev_name,
++		&priv, erofs_fill_super);
++}
++
++static void erofs_kill_sb(struct super_block *sb)
++{
++	kill_block_super(sb);
++}
++
++static struct file_system_type erofs_fs_type = {
++	.owner          = THIS_MODULE,
++	.name           = "erofs",
++	.mount          = erofs_mount,
++	.kill_sb        = erofs_kill_sb,
++	.fs_flags       = FS_REQUIRES_DEV,
++};
++MODULE_ALIAS_FS("erofs");
++
++int __init erofs_module_init(void)
++{
++	int err;
++
++	erofs_check_ondisk_layout_definitions();
++	infoln("initializing erofs " EROFS_VERSION);
++
++	err = erofs_init_inode_cache();
++	if (err)
++		goto icache_err;
++
++	err = register_filesystem(&erofs_fs_type);
++	if (err)
++		goto fs_err;
++
++	infoln("successfully to initialize erofs");
++	return 0;
++
++fs_err:
++	erofs_exit_inode_cache();
++icache_err:
++	return err;
++}
++
++void __exit erofs_module_exit(void)
++{
++	unregister_filesystem(&erofs_fs_type);
++	erofs_exit_inode_cache();
++	infoln("successfully finalize erofs");
++}
++
++/* get filesystem statistics */
++static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
++{
++	struct super_block *sb = dentry->d_sb;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
++
++	buf->f_type = sb->s_magic;
++	buf->f_bsize = EROFS_BLKSIZ;
++	buf->f_blocks = sbi->blocks;
++	buf->f_bfree = buf->f_bavail = 0;
++
++	buf->f_files = ULLONG_MAX;
++	buf->f_ffree = ULLONG_MAX - sbi->inos;
++
++	buf->f_namelen = EROFS_NAME_LEN;
++
++	buf->f_fsid.val[0] = (u32)id;
++	buf->f_fsid.val[1] = (u32)(id >> 32);
++	return 0;
++}
++
++static int erofs_show_options(struct seq_file *seq, struct dentry *root)
++{
++	return 0;
++}
++
++static int erofs_remount(struct super_block *sb, int *flags, char *data)
++{
++	BUG_ON(!sb_rdonly(sb));
++
++	*flags |= MS_RDONLY;
++	return 0;
++}
++
++const struct super_operations erofs_sops = {
++	.put_super = erofs_put_super,
++	.alloc_inode = alloc_inode,
++	.destroy_inode = destroy_inode,
++	.statfs = erofs_statfs,
++	.show_options = erofs_show_options,
++	.remount_fs = erofs_remount,
 +};
 +
-+/* Flags used by erofs_map_blocks() */
-+#define EROFS_GET_BLOCKS_RAW    0x0001
++module_init(erofs_module_init);
++module_exit(erofs_module_exit);
 +
-+/* data.c */
-+extern struct page *erofs_get_meta_page(struct super_block *sb,
-+	erofs_blk_t blkaddr, bool prio);
-+extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
-+
-+static inline struct page *erofs_get_inline_page(struct inode *inode,
-+	erofs_blk_t blkaddr)
-+{
-+	return erofs_get_meta_page(inode->i_sb,
-+		blkaddr, S_ISDIR(inode->i_mode));
-+}
-+
-+/* inode.c */
-+extern struct inode *erofs_iget(struct super_block *sb,
-+	erofs_nid_t nid, bool dir);
-+
-+/* dir.c */
-+int erofs_namei(struct inode *dir, struct qstr *name,
-+	erofs_nid_t *nid, unsigned *d_type);
-+
-+/* xattr.c */
-+extern const struct xattr_handler *erofs_xattr_handlers[];
-+
-+/* symlink */
-+static inline void set_inode_fast_symlink(struct inode *inode)
-+{
-+	inode->i_op = &simple_symlink_inode_operations;
-+}
-+
-+static inline bool is_inode_fast_symlink(struct inode *inode)
-+{
-+	return inode->i_op == &simple_symlink_inode_operations;
-+}
-+
-+static inline void *erofs_vmap(struct page **pages, unsigned int count)
-+{
-+#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
-+	int i = 0;
-+
-+	while (1) {
-+		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
-+		/* retry two more times (totally 3 times) */
-+		if (addr != NULL || ++i >= 3)
-+			return addr;
-+		vm_unmap_aliases();
-+	}
-+	return NULL;
-+#else
-+	return vmap(pages, count, VM_MAP, PAGE_KERNEL);
-+#endif
-+}
-+
-+static inline void erofs_vunmap(const void *mem, unsigned int count)
-+{
-+#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
-+	vm_unmap_ram(mem, count);
-+#else
-+	vunmap(mem);
-+#endif
-+}
-+
-+#endif
++MODULE_DESCRIPTION("Enhanced ROM File System");
++MODULE_AUTHOR("Gao Xiang, Yu Chao, Miao Xie, CONSUMER BG, HUAWEI Inc.");
++MODULE_LICENSE("GPL");
 +
 -- 
 1.9.1
