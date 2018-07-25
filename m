@@ -1,229 +1,384 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 25 Jul 2018 10:26:24 +0800
-Subject: [RFC PATCH v2 11/25] staging: erofs: introduce error injection
- infrastructure
+Date: Wed, 25 Jul 2018 10:26:25 +0800
+Subject: [RFC PATCH v2 12/25] staging: erofs: support tracepoint
 In-Reply-To: <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
 References: <1532399805-65674-1-git-send-email-gaoxiang25@huawei.com>
  <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532485598-63393-12-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532485598-63393-13-git-send-email-gaoxiang25@huawei.com>
 
 From: Chao Yu <yuchao0@huawei.com>
 
-This patch introduces error injection infrastructure, with it, we can
-inject error in any kernel exported common functions which erofs used,
-so that it can force erofs running into error paths, it turns out that
-tests can cover real rare paths more easily to find bugs.
+Add basic tracepoints for ->readpage{,s}, ->lookup,
+->destroy_inode, fill_inode and map_blocks.
 
 Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
- drivers/staging/erofs/Kconfig    |  6 +++++
- drivers/staging/erofs/inode.c    |  3 ++-
- drivers/staging/erofs/internal.h | 57 ++++++++++++++++++++++++++++++++++++++++
- drivers/staging/erofs/super.c    | 38 +++++++++++++++++++++++++++
- 4 files changed, 103 insertions(+), 1 deletion(-)
+ drivers/staging/erofs/data.c                       |  13 +-
+ drivers/staging/erofs/include/trace/events/erofs.h | 240 +++++++++++++++++++++
+ drivers/staging/erofs/inode.c                      |   4 +
+ drivers/staging/erofs/namei.c                      |   4 +
+ drivers/staging/erofs/super.c                      |   3 +
+ 5 files changed, 261 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/staging/erofs/include/trace/events/erofs.h
 
-diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-index 1a5ec1b..edda055 100644
---- a/drivers/staging/erofs/Kconfig
-+++ b/drivers/staging/erofs/Kconfig
-@@ -71,3 +71,9 @@ config EROFS_FS_USE_VM_MAP_RAM
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index aa2420b..a0f9d38 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -13,6 +13,8 @@
+ #include "internal.h"
+ #include <linux/prefetch.h>
  
- 	  If you don't know what these are, say N.
- 
-+config EROFS_FAULT_INJECTION
-+	bool "EROFS fault injection facility"
-+	depends on EROFS_FS
-+	help
-+	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
-+	  If unsure, say N.
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index a4b836b..6c6ef8c 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -113,6 +113,7 @@ static int read_inode(struct inode *inode, void *data)
- int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
++#include <trace/events/erofs.h>
++
+ static inline void read_endio(struct bio *bio)
  {
+ 	int i;
+@@ -113,6 +115,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	u64 offset = map->m_la;
  	struct erofs_vnode *vi = EROFS_V(inode);
-+	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
- 	int mode = vi->data_mapping_mode;
  
- 	DBG_BUGON(mode >= EROFS_INODE_LAYOUT_MAX);
-@@ -123,7 +124,7 @@ int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
++	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
+ 	BUG_ON(is_inode_layout_compression(inode));
  
- 	/* fast symlink (following ext4) */
- 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
--		char *lnk = kmalloc(inode->i_size + 1, GFP_KERNEL);
-+		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
+ 	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
+@@ -150,8 +153,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
  
- 		if (unlikely(lnk == NULL))
- 			return -ENOMEM;
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 5862705..ca22486 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -42,6 +42,22 @@
- #define DBG_BUGON(...)          ((void)0)
- #endif
- 
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+enum {
-+	FAULT_KMALLOC,
-+	FAULT_MAX,
-+};
-+
-+extern char *erofs_fault_name[FAULT_MAX];
-+#define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
-+
-+struct erofs_fault_info {
-+	atomic_t inject_ops;
-+	unsigned int inject_rate;
-+	unsigned int inject_type;
-+};
-+#endif
-+
- /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
- #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
- 
-@@ -70,14 +86,55 @@ struct erofs_sb_info {
- 	char *dev_name;
- 
- 	unsigned int mount_opt;
-+
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+	struct erofs_fault_info fault_info;	/* For fault injection */
-+#endif
- };
- 
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+#define erofs_show_injection_info(type)					\
-+	infoln("inject %s in %s of %pS", erofs_fault_name[type],        \
-+		__func__, __builtin_return_address(0))
-+
-+static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
-+{
-+	struct erofs_fault_info *ffi = &sbi->fault_info;
-+
-+	if (!ffi->inject_rate)
-+		return false;
-+
-+	if (!IS_FAULT_SET(ffi, type))
-+		return false;
-+
-+	atomic_inc(&ffi->inject_ops);
-+	if (atomic_read(&ffi->inject_ops) >= ffi->inject_rate) {
-+		atomic_set(&ffi->inject_ops, 0);
-+		return true;
-+	}
-+	return false;
-+}
-+#endif
-+
-+static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
-+					size_t size, gfp_t flags)
-+{
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+	if (time_to_inject(sbi, FAULT_KMALLOC)) {
-+		erofs_show_injection_info(FAULT_KMALLOC);
-+		return NULL;
-+	}
-+#endif
-+	return kmalloc(size, flags);
-+}
-+
- #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
- #define EROFS_I_SB(inode) ((struct erofs_sb_info *)(inode)->i_sb->s_fs_info)
- 
- /* Mount flags set via mount options or defaults */
- #define EROFS_MOUNT_XATTR_USER		0x00000010
- #define EROFS_MOUNT_POSIX_ACL		0x00000020
-+#define EROFS_MOUNT_FAULT_INJECTION	0x00000040
- 
- #define clear_opt(sbi, option)	((sbi)->mount_opt &= ~EROFS_MOUNT_##option)
- #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index d1860c4..8490158 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -129,6 +129,26 @@ static int superblock_read(struct super_block *sb)
- 	return ret;
- }
- 
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+char *erofs_fault_name[FAULT_MAX] = {
-+	[FAULT_KMALLOC]		= "kmalloc",
-+};
-+
-+static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+						unsigned int rate)
-+{
-+	struct erofs_fault_info *ffi = &sbi->fault_info;
-+
-+	if (rate) {
-+		atomic_set(&ffi->inject_ops, 0);
-+		ffi->inject_rate = rate;
-+		ffi->inject_type = (1 << FAULT_MAX) - 1;
-+	} else {
-+		memset(ffi, 0, sizeof(struct erofs_fault_info));
-+	}
-+}
-+#endif
-+
- static void default_options(struct erofs_sb_info *sbi)
- {
- #ifdef CONFIG_EROFS_FS_XATTR
-@@ -145,6 +165,7 @@ enum {
- 	Opt_nouser_xattr,
- 	Opt_acl,
- 	Opt_noacl,
-+	Opt_fault_injection,
- 	Opt_err
- };
- 
-@@ -153,6 +174,7 @@ enum {
- 	{Opt_nouser_xattr, "nouser_xattr"},
- 	{Opt_acl, "acl"},
- 	{Opt_noacl, "noacl"},
-+	{Opt_fault_injection, "fault_injection=%u"},
- 	{Opt_err, NULL}
- };
- 
-@@ -160,6 +182,7 @@ static int parse_options(struct super_block *sb, char *options)
- {
- 	substring_t args[MAX_OPT_ARGS];
- 	char *p;
-+	int arg = 0;
- 
- 	if (!options)
- 		return 0;
-@@ -204,6 +227,16 @@ static int parse_options(struct super_block *sb, char *options)
- 			infoln("noacl options not supported");
- 			break;
- #endif
-+		case Opt_fault_injection:
-+			if (args->from && match_int(args, &arg))
-+				return -EINVAL;
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+			erofs_build_fault_attr(EROFS_SB(sb), arg);
-+			set_opt(EROFS_SB(sb), FAULT_INJECTION);
-+#else
-+			infoln("FAULT_INJECTION was not selected");
-+#endif
-+			break;
- 		default:
- 			errln("Unrecognized mount option \"%s\" "
- 					"or missing value", p);
-@@ -453,6 +486,11 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
- 	else
- 		seq_puts(seq, ",noacl");
- #endif
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+	if (test_opt(sbi, FAULT_INJECTION))
-+		seq_printf(seq, ",fault_injection=%u",
-+				sbi->fault_info.inject_rate);
-+#endif
+ out:
+ 	map->m_llen = map->m_plen;
+-	debugln("%s, m_la 0x%llx m_pa %llx m_len %llu",
+-		__func__, map->m_la, map->m_pa, map->m_plen);
++	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
  	return 0;
  }
  
+@@ -305,6 +307,8 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 	erofs_off_t last_block;
+ 	struct bio *bio;
+ 
++	trace_erofs_readpage(page, true);
++
+ 	bio = erofs_read_raw_page(NULL, page->mapping,
+ 		page, &last_block, 1, false);
+ 
+@@ -322,9 +326,12 @@ static int erofs_raw_access_readpages(struct file *filp,
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+ 	gfp_t gfp = readahead_gfp_mask(mapping);
++	struct page *page = list_last_entry(pages, struct page, lru);
++
++	trace_erofs_readpages(mapping->host, page, nr_pages, true);
+ 
+ 	for (; nr_pages; --nr_pages) {
+-		struct page *page = list_entry(pages->prev, struct page, lru);
++		page = list_entry(pages->prev, struct page, lru);
+ 
+ 		prefetchw(&page->flags);
+ 		list_del(&page->lru);
+diff --git a/drivers/staging/erofs/include/trace/events/erofs.h b/drivers/staging/erofs/include/trace/events/erofs.h
+new file mode 100644
+index 0000000..5aead93
+--- /dev/null
++++ b/drivers/staging/erofs/include/trace/events/erofs.h
+@@ -0,0 +1,240 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM erofs
++
++#if !defined(_TRACE_EROFS_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_EROFS_H
++
++#include <linux/tracepoint.h>
++
++#define show_dev(dev)		MAJOR(dev), MINOR(dev)
++#define show_dev_nid(entry)	show_dev(entry->dev), entry->nid
++
++#define show_file_type(type)						\
++	__print_symbolic(type,						\
++		{ 0,		"FILE" },				\
++		{ 1,		"DIR" })
++
++#define show_map_flags(flags) __print_flags(flags, "|",	\
++	{ EROFS_GET_BLOCKS_RAW,	"RAW" })
++
++#define show_mflags(flags) __print_flags(flags, "",	\
++	{ EROFS_MAP_MAPPED,	"M" },			\
++	{ EROFS_MAP_META,	"I" },			\
++	{ EROFS_MAP_ZIPPED,	"Z" })
++
++TRACE_EVENT(erofs_lookup,
++
++	TP_PROTO(struct inode *dir, struct dentry *dentry, unsigned int flags),
++
++	TP_ARGS(dir, dentry, flags),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(const char *,	name	)
++		__field(unsigned int,	flags	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= dir->i_sb->s_dev;
++		__entry->nid	= EROFS_V(dir)->nid;
++		__entry->name	= dentry->d_name.name;
++		__entry->flags	= flags;
++	),
++
++	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
++		show_dev_nid(__entry),
++		__entry->name,
++		__entry->flags)
++);
++
++TRACE_EVENT(erofs_fill_inode,
++	TP_PROTO(struct inode *inode, int isdir),
++	TP_ARGS(inode, isdir),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(erofs_blk_t,	blkaddr )
++		__field(unsigned int,	ofs	)
++		__field(int,		isdir	)
++	),
++
++	TP_fast_assign(
++		__entry->dev		= inode->i_sb->s_dev;
++		__entry->nid		= EROFS_V(inode)->nid;
++		__entry->blkaddr	= erofs_blknr(iloc(EROFS_I_SB(inode), __entry->nid));
++		__entry->ofs		= erofs_blkoff(iloc(EROFS_I_SB(inode), __entry->nid));
++		__entry->isdir		= isdir;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, blkaddr %u ofs %u, isdir %d",
++		  show_dev_nid(__entry),
++		  __entry->blkaddr, __entry->ofs,
++		  __entry->isdir)
++);
++
++TRACE_EVENT(erofs_readpage,
++
++	TP_PROTO(struct page *page, bool raw),
++
++	TP_ARGS(page, raw),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,    nid     )
++		__field(int,		dir	)
++		__field(pgoff_t,	index	)
++		__field(int,		uptodate)
++		__field(bool,		raw	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= page->mapping->host->i_sb->s_dev;
++		__entry->nid	= EROFS_V(page->mapping->host)->nid;
++		__entry->dir	= S_ISDIR(page->mapping->host->i_mode);
++		__entry->index	= page->index;
++		__entry->uptodate = PageUptodate(page);
++		__entry->raw = raw;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, %s, index = %lu, uptodate = %d "
++		"raw = %d",
++		show_dev_nid(__entry),
++		show_file_type(__entry->dir),
++		(unsigned long)__entry->index,
++		__entry->uptodate,
++		__entry->raw)
++);
++
++TRACE_EVENT(erofs_readpages,
++
++	TP_PROTO(struct inode *inode, struct page *page, unsigned int nrpage,
++		bool raw),
++
++	TP_ARGS(inode, page, nrpage, raw),
++
++	TP_STRUCT__entry(
++		__field(dev_t,		dev	)
++		__field(erofs_nid_t,	nid	)
++		__field(pgoff_t,	start	)
++		__field(unsigned int,	nrpage	)
++		__field(bool,		raw	)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_V(inode)->nid;
++		__entry->start	= page->index;
++		__entry->nrpage	= nrpage;
++		__entry->raw	= raw;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, start = %lu nrpage = %u raw = %d",
++		show_dev_nid(__entry),
++		(unsigned long)__entry->start,
++		__entry->nrpage,
++		__entry->raw)
++);
++
++DECLARE_EVENT_CLASS(erofs__map_blocks_enter,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned int flags),
++
++	TP_ARGS(inode, map, flags),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++		__field(	erofs_off_t,	la		)
++		__field(	u64,		llen		)
++		__field(	unsigned int,	flags		)
++	),
++
++	TP_fast_assign(
++		__entry->dev    = inode->i_sb->s_dev;
++		__entry->nid    = EROFS_V(inode)->nid;
++		__entry->la	= map->m_la;
++		__entry->llen	= map->m_llen;
++		__entry->flags	= flags;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, la %llu llen %llu flags %s",
++		  show_dev_nid(__entry),
++		  __entry->la, __entry->llen, show_map_flags(__entry->flags))
++);
++
++DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_flatmode_enter,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags),
++
++	TP_ARGS(inode, map, flags)
++);
++
++DECLARE_EVENT_CLASS(erofs__map_blocks_exit,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned int flags, int ret),
++
++	TP_ARGS(inode, map, flags, ret),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++		__field(        unsigned int,   flags           )
++		__field(	erofs_off_t,	la		)
++		__field(	erofs_off_t,	pa		)
++		__field(	u64,		llen		)
++		__field(	u64,		plen		)
++		__field(        unsigned int,	mflags		)
++		__field(	int,		ret		)
++	),
++
++	TP_fast_assign(
++		__entry->dev    = inode->i_sb->s_dev;
++		__entry->nid    = EROFS_V(inode)->nid;
++		__entry->flags	= flags;
++		__entry->la	= map->m_la;
++		__entry->pa	= map->m_pa;
++		__entry->llen	= map->m_llen;
++		__entry->plen	= map->m_plen;
++		__entry->mflags	= map->m_flags;
++		__entry->ret	= ret;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu, flags %s "
++		  "la %llu pa %llu llen %llu plen %llu mflags %s ret %d",
++		  show_dev_nid(__entry), show_map_flags(__entry->flags),
++		  __entry->la, __entry->pa, __entry->llen, __entry->plen,
++		  show_mflags(__entry->mflags), __entry->ret)
++);
++
++DEFINE_EVENT(erofs__map_blocks_exit, erofs_map_blocks_flatmode_exit,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags, int ret),
++
++	TP_ARGS(inode, map, flags, ret)
++);
++
++TRACE_EVENT(erofs_destroy_inode,
++	TP_PROTO(struct inode *inode),
++
++	TP_ARGS(inode),
++
++	TP_STRUCT__entry(
++		__field(	dev_t,		dev		)
++		__field(	erofs_nid_t,	nid		)
++	),
++
++	TP_fast_assign(
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_V(inode)->nid;
++	),
++
++	TP_printk("dev = (%d,%d), nid = %llu", show_dev_nid(__entry))
++);
++
++#endif /* _TRACE_EROFS_H */
++
++ /* This part must be outside protection */
++#include <trace/define_trace.h>
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 6c6ef8c..7dfc7d9 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -12,6 +12,8 @@
+  */
+ #include "xattr.h"
+ 
++#include <trace/events/erofs.h>
++
+ /* no locking */
+ static int read_inode(struct inode *inode, void *data)
+ {
+@@ -152,6 +154,8 @@ int fill_inode(struct inode *inode, int isdir)
+ 	erofs_blk_t blkaddr;
+ 	unsigned ofs;
+ 
++	trace_erofs_fill_inode(inode, isdir);
++
+ 	blkaddr = erofs_blknr(iloc(sbi, vi->nid));
+ 	ofs = erofs_blkoff(iloc(sbi, vi->nid));
+ 
+diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+index 4e24357..4a21280 100644
+--- a/drivers/staging/erofs/namei.c
++++ b/drivers/staging/erofs/namei.c
+@@ -13,6 +13,8 @@
+ #include "internal.h"
+ #include "xattr.h"
+ 
++#include <trace/events/erofs.h>
++
+ /* based on the value of qn->len is accurate */
+ static inline int dirnamecmp(struct qstr *qn,
+ 	struct qstr *qd, unsigned *matched)
+@@ -209,6 +211,8 @@ struct dentry *erofs_lookup(struct inode *dir,
+ 	/* dentry must be unhashed in lookup, no need to worry about */
+ 	DBG_BUGON(!d_unhashed(dentry));
+ 
++	trace_erofs_lookup(dir, dentry, flags);
++
+ 	/* file name exceeds fs limit */
+ 	if (unlikely(dentry->d_name.len > EROFS_NAME_LEN))
+ 		return ERR_PTR(-ENAMETOOLONG);
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 8490158..bf8095cd 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -17,6 +17,9 @@
+ #include <linux/seq_file.h>
+ #include "internal.h"
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/erofs.h>
++
+ static struct kmem_cache *erofs_inode_cachep __read_mostly;
+ 
+ static void init_once(void *ptr)
 -- 
 1.9.1
