@@ -1,215 +1,276 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 25 Jul 2018 10:26:34 +0800
-Subject: [RFC PATCH v2 21/25] staging: erofs: introduce erofs shrinker
+Date: Wed, 25 Jul 2018 10:26:35 +0800
+Subject: [RFC PATCH v2 22/25] staging: erofs: introduce workstation for
+ decompression
 In-Reply-To: <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
 References: <1532399805-65674-1-git-send-email-gaoxiang25@huawei.com>
  <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532485598-63393-22-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532485598-63393-23-git-send-email-gaoxiang25@huawei.com>
 
-This patch adds a dedicated shrinker targeting to free unneeded
-memory consumed by a number of erofs in-memory data structures.
+This patch introduces another concept used by the unzip
+subsystem called 'workstation'. It can be seen as a sparse
+array that stores pointers pointed to data structures
+related to the corresponding physical blocks.
 
-Like F2FS and UBIFS, it also adds:
-  - sbi->umount_mutex to avoid races on shrinker and put_super
-  - sbi->shrinker_run_no to not revisit recently scaned objects
+All lookup cases are protected by RCU read lock. Besides,
+reference count and spin_lock are also introduced to
+manage its lifetime and serialize all update operations.
+
+'workstation' is currently implemented on the in-kernel
+radix tree approach for backward compatibility.
+With the evolution of linux kernel, it could be migrated
+into XArray implementation in the future.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h |  7 ++++
- drivers/staging/erofs/super.c    | 15 +++++++
- drivers/staging/erofs/utils.c    | 85 +++++++++++++++++++++++++++++++++++++---
- 3 files changed, 101 insertions(+), 6 deletions(-)
+ drivers/staging/erofs/internal.h | 93 ++++++++++++++++++++++++++++++++++++++++
+ drivers/staging/erofs/super.c    |  9 ++++
+ drivers/staging/erofs/utils.c    | 81 ++++++++++++++++++++++++++++++++--
+ 3 files changed, 180 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 18e7b9c..42455f0 100644
+index 42455f0..b07cd7a 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -66,6 +66,7 @@ struct erofs_fault_info {
- struct erofs_sb_info {
- 	/* list for all registered superblocks, mainly for shrinker */
- 	struct list_head list;
-+	struct mutex umount_mutex;
- 
- 	u32 blocks;
- 	u32 meta_blkaddr;
-@@ -93,6 +94,7 @@ struct erofs_sb_info {
- 	char *dev_name;
- 
- 	unsigned int mount_opt;
-+	unsigned int shrinker_run_no;
- 
- #ifdef CONFIG_EROFS_FAULT_INJECTION
- 	struct erofs_fault_info fault_info;	/* For fault injection */
-@@ -416,6 +418,11 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
- extern void erofs_register_super(struct super_block *sb);
- extern void erofs_unregister_super(struct super_block *sb);
- 
-+extern unsigned long erofs_shrink_count(struct shrinker *shrink,
-+	struct shrink_control *sc);
-+extern unsigned long erofs_shrink_scan(struct shrinker *shrink,
-+	struct shrink_control *sc);
+@@ -79,6 +79,9 @@ struct erofs_sb_info {
+ #ifdef CONFIG_EROFS_FS_ZIP
+ 	/* cluster size in bit shift */
+ 	unsigned char clusterbits;
 +
- #ifndef lru_to_page
- #define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
++	/* the dedicated workstation for compression */
++	struct radix_tree_root workstn_tree;
  #endif
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index e42d3a5..61132f3 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -375,7 +375,9 @@ static void erofs_put_super(struct super_block *sb)
- 	infoln("unmounted for %s", sbi->dev_name);
- 	__putname(sbi->dev_name);
  
-+	mutex_lock(&sbi->umount_mutex);
- 	erofs_unregister_super(sb);
-+	mutex_unlock(&sbi->umount_mutex);
+ 	u32 build_time_nsec;
+@@ -149,6 +152,96 @@ static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
+ #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
+ #define test_opt(sbi, option)	((sbi)->mount_opt & EROFS_MOUNT_##option)
  
- 	kfree(sbi);
- 	sb->s_fs_info = NULL;
-@@ -415,6 +417,12 @@ static void erofs_kill_sb(struct super_block *sb)
- 	kill_block_super(sb);
- }
- 
-+static struct shrinker erofs_shrinker_info = {
-+	.scan_objects = erofs_shrink_scan,
-+	.count_objects = erofs_shrink_count,
-+	.seeks = DEFAULT_SEEKS,
++#ifdef CONFIG_EROFS_FS_ZIP
++#define erofs_workstn_lock(sbi)         xa_lock(&(sbi)->workstn_tree)
++#define erofs_workstn_unlock(sbi)       xa_unlock(&(sbi)->workstn_tree)
++
++/* basic unit of the workstation of a super_block */
++struct erofs_workgroup {
++	/* the workgroup index in the workstation */
++	pgoff_t index;
++
++	/* overall workgroup reference count */
++	atomic_t refcount;
 +};
 +
- static struct file_system_type erofs_fs_type = {
- 	.owner          = THIS_MODULE,
- 	.name           = "erofs",
-@@ -435,6 +443,10 @@ int __init erofs_module_init(void)
- 	if (err)
- 		goto icache_err;
- 
-+	err = register_shrinker(&erofs_shrinker_info);
-+	if (err)
-+		goto shrinker_err;
++#define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
 +
- 	err = register_filesystem(&erofs_fs_type);
- 	if (err)
- 		goto fs_err;
-@@ -443,6 +455,8 @@ int __init erofs_module_init(void)
- 	return 0;
++static inline bool erofs_workgroup_try_to_freeze(
++	struct erofs_workgroup *grp, int v)
++{
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++	if (v != atomic_cmpxchg(&grp->refcount,
++		v, EROFS_LOCKED_MAGIC))
++		return false;
++	preempt_disable();
++#else
++	preempt_disable();
++	if (atomic_read(&grp->refcount) != v) {
++		preempt_enable();
++		return false;
++	}
++#endif
++	return true;
++}
++
++static inline void erofs_workgroup_unfreeze(
++	struct erofs_workgroup *grp, int v)
++{
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++	atomic_set(&grp->refcount, v);
++#endif
++	preempt_enable();
++}
++
++static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
++{
++	const int locked = (int)EROFS_LOCKED_MAGIC;
++	int o;
++
++repeat:
++	o = atomic_read(&grp->refcount);
++
++	/* spin if it is temporarily locked at the reclaim path */
++	if (unlikely(o == locked)) {
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++		do
++			cpu_relax();
++		while (atomic_read(&grp->refcount) == locked);
++#endif
++		goto repeat;
++	}
++
++	if (unlikely(o <= 0))
++		return -1;
++
++	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
++		goto repeat;
++
++	*ocnt = o;
++	return 0;
++}
++
++#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
++
++extern int erofs_workgroup_put(struct erofs_workgroup *grp);
++
++extern struct erofs_workgroup *erofs_find_workgroup(
++	struct super_block *sb, pgoff_t index, bool *tag);
++
++extern int erofs_register_workgroup(struct super_block *sb,
++	struct erofs_workgroup *grp, bool tag);
++
++extern unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
++	unsigned long nr_shrink, bool cleanup);
++
++static inline void erofs_workstation_cleanup_all(struct super_block *sb)
++{
++	erofs_shrink_workstation(EROFS_SB(sb), ~0UL, true);
++}
++
++#endif
++
+ /* we strictly follow PAGE_SIZE and no buffer head yet */
+ #define LOG_BLOCK_SIZE		PAGE_SHIFT
  
- fs_err:
-+	unregister_shrinker(&erofs_shrinker_info);
-+shrinker_err:
- 	erofs_exit_inode_cache();
- icache_err:
- 	return err;
-@@ -451,6 +465,7 @@ int __init erofs_module_init(void)
- void __exit erofs_module_exit(void)
- {
- 	unregister_filesystem(&erofs_fs_type);
-+	unregister_shrinker(&erofs_shrinker_info);
- 	erofs_exit_inode_cache();
- 	infoln("successfully finalize erofs");
- }
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 61132f3..00c4a0a 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -296,6 +296,10 @@ static int erofs_read_super(struct super_block *sb,
+ 	if (!silent)
+ 		infoln("root inode @ nid %llu", ROOT_NID(sbi));
+ 
++#ifdef CONFIG_EROFS_FS_ZIP
++	INIT_RADIX_TREE(&sbi->workstn_tree, GFP_ATOMIC);
++#endif
++
+ 	/* get the root inode */
+ 	inode = erofs_iget(sb, ROOT_NID(sbi), true);
+ 	if (IS_ERR(inode)) {
+@@ -376,6 +380,11 @@ static void erofs_put_super(struct super_block *sb)
+ 	__putname(sbi->dev_name);
+ 
+ 	mutex_lock(&sbi->umount_mutex);
++
++#ifdef CONFIG_EROFS_FS_ZIP
++	erofs_workstation_cleanup_all(sb);
++#endif
++
+ 	erofs_unregister_super(sb);
+ 	mutex_unlock(&sbi->umount_mutex);
+ 
 diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index 6748def..c1d83ce 100644
+index c1d83ce..0d4eae2 100644
 --- a/drivers/staging/erofs/utils.c
 +++ b/drivers/staging/erofs/utils.c
-@@ -29,20 +29,93 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+@@ -29,6 +29,83 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
  	return page;
  }
- 
--static DEFINE_MUTEX(erofs_sb_list_lock);
-+
-+/* protected by 'erofs_sb_list_lock' */
-+static unsigned int shrinker_run_no;
-+
-+/* protects the mounted 'erofs_sb_list' */
-+static DEFINE_SPINLOCK(erofs_sb_list_lock);
- static LIST_HEAD(erofs_sb_list);
  
 +/* global shrink count (for all mounted EROFS instances) */
 +static atomic_long_t erofs_global_shrink_cnt;
 +
- void erofs_register_super(struct super_block *sb)
- {
--	mutex_lock(&erofs_sb_list_lock);
--	list_add(&EROFS_SB(sb)->list, &erofs_sb_list);
--	mutex_unlock(&erofs_sb_list_lock);
++#ifdef CONFIG_EROFS_FS_ZIP
++
++/* radix_tree and the future XArray both don't use tagptr_t yet */
++struct erofs_workgroup *erofs_find_workgroup(
++	struct super_block *sb, pgoff_t index, bool *tag)
++{
 +	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	struct erofs_workgroup *grp;
++	int oldcount;
 +
-+	mutex_init(&sbi->umount_mutex);
++repeat:
++	rcu_read_lock();
++	grp = radix_tree_lookup(&sbi->workstn_tree, index);
++	if (grp != NULL) {
++		*tag = radix_tree_exceptional_entry(grp);
++		grp = (void *)((unsigned long)grp &
++			~RADIX_TREE_EXCEPTIONAL_ENTRY);
 +
-+	spin_lock(&erofs_sb_list_lock);
-+	list_add(&sbi->list, &erofs_sb_list);
-+	spin_unlock(&erofs_sb_list_lock);
- }
- 
- void erofs_unregister_super(struct super_block *sb)
- {
--	mutex_lock(&erofs_sb_list_lock);
-+	spin_lock(&erofs_sb_list_lock);
- 	list_del(&EROFS_SB(sb)->list);
--	mutex_unlock(&erofs_sb_list_lock);
-+	spin_unlock(&erofs_sb_list_lock);
-+}
-+
-+unsigned long erofs_shrink_count(struct shrinker *shrink,
-+				 struct shrink_control *sc)
-+{
-+	return atomic_long_read(&erofs_global_shrink_cnt);
-+}
-+
-+unsigned long erofs_shrink_scan(struct shrinker *shrink,
-+				struct shrink_control *sc)
-+{
-+	struct erofs_sb_info *sbi;
-+	struct list_head *p;
-+
-+	unsigned long nr = sc->nr_to_scan;
-+	unsigned int run_no;
-+	unsigned long freed = 0;
-+
-+	spin_lock(&erofs_sb_list_lock);
-+	do
-+		run_no = ++shrinker_run_no;
-+	while (run_no == 0);
-+
-+	/* Iterate over all mounted superblocks and try to shrink them */
-+	p = erofs_sb_list.next;
-+	while (p != &erofs_sb_list) {
-+		sbi = list_entry(p, struct erofs_sb_info, list);
-+
-+		/*
-+		 * We move the ones we do to the end of the list, so we stop
-+		 * when we see one we have already done.
-+		 */
-+		if (sbi->shrinker_run_no == run_no)
-+			break;
-+
-+		if (!mutex_trylock(&sbi->umount_mutex)) {
-+			p = p->next;
-+			continue;
++		if (erofs_workgroup_get(grp, &oldcount)) {
++			/* prefer to relax rcu read side */
++			rcu_read_unlock();
++			goto repeat;
 +		}
 +
-+		spin_unlock(&erofs_sb_list_lock);
-+		sbi->shrinker_run_no = run_no;
-+
-+		/* add scan handlers here */
-+
-+		spin_lock(&erofs_sb_list_lock);
-+		/* Get the next list element before we move this one */
-+		p = p->next;
-+
-+		/*
-+		 * Move this one to the end of the list to provide some
-+		 * fairness.
-+		 */
-+		list_move_tail(&sbi->list, &erofs_sb_list);
-+		mutex_unlock(&sbi->umount_mutex);
-+
-+		if (freed >= nr)
-+			break;
++		/* decrease refcount added by erofs_workgroup_put */
++		if (unlikely(oldcount == 1))
++			atomic_long_dec(&erofs_global_shrink_cnt);
++		BUG_ON(index != grp->index);
 +	}
-+	spin_unlock(&erofs_sb_list_lock);
-+	return freed;
- }
++	rcu_read_unlock();
++	return grp;
++}
++
++int erofs_register_workgroup(struct super_block *sb,
++			     struct erofs_workgroup *grp,
++			     bool tag)
++{
++	struct erofs_sb_info *sbi;
++	int err;
++
++	/* grp->refcount should not < 1 */
++	BUG_ON(!atomic_read(&grp->refcount));
++
++	err = radix_tree_preload(GFP_NOFS);
++	if (err)
++		return err;
++
++	sbi = EROFS_SB(sb);
++	erofs_workstn_lock(sbi);
++
++	if (tag)
++		grp = (void *)((unsigned long)grp |
++			1UL << RADIX_TREE_EXCEPTIONAL_SHIFT);
++
++	err = radix_tree_insert(&sbi->workstn_tree,
++		grp->index, grp);
++
++	if (!err) {
++		__erofs_workgroup_get(grp);
++	}
++
++	erofs_workstn_unlock(sbi);
++	radix_tree_preload_end();
++	return err;
++}
++
++unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
++				       unsigned long nr_shrink,
++				       bool cleanup)
++{
++	return 0;
++}
++
++#endif
  
+ /* protected by 'erofs_sb_list_lock' */
+ static unsigned int shrinker_run_no;
+@@ -37,9 +114,6 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+ static DEFINE_SPINLOCK(erofs_sb_list_lock);
+ static LIST_HEAD(erofs_sb_list);
+ 
+-/* global shrink count (for all mounted EROFS instances) */
+-static atomic_long_t erofs_global_shrink_cnt;
+-
+ void erofs_register_super(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+@@ -112,6 +186,7 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 		list_move_tail(&sbi->list, &erofs_sb_list);
+ 		mutex_unlock(&sbi->umount_mutex);
+ 
++		freed += erofs_shrink_workstation(sbi, nr, false);
+ 		if (freed >= nr)
+ 			break;
+ 	}
 -- 
 1.9.1
