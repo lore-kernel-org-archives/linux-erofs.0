@@ -1,104 +1,229 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 25 Jul 2018 10:26:23 +0800
-Subject: [RFC PATCH v2 10/25] staging: erofs: support special inode
+Date: Wed, 25 Jul 2018 10:26:24 +0800
+Subject: [RFC PATCH v2 11/25] staging: erofs: introduce error injection
+ infrastructure
 In-Reply-To: <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
 References: <1532399805-65674-1-git-send-email-gaoxiang25@huawei.com>
  <1532485598-63393-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532485598-63393-11-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532485598-63393-12-git-send-email-gaoxiang25@huawei.com>
 
 From: Chao Yu <yuchao0@huawei.com>
 
-This patch adds to support special inode, such as block dev, char,
-socket, pipe inode.
+This patch introduces error injection infrastructure, with it, we can
+inject error in any kernel exported common functions which erofs used,
+so that it can force erofs running into error paths, it turns out that
+tests can cover real rare paths more easily to find bugs.
 
 Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
- drivers/staging/erofs/inode.c    | 36 ++++++++++++++++++++++++++++++++++--
- drivers/staging/erofs/internal.h |  1 +
- 2 files changed, 35 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/Kconfig    |  6 +++++
+ drivers/staging/erofs/inode.c    |  3 ++-
+ drivers/staging/erofs/internal.h | 57 ++++++++++++++++++++++++++++++++++++++++
+ drivers/staging/erofs/super.c    | 38 +++++++++++++++++++++++++++
+ 4 files changed, 103 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 1a5ec1b..edda055 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -71,3 +71,9 @@ config EROFS_FS_USE_VM_MAP_RAM
+ 
+ 	  If you don't know what these are, say N.
+ 
++config EROFS_FAULT_INJECTION
++	bool "EROFS fault injection facility"
++	depends on EROFS_FS
++	help
++	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
++	  If unsure, say N.
 diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 587f15b..a4b836b 100644
+index a4b836b..6c6ef8c 100644
 --- a/drivers/staging/erofs/inode.c
 +++ b/drivers/staging/erofs/inode.c
-@@ -34,8 +34,18 @@ static int read_inode(struct inode *inode, void *data)
- 		vi->inode_isize = sizeof(struct erofs_inode_v2);
- 		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
+@@ -113,6 +113,7 @@ static int read_inode(struct inode *inode, void *data)
+ int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
+ {
+ 	struct erofs_vnode *vi = EROFS_V(inode);
++	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
+ 	int mode = vi->data_mapping_mode;
  
--		vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
- 		inode->i_mode = le16_to_cpu(v2->i_mode);
-+		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
-+						S_ISLNK(inode->i_mode)) {
-+			vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
-+		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
-+			inode->i_rdev =
-+				new_decode_dev(le32_to_cpu(v2->i_u.rdev));
-+		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
-+			inode->i_rdev = 0;
-+		} else {
-+			return -EIO;
-+		}
+ 	DBG_BUGON(mode >= EROFS_INODE_LAYOUT_MAX);
+@@ -123,7 +124,7 @@ int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
  
- 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
- 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
-@@ -54,8 +64,18 @@ static int read_inode(struct inode *inode, void *data)
- 		vi->inode_isize = sizeof(struct erofs_inode_v1);
- 		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
+ 	/* fast symlink (following ext4) */
+ 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
+-		char *lnk = kmalloc(inode->i_size + 1, GFP_KERNEL);
++		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
  
--		vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
- 		inode->i_mode = le16_to_cpu(v1->i_mode);
-+		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
-+						S_ISLNK(inode->i_mode)) {
-+			vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
-+		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
-+			inode->i_rdev =
-+				new_decode_dev(le32_to_cpu(v1->i_u.rdev));
-+		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
-+			inode->i_rdev = 0;
-+		} else {
-+			return -EIO;
-+		}
- 
- 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
- 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
-@@ -173,6 +193,12 @@ int fill_inode(struct inode *inode, int isdir)
- 				&page_symlink_inode_operations;
- #endif
- 			inode_nohighmem(inode);
-+		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
-+			S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
-+#ifdef CONFIG_EROFS_FS_XATTR
-+			inode->i_op = &erofs_special_inode_operations;
-+#endif
-+			init_special_inode(inode, inode->i_mode, inode->i_rdev);
- 		} else {
- 			err = -EIO;
- 			goto out_unlock;
-@@ -232,6 +258,12 @@ struct inode *erofs_iget(struct super_block *sb,
- };
- #endif
- 
-+const struct inode_operations erofs_special_inode_operations = {
-+#ifdef CONFIG_EROFS_FS_XATTR
-+	.listxattr = erofs_listxattr,
-+#endif
-+};
-+
- #ifdef CONFIG_EROFS_FS_XATTR
- const struct inode_operations erofs_fast_symlink_xattr_iops = {
- 	.get_link = simple_get_link,
+ 		if (unlikely(lnk == NULL))
+ 			return -ENOMEM;
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 8a8caf0..5862705 100644
+index 5862705..ca22486 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -252,6 +252,7 @@ int erofs_namei(struct inode *dir, struct qstr *name,
- #ifdef CONFIG_EROFS_FS_XATTR
- extern const struct inode_operations erofs_symlink_xattr_iops;
- extern const struct inode_operations erofs_fast_symlink_xattr_iops;
-+extern const struct inode_operations erofs_special_inode_operations;
+@@ -42,6 +42,22 @@
+ #define DBG_BUGON(...)          ((void)0)
  #endif
  
- static inline void set_inode_fast_symlink(struct inode *inode)
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++enum {
++	FAULT_KMALLOC,
++	FAULT_MAX,
++};
++
++extern char *erofs_fault_name[FAULT_MAX];
++#define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
++
++struct erofs_fault_info {
++	atomic_t inject_ops;
++	unsigned int inject_rate;
++	unsigned int inject_type;
++};
++#endif
++
+ /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
+ #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
+ 
+@@ -70,14 +86,55 @@ struct erofs_sb_info {
+ 	char *dev_name;
+ 
+ 	unsigned int mount_opt;
++
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	struct erofs_fault_info fault_info;	/* For fault injection */
++#endif
+ };
+ 
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++#define erofs_show_injection_info(type)					\
++	infoln("inject %s in %s of %pS", erofs_fault_name[type],        \
++		__func__, __builtin_return_address(0))
++
++static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (!ffi->inject_rate)
++		return false;
++
++	if (!IS_FAULT_SET(ffi, type))
++		return false;
++
++	atomic_inc(&ffi->inject_ops);
++	if (atomic_read(&ffi->inject_ops) >= ffi->inject_rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		return true;
++	}
++	return false;
++}
++#endif
++
++static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
++					size_t size, gfp_t flags)
++{
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	if (time_to_inject(sbi, FAULT_KMALLOC)) {
++		erofs_show_injection_info(FAULT_KMALLOC);
++		return NULL;
++	}
++#endif
++	return kmalloc(size, flags);
++}
++
+ #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
+ #define EROFS_I_SB(inode) ((struct erofs_sb_info *)(inode)->i_sb->s_fs_info)
+ 
+ /* Mount flags set via mount options or defaults */
+ #define EROFS_MOUNT_XATTR_USER		0x00000010
+ #define EROFS_MOUNT_POSIX_ACL		0x00000020
++#define EROFS_MOUNT_FAULT_INJECTION	0x00000040
+ 
+ #define clear_opt(sbi, option)	((sbi)->mount_opt &= ~EROFS_MOUNT_##option)
+ #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index d1860c4..8490158 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -129,6 +129,26 @@ static int superblock_read(struct super_block *sb)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++char *erofs_fault_name[FAULT_MAX] = {
++	[FAULT_KMALLOC]		= "kmalloc",
++};
++
++static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
++						unsigned int rate)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		ffi->inject_rate = rate;
++		ffi->inject_type = (1 << FAULT_MAX) - 1;
++	} else {
++		memset(ffi, 0, sizeof(struct erofs_fault_info));
++	}
++}
++#endif
++
+ static void default_options(struct erofs_sb_info *sbi)
+ {
+ #ifdef CONFIG_EROFS_FS_XATTR
+@@ -145,6 +165,7 @@ enum {
+ 	Opt_nouser_xattr,
+ 	Opt_acl,
+ 	Opt_noacl,
++	Opt_fault_injection,
+ 	Opt_err
+ };
+ 
+@@ -153,6 +174,7 @@ enum {
+ 	{Opt_nouser_xattr, "nouser_xattr"},
+ 	{Opt_acl, "acl"},
+ 	{Opt_noacl, "noacl"},
++	{Opt_fault_injection, "fault_injection=%u"},
+ 	{Opt_err, NULL}
+ };
+ 
+@@ -160,6 +182,7 @@ static int parse_options(struct super_block *sb, char *options)
+ {
+ 	substring_t args[MAX_OPT_ARGS];
+ 	char *p;
++	int arg = 0;
+ 
+ 	if (!options)
+ 		return 0;
+@@ -204,6 +227,16 @@ static int parse_options(struct super_block *sb, char *options)
+ 			infoln("noacl options not supported");
+ 			break;
+ #endif
++		case Opt_fault_injection:
++			if (args->from && match_int(args, &arg))
++				return -EINVAL;
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++			erofs_build_fault_attr(EROFS_SB(sb), arg);
++			set_opt(EROFS_SB(sb), FAULT_INJECTION);
++#else
++			infoln("FAULT_INJECTION was not selected");
++#endif
++			break;
+ 		default:
+ 			errln("Unrecognized mount option \"%s\" "
+ 					"or missing value", p);
+@@ -453,6 +486,11 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 	else
+ 		seq_puts(seq, ",noacl");
+ #endif
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++	if (test_opt(sbi, FAULT_INJECTION))
++		seq_printf(seq, ",fault_injection=%u",
++				sbi->fault_info.inject_rate);
++#endif
+ 	return 0;
+ }
+ 
 -- 
 1.9.1
