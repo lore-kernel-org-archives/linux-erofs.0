@@ -1,533 +1,385 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 26 Jul 2018 09:18:20 +0800
-Subject: [RFC PATCH v2 RESEND 18/25] staging: erofs: introduce a customized
- LZ4 decompression
-In-Reply-To: <1532485598-63393-19-git-send-email-gaoxiang25@huawei.com>
-References: <1532485598-63393-19-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532567900-87241-1-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 26 Jul 2018 11:48:40 +0800
+Subject: [RFC PATCH v2 RESEND 15/25] staging: erofs: add erofs_map_blocks_iter
+In-Reply-To: <1532485598-63393-16-git-send-email-gaoxiang25@huawei.com>
+References: <1532485598-63393-16-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532576920-128407-1-git-send-email-gaoxiang25@huawei.com>
 
-We have to reduce the memory cost as much as possible,
-so we don't want to decompress more data beyond
-the output buffer size, however "LZ4_decompress_safe_partial"
-doesn't guarantee to stop at the arbitary end position,
-but stop just after its current LZ4 "sequence" is completed.
+This patch introduces an iterable L2P mapping
+operation 'erofs_map_blocks_iter'.
+Compared with 'erofs_map_blocks', it avoids
+a number of redundant 'release and regrab'
+processes if they request the same meta page.
 
-Link: https://groups.google.com/forum/#!topic/lz4c/_3kkz5N6n00
-
-Therefore, I hacked the LZ4 decompression logic by hand,
-probably NOT the fastest approach, and hope for better
-implementation.
-
-Signed-off-by: Miao Xie <miaoxie at huawei.com>
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/Makefile    |   2 +-
- drivers/staging/erofs/lz4defs.h   | 227 ++++++++++++++++++++++++++++++++++
- drivers/staging/erofs/unzip_lz4.c | 251 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 479 insertions(+), 1 deletion(-)
- create mode 100644 drivers/staging/erofs/lz4defs.h
- create mode 100644 drivers/staging/erofs/unzip_lz4.c
+v2 RESEND:
+- fix undefined reference to `__udivmoddi4'
 
+ drivers/staging/erofs/Kconfig     |  10 ++
+ drivers/staging/erofs/Makefile    |   1 +
+ drivers/staging/erofs/data.c      |  36 +++++-
+ drivers/staging/erofs/internal.h  |  12 ++
+ drivers/staging/erofs/unzip_vle.c | 243 ++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 300 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/staging/erofs/unzip_vle.c
+
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index edda055..63bec70 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -77,3 +77,13 @@ config EROFS_FAULT_INJECTION
+ 	help
+ 	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
+ 	  If unsure, say N.
++
++config EROFS_FS_ZIP
++	bool "EROFS Data Compresssion Support"
++	depends on EROFS_FS
++	help
++	  Currently we support VLE Compression only.
++	  Play at your own risk.
++
++	  If you don't want to use compression feature, say N.
++
 diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
-index 490fa6c..e409637 100644
+index 977b7e0..8558c76 100644
 --- a/drivers/staging/erofs/Makefile
 +++ b/drivers/staging/erofs/Makefile
-@@ -9,5 +9,5 @@ obj-$(CONFIG_EROFS_FS) += erofs.o
+@@ -9,4 +9,5 @@ obj-$(CONFIG_EROFS_FS) += erofs.o
  ccflags-y += -I$(src)/include
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
+ erofs-objs := super.o inode.o data.o namei.o dir.o
  erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
--erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o unzip_lz4.o
++erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
  
-diff --git a/drivers/staging/erofs/lz4defs.h b/drivers/staging/erofs/lz4defs.h
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index a0f9d38..fd0dab8 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -157,12 +157,44 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_EROFS_FS_ZIP
++extern int z_erofs_map_blocks_iter(struct inode *,
++	struct erofs_map_blocks *, struct page **, int);
++#endif
++
++int erofs_map_blocks_iter(struct inode *inode,
++	struct erofs_map_blocks *map,
++	struct page **mpage_ret, int flags)
++{
++	/* by default, reading raw data never use erofs_map_blocks_iter */
++	if (unlikely(!is_inode_layout_compression(inode))) {
++		if (*mpage_ret != NULL)
++			put_page(*mpage_ret);
++		*mpage_ret = NULL;
++
++		return erofs_map_blocks(inode, map, flags);
++	}
++
++#ifdef CONFIG_EROFS_FS_ZIP
++	return z_erofs_map_blocks_iter(inode, map, mpage_ret, flags);
++#else
++	/* data compression is not available */
++	return -ENOTSUPP;
++#endif
++}
++
+ int erofs_map_blocks(struct inode *inode,
+ 	struct erofs_map_blocks *map, int flags)
+ {
+-	if (unlikely(is_inode_layout_compression(inode)))
+-		return -ENOTSUPP;
++	if (unlikely(is_inode_layout_compression(inode))) {
++		struct page *mpage = NULL;
++		int err;
+ 
++		err = erofs_map_blocks_iter(inode, map, &mpage, flags);
++		if (mpage != NULL)
++			put_page(mpage);
++		return err;
++	}
+ 	return erofs_map_blocks_flatmode(inode, map, flags);
+ }
+ 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index ca22486..bea5ec4 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -72,6 +72,10 @@ struct erofs_sb_info {
+ 
+ 	/* inode slot unit size in bit shift */
+ 	unsigned char islotbits;
++#ifdef CONFIG_EROFS_FS_ZIP
++	/* cluster size in bit shift */
++	unsigned char clusterbits;
++#endif
+ 
+ 	u32 build_time_nsec;
+ 	u64 build_time;
+@@ -284,6 +288,14 @@ struct erofs_map_blocks {
+ extern struct page *erofs_get_meta_page(struct super_block *sb,
+ 	erofs_blk_t blkaddr, bool prio);
+ extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
++extern int erofs_map_blocks_iter(struct inode *, struct erofs_map_blocks *,
++	struct page **, int);
++
++struct erofs_map_blocks_iter {
++	struct erofs_map_blocks map;
++	struct page *mpage;
++};
++
+ 
+ static inline struct page *erofs_get_inline_page(struct inode *inode,
+ 	erofs_blk_t blkaddr)
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
 new file mode 100644
-index 0000000..00a0b58
+index 0000000..329cbe4
 --- /dev/null
-+++ b/drivers/staging/erofs/lz4defs.h
-@@ -0,0 +1,227 @@
-+#ifndef __LZ4DEFS_H__
-+#define __LZ4DEFS_H__
-+
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -0,0 +1,243 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * lz4defs.h -- common and architecture specific defines for the kernel usage
-+
-+ * LZ4 - Fast LZ compression algorithm
-+ * Copyright (C) 2011-2016, Yann Collet.
-+ * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are
-+ * met:
-+ *	* Redistributions of source code must retain the above copyright
-+ *	  notice, this list of conditions and the following disclaimer.
-+ *	* Redistributions in binary form must reproduce the above
-+ * copyright notice, this list of conditions and the following disclaimer
-+ * in the documentation and/or other materials provided with the
-+ * distribution.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ * You can contact the author at :
-+ *	- LZ4 homepage : http://www.lz4.org
-+ *	- LZ4 source repository : https://github.com/lz4/lz4
-+ *
-+ *	Changed for kernel usage by:
-+ *	Sven Schmidt <4sschmid at informatik.uni-hamburg.de>
-+ */
-+
-+#include <asm/unaligned.h>
-+#include <linux/string.h>	 /* memset, memcpy */
-+
-+#define FORCE_INLINE __always_inline
-+
-+/*-************************************
-+ *	Basic Types
-+ **************************************/
-+#include <linux/types.h>
-+
-+typedef	uint8_t BYTE;
-+typedef uint16_t U16;
-+typedef uint32_t U32;
-+typedef	int32_t S32;
-+typedef uint64_t U64;
-+typedef uintptr_t uptrval;
-+
-+/*-************************************
-+ *	Architecture specifics
-+ **************************************/
-+#if defined(CONFIG_64BIT)
-+#define LZ4_ARCH64 1
-+#else
-+#define LZ4_ARCH64 0
-+#endif
-+
-+#if defined(__LITTLE_ENDIAN)
-+#define LZ4_LITTLE_ENDIAN 1
-+#else
-+#define LZ4_LITTLE_ENDIAN 0
-+#endif
-+
-+/*-************************************
-+ *	Constants
-+ **************************************/
-+#define MINMATCH 4
-+
-+#define WILDCOPYLENGTH 8
-+#define LASTLITERALS 5
-+#define MFLIMIT (WILDCOPYLENGTH + MINMATCH)
-+
-+/* Increase this value ==> compression run slower on incompressible data */
-+#define LZ4_SKIPTRIGGER 6
-+
-+#define HASH_UNIT sizeof(size_t)
-+
-+#define KB (1 << 10)
-+#define MB (1 << 20)
-+#define GB (1U << 30)
-+
-+#define MAXD_LOG 16
-+#define MAX_DISTANCE ((1 << MAXD_LOG) - 1)
-+#define STEPSIZE sizeof(size_t)
-+
-+#define ML_BITS	4
-+#define ML_MASK	((1U << ML_BITS) - 1)
-+#define RUN_BITS (8 - ML_BITS)
-+#define RUN_MASK ((1U << RUN_BITS) - 1)
-+
-+/*-************************************
-+ *	Reading and writing into memory
-+ **************************************/
-+static FORCE_INLINE U16 LZ4_read16(const void *ptr)
-+{
-+	return get_unaligned((const U16 *)ptr);
-+}
-+
-+static FORCE_INLINE U32 LZ4_read32(const void *ptr)
-+{
-+	return get_unaligned((const U32 *)ptr);
-+}
-+
-+static FORCE_INLINE size_t LZ4_read_ARCH(const void *ptr)
-+{
-+	return get_unaligned((const size_t *)ptr);
-+}
-+
-+static FORCE_INLINE void LZ4_write16(void *memPtr, U16 value)
-+{
-+	put_unaligned(value, (U16 *)memPtr);
-+}
-+
-+static FORCE_INLINE void LZ4_write32(void *memPtr, U32 value)
-+{
-+	put_unaligned(value, (U32 *)memPtr);
-+}
-+
-+static FORCE_INLINE U16 LZ4_readLE16(const void *memPtr)
-+{
-+	return get_unaligned_le16(memPtr);
-+}
-+
-+static FORCE_INLINE void LZ4_writeLE16(void *memPtr, U16 value)
-+{
-+	return put_unaligned_le16(value, memPtr);
-+}
-+
-+static FORCE_INLINE void LZ4_copy8(void *dst, const void *src)
-+{
-+#if LZ4_ARCH64
-+	U64 a = get_unaligned((const U64 *)src);
-+
-+	put_unaligned(a, (U64 *)dst);
-+#else
-+	U32 a = get_unaligned((const U32 *)src);
-+	U32 b = get_unaligned((const U32 *)src + 1);
-+
-+	put_unaligned(a, (U32 *)dst);
-+	put_unaligned(b, (U32 *)dst + 1);
-+#endif
-+}
-+
-+/*
-+ * customized variant of memcpy,
-+ * which can overwrite up to 7 bytes beyond dstEnd
-+ */
-+static FORCE_INLINE void LZ4_wildCopy(void *dstPtr,
-+	const void *srcPtr, void *dstEnd)
-+{
-+	BYTE *d = (BYTE *)dstPtr;
-+	const BYTE *s = (const BYTE *)srcPtr;
-+	BYTE *const e = (BYTE *)dstEnd;
-+
-+	do {
-+		LZ4_copy8(d, s);
-+		d += 8;
-+		s += 8;
-+	} while (d < e);
-+}
-+
-+static FORCE_INLINE unsigned int LZ4_NbCommonBytes(register size_t val)
-+{
-+#if LZ4_LITTLE_ENDIAN
-+	return __ffs(val) >> 3;
-+#else
-+	return (BITS_PER_LONG - 1 - __fls(val)) >> 3;
-+#endif
-+}
-+
-+static FORCE_INLINE unsigned int LZ4_count(
-+	const BYTE *pIn,
-+	const BYTE *pMatch,
-+	const BYTE *pInLimit)
-+{
-+	const BYTE *const pStart = pIn;
-+
-+	while (likely(pIn < pInLimit - (STEPSIZE - 1))) {
-+		size_t const diff = LZ4_read_ARCH(pMatch) ^ LZ4_read_ARCH(pIn);
-+
-+		if (!diff) {
-+			pIn += STEPSIZE;
-+			pMatch += STEPSIZE;
-+			continue;
-+		}
-+
-+		pIn += LZ4_NbCommonBytes(diff);
-+
-+		return (unsigned int)(pIn - pStart);
-+	}
-+
-+#if LZ4_ARCH64
-+	if ((pIn < (pInLimit - 3))
-+		&& (LZ4_read32(pMatch) == LZ4_read32(pIn))) {
-+		pIn += 4;
-+		pMatch += 4;
-+	}
-+#endif
-+
-+	if ((pIn < (pInLimit - 1))
-+		&& (LZ4_read16(pMatch) == LZ4_read16(pIn))) {
-+		pIn += 2;
-+		pMatch += 2;
-+	}
-+
-+	if ((pIn < pInLimit) && (*pMatch == *pIn))
-+		pIn++;
-+
-+	return (unsigned int)(pIn - pStart);
-+}
-+
-+typedef enum { noLimit = 0, limitedOutput = 1 } limitedOutput_directive;
-+typedef enum { byPtr, byU32, byU16 } tableType_t;
-+
-+typedef enum { noDict = 0, withPrefix64k, usingExtDict } dict_directive;
-+typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
-+
-+typedef enum { endOnOutputSize = 0, endOnInputSize = 1 } endCondition_directive;
-+typedef enum { full = 0, partial = 1 } earlyEnd_directive;
-+
-+#endif
-diff --git a/drivers/staging/erofs/unzip_lz4.c b/drivers/staging/erofs/unzip_lz4.c
-new file mode 100644
-index 0000000..b1ea23f
---- /dev/null
-+++ b/drivers/staging/erofs/unzip_lz4.c
-@@ -0,0 +1,251 @@
-+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
-+/*
-+ * linux/drivers/staging/erofs/unzip_lz4.c
++ * linux/drivers/staging/erofs/unzip_vle.c
 + *
 + * Copyright (C) 2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
 + * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + *
-+ * Original code taken from 'linux/lib/lz4/lz4_decompress.c'
-+ */
-+
-+/*
-+ * LZ4 - Fast LZ compression algorithm
-+ * Copyright (C) 2011 - 2016, Yann Collet.
-+ * BSD 2 - Clause License (http://www.opensource.org/licenses/bsd - license.php)
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are
-+ * met:
-+ *	* Redistributions of source code must retain the above copyright
-+ *	  notice, this list of conditions and the following disclaimer.
-+ *	* Redistributions in binary form must reproduce the above
-+ * copyright notice, this list of conditions and the following disclaimer
-+ * in the documentation and/or other materials provided with the
-+ * distribution.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ * You can contact the author at :
-+ *	- LZ4 homepage : http://www.lz4.org
-+ *	- LZ4 source repository : https://github.com/lz4/lz4
-+ *
-+ *	Changed for kernel usage by:
-+ *	Sven Schmidt <4sschmid at informatik.uni-hamburg.de>
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file COPYING in the main directory of the Linux
++ * distribution for more details.
 + */
 +#include "internal.h"
-+#include <asm/unaligned.h>
-+#include "lz4defs.h"
 +
-+/*
-+ * no public solution to solve our requirement yet.
-+ * see: <required buffer size for LZ4_decompress_safe_partial>
-+ *      https://groups.google.com/forum/#!topic/lz4c/_3kkz5N6n00
-+ */
-+static FORCE_INLINE int customized_lz4_decompress_safe_partial(
-+	const void * const source,
-+	void * const dest,
-+	int inputSize,
-+	int outputSize)
++#define __vle_cluster_advise(x, bit, bits) \
++	((le16_to_cpu(x) >> (bit)) & ((1 << (bits)) - 1))
++
++#define __vle_cluster_type(advise) __vle_cluster_advise(advise, \
++	Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT, Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS)
++
++enum {
++	Z_EROFS_VLE_CLUSTER_TYPE_PLAIN,
++	Z_EROFS_VLE_CLUSTER_TYPE_HEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_RESERVED,
++	Z_EROFS_VLE_CLUSTER_TYPE_MAX
++};
++
++#define vle_cluster_type(di)	\
++	__vle_cluster_type((di)->di_advise)
++
++static inline unsigned
++vle_compressed_index_clusterofs(unsigned clustersize,
++	struct z_erofs_vle_decompressed_index *di)
 +{
-+	/* Local Variables */
-+	const BYTE *ip = (const BYTE *) source;
-+	const BYTE * const iend = ip + inputSize;
++	debugln("%s, vle=%pK, advise=%x (type %u), clusterofs=%x blkaddr=%x",
++		__func__, di, di->di_advise, vle_cluster_type(di),
++		di->di_clusterofs, di->di_u.blkaddr);
 +
-+	BYTE *op = (BYTE *) dest;
-+	BYTE * const oend = op + outputSize;
-+	BYTE *cpy;
-+
-+	static const unsigned int dec32table[] = { 0, 1, 2, 1, 4, 4, 4, 4 };
-+	static const int dec64table[] = { 0, 0, 0, -1, 0, 1, 2, 3 };
-+
-+	/* Empty output buffer */
-+	if (unlikely(outputSize == 0))
-+		return ((inputSize == 1) && (*ip == 0)) ? 0 : -1;
-+
-+	/* Main Loop : decode sequences */
-+	while (1) {
-+		size_t length;
-+		const BYTE *match;
-+		size_t offset;
-+
-+		/* get literal length */
-+		unsigned int const token = *ip++;
-+
-+		length = token>>ML_BITS;
-+
-+		if (length == RUN_MASK) {
-+			unsigned int s;
-+
-+			do {
-+				s = *ip++;
-+				length += s;
-+			} while ((ip < iend - RUN_MASK) & (s == 255));
-+
-+			if (unlikely((size_t)(op + length) < (size_t)(op))) {
-+				/* overflow detection */
-+				goto _output_error;
-+			}
-+			if (unlikely((size_t)(ip + length) < (size_t)(ip))) {
-+				/* overflow detection */
-+				goto _output_error;
-+			}
-+		}
-+
-+		/* copy literals */
-+		cpy = op + length;
-+		if ((cpy > oend - WILDCOPYLENGTH) ||
-+			(ip + length > iend - (2 + 1 + LASTLITERALS))) {
-+			if (cpy > oend) {
-+				memcpy(op, ip, length = oend - op);
-+				op += length;
-+				break;
-+			}
-+
-+			if (unlikely(ip + length > iend)) {
-+				/*
-+				 * Error :
-+				 * read attempt beyond
-+				 * end of input buffer
-+				 */
-+				goto _output_error;
-+			}
-+
-+			memcpy(op, ip, length);
-+			ip += length;
-+			op += length;
-+
-+			if (ip > iend - 2)
-+				break;
-+			/* Necessarily EOF, due to parsing restrictions */
-+			/* break; */
-+		} else {
-+			LZ4_wildCopy(op, ip, cpy);
-+			ip += length;
-+			op = cpy;
-+		}
-+
-+		/* get offset */
-+		offset = LZ4_readLE16(ip);
-+		ip += 2;
-+		match = op - offset;
-+
-+		if (unlikely(match < (const BYTE *)dest)) {
-+			/* Error : offset outside buffers */
-+			goto _output_error;
-+		}
-+
-+		/* get matchlength */
-+		length = token & ML_MASK;
-+		if (length == ML_MASK) {
-+			unsigned int s;
-+
-+			do {
-+				s = *ip++;
-+
-+				if (ip > iend - LASTLITERALS)
-+					goto _output_error;
-+
-+				length += s;
-+			} while (s == 255);
-+
-+			if (unlikely((size_t)(op + length) < (size_t)op)) {
-+				/* overflow detection */
-+				goto _output_error;
-+			}
-+		}
-+
-+		length += MINMATCH;
-+
-+		/* copy match within block */
-+		cpy = op + length;
-+
-+		if (unlikely(cpy >= oend - WILDCOPYLENGTH)) {
-+			if (cpy >= oend) {
-+				while (op < oend)
-+					*op++ = *match++;
-+				break;
-+			}
-+			goto __match;
-+		}
-+
-+		/* costs ~1%; silence an msan warning when offset == 0 */
-+		LZ4_write32(op, (U32)offset);
-+
-+		if (unlikely(offset < 8)) {
-+			const int dec64 = dec64table[offset];
-+
-+			op[0] = match[0];
-+			op[1] = match[1];
-+			op[2] = match[2];
-+			op[3] = match[3];
-+			match += dec32table[offset];
-+			memcpy(op + 4, match, 4);
-+			match -= dec64;
-+		} else {
-+			LZ4_copy8(op, match);
-+			match += 8;
-+		}
-+
-+		op += 8;
-+
-+		if (unlikely(cpy > oend - 12)) {
-+			BYTE * const oCopyLimit = oend - (WILDCOPYLENGTH - 1);
-+
-+			if (op < oCopyLimit) {
-+				LZ4_wildCopy(op, match, oCopyLimit);
-+				match += oCopyLimit - op;
-+				op = oCopyLimit;
-+			}
-+__match:
-+			while (op < cpy)
-+				*op++ = *match++;
-+		} else {
-+			LZ4_copy8(op, match);
-+
-+			if (length > 16)
-+				LZ4_wildCopy(op + 8, match + 8, cpy);
-+		}
-+
-+		op = cpy; /* correction */
++	switch (vle_cluster_type(di)) {
++	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
++		break;
++	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
++	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
++		return di->di_clusterofs;
++	default:
++		BUG_ON(1);
 +	}
-+	DBG_BUGON((void *)ip - source > inputSize);
-+	DBG_BUGON((void *)op - dest > outputSize);
-+
-+	/* Nb of output bytes decoded */
-+	return (int) ((void *)op - dest);
-+
-+	/* Overflow error detected */
-+_output_error:
-+	return -ERANGE;
++	return clustersize;
 +}
 +
-+int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
++static inline erofs_blk_t
++vle_extent_blkaddr(struct inode *inode, pgoff_t index)
 +{
-+	int ret = customized_lz4_decompress_safe_partial(in,
-+		out, inlen, outlen);
++	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
++	struct erofs_vnode *vi = EROFS_V(inode);
 +
-+	if (ret >= 0)
-+		return ret;
++	unsigned ofs = Z_EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
++		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
++		index * sizeof(struct z_erofs_vle_decompressed_index);
 +
-+	/*
-+	 * LZ4_decompress_safe will return an error code
-+	 * (< 0) if decompression failed
-+	 */
-+	errln("%s, failed to decompress, in[%p, %zu] outlen[%p, %zu]",
-+	      __func__, in, inlen, out, outlen);
-+	WARN_ON(1);
-+	print_hex_dump(KERN_DEBUG, "raw data [in]: ", DUMP_PREFIX_OFFSET,
-+		16, 1, in, inlen, true);
-+	print_hex_dump(KERN_DEBUG, "raw data [out]: ", DUMP_PREFIX_OFFSET,
-+		16, 1, out, outlen, true);
-+	return -EIO;
++	return erofs_blknr(iloc(sbi, vi->nid) + ofs);
++}
++
++static inline unsigned int
++vle_extent_blkoff(struct inode *inode, pgoff_t index)
++{
++	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
++	struct erofs_vnode *vi = EROFS_V(inode);
++
++	unsigned ofs = Z_EROFS_VLE_EXTENT_ALIGN(vi->inode_isize +
++		vi->xattr_isize) + sizeof(struct erofs_extent_header) +
++		index * sizeof(struct z_erofs_vle_decompressed_index);
++
++	return erofs_blkoff(iloc(sbi, vi->nid) + ofs);
++}
++
++/*
++ * Variable-sized Logical Extent (Fixed Physical Cluster) Compression Mode
++ * ---
++ * VLE compression mode attempts to compress a number of logical data into
++ * a physical cluster with a fixed size.
++ * VLE compression mode uses "struct z_erofs_vle_decompressed_index".
++ */
++static erofs_off_t vle_get_logical_extent_head(
++	struct inode *inode,
++	struct page **page_iter,
++	void **kaddr_iter,
++	unsigned lcn,	/* logical cluster number */
++	erofs_blk_t *pcn,
++	unsigned *flags)
++{
++	/* for extent meta */
++	struct page *page = *page_iter;
++	erofs_blk_t blkaddr = vle_extent_blkaddr(inode, lcn);
++	struct z_erofs_vle_decompressed_index *di;
++	unsigned long long ofs;
++	const unsigned int clusterbits = EROFS_SB(inode->i_sb)->clusterbits;
++	const unsigned int clustersize = 1 << clusterbits;
++
++	if (page->index != blkaddr) {
++		kunmap_atomic(*kaddr_iter);
++		unlock_page(page);
++		put_page(page);
++
++		*page_iter = page = erofs_get_meta_page(inode->i_sb,
++			blkaddr, false);
++		*kaddr_iter = kmap_atomic(page);
++	}
++
++	di = *kaddr_iter + vle_extent_blkoff(inode, lcn);
++	switch (vle_cluster_type(di)) {
++	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
++		BUG_ON(!di->di_u.delta[0]);
++		BUG_ON(lcn < di->di_u.delta[0]);
++
++		ofs = vle_get_logical_extent_head(inode,
++			page_iter, kaddr_iter,
++			lcn - di->di_u.delta[0], pcn, flags);
++		break;
++	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
++		*flags ^= EROFS_MAP_ZIPPED;
++	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
++		/* clustersize should be a power of two */
++		ofs = ((unsigned long long)lcn << clusterbits) +
++			(le16_to_cpu(di->di_clusterofs) & (clustersize - 1));
++		*pcn = le32_to_cpu(di->di_u.blkaddr);
++		break;
++	default:
++		BUG_ON(1);
++	}
++	return ofs;
++}
++
++int z_erofs_map_blocks_iter(struct inode *inode,
++	struct erofs_map_blocks *map,
++	struct page **mpage_ret, int flags)
++{
++	/* logicial extent (start, end) offset */
++	unsigned long long ofs, end;
++	struct z_erofs_vle_decompressed_index *di;
++	erofs_blk_t e_blkaddr, pcn;
++	unsigned lcn, logical_cluster_ofs;
++	u32 ofs_rem;
++	struct page *mpage = *mpage_ret;
++	void *kaddr;
++	bool initial;
++	const unsigned int clusterbits = EROFS_SB(inode->i_sb)->clusterbits;
++	const unsigned int clustersize = 1 << clusterbits;
++
++	/* if both m_(l,p)len are 0, regularize l_lblk, l_lofs, etc... */
++	initial = !map->m_llen;
++
++	/* when trying to read beyond EOF, leave it unmapped */
++	if (unlikely(map->m_la >= inode->i_size)) {
++		BUG_ON(!initial);
++		map->m_llen = map->m_la + 1 - inode->i_size;
++		map->m_la = inode->i_size - 1;
++		map->m_flags = 0;
++		goto out;
++	}
++
++	debugln("%s, m_la %llu m_llen %llu --- start", __func__,
++		map->m_la, map->m_llen);
++
++	ofs = map->m_la + map->m_llen;
++
++	/* clustersize should be power of two */
++	lcn = ofs >> clusterbits;
++	ofs_rem = ofs & (clustersize - 1);
++
++	e_blkaddr = vle_extent_blkaddr(inode, lcn);
++
++	if (mpage == NULL || mpage->index != e_blkaddr) {
++		if (mpage != NULL)
++			put_page(mpage);
++
++		mpage = erofs_get_meta_page(inode->i_sb, e_blkaddr, false);
++		*mpage_ret = mpage;
++	} else {
++		lock_page(mpage);
++		DBG_BUGON(!PageUptodate(mpage));
++	}
++
++	kaddr = kmap_atomic(mpage);
++	di = kaddr + vle_extent_blkoff(inode, lcn);
++
++	debugln("%s, lcn %u e_blkaddr %u e_blkoff %u", __func__, lcn,
++		e_blkaddr, vle_extent_blkoff(inode, lcn));
++
++	logical_cluster_ofs = vle_compressed_index_clusterofs(clustersize, di);
++	if (!initial) {
++		/* [walking mode] 'map' has been already initialized */
++		map->m_llen += logical_cluster_ofs;
++		goto unmap_out;
++	}
++
++	/* by default, compressed */
++	map->m_flags |= EROFS_MAP_ZIPPED;
++
++	end = (u64)(lcn + 1) * clustersize;
++
++	switch (vle_cluster_type(di)) {
++	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
++		if (ofs_rem >= logical_cluster_ofs)
++			map->m_flags ^= EROFS_MAP_ZIPPED;
++	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
++		if (ofs_rem == logical_cluster_ofs) {
++			pcn = le32_to_cpu(di->di_u.blkaddr);
++			goto exact_hitted;
++		}
++
++		if (ofs_rem > logical_cluster_ofs) {
++			ofs = lcn * clustersize | logical_cluster_ofs;
++			pcn = le32_to_cpu(di->di_u.blkaddr);
++			break;
++		}
++
++		BUG_ON(!lcn);	/* logical cluster number >= 1 */
++		end = (lcn-- * clustersize) | logical_cluster_ofs;
++	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
++		/* get the correspoinding first chunk */
++		ofs = vle_get_logical_extent_head(inode, mpage_ret,
++			&kaddr, lcn, &pcn, &map->m_flags);
++		mpage = *mpage_ret;
++	}
++
++	map->m_la = ofs;
++exact_hitted:
++	map->m_llen = end - ofs;
++	map->m_plen = clustersize;
++	map->m_pa = blknr_to_addr(pcn);
++	map->m_flags |= EROFS_MAP_MAPPED;
++unmap_out:
++	kunmap_atomic(kaddr);
++	unlock_page(mpage);
++out:
++	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
++		__func__, map->m_la, map->m_pa,
++		map->m_llen, map->m_plen, map->m_flags);
++	return 0;
 +}
 +
 -- 
