@@ -1,91 +1,150 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 26 Jul 2018 20:21:59 +0800
-Subject: [PATCH 16/25] staging: erofs: add erofs_allocpage
+Date: Thu, 26 Jul 2018 20:22:00 +0800
+Subject: [PATCH 17/25] staging: erofs: globalize prepare_bio and __submit_bio
 In-Reply-To: <1532607728-103372-1-git-send-email-gaoxiang25@huawei.com>
 References: <1527764767-22190-1-git-send-email-gaoxiang25@huawei.com>
  <1532607728-103372-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532607728-103372-17-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532607728-103372-18-git-send-email-gaoxiang25@huawei.com>
 
-This patch introduces an temporary _on-stack_ page
-pool to reuse the freed page directly as much as
-it can for better performance and release all pages
-at a time, it also slightly reduces the possibility of
-the potential memory allocation failure.
+The unzip subsystem also uses these functions,
+let's export them to internal.h.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/Makefile   |  2 +-
- drivers/staging/erofs/internal.h |  7 +++++++
- drivers/staging/erofs/utils.c    | 31 +++++++++++++++++++++++++++++++
- 3 files changed, 39 insertions(+), 1 deletion(-)
- create mode 100644 drivers/staging/erofs/utils.c
+ drivers/staging/erofs/data.c     | 34 +++++++++-------------------------
+ drivers/staging/erofs/internal.h | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 42 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
-index 8558c76..490fa6c 100644
---- a/drivers/staging/erofs/Makefile
-+++ b/drivers/staging/erofs/Makefile
-@@ -7,7 +7,7 @@ ccflags-y += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- obj-$(CONFIG_EROFS_FS) += erofs.o
- # staging requirement: to be self-contained in its own directory
- ccflags-y += -I$(src)/include
--erofs-objs := super.o inode.o data.o namei.o dir.o
-+erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o
- 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index bea5ec4..210ab6c 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -369,5 +369,12 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
- #endif
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index 163bfe6..ac263a1 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -38,26 +38,6 @@ static inline void read_endio(struct bio *bio)
+ 	bio_put(bio);
  }
  
-+/* utils.c */
-+extern struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
-+
-+#ifndef lru_to_page
-+#define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
-+#endif
-+
- #endif
+-static void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
+-{
+-	bio_set_op_attrs(bio, op, op_flags);
+-	submit_bio(bio);
+-}
+-
+-static struct bio *prepare_bio(struct super_block *sb,
+-	erofs_blk_t blkaddr, unsigned nr_pages)
+-{
+-	struct bio *bio = bio_alloc(GFP_NOIO | __GFP_NOFAIL, nr_pages);
+-
+-	BUG_ON(bio == NULL);
+-
+-	bio->bi_end_io = read_endio;
+-	bio_set_dev(bio, sb->s_bdev);
+-	bio->bi_iter.bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
+-
+-	return bio;
+-}
+-
+ /* prio -- true is used for dir */
+ struct page *erofs_get_meta_page(struct super_block *sb,
+ 	erofs_blk_t blkaddr, bool prio)
+@@ -80,7 +60,7 @@ struct page *erofs_get_meta_page(struct super_block *sb,
+ 		struct bio *bio;
+ 		int err;
  
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-new file mode 100644
-index 0000000..3dec4f8
---- /dev/null
-+++ b/drivers/staging/erofs/utils.c
-@@ -0,0 +1,31 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * linux/drivers/staging/erofs/utils.c
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of the Linux
-+ * distribution for more details.
-+ */
+-		bio = prepare_bio(sb, blkaddr, 1);
++		bio = prepare_bio(sb, blkaddr, 1, read_endio);
+ 		err = bio_add_page(bio, page, PAGE_SIZE, 0);
+ 		BUG_ON(err != PAGE_SIZE);
+ 
+@@ -236,6 +216,8 @@ static inline struct bio *erofs_read_raw_page(
+ 		struct erofs_map_blocks map = {
+ 			.m_la = blknr_to_addr(current_block),
+ 		};
++		erofs_blk_t blknr;
++		unsigned blkoff;
+ 
+ 		err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
+ 		if (unlikely(err))
+@@ -253,6 +235,9 @@ static inline struct bio *erofs_read_raw_page(
+ 		/* for RAW access mode, m_plen must be equal to m_llen */
+ 		BUG_ON(map.m_plen != map.m_llen);
+ 
++		blknr = erofs_blknr(map.m_pa);
++		blkoff = erofs_blkoff(map.m_pa);
 +
-+#include "internal.h"
-+
-+struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+ 		/* deal with inline page */
+ 		if (map.m_flags & EROFS_MAP_META) {
+ 			void *vsrc, *vto;
+@@ -260,8 +245,7 @@ static inline struct bio *erofs_read_raw_page(
+ 
+ 			BUG_ON(map.m_plen > PAGE_SIZE);
+ 
+-			ipage = erofs_get_meta_page(inode->i_sb,
+-				erofs_blknr(map.m_pa), 0);
++			ipage = erofs_get_meta_page(inode->i_sb, blknr, 0);
+ 
+ 			if (IS_ERR(ipage)) {
+ 				err = PTR_ERR(ipage);
+@@ -270,7 +254,7 @@ static inline struct bio *erofs_read_raw_page(
+ 
+ 			vsrc = kmap_atomic(ipage);
+ 			vto = kmap_atomic(page);
+-			memcpy(vto, vsrc + erofs_blkoff(map.m_pa), map.m_plen);
++			memcpy(vto, vsrc + blkoff, map.m_plen);
+ 			memset(vto + map.m_plen, 0, PAGE_SIZE - map.m_plen);
+ 			kunmap_atomic(vto);
+ 			kunmap_atomic(vsrc);
+@@ -294,7 +278,7 @@ static inline struct bio *erofs_read_raw_page(
+ 		if (nblocks > BIO_MAX_PAGES)
+ 			nblocks = BIO_MAX_PAGES;
+ 
+-		bio = prepare_bio(inode->i_sb, erofs_blknr(map.m_pa), nblocks);
++		bio = prepare_bio(inode->i_sb, blknr, nblocks, read_endio);
+ 	}
+ 
+ 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 210ab6c..6a0f045 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -285,6 +285,39 @@ struct erofs_map_blocks {
+ #define EROFS_GET_BLOCKS_RAW    0x0001
+ 
+ /* data.c */
++static inline struct bio *prepare_bio(
++	struct super_block *sb,
++	erofs_blk_t blkaddr, unsigned nr_pages,
++	bio_end_io_t endio)
 +{
-+	struct page *page;
++	gfp_t gfp = GFP_NOIO;
++	struct bio *bio = bio_alloc(gfp, nr_pages);
 +
-+	if (!list_empty(pool)) {
-+		page = lru_to_page(pool);
-+		list_del(&page->lru);
-+	} else {
-+		page = alloc_pages(gfp | __GFP_NOFAIL, 0);
-+
-+		BUG_ON(page == NULL);
-+		BUG_ON(page->mapping != NULL);
++	if (unlikely(bio == NULL) &&
++		(current->flags & PF_MEMALLOC)) {
++		do {
++			nr_pages /= 2;
++			if (unlikely(!nr_pages)) {
++				bio = bio_alloc(gfp | __GFP_NOFAIL, 1);
++				BUG_ON(bio == NULL);
++				break;
++			}
++			bio = bio_alloc(gfp, nr_pages);
++		} while (bio == NULL);
 +	}
-+	return page;
++
++	bio->bi_end_io = endio;
++	bio_set_dev(bio, sb->s_bdev);
++	bio->bi_iter.bi_sector = blkaddr << LOG_SECTORS_PER_BLOCK;
++	return bio;
 +}
 +
++static inline void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
++{
++	bio_set_op_attrs(bio, op, op_flags);
++	submit_bio(bio);
++}
++
+ extern struct page *erofs_get_meta_page(struct super_block *sb,
+ 	erofs_blk_t blkaddr, bool prio);
+ extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
 -- 
 1.9.1
