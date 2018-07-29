@@ -1,90 +1,88 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 29 Jul 2018 13:37:57 +0800
-Subject: [PATCH 2/2] staging: erofs: fix conditional uninitialized `pcn' in
- z_erofs_map_blocks_iter
-In-Reply-To: <20180729053459.34140-1-hsiangkao@aol.com>
-References: <20180729053459.34140-1-hsiangkao@aol.com>
-Message-ID: <20180729053757.34195-1-hsiangkao@aol.com>
+Date: Mon, 30 Jul 2018 03:20:07 +0800
+Subject: [RFC PATCH] staging: erofs: harden inode lookup for 32-bit platform
+Message-ID: <20180729192007.87372-1-hsiangkao@aol.com>
 
-This patch adds error handling code for
-z_erofs_map_blocks_iter to fix the compiler blame.
+This patch introduces inode hash function, test and set callbacks,
+and iget5_locked to find the right inode for 32-bit platform.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+ drivers/staging/erofs/inode.c    | 37 +++++++++++++++++++++++++++++++-
+ drivers/staging/erofs/internal.h | 10 +++++++++
+ 2 files changed, 46 insertions(+), 1 deletion(-)
 
-let's solve the compiler warning first, more error handling code
-for other functions will be added in the future patch.
-
- drivers/staging/erofs/unzip_vle.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 0e410a228cd4..bd2d7a8d5085 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -1532,13 +1532,14 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 	unsigned long long ofs, end;
- 	struct z_erofs_vle_decompressed_index *di;
- 	erofs_blk_t e_blkaddr, pcn;
--	unsigned lcn, logical_cluster_ofs;
-+	unsigned lcn, logical_cluster_ofs, cluster_type;
- 	u32 ofs_rem;
- 	struct page *mpage = *mpage_ret;
- 	void *kaddr;
- 	bool initial;
- 	const unsigned int clusterbits = EROFS_SB(inode->i_sb)->clusterbits;
- 	const unsigned int clustersize = 1 << clusterbits;
-+	int err = 0;
- 
- 	/* if both m_(l,p)len are 0, regularize l_lblk, l_lofs, etc... */
- 	initial = !map->m_llen;
-@@ -1592,7 +1593,9 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 
- 	end = (u64)(lcn + 1) * clustersize;
- 
--	switch (vle_cluster_type(di)) {
-+	cluster_type = vle_cluster_type(di);
-+
-+	switch (cluster_type) {
- 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
- 		if (ofs_rem >= logical_cluster_ofs)
- 			map->m_flags ^= EROFS_MAP_ZIPPED;
-@@ -1608,13 +1611,24 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 			break;
- 		}
- 
--		BUG_ON(!lcn);	/* logical cluster number >= 1 */
-+		/* logical cluster number should be >= 1 */
-+		if (unlikely(!lcn)) {
-+			errln("invalid logical cluster 0 at nid %llu",
-+				EROFS_V(inode)->nid);
-+			err = -EIO;
-+			goto unmap_out;
-+		}
- 		end = (lcn-- * clustersize) | logical_cluster_ofs;
- 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
- 		/* get the correspoinding first chunk */
- 		ofs = vle_get_logical_extent_head(inode, mpage_ret,
- 			&kaddr, lcn, &pcn, &map->m_flags);
- 		mpage = *mpage_ret;
-+	default:
-+		errln("unknown cluster type %u at offset %llu of nid %llu",
-+			cluster_type, ofs, EROFS_V(inode)->nid);
-+		err = -EIO;
-+		goto unmap_out;
- 	}
- 
- 	map->m_la = ofs;
-@@ -1630,6 +1644,9 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
- 		__func__, map->m_la, map->m_pa,
- 		map->m_llen, map->m_plen, map->m_flags);
--	return 0;
-+
-+	/* aggressively BUG_ON iff CONFIG_EROFS_FS_DEBUG is on */
-+	DBG_BUGON(err < 0);
-+	return err;
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index fbf6ff25cd1b..5d7e8fc64548 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -231,10 +231,45 @@ static int fill_inode(struct inode *inode, int isdir)
+ 	return err;
  }
+ 
++/*
++ * erofs nid is 64bits, but i_ino is 'unsigned long', therefore
++ * we should do more for 32-bit platform to find the right inode.
++ */
++#if BITS_PER_LONG < 64
++static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	return EROFS_V(inode)->nid == nid;
++}
++
++static int erofs_iget_set_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	inode->i_ino = erofs_inode_hash(nid);
++	return 0;
++}
++#endif
++
++static inline struct inode *erofs_iget_locked(struct super_block *sb,
++					      erofs_nid_t nid)
++{
++	unsigned long hashval = erofs_inode_hash(nid);
++
++#if BITS_PER_LONG >= 64
++	/* it is safe to use iget_locked for >= 64-bit platform */
++	return iget_locked(sb, hashval);
++#else
++	return iget5_locked(sb, hashval, erofs_ilookup_test_actor,
++		erofs_iget_set_actor, &nid);
++#endif
++}
++
+ struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool isdir)
+ {
+-	struct inode *inode = iget_locked(sb, nid);
++	struct inode *inode = erofs_iget_locked(sb, nid);
+ 
+ 	if (unlikely(inode == NULL))
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 367b39fe46e5..b08df0a31ddd 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -473,6 +473,16 @@ static inline struct page *erofs_get_inline_page(struct inode *inode,
+ }
+ 
+ /* inode.c */
++static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
++{
++	u64 h = nid;
++
++#if BITS_PER_LONG == 32
++	h = (h >> 32) ^ (h & 0xffffffff);
++#endif
++	return (unsigned long)h;
++}
++
+ extern struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool dir);
  
 -- 
 2.17.1
