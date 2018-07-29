@@ -1,19 +1,25 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 30 Jul 2018 03:20:07 +0800
-Subject: [RFC PATCH] staging: erofs: harden inode lookup for 32-bit platform
-Message-ID: <20180729192007.87372-1-hsiangkao@aol.com>
+Date: Mon, 30 Jul 2018 03:26:45 +0800
+Subject: [RFC PATCH RESEND] staging: erofs: harden inode lookup for 32-bit
+ platforms
+In-Reply-To: <20180729192007.87372-1-hsiangkao@aol.com>
+References: <20180729192007.87372-1-hsiangkao@aol.com>
+Message-ID: <20180729192645.93702-1-hsiangkao@aol.com>
 
 This patch introduces inode hash function, test and set callbacks,
-and iget5_locked to find the right inode for 32-bit platform.
+and iget5_locked to find the right inode for 32-bit platforms.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+
+fix the commit message
+
  drivers/staging/erofs/inode.c    | 37 +++++++++++++++++++++++++++++++-
  drivers/staging/erofs/internal.h | 10 +++++++++
  2 files changed, 46 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index fbf6ff25cd1b..5d7e8fc64548 100644
+index fbf6ff25cd1b..47330bae12b4 100644
 --- a/drivers/staging/erofs/inode.c
 +++ b/drivers/staging/erofs/inode.c
 @@ -231,10 +231,45 @@ static int fill_inode(struct inode *inode, int isdir)
@@ -44,7 +50,7 @@ index fbf6ff25cd1b..5d7e8fc64548 100644
 +static inline struct inode *erofs_iget_locked(struct super_block *sb,
 +					      erofs_nid_t nid)
 +{
-+	unsigned long hashval = erofs_inode_hash(nid);
++	const unsigned long hashval = erofs_inode_hash(nid);
 +
 +#if BITS_PER_LONG >= 64
 +	/* it is safe to use iget_locked for >= 64-bit platform */
