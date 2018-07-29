@@ -1,120 +1,90 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 29 Jul 2018 13:34:58 +0800
-Subject: [PATCH 1/2] staging: erofs: fix compile error without built-in
- decompression support
-In-Reply-To: <1532761832-6964-1-git-send-email-gaoxiang25@huawei.com>
-References: <1532761832-6964-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <20180729053459.34140-1-hsiangkao@aol.com>
+Date: Sun, 29 Jul 2018 13:37:57 +0800
+Subject: [PATCH 2/2] staging: erofs: fix conditional uninitialized `pcn' in
+ z_erofs_map_blocks_iter
+In-Reply-To: <20180729053459.34140-1-hsiangkao@aol.com>
+References: <20180729053459.34140-1-hsiangkao@aol.com>
+Message-ID: <20180729053757.34195-1-hsiangkao@aol.com>
 
-This patch fixes incorrect code snippets due to spilt code
-into small patches by mistake.
+This patch adds error handling code for
+z_erofs_map_blocks_iter to fix the compiler blame.
 
-Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050747.html
-Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050750.html
-Reported-by: kbuild test robot <lkp at intel.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- I test several Kconfig option combinations and all these
-combinations are successfully compiled.
 
-Hi Chao,
- Could you please review this two patches first before merging
-into staging-next tree?
+let's solve the compiler warning first, more error handling code
+for other functions will be added in the future patch.
 
-Thanks,
-Gao Xiang
+ drivers/staging/erofs/unzip_vle.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
- drivers/staging/erofs/internal.h  | 4 ++--
- drivers/staging/erofs/super.c     | 2 +-
- drivers/staging/erofs/unzip_vle.c | 7 ++++---
- drivers/staging/erofs/utils.c     | 7 ++++---
- 4 files changed, 11 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 669f93ae6920..367b39fe46e5 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -260,9 +260,9 @@ static inline void erofs_workstation_cleanup_all(struct super_block *sb)
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- #define EROFS_UNALLOCATED_CACHED_PAGE	((void *)0x5F0EF00D)
- 
--extern int try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
-+extern int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
- 	struct erofs_workgroup *egrp);
--extern int try_to_free_cached_page(struct address_space *mapping,
-+extern int erofs_try_to_free_cached_page(struct address_space *mapping,
- 	struct page *page);
- #endif
- 
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 97da5c8a8ef3..1aec509c805f 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -269,7 +269,7 @@ static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
- 	BUG_ON(mapping->a_ops != &managed_cache_aops);
- 
- 	if (PagePrivate(page))
--		ret = try_to_free_cached_page(mapping, page);
-+		ret = erofs_try_to_free_cached_page(mapping, page);
- 
- 	return ret;
- }
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 7671fe8194ce..0e410a228cd4 100644
+index 0e410a228cd4..bd2d7a8d5085 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -131,8 +131,8 @@ static bool grab_managed_cache_pages(struct address_space *mapping,
- }
+@@ -1532,13 +1532,14 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	unsigned long long ofs, end;
+ 	struct z_erofs_vle_decompressed_index *di;
+ 	erofs_blk_t e_blkaddr, pcn;
+-	unsigned lcn, logical_cluster_ofs;
++	unsigned lcn, logical_cluster_ofs, cluster_type;
+ 	u32 ofs_rem;
+ 	struct page *mpage = *mpage_ret;
+ 	void *kaddr;
+ 	bool initial;
+ 	const unsigned int clusterbits = EROFS_SB(inode->i_sb)->clusterbits;
+ 	const unsigned int clustersize = 1 << clusterbits;
++	int err = 0;
  
- /* called by erofs_shrinker to get rid of all compressed_pages */
--int try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
--				 struct erofs_workgroup *egrp)
-+int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
-+				       struct erofs_workgroup *egrp)
- {
- 	struct z_erofs_vle_workgroup *const grp =
- 		container_of(egrp, struct z_erofs_vle_workgroup, obj);
-@@ -166,7 +166,8 @@ int try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
- 	return 0;
- }
+ 	/* if both m_(l,p)len are 0, regularize l_lblk, l_lofs, etc... */
+ 	initial = !map->m_llen;
+@@ -1592,7 +1593,9 @@ int z_erofs_map_blocks_iter(struct inode *inode,
  
--int try_to_free_cached_page(struct address_space *mapping, struct page *page)
-+int erofs_try_to_free_cached_page(struct address_space *mapping,
-+				  struct page *page)
- {
- 	struct erofs_sb_info *const sbi = EROFS_SB(mapping->host->i_sb);
- 	const unsigned int clusterpages = erofs_clusterpages(sbi);
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index ee70bb9e1636..595cf90af9bb 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -160,7 +160,7 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+ 	end = (u64)(lcn + 1) * clustersize;
+ 
+-	switch (vle_cluster_type(di)) {
++	cluster_type = vle_cluster_type(di);
++
++	switch (cluster_type) {
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
+ 		if (ofs_rem >= logical_cluster_ofs)
+ 			map->m_flags ^= EROFS_MAP_ZIPPED;
+@@ -1608,13 +1611,24 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 			break;
  		}
  
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
--		if (try_to_free_all_cached_pages(sbi, grp))
-+		if (erofs_try_to_free_all_cached_pages(sbi, grp))
- 			goto skip;
- 
- 		erofs_workgroup_unfreeze(grp, 1);
-@@ -247,7 +247,9 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 		spin_unlock(&erofs_sb_list_lock);
- 		sbi->shrinker_run_no = run_no;
- 
--		/* add scan handlers here */
-+#ifdef CONFIG_EROFS_FS_ZIP
-+		freed += erofs_shrink_workstation(sbi, nr, false);
-+#endif
- 
- 		spin_lock(&erofs_sb_list_lock);
- 		/* Get the next list element before we move this one */
-@@ -260,7 +262,6 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 		list_move_tail(&sbi->list, &erofs_sb_list);
- 		mutex_unlock(&sbi->umount_mutex);
- 
--		freed += erofs_shrink_workstation(sbi, nr, false);
- 		if (freed >= nr)
- 			break;
+-		BUG_ON(!lcn);	/* logical cluster number >= 1 */
++		/* logical cluster number should be >= 1 */
++		if (unlikely(!lcn)) {
++			errln("invalid logical cluster 0 at nid %llu",
++				EROFS_V(inode)->nid);
++			err = -EIO;
++			goto unmap_out;
++		}
+ 		end = (lcn-- * clustersize) | logical_cluster_ofs;
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
+ 		/* get the correspoinding first chunk */
+ 		ofs = vle_get_logical_extent_head(inode, mpage_ret,
+ 			&kaddr, lcn, &pcn, &map->m_flags);
+ 		mpage = *mpage_ret;
++	default:
++		errln("unknown cluster type %u at offset %llu of nid %llu",
++			cluster_type, ofs, EROFS_V(inode)->nid);
++		err = -EIO;
++		goto unmap_out;
  	}
+ 
+ 	map->m_la = ofs;
+@@ -1630,6 +1644,9 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
+ 		__func__, map->m_la, map->m_pa,
+ 		map->m_llen, map->m_plen, map->m_flags);
+-	return 0;
++
++	/* aggressively BUG_ON iff CONFIG_EROFS_FS_DEBUG is on */
++	DBG_BUGON(err < 0);
++	return err;
+ }
+ 
 -- 
 2.17.1
