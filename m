@@ -1,70 +1,50 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Mon, 30 Jul 2018 11:07:21 +0800
-Subject: [PATCH 1/2] staging: erofs: fix compile error without built-in
- decompression support
-In-Reply-To: <614f3148-91ae-2a9a-f932-21e32e290717@huawei.com>
-References: <1532761832-6964-1-git-send-email-gaoxiang25@huawei.com>
- <20180729053459.34140-1-hsiangkao@aol.com>
- <5a396128-822f-5232-f3ee-1c5ac6524380@huawei.com>
- <614f3148-91ae-2a9a-f932-21e32e290717@huawei.com>
-Message-ID: <d5e4f0a5-c184-c4ac-d5dc-451488d6fd2d@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Mon, 30 Jul 2018 11:34:52 +0800
+Subject: [FOR INTERNAL REVIEW] [PATCH RESEND 1/3] staging: erofs: fix
+ incorrect code in erofs_shrink_scan
+In-Reply-To: <5a396128-822f-5232-f3ee-1c5ac6524380@huawei.com>
+References: <5a396128-822f-5232-f3ee-1c5ac6524380@huawei.com>
+Message-ID: <1532921694-23526-1-git-send-email-gaoxiang25@huawei.com>
 
-Hi Xiang,
+From: Gao Xiang <hsiangkao@aol.com>
 
-On 2018/7/30 10:32, Gao Xiang wrote:
-> Hi Chao,
-> 
-> On 2018/7/30 10:07, Chao Yu wrote:
->> On 2018/7/29 13:34, Gao Xiang via Linux-erofs wrote:
->>> This patch fixes incorrect code snippets due to spilt code
->>> into small patches by mistake.
->>>
->>> Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050747.html
->>> Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050750.html
->>> Reported-by: kbuild test robot <lkp at intel.com>
->>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->>> ---
->>>  I test several Kconfig option combinations and all these
->>> combinations are successfully compiled.
->>>
->>> Hi Chao,
->>>  Could you please review this two patches first before merging
->>> into staging-next tree?
->> Hi Xiang,
->>
->> For this compiler issue, I think we only need to cover erofs_shrink_workstation
->> with marco CONFIG_EROFS_FS_ZIP, other modification like symbol name change or
->> relocate erofs_shrink_workstation are with other reason, so how about separate
->> them into different patches?
->>
->> Thanks,
->>
-> 
-> It seems that Greg merged this patch to staging-next yesterday, since it is a urgent fix
-> (otherwise erofs cannot be compiled properly without CONFIG_EROFS_FS_ZIP, that is my fault).
-> 
-> I wrote in a patch yesterday becuase all the modifications have the same root cause ----
->     fix incorrect code snippets due to spilt code into small patches by mistake.
-> 
-> But you are right, it is more proper to spilt into two patches, let me resend these patches later
-> (I don't know whether Greg will apply them... :-( sorry... )
-> 
-> I think in order to reduce Greg's patchwork burden, we could quickly review patches internally in linux-erofs first,
-> tidy up in a patchset set and send to Greg in a series periodically (if patches are not urgent).
-> 
-> How do you think about it?
+This patch actually fixes incorrect code snippets due to spilt code
+into small patches by mistake, which can cause a compile error without
+built-in decompression support and potential abnormal runtime shrinking.
 
-I agree with you, as we discussed offline, let's send patch to erofs mailing
-list for review first, and keep all developing patches in erofs-dev branch as
-long as possible, then periodically, submitting patches to Greg in batch, it can
-reduce unneeded modification in staging-next tree. For urgent fix, we can speed
-up the progress. :)
+Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050747.html
+Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050750.html
+Reported-by: kbuild test robot <lkp at intel.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+RESEND:
+ - spilt into two patches according to Chao's suggestion
 
-Thanks,
+ drivers/staging/erofs/utils.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> 
-> Thanks,
-> Gao Xiang
-> 
-> .
-> 
+diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
+index ee70bb9..1d06b5f 100644
+--- a/drivers/staging/erofs/utils.c
++++ b/drivers/staging/erofs/utils.c
+@@ -247,7 +247,9 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 		spin_unlock(&erofs_sb_list_lock);
+ 		sbi->shrinker_run_no = run_no;
+ 
+-		/* add scan handlers here */
++#ifdef CONFIG_EROFS_FS_ZIP
++		freed += erofs_shrink_workstation(sbi, nr, false);
++#endif
+ 
+ 		spin_lock(&erofs_sb_list_lock);
+ 		/* Get the next list element before we move this one */
+@@ -260,7 +262,6 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 		list_move_tail(&sbi->list, &erofs_sb_list);
+ 		mutex_unlock(&sbi->umount_mutex);
+ 
+-		freed += erofs_shrink_workstation(sbi, nr, false);
+ 		if (freed >= nr)
+ 			break;
+ 	}
+-- 
+1.9.1
