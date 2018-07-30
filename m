@@ -1,15 +1,16 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 30 Jul 2018 17:18:31 +0800
-Subject: [FOR INTERNAL REVIEW] [PATCH 4/4] staging: erofs: update .mount and
- .remount_sb
-In-Reply-To: <1532942311-33785-1-git-send-email-gaoxiang25@huawei.com>
-References: <1532942311-33785-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1532942311-33785-4-git-send-email-gaoxiang25@huawei.com>
+Date: Mon, 30 Jul 2018 17:29:38 +0800
+Subject: [FOR INTERNAL REVIEW] [PATCH RESEND 4/4] staging: erofs: update
+ .mount and .remount_sb
+In-Reply-To: <1532942311-33785-4-git-send-email-gaoxiang25@huawei.com>
+References: <1532942311-33785-4-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1532942978-35350-1-git-send-email-gaoxiang25@huawei.com>
 
 This patch updates .mount and .remount_sb after
 commit 286c6b145729 ("vfs: Require specification
 of size of mount data for internal mounts").
 
+Reported-by: Stephen Rothwell <sfr at canb.auug.org.au>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
 
