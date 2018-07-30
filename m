@@ -1,19 +1,18 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Mon, 30 Jul 2018 14:57:03 +0800
-Subject: [FOR INTERNAL REVIEW] [PATCH RESEND 2/3] staging: erofs: add
- 'erofs_' prefixes for try_to_free_(all_)cached_page(s)
-In-Reply-To: <1532921694-23526-2-git-send-email-gaoxiang25@huawei.com>
-References: <5a396128-822f-5232-f3ee-1c5ac6524380@huawei.com>
- <1532921694-23526-1-git-send-email-gaoxiang25@huawei.com>
- <1532921694-23526-2-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <812cdb45-c6fc-5332-5fbd-a13044ae7294@huawei.com>
+Date: Mon, 30 Jul 2018 14:58:49 +0800
+Subject: [PATCH] staging: erofs: use the wrapped PTR_ERR_OR_ZERO instead
+ of open code
+In-Reply-To: <1532915461-2512-1-git-send-email-gaoxiang25@huawei.com>
+References: <20180729053757.34195-1-hsiangkao@aol.com>
+ <1532915461-2512-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <74f9e641-88c4-d544-2963-00e6f67e5d83@huawei.com>
 
-On 2018/7/30 11:34, Gao Xiang wrote:
-> From: Gao Xiang <hsiangkao at aol.com>
+On 2018/7/30 9:51, Gao Xiang wrote:
+> Just clean up and logic doesn't change.
 > 
-> This patch also fixes out-of-date code snippets due to spilt code
-> into small patches by mistake.
-> 
+> Link: https://lists.01.org/pipermail/kbuild-all/2018-July/050766.html
+> Fixes: d72d1ce60174 ("staging: erofs: add namei functions")
+> Reported-by: kbuild test robot <lkp at intel.com>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
