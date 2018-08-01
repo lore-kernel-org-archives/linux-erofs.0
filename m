@@ -1,22 +1,29 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 1 Aug 2018 16:17:33 +0800
-Subject: [PATCH 08/11] erofs: support special inode
-In-Reply-To: <c2d24dcc-3dbf-7c9d-ffda-dc9b3dbe7a1e@kernel.org>
-References: <20180622020131.65525-1-yuchao0@huawei.com>
- <20180622020131.65525-8-yuchao0@huawei.com>
- <10330ccf-3f96-b5dd-0de9-1aa986af47e6@huawei.com>
- <c2d24dcc-3dbf-7c9d-ffda-dc9b3dbe7a1e@kernel.org>
-Message-ID: <c78b4103-e536-396e-dfa9-da307fd78058@huawei.com>
+Date: Wed, 1 Aug 2018 16:41:52 +0800
+Subject: [FOR PREVIEW] [PATCH] staging: erofs: remove an extra semicolon in
+ z_erofs_vle_unzip_all
+Message-ID: <1533112912-62205-1-git-send-email-gaoxiang25@huawei.com>
 
-Hi Guifu,
+There is an extra semicolon in z_erofs_vle_unzip_all, remove it.
 
-On 2018/7/3 21:48, Chao Yu wrote:
->> The other code looks fine for me,
->> I think a basic test is needed for the function of this patch tho.
-> 
-> Yeah, I hope Guifu will leave the time for testing the patch.
+Reported-by: Julia Lawall <julia.lawall at lip6.fr>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Could you please reply this email with some test results of this patch?
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 823ea2e..591cd9b 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1016,7 +1016,7 @@ static void z_erofs_vle_unzip_all(struct super_block *sb,
+ 		owned = READ_ONCE(grp->next);
+ 
+ 		z_erofs_vle_unzip(sb, grp, page_pool);
+-	};
++	}
+ }
+ 
+ static void z_erofs_vle_unzip_wq(struct work_struct *work)
+-- 
+1.9.1
