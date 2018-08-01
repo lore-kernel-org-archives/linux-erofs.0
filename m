@@ -1,82 +1,35 @@
-From: bluce.liguifu@huawei.com (liguifu (C))
-Date: Wed, 1 Aug 2018 08:40:05 +0000
-Subject: =?utf-8?B?562U5aSNOiBbUEFUQ0ggMDgvMTFdIGVyb2ZzOiBzdXBwb3J0IHNwZWNpYWwg?=
- =?utf-8?Q?inode?=
-In-Reply-To: <c78b4103-e536-396e-dfa9-da307fd78058@huawei.com>
-References: <20180622020131.65525-1-yuchao0@huawei.com>
- <20180622020131.65525-8-yuchao0@huawei.com>
- <10330ccf-3f96-b5dd-0de9-1aa986af47e6@huawei.com>
- <c2d24dcc-3dbf-7c9d-ffda-dc9b3dbe7a1e@kernel.org>
- <c78b4103-e536-396e-dfa9-da307fd78058@huawei.com>
-Message-ID: <9156E5F840CEC74FB517F66C6FB59A33015789DA@dggemi525-mbx.china.huawei.com>
+From: dan.carpenter@oracle.com (Dan Carpenter)
+Date: Wed, 1 Aug 2018 12:02:43 +0300
+Subject: [PATCH 1/2] staging: erofs: add the missing break in
+ z_erofs_map_blocks_iter
+In-Reply-To: <1533105511-26197-1-git-send-email-gaoxiang25@huawei.com>
+References: <1532915461-2512-1-git-send-email-gaoxiang25@huawei.com>
+ <1533105511-26197-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <20180801090243.ah7lhj2h6hjtvn4a@mwanda>
 
-Hi 
-# Test special device of erofs
-we have test four special device, like char device, block device, pipe device and sock decive
-using new_encode_dev to create device number in the image created by mkfs.erofs
-specail devices node were created in the  Ubuntu 16.04 LTS 4.4.0-104-generic, 
-the source codes is based on LDD3 source which coming from https://github.com/duxing2007/ldd3-examples-3.x/tree/origin/linux-4.4.y
+On Wed, Aug 01, 2018@02:38:30PM +0800, Gao Xiang wrote:
+> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> index bd2d7a8..6d3ab31 100644
+> --- a/drivers/staging/erofs/unzip_vle.c
+> +++ b/drivers/staging/erofs/unzip_vle.c
+> @@ -1596,10 +1596,10 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+>  	cluster_type = vle_cluster_type(di);
+>  
+>  	switch (cluster_type) {
+> -	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
+> +	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:	/* fallthrough */
 
-Test char devices, block device, pipe device file
-step 1, build ldd3 codes 
-step 2, install scull.ko sbull.ko and make device node with mknod cmd 
+This fallthrough comment is in the wrong place.  It should be at the end
+where the break would have been.  Like this:
 
-$ cat  /proc/devices|grep scull
-246 scull
-246 scullp
-246 sculla
+	switch (cluster_type) {
+	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
+		frob();
+		frob();
+		frob();
+		/* fallthrough */
+	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
+		frob();
 
-$ cat  /proc/devices|grep sbull
-251 sbull
-
-create device file:
-mknod scull0 c 246 0
-mknod pipe0  c 246 4
-mknod sbulla b 251 0
-
-step 3, create sock device with custom tcp server and client test program which invoke socket.
-        it will create a socket file.
-
-step 4, create erofs image using mkfs.erofs
-step 5, mount erofs image and test the device file
-
-1) scull 
-echo test > scull0, you will get it by input 
-cat scull0
-test
-
-2) sbull is the same to scull
-
-3) pipe0
-
-(1) input cat pipe0 at a shell
-(2) input echo test > pip0 at another shell
-So you will recive test string displayed at the fisrt shell terminal screen
-
-4) socket
-because erofs is a read only file system , socket file will not be created at fisrt running 
-socket file need unlink fisrtly and recreate by program 
-otherwise we got lots of string output at terminal when running socket server program.
-
-Tks
-Li GuiFu
-
------????-----
-???: Gaoxiang (OS) 
-????: 2018?8?1? 16:18
-???: liguifu (C) <bluce.liguifu at huawei.com>
-??: Yuchao (T) <yuchao0 at huawei.com>; linux-erofs at lists.ozlabs.org; Wangzhigang (Brooke) <brooke.wangzhigang at hisilicon.com>
-??: Re: [PATCH 08/11] erofs: support special inode
-
-Hi Guifu,
-
-On 2018/7/3 21:48, Chao Yu wrote:
->> The other code looks fine for me,
->> I think a basic test is needed for the function of this patch tho.
-> 
-> Yeah, I hope Guifu will leave the time for testing the patch.
-
-Could you please reply this email with some test results of this patch?
-
-Thanks,
-Gao Xiang
+regards,
+dan carpenter
