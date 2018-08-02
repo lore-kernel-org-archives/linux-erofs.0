@@ -1,134 +1,52 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Thu, 2 Aug 2018 17:09:19 +0800
+From: sfr@canb.auug.org.au (Stephen Rothwell)
+Date: Thu, 2 Aug 2018 19:12:59 +1000
 Subject: [PATCH] staging: erofs: disable compiling temporarile
 In-Reply-To: <c2208e7a-abaa-a608-029f-4fe003d82441@aol.com>
 References: <20180802081152.81527-1-yuchao0@huawei.com>
  <c2208e7a-abaa-a608-029f-4fe003d82441@aol.com>
-Message-ID: <e067b3e6-5852-e46e-204c-c52c7ab93dc8@huawei.com>
+Message-ID: <20180802191259.3ecf0e6d@canb.auug.org.au>
 
-On 2018/8/2 16:40, Gao Xiang wrote:
-> 
-> 
-> On 2018/8/2 16:11, Chao Yu wrote:
->> As Stephen Rothwell reported:
->>
->> "After merging the staging tree, today's linux-next build (x86_64
->> allmodconfig) failed like this:
->>
->> drivers/staging/erofs/super.c: In function 'erofs_read_super':
->> drivers/staging/erofs/super.c:343:17: error: 'MS_RDONLY' undeclared (first use in this function); did you mean 'IS_RDONLY'?
->>   sb->s_flags |= MS_RDONLY | MS_NOATIME;
->>                  ^~~~~~~~~
->>                  IS_RDONLY
->> drivers/staging/erofs/super.c:343:17: note: each undeclared identifier is reported only once for each function it appears in
->> drivers/staging/erofs/super.c:343:29: error: 'MS_NOATIME' undeclared (first use in this function); did you mean 'S_NOATIME'?
->>   sb->s_flags |= MS_RDONLY | MS_NOATIME;
->>                              ^~~~~~~~~~
->>                              S_NOATIME
->> drivers/staging/erofs/super.c: In function 'erofs_mount':
->> drivers/staging/erofs/super.c:501:10: warning: passing argument 5 of 'mount_bdev' makes integer from pointer without a cast [-Wint-conversion]
->>    &priv, erofs_fill_super);
->>           ^~~~~~~~~~~~~~~~
->> In file included from include/linux/buffer_head.h:12:0,
->>                  from drivers/staging/erofs/super.c:14:
->> include/linux/fs.h:2151:23: note: expected 'size_t {aka long unsigned int}' but argument is of type 'int (*)(struct super_block *, void *, int)'
->>  extern struct dentry *mount_bdev(struct file_system_type *fs_type,
->>                        ^~~~~~~~~~
->> drivers/staging/erofs/super.c:500:9: error: too few arguments to function 'mount_bdev'
->>   return mount_bdev(fs_type, flags, dev_name,
->>          ^~~~~~~~~~
->> In file included from include/linux/buffer_head.h:12:0,
->>                  from drivers/staging/erofs/super.c:14:
->> include/linux/fs.h:2151:23: note: declared here
->>  extern struct dentry *mount_bdev(struct file_system_type *fs_type,
->>                        ^~~~~~~~~~
->> drivers/staging/erofs/super.c: At top level:
->> drivers/staging/erofs/super.c:518:20: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
->>   .mount          = erofs_mount,
->>                     ^~~~~~~~~~~
->> drivers/staging/erofs/super.c:518:20: note: (near initialization for 'erofs_fs_type.mount')
->> drivers/staging/erofs/super.c: In function 'erofs_remount':
->> drivers/staging/erofs/super.c:630:12: error: 'MS_RDONLY' undeclared (first use in this function); did you mean 'IS_RDONLY'?
->>   *flags |= MS_RDONLY;
->>             ^~~~~~~~~
->>             IS_RDONLY
->> drivers/staging/erofs/super.c: At top level:
->> drivers/staging/erofs/super.c:640:16: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
->>   .remount_fs = erofs_remount,
->>                 ^~~~~~~~~~~~~
->>
->> Caused by various commits creating erofs in the staging tree interacting
->> with various commits redoing the mount infrastructure in the vfs tree.
->>
->> I have disabed CONFIG_EROFS_FS for now:"
->>
->> The reason of compiling error is:
->>
->> Since -next collects and merges developing patches including common vfs
->> stuff from multi-trees, but those patches didn't cover erofs, such as:
->>
->> ('vfs: Suppress MS_* flag defs within the kernel unless explicitly enabled")
->> https://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git/commit/?h=for-next&id=109b45090d7d3ce2797bb1ef7f70eead5bfe0ff3
->>
->> ("vfs: Require specification of size of mount data for internal mounts")
->> https://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git/commit/?h=for-next&id=0a191e4505a4f255e6513b49426213da69bf0e80
->>
->> Above vfs related patches has not been merged in staging tree, if we
->> submit those erofs patches to staging mailing list and after including
->> them in staging-{test,nexts} tree, it can easily cause compiling error.
->>
->> We worked out some patches to adjust those vfs change, but now we just
->> submit them to -next tree temporarily to avoid compiling error.
->>
->> For potentail conflict in between erofs and vfs changes in incoming
->> merge window, Stephen suggested that we can disable CONFIG_EROFS_FS
->> temporarily to pass merge window, and after that we can do restore by
->> reenabling CONFIG_EROFS_FS and applying those fixing patches. Also
->> Greg confirmed this solution.
->>
->> So, let's disable compiling erofs for a while.
->>
->> Suggested-by: Stephen Rothwell <sfr at canb.auug.org.au>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
->> ---
->>  drivers/staging/Kconfig | 2 --
->>  1 file changed, 2 deletions(-)
->>
->> diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
->> index de9c95ab7851..75a480497d22 100644
->> --- a/drivers/staging/Kconfig
->> +++ b/drivers/staging/Kconfig
->> @@ -126,6 +126,4 @@ source "drivers/staging/mt7621-eth/Kconfig"
->>  
->>  source "drivers/staging/mt7621-dts/Kconfig"
->>  
->> -source "drivers/staging/erofs/Kconfig"
->> -
->>  endif # STAGING
-> Hi Chao,
-> 
+Hi all,
+
+On Thu, 2 Aug 2018 16:40:05 +0800 Gao Xiang <hsiangkao@aol.com> wrote:
+>
 > How about mark EROFS BROKEN and actually I have no idea how to do in
 > detail...
-
-Hi Xiang, after merge window, it is just rc1, not a formal release version, IMO,
-it will be OK to fix this before rc2 to minimize its effection.
-
-You'd like to notice user of rc1 that it will encounter compiling error even
-enabling erofs manually?
-
-Thanks,
-
 > If I misunderstand or it is totally wrong, please ignore and you can add:
-> 
-> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-> 
-> Thanks,
-> Gao Xiang
-> 
-> ?
-> 
-> 
-> 
-> .
-> 
+
+This is all you actually need (this is what I used before today):
+
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Date: Mon, 30 Jul 2018 16:10:57 +1000
+Subject: [PATCH] disable erofs for now
+
+Signed-off-by: Stephen Rothwell <sfr at canb.auug.org.au>
+---
+ drivers/staging/erofs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 663b755bf2fb..b37d994aa687 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -3,6 +3,7 @@
+ config EROFS_FS
+ 	tristate "EROFS filesystem support"
+ 	depends on BLOCK
++	depends on BROKEN
+ 	help
+ 	  EROFS(Enhanced Read-Only File System) is a lightweight
+ 	  read-only file system with modern designs (eg. page-sized
+-- 
+2.18.0
+
+-- 
+Cheers,
+Stephen Rothwell
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 488 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20180802/9fed91c6/attachment.sig>
