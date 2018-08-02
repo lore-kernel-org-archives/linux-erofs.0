@@ -1,35 +1,103 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 1 Aug 2018 20:08:46 +0800
-Subject: [PATCH RESEND 1/2] staging: erofs: add the missing break in
- z_erofs_map_blocks_iter
-In-Reply-To: <20180801113620.3ufakhg3z62q46mw@mwanda>
-References: <ea978a27-efd4-9d58-e4c0-f9d00420304f@huawei.com>
- <1533116214-70017-1-git-send-email-gaoxiang25@huawei.com>
- <20180801113620.3ufakhg3z62q46mw@mwanda>
-Message-ID: <69349ab1-e38f-c755-e966-6bf787ccc896@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Thu, 2 Aug 2018 16:11:52 +0800
+Subject: [PATCH] staging: erofs: disable compiling temporarile
+Message-ID: <20180802081152.81527-1-yuchao0@huawei.com>
 
-Hi Dan,
+As Stephen Rothwell reported:
 
-On 2018/8/1 19:36, Dan Carpenter wrote:
-> On Wed, Aug 01, 2018@05:36:54PM +0800, Gao Xiang wrote:
->> This patch adds a missing break after adding the default case.
->>
->> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> ---
->> As pointed out by Dan Carpenter:
->>  - fix the wrong place of fallthrough comments
-> Thanks.  Looks good.  Next time use [PATCH v2] instead of RESEND.  The
-> word RESEND basically means you are resending a patch exactly the same
-> as it was before.  You would only need to do that if we accidentally
-> deleted your first patch or whatever...
-> 
-> regards,
-> dan carpenter
-> 
-> 
-OK, it should not be titled RESEND, and I will take care the next time.
-Thanks for taking the time to review :)
+"After merging the staging tree, today's linux-next build (x86_64
+allmodconfig) failed like this:
 
-Thanks,
-Gao Xiang
+drivers/staging/erofs/super.c: In function 'erofs_read_super':
+drivers/staging/erofs/super.c:343:17: error: 'MS_RDONLY' undeclared (first use in this function); did you mean 'IS_RDONLY'?
+  sb->s_flags |= MS_RDONLY | MS_NOATIME;
+                 ^~~~~~~~~
+                 IS_RDONLY
+drivers/staging/erofs/super.c:343:17: note: each undeclared identifier is reported only once for each function it appears in
+drivers/staging/erofs/super.c:343:29: error: 'MS_NOATIME' undeclared (first use in this function); did you mean 'S_NOATIME'?
+  sb->s_flags |= MS_RDONLY | MS_NOATIME;
+                             ^~~~~~~~~~
+                             S_NOATIME
+drivers/staging/erofs/super.c: In function 'erofs_mount':
+drivers/staging/erofs/super.c:501:10: warning: passing argument 5 of 'mount_bdev' makes integer from pointer without a cast [-Wint-conversion]
+   &priv, erofs_fill_super);
+          ^~~~~~~~~~~~~~~~
+In file included from include/linux/buffer_head.h:12:0,
+                 from drivers/staging/erofs/super.c:14:
+include/linux/fs.h:2151:23: note: expected 'size_t {aka long unsigned int}' but argument is of type 'int (*)(struct super_block *, void *, int)'
+ extern struct dentry *mount_bdev(struct file_system_type *fs_type,
+                       ^~~~~~~~~~
+drivers/staging/erofs/super.c:500:9: error: too few arguments to function 'mount_bdev'
+  return mount_bdev(fs_type, flags, dev_name,
+         ^~~~~~~~~~
+In file included from include/linux/buffer_head.h:12:0,
+                 from drivers/staging/erofs/super.c:14:
+include/linux/fs.h:2151:23: note: declared here
+ extern struct dentry *mount_bdev(struct file_system_type *fs_type,
+                       ^~~~~~~~~~
+drivers/staging/erofs/super.c: At top level:
+drivers/staging/erofs/super.c:518:20: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+  .mount          = erofs_mount,
+                    ^~~~~~~~~~~
+drivers/staging/erofs/super.c:518:20: note: (near initialization for 'erofs_fs_type.mount')
+drivers/staging/erofs/super.c: In function 'erofs_remount':
+drivers/staging/erofs/super.c:630:12: error: 'MS_RDONLY' undeclared (first use in this function); did you mean 'IS_RDONLY'?
+  *flags |= MS_RDONLY;
+            ^~~~~~~~~
+            IS_RDONLY
+drivers/staging/erofs/super.c: At top level:
+drivers/staging/erofs/super.c:640:16: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+  .remount_fs = erofs_remount,
+                ^~~~~~~~~~~~~
+
+Caused by various commits creating erofs in the staging tree interacting
+with various commits redoing the mount infrastructure in the vfs tree.
+
+I have disabed CONFIG_EROFS_FS for now:"
+
+The reason of compiling error is:
+
+Since -next collects and merges developing patches including common vfs
+stuff from multi-trees, but those patches didn't cover erofs, such as:
+
+('vfs: Suppress MS_* flag defs within the kernel unless explicitly enabled")
+https://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git/commit/?h=for-next&id=109b45090d7d3ce2797bb1ef7f70eead5bfe0ff3
+
+("vfs: Require specification of size of mount data for internal mounts")
+https://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git/commit/?h=for-next&id=0a191e4505a4f255e6513b49426213da69bf0e80
+
+Above vfs related patches has not been merged in staging tree, if we
+submit those erofs patches to staging mailing list and after including
+them in staging-{test,nexts} tree, it can easily cause compiling error.
+
+We worked out some patches to adjust those vfs change, but now we just
+submit them to -next tree temporarily to avoid compiling error.
+
+For potentail conflict in between erofs and vfs changes in incoming
+merge window, Stephen suggested that we can disable CONFIG_EROFS_FS
+temporarily to pass merge window, and after that we can do restore by
+reenabling CONFIG_EROFS_FS and applying those fixing patches. Also
+Greg confirmed this solution.
+
+So, let's disable compiling erofs for a while.
+
+Suggested-by: Stephen Rothwell <sfr at canb.auug.org.au>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+---
+ drivers/staging/Kconfig | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
+index de9c95ab7851..75a480497d22 100644
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -126,6 +126,4 @@ source "drivers/staging/mt7621-eth/Kconfig"
+ 
+ source "drivers/staging/mt7621-dts/Kconfig"
+ 
+-source "drivers/staging/erofs/Kconfig"
+-
+ endif # STAGING
+-- 
+2.18.0.rc1
