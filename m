@@ -1,78 +1,38 @@
-From: kristaps.civkulis@gmail.com (=?UTF-8?q?Kristaps=20=C4=8Civkulis?=)
-Date: Sun,  5 Aug 2018 18:21:01 +0300
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Mon, 6 Aug 2018 00:05:16 +0800
 Subject: [PATCH] staging: erofs: fix if assignment style issue
-Message-ID: <20180805152101.11657-1-kristaps.civkulis@gmail.com>
+In-Reply-To: <20180805152101.11657-1-kristaps.civkulis@gmail.com>
+References: <20180805152101.11657-1-kristaps.civkulis@gmail.com>
+Message-ID: <78215373-c086-28bc-e35c-27f93d4e7dce@aol.com>
 
-Fix coding style issue "do not use assignment in if condition"
-detected by checkpatch.pl.
+Hi Kristaps,
 
-Signed-off-by: Kristaps ?ivkulis <kristaps.civkulis at gmail.com>
----
- drivers/staging/erofs/unzip_vle.c |  3 ++-
- drivers/staging/erofs/xattr.c     | 16 ++++++++--------
- 2 files changed, 10 insertions(+), 9 deletions(-)
+On 2018/8/5 23:21, Kristaps ?ivkulis wrote:
+> Fix coding style issue "do not use assignment in if condition"
+> detected by checkpatch.pl.
+>
+> Signed-off-by: Kristaps ?ivkulis <kristaps.civkulis at gmail.com>
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 1030ca5c2dc3..45b1255f5a22 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -702,7 +702,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	/* can be used for verification */
- 	map->m_llen = offset + cur - map->m_la;
- 
--	if ((end = cur) > 0)
-+	end = cur;
-+	if (end > 0)
- 		goto repeat;
- 
- 	/* FIXME! avoid the last relundant fixup & endio */
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 6b9685fa601c..0e9cfeccdf99 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -288,8 +288,8 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
- 
- 	remaining = ret;
- 	while (remaining) {
--		if ((ret = xattr_foreach(&it->it,
--			&find_xattr_handlers, &remaining)) >= 0)
-+		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
-+		if (ret >= 0)
- 			break;
- 	}
- 	xattr_iter_end(&it->it, true);
-@@ -321,8 +321,8 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 			it->it.blkaddr = blkaddr;
- 		}
- 
--		if ((ret = xattr_foreach(&it->it,
--			&find_xattr_handlers, NULL)) >= 0)
-+		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
-+		if (ret >= 0)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
-@@ -512,8 +512,8 @@ static int inline_listxattr(struct listxattr_iter *it)
- 
- 	remaining = ret;
- 	while (remaining) {
--		if ((ret = xattr_foreach(&it->it,
--			&list_xattr_handlers, &remaining)) < 0)
-+		ret = xattr_foreach(&it->it, &list_xattr_handlers, &remaining);
-+		if (ret < 0)
- 			break;
- 	}
- 	xattr_iter_end(&it->it, true);
-@@ -544,8 +544,8 @@ static int shared_listxattr(struct listxattr_iter *it)
- 			it->it.blkaddr = blkaddr;
- 		}
- 
--		if ((ret = xattr_foreach(&it->it,
--			&list_xattr_handlers, NULL)) < 0)
-+		ret = xattr_foreach(&it->it, &list_xattr_handlers, NULL);
-+		if (ret < 0)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
--- 
-2.18.0
+I don't know whether this rule is mandatory or not for the current linux
+kernel
+when I checked the original patchset with checkpatch.pl.
+
+Sometime I prefer to use assignment in if condition since the whole
+statement
+is more meaningful than separate to several statements...? although it
+can lead to
+some potential bugs.
+
+Another case is use (!ptr) to replace (ptr == NULL) and use (ptr) to replace
+(ptr != NULL) for pointers. Actually these expressions are equivalent in C,
+but I personally like the nullptr concept... I also have no idea if it
+is mandatory to fix
+as the checkpatch.pl suggested or not...
+
+Thanks for your patch :) if it is actually mandatory or strongly
+recommend, you can add:
+
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+
+Thanks,
+Gao Xiang
