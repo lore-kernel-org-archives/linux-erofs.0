@@ -1,19 +1,31 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Mon, 6 Aug 2018 10:51:59 +0800
-Subject: [PREVIEW] [PATCH v2] staging: erofs: remove an extra semicolon in
- z_erofs_vle_unzip_all
-In-Reply-To: <1533523155-109926-1-git-send-email-gaoxiang25@huawei.com>
-References: <1533112912-62205-1-git-send-email-gaoxiang25@huawei.com>
- <1533523155-109926-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <e2bac95b-c330-0a73-1990-b783a7d189c1@huawei.com>
+Date: Mon, 6 Aug 2018 11:07:07 +0800
+Subject: [PATCH v3] staging: erofs: disable compiling temporarile
+In-Reply-To: <20180802173319.GB24125@kroah.com>
+References: <20180802143455.9214-1-chao@kernel.org>
+ <20180802173319.GB24125@kroah.com>
+Message-ID: <c89ff718-b88b-feb7-03e2-d0dc1c1cade1@huawei.com>
 
-On 2018/8/6 10:39, Gao Xiang wrote:
-> There is an extra semicolon in z_erofs_vle_unzip_all, remove it.
-> 
-> Reported-by: Julia Lawall <julia.lawall at lip6.fr>
-> Signed-off-by: zhong jiang <zhongjiang at huawei.com>
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Hi Greg,
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+On 2018/8/3 1:33, Greg KH wrote:
+> Sorry, I already took the first version in my tree.  Don't worry about
+
+For staging-{test,next} maintaining thing, before merge window, if we want to
+remove or replace one merged patch in staging tree, what we can do is:
+a. ask you for help to remove/replace it directly; or
+b. submit a revert-patch first, and then send another fixed patch.
+
+What kind of way we should use or you prefer to?
 
 Thanks,
+
+> it for now you can fix this up after 4.19-rc1 is out when we enable the
+> filesystem again.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> .
+> 
