@@ -1,31 +1,43 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Mon, 6 Aug 2018 11:07:07 +0800
-Subject: [PATCH v3] staging: erofs: disable compiling temporarile
-In-Reply-To: <20180802173319.GB24125@kroah.com>
-References: <20180802143455.9214-1-chao@kernel.org>
- <20180802173319.GB24125@kroah.com>
-Message-ID: <c89ff718-b88b-feb7-03e2-d0dc1c1cade1@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Mon, 6 Aug 2018 11:27:53 +0800
+Subject: [PATCH] staging: erofs: remove an extra semicolon in
+ z_erofs_vle_unzip_all
+Message-ID: <1533526073-116588-1-git-send-email-gaoxiang25@huawei.com>
 
-Hi Greg,
+There is an extra semicolon in z_erofs_vle_unzip_all, remove it.
 
-On 2018/8/3 1:33, Greg KH wrote:
-> Sorry, I already took the first version in my tree.  Don't worry about
+Reported-by: Julia Lawall <julia.lawall at lip6.fr>
+Signed-off-by: zhong jiang <zhongjiang at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
 
-For staging-{test,next} maintaining thing, before merge window, if we want to
-remove or replace one merged patch in staging tree, what we can do is:
-a. ask you for help to remove/replace it directly; or
-b. submit a revert-patch first, and then send another fixed patch.
+zhongjiang <zhongjiang at huawei.com> also submitted a patch yesterday titled
+    "drivers/staging: Remove some unneeded semicolon"
 
-What kind of way we should use or you prefer to?
+Since it was reported by Julia Lawall <julia.lawall at lip6.fr> weeks ago
+and already pending for review in linux-erofs mailing list. Add
+   Signed-off-by: zhong jiang <zhongjiang at huawei.com>
+in this patch.
 
 Thanks,
+Gao Xiang
 
-> it for now you can fix this up after 4.19-rc1 is out when we enable the
-> filesystem again.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> .
-> 
+ drivers/staging/erofs/unzip_vle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 45b1255..8721f0a 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1017,7 +1017,7 @@ static void z_erofs_vle_unzip_all(struct super_block *sb,
+ 		owned = READ_ONCE(grp->next);
+ 
+ 		z_erofs_vle_unzip(sb, grp, page_pool);
+-	};
++	}
+ }
+ 
+ static void z_erofs_vle_unzip_wq(struct work_struct *work)
+-- 
+1.9.1
