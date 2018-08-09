@@ -1,7 +1,9 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 8 Aug 2018 21:01:10 +0800
-Subject: [WIP] [PATCH] staging: erofs: cleanup z_erofs_map_blocks_iter
-Message-ID: <1533733270-11912-1-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 9 Aug 2018 18:05:14 +0800
+Subject: [WIP] [PATCH v2] staging: erofs: cleanup z_erofs_map_blocks_iter
+In-Reply-To: <1533733270-11912-1-git-send-email-gaoxiang25@huawei.com>
+References: <1533733270-11912-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1533809114-69253-1-git-send-email-gaoxiang25@huawei.com>
 
 This patch cleanups z_erofs_map_blocks_iter and
 vle_get_logical_extent_head, including adding
@@ -9,11 +11,14 @@ error handing code and missing endian conversions.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 140 ++++++++++++++++++++++----------------
- 1 file changed, 83 insertions(+), 57 deletions(-)
+change log v2:
+ - fix lcn overflow issue on 32-bit platforms
+
+ drivers/staging/erofs/unzip_vle.c | 146 ++++++++++++++++++++++----------------
+ 1 file changed, 86 insertions(+), 60 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index ae99b68..027b64a 100644
+index ae99b68..3ae3160 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
 @@ -1465,6 +1465,15 @@ static int z_erofs_vle_normalaccess_readpages(
@@ -54,8 +59,8 @@ index ae99b68..027b64a 100644
 -	struct page *page = *page_iter;
 -	erofs_blk_t blkaddr = vle_extent_blkaddr(inode, lcn);
 +	const unsigned int clustersize = 1 << ctx->clusterbits;
++	const erofs_blk_t mblk = vle_extent_blkaddr(ctx->inode, lcn);
 +	struct page *mpage = *ctx->mpage_ret;	/* extent metapage */
-+	erofs_blk_t mblk = vle_extent_blkaddr(ctx->inode, lcn);
 +
  	struct z_erofs_vle_decompressed_index *di;
 -	unsigned long long ofs;
@@ -208,6 +213,15 @@ index ae99b68..027b64a 100644
  
  	err = vle_decompressed_index_clusterofs(&logical_cluster_ofs,
  						clustersize, di);
+@@ -1595,7 +1618,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	/* by default, compressed */
+ 	map->m_flags |= EROFS_MAP_ZIPPED;
+ 
+-	end = (u64)(lcn + 1) * clustersize;
++	end = ((u64)lcn + 1) * clustersize;
+ 
+ 	cluster_type = vle_cluster_type(di);
+ 
 @@ -1606,13 +1629,13 @@ int z_erofs_map_blocks_iter(struct inode *inode,
  		/* fallthrough */
  	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
@@ -218,13 +232,19 @@ index ae99b68..027b64a 100644
  		}
  
  		if (ofs_rem > logical_cluster_ofs) {
- 			ofs = lcn * clustersize | logical_cluster_ofs;
+-			ofs = lcn * clustersize | logical_cluster_ofs;
 -			pcn = le32_to_cpu(di->di_u.blkaddr);
++			ofs = (u64)lcn * clustersize | logical_cluster_ofs;
 +			pblk = le32_to_cpu(di->di_u.blkaddr);
  			break;
  		}
  
-@@ -1627,9 +1650,12 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+@@ -1623,13 +1646,16 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 			err = -EIO;
+ 			goto unmap_out;
+ 		}
+-		end = (lcn-- * clustersize) | logical_cluster_ofs;
++		end = ((u64)lcn-- * clustersize) | logical_cluster_ofs;
  		/* fallthrough */
  	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
  		/* get the correspoinding first chunk */
