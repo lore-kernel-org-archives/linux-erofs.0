@@ -1,44 +1,118 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Fri, 10 Aug 2018 16:59:31 +0800
-Subject: [WIP] [PATCH] staging: erofs: cleanup z_erofs_do_read_page
-In-Reply-To: <95b74480-f015-9cb6-e730-0d59d6bfd1da@huawei.com>
-References: <1533809340-69863-1-git-send-email-gaoxiang25@huawei.com>
- <04b2cf16-eb36-337a-0625-05b90859d355@huawei.com>
- <95b74480-f015-9cb6-e730-0d59d6bfd1da@huawei.com>
-Message-ID: <240a3191-1046-5439-50d3-ab61304b8ca2@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Sat, 11 Aug 2018 00:46:15 +0800
+Subject: [PREVIEW] [PATCH v3 1/3] staging: erofs: introduce erofs_grab_bio
+In-Reply-To: <9162b8da-a914-689a-c20d-2b8d9530d4b7@huawei.com>
+References: <9162b8da-a914-689a-c20d-2b8d9530d4b7@huawei.com>
+Message-ID: <1533919575-116855-1-git-send-email-gaoxiang25@huawei.com>
 
-Hi Xiang,
+this patch renames prepare_bio to erofs_grab_bio, and
+adds a nofail option in order to retry in the bio allocator
+under memory pressure.
 
-On 2018/8/10 14:59, Gao Xiang wrote:
-> Hi Chao,
-> 
-> On 2018/8/10 14:53, Chao Yu wrote:
->> On 2018/8/9 18:09, Gao Xiang wrote:
->>> This patch adds error handing code, and fixes a
->>> bug when appling caching policy, which can cause
->>> the ending compressed pack of a request uncached.
->> Aslo including too many kind of change in one patch, how about splitting this patch?
->>
->> Thanks,
->>
-> 
-> I will post the whole patchset later and separate them properly.
-> 
-> Thanks for your kindly review ;) 
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+change log v3:
+ - fix a missing break as Chao pointed out online;
+ - remove all 'unlikely' hints together with IS_ERR.
 
-You're welcome, it's our job, right? ;)
+ drivers/staging/erofs/data.c      | 12 ++++++++++--
+ drivers/staging/erofs/internal.h  | 36 ++++++++++++++++++------------------
+ drivers/staging/erofs/unzip_vle.c |  4 ++--
+ 3 files changed, 30 insertions(+), 22 deletions(-)
 
-> 
-> BTW, for other code if you need explaination of some code snippets,
-> please also kindly point out, I will explain the design ideas in detail in the mailing list. :)
-
-Will ask if I have. :)
-
-Thanks,
-
-> 
-> Thanks,
-> Gao Xiang
-> 
-> .
-> 
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index ac263a1..e0c046d 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -60,7 +60,8 @@ struct page *erofs_get_meta_page(struct super_block *sb,
+ 		struct bio *bio;
+ 		int err;
+ 
+-		bio = prepare_bio(sb, blkaddr, 1, read_endio);
++		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, true);
++
+ 		err = bio_add_page(bio, page, PAGE_SIZE, 0);
+ 		BUG_ON(err != PAGE_SIZE);
+ 
+@@ -278,7 +279,14 @@ static inline struct bio *erofs_read_raw_page(
+ 		if (nblocks > BIO_MAX_PAGES)
+ 			nblocks = BIO_MAX_PAGES;
+ 
+-		bio = prepare_bio(inode->i_sb, blknr, nblocks, read_endio);
++		bio = erofs_grab_bio(inode->i_sb,
++			blknr, nblocks, read_endio, false);
++
++		if (IS_ERR(bio)) {
++			err = PTR_ERR(bio);
++			bio = NULL;
++			goto err_out;
++		}
+ 	}
+ 
+ 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index b08df0a..79d4e08 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -420,26 +420,26 @@ struct erofs_map_blocks {
+ #define EROFS_GET_BLOCKS_RAW    0x0001
+ 
+ /* data.c */
+-static inline struct bio *prepare_bio(
+-	struct super_block *sb,
+-	erofs_blk_t blkaddr, unsigned nr_pages,
+-	bio_end_io_t endio)
++static inline struct bio *
++erofs_grab_bio(struct super_block *sb,
++	       erofs_blk_t blkaddr, unsigned int nr_pages,
++	       bio_end_io_t endio, bool nofail)
+ {
+-	gfp_t gfp = GFP_NOIO;
+-	struct bio *bio = bio_alloc(gfp, nr_pages);
+-
+-	if (unlikely(bio == NULL) &&
+-		(current->flags & PF_MEMALLOC)) {
+-		do {
+-			nr_pages /= 2;
+-			if (unlikely(!nr_pages)) {
+-				bio = bio_alloc(gfp | __GFP_NOFAIL, 1);
+-				BUG_ON(bio == NULL);
+-				break;
++	const gfp_t gfp = GFP_NOIO;
++	struct bio *bio;
++
++	do {
++		if (nr_pages == 1) {
++			bio = bio_alloc(gfp | (nofail ? __GFP_NOFAIL : 0), 1);
++			if (unlikely(bio == NULL)) {
++				DBG_BUGON(nofail);
++				return ERR_PTR(-ENOMEM);
+ 			}
+-			bio = bio_alloc(gfp, nr_pages);
+-		} while (bio == NULL);
+-	}
++			break;
++		}
++		bio = bio_alloc(gfp, nr_pages);
++		nr_pages /= 2;
++	} while (unlikely(bio == NULL));
+ 
+ 	bio->bi_end_io = endio;
+ 	bio_set_dev(bio, sb->s_bdev);
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 45b1255..6bb7aed 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1213,8 +1213,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 		}
+ 
+ 		if (bio == NULL) {
+-			bio = prepare_bio(sb, first_index + i,
+-				BIO_MAX_PAGES, z_erofs_vle_read_endio);
++			bio = erofs_grab_bio(sb, first_index + i,
++				BIO_MAX_PAGES, z_erofs_vle_read_endio, true);
+ 			bio->bi_private = tagptr_cast_ptr(bi_private);
+ 
+ 			++nr_bios;
+-- 
+1.9.1
