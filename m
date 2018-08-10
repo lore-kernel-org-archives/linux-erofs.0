@@ -1,96 +1,121 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 9 Aug 2018 18:09:00 +0800
-Subject: [WIP] [PATCH] staging: erofs: cleanup z_erofs_do_read_page
-Message-ID: <1533809340-69863-1-git-send-email-gaoxiang25@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Fri, 10 Aug 2018 10:46:20 +0800
+Subject: [PREVIEW] [PATCH RESEND 2/4] staging: erofs: introduce
+ erofs_grab_bio
+In-Reply-To: <1533103459-21338-1-git-send-email-gaoxiang25@huawei.com>
+References: <1533103277-20856-2-git-send-email-gaoxiang25@huawei.com>
+ <1533103459-21338-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <f031cf2b-35c1-581b-e764-4f241c3114c9@huawei.com>
 
-This patch adds error handing code, and fixes a
-bug when appling caching policy, which can cause
-the ending compressed pack of a request uncached.
+On 2018/8/1 14:04, Gao Xiang wrote:
+> this patch renames prepare_bio to erofs_grab_bio, and
+> adds a nofail option in order to retry in the bio allocator.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+>  drivers/staging/erofs/data.c      | 12 ++++++++++--
+>  drivers/staging/erofs/internal.h  | 35 +++++++++++++++++------------------
+>  drivers/staging/erofs/unzip_vle.c |  4 ++--
+>  3 files changed, 29 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+> index ac263a1..2426eda 100644
+> --- a/drivers/staging/erofs/data.c
+> +++ b/drivers/staging/erofs/data.c
+> @@ -60,7 +60,8 @@ struct page *erofs_get_meta_page(struct super_block *sb,
+>  		struct bio *bio;
+>  		int err;
+>  
+> -		bio = prepare_bio(sb, blkaddr, 1, read_endio);
+> +		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, true);
+> +
+>  		err = bio_add_page(bio, page, PAGE_SIZE, 0);
+>  		BUG_ON(err != PAGE_SIZE);
+>  
+> @@ -278,7 +279,14 @@ static inline struct bio *erofs_read_raw_page(
+>  		if (nblocks > BIO_MAX_PAGES)
+>  			nblocks = BIO_MAX_PAGES;
+>  
+> -		bio = prepare_bio(inode->i_sb, blknr, nblocks, read_endio);
+> +		bio = erofs_grab_bio(inode->i_sb,
+> +			blknr, nblocks, read_endio, false);
+> +
+> +		if (unlikely(IS_ERR(bio))) {
+> +			err = PTR_ERR(bio);
+> +			bio = NULL;
+> +			goto err_out;
+> +		}
+>  	}
+>  
+>  	err = bio_add_page(bio, page, PAGE_SIZE, 0);
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 4518729..acce2d6 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -419,26 +419,25 @@ struct erofs_map_blocks {
+>  #define EROFS_GET_BLOCKS_RAW    0x0001
+>  
+>  /* data.c */
+> -static inline struct bio *prepare_bio(
+> -	struct super_block *sb,
+> -	erofs_blk_t blkaddr, unsigned nr_pages,
+> -	bio_end_io_t endio)
+> +static inline struct bio *
+> +erofs_grab_bio(struct super_block *sb,
+> +	       erofs_blk_t blkaddr, unsigned nr_pages,
+> +	       bio_end_io_t endio, bool nofail)
+>  {
+> -	gfp_t gfp = GFP_NOIO;
+> -	struct bio *bio = bio_alloc(gfp, nr_pages);
+> -
+> -	if (unlikely(bio == NULL) &&
+> -		(current->flags & PF_MEMALLOC)) {
+> -		do {
+> -			nr_pages /= 2;
+> -			if (unlikely(!nr_pages)) {
+> -				bio = bio_alloc(gfp | __GFP_NOFAIL, 1);
+> -				BUG_ON(bio == NULL);
+> -				break;
+> +	const gfp_t gfp = GFP_NOIO;
+> +	struct bio *bio;
+> +
+> +	do {
+> +		if (nr_pages == 1) {
+> +			bio = bio_alloc(gfp | (nofail ? __GFP_NOFAIL : 0), 1);
+> +			if (unlikely(bio == NULL)) {
+> +				DBG_BUGON(nofail);
+> +				return ERR_PTR(-ENOMEM);
+>  			}
+> -			bio = bio_alloc(gfp, nr_pages);
+> -		} while (bio == NULL);
+> -	}
+> +		}
+> +		bio = bio_alloc(gfp, nr_pages);
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+Need to cover this bio_alloc, so should initialize gfp as:
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 3ae3160..bb43c54 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -611,7 +611,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 
- 	enum z_erofs_page_type page_type;
- 	unsigned cur, end, spiltted, index;
--	int err;
-+	int err = 0;
- 
- 	/* register locked file pages as online pages in pack */
- 	z_erofs_onlinepage_init(page);
-@@ -629,7 +629,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	/* go ahead the next map_blocks */
- 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
- 
--	if (!z_erofs_vle_work_iter_end(builder))
-+	if (z_erofs_vle_work_iter_end(builder))
- 		fe->initial = false;
- 
- 	map->m_la = offset + cur;
-@@ -638,12 +638,11 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	if (unlikely(err))
- 		goto err_out;
- 
--	/* deal with hole (FIXME! broken now) */
- 	if (unlikely(!(map->m_flags & EROFS_MAP_MAPPED)))
- 		goto hitted;
- 
- 	DBG_BUGON(map->m_plen != 1 << sbi->clusterbits);
--	BUG_ON(erofs_blkoff(map->m_pa));
-+	DBG_BUGON(erofs_blkoff(map->m_pa));
- 
- 	err = z_erofs_vle_work_iter_begin(builder, sb, map, &fe->owned_head);
- 	if (unlikely(err))
-@@ -688,7 +687,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 
- 		err = z_erofs_vle_work_add_page(builder,
- 			newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE);
--		if (!err)
-+		if (likely(!err))
- 			goto retry;
- 	}
- 
-@@ -699,9 +698,10 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 
- 	/* FIXME! avoid the last relundant fixup & endio */
- 	z_erofs_onlinepage_fixup(page, index, true);
--	++spiltted;
- 
--	/* also update nr_pages and increase queued_pages */
-+	/* bump up the number of spiltted parts of a page */
-+	++spiltted;
-+	/* also update nr_pages */
- 	work->nr_pages = max_t(pgoff_t, work->nr_pages, index + 1);
- next_part:
- 	/* can be used for verification */
-@@ -711,16 +711,18 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	if (end > 0)
- 		goto repeat;
- 
-+out:
- 	/* FIXME! avoid the last relundant fixup & endio */
- 	z_erofs_onlinepage_endio(page);
- 
- 	debugln("%s, finish page: %pK spiltted: %u map->m_llen %llu",
- 		__func__, page, spiltted, map->m_llen);
--	return 0;
-+	return err;
- 
-+	/* if some error occurred while processing this page */
- err_out:
--	/* TODO: the missing error handing cases */
--	return err;
-+	SetPageError(page);
-+	goto out;
- }
- 
- static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
--- 
-1.9.1
+gfp_t gfp = GFP_NOIO | (nofail ? __GFP_NOFAIL : 0);
+
+Thanks,
+
+> +		nr_pages /= 2;
+> +	} while (unlikely(bio == NULL));
+>  
+>  	bio->bi_end_io = endio;
+>  	bio_set_dev(bio, sb->s_bdev);
+> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> index 6d3ab31..be3929d 100644
+> --- a/drivers/staging/erofs/unzip_vle.c
+> +++ b/drivers/staging/erofs/unzip_vle.c
+> @@ -1212,8 +1212,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+>  		}
+>  
+>  		if (bio == NULL) {
+> -			bio = prepare_bio(sb, first_index + i,
+> -				BIO_MAX_PAGES, z_erofs_vle_read_endio);
+> +			bio = erofs_grab_bio(sb, first_index + i,
+> +				BIO_MAX_PAGES, z_erofs_vle_read_endio, true);
+>  			bio->bi_private = tagptr_cast_ptr(bi_private);
+>  
+>  			++nr_bios;
+> 
