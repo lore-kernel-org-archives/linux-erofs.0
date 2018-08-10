@@ -1,74 +1,49 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 11 Aug 2018 04:10:31 +0800
-Subject: [PATCH v2 03/10] staging: erofs: fix vle_decompressed_index_clusterofs
+Date: Sat, 11 Aug 2018 04:10:32 +0800
+Subject: [PATCH v3 04/10] staging: erofs: fix a missing endian conversion
 In-Reply-To: <1533931838-47642-1-git-send-email-gaoxiang25@huawei.com>
 References: <1533931838-47642-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1533931838-47642-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1533931838-47642-4-git-send-email-gaoxiang25@huawei.com>
 
-This patch adds error handing code, and fixes a missing
-endian conversion in vle_decompressed_index_clusterofs.
+This patch fixes a missing endian conversion in
+vle_get_logical_extent_head.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
-change log v2:
- - change the commit message;
- - I personally think this patch is clear enough, therefore I don't
-   spilt into more small patches.
+change log v3:
+ - spilt into small patches at Chao's suggestion.
 
- drivers/staging/erofs/unzip_vle.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f597f07..ae99b68 100644
+index ae99b68..c59f4c6 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -1419,24 +1419,24 @@ static int z_erofs_vle_normalaccess_readpages(
- #define vle_cluster_type(di)	\
- 	__vle_cluster_type((di)->di_advise)
+@@ -1488,6 +1488,7 @@ static erofs_off_t vle_get_logical_extent_head(
+ 	struct super_block *const sb = inode->i_sb;
+ 	const unsigned int clusterbits = EROFS_SB(sb)->clusterbits;
+ 	const unsigned int clustersize = 1 << clusterbits;
++	unsigned delta0;
  
--static inline unsigned
--vle_compressed_index_clusterofs(unsigned clustersize,
--	struct z_erofs_vle_decompressed_index *di)
-+static inline int
-+vle_decompressed_index_clusterofs(unsigned int *clusterofs,
-+				  unsigned int clustersize,
-+				  struct z_erofs_vle_decompressed_index *di)
- {
--	debugln("%s, vle=%pK, advise=%x (type %u), clusterofs=%x blkaddr=%x",
--		__func__, di, di->di_advise, vle_cluster_type(di),
--		di->di_clusterofs, di->di_u.blkaddr);
--
+ 	if (page->index != blkaddr) {
+ 		kunmap_atomic(*kaddr_iter);
+@@ -1502,12 +1503,13 @@ static erofs_off_t vle_get_logical_extent_head(
+ 	di = *kaddr_iter + vle_extent_blkoff(inode, lcn);
  	switch (vle_cluster_type(di)) {
  	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		*clusterofs = clustersize;
+-		BUG_ON(!di->di_u.delta[0]);
+-		BUG_ON(lcn < di->di_u.delta[0]);
++		delta0 = le16_to_cpu(di->di_u.delta[0]);
++		DBG_BUGON(!delta0);
++		DBG_BUGON(lcn < delta0);
+ 
+ 		ofs = vle_get_logical_extent_head(inode,
+ 			page_iter, kaddr_iter,
+-			lcn - di->di_u.delta[0], pcn, flags);
++			lcn - delta0, pcn, flags);
  		break;
  	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
- 	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
--		return di->di_clusterofs;
-+		*clusterofs = le16_to_cpu(di->di_clusterofs);
-+		break;
- 	default:
--		BUG_ON(1);
-+		DBG_BUGON(1);
-+		return -EIO;
- 	}
--	return clustersize;
-+	return 0;
- }
- 
- static inline erofs_blk_t
-@@ -1581,7 +1581,11 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 	debugln("%s, lcn %u e_blkaddr %u e_blkoff %u", __func__, lcn,
- 		e_blkaddr, vle_extent_blkoff(inode, lcn));
- 
--	logical_cluster_ofs = vle_compressed_index_clusterofs(clustersize, di);
-+	err = vle_decompressed_index_clusterofs(&logical_cluster_ofs,
-+						clustersize, di);
-+	if (unlikely(err))
-+		goto unmap_out;
-+
- 	if (!initial) {
- 		/* [walking mode] 'map' has been already initialized */
- 		map->m_llen += logical_cluster_ofs;
+ 		*flags ^= EROFS_MAP_ZIPPED;
 -- 
 1.9.1
