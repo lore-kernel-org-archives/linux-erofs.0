@@ -1,332 +1,209 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 11 Aug 2018 00:50:51 +0800
-Subject: [PREVIEW] [PATCH v3 3/3] staging: erofs: add error handling for xattr
- submodule
-In-Reply-To: <f7738f14-62c7-1715-444e-759b29d79dfd@huawei.com>
-References: <f7738f14-62c7-1715-444e-759b29d79dfd@huawei.com>
-Message-ID: <1533919851-117552-1-git-send-email-gaoxiang25@huawei.com>
+Date: Sat, 11 Aug 2018 04:10:29 +0800
+Subject: [PATCH RESEND 01/10] staging: erofs: cleanup z_erofs_vle_work_{lookup,
+ register}
+Message-ID: <1533931838-47642-1-git-send-email-gaoxiang25@huawei.com>
 
-This patch enhances the missing error handling code for
-xattr submodule, which improves the stability for the rare cases.
+This patch introduces 'struct z_erofs_vle_work_finder' to clean up
+arguments of z_erofs_vle_work_lookup and z_erofs_vle_work_register.
 
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
-change log v3:
- - avoid all nofail usage according to Chao's suggestion;
- - remove all 'unlikely' hints together with IS_ERR.
+RESEND:
+ - add `Reviewed-by: Chao Yu <yuchao0 at huawei.com>'
+ - no logic change
 
- drivers/staging/erofs/internal.h |   6 +-
- drivers/staging/erofs/xattr.c    | 120 ++++++++++++++++++++++++++-------------
- 2 files changed, 83 insertions(+), 43 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 89 +++++++++++++++++++++------------------
+ 1 file changed, 47 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index ecb6c02..db8b734 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -479,10 +479,10 @@ struct erofs_map_blocks_iter {
- 
- 
- static inline struct page *
--erofs_get_inline_page_nofail(struct inode *inode,
--			     erofs_blk_t blkaddr)
-+erofs_get_inline_page(struct inode *inode,
-+		      erofs_blk_t blkaddr)
- {
--	return erofs_get_meta_page_nofail(inode->i_sb,
-+	return erofs_get_meta_page(inode->i_sb,
- 		blkaddr, S_ISDIR(inode->i_mode));
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index b2e05e2..5032b3b 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -271,36 +271,42 @@ static inline bool try_to_claim_workgroup(
+ 	return true;	/* lucky, I am the followee :) */
  }
  
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 2593c85..1b5815f 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -24,16 +24,25 @@ struct xattr_iter {
- 
- static inline void xattr_iter_end(struct xattr_iter *it, bool atomic)
++struct z_erofs_vle_work_finder {
++	struct super_block *sb;
++	pgoff_t idx;
++	unsigned pageofs;
++
++	struct z_erofs_vle_workgroup **grp_ret;
++	enum z_erofs_vle_work_role *role;
++	z_erofs_vle_owned_workgrp_t *owned_head;
++	bool *hosted;
++};
++
+ static struct z_erofs_vle_work *
+-z_erofs_vle_work_lookup(struct super_block *sb,
+-			pgoff_t idx, unsigned pageofs,
+-			struct z_erofs_vle_workgroup **grp_ret,
+-			enum z_erofs_vle_work_role *role,
+-			z_erofs_vle_owned_workgrp_t *owned_head,
+-			bool *hosted)
++z_erofs_vle_work_lookup(const struct z_erofs_vle_work_finder *f)
  {
--	/* only init_inode_xattrs use non-atomic once */
-+	/* the only user of kunmap() is 'init_inode_xattrs' */
- 	if (unlikely(!atomic))
- 		kunmap(it->page);
- 	else
- 		kunmap_atomic(it->kaddr);
-+
- 	unlock_page(it->page);
- 	put_page(it->page);
- }
+ 	bool tag, primary;
+ 	struct erofs_workgroup *egrp;
+ 	struct z_erofs_vle_workgroup *grp;
+ 	struct z_erofs_vle_work *work;
  
--static void init_inode_xattrs(struct inode *inode)
-+static inline void xattr_iter_end_final(struct xattr_iter *it)
-+{
-+	if (unlikely(it->page == NULL))
-+		return;
-+
-+	xattr_iter_end(it, true);
-+}
-+
-+static int init_inode_xattrs(struct inode *inode)
- {
- 	struct xattr_iter it;
- 	unsigned i;
-@@ -44,7 +53,7 @@ static void init_inode_xattrs(struct inode *inode)
- 	bool atomic_map;
- 
- 	if (likely(inode_has_inited_xattr(inode)))
--		return;
-+		return 0;
- 
- 	vi = EROFS_V(inode);
- 	BUG_ON(!vi->xattr_isize);
-@@ -54,8 +63,9 @@ static void init_inode_xattrs(struct inode *inode)
- 	it.blkaddr = erofs_blknr(iloc(sbi, vi->nid) + vi->inode_isize);
- 	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
- 
--	it.page = erofs_get_inline_page_nofail(inode, it.blkaddr);
--	BUG_ON(IS_ERR(it.page));
-+	it.page = erofs_get_inline_page(inode, it.blkaddr);
-+	if (IS_ERR(it.page))
-+		return PTR_ERR(it.page);
- 
- 	/* read in shared xattr array (non-atomic, see kmalloc below) */
- 	it.kaddr = kmap(it.page);
-@@ -64,9 +74,12 @@ static void init_inode_xattrs(struct inode *inode)
- 	ih = (struct erofs_xattr_ibody_header *)(it.kaddr + it.ofs);
- 
- 	vi->xattr_shared_count = ih->h_shared_count;
--	vi->xattr_shared_xattrs = (unsigned *)kmalloc_array(
--		vi->xattr_shared_count, sizeof(unsigned),
--		GFP_KERNEL | __GFP_NOFAIL);
-+	vi->xattr_shared_xattrs = kmalloc_array(vi->xattr_shared_count,
-+						sizeof(unsigned), GFP_KERNEL);
-+	if (unlikely(vi->xattr_shared_xattrs == NULL)) {
-+		xattr_iter_end(&it, atomic_map);
-+		return -ENOMEM;
-+	}
- 
- 	/* let's skip ibody header */
- 	it.ofs += sizeof(struct erofs_xattr_ibody_header);
-@@ -77,9 +90,10 @@ static void init_inode_xattrs(struct inode *inode)
- 			BUG_ON(it.ofs != EROFS_BLKSIZ);
- 			xattr_iter_end(&it, atomic_map);
- 
--			it.page = erofs_get_meta_page_nofail(sb,
-+			it.page = erofs_get_meta_page(sb,
- 				++it.blkaddr, S_ISDIR(inode->i_mode));
--			BUG_ON(IS_ERR(it.page));
-+			if (IS_ERR(it.page))
-+				return PTR_ERR(it.page);
- 
- 			it.kaddr = kmap_atomic(it.page);
- 			atomic_map = true;
-@@ -92,6 +106,7 @@ static void init_inode_xattrs(struct inode *inode)
- 	xattr_iter_end(&it, atomic_map);
- 
- 	inode_set_inited_xattr(inode);
-+	return 0;
- }
- 
- struct xattr_iter_handlers {
-@@ -101,19 +116,24 @@ struct xattr_iter_handlers {
- 	void (*value)(struct xattr_iter *, unsigned, char *, unsigned);
- };
- 
--static void xattr_iter_fixup(struct xattr_iter *it)
-+static inline int xattr_iter_fixup(struct xattr_iter *it)
- {
--	if (unlikely(it->ofs >= EROFS_BLKSIZ)) {
--		xattr_iter_end(it, true);
-+	if (likely(it->ofs < EROFS_BLKSIZ))
-+		return 0;
- 
--		it->blkaddr += erofs_blknr(it->ofs);
--		it->page = erofs_get_meta_page_nofail(it->sb,
--			it->blkaddr, false);
--		BUG_ON(IS_ERR(it->page));
-+	xattr_iter_end(it, true);
- 
--		it->kaddr = kmap_atomic(it->page);
--		it->ofs = erofs_blkoff(it->ofs);
-+	it->blkaddr += erofs_blknr(it->ofs);
-+
-+	it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
-+	if (IS_ERR(it->page)) {
-+		it->page = NULL;
-+		return PTR_ERR(it->page);
+-	egrp = erofs_find_workgroup(sb, idx, &tag);
++	egrp = erofs_find_workgroup(f->sb, f->idx, &tag);
+ 	if (egrp == NULL) {
+-		*grp_ret = NULL;
++		*f->grp_ret = NULL;
+ 		return NULL;
  	}
-+
-+	it->kaddr = kmap_atomic(it->page);
-+	it->ofs = erofs_blkoff(it->ofs);
-+	return 0;
- }
  
- static int inline_xattr_iter_begin(struct xattr_iter *it,
-@@ -134,22 +154,25 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
- 	it->blkaddr = erofs_blknr(iloc(sbi, vi->nid) + inline_xattr_ofs);
- 	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
+-	*grp_ret = grp = container_of(egrp,
+-		struct z_erofs_vle_workgroup, obj);
++	grp = container_of(egrp, struct z_erofs_vle_workgroup, obj);
++	*f->grp_ret = grp;
  
--	it->page = erofs_get_inline_page_nofail(inode, it->blkaddr);
--	BUG_ON(IS_ERR(it->page));
--	it->kaddr = kmap_atomic(it->page);
-+	it->page = erofs_get_inline_page(inode, it->blkaddr);
-+	if (IS_ERR(it->page))
-+		return PTR_ERR(it->page);
+ #ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
+-	work = z_erofs_vle_grab_work(grp, pageofs);
++	work = z_erofs_vle_grab_work(grp, f->pageofs);
+ 	primary = true;
+ #else
+ 	BUG();
+ #endif
  
-+	it->kaddr = kmap_atomic(it->page);
- 	return vi->xattr_isize - xattr_header_sz;
- }
- 
- static int xattr_foreach(struct xattr_iter *it,
--	struct xattr_iter_handlers *op, unsigned *tlimit)
-+	const struct xattr_iter_handlers *op, unsigned *tlimit)
- {
- 	struct erofs_xattr_entry entry;
- 	unsigned value_sz, processed, slice;
- 	int err;
- 
- 	/* 0. fixup blkaddr, ofs, ipage */
--	xattr_iter_fixup(it);
-+	err = xattr_iter_fixup(it);
-+	if (unlikely(err))
-+		return err;
+-	DBG_BUGON(work->pageofs != pageofs);
++	DBG_BUGON(work->pageofs != f->pageofs);
  
  	/*
- 	 * 1. read xattr entry to the memory,
-@@ -181,7 +204,9 @@ static int xattr_foreach(struct xattr_iter *it,
- 		if (it->ofs >= EROFS_BLKSIZ) {
- 			BUG_ON(it->ofs > EROFS_BLKSIZ);
+ 	 * lock must be taken first to avoid grp->next == NIL between
+@@ -340,29 +346,24 @@ static inline bool try_to_claim_workgroup(
+ 	 */
+ 	mutex_lock(&work->lock);
  
--			xattr_iter_fixup(it);
-+			err = xattr_iter_fixup(it);
-+			if (unlikely(err))
-+				goto out;
- 			it->ofs = 0;
+-	*hosted = false;
++	*f->hosted = false;
+ 	if (!primary)
+-		*role = Z_EROFS_VLE_WORK_SECONDARY;
++		*f->role = Z_EROFS_VLE_WORK_SECONDARY;
+ 	/* claim the workgroup if possible */
+-	else if (try_to_claim_workgroup(grp, owned_head, hosted))
+-		*role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
++	else if (try_to_claim_workgroup(grp, f->owned_head, f->hosted))
++		*f->role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
+ 	else
+-		*role = Z_EROFS_VLE_WORK_PRIMARY;
++		*f->role = Z_EROFS_VLE_WORK_PRIMARY;
+ 
+ 	return work;
+ }
+ 
+ static struct z_erofs_vle_work *
+-z_erofs_vle_work_register(struct super_block *sb,
+-			  struct z_erofs_vle_workgroup **grp_ret,
+-			  struct erofs_map_blocks *map,
+-			  pgoff_t index, unsigned pageofs,
+-			  enum z_erofs_vle_work_role *role,
+-			  z_erofs_vle_owned_workgrp_t *owned_head,
+-			  bool *hosted)
++z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
++			  struct erofs_map_blocks *map)
+ {
+-	bool newgrp = false;
+-	struct z_erofs_vle_workgroup *grp = *grp_ret;
++	bool gnew = false;
++	struct z_erofs_vle_workgroup *grp = *f->grp_ret;
+ 	struct z_erofs_vle_work *work;
+ 
+ #ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
+@@ -376,7 +377,7 @@ static inline bool try_to_claim_workgroup(
+ 	if (unlikely(grp == NULL))
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	grp->obj.index = index;
++	grp->obj.index = f->idx;
+ 	grp->llen = map->m_llen;
+ 
+ 	z_erofs_vle_set_workgrp_fmt(grp,
+@@ -386,13 +387,13 @@ static inline bool try_to_claim_workgroup(
+ 	atomic_set(&grp->obj.refcount, 1);
+ 
+ 	/* new workgrps have been claimed as type 1 */
+-	WRITE_ONCE(grp->next, *owned_head);
++	WRITE_ONCE(grp->next, *f->owned_head);
+ 	/* primary and followed work for all new workgrps */
+-	*role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
++	*f->role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
+ 	/* it should be submitted by ourselves */
+-	*hosted = true;
++	*f->hosted = true;
+ 
+-	newgrp = true;
++	gnew = true;
+ #ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
+ skip:
+ 	/* currently unimplemented */
+@@ -400,12 +401,12 @@ static inline bool try_to_claim_workgroup(
+ #else
+ 	work = z_erofs_vle_grab_primary_work(grp);
+ #endif
+-	work->pageofs = pageofs;
++	work->pageofs = f->pageofs;
+ 
+ 	mutex_init(&work->lock);
+ 
+-	if (newgrp) {
+-		int err = erofs_register_workgroup(sb, &grp->obj, 0);
++	if (gnew) {
++		int err = erofs_register_workgroup(f->sb, &grp->obj, 0);
+ 
+ 		if (err) {
+ 			kmem_cache_free(z_erofs_workgroup_cachep, grp);
+@@ -413,7 +414,7 @@ static inline bool try_to_claim_workgroup(
  		}
- 
-@@ -213,7 +238,10 @@ static int xattr_foreach(struct xattr_iter *it,
- 	while (processed < value_sz) {
- 		if (it->ofs >= EROFS_BLKSIZ) {
- 			BUG_ON(it->ofs > EROFS_BLKSIZ);
--			xattr_iter_fixup(it);
-+
-+			err = xattr_iter_fixup(it);
-+			if (unlikely(err))
-+				goto out;
- 			it->ofs = 0;
- 		}
- 
-@@ -273,7 +301,7 @@ static void xattr_copyvalue(struct xattr_iter *_it,
- 	memcpy(it->buffer + processed, buf, len);
- }
- 
--static struct xattr_iter_handlers find_xattr_handlers = {
-+static const struct xattr_iter_handlers find_xattr_handlers = {
- 	.entry = xattr_entrymatch,
- 	.name = xattr_namematch,
- 	.alloc_buffer = xattr_checkbuffer,
-@@ -294,8 +322,11 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
- 		if (ret >= 0)
- 			break;
-+
-+		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
-+			break;
  	}
--	xattr_iter_end(&it->it, true);
-+	xattr_iter_end_final(&it->it);
  
- 	return ret < 0 ? ret : it->buffer_size;
- }
-@@ -318,9 +349,10 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 			if (i)
- 				xattr_iter_end(&it->it, true);
+-	*owned_head = *grp_ret = grp;
++	*f->owned_head = *f->grp_ret = grp;
  
--			it->it.page = erofs_get_meta_page_nofail(sb,
--				blkaddr, false);
--			BUG_ON(IS_ERR(it->it.page));
-+			it->it.page = erofs_get_meta_page(sb, blkaddr, false);
-+			if (IS_ERR(it->it.page))
-+				return PTR_ERR(it->it.page);
-+
- 			it->it.kaddr = kmap_atomic(it->it.page);
- 			it->it.blkaddr = blkaddr;
- 		}
-@@ -328,9 +360,12 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
- 		if (ret >= 0)
- 			break;
-+
-+		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
-+			break;
+ 	mutex_lock(&work->lock);
+ 	return work;
+@@ -440,9 +441,16 @@ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_builder *builder,
+ 				       z_erofs_vle_owned_workgrp_t *owned_head)
+ {
+ 	const unsigned clusterpages = erofs_clusterpages(EROFS_SB(sb));
+-	const erofs_blk_t index = erofs_blknr(map->m_pa);
+-	const unsigned pageofs = map->m_la & ~PAGE_MASK;
+ 	struct z_erofs_vle_workgroup *grp;
++	const struct z_erofs_vle_work_finder finder = {
++		.sb = sb,
++		.idx = erofs_blknr(map->m_pa),
++		.pageofs = map->m_la & ~PAGE_MASK,
++		.grp_ret = &grp,
++		.role = &builder->role,
++		.owned_head = owned_head,
++		.hosted = &builder->hosted
++	};
+ 	struct z_erofs_vle_work *work;
+ 
+ 	DBG_BUGON(builder->work != NULL);
+@@ -454,16 +462,13 @@ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_builder *builder,
+ 	DBG_BUGON(erofs_blkoff(map->m_pa));
+ 
+ repeat:
+-	work = z_erofs_vle_work_lookup(sb, index,
+-		pageofs, &grp, &builder->role, owned_head, &builder->hosted);
++	work = z_erofs_vle_work_lookup(&finder);
+ 	if (work != NULL) {
+ 		__update_workgrp_llen(grp, map->m_llen);
+ 		goto got_it;
  	}
- 	if (vi->xattr_shared_count)
--		xattr_iter_end(&it->it, true);
-+		xattr_iter_end_final(&it->it);
  
- 	return ret < 0 ? ret : it->buffer_size;
- }
-@@ -355,7 +390,9 @@ int erofs_getxattr(struct inode *inode, int index,
- 	if (unlikely(name == NULL))
- 		return -EINVAL;
+-	work = z_erofs_vle_work_register(sb, &grp, map, index, pageofs,
+-		&builder->role, owned_head, &builder->hosted);
+-
++	work = z_erofs_vle_work_register(&finder, map);
+ 	if (unlikely(work == ERR_PTR(-EAGAIN)))
+ 		goto repeat;
  
--	init_inode_xattrs(inode);
-+	ret = init_inode_xattrs(inode);
-+	if (unlikely(ret < 0))
-+		return ret;
- 
- 	it.index = index;
- 
-@@ -498,7 +535,7 @@ static int xattr_skipvalue(struct xattr_iter *_it,
- 	return 1;
- }
- 
--static struct xattr_iter_handlers list_xattr_handlers = {
-+static const struct xattr_iter_handlers list_xattr_handlers = {
- 	.entry = xattr_entrylist,
- 	.name = xattr_namelist,
- 	.alloc_buffer = xattr_skipvalue,
-@@ -520,7 +557,7 @@ static int inline_listxattr(struct listxattr_iter *it)
- 		if (ret < 0)
- 			break;
- 	}
--	xattr_iter_end(&it->it, true);
-+	xattr_iter_end_final(&it->it);
- 	return ret < 0 ? ret : it->buffer_ofs;
- }
- 
-@@ -542,9 +579,10 @@ static int shared_listxattr(struct listxattr_iter *it)
- 			if (i)
- 				xattr_iter_end(&it->it, true);
- 
--			it->it.page = erofs_get_meta_page_nofail(sb,
--				blkaddr, false);
--			BUG_ON(IS_ERR(it->it.page));
-+			it->it.page = erofs_get_meta_page(sb, blkaddr, false);
-+			if (IS_ERR(it->it.page))
-+				return PTR_ERR(it->it.page);
-+
- 			it->it.kaddr = kmap_atomic(it->it.page);
- 			it->it.blkaddr = blkaddr;
- 		}
-@@ -554,7 +592,7 @@ static int shared_listxattr(struct listxattr_iter *it)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
--		xattr_iter_end(&it->it, true);
-+		xattr_iter_end_final(&it->it);
- 
- 	return ret < 0 ? ret : it->buffer_ofs;
- }
-@@ -565,7 +603,9 @@ ssize_t erofs_listxattr(struct dentry *dentry,
- 	int ret;
- 	struct listxattr_iter it;
- 
--	init_inode_xattrs(d_inode(dentry));
-+	ret = init_inode_xattrs(d_inode(dentry));
-+	if (unlikely(ret < 0))
-+		return ret;
- 
- 	it.dentry = dentry;
- 	it.buffer = buffer;
 -- 
 1.9.1
