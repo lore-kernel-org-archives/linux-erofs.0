@@ -1,15 +1,15 @@
 From: chao@kernel.org (Chao Yu)
-Date: Sat, 11 Aug 2018 22:07:48 +0800
-Subject: [PREVIEW] [PATCH v3 3/3] staging: erofs: add error handling for
- xattr submodule
-In-Reply-To: <1533919851-117552-1-git-send-email-gaoxiang25@huawei.com>
-References: <f7738f14-62c7-1715-444e-759b29d79dfd@huawei.com>
- <1533919851-117552-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <5ade5c7e-2c17-2946-6716-5fcc97a3c793@kernel.org>
+Date: Sat, 11 Aug 2018 22:18:36 +0800
+Subject: [PATCH v2 03/10] staging: erofs: fix
+ vle_decompressed_index_clusterofs
+In-Reply-To: <1533931838-47642-3-git-send-email-gaoxiang25@huawei.com>
+References: <1533931838-47642-1-git-send-email-gaoxiang25@huawei.com>
+ <1533931838-47642-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <d950708c-0130-6285-316c-5858980ff0c7@kernel.org>
 
-On 2018/8/11 0:50, Gao Xiang wrote:
-> This patch enhances the missing error handling code for
-> xattr submodule, which improves the stability for the rare cases.
+On 2018/8/11 4:10, Gao Xiang wrote:
+> This patch adds error handing code, and fixes a missing
+> endian conversion in vle_decompressed_index_clusterofs.
 > 
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
