@@ -1,134 +1,97 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 11 Aug 2018 11:09:57 +0800
-Subject: [NOMERGE] [WIP] [PREVIEW] [PATCH 4/4] staging: erofs: fix race when
- the managed cache is enabled
-In-Reply-To: <1533956997-106704-1-git-send-email-gaoxiang25@huawei.com>
-References: <1533956997-106704-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1533956997-106704-4-git-send-email-gaoxiang25@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sat, 11 Aug 2018 12:53:13 +0800
+Subject: [RFC PATCH RESEND] staging: erofs: harden inode lookup for 32-bit
+ platforms
+In-Reply-To: <20180729192645.93702-1-hsiangkao@aol.com>
+References: <20180729192007.87372-1-hsiangkao@aol.com>
+ <20180729192645.93702-1-hsiangkao@aol.com>
+Message-ID: <f85f225a-eaa4-0e57-30ea-c50ab39325e1@aol.com>
 
-When the managed cache is enabled, the last reference count
-of a workgroup should be used for its workstation.
+ping...
 
-Otherwise, (un)freeze in the reclaim path will work improperly.
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/utils.c | 57 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 44 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index 8f1875c..8f45ebb 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -87,12 +87,28 @@ int erofs_register_workgroup(struct super_block *sb,
- 		grp = (void *)((unsigned long)grp |
- 			1UL << RADIX_TREE_EXCEPTIONAL_SHIFT);
- 
-+	/*
-+	 * If managed cache is enabled, the reclaim path assumes
-+	 * that the last reference count is used for its workstation.
-+	 * Therefore we should bump up reference count before
-+	 * making this workgroup visible to other users.
-+	 */
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	/* refcount should be at least 2 to get on well with reclaim path */
-+	__erofs_workgroup_get(grp);
-+#endif
-+
- 	err = radix_tree_insert(&sbi->workstn_tree,
- 		grp->index, grp);
- 
--	if (!err) {
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+	if (unlikely(err))
-+		/* it is safe to decrease for refcount >= 2 */
-+		atomic_dec(&grp->refcount);
-+#else
-+	if (!err)
- 		__erofs_workgroup_get(grp);
--	}
-+#endif
- 
- 	erofs_workstn_unlock(sbi);
- 	radix_tree_preload_end();
-@@ -101,19 +117,29 @@ int erofs_register_workgroup(struct super_block *sb,
- 
- extern void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
- 
-+static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
-+{
-+	atomic_long_dec(&erofs_global_shrink_cnt);
-+	erofs_workgroup_free_rcu(grp);
-+}
-+
- int erofs_workgroup_put(struct erofs_workgroup *grp)
- {
- 	int count = atomic_dec_return(&grp->refcount);
- 
- 	if (count == 1)
- 		atomic_long_inc(&erofs_global_shrink_cnt);
--	else if (!count) {
--		atomic_long_dec(&erofs_global_shrink_cnt);
--		erofs_workgroup_free_rcu(grp);
--	}
-+	else if (!count)
-+		__erofs_workgroup_free(grp);
- 	return count;
- }
- 
-+static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
-+{
-+	erofs_workgroup_unfreeze(grp, 0);
-+	__erofs_workgroup_free(grp);
-+}
-+
- unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 				       unsigned long nr_shrink,
- 				       bool cleanup)
-@@ -130,20 +156,21 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 		batch, first_index, PAGEVEC_SIZE);
- 
- 	for (i = 0; i < found; ++i) {
-+#ifndef EROFS_FS_HAS_MANAGED_CACHE
- 		int cnt;
-+#endif
- 		struct erofs_workgroup *grp = (void *)
- 			((unsigned long)batch[i] &
- 				~RADIX_TREE_EXCEPTIONAL_ENTRY);
- 
- 		first_index = grp->index + 1;
- 
-+#ifndef EROFS_FS_HAS_MANAGED_CACHE
- 		cnt = atomic_read(&grp->refcount);
--		BUG_ON(cnt <= 0);
-+		DBG_BUGON(cnt <= 0);
- 
- 		if (cleanup)
--			BUG_ON(cnt != 1);
--
--#ifndef EROFS_FS_HAS_MANAGED_CACHE
-+			DBG_BUGON(cnt != 1);
- 		else if (cnt > 1)
- #else
- 		if (!erofs_workgroup_try_to_freeze(grp, 1))
-@@ -163,11 +190,15 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 		if (erofs_try_to_free_all_cached_pages(sbi, grp))
- 			goto skip;
- 
--		erofs_workgroup_unfreeze(grp, 1);
--#endif
-+		/*
-+		 * if managed cache is enable, the last refcount
-+		 * should indicate the related workstation.
-+		 */
-+		erofs_workgroup_unfreeze_final(grp);
-+#else
- 		/* (rarely) grabbed again when freeing */
- 		erofs_workgroup_put(grp);
--
-+#endif
- 		++freed;
- 		if (unlikely(!--nr_shrink))
- 			break;
--- 
-1.9.1
+On 2018/7/30 3:26, Gao Xiang wrote:
+> This patch introduces inode hash function, test and set callbacks,
+> and iget5_locked to find the right inode for 32-bit platforms.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+> 
+> fix the commit message
+> 
+>  drivers/staging/erofs/inode.c    | 37 +++++++++++++++++++++++++++++++-
+>  drivers/staging/erofs/internal.h | 10 +++++++++
+>  2 files changed, 46 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+> index fbf6ff25cd1b..47330bae12b4 100644
+> --- a/drivers/staging/erofs/inode.c
+> +++ b/drivers/staging/erofs/inode.c
+> @@ -231,10 +231,45 @@ static int fill_inode(struct inode *inode, int isdir)
+>  	return err;
+>  }
+>  
+> +/*
+> + * erofs nid is 64bits, but i_ino is 'unsigned long', therefore
+> + * we should do more for 32-bit platform to find the right inode.
+> + */
+> +#if BITS_PER_LONG < 64
+> +static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
+> +{
+> +	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
+> +
+> +	return EROFS_V(inode)->nid == nid;
+> +}
+> +
+> +static int erofs_iget_set_actor(struct inode *inode, void *opaque)
+> +{
+> +	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
+> +
+> +	inode->i_ino = erofs_inode_hash(nid);
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static inline struct inode *erofs_iget_locked(struct super_block *sb,
+> +					      erofs_nid_t nid)
+> +{
+> +	const unsigned long hashval = erofs_inode_hash(nid);
+> +
+> +#if BITS_PER_LONG >= 64
+> +	/* it is safe to use iget_locked for >= 64-bit platform */
+> +	return iget_locked(sb, hashval);
+> +#else
+> +	return iget5_locked(sb, hashval, erofs_ilookup_test_actor,
+> +		erofs_iget_set_actor, &nid);
+> +#endif
+> +}
+> +
+>  struct inode *erofs_iget(struct super_block *sb,
+>  	erofs_nid_t nid, bool isdir)
+>  {
+> -	struct inode *inode = iget_locked(sb, nid);
+> +	struct inode *inode = erofs_iget_locked(sb, nid);
+>  
+>  	if (unlikely(inode == NULL))
+>  		return ERR_PTR(-ENOMEM);
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 367b39fe46e5..b08df0a31ddd 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -473,6 +473,16 @@ static inline struct page *erofs_get_inline_page(struct inode *inode,
+>  }
+>  
+>  /* inode.c */
+> +static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
+> +{
+> +	u64 h = nid;
+> +
+> +#if BITS_PER_LONG == 32
+> +	h = (h >> 32) ^ (h & 0xffffffff);
+> +#endif
+> +	return (unsigned long)h;
+> +}
+> +
+>  extern struct inode *erofs_iget(struct super_block *sb,
+>  	erofs_nid_t nid, bool dir);
+>  
+> 
