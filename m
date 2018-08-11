@@ -1,15 +1,16 @@
 From: chao@kernel.org (Chao Yu)
-Date: Sat, 11 Aug 2018 22:32:37 +0800
-Subject: [PREVIEW] [PATCH v3 05/10] staging: erofs: fix integer overflow
- on 32-bit platform
-In-Reply-To: <1533931838-47642-5-git-send-email-gaoxiang25@huawei.com>
+Date: Sat, 11 Aug 2018 22:42:08 +0800
+Subject: [PREVIEW] [PATCH v3 06/10] staging: erofs: fix compression
+ mapping beyond EOF
+In-Reply-To: <1533931838-47642-6-git-send-email-gaoxiang25@huawei.com>
 References: <1533931838-47642-1-git-send-email-gaoxiang25@huawei.com>
- <1533931838-47642-5-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <adc75c51-5c3e-2910-efd0-8fe97710dcdb@kernel.org>
+ <1533931838-47642-6-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <88f19b7f-fe44-097f-125b-36ff70a37da0@kernel.org>
 
 On 2018/8/11 4:10, Gao Xiang wrote:
-> This patch fixes integer overflow on multiplication
-> of 32-bit lcn in z_erofs_map_blocks_iter.
+> Logical address of EOF LTP mapping should start at
+> `inode->i_size' rather than `inode->i_size - 1' to
+> `m_la(in) + 1 - inode->i_size', fix it.
 > 
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
