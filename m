@@ -1,49 +1,67 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 12 Aug 2018 15:49:12 +0800
-Subject: [PREVIEW] [PATCH v4 06/10] staging: erofs: fix compression mapping
- beyond EOF
-In-Reply-To: <88f19b7f-fe44-097f-125b-36ff70a37da0@kernel.org>
-References: <88f19b7f-fe44-097f-125b-36ff70a37da0@kernel.org>
-Message-ID: <1534060152-3343-1-git-send-email-hsiangkao@aol.com>
+Date: Sun, 12 Aug 2018 15:54:57 +0800
+Subject: [PREVIEW] [PATCH v4 05/10] staging: erofs: fix integer overflow on
+ 32-bit platform
+In-Reply-To: <adc75c51-5c3e-2910-efd0-8fe97710dcdb@kernel.org>
+References: <adc75c51-5c3e-2910-efd0-8fe97710dcdb@kernel.org>
+Message-ID: <1534060497-3435-1-git-send-email-hsiangkao@aol.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-Logical address of EOF LTP mapping should start at
-`inode->i_size' rather than `inode->i_size - 1' to
-`m_la(in)', fix it.
+This patch fixes integer overflow on multiplication
+of 32-bit `lcn' in z_erofs_map_blocks_iter.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
 change log v4:
- - fix the description `m_la(in) + 1 - inode->i_size' to
-   `m_la(in)' in the commit message.
-
+ - fix commit message a bit.
 change log v3:
  - spilt into small patches at Chao's suggestion.
 
-Hi Chao,
-Please help use this commit message. Thanks.
-
-Thanks,
-Gao Xiang
- 
- drivers/staging/erofs/unzip_vle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/erofs/unzip_vle.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 79d4ca0..aecf650 100644
+index 0accf1b..79d4ca0 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -1548,7 +1548,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 	if (unlikely(map->m_la >= inode->i_size)) {
- 		BUG_ON(!initial);
- 		map->m_llen = map->m_la + 1 - inode->i_size;
--		map->m_la = inode->i_size - 1;
-+		map->m_la = inode->i_size;
- 		map->m_flags = 0;
- 		goto out;
- 	}
+@@ -1513,7 +1513,7 @@ static erofs_off_t vle_get_logical_extent_head(
+ 		*flags ^= EROFS_MAP_ZIPPED;
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
+ 		/* clustersize should be a power of two */
+-		ofs = ((unsigned long long)lcn << clusterbits) +
++		ofs = ((u64)lcn << clusterbits) +
+ 			(le16_to_cpu(di->di_clusterofs) & (clustersize - 1));
+ 		*pcn = le32_to_cpu(di->di_u.blkaddr);
+ 		break;
+@@ -1595,7 +1595,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	/* by default, compressed */
+ 	map->m_flags |= EROFS_MAP_ZIPPED;
+ 
+-	end = (u64)(lcn + 1) * clustersize;
++	end = ((u64)lcn + 1) * clustersize;
+ 
+ 	cluster_type = vle_cluster_type(di);
+ 
+@@ -1611,7 +1611,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 		}
+ 
+ 		if (ofs_rem > logical_cluster_ofs) {
+-			ofs = lcn * clustersize | logical_cluster_ofs;
++			ofs = (u64)lcn * clustersize | logical_cluster_ofs;
+ 			pcn = le32_to_cpu(di->di_u.blkaddr);
+ 			break;
+ 		}
+@@ -1623,7 +1623,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 			err = -EIO;
+ 			goto unmap_out;
+ 		}
+-		end = (lcn-- * clustersize) | logical_cluster_ofs;
++		end = ((u64)lcn-- * clustersize) | logical_cluster_ofs;
+ 		/* fallthrough */
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
+ 		/* get the correspoinding first chunk */
 -- 
 2.7.4
