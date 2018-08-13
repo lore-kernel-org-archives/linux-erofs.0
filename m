@@ -1,118 +1,194 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 13 Aug 2018 19:23:23 +0800
-Subject: [PATCH 2/8] staging: erofs: separate erofs_get_meta_page
-In-Reply-To: <20180813110405.3qoburir3ds5ux33@mwanda>
+From: dan.carpenter@oracle.com (Dan Carpenter)
+Date: Mon, 13 Aug 2018 14:47:25 +0300
+Subject: [PATCH 3/8] staging: erofs: add error handling for xattr submodule
+In-Reply-To: <20180812140150.13397-4-chao@kernel.org>
 References: <20180812140150.13397-1-chao@kernel.org>
- <20180812140150.13397-3-chao@kernel.org>
- <20180813110405.3qoburir3ds5ux33@mwanda>
-Message-ID: <3e77ae86-d417-6632-4894-d257fdb17a21@huawei.com>
+ <20180812140150.13397-4-chao@kernel.org>
+Message-ID: <20180813114725.kgoupvppcwsw2vyj@mwanda>
 
-Hi Dan,
+> -static void xattr_iter_fixup(struct xattr_iter *it)
+> +static inline int xattr_iter_fixup(struct xattr_iter *it)
+>  {
+> -	if (unlikely(it->ofs >= EROFS_BLKSIZ)) {
+> -		xattr_iter_end(it, true);
+> +	if (likely(it->ofs < EROFS_BLKSIZ))
+> +		return 0;
+>  
+> -		it->blkaddr += erofs_blknr(it->ofs);
+> -		it->page = erofs_get_meta_page_nofail(it->sb,
+> -			it->blkaddr, false);
+> -		BUG_ON(IS_ERR(it->page));
+> +	xattr_iter_end(it, true);
+>  
+> -		it->kaddr = kmap_atomic(it->page);
+> -		it->ofs = erofs_blkoff(it->ofs);
+> +	it->blkaddr += erofs_blknr(it->ofs);
+> +
+> +	it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
+> +	if (IS_ERR(it->page)) {
+> +		it->page = NULL;
+> +		return PTR_ERR(it->page);
 
-On 2018/8/13 19:04, Dan Carpenter wrote:
-> On Sun, Aug 12, 2018@10:01:44PM +0800, Chao Yu wrote:
->> --- a/drivers/staging/erofs/data.c
->> +++ b/drivers/staging/erofs/data.c
->> @@ -39,31 +39,44 @@ static inline void read_endio(struct bio *bio)
->>  }
->>  
->>  /* prio -- true is used for dir */
->> -struct page *erofs_get_meta_page(struct super_block *sb,
->> -	erofs_blk_t blkaddr, bool prio)
->> +struct page *__erofs_get_meta_page(struct super_block *sb,
->> +	erofs_blk_t blkaddr, bool prio, bool nofail)
->>  {
->> -	struct inode *bd_inode = sb->s_bdev->bd_inode;
->> -	struct address_space *mapping = bd_inode->i_mapping;
->> +	struct inode *const bd_inode = sb->s_bdev->bd_inode;
->> +	struct address_space *const mapping = bd_inode->i_mapping;
->> +	/* prefer retrying in the allocator to blindly looping below */
->> +	const gfp_t gfp = mapping_gfp_constraint(mapping, ~__GFP_FS) |
->> +		(nofail ? __GFP_NOFAIL : 0);
->> +	unsigned int io_retries = nofail ? EROFS_IO_MAX_RETRIES_NOFAIL : 0;
->>  	struct page *page;
->>  
->>  repeat:
->> -	page = find_or_create_page(mapping, blkaddr,
->> -	/*
->> -	 * Prefer looping in the allocator rather than here,
->> -	 * at least that code knows what it's doing.
->> -	 */
->> -		mapping_gfp_constraint(mapping, ~__GFP_FS) | __GFP_NOFAIL);
->> -
->> -	BUG_ON(!page || !PageLocked(page));
->> +	page = find_or_create_page(mapping, blkaddr, gfp);
->> +	if (unlikely(page == NULL)) {
->> +		DBG_BUGON(nofail);
->> +		return ERR_PTR(-ENOMEM);
->> +	}
->> +	DBG_BUGON(!PageLocked(page));
->>  
->>  	if (!PageUptodate(page)) {
->>  		struct bio *bio;
->>  		int err;
->>  
->> -		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, true);
->> +		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, nofail);
->> +		if (unlikely(bio == NULL)) {
->> +			DBG_BUGON(nofail);
->> +			err = -ENOMEM;
->> +err_out:
->> +			unlock_page(page);
->> +			put_page(page);
->> +			return ERR_PTR(err);
-> 
-> Put this err_out stuff at the bottom of the function so that we don't
-> have to do backward hops to get to it.
-> 
->> +		}
->>  
->>  		err = bio_add_page(bio, page, PAGE_SIZE, 0);
->> -		BUG_ON(err != PAGE_SIZE);
->> +		if (unlikely(err != PAGE_SIZE)) {
->> +			err = -EFAULT;
->> +			goto err_out;
->                         ^^^^^^^^^^^^
-> Like this.  Generally avoid backwards hops if you can.
-> 
->> +		}
->>  
->>  		__submit_bio(bio, REQ_OP_READ,
->>  			REQ_META | (prio ? REQ_PRIO : 0));
->> @@ -72,6 +85,7 @@ struct page *erofs_get_meta_page(struct super_block *sb,
->>  
->>  		/* the page has been truncated by others? */
->>  		if (unlikely(page->mapping != mapping)) {
->> +unlock_repeat:
-> The question mark in the "truncated by others?" is a little concerning.
-> It's slightly weird that we don't check "io_retries" on this path.
->
-Thanks for your reply.
+This is returning PTR_ERR(NULL) which is success.  There is a smatch
+test for this and maybe other static checkers as well so it would have
+been caught very quickly.
 
-erofs use the shared block device bd_inode->mapping for its meta use, which is visible
-to other code rather than erofs internally only, so I think it needs to get rid of
-potentially truncating by others, and such comments can also be found at
+>  	}
+> +
+> +	it->kaddr = kmap_atomic(it->page);
+> +	it->ofs = erofs_blkoff(it->ofs);
+> +	return 0;
+>  }
+>  
+>  static int inline_xattr_iter_begin(struct xattr_iter *it,
+> @@ -134,22 +154,25 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
+>  	it->blkaddr = erofs_blknr(iloc(sbi, vi->nid) + inline_xattr_ofs);
+>  	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
+>  
+> -	it->page = erofs_get_inline_page_nofail(inode, it->blkaddr);
+> -	BUG_ON(IS_ERR(it->page));
+> -	it->kaddr = kmap_atomic(it->page);
+> +	it->page = erofs_get_inline_page(inode, it->blkaddr);
+> +	if (IS_ERR(it->page))
+> +		return PTR_ERR(it->page);
+>  
+> +	it->kaddr = kmap_atomic(it->page);
+>  	return vi->xattr_isize - xattr_header_sz;
+>  }
+>  
+>  static int xattr_foreach(struct xattr_iter *it,
+> -	struct xattr_iter_handlers *op, unsigned *tlimit)
+> +	const struct xattr_iter_handlers *op, unsigned *tlimit)
+>  {
+>  	struct erofs_xattr_entry entry;
+>  	unsigned value_sz, processed, slice;
+>  	int err;
+>  
+>  	/* 0. fixup blkaddr, ofs, ipage */
+> -	xattr_iter_fixup(it);
+> +	err = xattr_iter_fixup(it);
+> +	if (unlikely(err))
+> +		return err;
+>  
+>  	/*
+>  	 * 1. read xattr entry to the memory,
+> @@ -181,7 +204,9 @@ static int xattr_foreach(struct xattr_iter *it,
+>  		if (it->ofs >= EROFS_BLKSIZ) {
+>  			BUG_ON(it->ofs > EROFS_BLKSIZ);
+>  
+> -			xattr_iter_fixup(it);
+> +			err = xattr_iter_fixup(it);
+> +			if (unlikely(err))
+> +				goto out;
+>  			it->ofs = 0;
+>  		}
+>  
+> @@ -213,7 +238,10 @@ static int xattr_foreach(struct xattr_iter *it,
+>  	while (processed < value_sz) {
+>  		if (it->ofs >= EROFS_BLKSIZ) {
+>  			BUG_ON(it->ofs > EROFS_BLKSIZ);
+> -			xattr_iter_fixup(it);
+> +
+> +			err = xattr_iter_fixup(it);
+> +			if (unlikely(err))
+> +				goto out;
+>  			it->ofs = 0;
+>  		}
+>  
+> @@ -273,7 +301,7 @@ static void xattr_copyvalue(struct xattr_iter *_it,
+>  	memcpy(it->buffer + processed, buf, len);
+>  }
+>  
+> -static struct xattr_iter_handlers find_xattr_handlers = {
+> +static const struct xattr_iter_handlers find_xattr_handlers = {
+>  	.entry = xattr_entrymatch,
+>  	.name = xattr_namematch,
+>  	.alloc_buffer = xattr_checkbuffer,
+> @@ -294,8 +322,11 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
+>  		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
+>  		if (ret >= 0)
+>  			break;
+> +
+> +		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
 
-- pagecache_get_page
-1557                 /* Has the page been truncated? */
-1558                 if (unlikely(page->mapping != mapping)) {
-1559                         unlock_page(page);
-1560                         put_page(page);
-1561                         goto repeat;
-1562                 }
+I have held off commenting on all the likely/unlikely annotations we
+are adding because I don't know what the fast paths are in this code.
+However, this is clearly an error path here, not on a fast path.
 
-- filemap_fault
-2535         /* Did it get truncated? */
-2536         if (unlikely(page->mapping != mapping)) {
-2537                 unlock_page(page);
-2538                 put_page(page);
-2539                 goto retry_find;
-2540         }
+Generally the rule on likely/unlikely is that they hurt readability so
+we should only add them if it makes a difference in benchmarking.
 
-I think it is somewhat necessary, and some suggestion about this? thanks in advance.
+> +			break;
+>  	}
+> -	xattr_iter_end(&it->it, true);
+> +	xattr_iter_end_final(&it->it);
+>  
+>  	return ret < 0 ? ret : it->buffer_size;
+>  }
+> @@ -318,9 +349,10 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
+>  			if (i)
+>  				xattr_iter_end(&it->it, true);
+>  
+> -			it->it.page = erofs_get_meta_page_nofail(sb,
+> -				blkaddr, false);
+> -			BUG_ON(IS_ERR(it->it.page));
+> +			it->it.page = erofs_get_meta_page(sb, blkaddr, false);
+> +			if (IS_ERR(it->it.page))
+> +				return PTR_ERR(it->it.page);
+> +
+>  			it->it.kaddr = kmap_atomic(it->it.page);
+>  			it->it.blkaddr = blkaddr;
+>  		}
+> @@ -328,9 +360,12 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
+>  		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
+>  		if (ret >= 0)
+>  			break;
+> +
+> +		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
+> +			break;
+>  	}
+>  	if (vi->xattr_shared_count)
+> -		xattr_iter_end(&it->it, true);
+> +		xattr_iter_end_final(&it->it);
+>  
+>  	return ret < 0 ? ret : it->buffer_size;
+>  }
+> @@ -355,7 +390,9 @@ int erofs_getxattr(struct inode *inode, int index,
+>  	if (unlikely(name == NULL))
+>  		return -EINVAL;
+>  
+> -	init_inode_xattrs(inode);
+> +	ret = init_inode_xattrs(inode);
+> +	if (unlikely(ret < 0))
+> +		return ret;
+>  
+>  	it.index = index;
+>  
+> @@ -498,7 +535,7 @@ static int xattr_skipvalue(struct xattr_iter *_it,
+>  	return 1;
 
-"It's slightly weird that we don't check "io_retries" on this path"
-I think you are right, let me rethink about it and send the next patch...
+Not related to your patch but what does "return 1;" mean here?  It's
+weird to me that xattr_skipvalue() doesn't use value_sz at all.  I can't
+decide if the function always succeeds or always fails.
 
-Thanks,
-Gao Xiang
+The xattr_skipvalue/alloc_buffer function is called like this:
+
+	err = op->alloc_buffer(it, value_sz);
+	if (err) {
+		it->ofs += value_sz;
+		goto out;
+	}
+
+It looks like if we hit an error, we increase it->ofs.  All the other
+error paths in this function take a negative error and increase it->ofs
+so this looks like an error path.  The goto out look like this:
+
+	/* we assume that ofs is aligned with 4 bytes */
+	it->ofs = EROFS_XATTR_ALIGN(it->ofs);
+	return err;
+
+So we return 1 here and the callers all treat it at success...  There
+needs to be some documentation for what positive returns mean.
+
+regards,
+dan carpenter
