@@ -1,18 +1,28 @@
-From: dan.carpenter@oracle.com (Dan Carpenter)
-Date: Mon, 13 Aug 2018 16:50:59 +0300
-Subject: [PATCH 3/8] staging: erofs: add error handling for xattr submodule
-In-Reply-To: <dbb44f60-1d1c-81fd-845c-5d38f1d16ea3@huawei.com>
-References: <20180812140150.13397-1-chao@kernel.org>
- <20180812140150.13397-4-chao@kernel.org>
- <20180813114725.kgoupvppcwsw2vyj@mwanda>
- <c14184af-6378-fd96-3b9b-52c9a7da8463@huawei.com>
- <20180813122553.jlavb6inwz3qad6x@mwanda>
- <dbb44f60-1d1c-81fd-845c-5d38f1d16ea3@huawei.com>
-Message-ID: <20180813135059.lwiws3ld2tdpp4s4@mwanda>
+From: leon.imhof@in.tum.de (Leon Imhof)
+Date: Mon, 13 Aug 2018 17:20:11 +0200
+Subject: [PATCH] staging: erofs: change 'unsigned' to 'unsigned int'
+Message-ID: <20180813151950.GA22144@host.localhost>
 
-> But it is better to fix them in an independent patch. :)
+Fix coding style issue "Prefer 'unsigned int' to bare use of 'unsigned'"
+detected by checkpatch.pl
 
-Yah.  Of course.  This was completely unrelated.
+Signed-off-by: Leon Imhof <leon.imhof at in.tum.de>
+---
+ drivers/staging/erofs/data.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-regards,
-dan carpenter
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index ac263a180253..2a401216007a 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -337,7 +337,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 
+ static int erofs_raw_access_readpages(struct file *filp,
+ 	struct address_space *mapping,
+-	struct list_head *pages, unsigned nr_pages)
++	struct list_head *pages, unsigned int nr_pages)
+ {
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+-- 
+2.18.0
