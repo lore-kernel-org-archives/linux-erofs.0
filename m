@@ -1,194 +1,69 @@
 From: dan.carpenter@oracle.com (Dan Carpenter)
-Date: Mon, 13 Aug 2018 14:47:25 +0300
-Subject: [PATCH 3/8] staging: erofs: add error handling for xattr submodule
-In-Reply-To: <20180812140150.13397-4-chao@kernel.org>
+Date: Mon, 13 Aug 2018 15:00:57 +0300
+Subject: [PATCH 4/8] staging: erofs: cleanup z_erofs_vle_work_{lookup,
+ register}
+In-Reply-To: <20180812140150.13397-5-chao@kernel.org>
 References: <20180812140150.13397-1-chao@kernel.org>
- <20180812140150.13397-4-chao@kernel.org>
-Message-ID: <20180813114725.kgoupvppcwsw2vyj@mwanda>
+ <20180812140150.13397-5-chao@kernel.org>
+Message-ID: <20180813120057.6grkpue6h7dtmpt2@mwanda>
 
-> -static void xattr_iter_fixup(struct xattr_iter *it)
-> +static inline int xattr_iter_fixup(struct xattr_iter *it)
+On Sun, Aug 12, 2018@10:01:46PM +0800, Chao Yu wrote:
+> From: Gao Xiang <gaoxiang25 at huawei.com>
+> 
+> This patch introduces 'struct z_erofs_vle_work_finder' to clean up
+> arguments of z_erofs_vle_work_lookup and z_erofs_vle_work_register.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+> ---
+>  drivers/staging/erofs/unzip_vle.c | 89 ++++++++++++++++---------------
+>  1 file changed, 47 insertions(+), 42 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> index b2e05e2b4116..5032b3b05de1 100644
+> --- a/drivers/staging/erofs/unzip_vle.c
+> +++ b/drivers/staging/erofs/unzip_vle.c
+> @@ -271,36 +271,42 @@ static inline bool try_to_claim_workgroup(
+>  	return true;	/* lucky, I am the followee :) */
+>  }
+>  
+> +struct z_erofs_vle_work_finder {
+> +	struct super_block *sb;
+> +	pgoff_t idx;
+> +	unsigned pageofs;
+> +
+> +	struct z_erofs_vle_workgroup **grp_ret;
+> +	enum z_erofs_vle_work_role *role;
+> +	z_erofs_vle_owned_workgrp_t *owned_head;
+> +	bool *hosted;
+> +};
+> +
+>  static struct z_erofs_vle_work *
+> -z_erofs_vle_work_lookup(struct super_block *sb,
+> -			pgoff_t idx, unsigned pageofs,
+> -			struct z_erofs_vle_workgroup **grp_ret,
+> -			enum z_erofs_vle_work_role *role,
+> -			z_erofs_vle_owned_workgrp_t *owned_head,
+> -			bool *hosted)
+> +z_erofs_vle_work_lookup(const struct z_erofs_vle_work_finder *f)
 >  {
-> -	if (unlikely(it->ofs >= EROFS_BLKSIZ)) {
-> -		xattr_iter_end(it, true);
-> +	if (likely(it->ofs < EROFS_BLKSIZ))
-> +		return 0;
+>  	bool tag, primary;
+>  	struct erofs_workgroup *egrp;
+>  	struct z_erofs_vle_workgroup *grp;
+>  	struct z_erofs_vle_work *work;
 >  
-> -		it->blkaddr += erofs_blknr(it->ofs);
-> -		it->page = erofs_get_meta_page_nofail(it->sb,
-> -			it->blkaddr, false);
-> -		BUG_ON(IS_ERR(it->page));
-> +	xattr_iter_end(it, true);
->  
-> -		it->kaddr = kmap_atomic(it->page);
-> -		it->ofs = erofs_blkoff(it->ofs);
-> +	it->blkaddr += erofs_blknr(it->ofs);
-> +
-> +	it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
-> +	if (IS_ERR(it->page)) {
-> +		it->page = NULL;
-> +		return PTR_ERR(it->page);
+> -	egrp = erofs_find_workgroup(sb, idx, &tag);
+> +	egrp = erofs_find_workgroup(f->sb, f->idx, &tag);
+>  	if (egrp == NULL) {
+> -		*grp_ret = NULL;
+> +		*f->grp_ret = NULL;
 
-This is returning PTR_ERR(NULL) which is success.  There is a smatch
-test for this and maybe other static checkers as well so it would have
-been caught very quickly.
+All these pointers to pointer seem a bit messy.  Just do this:
 
->  	}
-> +
-> +	it->kaddr = kmap_atomic(it->page);
-> +	it->ofs = erofs_blkoff(it->ofs);
-> +	return 0;
->  }
->  
->  static int inline_xattr_iter_begin(struct xattr_iter *it,
-> @@ -134,22 +154,25 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
->  	it->blkaddr = erofs_blknr(iloc(sbi, vi->nid) + inline_xattr_ofs);
->  	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
->  
-> -	it->page = erofs_get_inline_page_nofail(inode, it->blkaddr);
-> -	BUG_ON(IS_ERR(it->page));
-> -	it->kaddr = kmap_atomic(it->page);
-> +	it->page = erofs_get_inline_page(inode, it->blkaddr);
-> +	if (IS_ERR(it->page))
-> +		return PTR_ERR(it->page);
->  
-> +	it->kaddr = kmap_atomic(it->page);
->  	return vi->xattr_isize - xattr_header_sz;
->  }
->  
->  static int xattr_foreach(struct xattr_iter *it,
-> -	struct xattr_iter_handlers *op, unsigned *tlimit)
-> +	const struct xattr_iter_handlers *op, unsigned *tlimit)
->  {
->  	struct erofs_xattr_entry entry;
->  	unsigned value_sz, processed, slice;
->  	int err;
->  
->  	/* 0. fixup blkaddr, ofs, ipage */
-> -	xattr_iter_fixup(it);
-> +	err = xattr_iter_fixup(it);
-> +	if (unlikely(err))
-> +		return err;
->  
->  	/*
->  	 * 1. read xattr entry to the memory,
-> @@ -181,7 +204,9 @@ static int xattr_foreach(struct xattr_iter *it,
->  		if (it->ofs >= EROFS_BLKSIZ) {
->  			BUG_ON(it->ofs > EROFS_BLKSIZ);
->  
-> -			xattr_iter_fixup(it);
-> +			err = xattr_iter_fixup(it);
-> +			if (unlikely(err))
-> +				goto out;
->  			it->ofs = 0;
->  		}
->  
-> @@ -213,7 +238,10 @@ static int xattr_foreach(struct xattr_iter *it,
->  	while (processed < value_sz) {
->  		if (it->ofs >= EROFS_BLKSIZ) {
->  			BUG_ON(it->ofs > EROFS_BLKSIZ);
-> -			xattr_iter_fixup(it);
-> +
-> +			err = xattr_iter_fixup(it);
-> +			if (unlikely(err))
-> +				goto out;
->  			it->ofs = 0;
->  		}
->  
-> @@ -273,7 +301,7 @@ static void xattr_copyvalue(struct xattr_iter *_it,
->  	memcpy(it->buffer + processed, buf, len);
->  }
->  
-> -static struct xattr_iter_handlers find_xattr_handlers = {
-> +static const struct xattr_iter_handlers find_xattr_handlers = {
->  	.entry = xattr_entrymatch,
->  	.name = xattr_namematch,
->  	.alloc_buffer = xattr_checkbuffer,
-> @@ -294,8 +322,11 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
->  		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
->  		if (ret >= 0)
->  			break;
-> +
-> +		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
+	struct z_erofs_vle_workgroup *grp;
 
-I have held off commenting on all the likely/unlikely annotations we
-are adding because I don't know what the fast paths are in this code.
-However, this is clearly an error path here, not on a fast path.
-
-Generally the rule on likely/unlikely is that they hurt readability so
-we should only add them if it makes a difference in benchmarking.
-
-> +			break;
->  	}
-> -	xattr_iter_end(&it->it, true);
-> +	xattr_iter_end_final(&it->it);
->  
->  	return ret < 0 ? ret : it->buffer_size;
->  }
-> @@ -318,9 +349,10 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
->  			if (i)
->  				xattr_iter_end(&it->it, true);
->  
-> -			it->it.page = erofs_get_meta_page_nofail(sb,
-> -				blkaddr, false);
-> -			BUG_ON(IS_ERR(it->it.page));
-> +			it->it.page = erofs_get_meta_page(sb, blkaddr, false);
-> +			if (IS_ERR(it->it.page))
-> +				return PTR_ERR(it->it.page);
-> +
->  			it->it.kaddr = kmap_atomic(it->it.page);
->  			it->it.blkaddr = blkaddr;
->  		}
-> @@ -328,9 +360,12 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
->  		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
->  		if (ret >= 0)
->  			break;
-> +
-> +		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
-> +			break;
->  	}
->  	if (vi->xattr_shared_count)
-> -		xattr_iter_end(&it->it, true);
-> +		xattr_iter_end_final(&it->it);
->  
->  	return ret < 0 ? ret : it->buffer_size;
->  }
-> @@ -355,7 +390,9 @@ int erofs_getxattr(struct inode *inode, int index,
->  	if (unlikely(name == NULL))
->  		return -EINVAL;
->  
-> -	init_inode_xattrs(inode);
-> +	ret = init_inode_xattrs(inode);
-> +	if (unlikely(ret < 0))
-> +		return ret;
->  
->  	it.index = index;
->  
-> @@ -498,7 +535,7 @@ static int xattr_skipvalue(struct xattr_iter *_it,
->  	return 1;
-
-Not related to your patch but what does "return 1;" mean here?  It's
-weird to me that xattr_skipvalue() doesn't use value_sz at all.  I can't
-decide if the function always succeeds or always fails.
-
-The xattr_skipvalue/alloc_buffer function is called like this:
-
-	err = op->alloc_buffer(it, value_sz);
-	if (err) {
-		it->ofs += value_sz;
-		goto out;
-	}
-
-It looks like if we hit an error, we increase it->ofs.  All the other
-error paths in this function take a negative error and increase it->ofs
-so this looks like an error path.  The goto out look like this:
-
-	/* we assume that ofs is aligned with 4 bytes */
-	it->ofs = EROFS_XATTR_ALIGN(it->ofs);
-	return err;
-
-So we return 1 here and the callers all treat it at success...  There
-needs to be some documentation for what positive returns mean.
+Then replace "grp" in z_erofs_vle_work_iter_begin() with finder.grp;
 
 regards,
 dan carpenter
