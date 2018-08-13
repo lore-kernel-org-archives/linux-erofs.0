@@ -1,31 +1,19 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 13 Aug 2018 21:01:07 +0800
-Subject: [PATCH 6/8] staging: erofs: fix vle_decompressed_index_clusterofs
-In-Reply-To: <20180813120324.ibzrmftxji62ji6r@mwanda>
+From: dan.carpenter@oracle.com (Dan Carpenter)
+Date: Mon, 13 Aug 2018 16:05:41 +0300
+Subject: [PATCH 4/8] staging: erofs: cleanup z_erofs_vle_work_{lookup,
+ register}
+In-Reply-To: <f162748e-cc02-8578-2a0b-af16d982e0b3@huawei.com>
 References: <20180812140150.13397-1-chao@kernel.org>
- <20180812140150.13397-7-chao@kernel.org>
- <20180813120324.ibzrmftxji62ji6r@mwanda>
-Message-ID: <2b2e7678-b4c5-1b7a-0491-6bed02bfe119@huawei.com>
+ <20180812140150.13397-5-chao@kernel.org>
+ <20180813120057.6grkpue6h7dtmpt2@mwanda>
+ <f162748e-cc02-8578-2a0b-af16d982e0b3@huawei.com>
+Message-ID: <20180813130541.hzjgb6wznkxcnajg@mwanda>
 
-Hi Dan,
+Yeah.  You'd have to remove the const.
 
-On 2018/8/13 20:03, Dan Carpenter wrote:
->> -static inline unsigned
->> -vle_compressed_index_clusterofs(unsigned clustersize,
->> -	struct z_erofs_vle_decompressed_index *di)
->> +static inline int
->> +vle_decompressed_index_clusterofs(unsigned int *clusterofs,
-> 
-> Not related to your patch, but don't make functions inline.  Leave it to
-> the compiler to decide.
+Anyway, on looking at it more, I guess this patch is fine for now.  We
+will probably end up changing z_erofs_vle_work_lookup() and
+z_erofs_vle_work_register() some more in the future.
 
-OK, thanks for your suggestion.
-
-Thanks,
-Gao Xiang
-
-> 
-> regards,
-> dan carpenter
-> 
-> 
+regards,
+dan carpenter
