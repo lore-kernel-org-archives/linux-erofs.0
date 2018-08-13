@@ -1,85 +1,37 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 13 Aug 2018 20:37:09 +0800
-Subject: [PATCH 4/8] staging: erofs: cleanup z_erofs_vle_work_{lookup,
- register}
-In-Reply-To: <20180813120057.6grkpue6h7dtmpt2@mwanda>
+From: dan.carpenter@oracle.com (Dan Carpenter)
+Date: Mon, 13 Aug 2018 15:40:14 +0300
+Subject: [PATCH 3/8] staging: erofs: add error handling for xattr submodule
+In-Reply-To: <c14184af-6378-fd96-3b9b-52c9a7da8463@huawei.com>
 References: <20180812140150.13397-1-chao@kernel.org>
- <20180812140150.13397-5-chao@kernel.org>
- <20180813120057.6grkpue6h7dtmpt2@mwanda>
-Message-ID: <f162748e-cc02-8578-2a0b-af16d982e0b3@huawei.com>
+ <20180812140150.13397-4-chao@kernel.org>
+ <20180813114725.kgoupvppcwsw2vyj@mwanda>
+ <c14184af-6378-fd96-3b9b-52c9a7da8463@huawei.com>
+Message-ID: <20180813124014.iivbtjrsdv5odnuu@mwanda>
 
-Hi Dan,
-
-On 2018/8/13 20:00, Dan Carpenter wrote:
-> On Sun, Aug 12, 2018@10:01:46PM +0800, Chao Yu wrote:
->> From: Gao Xiang <gaoxiang25 at huawei.com>
->>
->> This patch introduces 'struct z_erofs_vle_work_finder' to clean up
->> arguments of z_erofs_vle_work_lookup and z_erofs_vle_work_register.
->>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
->> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
->> ---
->>  drivers/staging/erofs/unzip_vle.c | 89 ++++++++++++++++---------------
->>  1 file changed, 47 insertions(+), 42 deletions(-)
->>
->> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
->> index b2e05e2b4116..5032b3b05de1 100644
->> --- a/drivers/staging/erofs/unzip_vle.c
->> +++ b/drivers/staging/erofs/unzip_vle.c
->> @@ -271,36 +271,42 @@ static inline bool try_to_claim_workgroup(
->>  	return true;	/* lucky, I am the followee :) */
->>  }
->>  
->> +struct z_erofs_vle_work_finder {
->> +	struct super_block *sb;
->> +	pgoff_t idx;
->> +	unsigned pageofs;
->> +
->> +	struct z_erofs_vle_workgroup **grp_ret;
->> +	enum z_erofs_vle_work_role *role;
->> +	z_erofs_vle_owned_workgrp_t *owned_head;
->> +	bool *hosted;
->> +};
->> +
->>  static struct z_erofs_vle_work *
->> -z_erofs_vle_work_lookup(struct super_block *sb,
->> -			pgoff_t idx, unsigned pageofs,
->> -			struct z_erofs_vle_workgroup **grp_ret,
->> -			enum z_erofs_vle_work_role *role,
->> -			z_erofs_vle_owned_workgrp_t *owned_head,
->> -			bool *hosted)
->> +z_erofs_vle_work_lookup(const struct z_erofs_vle_work_finder *f)
->>  {
->>  	bool tag, primary;
->>  	struct erofs_workgroup *egrp;
->>  	struct z_erofs_vle_workgroup *grp;
->>  	struct z_erofs_vle_work *work;
->>  
->> -	egrp = erofs_find_workgroup(sb, idx, &tag);
->> +	egrp = erofs_find_workgroup(f->sb, f->idx, &tag);
->>  	if (egrp == NULL) {
->> -		*grp_ret = NULL;
->> +		*f->grp_ret = NULL;
+On Mon, Aug 13, 2018@08:17:27PM +0800, Gao Xiang wrote:
+> >> @@ -294,8 +322,11 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
+> >>  		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
+> >>  		if (ret >= 0)
+> >>  			break;
+> >> +
+> >> +		if (unlikely(ret != -ENOATTR))	/* -ENOMEM, -EIO, etc. */
+> > 
+> > I have held off commenting on all the likely/unlikely annotations we
+> > are adding because I don't know what the fast paths are in this code.
+> > However, this is clearly an error path here, not on a fast path.
+> > 
+> > Generally the rule on likely/unlikely is that they hurt readability so
+> > we should only add them if it makes a difference in benchmarking.
+> > 
 > 
-> All these pointers to pointer seem a bit messy.  Just do this:
-> 
-> 	struct z_erofs_vle_workgroup *grp;
-> 
-> Then replace "grp" in z_erofs_vle_work_iter_begin() with finder.grp;
+> In my opinion, return values other than 0 and ENOATTR(ENODATA) rarely happens,
+> it should be in the slow path...
 > 
 
-I wrote this because I am not sure of all compiler behaviors.
+What I'm trying to say is please stop adding so many likely/unlikely
+annotations.  You should only add them if you have the benchmark data to
+show the it really is required.
 
-Notice that the struct `struct z_erofs_vle_work_finder' has been all marked as const.
 
-If I use `struct z_erofs_vle_workgroup *grp;' and drop the `const' decorator,
-compilers could do some re-read operations bacause its value could potentially change by its caller at the same time.
-
-Thanks,
-Gao Xiang
-
-> regards,
-> dan carpenter
-> 
+regards,
+dan carpenter
