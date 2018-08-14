@@ -1,19 +1,27 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 14 Aug 2018 14:05:31 +0800
+From: chao@kernel.org (Chao Yu)
+Date: Tue, 14 Aug 2018 23:39:15 +0800
 Subject: [PREVIEW] [PATCH RESEND staging-next 1/8] staging: erofs:
  introduce erofs_grab_bio
-In-Reply-To: <1534189309-924-1-git-send-email-hsiangkao@aol.com>
+In-Reply-To: <e04e31a3-4135-5f12-be6f-fd3d44648264@huawei.com>
 References: <1534189309-924-1-git-send-email-hsiangkao@aol.com>
-Message-ID: <f8a69dfc-74e4-bcb4-04d9-7869cee13fc1@huawei.com>
+ <e04e31a3-4135-5f12-be6f-fd3d44648264@huawei.com>
+Message-ID: <8350abdf-3513-0414-2d59-173e3cf0fafa@kernel.org>
 
-Hi Chao,
+Hi Xiang,
 
-(sorry about the email client...)
+On 2018/8/14 14:02, Gao Xiang wrote:
+> Hi Chao,
+> 
+> Could you please review again these `[PREVIEW]' patches are OK...
+> And could help send to staging mailing list and LKML when you are free...
 
-Could you please review again these `[PREVIEW]' patches are OK...
-And could help send to staging mailing list and LKML when you are free...
-
-Thanks in advance...
+No problem. :)
 
 Thanks,
-Gao Xiang
+
+> 
+> Thanks in advance...
+> 
+> Thanks,
+> Gao Xiang
+> 
