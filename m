@@ -1,38 +1,66 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Thu, 16 Aug 2018 15:18:45 +0800
-Subject: [PATCH] staging: erofs: change 'unsigned' to 'unsigned int'
-In-Reply-To: <20180813151950.GA22144@host.localhost>
-References: <20180813151950.GA22144@host.localhost>
-Message-ID: <d56776c6-583d-e640-4ec4-30b43620dd9d@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 16 Aug 2018 19:23:04 +0800
+Subject: [PREVIEW] [PATCH v2 1/2] staging: erofs: add some comments for xattr
+ subsystem
+Message-ID: <1534418584-92713-1-git-send-email-gaoxiang25@huawei.com>
 
-On 2018/8/13 23:20, Leon Imhof wrote:
-> Fix coding style issue "Prefer 'unsigned int' to bare use of 'unsigned'"
-> detected by checkpatch.pl
-> 
-> Signed-off-by: Leon Imhof <leon.imhof at in.tum.de>
+From: Gao Xiang <hsiangkao@aol.com>
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+As Dan Carpenter pointed out, it is better to document what
+return values of these callbacks in `struct xattr_iter_handlers'
+mean and why it->ofs is increased regardless of success or
+failure in `xattr_foreach'.
 
-> ---
-
-It would be better to indicate this patch is v2 one here and in subject-prefix.
+Suggested-by: Dan Carpenter <dan.carpenter at oracle.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+change log v2:
+ - rebase this patch due to `[PREVIEW] [PATCH v3 staging-next 3/8]
+   staging: erofs: add error handling for xattr submodule'
 
 Thanks,
+Gao Xiang
 
->  drivers/staging/erofs/data.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-> index ac263a180253..2a401216007a 100644
-> --- a/drivers/staging/erofs/data.c
-> +++ b/drivers/staging/erofs/data.c
-> @@ -337,7 +337,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
->  
->  static int erofs_raw_access_readpages(struct file *filp,
->  	struct address_space *mapping,
-> -	struct list_head *pages, unsigned nr_pages)
-> +	struct list_head *pages, unsigned int nr_pages)
->  {
->  	erofs_off_t last_block;
->  	struct bio *bio = NULL;
-> 
+ drivers/staging/erofs/xattr.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+index 79d7fc8..07d6808 100644
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -109,6 +109,13 @@ static int init_inode_xattrs(struct inode *inode)
+ 	return 0;
+ }
+ 
++/*
++ * the general idea for these return values is
++ * if    0 is returned, go on processing the current xattr;
++ *       1 (> 0) is returned, skip this round to process the next xattr;
++ *    -err (< 0) is returned, an error (maybe ENOXATTR) occurred
++ *                            and need to be handled
++ */
+ struct xattr_iter_handlers {
+ 	int (*entry)(struct xattr_iter *, struct erofs_xattr_entry *);
+ 	int (*name)(struct xattr_iter *, unsigned, char *, unsigned);
+@@ -164,6 +171,10 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
+ 	return vi->xattr_isize - xattr_header_sz;
+ }
+ 
++/*
++ * Regardless of success or failure, `xattr_foreach' will end up with
++ * `ofs' pointing to the next xattr item rather than an arbitrary position.
++ */
+ static int xattr_foreach(struct xattr_iter *it,
+ 	const struct xattr_iter_handlers *op, unsigned int *tlimit)
+ {
+@@ -255,7 +266,7 @@ static int xattr_foreach(struct xattr_iter *it,
+ 	}
+ 
+ out:
+-	/* we assume that ofs is aligned with 4 bytes */
++	/* xattrs should be 4-byte aligned (on-disk constraint) */
+ 	it->ofs = EROFS_XATTR_ALIGN(it->ofs);
+ 	return err;
+ }
+-- 
+1.9.1
