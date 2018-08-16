@@ -1,8 +1,10 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 16 Aug 2018 19:23:04 +0800
-Subject: [PREVIEW] [PATCH v2 1/2] staging: erofs: add some comments for xattr
- subsystem
-Message-ID: <1534418584-92713-1-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 16 Aug 2018 19:24:43 +0800
+Subject: [PREVIEW] [PATCH v2 RESEND 1/2] staging: erofs: add some comments for
+ xattr subsystem
+In-Reply-To: <1534221366-1093-1-git-send-email-hsiangkao@aol.com>
+References: <1534221366-1093-1-git-send-email-hsiangkao@aol.com>
+Message-ID: <1534418683-93003-1-git-send-email-gaoxiang25@huawei.com>
 
 From: Gao Xiang <hsiangkao@aol.com>
 
