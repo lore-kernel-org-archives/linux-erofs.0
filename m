@@ -1,68 +1,117 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 16 Aug 2018 19:24:43 +0800
-Subject: [PREVIEW] [PATCH v2 RESEND 1/2] staging: erofs: add some comments for
- xattr subsystem
-In-Reply-To: <1534221366-1093-1-git-send-email-hsiangkao@aol.com>
-References: <1534221366-1093-1-git-send-email-hsiangkao@aol.com>
-Message-ID: <1534418683-93003-1-git-send-email-gaoxiang25@huawei.com>
+From: gongchen4@huawei.com (Chen Gong)
+Date: Thu, 16 Aug 2018 19:33:36 +0800
+Subject: [PREVIEW] [PATCH] staging: erofs: add trace points for reading zipped
+ data
+Message-ID: <1534419216-47694-1-git-send-email-gongchen4@huawei.com>
 
-From: Gao Xiang <hsiangkao@aol.com>
+This patch adds trace points for reading zipped data.
 
-As Dan Carpenter pointed out, it is better to document what
-return values of these callbacks in `struct xattr_iter_handlers'
-mean and why it->ofs is increased regardless of success or
-failure in `xattr_foreach'.
-
-Suggested-by: Dan Carpenter <dan.carpenter at oracle.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Chen Gong <gongchen4 at huawei.com>
 ---
-change log v2:
- - rebase this patch due to `[PREVIEW] [PATCH v3 staging-next 3/8]
-   staging: erofs: add error handling for xattr submodule'
+ drivers/staging/erofs/include/trace/events/erofs.h | 20 ++++++++++++++++++--
+ drivers/staging/erofs/unzip_vle.c                  | 10 ++++++++++
+ 2 files changed, 28 insertions(+), 2 deletions(-)
 
-Thanks,
-Gao Xiang
-
- drivers/staging/erofs/xattr.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 79d7fc8..07d6808 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -109,6 +109,13 @@ static int init_inode_xattrs(struct inode *inode)
- 	return 0;
- }
+diff --git a/drivers/staging/erofs/include/trace/events/erofs.h b/drivers/staging/erofs/include/trace/events/erofs.h
+index 5aead93..53045de 100644
+--- a/drivers/staging/erofs/include/trace/events/erofs.h
++++ b/drivers/staging/erofs/include/trace/events/erofs.h
+@@ -162,7 +162,8 @@
  
-+/*
-+ * the general idea for these return values is
-+ * if    0 is returned, go on processing the current xattr;
-+ *       1 (> 0) is returned, skip this round to process the next xattr;
-+ *    -err (< 0) is returned, an error (maybe ENOXATTR) occurred
-+ *                            and need to be handled
-+ */
- struct xattr_iter_handlers {
- 	int (*entry)(struct xattr_iter *, struct erofs_xattr_entry *);
- 	int (*name)(struct xattr_iter *, unsigned, char *, unsigned);
-@@ -164,6 +171,10 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
- 	return vi->xattr_isize - xattr_header_sz;
- }
+ 	TP_printk("dev = (%d,%d), nid = %llu, la %llu llen %llu flags %s",
+ 		  show_dev_nid(__entry),
+-		  __entry->la, __entry->llen, show_map_flags(__entry->flags))
++		  __entry->la, __entry->llen,
++		  __entry->flags ? show_map_flags(__entry->flags) : "Z")
+ );
  
-+/*
-+ * Regardless of success or failure, `xattr_foreach' will end up with
-+ * `ofs' pointing to the next xattr item rather than an arbitrary position.
-+ */
- static int xattr_foreach(struct xattr_iter *it,
- 	const struct xattr_iter_handlers *op, unsigned int *tlimit)
- {
-@@ -255,7 +266,7 @@ static int xattr_foreach(struct xattr_iter *it,
- 	}
+ DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_flatmode_enter,
+@@ -172,6 +173,13 @@
+ 	TP_ARGS(inode, map, flags)
+ );
  
- out:
--	/* we assume that ofs is aligned with 4 bytes */
-+	/* xattrs should be 4-byte aligned (on-disk constraint) */
- 	it->ofs = EROFS_XATTR_ALIGN(it->ofs);
++DEFINE_EVENT(erofs__map_blocks_enter, z_erofs_map_blocks_iter_enter,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags),
++
++	TP_ARGS(inode, map, flags)
++);
++
+ DECLARE_EVENT_CLASS(erofs__map_blocks_exit,
+ 	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
+ 		 unsigned int flags, int ret),
+@@ -204,7 +212,8 @@
+ 
+ 	TP_printk("dev = (%d,%d), nid = %llu, flags %s "
+ 		  "la %llu pa %llu llen %llu plen %llu mflags %s ret %d",
+-		  show_dev_nid(__entry), show_map_flags(__entry->flags),
++		  show_dev_nid(__entry),
++		  __entry->flags ? show_map_flags(__entry->flags) : "Z",
+ 		  __entry->la, __entry->pa, __entry->llen, __entry->plen,
+ 		  show_mflags(__entry->mflags), __entry->ret)
+ );
+@@ -216,6 +225,13 @@
+ 	TP_ARGS(inode, map, flags, ret)
+ );
+ 
++DEFINE_EVENT(erofs__map_blocks_exit, z_erofs_map_blocks_iter_exit,
++	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
++		 unsigned flags, int ret),
++
++	TP_ARGS(inode, map, flags, ret)
++);
++
+ TRACE_EVENT(erofs_destroy_inode,
+ 	TP_PROTO(struct inode *inode),
+ 
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 6e5c24d..3a87eee 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -13,6 +13,8 @@
+ #include "unzip_vle.h"
+ #include <linux/prefetch.h>
+ 
++#include <trace/events/erofs.h>
++
+ static struct workqueue_struct *z_erofs_workqueue __read_mostly;
+ static struct kmem_cache *z_erofs_workgroup_cachep __read_mostly;
+ 
+@@ -613,6 +615,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	unsigned cur, end, spiltted, index;
+ 	int err = 0;
+ 
++	trace_erofs_readpage(page, false);
++
+ 	/* register locked file pages as online pages in pack */
+ 	z_erofs_onlinepage_init(page);
+ 
+@@ -1347,6 +1351,8 @@ static inline int __z_erofs_vle_normalaccess_readpages(
+ 	struct page *head = NULL;
+ 	LIST_HEAD(pagepool);
+ 
++	trace_erofs_readpages(mapping->host, lru_to_page(pages), nr_pages, false);
++
+ #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
+ 	f.cachedzone_la = lru_to_page(pages)->index << PAGE_SHIFT;
+ #endif
+@@ -1569,6 +1575,8 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	unsigned int cluster_type, logical_cluster_ofs;
+ 	int err = 0;
+ 
++	trace_z_erofs_map_blocks_iter_enter(inode, map, flags);
++
+ 	/* when trying to read beyond EOF, leave it unmapped */
+ 	if (unlikely(map->m_la >= inode->i_size)) {
+ 		DBG_BUGON(!initial);
+@@ -1687,6 +1695,8 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 		__func__, map->m_la, map->m_pa,
+ 		map->m_llen, map->m_plen, map->m_flags);
+ 
++	trace_z_erofs_map_blocks_iter_exit(inode, map, flags, err);
++
+ 	/* aggressively BUG_ON iff CONFIG_EROFS_FS_DEBUG is on */
+ 	DBG_BUGON(err < 0 && err != -ENOMEM);
  	return err;
- }
 -- 
 1.9.1
