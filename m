@@ -1,64 +1,59 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 21 Aug 2018 16:08:49 +0800
-Subject: [PREVIEW] [PATCH] staging: erofs: remove redundant
- CONFIG_EROFS_FS_XATTRs
-Message-ID: <1534838929-53429-1-git-send-email-gaoxiang25@huawei.com>
+From: chao@kernel.org (Chao Yu)
+Date: Tue, 21 Aug 2018 22:49:28 +0800
+Subject: [PATCH v2 0/9] staging: erofs: fix some issues and clean up codes
+Message-ID: <20180821144937.20555-1-chao@kernel.org>
 
-some CONFIG_EROFS_FS_XATTR conditions were added because of
-the historial Linux kernel compatibility, which are unneeded now.
+From: Chao Yu <yuchao0@huawei.com>
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/inode.c    | 6 ------
- drivers/staging/erofs/internal.h | 6 ++----
- 2 files changed, 2 insertions(+), 10 deletions(-)
+This patchset mainly adds error handing code for erofs xattr subsystem.
+In addition, some code cleanups are also included in this patchset.
 
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index fbf6ff2..66a8bf7 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -259,22 +259,16 @@ struct inode *erofs_iget(struct super_block *sb,
- const struct inode_operations erofs_generic_xattr_iops = {
- 	.listxattr = erofs_listxattr,
- };
--#endif
- 
--#ifdef CONFIG_EROFS_FS_XATTR
- const struct inode_operations erofs_symlink_xattr_iops = {
- 	.get_link = page_get_link,
- 	.listxattr = erofs_listxattr,
- };
--#endif
- 
- const struct inode_operations erofs_special_inode_operations = {
--#ifdef CONFIG_EROFS_FS_XATTR
- 	.listxattr = erofs_listxattr,
--#endif
- };
- 
--#ifdef CONFIG_EROFS_FS_XATTR
- const struct inode_operations erofs_fast_symlink_xattr_iops = {
- 	.get_link = simple_get_link,
- 	.listxattr = erofs_listxattr,
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 8951e01..7486fec 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -500,13 +500,11 @@ extern struct inode *erofs_iget(struct super_block *sb,
- int erofs_namei(struct inode *dir, struct qstr *name,
- 	erofs_nid_t *nid, unsigned *d_type);
- 
--/* xattr.c */
- #ifdef CONFIG_EROFS_FS_XATTR
-+/* xattr.c */
- extern const struct xattr_handler *erofs_xattr_handlers[];
--#endif
- 
--/* symlink */
--#ifdef CONFIG_EROFS_FS_XATTR
-+/* symlink and special inode */
- extern const struct inode_operations erofs_symlink_xattr_iops;
- extern const struct inode_operations erofs_fast_symlink_xattr_iops;
- extern const struct inode_operations erofs_special_inode_operations;
+P.S. Some other patches are still previewing in the linux-erofs mailing
+list, which will be posted in the 2nd part later.
+
+[changelog]
+v1 -> v2:
+[PATCH 2/9] staging: erofs: separate erofs_get_meta_page
+- Put err_out stuff at the bottom of the function.
+- Drop the question mark in the "truncated by others?".
+  Pointed out by Dan Carpenter <dan.carpenter at oracle.com>
+- fix `PTR_ERR applied after initialization to constant'.
+  Reported by kbuild test robot <lkp at intel.com>
+- fix compilation error (erofs is bypassed by BROKEN...).
+
+[PATCH 3/9] staging: erofs: add error handling for xattr submodule
+- drop all likely/unlikely hints in this patch.
+- fix bare use of 'unsigned *' at drivers/staging/erofs/xattr.c:168.
+  Pointed out by Dan Carpenter <dan.carpenter at oracle.com>
+
+[PATCH 6/9] staging: erofs: fix vle_decompressed_index_clusterofs
+- don't make functions inline
+  Pointed out by Dan Carpenter <dan.carpenter at oracle.com> 
+
+[PATCH 9/9] staging: erofs: fix potential overflow in erofs_grab_bio()
+- in addition, we add one more patch above to fix potential overflow
+in this series.
+
+Chao Yu (1):
+  staging: erofs: fix potential overflow in erofs_grab_bio()
+
+Gao Xiang (8):
+  staging: erofs: introduce erofs_grab_bio
+  staging: erofs: separate erofs_get_meta_page
+  staging: erofs: add error handling for xattr submodule
+  staging: erofs: cleanup z_erofs_vle_work_{lookup, register}
+  staging: erofs: rearrange vle clustertype definitions
+  staging: erofs: fix vle_decompressed_index_clusterofs
+  staging: erofs: fix integer overflow on 32-bit platform
+  staging: erofs: fix compression mapping beyond EOF
+
+ drivers/staging/erofs/Kconfig     |   9 ++
+ drivers/staging/erofs/data.c      |  68 +++++++++-----
+ drivers/staging/erofs/erofs_fs.h  |  11 +++
+ drivers/staging/erofs/internal.h  |  66 ++++++++-----
+ drivers/staging/erofs/unzip_vle.c | 149 +++++++++++++++---------------
+ drivers/staging/erofs/xattr.c     | 127 +++++++++++++++++--------
+ 6 files changed, 273 insertions(+), 157 deletions(-)
+
 -- 
-1.9.1
+2.18.0
