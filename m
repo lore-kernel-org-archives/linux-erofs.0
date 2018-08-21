@@ -1,59 +1,118 @@
 From: chao@kernel.org (Chao Yu)
-Date: Tue, 21 Aug 2018 22:49:28 +0800
-Subject: [PATCH v2 0/9] staging: erofs: fix some issues and clean up codes
-Message-ID: <20180821144937.20555-1-chao@kernel.org>
+Date: Tue, 21 Aug 2018 22:49:29 +0800
+Subject: [PATCH 1/9] staging: erofs: introduce erofs_grab_bio
+In-Reply-To: <20180821144937.20555-1-chao@kernel.org>
+References: <20180821144937.20555-1-chao@kernel.org>
+Message-ID: <20180821144937.20555-2-chao@kernel.org>
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-This patchset mainly adds error handing code for erofs xattr subsystem.
-In addition, some code cleanups are also included in this patchset.
+this patch renames prepare_bio to erofs_grab_bio, and
+adds a nofail option in order to retry in the bio allocator
+under memory pressure.
 
-P.S. Some other patches are still previewing in the linux-erofs mailing
-list, which will be posted in the 2nd part later.
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+---
+ drivers/staging/erofs/data.c      | 12 +++++++++--
+ drivers/staging/erofs/internal.h  | 36 +++++++++++++++----------------
+ drivers/staging/erofs/unzip_vle.c |  4 ++--
+ 3 files changed, 30 insertions(+), 22 deletions(-)
 
-[changelog]
-v1 -> v2:
-[PATCH 2/9] staging: erofs: separate erofs_get_meta_page
-- Put err_out stuff at the bottom of the function.
-- Drop the question mark in the "truncated by others?".
-  Pointed out by Dan Carpenter <dan.carpenter at oracle.com>
-- fix `PTR_ERR applied after initialization to constant'.
-  Reported by kbuild test robot <lkp at intel.com>
-- fix compilation error (erofs is bypassed by BROKEN...).
-
-[PATCH 3/9] staging: erofs: add error handling for xattr submodule
-- drop all likely/unlikely hints in this patch.
-- fix bare use of 'unsigned *' at drivers/staging/erofs/xattr.c:168.
-  Pointed out by Dan Carpenter <dan.carpenter at oracle.com>
-
-[PATCH 6/9] staging: erofs: fix vle_decompressed_index_clusterofs
-- don't make functions inline
-  Pointed out by Dan Carpenter <dan.carpenter at oracle.com> 
-
-[PATCH 9/9] staging: erofs: fix potential overflow in erofs_grab_bio()
-- in addition, we add one more patch above to fix potential overflow
-in this series.
-
-Chao Yu (1):
-  staging: erofs: fix potential overflow in erofs_grab_bio()
-
-Gao Xiang (8):
-  staging: erofs: introduce erofs_grab_bio
-  staging: erofs: separate erofs_get_meta_page
-  staging: erofs: add error handling for xattr submodule
-  staging: erofs: cleanup z_erofs_vle_work_{lookup, register}
-  staging: erofs: rearrange vle clustertype definitions
-  staging: erofs: fix vle_decompressed_index_clusterofs
-  staging: erofs: fix integer overflow on 32-bit platform
-  staging: erofs: fix compression mapping beyond EOF
-
- drivers/staging/erofs/Kconfig     |   9 ++
- drivers/staging/erofs/data.c      |  68 +++++++++-----
- drivers/staging/erofs/erofs_fs.h  |  11 +++
- drivers/staging/erofs/internal.h  |  66 ++++++++-----
- drivers/staging/erofs/unzip_vle.c | 149 +++++++++++++++---------------
- drivers/staging/erofs/xattr.c     | 127 +++++++++++++++++--------
- 6 files changed, 273 insertions(+), 157 deletions(-)
-
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index ac263a180253..e0c046df6665 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -60,7 +60,8 @@ struct page *erofs_get_meta_page(struct super_block *sb,
+ 		struct bio *bio;
+ 		int err;
+ 
+-		bio = prepare_bio(sb, blkaddr, 1, read_endio);
++		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, true);
++
+ 		err = bio_add_page(bio, page, PAGE_SIZE, 0);
+ 		BUG_ON(err != PAGE_SIZE);
+ 
+@@ -278,7 +279,14 @@ static inline struct bio *erofs_read_raw_page(
+ 		if (nblocks > BIO_MAX_PAGES)
+ 			nblocks = BIO_MAX_PAGES;
+ 
+-		bio = prepare_bio(inode->i_sb, blknr, nblocks, read_endio);
++		bio = erofs_grab_bio(inode->i_sb,
++			blknr, nblocks, read_endio, false);
++
++		if (IS_ERR(bio)) {
++			err = PTR_ERR(bio);
++			bio = NULL;
++			goto err_out;
++		}
+ 	}
+ 
+ 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 367b39fe46e5..1353b3ff8401 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -420,26 +420,26 @@ struct erofs_map_blocks {
+ #define EROFS_GET_BLOCKS_RAW    0x0001
+ 
+ /* data.c */
+-static inline struct bio *prepare_bio(
+-	struct super_block *sb,
+-	erofs_blk_t blkaddr, unsigned nr_pages,
+-	bio_end_io_t endio)
++static inline struct bio *
++erofs_grab_bio(struct super_block *sb,
++	       erofs_blk_t blkaddr, unsigned int nr_pages,
++	       bio_end_io_t endio, bool nofail)
+ {
+-	gfp_t gfp = GFP_NOIO;
+-	struct bio *bio = bio_alloc(gfp, nr_pages);
+-
+-	if (unlikely(bio == NULL) &&
+-		(current->flags & PF_MEMALLOC)) {
+-		do {
+-			nr_pages /= 2;
+-			if (unlikely(!nr_pages)) {
+-				bio = bio_alloc(gfp | __GFP_NOFAIL, 1);
+-				BUG_ON(bio == NULL);
+-				break;
++	const gfp_t gfp = GFP_NOIO;
++	struct bio *bio;
++
++	do {
++		if (nr_pages == 1) {
++			bio = bio_alloc(gfp | (nofail ? __GFP_NOFAIL : 0), 1);
++			if (unlikely(bio == NULL)) {
++				DBG_BUGON(nofail);
++				return ERR_PTR(-ENOMEM);
+ 			}
+-			bio = bio_alloc(gfp, nr_pages);
+-		} while (bio == NULL);
+-	}
++			break;
++		}
++		bio = bio_alloc(gfp, nr_pages);
++		nr_pages /= 2;
++	} while (unlikely(bio == NULL));
+ 
+ 	bio->bi_end_io = endio;
+ 	bio_set_dev(bio, sb->s_bdev);
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 8721f0a41d15..375c1711bb6b 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1213,8 +1213,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 		}
+ 
+ 		if (bio == NULL) {
+-			bio = prepare_bio(sb, first_index + i,
+-				BIO_MAX_PAGES, z_erofs_vle_read_endio);
++			bio = erofs_grab_bio(sb, first_index + i,
++				BIO_MAX_PAGES, z_erofs_vle_read_endio, true);
+ 			bio->bi_private = tagptr_cast_ptr(bi_private);
+ 
+ 			++nr_bios;
 -- 
 2.18.0
