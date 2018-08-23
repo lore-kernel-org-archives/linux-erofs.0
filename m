@@ -1,104 +1,141 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 23 Aug 2018 14:55:43 +0800
-Subject: [chao-linux:erofs-dev 26/29]
- drivers/staging/erofs/unzip_vle.c:1359 z_erofs_vle_normalaccess_readpages()
- warn: should '()->index << 12' be a 64 bit type?
-In-Reply-To: <20180823064644.yza5xjztahdirxf3@mwanda>
-References: <20180823064644.yza5xjztahdirxf3@mwanda>
-Message-ID: <ddc989c6-06ef-f42b-905d-76bc0be8c40f@huawei.com>
+Date: Thu, 23 Aug 2018 15:31:19 +0800
+Subject: [PREVIEW] [PATCH] staging: erofs: replace BUG_ON with DBG_BUGON
+In-Reply-To: <1534831448-54952-1-git-send-email-gongchen4@huawei.com>
+References: <1534831448-54952-1-git-send-email-gongchen4@huawei.com>
+Message-ID: <41ff5d03-a6e6-5fa5-1caa-9b7c188c1182@huawei.com>
 
-Hi Dan,
+Hi Chen,
 
-Thanks for your report. I will make a patch and fix it soon.
+On 2018/8/21 14:04, Chen Gong wrote:
+> This patch replace BUG_ON with DBG_BUGON, and add necessary error
+> handler.
+> 
+> Signed-off-by: Chen Gong <gongchen4 at huawei.com>
+> ---
+
+Could you fix the commit message suggested in my previous email?
+
+>  drivers/staging/erofs/data.c | 31 ++++++++++++++++++++-----------
+>  1 file changed, 20 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+> index 0570af5..174feac 100644
+> --- a/drivers/staging/erofs/data.c
+> +++ b/drivers/staging/erofs/data.c
+> @@ -25,7 +25,7 @@ static inline void read_endio(struct bio *bio)
+>  		struct page *page = bvec->bv_page;
+>  
+>  		/* page is already locked */
+> -		BUG_ON(PageUptodate(page));
+> +		DBG_BUGON(PageUptodate(page));
+>  
+>  		if (unlikely(err))
+>  			SetPageError(page);
+> @@ -108,12 +108,12 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+>  	struct erofs_map_blocks *map,
+>  	int flags)
+>  {
+> +	int err = 0;
+>  	erofs_blk_t nblocks, lastblk;
+>  	u64 offset = map->m_la;
+>  	struct erofs_vnode *vi = EROFS_V(inode);
+>  
+>  	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
+> -	BUG_ON(is_inode_layout_compression(inode));
+>  
+>  	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
+>  	lastblk = nblocks - is_inode_layout_inline(inode);
+> @@ -140,18 +140,27 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+>  		map->m_plen = inode->i_size - offset;
+>  
+>  		/* inline data should locate in one meta block */
+> -		BUG_ON(erofs_blkoff(map->m_pa) + map->m_plen > PAGE_SIZE);
+> +		if(erofs_blkoff(map->m_pa) + map->m_plen > PAGE_SIZE){
+
+Be careful of the code style, You should leave a space at 'if(' and 'SIZE){'.
+Others seems fine for me.
 
 Thanks,
 Gao Xiang
 
-On 2018/8/23 14:46, Dan Carpenter wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git erofs-dev
-> head:   f05fd191f51bb21e90cd1f74f6362c03945fac45
-> commit: 3306d5aab516bdb5d8ba51df88cf0ac5e91e3349 [26/29] staging: erofs: cleanup z_erofs_vle_normalaccess_readpages
-> 
-> New smatch warnings:
-> drivers/staging/erofs/unzip_vle.c:1359 z_erofs_vle_normalaccess_readpages() warn: should '()->index << 12' be a 64 bit type?
-> 
-> Old smatch warnings:
-> drivers/staging/erofs/unzip_vle.c:1322 z_erofs_vle_normalaccess_readpage() warn: should 'page->index << 12' be a 64 bit type?
-> 
-> # https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git/commit/?id=3306d5aab516bdb5d8ba51df88cf0ac5e91e3349
-> git remote add chao-linux https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git
-> git remote update chao-linux
-> git checkout 3306d5aab516bdb5d8ba51df88cf0ac5e91e3349
-> vim +1359 drivers/staging/erofs/unzip_vle.c
-> 
-> 3883a79a Gao Xiang 2018-07-26  1341  
-> 3306d5aa Gao Xiang 2018-08-21  1342  static int z_erofs_vle_normalaccess_readpages(struct file *filp,
-> 3883a79a Gao Xiang 2018-07-26  1343  					      struct address_space *mapping,
-> 3306d5aa Gao Xiang 2018-08-21  1344  					      struct list_head *pages,
-> 3306d5aa Gao Xiang 2018-08-21  1345  					      unsigned int nr_pages)
-> 3883a79a Gao Xiang 2018-07-26  1346  {
-> 3883a79a Gao Xiang 2018-07-26  1347  	struct inode *const inode = mapping->host;
-> 3306d5aa Gao Xiang 2018-08-21  1348  	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
-> 3306d5aa Gao Xiang 2018-08-21  1349  	const bool sync = __should_decompress_synchronously(sbi, nr_pages);
-> 3883a79a Gao Xiang 2018-07-26  1350  
-> 3883a79a Gao Xiang 2018-07-26  1351  	struct z_erofs_vle_frontend f = VLE_FRONTEND_INIT(inode);
-> 3883a79a Gao Xiang 2018-07-26  1352  	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
-> 3883a79a Gao Xiang 2018-07-26  1353  	struct page *head = NULL;
-> 3883a79a Gao Xiang 2018-07-26  1354  	LIST_HEAD(pagepool);
-> 3883a79a Gao Xiang 2018-07-26  1355  
-> 182cb9a7 Chen Gong 2018-08-21  1356  	trace_erofs_readpages(mapping->host, lru_to_page(pages), nr_pages, false);
-> 182cb9a7 Chen Gong 2018-08-21  1357  
-> 105d4ad8 Gao Xiang 2018-07-26  1358  #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
-> 105d4ad8 Gao Xiang 2018-07-26 @1359  	f.cachedzone_la = lru_to_page(pages)->index << PAGE_SHIFT;
-> 105d4ad8 Gao Xiang 2018-07-26  1360  #endif
-> 3883a79a Gao Xiang 2018-07-26  1361  	for (; nr_pages; --nr_pages) {
-> 3883a79a Gao Xiang 2018-07-26  1362  		struct page *page = lru_to_page(pages);
-> 3883a79a Gao Xiang 2018-07-26  1363  
-> 3883a79a Gao Xiang 2018-07-26  1364  		prefetchw(&page->flags);
-> 3883a79a Gao Xiang 2018-07-26  1365  		list_del(&page->lru);
-> 3883a79a Gao Xiang 2018-07-26  1366  
-> 3883a79a Gao Xiang 2018-07-26  1367  		if (add_to_page_cache_lru(page, mapping, page->index, gfp)) {
-> 3883a79a Gao Xiang 2018-07-26  1368  			list_add(&page->lru, &pagepool);
-> 3883a79a Gao Xiang 2018-07-26  1369  			continue;
-> 3883a79a Gao Xiang 2018-07-26  1370  		}
-> 3883a79a Gao Xiang 2018-07-26  1371  
-> 3883a79a Gao Xiang 2018-07-26  1372  		BUG_ON(PagePrivate(page));
-> 3883a79a Gao Xiang 2018-07-26  1373  		set_page_private(page, (unsigned long)head);
-> 3883a79a Gao Xiang 2018-07-26  1374  		head = page;
-> 3883a79a Gao Xiang 2018-07-26  1375  	}
-> 3883a79a Gao Xiang 2018-07-26  1376  
-> 3883a79a Gao Xiang 2018-07-26  1377  	while (head != NULL) {
-> 3883a79a Gao Xiang 2018-07-26  1378  		struct page *page = head;
-> 3883a79a Gao Xiang 2018-07-26  1379  		int err;
-> 3883a79a Gao Xiang 2018-07-26  1380  
-> 3883a79a Gao Xiang 2018-07-26  1381  		/* traversal in reverse order */
-> 3883a79a Gao Xiang 2018-07-26  1382  		head = (void *)page_private(page);
-> 3883a79a Gao Xiang 2018-07-26  1383  
-> 3883a79a Gao Xiang 2018-07-26  1384  		err = z_erofs_do_read_page(&f, page, &pagepool);
-> 3883a79a Gao Xiang 2018-07-26  1385  		if (err) {
-> 3883a79a Gao Xiang 2018-07-26  1386  			struct erofs_vnode *vi = EROFS_V(inode);
-> 3883a79a Gao Xiang 2018-07-26  1387  
-> 3883a79a Gao Xiang 2018-07-26  1388  			errln("%s, readahead error at page %lu of nid %llu",
-> 3883a79a Gao Xiang 2018-07-26  1389  				__func__, page->index, vi->nid);
-> 3883a79a Gao Xiang 2018-07-26  1390  		}
-> 3883a79a Gao Xiang 2018-07-26  1391  
-> 3883a79a Gao Xiang 2018-07-26  1392  		put_page(page);
-> 3883a79a Gao Xiang 2018-07-26  1393  	}
-> 3883a79a Gao Xiang 2018-07-26  1394  
-> 3883a79a Gao Xiang 2018-07-26  1395  	(void)z_erofs_vle_work_iter_end(&f.builder);
-> 3883a79a Gao Xiang 2018-07-26  1396  
-> 3883a79a Gao Xiang 2018-07-26  1397  	z_erofs_submit_and_unzip(&f, &pagepool, sync);
-> 3883a79a Gao Xiang 2018-07-26  1398  
-> 3883a79a Gao Xiang 2018-07-26  1399  	if (f.m_iter.mpage != NULL)
-> 3883a79a Gao Xiang 2018-07-26  1400  		put_page(f.m_iter.mpage);
-> 3883a79a Gao Xiang 2018-07-26  1401  
-> 3883a79a Gao Xiang 2018-07-26  1402  	/* clean up the remaining free pages */
-> 3883a79a Gao Xiang 2018-07-26  1403  	put_pages_list(&pagepool);
-> 3883a79a Gao Xiang 2018-07-26  1404  	return 0;
-> 3883a79a Gao Xiang 2018-07-26  1405  }
-> 3883a79a Gao Xiang 2018-07-26  1406  
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> +			DBG_BUGON(1);
+> +			err = -EIO;
+> +			goto err_out;
+> +		}
+> +
+>  		map->m_flags |= EROFS_MAP_META;
+>  	} else {
+>  		errln("internal error @ nid: %llu (size %llu), m_la 0x%llx",
+>  			vi->nid, inode->i_size, map->m_la);
+> -		BUG();
+> +		DBG_BUGON(1);
+> +		err = -EIO;
+> +		goto err_out;
+>  	}
+>  
+>  out:
+>  	map->m_llen = map->m_plen;
+> +
+> +err_out:
+>  	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
+> -	return 0;
+> +	return err;
+>  }
+>  
+>  #ifdef CONFIG_EROFS_FS_ZIP
+> @@ -207,7 +216,7 @@ static inline struct bio *erofs_read_raw_page(
+>  	erofs_off_t current_block = (erofs_off_t)page->index;
+>  	int err;
+>  
+> -	BUG_ON(!nblocks);
+> +	DBG_BUGON(!nblocks);
+>  
+>  	if (PageUptodate(page)) {
+>  		err = 0;
+> @@ -250,7 +259,7 @@ static inline struct bio *erofs_read_raw_page(
+>  		}
+>  
+>  		/* for RAW access mode, m_plen must be equal to m_llen */
+> -		BUG_ON(map.m_plen != map.m_llen);
+> +		DBG_BUGON(map.m_plen != map.m_llen);
+>  
+>  		blknr = erofs_blknr(map.m_pa);
+>  		blkoff = erofs_blkoff(map.m_pa);
+> @@ -260,7 +269,7 @@ static inline struct bio *erofs_read_raw_page(
+>  			void *vsrc, *vto;
+>  			struct page *ipage;
+>  
+> -			BUG_ON(map.m_plen > PAGE_SIZE);
+> +			DBG_BUGON(map.m_plen > PAGE_SIZE);
+>  
+>  			ipage = erofs_get_meta_page(inode->i_sb, blknr, 0);
+>  
+> @@ -287,7 +296,7 @@ static inline struct bio *erofs_read_raw_page(
+>  		}
+>  
+>  		/* pa must be block-aligned for raw reading */
+> -		BUG_ON(erofs_blkoff(map.m_pa) != 0);
+> +		DBG_BUGON(erofs_blkoff(map.m_pa));
+>  
+>  		/* max # of continuous pages */
+>  		if (nblocks > DIV_ROUND_UP(map.m_plen, PAGE_SIZE))
+> @@ -355,7 +364,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+>  	if (IS_ERR(bio))
+>  		return PTR_ERR(bio);
+>  
+> -	BUG_ON(bio != NULL);	/* since we have only one bio -- must be NULL */
+> +	DBG_BUGON(bio != NULL);	/* since we have only one bio -- must be NULL */
+>  	return 0;
+>  }
+>  
+> @@ -393,7 +402,7 @@ static int erofs_raw_access_readpages(struct file *filp,
+>  		/* pages could still be locked */
+>  		put_page(page);
+>  	}
+> -	BUG_ON(!list_empty(pages));
+> +	DBG_BUGON(!list_empty(pages));
+>  
+>  	/* the rare case (end in gaps) */
+>  	if (unlikely(bio != NULL))
 > 
