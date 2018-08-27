@@ -1,45 +1,39 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 27 Aug 2018 15:28:31 +0800
-Subject: EROFS filesystem testdata (part I)
-In-Reply-To: <14d6f15c-c36f-4e43-1e6d-9cb035d18a31@huawei.com>
-References: <5765b7d8-b3f4-4448-baa6-c28fe61ac8a5@huawei.com>
- <14d6f15c-c36f-4e43-1e6d-9cb035d18a31@huawei.com>
-Message-ID: <5516db88-04e9-bc58-94f4-d7a0f1dcf5fc@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Tue, 28 Aug 2018 03:51:36 +0800
+Subject: [PREVIEW] [PATCH] Revert "staging: erofs: disable compiling
+ temporarile"
+Message-ID: <1535399496-10278-1-git-send-email-hsiangkao@aol.com>
 
+This reverts commit 156c3df8d4db4e693c062978186f44079413d74d
 
+Because of XArray and the new mount api isn't merged in 4.19 merge window,
+the BROKEN mark can be reverted directly without any problems.
 
-On 2018/8/27 15:14, Gao Xiang wrote:
-> 
-> 
-> On 2018/8/27 14:57, Gao Xiang wrote:
->> Test environment: HUAWEI R&D cloud (Intel(R) Xeon(R) CPU E5-2690 v2 @ 3.00GHz * 8, 16GB RAM, Magnetic storage)
->>                   and tested in QEMU Virtual machine configured with -smp 4 -m 512M
->>
->> Linux kernel version:
->>  4.19 rc1
-> 
-> p.s. tested with CONFIG_EROFS_FS_ZIP_CACHE_BIPOLAR=y (which is the default option) and read_ahead_kb is 128.
-> It could be lower memory usage if erofs is configured with CONFIG_EROFS_FS_ZIP_NO_CACHE=y.
-> 
+Fixes: 156c3df8d4db ("staging: erofs: disable compiling temporarile")
+Signed-off-by: Gao Xiang <hsiangkao at aol.com>
+---
 
-p.p.s. squashfs kernel configuration:
+It should be merged into the 'staging-linus' branch in order to enable
+EROFS in 4.19 linux kernel.
 
-CONFIG_SQUASHFS=y
-# CONFIG_SQUASHFS_FILE_CACHE is not set
-CONFIG_SQUASHFS_FILE_DIRECT=y
-# CONFIG_SQUASHFS_DECOMP_SINGLE is not set
-# CONFIG_SQUASHFS_DECOMP_MULTI is not set
-CONFIG_SQUASHFS_DECOMP_MULTI_PERCPU=y
-CONFIG_SQUASHFS_XATTR=y
-CONFIG_SQUASHFS_ZLIB=y
-CONFIG_SQUASHFS_LZ4=y
-CONFIG_SQUASHFS_LZO=y
-CONFIG_SQUASHFS_XZ=y
-# CONFIG_SQUASHFS_ZSTD is not set
-CONFIG_SQUASHFS_4K_DEVBLK_SIZE=y
-# CONFIG_SQUASHFS_EMBEDDED is not set
-CONFIG_SQUASHFS_FRAGMENT_CACHE_SIZE=3
+Thanks,
+Gao Xiang
 
-> Thanks,
-> Gao Xiang
-> 
+ drivers/staging/erofs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 96f6149..663b755 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -2,7 +2,7 @@
+ 
+ config EROFS_FS
+ 	tristate "EROFS filesystem support"
+-	depends on BROKEN
++	depends on BLOCK
+ 	help
+ 	  EROFS(Enhanced Read-Only File System) is a lightweight
+ 	  read-only file system with modern designs (eg. page-sized
+-- 
+2.7.4
