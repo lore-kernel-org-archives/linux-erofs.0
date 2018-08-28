@@ -1,5 +1,5 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Tue, 28 Aug 2018 21:10:55 +0800
+From: yuchao0@huawei.com (Chao Yu)
+Date: Tue, 28 Aug 2018 22:13:02 +0800
 Subject: [PATCH] Revert "staging: erofs: disable compiling temporarile"
 In-Reply-To: <20180828130559.GA5427@kroah.com>
 References: <1535427588-69630-1-git-send-email-gaoxiang25@huawei.com>
@@ -7,9 +7,7 @@ References: <1535427588-69630-1-git-send-email-gaoxiang25@huawei.com>
  <0c701b3c-5553-cf4c-c0b3-ad151b84662c@huawei.com>
  <f12ae5df-3130-f293-5863-3d9ff0802e92@huawei.com>
  <20180828130559.GA5427@kroah.com>
-Message-ID: <12034d69-befb-7981-0ebb-97a3015c01da@aol.com>
-
-Hi Greg,
+Message-ID: <16974cb6-2eed-7c12-9e27-c65a32b81673@huawei.com>
 
 On 2018/8/28 21:05, Greg Kroah-Hartman wrote:
 > On Tue, Aug 28, 2018@04:56:43PM +0800, Chao Yu wrote:
@@ -92,9 +90,6 @@ On 2018/8/28 21:05, Greg Kroah-Hartman wrote:
 >>> if just revert the BROKEN mark.
 > 
 > Ok, you are right, I'll go apply this.
-
-I am so happy to see that, thanks for understanding :)
-
 > 
 >>> EROFS works fine with the 4.19-rc1 code except that it has some __GFP_NOFAIL
 >>> and BUG_ONs on error handling paths and very rarely race between memory
@@ -108,13 +103,16 @@ I am so happy to see that, thanks for understanding :)
 > As the code is now part of the common tree that everyone works off of,
 > any filesystem changes that happen will normally cover erofs as well.
 > So this shouldn't be an issue anymore.
-> 
-That is so helpful for us... :)
+
+Thanks very much for the help and explanation, we will keep an eye on those vfs
+changes. :)
 
 Thanks,
-Gao Xiang
 
+> 
 > thanks,
 > 
 > greg k-h
+> 
+> .
 > 
