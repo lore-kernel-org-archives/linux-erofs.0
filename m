@@ -1,161 +1,198 @@
-From: yumi@hardfindelectronics.com (=?utf-8?B?eXVtaSh5dW1pQGhhcmRmaW5kZWxlY3Ryb25pY3MuY29tKSA=?=)
-Date: Wed, 29 Aug 2018 17:51:05 +0800 (CST)
-Subject: =?utf-8?B?cXVvdGU6IFNBTVNVTkcgIENMMjFCMzMxS0IgIDIwMTcrIDAuMDEyOHVzZA==?=
-Message-ID: <939#22923#linux-erofs@lists.ozlabs.org#e358f98847f1ee53ccc515b2fd0679bf#1535536265890>
+From: zemlyanoy@ispras.ru (Pavel Zemlyanoy)
+Date: Thu, 30 Aug 2018 13:40:07 +0300
+Subject: [PATCH] staging: erofs: formatting unzip_vle_lz4.c
+Message-ID: <1535625607-14281-1-git-send-email-zemlyanoy@ispras.ru>
 
+This patch changes the coding style for unzip_vle_lz4.c,
+following the accepted formatting rules.
 
+Signed-off-by: Pavel Zemlyanoy <zemlyanoy at ispras.ru>
+---
+ drivers/staging/erofs/unzip_vle_lz4.c | 72 ++++++++++++++++++-----------------
+ 1 file changed, 37 insertions(+), 35 deletions(-)
 
-
-
-
-
-	
-		&nbsp; &nbsp; &nbsp; &nbsp; Hard Find&nbsp;Electronics Ltd. 
-	
-	
-		Your trust small quantity &amp; short lead time ISO 9001:2008 Certified distributor&nbsp; 
-	
-	
-		&nbsp; 
-	
-	
-		Hello dear,
-How are you? 
-	
-	
-		&nbsp; 
-	
-	
-		I am Yumi from Hard Find Electronics Ltd(www.hardfindelectronics.com) which is ISO 9001:2008 Certified electronics distributor with 10 years of experiences.&nbsp;
-
-Do you have any inquiry of electronic components?&nbsp;&nbsp;If you need sample, please contact me.
+diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
+index f5b665f..34992f2 100644
+--- a/drivers/staging/erofs/unzip_vle_lz4.c
++++ b/drivers/staging/erofs/unzip_vle_lz4.c
+@@ -23,14 +23,14 @@ static struct {
+ } erofs_pcpubuf[NR_CPUS];
  
-	
-	
-		 Pls check our&nbsp;hot offer, welcome your inquiry.
-
+ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+-			   unsigned clusterpages,
++			   unsigned int clusterpages,
+ 			   struct page **pages,
+-			   unsigned nr_pages,
++			   unsigned int nr_pages,
+ 			   unsigned short pageofs)
+ {
+-	unsigned i, j;
++	unsigned int i, j;
+ 	void *src = NULL;
+-	const unsigned righthalf = PAGE_SIZE - pageofs;
++	const unsigned int righthalf = PAGE_SIZE - pageofs;
+ 	char *percpu_data;
+ 	bool mirrored[Z_EROFS_CLUSTER_MAX_PAGES] = { 0 };
  
-	
-	
-		 
-		
-			  
-		
-		
-			CL10B104KB?CAP CER 0.1UF 50V X7R 0603?4K/R SAMSUNG 2017+ 0.0183usd&nbsp;
-CL10B104KO?CAP CER 0.1UF 16V X7R 0603?4K/R SAMSUNG 2017+ 0.0165usd&nbsp;
-CL10A105KO?CAP CER 1UF 16V X5R 0603?4K/R SAMSUNG 2017+ 0.0165usd&nbsp;
-CL21B331KB?CAP CER 330PF 50V X7R 0805?4K/R SAMSUNG 2017+ 0.0128usd
-CL32B106KB?CAP CER 10UF 50V X7R 1210 ?1K/R SAMSUNG 2017+ 0.512usd&nbsp;
-CL31B103KB?CAP CER 10000PF 50V X7R 1206?4K/R SAMSUNG 2017+ 0.0228usd&nbsp; 
-		
-  
-		
-			
-		
+@@ -42,8 +42,8 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 		struct page *page = pages[i];
+ 		void *dst;
  
-		
-			
-		
+-		if (page == NULL) {
+-			if (src != NULL) {
++		if (!page) {
++			if (src) {
+ 				if (!mirrored[j])
+ 					kunmap_atomic(src);
+ 				src = NULL;
+@@ -64,14 +64,14 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 		}
  
-	
-	
-		 Best regards 
-	
-	
-		  
-	
-	
-		Strong 
-lines:Capacitors&amp;Resistors, 
-Diodes&amp;Transistors, Connectors, IC, LED, Crystal Oscillator, Relay, 
-opticalcoupler, ETC 
-	
-	
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-&nbsp;(1 piece order; 1 year warranty; 1000000 price 
-reference) 
-	
-  
-	
-		
-	
-	
-		
-	
-	
-		Keep smiling every day (*?)?) 
-	
-	
-		&nbsp; 
-	
-	
-		  
-	
-	
-		Yumi  
-	
-	
-		Sales Manager  
-	
-	
-		&nbsp; 
-	
-	
-		Hard Find Electronics 
-Ltd.
-315, Shahe Rod, Long Gang District, Shenzhen, CN, 518000
-Tel: 
-+86-755-8418 8103&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   
-	
-	
-		Fax: +86-755-8418 8303
-Skype: yumi at hardfindelectronics.com   
-	
-	
-		Linkedln:www.linkedin.com/in/yumi-gao  
-	
-	
-		Facebook: facebook.com/Yumihardfind  
-	
-	
-		Follow us:&nbsp;Facebook&nbsp;&amp; Linkedin  
-	
-	
-		Email: 
-yumi at hardfindelectronics.com  
-	
-	
-		Web: http://www.hardfindelectronics.com/  
-	
-	
-		&nbsp;  
-	
-	
-		Your trust small 
-quantity &amp; short lead time ISO 9001:2008 Certified 
-distributor   
-	
-	
-		Please 
-log in our website for more electronic components&nbsp;&nbsp;&nbsp;  
-	
-	
-		If you don't want to receive this mail, pls return with "remove" on 
-the subject line.  
-	
-	
-		
-	
-	
-		 
-	
-
-
-
-
-	????????????? 
-????????????????????????
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20180829/f0a0c083/attachment.html>
+ 		if (i) {
+-			if (src == NULL)
+-				src = mirrored[i-1] ?
+-					percpu_data + (i-1) * PAGE_SIZE :
+-					kmap_atomic(compressed_pages[i-1]);
++			if (!src)
++				src = mirrored[i - 1] ?
++					percpu_data + (i - 1) * PAGE_SIZE :
++					kmap_atomic(compressed_pages[i - 1]);
+ 
+ 			memcpy(dst, src + righthalf, pageofs);
+ 
+-			if (!mirrored[i-1])
++			if (!mirrored[i - 1])
+ 				kunmap_atomic(src);
+ 
+ 			if (unlikely(i >= clusterpages)) {
+@@ -80,19 +80,19 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 			}
+ 		}
+ 
+-		if (!righthalf)
++		if (!righthalf) {
+ 			src = NULL;
+-		else {
++
++		} else {
+ 			src = mirrored[i] ? percpu_data + i * PAGE_SIZE :
+ 				kmap_atomic(compressed_pages[i]);
+-
+ 			memcpy(dst + pageofs, src, righthalf);
+ 		}
+ 
+ 		kunmap_atomic(dst);
+ 	}
+ 
+-	if (src != NULL && !mirrored[j])
++	if (src && !mirrored[j])
+ 		kunmap_atomic(src);
+ 
+ 	preempt_enable();
+@@ -102,14 +102,14 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ extern int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen);
+ 
+ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+-				  unsigned clusterpages,
++				  unsigned int clusterpages,
+ 				  struct page **pages,
+-				  unsigned outlen,
++				  unsigned int outlen,
+ 				  unsigned short pageofs,
+ 				  void (*endio)(struct page *))
+ {
+ 	void *vin, *vout;
+-	unsigned nr_pages, i, j;
++	unsigned int nr_pages, i, j;
+ 	int ret;
+ 
+ 	if (outlen + pageofs > EROFS_PERCPU_NR_PAGES * PAGE_SIZE)
+@@ -126,7 +126,8 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+ 	vout = erofs_pcpubuf[smp_processor_id()].data;
+ 
+ 	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
+-		clusterpages * PAGE_SIZE, outlen);
++				clusterpages * PAGE_SIZE,
++				outlen);
+ 
+ 	if (ret >= 0) {
+ 		outlen = ret;
+@@ -134,14 +135,15 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+ 	}
+ 
+ 	for (i = 0; i < nr_pages; ++i) {
+-		j = min((unsigned)PAGE_SIZE - pageofs, outlen);
++		j = min((unsigned int)PAGE_SIZE - pageofs, outlen);
+ 
+-		if (pages[i] != NULL) {
+-			if (ret < 0)
++		if (pages[i]) {
++			if (ret < 0) {
+ 				SetPageError(pages[i]);
+-			else if (clusterpages == 1 && pages[i] == compressed_pages[0])
++			} else if (clusterpages == 1 &&
++					   pages[i] == compressed_pages[0]) {
+ 				memcpy(vin + pageofs, vout + pageofs, j);
+-			else {
++			} else {
+ 				void *dst = kmap_atomic(pages[i]);
+ 
+ 				memcpy(dst + pageofs, vout + pageofs, j);
+@@ -164,14 +166,14 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+ }
+ 
+ int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
+-			   unsigned clusterpages,
++			   unsigned int clusterpages,
+ 			   void *vout,
+-			   unsigned llen,
++			   unsigned int llen,
+ 			   unsigned short pageofs,
+ 			   bool overlapped)
+ {
+ 	void *vin;
+-	unsigned i;
++	unsigned int i;
+ 	int ret;
+ 
+ 	if (overlapped) {
+@@ -181,29 +183,29 @@ int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
+ 		for (i = 0; i < clusterpages; ++i) {
+ 			void *t = kmap_atomic(compressed_pages[i]);
+ 
+-			memcpy(vin + PAGE_SIZE *i, t, PAGE_SIZE);
++			memcpy(vin + PAGE_SIZE * i, t, PAGE_SIZE);
+ 			kunmap_atomic(t);
+ 		}
+-	} else if (clusterpages == 1)
++	} else if (clusterpages == 1) {
+ 		vin = kmap_atomic(compressed_pages[0]);
+-	else {
++	} else {
+ 		vin = erofs_vmap(compressed_pages, clusterpages);
+ 	}
+ 
+ 	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
+-		clusterpages * PAGE_SIZE, llen);
++				clusterpages * PAGE_SIZE,
++				llen);
+ 	if (ret > 0)
+ 		ret = 0;
+ 
+ 	if (!overlapped) {
+ 		if (clusterpages == 1)
+ 			kunmap_atomic(vin);
+-		else {
++		else
+ 			erofs_vunmap(vin, clusterpages);
+-		}
+-	} else
++	} else {
+ 		preempt_enable();
+-
++	}
+ 	return ret;
+ }
+ 
+-- 
+2.7.4
