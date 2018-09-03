@@ -1,18 +1,18 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Mon, 3 Sep 2018 09:48:10 +0800
-Subject: [PATCH 2/6] staging: erofs: formatting fix to NULL comparison
-In-Reply-To: <1535642042-5336-2-git-send-email-zemlyanoy@ispras.ru>
+Date: Mon, 3 Sep 2018 09:48:26 +0800
+Subject: [PATCH 3/6] staging: erofs: formatting spaces around '-'
+In-Reply-To: <1535642042-5336-3-git-send-email-zemlyanoy@ispras.ru>
 References: <1535642042-5336-1-git-send-email-zemlyanoy@ispras.ru>
- <1535642042-5336-2-git-send-email-zemlyanoy@ispras.ru>
-Message-ID: <9cc6b3f7-fc6b-b9fa-d766-602147ec89be@huawei.com>
+ <1535642042-5336-3-git-send-email-zemlyanoy@ispras.ru>
+Message-ID: <c5c52715-fd7b-b669-bd0c-757b6ce967a5@huawei.com>
 
 On 2018/8/30 23:13, Pavel Zemlyanoy wrote:
 > This patch does not change the logic, it only
 > corrects the formatting and checkpatch checks by
-> to NULL comparison.
+> adding spaces around '-'.
 > 
-> The patch fixes 5 checks of type:
-> "Comparison to NULL could be written".
+> The patch fixes 4 checks of type:
+> "Check: spaces preferred around that '-'".
 > 
 > Signed-off-by: Pavel Zemlyanoy <zemlyanoy at ispras.ru>
 
