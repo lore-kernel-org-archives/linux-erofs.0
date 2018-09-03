@@ -1,22 +1,28 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 3 Sep 2018 12:43:52 +0800
-Subject: [PATCH 5/6] staging: erofs: formatting alignment parenthesis
-In-Reply-To: <aaa483c4-2bb1-97fa-fcea-2970c9ea5444@huawei.com>
+Date: Mon, 3 Sep 2018 12:50:57 +0800
+Subject: [PATCH 6/6] staging: erofs: fix 1 warning and 9 checks
+In-Reply-To: <3c43c174-c805-32e2-ac8e-504604ef29ab@huawei.com>
 References: <1535642042-5336-1-git-send-email-zemlyanoy@ispras.ru>
- <1535642042-5336-5-git-send-email-zemlyanoy@ispras.ru>
- <aaa483c4-2bb1-97fa-fcea-2970c9ea5444@huawei.com>
-Message-ID: <2d7869f6-bff2-ef40-b2b6-b5e73cb92bb5@aol.com>
+ <1535642042-5336-6-git-send-email-zemlyanoy@ispras.ru>
+ <3c43c174-c805-32e2-ac8e-504604ef29ab@huawei.com>
+Message-ID: <617a05b1-fc25-aa6e-c4d6-1aec06f72009@aol.com>
 
 
 
 On 2018/9/3 9:49, Chao Yu wrote:
 > On 2018/8/30 23:14, Pavel Zemlyanoy wrote:
 >> This patch does not change the logic, it only
->> corrects the formatting and checkpatch check by
->> alignment should match open parenthesis.
+>> corrects the formatting and checkpatch checks by
+>> braces {} should be used on all arms of this statement,
+>> unbalanced braces around else statement and warning by
+>> braces {} are not necessary for any arm of this statement.
 >>
->> The patch fixes 2 check of type:
->> "Check: Alignment should match open parenthesis".
+>> The patch fixes 9 checks of type:
+>> "Check: braces {} should be used on all arms of this statement";
+>> "Check: Unbalanced braces around else statement";
+>>
+>> and 1 warning of type:
+>> "WARNING: braces {} are not necessary for any arm of this statement".
 >>
 >> Signed-off-by: Pavel Zemlyanoy <zemlyanoy at ispras.ru>
 > 
