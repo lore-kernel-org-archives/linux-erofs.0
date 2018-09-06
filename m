@@ -1,47 +1,66 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 6 Sep 2018 17:01:47 +0800
-Subject: [PATCH 1/2 dhowells/mount-api] staging: erofs: rename superblock
- flags (MS_xyz -> SB_xyz)
-Message-ID: <1536224508-66168-1-git-send-email-gaoxiang25@huawei.com>
+Date: Thu, 6 Sep 2018 17:01:48 +0800
+Subject: [PATCH 2/2 dhowells/mount-api] staging: erofs: update .mount and
+ .remount_sb
+In-Reply-To: <1536224508-66168-1-git-send-email-gaoxiang25@huawei.com>
+References: <1536224508-66168-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1536224508-66168-2-git-send-email-gaoxiang25@huawei.com>
 
-This patch follows commit 1751e8a6cb93 ("Rename superblock
-flags (MS_xyz -> SB_xyz)") and after commit ("vfs: Suppress
-MS_* flag defs within the kernel unless explicitly enabled"),
-there is no MS_RDONLY and MS_NOATIME at all.
+This patch updates .mount and .remount_sb after
+commit ("vfs: Require specification of size of
+mount data for internal mounts") in reference to
+drivers/usb/gadget/function/f_fs.c.
 
 Reported-by: Stephen Rothwell <sfr at canb.auug.org.au>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
-
-Once used MS_RDONLY, MS_NOATIME for the compatibility of older kernels,
-which are removed in ("vfs: Suppress MS_* flag defs within the kernel
-unless explicitly enabled").
-
- drivers/staging/erofs/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/super.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 1aec509..2df9768 100644
+index 2df9768..98614f1 100644
 --- a/drivers/staging/erofs/super.c
 +++ b/drivers/staging/erofs/super.c
-@@ -340,7 +340,7 @@ static int erofs_read_super(struct super_block *sb,
- 		goto err_sbread;
+@@ -480,7 +480,7 @@ struct erofs_mount_private {
  
- 	sb->s_magic = EROFS_SUPER_MAGIC;
--	sb->s_flags |= MS_RDONLY | MS_NOATIME;
-+	sb->s_flags |= SB_RDONLY | SB_NOATIME;
- 	sb->s_maxbytes = MAX_LFS_FILESIZE;
- 	sb->s_time_gran = 1;
- 
-@@ -627,7 +627,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ /* support mount_bdev() with options */
+ static int erofs_fill_super(struct super_block *sb,
+-	void *_priv, int silent)
++	void *_priv, size_t data_size, int silent)
  {
- 	BUG_ON(!sb_rdonly(sb));
+ 	struct erofs_mount_private *priv = _priv;
  
--	*flags |= MS_RDONLY;
-+	*flags |= SB_RDONLY;
+@@ -488,9 +488,9 @@ static int erofs_fill_super(struct super_block *sb,
+ 		priv->options, silent);
+ }
+ 
+-static struct dentry *erofs_mount(
+-	struct file_system_type *fs_type, int flags,
+-	const char *dev_name, void *data)
++static struct dentry *erofs_mount(struct file_system_type *fs_type,
++				  int flags, const char *dev_name,
++				  void *data, size_t data_size)
+ {
+ 	struct erofs_mount_private priv = {
+ 		.dev_name = dev_name,
+@@ -498,7 +498,7 @@ static struct dentry *erofs_mount(
+ 	};
+ 
+ 	return mount_bdev(fs_type, flags, dev_name,
+-		&priv, erofs_fill_super);
++		&priv, sizeof(priv), erofs_fill_super);
+ }
+ 
+ static void erofs_kill_sb(struct super_block *sb)
+@@ -623,7 +623,8 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
  	return 0;
  }
+ 
+-static int erofs_remount(struct super_block *sb, int *flags, char *data)
++static int erofs_remount(struct super_block *sb, int *flags,
++			 char *data, size_t data_size)
+ {
+ 	BUG_ON(!sb_rdonly(sb));
  
 -- 
 1.9.1
