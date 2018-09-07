@@ -1,47 +1,61 @@
-From: dan.carpenter@oracle.com (Dan Carpenter)
-Date: Fri, 7 Sep 2018 12:17:25 +0300
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Fri, 7 Sep 2018 19:01:39 +0800
 Subject: [PATCH] staging: erofs: use explicit unsigned int type
-In-Reply-To: <30069a92-3181-d032-c6b8-694f04455789@huawei.com>
+In-Reply-To: <20180907091725.ilig4jnygqgsr6d5@mwanda>
 References: <20180830205605.19492-1-linux@weissschuh.net>
  <a3a13e77-bd81-1dbd-de5f-8e796c21921d@huawei.com>
  <30069a92-3181-d032-c6b8-694f04455789@huawei.com>
-Message-ID: <20180907091725.ilig4jnygqgsr6d5@mwanda>
+ <20180907091725.ilig4jnygqgsr6d5@mwanda>
+Message-ID: <b8ee4785-b41c-afe8-c1cc-52a6ec752cc8@huawei.com>
 
-On Fri, Sep 07, 2018@04:48:44PM +0800, Gao Xiang wrote:
-> Hi Thomas,
+Hi Dan,
+
+On 2018/9/7 17:17, Dan Carpenter wrote:
+> On Fri, Sep 07, 2018@04:48:44PM +0800, Gao Xiang wrote:
+>> Hi Thomas,
+>>
+>> On 2018/9/3 9:53, Chao Yu wrote:
+>>> Hi,
+>>>
+>>> It looks like there is another patch from Pavel Zemlyanoy changing the same
+>>> place, I think it needs to rebase this patch on that one.
+>>>
+>>> [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
+>>>
+>>
+>> Thanks for your patch.
+>>
+>> Do you have some interest to fix this patch as Chao's suggestion?
+>> Or I could fix this patch based on your work, if you have no time to do...Thanks in advance.
 > 
-> On 2018/9/3 9:53, Chao Yu wrote:
-> > Hi,
-> > 
-> > It looks like there is another patch from Pavel Zemlyanoy changing the same
-> > place, I think it needs to rebase this patch on that one.
-> > 
-> > [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
-> > 
+> Gao, don't worry about it...  It's not a bug fix.  These kinds of
+> patches are straight forward to review.  You either apply it instantly
+> or you respond and delete it from your brain.
 > 
-> Thanks for your patch.
+> We don't try to co-ordinate patches.  We just apply whatever comes in
+> the order that it arrives.
 > 
-> Do you have some interest to fix this patch as Chao's suggestion?
-> Or I could fix this patch based on your work, if you have no time to do...Thanks in advance.
+> If it's a bugfix then it's another story.  In that case we do ask people
+> to redo it.  Sometimes for security patches, I have fixed patches for
+> people and given them authorship credit with the From: header in git.
+> Other times maintainers write their own patch and give Reported-by
+> credit instead.
+> 
+> For checkpatch.pl patches, if you decide to do the work yourself then
+> there is no Reported-by tag required.
+> 
+> If you try to keep track of everyone sending patches then it's too much
+> work...  Forget about it.
+> 
 
-Gao, don't worry about it...  It's not a bug fix.  These kinds of
-patches are straight forward to review.  You either apply it instantly
-or you respond and delete it from your brain.
+OK, Thanks for your kindly detailed explanation. ;)
+I will fix these style issues by myself later if Thomas has no response.
 
-We don't try to co-ordinate patches.  We just apply whatever comes in
-the order that it arrives.
+But anyway, any patches helping to erofs are welcome. :)
 
-If it's a bugfix then it's another story.  In that case we do ask people
-to redo it.  Sometimes for security patches, I have fixed patches for
-people and given them authorship credit with the From: header in git.
-Other times maintainers write their own patch and give Reported-by
-credit instead.
+Thanks,
+Gao Xiang
 
-For checkpatch.pl patches, if you decide to do the work yourself then
-there is no Reported-by tag required.
-
-If you try to keep track of everyone sending patches then it's too much
-work...  Forget about it.
-
-regards,
-dan carpenter
+> regards,
+> dan carpenter
+> 
