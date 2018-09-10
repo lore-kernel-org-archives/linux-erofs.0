@@ -1,53 +1,46 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 10 Sep 2018 16:21:21 +0800
-Subject: [PATCH 1/2 dhowells/mount-api] staging: erofs: rename superblock
- flags (MS_xyz -> SB_xyz)
-In-Reply-To: <20180910081304.GA19096@kroah.com>
-References: <1536224508-66168-1-git-send-email-gaoxiang25@huawei.com>
- <17402.1536228489@warthog.procyon.org.uk>
- <1643231b-7538-0f43-1670-7fddadd7ca87@huawei.com>
- <20180910081304.GA19096@kroah.com>
-Message-ID: <5c8b8c33-ceff-f1c7-866b-3d58167be7ac@huawei.com>
+From: cgxu519@gmx.com (Chengguang Xu)
+Date: Mon, 10 Sep 2018 23:45:51 +0800
+Subject: [PATCH] erofs: surround fault_injection ralted option parsing using
+ CONFIG_EROFS_FAULT_INJECTION
+Message-ID: <20180910154551.28922-1-cgxu519@gmx.com>
 
-Hi Greg,
+It's a little bit strange when fault_injection related
+option fail with -EINVAL which was already disabled
+from config, so surround all fault_injection related option
+parsing code using CONFIG_EROFS_FAULT_INJECTION. Meanwhile,
+slightly change warning message to keep consistency with
+option POSIX_ACL and FS_XATTR.
 
-On 2018/9/10 16:13, Greg Kroah-Hartman wrote:
-> On Thu, Sep 06, 2018@06:37:37PM +0800, Gao Xiang wrote:
->>
->>
->> On 2018/9/6 18:08, David Howells wrote:
->>> Gao Xiang <gaoxiang25@huawei.com> wrote:
->>>
->>>> This patch follows commit 1751e8a6cb93 ("Rename superblock
->>>> flags (MS_xyz -> SB_xyz)") and after commit ("vfs: Suppress
->>>> MS_* flag defs within the kernel unless explicitly enabled"),
->>>> there is no MS_RDONLY and MS_NOATIME at all.
->>>>
->>>> Reported-by: Stephen Rothwell <sfr at canb.auug.org.au>
->>>> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
->>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->>> I recommend pushing this one to Linus now.  It's trivial enough.
->>
->> Hi David,
->> I personally think that is fine, but I'd like to get Greg's idea and agreement, too...
->>
->>>
->>> Reviewed-by: David Howells <dhowells at redhat.com>
->>
->> Hi Greg,
->>
->> As David suggested above, could you please help merge this patch to Linus?
->> It's trivial enough (since the commit 1751e8a6cb93) and MS_xyz will be removed
->> in the new mount apis patchset...
-> 
-> Now applied to my local tree, thanks.
-> 
+Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+---
+ drivers/staging/erofs/super.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Thanks for applying. :)
-
-Thanks,
-Gao Xiang
-
-
-> greg k-h
-> 
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 1aec509c805f..4004a00d150d 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -237,16 +237,18 @@ static int parse_options(struct super_block *sb, char *options)
+ 			infoln("noacl options not supported");
+ 			break;
+ #endif
++#ifdef CONFIG_EROFS_FAULT_INJECTION
+ 		case Opt_fault_injection:
+ 			if (args->from && match_int(args, &arg))
+ 				return -EINVAL;
+-#ifdef CONFIG_EROFS_FAULT_INJECTION
+ 			erofs_build_fault_attr(EROFS_SB(sb), arg);
+ 			set_opt(EROFS_SB(sb), FAULT_INJECTION);
++			break;
+ #else
+-			infoln("FAULT_INJECTION was not selected");
+-#endif
++		case Opt_fault_injection:
++			infoln("FAULT_INJECTION not supported");
+ 			break;
++#endif
+ 		default:
+ 			errln("Unrecognized mount option \"%s\" "
+ 					"or missing value", p);
+-- 
+2.17.1
