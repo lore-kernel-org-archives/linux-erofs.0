@@ -1,31 +1,41 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Mon, 10 Sep 2018 10:10:27 +0200
-Subject: [PATCH v3] staging: erofs: use explicit unsigned int type
-In-Reply-To: <20180909183753.11021-1-linux@weissschuh.net>
-References: <5c44a63b-041d-1fce-0748-53c0b44f5983@huawei.com>
- <20180909183753.11021-1-linux@weissschuh.net>
-Message-ID: <20180910081027.GA31845@kroah.com>
+Date: Mon, 10 Sep 2018 10:13:04 +0200
+Subject: [PATCH 1/2 dhowells/mount-api] staging: erofs: rename superblock
+ flags (MS_xyz -> SB_xyz)
+In-Reply-To: <1643231b-7538-0f43-1670-7fddadd7ca87@huawei.com>
+References: <1536224508-66168-1-git-send-email-gaoxiang25@huawei.com>
+ <17402.1536228489@warthog.procyon.org.uk>
+ <1643231b-7538-0f43-1670-7fddadd7ca87@huawei.com>
+Message-ID: <20180910081304.GA19096@kroah.com>
 
-On Sun, Sep 09, 2018@08:37:53PM +0200, Thomas Wei?schuh wrote:
-> Changes since v1:
+On Thu, Sep 06, 2018@06:37:37PM +0800, Gao Xiang wrote:
 > 
-> * Removed changes that conflicted with
->   [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
-> * Added patch description
 > 
-> Changes since v2:
+> On 2018/9/6 18:08, David Howells wrote:
+> > Gao Xiang <gaoxiang25@huawei.com> wrote:
+> > 
+> >> This patch follows commit 1751e8a6cb93 ("Rename superblock
+> >> flags (MS_xyz -> SB_xyz)") and after commit ("vfs: Suppress
+> >> MS_* flag defs within the kernel unless explicitly enabled"),
+> >> there is no MS_RDONLY and MS_NOATIME at all.
+> >>
+> >> Reported-by: Stephen Rothwell <sfr at canb.auug.org.au>
+> >> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> >> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> > I recommend pushing this one to Linus now.  It's trivial enough.
 > 
-> * Fixed conflicts with other patchsets
-> * Don't introduce new style issues
+> Hi David,
+> I personally think that is fine, but I'd like to get Greg's idea and agreement, too...
 > 
+> > 
+> > Reviewed-by: David Howells <dhowells at redhat.com>
+> 
+> Hi Greg,
+> 
+> As David suggested above, could you please help merge this patch to Linus?
+> It's trivial enough (since the commit 1751e8a6cb93) and MS_xyz will be removed
+> in the new mount apis patchset...
 
-These changes belong below the --- line, not above it.  I'm not sure if
-git will handle this line:
-
-> -- >8 --
-
-Correctly or not, have you tried it?
-
-thanks,
+Now applied to my local tree, thanks.
 
 greg k-h
