@@ -1,76 +1,79 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 12 Sep 2018 00:03:49 +0800
-Subject: [PATCH] erofs: option validation in remount
-In-Reply-To: <02f26520-fcff-437a-63ea-3e909d39f5ba@gmx.com>
-References: <20180911105129.3340-1-cgxu519@gmx.com>
- <1819a16e-2bbc-24f9-b683-79d00caf2ea2@huawei.com>
- <02f26520-fcff-437a-63ea-3e909d39f5ba@gmx.com>
-Message-ID: <f00620e0-c09e-3bfc-1247-c22b90facdb0@huawei.com>
+From: chao@kernel.org (Chao Yu)
+Date: Wed, 12 Sep 2018 00:46:12 +0800
+Subject: [PATCH v4] staging: erofs: use explicit unsigned int type
+In-Reply-To: <20180910194114.13314-1-linux@weissschuh.net>
+References: <23218dc6-8aba-a4e6-7c18-64380082f747@kernel.org>
+ <20180910194114.13314-1-linux@weissschuh.net>
+Message-ID: <1b6fcc86-5b0c-e5b3-15de-63938222213e@kernel.org>
 
-Hi Chengguang,
-
-On 2018/9/11 23:37, cgxu519 wrote:
-> On 09/11/2018 07:08 PM, Gao Xiang wrote:
->> Hi Chengguang,
->>
->> Thanks for your patch.
->>
->> The patch title should be "staging: erofs: " since erofs is still in staging.
-> Hi Xiang,
+On 2018/9/11 3:41, Thomas Wei?schuh wrote:
+> Hi Chao,
 > 
-> Thanks for your review. I'll add the tag from next version.
+> On Mon, 2018-09-10T23:59+0800, Chao Yu wrote:
+>> [...]
 > 
->>
->> The same as your previous patch "erofs: surround fault_injection ralted option
->> parsing using CONFIG_EROFS_FAULT_INJECTION".
->>
->> On 2018/9/11 18:51, Chengguang Xu wrote:
->>> Add option validation in remount. After this patch, remount
->>> can change recognized options, and for unknown options remount
->>> will fail and report error.
+>>>> I was not aware of this tree and worked off of staging / next.
+>>>> A patch is attached to this message that adds the tree to the MAINTAINERS file.
 >>>
->>> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
->>> ---
->>> ? drivers/staging/erofs/super.c | 17 +++++++++++++++++
->>> ? 1 file changed, 17 insertions(+)
+>>> Hi Chao,
 >>>
->>> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
->>> index 1aec509c805f..8bab077381ad 100644
->>> --- a/drivers/staging/erofs/super.c
->>> +++ b/drivers/staging/erofs/super.c
->>> @@ -625,10 +625,27 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
->>> ? ? static int erofs_remount(struct super_block *sb, int *flags, char *data)
->>> ? {
->>> +??? struct erofs_sb_info *sbi = EROFS_SB(sb);
->>> +??? struct erofs_fault_info *ffi = &sbi->fault_info;
->>> +??? unsigned int orig_mount_opt = sbi->mount_opt;
->>> +??? unsigned int orig_inject_rate = ffi->inject_rate;
->>> +??? int err;
->>> +
->>> ????? BUG_ON(!sb_rdonly(sb));
->>> ? +??? err = parse_options(sb, data);
->>> +??? if (err)
->>> +??????? goto out;
->>> +
->>> ????? *flags |= MS_RDONLY;
->>> ????? return 0;
->>> +
->>> +out:
->>> +??? if (ffi->inject_rate != orig_inject_rate)
->>> +??????? erofs_build_fault_attr(sbi, orig_inject_rate);
->> Currently should be with "#ifdef CONFIG_EROFS_FAULT_INJECTION"?
->> and have you tried to compile without EROFS_FAULT_INJECTION?
-> Ah, It must be enabled in my environment.
-> However, adding the macro in every calling place seems not convenient,
-> I'll try to do some code cleanups, so please hold on this and previous patch for
-> a moment, I'll resend those in a patch set.
+>>> I think this tree has some PREVIEW patches which preview in linux-erofs mailing list only and
+>>> doesn't send to staging mailing list and LKML,
+>>>
+>>> https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git/log/?h=erofs
+>>>
+>>> so erofs tree is actually Greg's staging tree.
+>>
+>> Thomas,
+>>
+>> I confirmed that erofs git repository for linux upstream is Greg's staging tree.
+>>
+>> Let me explain, in order to avoid sending buggy or preview patch, Xiang and me
+>> plan to review patches in erofs mailing list first, and then cache reviewed
+>> patches in my git tree before sending them to Greg and staging mailing list.
+>>
+>> Based on that, I'm trying to serialize all erofs patches, expecting that can
+>> help those patches sent to staging mailing list can be merged by Greg with
+>> lesser conflict. But I made a mistake that my erofs branch has merged some
+>> pending patches, result in failing to merge yours, that mislead me to ask you to
+>> rebase the code, sorry about that.
 > 
+> Thank you for clearing this up! And I am sorry for causing you all this work
+> for what is essentially a very small style cleanup.
+> 
+>> Now I can confirm that your v2 patch can apply on Greg's staging-next, so fixing
+>> warning reported by checkpatch.pl on your v2 patch is enough. :)
+> 
+> The patch follows.
+> 
+> Thomas
+> 
+> 
+> Changes since v1:
+> 
+> * Removed changes that conflicted with
+>   [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
+> * Added patch description
+> 
+> Changes since v2:
+> 
+> * Fixed conflicts with other patchsets
+> * Don't introduce new style issues
+> 
+> Changes since v3:
+> 
+> * Fixed conflicts with other patchsets
+> 
+> Note: This patchset should be applied with the "git am --scissors", to
+> remove the historic information and this note.
+> 
+> -- >8 --
+> 
+> Fix coding style issue "Prefer 'unsigned int' to bare use of 'unsigned'"
+> detected by checkpatch.pl.
+> 
+> Signed-off-by: Thomas Wei?schuh <linux at weissschuh.net>
 
-OK, that is fine. look forword to your next patch. ;)
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
 Thanks,
-Gao Xiang
-
-> Thanks,
-> Chengguang
-> 
