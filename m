@@ -1,32 +1,71 @@
-From: dan.carpenter@oracle.com (Dan Carpenter)
-Date: Wed, 12 Sep 2018 17:25:31 +0300
-Subject: [PATCH 4/7] staging: erofs: return -EINVAL when specifying fault
- rate to 0
-In-Reply-To: <0bee6199-25b4-a4bc-0655-ceac650e482a@gmx.com>
+From: cgxu519@gmx.com (cgxu519)
+Date: Wed, 12 Sep 2018 22:23:00 +0800
+Subject: [PATCH 3/7] staging: erofs: introduce a new helper
+ __erofs_build_fault_attr()
+In-Reply-To: <815bae09-2948-4bac-ef55-abf6d2595750@huawei.com>
 References: <20180912051034.3463-1-cgxu519@gmx.com>
- <20180912051034.3463-5-cgxu519@gmx.com>
- <20180912091631.xgxx5zj457z7srlo@mwanda>
- <0bee6199-25b4-a4bc-0655-ceac650e482a@gmx.com>
-Message-ID: <20180912142531.nccw2a7zoyolrcym@mwanda>
+ <20180912051034.3463-4-cgxu519@gmx.com>
+ <815bae09-2948-4bac-ef55-abf6d2595750@huawei.com>
+Message-ID: <4e1a1cad-9323-b730-da3f-d7febd40fd3f@gmx.com>
 
-On Wed, Sep 12, 2018@10:05:26PM +0800, cgxu519 wrote:
-> On 09/12/2018 05:16 PM, Dan Carpenter wrote:
-> > On Wed, Sep 12, 2018@01:10:31PM +0800, Chengguang Xu wrote:
-> > > Set fault rate to 0 is useless and confusable, so add check to
-> > > avoid it.
-> > > 
-> > I would have assumed setting rate to zero just disabled it.
-> 
-> I think currently it is useless because we have not implemented
-> option parsing in remount yet, maybe it's better adding another
-> option 'no_fault_injection' to explicitly disable it.
+On 09/12/2018 07:22 PM, Gao Xiang wrote:
+> Hi Chengguang,
+>
+> On 2018/9/12 13:10, Chengguang Xu wrote:
+>> Introduce a new helper __erofs_build_fault_attr() to handle set/clear
+>> erofs_fault_info, we need this funciton for internal use case.
+>> for example, reset fault_injection option in remount.
+>>
+>> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+>> ---
+>>   drivers/staging/erofs/super.c | 26 ++++++++++++++++++--------
+>>   1 file changed, 18 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+>> index 14dbb6517b8d..d2dbc1fd3abb 100644
+>> --- a/drivers/staging/erofs/super.c
+>> +++ b/drivers/staging/erofs/super.c
+>> @@ -144,15 +144,9 @@ char *erofs_fault_name[FAULT_MAX] = {
+>>   	[FAULT_KMALLOC]		= "kmalloc",
+>>   };
+>>   
+>> -static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>> -					substring_t *args)
+>> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>> +					unsigned int rate)
+>>   {
+>> -	struct erofs_fault_info *ffi = &sbi->fault_info;
+>> -	int rate = 0;
+>> -
+>> -	if (args->from && match_int(args, &rate))
+>> -		return -EINVAL;
+>> -
+>>   	if (rate) {
+> I get some compile error of this patch...
+> drivers/staging/erofs/super.c: In function ?__erofs_build_fault_attr?:
+> drivers/staging/erofs/super.c:156:15: error: ?ffi? undeclared (first use in this function)
+>     atomic_set(&ffi->inject_ops, 0);
+>                 ^
+> drivers/staging/erofs/super.c:156:15: note: each undeclared identifier is reported only once for each function it appears in
+> drivers/staging/erofs/super.c: In function ?erofs_build_fault_attr?:
+> drivers/staging/erofs/super.c:169:27: warning: unused variable ?ffi? [-Wunused-variable]
+>    struct erofs_fault_info *ffi = &sbi->fault_info;
+Sorry for that, I'll fix it in rebased version.
 
-That's like the AC on my car, where I can't turn the fan from one to
-zero, I have to press disable.  I don't like the explicit disable, I
-wish they would just remove that button.
+>
+> p.s. could you please rebase your patch on Thomas's [PATCH v4] staging: erofs: use explicit unsigned int type ?
+> since I'm rebasing the rest PREVIEW patches on this commit now.
 
-But I also don't think most people will ever use the fault injection
-interface so it doesn't really matter.  Do whatever seems good to you.
+I noticed Thomas' patch had already committed to erofs-master branch in 
+Chao's linux git repo, also my
+previous patch but not in erofs-dev branch. So should I rebase on 
+erofs-master?
+Could you give me a little more guide for it?
+>
+> p.p.s. I'd like to get Chao's idea of this fault injection patchset first :)
+No problem, let's wait for a while, then I'll rebase the code according 
+to the comments.
 
-regards,
-dan carpenter
+
+Thanks,
+Chengguang
