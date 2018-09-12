@@ -1,24 +1,29 @@
-From: chao@kernel.org (Chao Yu)
-Date: Wed, 12 Sep 2018 00:50:20 +0800
-Subject: [PATCH v2] erofs: surround fault_injection ralted option parsing
- using CONFIG_EROFS_FAULT_INJECTION
-In-Reply-To: <20180910235154.3148-1-cgxu519@gmx.com>
-References: <20180910235154.3148-1-cgxu519@gmx.com>
-Message-ID: <1ccd9caa-0531-5196-1bf3-079fa10d29a6@kernel.org>
+From: cgxu519@gmx.com (Chengguang Xu)
+Date: Wed, 12 Sep 2018 13:10:27 +0800
+Subject: [PATCH 0/7] staging: erofs: option validation for remount and some
+ code cleanups
+Message-ID: <20180912051034.3463-1-cgxu519@gmx.com>
 
-On 2018/9/11 7:51, Chengguang Xu wrote:
-> It's a little bit strange when fault_injection related
-> option fail with -EINVAL which was already disabled
-> from config, so surround all fault_injection related option
-> parsing code using CONFIG_EROFS_FAULT_INJECTION. Meanwhile,
-> slightly change warning message to keep consistency with
-> option POSIX_ACL and FS_XATTR.
-> 
-> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+This patch set mainly does option validation for remount and at
+the same time does related code cleanups. Currently when we call
+fault injection related code we have to surround it with macro
+CONFIG_EROFS_FAULT_INJECTION in every calling place, after this
+patch set we don't have to that, so the code looks clean and more
+understandable.
 
-Prefix of patch title should be "staging: erofs: " as Xiang pointed out,
-otherwise it looks good to me, you can add:
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Chengguang Xu (7):
+  staging: erofs: code cleanup for erofs_kmalloc()
+  staging: erofs: code cleanup for option parsing of fault_injection
+  staging: erofs: introduce a new helper __erofs_build_fault_attr()
+  staging: erofs: return -EINVAL when specifying fault rate to 0
+  staging: erofs: introduce a new helper erofs_get_fault_rate()
+  staging: erofs: code cleanup for erofs_show_options()
+  staging: erofs: option validation in remount
 
-Thanks,
+ drivers/staging/erofs/internal.h | 16 ++++---
+ drivers/staging/erofs/super.c    | 74 +++++++++++++++++++++++++-------
+ 2 files changed, 69 insertions(+), 21 deletions(-)
+
+-- 
+2.17.1
