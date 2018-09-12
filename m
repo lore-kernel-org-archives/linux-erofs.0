@@ -1,91 +1,136 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 12 Sep 2018 14:21:51 +0800
-Subject: [PATCH v4] staging: erofs: use explicit unsigned int type
-In-Reply-To: <20180910194114.13314-1-linux@weissschuh.net>
-References: <23218dc6-8aba-a4e6-7c18-64380082f747@kernel.org>
- <20180910194114.13314-1-linux@weissschuh.net>
-Message-ID: <94678bbe-4d9b-67a7-c3a4-b711fe32c432@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Wed, 12 Sep 2018 15:19:16 +0800
+Subject: [PATCH] Revert "staging: erofs: disable compiling temporarile"
+In-Reply-To: <20180906092504.282d5f62@canb.auug.org.au>
+References: <1535427588-69630-1-git-send-email-gaoxiang25@huawei.com>
+ <20180828054444.GA4453@kroah.com>
+ <0c701b3c-5553-cf4c-c0b3-ad151b84662c@huawei.com>
+ <f12ae5df-3130-f293-5863-3d9ff0802e92@huawei.com>
+ <20180828130559.GA5427@kroah.com>
+ <16974cb6-2eed-7c12-9e27-c65a32b81673@huawei.com>
+ <20180829094403.3a3bf19b@canb.auug.org.au>
+ <20180906092504.282d5f62@canb.auug.org.au>
+Message-ID: <58dbf050-ac24-9d8a-bbf3-0e28e10149ff@huawei.com>
 
-Hi Thomas,
+Hi Stephen,
 
-On 2018/9/11 3:41, Thomas Wei?schuh wrote:
-> Hi Chao,
+To make sure, did -next tree enable erofs compiling now?
+
+Xiang has made two patches to fix integration issue with other vfs changes,
+and Greg and David have already picked them in their tree.
+
+staging: erofs: rename superblock flags (MS_xyz -> SB_xyz)
+staging: erofs: update .mount and .remount_sb
+
+On 2018/9/6 7:25, Stephen Rothwell wrote:
+> Hi all,
 > 
-> On Mon, 2018-09-10T23:59+0800, Chao Yu wrote:
->> [...]
->>>> I was not aware of this tree and worked off of staging / next.
->>>> A patch is attached to this message that adds the tree to the MAINTAINERS file.
->>> Hi Chao,
->>>
->>> I think this tree has some PREVIEW patches which preview in linux-erofs mailing list only and
->>> doesn't send to staging mailing list and LKML,
->>>
->>> https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git/log/?h=erofs
->>>
->>> so erofs tree is actually Greg's staging tree.
->> Thomas,
+> On Wed, 29 Aug 2018 09:44:03 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 >>
->> I confirmed that erofs git repository for linux upstream is Greg's staging tree.
+>> On Tue, 28 Aug 2018 22:13:02 +0800 Chao Yu <yuchao0@huawei.com> wrote:
+>>>
+>>> On 2018/8/28 21:05, Greg Kroah-Hartman wrote:  
+>>>> On Tue, Aug 28, 2018 at 04:56:43PM +0800, Chao Yu wrote:    
+>>>>>
+>>>>> On 2018/8/28 14:28, Gao Xiang wrote:    
+>>>>>>
+>>>>>> On 2018/8/28 13:44, Greg Kroah-Hartman wrote:    
+>>>>>>> On Tue, Aug 28, 2018 at 11:39:48AM +0800, Gao Xiang wrote:    
+>>>>>>>> This reverts commit 156c3df8d4db4e693c062978186f44079413d74d.
+>>>>>>>>
+>>>>>>>> Since XArray and the new mount apis aren't merged in 4.19-rc1
+>>>>>>>> merge window, the BROKEN mark can be reverted directly without
+>>>>>>>> any problems.
+>>>>>>>>
+>>>>>>>> Fixes: 156c3df8d4db ("staging: erofs: disable compiling temporarile")
+>>>>>>>> Cc: Matthew Wilcox <willy at infradead.org>
+>>>>>>>> Cc: David Howells <dhowells at redhat.com>
+>>>>>>>> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+>>>>>>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+>>>>>>>> ---
+>>>>>>>>
+>>>>>>>> Hi Greg,
+>>>>>>>>
+>>>>>>>>  Could you please apply this patch to enable EROFS from 4.19-rc2, thanks...
+>>>>>>>>
+>>>>>>>>  p.s. We would like to provide a more stable EROFS when linux-4.19 is out,
+>>>>>>>>       and there are also two patchsets (the one is already sent out by Chao
+>>>>>>>>       and me, the other is previewing in linux-erofs mailing list and it will
+>>>>>>>>       be sent out after gathering enough testdata and feedback from community
+>>>>>>>>       and carefully reviewed), could you also please consider applying these
+>>>>>>>>       two patchsets in the later 4.19-rc (both >2, or the first patchset
+>>>>>>>>       could be in rc2 in advance) if it is convenient to do so, or the next
+>>>>>>>>       4.20 is also ok...
+>>>>>>>>
+>>>>>>>>  LINK: https://lore.kernel.org/lkml/20180821144937.20555-1-chao at kernel.org/
+>>>>>>>>        https://lore.kernel.org/lkml/1535076160-99466-1-git-send-email-gaoxiang25 at huawei.com/    
+>>>>>>>
+>>>>>>> I applied those patch sets to my -next branch already, right?  So those    
+>>>>>>
+>>>>>> Yes, Thank you for applying those patches. :)
+>>>>>>    
+>>>>>>> would be going into 4.20-rc1, it is time now for "bugfixes only" for
+>>>>>>> 4.19-final.
+>>>>>>>
+>>>>>>> So perhaps we should just leave it as "BROKEN" for now for 4.19 and add
+>>>>>>> this to my tree now and let people work on it for the next few months in    
+>>>>>
+>>>>> I'm worry about that once we plan to reenable erofs in next x.xx-rc1, in the
+>>>>> merge window, if there are any other features change common api or structure in
+>>>>> vfs/mm/block, but related patch didn't cover erofs, that would make conflict
+>>>>> with erofs.
+>>>>>
+>>>>> So if that happens, we can just reminder them to cover erofs? or we should
+>>>>> handle this by just delay removing 'BROKEN' state?
+>>>>>
+>>>>> Thanks,
+>>>>>    
+>>>>>>> linux-next so that 4.20 has a solid base to start with?
+>>>>>>>    
+>>>>>>
+>>>>>> EROFS is be marked as "BROKEN" just because of conflict with
+>>>>>> XArray and the new mount apis, as Stephen Rothwell suggested in
+>>>>>>
+>>>>>> https://lore.kernel.org/lkml/20180802010705.24a72730 at canb.auug.org.au/
+>>>>>>    
+>>>>>>> It might be easiest for Greg to add the disabling CONFIG_EROFS_FS patch
+>>>>>>> to the staging tree itself for his first pull request during the merge
+>>>>>>> window and then send a second pull request (after the vfs and maybe the
+>>>>>>> Xarray stuff has been merged by Linus) with these patches followed by a
+>>>>>>> revert of the disabling patch.    
+>>>>>>
+>>>>>> But these two features was still discussing in the mailing list even at the
+>>>>>> last time of 4.19-rc1 merge window. I cannot decide whether they were eventually
+>>>>>> get merged in 4.19 or not. But it seems that it is regretful that linux-4.19
+>>>>>> is out without XArray and the new mount apis.
+>>>>>>
+>>>>>> Therefore, I think EROFS should work for linux-4.19 without any modification
+>>>>>> if just revert the BROKEN mark.    
+>>>>
+>>>> Ok, you are right, I'll go apply this.
+>>>>     
+>>>>>> EROFS works fine with the 4.19-rc1 code except that it has some __GFP_NOFAIL
+>>>>>> and BUG_ONs on error handling paths and very rarely race between memory
+>>>>>> reclaiming and decompression... :( I personally think it is complete enough
+>>>>>> for people to test since it is an independent and staging filesystem driver (no
+>>>>>> other influence...) Anyway, removing EROFS BROKEN mark at 4.20 is also ok of course...
+>>>>>>
+>>>>>> On the other head, if XArray and the new mount apis is still pending for 4.20,
+>>>>>> should EROFS uses the same policy as Stephen suggested? I have no idea how to do next...    
+>>>>
+>>>> As the code is now part of the common tree that everyone works off of,
+>>>> any filesystem changes that happen will normally cover erofs as well.
+>>>> So this shouldn't be an issue anymore.    
+>>>
+>>> Thanks very much for the help and explanation, we will keep an eye on those vfs
+>>> changes. :)  
 >>
->> Let me explain, in order to avoid sending buggy or preview patch, Xiang and me
->> plan to review patches in erofs mailing list first, and then cache reviewed
->> patches in my git tree before sending them to Greg and staging mailing list.
+>> Unfortunately, those vfs changes are still in the vfs tree in
+>> linux-next and cause a build failure in the erofs code.  I have
+>> disabled the build of erofs again for today.
 >>
->> Based on that, I'm trying to serialize all erofs patches, expecting that can
->> help those patches sent to staging mailing list can be merged by Greg with
->> lesser conflict. But I made a mistake that my erofs branch has merged some
->> pending patches, result in failing to merge yours, that mislead me to ask you to
->> rebase the code, sorry about that.
-> Thank you for clearing this up! And I am sorry for causing you all this work
-> for what is essentially a very small style cleanup.
+>> Dave, Al, it would be good if you could add a patch/revise the series
+>> that adds the necessary erofs changes.
 > 
->> Now I can confirm that your v2 patch can apply on Greg's staging-next, so fixing
->> warning reported by checkpatch.pl on your v2 patch is enough. :)
-> The patch follows.
+> I still have to disable erofs .....
 > 
-> Thomas
-
-Could you please resend your patch seperately? Because it will be easier for Greg to merge.
-
-> 
-> 
-> Changes since v1:
-> 
-> * Removed changes that conflicted with
->   [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
-> * Added patch description
-> 
-> Changes since v2:
-> 
-> * Fixed conflicts with other patchsets
-> * Don't introduce new style issues
-> 
-> Changes since v3:
-> 
-> * Fixed conflicts with other patchsets
-> 
-> Note: This patchset should be applied with the "git am --scissors", to
-> remove the historic information and this note.
-> 
-> -- >8 --
-
-I personally think that is not the correct kernel patch style.
-
-Just as Greg's said,
-> These changes belong below the --- line, not above it.
-
-LINK: https://lists.ozlabs.org/pipermail/linux-erofs/2018-August/000367.html
-
-For reference, it will help the patch quickly get merged. ;)
-
-and you could add,
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-Thanks,
-Gao Xiang
-
-> 
-> Fix coding style issue "Prefer 'unsigned int' to bare use of 'unsigned'"
-> detected by checkpatch.pl.
-> 
-> Signed-off-by: Thomas Wei?schuh <linux at weissschuh.net>
