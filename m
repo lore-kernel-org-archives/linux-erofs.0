@@ -1,218 +1,111 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 13 Sep 2018 23:45:58 +0800
-Subject: [NOMERGE] [WIP] [RFC PATCH 2/2] staging: erofs: use the new
- LZ4_decompress_safe_partial
-In-Reply-To: <1536853558-4059-1-git-send-email-gaoxiang25@huawei.com>
-References: <1536853558-4059-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1536853558-4059-2-git-send-email-gaoxiang25@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Fri, 14 Sep 2018 00:46:43 +0800
+Subject: [PATCH v4] staging: erofs: use explicit unsigned int type
+In-Reply-To: <94678bbe-4d9b-67a7-c3a4-b711fe32c432@huawei.com>
+References: <23218dc6-8aba-a4e6-7c18-64380082f747@kernel.org>
+ <20180910194114.13314-1-linux@weissschuh.net>
+ <94678bbe-4d9b-67a7-c3a4-b711fe32c432@huawei.com>
+Message-ID: <74596044-aceb-74e3-e70d-fe9a717e44c4@aol.com>
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_lz4.c | 189 +-------------------------------------
- 1 file changed, 2 insertions(+), 187 deletions(-)
+Hi Thomas,
 
-diff --git a/drivers/staging/erofs/unzip_lz4.c b/drivers/staging/erofs/unzip_lz4.c
-index b1ea23f..32e8ab7 100644
---- a/drivers/staging/erofs/unzip_lz4.c
-+++ b/drivers/staging/erofs/unzip_lz4.c
-@@ -41,196 +41,11 @@
-  *	Sven Schmidt <4sschmid at informatik.uni-hamburg.de>
-  */
- #include "internal.h"
--#include <asm/unaligned.h>
--#include "lz4defs.h"
--
--/*
-- * no public solution to solve our requirement yet.
-- * see: <required buffer size for LZ4_decompress_safe_partial>
-- *      https://groups.google.com/forum/#!topic/lz4c/_3kkz5N6n00
-- */
--static FORCE_INLINE int customized_lz4_decompress_safe_partial(
--	const void * const source,
--	void * const dest,
--	int inputSize,
--	int outputSize)
--{
--	/* Local Variables */
--	const BYTE *ip = (const BYTE *) source;
--	const BYTE * const iend = ip + inputSize;
--
--	BYTE *op = (BYTE *) dest;
--	BYTE * const oend = op + outputSize;
--	BYTE *cpy;
--
--	static const unsigned int dec32table[] = { 0, 1, 2, 1, 4, 4, 4, 4 };
--	static const int dec64table[] = { 0, 0, 0, -1, 0, 1, 2, 3 };
--
--	/* Empty output buffer */
--	if (unlikely(outputSize == 0))
--		return ((inputSize == 1) && (*ip == 0)) ? 0 : -1;
--
--	/* Main Loop : decode sequences */
--	while (1) {
--		size_t length;
--		const BYTE *match;
--		size_t offset;
--
--		/* get literal length */
--		unsigned int const token = *ip++;
--
--		length = token>>ML_BITS;
--
--		if (length == RUN_MASK) {
--			unsigned int s;
--
--			do {
--				s = *ip++;
--				length += s;
--			} while ((ip < iend - RUN_MASK) & (s == 255));
--
--			if (unlikely((size_t)(op + length) < (size_t)(op))) {
--				/* overflow detection */
--				goto _output_error;
--			}
--			if (unlikely((size_t)(ip + length) < (size_t)(ip))) {
--				/* overflow detection */
--				goto _output_error;
--			}
--		}
--
--		/* copy literals */
--		cpy = op + length;
--		if ((cpy > oend - WILDCOPYLENGTH) ||
--			(ip + length > iend - (2 + 1 + LASTLITERALS))) {
--			if (cpy > oend) {
--				memcpy(op, ip, length = oend - op);
--				op += length;
--				break;
--			}
--
--			if (unlikely(ip + length > iend)) {
--				/*
--				 * Error :
--				 * read attempt beyond
--				 * end of input buffer
--				 */
--				goto _output_error;
--			}
--
--			memcpy(op, ip, length);
--			ip += length;
--			op += length;
--
--			if (ip > iend - 2)
--				break;
--			/* Necessarily EOF, due to parsing restrictions */
--			/* break; */
--		} else {
--			LZ4_wildCopy(op, ip, cpy);
--			ip += length;
--			op = cpy;
--		}
--
--		/* get offset */
--		offset = LZ4_readLE16(ip);
--		ip += 2;
--		match = op - offset;
--
--		if (unlikely(match < (const BYTE *)dest)) {
--			/* Error : offset outside buffers */
--			goto _output_error;
--		}
--
--		/* get matchlength */
--		length = token & ML_MASK;
--		if (length == ML_MASK) {
--			unsigned int s;
--
--			do {
--				s = *ip++;
--
--				if (ip > iend - LASTLITERALS)
--					goto _output_error;
--
--				length += s;
--			} while (s == 255);
--
--			if (unlikely((size_t)(op + length) < (size_t)op)) {
--				/* overflow detection */
--				goto _output_error;
--			}
--		}
--
--		length += MINMATCH;
--
--		/* copy match within block */
--		cpy = op + length;
--
--		if (unlikely(cpy >= oend - WILDCOPYLENGTH)) {
--			if (cpy >= oend) {
--				while (op < oend)
--					*op++ = *match++;
--				break;
--			}
--			goto __match;
--		}
--
--		/* costs ~1%; silence an msan warning when offset == 0 */
--		LZ4_write32(op, (U32)offset);
--
--		if (unlikely(offset < 8)) {
--			const int dec64 = dec64table[offset];
--
--			op[0] = match[0];
--			op[1] = match[1];
--			op[2] = match[2];
--			op[3] = match[3];
--			match += dec32table[offset];
--			memcpy(op + 4, match, 4);
--			match -= dec64;
--		} else {
--			LZ4_copy8(op, match);
--			match += 8;
--		}
--
--		op += 8;
--
--		if (unlikely(cpy > oend - 12)) {
--			BYTE * const oCopyLimit = oend - (WILDCOPYLENGTH - 1);
--
--			if (op < oCopyLimit) {
--				LZ4_wildCopy(op, match, oCopyLimit);
--				match += oCopyLimit - op;
--				op = oCopyLimit;
--			}
--__match:
--			while (op < cpy)
--				*op++ = *match++;
--		} else {
--			LZ4_copy8(op, match);
--
--			if (length > 16)
--				LZ4_wildCopy(op + 8, match + 8, cpy);
--		}
--
--		op = cpy; /* correction */
--	}
--	DBG_BUGON((void *)ip - source > inputSize);
--	DBG_BUGON((void *)op - dest > outputSize);
--
--	/* Nb of output bytes decoded */
--	return (int) ((void *)op - dest);
--
--	/* Overflow error detected */
--_output_error:
--	return -ERANGE;
--}
-+#include <linux/lz4.h>
- 
- int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
- {
--	int ret = customized_lz4_decompress_safe_partial(in,
--		out, inlen, outlen);
-+	int ret = LZ4_decompress_safe_partial(in, out, inlen, outlen, outlen);
- 
- 	if (ret >= 0)
- 		return ret;
--- 
-1.9.1
+ping...
+
+On 2018/9/12 14:21, Gao Xiang wrote:
+> Hi Thomas,
+> 
+> On 2018/9/11 3:41, Thomas Wei?schuh wrote:
+>> Hi Chao,
+>>
+>> On Mon, 2018-09-10T23:59+0800, Chao Yu wrote:
+>>> [...]
+>>>>> I was not aware of this tree and worked off of staging / next.
+>>>>> A patch is attached to this message that adds the tree to the MAINTAINERS file.
+>>>> Hi Chao,
+>>>>
+>>>> I think this tree has some PREVIEW patches which preview in linux-erofs mailing list only and
+>>>> doesn't send to staging mailing list and LKML,
+>>>>
+>>>> https://git.kernel.org/pub/scm/linux/kernel/git/chao/linux.git/log/?h=erofs
+>>>>
+>>>> so erofs tree is actually Greg's staging tree.
+>>> Thomas,
+>>>
+>>> I confirmed that erofs git repository for linux upstream is Greg's staging tree.
+>>>
+>>> Let me explain, in order to avoid sending buggy or preview patch, Xiang and me
+>>> plan to review patches in erofs mailing list first, and then cache reviewed
+>>> patches in my git tree before sending them to Greg and staging mailing list.
+>>>
+>>> Based on that, I'm trying to serialize all erofs patches, expecting that can
+>>> help those patches sent to staging mailing list can be merged by Greg with
+>>> lesser conflict. But I made a mistake that my erofs branch has merged some
+>>> pending patches, result in failing to merge yours, that mislead me to ask you to
+>>> rebase the code, sorry about that.
+>> Thank you for clearing this up! And I am sorry for causing you all this work
+>> for what is essentially a very small style cleanup.
+>>
+>>> Now I can confirm that your v2 patch can apply on Greg's staging-next, so fixing
+>>> warning reported by checkpatch.pl on your v2 patch is enough. :)
+>> The patch follows.
+>>
+>> Thomas
+> 
+> Could you please resend your patch seperately? Because it will be easier for Greg to merge.
+> 
+>>
+>>
+>> Changes since v1:
+>>
+>> * Removed changes that conflicted with
+>>   [PATCH 1/6] staging: erofs: formatting fix in unzip_vle_lz4.c
+>> * Added patch description
+>>
+>> Changes since v2:
+>>
+>> * Fixed conflicts with other patchsets
+>> * Don't introduce new style issues
+>>
+>> Changes since v3:
+>>
+>> * Fixed conflicts with other patchsets
+>>
+>> Note: This patchset should be applied with the "git am --scissors", to
+>> remove the historic information and this note.
+>>
+>> -- >8 --
+> 
+> I personally think that is not the correct kernel patch style.
+> 
+> Just as Greg's said,
+>> These changes belong below the --- line, not above it.
+> 
+> LINK: https://lists.ozlabs.org/pipermail/linux-erofs/2018-August/000367.html
+> 
+> For reference, it will help the patch quickly get merged. ;)
+> 
+> and you could add,
+> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+> 
+> Thanks,
+> Gao Xiang
+> 
+
+and HUAWEI email server cannot send my all emails to your mailbox successfully.
+Since you change a lot of files,I need to rebase my rest preview patches one by one right now.
+
+Could you please resend a acceptable independent final patch for Greg? :)
+
+Thanks,
+Gao Xiang
+
+>>
+>> Fix coding style issue "Prefer 'unsigned int' to bare use of 'unsigned'"
+>> detected by checkpatch.pl.
+>>
+>> Signed-off-by: Thomas Wei?schuh <linux at weissschuh.net>
+> _______________________________________________
+> devel mailing list
+> devel at linuxdriverproject.org
+> http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel
+> 
