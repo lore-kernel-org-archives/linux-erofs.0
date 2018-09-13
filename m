@@ -1,85 +1,74 @@
-From: cgxu519@gmx.com (cgxu519)
-Date: Wed, 12 Sep 2018 23:01:48 +0800
-Subject: [PATCH 3/7] staging: erofs: introduce a new helper
- __erofs_build_fault_attr()
-In-Reply-To: <c9a7a3d6-3c66-316e-cc5b-903e15286a0d@aol.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Thu, 13 Sep 2018 10:04:11 +0800
+Subject: [PATCH 1/7] staging: erofs: code cleanup for erofs_kmalloc()
+In-Reply-To: <20180912051034.3463-2-cgxu519@gmx.com>
 References: <20180912051034.3463-1-cgxu519@gmx.com>
- <20180912051034.3463-4-cgxu519@gmx.com>
- <815bae09-2948-4bac-ef55-abf6d2595750@huawei.com>
- <4e1a1cad-9323-b730-da3f-d7febd40fd3f@gmx.com>
- <c9a7a3d6-3c66-316e-cc5b-903e15286a0d@aol.com>
-Message-ID: <e1cbd3dd-65dc-5399-483b-7d76970d3b8e@gmx.com>
+ <20180912051034.3463-2-cgxu519@gmx.com>
+Message-ID: <d6e3cc1c-2bb3-20ee-867c-b69893405b14@huawei.com>
 
-On 09/12/2018 10:50 PM, Gao Xiang wrote:
->
-> On 2018/9/12 22:23, cgxu519 wrote:
->> On 09/12/2018 07:22 PM, Gao Xiang wrote:
->>> Hi Chengguang,
->>>
->>> On 2018/9/12 13:10, Chengguang Xu wrote:
->>>> Introduce a new helper __erofs_build_fault_attr() to handle set/clear
->>>> erofs_fault_info, we need this funciton for internal use case.
->>>> for example, reset fault_injection option in remount.
->>>>
->>>> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
->>>> ---
->>>>  ? drivers/staging/erofs/super.c | 26 ++++++++++++++++++--------
->>>>  ? 1 file changed, 18 insertions(+), 8 deletions(-)
->>>>
->>>> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
->>>> index 14dbb6517b8d..d2dbc1fd3abb 100644
->>>> --- a/drivers/staging/erofs/super.c
->>>> +++ b/drivers/staging/erofs/super.c
->>>> @@ -144,15 +144,9 @@ char *erofs_fault_name[FAULT_MAX] = {
->>>>  ????? [FAULT_KMALLOC]??????? = "kmalloc",
->>>>  ? };
->>>>  ? -static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
->>>> -??????????????????? substring_t *args)
->>>> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
->>>> +??????????????????? unsigned int rate)
->>>>  ? {
->>>> -??? struct erofs_fault_info *ffi = &sbi->fault_info;
->>>> -??? int rate = 0;
->>>> -
->>>> -??? if (args->from && match_int(args, &rate))
->>>> -??????? return -EINVAL;
->>>> -
->>>>  ????? if (rate) {
->>> I get some compile error of this patch...
->>> drivers/staging/erofs/super.c: In function ?__erofs_build_fault_attr?:
->>> drivers/staging/erofs/super.c:156:15: error: ?ffi? undeclared (first use in this function)
->>>  ??? atomic_set(&ffi->inject_ops, 0);
->>>  ??????????????? ^
->>> drivers/staging/erofs/super.c:156:15: note: each undeclared identifier is reported only once for each function it appears in
->>> drivers/staging/erofs/super.c: In function ?erofs_build_fault_attr?:
->>> drivers/staging/erofs/super.c:169:27: warning: unused variable ?ffi? [-Wunused-variable]
->>>  ?? struct erofs_fault_info *ffi = &sbi->fault_info;
->> Sorry for that, I'll fix it in rebased version.
->>
->>> p.s. could you please rebase your patch on Thomas's [PATCH v4] staging: erofs: use explicit unsigned int type ?
->>> since I'm rebasing the rest PREVIEW patches on this commit now.
->> I noticed Thomas' patch had already committed to erofs-master branch in Chao's linux git repo, also my
->> previous patch but not in erofs-dev branch. So should I rebase on erofs-master?
->> Could you give me a little more guide for it?
-> Hi Chengguang,
->
-> Recently many cleanup patches submitted to Greg's staging tree and I need to
-> rebase the rest erofs preview patches for linux-4.20 on these accepted
-> cleanup patches.
->
-> I think you could make your patch based on Thomas's patch (erofs-master
-> branch in Chao's linux git repo), you could also tell Chao drop your
-> previous patch.
+On 2018/9/12 13:10, Chengguang Xu wrote:
+> Define a dummy function of time_to_inject(), so that we don't
+> have to check macro CONFIG_EROFS_FAULT_INJECTION in calling place.
+> Base on above adjustment, do proper code cleanup for erofs_kmalloc().
+> 
+> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+> ---
+>  drivers/staging/erofs/internal.h | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 367b39fe46e5..1bb2e9e96143 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -42,12 +42,12 @@
+>  #define DBG_BUGON(...)          ((void)0)
+>  #endif
+>  
+> -#ifdef CONFIG_EROFS_FAULT_INJECTION
+>  enum {
+>  	FAULT_KMALLOC,
+>  	FAULT_MAX,
+>  };
+>  
+> +#ifdef CONFIG_EROFS_FAULT_INJECTION
+>  extern char *erofs_fault_name[FAULT_MAX];
+>  #define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
+>  
+> @@ -139,21 +139,25 @@ static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
+>  	atomic_inc(&ffi->inject_ops);
+>  	if (atomic_read(&ffi->inject_ops) >= ffi->inject_rate) {
+>  		atomic_set(&ffi->inject_ops, 0);
+> +		erofs_show_injection_info(type);
 
-Hi Xiang,
-
-Thanks for explanation, that will be fine.
-
-Hi Chao,
-
-What do you think for these patches? If you think they are worth to do 
-then please
-revert my previous patch and I'll resend rebased version.
+I prefer to show injection info in original place, where we can show real
+caller of time_to_inject().
 
 Thanks,
-Chengguang
+
+>  		return true;
+>  	}
+>  	return false;
+>  }
+> +
+> +#else
+> +static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
+> +{
+> +	return false;
+> +}
+>  #endif
+>  
+>  static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
+>  					size_t size, gfp_t flags)
+>  {
+> -#ifdef CONFIG_EROFS_FAULT_INJECTION
+> -	if (time_to_inject(sbi, FAULT_KMALLOC)) {
+> -		erofs_show_injection_info(FAULT_KMALLOC);
+> +	if (time_to_inject(sbi, FAULT_KMALLOC))
+>  		return NULL;
+> -	}
+> -#endif
+> +
+>  	return kmalloc(size, flags);
+>  }
+>  
+> 
