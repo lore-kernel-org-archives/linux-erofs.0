@@ -1,35 +1,46 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Mon, 17 Sep 2018 23:34:25 +0800
-Subject: [PATCH v2 5/6] staging: erofs: code cleanup for erofs_show_options()
+Date: Mon, 17 Sep 2018 23:34:26 +0800
+Subject: [PATCH v2 6/6] staging: erofs: option validation in remount
 In-Reply-To: <20180917153426.16880-1-cgxu519@gmx.com>
 References: <20180917153426.16880-1-cgxu519@gmx.com>
-Message-ID: <20180917153426.16880-6-cgxu519@gmx.com>
+Message-ID: <20180917153426.16880-7-cgxu519@gmx.com>
 
-Call erofs_get_fault_rate() to get fault rate instead of
-directly getting it from sbi, so we can remove the macro
-check surrounding it.
+Add option validation in remount. After this patch, remount
+can change recognized options, and for unknown options remount
+will fail and report error.
 
 Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 ---
- drivers/staging/erofs/super.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/staging/erofs/super.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 24f3423ed804..a6a4874d9c9e 100644
+index a6a4874d9c9e..2a952cc7e27d 100644
 --- a/drivers/staging/erofs/super.c
 +++ b/drivers/staging/erofs/super.c
-@@ -648,11 +648,9 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
- 	else
- 		seq_puts(seq, ",noacl");
- #endif
--#ifdef CONFIG_EROFS_FAULT_INJECTION
- 	if (test_opt(sbi, FAULT_INJECTION))
- 		seq_printf(seq, ",fault_injection=%u",
--				sbi->fault_info.inject_rate);
--#endif
-+			erofs_get_fault_rate(sbi));
+@@ -656,10 +656,23 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 
+ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ {
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned int org_mnt_opt = sbi->mount_opt;
++	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
++	int err;
++
+ 	BUG_ON(!sb_rdonly(sb));
++	err = parse_options(sb, data);
++	if (err)
++		goto out;
+ 
+ 	*flags |= MS_RDONLY;
  	return 0;
++out:
++	__erofs_build_fault_attr(sbi, org_inject_rate);
++	sbi->mount_opt = org_mnt_opt;
++
++	return err;
  }
  
+ const struct super_operations erofs_sops = {
 -- 
 2.17.1
