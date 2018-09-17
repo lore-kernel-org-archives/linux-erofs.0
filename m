@@ -1,89 +1,65 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Mon, 17 Sep 2018 23:34:22 +0800
-Subject: [PATCH v2 2/6] staging: erofs: code cleanup for option parsing of
- fault_injection
+Date: Mon, 17 Sep 2018 23:34:23 +0800
+Subject: [PATCH v2 3/6] staging: erofs: introduce a new helper
+ __erofs_build_fault_attr()
 In-Reply-To: <20180917153426.16880-1-cgxu519@gmx.com>
 References: <20180917153426.16880-1-cgxu519@gmx.com>
-Message-ID: <20180917153426.16880-3-cgxu519@gmx.com>
+Message-ID: <20180917153426.16880-4-cgxu519@gmx.com>
 
-Define a dummpy function of erofs_build_fault_attr() when macro
-CONFIG_EROFS_FAULT_INJECTION is disabled, so that we don't have to
-check the macro in calling place. Based on above adjustment,
-do proper code cleanup for option parsing of fault_injection.
+Introduce a new helper __erofs_build_fault_attr() to handle set/clear
+erofs_fault_info, we need this funciton for internal use case.
+for example, reset fault_injection option in remount.
 
 Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 ---
- drivers/staging/erofs/super.c | 33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ drivers/staging/erofs/super.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 9e421536cbdf..7ce2fd3d49f3 100644
+index 7ce2fd3d49f3..3f5ae64b9c60 100644
 --- a/drivers/staging/erofs/super.c
 +++ b/drivers/staging/erofs/super.c
-@@ -145,10 +145,14 @@ char *erofs_fault_name[FAULT_MAX] = {
+@@ -145,14 +145,10 @@ char *erofs_fault_name[FAULT_MAX] = {
  	[FAULT_KMALLOC]		= "kmalloc",
  };
  
--static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
--						unsigned int rate)
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+					substring_t *args)
+-static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+-					substring_t *args)
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++					unsigned int rate)
  {
  	struct erofs_fault_info *ffi = &sbi->fault_info;
+-	int rate = 0;
+-
+-	if (args->from && match_int(args, &rate))
+-		return -EINVAL;
+ 
+ 	if (rate) {
+ 		atomic_set(&ffi->inject_ops, 0);
+@@ -164,7 +160,24 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 
+ 	set_opt(sbi, FAILt_INJECTION);
+ }
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++					substring_t *args)
++{
 +	int rate = 0;
 +
 +	if (args->from && match_int(args, &rate))
 +		return -EINVAL;
- 
- 	if (rate) {
- 		atomic_set(&ffi->inject_ops, 0);
-@@ -157,6 +161,15 @@ static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
- 	} else {
- 		memset(ffi, 0, sizeof(struct erofs_fault_info));
- 	}
 +
-+	set_opt(sbi, FAILt_INJECTION);
-+}
-+#else
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+					substring_t *args)
-+{
-+	infoln("fault_injection options not supported");
++	__erofs_build_fault_attr(sbi, rate);
 +	return 0;
- }
- #endif
- 
-@@ -193,7 +206,7 @@ static int parse_options(struct super_block *sb, char *options)
- {
- 	substring_t args[MAX_OPT_ARGS];
- 	char *p;
--	int arg = 0;
-+	int err;
- 
- 	if (!options)
- 		return 0;
-@@ -238,18 +251,12 @@ static int parse_options(struct super_block *sb, char *options)
- 			infoln("noacl options not supported");
- 			break;
- #endif
--#ifdef CONFIG_EROFS_FAULT_INJECTION
--		case Opt_fault_injection:
--			if (args->from && match_int(args, &arg))
--				return -EINVAL;
--			erofs_build_fault_attr(EROFS_SB(sb), arg);
--			set_opt(EROFS_SB(sb), FAULT_INJECTION);
--			break;
--#else
- 		case Opt_fault_injection:
--			infoln("fault_injection options not supported");
-+			err = erofs_build_fault_attr(EROFS_SB(sb), args);
-+			if (err)
-+				return err;
- 			break;
--#endif
++}
+ #else
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++					unsigned int rate)
++{
++}
 +
- 		default:
- 			errln("Unrecognized mount option \"%s\" "
- 					"or missing value", p);
+ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 					substring_t *args)
+ {
 -- 
 2.17.1
