@@ -1,65 +1,44 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Tue, 18 Sep 2018 23:10:55 +0800
-Subject: [PATCH v3 1/4] staging: erofs: code cleanup for erofs_kmalloc()
-In-Reply-To: <20180918151058.25041-1-cgxu519@gmx.com>
-References: <20180918151058.25041-1-cgxu519@gmx.com>
-Message-ID: <20180918151058.25041-2-cgxu519@gmx.com>
+Date: Tue, 18 Sep 2018 23:10:54 +0800
+Subject: [PATCH v3 0/4] staging: erofs: option validation for remount and some
+ code cleanups
+Message-ID: <20180918151058.25041-1-cgxu519@gmx.com>
 
-Define a dummy function of time_to_inject()/erofs_show_injection_info(),
-so that we don't have to check macro CONFIG_EROFS_FAULT_INJECTION in
-calling place.
+This patch set mainly does option validation for remount and at
+the same time does related code cleanups. Currently when we call
+fault injection related code we have to surround it with macro
+CONFIG_EROFS_FAULT_INJECTION in every calling place, after this
+patch set we don't have to do that, so the code looks clean and
+more understandable.
 
-Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/internal.h | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+v2->v3:
+- Fold related patches to one patch.
+- Fix building issue.
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index f20c6e9b7471..0011b9d505fd 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -42,12 +42,12 @@
- #define DBG_BUGON(...)          ((void)0)
- #endif
- 
--#ifdef CONFIG_EROFS_FAULT_INJECTION
- enum {
- 	FAULT_KMALLOC,
- 	FAULT_MAX,
- };
- 
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
- extern char *erofs_fault_name[FAULT_MAX];
- #define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
- 
-@@ -143,17 +143,24 @@ static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
- 	}
- 	return false;
- }
-+#else
-+static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
-+{
-+	return false;
-+}
-+
-+static inline void erofs_show_injection_info(int type)
-+{
-+}
- #endif
- 
- static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
- 					size_t size, gfp_t flags)
- {
--#ifdef CONFIG_EROFS_FAULT_INJECTION
- 	if (time_to_inject(sbi, FAULT_KMALLOC)) {
- 		erofs_show_injection_info(FAULT_KMALLOC);
- 		return NULL;
- 	}
--#endif
- 	return kmalloc(size, flags);
- }
- 
+v1->v2:
+Address Chao's comments:
+- Allow to set fault_injection=0.
+- Keep flag bit when setting fault_injection=0.
+- Show injection info in original place.
+- Rebase code on latest erofs branch in Chao's linux tree.
+- Fix building issue.
+
+Hi Greg,
+
+You may pick up rest 2-4 patches in this patch set if there
+are no more comments from Chao and Xiang.
+
+Thanks,
+
+Chengguang Xu (4):
+  staging: erofs: code cleanup for erofs_kmalloc()
+  staging: erofs: code cleanup for option parsing of fault_injection
+  staging: erofs: code cleanup for erofs_show_options()
+  staging: erofs: option validation in remount
+
+ drivers/staging/erofs/internal.h | 13 ++++--
+ drivers/staging/erofs/super.c    | 73 +++++++++++++++++++++++++-------
+ 2 files changed, 67 insertions(+), 19 deletions(-)
+
 -- 
 2.17.1
