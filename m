@@ -1,39 +1,65 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 18 Sep 2018 22:38:22 +0800
-Subject: [PATCH v2 0/8] staging: erofs: error handing and more tracepoints
-In-Reply-To: <20180918143605.GA19347@kroah.com>
-References: <1537280740-122019-1-git-send-email-gaoxiang25@huawei.com>
- <20180918143605.GA19347@kroah.com>
-Message-ID: <744aeccc-8a8e-072a-501b-2208d0888240@huawei.com>
+From: cgxu519@gmx.com (Chengguang Xu)
+Date: Tue, 18 Sep 2018 23:10:55 +0800
+Subject: [PATCH v3 1/4] staging: erofs: code cleanup for erofs_kmalloc()
+In-Reply-To: <20180918151058.25041-1-cgxu519@gmx.com>
+References: <20180918151058.25041-1-cgxu519@gmx.com>
+Message-ID: <20180918151058.25041-2-cgxu519@gmx.com>
 
-Hi Greg,
+Define a dummy function of time_to_inject()/erofs_show_injection_info(),
+so that we don't have to check macro CONFIG_EROFS_FAULT_INJECTION in
+calling place.
 
-On 2018/9/18 22:36, Greg Kroah-Hartman wrote:
-> On Tue, Sep 18, 2018@10:25:32PM +0800, Gao Xiang wrote:
->> change log v2:
->>   - fix a gcc warning reported by Greg for the patch
->>         staging: erofs: clean up z_erofs_map_blocks_iter
->>
->>
->> In order to avoid conflicts with cleanup patches, Chao and I think
->> it is better to send reviewed preview patches in the erofs mailing list
->> to the community in time.
->>
->> So here is reviewed & tested patches right now, which clean up and
->> enhance the error handing and add some tracepoints for decompression.
->>
->> Note that in this patchset, bare use of 'unsigned' and NULL comparison are
->> also fixed compared with the preview patches according to the previous
->> discussion in the staging mailing list.
-> 
-> Thanks for the resend, looks good.
+Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/internal.h | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-Thanks for applying...
-p.s. sorry for just expression... I mean "with my pleasure", sorry about my english...
-
-Thanks,
-Gao Xiang
-
-> 
-> greg k-h
-> 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index f20c6e9b7471..0011b9d505fd 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -42,12 +42,12 @@
+ #define DBG_BUGON(...)          ((void)0)
+ #endif
+ 
+-#ifdef CONFIG_EROFS_FAULT_INJECTION
+ enum {
+ 	FAULT_KMALLOC,
+ 	FAULT_MAX,
+ };
+ 
++#ifdef CONFIG_EROFS_FAULT_INJECTION
+ extern char *erofs_fault_name[FAULT_MAX];
+ #define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
+ 
+@@ -143,17 +143,24 @@ static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
+ 	}
+ 	return false;
+ }
++#else
++static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
++{
++	return false;
++}
++
++static inline void erofs_show_injection_info(int type)
++{
++}
+ #endif
+ 
+ static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
+ 					size_t size, gfp_t flags)
+ {
+-#ifdef CONFIG_EROFS_FAULT_INJECTION
+ 	if (time_to_inject(sbi, FAULT_KMALLOC)) {
+ 		erofs_show_injection_info(FAULT_KMALLOC);
+ 		return NULL;
+ 	}
+-#endif
+ 	return kmalloc(size, flags);
+ }
+ 
+-- 
+2.17.1
