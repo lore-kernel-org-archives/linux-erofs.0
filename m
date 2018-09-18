@@ -1,18 +1,37 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 18 Sep 2018 18:57:55 +0800
-Subject: [PATCH v2 6/6] staging: erofs: option validation in remount
-In-Reply-To: <20180917153426.16880-7-cgxu519@gmx.com>
-References: <20180917153426.16880-1-cgxu519@gmx.com>
- <20180917153426.16880-7-cgxu519@gmx.com>
-Message-ID: <2e1f90c3-9de1-9e78-7c14-f736f2246d40@huawei.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Tue, 18 Sep 2018 13:19:53 +0200
+Subject: [PATCH 0/8] staging: erofs: error handing and more tracepoints
+In-Reply-To: <1536936030-62362-1-git-send-email-gaoxiang25@huawei.com>
+References: <1536936030-62362-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <20180918111953.GA3585@kroah.com>
 
-On 2018/9/17 23:34, Chengguang Xu wrote:
-> Add option validation in remount. After this patch, remount
-> can change recognized options, and for unknown options remount
-> will fail and report error.
+On Fri, Sep 14, 2018@10:40:22PM +0800, Gao Xiang wrote:
+> In order to avoid conflicts with cleanup patches, Chao and I think
+> it is better to send reviewed preview patches in the erofs mailing list
+> to the community in time.
 > 
-> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+> So here is reviewed & tested patches right now, which clean up and
+> enhance the error handing and add some tracepoints for decompression.
+> 
+> Note that in this patchset, bare use of 'unsigned' and NULL comparison are
+> also fixed compared with the preview patches according to the previous
+> discussion in the staging mailing list.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+I applied this, but I need to go delete it as this patch series adds a
+build warning to the system:
 
-Thanks,
+In file included from drivers/staging/erofs/unzip_vle.h:16:0,
+                 from drivers/staging/erofs/unzip_vle.c:13:
+drivers/staging/erofs/unzip_vle.c: In function ?z_erofs_map_blocks_iter?:
+drivers/staging/erofs/internal.h:303:34: warning: ?pblk? may be used uninitialized in this function [-Wmaybe-uninitialized]
+ #define blknr_to_addr(nr)       ((erofs_off_t)(nr) * EROFS_BLKSIZ)
+                                  ^
+drivers/staging/erofs/unzip_vle.c:1574:20: note: ?pblk? was declared here
+  erofs_blk_t mblk, pblk;
+                    ^~~~
+
+Please fix that up and resend.
+
+thanks,
+
+greg k-h
