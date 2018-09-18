@@ -1,91 +1,95 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Tue, 18 Sep 2018 23:10:56 +0800
-Subject: [PATCH v3 2/4] staging: erofs: code cleanup for option parsing of
- fault_injection
+Date: Tue, 18 Sep 2018 23:10:58 +0800
+Subject: [PATCH v3 4/4] staging: erofs: option validation in remount
 In-Reply-To: <20180918151058.25041-1-cgxu519@gmx.com>
 References: <20180918151058.25041-1-cgxu519@gmx.com>
-Message-ID: <20180918151058.25041-3-cgxu519@gmx.com>
+Message-ID: <20180918151058.25041-5-cgxu519@gmx.com>
 
-Define a dummpy function of erofs_build_fault_attr() when macro
-CONFIG_EROFS_FAULT_INJECTION is disabled, so that we don't have to
-check the macro in calling place. Based on above adjustment,
-do proper code cleanup for option parsing of fault_injection.
+Add option validation in remount. After this patch, remount
+can change recognized options, and for unknown options remount
+will fail and report error.
 
 Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 ---
- drivers/staging/erofs/super.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ drivers/staging/erofs/super.c | 38 ++++++++++++++++++++++++++++-------
+ 1 file changed, 31 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 9e421536cbdf..f496e0c1d04d 100644
+index a091b93190e1..30b6b44dc6c4 100644
 --- a/drivers/staging/erofs/super.c
 +++ b/drivers/staging/erofs/super.c
-@@ -145,10 +145,14 @@ char *erofs_fault_name[FAULT_MAX] = {
+@@ -145,14 +145,10 @@ char *erofs_fault_name[FAULT_MAX] = {
  	[FAULT_KMALLOC]		= "kmalloc",
  };
  
--static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
--						unsigned int rate)
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+					substring_t *args)
+-static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+-					substring_t *args)
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++						unsigned int rate)
  {
  	struct erofs_fault_info *ffi = &sbi->fault_info;
+-	int rate = 0;
+-
+-	if (args->from && match_int(args, &rate))
+-		return -EINVAL;
+ 
+ 	if (rate) {
+ 		atomic_set(&ffi->inject_ops, 0);
+@@ -163,14 +159,29 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 	}
+ 
+ 	set_opt(sbi, FAULT_INJECTION);
+-	return 0;
+ }
+ 
+ static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
+ {
+ 	return sbi->fault_info.inject_rate;
+ }
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi, substring_t *args)
++{
 +	int rate = 0;
 +
 +	if (args->from && match_int(args, &rate))
 +		return -EINVAL;
- 
- 	if (rate) {
- 		atomic_set(&ffi->inject_ops, 0);
-@@ -157,6 +161,16 @@ static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
- 	} else {
- 		memset(ffi, 0, sizeof(struct erofs_fault_info));
- 	}
 +
-+	set_opt(sbi, FAULT_INJECTION);
++	__erofs_build_fault_attr(sbi, rate);
 +	return 0;
 +}
-+#else
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+					substring_t *args)
+ #else
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++						unsigned int rate)
 +{
-+	infoln("fault_injection options not supported");
-+	return 0;
- }
- #endif
- 
-@@ -193,7 +207,7 @@ static int parse_options(struct super_block *sb, char *options)
- {
- 	substring_t args[MAX_OPT_ARGS];
- 	char *p;
--	int arg = 0;
-+	int err;
- 
- 	if (!options)
- 		return 0;
-@@ -238,18 +252,12 @@ static int parse_options(struct super_block *sb, char *options)
- 			infoln("noacl options not supported");
- 			break;
- #endif
--#ifdef CONFIG_EROFS_FAULT_INJECTION
- 		case Opt_fault_injection:
--			if (args->from && match_int(args, &arg))
--				return -EINVAL;
--			erofs_build_fault_attr(EROFS_SB(sb), arg);
--			set_opt(EROFS_SB(sb), FAULT_INJECTION);
-+			err = erofs_build_fault_attr(EROFS_SB(sb), args);
-+			if (err)
-+				return err;
- 			break;
--#else
--		case Opt_fault_injection:
--			infoln("fault_injection options not supported");
--			break;
--#endif
++}
 +
- 		default:
- 			errln("Unrecognized mount option \"%s\" "
- 					"or missing value", p);
+ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 					substring_t *args)
+ {
+@@ -644,10 +655,23 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 
+ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ {
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned int org_mnt_opt = sbi->mount_opt;
++	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
++	int err;
++
+ 	BUG_ON(!sb_rdonly(sb));
++	err = parse_options(sb, data);
++	if (err)
++		goto out;
+ 
+ 	*flags |= MS_RDONLY;
+ 	return 0;
++out:
++	__erofs_build_fault_attr(sbi, org_inject_rate);
++	sbi->mount_opt = org_mnt_opt;
++
++	return err;
+ }
+ 
+ const struct super_operations erofs_sops = {
 -- 
 2.17.1
