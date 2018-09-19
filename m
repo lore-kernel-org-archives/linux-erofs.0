@@ -1,14 +1,14 @@
 From: chao@kernel.org (Chao Yu)
-Date: Wed, 19 Sep 2018 23:07:02 +0800
-Subject: [PATCH 1/6] staging: erofs: remove redundant
- CONFIG_EROFS_FS_XATTRs
-In-Reply-To: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
+Date: Wed, 19 Sep 2018 23:14:09 +0800
+Subject: [PATCH 2/6] staging: erofs: fold in `__update_workgrp_llen'
+In-Reply-To: <1537336150-90604-2-git-send-email-gaoxiang25@huawei.com>
 References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <6f03b241-489e-e15b-cc51-1d72147ecf36@kernel.org>
+ <1537336150-90604-2-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <3c48456d-4770-eba2-9b54-c8a153dc1ad2@kernel.org>
 
 On 2018/9/19 13:49, Gao Xiang wrote:
-> some CONFIG_EROFS_FS_XATTR conditions were added because of
-> the historial Linux kernel compatibility, which are unneeded now.
+> There is the only one user to use `__update_workgrp_llen'.
+> Fold it in `z_erofs_vle_work_iter_begin' and cleanup related code.
 > 
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
