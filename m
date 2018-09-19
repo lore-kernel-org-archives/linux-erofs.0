@@ -1,69 +1,116 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Wed, 19 Sep 2018 23:22:24 +0800
-Subject: [PATCH v4 0/3] staging: erofs: option validation for remount and
- some code cleanups
-In-Reply-To: <20180919145346.9927-1-cgxu519@gmx.com>
-References: <20180919145346.9927-1-cgxu519@gmx.com>
-Message-ID: <97e148db-1ab9-a76f-414e-bbeaa1a24eda@aol.com>
+From: chao@kernel.org (Chao Yu)
+Date: Wed, 19 Sep 2018 23:26:14 +0800
+Subject: [PATCH 4/6] staging: erofs: cleanup
+ `z_erofs_vle_normalaccess_readpages'
+In-Reply-To: <1537336150-90604-4-git-send-email-gaoxiang25@huawei.com>
+References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
+ <1537336150-90604-4-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1b38cbfe-70e0-1e6d-fa50-89b1fddeeb43@kernel.org>
 
-Hi Chengguang,
+Hi Xiang,
 
-On 2018/9/19 22:53, Chengguang Xu wrote:
-> Hi Greg, Xiang
+On 2018/9/19 13:49, Gao Xiang wrote:
+> This patch introduces `__should_decompress_synchronously' to
+> cleanup `z_erofs_vle_normalaccess_readpages'.
 > 
-> I rebased code on latest erofs-master branch and that branch
-> has already merged the first patch in my previous patchset,
-> so this time I only post rest 3 patches.
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+>  drivers/staging/erofs/internal.h  | 11 +++++++++++
+>  drivers/staging/erofs/super.c     |  5 +++++
+>  drivers/staging/erofs/unzip_vle.c | 20 ++++++--------------
+>  3 files changed, 22 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index cfcc6db..c84eb97 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -95,6 +95,9 @@ struct erofs_sb_info {
+>  	/* the dedicated workstation for compression */
+>  	struct radix_tree_root workstn_tree;
+>  
+> +	/* threshold for decompression synchronously */
+> +	unsigned int max_sync_decompress_pages;
+> +
+>  #ifdef EROFS_FS_HAS_MANAGED_CACHE
+>  	struct inode *managed_cache;
+>  #endif
+> @@ -273,6 +276,14 @@ extern int erofs_try_to_free_cached_page(struct address_space *mapping,
+>  	struct page *page);
+>  #endif
+>  
+> +#define DEFAULT_MAX_SYNC_DECOMPRESS_PAGES	4
+> +
+> +static inline bool __should_decompress_synchronously(struct erofs_sb_info *sbi,
+> +						     unsigned int nr)
+> +{
+> +	return nr <= sbi->max_sync_decompress_pages;
 
-Great, at the most time Chao's erofs-master is the same as Greg's
-staging tree (currently it is), but I personally think all patches
-could be better directly based on the final staging tree if these
-patches has no real/effective dependency with some submitted patches
-but haven't been applied by Greg (p.s. it should be avoided as
-much as possible because community guys could find something
-important like the yesterday patches).
+-		nr_pages < 4 /* sync */);
 
-Once again, the detail information of branches is described in
-  https://lists.ozlabs.org/listinfo/linux-erofs/
-
-I have nothing more to say, good luck :)
+There is a little bit changed except cleanup, IIUC, would it be any difference
+of performance around boundary of four pages?
 
 Thanks,
-Gao Xiang
 
-> 
-> Thanks,
-> 
-> --
-> 
-> This patch set mainly does option validation for remount and at
-> the same time does related code cleanups. Currently when we call
-> fault injection related code we have to surround it with macro
-> CONFIG_EROFS_FAULT_INJECTION in every calling place, after this
-> patch set we don't have to do that, so the code looks clean and
-> more understandable.
-> 
-> v3->v4:
-> - Rebase code on latest erofs-master branch in Chao's linux tree.
-> - Fix checkpatch complains.
-> 
-> v2->v3:
-> - Fold related patches to one patch.
-> - Fix building issue.
-> 
-> v1->v2:
-> Address Chao's comments:
-> - Allow to set fault_injection=0.
-> - Keep flag bit when setting fault_injection=0.
-> - Show injection info in original place.
-> - Rebase code on latest erofs branch in Chao's linux tree.
-> - Fix building issue.
-> 
-> Chengguang Xu (3):
->   staging: erofs: code cleanup for option parsing of fault_injection
->   staging: erofs: code cleanup for erofs_show_options()
->   staging: erofs: option validation in remount
-> 
->  drivers/staging/erofs/super.c | 73 +++++++++++++++++++++++++++--------
->  1 file changed, 57 insertions(+), 16 deletions(-)
+> +}
+> +
+>  #endif
+>  
+>  /* we strictly follow PAGE_SIZE and no buffer head yet */
+> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+> index 802202c..5b87f59 100644
+> --- a/drivers/staging/erofs/super.c
+> +++ b/drivers/staging/erofs/super.c
+> @@ -162,6 +162,11 @@ static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>  
+>  static void default_options(struct erofs_sb_info *sbi)
+>  {
+> +	/* set up some FS parameters */
+> +#ifdef CONFIG_EROFS_FS_ZIP
+> +	sbi->max_sync_decompress_pages = DEFAULT_MAX_SYNC_DECOMPRESS_PAGES;
+> +#endif
+> +
+>  #ifdef CONFIG_EROFS_FS_XATTR
+>  	set_opt(sbi, XATTR_USER);
+>  #endif
+> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> index 9fe18cd3..337a82d 100644
+> --- a/drivers/staging/erofs/unzip_vle.c
+> +++ b/drivers/staging/erofs/unzip_vle.c
+> @@ -1308,12 +1308,14 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+>  	return 0;
+>  }
+>  
+> -static inline int __z_erofs_vle_normalaccess_readpages(
+> -	struct file *filp,
+> -	struct address_space *mapping,
+> -	struct list_head *pages, unsigned int nr_pages, bool sync)
+> +static int z_erofs_vle_normalaccess_readpages(struct file *filp,
+> +					      struct address_space *mapping,
+> +					      struct list_head *pages,
+> +					      unsigned int nr_pages)
+>  {
+>  	struct inode *const inode = mapping->host;
+> +	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+> +	const bool sync = __should_decompress_synchronously(sbi, nr_pages);
+>  
+>  	struct z_erofs_vle_frontend f = VLE_FRONTEND_INIT(inode);
+>  	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
+> @@ -1372,16 +1374,6 @@ static inline int __z_erofs_vle_normalaccess_readpages(
+>  	return 0;
+>  }
+>  
+> -static int z_erofs_vle_normalaccess_readpages(
+> -	struct file *filp,
+> -	struct address_space *mapping,
+> -	struct list_head *pages, unsigned int nr_pages)
+> -{
+> -	return __z_erofs_vle_normalaccess_readpages(filp,
+> -		mapping, pages, nr_pages,
+> -		nr_pages < 4 /* sync */);
+> -}
+> -
+>  const struct address_space_operations z_erofs_vle_normalaccess_aops = {
+>  	.readpage = z_erofs_vle_normalaccess_readpage,
+>  	.readpages = z_erofs_vle_normalaccess_readpages,
 > 
