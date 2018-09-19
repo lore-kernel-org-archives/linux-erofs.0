@@ -1,61 +1,95 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Wed, 19 Sep 2018 22:53:45 +0800
-Subject: [PATCH v4 2/3] staging: erofs: code cleanup for erofs_show_options()
+Date: Wed, 19 Sep 2018 22:53:46 +0800
+Subject: [PATCH v4 3/3] staging: erofs: option validation in remount
 In-Reply-To: <20180919145346.9927-1-cgxu519@gmx.com>
 References: <20180919145346.9927-1-cgxu519@gmx.com>
-Message-ID: <20180919145346.9927-3-cgxu519@gmx.com>
+Message-ID: <20180919145346.9927-4-cgxu519@gmx.com>
 
-Add new helper erofs_get_fault_rate() to get fault rate instead of
-directly getting it from sbi, so we can remove the macro check
-surrounding it.
+Add option validation in remount. After this patch, remount
+can change recognized options, and for unknown options remount
+will fail and report error.
 
 Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/super.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/super.c | 37 +++++++++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index d6c6ccc4936d..720436d082f7 100644
+index 720436d082f7..880d01f857ca 100644
 --- a/drivers/staging/erofs/super.c
 +++ b/drivers/staging/erofs/super.c
-@@ -165,6 +165,11 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+@@ -145,14 +145,10 @@ char *erofs_fault_name[FAULT_MAX] = {
+ 	[FAULT_KMALLOC]		= "kmalloc",
+ };
+ 
+-static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+-				  substring_t *args)
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
+ {
+ 	struct erofs_fault_info *ffi = &sbi->fault_info;
+-	int rate = 0;
+-
+-	if (args->from && match_int(args, &rate))
+-		return -EINVAL;
+ 
+ 	if (rate) {
+ 		atomic_set(&ffi->inject_ops, 0);
+@@ -163,6 +159,17 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 	}
+ 
  	set_opt(sbi, FAULT_INJECTION);
++}
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				  substring_t *args)
++{
++	int rate = 0;
++
++	if (args->from && match_int(args, &rate))
++		return -EINVAL;
++
++	__erofs_build_fault_attr(sbi, rate);
  	return 0;
  }
-+
-+static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
-+{
-+	return sbi->fault_info.inject_rate;
-+}
+ 
+@@ -171,6 +178,11 @@ static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
+ 	return sbi->fault_info.inject_rate;
+ }
  #else
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
++{
++}
++
  static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
  				  substring_t *args)
-@@ -172,6 +177,11 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
- 	infoln("fault_injection options not supported");
- 	return 0;
- }
+ {
+@@ -644,10 +656,23 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 
+ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ {
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned int org_mnt_opt = sbi->mount_opt;
++	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
++	int err;
 +
-+static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
-+{
-+	return 0;
-+}
- #endif
+ 	BUG_ON(!sb_rdonly(sb));
++	err = parse_options(sb, data);
++	if (err)
++		goto out;
  
- static void default_options(struct erofs_sb_info *sbi)
-@@ -626,11 +636,9 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
- 	else
- 		seq_puts(seq, ",noacl");
- #endif
--#ifdef CONFIG_EROFS_FAULT_INJECTION
- 	if (test_opt(sbi, FAULT_INJECTION))
- 		seq_printf(seq, ",fault_injection=%u",
--				sbi->fault_info.inject_rate);
--#endif
-+			erofs_get_fault_rate(sbi));
+ 	*flags |= SB_RDONLY;
  	return 0;
++out:
++	__erofs_build_fault_attr(sbi, org_inject_rate);
++	sbi->mount_opt = org_mnt_opt;
++
++	return err;
  }
  
+ const struct super_operations erofs_sops = {
 -- 
 2.17.1
