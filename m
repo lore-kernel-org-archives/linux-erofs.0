@@ -1,180 +1,105 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 19 Sep 2018 13:49:07 +0800
-Subject: [PATCH 3/6] staging: erofs: drop multiref support temporarily
+Date: Wed, 19 Sep 2018 13:49:08 +0800
+Subject: [PATCH 4/6] staging: erofs: cleanup
+ `z_erofs_vle_normalaccess_readpages'
 In-Reply-To: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
 References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1537336150-90604-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <1537336150-90604-4-git-send-email-gaoxiang25@huawei.com>
 
-Multiref support means that a compressed page could have
-more than one reference, which is designed for on-disk data
-deduplication. However, mkfs doesn't support this mode
-at this moment, and the kernel implementation is also broken.
-
-Let's drop multiref support. If it is fully implemented
-in the future, it can be reverted later.
+This patch introduces `__should_decompress_synchronously' to
+cleanup `z_erofs_vle_normalaccess_readpages'.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 36 +++++-------------------------------
- drivers/staging/erofs/unzip_vle.h | 12 +-----------
- 2 files changed, 6 insertions(+), 42 deletions(-)
+ drivers/staging/erofs/internal.h  | 11 +++++++++++
+ drivers/staging/erofs/super.c     |  5 +++++
+ drivers/staging/erofs/unzip_vle.c | 20 ++++++--------------
+ 3 files changed, 22 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index cfcc6db..c84eb97 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -95,6 +95,9 @@ struct erofs_sb_info {
+ 	/* the dedicated workstation for compression */
+ 	struct radix_tree_root workstn_tree;
+ 
++	/* threshold for decompression synchronously */
++	unsigned int max_sync_decompress_pages;
++
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+ 	struct inode *managed_cache;
+ #endif
+@@ -273,6 +276,14 @@ extern int erofs_try_to_free_cached_page(struct address_space *mapping,
+ 	struct page *page);
+ #endif
+ 
++#define DEFAULT_MAX_SYNC_DECOMPRESS_PAGES	4
++
++static inline bool __should_decompress_synchronously(struct erofs_sb_info *sbi,
++						     unsigned int nr)
++{
++	return nr <= sbi->max_sync_decompress_pages;
++}
++
+ #endif
+ 
+ /* we strictly follow PAGE_SIZE and no buffer head yet */
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 802202c..5b87f59 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -162,6 +162,11 @@ static void erofs_build_fault_attr(struct erofs_sb_info *sbi,
+ 
+ static void default_options(struct erofs_sb_info *sbi)
+ {
++	/* set up some FS parameters */
++#ifdef CONFIG_EROFS_FS_ZIP
++	sbi->max_sync_decompress_pages = DEFAULT_MAX_SYNC_DECOMPRESS_PAGES;
++#endif
++
+ #ifdef CONFIG_EROFS_FS_XATTR
+ 	set_opt(sbi, XATTR_USER);
+ #endif
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index e820490..9fe18cd3 100644
+index 9fe18cd3..337a82d 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -301,12 +301,9 @@ struct z_erofs_vle_work_finder {
- 	grp = container_of(egrp, struct z_erofs_vle_workgroup, obj);
- 	*f->grp_ret = grp;
- 
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 	work = z_erofs_vle_grab_work(grp, f->pageofs);
-+	/* if multiref is disabled, `primary' is always true */
- 	primary = true;
--#else
--	BUG();
--#endif
- 
- 	DBG_BUGON(work->pageofs != f->pageofs);
- 
-@@ -368,12 +365,9 @@ struct z_erofs_vle_work_finder {
- 	struct z_erofs_vle_workgroup *grp = *f->grp_ret;
- 	struct z_erofs_vle_work *work;
- 
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
-+	/* if multiref is disabled, grp should never be nullptr */
- 	BUG_ON(grp != NULL);
--#else
--	if (grp != NULL)
--		goto skip;
--#endif
-+
- 	/* no available workgroup, let's allocate one */
- 	grp = kmem_cache_zalloc(z_erofs_workgroup_cachep, GFP_NOFS);
- 	if (unlikely(grp == NULL))
-@@ -396,13 +390,7 @@ struct z_erofs_vle_work_finder {
- 	*f->hosted = true;
- 
- 	gnew = true;
--#ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
--skip:
--	/* currently unimplemented */
--	BUG();
--#else
- 	work = z_erofs_vle_grab_primary_work(grp);
--#endif
- 	work->pageofs = f->pageofs;
- 
- 	mutex_init(&work->lock);
-@@ -797,9 +785,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 
- 	struct z_erofs_pagevec_ctor ctor;
- 	unsigned int nr_pages;
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 	unsigned int sparsemem_pages = 0;
--#endif
- 	struct page *pages_onstack[Z_EROFS_VLE_VMAP_ONSTACK_PAGES];
- 	struct page **pages, **compressed_pages, *page;
- 	unsigned int i, llen;
-@@ -811,11 +797,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	int err;
- 
- 	might_sleep();
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 	work = z_erofs_vle_grab_primary_work(grp);
--#else
--	BUG();
--#endif
- 	BUG_ON(!READ_ONCE(work->nr_pages));
- 
- 	mutex_lock(&work->lock);
-@@ -866,13 +848,11 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 		BUG_ON(pagenr >= nr_pages);
--
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 		BUG_ON(pages[pagenr] != NULL);
--		++sparsemem_pages;
--#endif
-+
- 		pages[pagenr] = page;
- 	}
-+	sparsemem_pages = i;
- 
- 	z_erofs_pagevec_ctor_exit(&ctor, true);
- 
-@@ -902,10 +882,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		pagenr = z_erofs_onlinepage_index(page);
- 
- 		BUG_ON(pagenr >= nr_pages);
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 		BUG_ON(pages[pagenr] != NULL);
- 		++sparsemem_pages;
--#endif
- 		pages[pagenr] = page;
- 
- 		overlapped = true;
-@@ -931,12 +909,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	if (err != -ENOTSUPP)
- 		goto out_percpu;
- 
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- 	if (sparsemem_pages >= nr_pages) {
- 		BUG_ON(sparsemem_pages > nr_pages);
- 		goto skip_allocpage;
- 	}
--#endif
- 
- 	for (i = 0; i < nr_pages; ++i) {
- 		if (pages[i] != NULL)
-@@ -945,9 +921,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		pages[i] = __stagingpage_alloc(page_pool, GFP_NOFS);
- 	}
- 
--#ifndef CONFIG_EROFS_FS_ZIP_MULTIREF
- skip_allocpage:
--#endif
- 	vout = erofs_vmap(pages, nr_pages);
- 
- 	err = z_erofs_vle_unzip_vmap(compressed_pages,
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index 3939985..3316bc3 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -47,13 +47,6 @@ static inline bool z_erofs_gather_if_stagingpage(struct list_head *page_pool,
- #define Z_EROFS_VLE_INLINE_PAGEVECS     3
- 
- struct z_erofs_vle_work {
--	/* struct z_erofs_vle_work *left, *right; */
--
--#ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
--	struct list_head list;
--
--	atomic_t refcount;
--#endif
- 	struct mutex lock;
- 
- 	/* I: decompression offset in page */
-@@ -107,10 +100,8 @@ static inline void z_erofs_vle_set_workgrp_fmt(
- 	grp->flags = fmt | (grp->flags & ~Z_EROFS_VLE_WORKGRP_FMT_MASK);
+@@ -1308,12 +1308,14 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	return 0;
  }
  
--#ifdef CONFIG_EROFS_FS_ZIP_MULTIREF
--#error multiref decompression is unimplemented yet
--#else
+-static inline int __z_erofs_vle_normalaccess_readpages(
+-	struct file *filp,
+-	struct address_space *mapping,
+-	struct list_head *pages, unsigned int nr_pages, bool sync)
++static int z_erofs_vle_normalaccess_readpages(struct file *filp,
++					      struct address_space *mapping,
++					      struct list_head *pages,
++					      unsigned int nr_pages)
+ {
+ 	struct inode *const inode = mapping->host;
++	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
++	const bool sync = __should_decompress_synchronously(sbi, nr_pages);
  
-+/* definitions if multiref is disabled */
- #define z_erofs_vle_grab_primary_work(grp)	(&(grp)->work)
- #define z_erofs_vle_grab_work(grp, pageofs)	(&(grp)->work)
- #define z_erofs_vle_work_workgroup(wrk, primary)	\
-@@ -118,7 +109,6 @@ static inline void z_erofs_vle_set_workgrp_fmt(
- 		struct z_erofs_vle_workgroup, work) : \
- 		({ BUG(); (void *)NULL; }))
+ 	struct z_erofs_vle_frontend f = VLE_FRONTEND_INIT(inode);
+ 	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
+@@ -1372,16 +1374,6 @@ static inline int __z_erofs_vle_normalaccess_readpages(
+ 	return 0;
+ }
  
--#endif
- 
- #define Z_EROFS_WORKGROUP_SIZE       sizeof(struct z_erofs_vle_workgroup)
- 
+-static int z_erofs_vle_normalaccess_readpages(
+-	struct file *filp,
+-	struct address_space *mapping,
+-	struct list_head *pages, unsigned int nr_pages)
+-{
+-	return __z_erofs_vle_normalaccess_readpages(filp,
+-		mapping, pages, nr_pages,
+-		nr_pages < 4 /* sync */);
+-}
+-
+ const struct address_space_operations z_erofs_vle_normalaccess_aops = {
+ 	.readpage = z_erofs_vle_normalaccess_readpage,
+ 	.readpages = z_erofs_vle_normalaccess_readpages,
 -- 
 1.9.1
