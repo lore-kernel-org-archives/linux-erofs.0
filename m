@@ -1,5 +1,5 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Wed, 19 Sep 2018 23:40:15 +0800
+From: chao@kernel.org (Chao Yu)
+Date: Wed, 19 Sep 2018 23:45:43 +0800
 Subject: [PATCH 4/6] staging: erofs: cleanup
  `z_erofs_vle_normalaccess_readpages'
 In-Reply-To: <fc0f977f-b1c3-41a9-a058-bca4261bf9ea@aol.com>
@@ -7,11 +7,11 @@ References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
  <1537336150-90604-4-git-send-email-gaoxiang25@huawei.com>
  <1b38cbfe-70e0-1e6d-fa50-89b1fddeeb43@kernel.org>
  <fc0f977f-b1c3-41a9-a058-bca4261bf9ea@aol.com>
-Message-ID: <84d5403d-2849-0ba9-d027-9a1c770c271c@aol.com>
+Message-ID: <37b566ea-273b-8d81-7428-06bd35d60092@kernel.org>
 
-Hi Chao,
+Hi Xiang,
 
-On 2018/9/19 23:32, Gao Xiang via Linux-erofs wrote:
+On 2018/9/19 23:32, Gao Xiang wrote:
 > Hi Chao,
 > 
 > On 2018/9/19 23:26, Chao Yu wrote:
@@ -64,12 +64,11 @@ On 2018/9/19 23:32, Gao Xiang via Linux-erofs wrote:
 > Therefore I tune it in this patch since I don't like the number
 > DEFAULT_MAX_SYNC_DECOMPRESS_PAGES == 3 ...
 
-p.s. If you think that is not the cleanup meaning, I will resend this patch with
-the original 3. Both are ok for me. it is a minor tuning and I don't have a way
-to measure which is better and the best boundary.
+Yeah, how about adding one more patch to tune this magic number first? as that
+change would not be part of cleanup thing. I guess later maybe we could export a
+sysfs node to provider tuning ability on that threshold.
 
 Thanks,
-Gao Xiang
 
 > 
 > Thanks,
