@@ -1,98 +1,118 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 19 Sep 2018 13:49:10 +0800
-Subject: [PATCH 6/6] staging: erofs: simplify return value of `xattr_foreach'
-In-Reply-To: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
-References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1537336150-90604-6-git-send-email-gaoxiang25@huawei.com>
+Date: Wed, 19 Sep 2018 14:56:02 +0800
+Subject: [PATCH v3 4/4] staging: erofs: option validation in remount
+In-Reply-To: <79e182ea-9571-8c20-aafe-59e55b7db638@aol.com>
+References: <20180918151058.25041-1-cgxu519@gmx.com>
+ <20180918151058.25041-5-cgxu519@gmx.com>
+ <79e182ea-9571-8c20-aafe-59e55b7db638@aol.com>
+Message-ID: <3a269f2e-bfda-ca96-65ee-7dc0fa457ddd@huawei.com>
 
-As Dan Carpenter pointed out, there is no need to propagate positive
-return values back to its callers.
+Hi Chengguang,
 
-Suggested-by: Dan Carpenter <dan.carpenter at oracle.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/xattr.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+On 2018/9/19 0:58, Gao Xiang wrote:
+> Hi Chengguang,
+> 
+> On 2018/9/18 23:10, Chengguang Xu wrote:
+>> Add option validation in remount. After this patch, remount
+>> can change recognized options, and for unknown options remount
+>> will fail and report error.
+>>
+>> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+>> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+>> ---
+>>  drivers/staging/erofs/super.c | 38 ++++++++++++++++++++++++++++-------
+>>  1 file changed, 31 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+>> index a091b93190e1..30b6b44dc6c4 100644
+>> --- a/drivers/staging/erofs/super.c
+>> +++ b/drivers/staging/erofs/super.c
+>> @@ -145,14 +145,10 @@ char *erofs_fault_name[FAULT_MAX] = {
+>>  	[FAULT_KMALLOC]		= "kmalloc",
+>>  };
+>>  
+>> -static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>> -					substring_t *args)
+>> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>> +						unsigned int rate)
+>>  {
+>>  	struct erofs_fault_info *ffi = &sbi->fault_info;
+>> -	int rate = 0;
+>> -
+>> -	if (args->from && match_int(args, &rate))
+>> -		return -EINVAL;
+>>  
+>>  	if (rate) {
+>>  		atomic_set(&ffi->inject_ops, 0);
+>> @@ -163,14 +159,29 @@ static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>>  	}
+>>  
+>>  	set_opt(sbi, FAULT_INJECTION);
+>> -	return 0;
+>>  }
+>>  
+>>  static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
+>>  {
+>>  	return sbi->fault_info.inject_rate;
+>>  }
+>> +
+>> +static int erofs_build_fault_attr(struct erofs_sb_info *sbi, substring_t *args)
+>> +{
+>> +	int rate = 0;
+>> +
+>> +	if (args->from && match_int(args, &rate))
+>> +		return -EINVAL;
+>> +
+>> +	__erofs_build_fault_attr(sbi, rate);
+>> +	return 0;
+>> +}
+>>  #else
+>> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>> +						unsigned int rate)
+>> +{
+>> +}
+>> +
+>>  static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
+>>  					substring_t *args)
+>>  {
+>> @@ -644,10 +655,23 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+>>  
+>>  static int erofs_remount(struct super_block *sb, int *flags, char *data)
+>>  {
+>> +	struct erofs_sb_info *sbi = EROFS_SB(sb);
+>> +	unsigned int org_mnt_opt = sbi->mount_opt;
+>> +	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
+>> +	int err;
+>> +
+>>  	BUG_ON(!sb_rdonly(sb));
+>> +	err = parse_options(sb, data);
+>> +	if (err)
+>> +		goto out;
+>>  
+>>  	*flags |= MS_RDONLY;
+> I cannot apply this patch since the above line has been changed in
+> 5f0abea6ab6d("staging: erofs: rename superblock flags (MS_xyz -> SB_xyz)").
+> 
+> 
+> And two more checkpatch CHECKs as [PATCH v3 2/4]
+> 
+> CHECK: Alignment should match open parenthesis
+> #141: FILE: drivers/staging/erofs/super.c:149:
+> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+> +                                               unsigned int rate)
+> 
+> CHECK: Alignment should match open parenthesis
+> #175: FILE: drivers/staging/erofs/super.c:181:
+> +static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+> +                                               unsigned int rate)
+> 
+> And I think I need to test the basic erofs remount function tomorrow
+> before merging... it is too late and I have to go to sleep now.
+I tested just now, and seems good. :)
 
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 7b1367e..80dca6a 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -268,7 +268,7 @@ static int xattr_foreach(struct xattr_iter *it,
- out:
- 	/* xattrs should be 4-byte aligned (on-disk constraint) */
- 	it->ofs = EROFS_XATTR_ALIGN(it->ofs);
--	return err;
-+	return err < 0 ? err : 0;
- }
- 
- struct getxattr_iter {
-@@ -333,15 +333,12 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
- 	remaining = ret;
- 	while (remaining) {
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
--		if (ret >= 0)
--			break;
--
--		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
-+		if (ret != -ENOATTR)
- 			break;
- 	}
- 	xattr_iter_end_final(&it->it);
- 
--	return ret < 0 ? ret : it->buffer_size;
-+	return ret ? ret : it->buffer_size;
- }
- 
- static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
-@@ -371,16 +368,13 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 		}
- 
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
--		if (ret >= 0)
--			break;
--
--		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
-+		if (ret != -ENOATTR)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
- 		xattr_iter_end_final(&it->it);
- 
--	return ret < 0 ? ret : it->buffer_size;
-+	return ret ? ret : it->buffer_size;
- }
- 
- static bool erofs_xattr_user_list(struct dentry *dentry)
-@@ -567,11 +561,11 @@ static int inline_listxattr(struct listxattr_iter *it)
- 	remaining = ret;
- 	while (remaining) {
- 		ret = xattr_foreach(&it->it, &list_xattr_handlers, &remaining);
--		if (ret < 0)
-+		if (ret)
- 			break;
- 	}
- 	xattr_iter_end_final(&it->it);
--	return ret < 0 ? ret : it->buffer_ofs;
-+	return ret ? ret : it->buffer_ofs;
- }
- 
- static int shared_listxattr(struct listxattr_iter *it)
-@@ -601,13 +595,13 @@ static int shared_listxattr(struct listxattr_iter *it)
- 		}
- 
- 		ret = xattr_foreach(&it->it, &list_xattr_handlers, NULL);
--		if (ret < 0)
-+		if (ret)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
- 		xattr_iter_end_final(&it->it);
- 
--	return ret < 0 ? ret : it->buffer_ofs;
-+	return ret ? ret : it->buffer_ofs;
- }
- 
- ssize_t erofs_listxattr(struct dentry *dentry,
--- 
-1.9.1
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+
+and look forward to your final patchset.
+
+Thanks,
+Gao Xiang
