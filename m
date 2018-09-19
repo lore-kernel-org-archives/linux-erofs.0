@@ -1,14 +1,19 @@
 From: chao@kernel.org (Chao Yu)
-Date: Wed, 19 Sep 2018 23:14:09 +0800
-Subject: [PATCH 2/6] staging: erofs: fold in `__update_workgrp_llen'
-In-Reply-To: <1537336150-90604-2-git-send-email-gaoxiang25@huawei.com>
+Date: Wed, 19 Sep 2018 23:20:39 +0800
+Subject: [PATCH 3/6] staging: erofs: drop multiref support temporarily
+In-Reply-To: <1537336150-90604-3-git-send-email-gaoxiang25@huawei.com>
 References: <1537336150-90604-1-git-send-email-gaoxiang25@huawei.com>
- <1537336150-90604-2-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <3c48456d-4770-eba2-9b54-c8a153dc1ad2@kernel.org>
+ <1537336150-90604-3-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <2c838085-2883-829d-08cd-1426721aa7bb@kernel.org>
 
 On 2018/9/19 13:49, Gao Xiang wrote:
-> There is the only one user to use `__update_workgrp_llen'.
-> Fold it in `z_erofs_vle_work_iter_begin' and cleanup related code.
+> Multiref support means that a compressed page could have
+> more than one reference, which is designed for on-disk data
+> deduplication. However, mkfs doesn't support this mode
+> at this moment, and the kernel implementation is also broken.
+> 
+> Let's drop multiref support. If it is fully implemented
+> in the future, it can be reverted later.
 > 
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
