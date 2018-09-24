@@ -1,34 +1,30 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 21 Sep 2018 11:43:35 +0800
-Subject: [PREVIEW] [PATCH chao/erofs-dev 3/3] staging: erofs: managed pages
- could be locked at the time of decompression
-In-Reply-To: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
-References: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
-Message-ID: <1537501415-70936-3-git-send-email-gaoxiang25@huawei.com>
+From: cgxu519@gmx.com (Chengguang Xu)
+Date: Tue, 25 Sep 2018 07:41:36 +0800
+Subject: [PATCH] staging: erofs: change inode related info in erofs_statfs()
+Message-ID: <20180924234136.19465-1-cgxu519@gmx.com>
 
-Managed compressed pages should be unlocked when IO ends by design.
-Therefore, these pages will be up-to-date and unlocked at the time
-of decompression in general.
+As a read only filesystem, it's better to show available
+inode num as 0 in statfs.
 
-However managed pages could be re-locked in some other paths, such as
-the reclaim path. Let's remove the related assertion in decompression.
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/staging/erofs/super.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 337a82d..3b14126 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -872,7 +872,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 			continue;
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- 		else if (page->mapping == mngda) {
--			BUG_ON(PageLocked(page));
- 			BUG_ON(!PageUptodate(page));
- 			continue;
- 		}
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 51b076255988..6601a242071f 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -627,8 +627,8 @@ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	buf->f_blocks = sbi->blocks;
+ 	buf->f_bfree = buf->f_bavail = 0;
+ 
+-	buf->f_files = ULLONG_MAX;
+-	buf->f_ffree = ULLONG_MAX - sbi->inos;
++	buf->f_files = sbi->inos;
++	buf->f_ffree = 0;
+ 
+ 	buf->f_namelen = EROFS_NAME_LEN;
+ 
 -- 
-1.9.1
+2.17.1
