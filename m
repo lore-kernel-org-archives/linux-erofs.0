@@ -1,81 +1,23 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 23 Nov 2018 21:13:45 +0800
-Subject: [PREVIEW] [PATCH chao/erofs-dev] staging: erofs: fix use-after-free
- of on-stack `z_erofs_vle_unzip_io'
-Message-ID: <20181123131345.22332-1-gaoxiang25@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Mon, 1 Oct 2018 00:22:43 +0800
+Subject: [PREVIEW] [PATCH chao/erofs-dev 1/3] staging: erofs: harden inode
+ lookup for 32-bit platforms
+In-Reply-To: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
+References: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
+Message-ID: <a3d758de-cf1a-faf9-6df7-fc0f50bb0ae5@aol.com>
 
-The root cause is the race as follows:
- Thread #0                         Thread #1
+Hi Chao,
 
- z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
+Could you help merge these patches into erofs-dev (rebased on the latest erofs-master)?
+I need to fix several issues reported these days formally.
 
-                                    struct z_erofs_vle_unzip_io io[]
-   atomic_add_return()
-                                    wait_event()
-                                    [end of function]
-   wake_up()
+If you have time, could you also take some time review these patches?
 
-Fix it by taking the waitqueue lock between atomic_add_return and
-wake_up to close such the race.
+Thanks,
+Gao Xiang
 
-kernel message:
-
-Unable to handle kernel paging request at virtual address 97f7052caa1303dc
-...
-Workqueue: kverityd verity_work
-task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
-PC is at __wake_up_common+0x48/0xa8
-LR is at __wake_up+0x3c/0x58
-...
-Call trace:
-...
-[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
-[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
-[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
-[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1076540>] dec_pending+0x134/0x32c
-[<ffffff94a1076f28>] clone_endio+0x90/0xf4
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1095024>] verity_work+0x210/0x368
-[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
-[<ffffff94a08c45bc>] worker_thread+0x140/0x458
-[<ffffff94a08cad48>] kthread+0xec/0x108
-[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
-Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
----[ end trace be9dde154f677cd1 ]---
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 66ded80f662f..3afb7c05fac1 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -804,13 +804,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
- 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
- 	bool background = tagptr_unfold_tags(t);
- 
--	if (atomic_add_return(bios, &io->pending_bios))
-+	if (!background) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&io->u.wait.lock, flags);
-+		if (!atomic_add_return(bios, &io->pending_bios))
-+			 wake_up_locked(&io->u.wait);
-+		spin_unlock_irqrestore(&io->u.wait.lock, flags);
- 		return;
-+	}
- 
--	if (background)
-+	if (!atomic_add_return(bios, &io->pending_bios))
- 		queue_work(z_erofs_workqueue, &io->u.work);
--	else
--		wake_up(&io->u.wait);
- }
- 
- static inline void z_erofs_vle_read_endio(struct bio *bio)
--- 
-2.14.4
+On 2018/9/21 11:43, Gao Xiang wrote:
+> This patch introduces inode hash function, test and set callbacks,
+> and iget5_locked to find the right inode for 32-bit platforms.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
