@@ -1,33 +1,92 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 1 Oct 2018 12:26:27 +0800
-Subject: [PREVIEW] [PATCH chao/erofs-dev 1/3] staging: erofs: harden inode
+Date: Mon,  1 Oct 2018 12:32:55 +0800
+Subject: [PREVIEW][PATCH v2 chao/erofs-dev] staging: erofs: harden inode
  lookup for 32-bit platforms
-In-Reply-To: <ffcc88b5-bb18-047a-6dcd-639bf8647890@kernel.org>
-References: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
- <72499322-10d4-b9af-3eb1-1787f451b5c8@kernel.org>
- <a3f994a3-f38e-5e20-775e-63bbef343073@aol.com>
- <ffcc88b5-bb18-047a-6dcd-639bf8647890@kernel.org>
-Message-ID: <9db17a38-8f62-2057-e040-5b0d5dd579bb@aol.com>
+In-Reply-To: <9db17a38-8f62-2057-e040-5b0d5dd579bb@aol.com>
+References: <9db17a38-8f62-2057-e040-5b0d5dd579bb@aol.com>
+Message-ID: <1538368375-847-1-git-send-email-hsiangkao@aol.com>
 
-Hi Chao
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-On 2018/10/1 11:04, Chao Yu wrote:
->>  /* inode.c */
->> +static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
->> +{
->> +	u64 h = nid;
-> unsigned long h;
-> 
->> +
->> +#if BITS_PER_LONG == 32
->> +	h = (h >> 32) ^ (h & 0xffffffff);
-> h = (nid >> 32) ^ (nid & 0xffffffff);
-> 
->> +#endif
->> +	return (unsigned long)h;
+This patch introduces inode hash function, test and set callbacks,
+and iget5_locked to find the right inode for 32-bit platforms.
 
-inode hash could be wrong in 64-bit since h is not initialized.
-I will fix it in another way.
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/inode.c    | 37 ++++++++++++++++++++++++++++++++++++-
+ drivers/staging/erofs/internal.h |  9 +++++++++
+ 2 files changed, 45 insertions(+), 1 deletion(-)
 
-Thanks,
-Gao Xiang.
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index da8693a..04c61a9 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -232,10 +232,45 @@ static int fill_inode(struct inode *inode, int isdir)
+ 	return err;
+ }
+ 
++/*
++ * erofs nid is 64bits, but i_ino is 'unsigned long', therefore
++ * we should do more for 32-bit platform to find the right inode.
++ */
++#if BITS_PER_LONG == 32
++static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	return EROFS_V(inode)->nid == nid;
++}
++
++static int erofs_iget_set_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	inode->i_ino = erofs_inode_hash(nid);
++	return 0;
++}
++#endif
++
++static inline struct inode *erofs_iget_locked(struct super_block *sb,
++					      erofs_nid_t nid)
++{
++	const unsigned long hashval = erofs_inode_hash(nid);
++
++#if BITS_PER_LONG >= 64
++	/* it is safe to use iget_locked for >= 64-bit platform */
++	return iget_locked(sb, hashval);
++#else
++	return iget5_locked(sb, hashval, erofs_ilookup_test_actor,
++		erofs_iget_set_actor, &nid);
++#endif
++}
++
+ struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool isdir)
+ {
+-	struct inode *inode = iget_locked(sb, nid);
++	struct inode *inode = erofs_iget_locked(sb, nid);
+ 
+ 	if (unlikely(inode == NULL))
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index c2cc4a016..0e85aae 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -511,6 +511,15 @@ erofs_get_inline_page(struct inode *inode,
+ }
+ 
+ /* inode.c */
++static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
++{
++#if BITS_PER_LONG == 32
++	return (nid >> 32) ^ (nid & 0xffffffff);
++#else
++	return nid;
++#endif
++}
++
+ extern struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool dir);
+ 
+-- 
+2.7.4
