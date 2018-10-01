@@ -1,77 +1,39 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 1 Oct 2018 19:25:38 +0800
-Subject: [PREVIEW] [PATCH chao/erofs-dev 1/3] staging: erofs: harden inode
- lookup for 32-bit platforms
-In-Reply-To: <d5ea340f-47c2-79fd-b69a-b7809d3fab11@kernel.org>
+Date: Mon, 1 Oct 2018 19:37:44 +0800
+Subject: [PREVIEW] [PATCH chao/erofs-dev 2/3] staging: erofs: fix race
+ when the managed cache is enabled
+In-Reply-To: <b4ec415e-2d3e-a9bc-bfa4-6b38cc5228b5@kernel.org>
 References: <1537501415-70936-1-git-send-email-gaoxiang25@huawei.com>
- <a3d758de-cf1a-faf9-6df7-fc0f50bb0ae5@aol.com>
- <8398183e-61b3-33d6-0731-3da54c191813@kernel.org>
- <fdfb248d-59ef-10fd-7203-94ade0096e1f@aol.com>
- <d5ea340f-47c2-79fd-b69a-b7809d3fab11@kernel.org>
-Message-ID: <875ff8a9-7706-fb04-7d88-0a67f1f81797@aol.com>
+ <1537501415-70936-2-git-send-email-gaoxiang25@huawei.com>
+ <b4ec415e-2d3e-a9bc-bfa4-6b38cc5228b5@kernel.org>
+Message-ID: <90a1160d-3b46-ec62-b9fc-e44a33f7e684@aol.com>
 
 Hi Chao,
 
-On 2018/10/1 18:25, Chao Yu wrote:
-> Hi Xiang,
+On 2018/10/1 17:49, Chao Yu wrote:
+> On 2018-9-21 11:43, Gao Xiang wrote:
+>> When the managed cache is enabled, the last reference count
+>> of a workgroup must be used for its workstation.
+>>
+>> Otherwise, it could lead to incorrect (un)freezes in
+>> the reclaim path, and it would be harmful.
+> Could you add related race condition stack to demonstrate this problem more clearly?
 > 
-> On 2018-10-1 10:08, Gao Xiang wrote:
->> Hi Chao,
->>
->> On 2018/10/1 8:37, Chao Yu wrote:
->>> Hi Xiang,
->>>
->>> Sorry for late response to those patches.
->> That doesn't matter I know you are now busy with f2fs stuffs. ;)
-> Yeah, still struggling in fixing quota bugs, and try to write several test case
-> for xfstest suit.. :P
-> 
->> I have to deal with internal reported issues which could impact our products
->> and do more cleanup apart from stability fixes.
->>
->> It seems that Linux-4.20 will be out weeks later, and we also need
->> to prepare more for it.
->>
->>
->> And I tend to make progress in moving into fs tree before the next LTS version,
->> we need to do more...
-> Sounds a lot of pending work there. :)
-> 
->> Source code of previewed mkfs will be released this month and it also seems much work to clean up it.
-> I hope Guifu can help to handle those work.
 
-Yes, I confirmed that Guifu would like to maintain erofs mkfs related stuffs as the original mkfs author.
-Another guy will also take part in it.
+I remembered that the original related stack isn't directly related to code fixing in this patch.
+I reviewed the reclaim path then and found a issue, so the patch it is.
 
-If that is working fine, no worry about it ;)
+The incorrect reclaim will do harm to other code, but I think I can try to give
+a rough race condition (some stack) in the next patch.
+
+That is because when the managed cache is enabled, the reclaim path will work for
+every decompression workgroup with refcount == 1.
+
+Just like the page cache (and pages are not truncated) refcount idea, the last refcount
+should be reserved for its tree rather than other uses for all cases by design.
 
 Thanks,
 Gao Xiang
 
-> 
 > Thanks,
 > 
->>> On 2018-10-1 0:22, Gao Xiang wrote:
->>>> Hi Chao,
->>>>
->>>> Could you help merge these patches into erofs-dev (rebased on the latest erofs-master)?
->>>> I need to fix several issues reported these days formally.
->>> No problem.
->>>
->>>> If you have time, could you also take some time review these patches?
->>> Okay, will review them soon. :)
->> Thanks Chao :)
->>
->> Thanks,
->> Gao Xiang
->>
->>> Thanks,
->>>
->>>> Thanks,
->>>> Gao Xiang
->>>>
->>>> On 2018/9/21 11:43, Gao Xiang wrote:
->>>>> This patch introduces inode hash function, test and set callbacks,
->>>>> and iget5_locked to find the right inode for 32-bit platforms.
->>>>>
->>>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
