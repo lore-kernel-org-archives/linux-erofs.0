@@ -1,67 +1,63 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 8 Oct 2018 23:02:10 +0800
-Subject: [PATCH v2] staging: erofs: add SPDX identifer
-In-Reply-To: <CA+XxOSG+cJ3FZ4S7qcRWWDcktDpStuoa7nTuAUOr+U-uTTUcYg@mail.gmail.com>
-References: <20181008141409.2624-1-loic.tourlonias.lkml@gmail.com>
- <20181008142228.GB13359@kroah.com>
- <e9620bf6-5f3f-108d-b9f1-91af1ad603d6@huawei.com>
- <20181008144335.GA15968@kroah.com>
- <a460f98f-d566-1d9d-b395-e8604519b442@huawei.com>
- <CA+XxOSG+cJ3FZ4S7qcRWWDcktDpStuoa7nTuAUOr+U-uTTUcYg@mail.gmail.com>
-Message-ID: <c65f81ba-a411-1444-effc-7b8cfb0b53b1@huawei.com>
+From: loic.tourlonias.lkml@gmail.com (Loic Tourlonias)
+Date: Mon,  8 Oct 2018 18:12:14 +0200
+Subject: [PATCH v3] staging: erofs: add SPDX identifer
+Message-ID: <20181008161214.2212-1-loic.tourlonias.lkml@gmail.com>
 
-Hi Loic,
+Add SPDX identifier to simplify header and remove whole license text
 
-On 2018/10/8 23:00, lo?c tourlonias wrote:
-> Hi Gao,
-> On Mon, Oct 8, 2018@4:48 PM Gao Xiang <gaoxiang25@huawei.com> wrote:
->>
->> Hi Greg,
->>
->> On 2018/10/8 22:43, Greg Kroah-Hartman wrote:
->>> On Mon, Oct 08, 2018@10:36:39PM +0800, Gao Xiang wrote:
->>>> Hi Greg,
->>>>
->>>> On 2018/10/8 22:22, Greg Kroah-Hartman wrote:
->>>>> Why delete that line?
->>>>>
->>>>> But wait, why do we even have this file at all?  What's wrong with the
->>>>> lib/lz4/ code that we have in the kernel today?  Shouldn't the code
->>>>> using these files be moved over to use the lib/ code instead and this
->>>>> file be deleted?
->>>>
->>>> EROFS uses customized LZ4 decompression code for now (which has been offically
->>>> supported in lz4 1.8.3, I have updated it in
->>>> https://ozlabs.org/~akpm/mmots/broken-out/lib-lz4-update-lz4-decompressor-module.patch
->>>> if it is shown up in Linux 4.20, I will remove all the customized LZ4 decompression code),
->>>> but lib/ code lz4def.h isn't export to include/.
->>>
->>> It should show up in 4.20, so you should be able to remove this all
->>> then.
->>
->> Yes, that is correct. I will fix it in 4.20 if the updated LZ4 is already there. :)
-> 
-> So no need to update the patch since the file will be removed. Am I correct?
-> 
-> Too bad, I'll make my first patch later... ^^
+Signed-off-by: Loic Tourlonias <loic.tourlonias.lkml at gmail.com>
 
-I think you could make the patch if you want :)
-It is up to Greg whether take this patch or not since it is actually a cleanup attempt.
+---
 
-I will also do more cleanups beside my current work, yet EROFS is now busy in productization.
+v2 -> v3:
 
-Thanks,
-Gao Xiang
+- Revert undesired new line suppression,
+- Fix patch format
 
-> 
-> Thanks
-> Loic
->>
->> Thanks,
->> Gao Xiang
->>
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
+v1 -> v2:
+
+Move SPDX identifier to first line and change comment delimiter
+
+ drivers/staging/erofs/lz4defs.h | 23 ++---------------------
+ 1 file changed, 2 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/staging/erofs/lz4defs.h b/drivers/staging/erofs/lz4defs.h
+index 00a0b58a0871..3b8a694d2ac8 100644
+--- a/drivers/staging/erofs/lz4defs.h
++++ b/drivers/staging/erofs/lz4defs.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: BSD-2-Clause*/
+ #ifndef __LZ4DEFS_H__
+ #define __LZ4DEFS_H__
+ 
+@@ -6,27 +7,7 @@
+ 
+  * LZ4 - Fast LZ compression algorithm
+  * Copyright (C) 2011-2016, Yann Collet.
+- * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions are
+- * met:
+- *	* Redistributions of source code must retain the above copyright
+- *	  notice, this list of conditions and the following disclaimer.
+- *	* Redistributions in binary form must reproduce the above
+- * copyright notice, this list of conditions and the following disclaimer
+- * in the documentation and/or other materials provided with the
+- * distribution.
+- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
+  * You can contact the author at :
+  *	- LZ4 homepage : http://www.lz4.org
+  *	- LZ4 source repository : https://github.com/lz4/lz4
+-- 
+2.17.1
