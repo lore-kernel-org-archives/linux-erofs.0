@@ -1,54 +1,43 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 19 Oct 2018 14:41:38 +0800
-Subject: [PATCH v2 chao/erofs-dev 2/2] staging: erofs: locked before
- registering for all new workgroups
-In-Reply-To: <20181019064138.36549-1-gaoxiang25@huawei.com>
-References: <20181019064138.36549-1-gaoxiang25@huawei.com>
-Message-ID: <20181019064138.36549-2-gaoxiang25@huawei.com>
+Date: Fri, 19 Oct 2018 17:52:52 +0800
+Subject: [PREVIEW] [RFC PATCH 1/2] staging: erofs: atomic_cond_read_relaxed on
+ ref-locked workgroup
+Message-ID: <20181019095253.32004-1-gaoxiang25@huawei.com>
 
-Let's make sure that the one registering a workgroup will also
-take the primary work lock at first for two reasons:
-  1) There's no need to introduce such a race window (and consequently
-     overhead) between registering and locking, other tasks could break
-     in by chance, and the race seems unnecessary (no benefit at all);
-
-  2) It's better to take the primary work when a workgroup
-     is registered to apply the cache managed policy, for example,
-     if some other tasks break in, it could turn into the in-place
-     decompression rather than use as the cached decompression.
+It's better to use atomic_cond_read_relaxed, which is implemented
+in hardware instructions to monitor a variable changes currently
+for ARM64, instead of open-coded busy waiting.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/internal.h | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 7aa26818054a..91ce07f05bd2 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -419,18 +419,21 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
- 	work = z_erofs_vle_grab_primary_work(grp);
- 	work->pageofs = f->pageofs;
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 57575c7f5635..a2604ae33e74 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -227,17 +227,13 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+ 	int o;
  
-+	/* lock all primary followed works before visible to others */
-+	if (unlikely(!mutex_trylock(&work->lock)))
-+		BUG();
-+
- 	if (gnew) {
- 		int err = erofs_register_workgroup(f->sb, &grp->obj, 0);
+ repeat:
++#if defined(CONFIG_SMP)
++	o = atomic_cond_read_relaxed(&grp->refcount, VAL != locked);
++#else
+ 	o = atomic_read(&grp->refcount);
  
- 		if (err) {
-+			mutex_unlock(&work->lock);
- 			kmem_cache_free(z_erofs_workgroup_cachep, grp);
- 			return ERR_PTR(-EAGAIN);
- 		}
- 	}
+-	/* spin if it is temporarily locked at the reclaim path */
+-	if (unlikely(o == locked)) {
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-		do
+-			cpu_relax();
+-		while (atomic_read(&grp->refcount) == locked);
++	BUG_ON(o == locked);
+ #endif
+-		goto repeat;
+-	}
  
- 	*f->owned_head = *f->grp_ret = grp;
--
--	mutex_lock(&work->lock);
- 	return work;
- }
- 
+ 	if (unlikely(o <= 0))
+ 		return -1;
 -- 
 2.14.4
