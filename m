@@ -1,17 +1,100 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 16 Oct 2018 19:11:55 +0800
-Subject: [PATCH] clean erofs_lookup()
-In-Reply-To: <20181010190116.GG32577@ZenIV.linux.org.uk>
-References: <20181010190116.GG32577@ZenIV.linux.org.uk>
-Message-ID: <4b564529-a64e-eaee-aa9a-7324657c2eff@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Fri, 19 Oct 2018 14:41:37 +0800
+Subject: [PATCH chao/erofs-dev 1/2] staging: erofs: separate into init_once /
+ always
+Message-ID: <20181019064138.36549-1-gaoxiang25@huawei.com>
 
-On 2018/10/11 3:01, Al Viro wrote:
-> 	d_splice_alias() does the right thing when given
-> ERR_PTR(-E...) for inode.  No need for gotos, multiple
-> returns, etc. in there.
-> 
-> Signed-off-by: Al Viro <viro at zeniv.linux.org.uk>
+`z_erofs_vle_workgroup' is heavily generated in the decompression,
+for example, it resets 32 bytes redundantly for 64-bit platforms
+even through Z_EROFS_VLE_INLINE_PAGEVECS + Z_EROFS_CLUSTER_MAX_PAGES,
+default 4, pages are stored in `z_erofs_vle_workgroup'.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+As an another example, `struct mutex' takes 72 bytes for our kirin
+64-bit platforms, it's unnecessary to be reseted at first and
+be initialized each time.
 
-Thanks,
+Let's avoid filling all `z_erofs_vle_workgroup' with 0 at first
+since most fields are reinitialized to meaningful values later,
+and pagevec is no need to initialized at all.
+
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 34 +++++++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 79d3ba62b298..7aa26818054a 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -42,12 +42,38 @@ static inline int init_unzip_workqueue(void)
+ 	return z_erofs_workqueue != NULL ? 0 : -ENOMEM;
+ }
+ 
++static void init_once(void *ptr)
++{
++	struct z_erofs_vle_workgroup *grp = ptr;
++	struct z_erofs_vle_work *const work =
++		z_erofs_vle_grab_primary_work(grp);
++	unsigned int i;
++
++	mutex_init(&work->lock);
++	work->nr_pages = 0;
++	work->vcnt = 0;
++	for (i = 0; i < Z_EROFS_CLUSTER_MAX_PAGES; ++i)
++		grp->compressed_pages[i] = NULL;
++}
++
++static void init_always(struct z_erofs_vle_workgroup *grp)
++{
++	struct z_erofs_vle_work *const work =
++		z_erofs_vle_grab_primary_work(grp);
++
++	atomic_set(&grp->obj.refcount, 1);
++	grp->flags = 0;
++
++	DBG_BUGON(work->nr_pages);
++	DBG_BUGON(work->vcnt);
++}
++
+ int __init z_erofs_init_zip_subsystem(void)
+ {
+ 	z_erofs_workgroup_cachep =
+ 		kmem_cache_create("erofs_compress",
+ 		Z_EROFS_WORKGROUP_SIZE, 0,
+-		SLAB_RECLAIM_ACCOUNT, NULL);
++		SLAB_RECLAIM_ACCOUNT, init_once);
+ 
+ 	if (z_erofs_workgroup_cachep != NULL) {
+ 		if (!init_unzip_workqueue())
+@@ -369,10 +395,11 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	BUG_ON(grp != NULL);
+ 
+ 	/* no available workgroup, let's allocate one */
+-	grp = kmem_cache_zalloc(z_erofs_workgroup_cachep, GFP_NOFS);
++	grp = kmem_cache_alloc(z_erofs_workgroup_cachep, GFP_NOFS);
+ 	if (unlikely(grp == NULL))
+ 		return ERR_PTR(-ENOMEM);
+ 
++	init_always(grp);
+ 	grp->obj.index = f->idx;
+ 	grp->llen = map->m_llen;
+ 
+@@ -380,7 +407,6 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 		(map->m_flags & EROFS_MAP_ZIPPED) ?
+ 			Z_EROFS_VLE_WORKGRP_FMT_LZ4 :
+ 			Z_EROFS_VLE_WORKGRP_FMT_PLAIN);
+-	atomic_set(&grp->obj.refcount, 1);
+ 
+ 	/* new workgrps have been claimed as type 1 */
+ 	WRITE_ONCE(grp->next, *f->owned_head);
+@@ -393,8 +419,6 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	work = z_erofs_vle_grab_primary_work(grp);
+ 	work->pageofs = f->pageofs;
+ 
+-	mutex_init(&work->lock);
+-
+ 	if (gnew) {
+ 		int err = erofs_register_workgroup(f->sb, &grp->obj, 0);
+ 
+-- 
+2.14.4
