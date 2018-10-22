@@ -1,10 +1,8 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 22 Oct 2018 17:51:22 +0800
-Subject: [PATCH chao/erofs-dev] staging: erofs: add a full barrier in
+Date: Mon, 22 Oct 2018 17:52:12 +0800
+Subject: [PATCH chao/erofs-dev RESEND] staging: erofs: add a full barrier in
  erofs_workgroup_unfreeze
-In-Reply-To: <b4ec415e-2d3e-a9bc-bfa4-6b38cc5228b5@kernel.org>
-References: <b4ec415e-2d3e-a9bc-bfa4-6b38cc5228b5@kernel.org>
-Message-ID: <20181022095122.2129-1-gaoxiang25@huawei.com>
+Message-ID: <20181022095212.2504-1-gaoxiang25@huawei.com>
 
 Just like other generic locks, insert a full barrier
 in case of memory reorder.
