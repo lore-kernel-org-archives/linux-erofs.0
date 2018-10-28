@@ -1,10 +1,10 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 28 Oct 2018 16:14:18 +0800
-Subject: [PREVIEW] [RFC PATCH chao/erofs-dev v2] staging: erofs: decompress
- asynchronously if PG_readahead page at first
-In-Reply-To: <1540713370-10223-1-git-send-email-hsiangkao@aol.com>
-References: <1540713370-10223-1-git-send-email-hsiangkao@aol.com>
-Message-ID: <1540714458-12279-1-git-send-email-hsiangkao@aol.com>
+Date: Sun, 28 Oct 2018 16:19:44 +0800
+Subject: [PREVIEW] [RFC PATCH chao/erofs-dev v2 RESEND] staging: erofs:
+ decompress asynchronously if PG_readahead page at first
+In-Reply-To: <1540714458-12279-1-git-send-email-hsiangkao@aol.com>
+References: <1540714458-12279-1-git-send-email-hsiangkao@aol.com>
+Message-ID: <1540714784-16314-1-git-send-email-hsiangkao@aol.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
@@ -16,12 +16,13 @@ Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 change log v2:
  - fix the condition that it could missing flags if some pages
    fail to add_to_page_cache_lru
+ - (resend) remove a redundant new line
 
- drivers/staging/erofs/unzip_vle.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/staging/erofs/unzip_vle.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 79d3ba6..9db8c70 100644
+index 79d3ba6..17a22ae 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
 @@ -1315,8 +1315,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
@@ -34,7 +35,7 @@ index 79d3ba6..9db8c70 100644
  	struct z_erofs_vle_frontend f = VLE_FRONTEND_INIT(inode);
  	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
  	struct page *head = NULL;
-@@ -1334,12 +1334,20 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
+@@ -1334,6 +1334,13 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
  		prefetchw(&page->flags);
  		list_del(&page->lru);
  
@@ -48,12 +49,5 @@ index 79d3ba6..9db8c70 100644
  		if (add_to_page_cache_lru(page, mapping, page->index, gfp)) {
  			list_add(&page->lru, &pagepool);
  			continue;
- 		}
- 
- 		BUG_ON(PagePrivate(page));
-+
- 		set_page_private(page, (unsigned long)head);
- 		head = page;
- 	}
 -- 
 2.7.4
