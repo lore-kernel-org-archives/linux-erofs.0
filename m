@@ -1,54 +1,175 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Tue, 6 Nov 2018 02:22:36 +0800
-Subject: [Outreachy kernel] Re: [PATCH v3 2/2] staging: erofs: Modify
- conditional checks
-In-Reply-To: <CAOMPgjgoseN=+1ezv+xDZSoWpUxnsA3f70NisjAwZN=113fj7w@mail.gmail.com>
-References: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541421259.git.digholebhagyashri@gmail.com>
- <b36253c9dacce060a90e84f3e8d854749800d720.1541421259.git.digholebhagyashri@gmail.com>
- <3ac63350-6bfc-0dba-2649-ad7f91dd94c9@huawei.com>
- <alpine.DEB.2.20.1811051650270.31780@hadrien>
- <CAOMPgjgoseN=+1ezv+xDZSoWpUxnsA3f70NisjAwZN=113fj7w@mail.gmail.com>
-Message-ID: <30e72aa4-e605-d087-364c-3b9f606edaec@aol.com>
+From: digholebhagyashri@gmail.com (Bhagyashri P. Dighole)
+Date: Mon, 5 Nov 2018 18:58:37 +0000
+Subject: [PATCH v4 1/2] staging: erofs: Modify coding style alignments
+Message-ID: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541443947.git.digholebhagyashri@gmail.com>
 
-Hi Bhagyashri,
+Fix coding style alignment issues detected by checkpatch.pl
+Matched alignments with parenthesis.
 
-On 2018/11/6 2:07, Bhagyashri Dighole wrote:
-> Hi Gao,
-> 
-> In PATCH version v1 which is first stage of contribution, I modified data.c for all alignment changes and all conditional checks.?As per discussion on email for this patch, It was concluded that I need to re-submit patch for single change at a time.
-> 
-> So, I created PATCH v2. In this patch, I modified data.c only for single conditional check and single alignment change and committed accordingly. As per Gao?s suggestion to do all alignment change in a first patch and all conditional changes in another patch, I modified and created PATCH v3.
-> 
-> PATCH v3 is divided into two patches.
-> 1) PATCH v3 1/2 has all alignment changes.
-> 2) PATCH v3 2/2 has all conditional changes.
+Signed-off-by: Bhagyashri P. Dighole <digholebhagyashri at gmail.com>
+---
+Changes in v4:
+- Add changelog messages for patch versions.
 
-That is correct. However, you send two patchset of v3, see:
+Changes in v3:
+- Split patch in two patches. Each patch have similar
+  kind of changes. One patch for all alignment fixes and 
+    second patch for all conditional check fixes.
 
-v3. the first time
-1) https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000796.html
-2) https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000797.html
-2.1) https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000798.html
-v3. the second time
-1) https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000800.html
-2) https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000801.html
+Changes in v2:
+- Change for one alignment issue and one conditional check issue.
 
-It is hard for me to know which one is the latest version of your patchset.
-If you send a newer version, you should use v4 instead of v3 (even if you
-decide to add a changelog), or
+Changes in v1:
+- Change for all issues in data.c detected by checkpatch.pl
 
-If you resend the patchset (same as the previous one, just to remind us to review),
-  you should use [PATCH v3 RESEND] for this case.
+ drivers/staging/erofs/data.c | 51 ++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
-> 
-> Also, I mentioned what changes each version of patch represents under ??-? symbol.
-
-Yes, but I think you should use v4 rather than v3 to add a changelog as Greg mentioned.
-
-> 
-> I am not able to understand, where I am making mistake??Can you please help me?
-
-That is my personal suggestion, maybe of some help for you...
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index 6384f73e5418..b66191ad44aa 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -40,7 +40,7 @@ static inline void read_endio(struct bio *bio)
+ 
+ /* prio -- true is used for dir */
+ struct page *__erofs_get_meta_page(struct super_block *sb,
+-	erofs_blk_t blkaddr, bool prio, bool nofail)
++				   erofs_blk_t blkaddr, bool prio, bool nofail)
+ {
+ 	struct inode *const bd_inode = sb->s_bdev->bd_inode;
+ 	struct address_space *const mapping = bd_inode->i_mapping;
+@@ -76,7 +76,7 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
+ 		}
+ 
+ 		__submit_bio(bio, REQ_OP_READ,
+-			REQ_META | (prio ? REQ_PRIO : 0));
++			     REQ_META | (prio ? REQ_PRIO : 0));
+ 
+ 		lock_page(page);
+ 
+@@ -107,8 +107,8 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
+ }
+ 
+ static int erofs_map_blocks_flatmode(struct inode *inode,
+-	struct erofs_map_blocks *map,
+-	int flags)
++				     struct erofs_map_blocks *map,
++				     int flags)
+ {
+ 	int err = 0;
+ 	erofs_blk_t nblocks, lastblk;
+@@ -151,7 +151,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 		map->m_flags |= EROFS_MAP_META;
+ 	} else {
+ 		errln("internal error @ nid: %llu (size %llu), m_la 0x%llx",
+-			vi->nid, inode->i_size, map->m_la);
++		      vi->nid, inode->i_size, map->m_la);
+ 		DBG_BUGON(1);
+ 		err = -EIO;
+ 		goto err_out;
+@@ -167,12 +167,13 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
+ extern int z_erofs_map_blocks_iter(struct inode *,
+-	struct erofs_map_blocks *, struct page **, int);
++				   struct erofs_map_blocks *,
++				   struct page **, int);
+ #endif
+ 
+ int erofs_map_blocks_iter(struct inode *inode,
+-	struct erofs_map_blocks *map,
+-	struct page **mpage_ret, int flags)
++			  struct erofs_map_blocks *map,
++			  struct page **mpage_ret, int flags)
+ {
+ 	/* by default, reading raw data never use erofs_map_blocks_iter */
+ 	if (unlikely(!is_inode_layout_compression(inode))) {
+@@ -192,7 +193,7 @@ int erofs_map_blocks_iter(struct inode *inode,
+ }
+ 
+ int erofs_map_blocks(struct inode *inode,
+-	struct erofs_map_blocks *map, int flags)
++		     struct erofs_map_blocks *map, int flags)
+ {
+ 	if (unlikely(is_inode_layout_compression(inode))) {
+ 		struct page *mpage = NULL;
+@@ -206,13 +207,12 @@ int erofs_map_blocks(struct inode *inode,
+ 	return erofs_map_blocks_flatmode(inode, map, flags);
+ }
+ 
+-static inline struct bio *erofs_read_raw_page(
+-	struct bio *bio,
+-	struct address_space *mapping,
+-	struct page *page,
+-	erofs_off_t *last_block,
+-	unsigned int nblocks,
+-	bool ra)
++static inline struct bio *erofs_read_raw_page(struct bio *bio,
++					      struct address_space *mapping,
++					      struct page *page,
++					      erofs_off_t *last_block,
++					      unsigned int nblocks,
++					      bool ra)
+ {
+ 	struct inode *inode = mapping->host;
+ 	erofs_off_t current_block = (erofs_off_t)page->index;
+@@ -233,8 +233,8 @@ static inline struct bio *erofs_read_raw_page(
+ 
+ 	/* note that for readpage case, bio also equals to NULL */
+ 	if (bio != NULL &&
+-		/* not continuous */
+-		*last_block + 1 != current_block) {
++	    /* not continuous */
++	    *last_block + 1 != current_block) {
+ submit_bio_retry:
+ 		__submit_bio(bio, REQ_OP_READ, 0);
+ 		bio = NULL;
+@@ -307,7 +307,7 @@ static inline struct bio *erofs_read_raw_page(
+ 			nblocks = BIO_MAX_PAGES;
+ 
+ 		bio = erofs_grab_bio(inode->i_sb,
+-			blknr, nblocks, read_endio, false);
++				     blknr, nblocks, read_endio, false);
+ 
+ 		if (IS_ERR(bio)) {
+ 			err = PTR_ERR(bio);
+@@ -361,7 +361,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 	trace_erofs_readpage(page, true);
+ 
+ 	bio = erofs_read_raw_page(NULL, page->mapping,
+-		page, &last_block, 1, false);
++				  page, &last_block, 1, false);
+ 
+ 	if (IS_ERR(bio))
+ 		return PTR_ERR(bio);
+@@ -371,8 +371,9 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ }
+ 
+ static int erofs_raw_access_readpages(struct file *filp,
+-	struct address_space *mapping,
+-	struct list_head *pages, unsigned int nr_pages)
++				      struct address_space *mapping,
++				      struct list_head *pages,
++				      unsigned int nr_pages)
+ {
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+@@ -389,13 +390,13 @@ static int erofs_raw_access_readpages(struct file *filp,
+ 
+ 		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
+ 			bio = erofs_read_raw_page(bio, mapping, page,
+-				&last_block, nr_pages, true);
++						  &last_block, nr_pages, true);
+ 
+ 			/* all the page errors are ignored when readahead */
+ 			if (IS_ERR(bio)) {
+ 				pr_err("%s, readahead error at page %lu of nid %llu\n",
+-					__func__, page->index,
+-					EROFS_V(mapping->host)->nid);
++				       __func__, page->index,
++				       EROFS_V(mapping->host)->nid);
+ 
+ 				bio = NULL;
+ 			}
+-- 
+2.19.1
