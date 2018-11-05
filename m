@@ -1,98 +1,76 @@
-From: digholebhagyashri@gmail.com (Bhagyashri P. Dighole)
-Date: Mon, 5 Nov 2018 19:03:56 +0000
-Subject: [PATCH v4 2/2] staging: erofs: Modify conditional checks
-In-Reply-To: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541443947.git.digholebhagyashri@gmail.com>
-References: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541443947.git.digholebhagyashri@gmail.com>
-Message-ID: <b36253c9dacce060a90e84f3e8d854749800d720.1541443947.git.digholebhagyashri@gmail.com>
+From: himanshujha199640@gmail.com (Himanshu Jha)
+Date: Tue, 6 Nov 2018 00:38:17 +0530
+Subject: [Outreachy kernel] Re: [PATCH v3 2/2] staging: erofs: Modify
+ conditional checks
+In-Reply-To: <CAOMPgjgoseN=+1ezv+xDZSoWpUxnsA3f70NisjAwZN=113fj7w@mail.gmail.com>
+References: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541421259.git.digholebhagyashri@gmail.com>
+ <b36253c9dacce060a90e84f3e8d854749800d720.1541421259.git.digholebhagyashri@gmail.com>
+ <3ac63350-6bfc-0dba-2649-ad7f91dd94c9@huawei.com>
+ <alpine.DEB.2.20.1811051650270.31780@hadrien>
+ <CAOMPgjgoseN=+1ezv+xDZSoWpUxnsA3f70NisjAwZN=113fj7w@mail.gmail.com>
+Message-ID: <20181105190817.GB9326@himanshu-Vostro-3559>
 
-Fix coding style alignment issues detected by checkpatch.pl
-Use ! for NULL test rather than explicitly comparing to NULL.
+On Mon, Nov 05, 2018@11:37:53PM +0530, Bhagyashri Dighole wrote:
+> Hi Gao,
+> 
+> In PATCH version v1 which is first stage of contribution, I modified data.c
+> for all alignment changes and all conditional checks. As per discussion on
+> email for this patch, It was concluded that I need to re-submit patch for
+> single change at a time.
+> 
+> So, I created PATCH v2. In this patch, I modified data.c only for single
+> conditional check and single alignment change and committed accordingly. As
+> per Gao?s suggestion to do all alignment change in a first patch and all
+> conditional changes in another patch, I modified and created PATCH v3.
+> 
+> PATCH v3 is divided into two patches.
+> 1) PATCH v3 1/2 has all alignment changes.
+> 2) PATCH v3 2/2 has all conditional changes.
 
-Signed-off-by: Bhagyashri P. Dighole <digholebhagyashri at gmail.com>
----
-Changes in v4:
-- Add changelog messages for patch versions.
+I saw two variants for 2)
 
-Changes in v3:
-- Split patch in two patches. Each patch have similar
-  kind of changes. One patch for all alignment fixes and 
-    second patch for all conditional check fixes.
+check your `sent` box once and you will understand what the problem is.
 
-Changes in v2:
-- Change for one alignment issue and one conditional check issue.
+> Also, I mentioned what changes each version of patch represents under ??-?
+> symbol.
 
-Changes in v1:
-- Change for all issues in data.c detected by checkpatch.pl
+But I didn't see for one of the variants for 2)
 
-drivers/staging/erofs/data.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+> I am not able to understand, where I am making mistake? Can you please help
+> me?
 
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index b66191ad44aa..5a55f0bfdfbb 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -53,7 +53,7 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
- 
- repeat:
- 	page = find_or_create_page(mapping, blkaddr, gfp);
--	if (unlikely(page == NULL)) {
-+	if (unlikely(!page)) {
- 		DBG_BUGON(nofail);
- 		return ERR_PTR(-ENOMEM);
- 	}
-@@ -177,7 +177,7 @@ int erofs_map_blocks_iter(struct inode *inode,
- {
- 	/* by default, reading raw data never use erofs_map_blocks_iter */
- 	if (unlikely(!is_inode_layout_compression(inode))) {
--		if (*mpage_ret != NULL)
-+		if (*mpage_ret)
- 			put_page(*mpage_ret);
- 		*mpage_ret = NULL;
- 
-@@ -200,7 +200,7 @@ int erofs_map_blocks(struct inode *inode,
- 		int err;
- 
- 		err = erofs_map_blocks_iter(inode, map, &mpage, flags);
--		if (mpage != NULL)
-+		if (mpage)
- 			put_page(mpage);
- 		return err;
- 	}
-@@ -232,7 +232,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
- 	}
- 
- 	/* note that for readpage case, bio also equals to NULL */
--	if (bio != NULL &&
-+	if (bio &&
- 	    /* not continuous */
- 	    *last_block + 1 != current_block) {
- submit_bio_retry:
-@@ -240,7 +240,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
- 		bio = NULL;
- 	}
- 
--	if (bio == NULL) {
-+	if (!bio) {
- 		struct erofs_map_blocks map = {
- 			.m_la = blknr_to_addr(current_block),
- 		};
-@@ -342,7 +342,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
- 	unlock_page(page);
- 
- 	/* if updated manually, continuous pages has a gap */
--	if (bio != NULL)
-+	if (bio)
- submit_bio_out:
- 		__submit_bio(bio, REQ_OP_READ, 0);
- 
-@@ -408,7 +408,7 @@ static int erofs_raw_access_readpages(struct file *filp,
- 	DBG_BUGON(!list_empty(pages));
- 
- 	/* the rare case (end in gaps) */
--	if (unlikely(bio != NULL))
-+	if (unlikely(bio))
- 		__submit_bio(bio, REQ_OP_READ, 0);
- 	return 0;
- }
+When someone says to resend a patch use subject as [RESEND PATCH ... ..]
+
+See how development goes out here https://lkml.org/
+
+> @Julia Lawall <julia.lawall at lip6.fr>  How can I include Reviewed-by in
+> patch submission? we are allow to do that? If yes, then from where I can
+> get that information?
+
+Julia misunderstood I guess due identical patches and now when you send
+a new version add Gao's `Reviewed-by` tag with proper changelog and
+versioning.
+
+Lastly, Please don't top-post and don't bomb the outreachy mailing list.
+
+
+@Ioannis Valasakis,
+
+If you're following the list, then please understand what reviews you
+get carefully. You made the exactly same mistake in new series as Julia
+pointed and was earlier pointed by me.
+
+You're lucky to have Julia, Greg, Sasha *patiently* replying and perhaps you
+know about their mainline work. So, please rest their time and effort.
+
+
+Otherwise, in future very likely :P 
+=> => https://lore.kernel.org/lkml/20170829142011.76w67w64a7lheef4 at piout.net/
+
+
+Thanks!
 -- 
-2.19.1
+Himanshu Jha
+Undergraduate Student
+Department of Electronics & Communication
+Guru Tegh Bahadur Institute of Technology
