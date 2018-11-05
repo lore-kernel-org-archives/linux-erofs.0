@@ -1,9 +1,9 @@
 From: digholebhagyashri@gmail.com (Bhagyashri P. Dighole)
-Date: Mon, 5 Nov 2018 12:09:37 +0000
-Subject: [PATCH v3 2/2] staging: erofs: Modify conditional check
-In-Reply-To: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541414957.git.digholebhagyashri@gmail.com>
-References: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541414957.git.digholebhagyashri@gmail.com>
-Message-ID: <4aee17a8fb746113e084066d8c04c4575b152b95.1541414957.git.digholebhagyashri@gmail.com>
+Date: Mon, 5 Nov 2018 12:35:03 +0000
+Subject: [PATCH v3 2/2] staging: erofs: Modify conditional checks
+In-Reply-To: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541421259.git.digholebhagyashri@gmail.com>
+References: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541421259.git.digholebhagyashri@gmail.com>
+Message-ID: <b36253c9dacce060a90e84f3e8d854749800d720.1541421259.git.digholebhagyashri@gmail.com>
 
 Fix coding style alignment issues detected by checkpatch.pl
 Use ! for NULL test rather than explicitly comparing to NULL.
