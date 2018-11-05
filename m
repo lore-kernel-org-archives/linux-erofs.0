@@ -1,33 +1,161 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 5 Nov 2018 18:43:50 +0800
-Subject: [PATCH chao/erofs-dev 1/2] staging: erofs: separate into
- init_once / always
-In-Reply-To: <a42429a9-12a4-4f13-1943-824ee18a335f@huawei.com>
-References: <20181019064138.36549-1-gaoxiang25@huawei.com>
- <50241fb0-28b0-f90c-2725-dce1a0327a2a@huawei.com>
- <ab8f0d8d-ac0e-0c70-d7f7-1001cec7abeb@huawei.com>
- <af3deccf-5c3e-82a6-b10a-074a822643ad@huawei.com>
- <60fefb10-283d-d032-a974-8ea0ca547545@huawei.com>
- <1adfe14f-f78e-656e-1558-3b80e768725e@aol.com>
- <ff2a929b-0593-0ffd-210a-64743668f1e5@kernel.org>
- <88736039-effe-dfbf-0f8b-6eb45c6bff51@aol.com>
- <6b4b3a55-c98a-a0de-b59f-b01d6adda2c0@kernel.org>
- <f5233847-dc5e-f04e-1402-352fc141b432@aol.com>
- <b6bfe03c-6381-5e40-9536-502fb9d546f7@huawei.com>
- <80cddebb-44b8-5739-3818-484eedb8316e@huawei.com>
- <a42429a9-12a4-4f13-1943-824ee18a335f@huawei.com>
-Message-ID: <d2591356-5304-973a-1f9e-f069e3bf7046@huawei.com>
+From: digholebhagyashri@gmail.com (Bhagyashri P. Dighole)
+Date: Mon, 5 Nov 2018 12:09:09 +0000
+Subject: [PATCH v3 1/2] staging: erofs: Modify coding style alignments
+Message-ID: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541414957.git.digholebhagyashri@gmail.com>
 
-Hi Chao,
+Fix coding style alignment issues detected by checkpatch.pl
+Matched alignments with parenthesis.
 
-On 2018/11/5 9:46, Chao Yu wrote:
-> Agreed, let me update erofs* branch this tonight.
-> 
-> Thanks,
+Signed-off-by: Bhagyashri P. Dighole <digholebhagyashri at gmail.com>
+---
+ drivers/staging/erofs/data.c | 51 ++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
-I have rebased all the patches and send all out as the patchset
-of "[PATCH 4.20-rc1 rebased xx/10]"... It begins at
-https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/000785.html
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index 6384f73e5418..b66191ad44aa 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -40,7 +40,7 @@ static inline void read_endio(struct bio *bio)
+ 
+ /* prio -- true is used for dir */
+ struct page *__erofs_get_meta_page(struct super_block *sb,
+-	erofs_blk_t blkaddr, bool prio, bool nofail)
++				   erofs_blk_t blkaddr, bool prio, bool nofail)
+ {
+ 	struct inode *const bd_inode = sb->s_bdev->bd_inode;
+ 	struct address_space *const mapping = bd_inode->i_mapping;
+@@ -76,7 +76,7 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
+ 		}
+ 
+ 		__submit_bio(bio, REQ_OP_READ,
+-			REQ_META | (prio ? REQ_PRIO : 0));
++			     REQ_META | (prio ? REQ_PRIO : 0));
+ 
+ 		lock_page(page);
+ 
+@@ -107,8 +107,8 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
+ }
+ 
+ static int erofs_map_blocks_flatmode(struct inode *inode,
+-	struct erofs_map_blocks *map,
+-	int flags)
++				     struct erofs_map_blocks *map,
++				     int flags)
+ {
+ 	int err = 0;
+ 	erofs_blk_t nblocks, lastblk;
+@@ -151,7 +151,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 		map->m_flags |= EROFS_MAP_META;
+ 	} else {
+ 		errln("internal error @ nid: %llu (size %llu), m_la 0x%llx",
+-			vi->nid, inode->i_size, map->m_la);
++		      vi->nid, inode->i_size, map->m_la);
+ 		DBG_BUGON(1);
+ 		err = -EIO;
+ 		goto err_out;
+@@ -167,12 +167,13 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
+ extern int z_erofs_map_blocks_iter(struct inode *,
+-	struct erofs_map_blocks *, struct page **, int);
++				   struct erofs_map_blocks *,
++				   struct page **, int);
+ #endif
+ 
+ int erofs_map_blocks_iter(struct inode *inode,
+-	struct erofs_map_blocks *map,
+-	struct page **mpage_ret, int flags)
++			  struct erofs_map_blocks *map,
++			  struct page **mpage_ret, int flags)
+ {
+ 	/* by default, reading raw data never use erofs_map_blocks_iter */
+ 	if (unlikely(!is_inode_layout_compression(inode))) {
+@@ -192,7 +193,7 @@ int erofs_map_blocks_iter(struct inode *inode,
+ }
+ 
+ int erofs_map_blocks(struct inode *inode,
+-	struct erofs_map_blocks *map, int flags)
++		     struct erofs_map_blocks *map, int flags)
+ {
+ 	if (unlikely(is_inode_layout_compression(inode))) {
+ 		struct page *mpage = NULL;
+@@ -206,13 +207,12 @@ int erofs_map_blocks(struct inode *inode,
+ 	return erofs_map_blocks_flatmode(inode, map, flags);
+ }
+ 
+-static inline struct bio *erofs_read_raw_page(
+-	struct bio *bio,
+-	struct address_space *mapping,
+-	struct page *page,
+-	erofs_off_t *last_block,
+-	unsigned int nblocks,
+-	bool ra)
++static inline struct bio *erofs_read_raw_page(struct bio *bio,
++					      struct address_space *mapping,
++					      struct page *page,
++					      erofs_off_t *last_block,
++					      unsigned int nblocks,
++					      bool ra)
+ {
+ 	struct inode *inode = mapping->host;
+ 	erofs_off_t current_block = (erofs_off_t)page->index;
+@@ -233,8 +233,8 @@ static inline struct bio *erofs_read_raw_page(
+ 
+ 	/* note that for readpage case, bio also equals to NULL */
+ 	if (bio != NULL &&
+-		/* not continuous */
+-		*last_block + 1 != current_block) {
++	    /* not continuous */
++	    *last_block + 1 != current_block) {
+ submit_bio_retry:
+ 		__submit_bio(bio, REQ_OP_READ, 0);
+ 		bio = NULL;
+@@ -307,7 +307,7 @@ static inline struct bio *erofs_read_raw_page(
+ 			nblocks = BIO_MAX_PAGES;
+ 
+ 		bio = erofs_grab_bio(inode->i_sb,
+-			blknr, nblocks, read_endio, false);
++				     blknr, nblocks, read_endio, false);
+ 
+ 		if (IS_ERR(bio)) {
+ 			err = PTR_ERR(bio);
+@@ -361,7 +361,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 	trace_erofs_readpage(page, true);
+ 
+ 	bio = erofs_read_raw_page(NULL, page->mapping,
+-		page, &last_block, 1, false);
++				  page, &last_block, 1, false);
+ 
+ 	if (IS_ERR(bio))
+ 		return PTR_ERR(bio);
+@@ -371,8 +371,9 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ }
+ 
+ static int erofs_raw_access_readpages(struct file *filp,
+-	struct address_space *mapping,
+-	struct list_head *pages, unsigned int nr_pages)
++				      struct address_space *mapping,
++				      struct list_head *pages,
++				      unsigned int nr_pages)
+ {
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+@@ -389,13 +390,13 @@ static int erofs_raw_access_readpages(struct file *filp,
+ 
+ 		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
+ 			bio = erofs_read_raw_page(bio, mapping, page,
+-				&last_block, nr_pages, true);
++						  &last_block, nr_pages, true);
+ 
+ 			/* all the page errors are ignored when readahead */
+ 			if (IS_ERR(bio)) {
+ 				pr_err("%s, readahead error at page %lu of nid %llu\n",
+-					__func__, page->index,
+-					EROFS_V(mapping->host)->nid);
++				       __func__, page->index,
++				       EROFS_V(mapping->host)->nid);
+ 
+ 				bio = NULL;
+ 			}
+-- 
+2.19.1
