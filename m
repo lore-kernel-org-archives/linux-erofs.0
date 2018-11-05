@@ -1,40 +1,37 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 5 Nov 2018 18:31:12 +0800
-Subject: [PATCH 4.20-rc1 rebased 01/10] staging: erofs: fix
- `trace_erofs_readpage' position
-Message-ID: <20181105103121.39655-1-gaoxiang25@huawei.com>
+Date: Mon, 5 Nov 2018 18:31:13 +0800
+Subject: [PATCH 4.20-rc1 rebased 02/10] staging: erofs: remove the redundant
+ d_rehash() for the root dentry
+In-Reply-To: <20181105103121.39655-1-gaoxiang25@huawei.com>
+References: <20181105103121.39655-1-gaoxiang25@huawei.com>
+Message-ID: <20181105103121.39655-2-gaoxiang25@huawei.com>
 
-`trace_erofs_readpage' should be placed in .readpage()
-rather than in the internal `z_erofs_do_read_page'.
+There is actually no need at all to d_rehash() for the root dentry
+as Al pointed out, fix it.
 
-Fixes: 284db12cfda3 ("staging: erofs: add trace points for reading zipped data")
-Cc: Chen Gong <gongchen4 at huawei.com>
+Reported-by: Al Viro <viro at ZenIV.linux.org.uk>
+Cc: Al Viro <viro at ZenIV.linux.org.uk>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/super.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 79d3ba62b298..94ceb391f607 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -597,8 +597,6 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	unsigned int cur, end, spiltted, index;
- 	int err = 0;
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f69e619807a1..1ab3553c839b 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -442,12 +442,6 @@ static int erofs_read_super(struct super_block *sb,
  
--	trace_erofs_readpage(page, false);
+ 	erofs_register_super(sb);
+ 
+-	/*
+-	 * We already have a positive dentry, which was instantiated
+-	 * by d_make_root. Just need to d_rehash it.
+-	 */
+-	d_rehash(sb->s_root);
 -
- 	/* register locked file pages as online pages in pack */
- 	z_erofs_onlinepage_init(page);
- 
-@@ -1287,6 +1285,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 	int err;
- 	LIST_HEAD(pagepool);
- 
-+	trace_erofs_readpage(page, false);
-+
- #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
- 	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
- #endif
+ 	if (!silent)
+ 		infoln("mounted on %s with opts: %s.", dev_name,
+ 			(char *)data);
 -- 
 2.14.4
