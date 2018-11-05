@@ -1,40 +1,67 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 5 Nov 2018 13:30:11 +0800
-Subject: [PATCH v2 2/2] staging: erofs: Modify Alignment
-In-Reply-To: <ab1426b48b16317bd787f0f15dbd9ffaaacf6c72.1541394756.git.digholebhagyashri@example.com>
+From: digholebhagyashri@gmail.com (Bhagyashri Dighole)
+Date: Mon, 5 Nov 2018 11:14:16 +0530
+Subject: [Outreachy kernel] Re: [PATCH v2 1/2] staging: erofs: Modify
+ conditional check.
+In-Reply-To: <5d7fc290-08ad-0c83-d030-de255de81c47@huawei.com>
 References: <3db6ea6f3a7b1fab94e5dacc1ec4a026e38548c2.1541394756.git.digholebhagyashri@example.com>
- <ab1426b48b16317bd787f0f15dbd9ffaaacf6c72.1541394756.git.digholebhagyashri@example.com>
-Message-ID: <16a42518-c147-e368-2232-15c3cb110093@huawei.com>
+ <5d7fc290-08ad-0c83-d030-de255de81c47@huawei.com>
+Message-ID: <CAOMPgjjF3_JYc6H8FuMXXmNHov30uxy2N+ZtTTtVhSxzmbsnFQ@mail.gmail.com>
 
-Hi Bhagyashri,
+Thanks Gao. As per discussion in previous mails, I thought we need to
+submit one change at a time in a patch that's why I modified accordingly.
+As you suggested it makes sense to fix all similar issues at once and
+create a single patch for those issues. I will update patch accordingly.
 
-On 2018/11/5 13:14, Bhagyashri P. Dighole wrote:
-> Found alignment issue using checkpatch.
-> Matched alignment with parenthesis of page struct.
-> 
-> Signed-off-by: Bhagyashri P. Dighole <digholebhagyashri at gmail.com>
-> ---
->  drivers/staging/erofs/data.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-> index a671ad4..a62be35 100644
-> --- a/drivers/staging/erofs/data.c
-> +++ b/drivers/staging/erofs/data.c
-> @@ -40,7 +40,7 @@ static inline void read_endio(struct bio *bio)
->  
->  /* prio -- true is used for dir */
->  struct page *__erofs_get_meta_page(struct super_block *sb,
-> -	erofs_blk_t blkaddr, bool prio, bool nofail)
-> +				   erofs_blk_t blkaddr, bool prio, bool nofail)
->  {
->  	struct inode *const bd_inode = sb->s_bdev->bd_inode;
->  	struct address_space *const mapping = bd_inode->i_mapping;
-> -- 2.7.4
+ Thanks
 
-Ditto, the similar case as I mentioned in the previous commit
-"staging: erofs: Modify conditional check"...Could you please fix them all
-(at least in the per-file range)?
+On Mon, Nov 5, 2018, 10:58 AM Gao Xiang <gaoxiang25@huawei.com> wrote:
 
-Thanks,
-Gao Xiang
+> Hi Bhagyashri,
+>
+> On 2018/11/5 13:13, Bhagyashri P. Dighole wrote:
+> > Found issue using checkpatch.
+> > Use ! for NULL test rather than explicitly comparing to NULL.
+> >
+> > Signed-off-by: Bhagyashri P. Dighole <digholebhagyashri at gmail.com>
+> > ---
+> >  drivers/staging/erofs/data.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+> > index 6384f73..a671ad4 100644
+> > --- a/drivers/staging/erofs/data.c
+> > +++ b/drivers/staging/erofs/data.c
+> > @@ -240,7 +240,7 @@ static inline struct bio *erofs_read_raw_page(
+> >               bio = NULL;
+> >       }
+> >
+> > -     if (bio == NULL) {
+> > +     if (!bio) {
+> >               struct erofs_map_blocks map = {
+> >                       .m_la = blknr_to_addr(current_block),
+> >               };
+> >
+>
+> Could you please fix pointer comparisons to NULL all in once?
+> at least for a specific file (eg. for the staging/erofs/data.c only)?
+>
+> It is somewhat weird to just fix one place only of data.c +243 as above,
+> this is my personal suggestion...
+>
+> Thanks,
+> Gao Xiang
+>
+> --
+> You received this message because you are subscribed to the Google Groups
+> "outreachy-kernel" group.
+> To unsubscribe from this group and stop receiving emails from it, send an
+> email to outreachy-kernel+unsubscribe at googlegroups.com.
+> To post to this group, send email to outreachy-kernel at googlegroups.com.
+> To view this discussion on the web visit
+> https://groups.google.com/d/msgid/outreachy-kernel/5d7fc290-08ad-0c83-d030-de255de81c47%40huawei.com
+> .
+> For more options, visit https://groups.google.com/d/optout.
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20181105/4aaaecef/attachment.html>
