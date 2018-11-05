@@ -1,7 +1,10 @@
 From: digholebhagyashri@gmail.com (Bhagyashri P. Dighole)
-Date: Mon, 5 Nov 2018 18:58:37 +0000
+Date: Mon, 5 Nov 2018 19:02:51 +0000
 Subject: [PATCH v4 1/2] staging: erofs: Modify coding style alignments
-Message-ID: <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541443947.git.digholebhagyashri@gmail.com>
+Message-ID:
+ <b14ab748b6c00632bb2234000d96a7e1912e2b1b.1541443947.git.digholebhagyashri@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20181105190251.X2TL6rXlry1-DHq-z5yX7A0cJl1GF4LqGiQ3zfLjLjU@z>
 
 Fix coding style alignment issues detected by checkpatch.pl
 Matched alignments with parenthesis.
@@ -14,7 +17,7 @@ Changes in v4:
 Changes in v3:
 - Split patch in two patches. Each patch have similar
   kind of changes. One patch for all alignment fixes and 
-    second patch for all conditional check fixes.
+  second patch for all conditional check fixes.
 
 Changes in v2:
 - Change for one alignment issue and one conditional check issue.
