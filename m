@@ -1,38 +1,32 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 9 Nov 2018 19:38:46 +0800
-Subject: How can I get user space tools of erofs?
-In-Reply-To: <cce741a4-8e15-a48c-070e-d16d71b864c3@gmx.com>
-References: <cce741a4-8e15-a48c-070e-d16d71b864c3@gmx.com>
-Message-ID: <923d8f98-bd0c-47e1-63a5-512547d6a77d@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sat, 10 Nov 2018 00:07:50 +0800
+Subject: [PATCH] staging: erofs: fix undefined LZ4_decompress_safe_partial()
+Message-ID: <1541779670-13832-1-git-send-email-hsiangkao@aol.com>
 
-Hi Chengguang,
+It needs an explicit LZ4 library dependency
+if lz4 compression is enabled, found by kbuild randconfig.
 
-Good question! It's in the final stage of preparation to open source erofs-mkfs (actually they are now struggle at how to properly spilt
-into reasonable patches this week), hopefully the implementation could be released at the next week. (sorry I didn't mean to delay,
-I have to put it in the first place --- successfully launch our linux-erofs products to the market)
+Reported-by: kbuild test robot <lkp at intel.com>
+Fixes: 05f9d4a0c8c4 ("staging: erofs: use the new LZ4_decompress_safe_partial()")
+Signed-off-by: Gao Xiang <hsiangkao at aol.com>
+---
+ drivers/staging/erofs/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-@Guifu Li <bluce.liguifu at huawei.com> is the original author of erofs-mkfs, he will post the original mkfs source code to linux-erofs mailing list
-and he will maintain erofs-mkfs together with @Wei Fang <fangwei1 at huawei.com> later. You can contact them for further informations.
----  these piece of code is actually not clean enough (a lot hacked/dirty code compared to the kernel code) so a lot of cleanup will be done then.
-
-currently, you can get erofs-mkfs binary from (still sorry to say that...):
-https://github.com/hsiangkao/erofs_mkfs_binary
-
-erofs is now in productization for these months, if all things go well, you'll see that HUAWEI mobile phones on the market run in erofs in few months. :)
-
-These months I'm busy in solving bugs found by internal beta users and tuning memory policy in heavy memory workload for the best performance compared to ext4
-(we have native in-place decompression compared with squashfs/btrfs, thus less extra memory allocation results in lower memory memory reclaim / page-writeback
-for devices with limited memory, see: https://lists.ozlabs.org/pipermail/linux-erofs/2018-August/000494.html) in order to gain the competitive user experience
-comparing to uncompressed filesystem solutions. I will update a document to describe our core design and linux-erofs future roadmap in this linux-4.21 round.
-
-Thanks,
-Gao Xiang
-
-On 2018/11/9 16:37, cgxu519 wrote:
-> Hi Xiang,
-> 
-> Could I ask a simple question about where can I get user space tools(like mkfs) of erofs?
-> 
-> 
-> Thanks.
-> 
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index c8521d7..d04b798 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -90,8 +90,9 @@ config EROFS_FS_IO_MAX_RETRIES
+ config EROFS_FS_ZIP
+ 	bool "EROFS Data Compresssion Support"
+ 	depends on EROFS_FS
++	select LZ4_DECOMPRESS
+ 	help
+-	  Currently we support VLE Compression only.
++	  Currently we support LZ4 VLE Compression only.
+ 	  Play at your own risk.
+ 
+ 	  If you don't want to use compression feature, say N.
+-- 
+2.7.4
