@@ -1,32 +1,26 @@
-From: rdunlap@infradead.org (Randy Dunlap)
-Date: Fri, 9 Nov 2018 09:58:44 -0800
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sat, 10 Nov 2018 02:06:53 +0800
 Subject: [PATCH] staging: erofs: select LZ4_DECOMPRESS to fix build error
-Message-ID: <e2365d5f-aabb-a631-1338-1e32f8c9bea6@infradead.org>
+In-Reply-To: <e2365d5f-aabb-a631-1338-1e32f8c9bea6@infradead.org>
+References: <e2365d5f-aabb-a631-1338-1e32f8c9bea6@infradead.org>
+Message-ID: <fcee5841-70cd-d961-8bff-834d0cb2da94@aol.com>
 
-From: Randy Dunlap <rdunlap@infradead.org>
+Hi Randy,
 
-EROFS Data Compression support uses LZ4 decompression, so it
-should select LZ4_DECOMPRESS to prevent this build error:
+Thanks for taking time, I have sent a patch to Greg fixing this issue. :)
+https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/commit/?h=staging-testing&id=7962e63a2f4140631ad10d475d96193a3bc8ec2f
 
-drivers/staging/erofs/unzip_vle_lz4.o: In function `z_erofs_unzip_lz4':
-drivers/staging/erofs/unzip_vle_lz4.c:18: undefined reference to `LZ4_decompress_safe_partial'
+Thanks,
+Gao Xiang
 
-Signed-off-by: Randy Dunlap <rdunlap at infradead.org>
-Reported-by: kbuild test robot <lkp at intel.com>
-Cc: Gao Xiang <gaoxiang25 at huawei.com>
-Cc: Chao Yu <yuchao0 at huawei.com>
-Cc: linux-erofs at lists.ozlabs.org
----
- drivers/staging/erofs/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-next-20181109.orig/drivers/staging/erofs/Kconfig
-+++ linux-next-20181109/drivers/staging/erofs/Kconfig
-@@ -90,6 +90,7 @@ config EROFS_FS_IO_MAX_RETRIES
- config EROFS_FS_ZIP
- 	bool "EROFS Data Compresssion Support"
- 	depends on EROFS_FS
-+	select LZ4_DECOMPRESS
- 	help
- 	  Currently we support VLE Compression only.
- 	  Play at your own risk.
+On 2018/11/10 1:58, Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap at infradead.org>
+> 
+> EROFS Data Compression support uses LZ4 decompression, so it
+> should select LZ4_DECOMPRESS to prevent this build error:
+> 
+> drivers/staging/erofs/unzip_vle_lz4.o: In function `z_erofs_unzip_lz4':
+> drivers/staging/erofs/unzip_vle_lz4.c:18: undefined reference to `LZ4_decompress_safe_partial'
+> 
+> Signed-off-by: Randy Dunlap <rdunlap at infradead.org>
+> Reported-by: kbuild test robot <lkp at intel.com>
