@@ -1,34 +1,44 @@
-From: cgxu519@gmx.com (cgxu519)
-Date: Mon, 12 Nov 2018 09:51:36 +0800
-Subject: How can I get user space tools of erofs?
-In-Reply-To: <923d8f98-bd0c-47e1-63a5-512547d6a77d@huawei.com>
-References: <cce741a4-8e15-a48c-070e-d16d71b864c3@gmx.com>
- <923d8f98-bd0c-47e1-63a5-512547d6a77d@huawei.com>
-Message-ID: <24438b2f-1676-3718-18cc-7c99aa2a7741@gmx.com>
+From: sicilia.cristian@gmail.com (Cristian Sicilia)
+Date: Mon, 12 Nov 2018 21:43:58 +0100
+Subject: [PATCH 2/3] staging: erofs: unzip_vle.c: Constant in comparison on
+ right side
+In-Reply-To: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
+References: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
+Message-ID: <1542055439-24444-3-git-send-email-sicilia.cristian@gmail.com>
 
+Comparisons should place the constant
+on the right side of the test.
 
-> Hi Chengguang,
->
-> Good question! It's in the final stage of preparation to open source erofs-mkfs (actually they are now struggle at how to properly spilt
-> into reasonable patches this week), hopefully the implementation could be released at the next week. (sorry I didn't mean to delay,
-> I have to put it in the first place --- successfully launch our linux-erofs products to the market)
->
-> @Guifu Li <bluce.liguifu at huawei.com> is the original author of erofs-mkfs, he will post the original mkfs source code to linux-erofs mailing list
-> and he will maintain erofs-mkfs together with @Wei Fang <fangwei1 at huawei.com> later. You can contact them for further informations.
-> ---  these piece of code is actually not clean enough (a lot hacked/dirty code compared to the kernel code) so a lot of cleanup will be done then.
->
-> currently, you can get erofs-mkfs binary from (still sorry to say that...):
-> https://github.com/hsiangkao/erofs_mkfs_binary
->
-> erofs is now in productization for these months, if all things go well, you'll see that HUAWEI mobile phones on the market run in erofs in few months. :)
->
-> These months I'm busy in solving bugs found by internal beta users and tuning memory policy in heavy memory workload for the best performance compared to ext4
-> (we have native in-place decompression compared with squashfs/btrfs, thus less extra memory allocation results in lower memory memory reclaim / page-writeback
-> for devices with limited memory, see: https://lists.ozlabs.org/pipermail/linux-erofs/2018-August/000494.html) in order to gain the competitive user experience
-> comparing to uncompressed filesystem solutions. I will update a document to describe our core design and linux-erofs future roadmap in this linux-4.21 round.
+Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Hi Xiang,
-
-Thanks for your detail explanations!
-
-Chengguang
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 1ffeeaa..35add4e 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -250,8 +250,8 @@ static inline bool try_to_claim_workgroup(
+ retry:
+ 	if (grp->next == Z_EROFS_VLE_WORKGRP_NIL) {
+ 		/* type 1, nil workgroup */
+-		if (Z_EROFS_VLE_WORKGRP_NIL != cmpxchg(&grp->next,
+-			Z_EROFS_VLE_WORKGRP_NIL, *owned_head))
++		if (cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_NIL,
++			    *owned_head) != Z_EROFS_VLE_WORKGRP_NIL)
+ 			goto retry;
+ 
+ 		*owned_head = grp;
+@@ -262,8 +262,8 @@ static inline bool try_to_claim_workgroup(
+ 		 * be careful that its submission itself is governed
+ 		 * by the original owned chain.
+ 		 */
+-		if (Z_EROFS_VLE_WORKGRP_TAIL != cmpxchg(&grp->next,
+-			Z_EROFS_VLE_WORKGRP_TAIL, *owned_head))
++		if (cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
++			    *owned_head) != Z_EROFS_VLE_WORKGRP_TAIL)
+ 			goto retry;
+ 
+ 		*owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
+-- 
+2.7.4
