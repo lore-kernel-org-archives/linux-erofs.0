@@ -1,176 +1,94 @@
-From: sicilia.cristian@gmail.com (Cristian Sicilia)
-Date: Tue, 13 Nov 2018 00:31:58 +0100
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Mon, 12 Nov 2018 15:46:03 -0800
 Subject: [PATCH 1/3] staging: erofs: unzip_vle.c: Replace comparison to
  NULL.
-In-Reply-To: <20181112224636.GA12671@kroah.com>
+In-Reply-To: <CACU=YuX3U50uVaitV1Mhn3Dn8pXhPZt-1K7HX4Bn7MUCrgE35w@mail.gmail.com>
 References: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
  <1542055439-24444-2-git-send-email-sicilia.cristian@gmail.com>
  <20181112224636.GA12671@kroah.com>
-Message-ID: <CACU=YuX3U50uVaitV1Mhn3Dn8pXhPZt-1K7HX4Bn7MUCrgE35w@mail.gmail.com>
+ <CACU=YuX3U50uVaitV1Mhn3Dn8pXhPZt-1K7HX4Bn7MUCrgE35w@mail.gmail.com>
+Message-ID: <20181112234603.GB16079@kroah.com>
 
-On Mon, Nov 12, 2018 at 11:46 PM Greg Kroah-Hartman <
-gregkh@linuxfoundation.org> wrote:
-
-> On Mon, Nov 12, 2018@09:43:57PM +0100, Cristian Sicilia wrote:
-> > Replace equal to NULL with logic unary operator,
-> > and removing not equal to NULL comparison.
+On Tue, Nov 13, 2018@12:31:58AM +0100, Cristian Sicilia wrote:
+> On Mon, Nov 12, 2018 at 11:46 PM Greg Kroah-Hartman <
+> gregkh@linuxfoundation.org> wrote:
+> 
+> > On Mon, Nov 12, 2018@09:43:57PM +0100, Cristian Sicilia wrote:
+> > > Replace equal to NULL with logic unary operator,
+> > > and removing not equal to NULL comparison.
+> > >
+> > > Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
+> > > ---
+> > >  drivers/staging/erofs/unzip_vle.c | 86
+> > +++++++++++++++++++--------------------
+> > >  1 file changed, 43 insertions(+), 43 deletions(-)
+> > >
+> > > diff --git a/drivers/staging/erofs/unzip_vle.c
+> > b/drivers/staging/erofs/unzip_vle.c
+> > > index 79d3ba6..1ffeeaa 100644
+> > > --- a/drivers/staging/erofs/unzip_vle.c
+> > > +++ b/drivers/staging/erofs/unzip_vle.c
+> > > @@ -20,8 +20,8 @@ static struct kmem_cache *z_erofs_workgroup_cachep
+> > __read_mostly;
+> > >
+> > >  void z_erofs_exit_zip_subsystem(void)
+> > >  {
+> > > -     BUG_ON(z_erofs_workqueue == NULL);
+> > > -     BUG_ON(z_erofs_workgroup_cachep == NULL);
+> > > +     BUG_ON(!z_erofs_workqueue);
+> > > +     BUG_ON(!z_erofs_workgroup_cachep);
 > >
-> > Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
-> > ---
-> >  drivers/staging/erofs/unzip_vle.c | 86
-> +++++++++++++++++++--------------------
-> >  1 file changed, 43 insertions(+), 43 deletions(-)
+> > Long-term, all of these BUG_ON need to be removed as they imply that the
+> > developer has no idea what went wrong and can not recover.  For
+> > something like this, we "know" these will be fine and odds are they can
+> > just be removed entirely.
 > >
-> > diff --git a/drivers/staging/erofs/unzip_vle.c
-> b/drivers/staging/erofs/unzip_vle.c
-> > index 79d3ba6..1ffeeaa 100644
-> > --- a/drivers/staging/erofs/unzip_vle.c
-> > +++ b/drivers/staging/erofs/unzip_vle.c
-> > @@ -20,8 +20,8 @@ static struct kmem_cache *z_erofs_workgroup_cachep
-> __read_mostly;
 > >
-> >  void z_erofs_exit_zip_subsystem(void)
-> >  {
-> > -     BUG_ON(z_erofs_workqueue == NULL);
-> > -     BUG_ON(z_erofs_workgroup_cachep == NULL);
-> > +     BUG_ON(!z_erofs_workqueue);
-> > +     BUG_ON(!z_erofs_workgroup_cachep);
->
-> Long-term, all of these BUG_ON need to be removed as they imply that the
-> developer has no idea what went wrong and can not recover.  For
-> something like this, we "know" these will be fine and odds are they can
-> just be removed entirely.
->
->
-Right, I'm watching how replace the BUG_ON with WARN_ON and check who call
-this functions
+> Right, I'm watching how replace the BUG_ON with WARN_ON and check who call
+> this functions
 
+No, why would WARN_ON be any better?  Systems run with "panic on warn"
+enabled and this would cause the machine to reboot.  Why are these
+things even being checked in the first place if they are impossible to
+hit?
 
+If they really are impossible, remove the check.  If they are not, then
+properly handle the logic if they are true.
 
+Linus said the other day something like "programmers who use BUG_ON()
+don't know what their code does", and I agree.  They are a crutch that
+we need to fix up in the whole kernel, not just staging.
+
+> > >       destroy_workqueue(z_erofs_workqueue);
+> > >       kmem_cache_destroy(z_erofs_workgroup_cachep);
+> > > @@ -39,7 +39,7 @@ static inline int init_unzip_workqueue(void)
+> > >               WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
+> > >               onlinecpus + onlinecpus / 4);
+> > >
+> > > -     return z_erofs_workqueue != NULL ? 0 : -ENOMEM;
+> > > +     return z_erofs_workqueue ? 0 : -ENOMEM;
 > >
-> >       destroy_workqueue(z_erofs_workqueue);
-> >       kmem_cache_destroy(z_erofs_workgroup_cachep);
-> > @@ -39,7 +39,7 @@ static inline int init_unzip_workqueue(void)
-> >               WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
-> >               onlinecpus + onlinecpus / 4);
+> > I hate ?: notation that is not in a function parameter, any way you can
+> > just change this to:
+> >         if (z_erofs_workqueue)
+> >                 return 0;
+> >         return -ENOMEM;
 > >
-> > -     return z_erofs_workqueue != NULL ? 0 : -ENOMEM;
-> > +     return z_erofs_workqueue ? 0 : -ENOMEM;
->
-> I hate ?: notation that is not in a function parameter, any way you can
-> just change this to:
->         if (z_erofs_workqueue)
->                 return 0;
->         return -ENOMEM;
->
->
-I will replace the ?: too
-
-
-> Christian, this isn't your fault at all, I'm not rejecting this patch,
-> just providing hints on what else you can do here :)
->
-
-
-but (if I well understand) I will send a different patch for both fix,
-right?
-
-
-
->
-> thanks,
->
->
-Thanks for your hints
-
-
-
-> greg k-h
->
-
-
--- 
-
-
-
-Cristian Sicilia
-
-mail: sicilia.cristian at gmail.com
-
-phone: +39 392 20 61 63 1
-
-web:http://www.siciliacristian.com
-
-
-On Mon, Nov 12, 2018 at 11:46 PM Greg Kroah-Hartman <
-gregkh@linuxfoundation.org> wrote:
-
-> On Mon, Nov 12, 2018@09:43:57PM +0100, Cristian Sicilia wrote:
-> > Replace equal to NULL with logic unary operator,
-> > and removing not equal to NULL comparison.
 > >
-> > Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
-> > ---
-> >  drivers/staging/erofs/unzip_vle.c | 86
-> +++++++++++++++++++--------------------
-> >  1 file changed, 43 insertions(+), 43 deletions(-)
+> I will replace the ?: too
+> 
+> 
+> > Christian, this isn't your fault at all, I'm not rejecting this patch,
+> > just providing hints on what else you can do here :)
 > >
-> > diff --git a/drivers/staging/erofs/unzip_vle.c
-> b/drivers/staging/erofs/unzip_vle.c
-> > index 79d3ba6..1ffeeaa 100644
-> > --- a/drivers/staging/erofs/unzip_vle.c
-> > +++ b/drivers/staging/erofs/unzip_vle.c
-> > @@ -20,8 +20,8 @@ static struct kmem_cache *z_erofs_workgroup_cachep
-> __read_mostly;
-> >
-> >  void z_erofs_exit_zip_subsystem(void)
-> >  {
-> > -     BUG_ON(z_erofs_workqueue == NULL);
-> > -     BUG_ON(z_erofs_workgroup_cachep == NULL);
-> > +     BUG_ON(!z_erofs_workqueue);
-> > +     BUG_ON(!z_erofs_workgroup_cachep);
->
-> Long-term, all of these BUG_ON need to be removed as they imply that the
-> developer has no idea what went wrong and can not recover.  For
-> something like this, we "know" these will be fine and odds are they can
-> just be removed entirely.
->
-> >
-> >       destroy_workqueue(z_erofs_workqueue);
-> >       kmem_cache_destroy(z_erofs_workgroup_cachep);
-> > @@ -39,7 +39,7 @@ static inline int init_unzip_workqueue(void)
-> >               WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
-> >               onlinecpus + onlinecpus / 4);
-> >
-> > -     return z_erofs_workqueue != NULL ? 0 : -ENOMEM;
-> > +     return z_erofs_workqueue ? 0 : -ENOMEM;
->
-> I hate ?: notation that is not in a function parameter, any way you can
-> just change this to:
->         if (z_erofs_workqueue)
->                 return 0;
->         return -ENOMEM;
->
-> Christian, this isn't your fault at all, I'm not rejecting this patch,
-> just providing hints on what else you can do here :)
->
-> thanks,
->
-> greg k-h
->
+> 
+> 
+> but (if I well understand) I will send a different patch for both fix,
+> right?
 
+Yes, nothing wrong with this one that I could see.  I'll let the erofs
+maintainers review it first before applying it in a few days to my tree.
 
--- 
+thanks,
 
-
-
-Cristian Sicilia
-
-mail: sicilia.cristian at gmail.com
-
-phone: +39 392 20 61 63 1
-
-web:http://www.siciliacristian.com
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20181113/15380401/attachment.html>
+greg k-h
