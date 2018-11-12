@@ -1,21 +1,46 @@
 From: sicilia.cristian@gmail.com (Cristian Sicilia)
-Date: Mon, 12 Nov 2018 21:43:56 +0100
-Subject: [PATCH 0/3] Clean up some syntax issue on unzip_vle.c
-Message-ID: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
+Date: Mon, 12 Nov 2018 21:43:59 +0100
+Subject: [PATCH 3/3] staging: erofs: unzip_vle.c: Align parameter to the
+ parentesis
+In-Reply-To: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
+References: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
+Message-ID: <1542055439-24444-4-git-send-email-sicilia.cristian@gmail.com>
 
-This patch will do some syntax fix on unzip_vle.c file.
-The first patch will produce the removeal of all comparison
-with NULL constant prepending not operator for equals comparision.
-The second patch move the constant comparison to the right side.
-The third align some parameter with the previous parenthesis.
+Align parameters to the opened parentesis.
 
-Cristian Sicilia (3):
-  staging: erofs: unzip_vle.c: Replace comparison to NULL.
-  staging: erofs: unzip_vle.c: Constant in comparison on right side
-  staging: erofs: unzip_vle.c: Align parameter to the parentesis
+Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
- drivers/staging/erofs/unzip_vle.c | 105 +++++++++++++++++++-------------------
- 1 file changed, 53 insertions(+), 52 deletions(-)
-
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 35add4e..6a283f6 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -35,9 +35,10 @@ static inline int init_unzip_workqueue(void)
+ 	 * we don't need too many threads, limiting threads
+ 	 * could improve scheduling performance.
+ 	 */
+-	z_erofs_workqueue = alloc_workqueue("erofs_unzipd",
+-		WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
+-		onlinecpus + onlinecpus / 4);
++	z_erofs_workqueue =
++		alloc_workqueue("erofs_unzipd",
++				WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
++				onlinecpus + onlinecpus / 4);
+ 
+ 	return z_erofs_workqueue ? 0 : -ENOMEM;
+ }
+@@ -46,8 +47,8 @@ int __init z_erofs_init_zip_subsystem(void)
+ {
+ 	z_erofs_workgroup_cachep =
+ 		kmem_cache_create("erofs_compress",
+-		Z_EROFS_WORKGROUP_SIZE, 0,
+-		SLAB_RECLAIM_ACCOUNT, NULL);
++				  Z_EROFS_WORKGROUP_SIZE, 0,
++				  SLAB_RECLAIM_ACCOUNT, NULL);
+ 
+ 	if (z_erofs_workgroup_cachep) {
+ 		if (!init_unzip_workqueue())
 -- 
 2.7.4
