@@ -1,42 +1,95 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 14 Nov 2018 23:25:43 +0800
-Subject: [PATCH chao/erofs-dev rebased v2 04/12] staging: erofs: fix
- `trace_erofs_readpage' position
+Date: Wed, 14 Nov 2018 23:25:46 +0800
+Subject: [PATCH chao/erofs-dev rebased v2 07/12] staging: erofs: fix
+ `erofs_workgroup_{try_to_freeze, unfreeze}'
 In-Reply-To: <20181114152548.37921-1-gaoxiang25@huawei.com>
 References: <20181114152548.37921-1-gaoxiang25@huawei.com>
-Message-ID: <20181114152548.37921-4-gaoxiang25@huawei.com>
+Message-ID: <20181114152548.37921-7-gaoxiang25@huawei.com>
 
-`trace_erofs_readpage' should be placed in .readpage()
-rather than in the internal `z_erofs_do_read_page'.
+There are two minor issues in the current freeze interface:
 
-Fixes: 284db12cfda3 ("staging: erofs: add trace points for reading zipped data")
+   1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
+      therefore fix the incorrect conditions;
+
+   2) For SMP platforms, it should also disable preemption before
+      doing atomic_cmpxchg in case that some high priority tasks
+      preempt between atomic_cmpxchg and disable_preempt, then spin
+      on the locked refcount later.
+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Reviewed-by: Chen Gong <gongchen4 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/internal.h | 41 ++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 6a283f618f46..ede3383ac601 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -598,8 +598,6 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	unsigned int cur, end, spiltted, index;
- 	int err = 0;
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 8e25e5c39f69..de1e189515d6 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -194,40 +194,49 @@ struct erofs_workgroup {
  
--	trace_erofs_readpage(page, false);
--
- 	/* register locked file pages as online pages in pack */
- 	z_erofs_onlinepage_init(page);
+ #define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
  
-@@ -1288,6 +1286,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 	int err;
- 	LIST_HEAD(pagepool);
+-static inline bool erofs_workgroup_try_to_freeze(
+-	struct erofs_workgroup *grp, int v)
++#if defined(CONFIG_SMP)
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
+ {
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-	if (v != atomic_cmpxchg(&grp->refcount,
+-		v, EROFS_LOCKED_MAGIC))
+-		return false;
+ 	preempt_disable();
+-#else
+-	preempt_disable();
+-	if (atomic_read(&grp->refcount) != v) {
++	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
+ 		preempt_enable();
+ 		return false;
+ 	}
+-#endif
+ 	return true;
+ }
  
-+	trace_erofs_readpage(page, false);
+-static inline void erofs_workgroup_unfreeze(
+-	struct erofs_workgroup *grp, int v)
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
+ {
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-	atomic_set(&grp->refcount, v);
+-#endif
++	atomic_set(&grp->refcount, orig_val);
+ 	preempt_enable();
+ }
+ 
+-#if defined(CONFIG_SMP)
+ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ {
+ 	return atomic_cond_read_relaxed(&grp->refcount,
+ 					VAL != EROFS_LOCKED_MAGIC);
+ }
+ #else
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
++{
++	preempt_disable();
++	/* no need to spin on UP platforms, let's just disable preemption. */
++	if (val != atomic_read(&grp->refcount)) {
++		preempt_enable();
++		return false;
++	}
++	return true;
++}
 +
- #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
- 	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
- #endif
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
++{
++	preempt_enable();
++}
++
+ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ {
+ 	int v = atomic_read(&grp->refcount);
 -- 
 2.14.4
