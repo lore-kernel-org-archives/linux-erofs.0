@@ -1,1686 +1,377 @@
 From: bluce.liguifu@huawei.com (bluce.liguifu@huawei.com)
-Date: Fri, 16 Nov 2018 11:30:18 +0800
-Subject: [PREVIEW] [RFC PATCH 3/5] erofs-mkfs: support to build a image from
- the specfic root directory
+Date: Fri, 16 Nov 2018 11:30:20 +0800
+Subject: [PREVIEW] [RFC PATCH 5/5] erofs-mkfs: add miscellaneous files
 In-Reply-To: <20181116033020.20004-1-bluce.liguifu@huawei.com>
 References: <20181116033020.20004-1-bluce.liguifu@huawei.com>
-Message-ID: <20181116033020.20004-4-bluce.liguifu@huawei.com>
+Message-ID: <20181116033020.20004-6-bluce.liguifu@huawei.com>
 
 From: Li Guifu <bluce.liguifu@huawei.com>
 
-Currently, regular files, directories, special files defined in POSIX
-are supported and the generated image can be mounted by kernel.
+Add build environment, license and maintainers etc.
 
 Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
 Signed-off-by: Miao Xie <miaoxie at huawei.com>
 Signed-off-by: Fang Wei <fangwei1 at huawei.com>
 ---
- erofs_cache.c | 211 ++++++++++++++
- erofs_cache.h |  58 ++++
- mkfs_erofs.h  |  36 ---
- mkfs_file.c   | 304 ++++++++++++++++++++
- mkfs_file.h   |  79 ++++++
- mkfs_inode.c  | 773 ++++++++++++++++++++++++++++++++++++++++++++++++++
- mkfs_inode.h  |  84 ++++++
- mkfs_main.c   |  28 ++
- 8 files changed, 1537 insertions(+), 36 deletions(-)
- create mode 100644 erofs_cache.c
- create mode 100644 erofs_cache.h
- create mode 100644 mkfs_file.c
- create mode 100644 mkfs_file.h
- create mode 100644 mkfs_inode.c
- create mode 100644 mkfs_inode.h
+ .gitignore   |  44 ++++++++++++++++++++
+ AUTHORS      |   6 +++
+ COPYING      | 113 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ ChangeLog    |   0
+ Makefile.am  |  35 ++++++++++++++++
+ NEWS         |   0
+ README       |  52 ++++++++++++++++++++++++
+ configure.ac |  49 ++++++++++++++++++++++
+ 8 files changed, 299 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 AUTHORS
+ create mode 100644 COPYING
+ create mode 100644 ChangeLog
+ create mode 100644 Makefile.am
+ create mode 100644 NEWS
+ create mode 100644 README
+ create mode 100644 configure.ac
 
-diff --git a/erofs_cache.c b/erofs_cache.c
+diff --git a/.gitignore b/.gitignore
 new file mode 100644
-index 0000000..a2153fe
+index 0000000..7e0a1cf
 --- /dev/null
-+++ b/erofs_cache.c
-@@ -0,0 +1,211 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * erofs_cache.c
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Miao Xie <miaoxie at huawei.com>
-+ */
-+#include <string.h>
-+#include <stdlib.h>
-+#include <stdint.h>
-+#include <errno.h>
++++ b/.gitignore
+@@ -0,0 +1,44 @@
++autom4te.cache
++build
++build.profiled
++build.static
++FILES
++^core
++*~
++patches
++Makefile
++*.bak
++*.diff
++*.dSYM
++*.o
++*.a
++*.orig
++*.patch
++*.pc
++*.rej
++*.swp
++00[0-9][1-9]*.patch
++MCONFIG
++asm_types.h
++config.log
++config.status
++cscope.*
++tags
++TAGS
++.deps/
++Makefile.in
++aclocal.m4
++compile
++config.guess
++config.h
++config.h.in
++config.sub
++configure
++depcomp
++install-sh
++libtool
++ltmain.sh
++m4/
++missing
++stamp-h1
 +
-+#include "erofs_fs.h"
-+#include "erofs_types.h"
-+#include "erofs_cache.h"
-+#include "erofs_error.h"
-+#include "erofs_debug.h"
-+#include "erofs_io.h"
-+
-+#include "mkfs_erofs.h"
-+#include "mkfs_inode.h"
-+
-+/* The 1st block is used for SUPER BLOCK, so skip it. */
-+static u64 erofs_current_block = 1;
-+static LIST_HEAD(erofs_global_blocks);
-+static LIST_HEAD(erofs_free_blocks);
-+static LIST_HEAD(erofs_full_blocks);
-+
-+static char* erofs_blk_buf;
-+
-+/*
-+ * Note: Since we reserved the 1st block for super block, so we can reuse
-+ * this block number as a special number, we use it to tell the caller that
-+ * there is NO ENOUGH FREE SPACE!!!!
-+ *
-+ * So the result value:
-+ * !0 : Allocate the blocks successfully, this is block number of
-+ *      the 1st block.
-+ * 0  : ENOSPC, There is no enough space.
-+ */
-+u32 erofs_alloc_blocks(u32 nblocks)
-+{
-+	u32 blkaddr;
-+	u64 devlen;
-+
-+	assert(nblocks);
-+
-+	devlen = dev_length();
-+	if (erofs_current_block > (u64)UINT32_MAX ||
-+	    erofs_current_block + nblocks > ((u64)UINT32_MAX) + 1 ||
-+	    (erofs_current_block + nblocks) << EROFS_BLOCKSIZE_BITS > devlen) {
-+		erofs_err("There is no enough free space(curr: %llu, need: %u, device blocks: %llu).",
-+			   (unsigned long long)erofs_current_block, nblocks,
-+			   (unsigned long long)devlen >> EROFS_BLOCKSIZE_BITS);
-+		return 0;
-+	}
-+
-+	blkaddr = (u32)erofs_current_block;
-+	erofs_current_block += nblocks;
-+
-+	return blkaddr;
-+}
-+
-+u64 erofs_get_total_blocks(void)
-+{
-+	return erofs_current_block;
-+}
-+
-+
-+block_buffer_t* erofs_alloc_multi_block_buffer(u32 nblocks)
-+{
-+	block_buffer_t*     blk;
-+	block_buffer_t*     next;
-+	block_buffer_t*     first;
-+	struct list_head    blocks;
-+	u32 blkaddr;
-+	u32 i;
-+	int ret;
-+
-+	init_list_head(&blocks);
-+
-+	for (i = 0; i < nblocks; i++) {
-+		blk = (block_buffer_t*)malloc(sizeof(block_buffer_t));
-+		if (!blk) {
-+			erofs_err("Fail to alloc memory for block buffer");
-+			ret = -ENOMEM;
-+			goto free_block_buffer;
-+		}
-+		memset(blk, 0, sizeof(block_buffer_t));
-+		init_list_head(&blk->bb_metadata_list);
-+
-+		list_add_tail(&blk->bb_global_node, &blocks);
-+	}
-+
-+	blkaddr = erofs_alloc_blocks(nblocks);
-+	if (!blkaddr) {
-+		ret = -ENOSPC;
-+		goto free_block_buffer;
-+	}
-+
-+	first = list_first_entry(&blocks, block_buffer_t, bb_global_node);
-+	list_for_each_entry_safe(blk, next, &blocks, bb_global_node) {
-+		blk->bb_blkaddr = blkaddr;
-+		blkaddr++;
-+
-+		list_del(&blk->bb_global_node);
-+		list_add_tail(&blk->bb_global_node, &erofs_global_blocks);
-+		list_add_tail(&blk->bb_alloc_node, &erofs_free_blocks);
-+	}
-+
-+	return first;
-+
-+free_block_buffer:
-+	list_for_each_entry_safe(blk, next, &blocks, bb_global_node) {
-+		list_del(&blk->bb_global_node);
-+		free(blk);
-+	}
-+	return ERR_PTR(ret);
-+}
-+
-+block_buffer_t* erofs_alloc_single_block_buffer(void)
-+{
-+	return erofs_alloc_multi_block_buffer(1);
-+}
-+
-+block_buffer_t* erofs_look_up_free_pos(int request_size)
-+{
-+	block_buffer_t* blk = NULL;
-+
-+	list_for_each_entry(blk, &erofs_free_blocks, bb_alloc_node) {
-+		if ((request_size + blk->bb_free_slot * EROFS_SLOTSIZE) <
-+		     EROFS_BLKSIZE)
-+			return blk;
-+	}
-+
-+	blk = erofs_alloc_single_block_buffer();
-+	return blk;
-+}
-+
-+int erofs_flush_all_blocks(void)
-+{
-+	struct block_buffer* blk;
-+	struct erofs_meta_node*  node;
-+	struct erofs_node_info*  inode;
-+	struct erofs_index_info* index;
-+	char*            pbuf;
-+	int         count;
-+	int         ret = 0;
-+
-+	list_for_each_entry(blk, &erofs_global_blocks, bb_global_node) {
-+		pbuf = erofs_blk_buf;
-+		memset(pbuf, 0, EROFS_BLKSIZE);
-+
-+		list_for_each_entry(node, &blk->bb_metadata_list, m_node) {
-+			switch (node->m_type) {
-+			case EROFS_META_INODE:
-+				inode = (struct erofs_node_info*)node;
-+
-+				count = erofs_write_inode_buffer(inode, pbuf);
-+				break;
-+			case EROFS_META_INDEX:
-+				index = (struct erofs_index_info*)node;
-+
-+				count = erofs_write_index_buffer(index, pbuf);
-+				break;
-+			default:
-+				erofs_err("Wrong metadata type");
-+				assert(0);
-+			}
-+
-+			count = round_up(count, EROFS_SLOTSIZE);
-+			assert(count == node->m_len);
-+			pbuf += count;
-+		}
-+
-+		ret = dev_write(erofs_blk_buf, BLKNO_TO_ADDR(blk->bb_blkaddr),
-+				EROFS_BLKSIZE);
-+		if (ret)
-+			break;
-+	}
-+
-+	return ret;
-+}
-+
-+void erofs_put_block_buffer(struct block_buffer* blk)
-+{
-+	if (blk->bb_free_slot == MAX_NID_INDEX_PER_BLK) {
-+		list_del(&blk->bb_alloc_node);
-+		list_add_tail(&blk->bb_alloc_node, &erofs_full_blocks);
-+	} else if (blk->bb_free_slot > MAX_NID_INDEX_PER_BLK) {
-+		erofs_err("block buffer overflow: free_slot = %d, MAX_NID_INDEX_PER_BLK = %d",
-+			  blk->bb_free_slot, MAX_NID_INDEX_PER_BLK);
-+		assert(0);
-+	}
-+}
-+
-+int erofs_cache_init(u64 start_blk)
-+{
-+	erofs_blk_buf = malloc(EROFS_BLKSIZE);
-+	if (!erofs_blk_buf)
-+		return -ENOMEM;
-+	erofs_current_block = start_blk;
-+	return 0;
-+}
-+
-+void erofs_cache_deinit(void)
-+{
-+	if (erofs_blk_buf)
-+		free(erofs_blk_buf);
-+}
-diff --git a/erofs_cache.h b/erofs_cache.h
+diff --git a/AUTHORS b/AUTHORS
 new file mode 100644
-index 0000000..3945739
+index 0000000..6666775
 --- /dev/null
-+++ b/erofs_cache.h
-@@ -0,0 +1,58 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * erofs_cache.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Li Guifu <bluce.liguifu at huawei.com>
-+ */
-+#ifndef __EROFS_CACHE_H__
-+#define __EROFS_CACHE_H__
++++ b/AUTHORS
+@@ -0,0 +1,6 @@
++EROFS MKFS TOOL
++M: Li Guifu  <bluce.liguifu at huawei.com>
++M: Fang Wei  <fangwei1 at huawei.com>
++S: Maintained
++L: linux-erofs at lists.ozlabs.org
 +
-+#include "list_head.h"
-+
-+enum erofs_meta_type {
-+	EROFS_META_INODE,
-+	EROFS_META_INDEX,
-+	EROFS_META_MAX_TYPES,
-+};
-+
-+struct erofs_meta_node {
-+	struct list_head    m_node;
-+	struct block_buffer* m_blk;
-+	int         m_type;
-+	int         m_slot;
-+	int         m_len;
-+};
-+
-+static inline void erofs_meta_node_init(struct erofs_meta_node* node, int type)
-+{
-+	init_list_head(&node->m_node);
-+	node->m_type = type;
-+	node->m_blk = NULL;
-+	node->m_slot = 0;
-+	node->m_len = 0;
-+}
-+
-+typedef struct block_buffer {
-+	/* These two members are used to block management. */
-+	struct list_head    bb_global_node;
-+	struct list_head    bb_alloc_node;
-+
-+	/* This is the head of all metadata which is hold in this block. */
-+	struct list_head    bb_metadata_list;
-+
-+	u32         bb_blkaddr;
-+	int         bb_free_slot;
-+} block_buffer_t;
-+
-+block_buffer_t* erofs_alloc_single_block_buffer(void);
-+block_buffer_t* erofs_alloc_multi_block_buffer(u32 nblocks);
-+block_buffer_t* erofs_look_up_free_pos(int request_size);
-+int erofs_flush_all_blocks(void);
-+int erofs_cache_init(u64 start_blk);
-+void erofs_cache_deinit(void);
-+u32 erofs_alloc_blocks(u32 nblocks);
-+void erofs_put_block_buffer(struct block_buffer* blk);
-+u64 erofs_get_total_blocks(void);
-+#endif
-diff --git a/mkfs_erofs.h b/mkfs_erofs.h
-index 1790862..e408474 100644
---- a/mkfs_erofs.h
-+++ b/mkfs_erofs.h
-@@ -44,40 +44,4 @@ typedef unsigned int __u32;
- #define MAX_NID_INDEX_PER_BLK   (EROFS_BLKSIZE / EROFS_SLOTSIZE)
- 
- 
--struct erofs_node_info {
--	/* Original member */
--	struct list_head list;
--	struct list_head subdir_head;/* sub dirs or files */
--	struct list_head xattr_head;
--
--	u64 inode_base_addr;         /* base address of a inode */
--	char name[NAME_MAX];         /* the name of current inode */
--	char fullpath[PATH_MAX + 1];
--	u16 d_nameoff;
--	u16         i_iver;          /* Inode Version */
--	u16         i_dmode;         /* Data mode */
--	u16         i_xattr_scnt;    /* Inline xattr space count */
--	u16         i_shared_count;
--	u16         i_mode;
--	u8          i_type;          /* Inode type: File, Dir...*/
--	u64         i_size;
--	union {
--		u32     i_blkaddr;
--		u32     i_blocks;
--		u32     i_rdev;
--	};
--	u32         i_ino;
--	u32         i_uid;
--	u32         i_gid;
--	u64         i_ctime;
--	u32         i_ctime_nsec;
--	u32         i_nlink;
--
--	/* If compress file, we use it store index info */
--	char*       i_inline_data;
--	int         i_inline_datalen;
--	int         i_inline_align_size;
--};
--
--
- #endif
-diff --git a/mkfs_file.c b/mkfs_file.c
+diff --git a/COPYING b/COPYING
 new file mode 100644
-index 0000000..4ff2790
+index 0000000..fcd2316
 --- /dev/null
-+++ b/mkfs_file.c
-@@ -0,0 +1,304 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * mkfs_file.c
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Li Guifu <bluce.liguifu at huawei.com>
-+ */
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+#define _LARGEFILE64_SOURCE
-+#include <assert.h>
-+#include <libgen.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <inttypes.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <string.h>
-+#include <dirent.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <linux/kdev_t.h>
++++ b/COPYING
+@@ -0,0 +1,113 @@
++GNU GENERAL PUBLIC LICENSE
++Version 2, June 1991
 +
++Copyright (C) 1989, 1991 Free Software Foundation, Inc. 
++51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 +
-+#ifndef O_BINARY
-+#define O_BINARY    0
-+#endif
-+#include "erofs_types.h"
-+#include "list_head.h"
-+#include "erofs_fs.h"
-+#include "erofs_cache.h"
++Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 +
-+#define pr_fmt(fmt) "MKFS-FILE: "FUNC_LINE_FMT fmt"\n"
-+#include "erofs_debug.h"
++Preamble
 +
-+#include "mkfs_erofs.h"
-+#include "mkfs_file.h"
-+#include "mkfs_inode.h"
-+#include "erofs_io.h"
++The licenses for most software are designed to take away your freedom to share and change it. By contrast, the GNU General Public License is intended to guarantee your freedom to share and change free software--to make sure the software is free for all its users. This General Public License applies to most of the Free Software Foundation's software and to any other program whose authors commit to using it. (Some other Free Software Foundation software is covered by the GNU Lesser General Public License instead.) You can apply it to your programs, too.
 +
++When we speak of free software, we are referring to freedom, not price. Our General Public Licenses are designed to make sure that you have the freedom to distribute copies of free software (and charge for this service if you wish), that you receive source code or can get it if you want it, that you can change the software or use pieces of it in new free programs; and that you know you can do these things.
 +
-+#define DIRENT_MAX_NAME_LEN 256
++To protect your rights, we need to make restrictions that forbid anyone to deny you these rights or to ask you to surrender the rights. These restrictions translate to certain responsibilities for you if you distribute copies of the software, or if you modify it.
 +
++For example, if you distribute copies of such a program, whether gratis or for a fee, you must give the recipients all the rights that you have. You must make sure that they, too, receive or can get the source code. And you must show them these terms so they know their rights.
 +
-+static u8 get_file_type(struct stat64* st)
-+{
-+	u8 file_type = EROFS_FT_MAX;
++We protect your rights with two steps: (1) copyright the software, and (2) offer you this license which gives you legal permission to copy, distribute and/or modify the software.
 +
-+	switch (st->st_mode & S_IFMT) {
-+	case S_IFREG:
-+		file_type = EROFS_FT_REG_FILE;
-+		break;
++Also, for each author's protection and ours, we want to make certain that everyone understands that there is no warranty for this free software. If the software is modified by someone else and passed on, we want its recipients to know that what they have is not the original, so that any problems introduced by others will not reflect on the original authors' reputations.
 +
-+	case S_IFDIR:
-+		file_type = EROFS_FT_DIR;
-+		break;
++Finally, any free program is threatened constantly by software patents. We wish to avoid the danger that redistributors of a free program will individually obtain patent licenses, in effect making the program proprietary. To prevent this, we have made it clear that any patent must be licensed for everyone's free use or not licensed at all.
 +
-+	case S_IFLNK:
-+		file_type = EROFS_FT_SYMLINK;
-+		break;
++The precise terms and conditions for copying, distribution and modification follow.
 +
-+	case S_IFCHR:
-+		file_type = EROFS_FT_CHRDEV;
-+		break;
++TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 +
-+	case S_IFBLK:
-+		file_type = EROFS_FT_BLKDEV;
-+		break;
++0. This License applies to any program or other work which contains a notice placed by the copyright holder saying it may be distributed under the terms of this General Public License. The "Program", below, refers to any such program or work, and a "work based on the Program" means either the Program or any derivative work under copyright law: that is to say, a work containing the Program or a portion of it, either verbatim or with modifications and/or translated into another language. (Hereinafter, translation is included without limitation in the term "modification".) Each licensee is addressed as "you".
++Activities other than copying, distribution and modification are not covered by this License; they are outside its scope. The act of running the Program is not restricted, and the output from the Program is covered only if its contents constitute a work based on the Program (independent of having been made by running the Program). Whether that is true depends on what the Program does.
 +
-+	case S_IFIFO:
-+		file_type = EROFS_FT_FIFO;
-+		break;
++1. You may copy and distribute verbatim copies of the Program's source code as you receive it, in any medium, provided that you conspicuously and appropriately publish on each copy an appropriate copyright notice and disclaimer of warranty; keep intact all the notices that refer to this License and to the absence of any warranty; and give any other recipients of the Program a copy of this License along with the Program.
++You may charge a fee for the physical act of transferring a copy, and you may at your option offer warranty protection in exchange for a fee.
 +
-+	case S_IFSOCK:
-+		file_type = EROFS_FT_SOCK;
-+		break;
++2. You may modify your copy or copies of the Program or any portion of it, thus forming a work based on the Program, and copy and distribute such modifications or work under the terms of Section 1 above, provided that you also meet all of these conditions:
++a) You must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
++b) You must cause any work that you distribute or publish, that in whole or in part contains or is derived from the Program or any part thereof, to be licensed as a whole at no charge to all third parties under the terms of this License.
++c) If the modified program normally reads commands interactively when run, you must cause it, when started running for such interactive use in the most ordinary way, to print or display an announcement including an appropriate copyright notice and a notice that there is no warranty (or else, saying that you provide a warranty) and that users may redistribute the program under these conditions, and telling the user how to view a copy of this License. (Exception: if the Program itself is interactive but does not normally print such an announcement, your work based on the Program is not required to print an announcement.)
++These requirements apply to the modified work as a whole. If identifiable sections of that work are not derived from the Program, and can be reasonably considered independent and separate works in themselves, then this License, and its terms, do not apply to those sections when you distribute them as separate works. But when you distribute the same sections as part of a whole which is a work based on the Program, the distribution of the whole must be on the terms of this License, whose permissions for other licensees extend to the entire whole, and thus to each and every part regardless of who wrote it.
 +
-+	default:
-+		erofs_err("file type[0x%X]", st->st_mode & S_IFMT);
-+		break;
-+	}
++Thus, it is not the intent of this section to claim rights or contest your rights to work written entirely by you; rather, the intent is to exercise the right to control the distribution of derivative or collective works based on the Program.
 +
-+	return file_type;
++In addition, mere aggregation of another work not based on the Program with the Program (or with a work based on the Program) on a volume of a storage or distribution medium does not bring the other work under the scope of this License.
 +
-+}
++3. You may copy and distribute the Program (or a work based on it, under Section 2) in object code or executable form under the terms of Sections 1 and 2 above provided that you also do one of the following:
++a) Accompany it with the complete corresponding machine-readable source code, which must be distributed under the terms of Sections 1 and 2 above on a medium customarily used for software interchange; or,
++b) Accompany it with a written offer, valid for at least three years, to give any third party, for a charge no more than your cost of physically performing source distribution, a complete machine-readable copy of the corresponding source code, to be distributed under the terms of Sections 1 and 2 above on a medium customarily used for software interchange; or,
++c) Accompany it with the information you received as to the offer to distribute corresponding source code. (This alternative is allowed only for noncommercial distribution and only if you received the program in object code or executable form with such an offer, in accord with Subsection b above.)
++The source code for a work means the preferred form of the work for making modifications to it. For an executable work, complete source code means all the source code for all modules it contains, plus any associated interface definition files, plus the scripts used to control compilation and installation of the executable. However, as a special exception, the source code distributed need not include anything that is normally distributed (in either source or binary form) with the major components (compiler, kernel, and so on) of the operating system on which the executable runs, unless that component itself accompanies the executable.
 +
-+static inline u32 new_encode_dev(dev_t dev)
-+{
-+	unsigned major = MAJOR(dev);
-+	unsigned minor = MINOR(dev);
-+	return (minor & 0xff) | (major << 8) | ((minor & ~0xff) << 12);
-+}
++If distribution of executable or object code is made by offering access to copy from a designated place, then offering equivalent access to copy the source code from the same place counts as distribution of the source code, even though third parties are not compelled to copy the source along with the object code.
 +
++4. You may not copy, modify, sublicense, or distribute the Program except as expressly provided under this License. Any attempt otherwise to copy, modify, sublicense or distribute the Program is void, and will automatically terminate your rights under this License. However, parties who have received copies, or rights, from you under this License will not have their licenses terminated so long as such parties remain in full compliance.
++5. You are not required to accept this License, since you have not signed it. However, nothing else grants you permission to modify or distribute the Program or its derivative works. These actions are prohibited by law if you do not accept this License. Therefore, by modifying or distributing the Program (or any work based on the Program), you indicate your acceptance of this License to do so, and all its terms and conditions for copying, distributing or modifying the Program or works based on it.
++6. Each time you redistribute the Program (or any work based on the Program), the recipient automatically receives a license from the original licensor to copy, distribute or modify the Program subject to these terms and conditions. You may not impose any further restrictions on the recipients' exercise of the rights granted herein. You are not responsible for enforcing compliance by third parties to this License.
++7. If, as a consequence of a court judgment or allegation of patent infringement or for any other reason (not limited to patent issues), conditions are imposed on you (whether by court order, agreement or otherwise) that contradict the conditions of this License, they do not excuse you from the conditions of this License. If you cannot distribute so as to satisfy simultaneously your obligations under this License and any other pertinent obligations, then as a consequence you may not distribute the Program at all. For example, if a patent license would not permit royalty-free redistribution of the Program by all those who receive copies directly or indirectly through you, then the only way you could satisfy both it and this License would be to refrain entirely from distribution of the Program.
++If any portion of this section is held invalid or unenforceable under any particular circumstance, the balance of the section is intended to apply and the section as a whole is intended to apply in other circumstances.
 +
-+struct erofs_node_info* erofs_init_inode(char* full_path_name)
-+{
-+	int ret;
-+	struct stat64 st;
-+	struct erofs_node_info* inode = NULL;
-+	char* file_name = NULL;
++It is not the purpose of this section to induce you to infringe any patents or other property right claims or to contest validity of any such claims; this section has the sole purpose of protecting the integrity of the free software distribution system, which is implemented by public license practices. Many people have made generous contributions to the wide range of software distributed through that system in reliance on consistent application of that system; it is up to the author/donor to decide if he or she is willing to distribute software through any other system and a licensee cannot impose that choice.
 +
-+	file_name = strrchr(full_path_name, '/');
-+	if(!file_name){
-+		file_name = full_path_name;
-+	}else{
-+		file_name = file_name + 1;
-+	}
++This section is intended to make thoroughly clear what is believed to be a consequence of the rest of this License.
 +
-+	inode = alloc_erofs_node();
-+	if (!inode) {
-+		erofs_err("inode is NULL, alloc failed");
-+		goto Err_alloc;
-+	}
++8. If the distribution and/or use of the Program is restricted in certain countries either by patents or by copyrighted interfaces, the original copyright holder who places the Program under this License may add an explicit geographical distribution limitation excluding those countries, so that distribution is permitted only in or among countries not thus excluded. In such case, this License incorporates the limitation as if written in the body of this License.
++9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time. Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
++Each version is given a distinguishing version number. If the Program specifies a version number of this License which applies to it and "any later version", you have the option of following the terms and conditions either of that version or of any later version published by the Free Software Foundation. If the Program does not specify a version number of this License, you may choose any version ever published by the Free Software Foundation.
 +
-+	ret = snprintf(inode->i_name, MAX_NAME, "%s", file_name);
-+	if (ret < 0 || ret >= MAX_PATH) {
-+		erofs_err("snprintf errorly file_name[%s] ret[%d]", file_name, ret);
-+		goto Err_alloced;
-+	}
-+	ret = snprintf(inode->i_fullpath, MAX_PATH, "%s", full_path_name);
-+	if (ret < 0 || ret >= MAX_PATH) {
-+		erofs_err("snprintf errorly full_path_name[%s] ret[%d]",
-+			  full_path_name, ret);
-+		goto Err_alloced;
-+	}
++10. If you wish to incorporate parts of the Program into other free programs whose distribution conditions are different, write to the author to ask for permission. For software which is copyrighted by the Free Software Foundation, write to the Free Software Foundation; we sometimes make exceptions for this. Our decision will be guided by the two goals of preserving the free status of all derivatives of our free software and of promoting the sharing and reuse of software generally.
++NO WARRANTY
 +
-+	ret = lstat64(inode->i_fullpath, &st);
-+	if (ret) {
-+		erofs_err("stat failed path[%s]", inode->i_fullpath);
-+		goto Err_alloced;
-+	}
++11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
++12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
++END OF TERMS AND CONDITIONS
 +
-+	/* It is ugly code that is for old code everywhere */
-+	inode->i_mode = st.st_mode;
-+	inode->i_uid = st.st_uid;
-+	inode->i_gid = st.st_gid;
-+	inode->i_nlink = st.st_nlink;
-+	inode->i_type = get_file_type(&st);
++How to Apply These Terms to Your New Programs
 +
-+	if (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode) ||
-+	    S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode)) {
-+		inode->i_rdev = new_encode_dev(st.st_rdev);
-+		inode->i_size = 0;
-+	} else {
-+		inode->i_size = st.st_size;
-+	}
++If you develop a new program, and you want it to be of the greatest possible use to the public, the best way to achieve this is to make it free software which everyone can redistribute and change under these terms.
 +
-+	return inode;
++To do so, attach the following notices to the program. It is safest to attach them to the start of each source file to most effectively convey the exclusion of warranty; and each file should have at least the "copyright" line and a pointer to where the full notice is found.
 +
++<one line to give the program's name and an idea of what it does.>
++Copyright (C) <yyyy> <name of author>
 +
-+Err_alloced:
-+	free(inode);
++This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 +
-+Err_alloc:
-+	return NULL;
-+}
++This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 +
-+int erofs_create_files_list(struct erofs_node_info* inode)
-+{
-+	int  ret    = 0;
-+	u64  d_size = 0;
-+	DIR* dirp   = NULL;
-+	char file_path[MAX_PATH + 1];
-+	struct stat64 s;
-+	struct dirent* dp;
-+	struct list_head* pos;
-+	struct erofs_node_info* dl;
++You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 +
++Also add information on how to contact you by electronic and paper mail.
 +
-+	if(!strncmp(inode->i_name, "lost+found", strlen("lost+found"))){
-+		return 0;
-+	}
++If the program is interactive, make it output a short notice like this when it starts in an interactive mode:
 +
-+	if (0 == lstat64(inode->i_fullpath, &s)) {
-+		if (S_ISREG(s.st_mode)) {
-+			erofs_err("[%s] is a regular file", inode->i_fullpath);
-+			ret = -ENOTDIR;
-+			goto error;
-+		}
-+	} else {
-+		erofs_err("stat failed [%s]", inode->i_fullpath);
-+		ret = -ENOENT;
-+		goto error;
-+	}
++Gnomovision version 69, Copyright (C) year name of author Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'. This is free software, and you are welcome to redistribute it under certain conditions; type `show c' for details.
 +
-+	dirp = opendir(inode->i_fullpath);
-+	if (!dirp) {
-+		erofs_info("dirp is NULL dir=%s errno=%s",
-+			   inode->i_fullpath, strerror(errno));
-+		ret = -errno;
-+		goto error;
-+	}
++The hypothetical commands `show w' and `show c' should show the appropriate parts of the General Public License. Of course, the commands you use may be called something other than `show w' and `show c'; they could even be mouse-clicks or menu items--whatever suits your program.
 +
-+	errno = 0;
-+	while ((dp = readdir(dirp)) != NULL) {
-+		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
-+			continue;
++You should also get your employer (if you work as a programmer) or your school, if any, to sign a "copyright disclaimer" for the program, if necessary. Here is a sample; alter the names:
 +
-+		ret = snprintf(file_path, MAX_PATH, "%s/%s",
-+			       inode->i_fullpath, dp->d_name);
-+		if (ret < 0 || ret >= MAX_PATH) {
-+			erofs_err("snprintf errorly ret[%d]", ret);
-+			ret = -ENOMEM;
-+			goto error;
-+		}
-+		dl = erofs_init_inode(file_path);
-+		if(!dl){
-+			erofs_err("init inode failed !!");
-+			ret = -ENOENT;
-+			goto error;
-+		}
++Yoyodyne, Inc., hereby disclaims all copyright interest in the program `Gnomovision' (which makes passes at compilers) written by James Hacker.
 +
-+		dl->i_iver = erofs_check_disk_inode_version(dl);
-+		list_add_sort(&inode->i_subdir_head, dl);
-+	}
++<signature of Ty Coon>, 1 April 1989 Ty Coon, President of Vice
 +
-+	if (errno != 0) {
-+		erofs_err("inode[%s] error[%s]", inode->i_name, strerror(EBADF));
-+		ret = -errno;
-+		goto error;
-+	}
++This General Public License does not permit incorporating your program into proprietary programs. If your program is a subroutine library, you may consider it more useful to permit linking proprietary applications with the library. If this is what you want to do, use the GNU Lesser General Public License instead of this License.
 +
-+	list_for_each(pos, &inode->i_subdir_head) {
-+		struct erofs_node_info* d = container_of(pos,
-+							 struct erofs_node_info,
-+							 i_list);
-+		if (((d_size & (EROFS_BLKSIZE - 1)) +
-+		     EROFS_DIRENT_SIZE +
-+		     strlen(d->i_name)) > EROFS_BLKSIZE) {
-+			d_size = round_up(d_size, EROFS_BLKSIZE);
-+		}
-+		d_size += EROFS_DIRENT_SIZE + strlen(d->i_name);
-+	}
-+	inode->i_size = d_size;
++Standard License Header
++<one line to give the program's name and an idea of what it does.>
++Copyright (C) <yyyy> <name of author>
 +
-+	list_for_each(pos, &inode->i_subdir_head) {
-+		struct erofs_node_info* d = container_of(pos,
-+							 struct erofs_node_info,
-+							 i_list);
-+		if (d->i_type == EROFS_FT_DIR) {
-+			ret = erofs_create_files_list(d);
-+			if(ret < 0)
-+				goto error;
-+		}
-+	}
++This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 +
-+	closedir(dirp);
-+	return 0;
-+error:
-+	return ret;
-+}
++This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 +
-+
-+int list_add_sort(struct list_head* head, struct erofs_node_info* inode)
-+{
-+	struct list_head* pos;
-+
-+	if (list_empty(head)) {
-+		list_add(&inode->i_list, head);
-+		return 0;
-+	}
-+
-+	list_for_each(pos, head) {
-+		struct erofs_node_info* d = container_of(pos,
-+							 struct erofs_node_info,
-+							 i_list);
-+
-+		if (strcmp(d->i_name, inode->i_name) <= 0)
-+			continue;
-+
-+		list_add_tail(&inode->i_list, &d->i_list);
-+		return 0;
-+	}
-+
-+	list_add_tail(&inode->i_list, head);
-+	return 0;
-+
-+}
-+
-+struct erofs_node_info* alloc_erofs_node(void)
-+{
-+	struct erofs_node_info* f = calloc(sizeof(struct erofs_node_info), 1);
-+
-+	if (!f) {
-+		erofs_err("calloc failed!!!");
-+		return NULL;
-+	}
-+
-+	f->i_inline_align_size = EROFS_INLINE_GENERIC_ALIGN_SIZE;
-+	erofs_meta_node_init(&f->i_meta_node, EROFS_META_INODE);
-+	init_list_head(&f->i_subdir_head);
-+	init_list_head(&f->i_compr_idxs_list);
-+	init_list_head(&f->i_xattr_head);
-+
-+	return f;
-+}
++You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 \ No newline at end of file
-diff --git a/mkfs_file.h b/mkfs_file.h
+diff --git a/ChangeLog b/ChangeLog
 new file mode 100644
-index 0000000..0d84773
---- /dev/null
-+++ b/mkfs_file.h
-@@ -0,0 +1,79 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * mkfs_file.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Li Guifu <bluce.liguifu at huawei.com>
-+ */
-+#ifndef __MKFS_FILE_H
-+#define __MKFS_FILE_H
-+
-+#include <assert.h>
-+#include <stdint.h>
-+#include <sys/types.h>
-+#include <stdio.h>
-+#include <unistd.h>
-+#include "list_head.h"
-+#include "erofs_fs.h"
-+
-+#define FILE_TYPE_NONE      (0)
-+#define FILE_TYPE_COMPR     (1)
-+#define FILE_TYPE_MAX       (2)
-+
-+/*
-+ * Some micros for generic compress index convertion:
-+ * CIG: Compress Index Generic
-+ * D0: Delta0
-+ * D1: Delta1
-+ * LO: low 4 bits
-+ * HI: high 4 bits
-+ */
-+#define EROFS_CIG_D0_LO_MASK    (0xF)
-+#define EROFS_CIG_D0_LO_SHL     (12)
-+#define EROFS_CIG_D0_HI_MASK    (0xF0)
-+#define EROFS_CIG_D0_HI_SHR     (0)
-+#define EROFS_CIG_D1_SHIFT      (8)
-+
-+struct erofs_compr_idx {
-+	u16 di_advise;
-+	u16 di_clusterofs;
-+	u16 delta[2];    /* [0] - relative index to the 1st block */
-+	/* [1] - relative index to the last block */
-+	u32 blkaddr;
-+};
-+
-+/* cc_nidxs == -1 means it is a inlined compress data */
-+#define EROFS_COMPR_CTX_INLINED_DATA    (-1)
-+
-+struct erofs_compr_ctx {
-+	char*       cc_srcbuf;
-+	char*       cc_dstbuf;
-+	u64         cc_pos;
-+	int         cc_buflen;
-+	int         cc_srclen;
-+	int         cc_dstlen;
-+	struct erofs_compr_idx*  cc_idxs;
-+	int         cc_nidxs;
-+};
-+
-+struct erofs_compr_info {
-+	struct erofs_compr_alg*  ci_alg;
-+	int         ci_lvl;
-+};
-+
-+struct erofs_node_info;
-+
-+struct erofs_node_info* alloc_erofs_node(void);
-+struct erofs_node_info* erofs_init_inode(char* full_path_name);
-+int list_add_sort(struct list_head* head, struct erofs_node_info* entry);
-+void dump_inode(struct erofs_inode_v1* inode);
-+int erofs_create_files_list(struct erofs_node_info* entry);
-+u32 erofs_calc_inline_data_size(struct erofs_node_info* inode);
-+int erofs_check_compressible(struct erofs_node_info* inode);
-+int erofs_compress_file(struct erofs_node_info* inode);
-+void erofs_dump_compr_radio(void);
-+int erofs_init_compress_context(struct erofs_compr_ctx* ctx);
-+void erofs_deinit_compress_context(struct erofs_compr_ctx* ctx);
-+void erofs_reset_compress_context(struct erofs_compr_ctx* ctx);
-+#endif
-\ No newline at end of file
-diff --git a/mkfs_inode.c b/mkfs_inode.c
+index 0000000..e69de29
+diff --git a/Makefile.am b/Makefile.am
 new file mode 100644
-index 0000000..e84fced
+index 0000000..b3dc472
 --- /dev/null
-+++ b/mkfs_inode.c
-@@ -0,0 +1,773 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * mkfs_inode.c
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Li Guifu <bluce.liguifu at huawei.com>
-+ */
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <limits.h>
-+#include <inttypes.h>
-+#include <libgen.h>
-+
-+#include "erofs_fs.h"
-+#include "erofs_cache.h"
-+#include "erofs_error.h"
-+#include "mkfs_erofs.h"
-+#include "mkfs_file.h"
-+#include "mkfs_inode.h"
-+#include "erofs_io.h"
-+
-+
-+#define pr_fmt(fmt) "MKFS_INODE: "FUNC_LINE_FMT fmt"\n"
-+#include "erofs_debug.h"
-+
-+extern struct erofs_super_block* sb;
-+
-+u32 erofs_calc_inode_base_size(struct erofs_node_info* inode)
-+{
-+	u32 size;
-+
-+	if (inode->i_iver == EROFS_INODE_LAYOUT_V1)
-+		size = EROFS_INODE_V1_SIZE;
-+	else
-+		size = EROFS_INODE_V2_SIZE;
-+
-+	return size;
-+}
-+
-+u32 erofs_calc_inline_data_size(struct erofs_node_info* inode)
-+{
-+	u32 size =  erofs_calc_inode_base_size(inode);
-+
-+	if (size >= EROFS_BLKSIZE) {
-+		return 0;
-+	} else {
-+		return (EROFS_BLKSIZE - size);
-+	}
-+}
-+
-+static inline u64 erofs_calc_compr_index_count(struct erofs_node_info* inode)
-+{
-+	return round_up(inode->i_size, EROFS_BLKSIZE) / EROFS_BLKSIZE;
-+}
-+
-+u8 erofs_check_disk_inode_version(struct erofs_node_info* inode)
-+{
-+#if 1
-+	(void)inode;
-+	return EROFS_INODE_LAYOUT_V1;
-+#else
-+	/*
-+	 * Check if the members of v0 inode structure can hold the data,
-+	 * Check Item:
-+	 * - i_size: 32bits vs 64 bits
-+	 * - i_uid:  16bits vs 32bits
-+	 * - i_gid:  16bits vs 32bits
-+	 * - i_nlink:16bits vs 32bits
-+	 * - i_ctime:If it is set or not
-+	 */
-+#endif
-+}
-+
-+void mkfs_rank_inode(struct erofs_node_info* inode)
-+{
-+	block_buffer_t* blk;
-+	block_buffer_t* next;
-+	struct erofs_meta_node* node;
-+	struct erofs_index_info* indexes;
-+	u64 request_size;
-+	u64 noninline_nidxs;
-+	u64 first_idx;
-+	u64 idx_nblks;
-+	int nidxs;
-+	int inline_size = 0;
-+
-+	node = &inode->i_meta_node;
-+	request_size = erofs_calc_inode_base_size(inode);
-+
-+	request_size = round_up(request_size,
-+				inode->i_inline_align_size);
-+
-+	if (EROFS_INODE_LAYOUT_INLINE == inode->i_dmode) {
-+		inline_size = inode->i_size % EROFS_BLKSIZE;
-+		/* we put inode into inline mode asasp */
-+		if (inline_size + request_size > EROFS_BLKSIZE) {
-+			erofs_err("inode[%s] inline data overflow  i_size=%u slots size=%d",
-+				  inode->i_name, inode->i_dmode, inline_size);
-+			assert(0);
-+		}
-+
-+
-+	} else if (EROFS_INODE_LAYOUT_COMPRESSION == inode->i_dmode) {
-+		inline_size += inode->i_inline_datalen;
-+
-+		/* we put inode into inline mode asasp */
-+		if (inline_size + request_size > EROFS_BLKSIZE) {
-+			erofs_err("inode[%s] inline data overflow  i_size=%"PRIu64" slots size=%d",
-+				  inode->i_name, inode->i_size, inline_size);
-+			assert(0);
-+		}
-+	}
-+	request_size += inline_size;
-+
-+	/*
-+	 * If no compress indexes or all indexes are inlined, noninline_nidxs
-+	 * should be zero.
-+	 */
-+	noninline_nidxs = inode->i_compr_nidxs - inode->i_compr_inlined_nidxs;
-+	idx_nblks = noninline_nidxs * EROFS_DECOMPR_IDX_SZ;
-+	idx_nblks = round_up(idx_nblks, EROFS_BLKSIZE) / EROFS_BLKSIZE;
-+
-+	if (idx_nblks) {
-+		assert(request_size == EROFS_BLKSIZE);
-+
-+		blk = erofs_alloc_multi_block_buffer(idx_nblks + 1);
-+	} else {
-+		blk = erofs_look_up_free_pos(request_size);
-+	}
-+
-+	if (IS_ERR(blk))
-+		assert(0);
-+
-+	node->m_blk = blk;
-+	node->m_slot = blk->bb_free_slot;
-+	node->m_len = round_up(request_size, EROFS_SLOTSIZE);
-+	list_add_tail(&node->m_node, &blk->bb_metadata_list);
-+	inode->i_base_addr = BLKNO_TO_ADDR(blk->bb_blkaddr) +
-+					       blk->bb_free_slot * EROFS_SLOTSIZE;
-+	blk->bb_free_slot += node->m_len / EROFS_SLOTSIZE;
-+	next = list_next_entry(blk, bb_global_node);
-+	erofs_put_block_buffer(blk);
-+	blk = next;
-+	first_idx = inode->i_compr_inlined_nidxs;
-+
-+	while (noninline_nidxs) {
-+		if (noninline_nidxs >= EROFS_DECOMPR_IDXS_PER_BLK) {
-+			nidxs = EROFS_DECOMPR_IDXS_PER_BLK;
-+			request_size = EROFS_BLKSIZE;
-+		} else {
-+			nidxs = noninline_nidxs;
-+			request_size = nidxs * EROFS_DECOMPR_IDX_SZ;
-+			request_size = round_up(request_size, EROFS_SLOTSIZE);
-+		}
-+
-+		indexes = malloc(sizeof(*indexes) + request_size);
-+		if (!indexes) {
-+			erofs_err("Failed to alloc memory for index info structure");
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		erofs_meta_node_init(&indexes->i_meta_node, EROFS_META_INDEX);
-+		indexes->i_1st_idx = first_idx;
-+		indexes->i_nidxs = nidxs;
-+		memset(indexes->i_idxs, 0, request_size);
-+		list_add_tail(&indexes->i_node, &inode->i_compr_idxs_list);
-+
-+		node = &indexes->i_meta_node;
-+		node->m_blk = blk;
-+		node->m_type = EROFS_META_INDEX;
-+
-+		node->m_slot = blk->bb_free_slot;
-+		blk->bb_free_slot += request_size / EROFS_SLOTSIZE;
-+
-+		node->m_len = request_size;
-+		list_add_tail(&node->m_node, &blk->bb_metadata_list);
-+
-+		noninline_nidxs -= nidxs;
-+		first_idx += nidxs;
-+
-+		next = list_next_entry(blk, bb_global_node);
-+		erofs_put_block_buffer(blk);
-+		blk = next;
-+	}
-+}
-+
-+struct erofs_node_info* mkfs_prepare_root_inode(char* root)
-+{
-+	if(!root)
-+		return NULL;
-+	return erofs_init_inode(root);
-+}
-+
-+void mkfs_relocate_sub_inodes(struct erofs_node_info* inode)
-+{
-+	u32 blkaddr;
-+	u32 nblocks;
-+	u32 unaligned;
-+	struct erofs_node_info* d = inode;
-+
-+	switch (d->i_type) {
-+	case EROFS_FT_REG_FILE:
-+	case EROFS_FT_DIR:
-+	case EROFS_FT_SYMLINK:
-+		unaligned = d->i_size % EROFS_BLKSIZE;
-+		nblocks = d->i_size / EROFS_BLKSIZE;
-+
-+		if (unaligned > erofs_calc_inline_data_size(d)||
-+		    (unaligned == 0 && nblocks != 0)) {
-+			d->i_dmode = EROFS_INODE_LAYOUT_PLAIN;
-+			mkfs_rank_inode(d);
-+
-+			if (unaligned != 0)
-+				nblocks++;
-+			blkaddr = erofs_alloc_blocks(nblocks);
-+			if (!blkaddr)
-+				exit(EXIT_FAILURE);
-+
-+			d->i_blkaddr = blkaddr;
-+		} else {
-+			d->i_dmode = EROFS_INODE_LAYOUT_INLINE;
-+			d->i_inline_datalen = unaligned;
-+			mkfs_rank_inode(d);
-+
-+			if (nblocks > 0) {
-+				blkaddr = erofs_alloc_blocks(nblocks);
-+				if (!blkaddr)
-+					exit(EXIT_FAILURE);
-+
-+				d->i_blkaddr = blkaddr;
-+			} else {
-+				d->i_blkaddr = 0;
-+			}
-+		}
-+		break;
-+	case EROFS_FT_BLKDEV:
-+	case EROFS_FT_CHRDEV:
-+	case EROFS_FT_FIFO:
-+	case EROFS_FT_SOCK:
-+		mkfs_rank_inode(d);
-+		break;
-+
-+	default:
-+		erofs_err("inode[%s] file_type error =%d",
-+			  d->i_fullpath, d->i_type);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	list_for_each_entry(d, &inode->i_subdir_head, i_list) {
-+		mkfs_relocate_sub_inodes(d);
-+	}
-+}
-+
-+static u32 write_dirents(char* buf, u32 sum,
-+			 struct list_head* start,
-+			 struct list_head* end)
-+{
-+	char* pbuf = buf;
-+	u32 size   = 0;
-+	u32 base_nameoff = 0;
-+	struct erofs_dirent dirent;
-+	struct list_head* start_tmp = NULL;
-+
-+
-+	base_nameoff = sum * EROFS_DIRENT_SIZE;
-+	start_tmp = start;
-+	while (start_tmp != end) {
-+		struct erofs_node_info* d = container_of(start_tmp,
-+							 struct erofs_node_info,
-+							 i_list);
-+		u32 name_len = strlen(d->i_name);
-+
-+		d->i_nameoff = base_nameoff;
-+		memcpy(pbuf + base_nameoff, d->i_name, name_len);
-+		base_nameoff += name_len;
-+		start_tmp = start_tmp->next;
-+	}
-+
-+	start_tmp = start;
-+	while (start_tmp != end) {
-+		struct erofs_node_info* d = container_of(start_tmp,
-+							 struct erofs_node_info,
-+							 i_list);
-+		memset(&dirent, 0, EROFS_DIRENT_SIZE);
-+
-+		dirent.nid       = cpu_to_le64(mkfs_addr_to_nid(d->i_base_addr));
-+		dirent.file_type = d->i_type;
-+		dirent.nameoff   = cpu_to_le16(d->i_nameoff);
-+		memcpy(pbuf + size, &dirent, EROFS_DIRENT_SIZE);
-+		size += EROFS_DIRENT_SIZE;
-+		start_tmp = start_tmp->next;
-+	}
-+	assert(base_nameoff <= EROFS_BLKSIZE);
-+
-+	return base_nameoff;
-+}
-+static void mkfs_write_inode_dir(struct erofs_node_info* inode)
-+{
-+	struct list_head* pos;
-+	struct list_head* start;
-+	u32 sum          = 0;
-+	u32 blk_cnt      = 0;
-+	u32 dentrys_size = 0;
-+	char* pbuf       = NULL;
-+	int ret          = 0;
-+
-+
-+	/* dentrys were at inline area */
-+	if (inode->i_dmode == EROFS_INODE_LAYOUT_INLINE) {
-+		start = (&inode->i_subdir_head)->next;
-+		/* dentry begin from the next block offset to inode,
-+		 * so page_num should be 1
-+		 */
-+		pbuf = calloc(EROFS_BLKSIZE, 1);
-+
-+		if (!pbuf) {
-+			erofs_err("calloc inode[%s] error[%s]",
-+				inode->i_fullpath, strerror(errno));
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		list_for_each(pos, &inode->i_subdir_head) {
-+			struct erofs_node_info* d = container_of(pos,
-+								 struct erofs_node_info,
-+								 i_list);
-+			u32 len = strlen(d->i_name);
-+
-+			if ((dentrys_size + EROFS_DIRENT_SIZE + len) > EROFS_BLKSIZE) {
-+				memset(pbuf, 0, EROFS_BLKSIZE);
-+				write_dirents(pbuf, sum, start, pos);
-+				ret = dev_write(pbuf,
-+						BLKNO_TO_ADDR(inode->i_blkaddr + blk_cnt),
-+						EROFS_BLKSIZE);
-+				if (ret < 0) {
-+					erofs_err("dev_write inode[%s] error[%s]",
-+						  inode->i_fullpath, strerror(errno));
-+					exit(EXIT_FAILURE);
-+				}
-+
-+				blk_cnt += 1;
-+				sum = 0;
-+				dentrys_size = 0;
-+				start = pos;
-+			}
-+
-+			dentrys_size += EROFS_DIRENT_SIZE + len;
-+			sum += 1;
-+
-+		}
-+
-+		/* write last page names */
-+		if (start != pos) {
-+			memset(pbuf, 0, EROFS_BLKSIZE);
-+			inode->i_inline_data    = pbuf;
-+			inode->i_inline_datalen = write_dirents(pbuf, sum, start, pos);
-+		}
-+
-+	} else if (inode->i_dmode == EROFS_INODE_LAYOUT_PLAIN) {
-+		start = (&inode->i_subdir_head)->next;
-+		/* dentry begin from the next block offset to inode,
-+		 * so page_num should be 1
-+		 */
-+		pbuf = calloc(EROFS_BLKSIZE, 1);
-+		if (!pbuf) {
-+			perror("calloc");
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		list_for_each(pos, &inode->i_subdir_head) {
-+			struct erofs_node_info* d = container_of(pos,
-+								 struct erofs_node_info,
-+								 i_list);
-+			u32 len = strlen(d->i_name);
-+
-+			if ((dentrys_size + EROFS_DIRENT_SIZE + len) > EROFS_BLKSIZE) {
-+				memset(pbuf, 0, EROFS_BLKSIZE);
-+				write_dirents(pbuf, sum, start, pos);
-+				dev_write(pbuf,
-+					  BLKNO_TO_ADDR(inode->i_blkaddr + blk_cnt),
-+					  EROFS_BLKSIZE);
-+				if (ret < 0) {
-+					erofs_err("dev_write inode[%s] error[%s]",
-+						  inode->i_fullpath, strerror(errno));
-+					exit(EXIT_FAILURE);
-+				}
-+
-+				blk_cnt += 1;
-+				sum = 0;
-+				dentrys_size = 0;
-+				start = pos;
-+			}
-+
-+			dentrys_size += EROFS_DIRENT_SIZE + len;
-+			sum += 1;
-+
-+		}
-+
-+		/* write last page names */
-+		if (start != pos) {
-+			memset(pbuf, 0, EROFS_BLKSIZE);
-+			write_dirents(pbuf, sum, start, pos);
-+			ret = dev_write(pbuf,
-+					BLKNO_TO_ADDR(inode->i_blkaddr + blk_cnt),
-+					EROFS_BLKSIZE);
-+			if (ret < 0) {
-+				erofs_err("dev_write inode[%s] error[%s]",
-+					  inode->i_fullpath, strerror(errno));
-+				exit(EXIT_FAILURE);
-+			}
-+		}
-+
-+		free(pbuf);
-+
-+	} else {
-+		erofs_err("inode->i_dmode[%u]mode 1 is not support right now",
-+			  inode->i_dmode);
-+		exit(EXIT_FAILURE);
-+	}
-+}
-+
-+
-+static void mkfs_write_inode_regfile(struct erofs_node_info* inode)
-+{
-+	char* pbuf     = NULL;
-+	int ret        = 0;
-+	u32 i          = 0;
-+	int fd         = 0;
-+	u32 nblocks    = 0;
-+	int unaligned  = 0;
-+	u32 page_cnt   = inode->i_size / EROFS_BLKSIZE;
-+	char* filepath = inode->i_fullpath;
-+
-+	fd = open(filepath, O_RDONLY);
-+	if (fd < 0) {
-+		perror("fopen() failed");
-+		erofs_err("current path=%s", getcwd(NULL, 0));
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	switch (inode->i_dmode) {
-+	case EROFS_INODE_LAYOUT_PLAIN:
-+
-+		if ((inode->i_size % EROFS_BLKSIZE) != 0)
-+			page_cnt += 1;
-+
-+		pbuf = calloc(EROFS_BLKSIZE, 1);
-+		if (!pbuf) {
-+			erofs_err("calloc inode[%s] error[%s]",
-+				  inode->i_fullpath, strerror(errno));
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		for (i = 0; i < page_cnt; i++) {
-+			memset(pbuf, 0, EROFS_BLKSIZE);
-+			ret = read(fd, pbuf, EROFS_BLKSIZE);
-+			if (ret < 0) {
-+				erofs_err("read inode[%s] error[%s]",
-+					  filepath, strerror(errno));
-+				exit(EXIT_FAILURE);
-+			}
-+
-+			ret = dev_write(pbuf,
-+					BLKNO_TO_ADDR(inode->i_blkaddr + i),
-+					EROFS_BLKSIZE);
-+			if (ret < 0) {
-+				erofs_err("dev_write inode[%s] ret[%d]", filepath, ret);
-+				exit(EXIT_FAILURE);
-+			}
-+		}
-+
-+		free(pbuf);
-+		break;
-+
-+	case EROFS_INODE_LAYOUT_COMPRESSION:
-+		/* it isn't supported right now */
-+		assert(0);
-+
-+	case EROFS_INODE_LAYOUT_INLINE:
-+		if (inode->i_size == 0)
-+			break;
-+
-+		nblocks = inode->i_size / EROFS_BLKSIZE;
-+		unaligned = inode->i_size % EROFS_BLKSIZE;
-+		if (nblocks > 0) {
-+			assert(inode->i_blkaddr != 0);
-+
-+			pbuf = calloc(EROFS_BLKSIZE, 1);
-+			if (!pbuf) {
-+				erofs_err("calloc inode[%s] error[%s]",
-+					  inode->i_fullpath, strerror(errno));
-+				exit(EXIT_FAILURE);
-+			}
-+
-+			for (i = 0; i < nblocks; i++) {
-+				memset(pbuf, 0, EROFS_BLKSIZE);
-+				ret = read(fd, pbuf, EROFS_BLKSIZE);
-+				if (ret < 0) {
-+					erofs_err("read inode[%s] error[%s]",
-+						  filepath, strerror(errno));
-+					exit(EXIT_FAILURE);
-+				}
-+				ret = dev_write(pbuf,
-+						BLKNO_TO_ADDR(inode->i_blkaddr + i),
-+						EROFS_BLKSIZE);
-+				if (ret < 0) {
-+					erofs_err("dev_write inode[%s] ret[%d]", filepath, ret);
-+					exit(EXIT_FAILURE);
-+				}
-+			}
-+
-+			free(pbuf);
-+		}
-+
-+		if (unaligned > 0) {
-+			inode->i_inline_data = calloc(EROFS_BLKSIZE, 1);
-+			if (!inode->i_inline_data) {
-+				erofs_err("calloc inode[%s] error[%s]",
-+					  filepath, strerror(errno));
-+				exit(EXIT_FAILURE);
-+			}
-+			(void)lseek(fd, nblocks * EROFS_BLKSIZE, SEEK_SET);
-+			inode->i_inline_datalen = read(fd,
-+						       inode->i_inline_data,
-+						       unaligned);
-+			if (inode->i_inline_datalen < 0) {
-+				erofs_err("read inode[%s] error[%s]",
-+					  filepath, strerror(errno));
-+				exit(EXIT_FAILURE);
-+			}
-+		}
-+
-+		break;
-+
-+	default:
-+		erofs_err("Inode[%s] mode error [%d]", filepath, inode->i_dmode);
-+		exit(EXIT_FAILURE);
-+		break;
-+	}
-+
-+	close(fd);
-+
-+}
-+
-+static void mkfs_write_inode_symfile(struct erofs_node_info* inode)
-+{
-+	char* pbuf = NULL;
-+	int   ret  = 0;
-+
-+	switch (inode->i_dmode) {
-+	case EROFS_INODE_LAYOUT_PLAIN:
-+		pbuf = calloc(EROFS_BLKSIZE, 1);
-+		if (!pbuf) {
-+			erofs_err("calloc inode[%s] error[%s]",
-+				  inode->i_fullpath, strerror(errno));
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		ret = readlink(inode->i_fullpath, pbuf, inode->i_size);
-+		if (ret < 0) {
-+			erofs_err("readlink inode[%s] error[%s]",
-+				  inode->i_fullpath, strerror(errno));
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		ret = dev_write(pbuf,
-+				BLKNO_TO_ADDR(inode->i_blkaddr),
-+				EROFS_BLKSIZE);
-+		if (ret < 0) {
-+			erofs_err("dev_write inode[%s] error[%s]",
-+				  inode->i_fullpath, strerror(errno));
-+			exit(EXIT_FAILURE);
-+		}
-+		free(pbuf);
-+		break;
-+
-+	case EROFS_INODE_LAYOUT_COMPRESSION:
-+		break;
-+
-+	case EROFS_INODE_LAYOUT_INLINE:
-+		if (inode->i_size == 0)
-+			break;
-+
-+		inode->i_inline_data = calloc(EROFS_BLKSIZE, 1);
-+		if (!inode->i_inline_data) {
-+			perror("calloc");
-+			erofs_info("data_buf is NULL");
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		inode->i_inline_datalen = readlink(inode->i_fullpath,
-+						   inode->i_inline_data,
-+						   inode->i_size);
-+		if (inode->i_inline_datalen < 0) {
-+			perror("readlink");
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		break;
-+
-+	default:
-+		erofs_err("Inode mode error [%d]", inode->i_dmode);
-+		exit(EXIT_FAILURE);
-+		break;
-+	}
-+
-+}
-+
-+void mkfs_do_write_inodes_data(struct erofs_node_info* inode)
-+{
-+	struct list_head* pos;
-+
-+	switch (inode->i_type) {
-+	case EROFS_FT_DIR:
-+		mkfs_write_inode_dir(inode);
-+		break;
-+
-+	case EROFS_FT_REG_FILE:
-+		mkfs_write_inode_regfile(inode);
-+		break;
-+
-+	case EROFS_FT_SYMLINK:
-+		mkfs_write_inode_symfile(inode);
-+		break;
-+
-+	default:
-+		/* special devices file eg. chr block pipe sock */
-+		break;
-+	}
-+
-+	if (!list_empty(&inode->i_subdir_head)) {
-+		list_for_each(pos, &inode->i_subdir_head) {
-+			struct erofs_node_info* d = container_of(pos,
-+								 struct erofs_node_info,
-+								 i_list);
-+			mkfs_do_write_inodes_data(d);
-+		}
-+	}
-+
-+}
-+
-+static int erofs_do_write_inode_buffer(struct erofs_node_info* inode,
-+				       char* buf)
-+{
-+	struct erofs_inode_v1* v1;
-+	struct erofs_inode_v2* v2;
-+
-+	if (inode->i_iver == EROFS_INODE_LAYOUT_V1) {
-+		v1 = (struct erofs_inode_v1*)buf;
-+		v1->i_advise = cpu_to_le16(inode->i_iver|(inode->i_dmode<<1));
-+		v1->i_xattr_icount = cpu_to_le16(inode->i_xattr_scnt);
-+		v1->i_mode = cpu_to_le16(inode->i_mode);
-+		v1->i_nlink = cpu_to_le16((u16)inode->i_nlink);
-+		v1->i_size = cpu_to_le32((u32)inode->i_size);
-+		v1->i_ino = cpu_to_le32(inode->i_ino);
-+		v1->i_uid = cpu_to_le16((u16)inode->i_uid);
-+		v1->i_gid = cpu_to_le16((u16)inode->i_gid);
-+
-+		switch (inode->i_type) {
-+		case EROFS_FT_CHRDEV:
-+		case EROFS_FT_BLKDEV:
-+		case EROFS_FT_FIFO:
-+		case EROFS_FT_SOCK:
-+			v1->i_u.rdev = cpu_to_le32(inode->i_rdev);
-+			break;
-+
-+		default:
-+			if (inode->i_dmode == EROFS_INODE_LAYOUT_COMPRESSION)
-+				v1->i_u.compressed_blocks =
-+					cpu_to_le32(inode->i_blocks);
-+			else
-+				v1->i_u.raw_blkaddr =
-+					cpu_to_le32(inode->i_blkaddr);
-+
-+			break;
-+		}
-+
-+		v1->i_checksum = 0;
-+		return EROFS_INODE_V1_SIZE;
-+	} else {
-+		v2 = (struct erofs_inode_v2*)buf;
-+		v2->i_advise = cpu_to_le16(inode->i_iver|(inode->i_dmode<<1));
-+		v2->i_xattr_icount = cpu_to_le16(inode->i_xattr_scnt);
-+		v2->i_mode = cpu_to_le16(inode->i_mode);
-+		v2->i_size = cpu_to_le64(inode->i_size);
-+		v2->i_u.raw_blkaddr = cpu_to_le32(inode->i_blkaddr);
-+		v2->i_ino = cpu_to_le32(inode->i_ino);
-+		v2->i_uid = cpu_to_le32(inode->i_uid);
-+		v2->i_gid = cpu_to_le32(inode->i_gid);
-+		v2->i_ctime = cpu_to_le64(inode->i_ctime);
-+		v2->i_ctime_nsec = cpu_to_le32(inode->i_ctime_nsec);
-+		v2->i_nlink = cpu_to_le32(inode->i_nlink);
-+
-+		switch (inode->i_type) {
-+		case EROFS_FT_CHRDEV:
-+		case EROFS_FT_BLKDEV:
-+		case EROFS_FT_FIFO:
-+		case EROFS_FT_SOCK:
-+			v2->i_u.rdev = cpu_to_le32(inode->i_rdev);
-+			break;
-+
-+		default:
-+			if (inode->i_dmode == EROFS_INODE_LAYOUT_COMPRESSION)
-+				v2->i_u.compressed_blocks =
-+					cpu_to_le32(inode->i_blocks);
-+			else
-+				v2->i_u.raw_blkaddr =
-+					cpu_to_le32(inode->i_blkaddr);
-+
-+			break;
-+		}
-+
-+		v2->i_checksum = 0;
-+		return EROFS_INODE_V2_SIZE;
-+	}
-+}
-+
-+int erofs_write_inode_buffer(struct erofs_node_info* inode, char* buf)
-+{
-+	char* pbuf = buf;
-+	int count = 0;
-+
-+	count += erofs_do_write_inode_buffer(inode, pbuf + count);
-+
-+	switch (inode->i_dmode) {
-+	case EROFS_INODE_LAYOUT_COMPRESSION:    /* Compress File */
-+	case EROFS_INODE_LAYOUT_INLINE:         /* Inline softlink or dir or file */
-+		count = round_up(count, inode->i_inline_align_size);
-+		if (inode->i_size > 0) {
-+			memcpy(pbuf + count,
-+			       inode->i_inline_data,
-+			       inode->i_inline_datalen);
-+			count += inode->i_inline_datalen;
-+		}
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	count = SLOT_ALIGN(count);
-+	return count;
-+}
-+
-+int erofs_write_index_buffer(struct erofs_index_info* index, char* buf)
-+{
-+	int count;
-+
-+	assert(index->i_nidxs);
-+
-+	count = index->i_nidxs * EROFS_DECOMPR_IDX_SZ;
-+	memcpy(buf, index->i_idxs, count);
-+
-+	return count;
-+}
-+
-+u64 mkfs_addr_to_nid(u64 addr)
-+{
-+	if (!IS_SLOT_ALIGN(addr)) {
-+		erofs_err("SLOT NOT ALIGN: addr=0x%08"PRIX64"", addr);
-+		exit(EXIT_FAILURE);
-+	}
-+	return (u64)((addr - (u64)sb->meta_blkaddr * EROFS_BLKSIZE) / 32);
-+}
-diff --git a/mkfs_inode.h b/mkfs_inode.h
++++ b/Makefile.am
+@@ -0,0 +1,35 @@
++# Makefile.am
++AUTOMAKE_OPTIONS = foreign
++bin_PROGRAMS     = mkfs.erofs
++mkfs_erofs_SOURCES = erofs_compressor.c \
++					 mkfs_file.c \
++					 erofs_lz4hc.c \
++					 mkfs_main.c \
++					 erofs_cache.c \
++					 erofs_io.c \
++					 mkfs_inode.c \
++					 erofs_config.c
++
++noinst_HEADERS = erofs_config.h  \
++				 mkfs_inode.h \
++				 erofs_error.h \
++				 erofs_lz4hc.h \
++				 list_head.h \
++				 erofs_cache.h \
++				 erofs_fs.h \
++				 erofs_debug.h \
++				 mkfs_erofs.h \
++				 erofs_compressor.h \
++				 erofs_io.h \
++				 erofs_types.h \
++				 mkfs_file.h
++
++mkfs_erofs_CFLAGS = -Wall -Werror -DEROFS_MKFS_VERSION=\"v1.0\"
++mkfs_erofs_LDFLAGS  = --static
++mkfs_erofs_LDADD   = $(LIBLZ4_STATIC)
++ACLOCAL_AMFLAGS = -I m4
++
++if SUPPORT_LARG_FILE_AT_BIT32
++    mkfs_erofs_CFLAGS += -D_FILE_OFFSET_BITS=64
++endif
++
+diff --git a/NEWS b/NEWS
 new file mode 100644
-index 0000000..a5c280a
+index 0000000..e69de29
+diff --git a/README b/README
+new file mode 100644
+index 0000000..2f3d56c
 --- /dev/null
-+++ b/mkfs_inode.h
-@@ -0,0 +1,84 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * erofs_inode.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Li Guifu <bluce.liguifu at huawei.com>
-+ */
-+#ifndef CONFIG_EROFS_MKFS_INODE_H
-+#define CONFIG_EROFS_MKFS_INODE_H
++++ b/README
+@@ -0,0 +1,52 @@
++mkfs.erofs
 +
-+#include "list_head.h"
-+#include "erofs_cache.h"
-+#include "mkfs_file.h"
++mkfs.erofs is a user-space tool to create erofs filesystem images.
 +
-+#define MAX_PATH 4096
-+#define MAX_NAME 256
++It can create 2 main types of erofs images, compressed and uncompressed:
++ - For compressed images, it is able to integrate several compression
++   algorithms, lz4 is supported according to the current erofs kernel
++   implementation.
++ - For uncompressed images, it can decide whether the last page of
++   a file should be inlined or not properly [1].
++
++Note that mkfs.erofs can only be linked statically with lz4 library
++due to the dependency of experimental lz4hc apis which were added in
++lz4 1.8.0. Anyway, it is a good start to begin with building the latest
++lz4 library statically first :)
++
++Dependencies
++ lz4-1.8.0 or above
++ 
++How to build with lz4 static library
++	./configure --with-lz4=<lz4 install path>
++eg. if lz4 lib has been installed into fold of /usr/local/lib
++	./configure --witch-lz4=/usr/local/lib && make
++Maybe you should run this first:
++	libtoolize && aclocal && autoconf && autoheader && automake --add-missing
++	
++Usage:
++$ ./mkfs.erofs
++mkfs.erofs version:rel v 1.0.0 buildTime:Nov 13 201809:39:00
++    [-z <compr algi>] [-d <debug level>]
++    [image name] [src dir]
++
++ -d -- setting debugging level
++ -z -- enable compression, only lz4hc is supported
++ image name , src dir are both needed.
++
++To:
++  linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
++  Li Guifu                   <bluce.liguifu at huawei.com>
++  Miao Xie                   <miaoxie at huawei.com>
++  Fang Wei                   <fangwei1 at huawei.com>
++
++Thanks-to:
++  Sun Qiuyang                <sunqiuyang at huawei.com>
++  Guo Xuenan                 <guoxuenan at huawei.com>
++  Du Wei                     <weidu.du at huawei.com>
++  Wang Zhigang               <brooke.wangzhigang at hisilicon.com>
++
++[1] According to the erofs on-disk format, the last page of files could
++    be inlined aggressively with its metadata in order to reduce the I/O
++    overhead and save the storage space.
++
+diff --git a/configure.ac b/configure.ac
+new file mode 100644
+index 0000000..15974f8
+--- /dev/null
++++ b/configure.ac
+@@ -0,0 +1,49 @@
++#                                               -*- Autoconf -*-
++# Process this file with autoconf to produce a configure script.
++
++AC_PREREQ([2.69])
++AC_INIT([mkfs.erofs], [0.0.1], [bluce.liguifu at huawei.com])
++AM_INIT_AUTOMAKE([foreign -Wall -Werror])
++AC_CONFIG_SRCDIR([mkfs_main.c])
++AC_CONFIG_HEADERS([config.h])
++
++# Checks for programs.
++AC_PROG_CC
++AC_PROG_INSTALL
++AC_PROG_LIBTOOL
 +
 +
-+struct erofs_index_info {
-+	/* Link to its block buffer */
-+	struct erofs_meta_node i_meta_node;
++# checks system architecture firtly for enable support larg file
++ARCH_BIT=`getconf LONG_BIT`
++AM_CONDITIONAL([SUPPORT_LARG_FILE_AT_BIT32],[test x$ARCH_BIT = x32])
 +
-+	/* Link to its inode */
-+	struct list_head       i_node;
++# Checks for libraries.
++# Ask user for path to liblz4.a stuff:.
++AC_ARG_WITH(lz4,
++    [ --with-lz4=<path> prefix of liblz4.a installation. e.g. /usr/local or /usr],
++    [LIBLZ4_STATIC=$with_lz4/liblz4.a],
++    AC_MSG_ERROR([You must call configure with the --with-lz4 option.
++    This tells configure where to find the MySql C library and headers.
++    e.g. --with-lz4=/usr/local or --with-lz4=/usr])
++)
 +
-+	u64  i_1st_idx;
-+	s32  i_nidxs;
-+	struct z_erofs_vle_decompressed_index i_idxs[0];
-+};
++AC_SUBST(LIBLZ4_STATIC)
 +
-+struct erofs_node_info {
-+	struct erofs_meta_node  i_meta_node;
++# Checks for header files.
++AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/time.h unistd.h])
 +
-+	/* Original member */
-+	struct list_head i_list;
-+	struct list_head i_subdir_head;         /* sub dirs or files */
-+	struct list_head i_xattr_head;
 +
-+	u64         i_base_addr;              /* base address of a inode */
-+	char        i_name[MAX_NAME];         /* the name of current inode */
-+	char        i_fullpath[MAX_PATH + 1];
-+	u16         i_nameoff;
-+	u16         i_iver;          /* Inode Version */
-+	u16         i_dmode;         /* Data mode */
-+	u16         i_xattr_scnt;    /* Inline xattr space count */
-+	u16         i_shared_count;
-+	u16         i_mode;
-+	u8          i_type;          /* Inode type: File, Dir...*/
-+	u64         i_size;
-+	union {
-+		u32     i_blkaddr;
-+		u32     i_blocks;
-+		u32     i_rdev;
-+	};
-+	u32         i_ino;
-+	u32         i_uid;
-+	u32         i_gid;
-+	u64         i_ctime;
-+	u32         i_ctime_nsec;
-+	u32         i_nlink;
++# Checks for typedefs, structures, and compiler characteristics.
++AC_C_INLINE
++AC_TYPE_INT64_T
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_CHECK_MEMBERS([struct stat.st_rdev])
++AC_TYPE_UINT64_T
 +
-+	/* If compress file, we use it store index info */
-+	char*       i_inline_data;
-+	s32         i_inline_datalen;
-+	s32         i_inline_align_size;
++# Checks for library functions.
++AC_FUNC_MALLOC
++AC_CHECK_FUNCS([ftruncate getcwd gettimeofday memset realpath strdup strerror strrchr strtoull])
 +
-+	struct erofs_compr_info i_compressor;
-+	struct erofs_compr_ctx  i_compr_ctx;
-+	u64         i_compr_nidxs;
-+	u32         i_compr_inlined_nidxs;
-+	struct list_head    i_compr_idxs_list;
-+	struct erofs_index_info* i_compr_cur_index_info;
-+};
-+
-+struct erofs_node_info* mkfs_prepare_root_inode(char* root);
-+void mkfs_relocate_sub_inodes(struct erofs_node_info* droot);
-+void mkfs_do_write_inodes_data(struct erofs_node_info* droot);
-+u64 mkfs_addr_to_nid(u64 addr);
-+int erofs_write_inode_buffer(struct erofs_node_info* inode, char* buf);
-+int erofs_write_index_buffer(struct erofs_index_info* index, char* buf);
-+u8 erofs_check_disk_inode_version(struct erofs_node_info* inode);
-+
-+#endif
-diff --git a/mkfs_main.c b/mkfs_main.c
-index d4ac161..69c88dc 100644
---- a/mkfs_main.c
-+++ b/mkfs_main.c
-@@ -18,6 +18,7 @@
- #include "erofs_fs.h"
- #include "mkfs_erofs.h"
- #include "erofs_io.h"
-+#include "mkfs_inode.h"
- #define pr_fmt(fmt) "MKFS: "FUNC_LINE_FMT fmt"\n"
- #include "erofs_debug.h"
- 
-@@ -132,6 +133,8 @@ void mkfs_update_erofs_header(u64 root_addr)
- 	}
- 
- 	sb->meta_blkaddr = cpu_to_le32(ADDR_TO_BLKNO(size));
-+	sb->blocks   = cpu_to_le32(erofs_get_total_blocks());
-+	sb->root_nid = cpu_to_le16(mkfs_addr_to_nid(root_addr));
- 
- 	sb_buf = calloc(size, 1);
- 	if (!sb_buf) {
-@@ -157,12 +160,37 @@ int main(int argc, char** argv)
- 	mkfs_init_configure();
- 	mkfs_parse_options_cfg(argc, argv);
- 
-+	proot_node = mkfs_prepare_root_inode(erofs_cfg.c_src_path);
-+	if(!proot_node)
-+		goto exit;
-+	err = erofs_create_files_list(proot_node);
-+	if(err)
-+		goto exit;
-+
-+	err = erofs_cache_init(ADDR_TO_BLKNO(BLK_ALIGN(EROFS_HEADER_SIZE)));
-+	if (err)
-+		goto exit;
-+
-+	mkfs_relocate_sub_inodes(proot_node);
-+
-+	mkfs_do_write_inodes_data(proot_node);
-+
-+	err = erofs_flush_all_blocks();
-+	if (err)
-+		goto exit;
-+
- 	mkfs_update_erofs_header(proot_node->i_base_addr);
- 
- 	dev_close();
- 	mkfs_free_config();
- 	erofs_info("done");
- 
-+exit:
-+
-+	if (err)
-+		erofs_err("\tError: Could not format the device!!!\n");
-+
-+	erofs_cache_deinit();
- 	return err;
- }
- 
++AC_CONFIG_FILES([Makefile])
++AC_OUTPUT
 -- 
 2.17.1
