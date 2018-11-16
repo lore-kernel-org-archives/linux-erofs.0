@@ -1,32 +1,19 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 16 Nov 2018 10:55:50 +0800
-Subject: [PATCH chao/erofs-dev rebased v2 01/12] staging: erofs:
- unzip_vle.c: Replace comparison to NULL.
-In-Reply-To: <79f2b510-7997-9439-8ac5-24b2ad7d6a00@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Fri, 16 Nov 2018 10:58:43 +0800
+Subject: [PATCH chao/erofs-dev rebased v2 04/12] staging: erofs: fix
+ `trace_erofs_readpage' position
+In-Reply-To: <20181114152548.37921-4-gaoxiang25@huawei.com>
 References: <20181114152548.37921-1-gaoxiang25@huawei.com>
- <79f2b510-7997-9439-8ac5-24b2ad7d6a00@huawei.com>
-Message-ID: <b898d28f-1f76-8b18-ca02-b9077851b9ff@huawei.com>
+ <20181114152548.37921-4-gaoxiang25@huawei.com>
+Message-ID: <a5e32218-3525-5013-e9f0-004cfd9f65ab@huawei.com>
 
-Hi Chao,
-
-On 2018/11/16 10:53, Chao Yu wrote:
-> On 2018/11/14 23:25, Gao Xiang wrote:
->> From: Cristian Sicilia <sicilia.cristian at gmail.com>
->>
->> Replace equal to NULL with logic unary operator,
->> and removing not equal to NULL comparison.
->>
->> Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
+On 2018/11/14 23:25, Gao Xiang wrote:
+> `trace_erofs_readpage' should be placed in .readpage()
+> rather than in the internal `z_erofs_do_read_page'.
 > 
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> 
+> Fixes: 284db12cfda3 ("staging: erofs: add trace points for reading zipped data")
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> Reviewed-by: Chen Gong <gongchen4 at huawei.com>
 
-This patch is my rebased patchset.
-Could you please reply in the original patch for Greg to add in this tree?
-[PATCH 0/3] Clean up some syntax issue on unzip_vle.c
-
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Thanks,
-Gao Xiang
-
-> Thanks,
-> 
