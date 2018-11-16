@@ -1,19 +1,15 @@
 From: osandov@osandov.com (Omar Sandoval)
-Date: Thu, 15 Nov 2018 16:23:56 -0800
-Subject: [PATCH V10 08/19] btrfs: move bio_pages_all() to btrfs
-In-Reply-To: <20181115085306.9910-9-ming.lei@redhat.com>
+Date: Thu, 15 Nov 2018 16:26:25 -0800
+Subject: [PATCH V10 09/19] block: introduce bio_bvecs()
+In-Reply-To: <20181115085306.9910-10-ming.lei@redhat.com>
 References: <20181115085306.9910-1-ming.lei@redhat.com>
- <20181115085306.9910-9-ming.lei@redhat.com>
-Message-ID: <20181116002356.GC23828@vader>
+ <20181115085306.9910-10-ming.lei@redhat.com>
+Message-ID: <20181116002625.GD23828@vader>
 
-On Thu, Nov 15, 2018@04:52:55PM +0800, Ming Lei wrote:
-> BTRFS is the only user of this helper, so move this helper into
-> BTRFS, and implement it via bio_for_each_segment_all(), since
-> bio->bi_vcnt may not equal to number of pages after multipage bvec
-> is enabled.
-
-Shouldn't you also get rid of bio_pages_all() in this patch?
-
+On Thu, Nov 15, 2018@04:52:56PM +0800, Ming Lei wrote:
+> There are still cases in which we need to use bio_bvecs() for get the
+> number of multi-page segment, so introduce it.
+> 
 > Cc: Dave Chinner <dchinner at redhat.com>
 > Cc: Kent Overstreet <kent.overstreet at gmail.com>
 > Cc: Mike Snitzer <snitzer at redhat.com>
@@ -36,43 +32,65 @@ Shouldn't you also get rid of bio_pages_all() in this patch?
 > Cc: Boaz Harrosh <ooo at electrozaur.com>
 > Cc: Bob Peterson <rpeterso at redhat.com>
 > Cc: cluster-devel at redhat.com
+
+Reviewed-by: Omar Sandoval <osandov at fb.com>
+
 > Signed-off-by: Ming Lei <ming.lei at redhat.com>
 > ---
->  fs/btrfs/extent_io.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
+>  include/linux/bio.h | 30 +++++++++++++++++++++++++-----
+>  1 file changed, 25 insertions(+), 5 deletions(-)
 > 
-> diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-> index 5d5965297e7e..874bb9aeebdc 100644
-> --- a/fs/btrfs/extent_io.c
-> +++ b/fs/btrfs/extent_io.c
-> @@ -2348,6 +2348,18 @@ struct bio *btrfs_create_repair_bio(struct inode *inode, struct bio *failed_bio,
->  	return bio;
+> diff --git a/include/linux/bio.h b/include/linux/bio.h
+> index 1f0dcf109841..3496c816946e 100644
+> --- a/include/linux/bio.h
+> +++ b/include/linux/bio.h
+> @@ -196,7 +196,6 @@ static inline unsigned bio_segments(struct bio *bio)
+>  	 * We special case discard/write same/write zeroes, because they
+>  	 * interpret bi_size differently:
+>  	 */
+> -
+>  	switch (bio_op(bio)) {
+>  	case REQ_OP_DISCARD:
+>  	case REQ_OP_SECURE_ERASE:
+> @@ -205,13 +204,34 @@ static inline unsigned bio_segments(struct bio *bio)
+>  	case REQ_OP_WRITE_SAME:
+>  		return 1;
+>  	default:
+> -		break;
+> +		bio_for_each_segment(bv, bio, iter)
+> +			segs++;
+> +		return segs;
+>  	}
+> +}
+>  
+> -	bio_for_each_segment(bv, bio, iter)
+> -		segs++;
+> +static inline unsigned bio_bvecs(struct bio *bio)
+> +{
+> +	unsigned bvecs = 0;
+> +	struct bio_vec bv;
+> +	struct bvec_iter iter;
+>  
+> -	return segs;
+> +	/*
+> +	 * We special case discard/write same/write zeroes, because they
+> +	 * interpret bi_size differently:
+> +	 */
+> +	switch (bio_op(bio)) {
+> +	case REQ_OP_DISCARD:
+> +	case REQ_OP_SECURE_ERASE:
+> +	case REQ_OP_WRITE_ZEROES:
+> +		return 0;
+> +	case REQ_OP_WRITE_SAME:
+> +		return 1;
+> +	default:
+> +		bio_for_each_bvec(bv, bio, iter)
+> +			bvecs++;
+> +		return bvecs;
+> +	}
 >  }
 >  
-> +static unsigned btrfs_bio_pages_all(struct bio *bio)
-> +{
-> +	unsigned i;
-> +	struct bio_vec *bv;
-> +
-> +	WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED));
-> +
-> +	bio_for_each_segment_all(bv, bio, i)
-> +		;
-> +	return i;
-> +}
-> +
 >  /*
->   * this is a generic handler for readpage errors (default
->   * readpage_io_failed_hook). if other copies exist, read those and write back
-> @@ -2368,7 +2380,7 @@ static int bio_readpage_error(struct bio *failed_bio, u64 phy_offset,
->  	int read_mode = 0;
->  	blk_status_t status;
->  	int ret;
-> -	unsigned failed_bio_pages = bio_pages_all(failed_bio);
-> +	unsigned failed_bio_pages = btrfs_bio_pages_all(failed_bio);
->  
->  	BUG_ON(bio_op(failed_bio) == REQ_OP_WRITE);
->  
 > -- 
 > 2.9.5
 > 
