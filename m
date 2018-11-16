@@ -1,34 +1,23 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 16 Nov 2018 17:41:47 +0800
-Subject: [PATCH V10 03/19] block: use bio_for_each_bvec() to compute
- multi-page bvec count
-In-Reply-To: <20181116091956.GA17604@lst.de>
+From: hch@lst.de (Christoph Hellwig)
+Date: Fri, 16 Nov 2018 14:13:05 +0100
+Subject: [PATCH V10 01/19] block: introduce multi-page page bvec helpers
+In-Reply-To: <20181115085306.9910-2-ming.lei@redhat.com>
 References: <20181115085306.9910-1-ming.lei@redhat.com>
- <20181115085306.9910-4-ming.lei@redhat.com> <20181115202028.GC9348@vader>
- <20181115210510.GA24908@redhat.com> <20181115221847.GD9348@vader>
- <20181116091956.GA17604@lst.de>
-Message-ID: <a0105f7a-95b2-3a42-1543-3e8b999edb30@huawei.com>
+ <20181115085306.9910-2-ming.lei@redhat.com>
+Message-ID: <20181116131305.GA3165@lst.de>
 
+> -#define bvec_iter_page(bvec, iter)				\
+> +#define mp_bvec_iter_page(bvec, iter)				\
+>  	(__bvec_iter_bvec((bvec), (iter))->bv_page)
+>  
+> -#define bvec_iter_len(bvec, iter)				\
+> +#define mp_bvec_iter_len(bvec, iter)				\
 
-On 2018/11/16 17:19, Christoph Hellwig wrote:
-> On Thu, Nov 15, 2018@02:18:47PM -0800, Omar Sandoval wrote:
->> My only reason to prefer unsigned int is consistency. unsigned int is
->> much more common in the kernel:
->>
->> $ ag --cc -s 'unsigned\s+int' | wc -l
->> 129632
->> $ ag --cc -s 'unsigned\s+(?!char|short|int|long)' | wc -l
->> 22435
->>
->> checkpatch also warns on plain unsigned.
-> 
-> Talk about chicken and egg.  unsigned is perfectly valid C, and being
-> shorter often helps being more readable.  checkpath is as so often
-> wrongly opinionated..
-> 
+I'd much prefer if we would stick to the segment naming that
+we also use in the higher level helper.
 
-sigh...I personally tend to use "unsigned" instead of "unsigned int" as well,
-but checkpatch.pl also suggests erofs to use "unsigned int" :-(
+So segment_iter_page, segment_iter_len, etc.
 
-Thanks,
-Gao Xiang
+> + * This helpers are for building sp bvec in flight.
+
+Please spell out single page, sp is not easy understandable.
