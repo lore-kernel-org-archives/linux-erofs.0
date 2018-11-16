@@ -1,326 +1,898 @@
 From: bluce.liguifu@huawei.com (bluce.liguifu@huawei.com)
-Date: Fri, 16 Nov 2018 11:30:16 +0800
-Subject: [PREVIEW] [RFC PATCH 1/5] erofs-mkfs: add erofs on-disk layout
+Date: Fri, 16 Nov 2018 11:30:17 +0800
+Subject: [PREVIEW] [RFC PATCH 2/5] erofs-mkfs: introduce mkfs basic framework
 In-Reply-To: <20181116033020.20004-1-bluce.liguifu@huawei.com>
 References: <20181116033020.20004-1-bluce.liguifu@huawei.com>
-Message-ID: <20181116033020.20004-2-bluce.liguifu@huawei.com>
+Message-ID: <20181116033020.20004-3-bluce.liguifu@huawei.com>
 
 From: Li Guifu <bluce.liguifu@huawei.com>
 
-This patch adds a header file describing the erofs on-disk layout, which
-should be kept in line with the kernel implementation all the time.
+This patch adds basic code to generate erofs file systems and
+empty images can be created properly.
+
+Some parameters are also introduced in this patch, used for
+setting the debugging level, whether to compress or not.
 
 Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
 Signed-off-by: Miao Xie <miaoxie at huawei.com>
 Signed-off-by: Fang Wei <fangwei1 at huawei.com>
 ---
- erofs_fs.h | 298 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 298 insertions(+)
- create mode 100644 erofs_fs.h
+ erofs_config.c |  46 +++++++++++++
+ erofs_config.h |  44 +++++++++++++
+ erofs_debug.h  |  67 +++++++++++++++++++
+ erofs_error.h  |  25 +++++++
+ erofs_io.c     | 175 +++++++++++++++++++++++++++++++++++++++++++++++++
+ erofs_io.h     |  24 +++++++
+ erofs_types.h  |  52 +++++++++++++++
+ list_head.h    | 110 +++++++++++++++++++++++++++++++
+ mkfs_erofs.h   |  83 +++++++++++++++++++++++
+ mkfs_main.c    | 168 +++++++++++++++++++++++++++++++++++++++++++++++
+ 10 files changed, 794 insertions(+)
+ create mode 100644 erofs_config.c
+ create mode 100644 erofs_config.h
+ create mode 100644 erofs_debug.h
+ create mode 100644 erofs_error.h
+ create mode 100644 erofs_io.c
+ create mode 100644 erofs_io.h
+ create mode 100644 erofs_types.h
+ create mode 100644 list_head.h
+ create mode 100644 mkfs_erofs.h
+ create mode 100644 mkfs_main.c
 
-diff --git a/erofs_fs.h b/erofs_fs.h
+diff --git a/erofs_config.c b/erofs_config.c
 new file mode 100644
-index 0000000..c0b5510
+index 0000000..e1217a0
 --- /dev/null
-+++ b/erofs_fs.h
-@@ -0,0 +1,298 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
++++ b/erofs_config.c
+@@ -0,0 +1,46 @@
++// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * erofs_fs.h
++ * erofs_config.c
 + *
-+ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ * Copyright (C) 2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
 + * Created by Li Guifu <bluce.liguifu at huawei.com>
 + */
-+#ifndef __EROFS_FS_H
-+#define __EROFS_FS_H
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include "erofs_config.h"
 +
-+#include "erofs_types.h"
-+#define __packed __attribute__((__packed__))
++struct erofs_configure erofs_cfg;
 +
 +
-+/* Enhanced(Extended) ROM File System */
-+#define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
-+#define EROFS_SUPER_OFFSET      1024
-+
-+struct erofs_super_block {
-+/*  0 */__le32 magic;           /* in the little endian */
-+/*  4 */__le32 checksum;        /* crc32c(super_block) */
-+/*  8 */__le32 features;
-+/* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
-+/* 13 */__u8 reserved;
-+
-+/* 14 */__le16 root_nid;
-+/* 16 */__le64 inos;            /* total valid ino # (== f_files - f_favail) */
-+
-+/* 24 */__le64 build_time;      /* inode v1 time derivation */
-+/* 32 */__le32 build_time_nsec;
-+/* 36 */__le32 blocks;          /* used for statfs */
-+/* 40 */__le32 meta_blkaddr;
-+/* 44 */__le32 xattr_blkaddr;
-+/* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
-+/* 64 */__u8 volume_name[16];   /* volume name */
-+
-+/* 80 */__u8 reserved2[48];     /* 128 bytes */
-+} __packed;
-+
-+#define __EROFS_BIT(_prefix, _cur, _pre)	enum {	\
-+	_prefix ## _cur ## _BIT = _prefix ## _pre ## _BIT + \
-+		_prefix ## _pre ## _BITS }
-+
-+/*
-+ * erofs inode data mapping:
-+ * 0 - inode plain without inline data A:
-+ * inode, [xattrs], ... | ... | no-holed data
-+ * 1 - inode VLE compression B:
-+ * inode, [xattrs], extents ... | ...
-+ * 2 - inode plain with inline data C:
-+ * inode, [xattrs], last_inline_data, ... | ... | no-holed data
-+ * 3~7 - reserved
-+ */
-+enum {
-+	EROFS_INODE_LAYOUT_PLAIN,
-+	EROFS_INODE_LAYOUT_COMPRESSION,
-+	EROFS_INODE_LAYOUT_INLINE,
-+	EROFS_INODE_LAYOUT_MAX
-+};
-+
-+#define EROFS_I_VERSION_BITS            1
-+#define EROFS_I_DATA_MAPPING_BITS       3
-+
-+#define EROFS_I_VERSION_BIT             0
-+__EROFS_BIT(EROFS_I_, DATA_MAPPING, VERSION);
-+
-+struct erofs_inode_v1 {
-+/*  0 */__le16 i_advise;
-+
-+/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
-+/*  2 */__le16 i_xattr_icount;
-+/*  4 */__le16 i_mode;
-+/*  6 */__le16 i_nlink;
-+/*  8 */__le32 i_size;
-+/* 12 */__le32 i_reserved;
-+/* 16 */union {
-+		/* file total compressed blocks for data mapping 1 */
-+		__le32 compressed_blocks;
-+		__le32 raw_blkaddr;
-+
-+		/* for device files, used to indicate old/new device # */
-+		__le32 rdev;
-+	} i_u __packed;
-+/* 20 */__le32 i_ino;           /* only used for 32-bit stat compatibility */
-+/* 24 */__le16 i_uid;
-+/* 26 */__le16 i_gid;
-+/* 28 */__le32 i_checksum;
-+} __packed;
-+
-+/* 32 bytes on-disk inode */
-+#define EROFS_INODE_LAYOUT_V1   0
-+/* 64 bytes on-disk inode */
-+#define EROFS_INODE_LAYOUT_V2   1
-+
-+struct erofs_inode_v2 {
-+	__le16 i_advise;
-+
-+	/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
-+	__le16 i_xattr_icount;
-+	__le16 i_mode;
-+	__le16 i_reserved;      /* 8 bytes */
-+	__le64 i_size;          /* 16 bytes */
-+	union {
-+		/* file total compressed blocks for data mapping 1 */
-+		__le32 compressed_blocks;
-+		__le32 raw_blkaddr;
-+
-+		/* for device files, used to indicate old/new device # */
-+		__le32 rdev;
-+	} i_u __packed;
-+
-+	/* only used for 32-bit stat compatibility */
-+	__le32 i_ino;           /* 24 bytes */
-+
-+	__le32 i_uid;
-+	__le32 i_gid;
-+	__le64 i_ctime;         /* 32 bytes */
-+	__le32 i_ctime_nsec;
-+	__le32 i_nlink;
-+	__u8   i_reserved2[12];
-+	__le32 i_checksum;      /* 64 bytes */
-+} __packed;
-+
-+#define EROFS_MAX_SHARED_XATTRS         (128)
-+/* h_shared_count between 129 ... 255 are special # */
-+#define EROFS_SHARED_XATTR_EXTENT       (255)
-+
-+/*
-+ * inline xattrs (n == i_xattr_icount):
-+ * erofs_xattr_ibody_header(1) + (n - 1) * 4 bytes
-+ *          12 bytes           /                   \
-+ *                            /                     \
-+ *                           /-----------------------\
-+ *                           |  erofs_xattr_entries+ |
-+ *                           +-----------------------+
-+ * inline xattrs must starts in erofs_xattr_ibody_header,
-+ * for read-only fs, no need to introduce h_refcount
-+ */
-+struct erofs_xattr_ibody_header {
-+	__le32 h_checksum;
-+	__u8   h_shared_count;
-+	__u8   h_reserved[7];
-+	__le32 h_shared_xattrs[0];      /* shared xattr id array */
-+} __packed;
-+
-+/* Name indexes */
-+#define EROFS_XATTR_INDEX_USER              1
-+#define EROFS_XATTR_INDEX_POSIX_ACL_ACCESS  2
-+#define EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT 3
-+#define EROFS_XATTR_INDEX_TRUSTED           4
-+#define EROFS_XATTR_INDEX_LUSTRE            5
-+#define EROFS_XATTR_INDEX_SECURITY          6
-+
-+/* xattr entry (for both inline & shared xattrs) */
-+struct erofs_xattr_entry {
-+	__u8   e_name_len;      /* length of name */
-+	__u8   e_name_index;    /* attribute name index */
-+	__le16 e_value_size;    /* size of attribute value */
-+	/* followed by e_name and e_value */
-+	char   e_name[0];       /* attribute name */
-+} __packed;
-+
-+#define ondisk_xattr_ibody_size(count)	({\
-+	u32 __count = le16_to_cpu(count); \
-+	((__count) == 0) ? 0 : \
-+	sizeof(struct erofs_xattr_ibody_header) + \
-+		sizeof(__u32) * ((__count) - 1); })
-+
-+#define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
-+#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
-+	sizeof(struct erofs_xattr_entry) + \
-+	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
-+
-+/* have to be aligned with 8 bytes on disk */
-+struct erofs_extent_header {
-+	__le32 eh_checksum;
-+	__le32 eh_reserved[3];
-+} __packed;
-+
-+/*
-+ * Z_EROFS Variable-sized Logical Extent cluster type:
-+ *    0 - literal (uncompressed) cluster
-+ *    1 - compressed cluster (for the head logical cluster)
-+ *    2 - compressed cluster (for the other logical clusters)
-+ *
-+ * In detail,
-+ *    0 - literal (uncompressed) cluster,
-+ *        di_advise = 0
-+ *        di_clusterofs = the literal data offset of the cluster
-+ *        di_blkaddr = the blkaddr of the literal cluster
-+ *
-+ *    1 - compressed cluster (for the head logical cluster)
-+ *        di_advise = 1
-+ *        di_clusterofs = the decompressed data offset of the cluster
-+ *        di_blkaddr = the blkaddr of the compressed cluster
-+ *
-+ *    2 - compressed cluster (for the other logical clusters)
-+ *        di_advise = 2
-+ *        di_clusterofs =
-+ *           the decompressed data offset in its own head cluster
-+ *        di_u.delta[0] = distance to its corresponding head cluster
-+ *        di_u.delta[1] = distance to its corresponding tail cluster
-+ *                (di_advise could be 0, 1 or 2)
-+ */
-+enum {
-+	Z_EROFS_VLE_CLUSTER_TYPE_PLAIN,
-+	Z_EROFS_VLE_CLUSTER_TYPE_HEAD,
-+	Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD,
-+	Z_EROFS_VLE_CLUSTER_TYPE_RESERVED,
-+	Z_EROFS_VLE_CLUSTER_TYPE_MAX
-+};
-+
-+#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS        2
-+#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT         0
-+
-+struct z_erofs_vle_decompressed_index {
-+	__le16 di_advise;
-+	/* where to decompress in the head cluster */
-+	__le16 di_clusterofs;
-+
-+	union {
-+		/* for the head cluster */
-+		__le32 blkaddr;
-+		/*
-+		 * for the rest clusters
-+		 * eg. for 4k page-sized cluster, maximum 4K*64k = 256M)
-+		 * [0] - pointing to the head cluster
-+		 * [1] - pointing to the tail cluster
-+		 */
-+		__le16 delta[2];
-+	} di_u __packed;		/* 8 bytes */
-+} __packed;
-+
-+#define Z_EROFS_VLE_EXTENT_ALIGN(size) round_up(size, \
-+	sizeof(struct z_erofs_vle_decompressed_index))
-+
-+/* dirent sorts in alphabet order, thus we can do binary search */
-+struct erofs_dirent {
-+	__le64 nid;     /*  0, node number */
-+	__le16 nameoff; /*  8, start offset of file name */
-+	__u8 file_type; /* 10, file type */
-+	__u8 reserved;  /* 11, reserved */
-+} __packed;
-+
-+/* file types used in inode_info->flags */
-+enum {
-+	EROFS_FT_UNKNOWN,
-+	EROFS_FT_REG_FILE,
-+	EROFS_FT_DIR,
-+	EROFS_FT_CHRDEV,
-+	EROFS_FT_BLKDEV,
-+	EROFS_FT_FIFO,
-+	EROFS_FT_SOCK,
-+	EROFS_FT_SYMLINK,
-+	EROFS_FT_MAX
-+};
-+
-+#define EROFS_NAME_LEN      255
-+
-+/* check the EROFS on-disk layout strictly at compile time */
-+static inline void erofs_check_ondisk_layout_definitions(void)
++void mkfs_init_configure(void)
 +{
-+	BUILD_BUG_ON(sizeof(struct erofs_super_block) != 128);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_v1) != 32);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_v2) != 64);
-+	BUILD_BUG_ON(sizeof(struct erofs_xattr_ibody_header) != 12);
-+	BUILD_BUG_ON(sizeof(struct erofs_xattr_entry) != 4);
-+	BUILD_BUG_ON(sizeof(struct erofs_extent_header) != 16);
-+	BUILD_BUG_ON(sizeof(struct z_erofs_vle_decompressed_index) != 8);
-+	BUILD_BUG_ON(sizeof(struct erofs_dirent) != 12);
-+
-+	BUILD_BUG_ON(BIT(Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS) <
-+		     Z_EROFS_VLE_CLUSTER_TYPE_MAX - 1);
++	memset(&erofs_cfg, 0, sizeof(erofs_cfg));
++	erofs_cfg.c_alg_name = "none";
++	erofs_cfg.c_dbg_lvl = 0;
++	erofs_cfg.c_version = EROFS_MKFS_VERSION "   " __DATE__ " " __TIME__;
 +}
 +
-+#define EROFS_SB_SIZE sizeof(struct erofs_super_block)
++void mkfs_dump_config(void)
++{
++	fprintf(stderr,  "\tc_version:             [%8s]\n", erofs_cfg.c_version);
++	fprintf(stderr,  "\tc_img_path:            [%8s]\n", erofs_cfg.c_img_path);
++	fprintf(stderr,  "\tc_src_path:            [%8s]\n", erofs_cfg.c_src_path);
++	fprintf(stderr,  "\tc_dbg_lvl:             [%8d]\n", erofs_cfg.c_dbg_lvl);
++	fprintf(stderr,  "\tc_dry_run:             [%8d]\n", erofs_cfg.c_dry_run);
++	fprintf(stderr,  "\tc_alg_name:            [%8s]\n", erofs_cfg.c_alg_name);
++	fprintf(stderr,  "\tc_compr_maxsz:         [%8d]\n", erofs_cfg.c_compr_maxsz);
++	fprintf(stderr,  "\tc_compr_lvl:           [%8d]\n", erofs_cfg.c_compr_lvl);
++	fprintf(stderr,  "\tc_compr_boundary:      [%8d]\n", erofs_cfg.c_compr_boundary);
++	fprintf(stderr,  "\tc_compr_ratio_limit:   [%8d]\n", erofs_cfg.c_compr_ratio_limit);
++}
 +
-+#define EROFS_DECOMPR_IDX_SZ        sizeof(struct z_erofs_vle_decompressed_index)
-+#define EROFS_DECOMPR_IDXS_PER_BLK  (EROFS_BLKSIZE / EROFS_DECOMPR_IDX_SZ)
++void mkfs_free_config(void)
++{
++	if(erofs_cfg.c_img_path)
++		free(erofs_cfg.c_img_path);
 +
-+#define EROFS_INODE_V1_SIZE     sizeof(struct erofs_inode_v1)
-+#define EROFS_INODE_V2_SIZE     sizeof(struct erofs_inode_v2)
++	if(erofs_cfg.c_src_path)
++		free(erofs_cfg.c_src_path);
++}
+diff --git a/erofs_config.h b/erofs_config.h
+new file mode 100644
+index 0000000..d057d4c
+--- /dev/null
++++ b/erofs_config.h
+@@ -0,0 +1,44 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * mkfs_config.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_CONFIG_H
++#define __EROFS_CONFIG_H
 +
-+#define EROFS_DIRENT_SIZE       sizeof(struct erofs_dirent)
-+#define EROFS_DECOMPR_IDX_SZ    sizeof(struct z_erofs_vle_decompressed_index)
-+#define EROFS_DECOMPR_IDXS_PER_BLK  (EROFS_BLKSIZE / EROFS_DECOMPR_IDX_SZ)
++/* workaround of a lz4 native compression issue, which can crash the program */
++/* #define EROFS_CONFIG_COMPR_MAX_SZ        (1024 * 1024) */
++#define EROFS_CONFIG_COMPR_MAX_SZ           (900  * 1024)
++#define EROFS_CONFIG_COMPR_MIN_SZ           (32   * 1024)
++#define EROFS_CONFIG_COMPR_DEF_BOUNDARY     (128)
++#define EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT  (100)
 +
-+#define ondisk_extent_size(data_mapping_mode, count) \
-+	((data_mapping_mode) == EROFS_INODE_LAYOUT_COMPRESSION ? \
-+	(sizeof(struct erofs_extent_header) + \
-+	sizeof(__u32) * le32_to_cpu(count)) : 0)
++struct erofs_compr_alg;
 +
-+#define EROFS_INLINE_GENERIC_ALIGN_SIZE     (4)
-+#define EROFS_INLINE_INDEX_ALIGN_SIZE       (8)
++struct erofs_configure {
++	char*       c_version;
++	int         c_dry_run;
++	int         c_dbg_lvl;
++
++	struct erofs_compr_alg*  c_compr_alg;
++	int         c_compr_maxsz;
++	int         c_compr_lvl;
++	int         c_compr_boundary;
++	int         c_compr_ratio_limit;
++
++	char*       c_src_path;
++	char*       c_img_path;
++	char*       c_label;
++	const char* c_alg_name;
++};
++
++extern struct erofs_configure erofs_cfg;
++
++void mkfs_init_configure(void);
++void mkfs_dump_config(void);
++void mkfs_free_config(void);
 +
 +#endif
+diff --git a/erofs_debug.h b/erofs_debug.h
+new file mode 100644
+index 0000000..4c4d601
+--- /dev/null
++++ b/erofs_debug.h
+@@ -0,0 +1,67 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_debug.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ *
++ */
++#ifndef __EROFS_PRINT_H__
++#define __EROFS_PRINT_H__
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/time.h>
++#include <errno.h>
++#include <string.h>
++
++#include "erofs_config.h"
++#define FUNC_LINE_FMT "%s() Line[%d]"
++
++#ifdef DEBUG
++#define ASSERT(X)  assert(x)
++#else
++#define ASSERT(X)  ((void)0)
++#endif
++
++#ifndef pr_fmt
++#define pr_fmt(fmt) "EROFS: "FUNC_LINE_FMT fmt"\n"
++#endif
++
++#define erofs_dbg(fmt,...)                     \
++do {                                \
++	if (erofs_cfg.c_dbg_lvl >= 7) {             \
++		fprintf(stdout, pr_fmt(fmt), __func__,      \
++				__LINE__, ## __VA_ARGS__);  \
++	}                           \
++} while (0)
++
++#define erofs_info(fmt,...)                    \
++do {                                \
++	if (erofs_cfg.c_dbg_lvl >= 3) {             \
++		fprintf(stdout, pr_fmt(fmt), __func__,      \
++				__LINE__, ## __VA_ARGS__);  \
++		fflush(stdout);                 \
++	}                           \
++} while (0)
++
++#define erofs_warn(fmt,...)                    \
++	do {                                \
++		if (erofs_cfg.c_dbg_lvl >= 2) {             \
++			fprintf(stdout, pr_fmt(fmt), __func__,      \
++					__LINE__, ## __VA_ARGS__);  \
++			fflush(stdout);                 \
++		}                           \
++	} while (0)
++
++
++#define erofs_err(fmt,...)                     \
++do {                                \
++	if (erofs_cfg.c_dbg_lvl >= 0) {             \
++		fprintf(stderr, "Err: "pr_fmt(fmt), __func__,   \
++				__LINE__, ## __VA_ARGS__);  \
++	}                           \
++} while (0)
++
++#endif
+diff --git a/erofs_error.h b/erofs_error.h
+new file mode 100644
+index 0000000..2075081
+--- /dev/null
++++ b/erofs_error.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_error.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_ERROR_H__
++#define __EROFS_ERROR_H__
++
++#define MAX_ERRNO       (4095)
++#define IS_ERR_VALUE(x)     \
++	((unsigned long)(void *)(x) >= (unsigned long)-MAX_ERRNO)
++
++static inline void* ERR_PTR(long error)
++{
++	return (void*) error;
++}
++
++static inline int IS_ERR(const void* ptr)
++{
++	return IS_ERR_VALUE((unsigned long)ptr);
++}
++#endif
+diff --git a/erofs_io.c b/erofs_io.c
+new file mode 100644
+index 0000000..0f7afff
+--- /dev/null
++++ b/erofs_io.c
+@@ -0,0 +1,175 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs_io.c
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#define _LARGEFILE64_SOURCE
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++
++#include "erofs_io.h"
++#include "mkfs_erofs.h"
++
++
++#define pr_fmt(fmt) "DEVICE IO: "FUNC_LINE_FMT fmt"\n"
++#include "erofs_debug.h"
++
++static char* erofs_devname;
++static int erofs_devfd = -1;
++static u64 erofs_devsz;
++
++void dev_close(void)
++{
++	close(erofs_devfd);
++	free(erofs_devname);
++	erofs_devname = NULL;
++	erofs_devfd = -1;
++	erofs_devsz = 0;
++}
++
++int dev_open(const char* devname)
++{
++	char* dev;
++	struct stat st;
++	int fd;
++	int ret;
++
++	dev = strdup(devname);
++	if (!dev)
++		return -ENOMEM;
++again:
++	fd = open(dev, O_RDWR);
++	if (fd < 0 && errno != ENOENT) {
++		erofs_err("Open device/file(%s) fail.", dev);
++		free(dev);
++		return -errno;
++	}
++
++	if (fd < 0) {
++		fd = open(dev, O_RDWR | O_CREAT | O_NOCTTY,
++				  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
++		if (fd < 0) {
++			if (errno != EEXIST) {
++				erofs_err("Create image file(%s) fail.", dev);
++				free(dev);
++				return -errno;
++			} else {
++				erofs_dbg("Image file(%s) existed, it might be created by the other users.",
++					   dev);
++				goto again;
++			}
++		}
++	}
++
++	ret = fstat(fd, &st);
++	if (ret) {
++		erofs_err("Get stat of device/file(%s) fail.", dev);
++		close(fd);
++		free(dev);
++		return -errno;
++	}
++
++	if (!S_ISBLK(st.st_mode) && !S_ISREG(st.st_mode)) {
++		erofs_err("File (%s) type is wrong.", dev);
++		close(fd);
++		free(dev);
++		return -EINVAL;
++	}
++
++	if (S_ISREG(st.st_mode)) {
++		ret = ftruncate(fd, 0);
++		if (ret) {
++			erofs_err("Truncate file(%s) fail.", dev);
++			close(fd);
++			free(dev);
++			return -errno;
++		}
++	}
++
++	erofs_devname = dev;
++	erofs_devfd = fd;
++
++	if (S_ISBLK(st.st_mode)) {
++		erofs_devsz = st.st_size;
++	} else {
++		/* INT64_MAX is the limit of kernel vfs */
++		erofs_devsz = INT64_MAX;
++	}
++
++	erofs_devsz = round_down(erofs_devsz, EROFS_BLKSIZE);
++
++	erofs_info("Open device/file %s", erofs_devname);
++
++	return 0;
++}
++
++u64 dev_length(void)
++{
++	return erofs_devsz;
++}
++
++int dev_write(void* buf, u64 offset, size_t len)
++{
++	int ret;
++
++	if (erofs_cfg.c_dry_run)
++		return 0;
++
++	if (!buf) {
++		erofs_err("buf is NULL");
++		return -EINVAL;
++	}
++
++	if (offset >= erofs_devsz || len > erofs_devsz ||
++			offset > erofs_devsz - len) {
++		erofs_err("Write posion[%"PRIu64", %zd] is too large beyond the end of device(%"PRIu64").",
++			   offset, len, erofs_devsz);
++		return -EINVAL;
++	}
++
++	ret = pwrite64(erofs_devfd, buf, len, (off64_t)offset);
++	if (ret != (int)len) {
++		if (ret < 0) {
++			erofs_err("Failed to write data into device - %s:[%"PRIu64", %zd].",
++				   erofs_devname, offset, len);
++			return -errno;
++		} else {
++			erofs_err("Writing data into device - %s:[%"PRIu64", %zd] - was truncated.",
++				   erofs_devname, offset, len);
++			return -ERANGE;
++		}
++	}
++
++	return 0;
++}
++
++int dev_write_block(void* buf, u32 blkaddr)
++{
++	erofs_info("Write data to block %u", blkaddr);
++
++	return dev_write(buf, ((off64_t)blkaddr) << EROFS_BLOCKSIZE_BITS,
++					 EROFS_BLKSIZE);
++}
++
++
++int dev_fsync(void)
++{
++	int ret;
++
++	ret = fsync(erofs_devfd);
++	if (ret) {
++		erofs_err("Could not fsync device!!!");
++		return -EIO;
++	}
++	return 0;
++}
++
+diff --git a/erofs_io.h b/erofs_io.h
+new file mode 100644
+index 0000000..bbb3ab3
+--- /dev/null
++++ b/erofs_io.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_io.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_IO_H__
++#define __EROFS_IO_H__
++
++#include <sys/cdefs.h>
++#include "erofs_types.h"
++
++int dev_open(const char* devname);
++void dev_close(void);
++int dev_write(void* buf, u64 offset, size_t len);
++int dev_write_block(void* buf, u32 blkaddr);
++int dev_fsync(void);
++u64 dev_length(void);
++
++#endif
++
++
+diff --git a/erofs_types.h b/erofs_types.h
+new file mode 100644
+index 0000000..ec7a0cc
+--- /dev/null
++++ b/erofs_types.h
+@@ -0,0 +1,52 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_types.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef  __EROFS_TYPES_H
++#define  __EROFS_TYPES_H
++#include <inttypes.h>
++#include <endian.h>
++#include <linux/types.h>
++#include <sys/types.h>
++#include <asm/types.h>
++#include <stdint.h>
++#include <sys/cdefs.h>
++#include <assert.h>
++
++#define u8  uint8_t
++#define u16 uint16_t
++#define u32 uint32_t
++#define u64 uint64_t
++#define s8  int8_t
++#define s16 int16_t
++#define s32 int32_t
++#define s64 int64_t
++
++#define cpu_to_le16(X) htole16(X)
++#define cpu_to_le32(X) htole32(X)
++#define cpu_to_le64(X) htole64(X)
++
++#define le16_to_cpu(X) le16toh(X)
++#define le32_to_cpu(X) le32toh(X)
++#define le64_to_cpu(X) le64toh(X)
++
++#ifndef __OPTIMIZE__
++#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
++#else
++#define BUILD_BUG_ON(condition) assert(condition)
++#endif
++
++#define BIT(nr)             (1UL << (nr))
++#define BIT_ULL(nr)         (1ULL << (nr))
++#define BIT_MASK(nr)        (1UL << ((nr) % BITS_PER_LONG))
++#define BIT_WORD(nr)        ((nr) / BITS_PER_LONG)
++#define BIT_ULL_MASK(nr)    (1ULL << ((nr) % BITS_PER_LONG_LONG))
++#define BIT_ULL_WORD(nr)    ((nr) / BITS_PER_LONG_LONG)
++#define BITS_PER_BYTE       8
++#define BITS_TO_LONGS(nr)   DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
++
++#endif
+diff --git a/list_head.h b/list_head.h
+new file mode 100644
+index 0000000..9db58d1
+--- /dev/null
++++ b/list_head.h
+@@ -0,0 +1,110 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * list_head.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __CONFIG_LIST_H
++#define __CONFIG_LIST_H
++
++#include <assert.h>
++#include <stddef.h>
++
++
++struct list_head {
++	struct list_head* prev;
++	struct list_head* next;
++};
++
++#define container_of(ptr, type, member) ({          \
++	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
++	(type *)( (char *)__mptr - offsetof(type,member) );})
++
++
++#define LIST_HEAD_INIT(name) {&(name), &(name)}
++
++#define LIST_HEAD(name)         \
++	struct list_head name = LIST_HEAD_INIT(name)
++
++static inline void init_list_head(struct list_head* list)
++{
++	list->prev = list;
++	list->next = list;
++}
++
++static inline void __list_add(struct list_head* entry,
++							  struct list_head* prev,
++							  struct list_head* next)
++{
++	entry->prev = prev;
++	entry->next = next;
++	prev->next = entry;
++	next->prev = entry;
++}
++
++static inline void list_add(struct list_head* entry, struct list_head* head)
++{
++	__list_add(entry, head, head->next);
++}
++
++static inline void list_add_tail(struct list_head* entry,
++								 struct list_head* head)
++{
++	__list_add(entry, head->prev, head);
++}
++
++static inline void __list_del(struct list_head* prev, struct list_head* next)
++{
++	prev->next = next;
++	next->prev = prev;
++}
++
++static inline void list_del(struct list_head* entry)
++{
++	__list_del(entry->prev, entry->next);
++	entry->prev = entry->next = NULL;
++}
++
++static inline int list_empty(struct list_head* head)
++{
++	return head->next == head;
++}
++
++#define list_entry(ptr, type, member)       \
++	container_of(ptr, type, member)
++
++#define list_first_entry(ptr, type, member) \
++	list_entry((ptr)->next, type, member)
++
++#define list_next_entry(pos, member) \
++	list_entry((pos)->member.next, typeof(*(pos)), member)
++
++#define list_prev_entry(pos, member) \
++	list_entry((pos)->member.prev, typeof(*(pos)), member)
++
++#define list_for_each(pos, head)        \
++	for (pos = (head)->next; pos != (head); pos = pos->next)
++
++#define list_for_each_safe(pos, n, head)    \
++	for (pos = (head)->next, n = pos->next; \
++		 pos != (head);         \
++		 pos = n, n = pos->next)
++
++#define list_for_each_entry(pos, head, member)              \
++	for (pos = list_first_entry(head, typeof(*pos), member);    \
++		 &pos->member != (head);                    \
++		 pos = list_next_entry(pos, member))
++
++#define list_for_each_entry_from(pos, head, member)             \
++	for (; &pos->member != (head);                  \
++		 pos = list_next_entry(pos, member))
++
++#define list_for_each_entry_safe(pos, n, head, member)          \
++	for (pos = list_first_entry(head, typeof(*pos), member),    \
++		n = list_next_entry(pos, member);           \
++		 &pos->member != (head);                    \
++		 pos = n, n = list_next_entry(n, member))
++
++#endif
+\ No newline at end of file
+diff --git a/mkfs_erofs.h b/mkfs_erofs.h
+new file mode 100644
+index 0000000..1790862
+--- /dev/null
++++ b/mkfs_erofs.h
+@@ -0,0 +1,83 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * mkfs_erofs.h
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ *
++ */
++#ifndef __EROFS_MKFS_H
++#define __EROFS_MKFS_H
++#include <linux/limits.h>
++#include "list_head.h"
++
++typedef unsigned int __u32;
++
++
++#ifndef PAGE_SIZE
++#define PAGE_SIZE               (4096)
++#endif
++
++#ifndef EROFS_BLKSIZE
++#define EROFS_BLKSIZE           (4096)
++#define EROFS_BLOCKSIZE_BITS    (12)
++#endif
++
++#define EROFS_BLOCK_SIZE_SHIFT_BITS     (12)
++#define EROFS_SLOTSIZE_BITS             (5)
++#define EROFS_SLOTSIZE                  (32)
++#define MKFS_DIFF_SHIFT_8_BITS          (8)
++
++#define __round_mask(x, y)      ((__typeof__(x))((y)-1))
++#define round_up(x, y)          ((((x)-1) | __round_mask(x, y))+1)
++#define round_down(x, y)        ((x) & ~__round_mask(x, y))
++
++#define SIZE_ALIGN(val, size)   (((val) + (size) - 1) & (~(size-1)))
++#define SLOT_ALIGN(slots)       SIZE_ALIGN(slots, EROFS_SLOTSIZE)
++#define PAGE_ALIGN(pages)       SIZE_ALIGN(pages, PAGE_SIZE)
++#define BLK_ALIGN(blks)         SIZE_ALIGN(blks, EROFS_BLKSIZE)
++#define IS_SLOT_ALIGN(__ADDR)   ( ((__ADDR)%(EROFS_SLOTSIZE))?0:1 )
++#define IS_BLK_ALIGN(__ADDR)    ( ((__ADDR)%(EROFS_BLKSIZE))?0:1 )
++#define ADDR_TO_BLKNO(__ADDR)   ((__ADDR) >> EROFS_BLOCKSIZE_BITS)
++#define BLKNO_TO_ADDR(__ADDR)   ((__ADDR) << EROFS_BLOCKSIZE_BITS)
++#define MAX_NID_INDEX_PER_BLK   (EROFS_BLKSIZE / EROFS_SLOTSIZE)
++
++
++struct erofs_node_info {
++	/* Original member */
++	struct list_head list;
++	struct list_head subdir_head;/* sub dirs or files */
++	struct list_head xattr_head;
++
++	u64 inode_base_addr;         /* base address of a inode */
++	char name[NAME_MAX];         /* the name of current inode */
++	char fullpath[PATH_MAX + 1];
++	u16 d_nameoff;
++	u16         i_iver;          /* Inode Version */
++	u16         i_dmode;         /* Data mode */
++	u16         i_xattr_scnt;    /* Inline xattr space count */
++	u16         i_shared_count;
++	u16         i_mode;
++	u8          i_type;          /* Inode type: File, Dir...*/
++	u64         i_size;
++	union {
++		u32     i_blkaddr;
++		u32     i_blocks;
++		u32     i_rdev;
++	};
++	u32         i_ino;
++	u32         i_uid;
++	u32         i_gid;
++	u64         i_ctime;
++	u32         i_ctime_nsec;
++	u32         i_nlink;
++
++	/* If compress file, we use it store index info */
++	char*       i_inline_data;
++	int         i_inline_datalen;
++	int         i_inline_align_size;
++};
++
++
++#endif
+diff --git a/mkfs_main.c b/mkfs_main.c
+new file mode 100644
+index 0000000..d4ac161
+--- /dev/null
++++ b/mkfs_main.c
+@@ -0,0 +1,168 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * mkfs_main.c
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#include <stdio.h>
++#include <string.h>
++#include <sys/time.h>
++#include <time.h>
++#include <linux/fs.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <limits.h>
++#include <libgen.h>
++#include "erofs_fs.h"
++#include "mkfs_erofs.h"
++#include "erofs_io.h"
++#define pr_fmt(fmt) "MKFS: "FUNC_LINE_FMT fmt"\n"
++#include "erofs_debug.h"
++
++
++#define EROFS_HEADER_SIZE             (EROFS_SUPER_OFFSET + EROFS_SB_SIZE)
++#define ROOT_INODE_NUM                (0) /*always 0 match at rank inode */
++#define EROFS_META_BLK_ADDR_DEFAULT   (1)
++#define EROFS_XATTR_BLK_ADDR_DEFAULT  (0)
++
++static struct erofs_super_block erosb = {
++	.magic     = cpu_to_le32(EROFS_SUPER_MAGIC_V1),
++	.blkszbits = EROFS_BLOCK_SIZE_SHIFT_BITS,
++	.root_nid  = cpu_to_le16(ROOT_INODE_NUM),
++	.inos   = 0,
++	.blocks = 0,
++	.meta_blkaddr  = cpu_to_le32(EROFS_META_BLK_ADDR_DEFAULT),
++	.xattr_blkaddr = cpu_to_le32(EROFS_XATTR_BLK_ADDR_DEFAULT),
++
++};
++struct erofs_super_block* sb = &erosb;
++
++
++static void usage(char* path)
++{
++	char* cmd = realpath(path, NULL);
++
++	fprintf(stderr,  "%s %s\n", basename(cmd), erofs_cfg.c_version);
++	fprintf(stderr,  "\nUsage:\n");
++	fprintf(stderr,  "    [-z <compr algri>] [-d <debug level>]\n");
++	fprintf(stderr,  "    [image name] [src dir]\n");
++	exit(1);
++}
++
++u64 parse_num_from_str(const char* str)
++{
++	u64 num = 0;
++	char* endptr = NULL;
++
++	num = strtoull(str, &endptr, 10);
++	ASSERT(num != ULLONG_MAX);
++	return num;
++}
++
++static void mkfs_parse_options_cfg(int argc, char* argv[])
++{
++	int opt;
++
++	while ((opt = getopt(argc, argv, "d:h:z::x")) != -1) {
++		switch (opt) {
++		case 'z':
++			if (optarg) {
++				erofs_cfg.c_alg_name = strdup(optarg);
++			} else {
++				erofs_cfg.c_alg_name = "lz4hc";
++			}
++			break;
++
++		case 'd':
++			erofs_cfg.c_dbg_lvl = parse_num_from_str(optarg);
++			break;
++
++		default: /* '?' */
++			usage(argv[0]);
++		}
++	}
++
++	if (optind >= argc) {
++		usage(argv[0]);
++	}
++
++	erofs_cfg.c_img_path = strdup(argv[optind++]);
++	assert(erofs_cfg.c_img_path);
++
++	if (optind < argc) {
++		erofs_cfg.c_src_path = strdup(argv[optind++]);
++		erofs_cfg.c_src_path = realpath(erofs_cfg.c_src_path, NULL);
++		if (!erofs_cfg.c_src_path) {
++			perror("c_src_path realpath");
++			usage(argv[0]);
++		}
++	} else {
++		erofs_err("c_src_path is NULL");
++		usage(argv[0]);
++	}
++	assert(erofs_cfg.c_src_path);
++
++	if (optind < argc) {
++		erofs_err(" Unexpected argument: %s\n", argv[optind]);
++		usage(argv[0]);
++	}
++
++	mkfs_dump_config();
++
++	if (dev_open(erofs_cfg.c_img_path) < 0) {
++		erofs_err("dev_open is failed!!!");
++		usage(argv[0]);
++	}
++}
++
++void mkfs_update_erofs_header(u64 root_addr)
++{
++	int ret   = 0;
++	u64 size = 0;
++	char* sb_buf = NULL;
++	struct timeval t;
++
++	size = BLK_ALIGN(EROFS_HEADER_SIZE);
++
++	if (gettimeofday(&t, NULL) == 0) {
++		sb->build_time      = cpu_to_le64(t.tv_sec);
++		sb->build_time_nsec = cpu_to_le32(t.tv_usec);
++	}
++
++	sb->meta_blkaddr = cpu_to_le32(ADDR_TO_BLKNO(size));
++
++	sb_buf = calloc(size, 1);
++	if (!sb_buf) {
++		perror("calloc");
++		erofs_err("\tError: Failed to calloc!!!\n");
++		exit(EXIT_FAILURE);
++	}
++
++	memcpy(sb_buf + EROFS_SUPER_OFFSET, sb, sizeof(*sb));
++
++	ret = dev_write(sb_buf, 0, size);
++	if (ret < 0) {
++		erofs_err("dev_write failed ret=%d", ret);
++		exit(EXIT_FAILURE);
++	}
++}
++
++int main(int argc, char** argv)
++{
++	int err = 0;
++	struct erofs_node_info* proot_node = NULL;
++
++	mkfs_init_configure();
++	mkfs_parse_options_cfg(argc, argv);
++
++	mkfs_update_erofs_header(proot_node->i_base_addr);
++
++	dev_close();
++	mkfs_free_config();
++	erofs_info("done");
++
++	return err;
++}
 +
 -- 
 2.17.1
