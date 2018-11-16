@@ -1,17 +1,34 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Fri, 16 Nov 2018 11:07:45 +0800
-Subject: [PATCH 3/3] staging: erofs: unzip_vle.c: Align parameter to the
- parentesis
-In-Reply-To: <1542055439-24444-4-git-send-email-sicilia.cristian@gmail.com>
-References: <1542055439-24444-1-git-send-email-sicilia.cristian@gmail.com>
- <1542055439-24444-4-git-send-email-sicilia.cristian@gmail.com>
-Message-ID: <e3510e6c-57ff-1e77-0b1a-d07096591608@huawei.com>
+From: bluce.liguifu@huawei.com (bluce.liguifu@huawei.com)
+Date: Fri, 16 Nov 2018 11:30:15 +0800
+Subject: [PREVIEW] [RFC PATCH 0/5] erofs-mkfs: mkfs.erofs source code first
+ preview
+Message-ID: <20181116033020.20004-1-bluce.liguifu@huawei.com>
 
-On 2018/11/13 4:43, Cristian Sicilia wrote:
-> Align parameters to the opened parentesis.
-> 
-> Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+This patchset introduces the source code for mkfs.erofs. It can build
+erofs image from scratch according to a specific directory.
+
+Currently, it can build lz4 compressed images and uncompressed images.
+Regular files, directories and special files are supported.
+However it can only generate erofs inode v1 format due to our product
+requirements, and inode v2 format support is still under development.
+
+This is our first attempt to release this piece of code, which isn't
+clean enough. It will be cleaned up with our community development.
+
+Comments are welcome.
 
 Thanks,
+Li Guifu
+
+
+Li Guifu (5):
+  erofs-mkfs: add erofs on-disk layout
+  erofs-mkfs: introduce mkfs basic framework
+  erofs-mkfs: support to build a image from the specfic root directory
+  erofs-mkfs: add compression support
+  erofs-mkfs: add miscellaneous files
+
+-- 
+2.17.1
