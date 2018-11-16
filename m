@@ -1,30 +1,19 @@
-From: osandov@osandov.com (Omar Sandoval)
-Date: Thu, 15 Nov 2018 18:18:11 -0800
-Subject: [PATCH V10 18/19] block: kill QUEUE_FLAG_NO_SG_MERGE
-In-Reply-To: <20181115085306.9910-19-ming.lei@redhat.com>
-References: <20181115085306.9910-1-ming.lei@redhat.com>
- <20181115085306.9910-19-ming.lei@redhat.com>
-Message-ID: <20181116021811.GM23828@vader>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Fri, 16 Nov 2018 10:53:20 +0800
+Subject: [PATCH chao/erofs-dev rebased v2 01/12] staging: erofs:
+ unzip_vle.c: Replace comparison to NULL.
+In-Reply-To: <20181114152548.37921-1-gaoxiang25@huawei.com>
+References: <20181114152548.37921-1-gaoxiang25@huawei.com>
+Message-ID: <79f2b510-7997-9439-8ac5-24b2ad7d6a00@huawei.com>
 
-On Thu, Nov 15, 2018@04:53:05PM +0800, Ming Lei wrote:
-> Since bdced438acd83ad83a6c ("block: setup bi_phys_segments after splitting"),
-> physical segment number is mainly figured out in blk_queue_split() for
-> fast path, and the flag of BIO_SEG_VALID is set there too.
+On 2018/11/14 23:25, Gao Xiang wrote:
+> From: Cristian Sicilia <sicilia.cristian at gmail.com>
 > 
-> Now only blk_recount_segments() and blk_recalc_rq_segments() use this
-> flag.
+> Replace equal to NULL with logic unary operator,
+> and removing not equal to NULL comparison.
 > 
-> Basically blk_recount_segments() is bypassed in fast path given BIO_SEG_VALID
-> is set in blk_queue_split().
-> 
-> For another user of blk_recalc_rq_segments():
-> 
-> - run in partial completion branch of blk_update_request, which is an unusual case
-> 
-> - run in blk_cloned_rq_check_limits(), still not a big problem if the flag is killed
-> since dm-rq is the only user.
-> 
-> Multi-page bvec is enabled now, QUEUE_FLAG_NO_SG_MERGE doesn't make sense any more.
+> Signed-off-by: Cristian Sicilia <sicilia.cristian at gmail.com>
 
-This commit message wasn't very clear. Is it the case that
-QUEUE_FLAG_NO_SG_MERGE is no longer set by any drivers?
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+
+Thanks,
