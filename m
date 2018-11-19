@@ -1,32 +1,43 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Sat, 17 Nov 2018 20:54:34 +0800
-Subject: [PREVIEW] [RFC PATCH 2/5] erofs-mkfs: introduce mkfs basic
- framework
-In-Reply-To: <20181116033020.20004-3-bluce.liguifu@huawei.com>
-References: <20181116033020.20004-1-bluce.liguifu@huawei.com>
- <20181116033020.20004-3-bluce.liguifu@huawei.com>
-Message-ID: <12583110-08f1-03c5-990f-de9478c157c9@aol.com>
+From: ming.lei@redhat.com (Ming Lei)
+Date: Mon, 19 Nov 2018 10:23:28 +0800
+Subject: [PATCH V10 01/19] block: introduce multi-page page bvec helpers
+In-Reply-To: <20181116131305.GA3165@lst.de>
+References: <20181115085306.9910-1-ming.lei@redhat.com>
+ <20181115085306.9910-2-ming.lei@redhat.com>
+ <20181116131305.GA3165@lst.de>
+Message-ID: <20181119022327.GC10838@ming.t460p>
 
-Hi Guifu,
-
-On 2018/11/16 11:30, bluce.liguifu@huawei.com wrote:
-> From: Li Guifu <bluce.liguifu at huawei.com>
+On Fri, Nov 16, 2018@02:13:05PM +0100, Christoph Hellwig wrote:
+> > -#define bvec_iter_page(bvec, iter)				\
+> > +#define mp_bvec_iter_page(bvec, iter)				\
+> >  	(__bvec_iter_bvec((bvec), (iter))->bv_page)
+> >  
+> > -#define bvec_iter_len(bvec, iter)				\
+> > +#define mp_bvec_iter_len(bvec, iter)				\
 > 
-> This patch adds basic code to generate erofs file systems and
-> empty images can be created properly.
+> I'd much prefer if we would stick to the segment naming that
+> we also use in the higher level helper.
 > 
-> Some parameters are also introduced in this patch, used for
-> setting the debugging level, whether to compress or not.
+> So segment_iter_page, segment_iter_len, etc.
+
+We discussed the naming problem before, one big problem is that the 'segment'
+in bio_for_each_segment*() means one single page segment actually.
+
+If we use segment_iter_page() here for multi-page segment, it may
+confuse people.
+
+Of course, I prefer to the naming of segment/page, 
+
+And Jens didn't agree to rename bio_for_each_segment*() before.
+
+So what is the solution we should take for moving on?
+
 > 
-> Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
-> Signed-off-by: Miao Xie <miaoxie at huawei.com>
-> Signed-off-by: Fang Wei <fangwei1 at huawei.com>
-> ---
+> > + * This helpers are for building sp bvec in flight.
+> 
+> Please spell out single page, sp is not easy understandable.
 
-I have fixed some checkpatch errors for you, please check them out
-and send v2 to the mailing list when you have some time to do.
-
-https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/
+OK.
 
 Thanks,
-Gao Xiang
+Ming
