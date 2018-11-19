@@ -1,68 +1,13 @@
 From: ming.lei@redhat.com (Ming Lei)
-Date: Mon, 19 Nov 2018 16:45:23 +0800
+Date: Mon, 19 Nov 2018 17:00:22 +0800
 Subject: [PATCH V10 14/19] block: enable multipage bvecs
-In-Reply-To: <20181116015627.GI23828@vader>
+In-Reply-To: <20181116135308.GK3165@lst.de>
 References: <20181115085306.9910-1-ming.lei@redhat.com>
  <20181115085306.9910-15-ming.lei@redhat.com>
- <20181116015627.GI23828@vader>
-Message-ID: <20181119084522.GK16736@ming.t460p>
+ <20181116135308.GK3165@lst.de>
+Message-ID: <20181119090021.GL16736@ming.t460p>
 
-On Thu, Nov 15, 2018@05:56:27PM -0800, Omar Sandoval wrote:
-> On Thu, Nov 15, 2018@04:53:01PM +0800, Ming Lei wrote:
-> > This patch pulls the trigger for multi-page bvecs.
-> > 
-> > Now any request queue which supports queue cluster will see multi-page
-> > bvecs.
-> > 
-> > Cc: Dave Chinner <dchinner at redhat.com>
-> > Cc: Kent Overstreet <kent.overstreet at gmail.com>
-> > Cc: Mike Snitzer <snitzer at redhat.com>
-> > Cc: dm-devel at redhat.com
-> > Cc: Alexander Viro <viro at zeniv.linux.org.uk>
-> > Cc: linux-fsdevel at vger.kernel.org
-> > Cc: Shaohua Li <shli at kernel.org>
-> > Cc: linux-raid at vger.kernel.org
-> > Cc: linux-erofs at lists.ozlabs.org
-> > Cc: David Sterba <dsterba at suse.com>
-> > Cc: linux-btrfs at vger.kernel.org
-> > Cc: Darrick J. Wong <darrick.wong at oracle.com>
-> > Cc: linux-xfs at vger.kernel.org
-> > Cc: Gao Xiang <gaoxiang25 at huawei.com>
-> > Cc: Christoph Hellwig <hch at lst.de>
-> > Cc: Theodore Ts'o <tytso at mit.edu>
-> > Cc: linux-ext4 at vger.kernel.org
-> > Cc: Coly Li <colyli at suse.de>
-> > Cc: linux-bcache at vger.kernel.org
-> > Cc: Boaz Harrosh <ooo at electrozaur.com>
-> > Cc: Bob Peterson <rpeterso at redhat.com>
-> > Cc: cluster-devel at redhat.com
-> > Signed-off-by: Ming Lei <ming.lei at redhat.com>
-> > ---
-> >  block/bio.c | 24 ++++++++++++++++++------
-> >  1 file changed, 18 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/block/bio.c b/block/bio.c
-> > index 6486722d4d4b..ed6df6f8e63d 100644
-> > --- a/block/bio.c
-> > +++ b/block/bio.c
-> 
-> This comment above __bio_try_merge_page() doesn't make sense after this
-> change:
-> 
->  This is a
->  a useful optimisation for file systems with a block size smaller than the
->  page size.
-> 
-> Can you please get rid of it in this patch?
-
-I understand __bio_try_merge_page() still works for original cases, so
-looks the optimization for sub-pagesize is still there too, isn't it?
-
-> 
-> > @@ -767,12 +767,24 @@ bool __bio_try_merge_page(struct bio *bio, struct page *page,
-> >  
-> >  	if (bio->bi_vcnt > 0) {
-> >  		struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt - 1];
+On Fri, Nov 16, 2018@02:53:08PM +0100, Christoph Hellwig wrote:
 > > -
 > > -		if (page == bv->bv_page && off == bv->bv_offset + bv->bv_len) {
 > > -			bv->bv_len += len;
@@ -73,17 +18,16 @@ looks the optimization for sub-pagesize is still there too, isn't it?
 > > +
 > > +		if (page == bv->bv_page && off == (bv->bv_offset + bv->bv_len)
 > > +				&& (off + len) <= PAGE_SIZE)
-> > +			goto merge;
 > 
-> The parentheses around (bv->bv_offset + bv->bv_len) and (off + len) are
-> unnecessary noise.
+> How could the page struct be the same, but the range beyond PAGE_SIZE
+> (at least with the existing callers)?
 > 
-> What's the point of the new (off + len) <= PAGE_SIZE check?
+> Also no need for the inner btraces, and the && always goes on the
+> first line.
 
-Yeah, I don't know why I did it, :-(, the check is absolutely always true.
+OK.
 
 > 
-> > +
 > > +		if (bio->bi_disk)
 > > +			q = bio->bi_disk->queue;
 > > +
@@ -91,10 +35,37 @@ Yeah, I don't know why I did it, :-(, the check is absolutely always true.
 > > +		if (!q || !blk_queue_cluster(q) ||
 > > +		    ((page_to_phys(bv->bv_page) + bv->bv_offset + bv->bv_len) !=
 > > +		     (page_to_phys(page) + off)))
+> > +			return false;
+> > + merge:
+> > +		bv->bv_len += len;
+> > +		bio->bi_iter.bi_size += len;
+> > +		return true;
 > 
-> More unnecessary parentheses here.
+> Ok, this is scary, as it will give differen results depending on when
+> bi_disk is assigned.
 
-OK.
+It is just merge or not, both can be handled well now.
 
-Thanks,
+> But then again we shouldn't really do the cluster
+> check here, but rather when splitting the bio for the actual low-level
+> driver.
+
+Yeah, I thought of this way too, but it may cause tons of bio split for
+no-clustering, and there are quite a few scsi devices which require
+to disable clustering.
+
+[linux]$ git grep -n DISABLE_CLUSTERING ./drivers/scsi/ | wc -l
+     28
+
+Or we may introduce bio_split_to_single_page_bvec() to allocate &
+convert to single-page bvec table for non-clustering, will try this
+approach in next version.
+
+> 
+> (and eventually we should kill this clustering setting off in favor
+> of our normal segment limits).
+
+Yeah, it has been in my post-multi-page todo list already, :-)
+
+thanks,
 Ming
