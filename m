@@ -1,34 +1,22 @@
 From: ming.lei@redhat.com (Ming Lei)
-Date: Mon, 19 Nov 2018 16:09:00 +0800
-Subject: [PATCH V10 07/19] btrfs: use bvec_last_segment to get bio's last
- page
-In-Reply-To: <20181116133710.GF3165@lst.de>
+Date: Mon, 19 Nov 2018 16:15:09 +0800
+Subject: [PATCH V10 08/19] btrfs: move bio_pages_all() to btrfs
+In-Reply-To: <20181116002356.GC23828@vader>
 References: <20181115085306.9910-1-ming.lei@redhat.com>
- <20181115085306.9910-8-ming.lei@redhat.com>
- <20181116133710.GF3165@lst.de>
-Message-ID: <20181119080854.GD16519@ming.t460p>
+ <20181115085306.9910-9-ming.lei@redhat.com>
+ <20181116002356.GC23828@vader>
+Message-ID: <20181119081507.GA16736@ming.t460p>
 
-On Fri, Nov 16, 2018@02:37:10PM +0100, Christoph Hellwig wrote:
-> On Thu, Nov 15, 2018@04:52:54PM +0800, Ming Lei wrote:
-> > index 2955a4ea2fa8..161e14b8b180 100644
-> > --- a/fs/btrfs/compression.c
-> > +++ b/fs/btrfs/compression.c
-> > @@ -400,8 +400,11 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
-> >  static u64 bio_end_offset(struct bio *bio)
-> >  {
-> >  	struct bio_vec *last = bio_last_bvec_all(bio);
-> > +	struct bio_vec bv;
-> >  
-> > -	return page_offset(last->bv_page) + last->bv_len + last->bv_offset;
-> > +	bvec_last_segment(last, &bv);
-> > +
-> > +	return page_offset(bv.bv_page) + bv.bv_len + bv.bv_offset;
+On Thu, Nov 15, 2018@04:23:56PM -0800, Omar Sandoval wrote:
+> On Thu, Nov 15, 2018@04:52:55PM +0800, Ming Lei wrote:
+> > BTRFS is the only user of this helper, so move this helper into
+> > BTRFS, and implement it via bio_for_each_segment_all(), since
+> > bio->bi_vcnt may not equal to number of pages after multipage bvec
+> > is enabled.
 > 
-> I don't think we need this.  If last is a multi-page bvec bv_offset
-> will already contain the correct offset from the first page.
+> Shouldn't you also get rid of bio_pages_all() in this patch?
 
-Yeah, it is true for this specific case, looks we can drop this patch.
-
+Good catch!
 
 thanks,
 Ming
