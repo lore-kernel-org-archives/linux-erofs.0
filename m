@@ -1,35 +1,43 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 20 Nov 2018 22:34:15 +0800
-Subject: [PATCH 00/10] staging: erofs: decompression stability enhancement
-Message-ID: <20181120143425.43637-1-gaoxiang25@huawei.com>
+Date: Tue, 20 Nov 2018 22:34:16 +0800
+Subject: [PATCH 01/10] staging: erofs: fix `trace_erofs_readpage' position
+In-Reply-To: <20181120143425.43637-1-gaoxiang25@huawei.com>
+References: <20181120143425.43637-1-gaoxiang25@huawei.com>
+Message-ID: <20181120143425.43637-2-gaoxiang25@huawei.com>
 
-Hi,
+`trace_erofs_readpage' should be placed in .readpage()
+rather than in the internal `z_erofs_do_read_page'.
 
-This patchset mainly focuses on erofs decompression stability, most of
-them are found in the internal beta test. Some patches which are still
-in testing or reviewing aren't included in this patchset and will be
-sent after carefully testing.
+Fixes: 284db12cfda3 ("staging: erofs: add trace points for reading zipped data")
 
-Thanks,
-Gao Xiang
+Reviewed-by: Chen Gong <gongchen4 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Gao Xiang (10):
-  staging: erofs: fix `trace_erofs_readpage' position
-  staging: erofs: fix race when the managed cache is enabled
-  staging: erofs: atomic_cond_read_relaxed on ref-locked workgroup
-  staging: erofs: fix `erofs_workgroup_{try_to_freeze, unfreeze}'
-  staging: erofs: add a full barrier in erofs_workgroup_unfreeze
-  staging: erofs: fix the definition of DBG_BUGON
-  staging: erofs: separate into init_once / always
-  staging: erofs: locked before registering for all new workgroups
-  staging: erofs: decompress asynchronously if PG_readahead page at
-    first
-  staging: erofs: rename strange variable names in z_erofs_vle_frontend
-
- drivers/staging/erofs/internal.h  |  69 ++++++++++++--------
- drivers/staging/erofs/unzip_vle.c |  78 ++++++++++++++++-------
- drivers/staging/erofs/utils.c     | 131 ++++++++++++++++++++++++++------------
- 3 files changed, 190 insertions(+), 88 deletions(-)
-
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 6a283f618f46..ede3383ac601 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -598,8 +598,6 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	unsigned int cur, end, spiltted, index;
+ 	int err = 0;
+ 
+-	trace_erofs_readpage(page, false);
+-
+ 	/* register locked file pages as online pages in pack */
+ 	z_erofs_onlinepage_init(page);
+ 
+@@ -1288,6 +1286,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	int err;
+ 	LIST_HEAD(pagepool);
+ 
++	trace_erofs_readpage(page, false);
++
+ #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
+ 	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
+ #endif
 -- 
 2.14.4
