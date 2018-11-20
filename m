@@ -1,91 +1,152 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 20 Nov 2018 22:14:44 +0800
-Subject: [PATCH v3 chao/erofs-dev 10/14] staging: erofs: rename strange
- variable names in z_erofs_vle_frontend
+Date: Tue, 20 Nov 2018 22:14:45 +0800
+Subject: [PATCH v3 chao/erofs-dev 11/14] staging: erofs: introduce
+ MNGD_MAPPING helper
 In-Reply-To: <20181120141448.29483-1-gaoxiang25@huawei.com>
 References: <20181120141448.29483-1-gaoxiang25@huawei.com>
-Message-ID: <20181120141448.29483-10-gaoxiang25@huawei.com>
+Message-ID: <20181120141448.29483-11-gaoxiang25@huawei.com>
 
-Previously, 2 members called `initial' and `cachedzone_la' are used
-for applying caching policy (whether the workgroup is at either end),
-which are hard to understand, rename them to `backmost' and `headoffset'.
+This patch introduces MNGD_MAPPING to wrap up
+sbi->managed_cache->i_mapping.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/staging/erofs/internal.h  |  4 ++++
+ drivers/staging/erofs/unzip_vle.c | 29 +++++++++++++----------------
+ 2 files changed, 17 insertions(+), 16 deletions(-)
 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 0aa2a41b9885..06e72b6c1194 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -291,6 +291,10 @@ extern int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
+ 	struct erofs_workgroup *egrp);
+ extern int erofs_try_to_free_cached_page(struct address_space *mapping,
+ 	struct page *page);
++
++#define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
++#else
++#define MNGD_MAPPING(sbi)	(NULL)
+ #endif
+ 
+ #define DEFAULT_MAX_SYNC_DECOMPRESS_PAGES	3
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 824d2c12c2f3..1ef178e7ac39 100644
+index 1ef178e7ac39..fbdf9483b860 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -586,10 +586,9 @@ struct z_erofs_vle_frontend {
+@@ -165,7 +165,7 @@ int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
+ {
+ 	struct z_erofs_vle_workgroup *const grp =
+ 		container_of(egrp, struct z_erofs_vle_workgroup, obj);
+-	struct address_space *const mapping = sbi->managed_cache->i_mapping;
++	struct address_space *const mapping = MNGD_MAPPING(sbi);
+ 	const int clusterpages = erofs_clusterpages(sbi);
+ 	int i;
  
- 	z_erofs_vle_owned_workgrp_t owned_head;
+@@ -616,7 +616,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	struct z_erofs_vle_work *work = builder->work;
  
--	bool initial;
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	erofs_off_t cachedzone_la;
--#endif
-+	/* used for applying cache strategy on the fly */
-+	bool backmost;
-+	erofs_off_t headoffset;
- };
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
++	struct address_space *const mc = MNGD_MAPPING(sbi);
+ 	struct z_erofs_vle_workgroup *grp;
+ 	bool noio_outoforder;
+ #endif
+@@ -664,7 +664,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	grp = fe->builder.grp;
  
- #define VLE_FRONTEND_INIT(__i) { \
-@@ -600,7 +599,7 @@ struct z_erofs_vle_frontend {
- 	}, \
- 	.builder = VLE_WORK_BUILDER_INIT(), \
- 	.owned_head = Z_EROFS_VLE_WORKGRP_TAIL, \
--	.initial = true, }
-+	.backmost = true, }
- 
- static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 				struct page *page,
-@@ -643,7 +642,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
- 
- 	if (z_erofs_vle_work_iter_end(builder))
--		fe->initial = false;
-+		fe->backmost = false;
- 
- 	map->m_la = offset + cur;
- 	map->m_llen = 0;
-@@ -669,8 +668,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	/* let's do out-of-order decompression for noio */
+-	noio_outoforder = grab_managed_cache_pages(mngda,
++	noio_outoforder = grab_managed_cache_pages(mc,
  		erofs_blknr(map->m_pa),
  		grp->compressed_pages, erofs_blknr(map->m_plen),
  		/* compressed page caching selection strategy */
--		fe->initial | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
--			map->m_la < fe->cachedzone_la : 0));
-+		fe->backmost | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
-+				map->m_la < fe->headoffset : 0));
+@@ -758,7 +758,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 	unsigned int i;
+ 	struct bio_vec *bvec;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *mngda = NULL;
++	struct address_space *mc = NULL;
+ #endif
  
- 	if (noio_outoforder && builder_is_followed(builder))
- 		builder->role = Z_EROFS_VLE_WORK_PRIMARY;
-@@ -1316,9 +1315,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	bio_for_each_segment_all(bvec, bio, i) {
+@@ -769,18 +769,18 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 		BUG_ON(!page->mapping);
  
- 	trace_erofs_readpage(page, false);
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (unlikely(!mngda && !z_erofs_is_stagingpage(page))) {
++		if (unlikely(!mc && !z_erofs_is_stagingpage(page))) {
+ 			struct inode *const inode = page->mapping->host;
+ 			struct super_block *const sb = inode->i_sb;
  
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
+-			mngda = EROFS_SB(sb)->managed_cache->i_mapping;
++			mc = MNGD_MAPPING(EROFS_SB(sb));
+ 		}
+ 
+ 		/*
+-		 * If mngda has not gotten, it equals NULL,
++		 * If mc has not gotten, it equals NULL,
+ 		 * however, page->mapping never be NULL if working properly.
+ 		 */
+-		cachemngd = (page->mapping == mngda);
++		cachemngd = (page->mapping == mc);
+ #endif
+ 
+ 		if (unlikely(err))
+@@ -804,9 +804,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	struct list_head *page_pool)
+ {
+ 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
 -#endif
-+	f.headoffset = (erofs_off_t)page->index << PAGE_SHIFT;
-+
- 	err = z_erofs_do_read_page(&f, page, &pagepool);
- 	(void)z_erofs_vle_work_iter_end(&f.builder);
+ 	const unsigned int clusterpages = erofs_clusterpages(sbi);
  
-@@ -1354,9 +1352,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
- 	trace_erofs_readpages(mapping->host, lru_to_page(pages),
- 			      nr_pages, false);
+ 	struct z_erofs_pagevec_ctor ctor;
+@@ -897,7 +894,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		if (z_erofs_is_stagingpage(page))
+ 			continue;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		else if (page->mapping == mngda) {
++		if (page->mapping == MNGD_MAPPING(sbi)) {
+ 			BUG_ON(PageLocked(page));
+ 			BUG_ON(!PageUptodate(page));
+ 			continue;
+@@ -975,7 +972,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		page = compressed_pages[i];
  
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
--#endif
-+	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
-+
- 	for (; nr_pages; --nr_pages) {
- 		struct page *page = lru_to_page(pages);
- 
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (page->mapping == mngda)
++		if (page->mapping == MNGD_MAPPING(sbi))
+ 			continue;
+ #endif
+ 		/* recycle all individual staging pages */
+@@ -1108,7 +1105,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 	const unsigned int clusterpages = erofs_clusterpages(sbi);
+ 	const gfp_t gfp = GFP_NOFS;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
++	struct address_space *const mc = MNGD_MAPPING(sbi);
+ 	struct z_erofs_vle_workgroup *lstgrp_noio = NULL, *lstgrp_io = NULL;
+ #endif
+ 	struct z_erofs_vle_unzip_io *ios[1 + __FSIO_1];
+@@ -1181,7 +1178,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 			cachemngd = true;
+ 			goto do_allocpage;
+ 		} else if (page) {
+-			if (page->mapping != mngda)
++			if (page->mapping != mc)
+ 				BUG_ON(PageUptodate(page));
+ 			else if (recover_managed_page(grp, page)) {
+ 				/* page is uptodate, skip io submission */
+@@ -1204,7 +1201,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 				goto repeat;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+ 			} else if (cachemngd && !add_to_page_cache_lru(page,
+-				mngda, first_index + i, gfp)) {
++				   mc, first_index + i, gfp)) {
+ 				set_page_private(page, (unsigned long)grp);
+ 				SetPagePrivate(page);
+ #endif
 -- 
 2.14.4
