@@ -1,91 +1,35 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 20 Nov 2018 22:34:25 +0800
-Subject: [PATCH 10/10] staging: erofs: rename strange variable names in
- z_erofs_vle_frontend
-In-Reply-To: <20181120143425.43637-1-gaoxiang25@huawei.com>
-References: <20181120143425.43637-1-gaoxiang25@huawei.com>
-Message-ID: <20181120143425.43637-11-gaoxiang25@huawei.com>
+From: bluce.liguifu@huawei.com (Li Guifu)
+Date: Tue, 20 Nov 2018 22:32:34 +0800
+Subject: [PREVIEW] [RFC PATCH v2 0/5] erofs-mkfs: mkfs.erofs source code first
+ preview
+Message-ID: <20181120143239.58976-1-bluce.liguifu@huawei.com>
 
-Previously, 2 members called `initial' and `cachedzone_la' are used
-for applying caching policy (whether the workgroup is at either end),
-which are hard to understand, rename them to `backmost' and `headoffset'.
+This patchset introduces the source code for mkfs.erofs. It can build
+erofs image from scratch according to a specific directory.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+Currently, it can build lz4 compressed images and uncompressed images.
+Regular files, directories and special files are supported.
+However it can only generate erofs inode v1 format due to our product
+requirements, and inode v2 format support is still under development.
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 824d2c12c2f3..1ef178e7ac39 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -586,10 +586,9 @@ struct z_erofs_vle_frontend {
- 
- 	z_erofs_vle_owned_workgrp_t owned_head;
- 
--	bool initial;
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	erofs_off_t cachedzone_la;
--#endif
-+	/* used for applying cache strategy on the fly */
-+	bool backmost;
-+	erofs_off_t headoffset;
- };
- 
- #define VLE_FRONTEND_INIT(__i) { \
-@@ -600,7 +599,7 @@ struct z_erofs_vle_frontend {
- 	}, \
- 	.builder = VLE_WORK_BUILDER_INIT(), \
- 	.owned_head = Z_EROFS_VLE_WORKGRP_TAIL, \
--	.initial = true, }
-+	.backmost = true, }
- 
- static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 				struct page *page,
-@@ -643,7 +642,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
- 
- 	if (z_erofs_vle_work_iter_end(builder))
--		fe->initial = false;
-+		fe->backmost = false;
- 
- 	map->m_la = offset + cur;
- 	map->m_llen = 0;
-@@ -669,8 +668,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 		erofs_blknr(map->m_pa),
- 		grp->compressed_pages, erofs_blknr(map->m_plen),
- 		/* compressed page caching selection strategy */
--		fe->initial | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
--			map->m_la < fe->cachedzone_la : 0));
-+		fe->backmost | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
-+				map->m_la < fe->headoffset : 0));
- 
- 	if (noio_outoforder && builder_is_followed(builder))
- 		builder->role = Z_EROFS_VLE_WORK_PRIMARY;
-@@ -1316,9 +1315,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 
- 	trace_erofs_readpage(page, false);
- 
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
--#endif
-+	f.headoffset = (erofs_off_t)page->index << PAGE_SHIFT;
-+
- 	err = z_erofs_do_read_page(&f, page, &pagepool);
- 	(void)z_erofs_vle_work_iter_end(&f.builder);
- 
-@@ -1354,9 +1352,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
- 	trace_erofs_readpages(mapping->host, lru_to_page(pages),
- 			      nr_pages, false);
- 
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
--#endif
-+	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
-+
- 	for (; nr_pages; --nr_pages) {
- 		struct page *page = lru_to_page(pages);
- 
+This is our first attempt to release this piece of code, which isn't
+clean enough. It will be cleaned up with our community development.
+
+Comments are welcome.
+
+Thanks,
+Li Guifu
+
+change log from v1:
+ - fix coding style reported by checkpatch.pl
+ - fix image size overflow when it's bigger than 4GB
+
+Li Guifu (5):
+  erofs-mkfs: add erofs on-disk layout
+  erofs-mkfs: introduce mkfs basic framework
+  erofs-mkfs: support to build a image from the specific root directory
+  erofs-mkfs: add compression support
+  erofs-mkfs: add miscellaneous files
+
 -- 
-2.14.4
+2.17.1
