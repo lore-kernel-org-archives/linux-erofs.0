@@ -1,35 +1,18 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 20 Nov 2018 11:44:52 +0800
-Subject: [PATCH chao/erofs-dev rebased v2 05/12] staging: erofs: fix race
- when the managed cache is enabled
-In-Reply-To: <278d9ed6-ad51-b50e-3135-6c1049eae44f@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Tue, 20 Nov 2018 14:43:25 +0800
+Subject: [PATCH chao/erofs-dev rebased v2 08/12] staging: erofs: add a
+ full barrier in erofs_workgroup_unfreeze
+In-Reply-To: <20181114152548.37921-8-gaoxiang25@huawei.com>
 References: <20181114152548.37921-1-gaoxiang25@huawei.com>
- <20181114152548.37921-5-gaoxiang25@huawei.com>
- <278d9ed6-ad51-b50e-3135-6c1049eae44f@huawei.com>
-Message-ID: <936a6266-f3ad-0cef-37c1-3d387d78788e@huawei.com>
+ <20181114152548.37921-8-gaoxiang25@huawei.com>
+Message-ID: <82bc2b5b-27ca-dbbc-e26e-1bd0f136e8dd@huawei.com>
 
-Hi Chao,
+On 2018/11/14 23:25, Gao Xiang wrote:
+> Just like other generic locks, insert a full barrier
+> in case of memory reorder.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
-On 2018/11/20 11:24, Chao Yu wrote:
->> +		/*
->> +		 * it's safe to decrease since the workgroup isn't visible
->> +		 * and refcount >= 2 (cannot be freezed).
->> +		 */
->> +		atomic_dec(&grp->refcount);
-> How about:
-> 
-> #define __erofs_workgroup_put(grp)	atomic_dec(&grp->refcount);
-> 
-> Otherwise, it looks good to me.
-> 
-
-OK, I will fix it soon and send the whole next version patchset
-including this modification.
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
 Thanks,
-Gao Xiang
-
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> 
-> Thanks,
-> 
