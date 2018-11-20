@@ -1,25 +1,35 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 20 Nov 2018 11:33:47 +0800
-Subject: [PATCH chao/erofs-dev rebased v2 07/12] staging: erofs: fix
- `erofs_workgroup_{try_to_freeze, unfreeze}'
-In-Reply-To: <20181114152548.37921-7-gaoxiang25@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Tue, 20 Nov 2018 11:44:52 +0800
+Subject: [PATCH chao/erofs-dev rebased v2 05/12] staging: erofs: fix race
+ when the managed cache is enabled
+In-Reply-To: <278d9ed6-ad51-b50e-3135-6c1049eae44f@huawei.com>
 References: <20181114152548.37921-1-gaoxiang25@huawei.com>
- <20181114152548.37921-7-gaoxiang25@huawei.com>
-Message-ID: <cb7c01b5-9596-32e7-df7e-d21ae9eb9a26@huawei.com>
+ <20181114152548.37921-5-gaoxiang25@huawei.com>
+ <278d9ed6-ad51-b50e-3135-6c1049eae44f@huawei.com>
+Message-ID: <936a6266-f3ad-0cef-37c1-3d387d78788e@huawei.com>
 
-On 2018/11/14 23:25, Gao Xiang wrote:
-> There are two minor issues in the current freeze interface:
-> 
->    1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
->       therefore fix the incorrect conditions;
-> 
->    2) For SMP platforms, it should also disable preemption before
->       doing atomic_cmpxchg in case that some high priority tasks
->       preempt between atomic_cmpxchg and disable_preempt, then spin
->       on the locked refcount later.
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Hi Chao,
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+On 2018/11/20 11:24, Chao Yu wrote:
+>> +		/*
+>> +		 * it's safe to decrease since the workgroup isn't visible
+>> +		 * and refcount >= 2 (cannot be freezed).
+>> +		 */
+>> +		atomic_dec(&grp->refcount);
+> How about:
+> 
+> #define __erofs_workgroup_put(grp)	atomic_dec(&grp->refcount);
+> 
+> Otherwise, it looks good to me.
+> 
+
+OK, I will fix it soon and send the whole next version patchset
+including this modification.
 
 Thanks,
+Gao Xiang
+
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> 
+> Thanks,
+> 
