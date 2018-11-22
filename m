@@ -1,37 +1,104 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 23 Nov 2018 01:16:03 +0800
-Subject: [PATCH v2 06/10] staging: erofs: add a full barrier in
- erofs_workgroup_unfreeze
+Date: Fri, 23 Nov 2018 01:21:46 +0800
+Subject: [PATCH v2 07/10] staging: erofs: separate into init_once / always
 In-Reply-To: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
 References: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
-Message-ID: <1542906967-249-7-git-send-email-hsiangkao@aol.com>
+Message-ID: <1542907309-927-1-git-send-email-hsiangkao@aol.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-Just like other generic locks, insert a full barrier
-in case of memory reorder.
+`z_erofs_vle_workgroup' is heavily generated in the decompression,
+for example, it resets 32 bytes redundantly for 64-bit platforms
+even through Z_EROFS_VLE_INLINE_PAGEVECS + Z_EROFS_CLUSTER_MAX_PAGES,
+default 4, pages are stored in `z_erofs_vle_workgroup'.
+
+As an another example, `struct mutex' takes 72 bytes for our kirin
+64-bit platforms, it's unnecessary to be reseted at first and
+be initialized each time.
+
+Let's avoid filling all `z_erofs_vle_workgroup' with 0 at first
+since most fields are reinitialized to meaningful values later,
+and pagevec is no need to initialized at all.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/staging/erofs/unzip_vle.c | 34 +++++++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 399a7003e783..892944355867 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -209,6 +209,11 @@ static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
- static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
- 					    int orig_val)
- {
-+	/*
-+	 * other observers should notice all modifications
-+	 * in the freezing period.
-+	 */
-+	smp_mb();
- 	atomic_set(&grp->refcount, orig_val);
- 	preempt_enable();
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index ede3383ac601..4e5843e8ee35 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -43,12 +43,38 @@ static inline int init_unzip_workqueue(void)
+ 	return z_erofs_workqueue ? 0 : -ENOMEM;
  }
+ 
++static void init_once(void *ptr)
++{
++	struct z_erofs_vle_workgroup *grp = ptr;
++	struct z_erofs_vle_work *const work =
++		z_erofs_vle_grab_primary_work(grp);
++	unsigned int i;
++
++	mutex_init(&work->lock);
++	work->nr_pages = 0;
++	work->vcnt = 0;
++	for (i = 0; i < Z_EROFS_CLUSTER_MAX_PAGES; ++i)
++		grp->compressed_pages[i] = NULL;
++}
++
++static void init_always(struct z_erofs_vle_workgroup *grp)
++{
++	struct z_erofs_vle_work *const work =
++		z_erofs_vle_grab_primary_work(grp);
++
++	atomic_set(&grp->obj.refcount, 1);
++	grp->flags = 0;
++
++	DBG_BUGON(work->nr_pages);
++	DBG_BUGON(work->vcnt);
++}
++
+ int __init z_erofs_init_zip_subsystem(void)
+ {
+ 	z_erofs_workgroup_cachep =
+ 		kmem_cache_create("erofs_compress",
+ 				  Z_EROFS_WORKGROUP_SIZE, 0,
+-				  SLAB_RECLAIM_ACCOUNT, NULL);
++				  SLAB_RECLAIM_ACCOUNT, init_once);
+ 
+ 	if (z_erofs_workgroup_cachep) {
+ 		if (!init_unzip_workqueue())
+@@ -370,10 +396,11 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	BUG_ON(grp);
+ 
+ 	/* no available workgroup, let's allocate one */
+-	grp = kmem_cache_zalloc(z_erofs_workgroup_cachep, GFP_NOFS);
++	grp = kmem_cache_alloc(z_erofs_workgroup_cachep, GFP_NOFS);
+ 	if (unlikely(!grp))
+ 		return ERR_PTR(-ENOMEM);
+ 
++	init_always(grp);
+ 	grp->obj.index = f->idx;
+ 	grp->llen = map->m_llen;
+ 
+@@ -381,7 +408,6 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 		(map->m_flags & EROFS_MAP_ZIPPED) ?
+ 			Z_EROFS_VLE_WORKGRP_FMT_LZ4 :
+ 			Z_EROFS_VLE_WORKGRP_FMT_PLAIN);
+-	atomic_set(&grp->obj.refcount, 1);
+ 
+ 	/* new workgrps have been claimed as type 1 */
+ 	WRITE_ONCE(grp->next, *f->owned_head);
+@@ -394,8 +420,6 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	work = z_erofs_vle_grab_primary_work(grp);
+ 	work->pageofs = f->pageofs;
+ 
+-	mutex_init(&work->lock);
+-
+ 	if (gnew) {
+ 		int err = erofs_register_workgroup(f->sb, &grp->obj, 0);
+ 
 -- 
 2.11.0
