@@ -1,52 +1,28 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 22 Nov 2018 19:11:08 +0800
-Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
-In-Reply-To: <20181122110500.GC5287@kroah.com>
+Date: Thu, 22 Nov 2018 19:22:34 +0800
+Subject: [PATCH 04/10] staging: erofs: fix
+ `erofs_workgroup_{try_to_freeze, unfreeze}'
+In-Reply-To: <20181122110534.GD5287@kroah.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-8-gaoxiang25@huawei.com>
- <20181122102339.GG3189@kroah.com>
- <66b90226-5d0e-7344-5220-908aa243b014@huawei.com>
- <20181122110500.GC5287@kroah.com>
-Message-ID: <ef49bf11-b937-46b4-1b9a-c068182aa7d9@huawei.com>
+ <20181120143425.43637-5-gaoxiang25@huawei.com>
+ <20181122102155.GE3189@kroah.com>
+ <ee829ce6-e59e-3ed6-b9a4-16c29c9eb59f@huawei.com>
+ <20181122110534.GD5287@kroah.com>
+Message-ID: <8d3a4b4f-22be-9ee9-534b-3ecd97c0b53a@huawei.com>
 
 Hi Greg,
 
 On 2018/11/22 19:05, Greg Kroah-Hartman wrote:
-> On Thu, Nov 22, 2018@06:34:10PM +0800, Gao Xiang wrote:
->> Hi Greg,
->>
->> On 2018/11/22 18:23, Greg Kroah-Hartman wrote:
->>>> +
->>>> +	DBG_BUGON(work->nr_pages);
->>>> +	DBG_BUGON(work->vcnt);
->>> How can these ever be triggered?  I understand the need for debugging
->>> code when you are writing code, but at this point it shouldn't be needed
->>> anymore, right?
->>
->> I need to avoid some fields is not 0 when the new workgroup is created (because
->> work->nr_pages and work->vcnt == 0 usually after the previous workgroup is freed).
->> But that is not obvious, it is promised by the current logic.
-> 
-> Then delete these lines if they can never happen :)
+> As I said in another email, doing two things with one variable is odd as
+> those are two different types of functions.
 
-I don't know how to observe such a race in our beta test and community users.
+I think lockref_put_or_lock do the similar thing, it is heavily used in dcache.c, but
+1) 0 is special for us, we need lock it on a < 0 value rather than 0.
+2) spinlock_t is too large for us because every compressed page will have the structure,
+   but the locking rarely happens.
 
-Because if the kernel is crashed, we could collect the whole kernel dump to observe the memory
-and all registers, if we only have some warning, it will be not easy to get the state as early as possible.
-
-Thank,
+Thanks,
 Gao Xiang
 
 > 
->> In order to not introduce such a issue in the future, or there are some potential
->> race (work->nr_pages and work->vcnt != 0 when the previous workgroup == 0), it need
->> to be noticed to developpers as early as possible.
-> 
-> Then make it a real call, do not wrap it in odd macros that do not
-> really explain why it is "debugging only".  Your code is "real" now,
-> make the logic real for all developers and users.
-> 
-> thanks,
-> 
 > greg k-h
-> 
