@@ -1,51 +1,54 @@
-From: ming.lei@redhat.com (Ming Lei)
-Date: Wed, 21 Nov 2018 18:19:38 +0800
-Subject: [PATCH V10 09/19] block: introduce bio_bvecs()
-In-Reply-To: <fc268b0e-61b5-aacc-67be-cb7b266c6d8f@grimberg.me>
-References: <002fe56b-25e4-573e-c09b-bb12c3e8d25a@grimberg.me>
- <20181120161651.GB2629@lst.de>
- <53526aae-fb9b-ee38-0a01-e5899e2d4e4d@grimberg.me>
- <20181121005902.GA31748@ming.t460p>
- <2d9bee7a-f010-dcf4-1184-094101058584@grimberg.me>
- <20181121034415.GA8408@ming.t460p>
- <2a47d336-c19b-6bf4-c247-d7382871eeea@grimberg.me>
- <7378bf49-5a7e-5622-d4d1-808ba37ce656@grimberg.me>
- <20181121050359.GA31915@ming.t460p>
- <fc268b0e-61b5-aacc-67be-cb7b266c6d8f@grimberg.me>
-Message-ID: <20181121101937.GA16204@ming.t460p>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Thu, 22 Nov 2018 11:17:11 +0100
+Subject: [PATCH 02/10] staging: erofs: fix race when the managed cache is
+ enabled
+In-Reply-To: <20181120143425.43637-3-gaoxiang25@huawei.com>
+References: <20181120143425.43637-1-gaoxiang25@huawei.com>
+ <20181120143425.43637-3-gaoxiang25@huawei.com>
+Message-ID: <20181122101711.GA3189@kroah.com>
 
-On Tue, Nov 20, 2018@09:35:07PM -0800, Sagi Grimberg wrote:
+On Tue, Nov 20, 2018@10:34:17PM +0800, Gao Xiang wrote:
+> When the managed cache is enabled, the last reference count
+> of a workgroup must be used for its workstation.
 > 
-> > > Wait, I see that the bvec is still a single array per bio. When you said
-> > > a table I thought you meant a 2-dimentional array...
-> > 
-> > I mean a new 1-d table A has to be created for multiple bios in one rq,
-> > and build it in the following way
-> > 
-> >             rq_for_each_bvec(tmp, rq, rq_iter)
-> >                      *A = tmp;
-> > 
-> > Then you can pass A to iov_iter_bvec() & send().
-> > 
-> > Given it is over TCP, I guess it should be doable for you to preallocate one
-> > 256-bvec table in one page for each request, then sets the max segment size as
-> > (unsigned int)-1, and max segment number as 256, the preallocated table
-> > should work anytime.
+> Otherwise, it could lead to incorrect (un)freezes in
+> the reclaim path, and it would be harmful.
 > 
-> 256 bvec table is really a lot to preallocate, especially when its not
-> needed, I can easily initialize the bvec_iter on the bio bvec. If this
-> involves preallocation of the worst-case than I don't consider this to
-> be an improvement.
+> A typical race as follows:
+> 
+> Thread 1 (In the reclaim path)  Thread 2
+> workgroup_freeze(grp, 1)                                refcnt = 1
+> ...
+> workgroup_unfreeze(grp, 1)                              refcnt = 1
+>                                 workgroup_get(grp)      refcnt = 2 (x)
+> workgroup_put(grp)                                      refcnt = 1 (x)
+>                                 ...unexpected behaviors
+> 
+> * grp is detached but still used, which violates cache-managed
+>   freeze constraint.
+> 
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+>  drivers/staging/erofs/internal.h |   1 +
+>  drivers/staging/erofs/utils.c    | 131 +++++++++++++++++++++++++++------------
+>  2 files changed, 93 insertions(+), 39 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 57575c7f5635..89dbd0888e53 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -250,6 +250,7 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+>  }
+>  
+>  #define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
+> +#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
 
-If you don't provide one single bvec table, I understand you may not send
-this req via one send().
+Any specific reason why you are not using the refcount.h api instead of
+"doing it yourself" with atomic_inc/dec()?
 
-The bvec_iter initialization is easy to do:
+I'm not rejecting this, just curious.
 
-	bvec_iter = bio->bi_iter
+thanks,
 
-when you move to a new a bio, please refer to  __bio_for_each_bvec() or
-__bio_for_each_segment().
-
-Thanks,
-Ming
+greg k-h
