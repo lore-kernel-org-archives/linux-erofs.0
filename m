@@ -1,93 +1,61 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 23 Nov 2018 01:21:49 +0800
-Subject: [PATCH v2 10/10] staging: erofs: rename strange variable names in
- z_erofs_vle_frontend
-In-Reply-To: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
-References: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
-Message-ID: <1542907309-927-4-git-send-email-hsiangkao@aol.com>
+From: andrea.parri@amarulasolutions.com (Andrea Parri)
+Date: Thu, 22 Nov 2018 19:50:58 +0100
+Subject: [PATCH 05/10] staging: erofs: add a full barrier in
+ erofs_workgroup_unfreeze
+In-Reply-To: <1d1fd688-0cb5-cbac-9213-f56f7e356bca@huawei.com>
+References: <20181120143425.43637-1-gaoxiang25@huawei.com>
+ <20181120143425.43637-6-gaoxiang25@huawei.com>
+ <20181122102230.GF3189@kroah.com>
+ <1d1fd688-0cb5-cbac-9213-f56f7e356bca@huawei.com>
+Message-ID: <20181122185058.GA3466@andrea>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+On Thu, Nov 22, 2018@06:56:32PM +0800, Gao Xiang wrote:
+> Hi Greg,
+> 
+> On 2018/11/22 18:22, Greg Kroah-Hartman wrote:
+> > Please document this memory barrier.  It does not make much sense to
+> > me...
+> 
+> Because we need to make the other observers noticing the latest values modified
+> in this locking period before unfreezing the whole workgroup, one way is to use
+> a memory barrier and the other way is to use ACQUIRE and RELEASE. we selected
+> the first one.
+> 
+> Hmmm...ok, I will add a simple message to explain this, but I think that is
+> plain enough for a lock...
 
-Previously, 2 members called `initial' and `cachedzone_la' are used
-for applying caching policy (whether the workgroup is at either end),
-which are hard to understand, rename them to `backmost' and `headoffset'.
+Sympathizing with Greg's request, let me add some specific suggestions:
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+  1. It wouldn't hurt to indicate a pair of memory accesses which are
+     intended to be "ordered" by the memory barrier in question (yes,
+     this pair might not be unique, but you should be able to provide
+     an example).
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index fab907e0fe06..f5d088fdf7f2 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -587,10 +587,9 @@ struct z_erofs_vle_frontend {
- 
- 	z_erofs_vle_owned_workgrp_t owned_head;
- 
--	bool initial;
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	erofs_off_t cachedzone_la;
--#endif
-+	/* used for applying cache strategy on the fly */
-+	bool backmost;
-+	erofs_off_t headoffset;
- };
- 
- #define VLE_FRONTEND_INIT(__i) { \
-@@ -601,7 +600,7 @@ struct z_erofs_vle_frontend {
- 	}, \
- 	.builder = VLE_WORK_BUILDER_INIT(), \
- 	.owned_head = Z_EROFS_VLE_WORKGRP_TAIL, \
--	.initial = true, }
-+	.backmost = true, }
- 
- static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 				struct page *page,
-@@ -644,7 +643,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
- 
- 	if (z_erofs_vle_work_iter_end(builder))
--		fe->initial = false;
-+		fe->backmost = false;
- 
- 	map->m_la = offset + cur;
- 	map->m_llen = 0;
-@@ -670,8 +669,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 		erofs_blknr(map->m_pa),
- 		grp->compressed_pages, erofs_blknr(map->m_plen),
- 		/* compressed page caching selection strategy */
--		fe->initial | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
--			map->m_la < fe->cachedzone_la : 0));
-+		fe->backmost | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
-+				map->m_la < fe->headoffset : 0));
- 
- 	if (noio_outoforder && builder_is_followed(builder))
- 		builder->role = Z_EROFS_VLE_WORK_PRIMARY;
-@@ -1317,9 +1316,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 
- 	trace_erofs_readpage(page, false);
- 
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
--#endif
-+	f.headoffset = (erofs_off_t)page->index << PAGE_SHIFT;
-+
- 	err = z_erofs_do_read_page(&f, page, &pagepool);
- 	(void)z_erofs_vle_work_iter_end(&f.builder);
- 
-@@ -1355,9 +1353,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
- 	trace_erofs_readpages(mapping->host, lru_to_page(pages),
- 			      nr_pages, false);
- 
--#if (EROFS_FS_ZIP_CACHE_LVL >= 2)
--	f.cachedzone_la = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
--#endif
-+	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
-+
- 	for (; nr_pages; --nr_pages) {
- 		struct page *page = lru_to_page(pages);
- 
--- 
-2.11.0
+  2. Memory barriers always come matched by other memory barriers, or
+     dependencies (it really does not make sense to talk about a full
+     barrier "in isolation"): please also indicate (an instance of) a
+     matching barrier or the matching barriers.
+
+  3. How do the hardware threads communicate?  In the acquire/release
+     pattern you mentioned above, the load-acquire *reads from* a/the
+     previous store-release, a memory access that follows the acquire
+     somehow communicate with a memory access preceding the release...
+
+  4. It is a good practice to include the above information within an
+     (inline) comment accompanying the added memory barrier (in fact,
+     IIRC, checkpatch.pl gives you a "memory barrier without comment"
+     warning when you omit to do so); not just in the commit message.
+
+Hope this helps.  Please let me know if something I wrote is unclear,
+
+  Andrea
+
+
+> 
+> Thanks,
+> Gao Xiang
+> 
+> > 
+> > thanks,
+> > 
+> > greg k-h
