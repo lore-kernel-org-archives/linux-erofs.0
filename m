@@ -1,35 +1,43 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 22 Nov 2018 20:00:21 +0800
-Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
-In-Reply-To: <20181122112645.GA7527@kroah.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Thu, 22 Nov 2018 13:26:27 +0100
+Subject: [PATCH 02/10] staging: erofs: fix race when the managed cache is
+ enabled
+In-Reply-To: <78f8bed5-5f7f-8ca6-5d7a-3a94a2062425@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-8-gaoxiang25@huawei.com>
- <20181122102339.GG3189@kroah.com>
- <66b90226-5d0e-7344-5220-908aa243b014@huawei.com>
- <20181122110500.GC5287@kroah.com>
- <ef49bf11-b937-46b4-1b9a-c068182aa7d9@huawei.com>
- <20181122112645.GA7527@kroah.com>
-Message-ID: <448b2d41-8156-3fe8-a037-29a31771721e@huawei.com>
+ <20181120143425.43637-3-gaoxiang25@huawei.com>
+ <20181122101711.GA3189@kroah.com>
+ <55aed87f-196e-9048-6aae-db09bc497664@huawei.com>
+ <20181122110642.GE5287@kroah.com>
+ <78f8bed5-5f7f-8ca6-5d7a-3a94a2062425@huawei.com>
+Message-ID: <20181122122627.GC10212@kroah.com>
 
-Hi Greg,
+On Thu, Nov 22, 2018@07:43:50PM +0800, Gao Xiang wrote:
+> Hi Greg,
+> 
+> On 2018/11/22 19:06, Greg Kroah-Hartman wrote:
+> > On Thu, Nov 22, 2018@06:42:52PM +0800, Gao Xiang wrote:
+> >> Hi Greg,
+> >>
+> >> On 2018/11/22 18:17, Greg Kroah-Hartman wrote:
+> >>> Any specific reason why you are not using the refcount.h api instead of
+> >>> "doing it yourself" with atomic_inc/dec()?
+> >>>
+> >>> I'm not rejecting this, just curious.
+> >> As I explained in the previous email,
+> >> Re: [PATCH 04/10] staging: erofs: fix `erofs_workgroup_{try_to_freeze, unfreeze}'
+> >>
+> >> we need such a function when the value is >= 0, it plays as a refcount,
+> >> but when the refcount == EROFS_LOCKED_MAGIC (<0, but not 0 as refcount.h),
+> >> and actually there is no need to introduce a seperate spinlock_t because
+> >> we don't actually care about its performance (rarely locked). and
+> >> the corresponding struct is too large for now, we need to decrease its size.
+> > Why do you need to decrease the size?  How many of these structures are
+> > created?
+> 
+> As I said in the previous email, every compressed page will have a managed structure
+> called erofs_workgroup, and it is heavily allocated like page/inode/dentry in the erofs.
 
-On 2018/11/22 19:26, Greg Kroah-Hartman wrote:
-> Don't make people rebuild your code with different options for
-> debugging.  That will never work in the 'real world' when people start
-> using the code.  You need to have things enabled for people all the
-> time, which is why we have dynamic debugging in the kernel now, and not
-> a zillion different "DRIVER_DEBUG" build options anymore.
+Ugh, every page?  Ok, nevermind, I take back my objections.  You all are
+crazy and need to do crazy things like this :)
 
-Actually, current erofs handle differently for beta users (in eng mode)
-and commercial users.
-
-CONFIG_EROFS_FS_DEBUG is enable for all beta users, after an observed
-expression is false, we could get the whole memorydump as early as possible.
-But for commercial users, there are no such observing points to promise
-the kernel stability and performance.
-
-It has helped us to find several bug, and I cannot find some alternative way
-to get the the first scene of the accident...
-
-Thanks,
-Gao Xiang
+greg k-h
