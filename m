@@ -1,38 +1,40 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 12:05:00 +0100
-Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
-In-Reply-To: <66b90226-5d0e-7344-5220-908aa243b014@huawei.com>
+Date: Thu, 22 Nov 2018 12:05:34 +0100
+Subject: [PATCH 04/10] staging: erofs: fix
+ `erofs_workgroup_{try_to_freeze, unfreeze}'
+In-Reply-To: <ee829ce6-e59e-3ed6-b9a4-16c29c9eb59f@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-8-gaoxiang25@huawei.com>
- <20181122102339.GG3189@kroah.com>
- <66b90226-5d0e-7344-5220-908aa243b014@huawei.com>
-Message-ID: <20181122110500.GC5287@kroah.com>
+ <20181120143425.43637-5-gaoxiang25@huawei.com>
+ <20181122102155.GE3189@kroah.com>
+ <ee829ce6-e59e-3ed6-b9a4-16c29c9eb59f@huawei.com>
+Message-ID: <20181122110534.GD5287@kroah.com>
 
-On Thu, Nov 22, 2018@06:34:10PM +0800, Gao Xiang wrote:
+On Thu, Nov 22, 2018@06:29:34PM +0800, Gao Xiang wrote:
 > Hi Greg,
 > 
-> On 2018/11/22 18:23, Greg Kroah-Hartman wrote:
-> >> +
-> >> +	DBG_BUGON(work->nr_pages);
-> >> +	DBG_BUGON(work->vcnt);
-> > How can these ever be triggered?  I understand the need for debugging
-> > code when you are writing code, but at this point it shouldn't be needed
-> > anymore, right?
+> On 2018/11/22 18:21, Greg Kroah-Hartman wrote:
+> > On Tue, Nov 20, 2018@10:34:19PM +0800, Gao Xiang wrote:
+> >> There are two minor issues in the current freeze interface:
+> >>
+> >>    1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
+> >>       therefore fix the incorrect conditions;
+> >>
+> >>    2) For SMP platforms, it should also disable preemption before
+> >>       doing atomic_cmpxchg in case that some high priority tasks
+> >>       preempt between atomic_cmpxchg and disable_preempt, then spin
+> >>       on the locked refcount later.
+> > 
+> > spinning on a refcount implies that you are trying to do your own type
+> > of locking.  Why not use the in-kernel locking api instead?  It will
+> > always do better than trying to do your own logic as the developers
+> > there know locking across all types of cpus better than filesystem
+> > developers :)
 > 
-> I need to avoid some fields is not 0 when the new workgroup is created (because
-> work->nr_pages and work->vcnt == 0 usually after the previous workgroup is freed).
-> But that is not obvious, it is promised by the current logic.
+> It is because refcount also plays a role as a spinlock on a specific value
+> (== EROFS_LOCKED_MAGIC), no need to introduce such a value since the spin
+> window is small.
 
-Then delete these lines if they can never happen :)
-
-> In order to not introduce such a issue in the future, or there are some potential
-> race (work->nr_pages and work->vcnt != 0 when the previous workgroup == 0), it need
-> to be noticed to developpers as early as possible.
-
-Then make it a real call, do not wrap it in odd macros that do not
-really explain why it is "debugging only".  Your code is "real" now,
-make the logic real for all developers and users.
-
-thanks,
+As I said in another email, doing two things with one variable is odd as
+those are two different types of functions.
 
 greg k-h
