@@ -1,7 +1,7 @@
-From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 14:23:11 +0100
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 22 Nov 2018 21:59:23 +0800
 Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
-In-Reply-To: <c6ec315b-6f80-911f-3abe-ee056e730fc9@huawei.com>
+In-Reply-To: <20181122132311.GB14300@kroah.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
  <20181120143425.43637-8-gaoxiang25@huawei.com>
  <20181122102339.GG3189@kroah.com>
@@ -11,54 +11,79 @@ References: <20181120143425.43637-1-gaoxiang25@huawei.com>
  <20181122112645.GA7527@kroah.com>
  <448b2d41-8156-3fe8-a037-29a31771721e@huawei.com>
  <c6ec315b-6f80-911f-3abe-ee056e730fc9@huawei.com>
-Message-ID: <20181122132311.GB14300@kroah.com>
+ <20181122132311.GB14300@kroah.com>
+Message-ID: <7a8ad8ce-1764-2baa-d9a3-e8bfae83d61a@huawei.com>
 
-On Thu, Nov 22, 2018@09:01:31PM +0800, Gao Xiang wrote:
-> Hi Greg,
+Hi Greg,
+
+On 2018/11/22 21:23, Greg Kroah-Hartman wrote:
+> On Thu, Nov 22, 2018@09:01:31PM +0800, Gao Xiang wrote:
+>> Hi Greg,
+>>
+>> On 2018/11/22 20:00, Gao Xiang wrote:
+>>> Hi Greg,
+>>>
+>>> On 2018/11/22 19:26, Greg Kroah-Hartman wrote:
+>>>> Don't make people rebuild your code with different options for
+>>>> debugging.  That will never work in the 'real world' when people start
+>>>> using the code.  You need to have things enabled for people all the
+>>>> time, which is why we have dynamic debugging in the kernel now, and not
+>>>> a zillion different "DRIVER_DEBUG" build options anymore.
+>>> Actually, current erofs handle differently for beta users (in eng mode)
+>>> and commercial users.
+>>>
+>>> CONFIG_EROFS_FS_DEBUG is enable for all beta users, after an observed
+>>> expression is false, we could get the whole memorydump as early as possible.
+>>> But for commercial users, there are no such observing points to promise
+>>> the kernel stability and performance.
+>>>
+>>> It has helped us to find several bug, and I cannot find some alternative way
+>>> to get the the first scene of the accident...
+>>
+>> I'm about to send v2 of this patchset... I need to get your opinion...
+>>
+>> I think for the current erofs development state, I tend to leave such a
+>> developping switch because the code could be modified frequently,
+>> many potential bugs could be avoid when this debugging mode is on and
+>> it will be dropped after erofs becomes more stable...
 > 
-> On 2018/11/22 20:00, Gao Xiang wrote:
-> > Hi Greg,
-> > 
-> > On 2018/11/22 19:26, Greg Kroah-Hartman wrote:
-> >> Don't make people rebuild your code with different options for
-> >> debugging.  That will never work in the 'real world' when people start
-> >> using the code.  You need to have things enabled for people all the
-> >> time, which is why we have dynamic debugging in the kernel now, and not
-> >> a zillion different "DRIVER_DEBUG" build options anymore.
-> > Actually, current erofs handle differently for beta users (in eng mode)
-> > and commercial users.
-> > 
-> > CONFIG_EROFS_FS_DEBUG is enable for all beta users, after an observed
-> > expression is false, we could get the whole memorydump as early as possible.
-> > But for commercial users, there are no such observing points to promise
-> > the kernel stability and performance.
-> > 
-> > It has helped us to find several bug, and I cannot find some alternative way
-> > to get the the first scene of the accident...
+> You have two competing issues here.  You need to have some sort of debug
+> build that allows you to get feedback from users, and you need to
+> provide a solid, reliable system for those not wanting to debug
+> anything.
+
+Yes, you are right :)
+
 > 
-> I'm about to send v2 of this patchset... I need to get your opinion...
+> If you use a kernel build option, then you can do what you are doing
+> now, just that do not expect for any user that has problems with the
+> filesystem, they will rebuild the code just to try to help debug it.
+> That is going to require run-time debugging to be enabled as they will
+> not usually have built their own kernel/module at all.
+
+Yes, actually the current Android system have 2 modes -- eng and commerical build
+for all versions.
+
+A large number of beta users will receive eng build, and many buges were observed
+from these users. That is the debugging benefit what Android system does now.
+
+I do not expect real users to rebuild kernels for debugging, I think after the Android
+use case, erofs has become solid enough. For commerical builds, it will have enough
+error handing case found by Android users and developers.
+
 > 
-> I think for the current erofs development state, I tend to leave such a
-> developping switch because the code could be modified frequently,
-> many potential bugs could be avoid when this debugging mode is on and
-> it will be dropped after erofs becomes more stable...
+> For now, keep doing what you are doing, I just started to worry when I
+> saw the initial BUG_ON() as we had just talked about these at the
+> Maintainers summit a few weeks ago, and how we need to get rid of them
+> from the kernel as they are a crutch that we need to solve.
 
-You have two competing issues here.  You need to have some sort of debug
-build that allows you to get feedback from users, and you need to
-provide a solid, reliable system for those not wanting to debug
-anything.
+Thanks for understanding...
 
-If you use a kernel build option, then you can do what you are doing
-now, just that do not expect for any user that has problems with the
-filesystem, they will rebuild the code just to try to help debug it.
-That is going to require run-time debugging to be enabled as they will
-not usually have built their own kernel/module at all.
+Thanks,
+Gao Xiang
 
-For now, keep doing what you are doing, I just started to worry when I
-saw the initial BUG_ON() as we had just talked about these at the
-Maintainers summit a few weeks ago, and how we need to get rid of them
-from the kernel as they are a crutch that we need to solve.
-
-thanks, and sorry for the noise.  Please resend this series again,
-
-greg k-h
+> 
+> thanks, and sorry for the noise.  Please resend this series again,
+> 
+> greg k-h
+> 
