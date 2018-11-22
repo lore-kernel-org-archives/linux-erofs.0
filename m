@@ -1,67 +1,47 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 11:23:39 +0100
-Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
-In-Reply-To: <20181120143425.43637-8-gaoxiang25@huawei.com>
+Date: Thu, 22 Nov 2018 11:24:31 +0100
+Subject: [PATCH 08/10] staging: erofs: locked before registering for all
+ new workgroups
+In-Reply-To: <20181120143425.43637-9-gaoxiang25@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-8-gaoxiang25@huawei.com>
-Message-ID: <20181122102339.GG3189@kroah.com>
+ <20181120143425.43637-9-gaoxiang25@huawei.com>
+Message-ID: <20181122102431.GH3189@kroah.com>
 
-On Tue, Nov 20, 2018@10:34:22PM +0800, Gao Xiang wrote:
-> `z_erofs_vle_workgroup' is heavily generated in the decompression,
-> for example, it resets 32 bytes redundantly for 64-bit platforms
-> even through Z_EROFS_VLE_INLINE_PAGEVECS + Z_EROFS_CLUSTER_MAX_PAGES,
-> default 4, pages are stored in `z_erofs_vle_workgroup'.
+On Tue, Nov 20, 2018@10:34:23PM +0800, Gao Xiang wrote:
+> Let's make sure that the one registering a workgroup will also
+> take the primary work lock at first for two reasons:
+>   1) There's no need to introduce such a race window (and consequently
+>      overhead) between registering and locking, other tasks could break
+>      in by chance, and the race seems unnecessary (no benefit at all);
 > 
-> As an another example, `struct mutex' takes 72 bytes for our kirin
-> 64-bit platforms, it's unnecessary to be reseted at first and
-> be initialized each time.
-> 
-> Let's avoid filling all `z_erofs_vle_workgroup' with 0 at first
-> since most fields are reinitialized to meaningful values later,
-> and pagevec is no need to initialized at all.
+>   2) It's better to take the primary work when a workgroup
+>      is registered to apply the cache managed policy, for example,
+>      if some other tasks break in, it could turn into the in-place
+>      decompression rather than use as the cached decompression.
 > 
 > Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
->  drivers/staging/erofs/unzip_vle.c | 34 +++++++++++++++++++++++++++++-----
->  1 file changed, 29 insertions(+), 5 deletions(-)
+>  drivers/staging/erofs/unzip_vle.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-> index ede3383ac601..4e5843e8ee35 100644
+> index 4e5843e8ee35..a1376f3c6065 100644
 > --- a/drivers/staging/erofs/unzip_vle.c
 > +++ b/drivers/staging/erofs/unzip_vle.c
-> @@ -43,12 +43,38 @@ static inline int init_unzip_workqueue(void)
->  	return z_erofs_workqueue ? 0 : -ENOMEM;
->  }
+> @@ -420,18 +420,22 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+>  	work = z_erofs_vle_grab_primary_work(grp);
+>  	work->pageofs = f->pageofs;
 >  
-> +static void init_once(void *ptr)
-> +{
-> +	struct z_erofs_vle_workgroup *grp = ptr;
-> +	struct z_erofs_vle_work *const work =
-> +		z_erofs_vle_grab_primary_work(grp);
-> +	unsigned int i;
-> +
-> +	mutex_init(&work->lock);
-> +	work->nr_pages = 0;
-> +	work->vcnt = 0;
-> +	for (i = 0; i < Z_EROFS_CLUSTER_MAX_PAGES; ++i)
-> +		grp->compressed_pages[i] = NULL;
-> +}
-> +
-> +static void init_always(struct z_erofs_vle_workgroup *grp)
-> +{
-> +	struct z_erofs_vle_work *const work =
-> +		z_erofs_vle_grab_primary_work(grp);
-> +
-> +	atomic_set(&grp->obj.refcount, 1);
-> +	grp->flags = 0;
-> +
-> +	DBG_BUGON(work->nr_pages);
-> +	DBG_BUGON(work->vcnt);
+> +	/* lock all primary followed works before visible to others */
+> +	if (unlikely(!mutex_trylock(&work->lock)))
+> +		/* for a new workgroup, try_lock *never* fails */
+> +		DBG_BUGON(1);
 
-How can these ever be triggered?  I understand the need for debugging
-code when you are writing code, but at this point it shouldn't be needed
-anymore, right?
+Again, drop this, if it never fails, then there's no need for this.  If
+it can fail, then properly handle it.
+
+And trylock can fail, so this needs to be fixed.
 
 thanks,
 
