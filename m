@@ -1,34 +1,67 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 11:22:31 +0100
-Subject: [PATCH 05/10] staging: erofs: add a full barrier in
- erofs_workgroup_unfreeze
-In-Reply-To: <20181120143425.43637-6-gaoxiang25@huawei.com>
+Date: Thu, 22 Nov 2018 11:23:39 +0100
+Subject: [PATCH 07/10] staging: erofs: separate into init_once / always
+In-Reply-To: <20181120143425.43637-8-gaoxiang25@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-6-gaoxiang25@huawei.com>
-Message-ID: <20181122102230.GF3189@kroah.com>
+ <20181120143425.43637-8-gaoxiang25@huawei.com>
+Message-ID: <20181122102339.GG3189@kroah.com>
 
-On Tue, Nov 20, 2018@10:34:20PM +0800, Gao Xiang wrote:
-> Just like other generic locks, insert a full barrier
-> in case of memory reorder.
+On Tue, Nov 20, 2018@10:34:22PM +0800, Gao Xiang wrote:
+> `z_erofs_vle_workgroup' is heavily generated in the decompression,
+> for example, it resets 32 bytes redundantly for 64-bit platforms
+> even through Z_EROFS_VLE_INLINE_PAGEVECS + Z_EROFS_CLUSTER_MAX_PAGES,
+> default 4, pages are stored in `z_erofs_vle_workgroup'.
+> 
+> As an another example, `struct mutex' takes 72 bytes for our kirin
+> 64-bit platforms, it's unnecessary to be reseted at first and
+> be initialized each time.
+> 
+> Let's avoid filling all `z_erofs_vle_workgroup' with 0 at first
+> since most fields are reinitialized to meaningful values later,
+> and pagevec is no need to initialized at all.
 > 
 > Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
->  drivers/staging/erofs/internal.h | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/staging/erofs/unzip_vle.c | 34 +++++++++++++++++++++++++++++-----
+>  1 file changed, 29 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-> index 2e0ef92c138b..f77653d33633 100644
-> --- a/drivers/staging/erofs/internal.h
-> +++ b/drivers/staging/erofs/internal.h
-> @@ -209,6 +209,7 @@ static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
->  static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
->  					    int orig_val)
->  {
-> +	smp_mb();
+> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> index ede3383ac601..4e5843e8ee35 100644
+> --- a/drivers/staging/erofs/unzip_vle.c
+> +++ b/drivers/staging/erofs/unzip_vle.c
+> @@ -43,12 +43,38 @@ static inline int init_unzip_workqueue(void)
+>  	return z_erofs_workqueue ? 0 : -ENOMEM;
+>  }
+>  
+> +static void init_once(void *ptr)
+> +{
+> +	struct z_erofs_vle_workgroup *grp = ptr;
+> +	struct z_erofs_vle_work *const work =
+> +		z_erofs_vle_grab_primary_work(grp);
+> +	unsigned int i;
+> +
+> +	mutex_init(&work->lock);
+> +	work->nr_pages = 0;
+> +	work->vcnt = 0;
+> +	for (i = 0; i < Z_EROFS_CLUSTER_MAX_PAGES; ++i)
+> +		grp->compressed_pages[i] = NULL;
+> +}
+> +
+> +static void init_always(struct z_erofs_vle_workgroup *grp)
+> +{
+> +	struct z_erofs_vle_work *const work =
+> +		z_erofs_vle_grab_primary_work(grp);
+> +
+> +	atomic_set(&grp->obj.refcount, 1);
+> +	grp->flags = 0;
+> +
+> +	DBG_BUGON(work->nr_pages);
+> +	DBG_BUGON(work->vcnt);
 
-Please document this memory barrier.  It does not make much sense to
-me...
+How can these ever be triggered?  I understand the need for debugging
+code when you are writing code, but at this point it shouldn't be needed
+anymore, right?
 
 thanks,
 
