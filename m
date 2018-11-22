@@ -1,27 +1,47 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 12:00:44 +0100
-Subject: [PATCH 01/10] staging: erofs: fix `trace_erofs_readpage' position
-In-Reply-To: <fcf5c088-6025-171f-bc24-0e698c68bbb7@huawei.com>
+Date: Thu, 22 Nov 2018 12:03:50 +0100
+Subject: [PATCH 04/10] staging: erofs: fix
+ `erofs_workgroup_{try_to_freeze, unfreeze}'
+In-Reply-To: <ee829ce6-e59e-3ed6-b9a4-16c29c9eb59f@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-2-gaoxiang25@huawei.com>
- <20181122101941.GC3189@kroah.com>
- <fcf5c088-6025-171f-bc24-0e698c68bbb7@huawei.com>
-Message-ID: <20181122110044.GA5287@kroah.com>
+ <20181120143425.43637-5-gaoxiang25@huawei.com>
+ <20181122102155.GE3189@kroah.com>
+ <ee829ce6-e59e-3ed6-b9a4-16c29c9eb59f@huawei.com>
+Message-ID: <20181122110350.GB5287@kroah.com>
 
-On Thu, Nov 22, 2018@06:49:53PM +0800, Gao Xiang wrote:
+On Thu, Nov 22, 2018@06:29:34PM +0800, Gao Xiang wrote:
 > Hi Greg,
 > 
-> On 2018/11/22 18:19, Greg Kroah-Hartman wrote:
-> > On Tue, Nov 20, 2018@10:34:16PM +0800, Gao Xiang wrote:
-> >> `trace_erofs_readpage' should be placed in .readpage()
-> >> rather than in the internal `z_erofs_do_read_page'.
-> > Why?  What happens with the code today?
-> trace_erofs_readpage is used to trace .readpage() interface (it represents sync read)
-> hook rather than its internal implementation z_erofs_do_read_page (which both .readpage()
-> and .readpages() uses it). Chen Gong places the tracepoint to a wrong place by mistake.
-> And we found it by our internal test using this tracepoint.
+> On 2018/11/22 18:21, Greg Kroah-Hartman wrote:
+> > On Tue, Nov 20, 2018@10:34:19PM +0800, Gao Xiang wrote:
+> >> There are two minor issues in the current freeze interface:
+> >>
+> >>    1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
+> >>       therefore fix the incorrect conditions;
+> >>
+> >>    2) For SMP platforms, it should also disable preemption before
+> >>       doing atomic_cmpxchg in case that some high priority tasks
+> >>       preempt between atomic_cmpxchg and disable_preempt, then spin
+> >>       on the locked refcount later.
+> > 
+> > spinning on a refcount implies that you are trying to do your own type
+> > of locking.  Why not use the in-kernel locking api instead?  It will
+> > always do better than trying to do your own logic as the developers
+> > there know locking across all types of cpus better than filesystem
+> > developers :)
+> 
+> It is because refcount also plays a role as a spinlock on a specific value
+> (== EROFS_LOCKED_MAGIC), no need to introduce such a value since the spin
+> window is small.
 
-Ok, you should put this in the changelog text when you redo this series.
+Do not try to overload a reference count as a spinlock, you will run
+into problems and in the end have to implement everything that the core
+locking code has done.
+
+Your use of this is highly suspect, what happens when you use a "real"
+spinlock and a "real" reference count instead?  Those are two different
+things from a logical point of view and you are mixing them together
+which is odd.
 
 thanks,
 
