@@ -1,28 +1,34 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 22 Nov 2018 11:21:55 +0100
-Subject: [PATCH 04/10] staging: erofs: fix
- `erofs_workgroup_{try_to_freeze, unfreeze}'
-In-Reply-To: <20181120143425.43637-5-gaoxiang25@huawei.com>
+Date: Thu, 22 Nov 2018 11:22:31 +0100
+Subject: [PATCH 05/10] staging: erofs: add a full barrier in
+ erofs_workgroup_unfreeze
+In-Reply-To: <20181120143425.43637-6-gaoxiang25@huawei.com>
 References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-5-gaoxiang25@huawei.com>
-Message-ID: <20181122102155.GE3189@kroah.com>
+ <20181120143425.43637-6-gaoxiang25@huawei.com>
+Message-ID: <20181122102230.GF3189@kroah.com>
 
-On Tue, Nov 20, 2018@10:34:19PM +0800, Gao Xiang wrote:
-> There are two minor issues in the current freeze interface:
+On Tue, Nov 20, 2018@10:34:20PM +0800, Gao Xiang wrote:
+> Just like other generic locks, insert a full barrier
+> in case of memory reorder.
 > 
->    1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
->       therefore fix the incorrect conditions;
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+>  drivers/staging/erofs/internal.h | 1 +
+>  1 file changed, 1 insertion(+)
 > 
->    2) For SMP platforms, it should also disable preemption before
->       doing atomic_cmpxchg in case that some high priority tasks
->       preempt between atomic_cmpxchg and disable_preempt, then spin
->       on the locked refcount later.
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 2e0ef92c138b..f77653d33633 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -209,6 +209,7 @@ static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
+>  static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
+>  					    int orig_val)
+>  {
+> +	smp_mb();
 
-spinning on a refcount implies that you are trying to do your own type
-of locking.  Why not use the in-kernel locking api instead?  It will
-always do better than trying to do your own logic as the developers
-there know locking across all types of cpus better than filesystem
-developers :)
+Please document this memory barrier.  It does not make much sense to
+me...
 
 thanks,
 
