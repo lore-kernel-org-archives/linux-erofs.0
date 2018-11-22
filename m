@@ -1,45 +1,49 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 23 Nov 2018 01:15:57 +0800
-Subject: [PATCH v2 00/10] staging: erofs: decompression stability enhancement
-Message-ID: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
+Date: Fri, 23 Nov 2018 01:15:58 +0800
+Subject: [PATCH v2 01/10] staging: erofs: fix `trace_erofs_readpage' position
+In-Reply-To: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
+References: <1542906967-249-1-git-send-email-hsiangkao@aol.com>
+Message-ID: <1542906967-249-2-git-send-email-hsiangkao@aol.com>
 
-Hi,
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-This patchset mainly focuses on erofs decompression stability, most of
-them are found in the internal beta test. Some patches which are still
-in testing or reviewing aren't included in this patchset and will be
-sent after carefully testing.
+`trace_erofs_readpage' was designed for .readpage() interface hook
+in order to trace the detailed synchronized read rather than
+the internal implementation `z_erofs_do_read_page' which both
+.readpage() and .readpages() use.
 
-Thanks,
-Gao Xiang
+It seems the tracepoint was placed to a wrong place by mistake and
+it should be moved to the right place.
 
-Changelog from v1
-===
-  o fix a redundant BUG_ON suggested by Greg since it never happens at all;
-  o add more description suggested by Greg in commit message of 
-      [01/10] staging: erofs: fix `trace_erofs_readpage' position
-  o add some description suggested by Greg of a memory barrier occurred in
-      [06/10] staging: erofs: add a full barrier in erofs_workgroup_unfreeze 
+Fixes: 284db12cfda3 ("staging: erofs: add trace points for reading zipped data")
+Reviewed-by: Chen Gong <gongchen4 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Shortlog
-===
-Gao Xiang (10):
-  staging: erofs: fix `trace_erofs_readpage' position
-  staging: erofs: fix the definition of DBG_BUGON
-  staging: erofs: fix race when the managed cache is enabled
-  staging: erofs: atomic_cond_read_relaxed on ref-locked workgroup
-  staging: erofs: fix `erofs_workgroup_{try_to_freeze, unfreeze}'
-  staging: erofs: add a full barrier in erofs_workgroup_unfreeze
-  staging: erofs: separate into init_once / always
-  staging: erofs: locked before registering for all new workgroups
-  staging: erofs: decompress asynchronously if PG_readahead page at
-    first
-  staging: erofs: rename strange variable names in z_erofs_vle_frontend
-
- drivers/staging/erofs/internal.h  |  73 +++++++++++++--------
- drivers/staging/erofs/unzip_vle.c |  79 +++++++++++++++-------
- drivers/staging/erofs/utils.c     | 135 +++++++++++++++++++++++++++-----------
- 3 files changed, 199 insertions(+), 88 deletions(-)
-
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 6a283f618f46..ede3383ac601 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -598,8 +598,6 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	unsigned int cur, end, spiltted, index;
+ 	int err = 0;
+ 
+-	trace_erofs_readpage(page, false);
+-
+ 	/* register locked file pages as online pages in pack */
+ 	z_erofs_onlinepage_init(page);
+ 
+@@ -1288,6 +1286,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	int err;
+ 	LIST_HEAD(pagepool);
+ 
++	trace_erofs_readpage(page, false);
++
+ #if (EROFS_FS_ZIP_CACHE_LVL >= 2)
+ 	f.cachedzone_la = (erofs_off_t)page->index << PAGE_SHIFT;
+ #endif
 -- 
 2.11.0
