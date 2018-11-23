@@ -1,65 +1,81 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 23 Nov 2018 18:00:25 +0800
-Subject: [PATCH 05/10] staging: erofs: add a full barrier in
- erofs_workgroup_unfreeze
-In-Reply-To: <20181123094739.GA3487@andrea>
-References: <20181120143425.43637-1-gaoxiang25@huawei.com>
- <20181120143425.43637-6-gaoxiang25@huawei.com>
- <20181122102230.GF3189@kroah.com>
- <1d1fd688-0cb5-cbac-9213-f56f7e356bca@huawei.com>
- <20181122185058.GA3466@andrea>
- <b2f367c5-a54c-9edf-42ad-d256bc725cf7@huawei.com>
- <20181123094739.GA3487@andrea>
-Message-ID: <5bf95ae0-cecb-c220-653b-704baee1cd8e@huawei.com>
+Date: Fri, 23 Nov 2018 21:13:45 +0800
+Subject: [PREVIEW] [PATCH chao/erofs-dev] staging: erofs: fix use-after-free
+ of on-stack `z_erofs_vle_unzip_io'
+Message-ID: <20181123131345.22332-1-gaoxiang25@huawei.com>
 
-Hi Andrea,
+The root cause is the race as follows:
+ Thread #0                         Thread #1
 
-On 2018/11/23 17:51, Andrea Parri wrote:
-> Correct.  This is informally documented in Documentation/atomic_t.txt
-> and formalized within tools/memory-model/.
-> 
-> 
->> I don't know whether my understanding is correct, If I am wrong..please correct me, or
->> I need to add more detailed code comments to explain in the code?
-> Yes, please; please review the above points (including 1. and 3.) and
-> try to address them with inline comments.  Maybe (if that matches the
-> *behavior*/guarantee you have in mind...) something like:
-> 
-> [in erofs_workgroup_unfreeze()]
-> 
-> 	/*
-> 	 * Orders the store/load to/from [???] and the store to
-> 	 * ->refcount performed by the atomic_set() below.
-> 	 *
-> 	 * Matches the atomic_cmpxchg() in erofs_workgroup_get().
-> 	 *
-> 	 * Guarantees that if a successful atomic_cmpxchg() reads
-> 	 * the value stored by the atomic_set() then [???].
-> 	 */
-> 	smp_mb();
-> 	atomic_set(&grp->refcount, v);
-> 
-> 
-> [in erofs_workgroup_get()]
-> 
-> 	/*
-> 	 * Orders the load from ->refcount performed by the
-> 	 * atomic_cmpxchg() below and the store/load [???].
-> 	 *
-> 	 * See the comment for the smp_mb() in
-> 	 * erofs_workgroup_unfreeze().
-> 	 */
-> 	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
-> 		goto repeat;
-> 
+ z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
 
-OK, I will add these comments in the next version patchset, will be sent later.
-Thanks for your suggestion. :)
+                                    struct z_erofs_vle_unzip_io io[]
+   atomic_add_return()
+                                    wait_event()
+                                    [end of function]
+   wake_up()
 
-Thanks,
-Gao Xiang
+Fix it by taking the waitqueue lock between atomic_add_return and
+wake_up to close such the race.
 
-> Thanks,
->   Andrea
-> 
-> 
+kernel message:
+
+Unable to handle kernel paging request at virtual address 97f7052caa1303dc
+...
+Workqueue: kverityd verity_work
+task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
+PC is at __wake_up_common+0x48/0xa8
+LR is at __wake_up+0x3c/0x58
+...
+Call trace:
+...
+[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
+[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
+[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
+[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1076540>] dec_pending+0x134/0x32c
+[<ffffff94a1076f28>] clone_endio+0x90/0xf4
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1095024>] verity_work+0x210/0x368
+[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
+[<ffffff94a08c45bc>] worker_thread+0x140/0x458
+[<ffffff94a08cad48>] kthread+0xec/0x108
+[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
+Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
+---[ end trace be9dde154f677cd1 ]---
+
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 66ded80f662f..3afb7c05fac1 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -804,13 +804,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
+ 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
+ 	bool background = tagptr_unfold_tags(t);
+ 
+-	if (atomic_add_return(bios, &io->pending_bios))
++	if (!background) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&io->u.wait.lock, flags);
++		if (!atomic_add_return(bios, &io->pending_bios))
++			 wake_up_locked(&io->u.wait);
++		spin_unlock_irqrestore(&io->u.wait.lock, flags);
+ 		return;
++	}
+ 
+-	if (background)
++	if (!atomic_add_return(bios, &io->pending_bios))
+ 		queue_work(z_erofs_workqueue, &io->u.work);
+-	else
+-		wake_up(&io->u.wait);
+ }
+ 
+ static inline void z_erofs_vle_read_endio(struct bio *bio)
+-- 
+2.14.4
