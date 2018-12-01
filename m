@@ -1,88 +1,153 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sun, 2 Dec 2018 02:32:05 +0800
-Subject: [PATCH chao/erofs-dev 1/7] staging: erofs: fix use-after-free of
- on-stack `z_erofs_vle_unzip_io'
-Message-ID: <20181201183211.27406-1-gaoxiang25@huawei.com>
+Date: Sun, 2 Dec 2018 02:32:06 +0800
+Subject: [PATCH chao/erofs-dev 2/7] staging: erofs: introduce MNGD_MAPPING
+ helper
+In-Reply-To: <20181201183211.27406-1-gaoxiang25@huawei.com>
+References: <20181201183211.27406-1-gaoxiang25@huawei.com>
+Message-ID: <20181201183211.27406-2-gaoxiang25@huawei.com>
 
-The root cause is the race as follows:
- Thread #0                         Thread #1
-
- z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
-
-                                    struct z_erofs_vle_unzip_io io[]
-   atomic_add_return()
-                                    wait_event()
-                                    [end of function]
-   wake_up()
-
-Fix it by taking the waitqueue lock between atomic_add_return and
-wake_up to close such the race.
-
-kernel message:
-
-Unable to handle kernel paging request at virtual address 97f7052caa1303dc
-...
-Workqueue: kverityd verity_work
-task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
-PC is at __wake_up_common+0x48/0xa8
-LR is at __wake_up+0x3c/0x58
-...
-Call trace:
-...
-[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
-[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
-[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
-[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1076540>] dec_pending+0x134/0x32c
-[<ffffff94a1076f28>] clone_endio+0x90/0xf4
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1095024>] verity_work+0x210/0x368
-[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
-[<ffffff94a08c45bc>] worker_thread+0x140/0x458
-[<ffffff94a08cad48>] kthread+0xec/0x108
-[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
-Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
----[ end trace be9dde154f677cd1 ]---
+This patch introduces MNGD_MAPPING to wrap up
+sbi->managed_cache->i_mapping, which will be used
+to solve too many #ifdef in a single function.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
-Hi Chao,
- could you please kindly update this patch series and
- take a look them all? Thanks in advance.
+ drivers/staging/erofs/internal.h  |  4 ++++
+ drivers/staging/erofs/unzip_vle.c | 29 +++++++++++++----------------
+ 2 files changed, 17 insertions(+), 16 deletions(-)
 
-Thanks,
-Gao Xiang
-
- drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 892944355867..b78d6e4c12ab 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -295,6 +295,10 @@ extern int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
+ 	struct erofs_workgroup *egrp);
+ extern int erofs_try_to_free_cached_page(struct address_space *mapping,
+ 	struct page *page);
++
++#define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
++#else
++#define MNGD_MAPPING(sbi)	(NULL)
+ #endif
+ 
+ #define DEFAULT_MAX_SYNC_DECOMPRESS_PAGES	3
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f5d088fdf7f2..b39d9b5c051b 100644
+index b39d9b5c051b..966b28b0b2f1 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -744,13 +744,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
- 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
- 	bool background = tagptr_unfold_tags(t);
+@@ -165,7 +165,7 @@ int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
+ {
+ 	struct z_erofs_vle_workgroup *const grp =
+ 		container_of(egrp, struct z_erofs_vle_workgroup, obj);
+-	struct address_space *const mapping = sbi->managed_cache->i_mapping;
++	struct address_space *const mapping = MNGD_MAPPING(sbi);
+ 	const int clusterpages = erofs_clusterpages(sbi);
+ 	int i;
  
--	if (atomic_add_return(bios, &io->pending_bios))
-+	if (!background) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&io->u.wait.lock, flags);
-+		if (!atomic_add_return(bios, &io->pending_bios))
-+			 wake_up_locked(&io->u.wait);
-+		spin_unlock_irqrestore(&io->u.wait.lock, flags);
- 		return;
-+	}
+@@ -617,7 +617,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	struct z_erofs_vle_work *work = builder->work;
  
--	if (background)
-+	if (!atomic_add_return(bios, &io->pending_bios))
- 		queue_work(z_erofs_workqueue, &io->u.work);
--	else
--		wake_up(&io->u.wait);
- }
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
++	struct address_space *const mc = MNGD_MAPPING(sbi);
+ 	struct z_erofs_vle_workgroup *grp;
+ 	bool noio_outoforder;
+ #endif
+@@ -665,7 +665,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	grp = fe->builder.grp;
  
- static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 	/* let's do out-of-order decompression for noio */
+-	noio_outoforder = grab_managed_cache_pages(mngda,
++	noio_outoforder = grab_managed_cache_pages(mc,
+ 		erofs_blknr(map->m_pa),
+ 		grp->compressed_pages, erofs_blknr(map->m_plen),
+ 		/* compressed page caching selection strategy */
+@@ -764,7 +764,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 	unsigned int i;
+ 	struct bio_vec *bvec;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *mngda = NULL;
++	struct address_space *mc = NULL;
+ #endif
+ 
+ 	bio_for_each_segment_all(bvec, bio, i) {
+@@ -775,18 +775,18 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 		BUG_ON(!page->mapping);
+ 
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (unlikely(!mngda && !z_erofs_is_stagingpage(page))) {
++		if (unlikely(!mc && !z_erofs_is_stagingpage(page))) {
+ 			struct inode *const inode = page->mapping->host;
+ 			struct super_block *const sb = inode->i_sb;
+ 
+-			mngda = EROFS_SB(sb)->managed_cache->i_mapping;
++			mc = MNGD_MAPPING(EROFS_SB(sb));
+ 		}
+ 
+ 		/*
+-		 * If mngda has not gotten, it equals NULL,
++		 * If mc has not gotten, it equals NULL,
+ 		 * however, page->mapping never be NULL if working properly.
+ 		 */
+-		cachemngd = (page->mapping == mngda);
++		cachemngd = (page->mapping == mc);
+ #endif
+ 
+ 		if (unlikely(err))
+@@ -810,9 +810,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	struct list_head *page_pool)
+ {
+ 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
+-#endif
+ 	const unsigned int clusterpages = erofs_clusterpages(sbi);
+ 
+ 	struct z_erofs_pagevec_ctor ctor;
+@@ -903,7 +900,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		if (z_erofs_is_stagingpage(page))
+ 			continue;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		else if (page->mapping == mngda) {
++		if (page->mapping == MNGD_MAPPING(sbi)) {
+ 			BUG_ON(PageLocked(page));
+ 			BUG_ON(!PageUptodate(page));
+ 			continue;
+@@ -981,7 +978,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		page = compressed_pages[i];
+ 
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (page->mapping == mngda)
++		if (page->mapping == MNGD_MAPPING(sbi))
+ 			continue;
+ #endif
+ 		/* recycle all individual staging pages */
+@@ -1114,7 +1111,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 	const unsigned int clusterpages = erofs_clusterpages(sbi);
+ 	const gfp_t gfp = GFP_NOFS;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct address_space *const mngda = sbi->managed_cache->i_mapping;
++	struct address_space *const mc = MNGD_MAPPING(sbi);
+ 	struct z_erofs_vle_workgroup *lstgrp_noio = NULL, *lstgrp_io = NULL;
+ #endif
+ 	struct z_erofs_vle_unzip_io *ios[1 + __FSIO_1];
+@@ -1187,7 +1184,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 			cachemngd = true;
+ 			goto do_allocpage;
+ 		} else if (page) {
+-			if (page->mapping != mngda)
++			if (page->mapping != mc)
+ 				BUG_ON(PageUptodate(page));
+ 			else if (recover_managed_page(grp, page)) {
+ 				/* page is uptodate, skip io submission */
+@@ -1210,7 +1207,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 				goto repeat;
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+ 			} else if (cachemngd && !add_to_page_cache_lru(page,
+-				mngda, first_index + i, gfp)) {
++				   mc, first_index + i, gfp)) {
+ 				set_page_private(page, (unsigned long)grp);
+ 				SetPagePrivate(page);
+ #endif
 -- 
 2.14.4
