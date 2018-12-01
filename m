@@ -1,97 +1,313 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sun, 2 Dec 2018 02:32:10 +0800
-Subject: [PATCH chao/erofs-dev 6/7] staging: erofs: redefine where
- `owned_workgrp_t' points
+Date: Sun, 2 Dec 2018 02:32:11 +0800
+Subject: [PATCH chao/erofs-dev 7/7] staging: erofs: simplify
+ `z_erofs_vle_submit_all'
 In-Reply-To: <20181201183211.27406-1-gaoxiang25@huawei.com>
 References: <20181201183211.27406-1-gaoxiang25@huawei.com>
-Message-ID: <20181201183211.27406-6-gaoxiang25@huawei.com>
+Message-ID: <20181201183211.27406-7-gaoxiang25@huawei.com>
 
-By design, workgroups are queued in the form of linked lists.
+Previously, there are too many hacked stuffs such as `__FSIO_1',
+`lstgrp_noio', `lstgrp_io' out there in `z_erofs_vle_submit_all'.
 
-Previously, it points to the next `z_erofs_vle_workgroup', which
-isn't flexible enough to simplify `z_erofs_vle_submit_all' logic.
-
-Let's fix it pointing to the next `owned_workgrp_t' and use
-container_of to get its coresponding `z_erofs_vle_workgroup'.
+Revisit the whole process by properly introducing jobqueue to
+represent each type of queued workgroups, furthermore hide all of
+crazyness behind independent seperated functions. After this patch,
+2 independent jobqueues exist if managed cache is enabled, or 1
+jobqueue if disabled.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 12 +++++++-----
- drivers/staging/erofs/unzip_vle.h |  4 ++--
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 195 ++++++++++++++++++++++----------------
+ 1 file changed, 113 insertions(+), 82 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 45ba85faf610..34811d3175b1 100644
+index 34811d3175b1..929815705b98 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -328,7 +328,7 @@ static inline bool try_to_claim_workgroup(
- 			    *owned_head) != Z_EROFS_VLE_WORKGRP_NIL)
- 			goto retry;
- 
--		*owned_head = grp;
-+		*owned_head = &grp->next;
- 		*hosted = true;
- 	} else if (grp->next == Z_EROFS_VLE_WORKGRP_TAIL) {
- 		/*
-@@ -483,7 +483,8 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
- 		}
- 	}
- 
--	*f->owned_head = *f->grp_ret = grp;
-+	*f->owned_head = &grp->next;
-+	*f->grp_ret = grp;
- 	return work;
+@@ -1224,33 +1224,28 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 	return page;
  }
  
-@@ -1079,7 +1080,7 @@ static void z_erofs_vle_unzip_all(struct super_block *sb,
- 		/* no possible that 'owned' equals NULL */
- 		DBG_BUGON(owned == Z_EROFS_VLE_WORKGRP_NIL);
+-static inline struct z_erofs_vle_unzip_io *
+-prepare_io_handler(struct super_block *sb,
+-		   struct z_erofs_vle_unzip_io *io,
+-		   bool background)
++static struct z_erofs_vle_unzip_io *
++jobqueue_init(struct super_block *sb,
++	      struct z_erofs_vle_unzip_io *io,
++	      bool foreground)
+ {
+ 	struct z_erofs_vle_unzip_io_sb *iosb;
  
--		grp = owned;
-+		grp = container_of(owned, struct z_erofs_vle_workgroup, next);
- 		owned = READ_ONCE(grp->next);
+-	if (!background) {
++	if (foreground) {
+ 		/* waitqueue available for foreground io */
+-		BUG_ON(!io);
++		DBG_BUGON(!io);
  
- 		z_erofs_vle_unzip(sb, grp, page_pool);
-@@ -1320,7 +1321,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 		DBG_BUGON(owned_head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- 		DBG_BUGON(owned_head == Z_EROFS_VLE_WORKGRP_NIL);
+ 		init_waitqueue_head(&io->u.wait);
+ 		atomic_set(&io->pending_bios, 0);
+ 		goto out;
+ 	}
  
--		grp = owned_head;
-+		grp = container_of(owned_head,
-+				   struct z_erofs_vle_workgroup, next);
+-	if (io)
+-		BUG();
+-	else {
+-		/* allocate extra io descriptor for background io */
+-		iosb = kvzalloc(sizeof(struct z_erofs_vle_unzip_io_sb),
++	iosb = kvzalloc(sizeof(struct z_erofs_vle_unzip_io_sb),
+ 			GFP_KERNEL | __GFP_NOFAIL);
+-		BUG_ON(!iosb);
+-
+-		io = &iosb->io;
+-	}
++	DBG_BUGON(!iosb);
  
- 		/* close the main owned chain at first */
- 		owned_head = cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
-@@ -1377,7 +1379,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 				WRITE_ONCE(lstgrp_io->next, iogrp_next);
++	/* initialize fields in the allocated descriptor */
++	io = &iosb->io;
+ 	iosb->sb = sb;
+ 	INIT_WORK(&io->u.work, z_erofs_vle_unzip_wq);
+ out:
+@@ -1258,27 +1253,105 @@ prepare_io_handler(struct super_block *sb,
+ 	return io;
+ }
  
- 			if (!lstgrp_noio)
--				ios[0]->head = grp;
-+				ios[0]->head = &grp->next;
- 			else
- 				WRITE_ONCE(lstgrp_noio->next, grp);
++/* define workgroup jobqueue types */
++enum {
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-#define __FSIO_1 1
++	JQ_BYPASS,
++#endif
++	JQ_SUBMIT,
++	NR_JOBQUEUES,
++};
++
++static void *jobqueueset_init(struct super_block *sb,
++			      z_erofs_vle_owned_workgrp_t qtail[],
++			      struct z_erofs_vle_unzip_io *q[],
++			      struct z_erofs_vle_unzip_io *fgq,
++			      bool forcefg)
++{
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++	/*
++	 * if managed cache is enabled, bypass jobqueue is needed,
++	 * no need to read from device for all workgroups in this queue.
++	 */
++	q[JQ_BYPASS] = jobqueue_init(sb, fgq + JQ_BYPASS, true);
++	qtail[JQ_BYPASS] = &q[JQ_BYPASS]->head;
++#endif
++
++	q[JQ_SUBMIT] = jobqueue_init(sb, fgq + JQ_SUBMIT, forcefg);
++	qtail[JQ_SUBMIT] = &q[JQ_SUBMIT]->head;
++
++	return tagptr_cast_ptr(tagptr_fold(tagptr1_t, q[JQ_SUBMIT], !forcefg));
++}
++
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++static void move_to_bypass_jobqueue(struct z_erofs_vle_workgroup *grp,
++				    z_erofs_vle_owned_workgrp_t qtail[],
++				    z_erofs_vle_owned_workgrp_t owned_head)
++{
++	z_erofs_vle_owned_workgrp_t *const submit_qtail = qtail[JQ_SUBMIT];
++	z_erofs_vle_owned_workgrp_t *const bypass_qtail = qtail[JQ_BYPASS];
++
++	DBG_BUGON(owned_head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
++	if (owned_head == Z_EROFS_VLE_WORKGRP_TAIL)
++		owned_head = Z_EROFS_VLE_WORKGRP_TAIL_CLOSED;
++
++	WRITE_ONCE(grp->next, Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
++
++	WRITE_ONCE(*submit_qtail, owned_head);
++	WRITE_ONCE(*bypass_qtail, &grp->next);
++
++	qtail[JQ_BYPASS] = &grp->next;
++}
++
++static bool postsubmit_is_all_bypassed(struct z_erofs_vle_unzip_io *q[],
++				       unsigned int nr_bios,
++				       bool force_fg)
++{
++	/*
++	 * although background is preferred, no one is pending for submission.
++	 * don't issue workqueue for decompression but drop it directly instead.
++	 */
++	if (force_fg || nr_bios)
++		return false;
++
++	kvfree(container_of(q[JQ_SUBMIT],
++			    struct z_erofs_vle_unzip_io_sb,
++			    io));
++	return true;
++}
+ #else
+-#define __FSIO_1 0
++static void move_to_bypass_jobqueue(struct z_erofs_vle_workgroup *grp,
++				    z_erofs_vle_owned_workgrp_t qtail[],
++				    z_erofs_vle_owned_workgrp_t owned_head)
++{
++	/* impossible to bypass submission for managed cache disabled */
++	DBG_BUGON(1);
++}
++
++static bool postsubmit_is_all_bypassed(struct z_erofs_vle_unzip_io *q[],
++				       unsigned int nr_bios,
++				       bool force_fg)
++{
++	/* bios should be >0 if managed cache is disabled */
++	DBG_BUGON(!nr_bios);
++	return false;
++}
+ #endif
  
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index c25421cbb69f..9517ace352a4 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -67,7 +67,7 @@ struct z_erofs_vle_work {
- #define Z_EROFS_VLE_WORKGRP_FMT_LZ4          1
- #define Z_EROFS_VLE_WORKGRP_FMT_MASK         1
+ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 				   z_erofs_vle_owned_workgrp_t owned_head,
+ 				   struct list_head *pagepool,
+-				   struct z_erofs_vle_unzip_io *fg_io,
++				   struct z_erofs_vle_unzip_io *fgq,
+ 				   bool force_fg)
+ {
+ 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
+ 	const unsigned int clusterpages = erofs_clusterpages(sbi);
+ 	const gfp_t gfp = GFP_NOFS;
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	struct z_erofs_vle_workgroup *lstgrp_noio = NULL, *lstgrp_io = NULL;
+-#endif
+-	struct z_erofs_vle_unzip_io *ios[1 + __FSIO_1];
++
++	z_erofs_vle_owned_workgrp_t qtail[NR_JOBQUEUES];
++	struct z_erofs_vle_unzip_io *q[NR_JOBQUEUES];
+ 	struct bio *bio;
+-	tagptr1_t bi_private;
++	void *bi_private;
+ 	/* since bio will be NULL, no need to initialize last_index */
+ 	pgoff_t uninitialized_var(last_index);
+ 	bool force_submit = false;
+@@ -1287,28 +1360,13 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 	if (unlikely(owned_head == Z_EROFS_VLE_WORKGRP_TAIL))
+ 		return false;
  
--typedef struct z_erofs_vle_workgroup *z_erofs_vle_owned_workgrp_t;
-+typedef void *z_erofs_vle_owned_workgrp_t;
+-	/*
+-	 * force_fg == 1, (io, fg_io[0]) no io, (io, fg_io[1]) need submit io
+-	 * force_fg == 0, (io, fg_io[0]) no io; (io[1], bg_io) need submit io
+-	 */
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	ios[0] = prepare_io_handler(sb, fg_io + 0, false);
+-#endif
+-
+-	if (force_fg) {
+-		ios[__FSIO_1] = prepare_io_handler(sb, fg_io + __FSIO_1, false);
+-		bi_private = tagptr_fold(tagptr1_t, ios[__FSIO_1], 0);
+-	} else {
+-		ios[__FSIO_1] = prepare_io_handler(sb, NULL, true);
+-		bi_private = tagptr_fold(tagptr1_t, ios[__FSIO_1], 1);
+-	}
+-
+-	nr_bios = 0;
+ 	force_submit = false;
+ 	bio = NULL;
++	nr_bios = 0;
++	bi_private = jobqueueset_init(sb, qtail, q, fgq, force_fg);
  
- /* compressed page tagptr (bit 0 - justfound, with an extra reference) */
- typedef tagptr1_t z_erofs_ctptr_t;
-@@ -79,7 +79,7 @@ struct z_erofs_vle_workgroup {
- 	struct erofs_workgroup obj;
- 	struct z_erofs_vle_work work;
+ 	/* by default, all need io submission */
+-	ios[__FSIO_1]->head = owned_head;
++	q[JQ_SUBMIT]->head = owned_head;
  
--	/* next owned workgroup */
-+	/* point to next owned_workgrp_t */
- 	z_erofs_vle_owned_workgrp_t next;
+ 	do {
+ 		struct z_erofs_vle_workgroup *grp;
+@@ -1348,8 +1406,9 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
  
- 	/* compressed pages (including multi-usage pages) */
+ 		if (!bio) {
+ 			bio = erofs_grab_bio(sb, first_index + i,
+-				BIO_MAX_PAGES, z_erofs_vle_read_endio, true);
+-			bio->bi_private = tagptr_cast_ptr(bi_private);
++					     BIO_MAX_PAGES,
++					     z_erofs_vle_read_endio, true);
++			bio->bi_private = bi_private;
+ 
+ 			++nr_bios;
+ 		}
+@@ -1364,47 +1423,19 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 		if (++i < clusterpages)
+ 			goto repeat;
+ 
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (bypass < clusterpages) {
+-			lstgrp_io = grp;
+-		} else {
+-			z_erofs_vle_owned_workgrp_t iogrp_next =
+-				owned_head == Z_EROFS_VLE_WORKGRP_TAIL ?
+-				Z_EROFS_VLE_WORKGRP_TAIL_CLOSED :
+-				owned_head;
+-
+-			if (!lstgrp_io)
+-				ios[1]->head = iogrp_next;
+-			else
+-				WRITE_ONCE(lstgrp_io->next, iogrp_next);
+-
+-			if (!lstgrp_noio)
+-				ios[0]->head = &grp->next;
+-			else
+-				WRITE_ONCE(lstgrp_noio->next, grp);
+-
+-			lstgrp_noio = grp;
+-		}
+-#endif
++		if (bypass < clusterpages)
++			qtail[JQ_SUBMIT] = &grp->next;
++		else
++			move_to_bypass_jobqueue(grp, qtail, owned_head);
+ 	} while (owned_head != Z_EROFS_VLE_WORKGRP_TAIL);
+ 
+ 	if (bio)
+ 		__submit_bio(bio, REQ_OP_READ, 0);
+ 
+-#ifndef EROFS_FS_HAS_MANAGED_CACHE
+-	BUG_ON(!nr_bios);
+-#else
+-	if (lstgrp_noio)
+-		WRITE_ONCE(lstgrp_noio->next, Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
+-
+-	if (!force_fg && !nr_bios) {
+-		kvfree(container_of(ios[1],
+-			struct z_erofs_vle_unzip_io_sb, io));
++	if (postsubmit_is_all_bypassed(q, nr_bios, force_fg))
+ 		return true;
+-	}
+-#endif
+ 
+-	z_erofs_vle_unzip_kickoff(tagptr_cast_ptr(bi_private), nr_bios);
++	z_erofs_vle_unzip_kickoff(bi_private, nr_bios);
+ 	return true;
+ }
+ 
+@@ -1413,23 +1444,23 @@ static void z_erofs_submit_and_unzip(struct z_erofs_vle_frontend *f,
+ 				     bool force_fg)
+ {
+ 	struct super_block *sb = f->inode->i_sb;
+-	struct z_erofs_vle_unzip_io io[1 + __FSIO_1];
++	struct z_erofs_vle_unzip_io io[NR_JOBQUEUES];
+ 
+ 	if (!z_erofs_vle_submit_all(sb, f->owned_head, pagepool, io, force_fg))
+ 		return;
+ 
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	z_erofs_vle_unzip_all(sb, &io[0], pagepool);
++	z_erofs_vle_unzip_all(sb, &io[JQ_BYPASS], pagepool);
+ #endif
+ 	if (!force_fg)
+ 		return;
+ 
+ 	/* wait until all bios are completed */
+-	wait_event(io[__FSIO_1].u.wait,
+-		!atomic_read(&io[__FSIO_1].pending_bios));
++	wait_event(io[JQ_SUBMIT].u.wait,
++		   !atomic_read(&io[JQ_SUBMIT].pending_bios));
+ 
+ 	/* let's synchronous decompression */
+-	z_erofs_vle_unzip_all(sb, &io[__FSIO_1], pagepool);
++	z_erofs_vle_unzip_all(sb, &io[JQ_SUBMIT], pagepool);
+ }
+ 
+ static int z_erofs_vle_normalaccess_readpage(struct file *file,
 -- 
 2.14.4
