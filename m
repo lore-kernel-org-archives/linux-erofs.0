@@ -1,37 +1,88 @@
-From: nitin.gupta981@gmail.com (Nitin Gupta)
-Date: Fri, 31 Aug 2018 16:53:53 +0530
-Subject: SKylake Edac support in linux 2.6.32.696 kernel build
-In-Reply-To: <CAB3_1NuNyrBYx2M1iKOYb+rTRXW+p1gB-1VTaBymVBvRHvDSMA@mail.gmail.com>
-References: <CAB3_1NuNyrBYx2M1iKOYb+rTRXW+p1gB-1VTaBymVBvRHvDSMA@mail.gmail.com>
-Message-ID: <CAB3_1Nv8=KvbAnMsOwxpqfrNU7+Xf8napS12b3yt_fCP4JuyBA@mail.gmail.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Sun, 2 Dec 2018 02:32:05 +0800
+Subject: [PATCH chao/erofs-dev 1/7] staging: erofs: fix use-after-free of
+ on-stack `z_erofs_vle_unzip_io'
+Message-ID: <20181201183211.27406-1-gaoxiang25@huawei.com>
 
-There are below link also found
+The root cause is the race as follows:
+ Thread #0                         Thread #1
 
+ z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
 
-./sys/devices/mc/mc0
-./sys/bus/mc0
-./sys/bus/mc0/devices/mc0
+                                    struct z_erofs_vle_unzip_io io[]
+   atomic_add_return()
+                                    wait_event()
+                                    [end of function]
+   wake_up()
 
-On Fri, Aug 31, 2018 at 4:46 PM, Nitin Gupta <nitin.gupta981 at gmail.com>
-wrote:
+Fix it by taking the waitqueue lock between atomic_add_return and
+wake_up to close such the race.
 
-> Hi All
->
-> I  started back porting  Skylake Edac driver from 4.8 kernel to 2.6.696
-> kernel
-> i am not getting the memory controller entries inside
-> /sys/devices/system/edac/
->
-> i am able to get the entries inside
->
-> /sys/bus/edac/devices/mc/
-> /sys/devices/mc/
->
-> Any help will be appreciated .
->
-> Regards
-> Nitin
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20180831/ac981841/attachment.html>
+kernel message:
+
+Unable to handle kernel paging request at virtual address 97f7052caa1303dc
+...
+Workqueue: kverityd verity_work
+task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
+PC is at __wake_up_common+0x48/0xa8
+LR is at __wake_up+0x3c/0x58
+...
+Call trace:
+...
+[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
+[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
+[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
+[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1076540>] dec_pending+0x134/0x32c
+[<ffffff94a1076f28>] clone_endio+0x90/0xf4
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1095024>] verity_work+0x210/0x368
+[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
+[<ffffff94a08c45bc>] worker_thread+0x140/0x458
+[<ffffff94a08cad48>] kthread+0xec/0x108
+[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
+Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
+---[ end trace be9dde154f677cd1 ]---
+
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+Hi Chao,
+ could you please kindly update this patch series and
+ take a look them all? Thanks in advance.
+
+Thanks,
+Gao Xiang
+
+ drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index f5d088fdf7f2..b39d9b5c051b 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -744,13 +744,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
+ 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
+ 	bool background = tagptr_unfold_tags(t);
+ 
+-	if (atomic_add_return(bios, &io->pending_bios))
++	if (!background) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&io->u.wait.lock, flags);
++		if (!atomic_add_return(bios, &io->pending_bios))
++			 wake_up_locked(&io->u.wait);
++		spin_unlock_irqrestore(&io->u.wait.lock, flags);
+ 		return;
++	}
+ 
+-	if (background)
++	if (!atomic_add_return(bios, &io->pending_bios))
+ 		queue_work(z_erofs_workqueue, &io->u.work);
+-	else
+-		wake_up(&io->u.wait);
+ }
+ 
+ static inline void z_erofs_vle_read_endio(struct bio *bio)
+-- 
+2.14.4
