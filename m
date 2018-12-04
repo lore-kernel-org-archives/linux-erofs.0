@@ -1,231 +1,172 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 4 Dec 2018 17:21:16 +0800
-Subject: [PREVIEW] [NOMERGE] [PATCH 1/2] staging: erofs: introduce percpu map
- areas
-Message-ID: <20181204092117.9239-1-gaoxiang25@huawei.com>
+Date: Tue, 4 Dec 2018 17:21:17 +0800
+Subject: [PREVIEW] [NOMERGE] [PATCH 2/2] staging: erofs: replace old percpu
+ buffers decompression
+In-Reply-To: <20181204092117.9239-1-gaoxiang25@huawei.com>
+References: <20181204092117.9239-1-gaoxiang25@huawei.com>
+Message-ID: <20181204092117.9239-2-gaoxiang25@huawei.com>
 
-There is a need for decompress algorithms to work in continuous
-virtual memory areas. However, vmap or vm_map_ram will also repeatly
-(un)allocate vm_areas over and over again (vmap_area_lock is needed),
-which takes much overhead.
+After introducing percpu map areas, let's remove the current
+percpu buffers approach for two reasons:
 
-Let's introduce percpu vm areas as what zsmalloc does, expect that
-erofs needs mapping more pages at once, therefore only VM mapping is
-performed.
+  1) It's ineffective since the buffer size for each cpu is
+     4 * PAGE_SIZE, and an extra memcpy will be performed
+     after decompressing into the specific percpu buffer,
+     and it will also fall back to vmap approach if
+     decompression size is larger than 4 * PAGE_SIZE;
+     Note that percpu map areas win in all cases for mobile
+     platforms (ex, ARM), even if the decompressed size is
+     very small, but I have to admit that a copy-based
+     decompression method is still useful in some platforms
+     (eg, X86 according to [1]) for small decompressed sizes;
+
+  2) It has high coupling of erofs compression code and it is
+     not as clean as expected.
+
+Anyway, a more cleaned hybird (memcpy for small decompressed
+size) approach will be introduced independently for those
+platforms, that is another story. Let's drop the current
+percpu buffers approach for now.
+
+[1] https://lkml.org/lkml/2013/2/5/852
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h      |   8 +++
- drivers/staging/erofs/super.c         |   7 +++
- drivers/staging/erofs/unzip_vle_lz4.c |   4 +-
- drivers/staging/erofs/utils.c         | 113 ++++++++++++++++++++++++++++++++++
- 4 files changed, 130 insertions(+), 2 deletions(-)
+ drivers/staging/erofs/unzip_vle.c     |  7 ----
+ drivers/staging/erofs/unzip_vle.h     |  5 ---
+ drivers/staging/erofs/unzip_vle_lz4.c | 71 +----------------------------------
+ 3 files changed, 1 insertion(+), 82 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index e049d00c087a..69ec5dc9e332 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -612,8 +612,16 @@ static inline void erofs_vunmap(const void *mem, unsigned int count)
- }
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 929815705b98..e931748ab433 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -991,12 +991,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	if (llen > grp->llen)
+ 		llen = grp->llen;
  
- /* utils.c */
-+#define EROFS_FS_PERCPU_VM_PAGES	128
-+
- extern struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
+-	err = z_erofs_vle_unzip_fast_percpu(compressed_pages,
+-		clusterpages, pages, llen, work->pageofs,
+-		z_erofs_onlinepage_endio);
+-	if (err != -ENOTSUPP)
+-		goto out_percpu;
+-
+ 	if (sparsemem_pages >= nr_pages) {
+ 		BUG_ON(sparsemem_pages > nr_pages);
+ 		goto skip_allocpage;
+@@ -1032,7 +1026,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		z_erofs_onlinepage_endio(page);
+ 	}
  
-+void *erofs_pcpumap(struct page **pages, unsigned int nr_pages);
-+void erofs_pcpuunmap(void);
-+
-+int __init erofs_register_cpu_notifier(void);
-+void erofs_unregister_cpu_notifier(void);
-+
- extern void erofs_register_super(struct super_block *sb);
- extern void erofs_unregister_super(struct super_block *sb);
+-out_percpu:
+ 	for (i = 0; i < clusterpages; ++i) {
+ 		page = compressed_pages[i];
  
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 1ab3553c839b..8bdc3b7dbcc3 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -560,6 +560,10 @@ static int __init erofs_module_init(void)
- 	erofs_check_ondisk_layout_definitions();
- 	infoln("initializing erofs " EROFS_VERSION);
+diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
+index 9517ace352a4..7b61fa3b0e75 100644
+--- a/drivers/staging/erofs/unzip_vle.h
++++ b/drivers/staging/erofs/unzip_vle.h
+@@ -222,11 +222,6 @@ extern int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 	unsigned clusterpages, struct page **pages,
+ 	unsigned nr_pages, unsigned short pageofs);
  
-+	err = erofs_register_cpu_notifier();
-+	if (err)
-+		goto cpu_notifier_err;
-+
- 	err = erofs_init_inode_cache();
- 	if (err)
- 		goto icache_err;
-@@ -586,6 +590,8 @@ static int __init erofs_module_init(void)
- shrinker_err:
- 	erofs_exit_inode_cache();
- icache_err:
-+	erofs_unregister_cpu_notifier();
-+cpu_notifier_err:
- 	return err;
- }
- 
-@@ -595,6 +601,7 @@ static void __exit erofs_module_exit(void)
- 	z_erofs_exit_zip_subsystem();
- 	unregister_shrinker(&erofs_shrinker_info);
- 	erofs_exit_inode_cache();
-+	erofs_unregister_cpu_notifier();
- 	infoln("successfully finalize erofs");
- }
- 
+-extern int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+-	unsigned clusterpages, struct page **pages,
+-	unsigned outlen, unsigned short pageofs,
+-	void (*endio)(struct page *));
+-
+ extern int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
+ 	unsigned clusterpages, void *vaddr, unsigned llen,
+ 	unsigned short pageofs, bool overlapped);
 diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
-index de0a5d1365a4..20957372a7a3 100644
+index 20957372a7a3..4fdf9d456efa 100644
 --- a/drivers/staging/erofs/unzip_vle_lz4.c
 +++ b/drivers/staging/erofs/unzip_vle_lz4.c
-@@ -208,7 +208,7 @@ int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
- 	} else if (clusterpages == 1) {
- 		vin = kmap_atomic(compressed_pages[0]);
- 	} else {
--		vin = erofs_vmap(compressed_pages, clusterpages);
-+		vin = erofs_pcpumap(compressed_pages, clusterpages);
- 	}
- 
- 	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
-@@ -220,7 +220,7 @@ int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
- 		if (clusterpages == 1)
- 			kunmap_atomic(vin);
- 		else
--			erofs_vunmap(vin, clusterpages);
-+			erofs_pcpuunmap();
- 	} else {
- 		preempt_enable();
- 	}
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index d2e3ace91046..29973ab44a36 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -13,6 +13,19 @@
- 
- #include "internal.h"
- #include <linux/pagevec.h>
-+#include <linux/cpu.h>
-+#include <linux/cpuhotplug.h>
-+
-+struct erofs_pcpu_mapping_area {
-+	/* vm area for mapping object that span pages */
-+	struct vm_struct *vm;
-+
-+	char *vm_addr; /* address of kmap_atomic()'ed pages */
-+	unsigned int nr_pages;
-+};
-+
-+/* per-cpu mapping areas for multi-pages */
-+static DEFINE_PER_CPU(struct erofs_pcpu_mapping_area, map_area);
- 
- struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
- {
-@@ -30,6 +43,106 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
- 	return page;
+@@ -34,14 +34,8 @@ int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
+ 	return -EIO;
  }
  
-+void *erofs_pcpumap(struct page **pages, unsigned int nr_pages)
-+{
-+	struct erofs_pcpu_mapping_area *area;
-+	int ret;
-+
-+	/* it is too large, use the generic vmap approch */
-+	if (nr_pages > EROFS_FS_PERCPU_VM_PAGES) {
-+		void *vaddr = erofs_vmap(pages, nr_pages);
-+
-+		area = &get_cpu_var(map_area);
-+		area->vm_addr = vaddr;
-+		goto out;
-+	}
-+	area = &get_cpu_var(map_area);
-+
-+	if (area->vm->flags & VM_NO_GUARD)
-+		area->vm->size = nr_pages * PAGE_SIZE;
-+	else
-+		area->vm->size = (nr_pages + 1) * PAGE_SIZE;
-+
-+	ret = map_vm_area(area->vm, PAGE_KERNEL, pages);
-+
-+	if (unlikely(ret))
-+		return ERR_PTR(ret);
-+
-+	area->vm_addr = area->vm->addr;
-+out:
-+	area->nr_pages = nr_pages;
-+	return area->vm_addr;
-+}
-+
-+void erofs_pcpuunmap(void)
-+{
-+	struct erofs_pcpu_mapping_area *const area = this_cpu_ptr(&map_area);
-+	void *const vaddr = area->vm_addr;
-+	const unsigned int nr_pages = area->nr_pages;
-+
-+	if (nr_pages > EROFS_FS_PERCPU_VM_PAGES) {
-+		preempt_enable();
-+		erofs_vunmap(vaddr, nr_pages);
-+		return;
-+	}
-+
-+	unmap_kernel_range((unsigned long)vaddr,
-+			   PAGE_SIZE * nr_pages);
-+
-+	if (area->vm->flags & VM_NO_GUARD)
-+		area->vm->size = EROFS_FS_PERCPU_VM_PAGES * PAGE_SIZE;
-+	else
-+		area->vm->size = (EROFS_FS_PERCPU_VM_PAGES + 1) * PAGE_SIZE;
-+	put_cpu_var(map_area);
-+}
-+
-+static int erofs_cpu_prepare(unsigned int cpu)
-+{
-+	struct erofs_pcpu_mapping_area *const area = &per_cpu(map_area, cpu);
-+	/*
-+	 * Make sure we don't leak memory if a cpu UP notification
-+	 * and erofs_register_cpu_notifier() race and both call
-+	 * cpu_up() on the same cpu
-+	 */
-+	if (area->vm)
-+		return 0;
-+
-+	area->vm = alloc_vm_area(PAGE_SIZE * EROFS_FS_PERCPU_VM_PAGES, NULL);
-+	if (!area->vm)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+static int erofs_cpu_dead(unsigned int cpu)
-+{
-+	struct erofs_pcpu_mapping_area *const area = &per_cpu(map_area, cpu);
-+
-+	if (area->vm) {
-+		free_vm_area(area->vm);
-+		area->vm = NULL;
-+	}
-+	return 0;
-+}
-+
-+static enum cpuhp_state hp_online;
-+
-+int __init erofs_register_cpu_notifier(void)
-+{
-+	int err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "fs/erofs:online",
-+				    erofs_cpu_prepare, erofs_cpu_dead);
-+
-+	if (err < 0)
-+		return err;
-+
-+	hp_online = err;
-+	return 0;
-+}
-+
-+void erofs_unregister_cpu_notifier(void)
-+{
-+	cpuhp_remove_state(hp_online);
-+}
-+
- /* global shrink count (for all mounted EROFS instances) */
- static atomic_long_t erofs_global_shrink_cnt;
+-#if Z_EROFS_CLUSTER_MAX_PAGES > Z_EROFS_VLE_INLINE_PAGEVECS
+-#define EROFS_PERCPU_NR_PAGES   Z_EROFS_CLUSTER_MAX_PAGES
+-#else
+-#define EROFS_PERCPU_NR_PAGES   Z_EROFS_VLE_INLINE_PAGEVECS
+-#endif
+-
+ static struct {
+-	char data[PAGE_SIZE * EROFS_PERCPU_NR_PAGES];
++	char data[PAGE_SIZE * (Z_EROFS_CLUSTER_MAX_PAGES + 1)];
+ } erofs_pcpubuf[NR_CPUS];
  
+ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+@@ -121,69 +115,6 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 	return 0;
+ }
+ 
+-int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+-				  unsigned int clusterpages,
+-				  struct page **pages,
+-				  unsigned int outlen,
+-				  unsigned short pageofs,
+-				  void (*endio)(struct page *))
+-{
+-	void *vin, *vout;
+-	unsigned int nr_pages, i, j;
+-	int ret;
+-
+-	if (outlen + pageofs > EROFS_PERCPU_NR_PAGES * PAGE_SIZE)
+-		return -ENOTSUPP;
+-
+-	nr_pages = DIV_ROUND_UP(outlen + pageofs, PAGE_SIZE);
+-
+-	if (clusterpages == 1)
+-		vin = kmap_atomic(compressed_pages[0]);
+-	else
+-		vin = erofs_vmap(compressed_pages, clusterpages);
+-
+-	preempt_disable();
+-	vout = erofs_pcpubuf[smp_processor_id()].data;
+-
+-	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
+-				clusterpages * PAGE_SIZE, outlen);
+-
+-	if (ret >= 0) {
+-		outlen = ret;
+-		ret = 0;
+-	}
+-
+-	for (i = 0; i < nr_pages; ++i) {
+-		j = min((unsigned int)PAGE_SIZE - pageofs, outlen);
+-
+-		if (pages[i]) {
+-			if (ret < 0) {
+-				SetPageError(pages[i]);
+-			} else if (clusterpages == 1 &&
+-				   pages[i] == compressed_pages[0]) {
+-				memcpy(vin + pageofs, vout + pageofs, j);
+-			} else {
+-				void *dst = kmap_atomic(pages[i]);
+-
+-				memcpy(dst + pageofs, vout + pageofs, j);
+-				kunmap_atomic(dst);
+-			}
+-			endio(pages[i]);
+-		}
+-		vout += PAGE_SIZE;
+-		outlen -= j;
+-		pageofs = 0;
+-	}
+-	preempt_enable();
+-
+-	if (clusterpages == 1)
+-		kunmap_atomic(vin);
+-	else
+-		erofs_vunmap(vin, clusterpages);
+-
+-	return ret;
+-}
+-
+ int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
+ 			   unsigned int clusterpages,
+ 			   void *vout,
 -- 
 2.14.4
