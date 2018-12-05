@@ -1,172 +1,109 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 4 Dec 2018 21:30:50 +0800
-Subject: [PREVIEW] [NOMERGE] [PATCH v2 2/2] staging: erofs: replace old percpu
- buffers decompression
-In-Reply-To: <20181204133050.4501-1-gaoxiang25@huawei.com>
-References: <20181204133050.4501-1-gaoxiang25@huawei.com>
-Message-ID: <20181204133050.4501-2-gaoxiang25@huawei.com>
+Date: Wed, 5 Dec 2018 21:23:13 +0800
+Subject: [PATCH 1/2] staging: erofs: {dir,inode,super}.c: rectify BUG_ONs
+Message-ID: <20181205132314.8124-1-gaoxiang25@huawei.com>
 
-After introducing percpu map areas, let's remove the current
-percpu buffers approach for two reasons:
-
-  1) It's ineffective since the buffer size for each cpu is
-     4 * PAGE_SIZE, and an extra memcpy will be performed
-     after decompressing into the specific percpu buffer,
-     and it will also fall back to vmap approach if
-     decompression size is larger than 4 * PAGE_SIZE;
-     Note that percpu map areas win in all cases for mobile
-     platforms (ex, ARM), even if the decompressed size is
-     very small, but I have to admit that a copy-based
-     decompression method is still useful in some platforms
-     (eg, X86 according to [1]) for small decompressed sizes;
-
-  2) It has high coupling of erofs compression code and it is
-     not as clean as expected.
-
-Anyway, a more cleaned hybird (memcpy for small decompressed
-size) approach will be introduced independently for those
-platforms, that is another story. Let's drop the current
-percpu buffers approach for now.
-
-[1] https://lkml.org/lkml/2013/2/5/852
+remove all redundant BUG_ONs, and turn the rest
+useful usages to DBG_BUGONs.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c     |  7 ----
- drivers/staging/erofs/unzip_vle.h     |  5 ---
- drivers/staging/erofs/unzip_vle_lz4.c | 71 +----------------------------------
- 3 files changed, 1 insertion(+), 82 deletions(-)
+ drivers/staging/erofs/dir.c   |  7 +++++--
+ drivers/staging/erofs/inode.c | 10 ++++++++--
+ drivers/staging/erofs/super.c | 13 ++++++-------
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 695f342d0509..24f05701ea40 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -991,12 +991,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	if (llen > grp->llen)
- 		llen = grp->llen;
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index d1cb0d78ab84..e44ca93dcdc6 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -53,8 +53,11 @@ static int erofs_fill_dentries(struct dir_context *ctx,
+ 			strnlen(de_name, maxsize - nameoff) :
+ 			le16_to_cpu(de[1].nameoff) - nameoff;
  
--	err = z_erofs_vle_unzip_fast_percpu(compressed_pages,
--		clusterpages, pages, llen, work->pageofs,
--		z_erofs_onlinepage_endio);
--	if (err != -ENOTSUPP)
--		goto out_percpu;
--
- 	if (sparsemem_pages >= nr_pages) {
- 		BUG_ON(sparsemem_pages > nr_pages);
- 		goto skip_allocpage;
-@@ -1032,7 +1026,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		z_erofs_onlinepage_endio(page);
+-		/* the corrupted directory found */
+-		BUG_ON(de_namelen < 0);
++		/* a corrupted entry is found */
++		if (unlikely(de_namelen < 0)) {
++			DBG_BUGON(1);
++			return -EIO;
++		}
+ 
+ #ifdef CONFIG_EROFS_FS_DEBUG
+ 		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 04c61a9d7b76..d7fbf5f4600f 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -133,7 +133,13 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 			return -ENOMEM;
+ 
+ 		m_pofs += vi->inode_isize + vi->xattr_isize;
+-		BUG_ON(m_pofs + inode->i_size > PAGE_SIZE);
++
++		/* inline symlink data shouldn't across page boundary as well */
++		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
++			DBG_BUGON(1);
++			kfree(lnk);
++			return -EIO;
++		}
+ 
+ 		/* get in-page inline data */
+ 		memcpy(lnk, data + m_pofs, inode->i_size);
+@@ -171,7 +177,7 @@ static int fill_inode(struct inode *inode, int isdir)
+ 		return PTR_ERR(page);
  	}
  
--out_percpu:
- 	for (i = 0; i < clusterpages; ++i) {
- 		page = compressed_pages[i];
+-	BUG_ON(!PageUptodate(page));
++	DBG_BUGON(!PageUptodate(page));
+ 	data = page_address(page);
  
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index 9517ace352a4..7b61fa3b0e75 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -222,11 +222,6 @@ extern int z_erofs_vle_plain_copy(struct page **compressed_pages,
- 	unsigned clusterpages, struct page **pages,
- 	unsigned nr_pages, unsigned short pageofs);
+ 	err = read_inode(inode, data + ofs);
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 1ab3553c839b..1c2eb69682ef 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -40,7 +40,6 @@ static int __init erofs_init_inode_cache(void)
  
--extern int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
--	unsigned clusterpages, struct page **pages,
--	unsigned outlen, unsigned short pageofs,
--	void (*endio)(struct page *));
--
- extern int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
- 	unsigned clusterpages, void *vaddr, unsigned llen,
- 	unsigned short pageofs, bool overlapped);
-diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
-index 2bf09daac206..9b63ecfa7b09 100644
---- a/drivers/staging/erofs/unzip_vle_lz4.c
-+++ b/drivers/staging/erofs/unzip_vle_lz4.c
-@@ -34,14 +34,8 @@ int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
- 	return -EIO;
+ static void erofs_exit_inode_cache(void)
+ {
+-	BUG_ON(erofs_inode_cachep == NULL);
+ 	kmem_cache_destroy(erofs_inode_cachep);
  }
  
--#if Z_EROFS_CLUSTER_MAX_PAGES > Z_EROFS_VLE_INLINE_PAGEVECS
--#define EROFS_PERCPU_NR_PAGES   Z_EROFS_CLUSTER_MAX_PAGES
--#else
--#define EROFS_PERCPU_NR_PAGES   Z_EROFS_VLE_INLINE_PAGEVECS
--#endif
--
- static struct {
--	char data[PAGE_SIZE * EROFS_PERCPU_NR_PAGES];
-+	char data[PAGE_SIZE * (Z_EROFS_CLUSTER_MAX_PAGES + 1)];
- } erofs_pcpubuf[NR_CPUS];
+@@ -303,8 +302,8 @@ static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
+ 	int ret = 1;	/* 0 - busy */
+ 	struct address_space *const mapping = page->mapping;
  
- int z_erofs_vle_plain_copy(struct page **compressed_pages,
-@@ -121,69 +115,6 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
- 	return 0;
- }
+-	BUG_ON(!PageLocked(page));
+-	BUG_ON(mapping->a_ops != &managed_cache_aops);
++	DBG_BUGON(!PageLocked(page));
++	DBG_BUGON(mapping->a_ops != &managed_cache_aops);
  
--int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
--				  unsigned int clusterpages,
--				  struct page **pages,
--				  unsigned int outlen,
--				  unsigned short pageofs,
--				  void (*endio)(struct page *))
--{
--	void *vin, *vout;
--	unsigned int nr_pages, i, j;
--	int ret;
--
--	if (outlen + pageofs > EROFS_PERCPU_NR_PAGES * PAGE_SIZE)
--		return -ENOTSUPP;
--
--	nr_pages = DIV_ROUND_UP(outlen + pageofs, PAGE_SIZE);
--
--	if (clusterpages == 1)
--		vin = kmap_atomic(compressed_pages[0]);
--	else
--		vin = erofs_vmap(compressed_pages, clusterpages);
--
--	preempt_disable();
--	vout = erofs_pcpubuf[smp_processor_id()].data;
--
--	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
--				clusterpages * PAGE_SIZE, outlen);
--
--	if (ret >= 0) {
--		outlen = ret;
--		ret = 0;
--	}
--
--	for (i = 0; i < nr_pages; ++i) {
--		j = min((unsigned int)PAGE_SIZE - pageofs, outlen);
--
--		if (pages[i]) {
--			if (ret < 0) {
--				SetPageError(pages[i]);
--			} else if (clusterpages == 1 &&
--				   pages[i] == compressed_pages[0]) {
--				memcpy(vin + pageofs, vout + pageofs, j);
--			} else {
--				void *dst = kmap_atomic(pages[i]);
--
--				memcpy(dst + pageofs, vout + pageofs, j);
--				kunmap_atomic(dst);
--			}
--			endio(pages[i]);
--		}
--		vout += PAGE_SIZE;
--		outlen -= j;
--		pageofs = 0;
--	}
--	preempt_enable();
--
--	if (clusterpages == 1)
--		kunmap_atomic(vin);
--	else
--		erofs_vunmap(vin, clusterpages);
--
--	return ret;
--}
--
- int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
- 			   unsigned int clusterpages,
- 			   void *vout,
+ 	if (PagePrivate(page))
+ 		ret = erofs_try_to_free_cached_page(mapping, page);
+@@ -317,10 +316,10 @@ static void managed_cache_invalidatepage(struct page *page,
+ {
+ 	const unsigned int stop = length + offset;
+ 
+-	BUG_ON(!PageLocked(page));
++	DBG_BUGON(!PageLocked(page));
+ 
+-	/* Check for overflow */
+-	BUG_ON(stop > PAGE_SIZE || stop < length);
++	/* Check for potential overflow in debug mode */
++	DBG_BUGON(stop > PAGE_SIZE || stop < length);
+ 
+ 	if (offset == 0 && stop == PAGE_SIZE)
+ 		while (!managed_cache_releasepage(page, GFP_NOFS))
+@@ -649,7 +648,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ 	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
+ 	int err;
+ 
+-	BUG_ON(!sb_rdonly(sb));
++	DBG_BUGON(!sb_rdonly(sb));
+ 	err = parse_options(sb, data);
+ 	if (err)
+ 		goto out;
 -- 
 2.14.4
