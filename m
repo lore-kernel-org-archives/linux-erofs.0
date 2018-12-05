@@ -1,109 +1,49 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 5 Dec 2018 21:23:13 +0800
-Subject: [PATCH 1/2] staging: erofs: {dir,inode,super}.c: rectify BUG_ONs
-Message-ID: <20181205132314.8124-1-gaoxiang25@huawei.com>
+Date: Wed, 5 Dec 2018 21:23:14 +0800
+Subject: [PATCH 2/2] staging: erofs: update erofs-utils information in TODO
+In-Reply-To: <20181205132314.8124-1-gaoxiang25@huawei.com>
+References: <20181205132314.8124-1-gaoxiang25@huawei.com>
+Message-ID: <20181205132314.8124-2-gaoxiang25@huawei.com>
 
-remove all redundant BUG_ONs, and turn the rest
-useful usages to DBG_BUGONs.
+erofs-utils was released by the original author Li Guifu
+weeks ago in the linux-erofs mailing list [1], update
+information in TODO and let's wait the original author
+finish all open source works.
 
+[1] https://lists.ozlabs.org/pipermail/linux-erofs/2018-November/001004.html
+
+Cc: Li Guifu <bluce.liguifu at huawei.com>
+Cc: Fang Wei <fangwei1 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/dir.c   |  7 +++++--
- drivers/staging/erofs/inode.c | 10 ++++++++--
- drivers/staging/erofs/super.c | 13 ++++++-------
- 3 files changed, 19 insertions(+), 11 deletions(-)
+ drivers/staging/erofs/TODO | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index d1cb0d78ab84..e44ca93dcdc6 100644
---- a/drivers/staging/erofs/dir.c
-+++ b/drivers/staging/erofs/dir.c
-@@ -53,8 +53,11 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 			strnlen(de_name, maxsize - nameoff) :
- 			le16_to_cpu(de[1].nameoff) - nameoff;
+diff --git a/drivers/staging/erofs/TODO b/drivers/staging/erofs/TODO
+index f99ddb842f99..a8608b2f72bd 100644
+--- a/drivers/staging/erofs/TODO
++++ b/drivers/staging/erofs/TODO
+@@ -23,13 +23,14 @@ TODO List:
  
--		/* the corrupted directory found */
--		BUG_ON(de_namelen < 0);
-+		/* a corrupted entry is found */
-+		if (unlikely(de_namelen < 0)) {
-+			DBG_BUGON(1);
-+			return -EIO;
-+		}
+  - data deduplication and other useful features.
  
- #ifdef CONFIG_EROFS_FS_DEBUG
- 		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 04c61a9d7b76..d7fbf5f4600f 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -133,7 +133,13 @@ static int fill_inline_data(struct inode *inode, void *data,
- 			return -ENOMEM;
- 
- 		m_pofs += vi->inode_isize + vi->xattr_isize;
--		BUG_ON(m_pofs + inode->i_size > PAGE_SIZE);
+-erofs-mkfs (preview version) binaries for i386 / x86_64 are available at:
+-
+-   https://github.com/hsiangkao/erofs_mkfs_binary
+-
+-It is still in progress opening mkfs source code to public,
+-in any case an open-source mkfs will be released in the near future.
+-
++The following git tree provides the file system user-space
++tools under development (ex, formatting tool mkfs.erofs):
++>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
 +
-+		/* inline symlink data shouldn't across page boundary as well */
-+		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
-+			DBG_BUGON(1);
-+			kfree(lnk);
-+			return -EIO;
-+		}
++The open-source development of erofs-utils is at the early stage.
++Contact the original author Li Guifu <bluce.liguifu at huawei.com> and
++the co-maintainer Fang Wei <fangwei1 at huawei.com> for the latest news
++and more details.
  
- 		/* get in-page inline data */
- 		memcpy(lnk, data + m_pofs, inode->i_size);
-@@ -171,7 +177,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 		return PTR_ERR(page);
- 	}
- 
--	BUG_ON(!PageUptodate(page));
-+	DBG_BUGON(!PageUptodate(page));
- 	data = page_address(page);
- 
- 	err = read_inode(inode, data + ofs);
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 1ab3553c839b..1c2eb69682ef 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -40,7 +40,6 @@ static int __init erofs_init_inode_cache(void)
- 
- static void erofs_exit_inode_cache(void)
- {
--	BUG_ON(erofs_inode_cachep == NULL);
- 	kmem_cache_destroy(erofs_inode_cachep);
- }
- 
-@@ -303,8 +302,8 @@ static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
- 	int ret = 1;	/* 0 - busy */
- 	struct address_space *const mapping = page->mapping;
- 
--	BUG_ON(!PageLocked(page));
--	BUG_ON(mapping->a_ops != &managed_cache_aops);
-+	DBG_BUGON(!PageLocked(page));
-+	DBG_BUGON(mapping->a_ops != &managed_cache_aops);
- 
- 	if (PagePrivate(page))
- 		ret = erofs_try_to_free_cached_page(mapping, page);
-@@ -317,10 +316,10 @@ static void managed_cache_invalidatepage(struct page *page,
- {
- 	const unsigned int stop = length + offset;
- 
--	BUG_ON(!PageLocked(page));
-+	DBG_BUGON(!PageLocked(page));
- 
--	/* Check for overflow */
--	BUG_ON(stop > PAGE_SIZE || stop < length);
-+	/* Check for potential overflow in debug mode */
-+	DBG_BUGON(stop > PAGE_SIZE || stop < length);
- 
- 	if (offset == 0 && stop == PAGE_SIZE)
- 		while (!managed_cache_releasepage(page, GFP_NOFS))
-@@ -649,7 +648,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
- 	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
- 	int err;
- 
--	BUG_ON(!sb_rdonly(sb));
-+	DBG_BUGON(!sb_rdonly(sb));
- 	err = parse_options(sb, data);
- 	if (err)
- 		goto out;
+ Code, suggestions, etc, are welcome. Please feel free to
+ ask and send patches,
 -- 
 2.14.4
