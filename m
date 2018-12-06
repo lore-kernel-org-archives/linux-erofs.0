@@ -1,60 +1,18 @@
 From: chao@kernel.org (Chao Yu)
-Date: Thu, 6 Dec 2018 21:51:07 +0800
-Subject: [PATCH chao/erofs-dev 1/7] staging: erofs: fix use-after-free of
- on-stack `z_erofs_vle_unzip_io'
-In-Reply-To: <20181201183211.27406-1-gaoxiang25@huawei.com>
+Date: Thu, 6 Dec 2018 21:59:54 +0800
+Subject: [PATCH chao/erofs-dev 2/7] staging: erofs: introduce MNGD_MAPPING
+ helper
+In-Reply-To: <20181201183211.27406-2-gaoxiang25@huawei.com>
 References: <20181201183211.27406-1-gaoxiang25@huawei.com>
-Message-ID: <4bdd6147-d162-c5d3-b969-70d55d3bf447@kernel.org>
+ <20181201183211.27406-2-gaoxiang25@huawei.com>
+Message-ID: <18ceedb1-a97d-80e9-6eda-9533fe8d8434@kernel.org>
 
 On 2018-12-2 2:32, Gao Xiang wrote:
-> The root cause is the race as follows:
->  Thread #0                         Thread #1
-> 
->  z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
-> 
->                                     struct z_erofs_vle_unzip_io io[]
->    atomic_add_return()
->                                     wait_event()
->                                     [end of function]
->    wake_up()
-> 
-> Fix it by taking the waitqueue lock between atomic_add_return and
-> wake_up to close such the race.
-> 
-> kernel message:
-> 
-> Unable to handle kernel paging request at virtual address 97f7052caa1303dc
-> ...
-> Workqueue: kverityd verity_work
-> task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
-> PC is at __wake_up_common+0x48/0xa8
-> LR is at __wake_up+0x3c/0x58
-> ...
-> Call trace:
-> ...
-> [<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
-> [<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
-> [<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
-> [<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
-> [<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-> [<ffffff94a1076540>] dec_pending+0x134/0x32c
-> [<ffffff94a1076f28>] clone_endio+0x90/0xf4
-> [<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-> [<ffffff94a1095024>] verity_work+0x210/0x368
-> [<ffffff94a08c4150>] process_one_work+0x188/0x4b4
-> [<ffffff94a08c45bc>] worker_thread+0x140/0x458
-> [<ffffff94a08cad48>] kthread+0xec/0x108
-> [<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
-> Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
-> ---[ end trace be9dde154f677cd1 ]---
+> This patch introduces MNGD_MAPPING to wrap up
+> sbi->managed_cache->i_mapping, which will be used
+> to solve too many #ifdef in a single function.
 > 
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> ---
-> Hi Chao,
->  could you please kindly update this patch series and
->  take a look them all? Thanks in advance.
-
-Sorry for the delay.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
