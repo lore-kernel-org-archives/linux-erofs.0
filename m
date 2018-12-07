@@ -1,24 +1,84 @@
-From: chao@kernel.org (Chao Yu)
-Date: Thu, 6 Dec 2018 23:39:17 +0800
-Subject: [PATCH chao/erofs-dev 7/7] staging: erofs: simplify
- `z_erofs_vle_submit_all'
-In-Reply-To: <20181201183211.27406-7-gaoxiang25@huawei.com>
-References: <20181201183211.27406-1-gaoxiang25@huawei.com>
- <20181201183211.27406-7-gaoxiang25@huawei.com>
-Message-ID: <006929bd-b8f5-d49e-783d-081531c03237@kernel.org>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Sat, 8 Dec 2018 00:19:12 +0800
+Subject: [PATCH 1/7] staging: erofs: fix use-after-free of on-stack
+ `z_erofs_vle_unzip_io'
+In-Reply-To: <20181207161918.20747-1-gaoxiang25@huawei.com>
+References: <20181207161918.20747-1-gaoxiang25@huawei.com>
+Message-ID: <20181207161918.20747-2-gaoxiang25@huawei.com>
 
-On 2018-12-2 2:32, Gao Xiang wrote:
-> Previously, there are too many hacked stuffs such as `__FSIO_1',
-> `lstgrp_noio', `lstgrp_io' out there in `z_erofs_vle_submit_all'.
-> 
-> Revisit the whole process by properly introducing jobqueue to
-> represent each type of queued workgroups, furthermore hide all of
-> crazyness behind independent seperated functions. After this patch,
-> 2 independent jobqueues exist if managed cache is enabled, or 1
-> jobqueue if disabled.
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+The root cause is the race as follows:
+ Thread #0                         Thread #1
+
+ z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
+
+                                    struct z_erofs_vle_unzip_io io[]
+   atomic_add_return()
+                                    wait_event()
+                                    [end of function]
+   wake_up()
+
+Fix it by taking the waitqueue lock between atomic_add_return and
+wake_up to close such the race.
+
+kernel message:
+
+Unable to handle kernel paging request at virtual address 97f7052caa1303dc
+...
+Workqueue: kverityd verity_work
+task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
+PC is at __wake_up_common+0x48/0xa8
+LR is at __wake_up+0x3c/0x58
+...
+Call trace:
+...
+[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
+[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
+[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
+[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1076540>] dec_pending+0x134/0x32c
+[<ffffff94a1076f28>] clone_endio+0x90/0xf4
+[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
+[<ffffff94a1095024>] verity_work+0x210/0x368
+[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
+[<ffffff94a08c45bc>] worker_thread+0x140/0x458
+[<ffffff94a08cad48>] kthread+0xec/0x108
+[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
+Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
+---[ end trace be9dde154f677cd1 ]---
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-Thanks,
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index f5d088fdf7f2..4404ea6fb9e4 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -744,13 +744,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
+ 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
+ 	bool background = tagptr_unfold_tags(t);
+ 
+-	if (atomic_add_return(bios, &io->pending_bios))
++	if (!background) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&io->u.wait.lock, flags);
++		if (!atomic_add_return(bios, &io->pending_bios))
++			wake_up_locked(&io->u.wait);
++		spin_unlock_irqrestore(&io->u.wait.lock, flags);
+ 		return;
++	}
+ 
+-	if (background)
++	if (!atomic_add_return(bios, &io->pending_bios))
+ 		queue_work(z_erofs_workqueue, &io->u.work);
+-	else
+-		wake_up(&io->u.wait);
+ }
+ 
+ static inline void z_erofs_vle_read_endio(struct bio *bio)
+-- 
+2.14.4
