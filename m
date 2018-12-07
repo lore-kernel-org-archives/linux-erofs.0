@@ -1,264 +1,304 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 8 Dec 2018 00:19:15 +0800
-Subject: [PATCH 4/7] staging: erofs: revisit the page submission flow
+Date: Sat, 8 Dec 2018 00:19:16 +0800
+Subject: [PATCH 5/7] staging: erofs: refine compressed pages preload flow
 In-Reply-To: <20181207161918.20747-1-gaoxiang25@huawei.com>
 References: <20181207161918.20747-1-gaoxiang25@huawei.com>
-Message-ID: <20181207161918.20747-5-gaoxiang25@huawei.com>
+Message-ID: <20181207161918.20747-6-gaoxiang25@huawei.com>
 
-Previously, the submission flow works with cached compressed pages
-reclaim path in a tricky way, and it could be buggy if the reclaim
-path changes later without such tricky restrictions. For example,
-currently one PagePrivate(page) is evaluated without taking page
-lock (it only follows a wait_for_page_locked which closes such race)
-and no handling solves the potential page truncation case.
+Currently, there are two kinds of compressed pages in erofs:
+  1) file pages for the in-place decompression and
+  2) managed pages for cached decompression.
+Both are all stored in grp->compressed_pages[].
 
-In addition, it's also full of #ifdefs in the function, which
-is hard to understand and maintain. this patch fixes them all.
+For managed pages, they could already exist or could be preloaded
+in this round, including the following cases in detail:
+  1) Already valid (loaded in some previous round);
+  2) PAGE_UNALLOCATED, should be allocated at the time of submission;
+  3) Just found in the managed cache, and with an extra page ref.
+Currently, 1) and 3) can be distinguishable by lock_page and
+checking its PG_private, which is guaranteed by the reclaim path,
+but it's better to do a double check by using an extra tag.
+
+This patch reworks the preload flow by introducing such the tag
+by using tagged pointer, too many #ifdefs are removed as well.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 183 +++++++++++++++++++++++---------------
- 1 file changed, 112 insertions(+), 71 deletions(-)
+
+This patch adds a new compressed_page_t type because erofs tagged
+pointer implementation defines 1-bit tag tagptr1_t, 2-bit tag
+tagptr2_t, ... structures to wrap up different tagged pointer uses.
+it needs to give a meaningful type name rather than purely use
+tagptr1_t, tagptr2_t, ...
+
+Thanks,
+Gao Xiang
+
+ drivers/staging/erofs/unzip_vle.c | 166 ++++++++++++++++++++++++++++----------
+ 1 file changed, 123 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f39e495f4369..de41f7b739ac 100644
+index de41f7b739ac..2b494f29e2c2 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -1047,6 +1047,107 @@ static void z_erofs_vle_unzip_wq(struct work_struct *work)
- 	kvfree(iosb);
- }
+@@ -21,6 +21,21 @@
+  */
+ #define PAGE_UNALLOCATED     ((void *)0x5F0E4B1D)
  
-+static struct page *
-+pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
-+			   unsigned int nr,
-+			   struct list_head *pagepool,
-+			   struct address_space *mc,
-+			   gfp_t gfp)
-+{
-+	/* determined at compile time to avoid too many #ifdefs */
-+	const bool nocache = __builtin_constant_p(mc) ? !mc : false;
-+	const pgoff_t index = grp->obj.index;
-+	bool tocache = false;
++/* how to allocate cached pages for a workgroup */
++enum z_erofs_cache_alloctype {
++	DONTALLOC,	/* don't allocate any cached pages */
++	DELAYEDALLOC,	/* delayed allocation (at the time of submitting io) */
++};
 +
-+	struct address_space *mapping;
-+	struct page *oldpage, *page;
++/*
++ * tagged pointer with 1-bit tag for all compressed pages
++ * tag 0 - the page is just found with an extra page reference
++ */
++typedef tagptr1_t compressed_page_t;
 +
-+repeat:
-+	page = READ_ONCE(grp->compressed_pages[nr]);
-+	oldpage = page;
++#define tag_compressed_page_justfound(page) \
++	tagptr_fold(compressed_page_t, page, 1)
 +
-+	if (!page)
-+		goto out_allocpage;
-+
-+	/*
-+	 * the cached page has not been allocated and
-+	 * an placeholder is out there, prepare it now.
-+	 */
-+	if (!nocache && page == PAGE_UNALLOCATED) {
-+		tocache = true;
-+		goto out_allocpage;
-+	}
-+
-+	mapping = READ_ONCE(page->mapping);
-+
-+	/*
-+	 * if managed cache is disabled, it's no way to
-+	 * get such a cached-like page.
-+	 */
-+	if (nocache) {
-+		/* should be locked, not uptodate, and not truncated */
-+		DBG_BUGON(!PageLocked(page));
-+		DBG_BUGON(PageUptodate(page));
-+		DBG_BUGON(!mapping);
-+		goto out;
-+	}
-+
-+	/*
-+	 * unmanaged (file) pages are all locked solidly,
-+	 * therefore it is impossible for `mapping' to be NULL.
-+	 */
-+	if (mapping && mapping != mc)
-+		/* ought to be unmanaged pages */
-+		goto out;
-+
-+	lock_page(page);
-+
-+	/* the page is still in manage cache */
-+	if (page->mapping == mc) {
-+		WRITE_ONCE(grp->compressed_pages[nr], page);
-+
-+		if (!PagePrivate(page)) {
-+			set_page_private(page, (unsigned long)grp);
-+			SetPagePrivate(page);
-+		}
-+
-+		/* no need to submit io if it is already up-to-date */
-+		if (PageUptodate(page)) {
-+			unlock_page(page);
-+			page = NULL;
-+		}
-+		goto out;
-+	}
-+
-+	/*
-+	 * the managed page has been truncated, it's unsafe to
-+	 * reuse this one, let's allocate a new cache-managed page.
-+	 */
-+	DBG_BUGON(page->mapping);
-+
-+	tocache = true;
-+	unlock_page(page);
-+	put_page(page);
-+out_allocpage:
-+	page = __stagingpage_alloc(pagepool, gfp);
-+	if (oldpage != cmpxchg(&grp->compressed_pages[nr], oldpage, page)) {
-+		list_add(&page->lru, pagepool);
-+		cpu_relax();
-+		goto repeat;
-+	}
-+	if (nocache || !tocache)
-+		goto out;
-+	if (add_to_page_cache_lru(page, mc, index + nr, gfp)) {
-+		page->mapping = Z_EROFS_MAPPING_STAGING;
-+		goto out;
-+	}
-+
-+	set_page_private(page, (unsigned long)grp);
-+	SetPagePrivate(page);
-+out:	/* the only exit (for tracing and debugging) */
-+	return page;
-+}
-+
- static inline struct z_erofs_vle_unzip_io *
- prepare_io_handler(struct super_block *sb,
- 		   struct z_erofs_vle_unzip_io *io,
-@@ -1082,26 +1183,6 @@ prepare_io_handler(struct super_block *sb,
- }
+ static struct workqueue_struct *z_erofs_workqueue __read_mostly;
+ static struct kmem_cache *z_erofs_workgroup_cachep __read_mostly;
+ 
+@@ -131,38 +146,58 @@ struct z_erofs_vle_work_builder {
+ 	{ .work = NULL, .role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED }
  
  #ifdef EROFS_FS_HAS_MANAGED_CACHE
--/* true - unlocked (noio), false - locked (need submit io) */
--static inline bool recover_managed_page(struct z_erofs_vle_workgroup *grp,
--					struct page *page)
--{
--	wait_on_page_locked(page);
--	if (PagePrivate(page) && PageUptodate(page))
--		return true;
 -
--	lock_page(page);
--	if (unlikely(!PagePrivate(page))) {
--		set_page_private(page, (unsigned long)grp);
--		SetPagePrivate(page);
--	}
--	if (unlikely(PageUptodate(page))) {
--		unlock_page(page);
--		return true;
--	}
--	return false;
--}
--
- #define __FSIO_1 1
- #else
- #define __FSIO_1 0
-@@ -1117,7 +1198,6 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 	const unsigned int clusterpages = erofs_clusterpages(sbi);
- 	const gfp_t gfp = GFP_NOFS;
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
--	struct address_space *const mc = MNGD_MAPPING(sbi);
- 	struct z_erofs_vle_workgroup *lstgrp_noio = NULL, *lstgrp_io = NULL;
- #endif
- 	struct z_erofs_vle_unzip_io *ios[1 + __FSIO_1];
-@@ -1156,13 +1236,9 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+-static bool grab_managed_cache_pages(struct address_space *mapping,
+-				     erofs_blk_t start,
+-				     struct page **compressed_pages,
+-				     int clusterblks,
+-				     bool reserve_allocation)
++static void preload_compressed_pages(struct z_erofs_vle_work_builder *bl,
++				     struct address_space *mc,
++				     pgoff_t index,
++				     unsigned int clusterpages,
++				     enum z_erofs_cache_alloctype type,
++				     struct list_head *pagepool,
++				     gfp_t gfp)
+ {
+-	bool noio = true;
+-	unsigned int i;
++	struct page **const pages = bl->compressed_pages;
++	const unsigned int remaining = bl->compressed_deficit;
++	bool standalone = true;
++	unsigned int i, j = 0;
++
++	if (bl->role < Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED)
++		return;
++
++	gfp = mapping_gfp_constraint(mc, gfp) & ~__GFP_RECLAIM;
  
- 	do {
- 		struct z_erofs_vle_workgroup *grp;
--		struct page **compressed_pages, *oldpage, *page;
- 		pgoff_t first_index;
--		unsigned int i = 0;
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--		unsigned int noio = 0;
--		bool cachemngd;
--#endif
+-	/* TODO: optimize by introducing find_get_pages_range */
+-	for (i = 0; i < clusterblks; ++i) {
+-		struct page *page, *found;
++	index += clusterpages - remaining;
+ 
+-		if (READ_ONCE(compressed_pages[i]))
++	for (i = 0; i < remaining; ++i) {
 +		struct page *page;
-+		unsigned int i = 0, bypass = 0;
- 		int err;
++		compressed_page_t t;
++
++		/* the compressed page was loaded before */
++		if (READ_ONCE(pages[i]))
+ 			continue;
  
- 		/* no possible 'owned_head' equals the following */
-@@ -1173,51 +1249,18 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 
- 		/* close the main owned chain at first */
- 		owned_head = cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
--			Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
-+				     Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- 
- 		first_index = grp->obj.index;
--		compressed_pages = grp->compressed_pages;
--
- 		force_submit |= (first_index != last_index + 1);
--repeat:
--		/* fulfill all compressed pages */
--		oldpage = page = READ_ONCE(compressed_pages[i]);
- 
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--		cachemngd = false;
--
--		if (page == PAGE_UNALLOCATED) {
--			cachemngd = true;
--			goto do_allocpage;
--		} else if (page) {
--			if (page->mapping != mc)
--				BUG_ON(PageUptodate(page));
--			else if (recover_managed_page(grp, page)) {
--				/* page is uptodate, skip io submission */
--				force_submit = true;
--				++noio;
--				goto skippage;
--			}
--		} else {
--do_allocpage:
--#else
--		if (page)
--			BUG_ON(PageUptodate(page));
--		else {
--#endif
--			page = __stagingpage_alloc(pagepool, gfp);
--
--			if (oldpage != cmpxchg(compressed_pages + i,
--				oldpage, page)) {
--				list_add(&page->lru, pagepool);
--				goto repeat;
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--			} else if (cachemngd && !add_to_page_cache_lru(page,
--				   mc, first_index + i, gfp)) {
--				set_page_private(page, (unsigned long)grp);
--				SetPagePrivate(page);
--#endif
--			}
-+repeat:
-+		page = pickup_page_for_submission(grp, i, pagepool,
-+						  MNGD_MAPPING(sbi), gfp);
-+		if (!page) {
-+			force_submit = true;
-+			++bypass;
-+			goto skippage;
+-		page = found = find_get_page(mapping, start + i);
+-		if (!found) {
+-			noio = false;
+-			if (!reserve_allocation)
+-				continue;
+-			page = PAGE_UNALLOCATED;
++		page = find_get_page(mc, index + i);
++
++		if (page) {
++			t = tag_compressed_page_justfound(page);
++		} else if (type == DELAYEDALLOC) {
++			t = tagptr_init(compressed_page_t, PAGE_UNALLOCATED);
++		} else {	/* DONTALLOC */
++			if (standalone)
++				j = i;
++			standalone = false;
++			continue;
  		}
  
- 		if (bio && force_submit) {
-@@ -1240,14 +1283,12 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+-		if (!cmpxchg(compressed_pages + i, NULL, page))
++		if (!cmpxchg_relaxed(&pages[i], NULL, tagptr_cast_ptr(t)))
+ 			continue;
  
- 		force_submit = false;
- 		last_index = first_index + i;
+-		if (found)
+-			put_page(found);
++		if (page)
++			put_page(page);
+ 	}
+-	return noio;
++	bl->compressed_pages += j;
++	bl->compressed_deficit = remaining - j;
++
++	if (standalone)
++		bl->role = Z_EROFS_VLE_WORK_PRIMARY;
+ }
+ 
+ /* called by erofs_shrinker to get rid of all compressed_pages */
+@@ -234,6 +269,17 @@ int erofs_try_to_free_cached_page(struct address_space *mapping,
+ 	}
+ 	return ret;
+ }
++#else
++static void preload_compressed_pages(struct z_erofs_vle_work_builder *bl,
++				     struct address_space *mc,
++				     pgoff_t index,
++				     unsigned int clusterpages,
++				     enum z_erofs_cache_alloctype type,
++				     struct list_head *pagepool,
++				     gfp_t gfp)
++{
++	/* nowhere to load compressed pages from */
++}
+ #endif
+ 
+ /* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
+@@ -608,6 +654,26 @@ struct z_erofs_vle_frontend {
+ 	.owned_head = Z_EROFS_VLE_WORKGRP_TAIL, \
+ 	.backmost = true, }
+ 
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++static inline bool
++should_alloc_managed_pages(struct z_erofs_vle_frontend *fe, erofs_off_t la)
++{
++	if (fe->backmost)
++		return true;
++
++	if (EROFS_FS_ZIP_CACHE_LVL >= 2)
++		return la < fe->headoffset;
++
++	return false;
++}
++#else
++static inline bool
++should_alloc_managed_pages(struct z_erofs_vle_frontend *fe, erofs_off_t la)
++{
++	return false;
++}
++#endif
++
+ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 				struct page *page,
+ 				struct list_head *page_pool)
+@@ -622,12 +688,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	bool tight = builder_is_followed(builder);
+ 	struct z_erofs_vle_work *work = builder->work;
+ 
 -#ifdef EROFS_FS_HAS_MANAGED_CACHE
- skippage:
+-	struct address_space *const mc = MNGD_MAPPING(sbi);
+-	struct z_erofs_vle_workgroup *grp;
+-	bool noio_outoforder;
 -#endif
- 		if (++i < clusterpages)
- 			goto repeat;
+-
++	enum z_erofs_cache_alloctype cache_strategy;
+ 	enum z_erofs_page_type page_type;
+ 	unsigned int cur, end, spiltted, index;
+ 	int err = 0;
+@@ -667,20 +728,16 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	if (unlikely(err))
+ 		goto err_out;
  
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
--		if (noio < clusterpages) {
-+		if (bypass < clusterpages) {
- 			lstgrp_io = grp;
- 		} else {
- 			z_erofs_vle_owned_workgrp_t iogrp_next =
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-	grp = fe->builder.grp;
+-
+-	/* let's do out-of-order decompression for noio */
+-	noio_outoforder = grab_managed_cache_pages(mc,
+-		erofs_blknr(map->m_pa),
+-		grp->compressed_pages, erofs_blknr(map->m_plen),
+-		/* compressed page caching selection strategy */
+-		fe->backmost | (EROFS_FS_ZIP_CACHE_LVL >= 2 ?
+-				map->m_la < fe->headoffset : 0));
+-
+-	if (noio_outoforder && builder_is_followed(builder))
+-		builder->role = Z_EROFS_VLE_WORK_PRIMARY;
+-#endif
++	/* preload all compressed pages (maybe downgrade role if necessary) */
++	if (should_alloc_managed_pages(fe, map->m_la))
++		cache_strategy = DELAYEDALLOC;
++	else
++		cache_strategy = DONTALLOC;
++
++	preload_compressed_pages(builder, MNGD_MAPPING(sbi),
++				 map->m_pa / PAGE_SIZE,
++				 map->m_plen / PAGE_SIZE,
++				 cache_strategy, page_pool, GFP_KERNEL);
+ 
+ 	tight &= builder_is_followed(builder);
+ 	work = builder->work;
+@@ -1062,6 +1119,9 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 	struct address_space *mapping;
+ 	struct page *oldpage, *page;
+ 
++	compressed_page_t t;
++	int justfound;
++
+ repeat:
+ 	page = READ_ONCE(grp->compressed_pages[nr]);
+ 	oldpage = page;
+@@ -1078,6 +1138,11 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 		goto out_allocpage;
+ 	}
+ 
++	/* process the target tagged pointer */
++	t = tagptr_init(compressed_page_t, page);
++	justfound = tagptr_unfold_tags(t);
++	page = tagptr_unfold_ptr(t);
++
+ 	mapping = READ_ONCE(page->mapping);
+ 
+ 	/*
+@@ -1085,7 +1150,10 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 	 * get such a cached-like page.
+ 	 */
+ 	if (nocache) {
+-		/* should be locked, not uptodate, and not truncated */
++		/* if managed cache is disabled, it is impossible `justfound' */
++		DBG_BUGON(justfound);
++
++		/* and it should be locked, not uptodate, and not truncated */
+ 		DBG_BUGON(!PageLocked(page));
+ 		DBG_BUGON(PageUptodate(page));
+ 		DBG_BUGON(!mapping);
+@@ -1102,11 +1170,22 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 
+ 	lock_page(page);
+ 
++	/* only true if page reclaim goes wrong, should never happen */
++	DBG_BUGON(justfound && PagePrivate(page));
++
+ 	/* the page is still in manage cache */
+ 	if (page->mapping == mc) {
+ 		WRITE_ONCE(grp->compressed_pages[nr], page);
+ 
+ 		if (!PagePrivate(page)) {
++			/*
++			 * impossible to be !PagePrivate(page) for
++			 * the current restriction as well if
++			 * the page is already in compressed_pages[].
++			 */
++			DBG_BUGON(!justfound);
++
++			justfound = 0;
+ 			set_page_private(page, (unsigned long)grp);
+ 			SetPagePrivate(page);
+ 		}
+@@ -1124,6 +1203,7 @@ pickup_page_for_submission(struct z_erofs_vle_workgroup *grp,
+ 	 * reuse this one, let's allocate a new cache-managed page.
+ 	 */
+ 	DBG_BUGON(page->mapping);
++	DBG_BUGON(!justfound);
+ 
+ 	tocache = true;
+ 	unlock_page(page);
 -- 
 2.14.4
