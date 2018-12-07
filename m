@@ -1,84 +1,35 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 8 Dec 2018 00:19:12 +0800
-Subject: [PATCH 1/7] staging: erofs: fix use-after-free of on-stack
- `z_erofs_vle_unzip_io'
-In-Reply-To: <20181207161918.20747-1-gaoxiang25@huawei.com>
-References: <20181207161918.20747-1-gaoxiang25@huawei.com>
-Message-ID: <20181207161918.20747-2-gaoxiang25@huawei.com>
+Date: Sat, 8 Dec 2018 00:19:11 +0800
+Subject: [PATCH 0/7] staging: erofs: decompression fixes & cleanups
+Message-ID: <20181207161918.20747-1-gaoxiang25@huawei.com>
 
-The root cause is the race as follows:
- Thread #0                         Thread #1
+Hi,
 
- z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
+This patchset has been pending in the erofs mailing list for months.
+It mainly focuses on cleaning up io submission flow in the decompression
+subsystem in order to remove #ifdefs in related functions, which
+were used to differentiate whether cached decompression is enabled
+(rather than do in-place decompression only).
 
-                                    struct z_erofs_vle_unzip_io io[]
-   atomic_add_return()
-                                    wait_event()
-                                    [end of function]
-   wake_up()
+These patches has been tested by our Android beta users for these months,
+no new issue reported.
 
-Fix it by taking the waitqueue lock between atomic_add_return and
-wake_up to close such the race.
+Thanks,
+Gao Xiang
 
-kernel message:
+Gao Xiang (7):
+  staging: erofs: fix use-after-free of on-stack `z_erofs_vle_unzip_io'
+  staging: erofs: introduce MNGD_MAPPING helper
+  staging: erofs: localize UNALLOCATED_CACHED_PAGE placeholder
+  staging: erofs: revisit the page submission flow
+  staging: erofs: refine compressed pages preload flow
+  staging: erofs: redefine where `owned_workgrp_t' points
+  staging: erofs: simplify `z_erofs_vle_submit_all'
 
-Unable to handle kernel paging request at virtual address 97f7052caa1303dc
-...
-Workqueue: kverityd verity_work
-task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
-PC is at __wake_up_common+0x48/0xa8
-LR is at __wake_up+0x3c/0x58
-...
-Call trace:
-...
-[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
-[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
-[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
-[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1076540>] dec_pending+0x134/0x32c
-[<ffffff94a1076f28>] clone_endio+0x90/0xf4
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1095024>] verity_work+0x210/0x368
-[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
-[<ffffff94a08c45bc>] worker_thread+0x140/0x458
-[<ffffff94a08cad48>] kthread+0xec/0x108
-[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
-Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
----[ end trace be9dde154f677cd1 ]---
+ drivers/staging/erofs/internal.h  |   6 +-
+ drivers/staging/erofs/unzip_vle.c | 580 ++++++++++++++++++++++++--------------
+ drivers/staging/erofs/unzip_vle.h |   4 +-
+ 3 files changed, 377 insertions(+), 213 deletions(-)
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f5d088fdf7f2..4404ea6fb9e4 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -744,13 +744,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
- 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
- 	bool background = tagptr_unfold_tags(t);
- 
--	if (atomic_add_return(bios, &io->pending_bios))
-+	if (!background) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&io->u.wait.lock, flags);
-+		if (!atomic_add_return(bios, &io->pending_bios))
-+			wake_up_locked(&io->u.wait);
-+		spin_unlock_irqrestore(&io->u.wait.lock, flags);
- 		return;
-+	}
- 
--	if (background)
-+	if (!atomic_add_return(bios, &io->pending_bios))
- 		queue_work(z_erofs_workqueue, &io->u.work);
--	else
--		wake_up(&io->u.wait);
- }
- 
- static inline void z_erofs_vle_read_endio(struct bio *bio)
 -- 
 2.14.4
