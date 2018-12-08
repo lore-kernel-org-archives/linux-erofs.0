@@ -1,213 +1,47 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 8 Dec 2018 16:47:42 +0800
-Subject: [PREVIEW] [PATCH v2 chao/erofs-dev rebased] staging: erofs: introduce
- .migratepage for managed cache
-Message-ID: <20181208084742.37581-1-gaoxiang25@huawei.com>
+From: laumann.thomas@gmail.com (Thomas Jespersen)
+Date: Sat,  8 Dec 2018 22:07:38 +0100
+Subject: [PATCH] staging: erofs: Add braces to do-while statements
+Message-ID: <20181208210738.29298-1-laumann.thomas@gmail.com>
 
-It's awkward for managed cache to use the default
-migration path since the default approach will fall
-back to try_to_release_page for all PG_private pages.
+This fixes warning reported by sparse (with -Wsparse-all).
 
-Let's create a customized method to handle this more
-effectively.
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Thomas Jespersen <laumann.thomas at gmail.com>
 ---
-
-change log v2:
- - rebased on the latest greg's staging tree;
- - add more useful comments.
-
-Thanks,
-Gao Xiang
-
- drivers/staging/erofs/internal.h  |   6 +++
- drivers/staging/erofs/super.c     |   3 ++
- drivers/staging/erofs/unzip_vle.c | 111 ++++++++++++++++++++++++++++++++++++++
- drivers/staging/erofs/unzip_vle.h |   4 ++
- 4 files changed, 124 insertions(+)
+ drivers/staging/erofs/internal.h | 4 ++--
+ drivers/staging/erofs/utils.c    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index e049d00c087a..45eeab38e56d 100644
+index 57575c7f56355424a..bf180a803446655d4 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -294,6 +294,12 @@ extern int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
- extern int erofs_try_to_free_cached_page(struct address_space *mapping,
- 	struct page *page);
- 
-+#ifdef CONFIG_MIGRATION
-+int erofs_migrate_cached_page(struct address_space *mapping,
-+			      struct page *newpage, struct page *page,
-+			      enum migrate_mode mode);
-+#endif
-+
- #define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
- #else
- #define MNGD_MAPPING(sbi)	(NULL)
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 1c2eb69682ef..354671496971 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -329,6 +329,9 @@ static void managed_cache_invalidatepage(struct page *page,
- static const struct address_space_operations managed_cache_aops = {
- 	.releasepage = managed_cache_releasepage,
- 	.invalidatepage = managed_cache_invalidatepage,
-+#ifdef CONFIG_MIGRATION
-+	.migratepage = erofs_migrate_cached_page,
-+#endif
- };
- 
- static struct inode *erofs_init_managed_cache(struct super_block *sb)
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 500046f271cb..e8e188a937de 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -12,6 +12,7 @@
-  */
- #include "unzip_vle.h"
- #include <linux/prefetch.h>
-+#include <linux/migrate.h>
- 
- #include <trace/events/erofs.h>
- 
-@@ -269,6 +270,110 @@ int erofs_try_to_free_cached_page(struct address_space *mapping,
+@@ -232,9 +232,9 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+ 	/* spin if it is temporarily locked at the reclaim path */
+ 	if (unlikely(o == locked)) {
+ #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-		do
++		do {
+ 			cpu_relax();
+-		while (atomic_read(&grp->refcount) == locked);
++		} while (atomic_read(&grp->refcount) == locked);
+ #endif
+ 		goto repeat;
  	}
- 	return ret;
- }
-+
-+#ifdef CONFIG_MIGRATION
-+int erofs_migrate_cached_page(struct address_space *mapping,
-+			      struct page *newpage,
-+			      struct page *page,
-+			      enum migrate_mode mode)
-+{
-+	struct erofs_sb_info *const sbi = EROFS_SB(mapping->host->i_sb);
-+	const unsigned int clusterpages = erofs_clusterpages(sbi);
-+
-+	struct z_erofs_vle_workgroup *grp;
-+	int rc;
-+	unsigned int i;
-+
-+	if (!PagePrivate(page))
-+		return migrate_page(mapping, newpage, page, mode);
-+
-+	/* the workgroup will not be freed with compressed page locked */
-+	grp = (void *)READ_ONCE(page_private(page));
-+	DBG_BUGON(!grp);
-+
-+	/* optimistically try to freeze the workgroup in the beginning */
-+	if (!erofs_workgroup_try_to_freeze(&grp->obj, 1)) {
-+		wait_queue_head_t *wq;
-+		struct z_erofs_vle_work *primary_work;
-+		bool locked;
-+		DEFINE_WAIT_BIT(wait, &grp->flags,
-+				Z_EROFS_WG_WAIT_COMPLETION_BIT);
-+
-+		if (mode != MIGRATE_SYNC && mode != MIGRATE_SYNC_NO_COPY)
-+			return -EAGAIN;
-+
-+		wq = bit_waitqueue(&grp->flags,
-+				   Z_EROFS_WG_WAIT_COMPLETION_BIT);
-+
-+		/*
-+		 * take or sleep on the exist primary work lock
-+		 * in order to avoid bit_waitqueue wake_up storm.
-+		 */
-+		primary_work = z_erofs_vle_grab_primary_work(grp);
-+		mutex_lock(&primary_work->lock);
-+		locked = true;
-+
-+		while (!erofs_workgroup_try_to_freeze(&grp->obj, 1)) {
-+			prepare_to_wait(wq, &wait.wq_entry,
-+					TASK_UNINTERRUPTIBLE);
-+
-+			grp->flags |= Z_EROFS_WG_WAIT_COMPLETION;
-+			mutex_unlock(&primary_work->lock);
-+
-+			schedule();
-+
-+			if (erofs_workgroup_try_to_freeze(&grp->obj, 1)) {
-+				locked = false;
-+				break;
-+			}
-+			mutex_lock(&primary_work->lock);
-+		}
-+		finish_wait(wq, &wait.wq_entry);
-+
-+		if (locked)
-+			mutex_unlock(&primary_work->lock);
-+	}
-+
-+	rc = -EAGAIN;
-+	for (i = 0; i < clusterpages; ++i) {
-+		if (grp->compressed_pages[i] == page) {
-+			WRITE_ONCE(grp->compressed_pages[i], newpage);
-+			rc = 0;
-+			break;
-+		}
-+	}
-+
-+	/*
-+	 * Note that the new page is still locked, it's safe to
-+	 * unfreeze right after updating corresponding compressed_pages[].
-+	 */
-+	erofs_workgroup_unfreeze(&grp->obj, 1);
-+
-+	/* should never happen except that something goes wrong */
-+	if (unlikely(rc)) {
-+		DBG_BUGON(1);
-+		return rc;
-+	}
-+
-+	rc = migrate_page_move_mapping(mapping, newpage, page, NULL, mode, 0);
-+	if (rc != MIGRATEPAGE_SUCCESS)
-+		return rc;
-+
-+	ClearPagePrivate(page);
-+	set_page_private(page, 0);
-+	put_page(page);
-+
-+	get_page(newpage);
-+	set_page_private(newpage, (unsigned long)grp);
-+	__SetPagePrivate(newpage);
-+
-+	if (mode != MIGRATE_SYNC_NO_COPY)
-+		migrate_page_copy(newpage, page);
-+	else
-+		migrate_page_states(newpage, page);
-+	return MIGRATEPAGE_SUCCESS;
-+}
-+#endif
- #else
- static void preload_compressed_pages(struct z_erofs_vle_work_builder *bl,
- 				     struct address_space *mc,
-@@ -1059,6 +1164,12 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	work->nr_pages = 0;
- 	work->vcnt = 0;
+diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
+index ea8a962e5c9504a2c..cd76df4a48c734eb4 100644
+--- a/drivers/staging/erofs/utils.c
++++ b/drivers/staging/erofs/utils.c
+@@ -217,9 +217,9 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 	unsigned long freed = 0;
  
-+	/* wake up the migrate task which waits on it */
-+	if (grp->flags & Z_EROFS_WG_WAIT_COMPLETION) {
-+		grp->flags ^= Z_EROFS_WG_WAIT_COMPLETION;
-+		wake_up_bit(&grp->flags, Z_EROFS_WG_WAIT_COMPLETION_BIT);
-+	}
-+
- 	/* all work locks MUST be taken before the following line */
+ 	spin_lock(&erofs_sb_list_lock);
+-	do
++	do {
+ 		run_no = ++shrinker_run_no;
+-	while (run_no == 0);
++	} while (run_no == 0);
  
- 	WRITE_ONCE(grp->next, Z_EROFS_VLE_WORKGRP_NIL);
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index 5a4e1b62c0d1..287d30508fc7 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -67,6 +67,10 @@ struct z_erofs_vle_work {
- #define Z_EROFS_VLE_WORKGRP_FMT_LZ4          1
- #define Z_EROFS_VLE_WORKGRP_FMT_MASK         1
- 
-+/* used to wait decompression for this workgroup */
-+#define Z_EROFS_WG_WAIT_COMPLETION_BIT  3
-+#define Z_EROFS_WG_WAIT_COMPLETION      BIT(Z_EROFS_WG_WAIT_COMPLETION_BIT)
-+
- typedef void *z_erofs_vle_owned_workgrp_t;
- 
- struct z_erofs_vle_workgroup {
+ 	/* Iterate over all mounted superblocks and try to shrink them */
+ 	p = erofs_sb_list.next;
 -- 
-2.14.4
+2.19.2
