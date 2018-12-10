@@ -1,52 +1,39 @@
-From: hsiangkao@gmx.com (Gao Xiang)
-Date: Mon, 10 Dec 2018 05:37:27 +0800
+From: luc.vanoostenryck@gmail.com (Luc Van Oostenryck)
+Date: Mon, 10 Dec 2018 01:42:18 +0100
 Subject: [PATCH] staging: erofs: Add braces to do-while statements
-In-Reply-To: <20181209155900.10164-1-laumann.thomas@gmail.com>
+In-Reply-To: <20181209194029.GA31163@kroah.com>
 References: <20181209155900.10164-1-laumann.thomas@gmail.com>
-Message-ID: <5db45ff8-ea1a-10f3-fc63-f1918818c9ce@gmx.com>
+ <20181209162007.GA22432@kroah.com>
+ <f741ac1808f05f2efe6532491e8b1eb6ac74e260.camel@perches.com>
+ <20181209194029.GA31163@kroah.com>
+Message-ID: <20181210004217.ufzvj4rvykiqoufd@ltop.local>
 
-[oops... I found Thomas sent the exactly the same email again.]
+On Sun, Dec 09, 2018@08:40:29PM +0100, Greg KH wrote:
+> On Sun, Dec 09, 2018@09:27:01AM -0800, Joe Perches wrote:
+> > On Sun, 2018-12-09@17:20 +0100, Greg KH wrote:
+> > > On Sun, Dec 09, 2018@04:59:00PM +0100, Thomas Jespersen wrote:
+> > > > This fixes warning reported by sparse (with -Wsparse-all).
+> > > 
+> > > Why is sparse warning about this?
+> > 
+> > Probably because it's the kernel preferred style
+> > to use single statement
+> > 
+> > 	do {
+> > 		<foo>;
+> > 	} while (<bar>);
+> > 
+> > over
+> > 
+> > by about a 20:1 ratio.
+> 
+> Sparse is spitting out coding style complaints now?
 
-On 2018/12/9 23:59, Thomas Jespersen wrote:
-> This fixes warning reported by sparse (with -Wsparse-all).
->
-> Signed-off-by: Thomas Jespersen <laumann.thomas at gmail.com>
-> ---
->  drivers/staging/erofs/internal.h | 4 ++--
->  drivers/staging/erofs/utils.c    | 4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-> index 57575c7f5635..bf180a803446 100644
-> --- a/drivers/staging/erofs/internal.h
-> +++ b/drivers/staging/erofs/internal.h
-> @@ -232,9 +232,9 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
->  	/* spin if it is temporarily locked at the reclaim path */
->  	if (unlikely(o == locked)) {
->  #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-> -		do
-> +		do {
->  			cpu_relax();
-> -		while (atomic_read(&grp->refcount) == locked);
-> +		} while (atomic_read(&grp->refcount) == locked);
->  #endif
->  		goto repeat;
->  	}
+To my own surprise, it's effectively sparse that complained:
+	warning: do-while statement is not a compound statement
 
-Could you please check the latest source code? I cannot find the above code...
+with the flag -Wsparse-all (or -Wdo-while).
+But -Wsparse-all is not a flag normally used for the kernel
+(or normaly used on anything at all).
 
-So I think this patch cannot be applied directly :(
-
-https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/tree/drivers/staging/erofs/internal.h?h=staging-next#n260
-
-
-... and why you send this patch without modification...
-
-https://lists.ozlabs.org/pipermail/linux-erofs/2018-December/001099.html
-
-https://lists.ozlabs.org/pipermail/linux-erofs/2018-December/001100.html
-
-
-Thanks,
-
-Gao Xiang
+-- Luc
