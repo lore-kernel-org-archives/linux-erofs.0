@@ -1,26 +1,49 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Wed, 12 Dec 2018 01:05:13 +0800
-Subject: [PATCH 4/5] drivers: staging: erofs: Fix parentheses error in
- macro
-In-Reply-To: <df69ac6826a2ec20e29d1ded7a8e7ec63c73c2c4.camel@perches.com>
-References: <0ed9f3e7-9081-4a8a-06b0-e5ad14e2c872@huawei.com>
- <20181211105443.21826-1-aaron.strahlberger@posteo.de>
- <20181211105443.21826-5-aaron.strahlberger@posteo.de>
- <dc56553c-a5ea-5265-5820-4bb481b0b948@huawei.com>
- <df69ac6826a2ec20e29d1ded7a8e7ec63c73c2c4.camel@perches.com>
-Message-ID: <9d324f50-e632-c020-04b9-57269ff7bdca@aol.com>
+Date: Wed, 12 Dec 2018 01:57:30 +0800
+Subject: [PATCH] staging: erofs: remove __EROFS_BIT
+Message-ID: <20181211175730.3931-1-hsiangkao@aol.com>
 
-Hi Joe,
+It's better to use pre-calculated values to make
+on-disk definition more straight-forward and human-readable.
 
-On 2018/12/11 23:48, Joe Perches wrote:
-> This macro is used only once and is merely obfuscation
-> for that one use.  Please remove the macro and expand
-> it in the one place it is used.
+Since there is the only one user, let's remove
+__EROFS_BIT entirely.
 
-I am also considering to replace it in a plain way,
-it will be more straight-forward to describe its on-disk format.
+Suggested-by: Joe Perches <joe at perches.com>
+Signed-off-by: Gao Xiang <hsiangkao at aol.com>
+---
+ drivers/staging/erofs/erofs_fs.h | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-Thanks for your suggestion.
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index d4bffa2852b3..fa52898df006 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -38,10 +38,6 @@ struct erofs_super_block {
+ /* 80 */__u8 reserved2[48];     /* 128 bytes */
+ } __packed;
+ 
+-#define __EROFS_BIT(_prefix, _cur, _pre)	enum {	\
+-	_prefix ## _cur ## _BIT = _prefix ## _pre ## _BIT + \
+-		_prefix ## _pre ## _BITS }
+-
+ /*
+  * erofs inode data mapping:
+  * 0 - inode plain without inline data A:
+@@ -58,11 +54,13 @@ enum {
+ 	EROFS_INODE_LAYOUT_INLINE,
+ 	EROFS_INODE_LAYOUT_MAX
+ };
++
++/* bit definitions of inode i_advise */
+ #define EROFS_I_VERSION_BITS            1
+ #define EROFS_I_DATA_MAPPING_BITS       3
+ 
+ #define EROFS_I_VERSION_BIT             0
+-__EROFS_BIT(EROFS_I_, DATA_MAPPING, VERSION);
++#define EROFS_I_DATA_MAPPING_BIT        1
+ 
+ struct erofs_inode_v1 {
+ /*  0 */__le16 i_advise;
+-- 
+2.11.0
