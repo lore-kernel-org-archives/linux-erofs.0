@@ -1,49 +1,54 @@
 From: bluce.liguifu@huawei.com (Li Guifu)
-Date: Thu, 20 Dec 2018 14:49:50 +0800
-Subject: [PATCH v2 4/5] erofs-utils: add autogen.sh
-In-Reply-To: <20181219043844.43451-4-gaoxiang25@huawei.com>
+Date: Thu, 20 Dec 2018 14:50:03 +0800
+Subject: [PATCH v2 5/5] erofs-utils: add AC_CONFIG_AUX_DIR(config)
+In-Reply-To: <20181219043844.43451-5-gaoxiang25@huawei.com>
 References: <20181219040516.21113-1-gaoxiang25@huawei.com>
  <20181219043844.43451-1-gaoxiang25@huawei.com>
- <20181219043844.43451-4-gaoxiang25@huawei.com>
-Message-ID: <4d35d98b-547b-9e0b-f8f6-b06fabbd89e3@huawei.com>
+ <20181219043844.43451-5-gaoxiang25@huawei.com>
+Message-ID: <a7f2772e-b790-a6a8-c304-1bb347fb31af@huawei.com>
 
 On 2018/12/19 12:38, Gao Xiang wrote:
-> In order to avoid type too many commands by hand.
->
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
->  README     | 2 +-
->  autogen.sh | 8 ++++++++
->  2 files changed, 9 insertions(+), 1 deletion(-)
->  create mode 100755 autogen.sh
+>  .gitignore   | 9 +--------
+>  configure.ac | 1 +
+>  2 files changed, 2 insertions(+), 8 deletions(-)
 >
-> diff --git a/README b/README
-> index 79a1126..4e34159 100644
-> --- a/README
-> +++ b/README
-> @@ -22,7 +22,7 @@ How to build with lz4 static library
->  eg. if lz4 lib has been installed into fold of /usr/local/lib
->  	./configure --with-lz4=/usr/local/lib && make
->  Maybe you should run this first:
-> -	libtoolize && aclocal && autoconf && autoheader && automake --add-missing
-> +	./autogen.sh
->  
->  Usage:
->  $ ./mkfs.erofs
-> diff --git a/autogen.sh b/autogen.sh
-> new file mode 100755
-> index 0000000..117f4bd
-> --- /dev/null
-> +++ b/autogen.sh
-> @@ -0,0 +1,8 @@
-> +#!/bin/sh
-> +
-> +aclocal && \
-> +autoheader && \
-> +autoconf && \
-> +libtoolize && \
-> +automake -a -c
-> +
+> diff --git a/.gitignore b/.gitignore
+> index 7e0a1cf..3cebe03 100644
+> --- a/.gitignore
+> +++ b/.gitignore
+> @@ -28,17 +28,10 @@ TAGS
+>  .deps/
+>  Makefile.in
+>  aclocal.m4
+> -compile
+> -config.guess
+>  config.h
+>  config.h.in
+> -config.sub
+>  configure
+> -depcomp
+> -install-sh
+>  libtool
+> -ltmain.sh
+>  m4/
+> -missing
+>  stamp-h1
+> -
+> +config/
+> diff --git a/configure.ac b/configure.ac
+> index 858ae25..345e8ba 100644
+> --- a/configure.ac
+> +++ b/configure.ac
+> @@ -4,6 +4,7 @@
+>  AC_PREREQ([2.69])
+>  AC_INIT([mkfs.erofs], [0.0.1], [bluce.liguifu at huawei.com])
+>  AC_CONFIG_MACRO_DIR([m4])
+> +AC_CONFIG_AUX_DIR(config)
+>  AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+>  AC_CONFIG_SRCDIR([mkfs_main.c])
+>  AC_CONFIG_HEADERS([config.h])
 
 Reviewed-by: Li Guifu <bluce.liguifu at huawei.com>
 
