@@ -1,55 +1,55 @@
 From: bluce.liguifu@huawei.com (Li Guifu)
-Date: Thu, 20 Dec 2018 14:50:03 +0800
-Subject: [PATCH v2 5/5] erofs-utils: add AC_CONFIG_AUX_DIR(config)
-In-Reply-To: <20181219043844.43451-5-gaoxiang25@huawei.com>
-References: <20181219040516.21113-1-gaoxiang25@huawei.com>
- <20181219043844.43451-1-gaoxiang25@huawei.com>
- <20181219043844.43451-5-gaoxiang25@huawei.com>
-Message-ID: <a7f2772e-b790-a6a8-c304-1bb347fb31af@huawei.com>
+Date: Fri, 21 Dec 2018 09:47:19 +0800
+Subject: [PATCH] erofs-utils:erofs-utils: fix the missing trailing '\0' of the
+ last dirent name
+Message-ID: <20181221014719.14301-1-bluce.liguifu@huawei.com>
 
-On 2018/12/19 12:38, Gao Xiang wrote:
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> ---
->  .gitignore   | 9 +--------
->  configure.ac | 1 +
->  2 files changed, 2 insertions(+), 8 deletions(-)
->
-> diff --git a/.gitignore b/.gitignore
-> index 7e0a1cf..3cebe03 100644
-> --- a/.gitignore
-> +++ b/.gitignore
-> @@ -28,17 +28,10 @@ TAGS
->  .deps/
->  Makefile.in
->  aclocal.m4
-> -compile
-> -config.guess
->  config.h
->  config.h.in
-> -config.sub
->  configure
-> -depcomp
-> -install-sh
->  libtool
-> -ltmain.sh
->  m4/
-> -missing
->  stamp-h1
-> -
-> +config/
-> diff --git a/configure.ac b/configure.ac
-> index 858ae25..345e8ba 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -4,6 +4,7 @@
->  AC_PREREQ([2.69])
->  AC_INIT([mkfs.erofs], [0.0.1], [bluce.liguifu at huawei.com])
->  AC_CONFIG_MACRO_DIR([m4])
-> +AC_CONFIG_AUX_DIR(config)
->  AM_INIT_AUTOMAKE([foreign -Wall -Werror])
->  AC_CONFIG_SRCDIR([mkfs_main.c])
->  AC_CONFIG_HEADERS([config.h])
+caused by the buffer is not cleanned before using, fix it.
 
-Reviewed-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
+---
+ mkfs_inode.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Thanks,
+diff --git a/mkfs_inode.c b/mkfs_inode.c
+index 0985e77..41dfc33 100644
+--- a/mkfs_inode.c
++++ b/mkfs_inode.c
+@@ -391,6 +391,7 @@ static int mkfs_write_inode_dir(struct erofs_node_info *inode)
+ 			    EROFS_BLKSIZE) {
+ 				const u32 blkaddr = inode->i_blkaddr + blk_cnt;
+ 
++				memset(pbuf, 0, EROFS_BLKSIZE);
+ 				write_dirents(pbuf, sum, start, pos);
+ 				ret = blk_write(pbuf, blkaddr);
+ 				if (ret < 0) {
+@@ -412,8 +413,10 @@ static int mkfs_write_inode_dir(struct erofs_node_info *inode)
+ 
+ 		/* write last page names */
+ 		if (start != pos) {
+-			s32 len = write_dirents(pbuf, sum, start, pos);
++			s32 len;
+ 
++			memset(pbuf, 0, EROFS_BLKSIZE);
++			len = write_dirents(pbuf, sum, start, pos);
+ 			inode->i_inline_data    = pbuf;
+ 			inode->i_inline_datalen = len;
+ 		}
+@@ -440,6 +443,7 @@ static int mkfs_write_inode_dir(struct erofs_node_info *inode)
+ 			    EROFS_BLKSIZE) {
+ 				const u32 blkaddr = inode->i_blkaddr + blk_cnt;
+ 
++				memset(pbuf, 0, EROFS_BLKSIZE);
+ 				write_dirents(pbuf, sum, start, pos);
+ 				blk_write(pbuf, blkaddr);
+ 				if (ret < 0) {
+@@ -463,6 +467,7 @@ static int mkfs_write_inode_dir(struct erofs_node_info *inode)
+ 		if (start != pos) {
+ 			const u32 blkaddr = inode->i_blkaddr + blk_cnt;
+ 
++			memset(pbuf, 0, EROFS_BLKSIZE);
+ 			write_dirents(pbuf, sum, start, pos);
+ 			ret = blk_write(pbuf, blkaddr);
+ 			if (ret < 0) {
+-- 
+2.17.1
