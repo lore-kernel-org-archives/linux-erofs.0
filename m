@@ -1,113 +1,193 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 26 Dec 2018 17:31:11 +0800
-Subject: [PREVIEW] [PATCH 1/3] staging: erofs: fix fast symlink w/o xattr if
- xattr is enabled
-Message-ID: <20181226093113.8942-1-gaoxiang25@huawei.com>
+Date: Wed, 26 Dec 2018 17:31:12 +0800
+Subject: [PREVIEW] [PATCH 2/3] staging: erofs: remove unneeded inode_operations
+In-Reply-To: <20181226093113.8942-1-gaoxiang25@huawei.com>
+References: <20181226093113.8942-1-gaoxiang25@huawei.com>
+Message-ID: <20181226093113.8942-2-gaoxiang25@huawei.com>
 
-Currently, this will hit a BUG_ON for these symlinks as follows:
+Currently, EROFS uses generic iops if xattr is disabled,
+it seems unnessary and a lot of extra code is there.
+Let's follow what other filesystems do instead.
 
-- kernel message
-------------[ cut here ]------------
-kernel BUG at drivers/staging/erofs/xattr.c:59!
-SMP PTI
-CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
-RIP: 0010:init_inode_xattrs+0x22b/0x270
-Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
- <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
-RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
-------------[ cut here ]------------
-...
-Call Trace:
- erofs_listxattr+0x30/0x2c0
- ? selinux_inode_listxattr+0x5a/0x80
- ? kmem_cache_alloc+0x33/0x170
- ? security_inode_listxattr+0x27/0x40
- listxattr+0xaf/0xc0
- path_listxattr+0x5a/0xa0
- do_syscall_64+0x43/0xf0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
----[ end trace 3c24b49408dc0c72 ]---
-
-Fix it by checking ->xattr_isize in init_inode_xattrs(),
-and it also fixes improper return value -ENOTSUPP
-(it should be -ENODATA if xattr is enabled) for those inodes.
-
-Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
-Reported-by: Li Guifu <bluce.liguifu at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/inode.c |  8 ++++----
- drivers/staging/erofs/xattr.c | 17 ++++++++++++-----
- 2 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/staging/erofs/inode.c    | 38 ++++++++++++------------------------
+ drivers/staging/erofs/internal.h | 42 +++++++++++++++++-----------------------
+ drivers/staging/erofs/namei.c    |  4 ----
+ drivers/staging/erofs/xattr.h    |  4 ----
+ 4 files changed, 30 insertions(+), 58 deletions(-)
 
 diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index d7fbf5f4600f..f99954dbfdb5 100644
+index f99954dbfdb5..4f04f7c38cf2 100644
 --- a/drivers/staging/erofs/inode.c
 +++ b/drivers/staging/erofs/inode.c
-@@ -185,16 +185,16 @@ static int fill_inode(struct inode *inode, int isdir)
+@@ -184,32 +184,18 @@ static int fill_inode(struct inode *inode, int isdir)
+ 	if (!err) {
  		/* setup the new inode */
  		if (S_ISREG(inode->i_mode)) {
- #ifdef CONFIG_EROFS_FS_XATTR
--			if (vi->xattr_isize)
--				inode->i_op = &erofs_generic_xattr_iops;
-+			inode->i_op = &erofs_generic_xattr_iops;
- #endif
+-#ifdef CONFIG_EROFS_FS_XATTR
+-			inode->i_op = &erofs_generic_xattr_iops;
+-#endif
++			inode->i_op = &erofs_generic_iops;
  			inode->i_fop = &generic_ro_fops;
  		} else if (S_ISDIR(inode->i_mode)) {
- 			inode->i_op =
- #ifdef CONFIG_EROFS_FS_XATTR
--				vi->xattr_isize ? &erofs_dir_xattr_iops :
+-			inode->i_op =
+-#ifdef CONFIG_EROFS_FS_XATTR
+-				&erofs_dir_xattr_iops;
+-#else
+-				&erofs_dir_iops;
 -#endif
-+				&erofs_dir_xattr_iops;
-+#else
- 				&erofs_dir_iops;
-+#endif
++			inode->i_op = &erofs_dir_iops;
  			inode->i_fop = &erofs_dir_fops;
  		} else if (S_ISLNK(inode->i_mode)) {
  			/* by default, page_get_link is used for symlink */
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 80dca6a4adbe..c15f33637ba8 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -56,7 +56,18 @@ static int init_inode_xattrs(struct inode *inode)
- 		return 0;
- 
- 	vi = EROFS_V(inode);
--	BUG_ON(!vi->xattr_isize);
-+
-+	/*
-+	 * bypass all xattr operations if vi->xattr_isize is not enough to
-+	 * contain erofs_xattr_ibody_header (and it should only be 0).
-+	 */
-+	if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
-+		if (unlikely(vi->xattr_isize)) {
-+			DBG_BUGON(1);
-+			return -EIO;	/* xattr ondisk layout error */
-+		}
-+		return -ENOATTR;
-+	}
- 
- 	sb = inode->i_sb;
- 	sbi = EROFS_SB(sb);
-@@ -422,7 +433,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
- 		struct dentry *unused, struct inode *inode,
- 		const char *name, void *buffer, size_t size)
- {
--	struct erofs_vnode *const vi = EROFS_V(inode);
- 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 
- 	switch (handler->flags) {
-@@ -440,9 +450,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
- 		return -EINVAL;
- 	}
- 
--	if (!vi->xattr_isize)
--		return -ENOATTR;
--
- 	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+-			inode->i_op =
+-#ifdef CONFIG_EROFS_FS_XATTR
+-				&erofs_symlink_xattr_iops,
+-#else
+-				&page_symlink_inode_operations;
+-#endif
++			inode->i_op = &erofs_symlink_iops;
+ 			inode_nohighmem(inode);
+ 		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
+ 			S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
+-#ifdef CONFIG_EROFS_FS_XATTR
+-			inode->i_op = &erofs_special_inode_operations;
+-#endif
++			inode->i_op = &erofs_generic_iops;
+ 			init_special_inode(inode, inode->i_mode, inode->i_rdev);
+ 		} else {
+ 			err = -EIO;
+@@ -297,23 +283,23 @@ struct inode *erofs_iget(struct super_block *sb,
+ 	return inode;
  }
  
++const struct inode_operations erofs_generic_iops = {
+ #ifdef CONFIG_EROFS_FS_XATTR
+-const struct inode_operations erofs_generic_xattr_iops = {
+ 	.listxattr = erofs_listxattr,
++#endif
+ };
+ 
+-const struct inode_operations erofs_symlink_xattr_iops = {
++const struct inode_operations erofs_symlink_iops = {
+ 	.get_link = page_get_link,
++#ifdef CONFIG_EROFS_FS_XATTR
+ 	.listxattr = erofs_listxattr,
++#endif
+ };
+ 
+-const struct inode_operations erofs_special_inode_operations = {
+-	.listxattr = erofs_listxattr,
+-};
+-
+-const struct inode_operations erofs_fast_symlink_xattr_iops = {
++const struct inode_operations erofs_fast_symlink_iops = {
+ 	.get_link = simple_get_link,
++#ifdef CONFIG_EROFS_FS_XATTR
+ 	.listxattr = erofs_listxattr,
+-};
+ #endif
++};
+ 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 49c587383315..8e72c32c79a4 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -412,8 +412,6 @@ static inline bool is_inode_layout_inline(struct inode *inode)
+ }
+ 
+ extern const struct super_operations erofs_sops;
+-extern const struct inode_operations erofs_dir_iops;
+-extern const struct file_operations erofs_dir_fops;
+ 
+ extern const struct address_space_operations erofs_raw_access_aops;
+ #ifdef CONFIG_EROFS_FS_ZIP
+@@ -552,37 +550,33 @@ static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
+ extern struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool dir);
+ 
+-/* dir.c */
+-int erofs_namei(struct inode *dir, struct qstr *name,
+-	erofs_nid_t *nid, unsigned *d_type);
+-
+-#ifdef CONFIG_EROFS_FS_XATTR
+-/* xattr.c */
+-extern const struct xattr_handler *erofs_xattr_handlers[];
+-
+-/* symlink and special inode */
+-extern const struct inode_operations erofs_symlink_xattr_iops;
+-extern const struct inode_operations erofs_fast_symlink_xattr_iops;
+-extern const struct inode_operations erofs_special_inode_operations;
+-#endif
++extern const struct inode_operations erofs_generic_iops;
++extern const struct inode_operations erofs_symlink_iops;
++extern const struct inode_operations erofs_fast_symlink_iops;
+ 
+ static inline void set_inode_fast_symlink(struct inode *inode)
+ {
+-#ifdef CONFIG_EROFS_FS_XATTR
+-	inode->i_op = &erofs_fast_symlink_xattr_iops;
+-#else
+-	inode->i_op = &simple_symlink_inode_operations;
+-#endif
++	inode->i_op = &erofs_fast_symlink_iops;
+ }
+ 
+ static inline bool is_inode_fast_symlink(struct inode *inode)
+ {
++	return inode->i_op == &erofs_fast_symlink_iops;
++}
++
++/* namei.c */
++extern const struct inode_operations erofs_dir_iops;
++
++int erofs_namei(struct inode *dir, struct qstr *name,
++		erofs_nid_t *nid, unsigned int *d_type);
++
++/* dir.c */
++extern const struct file_operations erofs_dir_fops;
++
+ #ifdef CONFIG_EROFS_FS_XATTR
+-	return inode->i_op == &erofs_fast_symlink_xattr_iops;
+-#else
+-	return inode->i_op == &simple_symlink_inode_operations;
++/* xattr.c */
++extern const struct xattr_handler *erofs_xattr_handlers[];
+ #endif
+-}
+ 
+ static inline void *erofs_vmap(struct page **pages, unsigned int count)
+ {
+diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+index 5596c52e246d..7fed1f996ab0 100644
+--- a/drivers/staging/erofs/namei.c
++++ b/drivers/staging/erofs/namei.c
+@@ -235,10 +235,6 @@ static struct dentry *erofs_lookup(struct inode *dir,
+ 
+ const struct inode_operations erofs_dir_iops = {
+ 	.lookup = erofs_lookup,
+-};
+-
+-const struct inode_operations erofs_dir_xattr_iops = {
+-	.lookup = erofs_lookup,
+ #ifdef CONFIG_EROFS_FS_XATTR
+ 	.listxattr = erofs_listxattr,
+ #endif
+diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
+index 0c7379282fc5..810fc947701d 100644
+--- a/drivers/staging/erofs/xattr.h
++++ b/drivers/staging/erofs/xattr.h
+@@ -68,10 +68,6 @@ static const struct xattr_handler *xattr_handler_map[] = {
+ }
+ 
+ #ifdef CONFIG_EROFS_FS_XATTR
+-
+-extern const struct inode_operations erofs_generic_xattr_iops;
+-extern const struct inode_operations erofs_dir_xattr_iops;
+-
+ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
 -- 
 2.14.4
