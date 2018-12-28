@@ -1,215 +1,120 @@
-From: bluce.liguifu@huawei.com (Li Guifu)
-Date: Thu, 27 Dec 2018 20:10:54 +0800
-Subject: [PATCH 2/2] erofs-utils: introduce a unique header for definitions
-In-Reply-To: <20181225060744.31239-2-gaoxiang25@huawei.com>
-References: <20181225060744.31239-1-gaoxiang25@huawei.com>
- <20181225060744.31239-2-gaoxiang25@huawei.com>
-Message-ID: <afa34308-03cf-65d2-27dc-da41a0f82120@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Fri, 28 Dec 2018 09:57:03 +0800
+Subject: [PREVIEW] [PATCH 1/3] staging: erofs: fix fast symlink w/o xattr
+ if xattr is enabled
+In-Reply-To: <20181226093113.8942-1-gaoxiang25@huawei.com>
+References: <20181226093113.8942-1-gaoxiang25@huawei.com>
+Message-ID: <b00d2f13-e24b-83d1-1efe-caaeaac27515@huawei.com>
 
-On 2018/12/25 14:07, Gao Xiang wrote:
+On 2018/12/26 17:31, Gao Xiang wrote:
+> Currently, this will hit a BUG_ON for these symlinks as follows:
+> 
+> - kernel message
+> ------------[ cut here ]------------
+> kernel BUG at drivers/staging/erofs/xattr.c:59!
+> SMP PTI
+> CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+> RIP: 0010:init_inode_xattrs+0x22b/0x270
+> Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
+>  <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
+> RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
+> ------------[ cut here ]------------
+> ...
+> Call Trace:
+>  erofs_listxattr+0x30/0x2c0
+>  ? selinux_inode_listxattr+0x5a/0x80
+>  ? kmem_cache_alloc+0x33/0x170
+>  ? security_inode_listxattr+0x27/0x40
+>  listxattr+0xaf/0xc0
+>  path_listxattr+0x5a/0xa0
+>  do_syscall_64+0x43/0xf0
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> ...
+> ---[ end trace 3c24b49408dc0c72 ]---
+> 
+> Fix it by checking ->xattr_isize in init_inode_xattrs(),
+> and it also fixes improper return value -ENOTSUPP
+> (it should be -ENODATA if xattr is enabled) for those inodes.
+> 
+> Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
+> Reported-by: Li Guifu <bluce.liguifu at huawei.com>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
->  configure.ac                               | 13 +++++-
->  mkfs/erofs_types.h => include/erofs/defs.h | 66 ++++++++++++++++++++++--------
->  include/erofs/list.h                       |  9 +---
->  mkfs/Makefile.am                           |  1 -
->  mkfs/erofs_cache.c                         |  2 +-
->  mkfs/mkfs_erofs.h                          |  1 -
->  mkfs/mkfs_file.c                           |  1 -
->  7 files changed, 62 insertions(+), 31 deletions(-)
->  rename mkfs/erofs_types.h => include/erofs/defs.h (59%)
->
-> diff --git a/configure.ac b/configure.ac
-> index 524252f..d9d6e0b 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -76,7 +76,18 @@ AC_ARG_WITH(lz4,
->    ])
->  
->  # Checks for header files.
-> -AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/time.h unistd.h])
-> +AC_CHECK_HEADERS(m4_flatten([
-> +	fcntl.h
-> +	inttypes.h
-> +	linux/types.h
-> +	limits.h
-> +	stddef.h
-> +	stdint.h
-> +	stdlib.h
-> +	string.h
-> +	sys/time.h
-> +	unistd.h
-> +]))
->  
->  # Checks for typedefs, structures, and compiler characteristics.
->  AC_C_INLINE
-> diff --git a/mkfs/erofs_types.h b/include/erofs/defs.h
-> similarity index 59%
-> rename from mkfs/erofs_types.h
-> rename to include/erofs/defs.h
-> index 11fa21b..f90aa19 100644
-> --- a/mkfs/erofs_types.h
-> +++ b/include/erofs/defs.h
-> @@ -1,31 +1,60 @@
->  /* SPDX-License-Identifier: GPL-2.0+ */
->  /*
-> - * erofs_types.h
-> + * include/erofs/defs.h
->   *
->   * Copyright (C) 2018 HUAWEI, Inc.
->   *             http://www.huawei.com/
->   * Created by Li Guifu <bluce.liguifu at huawei.com>
-> + * Modified by Gao Xiang <gaoxiang25 at huawei.com>
->   */
-> -#ifndef __EROFS_TYPES_H
-> -#define __EROFS_TYPES_H
-> -#include <inttypes.h>
-> -#include <endian.h>
-> -#include <linux/types.h>
-> -#include <sys/types.h>
-> -#include <asm/types.h>
-> +#ifndef __EROFS_DEFS_H
-> +#define __EROFS_DEFS_H
-> +
-> +#include <stddef.h>
->  #include <stdint.h>
-> -#include <sys/cdefs.h>
->  #include <assert.h>
-> -#include <bits/byteswap.h>
-> +#include <inttypes.h>
-> +
-> +#ifdef HAVE_CONFIG_H
-> +#include <config.h>
-> +#endif
-> +
-> +#ifdef HAVE_LINUX_TYPES_H
-> +#include <linux/types.h>
-> +#endif
-> +
-> +/*
-> + * container_of - cast a member of a structure out to the containing structure
-> + * @ptr:	the pointer to the member.
-> + * @type:	the type of the container struct this is embedded in.
-> + * @member:	the name of the member within the struct.
-> + */
-> +#define container_of(ptr, type, member) ({			\
-> +	const typeof(((type *)0)->member) *__mptr = (ptr);	\
-> +	(type *)((char *)__mptr - offsetof(type, member)); })
->  
-> -#define u8  uint8_t
-> -#define u16 uint16_t
-> -#define u32 uint32_t
-> -#define u64 uint64_t
-> -#define s8  int8_t
-> -#define s16 int16_t
-> -#define s32 int32_t
-> -#define s64 int64_t
-> +typedef uint8_t         u8;
-> +typedef uint16_t        u16;
-> +typedef uint32_t        u32;
-> +typedef uint64_t        u64;
-> +
-> +#ifndef HAVE_LINUX_TYPES_H
-> +typedef u8	__u8;
-> +typedef u16	__u16;
-> +typedef u32	__u32;
-> +typedef u64	__u64;
-> +typedef u16	__le16;
-> +typedef u32	__le32;
-> +typedef u64	__le64;
-> +typedef u16	__be16;
-> +typedef u32	__be32;
-> +typedef u64	__be64;
-> +#endif
-> +
-> +typedef int8_t          s8;
-> +typedef int16_t         s16;
-> +typedef int32_t         s32;
-> +typedef int64_t         s64;
->  
->  #if __BYTE_ORDER == __LITTLE_ENDIAN
->  /*
-> @@ -68,3 +97,4 @@
->  #define BITS_TO_LONGS(nr)   DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
->  
+>  drivers/staging/erofs/inode.c |  8 ++++----
+>  drivers/staging/erofs/xattr.c | 17 ++++++++++++-----
+>  2 files changed, 16 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+> index d7fbf5f4600f..f99954dbfdb5 100644
+> --- a/drivers/staging/erofs/inode.c
+> +++ b/drivers/staging/erofs/inode.c
+> @@ -185,16 +185,16 @@ static int fill_inode(struct inode *inode, int isdir)
+>  		/* setup the new inode */
+>  		if (S_ISREG(inode->i_mode)) {
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> -			if (vi->xattr_isize)
+> -				inode->i_op = &erofs_generic_xattr_iops;
+> +			inode->i_op = &erofs_generic_xattr_iops;
 >  #endif
+>  			inode->i_fop = &generic_ro_fops;
+>  		} else if (S_ISDIR(inode->i_mode)) {
+>  			inode->i_op =
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> -				vi->xattr_isize ? &erofs_dir_xattr_iops :
+> -#endif
+> +				&erofs_dir_xattr_iops;
+> +#else
+>  				&erofs_dir_iops;
+> +#endif
+>  			inode->i_fop = &erofs_dir_fops;
+>  		} else if (S_ISLNK(inode->i_mode)) {
+>  			/* by default, page_get_link is used for symlink */
+> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+> index 80dca6a4adbe..c15f33637ba8 100644
+> --- a/drivers/staging/erofs/xattr.c
+> +++ b/drivers/staging/erofs/xattr.c
+> @@ -56,7 +56,18 @@ static int init_inode_xattrs(struct inode *inode)
+>  		return 0;
+>  
+>  	vi = EROFS_V(inode);
+> -	BUG_ON(!vi->xattr_isize);
 > +
-> diff --git a/include/erofs/list.h b/include/erofs/list.h
-> index 8dcbc5b..aeef713 100644
-> --- a/include/erofs/list.h
-> +++ b/include/erofs/list.h
-> @@ -9,20 +9,13 @@
->  #ifndef __EROFS_LIST_HEAD_H
->  #define __EROFS_LIST_HEAD_H
->  
-> -#include <assert.h>
-> -#include <stddef.h>
-> +#include <erofs/defs.h>
->  
->  struct list_head {
->  	struct list_head *prev;
->  	struct list_head *next;
->  };
->  
-> -#define container_of(ptr, type, member)                                        \
-> -	({                                                                     \
-> -		const typeof(((type *)0)->member) *__mptr = (ptr);             \
-> -		(type *)((char *)__mptr - offsetof(type, member));             \
-> -	})
-> -
->  #define LIST_HEAD_INIT(name)                                                   \
->  	{                                                                      \
->  		&(name), &(name)                                               \
-> diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
-> index faddec1..a17cc8c 100644
-> --- a/mkfs/Makefile.am
-> +++ b/mkfs/Makefile.am
-> @@ -19,7 +19,6 @@ noinst_HEADERS = erofs_config.h  \
->  		 mkfs_erofs.h \
->  		 erofs_compressor.h \
->  		 erofs_io.h \
-> -		 erofs_types.h \
->  		 mkfs_file.h
->  
->  mkfs_erofs_CFLAGS = -Wall -Werror -DEROFS_MKFS_VERSION=\"v1.0\" -I$(top_srcdir)/include
-> diff --git a/mkfs/erofs_cache.c b/mkfs/erofs_cache.c
-> index c8af3de..aecca98 100644
-> --- a/mkfs/erofs_cache.c
-> +++ b/mkfs/erofs_cache.c
-> @@ -11,7 +11,7 @@
->  #include <stdint.h>
->  #include <errno.h>
->  
-> -#include "erofs_types.h"
-> +#include <erofs/defs.h>
->  #include "erofs_cache.h"
->  #include "erofs_error.h"
->  #include "erofs_debug.h"
-> diff --git a/mkfs/mkfs_erofs.h b/mkfs/mkfs_erofs.h
-> index 26f891c..e8b6f1b 100644
-> --- a/mkfs/mkfs_erofs.h
-> +++ b/mkfs/mkfs_erofs.h
-> @@ -12,7 +12,6 @@
->  
->  #include <linux/limits.h>
->  #include <erofs/list.h>
-> -#include "erofs_types.h"
->  
->  typedef unsigned int __u32;
->  
-> diff --git a/mkfs/mkfs_file.c b/mkfs/mkfs_file.c
-> index bb9877e..382e9b6 100644
-> --- a/mkfs/mkfs_file.c
-> +++ b/mkfs/mkfs_file.c
-> @@ -27,7 +27,6 @@
->  #ifndef O_BINARY
->  #define O_BINARY 0
->  #endif
-> -#include "erofs_types.h"
->  #include <erofs/list.h>
->  #include "erofs_cache.h"
->  #include "erofs_compressor.h"
+> +	/*
+> +	 * bypass all xattr operations if vi->xattr_isize is not enough to
+> +	 * contain erofs_xattr_ibody_header (and it should only be 0).
+> +	 */
+> +	if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
 
-Reviewed-by: Li Guifu <bluce.liguifu at huawei.com>
+vi->xattr_isize <= sizeof(struct erofs_xattr_ibody_header)?
 
 Thanks,
+
+> +		if (unlikely(vi->xattr_isize)) {
+> +			DBG_BUGON(1);
+> +			return -EIO;	/* xattr ondisk layout error */
+> +		}
+> +		return -ENOATTR;
+> +	}
+>  
+>  	sb = inode->i_sb;
+>  	sbi = EROFS_SB(sb);
+> @@ -422,7 +433,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+>  		struct dentry *unused, struct inode *inode,
+>  		const char *name, void *buffer, size_t size)
+>  {
+> -	struct erofs_vnode *const vi = EROFS_V(inode);
+>  	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+>  
+>  	switch (handler->flags) {
+> @@ -440,9 +450,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+>  		return -EINVAL;
+>  	}
+>  
+> -	if (!vi->xattr_isize)
+> -		return -ENOATTR;
+> -
+>  	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+>  }
+>  
+> 
