@@ -1,22 +1,61 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 29 Dec 2018 12:38:54 +0800
-Subject: [PREVIEW] [PATCH 1/3] staging: erofs: fix fast symlink w/o xattr
- if xattr is enabled
-In-Reply-To: <a1877a30-1cf0-0c78-9a4f-5d162d7cca9b@huawei.com>
-References: <20181226093113.8942-1-gaoxiang25@huawei.com>
- <a1877a30-1cf0-0c78-9a4f-5d162d7cca9b@huawei.com>
-Message-ID: <c4d16835-d467-4b0f-0e19-1040265f4e48@huawei.com>
+Date: Sat, 29 Dec 2018 22:01:43 +0800
+Subject: [PREVIEW] [PATCH v2 3/3] staging: erofs: move erofs_xattr_handlers to
+ xattr.h
+In-Reply-To: <20181229140143.23352-1-gaoxiang25@huawei.com>
+References: <20181229140143.23352-1-gaoxiang25@huawei.com>
+Message-ID: <20181229140143.23352-3-gaoxiang25@huawei.com>
 
-Hi Guifu,
+Let's move independent xattr-related stuffs to xattr.h,
+and no logic changes.
 
-On 2018/12/29 12:01, Li Guifu wrote:
-> It fixed the issue, confirmed at Linux buildroot 4.20-rc5+
-> Tested-by Li Guifu <bluce.liguifu at huawei.com>
-should be Tested-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/internal.h | 5 -----
+ drivers/staging/erofs/super.c    | 1 +
+ drivers/staging/erofs/xattr.h    | 2 ++
+ 3 files changed, 3 insertions(+), 5 deletions(-)
 
-> thanks
-
-Thanks for taking time for this regression test ;)
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index d1579fbe94cd..d1caff39f9d4 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -573,11 +573,6 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ /* dir.c */
+ extern const struct file_operations erofs_dir_fops;
+ 
+-#ifdef CONFIG_EROFS_FS_XATTR
+-/* xattr.c */
+-extern const struct xattr_handler *erofs_xattr_handlers[];
+-#endif
+-
+ static inline void *erofs_vmap(struct page **pages, unsigned int count)
+ {
+ #ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 1c2eb69682ef..45c7f6ddb9f5 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -16,6 +16,7 @@
+ #include <linux/parser.h>
+ #include <linux/seq_file.h>
+ #include "internal.h"
++#include "xattr.h"
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/erofs.h>
+diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
+index 810fc947701d..634dae9aaa0b 100644
+--- a/drivers/staging/erofs/xattr.h
++++ b/drivers/staging/erofs/xattr.h
+@@ -68,6 +68,8 @@ static const struct xattr_handler *xattr_handler_map[] = {
+ }
+ 
+ #ifdef CONFIG_EROFS_FS_XATTR
++extern const struct xattr_handler *erofs_xattr_handlers[];
++
+ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
+-- 
+2.14.4
