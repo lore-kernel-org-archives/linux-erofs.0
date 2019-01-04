@@ -1,57 +1,45 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 27 Feb 2019 20:43:54 +0800
-Subject: [PATCH 2/3] staging: erofs: fix illegal address access under
- memory pressure
-In-Reply-To: <20190227053332.38504-2-gaoxiang25@huawei.com>
-References: <20190227053332.38504-1-gaoxiang25@huawei.com>
- <20190227053332.38504-2-gaoxiang25@huawei.com>
-Message-ID: <613ed1af-a835-16ee-1e28-200181123bf2@huawei.com>
+Date: Fri, 4 Jan 2019 09:21:12 +0800
+Subject: [PREVIEW] [PATCH v2 1/3] staging: erofs: fix fast symlink w/o
+ xattr when fs xattr is on
+In-Reply-To: <20181229140143.23352-1-gaoxiang25@huawei.com>
+References: <20181229140143.23352-1-gaoxiang25@huawei.com>
+Message-ID: <96377bca-4646-1d4c-5616-c48e41f487fb@huawei.com>
 
-On 2019/2/27 13:33, Gao Xiang wrote:
-> Considering a read request with two decompressed file pages,
-> If a decompression work cannot be started on the previous page
-> due to memory pressure but in-memory LTP map lookup is done,
-> builder->work should be still NULL.
+On 2018/12/29 22:01, Gao Xiang wrote:
+> Currently, this will hit a BUG_ON for these symlinks as follows:
 > 
-> Moreover, if the current page also belongs to the same map,
-> it won't try to start the decompression work again and then
-> run into trouble.
-> 
-> This patch aims to solve the above issue only with little changes
-> as much as possible in order to make the fix backport easier.
-> 
-> kernel message is:
-> <4>[1051408.015930s]SLUB: Unable to allocate memory on node -1, gfp=0x2408040(GFP_NOFS|__GFP_ZERO)
-> <4>[1051408.015930s]  cache: erofs_compress, object size: 144, buffer size: 144, default order: 0, min order: 0
-> <4>[1051408.015930s]  node 0: slabs: 98, objs: 2744, free: 0
->   * Cannot allocate the decompression work
-> 
-> <3>[1051408.015960s]erofs: z_erofs_vle_normalaccess_readpages, readahead error at page 1008 of nid 5391488
->   * Note that the previous page was failed to read
-> 
-> <0>[1051408.015960s]Internal error: Accessing user space memory outside uaccess.h routines: 96000005 [#1] PREEMPT SMP
+> - kernel message
+> ------------[ cut here ]------------
+> kernel BUG at drivers/staging/erofs/xattr.c:59!
+> SMP PTI
+> CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+> RIP: 0010:init_inode_xattrs+0x22b/0x270
+> Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
+>  <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
+> RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
+> ------------[ cut here ]------------
 > ...
-> <4>[1051408.015991s]Hardware name: kirin710 (DT)
+> Call Trace:
+>  erofs_listxattr+0x30/0x2c0
+>  ? selinux_inode_listxattr+0x5a/0x80
+>  ? kmem_cache_alloc+0x33/0x170
+>  ? security_inode_listxattr+0x27/0x40
+>  listxattr+0xaf/0xc0
+>  path_listxattr+0x5a/0xa0
+>  do_syscall_64+0x43/0xf0
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 > ...
-> <4>[1051408.016021s]PC is at z_erofs_vle_work_add_page+0xa0/0x17c
-> <4>[1051408.016021s]LR is at z_erofs_do_read_page+0x12c/0xcf0
-> ...
-> <4>[1051408.018096s][<ffffff80c6fb0fd4>] z_erofs_vle_work_add_page+0xa0/0x17c
-> <4>[1051408.018096s][<ffffff80c6fb3814>] z_erofs_vle_normalaccess_readpages+0x1a0/0x37c
-> <4>[1051408.018096s][<ffffff80c6d670b8>] read_pages+0x70/0x190
-> <4>[1051408.018127s][<ffffff80c6d6736c>] __do_page_cache_readahead+0x194/0x1a8
-> <4>[1051408.018127s][<ffffff80c6d59318>] filemap_fault+0x398/0x684
-> <4>[1051408.018127s][<ffffff80c6d8a9e0>] __do_fault+0x8c/0x138
-> <4>[1051408.018127s][<ffffff80c6d8f90c>] handle_pte_fault+0x730/0xb7c
-> <4>[1051408.018127s][<ffffff80c6d8fe04>] __handle_mm_fault+0xac/0xf4
-> <4>[1051408.018157s][<ffffff80c6d8fec8>] handle_mm_fault+0x7c/0x118
-> <4>[1051408.018157s][<ffffff80c8c52998>] do_page_fault+0x354/0x474
-> <4>[1051408.018157s][<ffffff80c8c52af8>] do_translation_fault+0x40/0x48
-> <4>[1051408.018157s][<ffffff80c6c002f4>] do_mem_abort+0x80/0x100
-> <4>[1051408.018310s]---[ end trace 9f4009a3283bd78b ]---
+> ---[ end trace 3c24b49408dc0c72 ]---
 > 
-> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-> Cc: <stable at vger.kernel.org> # 4.19+
+> Fix it by checking ->xattr_isize in init_inode_xattrs(),
+> and it also fixes improper return value -ENOTSUPP
+> (it should be -ENODATA if xattr is enabled) for those inodes.
+> 
+> Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
+> Reported-by: Li Guifu <bluce.liguifu at huawei.com>
+> Tested-by: Li Guifu <bluce.liguifu at huawei.com>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
