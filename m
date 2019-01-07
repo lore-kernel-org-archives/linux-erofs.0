@@ -1,82 +1,87 @@
 From: jeremy@azazel.net (Jeremy Sowden)
-Date: Mon,  7 Jan 2019 18:25:16 +0000
-Subject: [PATCH 2/2] staging: erofs: fixed -Wmissing-prototype warnings.
+Date: Mon,  7 Jan 2019 18:25:15 +0000
+Subject: [PATCH 1/2] staging: erofs: fixed -Wmissing-prototype warnings.
 In-Reply-To: <20190107182516.21511-1-jeremy@azazel.net>
 References: <20190107182516.21511-1-jeremy@azazel.net>
-Message-ID: <20190107182516.21511-3-jeremy@azazel.net>
+Message-ID: <20190107182516.21511-2-jeremy@azazel.net>
 
-Moved prototypes for two functions to header file in order to fix the
-following warnings:
+Define three functions which are not used outside their own
+translation-units as static in order to fix the following warnings:
 
-  drivers/staging/erofs/unzip_vle.c:577:6: warning: no previous prototype for ?erofs_workgroup_free_rcu? [-Wmissing-prototypes]
-   void erofs_workgroup_free_rcu(struct erofs_workgroup *grp)
+  drivers/staging/erofs/utils.c:134:6: warning: no previous prototype for ?erofs_try_to_release_workgroup? [-Wmissing-prototypes]
+   bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  drivers/staging/erofs/unzip_vle.c:592:6: warning: no previous prototype for ?z_erofs_vle_work_release? [-Wmissing-prototypes]
+   void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
         ^~~~~~~~~~~~~~~~~~~~~~~~
 
-  drivers/staging/erofs/unzip_vle.c:1702:5: warning: no previous prototype for ?z_erofs_map_blocks_iter? [-Wmissing-prototypes]
-   int z_erofs_map_blocks_iter(struct inode *inode,
-       ^~~~~~~~~~~~~~~~~~~~~~~
+  drivers/staging/erofs/unzip_vle_lz4.c:16:5: warning: no previous prototype for ?z_erofs_unzip_lz4? [-Wmissing-prototypes]
+   int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
+       ^~~~~~~~~~~~~~~~~
 
 Signed-off-by: Jeremy Sowden <jeremy at azazel.net>
 ---
- drivers/staging/erofs/data.c     | 6 ------
- drivers/staging/erofs/internal.h | 7 +++++++
- drivers/staging/erofs/utils.c    | 2 --
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/staging/erofs/unzip_vle.c     |  2 +-
+ drivers/staging/erofs/unzip_vle_lz4.c |  2 +-
+ drivers/staging/erofs/utils.c         | 12 ++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index 5a55f0bfdfbb..329fa4fa3e9c 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -165,12 +165,6 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return err;
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 4ac1099a39c6..584612b47369 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -589,7 +589,7 @@ static void __z_erofs_vle_work_release(struct z_erofs_vle_workgroup *grp,
+ 	erofs_workgroup_put(&grp->obj);
  }
  
--#ifdef CONFIG_EROFS_FS_ZIP
--extern int z_erofs_map_blocks_iter(struct inode *,
--				   struct erofs_map_blocks *,
--				   struct page **, int);
--#endif
--
- int erofs_map_blocks_iter(struct inode *inode,
- 			  struct erofs_map_blocks *map,
- 			  struct page **mpage_ret, int flags)
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 49c587383315..192f4028d85d 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -288,6 +288,8 @@ static inline void erofs_workstation_cleanup_all(struct super_block *sb)
- 	erofs_shrink_workstation(EROFS_SB(sb), ~0UL, true);
- }
+-void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
++static void z_erofs_vle_work_release(struct z_erofs_vle_work *work)
+ {
+ 	struct z_erofs_vle_workgroup *grp =
+ 		z_erofs_vle_work_workgroup(work, true);
+diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
+index 52797bd89da1..8e8d705a6861 100644
+--- a/drivers/staging/erofs/unzip_vle_lz4.c
++++ b/drivers/staging/erofs/unzip_vle_lz4.c
+@@ -13,7 +13,7 @@
+ #include "unzip_vle.h"
+ #include <linux/lz4.h>
  
-+extern void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
-+
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- extern int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
- 	struct erofs_workgroup *egrp);
-@@ -530,6 +532,11 @@ struct erofs_map_blocks_iter {
- 	struct page *mpage;
- };
+-int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
++static int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
+ {
+ 	int ret = LZ4_decompress_safe_partial(in, out, inlen, outlen, outlen);
  
-+#ifdef CONFIG_EROFS_FS_ZIP
-+extern int z_erofs_map_blocks_iter(struct inode *,
-+				   struct erofs_map_blocks *,
-+				   struct page **, int);
-+#endif
- 
- static inline struct page *
- erofs_get_inline_page(struct inode *inode,
 diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index fc30025ef101..aed211cd5875 100644
+index b535898ca753..fc30025ef101 100644
 --- a/drivers/staging/erofs/utils.c
 +++ b/drivers/staging/erofs/utils.c
-@@ -104,8 +104,6 @@ int erofs_register_workgroup(struct super_block *sb,
- 	return err;
+@@ -131,9 +131,9 @@ static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
+ 	__erofs_workgroup_free(grp);
  }
  
--extern void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
--
- static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
+-bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+-				    struct erofs_workgroup *grp,
+-				    bool cleanup)
++static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
++					   struct erofs_workgroup *grp,
++					   bool cleanup)
  {
- 	atomic_long_dec(&erofs_global_shrink_cnt);
+ 	/*
+ 	 * for managed cache enabled, the refcount of workgroups
+@@ -172,9 +172,9 @@ bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ 
+ #else
+ /* for nocache case, no customized reclaim path at all */
+-bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+-				    struct erofs_workgroup *grp,
+-				    bool cleanup)
++static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
++					   struct erofs_workgroup *grp,
++					   bool cleanup)
+ {
+ 	int cnt = atomic_read(&grp->refcount);
+ 
 -- 
 2.20.1
