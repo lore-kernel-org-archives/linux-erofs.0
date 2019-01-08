@@ -1,10 +1,10 @@
 From: sashal@kernel.org (Sasha Levin)
-Date: Tue,  8 Jan 2019 14:25:23 -0500
-Subject: [PATCH AUTOSEL 4.20 055/117] staging: erofs: fix use-after-free of
+Date: Tue,  8 Jan 2019 14:28:53 -0500
+Subject: [PATCH AUTOSEL 4.19 44/97] staging: erofs: fix use-after-free of
  on-stack `z_erofs_vle_unzip_io'
-In-Reply-To: <20190108192628.121270-1-sashal@kernel.org>
-References: <20190108192628.121270-1-sashal@kernel.org>
-Message-ID: <20190108192628.121270-55-sashal@kernel.org>
+In-Reply-To: <20190108192949.122407-1-sashal@kernel.org>
+References: <20190108192949.122407-1-sashal@kernel.org>
+Message-ID: <20190108192949.122407-44-sashal@kernel.org>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal at kernel.org>
  1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 79d3ba62b298..45e88bada907 100644
+index 14da8cc2246a..0346630b67c8 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -717,13 +717,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
+@@ -724,13 +724,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
  	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
  	bool background = tagptr_unfold_tags(t);
  
