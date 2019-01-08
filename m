@@ -1,30 +1,22 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 8 Jan 2019 09:46:18 +0800
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Tue, 8 Jan 2019 07:42:33 +0100
 Subject: [PATCH 0/2] staging: erofs: fixed -Wmissing-prototype warnings.
 In-Reply-To: <20190107182516.21511-1-jeremy@azazel.net>
 References: <20190107182516.21511-1-jeremy@azazel.net>
-Message-ID: <5b305a6a-b50d-fd27-4675-88cdeffa577b@huawei.com>
+Message-ID: <20190108064233.GC29171@kroah.com>
 
-Hi Jeremy,
-
-On 2019/1/8 2:25, Jeremy Sowden wrote:
+On Mon, Jan 07, 2019@06:25:14PM +0000, Jeremy Sowden wrote:
 > Fixes for -Wmissing-prototype warnings in the erofs driver.  One group of
 > functions have been made static; for the second, prototypes have been moved to a
 > head
+> 
+> Jeremy Sowden (2):
+>   staging: erofs: fixed -Wmissing-prototype warnings.
+>   staging: erofs: fixed -Wmissing-prototype warnings.
 
-Is -Wmissing-prototypes required for the current linux kernel?
-I cannot see this warning in my personal kernel compilation...
+You sent two different patches that did different things, yet they had
+identical subject lines :(
 
-Functions your fix have already been added proper erofs prefix,
-therefore it wouldn't pollute the global namespace:
-z_erofs_vle_work_release
-z_erofs_unzip_lz4
-erofs_try_to_release_workgroup
+Please fix that up, and resend.
 
-erofs_workgroup_free_rcu
-z_erofs_map_blocks_iter
-
-some thought?
-
-Thanks,
-Gao Xiang
+greg k-h
