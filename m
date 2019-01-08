@@ -1,24 +1,30 @@
-From: jeremy@azazel.net (Jeremy Sowden)
-Date: Mon,  7 Jan 2019 18:25:14 +0000
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Tue, 8 Jan 2019 09:46:18 +0800
 Subject: [PATCH 0/2] staging: erofs: fixed -Wmissing-prototype warnings.
-Message-ID: <20190107182516.21511-1-jeremy@azazel.net>
+In-Reply-To: <20190107182516.21511-1-jeremy@azazel.net>
+References: <20190107182516.21511-1-jeremy@azazel.net>
+Message-ID: <5b305a6a-b50d-fd27-4675-88cdeffa577b@huawei.com>
 
-Fixes for -Wmissing-prototype warnings in the erofs driver.  One group of
-functions have been made static; for the second, prototypes have been moved to a
-head
+Hi Jeremy,
 
-Jeremy Sowden (2):
-  staging: erofs: fixed -Wmissing-prototype warnings.
-  staging: erofs: fixed -Wmissing-prototype warnings.
+On 2019/1/8 2:25, Jeremy Sowden wrote:
+> Fixes for -Wmissing-prototype warnings in the erofs driver.  One group of
+> functions have been made static; for the second, prototypes have been moved to a
+> head
 
- drivers/staging/erofs/data.c          |  6 ------
- drivers/staging/erofs/internal.h      |  7 +++++++
- drivers/staging/erofs/unzip_vle.c     |  2 +-
- drivers/staging/erofs/unzip_vle_lz4.c |  2 +-
- drivers/staging/erofs/utils.c         | 14 ++++++--------
- 5 files changed, 15 insertions(+), 16 deletions(-)
+Is -Wmissing-prototypes required for the current linux kernel?
+I cannot see this warning in my personal kernel compilation...
 
+Functions your fix have already been added proper erofs prefix,
+therefore it wouldn't pollute the global namespace:
+z_erofs_vle_work_release
+z_erofs_unzip_lz4
+erofs_try_to_release_workgroup
 
-base-commit: c8c2702409430a6a2fd928e857f15773aaafcc99
--- 
-2.20.1
+erofs_workgroup_free_rcu
+z_erofs_map_blocks_iter
+
+some thought?
+
+Thanks,
+Gao Xiang
