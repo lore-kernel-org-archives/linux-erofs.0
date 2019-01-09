@@ -1,91 +1,17 @@
-From: sashal@kernel.org (Sasha Levin)
-Date: Tue,  8 Jan 2019 14:28:53 -0500
-Subject: [PATCH AUTOSEL 4.19 44/97] staging: erofs: fix use-after-free of
- on-stack `z_erofs_vle_unzip_io'
-In-Reply-To: <20190108192949.122407-1-sashal@kernel.org>
-References: <20190108192949.122407-1-sashal@kernel.org>
-Message-ID: <20190108192949.122407-44-sashal@kernel.org>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Wed, 9 Jan 2019 14:29:46 +0800
+Subject: [PATCH v2] staging: erofs: Add identifier for function definition
+ arguments
+In-Reply-To: <20190108132454.20513-1-realwakka@gmail.com>
+References: <20190108132454.20513-1-realwakka@gmail.com>
+Message-ID: <a963e1ed-2b59-fee2-cadc-d487c7c301a1@huawei.com>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
-
-[ Upstream commit 848bd9acdcd00c164b42b14aacec242949ecd471 ]
-
-The root cause is the race as follows:
- Thread #0                         Thread #1
-
- z_erofs_vle_unzip_kickoff         z_erofs_submit_and_unzip
-
-                                    struct z_erofs_vle_unzip_io io[]
-   atomic_add_return()
-                                    wait_event()
-                                    [end of function]
-   wake_up()
-
-Fix it by taking the waitqueue lock between atomic_add_return and
-wake_up to close such the race.
-
-kernel message:
-
-Unable to handle kernel paging request at virtual address 97f7052caa1303dc
-...
-Workqueue: kverityd verity_work
-task: ffffffe32bcb8000 task.stack: ffffffe3298a0000
-PC is at __wake_up_common+0x48/0xa8
-LR is at __wake_up+0x3c/0x58
-...
-Call trace:
-...
-[<ffffff94a08ff648>] __wake_up_common+0x48/0xa8
-[<ffffff94a08ff8b8>] __wake_up+0x3c/0x58
-[<ffffff94a0c11b60>] z_erofs_vle_unzip_kickoff+0x40/0x64
-[<ffffff94a0c118e4>] z_erofs_vle_read_endio+0x94/0x134
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1076540>] dec_pending+0x134/0x32c
-[<ffffff94a1076f28>] clone_endio+0x90/0xf4
-[<ffffff94a0c83c9c>] bio_endio+0xe4/0xf8
-[<ffffff94a1095024>] verity_work+0x210/0x368
-[<ffffff94a08c4150>] process_one_work+0x188/0x4b4
-[<ffffff94a08c45bc>] worker_thread+0x140/0x458
-[<ffffff94a08cad48>] kthread+0xec/0x108
-[<ffffff94a0883ab4>] ret_from_fork+0x10/0x1c
-Code: d1006273 54000260 f9400804 b9400019 (b85fc081)
----[ end trace be9dde154f677cd1 ]---
+On 2019/1/8 21:24, Sidong Yang wrote:
+> Add identifier for function definition arguments in xattr_iter_handlers,
+> this change clears the checkpatch.pl issue and make code more explicit.
+> 
+> Signed-off-by: Sidong Yang <realwakka at gmail.com>
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
 
-Signed-off-by: Sasha Levin <sashal at kernel.org>
----
- drivers/staging/erofs/unzip_vle.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 14da8cc2246a..0346630b67c8 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -724,13 +724,18 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
- 	struct z_erofs_vle_unzip_io *io = tagptr_unfold_ptr(t);
- 	bool background = tagptr_unfold_tags(t);
- 
--	if (atomic_add_return(bios, &io->pending_bios))
-+	if (!background) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&io->u.wait.lock, flags);
-+		if (!atomic_add_return(bios, &io->pending_bios))
-+			wake_up_locked(&io->u.wait);
-+		spin_unlock_irqrestore(&io->u.wait.lock, flags);
- 		return;
-+	}
- 
--	if (background)
-+	if (!atomic_add_return(bios, &io->pending_bios))
- 		queue_work(z_erofs_workqueue, &io->u.work);
--	else
--		wake_up(&io->u.wait);
- }
- 
- static inline void z_erofs_vle_read_endio(struct bio *bio)
--- 
-2.19.1
+Thanks,
