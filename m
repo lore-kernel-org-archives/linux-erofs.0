@@ -1,7 +1,10 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Thu, 10 Jan 2019 09:32:33 +0800
-Subject: [PATCH] staging: erofs: clean up erofs_map_blocks_iter
-Message-ID: <20190110013233.88638-1-yuchao0@huawei.com>
+Date: Thu, 10 Jan 2019 09:34:49 +0800
+Subject: [PATCH v2] staging: erofs: clean up erofs_map_blocks_iter
+Message-ID: <20190110013449.88938-1-yuchao0@huawei.com>
+
+This patch cleans up erofs_map_blocks* function and structure family,
+just simply the code, no logic change.
 
 Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 ---
