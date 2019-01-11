@@ -1,19 +1,80 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 10 Jan 2019 19:06:55 +0800
-Subject: [PATCH v3] staging: erofs: clean up erofs_map_blocks_iter
-In-Reply-To: <20190110072805.111453-1-yuchao0@huawei.com>
-References: <20190110072805.111453-1-yuchao0@huawei.com>
-Message-ID: <7deffffa-5997-49ee-e6bc-7d9021208e6c@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Fri, 11 Jan 2019 21:28:35 +0800
+Subject: [PATCH 1/2] erofs-utils: remove redundant EROFS_MKFS_VERSION
+Message-ID: <20190111132836.16001-1-hsiangkao@aol.com>
 
+Let's use PACKAGE_VERSION exported by autoconf instead.
+Reset the version to 0.5 since there are still some stuffs to do.
 
+Signed-off-by: Gao Xiang <hsiangkao at aol.com>
+---
+ configure.ac        | 2 +-
+ mkfs/Makefile.am    | 2 +-
+ mkfs/erofs_config.c | 3 ++-
+ mkfs/erofs_config.h | 4 ++--
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
-On 2019/1/10 15:28, Chao Yu wrote:
-> This patch cleans up erofs_map_blocks* function and structure family,
-> just simply the code, no logic change.
-> 
-> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-Thanks,
-Gao Xiang
+diff --git a/configure.ac b/configure.ac
+index d9d6e0b..74ad0c0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2,7 +2,7 @@
+ # Process this file with autoconf to produce a configure script.
+ 
+ AC_PREREQ([2.69])
+-AC_INIT([mkfs.erofs], [0.0.1], [bluce.liguifu at huawei.com])
++AC_INIT([mkfs.erofs], [0.1], [bluce.liguifu at huawei.com])
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_AUX_DIR(config)
+ AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index a17cc8c..9865f04 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -21,7 +21,7 @@ noinst_HEADERS = erofs_config.h  \
+ 		 erofs_io.h \
+ 		 mkfs_file.h
+ 
+-mkfs_erofs_CFLAGS = -Wall -Werror -DEROFS_MKFS_VERSION=\"v1.0\" -I$(top_srcdir)/include
++mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ ACLOCAL_AMFLAGS = -I m4
+ 
+ if SUPPORT_LARG_FILE_AT_BIT32
+diff --git a/mkfs/erofs_config.c b/mkfs/erofs_config.c
+index e77f7cd..b4d969a 100644
+--- a/mkfs/erofs_config.c
++++ b/mkfs/erofs_config.c
+@@ -9,6 +9,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include "config.h"
+ #include "erofs_config.h"
+ #include "erofs_debug.h"
+ 
+@@ -19,7 +20,7 @@ void mkfs_init_configure(void)
+ 	memset(&erofs_cfg, 0, sizeof(erofs_cfg));
+ 	erofs_cfg.c_alg_name = "none";
+ 	erofs_cfg.c_dbg_lvl  = 0;
+-	erofs_cfg.c_version  = EROFS_MKFS_VERSION "   " __DATE__ " " __TIME__;
++	erofs_cfg.c_version  = PACKAGE_VERSION "   " __DATE__ " " __TIME__;
+ }
+ 
+ void mkfs_dump_config(void)
+diff --git a/mkfs/erofs_config.h b/mkfs/erofs_config.h
+index 34b2dee..7e38f87 100644
+--- a/mkfs/erofs_config.h
++++ b/mkfs/erofs_config.h
+@@ -6,8 +6,8 @@
+  *             http://www.huawei.com/
+  * Created by Li Guifu <bluce.liguifu at huawei.com>
+  */
+-#ifndef __EROFS_CONFIG_H
+-#define __EROFS_CONFIG_H
++#ifndef __EROFS_MKFS_CONFIG_H
++#define __EROFS_MKFS_CONFIG_H
+ 
+ /* workaround of a lz4 native compression issue, which can crash the program */
+ /* #define EROFS_CONFIG_COMPR_MAX_SZ        (1024 * 1024) */
+-- 
+2.11.0
