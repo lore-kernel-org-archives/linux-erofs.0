@@ -1,42 +1,181 @@
-From: bluce.liguifu@huawei.com (Li Guifu)
-Date: Sat, 12 Jan 2019 14:23:41 +0800
-Subject: [PATCH 2/2] erofs-utils: move 'ACLOCAL_AMFLAGS = -I m4' to
- $(top_srcdir)/Makefile.am
-In-Reply-To: <20190111132836.16001-2-hsiangkao@aol.com>
-References: <20190111132836.16001-1-hsiangkao@aol.com>
- <20190111132836.16001-2-hsiangkao@aol.com>
-Message-ID: <aa1924dc-2c43-e94f-1f81-58cca3a73628@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sat, 12 Jan 2019 18:35:05 +0800
+Subject: [RFC PATCH] staging: erofs: add document
+Message-ID: <20190112103505.27393-1-hsiangkao@aol.com>
 
-On 2019/1/11 21:28, Gao Xiang wrote:
-> Signed-off-by: Gao Xiang <hsiangkao at aol.com>
-> ---
->  Makefile.am      | 2 ++
->  mkfs/Makefile.am | 1 -
->  2 files changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/Makefile.am b/Makefile.am
-> index cb574c3..0eb37d6 100644
-> --- a/Makefile.am
-> +++ b/Makefile.am
-> @@ -1,3 +1,5 @@
->  # Makefile.am
->  
-> +ACLOCAL_AMFLAGS = -I m4
-> +
->  SUBDIRS=mkfs
-> diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
-> index 9865f04..0f57761 100644
-> --- a/mkfs/Makefile.am
-> +++ b/mkfs/Makefile.am
-> @@ -22,7 +22,6 @@ noinst_HEADERS = erofs_config.h  \
->  		 mkfs_file.h
->  
->  mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
-> -ACLOCAL_AMFLAGS = -I m4
->  
->  if SUPPORT_LARG_FILE_AT_BIT32
->      mkfs_erofs_CFLAGS += -D_FILE_OFFSET_BITS=64
+This documents key feature, design, and usage of erofs.
 
-Reviewed-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao at aol.com>
+---
+ .../erofs/Documentation/filesystems/erofs.txt      | 160 +++++++++++++++++++++
+ 1 file changed, 160 insertions(+)
+ create mode 100644 drivers/staging/erofs/Documentation/filesystems/erofs.txt
 
-Thanks,
+diff --git a/drivers/staging/erofs/Documentation/filesystems/erofs.txt b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+new file mode 100644
+index 000000000000..f1d6a9701caa
+--- /dev/null
++++ b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+@@ -0,0 +1,160 @@
++Overview
++========
++
++EROFS file-system stands for Enhanced Read-Only File System. Different
++from other read-only file systems, it aims to be designed for flexibility,
++scalability, but be kept simple and high performance.
++
++Here is the main features of EROFS:
++ - Little endian on-disk design;
++
++ - 4KB block size and therefore maximum 16TB address space;
++
++ - Metadata and data could be mixed by design;
++
++ - 2 inode versions for different requirements:
++                          v1            v2
++   Inode metadata size:   32 bytes      64 bytes
++   Max file size:         4 GB          16 EB (limited by max. vol size)
++   Max uids/gids:         65536         4294967296
++   File creation time:    no            yes (64 + 32-bit timestamp)
++   Max hard links:        65536         4294967296
++   Metadata reserved:     4             14
++
++ - Support extended attributes (xattrs)
++
++ - Support xattr inline and tail-end data inline for all files;
++
++ - Support transparent data compression as an option:
++   LZ4 algorithm with 4 KB fixed-output compression for high performance;
++
++The following git tree provides the file system user-space tools under
++development (ex, formatting tool mkfs.erofs):
++>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
++
++Bugs and patches are welcome, please help kindly us and send them to
++the following mailing list:
++>> linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
++
++Note that EROFS is still working in progress as a Linux staging driver,
++Cc the staging mailing list is really recommended:
++>> Linux Driver Project Developer List <devel at driverdev.osuosl.org>
++
++Mount options
++=============
++
++fault_injection=%d     Enable fault injection in all supported types with
++                       specified injection rate.
++(no)user_xattr         Setup Extended User Attributes. Note: xattr is enabled
++                       by default if CONFIG_EROFS_FS_XATTR is selected.
++(no)acl                Setup POSIX Access Control List. Note: acl is enabled
++                       by default if CONFIG_EROFS_FS_POSIX_ACL is selected.
++
++On-disk details
++===============
++
++Summary
++-------
++Different from other read-only file systems, an EROFS volume is designed
++to be as simple as possible:
++
++                                |-> aligned with the block size
++   ____________________________________________________________
++  | |SB| | ... | Metadata | ... | Data | Metadata | ... | Data |
++  |_|__|_|_____|__________|_____|______|__________|_____|______|
++  0 +1K
++
++All data areas should be aligned with the block size, but metadata areas
++may not. All metadatas can be now observed in two different spaces (views):
++ 1) Inode metadata space
++    Each valid inode should be aligned with an inode slot, which is a fixed
++    value (32 bytes) and designed to be kept in line with v1 inode size.
++
++    Each inode can be directly found with the following formula:
++         inode offset = meta_blkaddr * block_size + 32 * nid
++
++                                |-> aligned with 8B
++                                           |-> followed closely
++    + meta_blkaddr blocks                                      |-> another slot
++     _____________________________________________________________________
++    |  ...   | inode |  xattrs  | extents  | data inline | ... | inode ...
++    |________|_______|(optional)|(optional)|__(optional)_|_____|__________
++             |-> aligned with the inode slot size
++                  .                   .
++                .                         .
++              .                              .
++            .                                    .
++          .                                         .
++        .                                              .
++      .____________________________________________________|-> aligned with 4B
++      | xattr_ibody_header | shared xattrs | inline xattrs |
++      |____________________|_______________|_______________|
++      |->    12 bytes    <-|->x * 4 bytes<-|               .
++                          .                .                 .
++                    .                      .                   .
++               .                           .                     .
++           ._______________________________.______________________.
++           | id | id | id | id |  ... | id | ent | ... | ent| ... |
++           |____|____|____|____|______|____|_____|_____|____|_____|
++                                           |-> aligned with 4B
++                                                       |-> aligned with 4B
++
++    Inode could be 32 or 64 bytes, which can be distinguished from a common
++    field which all inode versions have -- i_advise:
++
++        __________________               __________________
++       |     i_advise     |             |     i_advise     |
++       |__________________|             |__________________|
++       |        ...       |             |        ...       |
++       |                  |             |                  |
++       |__________________| 32 bytes    |                  |
++                                        |                  |
++                                        |__________________| 64 bytes
++
++    Xattrs, extents, data inline are followed by the corresponding inode with
++    proper alignes, and they could be optional for different data mappings,
++    currently there are totally 3 valid data mappings:
++
++     1) flat file data without data inline (no extent);
++     2) fixed-output size data compression (must have extents);
++     3) flat file data with tail-end data inline (no extent);
++
++    The size of the optional xattrs is indicated by i_xattr_count in inode
++    header. Large xattrs or xattrs shared by many different files can be
++    stored in shared xattrs metadata rather than inlined right after inode.
++
++ 2) Shared xattrs metadata space
++    Shared xattrs space is similar to the above inode space, started with
++    a specific block indicated by xattr_blkaddr, organized one by one with
++    proper align.
++
++    Each share xattr can be found by the following formula:
++         xattr offset = xattr_blkaddr * block_size + 4 * xattr_id
++
++                           |-> aligned by  4 bytes
++    + xattr_blkaddr blocks                     |-> aligned with 4 bytes
++     _________________________________________________________________________
++    |  ...   | xattr_entry |  xattr data | ... |  xattr_entry | xattr data  ...
++    |________|_____________|_____________|_____|______________|_______________
++
++Directories
++-----------
++All directories are now organized in a compact on-disk format. Note that
++each directory block is divided into index and name areas in order to
++support random file lookup, and all directory entries are strictly written
++in alphabetical order in order to support improved prefix binary search
++algorithm.
++
++
++                 +--------------------------+
++                /                           |
++               /              +-------------+----------------+
++              /              /             \|/namelen1      \|/ namelenN-1
++ ____________+______________+___________________________________________
++| dirent | dirent | ... | dirent | filename | filename | ... | filename |
++|____0___|____1___|_____|___N-1__|____0_____|____1_____|_____|___N-1____|
++     \                          /|\                           * could have
++      \                          |                              trailing '\0'
++       \                         |
++        +------------------------+ namelen0
++
+-- 
+2.11.0
