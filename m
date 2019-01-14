@@ -1,22 +1,13 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 14 Jan 2019 15:58:40 +0800
-Subject: [PREVIEW] [PATCH v3] staging: erofs: add document
-In-Reply-To: <20190112103505.27393-1-hsiangkao@aol.com>
-References: <20190112103505.27393-1-hsiangkao@aol.com>
-Message-ID: <20190114075840.40048-1-gaoxiang25@huawei.com>
+Date: Mon, 14 Jan 2019 17:08:19 +0800
+Subject: [PATCH rebased 1/5] staging: erofs: add document
+Message-ID: <20190114090823.46227-1-gaoxiang25@huawei.com>
 
 This documents key feature, usage, and on-disk design of erofs.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
-change log v3:
- - minor description update; 
-
-change log v2:
- - update according to comments pointed out by Chao;
- - add some description about file compression.
-
  .../erofs/Documentation/filesystems/erofs.txt      | 195 +++++++++++++++++++++
  1 file changed, 195 insertions(+)
  create mode 100644 drivers/staging/erofs/Documentation/filesystems/erofs.txt
