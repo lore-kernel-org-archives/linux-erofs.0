@@ -1,19 +1,21 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 14 Jan 2019 13:41:43 +0800
-Subject: [PATCH v2] staging: erofs: add document
-Message-ID: <20190114054143.2612-1-gaoxiang25@huawei.com>
+Date: Mon, 14 Jan 2019 15:58:40 +0800
+Subject: [PREVIEW] [PATCH v3] staging: erofs: add document
+In-Reply-To: <20190112103505.27393-1-hsiangkao@aol.com>
+References: <20190112103505.27393-1-hsiangkao@aol.com>
+Message-ID: <20190114075840.40048-1-gaoxiang25@huawei.com>
 
 This documents key feature, usage, and on-disk design of erofs.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+change log v3:
+ - minor description update; 
+
 change log v2:
  - update according to comments pointed out by Chao;
  - add some description about file compression.
-
-Thanks,
-Gao Xiang
 
  .../erofs/Documentation/filesystems/erofs.txt      | 195 +++++++++++++++++++++
  1 file changed, 195 insertions(+)
@@ -21,7 +23,7 @@ Gao Xiang
 
 diff --git a/drivers/staging/erofs/Documentation/filesystems/erofs.txt b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
 new file mode 100644
-index 000000000000..8513731c3a5d
+index 000000000000..2e1bda8b5f83
 --- /dev/null
 +++ b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
 @@ -0,0 +1,195 @@
@@ -35,9 +37,9 @@ index 000000000000..8513731c3a5d
 +Here is the main features of EROFS:
 + - Little endian on-disk design;
 +
-+ - 4KB block size and therefore maximum 16TB address space;
++ - Currently 4KB block size (nobh) and therefore maximum 16TB address space;
 +
-+ - Metadata and data could be mixed by design;
++ - Metadata & data could be mixed by design;
 +
 + - 2 inode versions for different requirements:
 +                          v1            v2
@@ -45,8 +47,8 @@ index 000000000000..8513731c3a5d
 +   Max file size:         4 GB          16 EB (also limited by max. vol size)
 +   Max uids/gids:         65536         4294967296
 +   File creation time:    no            yes (64 + 32-bit timestamp)
-+   Max hard links:        65536         4294967296
-+   Metadata reserved:     4             14
++   Max hardlinks:         65536         4294967296
++   Metadata reserved:     4 bytes       14 bytes
 +
 + - Support extended attributes (xattrs)
 +
@@ -60,11 +62,11 @@ index 000000000000..8513731c3a5d
 +>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
 +
 +Bugs and patches are welcome, please kindly help us and send to the following
-+mailing list:
++linux-erofs mailing list:
 +>> linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
 +
 +Note that EROFS is still working in progress as a Linux staging driver,
-+Cc the staging mailing list is really recommended:
++Cc the staging mailing list as well is highly recommended:
 +>> Linux Driver Project Developer List <devel at driverdev.osuosl.org>
 +
 +Mount options
