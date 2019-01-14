@@ -1,231 +1,133 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 14 Jan 2019 17:08:23 +0800
-Subject: [PATCH rebased 5/5] staging: erofs: clean up erofs_map_blocks_iter
-In-Reply-To: <20190114090823.46227-1-gaoxiang25@huawei.com>
+Date: Mon, 14 Jan 2019 17:13:32 +0800
+Subject: [PATCH rebased 2/5] staging: erofs: fix fast symlink w/o xattr
+ when fs xattr is on
+In-Reply-To: <20190114090823.46227-2-gaoxiang25@huawei.com>
 References: <20190114090823.46227-1-gaoxiang25@huawei.com>
-Message-ID: <20190114090823.46227-5-gaoxiang25@huawei.com>
+ <20190114090823.46227-2-gaoxiang25@huawei.com>
+Message-ID: <e39d14eb-ff8a-f840-321d-6208dbd418a8@huawei.com>
 
-From: Chao Yu <yuchao0@huawei.com>
+Hi stable@,
+please ignore this patch version temporarily, I will send this
+to mailing lists formally later.
 
-This patch cleans up erofs_map_blocks* function and structure family,
-just simply the code, no logic change.
+Thanks,
+Gao Xiang
 
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/data.c      | 31 +++++--------------------------
- drivers/staging/erofs/internal.h  | 28 +++++++++++++++-------------
- drivers/staging/erofs/unzip_vle.c | 30 +++++++++++++++---------------
- 3 files changed, 35 insertions(+), 54 deletions(-)
-
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index 329fa4fa3e9c..9c471f08ffd4 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -165,37 +165,16 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return err;
- }
- 
--int erofs_map_blocks_iter(struct inode *inode,
--			  struct erofs_map_blocks *map,
--			  struct page **mpage_ret, int flags)
--{
--	/* by default, reading raw data never use erofs_map_blocks_iter */
--	if (unlikely(!is_inode_layout_compression(inode))) {
--		if (*mpage_ret)
--			put_page(*mpage_ret);
--		*mpage_ret = NULL;
--
--		return erofs_map_blocks(inode, map, flags);
--	}
--
--#ifdef CONFIG_EROFS_FS_ZIP
--	return z_erofs_map_blocks_iter(inode, map, mpage_ret, flags);
--#else
--	/* data compression is not available */
--	return -ENOTSUPP;
--#endif
--}
--
- int erofs_map_blocks(struct inode *inode,
- 		     struct erofs_map_blocks *map, int flags)
- {
- 	if (unlikely(is_inode_layout_compression(inode))) {
--		struct page *mpage = NULL;
--		int err;
-+		int err = z_erofs_map_blocks_iter(inode, map, flags);
- 
--		err = erofs_map_blocks_iter(inode, map, &mpage, flags);
--		if (mpage)
--			put_page(mpage);
-+		if (map->mpage) {
-+			put_page(map->mpage);
-+			map->mpage = NULL;
-+		}
- 		return err;
- 	}
- 	return erofs_map_blocks_flatmode(inode, map, flags);
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 99b50b981335..e2103804584b 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -461,11 +461,26 @@ struct erofs_map_blocks {
- 	u64 m_plen, m_llen;
- 
- 	unsigned int m_flags;
-+
-+	struct page *mpage;
- };
- 
- /* Flags used by erofs_map_blocks() */
- #define EROFS_GET_BLOCKS_RAW    0x0001
- 
-+#ifdef CONFIG_EROFS_FS_ZIP
-+int z_erofs_map_blocks_iter(struct inode *inode,
-+			    struct erofs_map_blocks *map,
-+			    int flags);
-+#else
-+static inline int z_erofs_map_blocks_iter(struct inode *inode,
-+					  struct erofs_map_blocks *map,
-+					  int flags);
-+{
-+	return -ENOTSUPP;
-+}
-+#endif
-+
- /* data.c */
- static inline struct bio *
- erofs_grab_bio(struct super_block *sb,
-@@ -522,19 +537,6 @@ static inline struct page *erofs_get_meta_page_nofail(struct super_block *sb,
- }
- 
- extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
--extern int erofs_map_blocks_iter(struct inode *, struct erofs_map_blocks *,
--	struct page **, int);
--
--struct erofs_map_blocks_iter {
--	struct erofs_map_blocks map;
--	struct page *mpage;
--};
--
--#ifdef CONFIG_EROFS_FS_ZIP
--extern int z_erofs_map_blocks_iter(struct inode *,
--				   struct erofs_map_blocks *,
--				   struct page **, int);
--#endif
- 
- static inline struct page *
- erofs_get_inline_page(struct inode *inode,
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 584612b47369..29b3b1dc67f1 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -636,7 +636,7 @@ struct z_erofs_vle_frontend {
- 	struct inode *const inode;
- 
- 	struct z_erofs_vle_work_builder builder;
--	struct erofs_map_blocks_iter m_iter;
-+	struct erofs_map_blocks map;
- 
- 	z_erofs_vle_owned_workgrp_t owned_head;
- 
-@@ -647,8 +647,9 @@ struct z_erofs_vle_frontend {
- 
- #define VLE_FRONTEND_INIT(__i) { \
- 	.inode = __i, \
--	.m_iter = { \
--		{ .m_llen = 0, .m_plen = 0 }, \
-+	.map = { \
-+		.m_llen = 0, \
-+		.m_plen = 0, \
- 		.mpage = NULL \
- 	}, \
- 	.builder = VLE_WORK_BUILDER_INIT(), \
-@@ -681,8 +682,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- {
- 	struct super_block *const sb = fe->inode->i_sb;
- 	struct erofs_sb_info *const sbi __maybe_unused = EROFS_SB(sb);
--	struct erofs_map_blocks_iter *const m = &fe->m_iter;
--	struct erofs_map_blocks *const map = &m->map;
-+	struct erofs_map_blocks *const map = &fe->map;
- 	struct z_erofs_vle_work_builder *const builder = &fe->builder;
- 	const loff_t offset = page_offset(page);
- 
-@@ -715,7 +715,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 
- 	map->m_la = offset + cur;
- 	map->m_llen = 0;
--	err = erofs_map_blocks_iter(fe->inode, map, &m->mpage, 0);
-+	err = z_erofs_map_blocks_iter(fe->inode, map, 0);
- 	if (unlikely(err))
- 		goto err_out;
- 
-@@ -1484,8 +1484,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 
- 	z_erofs_submit_and_unzip(&f, &pagepool, true);
- out:
--	if (f.m_iter.mpage)
--		put_page(f.m_iter.mpage);
-+	if (f.map.mpage)
-+		put_page(f.map.mpage);
- 
- 	/* clean up the remaining free pages */
- 	put_pages_list(&pagepool);
-@@ -1555,8 +1555,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
- 
- 	z_erofs_submit_and_unzip(&f, &pagepool, sync);
- 
--	if (f.m_iter.mpage)
--		put_page(f.m_iter.mpage);
-+	if (f.map.mpage)
-+		put_page(f.map.mpage);
- 
- 	/* clean up the remaining free pages */
- 	put_pages_list(&pagepool);
-@@ -1701,14 +1701,14 @@ vle_get_logical_extent_head(const struct vle_map_blocks_iter_ctx *ctx,
- 
- int z_erofs_map_blocks_iter(struct inode *inode,
- 	struct erofs_map_blocks *map,
--	struct page **mpage_ret, int flags)
-+	int flags)
- {
- 	void *kaddr;
- 	const struct vle_map_blocks_iter_ctx ctx = {
- 		.inode = inode,
- 		.sb = inode->i_sb,
- 		.clusterbits = EROFS_I_SB(inode)->clusterbits,
--		.mpage_ret = mpage_ret,
-+		.mpage_ret = &map->mpage,
- 		.kaddr_ret = &kaddr
- 	};
- 	const unsigned int clustersize = 1 << ctx.clusterbits;
-@@ -1722,7 +1722,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 
- 	/* initialize `pblk' to keep gcc from printing foolish warnings */
- 	erofs_blk_t mblk, pblk = 0;
--	struct page *mpage = *mpage_ret;
-+	struct page *mpage = map->mpage;
- 	struct z_erofs_vle_decompressed_index *di;
- 	unsigned int cluster_type, logical_cluster_ofs;
- 	int err = 0;
-@@ -1758,7 +1758,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 			err = PTR_ERR(mpage);
- 			goto out;
- 		}
--		*mpage_ret = mpage;
-+		map->mpage = mpage;
- 	} else {
- 		lock_page(mpage);
- 		DBG_BUGON(!PageUptodate(mpage));
-@@ -1818,7 +1818,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 		/* get the correspoinding first chunk */
- 		err = vle_get_logical_extent_head(&ctx, lcn, &ofs,
- 						  &pblk, &map->m_flags);
--		mpage = *mpage_ret;
-+		mpage = map->mpage;
- 
- 		if (unlikely(err)) {
- 			if (mpage)
--- 
-2.14.4
+On 2019/1/14 17:08, Gao Xiang wrote:
+> Currently, this will hit a BUG_ON for these symlinks as follows:
+> 
+> - kernel message
+> ------------[ cut here ]------------
+> kernel BUG at drivers/staging/erofs/xattr.c:59!
+> SMP PTI
+> CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+> RIP: 0010:init_inode_xattrs+0x22b/0x270
+> Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
+>  <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
+> RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
+> ------------[ cut here ]------------
+> ...
+> Call Trace:
+>  erofs_listxattr+0x30/0x2c0
+>  ? selinux_inode_listxattr+0x5a/0x80
+>  ? kmem_cache_alloc+0x33/0x170
+>  ? security_inode_listxattr+0x27/0x40
+>  listxattr+0xaf/0xc0
+>  path_listxattr+0x5a/0xa0
+>  do_syscall_64+0x43/0xf0
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> ...
+> ---[ end trace 3c24b49408dc0c72 ]---
+> 
+> Fix it by checking ->xattr_isize in init_inode_xattrs(),
+> and it also fixes improper return value -ENOTSUPP
+> (it should be -ENODATA if xattr is enabled) for those inodes.
+> 
+> Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
+> Cc: <stable at vger.kernel.org> # 4.19+
+> Reported-by: Li Guifu <bluce.liguifu at huawei.com>
+> Tested-by: Li Guifu <bluce.liguifu at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+>  drivers/staging/erofs/inode.c |  8 ++++----
+>  drivers/staging/erofs/xattr.c | 25 ++++++++++++++++++++-----
+>  2 files changed, 24 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+> index d7fbf5f4600f..f99954dbfdb5 100644
+> --- a/drivers/staging/erofs/inode.c
+> +++ b/drivers/staging/erofs/inode.c
+> @@ -185,16 +185,16 @@ static int fill_inode(struct inode *inode, int isdir)
+>  		/* setup the new inode */
+>  		if (S_ISREG(inode->i_mode)) {
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> -			if (vi->xattr_isize)
+> -				inode->i_op = &erofs_generic_xattr_iops;
+> +			inode->i_op = &erofs_generic_xattr_iops;
+>  #endif
+>  			inode->i_fop = &generic_ro_fops;
+>  		} else if (S_ISDIR(inode->i_mode)) {
+>  			inode->i_op =
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> -				vi->xattr_isize ? &erofs_dir_xattr_iops :
+> -#endif
+> +				&erofs_dir_xattr_iops;
+> +#else
+>  				&erofs_dir_iops;
+> +#endif
+>  			inode->i_fop = &erofs_dir_fops;
+>  		} else if (S_ISLNK(inode->i_mode)) {
+>  			/* by default, page_get_link is used for symlink */
+> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+> index 80dca6a4adbe..e30de2476fd0 100644
+> --- a/drivers/staging/erofs/xattr.c
+> +++ b/drivers/staging/erofs/xattr.c
+> @@ -56,7 +56,26 @@ static int init_inode_xattrs(struct inode *inode)
+>  		return 0;
+>  
+>  	vi = EROFS_V(inode);
+> -	BUG_ON(!vi->xattr_isize);
+> +
+> +	/*
+> +	 * bypass all xattr operations if ->xattr_isize is not greater than
+> +	 * sizeof(struct erofs_xattr_ibody_header), in detail:
+> +	 * 1) it is not enough to contain erofs_xattr_ibody_header then
+> +	 *    ->xattr_isize should be 0 (it means no xattr);
+> +	 * 2) it is just to contain erofs_xattr_ibody_header, which is on-disk
+> +	 *    undefined right now (maybe use later with some new sb feature).
+> +	 */
+> +	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
+> +		errln("xattr_isize %d of nid %llu is not supported yet",
+> +		      vi->xattr_isize, vi->nid);
+> +		return -ENOTSUPP;
+> +	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
+> +		if (unlikely(vi->xattr_isize)) {
+> +			DBG_BUGON(1);
+> +			return -EIO;	/* xattr ondisk layout error */
+> +		}
+> +		return -ENOATTR;
+> +	}
+>  
+>  	sb = inode->i_sb;
+>  	sbi = EROFS_SB(sb);
+> @@ -422,7 +441,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+>  		struct dentry *unused, struct inode *inode,
+>  		const char *name, void *buffer, size_t size)
+>  {
+> -	struct erofs_vnode *const vi = EROFS_V(inode);
+>  	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+>  
+>  	switch (handler->flags) {
+> @@ -440,9 +458,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+>  		return -EINVAL;
+>  	}
+>  
+> -	if (!vi->xattr_isize)
+> -		return -ENOATTR;
+> -
+>  	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+>  }
+>  
+> 
