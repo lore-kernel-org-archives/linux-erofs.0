@@ -1,125 +1,62 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 14 Jan 2019 17:08:20 +0800
-Subject: [PATCH rebased 2/5] staging: erofs: fix fast symlink w/o xattr when
- fs xattr is on
+Date: Mon, 14 Jan 2019 17:08:22 +0800
+Subject: [PATCH rebased 4/5] staging: erofs: move erofs_xattr_handlers to
+ xattr.h
 In-Reply-To: <20190114090823.46227-1-gaoxiang25@huawei.com>
 References: <20190114090823.46227-1-gaoxiang25@huawei.com>
-Message-ID: <20190114090823.46227-2-gaoxiang25@huawei.com>
+Message-ID: <20190114090823.46227-4-gaoxiang25@huawei.com>
 
-Currently, this will hit a BUG_ON for these symlinks as follows:
+Let's move independent xattr-related stuffs to xattr.h.
+No logic changes.
 
-- kernel message
-------------[ cut here ]------------
-kernel BUG at drivers/staging/erofs/xattr.c:59!
-SMP PTI
-CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
-RIP: 0010:init_inode_xattrs+0x22b/0x270
-Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
- <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
-RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
-------------[ cut here ]------------
-...
-Call Trace:
- erofs_listxattr+0x30/0x2c0
- ? selinux_inode_listxattr+0x5a/0x80
- ? kmem_cache_alloc+0x33/0x170
- ? security_inode_listxattr+0x27/0x40
- listxattr+0xaf/0xc0
- path_listxattr+0x5a/0xa0
- do_syscall_64+0x43/0xf0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
----[ end trace 3c24b49408dc0c72 ]---
-
-Fix it by checking ->xattr_isize in init_inode_xattrs(),
-and it also fixes improper return value -ENOTSUPP
-(it should be -ENODATA if xattr is enabled) for those inodes.
-
-Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
-Cc: <stable at vger.kernel.org> # 4.19+
-Reported-by: Li Guifu <bluce.liguifu at huawei.com>
-Tested-by: Li Guifu <bluce.liguifu at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/inode.c |  8 ++++----
- drivers/staging/erofs/xattr.c | 25 ++++++++++++++++++++-----
- 2 files changed, 24 insertions(+), 9 deletions(-)
+ drivers/staging/erofs/internal.h | 5 -----
+ drivers/staging/erofs/super.c    | 1 +
+ drivers/staging/erofs/xattr.h    | 2 ++
+ 3 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index d7fbf5f4600f..f99954dbfdb5 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -185,16 +185,16 @@ static int fill_inode(struct inode *inode, int isdir)
- 		/* setup the new inode */
- 		if (S_ISREG(inode->i_mode)) {
- #ifdef CONFIG_EROFS_FS_XATTR
--			if (vi->xattr_isize)
--				inode->i_op = &erofs_generic_xattr_iops;
-+			inode->i_op = &erofs_generic_xattr_iops;
- #endif
- 			inode->i_fop = &generic_ro_fops;
- 		} else if (S_ISDIR(inode->i_mode)) {
- 			inode->i_op =
- #ifdef CONFIG_EROFS_FS_XATTR
--				vi->xattr_isize ? &erofs_dir_xattr_iops :
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index ae4f2555f497..99b50b981335 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -580,11 +580,6 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ /* dir.c */
+ extern const struct file_operations erofs_dir_fops;
+ 
+-#ifdef CONFIG_EROFS_FS_XATTR
+-/* xattr.c */
+-extern const struct xattr_handler *erofs_xattr_handlers[];
 -#endif
-+				&erofs_dir_xattr_iops;
-+#else
- 				&erofs_dir_iops;
-+#endif
- 			inode->i_fop = &erofs_dir_fops;
- 		} else if (S_ISLNK(inode->i_mode)) {
- 			/* by default, page_get_link is used for symlink */
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 80dca6a4adbe..e30de2476fd0 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -56,7 +56,26 @@ static int init_inode_xattrs(struct inode *inode)
- 		return 0;
- 
- 	vi = EROFS_V(inode);
--	BUG_ON(!vi->xattr_isize);
-+
-+	/*
-+	 * bypass all xattr operations if ->xattr_isize is not greater than
-+	 * sizeof(struct erofs_xattr_ibody_header), in detail:
-+	 * 1) it is not enough to contain erofs_xattr_ibody_header then
-+	 *    ->xattr_isize should be 0 (it means no xattr);
-+	 * 2) it is just to contain erofs_xattr_ibody_header, which is on-disk
-+	 *    undefined right now (maybe use later with some new sb feature).
-+	 */
-+	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
-+		errln("xattr_isize %d of nid %llu is not supported yet",
-+		      vi->xattr_isize, vi->nid);
-+		return -ENOTSUPP;
-+	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
-+		if (unlikely(vi->xattr_isize)) {
-+			DBG_BUGON(1);
-+			return -EIO;	/* xattr ondisk layout error */
-+		}
-+		return -ENOATTR;
-+	}
- 
- 	sb = inode->i_sb;
- 	sbi = EROFS_SB(sb);
-@@ -422,7 +441,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
- 		struct dentry *unused, struct inode *inode,
- 		const char *name, void *buffer, size_t size)
- {
--	struct erofs_vnode *const vi = EROFS_V(inode);
- 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 
- 	switch (handler->flags) {
-@@ -440,9 +458,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
- 		return -EINVAL;
- 	}
- 
--	if (!vi->xattr_isize)
--		return -ENOATTR;
 -
- 	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+ static inline void *erofs_vmap(struct page **pages, unsigned int count)
+ {
+ #ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 1c2eb69682ef..45c7f6ddb9f5 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -16,6 +16,7 @@
+ #include <linux/parser.h>
+ #include <linux/seq_file.h>
+ #include "internal.h"
++#include "xattr.h"
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/erofs.h>
+diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
+index 810fc947701d..634dae9aaa0b 100644
+--- a/drivers/staging/erofs/xattr.h
++++ b/drivers/staging/erofs/xattr.h
+@@ -68,6 +68,8 @@ static const struct xattr_handler *xattr_handler_map[] = {
  }
  
+ #ifdef CONFIG_EROFS_FS_XATTR
++extern const struct xattr_handler *erofs_xattr_handlers[];
++
+ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
 -- 
 2.14.4
