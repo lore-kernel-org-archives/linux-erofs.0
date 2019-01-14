@@ -1,231 +1,240 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 14 Jan 2019 19:40:26 +0800
-Subject: [PATCH 5/5] staging: erofs: clean up erofs_map_blocks_iter
-In-Reply-To: <20190114114026.11728-1-gaoxiang25@huawei.com>
-References: <20190114114026.11728-1-gaoxiang25@huawei.com>
-Message-ID: <20190114114026.11728-6-gaoxiang25@huawei.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Tue, 15 Jan 2019 01:39:29 +0800
+Subject: [PATCH v2] staging: erofs: add document
+In-Reply-To: <20190114114026.11728-2-gaoxiang25@huawei.com>
+References: <20190114114026.11728-2-gaoxiang25@huawei.com>
+Message-ID: <20190114173929.22395-1-hsiangkao@aol.com>
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-This patch cleans up erofs_map_blocks* function and structure family,
-just simply the code, no logic change.
+This documents key feature, usage, and on-disk design of erofs.
 
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Cc: <linux-fsdevel at vger.kernel.org>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/data.c      | 31 +++++--------------------------
- drivers/staging/erofs/internal.h  | 28 +++++++++++++++-------------
- drivers/staging/erofs/unzip_vle.c | 30 +++++++++++++++---------------
- 3 files changed, 35 insertions(+), 54 deletions(-)
+change log v2:
+ - fix some incorrect descriptions, such as namelen -> nameoff;
+ - add description about target EROFS users.
 
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index 329fa4fa3e9c..9c471f08ffd4 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -165,37 +165,16 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return err;
- }
- 
--int erofs_map_blocks_iter(struct inode *inode,
--			  struct erofs_map_blocks *map,
--			  struct page **mpage_ret, int flags)
--{
--	/* by default, reading raw data never use erofs_map_blocks_iter */
--	if (unlikely(!is_inode_layout_compression(inode))) {
--		if (*mpage_ret)
--			put_page(*mpage_ret);
--		*mpage_ret = NULL;
--
--		return erofs_map_blocks(inode, map, flags);
--	}
--
--#ifdef CONFIG_EROFS_FS_ZIP
--	return z_erofs_map_blocks_iter(inode, map, mpage_ret, flags);
--#else
--	/* data compression is not available */
--	return -ENOTSUPP;
--#endif
--}
--
- int erofs_map_blocks(struct inode *inode,
- 		     struct erofs_map_blocks *map, int flags)
- {
- 	if (unlikely(is_inode_layout_compression(inode))) {
--		struct page *mpage = NULL;
--		int err;
-+		int err = z_erofs_map_blocks_iter(inode, map, flags);
- 
--		err = erofs_map_blocks_iter(inode, map, &mpage, flags);
--		if (mpage)
--			put_page(mpage);
-+		if (map->mpage) {
-+			put_page(map->mpage);
-+			map->mpage = NULL;
-+		}
- 		return err;
- 	}
- 	return erofs_map_blocks_flatmode(inode, map, flags);
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 99b50b981335..e2103804584b 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -461,11 +461,26 @@ struct erofs_map_blocks {
- 	u64 m_plen, m_llen;
- 
- 	unsigned int m_flags;
+Thanks,
+Gao Xiang
+
+ .../erofs/Documentation/filesystems/erofs.txt      | 206 +++++++++++++++++++++
+ 1 file changed, 206 insertions(+)
+ create mode 100644 drivers/staging/erofs/Documentation/filesystems/erofs.txt
+
+diff --git a/drivers/staging/erofs/Documentation/filesystems/erofs.txt b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+new file mode 100644
+index 000000000000..a9cbbd7196b8
+--- /dev/null
++++ b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+@@ -0,0 +1,206 @@
++Overview
++========
 +
-+	struct page *mpage;
- };
- 
- /* Flags used by erofs_map_blocks() */
- #define EROFS_GET_BLOCKS_RAW    0x0001
- 
-+#ifdef CONFIG_EROFS_FS_ZIP
-+int z_erofs_map_blocks_iter(struct inode *inode,
-+			    struct erofs_map_blocks *map,
-+			    int flags);
-+#else
-+static inline int z_erofs_map_blocks_iter(struct inode *inode,
-+					  struct erofs_map_blocks *map,
-+					  int flags);
-+{
-+	return -ENOTSUPP;
-+}
-+#endif
++EROFS file-system stands for Enhanced Read-Only File System. Different
++from other read-only file systems, it aims to be designed for flexibility,
++scalability, but be kept simple and high performance.
 +
- /* data.c */
- static inline struct bio *
- erofs_grab_bio(struct super_block *sb,
-@@ -522,19 +537,6 @@ static inline struct page *erofs_get_meta_page_nofail(struct super_block *sb,
- }
- 
- extern int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
--extern int erofs_map_blocks_iter(struct inode *, struct erofs_map_blocks *,
--	struct page **, int);
--
--struct erofs_map_blocks_iter {
--	struct erofs_map_blocks map;
--	struct page *mpage;
--};
--
--#ifdef CONFIG_EROFS_FS_ZIP
--extern int z_erofs_map_blocks_iter(struct inode *,
--				   struct erofs_map_blocks *,
--				   struct page **, int);
--#endif
- 
- static inline struct page *
- erofs_get_inline_page(struct inode *inode,
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 584612b47369..29b3b1dc67f1 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -636,7 +636,7 @@ struct z_erofs_vle_frontend {
- 	struct inode *const inode;
- 
- 	struct z_erofs_vle_work_builder builder;
--	struct erofs_map_blocks_iter m_iter;
-+	struct erofs_map_blocks map;
- 
- 	z_erofs_vle_owned_workgrp_t owned_head;
- 
-@@ -647,8 +647,9 @@ struct z_erofs_vle_frontend {
- 
- #define VLE_FRONTEND_INIT(__i) { \
- 	.inode = __i, \
--	.m_iter = { \
--		{ .m_llen = 0, .m_plen = 0 }, \
-+	.map = { \
-+		.m_llen = 0, \
-+		.m_plen = 0, \
- 		.mpage = NULL \
- 	}, \
- 	.builder = VLE_WORK_BUILDER_INIT(), \
-@@ -681,8 +682,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- {
- 	struct super_block *const sb = fe->inode->i_sb;
- 	struct erofs_sb_info *const sbi __maybe_unused = EROFS_SB(sb);
--	struct erofs_map_blocks_iter *const m = &fe->m_iter;
--	struct erofs_map_blocks *const map = &m->map;
-+	struct erofs_map_blocks *const map = &fe->map;
- 	struct z_erofs_vle_work_builder *const builder = &fe->builder;
- 	const loff_t offset = page_offset(page);
- 
-@@ -715,7 +715,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 
- 	map->m_la = offset + cur;
- 	map->m_llen = 0;
--	err = erofs_map_blocks_iter(fe->inode, map, &m->mpage, 0);
-+	err = z_erofs_map_blocks_iter(fe->inode, map, 0);
- 	if (unlikely(err))
- 		goto err_out;
- 
-@@ -1484,8 +1484,8 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 
- 	z_erofs_submit_and_unzip(&f, &pagepool, true);
- out:
--	if (f.m_iter.mpage)
--		put_page(f.m_iter.mpage);
-+	if (f.map.mpage)
-+		put_page(f.map.mpage);
- 
- 	/* clean up the remaining free pages */
- 	put_pages_list(&pagepool);
-@@ -1555,8 +1555,8 @@ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
- 
- 	z_erofs_submit_and_unzip(&f, &pagepool, sync);
- 
--	if (f.m_iter.mpage)
--		put_page(f.m_iter.mpage);
-+	if (f.map.mpage)
-+		put_page(f.map.mpage);
- 
- 	/* clean up the remaining free pages */
- 	put_pages_list(&pagepool);
-@@ -1701,14 +1701,14 @@ vle_get_logical_extent_head(const struct vle_map_blocks_iter_ctx *ctx,
- 
- int z_erofs_map_blocks_iter(struct inode *inode,
- 	struct erofs_map_blocks *map,
--	struct page **mpage_ret, int flags)
-+	int flags)
- {
- 	void *kaddr;
- 	const struct vle_map_blocks_iter_ctx ctx = {
- 		.inode = inode,
- 		.sb = inode->i_sb,
- 		.clusterbits = EROFS_I_SB(inode)->clusterbits,
--		.mpage_ret = mpage_ret,
-+		.mpage_ret = &map->mpage,
- 		.kaddr_ret = &kaddr
- 	};
- 	const unsigned int clustersize = 1 << ctx.clusterbits;
-@@ -1722,7 +1722,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 
- 	/* initialize `pblk' to keep gcc from printing foolish warnings */
- 	erofs_blk_t mblk, pblk = 0;
--	struct page *mpage = *mpage_ret;
-+	struct page *mpage = map->mpage;
- 	struct z_erofs_vle_decompressed_index *di;
- 	unsigned int cluster_type, logical_cluster_ofs;
- 	int err = 0;
-@@ -1758,7 +1758,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 			err = PTR_ERR(mpage);
- 			goto out;
- 		}
--		*mpage_ret = mpage;
-+		map->mpage = mpage;
- 	} else {
- 		lock_page(mpage);
- 		DBG_BUGON(!PageUptodate(mpage));
-@@ -1818,7 +1818,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 		/* get the correspoinding first chunk */
- 		err = vle_get_logical_extent_head(&ctx, lcn, &ofs,
- 						  &pblk, &map->m_flags);
--		mpage = *mpage_ret;
-+		mpage = map->mpage;
- 
- 		if (unlikely(err)) {
- 			if (mpage)
++It is designed as a better filesystem solution for the following scenarios:
++ - read-only storage media or
++
++ - part of a fully trusted read-only solution, which means it needs to be
++   immutable and bit-for-bit identical to the official golden image for
++   their releases due to security and other considerations and
++
++ - hope to save some extra storage space with guaranteed end-to-end performance
++   by using reduced metadata and transparent file compression, especially
++   for those embedded devices with limited memory (ex, smartphone);
++
++Here is the main features of EROFS:
++ - Little endian on-disk design;
++
++ - Currently 4KB block size (nobh) and therefore maximum 16TB address space;
++
++ - Metadata & data could be mixed by design;
++
++ - 2 inode versions for different requirements:
++                          v1            v2
++   Inode metadata size:   32 bytes      64 bytes
++   Max file size:         4 GB          16 EB (also limited by max. vol size)
++   Max uids/gids:         65536         4294967296
++   File creation time:    no            yes (64 + 32-bit timestamp)
++   Max hardlinks:         65536         4294967296
++   Metadata reserved:     4 bytes       14 bytes
++
++ - Support extended attributes (xattrs) as an option;
++
++ - Support xattr inline and tail-end data inline for all files;
++
++ - Support transparent file compression as an option:
++   LZ4 algorithm with 4 KB fixed-output compression for high performance;
++
++The following git tree provides the file system user-space tools under
++development (ex, formatting tool mkfs.erofs):
++>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
++
++Bugs and patches are welcome, please kindly help us and send to the following
++linux-erofs mailing list:
++>> linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
++
++Note that EROFS is still working in progress as a Linux staging driver,
++Cc the staging mailing list as well is highly recommended:
++>> Linux Driver Project Developer List <devel at driverdev.osuosl.org>
++
++Mount options
++=============
++
++fault_injection=%d     Enable fault injection in all supported types with
++                       specified injection rate. Supported injection type:
++                       Type_Name                Type_Value
++                       FAULT_KMALLOC            0x000000001
++(no)user_xattr         Setup Extended User Attributes. Note: xattr is enabled
++                       by default if CONFIG_EROFS_FS_XATTR is selected.
++(no)acl                Setup POSIX Access Control List. Note: acl is enabled
++                       by default if CONFIG_EROFS_FS_POSIX_ACL is selected.
++
++On-disk details
++===============
++
++Summary
++-------
++Different from other read-only file systems, an EROFS volume is designed
++to be as simple as possible:
++
++                                |-> aligned with the block size
++   ____________________________________________________________
++  | |SB| | ... | Metadata | ... | Data | Metadata | ... | Data |
++  |_|__|_|_____|__________|_____|______|__________|_____|______|
++  0 +1K
++
++All data areas should be aligned with the block size, but metadata areas
++may not. All metadatas can be now observed in two different spaces (views):
++ 1. Inode metadata space
++    Each valid inode should be aligned with an inode slot, which is a fixed
++    value (32 bytes) and designed to be kept in line with v1 inode size.
++
++    Each inode can be directly found with the following formula:
++         inode offset = meta_blkaddr * block_size + 32 * nid
++
++                                |-> aligned with 8B
++                                           |-> followed closely
++    + meta_blkaddr blocks                                      |-> another slot
++     _____________________________________________________________________
++    |  ...   | inode |  xattrs  | extents  | data inline | ... | inode ...
++    |________|_______|(optional)|(optional)|__(optional)_|_____|__________
++             |-> aligned with the inode slot size
++                  .                   .
++                .                         .
++              .                              .
++            .                                    .
++          .                                         .
++        .                                              .
++      .____________________________________________________|-> aligned with 4B
++      | xattr_ibody_header | shared xattrs | inline xattrs |
++      |____________________|_______________|_______________|
++      |->    12 bytes    <-|->x * 4 bytes<-|               .
++                          .                .                 .
++                    .                      .                   .
++               .                           .                     .
++           ._______________________________.______________________.
++           | id | id | id | id |  ... | id | ent | ... | ent| ... |
++           |____|____|____|____|______|____|_____|_____|____|_____|
++                                           |-> aligned with 4B
++                                                       |-> aligned with 4B
++
++    Inode could be 32 or 64 bytes, which can be distinguished from a common
++    field which all inode versions have -- i_advise:
++
++        __________________               __________________
++       |     i_advise     |             |     i_advise     |
++       |__________________|             |__________________|
++       |        ...       |             |        ...       |
++       |                  |             |                  |
++       |__________________| 32 bytes    |                  |
++                                        |                  |
++                                        |__________________| 64 bytes
++
++    Xattrs, extents, data inline are followed by the corresponding inode with
++    proper alignes, and they could be optional for different data mappings,
++    _currently_ there are totally 3 valid data mappings supported:
++
++     1) flat file data without data inline (no extent);
++     2) fixed-output size data compression (must have extents);
++     3) flat file data with tail-end data inline (no extent);
++
++    The size of the optional xattrs is indicated by i_xattr_count in inode
++    header. Large xattrs or xattrs shared by many different files can be
++    stored in shared xattrs metadata rather than inlined right after inode.
++
++ 2. Shared xattrs metadata space
++    Shared xattrs space is similar to the above inode space, started with
++    a specific block indicated by xattr_blkaddr, organized one by one with
++    proper align.
++
++    Each share xattr can also be directly found by the following formula:
++         xattr offset = xattr_blkaddr * block_size + 4 * xattr_id
++
++                           |-> aligned by  4 bytes
++    + xattr_blkaddr blocks                     |-> aligned with 4 bytes
++     _________________________________________________________________________
++    |  ...   | xattr_entry |  xattr data | ... |  xattr_entry | xattr data  ...
++    |________|_____________|_____________|_____|______________|_______________
++
++Directories
++-----------
++All directories are now organized in a compact on-disk format. Note that
++each directory block is divided into index and name areas in order to support
++random file lookup, and all directory entries are _strictly_ recorded in
++alphabetical order in order to support improved prefix binary search
++algorithm (could refer to the related source code).
++
++                 ___________________________
++                /                           |
++               /              ______________|________________
++              /              /              | nameoff1       | nameoffN-1
++ ____________.______________._______________v________________v__________
++| dirent | dirent | ... | dirent | filename | filename | ... | filename |
++|___.0___|____1___|_____|___N-1__|____0_____|____1_____|_____|___N-1____|
++     \                           ^
++      \                          |                           * could have
++       \                         |                             trailing '\0'
++        \________________________| nameoff0
++
++                             Directory block
++
++Note that apart from the offset of the first filename, nameoff0 also indicates
++the total number of directory entries in this block since it is no need to
++introduce another on-disk field at all.
++
++Compression
++-----------
++Currently, EROFS supports 4KB fixed-output clustersize transparent file
++compression, as illustrated below:
++
++         |---- Variant-Length Extent ----|-------- VLE --------|----- VLE -----
++         clusterofs                      clusterofs            clusterofs
++         |                               |                     |   logical data
++_________v_______________________________v_____________________v_______________
++... |    .        |             |        .    |             |  .          | ...
++____|____.________|_____________|________.____|_____________|__.__________|____
++    |-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|
++         size          size          size          size          size
++          .                             .                .                   .
++           .                       .               .                  .
++            .                  .              .                .
++      _______._____________._____________._____________._____________________
++         ... |             |             |             | ... physical data
++      _______|_____________|_____________|_____________|_____________________
++             |-> cluster <-|-> cluster <-|-> cluster <-|
++                  size          size          size
++
++Currently each on-disk physical cluster can contain 4KB (un)compressed data
++at most. For each logical cluster, there is a corresponding on-disk index to
++describe its cluster type, physical cluster address, etc.
++
++See "struct z_erofs_vle_decompressed_index" in erofs_fs.h for more details.
++
 -- 
-2.14.4
+2.11.0
