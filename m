@@ -1,400 +1,240 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 15 Jan 2019 22:23:14 +0800
-Subject: [NOMERGE] [RFC PATCH 3/4] erofs-utils: add zlib algorithm support
+Date: Tue, 15 Jan 2019 22:23:15 +0800
+Subject: [NOMERGE] [RFC PATCH 4/4] erofs-utils: adapt new compression
+ framework to mkfs
 In-Reply-To: <20190115142315.28570-1-gaoxiang25@huawei.com>
 References: <20190115142315.28570-1-gaoxiang25@huawei.com>
-Message-ID: <20190115142315.28570-3-gaoxiang25@huawei.com>
+Message-ID: <20190115142315.28570-4-gaoxiang25@huawei.com>
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- configure.ac               |  12 ++
- include/erofs/compressor.h |   8 ++
- lib/Makefile.am            |   4 +
- lib/compressor-zlib.c      | 286 +++++++++++++++++++++++++++++++++++++++++++++
- lib/compressor.c           |   1 +
- mkfs/Makefile.am           |   2 +-
- 6 files changed, 312 insertions(+), 1 deletion(-)
- create mode 100644 lib/compressor-zlib.c
+ mkfs/Makefile.am        |   2 +-
+ mkfs/erofs_compressor.c | 110 +++++++++++++++++++++++++++++++++---------------
+ mkfs/erofs_compressor.h |   3 +-
+ mkfs/mkfs_file.c        |  24 -----------
+ 4 files changed, 78 insertions(+), 61 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 0ed8a25..c82b900 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -117,6 +117,18 @@ have_lz4hc="1"
- AC_CHECK_HEADERS([lz4hc.h], , [have_lz4hc="0"])
- AM_CONDITIONAL(HasLZ4HC, test "$have_lz4hc" = '1')
- 
-+# Configure zlib
-+have_zlib="1"
-+LIB_ZLIB=''
-+AC_CHECK_HEADER(zlib.h, , [have_zlib='0'])
-+AC_CHECK_LIB(z, deflate,, [have_zlib='0'])
-+if test "x${have_lz4}" = "x1" ; then
-+  AC_DEFINE(HAVE_ZLIB, 1, [Define to 1 if zlib is enabled])
-+  LIB_ZLIB='-lz'
-+fi
-+AM_CONDITIONAL(HasZLIB, test "x$have_zlib" = 'x1')
-+AC_SUBST([LIB_ZLIB])
-+
- AC_CONFIG_FILES([Makefile
- 		 lib/Makefile
- 		 mkfs/Makefile])
-diff --git a/include/erofs/compressor.h b/include/erofs/compressor.h
-index 8e219d8..0355e18 100644
---- a/include/erofs/compressor.h
-+++ b/include/erofs/compressor.h
-@@ -41,6 +41,13 @@ struct erofs_compress {
- 	unsigned int destsize_redzone_end;
- 
- 	union {
-+#ifdef HAVE_ZLIB
-+		struct {
-+			unsigned int destsize_excess;
-+			unsigned int destsize_margin;
-+		} zlib;
-+#endif
-+
- #ifdef HAVE_LZ4HC_H
- 		struct {
- 			LZ4_streamHC_t *ctx;
-@@ -51,6 +58,7 @@ struct erofs_compress {
- 
- /* list of compression algorithms */
- extern struct erofs_compressor erofs_compressor_lz4hc;
-+extern struct erofs_compressor erofs_compressor_zlib;
- 
- int erofs_compress_destsize(struct erofs_compress *c, int compression_level,
- 			    void *src, unsigned int *srcsize,
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 33438a3..f2de0e3 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -7,5 +7,9 @@ if HasLZ4HC
- liberofs_a_SOURCES += compressor-lz4hc.c
- endif
- 
-+if HasZLIB
-+liberofs_a_SOURCES += compressor-zlib.c
-+endif
-+
- liberofs_a_CPPFLAGS = -I$(top_srcdir)/include
- 
-diff --git a/lib/compressor-zlib.c b/lib/compressor-zlib.c
-new file mode 100644
-index 0000000..e63d86a
---- /dev/null
-+++ b/lib/compressor-zlib.c
-@@ -0,0 +1,286 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * erofs-utils/lib/compressor-zlib.c
-+ *
-+ * Copyright (C) 2018-2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ * [ Code partially taken from zlib/examples/fitblk.c ]
-+ */
-+#include <zlib.h>
-+#include "erofs/compressor.h"
-+
-+/* intermediate uncompressed buffer size */
-+#define RAWLEN	4096U
-+
-+static int partcompress(z_streamp def,
-+			char *src, unsigned int srcsize)
-+{
-+	int ret, flush;
-+	unsigned int p;
-+	unsigned char raw[RAWLEN];
-+
-+	p = 0;
-+	flush = Z_NO_FLUSH;
-+	do {
-+		def->avail_in = min(RAWLEN, srcsize);
-+		def->next_in = src + p;
-+
-+		p += def->avail_in;
-+		srcsize -= def->avail_in;
-+
-+		if (!srcsize)
-+			flush = Z_FINISH;
-+
-+		ret = deflate(def, flush);
-+		DBG_BUGON(ret == Z_STREAM_ERROR);
-+	} while (def->avail_out && flush == Z_NO_FLUSH);
-+	return ret;
-+}
-+
-+static int decompress_and_verify(z_streamp inf,
-+				 char *src, unsigned srcsize)
-+{
-+	unsigned char raw[RAWLEN];
-+	int ret, p, flush;
-+
-+	p = 0;
-+	flush = Z_NO_FLUSH;
-+	do {
-+		unsigned int have;
-+
-+		inf->avail_out = RAWLEN;
-+		inf->next_out = raw;
-+		ret = inflate(inf, flush);
-+
-+		DBG_BUGON(ret == Z_STREAM_ERROR);
-+		DBG_BUGON(ret == Z_DATA_ERROR);
-+		DBG_BUGON(ret == Z_NEED_DICT);
-+
-+		if (ret == Z_MEM_ERROR)
-+			return -ENOMEM;
-+
-+		have = RAWLEN - inf->avail_out;
-+
-+		/* verify the data */
-+		if (memcmp(src + p, raw, have))
-+			return -EFAULT;
-+
-+		p += have;
-+		if (inf->avail_out && flush != Z_SYNC_FLUSH) {
-+			flush = Z_SYNC_FLUSH;
-+			continue;
-+		}
-+
-+		if (ret == Z_BUF_ERROR) {
-+			DBG_BUGON(inf->avail_in);
-+			/* equivalent to "Z_STREAM_END" */
-+			break;
-+		}
-+	} while (ret !=  Z_STREAM_END);
-+	return p;
-+}
-+
-+static int recompress(z_streamp inf, z_streamp def)
-+{
-+	int ret, flush;
-+	unsigned char raw[RAWLEN];
-+
-+	flush = Z_NO_FLUSH;
-+	do {
-+		/* decompress */
-+		inf->avail_out = RAWLEN;
-+		inf->next_out = raw;
-+		ret = inflate(inf, Z_NO_FLUSH);
-+		DBG_BUGON(ret == Z_STREAM_ERROR);
-+		DBG_BUGON(ret == Z_DATA_ERROR);
-+		DBG_BUGON(ret == Z_NEED_DICT);
-+
-+		if (ret == Z_MEM_ERROR)
-+			return -ENOMEM;
-+
-+		/* compress what was decompresed until done or no room */
-+		def->avail_in = RAWLEN - inf->avail_out;
-+		def->next_in = raw;
-+		if (inf->avail_out != 0)
-+			flush = Z_FINISH;
-+		ret = deflate(def, flush);
-+		DBG_BUGON(ret == Z_STREAM_ERROR);
-+	} while (ret != Z_STREAM_END && def->avail_out != 0);
-+	return ret;
-+}
-+
-+static int zlib_compress_destsize(struct erofs_compress *c,
-+				  int compression_level,
-+				  void *src,
-+				  unsigned int *srcsize,
-+				  void *dst,
-+				  unsigned int dstsize)
-+{
-+	const unsigned int alignsize = c->destsize_alignsize;
-+	const unsigned int redzone_begin = c->destsize_redzone_begin;
-+	const unsigned int redzone_end = c->destsize_redzone_end;
-+
-+	const unsigned int excess = c->u.zlib.destsize_excess;
-+	const unsigned int margin = c->u.zlib.destsize_margin;
-+	int tmpsize, aligned, remaining;
-+	z_stream def, inf;
-+	void *blk, *blk2;
-+	int ret, rc;
-+
-+	blk = malloc(dstsize + excess);
-+	if (!blk)
-+		return -ENOMEM;
-+
-+	def.zalloc = Z_NULL;
-+	def.zfree = Z_NULL;
-+	def.opaque = Z_NULL;
-+	ret = deflateInit(&def, compression_level);
-+	if (ret != Z_OK) {
-+		ret = -EFAULT;
-+		goto mem_err;
-+	}
-+
-+	def.avail_out = dstsize + excess;
-+	def.next_out  = blk;
-+	ret = partcompress(&def, src, *srcsize);
-+
-+	/* if it all fit, then size was undersubscribed -- done! */
-+	if (ret == Z_STREAM_END && def.avail_out >= excess) {
-+		const unsigned int unused = excess - def.avail_out;
-+
-+		memcpy(dst, blk, dstsize - unused);
-+		ret = 0;
-+		goto def_out;
-+	}
-+
-+	/* it didn't all fit -- set up for recompression */
-+	inf.zalloc = Z_NULL;
-+	inf.zfree = Z_NULL;
-+	inf.opaque = Z_NULL;
-+	inf.avail_in = 0;
-+	inf.next_in = Z_NULL;
-+	ret = inflateInit(&inf);
-+
-+	if (ret != Z_OK) {
-+		ret = -EFAULT;
-+		goto def_out;
-+	}
-+
-+	inf.avail_in = dstsize;
-+	inf.next_in = blk;
-+	ret = decompress_and_verify(&inf, src, *srcsize);
-+	if (ret < 0)
-+		goto inf_out;
-+	tmpsize = ret;
-+
-+	rc = inflateReset(&inf);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+	rc = deflateReset(&def);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+
-+	remaining = tmpsize % alignsize;
-+	if (remaining) {
-+		if (remaining > redzone_begin) {
-+			aligned = roundup(tmpsize, alignsize);
-+
-+			ret = deflateParams(&def, Z_BEST_COMPRESSION,
-+					    Z_DEFAULT_STRATEGY);
-+			if (ret != Z_OK) {
-+				ret = -EFAULT;
-+				goto inf_out;
-+			}
-+
-+			/* let's try to use best compression to achieve that! */
-+			def.avail_out = dstsize + excess;
-+			def.next_out = blk;
-+			ret = partcompress(&def, src, aligned);
-+
-+			/* if it is all fit -- well done! */
-+			if (ret == Z_STREAM_END && def.avail_out >= excess) {
-+				const unsigned int unused =
-+					excess - def.avail_out;
-+
-+				memcpy(dst, blk, dstsize - unused);
-+				*srcsize = aligned;
-+				goto inf_out;
-+			}
-+
-+			ret = deflateParams(&def, compression_level,
-+					    Z_DEFAULT_STRATEGY);
-+			if (ret != Z_OK) {
-+				ret = -EFAULT;
-+				goto inf_out;
-+			}
-+		} else if (remaining < redzone_end)
-+			tmpsize = rounddown(tmpsize, alignsize);
-+	}
-+
-+	rc = deflateReset(&def);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+
-+	/* do first recompression close to the right amount */
-+	def.avail_out = dstsize + excess;
-+	def.next_out = blk;
-+	ret = partcompress(&def, src, tmpsize);
-+
-+	if (ret == Z_STREAM_END && def.avail_out >= excess) {
-+		const unsigned int unused = excess - def.avail_out;
-+
-+		memcpy(dst, blk, dstsize - unused);
-+		*srcsize = tmpsize;
-+		goto inf_out;
-+	}
-+
-+	rc = deflateReset(&def);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+
-+	/* do second and final recompression */
-+	inf.avail_in = dstsize - margin;
-+	inf.next_in = blk;
-+	def.avail_out = dstsize;
-+	def.next_out = dst;
-+	ret = recompress(&inf, &def);
-+
-+	if (ret == Z_MEM_ERROR) {
-+		ret = -ENOMEM;
-+		goto inf_out;
-+	}
-+
-+	DBG_BUGON(ret != Z_STREAM_END);	/* otherwise MARGIN too small */
-+
-+	*srcsize = def.total_in;
-+	ret = 0;
-+inf_out:
-+	rc = inflateEnd(&inf);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+def_out:
-+	rc = deflateEnd(&def);
-+	DBG_BUGON(rc == Z_STREAM_ERROR);
-+mem_err:
-+	free(blk);
-+	return ret;
-+}
-+
-+static int compressor_zlib_init(struct erofs_compress *c,
-+				char *alg_name)
-+{
-+	if (alg_name && strcmp(alg_name, "zlib"))
-+		return -EINVAL;
-+
-+	c->alg = &erofs_compressor_zlib;
-+
-+	/* empirically determined stream overage */
-+	c->u.zlib.destsize_excess = 512;
-+	/* amount to back off for completion */
-+	c->u.zlib.destsize_margin = 8;
-+	return 0;
-+}
-+
-+struct erofs_compressor erofs_compressor_zlib = {
-+	.default_level = Z_DEFAULT_COMPRESSION,
-+	.best_level = Z_BEST_COMPRESSION,
-+	.init = compressor_zlib_init,
-+	.compress_destsize = zlib_compress_destsize,
-+};
-+
-diff --git a/lib/compressor.c b/lib/compressor.c
-index 508203c..ed948f3 100644
---- a/lib/compressor.c
-+++ b/lib/compressor.c
-@@ -39,6 +39,7 @@ int erofs_compressor_init(struct erofs_compress *c,
- #ifdef HAVE_LZ4HC_H
- 		&erofs_compressor_lz4hc,
- #endif
-+		&erofs_compressor_zlib,
- 	};
- 
- 	int ret, i;
 diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
-index c2fb42f..682a51f 100644
+index 682a51f..0904e76 100644
 --- a/mkfs/Makefile.am
 +++ b/mkfs/Makefile.am
 @@ -22,7 +22,7 @@ noinst_HEADERS = erofs_config.h  \
  		 mkfs_file.h
  
  mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
--mkfs_erofs_LDADD = ${LIB_LZ4}
-+mkfs_erofs_LDADD = ${LIB_LZ4} ${LIB_ZLIB}
+-mkfs_erofs_LDADD = ${LIB_LZ4} ${LIB_ZLIB}
++mkfs_erofs_LDADD = ${LIB_LZ4} ${LIB_ZLIB} $(top_builddir)/lib/liberofs.a
  
  if SUPPORT_LARG_FILE_AT_BIT32
      mkfs_erofs_CFLAGS += -D_FILE_OFFSET_BITS=64
+diff --git a/mkfs/erofs_compressor.c b/mkfs/erofs_compressor.c
+index 591b5ce..05c57f5 100644
+--- a/mkfs/erofs_compressor.c
++++ b/mkfs/erofs_compressor.c
+@@ -11,36 +11,95 @@
+ 
+ #include "erofs_error.h"
+ #include "erofs_compressor.h"
+-#include "erofs_lz4hc.h"
+ #include "erofs_debug.h"
+ #include "mkfs_erofs.h"
++#include "erofs/compressor.h"
++
++#define EROFS_COMPR_LZ4HC_DEF_LVL       (9)
++#define EROFS_COMPR_ZLIB_DEF_LVL        (-1)
++
++static struct erofs_compress lz4hc_compress, zlib_compress;
++
++static void __erofs_deinit(void *ctx)
++{
++	erofs_compressor_exit((struct erofs_compress *)ctx);
++}
++
++static void *erofs_lz4hc_init(void)
++{
++	int ret = erofs_compressor_init(&lz4hc_compress, "lz4hc");
++
++	if (ret)
++		return ERR_PTR(ret);
++	return &lz4hc_compress;
++}
++
++static void *erofs_zlib_init(void)
++{
++	int ret = erofs_compressor_init(&zlib_compress, "zlib");
++
++	if (ret)
++		return ERR_PTR(ret);
++
++	return &zlib_compress;
++}
++
++static int64_t __erofs_compress_destsize(char *in, size_t insz, char *out,
++					 size_t outsz, size_t *inszptr,
++					 int level, void *ctx)
++{
++	int ret;
++	unsigned int __uinsz = insz;
++
++	ret = erofs_compress_destsize((struct erofs_compress *)ctx,
++				      level, in, &__uinsz, out, outsz);
++
++	*inszptr = __uinsz;
++
++#if 1
++	/* temporary workaround for the old implementation */
++	if (ret == -EAGAIN) {
++		*inszptr = 0;
++		return outsz;
++	}
++#endif
++
++	if (ret < 0) {
++		erofs_err("Failed to compress, ret[%d]", ret);
++		return EROFS_COMPRESS_ERROR;
++	}
++	return outsz;
++}
+ 
+ static struct erofs_compr_alg erofs_compr_desc[EROFS_COMPR_ALG_MAX] = {
+ 	[EROFS_COMPR_NONE] = {
+ 		.ca_name    = "none",
+ 		.ca_idx     = EROFS_COMPR_NONE,
+-		.ca_max_lvl = 0,
+-		.ca_min_lvl = 0,
+ 		.ca_def_lvl = 0,
+ 		.ca_compress    = NULL,
+ 		.ca_init    = NULL,
+ 		.ca_deinit  = NULL,
+ 	},
+ 	[EROFS_COMPR_LZ4HC] = {
+-		.ca_name    = "lz4hc",
+-		.ca_idx     = EROFS_COMPR_LZ4HC,
+-		.ca_max_lvl = LZ4HC_CLEVEL_MAX,
+-		.ca_min_lvl = LZ4HC_CLEVEL_MIN,
+-		.ca_def_lvl = EROFS_COMPR_LZ4HC_DEF_LVL,
+-		.ca_compress    = erofs_lz4hc_compress,
+-		.ca_init    = erofs_lz4hc_init,
+-		.ca_deinit  = erofs_lz4hc_deinit,
++		.ca_name        = "lz4hc",
++		.ca_idx         = EROFS_COMPR_LZ4HC,
++		.ca_def_lvl     = EROFS_COMPR_LZ4HC_DEF_LVL,
++		.ca_compress    = __erofs_compress_destsize,
++		.ca_init        = erofs_lz4hc_init,
++		.ca_deinit      = __erofs_deinit,
++	},
++	[EROFS_COMPR_ZLIB] = {
++		.ca_name    = "zlib",
++		.ca_idx     = EROFS_COMPR_ZLIB,
++		.ca_def_lvl = EROFS_COMPR_ZLIB_DEF_LVL,
++		.ca_compress = __erofs_compress_destsize,
++		.ca_init     = erofs_zlib_init,
++		.ca_deinit   = __erofs_deinit,
+ 	},
+ };
+ 
+ void erofs_compress_alg_init(const char *name)
+ {
+-	int level;
+ 	struct erofs_compr_alg *alg;
+ 
+ 	if (!name) {
+@@ -57,8 +116,11 @@ void erofs_compress_alg_init(const char *name)
+ 	erofs_cfg.c_compr_alg   = alg;
+ 	erofs_cfg.c_compr_maxsz = BLK_ALIGN(EROFS_CONFIG_COMPR_MAX_SZ);
+ 
+-	level = erofs_adjust_compress_level(alg, EROFS_COMPR_LZ4HC_DEF_LVL);
+-	erofs_cfg.c_compr_lvl	 = level;
++	if (!alg || alg->ca_idx == EROFS_COMPR_NONE)
++		erofs_cfg.c_compr_lvl = 0;
++	else
++		erofs_cfg.c_compr_lvl	= alg->ca_def_lvl;
++
+ 	erofs_cfg.c_compr_boundary    = EROFS_CONFIG_COMPR_DEF_BOUNDARY;
+ 	erofs_cfg.c_compr_ratio_limit = EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT;
+ }
+@@ -74,26 +136,6 @@ struct erofs_compr_alg *erofs_get_compress_alg(const char *name)
+ 	return NULL;
+ }
+ 
+-int erofs_adjust_compress_level(struct erofs_compr_alg *alg, int lvl)
+-{
+-	if (!alg || alg->ca_idx == EROFS_COMPR_NONE)
+-		return 0;
+-
+-	if (lvl > alg->ca_max_lvl) {
+-		erofs_err("Compress level(%d) is greater than max level(%d), adjust it to default level(%d).\n",
+-			   lvl, alg->ca_max_lvl, EROFS_COMPR_LZ4HC_DEF_LVL);
+-		return alg->ca_def_lvl;
+-	}
+-
+-	if (lvl < alg->ca_min_lvl) {
+-		erofs_err("Compress level(%d) is less than min level(%d), adjust it to default level(%d).\n",
+-			   lvl, alg->ca_min_lvl, EROFS_COMPR_LZ4HC_DEF_LVL);
+-		return alg->ca_def_lvl;
+-	}
+-
+-	return lvl;
+-}
+-
+ void *erofs_compress_init(struct erofs_compr_alg *alg)
+ {
+ 	void *ctx;
+diff --git a/mkfs/erofs_compressor.h b/mkfs/erofs_compressor.h
+index b60f79d..2c8411b 100644
+--- a/mkfs/erofs_compressor.h
++++ b/mkfs/erofs_compressor.h
+@@ -16,6 +16,7 @@
+ enum erofs_compr_algs {
+ 	EROFS_COMPR_NONE,
+ 	EROFS_COMPR_LZ4HC,
++	EROFS_COMPR_ZLIB,
+ 	EROFS_COMPR_ALG_MAX,
+ };
+ 
+@@ -28,8 +29,6 @@ typedef void (*deinit_func)(void *cctx);
+ struct erofs_compr_alg {
+ 	char *ca_name;
+ 	int ca_idx;
+-	int ca_max_lvl;
+-	int ca_min_lvl;
+ 	int ca_def_lvl;
+ 	compress_func ca_compress;
+ 	init_func ca_init;
+diff --git a/mkfs/mkfs_file.c b/mkfs/mkfs_file.c
+index 382e9b6..262063c 100644
+--- a/mkfs/mkfs_file.c
++++ b/mkfs/mkfs_file.c
+@@ -317,30 +317,6 @@ erofs_compr_idx_host_to_disk(struct erofs_compr_idx *hidx,
+ static int erofs_compress_inline_file_data(struct erofs_compr_info *cinfo,
+ 					   struct erofs_compr_ctx *ctx)
+ {
+-	int64_t compr_count;
+-	size_t comprsz = 0;
+-
+-	assert(ctx->cc_srclen <= EROFS_BLKSIZE);
+-	assert(ctx->cc_buflen >= 2 * EROFS_BLKSIZE);
+-
+-	compr_count = erofs_compress(cinfo->ci_alg,
+-				     ctx->cc_srcbuf,
+-				     ctx->cc_srclen,
+-				     ctx->cc_dstbuf,
+-				     EROFS_BLKSIZE,
+-				     &comprsz,
+-				     cinfo->ci_lvl);
+-
+-	if (compr_count == 0 || compr_count == EROFS_COMPRESS_ERROR) {
+-		erofs_err("Failed to compress data by %s",
+-			  cinfo->ci_alg->ca_name);
+-		return -EIO;
+-	}
+-
+-	assert(comprsz == (size_t)ctx->cc_srclen);
+-
+-	ctx->cc_dstlen = (int)compr_count;
+-	ctx->cc_nidxs  = EROFS_COMPR_CTX_INLINED_DATA;
+ 	return 0;
+ }
+ 
 -- 
 2.14.4
