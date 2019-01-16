@@ -1,81 +1,86 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 16 Jan 2019 16:59:53 +0800
-Subject: [PATCH 2/5] staging: erofs: localize erofs_workgroup_get
+Date: Wed, 16 Jan 2019 16:59:55 +0800
+Subject: [PATCH 4/5] staging: erofs: staticize erofs_shrink_count,
+ erofs_shrink_scan
 In-Reply-To: <20190116085956.21004-1-gaoxiang25@huawei.com>
 References: <20190116085956.21004-1-gaoxiang25@huawei.com>
-Message-ID: <20190116085956.21004-2-gaoxiang25@huawei.com>
+Message-ID: <20190116085956.21004-4-gaoxiang25@huawei.com>
 
-Staticize erofs_workgroup_get since no external user
-out of utils.c directly calls erofs_workgroup_get.
+Move erofs_shrinker_info to utils.c and therefore
+no need to globalize erofs_shrink_count and erofs_shrink_scan.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 21 ---------------------
- drivers/staging/erofs/utils.c    | 19 +++++++++++++++++++
- 2 files changed, 19 insertions(+), 21 deletions(-)
+ drivers/staging/erofs/internal.h |  5 +----
+ drivers/staging/erofs/super.c    |  6 ------
+ drivers/staging/erofs/utils.c    | 14 ++++++++++----
+ 3 files changed, 11 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 80cc09ea787d..967ec1a56726 100644
+index 967ec1a56726..304c79d253ae 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -252,28 +252,7 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+@@ -589,10 +589,7 @@ extern struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
+ extern void erofs_register_super(struct super_block *sb);
+ extern void erofs_unregister_super(struct super_block *sb);
+ 
+-extern unsigned long erofs_shrink_count(struct shrinker *shrink,
+-	struct shrink_control *sc);
+-extern unsigned long erofs_shrink_scan(struct shrinker *shrink,
+-	struct shrink_control *sc);
++extern struct shrinker erofs_shrinker_info;
+ 
+ #ifndef lru_to_page
+ #define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 69e1840d3842..af5140eede18 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -539,12 +539,6 @@ static void erofs_kill_sb(struct super_block *sb)
+ 	kill_block_super(sb);
  }
- #endif
  
--static inline int erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
--{
--	int o;
+-static struct shrinker erofs_shrinker_info = {
+-	.scan_objects = erofs_shrink_scan,
+-	.count_objects = erofs_shrink_count,
+-	.seeks = DEFAULT_SEEKS,
+-};
 -
--repeat:
--	o = erofs_wait_on_workgroup_freezed(grp);
--
--	if (unlikely(o <= 0))
--		return -1;
--
--	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
--		goto repeat;
--
--	*ocnt = o;
--	return 0;
--}
--
--#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
--#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
--
- extern int erofs_workgroup_put(struct erofs_workgroup *grp);
--
- extern struct erofs_workgroup *erofs_find_workgroup(
- 	struct super_block *sb, pgoff_t index, bool *tag);
- 
+ static struct file_system_type erofs_fs_type = {
+ 	.owner          = THIS_MODULE,
+ 	.name           = "erofs",
 diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index aed211cd5875..d24945aab133 100644
+index 5695efaeb43a..5f61f99f4c10 100644
 --- a/drivers/staging/erofs/utils.c
 +++ b/drivers/staging/erofs/utils.c
-@@ -31,6 +31,25 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
- static atomic_long_t erofs_global_shrink_cnt;
+@@ -270,14 +270,14 @@ void erofs_unregister_super(struct super_block *sb)
+ 	spin_unlock(&erofs_sb_list_lock);
+ }
  
- #ifdef CONFIG_EROFS_FS_ZIP
-+#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
-+#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
-+
-+static int erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
-+{
-+	int o;
-+
-+repeat:
-+	o = erofs_wait_on_workgroup_freezed(grp);
-+
-+	if (unlikely(o <= 0))
-+		return -1;
-+
-+	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
-+		goto repeat;
-+
-+	*ocnt = o;
-+	return 0;
-+}
+-unsigned long erofs_shrink_count(struct shrinker *shrink,
+-				 struct shrink_control *sc)
++static unsigned long erofs_shrink_count(struct shrinker *shrink,
++					struct shrink_control *sc)
+ {
+ 	return atomic_long_read(&erofs_global_shrink_cnt);
+ }
  
- struct erofs_workgroup *erofs_find_workgroup(
- 	struct super_block *sb, pgoff_t index, bool *tag)
+-unsigned long erofs_shrink_scan(struct shrinker *shrink,
+-				struct shrink_control *sc)
++static unsigned long erofs_shrink_scan(struct shrinker *shrink,
++				       struct shrink_control *sc)
+ {
+ 	struct erofs_sb_info *sbi;
+ 	struct list_head *p;
+@@ -333,3 +333,9 @@ unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 	return freed;
+ }
+ 
++struct shrinker erofs_shrinker_info = {
++	.scan_objects = erofs_shrink_scan,
++	.count_objects = erofs_shrink_count,
++	.seeks = DEFAULT_SEEKS,
++};
++
 -- 
 2.14.4
