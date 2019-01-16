@@ -1,75 +1,81 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 16 Jan 2019 16:59:54 +0800
-Subject: [PATCH 3/5] staging: erofs: decrease the shrink count in
- erofs_workgroup_get
+Date: Wed, 16 Jan 2019 16:59:53 +0800
+Subject: [PATCH 2/5] staging: erofs: localize erofs_workgroup_get
 In-Reply-To: <20190116085956.21004-1-gaoxiang25@huawei.com>
 References: <20190116085956.21004-1-gaoxiang25@huawei.com>
-Message-ID: <20190116085956.21004-3-gaoxiang25@huawei.com>
+Message-ID: <20190116085956.21004-2-gaoxiang25@huawei.com>
 
-It is more suitable to update in erofs_workgroup_get since
-it's actually the one matched with erofs_workgroup_put.
+Staticize erofs_workgroup_get since no external user
+out of utils.c directly calls erofs_workgroup_get.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/utils.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/staging/erofs/internal.h | 21 ---------------------
+ drivers/staging/erofs/utils.c    | 19 +++++++++++++++++++
+ 2 files changed, 19 insertions(+), 21 deletions(-)
 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 80cc09ea787d..967ec1a56726 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -252,28 +252,7 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ }
+ #endif
+ 
+-static inline int erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+-{
+-	int o;
+-
+-repeat:
+-	o = erofs_wait_on_workgroup_freezed(grp);
+-
+-	if (unlikely(o <= 0))
+-		return -1;
+-
+-	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
+-		goto repeat;
+-
+-	*ocnt = o;
+-	return 0;
+-}
+-
+-#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
+-#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+-
+ extern int erofs_workgroup_put(struct erofs_workgroup *grp);
+-
+ extern struct erofs_workgroup *erofs_find_workgroup(
+ 	struct super_block *sb, pgoff_t index, bool *tag);
+ 
 diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index d24945aab133..5695efaeb43a 100644
+index aed211cd5875..d24945aab133 100644
 --- a/drivers/staging/erofs/utils.c
 +++ b/drivers/staging/erofs/utils.c
-@@ -34,29 +34,29 @@ static atomic_long_t erofs_global_shrink_cnt;
- #define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
- #define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+@@ -31,6 +31,25 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+ static atomic_long_t erofs_global_shrink_cnt;
  
--static int erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
-+static int erofs_workgroup_get(struct erofs_workgroup *grp)
- {
- 	int o;
+ #ifdef CONFIG_EROFS_FS_ZIP
++#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
++#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
++
++static int erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
++{
++	int o;
++
++repeat:
++	o = erofs_wait_on_workgroup_freezed(grp);
++
++	if (unlikely(o <= 0))
++		return -1;
++
++	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
++		goto repeat;
++
++	*ocnt = o;
++	return 0;
++}
  
- repeat:
- 	o = erofs_wait_on_workgroup_freezed(grp);
--
- 	if (unlikely(o <= 0))
- 		return -1;
- 
- 	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
- 		goto repeat;
- 
--	*ocnt = o;
-+	/* decrease refcount paired by erofs_workgroup_put */
-+	if (unlikely(o == 1))
-+		atomic_long_dec(&erofs_global_shrink_cnt);
- 	return 0;
- }
- 
--struct erofs_workgroup *erofs_find_workgroup(
--	struct super_block *sb, pgoff_t index, bool *tag)
-+struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
-+					     pgoff_t index, bool *tag)
- {
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	struct erofs_workgroup *grp;
--	int oldcount;
- 
- repeat:
- 	rcu_read_lock();
-@@ -65,15 +65,12 @@ struct erofs_workgroup *erofs_find_workgroup(
- 		*tag = xa_pointer_tag(grp);
- 		grp = xa_untag_pointer(grp);
- 
--		if (erofs_workgroup_get(grp, &oldcount)) {
-+		if (erofs_workgroup_get(grp)) {
- 			/* prefer to relax rcu read side */
- 			rcu_read_unlock();
- 			goto repeat;
- 		}
- 
--		/* decrease refcount added by erofs_workgroup_put */
--		if (unlikely(oldcount == 1))
--			atomic_long_dec(&erofs_global_shrink_cnt);
- 		DBG_BUGON(index != grp->index);
- 	}
- 	rcu_read_unlock();
+ struct erofs_workgroup *erofs_find_workgroup(
+ 	struct super_block *sb, pgoff_t index, bool *tag)
 -- 
 2.14.4
