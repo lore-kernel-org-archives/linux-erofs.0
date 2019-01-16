@@ -1,309 +1,345 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 16 Jan 2019 13:27:45 +0800
-Subject: [NOMERGE] [RFC PATCH v2 1/4] erofs-utils: add a new compression
- framework
-Message-ID: <20190116052748.24709-1-gaoxiang25@huawei.com>
+Date: Wed, 16 Jan 2019 13:27:48 +0800
+Subject: [NOMERGE] [RFC PATCH v2 4/4] erofs-utils: adapt new compression
+ framework to mkfs
+In-Reply-To: <20190116052748.24709-1-gaoxiang25@huawei.com>
+References: <20190116052748.24709-1-gaoxiang25@huawei.com>
+Message-ID: <20190116052748.24709-4-gaoxiang25@huawei.com>
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- .gitignore                 |  2 +-
- Makefile.am                |  2 +-
- configure.ac               |  2 ++
- include/erofs/compressor.h | 52 +++++++++++++++++++++++++++++++++++
- include/erofs/config.h     | 12 ++++++++
- include/erofs/defs.h       | 42 ++++++++++++++++++++++++++++
- lib/Makefile.am            |  6 ++++
- lib/compressor.c           | 68 ++++++++++++++++++++++++++++++++++++++++++++++
- mkfs/erofs_config.h        |  6 ++--
- 9 files changed, 188 insertions(+), 4 deletions(-)
- create mode 100644 include/erofs/compressor.h
- create mode 100644 include/erofs/config.h
- create mode 100644 lib/Makefile.am
- create mode 100644 lib/compressor.c
+ mkfs/Makefile.am        |   4 +-
+ mkfs/erofs_compressor.c | 110 +++++++++++++++++++++++++++++++++---------------
+ mkfs/erofs_compressor.h |   3 +-
+ mkfs/erofs_lz4hc.c      |  52 -----------------------
+ mkfs/erofs_lz4hc.h      |  21 ---------
+ mkfs/mkfs_file.c        |  24 -----------
+ 6 files changed, 79 insertions(+), 135 deletions(-)
+ delete mode 100644 mkfs/erofs_lz4hc.c
+ delete mode 100644 mkfs/erofs_lz4hc.h
 
-diff --git a/.gitignore b/.gitignore
-index 3cebe03..6dca2b0 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -28,7 +28,7 @@ TAGS
- .deps/
- Makefile.in
- aclocal.m4
--config.h
-+/config.h
- config.h.in
- configure
- libtool
-diff --git a/Makefile.am b/Makefile.am
-index 0eb37d6..d624708 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -2,4 +2,4 @@
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 0f57761..844cfa6 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -3,7 +3,6 @@ AUTOMAKE_OPTIONS = foreign
+ bin_PROGRAMS     = mkfs.erofs
+ mkfs_erofs_SOURCES = erofs_compressor.c \
+ 		     mkfs_file.c \
+-		     erofs_lz4hc.c \
+ 		     mkfs_main.c \
+ 		     erofs_cache.c \
+ 		     erofs_io.c \
+@@ -13,7 +12,6 @@ mkfs_erofs_SOURCES = erofs_compressor.c \
+ noinst_HEADERS = erofs_config.h  \
+ 		 mkfs_inode.h \
+ 		 erofs_error.h \
+-		 erofs_lz4hc.h \
+ 		 erofs_cache.h \
+ 		 erofs_debug.h \
+ 		 mkfs_erofs.h \
+@@ -22,6 +20,8 @@ noinst_HEADERS = erofs_config.h  \
+ 		 mkfs_file.h
  
- ACLOCAL_AMFLAGS = -I m4
+ mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
++# workaround since I don't know how to properly link LZ4 staticlly
++LIBS = -Wl,$(top_builddir)/lib/liberofs.a ${LIB_LZ4} ${LIB_ZLIB}
  
--SUBDIRS=mkfs
-+SUBDIRS=lib mkfs
-diff --git a/configure.ac b/configure.ac
-index 74ad0c0..5249810 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -10,6 +10,7 @@ AC_CONFIG_SRCDIR([mkfs/mkfs_main.c])
- AC_CONFIG_HEADERS([config.h])
+ if SUPPORT_LARG_FILE_AT_BIT32
+     mkfs_erofs_CFLAGS += -D_FILE_OFFSET_BITS=64
+diff --git a/mkfs/erofs_compressor.c b/mkfs/erofs_compressor.c
+index 591b5ce..05c57f5 100644
+--- a/mkfs/erofs_compressor.c
++++ b/mkfs/erofs_compressor.c
+@@ -11,36 +11,95 @@
  
- # Checks for programs.
-+AM_PROG_AR
- AC_PROG_CC
- AC_PROG_INSTALL
- AC_PROG_LIBTOOL
-@@ -110,5 +111,6 @@ if test "x${have_lz4}" = "x0" ; then
- fi
- 
- AC_CONFIG_FILES([Makefile
-+		 lib/Makefile
- 		 mkfs/Makefile])
- AC_OUTPUT
-diff --git a/include/erofs/compressor.h b/include/erofs/compressor.h
-new file mode 100644
-index 0000000..2a9a701
---- /dev/null
-+++ b/include/erofs/compressor.h
-@@ -0,0 +1,52 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * erofs-utils/include/erofs/compressor.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_COMPRESSOR_H
-+#define __EROFS_COMPRESSOR_H
-+
-+#include "defs.h"
-+
-+#ifdef HAVE_LZ4HC_H
-+#include <lz4hc.h>
-+#endif
-+
-+struct erofs_compress;
-+
-+struct erofs_compressor {
-+	int default_level;
-+	int best_level;
-+
-+	int (*init)(struct erofs_compress *c, char *alg_name);
-+	int (*exit)(struct erofs_compress *c);
-+
-+	int (*compress_destsize)(struct erofs_compress *c,
-+				 int compress_level,
-+				 void *src, unsigned int *srcsize,
-+				 void *dst, unsigned int dstsize);
-+};
-+
-+struct erofs_compress {
-+	struct erofs_compressor *alg;
-+
-+	unsigned int compress_threshold;
-+
-+	/* *_destsize specific */
-+	unsigned int destsize_alignsize;
-+	unsigned int destsize_redzone_begin;
-+	unsigned int destsize_redzone_end;
-+};
-+
-+int erofs_compress_destsize(struct erofs_compress *c, int compression_level,
-+			    void *src, unsigned int *srcsize,
-+			    void *dst, unsigned int dstsize);
-+
-+int erofs_compressor_init(struct erofs_compress *c, char *alg_name);
-+int erofs_compressor_exit(struct erofs_compress *c);
-+
-+#endif
-+
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-new file mode 100644
-index 0000000..adaf964
---- /dev/null
-+++ b/include/erofs/config.h
-@@ -0,0 +1,12 @@
-+#ifndef __EROFS_CONFIG_H
-+#define __EROFS_CONFIG_H
-+
-+#ifndef PAGE_SIZE
-+#define PAGE_SIZE	4096
-+#endif
-+
-+#define EROFS_CONFIG_COMPR_DEF_BOUNDARY     (128)
-+#define EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT  (100)
-+
-+#endif
-+
-diff --git a/include/erofs/defs.h b/include/erofs/defs.h
-index 885ba13..f79347c 100644
---- a/include/erofs/defs.h
-+++ b/include/erofs/defs.h
-@@ -14,6 +14,9 @@
- #include <stdint.h>
- #include <assert.h>
- #include <inttypes.h>
-+#include <errno.h>
-+#include <string.h>
-+#include <stdlib.h>
- 
- #ifdef HAVE_CONFIG_H
- #include <config.h>
-@@ -96,5 +99,44 @@ typedef int64_t         s64;
- #define BITS_PER_BYTE       8
- #define BITS_TO_LONGS(nr)   DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
- 
-+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-+
-+/* The `const' in roundup() prevents gcc-3.3 from calling __divdi3 */
-+#define roundup(x, y) (					\
-+{							\
-+	const typeof(y) __y = y;			\
-+	(((x) + (__y - 1)) / __y) * __y;		\
-+}							\
-+)
-+#define rounddown(x, y) (				\
-+{							\
-+	typeof(x) __x = (x);				\
-+	__x - (__x % (y));				\
-+}							\
-+)
-+
-+#define min(x, y) ({				\
-+	typeof(x) _min1 = (x);			\
-+	typeof(y) _min2 = (y);			\
-+	(void) (&_min1 == &_min2);		\
-+	_min1 < _min2 ? _min1 : _min2; })
-+
-+#define max(x, y) ({				\
-+	typeof(x) _max1 = (x);			\
-+	typeof(y) _max2 = (y);			\
-+	(void) (&_max1 == &_max2);		\
-+	_max1 > _max2 ? _max1 : _max2; })
-+
-+
-+#define BUG_ON(condition)	assert(!(condition))
-+
-+#ifdef DEBUG
-+#define DBG_BUGON(condition)	BUG_ON(condition)
-+#else
-+#define DBG_BUGON(condition)	((void)(condition))
-+#endif
-+
-+#include "erofs/config.h"
-+
- #endif
- 
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-new file mode 100644
-index 0000000..3093d6a
---- /dev/null
-+++ b/lib/Makefile.am
-@@ -0,0 +1,6 @@
-+## Makefile.am
-+
-+noinst_LIBRARIES = liberofs.a
-+liberofs_a_SOURCES = compressor.c
-+liberofs_a_CPPFLAGS = -I$(top_srcdir)/include
-+
-diff --git a/lib/compressor.c b/lib/compressor.c
-new file mode 100644
-index 0000000..a282be1
---- /dev/null
-+++ b/lib/compressor.c
-@@ -0,0 +1,68 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * erofs-utils/lib/compressor.c
-+ *
-+ * Copyright (C) 2018-2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
+ #include "erofs_error.h"
+ #include "erofs_compressor.h"
+-#include "erofs_lz4hc.h"
+ #include "erofs_debug.h"
+ #include "mkfs_erofs.h"
 +#include "erofs/compressor.h"
 +
-+int erofs_compress_destsize(struct erofs_compress *c,
-+			    int compression_level,
-+			    void *src,
-+			    unsigned int *srcsize,
-+			    void *dst,
-+			    unsigned int dstsize)
++#define EROFS_COMPR_LZ4HC_DEF_LVL       (9)
++#define EROFS_COMPR_ZLIB_DEF_LVL        (-1)
++
++static struct erofs_compress lz4hc_compress, zlib_compress;
++
++static void __erofs_deinit(void *ctx)
++{
++	erofs_compressor_exit((struct erofs_compress *)ctx);
++}
++
++static void *erofs_lz4hc_init(void)
++{
++	int ret = erofs_compressor_init(&lz4hc_compress, "lz4hc");
++
++	if (ret)
++		return ERR_PTR(ret);
++	return &lz4hc_compress;
++}
++
++static void *erofs_zlib_init(void)
++{
++	int ret = erofs_compressor_init(&zlib_compress, "zlib");
++
++	if (ret)
++		return ERR_PTR(ret);
++
++	return &zlib_compress;
++}
++
++static int64_t __erofs_compress_destsize(char *in, size_t insz, char *out,
++					 size_t outsz, size_t *inszptr,
++					 int level, void *ctx)
 +{
 +	int ret;
++	unsigned int __uinsz = insz;
 +
-+	DBG_BUGON(!c->alg);
-+	if (!c->alg->compress_destsize)
-+		return -ENOTSUP;
++	ret = erofs_compress_destsize((struct erofs_compress *)ctx,
++				      level, in, &__uinsz, out, outsz);
 +
-+	ret = c->alg->compress_destsize(c, compression_level,
-+					src, srcsize, dst, dstsize);
-+	if (ret)
-+		return ret;
++	*inszptr = __uinsz;
 +
-+	/* check if there is enough gains to compress */
-+	if (dstsize >= *srcsize * c->compress_threshold / 100)
-+		return -EAGAIN;
-+	return 0;
-+}
-+
-+int erofs_compressor_init(struct erofs_compress *c,
-+			  char *alg_name)
-+{
-+	static struct erofs_compressor *compressors[] = {
-+	};
-+
-+	int ret, i;
-+
-+	c->compress_threshold = EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT;
-+
-+	/* optimize for 4k size page */
-+	c->destsize_alignsize = PAGE_SIZE;
-+	c->destsize_redzone_begin = PAGE_SIZE - 16;
-+	c->destsize_redzone_end = EROFS_CONFIG_COMPR_DEF_BOUNDARY;
-+
-+	for (i = 0; i < ARRAY_SIZE(compressors); ++i) {
-+		ret = compressors[i]->init(c, alg_name);
-+		if (!ret) {
-+			DBG_BUGON(!c->alg);
-+			return 0;
-+		}
++#if 1
++	/* temporary workaround for the old implementation */
++	if (ret == -EAGAIN) {
++		*inszptr = 0;
++		return outsz;
 +	}
-+	return ret;
++#endif
++
++	if (ret < 0) {
++		erofs_err("Failed to compress, ret[%d]", ret);
++		return EROFS_COMPRESS_ERROR;
++	}
++	return outsz;
 +}
-+
-+int erofs_compressor_exit(struct erofs_compress *c)
-+{
-+	DBG_BUGON(!c->alg);
-+
-+	if (c->alg->exit)
-+		return c->alg->exit(c);
-+	return 0;
-+}
-+
-diff --git a/mkfs/erofs_config.h b/mkfs/erofs_config.h
-index 7e38f87..cac2d72 100644
---- a/mkfs/erofs_config.h
-+++ b/mkfs/erofs_config.h
-@@ -9,12 +9,14 @@
- #ifndef __EROFS_MKFS_CONFIG_H
- #define __EROFS_MKFS_CONFIG_H
  
-+/* this file(mkfs_config.h) will be deprecated later */
-+
-+#include "erofs/config.h"
-+
- /* workaround of a lz4 native compression issue, which can crash the program */
- /* #define EROFS_CONFIG_COMPR_MAX_SZ        (1024 * 1024) */
- #define EROFS_CONFIG_COMPR_MAX_SZ           (900  * 1024)
- #define EROFS_CONFIG_COMPR_MIN_SZ           (32   * 1024)
--#define EROFS_CONFIG_COMPR_DEF_BOUNDARY     (128)
--#define EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT  (100)
+ static struct erofs_compr_alg erofs_compr_desc[EROFS_COMPR_ALG_MAX] = {
+ 	[EROFS_COMPR_NONE] = {
+ 		.ca_name    = "none",
+ 		.ca_idx     = EROFS_COMPR_NONE,
+-		.ca_max_lvl = 0,
+-		.ca_min_lvl = 0,
+ 		.ca_def_lvl = 0,
+ 		.ca_compress    = NULL,
+ 		.ca_init    = NULL,
+ 		.ca_deinit  = NULL,
+ 	},
+ 	[EROFS_COMPR_LZ4HC] = {
+-		.ca_name    = "lz4hc",
+-		.ca_idx     = EROFS_COMPR_LZ4HC,
+-		.ca_max_lvl = LZ4HC_CLEVEL_MAX,
+-		.ca_min_lvl = LZ4HC_CLEVEL_MIN,
+-		.ca_def_lvl = EROFS_COMPR_LZ4HC_DEF_LVL,
+-		.ca_compress    = erofs_lz4hc_compress,
+-		.ca_init    = erofs_lz4hc_init,
+-		.ca_deinit  = erofs_lz4hc_deinit,
++		.ca_name        = "lz4hc",
++		.ca_idx         = EROFS_COMPR_LZ4HC,
++		.ca_def_lvl     = EROFS_COMPR_LZ4HC_DEF_LVL,
++		.ca_compress    = __erofs_compress_destsize,
++		.ca_init        = erofs_lz4hc_init,
++		.ca_deinit      = __erofs_deinit,
++	},
++	[EROFS_COMPR_ZLIB] = {
++		.ca_name    = "zlib",
++		.ca_idx     = EROFS_COMPR_ZLIB,
++		.ca_def_lvl = EROFS_COMPR_ZLIB_DEF_LVL,
++		.ca_compress = __erofs_compress_destsize,
++		.ca_init     = erofs_zlib_init,
++		.ca_deinit   = __erofs_deinit,
+ 	},
+ };
  
- struct erofs_compr_alg;
+ void erofs_compress_alg_init(const char *name)
+ {
+-	int level;
+ 	struct erofs_compr_alg *alg;
+ 
+ 	if (!name) {
+@@ -57,8 +116,11 @@ void erofs_compress_alg_init(const char *name)
+ 	erofs_cfg.c_compr_alg   = alg;
+ 	erofs_cfg.c_compr_maxsz = BLK_ALIGN(EROFS_CONFIG_COMPR_MAX_SZ);
+ 
+-	level = erofs_adjust_compress_level(alg, EROFS_COMPR_LZ4HC_DEF_LVL);
+-	erofs_cfg.c_compr_lvl	 = level;
++	if (!alg || alg->ca_idx == EROFS_COMPR_NONE)
++		erofs_cfg.c_compr_lvl = 0;
++	else
++		erofs_cfg.c_compr_lvl	= alg->ca_def_lvl;
++
+ 	erofs_cfg.c_compr_boundary    = EROFS_CONFIG_COMPR_DEF_BOUNDARY;
+ 	erofs_cfg.c_compr_ratio_limit = EROFS_CONFIG_COMPR_RATIO_MAX_LIMIT;
+ }
+@@ -74,26 +136,6 @@ struct erofs_compr_alg *erofs_get_compress_alg(const char *name)
+ 	return NULL;
+ }
+ 
+-int erofs_adjust_compress_level(struct erofs_compr_alg *alg, int lvl)
+-{
+-	if (!alg || alg->ca_idx == EROFS_COMPR_NONE)
+-		return 0;
+-
+-	if (lvl > alg->ca_max_lvl) {
+-		erofs_err("Compress level(%d) is greater than max level(%d), adjust it to default level(%d).\n",
+-			   lvl, alg->ca_max_lvl, EROFS_COMPR_LZ4HC_DEF_LVL);
+-		return alg->ca_def_lvl;
+-	}
+-
+-	if (lvl < alg->ca_min_lvl) {
+-		erofs_err("Compress level(%d) is less than min level(%d), adjust it to default level(%d).\n",
+-			   lvl, alg->ca_min_lvl, EROFS_COMPR_LZ4HC_DEF_LVL);
+-		return alg->ca_def_lvl;
+-	}
+-
+-	return lvl;
+-}
+-
+ void *erofs_compress_init(struct erofs_compr_alg *alg)
+ {
+ 	void *ctx;
+diff --git a/mkfs/erofs_compressor.h b/mkfs/erofs_compressor.h
+index b60f79d..2c8411b 100644
+--- a/mkfs/erofs_compressor.h
++++ b/mkfs/erofs_compressor.h
+@@ -16,6 +16,7 @@
+ enum erofs_compr_algs {
+ 	EROFS_COMPR_NONE,
+ 	EROFS_COMPR_LZ4HC,
++	EROFS_COMPR_ZLIB,
+ 	EROFS_COMPR_ALG_MAX,
+ };
+ 
+@@ -28,8 +29,6 @@ typedef void (*deinit_func)(void *cctx);
+ struct erofs_compr_alg {
+ 	char *ca_name;
+ 	int ca_idx;
+-	int ca_max_lvl;
+-	int ca_min_lvl;
+ 	int ca_def_lvl;
+ 	compress_func ca_compress;
+ 	init_func ca_init;
+diff --git a/mkfs/erofs_lz4hc.c b/mkfs/erofs_lz4hc.c
+deleted file mode 100644
+index c6277c6..0000000
+--- a/mkfs/erofs_lz4hc.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * erofs_lz4hc.c
+- *
+- * Copyright (C) 2018 HUAWEI, Inc.
+- *             http://www.huawei.com/
+- * Created by Li Guifu <bluce.liguifu at huawei.com>
+- */
+-#include <errno.h>
+-#define LZ4_HC_STATIC_LINKING_ONLY (1)
+-#include <lz4hc.h>
+-
+-#include "erofs_error.h"
+-#include "erofs_lz4hc.h"
+-#include "erofs_compressor.h"
+-#include "erofs_debug.h"
+-
+-void *erofs_lz4hc_init(void)
+-{
+-	LZ4_streamHC_t *ctx;
+-
+-	ctx = LZ4_createStreamHC();
+-	if (!ctx) {
+-		erofs_err("Cannot allocate LZ4HC context");
+-		return ERR_PTR(-ENOMEM);
+-	}
+-
+-	return (void *)ctx;
+-}
+-
+-void erofs_lz4hc_deinit(void *ctx)
+-{
+-	if (!ctx)
+-		return;
+-
+-	LZ4_freeStreamHC((LZ4_streamHC_t *)ctx);
+-}
+-
+-int64_t erofs_lz4hc_compress(char *in, size_t insz, char *out, size_t outsz,
+-			     size_t *inszptr, int level, void *ctx)
+-{
+-	int count;
+-
+-	*inszptr = insz;
+-	count = LZ4_compress_HC_destSize((LZ4_streamHC_t *)ctx, in, out,
+-					 (int *)inszptr, outsz, level);
+-	if (count <= 0) {
+-		erofs_err("Failed to compress data by LZ4HC");
+-		return EROFS_COMPRESS_ERROR;
+-	}
+-	return (int64_t)count;
+-}
+diff --git a/mkfs/erofs_lz4hc.h b/mkfs/erofs_lz4hc.h
+deleted file mode 100644
+index d80340a..0000000
+--- a/mkfs/erofs_lz4hc.h
++++ /dev/null
+@@ -1,21 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0+ */
+-/*
+- * erofs_lz4hc.h
+- *
+- * Copyright (C) 2018 HUAWEI, Inc.
+- *             http://www.huawei.com/
+- * Created by Li Guifu <bluce.liguifu at huawei.com>
+- */
+-#ifndef __EROFS_LZ4HC_H__
+-#define __EROFS_LZ4HC_H__
+-
+-#include <stdint.h>
+-#include <lz4hc.h>
+-
+-#define EROFS_COMPR_LZ4HC_DEF_LVL (9)
+-
+-void *erofs_lz4hc_init(void);
+-void erofs_lz4hc_deinit(void *ctx);
+-int64_t erofs_lz4hc_compress(char *in, size_t insz, char *out, size_t outsz,
+-			     size_t *inszptr, int level, void *);
+-#endif
+diff --git a/mkfs/mkfs_file.c b/mkfs/mkfs_file.c
+index 382e9b6..262063c 100644
+--- a/mkfs/mkfs_file.c
++++ b/mkfs/mkfs_file.c
+@@ -317,30 +317,6 @@ erofs_compr_idx_host_to_disk(struct erofs_compr_idx *hidx,
+ static int erofs_compress_inline_file_data(struct erofs_compr_info *cinfo,
+ 					   struct erofs_compr_ctx *ctx)
+ {
+-	int64_t compr_count;
+-	size_t comprsz = 0;
+-
+-	assert(ctx->cc_srclen <= EROFS_BLKSIZE);
+-	assert(ctx->cc_buflen >= 2 * EROFS_BLKSIZE);
+-
+-	compr_count = erofs_compress(cinfo->ci_alg,
+-				     ctx->cc_srcbuf,
+-				     ctx->cc_srclen,
+-				     ctx->cc_dstbuf,
+-				     EROFS_BLKSIZE,
+-				     &comprsz,
+-				     cinfo->ci_lvl);
+-
+-	if (compr_count == 0 || compr_count == EROFS_COMPRESS_ERROR) {
+-		erofs_err("Failed to compress data by %s",
+-			  cinfo->ci_alg->ca_name);
+-		return -EIO;
+-	}
+-
+-	assert(comprsz == (size_t)ctx->cc_srclen);
+-
+-	ctx->cc_dstlen = (int)compr_count;
+-	ctx->cc_nidxs  = EROFS_COMPR_CTX_INLINED_DATA;
+ 	return 0;
+ }
  
 -- 
 2.14.4
