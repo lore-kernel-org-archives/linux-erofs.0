@@ -1,136 +1,172 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 18 Jan 2019 11:36:59 +0800
-Subject: [PATCH 2/2] erofs-utils: rename to erofs_mkfs_update_super_block
-In-Reply-To: <20190118033659.46760-1-gaoxiang25@huawei.com>
-References: <20190118033659.46760-1-gaoxiang25@huawei.com>
-Message-ID: <20190118033659.46760-2-gaoxiang25@huawei.com>
+Date: Tue, 22 Jan 2019 20:45:30 +0800
+Subject: [PREVIEW] [PATCH] staging: erofs: fix mis-acted TAIL merging behavior
+Message-ID: <20190122124530.5621-1-gaoxiang25@huawei.com>
 
-From: Li Guifu <blucerlee@gmail.com>
+EROFS has an optimized path called TAIL merging, which is designed
+to merge multiple reads and the corresponding decompressions into
+one if these requests read continuous pages almost at the same time.
 
-Since the old name `mkfs_update_erofs_header' is weird.
+In general, it behaves as follows:
+ ________________________________________________________________
+  ... |  TAIL  .  HEAD  |  PAGE  |  PAGE  |  TAIL    . HEAD | ...
+ _____|_combined page A_|________|________|_combined page B_|____
+        1  ]  ->  [  2                          ]  ->  [ 3
+If the above three reads are requested in the order 1-2-3, it will
+generate a large work chain rather than 3 individual work chains
+to reduce scheduling overhead and boost up sequential read.
 
-Signed-off-by: Li Guifu <blucerlee at gmail.com>
+However, if Read 2 is processed slightly earlier than Read 1,
+currently it still generates 2 individual work chains (chain 1, 2)
+but it does in-place decompression for combined page A, moreover,
+if chain 2 decompresses ahead of chain 1, it will be a race and
+lead to corrupted decompressed page. This patch fixes it.
+
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable at vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- mkfs/mkfs_erofs.h |  2 +-
- mkfs/mkfs_main.c  | 46 +++++++++++++++++++++++-----------------------
- 2 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 70 +++++++++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 25 deletions(-)
 
-diff --git a/mkfs/mkfs_erofs.h b/mkfs/mkfs_erofs.h
-index e8b6f1b..86d8da8 100644
---- a/mkfs/mkfs_erofs.h
-+++ b/mkfs/mkfs_erofs.h
-@@ -37,7 +37,7 @@ typedef unsigned int __u32;
- #define MAX_NID_INDEX_PER_BLK   (EROFS_BLKSIZE / EROFS_SLOTSIZE)
- 
- typedef u64 erofs_off_t;
--
-+typedef u64 erofs_nid_t;
- /* data type for filesystem-wide blocks number */
- typedef u32 erofs_blk_t;
- 
-diff --git a/mkfs/mkfs_main.c b/mkfs/mkfs_main.c
-index 87a8346..4d72bf7 100644
---- a/mkfs/mkfs_main.c
-+++ b/mkfs/mkfs_main.c
-@@ -109,44 +109,43 @@ static void mkfs_parse_options_cfg(int argc, char *argv[])
- 	mkfs_dump_config();
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 29b3b1dc67f1..8a1c7cdf056a 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -107,15 +107,30 @@ enum z_erofs_vle_work_role {
+ 	Z_EROFS_VLE_WORK_SECONDARY,
+ 	Z_EROFS_VLE_WORK_PRIMARY,
+ 	/*
+-	 * The current work has at least been linked with the following
+-	 * processed chained works, which means if the processing page
+-	 * is the tail partial page of the work, the current work can
+-	 * safely use the whole page, as illustrated below:
+-	 * +--------------+-------------------------------------------+
+-	 * |  tail page   |      head page (of the previous work)     |
+-	 * +--------------+-------------------------------------------+
+-	 *   /\  which belongs to the current work
+-	 * [  (*) this page can be used for the current work itself.  ]
++	 * The current work was the tail of an exist chain, but the following
++	 * processed chained works are now all hooked up to it.
++	 * A new chain should be created for the remaining unprocessed works,
++	 * therefore different from Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED,
++	 * the next work cannot reuse the whole page in the following scenario:
++	 *  ________________________________________________________________
++	 * |      tail (partial) page     |       head (partial) page       |
++	 * |  (belongs to the next work)  |  (belongs to the current work)  |
++	 * |_______PRIMARY_FOLLOWED_______|________PRIMARY_HOOKED___________|
++	 */
++	Z_EROFS_VLE_WORK_PRIMARY_HOOKED,
++	/*
++	 * The current work has been linked with the processed chained works,
++	 * and could be also linked with the potential remaining works, which
++	 * means if the processing page is the tail partial page of the work,
++	 * the current work can safely use the whole page (since the next work
++	 * is under control) for in-place decompression, as illustrated below:
++	 *  ________________________________________________________________
++	 * |  tail (partial) page  |          head (partial) page           |
++	 * | (of the current work) |         (of the previous work)         |
++	 * |  PRIMARY_FOLLOWED or  |                                        |
++	 * |_____PRIMARY_HOOKED____|____________PRIMARY_FOLLOWED____________|
++	 *
++	 * [  (*) the above page can be used for the current work itself.  ]
+ 	 */
+ 	Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED,
+ 	Z_EROFS_VLE_WORK_MAX
+@@ -315,10 +330,10 @@ static int z_erofs_vle_work_add_page(
+ 	return ret ? 0 : -EAGAIN;
  }
  
--void mkfs_update_erofs_header(u64 root_addr)
-+int erofs_mkfs_update_super_block(erofs_nid_t root_nid)
+-static inline bool try_to_claim_workgroup(
+-	struct z_erofs_vle_workgroup *grp,
+-	z_erofs_vle_owned_workgrp_t *owned_head,
+-	bool *hosted)
++static enum z_erofs_vle_work_role
++try_to_claim_workgroup(struct z_erofs_vle_workgroup *grp,
++		       z_erofs_vle_owned_workgrp_t *owned_head,
++		       bool *hosted)
  {
--	int ret      = 0;
--	u64 size     = 0;
--	char *sb_buf = NULL;
-+	int ret;
-+	char *sb_buf;
- 	struct timeval t;
-+	const unsigned sb_blksize = BLK_ALIGN(EROFS_SUPER_END);
+ 	DBG_BUGON(*hosted == true);
  
--	size = BLK_ALIGN(EROFS_SUPER_END);
+@@ -332,6 +347,9 @@ static inline bool try_to_claim_workgroup(
+ 
+ 		*owned_head = &grp->next;
+ 		*hosted = true;
++		/* lucky, I am the followee :) */
++		return Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
++
+ 	} else if (grp->next == Z_EROFS_VLE_WORKGRP_TAIL) {
+ 		/*
+ 		 * type 2, link to the end of a existing open chain,
+@@ -341,12 +359,11 @@ static inline bool try_to_claim_workgroup(
+ 		if (cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
+ 			    *owned_head) != Z_EROFS_VLE_WORKGRP_TAIL)
+ 			goto retry;
 -
--	if (gettimeofday(&t, NULL) == 0) {
-+	if (!gettimeofday(&t, NULL)) {
- 		sb->build_time      = cpu_to_le64(t.tv_sec);
- 		sb->build_time_nsec = cpu_to_le32(t.tv_usec);
- 	}
--
--	sb->meta_blkaddr = cpu_to_le32(erofs_blknr(size));
-+	sb->meta_blkaddr = cpu_to_le32(erofs_blknr(sb_blksize));
- 	sb->blocks       = cpu_to_le32(erofs_get_total_blocks());
--	sb->root_nid     = cpu_to_le16(mkfs_addr_to_nid(root_addr));
-+	sb->root_nid     = cpu_to_le16(root_nid);
+ 		*owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
+-	} else
+-		return false;	/* :( better luck next time */
++		return Z_EROFS_VLE_WORK_PRIMARY_HOOKED;
++	}
  
--	sb_buf = calloc(size, 1);
-+	sb_buf = calloc(sb_blksize, 1);
- 	if (!sb_buf) {
--		erofs_err("\tError: Failed to calloc [%s]!!!\n", strerror(errno));
--		exit(EXIT_FAILURE);
-+		erofs_err("failed to allocate super buffer: %s", strerror(errno));
-+		return -ENOMEM;
- 	}
- 
- 	memcpy(sb_buf + EROFS_SUPER_OFFSET, sb, sizeof(*sb));
- 
--	ret = dev_write(sb_buf, 0, size);
-+	ret = dev_write(sb_buf, 0, sb_blksize);
- 	if (ret < 0) {
--		erofs_err("dev_write failed ret=%d", ret);
--		exit(EXIT_FAILURE);
-+		erofs_err("failed to dev_write, ret=%d", ret);
-+		return -EIO;
- 	}
- 	free(sb_buf);
-+	return 0;
+-	return true;	/* lucky, I am the followee :) */
++	return Z_EROFS_VLE_WORK_PRIMARY; /* :( better luck next time */
  }
  
- int main(int argc, char **argv)
- {
- 	int err = 0;
--	struct erofs_inode *proot_node = NULL;
-+	struct erofs_inode *root_inode;
-+	erofs_nid_t root_nid;
+ struct z_erofs_vle_work_finder {
+@@ -424,12 +441,9 @@ z_erofs_vle_work_lookup(const struct z_erofs_vle_work_finder *f)
+ 	*f->hosted = false;
+ 	if (!primary)
+ 		*f->role = Z_EROFS_VLE_WORK_SECONDARY;
+-	/* claim the workgroup if possible */
+-	else if (try_to_claim_workgroup(grp, f->owned_head, f->hosted))
+-		*f->role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
+-	else
+-		*f->role = Z_EROFS_VLE_WORK_PRIMARY;
+-
++	else	/* claim the workgroup if possible */
++		*f->role = try_to_claim_workgroup(grp, f->owned_head,
++						  f->hosted);
+ 	return work;
+ }
  
- 	mkfs_init_configure();
- 	mkfs_parse_options_cfg(argc, argv);
-@@ -157,10 +156,10 @@ int main(int argc, char **argv)
- 		return -1;
- 	}
+@@ -493,6 +507,9 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	return work;
+ }
  
--	proot_node = mkfs_prepare_root_inode(erofs_cfg.c_src_path);
--	if (!proot_node)
-+	root_inode = mkfs_prepare_root_inode(erofs_cfg.c_src_path);
-+	if (!root_inode)
- 		goto exit;
--	err = erofs_create_files_list(proot_node);
-+	err = erofs_create_files_list(root_inode);
- 	if (err)
- 		goto exit;
++#define builder_is_hooked(builder) \
++	((builder)->role >= Z_EROFS_VLE_WORK_PRIMARY_HOOKED)
++
+ #define builder_is_followed(builder) \
+ 	((builder)->role >= Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED)
  
-@@ -168,11 +167,11 @@ int main(int argc, char **argv)
- 	if (err)
- 		goto exit;
+@@ -686,7 +703,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	struct z_erofs_vle_work_builder *const builder = &fe->builder;
+ 	const loff_t offset = page_offset(page);
  
--	err = mkfs_relocate_sub_inodes(proot_node);
-+	err = mkfs_relocate_sub_inodes(root_inode);
- 	if (err)
- 		goto exit;
+-	bool tight = builder_is_followed(builder);
++	bool tight = builder_is_hooked(builder);
+ 	struct z_erofs_vle_work *work = builder->work;
  
--	err = mkfs_do_write_inodes_data(proot_node);
-+	err = mkfs_do_write_inodes_data(root_inode);
- 	if (err)
- 		goto exit;
+ 	enum z_erofs_cache_alloctype cache_strategy;
+@@ -740,7 +757,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 				 map->m_plen / PAGE_SIZE,
+ 				 cache_strategy, page_pool, GFP_KERNEL);
  
-@@ -180,7 +179,8 @@ int main(int argc, char **argv)
- 	if (err)
- 		goto exit;
+-	tight &= builder_is_followed(builder);
++	tight &= builder_is_hooked(builder);
+ 	work = builder->work;
+ hitted:
+ 	cur = end - min_t(unsigned int, offset + end - map->m_la, end);
+@@ -755,6 +772,9 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 			(tight ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
+ 				Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED));
  
--	mkfs_update_erofs_header(proot_node->i_base_addr);
-+	root_nid = mkfs_addr_to_nid(root_inode->i_base_addr);
-+	err = erofs_mkfs_update_super_block(root_nid);
- 
- 	erofs_info("done");
- 
++	if (cur)
++		tight &= builder_is_followed(builder);
++
+ retry:
+ 	err = z_erofs_vle_work_add_page(builder, page, page_type);
+ 	/* should allocate an additional staging page for pagevec */
 -- 
 2.14.4
