@@ -1,49 +1,32 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 25 Jan 2019 21:58:31 +0800
-Subject: [PATCH 1/2] staging: erofs: use xattr_prefix to wrap up
-In-Reply-To: <20190125132614.GB1795@kadam>
-References: <20190125115103.47250-1-gaoxiang25@huawei.com>
- <20190125132614.GB1795@kadam>
-Message-ID: <52def699-7f59-04d8-9045-6f85db11111a@huawei.com>
+Date: Sat, 26 Jan 2019 00:10:06 +0800
+Subject: [PATCH v2 1/2] staging: erofs: use xattr_prefix to wrap up
+Message-ID: <20190125161007.4447-1-gaoxiang25@huawei.com>
 
-Hi Dan,
+Let's use xattr_prefix instead of open code.
+No logic changes.
 
-On 2019/1/25 21:26, Dan Carpenter wrote:
-> On Fri, Jan 25, 2019@07:51:03PM +0800, Gao Xiang wrote:
->> Let's use xattr_prefix instead of open code.
->> No logic changes.
->>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> ---
->>  drivers/staging/erofs/xattr.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
->> index 1c9498e38f0e..eca65df46133 100644
->> --- a/drivers/staging/erofs/xattr.c
->> +++ b/drivers/staging/erofs/xattr.c
->> @@ -521,7 +521,7 @@ static int xattr_entrylist(struct xattr_iter *_it,
->>  		return 1;
->>  
->>  	/* Note that at least one of 'prefix' and 'name' should be non-NULL */
-> 
-> The comment is sort of confusing now.
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+change log v2:
+ - remove the confusing line according to Dan Carpenter;
 
-OK, I will remove this line.
+ drivers/staging/erofs/xattr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-And I think I will send the whole patchset instead of this cleanup patch
-only after I test the ACL feature and confirm that it works.
-
-Sorry again about the [PATCH 2/2]...
-
-Thanks,
-Gao Xiang
-
-> 
->> -	prefix = h->prefix != NULL ? h->prefix : h->name;
->> +	prefix = xattr_prefix(h);
->>  	prefix_len = strlen(prefix);
-> 
-> regards,
-> dan carpenter
-> 
+diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+index 1c9498e38f0e..7de46690d972 100644
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -520,8 +520,7 @@ static int xattr_entrylist(struct xattr_iter *_it,
+ 	if (h == NULL || (h->list != NULL && !h->list(it->dentry)))
+ 		return 1;
+ 
+-	/* Note that at least one of 'prefix' and 'name' should be non-NULL */
+-	prefix = h->prefix != NULL ? h->prefix : h->name;
++	prefix = xattr_prefix(h);
+ 	prefix_len = strlen(prefix);
+ 
+ 	if (it->buffer == NULL) {
+-- 
+2.14.4
