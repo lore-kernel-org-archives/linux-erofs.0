@@ -1,18 +1,28 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Thu, 24 Jan 2019 16:46:11 +0800
-Subject: [PATCH] staging: erofs: fix potential double iput in
- erofs_read_super()
-In-Reply-To: <20190123061225.19860-1-cgxu519@gmx.com>
-References: <20190123061225.19860-1-cgxu519@gmx.com>
-Message-ID: <5fe1db5b-d7ff-bc36-f485-4440e3c8ab9e@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Fri, 25 Jan 2019 19:51:03 +0800
+Subject: [PATCH 1/2] staging: erofs: use xattr_prefix to wrap up
+Message-ID: <20190125115103.47250-1-gaoxiang25@huawei.com>
 
-On 2019/1/23 14:12, Chengguang Xu wrote:
-> Some error cases like failing from d_make_root() will
-> cause double iput because d_make_root() also does iput
-> in its error path.
-> 
-> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+Let's use xattr_prefix instead of open code.
+No logic changes.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/xattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
+diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+index 1c9498e38f0e..eca65df46133 100644
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -521,7 +521,7 @@ static int xattr_entrylist(struct xattr_iter *_it,
+ 		return 1;
+ 
+ 	/* Note that at least one of 'prefix' and 'name' should be non-NULL */
+-	prefix = h->prefix != NULL ? h->prefix : h->name;
++	prefix = xattr_prefix(h);
+ 	prefix_len = strlen(prefix);
+ 
+ 	if (it->buffer == NULL) {
+-- 
+2.14.4
