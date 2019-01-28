@@ -1,61 +1,52 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 28 Jan 2019 23:04:33 +0800
-Subject: [PATCH v2 2/2] staging: erofs: complete POSIX ACL support
-In-Reply-To: <20190128142837.GJ1795@kadam>
-References: <20190125161007.4447-1-gaoxiang25@huawei.com>
- <20190125161007.4447-2-gaoxiang25@huawei.com>
- <94daa491-40c8-4a09-a0b5-55a7e92dc3fc@huawei.com>
- <20190128133302.GI1795@kadam>
- <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
- <20190128142837.GJ1795@kadam>
-Message-ID: <3a304a58-2ba3-b452-53ba-8286b1707795@aol.com>
+From: sashal@kernel.org (Sasha Levin)
+Date: Mon, 28 Jan 2019 10:39:43 -0500
+Subject: [PATCH AUTOSEL 4.20 066/304] staging: erofs: fix the definition of
+ DBG_BUGON
+In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
+References: <20190128154341.47195-1-sashal@kernel.org>
+Message-ID: <20190128154341.47195-66-sashal@kernel.org>
 
+From: Gao Xiang <gaoxiang25@huawei.com>
 
+[ Upstream commit eef168789866514e5d4316f030131c9fe65b643f ]
 
-On 2019/1/28 22:28, Dan Carpenter wrote:
-> The point is, that people shouldn't recreate core code that already
-> exists.  At least try it out and have an explanation why the other code
-> doesn't work.
-> 
-> In other projects, the default is to keep code around once it has been
-> written but in staging the default choice is to delete the code unless
-> there is an explanation.
+It's better not to positively BUG_ON the kernel, however developers
+need a way to locate issues as soon as possible.
 
-That is why I need Chao's idea about the future of EROFS fault injection.
+DBG_BUGON is introduced and it could only crash when EROFS_FS_DEBUG
+(EROFS developping feature) is on. It is helpful for developers
+to find and solve bugs quickly by eng builds.
 
-As far as I know, the fault injection of f2fs also introduces after
-the general fault injection, and the original reason is to test separated
-partitions with different fault injection rate/type simultaneously, as follows:
+Previously, DBG_BUGON is defined as ((void)0) if EROFS_FS_DEBUG is off,
+but some unused variable warnings as follows could occur:
 
-commit 1ecc0c5c50ce8834f7e35b63be7480bf1aaa4155
-Author: Chao Yu <yuchao0 at huawei.com>
-Date:   Fri Sep 23 21:30:09 2016 +0800
+drivers/staging/erofs/unzip_vle.c: In function `init_alway:':
+drivers/staging/erofs/unzip_vle.c:61:33: warning: unused variable `work' [-Wunused-variable]
+  struct z_erofs_vle_work *const work =
+                                 ^~~~
 
-    f2fs: support configuring fault injection per superblock
+Fix it to #define DBG_BUGON(x) ((void)(x)).
 
-    Previously, we only support global fault injection configuration, so that
-    when we configure type/rate of fault injection through sysfs, mount
-    option, it will influence all f2fs partition which is being used.
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal at kernel.org>
+---
+ drivers/staging/erofs/internal.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    It is not make sence, since it will be not convenient if developer want
-    to test separated partitions with different fault injection rate/type
-    simultaneously, also it's not possible to enable fault injection in one
-    partition and disable fault injection in other one.
-
-    >From now on, we move global configuration of fault injection in module
-    into per-superblock, hence injection testing can be more flexible.
-
-    Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-    Signed-off-by: Jaegeuk Kim <jaegeuk at kernel.org>
-
-For this patch, I could resend v4 to change erofs_kmalloc->kmalloc
-if you like, it isn't an important stuff for this patch. However,
-I'd like to get more ideas about the fault injection.
-
-Thanks,
-Gao Xiang
-
-> 
-> regards,
-> dan carpenter
-> 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 57575c7f5635..048fb034b5aa 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -39,7 +39,7 @@
+ #define debugln(x, ...)         ((void)0)
+ 
+ #define dbg_might_sleep()       ((void)0)
+-#define DBG_BUGON(...)          ((void)0)
++#define DBG_BUGON(x)            ((void)(x))
+ #endif
+ 
+ enum {
+-- 
+2.19.1
