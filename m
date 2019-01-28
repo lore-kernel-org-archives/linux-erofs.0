@@ -1,52 +1,49 @@
-From: sashal@kernel.org (Sasha Levin)
-Date: Mon, 28 Jan 2019 10:56:04 -0500
-Subject: [PATCH AUTOSEL 4.19 058/258] staging: erofs: fix the definition of
- DBG_BUGON
-In-Reply-To: <20190128155924.51521-1-sashal@kernel.org>
-References: <20190128155924.51521-1-sashal@kernel.org>
-Message-ID: <20190128155924.51521-58-sashal@kernel.org>
+From: chao@kernel.org (Chao Yu)
+Date: Tue, 29 Jan 2019 00:41:55 +0800
+Subject: [PATCH v2 2/2] staging: erofs: complete POSIX ACL support
+In-Reply-To: <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
+References: <20190125161007.4447-1-gaoxiang25@huawei.com>
+ <20190125161007.4447-2-gaoxiang25@huawei.com>
+ <94daa491-40c8-4a09-a0b5-55a7e92dc3fc@huawei.com>
+ <20190128133302.GI1795@kadam>
+ <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
+Message-ID: <1eed1e6b-f95e-aa8e-c3e7-e9870401ee23@kernel.org>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+Hi Dan and Xiang,
 
-[ Upstream commit eef168789866514e5d4316f030131c9fe65b643f ]
+On 2019-1-28 21:48, Gao Xiang wrote:
+> Hi Dan,
+> 
+> On 2019/1/28 21:33, Dan Carpenter wrote:
+>> Hopefully, regular kmalloc() is enough.
+>>
+>> Do really need the erofs_kmalloc() function?  Regular kmalloc() has
+>> fault injection already.  Have you tried to use it?
 
-It's better not to positively BUG_ON the kernel, however developers
-need a way to locate issues as soon as possible.
+Yes, I think we'd better to use erofs_kmalloc(). :)
 
-DBG_BUGON is introduced and it could only crash when EROFS_FS_DEBUG
-(EROFS developping feature) is on. It is helpful for developers
-to find and solve bugs quickly by eng builds.
+Actually, fault injection in erofs_kmalloc only affect erofs module, we can
+expect that the range of fault can be limited in erofs code, rather than whole
+kernel, so the test point can be aimed at more accurately.
 
-Previously, DBG_BUGON is defined as ((void)0) if EROFS_FS_DEBUG is off,
-but some unused variable warnings as follows could occur:
+> 
+> The fault injection subsystem was introduced in the initial upstreamed
+> EROFS version, which is taken from f2fs by Chao Yu.
+> 
+> Fault injection is important to test fs.. However, I have no more idea
+> about the future plan of this feature...Follow f2fs or use the general
+> fault injection...
 
-drivers/staging/erofs/unzip_vle.c: In function `init_alway:':
-drivers/staging/erofs/unzip_vle.c:61:33: warning: unused variable `work' [-Wunused-variable]
-  struct z_erofs_vle_work *const work =
-                                 ^~~~
+I guess following f2fs is not bad.
 
-Fix it to #define DBG_BUGON(x) ((void)(x)).
+Thanks,
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal at kernel.org>
----
- drivers/staging/erofs/internal.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 367b39fe46e5..e6313c54e3ad 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -39,7 +39,7 @@
- #define debugln(x, ...)         ((void)0)
- 
- #define dbg_might_sleep()       ((void)0)
--#define DBG_BUGON(...)          ((void)0)
-+#define DBG_BUGON(x)            ((void)(x))
- #endif
- 
- #ifdef CONFIG_EROFS_FAULT_INJECTION
--- 
-2.19.1
+> 
+> There already exists erofs_kmalloc, thus I think it's both ok to use
+> erofs_kmalloc or kmalloc for this patch at least.
+> 
+> Chao, any idea about this?
+> 
+> Thanks,
+> Gao Xiang
+> 
