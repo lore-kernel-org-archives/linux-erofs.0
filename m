@@ -1,34 +1,35 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 29 Jan 2019 16:35:19 +0800
-Subject: [PATCH v4 1/2] staging: erofs: use xattr_prefix to wrap up
-Message-ID: <20190129083520.28607-1-gaoxiang25@huawei.com>
+From: dan.carpenter@oracle.com (Dan Carpenter)
+Date: Tue, 29 Jan 2019 11:43:20 +0300
+Subject: [PATCH v4 2/2] staging: erofs: complete POSIX ACL support
+In-Reply-To: <20190129083520.28607-2-gaoxiang25@huawei.com>
+References: <20190129083520.28607-1-gaoxiang25@huawei.com>
+ <20190129083520.28607-2-gaoxiang25@huawei.com>
+Message-ID: <20190129084320.GN1795@kadam>
 
-Let's use xattr_prefix instead of open code.
-No logic changes.
+On Tue, Jan 29, 2019@04:35:20PM +0800, Gao Xiang wrote:
+> Let's add .get_acl() to read the file's acl from its xattrs
+> to make POSIX ACL usable.
+> 
+> Here is the on-disk detail,
+> fullname: system.posix_acl_access
+> struct erofs_xattr_entry:
+>         .e_name_len = 0
+>         .e_name_index = EROFS_XATTR_INDEX_POSIX_ACL_ACCESS (2)
+> 
+> fullname: system.posix_acl_default
+> struct erofs_xattr_entry:
+> 	.e_name_len = 0
+> 	.e_name_index = EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT (3)
+> 
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+> change log v4:
+>  - leave kmalloc and wait the conclusion of fault injection
+>    pointed out by Dan Carpenter;
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
-[resend v2 as v4]
-change log v2:
- - remove the confusing line according to Dan Carpenter;
+I do think this is the right thing, but I also wasn't going to ask you
+do redo v3.  Anyway, thanks!
 
- drivers/staging/erofs/xattr.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 1c9498e38f0e..7de46690d972 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -520,8 +520,7 @@ static int xattr_entrylist(struct xattr_iter *_it,
- 	if (h == NULL || (h->list != NULL && !h->list(it->dentry)))
- 		return 1;
- 
--	/* Note that at least one of 'prefix' and 'name' should be non-NULL */
--	prefix = h->prefix != NULL ? h->prefix : h->name;
-+	prefix = xattr_prefix(h);
- 	prefix_len = strlen(prefix);
- 
- 	if (it->buffer == NULL) {
--- 
-2.14.4
+regards,
+dan carpenter
