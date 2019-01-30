@@ -1,18 +1,224 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 30 Jan 2019 22:57:23 +0800
-Subject: [PATCH] staging: erofs: keep corrupted fs from crashing kernel in
- erofs_namei()
-In-Reply-To: <20190130144534.GB2010@kadam>
-References: <20190129155540.17473-1-gaoxiang25@huawei.com>
- <20190130144534.GB2010@kadam>
-Message-ID: <6cc229c4-5ddf-74d3-36a7-27edee8efb44@huawei.com>
+Date: Wed, 30 Jan 2019 23:42:41 +0800
+Subject: patch "staging: erofs: keep corrupted fs from crashing kernel in"
+ added to staging-linus
+In-Reply-To: <74cc60e3-eb87-d574-a106-305fb40ca54d@huawei.com>
+References: <15488587831390@kroah.com>
+ <74cc60e3-eb87-d574-a106-305fb40ca54d@huawei.com>
+Message-ID: <1e5bad91-3d65-c086-d42c-f87d642e3204@huawei.com>
 
-Hi Dan,
 
-Thanks for your kindly review.
 
-On 2019/1/30 22:45, Dan Carpenter wrote:
-> On Tue, Jan 29, 2019@11:55:40PM +0800, Gao Xiang wrote:
+On 2019/1/30 23:05, Gao Xiang wrote:
+> 
+> Hi Greg,
+> 
+> Dan raised some suggestions to me. And I want to get some review ideas from Chao...
+> Current EROFS works good for the normal image, this patch is used for corrupted image only...
+> 
+> Could you kindly drop this patch temporarily and I want to get them reviewed...
+> Not soon... Thanks!
+
+It seems this patch is the top of staging-linus...Could you kindly drop it and
+it is better to get "Reviewed-by:" tag for all EROFS bugfix patches from corresponding
+people (Chao, Dan, or Al if possible) first... Thank you very much!
+
+sorry to trouble you...
+
+Thanks,
+Gao Xiang
+
+> 
+> Thanks,
+> Gao Xiang
+> 
+> On 2019/1/30 22:33, gregkh@linuxfoundation.org wrote:
+>>
+>> This is a note to let you know that I've just added the patch titled
+>>
+>>     staging: erofs: keep corrupted fs from crashing kernel in
+>>
+>> to my staging git tree which can be found at
+>>     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+>> in the staging-linus branch.
+>>
+>> The patch will show up in the next release of the linux-next tree
+>> (usually sometime within the next 24 hours during the week.)
+>>
+>> The patch will hopefully also be merged in Linus's tree for the
+>> next -rc kernel release.
+>>
+>> If you have any questions about this process, please let me know.
+>>
+>>
+>> From d4104c5e783f5d053b97268fb92001d785de7dd5 Mon Sep 17 00:00:00 2001
+>> From: Gao Xiang <gaoxiang25 at huawei.com>
+>> Date: Tue, 29 Jan 2019 23:55:40 +0800
+>> Subject: staging: erofs: keep corrupted fs from crashing kernel in
+>>  erofs_namei()
+>>
+>> As Al pointed out, "
+>> ... and while we are at it, what happens to
+>> 	unsigned int nameoff = le16_to_cpu(de[mid].nameoff);
+>> 	unsigned int matched = min(startprfx, endprfx);
+>>
+>> 	struct qstr dname = QSTR_INIT(data + nameoff,
+>> 		unlikely(mid >= ndirents - 1) ?
+>> 			maxsize - nameoff :
+>> 			le16_to_cpu(de[mid + 1].nameoff) - nameoff);
+>>
+>> 	/* string comparison without already matched prefix */
+>> 	int ret = dirnamecmp(name, &dname, &matched);
+>> if le16_to_cpu(de[...].nameoff) is not monotonically increasing?  I.e.
+>> what's to prevent e.g. (unsigned)-1 ending up in dname.len?
+>>
+>> Corrupted fs image shouldn't oops the kernel.. "
+>>
+>> Revisit the related lookup flow to address the issue.
+>>
+>> Fixes: d72d1ce60174 ("staging: erofs: add namei functions")
+>> Cc: <stable at vger.kernel.org> # 4.19+
+>> Suggested-by: Al Viro <viro at ZenIV.linux.org.uk>
+>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+>> ---
+>>  drivers/staging/erofs/namei.c | 167 ++++++++++++++++++----------------
+>>  1 file changed, 89 insertions(+), 78 deletions(-)
+>>
+>> diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+>> index 5596c52e246d..a1300c420e63 100644
+>> --- a/drivers/staging/erofs/namei.c
+>> +++ b/drivers/staging/erofs/namei.c
+>> @@ -15,74 +15,76 @@
+>>  
+>>  #include <trace/events/erofs.h>
+>>  
+>> -/* based on the value of qn->len is accurate */
+>> -static inline int dirnamecmp(struct qstr *qn,
+>> -	struct qstr *qd, unsigned int *matched)
+>> +struct erofs_qstr {
+>> +	const unsigned char *name;
+>> +	const unsigned char *end;
+>> +};
+>> +
+>> +/* based on the end of qn is accurate and it must have the trailing '\0' */
+>> +static inline int dirnamecmp(const struct erofs_qstr *qn,
+>> +			     const struct erofs_qstr *qd,
+>> +			     unsigned int *matched)
+>>  {
+>> -	unsigned int i = *matched, len = min(qn->len, qd->len);
+>> -loop:
+>> -	if (unlikely(i >= len)) {
+>> -		*matched = i;
+>> -		if (qn->len < qd->len) {
+>> -			/*
+>> -			 * actually (qn->len == qd->len)
+>> -			 * when qd->name[i] == '\0'
+>> -			 */
+>> -			return qd->name[i] == '\0' ? 0 : -1;
+>> +	unsigned int i = *matched;
+>> +
+>> +	/*
+>> +	 * on-disk error, let's only BUG_ON in the debugging mode.
+>> +	 * otherwise, it will return 1 to just skip the invalid name
+>> +	 * and go on (in consideration of the lookup performance).
+>> +	 */
+>> +	DBG_BUGON(qd->name > qd->end);
+>> +
+>> +	/* qd could not have trailing '\0' */
+>> +	/* However it is absolutely safe if < qd->end */
+>> +	while (qd->name + i < qd->end && qd->name[i] != '\0') {
+>> +		if (qn->name[i] != qd->name[i]) {
+>> +			*matched = i;
+>> +			return qn->name[i] > qd->name[i] ? 1 : -1;
+>>  		}
+>> -		return (qn->len > qd->len);
+>> +		++i;
+>>  	}
+>> -
+>> -	if (qn->name[i] != qd->name[i]) {
+>> -		*matched = i;
+>> -		return qn->name[i] > qd->name[i] ? 1 : -1;
+>> -	}
+>> -
+>> -	++i;
+>> -	goto loop;
+>> +	*matched = i;
+>> +	/* See comments in __d_alloc on the terminating NUL character */
+>> +	return qn->name[i] == '\0' ? 0 : 1;
+>>  }
+>>  
+>> -static struct erofs_dirent *find_target_dirent(
+>> -	struct qstr *name,
+>> -	u8 *data, int maxsize)
+>> +#define nameoff_from_disk(off, sz)	(le16_to_cpu(off) & ((sz) - 1))
+>> +
+>> +static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
+>> +					       u8 *data,
+>> +					       unsigned int dirblksize,
+>> +					       const int ndirents)
+>>  {
+>> -	unsigned int ndirents, head, back;
+>> +	int head, back;
+>>  	unsigned int startprfx, endprfx;
+>>  	struct erofs_dirent *const de = (struct erofs_dirent *)data;
+>>  
+>> -	/* make sure that maxsize is valid */
+>> -	BUG_ON(maxsize < sizeof(struct erofs_dirent));
+>> -
+>> -	ndirents = le16_to_cpu(de->nameoff) / sizeof(*de);
+>> -
+>> -	/* corrupted dir (may be unnecessary...) */
+>> -	BUG_ON(!ndirents);
+>> -
+>>  	head = 0;
+>>  	back = ndirents - 1;
+>>  	startprfx = endprfx = 0;
+>>  
+>>  	while (head <= back) {
+>> -		unsigned int mid = head + (back - head) / 2;
+>> -		unsigned int nameoff = le16_to_cpu(de[mid].nameoff);
+>> +		const int mid = head + (back - head) / 2;
+>> +		const int nameoff = nameoff_from_disk(de[mid].nameoff,
+>> +						      dirblksize);
+>>  		unsigned int matched = min(startprfx, endprfx);
+>> -
+>> -		struct qstr dname = QSTR_INIT(data + nameoff,
+>> -			unlikely(mid >= ndirents - 1) ?
+>> -				maxsize - nameoff :
+>> -				le16_to_cpu(de[mid + 1].nameoff) - nameoff);
+>> +		struct erofs_qstr dname = {
+>> +			.name = data + nameoff,
+>> +			.end = unlikely(mid >= ndirents - 1) ?
+>> +				data + dirblksize :
+>> +				data + nameoff_from_disk(de[mid + 1].nameoff,
+>> +							 dirblksize)
+>> +		};
+>>  
+>>  		/* string comparison without already matched prefix */
+>>  		int ret = dirnamecmp(name, &dname, &matched);
+>>  
+>> -		if (unlikely(!ret))
+>> +		if (unlikely(!ret)) {
+>>  			return de + mid;
+>> -		else if (ret > 0) {
+>> +		} else if (ret > 0) {
+>>  			head = mid + 1;
+>>  			startprfx = matched;
+>> -		} else if (unlikely(mid < 1))	/* fix "mid" overflow */
+>> -			break;
+>> -		else {
+>> +		} else {
+>>  			back = mid - 1;
+>>  			endprfx = matched;
+>>  		}
+>> @@ -91,12 +93,13 @@ static struct erofs_dirent *find_target_dirent(
+>>  	return ERR_PTR(-ENOENT);
+>>  }
+>>  
+>> -static struct page *find_target_block_classic(
+>> -	struct inode *dir,
+>> -	struct qstr *name, int *_diff)
 >> +static struct page *find_target_block_classic(struct inode *dir,
 >> +					      struct erofs_qstr *name,
 >> +					      int *_diff,
@@ -42,49 +248,6 @@ On 2019/1/30 22:45, Dan Carpenter wrote:
 >> -			unsigned int ndirents, matched;
 >> -			struct qstr dname;
 >> +		if (!IS_ERR(page)) {
-> 
-> It's almost always better to do failure handling instead of success
-> handing because it lets you pull everything in one indent level.  You'd
-> need to move a bunch of the declarations around.
-
-I just want to leave definition and the initial assignment in one line...
->>  			struct erofs_dirent *de = kmap_atomic(page);
->> -			unsigned int nameoff = le16_to_cpu(de->nameoff);
->> -
->> -			ndirents = nameoff / sizeof(*de);
->> +			const int nameoff = nameoff_from_disk(de->nameoff,
->> +							      EROFS_BLKSIZ);
->> +			const int ndirents = nameoff / sizeof(*de);
-
-or I have to 
-		unsigned int mid = head + (back - head) / 2;
-		const int mid = head + (back - head) / 2;
-  		struct page *page = read_mapping_page(mapping, mid, NULL);
-     		struct erofs_dirent *de;
-		...
-		int ndirents;
-
-		if (IS_ERR(page)) {
-			...
-		}
-
-		de = kmap_atomic(page);
-		...
-		ndirents = nameoff / sizeof(*de);
-
-which takes extra lines...
-
-> 
-> 	if (IS_ERR(page))
-> 		goto out;
-> 
-> But really the out label is not part of the loop so you could move it
-> to the bottom of the function...
-
-It seems that the out label is the part of loop...
-
-
-> 
 >>  			struct erofs_dirent *de = kmap_atomic(page);
 >> -			unsigned int nameoff = le16_to_cpu(de->nameoff);
 >> -
@@ -103,12 +266,6 @@ It seems that the out label is the part of loop...
 >> +				put_page(page);
 >> +				page = ERR_PTR(-EIO);
 >> +				goto out;
-> 
-> We need to kunmap_atomic(de) on this path.
-
-Thanks, will fix in the next version...
-
-> 
 >> +			}
 >>  
 >>  			matched = min(startprfx, endprfx);
@@ -138,22 +295,61 @@ Thanks, will fix in the next version...
 >>  				startprfx = matched;
 >> @@ -147,35 +151,42 @@ static struct page *find_target_block_classic(
 >>  				if (likely(!IS_ERR(candidate)))
->                                     ^^^^^^
-> Not related to the this patch, but I wonder how this works.  IS_ERR()
-> already has an opposite unlikely() inside so I wonder which trumps the
-> other?
-
-Yes, you are right. That is a remaining issue in the original code.
-I will set up a clean up patch to fix that.
-
-Thanks,
-Gao Xiang
-
-> 
 >>  					put_page(candidate);
 >>  				candidate = page;
 >> +				*_ndirents = ndirents;
-> 
-> regards,
-> dan carpenter
-> 
+>>  			} else {
+>>  				put_page(page);
+>>  
+>> -				if (unlikely(mid < 1))	/* fix "mid" overflow */
+>> -					break;
+>> -
+>>  				back = mid - 1;
+>>  				endprfx = matched;
+>>  			}
+>> +			continue;
+>>  		}
+>> +out:		/* free if the candidate is valid */
+>> +		if (!IS_ERR(candidate))
+>> +			put_page(candidate);
+>> +		return page;
+>>  	}
+>>  	*_diff = 1;
+>>  	return candidate;
+>>  }
+>>  
+>>  int erofs_namei(struct inode *dir,
+>> -	struct qstr *name,
+>> -	erofs_nid_t *nid, unsigned int *d_type)
+>> +		struct qstr *name,
+>> +		erofs_nid_t *nid, unsigned int *d_type)
+>>  {
+>> -	int diff;
+>> +	int diff, ndirents;
+>>  	struct page *page;
+>>  	u8 *data;
+>>  	struct erofs_dirent *de;
+>> +	struct erofs_qstr qn;
+>>  
+>>  	if (unlikely(!dir->i_size))
+>>  		return -ENOENT;
+>>  
+>> +	qn.name = name->name;
+>> +	qn.end = name->name + name->len;
+>> +
+>>  	diff = 1;
+>> -	page = find_target_block_classic(dir, name, &diff);
+>> +	page = find_target_block_classic(dir, &qn, &diff, &ndirents);
+>>  
+>>  	if (unlikely(IS_ERR(page)))
+>>  		return PTR_ERR(page);
+>> @@ -184,7 +195,7 @@ int erofs_namei(struct inode *dir,
+>>  	/* the target page has been mapped */
+>>  	de = likely(diff) ?
+>>  		/* since the rest of the last page is 0 */
+>> -		find_target_dirent(name, data, EROFS_BLKSIZ) :
+>> +		find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents) :
+>>  		(struct erofs_dirent *)data;
+>>  
+>>  	if (likely(!IS_ERR(de))) {
+>>
