@@ -1,51 +1,204 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Thu, 31 Jan 2019 06:57:27 +0800
-Subject: patch "staging: erofs: keep corrupted fs from crashing kernel in"
- added to staging-linus
-In-Reply-To: <20190130200035.GC2010@kadam>
-References: <15488587831390@kroah.com>
- <74cc60e3-eb87-d574-a106-305fb40ca54d@huawei.com>
- <1e5bad91-3d65-c086-d42c-f87d642e3204@huawei.com>
- <20190130200035.GC2010@kadam>
-Message-ID: <d3994ffc-9e54-b577-6b18-74084495e05c@aol.com>
+From: yamada.masahiro@socionext.com (Masahiro Yamada)
+Date: Thu, 31 Jan 2019 13:08:33 +0900
+Subject: [PATCH] staging: prefix header search paths with $(srctree)/
+Message-ID: <1548907713-24160-1-git-send-email-yamada.masahiro@socionext.com>
 
-Hi Dan and Greg,
+Currently, the Kbuild core manipulates header search paths in a crazy
+way [1].
 
-On 2019/1/31 4:00, Dan Carpenter wrote:
-> On Wed, Jan 30, 2019@11:42:41PM +0800, Gao Xiang wrote:
->>
->> On 2019/1/30 23:05, Gao Xiang wrote:
->>> Hi Greg,
->>>
->>> Dan raised some suggestions to me. And I want to get some review ideas from Chao...
->>> Current EROFS works good for the normal image, this patch is used for corrupted image only...
->>>
->>> Could you kindly drop this patch temporarily and I want to get them reviewed...
->>> Not soon... Thanks!
->> It seems this patch is the top of staging-linus...Could you kindly drop it and
->> it is better to get "Reviewed-by:" tag for all EROFS bugfix patches from corresponding
->> people (Chao, Dan, or Al if possible) first... Thank you very much!
->>
->> sorry to trouble you...
->>
-> Greg has already reverted this but for future reference there wasn't
-> any need to panic or rush.  It was just the kunmap_atomic() which only
-> affects corrupted filesystem on linux-next so it's not a big deal.  The
-> rest was just my style grumblings and could have been addressed later or
-> even ignored.
->
-> regards,
-> dan carpenter
+To fix this mess, I want all Makefiles to add explicit $(srctree)/ to
+the search paths in the srctree. Some Makefiles are already written in
+that way, but not all. The goal of this work is to make the notation
+consistent, and finally get rid of the gross hacks.
 
-Although I test many test images and do Android boot in my internal test with this patch,
-I am afraid there are some potential issues which haven't found (The old implementation is
-stable enough since it works good for months and it has been applied to our real products...
-This patch was just written days ago)
+Having whitespaces after -I does not matter since commit 48f6e3cf5bc6
+("kbuild: do not drop -I without parameter").
 
-It is better to get some "Reviewed-by" tag for such patches at least by EROFS guys, maybe
-goto linux-next is better since I don't want to break the current EROFS stability in 5.0-rc round...
+[1]: https://patchwork.kernel.org/patch/9632347/
 
+Signed-off-by: Masahiro Yamada <yamada.masahiro at socionext.com>
+---
 
-Thanks,
+ drivers/staging/erofs/Makefile                        | 2 +-
+ drivers/staging/media/davinci_vpfe/Makefile           | 2 +-
+ drivers/staging/most/Makefile                         | 2 +-
+ drivers/staging/most/cdev/Makefile                    | 2 +-
+ drivers/staging/most/dim2/Makefile                    | 2 +-
+ drivers/staging/most/i2c/Makefile                     | 2 +-
+ drivers/staging/most/net/Makefile                     | 2 +-
+ drivers/staging/most/sound/Makefile                   | 2 +-
+ drivers/staging/most/usb/Makefile                     | 2 +-
+ drivers/staging/most/video/Makefile                   | 2 +-
+ drivers/staging/rtl8192u/Makefile                     | 2 +-
+ drivers/staging/unisys/visorhba/Makefile              | 3 +--
+ drivers/staging/unisys/visornic/Makefile              | 3 +--
+ drivers/staging/vc04_services/bcm2835-audio/Makefile  | 3 +--
+ drivers/staging/vc04_services/bcm2835-camera/Makefile | 2 +-
+ 15 files changed, 15 insertions(+), 18 deletions(-)
 
-Gao Xiang
+diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
+index c91b652..38ab344 100644
+--- a/drivers/staging/erofs/Makefile
++++ b/drivers/staging/erofs/Makefile
+@@ -6,7 +6,7 @@ ccflags-y += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+ 
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+ # staging requirement: to be self-contained in its own directory
+-ccflags-y += -I$(src)/include
++ccflags-y += -I $(srctree)/$(src)/include
+ erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o unzip_vle_lz4.o
+diff --git a/drivers/staging/media/davinci_vpfe/Makefile b/drivers/staging/media/davinci_vpfe/Makefile
+index 9c57042..9268e50 100644
+--- a/drivers/staging/media/davinci_vpfe/Makefile
++++ b/drivers/staging/media/davinci_vpfe/Makefile
+@@ -6,5 +6,5 @@ davinci-vfpe-objs := \
+ 
+ # Allow building it with COMPILE_TEST on other archs
+ ifndef CONFIG_ARCH_DAVINCI
+-ccflags-y += -Iarch/arm/mach-davinci/include/
++ccflags-y += -I $(srctree)/arch/arm/mach-davinci/include/
+ endif
+diff --git a/drivers/staging/most/Makefile b/drivers/staging/most/Makefile
+index f8bcf48..c7662f6 100644
+--- a/drivers/staging/most/Makefile
++++ b/drivers/staging/most/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-$(CONFIG_MOST) += most_core.o
+ most_core-y := core.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+ 
+ obj-$(CONFIG_MOST_CDEV)	+= cdev/
+ obj-$(CONFIG_MOST_NET)	+= net/
+diff --git a/drivers/staging/most/cdev/Makefile b/drivers/staging/most/cdev/Makefile
+index afb9870..21b0bd7 100644
+--- a/drivers/staging/most/cdev/Makefile
++++ b/drivers/staging/most/cdev/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_CDEV) += most_cdev.o
+ 
+ most_cdev-objs := cdev.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/dim2/Makefile b/drivers/staging/most/dim2/Makefile
+index 66676f5..6d15f04 100644
+--- a/drivers/staging/most/dim2/Makefile
++++ b/drivers/staging/most/dim2/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_DIM2) += most_dim2.o
+ 
+ most_dim2-objs := dim2.o hal.o sysfs.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/i2c/Makefile b/drivers/staging/most/i2c/Makefile
+index a7d094c..c032fea 100644
+--- a/drivers/staging/most/i2c/Makefile
++++ b/drivers/staging/most/i2c/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_I2C) += most_i2c.o
+ 
+ most_i2c-objs := i2c.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/net/Makefile b/drivers/staging/most/net/Makefile
+index 54500aa..820faec 100644
+--- a/drivers/staging/most/net/Makefile
++++ b/drivers/staging/most/net/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_NET) += most_net.o
+ 
+ most_net-objs := net.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/sound/Makefile b/drivers/staging/most/sound/Makefile
+index eee8774..5bb55bb 100644
+--- a/drivers/staging/most/sound/Makefile
++++ b/drivers/staging/most/sound/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_SOUND) += most_sound.o
+ 
+ most_sound-objs := sound.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/usb/Makefile b/drivers/staging/most/usb/Makefile
+index 18d28cb..910cd08 100644
+--- a/drivers/staging/most/usb/Makefile
++++ b/drivers/staging/most/usb/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_USB) += most_usb.o
+ 
+ most_usb-objs := usb.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/most/video/Makefile b/drivers/staging/most/video/Makefile
+index 1c8e520..c6e01b6e 100644
+--- a/drivers/staging/most/video/Makefile
++++ b/drivers/staging/most/video/Makefile
+@@ -1,4 +1,4 @@
+ obj-$(CONFIG_MOST_VIDEO) += most_video.o
+ 
+ most_video-objs := video.o
+-ccflags-y += -Idrivers/staging/
++ccflags-y += -I $(srctree)/drivers/staging/
+diff --git a/drivers/staging/rtl8192u/Makefile b/drivers/staging/rtl8192u/Makefile
+index 3022728..dcd51bf 100644
+--- a/drivers/staging/rtl8192u/Makefile
++++ b/drivers/staging/rtl8192u/Makefile
+@@ -7,7 +7,7 @@ ccflags-y += -O2
+ ccflags-y += -DCONFIG_FORCE_HARD_FLOAT=y
+ ccflags-y += -DJACKSON_NEW_8187 -DJACKSON_NEW_RX
+ ccflags-y += -DTHOMAS_BEACON -DTHOMAS_TASKLET -DTHOMAS_SKB -DTHOMAS_TURBO
+-ccflags-y += -Idrivers/staging/rtl8192u/ieee80211
++ccflags-y += -I $(srctree)/$(src)/ieee80211
+ 
+ r8192u_usb-y := r8192U_core.o r8180_93cx6.o r8192U_wx.o		\
+ 		  r8190_rtl8256.o r819xU_phy.o r819xU_firmware.o	\
+diff --git a/drivers/staging/unisys/visorhba/Makefile b/drivers/staging/unisys/visorhba/Makefile
+index a8a8e0e..97e4875 100644
+--- a/drivers/staging/unisys/visorhba/Makefile
++++ b/drivers/staging/unisys/visorhba/Makefile
+@@ -6,5 +6,4 @@ obj-$(CONFIG_UNISYS_VISORHBA)	+= visorhba.o
+ 
+ visorhba-y := visorhba_main.o
+ 
+-ccflags-y += -Idrivers/staging/unisys/include
+-
++ccflags-y += -I $(srctree)/$(src)/../include
+diff --git a/drivers/staging/unisys/visornic/Makefile b/drivers/staging/unisys/visornic/Makefile
+index 439e95e..336a746f 100644
+--- a/drivers/staging/unisys/visornic/Makefile
++++ b/drivers/staging/unisys/visornic/Makefile
+@@ -6,5 +6,4 @@ obj-$(CONFIG_UNISYS_VISORNIC)	+= visornic.o
+ 
+ visornic-y := visornic_main.o
+ 
+-ccflags-y += -Idrivers/staging/unisys/include
+-
++ccflags-y += -I $(srctree)/$(src)/../include
+diff --git a/drivers/staging/vc04_services/bcm2835-audio/Makefile b/drivers/staging/vc04_services/bcm2835-audio/Makefile
+index d7b88d1..536bd0c 100644
+--- a/drivers/staging/vc04_services/bcm2835-audio/Makefile
++++ b/drivers/staging/vc04_services/bcm2835-audio/Makefile
+@@ -1,5 +1,4 @@
+ obj-$(CONFIG_SND_BCM2835)	+= snd-bcm2835.o
+ snd-bcm2835-objs		:= bcm2835.o bcm2835-ctl.o bcm2835-pcm.o bcm2835-vchiq.o
+ 
+-ccflags-y += -Idrivers/staging/vc04_services -D__VCCOREVER__=0x04000000
+-
++ccflags-y += -I $(srctree)/$(src)/.. -D__VCCOREVER__=0x04000000
+diff --git a/drivers/staging/vc04_services/bcm2835-camera/Makefile b/drivers/staging/vc04_services/bcm2835-camera/Makefile
+index 2a4565e..472f21e 100644
+--- a/drivers/staging/vc04_services/bcm2835-camera/Makefile
++++ b/drivers/staging/vc04_services/bcm2835-camera/Makefile
+@@ -7,5 +7,5 @@ bcm2835-v4l2-$(CONFIG_VIDEO_BCM2835) := \
+ obj-$(CONFIG_VIDEO_BCM2835) += bcm2835-v4l2.o
+ 
+ ccflags-y += \
+-	-Idrivers/staging/vc04_services \
++	-I $(srctree)/$(src)/.. \
+ 	-D__VCCOREVER__=0x04000000
+-- 
+2.7.4
