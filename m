@@ -1,61 +1,48 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Sun, 3 Feb 2019 10:52:58 +0800
-Subject: [PATCH v2 2/2] staging: erofs: complete POSIX ACL support
-In-Reply-To: <20190128183053.GK1795@kadam>
-References: <20190125161007.4447-1-gaoxiang25@huawei.com>
- <20190125161007.4447-2-gaoxiang25@huawei.com>
- <94daa491-40c8-4a09-a0b5-55a7e92dc3fc@huawei.com>
- <20190128133302.GI1795@kadam>
- <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
- <1eed1e6b-f95e-aa8e-c3e7-e9870401ee23@kernel.org>
- <20190128183053.GK1795@kadam>
-Message-ID: <16373e83-2496-3bf5-7b16-72f3454d294d@huawei.com>
+From: cgxu519@gmx.com (Chengguang Xu)
+Date: Tue, 12 Feb 2019 11:24:22 +0800
+Subject: [PATCH 1/2] staging: erofs: remove redundant likely/unlikely
+ annotation in namei.c
+Message-ID: <20190212032423.14637-1-cgxu519@gmx.com>
 
-Sorry for the delay due to business travel.
+unlikely has already included in IS_ERR(),
+so just remove redundant likely/unlikely
+annotation.
 
-On 2019/1/29 2:30, Dan Carpenter wrote:
-> On Tue, Jan 29, 2019@12:41:55AM +0800, Chao Yu wrote:
->> Hi Dan and Xiang,
->>
->> On 2019-1-28 21:48, Gao Xiang wrote:
->>> Hi Dan,
->>>
->>> On 2019/1/28 21:33, Dan Carpenter wrote:
->>>> Hopefully, regular kmalloc() is enough.
->>>>
->>>> Do really need the erofs_kmalloc() function?  Regular kmalloc() has
->>>> fault injection already.  Have you tried to use it?
->>
->> Yes, I think we'd better to use erofs_kmalloc(). :)
->>
->> Actually, fault injection in erofs_kmalloc only affect erofs module, we can
->> expect that the range of fault can be limited in erofs code, rather than whole
->> kernel, so the test point can be aimed at more accurately.
->>
-> 
-> Are you serious?  The standard fault injection doesn't do that???
+Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
+---
+ drivers/staging/erofs/namei.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Oh, I just realized the common fault injection can inject into specified
-module with function granularity, sorry.
-
-> 
-> Please fix it instead of creating a duplicate better implementation
-> which only your filesystem can use.  I would have thought that obviously
-
-I agreed that it will be good to make common fault injection better,
-covering more cases, so that it can benefit all modules which need fault
-injection functionality. But rather than injecting kmalloc, there will be
-other injection demands from erofs/f2fs, like injecting in the middle of
-their specified function, how could we do that? Could you give us advice?
-
-Thanks,
-
-> any fault injection framework could at least be configured to test
-> specific code...
-> 
-> regards,
-> dan carpenter
-> 
-> 
-> .
-> 
+diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+index 5596c52e246d..1acd742a41ed 100644
+--- a/drivers/staging/erofs/namei.c
++++ b/drivers/staging/erofs/namei.c
+@@ -144,7 +144,7 @@ static struct page *find_target_block_classic(
+ 				head = mid + 1;
+ 				startprfx = matched;
+ 
+-				if (likely(!IS_ERR(candidate)))
++				if (!IS_ERR(candidate))
+ 					put_page(candidate);
+ 				candidate = page;
+ 			} else {
+@@ -177,7 +177,7 @@ int erofs_namei(struct inode *dir,
+ 	diff = 1;
+ 	page = find_target_block_classic(dir, name, &diff);
+ 
+-	if (unlikely(IS_ERR(page)))
++	if (IS_ERR(page))
+ 		return PTR_ERR(page);
+ 
+ 	data = kmap_atomic(page);
+@@ -187,7 +187,7 @@ int erofs_namei(struct inode *dir,
+ 		find_target_dirent(name, data, EROFS_BLKSIZ) :
+ 		(struct erofs_dirent *)data;
+ 
+-	if (likely(!IS_ERR(de))) {
++	if (!IS_ERR(de)) {
+ 		*nid = le64_to_cpu(de->nid);
+ 		*d_type = de->file_type;
+ 	}
+-- 
+2.20.1
