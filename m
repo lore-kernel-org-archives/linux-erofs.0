@@ -1,48 +1,31 @@
 From: cgxu519@gmx.com (Chengguang Xu)
-Date: Tue, 12 Feb 2019 11:24:22 +0800
-Subject: [PATCH 1/2] staging: erofs: remove redundant likely/unlikely
- annotation in namei.c
-Message-ID: <20190212032423.14637-1-cgxu519@gmx.com>
+Date: Tue, 12 Feb 2019 11:24:23 +0800
+Subject: [PATCH 2/2] staging: erofs: remove redundant unlikely annotation in
+ unzip_vle.c
+In-Reply-To: <20190212032423.14637-1-cgxu519@gmx.com>
+References: <20190212032423.14637-1-cgxu519@gmx.com>
+Message-ID: <20190212032423.14637-2-cgxu519@gmx.com>
 
 unlikely has already included in IS_ERR(),
-so just remove redundant likely/unlikely
-annotation.
+so just remove it.
 
 Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 ---
- drivers/staging/erofs/namei.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
-index 5596c52e246d..1acd742a41ed 100644
---- a/drivers/staging/erofs/namei.c
-+++ b/drivers/staging/erofs/namei.c
-@@ -144,7 +144,7 @@ static struct page *find_target_block_classic(
- 				head = mid + 1;
- 				startprfx = matched;
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 4ac1099a39c6..7cd2d4d9c264 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -539,7 +539,7 @@ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_builder *builder,
+ 	if (unlikely(work == ERR_PTR(-EAGAIN)))
+ 		goto repeat;
  
--				if (likely(!IS_ERR(candidate)))
-+				if (!IS_ERR(candidate))
- 					put_page(candidate);
- 				candidate = page;
- 			} else {
-@@ -177,7 +177,7 @@ int erofs_namei(struct inode *dir,
- 	diff = 1;
- 	page = find_target_block_classic(dir, name, &diff);
- 
--	if (unlikely(IS_ERR(page)))
-+	if (IS_ERR(page))
- 		return PTR_ERR(page);
- 
- 	data = kmap_atomic(page);
-@@ -187,7 +187,7 @@ int erofs_namei(struct inode *dir,
- 		find_target_dirent(name, data, EROFS_BLKSIZ) :
- 		(struct erofs_dirent *)data;
- 
--	if (likely(!IS_ERR(de))) {
-+	if (!IS_ERR(de)) {
- 		*nid = le64_to_cpu(de->nid);
- 		*d_type = de->file_type;
- 	}
+-	if (unlikely(IS_ERR(work)))
++	if (IS_ERR(work))
+ 		return PTR_ERR(work);
+ got_it:
+ 	z_erofs_pagevec_ctor_init(&builder->vector,
 -- 
 2.20.1
