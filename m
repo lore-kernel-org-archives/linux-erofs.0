@@ -1,31 +1,24 @@
-From: cgxu519@gmx.com (Chengguang Xu)
-Date: Tue, 12 Feb 2019 11:24:23 +0800
-Subject: [PATCH 2/2] staging: erofs: remove redundant unlikely annotation in
- unzip_vle.c
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Tue, 12 Feb 2019 12:31:53 +0800
+Subject: [PATCH 1/2] staging: erofs: remove redundant likely/unlikely
+ annotation in namei.c
 In-Reply-To: <20190212032423.14637-1-cgxu519@gmx.com>
 References: <20190212032423.14637-1-cgxu519@gmx.com>
-Message-ID: <20190212032423.14637-2-cgxu519@gmx.com>
+Message-ID: <627cbe81-12b2-9f81-b989-76b82f393b41@aol.com>
 
-unlikely has already included in IS_ERR(),
-so just remove it.
 
-Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
----
- drivers/staging/erofs/unzip_vle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 2019/2/12 11:24, Chengguang Xu wrote:
+> unlikely has already included in IS_ERR(),
+> so just remove redundant likely/unlikely
+> annotation.
+>
+> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 4ac1099a39c6..7cd2d4d9c264 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -539,7 +539,7 @@ static int z_erofs_vle_work_iter_begin(struct z_erofs_vle_work_builder *builder,
- 	if (unlikely(work == ERR_PTR(-EAGAIN)))
- 		goto repeat;
- 
--	if (unlikely(IS_ERR(work)))
-+	if (IS_ERR(work))
- 		return PTR_ERR(work);
- got_it:
- 	z_erofs_pagevec_ctor_init(&builder->vector,
--- 
-2.20.1
+Thanks for the correction, and happy new lunar year :)
+
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+
+
+Thanks,
+
+Gao Xiang
