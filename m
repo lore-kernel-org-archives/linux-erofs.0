@@ -1,41 +1,33 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Wed, 13 Feb 2019 23:28:12 +0800
-Subject: [PATCH 2/2] staging: erofs: remove redundant unlikely annotation
- in unzip_vle.c
-In-Reply-To: <b96e927a-2848-4c2c-f737-3710a4971d5a@gmx.com>
-References: <20190212032423.14637-1-cgxu519@gmx.com>
- <20190212032423.14637-2-cgxu519@gmx.com>
- <333a15d7-3b8e-412b-34f6-a30010d36f4f@huawei.com>
- <b96e927a-2848-4c2c-f737-3710a4971d5a@gmx.com>
-Message-ID: <0420a632-a88f-c03d-a787-fd5bbf25417e@aol.com>
+From: shengyong1@huawei.com (Sheng Yong)
+Date: Thu, 14 Feb 2019 09:37:54 +0000
+Subject: [PATCH] erofs: fix memleak of node's shared xattr array
+Message-ID: <20190214093754.14339-1-shengyong1@huawei.com>
 
-Hi Chengguang,
+If it fails to read a shared xattr page, the node's shared xattr array
+is not freed. The next time the node's xattr is accessed, the previously
+allocated array is leaked.
 
-On 2019/2/13 22:50, cgxu519 wrote:
->
-> On 2/13/19 2:36 PM, Chao Yu wrote:
->> On 2019/2/12 11:24, Chengguang Xu wrote:
->>> unlikely has already included in IS_ERR(),
->>> so just remove it.
->>>
->>> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
->> It looks like we don't need to send two patch to fix two similar
->> issues, if you can merge them, it will be better.
-> I agree with you but I noticed the patches have already merged to Greg's staging tree,
-> so I'm not sure if it cause inconvenience to his management.
->
+Signed-off-by: Sheng Yong <shengyong1 at huawei.com>
+---
+ drivers/staging/erofs/xattr.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-I personally think it is not a big problem since that is indeed cleanup patches and
-
-thanks for applying erofs patches and happy hacking :)
-
-
-Thanks,
-
-Gao Xiang
-
-
-> Thanks,
-> Chengguang
->
->
+diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+index 80dca6a4adbe..e3f8b904a680 100644
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -92,8 +92,11 @@ static int init_inode_xattrs(struct inode *inode)
+ 
+ 			it.page = erofs_get_meta_page(sb,
+ 				++it.blkaddr, S_ISDIR(inode->i_mode));
+-			if (IS_ERR(it.page))
++			if (IS_ERR(it.page)) {
++				kfree(vi->xattr_shared_xattrs);
++				vi->xattr_shared_xattrs = NULL;
+ 				return PTR_ERR(it.page);
++			}
+ 
+ 			it.kaddr = kmap_atomic(it.page);
+ 			atomic_map = true;
+-- 
+2.17.1
