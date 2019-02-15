@@ -1,44 +1,37 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Fri, 15 Feb 2019 17:31:13 +0800
-Subject: [PATCH v2 2/2] staging: erofs: complete POSIX ACL support
-In-Reply-To: <20190215073644.GD2326@kadam>
-References: <20190125161007.4447-1-gaoxiang25@huawei.com>
- <20190125161007.4447-2-gaoxiang25@huawei.com>
- <94daa491-40c8-4a09-a0b5-55a7e92dc3fc@huawei.com>
- <20190128133302.GI1795@kadam>
- <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
- <1eed1e6b-f95e-aa8e-c3e7-e9870401ee23@kernel.org>
- <20190128183053.GK1795@kadam>
- <16373e83-2496-3bf5-7b16-72f3454d294d@huawei.com>
- <f08c49d2-c3c1-4b80-f61c-004f911086d8@huawei.com>
- <20190215073644.GD2326@kadam>
-Message-ID: <388add9e-8643-b08f-2eec-9742c5411cc0@huawei.com>
+Date: Fri, 15 Feb 2019 17:32:33 +0800
+Subject: [PATCH v2] staging: erofs: keep corrupted fs from crashing kernel
+ in erofs_namei()
+In-Reply-To: <20190215075757.GG2326@kadam>
+References: <20190201121631.15179-1-gaoxiang25@huawei.com>
+ <a9381c0d-9857-4d03-710d-80006d426bbc@huawei.com>
+ <20190215075757.GG2326@kadam>
+Message-ID: <fb99bac2-2587-04fa-6ac2-f2e5f83af7c9@huawei.com>
 
-On 2019/2/15 15:36, Dan Carpenter wrote:
-> On Fri, Feb 15, 2019@10:10:34AM +0800, Chao Yu wrote:
->> Hi Dan,
+On 2019/2/15 15:57, Dan Carpenter wrote:
+> On Fri, Feb 15, 2019@03:02:25PM +0800, Chao Yu wrote:
+>> On 2019/2/1 20:16, Gao Xiang wrote:
+>>> +	/*
+>>> +	 * on-disk error, let's only BUG_ON in the debugging mode.
+>>> +	 * otherwise, it will return 1 to just skip the invalid name
+>>> +	 * and go on (in consideration of the lookup performance).
+>>> +	 */
+>>> +	DBG_BUGON(qd->name > qd->end);
 >>
->> Any suggestion?
+>> qd->name == qd->end is not allowed as well?
 >>
+>> So will it be better to return directly here?
+>>
+>> 	if (unlikely(qd->name >= qd->end)) {
+>> 		DBG_BUGON(1);
+>> 		return 1;
+>> 	}
 > 
-> I won't NAK whatever you decide.  But my opinion is that you should
-> just use normal kernel memory allocators even though it means you have
-> to use two different fault injection frameworks.
+> Please don't add likely/unlikely() annotations unless you have
+> benchmarked it and it makes a difference.
 
-Thanks for the suggestion.
-
-There is only one injection type in erofs injection framework, I don't want
-to remove all framework codes with kmalloc type, so I think we can do this
-step by step:
-a. use erofs_kamloc to keep all codes consistent.
-b. add at least one erofs private injection type.
-c. remove erofs_kmalloc and related type.
-
-> 
-> Over time it would be good to improve and expand the standard kernel
-> error injection frameworks to cover more types.
-
-Agreed.
+Well, it only occur for corrupted image, since the image is readonly, so it
+is really rare.
 
 Thanks,
 
@@ -47,4 +40,6 @@ Thanks,
 > dan carpenter
 > 
 > 
+> 
+> .
 > 
