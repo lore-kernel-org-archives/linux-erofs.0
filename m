@@ -1,171 +1,50 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 15 Feb 2019 17:09:04 +0800
-Subject: [PREVIEW] [PATCH] staging: erofs: fix race of initializing xattrs
- of a inode at the same time
-In-Reply-To: <e15b8549-1419-b7b7-b8fc-378fc051774b@huawei.com>
-References: <20190214153450.28221-1-gaoxiang25@huawei.com>
- <e15b8549-1419-b7b7-b8fc-378fc051774b@huawei.com>
-Message-ID: <23a1a4f1-cca1-b0a4-36f1-ca5c14698b8e@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Fri, 15 Feb 2019 17:31:13 +0800
+Subject: [PATCH v2 2/2] staging: erofs: complete POSIX ACL support
+In-Reply-To: <20190215073644.GD2326@kadam>
+References: <20190125161007.4447-1-gaoxiang25@huawei.com>
+ <20190125161007.4447-2-gaoxiang25@huawei.com>
+ <94daa491-40c8-4a09-a0b5-55a7e92dc3fc@huawei.com>
+ <20190128133302.GI1795@kadam>
+ <f1fd2c69-0c5b-c655-3712-48169e87fff8@huawei.com>
+ <1eed1e6b-f95e-aa8e-c3e7-e9870401ee23@kernel.org>
+ <20190128183053.GK1795@kadam>
+ <16373e83-2496-3bf5-7b16-72f3454d294d@huawei.com>
+ <f08c49d2-c3c1-4b80-f61c-004f911086d8@huawei.com>
+ <20190215073644.GD2326@kadam>
+Message-ID: <388add9e-8643-b08f-2eec-9742c5411cc0@huawei.com>
 
-Hi Chao,
+On 2019/2/15 15:36, Dan Carpenter wrote:
+> On Fri, Feb 15, 2019@10:10:34AM +0800, Chao Yu wrote:
+>> Hi Dan,
+>>
+>> Any suggestion?
+>>
+> 
+> I won't NAK whatever you decide.  But my opinion is that you should
+> just use normal kernel memory allocators even though it means you have
+> to use two different fault injection frameworks.
 
-On 2019/2/15 15:29, Chao Yu wrote:
-> On 2019/2/14 23:34, Gao Xiang wrote:
->> In real scenario, there could be several threads accessing xattrs
->> of the same xattr-uninitialized inode, and init_inode_xattrs()
->> almost at the same time.
-> 
-> Yeah, nice catch!
-> 
->>
->> That's actually an unexpected behavior, this patch closes the race.
->>
->> Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
->> Cc: <stable at vger.kernel.org> # 4.19+
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> ---
->>  drivers/staging/erofs/internal.h | 11 ++++++++---
->>  drivers/staging/erofs/xattr.c    | 41 ++++++++++++++++++++++++++++------------
->>  2 files changed, 37 insertions(+), 15 deletions(-)
->>
->> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
->> index 3a27c255950b..e3bfde00c7d2 100644
->> --- a/drivers/staging/erofs/internal.h
->> +++ b/drivers/staging/erofs/internal.h
->> @@ -327,12 +327,17 @@ static inline erofs_off_t iloc(struct erofs_sb_info *sbi, erofs_nid_t nid)
->>  	return blknr_to_addr(sbi->meta_blkaddr) + (nid << sbi->islotbits);
->>  }
->>  
->> -#define inode_set_inited_xattr(inode)   (EROFS_V(inode)->flags |= 1)
->> -#define inode_has_inited_xattr(inode)   (EROFS_V(inode)->flags & 1)
->> +/* atomic flag definitions */
->> +#define EROFS_V_EA_INITED_BIT	0
->> +
->> +/* bitlock definitions (arranged in reverse order) */
->> +#define EROFS_V_BL_XATTR_BIT	(BITS_PER_LONG - 1)
->>  
->>  struct erofs_vnode {
->>  	erofs_nid_t nid;
->> -	unsigned int flags;
->> +
->> +	/* atomic flags (including bitlocks) */
->> +	unsigned long flags;
->>  
->>  	unsigned char data_mapping_mode;
->>  	/* inline size in bytes */
->> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
->> index 8c48b0ab31fd..a188aad00bf8 100644
->> --- a/drivers/staging/erofs/xattr.c
->> +++ b/drivers/staging/erofs/xattr.c
->> @@ -44,18 +44,25 @@ static inline void xattr_iter_end_final(struct xattr_iter *it)
->>  
->>  static int init_inode_xattrs(struct inode *inode)
->>  {
->> +	struct erofs_vnode *const vi = EROFS_V(inode);
->>  	struct xattr_iter it;
->>  	unsigned int i;
->>  	struct erofs_xattr_ibody_header *ih;
->>  	struct super_block *sb;
->>  	struct erofs_sb_info *sbi;
->> -	struct erofs_vnode *vi;
->>  	bool atomic_map;
->> +	int ret = 0;
->>  
->> -	if (likely(inode_has_inited_xattr(inode)))
->> +	/* the most case is that xattrs of this inode are initialized. */
->> +	if (likely(test_bit(EROFS_V_EA_INITED_BIT, &vi->flags)))
->>  		return 0;
->>  
->> -	vi = EROFS_V(inode);
->> +	if (wait_on_bit_lock(&vi->flags, EROFS_V_BL_XATTR_BIT, TASK_KILLABLE))
->> +		return -ERESTARTSYS;
->> +
->> +	/* someone has initialized xattrs for us? */
->> +	if (unlikely(test_bit(EROFS_V_EA_INITED_BIT, &vi->flags)))
->> +		goto out_unlock;
->>  
->>  	/*
->>  	 * bypass all xattr operations if ->xattr_isize is not greater than
->> @@ -68,13 +75,16 @@ static int init_inode_xattrs(struct inode *inode)
->>  	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
->>  		errln("xattr_isize %d of nid %llu is not supported yet",
->>  		      vi->xattr_isize, vi->nid);
->> -		return -ENOTSUPP;
->> +		ret = -ENOTSUPP;
->> +		goto out_unlock;
->>  	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
->>  		if (unlikely(vi->xattr_isize)) {
->>  			DBG_BUGON(1);
->> -			return -EIO;	/* xattr ondisk layout error */
->> +			ret = -EIO;
->> +			goto out_unlock;	/* xattr ondisk layout error */
->>  		}
->> -		return -ENOATTR;
->> +		ret = -ENOATTR;
->> +		goto out_unlock;
->>  	}
->>  
->>  	sb = inode->i_sb;
->> @@ -83,8 +93,10 @@ static int init_inode_xattrs(struct inode *inode)
->>  	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
->>  
->>  	it.page = erofs_get_inline_page(inode, it.blkaddr);
->> -	if (IS_ERR(it.page))
->> -		return PTR_ERR(it.page);
->> +	if (IS_ERR(it.page)) {
->> +		ret = PTR_ERR(it.page);
->> +		goto out_unlock;
->> +	}
->>  
->>  	/* read in shared xattr array (non-atomic, see kmalloc below) */
->>  	it.kaddr = kmap(it.page);
->> @@ -97,7 +109,8 @@ static int init_inode_xattrs(struct inode *inode)
->>  						sizeof(uint), GFP_KERNEL);
->>  	if (vi->xattr_shared_xattrs == NULL) {
->>  		xattr_iter_end(&it, atomic_map);
->> -		return -ENOMEM;
->> +		ret = -ENOMEM;
->> +		goto out_unlock;
->>  	}
->>  
->>  	/* let's skip ibody header */
->> @@ -114,7 +127,8 @@ static int init_inode_xattrs(struct inode *inode)
->>  			if (IS_ERR(it.page)) {
->>  				kfree(vi->xattr_shared_xattrs);
->>  				vi->xattr_shared_xattrs = NULL;
->> -				return PTR_ERR(it.page);
->> +				ret = PTR_ERR(it.page);
->> +				goto out_unlock;
->>  			}
->>  
->>  			it.kaddr = kmap_atomic(it.page);
->> @@ -127,8 +141,11 @@ static int init_inode_xattrs(struct inode *inode)
->>  	}
->>  	xattr_iter_end(&it, atomic_map);
->>  
->> -	inode_set_inited_xattr(inode);
->> -	return 0;
->> +	set_bit(EROFS_V_EA_INITED_BIT, &vi->flags);
-> 
-> Should it be?
-> 
-> set_bit();
-> wake_up_bit();
-> return 0;
+Thanks for the suggestion.
 
-set_bit(EROFS_V_EA_INITED_BIT, &vi->flags);    <- set xattrs initialized
-clear_and_wake_up_bit(EROFS_V_BL_XATTR_BIT, &vi->flags);  <- clear EROFS_V_BL_XATTR_BIT bitlock and wake up waiting tasks...
+There is only one injection type in erofs injection framework, I don't want
+to remove all framework codes with kmalloc type, so I think we can do this
+step by step:
+a. use erofs_kamloc to keep all codes consistent.
+b. add at least one erofs private injection type.
+c. remove erofs_kmalloc and related type.
+
+> 
+> Over time it would be good to improve and expand the standard kernel
+> error injection frameworks to cover more types.
+
+Agreed.
 
 Thanks,
-Gao Xiang
 
 > 
->> +
->> +out_unlock:
->> +	clear_and_wake_up_bit(EROFS_V_BL_XATTR_BIT, &vi->flags);
->> +	return ret;
->>  }
->>  
->>  /*
->>
+> regards,
+> dan carpenter
+> 
+> 
 > 
