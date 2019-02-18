@@ -1,62 +1,152 @@
-From: dan.carpenter@oracle.com (Dan Carpenter)
-Date: Mon, 18 Feb 2019 09:16:36 +0300
-Subject: [PATCH v2] staging: erofs: keep corrupted fs from crashing
- kernel in erofs_namei()
-In-Reply-To: <d5567c5c-7ceb-a9cc-0fb8-b6b04a4d42ca@huawei.com>
-References: <20190201121631.15179-1-gaoxiang25@huawei.com>
- <a9381c0d-9857-4d03-710d-80006d426bbc@huawei.com>
- <20190215075757.GG2326@kadam>
- <fb99bac2-2587-04fa-6ac2-f2e5f83af7c9@huawei.com>
- <20190215093503.GH2326@kadam>
- <d5567c5c-7ceb-a9cc-0fb8-b6b04a4d42ca@huawei.com>
-Message-ID: <20190218061635.GJ2304@kadam>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Mon, 18 Feb 2019 15:19:04 +0800
+Subject: [PATCH] staging: erofs: fix race of initializing xattrs of a inode at
+ the same time
+In-Reply-To: <20190214153450.28221-1-gaoxiang25@huawei.com>
+References: <20190214153450.28221-1-gaoxiang25@huawei.com>
+Message-ID: <20190218071904.5784-1-gaoxiang25@huawei.com>
 
-On Mon, Feb 18, 2019@10:41:36AM +0800, Chao Yu wrote:
-> On 2019/2/15 17:35, Dan Carpenter wrote:
-> > On Fri, Feb 15, 2019@05:32:33PM +0800, Chao Yu wrote:
-> >> On 2019/2/15 15:57, Dan Carpenter wrote:
-> >>> On Fri, Feb 15, 2019@03:02:25PM +0800, Chao Yu wrote:
-> >>>> On 2019/2/1 20:16, Gao Xiang wrote:
-> >>>>> +	/*
-> >>>>> +	 * on-disk error, let's only BUG_ON in the debugging mode.
-> >>>>> +	 * otherwise, it will return 1 to just skip the invalid name
-> >>>>> +	 * and go on (in consideration of the lookup performance).
-> >>>>> +	 */
-> >>>>> +	DBG_BUGON(qd->name > qd->end);
-> >>>>
-> >>>> qd->name == qd->end is not allowed as well?
-> >>>>
-> >>>> So will it be better to return directly here?
-> >>>>
-> >>>> 	if (unlikely(qd->name >= qd->end)) {
-> >>>> 		DBG_BUGON(1);
-> >>>> 		return 1;
-> >>>> 	}
-> >>>
-> >>> Please don't add likely/unlikely() annotations unless you have
-> >>> benchmarked it and it makes a difference.
-> >>
-> >> Well, it only occur for corrupted image, since the image is readonly, so it
-> >> is really rare.
-> > 
-> > The likely/unlikely() annotations make the code harder to read.  It's
-> 
-> Well, I think unlikely here can imply this is a rare case which may help to
-> read...
-> 
-> > only worth it if it's is a speedup on a fast path.
-> 
-> I guess unlikely here can help pipeline to load/execute right branch codes
-> instead of that rare branch one with BUGON(), is that right?
-> 
+In real scenario, there could be several threads accessing xattrs
+of the same xattr-uninitialized inode, and init_inode_xattrs()
+almost at the same time.
 
-Correct.  If you really think the likely/unlikely on this line will lead
-to a performance improvement which will show up on a benchmark then you
-should use it.  (But there is no way that it really show on benchmarks,
-let's not pretend).
+That's actually an unexpected behavior, this patch closes the race.
 
-If it doesn't show up on benchmarking, then we're just discussing style.
-Kernel style tends to be minimalist.
+Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
+Cc: <stable at vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+[previewed at https://lists.ozlabs.org/pipermail/linux-erofs/2019-February/001345.html]
 
-regards,
-dan carpenter
+ drivers/staging/erofs/internal.h | 11 ++++++++---
+ drivers/staging/erofs/xattr.c    | 41 ++++++++++++++++++++++++++++------------
+ 2 files changed, 37 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 3a27c255950b..e3bfde00c7d2 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -327,12 +327,17 @@ static inline erofs_off_t iloc(struct erofs_sb_info *sbi, erofs_nid_t nid)
+ 	return blknr_to_addr(sbi->meta_blkaddr) + (nid << sbi->islotbits);
+ }
+ 
+-#define inode_set_inited_xattr(inode)   (EROFS_V(inode)->flags |= 1)
+-#define inode_has_inited_xattr(inode)   (EROFS_V(inode)->flags & 1)
++/* atomic flag definitions */
++#define EROFS_V_EA_INITED_BIT	0
++
++/* bitlock definitions (arranged in reverse order) */
++#define EROFS_V_BL_XATTR_BIT	(BITS_PER_LONG - 1)
+ 
+ struct erofs_vnode {
+ 	erofs_nid_t nid;
+-	unsigned int flags;
++
++	/* atomic flags (including bitlocks) */
++	unsigned long flags;
+ 
+ 	unsigned char data_mapping_mode;
+ 	/* inline size in bytes */
+diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+index 8c48b0ab31fd..f716ab0446e5 100644
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -44,18 +44,25 @@ static inline void xattr_iter_end_final(struct xattr_iter *it)
+ 
+ static int init_inode_xattrs(struct inode *inode)
+ {
++	struct erofs_vnode *const vi = EROFS_V(inode);
+ 	struct xattr_iter it;
+ 	unsigned int i;
+ 	struct erofs_xattr_ibody_header *ih;
+ 	struct super_block *sb;
+ 	struct erofs_sb_info *sbi;
+-	struct erofs_vnode *vi;
+ 	bool atomic_map;
++	int ret = 0;
+ 
+-	if (likely(inode_has_inited_xattr(inode)))
++	/* the most case is that xattrs of this inode are initialized. */
++	if (test_bit(EROFS_V_EA_INITED_BIT, &vi->flags))
+ 		return 0;
+ 
+-	vi = EROFS_V(inode);
++	if (wait_on_bit_lock(&vi->flags, EROFS_V_BL_XATTR_BIT, TASK_KILLABLE))
++		return -ERESTARTSYS;
++
++	/* someone has initialized xattrs for us? */
++	if (test_bit(EROFS_V_EA_INITED_BIT, &vi->flags))
++		goto out_unlock;
+ 
+ 	/*
+ 	 * bypass all xattr operations if ->xattr_isize is not greater than
+@@ -68,13 +75,16 @@ static int init_inode_xattrs(struct inode *inode)
+ 	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
+ 		errln("xattr_isize %d of nid %llu is not supported yet",
+ 		      vi->xattr_isize, vi->nid);
+-		return -ENOTSUPP;
++		ret = -ENOTSUPP;
++		goto out_unlock;
+ 	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
+ 		if (unlikely(vi->xattr_isize)) {
+ 			DBG_BUGON(1);
+-			return -EIO;	/* xattr ondisk layout error */
++			ret = -EIO;
++			goto out_unlock;	/* xattr ondisk layout error */
+ 		}
+-		return -ENOATTR;
++		ret = -ENOATTR;
++		goto out_unlock;
+ 	}
+ 
+ 	sb = inode->i_sb;
+@@ -83,8 +93,10 @@ static int init_inode_xattrs(struct inode *inode)
+ 	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
+ 
+ 	it.page = erofs_get_inline_page(inode, it.blkaddr);
+-	if (IS_ERR(it.page))
+-		return PTR_ERR(it.page);
++	if (IS_ERR(it.page)) {
++		ret = PTR_ERR(it.page);
++		goto out_unlock;
++	}
+ 
+ 	/* read in shared xattr array (non-atomic, see kmalloc below) */
+ 	it.kaddr = kmap(it.page);
+@@ -97,7 +109,8 @@ static int init_inode_xattrs(struct inode *inode)
+ 						sizeof(uint), GFP_KERNEL);
+ 	if (vi->xattr_shared_xattrs == NULL) {
+ 		xattr_iter_end(&it, atomic_map);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out_unlock;
+ 	}
+ 
+ 	/* let's skip ibody header */
+@@ -114,7 +127,8 @@ static int init_inode_xattrs(struct inode *inode)
+ 			if (IS_ERR(it.page)) {
+ 				kfree(vi->xattr_shared_xattrs);
+ 				vi->xattr_shared_xattrs = NULL;
+-				return PTR_ERR(it.page);
++				ret = PTR_ERR(it.page);
++				goto out_unlock;
+ 			}
+ 
+ 			it.kaddr = kmap_atomic(it.page);
+@@ -127,8 +141,11 @@ static int init_inode_xattrs(struct inode *inode)
+ 	}
+ 	xattr_iter_end(&it, atomic_map);
+ 
+-	inode_set_inited_xattr(inode);
+-	return 0;
++	set_bit(EROFS_V_EA_INITED_BIT, &vi->flags);
++
++out_unlock:
++	clear_and_wake_up_bit(EROFS_V_BL_XATTR_BIT, &vi->flags);
++	return ret;
+ }
+ 
+ /*
+-- 
+2.14.4
