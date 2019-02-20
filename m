@@ -1,49 +1,43 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Feb 2019 17:18:42 +0800
-Subject: [PATCH for-4.19 00/12] erofs fixes for linux-4.19.y
-Message-ID: <20190220091854.19242-1-gaoxiang25@huawei.com>
+Date: Wed, 20 Feb 2019 17:18:43 +0800
+Subject: [PATCH for-4.19 01/12] staging: erofs: fix a bug when appling cache
+ strategy
+In-Reply-To: <20190220091854.19242-1-gaoxiang25@huawei.com>
+References: <20190220091854.19242-1-gaoxiang25@huawei.com>
+Message-ID: <20190220091854.19242-2-gaoxiang25@huawei.com>
 
-This series backports bugfixes already merged in linux upstream
-which we found these issues in our commerical products, which
-are serious and should be fixed immediately.
+commit 0734ffbf574ee813b20899caef2fe0ed502bb783 upstream.
 
-Note that it also includes some xarray modification since
-upcoming patches heavily needs it, which can reduce more
-conflicts later.
+As described in Kconfig, the last compressed pack should be cached
+for further reading for either `EROFS_FS_ZIP_CACHE_UNIPOLAR' or
+`EROFS_FS_ZIP_CACHE_BIPOLAR' by design.
 
-All patches have been tested again as a whole.
+However, there is a bug in z_erofs_do_read_page, it will
+switch `initial' to `false' at the very beginning before it decides
+to cache the last compressed pack.
 
-Thanks,
-Gao Xiang
+caching strategy should work properly after appling this patch.
 
-Chen Gong (1):
-  staging: erofs: replace BUG_ON with DBG_BUGON in data.c
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/unzip_vle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Gao Xiang (11):
-  staging: erofs: fix a bug when appling cache strategy
-  staging: erofs: complete error handing of z_erofs_do_read_page
-  staging: erofs: drop multiref support temporarily
-  staging: erofs: remove the redundant d_rehash() for the root dentry
-  staging: erofs: fix race when the managed cache is enabled
-  staging: erofs: atomic_cond_read_relaxed on ref-locked workgroup
-  staging: erofs: fix `erofs_workgroup_{try_to_freeze, unfreeze}'
-  staging: erofs: add a full barrier in erofs_workgroup_unfreeze
-  staging: erofs: {dir,inode,super}.c: rectify BUG_ONs
-  staging: erofs: unzip_{pagevec.h,vle.c}: rectify BUG_ONs
-  staging: erofs: unzip_vle_lz4.c,utils.c: rectify BUG_ONs
-
- drivers/staging/erofs/data.c          |  31 ++++---
- drivers/staging/erofs/dir.c           |   7 +-
- drivers/staging/erofs/inode.c         |  10 ++-
- drivers/staging/erofs/internal.h      |  71 ++++++++++------
- drivers/staging/erofs/super.c         |  19 ++---
- drivers/staging/erofs/unzip_pagevec.h |   2 +-
- drivers/staging/erofs/unzip_vle.c     |  97 ++++++++--------------
- drivers/staging/erofs/unzip_vle.h     |  12 +--
- drivers/staging/erofs/unzip_vle_lz4.c |   2 +-
- drivers/staging/erofs/utils.c         | 150 +++++++++++++++++++++++-----------
- include/linux/xarray.h                |  48 +++++++++++
- 11 files changed, 271 insertions(+), 178 deletions(-)
-
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 0346630b67c8..35ae0865c1fd 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -624,7 +624,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	/* go ahead the next map_blocks */
+ 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
+ 
+-	if (!z_erofs_vle_work_iter_end(builder))
++	if (z_erofs_vle_work_iter_end(builder))
+ 		fe->initial = false;
+ 
+ 	map->m_la = offset + cur;
 -- 
 2.14.4
