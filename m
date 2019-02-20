@@ -1,100 +1,120 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Feb 2019 17:18:50 +0800
-Subject: [PATCH for-4.19 08/12] staging: erofs: fix
- `erofs_workgroup_{try_to_freeze, unfreeze}'
+Date: Wed, 20 Feb 2019 17:18:52 +0800
+Subject: [PATCH for-4.19 10/12] staging: erofs: {dir, inode,
+ super}.c: rectify BUG_ONs
 In-Reply-To: <20190220091854.19242-1-gaoxiang25@huawei.com>
 References: <20190220091854.19242-1-gaoxiang25@huawei.com>
-Message-ID: <20190220091854.19242-9-gaoxiang25@huawei.com>
+Message-ID: <20190220091854.19242-11-gaoxiang25@huawei.com>
 
-commit 73f5c66df3e26ab750cefcb9a3e08c71c9f79cad upstream.
+commit 8b987bca2d09649683cbe496419a011df8c08493 upstream.
 
-There are two minor issues in the current freeze interface:
+remove all redundant BUG_ONs, and turn the rest
+useful usages to DBG_BUGONs.
 
-   1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
-      therefore fix the incorrect conditions;
-
-   2) For SMP platforms, it should also disable preemption before
-      doing atomic_cmpxchg in case that some high priority tasks
-      preempt between atomic_cmpxchg and disable_preempt, then spin
-      on the locked refcount later.
-
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+
+Conflicts:
+	drivers/staging/erofs/super.c
+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 41 ++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
+ drivers/staging/erofs/dir.c   |  7 +++++--
+ drivers/staging/erofs/inode.c | 10 ++++++++--
+ drivers/staging/erofs/super.c | 13 ++++++-------
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 0fff0d30fed7..c4c9caf84639 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -184,40 +184,49 @@ struct erofs_workgroup {
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index be6ae3b1bdbe..04b84ff31d03 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -53,8 +53,11 @@ static int erofs_fill_dentries(struct dir_context *ctx,
+ 			strnlen(de_name, maxsize - nameoff) :
+ 			le16_to_cpu(de[1].nameoff) - nameoff;
  
- #define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
+-		/* the corrupted directory found */
+-		BUG_ON(de_namelen < 0);
++		/* a corrupted entry is found */
++		if (unlikely(de_namelen < 0)) {
++			DBG_BUGON(1);
++			return -EIO;
++		}
  
--static inline bool erofs_workgroup_try_to_freeze(
--	struct erofs_workgroup *grp, int v)
-+#if defined(CONFIG_SMP)
-+static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
-+						 int val)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
--	if (v != atomic_cmpxchg(&grp->refcount,
--		v, EROFS_LOCKED_MAGIC))
--		return false;
- 	preempt_disable();
--#else
--	preempt_disable();
--	if (atomic_read(&grp->refcount) != v) {
-+	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
- 		preempt_enable();
- 		return false;
+ #ifdef CONFIG_EROFS_FS_DEBUG
+ 		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index fbf6ff25cd1b..9e7815f55a17 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -132,7 +132,13 @@ static int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
+ 			return -ENOMEM;
+ 
+ 		m_pofs += vi->inode_isize + vi->xattr_isize;
+-		BUG_ON(m_pofs + inode->i_size > PAGE_SIZE);
++
++		/* inline symlink data shouldn't across page boundary as well */
++		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
++			DBG_BUGON(1);
++			kfree(lnk);
++			return -EIO;
++		}
+ 
+ 		/* get in-page inline data */
+ 		memcpy(lnk, data + m_pofs, inode->i_size);
+@@ -170,7 +176,7 @@ static int fill_inode(struct inode *inode, int isdir)
+ 		return PTR_ERR(page);
  	}
--#endif
- 	return true;
+ 
+-	BUG_ON(!PageUptodate(page));
++	DBG_BUGON(!PageUptodate(page));
+ 	data = page_address(page);
+ 
+ 	err = read_inode(inode, data + ofs);
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 434616b3e76c..b0583cdb079a 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -40,7 +40,6 @@ static int erofs_init_inode_cache(void)
+ 
+ static void erofs_exit_inode_cache(void)
+ {
+-	BUG_ON(erofs_inode_cachep == NULL);
+ 	kmem_cache_destroy(erofs_inode_cachep);
  }
  
--static inline void erofs_workgroup_unfreeze(
--	struct erofs_workgroup *grp, int v)
-+static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
-+					    int orig_val)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
--	atomic_set(&grp->refcount, v);
--#endif
-+	atomic_set(&grp->refcount, orig_val);
- 	preempt_enable();
- }
+@@ -265,8 +264,8 @@ static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
+ 	int ret = 1;	/* 0 - busy */
+ 	struct address_space *const mapping = page->mapping;
  
--#if defined(CONFIG_SMP)
- static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+-	BUG_ON(!PageLocked(page));
+-	BUG_ON(mapping->a_ops != &managed_cache_aops);
++	DBG_BUGON(!PageLocked(page));
++	DBG_BUGON(mapping->a_ops != &managed_cache_aops);
+ 
+ 	if (PagePrivate(page))
+ 		ret = erofs_try_to_free_cached_page(mapping, page);
+@@ -279,10 +278,10 @@ static void managed_cache_invalidatepage(struct page *page,
  {
- 	return atomic_cond_read_relaxed(&grp->refcount,
- 					VAL != EROFS_LOCKED_MAGIC);
- }
- #else
-+static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
-+						 int val)
-+{
-+	preempt_disable();
-+	/* no need to spin on UP platforms, let's just disable preemption. */
-+	if (val != atomic_read(&grp->refcount)) {
-+		preempt_enable();
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
-+					    int orig_val)
-+{
-+	preempt_enable();
-+}
-+
- static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 	const unsigned int stop = length + offset;
+ 
+-	BUG_ON(!PageLocked(page));
++	DBG_BUGON(!PageLocked(page));
+ 
+-	/* Check for overflow */
+-	BUG_ON(stop > PAGE_SIZE || stop < length);
++	/* Check for potential overflow in debug mode */
++	DBG_BUGON(stop > PAGE_SIZE || stop < length);
+ 
+ 	if (offset == 0 && stop == PAGE_SIZE)
+ 		while (!managed_cache_releasepage(page, GFP_NOFS))
+@@ -619,7 +618,7 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 
+ static int erofs_remount(struct super_block *sb, int *flags, char *data)
  {
- 	int v = atomic_read(&grp->refcount);
+-	BUG_ON(!sb_rdonly(sb));
++	DBG_BUGON(!sb_rdonly(sb));
+ 
+ 	*flags |= SB_RDONLY;
+ 	return 0;
 -- 
 2.14.4
