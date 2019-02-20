@@ -1,73 +1,49 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Feb 2019 10:38:53 +0800
-Subject: [PATCH] staging: erofs: remove rcu_read_lock() in
- erofs_try_to_free_cached_page
-In-Reply-To: <20190216084650.33841-1-gaoxiang25@huawei.com>
-References: <20190216084650.33841-1-gaoxiang25@huawei.com>
-Message-ID: <fc058e45-a645-c680-2ce0-19de83fffc2e@huawei.com>
+Date: Wed, 20 Feb 2019 17:18:42 +0800
+Subject: [PATCH for-4.19 00/12] erofs fixes for linux-4.19.y
+Message-ID: <20190220091854.19242-1-gaoxiang25@huawei.com>
 
-Hi Greg,
+This series backports bugfixes already merged in linux upstream
+which we found these issues in our commerical products, which
+are serious and should be fixed immediately.
 
-Could you consider take some time on these two patches for linux-5.1-rc1?
- 1) staging: erofs: fix race of initializing xattrs of a inode at the same time
- 2) staging: erofs: remove rcu_read_lock() in erofs_try_to_free_cached_page
+Note that it also includes some xarray modification since
+upcoming patches heavily needs it, which can reduce more
+conflicts later.
 
-It will be of great help, especially patch 1 (it could cause potential memleak
-in the race condition without it).
-
-If something (eg, resend these patches in a new patchset) is needed, I'm happy
-to do that. :)
+All patches have been tested again as a whole.
 
 Thanks,
 Gao Xiang
 
-On 2019/2/16 16:46, Gao Xiang wrote:
-> page_private(page) cannot be changed if page lock is taken.
-> 
-> Besides, the corresponding workgroup won't be freed
-> if the page is already protected by page lock, therefore
-> no need to take rcu read lock.
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> ---
->  drivers/staging/erofs/unzip_vle.c | 16 +++++-----------
->  1 file changed, 5 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-> index 2b5951f233db..a127d8db76d8 100644
-> --- a/drivers/staging/erofs/unzip_vle.c
-> +++ b/drivers/staging/erofs/unzip_vle.c
-> @@ -238,14 +238,9 @@ int erofs_try_to_free_cached_page(struct address_space *mapping,
->  {
->  	struct erofs_sb_info *const sbi = EROFS_SB(mapping->host->i_sb);
->  	const unsigned int clusterpages = erofs_clusterpages(sbi);
-> -
-> -	struct z_erofs_vle_workgroup *grp;
-> +	struct z_erofs_vle_workgroup *const grp = (void *)page_private(page);
->  	int ret = 0;	/* 0 - busy */
->  
-> -	/* prevent the workgroup from being freed */
-> -	rcu_read_lock();
-> -	grp = (void *)page_private(page);
-> -
->  	if (erofs_workgroup_try_to_freeze(&grp->obj, 1)) {
->  		unsigned int i;
->  
-> @@ -257,12 +252,11 @@ int erofs_try_to_free_cached_page(struct address_space *mapping,
->  			}
->  		}
->  		erofs_workgroup_unfreeze(&grp->obj, 1);
-> -	}
-> -	rcu_read_unlock();
->  
-> -	if (ret) {
-> -		ClearPagePrivate(page);
-> -		put_page(page);
-> +		if (ret) {
-> +			ClearPagePrivate(page);
-> +			put_page(page);
-> +		}
->  	}
->  	return ret;
->  }
-> 
+Chen Gong (1):
+  staging: erofs: replace BUG_ON with DBG_BUGON in data.c
+
+Gao Xiang (11):
+  staging: erofs: fix a bug when appling cache strategy
+  staging: erofs: complete error handing of z_erofs_do_read_page
+  staging: erofs: drop multiref support temporarily
+  staging: erofs: remove the redundant d_rehash() for the root dentry
+  staging: erofs: fix race when the managed cache is enabled
+  staging: erofs: atomic_cond_read_relaxed on ref-locked workgroup
+  staging: erofs: fix `erofs_workgroup_{try_to_freeze, unfreeze}'
+  staging: erofs: add a full barrier in erofs_workgroup_unfreeze
+  staging: erofs: {dir,inode,super}.c: rectify BUG_ONs
+  staging: erofs: unzip_{pagevec.h,vle.c}: rectify BUG_ONs
+  staging: erofs: unzip_vle_lz4.c,utils.c: rectify BUG_ONs
+
+ drivers/staging/erofs/data.c          |  31 ++++---
+ drivers/staging/erofs/dir.c           |   7 +-
+ drivers/staging/erofs/inode.c         |  10 ++-
+ drivers/staging/erofs/internal.h      |  71 ++++++++++------
+ drivers/staging/erofs/super.c         |  19 ++---
+ drivers/staging/erofs/unzip_pagevec.h |   2 +-
+ drivers/staging/erofs/unzip_vle.c     |  97 ++++++++--------------
+ drivers/staging/erofs/unzip_vle.h     |  12 +--
+ drivers/staging/erofs/unzip_vle_lz4.c |   2 +-
+ drivers/staging/erofs/utils.c         | 150 +++++++++++++++++++++++-----------
+ include/linux/xarray.h                |  48 +++++++++++
+ 11 files changed, 271 insertions(+), 178 deletions(-)
+
+-- 
+2.14.4
