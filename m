@@ -1,139 +1,102 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Feb 2019 17:18:45 +0800
-Subject: [PATCH for-4.19 03/12] staging: erofs: replace BUG_ON with DBG_BUGON
- in data.c
+Date: Wed, 20 Feb 2019 17:18:44 +0800
+Subject: [PATCH for-4.19 02/12] staging: erofs: complete error handing of
+ z_erofs_do_read_page
 In-Reply-To: <20190220091854.19242-1-gaoxiang25@huawei.com>
 References: <20190220091854.19242-1-gaoxiang25@huawei.com>
-Message-ID: <20190220091854.19242-4-gaoxiang25@huawei.com>
+Message-ID: <20190220091854.19242-3-gaoxiang25@huawei.com>
 
-From: Chen Gong <gongchen4@huawei.com>
+commit 1e05ff36e6921ca61bdbf779f81a602863569ee3 upstream.
 
-commit 9141b60cf6a53c99f8a9309bf8e1c6650a6785c1 upstream.
+This patch completes error handing code of z_erofs_do_read_page.
+PG_error will be set when some read error happens, therefore
+z_erofs_onlinepage_endio will unlock this page without setting
+PG_uptodate.
 
-This patch replace BUG_ON with DBG_BUGON in data.c, and add necessary
-error handler.
-
-Signed-off-by: Chen Gong <gongchen4 at huawei.com>
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Reviewed-by: Chao Yu <yucxhao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+
+Conflicts:
+	drivers/staging/erofs/unzip_vle.c
+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/data.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/staging/erofs/unzip_vle.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index ac263a180253..894e60ecebe2 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -25,7 +25,7 @@ static inline void read_endio(struct bio *bio)
- 		struct page *page = bvec->bv_page;
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 35ae0865c1fd..9ae1f8833b72 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -605,8 +605,8 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ #endif
  
- 		/* page is already locked */
--		BUG_ON(PageUptodate(page));
-+		DBG_BUGON(PageUptodate(page));
- 
- 		if (unlikely(err))
- 			SetPageError(page);
-@@ -91,12 +91,12 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	struct erofs_map_blocks *map,
- 	int flags)
- {
+ 	enum z_erofs_page_type page_type;
+-	unsigned cur, end, spiltted, index;
+-	int err;
++	unsigned int cur, end, spiltted, index;
 +	int err = 0;
- 	erofs_blk_t nblocks, lastblk;
- 	u64 offset = map->m_la;
- 	struct erofs_vnode *vi = EROFS_V(inode);
  
- 	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
--	BUG_ON(is_inode_layout_compression(inode));
+ 	/* register locked file pages as online pages in pack */
+ 	z_erofs_onlinepage_init(page);
+@@ -633,12 +633,11 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	if (unlikely(err))
+ 		goto err_out;
  
- 	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
- 	lastblk = nblocks - is_inode_layout_inline(inode);
-@@ -123,18 +123,27 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 		map->m_plen = inode->i_size - offset;
+-	/* deal with hole (FIXME! broken now) */
+ 	if (unlikely(!(map->m_flags & EROFS_MAP_MAPPED)))
+ 		goto hitted;
  
- 		/* inline data should locate in one meta block */
--		BUG_ON(erofs_blkoff(map->m_pa) + map->m_plen > PAGE_SIZE);
-+		if (erofs_blkoff(map->m_pa) + map->m_plen > PAGE_SIZE) {
-+			DBG_BUGON(1);
-+			err = -EIO;
-+			goto err_out;
-+		}
-+
- 		map->m_flags |= EROFS_MAP_META;
- 	} else {
- 		errln("internal error @ nid: %llu (size %llu), m_la 0x%llx",
- 			vi->nid, inode->i_size, map->m_la);
--		BUG();
-+		DBG_BUGON(1);
-+		err = -EIO;
-+		goto err_out;
+ 	DBG_BUGON(map->m_plen != 1 << sbi->clusterbits);
+-	BUG_ON(erofs_blkoff(map->m_pa));
++	DBG_BUGON(erofs_blkoff(map->m_pa));
+ 
+ 	err = z_erofs_vle_work_iter_begin(builder, sb, map, &fe->owned_head);
+ 	if (unlikely(err))
+@@ -683,7 +682,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 
+ 		err = z_erofs_vle_work_add_page(builder,
+ 			newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE);
+-		if (!err)
++		if (likely(!err))
+ 			goto retry;
  	}
  
- out:
- 	map->m_llen = map->m_plen;
-+
-+err_out:
- 	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
+@@ -694,9 +693,10 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 
+ 	/* FIXME! avoid the last relundant fixup & endio */
+ 	z_erofs_onlinepage_fixup(page, index, true);
+-	++spiltted;
+ 
+-	/* also update nr_pages and increase queued_pages */
++	/* bump up the number of spiltted parts of a page */
++	++spiltted;
++	/* also update nr_pages */
+ 	work->nr_pages = max_t(pgoff_t, work->nr_pages, index + 1);
+ next_part:
+ 	/* can be used for verification */
+@@ -706,16 +706,18 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	if (end > 0)
+ 		goto repeat;
+ 
++out:
+ 	/* FIXME! avoid the last relundant fixup & endio */
+ 	z_erofs_onlinepage_endio(page);
+ 
+ 	debugln("%s, finish page: %pK spiltted: %u map->m_llen %llu",
+ 		__func__, page, spiltted, map->m_llen);
 -	return 0;
 +	return err;
+ 
++	/* if some error occurred while processing this page */
+ err_out:
+-	/* TODO: the missing error handing cases */
+-	return err;
++	SetPageError(page);
++	goto out;
  }
  
- #ifdef CONFIG_EROFS_FS_ZIP
-@@ -190,7 +199,7 @@ static inline struct bio *erofs_read_raw_page(
- 	erofs_off_t current_block = (erofs_off_t)page->index;
- 	int err;
- 
--	BUG_ON(!nblocks);
-+	DBG_BUGON(!nblocks);
- 
- 	if (PageUptodate(page)) {
- 		err = 0;
-@@ -233,7 +242,7 @@ static inline struct bio *erofs_read_raw_page(
- 		}
- 
- 		/* for RAW access mode, m_plen must be equal to m_llen */
--		BUG_ON(map.m_plen != map.m_llen);
-+		DBG_BUGON(map.m_plen != map.m_llen);
- 
- 		blknr = erofs_blknr(map.m_pa);
- 		blkoff = erofs_blkoff(map.m_pa);
-@@ -243,7 +252,7 @@ static inline struct bio *erofs_read_raw_page(
- 			void *vsrc, *vto;
- 			struct page *ipage;
- 
--			BUG_ON(map.m_plen > PAGE_SIZE);
-+			DBG_BUGON(map.m_plen > PAGE_SIZE);
- 
- 			ipage = erofs_get_meta_page(inode->i_sb, blknr, 0);
- 
-@@ -270,7 +279,7 @@ static inline struct bio *erofs_read_raw_page(
- 		}
- 
- 		/* pa must be block-aligned for raw reading */
--		BUG_ON(erofs_blkoff(map.m_pa) != 0);
-+		DBG_BUGON(erofs_blkoff(map.m_pa));
- 
- 		/* max # of continuous pages */
- 		if (nblocks > DIV_ROUND_UP(map.m_plen, PAGE_SIZE))
-@@ -331,7 +340,7 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
- 	if (IS_ERR(bio))
- 		return PTR_ERR(bio);
- 
--	BUG_ON(bio != NULL);	/* since we have only one bio -- must be NULL */
-+	DBG_BUGON(bio);	/* since we have only one bio -- must be NULL */
- 	return 0;
- }
- 
-@@ -369,7 +378,7 @@ static int erofs_raw_access_readpages(struct file *filp,
- 		/* pages could still be locked */
- 		put_page(page);
- 	}
--	BUG_ON(!list_empty(pages));
-+	DBG_BUGON(!list_empty(pages));
- 
- 	/* the rare case (end in gaps) */
- 	if (unlikely(bio != NULL))
+ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
 -- 
 2.14.4
