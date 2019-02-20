@@ -1,158 +1,23 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Feb 2019 17:18:53 +0800
-Subject: [PATCH for-4.19 11/12] staging: erofs: unzip_{pagevec.h,
- vle.c}: rectify BUG_ONs
-In-Reply-To: <20190220091854.19242-1-gaoxiang25@huawei.com>
-References: <20190220091854.19242-1-gaoxiang25@huawei.com>
-Message-ID: <20190220091854.19242-12-gaoxiang25@huawei.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Wed, 20 Feb 2019 11:20:26 +0100
+Subject: [PATCH] staging: erofs: remove rcu_read_lock() in
+ erofs_try_to_free_cached_page
+In-Reply-To: <fc058e45-a645-c680-2ce0-19de83fffc2e@huawei.com>
+References: <20190216084650.33841-1-gaoxiang25@huawei.com>
+ <fc058e45-a645-c680-2ce0-19de83fffc2e@huawei.com>
+Message-ID: <20190220102026.GA32312@kroah.com>
 
-commit 70b17991d89554cdd16f3e4fb0179bcc03c808d9 upstream.
+On Wed, Feb 20, 2019@10:38:53AM +0800, Gao Xiang wrote:
+> Hi Greg,
+> 
+> Could you consider take some time on these two patches for linux-5.1-rc1?
+>  1) staging: erofs: fix race of initializing xattrs of a inode at the same time
+>  2) staging: erofs: remove rcu_read_lock() in erofs_try_to_free_cached_page
+> 
+> It will be of great help, especially patch 1 (it could cause potential memleak
+> in the race condition without it).
 
-remove all redundant BUG_ONs, and turn the rest
-useful usages to DBG_BUGONs.
+Ok, I'll queue them up now, I was waiting for reviewed-by tags from
+others to show up :)
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
-
-Conflicts:
-	drivers/staging/erofs/unzip_vle.c
-
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/unzip_pagevec.h |  2 +-
- drivers/staging/erofs/unzip_vle.c     | 35 ++++++++++++++---------------------
- 2 files changed, 15 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
-index 0956615b86f7..23856ba2742d 100644
---- a/drivers/staging/erofs/unzip_pagevec.h
-+++ b/drivers/staging/erofs/unzip_pagevec.h
-@@ -150,7 +150,7 @@ z_erofs_pagevec_ctor_dequeue(struct z_erofs_pagevec_ctor *ctor,
- 	erofs_vtptr_t t;
- 
- 	if (unlikely(ctor->index >= ctor->nr)) {
--		BUG_ON(ctor->next == NULL);
-+		DBG_BUGON(!ctor->next);
- 		z_erofs_pagevec_ctor_pagedown(ctor, true);
- 	}
- 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 63accc4527ce..b82af55c7f84 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -18,9 +18,6 @@ static struct kmem_cache *z_erofs_workgroup_cachep __read_mostly;
- 
- void z_erofs_exit_zip_subsystem(void)
- {
--	BUG_ON(z_erofs_workqueue == NULL);
--	BUG_ON(z_erofs_workgroup_cachep == NULL);
--
- 	destroy_workqueue(z_erofs_workqueue);
- 	kmem_cache_destroy(z_erofs_workgroup_cachep);
- }
-@@ -363,7 +360,10 @@ z_erofs_vle_work_register(struct super_block *sb,
- 	struct z_erofs_vle_work *work;
- 
- 	/* if multiref is disabled, grp should never be nullptr */
--	BUG_ON(grp != NULL);
-+	if (unlikely(grp)) {
-+		DBG_BUGON(1);
-+		return ERR_PTR(-EINVAL);
-+	}
- 
- 	/* no available workgroup, let's allocate one */
- 	grp = kmem_cache_zalloc(z_erofs_workgroup_cachep, GFP_NOFS);
-@@ -742,7 +742,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
- 		bool cachemngd = false;
- 
- 		DBG_BUGON(PageUptodate(page));
--		BUG_ON(page->mapping == NULL);
-+		DBG_BUGON(!page->mapping);
- 
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- 		if (unlikely(mngda == NULL && !z_erofs_is_stagingpage(page))) {
-@@ -800,7 +800,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 
- 	might_sleep();
- 	work = z_erofs_vle_grab_primary_work(grp);
--	BUG_ON(!READ_ONCE(work->nr_pages));
-+	DBG_BUGON(!READ_ONCE(work->nr_pages));
- 
- 	mutex_lock(&work->lock);
- 	nr_pages = work->nr_pages;
-@@ -849,8 +849,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		else
- 			pagenr = z_erofs_onlinepage_index(page);
- 
--		BUG_ON(pagenr >= nr_pages);
--		BUG_ON(pages[pagenr] != NULL);
-+		DBG_BUGON(pagenr >= nr_pages);
-+		DBG_BUGON(pages[pagenr]);
- 
- 		pages[pagenr] = page;
- 	}
-@@ -873,9 +873,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		if (z_erofs_is_stagingpage(page))
- 			continue;
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
--		else if (page->mapping == mngda) {
--			BUG_ON(PageLocked(page));
--			BUG_ON(!PageUptodate(page));
-+		if (page->mapping == mngda) {
-+			DBG_BUGON(!PageUptodate(page));
- 			continue;
- 		}
- #endif
-@@ -883,8 +882,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		/* only non-head page could be reused as a compressed page */
- 		pagenr = z_erofs_onlinepage_index(page);
- 
--		BUG_ON(pagenr >= nr_pages);
--		BUG_ON(pages[pagenr] != NULL);
-+		DBG_BUGON(pagenr >= nr_pages);
-+		DBG_BUGON(pages[pagenr]);
- 		++sparsemem_pages;
- 		pages[pagenr] = page;
- 
-@@ -894,9 +893,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	llen = (nr_pages << PAGE_SHIFT) - work->pageofs;
- 
- 	if (z_erofs_vle_workgrp_fmt(grp) == Z_EROFS_VLE_WORKGRP_FMT_PLAIN) {
--		/* FIXME! this should be fixed in the future */
--		BUG_ON(grp->llen != llen);
--
- 		err = z_erofs_vle_plain_copy(compressed_pages, clusterpages,
- 			pages, nr_pages, work->pageofs);
- 		goto out;
-@@ -911,10 +907,8 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	if (err != -ENOTSUPP)
- 		goto out_percpu;
- 
--	if (sparsemem_pages >= nr_pages) {
--		BUG_ON(sparsemem_pages > nr_pages);
-+	if (sparsemem_pages >= nr_pages)
- 		goto skip_allocpage;
--	}
- 
- 	for (i = 0; i < nr_pages; ++i) {
- 		if (pages[i] != NULL)
-@@ -1007,7 +1001,7 @@ static void z_erofs_vle_unzip_wq(struct work_struct *work)
- 		struct z_erofs_vle_unzip_io_sb, io.u.work);
- 	LIST_HEAD(page_pool);
- 
--	BUG_ON(iosb->io.head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
-+	DBG_BUGON(iosb->io.head == Z_EROFS_VLE_WORKGRP_TAIL_CLOSED);
- 	z_erofs_vle_unzip_all(iosb->sb, &iosb->io, &page_pool);
- 
- 	put_pages_list(&page_pool);
-@@ -1336,7 +1330,6 @@ static inline int __z_erofs_vle_normalaccess_readpages(
- 			continue;
- 		}
- 
--		BUG_ON(PagePrivate(page));
- 		set_page_private(page, (unsigned long)head);
- 		head = page;
- 	}
--- 
-2.14.4
+greg k-h
