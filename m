@@ -1,36 +1,29 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 21 Feb 2019 10:34:10 +0800
-Subject: [PATCH 1/2] staging: erofs: no need to take page lock in readdir
-Message-ID: <20190221023411.2980-1-gaoxiang25@huawei.com>
+Date: Thu, 21 Feb 2019 10:34:11 +0800
+Subject: [PATCH 2/2] staging: erofs: switch to ->iterate_shared()
+In-Reply-To: <20190221023411.2980-1-gaoxiang25@huawei.com>
+References: <20190221023411.2980-1-gaoxiang25@huawei.com>
+Message-ID: <20190221023411.2980-2-gaoxiang25@huawei.com>
 
-VFS will take inode_lock for readdir, therefore no need to
-take page lock in readdir at all just as the majority of
-other generic filesystems.
+After commit 6192269444eb ("introduce a parallel variant of ->iterate()"),
+readdir can be done without taking exclusive inode lock of course.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/dir.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/staging/erofs/dir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index e1955703ab8f..8f8ac9675921 100644
+index 8f8ac9675921..829f7b12e0dc 100644
 --- a/drivers/staging/erofs/dir.c
 +++ b/drivers/staging/erofs/dir.c
-@@ -98,7 +98,6 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 		if (IS_ERR(dentry_page))
- 			continue;
+@@ -142,6 +142,6 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ const struct file_operations erofs_dir_fops = {
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_read_dir,
+-	.iterate	= erofs_readdir,
++	.iterate_shared	= erofs_readdir,
+ };
  
--		lock_page(dentry_page);
- 		de = (struct erofs_dirent *)kmap(dentry_page);
- 
- 		nameoff = le16_to_cpu(de->nameoff);
-@@ -128,7 +127,6 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- skip_this:
- 		kunmap(dentry_page);
- 
--		unlock_page(dentry_page);
- 		put_page(dentry_page);
- 
- 		ctx->pos = blknr_to_addr(i) + ofs;
 -- 
 2.14.4
