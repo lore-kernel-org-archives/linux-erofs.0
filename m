@@ -1,70 +1,100 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 22 Feb 2019 23:46:32 +0800
-Subject: [PATCH for-4.20 2/7] staging: erofs: atomic_cond_read_relaxed on
- ref-locked workgroup
+Date: Fri, 22 Feb 2019 23:46:33 +0800
+Subject: [PATCH for-4.20 3/7] staging: erofs: fix
+ `erofs_workgroup_{try_to_freeze, unfreeze}'
 In-Reply-To: <20190222154637.22785-1-gaoxiang25@huawei.com>
 References: <20190222154637.22785-1-gaoxiang25@huawei.com>
-Message-ID: <20190222154637.22785-3-gaoxiang25@huawei.com>
+Message-ID: <20190222154637.22785-4-gaoxiang25@huawei.com>
 
-commit df134b8d17b90c1e7720e318d36416b57424ff7a upstream.
+commit 73f5c66df3e26ab750cefcb9a3e08c71c9f79cad upstream.
 
-It's better to use atomic_cond_read_relaxed, which is implemented
-in hardware instructions to monitor a variable changes currently
-for ARM64, instead of open-coded busy waiting.
+There are two minor issues in the current freeze interface:
+
+   1) Freeze interfaces have not related with CONFIG_DEBUG_SPINLOCK,
+      therefore fix the incorrect conditions;
+
+   2) For SMP platforms, it should also disable preemption before
+      doing atomic_cmpxchg in case that some high priority tasks
+      preempt between atomic_cmpxchg and disable_preempt, then spin
+      on the locked refcount later.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/staging/erofs/internal.h | 41 ++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 3ac4599bbe01..f933ab602c37 100644
+index f933ab602c37..399a7003e783 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -221,23 +221,29 @@ static inline void erofs_workgroup_unfreeze(
+@@ -194,40 +194,49 @@ struct erofs_workgroup {
+ 
+ #define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
+ 
+-static inline bool erofs_workgroup_try_to_freeze(
+-	struct erofs_workgroup *grp, int v)
++#if defined(CONFIG_SMP)
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
+ {
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-	if (v != atomic_cmpxchg(&grp->refcount,
+-		v, EROFS_LOCKED_MAGIC))
+-		return false;
+ 	preempt_disable();
+-#else
+-	preempt_disable();
+-	if (atomic_read(&grp->refcount) != v) {
++	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
+ 		preempt_enable();
+ 		return false;
+ 	}
+-#endif
+ 	return true;
+ }
+ 
+-static inline void erofs_workgroup_unfreeze(
+-	struct erofs_workgroup *grp, int v)
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
+ {
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-	atomic_set(&grp->refcount, v);
+-#endif
++	atomic_set(&grp->refcount, orig_val);
  	preempt_enable();
  }
  
-+#if defined(CONFIG_SMP)
-+static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
-+{
-+	return atomic_cond_read_relaxed(&grp->refcount,
-+					VAL != EROFS_LOCKED_MAGIC);
-+}
-+#else
-+static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
-+{
-+	int v = atomic_read(&grp->refcount);
-+
-+	/* workgroup is never freezed on uniprocessor systems */
-+	DBG_BUGON(v == EROFS_LOCKED_MAGIC);
-+	return v;
-+}
-+#endif
-+
- static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+-#if defined(CONFIG_SMP)
+ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
  {
--	const int locked = (int)EROFS_LOCKED_MAGIC;
- 	int o;
- 
- repeat:
--	o = atomic_read(&grp->refcount);
--
--	/* spin if it is temporarily locked at the reclaim path */
--	if (unlikely(o == locked)) {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
--		do
--			cpu_relax();
--		while (atomic_read(&grp->refcount) == locked);
--#endif
--		goto repeat;
--	}
-+	o = erofs_wait_on_workgroup_freezed(grp);
- 
- 	if (unlikely(o <= 0))
- 		return -1;
+ 	return atomic_cond_read_relaxed(&grp->refcount,
+ 					VAL != EROFS_LOCKED_MAGIC);
+ }
+ #else
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
++{
++	preempt_disable();
++	/* no need to spin on UP platforms, let's just disable preemption. */
++	if (val != atomic_read(&grp->refcount)) {
++		preempt_enable();
++		return false;
++	}
++	return true;
++}
++
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
++{
++	preempt_enable();
++}
++
+ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ {
+ 	int v = atomic_read(&grp->refcount);
 -- 
 2.14.5
