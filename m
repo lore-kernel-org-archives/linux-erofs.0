@@ -1,55 +1,41 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 22 Feb 2019 17:03:20 +0800
-Subject: [PATCH for-4.19 00/12] erofs fixes for linux-4.19.y
-In-Reply-To: <20190222083522.GB16734@kroah.com>
-References: <20190220091854.19242-1-gaoxiang25@huawei.com>
- <20190222083522.GB16734@kroah.com>
-Message-ID: <8b8756a9-90d8-1533-4428-1c4c6599778a@huawei.com>
+Date: Fri, 22 Feb 2019 23:46:31 +0800
+Subject: [PATCH for-4.20 1/7] staging: erofs: remove the redundant d_rehash()
+ for the root dentry
+In-Reply-To: <20190222154637.22785-1-gaoxiang25@huawei.com>
+References: <20190222154637.22785-1-gaoxiang25@huawei.com>
+Message-ID: <20190222154637.22785-2-gaoxiang25@huawei.com>
 
-Hi Greg,
+commit e9c892465583c8f42d61fafe30970d36580925df upstream.
 
-On 2019/2/22 16:35, Greg Kroah-Hartman wrote:
-> On Wed, Feb 20, 2019@05:18:42PM +0800, Gao Xiang wrote:
->> This series backports bugfixes already merged in linux upstream
->> which we found these issues in our commerical products, which
->> are serious and should be fixed immediately.
->>
->> Note that it also includes some xarray modification since
->> upcoming patches heavily needs it, which can reduce more
->> conflicts later.
->>
->> All patches have been tested again as a whole.
-> 
-> Some of these patches are not in 4.20, so if a user were to move to that
-> kernel, they would see a "regression" in the filesystem functionality,
-> right?  That's not ok, and because of that reason alone, I can't take
-> this whole series for 4.19.y right now.
+There is actually no need at all to d_rehash() for the root dentry
+as Al pointed out, fix it.
 
-Yes, you are right. I think 4.20 should be fixed as well.
-I will do it later for 4.20 and the reason I did 4.19 first is just because
-it is a LTS kernel...
+Reported-by: Al Viro <viro at ZenIV.linux.org.uk>
+Cc: Al Viro <viro at ZenIV.linux.org.uk>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/super.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-> 
-> So can you prepare a set of patches for 4.20.y also with the missing
-> patches you have included here?
-
-I will do that.
-
-> 
-> Also, are all of these really "fixes"?  They feel like they are basic
-> "get things working properly" type of patches.  The BUG_ONs are not
-> really fixes as no one _should_ be hitting those in a normal system,
-> right?  Are they really necessary for systems running 4.19?
-
-Most of these BUG_ONs will crash kernel when mounted with corrupted images,
-since I plan to take time to run EROFS linux 4.19 LTS in AOSP, those patches
-are important to do that...
-
-Thanks,
-Gao Xiang
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f69e619807a1..1ab3553c839b 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -442,12 +442,6 @@ static int erofs_read_super(struct super_block *sb,
+ 
+ 	erofs_register_super(sb);
+ 
+-	/*
+-	 * We already have a positive dentry, which was instantiated
+-	 * by d_make_root. Just need to d_rehash it.
+-	 */
+-	d_rehash(sb->s_root);
+-
+ 	if (!silent)
+ 		infoln("mounted on %s with opts: %s.", dev_name,
+ 			(char *)data);
+-- 
+2.14.5
