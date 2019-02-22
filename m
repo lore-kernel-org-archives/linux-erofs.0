@@ -1,116 +1,74 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 22 Feb 2019 23:46:35 +0800
-Subject: [PATCH for-4.20 5/7] staging: erofs: {dir, inode,
- super}.c: rectify BUG_ONs
+Date: Fri, 22 Feb 2019 23:46:37 +0800
+Subject: [PATCH for-4.20 7/7] staging: erofs: unzip_vle_lz4.c,
+ utils.c: rectify BUG_ONs
 In-Reply-To: <20190222154637.22785-1-gaoxiang25@huawei.com>
 References: <20190222154637.22785-1-gaoxiang25@huawei.com>
-Message-ID: <20190222154637.22785-6-gaoxiang25@huawei.com>
+Message-ID: <20190222154637.22785-8-gaoxiang25@huawei.com>
 
-commit 8b987bca2d09649683cbe496419a011df8c08493 upstream.
+commit b8e076a6ef253e763bfdb81e5c72bcc828b0fbeb upstream.
 
 remove all redundant BUG_ONs, and turn the rest
 useful usages to DBG_BUGONs.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/dir.c   |  7 +++++--
- drivers/staging/erofs/inode.c | 10 ++++++++--
- drivers/staging/erofs/super.c | 13 ++++++-------
- 3 files changed, 19 insertions(+), 11 deletions(-)
+ drivers/staging/erofs/unzip_vle_lz4.c |  2 +-
+ drivers/staging/erofs/utils.c         | 12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index d1cb0d78ab84..e44ca93dcdc6 100644
---- a/drivers/staging/erofs/dir.c
-+++ b/drivers/staging/erofs/dir.c
-@@ -53,8 +53,11 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 			strnlen(de_name, maxsize - nameoff) :
- 			le16_to_cpu(de[1].nameoff) - nameoff;
+diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
+index 1a428658cbea..16ac335ee59f 100644
+--- a/drivers/staging/erofs/unzip_vle_lz4.c
++++ b/drivers/staging/erofs/unzip_vle_lz4.c
+@@ -57,7 +57,7 @@ int z_erofs_vle_plain_copy(struct page **compressed_pages,
+ 			if (compressed_pages[j] != page)
+ 				continue;
  
--		/* the corrupted directory found */
--		BUG_ON(de_namelen < 0);
-+		/* a corrupted entry is found */
-+		if (unlikely(de_namelen < 0)) {
-+			DBG_BUGON(1);
-+			return -EIO;
-+		}
- 
- #ifdef CONFIG_EROFS_FS_DEBUG
- 		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 04c61a9d7b76..d7fbf5f4600f 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -133,7 +133,13 @@ static int fill_inline_data(struct inode *inode, void *data,
- 			return -ENOMEM;
- 
- 		m_pofs += vi->inode_isize + vi->xattr_isize;
--		BUG_ON(m_pofs + inode->i_size > PAGE_SIZE);
-+
-+		/* inline symlink data shouldn't across page boundary as well */
-+		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
-+			DBG_BUGON(1);
-+			kfree(lnk);
-+			return -EIO;
-+		}
- 
- 		/* get in-page inline data */
- 		memcpy(lnk, data + m_pofs, inode->i_size);
-@@ -171,7 +177,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 		return PTR_ERR(page);
+-			BUG_ON(mirrored[j]);
++			DBG_BUGON(mirrored[j]);
+ 			memcpy(percpu_data + j * PAGE_SIZE, dst, PAGE_SIZE);
+ 			mirrored[j] = true;
+ 			break;
+diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
+index d2e3ace91046..b535898ca753 100644
+--- a/drivers/staging/erofs/utils.c
++++ b/drivers/staging/erofs/utils.c
+@@ -23,9 +23,6 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+ 		list_del(&page->lru);
+ 	} else {
+ 		page = alloc_pages(gfp | __GFP_NOFAIL, 0);
+-
+-		BUG_ON(page == NULL);
+-		BUG_ON(page->mapping != NULL);
  	}
- 
--	BUG_ON(!PageUptodate(page));
-+	DBG_BUGON(!PageUptodate(page));
- 	data = page_address(page);
- 
- 	err = read_inode(inode, data + ofs);
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 1ab3553c839b..1c2eb69682ef 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -40,7 +40,6 @@ static int __init erofs_init_inode_cache(void)
- 
- static void erofs_exit_inode_cache(void)
- {
--	BUG_ON(erofs_inode_cachep == NULL);
- 	kmem_cache_destroy(erofs_inode_cachep);
+ 	return page;
  }
- 
-@@ -303,8 +302,8 @@ static int managed_cache_releasepage(struct page *page, gfp_t gfp_mask)
- 	int ret = 1;	/* 0 - busy */
- 	struct address_space *const mapping = page->mapping;
- 
--	BUG_ON(!PageLocked(page));
--	BUG_ON(mapping->a_ops != &managed_cache_aops);
-+	DBG_BUGON(!PageLocked(page));
-+	DBG_BUGON(mapping->a_ops != &managed_cache_aops);
- 
- 	if (PagePrivate(page))
- 		ret = erofs_try_to_free_cached_page(mapping, page);
-@@ -317,10 +316,10 @@ static void managed_cache_invalidatepage(struct page *page,
- {
- 	const unsigned int stop = length + offset;
- 
--	BUG_ON(!PageLocked(page));
-+	DBG_BUGON(!PageLocked(page));
- 
--	/* Check for overflow */
--	BUG_ON(stop > PAGE_SIZE || stop < length);
-+	/* Check for potential overflow in debug mode */
-+	DBG_BUGON(stop > PAGE_SIZE || stop < length);
- 
- 	if (offset == 0 && stop == PAGE_SIZE)
- 		while (!managed_cache_releasepage(page, GFP_NOFS))
-@@ -649,7 +648,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
- 	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
+@@ -58,7 +55,7 @@ struct erofs_workgroup *erofs_find_workgroup(
+ 		/* decrease refcount added by erofs_workgroup_put */
+ 		if (unlikely(oldcount == 1))
+ 			atomic_long_dec(&erofs_global_shrink_cnt);
+-		BUG_ON(index != grp->index);
++		DBG_BUGON(index != grp->index);
+ 	}
+ 	rcu_read_unlock();
+ 	return grp;
+@@ -71,8 +68,11 @@ int erofs_register_workgroup(struct super_block *sb,
+ 	struct erofs_sb_info *sbi;
  	int err;
  
--	BUG_ON(!sb_rdonly(sb));
-+	DBG_BUGON(!sb_rdonly(sb));
- 	err = parse_options(sb, data);
+-	/* grp->refcount should not < 1 */
+-	BUG_ON(!atomic_read(&grp->refcount));
++	/* grp shouldn't be broken or used before */
++	if (unlikely(atomic_read(&grp->refcount) != 1)) {
++		DBG_BUGON(1);
++		return -EINVAL;
++	}
+ 
+ 	err = radix_tree_preload(GFP_NOFS);
  	if (err)
- 		goto out;
 -- 
 2.14.5
