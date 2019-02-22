@@ -1,68 +1,34 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 22 Feb 2019 09:28:47 +0800
-Subject: [PATCH] staging/erofs: fix sparse's warnings on undeclared
- symbols in erofs
-In-Reply-To: <20190222005753.eibd4zj62askcuad@yubo-2>
-References: <20190221142845.13604-1-tsu.yubo@gmail.com>
- <05254fc6-6bd7-7c30-cfcc-2ddff4ac13b6@huawei.com>
- <20190222005753.eibd4zj62askcuad@yubo-2>
-Message-ID: <b1f9747b-3276-8139-2997-24836c37bdb8@huawei.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Fri, 22 Feb 2019 09:35:22 +0100
+Subject: [PATCH for-4.19 00/12] erofs fixes for linux-4.19.y
+In-Reply-To: <20190220091854.19242-1-gaoxiang25@huawei.com>
+References: <20190220091854.19242-1-gaoxiang25@huawei.com>
+Message-ID: <20190222083522.GB16734@kroah.com>
 
-
-
-On 2019/2/22 8:57, YU Bo wrote:
-> Hi,
-> On Thu, Feb 21, 2019@10:35:01PM +0800, Gao Xiang wrote:
->> Hi Bo,
->>
->> On 2019/2/21 22:28, Bo YU wrote:
->>> From: Bo Yu <tsu.yubo at gmail.com>
->>>
->>> Fix sparse warnings:
->>>
->>> drivers/staging/erofs/utils.c:134:6: warning: symbol
->>> 'erofs_try_to_release_workgroup' was not declared. Should it be static?
->>>
->>> Fixes: 51232df5e4b26("staging: erofs: fix race when the managed cache is enabled")
->>> Cc: Gao Xiang <gaoxiang25 at huawei.com>
->>> Cc: Chao Yu <yuchao0 at huawei.com>
->>> CC: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
->>> Signed-off-by: Bo Yu <tsu.yubo at gmail.com>
->>> ---
->>> ?drivers/staging/erofs/utils.c | 2 +-
->>> ?1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
->>> index b535898ca753..33cd5ad55cb8 100644
->>> --- a/drivers/staging/erofs/utils.c
->>> +++ b/drivers/staging/erofs/utils.c
->>> @@ -131,7 +131,7 @@ static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
->>> ???? __erofs_workgroup_free(grp);
->>> ?}
->>>
->>> -bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
->>> +static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
->>> ???????????????????? struct erofs_workgroup *grp,
->>> ???????????????????? bool cleanup)
->>> ?{
->>>
->>
->> Have you looked the latest kernel code?
-> Emm...yeah.But i pulled linus tree not staging tree :(
-> Sorry for the noise.
-
-That is ok. staging tree or linux-next includes the latest source code,
-you can check them out :)
-
-Thanks,
-Gao Xiang
-
+On Wed, Feb 20, 2019@05:18:42PM +0800, Gao Xiang wrote:
+> This series backports bugfixes already merged in linux upstream
+> which we found these issues in our commerical products, which
+> are serious and should be fixed immediately.
 > 
->> It seems erofs_try_to_release_workgroup is already be claimed as static...
->>
->> See:
->> https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/tree/drivers/staging/erofs/utils.c?h=staging-next#n148
->>
->> Thanks,
->> Gao Xiang
->>
+> Note that it also includes some xarray modification since
+> upcoming patches heavily needs it, which can reduce more
+> conflicts later.
+> 
+> All patches have been tested again as a whole.
+
+Some of these patches are not in 4.20, so if a user were to move to that
+kernel, they would see a "regression" in the filesystem functionality,
+right?  That's not ok, and because of that reason alone, I can't take
+this whole series for 4.19.y right now.
+
+So can you prepare a set of patches for 4.20.y also with the missing
+patches you have included here?
+
+Also, are all of these really "fixes"?  They feel like they are basic
+"get things working properly" type of patches.  The BUG_ONs are not
+really fixes as no one _should_ be hitting those in a normal system,
+right?  Are they really necessary for systems running 4.19?
+
+thanks,
+
+greg k-h
