@@ -1,147 +1,228 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Tue, 26 Feb 2019 01:58:08 +0800
-Subject: [PATCH for-4.19 1/2] xarray: Replace exceptional entries
-In-Reply-To: <20190225155120.GA12525@kroah.com>
+Date: Tue, 26 Feb 2019 01:58:09 +0800
+Subject: [PATCH for-4.19 2/2] staging: erofs: fix race when the managed cache
+ is enabled
+In-Reply-To: <20190225175809.13427-1-hsiangkao@aol.com>
 References: <20190225155120.GA12525@kroah.com>
-Message-ID: <20190225175809.13427-1-hsiangkao@aol.com>
+ <20190225175809.13427-1-hsiangkao@aol.com>
+Message-ID: <20190225175809.13427-2-hsiangkao@aol.com>
 
-From: Matthew Wilcox <willy@infradead.org>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit 3159f943aafdbacb2f94c38fdaadabf2bbde2a14 upstream.
+commit 51232df5e4b268936beccde5248f312a316800be upstream.
 
-Introduce xarray value entries and tagged pointers to replace radix
-tree exceptional entries.  This is a slight change in encoding to allow
-the use of an extra bit (we can now store BITS_PER_LONG - 1 bits in a
-value entry).  It is also a change in emphasis; exceptional entries are
-intimidating and different.  As the comment explains, you can choose
-to store values or pointers in the xarray and they are both first-class
-citizens.
+When the managed cache is enabled, the last reference count
+of a workgroup must be used for its workstation.
 
-Signed-off-by: Matthew Wilcox <willy at infradead.org>
-Reviewed-by: Josef Bacik <jbacik at fb.com>
-[ take the minimum subset of tagged pointer support only. ]
-Cc: Matthew Wilcox <willy at infradead.org>
+Otherwise, it could lead to incorrect (un)freezes in
+the reclaim path, and it would be harmful.
+
+A typical race as follows:
+
+Thread 1 (In the reclaim path)  Thread 2
+workgroup_freeze(grp, 1)                                refcnt = 1
+...
+workgroup_unfreeze(grp, 1)                              refcnt = 1
+                                workgroup_get(grp)      refcnt = 2 (x)
+workgroup_put(grp)                                      refcnt = 1 (x)
+                                ...unexpected behaviors
+
+* grp is detached but still used, which violates cache-managed
+  freeze constraint.
+
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/utils.c | 18 ++++++----------
- include/linux/xarray.h        | 48 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 12 deletions(-)
+ drivers/staging/erofs/internal.h |   1 +
+ drivers/staging/erofs/utils.c    | 134 +++++++++++++++++++++++++++------------
+ 2 files changed, 96 insertions(+), 39 deletions(-)
 
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index e6313c54e3ad..122ea5016f3b 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -240,6 +240,7 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
+ }
+ 
+ #define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
++#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+ 
+ extern int erofs_workgroup_put(struct erofs_workgroup *grp);
+ 
 diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index 595cf90af9bb..bdee9bd09f11 100644
+index bdee9bd09f11..bcabbb85d40e 100644
 --- a/drivers/staging/erofs/utils.c
 +++ b/drivers/staging/erofs/utils.c
-@@ -35,7 +35,6 @@ static atomic_long_t erofs_global_shrink_cnt;
+@@ -83,12 +83,21 @@ int erofs_register_workgroup(struct super_block *sb,
  
- #ifdef CONFIG_EROFS_FS_ZIP
+ 	grp = xa_tag_pointer(grp, tag);
  
--/* radix_tree and the future XArray both don't use tagptr_t yet */
- struct erofs_workgroup *erofs_find_workgroup(
- 	struct super_block *sb, pgoff_t index, bool *tag)
+-	err = radix_tree_insert(&sbi->workstn_tree,
+-		grp->index, grp);
++	/*
++	 * Bump up reference count before making this workgroup
++	 * visible to other users in order to avoid potential UAF
++	 * without serialized by erofs_workstn_lock.
++	 */
++	__erofs_workgroup_get(grp);
+ 
+-	if (!err) {
+-		__erofs_workgroup_get(grp);
+-	}
++	err = radix_tree_insert(&sbi->workstn_tree,
++				grp->index, grp);
++	if (unlikely(err))
++		/*
++		 * it's safe to decrease since the workgroup isn't visible
++		 * and refcount >= 2 (cannot be freezed).
++		 */
++		__erofs_workgroup_put(grp);
+ 
+ 	erofs_workstn_unlock(sbi);
+ 	radix_tree_preload_end();
+@@ -97,19 +106,94 @@ int erofs_register_workgroup(struct super_block *sb,
+ 
+ extern void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
+ 
++static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
++{
++	atomic_long_dec(&erofs_global_shrink_cnt);
++	erofs_workgroup_free_rcu(grp);
++}
++
+ int erofs_workgroup_put(struct erofs_workgroup *grp)
  {
-@@ -47,9 +46,8 @@ struct erofs_workgroup *erofs_find_workgroup(
- 	rcu_read_lock();
- 	grp = radix_tree_lookup(&sbi->workstn_tree, index);
- 	if (grp != NULL) {
--		*tag = radix_tree_exceptional_entry(grp);
--		grp = (void *)((unsigned long)grp &
--			~RADIX_TREE_EXCEPTIONAL_ENTRY);
-+		*tag = xa_pointer_tag(grp);
-+		grp = xa_untag_pointer(grp);
+ 	int count = atomic_dec_return(&grp->refcount);
  
- 		if (erofs_workgroup_get(grp, &oldcount)) {
- 			/* prefer to relax rcu read side */
-@@ -83,9 +81,7 @@ int erofs_register_workgroup(struct super_block *sb,
- 	sbi = EROFS_SB(sb);
- 	erofs_workstn_lock(sbi);
+ 	if (count == 1)
+ 		atomic_long_inc(&erofs_global_shrink_cnt);
+-	else if (!count) {
+-		atomic_long_dec(&erofs_global_shrink_cnt);
+-		erofs_workgroup_free_rcu(grp);
+-	}
++	else if (!count)
++		__erofs_workgroup_free(grp);
+ 	return count;
+ }
  
--	if (tag)
--		grp = (void *)((unsigned long)grp |
--			1UL << RADIX_TREE_EXCEPTIONAL_SHIFT);
-+	grp = xa_tag_pointer(grp, tag);
- 
- 	err = radix_tree_insert(&sbi->workstn_tree,
- 		grp->index, grp);
-@@ -131,9 +127,7 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
++#ifdef EROFS_FS_HAS_MANAGED_CACHE
++/* for cache-managed case, customized reclaim paths exist */
++static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
++{
++	erofs_workgroup_unfreeze(grp, 0);
++	__erofs_workgroup_free(grp);
++}
++
++bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
++				    struct erofs_workgroup *grp,
++				    bool cleanup)
++{
++	/*
++	 * for managed cache enabled, the refcount of workgroups
++	 * themselves could be < 0 (freezed). So there is no guarantee
++	 * that all refcount > 0 if managed cache is enabled.
++	 */
++	if (!erofs_workgroup_try_to_freeze(grp, 1))
++		return false;
++
++	/*
++	 * note that all cached pages should be unlinked
++	 * before delete it from the radix tree.
++	 * Otherwise some cached pages of an orphan old workgroup
++	 * could be still linked after the new one is available.
++	 */
++	if (erofs_try_to_free_all_cached_pages(sbi, grp)) {
++		erofs_workgroup_unfreeze(grp, 1);
++		return false;
++	}
++
++	/*
++	 * it is impossible to fail after the workgroup is freezed,
++	 * however in order to avoid some race conditions, add a
++	 * DBG_BUGON to observe this in advance.
++	 */
++	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
++						     grp->index)) != grp);
++
++	/*
++	 * if managed cache is enable, the last refcount
++	 * should indicate the related workstation.
++	 */
++	erofs_workgroup_unfreeze_final(grp);
++	return true;
++}
++
++#else
++/* for nocache case, no customized reclaim path at all */
++bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
++				    struct erofs_workgroup *grp,
++				    bool cleanup)
++{
++	int cnt = atomic_read(&grp->refcount);
++
++	DBG_BUGON(cnt <= 0);
++	DBG_BUGON(cleanup && cnt != 1);
++
++	if (cnt > 1)
++		return false;
++
++	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
++						     grp->index)) != grp);
++
++	/* (rarely) could be grabbed again when freeing */
++	erofs_workgroup_put(grp);
++	return true;
++}
++
++#endif
++
+ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+ 				       unsigned long nr_shrink,
+ 				       bool cleanup)
+@@ -126,42 +210,14 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+ 		batch, first_index, PAGEVEC_SIZE);
  
  	for (i = 0; i < found; ++i) {
- 		int cnt;
--		struct erofs_workgroup *grp = (void *)
--			((unsigned long)batch[i] &
--				~RADIX_TREE_EXCEPTIONAL_ENTRY);
-+		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
+-		int cnt;
+ 		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
  
  		first_index = grp->index + 1;
  
-@@ -150,8 +144,8 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- #endif
+-		cnt = atomic_read(&grp->refcount);
+-		BUG_ON(cnt <= 0);
+-
+-		if (cleanup)
+-			BUG_ON(cnt != 1);
+-
+-#ifndef EROFS_FS_HAS_MANAGED_CACHE
+-		else if (cnt > 1)
+-#else
+-		if (!erofs_workgroup_try_to_freeze(grp, 1))
+-#endif
++		/* try to shrink each valid workgroup */
++		if (!erofs_try_to_release_workgroup(sbi, grp, cleanup))
  			continue;
  
--		if (radix_tree_delete(&sbi->workstn_tree,
--			grp->index) != grp) {
-+		if (xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
-+			grp->index)) != grp) {
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- skip:
- 			erofs_workgroup_unfreeze(grp, 1);
-diff --git a/include/linux/xarray.h b/include/linux/xarray.h
-index 2dfc8006fe64..6f5c380f2d80 100644
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -9,6 +9,54 @@
- 
- #include <linux/spinlock.h>
- 
-+/**
-+ * xa_tag_pointer() - Create an XArray entry for a tagged pointer.
-+ * @p: Plain pointer.
-+ * @tag: Tag value (0, 1 or 3).
-+ *
-+ * If the user of the XArray prefers, they can tag their pointers instead
-+ * of storing value entries.  Three tags are available (0, 1 and 3).
-+ * These are distinct from the xa_mark_t as they are not replicated up
-+ * through the array and cannot be searched for.
-+ *
-+ * Context: Any context.
-+ * Return: An XArray entry.
-+ */
-+static inline void *xa_tag_pointer(void *p, unsigned long tag)
-+{
-+	return (void *)((unsigned long)p | tag);
-+}
-+
-+/**
-+ * xa_untag_pointer() - Turn an XArray entry into a plain pointer.
-+ * @entry: XArray entry.
-+ *
-+ * If you have stored a tagged pointer in the XArray, call this function
-+ * to get the untagged version of the pointer.
-+ *
-+ * Context: Any context.
-+ * Return: A pointer.
-+ */
-+static inline void *xa_untag_pointer(void *entry)
-+{
-+	return (void *)((unsigned long)entry & ~3UL);
-+}
-+
-+/**
-+ * xa_pointer_tag() - Get the tag stored in an XArray entry.
-+ * @entry: XArray entry.
-+ *
-+ * If you have stored a tagged pointer in the XArray, call this function
-+ * to get the tag of that pointer.
-+ *
-+ * Context: Any context.
-+ * Return: A tag.
-+ */
-+static inline unsigned int xa_pointer_tag(void *entry)
-+{
-+	return (unsigned long)entry & 3UL;
-+}
-+
- #define xa_trylock(xa)		spin_trylock(&(xa)->xa_lock)
- #define xa_lock(xa)		spin_lock(&(xa)->xa_lock)
- #define xa_unlock(xa)		spin_unlock(&(xa)->xa_lock)
+-		if (xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
+-			grp->index)) != grp) {
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-skip:
+-			erofs_workgroup_unfreeze(grp, 1);
+-#endif
+-			continue;
+-		}
+-
+-#ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (erofs_try_to_free_all_cached_pages(sbi, grp))
+-			goto skip;
+-
+-		erofs_workgroup_unfreeze(grp, 1);
+-#endif
+-		/* (rarely) grabbed again when freeing */
+-		erofs_workgroup_put(grp);
+-
+ 		++freed;
+ 		if (unlikely(!--nr_shrink))
+ 			break;
 -- 
 2.11.0
