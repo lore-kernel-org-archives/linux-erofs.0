@@ -1,30 +1,37 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 27 Feb 2019 20:42:59 +0800
-Subject: [PATCH 3/3] staging: erofs: fix mis-acted TAIL merging behavior
-In-Reply-To: <20190227053332.38504-3-gaoxiang25@huawei.com>
+Date: Wed, 27 Feb 2019 20:43:37 +0800
+Subject: [PATCH 1/3] staging: erofs: compressed_pages should not be
+ accessed again after freed
+In-Reply-To: <20190227053332.38504-1-gaoxiang25@huawei.com>
 References: <20190227053332.38504-1-gaoxiang25@huawei.com>
- <20190227053332.38504-3-gaoxiang25@huawei.com>
-Message-ID: <1d8b2544-5be1-bf48-70f3-5bd703c37040@huawei.com>
+Message-ID: <55e62c67-81db-e7c9-0ff0-fb4909e2fbc0@huawei.com>
 
 On 2019/2/27 13:33, Gao Xiang wrote:
-> EROFS has an optimized path called TAIL merging, which is designed
-> to merge multiple reads and the corresponding decompressions into
-> one if these requests read continuous pages almost at the same time.
+> This patch resolves the following page use-after-free issue,
+> z_erofs_vle_unzip:
+>     ...
+>     for (i = 0; i < nr_pages; ++i) {
+>         ...
+>         z_erofs_onlinepage_endio(page);  (1)
+>     }
 > 
-> In general, it behaves as follows:
->  ________________________________________________________________
->   ... |  TAIL  .  HEAD  |  PAGE  |  PAGE  |  TAIL    . HEAD | ...
->  _____|_combined page A_|________|________|_combined page B_|____
->         1  ]  ->  [  2                          ]  ->  [ 3
-> If the above three reads are requested in the order 1-2-3, it will
-> generate a large work chain rather than 3 individual work chains
-> to reduce scheduling overhead and boost up sequential read.
+>     for (i = 0; i < clusterpages; ++i) {
+>         page = compressed_pages[i];
 > 
-> However, if Read 2 is processed slightly earlier than Read 1,
-> currently it still generates 2 individual work chains (chain 1, 2)
-> but it does in-place decompression for combined page A, moreover,
-> if chain 2 decompresses ahead of chain 1, it will be a race and
-> lead to corrupted decompressed page. This patch fixes it.
+>         if (page->mapping == mngda)      (2)
+>             continue;
+>         /* recycle all individual staging pages */
+>         (void)z_erofs_gather_if_stagingpage(page_pool, page); (3)
+>         WRITE_ONCE(compressed_pages[i], NULL);
+>     }
+>     ...
+> 
+> After (1) is executed, page is freed and could be then reused, if
+> compressed_pages is scanned after that, it could fall info (2) or
+> (3) by mistake and that could finally be in a mess.
+> 
+> This patch aims to solve the above issue only with little changes
+> as much as possible in order to make the fix backport easier.
 > 
 > Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 > Cc: <stable at vger.kernel.org> # 4.19+
