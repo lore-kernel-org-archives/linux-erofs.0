@@ -1,85 +1,174 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 27 Feb 2019 13:33:31 +0800
-Subject: [PATCH 2/3] staging: erofs: fix illegal address access under memory
- pressure
+Date: Wed, 27 Feb 2019 13:33:32 +0800
+Subject: [PATCH 3/3] staging: erofs: fix mis-acted TAIL merging behavior
 In-Reply-To: <20190227053332.38504-1-gaoxiang25@huawei.com>
 References: <20190227053332.38504-1-gaoxiang25@huawei.com>
-Message-ID: <20190227053332.38504-2-gaoxiang25@huawei.com>
+Message-ID: <20190227053332.38504-3-gaoxiang25@huawei.com>
 
-Considering a read request with two decompressed file pages,
-If a decompression work cannot be started on the previous page
-due to memory pressure but in-memory LTP map lookup is done,
-builder->work should be still NULL.
+EROFS has an optimized path called TAIL merging, which is designed
+to merge multiple reads and the corresponding decompressions into
+one if these requests read continuous pages almost at the same time.
 
-Moreover, if the current page also belongs to the same map,
-it won't try to start the decompression work again and then
-run into trouble.
+In general, it behaves as follows:
+ ________________________________________________________________
+  ... |  TAIL  .  HEAD  |  PAGE  |  PAGE  |  TAIL    . HEAD | ...
+ _____|_combined page A_|________|________|_combined page B_|____
+        1  ]  ->  [  2                          ]  ->  [ 3
+If the above three reads are requested in the order 1-2-3, it will
+generate a large work chain rather than 3 individual work chains
+to reduce scheduling overhead and boost up sequential read.
 
-This patch aims to solve the above issue only with little changes
-as much as possible in order to make the fix backport easier.
-
-kernel message is:
-<4>[1051408.015930s]SLUB: Unable to allocate memory on node -1, gfp=0x2408040(GFP_NOFS|__GFP_ZERO)
-<4>[1051408.015930s]  cache: erofs_compress, object size: 144, buffer size: 144, default order: 0, min order: 0
-<4>[1051408.015930s]  node 0: slabs: 98, objs: 2744, free: 0
-  * Cannot allocate the decompression work
-
-<3>[1051408.015960s]erofs: z_erofs_vle_normalaccess_readpages, readahead error at page 1008 of nid 5391488
-  * Note that the previous page was failed to read
-
-<0>[1051408.015960s]Internal error: Accessing user space memory outside uaccess.h routines: 96000005 [#1] PREEMPT SMP
-...
-<4>[1051408.015991s]Hardware name: kirin710 (DT)
-...
-<4>[1051408.016021s]PC is at z_erofs_vle_work_add_page+0xa0/0x17c
-<4>[1051408.016021s]LR is at z_erofs_do_read_page+0x12c/0xcf0
-...
-<4>[1051408.018096s][<ffffff80c6fb0fd4>] z_erofs_vle_work_add_page+0xa0/0x17c
-<4>[1051408.018096s][<ffffff80c6fb3814>] z_erofs_vle_normalaccess_readpages+0x1a0/0x37c
-<4>[1051408.018096s][<ffffff80c6d670b8>] read_pages+0x70/0x190
-<4>[1051408.018127s][<ffffff80c6d6736c>] __do_page_cache_readahead+0x194/0x1a8
-<4>[1051408.018127s][<ffffff80c6d59318>] filemap_fault+0x398/0x684
-<4>[1051408.018127s][<ffffff80c6d8a9e0>] __do_fault+0x8c/0x138
-<4>[1051408.018127s][<ffffff80c6d8f90c>] handle_pte_fault+0x730/0xb7c
-<4>[1051408.018127s][<ffffff80c6d8fe04>] __handle_mm_fault+0xac/0xf4
-<4>[1051408.018157s][<ffffff80c6d8fec8>] handle_mm_fault+0x7c/0x118
-<4>[1051408.018157s][<ffffff80c8c52998>] do_page_fault+0x354/0x474
-<4>[1051408.018157s][<ffffff80c8c52af8>] do_translation_fault+0x40/0x48
-<4>[1051408.018157s][<ffffff80c6c002f4>] do_mem_abort+0x80/0x100
-<4>[1051408.018310s]---[ end trace 9f4009a3283bd78b ]---
+However, if Read 2 is processed slightly earlier than Read 1,
+currently it still generates 2 individual work chains (chain 1, 2)
+but it does in-place decompression for combined page A, moreover,
+if chain 2 decompresses ahead of chain 1, it will be a race and
+lead to corrupted decompressed page. This patch fixes it.
 
 Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable at vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/unzip_vle.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/erofs/unzip_vle.c | 70 +++++++++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 416dde4e8ea1..74c13b0a3d33 100644
+index 74c13b0a3d33..02f34a83147d 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -698,8 +698,12 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+@@ -107,15 +107,30 @@ enum z_erofs_vle_work_role {
+ 	Z_EROFS_VLE_WORK_SECONDARY,
+ 	Z_EROFS_VLE_WORK_PRIMARY,
+ 	/*
+-	 * The current work has at least been linked with the following
+-	 * processed chained works, which means if the processing page
+-	 * is the tail partial page of the work, the current work can
+-	 * safely use the whole page, as illustrated below:
+-	 * +--------------+-------------------------------------------+
+-	 * |  tail page   |      head page (of the previous work)     |
+-	 * +--------------+-------------------------------------------+
+-	 *   /\  which belongs to the current work
+-	 * [  (*) this page can be used for the current work itself.  ]
++	 * The current work was the tail of an exist chain, and the previous
++	 * processed chained works are all decided to be hooked up to it.
++	 * A new chain should be created for the remaining unprocessed works,
++	 * therefore different from Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED,
++	 * the next work cannot reuse the whole page in the following scenario:
++	 *  ________________________________________________________________
++	 * |      tail (partial) page     |       head (partial) page       |
++	 * |  (belongs to the next work)  |  (belongs to the current work)  |
++	 * |_______PRIMARY_FOLLOWED_______|________PRIMARY_HOOKED___________|
++	 */
++	Z_EROFS_VLE_WORK_PRIMARY_HOOKED,
++	/*
++	 * The current work has been linked with the processed chained works,
++	 * and could be also linked with the potential remaining works, which
++	 * means if the processing page is the tail partial page of the work,
++	 * the current work can safely use the whole page (since the next work
++	 * is under control) for in-place decompression, as illustrated below:
++	 *  ________________________________________________________________
++	 * |  tail (partial) page  |          head (partial) page           |
++	 * | (of the current work) |         (of the previous work)         |
++	 * |  PRIMARY_FOLLOWED or  |                                        |
++	 * |_____PRIMARY_HOOKED____|____________PRIMARY_FOLLOWED____________|
++	 *
++	 * [  (*) the above page can be used for the current work itself.  ]
+ 	 */
+ 	Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED,
+ 	Z_EROFS_VLE_WORK_MAX
+@@ -309,10 +324,10 @@ static int z_erofs_vle_work_add_page(
+ 	return ret ? 0 : -EAGAIN;
+ }
  
- 	/* lucky, within the range of the current map_blocks */
- 	if (offset + cur >= map->m_la &&
--		offset + cur < map->m_la + map->m_llen)
-+		offset + cur < map->m_la + map->m_llen) {
-+		/* didn't get a valid unzip work previously (very rare) */
-+		if (!builder->work)
-+			goto restart_now;
- 		goto hitted;
+-static inline bool try_to_claim_workgroup(
+-	struct z_erofs_vle_workgroup *grp,
+-	z_erofs_vle_owned_workgrp_t *owned_head,
+-	bool *hosted)
++static enum z_erofs_vle_work_role
++try_to_claim_workgroup(struct z_erofs_vle_workgroup *grp,
++		       z_erofs_vle_owned_workgrp_t *owned_head,
++		       bool *hosted)
+ {
+ 	DBG_BUGON(*hosted == true);
+ 
+@@ -326,6 +341,9 @@ static inline bool try_to_claim_workgroup(
+ 
+ 		*owned_head = &grp->next;
+ 		*hosted = true;
++		/* lucky, I am the followee :) */
++		return Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
++
+ 	} else if (grp->next == Z_EROFS_VLE_WORKGRP_TAIL) {
+ 		/*
+ 		 * type 2, link to the end of a existing open chain,
+@@ -335,12 +353,11 @@ static inline bool try_to_claim_workgroup(
+ 		if (cmpxchg(&grp->next, Z_EROFS_VLE_WORKGRP_TAIL,
+ 			    *owned_head) != Z_EROFS_VLE_WORKGRP_TAIL)
+ 			goto retry;
+-
+ 		*owned_head = Z_EROFS_VLE_WORKGRP_TAIL;
+-	} else
+-		return false;	/* :( better luck next time */
++		return Z_EROFS_VLE_WORK_PRIMARY_HOOKED;
 +	}
  
- 	/* go ahead the next map_blocks */
- 	debugln("%s: [out-of-range] pos %llu", __func__, offset + cur);
-@@ -713,6 +717,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
- 	if (unlikely(err))
- 		goto err_out;
+-	return true;	/* lucky, I am the followee :) */
++	return Z_EROFS_VLE_WORK_PRIMARY; /* :( better luck next time */
+ }
  
-+restart_now:
- 	if (unlikely(!(map->m_flags & EROFS_MAP_MAPPED)))
- 		goto hitted;
+ struct z_erofs_vle_work_finder {
+@@ -418,12 +435,9 @@ z_erofs_vle_work_lookup(const struct z_erofs_vle_work_finder *f)
+ 	*f->hosted = false;
+ 	if (!primary)
+ 		*f->role = Z_EROFS_VLE_WORK_SECONDARY;
+-	/* claim the workgroup if possible */
+-	else if (try_to_claim_workgroup(grp, f->owned_head, f->hosted))
+-		*f->role = Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED;
+-	else
+-		*f->role = Z_EROFS_VLE_WORK_PRIMARY;
+-
++	else	/* claim the workgroup if possible */
++		*f->role = try_to_claim_workgroup(grp, f->owned_head,
++						  f->hosted);
+ 	return work;
+ }
  
+@@ -487,6 +501,9 @@ z_erofs_vle_work_register(const struct z_erofs_vle_work_finder *f,
+ 	return work;
+ }
+ 
++#define builder_is_hooked(builder) \
++	((builder)->role >= Z_EROFS_VLE_WORK_PRIMARY_HOOKED)
++
+ #define builder_is_followed(builder) \
+ 	((builder)->role >= Z_EROFS_VLE_WORK_PRIMARY_FOLLOWED)
+ 
+@@ -680,7 +697,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 	struct z_erofs_vle_work_builder *const builder = &fe->builder;
+ 	const loff_t offset = page_offset(page);
+ 
+-	bool tight = builder_is_followed(builder);
++	bool tight = builder_is_hooked(builder);
+ 	struct z_erofs_vle_work *work = builder->work;
+ 
+ 	enum z_erofs_cache_alloctype cache_strategy;
+@@ -739,7 +756,7 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 				 map->m_plen / PAGE_SIZE,
+ 				 cache_strategy, page_pool, GFP_KERNEL);
+ 
+-	tight &= builder_is_followed(builder);
++	tight &= builder_is_hooked(builder);
+ 	work = builder->work;
+ hitted:
+ 	cur = end - min_t(unsigned int, offset + end - map->m_la, end);
+@@ -754,6 +771,9 @@ static int z_erofs_do_read_page(struct z_erofs_vle_frontend *fe,
+ 			(tight ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
+ 				Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED));
+ 
++	if (cur)
++		tight &= builder_is_followed(builder);
++
+ retry:
+ 	err = z_erofs_vle_work_add_page(builder, page, page_type);
+ 	/* should allocate an additional staging page for pagevec */
 -- 
 2.14.5
