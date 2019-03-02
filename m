@@ -1,75 +1,113 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Sat, 29 Jun 2019 16:55:38 +0800
-Subject: [PATCH 1/2] iomap: introduce IOMAP_TAIL
-Message-ID: <20190629085539.29237-1-yuchao0@huawei.com>
+From: arshad.super@gmail.com (arshad hussain)
+Date: Sat, 2 Mar 2019 18:34:24 +0530
+Subject: [patch 1/1]erofs-utils:0001-Improve-README.patch
+Message-ID: <CAKsu7qwCnCTCESea+z6jZAKKSSZ5VFA7iWf10pwQ1=PY0VJEUA@mail.gmail.com>
 
-Some filesystems like erofs/reiserfs have the ability to pack tail
-data into metadata, however iomap framework can only support mapping
-inline data with IOMAP_INLINE type, it restricts that:
-- inline data should be locating at page #0.
-- inline size should equal to .i_size
-So we can not use IOMAP_INLINE to handle tail-packing case.
+ Hi,
 
-This patch introduces new mapping type IOMAP_TAIL to map tail-packed
-data for further use of erofs.
+This patch improves the build section and
+adds the example/specimen usage section in
+the README file.
 
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Arshad Hussain <arshad.super at gmail.com>
+----
+# cat 0001-Improve-README.patch
+>From a2aa7e7b8938f1190d1618a5dda9f5c32cf3215e Mon Sep 17 00:00:00 2001
+From: Arshad Hussain <arshad.super@gmail.com>
+Date: Tue, 26 Feb 2019 10:30:04 +0530
+Subject: [PATCH] Improve README
+
+This patch improves the build section and
+adds the example/specimen usage section in
+the README file.
 ---
- fs/iomap.c            | 22 ++++++++++++++++++++++
- include/linux/iomap.h |  1 +
- 2 files changed, 23 insertions(+)
+ README | 66 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 63 insertions(+), 3 deletions(-)
 
-diff --git a/fs/iomap.c b/fs/iomap.c
-index 12654c2e78f8..ae7777ce77d0 100644
---- a/fs/iomap.c
-+++ b/fs/iomap.c
-@@ -280,6 +280,23 @@ iomap_read_inline_data(struct inode *inode, struct page *page,
- 	SetPageUptodate(page);
- }
- 
-+static void
-+iomap_read_tail_data(struct inode *inode, struct page *page,
-+		struct iomap *iomap)
-+{
-+	size_t size = i_size_read(inode) & (PAGE_SIZE - 1);
-+	void *addr;
+diff --git a/README b/README
+index 4e34159..b5b605a 100644
+--- a/README
++++ b/README
+@@ -21,8 +21,14 @@ How to build with lz4 static library
+        ./configure --with-lz4=<lz4 install path>
+ eg. if lz4 lib has been installed into fold of /usr/local/lib
+        ./configure --with-lz4=/usr/local/lib && make
+-Maybe you should run this first:
+-       ./autogen.sh
++On Fedora, static lz4 can be installed using:
++       yum install lz4-static.x86_64
++To build you should run this first:
++       $ ./autogen.sh
++       $ ./configure
++       $ make
 +
-+	if (PageUptodate(page))
-+		return;
++mkfs.erofs binary will be generated under mkfs folder.
+
+ Usage:
+ $ ./mkfs.erofs
+@@ -35,7 +41,61 @@ Usage:
+  -d -- set debugging level <dbglvl>
+  -z -- enable <compr_algri> compression (only lz4hc is supported)
+
+- target path, source directory are both needed.
++ Target path, source directory are both needed.
 +
-+	addr = kmap_atomic(page);
-+	memcpy(addr, iomap->inline_data, size);
-+	memset(addr + size, 0, PAGE_SIZE - size);
-+	kunmap_atomic(addr);
-+	SetPageUptodate(page);
-+}
++Specimen Usage:
++Create a temporary Disk
++$ dd if=/dev/zero of=erofs_disk bs=512 count=23000
 +
- static loff_t
- iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
- 		struct iomap *iomap)
-@@ -298,6 +315,11 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
- 		return PAGE_SIZE;
- 	}
- 
-+	if (iomap->type == IOMAP_TAIL) {
-+		iomap_read_tail_data(inode, page, iomap);
-+		return PAGE_SIZE;
-+	}
++Create and populate source directory
++$ mkdir -p srcd
 +
- 	/* zero post-eof blocks as the page may be mapped */
- 	iomap_adjust_read_range(inode, iop, &pos, length, &poff, &plen);
- 	if (plen == 0)
-diff --git a/include/linux/iomap.h b/include/linux/iomap.h
-index 2103b94cb1bf..7e1ee48e3db7 100644
---- a/include/linux/iomap.h
-+++ b/include/linux/iomap.h
-@@ -25,6 +25,7 @@ struct vm_fault;
- #define IOMAP_MAPPED	0x03	/* blocks allocated at @addr */
- #define IOMAP_UNWRITTEN	0x04	/* blocks allocated at @addr in unwritten state */
- #define IOMAP_INLINE	0x05	/* data inline in the inode */
-+#define IOMAP_TAIL	0x06	/* tail data packed in metdata */
- 
- /*
-  * Flags for all iomap mappings:
--- 
-2.18.0.rc1
++Our sample source directory contents
++$ ls -ali srcd/
++total 44
++425555 drwxr-xr-x 2 root root  4096 Feb 23 06:55 .
++425533 drwxr-xr-x 9 root root  4096 Feb 26 06:54 ..
++422789 -rw-r--r-- 1 root root     0 Feb 22 14:52 ChangeLog
++422793 -rw-r--r-- 1 root root  3195 Feb 23 06:55 configure.ac
++422794 -rw-r--r-- 1 root root 25763 Feb 23 06:55 Makefile
++422796 -rw-r--r-- 1 root root  1879 Feb 23 06:55 README
++
++Run mkfs.erofs
++$ ./mkfs/mkfs.erofs ./erofs_disk ./srcd/
++        c_version:           [0.1   Feb 22 2019 14:13:38]
++        c_img_path:          [./erofs_disk]
++        c_src_path:          [/root/arshad/erofs-utils/srcd]
++        c_dbg_lvl:           [       0]
++        c_dry_run:           [       0]
++        c_alg_name:          [    none]
++        c_compr_maxsz:       [  921600]
++        c_compr_lvl:         [       0]
++        c_compr_boundary:    [     128]
++        c_compr_ratio_limit: [     100]
++
++Load erofs.ko module
++$ insmod drivers/staging/erofs/erofs.ko
++
++Mount erofs_disk image
++$ mount -t erofs erofs_disk /mnt/vg1 -o loop
++
++Check FS type mount reports
++$ mount | grep erofs
++/root/arshad/erofs-utils/erofs_disk on /mnt/vg1 type erofs
+(ro,relatime,user_xattr,acl)
++
++Check the contents of the mounted FS
++$ ls -ali /mnt/vg1/
++total 31
++  4 -rw-r--r-- 1 root root     0 Feb 23 06:55 ChangeLog
++896 -rw-r--r-- 1 root root  3195 Feb 23 06:55 configure.ac
++  5 -rw-r--r-- 1 root root 25763 Feb 23 06:55 Makefile
++ 44 -rw-r--r-- 1 root root  1879 Feb 23 06:55 README
++
++Umount /mnt/vg1
++$ umount /mnt/vg1
++
++Unload erofs module
++$ rmmod erofs
+
+ To:
+   linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
+--
+2.14.3
