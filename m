@@ -1,10 +1,10 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 7 Mar 2019 13:38:41 +0800
-Subject: [PATCH for-4.19] staging: erofs: compressed_pages should not be
+Date: Thu, 7 Mar 2019 14:02:27 +0800
+Subject: [PATCH for-4.20] staging: erofs: compressed_pages should not be
  accessed again after freed
 In-Reply-To: <20190301212202.3297720848@mail.kernel.org>
 References: <20190301212202.3297720848@mail.kernel.org>
-Message-ID: <20190307053841.30851-1-gaoxiang25@huawei.com>
+Message-ID: <20190307060227.35571-1-gaoxiang25@huawei.com>
 
 commit af692e117cb8cd9d3d844d413095775abc1217f9 upstream.
 
@@ -41,14 +41,14 @@ Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 ---
  drivers/staging/erofs/unzip_vle.c     | 38 ++++++++++++++++++-----------------
  drivers/staging/erofs/unzip_vle.h     |  3 +--
- drivers/staging/erofs/unzip_vle_lz4.c | 20 +++++++++---------
- 3 files changed, 30 insertions(+), 31 deletions(-)
+ drivers/staging/erofs/unzip_vle_lz4.c | 19 ++++++++----------
+ 3 files changed, 29 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 1279241449f4..96fb93e86485 100644
+index 1c4b3e0343f5..7182769f546a 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -901,11 +901,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+@@ -904,11 +904,10 @@ static int z_erofs_vle_unzip(struct super_block *sb,
  	if (llen > grp->llen)
  		llen = grp->llen;
  
@@ -63,7 +63,7 @@ index 1279241449f4..96fb93e86485 100644
  
  	if (sparsemem_pages >= nr_pages)
  		goto skip_allocpage;
-@@ -926,8 +925,25 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+@@ -929,8 +928,25 @@ static int z_erofs_vle_unzip(struct super_block *sb,
  	erofs_vunmap(vout, nr_pages);
  
  out:
@@ -89,7 +89,7 @@ index 1279241449f4..96fb93e86485 100644
  		DBG_BUGON(page->mapping == NULL);
  
  		/* recycle all individual staging pages */
-@@ -940,20 +956,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+@@ -943,20 +959,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
  		z_erofs_onlinepage_endio(page);
  	}
  
@@ -125,22 +125,22 @@ index 3316bc36965d..684ff06fc7bf 100644
  extern int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
  	unsigned clusterpages, void *vaddr, unsigned llen,
 diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
-index 9cb35cd33365..055420e8af2c 100644
+index 16ac335ee59f..8fa8a71a5445 100644
 --- a/drivers/staging/erofs/unzip_vle_lz4.c
 +++ b/drivers/staging/erofs/unzip_vle_lz4.c
 @@ -105,8 +105,7 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
- 				  unsigned clusterpages,
+ 				  unsigned int clusterpages,
  				  struct page **pages,
- 				  unsigned outlen,
+ 				  unsigned int outlen,
 -				  unsigned short pageofs,
 -				  void (*endio)(struct page *))
 +				  unsigned short pageofs)
  {
  	void *vin, *vout;
- 	unsigned nr_pages, i, j;
-@@ -128,31 +127,30 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
+ 	unsigned int nr_pages, i, j;
+@@ -128,19 +127,16 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
  	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
- 		clusterpages * PAGE_SIZE, outlen);
+ 				clusterpages * PAGE_SIZE, outlen);
  
 -	if (ret >= 0) {
 -		outlen = ret;
@@ -151,19 +151,19 @@ index 9cb35cd33365..055420e8af2c 100644
 +	ret = 0;
  
  	for (i = 0; i < nr_pages; ++i) {
- 		j = min((unsigned)PAGE_SIZE - pageofs, outlen);
+ 		j = min((unsigned int)PAGE_SIZE - pageofs, outlen);
  
- 		if (pages[i] != NULL) {
--			if (ret < 0)
+ 		if (pages[i]) {
+-			if (ret < 0) {
 -				SetPageError(pages[i]);
--			else if (clusterpages == 1 && pages[i] == compressed_pages[0])
+-			} else if (clusterpages == 1 &&
+-				   pages[i] == compressed_pages[0]) {
 +			if (clusterpages == 1 &&
 +			    pages[i] == compressed_pages[0]) {
  				memcpy(vin + pageofs, vout + pageofs, j);
--			else {
-+			} else {
+ 			} else {
  				void *dst = kmap_atomic(pages[i]);
- 
+@@ -148,12 +144,13 @@ int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
  				memcpy(dst + pageofs, vout + pageofs, j);
  				kunmap_atomic(dst);
  			}
