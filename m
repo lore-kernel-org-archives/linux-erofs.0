@@ -1,77 +1,26 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 8 Mar 2019 08:03:36 +0800
-Subject: [PATCH for-4.19] staging: erofs: fix mis-acted TAIL merging
- behavior
-In-Reply-To: <20190307152147.GA24453@kroah.com>
-References: <20190301212203.5FE0C2084F@mail.kernel.org>
- <20190307053404.29108-1-gaoxiang25@huawei.com>
- <20190307122539.GD21325@kroah.com>
- <5b7e1914-f8e5-da3d-4492-17d6afc00fb1@huawei.com>
- <20190307152147.GA24453@kroah.com>
-Message-ID: <3110c661-ceae-2014-c5eb-50aa72e9b087@aol.com>
+From: juliobianco@gmail.com (Julio Bianco)
+Date: Sat,  9 Mar 2019 14:08:53 -0300
+Subject: [PATCH] staging: erofs: add a new line after variable declaration
+Message-ID: <20190309170853.8297-1-juliobianco@gmail.com>
 
+Add a new line after variable declaration
 
+Signed-off-by: Julio Bianco <juliobianco at gmail.com>
+---
+ drivers/staging/erofs/inode.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 2019/3/7 23:21, Greg KH wrote:
-> On Thu, Mar 07, 2019@09:04:06PM +0800, Gao Xiang wrote:
->> Hi Greg,
->>
->> On 2019/3/7 20:25, Greg KH wrote:
->>> On Thu, Mar 07, 2019@01:34:04PM +0800, Gao Xiang wrote:
->>>> commit a112152f6f3a2a88caa6f414d540bd49e406af60 upstream.
->>>>
->>>> EROFS has an optimized path called TAIL merging, which is designed
->>>> to merge multiple reads and the corresponding decompressions into
->>>> one if these requests read continuous pages almost at the same time.
->>>>
->>>> In general, it behaves as follows:
->>>>  ________________________________________________________________
->>>>   ... |  TAIL  .  HEAD  |  PAGE  |  PAGE  |  TAIL    . HEAD | ...
->>>>  _____|_combined page A_|________|________|_combined page B_|____
->>>>         1  ]  ->  [  2                          ]  ->  [ 3
->>>> If the above three reads are requested in the order 1-2-3, it will
->>>> generate a large work chain rather than 3 individual work chains
->>>> to reduce scheduling overhead and boost up sequential read.
->>>>
->>>> However, if Read 2 is processed slightly earlier than Read 1,
->>>> currently it still generates 2 individual work chains (chain 1, 2)
->>>> but it does in-place decompression for combined page A, moreover,
->>>> if chain 2 decompresses ahead of chain 1, it will be a race and
->>>> lead to corrupted decompressed page. This patch fixes it.
->>>>
->>>> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
->>>> Cc: <stable at vger.kernel.org> # 4.19+
->>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->>>> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
->>>> ---
->>>>  drivers/staging/erofs/unzip_vle.c | 69 +++++++++++++++++++++++++--------------
->>>>  1 file changed, 44 insertions(+), 25 deletions(-)
->>>>
->>>
->>> thanks for the backport, now applied.
->>
->> Yes, it seems that Sasha's bot cannot cherry-pick it directly,
->> therefore I made this patch for 4.19 by hand...
->>
->> BTW, there is another patch called "staging: erofs: compressed_pages should not be accessed again after freed"
->> in the same condition... And I also send 4.19 and 4.20 version to stable mailing list,
->> could you also kindly check them out?
-> 
-> Yes, please give me a chance to catch up on stable pending patches to
-> process:
-> 
-> 	$ mdfrm -c ~/mail/stable/
-> 	585 messages in /home/gregkh/mail/stable/
-> 
-> You are in good company :)
-
-Thanks for taking time.
-I received more reports which shows some 5.1-rc patches are failed to be applied,
-I will backport them later. :)
-
-Thanks,
-Gao Xiang
-
-> 
-> greg k-h
-> 
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 924b8dfc7a8f..1cf1afe2d73a 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -270,6 +270,7 @@ struct inode *erofs_iget(struct super_block *sb,
+ 	if (inode->i_state & I_NEW) {
+ 		int err;
+ 		struct erofs_vnode *vi = EROFS_V(inode);
++
+ 		vi->nid = nid;
+ 
+ 		err = fill_inode(inode, isdir);
+-- 
+2.11.0
