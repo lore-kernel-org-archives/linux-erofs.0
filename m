@@ -1,8 +1,8 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 11 Mar 2019 10:29:31 +0800
-Subject: [PATCH RESEND for-5.0 1/2] staging: erofs: keep corrupted fs from
- crashing kernel in erofs_namei()
-Message-ID: <20190311022932.13539-1-gaoxiang25@huawei.com>
+Date: Mon, 11 Mar 2019 10:40:23 +0800
+Subject: [PATCH for-4.20] staging: erofs: keep corrupted fs from crashing
+ kernel in erofs_namei()
+Message-ID: <20190311024023.46037-1-gaoxiang25@huawei.com>
 
 commit 419d6efc50e94bcf5d6b35cd8c71f79edadec564 upstream.
 
@@ -31,12 +31,8 @@ Suggested-by: Al Viro <viro at ZenIV.linux.org.uk>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
 
-resend:
- - add LKML and linux-erofs mailing list to cc
-
 This series resolves the following conflicts:
-FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 5.0-stable tree
-FAILED: patch "[PATCH] staging: erofs: compressed_pages should not be accessed again" failed to apply to 5.0-stable tree
+ FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.20-stable tree
 
  drivers/staging/erofs/namei.c | 183 ++++++++++++++++++++++--------------------
  1 file changed, 97 insertions(+), 86 deletions(-)
