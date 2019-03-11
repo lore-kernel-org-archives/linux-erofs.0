@@ -1,330 +1,319 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 11 Mar 2019 14:08:54 +0800
-Subject: [PATCH 4.19 1/5] staging: erofs: add error handling for xattr
- submodule
-Message-ID: <20190311060858.28654-1-gaoxiang25@huawei.com>
+Date: Mon, 11 Mar 2019 14:08:58 +0800
+Subject: [PATCH 4.19 5/5] staging: erofs: keep corrupted fs from crashing
+ kernel in erofs_namei()
+In-Reply-To: <20190311060858.28654-1-gaoxiang25@huawei.com>
+References: <20190311060858.28654-1-gaoxiang25@huawei.com>
+Message-ID: <20190311060858.28654-5-gaoxiang25@huawei.com>
 
-commit cadf1ccf1b0021d0b7a9347e102ac5258f9f98c8 upstream.
+commit 419d6efc50e94bcf5d6b35cd8c71f79edadec564 upstream.
 
-This patch enhances the missing error handling code for
-xattr submodule, which improves the stability for the rare cases.
+As Al pointed out, "
+... and while we are at it, what happens to
+	unsigned int nameoff = le16_to_cpu(de[mid].nameoff);
+	unsigned int matched = min(startprfx, endprfx);
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+	struct qstr dname = QSTR_INIT(data + nameoff,
+		unlikely(mid >= ndirents - 1) ?
+			maxsize - nameoff :
+			le16_to_cpu(de[mid + 1].nameoff) - nameoff);
+
+	/* string comparison without already matched prefix */
+	int ret = dirnamecmp(name, &dname, &matched);
+if le16_to_cpu(de[...].nameoff) is not monotonically increasing?  I.e.
+what's to prevent e.g. (unsigned)-1 ending up in dname.len?
+
+Corrupted fs image shouldn't oops the kernel.. "
+
+Revisit the related lookup flow to address the issue.
+
+Fixes: d72d1ce60174 ("staging: erofs: add namei functions")
+Cc: <stable at vger.kernel.org> # 4.19+
+Suggested-by: Al Viro <viro at ZenIV.linux.org.uk>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+ drivers/staging/erofs/namei.c | 189 ++++++++++++++++++++++--------------------
+ 1 file changed, 100 insertions(+), 89 deletions(-)
 
-This series resolves the following conflicts:
- FAILED: patch "[PATCH] staging: erofs: fix fast symlink w/o xattr when fs xattr is" failed to apply to 4.19-stable tree
- FAILED: patch "[PATCH] staging: erofs: fix memleak of inode's shared xattr array" failed to apply to 4.19-stable tree
- FAILED: patch "[PATCH] staging: erofs: fix race of initializing xattrs of a inode at" failed to apply to 4.19-stable tree
- FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.19-stable tree
-
-In addition, there is another patch called
- staging: erofs: add error handling for xattr submodule
-that needs to be backported to 4.19 as well (4.20+ already has this patch.)
-
- drivers/staging/erofs/internal.h |   5 +-
- drivers/staging/erofs/xattr.c    | 112 +++++++++++++++++++++++++++------------
- 2 files changed, 81 insertions(+), 36 deletions(-)
-
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 9f44ed8f0023..1c048c412fb2 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -485,8 +485,9 @@ struct erofs_map_blocks_iter {
- };
+diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+index 546a47156101..023f64fa2c87 100644
+--- a/drivers/staging/erofs/namei.c
++++ b/drivers/staging/erofs/namei.c
+@@ -15,74 +15,77 @@
  
+ #include <trace/events/erofs.h>
  
--static inline struct page *erofs_get_inline_page(struct inode *inode,
--	erofs_blk_t blkaddr)
-+static inline struct page *
-+erofs_get_inline_page(struct inode *inode,
-+		      erofs_blk_t blkaddr)
- {
- 	return erofs_get_meta_page(inode->i_sb,
- 		blkaddr, S_ISDIR(inode->i_mode));
-diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 0e9cfeccdf99..d4bccb57e7c3 100644
---- a/drivers/staging/erofs/xattr.c
-+++ b/drivers/staging/erofs/xattr.c
-@@ -24,16 +24,25 @@ struct xattr_iter {
- 
- static inline void xattr_iter_end(struct xattr_iter *it, bool atomic)
- {
--	/* only init_inode_xattrs use non-atomic once */
-+	/* the only user of kunmap() is 'init_inode_xattrs' */
- 	if (unlikely(!atomic))
- 		kunmap(it->page);
- 	else
- 		kunmap_atomic(it->kaddr);
+-/* based on the value of qn->len is accurate */
+-static inline int dirnamecmp(struct qstr *qn,
+-	struct qstr *qd, unsigned *matched)
++struct erofs_qstr {
++	const unsigned char *name;
++	const unsigned char *end;
++};
 +
- 	unlock_page(it->page);
- 	put_page(it->page);
- }
- 
--static void init_inode_xattrs(struct inode *inode)
-+static inline void xattr_iter_end_final(struct xattr_iter *it)
-+{
-+	if (!it->page)
-+		return;
-+
-+	xattr_iter_end(it, true);
-+}
-+
-+static int init_inode_xattrs(struct inode *inode)
++/* based on the end of qn is accurate and it must have the trailing '\0' */
++static inline int dirnamecmp(const struct erofs_qstr *qn,
++			     const struct erofs_qstr *qd,
++			     unsigned int *matched)
  {
- 	struct xattr_iter it;
- 	unsigned i;
-@@ -43,7 +52,7 @@ static void init_inode_xattrs(struct inode *inode)
- 	bool atomic_map;
- 
- 	if (likely(inode_has_inited_xattr(inode)))
--		return;
-+		return 0;
- 
- 	vi = EROFS_V(inode);
- 	BUG_ON(!vi->xattr_isize);
-@@ -53,7 +62,8 @@ static void init_inode_xattrs(struct inode *inode)
- 	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
- 
- 	it.page = erofs_get_inline_page(inode, it.blkaddr);
--	BUG_ON(IS_ERR(it.page));
-+	if (IS_ERR(it.page))
-+		return PTR_ERR(it.page);
- 
- 	/* read in shared xattr array (non-atomic, see kmalloc below) */
- 	it.kaddr = kmap(it.page);
-@@ -62,9 +72,12 @@ static void init_inode_xattrs(struct inode *inode)
- 	ih = (struct erofs_xattr_ibody_header *)(it.kaddr + it.ofs);
- 
- 	vi->xattr_shared_count = ih->h_shared_count;
--	vi->xattr_shared_xattrs = (unsigned *)kmalloc_array(
--		vi->xattr_shared_count, sizeof(unsigned),
--		GFP_KERNEL | __GFP_NOFAIL);
-+	vi->xattr_shared_xattrs = kmalloc_array(vi->xattr_shared_count,
-+						sizeof(uint), GFP_KERNEL);
-+	if (!vi->xattr_shared_xattrs) {
-+		xattr_iter_end(&it, atomic_map);
-+		return -ENOMEM;
-+	}
- 
- 	/* let's skip ibody header */
- 	it.ofs += sizeof(struct erofs_xattr_ibody_header);
-@@ -77,7 +90,8 @@ static void init_inode_xattrs(struct inode *inode)
- 
- 			it.page = erofs_get_meta_page(inode->i_sb,
- 				++it.blkaddr, S_ISDIR(inode->i_mode));
--			BUG_ON(IS_ERR(it.page));
-+			if (IS_ERR(it.page))
-+				return PTR_ERR(it.page);
- 
- 			it.kaddr = kmap_atomic(it.page);
- 			atomic_map = true;
-@@ -90,6 +104,7 @@ static void init_inode_xattrs(struct inode *inode)
- 	xattr_iter_end(&it, atomic_map);
- 
- 	inode_set_inited_xattr(inode);
-+	return 0;
- }
- 
- struct xattr_iter_handlers {
-@@ -99,18 +114,25 @@ struct xattr_iter_handlers {
- 	void (*value)(struct xattr_iter *, unsigned, char *, unsigned);
- };
- 
--static void xattr_iter_fixup(struct xattr_iter *it)
-+static inline int xattr_iter_fixup(struct xattr_iter *it)
- {
--	if (unlikely(it->ofs >= EROFS_BLKSIZ)) {
--		xattr_iter_end(it, true);
-+	if (it->ofs < EROFS_BLKSIZ)
-+		return 0;
- 
--		it->blkaddr += erofs_blknr(it->ofs);
--		it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
--		BUG_ON(IS_ERR(it->page));
-+	xattr_iter_end(it, true);
- 
--		it->kaddr = kmap_atomic(it->page);
--		it->ofs = erofs_blkoff(it->ofs);
-+	it->blkaddr += erofs_blknr(it->ofs);
-+	it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
-+	if (IS_ERR(it->page)) {
-+		int err = PTR_ERR(it->page);
+-	unsigned i = *matched, len = min(qn->len, qd->len);
+-loop:
+-	if (unlikely(i >= len)) {
+-		*matched = i;
+-		if (qn->len < qd->len) {
+-			/*
+-			 * actually (qn->len == qd->len)
+-			 * when qd->name[i] == '\0'
+-			 */
+-			return qd->name[i] == '\0' ? 0 : -1;
++	unsigned int i = *matched;
 +
-+		it->page = NULL;
-+		return err;
++	/*
++	 * on-disk error, let's only BUG_ON in the debugging mode.
++	 * otherwise, it will return 1 to just skip the invalid name
++	 * and go on (in consideration of the lookup performance).
++	 */
++	DBG_BUGON(qd->name > qd->end);
++
++	/* qd could not have trailing '\0' */
++	/* However it is absolutely safe if < qd->end */
++	while (qd->name + i < qd->end && qd->name[i] != '\0') {
++		if (qn->name[i] != qd->name[i]) {
++			*matched = i;
++			return qn->name[i] > qd->name[i] ? 1 : -1;
+ 		}
+-		return (qn->len > qd->len);
++		++i;
  	}
+-
+-	if (qn->name[i] != qd->name[i]) {
+-		*matched = i;
+-		return qn->name[i] > qd->name[i] ? 1 : -1;
+-	}
+-
+-	++i;
+-	goto loop;
++	*matched = i;
++	/* See comments in __d_alloc on the terminating NUL character */
++	return qn->name[i] == '\0' ? 0 : 1;
+ }
+ 
+-static struct erofs_dirent *find_target_dirent(
+-	struct qstr *name,
+-	u8 *data, int maxsize)
++#define nameoff_from_disk(off, sz)	(le16_to_cpu(off) & ((sz) - 1))
 +
-+	it->kaddr = kmap_atomic(it->page);
-+	it->ofs = erofs_blkoff(it->ofs);
-+	return 0;
- }
- 
- static int inline_xattr_iter_begin(struct xattr_iter *it,
-@@ -132,21 +154,24 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
- 	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
- 
- 	it->page = erofs_get_inline_page(inode, it->blkaddr);
--	BUG_ON(IS_ERR(it->page));
--	it->kaddr = kmap_atomic(it->page);
-+	if (IS_ERR(it->page))
-+		return PTR_ERR(it->page);
- 
-+	it->kaddr = kmap_atomic(it->page);
- 	return vi->xattr_isize - xattr_header_sz;
- }
- 
- static int xattr_foreach(struct xattr_iter *it,
--	struct xattr_iter_handlers *op, unsigned *tlimit)
-+	const struct xattr_iter_handlers *op, unsigned int *tlimit)
++static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
++					       u8 *data,
++					       unsigned int dirblksize,
++					       const int ndirents)
  {
- 	struct erofs_xattr_entry entry;
- 	unsigned value_sz, processed, slice;
- 	int err;
+-	unsigned ndirents, head, back;
+-	unsigned startprfx, endprfx;
++	int head, back;
++	unsigned int startprfx, endprfx;
+ 	struct erofs_dirent *const de = (struct erofs_dirent *)data;
  
- 	/* 0. fixup blkaddr, ofs, ipage */
--	xattr_iter_fixup(it);
-+	err = xattr_iter_fixup(it);
-+	if (err)
-+		return err;
+-	/* make sure that maxsize is valid */
+-	BUG_ON(maxsize < sizeof(struct erofs_dirent));
+-
+-	ndirents = le16_to_cpu(de->nameoff) / sizeof(*de);
+-
+-	/* corrupted dir (may be unnecessary...) */
+-	BUG_ON(!ndirents);
+-
+-	head = 0;
++	/* since the 1st dirent has been evaluated previously */
++	head = 1;
+ 	back = ndirents - 1;
+ 	startprfx = endprfx = 0;
  
- 	/*
- 	 * 1. read xattr entry to the memory,
-@@ -178,7 +203,9 @@ static int xattr_foreach(struct xattr_iter *it,
- 		if (it->ofs >= EROFS_BLKSIZ) {
- 			BUG_ON(it->ofs > EROFS_BLKSIZ);
+ 	while (head <= back) {
+-		unsigned mid = head + (back - head) / 2;
+-		unsigned nameoff = le16_to_cpu(de[mid].nameoff);
+-		unsigned matched = min(startprfx, endprfx);
+-
+-		struct qstr dname = QSTR_INIT(data + nameoff,
+-			unlikely(mid >= ndirents - 1) ?
+-				maxsize - nameoff :
+-				le16_to_cpu(de[mid + 1].nameoff) - nameoff);
++		const int mid = head + (back - head) / 2;
++		const int nameoff = nameoff_from_disk(de[mid].nameoff,
++						      dirblksize);
++		unsigned int matched = min(startprfx, endprfx);
++		struct erofs_qstr dname = {
++			.name = data + nameoff,
++			.end = unlikely(mid >= ndirents - 1) ?
++				data + dirblksize :
++				data + nameoff_from_disk(de[mid + 1].nameoff,
++							 dirblksize)
++		};
  
--			xattr_iter_fixup(it);
-+			err = xattr_iter_fixup(it);
-+			if (err)
+ 		/* string comparison without already matched prefix */
+ 		int ret = dirnamecmp(name, &dname, &matched);
+ 
+-		if (unlikely(!ret))
++		if (unlikely(!ret)) {
+ 			return de + mid;
+-		else if (ret > 0) {
++		} else if (ret > 0) {
+ 			head = mid + 1;
+ 			startprfx = matched;
+-		} else if (unlikely(mid < 1))	/* fix "mid" overflow */
+-			break;
+-		else {
++		} else {
+ 			back = mid - 1;
+ 			endprfx = matched;
+ 		}
+@@ -91,12 +94,12 @@ static struct erofs_dirent *find_target_dirent(
+ 	return ERR_PTR(-ENOENT);
+ }
+ 
+-static struct page *find_target_block_classic(
+-	struct inode *dir,
+-	struct qstr *name, int *_diff)
++static struct page *find_target_block_classic(struct inode *dir,
++					      struct erofs_qstr *name,
++					      int *_ndirents)
+ {
+-	unsigned startprfx, endprfx;
+-	unsigned head, back;
++	unsigned int startprfx, endprfx;
++	int head, back;
+ 	struct address_space *const mapping = dir->i_mapping;
+ 	struct page *candidate = ERR_PTR(-ENOENT);
+ 
+@@ -105,41 +108,43 @@ static struct page *find_target_block_classic(
+ 	back = inode_datablocks(dir) - 1;
+ 
+ 	while (head <= back) {
+-		unsigned mid = head + (back - head) / 2;
++		const int mid = head + (back - head) / 2;
+ 		struct page *page = read_mapping_page(mapping, mid, NULL);
+ 
+-		if (IS_ERR(page)) {
+-exact_out:
+-			if (!IS_ERR(candidate)) /* valid candidate */
+-				put_page(candidate);
+-			return page;
+-		} else {
+-			int diff;
+-			unsigned ndirents, matched;
+-			struct qstr dname;
++		if (!IS_ERR(page)) {
+ 			struct erofs_dirent *de = kmap_atomic(page);
+-			unsigned nameoff = le16_to_cpu(de->nameoff);
+-
+-			ndirents = nameoff / sizeof(*de);
++			const int nameoff = nameoff_from_disk(de->nameoff,
++							      EROFS_BLKSIZ);
++			const int ndirents = nameoff / sizeof(*de);
++			int diff;
++			unsigned int matched;
++			struct erofs_qstr dname;
+ 
+-			/* corrupted dir (should have one entry at least) */
+-			BUG_ON(!ndirents || nameoff > PAGE_SIZE);
++			if (unlikely(!ndirents)) {
++				DBG_BUGON(1);
++				kunmap_atomic(de);
++				put_page(page);
++				page = ERR_PTR(-EIO);
 +				goto out;
- 			it->ofs = 0;
- 		}
++			}
  
-@@ -210,7 +237,10 @@ static int xattr_foreach(struct xattr_iter *it,
- 	while (processed < value_sz) {
- 		if (it->ofs >= EROFS_BLKSIZ) {
- 			BUG_ON(it->ofs > EROFS_BLKSIZ);
--			xattr_iter_fixup(it);
-+
-+			err = xattr_iter_fixup(it);
-+			if (err)
+ 			matched = min(startprfx, endprfx);
+ 
+ 			dname.name = (u8 *)de + nameoff;
+-			dname.len = ndirents == 1 ?
+-				/* since the rest of the last page is 0 */
+-				EROFS_BLKSIZ - nameoff
+-				: le16_to_cpu(de[1].nameoff) - nameoff;
++			if (ndirents == 1)
++				dname.end = (u8 *)de + EROFS_BLKSIZ;
++			else
++				dname.end = (u8 *)de +
++					nameoff_from_disk(de[1].nameoff,
++							  EROFS_BLKSIZ);
+ 
+ 			/* string comparison without already matched prefix */
+ 			diff = dirnamecmp(name, &dname, &matched);
+ 			kunmap_atomic(de);
+ 
+ 			if (unlikely(!diff)) {
+-				*_diff = 0;
+-				goto exact_out;
++				*_ndirents = 0;
 +				goto out;
- 			it->ofs = 0;
+ 			} else if (diff > 0) {
+ 				head = mid + 1;
+ 				startprfx = matched;
+@@ -147,45 +152,51 @@ static struct page *find_target_block_classic(
+ 				if (likely(!IS_ERR(candidate)))
+ 					put_page(candidate);
+ 				candidate = page;
++				*_ndirents = ndirents;
+ 			} else {
+ 				put_page(page);
+ 
+-				if (unlikely(mid < 1))	/* fix "mid" overflow */
+-					break;
+-
+ 				back = mid - 1;
+ 				endprfx = matched;
+ 			}
++			continue;
  		}
- 
-@@ -270,7 +300,7 @@ static void xattr_copyvalue(struct xattr_iter *_it,
- 	memcpy(it->buffer + processed, buf, len);
- }
- 
--static struct xattr_iter_handlers find_xattr_handlers = {
-+static const struct xattr_iter_handlers find_xattr_handlers = {
- 	.entry = xattr_entrymatch,
- 	.name = xattr_namematch,
- 	.alloc_buffer = xattr_checkbuffer,
-@@ -291,8 +321,11 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
- 		if (ret >= 0)
- 			break;
-+
-+		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
-+			break;
++out:		/* free if the candidate is valid */
++		if (!IS_ERR(candidate))
++			put_page(candidate);
++		return page;
  	}
--	xattr_iter_end(&it->it, true);
-+	xattr_iter_end_final(&it->it);
- 
- 	return ret < 0 ? ret : it->buffer_size;
+-	*_diff = 1;
+ 	return candidate;
  }
-@@ -315,8 +348,10 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 				xattr_iter_end(&it->it, true);
  
- 			it->it.page = erofs_get_meta_page(inode->i_sb,
--				blkaddr, false);
--			BUG_ON(IS_ERR(it->it.page));
-+							  blkaddr, false);
-+			if (IS_ERR(it->it.page))
-+				return PTR_ERR(it->it.page);
+ int erofs_namei(struct inode *dir,
+-	struct qstr *name,
+-	erofs_nid_t *nid, unsigned *d_type)
++		struct qstr *name,
++		erofs_nid_t *nid, unsigned int *d_type)
+ {
+-	int diff;
++	int ndirents;
+ 	struct page *page;
+-	u8 *data;
++	void *data;
+ 	struct erofs_dirent *de;
++	struct erofs_qstr qn;
+ 
+ 	if (unlikely(!dir->i_size))
+ 		return -ENOENT;
+ 
+-	diff = 1;
+-	page = find_target_block_classic(dir, name, &diff);
++	qn.name = name->name;
++	qn.end = name->name + name->len;
 +
- 			it->it.kaddr = kmap_atomic(it->it.page);
- 			it->it.blkaddr = blkaddr;
- 		}
-@@ -324,9 +359,12 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
- 		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
- 		if (ret >= 0)
- 			break;
-+
-+		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
-+			break;
- 	}
- 	if (vi->xattr_shared_count)
--		xattr_iter_end(&it->it, true);
-+		xattr_iter_end_final(&it->it);
++	ndirents = 0;
++	page = find_target_block_classic(dir, &qn, &ndirents);
  
- 	return ret < 0 ? ret : it->buffer_size;
- }
-@@ -351,7 +389,9 @@ int erofs_getxattr(struct inode *inode, int index,
- 	if (unlikely(name == NULL))
- 		return -EINVAL;
+ 	if (unlikely(IS_ERR(page)))
+ 		return PTR_ERR(page);
  
--	init_inode_xattrs(inode);
-+	ret = init_inode_xattrs(inode);
-+	if (ret)
-+		return ret;
+ 	data = kmap_atomic(page);
+ 	/* the target page has been mapped */
+-	de = likely(diff) ?
+-		/* since the rest of the last page is 0 */
+-		find_target_dirent(name, data, EROFS_BLKSIZ) :
+-		(struct erofs_dirent *)data;
++	if (ndirents)
++		de = find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents);
++	else
++		de = (struct erofs_dirent *)data;
  
- 	it.index = index;
- 
-@@ -494,7 +534,7 @@ static int xattr_skipvalue(struct xattr_iter *_it,
- 	return 1;
- }
- 
--static struct xattr_iter_handlers list_xattr_handlers = {
-+static const struct xattr_iter_handlers list_xattr_handlers = {
- 	.entry = xattr_entrylist,
- 	.name = xattr_namelist,
- 	.alloc_buffer = xattr_skipvalue,
-@@ -516,7 +556,7 @@ static int inline_listxattr(struct listxattr_iter *it)
- 		if (ret < 0)
- 			break;
- 	}
--	xattr_iter_end(&it->it, true);
-+	xattr_iter_end_final(&it->it);
- 	return ret < 0 ? ret : it->buffer_ofs;
- }
- 
-@@ -538,8 +578,10 @@ static int shared_listxattr(struct listxattr_iter *it)
- 				xattr_iter_end(&it->it, true);
- 
- 			it->it.page = erofs_get_meta_page(inode->i_sb,
--				blkaddr, false);
--			BUG_ON(IS_ERR(it->it.page));
-+							  blkaddr, false);
-+			if (IS_ERR(it->it.page))
-+				return PTR_ERR(it->it.page);
-+
- 			it->it.kaddr = kmap_atomic(it->it.page);
- 			it->it.blkaddr = blkaddr;
- 		}
-@@ -549,7 +591,7 @@ static int shared_listxattr(struct listxattr_iter *it)
- 			break;
- 	}
- 	if (vi->xattr_shared_count)
--		xattr_iter_end(&it->it, true);
-+		xattr_iter_end_final(&it->it);
- 
- 	return ret < 0 ? ret : it->buffer_ofs;
- }
-@@ -560,7 +602,9 @@ ssize_t erofs_listxattr(struct dentry *dentry,
- 	int ret;
- 	struct listxattr_iter it;
- 
--	init_inode_xattrs(d_inode(dentry));
-+	ret = init_inode_xattrs(d_inode(dentry));
-+	if (ret)
-+		return ret;
- 
- 	it.dentry = dentry;
- 	it.buffer = buffer;
+ 	if (likely(!IS_ERR(de))) {
+ 		*nid = le64_to_cpu(de->nid);
 -- 
 2.14.5
