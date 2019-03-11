@@ -1,151 +1,128 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 11 Mar 2019 14:08:57 +0800
-Subject: [PATCH 4.19 4/5] staging: erofs: fix race of initializing xattrs of a
- inode at the same time
+Date: Mon, 11 Mar 2019 14:08:55 +0800
+Subject: [PATCH 4.19 2/5] staging: erofs: fix fast symlink w/o xattr when fs
+ xattr is on
 In-Reply-To: <20190311060858.28654-1-gaoxiang25@huawei.com>
 References: <20190311060858.28654-1-gaoxiang25@huawei.com>
-Message-ID: <20190311060858.28654-4-gaoxiang25@huawei.com>
+Message-ID: <20190311060858.28654-2-gaoxiang25@huawei.com>
 
-commit 62dc45979f3f8cb0ea67302a93bff686f0c46c5a upstream.
+commit 7077fffcb0b0b65dc75e341306aeef4d0e7f2ec6 upstream.
 
-In real scenario, there could be several threads accessing xattrs
-of the same xattr-uninitialized inode, and init_inode_xattrs()
-almost at the same time.
+Currently, this will hit a BUG_ON for these symlinks as follows:
 
-That's actually an unexpected behavior, this patch closes the race.
+- kernel message
+------------[ cut here ]------------
+kernel BUG at drivers/staging/erofs/xattr.c:59!
+SMP PTI
+CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+RIP: 0010:init_inode_xattrs+0x22b/0x270
+Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
+ <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
+RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
+------------[ cut here ]------------
+...
+Call Trace:
+ erofs_listxattr+0x30/0x2c0
+ ? selinux_inode_listxattr+0x5a/0x80
+ ? kmem_cache_alloc+0x33/0x170
+ ? security_inode_listxattr+0x27/0x40
+ listxattr+0xaf/0xc0
+ path_listxattr+0x5a/0xa0
+ do_syscall_64+0x43/0xf0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+...
+---[ end trace 3c24b49408dc0c72 ]---
+
+Fix it by checking ->xattr_isize in init_inode_xattrs(),
+and it also fixes improper return value -ENOTSUPP
+(it should be -ENODATA if xattr is enabled) for those inodes.
 
 Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
 Cc: <stable at vger.kernel.org> # 4.19+
+Reported-by: Li Guifu <bluce.liguifu at huawei.com>
+Tested-by: Li Guifu <bluce.liguifu at huawei.com>
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 11 ++++++++---
- drivers/staging/erofs/xattr.c    | 41 ++++++++++++++++++++++++++++------------
- 2 files changed, 37 insertions(+), 15 deletions(-)
+ drivers/staging/erofs/inode.c |  8 ++++----
+ drivers/staging/erofs/xattr.c | 25 ++++++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 1c048c412fb2..c70f0c5237ea 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -327,12 +327,17 @@ static inline erofs_off_t iloc(struct erofs_sb_info *sbi, erofs_nid_t nid)
- 	return blknr_to_addr(sbi->meta_blkaddr) + (nid << sbi->islotbits);
- }
- 
--#define inode_set_inited_xattr(inode)   (EROFS_V(inode)->flags |= 1)
--#define inode_has_inited_xattr(inode)   (EROFS_V(inode)->flags & 1)
-+/* atomic flag definitions */
-+#define EROFS_V_EA_INITED_BIT	0
-+
-+/* bitlock definitions (arranged in reverse order) */
-+#define EROFS_V_BL_XATTR_BIT	(BITS_PER_LONG - 1)
- 
- struct erofs_vnode {
- 	erofs_nid_t nid;
--	unsigned int flags;
-+
-+	/* atomic flags (including bitlocks) */
-+	unsigned long flags;
- 
- 	unsigned char data_mapping_mode;
- 	/* inline size in bytes */
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 9e7815f55a17..7448744cc515 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -184,16 +184,16 @@ static int fill_inode(struct inode *inode, int isdir)
+ 		/* setup the new inode */
+ 		if (S_ISREG(inode->i_mode)) {
+ #ifdef CONFIG_EROFS_FS_XATTR
+-			if (vi->xattr_isize)
+-				inode->i_op = &erofs_generic_xattr_iops;
++			inode->i_op = &erofs_generic_xattr_iops;
+ #endif
+ 			inode->i_fop = &generic_ro_fops;
+ 		} else if (S_ISDIR(inode->i_mode)) {
+ 			inode->i_op =
+ #ifdef CONFIG_EROFS_FS_XATTR
+-				vi->xattr_isize ? &erofs_dir_xattr_iops :
+-#endif
++				&erofs_dir_xattr_iops;
++#else
+ 				&erofs_dir_iops;
++#endif
+ 			inode->i_fop = &erofs_dir_fops;
+ 		} else if (S_ISLNK(inode->i_mode)) {
+ 			/* by default, page_get_link is used for symlink */
 diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-index 890fa06bbcbb..955d024bf5a9 100644
+index d4bccb57e7c3..ac2567576335 100644
 --- a/drivers/staging/erofs/xattr.c
 +++ b/drivers/staging/erofs/xattr.c
-@@ -44,17 +44,24 @@ static inline void xattr_iter_end_final(struct xattr_iter *it)
- 
- static int init_inode_xattrs(struct inode *inode)
- {
-+	struct erofs_vnode *const vi = EROFS_V(inode);
- 	struct xattr_iter it;
- 	unsigned i;
- 	struct erofs_xattr_ibody_header *ih;
- 	struct erofs_sb_info *sbi;
--	struct erofs_vnode *vi;
- 	bool atomic_map;
-+	int ret = 0;
- 
--	if (likely(inode_has_inited_xattr(inode)))
-+	/* the most case is that xattrs of this inode are initialized. */
-+	if (test_bit(EROFS_V_EA_INITED_BIT, &vi->flags))
+@@ -55,7 +55,26 @@ static int init_inode_xattrs(struct inode *inode)
  		return 0;
  
--	vi = EROFS_V(inode);
-+	if (wait_on_bit_lock(&vi->flags, EROFS_V_BL_XATTR_BIT, TASK_KILLABLE))
-+		return -ERESTARTSYS;
+ 	vi = EROFS_V(inode);
+-	BUG_ON(!vi->xattr_isize);
 +
-+	/* someone has initialized xattrs for us? */
-+	if (test_bit(EROFS_V_EA_INITED_BIT, &vi->flags))
-+		goto out_unlock;
- 
- 	/*
- 	 * bypass all xattr operations if ->xattr_isize is not greater than
-@@ -67,13 +74,16 @@ static int init_inode_xattrs(struct inode *inode)
- 	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
- 		errln("xattr_isize %d of nid %llu is not supported yet",
- 		      vi->xattr_isize, vi->nid);
--		return -ENOTSUPP;
-+		ret = -ENOTSUPP;
-+		goto out_unlock;
- 	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
- 		if (unlikely(vi->xattr_isize)) {
- 			DBG_BUGON(1);
--			return -EIO;	/* xattr ondisk layout error */
-+			ret = -EIO;
-+			goto out_unlock;	/* xattr ondisk layout error */
- 		}
--		return -ENOATTR;
-+		ret = -ENOATTR;
-+		goto out_unlock;
- 	}
- 
- 	sbi = EROFS_I_SB(inode);
-@@ -81,8 +91,10 @@ static int init_inode_xattrs(struct inode *inode)
- 	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
- 
- 	it.page = erofs_get_inline_page(inode, it.blkaddr);
--	if (IS_ERR(it.page))
--		return PTR_ERR(it.page);
-+	if (IS_ERR(it.page)) {
-+		ret = PTR_ERR(it.page);
-+		goto out_unlock;
++	/*
++	 * bypass all xattr operations if ->xattr_isize is not greater than
++	 * sizeof(struct erofs_xattr_ibody_header), in detail:
++	 * 1) it is not enough to contain erofs_xattr_ibody_header then
++	 *    ->xattr_isize should be 0 (it means no xattr);
++	 * 2) it is just to contain erofs_xattr_ibody_header, which is on-disk
++	 *    undefined right now (maybe use later with some new sb feature).
++	 */
++	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
++		errln("xattr_isize %d of nid %llu is not supported yet",
++		      vi->xattr_isize, vi->nid);
++		return -ENOTSUPP;
++	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
++		if (unlikely(vi->xattr_isize)) {
++			DBG_BUGON(1);
++			return -EIO;	/* xattr ondisk layout error */
++		}
++		return -ENOATTR;
 +	}
  
- 	/* read in shared xattr array (non-atomic, see kmalloc below) */
- 	it.kaddr = kmap(it.page);
-@@ -95,7 +107,8 @@ static int init_inode_xattrs(struct inode *inode)
- 						sizeof(uint), GFP_KERNEL);
- 	if (vi->xattr_shared_xattrs == NULL) {
- 		xattr_iter_end(&it, atomic_map);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_unlock;
+ 	sbi = EROFS_I_SB(inode);
+ 	it.blkaddr = erofs_blknr(iloc(sbi, vi->nid) + vi->inode_isize);
+@@ -414,7 +433,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+ 		struct dentry *unused, struct inode *inode,
+ 		const char *name, void *buffer, size_t size)
+ {
+-	struct erofs_vnode *const vi = EROFS_V(inode);
+ 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+ 
+ 	switch (handler->flags) {
+@@ -432,9 +450,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+ 		return -EINVAL;
  	}
  
- 	/* let's skip ibody header */
-@@ -112,7 +125,8 @@ static int init_inode_xattrs(struct inode *inode)
- 			if (IS_ERR(it.page)) {
- 				kfree(vi->xattr_shared_xattrs);
- 				vi->xattr_shared_xattrs = NULL;
--				return PTR_ERR(it.page);
-+				ret = PTR_ERR(it.page);
-+				goto out_unlock;
- 			}
- 
- 			it.kaddr = kmap_atomic(it.page);
-@@ -125,8 +139,11 @@ static int init_inode_xattrs(struct inode *inode)
- 	}
- 	xattr_iter_end(&it, atomic_map);
- 
--	inode_set_inited_xattr(inode);
--	return 0;
-+	set_bit(EROFS_V_EA_INITED_BIT, &vi->flags);
-+
-+out_unlock:
-+	clear_and_wake_up_bit(EROFS_V_BL_XATTR_BIT, &vi->flags);
-+	return ret;
+-	if (!vi->xattr_isize)
+-		return -ENOATTR;
+-
+ 	return erofs_getxattr(inode, handler->flags, name, buffer, size);
  }
  
- struct xattr_iter_handlers {
 -- 
 2.14.5
