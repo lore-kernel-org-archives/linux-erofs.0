@@ -1,350 +1,279 @@
-From: gregkh@linuxfoundation.org (gregkh@linuxfoundation.org)
-Date: Tue, 12 Mar 2019 05:57:36 -0700
-Subject: Patch "staging: erofs: keep corrupted fs from crashing kernel in
- erofs_namei()" has been added to the 4.19-stable tree
-In-Reply-To: <20190311060858.28654-5-gaoxiang25@huawei.com>
-Message-ID: <1552395456166142@kroah.com>
+From: arshad.super@gmail.com (arshad hussain)
+Date: Tue, 12 Mar 2019 23:33:47 +0530
+Subject: [PATCH 1/1] staging: erofs: Add function comment for erofs/super.c
+Message-ID: <CAKsu7qwsSeN3XT=f-cz6wOMdwAHHhDJpWnNk_2epHu5J+F0+VA@mail.gmail.com>
 
+Re-sending. Previous patch I put in very old kernel-newbies address.
 
-This is a note to let you know that I've just added the patch titled
+Subject: [PATCH 1/1] staging: erofs: Add function comment for
+ erofs/super.c
 
-    staging: erofs: keep corrupted fs from crashing kernel in erofs_namei()
+This patch adds functions comment for file erofs/super.c in
+sphinx format.
 
-to the 4.19-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     staging-erofs-keep-corrupted-fs-from-crashing-kernel-in-erofs_namei.patch
-and it can be found in the queue-4.19 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable at vger.kernel.org> know about it.
-
-
->From foo at baz Tue Mar 12 05:46:41 PDT 2019
-From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Mon, 11 Mar 2019 14:08:58 +0800
-Subject: staging: erofs: keep corrupted fs from crashing kernel in erofs_namei()
-To: <stable at vger.kernel.org>
-Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>, LKML <linux-kernel at vger.kernel.org>, <linux-erofs at lists.ozlabs.org>, Chao Yu <yuchao0 at huawei.com>, Chao Yu <chao at kernel.org>, Miao Xie <miaoxie at huawei.com>, Fang Wei <fangwei1 at huawei.com>, Gao Xiang <gaoxiang25 at huawei.com>
-Message-ID: <20190311060858.28654-5-gaoxiang25 at huawei.com>
-
-From: Gao Xiang <gaoxiang25@huawei.com>
-
-commit 419d6efc50e94bcf5d6b35cd8c71f79edadec564 upstream.
-
-As Al pointed out, "
-... and while we are at it, what happens to
-	unsigned int nameoff = le16_to_cpu(de[mid].nameoff);
-	unsigned int matched = min(startprfx, endprfx);
-
-	struct qstr dname = QSTR_INIT(data + nameoff,
-		unlikely(mid >= ndirents - 1) ?
-			maxsize - nameoff :
-			le16_to_cpu(de[mid + 1].nameoff) - nameoff);
-
-	/* string comparison without already matched prefix */
-	int ret = dirnamecmp(name, &dname, &matched);
-if le16_to_cpu(de[...].nameoff) is not monotonically increasing?  I.e.
-what's to prevent e.g. (unsigned)-1 ending up in dname.len?
-
-Corrupted fs image shouldn't oops the kernel.. "
-
-Revisit the related lookup flow to address the issue.
-
-Fixes: d72d1ce60174 ("staging: erofs: add namei functions")
-Cc: <stable at vger.kernel.org> # 4.19+
-Suggested-by: Al Viro <viro at ZenIV.linux.org.uk>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+Signed-off-by: Arshad Hussain <arshad.super at gmail.com>
 ---
- drivers/staging/erofs/namei.c |  189 ++++++++++++++++++++++--------------------
- 1 file changed, 100 insertions(+), 89 deletions(-)
+ drivers/staging/erofs/super.c | 133 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 130 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/erofs/namei.c
-+++ b/drivers/staging/erofs/namei.c
-@@ -15,74 +15,77 @@
- 
- #include <trace/events/erofs.h>
- 
--/* based on the value of qn->len is accurate */
--static inline int dirnamecmp(struct qstr *qn,
--	struct qstr *qd, unsigned *matched)
-+struct erofs_qstr {
-+	const unsigned char *name;
-+	const unsigned char *end;
-+};
-+
-+/* based on the end of qn is accurate and it must have the trailing '\0' */
-+static inline int dirnamecmp(const struct erofs_qstr *qn,
-+			     const struct erofs_qstr *qd,
-+			     unsigned int *matched)
- {
--	unsigned i = *matched, len = min(qn->len, qd->len);
--loop:
--	if (unlikely(i >= len)) {
--		*matched = i;
--		if (qn->len < qd->len) {
--			/*
--			 * actually (qn->len == qd->len)
--			 * when qd->name[i] == '\0'
--			 */
--			return qd->name[i] == '\0' ? 0 : -1;
--		}
--		return (qn->len > qd->len);
--	}
-+	unsigned int i = *matched;
- 
--	if (qn->name[i] != qd->name[i]) {
--		*matched = i;
--		return qn->name[i] > qd->name[i] ? 1 : -1;
-+	/*
-+	 * on-disk error, let's only BUG_ON in the debugging mode.
-+	 * otherwise, it will return 1 to just skip the invalid name
-+	 * and go on (in consideration of the lookup performance).
-+	 */
-+	DBG_BUGON(qd->name > qd->end);
-+
-+	/* qd could not have trailing '\0' */
-+	/* However it is absolutely safe if < qd->end */
-+	while (qd->name + i < qd->end && qd->name[i] != '\0') {
-+		if (qn->name[i] != qd->name[i]) {
-+			*matched = i;
-+			return qn->name[i] > qd->name[i] ? 1 : -1;
-+		}
-+		++i;
- 	}
--
--	++i;
--	goto loop;
-+	*matched = i;
-+	/* See comments in __d_alloc on the terminating NUL character */
-+	return qn->name[i] == '\0' ? 0 : 1;
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 15c784fba879..6d2b93d94839 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -30,6 +30,11 @@ static void init_once(void *ptr)
+        inode_init_once(&vi->vfs_inode);
  }
- 
--static struct erofs_dirent *find_target_dirent(
--	struct qstr *name,
--	u8 *data, int maxsize)
-+#define nameoff_from_disk(off, sz)	(le16_to_cpu(off) & ((sz) - 1))
-+
-+static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
-+					       u8 *data,
-+					       unsigned int dirblksize,
-+					       const int ndirents)
+
++/*
++ * erofs_init_inode_cache(): Create & initialize inode cache
++ *
++ * Returns: 0 on Success. Errno Otherwise.
++ */
+ static int __init erofs_init_inode_cache(void)
  {
--	unsigned ndirents, head, back;
--	unsigned startprfx, endprfx;
-+	int head, back;
-+	unsigned int startprfx, endprfx;
- 	struct erofs_dirent *const de = (struct erofs_dirent *)data;
- 
--	/* make sure that maxsize is valid */
--	BUG_ON(maxsize < sizeof(struct erofs_dirent));
--
--	ndirents = le16_to_cpu(de->nameoff) / sizeof(*de);
--
--	/* corrupted dir (may be unnecessary...) */
--	BUG_ON(!ndirents);
--
--	head = 0;
-+	/* since the 1st dirent has been evaluated previously */
-+	head = 1;
- 	back = ndirents - 1;
- 	startprfx = endprfx = 0;
- 
- 	while (head <= back) {
--		unsigned mid = head + (back - head) / 2;
--		unsigned nameoff = le16_to_cpu(de[mid].nameoff);
--		unsigned matched = min(startprfx, endprfx);
--
--		struct qstr dname = QSTR_INIT(data + nameoff,
--			unlikely(mid >= ndirents - 1) ?
--				maxsize - nameoff :
--				le16_to_cpu(de[mid + 1].nameoff) - nameoff);
-+		const int mid = head + (back - head) / 2;
-+		const int nameoff = nameoff_from_disk(de[mid].nameoff,
-+						      dirblksize);
-+		unsigned int matched = min(startprfx, endprfx);
-+		struct erofs_qstr dname = {
-+			.name = data + nameoff,
-+			.end = unlikely(mid >= ndirents - 1) ?
-+				data + dirblksize :
-+				data + nameoff_from_disk(de[mid + 1].nameoff,
-+							 dirblksize)
-+		};
- 
- 		/* string comparison without already matched prefix */
- 		int ret = dirnamecmp(name, &dname, &matched);
- 
--		if (unlikely(!ret))
-+		if (unlikely(!ret)) {
- 			return de + mid;
--		else if (ret > 0) {
-+		} else if (ret > 0) {
- 			head = mid + 1;
- 			startprfx = matched;
--		} else if (unlikely(mid < 1))	/* fix "mid" overflow */
--			break;
--		else {
-+		} else {
- 			back = mid - 1;
- 			endprfx = matched;
- 		}
-@@ -91,12 +94,12 @@ static struct erofs_dirent *find_target_
- 	return ERR_PTR(-ENOENT);
+        erofs_inode_cachep = kmem_cache_create("erofs_inode",
+@@ -39,11 +44,21 @@ static int __init erofs_init_inode_cache(void)
+        return erofs_inode_cachep != NULL ? 0 : -ENOMEM;
  }
- 
--static struct page *find_target_block_classic(
--	struct inode *dir,
--	struct qstr *name, int *_diff)
-+static struct page *find_target_block_classic(struct inode *dir,
-+					      struct erofs_qstr *name,
-+					      int *_ndirents)
+
++/*
++ * erofs_exit_inode_cache(): Destroy inode cache
++ */
+ static void erofs_exit_inode_cache(void)
  {
--	unsigned startprfx, endprfx;
--	unsigned head, back;
-+	unsigned int startprfx, endprfx;
-+	int head, back;
- 	struct address_space *const mapping = dir->i_mapping;
- 	struct page *candidate = ERR_PTR(-ENOENT);
- 
-@@ -105,41 +108,43 @@ static struct page *find_target_block_cl
- 	back = inode_datablocks(dir) - 1;
- 
- 	while (head <= back) {
--		unsigned mid = head + (back - head) / 2;
-+		const int mid = head + (back - head) / 2;
- 		struct page *page = read_mapping_page(mapping, mid, NULL);
- 
--		if (IS_ERR(page)) {
--exact_out:
--			if (!IS_ERR(candidate)) /* valid candidate */
--				put_page(candidate);
--			return page;
--		} else {
--			int diff;
--			unsigned ndirents, matched;
--			struct qstr dname;
-+		if (!IS_ERR(page)) {
- 			struct erofs_dirent *de = kmap_atomic(page);
--			unsigned nameoff = le16_to_cpu(de->nameoff);
--
--			ndirents = nameoff / sizeof(*de);
-+			const int nameoff = nameoff_from_disk(de->nameoff,
-+							      EROFS_BLKSIZ);
-+			const int ndirents = nameoff / sizeof(*de);
-+			int diff;
-+			unsigned int matched;
-+			struct erofs_qstr dname;
- 
--			/* corrupted dir (should have one entry at least) */
--			BUG_ON(!ndirents || nameoff > PAGE_SIZE);
-+			if (unlikely(!ndirents)) {
-+				DBG_BUGON(1);
-+				kunmap_atomic(de);
-+				put_page(page);
-+				page = ERR_PTR(-EIO);
-+				goto out;
-+			}
- 
- 			matched = min(startprfx, endprfx);
- 
- 			dname.name = (u8 *)de + nameoff;
--			dname.len = ndirents == 1 ?
--				/* since the rest of the last page is 0 */
--				EROFS_BLKSIZ - nameoff
--				: le16_to_cpu(de[1].nameoff) - nameoff;
-+			if (ndirents == 1)
-+				dname.end = (u8 *)de + EROFS_BLKSIZ;
-+			else
-+				dname.end = (u8 *)de +
-+					nameoff_from_disk(de[1].nameoff,
-+							  EROFS_BLKSIZ);
- 
- 			/* string comparison without already matched prefix */
- 			diff = dirnamecmp(name, &dname, &matched);
- 			kunmap_atomic(de);
- 
- 			if (unlikely(!diff)) {
--				*_diff = 0;
--				goto exact_out;
-+				*_ndirents = 0;
-+				goto out;
- 			} else if (diff > 0) {
- 				head = mid + 1;
- 				startprfx = matched;
-@@ -147,45 +152,51 @@ exact_out:
- 				if (likely(!IS_ERR(candidate)))
- 					put_page(candidate);
- 				candidate = page;
-+				*_ndirents = ndirents;
- 			} else {
- 				put_page(page);
- 
--				if (unlikely(mid < 1))	/* fix "mid" overflow */
--					break;
--
- 				back = mid - 1;
- 				endprfx = matched;
- 			}
-+			continue;
- 		}
-+out:		/* free if the candidate is valid */
-+		if (!IS_ERR(candidate))
-+			put_page(candidate);
-+		return page;
- 	}
--	*_diff = 1;
- 	return candidate;
+        kmem_cache_destroy(erofs_inode_cachep);
  }
- 
- int erofs_namei(struct inode *dir,
--	struct qstr *name,
--	erofs_nid_t *nid, unsigned *d_type)
-+		struct qstr *name,
-+		erofs_nid_t *nid, unsigned int *d_type)
+
++/*
++ * alloc_inode(): Allocate and initialize inode
++ *
++ * @sb: VFS superblock structure
++ *
++ * Returns: Pointer to inode structure
++ */
+ static struct inode *alloc_inode(struct super_block *sb)
  {
--	int diff;
-+	int ndirents;
- 	struct page *page;
--	u8 *data;
-+	void *data;
- 	struct erofs_dirent *de;
-+	struct erofs_qstr qn;
- 
- 	if (unlikely(!dir->i_size))
- 		return -ENOENT;
- 
--	diff = 1;
--	page = find_target_block_classic(dir, name, &diff);
-+	qn.name = name->name;
-+	qn.end = name->name + name->len;
-+
-+	ndirents = 0;
-+	page = find_target_block_classic(dir, &qn, &ndirents);
- 
- 	if (unlikely(IS_ERR(page)))
- 		return PTR_ERR(page);
- 
- 	data = kmap_atomic(page);
- 	/* the target page has been mapped */
--	de = likely(diff) ?
--		/* since the rest of the last page is 0 */
--		find_target_dirent(name, data, EROFS_BLKSIZ) :
--		(struct erofs_dirent *)data;
-+	if (ndirents)
-+		de = find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents);
-+	else
-+		de = (struct erofs_dirent *)data;
- 
- 	if (likely(!IS_ERR(de))) {
- 		*nid = le64_to_cpu(de->nid);
+        struct erofs_vnode *vi =
+@@ -57,6 +72,11 @@ static struct inode *alloc_inode(struct super_block *sb)
+        return &vi->vfs_inode;
+ }
 
++/*
++ * i_callback(): Release slab Memory
++ *
++ * @head: RCU callback structure
++ */
+ static void i_callback(struct rcu_head *head)
+ {
+        struct inode *inode = container_of(head, struct inode, i_rcu);
+@@ -71,11 +91,23 @@ static void i_callback(struct rcu_head *head)
+        kmem_cache_free(erofs_inode_cachep, vi);
+ }
 
-Patches currently in stable-queue which might be from gaoxiang25 at huawei.com are
++/*
++ * destroy_inode(): Release Inode Resources allocated by alloc_inode()
++ *
++ * @inode: VFS Inode structure
++ */
+ static void destroy_inode(struct inode *inode)
+ {
+        call_rcu(&inode->i_rcu, i_callback);
+ }
 
-queue-4.19/staging-erofs-fix-fast-symlink-w-o-xattr-when-fs-xattr-is-on.patch
-queue-4.19/staging-erofs-fix-race-of-initializing-xattrs-of-a-inode-at-the-same-time.patch
-queue-4.19/staging-erofs-add-error-handling-for-xattr-submodule.patch
-queue-4.19/staging-erofs-keep-corrupted-fs-from-crashing-kernel-in-erofs_namei.patch
-queue-4.19/staging-erofs-fix-memleak-of-inode-s-shared-xattr-array.patch
++/*
++ * superblock_read(): Read superblock into buffer
++ *
++ * @sb: VFS Superblock structure
++ *
++ * Returns: 0 on Success. Errno otherwise
++ */
+ static int superblock_read(struct super_block *sb)
+ {
+        struct erofs_sb_info *sbi;
+@@ -230,6 +262,14 @@ static match_table_t erofs_tokens = {
+        {Opt_err, NULL}
+ };
+
++/*
++ * parse_options(): Parse and set additional mount option for erofs
++ *
++ * @sb: VFS superblock structure
++ * @options: Mount options
++ *
++ * Returns: 0 on Success. Errno otherwise
++ */
+ static int parse_options(struct super_block *sb, char *options)
+ {
+        substring_t args[MAX_OPT_ARGS];
+@@ -351,6 +391,22 @@ static struct inode
+*erofs_init_managed_cache(struct super_block *sb)
+
+ #endif
+
++/*
++ * erofs_read_super(): Helper function to erofs_fill_super()
++ *
++ * @sb: VFS superblock structure
++ * @dev_name: Name of device where erofs is mounted
++ * @data: Additional mount options
++ * @silent: if TRUE print message on error.
++ *         Silent/quite otherwise
++ *
++ * Helper function to actual callback function erofs_fill_super
++ * This function sets the blocksize. Reads the superblock into
++ * buffer. Parses and sets mount options. Populates root inode
++ * and creates root directory.
++ *
++ * Returns: 0 on Success. Errno otherwise
++ */
+ static int erofs_read_super(struct super_block *sb,
+        const char *dev_name, void *data, int silent)
+ {
+@@ -473,7 +529,11 @@ static int erofs_read_super(struct super_block *sb,
+ }
+
+ /*
+- * could be triggered after deactivate_locked_super()
++ * erofs_put_super(): Free superblock structure
++ *
++ * @sb: VFS superblock structure
++ *
++ * Could be triggered after deactivate_locked_super()
+  * is called, thus including umount and failed to initialize.
+  */
+ static void erofs_put_super(struct super_block *sb)
+@@ -513,7 +573,20 @@ struct erofs_mount_private {
+        char *options;
+ };
+
+-/* support mount_bdev() with options */
++/*
++ * erofs_fill_super(): Fill erofs superblock
++ *
++ * @sb: VFS superblock structure
++ * @_priv: Additional Mount options
++ * @silent: if TRUE print message on error.
++ *         Silent/quite otherwise
++ *
++ * This function fills erofs superblock information into
++ * the VFS superblock stucture. Additionally it supports
++ * mount_bdev() with options
++ *
++ * Returns: 0 on Success
++ */
+ static int erofs_fill_super(struct super_block *sb,
+        void *_priv, int silent)
+ {
+@@ -523,6 +596,17 @@ static int erofs_fill_super(struct super_block *sb,
+                priv->options, silent);
+ }
+
++/*
++ * erofs_mount(): Function called when erofs is mounted
++ *
++ * @fs_type: Describes the erofs filesystem
++ * @flags: Mount flags/options
++ * @dev_name: Name of device where erofs is mounted
++ * @data: Mount options
++ *
++ * Returns: Pointer to VFS dentry structure.
++ *         The root dentry.
++ */
+ static struct dentry *erofs_mount(
+        struct file_system_type *fs_type, int flags,
+        const char *dev_name, void *data)
+@@ -532,10 +616,21 @@ static struct dentry *erofs_mount(
+                .options = data
+        };
+
++       /*
++        * Mount filesystem residing on a block device
++        * provide a callback (erofs_fill_super)  to
++        * populate superblock
++        */
+        return mount_bdev(fs_type, flags, dev_name,
+                &priv, erofs_fill_super);
+ }
+
++/*
++ * erofs_kill_sb(): Called when erofs is getting shutdown/killed
++ *
++ * @sb: VFS superblock structure
++ *
++ */
+ static void erofs_kill_sb(struct super_block *sb)
+ {
+        kill_block_super(sb);
+@@ -550,6 +645,11 @@ static struct file_system_type erofs_fs_type = {
+ };
+ MODULE_ALIAS_FS("erofs");
+
++/*
++ * erofs_module_init(): Called when module is loaded
++ *
++ * returns: 0 on Success. Error Otherwise
++ */
+ static int __init erofs_module_init(void)
+ {
+        int err;
+@@ -586,6 +686,9 @@ static int __init erofs_module_init(void)
+        return err;
+ }
+
++/*
++ * erofs_module_exit(): Called when module is un-loaded
++ */
+ static void __exit erofs_module_exit(void)
+ {
+        unregister_filesystem(&erofs_fs_type);
+@@ -595,7 +698,14 @@ static void __exit erofs_module_exit(void)
+        infoln("successfully finalize erofs");
+ }
+
+-/* get filesystem statistics */
++/*
++ * erofs_statfs(): Get erofs statistics
++ *
++ * @dentry: Directory from where stats is collected
++ * @buf: Buffer where stats info is stored
++ *
++ * Returns: 0 on Success
++ */
+ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ {
+        struct super_block *sb = dentry->d_sb;
+@@ -617,6 +727,14 @@ static int erofs_statfs(struct dentry *dentry,
+struct kstatfs *buf)
+        return 0;
+ }
+
++/*
++ * erofs_show_options():
++ *
++ * @dentry:
++ * @buf:
++ *
++ * Returns: 0 on Success
++ */
+ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ {
+        struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
+@@ -639,6 +757,15 @@ static int erofs_show_options(struct seq_file
+*seq, struct dentry *root)
+        return 0;
+ }
+
++/*
++ * erofs_remount(): Called when erofs is remounted
++ *
++ * @sb: VFS superblock structure
++ * @flags: Mount flags/options
++ * @data: Mount options
++ *
++ * Returns: 0 on Success. Errno otherwise
++ */
+ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+ {
+        struct erofs_sb_info *sbi = EROFS_SB(sb);
+--
+2.14.3
