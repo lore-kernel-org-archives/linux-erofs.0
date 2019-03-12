@@ -1,12 +1,12 @@
 From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Tue, 12 Mar 2019 05:42:56 -0700
-Subject: [PATCH for-4.20] staging: erofs: keep corrupted fs from crashing
- kernel in erofs_namei()
-In-Reply-To: <20190311024023.46037-1-gaoxiang25@huawei.com>
-References: <20190311024023.46037-1-gaoxiang25@huawei.com>
-Message-ID: <20190312124256.GC14713@kroah.com>
+Date: Tue, 12 Mar 2019 05:43:05 -0700
+Subject: [PATCH RESEND for-5.0 1/2] staging: erofs: keep corrupted fs
+ from crashing kernel in erofs_namei()
+In-Reply-To: <20190311022932.13539-1-gaoxiang25@huawei.com>
+References: <20190311022932.13539-1-gaoxiang25@huawei.com>
+Message-ID: <20190312124305.GD14713@kroah.com>
 
-On Mon, Mar 11, 2019@10:40:23AM +0800, Gao Xiang wrote:
+On Mon, Mar 11, 2019@10:29:31AM +0800, Gao Xiang wrote:
 > commit 419d6efc50e94bcf5d6b35cd8c71f79edadec564 upstream.
 > 
 > As Al pointed out, "
@@ -34,8 +34,12 @@ On Mon, Mar 11, 2019@10:40:23AM +0800, Gao Xiang wrote:
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
 > 
+> resend:
+>  - add LKML and linux-erofs mailing list to cc
+> 
 > This series resolves the following conflicts:
->  FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.20-stable tree
+> FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 5.0-stable tree
+> FAILED: patch "[PATCH] staging: erofs: compressed_pages should not be accessed again" failed to apply to 5.0-stable tree
 > 
 >  drivers/staging/erofs/namei.c | 183 ++++++++++++++++++++++--------------------
 >  1 file changed, 97 insertions(+), 86 deletions(-)
@@ -319,7 +323,8 @@ On Mon, Mar 11, 2019@10:40:23AM +0800, Gao Xiang wrote:
 >  		*nid = le64_to_cpu(de->nid);
 > -- 
 > 2.14.5
+>
 
-now applied, thanks.
+Now applied, thanks.
 
 greg k-h
