@@ -1,36 +1,157 @@
-From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Tue, 12 Mar 2019 05:48:36 -0700
-Subject: [PATCH 4.19 1/5] staging: erofs: add error handling for xattr
- submodule
-In-Reply-To: <20190311060858.28654-1-gaoxiang25@huawei.com>
-References: <20190311060858.28654-1-gaoxiang25@huawei.com>
-Message-ID: <20190312124836.GA23414@kroah.com>
+From: gregkh@linuxfoundation.org (gregkh@linuxfoundation.org)
+Date: Tue, 12 Mar 2019 05:57:36 -0700
+Subject: Patch "staging: erofs: fix fast symlink w/o xattr when fs xattr is
+ on" has been added to the 4.19-stable tree
+In-Reply-To: <20190311060858.28654-2-gaoxiang25@huawei.com>
+Message-ID: <1552395456254240@kroah.com>
 
-On Mon, Mar 11, 2019@02:08:54PM +0800, Gao Xiang wrote:
-> commit cadf1ccf1b0021d0b7a9347e102ac5258f9f98c8 upstream.
-> 
-> This patch enhances the missing error handling code for
-> xattr submodule, which improves the stability for the rare cases.
-> 
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> ---
-> 
-> This series resolves the following conflicts:
->  FAILED: patch "[PATCH] staging: erofs: fix fast symlink w/o xattr when fs xattr is" failed to apply to 4.19-stable tree
->  FAILED: patch "[PATCH] staging: erofs: fix memleak of inode's shared xattr array" failed to apply to 4.19-stable tree
->  FAILED: patch "[PATCH] staging: erofs: fix race of initializing xattrs of a inode at" failed to apply to 4.19-stable tree
->  FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.19-stable tree
-> 
-> In addition, there is another patch called
->  staging: erofs: add error handling for xattr submodule
-> that needs to be backported to 4.19 as well (4.20+ already has this patch.)
-> 
->  drivers/staging/erofs/internal.h |   5 +-
->  drivers/staging/erofs/xattr.c    | 112 +++++++++++++++++++++++++++------------
->  2 files changed, 81 insertions(+), 36 deletions(-)
 
-All now queued up, thanks.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    staging: erofs: fix fast symlink w/o xattr when fs xattr is on
+
+to the 4.19-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     staging-erofs-fix-fast-symlink-w-o-xattr-when-fs-xattr-is-on.patch
+and it can be found in the queue-4.19 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable at vger.kernel.org> know about it.
+
+
+>From foo at baz Tue Mar 12 05:46:41 PDT 2019
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Mon, 11 Mar 2019 14:08:55 +0800
+Subject: staging: erofs: fix fast symlink w/o xattr when fs xattr is on
+To: <stable at vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>, LKML <linux-kernel at vger.kernel.org>, <linux-erofs at lists.ozlabs.org>, Chao Yu <yuchao0 at huawei.com>, Chao Yu <chao at kernel.org>, Miao Xie <miaoxie at huawei.com>, Fang Wei <fangwei1 at huawei.com>, Gao Xiang <gaoxiang25 at huawei.com>
+Message-ID: <20190311060858.28654-2-gaoxiang25 at huawei.com>
+
+From: Gao Xiang <gaoxiang25@huawei.com>
+
+commit 7077fffcb0b0b65dc75e341306aeef4d0e7f2ec6 upstream.
+
+Currently, this will hit a BUG_ON for these symlinks as follows:
+
+- kernel message
+------------[ cut here ]------------
+kernel BUG at drivers/staging/erofs/xattr.c:59!
+SMP PTI
+CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+RIP: 0010:init_inode_xattrs+0x22b/0x270
+Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
+ <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
+RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
+------------[ cut here ]------------
+...
+Call Trace:
+ erofs_listxattr+0x30/0x2c0
+ ? selinux_inode_listxattr+0x5a/0x80
+ ? kmem_cache_alloc+0x33/0x170
+ ? security_inode_listxattr+0x27/0x40
+ listxattr+0xaf/0xc0
+ path_listxattr+0x5a/0xa0
+ do_syscall_64+0x43/0xf0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+...
+---[ end trace 3c24b49408dc0c72 ]---
+
+Fix it by checking ->xattr_isize in init_inode_xattrs(),
+and it also fixes improper return value -ENOTSUPP
+(it should be -ENODATA if xattr is enabled) for those inodes.
+
+Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
+Cc: <stable at vger.kernel.org> # 4.19+
+Reported-by: Li Guifu <bluce.liguifu at huawei.com>
+Tested-by: Li Guifu <bluce.liguifu at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
+---
+ drivers/staging/erofs/inode.c |    8 ++++----
+ drivers/staging/erofs/xattr.c |   25 ++++++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 9 deletions(-)
+
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -184,16 +184,16 @@ static int fill_inode(struct inode *inod
+ 		/* setup the new inode */
+ 		if (S_ISREG(inode->i_mode)) {
+ #ifdef CONFIG_EROFS_FS_XATTR
+-			if (vi->xattr_isize)
+-				inode->i_op = &erofs_generic_xattr_iops;
++			inode->i_op = &erofs_generic_xattr_iops;
+ #endif
+ 			inode->i_fop = &generic_ro_fops;
+ 		} else if (S_ISDIR(inode->i_mode)) {
+ 			inode->i_op =
+ #ifdef CONFIG_EROFS_FS_XATTR
+-				vi->xattr_isize ? &erofs_dir_xattr_iops :
+-#endif
++				&erofs_dir_xattr_iops;
++#else
+ 				&erofs_dir_iops;
++#endif
+ 			inode->i_fop = &erofs_dir_fops;
+ 		} else if (S_ISLNK(inode->i_mode)) {
+ 			/* by default, page_get_link is used for symlink */
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -55,7 +55,26 @@ static int init_inode_xattrs(struct inod
+ 		return 0;
+ 
+ 	vi = EROFS_V(inode);
+-	BUG_ON(!vi->xattr_isize);
++
++	/*
++	 * bypass all xattr operations if ->xattr_isize is not greater than
++	 * sizeof(struct erofs_xattr_ibody_header), in detail:
++	 * 1) it is not enough to contain erofs_xattr_ibody_header then
++	 *    ->xattr_isize should be 0 (it means no xattr);
++	 * 2) it is just to contain erofs_xattr_ibody_header, which is on-disk
++	 *    undefined right now (maybe use later with some new sb feature).
++	 */
++	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
++		errln("xattr_isize %d of nid %llu is not supported yet",
++		      vi->xattr_isize, vi->nid);
++		return -ENOTSUPP;
++	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
++		if (unlikely(vi->xattr_isize)) {
++			DBG_BUGON(1);
++			return -EIO;	/* xattr ondisk layout error */
++		}
++		return -ENOATTR;
++	}
+ 
+ 	sbi = EROFS_I_SB(inode);
+ 	it.blkaddr = erofs_blknr(iloc(sbi, vi->nid) + vi->inode_isize);
+@@ -414,7 +433,6 @@ static int erofs_xattr_generic_get(const
+ 		struct dentry *unused, struct inode *inode,
+ 		const char *name, void *buffer, size_t size)
+ {
+-	struct erofs_vnode *const vi = EROFS_V(inode);
+ 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+ 
+ 	switch (handler->flags) {
+@@ -432,9 +450,6 @@ static int erofs_xattr_generic_get(const
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!vi->xattr_isize)
+-		return -ENOATTR;
+-
+ 	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+ }
+ 
+
+
+Patches currently in stable-queue which might be from gaoxiang25 at huawei.com are
+
+queue-4.19/staging-erofs-fix-fast-symlink-w-o-xattr-when-fs-xattr-is-on.patch
+queue-4.19/staging-erofs-fix-race-of-initializing-xattrs-of-a-inode-at-the-same-time.patch
+queue-4.19/staging-erofs-add-error-handling-for-xattr-submodule.patch
+queue-4.19/staging-erofs-keep-corrupted-fs-from-crashing-kernel-in-erofs_namei.patch
+queue-4.19/staging-erofs-fix-memleak-of-inode-s-shared-xattr-array.patch
