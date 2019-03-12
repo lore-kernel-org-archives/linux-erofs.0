@@ -1,20 +1,20 @@
 From: gregkh@linuxfoundation.org (gregkh@linuxfoundation.org)
 Date: Tue, 12 Mar 2019 05:57:36 -0700
-Subject: Patch "staging: erofs: fix fast symlink w/o xattr when fs xattr is
- on" has been added to the 4.19-stable tree
-In-Reply-To: <20190311060858.28654-2-gaoxiang25@huawei.com>
-Message-ID: <1552395456254240@kroah.com>
+Subject: Patch "staging: erofs: add error handling for xattr submodule" has
+ been added to the 4.19-stable tree
+In-Reply-To: <20190311060858.28654-1-gaoxiang25@huawei.com>
+Message-ID: <155239545625311@kroah.com>
 
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: erofs: fix fast symlink w/o xattr when fs xattr is on
+    staging: erofs: add error handling for xattr submodule
 
 to the 4.19-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     staging-erofs-fix-fast-symlink-w-o-xattr-when-fs-xattr-is-on.patch
+     staging-erofs-add-error-handling-for-xattr-submodule.patch
 and it can be found in the queue-4.19 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
@@ -23,129 +23,322 @@ please let <stable at vger.kernel.org> know about it.
 
 >From foo at baz Tue Mar 12 05:46:41 PDT 2019
 From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Mon, 11 Mar 2019 14:08:55 +0800
-Subject: staging: erofs: fix fast symlink w/o xattr when fs xattr is on
+Date: Mon, 11 Mar 2019 14:08:54 +0800
+Subject: staging: erofs: add error handling for xattr submodule
 To: <stable at vger.kernel.org>
 Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>, LKML <linux-kernel at vger.kernel.org>, <linux-erofs at lists.ozlabs.org>, Chao Yu <yuchao0 at huawei.com>, Chao Yu <chao at kernel.org>, Miao Xie <miaoxie at huawei.com>, Fang Wei <fangwei1 at huawei.com>, Gao Xiang <gaoxiang25 at huawei.com>
-Message-ID: <20190311060858.28654-2-gaoxiang25 at huawei.com>
+Message-ID: <20190311060858.28654-1-gaoxiang25 at huawei.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit 7077fffcb0b0b65dc75e341306aeef4d0e7f2ec6 upstream.
+commit cadf1ccf1b0021d0b7a9347e102ac5258f9f98c8 upstream.
 
-Currently, this will hit a BUG_ON for these symlinks as follows:
+This patch enhances the missing error handling code for
+xattr submodule, which improves the stability for the rare cases.
 
-- kernel message
-------------[ cut here ]------------
-kernel BUG at drivers/staging/erofs/xattr.c:59!
-SMP PTI
-CPU: 1 PID: 1170 Comm: getllxattr Not tainted 4.20.0-rc6+ #92
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
-RIP: 0010:init_inode_xattrs+0x22b/0x270
-Code: 48 0f 45 ea f0 ff 4d 34 74 0d 41 83 4c 24 e0 01 31 c0 e9 00 fe ff ff 48 89 ef e8 e0 31 9e ff eb e9 89 e8 e9 ef fd ff ff 0f 0$
- <0f> 0b 48 89 ef e8 fb f6 9c ff 48 8b 45 08 a8 01 75 24 f0 ff 4d 34
-RSP: 0018:ffffa03ac026bdf8 EFLAGS: 00010246
-------------[ cut here ]------------
-...
-Call Trace:
- erofs_listxattr+0x30/0x2c0
- ? selinux_inode_listxattr+0x5a/0x80
- ? kmem_cache_alloc+0x33/0x170
- ? security_inode_listxattr+0x27/0x40
- listxattr+0xaf/0xc0
- path_listxattr+0x5a/0xa0
- do_syscall_64+0x43/0xf0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
----[ end trace 3c24b49408dc0c72 ]---
-
-Fix it by checking ->xattr_isize in init_inode_xattrs(),
-and it also fixes improper return value -ENOTSUPP
-(it should be -ENODATA if xattr is enabled) for those inodes.
-
-Fixes: b17500a0fdba ("staging: erofs: introduce xattr & acl support")
-Cc: <stable at vger.kernel.org> # 4.19+
-Reported-by: Li Guifu <bluce.liguifu at huawei.com>
-Tested-by: Li Guifu <bluce.liguifu at huawei.com>
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
 ---
- drivers/staging/erofs/inode.c |    8 ++++----
- drivers/staging/erofs/xattr.c |   25 ++++++++++++++++++++-----
- 2 files changed, 24 insertions(+), 9 deletions(-)
+ drivers/staging/erofs/internal.h |    5 +
+ drivers/staging/erofs/xattr.c    |  112 +++++++++++++++++++++++++++------------
+ 2 files changed, 81 insertions(+), 36 deletions(-)
 
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -184,16 +184,16 @@ static int fill_inode(struct inode *inod
- 		/* setup the new inode */
- 		if (S_ISREG(inode->i_mode)) {
- #ifdef CONFIG_EROFS_FS_XATTR
--			if (vi->xattr_isize)
--				inode->i_op = &erofs_generic_xattr_iops;
-+			inode->i_op = &erofs_generic_xattr_iops;
- #endif
- 			inode->i_fop = &generic_ro_fops;
- 		} else if (S_ISDIR(inode->i_mode)) {
- 			inode->i_op =
- #ifdef CONFIG_EROFS_FS_XATTR
--				vi->xattr_isize ? &erofs_dir_xattr_iops :
--#endif
-+				&erofs_dir_xattr_iops;
-+#else
- 				&erofs_dir_iops;
-+#endif
- 			inode->i_fop = &erofs_dir_fops;
- 		} else if (S_ISLNK(inode->i_mode)) {
- 			/* by default, page_get_link is used for symlink */
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -485,8 +485,9 @@ struct erofs_map_blocks_iter {
+ };
+ 
+ 
+-static inline struct page *erofs_get_inline_page(struct inode *inode,
+-	erofs_blk_t blkaddr)
++static inline struct page *
++erofs_get_inline_page(struct inode *inode,
++		      erofs_blk_t blkaddr)
+ {
+ 	return erofs_get_meta_page(inode->i_sb,
+ 		blkaddr, S_ISDIR(inode->i_mode));
 --- a/drivers/staging/erofs/xattr.c
 +++ b/drivers/staging/erofs/xattr.c
-@@ -55,7 +55,26 @@ static int init_inode_xattrs(struct inod
- 		return 0;
+@@ -24,16 +24,25 @@ struct xattr_iter {
  
- 	vi = EROFS_V(inode);
--	BUG_ON(!vi->xattr_isize);
-+
-+	/*
-+	 * bypass all xattr operations if ->xattr_isize is not greater than
-+	 * sizeof(struct erofs_xattr_ibody_header), in detail:
-+	 * 1) it is not enough to contain erofs_xattr_ibody_header then
-+	 *    ->xattr_isize should be 0 (it means no xattr);
-+	 * 2) it is just to contain erofs_xattr_ibody_header, which is on-disk
-+	 *    undefined right now (maybe use later with some new sb feature).
-+	 */
-+	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
-+		errln("xattr_isize %d of nid %llu is not supported yet",
-+		      vi->xattr_isize, vi->nid);
-+		return -ENOTSUPP;
-+	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
-+		if (unlikely(vi->xattr_isize)) {
-+			DBG_BUGON(1);
-+			return -EIO;	/* xattr ondisk layout error */
-+		}
-+		return -ENOATTR;
-+	}
- 
- 	sbi = EROFS_I_SB(inode);
- 	it.blkaddr = erofs_blknr(iloc(sbi, vi->nid) + vi->inode_isize);
-@@ -414,7 +433,6 @@ static int erofs_xattr_generic_get(const
- 		struct dentry *unused, struct inode *inode,
- 		const char *name, void *buffer, size_t size)
+ static inline void xattr_iter_end(struct xattr_iter *it, bool atomic)
  {
--	struct erofs_vnode *const vi = EROFS_V(inode);
- 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 
- 	switch (handler->flags) {
-@@ -432,9 +450,6 @@ static int erofs_xattr_generic_get(const
- 		return -EINVAL;
- 	}
- 
--	if (!vi->xattr_isize)
--		return -ENOATTR;
--
- 	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+-	/* only init_inode_xattrs use non-atomic once */
++	/* the only user of kunmap() is 'init_inode_xattrs' */
+ 	if (unlikely(!atomic))
+ 		kunmap(it->page);
+ 	else
+ 		kunmap_atomic(it->kaddr);
++
+ 	unlock_page(it->page);
+ 	put_page(it->page);
  }
  
+-static void init_inode_xattrs(struct inode *inode)
++static inline void xattr_iter_end_final(struct xattr_iter *it)
++{
++	if (!it->page)
++		return;
++
++	xattr_iter_end(it, true);
++}
++
++static int init_inode_xattrs(struct inode *inode)
+ {
+ 	struct xattr_iter it;
+ 	unsigned i;
+@@ -43,7 +52,7 @@ static void init_inode_xattrs(struct ino
+ 	bool atomic_map;
+ 
+ 	if (likely(inode_has_inited_xattr(inode)))
+-		return;
++		return 0;
+ 
+ 	vi = EROFS_V(inode);
+ 	BUG_ON(!vi->xattr_isize);
+@@ -53,7 +62,8 @@ static void init_inode_xattrs(struct ino
+ 	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
+ 
+ 	it.page = erofs_get_inline_page(inode, it.blkaddr);
+-	BUG_ON(IS_ERR(it.page));
++	if (IS_ERR(it.page))
++		return PTR_ERR(it.page);
+ 
+ 	/* read in shared xattr array (non-atomic, see kmalloc below) */
+ 	it.kaddr = kmap(it.page);
+@@ -62,9 +72,12 @@ static void init_inode_xattrs(struct ino
+ 	ih = (struct erofs_xattr_ibody_header *)(it.kaddr + it.ofs);
+ 
+ 	vi->xattr_shared_count = ih->h_shared_count;
+-	vi->xattr_shared_xattrs = (unsigned *)kmalloc_array(
+-		vi->xattr_shared_count, sizeof(unsigned),
+-		GFP_KERNEL | __GFP_NOFAIL);
++	vi->xattr_shared_xattrs = kmalloc_array(vi->xattr_shared_count,
++						sizeof(uint), GFP_KERNEL);
++	if (!vi->xattr_shared_xattrs) {
++		xattr_iter_end(&it, atomic_map);
++		return -ENOMEM;
++	}
+ 
+ 	/* let's skip ibody header */
+ 	it.ofs += sizeof(struct erofs_xattr_ibody_header);
+@@ -77,7 +90,8 @@ static void init_inode_xattrs(struct ino
+ 
+ 			it.page = erofs_get_meta_page(inode->i_sb,
+ 				++it.blkaddr, S_ISDIR(inode->i_mode));
+-			BUG_ON(IS_ERR(it.page));
++			if (IS_ERR(it.page))
++				return PTR_ERR(it.page);
+ 
+ 			it.kaddr = kmap_atomic(it.page);
+ 			atomic_map = true;
+@@ -90,6 +104,7 @@ static void init_inode_xattrs(struct ino
+ 	xattr_iter_end(&it, atomic_map);
+ 
+ 	inode_set_inited_xattr(inode);
++	return 0;
+ }
+ 
+ struct xattr_iter_handlers {
+@@ -99,18 +114,25 @@ struct xattr_iter_handlers {
+ 	void (*value)(struct xattr_iter *, unsigned, char *, unsigned);
+ };
+ 
+-static void xattr_iter_fixup(struct xattr_iter *it)
++static inline int xattr_iter_fixup(struct xattr_iter *it)
+ {
+-	if (unlikely(it->ofs >= EROFS_BLKSIZ)) {
+-		xattr_iter_end(it, true);
++	if (it->ofs < EROFS_BLKSIZ)
++		return 0;
+ 
+-		it->blkaddr += erofs_blknr(it->ofs);
+-		it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
+-		BUG_ON(IS_ERR(it->page));
++	xattr_iter_end(it, true);
+ 
+-		it->kaddr = kmap_atomic(it->page);
+-		it->ofs = erofs_blkoff(it->ofs);
++	it->blkaddr += erofs_blknr(it->ofs);
++	it->page = erofs_get_meta_page(it->sb, it->blkaddr, false);
++	if (IS_ERR(it->page)) {
++		int err = PTR_ERR(it->page);
++
++		it->page = NULL;
++		return err;
+ 	}
++
++	it->kaddr = kmap_atomic(it->page);
++	it->ofs = erofs_blkoff(it->ofs);
++	return 0;
+ }
+ 
+ static int inline_xattr_iter_begin(struct xattr_iter *it,
+@@ -132,21 +154,24 @@ static int inline_xattr_iter_begin(struc
+ 	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
+ 
+ 	it->page = erofs_get_inline_page(inode, it->blkaddr);
+-	BUG_ON(IS_ERR(it->page));
+-	it->kaddr = kmap_atomic(it->page);
++	if (IS_ERR(it->page))
++		return PTR_ERR(it->page);
+ 
++	it->kaddr = kmap_atomic(it->page);
+ 	return vi->xattr_isize - xattr_header_sz;
+ }
+ 
+ static int xattr_foreach(struct xattr_iter *it,
+-	struct xattr_iter_handlers *op, unsigned *tlimit)
++	const struct xattr_iter_handlers *op, unsigned int *tlimit)
+ {
+ 	struct erofs_xattr_entry entry;
+ 	unsigned value_sz, processed, slice;
+ 	int err;
+ 
+ 	/* 0. fixup blkaddr, ofs, ipage */
+-	xattr_iter_fixup(it);
++	err = xattr_iter_fixup(it);
++	if (err)
++		return err;
+ 
+ 	/*
+ 	 * 1. read xattr entry to the memory,
+@@ -178,7 +203,9 @@ static int xattr_foreach(struct xattr_it
+ 		if (it->ofs >= EROFS_BLKSIZ) {
+ 			BUG_ON(it->ofs > EROFS_BLKSIZ);
+ 
+-			xattr_iter_fixup(it);
++			err = xattr_iter_fixup(it);
++			if (err)
++				goto out;
+ 			it->ofs = 0;
+ 		}
+ 
+@@ -210,7 +237,10 @@ static int xattr_foreach(struct xattr_it
+ 	while (processed < value_sz) {
+ 		if (it->ofs >= EROFS_BLKSIZ) {
+ 			BUG_ON(it->ofs > EROFS_BLKSIZ);
+-			xattr_iter_fixup(it);
++
++			err = xattr_iter_fixup(it);
++			if (err)
++				goto out;
+ 			it->ofs = 0;
+ 		}
+ 
+@@ -270,7 +300,7 @@ static void xattr_copyvalue(struct xattr
+ 	memcpy(it->buffer + processed, buf, len);
+ }
+ 
+-static struct xattr_iter_handlers find_xattr_handlers = {
++static const struct xattr_iter_handlers find_xattr_handlers = {
+ 	.entry = xattr_entrymatch,
+ 	.name = xattr_namematch,
+ 	.alloc_buffer = xattr_checkbuffer,
+@@ -291,8 +321,11 @@ static int inline_getxattr(struct inode
+ 		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
+ 		if (ret >= 0)
+ 			break;
++
++		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
++			break;
+ 	}
+-	xattr_iter_end(&it->it, true);
++	xattr_iter_end_final(&it->it);
+ 
+ 	return ret < 0 ? ret : it->buffer_size;
+ }
+@@ -315,8 +348,10 @@ static int shared_getxattr(struct inode
+ 				xattr_iter_end(&it->it, true);
+ 
+ 			it->it.page = erofs_get_meta_page(inode->i_sb,
+-				blkaddr, false);
+-			BUG_ON(IS_ERR(it->it.page));
++							  blkaddr, false);
++			if (IS_ERR(it->it.page))
++				return PTR_ERR(it->it.page);
++
+ 			it->it.kaddr = kmap_atomic(it->it.page);
+ 			it->it.blkaddr = blkaddr;
+ 		}
+@@ -324,9 +359,12 @@ static int shared_getxattr(struct inode
+ 		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
+ 		if (ret >= 0)
+ 			break;
++
++		if (ret != -ENOATTR)	/* -ENOMEM, -EIO, etc. */
++			break;
+ 	}
+ 	if (vi->xattr_shared_count)
+-		xattr_iter_end(&it->it, true);
++		xattr_iter_end_final(&it->it);
+ 
+ 	return ret < 0 ? ret : it->buffer_size;
+ }
+@@ -351,7 +389,9 @@ int erofs_getxattr(struct inode *inode,
+ 	if (unlikely(name == NULL))
+ 		return -EINVAL;
+ 
+-	init_inode_xattrs(inode);
++	ret = init_inode_xattrs(inode);
++	if (ret)
++		return ret;
+ 
+ 	it.index = index;
+ 
+@@ -494,7 +534,7 @@ static int xattr_skipvalue(struct xattr_
+ 	return 1;
+ }
+ 
+-static struct xattr_iter_handlers list_xattr_handlers = {
++static const struct xattr_iter_handlers list_xattr_handlers = {
+ 	.entry = xattr_entrylist,
+ 	.name = xattr_namelist,
+ 	.alloc_buffer = xattr_skipvalue,
+@@ -516,7 +556,7 @@ static int inline_listxattr(struct listx
+ 		if (ret < 0)
+ 			break;
+ 	}
+-	xattr_iter_end(&it->it, true);
++	xattr_iter_end_final(&it->it);
+ 	return ret < 0 ? ret : it->buffer_ofs;
+ }
+ 
+@@ -538,8 +578,10 @@ static int shared_listxattr(struct listx
+ 				xattr_iter_end(&it->it, true);
+ 
+ 			it->it.page = erofs_get_meta_page(inode->i_sb,
+-				blkaddr, false);
+-			BUG_ON(IS_ERR(it->it.page));
++							  blkaddr, false);
++			if (IS_ERR(it->it.page))
++				return PTR_ERR(it->it.page);
++
+ 			it->it.kaddr = kmap_atomic(it->it.page);
+ 			it->it.blkaddr = blkaddr;
+ 		}
+@@ -549,7 +591,7 @@ static int shared_listxattr(struct listx
+ 			break;
+ 	}
+ 	if (vi->xattr_shared_count)
+-		xattr_iter_end(&it->it, true);
++		xattr_iter_end_final(&it->it);
+ 
+ 	return ret < 0 ? ret : it->buffer_ofs;
+ }
+@@ -560,7 +602,9 @@ ssize_t erofs_listxattr(struct dentry *d
+ 	int ret;
+ 	struct listxattr_iter it;
+ 
+-	init_inode_xattrs(d_inode(dentry));
++	ret = init_inode_xattrs(d_inode(dentry));
++	if (ret)
++		return ret;
+ 
+ 	it.dentry = dentry;
+ 	it.buffer = buffer;
 
 
 Patches currently in stable-queue which might be from gaoxiang25 at huawei.com are
