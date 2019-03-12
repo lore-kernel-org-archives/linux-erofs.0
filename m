@@ -1,31 +1,19 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 12 Mar 2019 13:33:24 +0800
+Date: Tue, 12 Mar 2019 13:35:09 +0800
 Subject: [PATCH] staging: erofs: fix parenthesis alignment
 In-Reply-To: <20190312041827.6176-1-julianmr97@gmail.com>
 References: <20190312041827.6176-1-julianmr97@gmail.com>
-Message-ID: <96d9a856-8517-1ec5-608d-cea2ace6d1c3@huawei.com>
+Message-ID: <df0b465d-22d1-1356-f493-6c4910513781@huawei.com>
 
-Hi Julian,
+
 
 On 2019/3/12 12:18, Julian Merida wrote:
->  static void __z_erofs_vle_work_release(struct z_erofs_vle_workgroup *grp,
-> -	struct z_erofs_vle_work *work __maybe_unused)
-> +				       struct z_erofs_vle_work
-> +				       *work __maybe_unused)
->  {
->  	erofs_workgroup_put(&grp->obj);
->  }
+> -		err = z_erofs_vle_work_add_page(builder,
+> -			newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE);
+> +		err =
+> +		z_erofs_vle_work_add_page(builder, newpage,
+> +					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
 
-probably the following be better?
-
-static void
-__z_erofs_vle_work_release(struct z_erofs_vle_workgroup *grp,
-			   struct z_erofs_vle_work *work __maybe_unused)
-{
-	erofs_workgroup_put(&grp->obj);
-}
-
-could you please fix that?
-
-Thanks,
-Gao Xiang
+Why not ?
+		err = z_erofs_vle_work_add_page(builder, newpage,
+						Z_EROFS_PAGE_TYPE_EXCLUSIVE);
