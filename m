@@ -1,288 +1,179 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 13 Mar 2019 14:53:34 +0800
-Subject: [PATCH] [PATCH 1/1] staging: erofs: Add function comment for
- erofs/super.c
-In-Reply-To: <20190312210640.2175-1-arshad.super@gmail.com>
-References: <20190312210640.2175-1-arshad.super@gmail.com>
-Message-ID: <dbe33412-b801-bb46-c51f-eaada4a0fb77@huawei.com>
+Date: Wed, 13 Mar 2019 17:18:20 +0800
+Subject: [PATCH v2 for-4.19 1/2] xarray: Replace exceptional entries
+In-Reply-To: <286ffba1-4004-710d-a266-45fadd151164@huawei.com>
+References: <20190225182754.GF2496@bombadil.infradead.org>
+ <20190226051449.1968-1-gaoxiang25@huawei.com>
+ <a867e68f-4eae-36b0-648c-9192e574c03d@huawei.com>
+ <286ffba1-4004-710d-a266-45fadd151164@huawei.com>
+Message-ID: <ecbe7092-79e0-faa1-2523-8912b14f4e63@huawei.com>
 
-Hi Arshad,
+ping? ...
 
-On 2019/3/13 5:06, Arshad Hussain wrote:
-> This patch adds functions comment for file erofs/super.c in
-> sphinx format.
+On 2019/3/4 13:13, Gao Xiang wrote:
+> ping? Is these two patches can be merged into linux-4.19? :'(
 > 
-> Signed-off-by: Arshad Hussain <arshad.super at gmail.com>
-> ---
-
-I think this patch is good, and could you revise your patch
-as I pointed out in the previous email?
-
-BTW, no need to duplicate [PATCH] [PATCH 1/1], the subject line can just be 
-[PATCH] staging: erofs: Add function comment for erofs/super.c
-
-Thanks,
-Gao Xiang
-
->  drivers/staging/erofs/super.c | 135 ++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 131 insertions(+), 4 deletions(-)
+> Thanks,
+> Gao Xiang
 > 
-> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-> index 15c784fba879..60bfc3e8db7a 100644
-> --- a/drivers/staging/erofs/super.c
-> +++ b/drivers/staging/erofs/super.c
-> @@ -30,6 +30,11 @@ static void init_once(void *ptr)
->  	inode_init_once(&vi->vfs_inode);
->  }
->  
-> +/**
-> + * erofs_init_inode_cache(): Create & initialize inode cache
-> + *
-> + * Returns: 0 on Success. Errno Otherwise.
-> + */
->  static int __init erofs_init_inode_cache(void)
->  {
->  	erofs_inode_cachep = kmem_cache_create("erofs_inode",
-> @@ -39,11 +44,21 @@ static int __init erofs_init_inode_cache(void)
->  	return erofs_inode_cachep != NULL ? 0 : -ENOMEM;
->  }
->  
-> +/**
-> + * erofs_exit_inode_cache(): Destroy inode cache
-> + */
->  static void erofs_exit_inode_cache(void)
->  {
->  	kmem_cache_destroy(erofs_inode_cachep);
->  }
->  
-> +/**
-> + * alloc_inode(): Allocate and initialize inode
-> + *
-> + * @sb: VFS superblock structure
-> + *
-> + * Returns: Pointer to inode structure
-> + */
->  static struct inode *alloc_inode(struct super_block *sb)
->  {
->  	struct erofs_vnode *vi =
-> @@ -57,6 +72,11 @@ static struct inode *alloc_inode(struct super_block *sb)
->  	return &vi->vfs_inode;
->  }
->  
-> +/**
-> + * i_callback(): Release slab Memory
-> + *
-> + * @head: RCU callback structure
-> + */
->  static void i_callback(struct rcu_head *head)
->  {
->  	struct inode *inode = container_of(head, struct inode, i_rcu);
-> @@ -71,11 +91,23 @@ static void i_callback(struct rcu_head *head)
->  	kmem_cache_free(erofs_inode_cachep, vi);
->  }
->  
-> +/**
-> + * destroy_inode(): Release Inode Resources allocated by alloc_inode()
-> + *
-> + * @inode: VFS Inode structure
-> + */
->  static void destroy_inode(struct inode *inode)
->  {
->  	call_rcu(&inode->i_rcu, i_callback);
->  }
->  
-> +/**
-> + * superblock_read(): Read superblock into buffer
-> + *
-> + * @sb: VFS Superblock structure
-> + *
-> + * Returns: 0 on Success. Errno otherwise
-> + */
->  static int superblock_read(struct super_block *sb)
->  {
->  	struct erofs_sb_info *sbi;
-> @@ -230,6 +262,14 @@ static match_table_t erofs_tokens = {
->  	{Opt_err, NULL}
->  };
->  
-> +/**
-> + * parse_options(): Parse and set additional mount option for erofs
-> + *
-> + * @sb: VFS superblock structure
-> + * @options: Mount options
-> + *
-> + * Returns: 0 on Success. Errno otherwise
-> + */
->  static int parse_options(struct super_block *sb, char *options)
->  {
->  	substring_t args[MAX_OPT_ARGS];
-> @@ -351,6 +391,22 @@ static struct inode *erofs_init_managed_cache(struct super_block *sb)
->  
->  #endif
->  
-> +/**
-> + * erofs_read_super(): Helper function to erofs_fill_super()
-> + *
-> + * @sb: VFS superblock structure
-> + * @dev_name: Name of device where erofs is mounted
-> + * @data: Additional mount options
-> + * @silent: if TRUE print message on error.
-> + * 	    Silent/quite otherwise
-> + *
-> + * Helper function to actual callback function erofs_fill_super
-> + * This function sets the blocksize. Reads the superblock into
-> + * buffer. Parses and sets mount options. Populates root inode
-> + * and creates root directory.
-> + *
-> + * Returns: 0 on Success. Errno otherwise
-> + */
->  static int erofs_read_super(struct super_block *sb,
->  	const char *dev_name, void *data, int silent)
->  {
-> @@ -472,8 +528,12 @@ static int erofs_read_super(struct super_block *sb,
->  	return err;
->  }
->  
-> -/*
-> - * could be triggered after deactivate_locked_super()
-> +/**
-> + * erofs_put_super(): Free superblock structure
-> + *
-> + * @sb: VFS superblock structure
-> + *
-> + * Could be triggered after deactivate_locked_super()
->   * is called, thus including umount and failed to initialize.
->   */
->  static void erofs_put_super(struct super_block *sb)
-> @@ -513,7 +573,20 @@ struct erofs_mount_private {
->  	char *options;
->  };
->  
-> -/* support mount_bdev() with options */
-> +/**
-> + * erofs_fill_super(): Fill erofs superblock
-> + *
-> + * @sb: VFS superblock structure
-> + * @_priv: Additional Mount options
-> + * @silent: if TRUE print message on error.
-> + * 	    Silent/quite otherwise
-> + *
-> + * This function fills erofs superblock information into
-> + * the VFS superblock stucture. Additionally it supports
-> + * mount_bdev() with options
-> + *
-> + * Returns: 0 on Success
-> + */
->  static int erofs_fill_super(struct super_block *sb,
->  	void *_priv, int silent)
->  {
-> @@ -523,6 +596,17 @@ static int erofs_fill_super(struct super_block *sb,
->  		priv->options, silent);
->  }
->  
-> +/**
-> + * erofs_mount(): Function called when erofs is mounted
-> + *
-> + * @fs_type: Describes the erofs filesystem
-> + * @flags: Mount flags/options
-> + * @dev_name: Name of device where erofs is mounted
-> + * @data: Mount options
-> + *
-> + * Returns: Pointer to VFS dentry structure.
-> + * 	    The root dentry.
-> + */
->  static struct dentry *erofs_mount(
->  	struct file_system_type *fs_type, int flags,
->  	const char *dev_name, void *data)
-> @@ -532,10 +616,21 @@ static struct dentry *erofs_mount(
->  		.options = data
->  	};
->  
-> +	/*
-> +	 * Mount filesystem residing on a block device
-> +	 * provide a callback (erofs_fill_super)  to
-> +	 * populate superblock
-> +	 */
->  	return mount_bdev(fs_type, flags, dev_name,
->  		&priv, erofs_fill_super);
->  }
->  
-> +/**
-> + * erofs_kill_sb(): Called when erofs is getting shutdown/killed 
-> + *
-> + * @sb: VFS superblock structure
-> + *
-> + */
->  static void erofs_kill_sb(struct super_block *sb)
->  {
->  	kill_block_super(sb);
-> @@ -550,6 +645,11 @@ static struct file_system_type erofs_fs_type = {
->  };
->  MODULE_ALIAS_FS("erofs");
->  
-> +/**
-> + * erofs_module_init(): Called when module is loaded
-> + *
-> + * returns: 0 on Success. Error Otherwise
-> + */
->  static int __init erofs_module_init(void)
->  {
->  	int err;
-> @@ -586,6 +686,9 @@ static int __init erofs_module_init(void)
->  	return err;
->  }
->  
-> +/**
-> + * erofs_module_exit(): Called when module is un-loaded
-> + */
->  static void __exit erofs_module_exit(void)
->  {
->  	unregister_filesystem(&erofs_fs_type);
-> @@ -595,7 +698,14 @@ static void __exit erofs_module_exit(void)
->  	infoln("successfully finalize erofs");
->  }
->  
-> -/* get filesystem statistics */
-> +/**
-> + * erofs_statfs(): Get erofs statistics
-> + *
-> + * @dentry: Directory from where stats is collected
-> + * @buf: Buffer where stats info is stored
-> + *
-> + * Returns: 0 on Success
-> + */
->  static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
->  {
->  	struct super_block *sb = dentry->d_sb;
-> @@ -617,6 +727,14 @@ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
->  	return 0;
->  }
->  
-> +/**
-> + * erofs_show_options(): Show currently active mount options
-> + *
-> + * @seq: Sequence interface (iterator)
-> + * @root: VFS dentry structure of mounted FS
-> + *
-> + * Returns: 0 on Success, < 0 on error
-> + */
->  static int erofs_show_options(struct seq_file *seq, struct dentry *root)
->  {
->  	struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
-> @@ -639,6 +757,15 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
->  	return 0;
->  }
->  
-> +/**
-> + * erofs_remount(): Called when erofs is remounted
-> + *
-> + * @sb: VFS superblock structure
-> + * @flags: Mount flags/options
-> + * @data: Mount options
-> + *
-> + * Returns: 0 on Success. Errno otherwise
-> + */
->  static int erofs_remount(struct super_block *sb, int *flags, char *data)
->  {
->  	struct erofs_sb_info *sbi = EROFS_SB(sb);
-> 
+> On 2019/2/26 20:43, Gao Xiang wrote:
+>> Hi Matthew,
+>>
+>> On 2019/2/26 13:14, Gao Xiang wrote:
+>>> From: Matthew Wilcox <willy at infradead.org>
+>>>
+>>> commit 3159f943aafdbacb2f94c38fdaadabf2bbde2a14 upstream.
+>>>
+>>> Introduce xarray value entries and tagged pointers to replace radix
+>>> tree exceptional entries.  This is a slight change in encoding to allow
+>>> the use of an extra bit (we can now store BITS_PER_LONG - 1 bits in a
+>>> value entry).  It is also a change in emphasis; exceptional entries are
+>>> intimidating and different.  As the comment explains, you can choose
+>>> to store values or pointers in the xarray and they are both first-class
+>>> citizens.
+>>>
+>>> Signed-off-by: Matthew Wilcox <willy at infradead.org>
+>>> Reviewed-by: Josef Bacik <jbacik at fb.com>
+>>> [ take the minimum subset of tagged pointer support only. ]
+>>> Cc: Matthew Wilcox <willy at infradead.org>
+>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+>>> ---
+>>> change log v2:
+>>>  - fix tagged pointer apis to make it work properly pointed out by Matthew;
+>>
+>> Is this version ok? Could you kindly give an "Acked-by" tag for this patch?
+>>
+>> The following patch is important for erofs, I'd like to backport it ASAP...
+>>  staging: erofs: fix race when the managed cache is enabled
+>>
+>> It will be of great help. Thanks in advance!
+>>
+>> Thanks,
+>> Gao Xiang
+>>
+>>>
+>>>  drivers/staging/erofs/utils.c | 18 +++++----------
+>>>  include/linux/xarray.h        | 52 +++++++++++++++++++++++++++++++++++++++++++
+>>>  2 files changed, 58 insertions(+), 12 deletions(-)
+>>>
+>>> diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
+>>> index 595cf90af9bb..bdee9bd09f11 100644
+>>> --- a/drivers/staging/erofs/utils.c
+>>> +++ b/drivers/staging/erofs/utils.c
+>>> @@ -35,7 +35,6 @@ static atomic_long_t erofs_global_shrink_cnt;
+>>>  
+>>>  #ifdef CONFIG_EROFS_FS_ZIP
+>>>  
+>>> -/* radix_tree and the future XArray both don't use tagptr_t yet */
+>>>  struct erofs_workgroup *erofs_find_workgroup(
+>>>  	struct super_block *sb, pgoff_t index, bool *tag)
+>>>  {
+>>> @@ -47,9 +46,8 @@ struct erofs_workgroup *erofs_find_workgroup(
+>>>  	rcu_read_lock();
+>>>  	grp = radix_tree_lookup(&sbi->workstn_tree, index);
+>>>  	if (grp != NULL) {
+>>> -		*tag = radix_tree_exceptional_entry(grp);
+>>> -		grp = (void *)((unsigned long)grp &
+>>> -			~RADIX_TREE_EXCEPTIONAL_ENTRY);
+>>> +		*tag = xa_pointer_tag(grp);
+>>> +		grp = xa_untag_pointer(grp);
+>>>  
+>>>  		if (erofs_workgroup_get(grp, &oldcount)) {
+>>>  			/* prefer to relax rcu read side */
+>>> @@ -83,9 +81,7 @@ int erofs_register_workgroup(struct super_block *sb,
+>>>  	sbi = EROFS_SB(sb);
+>>>  	erofs_workstn_lock(sbi);
+>>>  
+>>> -	if (tag)
+>>> -		grp = (void *)((unsigned long)grp |
+>>> -			1UL << RADIX_TREE_EXCEPTIONAL_SHIFT);
+>>> +	grp = xa_tag_pointer(grp, tag);
+>>>  
+>>>  	err = radix_tree_insert(&sbi->workstn_tree,
+>>>  		grp->index, grp);
+>>> @@ -131,9 +127,7 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+>>>  
+>>>  	for (i = 0; i < found; ++i) {
+>>>  		int cnt;
+>>> -		struct erofs_workgroup *grp = (void *)
+>>> -			((unsigned long)batch[i] &
+>>> -				~RADIX_TREE_EXCEPTIONAL_ENTRY);
+>>> +		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
+>>>  
+>>>  		first_index = grp->index + 1;
+>>>  
+>>> @@ -150,8 +144,8 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+>>>  #endif
+>>>  			continue;
+>>>  
+>>> -		if (radix_tree_delete(&sbi->workstn_tree,
+>>> -			grp->index) != grp) {
+>>> +		if (xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
+>>> +			grp->index)) != grp) {
+>>>  #ifdef EROFS_FS_HAS_MANAGED_CACHE
+>>>  skip:
+>>>  			erofs_workgroup_unfreeze(grp, 1);
+>>> diff --git a/include/linux/xarray.h b/include/linux/xarray.h
+>>> index 2dfc8006fe64..51ae9779d08b 100644
+>>> --- a/include/linux/xarray.h
+>>> +++ b/include/linux/xarray.h
+>>> @@ -9,6 +9,58 @@
+>>>  
+>>>  #include <linux/spinlock.h>
+>>>  
+>>> +/**
+>>> + * xa_tag_pointer() - Create an XArray entry for a tagged pointer.
+>>> + * @p: Plain pointer.
+>>> + * @tag: Tag value (0 or 1).
+>>> + *
+>>> + * If the user of the XArray prefers, they can tag their pointers instead
+>>> + * of storing value entries.  Two tags are available (0 and 1).
+>>> + * These are distinct from the xa_mark_t as they are not replicated up
+>>> + * through the array and cannot be searched for.
+>>> + *
+>>> + * Context: Any context.
+>>> + * Return: An XArray entry.
+>>> + */
+>>> +static inline void *xa_tag_pointer(void *p, unsigned long tag)
+>>> +{
+>>> +	if (__builtin_constant_p(tag))
+>>> +		BUILD_BUG_ON(tag > 1);
+>>> +	else
+>>> +		BUG_ON(tag > 1);
+>>> +	return (void *)((unsigned long)p | (tag << 1));
+>>> +}
+>>> +
+>>> +/**
+>>> + * xa_untag_pointer() - Turn an XArray entry into a plain pointer.
+>>> + * @entry: XArray entry.
+>>> + *
+>>> + * If you have stored a tagged pointer in the XArray, call this function
+>>> + * to get the untagged version of the pointer.
+>>> + *
+>>> + * Context: Any context.
+>>> + * Return: A pointer.
+>>> + */
+>>> +static inline void *xa_untag_pointer(void *entry)
+>>> +{
+>>> +	return (void *)((unsigned long)entry & ~3UL);
+>>> +}
+>>> +
+>>> +/**
+>>> + * xa_pointer_tag() - Get the tag stored in an XArray entry.
+>>> + * @entry: XArray entry.
+>>> + *
+>>> + * If you have stored a tagged pointer in the XArray, call this function
+>>> + * to get the tag of that pointer.
+>>> + *
+>>> + * Context: Any context.
+>>> + * Return: A tag.
+>>> + */
+>>> +static inline unsigned int xa_pointer_tag(void *entry)
+>>> +{
+>>> +	return ((unsigned long)entry & 3UL) >> 1;
+>>> +}
+>>> +
+>>>  #define xa_trylock(xa)		spin_trylock(&(xa)->xa_lock)
+>>>  #define xa_lock(xa)		spin_lock(&(xa)->xa_lock)
+>>>  #define xa_unlock(xa)		spin_unlock(&(xa)->xa_lock)
+>>>
