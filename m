@@ -1,7 +1,7 @@
 From: linux.bhar@gmail.com (Bharath Vedartham)
-Date: Sat, 16 Mar 2019 16:47:08 +0530
-Subject: No subject
-Message-ID: <20190316111708.GA28708@bharath12345-Inspiron-5559>
+Date: Sat, 16 Mar 2019 16:50:17 +0530
+Subject: [PATCH] staging: erofs: Add whitespace after declaration
+Message-ID: <20190316112017.GA28811@bharath12345-Inspiron-5559>
 
 linux-kernel at vger.kernel.org 
 Bcc: 
