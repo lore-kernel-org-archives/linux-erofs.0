@@ -1,225 +1,144 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 14 Mar 2019 12:42:53 +0800
-Subject: [PATCH v2 for-4.19 RESEND 2/2] staging: erofs: fix race when the
- managed cache is enabled
-In-Reply-To: <20190314044253.2944-1-gaoxiang25@huawei.com>
-References: <20190314044253.2944-1-gaoxiang25@huawei.com>
-Message-ID: <20190314044253.2944-2-gaoxiang25@huawei.com>
+From: arshad.super@gmail.com (Arshad Hussain)
+Date: Sat, 16 Mar 2019 11:46:28 +0530
+Subject: [PATCH] staging: erofs: Add function comment for erofs/inode.c
+Message-ID: <20190316061628.1734-1-arshad.super@gmail.com>
 
-commit 51232df5e4b268936beccde5248f312a316800be upstream.
+This patch adds functions comment for file erofs/inode.c in
+sphinx format.
 
-When the managed cache is enabled, the last reference count
-of a workgroup must be used for its workstation.
-
-Otherwise, it could lead to incorrect (un)freezes in
-the reclaim path, and it would be harmful.
-
-A typical race as follows:
-
-Thread 1 (In the reclaim path)  Thread 2
-workgroup_freeze(grp, 1)                                refcnt = 1
-...
-workgroup_unfreeze(grp, 1)                              refcnt = 1
-                                workgroup_get(grp)      refcnt = 2 (x)
-workgroup_put(grp)                                      refcnt = 1 (x)
-                                ...unexpected behaviors
-
-* grp is detached but still used, which violates cache-managed
-  freeze constraint.
-
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Signed-off-by: Arshad Hussain <arshad.super at gmail.com>
 ---
- drivers/staging/erofs/internal.h |   1 +
- drivers/staging/erofs/utils.c    | 134 +++++++++++++++++++++++++++------------
- 2 files changed, 96 insertions(+), 39 deletions(-)
+ drivers/staging/erofs/inode.c | 67 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 64 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index c70f0c5237ea..58d8cbc3f921 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -260,6 +260,7 @@ static inline bool erofs_workgroup_get(struct erofs_workgroup *grp, int *ocnt)
- }
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 924b8dfc7a8f..c68f280ba849 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -14,7 +14,15 @@
  
- #define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
-+#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+ #include <trace/events/erofs.h>
  
- extern int erofs_workgroup_put(struct erofs_workgroup *grp);
- 
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index c466e8c8ea90..71c7fe0b61c3 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -83,12 +83,21 @@ int erofs_register_workgroup(struct super_block *sb,
- 
- 	grp = xa_tag_pointer(grp, tag);
- 
--	err = radix_tree_insert(&sbi->workstn_tree,
--		grp->index, grp);
-+	/*
-+	 * Bump up reference count before making this workgroup
-+	 * visible to other users in order to avoid potential UAF
-+	 * without serialized by erofs_workstn_lock.
-+	 */
-+	__erofs_workgroup_get(grp);
- 
--	if (!err) {
--		__erofs_workgroup_get(grp);
--	}
-+	err = radix_tree_insert(&sbi->workstn_tree,
-+				grp->index, grp);
-+	if (unlikely(err))
-+		/*
-+		 * it's safe to decrease since the workgroup isn't visible
-+		 * and refcount >= 2 (cannot be freezed).
-+		 */
-+		__erofs_workgroup_put(grp);
- 
- 	erofs_workstn_unlock(sbi);
- 	radix_tree_preload_end();
-@@ -97,19 +106,94 @@ int erofs_register_workgroup(struct super_block *sb,
- 
- extern void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
- 
-+static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
-+{
-+	atomic_long_dec(&erofs_global_shrink_cnt);
-+	erofs_workgroup_free_rcu(grp);
-+}
-+
- int erofs_workgroup_put(struct erofs_workgroup *grp)
+-/* no locking */
++/**
++ * read_inode(): Get physical Inode from disk.This is with
++ * 		 No locking.
++ *
++ * @inode: VFS inode structure
++ * @data: Page address where inode will be read
++ *
++ * Return: 0 on Success, Error number on failure
++ */
+ static int read_inode(struct inode *inode, void *data)
  {
- 	int count = atomic_dec_return(&grp->refcount);
- 
- 	if (count == 1)
- 		atomic_long_inc(&erofs_global_shrink_cnt);
--	else if (!count) {
--		atomic_long_dec(&erofs_global_shrink_cnt);
--		erofs_workgroup_free_rcu(grp);
--	}
-+	else if (!count)
-+		__erofs_workgroup_free(grp);
- 	return count;
+ 	struct erofs_vnode *vi = EROFS_V(inode);
+@@ -102,7 +110,13 @@ static int read_inode(struct inode *inode, void *data)
+ 	return 0;
  }
  
-+#ifdef EROFS_FS_HAS_MANAGED_CACHE
-+/* for cache-managed case, customized reclaim paths exist */
-+static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
-+{
-+	erofs_workgroup_unfreeze(grp, 0);
-+	__erofs_workgroup_free(grp);
-+}
-+
-+bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
-+				    struct erofs_workgroup *grp,
-+				    bool cleanup)
-+{
-+	/*
-+	 * for managed cache enabled, the refcount of workgroups
-+	 * themselves could be < 0 (freezed). So there is no guarantee
-+	 * that all refcount > 0 if managed cache is enabled.
-+	 */
-+	if (!erofs_workgroup_try_to_freeze(grp, 1))
-+		return false;
-+
-+	/*
-+	 * note that all cached pages should be unlinked
-+	 * before delete it from the radix tree.
-+	 * Otherwise some cached pages of an orphan old workgroup
-+	 * could be still linked after the new one is available.
-+	 */
-+	if (erofs_try_to_free_all_cached_pages(sbi, grp)) {
-+		erofs_workgroup_unfreeze(grp, 1);
-+		return false;
-+	}
-+
-+	/*
-+	 * it is impossible to fail after the workgroup is freezed,
-+	 * however in order to avoid some race conditions, add a
-+	 * DBG_BUGON to observe this in advance.
-+	 */
-+	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
-+						     grp->index)) != grp);
-+
-+	/*
-+	 * if managed cache is enable, the last refcount
-+	 * should indicate the related workstation.
-+	 */
-+	erofs_workgroup_unfreeze_final(grp);
-+	return true;
-+}
-+
-+#else
-+/* for nocache case, no customized reclaim path at all */
-+bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
-+				    struct erofs_workgroup *grp,
-+				    bool cleanup)
-+{
-+	int cnt = atomic_read(&grp->refcount);
-+
-+	DBG_BUGON(cnt <= 0);
-+	DBG_BUGON(cleanup && cnt != 1);
-+
-+	if (cnt > 1)
-+		return false;
-+
-+	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
-+						     grp->index)) != grp);
-+
-+	/* (rarely) could be grabbed again when freeing */
-+	erofs_workgroup_put(grp);
-+	return true;
-+}
-+
-+#endif
-+
- unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 				       unsigned long nr_shrink,
- 				       bool cleanup)
-@@ -126,42 +210,14 @@ unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 		batch, first_index, PAGEVEC_SIZE);
+-/*
++/**
++ * fill_inline_data(): Fill last page if inline data is available
++ *
++ * @inode: VFS inode structure
++ * @data: TRUE if directory
++ * @m_pofs: Position to correct inode
++ *
+  * try_lock can be required since locking order is:
+  *   file data(fs_inode)
+  *        meta(bd_inode)
+@@ -111,6 +125,8 @@ static int read_inode(struct inode *inode, void *data)
+  * no data operations exist. However I tend to
+  * try_lock since it takes no much overhead and
+  * will success immediately.
++ *
++ * Return: 0 on Success, Error number on failure
+  */
+ static int fill_inline_data(struct inode *inode, void *data,
+ 			    unsigned int m_pofs)
+@@ -151,6 +167,15 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 	return -EAGAIN;
+ }
  
- 	for (i = 0; i < found; ++i) {
--		int cnt;
- 		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
++/**
++ * fill_inode(): Fill in the inode
++ *
++ * @inode: VFS inode structure
++ * @isdir: TRUE if directory
++ *
++ * return: 0 on success, else error code on error
++ */
++
+ static int fill_inode(struct inode *inode, int isdir)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+@@ -224,9 +249,16 @@ static int fill_inode(struct inode *inode, int isdir)
+ 	return err;
+ }
  
- 		first_index = grp->index + 1;
+-/*
++/**
++ * erofs_ilookup_test_actor(): Obtain inode from mounted FS
++ *
++ * @inode: VFS inode structure
++ * @opaque: Data pointer passed to test/set
++ *
+  * erofs nid is 64bits, but i_ino is 'unsigned long', therefore
+  * we should do more for 32-bit platform to find the right inode.
++ *
++ * Return: NID on Success
+  */
+ #if BITS_PER_LONG == 32
+ static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
+@@ -236,6 +268,14 @@ static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
+ 	return EROFS_V(inode)->nid == nid;
+ }
  
--		cnt = atomic_read(&grp->refcount);
--		BUG_ON(cnt <= 0);
--
--		if (cleanup)
--			BUG_ON(cnt != 1);
--
--#ifndef EROFS_FS_HAS_MANAGED_CACHE
--		else if (cnt > 1)
--#else
--		if (!erofs_workgroup_try_to_freeze(grp, 1))
--#endif
-+		/* try to shrink each valid workgroup */
-+		if (!erofs_try_to_release_workgroup(sbi, grp, cleanup))
- 			continue;
++/*
++ * erofs_iget_set_actor(): Obtain inode from mounted FS
++ *
++ * @inode: VFS inode structure
++ * @opaque: Data pointer passed to test/set
++ *
++ * Return: 0 on success
++ */
+ static int erofs_iget_set_actor(struct inode *inode, void *opaque)
+ {
+ 	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
+@@ -245,6 +285,14 @@ static int erofs_iget_set_actor(struct inode *inode, void *opaque)
+ }
+ #endif
  
--		if (xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
--			grp->index)) != grp) {
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--skip:
--			erofs_workgroup_unfreeze(grp, 1);
--#endif
--			continue;
--		}
--
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--		if (erofs_try_to_free_all_cached_pages(sbi, grp))
--			goto skip;
--
--		erofs_workgroup_unfreeze(grp, 1);
--#endif
--		/* (rarely) grabbed again when freeing */
--		erofs_workgroup_put(grp);
--
- 		++freed;
- 		if (unlikely(!--nr_shrink))
- 			break;
++/**
++ * erofs_iget_locked(): Get the VFS inode from mounted FS
++ *
++ * @sb: VFS superblock structure of mounted FS
++ * @nid: Node ID to get
++ *
++ * Return: Pointer to inode
++ */
+ static inline struct inode *erofs_iget_locked(struct super_block *sb,
+ 					      erofs_nid_t nid)
+ {
+@@ -259,6 +307,19 @@ static inline struct inode *erofs_iget_locked(struct super_block *sb,
+ #endif
+ }
+ 
++/**
++ * erofs_iget(): Get the VFS inode from the inode cache.
++ *
++ * @sb: VFS superblock structure
++ * @nid: Node ID
++ * @isdir: TRUE if directory.
++ *
++ * Get inode from inode cache. If not in cache, get it from disk
++ * and fill the cache.
++ *
++ * return: Pointer to the inode on success, else error code on error
++ */
++
+ struct inode *erofs_iget(struct super_block *sb,
+ 	erofs_nid_t nid, bool isdir)
+ {
 -- 
 2.14.5
