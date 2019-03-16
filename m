@@ -1,26 +1,39 @@
-From: arshad.super@gmail.com (arshad hussain)
-Date: Sat, 16 Mar 2019 11:48:49 +0530
-Subject: [PATCH] [PATCH 1/1] staging: erofs: Add function comment for
- erofs/super.c
-In-Reply-To: <dbe33412-b801-bb46-c51f-eaada4a0fb77@huawei.com>
-References: <20190312210640.2175-1-arshad.super@gmail.com>
- <dbe33412-b801-bb46-c51f-eaada4a0fb77@huawei.com>
-Message-ID: <CAKsu7qywwXiKyQT1RH+22OFHLdPwUyCr8=bLxccJLT9OwNjUDA@mail.gmail.com>
+From: linux.bhar@gmail.com (Bharath Vedartham)
+Date: Sat, 16 Mar 2019 16:47:08 +0530
+Subject: No subject
+Message-ID: <20190316111708.GA28708@bharath12345-Inspiron-5559>
 
-Hi Gao Xiang,
+linux-kernel at vger.kernel.org 
+Bcc: 
+Subject: [PATCH] staging: erofs: Add whitespace after declaration
+Reply-To: 
 
-On Wed, Mar 13, 2019@12:23 PM Gao Xiang <gaoxiang25@huawei.com> wrote:
->
-> Hi Arshad,
->
-<snip>
-> I think this patch is good, and could you revise your patch
-> as I pointed out in the previous email?
->
-> BTW, no need to duplicate [PATCH] [PATCH 1/1], the subject line can just be
-> [PATCH] staging: erofs: Add function comment for erofs/super.c
->
-The updated patch is coming soon.
+Fix the checkpatch.pl warning to add a whitespace after declaration
+statements.
 
-Thanks
-Arshad
+Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
+---
+ drivers/staging/erofs/inode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 924b8df..9a36a1f 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -270,8 +270,8 @@ struct inode *erofs_iget(struct super_block *sb,
+ 	if (inode->i_state & I_NEW) {
+ 		int err;
+ 		struct erofs_vnode *vi = EROFS_V(inode);
+-		vi->nid = nid;
+ 
++		vi->nid = nid;
+ 		err = fill_inode(inode, isdir);
+ 		if (likely(!err))
+ 			unlock_new_inode(inode);
+@@ -305,4 +305,3 @@ const struct inode_operations erofs_fast_symlink_iops = {
+ #endif
+ 	.get_acl = erofs_get_acl,
+ };
+-
+-- 
+2.7.4
