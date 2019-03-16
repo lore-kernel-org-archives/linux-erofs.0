@@ -1,17 +1,16 @@
 From: linux.bhar@gmail.com (Bharath Vedartham)
-Date: Sat, 16 Mar 2019 16:50:17 +0530
-Subject: [PATCH] staging: erofs: Add whitespace after declaration
-Message-ID: <20190316112017.GA28811@bharath12345-Inspiron-5559>
-
-linux-kernel at vger.kernel.org 
-Bcc: 
-Subject: [PATCH] staging: erofs: Add whitespace after declaration
-Reply-To: 
+Date: Sat, 16 Mar 2019 16:59:58 +0530
+Subject: [PATCH v2] staging: erofs: Add whitespace after declaration
+Message-ID: <20190316112958.GA29023@bharath12345-Inspiron-5559>
 
 Fix the checkpatch.pl warning to add a whitespace after declaration
 statements.
 
 Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
+---
+Changes since v2
+	- Mutt was giving me a few problems. I apologise for the
+	  previous poor patches.
 ---
  drivers/staging/erofs/inode.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
