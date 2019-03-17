@@ -1,46 +1,41 @@
 From: gregkh@linuxfoundation.org (Greg KH)
-Date: Sun, 17 Mar 2019 12:11:12 +0100
-Subject: [PATCH] [PATCH 1/1] staging: erofs: Add function comment for
- erofs/super.c
-In-Reply-To: <20190312210640.2175-1-arshad.super@gmail.com>
-References: <20190312210640.2175-1-arshad.super@gmail.com>
-Message-ID: <20190317111112.GA4614@kroah.com>
+Date: Sun, 17 Mar 2019 12:11:50 +0100
+Subject: [PATCH v2] staging: erofs: Add whitespace after declaration
+In-Reply-To: <20190316112958.GA29023@bharath12345-Inspiron-5559>
+References: <20190316112958.GA29023@bharath12345-Inspiron-5559>
+Message-ID: <20190317111150.GB4614@kroah.com>
 
-On Wed, Mar 13, 2019@02:36:40AM +0530, Arshad Hussain wrote:
-> This patch adds functions comment for file erofs/super.c in
-> sphinx format.
+On Sat, Mar 16, 2019@04:59:58PM +0530, Bharath Vedartham wrote:
+> Fix the checkpatch.pl warning to add a whitespace after declaration
+> statements.
 > 
-> Signed-off-by: Arshad Hussain <arshad.super at gmail.com>
+> Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
 > ---
->  drivers/staging/erofs/super.c | 135 ++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 131 insertions(+), 4 deletions(-)
+> Changes since v2
+> 	- Mutt was giving me a few problems. I apologise for the
+> 	  previous poor patches.
+> ---
+>  drivers/staging/erofs/inode.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-> index 15c784fba879..60bfc3e8db7a 100644
-> --- a/drivers/staging/erofs/super.c
-> +++ b/drivers/staging/erofs/super.c
-> @@ -30,6 +30,11 @@ static void init_once(void *ptr)
->  	inode_init_once(&vi->vfs_inode);
->  }
+> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+> index 924b8df..9a36a1f 100644
+> --- a/drivers/staging/erofs/inode.c
+> +++ b/drivers/staging/erofs/inode.c
+> @@ -270,8 +270,8 @@ struct inode *erofs_iget(struct super_block *sb,
+>  	if (inode->i_state & I_NEW) {
+>  		int err;
+>  		struct erofs_vnode *vi = EROFS_V(inode);
+> -		vi->nid = nid;
 >  
-> +/**
-> + * erofs_init_inode_cache(): Create & initialize inode cache
-> + *
-> + * Returns: 0 on Success. Errno Otherwise.
-> + */
->  static int __init erofs_init_inode_cache(void)
+> +		vi->nid = nid;
+>  		err = fill_inode(inode, isdir);
+>  		if (likely(!err))
+>  			unlock_new_inode(inode);
+> @@ -305,4 +305,3 @@ const struct inode_operations erofs_fast_symlink_iops = {
+>  #endif
+>  	.get_acl = erofs_get_acl,
+>  };
+> -
 
-Why do you need kernel doc comments for local functions?  That should
-not be needed.  No tool is going through this file to create
-documentation, right?  And documentation is only needed for functions
-that are called outside of the file at most, and usually only needed for
-functions that other drivers/subsystems can call.
-
-And for a function name like this, it is pretty obvious what it does, no
-comment should be needed at all.
-
-Same for the other changes here, I do not think it is needed at all.
-
-thanks,
-
-greg k-h
+You also removed the last line of the file, which you did not mention :(
