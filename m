@@ -1,44 +1,34 @@
-From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Mon, 18 Mar 2019 09:07:17 +0100
-Subject: [PATCH v3 for-4.19] staging: erofs: fix race when the managed
- cache is enabled
-In-Reply-To: <20190318072634.1940-1-gaoxiang25@huawei.com>
-References: <20190318072634.1940-1-gaoxiang25@huawei.com>
-Message-ID: <20190318080717.GB4746@kroah.com>
+From: linux.bhar@gmail.com (Bharath Vedartham)
+Date: Mon, 18 Mar 2019 21:02:24 +0530
+Subject: [PATCH v3] staging: erofs: Add whitespace after declaration
+Message-ID: <20190318153224.GA3596@bharath12345-Inspiron-5559>
 
-On Mon, Mar 18, 2019@03:26:34PM +0800, Gao Xiang wrote:
-> commit 51232df5e4b268936beccde5248f312a316800be upstream.
-> 
-> When the managed cache is enabled, the last reference count
-> of a workgroup must be used for its workstation.
-> 
-> Otherwise, it could lead to incorrect (un)freezes in
-> the reclaim path, and it would be harmful.
-> 
-> A typical race as follows:
-> 
-> Thread 1 (In the reclaim path)  Thread 2
-> workgroup_freeze(grp, 1)                                refcnt = 1
-> ...
-> workgroup_unfreeze(grp, 1)                              refcnt = 1
->                                 workgroup_get(grp)      refcnt = 2 (x)
-> workgroup_put(grp)                                      refcnt = 1 (x)
->                                 ...unexpected behaviors
-> 
-> * grp is detached but still used, which violates cache-managed
->   freeze constraint.
-> 
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> ---
-> 
-> change log v3:
->  - avoid using xa_tag apis since Matthew refuses the first XArray patch
->    in the previous version again;
-> 
-> RESEND in order to ping due to lack of response from Matthew and Greg
-> for half a month, patch 2/2 is needed to be backported to linux-4.19.
+Add whitespace after declaration. Fixed the checkpatch.pl warning.
 
-I've queued this up now, thanks.
+---
+changes since v2
+	- mutt gave me a lot of problems. Hence 3 patches for a really
+	  small problem.
+	- Fixed the extra missing line.
 
-greg k-h
+Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
+---
+ drivers/staging/erofs/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 924b8df..e09d29f 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -270,8 +270,8 @@ struct inode *erofs_iget(struct super_block *sb,
+ 	if (inode->i_state & I_NEW) {
+ 		int err;
+ 		struct erofs_vnode *vi = EROFS_V(inode);
+-		vi->nid = nid;
+ 
++		vi->nid = nid;
+ 		err = fill_inode(inode, isdir);
+ 		if (likely(!err))
+ 			unlock_new_inode(inode);
+-- 
+2.7.4
