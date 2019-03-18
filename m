@@ -1,34 +1,21 @@
-From: julianmr97@gmail.com (Julian Merida)
-Date: Sun, 17 Mar 2019 23:10:24 -0300
-Subject: [PATCH] staging: erofs: fix parenthesis alignment
-In-Reply-To: <df0b465d-22d1-1356-f493-6c4910513781@huawei.com>
-References: <20190312041827.6176-1-julianmr97@gmail.com>
- <df0b465d-22d1-1356-f493-6c4910513781@huawei.com>
-Message-ID: <CAG=bvsotyXYemfKfZMnQ=0R_HiCVwmBghfR7+mw4+DSgS8JK0g@mail.gmail.com>
+From: willy@infradead.org (Matthew Wilcox)
+Date: Sun, 17 Mar 2019 19:27:04 -0700
+Subject: [PATCH v2 for-4.19 RESEND 2/2] staging: erofs: fix race when the
+ managed cache is enabled
+In-Reply-To: <d1f70678-2215-d626-ed87-b024d6e5763c@huawei.com>
+References: <20190314044253.2944-1-gaoxiang25@huawei.com>
+ <20190314044253.2944-2-gaoxiang25@huawei.com>
+ <d1f70678-2215-d626-ed87-b024d6e5763c@huawei.com>
+Message-ID: <20190318022704.GP19508@bombadil.infradead.org>
 
-Sorry for the delay, I've been busy and I couldn't check the code before.
-Sorry for those mistakes, I agree. That is how the should be. I am going to
-edit them and resend the patch to you.
+On Mon, Mar 18, 2019@09:59:19AM +0800, Gao Xiang wrote:
+> ping?
+> 
+> Hi Greg,
+> I have no idea of this patch since Matthew makes no response after
+> modification... And this series is still not backported to 4.19 till now...
+> 
+> What should I do next? Can this series be accepted for linux-4.19? :(
 
-Regards, Julian Merida
-
-El mar., 12 de mar. de 2019 a la(s) 02:37, Gao Xiang (gaoxiang25 at huawei.com)
-escribi?:
-
->
->
-> On 2019/3/12 12:18, Julian Merida wrote:
-> > -             err = z_erofs_vle_work_add_page(builder,
-> > -                     newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE);
-> > +             err =
-> > +             z_erofs_vle_work_add_page(builder, newpage,
-> > +                                       Z_EROFS_PAGE_TYPE_EXCLUSIVE);
->
-> Why not ?
->                 err = z_erofs_vle_work_add_page(builder, newpage,
->
-> Z_EROFS_PAGE_TYPE_EXCLUSIVE);
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190317/ce3bc037/attachment.htm>
+I don't understand why we're trying to backport a piece of core kernel
+infrastructure for the benefit of a driver that's still in staging.
