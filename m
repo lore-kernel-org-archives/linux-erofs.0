@@ -1,34 +1,29 @@
-From: linux.bhar@gmail.com (Bharath Vedartham)
-Date: Mon, 18 Mar 2019 21:02:24 +0530
+From: gregkh@linuxfoundation.org (Greg KH)
+Date: Mon, 18 Mar 2019 16:38:16 +0100
 Subject: [PATCH v3] staging: erofs: Add whitespace after declaration
-Message-ID: <20190318153224.GA3596@bharath12345-Inspiron-5559>
+In-Reply-To: <20190318153224.GA3596@bharath12345-Inspiron-5559>
+References: <20190318153224.GA3596@bharath12345-Inspiron-5559>
+Message-ID: <20190318153816.GA15943@kroah.com>
 
-Add whitespace after declaration. Fixed the checkpatch.pl warning.
+On Mon, Mar 18, 2019@09:02:24PM +0530, Bharath Vedartham wrote:
+> Add whitespace after declaration. Fixed the checkpatch.pl warning.
+> 
+> ---
 
----
-changes since v2
-	- mutt gave me a lot of problems. Hence 3 patches for a really
-	  small problem.
-	- Fixed the extra missing line.
+No signed-off-by?
 
-Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
----
- drivers/staging/erofs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> changes since v2
+> 	- mutt gave me a lot of problems. Hence 3 patches for a really
+> 	  small problem.
+> 	- Fixed the extra missing line.
+> 
+> Signed-off-by: Bharath Vedartham <linux.bhar at gmail.com>
 
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 924b8df..e09d29f 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -270,8 +270,8 @@ struct inode *erofs_iget(struct super_block *sb,
- 	if (inode->i_state & I_NEW) {
- 		int err;
- 		struct erofs_vnode *vi = EROFS_V(inode);
--		vi->nid = nid;
- 
-+		vi->nid = nid;
- 		err = fill_inode(inode, isdir);
- 		if (likely(!err))
- 			unlock_new_inode(inode);
--- 
-2.7.4
+It needs to be above the --- line, otherwise it will be stripped off
+when applied.
+
+v4 please?
+
+thanks,
+
+greg k-h
