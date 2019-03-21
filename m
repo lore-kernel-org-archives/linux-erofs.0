@@ -1,101 +1,74 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 20 Mar 2019 11:23:51 +0800
-Subject: [PATCH] staging: erofs: fix parenthesis alignment
-In-Reply-To: <8f1d6e24-ab84-d861-9dc1-8aa859e055ca@huawei.com>
-References: <20190318235841.21191-1-julianmr97@gmail.com>
- <20190319132849.GA29325@kroah.com>
- <5b6ecf97-c4d7-e242-9943-1fe763be3282@huawei.com>
- <CAG=bvspJHKNQBMBxB_8E3Ma+kQ8Po1kAwusKj6LOA8CwH5TUAA@mail.gmail.com>
- <8f1d6e24-ab84-d861-9dc1-8aa859e055ca@huawei.com>
-Message-ID: <1284e3bb-251e-d592-9855-8654769568d7@huawei.com>
+Date: Thu, 21 Mar 2019 18:12:41 +0800
+Subject: [PATCH] Staging: erofs: Use !x in place of NULL comparision
+In-Reply-To: <20190321093716.8236-1-bhanusreemahesh@gmail.com>
+References: <20190321093716.8236-1-bhanusreemahesh@gmail.com>
+Message-ID: <0a20b616-b2b9-9e38-3c0c-c8860cc41a0c@huawei.com>
 
+Hi Bhanusree,
 
-
-On 2019/3/20 11:22, Gao Xiang wrote:
-> Hi Julian,
+On 2019/3/21 17:37, Bhanusree Pola wrote:
+> Test for NULL as !x instead of NULL comparisions for
+> functions that return NULL on failure are used.
+> Issue found using coccinelle
+> Semantic patch used to solve the problem is as follows
 > 
-> On 2019/3/20 1:19, Julian Merida wrote:
->> Yes that was my mistake, I'm really sorry!! This was my first contribution to the kernel and I didn't know who to send the email despite the maintainers. Also, I thought I shouldn't bother more than necessary.
->>
->> Gao then told me I should send the patch to you and to the staging mail list.
->>
->> Regards,
->> Juli?n M?rida
-> 
-> [ kindly reminder: It is preferred to send in plain text rather than
->   html format since a lot of community guys and mailing lists could
->   treat them as spam emails...]
 
-my fault, please ignore my reply... it shows your reply in different style...
+My personal idea...There are still several other places which use
+NULL comparisions introduced by the erofs original code, eg,
+super.c
+53:     if (vi == NULL)
+90:     if (bh == NULL) {
+...
+
+internal.h
+480:                    if (unlikely(bio == NULL)) {
+488:    } while (unlikely(bio == NULL));
+...
+
+Could you have time fix them as much as possible in a patch?
+
+It will simplify erofs commit log since there are similar
+patches address the same reason but with few fixes...:
+
+staging: erofs: unzip_vle.c: Replace comparison to NULL.
+staging: erofs: Modify conditional checks
+staging: erofs: formatting fix to NULL comparison
+
+... Thanks in advance...
 
 Thanks,
 Gao Xiang
 
+> // <smpl>
+> @@
+> expression x;
+> statement S;
+> @@
 > 
-> Good luck...
+> x = (\(kmalloc\|devm_kzalloc\|kmalloc_array\|devm_ioremap\|
+> usb_alloc_urb\|alloc_netdev\|dev_alloc_skb\)(...));
 > 
-> Thanks,
-> Gao Xiang
+> -if(x==NULL)
+> +if(!x)
+> // </smpl>
 > 
->>
->> On Tue, Mar 19, 2019, 10:35 Gao Xiang <gaoxiang25@huawei.com <mailto:gaoxiang25@huawei.com>> wrote:
->>
->>     Hi Greg,
->>
->>     On 2019/3/19 21:28, Greg KH wrote:
->>     > On Mon, Mar 18, 2019@08:58:41PM -0300, Julian Merida wrote:
->>     >> Fix all checkpatch issues: "CHECK: Alignment should match open parenthesis"
->>     >>
->>     >> Signed-off-by: Julian Merida <julianmr97 at gmail.com <mailto:julianmr97 at gmail.com>>
->>     >> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com <mailto:gaoxiang25 at huawei.com>>
->>     >
->>     > Was this really reviewed by Gao?? Offline or on-list?? I missed it if it
->>     > was on-list :(
->>
->>     Yes, I was reviewed on the first version...
->>
->>     He didn't cc you and staging mailing list...
->>     https://lists.ozlabs.org/pipermail/linux-erofs/2019-March/001486.html
->>
->>     It seems no logic change and doing a lot of fixes...
->>
->>     Thanks,
->>     Gao Xiang
->>
->>     >
->>     > thanks,
->>     >
->>     > greg k-h
->>     >
->>
->>
->> On Tue, Mar 19, 2019, 10:35 Gao Xiang <gaoxiang25@huawei.com <mailto:gaoxiang25@huawei.com>> wrote:
->>
->>     Hi Greg,
->>
->>     On 2019/3/19 21:28, Greg KH wrote:
->>     > On Mon, Mar 18, 2019@08:58:41PM -0300, Julian Merida wrote:
->>     >> Fix all checkpatch issues: "CHECK: Alignment should match open parenthesis"
->>     >>
->>     >> Signed-off-by: Julian Merida <julianmr97 at gmail.com <mailto:julianmr97 at gmail.com>>
->>     >> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com <mailto:gaoxiang25 at huawei.com>>
->>     >
->>     > Was this really reviewed by Gao?? Offline or on-list?? I missed it if it
->>     > was on-list :(
->>
->>     Yes, I was reviewed on the first version...
->>
->>     He didn't cc you and staging mailing list...
->>     https://lists.ozlabs.org/pipermail/linux-erofs/2019-March/001486.html
->>
->>     It seems no logic change and doing a lot of fixes...
->>
->>     Thanks,
->>     Gao Xiang
->>
->>     >
->>     > thanks,
->>     >
->>     > greg k-h
->>     >
->>
+> Signed-off-by: Bhanusree Pola <bhanusreemahesh at gmail.com>
+> ---
+>  drivers/staging/erofs/xattr.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
+> index f716ab0446e5..515b4b446491 100644
+> --- a/drivers/staging/erofs/xattr.c
+> +++ b/drivers/staging/erofs/xattr.c
+> @@ -107,7 +107,7 @@ static int init_inode_xattrs(struct inode *inode)
+>  	vi->xattr_shared_count = ih->h_shared_count;
+>  	vi->xattr_shared_xattrs = kmalloc_array(vi->xattr_shared_count,
+>  						sizeof(uint), GFP_KERNEL);
+> -	if (vi->xattr_shared_xattrs == NULL) {
+> +	if (!vi->xattr_shared_xattrs) {
+>  		xattr_iter_end(&it, atomic_map);
+>  		ret = -ENOMEM;
+>  		goto out_unlock;
+> 
