@@ -1,112 +1,188 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 25 Mar 2019 11:40:08 +0800
-Subject: [PATCH v2 2/3] staging: erofs: introduce erofs_page_is_managed()
+Date: Mon, 25 Mar 2019 11:40:09 +0800
+Subject: [PATCH v2 3/3] staging: erofs: support IO read error injection
 In-Reply-To: <20190325034009.38611-1-gaoxiang25@huawei.com>
 References: <20190325034009.38611-1-gaoxiang25@huawei.com>
-Message-ID: <20190325034009.38611-2-gaoxiang25@huawei.com>
+Message-ID: <20190325034009.38611-3-gaoxiang25@huawei.com>
 
-1) In order to clean up unnecessary
-   page->mapping == MNGD_MAPPING(sbi) wrapped by #ifdefs;
+Used to simulate disk IO read error for testing fatal
+error tolerance.
 
-2) Needed by "staging: erofs: support IO read error injection".
+Here are the details,
+1) use bio->bi_private to indicate super_block
+   for non-compressed bios since some (mainly meta)
+   pages can be of the corresponding bdev inode;
+2) get super_block dynamically for compressed bios,
+   therefore it could not inject bios full of staging
+   pages, yet it doesn't affect the normal usage.
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h  |  7 +++++++
- drivers/staging/erofs/unzip_vle.c | 31 +++++++++----------------------
- 2 files changed, 16 insertions(+), 22 deletions(-)
+ .../staging/erofs/Documentation/filesystems/erofs.txt  |  1 +
+ drivers/staging/erofs/data.c                           | 18 ++++++++++++------
+ drivers/staging/erofs/internal.h                       |  6 ++++--
+ drivers/staging/erofs/super.c                          |  3 ++-
+ drivers/staging/erofs/unzip_vle.c                      | 14 +++++++++-----
+ 5 files changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 1286b98ffd0a..a66c7d495c35 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -268,8 +268,15 @@ int erofs_try_to_free_cached_page(struct address_space *mapping,
- 				  struct page *page);
+diff --git a/drivers/staging/erofs/Documentation/filesystems/erofs.txt b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+index 961ec4da7705..74cf84ac48a3 100644
+--- a/drivers/staging/erofs/Documentation/filesystems/erofs.txt
++++ b/drivers/staging/erofs/Documentation/filesystems/erofs.txt
+@@ -60,6 +60,7 @@ fault_injection=%d     Enable fault injection in all supported types with
+                        specified injection rate. Supported injection type:
+                        Type_Name                Type_Value
+                        FAULT_KMALLOC            0x000000001
++                       FAULT_READ_IO            0x000000002
+ (no)user_xattr         Setup Extended User Attributes. Note: xattr is enabled
+                        by default if CONFIG_EROFS_FS_XATTR is selected.
+ (no)acl                Setup POSIX Access Control List. Note: acl is enabled
+diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+index 526e0dbea5b5..0714061ba888 100644
+--- a/drivers/staging/erofs/data.c
++++ b/drivers/staging/erofs/data.c
+@@ -17,11 +17,17 @@
  
- #define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
-+static inline bool erofs_page_is_managed(const struct erofs_sb_info *sbi,
-+					 struct page *page)
-+{
-+	return page->mapping == MNGD_MAPPING(sbi);
-+}
- #else
- #define MNGD_MAPPING(sbi)	(NULL)
-+static inline bool erofs_page_is_managed(const struct erofs_sb_info *sbi,
-+					 struct page *page) { return false; }
- #endif
- 
- #define DEFAULT_MAX_SYNC_DECOMPRESS_PAGES	3
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 45541be12972..8e720bb882c7 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -845,11 +845,9 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
- static inline void z_erofs_vle_read_endio(struct bio *bio)
+ static inline void read_endio(struct bio *bio)
  {
- 	const blk_status_t err = bio->bi_status;
-+	struct erofs_sb_info *sbi = NULL;
- 	unsigned int i;
++	struct super_block *const sb = bio->bi_private;
+ 	int i;
  	struct bio_vec *bvec;
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--	struct address_space *mc = NULL;
--#endif
+-	const blk_status_t err = bio->bi_status;
++	blk_status_t err = bio->bi_status;
  	struct bvec_iter_all iter_all;
  
++	if (time_to_inject(EROFS_SB(sb), FAULT_READ_IO)) {
++		erofs_show_injection_info(FAULT_READ_IO);
++		err = BLK_STS_IOERR;
++	}
++
  	bio_for_each_segment_all(bvec, bio, i, iter_all) {
-@@ -859,20 +857,12 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ 		struct page *page = bvec->bv_page;
+ 
+@@ -63,7 +69,7 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
+ 	if (!PageUptodate(page)) {
+ 		struct bio *bio;
+ 
+-		bio = erofs_grab_bio(sb, blkaddr, 1, read_endio, nofail);
++		bio = erofs_grab_bio(sb, blkaddr, 1, sb, read_endio, nofail);
+ 		if (IS_ERR(bio)) {
+ 			DBG_BUGON(nofail);
+ 			err = PTR_ERR(bio);
+@@ -188,7 +194,8 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 					      unsigned int nblocks,
+ 					      bool ra)
+ {
+-	struct inode *inode = mapping->host;
++	struct inode *const inode = mapping->host;
++	struct super_block *const sb = inode->i_sb;
+ 	erofs_off_t current_block = (erofs_off_t)page->index;
+ 	int err;
+ 
+@@ -280,9 +287,8 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 		if (nblocks > BIO_MAX_PAGES)
+ 			nblocks = BIO_MAX_PAGES;
+ 
+-		bio = erofs_grab_bio(inode->i_sb,
+-				     blknr, nblocks, read_endio, false);
+-
++		bio = erofs_grab_bio(sb, blknr, nblocks, sb,
++				     read_endio, false);
+ 		if (IS_ERR(bio)) {
+ 			err = PTR_ERR(bio);
+ 			bio = NULL;
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index a66c7d495c35..c47778b3fabd 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -44,11 +44,12 @@
+ 
+ enum {
+ 	FAULT_KMALLOC,
++	FAULT_READ_IO,
+ 	FAULT_MAX,
+ };
+ 
+ #ifdef CONFIG_EROFS_FAULT_INJECTION
+-extern char *erofs_fault_name[FAULT_MAX];
++extern const char *erofs_fault_name[FAULT_MAX];
+ #define IS_FAULT_SET(fi, type) ((fi)->inject_type & (1 << (type)))
+ 
+ struct erofs_fault_info {
+@@ -467,7 +468,7 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
+ /* data.c */
+ static inline struct bio *
+ erofs_grab_bio(struct super_block *sb,
+-	       erofs_blk_t blkaddr, unsigned int nr_pages,
++	       erofs_blk_t blkaddr, unsigned int nr_pages, void *bi_private,
+ 	       bio_end_io_t endio, bool nofail)
+ {
+ 	const gfp_t gfp = GFP_NOIO;
+@@ -489,6 +490,7 @@ erofs_grab_bio(struct super_block *sb,
+ 	bio->bi_end_io = endio;
+ 	bio_set_dev(bio, sb->s_bdev);
+ 	bio->bi_iter.bi_sector = (sector_t)blkaddr << LOG_SECTORS_PER_BLOCK;
++	bio->bi_private = bi_private;
+ 	return bio;
+ }
+ 
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 7b460a3ca4d6..8bee0d3a161b 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -142,8 +142,9 @@ static int superblock_read(struct super_block *sb)
+ }
+ 
+ #ifdef CONFIG_EROFS_FAULT_INJECTION
+-char *erofs_fault_name[FAULT_MAX] = {
++const char *erofs_fault_name[FAULT_MAX] = {
+ 	[FAULT_KMALLOC]		= "kmalloc",
++	[FAULT_READ_IO]		= "read IO error",
+ };
+ 
+ static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 8e720bb882c7..566835cf6f2f 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -844,8 +844,8 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
+ 
+ static inline void z_erofs_vle_read_endio(struct bio *bio)
+ {
+-	const blk_status_t err = bio->bi_status;
+ 	struct erofs_sb_info *sbi = NULL;
++	blk_status_t err = bio->bi_status;
+ 	unsigned int i;
+ 	struct bio_vec *bvec;
+ 	struct bvec_iter_all iter_all;
+@@ -857,9 +857,15 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
  		DBG_BUGON(PageUptodate(page));
  		DBG_BUGON(!page->mapping);
  
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--		if (unlikely(!mc && !z_erofs_is_stagingpage(page))) {
--			struct inode *const inode = page->mapping->host;
--			struct super_block *const sb = inode->i_sb;
-+		if (unlikely(!sbi && !z_erofs_is_stagingpage(page)))
-+			sbi = EROFS_SB(page->mapping->host->i_sb);
+-		if (unlikely(!sbi && !z_erofs_is_stagingpage(page)))
++		if (unlikely(!sbi && !z_erofs_is_stagingpage(page))) {
+ 			sbi = EROFS_SB(page->mapping->host->i_sb);
  
--			mc = MNGD_MAPPING(EROFS_SB(sb));
--		}
--
--		/*
--		 * If mc has not gotten, it equals NULL,
--		 * however, page->mapping never be NULL if working properly.
--		 */
--		cachemngd = (page->mapping == mc);
--#endif
-+		/* sbi should already be gotten if the page is managed */
-+		if (sbi)
-+			cachemngd = erofs_page_is_managed(sbi, page);
- 
- 		if (unlikely(err))
- 			SetPageError(page);
-@@ -984,13 +974,11 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		DBG_BUGON(!page->mapping);
- 
- 		if (!z_erofs_is_stagingpage(page)) {
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--			if (page->mapping == MNGD_MAPPING(sbi)) {
-+			if (erofs_page_is_managed(sbi, page)) {
- 				if (unlikely(!PageUptodate(page)))
- 					err = -EIO;
- 				continue;
- 			}
--#endif
- 
- 			/*
- 			 * only if non-head page can be selected
-@@ -1055,10 +1043,9 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	for (i = 0; i < clusterpages; ++i) {
- 		page = compressed_pages[i];
- 
--#ifdef EROFS_FS_HAS_MANAGED_CACHE
--		if (page->mapping == MNGD_MAPPING(sbi))
-+		if (erofs_page_is_managed(sbi, page))
- 			continue;
--#endif
++			if (time_to_inject(sbi, FAULT_READ_IO)) {
++				erofs_show_injection_info(FAULT_READ_IO);
++				err = BLK_STS_IOERR;
++			}
++		}
 +
- 		/* recycle all individual staging pages */
- 		(void)z_erofs_gather_if_stagingpage(page_pool, page);
+ 		/* sbi should already be gotten if the page is managed */
+ 		if (sbi)
+ 			cachemngd = erofs_page_is_managed(sbi, page);
+@@ -1430,10 +1436,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 
+ 		if (!bio) {
+ 			bio = erofs_grab_bio(sb, first_index + i,
+-					     BIO_MAX_PAGES,
++					     BIO_MAX_PAGES, bi_private,
+ 					     z_erofs_vle_read_endio, true);
+-			bio->bi_private = bi_private;
+-
+ 			++nr_bios;
+ 		}
  
 -- 
 2.12.2
