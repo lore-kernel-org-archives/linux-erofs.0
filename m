@@ -1,102 +1,42 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 1 Apr 2019 14:53:09 +0800
-Subject: [PATCH for-4.19 2/2] staging: erofs: keep corrupted fs from crashing
- kernel in erofs_readdir()
-In-Reply-To: <20190401065309.68109-1-gaoxiang25@huawei.com>
-References: <20190401065309.68109-1-gaoxiang25@huawei.com>
-Message-ID: <20190401065309.68109-2-gaoxiang25@huawei.com>
+Date: Mon, 1 Apr 2019 15:11:11 +0800
+Subject: [PATCH] staging: erofs: keep corrupted fs from crashing kernel in
+ erofs_readdir()
+In-Reply-To: <20190330134528.7F9A62173C@mail.kernel.org>
+References: <20190328201458.30629-1-hsiangkao@aol.com>
+ <20190330134528.7F9A62173C@mail.kernel.org>
+Message-ID: <68f56509-bdd8-2cff-579a-c7e8202d37a7@huawei.com>
 
-commit 33bac912840fe64dbc15556302537dc6a17cac63 upstream.
+Hi,
 
-After commit 419d6efc50e9, kernel cannot be crashed in the namei
-path. However, corrupted nameoff can do harm in the process of
-readdir for scenerios without dm-verity as well. Fix it now.
+On 2019/3/30 21:45, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 3aa8ec716e52 staging: erofs: add directory operations.
+> 
+> The bot has tested the following trees: v5.0.5, v4.19.32.
+> 
+> v5.0.5: Build OK!
+> v4.19.32: Failed to apply! Possible dependencies:
+>     6e78901a9f23 ("staging: erofs: separate erofs_get_meta_page")
+>     7dd68b147d60 ("staging: erofs: use explicit unsigned int type")
+>     8be31270362b ("staging: erofs: introduce erofs_grab_bio")
+>     ab47dd2b0819 ("staging: erofs: cleanup z_erofs_vle_work_{lookup, register}")
+> 
+> 
+> How should we proceed with this patch?
 
-Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
-Cc: <stable at vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/dir.c | 45 ++++++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 20 deletions(-)
+I have made a 4.19 patch for this:
+https://lore.kernel.org/lkml/20190401065309.68109-2-gaoxiang25 at huawei.com/
 
-diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index 04b84ff31d03..0a089cf5c78f 100644
---- a/drivers/staging/erofs/dir.c
-+++ b/drivers/staging/erofs/dir.c
-@@ -23,6 +23,21 @@ static const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
- 	[EROFS_FT_SYMLINK]	= DT_LNK,
- };
- 
-+static void debug_one_dentry(unsigned char d_type, const char *de_name,
-+			     unsigned int de_namelen)
-+{
-+#ifdef CONFIG_EROFS_FS_DEBUG
-+	/* since the on-disk name could not have the trailing '\0' */
-+	unsigned char dbg_namebuf[EROFS_NAME_LEN + 1];
-+
-+	memcpy(dbg_namebuf, de_name, de_namelen);
-+	dbg_namebuf[de_namelen] = '\0';
-+
-+	debugln("found dirent %s de_len %u d_type %d", dbg_namebuf,
-+		de_namelen, d_type);
-+#endif
-+}
-+
- static int erofs_fill_dentries(struct dir_context *ctx,
- 	void *dentry_blk, unsigned *ofs,
- 	unsigned nameoff, unsigned maxsize)
-@@ -33,14 +48,10 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 	de = dentry_blk + *ofs;
- 	while (de < end) {
- 		const char *de_name;
--		int de_namelen;
-+		unsigned int de_namelen;
- 		unsigned char d_type;
--#ifdef CONFIG_EROFS_FS_DEBUG
--		unsigned dbg_namelen;
--		unsigned char dbg_namebuf[EROFS_NAME_LEN];
--#endif
- 
--		if (unlikely(de->file_type < EROFS_FT_MAX))
-+		if (de->file_type < EROFS_FT_MAX)
- 			d_type = erofs_filetype_table[de->file_type];
- 		else
- 			d_type = DT_UNKNOWN;
-@@ -48,26 +59,20 @@ static int erofs_fill_dentries(struct dir_context *ctx,
- 		nameoff = le16_to_cpu(de->nameoff);
- 		de_name = (char *)dentry_blk + nameoff;
- 
--		de_namelen = unlikely(de + 1 >= end) ?
--			/* last directory entry */
--			strnlen(de_name, maxsize - nameoff) :
--			le16_to_cpu(de[1].nameoff) - nameoff;
-+		/* the last dirent in the block? */
-+		if (de + 1 >= end)
-+			de_namelen = strnlen(de_name, maxsize - nameoff);
-+		else
-+			de_namelen = le16_to_cpu(de[1].nameoff) - nameoff;
- 
- 		/* a corrupted entry is found */
--		if (unlikely(de_namelen < 0)) {
-+		if (unlikely(nameoff + de_namelen > maxsize ||
-+			     de_namelen > EROFS_NAME_LEN)) {
- 			DBG_BUGON(1);
- 			return -EIO;
- 		}
- 
--#ifdef CONFIG_EROFS_FS_DEBUG
--		dbg_namelen = min(EROFS_NAME_LEN - 1, de_namelen);
--		memcpy(dbg_namebuf, de_name, dbg_namelen);
--		dbg_namebuf[dbg_namelen] = '\0';
--
--		debugln("%s, found de_name %s de_len %d d_type %d", __func__,
--			dbg_namebuf, de_namelen, d_type);
--#endif
--
-+		debug_one_dentry(d_type, de_name, de_namelen);
- 		if (!dir_emit(ctx, de_name, de_namelen,
- 					le64_to_cpu(de->nid), d_type))
- 			/* stoped by some reason */
--- 
-2.17.1
+Thanks,
+Gao Xiang
+
+> 
+> --
+> Thanks,
+> Sasha
+> 
