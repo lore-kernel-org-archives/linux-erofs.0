@@ -1,42 +1,36 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 1 Apr 2019 15:11:11 +0800
-Subject: [PATCH] staging: erofs: keep corrupted fs from crashing kernel in
- erofs_readdir()
-In-Reply-To: <20190330134528.7F9A62173C@mail.kernel.org>
-References: <20190328201458.30629-1-hsiangkao@aol.com>
- <20190330134528.7F9A62173C@mail.kernel.org>
-Message-ID: <68f56509-bdd8-2cff-579a-c7e8202d37a7@huawei.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Mon, 1 Apr 2019 13:40:40 +0200
+Subject: [PATCH for-4.19 1/2] staging: erofs: fix error handling when
+ failed to read compresssed data
+In-Reply-To: <20190401065309.68109-1-gaoxiang25@huawei.com>
+References: <20190401065309.68109-1-gaoxiang25@huawei.com>
+Message-ID: <20190401114040.GC8156@kroah.com>
 
-Hi,
+On Mon, Apr 01, 2019@02:53:08PM +0800, Gao Xiang wrote:
+> commit b6391ac73400eff38377a4a7364bd3df5efb5178 upstream.
+> 
+> Complete read error handling paths for all three kinds of
+> compressed pages:
+> 
+>  1) For cache-managed pages, PG_uptodate will be checked since
+>     read_endio will unlock and SetPageUptodate for these pages;
+> 
+>  2) For inplaced pages, read_endio cannot SetPageUptodate directly
+>     since it should be used to mark the final decompressed data,
+>     PG_error will be set with page locked for IO error instead;
+> 
+>  3) For staging pages, PG_error is used, which is similar to
+>     what we do for inplaced pages.
+> 
+> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+> Cc: <stable at vger.kernel.org> # 4.19+
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+> This series resolves the following conflicts:
+> FAILED: patch "[PATCH] staging: erofs: fix error handling when failed to read" failed to apply to 4.19-stable tree
+> FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.19-stable tree
 
-On 2019/3/30 21:45, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 3aa8ec716e52 staging: erofs: add directory operations.
-> 
-> The bot has tested the following trees: v5.0.5, v4.19.32.
-> 
-> v5.0.5: Build OK!
-> v4.19.32: Failed to apply! Possible dependencies:
->     6e78901a9f23 ("staging: erofs: separate erofs_get_meta_page")
->     7dd68b147d60 ("staging: erofs: use explicit unsigned int type")
->     8be31270362b ("staging: erofs: introduce erofs_grab_bio")
->     ab47dd2b0819 ("staging: erofs: cleanup z_erofs_vle_work_{lookup, register}")
-> 
-> 
-> How should we proceed with this patch?
+Thanks for both of these, now queued up.
 
-I have made a 4.19 patch for this:
-https://lore.kernel.org/lkml/20190401065309.68109-2-gaoxiang25 at huawei.com/
-
-Thanks,
-Gao Xiang
-
-> 
-> --
-> Thanks,
-> Sasha
-> 
+greg k-h
