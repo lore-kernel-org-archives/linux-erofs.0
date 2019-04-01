@@ -1,52 +1,112 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 25 Sep 2018 09:13:25 +0800
-Subject: [PATCH] staging: erofs: change inode related info in
- erofs_statfs()
-In-Reply-To: <20180924234136.19465-1-cgxu519@gmx.com>
-References: <20180924234136.19465-1-cgxu519@gmx.com>
-Message-ID: <240e9d66-9063-3026-654f-e47be41e144d@huawei.com>
+Date: Mon, 1 Apr 2019 14:53:08 +0800
+Subject: [PATCH for-4.19 1/2] staging: erofs: fix error handling when failed
+ to read compresssed data
+Message-ID: <20190401065309.68109-1-gaoxiang25@huawei.com>
 
-Hi Chengguang,
+commit b6391ac73400eff38377a4a7364bd3df5efb5178 upstream.
 
-On 2018/9/25 7:41, Chengguang Xu wrote:
-> As a read only filesystem, it's better to show available
-> inode num as 0 in statfs.
-> 
-> Signed-off-by: Chengguang Xu <cgxu519 at gmx.com>
-> ---
->  drivers/staging/erofs/super.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-> index 51b076255988..6601a242071f 100644
-> --- a/drivers/staging/erofs/super.c
-> +++ b/drivers/staging/erofs/super.c
-> @@ -627,8 +627,8 @@ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
->  	buf->f_blocks = sbi->blocks;
->  	buf->f_bfree = buf->f_bavail = 0;
->  
-> -	buf->f_files = ULLONG_MAX;
-> -	buf->f_ffree = ULLONG_MAX - sbi->inos;
-> +	buf->f_files = sbi->inos;
+Complete read error handling paths for all three kinds of
+compressed pages:
 
-For erofs, nid indicates the inode position rather than just a id, and it could not be continious.
+ 1) For cache-managed pages, PG_uptodate will be checked since
+    read_endio will unlock and SetPageUptodate for these pages;
 
-The in-byte inode position is calculated by the following formula:
-nid * 32(inode_v1) + meta_blkaddr * 4096
+ 2) For inplaced pages, read_endio cannot SetPageUptodate directly
+    since it should be used to mark the final decompressed data,
+    PG_error will be set with page locked for IO error instead;
 
-These two fields are defined as:
-fsfilcnt_t    f_files    Total number of file serial numbers.
-fsfilcnt_t    f_ffree    Total number of free file serial numbers.
+ 3) For staging pages, PG_error is used, which is similar to
+    what we do for inplaced pages.
 
-I'm afraid if f_files == sbi->inos, the actual inode number (nid) could be larger than f_files.
-I have no idea whether it could give undefined behavior to user program...
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable at vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+This series resolves the following conflicts:
+FAILED: patch "[PATCH] staging: erofs: fix error handling when failed to read" failed to apply to 4.19-stable tree
+FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.19-stable tree
 
 Thanks,
 Gao Xiang
 
+ drivers/staging/erofs/unzip_vle.c | 42 +++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 13 deletions(-)
 
-> +	buf->f_ffree = 0;
->  
->  	buf->f_namelen = EROFS_NAME_LEN;
->  
-> 
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index f44662dd795c..bb9a69158ba4 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -885,6 +885,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	overlapped = false;
+ 	compressed_pages = grp->compressed_pages;
+ 
++	err = 0;
+ 	for (i = 0; i < clusterpages; ++i) {
+ 		unsigned pagenr;
+ 
+@@ -894,26 +895,39 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 		DBG_BUGON(page == NULL);
+ 		DBG_BUGON(page->mapping == NULL);
+ 
+-		if (z_erofs_is_stagingpage(page))
+-			continue;
++		if (!z_erofs_is_stagingpage(page)) {
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+-		if (page->mapping == mngda) {
+-			DBG_BUGON(!PageUptodate(page));
+-			continue;
+-		}
++			if (page->mapping == mngda) {
++				if (unlikely(!PageUptodate(page)))
++					err = -EIO;
++				continue;
++			}
+ #endif
+ 
+-		/* only non-head page could be reused as a compressed page */
+-		pagenr = z_erofs_onlinepage_index(page);
++			/*
++			 * only if non-head page can be selected
++			 * for inplace decompression
++			 */
++			pagenr = z_erofs_onlinepage_index(page);
+ 
+-		DBG_BUGON(pagenr >= nr_pages);
+-		DBG_BUGON(pages[pagenr]);
+-		++sparsemem_pages;
+-		pages[pagenr] = page;
++			DBG_BUGON(pagenr >= nr_pages);
++			DBG_BUGON(pages[pagenr]);
++			++sparsemem_pages;
++			pages[pagenr] = page;
+ 
+-		overlapped = true;
++			overlapped = true;
++		}
++
++		/* PG_error needs checking for inplaced and staging pages */
++		if (unlikely(PageError(page))) {
++			DBG_BUGON(PageUptodate(page));
++			err = -EIO;
++		}
+ 	}
+ 
++	if (unlikely(err))
++		goto out;
++
+ 	llen = (nr_pages << PAGE_SHIFT) - work->pageofs;
+ 
+ 	if (z_erofs_vle_workgrp_fmt(grp) == Z_EROFS_VLE_WORKGRP_FMT_PLAIN) {
+@@ -1078,6 +1092,8 @@ static inline bool recover_managed_page(struct z_erofs_vle_workgroup *grp,
+ 		return true;
+ 
+ 	lock_page(page);
++	ClearPageError(page);
++
+ 	if (unlikely(!PagePrivate(page))) {
+ 		set_page_private(page, (unsigned long)grp);
+ 		SetPagePrivate(page);
+-- 
+2.17.1
