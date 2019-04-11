@@ -1,48 +1,55 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 1 Apr 2019 20:02:45 +0800
-Subject: [PATCH for-4.19 1/2] staging: erofs: fix error handling when
- failed to read compresssed data
-In-Reply-To: <20190401114040.GC8156@kroah.com>
-References: <20190401065309.68109-1-gaoxiang25@huawei.com>
- <20190401114040.GC8156@kroah.com>
-Message-ID: <c23f77c3-052e-5a96-752f-5664fc8afa34@huawei.com>
+Date: Thu, 11 Apr 2019 13:47:49 +0800
+Subject: Some new bio merging behaviors in __bio_try_merge_page
+Message-ID: <85c5fa1a-a506-e26f-c354-1554d47d8b2b@huawei.com>
 
+Hi Ming,
 
+I found a erofs issue after commit 07173c3ec276
+("block: enable multipage bvecs") is merged. It seems that
+it tries to merge more physical continuous pages in one iovec.
 
-On 2019/4/1 19:40, Greg Kroah-Hartman wrote:
-> On Mon, Apr 01, 2019@02:53:08PM +0800, Gao Xiang wrote:
->> commit b6391ac73400eff38377a4a7364bd3df5efb5178 upstream.
->>
->> Complete read error handling paths for all three kinds of
->> compressed pages:
->>
->>  1) For cache-managed pages, PG_uptodate will be checked since
->>     read_endio will unlock and SetPageUptodate for these pages;
->>
->>  2) For inplaced pages, read_endio cannot SetPageUptodate directly
->>     since it should be used to mark the final decompressed data,
->>     PG_error will be set with page locked for IO error instead;
->>
->>  3) For staging pages, PG_error is used, which is similar to
->>     what we do for inplaced pages.
->>
->> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
->> Cc: <stable at vger.kernel.org> # 4.19+
->> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->> ---
->> This series resolves the following conflicts:
->> FAILED: patch "[PATCH] staging: erofs: fix error handling when failed to read" failed to apply to 4.19-stable tree
->> FAILED: patch "[PATCH] staging: erofs: keep corrupted fs from crashing kernel in" failed to apply to 4.19-stable tree
-> 
-> Thanks for both of these, now queued up.
-> 
-> greg k-h
+However it breaks the current erofs_read_raw_page logic since it uses
+nr_iovecs of bio_alloc to limit the maximum number of physical
+continuous blocks as well. It was practicable since the old
+__bio_try_merge_page only tries to merge in the same page.
+it is a kAPI behavior change which also affects bio_alloc...
 
-It's my pleasure to backport related conflict bugfixes to stable kernels. :)
+...
+231                 err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
+232                 if (unlikely(err))
+233                         goto err_out;
+...
+284                 /* max # of continuous pages */
+285                 if (nblocks > DIV_ROUND_UP(map.m_plen, PAGE_SIZE))
+286                         nblocks = DIV_ROUND_UP(map.m_plen, PAGE_SIZE);
+287                 if (nblocks > BIO_MAX_PAGES)
+288                         nblocks = BIO_MAX_PAGES;
+289
+290                 bio = erofs_grab_bio(sb, blknr, nblocks, sb,
+291                                      read_endio, false);
+292                 if (IS_ERR(bio)) {
+293                         err = PTR_ERR(bio);
+294                         bio = NULL;
+295                         goto err_out;
+296                 }
+297         }
+298
+299         err = bio_add_page(bio, page, PAGE_SIZE, 0);
+300         /* out of the extent or bio is full */
+301         if (err < PAGE_SIZE)
+302                 goto submit_bio_retry;
+...
+
+After commit 07173c3ec276 ("block: enable multipage bvecs"), erofs could
+read more beyond what erofs_map_blocks assigns, and out-of-bound data could
+be read and it breaks tail-end inline determination.
+
+I can change the logic in erofs. However, out of curiosity, I have no idea
+if some other places also are designed like this.
+
+IMO, it's better to provide a total count which indicates how many real
+pages have been added in this bio. some thoughts?
 
 Thanks,
 Gao Xiang
-
-
-> 
