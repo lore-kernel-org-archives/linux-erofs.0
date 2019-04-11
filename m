@@ -1,38 +1,19 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 11 Apr 2019 18:55:55 +0800
-Subject: [PATCH] staging: erofs: fix unexpected out-of-bound data access
-Message-ID: <20190411105555.133551-1-gaoxiang25@huawei.com>
+From: hch@infradead.org (Christoph Hellwig)
+Date: Thu, 11 Apr 2019 08:34:11 -0700
+Subject: Some new bio merging behaviors in __bio_try_merge_page
+In-Reply-To: <20190411080953.GE421@ming.t460p>
+References: <85c5fa1a-a506-e26f-c354-1554d47d8b2b@huawei.com>
+ <20190411070807.GA421@ming.t460p>
+ <cb392476-a00e-09ce-fa6b-9e088242ecc6@huawei.com>
+ <20190411080953.GE421@ming.t460p>
+Message-ID: <20190411153411.GA16987@infradead.org>
 
-Unexpected out-of-bound data will be read in erofs_read_raw_page
-after commit 07173c3ec276 ("block: enable multipage bvecs") since
-one iovec could have multiple pages.
+On Thu, Apr 11, 2019@04:09:54PM +0800, Ming Lei wrote:
+> I don't think it is a good behaviour to use bio->bi_max_vecs to limit
+> max allowed page, you may see the idea from the naming simply...
+> 
+> If there were other such drivers, we may fix it easily, and the following
+> patch should fix your issue:
 
-Let's fix as what Ming's pointed out in the previous email.
-
-Suggested-by: Ming Lei <ming.lei at redhat.com>
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
-
-It should be fixed from linux-5.1-rc after multi-page bvec feature.
-
-Thanks,
-Gao Xiang
-
- drivers/staging/erofs/data.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-index 0714061ba888..c64ec76643d4 100644
---- a/drivers/staging/erofs/data.c
-+++ b/drivers/staging/erofs/data.c
-@@ -304,7 +304,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
- 	*last_block = current_block;
- 
- 	/* shift in advance in case of it followed by too many gaps */
--	if (unlikely(bio->bi_vcnt >= bio->bi_max_vecs)) {
-+	if (bio->bi_iter.bi_size >= bio->bi_max_vecs * PAGE_SIZE) {
- 		/* err should reassign to 0 after submitting */
- 		err = 0;
- 		goto submit_bio_out;
--- 
-2.17.1
+Yep.  Consumers of the block layer really have no business at all
+looking at bi_vcnt.
