@@ -1,115 +1,64 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 12 Apr 2019 23:35:08 +0800
-Subject: [PATCH] staging: erofs: fix unexpected out-of-bound data access
-In-Reply-To: <20190412150633.GA20776@infradead.org>
-References: <20190411105555.133551-1-gaoxiang25@huawei.com>
- <20190412150633.GA20776@infradead.org>
-Message-ID: <a34cb628-ca2f-0497-2a51-5d1ddf318650@aol.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 18 Apr 2019 22:01:51 +0800
+Subject: [RFC PATCH 05/62] erofs: switch to ->free_inode()
+In-Reply-To: <20190416175340.21068-5-viro@ZenIV.linux.org.uk>
+References: <20190416174900.GT2217@ZenIV.linux.org.uk>
+ <20190416175340.21068-1-viro@ZenIV.linux.org.uk>
+ <20190416175340.21068-5-viro@ZenIV.linux.org.uk>
+Message-ID: <e6cddba8-7b0a-6f05-a71a-51b8219f2159@huawei.com>
 
-Hi Christoph,
 
-On 2019/4/12 23:06, Christoph Hellwig wrote:
->> +++ b/drivers/staging/erofs/data.c
->> @@ -304,7 +304,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
->>  	*last_block = current_block;
->>  
->>  	/* shift in advance in case of it followed by too many gaps */
->> -	if (unlikely(bio->bi_vcnt >= bio->bi_max_vecs)) {
->> +	if (bio->bi_iter.bi_size >= bio->bi_max_vecs * PAGE_SIZE) {
+
+On 2019/4/17 1:52, Al Viro wrote:
+> From: Al Viro <viro at zeniv.linux.org.uk>
 > 
-> This is still a very odd check.  bi_max_vecs * PAGE_SIZE is rather
-> arbitrary? and more importantly bi_max_vecs is not really a public
-> field, in fact this is the only place every using it outside the
-> core block layer.
-> 
-> I think the logic in this function should be reworked to what we
-> do elsewhere in the kernel, that is just add to the bio until
-> bio_add_page fails, in which case you submit the bio and start
-> a new one.  Then once you are done with your operation just submit
-> the bio.  Which unless I'm missing something is what the code does,
-> except for the goto loop obsfucation that is trying to hide it.
-> 
-> So why not something like:
-> 
-> 
-> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
-> index 0714061ba888..122714e19079 100644
-> --- a/drivers/staging/erofs/data.c
-> +++ b/drivers/staging/erofs/data.c
-> @@ -296,20 +296,9 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
->  		}
->  	}
->  
-> -	err = bio_add_page(bio, page, PAGE_SIZE, 0);
-> -	/* out of the extent or bio is full */
-> -	if (err < PAGE_SIZE)
-> +	if (bio_add_page(bio, page, PAGE_SIZE, 0) != PAGE_SIZE)
->  		goto submit_bio_retry;
+> Signed-off-by: Al Viro <viro at zeniv.linux.org.uk>
 
-Thanks for your kindly reply. I think it doesn't work for the current logic
-since nblocks also indicates the block(page) distance of end of map_blocks
-bound (see my explanation in the email [1])...
+It seems more clear than before :) Thanks for taking erofs into consideration as well,
 
-[1] https://lore.kernel.org/lkml/cb392476-a00e-09ce-fa6b-9e088242ecc6 at huawei.com/
-
-and
- nblocks = min(distance to the end of mapping, nr of remaining pages to read, BIO_MAX_PAGES)
- bio->bi_max_vecs = nblocks (which is the worst case if pages cannot be merged)
- 
-
-Currently I think a patch is needed to fix for linux-5.1, iomap is in consideration
-as well months ago [2]. However it needs to be done later and with some careful tests.
-
-[2] https://lore.kernel.org/lkml/c742194d-4207-e7b9-b679-c1f207961f17 at huawei.com/
-
-So I think let's fix it as it is in linux-5.1, and I will turn into iomap in my free time.
+Acked-by: Gao Xiang <gaoxiang25 at huawei.com>
 
 Thanks,
 Gao Xiang
 
-> -
->  	*last_block = current_block;
-> -
-> -	/* shift in advance in case of it followed by too many gaps */
-> -	if (unlikely(bio->bi_vcnt >= bio->bi_max_vecs)) {
-> -		/* err should reassign to 0 after submitting */
-> -		err = 0;
-> -		goto submit_bio_out;
-> -	}
-> -
->  	return bio;
->  
->  err_out:
-> @@ -323,9 +312,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
->  
->  	/* if updated manually, continuous pages has a gap */
->  	if (bio)
-> -submit_bio_out:
->  		__submit_bio(bio, REQ_OP_READ, 0);
-> -
->  	return unlikely(err) ? ERR_PTR(err) : NULL;
->  }
->  
-> @@ -387,8 +374,7 @@ static int erofs_raw_access_readpages(struct file *filp,
->  	}
->  	DBG_BUGON(!list_empty(pages));
->  
-> -	/* the rare case (end in gaps) */
-> -	if (unlikely(bio))
-> +	if (bio)
->  		__submit_bio(bio, REQ_OP_READ, 0);
->  	return 0;
->  }
+> ---
+>  drivers/staging/erofs/super.c | 10 ++--------
+>  1 file changed, 2 insertions(+), 8 deletions(-)
 > 
->>  		/* err should reassign to 0 after submitting */
->>  		err = 0;
->>  		goto submit_bio_out;
->> -- 
->> 2.17.1
->>
-> ---end quoted text---
-> _______________________________________________
-> devel mailing list
-> devel at linuxdriverproject.org
-> http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel
+> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+> index 15c784fba879..700cbd460807 100644
+> --- a/drivers/staging/erofs/super.c
+> +++ b/drivers/staging/erofs/super.c
+> @@ -57,9 +57,8 @@ static struct inode *alloc_inode(struct super_block *sb)
+>  	return &vi->vfs_inode;
+>  }
+>  
+> -static void i_callback(struct rcu_head *head)
+> +static void free_inode(struct inode *inode)
+>  {
+> -	struct inode *inode = container_of(head, struct inode, i_rcu);
+>  	struct erofs_vnode *vi = EROFS_V(inode);
+>  
+>  	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
+> @@ -71,11 +70,6 @@ static void i_callback(struct rcu_head *head)
+>  	kmem_cache_free(erofs_inode_cachep, vi);
+>  }
+>  
+> -static void destroy_inode(struct inode *inode)
+> -{
+> -	call_rcu(&inode->i_rcu, i_callback);
+> -}
+> -
+>  static int superblock_read(struct super_block *sb)
+>  {
+>  	struct erofs_sb_info *sbi;
+> @@ -668,7 +662,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
+>  const struct super_operations erofs_sops = {
+>  	.put_super = erofs_put_super,
+>  	.alloc_inode = alloc_inode,
+> -	.destroy_inode = destroy_inode,
+> +	.free_inode = free_inode,
+>  	.statfs = erofs_statfs,
+>  	.show_options = erofs_show_options,
+>  	.remount_fs = erofs_remount,
 > 
