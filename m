@@ -1,18 +1,32 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 7 May 2019 09:41:41 +0800
-Subject: [PATCH] staging: erofs: set sb->s_root to NULL when failing from
- __getname()
-In-Reply-To: <1557140462-22578-1-git-send-email-cgxu519@gmail.com>
-References: <1557140462-22578-1-git-send-email-cgxu519@gmail.com>
-Message-ID: <564fc539-4a73-6f43-f869-272b8d7d1781@huawei.com>
+From: yamada.masahiro@socionext.com (Masahiro Yamada)
+Date: Wed, 15 May 2019 13:31:22 +0900
+Subject: [PATCH] staging: erofs: drop unneeded -Wall addition
+Message-ID: <20190515043123.9106-1-yamada.masahiro@socionext.com>
 
-On 2019/5/6 19:01, Chengguang Xu wrote:
-> Set sb->s_root to NULL when failing from __getname(),
-> so that we can avoid double dput and unnecessary operations
-> in generic_shutdown_super().
-> 
-> Signed-off-by: Chengguang Xu <cgxu519 at gmail.com>
+The top level Makefile adds -Wall globally:
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+  KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
 
-Thanks,
+I see two "-Wall" added for compiling objects in drivers/staging/erofs/.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro at socionext.com>
+---
+
+ drivers/staging/erofs/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
+index 38ab344a285e..a34248a2a16a 100644
+--- a/drivers/staging/erofs/Makefile
++++ b/drivers/staging/erofs/Makefile
+@@ -2,7 +2,7 @@
+ 
+ EROFS_VERSION = "1.0pre1"
+ 
+-ccflags-y += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
++ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+ 
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+ # staging requirement: to be self-contained in its own directory
+-- 
+2.17.1
