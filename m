@@ -1,19 +1,32 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 15 May 2019 14:52:44 +0800
-Subject: [PATCH] staging: erofs: drop unneeded -Wall addition
-In-Reply-To: <20190515043123.9106-1-yamada.masahiro@socionext.com>
-References: <20190515043123.9106-1-yamada.masahiro@socionext.com>
-Message-ID: <8e8baf6c-b604-5546-7530-53d0fa8dcea1@huawei.com>
+From: hariprasad.kelam@gmail.com (Hariprasad Kelam)
+Date: Sat, 18 May 2019 23:03:31 +0530
+Subject: [PATCH] staging: erofs: fix Warning Use BUG_ON instead of if
+ condition followed by BUG
+Message-ID: <20190518173331.GA1069@hari-Inspiron-1545>
 
-On 2019/5/15 12:31, Masahiro Yamada wrote:
-> The top level Makefile adds -Wall globally:
-> 
->   KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
-> 
-> I see two "-Wall" added for compiling objects in drivers/staging/erofs/.
-> 
-> Signed-off-by: Masahiro Yamada <yamada.masahiro at socionext.com>
+fix below warning reported by  coccicheck
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+drivers/staging/erofs/unzip_pagevec.h:74:2-5: WARNING: Use BUG_ON
+instead of if condition followed by BUG.
 
-Thanks,
+Signed-off-by: Hariprasad Kelam <hariprasad.kelam at gmail.com>
+---
+ drivers/staging/erofs/unzip_pagevec.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
+index f37d8fd..0f61c54 100644
+--- a/drivers/staging/erofs/unzip_pagevec.h
++++ b/drivers/staging/erofs/unzip_pagevec.h
+@@ -70,8 +70,7 @@ z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
+ 			return tagptr_unfold_ptr(t);
+ 	}
+ 
+-	if (unlikely(nr >= ctor->nr))
+-		BUG();
++	BUG_ON(nr >= ctor->nr);
+ 
+ 	return NULL;
+ }
+-- 
+2.7.4
