@@ -1,46 +1,50 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 19 May 2019 17:35:57 +0800
-Subject: [PATCH v2] staging: erofs: fix Warning Use BUG_ON instead of if
+Date: Sun, 19 May 2019 17:50:40 +0800
+Subject: [Patch v2] staging: erofs: fix Warning Use BUG_ON instead of if
  condition followed by BUG
-In-Reply-To: <20190518173331.GA1069@hari-Inspiron-1545>
-References: <20190518173331.GA1069@hari-Inspiron-1545>
-Message-ID: <20190519093557.20982-1-hsiangkao@aol.com>
+In-Reply-To: <20190519093440.GA16838@hari-Inspiron-1545>
+References: <20190519093440.GA16838@hari-Inspiron-1545>
+Message-ID: <b32e6bca-60ec-2004-f1d6-16d2b8a478ae@aol.com>
 
-From: Hariprasad Kelam <hariprasad.kelam@gmail.com>
 
-fix below warning reported by  coccicheck
 
-drivers/staging/erofs/unzip_pagevec.h:74:2-5: WARNING: Use BUG_ON
-instead of if condition followed by BUG.
+On 2019/5/19 ??5:34, Hariprasad Kelam wrote:
+> fix below warning reported by  coccicheck
+> 
+> drivers/staging/erofs/unzip_pagevec.h:74:2-5: WARNING: Use BUG_ON
+> instead of if condition followed by BUG.
+> 
+> Signed-off-by: Hariprasad Kelam <hariprasad.kelam at gmail.com>
+> -----
+> Changes in v2:
+>   - replace BUG_ON with  DBG_BUGON
+> -----
+> ---
+>  drivers/staging/erofs/unzip_pagevec.h | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
+> index f37d8fd..7938ee3 100644
+> --- a/drivers/staging/erofs/unzip_pagevec.h
+> +++ b/drivers/staging/erofs/unzip_pagevec.h
+> @@ -70,8 +70,7 @@ z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
+>  			return tagptr_unfold_ptr(t);
+>  	}
+>  
 
-Signed-off-by: Hariprasad Kelam <hariprasad.kelam at gmail.com>
-[ Gao Xiang: use DBG_BUGON instead of BUG_ON for eng version only. ]
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
-change log v2:
- - use DBG_BUGON as what said in the commit message.
+I'd like to delete this line
+
+> -	if (unlikely(nr >= ctor->nr))
+> -		BUG();
+> +	DBG_BUGON(nr >= ctor->nr);
+>  
+
+and this line.. I have already sent a new patch based on your v1 patch,
+could you please check it out if it is acceptable for you? :)
 
 Thanks,
 Gao Xiang
 
- drivers/staging/erofs/unzip_pagevec.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
-index f37d8fd14771..7af0ba8d8495 100644
---- a/drivers/staging/erofs/unzip_pagevec.h
-+++ b/drivers/staging/erofs/unzip_pagevec.h
-@@ -69,10 +69,7 @@ z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
- 		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
- 			return tagptr_unfold_ptr(t);
- 	}
--
--	if (unlikely(nr >= ctor->nr))
--		BUG();
--
-+	DBG_BUGON(nr >= ctor->nr);
- 	return NULL;
- }
- 
--- 
-2.17.1
+>  	return NULL;
+>  }
+> 
