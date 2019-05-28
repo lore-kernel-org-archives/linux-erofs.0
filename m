@@ -1,14 +1,12 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 28 May 2019 15:16:58 +0800
+From: yuchao0@huawei.com (Chao Yu)
+Date: Tue, 28 May 2019 17:45:25 +0800
 Subject: [PATCH v2 2/2] staging: erofs: fix i_blocks calculation
 In-Reply-To: <20190528065709.GY31203@kadam>
 References: <20190528023147.94117-2-gaoxiang25@huawei.com>
  <20190528023602.178923-1-gaoxiang25@huawei.com>
  <fe0ff7bb-b576-f949-d57a-2892d116b22f@huawei.com>
  <20190528065709.GY31203@kadam>
-Message-ID: <cfcdc928-f9c4-a172-15a2-2faeca62f826@huawei.com>
-
-Hi Dan,
+Message-ID: <8bbeb607-a18b-aeee-1668-501ad65ba230@huawei.com>
 
 On 2019/5/28 14:57, Dan Carpenter wrote:
 > On Tue, May 28, 2019@11:02:12AM +0800, Chao Yu wrote:
@@ -59,19 +57,17 @@ On 2019/5/28 14:57, Dan Carpenter wrote:
 > 
 > I wonder it the kbuild bot is going to send an email about that...
 
-Not yet, and v3 fixes it. I have no idea whether kbuild checks all version
-or just the latest version...
+0-day may do this a little later.
 
 > Hopefully these sorts of bugs get detected with Sparse CF=-D__CHECK_ENDIAN__
 
-Yes, I missed this case by mistake.
-These two patches are small, I didn't do too many static checking expect for checkpatch.pl.
-v3 seems fine and I will take care later, Thanks for kindly suggestion. :)
+Thanks, Dan, let's use this sparse flag more frequently to avoid such issue.
 
 Thanks,
-Gao Xiang
 
 > 
 > regards,
 > dan carpenter
+> 
+> .
 > 
