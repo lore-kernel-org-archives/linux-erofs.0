@@ -1,23 +1,30 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 28 May 2019 10:31:47 +0800
-Subject: [PATCH 2/2] staging: erofs: fix i_blocks calculation
-In-Reply-To: <20190528023147.94117-1-gaoxiang25@huawei.com>
-References: <20190528023147.94117-1-gaoxiang25@huawei.com>
-Message-ID: <20190528023147.94117-2-gaoxiang25@huawei.com>
+Date: Tue, 28 May 2019 10:36:02 +0800
+Subject: [PATCH v2 2/2] staging: erofs: fix i_blocks calculation
+In-Reply-To: <20190528023147.94117-2-gaoxiang25@huawei.com>
+References: <20190528023147.94117-2-gaoxiang25@huawei.com>
+Message-ID: <20190528023602.178923-1-gaoxiang25@huawei.com>
 
 For compressed files, i_blocks should not be calculated
 by using i_size. i_u.compressed_blocks is used instead.
 
-In addition, i_blocks is miscalculated for non-compressed
+In addition, i_blocks was miscalculated for non-compressed
 files previously, fix it as well.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+change log v2:
+ - fix description in commit message
+ - fix to 'inode->i_blocks = nblks << LOG_SECTORS_PER_BLOCK'
+
+Thanks,
+Gao Xiang
+
  drivers/staging/erofs/inode.c | 14 ++++++++++++--
  1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 8da144943ed6..b1b790767089 100644
+index 8da144943ed6..6e67e018784e 100644
 --- a/drivers/staging/erofs/inode.c
 +++ b/drivers/staging/erofs/inode.c
 @@ -20,6 +20,7 @@ static int read_inode(struct inode *inode, void *data)
@@ -58,7 +65,7 @@ index 8da144943ed6..b1b790767089 100644
 +		/* measure inode.i_blocks as generic filesystems */
 +		inode->i_blocks = roundup(inode->i_size, EROFS_BLKSIZ) >> 9;
 +	else
-+		inode->i_blocks = nblks >> LOG_SECTORS_PER_BLOCK;
++		inode->i_blocks = nblks << LOG_SECTORS_PER_BLOCK;
  	return 0;
  }
  
