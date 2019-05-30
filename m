@@ -1,73 +1,46 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 28 May 2019 17:45:25 +0800
-Subject: [PATCH v2 2/2] staging: erofs: fix i_blocks calculation
-In-Reply-To: <20190528065709.GY31203@kadam>
-References: <20190528023147.94117-2-gaoxiang25@huawei.com>
- <20190528023602.178923-1-gaoxiang25@huawei.com>
- <fe0ff7bb-b576-f949-d57a-2892d116b22f@huawei.com>
- <20190528065709.GY31203@kadam>
-Message-ID: <8bbeb607-a18b-aeee-1668-501ad65ba230@huawei.com>
+From: zbestahu@gmail.com (Yue Hu)
+Date: Thu, 30 May 2019 17:58:50 +0800
+Subject: [PATCH] erofs-utils: remove AC_FUNC_MALLOC check
+Message-ID: <20190530095850.5260-1-zbestahu@gmail.com>
 
-On 2019/5/28 14:57, Dan Carpenter wrote:
-> On Tue, May 28, 2019@11:02:12AM +0800, Chao Yu wrote:
->> On 2019/5/28 10:36, Gao Xiang wrote:
->>> For compressed files, i_blocks should not be calculated
->>> by using i_size. i_u.compressed_blocks is used instead.
->>>
->>> In addition, i_blocks was miscalculated for non-compressed
->>> files previously, fix it as well.
->>>
->>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->>> ---
->>> change log v2:
->>>  - fix description in commit message
->>>  - fix to 'inode->i_blocks = nblks << LOG_SECTORS_PER_BLOCK'
->>>
->>> Thanks,
->>> Gao Xiang
->>>
->>>  drivers/staging/erofs/inode.c | 14 ++++++++++++--
->>>  1 file changed, 12 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
->>> index 8da144943ed6..6e67e018784e 100644
->>> --- a/drivers/staging/erofs/inode.c
->>> +++ b/drivers/staging/erofs/inode.c
->>> @@ -20,6 +20,7 @@ static int read_inode(struct inode *inode, void *data)
->>>  	struct erofs_vnode *vi = EROFS_V(inode);
->>>  	struct erofs_inode_v1 *v1 = data;
->>>  	const unsigned int advise = le16_to_cpu(v1->i_advise);
->>> +	erofs_blk_t nblks = 0;
->>>  
->>>  	vi->data_mapping_mode = __inode_data_mapping(advise);
->>>  
->>> @@ -60,6 +61,10 @@ static int read_inode(struct inode *inode, void *data)
->>>  			le32_to_cpu(v2->i_ctime_nsec);
->>>  
->>>  		inode->i_size = le64_to_cpu(v2->i_size);
->>> +
->>> +		/* total blocks for compressed files */
->>> +		if (vi->data_mapping_mode == EROFS_INODE_LAYOUT_COMPRESSION)
->>> +			nblks = v2->i_u.compressed_blocks;
->>
->> Xiang,
->>
->> It needs to use le32_to_cpu(). ;)
->>
-> 
-> I wonder it the kbuild bot is going to send an email about that...
+From: Yue Hu <huyue2@yulong.com>
 
-0-day may do this a little later.
+Below erros happened when building for ARM64, rpl_malloc is not
+supplied in that case, remove AC_FUNC_MALLOC can fix the errors.
 
-> Hopefully these sorts of bugs get detected with Sparse CF=-D__CHECK_ENDIAN__
+mkfs_file.c: In function 'erofs_compress_file':
+mkfs_file.c:600:2: error: implicit declaration of function 'rpl_malloc' [-Werror=implicit-function-declaration]
+  inode->i_inline_data = malloc(EROFS_BLKSIZE);
+  ^
+mkfs_file.c:600:23: error: assignment makes pointer from integer without a cast [-Werror]
+  inode->i_inline_data = malloc(EROFS_BLKSIZE);
+                       ^
+mkfs_file.c: In function 'erofs_init_compress_context':
+mkfs_file.c:874:17: error: assignment makes pointer from integer without a cast [-Werror]
+  ctx->cc_srcbuf = malloc(erofs_cfg.c_compr_maxsz);
+                 ^
+mkfs_file.c:875:17: error: assignment makes pointer from integer without a cast [-Werror]
+  ctx->cc_dstbuf = malloc(erofs_cfg.c_compr_maxsz * 2);
+                 ^
+cc1: all warnings being treated as errors
+make[2]: *** [mkfs_erofs-mkfs_file.o] Error 1
 
-Thanks, Dan, let's use this sparse flag more frequently to avoid such issue.
+Signed-off-by: Yue Hu <huyue2 at yulong.com>
+---
+ configure.ac | 1 -
+ 1 file changed, 1 deletion(-)
 
-Thanks,
-
-> 
-> regards,
-> dan carpenter
-> 
-> .
-> 
+diff --git a/configure.ac b/configure.ac
+index 8e3f703..40ee765 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -98,7 +98,6 @@ AC_CHECK_MEMBERS([struct stat.st_rdev])
+ AC_TYPE_UINT64_T
+ 
+ # Checks for library functions.
+-AC_FUNC_MALLOC
+ AC_CHECK_FUNCS([ftruncate getcwd gettimeofday memset realpath strdup strerror strrchr strtoull])
+ 
+ # Configure lz4.
+-- 
+1.9.1
