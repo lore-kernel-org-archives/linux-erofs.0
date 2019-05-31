@@ -1,39 +1,206 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 31 May 2019 08:50:34 +0800
-Subject: [PATCH 00/13] erofs_utils: new mkfs framework
-Message-ID: <20190531005047.22093-1-hsiangkao@aol.com>
+Date: Fri, 31 May 2019 08:50:38 +0800
+Subject: [PATCH 04/13] erofs-utils: add input/output functions
+In-Reply-To: <20190531005047.22093-1-hsiangkao@aol.com>
+References: <20190531005047.22093-1-hsiangkao@aol.com>
+Message-ID: <20190531005047.22093-5-hsiangkao@aol.com>
 
-Hi all,
-I spent nearly a month to make big changes to erofs-mkfs,
-which mainly introduces a new mkfs framework.
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-I personally think it is much cleaner and more scalable than
-the old one, which is hack and not clean enough.
+This patch adds definitions and functions which are
+mainly used for reading and writing target image files.
 
-In-place compression is still work-in-progress, thus it isn't
-included in this series.
+Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Miao Xie <miaoxie at huawei.com>
+Signed-off-by: Fang Wei <fangwei1 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ include/erofs/io.h |  33 ++++++++++++
+ lib/Makefile.am    |   2 +-
+ lib/io.c           | 123 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+), 1 deletion(-)
+ create mode 100644 include/erofs/io.h
+ create mode 100644 lib/io.c
 
-Comments are welcome!
-
-Thanks,
-Gao Xiang
-
-Gao Xiang (8):
-  erofs-utils: introduce buffer cache
-  erofs-utils: introduce inode operations
-  erofs-utils: introduce generic compression framework
-  erofs-utils: introduce lz4/lz4hc compression algorithm
-  erofs-utils: introduce compression for regular files
-  erofs-utils: propagate compressed size to its callers
-  erofs-utils: add a README
-  erofs-utils: fix potential erofs_bh_balloon failure
-
-Li Guifu (5):
-  erofs-utils: add erofs on-disk layout
-  erofs-utils: introduce erofs-utils basic headers
-  erofs-utils: introduce miscellaneous files
-  erofs-utils: add input/output functions
-  erofs-utils: introduce mkfs support
-
+diff --git a/include/erofs/io.h b/include/erofs/io.h
+new file mode 100644
+index 0000000..9471388
+--- /dev/null
++++ b/include/erofs/io.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_utils/include/erofs/io.h
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_IO_H
++#define __EROFS_IO_H
++
++#include <unistd.h>
++#include "internal.h"
++
++#ifndef O_BINARY
++#define O_BINARY	0
++#endif
++
++int dev_open(const char *devname);
++void dev_close(void);
++int dev_write(const void *buf, u64 offset, size_t len);
++int dev_fsync(void);
++u64 dev_length(void);
++
++static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
++			    u32 nblocks)
++{
++	return dev_write(buf, blknr_to_addr(blkaddr),
++			 blknr_to_addr(nblocks));
++}
++
++#endif
++
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 6f1da26..a2c1b24 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -2,6 +2,6 @@
+ # Makefile.am
+ 
+ noinst_LTLIBRARIES = liberofs.la
+-liberofs_la_SOURCES = config.c
++liberofs_la_SOURCES = config.c io.c
+ liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ 
+diff --git a/lib/io.c b/lib/io.c
+new file mode 100644
+index 0000000..f624535
+--- /dev/null
++++ b/lib/io.c
+@@ -0,0 +1,123 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs_utils/lib/io.c
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#define _LARGEFILE64_SOURCE
++#include <sys/stat.h>
++#include "erofs/io.h"
++
++#define pr_fmt(fmt) "EROFS IO: " FUNC_LINE_FMT fmt "\n"
++#include "erofs/print.h"
++
++static const char *erofs_devname;
++static int erofs_devfd = -1;
++static u64 erofs_devsz;
++
++void dev_close(void)
++{
++	close(erofs_devfd);
++	erofs_devname = NULL;
++	erofs_devfd   = -1;
++	erofs_devsz   = 0;
++}
++
++int dev_open(const char *dev)
++{
++	struct stat st;
++	int fd, ret;
++
++	fd = open(dev, O_RDWR | O_CREAT | O_BINARY, 0644);
++	if (fd < 0) {
++		erofs_err("failed to open(%s).", dev);
++		return -errno;
++	}
++
++	ret = fstat(fd, &st);
++	if (ret) {
++		erofs_err("failed to fstat(%s).", dev);
++		close(fd);
++		return -errno;
++	}
++
++	switch (st.st_mode & S_IFMT) {
++	case S_IFBLK:
++		erofs_devsz = st.st_size;
++		break;
++	case S_IFREG:
++		ret = ftruncate(fd, 0);
++		if (ret) {
++			erofs_err("failed to ftruncate(%s).", dev);
++			close(fd);
++			return -errno;
++		}
++		/* INT64_MAX is the limit of kernel vfs */
++		erofs_devsz = INT64_MAX;
++		break;
++	default:
++		erofs_err("bad file type (%s, %o).", dev, st.st_mode);
++		close(fd);
++		return -EINVAL;
++	}
++
++	erofs_devname = dev;
++	erofs_devfd = fd;
++	erofs_devsz = round_down(erofs_devsz, EROFS_BLKSIZ);
++
++	erofs_info("successfully to open %s", dev);
++	return 0;
++}
++
++u64 dev_length(void)
++{
++	return erofs_devsz;
++}
++
++int dev_write(const void *buf, u64 offset, size_t len)
++{
++	int ret;
++
++	if (cfg.c_dry_run)
++		return 0;
++
++	if (!buf) {
++		erofs_err("buf is NULL");
++		return -EINVAL;
++	}
++
++	if (offset >= erofs_devsz || len > erofs_devsz ||
++	    offset > erofs_devsz - len) {
++		erofs_err("Write posion[%" PRIu64 ", %zd] is too large beyond the end of device(%" PRIu64 ").",
++			  offset, len, erofs_devsz);
++		return -EINVAL;
++	}
++
++	ret = pwrite64(erofs_devfd, buf, len, (off64_t)offset);
++	if (ret != (int)len) {
++		if (ret < 0) {
++			erofs_err("Failed to write data into device - %s:[%" PRIu64 ", %zd].",
++				  erofs_devname, offset, len);
++			return -errno;
++		}
++
++		erofs_err("Writing data into device - %s:[%" PRIu64 ", %zd] - was truncated.",
++			  erofs_devname, offset, len);
++		return -ERANGE;
++	}
++	return 0;
++}
++
++int dev_fsync(void)
++{
++	int ret;
++
++	ret = fsync(erofs_devfd);
++	if (ret) {
++		erofs_err("Could not fsync device!!!");
++		return -EIO;
++	}
++	return 0;
++}
 -- 
 2.17.1
