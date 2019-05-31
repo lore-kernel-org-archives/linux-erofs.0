@@ -1,58 +1,384 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Thu, 30 May 2019 23:32:44 +0800
-Subject: [PATCH] erofs-utils: remove AC_FUNC_MALLOC check
-In-Reply-To: <20190530095850.5260-1-zbestahu@gmail.com>
-References: <20190530095850.5260-1-zbestahu@gmail.com>
-Message-ID: <82e79e9a-5c90-677b-376e-f4c04e580f23@aol.com>
+Date: Fri, 31 May 2019 08:50:37 +0800
+Subject: [PATCH 03/13] erofs-utils: introduce miscellaneous files
+In-Reply-To: <20190531005047.22093-1-hsiangkao@aol.com>
+References: <20190531005047.22093-1-hsiangkao@aol.com>
+Message-ID: <20190531005047.22093-4-hsiangkao@aol.com>
 
-Hi Yue,
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-On 2019/5/30 ??????5:58, Yue Hu wrote:
-> From: Yue Hu <huyue2 at yulong.com>
-> 
-> Below erros happened when building for ARM64, rpl_malloc is not
-> supplied in that case, remove AC_FUNC_MALLOC can fix the errors.
-> 
-> mkfs_file.c: In function 'erofs_compress_file':
-> mkfs_file.c:600:2: error: implicit declaration of function 'rpl_malloc' [-Werror=implicit-function-declaration]
->   inode->i_inline_data = malloc(EROFS_BLKSIZE);
->   ^
-> mkfs_file.c:600:23: error: assignment makes pointer from integer without a cast [-Werror]
->   inode->i_inline_data = malloc(EROFS_BLKSIZE);
->                        ^
-> mkfs_file.c: In function 'erofs_init_compress_context':
-> mkfs_file.c:874:17: error: assignment makes pointer from integer without a cast [-Werror]
->   ctx->cc_srcbuf = malloc(erofs_cfg.c_compr_maxsz);
->                  ^
-> mkfs_file.c:875:17: error: assignment makes pointer from integer without a cast [-Werror]
->   ctx->cc_dstbuf = malloc(erofs_cfg.c_compr_maxsz * 2);
->                  ^
-> cc1: all warnings being treated as errors
-> make[2]: *** [mkfs_erofs-mkfs_file.o] Error 1
-> 
-> Signed-off-by: Yue Hu <huyue2 at yulong.com>
+This patch introduces a global configuration scheme, some
+functions which can print messages in different level,
+build scripts and .gitignore file.
 
-Thanks for your report and patch, applied to mkfs-dev branch.
-And as for new erofs-utils, it will be folded into the original patch
-and I will send the whole series soon.
+Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Miao Xie <miaoxie at huawei.com>
+Signed-off-by: Fang Wei <fangwei1 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ .gitignore             |  25 ++++++++++
+ Makefile.am            |   6 +++
+ VERSION                |   2 +
+ autogen.sh             |   9 ++++
+ configure.ac           | 107 +++++++++++++++++++++++++++++++++++++++++
+ include/erofs/config.h |  31 ++++++++++++
+ include/erofs/print.h  |  67 ++++++++++++++++++++++++++
+ lib/Makefile.am        |   7 +++
+ lib/config.c           |  36 ++++++++++++++
+ 9 files changed, 290 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 Makefile.am
+ create mode 100644 VERSION
+ create mode 100755 autogen.sh
+ create mode 100644 configure.ac
+ create mode 100644 include/erofs/config.h
+ create mode 100644 include/erofs/print.h
+ create mode 100644 lib/Makefile.am
+ create mode 100644 lib/config.c
 
-Thanks,
-Gao Xiang
-
-> ---
->  configure.ac | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/configure.ac b/configure.ac
-> index 8e3f703..40ee765 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -98,7 +98,6 @@ AC_CHECK_MEMBERS([struct stat.st_rdev])
->  AC_TYPE_UINT64_T
->  
->  # Checks for library functions.
-> -AC_FUNC_MALLOC
->  AC_CHECK_FUNCS([ftruncate getcwd gettimeofday memset realpath strdup strerror strrchr strtoull])
->  
->  # Configure lz4.
-> 
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..3a39a1e
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,25 @@
++.*
++*~
++*.diff
++*.o
++*.la
++*.a
++*.patch
++*.rej
++
++#
++# Generated files
++#
++aclocal.m4
++autom4te.cache
++config.*
++Makefile
++Makefile.in
++config/
++m4/
++configure
++configure.scan
++libtool
++stamp-h
++stamp-h1
++
+diff --git a/Makefile.am b/Makefile.am
+new file mode 100644
+index 0000000..ee5fd92
+--- /dev/null
++++ b/Makefile.am
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: GPL-2.0+
++# Makefile.am
++
++ACLOCAL_AMFLAGS = -I m4
++
++SUBDIRS=lib
+diff --git a/VERSION b/VERSION
+new file mode 100644
+index 0000000..a27f297
+--- /dev/null
++++ b/VERSION
+@@ -0,0 +1,2 @@
++0.1
++2019-04-20
+diff --git a/autogen.sh b/autogen.sh
+new file mode 100755
+index 0000000..fdda7e1
+--- /dev/null
++++ b/autogen.sh
+@@ -0,0 +1,9 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++
++aclocal && \
++autoheader && \
++autoconf && \
++libtoolize && \
++automake -a -c
++
+diff --git a/configure.ac b/configure.ac
+new file mode 100644
+index 0000000..9c6d8bb
+--- /dev/null
++++ b/configure.ac
+@@ -0,0 +1,107 @@
++#                                               -*- Autoconf -*-
++# Process this file with autoconf to produce a configure script.
++
++AC_PREREQ([2.69])
++
++m4_define([erofs_utils_version], m4_esyscmd([sed -n '1p' VERSION | tr -d '\n']))
++m4_define([erofs_utils_date], m4_esyscmd([sed -n '2p' VERSION | tr -d '\n']))
++
++AC_INIT([erofs-utils], [erofs_utils_version], [linux-erofs at lists.ozlabs.org])
++AC_CONFIG_SRCDIR([config.h.in])
++AC_CONFIG_HEADERS([config.h])
++AC_CONFIG_MACRO_DIR([m4])
++AC_CONFIG_AUX_DIR(config)
++AM_INIT_AUTOMAKE([foreign -Wall -Werror])
++
++# Checks for programs.
++AM_PROG_AR
++AC_PROG_CC
++AC_PROG_INSTALL
++
++LT_INIT
++
++dnl EROFS_UTILS_PARSE_DIRECTORY
++dnl Input:  $1 = a string to a relative or absolute directory
++dnl Output: $2 = the variable to set with the absolute directory
++AC_DEFUN([EROFS_UTILS_PARSE_DIRECTORY],
++[
++ dnl Check if argument is a directory
++ if test -d $1 ; then
++    dnl Get the absolute path of the directory
++    dnl in case of relative directory.
++    dnl If realpath is not a valid command,
++    dnl an error is produced and we keep the given path.
++    local_tmp=`realpath $1 2>/dev/null`
++    if test "$local_tmp" != "" ; then
++       if test -d "$local_tmp" ; then
++           $2="$local_tmp"
++       else
++           $2=$1
++       fi
++    else
++       $2=$1
++    fi
++    dnl Check for space in the directory
++    if test `echo $1|cut -d' ' -f1` != $1 ; then
++        AC_MSG_ERROR($1 directory shall not contain any space.)
++    fi
++ else
++    AC_MSG_ERROR($1 shall be a valid directory)
++ fi
++])
++
++# Checks for libraries.
++
++# Checks for header files.
++AC_CHECK_HEADERS(m4_flatten([
++	dirent.h
++	fcntl.h
++	inttypes.h
++	linux/types.h
++	limits.h
++	stddef.h
++	stdint.h
++	stdlib.h
++	string.h
++	sys/stat.h
++	sys/time.h
++	unistd.h
++]))
++
++# Checks for typedefs, structures, and compiler characteristics.
++AC_C_INLINE
++AC_TYPE_INT64_T
++AC_TYPE_SIZE_T
++AC_TYPE_SSIZE_T
++AC_CHECK_MEMBERS([struct stat.st_rdev])
++AC_TYPE_UINT64_T
++
++#
++# Check to see if llseek() is declared in unistd.h.  On some libc's
++# it is, and on others it isn't..... Thank you glibc developers....
++#
++AC_CHECK_DECL(llseek,
++  [AC_DEFINE(HAVE_LLSEEK_PROTOTYPE, 1,
++    [Define to 1 if llseek declared in unistd.h])],,
++  [#include <unistd.h>])
++
++#
++# Check to see if lseek64() is declared in unistd.h.  Glibc's header files
++# are so convoluted that I can't tell whether it will always be defined,
++# and if it isn't defined while lseek64 is defined in the library,
++# disaster will strike.
++#
++# Warning!  Use of --enable-gcc-wall may throw off this test.
++#
++AC_CHECK_DECL(lseek64,[AC_DEFINE(HAVE_LSEEK64_PROTOTYPE, 1,
++  [Define to 1 if lseek64 declared in unistd.h])],,
++  [#define _LARGEFILE_SOURCE
++   #define _LARGEFILE64_SOURCE
++   #include <unistd.h>])
++
++# Checks for library functions.
++AC_CHECK_FUNCS([gettimeofday memset realpath strdup strerror strrchr strtoull])
++
++AC_CONFIG_FILES([Makefile
++		 lib/Makefile])
++AC_OUTPUT
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+new file mode 100644
+index 0000000..e31732b
+--- /dev/null
++++ b/include/erofs/config.h
+@@ -0,0 +1,31 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_utils/include/erofs/config.h
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_CONFIG_H
++#define __EROFS_CONFIG_H
++
++#include "defs.h"
++
++struct erofs_configure {
++	const char *c_version;
++	int c_dbg_lvl;
++	bool c_dry_run;
++
++	/* related arguments for mkfs.erofs */
++	char *c_img_path;
++	char *c_src_path;
++};
++
++extern struct erofs_configure cfg;
++
++void erofs_init_configure(void);
++void erofs_show_config(void);
++void erofs_exit_configure(void);
++
++#endif
++
+diff --git a/include/erofs/print.h b/include/erofs/print.h
+new file mode 100644
+index 0000000..bc0b8d4
+--- /dev/null
++++ b/include/erofs/print.h
+@@ -0,0 +1,67 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_utils/include/erofs/print.h
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_PRINT_H
++#define __EROFS_PRINT_H
++
++#include "config.h"
++#include <stdio.h>
++
++#define FUNC_LINE_FMT "%s() Line[%d] "
++
++#ifndef pr_fmt
++#define pr_fmt(fmt) "EROFS: " FUNC_LINE_FMT fmt "\n"
++#endif
++
++#define erofs_dbg(fmt, ...) do {				\
++	if (cfg.c_dbg_lvl >= 7) {				\
++		fprintf(stdout,					\
++			pr_fmt(fmt),				\
++			__func__,				\
++			__LINE__,				\
++			##__VA_ARGS__);				\
++	}							\
++} while (0)
++
++#define erofs_info(fmt, ...) do {				\
++	if (cfg.c_dbg_lvl >= 3) {				\
++		fprintf(stdout,					\
++			pr_fmt(fmt),				\
++			__func__,				\
++			__LINE__,				\
++			##__VA_ARGS__);				\
++		fflush(stdout);					\
++	}							\
++} while (0)
++
++#define erofs_warn(fmt, ...) do {				\
++	if (cfg.c_dbg_lvl >= 2) {				\
++		fprintf(stdout,					\
++			pr_fmt(fmt),				\
++			__func__,				\
++			__LINE__,				\
++			##__VA_ARGS__);				\
++		fflush(stdout);					\
++	}							\
++} while (0)
++
++#define erofs_err(fmt, ...) do {				\
++	if (cfg.c_dbg_lvl >= 0) {				\
++		fprintf(stderr,					\
++			"Err: " pr_fmt(fmt),			\
++			__func__,				\
++			__LINE__,				\
++			##__VA_ARGS__);				\
++	}							\
++} while (0)
++
++#define erofs_dump(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
++
++
++#endif
++
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+new file mode 100644
+index 0000000..6f1da26
+--- /dev/null
++++ b/lib/Makefile.am
+@@ -0,0 +1,7 @@
++# SPDX-License-Identifier: GPL-2.0+
++# Makefile.am
++
++noinst_LTLIBRARIES = liberofs.la
++liberofs_la_SOURCES = config.c
++liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
++
+diff --git a/lib/config.c b/lib/config.c
+new file mode 100644
+index 0000000..6ff8e4d
+--- /dev/null
++++ b/lib/config.c
+@@ -0,0 +1,36 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs_utils/lib/config.c
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#include <string.h>
++#include "erofs/print.h"
++
++struct erofs_configure cfg;
++
++void erofs_init_configure(void)
++{
++	memset(&cfg, 0, sizeof(cfg));
++
++	cfg.c_dbg_lvl  = 0;
++	cfg.c_version  = PACKAGE_VERSION;
++	cfg.c_dry_run  = false;
++}
++
++void erofs_show_config(void)
++{
++	const struct erofs_configure *c = &cfg;
++
++	erofs_dump("\tc_version:           [%8s]\n", c->c_version);
++	erofs_dump("\tc_dbg_lvl:           [%8d]\n", c->c_dbg_lvl);
++	erofs_dump("\tc_dry_run:           [%8d]\n", c->c_dry_run);
++}
++
++void erofs_exit_configure(void)
++{
++
++}
++
+-- 
+2.17.1
