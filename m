@@ -1,16 +1,16 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 11 Jun 2019 09:39:30 +0800
-Subject: [PATCH 2/2] staging: erofs: rename data_mapping_mode to datamode
-In-Reply-To: <20190610093640.96705-2-gaoxiang25@huawei.com>
-References: <20190610093640.96705-1-gaoxiang25@huawei.com>
- <20190610093640.96705-2-gaoxiang25@huawei.com>
-Message-ID: <15407b2f-3224-0a88-004a-06a9eca67fdb@huawei.com>
+Date: Tue, 11 Jun 2019 09:40:48 +0800
+Subject: [PATCH] staging: erofs: fix warning Comparison to bool
+In-Reply-To: <20190608093937.GA10461@hari-Inspiron-1545>
+References: <20190608093937.GA10461@hari-Inspiron-1545>
+Message-ID: <29d5ff1b-744f-44e7-2b3b-5e330efc3412@huawei.com>
 
-On 2019/6/10 17:36, Gao Xiang wrote:
-> data_mapping_mode is too long as a member name of erofs_vnode,
-> datamode is straight-forward enough.
+On 2019/6/8 17:39, Hariprasad Kelam wrote:
+> fix below warnings reported by coccicheck
 > 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> drivers/staging/erofs/unzip_vle.c:332:11-18: WARNING: Comparison to bool
+> 
+> Signed-off-by: Hariprasad Kelam <hariprasad.kelam at gmail.com>
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
