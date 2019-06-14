@@ -1,156 +1,111 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 15 Jun 2019 02:16:15 +0800
-Subject: [RFC PATCH 4/8] staging: erofs: move stagingpage operations to
- compress.h
+Date: Sat, 15 Jun 2019 02:16:17 +0800
+Subject: [RFC PATCH 6/8] staging: erofs: introduce LZ4 decompression inplace
 In-Reply-To: <20190614181619.64905-1-gaoxiang25@huawei.com>
 References: <20190614181619.64905-1-gaoxiang25@huawei.com>
-Message-ID: <20190614181619.64905-5-gaoxiang25@huawei.com>
+Message-ID: <20190614181619.64905-7-gaoxiang25@huawei.com>
 
-stagingpages are behaved as bounce pages for temporary use.
-Move to compress.h since the upcoming decompressor will
-allocate stagingpages as well.
+compressed data will be usually loaded into last pages of
+the extent (the last page for 4k) for in-place decompression
+(more specifically, in-place IO), as ilustration below,
+
+         start of compressed logical extent
+           |                          end of this logical extent
+           |                           |
+     ______v___________________________v________
+... |  page 6  |  page 7  |  page 8  |  page 9  | ...
+    |__________|__________|__________|__________|
+           .                         ^ .        ^
+           .                         |compressed|
+           .                         |   data   |
+           .                           .        .
+           |<          dstsize        >|<margin>|
+                                       oend     iend
+           op                        ip
+
+Therefore, it's possible to do decompression inplace (thus no
+memcpy at all) if the margin is sufficient and safe enough [1],
+and it can be implemented only for fixed-size output compression
+compared with fixed-size input compression.
+
+No memcpy for most of in-place IO (about 99% of enwik9) after
+decompression inplace is implemented and sequential read will
+be improved of course (see the following patch for test results).
+
+[1] https://github.com/lz4/lz4/commit/b17f578a919b7e6b078cede2d52be29dd48c8e8c
+    https://github.com/lz4/lz4/commit/5997e139f53169fa3a1c1b4418d2452a90b01602
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/compress.h  | 40 +++++++++++++++++++++++++++++++
- drivers/staging/erofs/unzip_vle.c | 11 +++++----
- drivers/staging/erofs/unzip_vle.h | 20 ----------------
- 3 files changed, 46 insertions(+), 25 deletions(-)
- create mode 100644 drivers/staging/erofs/compress.h
+ drivers/staging/erofs/compress.h     |  1 +
+ drivers/staging/erofs/decompressor.c | 21 ++++++++++++++++++---
+ drivers/staging/erofs/erofs_fs.h     |  3 ++-
+ 3 files changed, 21 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/staging/erofs/compress.h b/drivers/staging/erofs/compress.h
-new file mode 100644
-index 000000000000..1dcfc3b35118
---- /dev/null
+index ebeccb1f4eae..c43aa3374d28 100644
+--- a/drivers/staging/erofs/compress.h
 +++ b/drivers/staging/erofs/compress.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * linux/drivers/staging/erofs/compress.h
-+ *
-+ * Copyright (C) 2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_FS_COMPRESS_H
-+#define __EROFS_FS_COMPRESS_H
-+
-+/*
-+ * - 0x5A110C8D ('sallocated', Z_EROFS_MAPPING_STAGING) -
-+ * used to mark temporary allocated pages from other
-+ * file/cached pages and NULL mapping pages.
-+ */
-+#define Z_EROFS_MAPPING_STAGING         ((void *)0x5A110C8D)
-+
-+/* check if a page is marked as staging */
-+static inline bool z_erofs_page_is_staging(struct page *page)
-+{
-+	return page->mapping == Z_EROFS_MAPPING_STAGING;
-+}
-+
-+static inline bool z_erofs_put_stagingpage(struct list_head *pagepool,
-+					   struct page *page)
-+{
-+	if (!z_erofs_page_is_staging(page))
-+		return false;
-+
-+	/* staging pages should not be used by others at the same time */
-+	if (page_ref_count(page) > 1)
-+		put_page(page);
-+	else
-+		list_add(&page->lru, pagepool);
-+	return true;
-+}
-+
+@@ -17,6 +17,7 @@ enum {
+ };
+ 
+ struct z_erofs_decompress_req {
++	struct super_block *sb;
+ 	struct page **in, **out;
+ 
+ 	unsigned short pageofs_out;
+diff --git a/drivers/staging/erofs/decompressor.c b/drivers/staging/erofs/decompressor.c
+index 4f644bdea0bc..727bae6a3cb0 100644
+--- a/drivers/staging/erofs/decompressor.c
++++ b/drivers/staging/erofs/decompressor.c
+@@ -14,6 +14,9 @@
+ #endif
+ 
+ #define LZ4_MAX_DISTANCE_PAGES	DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE)
++#ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
++#define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
 +#endif
+ 
+ struct z_erofs_decompressor {
+ 	/*
+@@ -131,9 +134,21 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ 	copied = false;
+ 	inlen = rq->inputsize - inputmargin;
+ 	if (rq->inplace_io) {
+-		src = generic_copy_inplace_data(rq, src, inputmargin);
+-		inputmargin = 0;
+-		copied = true;
++		const uint oend = (rq->pageofs_out +
++				   rq->outputsize) & ~PAGE_MASK;
++		const uint nr = PAGE_ALIGN(rq->pageofs_out +
++					   rq->outputsize) >> PAGE_SHIFT;
 +
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 08f2d4302ecb..d95f985936b6 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -11,6 +11,7 @@
-  * distribution for more details.
-  */
- #include "unzip_vle.h"
-+#include "compress.h"
- #include <linux/prefetch.h>
- 
- #include <trace/events/erofs.h>
-@@ -855,7 +856,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
- 		DBG_BUGON(PageUptodate(page));
- 		DBG_BUGON(!page->mapping);
- 
--		if (unlikely(!sbi && !z_erofs_is_stagingpage(page))) {
-+		if (unlikely(!sbi && !z_erofs_page_is_staging(page))) {
- 			sbi = EROFS_SB(page->mapping->host->i_sb);
- 
- 			if (time_to_inject(sbi, FAULT_READ_IO)) {
-@@ -947,7 +948,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		DBG_BUGON(!page);
- 		DBG_BUGON(!page->mapping);
- 
--		if (z_erofs_gather_if_stagingpage(page_pool, page))
-+		if (z_erofs_put_stagingpage(page_pool, page))
- 			continue;
- 
- 		if (page_type == Z_EROFS_VLE_PAGE_TYPE_HEAD)
-@@ -977,7 +978,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		DBG_BUGON(!page);
- 		DBG_BUGON(!page->mapping);
- 
--		if (!z_erofs_is_stagingpage(page)) {
-+		if (!z_erofs_page_is_staging(page)) {
- 			if (erofs_page_is_managed(sbi, page)) {
- 				if (unlikely(!PageUptodate(page)))
- 					err = -EIO;
-@@ -1055,7 +1056,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 			continue;
- 
- 		/* recycle all individual staging pages */
--		(void)z_erofs_gather_if_stagingpage(page_pool, page);
-+		(void)z_erofs_put_stagingpage(page_pool, page);
- 
- 		WRITE_ONCE(compressed_pages[i], NULL);
++		if (rq->partial_decoding ||
++		    !(EROFS_SB(rq->sb)->requirements &
++		      EROFS_REQUIREMENT_LZ4_0PADDING) ||
++		    rq->out[nr - 1] != rq->in[0] ||
++		    rq->inputsize - oend <
++		      LZ4_DECOMPRESS_INPLACE_MARGIN(inlen)) {
++			src = generic_copy_inplace_data(rq, src, inputmargin);
++			inputmargin = 0;
++			copied = true;
++		}
  	}
-@@ -1068,7 +1069,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		DBG_BUGON(!page->mapping);
  
- 		/* recycle all individual staging pages */
--		if (z_erofs_gather_if_stagingpage(page_pool, page))
-+		if (z_erofs_put_stagingpage(page_pool, page))
- 			continue;
+ 	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index a05139f1df60..353322a3206c 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -21,7 +21,8 @@
+  * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
+  * incompatible with this kernel version.
+  */
+-#define EROFS_ALL_REQUIREMENTS  0
++#define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
++#define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
  
- 		if (unlikely(err < 0))
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index 9c53009700cf..6c3e0deb63e7 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -16,26 +16,6 @@
- #include "internal.h"
- #include "unzip_pagevec.h"
- 
--/*
-- *  - 0x5A110C8D ('sallocated', Z_EROFS_MAPPING_STAGING) -
-- * used for temporary allocated pages (via erofs_allocpage),
-- * in order to seperate those from NULL mapping (eg. truncated pages)
-- */
--#define Z_EROFS_MAPPING_STAGING		((void *)0x5A110C8D)
--
--#define z_erofs_is_stagingpage(page)	\
--	((page)->mapping == Z_EROFS_MAPPING_STAGING)
--
--static inline bool z_erofs_gather_if_stagingpage(struct list_head *page_pool,
--						 struct page *page)
--{
--	if (z_erofs_is_stagingpage(page)) {
--		list_add(&page->lru, page_pool);
--		return true;
--	}
--	return false;
--}
--
- /*
-  * Structure fields follow one of the following exclusion rules.
-  *
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
 -- 
 2.17.1
