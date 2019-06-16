@@ -1,364 +1,128 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Sat, 15 Jun 2019 02:16:18 +0800
-Subject: [RFC PATCH 7/8] staging: erofs: switch to new decompression backend
-In-Reply-To: <20190614181619.64905-1-gaoxiang25@huawei.com>
-References: <20190614181619.64905-1-gaoxiang25@huawei.com>
-Message-ID: <20190614181619.64905-8-gaoxiang25@huawei.com>
+Date: Sun, 16 Jun 2019 15:00:38 +0800
+Subject: [PATCH v3 1/2] staging: erofs: add requirements field in
+ superblock
+In-Reply-To: <20190613083541.67091-1-gaoxiang25@huawei.com>
+References: <20190611024220.86121-1-gaoxiang25@huawei.com>
+ <20190613083541.67091-1-gaoxiang25@huawei.com>
+Message-ID: <a4d587eb-c4f0-b9e5-7ece-1ac38c2735f3@huawei.com>
 
-This patch integrates new decompression framework to
-erofs decompression path, and remove the old
-decompression implementation as well.
+Hi Greg,
 
-On kirin980 platform, sequential read is slightly
-improved to 778MiB/s after the new decompression
-backend is used.
+Sorry for annoying... Could you help merge these two fixes? Thanks in advance...
+decompression inplace optimization needs these two patches and I will integrate
+erofs decompression inplace optimization later for linux-next 5.3, and try to start 
+making effort on moving to fs/ directory on kernel 5.4...
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/Makefile        |   2 +-
- drivers/staging/erofs/unzip_vle.c     |  59 +++----
- drivers/staging/erofs/unzip_vle.h     |  13 --
- drivers/staging/erofs/unzip_vle_lz4.c | 216 --------------------------
- 4 files changed, 22 insertions(+), 268 deletions(-)
- delete mode 100644 drivers/staging/erofs/unzip_vle_lz4.c
+Thanks,
+Gao Xiang
 
-diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
-index adeb5d6e2668..e704d9e51514 100644
---- a/drivers/staging/erofs/Makefile
-+++ b/drivers/staging/erofs/Makefile
-@@ -9,5 +9,5 @@ obj-$(CONFIG_EROFS_FS) += erofs.o
- ccflags-y += -I $(srctree)/$(src)/include
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
--erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o unzip_vle_lz4.o zmap.o decompressor.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o zmap.o decompressor.o
- 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index d95f985936b6..cb870b83f3c8 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -897,12 +897,12 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	unsigned int sparsemem_pages = 0;
- 	struct page *pages_onstack[Z_EROFS_VLE_VMAP_ONSTACK_PAGES];
- 	struct page **pages, **compressed_pages, *page;
--	unsigned int i, llen;
-+	unsigned int algorithm;
-+	unsigned int i, outputsize;
- 
- 	enum z_erofs_page_type page_type;
- 	bool overlapped;
- 	struct z_erofs_vle_work *work;
--	void *vout;
- 	int err;
- 
- 	might_sleep();
-@@ -1009,43 +1009,26 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	if (unlikely(err))
- 		goto out;
- 
--	llen = (nr_pages << PAGE_SHIFT) - work->pageofs;
--
--	if (z_erofs_vle_workgrp_fmt(grp) == Z_EROFS_VLE_WORKGRP_FMT_PLAIN) {
--		err = z_erofs_vle_plain_copy(compressed_pages, clusterpages,
--					     pages, nr_pages, work->pageofs);
--		goto out;
--	}
--
--	if (llen > grp->llen)
--		llen = grp->llen;
--
--	err = z_erofs_vle_unzip_fast_percpu(compressed_pages, clusterpages,
--					    pages, llen, work->pageofs);
--	if (err != -ENOTSUPP)
--		goto out;
--
--	if (sparsemem_pages >= nr_pages)
--		goto skip_allocpage;
--
--	for (i = 0; i < nr_pages; ++i) {
--		if (pages[i])
--			continue;
--
--		pages[i] = __stagingpage_alloc(page_pool, GFP_NOFS);
--	}
--
--skip_allocpage:
--	vout = erofs_vmap(pages, nr_pages);
--	if (!vout) {
--		err = -ENOMEM;
--		goto out;
--	}
--
--	err = z_erofs_vle_unzip_vmap(compressed_pages, clusterpages, vout,
--				     llen, work->pageofs, overlapped);
-+	if (nr_pages << PAGE_SHIFT >= work->pageofs + grp->llen)
-+		outputsize = grp->llen;
-+	else
-+		outputsize = (nr_pages << PAGE_SHIFT) - work->pageofs;
- 
--	erofs_vunmap(vout, nr_pages);
-+	if (z_erofs_vle_workgrp_fmt(grp) == Z_EROFS_VLE_WORKGRP_FMT_PLAIN)
-+		algorithm = Z_EROFS_COMPRESSION_SHIFTED;
-+	else
-+		algorithm = Z_EROFS_COMPRESSION_LZ4;
-+
-+	err = z_erofs_decompress(&(struct z_erofs_decompress_req) {
-+					.sb = sb,
-+					.in = compressed_pages,
-+					.out = pages,
-+					.pageofs_out = work->pageofs,
-+					.inputsize = PAGE_SIZE,
-+					.outputsize = outputsize,
-+					.alg = algorithm,
-+					.inplace_io = overlapped,
-+					.partial_decoding = true }, page_pool);
- 
- out:
- 	/* must handle all compressed pages before endding pages */
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index 6c3e0deb63e7..2abde53d09d7 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -189,18 +189,5 @@ static inline void z_erofs_onlinepage_endio(struct page *page)
- 	min_t(unsigned int, THREAD_SIZE / 8 / sizeof(struct page *), 96U)
- #define Z_EROFS_VLE_VMAP_GLOBAL_PAGES	2048
- 
--/* unzip_vle_lz4.c */
--int z_erofs_vle_plain_copy(struct page **compressed_pages,
--			   unsigned int clusterpages, struct page **pages,
--			   unsigned int nr_pages, unsigned short pageofs);
--int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
--				  unsigned int clusterpages,
--				  struct page **pages, unsigned int outlen,
--				  unsigned short pageofs);
--int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
--			   unsigned int clusterpages,
--			   void *vaddr, unsigned int llen,
--			   unsigned short pageofs, bool overlapped);
--
- #endif
- 
-diff --git a/drivers/staging/erofs/unzip_vle_lz4.c b/drivers/staging/erofs/unzip_vle_lz4.c
-deleted file mode 100644
-index 399c3e3a3ff3..000000000000
---- a/drivers/staging/erofs/unzip_vle_lz4.c
-+++ /dev/null
-@@ -1,216 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * linux/drivers/staging/erofs/unzip_vle_lz4.c
-- *
-- * Copyright (C) 2018 HUAWEI, Inc.
-- *             http://www.huawei.com/
-- * Created by Gao Xiang <gaoxiang25 at huawei.com>
-- *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file COPYING in the main directory of the Linux
-- * distribution for more details.
-- */
--#include "unzip_vle.h"
--#include <linux/lz4.h>
--
--static int z_erofs_unzip_lz4(void *in, void *out, size_t inlen, size_t outlen)
--{
--	int ret = LZ4_decompress_safe_partial(in, out, inlen, outlen, outlen);
--
--	if (ret >= 0)
--		return ret;
--
--	/*
--	 * LZ4_decompress_safe_partial will return an error code
--	 * (< 0) if decompression failed
--	 */
--	errln("%s, failed to decompress, in[%p, %zu] outlen[%p, %zu]",
--	      __func__, in, inlen, out, outlen);
--	WARN_ON(1);
--	print_hex_dump(KERN_DEBUG, "raw data [in]: ", DUMP_PREFIX_OFFSET,
--		       16, 1, in, inlen, true);
--	print_hex_dump(KERN_DEBUG, "raw data [out]: ", DUMP_PREFIX_OFFSET,
--		       16, 1, out, outlen, true);
--	return -EIO;
--}
--
--int z_erofs_vle_plain_copy(struct page **compressed_pages,
--			   unsigned int clusterpages,
--			   struct page **pages,
--			   unsigned int nr_pages,
--			   unsigned short pageofs)
--{
--	unsigned int i, j;
--	void *src = NULL;
--	const unsigned int righthalf = PAGE_SIZE - pageofs;
--	char *percpu_data;
--	bool mirrored[Z_EROFS_CLUSTER_MAX_PAGES] = { 0 };
--
--	percpu_data = erofs_get_pcpubuf(0);
--
--	j = 0;
--	for (i = 0; i < nr_pages; j = i++) {
--		struct page *page = pages[i];
--		void *dst;
--
--		if (!page) {
--			if (src) {
--				if (!mirrored[j])
--					kunmap_atomic(src);
--				src = NULL;
--			}
--			continue;
--		}
--
--		dst = kmap_atomic(page);
--
--		for (; j < clusterpages; ++j) {
--			if (compressed_pages[j] != page)
--				continue;
--
--			DBG_BUGON(mirrored[j]);
--			memcpy(percpu_data + j * PAGE_SIZE, dst, PAGE_SIZE);
--			mirrored[j] = true;
--			break;
--		}
--
--		if (i) {
--			if (!src)
--				src = mirrored[i - 1] ?
--					percpu_data + (i - 1) * PAGE_SIZE :
--					kmap_atomic(compressed_pages[i - 1]);
--
--			memcpy(dst, src + righthalf, pageofs);
--
--			if (!mirrored[i - 1])
--				kunmap_atomic(src);
--
--			if (unlikely(i >= clusterpages)) {
--				kunmap_atomic(dst);
--				break;
--			}
--		}
--
--		if (!righthalf) {
--			src = NULL;
--		} else {
--			src = mirrored[i] ? percpu_data + i * PAGE_SIZE :
--				kmap_atomic(compressed_pages[i]);
--
--			memcpy(dst + pageofs, src, righthalf);
--		}
--
--		kunmap_atomic(dst);
--	}
--
--	if (src && !mirrored[j])
--		kunmap_atomic(src);
--
--	erofs_put_pcpubuf(percpu_data);
--	return 0;
--}
--
--int z_erofs_vle_unzip_fast_percpu(struct page **compressed_pages,
--				  unsigned int clusterpages,
--				  struct page **pages,
--				  unsigned int outlen,
--				  unsigned short pageofs)
--{
--	void *vin, *vout;
--	unsigned int nr_pages, i, j;
--	int ret;
--
--	if (outlen + pageofs > EROFS_PCPUBUF_NR_PAGES * PAGE_SIZE)
--		return -ENOTSUPP;
--
--	nr_pages = DIV_ROUND_UP(outlen + pageofs, PAGE_SIZE);
--
--	if (clusterpages == 1) {
--		vin = kmap_atomic(compressed_pages[0]);
--	} else {
--		vin = erofs_vmap(compressed_pages, clusterpages);
--		if (!vin)
--			return -ENOMEM;
--	}
--
--	vout = erofs_get_pcpubuf(0);
--
--	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
--				clusterpages * PAGE_SIZE, outlen);
--
--	if (ret < 0)
--		goto out;
--	ret = 0;
--
--	for (i = 0; i < nr_pages; ++i) {
--		j = min((unsigned int)PAGE_SIZE - pageofs, outlen);
--
--		if (pages[i]) {
--			if (clusterpages == 1 &&
--			    pages[i] == compressed_pages[0]) {
--				memcpy(vin + pageofs, vout + pageofs, j);
--			} else {
--				void *dst = kmap_atomic(pages[i]);
--
--				memcpy(dst + pageofs, vout + pageofs, j);
--				kunmap_atomic(dst);
--			}
--		}
--		vout += PAGE_SIZE;
--		outlen -= j;
--		pageofs = 0;
--	}
--
--out:
--	erofs_put_pcpubuf(vout);
--
--	if (clusterpages == 1)
--		kunmap_atomic(vin);
--	else
--		erofs_vunmap(vin, clusterpages);
--
--	return ret;
--}
--
--int z_erofs_vle_unzip_vmap(struct page **compressed_pages,
--			   unsigned int clusterpages,
--			   void *vout,
--			   unsigned int llen,
--			   unsigned short pageofs,
--			   bool overlapped)
--{
--	void *vin;
--	unsigned int i;
--	int ret;
--
--	if (overlapped) {
--		vin = erofs_get_pcpubuf(0);
--
--		for (i = 0; i < clusterpages; ++i) {
--			void *t = kmap_atomic(compressed_pages[i]);
--
--			memcpy(vin + PAGE_SIZE * i, t, PAGE_SIZE);
--			kunmap_atomic(t);
--		}
--	} else if (clusterpages == 1) {
--		vin = kmap_atomic(compressed_pages[0]);
--	} else {
--		vin = erofs_vmap(compressed_pages, clusterpages);
--	}
--
--	ret = z_erofs_unzip_lz4(vin, vout + pageofs,
--				clusterpages * PAGE_SIZE, llen);
--	if (ret > 0)
--		ret = 0;
--
--	if (overlapped) {
--		erofs_put_pcpubuf(vin);
--	} else {
--		if (clusterpages == 1)
--			kunmap_atomic(vin);
--		else
--			erofs_vunmap(vin, clusterpages);
--	}
--	return ret;
--}
--
--- 
-2.17.1
+On 2019/6/13 16:35, Gao Xiang wrote:
+> There are some backward incompatible features pending
+> for months, mainly due to on-disk format expensions.
+> 
+> However, we should ensure that it cannot be mounted with
+> old kernels. Otherwise, it will causes unexpected behaviors.
+> 
+> Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
+> Cc: <stable at vger.kernel.org> # 4.19+
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> ---
+> change log v3:
+>  - record requirements in erofs_sb_info for runtime use as well;
+> 
+> change log v2:
+>  - update printed message
+> 
+>  drivers/staging/erofs/erofs_fs.h | 13 ++++++++++---
+>  drivers/staging/erofs/internal.h |  2 ++
+>  drivers/staging/erofs/super.c    | 19 +++++++++++++++++++
+>  3 files changed, 31 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+> index fa52898df006..8ddb2b3e7d39 100644
+> --- a/drivers/staging/erofs/erofs_fs.h
+> +++ b/drivers/staging/erofs/erofs_fs.h
+> @@ -17,10 +17,16 @@
+>  #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
+>  #define EROFS_SUPER_OFFSET      1024
+>  
+> +/*
+> + * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
+> + * incompatible with this kernel version.
+> + */
+> +#define EROFS_ALL_REQUIREMENTS  0
+> +
+>  struct erofs_super_block {
+>  /*  0 */__le32 magic;           /* in the little endian */
+>  /*  4 */__le32 checksum;        /* crc32c(super_block) */
+> -/*  8 */__le32 features;
+> +/*  8 */__le32 features;        /* (aka. feature_compat) */
+>  /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+>  /* 13 */__u8 reserved;
+>  
+> @@ -34,9 +40,10 @@ struct erofs_super_block {
+>  /* 44 */__le32 xattr_blkaddr;
+>  /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
+>  /* 64 */__u8 volume_name[16];   /* volume name */
+> +/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
+>  
+> -/* 80 */__u8 reserved2[48];     /* 128 bytes */
+> -} __packed;
+> +/* 84 */__u8 reserved2[44];
+> +} __packed;                     /* 128 bytes */
+>  
+>  /*
+>   * erofs inode data mapping:
+> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+> index 911333cdeef4..fc732c86ecd8 100644
+> --- a/drivers/staging/erofs/internal.h
+> +++ b/drivers/staging/erofs/internal.h
+> @@ -115,6 +115,8 @@ struct erofs_sb_info {
+>  
+>  	u8 uuid[16];                    /* 128-bit uuid for volume */
+>  	u8 volume_name[16];             /* volume name */
+> +	u32 requirements;
+> +
+>  	char *dev_name;
+>  
+>  	unsigned int mount_opt;
+> diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+> index f580d4ef77a1..cadbcc11702a 100644
+> --- a/drivers/staging/erofs/super.c
+> +++ b/drivers/staging/erofs/super.c
+> @@ -71,6 +71,22 @@ static void free_inode(struct inode *inode)
+>  	kmem_cache_free(erofs_inode_cachep, vi);
+>  }
+>  
+> +static bool check_layout_compatibility(struct super_block *sb,
+> +				       struct erofs_super_block *layout)
+> +{
+> +	const unsigned int requirements = le32_to_cpu(layout->requirements);
+> +
+> +	EROFS_SB(sb)->requirements = requirements;
+> +
+> +	/* check if current kernel meets all mandatory requirements */
+> +	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
+> +		errln("unidentified requirements %x, please upgrade kernel version",
+> +		      requirements & ~EROFS_ALL_REQUIREMENTS);
+> +		return false;
+> +	}
+> +	return true;
+> +}
+> +
+>  static int superblock_read(struct super_block *sb)
+>  {
+>  	struct erofs_sb_info *sbi;
+> @@ -104,6 +120,9 @@ static int superblock_read(struct super_block *sb)
+>  		goto out;
+>  	}
+>  
+> +	if (!check_layout_compatibility(sb, layout))
+> +		goto out;
+> +
+>  	sbi->blocks = le32_to_cpu(layout->blocks);
+>  	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> 
