@@ -1,25 +1,20 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 17 Jun 2019 21:45:09 +0800
-Subject: [PATCH] staging: erofs: clean up initialization of pointer de
-In-Reply-To: <20190617125529.28327-1-colin.king@canonical.com>
-References: <20190617125529.28327-1-colin.king@canonical.com>
-Message-ID: <470b93fd-ef5e-0019-b58d-8e38e7944e13@huawei.com>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Mon, 17 Jun 2019 22:36:09 +0200
+Subject: [RFC PATCH 0/8] staging: erofs: decompression inplace approach
+In-Reply-To: <20190614181619.64905-1-gaoxiang25@huawei.com>
+References: <20190614181619.64905-1-gaoxiang25@huawei.com>
+Message-ID: <20190617203609.GA22034@kroah.com>
 
+On Sat, Jun 15, 2019@02:16:11AM +0800, Gao Xiang wrote:
+> At last, this is RFC patch v1, which means it is not suitable for
+> merging soon... I'm still working on it, testing its stability
+> these days and hope these patches get merged for 5.3 LTS
+> (if 5.3 is a LTS version).
 
+Why would 5.3 be a LTS kernel?
 
-On 2019/6/17 20:55, Colin King wrote:
-> From: Colin Ian King <colin.king at canonical.com>
-> 
-> Currently pointer de is being initialized with a value that is
-> never read and a few statements later de is being re-assigned. Clean
-> this up by ininitialzing de and removing the re-assignment.
-> 
-> Addresses-Coverity: ("Unused value")
-> Signed-off-by: Colin Ian King <colin.king at canonical.com>
+curious as to how you came up with that :)
 
-Loods good for me,
+thanks,
 
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-Thanks,
-Gao Xiang
+greg k-h
