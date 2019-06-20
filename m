@@ -1,48 +1,20 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 20 Jun 2019 16:32:01 +0800
-Subject: [PATCH] staging: erofs: remove needless CONFIG_EROFS_FS_SECURITY
-In-Reply-To: <20190620083004.2488-1-zbestahu@gmail.com>
-References: <20190620083004.2488-1-zbestahu@gmail.com>
-Message-ID: <8a45f678-15cc-be9a-282f-49b251f127a9@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Thu, 20 Jun 2019 16:54:06 +0800
+Subject: [PATCH] staging: erofs: clean up initialization of pointer de
+In-Reply-To: <20190617125529.28327-1-colin.king@canonical.com>
+References: <20190617125529.28327-1-colin.king@canonical.com>
+Message-ID: <63acf133-b0b5-aafa-6880-bb9517ef6be9@huawei.com>
 
-Hi Yue,
-
-On 2019/6/20 16:30, Yue Hu wrote:
-> From: Yue Hu <huyue2 at yulong.com>
+On 2019/6/17 20:55, Colin King wrote:
+> From: Colin Ian King <colin.king at canonical.com>
 > 
-> erofs_xattr_security_handler is already marked __maybe_unused, no need
-> to add CONFIG_EROFS_FS_SECURITY condition.
+> Currently pointer de is being initialized with a value that is
+> never read and a few statements later de is being re-assigned. Clean
+> this up by ininitialzing de and removing the re-assignment.
 > 
-> Signed-off-by: Yue Hu <huyue2 at yulong.com>
-> ---
->  drivers/staging/erofs/xattr.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/staging/erofs/xattr.c b/drivers/staging/erofs/xattr.c
-> index df40654..06024ac 100644
-> --- a/drivers/staging/erofs/xattr.c
-> +++ b/drivers/staging/erofs/xattr.c
-> @@ -499,13 +499,11 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
->  	.get	= erofs_xattr_generic_get,
->  };
->  
-> -#ifdef CONFIG_EROFS_FS_SECURITY
->  const struct xattr_handler __maybe_unused erofs_xattr_security_handler = {
->  	.prefix	= XATTR_SECURITY_PREFIX,
->  	.flags	= EROFS_XATTR_INDEX_SECURITY,
->  	.get	= erofs_xattr_generic_get,
->  };
-> -#endif
+> Addresses-Coverity: ("Unused value")
+> Signed-off-by: Colin Ian King <colin.king at canonical.com>
 
-Thanks for your patch.
-
-In that case...erofs_xattr_security_handler could be compiled into .rodata section?
-I am not sure...
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
 Thanks,
-Gao Xiang
-
->  
->  const struct xattr_handler *erofs_xattr_handlers[] = {
->  	&erofs_xattr_user_handler,
-> 
