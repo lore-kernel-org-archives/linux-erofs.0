@@ -1,43 +1,34 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 21 Jun 2019 16:08:30 +0800
-Subject: [PATCH v2 2/8] staging: erofs: add compacted compression indexes
- support
-In-Reply-To: <4274208b-63bc-6dfd-a2c8-a94d2fa5c8d7@huawei.com>
+Date: Fri, 21 Jun 2019 16:32:31 +0800
+Subject: [PATCH v2 3/8] staging: erofs: move per-CPU buffers
+ implementation to utils.c
+In-Reply-To: <1d296b86-69e2-4888-2ac9-1d77f38ac3e3@huawei.com>
 References: <20190620160719.240682-1-gaoxiang25@huawei.com>
- <20190620160719.240682-3-gaoxiang25@huawei.com>
- <4274208b-63bc-6dfd-a2c8-a94d2fa5c8d7@huawei.com>
-Message-ID: <d04f83f7-9f01-e736-cc1b-8ee438e47d3c@huawei.com>
+ <20190620160719.240682-4-gaoxiang25@huawei.com>
+ <1d296b86-69e2-4888-2ac9-1d77f38ac3e3@huawei.com>
+Message-ID: <abe96e3d-cda7-e71e-68b1-9669fe2f2241@huawei.com>
 
+Hi Chao,
 
-
-On 2019/6/21 15:53, Chao Yu wrote:
+On 2019/6/21 15:57, Chao Yu wrote:
 > On 2019/6/21 0:07, Gao Xiang wrote:
->> This patch aims at compacted compression indexes:
->>  1) cleanup z_erofs_map_blocks_iter and move into zmap.c;
->>  2) add compacted 4/2B decoding support.
->>
->> On kirin980 platform, sequential read is increased about
->> 6% (725MiB/s -> 770MiB/s) on enwik9 dataset if compacted 2B
->> feature is enabled.
->>
->> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-> 
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> 
->> +static int vle_legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
->> +					     unsigned long lcn)
+>> +static inline void *erofs_get_pcpubuf(unsigned int pagenr)
 >> +{
->> +	struct inode *const inode = m->inode;
->> +	struct erofs_vnode *const vi = EROFS_V(inode);
->> +	const erofs_off_t ibase = iloc(EROFS_I_SB(inode), vi->nid);
->> +	const erofs_off_t pos = Z_EROFS_VLE_EXTENT_ALIGN(ibase +
->> +							 vi->inode_isize +
->> +							 vi->xattr_isize) +
->> +		16 + lcn * sizeof(struct z_erofs_vle_decompressed_index);
+>> +	return ERR_PTR(-ENOTSUPP);
+>> +}
 > 
-> use macro instead of raw number?
+> [snip]
+> 
+>> +	percpu_data = erofs_get_pcpubuf(0);
+> 
+> If erofs_get_pcpubuf may return error once EROFS_PCPUBUF_NR_PAGES equals to
+> zero, we'd better to check the error number here.
 
-OK, I will wrap it up in patch v3 too.
+decompressor.c will be built-in only when decompression is enabled
+and if decompression is enabled EROFS_PCPUBUF_NR_PAGES is not zero.
+
+But I think introducing some error handling logic is not bad as well.
+Will fix in the next version.
 
 Thanks,
 Gao Xiang
