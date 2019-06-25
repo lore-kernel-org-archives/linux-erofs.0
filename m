@@ -1,28 +1,27 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Tue, 25 Jun 2019 14:16:10 +0800
+Date: Tue, 25 Jun 2019 15:13:49 +0800
 Subject: [PATCH] staging: erofs: remove unsupported ->datamode check in
  fill_inline_data()
-In-Reply-To: <20190625060825.7912-1-zbestahu@gmail.com>
-References: <20190625060825.7912-1-zbestahu@gmail.com>
-Message-ID: <bad38600-c175-4626-3365-75bd5ed4611d@aol.com>
+In-Reply-To: <20190625061431.3964-1-zbestahu@gmail.com>
+References: <20190625061431.3964-1-zbestahu@gmail.com>
+Message-ID: <afd234f8-4cb3-4481-695b-1726ea7ad71e@aol.com>
 
+Hi Yue,
 
-
-?? 2019/6/25 ????2:08, Yue Hu ????:
+On 2019/6/25 ????2:14, Yue Hu Wrote:
 > From: Yue Hu <huyue2 at yulong.com>
 > 
 > Already check if ->datamode is supported in read_inode(), no need to check
 > again in the next fill_inline_data() only called by fill_inode().
 > 
 > Signed-off-by: Yue Hu <huyue2 at yulong.com>
+> ---
 
-looks good to me,
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+Is there any difference between two patches?
 
 Thanks,
 Gao Xiang
 
-> ---
 >  drivers/staging/erofs/inode.c | 2 --
 >  1 file changed, 2 deletions(-)
 > 
