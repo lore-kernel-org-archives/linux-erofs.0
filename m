@@ -1,8 +1,8 @@
 From: zbestahu@gmail.com (Yue Hu)
-Date: Tue, 25 Jun 2019 14:08:25 +0800
+Date: Tue, 25 Jun 2019 14:14:31 +0800
 Subject: [PATCH] staging: erofs: remove unsupported ->datamode check in
  fill_inline_data()
-Message-ID: <20190625060825.7912-1-zbestahu@gmail.com>
+Message-ID: <20190625061431.3964-1-zbestahu@gmail.com>
 
 From: Yue Hu <huyue2@yulong.com>
 
