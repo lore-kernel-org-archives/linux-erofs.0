@@ -1,16 +1,18 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 26 Jun 2019 15:13:35 +0800
-Subject: [PATCH RESEND] staging: erofs: remove unsupported ->datamode
- check in fill_inline_data()
-In-Reply-To: <20190626032831.7252-1-zbestahu@gmail.com>
-References: <20190626032831.7252-1-zbestahu@gmail.com>
-Message-ID: <654721e9-fdca-f21f-c244-9e9c8c421f4b@huawei.com>
+Date: Wed, 26 Jun 2019 15:13:52 +0800
+Subject: [PATCH RESEND] staging: erofs: return the error value if
+ fill_inline_data() fails
+In-Reply-To: <20190626033038.9456-1-zbestahu@gmail.com>
+References: <20190626033038.9456-1-zbestahu@gmail.com>
+Message-ID: <96f12ad4-e9dc-a688-2c26-2dd285b7b795@huawei.com>
 
-On 2019/6/26 11:28, Yue Hu wrote:
+On 2019/6/26 11:30, Yue Hu wrote:
 > From: Yue Hu <huyue2 at yulong.com>
 > 
-> Already check if ->datamode is supported in read_inode(), no need to check
-> again in the next fill_inline_data() only called by fill_inode().
+> We should consider the error returned by fill_inline_data() when filling
+> last page in fill_inode(). If not getting inode will be successful even
+> though last page is bad. That is illogical. Also change -EAGAIN to 0 in
+> fill_inline_data() to stand for successful filling.
 > 
 > Signed-off-by: Yue Hu <huyue2 at yulong.com>
 
