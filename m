@@ -1,42 +1,19 @@
-From: zbestahu@gmail.com (Yue Hu)
-Date: Wed, 26 Jun 2019 11:30:38 +0800
-Subject: [PATCH RESEND] staging: erofs: return the error value if
- fill_inline_data() fails
-Message-ID: <20190626033038.9456-1-zbestahu@gmail.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Wed, 26 Jun 2019 15:13:35 +0800
+Subject: [PATCH RESEND] staging: erofs: remove unsupported ->datamode
+ check in fill_inline_data()
+In-Reply-To: <20190626032831.7252-1-zbestahu@gmail.com>
+References: <20190626032831.7252-1-zbestahu@gmail.com>
+Message-ID: <654721e9-fdca-f21f-c244-9e9c8c421f4b@huawei.com>
 
-From: Yue Hu <huyue2@yulong.com>
+On 2019/6/26 11:28, Yue Hu wrote:
+> From: Yue Hu <huyue2 at yulong.com>
+> 
+> Already check if ->datamode is supported in read_inode(), no need to check
+> again in the next fill_inline_data() only called by fill_inode().
+> 
+> Signed-off-by: Yue Hu <huyue2 at yulong.com>
 
-We should consider the error returned by fill_inline_data() when filling
-last page in fill_inode(). If not getting inode will be successful even
-though last page is bad. That is illogical. Also change -EAGAIN to 0 in
-fill_inline_data() to stand for successful filling.
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
-Signed-off-by: Yue Hu <huyue2 at yulong.com>
----
- drivers/staging/erofs/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index d6e1e16..1433f25 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -156,7 +156,7 @@ static int fill_inline_data(struct inode *inode, void *data,
- 		inode->i_link = lnk;
- 		set_inode_fast_symlink(inode);
- 	}
--	return -EAGAIN;
-+	return 0;
- }
- 
- static int fill_inode(struct inode *inode, int isdir)
-@@ -223,7 +223,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 		inode->i_mapping->a_ops = &erofs_raw_access_aops;
- 
- 		/* fill last page if inline data is available */
--		fill_inline_data(inode, data, ofs);
-+		err = fill_inline_data(inode, data, ofs);
- 	}
- 
- out_unlock:
--- 
-1.9.1
+Thanks,
