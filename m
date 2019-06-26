@@ -1,52 +1,33 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 26 Jun 2019 17:02:48 +0800
-Subject: [PATCH RESEND] staging: erofs: return the error value if
- fill_inline_data() fails
-In-Reply-To: <20190626033038.9456-1-zbestahu@gmail.com>
-References: <20190626033038.9456-1-zbestahu@gmail.com>
-Message-ID: <a503962c-0d06-d186-3230-b208410939b0@huawei.com>
+From: zbestahu@gmail.com (Yue Hu)
+Date: Wed, 26 Jun 2019 18:39:36 +0800
+Subject: [PATCH RESEND] staging: erofs: remove unsupported ->datamode check in
+ fill_inline_data()
+Message-ID: <20190626103936.9064-1-zbestahu@gmail.com>
 
-Hi Yue,
+From: Yue Hu <huyue2@yulong.com>
 
-On 2019/6/26 11:30, Yue Hu wrote:
-> From: Yue Hu <huyue2 at yulong.com>
-> 
-> We should consider the error returned by fill_inline_data() when filling
-> last page in fill_inode(). If not getting inode will be successful even
-> though last page is bad. That is illogical. Also change -EAGAIN to 0 in
-> fill_inline_data() to stand for successful filling.
-> 
-> Signed-off-by: Yue Hu <huyue2 at yulong.com>
+Already check if ->datamode is supported in read_inode(), no need to check
+again in the next fill_inline_data() only called by fill_inode().
 
-ditto, add the tags from other guyes.
+Signed-off-by: Yue Hu <huyue2 at yulong.com>
+Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+---
+ drivers/staging/erofs/inode.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Thanks,
-Gao Xiang
-
-> ---
->  drivers/staging/erofs/inode.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-> index d6e1e16..1433f25 100644
-> --- a/drivers/staging/erofs/inode.c
-> +++ b/drivers/staging/erofs/inode.c
-> @@ -156,7 +156,7 @@ static int fill_inline_data(struct inode *inode, void *data,
->  		inode->i_link = lnk;
->  		set_inode_fast_symlink(inode);
->  	}
-> -	return -EAGAIN;
-> +	return 0;
->  }
->  
->  static int fill_inode(struct inode *inode, int isdir)
-> @@ -223,7 +223,7 @@ static int fill_inode(struct inode *inode, int isdir)
->  		inode->i_mapping->a_ops = &erofs_raw_access_aops;
->  
->  		/* fill last page if inline data is available */
-> -		fill_inline_data(inode, data, ofs);
-> +		err = fill_inline_data(inode, data, ofs);
->  	}
->  
->  out_unlock:
-> 
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index e51348f..d6e1e16 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -129,8 +129,6 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
+ 	const int mode = vi->datamode;
+ 
+-	DBG_BUGON(mode >= EROFS_INODE_LAYOUT_MAX);
+-
+ 	/* should be inode inline C */
+ 	if (mode != EROFS_INODE_LAYOUT_INLINE)
+ 		return 0;
+-- 
+1.9.1
