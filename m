@@ -1,21 +1,42 @@
-From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 26 Jun 2019 15:13:52 +0800
-Subject: [PATCH RESEND] staging: erofs: return the error value if
- fill_inline_data() fails
-In-Reply-To: <20190626033038.9456-1-zbestahu@gmail.com>
-References: <20190626033038.9456-1-zbestahu@gmail.com>
-Message-ID: <96f12ad4-e9dc-a688-2c26-2dd285b7b795@huawei.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Wed, 26 Jun 2019 17:02:08 +0800
+Subject: [PATCH RESEND] staging: erofs: remove unsupported ->datamode
+ check in fill_inline_data()
+In-Reply-To: <20190626032831.7252-1-zbestahu@gmail.com>
+References: <20190626032831.7252-1-zbestahu@gmail.com>
+Message-ID: <038b00d7-fa67-fa86-1b74-b3f58a3788f6@huawei.com>
 
-On 2019/6/26 11:30, Yue Hu wrote:
+Hi Yue,
+
+On 2019/6/26 11:28, Yue Hu wrote:
 > From: Yue Hu <huyue2 at yulong.com>
 > 
-> We should consider the error returned by fill_inline_data() when filling
-> last page in fill_inode(). If not getting inode will be successful even
-> though last page is bad. That is illogical. Also change -EAGAIN to 0 in
-> fill_inline_data() to stand for successful filling.
+> Already check if ->datamode is supported in read_inode(), no need to check
+> again in the next fill_inline_data() only called by fill_inode().
 > 
 > Signed-off-by: Yue Hu <huyue2 at yulong.com>
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+You should add all the 'Reviewed-by' / 'Acked-by' / ... tags from other guyes
+to the following versions when you resend your patches.
 
 Thanks,
+Gao Xiang
+
+> ---
+>  drivers/staging/erofs/inode.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+> index e51348f..d6e1e16 100644
+> --- a/drivers/staging/erofs/inode.c
+> +++ b/drivers/staging/erofs/inode.c
+> @@ -129,8 +129,6 @@ static int fill_inline_data(struct inode *inode, void *data,
+>  	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
+>  	const int mode = vi->datamode;
+>  
+> -	DBG_BUGON(mode >= EROFS_INODE_LAYOUT_MAX);
+> -
+>  	/* should be inode inline C */
+>  	if (mode != EROFS_INODE_LAYOUT_INLINE)
+>  		return 0;
+> 
