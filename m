@@ -1,35 +1,43 @@
-From: zbestahu@gmail.com (Yue Hu)
-Date: Wed, 26 Jun 2019 19:00:32 +0800
-Subject: [PATCH RESEND v2] staging: erofs: remove unsupported ->datamode check
- in fill_inline_data()
-Message-ID: <20190626110032.3688-1-zbestahu@gmail.com>
+From: shobhitkukreti@gmail.com (Shobhit Kukreti)
+Date: Wed, 26 Jun 2019 22:31:18 -0700
+Subject: [PATCH] staging: erofs: Replace kzalloc(struct ..) with kzalloc(*ptr)
+Message-ID: <20190627053115.GA20942@t-1000>
 
-From: Yue Hu <huyue2@yulong.com>
+Resolve checkpatch warning:
+Prefer kzalloc(sizeof(*ptr)...) over kzalloc(sizeof(struct ..)
 
-Already check if ->datamode is supported in read_inode(), no need to check
-again in the next fill_inline_data() only called by fill_inode().
-
-Signed-off-by: Yue Hu <huyue2 at yulong.com>
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+Signed-off-by: Shobhit Kukreti <shobhitkukreti at gmail.com>
 ---
-v2: add tags.
+ drivers/staging/erofs/super.c     | 2 +-
+ drivers/staging/erofs/unzip_vle.c | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
- drivers/staging/erofs/inode.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index e51348f..d6e1e16 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -129,8 +129,6 @@ static int fill_inline_data(struct inode *inode, void *data,
- 	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
- 	const int mode = vi->datamode;
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index cadbcc1..5449441 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -383,7 +383,7 @@ static int erofs_read_super(struct super_block *sb,
+ 		goto err;
+ 	}
  
--	DBG_BUGON(mode >= EROFS_INODE_LAYOUT_MAX);
--
- 	/* should be inode inline C */
- 	if (mode != EROFS_INODE_LAYOUT_INLINE)
- 		return 0;
+-	sbi = kzalloc(sizeof(struct erofs_sb_info), GFP_KERNEL);
++	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if (unlikely(!sbi)) {
+ 		err = -ENOMEM;
+ 		goto err;
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 316382d..f0dab81f 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1263,8 +1263,7 @@ jobqueue_init(struct super_block *sb,
+ 		goto out;
+ 	}
+ 
+-	iosb = kvzalloc(sizeof(struct z_erofs_vle_unzip_io_sb),
+-			GFP_KERNEL | __GFP_NOFAIL);
++	iosb = kvzalloc(sizeof(*iosb), GFP_KERNEL | __GFP_NOFAIL);
+ 	DBG_BUGON(!iosb);
+ 
+ 	/* initialize fields in the allocated descriptor */
 -- 
-1.9.1
+2.7.4
