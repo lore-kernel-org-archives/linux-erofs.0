@@ -1,204 +1,126 @@
-From: yamada.masahiro@socionext.com (Masahiro Yamada)
-Date: Thu, 31 Jan 2019 13:08:33 +0900
-Subject: [PATCH] staging: prefix header search paths with $(srctree)/
-Message-ID: <1548907713-24160-1-git-send-email-yamada.masahiro@socionext.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Mon,  1 Jul 2019 02:58:46 +0800
+Subject: [PATCH] staging: erofs: fix LZ4 limited bounced page mis-reuse
+Message-ID: <20190630185846.16624-1-hsiangkao@aol.com>
 
-Currently, the Kbuild core manipulates header search paths in a crazy
-way [1].
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-To fix this mess, I want all Makefiles to add explicit $(srctree)/ to
-the search paths in the srctree. Some Makefiles are already written in
-that way, but not all. The goal of this work is to make the notation
-consistent, and finally get rid of the gross hacks.
+Like all lz77-based algrithms, lz4 has a dynamically populated
+("sliding window") dictionary and the maximum lookback distance
+is 65535. Therefore the number of bounced pages could be limited
+by erofs based on this property.
 
-Having whitespaces after -I does not matter since commit 48f6e3cf5bc6
-("kbuild: do not drop -I without parameter").
+However, just now we observed some lz4 sequences in the extreme
+case cannot be decompressed correctly after this feature is enabled,
+the root causes after analysis are clear as follows:
+1) max bounced pages should be 17 rather than 16 pages;
+2) considering the following case, the broken implementation
+   could reuse unsafely in advance (in other words, reuse it
+   less than a safe distance),
+   0 1 2 ... 16 17 18 ... 33 34
+   b             p  b         b
+   note that the bounce page that we are concerned was allocated
+   at 0, and it reused at 18 since page 17 exists, but it mis-reused
+   at 34 in advance again, which causes decompress failure.
 
-[1]: https://patchwork.kernel.org/patch/9632347/
+This patch resolves the issue by introducing a bitmap to mark
+whether the page in the same position of last round is a bounced
+page or not, and a micro stack data structure to store all
+available bounced pages.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro at socionext.com>
+Fixes: 7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+ drivers/staging/erofs/decompressor.c | 50 ++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 22 deletions(-)
 
- drivers/staging/erofs/Makefile                        | 2 +-
- drivers/staging/media/davinci_vpfe/Makefile           | 2 +-
- drivers/staging/most/Makefile                         | 2 +-
- drivers/staging/most/cdev/Makefile                    | 2 +-
- drivers/staging/most/dim2/Makefile                    | 2 +-
- drivers/staging/most/i2c/Makefile                     | 2 +-
- drivers/staging/most/net/Makefile                     | 2 +-
- drivers/staging/most/sound/Makefile                   | 2 +-
- drivers/staging/most/usb/Makefile                     | 2 +-
- drivers/staging/most/video/Makefile                   | 2 +-
- drivers/staging/rtl8192u/Makefile                     | 2 +-
- drivers/staging/unisys/visorhba/Makefile              | 3 +--
- drivers/staging/unisys/visornic/Makefile              | 3 +--
- drivers/staging/vc04_services/bcm2835-audio/Makefile  | 3 +--
- drivers/staging/vc04_services/bcm2835-camera/Makefile | 2 +-
- 15 files changed, 15 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/staging/erofs/Makefile b/drivers/staging/erofs/Makefile
-index c91b652..38ab344 100644
---- a/drivers/staging/erofs/Makefile
-+++ b/drivers/staging/erofs/Makefile
-@@ -6,7 +6,7 @@ ccflags-y += -Wall -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+diff --git a/drivers/staging/erofs/decompressor.c b/drivers/staging/erofs/decompressor.c
+index 80f1f39719ba..1fb0abb98dff 100644
+--- a/drivers/staging/erofs/decompressor.c
++++ b/drivers/staging/erofs/decompressor.c
+@@ -13,7 +13,7 @@
+ #define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
+ #endif
  
- obj-$(CONFIG_EROFS_FS) += erofs.o
- # staging requirement: to be self-contained in its own directory
--ccflags-y += -I$(src)/include
-+ccflags-y += -I $(srctree)/$(src)/include
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += unzip_vle.o unzip_vle_lz4.o
-diff --git a/drivers/staging/media/davinci_vpfe/Makefile b/drivers/staging/media/davinci_vpfe/Makefile
-index 9c57042..9268e50 100644
---- a/drivers/staging/media/davinci_vpfe/Makefile
-+++ b/drivers/staging/media/davinci_vpfe/Makefile
-@@ -6,5 +6,5 @@ davinci-vfpe-objs := \
+-#define LZ4_MAX_DISTANCE_PAGES	DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE)
++#define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
+ #ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
+ #define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
+ #endif
+@@ -35,19 +35,28 @@ static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+ 	const unsigned int nr =
+ 		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
+ 	struct page *availables[LZ4_MAX_DISTANCE_PAGES] = { NULL };
+-	unsigned long unused[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
+-					  BITS_PER_LONG)] = { 0 };
++	unsigned long bounced[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
++					   BITS_PER_LONG)] = { 0 };
+ 	void *kaddr = NULL;
+-	unsigned int i, j, k;
++	unsigned int i, j, top;
  
- # Allow building it with COMPILE_TEST on other archs
- ifndef CONFIG_ARCH_DAVINCI
--ccflags-y += -Iarch/arm/mach-davinci/include/
-+ccflags-y += -I $(srctree)/arch/arm/mach-davinci/include/
- endif
-diff --git a/drivers/staging/most/Makefile b/drivers/staging/most/Makefile
-index f8bcf48..c7662f6 100644
---- a/drivers/staging/most/Makefile
-+++ b/drivers/staging/most/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-$(CONFIG_MOST) += most_core.o
- most_core-y := core.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
+-	for (i = 0; i < nr; ++i) {
++	top = 0;
++	for (i = j = 0; i < nr; ++i, ++j) {
+ 		struct page *const page = rq->out[i];
++		struct page *victim;
  
- obj-$(CONFIG_MOST_CDEV)	+= cdev/
- obj-$(CONFIG_MOST_NET)	+= net/
-diff --git a/drivers/staging/most/cdev/Makefile b/drivers/staging/most/cdev/Makefile
-index afb9870..21b0bd7 100644
---- a/drivers/staging/most/cdev/Makefile
-+++ b/drivers/staging/most/cdev/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_CDEV) += most_cdev.o
+-		j = i & (LZ4_MAX_DISTANCE_PAGES - 1);
+-		if (availables[j])
+-			__set_bit(j, unused);
++		if (j >= LZ4_MAX_DISTANCE_PAGES)
++			j = 0;
++
++		/* 'valid' bounced can only be tested after a complete round */
++		if (test_bit(j, bounced)) {
++			DBG_BUGON(i < LZ4_MAX_DISTANCE_PAGES);
++			DBG_BUGON(top >= LZ4_MAX_DISTANCE_PAGES);
++			availables[top++] = rq->out[i - LZ4_MAX_DISTANCE_PAGES];
++		}
  
- most_cdev-objs := cdev.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/dim2/Makefile b/drivers/staging/most/dim2/Makefile
-index 66676f5..6d15f04 100644
---- a/drivers/staging/most/dim2/Makefile
-+++ b/drivers/staging/most/dim2/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_DIM2) += most_dim2.o
+ 		if (page) {
++			__clear_bit(j, bounced);
+ 			if (kaddr) {
+ 				if (kaddr + PAGE_SIZE == page_address(page))
+ 					kaddr += PAGE_SIZE;
+@@ -59,27 +68,24 @@ static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+ 			continue;
+ 		}
+ 		kaddr = NULL;
++		__set_bit(j, bounced);
  
- most_dim2-objs := dim2.o hal.o sysfs.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/i2c/Makefile b/drivers/staging/most/i2c/Makefile
-index a7d094c..c032fea 100644
---- a/drivers/staging/most/i2c/Makefile
-+++ b/drivers/staging/most/i2c/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_I2C) += most_i2c.o
- 
- most_i2c-objs := i2c.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/net/Makefile b/drivers/staging/most/net/Makefile
-index 54500aa..820faec 100644
---- a/drivers/staging/most/net/Makefile
-+++ b/drivers/staging/most/net/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_NET) += most_net.o
- 
- most_net-objs := net.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/sound/Makefile b/drivers/staging/most/sound/Makefile
-index eee8774..5bb55bb 100644
---- a/drivers/staging/most/sound/Makefile
-+++ b/drivers/staging/most/sound/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_SOUND) += most_sound.o
- 
- most_sound-objs := sound.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/usb/Makefile b/drivers/staging/most/usb/Makefile
-index 18d28cb..910cd08 100644
---- a/drivers/staging/most/usb/Makefile
-+++ b/drivers/staging/most/usb/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_USB) += most_usb.o
- 
- most_usb-objs := usb.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/most/video/Makefile b/drivers/staging/most/video/Makefile
-index 1c8e520..c6e01b6e 100644
---- a/drivers/staging/most/video/Makefile
-+++ b/drivers/staging/most/video/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_MOST_VIDEO) += most_video.o
- 
- most_video-objs := video.o
--ccflags-y += -Idrivers/staging/
-+ccflags-y += -I $(srctree)/drivers/staging/
-diff --git a/drivers/staging/rtl8192u/Makefile b/drivers/staging/rtl8192u/Makefile
-index 3022728..dcd51bf 100644
---- a/drivers/staging/rtl8192u/Makefile
-+++ b/drivers/staging/rtl8192u/Makefile
-@@ -7,7 +7,7 @@ ccflags-y += -O2
- ccflags-y += -DCONFIG_FORCE_HARD_FLOAT=y
- ccflags-y += -DJACKSON_NEW_8187 -DJACKSON_NEW_RX
- ccflags-y += -DTHOMAS_BEACON -DTHOMAS_TASKLET -DTHOMAS_SKB -DTHOMAS_TURBO
--ccflags-y += -Idrivers/staging/rtl8192u/ieee80211
-+ccflags-y += -I $(srctree)/$(src)/ieee80211
- 
- r8192u_usb-y := r8192U_core.o r8180_93cx6.o r8192U_wx.o		\
- 		  r8190_rtl8256.o r819xU_phy.o r819xU_firmware.o	\
-diff --git a/drivers/staging/unisys/visorhba/Makefile b/drivers/staging/unisys/visorhba/Makefile
-index a8a8e0e..97e4875 100644
---- a/drivers/staging/unisys/visorhba/Makefile
-+++ b/drivers/staging/unisys/visorhba/Makefile
-@@ -6,5 +6,4 @@ obj-$(CONFIG_UNISYS_VISORHBA)	+= visorhba.o
- 
- visorhba-y := visorhba_main.o
- 
--ccflags-y += -Idrivers/staging/unisys/include
+-		k = find_first_bit(unused, LZ4_MAX_DISTANCE_PAGES);
+-		if (k < LZ4_MAX_DISTANCE_PAGES) {
+-			j = k;
+-			get_page(availables[j]);
++		if (top) {
++			victim = availables[--top];
++			get_page(victim);
+ 		} else {
+-			DBG_BUGON(availables[j]);
 -
-+ccflags-y += -I $(srctree)/$(src)/../include
-diff --git a/drivers/staging/unisys/visornic/Makefile b/drivers/staging/unisys/visornic/Makefile
-index 439e95e..336a746f 100644
---- a/drivers/staging/unisys/visornic/Makefile
-+++ b/drivers/staging/unisys/visornic/Makefile
-@@ -6,5 +6,4 @@ obj-$(CONFIG_UNISYS_VISORNIC)	+= visornic.o
- 
- visornic-y := visornic_main.o
- 
--ccflags-y += -Idrivers/staging/unisys/include
--
-+ccflags-y += -I $(srctree)/$(src)/../include
-diff --git a/drivers/staging/vc04_services/bcm2835-audio/Makefile b/drivers/staging/vc04_services/bcm2835-audio/Makefile
-index d7b88d1..536bd0c 100644
---- a/drivers/staging/vc04_services/bcm2835-audio/Makefile
-+++ b/drivers/staging/vc04_services/bcm2835-audio/Makefile
-@@ -1,5 +1,4 @@
- obj-$(CONFIG_SND_BCM2835)	+= snd-bcm2835.o
- snd-bcm2835-objs		:= bcm2835.o bcm2835-ctl.o bcm2835-pcm.o bcm2835-vchiq.o
- 
--ccflags-y += -Idrivers/staging/vc04_services -D__VCCOREVER__=0x04000000
--
-+ccflags-y += -I $(srctree)/$(src)/.. -D__VCCOREVER__=0x04000000
-diff --git a/drivers/staging/vc04_services/bcm2835-camera/Makefile b/drivers/staging/vc04_services/bcm2835-camera/Makefile
-index 2a4565e..472f21e 100644
---- a/drivers/staging/vc04_services/bcm2835-camera/Makefile
-+++ b/drivers/staging/vc04_services/bcm2835-camera/Makefile
-@@ -7,5 +7,5 @@ bcm2835-v4l2-$(CONFIG_VIDEO_BCM2835) := \
- obj-$(CONFIG_VIDEO_BCM2835) += bcm2835-v4l2.o
- 
- ccflags-y += \
--	-Idrivers/staging/vc04_services \
-+	-I $(srctree)/$(src)/.. \
- 	-D__VCCOREVER__=0x04000000
+ 			if (!list_empty(pagepool)) {
+-				availables[j] = lru_to_page(pagepool);
+-				list_del(&availables[j]->lru);
+-				DBG_BUGON(page_ref_count(availables[j]) != 1);
++				victim = lru_to_page(pagepool);
++				list_del(&victim->lru);
++				DBG_BUGON(page_ref_count(victim) != 1);
+ 			} else {
+-				availables[j] = alloc_pages(GFP_KERNEL, 0);
+-				if (!availables[j])
++				victim = alloc_pages(GFP_KERNEL, 0);
++				if (!victim)
+ 					return -ENOMEM;
+ 			}
+-			availables[j]->mapping = Z_EROFS_MAPPING_STAGING;
++			victim->mapping = Z_EROFS_MAPPING_STAGING;
+ 		}
+-		rq->out[i] = availables[j];
+-		__clear_bit(j, unused);
++		rq->out[i] = victim;
+ 	}
+ 	return kaddr ? 1 : 0;
+ }
 -- 
-2.7.4
+2.17.1
