@@ -1,108 +1,341 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Fri, 5 Jul 2019 00:46:15 +0800
-Subject: [PATCH] erofs: promote erofs from staging
-In-Reply-To: <20190704141819.GA5782@kroah.com>
-References: <20190704133413.43012-1-gaoxiang25@huawei.com>
- <20190704135002.GB13609@kroah.com>
- <29e713d5-8146-80cf-8ffd-138b15349489@huawei.com>
- <20190704141819.GA5782@kroah.com>
-Message-ID: <56db548b-a285-7862-dc84-2cd15d948431@aol.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 11 Jul 2019 22:57:32 +0800
+Subject: [PATCH v2 01/24] erofs: add on-disk layout
+In-Reply-To: <20190711145755.33908-1-gaoxiang25@huawei.com>
+References: <20190711145755.33908-1-gaoxiang25@huawei.com>
+Message-ID: <20190711145755.33908-2-gaoxiang25@huawei.com>
 
+This commit adds the on-disk layout header file of erofs.
+On-disk format is compatible with erofs-staging added in 4.19.
 
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ fs/erofs/erofs_fs.h | 317 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 317 insertions(+)
+ create mode 100644 fs/erofs/erofs_fs.h
 
-On 2019/7/4 ????10:18, Greg Kroah-Hartman wrote:
-> On Thu, Jul 04, 2019@10:00:53PM +0800, Gao Xiang wrote:
->> Hi Greg,
->>
->> On 2019/7/4 21:50, Greg Kroah-Hartman wrote:
->>> On Thu, Jul 04, 2019@09:34:13PM +0800, Gao Xiang wrote:
->>>> EROFS file system has been in Linux-staging for about a year.
->>>> It has been proved to be stable enough to move out of staging
->>>> by 10+ millions of HUAWEI Android mobile phones on the market
->>>> from EMUI 9.0.1, and it was promoted as one of the key features
->>>> of EMUI 9.1 [1], including P30(pro).
->>>>
->>>> EROFS is a read-only file system designed to save extra storage
->>>> space with guaranteed end-to-end performance by applying
->>>> fixed-size output compression, inplace I/O and decompression
->>>> inplace technologies [2] to Linux filesystem.
->>>>
->>>> In our observation, EROFS is one of the fastest Linux compression
->>>> filesystem using buffered I/O in the world. It will support
->>>> direct I/O in the future if needed. EROFS even has better read
->>>> performance in a large CR range compared with generic uncompressed
->>>> file systems with proper CPU-storage combination, which is
->>>> a reason why erofs can be landed to speed up mobile phone
->>>> performance, and which can be probably used for other use cases
->>>> such as LiveCD and Docker image as well.
->>>>
->>>> Currently erofs supports 4k LZ4 fixed-size output compression
->>>> since LZ4 is the fastest widely-used decompression solution in
->>>> the world and 4k leads to unnoticable read amplification for
->>>> the worst case. More compression algorithms and cluster sizes
->>>> could be added later, which depends on the real requirement.
->>>>
->>>> More informations about erofs itself are available at:
->>>>  Documentation/filesystems/erofs.txt
->>>>  https://kccncosschn19eng.sched.com/event/Nru2/erofs-an-introduction-and-our-smartphone-practice-xiang-gao-huawei
->>>>
->>>> erofs-utils (mainly mkfs.erofs now) is available at
->>>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
->>>>
->>>> Preliminary iomap support has been pending in erofs mailing
->>>> list by Chao Yu. The key issue is that current iomap doesn't
->>>> support tail-end packing inline data yet, it should be
->>>> resolved later.
->>>>
->>>> Thanks to many contributors in the last year, the code is more
->>>> clean and improved. We hope erofs can be used in wider use cases
->>>> so let's promote erofs out of staging and enhance it more actively.
->>>>
->>>> Share comments about erofs! We think erofs is useful to
->>>> community as a part of Linux upstream :)
->>>
->>> I don't know if this format is easy for the linux-fsdevel people to
->>> review, it forces them to look at the in-kernel code, which makes it
->>> hard to quote.
->>>
->>> Perhaps just make a patch that adds the filesystem to the tree and after
->>> it makes it through review, I can delete the staging version?  We've
->>> been doing that for wifi drivers that move out of staging as it seems to
->>> be a bit easier.
->>
->> OK, I will resend the whole patchset later as you suggested, but it will
->> lack of information about some original authors and I'd like to know who
->> is responsible to merge this kind of request to Linux upstream... maybe Linus?
-> 
-> I don't know who adds new filesystems to the tree these days.  Usually
-> you need to get some acks from the fsdevel developers first, and then it
-> can go directly to Linus in one of the merge windows.
-
-Hope that fs guys could eventually take some glances / time on erofs
-since it's more useful than romfs/cramfs/squashfs for read-only
-performance scenario since storage space is not tight and slow than 10
-years before, even for some embedded devices such as mobile phones/pads.
-and compression file system could not be designed for saving storage
-space only like these...
-
-I think except for unzip_vle.c (which works fine, but not very cleaned
-as other files), erofs is clean enough for reviewing...
-
-> 
->> And it could be more consistent to leave staging version for linux-5.3
->> because we still use it, but anyway, I will do it now.
-> 
-> Yeah, it's too late for 5.3-rc1, so don't worry.  I'll not delete
-> anything until it's actually in someone else's tree on its way to Linus.
-
-Sound great, I will tidy the whole patchset up and hope it eventually be
-ok...
-
-Thanks,
-Gao Xiang
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+new file mode 100644
+index 000000000000..a0a8f44c603d
+--- /dev/null
++++ b/fs/erofs/erofs_fs.h
+@@ -0,0 +1,317 @@
++/* SPDX-License-Identifier: GPL-2.0 OR Apache-2.0 */
++/*
++ * linux/fs/erofs/erofs_fs.h
++ *
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#ifndef __EROFS_FS_H
++#define __EROFS_FS_H
++
++/* Enhanced(Extended) ROM File System */
++#define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
++#define EROFS_SUPER_OFFSET      1024
++
++/*
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
++ */
++#define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
++#define EROFS_ALL_REQUIREMENTS		0
++
++struct erofs_super_block {
++/*  0 */__le32 magic;           /* in the little endian */
++/*  4 */__le32 checksum;        /* crc32c(super_block) */
++/*  8 */__le32 features;        /* (aka. feature_compat) */
++/* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
++/* 13 */__u8 reserved;
++
++/* 14 */__le16 root_nid;
++/* 16 */__le64 inos;            /* total valid ino # (== f_files - f_favail) */
++
++/* 24 */__le64 build_time;      /* inode v1 time derivation */
++/* 32 */__le32 build_time_nsec;
++/* 36 */__le32 blocks;          /* used for statfs */
++/* 40 */__le32 meta_blkaddr;
++/* 44 */__le32 xattr_blkaddr;
++/* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
++/* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
++
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
++
++/*
++ * erofs inode data mapping:
++ * 0 - inode plain without inline data A:
++ * inode, [xattrs], ... | ... | no-holed data
++ * 1 - inode VLE compression B (legacy):
++ * inode, [xattrs], extents ... | ...
++ * 2 - inode plain with inline data C:
++ * inode, [xattrs], last_inline_data, ... | ... | no-holed data
++ * 3 - inode compression D:
++ * inode, [xattrs], map_header, extents ... | ...
++ * 4~7 - reserved
++ */
++enum {
++	EROFS_INODE_FLAT_PLAIN,
++	EROFS_INODE_FLAT_COMPRESSION_LEGACY,
++	EROFS_INODE_FLAT_INLINE,
++	EROFS_INODE_FLAT_COMPRESSION,
++	EROFS_INODE_LAYOUT_MAX
++};
++
++static bool erofs_inode_is_data_compressed(unsigned int datamode)
++{
++	if (datamode == EROFS_INODE_FLAT_COMPRESSION)
++		return true;
++	return datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY;
++}
++
++/* bit definitions of inode i_advise */
++#define EROFS_I_VERSION_BITS            1
++#define EROFS_I_DATA_MAPPING_BITS       3
++
++#define EROFS_I_VERSION_BIT             0
++#define EROFS_I_DATA_MAPPING_BIT        1
++
++struct erofs_inode_v1 {
++/*  0 */__le16 i_advise;
++
++/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
++/*  2 */__le16 i_xattr_icount;
++/*  4 */__le16 i_mode;
++/*  6 */__le16 i_nlink;
++/*  8 */__le32 i_size;
++/* 12 */__le32 i_reserved;
++/* 16 */union {
++		/* file total compressed blocks for data mapping 1 */
++		__le32 compressed_blocks;
++		__le32 raw_blkaddr;
++
++		/* for device files, used to indicate old/new device # */
++		__le32 rdev;
++	} i_u __packed;
++/* 20 */__le32 i_ino;           /* only used for 32-bit stat compatibility */
++/* 24 */__le16 i_uid;
++/* 26 */__le16 i_gid;
++/* 28 */__le32 i_reserved2;
++} __packed;
++
++/* 32 bytes on-disk inode */
++#define EROFS_INODE_LAYOUT_V1   0
++/* 64 bytes on-disk inode */
++#define EROFS_INODE_LAYOUT_V2   1
++
++struct erofs_inode_v2 {
++/*  0 */__le16 i_advise;
++
++/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
++/*  2 */__le16 i_xattr_icount;
++/*  4 */__le16 i_mode;
++/*  6 */__le16 i_reserved;
++/*  8 */__le64 i_size;
++/* 16 */union {
++		/* file total compressed blocks for data mapping 1 */
++		__le32 compressed_blocks;
++		__le32 raw_blkaddr;
++
++		/* for device files, used to indicate old/new device # */
++		__le32 rdev;
++	} i_u __packed;
++
++	/* only used for 32-bit stat compatibility */
++/* 20 */__le32 i_ino;
++
++/* 24 */__le32 i_uid;
++/* 28 */__le32 i_gid;
++/* 32 */__le64 i_ctime;
++/* 40 */__le32 i_ctime_nsec;
++/* 44 */__le32 i_nlink;
++/* 48 */__u8   i_reserved2[16];
++} __packed;                     /* 64 bytes */
++
++#define EROFS_MAX_SHARED_XATTRS         (128)
++/* h_shared_count between 129 ... 255 are special # */
++#define EROFS_SHARED_XATTR_EXTENT       (255)
++
++/*
++ * inline xattrs (n == i_xattr_icount):
++ * erofs_xattr_ibody_header(1) + (n - 1) * 4 bytes
++ *          12 bytes           /                   \
++ *                            /                     \
++ *                           /-----------------------\
++ *                           |  erofs_xattr_entries+ |
++ *                           +-----------------------+
++ * inline xattrs must starts in erofs_xattr_ibody_header,
++ * for read-only fs, no need to introduce h_refcount
++ */
++struct erofs_xattr_ibody_header {
++	__le32 h_reserved;
++	__u8   h_shared_count;
++	__u8   h_reserved2[7];
++	__le32 h_shared_xattrs[0];      /* shared xattr id array */
++} __packed;
++
++/* Name indexes */
++#define EROFS_XATTR_INDEX_USER              1
++#define EROFS_XATTR_INDEX_POSIX_ACL_ACCESS  2
++#define EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT 3
++#define EROFS_XATTR_INDEX_TRUSTED           4
++#define EROFS_XATTR_INDEX_LUSTRE            5
++#define EROFS_XATTR_INDEX_SECURITY          6
++
++/* xattr entry (for both inline & shared xattrs) */
++struct erofs_xattr_entry {
++	__u8   e_name_len;      /* length of name */
++	__u8   e_name_index;    /* attribute name index */
++	__le16 e_value_size;    /* size of attribute value */
++	/* followed by e_name and e_value */
++	char   e_name[0];       /* attribute name */
++} __packed;
++
++#define ondisk_xattr_ibody_size(count)	({\
++	u32 __count = le16_to_cpu(count); \
++	((__count) == 0) ? 0 : \
++	sizeof(struct erofs_xattr_ibody_header) + \
++		sizeof(__u32) * ((__count) - 1); })
++
++#define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
++#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
++	sizeof(struct erofs_xattr_entry) + \
++	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
++
++/* available compression algorithm types */
++enum {
++	Z_EROFS_COMPRESSION_LZ4,
++	Z_EROFS_COMPRESSION_MAX
++};
++
++/*
++ * bit 0 : COMPACTED_2B indexes (0 - off; 1 - on)
++ *  e.g. for 4k logical cluster size,      4B        if compacted 2B is off;
++ *                                  (4B) + 2B + (4B) if compacted 2B is on.
++ */
++#define Z_EROFS_ADVISE_COMPACTED_2B_BIT         0
++
++#define Z_EROFS_ADVISE_COMPACTED_2B     (1 << Z_EROFS_ADVISE_COMPACTED_2B_BIT)
++
++struct z_erofs_map_header {
++	__le32	h_reserved1;
++	__le16	h_advise;
++	/*
++	 * bit 0-3 : algorithm type of head 1 (logical cluster type 01);
++	 * bit 4-7 : algorithm type of head 2 (logical cluster type 11).
++	 */
++	__u8	h_algorithmtype;
++	/*
++	 * bit 0-2 : logical cluster bits - 12, e.g. 0 for 4096;
++	 * bit 3-4 : (physical - logical) cluster bits of head 1:
++	 *       For example, if logical clustersize = 4096, 1 for 8192.
++	 * bit 5-7 : (physical - logical) cluster bits of head 2.
++	 */
++	__u8	h_clusterbits;
++};
++
++#define Z_EROFS_VLE_LEGACY_HEADER_PADDING       8
++
++/*
++ * Z_EROFS Variable-sized Logical Extent cluster type:
++ *    0 - literal (uncompressed) cluster
++ *    1 - compressed cluster (for the head logical cluster)
++ *    2 - compressed cluster (for the other logical clusters)
++ *
++ * In detail,
++ *    0 - literal (uncompressed) cluster,
++ *        di_advise = 0
++ *        di_clusterofs = the literal data offset of the cluster
++ *        di_blkaddr = the blkaddr of the literal cluster
++ *
++ *    1 - compressed cluster (for the head logical cluster)
++ *        di_advise = 1
++ *        di_clusterofs = the decompressed data offset of the cluster
++ *        di_blkaddr = the blkaddr of the compressed cluster
++ *
++ *    2 - compressed cluster (for the other logical clusters)
++ *        di_advise = 2
++ *        di_clusterofs =
++ *           the decompressed data offset in its own head cluster
++ *        di_u.delta[0] = distance to its corresponding head cluster
++ *        di_u.delta[1] = distance to its corresponding tail cluster
++ *                (di_advise could be 0, 1 or 2)
++ */
++enum {
++	Z_EROFS_VLE_CLUSTER_TYPE_PLAIN,
++	Z_EROFS_VLE_CLUSTER_TYPE_HEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_RESERVED,
++	Z_EROFS_VLE_CLUSTER_TYPE_MAX
++};
++
++#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS        2
++#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT         0
++
++struct z_erofs_vle_decompressed_index {
++	__le16 di_advise;
++	/* where to decompress in the head cluster */
++	__le16 di_clusterofs;
++
++	union {
++		/* for the head cluster */
++		__le32 blkaddr;
++		/*
++		 * for the rest clusters
++		 * eg. for 4k page-sized cluster, maximum 4K*64k = 256M)
++		 * [0] - pointing to the head cluster
++		 * [1] - pointing to the tail cluster
++		 */
++		__le16 delta[2];
++	} di_u __packed;		/* 8 bytes */
++} __packed;
++
++#define Z_EROFS_VLE_LEGACY_INDEX_ALIGN(size) \
++	(round_up(size, sizeof(struct z_erofs_vle_decompressed_index)) + \
++	 sizeof(struct z_erofs_map_header) + Z_EROFS_VLE_LEGACY_HEADER_PADDING)
++
++/* dirent sorts in alphabet order, thus we can do binary search */
++struct erofs_dirent {
++	__le64 nid;     /*  0, node number */
++	__le16 nameoff; /*  8, start offset of file name */
++	__u8 file_type; /* 10, file type */
++	__u8 reserved;  /* 11, reserved */
++} __packed;
++
++/* file types used in inode_info->flags */
++enum {
++	EROFS_FT_UNKNOWN,
++	EROFS_FT_REG_FILE,
++	EROFS_FT_DIR,
++	EROFS_FT_CHRDEV,
++	EROFS_FT_BLKDEV,
++	EROFS_FT_FIFO,
++	EROFS_FT_SOCK,
++	EROFS_FT_SYMLINK,
++	EROFS_FT_MAX
++};
++
++#define EROFS_NAME_LEN      255
++
++/* check the EROFS on-disk layout strictly at compile time */
++static inline void erofs_check_ondisk_layout_definitions(void)
++{
++	BUILD_BUG_ON(sizeof(struct erofs_super_block) != 128);
++	BUILD_BUG_ON(sizeof(struct erofs_inode_v1) != 32);
++	BUILD_BUG_ON(sizeof(struct erofs_inode_v2) != 64);
++	BUILD_BUG_ON(sizeof(struct erofs_xattr_ibody_header) != 12);
++	BUILD_BUG_ON(sizeof(struct erofs_xattr_entry) != 4);
++	BUILD_BUG_ON(sizeof(struct z_erofs_map_header) != 8);
++	BUILD_BUG_ON(sizeof(struct z_erofs_vle_decompressed_index) != 8);
++	BUILD_BUG_ON(sizeof(struct erofs_dirent) != 12);
++
++	BUILD_BUG_ON(BIT(Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS) <
++		     Z_EROFS_VLE_CLUSTER_TYPE_MAX - 1);
++}
++
++#endif
++
+-- 
+2.17.1
