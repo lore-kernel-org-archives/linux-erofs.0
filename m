@@ -1,109 +1,269 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 11 Jul 2019 22:57:41 +0800
-Subject: [PATCH v2 10/24] erofs: update Kconfig and Makefile
+Date: Thu, 11 Jul 2019 22:57:39 +0800
+Subject: [PATCH v2 08/24] erofs: add namei functions
 In-Reply-To: <20190711145755.33908-1-gaoxiang25@huawei.com>
 References: <20190711145755.33908-1-gaoxiang25@huawei.com>
-Message-ID: <20190711145755.33908-11-gaoxiang25@huawei.com>
+Message-ID: <20190711145755.33908-9-gaoxiang25@huawei.com>
 
-This commit adds Makefile and Kconfig for erofs, and
-updates Makefile and Kconfig files in the fs directory.
+This commit adds functions that transfer names to inodes.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/Kconfig        |  1 +
- fs/Makefile       |  1 +
- fs/erofs/Kconfig  | 45 +++++++++++++++++++++++++++++++++++++++++++++
- fs/erofs/Makefile |  9 +++++++++
- 4 files changed, 56 insertions(+)
- create mode 100644 fs/erofs/Kconfig
- create mode 100644 fs/erofs/Makefile
+ fs/erofs/namei.c | 246 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 246 insertions(+)
+ create mode 100644 fs/erofs/namei.c
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index f1046cf6ad85..529a174cbb9c 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -262,6 +262,7 @@ source "fs/romfs/Kconfig"
- source "fs/pstore/Kconfig"
- source "fs/sysv/Kconfig"
- source "fs/ufs/Kconfig"
-+source "fs/erofs/Kconfig"
- 
- endif # MISC_FILESYSTEMS
- 
-diff --git a/fs/Makefile b/fs/Makefile
-index c9aea23aba56..6166f533abf7 100644
---- a/fs/Makefile
-+++ b/fs/Makefile
-@@ -130,3 +130,4 @@ obj-$(CONFIG_F2FS_FS)		+= f2fs/
- obj-$(CONFIG_CEPH_FS)		+= ceph/
- obj-$(CONFIG_PSTORE)		+= pstore/
- obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
-+obj-$(CONFIG_EROFS_FS)		+= erofs/
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
 new file mode 100644
-index 000000000000..bcab58d3f709
+index 000000000000..7665d3603503
 --- /dev/null
-+++ b/fs/erofs/Kconfig
-@@ -0,0 +1,45 @@
-+# SPDX-License-Identifier: GPL-2.0
++++ b/fs/erofs/namei.c
+@@ -0,0 +1,246 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/fs/erofs/namei.c
++ *
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#include "internal.h"
 +
-+config EROFS_FS
-+	tristate "EROFS filesystem support"
-+	depends on BLOCK
-+	help
-+	  EROFS (Enhanced Read-Only File System) is a lightweight
-+	  read-only file system with modern designs (eg. page-sized
-+	  blocks, inline xattrs/data, etc.) for scenarios which need
-+	  high-performance read-only requirements, e.g. Android OS
-+	  for mobile phones and LIVECDs.
++#include <trace/events/erofs.h>
 +
-+	  It also provides fixed-sized output compression support,
-+	  which improves storage density, keeps relatively higher
-+	  compression ratios, which is more useful to achieve high
-+	  performance for embedded devices with limited memory.
++struct erofs_qstr {
++	const unsigned char *name;
++	const unsigned char *end;
++};
 +
-+	  If unsure, say N.
++/* based on the end of qn is accurate and it must have the trailing '\0' */
++static inline int dirnamecmp(const struct erofs_qstr *qn,
++			     const struct erofs_qstr *qd,
++			     unsigned int *matched)
++{
++	unsigned int i = *matched;
 +
-+config EROFS_FS_DEBUG
-+	bool "EROFS debugging feature"
-+	depends on EROFS_FS
-+	help
-+	  Print debugging messages and enable more BUG_ONs which check
-+	  filesystem consistency and find potential issues aggressively,
-+	  which can be used for Android eng build, for example.
++	/*
++	 * on-disk error, let's only BUG_ON in the debugging mode.
++	 * otherwise, it will return 1 to just skip the invalid name
++	 * and go on (in consideration of the lookup performance).
++	 */
++	DBG_BUGON(qd->name > qd->end);
 +
-+	  For daily use, say N.
++	/* qd could not have trailing '\0' */
++	/* However it is absolutely safe if < qd->end */
++	while (qd->name + i < qd->end && qd->name[i] != '\0') {
++		if (qn->name[i] != qd->name[i]) {
++			*matched = i;
++			return qn->name[i] > qd->name[i] ? 1 : -1;
++		}
++		++i;
++	}
++	*matched = i;
++	/* See comments in __d_alloc on the terminating NUL character */
++	return qn->name[i] == '\0' ? 0 : 1;
++}
 +
-+config EROFS_FAULT_INJECTION
-+	bool "EROFS fault injection facility"
-+	depends on EROFS_FS
-+	help
-+	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
-+	  If unsure, say N.
++#define nameoff_from_disk(off, sz)	(le16_to_cpu(off) & ((sz) - 1))
 +
-+config EROFS_FS_IO_MAX_RETRIES
-+	int "EROFS IO Maximum Retries"
-+	depends on EROFS_FS
-+	default "5"
-+	help
-+	  Maximum retry count of IO Errors.
++static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
++					       u8 *data,
++					       unsigned int dirblksize,
++					       const int ndirents)
++{
++	int head, back;
++	unsigned int startprfx, endprfx;
++	struct erofs_dirent *const de = (struct erofs_dirent *)data;
 +
-+	  If unsure, leave the default value (5 retries, 6 IOs at most).
++	/* since the 1st dirent has been evaluated previously */
++	head = 1;
++	back = ndirents - 1;
++	startprfx = endprfx = 0;
 +
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-new file mode 100644
-index 000000000000..ec2795f33dc5
---- /dev/null
-+++ b/fs/erofs/Makefile
-@@ -0,0 +1,9 @@
-+# SPDX-License-Identifier: GPL-2.0
++	while (head <= back) {
++		const int mid = head + (back - head) / 2;
++		const int nameoff = nameoff_from_disk(de[mid].nameoff,
++						      dirblksize);
++		unsigned int matched = min(startprfx, endprfx);
++		struct erofs_qstr dname = {
++			.name = data + nameoff,
++			.end = unlikely(mid >= ndirents - 1) ?
++				data + dirblksize :
++				data + nameoff_from_disk(de[mid + 1].nameoff,
++							 dirblksize)
++		};
 +
-+EROFS_VERSION = "1.0"
++		/* string comparison without already matched prefix */
++		int ret = dirnamecmp(name, &dname, &matched);
 +
-+ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
++		if (unlikely(!ret)) {
++			return de + mid;
++		} else if (ret > 0) {
++			head = mid + 1;
++			startprfx = matched;
++		} else {
++			back = mid - 1;
++			endprfx = matched;
++		}
++	}
++	return ERR_PTR(-ENOENT);
++}
 +
-+obj-$(CONFIG_EROFS_FS) += erofs.o
-+erofs-objs := super.o inode.o data.o namei.o dir.o
++static struct page *find_target_block_classic(struct inode *dir,
++					      struct erofs_qstr *name,
++					      int *_ndirents)
++{
++	unsigned int startprfx, endprfx;
++	int head, back;
++	struct address_space *const mapping = dir->i_mapping;
++	struct page *candidate = ERR_PTR(-ENOENT);
++
++	startprfx = endprfx = 0;
++	head = 0;
++	back = inode_datablocks(dir) - 1;
++
++	while (head <= back) {
++		const int mid = head + (back - head) / 2;
++		struct page *page = read_mapping_page(mapping, mid, NULL);
++
++		if (!IS_ERR(page)) {
++			struct erofs_dirent *de = kmap_atomic(page);
++			const int nameoff = nameoff_from_disk(de->nameoff,
++							      EROFS_BLKSIZ);
++			const int ndirents = nameoff / sizeof(*de);
++			int diff;
++			unsigned int matched;
++			struct erofs_qstr dname;
++
++			if (unlikely(!ndirents)) {
++				DBG_BUGON(1);
++				kunmap_atomic(de);
++				put_page(page);
++				page = ERR_PTR(-EIO);
++				goto out;
++			}
++
++			matched = min(startprfx, endprfx);
++
++			dname.name = (u8 *)de + nameoff;
++			if (ndirents == 1)
++				dname.end = (u8 *)de + EROFS_BLKSIZ;
++			else
++				dname.end = (u8 *)de +
++					nameoff_from_disk(de[1].nameoff,
++							  EROFS_BLKSIZ);
++
++			/* string comparison without already matched prefix */
++			diff = dirnamecmp(name, &dname, &matched);
++			kunmap_atomic(de);
++
++			if (unlikely(!diff)) {
++				*_ndirents = 0;
++				goto out;
++			} else if (diff > 0) {
++				head = mid + 1;
++				startprfx = matched;
++
++				if (!IS_ERR(candidate))
++					put_page(candidate);
++				candidate = page;
++				*_ndirents = ndirents;
++			} else {
++				put_page(page);
++
++				back = mid - 1;
++				endprfx = matched;
++			}
++			continue;
++		}
++out:		/* free if the candidate is valid */
++		if (!IS_ERR(candidate))
++			put_page(candidate);
++		return page;
++	}
++	return candidate;
++}
++
++int erofs_namei(struct inode *dir,
++		struct qstr *name,
++		erofs_nid_t *nid, unsigned int *d_type)
++{
++	int ndirents;
++	struct page *page;
++	void *data;
++	struct erofs_dirent *de;
++	struct erofs_qstr qn;
++
++	if (unlikely(!dir->i_size))
++		return -ENOENT;
++
++	qn.name = name->name;
++	qn.end = name->name + name->len;
++
++	ndirents = 0;
++	page = find_target_block_classic(dir, &qn, &ndirents);
++
++	if (IS_ERR(page))
++		return PTR_ERR(page);
++
++	data = kmap_atomic(page);
++	/* the target page has been mapped */
++	if (ndirents)
++		de = find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents);
++	else
++		de = (struct erofs_dirent *)data;
++
++	if (!IS_ERR(de)) {
++		*nid = le64_to_cpu(de->nid);
++		*d_type = de->file_type;
++	}
++
++	kunmap_atomic(data);
++	put_page(page);
++
++	return PTR_ERR_OR_ZERO(de);
++}
++
++/* NOTE: i_mutex is already held by vfs */
++static struct dentry *erofs_lookup(struct inode *dir,
++				   struct dentry *dentry,
++				   unsigned int flags)
++{
++	int err;
++	erofs_nid_t nid;
++	unsigned int d_type;
++	struct inode *inode;
++
++	DBG_BUGON(!d_really_is_negative(dentry));
++	/* dentry must be unhashed in lookup, no need to worry about */
++	DBG_BUGON(!d_unhashed(dentry));
++
++	trace_erofs_lookup(dir, dentry, flags);
++
++	/* file name exceeds fs limit */
++	if (unlikely(dentry->d_name.len > EROFS_NAME_LEN))
++		return ERR_PTR(-ENAMETOOLONG);
++
++	/* false uninitialized warnings on gcc 4.8.x */
++	err = erofs_namei(dir, &dentry->d_name, &nid, &d_type);
++
++	if (err == -ENOENT) {
++		/* negative dentry */
++		inode = NULL;
++	} else if (unlikely(err)) {
++		inode = ERR_PTR(err);
++	} else {
++		debugln("%s, %s (nid %llu) found, d_type %u", __func__,
++			dentry->d_name.name, nid, d_type);
++		inode = erofs_iget(dir->i_sb, nid, d_type == EROFS_FT_DIR);
++	}
++	return d_splice_alias(inode, dentry);
++}
++
++const struct inode_operations erofs_dir_iops = {
++	.lookup = erofs_lookup,
++	.getattr = erofs_getattr,
++};
 +
 -- 
 2.17.1
