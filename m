@@ -1,149 +1,414 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 11 Jul 2019 22:57:31 +0800
-Subject: [PATCH v2 00/24] erofs: promote erofs from staging
-Message-ID: <20190711145755.33908-1-gaoxiang25@huawei.com>
+Date: Thu, 11 Jul 2019 22:57:35 +0800
+Subject: [PATCH v2 04/24] erofs: add raw address_space operations
+In-Reply-To: <20190711145755.33908-1-gaoxiang25@huawei.com>
+References: <20190711145755.33908-1-gaoxiang25@huawei.com>
+Message-ID: <20190711145755.33908-5-gaoxiang25@huawei.com>
 
-Changelog from v1:
- o resend the whole filesystem into a patchset suggested by Greg;
- o code is more cleaner, especially for decompression frontend.
+This commit adds functions for meta and raw data, and also
+provides address_space_operations for raw data access.
 
---8<----------
-
-Hi,
-
-EROFS file system has been in Linux-staging for about a year.
-It has been proved to be stable enough to move out of staging
-by 10+ millions of HUAWEI Android mobile phones on the market
-from EMUI 9.0.1, and it was promoted as one of the key features
-of EMUI 9.1 [1], including P30(pro).
-
-EROFS is a read-only file system designed to save extra storage
-space with guaranteed end-to-end performance by applying
-fixed-size output compression, inplace I/O and decompression
-inplace technologies [2] to Linux filesystem.
-
-In our observation, EROFS is one of the fastest Linux compression
-filesystem using buffered I/O in the world. It will support
-direct I/O in the future if needed. EROFS even has better read
-performance in a large CR range compared with generic uncompressed
-file systems with proper CPU-storage combination, which is
-a reason why EROFS can be landed to speed up mobile phone
-performance, and which can be probably used for other use cases
-such as LiveCD and Docker image as well.
-
-Currently EROFS supports 4k LZ4 fixed-size output compression
-since LZ4 is the fastest widely-used decompression solution in
-the world and 4k leads to unnoticable read amplification for
-the worst case. More compression algorithms and cluster sizes
-could be added later, which depends on the real requirement.
-
-More informations about EROFS itself are available at:
- Documentation/filesystems/erofs.txt
- https://kccncosschn19eng.sched.com/event/Nru2/erofs-an-introduction-and-our-smartphone-practice-xiang-gao-huawei
-
-erofs-utils (mainly mkfs.erofs now) is available at
-git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
-
-Preliminary iomap support has been pending in EROFS mailing
-list by Chao Yu. The key issue is that current iomap doesn't
-support tail-end packing inline data yet, it should be
-resolved later.
-
-Thanks to many contributors in the last year, the code is more
-clean and improved. We hope EROFS can be used in wider use cases
-so let's promote erofs out of staging and enhance it more actively.
-
-Share comments about EROFS! We think EROFS is useful to
-community as a part of Linux upstream.
-
-Thank you very much,
-Gao Xiang
-
-[1] http://web.archive.org/web/20190627021241/https://consumer.huawei.com/en/emui/
-[2] https://lore.kernel.org/lkml/20190624072258.28362-1-hsiangkao at aol.com/
-
-Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
-Cc: Alexander Viro <viro at zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm at linux-foundation.org>
-Cc: Theodore Ts'o <tytso at mit.edu>
-Cc: Chao Yu <yuchao0 at huawei.com>
-Cc: Miao Xie <miaoxie at huawei.com>
-Cc: Li Guifu <bluce.liguifu at huawei.com>
-Cc: Fang Wei <fangwei1 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-
-Gao Xiang (24):
-  erofs: add on-disk layout
-  erofs: add erofs in-memory stuffs
-  erofs: add super block operations
-  erofs: add raw address_space operations
-  erofs: add inode operations
-  erofs: support special inode
-  erofs: add directory operations
-  erofs: add namei functions
-  erofs: support tracepoint
-  erofs: update Kconfig and Makefile
-  erofs: introduce xattr & posixacl support
-  erofs: introduce tagged pointer
-  erofs: add compression indexes support
-  erofs: introduce superblock registration
-  erofs: introduce erofs shrinker
-  erofs: introduce workstation for decompression
-  erofs: introduce per-CPU buffers implementation
-  erofs: introduce pagevec for decompression subsystem
-  erofs: add erofs_allocpage()
-  erofs: introduce generic decompression backend
-  erofs: introduce LZ4 decompression inplace
-  erofs: introduce the decompression frontend
-  erofs: introduce cached decompression
-  erofs: add document
-
- Documentation/filesystems/erofs.txt |  211 ++++
- fs/Kconfig                          |    1 +
- fs/Makefile                         |    1 +
- fs/erofs/Kconfig                    |  154 +++
- fs/erofs/Makefile                   |   11 +
- fs/erofs/compress.h                 |   89 ++
- fs/erofs/data.c                     |  390 ++++++++
- fs/erofs/decompressor.c             |  329 ++++++
- fs/erofs/dir.c                      |  147 +++
- fs/erofs/erofs_fs.h                 |  317 ++++++
- fs/erofs/inode.c                    |  326 ++++++
- fs/erofs/internal.h                 |  566 +++++++++++
- fs/erofs/namei.c                    |  250 +++++
- fs/erofs/super.c                    |  616 ++++++++++++
- fs/erofs/tagptr.h                   |  110 ++
- fs/erofs/utils.c                    |  416 ++++++++
- fs/erofs/xattr.c                    |  700 +++++++++++++
- fs/erofs/xattr.h                    |   93 ++
- fs/erofs/zdata.c                    | 1439 +++++++++++++++++++++++++++
- fs/erofs/zdata.h                    |  201 ++++
- fs/erofs/zmap.c                     |  462 +++++++++
- fs/erofs/zpvec.h                    |  159 +++
- include/trace/events/erofs.h        |  256 +++++
- 23 files changed, 7244 insertions(+)
- create mode 100644 Documentation/filesystems/erofs.txt
- create mode 100644 fs/erofs/Kconfig
- create mode 100644 fs/erofs/Makefile
- create mode 100644 fs/erofs/compress.h
+---
+ fs/erofs/data.c | 390 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 390 insertions(+)
  create mode 100644 fs/erofs/data.c
- create mode 100644 fs/erofs/decompressor.c
- create mode 100644 fs/erofs/dir.c
- create mode 100644 fs/erofs/erofs_fs.h
- create mode 100644 fs/erofs/inode.c
- create mode 100644 fs/erofs/internal.h
- create mode 100644 fs/erofs/namei.c
- create mode 100644 fs/erofs/super.c
- create mode 100644 fs/erofs/tagptr.h
- create mode 100644 fs/erofs/utils.c
- create mode 100644 fs/erofs/xattr.c
- create mode 100644 fs/erofs/xattr.h
- create mode 100644 fs/erofs/zdata.c
- create mode 100644 fs/erofs/zdata.h
- create mode 100644 fs/erofs/zmap.c
- create mode 100644 fs/erofs/zpvec.h
- create mode 100644 include/trace/events/erofs.h
 
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+new file mode 100644
+index 000000000000..1a818abeee3d
+--- /dev/null
++++ b/fs/erofs/data.c
+@@ -0,0 +1,390 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/fs/erofs/data.c
++ *
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#include "internal.h"
++#include <linux/prefetch.h>
++
++#include <trace/events/erofs.h>
++
++static inline void read_endio(struct bio *bio)
++{
++	struct super_block *const sb = bio->bi_private;
++	struct bio_vec *bvec;
++	blk_status_t err = bio->bi_status;
++	struct bvec_iter_all iter_all;
++
++	if (time_to_inject(EROFS_SB(sb), FAULT_READ_IO)) {
++		erofs_show_injection_info(FAULT_READ_IO);
++		err = BLK_STS_IOERR;
++	}
++
++	bio_for_each_segment_all(bvec, bio, iter_all) {
++		struct page *page = bvec->bv_page;
++
++		/* page is already locked */
++		DBG_BUGON(PageUptodate(page));
++
++		if (unlikely(err))
++			SetPageError(page);
++		else
++			SetPageUptodate(page);
++
++		unlock_page(page);
++		/* page could be reclaimed now */
++	}
++	bio_put(bio);
++}
++
++/* prio -- true is used for dir */
++struct page *__erofs_get_meta_page(struct super_block *sb,
++				   erofs_blk_t blkaddr, bool prio, bool nofail)
++{
++	struct inode *const bd_inode = sb->s_bdev->bd_inode;
++	struct address_space *const mapping = bd_inode->i_mapping;
++	/* prefer retrying in the allocator to blindly looping below */
++	const gfp_t gfp = mapping_gfp_constraint(mapping, ~__GFP_FS) |
++		(nofail ? __GFP_NOFAIL : 0);
++	unsigned int io_retries = nofail ? EROFS_IO_MAX_RETRIES_NOFAIL : 0;
++	struct page *page;
++	int err;
++
++repeat:
++	page = find_or_create_page(mapping, blkaddr, gfp);
++	if (unlikely(!page)) {
++		DBG_BUGON(nofail);
++		return ERR_PTR(-ENOMEM);
++	}
++	DBG_BUGON(!PageLocked(page));
++
++	if (!PageUptodate(page)) {
++		struct bio *bio;
++
++		bio = erofs_grab_bio(sb, blkaddr, 1, sb, read_endio, nofail);
++		if (IS_ERR(bio)) {
++			DBG_BUGON(nofail);
++			err = PTR_ERR(bio);
++			goto err_out;
++		}
++
++		err = bio_add_page(bio, page, PAGE_SIZE, 0);
++		if (unlikely(err != PAGE_SIZE)) {
++			err = -EFAULT;
++			goto err_out;
++		}
++
++		__submit_bio(bio, REQ_OP_READ,
++			     REQ_META | (prio ? REQ_PRIO : 0));
++
++		lock_page(page);
++
++		/* this page has been truncated by others */
++		if (unlikely(page->mapping != mapping)) {
++unlock_repeat:
++			unlock_page(page);
++			put_page(page);
++			goto repeat;
++		}
++
++		/* more likely a read error */
++		if (unlikely(!PageUptodate(page))) {
++			if (io_retries) {
++				--io_retries;
++				goto unlock_repeat;
++			}
++			err = -EIO;
++			goto err_out;
++		}
++	}
++	return page;
++
++err_out:
++	unlock_page(page);
++	put_page(page);
++	return ERR_PTR(err);
++}
++
++static int erofs_map_blocks_flatmode(struct inode *inode,
++				     struct erofs_map_blocks *map,
++				     int flags)
++{
++	int err = 0;
++	erofs_blk_t nblocks, lastblk;
++	u64 offset = map->m_la;
++	struct erofs_vnode *vi = EROFS_V(inode);
++
++	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
++
++	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
++	lastblk = nblocks - is_inode_flat_inline(inode);
++
++	if (unlikely(offset >= inode->i_size)) {
++		/* leave out-of-bound access unmapped */
++		map->m_flags = 0;
++		map->m_plen = 0;
++		goto out;
++	}
++
++	/* there is no hole in flatmode */
++	map->m_flags = EROFS_MAP_MAPPED;
++
++	if (offset < blknr_to_addr(lastblk)) {
++		map->m_pa = blknr_to_addr(vi->raw_blkaddr) + map->m_la;
++		map->m_plen = blknr_to_addr(lastblk) - offset;
++	} else if (is_inode_flat_inline(inode)) {
++		/* 2 - inode inline B: inode, [xattrs], inline last blk... */
++		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
++
++		map->m_pa = iloc(sbi, vi->nid) + vi->inode_isize +
++			vi->xattr_isize + erofs_blkoff(map->m_la);
++		map->m_plen = inode->i_size - offset;
++
++		/* inline data should locate in one meta block */
++		if (erofs_blkoff(map->m_pa) + map->m_plen > PAGE_SIZE) {
++			DBG_BUGON(1);
++			err = -EIO;
++			goto err_out;
++		}
++
++		map->m_flags |= EROFS_MAP_META;
++	} else {
++		errln("internal error @ nid: %llu (size %llu), m_la 0x%llx",
++		      vi->nid, inode->i_size, map->m_la);
++		DBG_BUGON(1);
++		err = -EIO;
++		goto err_out;
++	}
++
++out:
++	map->m_llen = map->m_plen;
++
++err_out:
++	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
++	return err;
++}
++
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags)
++{
++	if (is_inode_layout_compression(inode))
++		return -ENOTSUPP;
++
++	return erofs_map_blocks_flatmode(inode, map, flags);
++}
++
++static inline struct bio *erofs_read_raw_page(struct bio *bio,
++					      struct address_space *mapping,
++					      struct page *page,
++					      erofs_off_t *last_block,
++					      unsigned int nblocks,
++					      bool ra)
++{
++	struct inode *const inode = mapping->host;
++	struct super_block *const sb = inode->i_sb;
++	erofs_off_t current_block = (erofs_off_t)page->index;
++	int err;
++
++	DBG_BUGON(!nblocks);
++
++	if (PageUptodate(page)) {
++		err = 0;
++		goto has_updated;
++	}
++
++	if (cleancache_get_page(page) == 0) {
++		err = 0;
++		SetPageUptodate(page);
++		goto has_updated;
++	}
++
++	/* note that for readpage case, bio also equals to NULL */
++	if (bio &&
++	    /* not continuous */
++	    *last_block + 1 != current_block) {
++submit_bio_retry:
++		__submit_bio(bio, REQ_OP_READ, 0);
++		bio = NULL;
++	}
++
++	if (!bio) {
++		struct erofs_map_blocks map = {
++			.m_la = blknr_to_addr(current_block),
++		};
++		erofs_blk_t blknr;
++		unsigned int blkoff;
++
++		err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
++		if (unlikely(err))
++			goto err_out;
++
++		/* zero out the holed page */
++		if (unlikely(!(map.m_flags & EROFS_MAP_MAPPED))) {
++			zero_user_segment(page, 0, PAGE_SIZE);
++			SetPageUptodate(page);
++
++			/* imply err = 0, see erofs_map_blocks */
++			goto has_updated;
++		}
++
++		/* for RAW access mode, m_plen must be equal to m_llen */
++		DBG_BUGON(map.m_plen != map.m_llen);
++
++		blknr = erofs_blknr(map.m_pa);
++		blkoff = erofs_blkoff(map.m_pa);
++
++		/* deal with inline page */
++		if (map.m_flags & EROFS_MAP_META) {
++			void *vsrc, *vto;
++			struct page *ipage;
++
++			DBG_BUGON(map.m_plen > PAGE_SIZE);
++
++			ipage = erofs_get_meta_page(inode->i_sb, blknr, 0);
++
++			if (IS_ERR(ipage)) {
++				err = PTR_ERR(ipage);
++				goto err_out;
++			}
++
++			vsrc = kmap_atomic(ipage);
++			vto = kmap_atomic(page);
++			memcpy(vto, vsrc + blkoff, map.m_plen);
++			memset(vto + map.m_plen, 0, PAGE_SIZE - map.m_plen);
++			kunmap_atomic(vto);
++			kunmap_atomic(vsrc);
++			flush_dcache_page(page);
++
++			SetPageUptodate(page);
++			/* TODO: could we unlock the page earlier? */
++			unlock_page(ipage);
++			put_page(ipage);
++
++			/* imply err = 0, see erofs_map_blocks */
++			goto has_updated;
++		}
++
++		/* pa must be block-aligned for raw reading */
++		DBG_BUGON(erofs_blkoff(map.m_pa));
++
++		/* max # of continuous pages */
++		if (nblocks > DIV_ROUND_UP(map.m_plen, PAGE_SIZE))
++			nblocks = DIV_ROUND_UP(map.m_plen, PAGE_SIZE);
++		if (nblocks > BIO_MAX_PAGES)
++			nblocks = BIO_MAX_PAGES;
++
++		bio = erofs_grab_bio(sb, blknr, nblocks, sb,
++				     read_endio, false);
++		if (IS_ERR(bio)) {
++			err = PTR_ERR(bio);
++			bio = NULL;
++			goto err_out;
++		}
++	}
++
++	err = bio_add_page(bio, page, PAGE_SIZE, 0);
++	/* out of the extent or bio is full */
++	if (err < PAGE_SIZE)
++		goto submit_bio_retry;
++
++	*last_block = current_block;
++
++	/* shift in advance in case of it followed by too many gaps */
++	if (bio->bi_iter.bi_size >= bio->bi_max_vecs * PAGE_SIZE) {
++		/* err should reassign to 0 after submitting */
++		err = 0;
++		goto submit_bio_out;
++	}
++
++	return bio;
++
++err_out:
++	/* for sync reading, set page error immediately */
++	if (!ra) {
++		SetPageError(page);
++		ClearPageUptodate(page);
++	}
++has_updated:
++	unlock_page(page);
++
++	/* if updated manually, continuous pages has a gap */
++	if (bio)
++submit_bio_out:
++		__submit_bio(bio, REQ_OP_READ, 0);
++
++	return unlikely(err) ? ERR_PTR(err) : NULL;
++}
++
++/*
++ * since we dont have write or truncate flows, so no inode
++ * locking needs to be held at the moment.
++ */
++static int erofs_raw_access_readpage(struct file *file, struct page *page)
++{
++	erofs_off_t last_block;
++	struct bio *bio;
++
++	trace_erofs_readpage(page, true);
++
++	bio = erofs_read_raw_page(NULL, page->mapping,
++				  page, &last_block, 1, false);
++
++	if (IS_ERR(bio))
++		return PTR_ERR(bio);
++
++	DBG_BUGON(bio);	/* since we have only one bio -- must be NULL */
++	return 0;
++}
++
++static int erofs_raw_access_readpages(struct file *filp,
++				      struct address_space *mapping,
++				      struct list_head *pages,
++				      unsigned int nr_pages)
++{
++	erofs_off_t last_block;
++	struct bio *bio = NULL;
++	gfp_t gfp = readahead_gfp_mask(mapping);
++	struct page *page = list_last_entry(pages, struct page, lru);
++
++	trace_erofs_readpages(mapping->host, page, nr_pages, true);
++
++	for (; nr_pages; --nr_pages) {
++		page = list_entry(pages->prev, struct page, lru);
++
++		prefetchw(&page->flags);
++		list_del(&page->lru);
++
++		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
++			bio = erofs_read_raw_page(bio, mapping, page,
++						  &last_block, nr_pages, true);
++
++			/* all the page errors are ignored when readahead */
++			if (IS_ERR(bio)) {
++				pr_err("%s, readahead error at page %lu of nid %llu\n",
++				       __func__, page->index,
++				       EROFS_V(mapping->host)->nid);
++
++				bio = NULL;
++			}
++		}
++
++		/* pages could still be locked */
++		put_page(page);
++	}
++	DBG_BUGON(!list_empty(pages));
++
++	/* the rare case (end in gaps) */
++	if (unlikely(bio))
++		__submit_bio(bio, REQ_OP_READ, 0);
++	return 0;
++}
++
++/* for uncompressed (aligned) files and raw access for other files */
++const struct address_space_operations erofs_raw_access_aops = {
++	.readpage = erofs_raw_access_readpage,
++	.readpages = erofs_raw_access_readpages,
++};
++
 -- 
 2.17.1
