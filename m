@@ -1,184 +1,60 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 15 Jul 2019 14:33:01 +0800
-Subject: [PATCH] staging: erofs:converting all 'unsigned' to 'unsigned int'
-In-Reply-To: <20190715055030.11474-1-pratikshinde320@gmail.com>
-References: <20190715055030.11474-1-pratikshinde320@gmail.com>
-Message-ID: <9f3e8820-1938-e345-a010-97af325b0845@huawei.com>
+From: pavel@denx.de (Pavel Machek)
+Date: Mon, 15 Jul 2019 09:56:41 +0200
+Subject: [PATCH v2 00/24] erofs: promote erofs from staging
+In-Reply-To: <63b9eaca-5d4b-0fe2-c861-7531977a5b48@aol.com>
+References: <20190711145755.33908-1-gaoxiang25@huawei.com>
+ <20190714104940.GA1282@xo-6d-61-c0.localdomain>
+ <63b9eaca-5d4b-0fe2-c861-7531977a5b48@aol.com>
+Message-ID: <20190715075641.GA7695@amd>
 
+Hi!
 
-
-On 2019/7/15 13:50, Pratik Shinde wrote:
-> Fixed check patch warnings: converting all 'unsigned' to 'unsigned int'
+> >> Changelog from v1:
+> >>  o resend the whole filesystem into a patchset suggested by Greg;
+> >>  o code is more cleaner, especially for decompression frontend.
+> >>
+> >> --8<----------
+> >>
+> >> Hi,
+> >>
+> >> EROFS file system has been in Linux-staging for about a year.
+> >> It has been proved to be stable enough to move out of staging
+> >> by 10+ millions of HUAWEI Android mobile phones on the market
+> >> from EMUI 9.0.1, and it was promoted as one of the key features
+> >> of EMUI 9.1 [1], including P30(pro).
+> > 
+> > Ok, maybe it is ready to be moved to kernel proper, but as git can
+> > do moves, would it be better to do it as one commit?
+> > 
+> > Separate patches are still better for review, I guess.
 > 
-> Signed-off-by: Pratik Shinde <pratikshinde320 at gmail.com>
-
-The subject line should be better as "[PATCH v2] staging: erofs:converting all 'unsigned' to 'unsigned int'"
-
-> ---
->  drivers/staging/erofs/internal.h      |  7 ++++---
->  drivers/staging/erofs/unzip_pagevec.h | 11 ++++++-----
->  drivers/staging/erofs/unzip_vle.h     |  8 ++++----
->  drivers/staging/erofs/xattr.h         | 11 ++++++-----
->  4 files changed, 20 insertions(+), 17 deletions(-)
+> Thanks for you reply. Either form is OK for me... The first step could
+> be that I hope someone could kindly take some time to look into these
+> patches... :)
 > 
-> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-> index 963cc1b..0ebc294 100644
-> --- a/drivers/staging/erofs/internal.h
-> +++ b/drivers/staging/erofs/internal.h
-> @@ -359,8 +359,8 @@ struct erofs_vnode {
->  	unsigned char inode_isize;
->  	unsigned short xattr_isize;
->  
-> -	unsigned xattr_shared_count;
-> -	unsigned *xattr_shared_xattrs;
-> +	unsigned int xattr_shared_count;
-> +	unsigned int *xattr_shared_xattrs;
->  
->  	union {
->  		erofs_blk_t raw_blkaddr;
-> @@ -510,7 +510,8 @@ erofs_grab_bio(struct super_block *sb,
->  	return bio;
->  }
->  
-> -static inline void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
-> +static inline void __submit_bio(struct bio *bio, unsigned int op,
-> +				unsigned int op_flags)
->  {
->  	bio_set_op_attrs(bio, op, op_flags);
->  	submit_bio(bio);
-> diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
-> index 7af0ba8..e65dbca 100644
-> --- a/drivers/staging/erofs/unzip_pagevec.h
-> +++ b/drivers/staging/erofs/unzip_pagevec.h
-> @@ -54,9 +54,9 @@ static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
->  
->  static inline struct page *
->  z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
-> -			       unsigned nr)
-> +			       unsigned int nr)
->  {
-> -	unsigned index;
-> +	unsigned int index;
->  
->  	/* keep away from occupied pages */
->  	if (ctor->next)
-> @@ -64,7 +64,7 @@ z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
->  
->  	for (index = 0; index < nr; ++index) {
->  		const erofs_vtptr_t t = ctor->pages[index];
-> -		const unsigned tags = tagptr_unfold_tags(t);
-> +		const unsigned int tags = tagptr_unfold_tags(t);
->  
->  		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
->  			return tagptr_unfold_ptr(t);
-> @@ -91,8 +91,9 @@ z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
->  }
->  
->  static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
-> -					     unsigned nr,
-> -					     erofs_vtptr_t *pages, unsigned i)
-> +					     unsigned int nr,
-> +					     erofs_vtptr_t *pages,
-> +					     unsigned int i)
->  {
->  	ctor->nr = nr;
->  	ctor->curr = ctor->next = NULL;
-> diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-> index ab509d75..df91ad1 100644
-> --- a/drivers/staging/erofs/unzip_vle.h
-> +++ b/drivers/staging/erofs/unzip_vle.h
-> @@ -34,7 +34,7 @@ struct z_erofs_vle_work {
->  	unsigned short nr_pages;
->  
->  	/* L: queued pages in pagevec[] */
-> -	unsigned vcnt;
-> +	unsigned int vcnt;
->  
->  	union {
->  		/* L: pagevec */
-> @@ -124,7 +124,7 @@ union z_erofs_onlinepage_converter {
->  	unsigned long *v;
->  };
->  
-> -static inline unsigned z_erofs_onlinepage_index(struct page *page)
-> +static inline unsigned int z_erofs_onlinepage_index(struct page *page)
->  {
->  	union z_erofs_onlinepage_converter u;
->  
-> @@ -164,7 +164,7 @@ static inline void z_erofs_onlinepage_fixup(struct page *page,
->  	}
->  
->  	v = (index << Z_EROFS_ONLINEPAGE_INDEX_SHIFT) |
-> -		((o & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned)down);
-> +		((o & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned int)down);
->  	if (cmpxchg(p, o, v) != o)
->  		goto repeat;
->  }
-> @@ -172,7 +172,7 @@ static inline void z_erofs_onlinepage_fixup(struct page *page,
->  static inline void z_erofs_onlinepage_endio(struct page *page)
->  {
->  	union z_erofs_onlinepage_converter u;
-> -	unsigned v;
-> +	unsigned int v;
->  
->  	DBG_BUGON(!PagePrivate(page));
->  	u.v = &page_private(page);
-> diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
-> index 35ba5ac..bbf13c4 100644
-> --- a/drivers/staging/erofs/xattr.h
-> +++ b/drivers/staging/erofs/xattr.h
-> @@ -20,14 +20,14 @@
->  /* Attribute not found */
->  #define ENOATTR         ENODATA
->  
-> -static inline unsigned inlinexattr_header_size(struct inode *inode)
-> +static inline unsigned int inlinexattr_header_size(struct inode *inode)
->  {
->  	return sizeof(struct erofs_xattr_ibody_header)
->  		+ sizeof(u32) * EROFS_V(inode)->xattr_shared_count;
->  }
->  
->  static inline erofs_blk_t
-> -xattrblock_addr(struct erofs_sb_info *sbi, unsigned xattr_id)
-> +xattrblock_addr(struct erofs_sb_info *sbi, unsigned int xattr_id)
->  {
->  #ifdef CONFIG_EROFS_FS_XATTR
->  	return sbi->xattr_blkaddr +
-> @@ -37,8 +37,8 @@ xattrblock_addr(struct erofs_sb_info *sbi, unsigned xattr_id)
->  #endif
->  }
->  
-> -static inline unsigned
-> -xattrblock_offset(struct erofs_sb_info *sbi, unsigned xattr_id)
-> +static inline unsigned int
-> +xattrblock_offset(struct erofs_sb_info *sbi, unsigned int xattr_id)
+> The patch v2 is slightly different for the current code in the staging
+> tree since I did some code cleanup these days (mainly renaming / moving,
+> including rename unzip_vle.{c,h} to zdata.{c,h} and some confusing
+> structure names and clean up internal.h...). No functional chance and I
+> can submit cleanup patches to staging as well if doing moves by git...
 
-How about..
+I believe you should get those committed to staging/, yes. Then you
+ask Al Viro to do pull the git move, I guess, and you follow his
+instructions at that point...
 
-36 static inline unsigned int xattrblock_offset(struct erofs_sb_info *sbi,
-37                                              unsigned int xattr_id)
+FILESYSTEMS (VFS and infrastructure)
+M:      Alexander Viro <viro at zeniv.linux.org.uk>
+L:      linux-fsdevel at vger.kernel.org
 
-
->  {
->  	return (xattr_id * sizeof(__u32)) % EROFS_BLKSIZ;
->  }
-> @@ -49,7 +49,8 @@ extern const struct xattr_handler erofs_xattr_trusted_handler;
->  extern const struct xattr_handler erofs_xattr_security_handler;
->  #endif
->  
-> -static inline const struct xattr_handler *erofs_xattr_handler(unsigned index)
-> +static inline const struct xattr_handler *erofs_xattr_handler(
-> +							unsigned int index)
-
-How about
-static inline const struct xattr_handler *erofs_xattr_handler(unsigned int idx)
-
-since the above line is somewhat odd....
-
-Thanks,
-Gao Xiang
-
->  {
->  static const struct xattr_handler *xattr_handler_map[] = {
->  	[EROFS_XATTR_INDEX_USER] = &erofs_xattr_user_handler,
-> 
+Best regards,
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 181 bytes
+Desc: Digital signature
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190715/99e68035/attachment.sig>
