@@ -1,495 +1,284 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 16 Jul 2019 15:04:07 +0800
-Subject: [PATCH v2 05/17] erofs-utils: introduce buffer cache
+Date: Tue, 16 Jul 2019 15:04:11 +0800
+Subject: [PATCH v2 09/17] erofs-utils: introduce lz4/lz4hc compression
+ algorithm
 In-Reply-To: <20190716070419.30203-1-gaoxiang25@huawei.com>
 References: <20190716070419.30203-1-gaoxiang25@huawei.com>
-Message-ID: <20190716070419.30203-6-gaoxiang25@huawei.com>
+Message-ID: <20190716070419.30203-10-gaoxiang25@huawei.com>
 
-This patch adds a buffer cache mainly to manage
-incomplete metadata blocks. mkfs logic is also
-simplified with the help of buffer cache.
+This patch adds lz4/lz4hc compression algorithms to
+erofs-utils compression framework in order to enable
+the fixed-output size compression.
 
-Signed-off-by: Miao Xie <miaoxie at huawei.com>
-[ Gao Xiang: with heavy changes. ]
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- include/erofs/cache.h | 104 +++++++++++++
- lib/Makefile.am       |   2 +-
- lib/cache.c           | 343 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 448 insertions(+), 1 deletion(-)
- create mode 100644 include/erofs/cache.h
- create mode 100644 lib/cache.c
+ configure.ac           | 65 ++++++++++++++++++++++++++++++++++++++++++
+ lib/Makefile.am        |  7 +++++
+ lib/compressor.c       |  6 ++++
+ lib/compressor.h       |  6 ++++
+ lib/compressor_lz4.c   | 48 +++++++++++++++++++++++++++++++
+ lib/compressor_lz4hc.c | 61 +++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 193 insertions(+)
+ create mode 100644 lib/compressor_lz4.c
+ create mode 100644 lib/compressor_lz4hc.c
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-new file mode 100644
-index 0000000..108757a
---- /dev/null
-+++ b/include/erofs/cache.h
-@@ -0,0 +1,104 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * erofs_utils/include/erofs/cache.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Miao Xie <miaoxie at huawei.com>
-+ * with heavy changes by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_CACHE_H
-+#define __EROFS_CACHE_H
+diff --git a/configure.ac b/configure.ac
+index 49f1a7d..6cc0c60 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -50,7 +50,22 @@ AC_DEFUN([EROFS_UTILS_PARSE_DIRECTORY],
+  fi
+ ])
+ 
++AC_ARG_ENABLE(lz4,
++   [AS_HELP_STRING([--disable-lz4], [disable LZ4 compression support @<:@default=enabled@:>@])],
++   [enable_lz4="$enableval"], [enable_lz4="yes"])
 +
-+#include "internal.h"
+ # Checks for libraries.
++# Use customized LZ4 library path when specified.
++AC_ARG_WITH(lz4-incdir,
++   [AS_HELP_STRING([--with-lz4-incdir=DIR], [LZ4 include directory])], [
++   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
 +
-+struct erofs_buffer_head;
-+struct erofs_buffer_block;
++AC_ARG_WITH(lz4-libdir,
++   [AS_HELP_STRING([--with-lz4-libdir=DIR], [LZ4 lib directory])], [
++   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
 +
-+#define DATA		0
-+#define META		1
-+/* including inline xattrs, extent */
-+#define INODE		2
-+/* shared xattrs */
-+#define XATTR		3
++AC_ARG_VAR([LZ4_CFLAGS], [C compiler flags for lz4])
++AC_ARG_VAR([LZ4_LIBS], [linker flags for lz4])
+ 
+ # Checks for header files.
+ AC_CHECK_HEADERS(m4_flatten([
+@@ -102,7 +117,57 @@ AC_CHECK_DECL(lseek64,[AC_DEFINE(HAVE_LSEEK64_PROTOTYPE, 1,
+ # Checks for library functions.
+ AC_CHECK_FUNCS([gettimeofday memset realpath strdup strerror strrchr strtoull])
+ 
++# Configure lz4
++test -z $LZ4_LIBS && LZ4_LIBS='-llz4'
 +
-+struct erofs_bhops {
-+	bool (*preflush)(struct erofs_buffer_head *bh);
-+	bool (*flush)(struct erofs_buffer_head *bh);
-+};
++if test "x$enable_lz4" = "xyes"; then
++  test -z "${with_lz4_incdir}" || LZ4_CFLAGS="-I$with_lz4_incdir $LZ4_CFLAGS"
++  test -z "${with_lz4_libdir}" || LZ4_LIBS="-L$with_lz4_libdir $LZ4_LIBS"
 +
-+struct erofs_buffer_head {
-+	struct list_head list;
-+	struct erofs_buffer_block *block;
++  saved_CPPFLAGS=${CPPFLAGS}
++  CPPFLAGS="${LZ4_CFLAGS} ${CFLAGS}"
 +
-+	unsigned int off;
-+	struct erofs_bhops *op;
++  AC_CHECK_HEADERS([lz4.h],[have_lz4h="yes"], [])
 +
-+	void *fsprivate;
-+};
++  if test "x${have_lz4h}" = "xyes" ; then
++    saved_LDFLAGS=${LDFLAGS}
++    LDFLAGS="-L$with_lz4_libdir ${LDFLAGS}"
++    AC_CHECK_LIB(lz4, LZ4_compress_destSize, [
++      have_lz4="yes"
++      have_lz4hc="yes"
++      AC_CHECK_LIB(lz4, LZ4_compress_HC_destSize, [], [
++        AC_CHECK_DECL(LZ4_compress_HC_destSize, [lz4_force_static="yes"],
++          [have_lz4hc="no"], [[
++#define LZ4_HC_STATIC_LINKING_ONLY (1)
++#include <lz4hc.h>
++        ]])
++      ])
++    ], [AC_MSG_ERROR([Cannot find proper lz4 version (>= 1.8.0)])])
++    LDFLAGS=${saved_LDFLAGS}
 +
-+struct erofs_buffer_block {
-+	struct list_head list;
++    if test "x${have_lz4}" = "xyes"; then
++      AC_DEFINE([LZ4_ENABLED], [1], [Define to 1 if lz4 is enabled.])
 +
-+	erofs_blk_t blkaddr;
-+	int type;
++      if test "x${have_lz4hc}" = "xyes"; then
++        AC_DEFINE([LZ4HC_ENABLED], [1], [Define to 1 if lz4hc is enabled.])
++      fi
 +
-+	struct erofs_buffer_head buffers;
-+};
++      if test "x${lz4_force_static}" = "xyes"; then
++        LDFLAGS="-all-static ${LDFLAGS}"
++      else
++	test -z "${with_lz4_libdir}" || LZ4_LIBS="-R ${with_lz4_libdir} $LZ4_LIBS"
++      fi
++      LIBS="$LZ4_LIBS $LIBS"
++    fi
++  fi
++  CFLAGS=${saved_CPPFLAGS}
++fi
 +
-+static inline const int get_alignsize(int type, int *type_ret)
-+{
-+	if (type == DATA)
-+		return EROFS_BLKSIZ;
++AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
++AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
 +
-+	if (type == INODE) {
-+		*type_ret = META;
-+		return sizeof(struct erofs_inode_v1);
-+	} else if (type == XATTR) {
-+		*type_ret = META;
-+		return sizeof(struct erofs_xattr_entry);
-+	}
-+
-+	if (type == META)
-+		return 1;
-+	return -EINVAL;
-+}
-+
-+extern struct erofs_bhops erofs_drop_directly_bhops;
-+extern struct erofs_bhops erofs_skip_write_bhops;
-+extern struct erofs_bhops erofs_buf_write_bhops;
-+
-+static inline erofs_off_t erofs_btell(struct erofs_buffer_head *bh, bool end)
-+{
-+	const struct erofs_buffer_block *bb = bh->block;
-+
-+	if (bb->blkaddr == NULL_ADDR)
-+		return NULL_ADDR_UL;
-+
-+	return blknr_to_addr(bb->blkaddr) +
-+		(end ? list_next_entry(bh, list)->off : bh->off);
-+}
-+
-+static inline bool erofs_bh_flush_generic_end(struct erofs_buffer_head *bh)
-+{
-+	list_del(&bh->list);
-+	free(bh);
-+	return true;
-+}
-+
-+struct erofs_buffer_head *erofs_buffer_init(void);
-+int erofs_bh_balloon(struct erofs_buffer_head *bh, unsigned int incr);
-+
-+struct erofs_buffer_head *erofs_balloc(int type, unsigned int size,
-+				       unsigned int required_ext,
-+				       unsigned int inline_ext);
-+struct erofs_buffer_head *erofs_battach(struct erofs_buffer_head *bh,
-+					int type, int size);
-+
-+erofs_blk_t erofs_mapbh(struct erofs_buffer_block *bb, bool end);
-+bool erofs_bflush(struct erofs_buffer_block *bb);
-+
-+void erofs_bdrop(struct erofs_buffer_head *bh, bool tryrevoke);
-+
-+#endif
+ AC_CONFIG_FILES([Makefile
+ 		 lib/Makefile
+ 		 mkfs/Makefile])
+ AC_OUTPUT
 +
 diff --git a/lib/Makefile.am b/lib/Makefile.am
-index a2c1b24..8508660 100644
+index 64da708..17dc9e1 100644
 --- a/lib/Makefile.am
 +++ b/lib/Makefile.am
-@@ -2,6 +2,6 @@
- # Makefile.am
- 
+@@ -4,4 +4,11 @@
  noinst_LTLIBRARIES = liberofs.la
--liberofs_la_SOURCES = config.c io.c
-+liberofs_la_SOURCES = config.c io.c cache.c
+ liberofs_la_SOURCES = config.c io.c cache.c inode.c compressor.c
  liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
++if ENABLE_LZ4
++liberofs_la_CFLAGS += ${LZ4_CFLAGS}
++liberofs_la_SOURCES += compressor_lz4.c
++if ENABLE_LZ4HC
++liberofs_la_SOURCES += compressor_lz4hc.c
++endif
++endif
  
-diff --git a/lib/cache.c b/lib/cache.c
+diff --git a/lib/compressor.c b/lib/compressor.c
+index cc97cfb..a6138c6 100644
+--- a/lib/compressor.c
++++ b/lib/compressor.c
+@@ -39,6 +39,12 @@ int erofs_compressor_init(struct erofs_compress *c,
+ 			  char *alg_name)
+ {
+ 	static struct erofs_compressor *compressors[] = {
++#if LZ4_ENABLED
++#if LZ4HC_ENABLED
++		&erofs_compressor_lz4hc,
++#endif
++		&erofs_compressor_lz4,
++#endif
+ 	};
+ 
+ 	int ret, i;
+diff --git a/lib/compressor.h b/lib/compressor.h
+index 8ad9d11..6429b2a 100644
+--- a/lib/compressor.h
++++ b/lib/compressor.h
+@@ -35,8 +35,14 @@ struct erofs_compress {
+ 	unsigned int destsize_alignsize;
+ 	unsigned int destsize_redzone_begin;
+ 	unsigned int destsize_redzone_end;
++
++	void *private_data;
+ };
+ 
++/* list of compression algorithms */
++extern struct erofs_compressor erofs_compressor_lz4;
++extern struct erofs_compressor erofs_compressor_lz4hc;
++
+ int erofs_compress_destsize(struct erofs_compress *c, int compression_level,
+ 			    void *src, unsigned int *srcsize,
+ 			    void *dst, unsigned int dstsize);
+diff --git a/lib/compressor_lz4.c b/lib/compressor_lz4.c
 new file mode 100644
-index 0000000..967b543
+index 0000000..eacd21c
 --- /dev/null
-+++ b/lib/cache.c
-@@ -0,0 +1,343 @@
++++ b/lib/compressor_lz4.c
+@@ -0,0 +1,48 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * erofs_utils/lib/cache.c
++ * erofs-utils/lib/compressor-lz4.c
 + *
 + * Copyright (C) 2018-2019 HUAWEI, Inc.
 + *             http://www.huawei.com/
-+ * Created by Miao Xie <miaoxie at huawei.com>
-+ * with heavy changes by Gao Xiang <gaoxiang25 at huawei.com>
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#include <stdlib.h>
-+#include <erofs/cache.h>
-+#include "erofs/io.h"
-+#include "erofs/print.h"
++#include <lz4.h>
++#include "erofs/internal.h"
++#include "compressor.h"
 +
-+static struct erofs_buffer_block blkh = {
-+	.list = LIST_HEAD_INIT(blkh.list),
-+	.blkaddr = NULL_ADDR,
-+};
-+static erofs_blk_t tail_blkaddr;
-+
-+static bool erofs_bh_flush_drop_directly(struct erofs_buffer_head *bh)
++static int lz4_compress_destsize(struct erofs_compress *c,
++				 int compression_level,
++				 void *src, unsigned int *srcsize,
++				 void *dst, unsigned int dstsize)
 +{
-+	return erofs_bh_flush_generic_end(bh);
++	int srcSize = (int)*srcsize;
++	int rc = LZ4_compress_destSize(src, dst, &srcSize, (int)dstsize);
++
++	if (!rc)
++		return -EFAULT;
++	*srcsize = srcSize;
++	return 0;
 +}
 +
-+struct erofs_bhops erofs_drop_directly_bhops = {
-+	.flush = erofs_bh_flush_drop_directly,
-+};
-+
-+static bool erofs_bh_flush_skip_write(struct erofs_buffer_head *bh)
++static int compressor_lz4_exit(struct erofs_compress *c)
 +{
-+	return false;
++	return 0;
 +}
 +
-+struct erofs_bhops erofs_skip_write_bhops = {
-+	.flush = erofs_bh_flush_skip_write,
-+};
-+
-+int erofs_bh_flush_generic_write(struct erofs_buffer_head *bh, void *buf)
++static int compressor_lz4_init(struct erofs_compress *c,
++				 char *alg_name)
 +{
-+	struct erofs_buffer_head *nbh = list_next_entry(bh, list);
-+	erofs_off_t offset = erofs_btell(bh, false);
-+
-+	DBG_BUGON(nbh->off < bh->off);
-+	return dev_write(buf, offset, nbh->off - bh->off);
++	if (alg_name && strcmp(alg_name, "lz4"))
++		return -EINVAL;
++	c->alg = &erofs_compressor_lz4;
++	return 0;
 +}
 +
-+static bool erofs_bh_flush_buf_write(struct erofs_buffer_head *bh)
-+{
-+	int err = erofs_bh_flush_generic_write(bh, bh->fsprivate);
-+
-+	if (err)
-+		return false;
-+	free(bh->fsprivate);
-+	return erofs_bh_flush_generic_end(bh);
-+}
-+
-+struct erofs_bhops erofs_buf_write_bhops = {
-+	.flush = erofs_bh_flush_buf_write,
++struct erofs_compressor erofs_compressor_lz4 = {
++	.default_level = 0,
++	.best_level = 0,
++	.init = compressor_lz4_init,
++	.exit = compressor_lz4_exit,
++	.compress_destsize = lz4_compress_destsize,
 +};
 +
-+/* return buffer_head of erofs super block (with size 0) */
-+struct erofs_buffer_head *erofs_buffer_init(void)
+diff --git a/lib/compressor_lz4hc.c b/lib/compressor_lz4hc.c
+new file mode 100644
+index 0000000..ec9347e
+--- /dev/null
++++ b/lib/compressor_lz4hc.c
+@@ -0,0 +1,61 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs-utils/lib/compressor-lz4hc.c
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#define LZ4_HC_STATIC_LINKING_ONLY (1)
++#include <lz4hc.h>
++#include "erofs/internal.h"
++#include "compressor.h"
++
++static int lz4hc_compress_destsize(struct erofs_compress *c,
++				   int compression_level,
++				   void *src,
++				   unsigned int *srcsize,
++				   void *dst,
++				   unsigned int dstsize)
 +{
-+	struct erofs_buffer_head *bh = erofs_balloc(META, 0, 0, 0);
-+
-+	if (IS_ERR(bh))
-+		return bh;
-+
-+	bh->op = &erofs_skip_write_bhops;
-+	return bh;
++	int srcSize = (int)*srcsize;
++	int rc = LZ4_compress_HC_destSize(c->private_data, src, dst,
++					  &srcSize, (int)dstsize,
++					  compression_level);
++	if (!rc)
++		return -EFAULT;
++	*srcsize = srcSize;
++	return 0;
 +}
 +
-+/* return occupied bytes in specific buffer block if succeed */
-+static int __erofs_battach(struct erofs_buffer_block *bb,
-+			   struct erofs_buffer_head *bh,
-+			   unsigned int incr,
-+			   unsigned int alignsize,
-+			   unsigned int extrasize,
-+			   bool dryrun)
++static int compressor_lz4hc_exit(struct erofs_compress *c)
 +{
-+	const unsigned int alignedoffset = roundup(bb->buffers.off, alignsize);
-+	const int oob = alignedoffset + incr + extrasize -
-+			roundup(bb->buffers.off + 1, EROFS_BLKSIZ);
-+	bool tailupdate = false;
-+	erofs_blk_t blkaddr;
-+
-+	if (oob >= 0) {
-+		/* the next buffer block should be NULL_ADDR all the time */
-+		if (oob && list_next_entry(bb, list)->blkaddr != NULL_ADDR)
-+			return -EINVAL;
-+
-+		blkaddr = bb->blkaddr;
-+		if (blkaddr != NULL_ADDR) {
-+			tailupdate = (tail_blkaddr == blkaddr +
-+				      BLK_ROUND_UP(bb->buffers.off));
-+			if (oob && !tailupdate)
-+				return -EINVAL;
-+		}
-+	}
-+
-+	if (!dryrun) {
-+		if (bh) {
-+			bh->off = alignedoffset;
-+			bh->block = bb;
-+			list_add_tail(&bh->list, &bb->buffers.list);
-+		}
-+		bb->buffers.off = alignedoffset + incr;
-+		/* need to update the tail_blkaddr */
-+		if (tailupdate)
-+			tail_blkaddr = blkaddr + BLK_ROUND_UP(bb->buffers.off);
-+	}
-+	return (alignedoffset + incr) % EROFS_BLKSIZ;
-+}
-+
-+int erofs_bh_balloon(struct erofs_buffer_head *bh, unsigned int incr)
-+{
-+	struct erofs_buffer_block *const bb = bh->block;
-+
-+	/* should be the tail bh in the corresponding buffer block */
-+	if (bh->list.next != &bb->buffers.list)
++	if (!c->private_data)
 +		return -EINVAL;
 +
-+	return __erofs_battach(bb, NULL, incr, 1, 0, false);
++	LZ4_freeStreamHC(c->private_data);
++	return 0;
 +}
 +
-+struct erofs_buffer_head *erofs_balloc(int type, unsigned int size,
-+				       unsigned int required_ext,
-+				       unsigned int inline_ext)
++static int compressor_lz4hc_init(struct erofs_compress *c,
++				 char *alg_name)
 +{
-+	struct erofs_buffer_block *cur, *bb;
-+	struct erofs_buffer_head *bh;
-+	unsigned int alignsize, used0, usedmax;
++	if (alg_name && strcmp(alg_name, "lz4hc"))
++		return -EINVAL;
 +
-+	int ret = get_alignsize(type, &type);
++	c->alg = &erofs_compressor_lz4hc;
 +
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+	alignsize = ret;
-+
-+	used0 = (size + required_ext) % EROFS_BLKSIZ + inline_ext;
-+	usedmax = 0;
-+	bb = NULL;
-+
-+	list_for_each_entry(cur, &blkh.list, list) {
-+		unsigned int used_before, used;
-+
-+		used_before = cur->buffers.off % EROFS_BLKSIZ;
-+
-+		/* skip if buffer block is just full */
-+		if (!used_before)
-+			continue;
-+
-+		/* skip if the entry which has different type */
-+		if (cur->type != type)
-+			continue;
-+
-+		ret = __erofs_battach(cur, NULL, size, alignsize,
-+				      required_ext + inline_ext, true);
-+		if (ret < 0)
-+			continue;
-+
-+		used = (ret + required_ext) % EROFS_BLKSIZ + inline_ext;
-+
-+		/* should contain inline data in current block */
-+		if (used > EROFS_BLKSIZ)
-+			continue;
-+
-+		/*
-+		 * remaining should be smaller than before or
-+		 * larger than allocating a new buffer block
-+		 */
-+		if (used < used_before && used < used0)
-+			continue;
-+
-+		if (usedmax < used) {
-+			bb = cur;
-+			usedmax = used;
-+		}
-+	}
-+
-+	if (bb) {
-+		bh = malloc(sizeof(struct erofs_buffer_head));
-+		if (!bh)
-+			return ERR_PTR(-ENOMEM);
-+		goto found;
-+	}
-+
-+	/* allocate a new buffer block */
-+	if (used0 > EROFS_BLKSIZ)
-+		return ERR_PTR(-ENOSPC);
-+
-+	bb = malloc(sizeof(struct erofs_buffer_block));
-+	if (!bb)
-+		return ERR_PTR(-ENOMEM);
-+
-+	bb->type = type;
-+	bb->blkaddr = NULL_ADDR;
-+	bb->buffers.off = 0;
-+	init_list_head(&bb->buffers.list);
-+	list_add_tail(&bb->list, &blkh.list);
-+
-+	bh = malloc(sizeof(struct erofs_buffer_head));
-+	if (!bh) {
-+		free(bb);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+found:
-+	ret = __erofs_battach(bb, bh, size, alignsize,
-+			      required_ext + inline_ext, false);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+	return bh;
++	c->private_data = LZ4_createStreamHC();
++	if (!c->private_data)
++		return -ENOMEM;
++	return 0;
 +}
 +
-+struct erofs_buffer_head *erofs_battach(struct erofs_buffer_head *bh,
-+					int type, int size)
-+{
-+	struct erofs_buffer_block *const bb = bh->block;
-+	struct erofs_buffer_head *nbh;
-+	unsigned int alignsize;
-+	int ret = get_alignsize(type, &type);
-+
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+	alignsize = ret;
-+
-+	/* should be the tail bh in the corresponding buffer block */
-+	if (bh->list.next != &bb->buffers.list)
-+		return ERR_PTR(-EINVAL);
-+
-+	nbh = malloc(sizeof(*nbh));
-+	if (!nbh)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ret = __erofs_battach(bb, nbh, size, alignsize, 0, false);
-+	if (ret < 0) {
-+		free(nbh);
-+		return ERR_PTR(ret);
-+	}
-+	return nbh;
-+
-+}
-+
-+static erofs_blk_t __erofs_mapbh(struct erofs_buffer_block *bb)
-+{
-+	erofs_blk_t blkaddr;
-+
-+	if (bb->blkaddr == NULL_ADDR)
-+		bb->blkaddr = tail_blkaddr;
-+
-+	blkaddr = bb->blkaddr + BLK_ROUND_UP(bb->buffers.off);
-+	if (blkaddr > tail_blkaddr)
-+		tail_blkaddr = blkaddr;
-+
-+	return blkaddr;
-+}
-+
-+erofs_blk_t erofs_mapbh(struct erofs_buffer_block *bb, bool end)
-+{
-+	struct erofs_buffer_block *t, *nt;
-+
-+	if (!bb || bb->blkaddr == NULL_ADDR) {
-+		list_for_each_entry_safe(t, nt, &blkh.list, list) {
-+			if (!end && (t == bb || nt == &blkh))
-+				break;
-+			(void)__erofs_mapbh(t);
-+			if (end && t == bb)
-+				break;
-+		}
-+	}
-+	return tail_blkaddr;
-+}
-+
-+bool erofs_bflush(struct erofs_buffer_block *bb)
-+{
-+	static const char zero[EROFS_BLKSIZ] = {0};
-+	struct erofs_buffer_block *p, *n;
-+	erofs_blk_t blkaddr;
-+
-+	list_for_each_entry_safe(p, n, &blkh.list, list) {
-+		struct erofs_buffer_head *bh, *nbh;
-+		unsigned int padding;
-+		bool skip = false;
-+
-+		if (p == bb)
-+			break;
-+
-+		/* check if the buffer block can flush */
-+		list_for_each_entry(bh, &p->buffers.list, list)
-+			if (bh->op->preflush && !bh->op->preflush(bh))
-+				return false;
-+
-+		blkaddr = __erofs_mapbh(p);
-+
-+		list_for_each_entry_safe(bh, nbh, &p->buffers.list, list) {
-+			/* flush and remove bh */
-+			if (!bh->op->flush(bh))
-+				skip = true;
-+		}
-+
-+		if (skip)
-+			continue;
-+
-+		padding = EROFS_BLKSIZ - p->buffers.off % EROFS_BLKSIZ;
-+		if (padding != EROFS_BLKSIZ)
-+			dev_write(zero, blknr_to_addr(blkaddr) - padding,
-+				  padding);
-+
-+		DBG_BUGON(!list_empty(&p->buffers.list));
-+
-+		erofs_dbg("block %u to %u flushed", p->blkaddr, blkaddr - 1);
-+
-+		list_del(&p->list);
-+		free(p);
-+	}
-+	return true;
-+}
-+
-+void erofs_bdrop(struct erofs_buffer_head *bh, bool tryrevoke)
-+{
-+	struct erofs_buffer_block *const bb = bh->block;
-+	const erofs_blk_t blkaddr = bh->block->blkaddr;
-+	bool rollback = false;
-+
-+	/* tail_blkaddr could be rolled back after revoking all bhs */
-+	if (tryrevoke && blkaddr != NULL_ADDR &&
-+	    tail_blkaddr == blkaddr + BLK_ROUND_UP(bb->buffers.off))
-+		rollback = true;
-+
-+	bh->op = &erofs_drop_directly_bhops;
-+	erofs_bh_flush_generic_end(bh);
-+
-+	if (!list_empty(&bb->buffers.list))
-+		return;
-+
-+	list_del(&bb->list);
-+	free(bb);
-+
-+	if (rollback)
-+		tail_blkaddr = blkaddr;
-+}
++struct erofs_compressor erofs_compressor_lz4hc = {
++	.default_level = LZ4HC_CLEVEL_DEFAULT,
++	.best_level = LZ4HC_CLEVEL_MAX,
++	.init = compressor_lz4hc_init,
++	.exit = compressor_lz4hc_exit,
++	.compress_destsize = lz4hc_compress_destsize,
++};
 +
 -- 
 2.17.1
