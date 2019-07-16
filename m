@@ -1,174 +1,206 @@
-From: pratikshinde320@gmail.com (Pratik Shinde)
-Date: Mon, 15 Jul 2019 17:51:27 +0530
-Subject: [PATCH v4] staging: erofs:converting all 'unsigned' to 'unsigned int'
-Message-ID: <20190715122127.13733-1-pratikshinde320@gmail.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Tue, 16 Jul 2019 15:04:06 +0800
+Subject: [PATCH v2 04/17] erofs-utils: add input/output functions
+In-Reply-To: <20190716070419.30203-1-gaoxiang25@huawei.com>
+References: <20190716070419.30203-1-gaoxiang25@huawei.com>
+Message-ID: <20190716070419.30203-5-gaoxiang25@huawei.com>
 
-Fixed checkpatch warnings: converting all 'unsigned' to 'unsigned int'
+From: Li Guifu <bluce.liguifu@huawei.com>
 
-Signed-off-by: Pratik Shinde <pratikshinde320 at gmail.com>
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+This patch adds definitions and functions which are
+mainly used for reading and writing target image files.
+
+Signed-off-by: Li Guifu <bluce.liguifu at huawei.com>
+Signed-off-by: Miao Xie <miaoxie at huawei.com>
+Signed-off-by: Fang Wei <fangwei1 at huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h      |  7 ++++---
- drivers/staging/erofs/unzip_pagevec.h | 11 ++++++-----
- drivers/staging/erofs/unzip_vle.h     |  8 ++++----
- drivers/staging/erofs/xattr.h         | 17 +++++++++--------
- 4 files changed, 23 insertions(+), 20 deletions(-)
+ include/erofs/io.h |  33 ++++++++++++
+ lib/Makefile.am    |   2 +-
+ lib/io.c           | 123 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+), 1 deletion(-)
+ create mode 100644 include/erofs/io.h
+ create mode 100644 lib/io.c
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 963cc1b..0ebc294 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -359,8 +359,8 @@ struct erofs_vnode {
- 	unsigned char inode_isize;
- 	unsigned short xattr_isize;
- 
--	unsigned xattr_shared_count;
--	unsigned *xattr_shared_xattrs;
-+	unsigned int xattr_shared_count;
-+	unsigned int *xattr_shared_xattrs;
- 
- 	union {
- 		erofs_blk_t raw_blkaddr;
-@@ -510,7 +510,8 @@ erofs_grab_bio(struct super_block *sb,
- 	return bio;
- }
- 
--static inline void __submit_bio(struct bio *bio, unsigned op, unsigned op_flags)
-+static inline void __submit_bio(struct bio *bio, unsigned int op,
-+				unsigned int op_flags)
- {
- 	bio_set_op_attrs(bio, op, op_flags);
- 	submit_bio(bio);
-diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
-index 7af0ba8..e65dbca 100644
---- a/drivers/staging/erofs/unzip_pagevec.h
-+++ b/drivers/staging/erofs/unzip_pagevec.h
-@@ -54,9 +54,9 @@ static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
- 
- static inline struct page *
- z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
--			       unsigned nr)
-+			       unsigned int nr)
- {
--	unsigned index;
-+	unsigned int index;
- 
- 	/* keep away from occupied pages */
- 	if (ctor->next)
-@@ -64,7 +64,7 @@ z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
- 
- 	for (index = 0; index < nr; ++index) {
- 		const erofs_vtptr_t t = ctor->pages[index];
--		const unsigned tags = tagptr_unfold_tags(t);
-+		const unsigned int tags = tagptr_unfold_tags(t);
- 
- 		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
- 			return tagptr_unfold_ptr(t);
-@@ -91,8 +91,9 @@ z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
- }
- 
- static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
--					     unsigned nr,
--					     erofs_vtptr_t *pages, unsigned i)
-+					     unsigned int nr,
-+					     erofs_vtptr_t *pages,
-+					     unsigned int i)
- {
- 	ctor->nr = nr;
- 	ctor->curr = ctor->next = NULL;
-diff --git a/drivers/staging/erofs/unzip_vle.h b/drivers/staging/erofs/unzip_vle.h
-index ab509d75..df91ad1 100644
---- a/drivers/staging/erofs/unzip_vle.h
-+++ b/drivers/staging/erofs/unzip_vle.h
-@@ -34,7 +34,7 @@ struct z_erofs_vle_work {
- 	unsigned short nr_pages;
- 
- 	/* L: queued pages in pagevec[] */
--	unsigned vcnt;
-+	unsigned int vcnt;
- 
- 	union {
- 		/* L: pagevec */
-@@ -124,7 +124,7 @@ union z_erofs_onlinepage_converter {
- 	unsigned long *v;
- };
- 
--static inline unsigned z_erofs_onlinepage_index(struct page *page)
-+static inline unsigned int z_erofs_onlinepage_index(struct page *page)
- {
- 	union z_erofs_onlinepage_converter u;
- 
-@@ -164,7 +164,7 @@ static inline void z_erofs_onlinepage_fixup(struct page *page,
- 	}
- 
- 	v = (index << Z_EROFS_ONLINEPAGE_INDEX_SHIFT) |
--		((o & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned)down);
-+		((o & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned int)down);
- 	if (cmpxchg(p, o, v) != o)
- 		goto repeat;
- }
-@@ -172,7 +172,7 @@ static inline void z_erofs_onlinepage_fixup(struct page *page,
- static inline void z_erofs_onlinepage_endio(struct page *page)
- {
- 	union z_erofs_onlinepage_converter u;
--	unsigned v;
-+	unsigned int v;
- 
- 	DBG_BUGON(!PagePrivate(page));
- 	u.v = &page_private(page);
-diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
-index 35ba5ac..3990805 100644
---- a/drivers/staging/erofs/xattr.h
-+++ b/drivers/staging/erofs/xattr.h
-@@ -20,14 +20,14 @@
- /* Attribute not found */
- #define ENOATTR         ENODATA
- 
--static inline unsigned inlinexattr_header_size(struct inode *inode)
-+static inline unsigned int inlinexattr_header_size(struct inode *inode)
- {
- 	return sizeof(struct erofs_xattr_ibody_header)
- 		+ sizeof(u32) * EROFS_V(inode)->xattr_shared_count;
- }
- 
--static inline erofs_blk_t
--xattrblock_addr(struct erofs_sb_info *sbi, unsigned xattr_id)
-+static inline erofs_blk_t xattrblock_addr(struct erofs_sb_info *sbi,
-+					  unsigned int xattr_id)
- {
- #ifdef CONFIG_EROFS_FS_XATTR
- 	return sbi->xattr_blkaddr +
-@@ -37,8 +37,8 @@ xattrblock_addr(struct erofs_sb_info *sbi, unsigned xattr_id)
- #endif
- }
- 
--static inline unsigned
--xattrblock_offset(struct erofs_sb_info *sbi, unsigned xattr_id)
-+static inline unsigned int xattrblock_offset(struct erofs_sb_info *sbi,
-+					     unsigned int xattr_id)
- {
- 	return (xattr_id * sizeof(__u32)) % EROFS_BLKSIZ;
- }
-@@ -49,7 +49,7 @@ extern const struct xattr_handler erofs_xattr_trusted_handler;
- extern const struct xattr_handler erofs_xattr_security_handler;
- #endif
- 
--static inline const struct xattr_handler *erofs_xattr_handler(unsigned index)
-+static inline const struct xattr_handler *erofs_xattr_handler(unsigned int idx)
- {
- static const struct xattr_handler *xattr_handler_map[] = {
- 	[EROFS_XATTR_INDEX_USER] = &erofs_xattr_user_handler,
-@@ -63,8 +63,9 @@ static const struct xattr_handler *xattr_handler_map[] = {
- 	[EROFS_XATTR_INDEX_SECURITY] = &erofs_xattr_security_handler,
- #endif
- };
--	return index && index < ARRAY_SIZE(xattr_handler_map) ?
--		xattr_handler_map[index] : NULL;
+diff --git a/include/erofs/io.h b/include/erofs/io.h
+new file mode 100644
+index 0000000..9471388
+--- /dev/null
++++ b/include/erofs/io.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * erofs_utils/include/erofs/io.h
++ *
++ * Copyright (C) 2018-2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#ifndef __EROFS_IO_H
++#define __EROFS_IO_H
 +
-+	return idx && idx < ARRAY_SIZE(xattr_handler_map) ?
-+		xattr_handler_map[idx] : NULL;
- }
++#include <unistd.h>
++#include "internal.h"
++
++#ifndef O_BINARY
++#define O_BINARY	0
++#endif
++
++int dev_open(const char *devname);
++void dev_close(void);
++int dev_write(const void *buf, u64 offset, size_t len);
++int dev_fsync(void);
++u64 dev_length(void);
++
++static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
++			    u32 nblocks)
++{
++	return dev_write(buf, blknr_to_addr(blkaddr),
++			 blknr_to_addr(nblocks));
++}
++
++#endif
++
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 6f1da26..a2c1b24 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -2,6 +2,6 @@
+ # Makefile.am
  
- #ifdef CONFIG_EROFS_FS_XATTR
+ noinst_LTLIBRARIES = liberofs.la
+-liberofs_la_SOURCES = config.c
++liberofs_la_SOURCES = config.c io.c
+ liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ 
+diff --git a/lib/io.c b/lib/io.c
+new file mode 100644
+index 0000000..f624535
+--- /dev/null
++++ b/lib/io.c
+@@ -0,0 +1,123 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs_utils/lib/io.c
++ *
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Li Guifu <bluce.liguifu at huawei.com>
++ */
++#define _LARGEFILE64_SOURCE
++#include <sys/stat.h>
++#include "erofs/io.h"
++
++#define pr_fmt(fmt) "EROFS IO: " FUNC_LINE_FMT fmt "\n"
++#include "erofs/print.h"
++
++static const char *erofs_devname;
++static int erofs_devfd = -1;
++static u64 erofs_devsz;
++
++void dev_close(void)
++{
++	close(erofs_devfd);
++	erofs_devname = NULL;
++	erofs_devfd   = -1;
++	erofs_devsz   = 0;
++}
++
++int dev_open(const char *dev)
++{
++	struct stat st;
++	int fd, ret;
++
++	fd = open(dev, O_RDWR | O_CREAT | O_BINARY, 0644);
++	if (fd < 0) {
++		erofs_err("failed to open(%s).", dev);
++		return -errno;
++	}
++
++	ret = fstat(fd, &st);
++	if (ret) {
++		erofs_err("failed to fstat(%s).", dev);
++		close(fd);
++		return -errno;
++	}
++
++	switch (st.st_mode & S_IFMT) {
++	case S_IFBLK:
++		erofs_devsz = st.st_size;
++		break;
++	case S_IFREG:
++		ret = ftruncate(fd, 0);
++		if (ret) {
++			erofs_err("failed to ftruncate(%s).", dev);
++			close(fd);
++			return -errno;
++		}
++		/* INT64_MAX is the limit of kernel vfs */
++		erofs_devsz = INT64_MAX;
++		break;
++	default:
++		erofs_err("bad file type (%s, %o).", dev, st.st_mode);
++		close(fd);
++		return -EINVAL;
++	}
++
++	erofs_devname = dev;
++	erofs_devfd = fd;
++	erofs_devsz = round_down(erofs_devsz, EROFS_BLKSIZ);
++
++	erofs_info("successfully to open %s", dev);
++	return 0;
++}
++
++u64 dev_length(void)
++{
++	return erofs_devsz;
++}
++
++int dev_write(const void *buf, u64 offset, size_t len)
++{
++	int ret;
++
++	if (cfg.c_dry_run)
++		return 0;
++
++	if (!buf) {
++		erofs_err("buf is NULL");
++		return -EINVAL;
++	}
++
++	if (offset >= erofs_devsz || len > erofs_devsz ||
++	    offset > erofs_devsz - len) {
++		erofs_err("Write posion[%" PRIu64 ", %zd] is too large beyond the end of device(%" PRIu64 ").",
++			  offset, len, erofs_devsz);
++		return -EINVAL;
++	}
++
++	ret = pwrite64(erofs_devfd, buf, len, (off64_t)offset);
++	if (ret != (int)len) {
++		if (ret < 0) {
++			erofs_err("Failed to write data into device - %s:[%" PRIu64 ", %zd].",
++				  erofs_devname, offset, len);
++			return -errno;
++		}
++
++		erofs_err("Writing data into device - %s:[%" PRIu64 ", %zd] - was truncated.",
++			  erofs_devname, offset, len);
++		return -ERANGE;
++	}
++	return 0;
++}
++
++int dev_fsync(void)
++{
++	int ret;
++
++	ret = fsync(erofs_devfd);
++	if (ret) {
++		erofs_err("Could not fsync device!!!");
++		return -EIO;
++	}
++	return 0;
++}
 -- 
-2.9.3
+2.17.1
