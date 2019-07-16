@@ -1,14 +1,40 @@
-From: gregkh@linuxfoundation.org (Greg KH)
-Date: Wed, 17 Jul 2019 04:03:58 +0900
-Subject: [PATCH] staging: erofs: fix typo
-In-Reply-To: <1563295663-312-1-git-send-email-karen.palacio.1994@gmail.com>
-References: <1563295663-312-1-git-send-email-karen.palacio.1994@gmail.com>
-Message-ID: <20190716190358.GB20227@kroah.com>
+From: karen.palacio.1994@gmail.com (Karen Palacio)
+Date: Tue, 16 Jul 2019 18:16:23 -0300
+Subject: [PATCH] v2: staging: erofs: fix typo
+Message-ID: <1563311783-12754-1-git-send-email-karen.palacio.1994@gmail.com>
 
-On Tue, Jul 16, 2019@01:47:43PM -0300, Karen Palacio wrote:
-> Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
-> ---
->  drivers/staging/erofs/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Fix typo in Kconfig
+Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
 
-I can not take patches without any changelog text, sorry.
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index d04b798..0dcefac 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
+          If unsure, leave the default value (5 retries, 6 IOs at most).
+
+ config EROFS_FS_ZIP
+-       bool "EROFS Data Compresssion Support"
++       bool "EROFS Data Compression Support"
+        depends on EROFS_FS
+        select LZ4_DECOMPRESS
+        help
+---
+ drivers/staging/erofs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index d04b798..0dcefac 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
+ 	  If unsure, leave the default value (5 retries, 6 IOs at most).
+ 
+ config EROFS_FS_ZIP
+-	bool "EROFS Data Compresssion Support"
++	bool "EROFS Data Compression Support"
+ 	depends on EROFS_FS
+ 	select LZ4_DECOMPRESS
+ 	help
+-- 
+2.7.4
