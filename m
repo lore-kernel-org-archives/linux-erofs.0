@@ -1,18 +1,138 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 16 Jul 2019 20:17:30 +0800
-Subject: [PATCH v2] staging: erofs: avoid opened loop codes
-In-Reply-To: <20190716094422.110805-1-yuchao0@huawei.com>
-References: <20190716094422.110805-1-yuchao0@huawei.com>
-Message-ID: <e0725b60-c6d2-1590-c974-f79e085e8cb8@huawei.com>
+From: karen.palacio.1994@gmail.com (Karen Palacio)
+Date: Tue, 16 Jul 2019 13:35:42 -0300
+Subject: [PATCH] staging: erofs: a few minor style fixes found using checkpatch
+Message-ID: <1563294942-31395-1-git-send-email-karen.palacio.1994@gmail.com>
 
+Fix camel case use in variable names,
+Fix multiple assignments done in a single line,
+Fix end of line containing '('.
 
+Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
+---
+ drivers/staging/erofs/super.c | 55 ++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 27 deletions(-)
 
-On 2019/7/16 17:44, Chao Yu wrote:
-> Use __GFP_NOFAIL to avoid opened loop codes in z_erofs_vle_unzip().
-> 
-> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
-
-Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-Thanks,
-Gao Xiang
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 5449441..e281125 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -228,21 +228,21 @@ static void default_options(struct erofs_sb_info *sbi)
+ }
+ 
+ enum {
+-	Opt_user_xattr,
+-	Opt_nouser_xattr,
+-	Opt_acl,
+-	Opt_noacl,
+-	Opt_fault_injection,
+-	Opt_err
++	opt_user_xattr,
++	opt_nouser_xattr,
++	opt_acl,
++	opt_noacl,
++	opt_fault_injection,
++	opt_err
+ };
+ 
+ static match_table_t erofs_tokens = {
+-	{Opt_user_xattr, "user_xattr"},
+-	{Opt_nouser_xattr, "nouser_xattr"},
+-	{Opt_acl, "acl"},
+-	{Opt_noacl, "noacl"},
+-	{Opt_fault_injection, "fault_injection=%u"},
+-	{Opt_err, NULL}
++	{opt_user_xattr, "user_xattr"},
++	{opt_nouser_xattr, "nouser_xattr"},
++	{opt_acl, "acl"},
++	{opt_noacl, "noacl"},
++	{opt_fault_injection, "fault_injection=%u"},
++	{opt_err, NULL}
+ };
+ 
+ static int parse_options(struct super_block *sb, char *options)
+@@ -260,41 +260,42 @@ static int parse_options(struct super_block *sb, char *options)
+ 		if (!*p)
+ 			continue;
+ 
+-		args[0].to = args[0].from = NULL;
++		args[0].to = NULL;
++		args[0].from = NULL;
+ 		token = match_token(p, erofs_tokens, args);
+ 
+ 		switch (token) {
+ #ifdef CONFIG_EROFS_FS_XATTR
+-		case Opt_user_xattr:
++		case opt_user_xattr:
+ 			set_opt(EROFS_SB(sb), XATTR_USER);
+ 			break;
+-		case Opt_nouser_xattr:
++		case opt_nouser_xattr:
+ 			clear_opt(EROFS_SB(sb), XATTR_USER);
+ 			break;
+ #else
+-		case Opt_user_xattr:
++		case opt_user_xattr:
+ 			infoln("user_xattr options not supported");
+ 			break;
+-		case Opt_nouser_xattr:
++		case opt_nouser_xattr:
+ 			infoln("nouser_xattr options not supported");
+ 			break;
+ #endif
+ #ifdef CONFIG_EROFS_FS_POSIX_ACL
+-		case Opt_acl:
++		case opt_acl:
+ 			set_opt(EROFS_SB(sb), POSIX_ACL);
+ 			break;
+-		case Opt_noacl:
++		case opt_noacl:
+ 			clear_opt(EROFS_SB(sb), POSIX_ACL);
+ 			break;
+ #else
+-		case Opt_acl:
++		case opt_acl:
+ 			infoln("acl options not supported");
+ 			break;
+-		case Opt_noacl:
++		case opt_noacl:
+ 			infoln("noacl options not supported");
+ 			break;
+ #endif
+-		case Opt_fault_injection:
++		case opt_fault_injection:
+ 			err = erofs_build_fault_attr(EROFS_SB(sb), args);
+ 			if (err)
+ 				return err;
+@@ -525,7 +526,6 @@ static void erofs_put_super(struct super_block *sb)
+ 	sb->s_fs_info = NULL;
+ }
+ 
+-
+ struct erofs_mount_private {
+ 	const char *dev_name;
+ 	char *options;
+@@ -541,9 +541,9 @@ static int erofs_fill_super(struct super_block *sb,
+ 		priv->options, silent);
+ }
+ 
+-static struct dentry *erofs_mount(
+-	struct file_system_type *fs_type, int flags,
+-	const char *dev_name, void *data)
++static struct dentry *erofs_mount(struct file_system_type *fs_type,
++				  int flags,
++				  const char *dev_name, void *data)
+ {
+ 	struct erofs_mount_private priv = {
+ 		.dev_name = dev_name,
+@@ -623,7 +623,8 @@ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	buf->f_type = sb->s_magic;
+ 	buf->f_bsize = EROFS_BLKSIZ;
+ 	buf->f_blocks = sbi->blocks;
+-	buf->f_bfree = buf->f_bavail = 0;
++	buf->f_bfree = 0;
++	buf->f_bavail = 0;
+ 
+ 	buf->f_files = ULLONG_MAX;
+ 	buf->f_ffree = ULLONG_MAX - sbi->inos;
+-- 
+2.7.4
