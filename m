@@ -1,45 +1,82 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Tue, 16 Jul 2019 16:52:59 +0800
-Subject: [PATCH] staging: erofs: avoid opened loop codes
-Message-ID: <20190716085259.103481-1-yuchao0@huawei.com>
+Date: Tue, 16 Jul 2019 17:01:15 +0800
+Subject: [PATCH] staging: erofs: support bmap
+In-Reply-To: <b744f9aa-782a-1f29-22da-8bce6ed566d5@huawei.com>
+References: <20190716070543.88863-1-yuchao0@huawei.com>
+ <ed011d9f-6fdc-a8ee-8a18-c94875bbfa53@huawei.com>
+ <67b812f6-618d-d390-66f0-7f5eaf2cb6ed@huawei.com>
+ <b744f9aa-782a-1f29-22da-8bce6ed566d5@huawei.com>
+Message-ID: <a4428098-0587-9932-0086-61d3b6c855d2@huawei.com>
 
-Use __GFP_NOFAIL to avoid opened loop codes in z_erofs_vle_unzip().
+On 2019/7/16 15:37, Gao Xiang wrote:
+> 
+> 
+> On 2019/7/16 15:35, Chao Yu wrote:
+>> Hi Xiang,
+>>
+>> On 2019/7/16 15:19, Gao Xiang wrote:
+>>> Hi Chao,
+>>>
+>>> On 2019/7/16 15:05, Chao Yu wrote:
+>>>> Add erofs_bmap() to support FIBMAP ioctl on flatmode inode.
+>>>>
+>>>> Signed-off-by: Chao Yu <yuchao0 at huawei.com>
+>>>> ---
+>>>>  drivers/staging/erofs/data.c | 29 +++++++++++++++++++++++++++++
+>>>>  1 file changed, 29 insertions(+)
+>>>>
+>>>> diff --git a/drivers/staging/erofs/data.c b/drivers/staging/erofs/data.c
+>>>> index fbce71403d87..03da57f04347 100644
+>>>> --- a/drivers/staging/erofs/data.c
+>>>> +++ b/drivers/staging/erofs/data.c
+>>>> @@ -308,9 +308,38 @@ static int erofs_raw_access_readpages(struct file *filp,
+>>>>  	return iomap_readpages(mapping, pages, nr_pages, &erofs_iomap_ops);
+>>>>  }
+>>>>  
+>>>> +static int erofs_get_block(struct inode *inode, sector_t iblock,
+>>>> +			   struct buffer_head *bh, int create)
+>>>> +{
+>>>> +	struct erofs_map_blocks map = {
+>>>> +		.m_la = iblock << 9,
+>>>> +	};
+>>>> +	int err;
+>>>> +
+>>>> +	err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
+>>>> +	if (err)
+>>>> +		return err;
+>>>> +
+>>>> +	if (map.m_flags & EROFS_MAP_MAPPED)
+>>>> +		bh->b_blocknr = erofs_blknr(map.m_pa);
+>>>> +
+>>>> +	return err;
+>>>> +}
+>>>> +
+>>>> +static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
+>>>> +{
+>>>> +	struct inode *inode = mapping->host;
+>>>> +
+>>>> +	if (is_inode_flat_inline(inode))
+>>>> +		return 0;
+>>>
+>>> could we support flat_inline as well? some difficulty on this?
+>>
+>> I think we can support partial of this on inline inode, e.g.:
+>>
+>> [0, 4k] mapped
+>> [4k, 5k] inline
+>>
+>> We can find and return the physical block address for first block, but for last
+>> block locating in metadata, we should just return 0 (0 indicate bmap has failed
+>> to get mapped block address).
+> 
+> I think that is fine (in the long term, FIEMAP is preferred of course.)
 
-Signed-off-by: Chao Yu <yuchao0 at huawei.com>
----
- drivers/staging/erofs/unzip_vle.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+Right, I can take a look at fiemap() implementation.
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f0dab81ff816..3a0dbcb8cc9f 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -921,18 +921,17 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 		 mutex_trylock(&z_pagemap_global_lock))
- 		pages = z_pagemap_global;
- 	else {
--repeat:
--		pages = kvmalloc_array(nr_pages, sizeof(struct page *),
--				       GFP_KERNEL);
-+		gfp_t flags = GFP_KERNEL;
-+
-+		if (nr_pages > Z_EROFS_VLE_VMAP_GLOBAL_PAGES)
-+			flags |= __GFP_NOFAIL;
-+
-+		pages = kvmalloc_array(nr_pages, sizeof(struct page *), flags);
- 
- 		/* fallback to global pagemap for the lowmem scenario */
- 		if (unlikely(!pages)) {
--			if (nr_pages > Z_EROFS_VLE_VMAP_GLOBAL_PAGES)
--				goto repeat;
--			else {
--				mutex_lock(&z_pagemap_global_lock);
--				pages = z_pagemap_global;
--			}
-+			mutex_lock(&z_pagemap_global_lock);
-+			pages = z_pagemap_global;
- 		}
- 	}
- 
--- 
-2.18.0.rc1
+Thanks,
+
+> 
+> Thanks,
+> Gao Xiang
+> .
+> 
