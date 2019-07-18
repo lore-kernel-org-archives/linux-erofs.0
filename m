@@ -1,12 +1,27 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 18 Jul 2019 11:19:14 +0800
-Subject: =?UTF-8?B?UmU6IOWbnuWkje+8mmVyb3PmgKfog73pl67popg=?=
-In-Reply-To: <tencent_4AE55DADBCB537681FA35D97D66948F2E209@qq.com>
+From: 353779207@qq.com (=?gb18030?B?WkhPVQ==?=)
+Date: Thu, 18 Jul 2019 11:24:29 +0800
+Subject: =?gb18030?B?u9i4tKO6u9i4tKO6ZXJvc9DUxNzOyszi?=
 References: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
  <d3efd7a5-c781-6163-d04a-c2e6382ea760@huawei.com>
  <c85d590a-2eed-2501-b144-33a95fc0bec2@huawei.com>
  <tencent_4AE55DADBCB537681FA35D97D66948F2E209@qq.com>
-Message-ID: <5050b57d-bf2d-9615-fb2c-9f3edfbd84d5@huawei.com>
+ <5050b57d-bf2d-9615-fb2c-9f3edfbd84d5@huawei.com>
+Message-ID: <tencent_EE6B36FC1F655D8BD645489CE3A15DB1BC09@qq.com>
+
+?? ?????erofs??? ???????????? ????xattr???????share??????android????????????????security???????kernel?
+
+
+B.R
+
+
+------------------ ???? ------------------
+???: Gao Xiang <gaoxiang25 at huawei.com>
+????: 2019?7?18? 11:19
+???: ZHOU <353779207 at qq.com>
+??: Miao Xie <miaoxie at huawei.com>, linux-erofs <linux-erofs at lists.ozlabs.org>
+??: ??????eros????
+
+
 
 
 
@@ -43,3 +58,6 @@ On 2019/7/18 11:15, ZHOU wrote:
 > 
 > ??????????direct I/O?????direct I/O????????direct I/O?????
 > ??????direct I/O?????
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190718/f3c288f3/attachment.htm>
