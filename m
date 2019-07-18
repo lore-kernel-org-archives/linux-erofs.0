@@ -1,8 +1,7 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 18 Jul 2019 11:45:13 +0800
-Subject: =?UTF-8?B?UmU6IOWbnuWkje+8muWbnuWkje+8muWbnuWkje+8mmVyb3PmgKfog70=?=
- =?UTF-8?B?6Zeu6aKY?=
-In-Reply-To: <tencent_5C79776DF03DE2BACEAFEB9154C623BBDE0A@qq.com>
+From: 353779207@qq.com (=?gb18030?B?WkhPVQ==?=)
+Date: Thu, 18 Jul 2019 11:53:51 +0800
+Subject: =?gb18030?B?u9i4tKO6u9i4tKO6u9i4tKO6u9i4tKO6ZXJvc9DU?=
+ =?gb18030?B?xNzOyszi?=
 References: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
  <d3efd7a5-c781-6163-d04a-c2e6382ea760@huawei.com>
  <c85d590a-2eed-2501-b144-33a95fc0bec2@huawei.com>
@@ -11,7 +10,31 @@ References: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
  <tencent_EE6B36FC1F655D8BD645489CE3A15DB1BC09@qq.com>
  <4c80715b-8f99-86be-a8b3-532b65152e1a@huawei.com>
  <tencent_5C79776DF03DE2BACEAFEB9154C623BBDE0A@qq.com>
-Message-ID: <7c6cad42-fb76-f1c2-aa92-d69804ab043e@huawei.com>
+ <7c6cad42-fb76-f1c2-aa92-d69804ab043e@huawei.com>
+Message-ID: <tencent_0BD779EFFF0D86472057C7754612AFF86507@qq.com>
+
+iozone ????????open???O_RDONLY, ????-+E??????????????
+
+
+????
+B.R
+
+
+
+
+
+
+
+
+
+------------------ ???? ------------------
+???: Gao Xiang <gaoxiang25 at huawei.com>
+????: 2019?7?18? 11:46
+???: ZHOU <353779207 at qq.com>
+??: Miao Xie <miaoxie at huawei.com>, linux-erofs <linux-erofs at lists.ozlabs.org>
+??: ????????????eros????
+
+
 
 
 
@@ -93,3 +116,6 @@ loop??????????iozone??????????????????ext4????
 >>>
 >>> ??????????direct I/O?????direct I/O????????direct I/O?????
 >>> ??????direct I/O?????
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190718/50a60076/attachment.htm>
