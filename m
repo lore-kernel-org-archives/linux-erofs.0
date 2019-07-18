@@ -1,41 +1,71 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 18 Jul 2019 09:32:11 +0800
-Subject: erofs compilation failure.
-In-Reply-To: <CAGu0czSPMpsmWxxmBYk96t3ixO=_vnNXXveZNzR-dhQSg_mtfg@mail.gmail.com>
-References: <CAGu0czSPMpsmWxxmBYk96t3ixO=_vnNXXveZNzR-dhQSg_mtfg@mail.gmail.com>
-Message-ID: <56c96bca-fc01-fa3d-67e2-920a9c4afc61@huawei.com>
+From: 353779207@qq.com (=?gb18030?B?WkhPVQ==?=)
+Date: Thu, 18 Jul 2019 10:47:44 +0800
+Subject: =?gb18030?B?ZXJvc9DUxNzOyszi?=
+Message-ID: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
 
+Dear sir or madam,
 
+ 
 
-On 2019/7/18 3:47, Pratik Shinde wrote:
-> Hi All,
-> 
-> I hope this is the correct channel to talk about this issue.
-> I am trying to compile erofs with latest kernel source as follows:
-> 
-> ps at ps:~/linux/drivers/staging/erofs$ pwd
-> /home/ps/linux/drivers/staging/erofs
-> ps at ps:~/linux/drivers/staging/erofs$ ?make -C ~/linux? M=`pwd`
-> make: Entering directory '/home/ps/linux'
-> make[1]: *** No rule to make target '/home/ps/linux/drivers/staging/erofs/super.o', needed by '/home/ps/linux/drivers/staging/erofs/erofs.o'.? Stop.
-> Makefile:1612: recipe for target '_module_/home/ps/linux/drivers/staging/erofs' failed
-> make: *** [_module_/home/ps/linux/drivers/staging/erofs] Error 2
-> make: Leaving directory '/home/ps/linux'
-> 
-> I ran the above make command under strace, it looks like make is not able to locate dependent '.o' files, e.g data.o, super.o etc. But, its should compile those dependencies first ? In the strace I cannot see gcc invoked on this '.c' files.
-> 
-> Is this the correct way of compiling the source ?
+??????????erofs??????????????????
 
-seems not.. Actually the question is not for erofs development.
-I didn't observe any compile error on erofs.
+ 
 
-Could you please refer guides on the internet?
+??????erofs?????????android p???qcom sdm429? kernel 4.9,  emmc5.1??????
 
-Thanks,
-Gao Xiang
+??????kernel???4.19?????4.9?mkfs????mkfs-dev?
 
-> Help appreciated. !
-> 
-> Thank you.
-> --Pratik.
-> 
+????????xattr?capability???????????????????
+
+ 
+
+?????
+
+??????iozone???iozone????????????????????????????????
+
+??erofs????????./iozone -i 2 -s 300m -r 4k -+E -w -f ./vendor/tmp_file
+
+?????????????????????ext4????????
+
+vendor?????
+
+ext4                                      26113
+
+erofs no compress               20970
+
+erofs cp 4 ratio                    21485
+
+erofs cp 100 ratio                19949
+
+f2fs?userdata?                 32766
+
+ 
+
+loop???????????userdata?mount?tmp????
+
+ext4                        29561   30318  29531
+
+erofs cp 20 ratio     30525   30630  30037
+
+ 
+
+???????erofs?ext4???????
+
+ 
+
+?????????????ext4????????????????????????
+
+ 
+
+?????
+
+ 
+
+-- 
+
+Thanks & Regards,
+
+hengguo.zhou ???
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190718/7935027b/attachment.htm>
