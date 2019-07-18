@@ -1,10 +1,27 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 18 Jul 2019 11:09:00 +0800
-Subject: =?UTF-8?B?UmU6IGVyb3PmgKfog73pl67popg=?=
-In-Reply-To: <d3efd7a5-c781-6163-d04a-c2e6382ea760@huawei.com>
+From: 353779207@qq.com (=?gb18030?B?WkhPVQ==?=)
+Date: Thu, 18 Jul 2019 11:15:29 +0800
+Subject: =?gb18030?B?u9i4tKO6ZXJvc9DUxNzOyszi?=
 References: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
  <d3efd7a5-c781-6163-d04a-c2e6382ea760@huawei.com>
-Message-ID: <c85d590a-2eed-2501-b144-33a95fc0bec2@huawei.com>
+ <c85d590a-2eed-2501-b144-33a95fc0bec2@huawei.com>
+Message-ID: <tencent_4AE55DADBCB537681FA35D97D66948F2E209@qq.com>
+
+Dear xiang,
+????directIO,
+??,??????????????
+
+
+????
+
+
+------------------ ???? ------------------
+???: Gao Xiang <gaoxiang25 at huawei.com>
+????: 2019?7?18? 11:10
+???: ZHOU <353779207 at qq.com>
+??: Miao Xie <miaoxie at huawei.com>, linux-erofs <linux-erofs at lists.ozlabs.org>
+??: ???eros????
+
+
 
 
 
@@ -19,3 +36,6 @@ echo 3 > /proc/sys/vm/drop_caches
 
 ??????????direct I/O?????direct I/O????????direct I/O?????
 ??????direct I/O?????
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190718/e0e54c72/attachment.htm>
