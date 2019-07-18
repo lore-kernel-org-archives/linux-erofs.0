@@ -1,14 +1,39 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 18 Jul 2019 11:28:34 +0800
-Subject: =?UTF-8?B?UmU6IOWbnuWkje+8muWbnuWkje+8mmVyb3PmgKfog73pl67popg=?=
-In-Reply-To: <tencent_EE6B36FC1F655D8BD645489CE3A15DB1BC09@qq.com>
+From: 353779207@qq.com (=?gb18030?B?WkhPVQ==?=)
+Date: Thu, 18 Jul 2019 11:39:45 +0800
+Subject: =?gb18030?B?u9i4tKO6u9i4tKO6u9i4tKO6ZXJvc9DUxNzOyszi?=
 References: <tencent_43D5609D92443B9ED755C87B7843FA71D705@qq.com>
  <d3efd7a5-c781-6163-d04a-c2e6382ea760@huawei.com>
  <c85d590a-2eed-2501-b144-33a95fc0bec2@huawei.com>
  <tencent_4AE55DADBCB537681FA35D97D66948F2E209@qq.com>
  <5050b57d-bf2d-9615-fb2c-9f3edfbd84d5@huawei.com>
  <tencent_EE6B36FC1F655D8BD645489CE3A15DB1BC09@qq.com>
-Message-ID: <4c80715b-8f99-86be-a8b3-532b65152e1a@huawei.com>
+ <4c80715b-8f99-86be-a8b3-532b65152e1a@huawei.com>
+Message-ID: <tencent_5C79776DF03DE2BACEAFEB9154C623BBDE0A@qq.com>
+
+????config CONFIG_EROFS_FS_ZIP_CACHE_BIPOLAR ???????
+??????????????????loop??erofs?ext4????????????LBA?
+
+
+???????
+
+
+B.R
+
+
+
+
+
+
+
+
+------------------ ???? ------------------
+???: Gao Xiang <gaoxiang25 at huawei.com>
+????: 2019?7?18? 11:28
+???: ZHOU <353779207 at qq.com>
+??: Miao Xie <miaoxie at huawei.com>, linux-erofs <linux-erofs at lists.ozlabs.org>
+??: ?????????eros????
+
+
 
 
 
@@ -65,3 +90,6 @@ On 2019/7/18 11:24, ZHOU wrote:
 >>
 >> ??????????direct I/O?????direct I/O????????direct I/O?????
 >> ??????direct I/O?????
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190718/a9cf4523/attachment.htm>
