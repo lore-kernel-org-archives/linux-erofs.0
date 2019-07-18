@@ -1,41 +1,41 @@
-From: karen.palacio.1994@gmail.com (Karen Palacio)
-Date: Wed, 17 Jul 2019 17:11:19 -0300
-Subject: [PATCH] v3: staging: erofs: fix typo
-Message-ID: <1563394279-6719-1-git-send-email-karen.palacio.1994@gmail.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 18 Jul 2019 09:32:11 +0800
+Subject: erofs compilation failure.
+In-Reply-To: <CAGu0czSPMpsmWxxmBYk96t3ixO=_vnNXXveZNzR-dhQSg_mtfg@mail.gmail.com>
+References: <CAGu0czSPMpsmWxxmBYk96t3ixO=_vnNXXveZNzR-dhQSg_mtfg@mail.gmail.com>
+Message-ID: <56c96bca-fc01-fa3d-67e2-920a9c4afc61@huawei.com>
 
-Fix typo in Kconfig
 
-Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
 
-diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-index d04b798..0dcefac 100644
---- a/drivers/staging/erofs/Kconfig
-+++ b/drivers/staging/erofs/Kconfig
-@@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
-          If unsure, leave the default value (5 retries, 6 IOs at most).
+On 2019/7/18 3:47, Pratik Shinde wrote:
+> Hi All,
+> 
+> I hope this is the correct channel to talk about this issue.
+> I am trying to compile erofs with latest kernel source as follows:
+> 
+> ps at ps:~/linux/drivers/staging/erofs$ pwd
+> /home/ps/linux/drivers/staging/erofs
+> ps at ps:~/linux/drivers/staging/erofs$ ?make -C ~/linux? M=`pwd`
+> make: Entering directory '/home/ps/linux'
+> make[1]: *** No rule to make target '/home/ps/linux/drivers/staging/erofs/super.o', needed by '/home/ps/linux/drivers/staging/erofs/erofs.o'.? Stop.
+> Makefile:1612: recipe for target '_module_/home/ps/linux/drivers/staging/erofs' failed
+> make: *** [_module_/home/ps/linux/drivers/staging/erofs] Error 2
+> make: Leaving directory '/home/ps/linux'
+> 
+> I ran the above make command under strace, it looks like make is not able to locate dependent '.o' files, e.g data.o, super.o etc. But, its should compile those dependencies first ? In the strace I cannot see gcc invoked on this '.c' files.
+> 
+> Is this the correct way of compiling the source ?
 
- config EROFS_FS_ZIP
--       bool "EROFS Data Compresssion Support"
-+       bool "EROFS Data Compression Support"
-        depends on EROFS_FS
-        select LZ4_DECOMPRESS
-        help
----
- drivers/staging/erofs/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+seems not.. Actually the question is not for erofs development.
+I didn't observe any compile error on erofs.
 
-diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-index d04b798..0dcefac 100644
---- a/drivers/staging/erofs/Kconfig
-+++ b/drivers/staging/erofs/Kconfig
-@@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
- 	  If unsure, leave the default value (5 retries, 6 IOs at most).
- 
- config EROFS_FS_ZIP
--	bool "EROFS Data Compresssion Support"
-+	bool "EROFS Data Compression Support"
- 	depends on EROFS_FS
- 	select LZ4_DECOMPRESS
- 	help
--- 
-2.7.4
+Could you please refer guides on the internet?
+
+Thanks,
+Gao Xiang
+
+> Help appreciated. !
+> 
+> Thank you.
+> --Pratik.
+> 
