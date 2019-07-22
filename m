@@ -1,194 +1,123 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 22 Jul 2019 10:50:37 +0800
-Subject: [PATCH v3 18/24] erofs: introduce pagevec for decompression subsystem
+Date: Mon, 22 Jul 2019 10:50:40 +0800
+Subject: [PATCH v3 21/24] erofs: introduce LZ4 decompression inplace
 In-Reply-To: <20190722025043.166344-1-gaoxiang25@huawei.com>
 References: <20190722025043.166344-1-gaoxiang25@huawei.com>
-Message-ID: <20190722025043.166344-19-gaoxiang25@huawei.com>
+Message-ID: <20190722025043.166344-22-gaoxiang25@huawei.com>
 
-For each physical cluster, there is a straight-forward
-way of allocating a fixed or variable-sized array to
-record the corresponding file pages for its decompression
-if we decide to decompress these pages asynchronously
-(eg. read-ahead case), however it will take variable-sized
-on-heap memory compared with traditional uncompressed
-filesystems.
+compressed data will be usually loaded into last pages of
+the extent (the last page for 4k) for in-place decompression
+(more specifically, in-place IO), as ilustration below,
 
-This patch introduces a pagevec solution to reuse some
-allocated file page in the time-sharing approach to store
-parts of the array itself in order to minimize the extra
-memory overhead, thus only a small-sized constant array
-used for booting the whole array itself up will be needed.
+         start of compressed logical extent
+           |                          end of this logical extent
+           |                           |
+     ______v___________________________v________
+... |  page 6  |  page 7  |  page 8  |  page 9  | ...
+    |__________|__________|__________|__________|
+           .                         ^ .        ^
+           .                         |compressed|
+           .                         |   data   |
+           .                           .        .
+           |<          dstsize        >|<margin>|
+                                       oend     iend
+           op                        ip
+
+Therefore, it's possible to do decompression inplace (thus no
+memcpy at all) if the margin is sufficient and safe enough [1],
+and it can be implemented only for fixed-size output compression
+compared with fixed-size input compression.
+
+No memcpy for most of in-place IO (about 99% of enwik9) after
+decompression inplace is implemented and sequential read will
+be improved of course (see the following patches for test results).
+
+[1] https://github.com/lz4/lz4/commit/b17f578a919b7e6b078cede2d52be29dd48c8e8c
+    https://github.com/lz4/lz4/commit/5997e139f53169fa3a1c1b4418d2452a90b01602
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/zpvec.h | 159 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 159 insertions(+)
- create mode 100644 fs/erofs/zpvec.h
+ fs/erofs/decompressor.c | 36 ++++++++++++++++++++++++++++++++----
+ fs/erofs/erofs_fs.h     |  2 +-
+ 2 files changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
-new file mode 100644
-index 000000000000..292aee36d380
---- /dev/null
-+++ b/fs/erofs/zpvec.h
-@@ -0,0 +1,159 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * linux/fs/erofs/zpvec.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_ZPVEC_H
-+#define __EROFS_ZPVEC_H
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 2ee10bb7e440..18fcbd75423e 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -14,6 +14,9 @@
+ #endif
+ 
+ #define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
++#ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
++#define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
++#endif
+ 
+ struct z_erofs_decompressor {
+ 	/*
+@@ -112,7 +115,7 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ {
+ 	unsigned int inputmargin, inlen;
+ 	u8 *src;
+-	bool copied;
++	bool copied, support_0padding;
+ 	int ret;
+ 
+ 	if (rq->inputsize > PAGE_SIZE)
+@@ -120,13 +123,38 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ 
+ 	src = kmap_atomic(*rq->in);
+ 	inputmargin = 0;
++	support_0padding = false;
 +
-+#include "tagptr.h"
++	/* decompression inplace is only safe when 0padding is enabled */
++	if (EROFS_SB(rq->sb)->requirements & EROFS_REQUIREMENT_LZ4_0PADDING) {
++		support_0padding = true;
 +
-+/* page type in pagevec for decompress subsystem */
-+enum z_erofs_page_type {
-+	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
-+	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
++		while (!src[inputmargin & ~PAGE_MASK])
++			if (!(++inputmargin & ~PAGE_MASK))
++				break;
 +
-+	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
-+
-+	Z_EROFS_VLE_PAGE_TYPE_HEAD,
-+	Z_EROFS_VLE_PAGE_TYPE_MAX
-+};
-+
-+extern void __compiletime_error("Z_EROFS_PAGE_TYPE_EXCLUSIVE != 0")
-+	__bad_page_type_exclusive(void);
-+
-+/* pagevec tagged pointer */
-+typedef tagptr2_t	erofs_vtptr_t;
-+
-+/* pagevec collector */
-+struct z_erofs_pagevec_ctor {
-+	struct page *curr, *next;
-+	erofs_vtptr_t *pages;
-+
-+	unsigned int nr, index;
-+};
-+
-+static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
-+					     bool atomic)
-+{
-+	if (!ctor->curr)
-+		return;
-+
-+	if (atomic)
-+		kunmap_atomic(ctor->pages);
-+	else
-+		kunmap(ctor->curr);
-+}
-+
-+static inline struct page *
-+z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
-+			       unsigned int nr)
-+{
-+	unsigned int index;
-+
-+	/* keep away from occupied pages */
-+	if (ctor->next)
-+		return ctor->next;
-+
-+	for (index = 0; index < nr; ++index) {
-+		const erofs_vtptr_t t = ctor->pages[index];
-+		const unsigned int tags = tagptr_unfold_tags(t);
-+
-+		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
-+			return tagptr_unfold_ptr(t);
-+	}
-+	DBG_BUGON(nr >= ctor->nr);
-+	return NULL;
-+}
-+
-+static inline void
-+z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
-+			      bool atomic)
-+{
-+	struct page *next = z_erofs_pagevec_ctor_next_page(ctor, ctor->nr);
-+
-+	z_erofs_pagevec_ctor_exit(ctor, atomic);
-+
-+	ctor->curr = next;
-+	ctor->next = NULL;
-+	ctor->pages = atomic ?
-+		kmap_atomic(ctor->curr) : kmap(ctor->curr);
-+
-+	ctor->nr = PAGE_SIZE / sizeof(struct page *);
-+	ctor->index = 0;
-+}
-+
-+static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
-+					     unsigned int nr,
-+					     erofs_vtptr_t *pages,
-+					     unsigned int i)
-+{
-+	ctor->nr = nr;
-+	ctor->curr = ctor->next = NULL;
-+	ctor->pages = pages;
-+
-+	if (i >= nr) {
-+		i -= nr;
-+		z_erofs_pagevec_ctor_pagedown(ctor, false);
-+		while (i > ctor->nr) {
-+			i -= ctor->nr;
-+			z_erofs_pagevec_ctor_pagedown(ctor, false);
++		if (inputmargin >= rq->inputsize) {
++			kunmap_atomic(src);
++			return -EIO;
 +		}
 +	}
-+	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
-+	ctor->index = i;
-+}
+ 
+ 	copied = false;
+ 	inlen = rq->inputsize - inputmargin;
+ 	if (rq->inplace_io) {
+-		src = generic_copy_inplace_data(rq, src, inputmargin);
+-		inputmargin = 0;
+-		copied = true;
++		const uint oend = (rq->pageofs_out +
++				   rq->outputsize) & ~PAGE_MASK;
++		const uint nr = PAGE_ALIGN(rq->pageofs_out +
++					   rq->outputsize) >> PAGE_SHIFT;
 +
-+static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
-+					   struct page *page,
-+					   enum z_erofs_page_type type,
-+					   bool *occupied)
-+{
-+	*occupied = false;
-+	if (unlikely(!ctor->next && type))
-+		if (ctor->index + 1 == ctor->nr)
-+			return false;
-+
-+	if (unlikely(ctor->index >= ctor->nr))
-+		z_erofs_pagevec_ctor_pagedown(ctor, false);
-+
-+	/* exclusive page type must be 0 */
-+	if (Z_EROFS_PAGE_TYPE_EXCLUSIVE != (uintptr_t)NULL)
-+		__bad_page_type_exclusive();
-+
-+	/* should remind that collector->next never equal to 1, 2 */
-+	if (type == (uintptr_t)ctor->next) {
-+		ctor->next = page;
-+		*occupied = true;
-+	}
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
-+	return true;
-+}
-+
-+static inline struct page *
-+z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
-+			enum z_erofs_page_type *type)
-+{
-+	erofs_vtptr_t t;
-+
-+	if (unlikely(ctor->index >= ctor->nr)) {
-+		DBG_BUGON(!ctor->next);
-+		z_erofs_pagevec_ctor_pagedown(ctor, true);
-+	}
-+
-+	t = ctor->pages[ctor->index];
-+
-+	*type = tagptr_unfold_tags(t);
-+
-+	/* should remind that collector->next never equal to 1, 2 */
-+	if (*type == (uintptr_t)ctor->next)
-+		ctor->next = tagptr_unfold_ptr(t);
-+
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
-+	return tagptr_unfold_ptr(t);
-+}
-+#endif
-+
++		if (rq->partial_decoding || !support_0padding ||
++		    rq->out[nr - 1] != rq->in[0] ||
++		    rq->inputsize - oend <
++		      LZ4_DECOMPRESS_INPLACE_MARGIN(inlen)) {
++			src = generic_copy_inplace_data(rq, src, inputmargin);
++			inputmargin = 0;
++			copied = true;
++		}
+ 	}
+ 
+ 	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index e418725abfd6..8c64e78ceaca 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -17,7 +17,7 @@
+  * incompatible with this kernel version.
+  */
+ #define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
+-#define EROFS_ALL_REQUIREMENTS		0
++#define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
+ 
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
 -- 
 2.17.1
