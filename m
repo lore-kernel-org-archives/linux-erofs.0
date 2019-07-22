@@ -1,142 +1,269 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Mon, 22 Jul 2019 02:05:58 +0800
-Subject: [PATCH v2 03/24] erofs: add super block operations
-In-Reply-To: <7774f181-a41c-f30a-3b2a-02d7438d3509@huawei.com>
-References: <20190711145755.33908-1-gaoxiang25@huawei.com>
- <20190711145755.33908-4-gaoxiang25@huawei.com>
- <20190720224955.GD17978@ZenIV.linux.org.uk>
- <161cffc4-1d61-5dc6-45df-f1779ef03b0f@aol.com>
- <20190721040547.GF17978@ZenIV.linux.org.uk>
- <7774f181-a41c-f30a-3b2a-02d7438d3509@huawei.com>
-Message-ID: <bb571231-c080-a219-8368-855ff10055b8@aol.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Mon, 22 Jul 2019 10:50:27 +0800
+Subject: [PATCH v3 08/24] erofs: add namei functions
+In-Reply-To: <20190722025043.166344-1-gaoxiang25@huawei.com>
+References: <20190722025043.166344-1-gaoxiang25@huawei.com>
+Message-ID: <20190722025043.166344-9-gaoxiang25@huawei.com>
 
+This commit adds functions that transfer names to inodes.
 
-On 2019/7/21 ??????12:12, Gao Xiang wrote:
-> 
-> 
-> On 2019/7/21 12:05, Al Viro wrote:
->> On Sun, Jul 21, 2019@11:08:42AM +0800, Gao Xiang wrote:
->>
->>> It is for debugging use as you said below, mainly for our internal
->>> testers whose jobs are
->>> to read kmsg logs and catch kernel problems. sb->s_id (device number)
->>> maybe not
->>> straight-forward for them compared with dev_name...
->>
->> Huh? ->s_id is something like "sdb7" - it's bdev_name(), not a device
->> number...
-> 
-> You are right. Forgive me, actually we use /dev/block/by-name/system
-> to mount fs... we have to do some lookup if using sdbX instead.
-> 
-> 
->>
->>> The initial purpose of erofs_mount_private was to passing multi private
->>> data from erofs_mount
->>> to erofs_read_super, which was written before fs_contest was introduced.
->>
->> That has nothing to do with fs_context (well, other than fs_context conversions
->> affecting the code very close to that).
-> 
-> OK. That is fine.
-> 
->>
->>> I agree with you, it seems better to just use s_id in community and
->>> delete erofs_mount_private stuffs...
->>> Yet I don't look into how to use new fs_context, could I keep using
->>> legacy mount interface and fix them all?
->>
->> Sure.
->>
->>> I guess if I don't misunderstand, that is another suggestion -- in
->>> short, leave all destructors to .kill_sb() and
->>> cleanup fill_super().
->>
->> Just be careful with that iput() there - AFAICS, if fs went live (i.e.
->> if ->s_root is non-NULL), you really need it done only from put_super();
->> OTOH, for the case of NULL ->s_root ->put_super() won't be called at all,
->> so in that case you need it directly in ->kill_sb().
-> 
-> I got it. I will do a quick try now :) But in case of introducing issues,
-> I guess I need to do some fault injection by hand.....
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ fs/erofs/namei.c | 246 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 246 insertions(+)
+ create mode 100644 fs/erofs/namei.c
 
-I try to fix them in
-
-https://git.kernel.org/pub/scm/linux/kernel/git/xiang/linux.git/tree/fs/erofs/super.c?h=erofs-outofstaging
-
-, including:
-
-1) remove unneeded sbi->dev_name;
-
-2) remove all destructors in fill_super()
-349         /* get the root inode */
-350         inode = erofs_iget(sb, ROOT_NID(sbi), true);
-351         if (IS_ERR(inode))
-352                 return PTR_ERR(inode);
-353
-354         if (unlikely(!S_ISDIR(inode->i_mode))) {
-355                 errln("rootino(nid %llu) is not a directory(i_mode %o)",
-356                       ROOT_NID(sbi), inode->i_mode);
-357                 iput(inode);
-358                 return -EINVAL;
-359         }
-360
-361         sb->s_root = d_make_root(inode);
-362         if (unlikely(!sb->s_root))
-363                 return -ENOMEM;
-364
-365         erofs_shrinker_register(sb);
-366 #ifdef EROFS_FS_HAS_MANAGED_CACHE
-367         /* sb->s_umount is locked here, SB_BORN and SB_ACTIVE are not set */
-368         mc = erofs_init_managed_cache(sb);
-369         if (IS_ERR(mc))
-370                 return PTR_ERR(mc);
-371         sbi->managed_cache = mc;
-372 #endif
-
-...
-
-385 /*
-386  * could be triggered after deactivate_locked_super()
-387  * is called, thus including umount and failed to initialize.
-388  */
-389 static void erofs_kill_sb(struct super_block *sb)
-390 {
-391         struct erofs_sb_info *sbi;
-392
-393         WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
-394         infoln("unmounting erofs for %s", sb->s_id);
-395
-396         kill_block_super(sb);
-397
-398         sbi = EROFS_SB(sb);
-399         if (!sbi)
-400                 return;
-401         kfree(sbi);
-402         sb->s_fs_info = NULL;
-403 }
-404
-405 /* called when ->s_root is non-NULL */
-406 static void erofs_put_super(struct super_block *sb)
-407 {
-408         struct erofs_sb_info *const sbi = EROFS_SB(sb);
-409
-410         DBG_BUGON(!sbi);
-411
-412 #ifdef EROFS_FS_HAS_MANAGED_CACHE
-413         iput(sbi->managed_cache);
-414         sbi->managed_cache = NULL;
-415 #endif
-416         erofs_shrinker_unregister(sb);
-417 }
-
-...
-
-and I injected some faults on error paths and it seems fine...
-Could you kindly check whether it makes sense? (if I understand all correctly....)
-
-The whole patchset will be resent this morning (a few hours later), I have to sleep...
-
-
-Thanks,
-Gao Xiang
+diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
+new file mode 100644
+index 000000000000..7665d3603503
+--- /dev/null
++++ b/fs/erofs/namei.c
+@@ -0,0 +1,246 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/fs/erofs/namei.c
++ *
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#include "internal.h"
++
++#include <trace/events/erofs.h>
++
++struct erofs_qstr {
++	const unsigned char *name;
++	const unsigned char *end;
++};
++
++/* based on the end of qn is accurate and it must have the trailing '\0' */
++static inline int dirnamecmp(const struct erofs_qstr *qn,
++			     const struct erofs_qstr *qd,
++			     unsigned int *matched)
++{
++	unsigned int i = *matched;
++
++	/*
++	 * on-disk error, let's only BUG_ON in the debugging mode.
++	 * otherwise, it will return 1 to just skip the invalid name
++	 * and go on (in consideration of the lookup performance).
++	 */
++	DBG_BUGON(qd->name > qd->end);
++
++	/* qd could not have trailing '\0' */
++	/* However it is absolutely safe if < qd->end */
++	while (qd->name + i < qd->end && qd->name[i] != '\0') {
++		if (qn->name[i] != qd->name[i]) {
++			*matched = i;
++			return qn->name[i] > qd->name[i] ? 1 : -1;
++		}
++		++i;
++	}
++	*matched = i;
++	/* See comments in __d_alloc on the terminating NUL character */
++	return qn->name[i] == '\0' ? 0 : 1;
++}
++
++#define nameoff_from_disk(off, sz)	(le16_to_cpu(off) & ((sz) - 1))
++
++static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
++					       u8 *data,
++					       unsigned int dirblksize,
++					       const int ndirents)
++{
++	int head, back;
++	unsigned int startprfx, endprfx;
++	struct erofs_dirent *const de = (struct erofs_dirent *)data;
++
++	/* since the 1st dirent has been evaluated previously */
++	head = 1;
++	back = ndirents - 1;
++	startprfx = endprfx = 0;
++
++	while (head <= back) {
++		const int mid = head + (back - head) / 2;
++		const int nameoff = nameoff_from_disk(de[mid].nameoff,
++						      dirblksize);
++		unsigned int matched = min(startprfx, endprfx);
++		struct erofs_qstr dname = {
++			.name = data + nameoff,
++			.end = unlikely(mid >= ndirents - 1) ?
++				data + dirblksize :
++				data + nameoff_from_disk(de[mid + 1].nameoff,
++							 dirblksize)
++		};
++
++		/* string comparison without already matched prefix */
++		int ret = dirnamecmp(name, &dname, &matched);
++
++		if (unlikely(!ret)) {
++			return de + mid;
++		} else if (ret > 0) {
++			head = mid + 1;
++			startprfx = matched;
++		} else {
++			back = mid - 1;
++			endprfx = matched;
++		}
++	}
++	return ERR_PTR(-ENOENT);
++}
++
++static struct page *find_target_block_classic(struct inode *dir,
++					      struct erofs_qstr *name,
++					      int *_ndirents)
++{
++	unsigned int startprfx, endprfx;
++	int head, back;
++	struct address_space *const mapping = dir->i_mapping;
++	struct page *candidate = ERR_PTR(-ENOENT);
++
++	startprfx = endprfx = 0;
++	head = 0;
++	back = inode_datablocks(dir) - 1;
++
++	while (head <= back) {
++		const int mid = head + (back - head) / 2;
++		struct page *page = read_mapping_page(mapping, mid, NULL);
++
++		if (!IS_ERR(page)) {
++			struct erofs_dirent *de = kmap_atomic(page);
++			const int nameoff = nameoff_from_disk(de->nameoff,
++							      EROFS_BLKSIZ);
++			const int ndirents = nameoff / sizeof(*de);
++			int diff;
++			unsigned int matched;
++			struct erofs_qstr dname;
++
++			if (unlikely(!ndirents)) {
++				DBG_BUGON(1);
++				kunmap_atomic(de);
++				put_page(page);
++				page = ERR_PTR(-EIO);
++				goto out;
++			}
++
++			matched = min(startprfx, endprfx);
++
++			dname.name = (u8 *)de + nameoff;
++			if (ndirents == 1)
++				dname.end = (u8 *)de + EROFS_BLKSIZ;
++			else
++				dname.end = (u8 *)de +
++					nameoff_from_disk(de[1].nameoff,
++							  EROFS_BLKSIZ);
++
++			/* string comparison without already matched prefix */
++			diff = dirnamecmp(name, &dname, &matched);
++			kunmap_atomic(de);
++
++			if (unlikely(!diff)) {
++				*_ndirents = 0;
++				goto out;
++			} else if (diff > 0) {
++				head = mid + 1;
++				startprfx = matched;
++
++				if (!IS_ERR(candidate))
++					put_page(candidate);
++				candidate = page;
++				*_ndirents = ndirents;
++			} else {
++				put_page(page);
++
++				back = mid - 1;
++				endprfx = matched;
++			}
++			continue;
++		}
++out:		/* free if the candidate is valid */
++		if (!IS_ERR(candidate))
++			put_page(candidate);
++		return page;
++	}
++	return candidate;
++}
++
++int erofs_namei(struct inode *dir,
++		struct qstr *name,
++		erofs_nid_t *nid, unsigned int *d_type)
++{
++	int ndirents;
++	struct page *page;
++	void *data;
++	struct erofs_dirent *de;
++	struct erofs_qstr qn;
++
++	if (unlikely(!dir->i_size))
++		return -ENOENT;
++
++	qn.name = name->name;
++	qn.end = name->name + name->len;
++
++	ndirents = 0;
++	page = find_target_block_classic(dir, &qn, &ndirents);
++
++	if (IS_ERR(page))
++		return PTR_ERR(page);
++
++	data = kmap_atomic(page);
++	/* the target page has been mapped */
++	if (ndirents)
++		de = find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents);
++	else
++		de = (struct erofs_dirent *)data;
++
++	if (!IS_ERR(de)) {
++		*nid = le64_to_cpu(de->nid);
++		*d_type = de->file_type;
++	}
++
++	kunmap_atomic(data);
++	put_page(page);
++
++	return PTR_ERR_OR_ZERO(de);
++}
++
++/* NOTE: i_mutex is already held by vfs */
++static struct dentry *erofs_lookup(struct inode *dir,
++				   struct dentry *dentry,
++				   unsigned int flags)
++{
++	int err;
++	erofs_nid_t nid;
++	unsigned int d_type;
++	struct inode *inode;
++
++	DBG_BUGON(!d_really_is_negative(dentry));
++	/* dentry must be unhashed in lookup, no need to worry about */
++	DBG_BUGON(!d_unhashed(dentry));
++
++	trace_erofs_lookup(dir, dentry, flags);
++
++	/* file name exceeds fs limit */
++	if (unlikely(dentry->d_name.len > EROFS_NAME_LEN))
++		return ERR_PTR(-ENAMETOOLONG);
++
++	/* false uninitialized warnings on gcc 4.8.x */
++	err = erofs_namei(dir, &dentry->d_name, &nid, &d_type);
++
++	if (err == -ENOENT) {
++		/* negative dentry */
++		inode = NULL;
++	} else if (unlikely(err)) {
++		inode = ERR_PTR(err);
++	} else {
++		debugln("%s, %s (nid %llu) found, d_type %u", __func__,
++			dentry->d_name.name, nid, d_type);
++		inode = erofs_iget(dir->i_sb, nid, d_type == EROFS_FT_DIR);
++	}
++	return d_splice_alias(inode, dentry);
++}
++
++const struct inode_operations erofs_dir_iops = {
++	.lookup = erofs_lookup,
++	.getattr = erofs_getattr,
++};
++
+-- 
+2.17.1
