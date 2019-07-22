@@ -1,174 +1,463 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 22 Jul 2019 10:50:19 +0800
-Subject: [PATCH v3 00/24] erofs: promote erofs from staging
-Message-ID: <20190722025043.166344-1-gaoxiang25@huawei.com>
+Date: Mon, 22 Jul 2019 10:50:22 +0800
+Subject: [PATCH v3 03/24] erofs: add super block operations
+In-Reply-To: <20190722025043.166344-1-gaoxiang25@huawei.com>
+References: <20190722025043.166344-1-gaoxiang25@huawei.com>
+Message-ID: <20190722025043.166344-4-gaoxiang25@huawei.com>
 
-Changelog from v2:
- o kill sbi->dev_name and clean up all failure handling in
-   fill_super() suggested by Al.
-   Note that the initialzation of managed_cache is now moved
-   after s_root is assigned since it's more preferred to iput()
-   in .put_super() and all inodes should be evicted before
-   the end of generic_shutdown_super(sb);
+This commit adds erofs super block operations, including (u)mount,
+remount_fs, show_options, statfs, in addition to some private
+icache management functions.
 
- o fold in the following staging patches (and thanks):
-   staging: erofs:converting all 'unsigned' to 'unsigned int'
-   staging: erofs: Remove function erofs_kill_sb()
-    - However it was revoked due to erofs_kill_sb reused...
-   staging: erofs: avoid opened loop codes
-   staging: erofs: support bmap
-
- o move EROFS_SUPER_MAGIC_V1 from linux/fs/erofs/erofs_fs.h to
-   include/uapi/linux/magic.h for userspace utilities.
-
-This patchset is slightly different from what it is in the staging
-tree since I move/rename compression/shrinker stuffes and do more
-cleanup in patchset v2 for better review, complete code are also
-available at:
- https://git.kernel.org/pub/scm/linux/kernel/git/xiang/linux.git/tree/fs/erofs?h=erofs-outofstaging
-
-Changelog from v1:
- o resend the whole filesystem into a patchset suggested by Greg;
- o code is more cleaner, especially for decompression frontend.
-
---8<----------
-
-Hi,
-
-EROFS file system has been in Linux-staging for about a year.
-It has been proved to be stable enough to move out of staging
-by 10+ millions of HUAWEI Android mobile phones on the market
-from EMUI 9.0.1, and it was promoted as one of the key features
-of EMUI 9.1 [1], including P30(pro).
-
-EROFS is a read-only file system designed to save extra storage
-space with guaranteed end-to-end performance by applying
-fixed-size output compression, inplace I/O and decompression
-inplace technologies [2] to Linux filesystem.
-
-In our observation, EROFS is one of the fastest Linux compression
-filesystem using buffered I/O in the world. It will support
-direct I/O in the future if needed. EROFS even has better read
-performance in a large CR range compared with generic uncompressed
-file systems with proper CPU-storage combination, which is
-a reason why EROFS can be landed to speed up mobile phone
-performance, and which can be probably used for other use cases
-such as LiveCD and Docker image as well.
-
-Currently EROFS supports 4k LZ4 fixed-size output compression
-since LZ4 is the fastest widely-used decompression solution in
-the world and 4k leads to unnoticable read amplification for
-the worst case. More compression algorithms and cluster sizes
-could be added later, which depends on the real requirement.
-
-More information about EROFS itself are available at:
- Documentation/filesystems/erofs.txt
- https://kccncosschn19eng.sched.com/event/Nru2/erofs-an-introduction-and-our-smartphone-practice-xiang-gao-huawei
-
-erofs-utils (mainly mkfs.erofs now) is available at
-git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
-
-Preliminary iomap support has been pending in EROFS mailing
-list by Chao Yu. The key issue is that current iomap doesn't
-support tail-end packing inline data yet, it should be
-resolved later.
-
-Thanks to many contributors in the last year, the code is more
-clean and improved. We hope EROFS can be used in wider use cases
-so let's promote erofs out of staging and enhance it more actively.
-
-Share comments about EROFS! We think EROFS is useful to
-community as a part of Linux upstream.
-
-Thank you very much,
-Gao Xiang
-
-[1] http://web.archive.org/web/20190627021241/https://consumer.huawei.com/en/emui/
-[2] https://lore.kernel.org/lkml/20190624072258.28362-1-hsiangkao at aol.com/
-
-Cc: Greg Kroah-Hartman <gregkh at linuxfoundation.org>
-Cc: Alexander Viro <viro at zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm at linux-foundation.org>
-Cc: Stephen Rothwell <sfr at canb.auug.org.au>
-Cc: Theodore Ts'o <tytso at mit.edu>
-Cc: Chao Yu <yuchao0 at huawei.com>
-Cc: Miao Xie <miaoxie at huawei.com>
-Cc: Li Guifu <bluce.liguifu at huawei.com>
-Cc: Fang Wei <fangwei1 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
-
-Gao Xiang (24):
-  erofs: add on-disk layout
-  erofs: add erofs in-memory stuffs
-  erofs: add super block operations
-  erofs: add raw address_space operations
-  erofs: add inode operations
-  erofs: support special inode
-  erofs: add directory operations
-  erofs: add namei functions
-  erofs: support tracepoint
-  erofs: update Kconfig and Makefile
-  erofs: introduce xattr & posixacl support
-  erofs: introduce tagged pointer
-  erofs: add compression indexes support
-  erofs: introduce superblock registration
-  erofs: introduce erofs shrinker
-  erofs: introduce workstation for decompression
-  erofs: introduce per-CPU buffers implementation
-  erofs: introduce pagevec for decompression subsystem
-  erofs: add erofs_allocpage()
-  erofs: introduce generic decompression backend
-  erofs: introduce LZ4 decompression inplace
-  erofs: introduce the decompression frontend
-  erofs: introduce cached decompression
-  erofs: add document
-
- Documentation/filesystems/erofs.txt |  211 ++++
- fs/Kconfig                          |    1 +
- fs/Makefile                         |    1 +
- fs/erofs/Kconfig                    |  154 +++
- fs/erofs/Makefile                   |   11 +
- fs/erofs/compress.h                 |   89 ++
- fs/erofs/data.c                     |  423 ++++++++
- fs/erofs/decompressor.c             |  329 ++++++
- fs/erofs/dir.c                      |  147 +++
- fs/erofs/erofs_fs.h                 |  316 ++++++
- fs/erofs/inode.c                    |  326 ++++++
- fs/erofs/internal.h                 |  566 +++++++++++
- fs/erofs/namei.c                    |  250 +++++
- fs/erofs/super.c                    |  555 +++++++++++
- fs/erofs/tagptr.h                   |  110 ++
- fs/erofs/utils.c                    |  416 ++++++++
- fs/erofs/xattr.c                    |  700 +++++++++++++
- fs/erofs/xattr.h                    |   93 ++
- fs/erofs/zdata.c                    | 1440 +++++++++++++++++++++++++++
- fs/erofs/zdata.h                    |  201 ++++
- fs/erofs/zmap.c                     |  462 +++++++++
- fs/erofs/zpvec.h                    |  159 +++
- include/trace/events/erofs.h        |  256 +++++
- include/uapi/linux/magic.h          |    1 +
- 24 files changed, 7217 insertions(+)
- create mode 100644 Documentation/filesystems/erofs.txt
- create mode 100644 fs/erofs/Kconfig
- create mode 100644 fs/erofs/Makefile
- create mode 100644 fs/erofs/compress.h
- create mode 100644 fs/erofs/data.c
- create mode 100644 fs/erofs/decompressor.c
- create mode 100644 fs/erofs/dir.c
- create mode 100644 fs/erofs/erofs_fs.h
- create mode 100644 fs/erofs/inode.c
- create mode 100644 fs/erofs/internal.h
- create mode 100644 fs/erofs/namei.c
+---
+ fs/erofs/super.c | 438 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 438 insertions(+)
  create mode 100644 fs/erofs/super.c
- create mode 100644 fs/erofs/tagptr.h
- create mode 100644 fs/erofs/utils.c
- create mode 100644 fs/erofs/xattr.c
- create mode 100644 fs/erofs/xattr.h
- create mode 100644 fs/erofs/zdata.c
- create mode 100644 fs/erofs/zdata.h
- create mode 100644 fs/erofs/zmap.c
- create mode 100644 fs/erofs/zpvec.h
- create mode 100644 include/trace/events/erofs.h
 
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+new file mode 100644
+index 000000000000..3ed3b29edaf2
+--- /dev/null
++++ b/fs/erofs/super.c
+@@ -0,0 +1,438 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * linux/fs/erofs/super.c
++ *
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#include <linux/module.h>
++#include <linux/buffer_head.h>
++#include <linux/statfs.h>
++#include <linux/parser.h>
++#include <linux/seq_file.h>
++#include "internal.h"
++
++#define CREATE_TRACE_POINTS
++#include <trace/events/erofs.h>
++
++static struct kmem_cache *erofs_inode_cachep __read_mostly;
++
++static void init_once(void *ptr)
++{
++	struct erofs_vnode *vi = ptr;
++
++	inode_init_once(&vi->vfs_inode);
++}
++
++static int __init erofs_init_inode_cache(void)
++{
++	erofs_inode_cachep = kmem_cache_create("erofs_inode",
++					       sizeof(struct erofs_vnode), 0,
++					       SLAB_RECLAIM_ACCOUNT,
++					       init_once);
++
++	return erofs_inode_cachep ? 0 : -ENOMEM;
++}
++
++static void erofs_exit_inode_cache(void)
++{
++	kmem_cache_destroy(erofs_inode_cachep);
++}
++
++static struct inode *alloc_inode(struct super_block *sb)
++{
++	struct erofs_vnode *vi =
++		kmem_cache_alloc(erofs_inode_cachep, GFP_KERNEL);
++
++	if (!vi)
++		return NULL;
++
++	/* zero out everything except vfs_inode */
++	memset(vi, 0, offsetof(struct erofs_vnode, vfs_inode));
++	return &vi->vfs_inode;
++}
++
++static void free_inode(struct inode *inode)
++{
++	struct erofs_vnode *vi = EROFS_V(inode);
++
++	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
++	if (is_inode_fast_symlink(inode))
++		kfree(inode->i_link);
++
++	kmem_cache_free(erofs_inode_cachep, vi);
++}
++
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
++{
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
++
++	EROFS_SB(sb)->requirements = requirements;
++
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
++	}
++	return true;
++}
++
++static int superblock_read(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi;
++	struct buffer_head *bh;
++	struct erofs_super_block *layout;
++	unsigned int blkszbits;
++	int ret;
++
++	bh = sb_bread(sb, 0);
++
++	if (!bh) {
++		errln("cannot read erofs superblock");
++		return -EIO;
++	}
++
++	sbi = EROFS_SB(sb);
++	layout = (struct erofs_super_block *)((u8 *)bh->b_data
++		 + EROFS_SUPER_OFFSET);
++
++	ret = -EINVAL;
++	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
++		errln("cannot find valid erofs superblock");
++		goto out;
++	}
++
++	blkszbits = layout->blkszbits;
++	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
++	if (unlikely(blkszbits != LOG_BLOCK_SIZE)) {
++		errln("blksize %u isn't supported on this platform",
++		      1 << blkszbits);
++		goto out;
++	}
++
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
++	sbi->blocks = le32_to_cpu(layout->blocks);
++	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
++	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
++	sbi->root_nid = le16_to_cpu(layout->root_nid);
++	sbi->inos = le64_to_cpu(layout->inos);
++
++	sbi->build_time = le64_to_cpu(layout->build_time);
++	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
++
++	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
++	memcpy(sbi->volume_name, layout->volume_name,
++	       sizeof(layout->volume_name));
++
++	ret = 0;
++out:
++	brelse(bh);
++	return ret;
++}
++
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++const char *erofs_fault_name[FAULT_MAX] = {
++	[FAULT_KMALLOC]		= "kmalloc",
++	[FAULT_READ_IO]		= "read IO error",
++};
++
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		ffi->inject_rate = rate;
++		ffi->inject_type = (1 << FAULT_MAX) - 1;
++	} else {
++		memset(ffi, 0, sizeof(struct erofs_fault_info));
++	}
++
++	set_opt(sbi, FAULT_INJECTION);
++}
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				  substring_t *args)
++{
++	int rate = 0;
++
++	if (args->from && match_int(args, &rate))
++		return -EINVAL;
++
++	__erofs_build_fault_attr(sbi, rate);
++	return 0;
++}
++
++static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
++{
++	return sbi->fault_info.inject_rate;
++}
++#else
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
++{
++}
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				  substring_t *args)
++{
++	infoln("fault_injection options not supported");
++	return 0;
++}
++
++static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
++{
++	return 0;
++}
++#endif
++
++/* set up default EROFS parameters */
++static void default_options(struct erofs_sb_info *sbi)
++{
++}
++
++enum {
++	Opt_fault_injection,
++	Opt_err
++};
++
++static match_table_t erofs_tokens = {
++	{Opt_fault_injection, "fault_injection=%u"},
++	{Opt_err, NULL}
++};
++
++static int parse_options(struct super_block *sb, char *options)
++{
++	substring_t args[MAX_OPT_ARGS];
++	char *p;
++	int err;
++
++	if (!options)
++		return 0;
++
++	while ((p = strsep(&options, ","))) {
++		int token;
++
++		if (!*p)
++			continue;
++
++		args[0].to = args[0].from = NULL;
++		token = match_token(p, erofs_tokens, args);
++
++		switch (token) {
++		case Opt_fault_injection:
++			err = erofs_build_fault_attr(EROFS_SB(sb), args);
++			if (err)
++				return err;
++			break;
++
++		default:
++			errln("Unrecognized mount option \"%s\" or missing value", p);
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++
++static int erofs_fill_super(struct super_block *sb, void *data, int silent)
++{
++	struct inode *inode;
++	struct erofs_sb_info *sbi;
++	int err;
++
++	infoln("read_super, device -> %s", sb->s_id);
++	infoln("options -> %s", (char *)data);
++
++	sb->s_magic = EROFS_SUPER_MAGIC;
++
++	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
++		errln("failed to set erofs blksize");
++		return -EINVAL;
++	}
++
++	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
++	if (unlikely(!sbi))
++		return -ENOMEM;
++
++	sb->s_fs_info = sbi;
++	err = superblock_read(sb);
++	if (err)
++		return err;
++
++	sb->s_flags |= SB_RDONLY | SB_NOATIME;
++	sb->s_maxbytes = MAX_LFS_FILESIZE;
++	sb->s_time_gran = 1;
++
++	sb->s_op = &erofs_sops;
++
++	/* set erofs default mount options */
++	default_options(sbi);
++
++	err = parse_options(sb, data);
++	if (unlikely(err))
++		return err;
++
++	if (!silent)
++		infoln("root inode @ nid %llu", ROOT_NID(sbi));
++
++	/* get the root inode */
++	inode = erofs_iget(sb, ROOT_NID(sbi), true);
++	if (IS_ERR(inode))
++		return PTR_ERR(inode);
++
++	if (unlikely(!S_ISDIR(inode->i_mode))) {
++		errln("rootino(nid %llu) is not a directory(i_mode %o)",
++		      ROOT_NID(sbi), inode->i_mode);
++		iput(inode);
++		return -EINVAL;
++	}
++
++	sb->s_root = d_make_root(inode);
++	if (unlikely(!sb->s_root))
++		return -ENOMEM;
++
++	if (!silent)
++		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
++	return 0;
++}
++
++static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
++				  const char *dev_name, void *data)
++{
++	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
++}
++
++/*
++ * could be triggered after deactivate_locked_super()
++ * is called, thus including umount and failed to initialize.
++ */
++static void erofs_kill_sb(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi;
++
++	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
++	infoln("unmounting erofs for %s", sb->s_id);
++
++	kill_block_super(sb);
++
++	sbi = EROFS_SB(sb);
++	if (!sbi)
++		return;
++	kfree(sbi);
++	sb->s_fs_info = NULL;
++}
++
++static struct file_system_type erofs_fs_type = {
++	.owner          = THIS_MODULE,
++	.name           = "erofs",
++	.mount          = erofs_mount,
++	.kill_sb        = erofs_kill_sb,
++	.fs_flags       = FS_REQUIRES_DEV,
++};
++MODULE_ALIAS_FS("erofs");
++
++static int __init erofs_module_init(void)
++{
++	int err;
++
++	erofs_check_ondisk_layout_definitions();
++	infoln("initializing erofs " EROFS_VERSION);
++
++	err = erofs_init_inode_cache();
++	if (err)
++		goto icache_err;
++
++	err = register_filesystem(&erofs_fs_type);
++	if (err)
++		goto fs_err;
++
++	infoln("successfully to initialize erofs");
++	return 0;
++
++fs_err:
++	erofs_exit_inode_cache();
++icache_err:
++	return err;
++}
++
++static void __exit erofs_module_exit(void)
++{
++	unregister_filesystem(&erofs_fs_type);
++	erofs_exit_inode_cache();
++	infoln("successfully finalize erofs");
++}
++
++/* get filesystem statistics */
++static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
++{
++	struct super_block *sb = dentry->d_sb;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
++
++	buf->f_type = sb->s_magic;
++	buf->f_bsize = EROFS_BLKSIZ;
++	buf->f_blocks = sbi->blocks;
++	buf->f_bfree = buf->f_bavail = 0;
++
++	buf->f_files = ULLONG_MAX;
++	buf->f_ffree = ULLONG_MAX - sbi->inos;
++
++	buf->f_namelen = EROFS_NAME_LEN;
++
++	buf->f_fsid.val[0] = (u32)id;
++	buf->f_fsid.val[1] = (u32)(id >> 32);
++	return 0;
++}
++
++static int erofs_show_options(struct seq_file *seq, struct dentry *root)
++{
++	struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
++
++	if (test_opt(sbi, FAULT_INJECTION))
++		seq_printf(seq, ",fault_injection=%u",
++			   erofs_get_fault_rate(sbi));
++	return 0;
++}
++
++static int erofs_remount(struct super_block *sb, int *flags, char *data)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned int org_mnt_opt = sbi->mount_opt;
++	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
++	int err;
++
++	DBG_BUGON(!sb_rdonly(sb));
++	err = parse_options(sb, data);
++	if (err)
++		goto out;
++
++	*flags |= SB_RDONLY;
++	return 0;
++out:
++	__erofs_build_fault_attr(sbi, org_inject_rate);
++	sbi->mount_opt = org_mnt_opt;
++
++	return err;
++}
++
++const struct super_operations erofs_sops = {
++	.alloc_inode = alloc_inode,
++	.free_inode = free_inode,
++	.statfs = erofs_statfs,
++	.show_options = erofs_show_options,
++	.remount_fs = erofs_remount,
++};
++
++module_init(erofs_module_init);
++module_exit(erofs_module_exit);
++
++MODULE_DESCRIPTION("Enhanced ROM File System");
++MODULE_AUTHOR("Gao Xiang, Chao Yu, Miao Xie, CONSUMER BG, HUAWEI Inc.");
++MODULE_LICENSE("GPL");
++
 -- 
 2.17.1
