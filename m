@@ -1,148 +1,204 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 22 Jul 2019 10:50:31 +0800
-Subject: [PATCH v3 12/24] erofs: introduce tagged pointer
+Date: Mon, 22 Jul 2019 10:50:34 +0800
+Subject: [PATCH v3 15/24] erofs: introduce erofs shrinker
 In-Reply-To: <20190722025043.166344-1-gaoxiang25@huawei.com>
 References: <20190722025043.166344-1-gaoxiang25@huawei.com>
-Message-ID: <20190722025043.166344-13-gaoxiang25@huawei.com>
+Message-ID: <20190722025043.166344-16-gaoxiang25@huawei.com>
 
-Currently kernel has scattered tagged pointer usages
-hacked by hand in plain code, without a unique and
-portable functionset to highlight the tagged pointer
-itself and wrap these hacked code in order to clean up
-all over meaningless magic masks.
+This patch adds a dedicated shrinker targeting to free
+unneeded memory consumed by a number of erofs in-memory
+data structures.
 
-This patch introduces simple generic methods to fold
-tags into a pointer integer. Currently it supports
-the last n bits of the pointer for tags, which can be
-selected by users.
-
-In addition, it will also be used for the upcoming EROFS
-filesystem, which heavily uses tagged pointer pproach
- to reduce extra memory allocation.
-
-Link: https://en.wikipedia.org/wiki/Tagged_pointer
+Like F2FS and UBIFS, it also adds:
+  - sbi->umount_mutex to avoid races on shrinker and put_super;
+  - sbi->shrinker_run_no to not revisit recently scanned objects.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/tagptr.h | 110 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 110 insertions(+)
- create mode 100644 fs/erofs/tagptr.h
+ fs/erofs/internal.h |  7 ++++
+ fs/erofs/super.c    |  6 +++
+ fs/erofs/utils.c    | 94 ++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 106 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/tagptr.h b/fs/erofs/tagptr.h
-new file mode 100644
-index 000000000000..121403cff2a3
---- /dev/null
-+++ b/fs/erofs/tagptr.h
-@@ -0,0 +1,110 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Tagged pointer implementation
-+ *
-+ * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_TAGPTR_H
-+#define __EROFS_TAGPTR_H
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 942e3cbe6076..7d4939463518 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -64,6 +64,9 @@ struct erofs_sb_info {
+ #ifdef CONFIG_EROFS_FS_ZIP
+ 	/* list for all registered superblocks, mainly for shrinker */
+ 	struct list_head list;
++	struct mutex umount_mutex;
 +
-+#include <linux/types.h>
-+#include <linux/build_bug.h>
++	unsigned int shrinker_run_no;
+ #endif
+ 	u32 blocks;
+ 	u32 meta_blkaddr;
+@@ -412,9 +415,13 @@ extern const struct file_operations erofs_dir_fops;
+ #ifdef CONFIG_EROFS_FS_ZIP
+ void erofs_shrinker_register(struct super_block *sb);
+ void erofs_shrinker_unregister(struct super_block *sb);
++int __init erofs_init_shrinker(void);
++void erofs_exit_shrinker(void);
+ #else
+ static inline void erofs_shrinker_register(struct super_block *sb) {}
+ static inline void erofs_shrinker_unregister(struct super_block *sb) {}
++static inline int erofs_init_shrinker(void) { return 0; }
++static inline void erofs_exit_shrinker(void) {}
+ #endif
+ 
+ #endif
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index c8bd77e3c355..6d0a383527b6 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -415,6 +415,9 @@ static int __init erofs_module_init(void)
+ 	if (err)
+ 		goto icache_err;
+ 
++	err = erofs_init_shrinker();
++	if (err)
++		goto shrinker_err;
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -423,6 +426,8 @@ static int __init erofs_module_init(void)
+ 	return 0;
+ 
+ fs_err:
++	erofs_exit_shrinker();
++shrinker_err:
+ 	erofs_exit_inode_cache();
+ icache_err:
+ 	return err;
+@@ -431,6 +436,7 @@ static int __init erofs_module_init(void)
+ static void __exit erofs_module_exit(void)
+ {
+ 	unregister_filesystem(&erofs_fs_type);
++	erofs_exit_shrinker();
+ 	erofs_exit_inode_cache();
+ 	infoln("successfully finalize erofs");
+ }
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index 08c8752895bc..727d3831b5c9 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -9,6 +9,12 @@
+ #include "internal.h"
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
++/* global shrink count (for all mounted EROFS instances) */
++static atomic_long_t erofs_global_shrink_cnt;
 +
-+/*
-+ * the name of tagged pointer types are tagptr{1, 2, 3...}_t
-+ * avoid directly using the internal structs __tagptr{1, 2, 3...}
-+ */
-+#define __MAKE_TAGPTR(n) \
-+typedef struct __tagptr##n {	\
-+	uintptr_t v;	\
-+} tagptr##n##_t;
++/* protected by 'erofs_sb_list_lock' */
++static unsigned int shrinker_run_no;
 +
-+__MAKE_TAGPTR(1)
-+__MAKE_TAGPTR(2)
-+__MAKE_TAGPTR(3)
-+__MAKE_TAGPTR(4)
+ /* protects the mounted 'erofs_sb_list' */
+ static DEFINE_SPINLOCK(erofs_sb_list_lock);
+ static LIST_HEAD(erofs_sb_list);
+@@ -17,6 +23,8 @@ void erofs_shrinker_register(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 
++	mutex_init(&sbi->umount_mutex);
 +
-+#undef __MAKE_TAGPTR
+ 	spin_lock(&erofs_sb_list_lock);
+ 	list_add(&sbi->list, &erofs_sb_list);
+ 	spin_unlock(&erofs_sb_list_lock);
+@@ -24,9 +32,93 @@ void erofs_shrinker_register(struct super_block *sb)
+ 
+ void erofs_shrinker_unregister(struct super_block *sb)
+ {
++	struct erofs_sb_info *const sbi = EROFS_SB(sb);
 +
-+extern void __compiletime_error("bad tagptr tags")
-+	__bad_tagptr_tags(void);
++	mutex_lock(&sbi->umount_mutex);
++	/* will add shrink final handler here */
 +
-+extern void __compiletime_error("bad tagptr type")
-+	__bad_tagptr_type(void);
+ 	spin_lock(&erofs_sb_list_lock);
+-	list_del(&EROFS_SB(sb)->list);
++	list_del(&sbi->list);
+ 	spin_unlock(&erofs_sb_list_lock);
++	mutex_unlock(&sbi->umount_mutex);
++}
 +
-+/* fix the broken usage of "#define tagptr2_t tagptr3_t" by users */
-+#define __tagptr_mask_1(ptr, n)	\
-+	__builtin_types_compatible_p(typeof(ptr), struct __tagptr##n) ? \
-+		(1UL << (n)) - 1 :
++static unsigned long erofs_shrink_count(struct shrinker *shrink,
++					struct shrink_control *sc)
++{
++	return atomic_long_read(&erofs_global_shrink_cnt);
+ }
 +
-+#define __tagptr_mask(ptr)	(\
-+	__tagptr_mask_1(ptr, 1) ( \
-+	__tagptr_mask_1(ptr, 2) ( \
-+	__tagptr_mask_1(ptr, 3) ( \
-+	__tagptr_mask_1(ptr, 4) ( \
-+	__bad_tagptr_type(), 0)))))
++static unsigned long erofs_shrink_scan(struct shrinker *shrink,
++				       struct shrink_control *sc)
++{
++	struct erofs_sb_info *sbi;
++	struct list_head *p;
 +
-+/* generate a tagged pointer from a raw value */
-+#define tagptr_init(type, val) \
-+	((typeof(type)){ .v = (uintptr_t)(val) })
++	unsigned long nr = sc->nr_to_scan;
++	unsigned int run_no;
++	unsigned long freed = 0;
 +
-+/*
-+ * directly cast a tagged pointer to the native pointer type, which
-+ * could be used for backward compatibility of existing code.
-+ */
-+#define tagptr_cast_ptr(tptr) ((void *)(tptr).v)
++	spin_lock(&erofs_sb_list_lock);
++	do {
++		run_no = ++shrinker_run_no;
++	} while (run_no == 0);
 +
-+/* encode tagged pointers */
-+#define tagptr_fold(type, ptr, _tags) ({ \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
-+		__bad_tagptr_tags(); \
-+tagptr_init(type, (uintptr_t)(ptr) | tags); })
++	/* Iterate over all mounted superblocks and try to shrink them */
++	p = erofs_sb_list.next;
++	while (p != &erofs_sb_list) {
++		sbi = list_entry(p, struct erofs_sb_info, list);
 +
-+/* decode tagged pointers */
-+#define tagptr_unfold_ptr(tptr) \
-+	((void *)((tptr).v & ~__tagptr_mask(tptr)))
++		/*
++		 * We move the ones we do to the end of the list, so we stop
++		 * when we see one we have already done.
++		 */
++		if (sbi->shrinker_run_no == run_no)
++			break;
 +
-+#define tagptr_unfold_tags(tptr) \
-+	((tptr).v & __tagptr_mask(tptr))
++		if (!mutex_trylock(&sbi->umount_mutex)) {
++			p = p->next;
++			continue;
++		}
 +
-+/* operations for the tagger pointer */
-+#define tagptr_eq(_tptr1, _tptr2) ({ \
-+	typeof(_tptr1) tptr1 = (_tptr1); \
-+	typeof(_tptr2) tptr2 = (_tptr2); \
-+	(void)(&tptr1 == &tptr2); \
-+(tptr1).v == (tptr2).v; })
++		spin_unlock(&erofs_sb_list_lock);
++		sbi->shrinker_run_no = run_no;
 +
-+/* lock-free CAS operation */
-+#define tagptr_cmpxchg(_ptptr, _o, _n) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	typeof(_o) o = (_o); \
-+	typeof(_n) n = (_n); \
-+	(void)(&o == &n); \
-+	(void)(&o == ptptr); \
-+tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
++		/* will add shrink handler here */
 +
-+/* wrap WRITE_ONCE if atomic update is needed */
-+#define tagptr_replace_tags(_ptptr, tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
-+*ptptr; })
++		spin_lock(&erofs_sb_list_lock);
++		/* Get the next list element before we move this one */
++		p = p->next;
 +
-+#define tagptr_set_tags(_ptptr, _tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
-+		__bad_tagptr_tags(); \
-+	ptptr->v |= tags; \
-+*ptptr; })
++		/*
++		 * Move this one to the end of the list to provide some
++		 * fairness.
++		 */
++		list_move_tail(&sbi->list, &erofs_sb_list);
++		mutex_unlock(&sbi->umount_mutex);
 +
-+#define tagptr_clear_tags(_ptptr, _tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
-+		__bad_tagptr_tags(); \
-+	ptptr->v &= ~tags; \
-+*ptptr; })
++		if (freed >= nr)
++			break;
++	}
++	spin_unlock(&erofs_sb_list_lock);
++	return freed;
++}
 +
-+#endif
++static struct shrinker erofs_shrinker_info = {
++	.scan_objects = erofs_shrink_scan,
++	.count_objects = erofs_shrink_count,
++	.seeks = DEFAULT_SEEKS,
++};
 +
++int __init erofs_init_shrinker(void)
++{
++	return register_shrinker(&erofs_shrinker_info);
++}
++
++void erofs_exit_shrinker(void)
++{
++	unregister_shrinker(&erofs_shrinker_info);
++}
++
+ #endif
+ 
 -- 
 2.17.1
