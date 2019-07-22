@@ -1,135 +1,147 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 22 Jul 2019 10:50:33 +0800
-Subject: [PATCH v3 14/24] erofs: introduce superblock registration
+Date: Mon, 22 Jul 2019 10:50:31 +0800
+Subject: [PATCH v3 12/24] erofs: introduce tagged pointer
 In-Reply-To: <20190722025043.166344-1-gaoxiang25@huawei.com>
 References: <20190722025043.166344-1-gaoxiang25@huawei.com>
-Message-ID: <20190722025043.166344-15-gaoxiang25@huawei.com>
+Message-ID: <20190722025043.166344-13-gaoxiang25@huawei.com>
 
-In order to introducing shrinker solution for erofs,
-let's manage all mounted erofs instances at first.
+Currently kernel has scattered tagged pointer usages
+hacked by hand in plain code, without a unique and
+portable functionset to highlight the tagged pointer
+itself and wrap these hacked code in order to clean up
+all over meaningless magic masks.
+
+This patch introduces simple generic methods to fold
+tags into a pointer integer. Currently it supports
+the last n bits of the pointer for tags, which can be
+selected by users.
+
+In addition, it will also be used for the upcoming EROFS
+filesystem, which heavily uses tagged pointer pproach
+ to reduce extra memory allocation.
+
+Link: https://en.wikipedia.org/wiki/Tagged_pointer
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Makefile   |  2 +-
- fs/erofs/internal.h | 13 +++++++++++++
- fs/erofs/super.c    |  9 +++++++++
- fs/erofs/utils.c    | 32 ++++++++++++++++++++++++++++++++
- 4 files changed, 55 insertions(+), 1 deletion(-)
- create mode 100644 fs/erofs/utils.c
+ fs/erofs/tagptr.h | 110 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 110 insertions(+)
+ create mode 100644 fs/erofs/tagptr.h
 
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 9ab4ccc9328e..6a63c5998980 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -5,7 +5,7 @@ EROFS_VERSION = "1.0"
- ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- 
- obj-$(CONFIG_EROFS_FS) += erofs.o
--erofs-objs := super.o inode.o data.o namei.o dir.o
-+erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
- 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 55e794bd31cd..942e3cbe6076 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -61,6 +61,10 @@ typedef u64 erofs_off_t;
- typedef u32 erofs_blk_t;
- 
- struct erofs_sb_info {
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	/* list for all registered superblocks, mainly for shrinker */
-+	struct list_head list;
-+#endif
- 	u32 blocks;
- 	u32 meta_blkaddr;
- #ifdef CONFIG_EROFS_FS_XATTR
-@@ -404,5 +408,14 @@ int erofs_namei(struct inode *dir, struct qstr *name,
- /* dir.c */
- extern const struct file_operations erofs_dir_fops;
- 
-+/* utils.c */
-+#ifdef CONFIG_EROFS_FS_ZIP
-+void erofs_shrinker_register(struct super_block *sb);
-+void erofs_shrinker_unregister(struct super_block *sb);
-+#else
-+static inline void erofs_shrinker_register(struct super_block *sb) {}
-+static inline void erofs_shrinker_unregister(struct super_block *sb) {}
-+#endif
-+
- #endif
- 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 9ddb593aef47..c8bd77e3c355 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -356,6 +356,8 @@ static int erofs_fill_super(struct super_block *sb, void *data, int silent)
- 	if (unlikely(!sb->s_root))
- 		return -ENOMEM;
- 
-+	erofs_shrinker_register(sb);
-+
- 	if (!silent)
- 		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
- 	return 0;
-@@ -387,6 +389,12 @@ static void erofs_kill_sb(struct super_block *sb)
- 	sb->s_fs_info = NULL;
- }
- 
-+/* called when ->s_root is non-NULL */
-+static void erofs_put_super(struct super_block *sb)
-+{
-+	erofs_shrinker_unregister(sb);
-+}
-+
- static struct file_system_type erofs_fs_type = {
- 	.owner          = THIS_MODULE,
- 	.name           = "erofs",
-@@ -498,6 +506,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
- }
- 
- const struct super_operations erofs_sops = {
-+	.put_super = erofs_put_super,
- 	.alloc_inode = alloc_inode,
- 	.free_inode = free_inode,
- 	.statfs = erofs_statfs,
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+diff --git a/fs/erofs/tagptr.h b/fs/erofs/tagptr.h
 new file mode 100644
-index 000000000000..08c8752895bc
+index 000000000000..121403cff2a3
 --- /dev/null
-+++ b/fs/erofs/utils.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0
++++ b/fs/erofs/tagptr.h
+@@ -0,0 +1,110 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * linux/fs/erofs/utils.c
++ * Tagged pointer implementation
 + *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#include "internal.h"
++#ifndef __EROFS_TAGPTR_H
++#define __EROFS_TAGPTR_H
 +
-+#ifdef CONFIG_EROFS_FS_ZIP
-+/* protects the mounted 'erofs_sb_list' */
-+static DEFINE_SPINLOCK(erofs_sb_list_lock);
-+static LIST_HEAD(erofs_sb_list);
++#include <linux/types.h>
++#include <linux/build_bug.h>
 +
-+void erofs_shrinker_register(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
++/*
++ * the name of tagged pointer types are tagptr{1, 2, 3...}_t
++ * avoid directly using the internal structs __tagptr{1, 2, 3...}
++ */
++#define __MAKE_TAGPTR(n) \
++typedef struct __tagptr##n {	\
++	uintptr_t v;	\
++} tagptr##n##_t;
 +
-+	spin_lock(&erofs_sb_list_lock);
-+	list_add(&sbi->list, &erofs_sb_list);
-+	spin_unlock(&erofs_sb_list_lock);
-+}
++__MAKE_TAGPTR(1)
++__MAKE_TAGPTR(2)
++__MAKE_TAGPTR(3)
++__MAKE_TAGPTR(4)
 +
-+void erofs_shrinker_unregister(struct super_block *sb)
-+{
-+	spin_lock(&erofs_sb_list_lock);
-+	list_del(&EROFS_SB(sb)->list);
-+	spin_unlock(&erofs_sb_list_lock);
-+}
++#undef __MAKE_TAGPTR
++
++extern void __compiletime_error("bad tagptr tags")
++	__bad_tagptr_tags(void);
++
++extern void __compiletime_error("bad tagptr type")
++	__bad_tagptr_type(void);
++
++/* fix the broken usage of "#define tagptr2_t tagptr3_t" by users */
++#define __tagptr_mask_1(ptr, n)	\
++	__builtin_types_compatible_p(typeof(ptr), struct __tagptr##n) ? \
++		(1UL << (n)) - 1 :
++
++#define __tagptr_mask(ptr)	(\
++	__tagptr_mask_1(ptr, 1) ( \
++	__tagptr_mask_1(ptr, 2) ( \
++	__tagptr_mask_1(ptr, 3) ( \
++	__tagptr_mask_1(ptr, 4) ( \
++	__bad_tagptr_type(), 0)))))
++
++/* generate a tagged pointer from a raw value */
++#define tagptr_init(type, val) \
++	((typeof(type)){ .v = (uintptr_t)(val) })
++
++/*
++ * directly cast a tagged pointer to the native pointer type, which
++ * could be used for backward compatibility of existing code.
++ */
++#define tagptr_cast_ptr(tptr) ((void *)(tptr).v)
++
++/* encode tagged pointers */
++#define tagptr_fold(type, ptr, _tags) ({ \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
++		__bad_tagptr_tags(); \
++tagptr_init(type, (uintptr_t)(ptr) | tags); })
++
++/* decode tagged pointers */
++#define tagptr_unfold_ptr(tptr) \
++	((void *)((tptr).v & ~__tagptr_mask(tptr)))
++
++#define tagptr_unfold_tags(tptr) \
++	((tptr).v & __tagptr_mask(tptr))
++
++/* operations for the tagger pointer */
++#define tagptr_eq(_tptr1, _tptr2) ({ \
++	typeof(_tptr1) tptr1 = (_tptr1); \
++	typeof(_tptr2) tptr2 = (_tptr2); \
++	(void)(&tptr1 == &tptr2); \
++(tptr1).v == (tptr2).v; })
++
++/* lock-free CAS operation */
++#define tagptr_cmpxchg(_ptptr, _o, _n) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	typeof(_o) o = (_o); \
++	typeof(_n) n = (_n); \
++	(void)(&o == &n); \
++	(void)(&o == ptptr); \
++tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
++
++/* wrap WRITE_ONCE if atomic update is needed */
++#define tagptr_replace_tags(_ptptr, tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
++*ptptr; })
++
++#define tagptr_set_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v |= tags; \
++*ptptr; })
++
++#define tagptr_clear_tags(_ptptr, _tags) ({ \
++	typeof(_ptptr) ptptr = (_ptptr); \
++	const typeof(_tags) tags = (_tags); \
++	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
++		__bad_tagptr_tags(); \
++	ptptr->v &= ~tags; \
++*ptptr; })
++
 +#endif
 +
 -- 
