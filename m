@@ -1,20 +1,54 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 24 Jul 2019 21:04:45 +0800
-Subject: [PATCH v3] erofs-utils: Add missing error code handling.
-In-Reply-To: <20190724091246.10367-1-pratikshinde320@gmail.com>
-References: <20190724091246.10367-1-pratikshinde320@gmail.com>
-Message-ID: <09fdf506-bba5-429f-d5d5-f6f05ba515d4@huawei.com>
+From: gregkh@linuxfoundation.org (Greg KH)
+Date: Thu, 25 Jul 2019 09:45:08 +0200
+Subject: [PATCH] v3: staging: erofs: fix typo
+In-Reply-To: <1563394279-6719-1-git-send-email-karen.palacio.1994@gmail.com>
+References: <1563394279-6719-1-git-send-email-karen.palacio.1994@gmail.com>
+Message-ID: <20190725074508.GA15090@kroah.com>
 
-
-
-On 2019/7/24 17:12, Pratik Shinde wrote:
-> Handling error conditions that are missed in few scenarios.
-> also, mkfs command should return 1 on failure and 0 on success.
+On Wed, Jul 17, 2019@05:11:19PM -0300, Karen Palacio wrote:
+> Fix typo in Kconfig
 > 
-> Signed-off-by: Pratik Shinde <pratikshinde320 at gmail.com>
+> Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
+> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
+> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+> 
+> diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+> index d04b798..0dcefac 100644
+> --- a/drivers/staging/erofs/Kconfig
+> +++ b/drivers/staging/erofs/Kconfig
+> @@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
+>           If unsure, leave the default value (5 retries, 6 IOs at most).
+> 
+>  config EROFS_FS_ZIP
+> -       bool "EROFS Data Compresssion Support"
+> +       bool "EROFS Data Compression Support"
+>         depends on EROFS_FS
+>         select LZ4_DECOMPRESS
+>         help
+> ---
+>  drivers/staging/erofs/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+> index d04b798..0dcefac 100644
+> --- a/drivers/staging/erofs/Kconfig
+> +++ b/drivers/staging/erofs/Kconfig
+> @@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
+>  	  If unsure, leave the default value (5 retries, 6 IOs at most).
+>  
+>  config EROFS_FS_ZIP
+> -	bool "EROFS Data Compresssion Support"
+> +	bool "EROFS Data Compression Support"
+>  	depends on EROFS_FS
+>  	select LZ4_DECOMPRESS
+>  	help
 
-looks good to me, will apply later....
-(since Li Guifu cannot send outgoing email...I will apply directly.)
+Patch is corrupted and can not be applied.
 
-Thanks,
-Gao Xiang
+There are also 2 copies of it here :(
+
+Please fix up and resend.
+
+thanks,
+
+greg k-h
