@@ -1,54 +1,69 @@
-From: gregkh@linuxfoundation.org (Greg KH)
-Date: Thu, 25 Jul 2019 09:45:08 +0200
-Subject: [PATCH] v3: staging: erofs: fix typo
-In-Reply-To: <1563394279-6719-1-git-send-email-karen.palacio.1994@gmail.com>
-References: <1563394279-6719-1-git-send-email-karen.palacio.1994@gmail.com>
-Message-ID: <20190725074508.GA15090@kroah.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Thu, 25 Jul 2019 17:56:40 +0800
+Subject: [PATCH v4 06/24] erofs: support special inode
+In-Reply-To: <20190725095658.155779-1-gaoxiang25@huawei.com>
+References: <20190725095658.155779-1-gaoxiang25@huawei.com>
+Message-ID: <20190725095658.155779-7-gaoxiang25@huawei.com>
 
-On Wed, Jul 17, 2019@05:11:19PM -0300, Karen Palacio wrote:
-> Fix typo in Kconfig
-> 
-> Signed-off-by: Karen Palacio <karen.palacio.1994 at gmail.com>
-> Reviewed-by: Gao Xiang <gaoxiang25 at huawei.com>
-> Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> 
-> diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-> index d04b798..0dcefac 100644
-> --- a/drivers/staging/erofs/Kconfig
-> +++ b/drivers/staging/erofs/Kconfig
-> @@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
->           If unsure, leave the default value (5 retries, 6 IOs at most).
-> 
->  config EROFS_FS_ZIP
-> -       bool "EROFS Data Compresssion Support"
-> +       bool "EROFS Data Compression Support"
->         depends on EROFS_FS
->         select LZ4_DECOMPRESS
->         help
-> ---
->  drivers/staging/erofs/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-> index d04b798..0dcefac 100644
-> --- a/drivers/staging/erofs/Kconfig
-> +++ b/drivers/staging/erofs/Kconfig
-> @@ -88,7 +88,7 @@ config EROFS_FS_IO_MAX_RETRIES
->  	  If unsure, leave the default value (5 retries, 6 IOs at most).
->  
->  config EROFS_FS_ZIP
-> -	bool "EROFS Data Compresssion Support"
-> +	bool "EROFS Data Compression Support"
->  	depends on EROFS_FS
->  	select LZ4_DECOMPRESS
->  	help
+This patch adds to support special inode, such as
+block dev, char, socket, pipe inode.
 
-Patch is corrupted and can not be applied.
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ fs/erofs/inode.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
-There are also 2 copies of it here :(
-
-Please fix up and resend.
-
-thanks,
-
-greg k-h
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index b6ea997bc4ae..637bf6e4de44 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -34,7 +34,16 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
+-		vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++		    S_ISLNK(inode->i_mode))
++			vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v2->i_u.rdev));
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
++			inode->i_rdev = 0;
++		else
++			return -EIO;
+ 
+ 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+@@ -58,7 +67,16 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
+-		vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++		    S_ISLNK(inode->i_mode))
++			vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v1->i_u.rdev));
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
++			inode->i_rdev = 0;
++		else
++			return -EIO;
+ 
+ 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
+@@ -176,6 +194,11 @@ static int fill_inode(struct inode *inode, int isdir)
+ 			/* by default, page_get_link is used for symlink */
+ 			inode->i_op = &erofs_symlink_iops;
+ 			inode_nohighmem(inode);
++		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
++			S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++			inode->i_op = &erofs_generic_iops;
++			init_special_inode(inode, inode->i_mode, inode->i_rdev);
++			goto out_unlock;
+ 		} else {
+ 			err = -EIO;
+ 			goto out_unlock;
+-- 
+2.17.1
