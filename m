@@ -1,203 +1,454 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 25 Jul 2019 17:56:49 +0800
-Subject: [PATCH v4 15/24] erofs: introduce erofs shrinker
+Date: Thu, 25 Jul 2019 17:56:54 +0800
+Subject: [PATCH v4 20/24] erofs: introduce generic decompression backend
 In-Reply-To: <20190725095658.155779-1-gaoxiang25@huawei.com>
 References: <20190725095658.155779-1-gaoxiang25@huawei.com>
-Message-ID: <20190725095658.155779-16-gaoxiang25@huawei.com>
+Message-ID: <20190725095658.155779-21-gaoxiang25@huawei.com>
 
-This patch adds a dedicated shrinker targeting to free
-unneeded memory consumed by a number of erofs in-memory
-data structures.
+This patch adds decompression backend to EROFS, which
+supports uncompressed and LZ4 compressed data.
 
-Like F2FS and UBIFS, it also adds:
-  - sbi->umount_mutex to avoid races on shrinker and put_super;
-  - sbi->shrinker_run_no to not revisit recently scanned objects.
+For compressed data, it uses the following strategy:
+1) If outputsize is very small (totally less than a threshold),
+   decompress to the per-CPU buffer and do memcpy directly
+   in order to avoid vmap() overhead;
+2) Otherwise it will fill bounced pages if needed and vmap
+   all output pages into a continuous virtual memory area,
+   memcpy compressed data to the per-CPU buffer for inplace
+   I/O [1] and decompress.
+
+Since LZ4 is a lz77-based algorithm which has a dynamically
+populated ("sliding window") dictionary and the maximum
+lookback distance is 65535. Therefore the number of bounced
+pages could be limited by erofs based on this property.
+
+[1] `LZ4 decompression inplace' will eliminate the extra memcpy
+    if iend - oend margin is safe enough, see the following patch.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/internal.h |  7 ++++
- fs/erofs/super.c    |  6 +++
- fs/erofs/utils.c    | 93 ++++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 105 insertions(+), 1 deletion(-)
+ fs/erofs/Makefile       |   2 +-
+ fs/erofs/compress.h     |  62 ++++++++
+ fs/erofs/decompressor.c | 331 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 394 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/compress.h
+ create mode 100644 fs/erofs/decompressor.c
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 2d437bcf140d..3b43f960b7bd 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -64,6 +64,9 @@ struct erofs_sb_info {
- #ifdef CONFIG_EROFS_FS_ZIP
- 	/* list for all registered superblocks, mainly for shrinker */
- 	struct list_head list;
-+	struct mutex umount_mutex;
-+
-+	unsigned int shrinker_run_no;
- #endif	/* CONFIG_EROFS_FS_ZIP */
- 	u32 blocks;
- 	u32 meta_blkaddr;
-@@ -408,9 +411,13 @@ extern const struct file_operations erofs_dir_fops;
- #ifdef CONFIG_EROFS_FS_ZIP
- void erofs_shrinker_register(struct super_block *sb);
- void erofs_shrinker_unregister(struct super_block *sb);
-+int __init erofs_init_shrinker(void);
-+void erofs_exit_shrinker(void);
- #else
- static inline void erofs_shrinker_register(struct super_block *sb) {}
- static inline void erofs_shrinker_unregister(struct super_block *sb) {}
-+static inline int erofs_init_shrinker(void) { return 0; }
-+static inline void erofs_exit_shrinker(void) {}
- #endif	/* !CONFIG_EROFS_FS_ZIP */
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index 930770be124f..5594abca6f95 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -7,5 +7,5 @@ ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+ erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+-erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
++erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o
  
- #endif	/* __EROFS_INTERNAL_H */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index c9fe585a38a6..b8c48508a0dd 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -413,6 +413,9 @@ static int __init erofs_module_init(void)
- 	if (err)
- 		goto icache_err;
- 
-+	err = erofs_init_shrinker();
-+	if (err)
-+		goto shrinker_err;
- 	err = register_filesystem(&erofs_fs_type);
- 	if (err)
- 		goto fs_err;
-@@ -421,6 +424,8 @@ static int __init erofs_module_init(void)
- 	return 0;
- 
- fs_err:
-+	erofs_exit_shrinker();
-+shrinker_err:
- 	erofs_exit_inode_cache();
- icache_err:
- 	return err;
-@@ -429,6 +434,7 @@ static int __init erofs_module_init(void)
- static void __exit erofs_module_exit(void)
- {
- 	unregister_filesystem(&erofs_fs_type);
-+	erofs_exit_shrinker();
- 	erofs_exit_inode_cache();
- 	infoln("successfully finalize erofs");
- }
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index 791b2df1f761..cab7d77c4e59 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -9,6 +9,12 @@
- #include "internal.h"
- 
- #ifdef CONFIG_EROFS_FS_ZIP
-+/* global shrink count (for all mounted EROFS instances) */
-+static atomic_long_t erofs_global_shrink_cnt;
+diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
+new file mode 100644
+index 000000000000..57035b7646ef
+--- /dev/null
++++ b/fs/erofs/compress.h
+@@ -0,0 +1,62 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * linux/fs/erofs/compress.h
++ *
++ * Copyright (C) 2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#ifndef __EROFS_FS_COMPRESS_H
++#define __EROFS_FS_COMPRESS_H
 +
-+/* protected by 'erofs_sb_list_lock' */
-+static unsigned int shrinker_run_no;
++#include "internal.h"
 +
- /* protects the mounted 'erofs_sb_list' */
- static DEFINE_SPINLOCK(erofs_sb_list_lock);
- static LIST_HEAD(erofs_sb_list);
-@@ -17,6 +23,8 @@ void erofs_shrinker_register(struct super_block *sb)
- {
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 
-+	mutex_init(&sbi->umount_mutex);
-+
- 	spin_lock(&erofs_sb_list_lock);
- 	list_add(&sbi->list, &erofs_sb_list);
- 	spin_unlock(&erofs_sb_list_lock);
-@@ -24,9 +32,92 @@ void erofs_shrinker_register(struct super_block *sb)
- 
- void erofs_shrinker_unregister(struct super_block *sb)
- {
-+	struct erofs_sb_info *const sbi = EROFS_SB(sb);
-+
-+	mutex_lock(&sbi->umount_mutex);
-+	/* will add shrink final handler here */
-+
-+	spin_lock(&erofs_sb_list_lock);
-+	list_del(&sbi->list);
-+	spin_unlock(&erofs_sb_list_lock);
-+	mutex_unlock(&sbi->umount_mutex);
-+}
-+
-+static unsigned long erofs_shrink_count(struct shrinker *shrink,
-+					struct shrink_control *sc)
-+{
-+	return atomic_long_read(&erofs_global_shrink_cnt);
-+}
-+
-+static unsigned long erofs_shrink_scan(struct shrinker *shrink,
-+				       struct shrink_control *sc)
-+{
-+	struct erofs_sb_info *sbi;
-+	struct list_head *p;
-+
-+	unsigned long nr = sc->nr_to_scan;
-+	unsigned int run_no;
-+	unsigned long freed = 0;
-+
- 	spin_lock(&erofs_sb_list_lock);
--	list_del(&EROFS_SB(sb)->list);
-+	do {
-+		run_no = ++shrinker_run_no;
-+	} while (run_no == 0);
-+
-+	/* Iterate over all mounted superblocks and try to shrink them */
-+	p = erofs_sb_list.next;
-+	while (p != &erofs_sb_list) {
-+		sbi = list_entry(p, struct erofs_sb_info, list);
-+
-+		/*
-+		 * We move the ones we do to the end of the list, so we stop
-+		 * when we see one we have already done.
-+		 */
-+		if (sbi->shrinker_run_no == run_no)
-+			break;
-+
-+		if (!mutex_trylock(&sbi->umount_mutex)) {
-+			p = p->next;
-+			continue;
-+		}
-+
-+		spin_unlock(&erofs_sb_list_lock);
-+		sbi->shrinker_run_no = run_no;
-+
-+		/* will add shrink handler here */
-+
-+		spin_lock(&erofs_sb_list_lock);
-+		/* Get the next list element before we move this one */
-+		p = p->next;
-+
-+		/*
-+		 * Move this one to the end of the list to provide some
-+		 * fairness.
-+		 */
-+		list_move_tail(&sbi->list, &erofs_sb_list);
-+		mutex_unlock(&sbi->umount_mutex);
-+
-+		if (freed >= nr)
-+			break;
-+	}
- 	spin_unlock(&erofs_sb_list_lock);
-+	return freed;
-+}
-+
-+static struct shrinker erofs_shrinker_info = {
-+	.scan_objects = erofs_shrink_scan,
-+	.count_objects = erofs_shrink_count,
-+	.seeks = DEFAULT_SEEKS,
++enum {
++	Z_EROFS_COMPRESSION_SHIFTED = Z_EROFS_COMPRESSION_MAX,
++	Z_EROFS_COMPRESSION_RUNTIME_MAX
 +};
 +
-+int __init erofs_init_shrinker(void)
++struct z_erofs_decompress_req {
++	struct super_block *sb;
++	struct page **in, **out;
++
++	unsigned short pageofs_out;
++	unsigned int inputsize, outputsize;
++
++	/* indicate the algorithm will be used for decompression */
++	unsigned int alg;
++	bool inplace_io, partial_decoding;
++};
++
++/*
++ * - 0x5A110C8D ('sallocated', Z_EROFS_MAPPING_STAGING) -
++ * used to mark temporary allocated pages from other
++ * file/cached pages and NULL mapping pages.
++ */
++#define Z_EROFS_MAPPING_STAGING         ((void *)0x5A110C8D)
++
++/* check if a page is marked as staging */
++static inline bool z_erofs_page_is_staging(struct page *page)
 +{
-+	return register_shrinker(&erofs_shrinker_info);
++	return page->mapping == Z_EROFS_MAPPING_STAGING;
 +}
 +
-+void erofs_exit_shrinker(void)
++static inline bool z_erofs_put_stagingpage(struct list_head *pagepool,
++					   struct page *page)
 +{
-+	unregister_shrinker(&erofs_shrinker_info);
- }
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
++	if (!z_erofs_page_is_staging(page))
++		return false;
++
++	/* staging pages should not be used by others at the same time */
++	if (page_ref_count(page) > 1)
++		put_page(page);
++	else
++		list_add(&page->lru, pagepool);
++	return true;
++}
++
++int z_erofs_decompress(struct z_erofs_decompress_req *rq,
++		       struct list_head *pagepool);
++
++#endif
++
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+new file mode 100644
+index 000000000000..2523f6ab552b
+--- /dev/null
++++ b/fs/erofs/decompressor.c
+@@ -0,0 +1,331 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * linux/fs/erofs/decompressor.c
++ *
++ * Copyright (C) 2019 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
++ */
++#include "compress.h"
++#include <linux/module.h>
++#include <linux/lz4.h>
++
++#ifndef LZ4_DISTANCE_MAX	/* history window size */
++#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
++#endif
++
++#define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
++
++struct z_erofs_decompressor {
++	/*
++	 * if destpages have sparsed pages, fill them with bounce pages.
++	 * it also check whether destpages indicate continuous physical memory.
++	 */
++	int (*prepare_destpages)(struct z_erofs_decompress_req *rq,
++				 struct list_head *pagepool);
++	int (*decompress)(struct z_erofs_decompress_req *rq, u8 *out);
++	char *name;
++};
++
++static bool use_vmap;
++module_param(use_vmap, bool, 0444);
++MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
++
++static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
++				 struct list_head *pagepool)
++{
++	const unsigned int nr =
++		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
++	struct page *availables[LZ4_MAX_DISTANCE_PAGES] = { NULL };
++	unsigned long bounced[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
++					   BITS_PER_LONG)] = { 0 };
++	void *kaddr = NULL;
++	unsigned int i, j, top;
++
++	top = 0;
++	for (i = j = 0; i < nr; ++i, ++j) {
++		struct page *const page = rq->out[i];
++		struct page *victim;
++
++		if (j >= LZ4_MAX_DISTANCE_PAGES)
++			j = 0;
++
++		/* 'valid' bounced can only be tested after a complete round */
++		if (test_bit(j, bounced)) {
++			DBG_BUGON(i < LZ4_MAX_DISTANCE_PAGES);
++			DBG_BUGON(top >= LZ4_MAX_DISTANCE_PAGES);
++			availables[top++] = rq->out[i - LZ4_MAX_DISTANCE_PAGES];
++		}
++
++		if (page) {
++			__clear_bit(j, bounced);
++			if (kaddr) {
++				if (kaddr + PAGE_SIZE == page_address(page))
++					kaddr += PAGE_SIZE;
++				else
++					kaddr = NULL;
++			} else if (!i) {
++				kaddr = page_address(page);
++			}
++			continue;
++		}
++		kaddr = NULL;
++		__set_bit(j, bounced);
++
++		if (top) {
++			victim = availables[--top];
++			get_page(victim);
++		} else {
++			victim = erofs_allocpage(pagepool, GFP_KERNEL, false);
++			if (unlikely(!victim))
++				return -ENOMEM;
++			victim->mapping = Z_EROFS_MAPPING_STAGING;
++		}
++		rq->out[i] = victim;
++	}
++	return kaddr ? 1 : 0;
++}
++
++static void *generic_copy_inplace_data(struct z_erofs_decompress_req *rq,
++				       u8 *src, unsigned int pageofs_in)
++{
++	/*
++	 * if in-place decompression is ongoing, those decompressed
++	 * pages should be copied in order to avoid being overlapped.
++	 */
++	struct page **in = rq->in;
++	u8 *const tmp = erofs_get_pcpubuf(0);
++	u8 *tmpp = tmp;
++	unsigned int inlen = rq->inputsize - pageofs_in;
++	unsigned int count = min_t(uint, inlen, PAGE_SIZE - pageofs_in);
++
++	while (tmpp < tmp + inlen) {
++		if (!src)
++			src = kmap_atomic(*in);
++		memcpy(tmpp, src + pageofs_in, count);
++		kunmap_atomic(src);
++		src = NULL;
++		tmpp += count;
++		pageofs_in = 0;
++		count = PAGE_SIZE;
++		++in;
++	}
++	return tmp;
++}
++
++static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
++{
++	unsigned int inputmargin, inlen;
++	u8 *src;
++	bool copied;
++	int ret;
++
++	if (rq->inputsize > PAGE_SIZE)
++		return -ENOTSUPP;
++
++	src = kmap_atomic(*rq->in);
++	inputmargin = 0;
++
++	copied = false;
++	inlen = rq->inputsize - inputmargin;
++	if (rq->inplace_io) {
++		src = generic_copy_inplace_data(rq, src, inputmargin);
++		inputmargin = 0;
++		copied = true;
++	}
++
++	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
++					  inlen, rq->outputsize,
++					  rq->outputsize);
++	if (ret < 0) {
++		errln("%s, failed to decompress, in[%p, %u, %u] out[%p, %u]",
++		      __func__, src + inputmargin, inlen, inputmargin,
++		      out, rq->outputsize);
++		WARN_ON(1);
++		print_hex_dump(KERN_DEBUG, "[ in]: ", DUMP_PREFIX_OFFSET,
++			       16, 1, src + inputmargin, inlen, true);
++		print_hex_dump(KERN_DEBUG, "[out]: ", DUMP_PREFIX_OFFSET,
++			       16, 1, out, rq->outputsize, true);
++		ret = -EIO;
++	}
++
++	if (copied)
++		erofs_put_pcpubuf(src);
++	else
++		kunmap_atomic(src);
++	return ret;
++}
++
++static struct z_erofs_decompressor decompressors[] = {
++	[Z_EROFS_COMPRESSION_SHIFTED] = {
++		.name = "shifted"
++	},
++	[Z_EROFS_COMPRESSION_LZ4] = {
++		.prepare_destpages = lz4_prepare_destpages,
++		.decompress = lz4_decompress,
++		.name = "lz4"
++	},
++};
++
++static void copy_from_pcpubuf(struct page **out, const char *dst,
++			      unsigned short pageofs_out,
++			      unsigned int outputsize)
++{
++	const char *end = dst + outputsize;
++	const unsigned int righthalf = PAGE_SIZE - pageofs_out;
++	const char *cur = dst - pageofs_out;
++
++	while (cur < end) {
++		struct page *const page = *out++;
++
++		if (page) {
++			char *buf = kmap_atomic(page);
++
++			if (cur >= dst) {
++				memcpy(buf, cur, min_t(uint, PAGE_SIZE,
++						       end - cur));
++			} else {
++				memcpy(buf + pageofs_out, cur + pageofs_out,
++				       min_t(uint, righthalf, end - cur));
++			}
++			kunmap_atomic(buf);
++		}
++		cur += PAGE_SIZE;
++	}
++}
++
++static void *erofs_vmap(struct page **pages, unsigned int count)
++{
++	if (!use_vmap) {
++		int i = 0;
++
++		while (1) {
++			void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
++			/* retry two more times (totally 3 times) */
++			if (addr || ++i >= 3)
++				return addr;
++			vm_unmap_aliases();
++		}
++		return NULL;
++	}
++	return vmap(pages, count, VM_MAP, PAGE_KERNEL);
++}
++
++static void erofs_vunmap(const void *mem, unsigned int count)
++{
++	if (!use_vmap)
++		vm_unmap_ram(mem, count);
++	else
++		vunmap(mem);
++}
++
++static int decompress_generic(struct z_erofs_decompress_req *rq,
++			      struct list_head *pagepool)
++{
++	const unsigned int nrpages_out =
++		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
++	const struct z_erofs_decompressor *alg = decompressors + rq->alg;
++	unsigned int dst_maptype;
++	void *dst;
++	int ret;
++
++	if (nrpages_out == 1 && !rq->inplace_io) {
++		DBG_BUGON(!*rq->out);
++		dst = kmap_atomic(*rq->out);
++		dst_maptype = 0;
++		goto dstmap_out;
++	}
++
++	/*
++	 * For the case of small output size (especially much less
++	 * than PAGE_SIZE), memcpy the decompressed data rather than
++	 * compressed data is preferred.
++	 */
++	if (rq->outputsize <= PAGE_SIZE * 7 / 8) {
++		dst = erofs_get_pcpubuf(0);
++		if (IS_ERR(dst))
++			return PTR_ERR(dst);
++
++		rq->inplace_io = false;
++		ret = alg->decompress(rq, dst);
++		if (!ret)
++			copy_from_pcpubuf(rq->out, dst, rq->pageofs_out,
++					  rq->outputsize);
++
++		erofs_put_pcpubuf(dst);
++		return ret;
++	}
++
++	ret = alg->prepare_destpages(rq, pagepool);
++	if (ret < 0) {
++		return ret;
++	} else if (ret) {
++		dst = page_address(*rq->out);
++		dst_maptype = 1;
++		goto dstmap_out;
++	}
++
++	dst = erofs_vmap(rq->out, nrpages_out);
++	if (!dst)
++		return -ENOMEM;
++	dst_maptype = 2;
++
++dstmap_out:
++	ret = alg->decompress(rq, dst + rq->pageofs_out);
++
++	if (!dst_maptype)
++		kunmap_atomic(dst);
++	else if (dst_maptype == 2)
++		erofs_vunmap(dst, nrpages_out);
++	return ret;
++}
++
++static int shifted_decompress(const struct z_erofs_decompress_req *rq,
++			      struct list_head *pagepool)
++{
++	const unsigned int nrpages_out =
++		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
++	const unsigned int righthalf = PAGE_SIZE - rq->pageofs_out;
++	unsigned char *src, *dst;
++
++	if (nrpages_out > 2) {
++		DBG_BUGON(1);
++		return -EIO;
++	}
++
++	if (rq->out[0] == *rq->in) {
++		DBG_BUGON(nrpages_out != 1);
++		return 0;
++	}
++
++	src = kmap_atomic(*rq->in);
++	if (!rq->out[0]) {
++		dst = NULL;
++	} else {
++		dst = kmap_atomic(rq->out[0]);
++		memcpy(dst + rq->pageofs_out, src, righthalf);
++	}
++
++	if (rq->out[1] == *rq->in) {
++		memmove(src, src + righthalf, rq->pageofs_out);
++	} else if (nrpages_out == 2) {
++		if (dst)
++			kunmap_atomic(dst);
++		DBG_BUGON(!rq->out[1]);
++		dst = kmap_atomic(rq->out[1]);
++		memcpy(dst, src + righthalf, rq->pageofs_out);
++	}
++	if (dst)
++		kunmap_atomic(dst);
++	kunmap_atomic(src);
++	return 0;
++}
++
++int z_erofs_decompress(struct z_erofs_decompress_req *rq,
++		       struct list_head *pagepool)
++{
++	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED)
++		return shifted_decompress(rq, pagepool);
++	return decompress_generic(rq, pagepool);
++}
++
 -- 
 2.17.1
