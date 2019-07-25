@@ -1,136 +1,194 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 25 Jul 2019 17:56:48 +0800
-Subject: [PATCH v4 14/24] erofs: introduce superblock registration
+Date: Thu, 25 Jul 2019 17:56:52 +0800
+Subject: [PATCH v4 18/24] erofs: introduce pagevec for decompression subsystem
 In-Reply-To: <20190725095658.155779-1-gaoxiang25@huawei.com>
 References: <20190725095658.155779-1-gaoxiang25@huawei.com>
-Message-ID: <20190725095658.155779-15-gaoxiang25@huawei.com>
+Message-ID: <20190725095658.155779-19-gaoxiang25@huawei.com>
 
-In order to introducing shrinker solution for erofs,
-let's manage all mounted erofs instances at first.
+For each physical cluster, there is a straight-forward
+way of allocating a fixed or variable-sized array to
+record the corresponding file pages for its decompression
+if we decide to decompress these pages asynchronously
+(eg. read-ahead case), however it will take variable-sized
+on-heap memory compared with traditional uncompressed
+filesystems.
+
+This patch introduces a pagevec solution to reuse some
+allocated file page in the time-sharing approach to store
+parts of the array itself in order to minimize the extra
+memory overhead, thus only a small-sized constant array
+used for booting the whole array itself up will be needed.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Makefile   |  2 +-
- fs/erofs/internal.h | 13 +++++++++++++
- fs/erofs/super.c    |  9 +++++++++
- fs/erofs/utils.c    | 32 ++++++++++++++++++++++++++++++++
- 4 files changed, 55 insertions(+), 1 deletion(-)
- create mode 100644 fs/erofs/utils.c
+ fs/erofs/zpvec.h | 159 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 159 insertions(+)
+ create mode 100644 fs/erofs/zpvec.h
 
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 481a966caf06..930770be124f 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -5,7 +5,7 @@ EROFS_VERSION = "1.0"
- ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- 
- obj-$(CONFIG_EROFS_FS) += erofs.o
--erofs-objs := super.o inode.o data.o namei.o dir.o
-+erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
- 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 47af34f1fe50..2d437bcf140d 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -61,6 +61,10 @@ typedef u64 erofs_off_t;
- typedef u32 erofs_blk_t;
- 
- struct erofs_sb_info {
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	/* list for all registered superblocks, mainly for shrinker */
-+	struct list_head list;
-+#endif	/* CONFIG_EROFS_FS_ZIP */
- 	u32 blocks;
- 	u32 meta_blkaddr;
- #ifdef CONFIG_EROFS_FS_XATTR
-@@ -400,5 +404,14 @@ int erofs_namei(struct inode *dir, struct qstr *name,
- /* dir.c */
- extern const struct file_operations erofs_dir_fops;
- 
-+/* utils.c */
-+#ifdef CONFIG_EROFS_FS_ZIP
-+void erofs_shrinker_register(struct super_block *sb);
-+void erofs_shrinker_unregister(struct super_block *sb);
-+#else
-+static inline void erofs_shrinker_register(struct super_block *sb) {}
-+static inline void erofs_shrinker_unregister(struct super_block *sb) {}
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
-+
- #endif	/* __EROFS_INTERNAL_H */
- 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 9b040be8c607..c9fe585a38a6 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -354,6 +354,8 @@ static int erofs_fill_super(struct super_block *sb, void *data, int silent)
- 	if (unlikely(!sb->s_root))
- 		return -ENOMEM;
- 
-+	erofs_shrinker_register(sb);
-+
- 	if (!silent)
- 		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
- 	return 0;
-@@ -385,6 +387,12 @@ static void erofs_kill_sb(struct super_block *sb)
- 	sb->s_fs_info = NULL;
- }
- 
-+/* called when ->s_root is non-NULL */
-+static void erofs_put_super(struct super_block *sb)
-+{
-+	erofs_shrinker_unregister(sb);
-+}
-+
- static struct file_system_type erofs_fs_type = {
- 	.owner          = THIS_MODULE,
- 	.name           = "erofs",
-@@ -496,6 +504,7 @@ static int erofs_remount(struct super_block *sb, int *flags, char *data)
- }
- 
- const struct super_operations erofs_sops = {
-+	.put_super = erofs_put_super,
- 	.alloc_inode = alloc_inode,
- 	.free_inode = free_inode,
- 	.statfs = erofs_statfs,
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
 new file mode 100644
-index 000000000000..791b2df1f761
+index 000000000000..851201c23040
 --- /dev/null
-+++ b/fs/erofs/utils.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/fs/erofs/zpvec.h
+@@ -0,0 +1,159 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
-+ * linux/fs/erofs/utils.c
++ * linux/fs/erofs/zpvec.h
 + *
 + * Copyright (C) 2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
 + * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#include "internal.h"
++#ifndef __EROFS_ZPVEC_H
++#define __EROFS_ZPVEC_H
 +
-+#ifdef CONFIG_EROFS_FS_ZIP
-+/* protects the mounted 'erofs_sb_list' */
-+static DEFINE_SPINLOCK(erofs_sb_list_lock);
-+static LIST_HEAD(erofs_sb_list);
++#include "tagptr.h"
 +
-+void erofs_shrinker_register(struct super_block *sb)
++/* page type in pagevec for decompress subsystem */
++enum z_erofs_page_type {
++	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
++	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
++
++	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
++
++	Z_EROFS_VLE_PAGE_TYPE_HEAD,
++	Z_EROFS_VLE_PAGE_TYPE_MAX
++};
++
++extern void __compiletime_error("Z_EROFS_PAGE_TYPE_EXCLUSIVE != 0")
++	__bad_page_type_exclusive(void);
++
++/* pagevec tagged pointer */
++typedef tagptr2_t	erofs_vtptr_t;
++
++/* pagevec collector */
++struct z_erofs_pagevec_ctor {
++	struct page *curr, *next;
++	erofs_vtptr_t *pages;
++
++	unsigned int nr, index;
++};
++
++static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
++					     bool atomic)
 +{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	if (!ctor->curr)
++		return;
 +
-+	spin_lock(&erofs_sb_list_lock);
-+	list_add(&sbi->list, &erofs_sb_list);
-+	spin_unlock(&erofs_sb_list_lock);
++	if (atomic)
++		kunmap_atomic(ctor->pages);
++	else
++		kunmap(ctor->curr);
 +}
 +
-+void erofs_shrinker_unregister(struct super_block *sb)
++static inline struct page *
++z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
++			       unsigned int nr)
 +{
-+	spin_lock(&erofs_sb_list_lock);
-+	list_del(&EROFS_SB(sb)->list);
-+	spin_unlock(&erofs_sb_list_lock);
++	unsigned int index;
++
++	/* keep away from occupied pages */
++	if (ctor->next)
++		return ctor->next;
++
++	for (index = 0; index < nr; ++index) {
++		const erofs_vtptr_t t = ctor->pages[index];
++		const unsigned int tags = tagptr_unfold_tags(t);
++
++		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
++			return tagptr_unfold_ptr(t);
++	}
++	DBG_BUGON(nr >= ctor->nr);
++	return NULL;
 +}
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
++
++static inline void
++z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
++			      bool atomic)
++{
++	struct page *next = z_erofs_pagevec_ctor_next_page(ctor, ctor->nr);
++
++	z_erofs_pagevec_ctor_exit(ctor, atomic);
++
++	ctor->curr = next;
++	ctor->next = NULL;
++	ctor->pages = atomic ?
++		kmap_atomic(ctor->curr) : kmap(ctor->curr);
++
++	ctor->nr = PAGE_SIZE / sizeof(struct page *);
++	ctor->index = 0;
++}
++
++static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
++					     unsigned int nr,
++					     erofs_vtptr_t *pages,
++					     unsigned int i)
++{
++	ctor->nr = nr;
++	ctor->curr = ctor->next = NULL;
++	ctor->pages = pages;
++
++	if (i >= nr) {
++		i -= nr;
++		z_erofs_pagevec_ctor_pagedown(ctor, false);
++		while (i > ctor->nr) {
++			i -= ctor->nr;
++			z_erofs_pagevec_ctor_pagedown(ctor, false);
++		}
++	}
++	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
++	ctor->index = i;
++}
++
++static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
++					   struct page *page,
++					   enum z_erofs_page_type type,
++					   bool *occupied)
++{
++	*occupied = false;
++	if (unlikely(!ctor->next && type))
++		if (ctor->index + 1 == ctor->nr)
++			return false;
++
++	if (unlikely(ctor->index >= ctor->nr))
++		z_erofs_pagevec_ctor_pagedown(ctor, false);
++
++	/* exclusive page type must be 0 */
++	if (Z_EROFS_PAGE_TYPE_EXCLUSIVE != (uintptr_t)NULL)
++		__bad_page_type_exclusive();
++
++	/* should remind that collector->next never equal to 1, 2 */
++	if (type == (uintptr_t)ctor->next) {
++		ctor->next = page;
++		*occupied = true;
++	}
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
++	return true;
++}
++
++static inline struct page *
++z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
++			enum z_erofs_page_type *type)
++{
++	erofs_vtptr_t t;
++
++	if (unlikely(ctor->index >= ctor->nr)) {
++		DBG_BUGON(!ctor->next);
++		z_erofs_pagevec_ctor_pagedown(ctor, true);
++	}
++
++	t = ctor->pages[ctor->index];
++
++	*type = tagptr_unfold_tags(t);
++
++	/* should remind that collector->next never equal to 1, 2 */
++	if (*type == (uintptr_t)ctor->next)
++		ctor->next = tagptr_unfold_ptr(t);
++
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
++	return tagptr_unfold_ptr(t);
++}
++#endif
 +
 -- 
 2.17.1
