@@ -1,139 +1,106 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 29 Jul 2019 14:51:47 +0800
-Subject: [PATCH 10/22] staging: erofs: kill sbi->dev_name
+Date: Mon, 29 Jul 2019 14:51:50 +0800
+Subject: [PATCH 13/22] staging: erofs: kill CONFIG_EROFS_FS_USE_VM_MAP_RAM
 In-Reply-To: <20190729065159.62378-1-gaoxiang25@huawei.com>
 References: <20190729065159.62378-1-gaoxiang25@huawei.com>
-Message-ID: <20190729065159.62378-11-gaoxiang25@huawei.com>
+Message-ID: <20190729065159.62378-14-gaoxiang25@huawei.com>
 
-As Al said, "the only use of sbi->dev_name is debugging
-printks and all of those have sb->s_id available, with
-device name stored in there.  Which makes the whole
-thing bloody weird".
+Turn into a module parameter ("use_vmap") as it
+can be set at runtime.
 
-sbi->dev_name was used for our debugging use and it's
-better to just use s_id in community and delete
-the whole erofs_mount_private stuff.
-
-Suggested-by: Al Viro <viro at zeniv.linux.org.uk>
+Suggested-by: David Sterba <dsterba at suse.cz>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h |  2 --
- drivers/staging/erofs/super.c    | 54 +++++---------------------------
- 2 files changed, 7 insertions(+), 49 deletions(-)
+ drivers/staging/erofs/Kconfig        |  8 ------
+ drivers/staging/erofs/decompressor.c | 37 +++++++++++++++-------------
+ 2 files changed, 20 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index c082a462baf6..b206a85776b4 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -113,8 +113,6 @@ struct erofs_sb_info {
- 	u8 volume_name[16];             /* volume name */
- 	u32 requirements;
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 747e9eebfaa5..788beebf3f7d 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -63,14 +63,6 @@ config EROFS_FS_SECURITY
  
--	char *dev_name;
+ 	  If you are not using a security module, say N.
+ 
+-config EROFS_FS_USE_VM_MAP_RAM
+-	bool "EROFS VM_MAP_RAM Support"
+-	depends on EROFS_FS
+-	help
+-	  use vm_map_ram/vm_unmap_ram instead of vmap/vunmap.
 -
- 	unsigned int mount_opt;
+-	  If you don't know what these are, say N.
+-
+ config EROFS_FAULT_INJECTION
+ 	bool "EROFS fault injection facility"
+ 	depends on EROFS_FS
+diff --git a/drivers/staging/erofs/decompressor.c b/drivers/staging/erofs/decompressor.c
+index 744c43a456e9..5352a50981cb 100644
+--- a/drivers/staging/erofs/decompressor.c
++++ b/drivers/staging/erofs/decompressor.c
+@@ -7,6 +7,7 @@
+  * Created by Gao Xiang <gaoxiang25 at huawei.com>
+  */
+ #include "compress.h"
++#include <linux/module.h>
+ #include <linux/lz4.h>
  
- #ifdef CONFIG_EROFS_FAULT_INJECTION
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 7e6fe9cd45e7..bfb6e1e09781 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -362,15 +362,13 @@ static struct inode *erofs_init_managed_cache(struct super_block *sb)
+ #ifndef LZ4_DISTANCE_MAX	/* history window size */
+@@ -29,6 +30,10 @@ struct z_erofs_decompressor {
+ 	char *name;
+ };
  
- #endif
- 
--static int erofs_read_super(struct super_block *sb,
--			    const char *dev_name,
--			    void *data, int silent)
-+static int erofs_fill_super(struct super_block *sb, void *data, int silent)
++static bool use_vmap;
++module_param(use_vmap, bool, 0444);
++MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
++
+ static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+ 				 struct list_head *pagepool)
  {
- 	struct inode *inode;
- 	struct erofs_sb_info *sbi;
- 	int err = -EINVAL;
+@@ -219,29 +224,27 @@ static void copy_from_pcpubuf(struct page **out, const char *dst,
  
--	infoln("read_super, device -> %s", dev_name);
-+	infoln("fill_super, device -> %s", sb->s_id);
- 	infoln("options -> %s", (char *)data);
- 
- 	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
-@@ -448,30 +446,16 @@ static int erofs_read_super(struct super_block *sb,
- 		goto err_iget;
+ static void *erofs_vmap(struct page **pages, unsigned int count)
+ {
+-#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+-	int i = 0;
+-
+-	while (1) {
+-		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
+-		/* retry two more times (totally 3 times) */
+-		if (addr || ++i >= 3)
+-			return addr;
+-		vm_unmap_aliases();
++	if (!use_vmap) {
++		int i = 0;
++
++		while (1) {
++			void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
++			/* retry two more times (totally 3 times) */
++			if (addr || ++i >= 3)
++				return addr;
++			vm_unmap_aliases();
++		}
++		return NULL;
  	}
- 
--	/* save the device name to sbi */
--	sbi->dev_name = __getname();
--	if (!sbi->dev_name) {
--		err = -ENOMEM;
--		goto err_devname;
--	}
--
--	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
--	sbi->dev_name[PATH_MAX - 1] = '\0';
--
- 	erofs_shrinker_register(sb);
- 
- 	if (!silent)
--		infoln("mounted on %s with opts: %s.", dev_name,
--		       (char *)data);
-+		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
- 	return 0;
- 	/*
- 	 * please add a label for each exit point and use
- 	 * the following name convention, thus new features
- 	 * can be integrated easily without renaming labels.
- 	 */
--err_devname:
--	dput(sb->s_root);
--	sb->s_root = NULL;
- err_iget:
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- 	iput(sbi->managed_cache);
-@@ -499,8 +483,7 @@ static void erofs_put_super(struct super_block *sb)
- 
- 	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
- 
--	infoln("unmounted for %s", sbi->dev_name);
--	__putname(sbi->dev_name);
-+	infoln("unmounted for %s", sb->s_id);
- 
- 	erofs_shrinker_unregister(sb);
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
-@@ -510,33 +493,10 @@ static void erofs_put_super(struct super_block *sb)
- 	sb->s_fs_info = NULL;
+-	return NULL;
+-#else
+ 	return vmap(pages, count, VM_MAP, PAGE_KERNEL);
+-#endif
  }
  
--
--struct erofs_mount_private {
--	const char *dev_name;
--	char *options;
--};
--
--/* support mount_bdev() with options */
--static int erofs_fill_super(struct super_block *sb,
--			    void *_priv, int silent)
--{
--	struct erofs_mount_private *priv = _priv;
--
--	return erofs_read_super(sb, priv->dev_name,
--		priv->options, silent);
--}
--
--static struct dentry *erofs_mount(
--	struct file_system_type *fs_type, int flags,
--	const char *dev_name, void *data)
-+static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
-+				  const char *dev_name, void *data)
+ static void erofs_vunmap(const void *mem, unsigned int count)
  {
--	struct erofs_mount_private priv = {
--		.dev_name = dev_name,
--		.options = data
--	};
--
--	return mount_bdev(fs_type, flags, dev_name,
--		&priv, erofs_fill_super);
-+	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
+-#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+-	vm_unmap_ram(mem, count);
+-#else
+-	vunmap(mem);
+-#endif
++	if (!use_vmap)
++		vm_unmap_ram(mem, count);
++	else
++		vunmap(mem);
  }
  
- static struct file_system_type erofs_fs_type = {
+ static int decompress_generic(struct z_erofs_decompress_req *rq,
 -- 
 2.17.1
