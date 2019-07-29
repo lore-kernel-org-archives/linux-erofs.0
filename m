@@ -1,92 +1,139 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 29 Jul 2019 14:51:49 +0800
-Subject: [PATCH 12/22] staging: erofs: refine erofs_allocpage()
+Date: Mon, 29 Jul 2019 14:51:47 +0800
+Subject: [PATCH 10/22] staging: erofs: kill sbi->dev_name
 In-Reply-To: <20190729065159.62378-1-gaoxiang25@huawei.com>
 References: <20190729065159.62378-1-gaoxiang25@huawei.com>
-Message-ID: <20190729065159.62378-13-gaoxiang25@huawei.com>
+Message-ID: <20190729065159.62378-11-gaoxiang25@huawei.com>
 
-remove duplicated code in decompressor by introducing
-failable erofs_allocpage().
+As Al said, "the only use of sbi->dev_name is debugging
+printks and all of those have sb->s_id available, with
+device name stored in there.  Which makes the whole
+thing bloody weird".
 
+sbi->dev_name was used for our debugging use and it's
+better to just use s_id in community and delete
+the whole erofs_mount_private stuff.
+
+Suggested-by: Al Viro <viro at zeniv.linux.org.uk>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/decompressor.c | 12 +++---------
- drivers/staging/erofs/internal.h     |  2 +-
- drivers/staging/erofs/utils.c        |  5 +++--
- drivers/staging/erofs/zdata.c        |  2 +-
- 4 files changed, 8 insertions(+), 13 deletions(-)
+ drivers/staging/erofs/internal.h |  2 --
+ drivers/staging/erofs/super.c    | 54 +++++---------------------------
+ 2 files changed, 7 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/staging/erofs/decompressor.c b/drivers/staging/erofs/decompressor.c
-index ee5762351f80..744c43a456e9 100644
---- a/drivers/staging/erofs/decompressor.c
-+++ b/drivers/staging/erofs/decompressor.c
-@@ -74,15 +74,9 @@ static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
- 			victim = availables[--top];
- 			get_page(victim);
- 		} else {
--			if (!list_empty(pagepool)) {
--				victim = lru_to_page(pagepool);
--				list_del(&victim->lru);
--				DBG_BUGON(page_ref_count(victim) != 1);
--			} else {
--				victim = alloc_pages(GFP_KERNEL, 0);
--				if (!victim)
--					return -ENOMEM;
--			}
-+			victim = erofs_allocpage(pagepool, GFP_KERNEL, false);
-+			if (unlikely(!victim))
-+				return -ENOMEM;
- 			victim->mapping = Z_EROFS_MAPPING_STAGING;
- 		}
- 		rq->out[i] = victim;
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index b206a85776b4..e35c7d8f75d2 100644
+index c082a462baf6..b206a85776b4 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -517,7 +517,7 @@ int erofs_namei(struct inode *dir, struct qstr *name,
- extern const struct file_operations erofs_dir_fops;
+@@ -113,8 +113,6 @@ struct erofs_sb_info {
+ 	u8 volume_name[16];             /* volume name */
+ 	u32 requirements;
  
- /* utils.c / zdata.c */
--struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
-+struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail);
+-	char *dev_name;
+-
+ 	unsigned int mount_opt;
  
- #if (EROFS_PCPUBUF_NR_PAGES > 0)
- void *erofs_get_pcpubuf(unsigned int pagenr);
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index 0e86e44d60d0..260ea2970b4b 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -9,15 +9,16 @@
- #include "internal.h"
- #include <linux/pagevec.h>
+ #ifdef CONFIG_EROFS_FAULT_INJECTION
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 7e6fe9cd45e7..bfb6e1e09781 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -362,15 +362,13 @@ static struct inode *erofs_init_managed_cache(struct super_block *sb)
  
--struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
-+struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail)
+ #endif
+ 
+-static int erofs_read_super(struct super_block *sb,
+-			    const char *dev_name,
+-			    void *data, int silent)
++static int erofs_fill_super(struct super_block *sb, void *data, int silent)
  {
- 	struct page *page;
+ 	struct inode *inode;
+ 	struct erofs_sb_info *sbi;
+ 	int err = -EINVAL;
  
- 	if (!list_empty(pool)) {
- 		page = lru_to_page(pool);
-+		DBG_BUGON(page_ref_count(page) != 1);
- 		list_del(&page->lru);
- 	} else {
--		page = alloc_pages(gfp | __GFP_NOFAIL, 0);
-+		page = alloc_pages(gfp | (nofail ? __GFP_NOFAIL : 0), 0);
+-	infoln("read_super, device -> %s", dev_name);
++	infoln("fill_super, device -> %s", sb->s_id);
+ 	infoln("options -> %s", (char *)data);
+ 
+ 	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
+@@ -448,30 +446,16 @@ static int erofs_read_super(struct super_block *sb,
+ 		goto err_iget;
  	}
- 	return page;
- }
-diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-index bc478eebf509..02560b940558 100644
---- a/drivers/staging/erofs/zdata.c
-+++ b/drivers/staging/erofs/zdata.c
-@@ -634,7 +634,7 @@ z_erofs_vle_work_iter_end(struct z_erofs_vle_work_builder *builder)
- static inline struct page *__stagingpage_alloc(struct list_head *pagepool,
- 					       gfp_t gfp)
- {
--	struct page *page = erofs_allocpage(pagepool, gfp);
-+	struct page *page = erofs_allocpage(pagepool, gfp, true);
  
- 	if (unlikely(!page))
- 		return NULL;
+-	/* save the device name to sbi */
+-	sbi->dev_name = __getname();
+-	if (!sbi->dev_name) {
+-		err = -ENOMEM;
+-		goto err_devname;
+-	}
+-
+-	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
+-	sbi->dev_name[PATH_MAX - 1] = '\0';
+-
+ 	erofs_shrinker_register(sb);
+ 
+ 	if (!silent)
+-		infoln("mounted on %s with opts: %s.", dev_name,
+-		       (char *)data);
++		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
+ 	return 0;
+ 	/*
+ 	 * please add a label for each exit point and use
+ 	 * the following name convention, thus new features
+ 	 * can be integrated easily without renaming labels.
+ 	 */
+-err_devname:
+-	dput(sb->s_root);
+-	sb->s_root = NULL;
+ err_iget:
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+ 	iput(sbi->managed_cache);
+@@ -499,8 +483,7 @@ static void erofs_put_super(struct super_block *sb)
+ 
+ 	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
+ 
+-	infoln("unmounted for %s", sbi->dev_name);
+-	__putname(sbi->dev_name);
++	infoln("unmounted for %s", sb->s_id);
+ 
+ 	erofs_shrinker_unregister(sb);
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+@@ -510,33 +493,10 @@ static void erofs_put_super(struct super_block *sb)
+ 	sb->s_fs_info = NULL;
+ }
+ 
+-
+-struct erofs_mount_private {
+-	const char *dev_name;
+-	char *options;
+-};
+-
+-/* support mount_bdev() with options */
+-static int erofs_fill_super(struct super_block *sb,
+-			    void *_priv, int silent)
+-{
+-	struct erofs_mount_private *priv = _priv;
+-
+-	return erofs_read_super(sb, priv->dev_name,
+-		priv->options, silent);
+-}
+-
+-static struct dentry *erofs_mount(
+-	struct file_system_type *fs_type, int flags,
+-	const char *dev_name, void *data)
++static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
++				  const char *dev_name, void *data)
+ {
+-	struct erofs_mount_private priv = {
+-		.dev_name = dev_name,
+-		.options = data
+-	};
+-
+-	return mount_bdev(fs_type, flags, dev_name,
+-		&priv, erofs_fill_super);
++	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
+ }
+ 
+ static struct file_system_type erofs_fs_type = {
 -- 
 2.17.1
