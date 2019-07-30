@@ -1,462 +1,355 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 30 Jul 2019 15:13:52 +0800
-Subject: [PATCH v5 03/24] erofs: add super block operations
+Date: Tue, 30 Jul 2019 15:13:50 +0800
+Subject: [PATCH v5 01/24] erofs: add on-disk layout
 In-Reply-To: <20190730071413.11871-1-gaoxiang25@huawei.com>
 References: <20190730071413.11871-1-gaoxiang25@huawei.com>
-Message-ID: <20190730071413.11871-4-gaoxiang25@huawei.com>
+Message-ID: <20190730071413.11871-2-gaoxiang25@huawei.com>
 
-This commit adds erofs super block operations, including (u)mount,
-remount_fs, show_options, statfs, in addition to some private
-icache management functions.
+This commit adds the on-disk layout header file of erofs.
+On-disk format is compatible with erofs-staging added in 4.19.
+
+In addition, add EROFS_SUPER_MAGIC_V1 to magic.h.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/super.c | 437 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 437 insertions(+)
- create mode 100644 fs/erofs/super.c
+ fs/erofs/erofs_fs.h        | 316 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/magic.h |   1 +
+ 2 files changed, 317 insertions(+)
+ create mode 100644 fs/erofs/erofs_fs.h
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
 new file mode 100644
-index 000000000000..cd4bd6f48173
+index 000000000000..b307060dd220
 --- /dev/null
-+++ b/fs/erofs/super.c
-@@ -0,0 +1,437 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/fs/erofs/erofs_fs.h
+@@ -0,0 +1,316 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR Apache-2.0 */
 +/*
-+ * linux/fs/erofs/super.c
++ * linux/fs/erofs/erofs_fs.h
 + *
 + * Copyright (C) 2017-2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
 + * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#include <linux/module.h>
-+#include <linux/buffer_head.h>
-+#include <linux/statfs.h>
-+#include <linux/parser.h>
-+#include <linux/seq_file.h>
-+#include "internal.h"
++#ifndef __EROFS_FS_H
++#define __EROFS_FS_H
 +
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/erofs.h>
-+
-+static struct kmem_cache *erofs_inode_cachep __read_mostly;
-+
-+static void init_once(void *ptr)
-+{
-+	struct erofs_vnode *vi = ptr;
-+
-+	inode_init_once(&vi->vfs_inode);
-+}
-+
-+static int __init erofs_init_inode_cache(void)
-+{
-+	erofs_inode_cachep = kmem_cache_create("erofs_inode",
-+					       sizeof(struct erofs_vnode), 0,
-+					       SLAB_RECLAIM_ACCOUNT,
-+					       init_once);
-+
-+	return erofs_inode_cachep ? 0 : -ENOMEM;
-+}
-+
-+static void erofs_exit_inode_cache(void)
-+{
-+	kmem_cache_destroy(erofs_inode_cachep);
-+}
-+
-+static struct inode *alloc_inode(struct super_block *sb)
-+{
-+	struct erofs_vnode *vi =
-+		kmem_cache_alloc(erofs_inode_cachep, GFP_KERNEL);
-+
-+	if (!vi)
-+		return NULL;
-+
-+	/* zero out everything except vfs_inode */
-+	memset(vi, 0, offsetof(struct erofs_vnode, vfs_inode));
-+	return &vi->vfs_inode;
-+}
-+
-+static void free_inode(struct inode *inode)
-+{
-+	struct erofs_vnode *vi = EROFS_V(inode);
-+
-+	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
-+	if (is_inode_fast_symlink(inode))
-+		kfree(inode->i_link);
-+
-+	kmem_cache_free(erofs_inode_cachep, vi);
-+}
-+
-+static bool check_layout_compatibility(struct super_block *sb,
-+				       struct erofs_super_block *layout)
-+{
-+	const unsigned int requirements = le32_to_cpu(layout->requirements);
-+
-+	EROFS_SB(sb)->requirements = requirements;
-+
-+	/* check if current kernel meets all mandatory requirements */
-+	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
-+		errln("unidentified requirements %x, please upgrade kernel version",
-+		      requirements & ~EROFS_ALL_REQUIREMENTS);
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static int superblock_read(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi;
-+	struct buffer_head *bh;
-+	struct erofs_super_block *layout;
-+	unsigned int blkszbits;
-+	int ret;
-+
-+	bh = sb_bread(sb, 0);
-+
-+	if (!bh) {
-+		errln("cannot read erofs superblock");
-+		return -EIO;
-+	}
-+
-+	sbi = EROFS_SB(sb);
-+	layout = (struct erofs_super_block *)((u8 *)bh->b_data
-+		 + EROFS_SUPER_OFFSET);
-+
-+	ret = -EINVAL;
-+	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
-+		errln("cannot find valid erofs superblock");
-+		goto out;
-+	}
-+
-+	blkszbits = layout->blkszbits;
-+	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
-+	if (unlikely(blkszbits != LOG_BLOCK_SIZE)) {
-+		errln("blksize %u isn't supported on this platform",
-+		      1 << blkszbits);
-+		goto out;
-+	}
-+
-+	if (!check_layout_compatibility(sb, layout))
-+		goto out;
-+
-+	sbi->blocks = le32_to_cpu(layout->blocks);
-+	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
-+	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
-+	sbi->root_nid = le16_to_cpu(layout->root_nid);
-+	sbi->inos = le64_to_cpu(layout->inos);
-+
-+	sbi->build_time = le64_to_cpu(layout->build_time);
-+	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
-+
-+	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
-+	memcpy(sbi->volume_name, layout->volume_name,
-+	       sizeof(layout->volume_name));
-+
-+	ret = 0;
-+out:
-+	brelse(bh);
-+	return ret;
-+}
-+
-+#ifdef CONFIG_EROFS_FAULT_INJECTION
-+const char *erofs_fault_name[FAULT_MAX] = {
-+	[FAULT_KMALLOC]		= "kmalloc",
-+	[FAULT_READ_IO]		= "read IO error",
-+};
-+
-+static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+				     unsigned int rate)
-+{
-+	struct erofs_fault_info *ffi = &sbi->fault_info;
-+
-+	if (rate) {
-+		atomic_set(&ffi->inject_ops, 0);
-+		ffi->inject_rate = rate;
-+		ffi->inject_type = (1 << FAULT_MAX) - 1;
-+	} else {
-+		memset(ffi, 0, sizeof(struct erofs_fault_info));
-+	}
-+
-+	set_opt(sbi, FAULT_INJECTION);
-+}
-+
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+				  substring_t *args)
-+{
-+	int rate = 0;
-+
-+	if (args->from && match_int(args, &rate))
-+		return -EINVAL;
-+
-+	__erofs_build_fault_attr(sbi, rate);
-+	return 0;
-+}
-+
-+static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
-+{
-+	return sbi->fault_info.inject_rate;
-+}
-+#else
-+static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+				     unsigned int rate)
-+{
-+}
-+
-+static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
-+				  substring_t *args)
-+{
-+	infoln("fault_injection options not supported");
-+	return 0;
-+}
-+
-+static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
-+{
-+	return 0;
-+}
-+#endif
-+
-+/* set up default EROFS parameters */
-+static void default_options(struct erofs_sb_info *sbi)
-+{
-+}
-+
-+enum {
-+	Opt_fault_injection,
-+	Opt_err
-+};
-+
-+static match_table_t erofs_tokens = {
-+	{Opt_fault_injection, "fault_injection=%u"},
-+	{Opt_err, NULL}
-+};
-+
-+static int parse_options(struct super_block *sb, char *options)
-+{
-+	substring_t args[MAX_OPT_ARGS];
-+	char *p;
-+	int err;
-+
-+	if (!options)
-+		return 0;
-+
-+	while ((p = strsep(&options, ","))) {
-+		int token;
-+
-+		if (!*p)
-+			continue;
-+
-+		args[0].to = args[0].from = NULL;
-+		token = match_token(p, erofs_tokens, args);
-+
-+		switch (token) {
-+		case Opt_fault_injection:
-+			err = erofs_build_fault_attr(EROFS_SB(sb), args);
-+			if (err)
-+				return err;
-+			break;
-+		default:
-+			errln("Unrecognized mount option \"%s\" or missing value", p);
-+			return -EINVAL;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int erofs_fill_super(struct super_block *sb, void *data, int silent)
-+{
-+	struct inode *inode;
-+	struct erofs_sb_info *sbi;
-+	int err;
-+
-+	infoln("fill_super, device -> %s", sb->s_id);
-+	infoln("options -> %s", (char *)data);
-+
-+	sb->s_magic = EROFS_SUPER_MAGIC;
-+
-+	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
-+		errln("failed to set erofs blksize");
-+		return -EINVAL;
-+	}
-+
-+	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
-+	if (unlikely(!sbi))
-+		return -ENOMEM;
-+
-+	sb->s_fs_info = sbi;
-+	err = superblock_read(sb);
-+	if (err)
-+		return err;
-+
-+	sb->s_flags |= SB_RDONLY | SB_NOATIME;
-+	sb->s_maxbytes = MAX_LFS_FILESIZE;
-+	sb->s_time_gran = 1;
-+
-+	sb->s_op = &erofs_sops;
-+
-+	/* set erofs default mount options */
-+	default_options(sbi);
-+
-+	err = parse_options(sb, data);
-+	if (unlikely(err))
-+		return err;
-+
-+	if (!silent)
-+		infoln("root inode @ nid %llu", ROOT_NID(sbi));
-+
-+	/* get the root inode */
-+	inode = erofs_iget(sb, ROOT_NID(sbi), true);
-+	if (IS_ERR(inode))
-+		return PTR_ERR(inode);
-+
-+	if (unlikely(!S_ISDIR(inode->i_mode))) {
-+		errln("rootino(nid %llu) is not a directory(i_mode %o)",
-+		      ROOT_NID(sbi), inode->i_mode);
-+		iput(inode);
-+		return -EINVAL;
-+	}
-+
-+	sb->s_root = d_make_root(inode);
-+	if (unlikely(!sb->s_root))
-+		return -ENOMEM;
-+
-+	if (!silent)
-+		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
-+	return 0;
-+}
-+
-+static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
-+				  const char *dev_name, void *data)
-+{
-+	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
-+}
++/* Enhanced(Extended) ROM File System */
++#define EROFS_SUPER_OFFSET      1024
 +
 +/*
-+ * could be triggered after deactivate_locked_super()
-+ * is called, thus including umount and failed to initialize.
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
 + */
-+static void erofs_kill_sb(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi;
++#define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
++#define EROFS_ALL_REQUIREMENTS		0
 +
-+	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
-+	infoln("unmounting for %s", sb->s_id);
++struct erofs_super_block {
++/*  0 */__le32 magic;           /* in the little endian */
++/*  4 */__le32 checksum;        /* crc32c(super_block) */
++/*  8 */__le32 features;        /* (aka. feature_compat) */
++/* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
++/* 13 */__u8 reserved;
 +
-+	kill_block_super(sb);
++/* 14 */__le16 root_nid;
++/* 16 */__le64 inos;            /* total valid ino # (== f_files - f_favail) */
 +
-+	sbi = EROFS_SB(sb);
-+	if (!sbi)
-+		return;
-+	kfree(sbi);
-+	sb->s_fs_info = NULL;
-+}
++/* 24 */__le64 build_time;      /* inode v1 time derivation */
++/* 32 */__le32 build_time_nsec;
++/* 36 */__le32 blocks;          /* used for statfs */
++/* 40 */__le32 meta_blkaddr;
++/* 44 */__le32 xattr_blkaddr;
++/* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
++/* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
 +
-+static struct file_system_type erofs_fs_type = {
-+	.owner          = THIS_MODULE,
-+	.name           = "erofs",
-+	.mount          = erofs_mount,
-+	.kill_sb        = erofs_kill_sb,
-+	.fs_flags       = FS_REQUIRES_DEV,
-+};
-+MODULE_ALIAS_FS("erofs");
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
 +
-+static int __init erofs_module_init(void)
-+{
-+	int err;
-+
-+	erofs_check_ondisk_layout_definitions();
-+	infoln("initializing erofs " EROFS_VERSION);
-+
-+	err = erofs_init_inode_cache();
-+	if (err)
-+		goto icache_err;
-+
-+	err = register_filesystem(&erofs_fs_type);
-+	if (err)
-+		goto fs_err;
-+
-+	infoln("successfully to initialize erofs");
-+	return 0;
-+
-+fs_err:
-+	erofs_exit_inode_cache();
-+icache_err:
-+	return err;
-+}
-+
-+static void __exit erofs_module_exit(void)
-+{
-+	unregister_filesystem(&erofs_fs_type);
-+	erofs_exit_inode_cache();
-+	infoln("successfully finalize erofs");
-+}
-+
-+/* get filesystem statistics */
-+static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
-+{
-+	struct super_block *sb = dentry->d_sb;
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
-+
-+	buf->f_type = sb->s_magic;
-+	buf->f_bsize = EROFS_BLKSIZ;
-+	buf->f_blocks = sbi->blocks;
-+	buf->f_bfree = buf->f_bavail = 0;
-+
-+	buf->f_files = ULLONG_MAX;
-+	buf->f_ffree = ULLONG_MAX - sbi->inos;
-+
-+	buf->f_namelen = EROFS_NAME_LEN;
-+
-+	buf->f_fsid.val[0] = (u32)id;
-+	buf->f_fsid.val[1] = (u32)(id >> 32);
-+	return 0;
-+}
-+
-+static int erofs_show_options(struct seq_file *seq, struct dentry *root)
-+{
-+	struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
-+
-+	if (test_opt(sbi, FAULT_INJECTION))
-+		seq_printf(seq, ",fault_injection=%u",
-+			   erofs_get_fault_rate(sbi));
-+	return 0;
-+}
-+
-+static int erofs_remount(struct super_block *sb, int *flags, char *data)
-+{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	unsigned int org_mnt_opt = sbi->mount_opt;
-+	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
-+	int err;
-+
-+	DBG_BUGON(!sb_rdonly(sb));
-+	err = parse_options(sb, data);
-+	if (err)
-+		goto out;
-+
-+	*flags |= SB_RDONLY;
-+	return 0;
-+out:
-+	__erofs_build_fault_attr(sbi, org_inject_rate);
-+	sbi->mount_opt = org_mnt_opt;
-+
-+	return err;
-+}
-+
-+const struct super_operations erofs_sops = {
-+	.alloc_inode = alloc_inode,
-+	.free_inode = free_inode,
-+	.statfs = erofs_statfs,
-+	.show_options = erofs_show_options,
-+	.remount_fs = erofs_remount,
++/*
++ * erofs inode data mapping:
++ * 0 - inode plain without inline data A:
++ * inode, [xattrs], ... | ... | no-holed data
++ * 1 - inode VLE compression B (legacy):
++ * inode, [xattrs], extents ... | ...
++ * 2 - inode plain with inline data C:
++ * inode, [xattrs], last_inline_data, ... | ... | no-holed data
++ * 3 - inode compression D:
++ * inode, [xattrs], map_header, extents ... | ...
++ * 4~7 - reserved
++ */
++enum {
++	EROFS_INODE_FLAT_PLAIN,
++	EROFS_INODE_FLAT_COMPRESSION_LEGACY,
++	EROFS_INODE_FLAT_INLINE,
++	EROFS_INODE_FLAT_COMPRESSION,
++	EROFS_INODE_LAYOUT_MAX
 +};
 +
-+module_init(erofs_module_init);
-+module_exit(erofs_module_exit);
++static bool erofs_inode_is_data_compressed(unsigned int datamode)
++{
++	if (datamode == EROFS_INODE_FLAT_COMPRESSION)
++		return true;
++	return datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY;
++}
 +
-+MODULE_DESCRIPTION("Enhanced ROM File System");
-+MODULE_AUTHOR("Gao Xiang, Chao Yu, Miao Xie, CONSUMER BG, HUAWEI Inc.");
-+MODULE_LICENSE("GPL");
++/* bit definitions of inode i_advise */
++#define EROFS_I_VERSION_BITS            1
++#define EROFS_I_DATA_MAPPING_BITS       3
 +
++#define EROFS_I_VERSION_BIT             0
++#define EROFS_I_DATA_MAPPING_BIT        1
++
++struct erofs_inode_v1 {
++/*  0 */__le16 i_advise;
++
++/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
++/*  2 */__le16 i_xattr_icount;
++/*  4 */__le16 i_mode;
++/*  6 */__le16 i_nlink;
++/*  8 */__le32 i_size;
++/* 12 */__le32 i_reserved;
++/* 16 */union {
++		/* file total compressed blocks for data mapping 1 */
++		__le32 compressed_blocks;
++		__le32 raw_blkaddr;
++
++		/* for device files, used to indicate old/new device # */
++		__le32 rdev;
++	} i_u __packed;
++/* 20 */__le32 i_ino;           /* only used for 32-bit stat compatibility */
++/* 24 */__le16 i_uid;
++/* 26 */__le16 i_gid;
++/* 28 */__le32 i_reserved2;
++} __packed;
++
++/* 32 bytes on-disk inode */
++#define EROFS_INODE_LAYOUT_V1   0
++/* 64 bytes on-disk inode */
++#define EROFS_INODE_LAYOUT_V2   1
++
++struct erofs_inode_v2 {
++/*  0 */__le16 i_advise;
++
++/* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
++/*  2 */__le16 i_xattr_icount;
++/*  4 */__le16 i_mode;
++/*  6 */__le16 i_reserved;
++/*  8 */__le64 i_size;
++/* 16 */union {
++		/* file total compressed blocks for data mapping 1 */
++		__le32 compressed_blocks;
++		__le32 raw_blkaddr;
++
++		/* for device files, used to indicate old/new device # */
++		__le32 rdev;
++	} i_u __packed;
++
++	/* only used for 32-bit stat compatibility */
++/* 20 */__le32 i_ino;
++
++/* 24 */__le32 i_uid;
++/* 28 */__le32 i_gid;
++/* 32 */__le64 i_ctime;
++/* 40 */__le32 i_ctime_nsec;
++/* 44 */__le32 i_nlink;
++/* 48 */__u8   i_reserved2[16];
++} __packed;                     /* 64 bytes */
++
++#define EROFS_MAX_SHARED_XATTRS         (128)
++/* h_shared_count between 129 ... 255 are special # */
++#define EROFS_SHARED_XATTR_EXTENT       (255)
++
++/*
++ * inline xattrs (n == i_xattr_icount):
++ * erofs_xattr_ibody_header(1) + (n - 1) * 4 bytes
++ *          12 bytes           /                   \
++ *                            /                     \
++ *                           /-----------------------\
++ *                           |  erofs_xattr_entries+ |
++ *                           +-----------------------+
++ * inline xattrs must starts in erofs_xattr_ibody_header,
++ * for read-only fs, no need to introduce h_refcount
++ */
++struct erofs_xattr_ibody_header {
++	__le32 h_reserved;
++	__u8   h_shared_count;
++	__u8   h_reserved2[7];
++	__le32 h_shared_xattrs[0];      /* shared xattr id array */
++} __packed;
++
++/* Name indexes */
++#define EROFS_XATTR_INDEX_USER              1
++#define EROFS_XATTR_INDEX_POSIX_ACL_ACCESS  2
++#define EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT 3
++#define EROFS_XATTR_INDEX_TRUSTED           4
++#define EROFS_XATTR_INDEX_LUSTRE            5
++#define EROFS_XATTR_INDEX_SECURITY          6
++
++/* xattr entry (for both inline & shared xattrs) */
++struct erofs_xattr_entry {
++	__u8   e_name_len;      /* length of name */
++	__u8   e_name_index;    /* attribute name index */
++	__le16 e_value_size;    /* size of attribute value */
++	/* followed by e_name and e_value */
++	char   e_name[0];       /* attribute name */
++} __packed;
++
++#define ondisk_xattr_ibody_size(count)	({\
++	u32 __count = le16_to_cpu(count); \
++	((__count) == 0) ? 0 : \
++	sizeof(struct erofs_xattr_ibody_header) + \
++		sizeof(__u32) * ((__count) - 1); })
++
++#define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
++#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
++	sizeof(struct erofs_xattr_entry) + \
++	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
++
++/* available compression algorithm types */
++enum {
++	Z_EROFS_COMPRESSION_LZ4,
++	Z_EROFS_COMPRESSION_MAX
++};
++
++/*
++ * bit 0 : COMPACTED_2B indexes (0 - off; 1 - on)
++ *  e.g. for 4k logical cluster size,      4B        if compacted 2B is off;
++ *                                  (4B) + 2B + (4B) if compacted 2B is on.
++ */
++#define Z_EROFS_ADVISE_COMPACTED_2B_BIT         0
++
++#define Z_EROFS_ADVISE_COMPACTED_2B     (1 << Z_EROFS_ADVISE_COMPACTED_2B_BIT)
++
++struct z_erofs_map_header {
++	__le32	h_reserved1;
++	__le16	h_advise;
++	/*
++	 * bit 0-3 : algorithm type of head 1 (logical cluster type 01);
++	 * bit 4-7 : algorithm type of head 2 (logical cluster type 11).
++	 */
++	__u8	h_algorithmtype;
++	/*
++	 * bit 0-2 : logical cluster bits - 12, e.g. 0 for 4096;
++	 * bit 3-4 : (physical - logical) cluster bits of head 1:
++	 *       For example, if logical clustersize = 4096, 1 for 8192.
++	 * bit 5-7 : (physical - logical) cluster bits of head 2.
++	 */
++	__u8	h_clusterbits;
++};
++
++#define Z_EROFS_VLE_LEGACY_HEADER_PADDING       8
++
++/*
++ * Z_EROFS Variable-sized Logical Extent cluster type:
++ *    0 - literal (uncompressed) cluster
++ *    1 - compressed cluster (for the head logical cluster)
++ *    2 - compressed cluster (for the other logical clusters)
++ *
++ * In detail,
++ *    0 - literal (uncompressed) cluster,
++ *        di_advise = 0
++ *        di_clusterofs = the literal data offset of the cluster
++ *        di_blkaddr = the blkaddr of the literal cluster
++ *
++ *    1 - compressed cluster (for the head logical cluster)
++ *        di_advise = 1
++ *        di_clusterofs = the decompressed data offset of the cluster
++ *        di_blkaddr = the blkaddr of the compressed cluster
++ *
++ *    2 - compressed cluster (for the other logical clusters)
++ *        di_advise = 2
++ *        di_clusterofs =
++ *           the decompressed data offset in its own head cluster
++ *        di_u.delta[0] = distance to its corresponding head cluster
++ *        di_u.delta[1] = distance to its corresponding tail cluster
++ *                (di_advise could be 0, 1 or 2)
++ */
++enum {
++	Z_EROFS_VLE_CLUSTER_TYPE_PLAIN,
++	Z_EROFS_VLE_CLUSTER_TYPE_HEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD,
++	Z_EROFS_VLE_CLUSTER_TYPE_RESERVED,
++	Z_EROFS_VLE_CLUSTER_TYPE_MAX
++};
++
++#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS        2
++#define Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT         0
++
++struct z_erofs_vle_decompressed_index {
++	__le16 di_advise;
++	/* where to decompress in the head cluster */
++	__le16 di_clusterofs;
++
++	union {
++		/* for the head cluster */
++		__le32 blkaddr;
++		/*
++		 * for the rest clusters
++		 * eg. for 4k page-sized cluster, maximum 4K*64k = 256M)
++		 * [0] - pointing to the head cluster
++		 * [1] - pointing to the tail cluster
++		 */
++		__le16 delta[2];
++	} di_u __packed;		/* 8 bytes */
++} __packed;
++
++#define Z_EROFS_VLE_LEGACY_INDEX_ALIGN(size) \
++	(round_up(size, sizeof(struct z_erofs_vle_decompressed_index)) + \
++	 sizeof(struct z_erofs_map_header) + Z_EROFS_VLE_LEGACY_HEADER_PADDING)
++
++/* dirent sorts in alphabet order, thus we can do binary search */
++struct erofs_dirent {
++	__le64 nid;     /*  0, node number */
++	__le16 nameoff; /*  8, start offset of file name */
++	__u8 file_type; /* 10, file type */
++	__u8 reserved;  /* 11, reserved */
++} __packed;
++
++/* file types used in inode_info->flags */
++enum {
++	EROFS_FT_UNKNOWN,
++	EROFS_FT_REG_FILE,
++	EROFS_FT_DIR,
++	EROFS_FT_CHRDEV,
++	EROFS_FT_BLKDEV,
++	EROFS_FT_FIFO,
++	EROFS_FT_SOCK,
++	EROFS_FT_SYMLINK,
++	EROFS_FT_MAX
++};
++
++#define EROFS_NAME_LEN      255
++
++/* check the EROFS on-disk layout strictly at compile time */
++static inline void erofs_check_ondisk_layout_definitions(void)
++{
++	BUILD_BUG_ON(sizeof(struct erofs_super_block) != 128);
++	BUILD_BUG_ON(sizeof(struct erofs_inode_v1) != 32);
++	BUILD_BUG_ON(sizeof(struct erofs_inode_v2) != 64);
++	BUILD_BUG_ON(sizeof(struct erofs_xattr_ibody_header) != 12);
++	BUILD_BUG_ON(sizeof(struct erofs_xattr_entry) != 4);
++	BUILD_BUG_ON(sizeof(struct z_erofs_map_header) != 8);
++	BUILD_BUG_ON(sizeof(struct z_erofs_vle_decompressed_index) != 8);
++	BUILD_BUG_ON(sizeof(struct erofs_dirent) != 12);
++
++	BUILD_BUG_ON(BIT(Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS) <
++		     Z_EROFS_VLE_CLUSTER_TYPE_MAX - 1);
++}
++
++#endif
++
+diff --git a/include/uapi/linux/magic.h b/include/uapi/linux/magic.h
+index 1274c692e59c..903cc2d2750b 100644
+--- a/include/uapi/linux/magic.h
++++ b/include/uapi/linux/magic.h
+@@ -19,6 +19,7 @@
+ #define SQUASHFS_MAGIC		0x73717368
+ #define ECRYPTFS_SUPER_MAGIC	0xf15f
+ #define EFS_SUPER_MAGIC		0x414A53
++#define EROFS_SUPER_MAGIC_V1	0xE0F5E1E2
+ #define EXT2_SUPER_MAGIC	0xEF53
+ #define EXT3_SUPER_MAGIC	0xEF53
+ #define XENFS_SUPER_MAGIC	0xabba1974
 -- 
 2.17.1
