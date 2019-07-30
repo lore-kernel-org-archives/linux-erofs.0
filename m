@@ -1,100 +1,69 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 29 Jul 2019 14:51:57 +0800
-Subject: [PATCH 20/22] staging: erofs: tidy up internal.h
-In-Reply-To: <20190729065159.62378-1-gaoxiang25@huawei.com>
-References: <20190729065159.62378-1-gaoxiang25@huawei.com>
-Message-ID: <20190729065159.62378-21-gaoxiang25@huawei.com>
+Date: Tue, 30 Jul 2019 15:13:55 +0800
+Subject: [PATCH v5 06/24] erofs: support special inode
+In-Reply-To: <20190730071413.11871-1-gaoxiang25@huawei.com>
+References: <20190730071413.11871-1-gaoxiang25@huawei.com>
+Message-ID: <20190730071413.11871-7-gaoxiang25@huawei.com>
 
-keep in line with erofs-outofstaging patchset:
- - remove an extra #ifdef CONFIG_EROFS_FS_ZIP;
- - add tags at the end of #endif acrossing several lines.
+This patch adds to support special inode, such as
+block dev, char, socket, pipe inode.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/internal.h | 29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ fs/erofs/inode.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 43f9d90195bc..39d009554094 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -49,7 +49,7 @@ struct erofs_fault_info {
- 	unsigned int inject_rate;
- 	unsigned int inject_type;
- };
--#endif
-+#endif	/* CONFIG_EROFS_FAULT_INJECTION */
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index b6ea997bc4ae..637bf6e4de44 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -34,7 +34,16 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
  
- /* EROFS_SUPER_MAGIC_V1 to represent the whole file system */
- #define EROFS_SUPER_MAGIC   EROFS_SUPER_MAGIC_V1
-@@ -138,7 +138,7 @@ static inline bool time_to_inject(struct erofs_sb_info *sbi, int type)
- static inline void erofs_show_injection_info(int type)
- {
- }
--#endif
-+#endif	/* !CONFIG_EROFS_FAULT_INJECTION */
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
+-		vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++		    S_ISLNK(inode->i_mode))
++			vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v2->i_u.rdev));
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
++			inode->i_rdev = 0;
++		else
++			return -EIO;
  
- static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
- 					size_t size, gfp_t flags)
-@@ -236,8 +236,14 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
- 	DBG_BUGON(v == EROFS_LOCKED_MAGIC);
- 	return v;
- }
--#endif
--#endif	/* CONFIG_EROFS_FS_ZIP */
-+#endif	/* !CONFIG_SMP */
-+
-+/* hard limit of pages per compressed cluster */
-+#define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
-+#define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
-+#else
-+#define EROFS_PCPUBUF_NR_PAGES          0
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
+ 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+@@ -58,7 +67,16 @@ static int read_inode(struct inode *inode, void *data)
+ 		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
  
- /* we strictly follow PAGE_SIZE and no buffer head yet */
- #define LOG_BLOCK_SIZE		PAGE_SHIFT
-@@ -256,15 +262,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
+-		vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
++		    S_ISLNK(inode->i_mode))
++			vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
++			inode->i_rdev =
++				new_decode_dev(le32_to_cpu(v1->i_u.rdev));
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
++			inode->i_rdev = 0;
++		else
++			return -EIO;
  
- #define ROOT_NID(sb)		((sb)->root_nid)
- 
--#ifdef CONFIG_EROFS_FS_ZIP
--/* hard limit of pages per compressed cluster */
--#define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
--
--#define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
--#else
--#define EROFS_PCPUBUF_NR_PAGES          0
--#endif
--
- #define erofs_blknr(addr)       ((addr) / EROFS_BLKSIZ)
- #define erofs_blkoff(addr)      ((addr) % EROFS_BLKSIZ)
- #define blknr_to_addr(nr)       ((erofs_off_t)(nr) * EROFS_BLKSIZ)
-@@ -304,7 +301,7 @@ struct erofs_vnode {
- 			unsigned char  z_logical_clusterbits;
- 			unsigned char  z_physical_clusterbits[2];
- 		};
--#endif
-+#endif	/* CONFIG_EROFS_FS_ZIP */
- 	};
- 	/* the corresponding vfs inode */
- 	struct inode vfs_inode;
-@@ -412,7 +409,7 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
- {
- 	return -ENOTSUPP;
- }
--#endif
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
- 
- /* data.c */
- static inline struct bio *erofs_grab_bio(struct super_block *sb,
-@@ -548,7 +545,7 @@ static inline int erofs_init_shrinker(void) { return 0; }
- static inline void erofs_exit_shrinker(void) {}
- static inline int z_erofs_init_zip_subsystem(void) { return 0; }
- static inline void z_erofs_exit_zip_subsystem(void) {}
--#endif
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
- 
- #endif	/* __EROFS_INTERNAL_H */
- 
+ 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
+@@ -176,6 +194,11 @@ static int fill_inode(struct inode *inode, int isdir)
+ 			/* by default, page_get_link is used for symlink */
+ 			inode->i_op = &erofs_symlink_iops;
+ 			inode_nohighmem(inode);
++		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
++			S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++			inode->i_op = &erofs_generic_iops;
++			init_special_inode(inode, inode->i_mode, inode->i_rdev);
++			goto out_unlock;
+ 		} else {
+ 			err = -EIO;
+ 			goto out_unlock;
 -- 
 2.17.1
