@@ -1,42 +1,68 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:37 +0800
-Subject: [PATCH v2 07/22] staging: erofs: remove redundant #include
- "internal.h"
+Date: Wed, 31 Jul 2019 23:57:38 +0800
+Subject: [PATCH v2 08/22] staging: erofs: kill CONFIG_EROFS_FS_IO_MAX_RETRIES
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-8-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-9-gaoxiang25@huawei.com>
 
-Because #include "internal.h" is included in xattr.h
+CONFIG_EROFS_FS_IO_MAX_RETRIES seems a runtime setting
+and users have no idea about the change in behaviour.
 
+Let's remove the setting currently and could turn it
+into a module parameter if it's really needed.
+
+Suggested-by: David Sterba <dsterba at suse.cz>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/namei.c | 1 -
- drivers/staging/erofs/super.c | 1 -
- 2 files changed, 2 deletions(-)
+ drivers/staging/erofs/Kconfig    | 9 ---------
+ drivers/staging/erofs/internal.h | 8 ++------
+ 2 files changed, 2 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
-index 50816b4c05fc..8e06526da023 100644
---- a/drivers/staging/erofs/namei.c
-+++ b/drivers/staging/erofs/namei.c
-@@ -6,7 +6,6 @@
-  *             http://www.huawei.com/
-  * Created by Gao Xiang <gaoxiang25 at huawei.com>
-  */
--#include "internal.h"
- #include "xattr.h"
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 2577cbb46a5b..747e9eebfaa5 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -78,15 +78,6 @@ config EROFS_FAULT_INJECTION
+ 	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
+ 	  If unsure, say N.
  
- #include <trace/events/erofs.h>
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 55f51d2b3930..c20a94b035a7 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -11,7 +11,6 @@
- #include <linux/statfs.h>
- #include <linux/parser.h>
- #include <linux/seq_file.h>
--#include "internal.h"
- #include "xattr.h"
+-config EROFS_FS_IO_MAX_RETRIES
+-	int "EROFS IO Maximum Retries"
+-	depends on EROFS_FS
+-	default "5"
+-	help
+-	  Maximum retry count of IO Errors.
+-
+-	  If unsure, leave the default value (5 retries, 6 IOs at most).
+-
+ config EROFS_FS_ZIP
+ 	bool "EROFS Data Compresssion Support"
+ 	depends on EROFS_FS
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 959bd0ae9d74..a3b9fcdd0c27 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -279,6 +279,8 @@ static inline void z_erofs_exit_zip_subsystem(void) {}
+ #error erofs cannot be used in this platform
+ #endif
  
- #define CREATE_TRACE_POINTS
++#define EROFS_IO_MAX_RETRIES_NOFAIL     5
++
+ #define ROOT_NID(sb)		((sb)->root_nid)
+ 
+ #define erofs_blknr(addr)       ((addr) / EROFS_BLKSIZ)
+@@ -467,12 +469,6 @@ static inline void __submit_bio(struct bio *bio, unsigned int op,
+ 	submit_bio(bio);
+ }
+ 
+-#ifndef CONFIG_EROFS_FS_IO_MAX_RETRIES
+-#define EROFS_IO_MAX_RETRIES_NOFAIL	0
+-#else
+-#define EROFS_IO_MAX_RETRIES_NOFAIL	CONFIG_EROFS_FS_IO_MAX_RETRIES
+-#endif
+-
+ struct page *__erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr,
+ 				   bool prio, bool nofail);
+ 
 -- 
 2.17.1
