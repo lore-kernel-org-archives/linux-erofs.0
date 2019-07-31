@@ -1,68 +1,140 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:38 +0800
-Subject: [PATCH v2 08/22] staging: erofs: kill CONFIG_EROFS_FS_IO_MAX_RETRIES
+Date: Wed, 31 Jul 2019 23:57:40 +0800
+Subject: [PATCH v2 10/22] staging: erofs: kill sbi->dev_name
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-9-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-11-gaoxiang25@huawei.com>
 
-CONFIG_EROFS_FS_IO_MAX_RETRIES seems a runtime setting
-and users have no idea about the change in behaviour.
+As Al said, "the only use of sbi->dev_name is debugging
+printks and all of those have sb->s_id available, with
+device name stored in there.  Which makes the whole
+thing bloody weird".
 
-Let's remove the setting currently and could turn it
-into a module parameter if it's really needed.
+sbi->dev_name was used for our debugging use and it's
+better to just use s_id in community and delete
+the whole erofs_mount_private stuff.
 
-Suggested-by: David Sterba <dsterba at suse.cz>
+Suggested-by: Al Viro <viro at zeniv.linux.org.uk>
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/Kconfig    | 9 ---------
- drivers/staging/erofs/internal.h | 8 ++------
- 2 files changed, 2 insertions(+), 15 deletions(-)
+ drivers/staging/erofs/internal.h |  2 --
+ drivers/staging/erofs/super.c    | 54 +++++---------------------------
+ 2 files changed, 7 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
-index 2577cbb46a5b..747e9eebfaa5 100644
---- a/drivers/staging/erofs/Kconfig
-+++ b/drivers/staging/erofs/Kconfig
-@@ -78,15 +78,6 @@ config EROFS_FAULT_INJECTION
- 	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
- 	  If unsure, say N.
- 
--config EROFS_FS_IO_MAX_RETRIES
--	int "EROFS IO Maximum Retries"
--	depends on EROFS_FS
--	default "5"
--	help
--	  Maximum retry count of IO Errors.
--
--	  If unsure, leave the default value (5 retries, 6 IOs at most).
--
- config EROFS_FS_ZIP
- 	bool "EROFS Data Compresssion Support"
- 	depends on EROFS_FS
 diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index 959bd0ae9d74..a3b9fcdd0c27 100644
+index e149cf9fc23f..5e1ef2b5a458 100644
 --- a/drivers/staging/erofs/internal.h
 +++ b/drivers/staging/erofs/internal.h
-@@ -279,6 +279,8 @@ static inline void z_erofs_exit_zip_subsystem(void) {}
- #error erofs cannot be used in this platform
+@@ -113,8 +113,6 @@ struct erofs_sb_info {
+ 	u8 volume_name[16];             /* volume name */
+ 	u32 requirements;
+ 
+-	char *dev_name;
+-
+ 	unsigned int mount_opt;
+ 
+ #ifdef CONFIG_EROFS_FAULT_INJECTION
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index 7e6fe9cd45e7..bfb6e1e09781 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -362,15 +362,13 @@ static struct inode *erofs_init_managed_cache(struct super_block *sb)
+ 
  #endif
  
-+#define EROFS_IO_MAX_RETRIES_NOFAIL     5
-+
- #define ROOT_NID(sb)		((sb)->root_nid)
+-static int erofs_read_super(struct super_block *sb,
+-			    const char *dev_name,
+-			    void *data, int silent)
++static int erofs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *inode;
+ 	struct erofs_sb_info *sbi;
+ 	int err = -EINVAL;
  
- #define erofs_blknr(addr)       ((addr) / EROFS_BLKSIZ)
-@@ -467,12 +469,6 @@ static inline void __submit_bio(struct bio *bio, unsigned int op,
- 	submit_bio(bio);
+-	infoln("read_super, device -> %s", dev_name);
++	infoln("fill_super, device -> %s", sb->s_id);
+ 	infoln("options -> %s", (char *)data);
+ 
+ 	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
+@@ -448,30 +446,16 @@ static int erofs_read_super(struct super_block *sb,
+ 		goto err_iget;
+ 	}
+ 
+-	/* save the device name to sbi */
+-	sbi->dev_name = __getname();
+-	if (!sbi->dev_name) {
+-		err = -ENOMEM;
+-		goto err_devname;
+-	}
+-
+-	snprintf(sbi->dev_name, PATH_MAX, "%s", dev_name);
+-	sbi->dev_name[PATH_MAX - 1] = '\0';
+-
+ 	erofs_shrinker_register(sb);
+ 
+ 	if (!silent)
+-		infoln("mounted on %s with opts: %s.", dev_name,
+-		       (char *)data);
++		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
+ 	return 0;
+ 	/*
+ 	 * please add a label for each exit point and use
+ 	 * the following name convention, thus new features
+ 	 * can be integrated easily without renaming labels.
+ 	 */
+-err_devname:
+-	dput(sb->s_root);
+-	sb->s_root = NULL;
+ err_iget:
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+ 	iput(sbi->managed_cache);
+@@ -499,8 +483,7 @@ static void erofs_put_super(struct super_block *sb)
+ 
+ 	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
+ 
+-	infoln("unmounted for %s", sbi->dev_name);
+-	__putname(sbi->dev_name);
++	infoln("unmounted for %s", sb->s_id);
+ 
+ 	erofs_shrinker_unregister(sb);
+ #ifdef EROFS_FS_HAS_MANAGED_CACHE
+@@ -510,33 +493,10 @@ static void erofs_put_super(struct super_block *sb)
+ 	sb->s_fs_info = NULL;
  }
  
--#ifndef CONFIG_EROFS_FS_IO_MAX_RETRIES
--#define EROFS_IO_MAX_RETRIES_NOFAIL	0
--#else
--#define EROFS_IO_MAX_RETRIES_NOFAIL	CONFIG_EROFS_FS_IO_MAX_RETRIES
--#endif
 -
- struct page *__erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr,
- 				   bool prio, bool nofail);
+-struct erofs_mount_private {
+-	const char *dev_name;
+-	char *options;
+-};
+-
+-/* support mount_bdev() with options */
+-static int erofs_fill_super(struct super_block *sb,
+-			    void *_priv, int silent)
+-{
+-	struct erofs_mount_private *priv = _priv;
+-
+-	return erofs_read_super(sb, priv->dev_name,
+-		priv->options, silent);
+-}
+-
+-static struct dentry *erofs_mount(
+-	struct file_system_type *fs_type, int flags,
+-	const char *dev_name, void *data)
++static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
++				  const char *dev_name, void *data)
+ {
+-	struct erofs_mount_private priv = {
+-		.dev_name = dev_name,
+-		.options = data
+-	};
+-
+-	return mount_bdev(fs_type, flags, dev_name,
+-		&priv, erofs_fill_super);
++	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
+ }
  
+ static struct file_system_type erofs_fs_type = {
 -- 
 2.17.1
