@@ -1,19 +1,16 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 31 Jul 2019 14:53:42 +0800
-Subject: [PATCH 06/22] staging: erofs: clean up internal.h
-In-Reply-To: <20190729065159.62378-7-gaoxiang25@huawei.com>
+Date: Wed, 31 Jul 2019 15:03:34 +0800
+Subject: [PATCH 07/22] staging: erofs: remove redundant #include
+ "internal.h"
+In-Reply-To: <20190729065159.62378-8-gaoxiang25@huawei.com>
 References: <20190729065159.62378-1-gaoxiang25@huawei.com>
- <20190729065159.62378-7-gaoxiang25@huawei.com>
-Message-ID: <3d0a37e4-c0fa-d7c2-b52e-3885fa9693b5@huawei.com>
+ <20190729065159.62378-8-gaoxiang25@huawei.com>
+Message-ID: <bae5fc5b-b2e1-0d74-6374-b1ae5835cbb9@huawei.com>
 
 On 2019/7/29 14:51, Gao Xiang wrote:
-> Tidy up relative order of variables / declarations in internal.h,
-> and moving some local static functions out to other files.
-> 
-> No logic change.
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> Because #include "internal.h" is included in xattr.h
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+I think it would be better to remove "internal.h" in xattr.h, and include them
+both in .c file in where we need xattr definition.
 
 Thanks,
