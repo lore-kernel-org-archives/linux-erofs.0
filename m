@@ -1,97 +1,91 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 31 Jul 2019 16:20:02 +0800
-Subject: [PATCH 12/22] staging: erofs: refine erofs_allocpage()
-In-Reply-To: <20190729065159.62378-13-gaoxiang25@huawei.com>
+Date: Wed, 31 Jul 2019 16:27:07 +0800
+Subject: [PATCH 13/22] staging: erofs: kill CONFIG_EROFS_FS_USE_VM_MAP_RAM
+In-Reply-To: <20190729065159.62378-14-gaoxiang25@huawei.com>
 References: <20190729065159.62378-1-gaoxiang25@huawei.com>
- <20190729065159.62378-13-gaoxiang25@huawei.com>
-Message-ID: <e0a7e012-813c-7313-fecf-3673562aa107@huawei.com>
+ <20190729065159.62378-14-gaoxiang25@huawei.com>
+Message-ID: <20868d59-a563-a14c-7dca-8e2a15bdb9d6@huawei.com>
 
 On 2019/7/29 14:51, Gao Xiang wrote:
-> remove duplicated code in decompressor by introducing
-> failable erofs_allocpage().
+> Turn into a module parameter ("use_vmap") as it
+> can be set at runtime.
 > 
+> Suggested-by: David Sterba <dsterba at suse.cz>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 > ---
->  drivers/staging/erofs/decompressor.c | 12 +++---------
->  drivers/staging/erofs/internal.h     |  2 +-
->  drivers/staging/erofs/utils.c        |  5 +++--
->  drivers/staging/erofs/zdata.c        |  2 +-
->  4 files changed, 8 insertions(+), 13 deletions(-)
+>  drivers/staging/erofs/Kconfig        |  8 ------
+>  drivers/staging/erofs/decompressor.c | 37 +++++++++++++++-------------
+>  2 files changed, 20 insertions(+), 25 deletions(-)
 > 
+> diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+> index 747e9eebfaa5..788beebf3f7d 100644
+> --- a/drivers/staging/erofs/Kconfig
+> +++ b/drivers/staging/erofs/Kconfig
+> @@ -63,14 +63,6 @@ config EROFS_FS_SECURITY
+>  
+>  	  If you are not using a security module, say N.
+>  
+> -config EROFS_FS_USE_VM_MAP_RAM
+> -	bool "EROFS VM_MAP_RAM Support"
+> -	depends on EROFS_FS
+> -	help
+> -	  use vm_map_ram/vm_unmap_ram instead of vmap/vunmap.
+> -
+> -	  If you don't know what these are, say N.
+> -
+>  config EROFS_FAULT_INJECTION
+>  	bool "EROFS fault injection facility"
+>  	depends on EROFS_FS
 > diff --git a/drivers/staging/erofs/decompressor.c b/drivers/staging/erofs/decompressor.c
-> index ee5762351f80..744c43a456e9 100644
+> index 744c43a456e9..5352a50981cb 100644
 > --- a/drivers/staging/erofs/decompressor.c
 > +++ b/drivers/staging/erofs/decompressor.c
-> @@ -74,15 +74,9 @@ static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
->  			victim = availables[--top];
->  			get_page(victim);
->  		} else {
-> -			if (!list_empty(pagepool)) {
-> -				victim = lru_to_page(pagepool);
-> -				list_del(&victim->lru);
-> -				DBG_BUGON(page_ref_count(victim) != 1);
-> -			} else {
-> -				victim = alloc_pages(GFP_KERNEL, 0);
-> -				if (!victim)
-> -					return -ENOMEM;
-> -			}
-> +			victim = erofs_allocpage(pagepool, GFP_KERNEL, false);
-> +			if (unlikely(!victim))
-> +				return -ENOMEM;
->  			victim->mapping = Z_EROFS_MAPPING_STAGING;
->  		}
->  		rq->out[i] = victim;
-> diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-> index b206a85776b4..e35c7d8f75d2 100644
-> --- a/drivers/staging/erofs/internal.h
-> +++ b/drivers/staging/erofs/internal.h
-> @@ -517,7 +517,7 @@ int erofs_namei(struct inode *dir, struct qstr *name,
->  extern const struct file_operations erofs_dir_fops;
+> @@ -7,6 +7,7 @@
+>   * Created by Gao Xiang <gaoxiang25 at huawei.com>
+>   */
+>  #include "compress.h"
+> +#include <linux/module.h>
+>  #include <linux/lz4.h>
 >  
->  /* utils.c / zdata.c */
-> -struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
-> +struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail);
+>  #ifndef LZ4_DISTANCE_MAX	/* history window size */
+> @@ -29,6 +30,10 @@ struct z_erofs_decompressor {
+>  	char *name;
+>  };
 >  
->  #if (EROFS_PCPUBUF_NR_PAGES > 0)
->  void *erofs_get_pcpubuf(unsigned int pagenr);
-> diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-> index 0e86e44d60d0..260ea2970b4b 100644
-> --- a/drivers/staging/erofs/utils.c
-> +++ b/drivers/staging/erofs/utils.c
-> @@ -9,15 +9,16 @@
->  #include "internal.h"
->  #include <linux/pagevec.h>
->  
-> -struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
-> +struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail)
->  {
->  	struct page *page;
->  
->  	if (!list_empty(pool)) {
->  		page = lru_to_page(pool);
-> +		DBG_BUGON(page_ref_count(page) != 1);
->  		list_del(&page->lru);
->  	} else {
-> -		page = alloc_pages(gfp | __GFP_NOFAIL, 0);
-> +		page = alloc_pages(gfp | (nofail ? __GFP_NOFAIL : 0), 0);
->  	}
->  	return page;
->  }
-> diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-> index bc478eebf509..02560b940558 100644
-> --- a/drivers/staging/erofs/zdata.c
-> +++ b/drivers/staging/erofs/zdata.c
-> @@ -634,7 +634,7 @@ z_erofs_vle_work_iter_end(struct z_erofs_vle_work_builder *builder)
->  static inline struct page *__stagingpage_alloc(struct list_head *pagepool,
->  					       gfp_t gfp)
->  {
-> -	struct page *page = erofs_allocpage(pagepool, gfp);
-> +	struct page *page = erofs_allocpage(pagepool, gfp, true);
->  
->  	if (unlikely(!page))
->  		return NULL;
+> +static bool use_vmap;
+> +module_param(use_vmap, bool, 0444);
+> +MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
 
-Should remove it.
+This should be documented in erofs.txt simply.
+
+> +
+>  static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+>  				 struct list_head *pagepool)
+>  {
+> @@ -219,29 +224,27 @@ static void copy_from_pcpubuf(struct page **out, const char *dst,
+>  
+>  static void *erofs_vmap(struct page **pages, unsigned int count)
+>  {
+> -#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+> -	int i = 0;
+> -
+> -	while (1) {
+> -		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
+> -		/* retry two more times (totally 3 times) */
+> -		if (addr || ++i >= 3)
+> -			return addr;
+> -		vm_unmap_aliases();
+> +	if (!use_vmap) {
+
+Minor thing.
+
+if (use_vmap)
+	return vmap(pages, count, VM_MAP, PAGE_KERNEL);
+
+while (1) {
+}
+
+return NULL;
 
 Otherwise, it looks good to me.
 
@@ -99,4 +93,35 @@ Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
 Thanks,
 
+> +		int i = 0;
+> +
+> +		while (1) {
+> +			void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
+> +			/* retry two more times (totally 3 times) */
+> +			if (addr || ++i >= 3)
+> +				return addr;
+> +			vm_unmap_aliases();
+> +		}
+> +		return NULL;
+>  	}
+> -	return NULL;
+> -#else
+>  	return vmap(pages, count, VM_MAP, PAGE_KERNEL);
+> -#endif
+>  }
+>  
+>  static void erofs_vunmap(const void *mem, unsigned int count)
+>  {
+> -#ifdef CONFIG_EROFS_FS_USE_VM_MAP_RAM
+> -	vm_unmap_ram(mem, count);
+> -#else
+> -	vunmap(mem);
+> -#endif
+> +	if (!use_vmap)
+> +		vm_unmap_ram(mem, count);
+> +	else
+> +		vunmap(mem);
+>  }
+>  
+>  static int decompress_generic(struct z_erofs_decompress_req *rq,
 > 
