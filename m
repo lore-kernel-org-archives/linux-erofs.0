@@ -1,91 +1,82 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:50 +0800
-Subject: [PATCH v2 20/22] staging: erofs: tidy up utils.c
+Date: Wed, 31 Jul 2019 23:57:48 +0800
+Subject: [PATCH v2 18/22] staging: erofs: remove clusterbits in sbi
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-21-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-19-gaoxiang25@huawei.com>
 
-Keep in line with erofs-outofstaging patchset:
- - Update comments in erofs_try_to_release_workgroup;
- - code style cleanup.
+clustersize can now be set on per-file basis
+rather than per-filesystem basis.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/utils.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/staging/erofs/internal.h | 5 -----
+ drivers/staging/erofs/super.c    | 9 ---------
+ drivers/staging/erofs/zmap.c     | 3 +--
+ 3 files changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/staging/erofs/utils.c b/drivers/staging/erofs/utils.c
-index 0e6308b15717..814c2ee037ae 100644
---- a/drivers/staging/erofs/utils.c
-+++ b/drivers/staging/erofs/utils.c
-@@ -114,8 +114,7 @@ int erofs_register_workgroup(struct super_block *sb,
- 	 */
- 	__erofs_workgroup_get(grp);
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index a631acd0dc62..3176c350779e 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -77,8 +77,6 @@ struct erofs_sb_info {
+ 	struct list_head list;
+ 	struct mutex umount_mutex;
  
--	err = radix_tree_insert(&sbi->workstn_tree,
--				grp->index, grp);
-+	err = radix_tree_insert(&sbi->workstn_tree, grp->index, grp);
- 	if (unlikely(err))
- 		/*
- 		 * it's safe to decrease since the workgroup isn't visible
-@@ -156,18 +155,18 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- 					   bool cleanup)
+-	/* cluster size in bit shift */
+-	unsigned char clusterbits;
+ 	/* the dedicated workstation for compression */
+ 	struct radix_tree_root workstn_tree;
+ 
+@@ -248,9 +246,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ /* hard limit of pages per compressed cluster */
+ #define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
+ #define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
+-
+-/* page count of a compressed cluster */
+-#define erofs_clusterpages(sbi)         ((1 << (sbi)->clusterbits) / PAGE_SIZE)
+ #else
+ #define EROFS_PCPUBUF_NR_PAGES          0
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index af5d87793e4d..dad5a3137988 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -124,15 +124,6 @@ static int superblock_read(struct super_block *sb)
+ 	sbi->xattr_blkaddr = le32_to_cpu(layout->xattr_blkaddr);
+ #endif
+ 	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
+-#ifdef CONFIG_EROFS_FS_ZIP
+-	/* TODO: clusterbits should be related to inode */
+-	sbi->clusterbits = blkszbits;
+-
+-	if (1 << (sbi->clusterbits - PAGE_SHIFT) > Z_EROFS_CLUSTER_MAX_PAGES)
+-		errln("clusterbits %u is not supported on this kernel",
+-		      sbi->clusterbits);
+-#endif
+-
+ 	sbi->root_nid = le16_to_cpu(layout->root_nid);
+ 	sbi->inos = le64_to_cpu(layout->inos);
+ 
+diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
+index 205e884ca4e0..aeed5c674d9e 100644
+--- a/drivers/staging/erofs/zmap.c
++++ b/drivers/staging/erofs/zmap.c
+@@ -13,13 +13,12 @@
+ int z_erofs_fill_inode(struct inode *inode)
  {
- 	/*
--	 * for managed cache enabled, the refcount of workgroups
--	 * themselves could be < 0 (freezed). So there is no guarantee
--	 * that all refcount > 0 if managed cache is enabled.
-+	 * If managed cache is on, refcount of workgroups
-+	 * themselves could be < 0 (freezed). In other words,
-+	 * there is no guarantee that all refcounts > 0.
- 	 */
- 	if (!erofs_workgroup_try_to_freeze(grp, 1))
- 		return false;
+ 	struct erofs_vnode *const vi = EROFS_V(inode);
+-	struct super_block *const sb = inode->i_sb;
  
- 	/*
--	 * note that all cached pages should be unlinked
--	 * before delete it from the radix tree.
--	 * Otherwise some cached pages of an orphan old workgroup
--	 * could be still linked after the new one is available.
-+	 * Note that all cached pages should be unattached
-+	 * before deleted from the radix tree. Otherwise some
-+	 * cached pages could be still attached to the orphan
-+	 * old workgroup when the new one is available in the tree.
- 	 */
- 	if (erofs_try_to_free_all_cached_pages(sbi, grp)) {
- 		erofs_workgroup_unfreeze(grp, 1);
-@@ -175,7 +174,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- 	}
- 
- 	/*
--	 * it is impossible to fail after the workgroup is freezed,
-+	 * It's impossible to fail after the workgroup is freezed,
- 	 * however in order to avoid some race conditions, add a
- 	 * DBG_BUGON to observe this in advance.
- 	 */
-@@ -183,8 +182,8 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- 						     grp->index)) != grp);
- 
- 	/*
--	 * if managed cache is enable, the last refcount
--	 * should indicate the related workstation.
-+	 * If managed cache is on, last refcount should indicate
-+	 * the related workstation.
- 	 */
- 	erofs_workgroup_unfreeze_final(grp);
- 	return true;
-@@ -273,9 +272,9 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 	unsigned long freed = 0;
- 
- 	spin_lock(&erofs_sb_list_lock);
--	do
-+	do {
- 		run_no = ++shrinker_run_no;
--	while (run_no == 0);
-+	} while (run_no == 0);
- 
- 	/* Iterate over all mounted superblocks and try to shrink them */
- 	p = erofs_sb_list.next;
+ 	if (vi->datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY) {
+ 		vi->z_advise = 0;
+ 		vi->z_algorithmtype[0] = 0;
+ 		vi->z_algorithmtype[1] = 0;
+-		vi->z_logical_clusterbits = EROFS_SB(sb)->clusterbits;
++		vi->z_logical_clusterbits = LOG_BLOCK_SIZE;
+ 		vi->z_physical_clusterbits[0] = vi->z_logical_clusterbits;
+ 		vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits;
+ 		set_bit(EROFS_V_Z_INITED_BIT, &vi->flags);
 -- 
 2.17.1
