@@ -1,31 +1,64 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:42 +0800
-Subject: [PATCH v2 12/22] staging: erofs: drop __GFP_NOFAIL for managed inode
+Date: Wed, 31 Jul 2019 23:57:46 +0800
+Subject: [PATCH v2 16/22] staging: erofs: remove redundant braces in inode.c
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-13-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-17-gaoxiang25@huawei.com>
 
-For historical reasons, __GFP_NOFAIL was set for managed inode.
-It's no need using that since EROFS can handle it properly.
+Remove redundant braces in inode.c
+since these are all single statements.
 
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/super.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/staging/erofs/inode.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 7c31030daf4e..af5d87793e4d 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -356,8 +356,7 @@ static int erofs_init_managed_cache(struct super_block *sb)
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index c13d66ccc74a..286729143365 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -35,16 +35,15 @@ static int read_inode(struct inode *inode, void *data)
  
- 	inode->i_mapping->a_ops = &managed_cache_aops;
- 	mapping_set_gfp_mask(inode->i_mapping,
--			     GFP_NOFS | __GFP_HIGHMEM |
--			     __GFP_MOVABLE |  __GFP_NOFAIL);
-+			     GFP_NOFS | __GFP_HIGHMEM | __GFP_MOVABLE);
- 	sbi->managed_cache = inode;
- 	return 0;
- }
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+-		    S_ISLNK(inode->i_mode)) {
++		    S_ISLNK(inode->i_mode))
+ 			vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
+-		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
+ 			inode->i_rdev =
+ 				new_decode_dev(le32_to_cpu(v2->i_u.rdev));
+-		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
+ 			inode->i_rdev = 0;
+-		} else {
++		else
+ 			return -EIO;
+-		}
+ 
+ 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+@@ -69,16 +68,15 @@ static int read_inode(struct inode *inode, void *data)
+ 
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+-		    S_ISLNK(inode->i_mode)) {
++		    S_ISLNK(inode->i_mode))
+ 			vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
+-		} else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode)) {
++		else if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
+ 			inode->i_rdev =
+ 				new_decode_dev(le32_to_cpu(v1->i_u.rdev));
+-		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
++		else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
+ 			inode->i_rdev = 0;
+-		} else {
++		else
+ 			return -EIO;
+-		}
+ 
+ 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
 -- 
 2.17.1
