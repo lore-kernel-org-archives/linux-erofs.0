@@ -1,66 +1,112 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:33 +0800
-Subject: [PATCH v2 03/22] staging: erofs: fix dummy functions erofs_{get,
- list}xattr
+Date: Wed, 31 Jul 2019 23:57:45 +0800
+Subject: [PATCH v2 15/22] staging: erofs: tidy up zpvec.h
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-4-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-16-gaoxiang25@huawei.com>
 
-dummy functions erofs_{get,list}xattr should be inlined
-without xattr enabled.
+- use shorter function names:
+  z_erofs_pagevec_enqueue and z_erofs_pagevec_dequeue;
+- minor code cleanup.
 
-Signed-off-by: Yue Hu <zbestahu at gmail.com>
-[ Gao Xiang : this patch was "staging: erofs: remove needless
-              dummy functions of erofs_{get,list}xattr. "]
+In order to keep in line with erofs-outofstaging patchset.
+
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/xattr.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/staging/erofs/zdata.c |  6 +++---
+ drivers/staging/erofs/zpvec.h | 25 +++++++++----------------
+ 2 files changed, 12 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
-index fbcd57bdf886..63cc87e3d3f4 100644
---- a/drivers/staging/erofs/xattr.h
-+++ b/drivers/staging/erofs/xattr.h
-@@ -39,6 +39,7 @@ static inline unsigned int xattrblock_offset(struct erofs_sb_info *sbi,
- 	return (xattr_id * sizeof(__u32)) % EROFS_BLKSIZ;
+diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
+index 3078510e350d..88c8c4082498 100644
+--- a/drivers/staging/erofs/zdata.c
++++ b/drivers/staging/erofs/zdata.c
+@@ -314,8 +314,8 @@ static int z_erofs_vle_work_add_page(
+ 	    try_to_reuse_as_compressed_page(builder, page))
+ 		return 0;
+ 
+-	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector,
+-					   page, type, &occupied);
++	ret = z_erofs_pagevec_enqueue(&builder->vector,
++				      page, type, &occupied);
+ 	builder->work->vcnt += (unsigned int)ret;
+ 
+ 	return ret ? 0 : -EAGAIN;
+@@ -938,7 +938,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+ 	for (i = 0; i < work->vcnt; ++i) {
+ 		unsigned int pagenr;
+ 
+-		page = z_erofs_pagevec_ctor_dequeue(&ctor, &page_type);
++		page = z_erofs_pagevec_dequeue(&ctor, &page_type);
+ 
+ 		/* all pages in pagevec ought to be valid */
+ 		DBG_BUGON(!page);
+diff --git a/drivers/staging/erofs/zpvec.h b/drivers/staging/erofs/zpvec.h
+index 77bf6877bad8..9798f5627786 100644
+--- a/drivers/staging/erofs/zpvec.h
++++ b/drivers/staging/erofs/zpvec.h
+@@ -11,7 +11,7 @@
+ 
+ #include "tagptr.h"
+ 
+-/* page type in pagevec for unzip subsystem */
++/* page type in pagevec for decompress subsystem */
+ enum z_erofs_page_type {
+ 	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
+ 	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
+@@ -103,16 +103,14 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
+ 			z_erofs_pagevec_ctor_pagedown(ctor, false);
+ 		}
+ 	}
+-
+ 	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
+ 	ctor->index = i;
  }
  
-+#ifdef CONFIG_EROFS_FS_XATTR
- extern const struct xattr_handler erofs_xattr_user_handler;
- extern const struct xattr_handler erofs_xattr_trusted_handler;
- #ifdef CONFIG_EROFS_FS_SECURITY
-@@ -64,25 +65,24 @@ static const struct xattr_handler *xattr_handler_map[] = {
- 		xattr_handler_map[idx] : NULL;
- }
- 
--#ifdef CONFIG_EROFS_FS_XATTR
- extern const struct xattr_handler *erofs_xattr_handlers[];
- 
- int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
- ssize_t erofs_listxattr(struct dentry *, char *, size_t);
- #else
--static int __maybe_unused erofs_getxattr(struct inode *inode, int index,
--	const char *name,
--	void *buffer, size_t buffer_size)
-+static inline int erofs_getxattr(struct inode *inode, int index,
-+				 const char *name, void *buffer,
-+				 size_t buffer_size)
+-static inline bool
+-z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
+-			     struct page *page,
+-			     enum z_erofs_page_type type,
+-			     bool *occupied)
++static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
++					   struct page *page,
++					   enum z_erofs_page_type type,
++					   bool *occupied)
  {
- 	return -ENOTSUPP;
+ 	*occupied = false;
+ 	if (unlikely(!ctor->next && type))
+@@ -131,15 +129,13 @@ z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 		ctor->next = page;
+ 		*occupied = true;
+ 	}
+-
+-	ctor->pages[ctor->index++] =
+-		tagptr_fold(erofs_vtptr_t, page, type);
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
+ 	return true;
  }
  
--static ssize_t __maybe_unused erofs_listxattr(struct dentry *dentry,
--	char *buffer, size_t buffer_size)
-+static inline ssize_t erofs_listxattr(struct dentry *dentry,
-+				      char *buffer, size_t buffer_size)
+ static inline struct page *
+-z_erofs_pagevec_ctor_dequeue(struct z_erofs_pagevec_ctor *ctor,
+-			     enum z_erofs_page_type *type)
++z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
++			enum z_erofs_page_type *type)
  {
- 	return -ENOTSUPP;
- }
--#endif
-+#endif	/* !CONFIG_EROFS_FS_XATTR */
+ 	erofs_vtptr_t t;
  
- #ifdef CONFIG_EROFS_FS_POSIX_ACL
- struct posix_acl *erofs_get_acl(struct inode *inode, int type);
+@@ -156,11 +152,8 @@ z_erofs_pagevec_ctor_dequeue(struct z_erofs_pagevec_ctor *ctor,
+ 	if (*type == (uintptr_t)ctor->next)
+ 		ctor->next = tagptr_unfold_ptr(t);
+ 
+-	ctor->pages[ctor->index++] =
+-		tagptr_fold(erofs_vtptr_t, NULL, 0);
+-
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
+ 	return tagptr_unfold_ptr(t);
+ }
+-
+ #endif
+ 
 -- 
 2.17.1
