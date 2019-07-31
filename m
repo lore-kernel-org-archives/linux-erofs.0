@@ -1,62 +1,167 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 20:55:10 +0800
-Subject: [PATCH 08/22] staging: erofs: kill CONFIG_EROFS_FS_IO_MAX_RETRIES
-In-Reply-To: <985b3ca7-afee-006e-a367-98a865995246@huawei.com>
-References: <20190729065159.62378-1-gaoxiang25@huawei.com>
- <20190729065159.62378-9-gaoxiang25@huawei.com>
- <1c979e3f-54ec-cce8-650c-39e060e72169@huawei.com>
- <2d7abbad-61d0-df2b-6a42-26f2606d775a@huawei.com>
- <985b3ca7-afee-006e-a367-98a865995246@huawei.com>
-Message-ID: <845b43cb-3b9e-1b97-babe-a433078c4f9c@huawei.com>
+From: jack@suse.cz (Jan Kara)
+Date: Wed, 31 Jul 2019 15:01:48 +0200
+Subject: [PATCH v5 12/24] erofs: introduce tagged pointer
+In-Reply-To: <20190730071413.11871-13-gaoxiang25@huawei.com>
+References: <20190730071413.11871-1-gaoxiang25@huawei.com>
+ <20190730071413.11871-13-gaoxiang25@huawei.com>
+Message-ID: <20190731130148.GE15806@quack2.suse.cz>
 
-
-
-On 2019/7/31 20:10, Chao Yu wrote:
-> Hi Xiang,
+On Tue 30-07-19 15:14:01, Gao Xiang wrote:
+> Currently kernel has scattered tagged pointer usages
+> hacked by hand in plain code, without a unique and
+> portable functionset to highlight the tagged pointer
+> itself and wrap these hacked code in order to clean up
+> all over meaningless magic masks.
 > 
-> On 2019/7/31 15:11, Gao Xiang wrote:
->> Hi Chao,
->>
->> On 2019/7/31 15:05, Chao Yu wrote:
->>> On 2019/7/29 14:51, Gao Xiang wrote:
->>>> CONFIG_EROFS_FS_IO_MAX_RETRIES seems a runtime setting
->>>> and users have no idea about the change in behaviour.
->>>>
->>>> Let's remove the setting currently and fold it into code,
->>>> turn it into a module parameter if it's really needed.
->>>>
->>>> Suggested-by: David Sterba <dsterba at suse.cz>
->>>> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
->>>
->>> It's fine to me, but I'd like to suggest to add this as a sys entry which can be
->>> more flexible for user to change.
->>
->> I think it can be added in the later version, the original view
->> from David is that he had question how users using this option.
->>
->> Maybe we can use the default value and leave it to users who
->> really need to modify this value (real requirement).
+> This patch introduces simple generic methods to fold
+> tags into a pointer integer. Currently it supports
+> the last n bits of the pointer for tags, which can be
+> selected by users.
 > 
-> I think we need to decide it in this version, otherwise it may face backward
-> compatibility issue if we change module argument to sys entry later.
+> In addition, it will also be used for the upcoming EROFS
+> filesystem, which heavily uses tagged pointer pproach
+>  to reduce extra memory allocation.
 > 
-> Maybe just leave it as an fixed macro is fine, since there is actually no
-> requirement on this.
+> Link: https://en.wikipedia.org/wiki/Tagged_pointer
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
-OK, will fix it --- leave the fixed macro.
+I'm not sure the generic approach you take is really needed here... You can
+rely on getting at most two unused bits in the pointer anyway (and on mk68
+architecture I've heard even that is not true but I guess you don't care).
+So why not just define a single pointer type representing pointer with as
+many tags as you can get? Also what I find bad about your tagptr approach
+is that the way you've implemented it you loose the information about the
+original pointer type. So overall I'm not sure the benefits outweight the
+downsides but I guess that's a matter of taste and ultimately your call as
+a maintainer of this code.
 
-Thanks,
-Gao Xiang
+								Honza
 
+> ---
+>  fs/erofs/tagptr.h | 110 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 110 insertions(+)
+>  create mode 100644 fs/erofs/tagptr.h
 > 
-> Thanks,
+> diff --git a/fs/erofs/tagptr.h b/fs/erofs/tagptr.h
+> new file mode 100644
+> index 000000000000..a72897c86744
+> --- /dev/null
+> +++ b/fs/erofs/tagptr.h
+> @@ -0,0 +1,110 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * A tagged pointer implementation
+> + *
+> + * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
+> + */
+> +#ifndef __EROFS_FS_TAGPTR_H
+> +#define __EROFS_FS_TAGPTR_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/build_bug.h>
+> +
+> +/*
+> + * the name of tagged pointer types are tagptr{1, 2, 3...}_t
+> + * avoid directly using the internal structs __tagptr{1, 2, 3...}
+> + */
+> +#define __MAKE_TAGPTR(n) \
+> +typedef struct __tagptr##n {	\
+> +	uintptr_t v;	\
+> +} tagptr##n##_t;
+> +
+> +__MAKE_TAGPTR(1)
+> +__MAKE_TAGPTR(2)
+> +__MAKE_TAGPTR(3)
+> +__MAKE_TAGPTR(4)
+> +
+> +#undef __MAKE_TAGPTR
+> +
+> +extern void __compiletime_error("bad tagptr tags")
+> +	__bad_tagptr_tags(void);
+> +
+> +extern void __compiletime_error("bad tagptr type")
+> +	__bad_tagptr_type(void);
+> +
+> +/* fix the broken usage of "#define tagptr2_t tagptr3_t" by users */
+> +#define __tagptr_mask_1(ptr, n)	\
+> +	__builtin_types_compatible_p(typeof(ptr), struct __tagptr##n) ? \
+> +		(1UL << (n)) - 1 :
+> +
+> +#define __tagptr_mask(ptr)	(\
+> +	__tagptr_mask_1(ptr, 1) ( \
+> +	__tagptr_mask_1(ptr, 2) ( \
+> +	__tagptr_mask_1(ptr, 3) ( \
+> +	__tagptr_mask_1(ptr, 4) ( \
+> +	__bad_tagptr_type(), 0)))))
+> +
+> +/* generate a tagged pointer from a raw value */
+> +#define tagptr_init(type, val) \
+> +	((typeof(type)){ .v = (uintptr_t)(val) })
+> +
+> +/*
+> + * directly cast a tagged pointer to the native pointer type, which
+> + * could be used for backward compatibility of existing code.
+> + */
+> +#define tagptr_cast_ptr(tptr) ((void *)(tptr).v)
+> +
+> +/* encode tagged pointers */
+> +#define tagptr_fold(type, ptr, _tags) ({ \
+> +	const typeof(_tags) tags = (_tags); \
+> +	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
+> +		__bad_tagptr_tags(); \
+> +tagptr_init(type, (uintptr_t)(ptr) | tags); })
+> +
+> +/* decode tagged pointers */
+> +#define tagptr_unfold_ptr(tptr) \
+> +	((void *)((tptr).v & ~__tagptr_mask(tptr)))
+> +
+> +#define tagptr_unfold_tags(tptr) \
+> +	((tptr).v & __tagptr_mask(tptr))
+> +
+> +/* operations for the tagger pointer */
+> +#define tagptr_eq(_tptr1, _tptr2) ({ \
+> +	typeof(_tptr1) tptr1 = (_tptr1); \
+> +	typeof(_tptr2) tptr2 = (_tptr2); \
+> +	(void)(&tptr1 == &tptr2); \
+> +(tptr1).v == (tptr2).v; })
+> +
+> +/* lock-free CAS operation */
+> +#define tagptr_cmpxchg(_ptptr, _o, _n) ({ \
+> +	typeof(_ptptr) ptptr = (_ptptr); \
+> +	typeof(_o) o = (_o); \
+> +	typeof(_n) n = (_n); \
+> +	(void)(&o == &n); \
+> +	(void)(&o == ptptr); \
+> +tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
+> +
+> +/* wrap WRITE_ONCE if atomic update is needed */
+> +#define tagptr_replace_tags(_ptptr, tags) ({ \
+> +	typeof(_ptptr) ptptr = (_ptptr); \
+> +	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
+> +*ptptr; })
+> +
+> +#define tagptr_set_tags(_ptptr, _tags) ({ \
+> +	typeof(_ptptr) ptptr = (_ptptr); \
+> +	const typeof(_tags) tags = (_tags); \
+> +	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
+> +		__bad_tagptr_tags(); \
+> +	ptptr->v |= tags; \
+> +*ptptr; })
+> +
+> +#define tagptr_clear_tags(_ptptr, _tags) ({ \
+> +	typeof(_ptptr) ptptr = (_ptptr); \
+> +	const typeof(_tags) tags = (_tags); \
+> +	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
+> +		__bad_tagptr_tags(); \
+> +	ptptr->v &= ~tags; \
+> +*ptptr; })
+> +
+> +#endif	/* __EROFS_FS_TAGPTR_H */
+> +
+> -- 
+> 2.17.1
 > 
->>
->> Thanks,
->> Gao Xiang
->>
->>>
->>> Thanks
->>>
->> .
->>
+-- 
+Jan Kara <jack at suse.com>
+SUSE Labs, CR
