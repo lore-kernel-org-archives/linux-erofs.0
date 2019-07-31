@@ -1,112 +1,123 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 31 Jul 2019 23:57:45 +0800
-Subject: [PATCH v2 15/22] staging: erofs: tidy up zpvec.h
+Date: Wed, 31 Jul 2019 23:57:52 +0800
+Subject: [PATCH v2 22/22] staging: erofs: update Kconfig
 In-Reply-To: <20190731155752.210602-1-gaoxiang25@huawei.com>
 References: <20190731155752.210602-1-gaoxiang25@huawei.com>
-Message-ID: <20190731155752.210602-16-gaoxiang25@huawei.com>
+Message-ID: <20190731155752.210602-23-gaoxiang25@huawei.com>
 
-- use shorter function names:
-  z_erofs_pagevec_enqueue and z_erofs_pagevec_dequeue;
-- minor code cleanup.
-
-In order to keep in line with erofs-outofstaging patchset.
+Keep in line with erofs-outofstaging patchset:
+ - turn on CONFIG_EROFS_FS_ZIP by default;
+ - turn on CONFIG_EROFS_FS_SECURITY by default suggested by David;
+ - update Kconfig description.
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/zdata.c |  6 +++---
- drivers/staging/erofs/zpvec.h | 25 +++++++++----------------
- 2 files changed, 12 insertions(+), 19 deletions(-)
+ drivers/staging/erofs/Kconfig | 54 ++++++++++++++++++-----------------
+ 1 file changed, 28 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-index 3078510e350d..88c8c4082498 100644
---- a/drivers/staging/erofs/zdata.c
-+++ b/drivers/staging/erofs/zdata.c
-@@ -314,8 +314,8 @@ static int z_erofs_vle_work_add_page(
- 	    try_to_reuse_as_compressed_page(builder, page))
- 		return 0;
+diff --git a/drivers/staging/erofs/Kconfig b/drivers/staging/erofs/Kconfig
+index 1a8e48943e50..16316d1adca3 100644
+--- a/drivers/staging/erofs/Kconfig
++++ b/drivers/staging/erofs/Kconfig
+@@ -4,16 +4,16 @@ config EROFS_FS
+ 	tristate "EROFS filesystem support"
+ 	depends on BLOCK
+ 	help
+-	  EROFS(Enhanced Read-Only File System) is a lightweight
++	  EROFS (Enhanced Read-Only File System) is a lightweight
+ 	  read-only file system with modern designs (eg. page-sized
+ 	  blocks, inline xattrs/data, etc.) for scenarios which need
+-	  high-performance read-only requirements, eg. firmwares in
+-	  mobile phone or LIVECDs.
++	  high-performance read-only requirements, e.g. Android OS
++	  for mobile phones and LIVECDs.
  
--	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector,
--					   page, type, &occupied);
-+	ret = z_erofs_pagevec_enqueue(&builder->vector,
-+				      page, type, &occupied);
- 	builder->work->vcnt += (unsigned int)ret;
+-	  It also provides VLE compression support, focusing on
+-	  random read improvements, keeping relatively lower
+-	  compression ratios, which is useful for high-performance
+-	  devices with limited memory and ROM space.
++	  It also provides fixed-sized output compression support,
++	  which improves storage density, keeps relatively higher
++	  compression ratios, which is more useful to achieve high
++	  performance for embedded devices with limited memory.
  
- 	return ret ? 0 : -EAGAIN;
-@@ -938,7 +938,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	for (i = 0; i < work->vcnt; ++i) {
- 		unsigned int pagenr;
+ 	  If unsure, say N.
  
--		page = z_erofs_pagevec_ctor_dequeue(&ctor, &page_type);
-+		page = z_erofs_pagevec_dequeue(&ctor, &page_type);
+@@ -21,11 +21,19 @@ config EROFS_FS_DEBUG
+ 	bool "EROFS debugging feature"
+ 	depends on EROFS_FS
+ 	help
+-	  Print EROFS debugging messages and enable more BUG_ONs
+-	  which check the filesystem consistency aggressively.
++	  Print debugging messages and enable more BUG_ONs which check
++	  filesystem consistency and find potential issues aggressively,
++	  which can be used for Android eng build, for example.
  
- 		/* all pages in pagevec ought to be valid */
- 		DBG_BUGON(!page);
-diff --git a/drivers/staging/erofs/zpvec.h b/drivers/staging/erofs/zpvec.h
-index 77bf6877bad8..9798f5627786 100644
---- a/drivers/staging/erofs/zpvec.h
-+++ b/drivers/staging/erofs/zpvec.h
-@@ -11,7 +11,7 @@
+ 	  For daily use, say N.
  
- #include "tagptr.h"
++config EROFS_FAULT_INJECTION
++	bool "EROFS fault injection facility"
++	depends on EROFS_FS
++	help
++	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
++	  If unsure, say N.
++
+ config EROFS_FS_XATTR
+ 	bool "EROFS extended attributes"
+ 	depends on EROFS_FS
+@@ -54,6 +62,7 @@ config EROFS_FS_POSIX_ACL
+ config EROFS_FS_SECURITY
+ 	bool "EROFS Security Labels"
+ 	depends on EROFS_FS_XATTR
++	default y
+ 	help
+ 	  Security labels provide an access control facility to support Linux
+ 	  Security Models (LSMs) accepted by AppArmor, SELinux, Smack and TOMOYO
+@@ -63,22 +72,15 @@ config EROFS_FS_SECURITY
  
--/* page type in pagevec for unzip subsystem */
-+/* page type in pagevec for decompress subsystem */
- enum z_erofs_page_type {
- 	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
- 	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
-@@ -103,16 +103,14 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
- 			z_erofs_pagevec_ctor_pagedown(ctor, false);
- 		}
- 	}
+ 	  If you are not using a security module, say N.
+ 
+-config EROFS_FAULT_INJECTION
+-	bool "EROFS fault injection facility"
+-	depends on EROFS_FS
+-	help
+-	  Test EROFS to inject faults such as ENOMEM, EIO, and so on.
+-	  If unsure, say N.
 -
- 	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
- 	ctor->index = i;
- }
+ config EROFS_FS_ZIP
+-	bool "EROFS Data Compresssion Support"
++	bool "EROFS Data Compression Support"
+ 	depends on EROFS_FS
+ 	select LZ4_DECOMPRESS
++	default y
+ 	help
+-	  Currently we support LZ4 VLE Compression only.
+-	  Play at your own risk.
++	  Enable fixed-sized output compression for EROFS.
  
--static inline bool
--z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
--			     struct page *page,
--			     enum z_erofs_page_type type,
--			     bool *occupied)
-+static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
-+					   struct page *page,
-+					   enum z_erofs_page_type type,
-+					   bool *occupied)
- {
- 	*occupied = false;
- 	if (unlikely(!ctor->next && type))
-@@ -131,15 +129,13 @@ z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
- 		ctor->next = page;
- 		*occupied = true;
- 	}
--
--	ctor->pages[ctor->index++] =
--		tagptr_fold(erofs_vtptr_t, page, type);
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
- 	return true;
- }
+-	  If you don't want to use compression feature, say N.
++	  If you don't want to enable compression feature, say N.
  
- static inline struct page *
--z_erofs_pagevec_ctor_dequeue(struct z_erofs_pagevec_ctor *ctor,
--			     enum z_erofs_page_type *type)
-+z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
-+			enum z_erofs_page_type *type)
- {
- 	erofs_vtptr_t t;
+ config EROFS_FS_CLUSTER_PAGE_LIMIT
+ 	int "EROFS Cluster Pages Hard Limit"
+@@ -86,11 +88,11 @@ config EROFS_FS_CLUSTER_PAGE_LIMIT
+ 	range 1 256
+ 	default "1"
+ 	help
+-	  Indicates VLE compressed pages hard limit of a
+-	  compressed cluster.
++	  Indicates maximum # of pages of a compressed
++	  physical cluster.
  
-@@ -156,11 +152,8 @@ z_erofs_pagevec_ctor_dequeue(struct z_erofs_pagevec_ctor *ctor,
- 	if (*type == (uintptr_t)ctor->next)
- 		ctor->next = tagptr_unfold_ptr(t);
- 
--	ctor->pages[ctor->index++] =
--		tagptr_fold(erofs_vtptr_t, NULL, 0);
--
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
- 	return tagptr_unfold_ptr(t);
- }
--
- #endif
+-	  For example, if files of a image are compressed
+-	  into 8k-unit, the hard limit should not be less
+-	  than 2. Otherwise, the image cannot be mounted
+-	  correctly on this kernel.
++	  For example, if files in a image were compressed
++	  into 8k-unit, hard limit should not be configured
++	  less than 2. Otherwise, the image will be refused
++	  to mount on this kernel.
  
 -- 
 2.17.1
