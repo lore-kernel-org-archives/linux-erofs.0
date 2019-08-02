@@ -1,194 +1,203 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 2 Aug 2019 20:53:41 +0800
-Subject: [PATCH v6 18/24] erofs: introduce pagevec for decompression subsystem
+Date: Fri, 2 Aug 2019 20:53:38 +0800
+Subject: [PATCH v6 15/24] erofs: introduce erofs shrinker
 In-Reply-To: <20190802125347.166018-1-gaoxiang25@huawei.com>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
-Message-ID: <20190802125347.166018-19-gaoxiang25@huawei.com>
+Message-ID: <20190802125347.166018-16-gaoxiang25@huawei.com>
 
-For each physical cluster, there is a straight-forward
-way of allocating a fixed or variable-sized array to
-record the corresponding file pages for its decompression
-if we decide to decompress these pages asynchronously
-(eg. read-ahead case), however it will take variable-sized
-on-heap memory compared with traditional uncompressed
-filesystems.
+This patch adds a dedicated shrinker targeting to free
+unneeded memory consumed by a number of erofs in-memory
+data structures.
 
-This patch introduces a pagevec solution to reuse some
-allocated file page in the time-sharing approach to store
-parts of the array itself in order to minimize the extra
-memory overhead, thus only a small-sized constant array
-used for booting the whole array itself up will be needed.
+Like F2FS and UBIFS, it also adds:
+  - sbi->umount_mutex to avoid races on shrinker and put_super;
+  - sbi->shrinker_run_no to not revisit recently scanned objects.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/zpvec.h | 159 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 159 insertions(+)
- create mode 100644 fs/erofs/zpvec.h
+ fs/erofs/internal.h |  7 ++++
+ fs/erofs/super.c    |  6 +++
+ fs/erofs/utils.c    | 93 ++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 105 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
-new file mode 100644
-index 000000000000..bb7689e67836
---- /dev/null
-+++ b/fs/erofs/zpvec.h
-@@ -0,0 +1,159 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * linux/fs/erofs/zpvec.h
-+ *
-+ * Copyright (C) 2018 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_FS_ZPVEC_H
-+#define __EROFS_FS_ZPVEC_H
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 082fa4727c80..adc82993c8e9 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -64,6 +64,9 @@ struct erofs_sb_info {
+ #ifdef CONFIG_EROFS_FS_ZIP
+ 	/* list for all registered superblocks, mainly for shrinker */
+ 	struct list_head list;
++	struct mutex umount_mutex;
 +
-+#include "tagptr.h"
++	unsigned int shrinker_run_no;
+ #endif	/* CONFIG_EROFS_FS_ZIP */
+ 	u32 blocks;
+ 	u32 meta_blkaddr;
+@@ -409,9 +412,13 @@ extern const struct file_operations erofs_dir_fops;
+ #ifdef CONFIG_EROFS_FS_ZIP
+ void erofs_shrinker_register(struct super_block *sb);
+ void erofs_shrinker_unregister(struct super_block *sb);
++int __init erofs_init_shrinker(void);
++void erofs_exit_shrinker(void);
+ #else
+ static inline void erofs_shrinker_register(struct super_block *sb) {}
+ static inline void erofs_shrinker_unregister(struct super_block *sb) {}
++static inline int erofs_init_shrinker(void) { return 0; }
++static inline void erofs_exit_shrinker(void) {}
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
+ #endif	/* __EROFS_INTERNAL_H */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 2eca3b25db75..09992cc3b2fd 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -413,6 +413,9 @@ static int __init erofs_module_init(void)
+ 	if (err)
+ 		goto icache_err;
+ 
++	err = erofs_init_shrinker();
++	if (err)
++		goto shrinker_err;
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -421,6 +424,8 @@ static int __init erofs_module_init(void)
+ 	return 0;
+ 
+ fs_err:
++	erofs_exit_shrinker();
++shrinker_err:
+ 	erofs_exit_inode_cache();
+ icache_err:
+ 	return err;
+@@ -429,6 +434,7 @@ static int __init erofs_module_init(void)
+ static void __exit erofs_module_exit(void)
+ {
+ 	unregister_filesystem(&erofs_fs_type);
++	erofs_exit_shrinker();
+ 	erofs_exit_inode_cache();
+ 	infoln("successfully finalize erofs");
+ }
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index 791b2df1f761..cab7d77c4e59 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -9,6 +9,12 @@
+ #include "internal.h"
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
++/* global shrink count (for all mounted EROFS instances) */
++static atomic_long_t erofs_global_shrink_cnt;
 +
-+/* page type in pagevec for decompress subsystem */
-+enum z_erofs_page_type {
-+	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
-+	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
++/* protected by 'erofs_sb_list_lock' */
++static unsigned int shrinker_run_no;
 +
-+	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
+ /* protects the mounted 'erofs_sb_list' */
+ static DEFINE_SPINLOCK(erofs_sb_list_lock);
+ static LIST_HEAD(erofs_sb_list);
+@@ -17,6 +23,8 @@ void erofs_shrinker_register(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 
++	mutex_init(&sbi->umount_mutex);
 +
-+	Z_EROFS_VLE_PAGE_TYPE_HEAD,
-+	Z_EROFS_VLE_PAGE_TYPE_MAX
-+};
+ 	spin_lock(&erofs_sb_list_lock);
+ 	list_add(&sbi->list, &erofs_sb_list);
+ 	spin_unlock(&erofs_sb_list_lock);
+@@ -24,9 +32,92 @@ void erofs_shrinker_register(struct super_block *sb)
+ 
+ void erofs_shrinker_unregister(struct super_block *sb)
+ {
++	struct erofs_sb_info *const sbi = EROFS_SB(sb);
 +
-+extern void __compiletime_error("Z_EROFS_PAGE_TYPE_EXCLUSIVE != 0")
-+	__bad_page_type_exclusive(void);
++	mutex_lock(&sbi->umount_mutex);
++	/* will add shrink final handler here */
 +
-+/* pagevec tagged pointer */
-+typedef tagptr2_t	erofs_vtptr_t;
-+
-+/* pagevec collector */
-+struct z_erofs_pagevec_ctor {
-+	struct page *curr, *next;
-+	erofs_vtptr_t *pages;
-+
-+	unsigned int nr, index;
-+};
-+
-+static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
-+					     bool atomic)
-+{
-+	if (!ctor->curr)
-+		return;
-+
-+	if (atomic)
-+		kunmap_atomic(ctor->pages);
-+	else
-+		kunmap(ctor->curr);
++	spin_lock(&erofs_sb_list_lock);
++	list_del(&sbi->list);
++	spin_unlock(&erofs_sb_list_lock);
++	mutex_unlock(&sbi->umount_mutex);
 +}
 +
-+static inline struct page *
-+z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
-+			       unsigned int nr)
++static unsigned long erofs_shrink_count(struct shrinker *shrink,
++					struct shrink_control *sc)
 +{
-+	unsigned int index;
-+
-+	/* keep away from occupied pages */
-+	if (ctor->next)
-+		return ctor->next;
-+
-+	for (index = 0; index < nr; ++index) {
-+		const erofs_vtptr_t t = ctor->pages[index];
-+		const unsigned int tags = tagptr_unfold_tags(t);
-+
-+		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
-+			return tagptr_unfold_ptr(t);
-+	}
-+	DBG_BUGON(nr >= ctor->nr);
-+	return NULL;
++	return atomic_long_read(&erofs_global_shrink_cnt);
 +}
 +
-+static inline void
-+z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
-+			      bool atomic)
++static unsigned long erofs_shrink_scan(struct shrinker *shrink,
++				       struct shrink_control *sc)
 +{
-+	struct page *next = z_erofs_pagevec_ctor_next_page(ctor, ctor->nr);
++	struct erofs_sb_info *sbi;
++	struct list_head *p;
 +
-+	z_erofs_pagevec_ctor_exit(ctor, atomic);
++	unsigned long nr = sc->nr_to_scan;
++	unsigned int run_no;
++	unsigned long freed = 0;
 +
-+	ctor->curr = next;
-+	ctor->next = NULL;
-+	ctor->pages = atomic ?
-+		kmap_atomic(ctor->curr) : kmap(ctor->curr);
+ 	spin_lock(&erofs_sb_list_lock);
+-	list_del(&EROFS_SB(sb)->list);
++	do {
++		run_no = ++shrinker_run_no;
++	} while (run_no == 0);
 +
-+	ctor->nr = PAGE_SIZE / sizeof(struct page *);
-+	ctor->index = 0;
-+}
++	/* Iterate over all mounted superblocks and try to shrink them */
++	p = erofs_sb_list.next;
++	while (p != &erofs_sb_list) {
++		sbi = list_entry(p, struct erofs_sb_info, list);
 +
-+static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
-+					     unsigned int nr,
-+					     erofs_vtptr_t *pages,
-+					     unsigned int i)
-+{
-+	ctor->nr = nr;
-+	ctor->curr = ctor->next = NULL;
-+	ctor->pages = pages;
++		/*
++		 * We move the ones we do to the end of the list, so we stop
++		 * when we see one we have already done.
++		 */
++		if (sbi->shrinker_run_no == run_no)
++			break;
 +
-+	if (i >= nr) {
-+		i -= nr;
-+		z_erofs_pagevec_ctor_pagedown(ctor, false);
-+		while (i > ctor->nr) {
-+			i -= ctor->nr;
-+			z_erofs_pagevec_ctor_pagedown(ctor, false);
++		if (!mutex_trylock(&sbi->umount_mutex)) {
++			p = p->next;
++			continue;
 +		}
++
++		spin_unlock(&erofs_sb_list_lock);
++		sbi->shrinker_run_no = run_no;
++
++		/* will add shrink handler here */
++
++		spin_lock(&erofs_sb_list_lock);
++		/* Get the next list element before we move this one */
++		p = p->next;
++
++		/*
++		 * Move this one to the end of the list to provide some
++		 * fairness.
++		 */
++		list_move_tail(&sbi->list, &erofs_sb_list);
++		mutex_unlock(&sbi->umount_mutex);
++
++		if (freed >= nr)
++			break;
 +	}
-+	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
-+	ctor->index = i;
+ 	spin_unlock(&erofs_sb_list_lock);
++	return freed;
 +}
 +
-+static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
-+					   struct page *page,
-+					   enum z_erofs_page_type type,
-+					   bool *occupied)
++static struct shrinker erofs_shrinker_info = {
++	.scan_objects = erofs_shrink_scan,
++	.count_objects = erofs_shrink_count,
++	.seeks = DEFAULT_SEEKS,
++};
++
++int __init erofs_init_shrinker(void)
 +{
-+	*occupied = false;
-+	if (unlikely(!ctor->next && type))
-+		if (ctor->index + 1 == ctor->nr)
-+			return false;
-+
-+	if (unlikely(ctor->index >= ctor->nr))
-+		z_erofs_pagevec_ctor_pagedown(ctor, false);
-+
-+	/* exclusive page type must be 0 */
-+	if (Z_EROFS_PAGE_TYPE_EXCLUSIVE != (uintptr_t)NULL)
-+		__bad_page_type_exclusive();
-+
-+	/* should remind that collector->next never equal to 1, 2 */
-+	if (type == (uintptr_t)ctor->next) {
-+		ctor->next = page;
-+		*occupied = true;
-+	}
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
-+	return true;
++	return register_shrinker(&erofs_shrinker_info);
 +}
 +
-+static inline struct page *
-+z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
-+			enum z_erofs_page_type *type)
++void erofs_exit_shrinker(void)
 +{
-+	erofs_vtptr_t t;
-+
-+	if (unlikely(ctor->index >= ctor->nr)) {
-+		DBG_BUGON(!ctor->next);
-+		z_erofs_pagevec_ctor_pagedown(ctor, true);
-+	}
-+
-+	t = ctor->pages[ctor->index];
-+
-+	*type = tagptr_unfold_tags(t);
-+
-+	/* should remind that collector->next never equal to 1, 2 */
-+	if (*type == (uintptr_t)ctor->next)
-+		ctor->next = tagptr_unfold_ptr(t);
-+
-+	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
-+	return tagptr_unfold_ptr(t);
-+}
-+#endif
-+
++	unregister_shrinker(&erofs_shrinker_info);
+ }
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
 -- 
 2.17.1
