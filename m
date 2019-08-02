@@ -1,347 +1,123 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 2 Aug 2019 20:53:39 +0800
-Subject: [PATCH v6 16/24] erofs: introduce workstation for decompression
+Date: Fri, 2 Aug 2019 20:53:44 +0800
+Subject: [PATCH v6 21/24] erofs: introduce LZ4 decompression inplace
 In-Reply-To: <20190802125347.166018-1-gaoxiang25@huawei.com>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
-Message-ID: <20190802125347.166018-17-gaoxiang25@huawei.com>
+Message-ID: <20190802125347.166018-22-gaoxiang25@huawei.com>
 
-This patch introduces another concept used by decompress
-subsystem called 'workstation'. It can be seen as
-a sparse array that stores pointers pointed to data
-structures related to the corresponding physical clusters.
+compressed data will be usually loaded into last pages of
+the extent (the last page for 4k) for in-place decompression
+(more specifically, in-place IO), as ilustration below,
 
-All lookups are protected by RCU read lock. Besides,
-reference count and spin_lock are also introduced
-to manage its lifetime and serialize all update
-operations.
+         start of compressed logical extent
+           |                          end of this logical extent
+           |                           |
+     ______v___________________________v________
+... |  page 6  |  page 7  |  page 8  |  page 9  | ...
+    |__________|__________|__________|__________|
+           .                         ^ .        ^
+           .                         |compressed|
+           .                         |   data   |
+           .                           .        .
+           |<          dstsize        >|<margin>|
+                                       oend     iend
+           op                        ip
 
-`workstation' is currently implemented on the in-kernel
-radix tree approach for backward compatibility. With the
-evolution of linux kernel, it will be migrated into
-new XArray implementation in the future.
+Therefore, it's possible to do decompression inplace (thus no
+memcpy at all) if the margin is sufficient and safe enough [1],
+and it can be implemented only for fixed-size output compression
+compared with fixed-size input compression.
+
+No memcpy for most of in-place IO (about 99% of enwik9) after
+decompression inplace is implemented and sequential read will
+be improved of course (see the following patches for test results).
+
+[1] https://github.com/lz4/lz4/commit/b17f578a919b7e6b078cede2d52be29dd48c8e8c
+    https://github.com/lz4/lz4/commit/5997e139f53169fa3a1c1b4418d2452a90b01602
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/internal.h |  80 +++++++++++++++++++++
- fs/erofs/super.c    |   4 ++
- fs/erofs/utils.c    | 166 +++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 248 insertions(+), 2 deletions(-)
+ fs/erofs/decompressor.c | 36 ++++++++++++++++++++++++++++++++----
+ fs/erofs/erofs_fs.h     |  2 +-
+ 2 files changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index adc82993c8e9..6f0384c3f07a 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -66,6 +66,9 @@ struct erofs_sb_info {
- 	struct list_head list;
- 	struct mutex umount_mutex;
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 244afb29907d..1e9e1359e40c 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -15,6 +15,9 @@
+ #endif
  
-+	/* the dedicated workstation for compression */
-+	struct radix_tree_root workstn_tree;
-+
- 	unsigned int shrinker_run_no;
- #endif	/* CONFIG_EROFS_FS_ZIP */
- 	u32 blocks;
-@@ -151,6 +154,77 @@ static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
- #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
- #define test_opt(sbi, option)	((sbi)->mount_opt & EROFS_MOUNT_##option)
- 
-+#ifdef CONFIG_EROFS_FS_ZIP
-+#define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
-+
-+/* basic unit of the workstation of a super_block */
-+struct erofs_workgroup {
-+	/* the workgroup index in the workstation */
-+	pgoff_t index;
-+
-+	/* overall workgroup reference count */
-+	atomic_t refcount;
-+};
-+
-+#if defined(CONFIG_SMP)
-+static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
-+						 int val)
-+{
-+	preempt_disable();
-+	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
-+		preempt_enable();
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
-+					    int orig_val)
-+{
-+	/*
-+	 * other observers should notice all modifications
-+	 * in the freezing period.
-+	 */
-+	smp_mb();
-+	atomic_set(&grp->refcount, orig_val);
-+	preempt_enable();
-+}
-+
-+static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
-+{
-+	return atomic_cond_read_relaxed(&grp->refcount,
-+					VAL != EROFS_LOCKED_MAGIC);
-+}
-+#else
-+static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
-+						 int val)
-+{
-+	preempt_disable();
-+	/* no need to spin on UP platforms, let's just disable preemption. */
-+	if (val != atomic_read(&grp->refcount)) {
-+		preempt_enable();
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
-+					    int orig_val)
-+{
-+	preempt_enable();
-+}
-+
-+static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
-+{
-+	int v = atomic_read(&grp->refcount);
-+
-+	/* workgroup is never freezed on uniprocessor systems */
-+	DBG_BUGON(v == EROFS_LOCKED_MAGIC);
-+	return v;
-+}
-+#endif	/* !CONFIG_SMP */
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
-+
- /* we strictly follow PAGE_SIZE and no buffer head yet */
- #define LOG_BLOCK_SIZE		PAGE_SHIFT
- 
-@@ -410,6 +484,12 @@ extern const struct file_operations erofs_dir_fops;
- 
- /* utils.c */
- #ifdef CONFIG_EROFS_FS_ZIP
-+int erofs_workgroup_put(struct erofs_workgroup *grp);
-+struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
-+					     pgoff_t index, bool *tag);
-+int erofs_register_workgroup(struct super_block *sb,
-+			     struct erofs_workgroup *grp, bool tag);
-+static inline void erofs_workgroup_free_rcu(struct erofs_workgroup *grp) {}
- void erofs_shrinker_register(struct super_block *sb);
- void erofs_shrinker_unregister(struct super_block *sb);
- int __init erofs_init_shrinker(void);
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 09992cc3b2fd..ea8d065068fa 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -338,6 +338,10 @@ static int erofs_fill_super(struct super_block *sb, void *data, int silent)
- 	else
- 		sb->s_flags &= ~SB_POSIXACL;
- 
-+#ifdef CONFIG_EROFS_FS_ZIP
-+	INIT_RADIX_TREE(&sbi->workstn_tree, GFP_ATOMIC);
+ #define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
++#ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
++#define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
 +#endif
-+
- 	/* get the root inode */
- 	inode = erofs_iget(sb, ROOT_NID(sbi), true);
- 	if (IS_ERR(inode))
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index cab7d77c4e59..628178261056 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -7,11 +7,173 @@
-  * Created by Gao Xiang <gaoxiang25 at huawei.com>
-  */
- #include "internal.h"
-+#include <linux/pagevec.h>
  
- #ifdef CONFIG_EROFS_FS_ZIP
- /* global shrink count (for all mounted EROFS instances) */
- static atomic_long_t erofs_global_shrink_cnt;
+ struct z_erofs_decompressor {
+ 	/*
+@@ -117,7 +120,7 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ {
+ 	unsigned int inputmargin, inlen;
+ 	u8 *src;
+-	bool copied;
++	bool copied, support_0padding;
+ 	int ret;
  
-+#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
-+#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+ 	if (rq->inputsize > PAGE_SIZE)
+@@ -125,13 +128,38 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ 
+ 	src = kmap_atomic(*rq->in);
+ 	inputmargin = 0;
++	support_0padding = false;
 +
-+static int erofs_workgroup_get(struct erofs_workgroup *grp)
-+{
-+	int o;
++	/* decompression inplace is only safe when 0padding is enabled */
++	if (EROFS_SB(rq->sb)->requirements & EROFS_REQUIREMENT_LZ4_0PADDING) {
++		support_0padding = true;
 +
-+repeat:
-+	o = erofs_wait_on_workgroup_freezed(grp);
-+	if (unlikely(o <= 0))
-+		return -1;
++		while (!src[inputmargin & ~PAGE_MASK])
++			if (!(++inputmargin & ~PAGE_MASK))
++				break;
 +
-+	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
-+		goto repeat;
-+
-+	/* decrease refcount paired by erofs_workgroup_put */
-+	if (unlikely(o == 1))
-+		atomic_long_dec(&erofs_global_shrink_cnt);
-+	return 0;
-+}
-+
-+struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
-+					     pgoff_t index, bool *tag)
-+{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	struct erofs_workgroup *grp;
-+
-+repeat:
-+	rcu_read_lock();
-+	grp = radix_tree_lookup(&sbi->workstn_tree, index);
-+	if (grp) {
-+		*tag = xa_pointer_tag(grp);
-+		grp = xa_untag_pointer(grp);
-+
-+		if (erofs_workgroup_get(grp)) {
-+			/* prefer to relax rcu read side */
-+			rcu_read_unlock();
-+			goto repeat;
++		if (inputmargin >= rq->inputsize) {
++			kunmap_atomic(src);
++			return -EIO;
 +		}
-+
-+		DBG_BUGON(index != grp->index);
 +	}
-+	rcu_read_unlock();
-+	return grp;
-+}
-+
-+int erofs_register_workgroup(struct super_block *sb,
-+			     struct erofs_workgroup *grp,
-+			     bool tag)
-+{
-+	struct erofs_sb_info *sbi;
-+	int err;
-+
-+	/* grp shouldn't be broken or used before */
-+	if (unlikely(atomic_read(&grp->refcount) != 1)) {
-+		DBG_BUGON(1);
-+		return -EINVAL;
-+	}
-+
-+	err = radix_tree_preload(GFP_NOFS);
-+	if (err)
-+		return err;
-+
-+	sbi = EROFS_SB(sb);
-+	xa_lock(&sbi->workstn_tree);
-+
-+	grp = xa_tag_pointer(grp, tag);
-+
-+	/*
-+	 * Bump up reference count before making this workgroup
-+	 * visible to other users in order to avoid potential UAF
-+	 * without serialized by workstn_lock.
-+	 */
-+	__erofs_workgroup_get(grp);
-+
-+	err = radix_tree_insert(&sbi->workstn_tree, grp->index, grp);
-+	if (unlikely(err))
-+		/*
-+		 * it's safe to decrease since the workgroup isn't visible
-+		 * and refcount >= 2 (cannot be freezed).
-+		 */
-+		__erofs_workgroup_put(grp);
-+
-+	xa_unlock(&sbi->workstn_tree);
-+	radix_tree_preload_end();
-+	return err;
-+}
-+
-+static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
-+{
-+	atomic_long_dec(&erofs_global_shrink_cnt);
-+	erofs_workgroup_free_rcu(grp);
-+}
-+
-+int erofs_workgroup_put(struct erofs_workgroup *grp)
-+{
-+	int count = atomic_dec_return(&grp->refcount);
-+
-+	if (count == 1)
-+		atomic_long_inc(&erofs_global_shrink_cnt);
-+	else if (!count)
-+		__erofs_workgroup_free(grp);
-+	return count;
-+}
-+
-+/* for nocache case, no customized reclaim path at all */
-+static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
-+					   struct erofs_workgroup *grp,
-+					   bool cleanup)
-+{
-+	int cnt = atomic_read(&grp->refcount);
-+
-+	DBG_BUGON(cnt <= 0);
-+	DBG_BUGON(cleanup && cnt != 1);
-+
-+	if (cnt > 1)
-+		return false;
-+
-+	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
-+						     grp->index)) != grp);
-+
-+	/* (rarely) could be grabbed again when freeing */
-+	erofs_workgroup_put(grp);
-+	return true;
-+}
-+
-+static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
-+					      unsigned long nr_shrink,
-+					      bool cleanup)
-+{
-+	pgoff_t first_index = 0;
-+	void *batch[PAGEVEC_SIZE];
-+	unsigned int freed = 0;
-+
-+	int i, found;
-+repeat:
-+	xa_lock(&sbi->workstn_tree);
-+
-+	found = radix_tree_gang_lookup(&sbi->workstn_tree,
-+				       batch, first_index, PAGEVEC_SIZE);
-+
-+	for (i = 0; i < found; ++i) {
-+		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
-+
-+		first_index = grp->index + 1;
-+
-+		/* try to shrink each valid workgroup */
-+		if (!erofs_try_to_release_workgroup(sbi, grp, cleanup))
-+			continue;
-+
-+		++freed;
-+		if (unlikely(!--nr_shrink))
-+			break;
-+	}
-+	xa_unlock(&sbi->workstn_tree);
-+
-+	if (i && nr_shrink)
-+		goto repeat;
-+	return freed;
-+}
-+
- /* protected by 'erofs_sb_list_lock' */
- static unsigned int shrinker_run_no;
  
-@@ -35,7 +197,7 @@ void erofs_shrinker_unregister(struct super_block *sb)
- 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
+ 	copied = false;
+ 	inlen = rq->inputsize - inputmargin;
+ 	if (rq->inplace_io) {
+-		src = generic_copy_inplace_data(rq, src, inputmargin);
+-		inputmargin = 0;
+-		copied = true;
++		const uint oend = (rq->pageofs_out +
++				   rq->outputsize) & ~PAGE_MASK;
++		const uint nr = PAGE_ALIGN(rq->pageofs_out +
++					   rq->outputsize) >> PAGE_SHIFT;
++
++		if (rq->partial_decoding || !support_0padding ||
++		    rq->out[nr - 1] != rq->in[0] ||
++		    rq->inputsize - oend <
++		      LZ4_DECOMPRESS_INPLACE_MARGIN(inlen)) {
++			src = generic_copy_inplace_data(rq, src, inputmargin);
++			inputmargin = 0;
++			copied = true;
++		}
+ 	}
  
- 	mutex_lock(&sbi->umount_mutex);
--	/* will add shrink final handler here */
-+	erofs_shrink_workstation(sbi, ~0UL, true);
+ 	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index b307060dd220..25bda459f2e6 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -17,7 +17,7 @@
+  * incompatible with this kernel version.
+  */
+ #define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
+-#define EROFS_ALL_REQUIREMENTS		0
++#define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
  
- 	spin_lock(&erofs_sb_list_lock);
- 	list_del(&sbi->list);
-@@ -84,7 +246,7 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 		spin_unlock(&erofs_sb_list_lock);
- 		sbi->shrinker_run_no = run_no;
- 
--		/* will add shrink handler here */
-+		freed += erofs_shrink_workstation(sbi, nr, false);
- 
- 		spin_lock(&erofs_sb_list_lock);
- 		/* Get the next list element before we move this one */
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
 -- 
 2.17.1
