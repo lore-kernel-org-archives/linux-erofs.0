@@ -1,148 +1,194 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Fri, 2 Aug 2019 20:53:35 +0800
-Subject: [PATCH v6 12/24] erofs: introduce tagged pointer
+Date: Fri, 2 Aug 2019 20:53:41 +0800
+Subject: [PATCH v6 18/24] erofs: introduce pagevec for decompression subsystem
 In-Reply-To: <20190802125347.166018-1-gaoxiang25@huawei.com>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
-Message-ID: <20190802125347.166018-13-gaoxiang25@huawei.com>
+Message-ID: <20190802125347.166018-19-gaoxiang25@huawei.com>
 
-Currently kernel has scattered tagged pointer usages
-hacked by hand in plain code, without a unique and
-portable functionset to highlight the tagged pointer
-itself and wrap these hacked code in order to clean up
-all over meaningless magic masks.
+For each physical cluster, there is a straight-forward
+way of allocating a fixed or variable-sized array to
+record the corresponding file pages for its decompression
+if we decide to decompress these pages asynchronously
+(eg. read-ahead case), however it will take variable-sized
+on-heap memory compared with traditional uncompressed
+filesystems.
 
-This patch introduces simple generic methods to fold
-tags into a pointer integer. Currently it supports
-the last n bits of the pointer for tags, which can be
-selected by users.
-
-In addition, it will also be used for the upcoming EROFS
-filesystem, which heavily uses tagged pointer pproach
- to reduce extra memory allocation.
-
-Link: https://en.wikipedia.org/wiki/Tagged_pointer
+This patch introduces a pagevec solution to reuse some
+allocated file page in the time-sharing approach to store
+parts of the array itself in order to minimize the extra
+memory overhead, thus only a small-sized constant array
+used for booting the whole array itself up will be needed.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/tagptr.h | 110 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 110 insertions(+)
- create mode 100644 fs/erofs/tagptr.h
+ fs/erofs/zpvec.h | 159 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 159 insertions(+)
+ create mode 100644 fs/erofs/zpvec.h
 
-diff --git a/fs/erofs/tagptr.h b/fs/erofs/tagptr.h
+diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
 new file mode 100644
-index 000000000000..a72897c86744
+index 000000000000..bb7689e67836
 --- /dev/null
-+++ b/fs/erofs/tagptr.h
-@@ -0,0 +1,110 @@
++++ b/fs/erofs/zpvec.h
+@@ -0,0 +1,159 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
-+ * A tagged pointer implementation
++ * linux/fs/erofs/zpvec.h
 + *
-+ * Copyright (C) 2018 Gao Xiang <gaoxiang25 at huawei.com>
++ * Copyright (C) 2018 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#ifndef __EROFS_FS_TAGPTR_H
-+#define __EROFS_FS_TAGPTR_H
++#ifndef __EROFS_FS_ZPVEC_H
++#define __EROFS_FS_ZPVEC_H
 +
-+#include <linux/types.h>
-+#include <linux/build_bug.h>
++#include "tagptr.h"
 +
-+/*
-+ * the name of tagged pointer types are tagptr{1, 2, 3...}_t
-+ * avoid directly using the internal structs __tagptr{1, 2, 3...}
-+ */
-+#define __MAKE_TAGPTR(n) \
-+typedef struct __tagptr##n {	\
-+	uintptr_t v;	\
-+} tagptr##n##_t;
++/* page type in pagevec for decompress subsystem */
++enum z_erofs_page_type {
++	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
++	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
 +
-+__MAKE_TAGPTR(1)
-+__MAKE_TAGPTR(2)
-+__MAKE_TAGPTR(3)
-+__MAKE_TAGPTR(4)
++	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
 +
-+#undef __MAKE_TAGPTR
++	Z_EROFS_VLE_PAGE_TYPE_HEAD,
++	Z_EROFS_VLE_PAGE_TYPE_MAX
++};
 +
-+extern void __compiletime_error("bad tagptr tags")
-+	__bad_tagptr_tags(void);
++extern void __compiletime_error("Z_EROFS_PAGE_TYPE_EXCLUSIVE != 0")
++	__bad_page_type_exclusive(void);
 +
-+extern void __compiletime_error("bad tagptr type")
-+	__bad_tagptr_type(void);
++/* pagevec tagged pointer */
++typedef tagptr2_t	erofs_vtptr_t;
 +
-+/* fix the broken usage of "#define tagptr2_t tagptr3_t" by users */
-+#define __tagptr_mask_1(ptr, n)	\
-+	__builtin_types_compatible_p(typeof(ptr), struct __tagptr##n) ? \
-+		(1UL << (n)) - 1 :
++/* pagevec collector */
++struct z_erofs_pagevec_ctor {
++	struct page *curr, *next;
++	erofs_vtptr_t *pages;
 +
-+#define __tagptr_mask(ptr)	(\
-+	__tagptr_mask_1(ptr, 1) ( \
-+	__tagptr_mask_1(ptr, 2) ( \
-+	__tagptr_mask_1(ptr, 3) ( \
-+	__tagptr_mask_1(ptr, 4) ( \
-+	__bad_tagptr_type(), 0)))))
++	unsigned int nr, index;
++};
 +
-+/* generate a tagged pointer from a raw value */
-+#define tagptr_init(type, val) \
-+	((typeof(type)){ .v = (uintptr_t)(val) })
++static inline void z_erofs_pagevec_ctor_exit(struct z_erofs_pagevec_ctor *ctor,
++					     bool atomic)
++{
++	if (!ctor->curr)
++		return;
 +
-+/*
-+ * directly cast a tagged pointer to the native pointer type, which
-+ * could be used for backward compatibility of existing code.
-+ */
-+#define tagptr_cast_ptr(tptr) ((void *)(tptr).v)
++	if (atomic)
++		kunmap_atomic(ctor->pages);
++	else
++		kunmap(ctor->curr);
++}
 +
-+/* encode tagged pointers */
-+#define tagptr_fold(type, ptr, _tags) ({ \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(type))) \
-+		__bad_tagptr_tags(); \
-+tagptr_init(type, (uintptr_t)(ptr) | tags); })
++static inline struct page *
++z_erofs_pagevec_ctor_next_page(struct z_erofs_pagevec_ctor *ctor,
++			       unsigned int nr)
++{
++	unsigned int index;
 +
-+/* decode tagged pointers */
-+#define tagptr_unfold_ptr(tptr) \
-+	((void *)((tptr).v & ~__tagptr_mask(tptr)))
++	/* keep away from occupied pages */
++	if (ctor->next)
++		return ctor->next;
 +
-+#define tagptr_unfold_tags(tptr) \
-+	((tptr).v & __tagptr_mask(tptr))
++	for (index = 0; index < nr; ++index) {
++		const erofs_vtptr_t t = ctor->pages[index];
++		const unsigned int tags = tagptr_unfold_tags(t);
 +
-+/* operations for the tagger pointer */
-+#define tagptr_eq(_tptr1, _tptr2) ({ \
-+	typeof(_tptr1) tptr1 = (_tptr1); \
-+	typeof(_tptr2) tptr2 = (_tptr2); \
-+	(void)(&tptr1 == &tptr2); \
-+(tptr1).v == (tptr2).v; })
++		if (tags == Z_EROFS_PAGE_TYPE_EXCLUSIVE)
++			return tagptr_unfold_ptr(t);
++	}
++	DBG_BUGON(nr >= ctor->nr);
++	return NULL;
++}
 +
-+/* lock-free CAS operation */
-+#define tagptr_cmpxchg(_ptptr, _o, _n) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	typeof(_o) o = (_o); \
-+	typeof(_n) n = (_n); \
-+	(void)(&o == &n); \
-+	(void)(&o == ptptr); \
-+tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
++static inline void
++z_erofs_pagevec_ctor_pagedown(struct z_erofs_pagevec_ctor *ctor,
++			      bool atomic)
++{
++	struct page *next = z_erofs_pagevec_ctor_next_page(ctor, ctor->nr);
 +
-+/* wrap WRITE_ONCE if atomic update is needed */
-+#define tagptr_replace_tags(_ptptr, tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	*ptptr = tagptr_fold(*ptptr, tagptr_unfold_ptr(*ptptr), tags); \
-+*ptptr; })
++	z_erofs_pagevec_ctor_exit(ctor, atomic);
 +
-+#define tagptr_set_tags(_ptptr, _tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
-+		__bad_tagptr_tags(); \
-+	ptptr->v |= tags; \
-+*ptptr; })
++	ctor->curr = next;
++	ctor->next = NULL;
++	ctor->pages = atomic ?
++		kmap_atomic(ctor->curr) : kmap(ctor->curr);
 +
-+#define tagptr_clear_tags(_ptptr, _tags) ({ \
-+	typeof(_ptptr) ptptr = (_ptptr); \
-+	const typeof(_tags) tags = (_tags); \
-+	if (__builtin_constant_p(tags) && (tags & ~__tagptr_mask(*ptptr))) \
-+		__bad_tagptr_tags(); \
-+	ptptr->v &= ~tags; \
-+*ptptr; })
++	ctor->nr = PAGE_SIZE / sizeof(struct page *);
++	ctor->index = 0;
++}
 +
-+#endif	/* __EROFS_FS_TAGPTR_H */
++static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
++					     unsigned int nr,
++					     erofs_vtptr_t *pages,
++					     unsigned int i)
++{
++	ctor->nr = nr;
++	ctor->curr = ctor->next = NULL;
++	ctor->pages = pages;
++
++	if (i >= nr) {
++		i -= nr;
++		z_erofs_pagevec_ctor_pagedown(ctor, false);
++		while (i > ctor->nr) {
++			i -= ctor->nr;
++			z_erofs_pagevec_ctor_pagedown(ctor, false);
++		}
++	}
++	ctor->next = z_erofs_pagevec_ctor_next_page(ctor, i);
++	ctor->index = i;
++}
++
++static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
++					   struct page *page,
++					   enum z_erofs_page_type type,
++					   bool *occupied)
++{
++	*occupied = false;
++	if (unlikely(!ctor->next && type))
++		if (ctor->index + 1 == ctor->nr)
++			return false;
++
++	if (unlikely(ctor->index >= ctor->nr))
++		z_erofs_pagevec_ctor_pagedown(ctor, false);
++
++	/* exclusive page type must be 0 */
++	if (Z_EROFS_PAGE_TYPE_EXCLUSIVE != (uintptr_t)NULL)
++		__bad_page_type_exclusive();
++
++	/* should remind that collector->next never equal to 1, 2 */
++	if (type == (uintptr_t)ctor->next) {
++		ctor->next = page;
++		*occupied = true;
++	}
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
++	return true;
++}
++
++static inline struct page *
++z_erofs_pagevec_dequeue(struct z_erofs_pagevec_ctor *ctor,
++			enum z_erofs_page_type *type)
++{
++	erofs_vtptr_t t;
++
++	if (unlikely(ctor->index >= ctor->nr)) {
++		DBG_BUGON(!ctor->next);
++		z_erofs_pagevec_ctor_pagedown(ctor, true);
++	}
++
++	t = ctor->pages[ctor->index];
++
++	*type = tagptr_unfold_tags(t);
++
++	/* should remind that collector->next never equal to 1, 2 */
++	if (*type == (uintptr_t)ctor->next)
++		ctor->next = tagptr_unfold_ptr(t);
++
++	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, NULL, 0);
++	return tagptr_unfold_ptr(t);
++}
++#endif
 +
 -- 
 2.17.1
