@@ -1,16 +1,23 @@
-From: pratikshinde320@gmail.com (Pratik Shinde)
-Date: Tue, 6 Aug 2019 20:18:42 +0530
-Subject: Test case suite for erofs.
-Message-ID: <CAGu0czRhmT7vSnFB-9pnJS=fhZp7RFL2ZwYfbc1RK-p5ddQ6tw@mail.gmail.com>
+From: sfr@canb.auug.org.au (Stephen Rothwell)
+Date: Wed, 7 Aug 2019 01:34:23 +1000
+Subject: [PATCH RFC] erofs: move erofs out of staging
+In-Reply-To: <20190806094925.228906-1-gaoxiang25@huawei.com>
+References: <20190806094925.228906-1-gaoxiang25@huawei.com>
+Message-ID: <20190807013423.02fd6990@canb.auug.org.au>
 
-Hello Maintainers,
+Hi Gao,
 
-I wanted to ask if there is any plan for writing a test case suite for
-erofs. If not, how do you think is the idea of having a dedicated test case
-suite, so as to maintain quality of fs?
-Let me know your thoughts.
+One small suggestion: just remove the file names from the comments at
+the top of the files rather than change them to reflect that they have
+moved.  We can usually tell the name of a file by its name :-)
 
--Pratik
+-- 
+Cheers,
+Stephen Rothwell
 -------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190806/5458774c/attachment.htm>
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 488 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190807/2b9b64e5/attachment.sig>
