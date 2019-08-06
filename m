@@ -1,36 +1,68 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Wed, 7 Aug 2019 00:05:30 +0800
-Subject: Test case suite for erofs.
-In-Reply-To: <CAGu0czRhmT7vSnFB-9pnJS=fhZp7RFL2ZwYfbc1RK-p5ddQ6tw@mail.gmail.com>
-References: <CAGu0czRhmT7vSnFB-9pnJS=fhZp7RFL2ZwYfbc1RK-p5ddQ6tw@mail.gmail.com>
-Message-ID: <20190806160524.GA26612@hsiangkao-HP-ZHAN-66-Pro-G1>
+From: hsiangkao@gmx.com (Gao Xiang)
+Date: Wed, 7 Aug 2019 00:29:48 +0800
+Subject: [PATCH] erofs-utils: get block device size correctly
+In-Reply-To: <1565105005-21709-1-git-send-email-shenmeng999@126.com>
+References: <1565105005-21709-1-git-send-email-shenmeng999@126.com>
+Message-ID: <20190806162947.GA28162@hsiangkao-HP-ZHAN-66-Pro-G1>
 
-Hi Pratik,
+Hi shenmeng,
 
-On Tue, Aug 06, 2019@08:18:42PM +0530, Pratik Shinde wrote:
-> Hello Maintainers,
-> 
-> I wanted to ask if there is any plan for writing a test case suite for
-> erofs. If not, how do you think is the idea of having a dedicated test case
-> suite, so as to maintain quality of fs?
-> Let me know your thoughts.
+On Tue, Aug 06, 2019@11:23:25PM +0800, shenmeng999@126.com wrote:
+> From: shenmeng996 <shenmeng999 at 126.com>
+>
+> fstat return block device's size of zero.
+> use ioctl to get block device's size.
+>
+> Signed-off-by: shenmeng996 <shenmeng999 at 126.com>
+> ---
+>  lib/io.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>
+> diff --git a/lib/io.c b/lib/io.c
+> index 93328d3..ae3ac37 100644
+> --- a/lib/io.c
+> +++ b/lib/io.c
+> @@ -9,6 +9,8 @@
+>  #define _LARGEFILE64_SOURCE
+>  #define _GNU_SOURCE
+>  #include <sys/stat.h>
+> +#include <sys/ioctl.h>
+> +#include <linux/fs.h>
+>  #include "erofs/io.h"
+>  #ifdef HAVE_LINUX_FALLOC_H
+>  #include <linux/falloc.h>
+> @@ -49,7 +51,12 @@ int dev_open(const char *dev)
+>
+>  	switch (st.st_mode & S_IFMT) {
+>  	case S_IFBLK:
+> -		erofs_devsz = st.st_size;
+> +		ret = ioctl(fd, BLKGETSIZE64, &erofs_devsz);
 
-Currently we have a modified ro-fsstress for EROFS to do fuzzer tests,
-and we have dedicated constructed images to do all regression tests.
+Thanks for your patch :)
 
-Yes, I personally think that is not enough (thus we have a large beta
-users as a supplement) and we asked squashfs maintainers for their tools
-last year but without any luck.
+I got some reports of this issue months ago, but I'm afraid
+that we should support the legacy BLKGETSIZE approach as well
+as what other filesystem userspace tools do...
 
-new xfstest testcases for read-only filesystems developped by another HUAWEI
-team is also available at https://www.spinics.net/lists/fstests/msg11398.html
-but without further progress till now...
+Could you kindly take some time to make a full patch of it? :)
 
-It's better to develop more testcases for EROFS, and we can put forward
-xfstest as well. :)
+BTW, from the point of view of use, it's better to generate
+a image file indirectly and `dd' to the real device rather than
+directly use block device as the output since erofs-utils
+will do unaligned read/write even overwrite, which isn't
+very friendly to flash-based devices...
 
 Thanks,
 Gao Xiang
 
-> 
-> -Pratik
+> +		if (ret) {
+> +			erofs_err("failed to ioctl(%s).", dev);
+> +			close(fd);
+> +			return -errno;
+> +		}
+>  		break;
+>  	case S_IFREG:
+>  		ret = ftruncate(fd, 0);
+> --
+> 1.8.3.1
+>
