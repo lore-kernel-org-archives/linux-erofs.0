@@ -1,23 +1,44 @@
-From: sfr@canb.auug.org.au (Stephen Rothwell)
-Date: Wed, 7 Aug 2019 01:34:23 +1000
-Subject: [PATCH RFC] erofs: move erofs out of staging
-In-Reply-To: <20190806094925.228906-1-gaoxiang25@huawei.com>
-References: <20190806094925.228906-1-gaoxiang25@huawei.com>
-Message-ID: <20190807013423.02fd6990@canb.auug.org.au>
+From: shenmeng999@126.com (shenmeng999@126.com)
+Date: Tue,  6 Aug 2019 23:23:25 +0800
+Subject: [PATCH] erofs-utils: get block device size correctly
+Message-ID: <1565105005-21709-1-git-send-email-shenmeng999@126.com>
 
-Hi Gao,
+From: shenmeng996 <shenmeng999@126.com>
 
-One small suggestion: just remove the file names from the comments at
-the top of the files rather than change them to reflect that they have
-moved.  We can usually tell the name of a file by its name :-)
+fstat return block device's size of zero.
+use ioctl to get block device's size.
 
+Signed-off-by: shenmeng996 <shenmeng999 at 126.com>
+---
+ lib/io.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/lib/io.c b/lib/io.c
+index 93328d3..ae3ac37 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -9,6 +9,8 @@
+ #define _LARGEFILE64_SOURCE
+ #define _GNU_SOURCE
+ #include <sys/stat.h>
++#include <sys/ioctl.h>
++#include <linux/fs.h>
+ #include "erofs/io.h"
+ #ifdef HAVE_LINUX_FALLOC_H
+ #include <linux/falloc.h>
+@@ -49,7 +51,12 @@ int dev_open(const char *dev)
+ 
+ 	switch (st.st_mode & S_IFMT) {
+ 	case S_IFBLK:
+-		erofs_devsz = st.st_size;
++		ret = ioctl(fd, BLKGETSIZE64, &erofs_devsz);
++		if (ret) {
++			erofs_err("failed to ioctl(%s).", dev);
++			close(fd);
++			return -errno;	
++		}
+ 		break;
+ 	case S_IFREG:
+ 		ret = ftruncate(fd, 0);
 -- 
-Cheers,
-Stephen Rothwell
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: not available
-Type: application/pgp-signature
-Size: 488 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190807/2b9b64e5/attachment.sig>
+1.8.3.1
