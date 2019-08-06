@@ -1,44 +1,36 @@
-From: shenmeng999@126.com (shenmeng999@126.com)
-Date: Tue,  6 Aug 2019 23:23:25 +0800
-Subject: [PATCH] erofs-utils: get block device size correctly
-Message-ID: <1565105005-21709-1-git-send-email-shenmeng999@126.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Wed, 7 Aug 2019 00:05:30 +0800
+Subject: Test case suite for erofs.
+In-Reply-To: <CAGu0czRhmT7vSnFB-9pnJS=fhZp7RFL2ZwYfbc1RK-p5ddQ6tw@mail.gmail.com>
+References: <CAGu0czRhmT7vSnFB-9pnJS=fhZp7RFL2ZwYfbc1RK-p5ddQ6tw@mail.gmail.com>
+Message-ID: <20190806160524.GA26612@hsiangkao-HP-ZHAN-66-Pro-G1>
 
-From: shenmeng996 <shenmeng999@126.com>
+Hi Pratik,
 
-fstat return block device's size of zero.
-use ioctl to get block device's size.
+On Tue, Aug 06, 2019@08:18:42PM +0530, Pratik Shinde wrote:
+> Hello Maintainers,
+> 
+> I wanted to ask if there is any plan for writing a test case suite for
+> erofs. If not, how do you think is the idea of having a dedicated test case
+> suite, so as to maintain quality of fs?
+> Let me know your thoughts.
 
-Signed-off-by: shenmeng996 <shenmeng999 at 126.com>
----
- lib/io.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Currently we have a modified ro-fsstress for EROFS to do fuzzer tests,
+and we have dedicated constructed images to do all regression tests.
 
-diff --git a/lib/io.c b/lib/io.c
-index 93328d3..ae3ac37 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -9,6 +9,8 @@
- #define _LARGEFILE64_SOURCE
- #define _GNU_SOURCE
- #include <sys/stat.h>
-+#include <sys/ioctl.h>
-+#include <linux/fs.h>
- #include "erofs/io.h"
- #ifdef HAVE_LINUX_FALLOC_H
- #include <linux/falloc.h>
-@@ -49,7 +51,12 @@ int dev_open(const char *dev)
- 
- 	switch (st.st_mode & S_IFMT) {
- 	case S_IFBLK:
--		erofs_devsz = st.st_size;
-+		ret = ioctl(fd, BLKGETSIZE64, &erofs_devsz);
-+		if (ret) {
-+			erofs_err("failed to ioctl(%s).", dev);
-+			close(fd);
-+			return -errno;	
-+		}
- 		break;
- 	case S_IFREG:
- 		ret = ftruncate(fd, 0);
--- 
-1.8.3.1
+Yes, I personally think that is not enough (thus we have a large beta
+users as a supplement) and we asked squashfs maintainers for their tools
+last year but without any luck.
+
+new xfstest testcases for read-only filesystems developped by another HUAWEI
+team is also available at https://www.spinics.net/lists/fstests/msg11398.html
+but without further progress till now...
+
+It's better to develop more testcases for EROFS, and we can put forward
+xfstest as well. :)
+
+Thanks,
+Gao Xiang
+
+> 
+> -Pratik
