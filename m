@@ -1,42 +1,71 @@
-From: sfr@canb.auug.org.au (Stephen Rothwell)
-Date: Wed, 7 Aug 2019 11:51:38 +1000
-Subject: [PATCH RFC] erofs: move erofs out of staging
-In-Reply-To: <20190806170252.GB29093@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20190806094925.228906-1-gaoxiang25@huawei.com>
- <20190807013423.02fd6990@canb.auug.org.au>
- <20190806170252.GB29093@hsiangkao-HP-ZHAN-66-Pro-G1>
-Message-ID: <20190807115138.216fcb70@canb.auug.org.au>
+From: shenmeng999@126.com (shenmeng999@126.com)
+Date: Wed,  7 Aug 2019 22:36:55 +0800
+Subject: [PATCH v2] erofs-utils: get block device size correctly
+Message-ID: <1565188615-19591-1-git-send-email-shenmeng999@126.com>
 
-Hi Gao,
+From: shenmeng996 <shenmeng999@126.com>
 
-On Wed, 7 Aug 2019 01:02:58 +0800 Gao Xiang <hsiangkao@aol.com> wrote:
->
-> On Wed, Aug 07, 2019@01:34:23AM +1000, Stephen Rothwell wrote:
-> > 
-> > One small suggestion: just remove the file names from the comments at
-> > the top of the files rather than change them to reflect that they have
-> > moved.  We can usually tell the name of a file by its name :-)  
-> 
-> Thanks for your reply :)
-> 
-> For this part, EROFS initially followed what ext4, f2fs, even fsverity do,
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/ext4/namei.c
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/f2fs/namei.c
-> https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git/tree/fs/verity/verify.c?h=fsverity
-> 
-> I think I can remove these filenames as you suggested in the next version.
-> I thought these are some common practice and there is no obvious right or
-> wrong of this kind of stuffs.
+fstat return block device's size of zero.
+use ioctl to get block device's size.
 
-Fair enough.
+Signed-off-by: shenmeng996 <shenmeng999 at 126.com>
+---
+ lib/io.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 lib/io.c
 
+diff --git a/lib/io.c b/lib/io.c
+old mode 100644
+new mode 100755
+index 93328d3..a93c509
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -9,6 +9,8 @@
+ #define _LARGEFILE64_SOURCE
+ #define _GNU_SOURCE
+ #include <sys/stat.h>
++#include <sys/ioctl.h>
++#include <linux/fs.h>
+ #include "erofs/io.h"
+ #ifdef HAVE_LINUX_FALLOC_H
+ #include <linux/falloc.h>
+@@ -21,6 +23,23 @@ static const char *erofs_devname;
+ static int erofs_devfd = -1;
+ static u64 erofs_devsz;
+ 
++int dev_get_blkdev_size(int fd, u64 *bytes)
++{
++	unsigned long size;
++
++#ifdef BLKGETSIZE64
++	if (ioctl(fd, BLKGETSIZE64, bytes) >= 0)
++		return 0;
++#endif
++
++	if (ioctl(fd, BLKGETSIZE, &size) >= 0) {
++		*bytes = ((u64)size << 9);
++		return 0;
++	}
++
++	return -errno;
++}
++
+ void dev_close(void)
+ {
+ 	close(erofs_devfd);
+@@ -49,7 +68,12 @@ int dev_open(const char *dev)
+ 
+ 	switch (st.st_mode & S_IFMT) {
+ 	case S_IFBLK:
+-		erofs_devsz = st.st_size;
++		ret = dev_get_blkdev_size(fd, &erofs_devsz);
++		if (ret) {
++			erofs_err("failed to get block device size(%s).", dev);
++			close(fd);
++			return ret;	
++		}
+ 		break;
+ 	case S_IFREG:
+ 		ret = ftruncate(fd, 0);
 -- 
-Cheers,
-Stephen Rothwell
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: not available
-Type: application/pgp-signature
-Size: 488 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190807/d77e073c/attachment.sig>
+1.8.3.1
