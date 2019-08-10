@@ -1,5 +1,5 @@
-From: ebiggers@kernel.org (Eric Biggers)
-Date: Fri, 9 Aug 2019 17:50:40 -0700
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sat, 10 Aug 2019 09:13:50 +0800
 Subject: [PATCH 10/13] iomap: use a function pointer for dio submits
 In-Reply-To: <20190810003135.GF100971@gmail.com>
 References: <20190802220048.16142-1-rgoldwyn@suse.de>
@@ -12,9 +12,9 @@ References: <20190802220048.16142-1-rgoldwyn@suse.de>
  <20190809204517.GR5482@bombadil.infradead.org>
  <20190809234554.GA25734@hsiangkao-HP-ZHAN-66-Pro-G1>
  <20190810003135.GF100971@gmail.com>
-Message-ID: <20190810005038.GG100971@gmail.com>
+Message-ID: <20190810011348.GA27374@hsiangkao-HP-ZHAN-66-Pro-G1>
 
-On Fri, Aug 09, 2019@05:31:35PM -0700, Eric Biggers wrote:
+On Fri, Aug 09, 2019@05:31:36PM -0700, Eric Biggers wrote:
 > On Sat, Aug 10, 2019@07:45:59AM +0800, Gao Xiang wrote:
 > > Hi Willy,
 > > 
@@ -91,6 +91,10 @@ On Fri, Aug 09, 2019@05:31:35PM -0700, Eric Biggers wrote:
 > - Different encryption nonces, even with same key
 > 
 > All those change the on-disk data; only the user-visible data stays the same.
+
+Yes, I agree with fs-verity use case, and I can get some limitation
+as well. (I am not arguing fs-verity in this topic at all...)
+
 > 
 > Bugs in filesystems may also be exploited regardless of fs-verity, as the
 > attacker (able to manipulate on-disk image) can create a malicious file without
@@ -98,14 +102,21 @@ On Fri, Aug 09, 2019@05:31:35PM -0700, Eric Biggers wrote:
 > 
 > If you actually want to authenticate the full filesystem image, you need to use
 > dm-verity, which is designed for that.
+
+Yes, but for generic consideration, there is a limitation for dm-verity
+since it needs filesystems should be read-only;
+
+and that raises another consideration -- verity should be in block/fs,
+and I think what fscrypt answers is also appropriate to verity in fs
+(since we have dm-crypt as well), that is that we could consider
+multiple key R/W verification as well and blah-blah-blah-blah-blah...
+
+I think all is fine at the moment, in this topic, again, I just try to
+say a generic post-read approach is hard and complicated, not for some
+specific feature.
+
+Thanks,
+Gao Xiang
+
 > 
-
-Also keep in mind that ideally the encryption layer would do authenticated
-encryption, so that during decrypt->decompress->verity the blocks only get past
-the decrypt step if they're authentically from someone with the encryption key.
-That's currently missing from fscrypt for practical reasons (read/write
-per-block metadata is really hard on most filesystems), but in an ideal world it
-would be there.  The fs-verity step is conceptually different, but it seems it's
-being conflated with this missing step.
-
-- Eric
+> - Eric
