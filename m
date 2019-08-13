@@ -1,27 +1,28 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 13 Aug 2019 17:13:09 +0800
-Subject: [PATCH v7 07/24] erofs: add directory operations
+Date: Tue, 13 Aug 2019 17:13:07 +0800
+Subject: [PATCH v7 05/24] erofs: add inode operations
 In-Reply-To: <20190813091326.84652-1-gaoxiang25@huawei.com>
 References: <20190813091326.84652-1-gaoxiang25@huawei.com>
-Message-ID: <20190813091326.84652-8-gaoxiang25@huawei.com>
+Message-ID: <20190813091326.84652-6-gaoxiang25@huawei.com>
 
-This adds functions for directory, mainly readdir.
+This adds core functions to get, read an inode.
+It adds statx support as well.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/dir.c | 147 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 147 insertions(+)
- create mode 100644 fs/erofs/dir.c
+ fs/erofs/inode.c | 291 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 291 insertions(+)
+ create mode 100644 fs/erofs/inode.c
 
-diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
 new file mode 100644
-index 000000000000..7cf7da8574c4
+index 000000000000..b6ea997bc4ae
 --- /dev/null
-+++ b/fs/erofs/dir.c
-@@ -0,0 +1,147 @@
++++ b/fs/erofs/inode.c
+@@ -0,0 +1,291 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * linux/fs/erofs/dir.c
++ * linux/fs/erofs/inode.c
 + *
 + * Copyright (C) 2017-2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
@@ -29,141 +30,285 @@ index 000000000000..7cf7da8574c4
 + */
 +#include "internal.h"
 +
-+static const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
-+	[EROFS_FT_UNKNOWN]	= DT_UNKNOWN,
-+	[EROFS_FT_REG_FILE]	= DT_REG,
-+	[EROFS_FT_DIR]		= DT_DIR,
-+	[EROFS_FT_CHRDEV]	= DT_CHR,
-+	[EROFS_FT_BLKDEV]	= DT_BLK,
-+	[EROFS_FT_FIFO]		= DT_FIFO,
-+	[EROFS_FT_SOCK]		= DT_SOCK,
-+	[EROFS_FT_SYMLINK]	= DT_LNK,
-+};
++#include <trace/events/erofs.h>
 +
-+static void debug_one_dentry(unsigned char d_type, const char *de_name,
-+			     unsigned int de_namelen)
++/* no locking */
++static int read_inode(struct inode *inode, void *data)
 +{
-+#ifdef CONFIG_EROFS_FS_DEBUG
-+	/* since the on-disk name could not have the trailing '\0' */
-+	unsigned char dbg_namebuf[EROFS_NAME_LEN + 1];
++	struct erofs_vnode *vi = EROFS_V(inode);
++	struct erofs_inode_v1 *v1 = data;
++	const unsigned int advise = le16_to_cpu(v1->i_advise);
++	erofs_blk_t nblks = 0;
 +
-+	memcpy(dbg_namebuf, de_name, de_namelen);
-+	dbg_namebuf[de_namelen] = '\0';
++	vi->datamode = __inode_data_mapping(advise);
 +
-+	debugln("found dirent %s de_len %u d_type %d", dbg_namebuf,
-+		de_namelen, d_type);
-+#endif
-+}
-+
-+static int erofs_fill_dentries(struct dir_context *ctx,
-+			       void *dentry_blk, unsigned int *ofs,
-+			       unsigned int nameoff, unsigned int maxsize)
-+{
-+	struct erofs_dirent *de = dentry_blk + *ofs;
-+	const struct erofs_dirent *end = dentry_blk + nameoff;
-+
-+	while (de < end) {
-+		const char *de_name;
-+		unsigned int de_namelen;
-+		unsigned char d_type;
-+
-+		if (de->file_type < EROFS_FT_MAX)
-+			d_type = erofs_filetype_table[de->file_type];
-+		else
-+			d_type = DT_UNKNOWN;
-+
-+		nameoff = le16_to_cpu(de->nameoff);
-+		de_name = (char *)dentry_blk + nameoff;
-+
-+		/* the last dirent in the block? */
-+		if (de + 1 >= end)
-+			de_namelen = strnlen(de_name, maxsize - nameoff);
-+		else
-+			de_namelen = le16_to_cpu(de[1].nameoff) - nameoff;
-+
-+		/* a corrupted entry is found */
-+		if (unlikely(nameoff + de_namelen > maxsize ||
-+			     de_namelen > EROFS_NAME_LEN)) {
-+			DBG_BUGON(1);
-+			return -EIO;
-+		}
-+
-+		debug_one_dentry(d_type, de_name, de_namelen);
-+		if (!dir_emit(ctx, de_name, de_namelen,
-+			      le64_to_cpu(de->nid), d_type))
-+			/* stopped by some reason */
-+			return 1;
-+		++de;
-+		*ofs += sizeof(struct erofs_dirent);
++	if (unlikely(vi->datamode >= EROFS_INODE_LAYOUT_MAX)) {
++		errln("unsupported data mapping %u of nid %llu",
++		      vi->datamode, vi->nid);
++		DBG_BUGON(1);
++		return -EIO;
 +	}
-+	*ofs = maxsize;
++
++	if (__inode_version(advise) == EROFS_INODE_LAYOUT_V2) {
++		struct erofs_inode_v2 *v2 = data;
++
++		vi->inode_isize = sizeof(struct erofs_inode_v2);
++		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
++
++		inode->i_mode = le16_to_cpu(v2->i_mode);
++		vi->raw_blkaddr = le32_to_cpu(v2->i_u.raw_blkaddr);
++
++		i_uid_write(inode, le32_to_cpu(v2->i_uid));
++		i_gid_write(inode, le32_to_cpu(v2->i_gid));
++		set_nlink(inode, le32_to_cpu(v2->i_nlink));
++
++		/* ns timestamp */
++		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
++			le64_to_cpu(v2->i_ctime);
++		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
++			le32_to_cpu(v2->i_ctime_nsec);
++
++		inode->i_size = le64_to_cpu(v2->i_size);
++
++		/* total blocks for compressed files */
++		if (is_inode_layout_compression(inode))
++			nblks = le32_to_cpu(v2->i_u.compressed_blocks);
++	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
++		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
++
++		vi->inode_isize = sizeof(struct erofs_inode_v1);
++		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
++
++		inode->i_mode = le16_to_cpu(v1->i_mode);
++		vi->raw_blkaddr = le32_to_cpu(v1->i_u.raw_blkaddr);
++
++		i_uid_write(inode, le16_to_cpu(v1->i_uid));
++		i_gid_write(inode, le16_to_cpu(v1->i_gid));
++		set_nlink(inode, le16_to_cpu(v1->i_nlink));
++
++		/* use build time to derive all file time */
++		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
++			sbi->build_time;
++		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
++			sbi->build_time_nsec;
++
++		inode->i_size = le32_to_cpu(v1->i_size);
++		if (is_inode_layout_compression(inode))
++			nblks = le32_to_cpu(v1->i_u.compressed_blocks);
++	} else {
++		errln("unsupported on-disk inode version %u of nid %llu",
++		      __inode_version(advise), vi->nid);
++		DBG_BUGON(1);
++		return -EIO;
++	}
++
++	if (!nblks)
++		/* measure inode.i_blocks as generic filesystems */
++		inode->i_blocks = roundup(inode->i_size, EROFS_BLKSIZ) >> 9;
++	else
++		inode->i_blocks = nblks << LOG_SECTORS_PER_BLOCK;
 +	return 0;
 +}
 +
-+static int erofs_readdir(struct file *f, struct dir_context *ctx)
++/*
++ * try_lock can be required since locking order is:
++ *   file data(fs_inode)
++ *        meta(bd_inode)
++ * but the majority of the callers is "iget",
++ * in that case we are pretty sure no deadlock since
++ * no data operations exist. However I tend to
++ * try_lock since it takes no much overhead and
++ * will success immediately.
++ */
++static int fill_inline_data(struct inode *inode, void *data,
++			    unsigned int m_pofs)
 +{
-+	struct inode *dir = file_inode(f);
-+	struct address_space *mapping = dir->i_mapping;
-+	const size_t dirsize = i_size_read(dir);
-+	unsigned int i = ctx->pos / EROFS_BLKSIZ;
-+	unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
-+	int err = 0;
-+	bool initial = true;
++	struct erofs_vnode *vi = EROFS_V(inode);
++	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
 +
-+	while (ctx->pos < dirsize) {
-+		struct page *dentry_page;
-+		struct erofs_dirent *de;
-+		unsigned int nameoff, maxsize;
++	/* should be inode inline C */
++	if (!is_inode_flat_inline(inode))
++		return 0;
 +
-+		dentry_page = read_mapping_page(mapping, i, NULL);
-+		if (IS_ERR(dentry_page))
-+			continue;
++	/* fast symlink (following ext4) */
++	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
++		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
 +
-+		de = (struct erofs_dirent *)kmap(dentry_page);
++		if (unlikely(!lnk))
++			return -ENOMEM;
 +
-+		nameoff = le16_to_cpu(de->nameoff);
++		m_pofs += vi->inode_isize + vi->xattr_isize;
 +
-+		if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
-+			     nameoff >= PAGE_SIZE)) {
-+			errln("%s, invalid de[0].nameoff %u",
-+			      __func__, nameoff);
-+
-+			err = -EIO;
-+			goto skip_this;
++		/* inline symlink data shouldn't across page boundary as well */
++		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
++			DBG_BUGON(1);
++			kfree(lnk);
++			return -EIO;
 +		}
 +
-+		maxsize = min_t(unsigned int,
-+				dirsize - ctx->pos + ofs, PAGE_SIZE);
++		/* get in-page inline data */
++		memcpy(lnk, data + m_pofs, inode->i_size);
++		lnk[inode->i_size] = '\0';
 +
-+		/* search dirents at the arbitrary position */
-+		if (unlikely(initial)) {
-+			initial = false;
-+
-+			ofs = roundup(ofs, sizeof(struct erofs_dirent));
-+			if (unlikely(ofs >= nameoff))
-+				goto skip_this;
-+		}
-+
-+		err = erofs_fill_dentries(ctx, de, &ofs, nameoff, maxsize);
-+skip_this:
-+		kunmap(dentry_page);
-+
-+		put_page(dentry_page);
-+
-+		ctx->pos = blknr_to_addr(i) + ofs;
-+
-+		if (unlikely(err))
-+			break;
-+		++i;
-+		ofs = 0;
++		inode->i_link = lnk;
++		set_inode_fast_symlink(inode);
 +	}
-+	return err < 0 ? err : 0;
++	return 0;
 +}
 +
-+const struct file_operations erofs_dir_fops = {
-+	.llseek		= generic_file_llseek,
-+	.read		= generic_read_dir,
-+	.iterate_shared	= erofs_readdir,
++static int fill_inode(struct inode *inode, int isdir)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
++	struct erofs_vnode *vi = EROFS_V(inode);
++	struct page *page;
++	void *data;
++	int err;
++	erofs_blk_t blkaddr;
++	unsigned int ofs;
++
++	trace_erofs_fill_inode(inode, isdir);
++
++	blkaddr = erofs_blknr(iloc(sbi, vi->nid));
++	ofs = erofs_blkoff(iloc(sbi, vi->nid));
++
++	debugln("%s, reading inode nid %llu at %u of blkaddr %u",
++		__func__, vi->nid, ofs, blkaddr);
++
++	page = erofs_get_meta_page(inode->i_sb, blkaddr, isdir);
++
++	if (IS_ERR(page)) {
++		errln("failed to get inode (nid: %llu) page, err %ld",
++		      vi->nid, PTR_ERR(page));
++		return PTR_ERR(page);
++	}
++
++	DBG_BUGON(!PageUptodate(page));
++	data = page_address(page);
++
++	err = read_inode(inode, data + ofs);
++	if (!err) {
++		/* setup the new inode */
++		if (S_ISREG(inode->i_mode)) {
++			inode->i_op = &erofs_generic_iops;
++			inode->i_fop = &generic_ro_fops;
++		} else if (S_ISDIR(inode->i_mode)) {
++			inode->i_op = &erofs_dir_iops;
++			inode->i_fop = &erofs_dir_fops;
++		} else if (S_ISLNK(inode->i_mode)) {
++			/* by default, page_get_link is used for symlink */
++			inode->i_op = &erofs_symlink_iops;
++			inode_nohighmem(inode);
++		} else {
++			err = -EIO;
++			goto out_unlock;
++		}
++
++		if (is_inode_layout_compression(inode)) {
++			err = -ENOTSUPP;
++			goto out_unlock;
++		}
++
++		inode->i_mapping->a_ops = &erofs_raw_access_aops;
++
++		/* fill last page if inline data is available */
++		err = fill_inline_data(inode, data, ofs);
++	}
++
++out_unlock:
++	unlock_page(page);
++	put_page(page);
++	return err;
++}
++
++/*
++ * erofs nid is 64bits, but i_ino is 'unsigned long', therefore
++ * we should do more for 32-bit platform to find the right inode.
++ */
++#if BITS_PER_LONG == 32
++static int erofs_ilookup_test_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	return EROFS_V(inode)->nid == nid;
++}
++
++static int erofs_iget_set_actor(struct inode *inode, void *opaque)
++{
++	const erofs_nid_t nid = *(erofs_nid_t *)opaque;
++
++	inode->i_ino = erofs_inode_hash(nid);
++	return 0;
++}
++#endif
++
++static inline struct inode *erofs_iget_locked(struct super_block *sb,
++					      erofs_nid_t nid)
++{
++	const unsigned long hashval = erofs_inode_hash(nid);
++
++#if BITS_PER_LONG >= 64
++	/* it is safe to use iget_locked for >= 64-bit platform */
++	return iget_locked(sb, hashval);
++#else
++	return iget5_locked(sb, hashval, erofs_ilookup_test_actor,
++		erofs_iget_set_actor, &nid);
++#endif
++}
++
++struct inode *erofs_iget(struct super_block *sb,
++			 erofs_nid_t nid,
++			 bool isdir)
++{
++	struct inode *inode = erofs_iget_locked(sb, nid);
++
++	if (unlikely(!inode))
++		return ERR_PTR(-ENOMEM);
++
++	if (inode->i_state & I_NEW) {
++		int err;
++		struct erofs_vnode *vi = EROFS_V(inode);
++
++		vi->nid = nid;
++
++		err = fill_inode(inode, isdir);
++		if (likely(!err))
++			unlock_new_inode(inode);
++		else {
++			iget_failed(inode);
++			inode = ERR_PTR(err);
++		}
++	}
++	return inode;
++}
++
++int erofs_getattr(const struct path *path, struct kstat *stat,
++		  u32 request_mask, unsigned int query_flags)
++{
++	struct inode *const inode = d_inode(path->dentry);
++
++	if (is_inode_layout_compression(inode))
++		stat->attributes |= STATX_ATTR_COMPRESSED;
++
++	stat->attributes |= STATX_ATTR_IMMUTABLE;
++	stat->attributes_mask |= (STATX_ATTR_COMPRESSED |
++				  STATX_ATTR_IMMUTABLE);
++
++	generic_fillattr(inode, stat);
++	return 0;
++}
++
++const struct inode_operations erofs_generic_iops = {
++	.getattr = erofs_getattr,
++};
++
++const struct inode_operations erofs_symlink_iops = {
++	.get_link = page_get_link,
++	.getattr = erofs_getattr,
++};
++
++const struct inode_operations erofs_fast_symlink_iops = {
++	.get_link = simple_get_link,
++	.getattr = erofs_getattr,
 +};
 +
 -- 
