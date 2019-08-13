@@ -1,455 +1,249 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Tue, 13 Aug 2019 17:13:22 +0800
-Subject: [PATCH v7 20/24] erofs: introduce generic decompression backend
+Date: Tue, 13 Aug 2019 17:13:26 +0800
+Subject: [PATCH v7 24/24] erofs: add document
 In-Reply-To: <20190813091326.84652-1-gaoxiang25@huawei.com>
 References: <20190813091326.84652-1-gaoxiang25@huawei.com>
-Message-ID: <20190813091326.84652-21-gaoxiang25@huawei.com>
+Message-ID: <20190813091326.84652-25-gaoxiang25@huawei.com>
 
-This patch adds decompression backend to EROFS, which
-supports uncompressed and LZ4 compressed data.
-
-For compressed data, it uses the following strategy:
-1) If outputsize is very small (totally less than a threshold),
-   decompress to the per-CPU buffer and do memcpy directly
-   in order to avoid vmap() overhead;
-2) Otherwise it will fill bounced pages if needed and vmap
-   all output pages into a continuous virtual memory area,
-   memcpy compressed data to the per-CPU buffer for inplace
-   I/O [1] and decompress.
-
-Since LZ4 is a lz77-based algorithm which has a dynamically
-populated ("sliding window") dictionary and the maximum
-lookback distance is 65535. Therefore the number of bounced
-pages could be limited by erofs based on this property.
-
-[1] `LZ4 decompression inplace' will eliminate the extra memcpy
-    if iend - oend margin is safe enough, see the following patch.
+This documents key features, usage, and
+on-disk design of erofs.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Makefile       |   2 +-
- fs/erofs/compress.h     |  62 ++++++++
- fs/erofs/decompressor.c | 332 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 395 insertions(+), 1 deletion(-)
- create mode 100644 fs/erofs/compress.h
- create mode 100644 fs/erofs/decompressor.c
+ Documentation/filesystems/erofs.txt | 225 ++++++++++++++++++++++++++++
+ 1 file changed, 225 insertions(+)
+ create mode 100644 Documentation/filesystems/erofs.txt
 
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 930770be124f..5594abca6f95 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -7,5 +7,5 @@ ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
--erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o
- 
-diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
+diff --git a/Documentation/filesystems/erofs.txt b/Documentation/filesystems/erofs.txt
 new file mode 100644
-index 000000000000..57035b7646ef
+index 000000000000..457e601e0467
 --- /dev/null
-+++ b/fs/erofs/compress.h
-@@ -0,0 +1,62 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * linux/fs/erofs/compress.h
-+ *
-+ * Copyright (C) 2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#ifndef __EROFS_FS_COMPRESS_H
-+#define __EROFS_FS_COMPRESS_H
++++ b/Documentation/filesystems/erofs.txt
+@@ -0,0 +1,225 @@
++Overview
++========
 +
-+#include "internal.h"
++EROFS file-system stands for Enhanced Read-Only File System. Different
++from other read-only file systems, it aims to be designed for flexibility,
++scalability, but be kept simple and high performance.
 +
-+enum {
-+	Z_EROFS_COMPRESSION_SHIFTED = Z_EROFS_COMPRESSION_MAX,
-+	Z_EROFS_COMPRESSION_RUNTIME_MAX
-+};
++It is designed as a better filesystem solution for the following scenarios:
++ - read-only storage media or
 +
-+struct z_erofs_decompress_req {
-+	struct super_block *sb;
-+	struct page **in, **out;
++ - part of a fully trusted read-only solution, which means it needs to be
++   immutable and bit-for-bit identical to the official golden image for
++   their releases due to security and other considerations and
 +
-+	unsigned short pageofs_out;
-+	unsigned int inputsize, outputsize;
++ - hope to save some extra storage space with guaranteed end-to-end performance
++   by using reduced metadata and transparent file compression, especially
++   for those embedded devices with limited memory (ex, smartphone);
 +
-+	/* indicate the algorithm will be used for decompression */
-+	unsigned int alg;
-+	bool inplace_io, partial_decoding;
-+};
++Here is the main features of EROFS:
++ - Little endian on-disk design;
 +
-+/*
-+ * - 0x5A110C8D ('sallocated', Z_EROFS_MAPPING_STAGING) -
-+ * used to mark temporary allocated pages from other
-+ * file/cached pages and NULL mapping pages.
-+ */
-+#define Z_EROFS_MAPPING_STAGING         ((void *)0x5A110C8D)
++ - Currently 4KB block size (nobh) and therefore maximum 16TB address space;
 +
-+/* check if a page is marked as staging */
-+static inline bool z_erofs_page_is_staging(struct page *page)
-+{
-+	return page->mapping == Z_EROFS_MAPPING_STAGING;
-+}
++ - Metadata & data could be mixed by design;
 +
-+static inline bool z_erofs_put_stagingpage(struct list_head *pagepool,
-+					   struct page *page)
-+{
-+	if (!z_erofs_page_is_staging(page))
-+		return false;
++ - 2 inode versions for different requirements:
++                          v1            v2
++   Inode metadata size:   32 bytes      64 bytes
++   Max file size:         4 GB          16 EB (also limited by max. vol size)
++   Max uids/gids:         65536         4294967296
++   File creation time:    no            yes (64 + 32-bit timestamp)
++   Max hardlinks:         65536         4294967296
++   Metadata reserved:     4 bytes       14 bytes
 +
-+	/* staging pages should not be used by others at the same time */
-+	if (page_ref_count(page) > 1)
-+		put_page(page);
-+	else
-+		list_add(&page->lru, pagepool);
-+	return true;
-+}
++ - Support extended attributes (xattrs) as an option;
 +
-+int z_erofs_decompress(struct z_erofs_decompress_req *rq,
-+		       struct list_head *pagepool);
++ - Support xattr inline and tail-end data inline for all files;
 +
-+#endif
++ - Support POSIX.1e ACLs by using xattrs;
 +
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-new file mode 100644
-index 000000000000..244afb29907d
---- /dev/null
-+++ b/fs/erofs/decompressor.c
-@@ -0,0 +1,332 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * linux/fs/erofs/decompressor.c
-+ *
-+ * Copyright (C) 2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#include "compress.h"
-+#include <linux/module.h>
-+#include <linux/lz4.h>
++ - Support statx();
 +
-+#ifndef LZ4_DISTANCE_MAX	/* history window size */
-+#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
-+#endif
++ - Support transparent file compression as an option:
++   LZ4 algorithm with 4 KB fixed-output compression for high performance;
 +
-+#define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
++The following git tree provides the file system user-space tools under
++development (ex, formatting tool mkfs.erofs):
++>> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
 +
-+struct z_erofs_decompressor {
-+	/*
-+	 * if destpages have sparsed pages, fill them with bounce pages.
-+	 * it also check whether destpages indicate continuous physical memory.
-+	 */
-+	int (*prepare_destpages)(struct z_erofs_decompress_req *rq,
-+				 struct list_head *pagepool);
-+	int (*decompress)(struct z_erofs_decompress_req *rq, u8 *out);
-+	char *name;
-+};
++Bugs and patches are welcome, please kindly help us and send to the following
++linux-erofs mailing list:
++>> linux-erofs mailing list   <linux-erofs at lists.ozlabs.org>
 +
-+static bool use_vmap;
-+module_param(use_vmap, bool, 0444);
-+MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
++Note that EROFS is still working in progress as a Linux staging driver,
++Cc the staging mailing list as well is highly recommended:
++>> Linux Driver Project Developer List <devel at driverdev.osuosl.org>
 +
-+static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
-+				 struct list_head *pagepool)
-+{
-+	const unsigned int nr =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	struct page *availables[LZ4_MAX_DISTANCE_PAGES] = { NULL };
-+	unsigned long bounced[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
-+					   BITS_PER_LONG)] = { 0 };
-+	void *kaddr = NULL;
-+	unsigned int i, j, top;
++Mount options
++=============
 +
-+	top = 0;
-+	for (i = j = 0; i < nr; ++i, ++j) {
-+		struct page *const page = rq->out[i];
-+		struct page *victim;
++fault_injection=%d     Enable fault injection in all supported types with
++                       specified injection rate. Supported injection type:
++                       Type_Name                Type_Value
++                       FAULT_KMALLOC            0x000000001
++                       FAULT_READ_IO            0x000000002
++(no)user_xattr         Setup Extended User Attributes. Note: xattr is enabled
++                       by default if CONFIG_EROFS_FS_XATTR is selected.
++(no)acl                Setup POSIX Access Control List. Note: acl is enabled
++                       by default if CONFIG_EROFS_FS_POSIX_ACL is selected.
++cache_strategy=%s      Select a strategy for cached decompression from now on:
++                         disabled: In-place I/O decompression only;
++                        readahead: Cache the last incomplete compressed physical
++                                   cluster for further reading. It still does
++                                   in-place I/O decompression for the rest
++                                   compressed physical clusters;
++                       readaround: Cache the both ends of incomplete compressed
++                                   physical clusters for further reading.
++                                   It still does in-place I/O decompression
++                                   for the rest compressed physical clusters.
 +
-+		if (j >= LZ4_MAX_DISTANCE_PAGES)
-+			j = 0;
++Module parameters
++=================
++use_vmap=[0|1]         Use vmap() instead of vm_map_ram() (default 0).
 +
-+		/* 'valid' bounced can only be tested after a complete round */
-+		if (test_bit(j, bounced)) {
-+			DBG_BUGON(i < LZ4_MAX_DISTANCE_PAGES);
-+			DBG_BUGON(top >= LZ4_MAX_DISTANCE_PAGES);
-+			availables[top++] = rq->out[i - LZ4_MAX_DISTANCE_PAGES];
-+		}
++On-disk details
++===============
 +
-+		if (page) {
-+			__clear_bit(j, bounced);
-+			if (kaddr) {
-+				if (kaddr + PAGE_SIZE == page_address(page))
-+					kaddr += PAGE_SIZE;
-+				else
-+					kaddr = NULL;
-+			} else if (!i) {
-+				kaddr = page_address(page);
-+			}
-+			continue;
-+		}
-+		kaddr = NULL;
-+		__set_bit(j, bounced);
++Summary
++-------
++Different from other read-only file systems, an EROFS volume is designed
++to be as simple as possible:
 +
-+		if (top) {
-+			victim = availables[--top];
-+			get_page(victim);
-+		} else {
-+			victim = erofs_allocpage(pagepool, GFP_KERNEL, false);
-+			if (unlikely(!victim))
-+				return -ENOMEM;
-+			victim->mapping = Z_EROFS_MAPPING_STAGING;
-+		}
-+		rq->out[i] = victim;
-+	}
-+	return kaddr ? 1 : 0;
-+}
++                                |-> aligned with the block size
++   ____________________________________________________________
++  | |SB| | ... | Metadata | ... | Data | Metadata | ... | Data |
++  |_|__|_|_____|__________|_____|______|__________|_____|______|
++  0 +1K
 +
-+static void *generic_copy_inplace_data(struct z_erofs_decompress_req *rq,
-+				       u8 *src, unsigned int pageofs_in)
-+{
-+	/*
-+	 * if in-place decompression is ongoing, those decompressed
-+	 * pages should be copied in order to avoid being overlapped.
-+	 */
-+	struct page **in = rq->in;
-+	u8 *const tmp = erofs_get_pcpubuf(0);
-+	u8 *tmpp = tmp;
-+	unsigned int inlen = rq->inputsize - pageofs_in;
-+	unsigned int count = min_t(uint, inlen, PAGE_SIZE - pageofs_in);
++All data areas should be aligned with the block size, but metadata areas
++may not. All metadatas can be now observed in two different spaces (views):
++ 1. Inode metadata space
++    Each valid inode should be aligned with an inode slot, which is a fixed
++    value (32 bytes) and designed to be kept in line with v1 inode size.
 +
-+	while (tmpp < tmp + inlen) {
-+		if (!src)
-+			src = kmap_atomic(*in);
-+		memcpy(tmpp, src + pageofs_in, count);
-+		kunmap_atomic(src);
-+		src = NULL;
-+		tmpp += count;
-+		pageofs_in = 0;
-+		count = PAGE_SIZE;
-+		++in;
-+	}
-+	return tmp;
-+}
++    Each inode can be directly found with the following formula:
++         inode offset = meta_blkaddr * block_size + 32 * nid
 +
-+static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
-+{
-+	unsigned int inputmargin, inlen;
-+	u8 *src;
-+	bool copied;
-+	int ret;
++                                |-> aligned with 8B
++                                           |-> followed closely
++    + meta_blkaddr blocks                                      |-> another slot
++     _____________________________________________________________________
++    |  ...   | inode |  xattrs  | extents  | data inline | ... | inode ...
++    |________|_______|(optional)|(optional)|__(optional)_|_____|__________
++             |-> aligned with the inode slot size
++                  .                   .
++                .                         .
++              .                              .
++            .                                    .
++          .                                         .
++        .                                              .
++      .____________________________________________________|-> aligned with 4B
++      | xattr_ibody_header | shared xattrs | inline xattrs |
++      |____________________|_______________|_______________|
++      |->    12 bytes    <-|->x * 4 bytes<-|               .
++                          .                .                 .
++                    .                      .                   .
++               .                           .                     .
++           ._______________________________.______________________.
++           | id | id | id | id |  ... | id | ent | ... | ent| ... |
++           |____|____|____|____|______|____|_____|_____|____|_____|
++                                           |-> aligned with 4B
++                                                       |-> aligned with 4B
 +
-+	if (rq->inputsize > PAGE_SIZE)
-+		return -ENOTSUPP;
++    Inode could be 32 or 64 bytes, which can be distinguished from a common
++    field which all inode versions have -- i_advise:
 +
-+	src = kmap_atomic(*rq->in);
-+	inputmargin = 0;
++        __________________               __________________
++       |     i_advise     |             |     i_advise     |
++       |__________________|             |__________________|
++       |        ...       |             |        ...       |
++       |                  |             |                  |
++       |__________________| 32 bytes    |                  |
++                                        |                  |
++                                        |__________________| 64 bytes
 +
-+	copied = false;
-+	inlen = rq->inputsize - inputmargin;
-+	if (rq->inplace_io) {
-+		src = generic_copy_inplace_data(rq, src, inputmargin);
-+		inputmargin = 0;
-+		copied = true;
-+	}
++    Xattrs, extents, data inline are followed by the corresponding inode with
++    proper alignes, and they could be optional for different data mappings,
++    _currently_ there are totally 3 valid data mappings supported:
 +
-+	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
-+					  inlen, rq->outputsize,
-+					  rq->outputsize);
-+	if (ret < 0) {
-+		errln("%s, failed to decompress, in[%p, %u, %u] out[%p, %u]",
-+		      __func__, src + inputmargin, inlen, inputmargin,
-+		      out, rq->outputsize);
-+		WARN_ON(1);
-+		print_hex_dump(KERN_DEBUG, "[ in]: ", DUMP_PREFIX_OFFSET,
-+			       16, 1, src + inputmargin, inlen, true);
-+		print_hex_dump(KERN_DEBUG, "[out]: ", DUMP_PREFIX_OFFSET,
-+			       16, 1, out, rq->outputsize, true);
-+		ret = -EIO;
-+	}
++     1) flat file data without data inline (no extent);
++     2) fixed-output size data compression (must have extents);
++     3) flat file data with tail-end data inline (no extent);
 +
-+	if (copied)
-+		erofs_put_pcpubuf(src);
-+	else
-+		kunmap_atomic(src);
-+	return ret;
-+}
++    The size of the optional xattrs is indicated by i_xattr_count in inode
++    header. Large xattrs or xattrs shared by many different files can be
++    stored in shared xattrs metadata rather than inlined right after inode.
 +
-+static struct z_erofs_decompressor decompressors[] = {
-+	[Z_EROFS_COMPRESSION_SHIFTED] = {
-+		.name = "shifted"
-+	},
-+	[Z_EROFS_COMPRESSION_LZ4] = {
-+		.prepare_destpages = lz4_prepare_destpages,
-+		.decompress = lz4_decompress,
-+		.name = "lz4"
-+	},
-+};
++ 2. Shared xattrs metadata space
++    Shared xattrs space is similar to the above inode space, started with
++    a specific block indicated by xattr_blkaddr, organized one by one with
++    proper align.
 +
-+static void copy_from_pcpubuf(struct page **out, const char *dst,
-+			      unsigned short pageofs_out,
-+			      unsigned int outputsize)
-+{
-+	const char *end = dst + outputsize;
-+	const unsigned int righthalf = PAGE_SIZE - pageofs_out;
-+	const char *cur = dst - pageofs_out;
++    Each share xattr can also be directly found by the following formula:
++         xattr offset = xattr_blkaddr * block_size + 4 * xattr_id
 +
-+	while (cur < end) {
-+		struct page *const page = *out++;
++                           |-> aligned by  4 bytes
++    + xattr_blkaddr blocks                     |-> aligned with 4 bytes
++     _________________________________________________________________________
++    |  ...   | xattr_entry |  xattr data | ... |  xattr_entry | xattr data  ...
++    |________|_____________|_____________|_____|______________|_______________
 +
-+		if (page) {
-+			char *buf = kmap_atomic(page);
++Directories
++-----------
++All directories are now organized in a compact on-disk format. Note that
++each directory block is divided into index and name areas in order to support
++random file lookup, and all directory entries are _strictly_ recorded in
++alphabetical order in order to support improved prefix binary search
++algorithm (could refer to the related source code).
 +
-+			if (cur >= dst) {
-+				memcpy(buf, cur, min_t(uint, PAGE_SIZE,
-+						       end - cur));
-+			} else {
-+				memcpy(buf + pageofs_out, cur + pageofs_out,
-+				       min_t(uint, righthalf, end - cur));
-+			}
-+			kunmap_atomic(buf);
-+		}
-+		cur += PAGE_SIZE;
-+	}
-+}
++                 ___________________________
++                /                           |
++               /              ______________|________________
++              /              /              | nameoff1       | nameoffN-1
++ ____________.______________._______________v________________v__________
++| dirent | dirent | ... | dirent | filename | filename | ... | filename |
++|___.0___|____1___|_____|___N-1__|____0_____|____1_____|_____|___N-1____|
++     \                           ^
++      \                          |                           * could have
++       \                         |                             trailing '\0'
++        \________________________| nameoff0
 +
-+static void *erofs_vmap(struct page **pages, unsigned int count)
-+{
-+	int i = 0;
++                             Directory block
 +
-+	if (use_vmap)
-+		return vmap(pages, count, VM_MAP, PAGE_KERNEL);
++Note that apart from the offset of the first filename, nameoff0 also indicates
++the total number of directory entries in this block since it is no need to
++introduce another on-disk field at all.
 +
-+	while (1) {
-+		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
++Compression
++-----------
++Currently, EROFS supports 4KB fixed-output clustersize transparent file
++compression, as illustrated below:
 +
-+		/* retry two more times (totally 3 times) */
-+		if (addr || ++i >= 3)
-+			return addr;
-+		vm_unmap_aliases();
-+	}
-+	return NULL;
-+}
++         |---- Variant-Length Extent ----|-------- VLE --------|----- VLE -----
++         clusterofs                      clusterofs            clusterofs
++         |                               |                     |   logical data
++_________v_______________________________v_____________________v_______________
++... |    .        |             |        .    |             |  .          | ...
++____|____.________|_____________|________.____|_____________|__.__________|____
++    |-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|
++         size          size          size          size          size
++          .                             .                .                   .
++           .                       .               .                  .
++            .                  .              .                .
++      _______._____________._____________._____________._____________________
++         ... |             |             |             | ... physical data
++      _______|_____________|_____________|_____________|_____________________
++             |-> cluster <-|-> cluster <-|-> cluster <-|
++                  size          size          size
 +
-+static void erofs_vunmap(const void *mem, unsigned int count)
-+{
-+	if (!use_vmap)
-+		vm_unmap_ram(mem, count);
-+	else
-+		vunmap(mem);
-+}
++Currently each on-disk physical cluster can contain 4KB (un)compressed data
++at most. For each logical cluster, there is a corresponding on-disk index to
++describe its cluster type, physical cluster address, etc.
 +
-+static int decompress_generic(struct z_erofs_decompress_req *rq,
-+			      struct list_head *pagepool)
-+{
-+	const unsigned int nrpages_out =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	const struct z_erofs_decompressor *alg = decompressors + rq->alg;
-+	unsigned int dst_maptype;
-+	void *dst;
-+	int ret;
-+
-+	if (nrpages_out == 1 && !rq->inplace_io) {
-+		DBG_BUGON(!*rq->out);
-+		dst = kmap_atomic(*rq->out);
-+		dst_maptype = 0;
-+		goto dstmap_out;
-+	}
-+
-+	/*
-+	 * For the case of small output size (especially much less
-+	 * than PAGE_SIZE), memcpy the decompressed data rather than
-+	 * compressed data is preferred.
-+	 */
-+	if (rq->outputsize <= PAGE_SIZE * 7 / 8) {
-+		dst = erofs_get_pcpubuf(0);
-+		if (IS_ERR(dst))
-+			return PTR_ERR(dst);
-+
-+		rq->inplace_io = false;
-+		ret = alg->decompress(rq, dst);
-+		if (!ret)
-+			copy_from_pcpubuf(rq->out, dst, rq->pageofs_out,
-+					  rq->outputsize);
-+
-+		erofs_put_pcpubuf(dst);
-+		return ret;
-+	}
-+
-+	ret = alg->prepare_destpages(rq, pagepool);
-+	if (ret < 0) {
-+		return ret;
-+	} else if (ret) {
-+		dst = page_address(*rq->out);
-+		dst_maptype = 1;
-+		goto dstmap_out;
-+	}
-+
-+	dst = erofs_vmap(rq->out, nrpages_out);
-+	if (!dst)
-+		return -ENOMEM;
-+	dst_maptype = 2;
-+
-+dstmap_out:
-+	ret = alg->decompress(rq, dst + rq->pageofs_out);
-+
-+	if (!dst_maptype)
-+		kunmap_atomic(dst);
-+	else if (dst_maptype == 2)
-+		erofs_vunmap(dst, nrpages_out);
-+	return ret;
-+}
-+
-+static int shifted_decompress(const struct z_erofs_decompress_req *rq,
-+			      struct list_head *pagepool)
-+{
-+	const unsigned int nrpages_out =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	const unsigned int righthalf = PAGE_SIZE - rq->pageofs_out;
-+	unsigned char *src, *dst;
-+
-+	if (nrpages_out > 2) {
-+		DBG_BUGON(1);
-+		return -EIO;
-+	}
-+
-+	if (rq->out[0] == *rq->in) {
-+		DBG_BUGON(nrpages_out != 1);
-+		return 0;
-+	}
-+
-+	src = kmap_atomic(*rq->in);
-+	if (!rq->out[0]) {
-+		dst = NULL;
-+	} else {
-+		dst = kmap_atomic(rq->out[0]);
-+		memcpy(dst + rq->pageofs_out, src, righthalf);
-+	}
-+
-+	if (rq->out[1] == *rq->in) {
-+		memmove(src, src + righthalf, rq->pageofs_out);
-+	} else if (nrpages_out == 2) {
-+		if (dst)
-+			kunmap_atomic(dst);
-+		DBG_BUGON(!rq->out[1]);
-+		dst = kmap_atomic(rq->out[1]);
-+		memcpy(dst, src + righthalf, rq->pageofs_out);
-+	}
-+	if (dst)
-+		kunmap_atomic(dst);
-+	kunmap_atomic(src);
-+	return 0;
-+}
-+
-+int z_erofs_decompress(struct z_erofs_decompress_req *rq,
-+		       struct list_head *pagepool)
-+{
-+	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED)
-+		return shifted_decompress(rq, pagepool);
-+	return decompress_generic(rq, pagepool);
-+}
++See "struct z_erofs_vle_decompressed_index" in erofs_fs.h for more details.
 +
 -- 
 2.17.1
