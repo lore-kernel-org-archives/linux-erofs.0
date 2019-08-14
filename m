@@ -1,22 +1,24 @@
 From: yuchao0@huawei.com (Chao Yu)
-Date: Wed, 14 Aug 2019 17:22:20 +0800
-Subject: [PATCH RESEND 1/2] staging: erofs: introduce EFSCORRUPTED and
- more logs
-In-Reply-To: <20190814043208.15591-1-gaoxiang25@huawei.com>
+Date: Wed, 14 Aug 2019 17:25:51 +0800
+Subject: [PATCH RESEND 2/2] staging: erofs: differentiate unsupported
+ on-disk format
+In-Reply-To: <20190814043208.15591-2-gaoxiang25@huawei.com>
 References: <20190814042525.4925-2-gaoxiang25@huawei.com>
  <20190814043208.15591-1-gaoxiang25@huawei.com>
-Message-ID: <db0e0d1d-9018-5c2c-93d0-b718e7e6853c@huawei.com>
+ <20190814043208.15591-2-gaoxiang25@huawei.com>
+Message-ID: <108ee2f9-75dd-b8ab-8da7-b81c17bafbf6@huawei.com>
 
 On 2019/8/14 12:32, Gao Xiang wrote:
-> Previously, EROFS uses EIO to indicate that filesystem is
-> corrupted as well, but other filesystems tend to use
-> EUCLEAN instead, let's follow what others do right now.
+> For some specific fields, use ENOTSUPP instead of EIO
+> for values which look sane but aren't supported right now.
 > 
-> Also, add some more prints to the syslog.
-> 
-> Suggested-by: Pavel Machek <pavel at denx.de>
 > Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
 Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+
+> +		return -ENOTSUPP;
+
+A little bit confused about when we need to use ENOTSUPP or EOPNOTSUPP, I
+checked several manual of syscall, it looks EOPNOTSUPP is widely used.
 
 Thanks,
