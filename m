@@ -1,7 +1,10 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 14 Aug 2019 12:25:24 +0800
-Subject: [PATCH 1/2] staging: erofs: introduce EFSCORRUPTED and more logs
-Message-ID: <20190814042525.4925-1-gaoxiang25@huawei.com>
+Date: Wed, 14 Aug 2019 12:32:07 +0800
+Subject: [PATCH RESEND 1/2] staging: erofs: introduce EFSCORRUPTED and more
+ logs
+In-Reply-To: <20190814042525.4925-2-gaoxiang25@huawei.com>
+References: <20190814042525.4925-2-gaoxiang25@huawei.com>
+Message-ID: <20190814043208.15591-1-gaoxiang25@huawei.com>
 
 Previously, EROFS uses EIO to indicate that filesystem is
 corrupted as well, but other filesystems tend to use
@@ -12,6 +15,7 @@ Also, add some more prints to the syslog.
 Suggested-by: Pavel Machek <pavel at denx.de>
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+[RESEND]: add Pavel to the recipient as well...Forgive me... no logic change.
 
 This patchset has dependency on the previous patchset yesterday
  https://lore.kernel.org/lkml/20190813023054.73126-1-gaoxiang25 at huawei.com/
