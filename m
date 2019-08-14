@@ -1,73 +1,26 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Wed, 14 Aug 2019 12:32:08 +0800
-Subject: [PATCH RESEND 2/2] staging: erofs: differentiate unsupported on-disk
- format
-In-Reply-To: <20190814043208.15591-1-gaoxiang25@huawei.com>
-References: <20190814042525.4925-2-gaoxiang25@huawei.com>
- <20190814043208.15591-1-gaoxiang25@huawei.com>
-Message-ID: <20190814043208.15591-2-gaoxiang25@huawei.com>
+From: yuchao0@huawei.com (Chao Yu)
+Date: Wed, 14 Aug 2019 14:36:17 +0800
+Subject: [PATCH] staging: erofs: removing an extra call to iloc() in
+ fill_inode()
+In-Reply-To: <CAGu0czT2z3Rx_PFot1mgZJ=X75N3pZoDeNDk5DNkyTcfZ7PBcg@mail.gmail.com>
+References: <20190813203840.13782-1-pratikshinde320@gmail.com>
+ <20190814015944.GA11254@138>
+ <418907b6-0b6b-3b08-c6fd-939a206f061f@huawei.com>
+ <20190814022442.GA28602@138>
+ <CAGu0czT2z3Rx_PFot1mgZJ=X75N3pZoDeNDk5DNkyTcfZ7PBcg@mail.gmail.com>
+Message-ID: <554b5085-7e73-bb56-4128-e9eaed827505@huawei.com>
 
-For some specific fields, use ENOTSUPP instead of EIO
-for values which look sane but aren't supported right now.
+On 2019/8/14 11:52, Pratik Shinde wrote:
+> Yes.since we already have a function with same name (and we are using it in same
+> context).
+> 'inode_loc' was the most meaningful name I could come up with :)
 
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/inode.c | 4 ++--
- drivers/staging/erofs/zmap.c  | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+[snip]
 
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 461fd4213ce7..1088cd154efa 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -24,7 +24,7 @@ static int read_inode(struct inode *inode, void *data)
- 		errln("unsupported data mapping %u of nid %llu",
- 		      vi->datamode, vi->nid);
- 		DBG_BUGON(1);
--		return -EIO;
-+		return -ENOTSUPP;
- 	}
- 
- 	if (__inode_version(advise) == EROFS_INODE_LAYOUT_V2) {
-@@ -95,7 +95,7 @@ static int read_inode(struct inode *inode, void *data)
- 		errln("unsupported on-disk inode version %u of nid %llu",
- 		      __inode_version(advise), vi->nid);
- 		DBG_BUGON(1);
--		return -EIO;
-+		return -ENOTSUPP;
- 	}
- 
- 	if (!nblks)
-diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
-index 16b3625604f4..f955d0752792 100644
---- a/drivers/staging/erofs/zmap.c
-+++ b/drivers/staging/erofs/zmap.c
-@@ -178,7 +178,7 @@ static int vle_legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
- 		break;
- 	default:
- 		DBG_BUGON(1);
--		return -EIO;
-+		return -ENOTSUPP;
- 	}
- 	m->type = type;
- 	return 0;
-@@ -362,7 +362,7 @@ static int vle_extent_lookback(struct z_erofs_maprecorder *m,
- 		errln("unknown type %u at lcn %lu of nid %llu",
- 		      m->type, lcn, vi->nid);
- 		DBG_BUGON(1);
--		return -EIO;
-+		return -ENOTSUPP;
- 	}
- 	return 0;
- }
-@@ -436,7 +436,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
- 	default:
- 		errln("unknown type %u at offset %llu of nid %llu",
- 		      m.type, ofs, vi->nid);
--		err = -EIO;
-+		err = -ENOTSUPP;
- 		goto unmap_out;
- 	}
- 
--- 
-2.17.2
+On Wed, Aug 14, 2019@7:37 AM Gao Xiang <gaoxiang25@huawei.com> wrote:
+> iloc is the name of static inline helper function in internal.h
+> used for shorter lines...
+
+Correct, so let's keep as it is.
+
+Thanks,
