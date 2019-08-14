@@ -1,85 +1,71 @@
-From: pratikshinde320@gmail.com (Pratik Shinde)
-Date: Wed, 14 Aug 2019 09:22:53 +0530
-Subject: [PATCH] staging: erofs: removing an extra call to iloc() in
- fill_inode()
-In-Reply-To: <20190814022442.GA28602@138>
-References: <20190813203840.13782-1-pratikshinde320@gmail.com>
- <20190814015944.GA11254@138> <418907b6-0b6b-3b08-c6fd-939a206f061f@huawei.com>
- <20190814022442.GA28602@138>
-Message-ID: <CAGu0czT2z3Rx_PFot1mgZJ=X75N3pZoDeNDk5DNkyTcfZ7PBcg@mail.gmail.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Wed, 14 Aug 2019 12:25:25 +0800
+Subject: [PATCH 2/2] staging: erofs: differentiate unsupported on-disk format
+In-Reply-To: <20190814042525.4925-1-gaoxiang25@huawei.com>
+References: <20190814042525.4925-1-gaoxiang25@huawei.com>
+Message-ID: <20190814042525.4925-2-gaoxiang25@huawei.com>
 
-Yes.since we already have a function with same name (and we are using it in
-same context).
-'inode_loc' was the most meaningful name I could come up with :)
+For some specific fields, use ENOTSUPP instead of EIO
+for values which look sane but aren't supported right now.
 
---Pratik.
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/inode.c | 4 ++--
+ drivers/staging/erofs/zmap.c  | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-On Wed, Aug 14, 2019@7:37 AM Gao Xiang <gaoxiang25@huawei.com> wrote:
-
-> On Wed, Aug 14, 2019@09:56:09AM +0800, Chao Yu wrote:
-> > On 2019/8/14 9:59, Gao Xiang wrote:
-> > > Hi Pratik,
-> > >
-> > > On Wed, Aug 14, 2019@02:08:40AM +0530, Pratik Shinde wrote:
-> > >> in fill_inode() we call iloc() twice.Avoiding the extra call by
-> > >> storing the result.
-> > >>
-> > >> Signed-off-by: Pratik Shinde <pratikshinde320 at gmail.com>
-> > >
-> > > I have no objection of this patch, but I'd like to
-> > > hear Chao/Greg's idea about this...
-> >
-> > It looks more clean. :)
-> >
-> > Nitpick, maybe change 'inode_loc' to shorter 'iloc' will be better.
->
-> iloc is the name of static inline helper function in internal.h
-> used for shorter lines...
->
-> Thanks,
-> Gao Xiang
->
-> >
-> > Reviewed-by: Chao Yu <yuchao0 at huawei.com>
-> >
-> > Thanks,
-> >
-> > >
-> > > Thanks,
-> > > Gao Xiang
-> > >
-> > >> ---
-> > >>  drivers/staging/erofs/inode.c | 7 ++++---
-> > >>  1 file changed, 4 insertions(+), 3 deletions(-)
-> > >>
-> > >> diff --git a/drivers/staging/erofs/inode.c
-> b/drivers/staging/erofs/inode.c
-> > >> index 4c3d8bf..d82ba6c 100644
-> > >> --- a/drivers/staging/erofs/inode.c
-> > >> +++ b/drivers/staging/erofs/inode.c
-> > >> @@ -167,11 +167,12 @@ static int fill_inode(struct inode *inode, int
-> isdir)
-> > >>    int err;
-> > >>    erofs_blk_t blkaddr;
-> > >>    unsigned int ofs;
-> > >> +  erofs_off_t inode_loc;
-> > >>
-> > >>    trace_erofs_fill_inode(inode, isdir);
-> > >> -
-> > >> -  blkaddr = erofs_blknr(iloc(sbi, vi->nid));
-> > >> -  ofs = erofs_blkoff(iloc(sbi, vi->nid));
-> > >> +  inode_loc = iloc(sbi, vi->nid);
-> > >> +  blkaddr = erofs_blknr(inode_loc);
-> > >> +  ofs = erofs_blkoff(inode_loc);
-> > >>
-> > >>    debugln("%s, reading inode nid %llu at %u of blkaddr %u",
-> > >>            __func__, vi->nid, ofs, blkaddr);
-> > >> --
-> > >> 2.9.3
-> > >>
-> > > .
-> > >
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.ozlabs.org/pipermail/linux-erofs/attachments/20190814/7db46d5c/attachment.htm>
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 461fd4213ce7..1088cd154efa 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -24,7 +24,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		errln("unsupported data mapping %u of nid %llu",
+ 		      vi->datamode, vi->nid);
+ 		DBG_BUGON(1);
+-		return -EIO;
++		return -ENOTSUPP;
+ 	}
+ 
+ 	if (__inode_version(advise) == EROFS_INODE_LAYOUT_V2) {
+@@ -95,7 +95,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		errln("unsupported on-disk inode version %u of nid %llu",
+ 		      __inode_version(advise), vi->nid);
+ 		DBG_BUGON(1);
+-		return -EIO;
++		return -ENOTSUPP;
+ 	}
+ 
+ 	if (!nblks)
+diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
+index 16b3625604f4..f955d0752792 100644
+--- a/drivers/staging/erofs/zmap.c
++++ b/drivers/staging/erofs/zmap.c
+@@ -178,7 +178,7 @@ static int vle_legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
+ 		break;
+ 	default:
+ 		DBG_BUGON(1);
+-		return -EIO;
++		return -ENOTSUPP;
+ 	}
+ 	m->type = type;
+ 	return 0;
+@@ -362,7 +362,7 @@ static int vle_extent_lookback(struct z_erofs_maprecorder *m,
+ 		errln("unknown type %u at lcn %lu of nid %llu",
+ 		      m->type, lcn, vi->nid);
+ 		DBG_BUGON(1);
+-		return -EIO;
++		return -ENOTSUPP;
+ 	}
+ 	return 0;
+ }
+@@ -436,7 +436,7 @@ int z_erofs_map_blocks_iter(struct inode *inode,
+ 	default:
+ 		errln("unknown type %u at offset %llu of nid %llu",
+ 		      m.type, ofs, vi->nid);
+-		err = -EIO;
++		err = -ENOTSUPP;
+ 		goto unmap_out;
+ 	}
+ 
+-- 
+2.17.2
