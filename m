@@ -1,203 +1,110 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 15 Aug 2019 12:41:46 +0800
-Subject: [PATCH v8 15/24] erofs: introduce erofs shrinker
+Date: Thu, 15 Aug 2019 12:41:48 +0800
+Subject: [PATCH v8 17/24] erofs: introduce per-CPU buffers implementation
 In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
 References: <20190815044155.88483-1-gaoxiang25@huawei.com>
-Message-ID: <20190815044155.88483-16-gaoxiang25@huawei.com>
+Message-ID: <20190815044155.88483-18-gaoxiang25@huawei.com>
 
-This patch adds a dedicated shrinker targeting to free
-unneeded memory consumed by a number of erofs in-memory
-data structures.
+This patch introduces per-CPU buffers in order for
+the upcoming generic decompression framework to use.
 
-Like F2FS and UBIFS, it also adds:
-  - sbi->umount_mutex to avoid races on shrinker and put_super;
-  - sbi->shrinker_run_no to not revisit recently scanned objects.
+Note that I tried to use in-kernel per-CPU buffer or
+per-CPU page approaches to clean up further, however
+noticeable performanace regression (about 2% for
+sequential read) was observed.
+
+Let's leave it as-is for now.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/internal.h |  7 ++++
- fs/erofs/super.c    |  6 +++
- fs/erofs/utils.c    | 93 ++++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 105 insertions(+), 1 deletion(-)
+ fs/erofs/Kconfig    | 14 ++++++++++++++
+ fs/erofs/internal.h | 21 +++++++++++++++++++++
+ fs/erofs/utils.c    | 12 ++++++++++++
+ 3 files changed, 47 insertions(+)
 
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index a475fbebb831..5f8787c0cf89 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -81,3 +81,17 @@ config EROFS_FS_ZIP
+ 
+ 	  If you don't want to enable compression feature, say N.
+ 
++config EROFS_FS_CLUSTER_PAGE_LIMIT
++	int "EROFS Cluster Pages Hard Limit"
++	depends on EROFS_FS_ZIP
++	range 1 256
++	default "1"
++	help
++	  Indicates maximum # of pages of a compressed
++	  physical cluster.
++
++	  For example, if files in a image were compressed
++	  into 8k-unit, hard limit should not be configured
++	  less than 2. Otherwise, the image will be refused
++	  to mount on this kernel.
++
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 62f1e3ffe0a2..4bcdf32a45ad 100644
+index 6a2407fb3013..3222947c9bab 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -63,6 +63,9 @@ struct erofs_sb_info {
- #ifdef CONFIG_EROFS_FS_ZIP
- 	/* list for all registered superblocks, mainly for shrinker */
- 	struct list_head list;
-+	struct mutex umount_mutex;
+@@ -222,6 +222,12 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 	return v;
+ }
+ #endif	/* !CONFIG_SMP */
 +
-+	unsigned int shrinker_run_no;
- #endif	/* CONFIG_EROFS_FS_ZIP */
- 	u32 blocks;
- 	u32 meta_blkaddr;
-@@ -408,9 +411,13 @@ extern const struct file_operations erofs_dir_fops;
- #ifdef CONFIG_EROFS_FS_ZIP
- void erofs_shrinker_register(struct super_block *sb);
- void erofs_shrinker_unregister(struct super_block *sb);
-+int __init erofs_init_shrinker(void);
-+void erofs_exit_shrinker(void);
- #else
- static inline void erofs_shrinker_register(struct super_block *sb) {}
- static inline void erofs_shrinker_unregister(struct super_block *sb) {}
-+static inline int erofs_init_shrinker(void) { return 0; }
-+static inline void erofs_exit_shrinker(void) {}
++/* hard limit of pages per compressed cluster */
++#define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
++#define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
++#else
++#define EROFS_PCPUBUF_NR_PAGES          0
  #endif	/* !CONFIG_EROFS_FS_ZIP */
  
- #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 2eca3b25db75..09992cc3b2fd 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -413,6 +413,9 @@ static int __init erofs_module_init(void)
- 	if (err)
- 		goto icache_err;
+ /* we strictly follow PAGE_SIZE and no buffer head yet */
+@@ -482,6 +488,21 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ extern const struct file_operations erofs_dir_fops;
  
-+	err = erofs_init_shrinker();
-+	if (err)
-+		goto shrinker_err;
- 	err = register_filesystem(&erofs_fs_type);
- 	if (err)
- 		goto fs_err;
-@@ -421,6 +424,8 @@ static int __init erofs_module_init(void)
- 	return 0;
- 
- fs_err:
-+	erofs_exit_shrinker();
-+shrinker_err:
- 	erofs_exit_inode_cache();
- icache_err:
- 	return err;
-@@ -429,6 +434,7 @@ static int __init erofs_module_init(void)
- static void __exit erofs_module_exit(void)
- {
- 	unregister_filesystem(&erofs_fs_type);
-+	erofs_exit_shrinker();
- 	erofs_exit_inode_cache();
- 	infoln("successfully finalize erofs");
- }
+ /* utils.c */
++#if (EROFS_PCPUBUF_NR_PAGES > 0)
++void *erofs_get_pcpubuf(unsigned int pagenr);
++#define erofs_put_pcpubuf(buf) do { \
++	(void)&(buf);	\
++	preempt_enable();	\
++} while (0)
++#else
++static inline void *erofs_get_pcpubuf(unsigned int pagenr)
++{
++	return ERR_PTR(-EOPNOTSUPP);
++}
++
++#define erofs_put_pcpubuf(buf) do {} while (0)
++#endif
++
+ #ifdef CONFIG_EROFS_FS_ZIP
+ int erofs_workgroup_put(struct erofs_workgroup *grp);
+ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
 diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index 791b2df1f761..cab7d77c4e59 100644
+index 628178261056..f3eed9af24d6 100644
 --- a/fs/erofs/utils.c
 +++ b/fs/erofs/utils.c
-@@ -9,6 +9,12 @@
+@@ -9,6 +9,18 @@
  #include "internal.h"
+ #include <linux/pagevec.h>
  
++#if (EROFS_PCPUBUF_NR_PAGES > 0)
++static struct {
++	u8 data[PAGE_SIZE * EROFS_PCPUBUF_NR_PAGES];
++} ____cacheline_aligned_in_smp erofs_pcpubuf[NR_CPUS];
++
++void *erofs_get_pcpubuf(unsigned int pagenr)
++{
++	preempt_disable();
++	return &erofs_pcpubuf[smp_processor_id()].data[pagenr * PAGE_SIZE];
++}
++#endif
++
  #ifdef CONFIG_EROFS_FS_ZIP
-+/* global shrink count (for all mounted EROFS instances) */
-+static atomic_long_t erofs_global_shrink_cnt;
-+
-+/* protected by 'erofs_sb_list_lock' */
-+static unsigned int shrinker_run_no;
-+
- /* protects the mounted 'erofs_sb_list' */
- static DEFINE_SPINLOCK(erofs_sb_list_lock);
- static LIST_HEAD(erofs_sb_list);
-@@ -17,6 +23,8 @@ void erofs_shrinker_register(struct super_block *sb)
- {
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 
-+	mutex_init(&sbi->umount_mutex);
-+
- 	spin_lock(&erofs_sb_list_lock);
- 	list_add(&sbi->list, &erofs_sb_list);
- 	spin_unlock(&erofs_sb_list_lock);
-@@ -24,9 +32,92 @@ void erofs_shrinker_register(struct super_block *sb)
- 
- void erofs_shrinker_unregister(struct super_block *sb)
- {
-+	struct erofs_sb_info *const sbi = EROFS_SB(sb);
-+
-+	mutex_lock(&sbi->umount_mutex);
-+	/* will add shrink final handler here */
-+
-+	spin_lock(&erofs_sb_list_lock);
-+	list_del(&sbi->list);
-+	spin_unlock(&erofs_sb_list_lock);
-+	mutex_unlock(&sbi->umount_mutex);
-+}
-+
-+static unsigned long erofs_shrink_count(struct shrinker *shrink,
-+					struct shrink_control *sc)
-+{
-+	return atomic_long_read(&erofs_global_shrink_cnt);
-+}
-+
-+static unsigned long erofs_shrink_scan(struct shrinker *shrink,
-+				       struct shrink_control *sc)
-+{
-+	struct erofs_sb_info *sbi;
-+	struct list_head *p;
-+
-+	unsigned long nr = sc->nr_to_scan;
-+	unsigned int run_no;
-+	unsigned long freed = 0;
-+
- 	spin_lock(&erofs_sb_list_lock);
--	list_del(&EROFS_SB(sb)->list);
-+	do {
-+		run_no = ++shrinker_run_no;
-+	} while (run_no == 0);
-+
-+	/* Iterate over all mounted superblocks and try to shrink them */
-+	p = erofs_sb_list.next;
-+	while (p != &erofs_sb_list) {
-+		sbi = list_entry(p, struct erofs_sb_info, list);
-+
-+		/*
-+		 * We move the ones we do to the end of the list, so we stop
-+		 * when we see one we have already done.
-+		 */
-+		if (sbi->shrinker_run_no == run_no)
-+			break;
-+
-+		if (!mutex_trylock(&sbi->umount_mutex)) {
-+			p = p->next;
-+			continue;
-+		}
-+
-+		spin_unlock(&erofs_sb_list_lock);
-+		sbi->shrinker_run_no = run_no;
-+
-+		/* will add shrink handler here */
-+
-+		spin_lock(&erofs_sb_list_lock);
-+		/* Get the next list element before we move this one */
-+		p = p->next;
-+
-+		/*
-+		 * Move this one to the end of the list to provide some
-+		 * fairness.
-+		 */
-+		list_move_tail(&sbi->list, &erofs_sb_list);
-+		mutex_unlock(&sbi->umount_mutex);
-+
-+		if (freed >= nr)
-+			break;
-+	}
- 	spin_unlock(&erofs_sb_list_lock);
-+	return freed;
-+}
-+
-+static struct shrinker erofs_shrinker_info = {
-+	.scan_objects = erofs_shrink_scan,
-+	.count_objects = erofs_shrink_count,
-+	.seeks = DEFAULT_SEEKS,
-+};
-+
-+int __init erofs_init_shrinker(void)
-+{
-+	return register_shrinker(&erofs_shrinker_info);
-+}
-+
-+void erofs_exit_shrinker(void)
-+{
-+	unregister_shrinker(&erofs_shrinker_info);
- }
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
+ /* global shrink count (for all mounted EROFS instances) */
+ static atomic_long_t erofs_global_shrink_cnt;
 -- 
 2.17.1
