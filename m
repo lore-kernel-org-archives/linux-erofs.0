@@ -1,455 +1,462 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 15 Aug 2019 12:41:51 +0800
-Subject: [PATCH v8 20/24] erofs: introduce generic decompression backend
+Date: Thu, 15 Aug 2019 12:41:34 +0800
+Subject: [PATCH v8 03/24] erofs: add super block operations
 In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
 References: <20190815044155.88483-1-gaoxiang25@huawei.com>
-Message-ID: <20190815044155.88483-21-gaoxiang25@huawei.com>
+Message-ID: <20190815044155.88483-4-gaoxiang25@huawei.com>
 
-This patch adds decompression backend to EROFS, which
-supports uncompressed and LZ4 compressed data.
-
-For compressed data, it uses the following strategy:
-1) If outputsize is very small (totally less than a threshold),
-   decompress to the per-CPU buffer and do memcpy directly
-   in order to avoid vmap() overhead;
-2) Otherwise it will fill bounced pages if needed and vmap
-   all output pages into a continuous virtual memory area,
-   memcpy compressed data to the per-CPU buffer for inplace
-   I/O [1] and decompress.
-
-Since LZ4 is a lz77-based algorithm which has a dynamically
-populated ("sliding window") dictionary and the maximum
-lookback distance is 65535. Therefore the number of bounced
-pages could be limited by erofs based on this property.
-
-[1] `LZ4 decompression inplace' will eliminate the extra memcpy
-    if iend - oend margin is safe enough, see the following patch.
+This commit adds erofs super block operations, including (u)mount,
+remount_fs, show_options, statfs, in addition to some private
+icache management functions.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Makefile       |   2 +-
- fs/erofs/compress.h     |  62 ++++++++
- fs/erofs/decompressor.c | 332 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 395 insertions(+), 1 deletion(-)
- create mode 100644 fs/erofs/compress.h
- create mode 100644 fs/erofs/decompressor.c
+ fs/erofs/super.c | 437 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 437 insertions(+)
+ create mode 100644 fs/erofs/super.c
 
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 930770be124f..5594abca6f95 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -7,5 +7,5 @@ ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
--erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o
- 
-diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
 new file mode 100644
-index 000000000000..57035b7646ef
+index 000000000000..cd4bd6f48173
 --- /dev/null
-+++ b/fs/erofs/compress.h
-@@ -0,0 +1,62 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
++++ b/fs/erofs/super.c
+@@ -0,0 +1,437 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * linux/fs/erofs/compress.h
++ * linux/fs/erofs/super.c
 + *
-+ * Copyright (C) 2019 HUAWEI, Inc.
++ * Copyright (C) 2017-2018 HUAWEI, Inc.
 + *             http://www.huawei.com/
 + * Created by Gao Xiang <gaoxiang25 at huawei.com>
 + */
-+#ifndef __EROFS_FS_COMPRESS_H
-+#define __EROFS_FS_COMPRESS_H
-+
++#include <linux/module.h>
++#include <linux/buffer_head.h>
++#include <linux/statfs.h>
++#include <linux/parser.h>
++#include <linux/seq_file.h>
 +#include "internal.h"
 +
-+enum {
-+	Z_EROFS_COMPRESSION_SHIFTED = Z_EROFS_COMPRESSION_MAX,
-+	Z_EROFS_COMPRESSION_RUNTIME_MAX
-+};
++#define CREATE_TRACE_POINTS
++#include <trace/events/erofs.h>
 +
-+struct z_erofs_decompress_req {
-+	struct super_block *sb;
-+	struct page **in, **out;
++static struct kmem_cache *erofs_inode_cachep __read_mostly;
 +
-+	unsigned short pageofs_out;
-+	unsigned int inputsize, outputsize;
-+
-+	/* indicate the algorithm will be used for decompression */
-+	unsigned int alg;
-+	bool inplace_io, partial_decoding;
-+};
-+
-+/*
-+ * - 0x5A110C8D ('sallocated', Z_EROFS_MAPPING_STAGING) -
-+ * used to mark temporary allocated pages from other
-+ * file/cached pages and NULL mapping pages.
-+ */
-+#define Z_EROFS_MAPPING_STAGING         ((void *)0x5A110C8D)
-+
-+/* check if a page is marked as staging */
-+static inline bool z_erofs_page_is_staging(struct page *page)
++static void init_once(void *ptr)
 +{
-+	return page->mapping == Z_EROFS_MAPPING_STAGING;
++	struct erofs_vnode *vi = ptr;
++
++	inode_init_once(&vi->vfs_inode);
 +}
 +
-+static inline bool z_erofs_put_stagingpage(struct list_head *pagepool,
-+					   struct page *page)
++static int __init erofs_init_inode_cache(void)
 +{
-+	if (!z_erofs_page_is_staging(page))
-+		return false;
++	erofs_inode_cachep = kmem_cache_create("erofs_inode",
++					       sizeof(struct erofs_vnode), 0,
++					       SLAB_RECLAIM_ACCOUNT,
++					       init_once);
 +
-+	/* staging pages should not be used by others at the same time */
-+	if (page_ref_count(page) > 1)
-+		put_page(page);
-+	else
-+		list_add(&page->lru, pagepool);
++	return erofs_inode_cachep ? 0 : -ENOMEM;
++}
++
++static void erofs_exit_inode_cache(void)
++{
++	kmem_cache_destroy(erofs_inode_cachep);
++}
++
++static struct inode *alloc_inode(struct super_block *sb)
++{
++	struct erofs_vnode *vi =
++		kmem_cache_alloc(erofs_inode_cachep, GFP_KERNEL);
++
++	if (!vi)
++		return NULL;
++
++	/* zero out everything except vfs_inode */
++	memset(vi, 0, offsetof(struct erofs_vnode, vfs_inode));
++	return &vi->vfs_inode;
++}
++
++static void free_inode(struct inode *inode)
++{
++	struct erofs_vnode *vi = EROFS_V(inode);
++
++	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
++	if (is_inode_fast_symlink(inode))
++		kfree(inode->i_link);
++
++	kmem_cache_free(erofs_inode_cachep, vi);
++}
++
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
++{
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
++
++	EROFS_SB(sb)->requirements = requirements;
++
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
++	}
 +	return true;
 +}
 +
-+int z_erofs_decompress(struct z_erofs_decompress_req *rq,
-+		       struct list_head *pagepool);
-+
-+#endif
-+
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-new file mode 100644
-index 000000000000..2374dd3c967c
---- /dev/null
-+++ b/fs/erofs/decompressor.c
-@@ -0,0 +1,332 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * linux/fs/erofs/decompressor.c
-+ *
-+ * Copyright (C) 2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#include "compress.h"
-+#include <linux/module.h>
-+#include <linux/lz4.h>
-+
-+#ifndef LZ4_DISTANCE_MAX	/* history window size */
-+#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
-+#endif
-+
-+#define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
-+
-+struct z_erofs_decompressor {
-+	/*
-+	 * if destpages have sparsed pages, fill them with bounce pages.
-+	 * it also check whether destpages indicate continuous physical memory.
-+	 */
-+	int (*prepare_destpages)(struct z_erofs_decompress_req *rq,
-+				 struct list_head *pagepool);
-+	int (*decompress)(struct z_erofs_decompress_req *rq, u8 *out);
-+	char *name;
-+};
-+
-+static bool use_vmap;
-+module_param(use_vmap, bool, 0444);
-+MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
-+
-+static int lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
-+				 struct list_head *pagepool)
++static int superblock_read(struct super_block *sb)
 +{
-+	const unsigned int nr =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	struct page *availables[LZ4_MAX_DISTANCE_PAGES] = { NULL };
-+	unsigned long bounced[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
-+					   BITS_PER_LONG)] = { 0 };
-+	void *kaddr = NULL;
-+	unsigned int i, j, top;
-+
-+	top = 0;
-+	for (i = j = 0; i < nr; ++i, ++j) {
-+		struct page *const page = rq->out[i];
-+		struct page *victim;
-+
-+		if (j >= LZ4_MAX_DISTANCE_PAGES)
-+			j = 0;
-+
-+		/* 'valid' bounced can only be tested after a complete round */
-+		if (test_bit(j, bounced)) {
-+			DBG_BUGON(i < LZ4_MAX_DISTANCE_PAGES);
-+			DBG_BUGON(top >= LZ4_MAX_DISTANCE_PAGES);
-+			availables[top++] = rq->out[i - LZ4_MAX_DISTANCE_PAGES];
-+		}
-+
-+		if (page) {
-+			__clear_bit(j, bounced);
-+			if (kaddr) {
-+				if (kaddr + PAGE_SIZE == page_address(page))
-+					kaddr += PAGE_SIZE;
-+				else
-+					kaddr = NULL;
-+			} else if (!i) {
-+				kaddr = page_address(page);
-+			}
-+			continue;
-+		}
-+		kaddr = NULL;
-+		__set_bit(j, bounced);
-+
-+		if (top) {
-+			victim = availables[--top];
-+			get_page(victim);
-+		} else {
-+			victim = erofs_allocpage(pagepool, GFP_KERNEL, false);
-+			if (unlikely(!victim))
-+				return -ENOMEM;
-+			victim->mapping = Z_EROFS_MAPPING_STAGING;
-+		}
-+		rq->out[i] = victim;
-+	}
-+	return kaddr ? 1 : 0;
-+}
-+
-+static void *generic_copy_inplace_data(struct z_erofs_decompress_req *rq,
-+				       u8 *src, unsigned int pageofs_in)
-+{
-+	/*
-+	 * if in-place decompression is ongoing, those decompressed
-+	 * pages should be copied in order to avoid being overlapped.
-+	 */
-+	struct page **in = rq->in;
-+	u8 *const tmp = erofs_get_pcpubuf(0);
-+	u8 *tmpp = tmp;
-+	unsigned int inlen = rq->inputsize - pageofs_in;
-+	unsigned int count = min_t(uint, inlen, PAGE_SIZE - pageofs_in);
-+
-+	while (tmpp < tmp + inlen) {
-+		if (!src)
-+			src = kmap_atomic(*in);
-+		memcpy(tmpp, src + pageofs_in, count);
-+		kunmap_atomic(src);
-+		src = NULL;
-+		tmpp += count;
-+		pageofs_in = 0;
-+		count = PAGE_SIZE;
-+		++in;
-+	}
-+	return tmp;
-+}
-+
-+static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
-+{
-+	unsigned int inputmargin, inlen;
-+	u8 *src;
-+	bool copied;
++	struct erofs_sb_info *sbi;
++	struct buffer_head *bh;
++	struct erofs_super_block *layout;
++	unsigned int blkszbits;
 +	int ret;
 +
-+	if (rq->inputsize > PAGE_SIZE)
-+		return -EOPNOTSUPP;
++	bh = sb_bread(sb, 0);
 +
-+	src = kmap_atomic(*rq->in);
-+	inputmargin = 0;
-+
-+	copied = false;
-+	inlen = rq->inputsize - inputmargin;
-+	if (rq->inplace_io) {
-+		src = generic_copy_inplace_data(rq, src, inputmargin);
-+		inputmargin = 0;
-+		copied = true;
-+	}
-+
-+	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
-+					  inlen, rq->outputsize,
-+					  rq->outputsize);
-+	if (ret < 0) {
-+		errln("%s, failed to decompress, in[%p, %u, %u] out[%p, %u]",
-+		      __func__, src + inputmargin, inlen, inputmargin,
-+		      out, rq->outputsize);
-+		WARN_ON(1);
-+		print_hex_dump(KERN_DEBUG, "[ in]: ", DUMP_PREFIX_OFFSET,
-+			       16, 1, src + inputmargin, inlen, true);
-+		print_hex_dump(KERN_DEBUG, "[out]: ", DUMP_PREFIX_OFFSET,
-+			       16, 1, out, rq->outputsize, true);
-+		ret = -EIO;
-+	}
-+
-+	if (copied)
-+		erofs_put_pcpubuf(src);
-+	else
-+		kunmap_atomic(src);
-+	return ret;
-+}
-+
-+static struct z_erofs_decompressor decompressors[] = {
-+	[Z_EROFS_COMPRESSION_SHIFTED] = {
-+		.name = "shifted"
-+	},
-+	[Z_EROFS_COMPRESSION_LZ4] = {
-+		.prepare_destpages = lz4_prepare_destpages,
-+		.decompress = lz4_decompress,
-+		.name = "lz4"
-+	},
-+};
-+
-+static void copy_from_pcpubuf(struct page **out, const char *dst,
-+			      unsigned short pageofs_out,
-+			      unsigned int outputsize)
-+{
-+	const char *end = dst + outputsize;
-+	const unsigned int righthalf = PAGE_SIZE - pageofs_out;
-+	const char *cur = dst - pageofs_out;
-+
-+	while (cur < end) {
-+		struct page *const page = *out++;
-+
-+		if (page) {
-+			char *buf = kmap_atomic(page);
-+
-+			if (cur >= dst) {
-+				memcpy(buf, cur, min_t(uint, PAGE_SIZE,
-+						       end - cur));
-+			} else {
-+				memcpy(buf + pageofs_out, cur + pageofs_out,
-+				       min_t(uint, righthalf, end - cur));
-+			}
-+			kunmap_atomic(buf);
-+		}
-+		cur += PAGE_SIZE;
-+	}
-+}
-+
-+static void *erofs_vmap(struct page **pages, unsigned int count)
-+{
-+	int i = 0;
-+
-+	if (use_vmap)
-+		return vmap(pages, count, VM_MAP, PAGE_KERNEL);
-+
-+	while (1) {
-+		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
-+
-+		/* retry two more times (totally 3 times) */
-+		if (addr || ++i >= 3)
-+			return addr;
-+		vm_unmap_aliases();
-+	}
-+	return NULL;
-+}
-+
-+static void erofs_vunmap(const void *mem, unsigned int count)
-+{
-+	if (!use_vmap)
-+		vm_unmap_ram(mem, count);
-+	else
-+		vunmap(mem);
-+}
-+
-+static int decompress_generic(struct z_erofs_decompress_req *rq,
-+			      struct list_head *pagepool)
-+{
-+	const unsigned int nrpages_out =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	const struct z_erofs_decompressor *alg = decompressors + rq->alg;
-+	unsigned int dst_maptype;
-+	void *dst;
-+	int ret;
-+
-+	if (nrpages_out == 1 && !rq->inplace_io) {
-+		DBG_BUGON(!*rq->out);
-+		dst = kmap_atomic(*rq->out);
-+		dst_maptype = 0;
-+		goto dstmap_out;
-+	}
-+
-+	/*
-+	 * For the case of small output size (especially much less
-+	 * than PAGE_SIZE), memcpy the decompressed data rather than
-+	 * compressed data is preferred.
-+	 */
-+	if (rq->outputsize <= PAGE_SIZE * 7 / 8) {
-+		dst = erofs_get_pcpubuf(0);
-+		if (IS_ERR(dst))
-+			return PTR_ERR(dst);
-+
-+		rq->inplace_io = false;
-+		ret = alg->decompress(rq, dst);
-+		if (!ret)
-+			copy_from_pcpubuf(rq->out, dst, rq->pageofs_out,
-+					  rq->outputsize);
-+
-+		erofs_put_pcpubuf(dst);
-+		return ret;
-+	}
-+
-+	ret = alg->prepare_destpages(rq, pagepool);
-+	if (ret < 0) {
-+		return ret;
-+	} else if (ret) {
-+		dst = page_address(*rq->out);
-+		dst_maptype = 1;
-+		goto dstmap_out;
-+	}
-+
-+	dst = erofs_vmap(rq->out, nrpages_out);
-+	if (!dst)
-+		return -ENOMEM;
-+	dst_maptype = 2;
-+
-+dstmap_out:
-+	ret = alg->decompress(rq, dst + rq->pageofs_out);
-+
-+	if (!dst_maptype)
-+		kunmap_atomic(dst);
-+	else if (dst_maptype == 2)
-+		erofs_vunmap(dst, nrpages_out);
-+	return ret;
-+}
-+
-+static int shifted_decompress(const struct z_erofs_decompress_req *rq,
-+			      struct list_head *pagepool)
-+{
-+	const unsigned int nrpages_out =
-+		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
-+	const unsigned int righthalf = PAGE_SIZE - rq->pageofs_out;
-+	unsigned char *src, *dst;
-+
-+	if (nrpages_out > 2) {
-+		DBG_BUGON(1);
++	if (!bh) {
++		errln("cannot read erofs superblock");
 +		return -EIO;
 +	}
 +
-+	if (rq->out[0] == *rq->in) {
-+		DBG_BUGON(nrpages_out != 1);
-+		return 0;
++	sbi = EROFS_SB(sb);
++	layout = (struct erofs_super_block *)((u8 *)bh->b_data
++		 + EROFS_SUPER_OFFSET);
++
++	ret = -EINVAL;
++	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
++		errln("cannot find valid erofs superblock");
++		goto out;
 +	}
 +
-+	src = kmap_atomic(*rq->in);
-+	if (!rq->out[0]) {
-+		dst = NULL;
++	blkszbits = layout->blkszbits;
++	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
++	if (unlikely(blkszbits != LOG_BLOCK_SIZE)) {
++		errln("blksize %u isn't supported on this platform",
++		      1 << blkszbits);
++		goto out;
++	}
++
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
++	sbi->blocks = le32_to_cpu(layout->blocks);
++	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
++	sbi->islotbits = ffs(sizeof(struct erofs_inode_v1)) - 1;
++	sbi->root_nid = le16_to_cpu(layout->root_nid);
++	sbi->inos = le64_to_cpu(layout->inos);
++
++	sbi->build_time = le64_to_cpu(layout->build_time);
++	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
++
++	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
++	memcpy(sbi->volume_name, layout->volume_name,
++	       sizeof(layout->volume_name));
++
++	ret = 0;
++out:
++	brelse(bh);
++	return ret;
++}
++
++#ifdef CONFIG_EROFS_FAULT_INJECTION
++const char *erofs_fault_name[FAULT_MAX] = {
++	[FAULT_KMALLOC]		= "kmalloc",
++	[FAULT_READ_IO]		= "read IO error",
++};
++
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
++{
++	struct erofs_fault_info *ffi = &sbi->fault_info;
++
++	if (rate) {
++		atomic_set(&ffi->inject_ops, 0);
++		ffi->inject_rate = rate;
++		ffi->inject_type = (1 << FAULT_MAX) - 1;
 +	} else {
-+		dst = kmap_atomic(rq->out[0]);
-+		memcpy(dst + rq->pageofs_out, src, righthalf);
++		memset(ffi, 0, sizeof(struct erofs_fault_info));
 +	}
 +
-+	if (rq->out[1] == *rq->in) {
-+		memmove(src, src + righthalf, rq->pageofs_out);
-+	} else if (nrpages_out == 2) {
-+		if (dst)
-+			kunmap_atomic(dst);
-+		DBG_BUGON(!rq->out[1]);
-+		dst = kmap_atomic(rq->out[1]);
-+		memcpy(dst, src + righthalf, rq->pageofs_out);
-+	}
-+	if (dst)
-+		kunmap_atomic(dst);
-+	kunmap_atomic(src);
++	set_opt(sbi, FAULT_INJECTION);
++}
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				  substring_t *args)
++{
++	int rate = 0;
++
++	if (args->from && match_int(args, &rate))
++		return -EINVAL;
++
++	__erofs_build_fault_attr(sbi, rate);
 +	return 0;
 +}
 +
-+int z_erofs_decompress(struct z_erofs_decompress_req *rq,
-+		       struct list_head *pagepool)
++static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
 +{
-+	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED)
-+		return shifted_decompress(rq, pagepool);
-+	return decompress_generic(rq, pagepool);
++	return sbi->fault_info.inject_rate;
 +}
++#else
++static void __erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				     unsigned int rate)
++{
++}
++
++static int erofs_build_fault_attr(struct erofs_sb_info *sbi,
++				  substring_t *args)
++{
++	infoln("fault_injection options not supported");
++	return 0;
++}
++
++static unsigned int erofs_get_fault_rate(struct erofs_sb_info *sbi)
++{
++	return 0;
++}
++#endif
++
++/* set up default EROFS parameters */
++static void default_options(struct erofs_sb_info *sbi)
++{
++}
++
++enum {
++	Opt_fault_injection,
++	Opt_err
++};
++
++static match_table_t erofs_tokens = {
++	{Opt_fault_injection, "fault_injection=%u"},
++	{Opt_err, NULL}
++};
++
++static int parse_options(struct super_block *sb, char *options)
++{
++	substring_t args[MAX_OPT_ARGS];
++	char *p;
++	int err;
++
++	if (!options)
++		return 0;
++
++	while ((p = strsep(&options, ","))) {
++		int token;
++
++		if (!*p)
++			continue;
++
++		args[0].to = args[0].from = NULL;
++		token = match_token(p, erofs_tokens, args);
++
++		switch (token) {
++		case Opt_fault_injection:
++			err = erofs_build_fault_attr(EROFS_SB(sb), args);
++			if (err)
++				return err;
++			break;
++		default:
++			errln("Unrecognized mount option \"%s\" or missing value", p);
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++
++static int erofs_fill_super(struct super_block *sb, void *data, int silent)
++{
++	struct inode *inode;
++	struct erofs_sb_info *sbi;
++	int err;
++
++	infoln("fill_super, device -> %s", sb->s_id);
++	infoln("options -> %s", (char *)data);
++
++	sb->s_magic = EROFS_SUPER_MAGIC;
++
++	if (unlikely(!sb_set_blocksize(sb, EROFS_BLKSIZ))) {
++		errln("failed to set erofs blksize");
++		return -EINVAL;
++	}
++
++	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
++	if (unlikely(!sbi))
++		return -ENOMEM;
++
++	sb->s_fs_info = sbi;
++	err = superblock_read(sb);
++	if (err)
++		return err;
++
++	sb->s_flags |= SB_RDONLY | SB_NOATIME;
++	sb->s_maxbytes = MAX_LFS_FILESIZE;
++	sb->s_time_gran = 1;
++
++	sb->s_op = &erofs_sops;
++
++	/* set erofs default mount options */
++	default_options(sbi);
++
++	err = parse_options(sb, data);
++	if (unlikely(err))
++		return err;
++
++	if (!silent)
++		infoln("root inode @ nid %llu", ROOT_NID(sbi));
++
++	/* get the root inode */
++	inode = erofs_iget(sb, ROOT_NID(sbi), true);
++	if (IS_ERR(inode))
++		return PTR_ERR(inode);
++
++	if (unlikely(!S_ISDIR(inode->i_mode))) {
++		errln("rootino(nid %llu) is not a directory(i_mode %o)",
++		      ROOT_NID(sbi), inode->i_mode);
++		iput(inode);
++		return -EINVAL;
++	}
++
++	sb->s_root = d_make_root(inode);
++	if (unlikely(!sb->s_root))
++		return -ENOMEM;
++
++	if (!silent)
++		infoln("mounted on %s with opts: %s.", sb->s_id, (char *)data);
++	return 0;
++}
++
++static struct dentry *erofs_mount(struct file_system_type *fs_type, int flags,
++				  const char *dev_name, void *data)
++{
++	return mount_bdev(fs_type, flags, dev_name, data, erofs_fill_super);
++}
++
++/*
++ * could be triggered after deactivate_locked_super()
++ * is called, thus including umount and failed to initialize.
++ */
++static void erofs_kill_sb(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi;
++
++	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
++	infoln("unmounting for %s", sb->s_id);
++
++	kill_block_super(sb);
++
++	sbi = EROFS_SB(sb);
++	if (!sbi)
++		return;
++	kfree(sbi);
++	sb->s_fs_info = NULL;
++}
++
++static struct file_system_type erofs_fs_type = {
++	.owner          = THIS_MODULE,
++	.name           = "erofs",
++	.mount          = erofs_mount,
++	.kill_sb        = erofs_kill_sb,
++	.fs_flags       = FS_REQUIRES_DEV,
++};
++MODULE_ALIAS_FS("erofs");
++
++static int __init erofs_module_init(void)
++{
++	int err;
++
++	erofs_check_ondisk_layout_definitions();
++	infoln("initializing erofs " EROFS_VERSION);
++
++	err = erofs_init_inode_cache();
++	if (err)
++		goto icache_err;
++
++	err = register_filesystem(&erofs_fs_type);
++	if (err)
++		goto fs_err;
++
++	infoln("successfully to initialize erofs");
++	return 0;
++
++fs_err:
++	erofs_exit_inode_cache();
++icache_err:
++	return err;
++}
++
++static void __exit erofs_module_exit(void)
++{
++	unregister_filesystem(&erofs_fs_type);
++	erofs_exit_inode_cache();
++	infoln("successfully finalize erofs");
++}
++
++/* get filesystem statistics */
++static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
++{
++	struct super_block *sb = dentry->d_sb;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
++
++	buf->f_type = sb->s_magic;
++	buf->f_bsize = EROFS_BLKSIZ;
++	buf->f_blocks = sbi->blocks;
++	buf->f_bfree = buf->f_bavail = 0;
++
++	buf->f_files = ULLONG_MAX;
++	buf->f_ffree = ULLONG_MAX - sbi->inos;
++
++	buf->f_namelen = EROFS_NAME_LEN;
++
++	buf->f_fsid.val[0] = (u32)id;
++	buf->f_fsid.val[1] = (u32)(id >> 32);
++	return 0;
++}
++
++static int erofs_show_options(struct seq_file *seq, struct dentry *root)
++{
++	struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
++
++	if (test_opt(sbi, FAULT_INJECTION))
++		seq_printf(seq, ",fault_injection=%u",
++			   erofs_get_fault_rate(sbi));
++	return 0;
++}
++
++static int erofs_remount(struct super_block *sb, int *flags, char *data)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	unsigned int org_mnt_opt = sbi->mount_opt;
++	unsigned int org_inject_rate = erofs_get_fault_rate(sbi);
++	int err;
++
++	DBG_BUGON(!sb_rdonly(sb));
++	err = parse_options(sb, data);
++	if (err)
++		goto out;
++
++	*flags |= SB_RDONLY;
++	return 0;
++out:
++	__erofs_build_fault_attr(sbi, org_inject_rate);
++	sbi->mount_opt = org_mnt_opt;
++
++	return err;
++}
++
++const struct super_operations erofs_sops = {
++	.alloc_inode = alloc_inode,
++	.free_inode = free_inode,
++	.statfs = erofs_statfs,
++	.show_options = erofs_show_options,
++	.remount_fs = erofs_remount,
++};
++
++module_init(erofs_module_init);
++module_exit(erofs_module_exit);
++
++MODULE_DESCRIPTION("Enhanced ROM File System");
++MODULE_AUTHOR("Gao Xiang, Chao Yu, Miao Xie, CONSUMER BG, HUAWEI Inc.");
++MODULE_LICENSE("GPL");
 +
 -- 
 2.17.1
