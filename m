@@ -1,25 +1,56 @@
-From: torvalds@linux-foundation.org (Linus Torvalds)
-Date: Thu, 15 Aug 2019 09:18:12 -0700
-Subject: [PATCH v8 00/24] erofs: promote erofs from staging v8
-In-Reply-To: <20190815090603.GD4938@kroah.com>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Fri, 16 Aug 2019 00:46:56 +0800
+Subject: [PATCH v8 07/24] erofs: add directory operations
+In-Reply-To: <CAHk-=wiUs+b=iVKM3mVooXgVk7cmmC67KTmnAuL0cd_cMMVAKw@mail.gmail.com>
 References: <20190815044155.88483-1-gaoxiang25@huawei.com>
- <20190815090603.GD4938@kroah.com>
-Message-ID: <CAHk-=wjKz7JLd=mj0w2LUiWC2_VOeNWhTTrw1j-i-KyEHH5g5w@mail.gmail.com>
+ <20190815044155.88483-8-gaoxiang25@huawei.com>
+ <CAHk-=wiUs+b=iVKM3mVooXgVk7cmmC67KTmnAuL0cd_cMMVAKw@mail.gmail.com>
+Message-ID: <20190815164650.GA4958@hsiangkao-HP-ZHAN-66-Pro-G1>
 
-On Thu, Aug 15, 2019 at 2:06 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> I know everyone is busy, but given the length this has been in staging,
-> and the constant good progress toward cleaning it all up that has been
-> happening, I want to get this moved out of staging soon.
+Hi Linus,
 
-Since it doesn't touch anything outside of its own filesystem, I have
-no real objections. We've never had huge problems with odd
-filesystems.
+On Thu, Aug 15, 2019@09:13:19AM -0700, Linus Torvalds wrote:
+> On Wed, Aug 14, 2019@9:42 PM Gao Xiang <gaoxiang25@huawei.com> wrote:
+> >
+> > +
+> > +static const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
+> > +       [EROFS_FT_UNKNOWN]      = DT_UNKNOWN,
+> > +       [EROFS_FT_REG_FILE]     = DT_REG,
+> > +       [EROFS_FT_DIR]          = DT_DIR,
+> > +       [EROFS_FT_CHRDEV]       = DT_CHR,
+> > +       [EROFS_FT_BLKDEV]       = DT_BLK,
+> > +       [EROFS_FT_FIFO]         = DT_FIFO,
+> > +       [EROFS_FT_SOCK]         = DT_SOCK,
+> > +       [EROFS_FT_SYMLINK]      = DT_LNK,
+> > +};
+> 
+> Hmm.
+> 
+> The EROFS_FT_XYZ values seem to match the normal FT_XYZ values, and
+> we've lately tried to just have filesystems use the standard ones
+> instead of having a (pointless) duplicate conversion between the two.
+> 
+> And then you can use the common "fs_ftype_to_dtype()" to convert from
+> FT_XYZ to DT_XYZ.
+> 
+> Maybe I'm missing something, and the EROFS_FT_x list actually differs
+> from the normal FT_x list some way, but it would be good to not
+> introduce another case of this in normal filesystems, just as we've
+> been getting rid of them.
+> 
+> See for example commit e10892189428 ("ext2: use common file type conversion").
 
-I read through the patches to look for syntactic stuff (ie very much
-*not* looking at actual code working or not), and had only one
-comment. It's not critical, but it would be nice to do as part of (or
-before) the "get it out of staging".
+Yes, you're right. There is nothing different with DT_XYZ since
+I followed what f2fs did when I wrote this place.
 
-                 Linus
+Actually, I noticed that patchset once in mailing list months ago
+https://lore.kernel.org/r/20181023201952.GA15676 at pathfinder/
+but I didn't keep eyes on it (whether this patchset is merged or not...)
+
+OK, let me fix that like other fses. Thanks for pointing out.
+
+Thanks,
+Gao Xiang
+
+> 
+>                Linus
