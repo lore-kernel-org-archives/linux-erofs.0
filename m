@@ -1,77 +1,107 @@
-From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
-Date: Thu, 15 Aug 2019 11:06:03 +0200
-Subject: [PATCH v8 00/24] erofs: promote erofs from staging v8
-In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
-References: <20190815044155.88483-1-gaoxiang25@huawei.com>
-Message-ID: <20190815090603.GD4938@kroah.com>
+From: jack@suse.cz (Jan Kara)
+Date: Thu, 15 Aug 2019 17:30:24 +0200
+Subject: [PATCH v2] Add flags option to get xattr method paired to
+ __vfs_getxattr
+In-Reply-To: <71d66fd1-cc94-fd0c-dfa7-115ba8a6b95a@android.com>
+References: <20190813145527.26289-1-salyzyn@android.com>
+ <20190814110022.GB26273@quack2.suse.cz>
+ <71d66fd1-cc94-fd0c-dfa7-115ba8a6b95a@android.com>
+Message-ID: <20190815153024.GP14313@quack2.suse.cz>
 
-On Thu, Aug 15, 2019@12:41:31PM +0800, Gao Xiang wrote:
-> [I strip the previous cover letter, the old one can be found in v6:
->  https://lore.kernel.org/r/20190802125347.166018-1-gaoxiang25 at huawei.com/]
+On Wed 14-08-19 07:54:16, Mark Salyzyn wrote:
+> On 8/14/19 4:00 AM, Jan Kara wrote:
+> > On Tue 13-08-19 07:55:06, Mark Salyzyn wrote:
+> > ...
+> > > diff --git a/fs/xattr.c b/fs/xattr.c
+> > > index 90dd78f0eb27..71f887518d6f 100644
+> > > --- a/fs/xattr.c
+> > > +++ b/fs/xattr.c
+> > ...
+> > >   ssize_t
+> > >   __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
+> > > -	       void *value, size_t size)
+> > > +	       void *value, size_t size, int flags)
+> > >   {
+> > >   	const struct xattr_handler *handler;
+> > > -
+> > > -	handler = xattr_resolve_name(inode, &name);
+> > > -	if (IS_ERR(handler))
+> > > -		return PTR_ERR(handler);
+> > > -	if (!handler->get)
+> > > -		return -EOPNOTSUPP;
+> > > -	return handler->get(handler, dentry, inode, name, value, size);
+> > > -}
+> > > -EXPORT_SYMBOL(__vfs_getxattr);
+> > > -
+> > > -ssize_t
+> > > -vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
+> > > -{
+> > > -	struct inode *inode = dentry->d_inode;
+> > >   	int error;
+> > > +	if (flags & XATTR_NOSECURITY)
+> > > +		goto nolsm;
+> > Hum, is it OK for XATTR_NOSECURITY to skip even the xattr_permission()
+> > check? I understand that for reads of security xattrs it actually does not
+> > matter in practice but conceptually that seems wrong to me as
+> > XATTR_NOSECURITY is supposed to skip just security-module checks to avoid
+> > recursion AFAIU.
 > 
-> We'd like to submit a formal moving patch applied to staging tree
-> for 5.4, before that we'd like to hear if there are some ACKs,
-> suggestions or NAKs, objections of EROFS. Therefore, we can improve
-> it in this round or rethink about the whole thing.
+> Good catch I think.
 > 
-> As related materials mentioned [1] [2], the goal of EROFS is to
-> save extra storage space with guaranteed end-to-end performance
-> for read-only files, which has better performance over exist Linux
-> compression filesystems based on fixed-sized output compression
-> and inplace decompression. It even has better performance in
-> a large compression ratio range compared with generic uncompressed
-> filesystems with proper CPU-storage combinations. And we think this
-> direction is correct and a dedicated kernel team is continuously /
-> actively working on improving it, enough testers and beta / end
-> users using it.
+> I was attempting to make this change purely inert, no change in
+> functionality, only a change in API. Adding a call to xattr_permission would
+> incur a change in overall functionality, as it would introduce into the
+> current and original __vfs_getxattr a call to xattr_permission that was not
+> there before.
 > 
-> EROFS has been applied to almost all in-service HUAWEI smartphones
-> (Yes, the number is still increasing by time) and it seems like
-> a success. It can be used in more wider scenarios. We think it's
-> useful for Linux / Android OS community and it's the time moving
-> out of staging.
+> (I will have to defer the real answer and requirements to the security
+> folks)
 > 
-> In order to get started, latest stable mkfs.erofs is available at
+> AFAIK you are correct, and to make the call would reduce the attack surface,
+> trading a very small amount of CPU utilization, for a much larger amount of
+> trust.
 > 
-> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git -b dev
-> 
-> with README in the repository.
-> 
-> We are still tuning sequential read performance for ultra-fast
-> speed NVME SSDs like Samsung 970PRO, but at least now you can
-> try on your PC with some data with proper compression ratio,
-> the latest Linux kernel, USB stick for convenience sake and
-> a not very old-fashioned CPU. There are also benchmarks available
-> in the above materials mentioned.
-> 
-> EROFS is a self-contained filesystem driver. Although there are
-> still some TODOs to be more generic, we will actively keep on
-> developping / tuning EROFS with the evolution of Linux kernel
-> as the other in-kernel filesystems.
-> 
-> As I mentioned before in LSF/MM 2019, in the future, we'd like
-> to generalize the decompression engine into a library for other
-> fses to use after the whole system is mature like fscrypt.
-> However, such metadata should be designed respectively for
-> each fs, and synchronous metadata read cost will be larger
-> than EROFS because of those ondisk limitation. Therefore EROFS
-> is still a better choice for read-only scenarios.
-> 
-> EROFS is now ready for reviewing and moving, and the code is
-> already cleaned up as shiny floors... Please kindly take some
-> precious time, share your comments about EROFS and let us know
-> your opinion about this. It's really important for us since
-> generally speaking, we like to use Linux _in-tree_ stuffs rather
-> than lack of supported out-of-tree / orphan stuffs as well.
+> Given the long history of this patch set (for overlayfs) and the large
+> amount of stakeholders, I would _prefer_ to submit a followup independent
+> functionality/security change to _vfs_get_xattr _after_ this makes it in.
 
-I know everyone is busy, but given the length this has been in staging,
-and the constant good progress toward cleaning it all up that has been
-happening, I want to get this moved out of staging soon.
+You're right. The problem was there before. So ack to changing this later.
 
-So, unless there are any objections, I'll take this patchset in a week
-into my staging tree to move the filesystem into the "real" part of the
-kernel.
+> > > diff --git a/include/uapi/linux/xattr.h b/include/uapi/linux/xattr.h
+> > > index c1395b5bd432..1216d777d210 100644
+> > > --- a/include/uapi/linux/xattr.h
+> > > +++ b/include/uapi/linux/xattr.h
+> > > @@ -17,8 +17,9 @@
+> > >   #if __UAPI_DEF_XATTR
+> > >   #define __USE_KERNEL_XATTR_DEFS
+> > > -#define XATTR_CREATE	0x1	/* set value, fail if attr already exists */
+> > > -#define XATTR_REPLACE	0x2	/* set value, fail if attr does not exist */
+> > > +#define XATTR_CREATE	 0x1	/* set value, fail if attr already exists */
+> > > +#define XATTR_REPLACE	 0x2	/* set value, fail if attr does not exist */
+> > > +#define XATTR_NOSECURITY 0x4	/* get value, do not involve security check */
+> > >   #endif
+> > It seems confusing to export XATTR_NOSECURITY definition to userspace when
+> > that is kernel-internal flag. I'd just define it in include/linux/xattr.h
+> > somewhere from the top of flags space (like 0x40000000).
+> > 
+> > Otherwise the patch looks OK to me (cannot really comment on the security
+> > module aspect of this whole thing though).
+> 
+> Good point. However, we do need to keep these flags together to reduce
+> maintenance risk, I personally abhor two locations for flags bits even if
+> one comes from the opposite bit-side; collisions are undetectable at build
+> time. Although I have not gone through the entire thought experiment, I am
+> expecting that fuse could possibly benefit from this flag (if exposed) since
+> it also has a security recursion. That said, fuse is probably the example of
+> a gaping wide attack surface if user space had access to it ... your
+> xattr_permissions call addition requested above would be realistically, not
+> just pedantically, required!
 
-thanks,
+Yeah, flags bits in two places are bad as well. So maybe at least
+#ifdef __KERNEL__ bit around the definitiona and a comment that it is
+kernel internal flag?
 
-greg k-h
+								Honza
+-- 
+Jan Kara <jack at suse.com>
+SUSE Labs, CR
