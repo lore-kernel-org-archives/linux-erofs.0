@@ -1,60 +1,77 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 15 Aug 2019 15:25:35 +0800
-Subject: [PATCH v7 08/24] erofs: add namei functions
-In-Reply-To: <20190815070132.GB3669@amd>
-References: <20190813091326.84652-1-gaoxiang25@huawei.com>
- <20190813091326.84652-9-gaoxiang25@huawei.com>
- <20190813114821.GB11559@amd> <20190813122332.GA17429@138>
- <20190815070132.GB3669@amd>
-Message-ID: <20190815072534.GA38177@138>
+From: gregkh@linuxfoundation.org (Greg Kroah-Hartman)
+Date: Thu, 15 Aug 2019 11:06:03 +0200
+Subject: [PATCH v8 00/24] erofs: promote erofs from staging v8
+In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
+References: <20190815044155.88483-1-gaoxiang25@huawei.com>
+Message-ID: <20190815090603.GD4938@kroah.com>
 
-Hi Pavel,
-
-On Thu, Aug 15, 2019@09:01:32AM +0200, Pavel Machek wrote:
-> Hi!
+On Thu, Aug 15, 2019@12:41:31PM +0800, Gao Xiang wrote:
+> [I strip the previous cover letter, the old one can be found in v6:
+>  https://lore.kernel.org/r/20190802125347.166018-1-gaoxiang25 at huawei.com/]
 > 
-> > > > +	/*
-> > > > +	 * on-disk error, let's only BUG_ON in the debugging mode.
-> > > > +	 * otherwise, it will return 1 to just skip the invalid name
-> > > > +	 * and go on (in consideration of the lookup performance).
-> > > > +	 */
-> > > > +	DBG_BUGON(qd->name > qd->end);
-> > > 
-> > > I believe you should check for errors in non-debug mode, too.
-> > 
-> > Thanks for your kindly reply!
-> > 
-> > The following is just my personal thought... If I am wrong, please
-> > kindly point out...
-> > 
-> > As you can see, this is a new prefixed string binary search algorithm
-> > which can provide similar performance with hashed approach (but no
-> > need to store hash value at all), so I really care about its lookup
-> > performance.
-> > 
-> > There is something needing to be concerned, is, whether namei() should
-> > report any potential on-disk issues or just return -ENOENT for these
-> > corrupted dirs, I think I tend to use the latter one.
+> We'd like to submit a formal moving patch applied to staging tree
+> for 5.4, before that we'd like to hear if there are some ACKs,
+> suggestions or NAKs, objections of EROFS. Therefore, we can improve
+> it in this round or rethink about the whole thing.
 > 
-> -ENOENT is okay for corrupted directories, as long as corrupted
-> directories do not cause some kind of security bugs (memory
-> corruption, crashes, ...)
-
-Yes, I am certain that it will return -ENOENT for such corrupted
-directories and it will certainly not crash the kernel as well.
-
-I have fuzzed it for several months and it seems fine after
-commit 419d6efc50e9 ("staging: erofs: keep corrupted fs from crashing kernel in erofs_namei()")
-
-Don't worry about that :)
-
-Thanks,
-Gao Xiang
-
+> As related materials mentioned [1] [2], the goal of EROFS is to
+> save extra storage space with guaranteed end-to-end performance
+> for read-only files, which has better performance over exist Linux
+> compression filesystems based on fixed-sized output compression
+> and inplace decompression. It even has better performance in
+> a large compression ratio range compared with generic uncompressed
+> filesystems with proper CPU-storage combinations. And we think this
+> direction is correct and a dedicated kernel team is continuously /
+> actively working on improving it, enough testers and beta / end
+> users using it.
 > 
+> EROFS has been applied to almost all in-service HUAWEI smartphones
+> (Yes, the number is still increasing by time) and it seems like
+> a success. It can be used in more wider scenarios. We think it's
+> useful for Linux / Android OS community and it's the time moving
+> out of staging.
 > 
-> Best regards,
-> 								Pavel
-> -- 
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> In order to get started, latest stable mkfs.erofs is available at
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git -b dev
+> 
+> with README in the repository.
+> 
+> We are still tuning sequential read performance for ultra-fast
+> speed NVME SSDs like Samsung 970PRO, but at least now you can
+> try on your PC with some data with proper compression ratio,
+> the latest Linux kernel, USB stick for convenience sake and
+> a not very old-fashioned CPU. There are also benchmarks available
+> in the above materials mentioned.
+> 
+> EROFS is a self-contained filesystem driver. Although there are
+> still some TODOs to be more generic, we will actively keep on
+> developping / tuning EROFS with the evolution of Linux kernel
+> as the other in-kernel filesystems.
+> 
+> As I mentioned before in LSF/MM 2019, in the future, we'd like
+> to generalize the decompression engine into a library for other
+> fses to use after the whole system is mature like fscrypt.
+> However, such metadata should be designed respectively for
+> each fs, and synchronous metadata read cost will be larger
+> than EROFS because of those ondisk limitation. Therefore EROFS
+> is still a better choice for read-only scenarios.
+> 
+> EROFS is now ready for reviewing and moving, and the code is
+> already cleaned up as shiny floors... Please kindly take some
+> precious time, share your comments about EROFS and let us know
+> your opinion about this. It's really important for us since
+> generally speaking, we like to use Linux _in-tree_ stuffs rather
+> than lack of supported out-of-tree / orphan stuffs as well.
+
+I know everyone is busy, but given the length this has been in staging,
+and the constant good progress toward cleaning it all up that has been
+happening, I want to get this moved out of staging soon.
+
+So, unless there are any objections, I'll take this patchset in a week
+into my staging tree to move the filesystem into the "real" part of the
+kernel.
+
+thanks,
+
+greg k-h
