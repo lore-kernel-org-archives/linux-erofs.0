@@ -1,123 +1,59 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 15 Aug 2019 12:41:52 +0800
-Subject: [PATCH v8 21/24] erofs: introduce LZ4 decompression inplace
+Date: Thu, 15 Aug 2019 12:41:50 +0800
+Subject: [PATCH v8 19/24] erofs: add erofs_allocpage()
 In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
 References: <20190815044155.88483-1-gaoxiang25@huawei.com>
-Message-ID: <20190815044155.88483-22-gaoxiang25@huawei.com>
+Message-ID: <20190815044155.88483-20-gaoxiang25@huawei.com>
 
-compressed data will be usually loaded into last pages of
-the extent (the last page for 4k) for in-place decompression
-(more specifically, in-place IO), as ilustration below,
-
-         start of compressed logical extent
-           |                          end of this logical extent
-           |                           |
-     ______v___________________________v________
-... |  page 6  |  page 7  |  page 8  |  page 9  | ...
-    |__________|__________|__________|__________|
-           .                         ^ .        ^
-           .                         |compressed|
-           .                         |   data   |
-           .                           .        .
-           |<          dstsize        >|<margin>|
-                                       oend     iend
-           op                        ip
-
-Therefore, it's possible to do decompression inplace (thus no
-memcpy at all) if the margin is sufficient and safe enough [1],
-and it can be implemented only for fixed-size output compression
-compared with fixed-size input compression.
-
-No memcpy for most of in-place IO (about 99% of enwik9) after
-decompression inplace is implemented and sequential read will
-be improved of course (see the following patches for test results).
-
-[1] https://github.com/lz4/lz4/commit/b17f578a919b7e6b078cede2d52be29dd48c8e8c
-    https://github.com/lz4/lz4/commit/5997e139f53169fa3a1c1b4418d2452a90b01602
+This patch introduces an temporary _on-stack_ page
+pool to reuse the freed page directly as much as
+it can for better performance and release all pages
+at a time, it also slightly reduces the possibility of
+the potential memory allocation failure.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/decompressor.c | 36 ++++++++++++++++++++++++++++++++----
- fs/erofs/erofs_fs.h     |  2 +-
- 2 files changed, 33 insertions(+), 5 deletions(-)
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/utils.c    | 14 ++++++++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 2374dd3c967c..9a750bf662a5 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -15,6 +15,9 @@
- #endif
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 3222947c9bab..9dc3d47347db 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -488,6 +488,8 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ extern const struct file_operations erofs_dir_fops;
  
- #define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
-+#ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
-+#define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
-+#endif
- 
- struct z_erofs_decompressor {
- 	/*
-@@ -117,7 +120,7 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
- {
- 	unsigned int inputmargin, inlen;
- 	u8 *src;
--	bool copied;
-+	bool copied, support_0padding;
- 	int ret;
- 
- 	if (rq->inputsize > PAGE_SIZE)
-@@ -125,13 +128,38 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
- 
- 	src = kmap_atomic(*rq->in);
- 	inputmargin = 0;
-+	support_0padding = false;
+ /* utils.c */
++struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail);
 +
-+	/* decompression inplace is only safe when 0padding is enabled */
-+	if (EROFS_SB(rq->sb)->requirements & EROFS_REQUIREMENT_LZ4_0PADDING) {
-+		support_0padding = true;
+ #if (EROFS_PCPUBUF_NR_PAGES > 0)
+ void *erofs_get_pcpubuf(unsigned int pagenr);
+ #define erofs_put_pcpubuf(buf) do { \
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index f3eed9af24d6..ae6362abed67 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -9,6 +9,20 @@
+ #include "internal.h"
+ #include <linux/pagevec.h>
+ 
++struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp, bool nofail)
++{
++	struct page *page;
 +
-+		while (!src[inputmargin & ~PAGE_MASK])
-+			if (!(++inputmargin & ~PAGE_MASK))
-+				break;
-+
-+		if (inputmargin >= rq->inputsize) {
-+			kunmap_atomic(src);
-+			return -EIO;
-+		}
++	if (!list_empty(pool)) {
++		page = lru_to_page(pool);
++		DBG_BUGON(page_ref_count(page) != 1);
++		list_del(&page->lru);
++	} else {
++		page = alloc_pages(gfp | (nofail ? __GFP_NOFAIL : 0), 0);
 +	}
- 
- 	copied = false;
- 	inlen = rq->inputsize - inputmargin;
- 	if (rq->inplace_io) {
--		src = generic_copy_inplace_data(rq, src, inputmargin);
--		inputmargin = 0;
--		copied = true;
-+		const uint oend = (rq->pageofs_out +
-+				   rq->outputsize) & ~PAGE_MASK;
-+		const uint nr = PAGE_ALIGN(rq->pageofs_out +
-+					   rq->outputsize) >> PAGE_SHIFT;
++	return page;
++}
 +
-+		if (rq->partial_decoding || !support_0padding ||
-+		    rq->out[nr - 1] != rq->in[0] ||
-+		    rq->inputsize - oend <
-+		      LZ4_DECOMPRESS_INPLACE_MARGIN(inlen)) {
-+			src = generic_copy_inplace_data(rq, src, inputmargin);
-+			inputmargin = 0;
-+			copied = true;
-+		}
- 	}
- 
- 	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 230fcba1099d..c0fb7d6ebfcb 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -17,7 +17,7 @@
-  * incompatible with this kernel version.
-  */
- #define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
--#define EROFS_ALL_REQUIREMENTS		0
-+#define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
- 
- struct erofs_super_block {
- /*  0 */__le32 magic;           /* in the little endian */
+ #if (EROFS_PCPUBUF_NR_PAGES > 0)
+ static struct {
+ 	u8 data[PAGE_SIZE * EROFS_PCPUBUF_NR_PAGES];
 -- 
 2.17.1
