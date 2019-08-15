@@ -1,672 +1,347 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Thu, 15 Aug 2019 12:41:44 +0800
-Subject: [PATCH v8 13/24] erofs: add compression indexes support
+Date: Thu, 15 Aug 2019 12:41:47 +0800
+Subject: [PATCH v8 16/24] erofs: introduce workstation for decompression
 In-Reply-To: <20190815044155.88483-1-gaoxiang25@huawei.com>
 References: <20190815044155.88483-1-gaoxiang25@huawei.com>
-Message-ID: <20190815044155.88483-14-gaoxiang25@huawei.com>
+Message-ID: <20190815044155.88483-17-gaoxiang25@huawei.com>
 
-This patch adds EROFS compression indexes support,
-including legacy and compacted 2/4B indexes.
+This patch introduces another concept used by decompress
+subsystem called 'workstation'. It can be seen as
+a sparse array that stores pointers pointed to data
+structures related to the corresponding physical clusters.
 
-In addition, it introduces an iterable L2P mapping
-operation called 'z_erofs_map_blocks_iter'.
+All lookups are protected by RCU read lock. Besides,
+reference count and spin_lock are also introduced
+to manage its lifetime and serialize all update
+operations.
 
-Compared with 'erofs_map_blocks', it avoids a number
-of redundant 'release and regrab' processes if they
-request the same meta page.
+`workstation' is currently implemented on the in-kernel
+radix tree approach for backward compatibility. With the
+evolution of linux kernel, it will be migrated into
+new XArray implementation in the future.
 
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- fs/erofs/Kconfig             |   9 +
- fs/erofs/Makefile            |   1 +
- fs/erofs/data.c              |  10 +-
- fs/erofs/inode.c             |   2 +-
- fs/erofs/internal.h          |  35 ++-
- fs/erofs/zmap.c              | 461 +++++++++++++++++++++++++++++++++++
- include/trace/events/erofs.h |  17 +-
- 7 files changed, 530 insertions(+), 5 deletions(-)
- create mode 100644 fs/erofs/zmap.c
+ fs/erofs/internal.h |  80 +++++++++++++++++++++
+ fs/erofs/super.c    |   4 ++
+ fs/erofs/utils.c    | 166 +++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 248 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index c5e7c5ae026e..a475fbebb831 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -72,3 +72,12 @@ config EROFS_FS_SECURITY
- 
- 	  If you are not using a security module, say N.
- 
-+config EROFS_FS_ZIP
-+	bool "EROFS Data Compression Support"
-+	depends on EROFS_FS
-+	select LZ4_DECOMPRESS
-+	help
-+	  Enable fixed-sized output compression for EROFS.
-+
-+	  If you don't want to enable compression feature, say N.
-+
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 190a73083f23..481a966caf06 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -7,4 +7,5 @@ ccflags-y += -DEROFS_VERSION=\"$(EROFS_VERSION)\"
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += zmap.o
- 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 3d8f1511cacb..0850b4725196 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -172,9 +172,15 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- int erofs_map_blocks(struct inode *inode,
- 		     struct erofs_map_blocks *map, int flags)
- {
--	if (is_inode_layout_compression(inode))
--		return -EOPNOTSUPP;
-+	if (unlikely(is_inode_layout_compression(inode))) {
-+		int err = z_erofs_map_blocks_iter(inode, map, flags);
- 
-+		if (map->mpage) {
-+			put_page(map->mpage);
-+			map->mpage = NULL;
-+		}
-+		return err;
-+	}
- 	return erofs_map_blocks_flatmode(inode, map, flags);
- }
- 
-diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index d4e5de383435..7a9383a2b0a5 100644
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -212,7 +212,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 		}
- 
- 		if (is_inode_layout_compression(inode)) {
--			err = -EOPNOTSUPP;
-+			err = z_erofs_fill_inode(inode);
- 			goto out_unlock;
- 		}
- 
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index f42cdda2eebc..8432f488409d 100644
+index 4bcdf32a45ad..6a2407fb3013 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -173,9 +173,12 @@ static inline erofs_off_t iloc(struct erofs_sb_info *sbi, erofs_nid_t nid)
+@@ -65,6 +65,9 @@ struct erofs_sb_info {
+ 	struct list_head list;
+ 	struct mutex umount_mutex;
  
- /* atomic flag definitions */
- #define EROFS_V_EA_INITED_BIT	0
-+#define EROFS_V_Z_INITED_BIT	1
- 
- /* bitlock definitions (arranged in reverse order) */
- #define EROFS_V_BL_XATTR_BIT	(BITS_PER_LONG - 1)
-+#define EROFS_V_BL_Z_BIT	(BITS_PER_LONG - 2)
++	/* the dedicated workstation for compression */
++	struct radix_tree_root workstn_tree;
 +
- struct erofs_vnode {
- 	erofs_nid_t nid;
+ 	unsigned int shrinker_run_no;
+ #endif	/* CONFIG_EROFS_FS_ZIP */
+ 	u32 blocks;
+@@ -150,6 +153,77 @@ static inline void *erofs_kmalloc(struct erofs_sb_info *sbi,
+ #define set_opt(sbi, option)	((sbi)->mount_opt |= EROFS_MOUNT_##option)
+ #define test_opt(sbi, option)	((sbi)->mount_opt & EROFS_MOUNT_##option)
  
-@@ -189,7 +192,17 @@ struct erofs_vnode {
- 	unsigned int xattr_shared_count;
- 	unsigned int *xattr_shared_xattrs;
- 
--	erofs_blk_t raw_blkaddr;
-+	union {
-+		erofs_blk_t raw_blkaddr;
 +#ifdef CONFIG_EROFS_FS_ZIP
-+		struct {
-+			unsigned short z_advise;
-+			unsigned char  z_algorithmtype[2];
-+			unsigned char  z_logical_clusterbits;
-+			unsigned char  z_physical_clusterbits[2];
-+		};
-+#endif	/* CONFIG_EROFS_FS_ZIP */
-+	};
- 	/* the corresponding vfs inode */
- 	struct inode vfs_inode;
- };
-@@ -262,6 +275,10 @@ enum {
- #define EROFS_MAP_MAPPED	(1 << BH_Mapped)
- /* Located in metadata (could be copied from bd_inode) */
- #define EROFS_MAP_META		(1 << BH_Meta)
-+/* The extent has been compressed */
-+#define EROFS_MAP_ZIPPED	(1 << BH_Zipped)
-+/* The length of extent is full */
-+#define EROFS_MAP_FULL_MAPPED	(1 << BH_FullMapped)
- 
- struct erofs_map_blocks {
- 	erofs_off_t m_pa, m_la;
-@@ -275,6 +292,22 @@ struct erofs_map_blocks {
- /* Flags used by erofs_map_blocks() */
- #define EROFS_GET_BLOCKS_RAW    0x0001
- 
-+/* zmap.c */
-+#ifdef CONFIG_EROFS_FS_ZIP
-+int z_erofs_fill_inode(struct inode *inode);
-+int z_erofs_map_blocks_iter(struct inode *inode,
-+			    struct erofs_map_blocks *map,
-+			    int flags);
-+#else
-+static inline int z_erofs_fill_inode(struct inode *inode) { return -EOPNOTSUPP; }
-+static inline int z_erofs_map_blocks_iter(struct inode *inode,
-+					  struct erofs_map_blocks *map,
-+					  int flags)
-+{
-+	return -EOPNOTSUPP;
-+}
-+#endif	/* !CONFIG_EROFS_FS_ZIP */
++#define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
 +
- /* data.c */
- static inline struct bio *erofs_grab_bio(struct super_block *sb,
- 					 erofs_blk_t blkaddr,
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-new file mode 100644
-index 000000000000..f1924b4e9f36
---- /dev/null
-+++ b/fs/erofs/zmap.c
-@@ -0,0 +1,461 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * linux/fs/erofs/zmap.c
-+ *
-+ * Copyright (C) 2018-2019 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Gao Xiang <gaoxiang25 at huawei.com>
-+ */
-+#include "internal.h"
-+#include <asm/unaligned.h>
-+#include <trace/events/erofs.h>
++/* basic unit of the workstation of a super_block */
++struct erofs_workgroup {
++	/* the workgroup index in the workstation */
++	pgoff_t index;
 +
-+int z_erofs_fill_inode(struct inode *inode)
-+{
-+	struct erofs_vnode *const vi = EROFS_V(inode);
-+
-+	if (vi->datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY) {
-+		vi->z_advise = 0;
-+		vi->z_algorithmtype[0] = 0;
-+		vi->z_algorithmtype[1] = 0;
-+		vi->z_logical_clusterbits = LOG_BLOCK_SIZE;
-+		vi->z_physical_clusterbits[0] = vi->z_logical_clusterbits;
-+		vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits;
-+		set_bit(EROFS_V_Z_INITED_BIT, &vi->flags);
-+	}
-+	return -EOPNOTSUPP;
-+}
-+
-+static int fill_inode_lazy(struct inode *inode)
-+{
-+	struct erofs_vnode *const vi = EROFS_V(inode);
-+	struct super_block *const sb = inode->i_sb;
-+	int err;
-+	erofs_off_t pos;
-+	struct page *page;
-+	void *kaddr;
-+	struct z_erofs_map_header *h;
-+
-+	if (test_bit(EROFS_V_Z_INITED_BIT, &vi->flags))
-+		return 0;
-+
-+	if (wait_on_bit_lock(&vi->flags, EROFS_V_BL_Z_BIT, TASK_KILLABLE))
-+		return -ERESTARTSYS;
-+
-+	err = 0;
-+	if (test_bit(EROFS_V_Z_INITED_BIT, &vi->flags))
-+		goto out_unlock;
-+
-+	DBG_BUGON(vi->datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY);
-+
-+	pos = ALIGN(iloc(EROFS_SB(sb), vi->nid) + vi->inode_isize +
-+		    vi->xattr_isize, 8);
-+	page = erofs_get_meta_page(sb, erofs_blknr(pos), false);
-+	if (IS_ERR(page)) {
-+		err = PTR_ERR(page);
-+		goto out_unlock;
-+	}
-+
-+	kaddr = kmap_atomic(page);
-+
-+	h = kaddr + erofs_blkoff(pos);
-+	vi->z_advise = le16_to_cpu(h->h_advise);
-+	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
-+	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
-+
-+	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX) {
-+		errln("unknown compression format %u for nid %llu, please upgrade kernel",
-+		      vi->z_algorithmtype[0], vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto unmap_done;
-+	}
-+
-+	vi->z_logical_clusterbits = LOG_BLOCK_SIZE + (h->h_clusterbits & 7);
-+	vi->z_physical_clusterbits[0] = vi->z_logical_clusterbits +
-+					((h->h_clusterbits >> 3) & 3);
-+
-+	if (vi->z_physical_clusterbits[0] != LOG_BLOCK_SIZE) {
-+		errln("unsupported physical clusterbits %u for nid %llu, please upgrade kernel",
-+		      vi->z_physical_clusterbits[0], vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto unmap_done;
-+	}
-+
-+	vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits +
-+					((h->h_clusterbits >> 5) & 7);
-+unmap_done:
-+	kunmap_atomic(kaddr);
-+	unlock_page(page);
-+	put_page(page);
-+
-+	set_bit(EROFS_V_Z_INITED_BIT, &vi->flags);
-+out_unlock:
-+	clear_and_wake_up_bit(EROFS_V_BL_Z_BIT, &vi->flags);
-+	return err;
-+}
-+
-+struct z_erofs_maprecorder {
-+	struct inode *inode;
-+	struct erofs_map_blocks *map;
-+	void *kaddr;
-+
-+	unsigned long lcn;
-+	/* compression extent information gathered */
-+	u8  type;
-+	u16 clusterofs;
-+	u16 delta[2];
-+	erofs_blk_t pblk;
++	/* overall workgroup reference count */
++	atomic_t refcount;
 +};
 +
-+static int z_erofs_reload_indexes(struct z_erofs_maprecorder *m,
-+				  erofs_blk_t eblk)
++#if defined(CONFIG_SMP)
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
 +{
-+	struct super_block *const sb = m->inode->i_sb;
-+	struct erofs_map_blocks *const map = m->map;
-+	struct page *mpage = map->mpage;
-+
-+	if (mpage) {
-+		if (mpage->index == eblk) {
-+			if (!m->kaddr)
-+				m->kaddr = kmap_atomic(mpage);
-+			return 0;
-+		}
-+
-+		if (m->kaddr) {
-+			kunmap_atomic(m->kaddr);
-+			m->kaddr = NULL;
-+		}
-+		put_page(mpage);
++	preempt_disable();
++	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
++		preempt_enable();
++		return false;
 +	}
++	return true;
++}
 +
-+	mpage = erofs_get_meta_page(sb, eblk, false);
-+	if (IS_ERR(mpage)) {
-+		map->mpage = NULL;
-+		return PTR_ERR(mpage);
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
++{
++	/*
++	 * other observers should notice all modifications
++	 * in the freezing period.
++	 */
++	smp_mb();
++	atomic_set(&grp->refcount, orig_val);
++	preempt_enable();
++}
++
++static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
++{
++	return atomic_cond_read_relaxed(&grp->refcount,
++					VAL != EROFS_LOCKED_MAGIC);
++}
++#else
++static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
++						 int val)
++{
++	preempt_disable();
++	/* no need to spin on UP platforms, let's just disable preemption. */
++	if (val != atomic_read(&grp->refcount)) {
++		preempt_enable();
++		return false;
 +	}
-+	m->kaddr = kmap_atomic(mpage);
-+	unlock_page(mpage);
-+	map->mpage = mpage;
++	return true;
++}
++
++static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
++					    int orig_val)
++{
++	preempt_enable();
++}
++
++static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
++{
++	int v = atomic_read(&grp->refcount);
++
++	/* workgroup is never freezed on uniprocessor systems */
++	DBG_BUGON(v == EROFS_LOCKED_MAGIC);
++	return v;
++}
++#endif	/* !CONFIG_SMP */
++#endif	/* !CONFIG_EROFS_FS_ZIP */
++
+ /* we strictly follow PAGE_SIZE and no buffer head yet */
+ #define LOG_BLOCK_SIZE		PAGE_SHIFT
+ 
+@@ -409,6 +483,12 @@ extern const struct file_operations erofs_dir_fops;
+ 
+ /* utils.c */
+ #ifdef CONFIG_EROFS_FS_ZIP
++int erofs_workgroup_put(struct erofs_workgroup *grp);
++struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
++					     pgoff_t index, bool *tag);
++int erofs_register_workgroup(struct super_block *sb,
++			     struct erofs_workgroup *grp, bool tag);
++static inline void erofs_workgroup_free_rcu(struct erofs_workgroup *grp) {}
+ void erofs_shrinker_register(struct super_block *sb);
+ void erofs_shrinker_unregister(struct super_block *sb);
+ int __init erofs_init_shrinker(void);
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 09992cc3b2fd..ea8d065068fa 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -338,6 +338,10 @@ static int erofs_fill_super(struct super_block *sb, void *data, int silent)
+ 	else
+ 		sb->s_flags &= ~SB_POSIXACL;
+ 
++#ifdef CONFIG_EROFS_FS_ZIP
++	INIT_RADIX_TREE(&sbi->workstn_tree, GFP_ATOMIC);
++#endif
++
+ 	/* get the root inode */
+ 	inode = erofs_iget(sb, ROOT_NID(sbi), true);
+ 	if (IS_ERR(inode))
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index cab7d77c4e59..628178261056 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -7,11 +7,173 @@
+  * Created by Gao Xiang <gaoxiang25 at huawei.com>
+  */
+ #include "internal.h"
++#include <linux/pagevec.h>
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
+ /* global shrink count (for all mounted EROFS instances) */
+ static atomic_long_t erofs_global_shrink_cnt;
+ 
++#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
++#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
++
++static int erofs_workgroup_get(struct erofs_workgroup *grp)
++{
++	int o;
++
++repeat:
++	o = erofs_wait_on_workgroup_freezed(grp);
++	if (unlikely(o <= 0))
++		return -1;
++
++	if (unlikely(atomic_cmpxchg(&grp->refcount, o, o + 1) != o))
++		goto repeat;
++
++	/* decrease refcount paired by erofs_workgroup_put */
++	if (unlikely(o == 1))
++		atomic_long_dec(&erofs_global_shrink_cnt);
 +	return 0;
 +}
 +
-+static int vle_legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
-+					     unsigned long lcn)
++struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
++					     pgoff_t index, bool *tag)
 +{
-+	struct inode *const inode = m->inode;
-+	struct erofs_vnode *const vi = EROFS_V(inode);
-+	const erofs_off_t ibase = iloc(EROFS_I_SB(inode), vi->nid);
-+	const erofs_off_t pos =
-+		Z_EROFS_VLE_LEGACY_INDEX_ALIGN(ibase + vi->inode_isize +
-+					       vi->xattr_isize) +
-+		lcn * sizeof(struct z_erofs_vle_decompressed_index);
-+	struct z_erofs_vle_decompressed_index *di;
-+	unsigned int advise, type;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	struct erofs_workgroup *grp;
++
++repeat:
++	rcu_read_lock();
++	grp = radix_tree_lookup(&sbi->workstn_tree, index);
++	if (grp) {
++		*tag = xa_pointer_tag(grp);
++		grp = xa_untag_pointer(grp);
++
++		if (erofs_workgroup_get(grp)) {
++			/* prefer to relax rcu read side */
++			rcu_read_unlock();
++			goto repeat;
++		}
++
++		DBG_BUGON(index != grp->index);
++	}
++	rcu_read_unlock();
++	return grp;
++}
++
++int erofs_register_workgroup(struct super_block *sb,
++			     struct erofs_workgroup *grp,
++			     bool tag)
++{
++	struct erofs_sb_info *sbi;
 +	int err;
 +
-+	err = z_erofs_reload_indexes(m, erofs_blknr(pos));
-+	if (err)
-+		return err;
-+
-+	m->lcn = lcn;
-+	di = m->kaddr + erofs_blkoff(pos);
-+
-+	advise = le16_to_cpu(di->di_advise);
-+	type = (advise >> Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT) &
-+		((1 << Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS) - 1);
-+	switch (type) {
-+	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		m->clusterofs = 1 << vi->z_logical_clusterbits;
-+		m->delta[0] = le16_to_cpu(di->di_u.delta[0]);
-+		m->delta[1] = le16_to_cpu(di->di_u.delta[1]);
-+		break;
-+	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		m->clusterofs = le16_to_cpu(di->di_clusterofs);
-+		m->pblk = le32_to_cpu(di->di_u.blkaddr);
-+		break;
-+	default:
++	/* grp shouldn't be broken or used before */
++	if (unlikely(atomic_read(&grp->refcount) != 1)) {
 +		DBG_BUGON(1);
-+		return -EOPNOTSUPP;
-+	}
-+	m->type = type;
-+	return 0;
-+}
-+
-+static unsigned int decode_compactedbits(unsigned int lobits,
-+					 unsigned int lomask,
-+					 u8 *in, unsigned int pos, u8 *type)
-+{
-+	const unsigned int v = get_unaligned_le32(in + pos / 8) >> (pos & 7);
-+	const unsigned int lo = v & lomask;
-+
-+	*type = (v >> lobits) & 3;
-+	return lo;
-+}
-+
-+static int unpack_compacted_index(struct z_erofs_maprecorder *m,
-+				  unsigned int amortizedshift,
-+				  unsigned int eofs)
-+{
-+	struct erofs_vnode *const vi = EROFS_V(m->inode);
-+	const unsigned int lclusterbits = vi->z_logical_clusterbits;
-+	const unsigned int lomask = (1 << lclusterbits) - 1;
-+	unsigned int vcnt, base, lo, encodebits, nblk;
-+	int i;
-+	u8 *in, type;
-+
-+	if (1 << amortizedshift == 4)
-+		vcnt = 2;
-+	else if (1 << amortizedshift == 2 && lclusterbits == 12)
-+		vcnt = 16;
-+	else
-+		return -EOPNOTSUPP;
-+
-+	encodebits = ((vcnt << amortizedshift) - sizeof(__le32)) * 8 / vcnt;
-+	base = round_down(eofs, vcnt << amortizedshift);
-+	in = m->kaddr + base;
-+
-+	i = (eofs - base) >> amortizedshift;
-+
-+	lo = decode_compactedbits(lclusterbits, lomask,
-+				  in, encodebits * i, &type);
-+	m->type = type;
-+	if (type == Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD) {
-+		m->clusterofs = 1 << lclusterbits;
-+		if (i + 1 != vcnt) {
-+			m->delta[0] = lo;
-+			return 0;
-+		}
-+		/*
-+		 * since the last lcluster in the pack is special,
-+		 * of which lo saves delta[1] rather than delta[0].
-+		 * Hence, get delta[0] by the previous lcluster indirectly.
-+		 */
-+		lo = decode_compactedbits(lclusterbits, lomask,
-+					  in, encodebits * (i - 1), &type);
-+		if (type != Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD)
-+			lo = 0;
-+		m->delta[0] = lo + 1;
-+		return 0;
-+	}
-+	m->clusterofs = lo;
-+	m->delta[0] = 0;
-+	/* figout out blkaddr (pblk) for HEAD lclusters */
-+	nblk = 1;
-+	while (i > 0) {
-+		--i;
-+		lo = decode_compactedbits(lclusterbits, lomask,
-+					  in, encodebits * i, &type);
-+		if (type == Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD)
-+			i -= lo;
-+
-+		if (i >= 0)
-+			++nblk;
-+	}
-+	in += (vcnt << amortizedshift) - sizeof(__le32);
-+	m->pblk = le32_to_cpu(*(__le32 *)in) + nblk;
-+	return 0;
-+}
-+
-+static int compacted_load_cluster_from_disk(struct z_erofs_maprecorder *m,
-+					    unsigned long lcn)
-+{
-+	struct inode *const inode = m->inode;
-+	struct erofs_vnode *const vi = EROFS_V(inode);
-+	const unsigned int lclusterbits = vi->z_logical_clusterbits;
-+	const erofs_off_t ebase = ALIGN(iloc(EROFS_I_SB(inode), vi->nid) +
-+					vi->inode_isize + vi->xattr_isize, 8) +
-+		sizeof(struct z_erofs_map_header);
-+	const unsigned int totalidx = DIV_ROUND_UP(inode->i_size, EROFS_BLKSIZ);
-+	unsigned int compacted_4b_initial, compacted_2b;
-+	unsigned int amortizedshift;
-+	erofs_off_t pos;
-+	int err;
-+
-+	if (lclusterbits != 12)
-+		return -EOPNOTSUPP;
-+
-+	if (lcn >= totalidx)
 +		return -EINVAL;
-+
-+	m->lcn = lcn;
-+	/* used to align to 32-byte (compacted_2b) alignment */
-+	compacted_4b_initial = (32 - ebase % 32) / 4;
-+	if (compacted_4b_initial == 32 / 4)
-+		compacted_4b_initial = 0;
-+
-+	if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
-+		compacted_2b = rounddown(totalidx - compacted_4b_initial, 16);
-+	else
-+		compacted_2b = 0;
-+
-+	pos = ebase;
-+	if (lcn < compacted_4b_initial) {
-+		amortizedshift = 2;
-+		goto out;
-+	}
-+	pos += compacted_4b_initial * 4;
-+	lcn -= compacted_4b_initial;
-+
-+	if (lcn < compacted_2b) {
-+		amortizedshift = 1;
-+		goto out;
-+	}
-+	pos += compacted_2b * 2;
-+	lcn -= compacted_2b;
-+	amortizedshift = 2;
-+out:
-+	pos += lcn * (1 << amortizedshift);
-+	err = z_erofs_reload_indexes(m, erofs_blknr(pos));
-+	if (err)
-+		return err;
-+	return unpack_compacted_index(m, amortizedshift, erofs_blkoff(pos));
-+}
-+
-+static int vle_load_cluster_from_disk(struct z_erofs_maprecorder *m,
-+				      unsigned int lcn)
-+{
-+	const unsigned int datamode = EROFS_V(m->inode)->datamode;
-+
-+	if (datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY)
-+		return vle_legacy_load_cluster_from_disk(m, lcn);
-+
-+	if (datamode == EROFS_INODE_FLAT_COMPRESSION)
-+		return compacted_load_cluster_from_disk(m, lcn);
-+
-+	return -EINVAL;
-+}
-+
-+static int vle_extent_lookback(struct z_erofs_maprecorder *m,
-+			       unsigned int lookback_distance)
-+{
-+	struct erofs_vnode *const vi = EROFS_V(m->inode);
-+	struct erofs_map_blocks *const map = m->map;
-+	const unsigned int lclusterbits = vi->z_logical_clusterbits;
-+	unsigned long lcn = m->lcn;
-+	int err;
-+
-+	if (lcn < lookback_distance) {
-+		errln("bogus lookback distance @ nid %llu", vi->nid);
-+		DBG_BUGON(1);
-+		return -EFSCORRUPTED;
 +	}
 +
-+	/* load extent head logical cluster if needed */
-+	lcn -= lookback_distance;
-+	err = vle_load_cluster_from_disk(m, lcn);
++	err = radix_tree_preload(GFP_NOFS);
 +	if (err)
 +		return err;
 +
-+	switch (m->type) {
-+	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		return vle_extent_lookback(m, m->delta[0]);
-+	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		map->m_flags &= ~EROFS_MAP_ZIPPED;
-+		/* fallthrough */
-+	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		map->m_la = (lcn << lclusterbits) | m->clusterofs;
-+		break;
-+	default:
-+		errln("unknown type %u at lcn %lu of nid %llu",
-+		      m->type, lcn, vi->nid);
-+		DBG_BUGON(1);
-+		return -EOPNOTSUPP;
-+	}
-+	return 0;
-+}
++	sbi = EROFS_SB(sb);
++	xa_lock(&sbi->workstn_tree);
 +
-+int z_erofs_map_blocks_iter(struct inode *inode,
-+			    struct erofs_map_blocks *map,
-+			    int flags)
-+{
-+	struct erofs_vnode *const vi = EROFS_V(inode);
-+	struct z_erofs_maprecorder m = {
-+		.inode = inode,
-+		.map = map,
-+	};
-+	int err = 0;
-+	unsigned int lclusterbits, endoff;
-+	unsigned long long ofs, end;
++	grp = xa_tag_pointer(grp, tag);
 +
-+	trace_z_erofs_map_blocks_iter_enter(inode, map, flags);
++	/*
++	 * Bump up reference count before making this workgroup
++	 * visible to other users in order to avoid potential UAF
++	 * without serialized by workstn_lock.
++	 */
++	__erofs_workgroup_get(grp);
 +
-+	/* when trying to read beyond EOF, leave it unmapped */
-+	if (unlikely(map->m_la >= inode->i_size)) {
-+		map->m_llen = map->m_la + 1 - inode->i_size;
-+		map->m_la = inode->i_size;
-+		map->m_flags = 0;
-+		goto out;
-+	}
++	err = radix_tree_insert(&sbi->workstn_tree, grp->index, grp);
++	if (unlikely(err))
++		/*
++		 * it's safe to decrease since the workgroup isn't visible
++		 * and refcount >= 2 (cannot be freezed).
++		 */
++		__erofs_workgroup_put(grp);
 +
-+	err = fill_inode_lazy(inode);
-+	if (err)
-+		goto out;
-+
-+	lclusterbits = vi->z_logical_clusterbits;
-+	ofs = map->m_la;
-+	m.lcn = ofs >> lclusterbits;
-+	endoff = ofs & ((1 << lclusterbits) - 1);
-+
-+	err = vle_load_cluster_from_disk(&m, m.lcn);
-+	if (err)
-+		goto unmap_out;
-+
-+	map->m_flags = EROFS_MAP_ZIPPED;	/* by default, compressed */
-+	end = (m.lcn + 1ULL) << lclusterbits;
-+
-+	switch (m.type) {
-+	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
-+		if (endoff >= m.clusterofs)
-+			map->m_flags &= ~EROFS_MAP_ZIPPED;
-+		/* fallthrough */
-+	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
-+		if (endoff >= m.clusterofs) {
-+			map->m_la = (m.lcn << lclusterbits) | m.clusterofs;
-+			break;
-+		}
-+		/* m.lcn should be >= 1 if endoff < m.clusterofs */
-+		if (unlikely(!m.lcn)) {
-+			errln("invalid logical cluster 0 at nid %llu",
-+			      vi->nid);
-+			err = -EFSCORRUPTED;
-+			goto unmap_out;
-+		}
-+		end = (m.lcn << lclusterbits) | m.clusterofs;
-+		map->m_flags |= EROFS_MAP_FULL_MAPPED;
-+		m.delta[0] = 1;
-+		/* fallthrough */
-+	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		/* get the correspoinding first chunk */
-+		err = vle_extent_lookback(&m, m.delta[0]);
-+		if (unlikely(err))
-+			goto unmap_out;
-+		break;
-+	default:
-+		errln("unknown type %u at offset %llu of nid %llu",
-+		      m.type, ofs, vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto unmap_out;
-+	}
-+
-+	map->m_llen = end - map->m_la;
-+	map->m_plen = 1 << lclusterbits;
-+	map->m_pa = blknr_to_addr(m.pblk);
-+	map->m_flags |= EROFS_MAP_MAPPED;
-+
-+unmap_out:
-+	if (m.kaddr)
-+		kunmap_atomic(m.kaddr);
-+
-+out:
-+	debugln("%s, m_la %llu m_pa %llu m_llen %llu m_plen %llu m_flags 0%o",
-+		__func__, map->m_la, map->m_pa,
-+		map->m_llen, map->m_plen, map->m_flags);
-+
-+	trace_z_erofs_map_blocks_iter_exit(inode, map, flags, err);
-+
-+	/* aggressively BUG_ON iff CONFIG_EROFS_FS_DEBUG is on */
-+	DBG_BUGON(err < 0 && err != -ENOMEM);
++	xa_unlock(&sbi->workstn_tree);
++	radix_tree_preload_end();
 +	return err;
 +}
 +
-diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-index 0c5847c54b60..bfb2da9c4eee 100644
---- a/include/trace/events/erofs.h
-+++ b/include/trace/events/erofs.h
-@@ -20,7 +20,8 @@
- 
- #define show_mflags(flags) __print_flags(flags, "",	\
- 	{ EROFS_MAP_MAPPED,	"M" },			\
--	{ EROFS_MAP_META,	"I" })
-+	{ EROFS_MAP_META,	"I" },			\
-+	{ EROFS_MAP_ZIPPED,	"Z" })
- 
- TRACE_EVENT(erofs_lookup,
- 
-@@ -172,6 +173,13 @@ DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_flatmode_enter,
- 	TP_ARGS(inode, map, flags)
- );
- 
-+DEFINE_EVENT(erofs__map_blocks_enter, z_erofs_map_blocks_iter_enter,
-+	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
-+		 unsigned int flags),
++static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
++{
++	atomic_long_dec(&erofs_global_shrink_cnt);
++	erofs_workgroup_free_rcu(grp);
++}
 +
-+	TP_ARGS(inode, map, flags)
-+);
++int erofs_workgroup_put(struct erofs_workgroup *grp)
++{
++	int count = atomic_dec_return(&grp->refcount);
 +
- DECLARE_EVENT_CLASS(erofs__map_blocks_exit,
- 	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
- 		 unsigned int flags, int ret),
-@@ -217,6 +225,13 @@ DEFINE_EVENT(erofs__map_blocks_exit, erofs_map_blocks_flatmode_exit,
- 	TP_ARGS(inode, map, flags, ret)
- );
++	if (count == 1)
++		atomic_long_inc(&erofs_global_shrink_cnt);
++	else if (!count)
++		__erofs_workgroup_free(grp);
++	return count;
++}
++
++/* for nocache case, no customized reclaim path at all */
++static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
++					   struct erofs_workgroup *grp,
++					   bool cleanup)
++{
++	int cnt = atomic_read(&grp->refcount);
++
++	DBG_BUGON(cnt <= 0);
++	DBG_BUGON(cleanup && cnt != 1);
++
++	if (cnt > 1)
++		return false;
++
++	DBG_BUGON(xa_untag_pointer(radix_tree_delete(&sbi->workstn_tree,
++						     grp->index)) != grp);
++
++	/* (rarely) could be grabbed again when freeing */
++	erofs_workgroup_put(grp);
++	return true;
++}
++
++static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
++					      unsigned long nr_shrink,
++					      bool cleanup)
++{
++	pgoff_t first_index = 0;
++	void *batch[PAGEVEC_SIZE];
++	unsigned int freed = 0;
++
++	int i, found;
++repeat:
++	xa_lock(&sbi->workstn_tree);
++
++	found = radix_tree_gang_lookup(&sbi->workstn_tree,
++				       batch, first_index, PAGEVEC_SIZE);
++
++	for (i = 0; i < found; ++i) {
++		struct erofs_workgroup *grp = xa_untag_pointer(batch[i]);
++
++		first_index = grp->index + 1;
++
++		/* try to shrink each valid workgroup */
++		if (!erofs_try_to_release_workgroup(sbi, grp, cleanup))
++			continue;
++
++		++freed;
++		if (unlikely(!--nr_shrink))
++			break;
++	}
++	xa_unlock(&sbi->workstn_tree);
++
++	if (i && nr_shrink)
++		goto repeat;
++	return freed;
++}
++
+ /* protected by 'erofs_sb_list_lock' */
+ static unsigned int shrinker_run_no;
  
-+DEFINE_EVENT(erofs__map_blocks_exit, z_erofs_map_blocks_iter_exit,
-+	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
-+		 unsigned int flags, int ret),
-+
-+	TP_ARGS(inode, map, flags, ret)
-+);
-+
- TRACE_EVENT(erofs_destroy_inode,
- 	TP_PROTO(struct inode *inode),
+@@ -35,7 +197,7 @@ void erofs_shrinker_unregister(struct super_block *sb)
+ 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
  
+ 	mutex_lock(&sbi->umount_mutex);
+-	/* will add shrink final handler here */
++	erofs_shrink_workstation(sbi, ~0UL, true);
+ 
+ 	spin_lock(&erofs_sb_list_lock);
+ 	list_del(&sbi->list);
+@@ -84,7 +246,7 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
+ 		spin_unlock(&erofs_sb_list_lock);
+ 		sbi->shrinker_run_no = run_no;
+ 
+-		/* will add shrink handler here */
++		freed += erofs_shrink_workstation(sbi, nr, false);
+ 
+ 		spin_lock(&erofs_sb_list_lock);
+ 		/* Get the next list element before we move this one */
 -- 
 2.17.1
