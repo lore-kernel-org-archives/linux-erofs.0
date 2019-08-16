@@ -1,59 +1,97 @@
-From: pratikshinde320@gmail.com (Pratik Shinde)
-Date: Fri, 16 Aug 2019 12:38:46 +0530
-Subject: [PATCH] erofs-utils : Fail the image creation when source path is not
- a directory file.
-Message-ID: <20190816070846.21557-1-pratikshinde320@gmail.com>
+From: gaoxiang25@huawei.com (Gao Xiang)
+Date: Fri, 16 Aug 2019 15:11:42 +0800
+Subject: [PATCH] staging: erofs: use common file type conversion
+Message-ID: <20190816071142.8633-1-gaoxiang25@huawei.com>
 
-In the erofs.mkfs utility, if the source path is not a directory,image
-creation should not proceed.since root of the filesystem needs to be a directory.
+Deduplicate the EROFS file type conversion implementation and
+remove EROFS_FT_* definitions since it's the same as defined
+by POSIX, let's follow ext2 as Linus pointed out [1]
+commit e10892189428 ("ext2: use common file type conversion").
 
-In the erofs kernel code, we return error in case root inode(read from disk) is not
-a directory.But the mkfs utility lets you create an image based on Regular file
-(S_IFREG) too.
+[1] https://lore.kernel.org/r/CAHk-=wiUs+b=iVKM3mVooXgVk7cmmC67KTmnAuL0cd_cMMVAKw at mail.gmail.com/
 
-Signed-off-by: Pratik Shinde <pratikshinde320 at gmail.com>
+Reported-by: Linus Torvalds <torvalds at linux-foundation.org>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- mkfs/main.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/dir.c      | 16 +---------------
+ drivers/staging/erofs/erofs_fs.h | 17 +++++------------
+ drivers/staging/erofs/namei.c    |  2 +-
+ 3 files changed, 7 insertions(+), 28 deletions(-)
 
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 93cacca..e72b9e2 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -12,6 +12,7 @@
- #include <stdlib.h>
- #include <limits.h>
- #include <libgen.h>
-+#include <sys/stat.h>
- #include "erofs/config.h"
- #include "erofs/print.h"
- #include "erofs/cache.h"
-@@ -76,8 +77,8 @@ static int parse_extended_opts(const char *opts)
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 01efc96e1212..5f38382637e6 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -8,17 +8,6 @@
+  */
+ #include "internal.h"
  
- static int mkfs_parse_options_cfg(int argc, char *argv[])
+-static const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
+-	[EROFS_FT_UNKNOWN]	= DT_UNKNOWN,
+-	[EROFS_FT_REG_FILE]	= DT_REG,
+-	[EROFS_FT_DIR]		= DT_DIR,
+-	[EROFS_FT_CHRDEV]	= DT_CHR,
+-	[EROFS_FT_BLKDEV]	= DT_BLK,
+-	[EROFS_FT_FIFO]		= DT_FIFO,
+-	[EROFS_FT_SOCK]		= DT_SOCK,
+-	[EROFS_FT_SYMLINK]	= DT_LNK,
+-};
+-
+ static void debug_one_dentry(unsigned char d_type, const char *de_name,
+ 			     unsigned int de_namelen)
  {
--	int opt, i;
--
-+	int opt, i, ret;
-+	struct stat64 st;
- 	while ((opt = getopt(argc, argv, "d:z:E:")) != -1) {
- 		switch (opt) {
- 		case 'z':
-@@ -135,7 +136,14 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 			  erofs_strerror(-errno));
- 		return -ENOENT;
+@@ -46,10 +35,7 @@ static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
+ 		unsigned int de_namelen;
+ 		unsigned char d_type;
+ 
+-		if (de->file_type < EROFS_FT_MAX)
+-			d_type = erofs_filetype_table[de->file_type];
+-		else
+-			d_type = DT_UNKNOWN;
++		d_type = fs_ftype_to_dtype(de->file_type);
+ 
+ 		nameoff = le16_to_cpu(de->nameoff);
+ 		de_name = (char *)dentry_blk + nameoff;
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index 8dc2a75e478f..6db70f395937 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -282,18 +282,11 @@ struct erofs_dirent {
+ 	__u8 reserved;  /* 11, reserved */
+ } __packed;
+ 
+-/* file types used in inode_info->flags */
+-enum {
+-	EROFS_FT_UNKNOWN,
+-	EROFS_FT_REG_FILE,
+-	EROFS_FT_DIR,
+-	EROFS_FT_CHRDEV,
+-	EROFS_FT_BLKDEV,
+-	EROFS_FT_FIFO,
+-	EROFS_FT_SOCK,
+-	EROFS_FT_SYMLINK,
+-	EROFS_FT_MAX
+-};
++/*
++ * EROFS file types should match generic FT_* types and
++ * it seems no need to add BUILD_BUG_ONs since potential
++ * unmatchness will break other fses as well...
++ */
+ 
+ #define EROFS_NAME_LEN      255
+ 
+diff --git a/drivers/staging/erofs/namei.c b/drivers/staging/erofs/namei.c
+index c0963f5a2d22..8334a910acef 100644
+--- a/drivers/staging/erofs/namei.c
++++ b/drivers/staging/erofs/namei.c
+@@ -237,7 +237,7 @@ static struct dentry *erofs_lookup(struct inode *dir,
+ 	} else {
+ 		debugln("%s, %s (nid %llu) found, d_type %u", __func__,
+ 			dentry->d_name.name, nid, d_type);
+-		inode = erofs_iget(dir->i_sb, nid, d_type == EROFS_FT_DIR);
++		inode = erofs_iget(dir->i_sb, nid, d_type == FT_DIR);
  	}
--
-+	ret = lstat64(cfg.c_src_path, &st);
-+	if (ret)
-+		return -EINVAL;
-+	if ((st.st_mode & S_IFMT) != S_IFDIR) {
-+		erofs_err("root of the filesystem is not a directory - %s",
-+			  cfg.c_src_path);
-+		return -EINVAL;
-+	}
- 	if (optind < argc) {
- 		erofs_err("Unexpected argument: %s\n", argv[optind]);
- 		return -EINVAL;
+ 	return d_splice_alias(inode, dentry);
+ }
 -- 
-2.9.3
+2.17.1
