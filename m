@@ -1,141 +1,35 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 18 Aug 2019 08:52:11 +0800
+From: richard@nod.at (Richard Weinberger)
+Date: Sat, 17 Aug 2019 23:19:50 +0200 (CEST)
 Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <20190818000408.GA20778@hsiangkao-HP-ZHAN-66-Pro-G1>
+In-Reply-To: <20190817082313.21040-1-hsiangkao@aol.com>
 References: <20190817082313.21040-1-hsiangkao@aol.com>
- <1746679415.68815.1566076790942.JavaMail.zimbra@nod.at>
- <20190817220706.GA11443@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1163995781.68824.1566084358245.JavaMail.zimbra@nod.at>
- <20190817233843.GA16991@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190818000408.GA20778@hsiangkao-HP-ZHAN-66-Pro-G1>
-Message-ID: <20190818005202.GA3088@hsiangkao-HP-ZHAN-66-Pro-G1>
+Message-ID: <1746679415.68815.1566076790942.JavaMail.zimbra@nod.at>
 
-On Sun, Aug 18, 2019@08:04:11AM +0800, Gao Xiang wrote:
-> On Sun, Aug 18, 2019@07:38:47AM +0800, Gao Xiang wrote:
-> > Hi Richard,
-> > 
-> > On Sun, Aug 18, 2019@01:25:58AM +0200, Richard Weinberger wrote:
-> 
-> []
-> 
-> > > 
-> > > While digging a little into the code I noticed that you have very few
-> > > checks of the on-disk data.
-> > > For example ->u.i_blkaddr. I gave it a try and created a
-> > > malformed filesystem where u.i_blkaddr is 0xdeadbeef, it causes the kernel
-> > > to loop forever around erofs_read_raw_page().
-> > 
-> > I don't fuzz all the on-disk fields for EROFS, I will do later..
-> > You can see many in-kernel filesystems are still hardening the related
-> > stuff. Anyway, I will dig into this field you mentioned recently, but
-> > I think it can be fixed easily later.
-> 
-> ...I take a simple try with the following erofs-utils diff and
-> a directory containing enwik9 only, with the latest kernel (5.3-rc)
-> and command line is
-> mkfs/mkfs.erofs -d9 enwik9.img testdir.
-> 
-> diff --git a/lib/inode.c b/lib/inode.c
-> index 581f263..2540338 100644
-> --- a/lib/inode.c
-> +++ b/lib/inode.c
-> @@ -388,8 +388,7 @@ static bool erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
->  			v1.i_u.compressed_blocks =
->  				cpu_to_le32(inode->u.i_blocks);
->  		else
-> -			v1.i_u.raw_blkaddr =
-> -				cpu_to_le32(inode->u.i_blkaddr);
-> +			v1.i_u.raw_blkaddr = 0xdeadbeef;
->  		break;
->  	}
-> 
-> I tested the corrupted image with looped device and real blockdevice
-> by dd, and it seems fine....
-> [36283.012381] erofs: initializing erofs 1.0
-> [36283.012510] erofs: successfully to initialize erofs
-> [36283.012975] erofs: read_super, device -> /dev/loop17
-> [36283.012976] erofs: options -> (null)
-> [36283.012983] erofs: root inode @ nid 36
-> [36283.012995] erofs: mounted on /dev/loop17 with opts: (null).
-> [36297.354090] attempt to access beyond end of device
-> [36297.354098] loop17: rw=0, want=29887428984, limit=1953128
-> [36297.354107] attempt to access beyond end of device
-> [36297.354109] loop17: rw=0, want=29887428480, limit=1953128
-> [36301.827234] attempt to access beyond end of device
-> [36301.827243] loop17: rw=0, want=29887428480, limit=1953128
-> [36371.426889] erofs: unmounted for /dev/loop17
-> [36518.156114] erofs: read_super, device -> /dev/nvme0n1p4
-> [36518.156115] erofs: options -> (null)
-> [36518.156260] erofs: root inode @ nid 36
-> [36518.156384] erofs: mounted on /dev/nvme0n1p4 with opts: (null).
-> [36522.818884] attempt to access beyond end of device
-> [36522.818889] nvme0n1p4: rw=0, want=29887428984, limit=62781440
-> [36522.818895] attempt to access beyond end of device
-> [36522.818896] nvme0n1p4: rw=0, want=29887428480, limit=62781440
-> [36524.072018] attempt to access beyond end of device
-> [36524.072028] nvme0n1p4: rw=0, want=29887428480, limit=62781440
-> 
-> Could you give me more hints how to reproduce that? and I will
-> dig into more maybe it needs more conditions...
+----- Urspr?ngliche Mail -----
+> Von: "Gao Xiang" <hsiangkao at aol.com>
+> An: "Greg Kroah-Hartman" <gregkh at linuxfoundation.org>, "Al Viro" <viro at zeniv.linux.org.uk>, "linux-fsdevel"
+> <linux-fsdevel at vger.kernel.org>, devel at driverdev.osuosl.org, linux-erofs at lists.ozlabs.org, "linux-kernel"
+> <linux-kernel at vger.kernel.org>
+> CC: "Andrew Morton" <akpm at linux-foundation.org>, "Stephen Rothwell" <sfr at canb.auug.org.au>, "tytso" <tytso at mit.edu>,
+> "Pavel Machek" <pavel at denx.de>, "David Sterba" <dsterba at suse.cz>, "Amir Goldstein" <amir73il at gmail.com>, "Christoph
+> Hellwig" <hch at infradead.org>, "Darrick J . Wong" <darrick.wong at oracle.com>, "Dave Chinner" <david at fromorbit.com>,
+> "Jaegeuk Kim" <jaegeuk at kernel.org>, "Jan Kara" <jack at suse.cz>, "richard" <richard at nod.at>, "torvalds"
+> <torvalds at linux-foundation.org>, "Chao Yu" <yuchao0 at huawei.com>, "Miao Xie" <miaoxie at huawei.com>, "Li Guifu"
+> <bluce.liguifu at huawei.com>, "Fang Wei" <fangwei1 at huawei.com>, "Gao Xiang" <gaoxiang25 at huawei.com>
+> Gesendet: Samstag, 17. August 2019 10:23:13
+> Betreff: [PATCH] erofs: move erofs out of staging
 
-I think I found what happened here... That is not a bug due to lack of
-check of on-disk ->u.i_blkaddr (seems block layer will handle access
-beyond end of device) but actually a bug of erofs_readdir:
-
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index fda16ec8863e..5b5f35d47370 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -329,6 +329,8 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+> EROFS filesystem has been merged into linux-staging for a year.
+> 
+> EROFS is designed to be a better solution of saving extra storage
+> space with guaranteed end-to-end performance for read-only files
+> with the help of reduced metadata, fixed-sized output compression
+> and decompression inplace technologies.
  
- 	trace_erofs_readpage(page, true);
- 
-+	WARN_ON(1);
-+
- 	bio = erofs_read_raw_page(NULL, page->mapping,
- 				  page, &last_block, 1, false);
- 
-@@ -379,6 +381,8 @@ static int erofs_raw_access_readpages(struct file *filp,
- 	/* the rare case (end in gaps) */
- 	if (unlikely(bio))
- 		__submit_bio(bio, REQ_OP_READ, 0);
-+
-+	WARN_ON(1);
- 	return 0;
- }
- 
-diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
-index 637d70108d59..ccca954438ed 100644
---- a/fs/erofs/dir.c
-+++ b/fs/erofs/dir.c
-@@ -80,8 +80,10 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 		unsigned int nameoff, maxsize;
- 
- 		dentry_page = read_mapping_page(mapping, i, NULL);
--		if (IS_ERR(dentry_page))
--			continue;
-+		if (IS_ERR(dentry_page)) {
-+			err = PTR_ERR(dentry_page);
-+			break;
-+		}
- 
- 		de = (struct erofs_dirent *)kmap(dentry_page);
- 
-
-It's a forever loop due to error handling of the read_mapping_page above.
-I will fix that in another patch and thanks for your report!
+How does erofs compare to squashfs?
+IIUC it is designed to be faster. Do you have numbers?
+Feel free to point me older mails if you already showed numbers,
+I have to admit I didn't follow the development very closely.
 
 Thanks,
-Gao Xiang
-
-> 
-> Thanks,
-> Gao Xiang
-> 
-> > 
-> > Thanks,
-> > Gao Xiang 
-> > 
-> > > 
-> > > Thanks,
-> > > //richard
+//richard
