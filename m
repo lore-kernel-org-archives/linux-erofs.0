@@ -1,40 +1,33 @@
-From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 18 Aug 2019 17:18:05 +0800
-Subject: [PATCH v3 RESEND] staging: erofs: fix an error handling in
- erofs_readdir()y
-In-Reply-To: <20190818091037.GB17909@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20190818030109.GA8225@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190818032111.9862-1-hsiangkao@aol.com>
- <35138595.69023.1566117213033.JavaMail.zimbra@nod.at>
- <20190818091037.GB17909@hsiangkao-HP-ZHAN-66-Pro-G1>
-Message-ID: <20190818091804.GA18675@hsiangkao-HP-ZHAN-66-Pro-G1>
+From: richard@nod.at (Richard Weinberger)
+Date: Sun, 18 Aug 2019 11:21:13 +0200 (CEST)
+Subject: [PATCH] erofs: move erofs out of staging
+In-Reply-To: <20190818090949.GA30276@kroah.com>
+References: <20190817082313.21040-1-hsiangkao@aol.com>
+ <20190817220706.GA11443@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <1163995781.68824.1566084358245.JavaMail.zimbra@nod.at>
+ <20190817233843.GA16991@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <1405781266.69008.1566116210649.JavaMail.zimbra@nod.at>
+ <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <1133002215.69049.1566119033047.JavaMail.zimbra@nod.at>
+ <20190818090949.GA30276@kroah.com>
+Message-ID: <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
 
-On Sun, Aug 18, 2019@05:10:38PM +0800, Gao Xiang via Linux-erofs wrote:
-> Hi Richard,
-> 
-> On Sun, Aug 18, 2019@10:33:33AM +0200, Richard Weinberger wrote:
-> > ----- Urspr?ngliche Mail -----
-> > > changelog from v2:
-> > > - transform EIO to EFSCORRUPTED as suggested by Matthew;
-> > 
-> > erofs does not define EFSCORRUPTED, so the build fails.
-> > At least on Linus' tree as of today.
-> 
-> Thanks for your reply :)
-> 
-> I write all patches based on staging tree and do more cleanups further
-> than Linus' tree, EFSCORRUPTED was already introduced by Pavel days before...
+----- Urspr?ngliche Mail -----
+> You have looked at reiserfs lately, right?  :)
 
-Sorry, I mean "introduced which was suggested by Paval"...
+Don't remind me of that. ;-)
+ 
+> Not to say that erofs shouldn't be worked on to fix these kinds of
+> issues, just that it's not an unheard of thing to trust the disk image.
+> Especially for the normal usage model of erofs, where the whole disk
+> image is verfied before it is allowed to be mounted as part of the boot
+> process.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/commit/?h=staging-testing&id=a6b9b1d5eae61a68085030e50d56265dec5baa94
-> 
-> which can be fetched from
-> git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git -b staging-next
-> 
-> Thanks,
-> Gao Xiang
-> 
-> > 
-> > Thanks,
-> > //richard
+For normal use I see no problem at all.
+I fear distros that try to mount anything you plug into your USB.
+
+At least SUSE already blacklists erofs:
+https://github.com/openSUSE/suse-module-tools/blob/master/suse-module-tools.spec#L24
+
+Thanks,
+//richard
