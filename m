@@ -1,49 +1,52 @@
-From: richard@nod.at (Richard Weinberger)
-Date: Sun, 18 Aug 2019 20:00:28 +0200 (CEST)
+From: hsiangkao@gmx.com (Gao Xiang)
+Date: Mon, 19 Aug 2019 02:16:55 +0800
 Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <20190818174621.GB12940@mit.edu>
-References: <20190817082313.21040-1-hsiangkao@aol.com>
- <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
+In-Reply-To: <20190818174702.GA17633@infradead.org>
+References: <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
  <1133002215.69049.1566119033047.JavaMail.zimbra@nod.at>
  <20190818090949.GA30276@kroah.com>
  <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
  <20190818151154.GA32157@mit.edu>
- <1897345637.69314.1566148000847.JavaMail.zimbra@nod.at>
- <20190818174621.GB12940@mit.edu>
-Message-ID: <538856932.69442.1566151228866.JavaMail.zimbra@nod.at>
+ <20190818155812.GB13230@infradead.org>
+ <20190818161638.GE1118@sol.localdomain>
+ <20190818162201.GA16269@infradead.org>
+ <20190818172938.GA14413@sol.localdomain>
+ <20190818174702.GA17633@infradead.org>
+Message-ID: <20190818181654.GA1617@hsiangkao-HP-ZHAN-66-Pro-G1>
 
------ Urspr?ngliche Mail -----
-> Von: "tytso" <tytso at mit.edu>
-> An: "richard" <richard at nod.at>
-> CC: "Greg Kroah-Hartman" <gregkh at linuxfoundation.org>, "Gao Xiang" <hsiangkao at aol.com>, "Jan Kara" <jack at suse.cz>, "Chao
-> Yu" <yuchao0 at huawei.com>, "Dave Chinner" <david at fromorbit.com>, "David Sterba" <dsterba at suse.cz>, "Miao Xie"
-> <miaoxie at huawei.com>, "devel" <devel at driverdev.osuosl.org>, "Stephen Rothwell" <sfr at canb.auug.org.au>, "Darrick"
-> <darrick.wong at oracle.com>, "Christoph Hellwig" <hch at infradead.org>, "Amir Goldstein" <amir73il at gmail.com>,
-> "linux-erofs" <linux-erofs at lists.ozlabs.org>, "Al Viro" <viro at zeniv.linux.org.uk>, "Jaegeuk Kim" <jaegeuk at kernel.org>,
-> "linux-kernel" <linux-kernel at vger.kernel.org>, "Li Guifu" <bluce.liguifu at huawei.com>, "Fang Wei" <fangwei1 at huawei.com>,
-> "Pavel Machek" <pavel at denx.de>, "linux-fsdevel" <linux-fsdevel at vger.kernel.org>, "Andrew Morton"
-> <akpm at linux-foundation.org>, "torvalds" <torvalds at linux-foundation.org>
-> Gesendet: Sonntag, 18. August 2019 19:46:21
-> Betreff: Re: [PATCH] erofs: move erofs out of staging
+Hi Hch,
 
-> On Sun, Aug 18, 2019@07:06:40PM +0200, Richard Weinberger wrote:
->> > So holding a file system like EROFS to a higher standard than say,
->> > ext4, xfs, or btrfs hardly seems fair.
->> 
->> Nobody claimed that.
-> 
-> Pointing out that erofs has issues in this area when Gao Xiang is
-> asking if erofs can be moved out of staging and join the "official
-> clubhouse" of file systems could certainly be reasonable interpreted
-> as such.  Reporting such vulnerablities are a good thing, and
-> hopefully all file system maintainers will welcome them.  Doing them
-> on a e-mail thread about promoting out of erofs is certainly going to
-> lead to inferences of a double standard.
+On Sun, Aug 18, 2019@10:47:02AM -0700, Christoph Hellwig wrote:
+> On Sun, Aug 18, 2019@10:29:38AM -0700, Eric Biggers wrote:
+> > Not sure what you're even disagreeing with, as I *do* expect new filesystems to
+> > be held to a high standard, and to be written with the assumption that the
+> > on-disk data may be corrupted or malicious.  We just can't expect the bar to be
+> > so high (e.g. no bugs) that it's never been attained by *any* filesystem even
+> > after years/decades of active development.  If the developers were careful, the
+> > code generally looks robust, and they are willing to address such bugs as they
+> > are found, realistically that's as good as we can expect to get...
+>
+> Well, the impression I got from Richards quick look and the reply to it is
+> that there is very little attempt to validate the ondisk data structure
+> and there is absolutely no priority to do so.  Which is very different
+> from there is a bug or two here and there.
 
-Well, this was not at all my intention.
-erofs raised my attention and instead of wasting a new thread
-I answered here and reported what I found while looking at it.
-That's all.
+As my second reply to Richard, I didn't fuzz all the on-disk fields for EROFS.
+and as my reply to Richard / Greg, current EROFS is used on the top of dm-verity.
+
+I cannot say how well EROFS will be performed on malformed images (and you can
+also find the bug richard pointed out is a miswritten break->continue by myself).
+
+I posted the upstream EROFS post on July 4, 2019 and a month and a half later,
+no one can tell me (yes, thanks for kind people reply me about their suggestion)
+what we should do next (you can see these emails, I sent many times) to meet
+the minimal upstream requirements and rare people can even dip into my code.
+
+That is all I want to say. I will work on autofuzz these days, and I want to
+know how to meet your requirements on this (you can tell us your standard,
+how well should we do).
+
+OK, you don't reply to my post once, I have no idea how to get your first reply.
 
 Thanks,
-//richard
+Gao Xiang
