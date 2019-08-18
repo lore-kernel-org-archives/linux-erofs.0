@@ -1,39 +1,45 @@
-From: chao@kernel.org (Chao Yu)
-Date: Sun, 18 Aug 2019 18:12:57 +0800
-Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
-References: <20190817082313.21040-1-hsiangkao@aol.com>
- <20190817220706.GA11443@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1163995781.68824.1566084358245.JavaMail.zimbra@nod.at>
- <20190817233843.GA16991@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1405781266.69008.1566116210649.JavaMail.zimbra@nod.at>
- <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1133002215.69049.1566119033047.JavaMail.zimbra@nod.at>
- <20190818090949.GA30276@kroah.com>
- <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
-Message-ID: <8319896b-22c1-0550-f464-f4419a70202e@kernel.org>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sun, 18 Aug 2019 18:28:24 +0800
+Subject: [PATCH] staging: erofs: refuse to mount images with malformed volume
+ name
+Message-ID: <20190818102824.22330-1-hsiangkao@aol.com>
 
-Hi Richard,
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-On 2019-8-18 17:21, Richard Weinberger wrote:
-> For normal use I see no problem at all.
-> I fear distros that try to mount anything you plug into your USB.
-> 
-> At least SUSE already blacklists erofs:
-> https://github.com/openSUSE/suse-module-tools/blob/master/suse-module-tools.spec#L24
+As Richard reminder [1], A valid volume name should be
+ended in NIL terminator within the length of volume_name.
 
-Thanks for letting us know current status of erofs in SUSE distro.
+Since this field currently isn't really used, let's fix
+it to avoid potential bugs in the future.
 
-Currently erofs cares more about the requirement of Android, in there, we are
-safe on fuzzed image case as dm-verity can keep all partition data being
-verified before mount.
+[1] https://lore.kernel.org/r/1133002215.69049.1566119033047.JavaMail.zimbra at nod.at/
 
-For other scenarios, like distro, erofs should improve itself step by step as
-many mainline filesystems in many aspects to fit the there-in requirement. :)
+Reported-by: Richard Weinberger <richard at nod.at>
+Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+---
+ drivers/staging/erofs/super.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-Thanks,
-
-> 
-> Thanks,
-> //richard
-> 
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f65a1ff9f42f..2da471010a86 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -131,9 +131,14 @@ static int superblock_read(struct super_block *sb)
+ 	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
+ 
+ 	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
+-	memcpy(sbi->volume_name, layout->volume_name,
+-	       sizeof(layout->volume_name));
+ 
++	ret = strscpy(sbi->volume_name, layout->volume_name,
++		      sizeof(layout->volume_name));
++	if (ret < 0) {	/* -E2BIG */
++		errln("bad volume name without NIL terminator");
++		ret = -EFSCORRUPTED;
++		goto out;
++	}
+ 	ret = 0;
+ out:
+ 	brelse(bh);
+-- 
+2.17.1
