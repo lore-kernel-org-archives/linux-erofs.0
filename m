@@ -1,9 +1,10 @@
 From: hsiangkao@aol.com (Gao Xiang)
-Date: Sun, 18 Aug 2019 11:18:55 +0800
-Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
+Date: Sun, 18 Aug 2019 11:21:11 +0800
+Subject: [PATCH v3 RESEND] staging: erofs: fix an error handling in
+ erofs_readdir()
 In-Reply-To: <20190818030109.GA8225@hsiangkao-HP-ZHAN-66-Pro-G1>
 References: <20190818030109.GA8225@hsiangkao-HP-ZHAN-66-Pro-G1>
-Message-ID: <20190818031855.9723-1-hsiangkao@aol.com>
+Message-ID: <20190818032111.9862-1-hsiangkao@aol.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
@@ -25,6 +26,8 @@ Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
 Cc: <stable at vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
+[RESEND] --> add the missing v3 version in subject, no logic change.
+
 changelog from v2:
  - transform EIO to EFSCORRUPTED as suggested by Matthew;
 
