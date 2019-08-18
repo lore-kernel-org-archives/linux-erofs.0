@@ -1,9 +1,8 @@
 From: tytso@mit.edu (Theodore Y. Ts'o)
-Date: Sun, 18 Aug 2019 13:43:54 -0400
+Date: Sun, 18 Aug 2019 13:46:21 -0400
 Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <20190818155812.GB13230@infradead.org>
-References: <20190817220706.GA11443@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1163995781.68824.1566084358245.JavaMail.zimbra@nod.at>
+In-Reply-To: <1897345637.69314.1566148000847.JavaMail.zimbra@nod.at>
+References: <20190817082313.21040-1-hsiangkao@aol.com>
  <20190817233843.GA16991@hsiangkao-HP-ZHAN-66-Pro-G1>
  <1405781266.69008.1566116210649.JavaMail.zimbra@nod.at>
  <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
@@ -11,35 +10,23 @@ References: <20190817220706.GA11443@hsiangkao-HP-ZHAN-66-Pro-G1>
  <20190818090949.GA30276@kroah.com>
  <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
  <20190818151154.GA32157@mit.edu>
- <20190818155812.GB13230@infradead.org>
-Message-ID: <20190818174354.GA12940@mit.edu>
+ <1897345637.69314.1566148000847.JavaMail.zimbra@nod.at>
+Message-ID: <20190818174621.GB12940@mit.edu>
 
-On Sun, Aug 18, 2019@08:58:12AM -0700, Christoph Hellwig wrote:
-> On Sun, Aug 18, 2019@11:11:54AM -0400, Theodore Y. Ts'o wrote:
-> > Note that of the mainstream file systems, ext4 and xfs don't guarantee
-> > that it's safe to blindly take maliciously provided file systems, such
-> > as those provided by a untrusted container, and mount it on a file
-> > system without problems.  As I recall, one of the XFS developers
-> > described file system fuzzing reports as a denial of service attack on
-> > the developers.
+On Sun, Aug 18, 2019@07:06:40PM +0200, Richard Weinberger wrote:
+> > So holding a file system like EROFS to a higher standard than say,
+> > ext4, xfs, or btrfs hardly seems fair.
 > 
-> I think this greatly misrepresents the general attitute of the XFS
-> developers.  We take sanity checks for the modern v5 on disk format
-> very series, and put a lot of effort into handling corrupted file
-> systems as good as possible, although there are of course no guarantee?.
-> 
-> The quote that you've taken out of context is for the legacy v4 format
-> that has no checksums and other integrity features.
+> Nobody claimed that.
 
-Actually, what Prof. Kim's research group was doing was taking the
-latest file system formats (for ext4 and xfs) and fixing up the
-checksum after fuzzing the metadata blocks.  The goal was to find
-potential security vulnerabilities, not to see if file systems would
-crash if fed invalid input.  At least for ext4, at least one of
-Prof. Kim's fuzzing results was one that that I believe could have
-been leveraged into a stack overflow attack.  I can't speak to his
-results with respect to XFS, since I didn't look at them.
+Pointing out that erofs has issues in this area when Gao Xiang is
+asking if erofs can be moved out of staging and join the "official
+clubhouse" of file systems could certainly be reasonable interpreted
+as such.  Reporting such vulnerablities are a good thing, and
+hopefully all file system maintainers will welcome them.  Doing them
+on a e-mail thread about promoting out of erofs is certainly going to
+lead to inferences of a double standard.
 
 Cheers,
 
-					- Ted
+						- Ted
