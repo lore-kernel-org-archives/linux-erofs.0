@@ -1,32 +1,29 @@
-From: tytso@mit.edu (Theodore Y. Ts'o)
-Date: Sun, 18 Aug 2019 13:46:21 -0400
+From: hch@infradead.org (Christoph Hellwig)
+Date: Sun, 18 Aug 2019 10:47:02 -0700
 Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <1897345637.69314.1566148000847.JavaMail.zimbra@nod.at>
-References: <20190817082313.21040-1-hsiangkao@aol.com>
- <20190817233843.GA16991@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1405781266.69008.1566116210649.JavaMail.zimbra@nod.at>
+In-Reply-To: <20190818172938.GA14413@sol.localdomain>
+References: <1405781266.69008.1566116210649.JavaMail.zimbra@nod.at>
  <20190818084521.GA17909@hsiangkao-HP-ZHAN-66-Pro-G1>
  <1133002215.69049.1566119033047.JavaMail.zimbra@nod.at>
  <20190818090949.GA30276@kroah.com>
  <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
  <20190818151154.GA32157@mit.edu>
- <1897345637.69314.1566148000847.JavaMail.zimbra@nod.at>
-Message-ID: <20190818174621.GB12940@mit.edu>
+ <20190818155812.GB13230@infradead.org>
+ <20190818161638.GE1118@sol.localdomain>
+ <20190818162201.GA16269@infradead.org>
+ <20190818172938.GA14413@sol.localdomain>
+Message-ID: <20190818174702.GA17633@infradead.org>
 
-On Sun, Aug 18, 2019@07:06:40PM +0200, Richard Weinberger wrote:
-> > So holding a file system like EROFS to a higher standard than say,
-> > ext4, xfs, or btrfs hardly seems fair.
-> 
-> Nobody claimed that.
+On Sun, Aug 18, 2019@10:29:38AM -0700, Eric Biggers wrote:
+> Not sure what you're even disagreeing with, as I *do* expect new filesystems to
+> be held to a high standard, and to be written with the assumption that the
+> on-disk data may be corrupted or malicious.  We just can't expect the bar to be
+> so high (e.g. no bugs) that it's never been attained by *any* filesystem even
+> after years/decades of active development.  If the developers were careful, the
+> code generally looks robust, and they are willing to address such bugs as they
+> are found, realistically that's as good as we can expect to get...
 
-Pointing out that erofs has issues in this area when Gao Xiang is
-asking if erofs can be moved out of staging and join the "official
-clubhouse" of file systems could certainly be reasonable interpreted
-as such.  Reporting such vulnerablities are a good thing, and
-hopefully all file system maintainers will welcome them.  Doing them
-on a e-mail thread about promoting out of erofs is certainly going to
-lead to inferences of a double standard.
-
-Cheers,
-
-						- Ted
+Well, the impression I got from Richards quick look and the reply to it is
+that there is very little attempt to validate the ondisk data structure
+and there is absolutely no priority to do so.  Which is very different
+from there is a bug or two here and there.
