@@ -1,25 +1,121 @@
-From: chao@kernel.org (Chao Yu)
-Date: Sun, 18 Aug 2019 21:17:06 +0800
-Subject: [PATCH] staging: erofs: refuse to mount images with malformed
- volume name
-In-Reply-To: <20190818102824.22330-1-hsiangkao@aol.com>
-References: <20190818102824.22330-1-hsiangkao@aol.com>
-Message-ID: <d8bca74f-62db-29c2-1165-48b491ad4118@kernel.org>
+From: hsiangkao@aol.com (Gao Xiang)
+Date: Sun, 18 Aug 2019 21:25:04 +0800
+Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
+In-Reply-To: <201908182116.RRufKUpl%lkp@intel.com>
+References: <20190818031855.9723-1-hsiangkao@aol.com>
+ <201908182116.RRufKUpl%lkp@intel.com>
+Message-ID: <20190818132503.GA26232@hsiangkao-HP-ZHAN-66-Pro-G1>
 
-On 2019-8-18 18:28, Gao Xiang wrote:
-> From: Gao Xiang <gaoxiang25 at huawei.com>
+On Sun, Aug 18, 2019@09:17:52PM +0800, kbuild test robot wrote:
+> Hi Gao,
 > 
-> As Richard reminder [1], A valid volume name should be
-> ended in NIL terminator within the length of volume_name.
+> I love your patch! Yet something to improve:
 > 
-> Since this field currently isn't really used, let's fix
-> it to avoid potential bugs in the future.
-> 
-> [1] https://lore.kernel.org/r/1133002215.69049.1566119033047.JavaMail.zimbra at nod.at/
-> 
-> Reported-by: Richard Weinberger <richard at nod.at>
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+> [auto build test ERROR on linus/master]
+> [cannot apply to v5.3-rc4 next-20190816]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+... those patches should be applied to staging tree
+since linux-next has not been updated yet...
 
 Thanks,
+Gao Xiang
+
+> 
+> url:    https://github.com/0day-ci/linux/commits/Gao-Xiang/staging-erofs-fix-an-error-handling-in-erofs_readdir/20190818-191344
+> config: arm64-allyesconfig (attached as .config)
+> compiler: aarch64-linux-gcc (GCC) 7.4.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=7.4.0 make.cross ARCH=arm64 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp at intel.com>
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    drivers/staging/erofs/dir.c: In function 'erofs_readdir':
+> >> drivers/staging/erofs/dir.c:110:11: error: 'EFSCORRUPTED' undeclared (first use in this function); did you mean 'FS_NRSUPER'?
+>        err = -EFSCORRUPTED;
+>               ^~~~~~~~~~~~
+>               FS_NRSUPER
+>    drivers/staging/erofs/dir.c:110:11: note: each undeclared identifier is reported only once for each function it appears in
+> 
+> vim +110 drivers/staging/erofs/dir.c
+> 
+>     85	
+>     86	static int erofs_readdir(struct file *f, struct dir_context *ctx)
+>     87	{
+>     88		struct inode *dir = file_inode(f);
+>     89		struct address_space *mapping = dir->i_mapping;
+>     90		const size_t dirsize = i_size_read(dir);
+>     91		unsigned int i = ctx->pos / EROFS_BLKSIZ;
+>     92		unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
+>     93		int err = 0;
+>     94		bool initial = true;
+>     95	
+>     96		while (ctx->pos < dirsize) {
+>     97			struct page *dentry_page;
+>     98			struct erofs_dirent *de;
+>     99			unsigned int nameoff, maxsize;
+>    100	
+>    101			dentry_page = read_mapping_page(mapping, i, NULL);
+>    102			if (dentry_page == ERR_PTR(-ENOMEM)) {
+>    103				errln("no memory to readdir of logical block %u of nid %llu",
+>    104				      i, EROFS_V(dir)->nid);
+>    105				err = -ENOMEM;
+>    106				break;
+>    107			} else if (IS_ERR(dentry_page)) {
+>    108				errln("fail to readdir of logical block %u of nid %llu",
+>    109				      i, EROFS_V(dir)->nid);
+>  > 110				err = -EFSCORRUPTED;
+>    111				break;
+>    112			}
+>    113	
+>    114			de = (struct erofs_dirent *)kmap(dentry_page);
+>    115	
+>    116			nameoff = le16_to_cpu(de->nameoff);
+>    117	
+>    118			if (unlikely(nameoff < sizeof(struct erofs_dirent) ||
+>    119				     nameoff >= PAGE_SIZE)) {
+>    120				errln("%s, invalid de[0].nameoff %u",
+>    121				      __func__, nameoff);
+>    122	
+>    123				err = -EIO;
+>    124				goto skip_this;
+>    125			}
+>    126	
+>    127			maxsize = min_t(unsigned int,
+>    128					dirsize - ctx->pos + ofs, PAGE_SIZE);
+>    129	
+>    130			/* search dirents at the arbitrary position */
+>    131			if (unlikely(initial)) {
+>    132				initial = false;
+>    133	
+>    134				ofs = roundup(ofs, sizeof(struct erofs_dirent));
+>    135				if (unlikely(ofs >= nameoff))
+>    136					goto skip_this;
+>    137			}
+>    138	
+>    139			err = erofs_fill_dentries(ctx, de, &ofs, nameoff, maxsize);
+>    140	skip_this:
+>    141			kunmap(dentry_page);
+>    142	
+>    143			put_page(dentry_page);
+>    144	
+>    145			ctx->pos = blknr_to_addr(i) + ofs;
+>    146	
+>    147			if (unlikely(err))
+>    148				break;
+>    149			++i;
+>    150			ofs = 0;
+>    151		}
+>    152		return err < 0 ? err : 0;
+>    153	}
+>    154	
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
