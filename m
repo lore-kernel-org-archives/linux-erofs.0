@@ -1,22 +1,19 @@
-From: chao@kernel.org (Chao Yu)
-Date: Mon, 19 Aug 2019 22:58:04 +0800
-Subject: [PATCH 6/6] staging: erofs: avoid endless loop of invalid
- lookback distance 0
-In-Reply-To: <20190819103426.87579-7-gaoxiang25@huawei.com>
-References: <20190819080218.GA42231@138>
- <20190819103426.87579-1-gaoxiang25@huawei.com>
- <20190819103426.87579-7-gaoxiang25@huawei.com>
-Message-ID: <a8454de9-dbee-c69c-5763-1648df730211@kernel.org>
+From: richard@nod.at (Richard Weinberger)
+Date: Mon, 19 Aug 2019 19:10:33 +0200 (CEST)
+Subject: erofs: Question on unused fields in on-disk structs
+Message-ID: <1323459733.69859.1566234633793.JavaMail.zimbra@nod.at>
 
-On 2019-8-19 18:34, Gao Xiang wrote:
-> As reported by erofs-utils fuzzer, Lookback distance should
-> be a positive number, so it should be actually looked back
-> rather than spinning.
-> 
-> Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
-> Cc: <stable at vger.kernel.org> # 4.19+
-> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
+Hi!
 
-Reviewed-by: Chao Yu <yuchao0 at huawei.com>
+struct erofs_super_block has "checksum" and "features" fields,
+but they are not used in the source.
+What is the plan for these?
+
+Same for i_checksum in erofs_inode_v1 and erofs_inode_v2.
+
+At least the "features" field in the super block is something I'd
+expect to be used.
+...such that you can have new filesystem features in future.
 
 Thanks,
+//richard
