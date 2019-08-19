@@ -1,43 +1,41 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 19 Aug 2019 16:02:18 +0800
-Subject: [PATCH] erofs: move erofs out of staging
-In-Reply-To: <1559833874.69649.1566200143457.JavaMail.zimbra@nod.at>
-References: <1133002215.69049.1566119033047.JavaMail.zimbra@nod.at>
- <20190818155812.GB13230@infradead.org>
- <20190818161638.GE1118@sol.localdomain>
- <20190818162201.GA16269@infradead.org>
- <20190818172938.GA14413@sol.localdomain>
- <20190818174702.GA17633@infradead.org>
- <20190818181654.GA1617@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190818201405.GA27398@hsiangkao-HP-ZHAN-66-Pro-G1>
- <1559833874.69649.1566200143457.JavaMail.zimbra@nod.at>
-Message-ID: <20190819080218.GA42231@138>
+Date: Mon, 19 Aug 2019 18:34:20 +0800
+Subject: [PATCH 0/6] staging: erofs: first stage of corrupted compressed images
+In-Reply-To: <20190819080218.GA42231@138>
+References: <20190819080218.GA42231@138>
+Message-ID: <20190819103426.87579-1-gaoxiang25@huawei.com>
 
-Hi Richard,
+Hi all,
 
-On Mon, Aug 19, 2019@09:35:43AM +0200, Richard Weinberger wrote:
-> ----- Urspr?ngliche Mail -----
-> > I have made a simple fuzzer to inject messy in inode metadata,
-> > dir data, compressed indexes and super block,
-> > https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-fuzzer
-> > 
-> > I am testing with some given dirs and the following script.
-> > Does it look reasonable?
-> 
-> I think that's a very good start. :-)
+I have fuzzed EROFS for about a day and observed the following
+issues due to corrupted compression images by my first fuzzer
+(It seems ok for uncompressed images for now). Now it can survive
+for 10+ minutes on my PC (Let me send out what I'm done and
+I will dig it more deeply...)
 
-I have been testing with this tools for hours, it seems strong
-against corrupted images without compression.
+All the fixes are trivial.
 
-I'm now struggling with corrupted images with compression,
-hopefully most of them can be fixed trivially... I will send
-the bunch of fixes later... Let me dig into it more...
-
-Thanks for your reply :-)
+Note that those have dependency on EFSCORRUPTED, so for-next
+is needed and I will manually backport them by hand due to
+many cleanup patches...
 
 Thanks,
 Gao Xiang
 
-> 
-> Thanks,
-> //richard
+Gao Xiang (6):
+  staging: erofs: some compressed cluster should be submitted for
+    corrupted images
+  staging: erofs: cannot set EROFS_V_Z_INITED_BIT if fill_inode_lazy
+    fails
+  staging: erofs: add two missing erofs_workgroup_put for corrupted
+    images
+  staging: erofs: avoid loop in submit chains
+  staging: erofs: detect potential multiref due to corrupted images
+  staging: erofs: avoid endless loop of invalid lookback distance 0
+
+ drivers/staging/erofs/zdata.c | 46 ++++++++++++++++++++++++++---------
+ drivers/staging/erofs/zmap.c  |  9 +++++--
+ 2 files changed, 42 insertions(+), 13 deletions(-)
+
+-- 
+2.17.1
