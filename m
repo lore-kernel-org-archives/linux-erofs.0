@@ -1,57 +1,57 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 19 Aug 2019 18:34:21 +0800
-Subject: [PATCH 1/6] staging: erofs: some compressed cluster should be
- submitted for corrupted images
+Date: Mon, 19 Aug 2019 18:34:25 +0800
+Subject: [PATCH 5/6] staging: erofs: detect potential multiref due to
+ corrupted images
 In-Reply-To: <20190819103426.87579-1-gaoxiang25@huawei.com>
 References: <20190819080218.GA42231@138>
  <20190819103426.87579-1-gaoxiang25@huawei.com>
-Message-ID: <20190819103426.87579-2-gaoxiang25@huawei.com>
+Message-ID: <20190819103426.87579-6-gaoxiang25@huawei.com>
 
-As reported by erofs_utils fuzzer, a logical page can belong
-to at most 2 compressed clusters, if one compressed cluster
-is corrupted, but the other has been ready in submitting chain.
-
-The chain needs to submit anyway in order to keep the page
-working properly (page unlocked with PG_error set, PG_uptodate
-not set).
-
-Let's fix it now.
+As reported by erofs-utils fuzzer, currently, multiref
+(ondisk deduplication) hasn't been supported for now,
+we should forbid it properly.
 
 Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable at vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/zdata.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/staging/erofs/zdata.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
-index 2d7aaf98f7de..87b0c96caf8f 100644
+index aae2f2b8353f..5b6fef5181af 100644
 --- a/drivers/staging/erofs/zdata.c
 +++ b/drivers/staging/erofs/zdata.c
-@@ -1307,19 +1307,18 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
- 	err = z_erofs_do_read_page(&f, page, &pagepool);
- 	(void)z_erofs_collector_end(&f.clt);
+@@ -816,8 +816,16 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 			pagenr = z_erofs_onlinepage_index(page);
  
--	if (err) {
-+	/* if some compressed cluster ready, need submit them anyway */
-+	z_erofs_submit_and_unzip(inode->i_sb, &f.clt, &pagepool, true);
-+
-+	if (err)
- 		errln("%s, failed to read, err [%d]", __func__, err);
--		goto out;
--	}
+ 		DBG_BUGON(pagenr >= nr_pages);
+-		DBG_BUGON(pages[pagenr]);
  
--	z_erofs_submit_and_unzip(inode->i_sb, &f.clt, &pagepool, true);
--out:
- 	if (f.map.mpage)
- 		put_page(f.map.mpage);
++		/*
++		 * currently EROFS doesn't support multiref(dedup),
++		 * so here erroring out one multiref page.
++		 */
++		if (unlikely(pages[pagenr])) {
++			DBG_BUGON(1);
++			SetPageError(pages[pagenr]);
++			z_erofs_onlinepage_endio(pages[pagenr]);
++		}
+ 		pages[pagenr] = page;
+ 	}
+ 	z_erofs_pagevec_ctor_exit(&ctor, true);
+@@ -849,7 +857,11 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
+ 			pagenr = z_erofs_onlinepage_index(page);
  
- 	/* clean up the remaining free pages */
- 	put_pages_list(&pagepool);
--	return 0;
-+	return err;
- }
+ 			DBG_BUGON(pagenr >= nr_pages);
+-			DBG_BUGON(pages[pagenr]);
++			if (unlikely(pages[pagenr])) {
++				DBG_BUGON(1);
++				SetPageError(pages[pagenr]);
++				z_erofs_onlinepage_endio(pages[pagenr]);
++			}
+ 			pages[pagenr] = page;
  
- static bool should_decompress_synchronously(struct erofs_sb_info *sbi,
+ 			overlapped = true;
 -- 
 2.17.1
