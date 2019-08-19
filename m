@@ -1,39 +1,49 @@
 From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 19 Aug 2019 18:34:26 +0800
-Subject: [PATCH 6/6] staging: erofs: avoid endless loop of invalid lookback
- distance 0
+Date: Mon, 19 Aug 2019 18:34:23 +0800
+Subject: [PATCH 3/6] staging: erofs: add two missing erofs_workgroup_put for
+ corrupted images
 In-Reply-To: <20190819103426.87579-1-gaoxiang25@huawei.com>
 References: <20190819080218.GA42231@138>
  <20190819103426.87579-1-gaoxiang25@huawei.com>
-Message-ID: <20190819103426.87579-7-gaoxiang25@huawei.com>
+Message-ID: <20190819103426.87579-4-gaoxiang25@huawei.com>
 
-As reported by erofs-utils fuzzer, Lookback distance should
-be a positive number, so it should be actually looked back
-rather than spinning.
+As reported by erofs-utils fuzzer, these error handling
+path will be entered to handle corrupted images.
 
-Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+Lack of erofs_workgroup_puts will cause unmounting
+unsuccessfully.
+
+Fix these return values to EFSCORRUPTED as well.
+
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable at vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 ---
- drivers/staging/erofs/zmap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/staging/erofs/zdata.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
-index 7408e86823a4..774dacbc5b32 100644
---- a/drivers/staging/erofs/zmap.c
-+++ b/drivers/staging/erofs/zmap.c
-@@ -350,6 +350,12 @@ static int vle_extent_lookback(struct z_erofs_maprecorder *m,
+diff --git a/drivers/staging/erofs/zdata.c b/drivers/staging/erofs/zdata.c
+index 87b0c96caf8f..23283c97fd3b 100644
+--- a/drivers/staging/erofs/zdata.c
++++ b/drivers/staging/erofs/zdata.c
+@@ -357,14 +357,16 @@ static struct z_erofs_collection *cllookup(struct z_erofs_collector *clt,
+ 	cl = z_erofs_primarycollection(pcl);
+ 	if (unlikely(cl->pageofs != (map->m_la & ~PAGE_MASK))) {
+ 		DBG_BUGON(1);
+-		return ERR_PTR(-EIO);
++		erofs_workgroup_put(grp);
++		return ERR_PTR(-EFSCORRUPTED);
+ 	}
  
- 	switch (m->type) {
- 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		if (unlikely(!m->delta[0])) {
-+			errln("invalid lookback distance 0 at nid %llu",
-+			      vi->nid);
-+			DBG_BUGON(1);
-+			return -EFSCORRUPTED;
-+		}
- 		return vle_extent_lookback(m, m->delta[0]);
- 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
- 		map->m_flags &= ~EROFS_MAP_ZIPPED;
+ 	length = READ_ONCE(pcl->length);
+ 	if (length & Z_EROFS_PCLUSTER_FULL_LENGTH) {
+ 		if ((map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) > length) {
+ 			DBG_BUGON(1);
+-			return ERR_PTR(-EIO);
++			erofs_workgroup_put(grp);
++			return ERR_PTR(-EFSCORRUPTED);
+ 		}
+ 	} else {
+ 		unsigned int llen = map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT;
 -- 
 2.17.1
