@@ -2,77 +2,86 @@ Return-Path: <SRS0=1ttv=WP=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-7.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5F30C3A5A0
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 18:05:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5453AC3A5A0
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:31:31 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 375BC22CEC
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 18:05:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C9A8D22CE8
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:31:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="LKdfuDcj"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 375BC22CEC
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="FtZmMNz/";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="UqwoNxkO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9A8D22CE8
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46C1zs6gYlzDql6
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2019 04:05:13 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46C5Dc1v3pzDqq0
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2019 06:31:28 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1566246688;
+	bh=+cVoABpR5hFBvQvF8hzpc0MFDebEeIR/bPtPCIYKqn8=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=FtZmMNz/lpc+Tt7ri84YHM9Um8FwQKzdV/djUI7tDEoKz3y6TTE6PpzmQQOAmPvQ7
+	 YOK0isS2sKGRPfveuhNZCfDkXeTCs7nt0IkW0HkCWlkxTJPhWx3vkJQWnOTFFFR5cT
+	 mkSa3MirjfHL29vUWwmysqRWXWw2lA/+sx77qFM6W6f78AFkGFwcw1dEhU3g1onu+b
+	 jObKpJ4wQ5ubQhBtDVwmaBVOwAnCQMP350aNP1EHd1oj3npwX7VOjBtf5N7YhPonLi
+	 tcFZSE8ux8dBLeLVYi4sf3mLu5X9M8PJpN64qgiSA84tKTVOeyR3kQnuibbl4+6haA
+	 m5xyhhEarpjqA==
 Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=oracle.com
- (client-ip=156.151.31.85; helo=userp2120.oracle.com;
- envelope-from=darrick.wong@oracle.com; receiver=<UNKNOWN>)
+ spf=pass (mailfrom) smtp.mailfrom=aol.com
+ (client-ip=77.238.177.83; helo=sonic305-21.consmr.mail.ir2.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=oracle.com
+ dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=oracle.com header.i=@oracle.com header.b="LKdfuDcj"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="UqwoNxkO"; 
  dkim-atps=neutral
-Received: from userp2120.oracle.com (userp2120.oracle.com [156.151.31.85])
+Received: from sonic305-21.consmr.mail.ir2.yahoo.com
+ (sonic305-21.consmr.mail.ir2.yahoo.com [77.238.177.83])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46C1zc0PhszDqjn
- for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 04:04:58 +1000 (AEST)
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
- by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7JFs3J0043290;
- Mon, 19 Aug 2019 16:09:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2019-08-05;
- bh=wZAw030seHNsiobo5U0y5hdAg32jPbFeE4iuKMm+0QA=;
- b=LKdfuDcj/W4wMETP7J1Y0rdWcZ5osdEFr0SvyPcUshlsUTVJQMSgLyh4PDuMebe8b/hb
- Rz/Sye9S+zl/CO5MB8uhwvDxea4YMTQIr9wOjLRQR7wy2zxlHleInHSMKUIpLgQKFd/5
- q/Rk99foX298mLY4Ey5leO34nL24flZEpHiiOuldre5KwYPCkkPAWEFKzaJCfpFE3qHu
- nQJcy8AYVhC2MNQvAfLafpFSWxeYVYkG2L/zK7ed/axNl7lqlnuPU8yPTSVPmSIwA7na
- SNyD1qnXIY91LOf6sp3zHjpxO65iAQwzOOfVEVGmf2h7RcF/zuoKZWDtm5miZhbFBh6Q Qg== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
- by userp2120.oracle.com with ESMTP id 2uea7qgehj-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 19 Aug 2019 16:09:39 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
- by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7JFs5GQ147353;
- Mon, 19 Aug 2019 16:09:38 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
- by aserp3020.oracle.com with ESMTP id 2uejxeaxqy-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 19 Aug 2019 16:09:38 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
- by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x7JG9PHY013098;
- Mon, 19 Aug 2019 16:09:25 GMT
-Received: from localhost (/67.169.218.210)
- by default (Oracle Beehive Gateway v4.0)
- with ESMTP ; Mon, 19 Aug 2019 09:09:25 -0700
-Date: Mon, 19 Aug 2019 09:09:23 -0700
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
-To: Gao Xiang <hsiangkao@aol.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46C5DS3sJqzDqp7
+ for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 06:31:16 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1566246671; bh=njtX/1gQOuZJ8x+D/bPD6qmpv4bUeLjYu756qxFnLJg=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+ b=UqwoNxkOLsELf2H+0ricyNKFddngxwjkdxfdbFNGbRuaBKUhtU04Lc7m3P45n/w5Pu6PAqSzHrEcgd/vyB1ePEy27/islvx9c/+V+iIqAcFXR9gV3+LCE2FFiFMLLUT4H+DhnX+8ygpTEsAphpgR/v3bc6xuAh6PU1/VhHTzSl+p3EZwkxNsRu6WaNAjrI8VrPG5zDEIDUS7k0u815ynhHw4Bg5f9jwUMXbV9z6YdMS6SHEXe+C5R3u3vxUJoN4JZJN1yFXz3pKRlkBPHb8dZB2dwQ3qWtSxmIqpk2kQJ4gDxGGCRfFvQb3oqyMUO0dHPMAgzjZwPw5pGCKu9xKKNg==
+X-YMail-OSG: ANSjFK4VM1nyU8pv7pcMdikj6jet_fSvLaDibf3PqVjzfWUTgu80tFsuoGSQxud
+ M7oqnioTcbti4MlGoRnmFwdwqKTWkKvv36NBe0Ltm.diWfGY8d4PLmAwnDjsEJAol3SYYq.UqIX2
+ i5NMSzHpUbvvLzgeqtoTe7EKwGOgQANvUAyaY.e.0t3jDCCeVT9LsdZjHi9Ln27DpI7twvVSK8Pz
+ r.PZz9WHqAmf5q8Pge2i1o8Egl2ozVTWUnZ9vDpYDVIlozVQFOqI5WMq1Cvw_M96uw7sUJYPbIRo
+ OMXJWeXQkwg6c2nevLBHqufLfJFZD2cfMfuHXzRmBcILnEPAl3E3bK79Irt_bnmCxtzoFegVE9Fu
+ 8XeHtM0S9oGc9j4LfqqZMRQ5S0OSy9.Hz.Ye8FC54EN3SzAezHeJmPtC._G.pHYqZk1Y1qEq_n56
+ Z6Pt_ynvgdHfC846VBnp70zvAtrzXbMG8eAoQPqlfW3SRlmY4HvxoiCe2XRpoKp2AmX5wH5q0CgZ
+ xuaI3UOQRgrxCEaYKPbSIzehnbwSKfLM9a27_BkFbfYxaWKJSHhpGK6NCA0g8fsxq6GtIX4QmrLm
+ tMto4JS.u37PT7yQvi6kuL3WEima.VcqYF0HNXf6x7LYBGyCRsUVGsv3LQ0XVErwsxWBFyas1W4i
+ uWvc2vjhtcAz3Fp3Z_AwGGg9Lxg6tzxmpHQa05qeOOEsH21wBvhegIRHal3RW.IKtQTsUwqcBfE5
+ 99H7QZBN6Agi6wXqw4jhRsRq6gJOGyTX8Nxwn6Jsh1tFKULnaduAW4Y1W5d8fAfjWoKtVNbPyvdV
+ GE55bNHnGVJyEB1_IuRJHmFEFX8xrP4k4YcgvqKfnGp31Fvsb5xvWP8cOauVovDQMRXfGG6uzys2
+ xS8B.RJ61Zx0WGo_aWYYKzK5WO1UC9_PTfYuXeP31yfA1MZoI_YeWqe60yRnzbQvb6OtNaGoBpaB
+ rfHmvJgzKhiu8hP5xxTxSI9cRkWE.cmSOR50.zWw_YzwJf1ybPohs6_.lDP9ecKqzt.k1kMU1uSB
+ 2o3uFDYVEoVbYoSGam3N5Y9OH7.DTfOsXlP9CyxqcJvf2U3D8YUD8xtQWbsoAqc62WZeHPtrGcxK
+ KdLuCS0A4sXTMGlTphsOuIuCs_JoWRVbMVl8zt7K0YbHOWUnt2ioP4z3qXXuZFzHoGMpKjvMJc_c
+ 9LMtARbJuRBdx9h_EHxkR8yNetLrCiA1eFFNg.tykfGyZYUGf1_pa6mBdkZjmOMJfrO7Bn2IXUKP
+ 0XacAltv0_hVPfsYeu3TkqngJxpWE
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic305.consmr.mail.ir2.yahoo.com with HTTP; Mon, 19 Aug 2019 20:31:11 +0000
+Received: by smtp421.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 08b49598277d5feef885e8f543c497a0; 
+ Mon, 19 Aug 2019 20:31:07 +0000 (UTC)
+Date: Tue, 20 Aug 2019 04:30:56 +0800
+To: "Darrick J. Wong" <darrick.wong@oracle.com>
 Subject: Re: [PATCH] erofs: move erofs out of staging
-Message-ID: <20190819160923.GG15198@magnolia>
-References: <20190818090949.GA30276@kroah.com>
- <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
+Message-ID: <20190819203051.GA10075@hsiangkao-HP-ZHAN-66-Pro-G1>
+References: <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
  <20190818151154.GA32157@mit.edu>
  <20190818155812.GB13230@infradead.org>
  <20190818161638.GE1118@sol.localdomain>
@@ -81,26 +90,12 @@ References: <20190818090949.GA30276@kroah.com>
  <20190818174702.GA17633@infradead.org>
  <20190818181654.GA1617@hsiangkao-HP-ZHAN-66-Pro-G1>
  <20190818201405.GA27398@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <20190819160923.GG15198@magnolia>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190818201405.GA27398@hsiangkao-HP-ZHAN-66-Pro-G1>
+In-Reply-To: <20190819160923.GG15198@magnolia>
 User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9354
- signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1906280000 definitions=main-1908190172
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9354
- signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0
- priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1906280000
- definitions=main-1908190172
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -112,6 +107,8 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
 Cc: Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@infradead.org>,
  Amir Goldstein <amir73il@gmail.com>, Dave Chinner <david@fromorbit.com>,
  linux-kernel <linux-kernel@vger.kernel.org>, Miao Xie <miaoxie@huawei.com>,
@@ -128,84 +125,109 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Aug 19, 2019 at 04:14:11AM +0800, Gao Xiang wrote:
-> Hi all,
-> 
-> On Mon, Aug 19, 2019 at 02:16:55AM +0800, Gao Xiang wrote:
-> > Hi Hch,
-> > 
-> > On Sun, Aug 18, 2019 at 10:47:02AM -0700, Christoph Hellwig wrote:
-> > > On Sun, Aug 18, 2019 at 10:29:38AM -0700, Eric Biggers wrote:
-> > > > Not sure what you're even disagreeing with, as I *do* expect new filesystems to
-> > > > be held to a high standard, and to be written with the assumption that the
-> > > > on-disk data may be corrupted or malicious.  We just can't expect the bar to be
-> > > > so high (e.g. no bugs) that it's never been attained by *any* filesystem even
-> > > > after years/decades of active development.  If the developers were careful, the
-> > > > code generally looks robust, and they are willing to address such bugs as they
-> > > > are found, realistically that's as good as we can expect to get...
-> > >
-> > > Well, the impression I got from Richards quick look and the reply to it is
-> > > that there is very little attempt to validate the ondisk data structure
-> > > and there is absolutely no priority to do so.  Which is very different
-> > > from there is a bug or two here and there.
-> > 
-> > As my second reply to Richard, I didn't fuzz all the on-disk fields for EROFS.
-> > and as my reply to Richard / Greg, current EROFS is used on the top of dm-verity.
-> > 
-> > I cannot say how well EROFS will be performed on malformed images (and you can
-> > also find the bug richard pointed out is a miswritten break->continue by myself).
-> > 
-> > I posted the upstream EROFS post on July 4, 2019 and a month and a half later,
-> > no one can tell me (yes, thanks for kind people reply me about their suggestion)
-> > what we should do next (you can see these emails, I sent many times) to meet
-> > the minimal upstream requirements and rare people can even dip into my code.
-> > 
-> > That is all I want to say. I will work on autofuzz these days, and I want to
-> > know how to meet your requirements on this (you can tell us your standard,
-> > how well should we do).
-> > 
-> > OK, you don't reply to my post once, I have no idea how to get your first reply.
-> 
-> I have made a simple fuzzer to inject messy in inode metadata,
-> dir data, compressed indexes and super block,
-> https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-fuzzer
-> 
-> I am testing with some given dirs and the following script.
-> Does it look reasonable?
-> 
-> # !/bin/bash
-> 
-> mkdir -p mntdir
-> 
-> for ((i=0; i<1000; ++i)); do
-> 	mkfs/mkfs.erofs -F$i testdir_fsl.fuzz.img testdir_fsl > /dev/null 2>&1
+Hi Darrick,
 
-mkfs fuzzes the image? Er....
-
-Over in XFS land we have an xfs debugging tool (xfs_db) that knows how
-to dump (and write!) most every field of every metadata type.  This
-makes it fairly easy to write systematic level 0 fuzzing tests that
-check how well the filesystem reacts to garbage data (zeroing,
-randomizing, oneing, adding and subtracting small integers) in a field.
-(It also knows how to trash entire blocks.)
-
-You might want to write such a debugging tool for erofs so that you can
-take apart crashed images to get a better idea of what went wrong, and
-to write easy fuzzing tests.
-
---D
-
-> 	umount mntdir
-> 	mount -t erofs -o loop testdir_fsl.fuzz.img mntdir
-> 	for j in `find mntdir -type f`; do
-> 		md5sum $j > /dev/null
-> 	done
-> done
+On Mon, Aug 19, 2019 at 09:09:23AM -0700, Darrick J. Wong wrote:
+> On Mon, Aug 19, 2019 at 04:14:11AM +0800, Gao Xiang wrote:
+> > Hi all,
+> > 
+> > On Mon, Aug 19, 2019 at 02:16:55AM +0800, Gao Xiang wrote:
+> > > Hi Hch,
+> > > 
+> > > On Sun, Aug 18, 2019 at 10:47:02AM -0700, Christoph Hellwig wrote:
+> > > > On Sun, Aug 18, 2019 at 10:29:38AM -0700, Eric Biggers wrote:
+> > > > > Not sure what you're even disagreeing with, as I *do* expect new filesystems to
+> > > > > be held to a high standard, and to be written with the assumption that the
+> > > > > on-disk data may be corrupted or malicious.  We just can't expect the bar to be
+> > > > > so high (e.g. no bugs) that it's never been attained by *any* filesystem even
+> > > > > after years/decades of active development.  If the developers were careful, the
+> > > > > code generally looks robust, and they are willing to address such bugs as they
+> > > > > are found, realistically that's as good as we can expect to get...
+> > > >
+> > > > Well, the impression I got from Richards quick look and the reply to it is
+> > > > that there is very little attempt to validate the ondisk data structure
+> > > > and there is absolutely no priority to do so.  Which is very different
+> > > > from there is a bug or two here and there.
+> > > 
+> > > As my second reply to Richard, I didn't fuzz all the on-disk fields for EROFS.
+> > > and as my reply to Richard / Greg, current EROFS is used on the top of dm-verity.
+> > > 
+> > > I cannot say how well EROFS will be performed on malformed images (and you can
+> > > also find the bug richard pointed out is a miswritten break->continue by myself).
+> > > 
+> > > I posted the upstream EROFS post on July 4, 2019 and a month and a half later,
+> > > no one can tell me (yes, thanks for kind people reply me about their suggestion)
+> > > what we should do next (you can see these emails, I sent many times) to meet
+> > > the minimal upstream requirements and rare people can even dip into my code.
+> > > 
+> > > That is all I want to say. I will work on autofuzz these days, and I want to
+> > > know how to meet your requirements on this (you can tell us your standard,
+> > > how well should we do).
+> > > 
+> > > OK, you don't reply to my post once, I have no idea how to get your first reply.
+> > 
+> > I have made a simple fuzzer to inject messy in inode metadata,
+> > dir data, compressed indexes and super block,
+> > https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-fuzzer
+> > 
+> > I am testing with some given dirs and the following script.
+> > Does it look reasonable?
+> > 
+> > # !/bin/bash
+> > 
+> > mkdir -p mntdir
+> > 
+> > for ((i=0; i<1000; ++i)); do
+> > 	mkfs/mkfs.erofs -F$i testdir_fsl.fuzz.img testdir_fsl > /dev/null 2>&1
 > 
-> Thanks,
-> Gao Xiang
+> mkfs fuzzes the image? Er....
+
+Thanks for your reply.
+
+First, This is just the first step of erofs fuzzer I wrote yesterday night...
+
 > 
+> Over in XFS land we have an xfs debugging tool (xfs_db) that knows how
+> to dump (and write!) most every field of every metadata type.  This
+> makes it fairly easy to write systematic level 0 fuzzing tests that
+> check how well the filesystem reacts to garbage data (zeroing,
+> randomizing, oneing, adding and subtracting small integers) in a field.
+> (It also knows how to trash entire blocks.)
+
+Actually, compared with XFS, EROFS has rather simple on-disk format.
+What we inject one time is quite deterministic.
+
+The first step just purposely writes some random fuzzed data to
+the base inode metadata, compressed indexes, or dir data field
+(one round one field) to make it validity and coverability.
+
+> 
+> You might want to write such a debugging tool for erofs so that you can
+> take apart crashed images to get a better idea of what went wrong, and
+> to write easy fuzzing tests.
+
+Yes, we will do such a debugging tool of course. Actually Li Guifu is now
+developping a erofs-fuse to support old linux versions or other OSes for
+archiveing only use, we will base on that code to develop a better fuzzer
+tool as well.
+
+Thanks,
+Gao Xiang
+
+> 
+> --D
+> 
+> > 	umount mntdir
+> > 	mount -t erofs -o loop testdir_fsl.fuzz.img mntdir
+> > 	for j in `find mntdir -type f`; do
+> > 		md5sum $j > /dev/null
+> > 	done
+> > done
 > > 
 > > Thanks,
 > > Gao Xiang
 > > 
+> > > 
+> > > Thanks,
+> > > Gao Xiang
+> > > 
