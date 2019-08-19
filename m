@@ -2,99 +2,89 @@ Return-Path: <SRS0=1ttv=WP=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5453AC3A5A0
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 056F1C3A5A0
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:45:42 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C9A8D22CE8
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:31:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 788182087E
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Aug 2019 20:45:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="FtZmMNz/";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="UqwoNxkO"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9A8D22CE8
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="ArzLUujz";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="iMv/2qUZ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 788182087E
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46C5Dc1v3pzDqq0
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2019 06:31:28 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46C5Xz1W79zDqXS
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2019 06:45:39 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1566246688;
-	bh=+cVoABpR5hFBvQvF8hzpc0MFDebEeIR/bPtPCIYKqn8=;
+	s=201707; t=1566247539;
+	bh=MZGZIE2qcM48nQg8Do/w8LvOPil+WmCb3kE94fja31M=;
 	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=FtZmMNz/lpc+Tt7ri84YHM9Um8FwQKzdV/djUI7tDEoKz3y6TTE6PpzmQQOAmPvQ7
-	 YOK0isS2sKGRPfveuhNZCfDkXeTCs7nt0IkW0HkCWlkxTJPhWx3vkJQWnOTFFFR5cT
-	 mkSa3MirjfHL29vUWwmysqRWXWw2lA/+sx77qFM6W6f78AFkGFwcw1dEhU3g1onu+b
-	 jObKpJ4wQ5ubQhBtDVwmaBVOwAnCQMP350aNP1EHd1oj3npwX7VOjBtf5N7YhPonLi
-	 tcFZSE8ux8dBLeLVYi4sf3mLu5X9M8PJpN64qgiSA84tKTVOeyR3kQnuibbl4+6haA
-	 m5xyhhEarpjqA==
+	b=ArzLUujzlNykDC8IAU5ikq2g6TntvgBozKGCm/nxUnzBaxw7DvZYsuqUwh36YUDlI
+	 DikbO5CNZOLbDS5/w0IZry99Iak0wjy2yo8LsjrWMdJrQrqePb7lgkMtvXvVhOqg73
+	 dFa6tX46I8K85/Wj6jRyyjywvFRiAsJyANIWQqtYgZtJ16kyKOEAvSWXBrMmiEwGRo
+	 m2/mzOFWlvK+7uUR26hbcRgX+BwjWGZYvKt9rS82UPdG4iTEuHo8NZvvFqxttna9Ey
+	 GXKRsfz9lZn/umP4pVUX6YPLltZlyWVnkk5TkDWLNOrKiMp+CegJEhEQ6dW4yfF7Ih
+	 OLV8RlsQus+Ew==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=aol.com
- (client-ip=77.238.177.83; helo=sonic305-21.consmr.mail.ir2.yahoo.com;
+ (client-ip=98.137.69.147; helo=sonic310-21.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="UqwoNxkO"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="iMv/2qUZ"; 
  dkim-atps=neutral
-Received: from sonic305-21.consmr.mail.ir2.yahoo.com
- (sonic305-21.consmr.mail.ir2.yahoo.com [77.238.177.83])
+Received: from sonic310-21.consmr.mail.gq1.yahoo.com
+ (sonic310-21.consmr.mail.gq1.yahoo.com [98.137.69.147])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46C5DS3sJqzDqp7
- for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 06:31:16 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46C5Xf5jh2zDqXS
+ for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 06:45:20 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1566246671; bh=njtX/1gQOuZJ8x+D/bPD6qmpv4bUeLjYu756qxFnLJg=;
+ t=1566247513; bh=/FjyeBf66fBZlR8Gaqo2Oupc6SxE7IKBQvqIGSvJQNw=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=UqwoNxkOLsELf2H+0ricyNKFddngxwjkdxfdbFNGbRuaBKUhtU04Lc7m3P45n/w5Pu6PAqSzHrEcgd/vyB1ePEy27/islvx9c/+V+iIqAcFXR9gV3+LCE2FFiFMLLUT4H+DhnX+8ygpTEsAphpgR/v3bc6xuAh6PU1/VhHTzSl+p3EZwkxNsRu6WaNAjrI8VrPG5zDEIDUS7k0u815ynhHw4Bg5f9jwUMXbV9z6YdMS6SHEXe+C5R3u3vxUJoN4JZJN1yFXz3pKRlkBPHb8dZB2dwQ3qWtSxmIqpk2kQJ4gDxGGCRfFvQb3oqyMUO0dHPMAgzjZwPw5pGCKu9xKKNg==
-X-YMail-OSG: ANSjFK4VM1nyU8pv7pcMdikj6jet_fSvLaDibf3PqVjzfWUTgu80tFsuoGSQxud
- M7oqnioTcbti4MlGoRnmFwdwqKTWkKvv36NBe0Ltm.diWfGY8d4PLmAwnDjsEJAol3SYYq.UqIX2
- i5NMSzHpUbvvLzgeqtoTe7EKwGOgQANvUAyaY.e.0t3jDCCeVT9LsdZjHi9Ln27DpI7twvVSK8Pz
- r.PZz9WHqAmf5q8Pge2i1o8Egl2ozVTWUnZ9vDpYDVIlozVQFOqI5WMq1Cvw_M96uw7sUJYPbIRo
- OMXJWeXQkwg6c2nevLBHqufLfJFZD2cfMfuHXzRmBcILnEPAl3E3bK79Irt_bnmCxtzoFegVE9Fu
- 8XeHtM0S9oGc9j4LfqqZMRQ5S0OSy9.Hz.Ye8FC54EN3SzAezHeJmPtC._G.pHYqZk1Y1qEq_n56
- Z6Pt_ynvgdHfC846VBnp70zvAtrzXbMG8eAoQPqlfW3SRlmY4HvxoiCe2XRpoKp2AmX5wH5q0CgZ
- xuaI3UOQRgrxCEaYKPbSIzehnbwSKfLM9a27_BkFbfYxaWKJSHhpGK6NCA0g8fsxq6GtIX4QmrLm
- tMto4JS.u37PT7yQvi6kuL3WEima.VcqYF0HNXf6x7LYBGyCRsUVGsv3LQ0XVErwsxWBFyas1W4i
- uWvc2vjhtcAz3Fp3Z_AwGGg9Lxg6tzxmpHQa05qeOOEsH21wBvhegIRHal3RW.IKtQTsUwqcBfE5
- 99H7QZBN6Agi6wXqw4jhRsRq6gJOGyTX8Nxwn6Jsh1tFKULnaduAW4Y1W5d8fAfjWoKtVNbPyvdV
- GE55bNHnGVJyEB1_IuRJHmFEFX8xrP4k4YcgvqKfnGp31Fvsb5xvWP8cOauVovDQMRXfGG6uzys2
- xS8B.RJ61Zx0WGo_aWYYKzK5WO1UC9_PTfYuXeP31yfA1MZoI_YeWqe60yRnzbQvb6OtNaGoBpaB
- rfHmvJgzKhiu8hP5xxTxSI9cRkWE.cmSOR50.zWw_YzwJf1ybPohs6_.lDP9ecKqzt.k1kMU1uSB
- 2o3uFDYVEoVbYoSGam3N5Y9OH7.DTfOsXlP9CyxqcJvf2U3D8YUD8xtQWbsoAqc62WZeHPtrGcxK
- KdLuCS0A4sXTMGlTphsOuIuCs_JoWRVbMVl8zt7K0YbHOWUnt2ioP4z3qXXuZFzHoGMpKjvMJc_c
- 9LMtARbJuRBdx9h_EHxkR8yNetLrCiA1eFFNg.tykfGyZYUGf1_pa6mBdkZjmOMJfrO7Bn2IXUKP
- 0XacAltv0_hVPfsYeu3TkqngJxpWE
+ b=iMv/2qUZXCZBDhq8bD3TkgK5G7xiq8jYuD4xJuM0CVldIsTESdO23NRqKZ6P8QwQJ/hTXgML5tcdekiTJrVRuIV1LwbbfTkLFGSh76d+LzZALNd/sjyVcpKUoNCJPawsypqvvaViwP5HlC8Eo9BDyJkT5ZTUUoaklkgzh0qUtzT3b1aIVqEYIJF98Nm8MoSjLm6bLaekitNhRqdw/p1rHLCna6pYKVqLs6k3/s1Z/+PA6lO+uWbASymxyYEvAcn5usVrAd683oh8AtFsZxJGcPLbqOgT7B9b6dsVflHUvJxB3gE4AGbDourmwHzgvPiIiqH8ATi7chRSUwibkvNgvA==
+X-YMail-OSG: tqQ4ci4VM1n4wfQKEzqsIBEQfIquIcCUir4PEXZ3SDMJZCBPhJtiyrs1uRQx67t
+ p4PjzGg4sYUNobwg5ner2opFh1xd0plGWLbRz6Qq6Qv0LilmB4863tOx1kXM5FnwnQssP6ANKwNS
+ bfZQJW05._jlPalhRvnNYk3QYgEoxSeCV5zaAVO5hnMP0KhAHpYEr8gev9w4Lxs92dFXFp.ePcEW
+ KHrR3MAIxp.EJC2LsyWF7PgiLEmcOYssgsON_pBFUQU8DuYBpG5QbjuBILOoMiJ3n2it6BwwqsEy
+ v5_iuyD1GUpQLhH9k_dBGh4K7ZHPcsk0TeaRLpt46.4RA6VzLJIaQtrqwXC3ZapZ3K06Au7bILsB
+ nD3eqmb5YOhkf3O51nZHPG_ByYXSOp4cKpkag9EflPAaqXDj5m8TLs03qd0PzfqrKE9INxAMG9Vg
+ lEa0Jz.3g55seeIMxiAhfZzsGCa83ssFbPcIRl7qF4wkQrDzjYoBNxZzKuZ2FR95qN0RqsjprlsC
+ BvyGErjN.jJGKZ2zteWT0tNV0Dm1FaLFLve7XaJNsTOfx4RV4flbq4l1Ddu_K5pTCLKDmgSfkR_m
+ 0ZDLrgw.Y58lyH5VPwOfd7a4GkS3TZITQkF2gVN1n1if5s8fjMa2y4Fr3gpBAjRnCobXLNJ5pnZh
+ PIjqluAKUdxOdxcu2rh2BN3jWejala18QxQoQ59C0PHTX7GfH9hGEqtYAkpF9fKKt.QaeoAdF_Z5
+ aKC_RlWxtggq__y2.7_3YztAGMAmGupB9stVmfL.FBr5ri6HBBy7jYg92wJDNj3hPTJG14LkGpDH
+ HwKWzYbBXj9YpARUsbrpxoDYagTk0LCoLMvXJxqSxIl6KrSzRZa4WTAGCWq4K.E9osQgFqP.Fvdm
+ HYbwPbZQDvCyykJN4EGyL6CsBuZnoif0SBJbxu4cHSa1lFM0OxvuqXzs9iSFIrOtDacTskJiO126
+ KoXZZKCjH2AW3Vqwm7vUoVDAx.YMJcQCFO8zrJUCrW3NbiS4M7lRXCk1eDVtOgMO2lprg_GkE0T9
+ kKzMwNgS0R0E818h_gvx60LaCRyiFnmJKWCC.iRA0FHbveGLL02xNsNToezK_1OrN9jUPg3TtqfH
+ IjBW_m.B9_FFE8NKAXNffEWHkbd2hb9FPPQOJhcrCJEmz0YyQ1WP6_vN7VXC97laT9lYGlL2QiQM
+ hfJKsli7.MTTYQ76DEs2VRhRQpRbOJjKgE9r7axRCOb7pV19B3m0s4pRSk21gJB.PP8dh4_AfQh1
+ 6I9QYgXkTO71tlERe.dY4bg--
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic305.consmr.mail.ir2.yahoo.com with HTTP; Mon, 19 Aug 2019 20:31:11 +0000
-Received: by smtp421.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 08b49598277d5feef885e8f543c497a0; 
- Mon, 19 Aug 2019 20:31:07 +0000 (UTC)
-Date: Tue, 20 Aug 2019 04:30:56 +0800
-To: "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH] erofs: move erofs out of staging
-Message-ID: <20190819203051.GA10075@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <790210571.69061.1566120073465.JavaMail.zimbra@nod.at>
- <20190818151154.GA32157@mit.edu>
- <20190818155812.GB13230@infradead.org>
- <20190818161638.GE1118@sol.localdomain>
- <20190818162201.GA16269@infradead.org>
- <20190818172938.GA14413@sol.localdomain>
- <20190818174702.GA17633@infradead.org>
- <20190818181654.GA1617@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190818201405.GA27398@hsiangkao-HP-ZHAN-66-Pro-G1>
- <20190819160923.GG15198@magnolia>
+ sonic310.consmr.mail.gq1.yahoo.com with HTTP; Mon, 19 Aug 2019 20:45:13 +0000
+Received: by smtp424.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID d4e306b9ca70839f217535bade4a91d7; 
+ Mon, 19 Aug 2019 20:45:12 +0000 (UTC)
+Date: Tue, 20 Aug 2019 04:45:08 +0800
+To: Richard Weinberger <richard@nod.at>
+Subject: Re: erofs: Question on unused fields in on-disk structs
+Message-ID: <20190819204504.GB10075@hsiangkao-HP-ZHAN-66-Pro-G1>
+References: <1323459733.69859.1566234633793.JavaMail.zimbra@nod.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190819160923.GG15198@magnolia>
+In-Reply-To: <1323459733.69859.1566234633793.JavaMail.zimbra@nod.at>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -109,125 +99,50 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
 Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@infradead.org>,
- Amir Goldstein <amir73il@gmail.com>, Dave Chinner <david@fromorbit.com>,
- linux-kernel <linux-kernel@vger.kernel.org>, Miao Xie <miaoxie@huawei.com>,
- devel <devel@driverdev.osuosl.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
- Richard Weinberger <richard@nod.at>, Eric Biggers <ebiggers@kernel.org>,
- torvalds <torvalds@linux-foundation.org>, Al Viro <viro@zeniv.linux.org.uk>,
- Jaegeuk Kim <jaegeuk@kernel.org>, "Theodore Y. Ts'o" <tytso@mit.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- David Sterba <dsterba@suse.cz>, Pavel Machek <pavel@denx.de>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- linux-erofs <linux-erofs@lists.ozlabs.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-kernel <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Darrick,
+Hi Richard,
 
-On Mon, Aug 19, 2019 at 09:09:23AM -0700, Darrick J. Wong wrote:
-> On Mon, Aug 19, 2019 at 04:14:11AM +0800, Gao Xiang wrote:
-> > Hi all,
-> > 
-> > On Mon, Aug 19, 2019 at 02:16:55AM +0800, Gao Xiang wrote:
-> > > Hi Hch,
-> > > 
-> > > On Sun, Aug 18, 2019 at 10:47:02AM -0700, Christoph Hellwig wrote:
-> > > > On Sun, Aug 18, 2019 at 10:29:38AM -0700, Eric Biggers wrote:
-> > > > > Not sure what you're even disagreeing with, as I *do* expect new filesystems to
-> > > > > be held to a high standard, and to be written with the assumption that the
-> > > > > on-disk data may be corrupted or malicious.  We just can't expect the bar to be
-> > > > > so high (e.g. no bugs) that it's never been attained by *any* filesystem even
-> > > > > after years/decades of active development.  If the developers were careful, the
-> > > > > code generally looks robust, and they are willing to address such bugs as they
-> > > > > are found, realistically that's as good as we can expect to get...
-> > > >
-> > > > Well, the impression I got from Richards quick look and the reply to it is
-> > > > that there is very little attempt to validate the ondisk data structure
-> > > > and there is absolutely no priority to do so.  Which is very different
-> > > > from there is a bug or two here and there.
-> > > 
-> > > As my second reply to Richard, I didn't fuzz all the on-disk fields for EROFS.
-> > > and as my reply to Richard / Greg, current EROFS is used on the top of dm-verity.
-> > > 
-> > > I cannot say how well EROFS will be performed on malformed images (and you can
-> > > also find the bug richard pointed out is a miswritten break->continue by myself).
-> > > 
-> > > I posted the upstream EROFS post on July 4, 2019 and a month and a half later,
-> > > no one can tell me (yes, thanks for kind people reply me about their suggestion)
-> > > what we should do next (you can see these emails, I sent many times) to meet
-> > > the minimal upstream requirements and rare people can even dip into my code.
-> > > 
-> > > That is all I want to say. I will work on autofuzz these days, and I want to
-> > > know how to meet your requirements on this (you can tell us your standard,
-> > > how well should we do).
-> > > 
-> > > OK, you don't reply to my post once, I have no idea how to get your first reply.
-> > 
-> > I have made a simple fuzzer to inject messy in inode metadata,
-> > dir data, compressed indexes and super block,
-> > https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-fuzzer
-> > 
-> > I am testing with some given dirs and the following script.
-> > Does it look reasonable?
-> > 
-> > # !/bin/bash
-> > 
-> > mkdir -p mntdir
-> > 
-> > for ((i=0; i<1000; ++i)); do
-> > 	mkfs/mkfs.erofs -F$i testdir_fsl.fuzz.img testdir_fsl > /dev/null 2>&1
+On Mon, Aug 19, 2019 at 07:10:33PM +0200, Richard Weinberger wrote:
+> Hi!
 > 
-> mkfs fuzzes the image? Er....
+> struct erofs_super_block has "checksum" and "features" fields,
+> but they are not used in the source.
+> What is the plan for these?
 
-Thanks for your reply.
-
-First, This is just the first step of erofs fuzzer I wrote yesterday night...
+Yes, both will be used laterly (features is used for compatible
+features, we already have some incompatible features in 5.3).
 
 > 
-> Over in XFS land we have an xfs debugging tool (xfs_db) that knows how
-> to dump (and write!) most every field of every metadata type.  This
-> makes it fairly easy to write systematic level 0 fuzzing tests that
-> check how well the filesystem reacts to garbage data (zeroing,
-> randomizing, oneing, adding and subtracting small integers) in a field.
-> (It also knows how to trash entire blocks.)
+> Same for i_checksum in erofs_inode_v1 and erofs_inode_v2.
 
-Actually, compared with XFS, EROFS has rather simple on-disk format.
-What we inject one time is quite deterministic.
+checksum field apart from super_block has been reserved again
+for linux-next. checksum in the super_block still exists and
+will be used sooner.
 
-The first step just purposely writes some random fuzzed data to
-the base inode metadata, compressed indexes, or dir data field
-(one round one field) to make it validity and coverability.
+The reason I discussed with Chao is
+since EROFS is a read-only filesystem, we will develop block-based
+checksum and integrity check to EROFS in the future version. It's
+more effectively than adding such fields to all metadata (some metadata
+is too large, we cannot calculate a checksum for the whole metadata
+and compare at runtime, but we can do block-based metadata chksum
+since EROFS is a read-only fs).
 
 > 
-> You might want to write such a debugging tool for erofs so that you can
-> take apart crashed images to get a better idea of what went wrong, and
-> to write easy fuzzing tests.
+> At least the "features" field in the super block is something I'd
+> expect to be used.
+> ...such that you can have new filesystem features in future.
 
-Yes, we will do such a debugging tool of course. Actually Li Guifu is now
-developping a erofs-fuse to support old linux versions or other OSes for
-archiveing only use, we will base on that code to develop a better fuzzer
-tool as well.
+Of course, "features" is for compatible features, "requirements" is
+for incompatible features. Both will be used in the future.
 
 Thanks,
 Gao Xiang
 
 > 
-> --D
-> 
-> > 	umount mntdir
-> > 	mount -t erofs -o loop testdir_fsl.fuzz.img mntdir
-> > 	for j in `find mntdir -type f`; do
-> > 		md5sum $j > /dev/null
-> > 	done
-> > done
-> > 
-> > Thanks,
-> > Gao Xiang
-> > 
-> > > 
-> > > Thanks,
-> > > Gao Xiang
-> > > 
+> Thanks,
+> //richard
