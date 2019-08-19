@@ -1,41 +1,28 @@
-From: gaoxiang25@huawei.com (Gao Xiang)
-Date: Mon, 19 Aug 2019 18:34:22 +0800
-Subject: [PATCH 2/6] staging: erofs: cannot set EROFS_V_Z_INITED_BIT if
- fill_inode_lazy fails
-In-Reply-To: <20190819103426.87579-1-gaoxiang25@huawei.com>
+From: chao@kernel.org (Chao Yu)
+Date: Mon, 19 Aug 2019 22:36:19 +0800
+Subject: [PATCH 1/6] staging: erofs: some compressed cluster should be
+ submitted for corrupted images
+In-Reply-To: <20190819103426.87579-2-gaoxiang25@huawei.com>
 References: <20190819080218.GA42231@138>
  <20190819103426.87579-1-gaoxiang25@huawei.com>
-Message-ID: <20190819103426.87579-3-gaoxiang25@huawei.com>
+ <20190819103426.87579-2-gaoxiang25@huawei.com>
+Message-ID: <6fd4d968-86f3-71bd-41de-2e2d3b61b1dc@kernel.org>
 
-As reported by erofs-utils fuzzer, unsupported compressed
-clustersize will make fill_inode_lazy fail, for such case
-we cannot set EROFS_V_Z_INITED_BIT since we need return
-failure for each z_erofs_map_blocks_iter().
+On 2019-8-19 18:34, Gao Xiang wrote:
+> As reported by erofs_utils fuzzer, a logical page can belong
+> to at most 2 compressed clusters, if one compressed cluster
+> is corrupted, but the other has been ready in submitting chain.
+> 
+> The chain needs to submit anyway in order to keep the page
+> working properly (page unlocked with PG_error set, PG_uptodate
+> not set).
+> 
+> Let's fix it now.
+> 
+> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+> Cc: <stable at vger.kernel.org> # 4.19+
+> Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
 
-Fixes: 152a333a5895 ("staging: erofs: add compacted compression indexes support")
-Cc: <stable at vger.kernel.org> # 5.3+
-Signed-off-by: Gao Xiang <gaoxiang25 at huawei.com>
----
- drivers/staging/erofs/zmap.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Reviewed-by: Chao Yu <yuchao0 at huawei.com>
 
-diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
-index b61b9b5950ac..7408e86823a4 100644
---- a/drivers/staging/erofs/zmap.c
-+++ b/drivers/staging/erofs/zmap.c
-@@ -85,12 +85,11 @@ static int fill_inode_lazy(struct inode *inode)
- 
- 	vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits +
- 					((h->h_clusterbits >> 5) & 7);
-+	set_bit(EROFS_V_Z_INITED_BIT, &vi->flags);
- unmap_done:
- 	kunmap_atomic(kaddr);
- 	unlock_page(page);
- 	put_page(page);
--
--	set_bit(EROFS_V_Z_INITED_BIT, &vi->flags);
- out_unlock:
- 	clear_and_wake_up_bit(EROFS_V_BL_Z_BIT, &vi->flags);
- 	return err;
--- 
-2.17.1
+Thanks,
