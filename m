@@ -8,77 +8,77 @@ X-Spam-Status: No, score=-9.3 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 662EEC3A589
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 665A1C3A589
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:17 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B33192332B
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C62AE2087E
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k4427tlh"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B33192332B
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MH13mfy/"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C62AE2087E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46CpDr54ljzDqdw
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 10:19:08 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46CpDx5sWHzDrGC
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 10:19:13 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=gmail.com
- (client-ip=2607:f8b0:4864:20::642; helo=mail-pl1-x642.google.com;
+ (client-ip=2607:f8b0:4864:20::542; helo=mail-pg1-x542.google.com;
  envelope-from=caitlynannefinn@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.b="k4427tlh"; 
+ unprotected) header.d=gmail.com header.i=@gmail.com header.b="MH13mfy/"; 
  dkim-atps=neutral
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com
- [IPv6:2607:f8b0:4864:20::642])
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com
+ [IPv6:2607:f8b0:4864:20::542])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46CpDd2mmYzDqdw
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46CpDd2cqVzDqCW
  for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2019 10:18:54 +1000 (AEST)
-Received: by mail-pl1-x642.google.com with SMTP id y8so290121plr.12
+Received: by mail-pg1-x542.google.com with SMTP id i18so228611pgl.11
  for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 17:18:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references;
- bh=wYmP7l7xYXEkpyG7dJwFSke/FRHdQ6zd7wLrtCe0Nro=;
- b=k4427tlhkbAql47p/Igzqz9qG7iGY4VAjnTQCSvYQF2yNIuU9dyzJC4kHtm0M4r5eR
- sqY80jG2mnHwORi1nDP7JqJPuHA2FqonA4I3Rp8wmASaosWeQg4MUwiQfW+HIqn2T8Nh
- xORTETo+y/tIN3brE8Y+v2OMPBAiaQaX1f3NP23rJCEZRPPOvnvwCfuJnK57bBcfwqV/
- 7ixqGAQnp8uQnxqAZ9d2Fawi6vDDSM45A2MJPObeCosJZLGdPRdq3pING/UyJWnltOHt
- PnAUEVlSqR4ZDKjlLk5bYhYAZ0+EUbNrV2O0aVunvGz3l6+AhIFtwuRVz0siuG1io3cP
- Gx1Q==
+ bh=c3LQHcY3+YvhpAJ3SOOoCNwpGf42ZIdm9oft5Rg6R8E=;
+ b=MH13mfy/rC2MWrFrghbk3ERrfOJ7Acc2V5PTmjiUJ2UNkoWSzaaCcQ+L1XS6wjV1NZ
+ fnz/Qw3+jI0mJo5ZTwDo2D43ey6zMwlKjjFfvwWh95XuqfRYmFrLLfMos7MItV2S8S4r
+ znUOap6+GdVm2fAzNACWW30Jy8d/tsw+kmVMyv6/B25kbodcxkaJo2wRykahpVFG8GUV
+ dgOV2Ww4hpl5Ll8M+MI+YDNaYItpk3EPoFrpBOsm7F/Rsj+1E8WEStN6Mu2h0GQ82wrl
+ 9VzRMbOjLagbaCiurxsYGBiJDRP4OQ9MOCrslguAFBz+LQ5B8KmQZW2F1xZJapyuE3iy
+ MMSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references;
- bh=wYmP7l7xYXEkpyG7dJwFSke/FRHdQ6zd7wLrtCe0Nro=;
- b=Tp0qzK8kso0EMrNXQ1DSED/PpEWslrZUhjNVpc+DpTdDbB7JEvKeIs1fl2iPTlC3Uy
- 8HrYcsl8CPti7bu/c625lzq6kY0JuT0ozBjkeWv5NwqOKek1C+GbyMnvDlYUTpnJscZ3
- JFSagldeaWYcmGq5bw+iQkeXjVhUn9gJoDX7oKf5BgFnXUcUVjFGn6YMCWu1QH+T5h7c
- SEs3+M5DqXeQ8k4n9X758KSPJE507WsJSuxd0qraod5soHb7lywkuEHb6tAe6Obdh0vN
- 81JaHS5WOP3Dqy+exoDjWi5nAKZ1afFrObh1x2qLGRVV1Krdpow8SAWdEX/KXpJneBEE
- yQDQ==
-X-Gm-Message-State: APjAAAVnsJbrE4ZKtiTjNPI4uWsnpNqjmrkncyNJWh34gh+RLMyvwrKi
- BOWw3eYscLKbLtwLj0PvyYw=
-X-Google-Smtp-Source: APXvYqy4XOtwQD0YpAxEXf3o3I+klcEKkKhlauOgufGqS5op00QX4mOatNkI/mvUJE8aQ6wDXxuCsA==
-X-Received: by 2002:a17:902:6b07:: with SMTP id
- o7mr30180035plk.180.1566346731539; 
- Tue, 20 Aug 2019 17:18:51 -0700 (PDT)
+ bh=c3LQHcY3+YvhpAJ3SOOoCNwpGf42ZIdm9oft5Rg6R8E=;
+ b=L7FGn378CddJvzgekfaTMjrM/tjtlKbkxY3l6GFbloL8yXYevbs8/GfgiTawg1+ezN
+ GZbQwSKUWYiE8ARHOK4zHVXA2SSQDAuwMCqY3mFu0IQIl4w3ZAZSu6QU+TNx6B9mvZ/c
+ dTV5FIi6TVKKL2an2HFDzC4VkWalN1bE8D3yxwH/aLxV8G2Lq8Cirr4fJeZPNLjKIXdc
+ XiJTRTvn8FBHfeM5erdXzsAgiDiZ0ZPkHnCnxTilTFVvTEz4QCNE9D91xVaHaHTSguUI
+ u7Aq2bv1Qy5TblBzcZJO0j6glcv3HptpC0tQu4R6XKGdAyUTiv6niReknbjgKNYmbc2R
+ EzGw==
+X-Gm-Message-State: APjAAAXW7Ps43dtGRwjvvhOEemP7oJ9wWhvelpl9lrZcEdo2iKP0iTOg
+ 39JMAfy94dVYWbzPdyj8KsE=
+X-Google-Smtp-Source: APXvYqwwan2OY/ZV7PXfeMhMGdEvRd4vEiJuNjIlg98ZfD/In7j14ai4ajqEPw9W14GV2GUgiaRNmg==
+X-Received: by 2002:a17:90a:9202:: with SMTP id
+ m2mr2663705pjo.16.1566346730545; 
+ Tue, 20 Aug 2019 17:18:50 -0700 (PDT)
 Received: from localhost.localdomain (wsip-184-188-36-2.sd.sd.cox.net.
  [184.188.36.2])
- by smtp.googlemail.com with ESMTPSA id g2sm18806323pfm.32.2019.08.20.17.18.50
+ by smtp.googlemail.com with ESMTPSA id g2sm18806323pfm.32.2019.08.20.17.18.49
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Tue, 20 Aug 2019 17:18:51 -0700 (PDT)
+ Tue, 20 Aug 2019 17:18:50 -0700 (PDT)
 From: Caitlyn <caitlynannefinn@gmail.com>
 To: Gao Xiang <gaoxiang25@huawei.com>, Chao Yu <yuchao0@huawei.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 2/2] staging/erofs: Balanced braces around a few conditional
- statements.
-Date: Tue, 20 Aug 2019 20:18:20 -0400
-Message-Id: <1566346700-28536-3-git-send-email-caitlynannefinn@gmail.com>
+Subject: [PATCH 1/2] staging/erofs/xattr.h: Fixed misaligned function
+ arguments.
+Date: Tue, 20 Aug 2019 20:18:19 -0400
+Message-Id: <1566346700-28536-2-git-send-email-caitlynannefinn@gmail.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
 References: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
@@ -100,63 +100,35 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Balanced braces to fix some checkpath warnings in inode.c and
-unzip_vle.c
+Indented some function arguments to fix checkpath warnings.
 
 Signed-off-by: Caitlyn <caitlynannefinn@gmail.com>
 ---
- drivers/staging/erofs/inode.c     |  4 ++--
- drivers/staging/erofs/unzip_vle.c | 12 ++++++------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/staging/erofs/xattr.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 4c3d8bf..8de6fcd 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -278,9 +278,9 @@ struct inode *erofs_iget(struct super_block *sb,
- 		vi->nid = nid;
+diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
+index 35ba5ac..d86f5cd 100644
+--- a/drivers/staging/erofs/xattr.h
++++ b/drivers/staging/erofs/xattr.h
+@@ -74,14 +74,14 @@ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
+ static int __maybe_unused erofs_getxattr(struct inode *inode, int index,
+-	const char *name,
+-	void *buffer, size_t buffer_size)
++					 const char *name, void *buffer,
++					 size_t buffer_size)
+ {
+ 	return -ENOTSUPP;
+ }
  
- 		err = fill_inode(inode, isdir);
--		if (likely(!err))
-+		if (likely(!err)) {
- 			unlock_new_inode(inode);
--		else {
-+		} else {
- 			iget_failed(inode);
- 			inode = ERR_PTR(err);
- 		}
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f0dab81..f431614 100644
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -915,21 +915,21 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	mutex_lock(&work->lock);
- 	nr_pages = work->nr_pages;
- 
--	if (likely(nr_pages <= Z_EROFS_VLE_VMAP_ONSTACK_PAGES))
-+	if (likely(nr_pages <= Z_EROFS_VLE_VMAP_ONSTACK_PAGES)) {
- 		pages = pages_onstack;
--	else if (nr_pages <= Z_EROFS_VLE_VMAP_GLOBAL_PAGES &&
--		 mutex_trylock(&z_pagemap_global_lock))
-+	} else if (nr_pages <= Z_EROFS_VLE_VMAP_GLOBAL_PAGES &&
-+		 mutex_trylock(&z_pagemap_global_lock)) {
- 		pages = z_pagemap_global;
--	else {
-+	} else {
- repeat:
- 		pages = kvmalloc_array(nr_pages, sizeof(struct page *),
- 				       GFP_KERNEL);
- 
- 		/* fallback to global pagemap for the lowmem scenario */
- 		if (unlikely(!pages)) {
--			if (nr_pages > Z_EROFS_VLE_VMAP_GLOBAL_PAGES)
-+			if (nr_pages > Z_EROFS_VLE_VMAP_GLOBAL_PAGES) {
- 				goto repeat;
--			else {
-+			} else {
- 				mutex_lock(&z_pagemap_global_lock);
- 				pages = z_pagemap_global;
- 			}
+ static ssize_t __maybe_unused erofs_listxattr(struct dentry *dentry,
+-	char *buffer, size_t buffer_size)
++					      char *buffer, size_t buffer_size)
+ {
+ 	return -ENOTSUPP;
+ }
 -- 
 2.7.4
 
