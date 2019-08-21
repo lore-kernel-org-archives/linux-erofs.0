@@ -2,86 +2,91 @@ Return-Path: <SRS0=D63+=WR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 665A1C3A589
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79219C3A589
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:40:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C62AE2087E
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:19:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C513E22DD3
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 00:40:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MH13mfy/"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C62AE2087E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="holzx00R";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="cjO6zdAg"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C513E22DD3
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46CpDx5sWHzDrGC
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 10:19:13 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46Cpht74rPzDqTl
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 10:39:58 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1566347999;
+	bh=3L0ttFN6yuOqS3IgKoYwq0g+vZaJmZiiChWp5ZFA68E=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=holzx00R7KwsY1kgfN97BIuscNsP8lvc88wuhnYSVnXFDSF3vDyWIA1dJFQDNpGBz
+	 laL3FjbYsIkGmQqIoNwPwHptn637D2di+B3LEBpEB/9fW+xA6uhTJAyHW2mAgppsEv
+	 RZZnF3cwFuLXcyVbWInU1ZnO8yGzZnYKgSAml+jMfVcBNRsF/PNLGErZv27ggXFnET
+	 THQHza4KumZNAMjvP9sX1Ig5VmpYxAFpuQbecs6vrSOdSdSboUSpUaDAgHLD6R/Qo1
+	 GTHvmXAjenBrLY9wkq5Xnw3joasQQ6L+rK8OxrTrxkqdaZqXbn5G5SvrQukvHTJwR7
+	 t6LXvcv3lvl+Q==
 Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=gmail.com
- (client-ip=2607:f8b0:4864:20::542; helo=mail-pg1-x542.google.com;
- envelope-from=caitlynannefinn@gmail.com; receiver=<UNKNOWN>)
+ spf=pass (mailfrom) smtp.mailfrom=aol.com
+ (client-ip=77.238.176.164; helo=sonic311-32.consmr.mail.ir2.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=gmail.com
+ dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.b="MH13mfy/"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="cjO6zdAg"; 
  dkim-atps=neutral
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com
- [IPv6:2607:f8b0:4864:20::542])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from sonic311-32.consmr.mail.ir2.yahoo.com
+ (sonic311-32.consmr.mail.ir2.yahoo.com [77.238.176.164])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46CpDd2cqVzDqCW
- for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2019 10:18:54 +1000 (AEST)
-Received: by mail-pg1-x542.google.com with SMTP id i18so228611pgl.11
- for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2019 17:18:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:in-reply-to:references;
- bh=c3LQHcY3+YvhpAJ3SOOoCNwpGf42ZIdm9oft5Rg6R8E=;
- b=MH13mfy/rC2MWrFrghbk3ERrfOJ7Acc2V5PTmjiUJ2UNkoWSzaaCcQ+L1XS6wjV1NZ
- fnz/Qw3+jI0mJo5ZTwDo2D43ey6zMwlKjjFfvwWh95XuqfRYmFrLLfMos7MItV2S8S4r
- znUOap6+GdVm2fAzNACWW30Jy8d/tsw+kmVMyv6/B25kbodcxkaJo2wRykahpVFG8GUV
- dgOV2Ww4hpl5Ll8M+MI+YDNaYItpk3EPoFrpBOsm7F/Rsj+1E8WEStN6Mu2h0GQ82wrl
- 9VzRMbOjLagbaCiurxsYGBiJDRP4OQ9MOCrslguAFBz+LQ5B8KmQZW2F1xZJapyuE3iy
- MMSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references;
- bh=c3LQHcY3+YvhpAJ3SOOoCNwpGf42ZIdm9oft5Rg6R8E=;
- b=L7FGn378CddJvzgekfaTMjrM/tjtlKbkxY3l6GFbloL8yXYevbs8/GfgiTawg1+ezN
- GZbQwSKUWYiE8ARHOK4zHVXA2SSQDAuwMCqY3mFu0IQIl4w3ZAZSu6QU+TNx6B9mvZ/c
- dTV5FIi6TVKKL2an2HFDzC4VkWalN1bE8D3yxwH/aLxV8G2Lq8Cirr4fJeZPNLjKIXdc
- XiJTRTvn8FBHfeM5erdXzsAgiDiZ0ZPkHnCnxTilTFVvTEz4QCNE9D91xVaHaHTSguUI
- u7Aq2bv1Qy5TblBzcZJO0j6glcv3HptpC0tQu4R6XKGdAyUTiv6niReknbjgKNYmbc2R
- EzGw==
-X-Gm-Message-State: APjAAAXW7Ps43dtGRwjvvhOEemP7oJ9wWhvelpl9lrZcEdo2iKP0iTOg
- 39JMAfy94dVYWbzPdyj8KsE=
-X-Google-Smtp-Source: APXvYqwwan2OY/ZV7PXfeMhMGdEvRd4vEiJuNjIlg98ZfD/In7j14ai4ajqEPw9W14GV2GUgiaRNmg==
-X-Received: by 2002:a17:90a:9202:: with SMTP id
- m2mr2663705pjo.16.1566346730545; 
- Tue, 20 Aug 2019 17:18:50 -0700 (PDT)
-Received: from localhost.localdomain (wsip-184-188-36-2.sd.sd.cox.net.
- [184.188.36.2])
- by smtp.googlemail.com with ESMTPSA id g2sm18806323pfm.32.2019.08.20.17.18.49
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Tue, 20 Aug 2019 17:18:50 -0700 (PDT)
-From: Caitlyn <caitlynannefinn@gmail.com>
-To: Gao Xiang <gaoxiang25@huawei.com>, Chao Yu <yuchao0@huawei.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 1/2] staging/erofs/xattr.h: Fixed misaligned function
- arguments.
-Date: Tue, 20 Aug 2019 20:18:19 -0400
-Message-Id: <1566346700-28536-2-git-send-email-caitlynannefinn@gmail.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46Cphj1HKjzDqQM
+ for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2019 10:39:46 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1566347982; bh=dBz1oFdgnI/WKEGr74peQBzy6c6LbhKbyJcmv8I8LL8=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+ b=cjO6zdAgZdoP/eR+2UwDbg4EHc7L79a8eHYvW6+PLb3NU/onSAymNusV/OQtMwCdgAbGu5Vel7ABoJcwS6+KQz1nyRlW9+33t3I2ykkDehqpkjh/5NyI/t2YcN29kXf/8yj5rn9sOmkevQCPukD78x8F2gAHfvNU1j8V/N2n+haZrDJPGs4ZzN41c7H0yop1x1p3N2pFo2M63WyW+SfVU00T2fO+FXxJ6vnbSdHQPfQWPlwerb4LADYF439OBOZ+alPE5Rpou+tauQWpUIs426kvr/JImM9FNO6IQ2R/1+C4/Gy32yvkfqotGbwpwvg86dVmqI/ipBzoluoWhoZIgw==
+X-YMail-OSG: .HtFFrsVM1m6qxT_kGxPkFMO1nJ9npRODAPvKCtCYnCvOjsoN7lJpSs1yEh.JlM
+ aPvjkilVSpUpBTe5FhGM8myRDj9y.Hvt_abptFP16G3ycLR7ZZqLfAZ081TXy876P5x5gpDFHqUg
+ NBgUHnR8BpFeMmpkQtuMEYrrFqdHQfAENM2ocH0_kFhlKFwvoWGMHEmy6zOHDPQPi0onR4v0Irtq
+ 4zgYalI0OBZckbpn8mwd_RHYHhXItkFXFeh6lP8Oz76AgklOps0zvr7M0JHxWx6JTu_ZoTevUEN2
+ _kEcHBfYgeXIRubAXkkml6.2QCTRfE657BNliFnClP9w1MxKJnLx0X0vA8EnN0VTPAnb5euUsMF8
+ ODxliNVZ4lAmzKF6bgN9cm_EnYLzMHPyfITaKR1BhWMAagitSIp2tPETh_oGT5ayeVQbMy7MjXoy
+ di5mEQ1ylQDST6CIzUQdo2o.oIa7keucoLL3xSUfshKFE60X4k9k50naVkDd4nVQJ7HmmgkA8YfI
+ VWAZCOfT_iZ7_XtaEX1fYeBEAoIwiA0ZDEwazERPEoeTrX.bPi88cvmz8BehOPH3PbX4eL7llnSb
+ ZEd3Uspd_.e8q.Eje1VH2AYPCWBDApMbc9c.kbjPeGR4gLDbMh7hegEDg6.vzNj.XHi3vNJHX.29
+ apPZdMfViWtU1NryPvxpdLRxjxqqnI4eRMhW6UpiUW1gMc4WCwcXF6v7H4jnxXTtt1WSnCXob35g
+ ytGIEE4qlzGnf5mddo7ivWrxcnwAUupipJGQDG0BLICWlRO3nAB8AcuHuzMNkQjPTEwiwldVRkcO
+ c4UAty8MlhFte0CHpjrMBNdcyZa27aFrDXs_vgGV.fi47p7xI.AQ3hivjzAbLV0rTvDh8bGSfp_Y
+ Ryqyq42K1YaxcCdHqdSKKXEZ5aiDDK_3gRk1v.aRfwBTmCL.0NlDSxJg19.ZtpntYAi.8DFzgnmB
+ IZARlJBF5VjRT.uYAL44vnJlsCqsyNFcK.L8n6TirJ36gkee1R4IpVJttouwH1gLfeEGlCrszUFK
+ r9HRz3fGS7moHe7LClIpSyrmf8aousPS8ef8MTHyKXO9MfpzAeJD9hwCo4Fjzywa3w9PE.Jt3709
+ _AgVoV6UW.xTAzjPcIrWNpCkRLGPhILlKYU10jk8s8jMLDxnE2RoNgnkEvBJGrceEnFnr1JHZ2zZ
+ 66ZxHV9SXHbKAsGZQ3MVLeXSmmI9pADk.a2nJ3.BnTdho6UpQCz2BDCGpO1gH_7RwpX7X2CDya2x
+ CHgJHxvKyVJxWWZnSJbbQ_YBMroxGTak-
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic311.consmr.mail.ir2.yahoo.com with HTTP; Wed, 21 Aug 2019 00:39:42 +0000
+Received: by smtp405.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 79fa87127151e4dc10a6f5a22ec543fa; 
+ Wed, 21 Aug 2019 00:39:36 +0000 (UTC)
+Date: Wed, 21 Aug 2019 08:39:29 +0800
+To: Caitlyn <caitlynannefinn@gmail.com>
+Subject: Re: [PATCH 0/2] Submitting my first patch series (Checkpatch fixes)
+Message-ID: <20190821003717.GA18606@hsiangkao-HP-ZHAN-66-Pro-G1>
 References: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -93,42 +98,44 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: devel@driverdev.osuosl.org, "Tobin C . Harding" <me@tobin.cc>,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- Caitlyn <caitlynannefinn@gmail.com>
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: devel@driverdev.osuosl.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-kernel@vger.kernel.org, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Indented some function arguments to fix checkpath warnings.
+Hi Caitlyn,
 
-Signed-off-by: Caitlyn <caitlynannefinn@gmail.com>
----
- drivers/staging/erofs/xattr.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On Tue, Aug 20, 2019 at 08:18:18PM -0400, Caitlyn wrote:
+> Hello!
+> 
+> This patch series cleans up some checkpatch fixes in erofs. The patches
+> include balancing conditional braces and fixing some indentation. No testing
+> done, all patches build and checkpath cleanly.
 
-diff --git a/drivers/staging/erofs/xattr.h b/drivers/staging/erofs/xattr.h
-index 35ba5ac..d86f5cd 100644
---- a/drivers/staging/erofs/xattr.h
-+++ b/drivers/staging/erofs/xattr.h
-@@ -74,14 +74,14 @@ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
- ssize_t erofs_listxattr(struct dentry *, char *, size_t);
- #else
- static int __maybe_unused erofs_getxattr(struct inode *inode, int index,
--	const char *name,
--	void *buffer, size_t buffer_size)
-+					 const char *name, void *buffer,
-+					 size_t buffer_size)
- {
- 	return -ENOTSUPP;
- }
- 
- static ssize_t __maybe_unused erofs_listxattr(struct dentry *dentry,
--	char *buffer, size_t buffer_size)
-+					      char *buffer, size_t buffer_size)
- {
- 	return -ENOTSUPP;
- }
--- 
-2.7.4
+I think you need to work on the latest staging tree or linux-next.
+This patchset cannot be applied (there is the only valid place in inode.c,
+I will reply in the following patch.)
 
+Thanks,
+Gao Xiang
+
+> 
+> Caitlyn (2):
+>   staging/erofs/xattr.h: Fixed misaligned function arguments.
+>   staging/erofs: Balanced braces around a few conditional statements.
+> 
+>  drivers/staging/erofs/inode.c     |  4 ++--
+>  drivers/staging/erofs/unzip_vle.c | 12 ++++++------
+>  drivers/staging/erofs/xattr.h     |  6 +++---
+>  3 files changed, 11 insertions(+), 11 deletions(-)
+> 
+> -- 
+> 2.7.4
+> 
+> _______________________________________________
+> devel mailing list
+> devel@linuxdriverproject.org
+> http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel
