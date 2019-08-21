@@ -2,67 +2,101 @@ Return-Path: <SRS0=D63+=WR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95720C3A59E
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 14:24:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F1BCC3A59E
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 15:21:10 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3D9E12339F
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 14:24:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1035D22CF7
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2019 15:21:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="j20Sm2jz"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3D9E12339F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tobin.cc header.i=@tobin.cc header.b="nbdXa8G4";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="FIjJL6Gl"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1035D22CF7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tobin.cc
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46D90V6WGszDrB5
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Aug 2019 00:24:42 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=kernel.org
- (client-ip=198.145.29.99; helo=mail.kernel.org; envelope-from=chao@kernel.org;
+	by lists.ozlabs.org (Postfix) with ESMTP id 46DBFc0nCKzDq5n
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Aug 2019 01:21:08 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (helo)
+ smtp.helo=out4-smtp.messagingengine.com (client-ip=66.111.4.28;
+ helo=out4-smtp.messagingengine.com; envelope-from=me@tobin.cc;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=kernel.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.b="j20Sm2jz"; 
- dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ dmarc=none (p=none dis=none) header.from=tobin.cc
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=tobin.cc header.i=@tobin.cc header.b="nbdXa8G4"; 
+ dkim=pass (2048-bit key;
+ unprotected) header.d=messagingengine.com header.i=@messagingengine.com
+ header.b="FIjJL6Gl"; dkim-atps=neutral
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com
+ [66.111.4.28])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46D90J4D6DzDr99
- for <linux-erofs@lists.ozlabs.org>; Thu, 22 Aug 2019 00:24:32 +1000 (AEST)
-Received: from [192.168.0.101] (unknown [180.111.132.43])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id A46DB22D6D;
- Wed, 21 Aug 2019 14:24:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1566397468;
- bh=9ksBVq9fAhzcjSVB61cJ1f0+9AqNBnX70fl6ffNSxOM=;
- h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
- b=j20Sm2jz1Cmc2mvnqzcuD6jFCrpjk7WWTUoUgOs4WLl5/tUYXz9HEX5cM4RBVk8MM
- L0n9ZiqxCoNdk+ZcltFzlDnyBGUlRhNm+zXZO3v1Q2PFYhqiq0dknjNY9vqVIjM2Eo
- 2inn4NWkmYr1TWDl8VfjXaMs5cM1pHivqiORkjWk=
-Subject: Re: [PATCH v2 5/6] staging: erofs: detect potential multiref due to
- corrupted images
-To: Gao Xiang <gaoxiang25@huawei.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20190821021942.GA14087@kroah.com>
- <20190821140152.229648-1-gaoxiang25@huawei.com>
-From: Chao Yu <chao@kernel.org>
-Message-ID: <e0f76952-2fcf-5d62-d318-f13077913af0@kernel.org>
-Date: Wed, 21 Aug 2019 22:24:14 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46DB5B0XpKzDqgk
+ for <linux-erofs@lists.ozlabs.org>; Thu, 22 Aug 2019 01:13:41 +1000 (AEST)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+ by mailout.nyi.internal (Postfix) with ESMTP id B0EDB2104C;
+ Wed, 21 Aug 2019 11:13:37 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+ by compute5.internal (MEProxy); Wed, 21 Aug 2019 11:13:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tobin.cc; h=date
+ :from:to:cc:subject:message-id:references:mime-version
+ :content-type:in-reply-to; s=fm3; bh=UXyep5gmvR7gzJOTpOWksLGbdCj
+ w2vu09aQuJ/K1NOc=; b=nbdXa8G4twyAo8+ISYJ66Col/oqbNPt6AVX9SSYbLWi
+ uAgVpzJjqkxbKQG67or8LQCT+IPbcLdn0o3xfgdFA9HPCTyZg3rugtLjV4L2ZaXg
+ XqvcVOKqHJXR2qQlWcsKdBtQCWFUw/Q5lYfqyk4i4DE4ePTxDTK+QSof2+6+hyP7
+ b/VyxgUN7aFVkUAaGgDOL1O4tPmaKyhUcdTOh4b+Bs2n5YmUTvIc0izCvPsmazeJ
+ a3S8CIxpKnFQH8SA6HDd+gGal3X0dJuoZKtjO+HMOTMFcDxa6AOrjYIwq8hb0ZI9
+ yqcLljMFXOFgyLw4fS1/LS5tBMycYqDOwjLzFmUdbbA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:content-type:date:from:in-reply-to
+ :message-id:mime-version:references:subject:to:x-me-proxy
+ :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UXyep5
+ gmvR7gzJOTpOWksLGbdCjw2vu09aQuJ/K1NOc=; b=FIjJL6Gl6VLEJEiAyJNGPb
+ kW2mq+V+KmKF+EFY5EHxYvMsHlVsJvq53dWdCdvtfL2Eh4wjCV5So9sx/1BrGMap
+ tISxO+6XcL+FN4JMLbxH1lCehzf9H8fGJvmNPVtdN61zNw3YRlHAKYwVKabo/rBR
+ y1u1SaDZXs1F5iaikSwoF5fSUANzT/m7iuUzY3vtErbJPsM9CFjTRJ7MfY8+sKxH
+ qLtMTT0JFg8Dva+7vbWdE9NBVyhHRqbqC+uMIK2lEwVRdnmp5bA/CJtrcC+dr6wX
+ fzW1FWM26hkD384cKHf6aRilJ+BzF7UEjZMXuZGvGQZjkWvNVdgvutCFNnxY7psQ
+ ==
+X-ME-Sender: <xms:oF9dXUSkEp3wmoKgiGcC_-NCiEf8Yaz7E7Hs1XSR8vpvF-Ea-4pdaA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudegfedgkeekucetufdoteggodetrfdotf
+ fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+ uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+ gfrhhlucfvnfffucdludehmdenucfjughrpeffhffvuffkfhggtggujgfofgesthdtredt
+ ofervdenucfhrhhomhepfdfvohgsihhnucevrdcujfgrrhguihhnghdfuceomhgvsehtoh
+ gsihhnrdgttgeqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepjedtrddu
+ ieeirdektddrudelgeenucfrrghrrghmpehmrghilhhfrhhomhepmhgvsehtohgsihhnrd
+ gttgenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:oF9dXWXqaRTicXEg7Rivmu0jRibBbbqqORI_nNRcWfozKf6GdFT9RQ>
+ <xmx:oF9dXdt7svvQyWlYmVn7uDEWhm9PafN5fBawrZOYea3lrhP-eqHAKg>
+ <xmx:oF9dXUuunXXGCREuLqDauNdQ8nT2rlMtk2sJKEpeXIMId0yn5pOhHQ>
+ <xmx:oV9dXb8Y1JlYJaa2pMr28JqRZtlvXVatDBAwfCMod5lqhbSm41GA5w>
+Received: from localhost (wsip-70-166-80-194.sd.sd.cox.net [70.166.80.194])
+ by mail.messagingengine.com (Postfix) with ESMTPA id 81450D6005A;
+ Wed, 21 Aug 2019 11:13:36 -0400 (EDT)
+Date: Wed, 21 Aug 2019 08:13:35 -0700
+From: "Tobin C. Harding" <me@tobin.cc>
+To: Gao Xiang <gaoxiang25@huawei.com>
+Subject: Re: [PATCH 2/2] staging/erofs: Balanced braces around a few
+ conditional statements.
+Message-ID: <20190821151241.GF12461@ares>
+References: <1566346700-28536-1-git-send-email-caitlynannefinn@gmail.com>
+ <1566346700-28536-3-git-send-email-caitlynannefinn@gmail.com>
+ <7aaca457a3d3feb951082d0659eec568a908971f.camel@perches.com>
+ <20190821023122.GA159802@architecture4>
 MIME-Version: 1.0
-In-Reply-To: <20190821140152.229648-1-gaoxiang25@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190821023122.GA159802@architecture4>
+X-Mailer: Mutt 1.9.4 (2018-02-28)
+User-Agent: Mutt/1.9.4 (2018-02-28)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,23 +108,41 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: devel@driverdev.osuosl.org, Miao Xie <miaoxie@huawei.com>,
- LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
- weidu.du@huawei.com, linux-fsdevel@vger.kernel.org,
- linux-erofs@lists.ozlabs.org
+Cc: devel@driverdev.osuosl.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>,
+ linux-erofs@lists.ozlabs.org, Caitlyn <caitlynannefinn@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2019-8-21 22:01, Gao Xiang wrote:
-> As reported by erofs-utils fuzzer, currently, multiref
-> (ondisk deduplication) hasn't been supported for now,
-> we should forbid it properly.
+On Wed, Aug 21, 2019 at 10:31:22AM +0800, Gao Xiang wrote:
+> On Tue, Aug 20, 2019 at 07:26:46PM -0700, Joe Perches wrote:
+> > On Tue, 2019-08-20 at 20:18 -0400, Caitlyn wrote:
+> > > Balanced braces to fix some checkpath warnings in inode.c and
+> > > unzip_vle.c
+> > []
+> > > diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+> > []
+> > > @@ -915,21 +915,21 @@ static int z_erofs_vle_unzip(struct super_block *sb,
+> > >  	mutex_lock(&work->lock);
+> > >  	nr_pages = work->nr_pages;
+> > >  
+> > > -	if (likely(nr_pages <= Z_EROFS_VLE_VMAP_ONSTACK_PAGES))
+> > > +	if (likely(nr_pages <= Z_EROFS_VLE_VMAP_ONSTACK_PAGES)) {
+> > >  		pages = pages_onstack;
+> > > -	else if (nr_pages <= Z_EROFS_VLE_VMAP_GLOBAL_PAGES &&
+> > > -		 mutex_trylock(&z_pagemap_global_lock))
+> > > +	} else if (nr_pages <= Z_EROFS_VLE_VMAP_GLOBAL_PAGES &&
+> > > +		 mutex_trylock(&z_pagemap_global_lock)) {
+> > 
+> > Extra space after tab
 > 
-> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+> There is actually balanced braces in linux-next.
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/tree/drivers/staging/erofs/zdata.c#n762
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Which tree did these changes go in through please Gao?  I believe
+Caitlyn was working off of the staging-next branch of Greg's staging
+tree.
 
-Thanks,
+thanks,
+Tobin.
