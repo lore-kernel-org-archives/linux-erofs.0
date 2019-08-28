@@ -2,68 +2,104 @@ Return-Path: <SRS0=X7AN=WY=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A807C3A5A1
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Aug 2019 14:39:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0652FC3A5A1
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Aug 2019 14:50:05 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BE43F2064A
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Aug 2019 14:39:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 7B9612077B
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Aug 2019 14:50:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BK/KEpQD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BE43F2064A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="LkK53ie3";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=android.com header.i=@android.com header.b="OlcPfkFh"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7B9612077B
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46JT055w8MzDr58
-	for <linux-erofs@archiver.kernel.org>; Thu, 29 Aug 2019 00:39:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
- smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
- helo=bombadil.infradead.org;
- envelope-from=batv+49d2e20b56fbda768dd7+5848+infradead.org+hch@bombadil.srs.infradead.org;
- receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46JTDT74tczDrBr
+	for <linux-erofs@archiver.kernel.org>; Thu, 29 Aug 2019 00:50:01 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1567003802;
+	bh=Q3F2pMcDVoGjA4gufrXtnB+Ts7KREZEw96QVHlPW7zI=;
+	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=LkK53ie3xKak8mT8mgKK42rHcVPGdYxdjCvNp4uj5N6m464kcgryXDEEdgHiqP3aI
+	 xjgVUBF5CbdwHZzCumdwnx8uvraMdK//EPInarJ/ZRYWM23P/QrtNyiAFV7/ZP7xSq
+	 I8tqMtdfCVGyYYCMvKHwUZ9mx3/VfPgmaqe2jka7OAKawQg0icGV2lCTgLcu9DIvuS
+	 RmVthhzf376paSLI5fwJs+oDSu1fxG5QxySpAfNGARa9/V854K+e0NAky7f5i2q1Tk
+	 rfq4IHv5E9WuSHKJXVkV9vq60VIijX/JhqDvyq99gJP5EoTWMBQUURyUejcnTsR2qr
+	 M5MsVNtd0iaAQ==
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=infradead.org
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:e::133])
+ spf=pass (mailfrom) smtp.mailfrom=android.com
+ (client-ip=2607:f8b0:4864:20::542; helo=mail-pg1-x542.google.com;
+ envelope-from=salyzyn@android.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=reject dis=none) header.from=android.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=android.com header.i=@android.com header.b="OlcPfkFh"; 
+ dkim-atps=neutral
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com
+ [IPv6:2607:f8b0:4864:20::542])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46JShv2Mp7zDr11
- for <linux-erofs@lists.ozlabs.org>; Thu, 29 Aug 2019 00:26:06 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Transfer-Encoding
- :Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
- Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
- Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=yJoo2pNqTHPzZm0pkWr+dI3Wt26Ba0eR+Mp1ZOx/yp8=; b=BK/KEpQDOLfLlooeYZXzciO0Ih
- KZ5wNCw5kNMwDJSk0pj1muklV9g/jk0KlTf/SwvC51pBQxSElrumaGBLZuHpQsR7SwxCq34Mot1XJ
- 7gmWkyODNqXa17KKkWyyY+vNZDlZzp8AS0rGYTV0F62iEnMONHSEdfZ7H9Etcl0AcgK8bEkyOlbQS
- r0PBEi4ow8fP9ty81WDX7XQCZeJCQtgYLUTRfxVjcLjt8/fVN9n9I3tHAfoOBaAIjsYikU11xALWa
- mL+x3tHE/3UAq8EByi15+eJvdwQ/XwnR0l5pqHnWOA++zmSEHyLZkNeHHwA8OtgBc5w/ZqUGkIWTV
- GmBXUYFw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i2ys3-0005kr-PD; Wed, 28 Aug 2019 14:24:23 +0000
-Date: Wed, 28 Aug 2019 07:24:23 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Mark Salyzyn <salyzyn@android.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46JT1L3gbZzDqK9
+ for <linux-erofs@lists.ozlabs.org>; Thu, 29 Aug 2019 00:40:21 +1000 (AEST)
+Received: by mail-pg1-x542.google.com with SMTP id m3so1566522pgv.13
+ for <linux-erofs@lists.ozlabs.org>; Wed, 28 Aug 2019 07:40:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=android.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-transfer-encoding:content-language;
+ bh=otBOnvzgcCfij7khznQb839FNBhUwDL3v2TXcjGpOzs=;
+ b=OlcPfkFh4eVXaPXXhh3cHvgBURsJe3iAt4+TEVeWmIUa8zc09e0oQ5MaZNlepG2vze
+ B3r7RgJuWq9O6TIbswaNUIKe8aYWW+KNRgEXeCMfCvmELHUyftJPl7HAVt/DUWoqH+mt
+ 7FiMUsP13ILyRxskXvgoEKTt4mcyDqpG+bZTW39pIt/5h+k8/JBgcB7qNM0XACYD7ale
+ oWFmT2jC5R2Rv9fP9CO4NSXlbVjGTO4SWvbIfLdPsT4850CBsX7b6iyMaVYsWWgBm0EJ
+ ydfkWGX0BboAbCSeR2RRikvC2V1c34KnlnNThn4oWcDh6RwGfO3sPku0/xiss22u0zC8
+ qA2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-transfer-encoding
+ :content-language;
+ bh=otBOnvzgcCfij7khznQb839FNBhUwDL3v2TXcjGpOzs=;
+ b=LOFlbIYcxPV0htjFmAU5YA08Q3mBIty9wZMufCF9SQGf1Oe1HPiOYeoddeT9HELEdv
+ BgMga4f8u/QOl8f26ThIgc2ZVJdERpbbSdxBpu+oaaZSo8bmPSpqOwlcHhfiUsnb1SB/
+ ZbyKF/dY9oqkFYqAOXggMlCyDGkatw0eHfLR3zrKKH4Xq6QK/uoYlyMwVwxj1htVk7lV
+ bE0GIp0HOX7VCUPz7/XziQmO4ORc7wffZJq4po4ZqqJfunau+wMeg0XtXbvu+jhwyfH7
+ YKIh11u44ALsFhgR8RH/tnVDYvkrrzPj/2gaoEbm3/9lMQ4kqNUuEuD31TMWp5m3/a5a
+ pGcQ==
+X-Gm-Message-State: APjAAAUziZXTzkNI49gzSq59k2Jp+ZHpRuQR4YxvBR0yMYSdLeY7D3B1
+ KT5IbyxiAmQY99L5JDOqUw6ykg==
+X-Google-Smtp-Source: APXvYqxMi0WkPdC/TIWQ/rEP0W+6WEwgY/rp8ZhYjwRr9PMekyUrfkMqryPcx5ziGSRNx/jQnRs5oA==
+X-Received: by 2002:a17:90b:8ca:: with SMTP id
+ ds10mr4474530pjb.139.1567003218534; 
+ Wed, 28 Aug 2019 07:40:18 -0700 (PDT)
+Received: from nebulus.mtv.corp.google.com
+ ([2620:15c:211:200:5404:91ba:59dc:9400])
+ by smtp.googlemail.com with ESMTPSA id t9sm7295641pgj.89.2019.08.28.07.40.15
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 28 Aug 2019 07:40:17 -0700 (PDT)
 Subject: Re: [PATCH v8] Add flags option to get xattr method paired to
  __vfs_getxattr
-Message-ID: <20190828142423.GA1955@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
 References: <20190827150544.151031-1-salyzyn@android.com>
+ <20190828142423.GA1955@infradead.org>
+Message-ID: <5dd09a38-fffb-36f2-505b-be2ddf6bb750@android.com>
+Date: Wed, 28 Aug 2019 07:40:15 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+In-Reply-To: <20190828142423.GA1955@infradead.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190827150544.151031-1-salyzyn@android.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Language: en-GB
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,6 +111,8 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Mark Salyzyn via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Mark Salyzyn <salyzyn@android.com>
 Cc: Latchesar Ionkov <lucho@ionkov.net>, Hugh Dickins <hughd@google.com>,
  Mike Marshall <hubcap@omnibond.com>, James Morris <jmorris@namei.org>,
  devel@lists.orangefs.org, Eric Van Hensbergen <ericvh@gmail.com>,
@@ -127,11 +165,23 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Aug 27, 2019 at 08:05:15AM -0700, Mark Salyzyn wrote:
-> Replace arguments for get and set xattr methods, and __vfs_getxattr
-> and __vfs_setaxtr functions with a reference to the following now
-> common argument structure:
+On 8/28/19 7:24 AM, Christoph Hellwig wrote:
+> On Tue, Aug 27, 2019 at 08:05:15AM -0700, Mark Salyzyn wrote:
+>> Replace arguments for get and set xattr methods, and __vfs_getxattr
+>> and __vfs_setaxtr functions with a reference to the following now
+>> common argument structure:
+> Yikes.  That looks like a mess.  Why can't we pass a kernel-only
+> flag in the existing flags field for ₋>set and add a flags field
+> to ->get?  Passing methods by structure always tends to be a mess.
 
-Yikes.  That looks like a mess.  Why can't we pass a kernel-only
-flag in the existing flags field for ₋>set and add a flags field
-to ->get?  Passing methods by structure always tends to be a mess.
+This was a response to GregKH@ criticism, an earlier patch set just 
+added a flag as you stated to get method, until complaints of an 
+excessively long argument list and fragility to add or change more 
+arguments.
+
+So many ways have been tried to skin this cat ... the risk was taken to 
+please some, and we now have hundreds of stakeholders, when the first 
+patch set was less than a dozen. A recipe for failure?
+
+-- Mark
+
