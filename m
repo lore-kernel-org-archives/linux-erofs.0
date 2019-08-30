@@ -2,84 +2,55 @@ Return-Path: <SRS0=iJNB=W2=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68F4AC3A59F
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 01:25:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08618C3A5A3
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 03:02:04 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D936120828
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 01:25:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=omnibond-com.20150623.gappssmtp.com header.i=@omnibond-com.20150623.gappssmtp.com header.b="rsF3TnYv"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D936120828
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=omnibond.com
+	by mail.kernel.org (Postfix) with ESMTPS id 41F7622CE3
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 03:02:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 41F7622CE3
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46KMGm6h2DzDrBf
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 11:25:04 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46KPQb5Q89zF0RC
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Aug 2019 13:01:59 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
- spf=none (mailfrom) smtp.mailfrom=omnibond.com
- (client-ip=2607:f8b0:4864:20::c43; helo=mail-yw1-xc43.google.com;
- envelope-from=hubcap@omnibond.com; receiver=<UNKNOWN>)
+ spf=pass (mailfrom) smtp.mailfrom=huawei.com
+ (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=omnibond.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=omnibond-com.20150623.gappssmtp.com
- header.i=@omnibond-com.20150623.gappssmtp.com header.b="rsF3TnYv"; 
- dkim-atps=neutral
-Received: from mail-yw1-xc43.google.com (mail-yw1-xc43.google.com
- [IPv6:2607:f8b0:4864:20::c43])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46KMGf4WmNzDr2y
- for <linux-erofs@lists.ozlabs.org>; Fri, 30 Aug 2019 11:24:53 +1000 (AEST)
-Received: by mail-yw1-xc43.google.com with SMTP id m11so1848157ywh.3
- for <linux-erofs@lists.ozlabs.org>; Thu, 29 Aug 2019 18:24:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=omnibond-com.20150623.gappssmtp.com; s=20150623;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=4TfZVE6zvYYuoOuB/Rxqa+Mlm3vtxZPY12krCFPSTtI=;
- b=rsF3TnYvnJjkhMrqd8jgi2b1fWfnS720m/snkWNYBAl3jogwp2mEsqA8h0meBBMFCG
- mupgLKrOXopsTT3mx+lDcAZLHUPbfCw/vXrZaEIvlfIiq4H0dj/IKCul0NWP4fpGLsu4
- 48Lini1zfDu9D/EL0CeWiI8kZAXrgg08x+hcJWXhpsmSN701z4+zSsQ5V2A/N+PZ/ko+
- cAveXQxi5GTfOnxm/M0L2QMcpa0QpEp0UoezlsX6vklrx1noOLsykTvVpPGdg1yASetm
- NGCTD4uF7gFM2G4DP0Fj0jWpPyOxMpJF0KkXFU1tGtaTorkpzYDBwzJA49OyfPjy95xt
- U/rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=4TfZVE6zvYYuoOuB/Rxqa+Mlm3vtxZPY12krCFPSTtI=;
- b=hNGq1R2OF46IX1O30cqE6yLPO/6zvFUlgoXQEVE8HNTrUtmHOXvZ8kxakpIu3qrSLy
- GG0m4NabXqmdTzR9SGJCVbUm5NPlwkAibHjzTaHCYOLAvRFgIGfJD3hnDJ/H3RXPg+4r
- jU3JkT//9ElQd6I86J3/q2DzI6mO2BFbmQvJK0g1A9Ud6WgVbgv2QbhbzDLQGc1nu+CX
- stniF1KdlEtRo5H+GnMASH4vUW650vy/ju2pkJov0JMejg77DjH2E3PLxNbEBdyLZUdq
- ZIuDM8pxvOluOOvkTm7wvDM3qNjOAjlzQR9qFtK3U+SsY93sJkHupn1bEvyTYvLcSSsM
- RYcw==
-X-Gm-Message-State: APjAAAWBkxTqMsv/mZ8UEZX+a2fkkX/0Sjy+bUzMQogAmeuhv2tt4mkR
- p8gaywQQVo+FtZVm0lZQXbfP1ZvN/NxVQ/eHFdv9eg==
-X-Google-Smtp-Source: APXvYqwS/gBw6GYqWJhwCNBmHR6+W2ONQRTVjMY8ZXLyRIgVZbf1blJaiiDec2a/U/ArNO35ME5xZuocZ9cXu0GpPKQ=
-X-Received: by 2002:a0d:d596:: with SMTP id x144mr9018446ywd.69.1567128290041; 
- Thu, 29 Aug 2019 18:24:50 -0700 (PDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46KPQS5YcgzF0QP
+ for <linux-erofs@lists.ozlabs.org>; Fri, 30 Aug 2019 13:01:51 +1000 (AEST)
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id CC11BB19EE41FF813070;
+ Fri, 30 Aug 2019 11:01:45 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.212) with Microsoft SMTP Server (TLS) id 14.3.439.0; Fri, 30 Aug
+ 2019 11:01:39 +0800
+From: Gao Xiang <gaoxiang25@huawei.com>
+To: Chao Yu <yuchao0@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+ Christoph Hellwig <hch@infradead.org>, Joe Perches <joe@perches.com>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, <devel@driverdev.osuosl.org>
+Subject: [PATCH v2 2/7] erofs: some marcos are much more readable as a function
+Date: Fri, 30 Aug 2019 11:00:35 +0800
+Message-ID: <20190830030040.10599-2-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190830030040.10599-1-gaoxiang25@huawei.com>
+References: <20190830030040.10599-1-gaoxiang25@huawei.com>
 MIME-Version: 1.0
-References: <20190827150544.151031-1-salyzyn@android.com>
- <20190828142423.GA1955@infradead.org>
- <5dd09a38-fffb-36f2-505b-be2ddf6bb750@android.com>
-In-Reply-To: <5dd09a38-fffb-36f2-505b-be2ddf6bb750@android.com>
-From: Mike Marshall <hubcap@omnibond.com>
-Date: Thu, 29 Aug 2019 21:24:38 -0400
-Message-ID: <CAOg9mSTCC4Z3RpEyppC50B+pnSBbV0sr-F7hbsM-B+z3c-AZVA@mail.gmail.com>
-Subject: Re: [PATCH v8] Add flags option to get xattr method paired to
- __vfs_getxattr
-To: Mark Salyzyn <salyzyn@android.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -91,90 +62,98 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Hugh Dickins <hughd@google.com>,
- James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
- devel@lists.orangefs.org, Eric Van Hensbergen <ericvh@gmail.com>,
- Joel Becker <jlbec@evilplan.org>, Anna Schumaker <anna.schumaker@netapp.com>,
- Trond Myklebust <trond.myklebust@hammerspace.com>,
- Mathieu Malaterre <malat@debian.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- LKML <linux-kernel@vger.kernel.org>, Jan Kara <jack@suse.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Andrew Morton <akpm@linux-foundation.org>, Dave Kleikamp <shaggy@kernel.org>,
- linux-doc@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
- Mimi Zohar <zohar@linux.ibm.com>, linux-cifs@vger.kernel.org,
- Paul Moore <paul@paul-moore.com>, "Darrick J. Wong" <darrick.wong@oracle.com>,
- Eric Sandeen <sandeen@sandeen.net>, kernel-team@android.com,
- selinux@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
- reiserfs-devel@vger.kernel.org, Tejun Heo <tj@kernel.org>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
- Miklos Szeredi <miklos@szeredi.hu>, "Linux F2FS DEV,
- Mailing List" <linux-f2fs-devel@lists.sourceforge.net>,
- Benjamin Coddington <bcodding@redhat.com>, linux-integrity@vger.kernel.org,
- Martin Brandenburg <martin@omnibond.com>, Chris Mason <clm@fb.com>,
- linux-mtd <linux-mtd@lists.infradead.org>, linux-afs@lists.infradead.org,
- Jonathan Corbet <corbet@lwn.net>, Vyacheslav Dubeyko <slava@dubeyko.com>,
- Allison Henderson <allison.henderson@oracle.com>,
- Ilya Dryomov <idryomov@gmail.com>,
- Ext4 Developers List <linux-ext4@vger.kernel.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Serge Hallyn <serge@hallyn.com>,
- Eric Paris <eparis@parisplace.org>, ceph-devel <ceph-devel@vger.kernel.org>,
- Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
- linux-mm <linux-mm@kvack.org>, samba-technical@lists.samba.org,
- linux-xfs@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
- "David S. Miller" <davem@davemloft.net>, ocfs2-devel@oss.oracle.com,
- jfs-discussion@lists.sourceforge.net, Jan Kara <jack@suse.cz>,
- Eric Biggers <ebiggers@google.com>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Adrian Hunter <adrian.hunter@intel.com>, David Howells <dhowells@redhat.com>,
- Joseph Qi <joseph.qi@linux.alibaba.com>,
- Andreas Dilger <adilger.kernel@dilger.ca>, devel@driverdev.osuosl.org,
- "J. Bruce Fields" <bfields@redhat.com>,
- Andreas Gruenbacher <agruenba@redhat.com>, Sage Weil <sage@redhat.com>,
- Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>,
- cluster-devel@redhat.com, Steve French <sfrench@samba.org>,
- V9FS Developers <v9fs-developer@lists.sourceforge.net>,
- Bharath Vedartham <linux.bhar@gmail.com>, Jann Horn <jannh@google.com>,
- ecryptfs@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
- Dave Chinner <dchinner@redhat.com>, David Sterba <dsterba@suse.com>,
- Artem Bityutskiy <dedekind1@gmail.com>, netdev@vger.kernel.org,
- linux-unionfs@vger.kernel.org, stable@vger.kernel.org,
- Tyler Hicks <tyhicks@canonical.com>, linux-security-module@vger.kernel.org,
- Phillip Lougher <phillip@squashfs.org.uk>,
- David Woodhouse <dwmw2@infradead.org>, linux-btrfs@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>,
+ weidu.du@huawei.com, Miao Xie <miaoxie@huawei.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-I added this patch series on top of Linux 5.3-rc6 and ran xfstests
-on orangefs with no regressions.
+As Christoph suggested [1], these marcos are much
+more readable as a function.
 
-Acked-by: Mike Marshall <hubcap@omnibond.com>
+[1] https://lore.kernel.org/r/20190829095954.GB20598@infradead.org/
+Reported-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+---
+v2: no change, just resend in case of dependency problem;
 
--Mike
+ fs/erofs/erofs_fs.h | 24 ++++++++++++++++--------
+ fs/erofs/inode.c    |  4 ++--
+ fs/erofs/xattr.c    |  2 +-
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
-On Wed, Aug 28, 2019 at 10:40 AM Mark Salyzyn <salyzyn@android.com> wrote:
->
-> On 8/28/19 7:24 AM, Christoph Hellwig wrote:
-> > On Tue, Aug 27, 2019 at 08:05:15AM -0700, Mark Salyzyn wrote:
-> >> Replace arguments for get and set xattr methods, and __vfs_getxattr
-> >> and __vfs_setaxtr functions with a reference to the following now
-> >> common argument structure:
-> > Yikes.  That looks like a mess.  Why can't we pass a kernel-only
-> > flag in the existing flags field for =E2=82=8B>set and add a flags fiel=
-d
-> > to ->get?  Passing methods by structure always tends to be a mess.
->
-> This was a response to GregKH@ criticism, an earlier patch set just
-> added a flag as you stated to get method, until complaints of an
-> excessively long argument list and fragility to add or change more
-> arguments.
->
-> So many ways have been tried to skin this cat ... the risk was taken to
-> please some, and we now have hundreds of stakeholders, when the first
-> patch set was less than a dozen. A recipe for failure?
->
-> -- Mark
->
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index 2447ad4d0920..41e53b49a11b 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -168,16 +168,24 @@ struct erofs_xattr_entry {
+ 	char   e_name[0];       /* attribute name */
+ } __packed;
+ 
+-#define ondisk_xattr_ibody_size(count)	({\
+-	u32 __count = le16_to_cpu(count); \
+-	((__count) == 0) ? 0 : \
+-	sizeof(struct erofs_xattr_ibody_header) + \
+-		sizeof(__u32) * ((__count) - 1); })
++static inline unsigned int erofs_xattr_ibody_size(__le16 d_icount)
++{
++	unsigned int icount = le16_to_cpu(d_icount);
++
++	if (!icount)
++		return 0;
++
++	return sizeof(struct erofs_xattr_ibody_header) +
++		sizeof(__u32) * (icount - 1);
++}
+ 
+ #define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
+-#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
+-	sizeof(struct erofs_xattr_entry) + \
+-	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
++
++static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
++{
++	return EROFS_XATTR_ALIGN(sizeof(struct erofs_xattr_entry) +
++				 e->e_name_len + le16_to_cpu(e->e_value_size));
++}
+ 
+ /* available compression algorithm types */
+ enum {
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 80f4fe919ee7..cf31554075c9 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -29,7 +29,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		struct erofs_inode_v2 *v2 = data;
+ 
+ 		vi->inode_isize = sizeof(struct erofs_inode_v2);
+-		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
++		vi->xattr_isize = erofs_xattr_ibody_size(v2->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+@@ -62,7 +62,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 
+ 		vi->inode_isize = sizeof(struct erofs_inode_v1);
+-		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
++		vi->xattr_isize = erofs_xattr_ibody_size(v1->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index a8286998a079..7ef8d4bb45cd 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -231,7 +231,7 @@ static int xattr_foreach(struct xattr_iter *it,
+ 	 */
+ 	entry = *(struct erofs_xattr_entry *)(it->kaddr + it->ofs);
+ 	if (tlimit) {
+-		unsigned int entry_sz = EROFS_XATTR_ENTRY_SIZE(&entry);
++		unsigned int entry_sz = erofs_xattr_entry_size(&entry);
+ 
+ 		/* xattr on-disk corruption: xattr entry beyond xattr_isize */
+ 		if (unlikely(*tlimit < entry_sz)) {
+-- 
+2.17.1
+
