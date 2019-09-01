@@ -7,81 +7,81 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08937C3A5A8
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95FADC3A5A4
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:14 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7DD3A21744
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 17D8F21744
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="HMo9rnMY";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="XJk9k36/"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7DD3A21744
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="WdzLOeFp";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="q+MeV2ah"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 17D8F21744
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46Lj754t8zzDqsj
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 15:53:05 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46Lj7D22rWzDqsX
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 15:53:12 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1567317185;
-	bh=2+T8yNkHb39LAhicVsFWwaVH/QppeqkSzv7slx1Xvks=;
+	s=201707; t=1567317192;
+	bh=leehfY0w7Sm5V210KeoIUcvw63cDKldZTUWE06V1Ods=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=HMo9rnMYUsRxcR+GOqVgtb5VJf0XsNR3WIMNPMKFXqToOvbMIzAfIIaHZB2p2xOI9
-	 YpdhdBJlKaNoNyM3wdGnamnm/w141r/KT0g3zYXGg3kraL4E7O38Jjhv1zKG+EtTqU
-	 Fo/RcJNkxDH4tiRHus2+13tfshGFvlHnrGXUnDmDnISGpgdgNwbWW4OmMM9Gs7grDD
-	 8e9dqGBdeWU2THsrRVBqxTx6akQdQV+68Z9G9Cw0ZlU8lwuqeGJVfW47PG4UpF0lw2
-	 BYNSd1ICnwmUZtISyHU9r+8nHveIXt+eKcDfSzZ2J9m5ilX5X8Oc4Cv/lg65V6YGpT
-	 BQpFakp5g8O9g==
+	b=WdzLOeFpGm55ugs2b5X17xsSPGdu8PZ+hqd99lm7/SSOeEFVqq0Up3RpnhWjipHEo
+	 yvh3gglablhNvmkPx9N+z95iNJPxpRiVNVy7lhILheNg5KOsD3Fiy4RRiHkDtfrvz5
+	 ZC3nb3+KoUFIiZrgK3iVq0U9NT1TRnCToYYDGqkyiHxMYZQLSDb/DhIruUrmptyyZn
+	 W9N5sMrpkXEubuHnRcZNOigJ9FvMZAdbqbdfRGpREquTuXSFPiLpN6A8Kmt1F6YS3y
+	 5akGuE752G6x9MuU6Z69wHP8zQFACo4aXvE4MuzStDwKWGmYSecZ7ZUB8OwKRaXYnX
+	 BqKr3NJW+/HSQ==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=aol.com
- (client-ip=98.137.64.146; helo=sonic301-20.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.64.32; helo=sonic307-8.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="XJk9k36/"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="q+MeV2ah"; 
  dkim-atps=neutral
-Received: from sonic301-20.consmr.mail.gq1.yahoo.com
- (sonic301-20.consmr.mail.gq1.yahoo.com [98.137.64.146])
+Received: from sonic307-8.consmr.mail.gq1.yahoo.com
+ (sonic307-8.consmr.mail.gq1.yahoo.com [98.137.64.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46Lj6Z4m5vzDqtZ
- for <linux-erofs@lists.ozlabs.org>; Sun,  1 Sep 2019 15:52:38 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46Lj6h0YtfzDqlr
+ for <linux-erofs@lists.ozlabs.org>; Sun,  1 Sep 2019 15:52:42 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1567317151; bh=xyzLFbGFGOZTSaMtcMPutncgSOGzVBNC+NNTATqkoDA=;
+ t=1567317159; bh=f05SOMjhcbrllSkIEXOI4eRR/x6TrSdhoBITnwjaQY0=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
- b=XJk9k36/zjsvTDf3JTiV0SC7u+4fA8Dn0kI9fhLgZqBC2WsUMTvwOSiNgllCFRae6Vz8BzjdaI60cAV1/fQPBVkXSBbGymEu9OA6simvfA9+78SxkItSLW5i8zKCgKJaenlayCbrrTkI7j2r0/j6w6AdSUk48fspzT9duWXMlaDYGRQT2ExAICNkTUkgJM8kk+sv/mHY4sQ4myo+OKo1uAokvxjY2VhkkRVM8gC0HZz+Z1AthJMgRVOVoRGZ1cy2Nf+RO6fql2fqcWPQYj6ULEzVUnkn8ErTVckYToGyiJXARm7ZjBjA6rhDWHhXwy7maD1EVkKSB1Mw6DtooxQVdQ==
-X-YMail-OSG: ZoGfFlQVM1lN4mDgMJoo8KEKbdqaqy2_9W9yFXfW_qbuaZb3wJK5zBbke6429BP
- aDBIxiKrt2kZJT.RLCoJ4TdOIOilR9qUY9zjHct_67aEvFDssHdqyzjmB5xzcMJCdeONjVeMkw.e
- sK4Rtdu6AfDIiXf9nNb0oApNBcJj6xJIHjS27l6ez29lDf986VTFB6TltNDIgSeVmU3kwHXbmy_R
- uw43P5_g97uVVDKx7n_z2yDspXrC_e8158iaYDky8NTu051zGb2fbNAcBGC7fIxG9lT3OIfcRWRd
- mC2CQSw2EShVNAHUQH1BcwSC_bpNqHOUov2pl1eQoyw4OOL8Y2WUd.QWyU5XErD_OEv_c7sveB36
- OvCHwxcxoWxmAzVVZeBhQ43cTiTLf4YalyRBMZ9xYvBFg8YeMSJTNVwN7A5EwxZkccI_F0Yww1Tw
- B2OSBi20J1iSxce4Thh0s.KUStm404sJRJlv6F57TI_fJza1EYclW5zQT39cc2k1fUMmg61spxPx
- afjRQXFugr3mYSkPg9XT8qEiVRip4TgeuZHavdOCSddjd_GUGbWz.U1AjpgHO7YN4nAgPSrSMqZt
- tH7zZomUcly0cKBZEzrpMVO2Wga6f5WNmklYDAvdmFntY2WC6kKe1FjSLjwU.ROhkMpXU2G.OvEf
- mz3Ma5NsJKr12A7X4mD_UaG8fcvoUSrTpv1aDq93oHLurVi9E60DCb63H0z6WQXpBY3NLDjpZFTo
- ppS3ytbaebD4JXUXeiG4m7kPfnyIZTy_7Y3GFbqo83ukRL_WAbS9vTkqT8VdOZXS2eJLa.F7SW8n
- 5fLIBQnjjFHUUGDrloooyvt_5zAsi2sYzTAMSa414px.BU4gJDhy0Hz_obuhW3m_2q4tofQc6eem
- KFx4InBt9kifDg3PQD7SF6dP1KqksUtr.LGrnn6X3WWStxv1yxlMB3ehL8AK.0WOKlDEKaf4pGW.
- nQXEQF240l38t5Bzh.dMnUwvcRGTUaJuC8OYerxHrgNeLEOG9TWfp9gZK73z01eRjQDwJUB0D4gx
- Zsl7lQGtQ5PKE0pRisXpvVCZJW994bWsnBrn9w.W5eHJq_s5Fq_VAHM9CJjyQYD74R_PmMpdg7oZ
- pjrD_qemdcaBOq3.1nKb0h8h_J_YAqFEsvdkt64ljRsQAQCc3ENgwpCXqbhL663t4cyZVXa5Iu2F
- Fsco1owAQfu7Emq6OAktbYBiE31rvPS2CixsK8fEN_j138zg5QECTiMGql2zA.wufGLr.M8jdf1C
- hlTVxHIDPnb3mp2tpGZWTTciQHIeT1QeO2BHs.x0AjA--
+ b=q+MeV2ah9X/xMnfHbHWejNVpqJ0n1Pot/QtnxizQW7z3YeaPC7ounQjdo6lP/n754/1GSxw/IYc+ITIUic5kiGY4tsWH8NFA5hKOzQjEiXvQuSPCLHMSQedxtdetNnJNxd/TnrrIKkXBM6S3Um04JzeKzpWHAiy3mYL1NjAhtOB9ZJtmWATWtydtQHZfnkv74rIsSUTgEDlATY4eUxx4NL7ItVta3Cchll1T49b5zvyECSyZHTbOvrOBSNRalXl+hiCqsA+LCQX+MLKKtHbuCzRv8vxaiRSzDi1Ppvt26tFe6hO6l4BiuILG+WZuJ6PlB5S19OU5kaAh7oWmQwzz/w==
+X-YMail-OSG: 3OgvbfcVM1m.J9qM0HpXLxrcKXINJlnPJ7PNZ4hqbBeAmGwoLwx6qbstNjAc0EG
+ AUAbS5ZwM0l9wQRfcyV_msAVm5XUcG6mlIJAD7q34CZyJIpKr7iMTlwjVCCgFNU_Tz5ma424Xr8W
+ Mm6de3ZKqLNRpMbNuMasHAJ1EK3yA5skDN10jBPzITd4uypFvM0ki5Rg8hTfc3_zeFpWY0kR6PIj
+ S.22fH9dQPHRMi23WVzTLTQPfUAAeoa5whlgF7SgmNJhjcIce7nn0vydJ8RHmtkWuSb_oYOKC3AX
+ FAdMZUP17tijU4g981P4b9z1_SQSF5xeDSlvrL1eblj21G0EsGbToYRm6RWCg.iI_gljVexK1HrC
+ g89ZE3eF3HgOdSJC4a61pzDNt13TuPzn__m.xskI6L4Ac9Ko5wModz8NZ9BNx_JVEcUJ9ft9fWMO
+ .F4fhlS._f7WBDZz2ef_3bUfi1lYm0j.3C1ahpTNbbEJs4bCQ768NRgQQBLjYxXLjkI1Mo7mUPhZ
+ SlEgubBACKU3TKCl0Auc3soLYX25KPc83IRU4r8Ft9Pkg1iQ_TQzpb.411uEDygvImnfXXdbUAOr
+ ieiz4Qw4Y6sup8fm_dgl5a0srmwTmDt1pNkklUlIrYaJCYJ2fGZZR4_vxbB1s.m4v_kgPPB3NDeK
+ w4C8KsLPJGNI9FASs7xSXLATNRMJtWCepaAY7ovkv881ZulqPFDbUYejwndWree6aFVO7lQWPNp4
+ O1rKdK09s5rkbWgVTCitWGZQ95Iy2Ma.5duWMwbDTBas_.ZFBksS40GIlVC0_6Bj7QW_MdTiuAiu
+ kZ84drzYplODx2PKf5vI9bZ0etbh3GzCMX4WD0Ogq3__PzmN5UfWgSeqDTO1u9Qobv9KIcOvzX8y
+ KGgZTN_G2dDw6HunTGapzsXWJDlFMlM4Jdxt0GVYJa_1di61O.mYxx2OOErF6jU3zQcBXUD2Q9yI
+ 6su_HtEiLVmoAgYtbtjRJ4f7EMw.FDwnRWsaiiPxRg7O5sstrctqS2uaH6sDHFRzxX1u.G6MKaMh
+ 7_dz23L8oQpofzjCmpvDN2oXjl9DnHdiTZMLKV2b6Hktm4qW5ftqdQFt8EWR3dD5f7bqTB8.x5Zm
+ DC1aRh8SF4I7a76nna_rdY6fHvFHGD5_2TMpKz5Ye43clJXVp.lY83_Sj2whgk_2HlQFoWZDgLFy
+ t0O8io_sdtDXRaxlMiHe3MovujHltXa_khQbsKRuh9IN97tYIKUtePoOO75mg7uvIqscwtfKshcw
+ WrIuLGSvdSAvQxIo_s77.iPqN47euyW3w.IgO.B6EFWdy
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic301.consmr.mail.gq1.yahoo.com with HTTP; Sun, 1 Sep 2019 05:52:31 +0000
+ sonic307.consmr.mail.gq1.yahoo.com with HTTP; Sun, 1 Sep 2019 05:52:39 +0000
 Received: by smtp406.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
  ID 426e3b5ec1af9e36f409445c51071a70; 
- Sun, 01 Sep 2019 05:52:29 +0000 (UTC)
+ Sun, 01 Sep 2019 05:52:39 +0000 (UTC)
 To: Christoph Hellwig <hch@infradead.org>, Chao Yu <yuchao0@huawei.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 08/21] erofs: update comments in inode.c
-Date: Sun,  1 Sep 2019 13:51:17 +0800
-Message-Id: <20190901055130.30572-9-hsiangkao@aol.com>
+Subject: [PATCH 10/21] erofs: kill is_inode_layout_compression()
+Date: Sun,  1 Sep 2019 13:51:19 +0800
+Message-Id: <20190901055130.30572-11-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190901055130.30572-1-hsiangkao@aol.com>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
@@ -107,45 +107,88 @@ Sender: "Linux-erofs"
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-As Christoph suggested [1], update them all.
+As Christoph suggested [1], "The name of this helper
+is a little odd.  But I think just opencoding it seems
+generally cleaner anyway. "
 
 [1] https://lore.kernel.org/r/20190829102426.GE20598@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/inode.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/erofs/data.c     | 2 +-
+ fs/erofs/inode.c    | 8 ++++----
+ fs/erofs/internal.h | 5 -----
+ 3 files changed, 5 insertions(+), 10 deletions(-)
 
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index d736d2e551a1..e2e40ec2bfd1 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -169,7 +169,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ int erofs_map_blocks(struct inode *inode,
+ 		     struct erofs_map_blocks *map, int flags)
+ {
+-	if (is_inode_layout_compression(inode)) {
++	if (erofs_inode_is_data_compressed(EROFS_I(inode)->datamode)) {
+ 		int err = z_erofs_map_blocks_iter(inode, map, flags);
+ 
+ 		if (map->mpage) {
 diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index de0373647959..24c94a7865f2 100644
+index 29a52138fa9d..d501ceb62c29 100644
 --- a/fs/erofs/inode.c
 +++ b/fs/erofs/inode.c
-@@ -129,7 +129,7 @@ static int fill_inline_data(struct inode *inode, void *data,
- 	if (!is_inode_flat_inline(inode))
- 		return 0;
+@@ -56,7 +56,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		inode->i_size = le64_to_cpu(v2->i_size);
  
--	/* fast symlink (following ext4) */
-+	/* fast symlink */
- 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
- 		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
+ 		/* total blocks for compressed files */
+-		if (is_inode_layout_compression(inode))
++		if (erofs_inode_is_data_compressed(vi->datamode))
+ 			nblks = le32_to_cpu(v2->i_u.compressed_blocks);
+ 	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
+ 		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+@@ -87,7 +87,7 @@ static int read_inode(struct inode *inode, void *data)
+ 			sbi->build_time_nsec;
  
-@@ -138,7 +138,7 @@ static int fill_inline_data(struct inode *inode, void *data,
- 
- 		m_pofs += vi->inode_isize + vi->xattr_isize;
- 
--		/* inline symlink data shouldn't across page boundary as well */
-+		/* inline symlink data shouldn't cross page boundary as well */
- 		if (m_pofs + inode->i_size > PAGE_SIZE) {
- 			kfree(lnk);
- 			errln("inline data cross block boundary @ nid %llu",
-@@ -147,7 +147,6 @@ static int fill_inline_data(struct inode *inode, void *data,
- 			return -EFSCORRUPTED;
+ 		inode->i_size = le32_to_cpu(v1->i_size);
+-		if (is_inode_layout_compression(inode))
++		if (erofs_inode_is_data_compressed(vi->datamode))
+ 			nblks = le32_to_cpu(v1->i_u.compressed_blocks);
+ 	} else {
+ 		errln("unsupported on-disk inode version %u of nid %llu",
+@@ -204,7 +204,7 @@ static int fill_inode(struct inode *inode, int isdir)
+ 			goto out_unlock;
  		}
  
--		/* get in-page inline data */
- 		memcpy(lnk, data + m_pofs, inode->i_size);
- 		lnk[inode->i_size] = '\0';
+-		if (is_inode_layout_compression(inode)) {
++		if (erofs_inode_is_data_compressed(vi->datamode)) {
+ 			err = z_erofs_fill_inode(inode);
+ 			goto out_unlock;
+ 		}
+@@ -283,7 +283,7 @@ int erofs_getattr(const struct path *path, struct kstat *stat,
+ {
+ 	struct inode *const inode = d_inode(path->dentry);
  
+-	if (is_inode_layout_compression(inode))
++	if (erofs_inode_is_data_compressed(EROFS_I(inode)->datamode))
+ 		stat->attributes |= STATX_ATTR_COMPRESSED;
+ 
+ 	stat->attributes |= STATX_ATTR_IMMUTABLE;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 4442a6622504..6bd82a82b11f 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -327,11 +327,6 @@ static inline unsigned long inode_datablocks(struct inode *inode)
+ 	return DIV_ROUND_UP(inode->i_size, EROFS_BLKSIZ);
+ }
+ 
+-static inline bool is_inode_layout_compression(struct inode *inode)
+-{
+-	return erofs_inode_is_data_compressed(EROFS_I(inode)->datamode);
+-}
+-
+ static inline bool is_inode_flat_inline(struct inode *inode)
+ {
+ 	return EROFS_I(inode)->datamode == EROFS_INODE_FLAT_INLINE;
 -- 
 2.17.1
 
