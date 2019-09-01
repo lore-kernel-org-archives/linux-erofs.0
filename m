@@ -7,81 +7,81 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF1F1C3A5A4
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08937C3A5A8
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:08 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5043621744
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 7DD3A21744
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 05:53:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="d/ugZ/37";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="N+i/cZhT"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5043621744
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="HMo9rnMY";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="XJk9k36/"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7DD3A21744
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46Lj701rkXzDqsb
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 15:53:00 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46Lj754t8zzDqsj
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Sep 2019 15:53:05 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1567317180;
-	bh=Aqrm6rMWJrn6qjY3SuWxDuDHEkiL9BzH9oPfCCg8PyE=;
+	s=201707; t=1567317185;
+	bh=2+T8yNkHb39LAhicVsFWwaVH/QppeqkSzv7slx1Xvks=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=d/ugZ/37EBZAR5Ir0Z/VBiEJOsu/euhPKinUD65ARSSq1eUiomD9dwykDpYq1QMzu
-	 4EdYvDwO7OMlIB7tZ2mgYV1g3YkLf40WyR8/k/M22q171yos0dWDOK3jVXleGLPHKB
-	 SxX0j0pwq2CGkoi+Us9Uad4QmGFAn5znqUcLonATPouWmIpUmMugYAEnWnHUD56mcM
-	 C6+XvBTiWhTa0bEx/zhffsFovtCZWE7RtYVeG2IiVj5e0GlAmSnjtw7mKv5+U/BjdY
-	 IfPzkgui9Agcw/lo7ygdzGujHxsYJ/Vbj2y1KvXXIaHhJq7ctUrgkPX/4F8Tqr3Wv3
-	 AXgYbv9TxF4lA==
+	b=HMo9rnMYUsRxcR+GOqVgtb5VJf0XsNR3WIMNPMKFXqToOvbMIzAfIIaHZB2p2xOI9
+	 YpdhdBJlKaNoNyM3wdGnamnm/w141r/KT0g3zYXGg3kraL4E7O38Jjhv1zKG+EtTqU
+	 Fo/RcJNkxDH4tiRHus2+13tfshGFvlHnrGXUnDmDnISGpgdgNwbWW4OmMM9Gs7grDD
+	 8e9dqGBdeWU2THsrRVBqxTx6akQdQV+68Z9G9Cw0ZlU8lwuqeGJVfW47PG4UpF0lw2
+	 BYNSd1ICnwmUZtISyHU9r+8nHveIXt+eKcDfSzZ2J9m5ilX5X8Oc4Cv/lg65V6YGpT
+	 BQpFakp5g8O9g==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=aol.com
- (client-ip=98.137.69.32; helo=sonic316-8.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.64.146; helo=sonic301-20.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="N+i/cZhT"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="XJk9k36/"; 
  dkim-atps=neutral
-Received: from sonic316-8.consmr.mail.gq1.yahoo.com
- (sonic316-8.consmr.mail.gq1.yahoo.com [98.137.69.32])
+Received: from sonic301-20.consmr.mail.gq1.yahoo.com
+ (sonic301-20.consmr.mail.gq1.yahoo.com [98.137.64.146])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46Lj6Y44sBzDqtZ
- for <linux-erofs@lists.ozlabs.org>; Sun,  1 Sep 2019 15:52:37 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46Lj6Z4m5vzDqtZ
+ for <linux-erofs@lists.ozlabs.org>; Sun,  1 Sep 2019 15:52:38 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1567317154; bh=FzeNItiene0TBHzyekGv1R2lNe17KNzxF1AaAx9+9Tc=;
+ t=1567317151; bh=xyzLFbGFGOZTSaMtcMPutncgSOGzVBNC+NNTATqkoDA=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
- b=N+i/cZhTNsNwmzZ0LdOKZyO/dY/jBflyfRu6J6kVwgL1YsTQfT2IW2aenms2yXDv5bU0nXum4thMkMB5JRbV2FetvxfGaBvg3DNvRC1G5R0Zk1wzBZvCJ8u4nWL1yJt+FNu2KErLjQ/4k18pWIAlPmC2FJmOcfreR37PkB5TZnVdKEDUnizb5T42sYyVjVIoPPMYlRt6EPK3FvWd5yCbzuHddk6JHGr+KzDsLFpmnrxpT6joONB98kaZF9twDKJjrWgxWMcuWpq2cTKoO79Iy0568i9KBAv2+pe33TdVNsKm/3GQki+YUZefHb2PAG+vCRStRBdp4ibncl7T5bJfbw==
-X-YMail-OSG: tJJSDhAVM1nwAZ94SgMfRaI2OS7mUthquNMV3K4p0AnHtEhYYyRBLNURv._gJ6j
- S460wzP1bCv0bBw1zFd_5d1ZpPoeNNyapMByKcN.ixbb0xbVKFoUz4eRw3aP3mPMMXnBIqBBp5Ob
- Fd_qlFy3TZOoXawugio8nq6RDhcfJqya_FPLW48Zrht6KGApll7rLy92r6sV4RwtS2WLcAl7YnAD
- ByssQrHVvn9jU1SA9UIRwCxqe02HaR0kuA.xCc7Avs_3A9wQfCpBwuEo.PYL0mg_dGsSitbp0X2R
- xjUDUNjB16nuQIv3eYB.5b9ZPemL6wF5HFzUFP67TuacEBsN1UH8Lydww1TOjjmumdyxd1f1LoFm
- YYnkrGOZeRn__C9SQxxWDf7DqGFRSDpYYGEjipD88uzUvHgiaCI2AQvjj7jYjdgUhfW78DzN_bcL
- DEPvBfzzQSuSmW2ftOQijf8BnVtE5.pGYa16bjlfH6QkSy9QKgdJgbHY23HZ5428JQ35EhcT0ryo
- OSLgVt7OAdeuzSxtG.JpiBLzFOq8xxyIlCWD3E9nhewOzC2A_U4CtiuIpFolqbsy5GGPzztRm032
- qMGUjb.OSvDBSrGU7fp.IR16xGdP6EVdxTjbPOnNF_OjZ5lP_GAeuny0LZlM7WFFM34IidP_2GkE
- Gjch4yJOjK_.wQC4OX1pKJ_hPVU1DOjwxbTSYd8g8EJIwa58bRBQ_qVXSdSPDVMq3Rkx7VskSrP.
- 3d1vDrbyy27GfTZYRh4wDlMTwRArxAlnZwY1HIpOkkcVZF9KfalAGa.X5D9BrQXAYoH5omZgXo21
- hEwdA1mVSMKETkgYAiSa0hXYNr0v29D3ldpkv8wCogu6cIsqrA6t5XGmX5PxJsBb_Cvv2O08gyds
- SAHZ22L_GHdBHA3u4a4sbzHNE7C9LTuCvxehWXD9KnBVdJ_7FpKdbFebGw1enIfku3H1bDSElQt2
- x9ooJTk5LYpSEZV9tfs9k7atMHUCWhh7FOY_X63NGMgIAd_dcykT.0RNnsiXVtdK9qTNQLFkuSVA
- mLv0rAQXNAJjqxxgdbDXVOLzOkA_HMJW5.su4emhuNDSM0_g46eScsEYcjFPmitq69RJlmncawK_
- wSrSo4M8I03hzeDmypAOEZJZFZ05eLL5d_TGM5u0ksude.DS9.XxLapfGIB6LONfG4iuKkyq6lOc
- VPmu.f4ng6NSsWV_O_mrh_oU3NVZQA3TUZUFOqlh88JRCboCZN4DzXwESIDEQnNE9vqnjQ0toEi3
- uTGwsIvG2DIv.FhKlzV3tknbU1ucBB4cFaLlZ4a11h6ud
+ b=XJk9k36/zjsvTDf3JTiV0SC7u+4fA8Dn0kI9fhLgZqBC2WsUMTvwOSiNgllCFRae6Vz8BzjdaI60cAV1/fQPBVkXSBbGymEu9OA6simvfA9+78SxkItSLW5i8zKCgKJaenlayCbrrTkI7j2r0/j6w6AdSUk48fspzT9duWXMlaDYGRQT2ExAICNkTUkgJM8kk+sv/mHY4sQ4myo+OKo1uAokvxjY2VhkkRVM8gC0HZz+Z1AthJMgRVOVoRGZ1cy2Nf+RO6fql2fqcWPQYj6ULEzVUnkn8ErTVckYToGyiJXARm7ZjBjA6rhDWHhXwy7maD1EVkKSB1Mw6DtooxQVdQ==
+X-YMail-OSG: ZoGfFlQVM1lN4mDgMJoo8KEKbdqaqy2_9W9yFXfW_qbuaZb3wJK5zBbke6429BP
+ aDBIxiKrt2kZJT.RLCoJ4TdOIOilR9qUY9zjHct_67aEvFDssHdqyzjmB5xzcMJCdeONjVeMkw.e
+ sK4Rtdu6AfDIiXf9nNb0oApNBcJj6xJIHjS27l6ez29lDf986VTFB6TltNDIgSeVmU3kwHXbmy_R
+ uw43P5_g97uVVDKx7n_z2yDspXrC_e8158iaYDky8NTu051zGb2fbNAcBGC7fIxG9lT3OIfcRWRd
+ mC2CQSw2EShVNAHUQH1BcwSC_bpNqHOUov2pl1eQoyw4OOL8Y2WUd.QWyU5XErD_OEv_c7sveB36
+ OvCHwxcxoWxmAzVVZeBhQ43cTiTLf4YalyRBMZ9xYvBFg8YeMSJTNVwN7A5EwxZkccI_F0Yww1Tw
+ B2OSBi20J1iSxce4Thh0s.KUStm404sJRJlv6F57TI_fJza1EYclW5zQT39cc2k1fUMmg61spxPx
+ afjRQXFugr3mYSkPg9XT8qEiVRip4TgeuZHavdOCSddjd_GUGbWz.U1AjpgHO7YN4nAgPSrSMqZt
+ tH7zZomUcly0cKBZEzrpMVO2Wga6f5WNmklYDAvdmFntY2WC6kKe1FjSLjwU.ROhkMpXU2G.OvEf
+ mz3Ma5NsJKr12A7X4mD_UaG8fcvoUSrTpv1aDq93oHLurVi9E60DCb63H0z6WQXpBY3NLDjpZFTo
+ ppS3ytbaebD4JXUXeiG4m7kPfnyIZTy_7Y3GFbqo83ukRL_WAbS9vTkqT8VdOZXS2eJLa.F7SW8n
+ 5fLIBQnjjFHUUGDrloooyvt_5zAsi2sYzTAMSa414px.BU4gJDhy0Hz_obuhW3m_2q4tofQc6eem
+ KFx4InBt9kifDg3PQD7SF6dP1KqksUtr.LGrnn6X3WWStxv1yxlMB3ehL8AK.0WOKlDEKaf4pGW.
+ nQXEQF240l38t5Bzh.dMnUwvcRGTUaJuC8OYerxHrgNeLEOG9TWfp9gZK73z01eRjQDwJUB0D4gx
+ Zsl7lQGtQ5PKE0pRisXpvVCZJW994bWsnBrn9w.W5eHJq_s5Fq_VAHM9CJjyQYD74R_PmMpdg7oZ
+ pjrD_qemdcaBOq3.1nKb0h8h_J_YAqFEsvdkt64ljRsQAQCc3ENgwpCXqbhL663t4cyZVXa5Iu2F
+ Fsco1owAQfu7Emq6OAktbYBiE31rvPS2CixsK8fEN_j138zg5QECTiMGql2zA.wufGLr.M8jdf1C
+ hlTVxHIDPnb3mp2tpGZWTTciQHIeT1QeO2BHs.x0AjA--
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sun, 1 Sep 2019 05:52:34 +0000
+ sonic301.consmr.mail.gq1.yahoo.com with HTTP; Sun, 1 Sep 2019 05:52:31 +0000
 Received: by smtp406.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
  ID 426e3b5ec1af9e36f409445c51071a70; 
- Sun, 01 Sep 2019 05:52:34 +0000 (UTC)
+ Sun, 01 Sep 2019 05:52:29 +0000 (UTC)
 To: Christoph Hellwig <hch@infradead.org>, Chao Yu <yuchao0@huawei.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 09/21] erofs: update erofs symlink stuffs
-Date: Sun,  1 Sep 2019 13:51:18 +0800
-Message-Id: <20190901055130.30572-10-hsiangkao@aol.com>
+Subject: [PATCH 08/21] erofs: update comments in inode.c
+Date: Sun,  1 Sep 2019 13:51:17 +0800
+Message-Id: <20190901055130.30572-9-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190901055130.30572-1-hsiangkao@aol.com>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
@@ -107,135 +107,45 @@ Sender: "Linux-erofs"
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-Fix as Christoph suggested [1] [2], "remove is_inode_fast_symlink
-and just opencode it in the few places using it"
+As Christoph suggested [1], update them all.
 
-and
-"Please just set the ops directly instead of obsfucating that in
-a single caller, single line inline function.  And please set it
-instead of the normal symlink iops in the same place where you
-also set those."
-
-[1] https://lore.kernel.org/r/20190830163910.GB29603@infradead.org/
-[2] https://lore.kernel.org/r/20190829102426.GE20598@infradead.org/
+[1] https://lore.kernel.org/r/20190829102426.GE20598@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/inode.c    | 35 ++++++++++-------------------------
- fs/erofs/internal.h | 10 ----------
- fs/erofs/super.c    |  5 ++---
- 3 files changed, 12 insertions(+), 38 deletions(-)
+ fs/erofs/inode.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index 24c94a7865f2..29a52138fa9d 100644
+index de0373647959..24c94a7865f2 100644
 --- a/fs/erofs/inode.c
 +++ b/fs/erofs/inode.c
-@@ -109,28 +109,14 @@ static int read_inode(struct inode *inode, void *data)
- 	return -EFSCORRUPTED;
- }
+@@ -129,7 +129,7 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 	if (!is_inode_flat_inline(inode))
+ 		return 0;
  
--/*
-- * try_lock can be required since locking order is:
-- *   file data(fs_inode)
-- *        meta(bd_inode)
-- * but the majority of the callers is "iget",
-- * in that case we are pretty sure no deadlock since
-- * no data operations exist. However I tend to
-- * try_lock since it takes no much overhead and
-- * will success immediately.
-- */
--static int fill_inline_data(struct inode *inode, void *data,
--			    unsigned int m_pofs)
-+static int erofs_fill_symlink(struct inode *inode, void *data,
-+			      unsigned int m_pofs)
- {
- 	struct erofs_inode *vi = EROFS_I(inode);
- 	struct erofs_sb_info *sbi = EROFS_I_SB(inode);
- 
--	/* should be inode inline C */
--	if (!is_inode_flat_inline(inode))
--		return 0;
--
--	/* fast symlink */
--	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
-+	/* if it can be handled with fast symlink scheme */
-+	if (is_inode_flat_inline(inode) && inode->i_size < PAGE_SIZE) {
+-	/* fast symlink (following ext4) */
++	/* fast symlink */
+ 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
  		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
  
- 		if (!lnk)
-@@ -151,7 +137,9 @@ static int fill_inline_data(struct inode *inode, void *data,
+@@ -138,7 +138,7 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 
+ 		m_pofs += vi->inode_isize + vi->xattr_isize;
+ 
+-		/* inline symlink data shouldn't across page boundary as well */
++		/* inline symlink data shouldn't cross page boundary as well */
+ 		if (m_pofs + inode->i_size > PAGE_SIZE) {
+ 			kfree(lnk);
+ 			errln("inline data cross block boundary @ nid %llu",
+@@ -147,7 +147,6 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 			return -EFSCORRUPTED;
+ 		}
+ 
+-		/* get in-page inline data */
+ 		memcpy(lnk, data + m_pofs, inode->i_size);
  		lnk[inode->i_size] = '\0';
  
- 		inode->i_link = lnk;
--		set_inode_fast_symlink(inode);
-+		inode->i_op = &erofs_fast_symlink_iops;
-+	} else {
-+		inode->i_op = &erofs_symlink_iops;
- 	}
- 	return 0;
- }
-@@ -199,8 +187,9 @@ static int fill_inode(struct inode *inode, int isdir)
- 			inode->i_fop = &erofs_dir_fops;
- 			break;
- 		case S_IFLNK:
--			/* by default, page_get_link is used for symlink */
--			inode->i_op = &erofs_symlink_iops;
-+			err = erofs_fill_symlink(inode, data, ofs);
-+			if (err)
-+				goto out_unlock;
- 			inode_nohighmem(inode);
- 			break;
- 		case S_IFCHR:
-@@ -219,11 +208,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 			err = z_erofs_fill_inode(inode);
- 			goto out_unlock;
- 		}
--
- 		inode->i_mapping->a_ops = &erofs_raw_access_aops;
--
--		/* fill last page if inline data is available */
--		err = fill_inline_data(inode, data, ofs);
- 	}
- 
- out_unlock:
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index e576650bd4f4..4442a6622504 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -480,16 +480,6 @@ extern const struct inode_operations erofs_generic_iops;
- extern const struct inode_operations erofs_symlink_iops;
- extern const struct inode_operations erofs_fast_symlink_iops;
- 
--static inline void set_inode_fast_symlink(struct inode *inode)
--{
--	inode->i_op = &erofs_fast_symlink_iops;
--}
--
--static inline bool is_inode_fast_symlink(struct inode *inode)
--{
--	return inode->i_op == &erofs_fast_symlink_iops;
--}
--
- struct inode *erofs_iget(struct super_block *sb, erofs_nid_t nid, bool dir);
- int erofs_getattr(const struct path *path, struct kstat *stat,
- 		  u32 request_mask, unsigned int query_flags);
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index b0d318a8eb22..8c43af5d5e57 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -38,10 +38,9 @@ static void free_inode(struct inode *inode)
- {
- 	struct erofs_inode *vi = EROFS_I(inode);
- 
--	/* be careful RCU symlink path (see ext4_inode_info->i_data)! */
--	if (is_inode_fast_symlink(inode))
-+	/* be careful of RCU symlink path */
-+	if (inode->i_op == &erofs_fast_symlink_iops)
- 		kfree(inode->i_link);
--
- 	kfree(vi->xattr_shared_xattrs);
- 
- 	kmem_cache_free(erofs_inode_cachep, vi);
 -- 
 2.17.1
 
