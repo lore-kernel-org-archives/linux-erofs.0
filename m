@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F968C3A59E
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:21:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68AA4C3A59E
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:29:50 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C4EBD20820
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:21:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id DE49A20820
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:29:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="liPSsaE7"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C4EBD20820
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qLGt2hfP"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DE49A20820
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46MThX2yrBzDqbv
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:21:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46MTtM3rgCzDqgD
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:29:47 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
  smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
  helo=bombadil.infradead.org;
@@ -30,40 +30,40 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.b="liPSsaE7"; dkim-atps=neutral
+ header.b="qLGt2hfP"; dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46MThQ75h2zDqY6
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:21:10 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46MTpd4V6qzDqdp
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:26:33 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=DcDTJdsbKkcGL74GhQUxYXcV5qsdaOSH3uA0oSIUmcs=; b=liPSsaE7otBSZyKOaR2DnUNit
- H/FOmcdMQ6YQOysknSLsxrmkgHVivjk/2rsq+JYFOXdfRSueXibB/asYYl0nhn0IYX9Ql/FF5mGwf
- 3gxSQXiBXWq3I7bKvh5cwzUJaya0vJZjVfB8PNb41SN7h48MWzq6Y32rFxEaU5Siwj7jF0bfy4H5Z
- q1p1RAKXqjUqBvE2uBcojIeH6EEz2szUmS1SzXRr/IHdNcZqtzBEAb8EnFSbVbwm2wm2Fko33F1di
- 6gCP6HBjQNGSqwcuBIMj8jjbldicfyxYx1Fkh4lMWN44xkDvpnydbkhRoGcJKFv/OEuXg8TdzgbhE
- Ghu8Jwzfg==;
+ bh=svUkB0dxi2TuM3Fl0ZlJgO11nAP1/canIdeXNo7nLhk=; b=qLGt2hfPD/A3ccp43tsVxEP+x
+ jUUBvQ2XSyyvgDYe6TrtxZgmxG16PIqrFXwYQD0yu1nwGhSCRVMgr+BdkXiKj/jUe/2dQ5P7VV3pB
+ mpwJArbHQTIKn0n527nkd8xUQJNtgNtVG8et41zGsCgOkMzEOlCzz45lNssyF4O0wqmBgl6Ukn6n/
+ 8ofbDkQMFNYqoFQnvcgy+ixWOpyh3PXymSyceVE8mrA4rAByp/dH+mwABAy8SkQ5g83bFmoNvqLB1
+ XOC0h+5IQadmsREIEoQJIxKs+Dac3mR4wbOu6xrUwlc8scnfiePGNF1jWbmmkDViTqxZwhaFQrhQG
+ w8IvWePTA==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i4lKT-00024c-V6; Mon, 02 Sep 2019 12:21:05 +0000
-Date: Mon, 2 Sep 2019 05:21:05 -0700
+ Linux)) id 1i4lPf-00042m-Hk; Mon, 02 Sep 2019 12:26:27 +0000
+Date: Mon, 2 Sep 2019 05:26:27 -0700
 From: Christoph Hellwig <hch@infradead.org>
 To: Gao Xiang <hsiangkao@aol.com>
-Subject: Re: [PATCH 14/21] erofs: kill prio and nofail of erofs_get_meta_page()
-Message-ID: <20190902122105.GM15931@infradead.org>
+Subject: Re: [PATCH 16/21] erofs: kill magic underscores
+Message-ID: <20190902122627.GN15931@infradead.org>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
  <20190901055130.30572-1-hsiangkao@aol.com>
- <20190901055130.30572-15-hsiangkao@aol.com>
+ <20190901055130.30572-17-hsiangkao@aol.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190901055130.30572-15-hsiangkao@aol.com>
+In-Reply-To: <20190901055130.30572-17-hsiangkao@aol.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -85,7 +85,49 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Thanks,
+>  
+> -	vi->datamode = __inode_data_mapping(advise);
+> +	vi->datamode = erofs_inode_data_mapping(advise);
+>  
+>  	if (vi->datamode >= EROFS_INODE_LAYOUT_MAX) {
 
-much better.  I'm still hoping REQ_PRIO in this current form will go
-entirely away soon as well.
+While you are at it can we aim for some naming consistency here?  The
+inode member is called is called datamode, the helper is called
+inode_data_mapping, and the enum uses layout?  To me data_layout seems
+most descriptive, datamode is probably ok, but mapping seems very
+misleading given that we've already overloaded that terms for multiple
+other uses.
+
+And while we are at naming choices - maybe i_format might be
+a better name for the i_advise field in the on-disk inode?
+
+> +	if (erofs_inode_version(advise) == EROFS_INODE_LAYOUT_V2) {
+
+I still need to wade through the old thread - but didn't you say this
+wasn't really a new vs old version but a compat vs full inode?  Maybe
+the names aren't that suitable either?
+
+>  		struct erofs_inode_v2 *v2 = data;
+>  
+>  		vi->inode_isize = sizeof(struct erofs_inode_v2);
+> @@ -58,7 +58,7 @@ static int read_inode(struct inode *inode, void *data)
+>  		/* total blocks for compressed files */
+>  		if (erofs_inode_is_data_compressed(vi->datamode))
+>  			nblks = le32_to_cpu(v2->i_u.compressed_blocks);
+> -	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
+> +	} else if (erofs_inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
+
+Also a lot of code would use a switch statements to switch for different
+matches on the same value instead of chained if/else if/else if
+statements.
+
+> +#define erofs_bitrange(x, bit, bits) (((x) >> (bit)) & ((1 << (bits)) - 1))
+
+> +#define erofs_inode_version(advise)	\
+> +	erofs_bitrange(advise, EROFS_I_VERSION_BIT, EROFS_I_VERSION_BITS)
+>  
+> +#define erofs_inode_data_mapping(advise)	\
+> +	erofs_bitrange(advise, EROFS_I_DATA_MAPPING_BIT, \
+> +		       EROFS_I_DATA_MAPPING_BITS)
+
+All these should probably be inline functions.
