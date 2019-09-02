@@ -2,26 +2,25 @@ Return-Path: <SRS0=r8Mz=W5=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UPPERCASE_50_75,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 674BEC3A59E
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 977FDC41514
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:41 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D70D721881
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 463E221881
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="TTaKIim1"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D70D721881
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nQWgq9YQ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 463E221881
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46MTLv6tb3zDqYJ
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:05:59 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46MTMg1fBlzDqZR
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:06:39 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
  smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
  helo=bombadil.infradead.org;
@@ -31,41 +30,41 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.b="TTaKIim1"; dkim-atps=neutral
+ header.b="nQWgq9YQ"; dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46MTLq0lYnzDqMh
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:05:55 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46MTMb2xwszDqMh
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:06:35 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=rQBNmZ3r7tPYZ93qcdgzs9aT3ulfgxUExQ/2KE/PgFY=; b=TTaKIim1bhF1mLqocBrdBlH85
- 8sJEL9o/uIe3NswXx32FNw7orE6U35jhrCh6sKd2DBNdat+AXAON5TRrFb+KuxHVqrpOG/xPmLgZs
- tYTVBj16cMNmFbCXUpVfkgAXmoJVqikEKnhkVgXzufH7+RRgECy7TvQ7BtSQiCllCIbBDpFgWO6Ga
- UpLklxlrYvFyjCFfvqjYUDl0MNEGMbf2VASynnkfV2PLD3mrLYFZY1Pi4UsguCMW69cUtuJ0CbY5L
- mrrAOEjySYvNc6lJitTAD3pije93p6JhN8g570szEXj+Ehs+eLTSKX+G6uWyoq6iRWyp51Y3XfJWa
- NprfvUrGQ==;
+ bh=vdCHakxL8nOAMypOUirqIzokbahTp5CH5o7r+UG46n0=; b=nQWgq9YQSIqAEMurkTtgflbR/
+ SLxNTDrRY8P1IVBXbdsj457aQFCCtN/P0EgNeJawViE0B5li/1mmkgNAfBR6ubB1f0lA5IkzX7wCn
+ ghjNbplBZOC77AtJwss5DJYVbsmYv8W2zuFm+fTIM/PILNHhvrZANwX4IcZOPEuAwC0ezoeTiidYl
+ NZm/7Jw1NcHUyGu3+Q/CiUkVXYwCE9+LAhkPyUI2PEm3OKSIwt2hApX6FOvJYuPw25rWUJ7ftrHyX
+ a5ghQ8zMJ0MPl1HyH17dhidDeMe3LAslHn8WA/mEetBuO2MEpULTk5EYy+UQBcCZYtyuL4Foojk+i
+ 2Bzfokeyg==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i4l5g-0005RV-BO; Mon, 02 Sep 2019 12:05:48 +0000
-Date: Mon, 2 Sep 2019 05:05:48 -0700
+ Linux)) id 1i4l6K-0005TG-8K; Mon, 02 Sep 2019 12:06:28 +0000
+Date: Mon, 2 Sep 2019 05:06:28 -0700
 From: Christoph Hellwig <hch@infradead.org>
 To: Gao Xiang <hsiangkao@aol.com>
-Subject: Re: [PATCH 02/21] erofs: on-disk format should have explicitly
- assigned numbers
-Message-ID: <20190902120548.GB15931@infradead.org>
+Subject: Re: [PATCH 03/21] erofs: some macros are much more readable as a
+ function
+Message-ID: <20190902120628.GC15931@infradead.org>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
  <20190901055130.30572-1-hsiangkao@aol.com>
- <20190901055130.30572-3-hsiangkao@aol.com>
+ <20190901055130.30572-4-hsiangkao@aol.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190901055130.30572-3-hsiangkao@aol.com>
+In-Reply-To: <20190901055130.30572-4-hsiangkao@aol.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -87,27 +86,4 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Sun, Sep 01, 2019 at 01:51:11PM +0800, Gao Xiang wrote:
->  enum {
-> -	EROFS_INODE_FLAT_PLAIN,
-> -	EROFS_INODE_FLAT_COMPRESSION_LEGACY,
-> -	EROFS_INODE_FLAT_INLINE,
-> -	EROFS_INODE_FLAT_COMPRESSION,
-> +	EROFS_INODE_FLAT_PLAIN			= 0,
-> +	EROFS_INODE_FLAT_COMPRESSION_LEGACY	= 1,
-> +	EROFS_INODE_FLAT_INLINE			= 2,
-> +	EROFS_INODE_FLAT_COMPRESSION		= 3,
->  	EROFS_INODE_LAYOUT_MAX
->  };
->  
-> @@ -184,7 +184,7 @@ struct erofs_xattr_entry {
->  
->  /* available compression algorithm types */
->  enum {
-> -	Z_EROFS_COMPRESSION_LZ4,
-> +	Z_EROFS_COMPRESSION_LZ4	= 0,
->  	Z_EROFS_COMPRESSION_MAX
->  };
-
-This all looks ok - it somtimes also helps to have a comment near
-the numbers to indicate where they are stored, must that isn't a must.
+This looks much better now.
