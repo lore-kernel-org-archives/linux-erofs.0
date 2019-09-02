@@ -4,23 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 977FDC41514
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2461C3A59E
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:07:12 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 463E221881
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:06:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1801D21881
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:07:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nQWgq9YQ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 463E221881
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="T9I9NsTn"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1801D21881
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46MTMg1fBlzDqZR
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:06:39 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46MTND3ZxXzDqZR
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:07:08 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
  smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
  helo=bombadil.infradead.org;
@@ -30,41 +30,40 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.b="nQWgq9YQ"; dkim-atps=neutral
+ header.b="T9I9NsTn"; dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46MTMb2xwszDqMh
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:06:35 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46MTN800rvzDqMh
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:07:03 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=vdCHakxL8nOAMypOUirqIzokbahTp5CH5o7r+UG46n0=; b=nQWgq9YQSIqAEMurkTtgflbR/
- SLxNTDrRY8P1IVBXbdsj457aQFCCtN/P0EgNeJawViE0B5li/1mmkgNAfBR6ubB1f0lA5IkzX7wCn
- ghjNbplBZOC77AtJwss5DJYVbsmYv8W2zuFm+fTIM/PILNHhvrZANwX4IcZOPEuAwC0ezoeTiidYl
- NZm/7Jw1NcHUyGu3+Q/CiUkVXYwCE9+LAhkPyUI2PEm3OKSIwt2hApX6FOvJYuPw25rWUJ7ftrHyX
- a5ghQ8zMJ0MPl1HyH17dhidDeMe3LAslHn8WA/mEetBuO2MEpULTk5EYy+UQBcCZYtyuL4Foojk+i
- 2Bzfokeyg==;
+ bh=sQDD21Z9frf8D/J1ALbMqvAMuCO6kNLcplZgjbOP9Ts=; b=T9I9NsTnMeqHA6FV7Ueo7zG9p
+ cWOS+hlOGdcm5R3dZMKq9T+x0AIklGPo4cXYylow7gWVrxBwe1y/ZzBn64iT6dp5pI/Yo0Mlrvw3z
+ U4xKLF8StZ0fNKtATrpJ2+R/sUnw+zKlkkqK8do2JcWJu/vXMJPZtOb+YHc6pJJvpA7ZUNlbbZPzl
+ tO3VOo1fjFw6ML+0bbPue9uXl7J+y0dITKTzxLSMCpd4FtEL1u3XiATcknTHBFa09gc6KZAZod9fd
+ hV0IyF9NJ0uuyVZ3o43pNZQILibVfugVzGDHvY5RE8JieZfq9oLlMGm2F6uOFrExRceyX2MR1L7FS
+ Hc6k8JvEQ==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i4l6K-0005TG-8K; Mon, 02 Sep 2019 12:06:28 +0000
-Date: Mon, 2 Sep 2019 05:06:28 -0700
+ Linux)) id 1i4l6o-0005UW-Pr; Mon, 02 Sep 2019 12:06:58 +0000
+Date: Mon, 2 Sep 2019 05:06:58 -0700
 From: Christoph Hellwig <hch@infradead.org>
 To: Gao Xiang <hsiangkao@aol.com>
-Subject: Re: [PATCH 03/21] erofs: some macros are much more readable as a
- function
-Message-ID: <20190902120628.GC15931@infradead.org>
+Subject: Re: [PATCH 04/21] erofs: kill __packed for on-disk structures
+Message-ID: <20190902120658.GD15931@infradead.org>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
  <20190901055130.30572-1-hsiangkao@aol.com>
- <20190901055130.30572-4-hsiangkao@aol.com>
+ <20190901055130.30572-5-hsiangkao@aol.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190901055130.30572-4-hsiangkao@aol.com>
+In-Reply-To: <20190901055130.30572-5-hsiangkao@aol.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -86,4 +85,14 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This looks much better now.
+On Sun, Sep 01, 2019 at 01:51:13PM +0800, Gao Xiang wrote:
+> From: Gao Xiang <gaoxiang25@huawei.com>
+> 
+> As Christoph suggested "Please don't add __packed" [1],
+> remove all __packed except struct erofs_dirent here.
+> 
+> Note that all on-disk fields except struct erofs_dirent
+> (12 bytes with a 8-byte nid) in EROFS are naturally aligned.
+
+Thanks.  The users of various architectures where this generates a lot
+better code will thank you.
