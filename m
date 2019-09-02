@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7139AC3A59E
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49D70C3A59E
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:18 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E63BE216C8
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B60CA216C8
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="UFTnfwfJ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E63BE216C8
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lhhhD47c"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B60CA216C8
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46MVKr6kJSzDqSv
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:50:08 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46MVKz5VrCzDqgd
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:50:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
  smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
  helo=bombadil.infradead.org;
@@ -30,39 +30,42 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.b="UFTnfwfJ"; dkim-atps=neutral
+ header.b="lhhhD47c"; dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46MVG51JhpzDqfy
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:46:53 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46MVH20t2XzDqgF
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:47:42 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=jfFRBba+HrXzPtnLLkqdxGZhTr4bv/R0fv80eG1X1wA=; b=UFTnfwfJQ+iKUYHTbB5e9ISAl
- nzFxznuKSHJjQ2mGw+CYJJrE6eQBiBjxDs+JCQfk0yzSZuTn9d8dtta/9tLkL+nfabApfR3WbB8q5
- blms0Zm5b41amefScxmYYBI6JLewHu70DvnuKi8im94sLw4LNeXI2e0LoOHHLcUXSNAiVhSmx5Tzd
- VC+RLhyEdSRMBIEzwPqIUwDdLpJ6Ku0cOqUvJjSTZVCgwy0vtsd29gvEKAXnCmqsFiMdTfbwJJ5Qj
- o38z8aq5HapdS/mW9wEJv/TuNVhLNHmwVUS/vKuhgX37IFRXR5e0mzNwvMQKfpXEOMJdX+CNqJs2f
- iw0lzOPJw==;
+ bh=lbUBQKgUDKPWb0RcIaYnoeNg0UvfzO7NgYVDACBffsE=; b=lhhhD47csSfZu68It2L5tINLt
+ 17W6y9t9pkSzoknsICEdFrT/qOji3pNE8RECrQchEr41cPbKf5RQsflQse9RyCxUlI47EBjKeEX4I
+ l2rktPQdIPFQak1TMStJSEoIzfZ+tDtO/eReMV1lyPgF2bGtOJzeD+SHayMqBAQxSBw8UrsW7xEl9
+ ZI6g2LEbKSjJlf5IC93Hz9DfowybXWR2pO9x5l7XYvXXmCME6Yumpg/MKMbu8lYYyAPOGlVTUM2lz
+ 4Z5LxY99DB7+b3p3WuQBr8DosrDjPliSvclmzL5OrrUwTpQNicLRU0GoZ5ze4PFIbg+uC4h16+9Eq
+ LTBkhiI4w==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i4ljJ-0002Vq-8L; Mon, 02 Sep 2019 12:46:45 +0000
-Date: Mon, 2 Sep 2019 05:46:45 -0700
+ Linux)) id 1i4lk9-0002Y1-1W; Mon, 02 Sep 2019 12:47:37 +0000
+Date: Mon, 2 Sep 2019 05:47:37 -0700
 From: Christoph Hellwig <hch@infradead.org>
-To: Gao Xiang <hsiangkao@aol.com>
-Subject: Re: [PATCH 00/21] erofs: patchset addressing Christoph's comments
-Message-ID: <20190902124645.GA8369@infradead.org>
+To: Gao Xiang <gaoxiang25@huawei.com>
+Subject: Re: [PATCH 07/21] erofs: use erofs_inode naming
+Message-ID: <20190902124737.GB8369@infradead.org>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
  <20190901055130.30572-1-hsiangkao@aol.com>
+ <20190901055130.30572-8-hsiangkao@aol.com>
+ <20190902121021.GG15931@infradead.org>
+ <20190902121306.GA2664@architecture4>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190901055130.30572-1-hsiangkao@aol.com>
+In-Reply-To: <20190902121306.GA2664@architecture4>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -84,17 +87,26 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Sun, Sep 01, 2019 at 01:51:09PM +0800, Gao Xiang wrote:
-> Hi,
+On Mon, Sep 02, 2019 at 08:13:06PM +0800, Gao Xiang wrote:
+> Hi Christoph,
 > 
-> This patchset is based on the following patch by Pratik Shinde,
-> https://lore.kernel.org/linux-erofs/20190830095615.10995-1-pratikshinde320@gmail.com/
+> On Mon, Sep 02, 2019 at 05:10:21AM -0700, Christoph Hellwig wrote:
+> > >  {
+> > > -	struct erofs_vnode *vi = ptr;
+> > > -
+> > > -	inode_init_once(&vi->vfs_inode);
+> > > +	inode_init_once(&((struct erofs_inode *)ptr)->vfs_inode);
+> > 
+> > Why doesn't this use EROFS_I?  This looks a little odd.
 > 
-> All patches addressing Christoph's comments on v6, which are trivial,
-> most deleted code are from erofs specific fault injection, which was
-> followed f2fs and previously discussed in earlier topic [1], but
-> let's follow what Christoph's said now.
+> Thanks for your reply and suggestion...
+> EROFS_I seems the revert direction ---> inode to erofs_inode
+> here we need "erofs_inode" to inode...
+> 
+> Am I missing something?.... Hope not....
 
-I like where the cleanups are going.  But this is really just basic
-code quality stuff.  We're not addressing the issues with large amounts
-of functionality duplicating VFS helpers.
+No, you are not.  But the cast still looks odd.  Why not:
+
+	struct erofs_inode *ei = ptr;
+
+	inode_init_once(&ei->vfs_inode);
