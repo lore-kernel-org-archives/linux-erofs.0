@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BAB9C3A59E
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ED67C3A59E
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:51:37 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BF431216C8
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:50:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id A2867216C8
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 12:51:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZVUGTMsp"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BF431216C8
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="p1wdTs4X"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A2867216C8
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46MVL711xnzDqWT
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:50:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46MVMV3Pn4zDqft
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2019 22:51:34 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (mailfrom)
  smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
  helo=bombadil.infradead.org;
@@ -30,41 +30,41 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.b="ZVUGTMsp"; dkim-atps=neutral
+ header.b="p1wdTs4X"; dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46MVHL0m9czDqfs
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:47:58 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46MVMN3VzNzDq9B
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2019 22:51:28 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=8e5pl/cUyEaSaTIP0gVix4kLe1LPGSDBfLiK5Z6oMK4=; b=ZVUGTMspxfe3xQHunBefXYA5b
- RRbaGgX6OxaI5bD/kap+hgR/IMcivPmetVVU0OUh7XfX/onX4ou9VeUjDQzoj7QsZuFRnisygmRMR
- 6aSRZqCeGTIR7HBudutdMooyrGcPpR0hkheR6CyDRkG5dnHP0PPWBnPiut+u+ir5xS3zAUTvIKeMp
- 9kadYDIyHlr8crmhMNQf+xk98sFwL/p9FMNGUL465OFDk2tte+kQXPCeD4kLiTtAJCrJKcZsmRYhZ
- uS4+zLv9VrGHCAGQSoOHn9VVeP/qV/SEF74aqb+LcB7q27YkoFsxkDnZqLUWMBKzyYIaO02PDTHcf
- rwwT6O0Pw==;
+ bh=2SRLGmzt9ygJ+k1758a7WeMkOp6QVS9SpfevL0fmQfQ=; b=p1wdTs4XDK/LQWfm/yELbp49u
+ phV0PdWujXYthfryE4TkwNYPNSjVRtyhrjikDgf3P3SMQVhM4XRwApkyG5tQzhuUZhc9Bz3ebmUh7
+ qJ3KM1c0uT+TU9dK8YwGrjAmSVzRQYI1dlCZedOFGQzdvco5MqhqYrS1C6rDLvn7gNyBDqmIo/xKW
+ G8ajsycXwdssNAKgMAPBfcubUQjWvXjRoblHim8dRKXzpDUS1z/aSV/OxkTDhuv2tYkihbFEL8+Ig
+ Joaenckr004Pz8x2NJ1XiFbwZSkzUEc91fCcuCSy47u20XG+/CKVdTloaqFrnExpE814on13j+pV8
+ EmKp8xVSg==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat
- Linux)) id 1i4lhx-00028u-J6; Mon, 02 Sep 2019 12:45:21 +0000
-Date: Mon, 2 Sep 2019 05:45:21 -0700
+ Linux)) id 1i4lnZ-0004LV-VP; Mon, 02 Sep 2019 12:51:09 +0000
+Date: Mon, 2 Sep 2019 05:51:09 -0700
 From: Christoph Hellwig <hch@infradead.org>
 To: Gao Xiang <hsiangkao@aol.com>
-Subject: Re: [PATCH v6 01/24] erofs: add on-disk layout
-Message-ID: <20190902124521.GA22153@infradead.org>
+Subject: Re: [PATCH v6 03/24] erofs: add super block operations
+Message-ID: <20190902125109.GA9826@infradead.org>
 References: <20190802125347.166018-1-gaoxiang25@huawei.com>
- <20190802125347.166018-2-gaoxiang25@huawei.com>
- <20190829095954.GB20598@infradead.org>
- <20190901075240.GA2938@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <20190802125347.166018-4-gaoxiang25@huawei.com>
+ <20190829101545.GC20598@infradead.org>
+ <20190901085452.GA4663@hsiangkao-HP-ZHAN-66-Pro-G1>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190901075240.GA2938@hsiangkao-HP-ZHAN-66-Pro-G1>
+In-Reply-To: <20190901085452.GA4663@hsiangkao-HP-ZHAN-66-Pro-G1>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -79,61 +79,83 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: devel@driverdev.osuosl.org, Stephen Rothwell <sfr@canb.auug.org.au>,
- linux-erofs@lists.ozlabs.org, Jan Kara <jack@suse.cz>,
+Cc: Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>,
+ Dave Chinner <david@fromorbit.com>, David Sterba <dsterba@suse.cz>,
+ Miao Xie <miaoxie@huawei.com>, devel@driverdev.osuosl.org,
+ Stephen Rothwell <sfr@canb.auug.org.au>,
  "Darrick J . Wong" <darrick.wong@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Amir Goldstein <amir73il@gmail.com>, Dave Chinner <david@fromorbit.com>,
- LKML <linux-kernel@vger.kernel.org>, Theodore Ts'o <tytso@mit.edu>,
- Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@denx.de>,
- David Sterba <dsterba@suse.cz>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Christoph Hellwig <hch@infradead.org>, linux-erofs@lists.ozlabs.org,
  Alexander Viro <viro@zeniv.linux.org.uk>, Jaegeuk Kim <jaegeuk@kernel.org>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Miao Xie <miaoxie@huawei.com>
+ Theodore Ts'o <tytso@mit.edu>, Pavel Machek <pavel@denx.de>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Sun, Sep 01, 2019 at 03:54:11PM +0800, Gao Xiang wrote:
-> It could be better has a name though, because 1) erofs.mkfs uses this
-> definition explicitly, and we keep this on-disk definition erofs_fs.h
-> file up with erofs-utils.
+On Sun, Sep 01, 2019 at 04:54:55PM +0800, Gao Xiang wrote:
+> No modification at this... (some comments already right here...)
+
+>  20 /* 128-byte erofs on-disk super block */
+>  21 struct erofs_super_block {
+> ...
+>  24         __le32 features;        /* (aka. feature_compat) */
+> ...
+>  38         __le32 requirements;    /* (aka. feature_incompat) */
+> ...
+>  41 };
+
+This is only cosmetic, why not stick to feature_compat and
+feature_incompat?
+
+> > > +	bh = sb_bread(sb, 0);
+> > 
+> > Is there any good reasons to use buffer heads like this in new code
+> > vs directly using bios?
 > 
-> 2) For kernel use, first we have,
->    datamode < EROFS_INODE_LAYOUT_MAX; and
->    !erofs_inode_is_data_compressed, so there are only two mode here,
->         1) EROFS_INODE_FLAT_INLINE,
->         2) EROFS_INODE_FLAT_PLAIN
->    if its datamode isn't EROFS_INODE_FLAT_INLINE (tail-end block packing),
->    it should be EROFS_INODE_FLAT_PLAIN.
+> As you said, I want it in the page cache.
 > 
->    The detailed logic in erofs_read_inode and
->    erofs_map_blocks_flatmode....
-
-Ok.  At least the explicit numbering makes this a little more obvious
-now.  What seems fairly odd is that there are only various places that
-check for some inode layouts/formats but nothing that does a switch
-over all of them.
-
-> > why are we adding a legacy field to a brand new file system?
+> The reason "why not use read_mapping_page or similar?" is simply
+> read_mapping_page -> .readpage -> (for bdev inode) block_read_full_page
+>  -> create_page_buffers anyway...
 > 
-> The difference is just EROFS_INODE_FLAT_COMPRESSION_LEGACY doesn't
-> have z_erofs_map_header, so it only supports default (4k clustersize)
-> fixed-sized output compression rather than per-file setting, nothing
-> special at all...
+> sb_bread haven't obsoleted... It has similar function though...
 
-It still seems odd to add a legacy field to a brand new file system.
+With the different that it keeps you isolated from the buffer_head
+internals.  This seems to be your only direct use of buffer heads,
+which while not deprecated are a bit of an ugly step child.  So if
+you can easily avoid creating a buffer_head dependency in a new
+filesystem I think you should avoid it.
 
-> > structures, as that keeps it clear in everyones mind what needs to
-> > stay persistent and what can be chenged easily.
+> > > +	sbi->build_time = le64_to_cpu(layout->build_time);
+> > > +	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
+> > > +
+> > > +	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
+> > > +	memcpy(sbi->volume_name, layout->volume_name,
+> > > +	       sizeof(layout->volume_name));
+> > 
+> > s_uuid should preferably be a uuid_t (assuming it is a real BE uuid,
+> > if it is le it should be a guid_t).
 > 
-> All fields in this file are on-disk representation by design
-> (no logic for in-memory presentation).
+> For this case, I have no idea how to deal with...
+> I have little knowledge about this uuid stuff, so I just copied
+> from f2fs... (Could be no urgent of this field...)
 
-Ok, make sense.    Maybe add a note to the top of the file comment
-that this is the on-disk format.
+Who fills out this field in the on-disk format and how?
 
-One little oddity is that erofs_inode_is_data_compressed is here, while
-is_inode_flat_inline is in internal.h.  There are arguments for either
-place, but I'd suggest to keep the related macros together.
+> The background is Al's comments in erofs v2....
+> (which simplify erofs_fill_super logic)
+> https://lore.kernel.org/r/20190720224955.GD17978@ZenIV.linux.org.uk/
+> 
+> with a specific notation...
+> https://lore.kernel.org/r/20190721040547.GF17978@ZenIV.linux.org.uk/
+> 
+> "
+> > OTOH, for the case of NULL ->s_root ->put_super() won't be called
+> > at all, so in that case you need it directly in ->kill_sb().
+> "
+
+Yes.  Although none of that is relevant for this initial version,
+just after more features are added.
