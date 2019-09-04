@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 945CDC3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B96AC3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:12:17 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 204DD21897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:12:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 204DD21897
+	by mail.kernel.org (Postfix) with ESMTPS id 07F6D21897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:12:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 07F6D21897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS4p6lZQzDqlB
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:12:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS4v1KVnzDqlp
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:12:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.190; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
+ (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2z6kBTzDql2
- for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:35 +1000 (AEST)
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id 8E6641D8DF0B184D0233;
- Wed,  4 Sep 2019 10:10:30 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS355MFnzDqlR
+ for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:41 +1000 (AEST)
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.58])
+ by Forcepoint Email with ESMTP id 00D1C8FEB033617DA992;
+ Wed,  4 Sep 2019 10:10:39 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:21 +0800
+ 10:10:27 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 15/25] erofs: localize erofs_grab_bio()
-Date: Wed, 4 Sep 2019 10:09:02 +0800
-Message-ID: <20190904020912.63925-16-gaoxiang25@huawei.com>
+Subject: [PATCH v2 20/25] erofs: kill use_vmap module parameter
+Date: Wed, 4 Sep 2019 10:09:07 +0800
+Message-ID: <20190904020912.63925-21-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -69,136 +69,128 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph pointed out [1], "erofs_grab_bio tries to
-handle a bio_alloc failure, except that the function will
-not actually fail due the mempool backing it."
+As Christoph said [1],
+"vm_map_ram is supposed to generally behave better.  So if
+it doesn't please report that that to the arch maintainer
+and linux-mm so that they can look into the issue.  Having
+user make choices of deep down kernel internals is just
+a horrible interface.
 
-Sorry about useless code, fix it now and
-localize erofs_grab_bio [2].
+Please talk to maintainers of other bits of the kernel
+if you see issues and / or need enhancements. "
 
-[1] https://lore.kernel.org/r/20190830162812.GA10694@infradead.org/
-[2] https://lore.kernel.org/r/20190902122016.GL15931@infradead.org/
+Let's redo the previous conclusion and kill the vmap
+approach.
+
+[1] https://lore.kernel.org/r/20190830165533.GA10909@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/data.c     | 28 +++++++++++++++-------------
- fs/erofs/internal.h | 29 -----------------------------
- fs/erofs/zdata.c    | 10 +++++++---
- 3 files changed, 22 insertions(+), 45 deletions(-)
+ Documentation/filesystems/erofs.txt |  4 ---
+ fs/erofs/decompressor.c             | 46 ++++++++---------------------
+ 2 files changed, 13 insertions(+), 37 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index be11b5ea9d2e..0136ea117934 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -38,6 +38,19 @@ static inline void read_endio(struct bio *bio)
- 	bio_put(bio);
+diff --git a/Documentation/filesystems/erofs.txt b/Documentation/filesystems/erofs.txt
+index c3b5f603b2b6..b0c085326e2e 100644
+--- a/Documentation/filesystems/erofs.txt
++++ b/Documentation/filesystems/erofs.txt
+@@ -67,10 +67,6 @@ cache_strategy=%s      Select a strategy for cached decompression from now on:
+                                    It still does in-place I/O decompression
+                                    for the rest compressed physical clusters.
+ 
+-Module parameters
+-=================
+-use_vmap=[0|1]         Use vmap() instead of vm_map_ram() (default 0).
+-
+ On-disk details
+ ===============
+ 
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 8ed38504a9f1..37177d49d125 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -28,10 +28,6 @@ struct z_erofs_decompressor {
+ 	char *name;
+ };
+ 
+-static bool use_vmap;
+-module_param(use_vmap, bool, 0444);
+-MODULE_PARM_DESC(use_vmap, "Use vmap() instead of vm_map_ram() (default 0)");
+-
+ static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+ 					 struct list_head *pagepool)
+ {
+@@ -221,32 +217,6 @@ static void copy_from_pcpubuf(struct page **out, const char *dst,
+ 	}
  }
  
-+static struct bio *erofs_grab_raw_bio(struct super_block *sb,
-+				      erofs_blk_t blkaddr,
-+				      unsigned int nr_pages)
-+{
-+	struct bio *bio = bio_alloc(GFP_NOIO, nr_pages);
-+
-+	bio->bi_end_io = read_endio;
-+	bio_set_dev(bio, sb->s_bdev);
-+	bio->bi_iter.bi_sector = (sector_t)blkaddr << LOG_SECTORS_PER_BLOCK;
-+	bio->bi_private = sb;
-+	return bio;
-+}
-+
- /* prio -- true is used for dir */
- struct page *__erofs_get_meta_page(struct super_block *sb,
- 				   erofs_blk_t blkaddr, bool prio, bool nofail)
-@@ -62,12 +75,7 @@ struct page *__erofs_get_meta_page(struct super_block *sb,
- 	if (!PageUptodate(page)) {
- 		struct bio *bio;
- 
--		bio = erofs_grab_bio(sb, blkaddr, 1, sb, read_endio, nofail);
--		if (IS_ERR(bio)) {
--			DBG_BUGON(nofail);
--			err = PTR_ERR(bio);
--			goto err_out;
--		}
-+		bio = erofs_grab_raw_bio(sb, blkaddr, 1);
- 
- 		if (bio_add_page(bio, page, PAGE_SIZE, 0) != PAGE_SIZE) {
- 			err = -EFAULT;
-@@ -276,13 +284,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
- 		if (nblocks > BIO_MAX_PAGES)
- 			nblocks = BIO_MAX_PAGES;
- 
--		bio = erofs_grab_bio(sb, blknr, nblocks, sb,
--				     read_endio, false);
--		if (IS_ERR(bio)) {
--			err = PTR_ERR(bio);
--			bio = NULL;
--			goto err_out;
--		}
-+		bio = erofs_grab_raw_bio(sb, blknr, nblocks);
- 	}
- 
- 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index cc1ea98c5c89..000ea92b36a3 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -411,35 +411,6 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
- /* data.c */
--static inline struct bio *erofs_grab_bio(struct super_block *sb,
--					 erofs_blk_t blkaddr,
--					 unsigned int nr_pages,
--					 void *bi_private, bio_end_io_t endio,
--					 bool nofail)
+-static void *erofs_vmap(struct page **pages, unsigned int count)
 -{
--	const gfp_t gfp = GFP_NOIO;
--	struct bio *bio;
+-	int i = 0;
 -
--	do {
--		if (nr_pages == 1) {
--			bio = bio_alloc(gfp | (nofail ? __GFP_NOFAIL : 0), 1);
--			if (!bio) {
--				DBG_BUGON(nofail);
--				return ERR_PTR(-ENOMEM);
--			}
--			break;
--		}
--		bio = bio_alloc(gfp, nr_pages);
--		nr_pages /= 2;
--	} while (!bio);
+-	if (use_vmap)
+-		return vmap(pages, count, VM_MAP, PAGE_KERNEL);
 -
--	bio->bi_end_io = endio;
--	bio_set_dev(bio, sb->s_bdev);
--	bio->bi_iter.bi_sector = (sector_t)blkaddr << LOG_SECTORS_PER_BLOCK;
--	bio->bi_private = bi_private;
--	return bio;
+-	while (1) {
+-		void *addr = vm_map_ram(pages, count, -1, PAGE_KERNEL);
+-
+-		/* retry two more times (totally 3 times) */
+-		if (addr || ++i >= 3)
+-			return addr;
+-		vm_unmap_aliases();
+-	}
+-	return NULL;
 -}
 -
- static inline void __submit_bio(struct bio *bio, unsigned int op,
- 				unsigned int op_flags)
+-static void erofs_vunmap(const void *mem, unsigned int count)
+-{
+-	if (!use_vmap)
+-		vm_unmap_ram(mem, count);
+-	else
+-		vunmap(mem);
+-}
+-
+ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 				      struct list_head *pagepool)
  {
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index f06a2fad7af2..21ade322cc81 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1263,9 +1263,13 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 		}
+@@ -255,7 +225,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 	const struct z_erofs_decompressor *alg = decompressors + rq->alg;
+ 	unsigned int dst_maptype;
+ 	void *dst;
+-	int ret;
++	int ret, i;
  
- 		if (!bio) {
--			bio = erofs_grab_bio(sb, first_index + i,
--					     BIO_MAX_PAGES, bi_private,
--					     z_erofs_vle_read_endio, true);
-+			bio = bio_alloc(GFP_NOIO, BIO_MAX_PAGES);
+ 	if (nrpages_out == 1 && !rq->inplace_io) {
+ 		DBG_BUGON(!*rq->out);
+@@ -293,9 +263,19 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 		goto dstmap_out;
+ 	}
+ 
+-	dst = erofs_vmap(rq->out, nrpages_out);
++	i = 0;
++	while (1) {
++		dst = vm_map_ram(rq->out, nrpages_out, -1, PAGE_KERNEL);
 +
-+			bio->bi_end_io = z_erofs_vle_read_endio;
-+			bio_set_dev(bio, sb->s_bdev);
-+			bio->bi_iter.bi_sector = (sector_t)(first_index + i) <<
-+				LOG_SECTORS_PER_BLOCK;
-+			bio->bi_private = bi_private;
- 			++nr_bios;
- 		}
++		/* retry two more times (totally 3 times) */
++		if (dst || ++i >= 3)
++			break;
++		vm_unmap_aliases();
++	}
++
+ 	if (!dst)
+ 		return -ENOMEM;
++
+ 	dst_maptype = 2;
+ 
+ dstmap_out:
+@@ -304,7 +284,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 	if (!dst_maptype)
+ 		kunmap_atomic(dst);
+ 	else if (dst_maptype == 2)
+-		erofs_vunmap(dst, nrpages_out);
++		vm_unmap_ram(dst, nrpages_out);
+ 	return ret;
+ }
  
 -- 
 2.17.1
