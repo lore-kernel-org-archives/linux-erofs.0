@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43053C3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A06DFC3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:31 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C12D621897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C12D621897
+	by mail.kernel.org (Postfix) with ESMTPS id 58E8D21897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 58E8D21897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS3s4DS9zDqlS
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS406Q6vzDqlD
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:28 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ (client-ip=45.249.212.35; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2n0BDmzDqlw
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2n06mpzDqlr
  for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:24 +1000 (AEST)
 Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.58])
- by Forcepoint Email with ESMTP id 9480DE587523B9E9D287;
+ by Forcepoint Email with ESMTP id 5B6A46BC7B4DED72A622;
  Wed,  4 Sep 2019 10:10:20 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:13 +0800
+ 10:10:09 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 08/25] erofs: kill erofs_{init,exit}_inode_cache
-Date: Wed, 4 Sep 2019 10:08:55 +0800
-Message-ID: <20190904020912.63925-9-gaoxiang25@huawei.com>
+Subject: [PATCH v2 05/25] erofs: update erofs_inode_is_data_compressed helper
+Date: Wed, 4 Sep 2019 10:08:52 +0800
+Message-ID: <20190904020912.63925-6-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -69,85 +69,36 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph said [1] "having this function seems
-entirely pointless", let's kill those.
+As Christoph said, "This looks like a really obsfucated
+way to write:
+	return datamode == EROFS_INODE_FLAT_COMPRESSION ||
+		datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY; "
 
-filesystem                              function name
-ext2,f2fs,ext4,isofs,squashfs,cifs,...  init_inodecache
+Although I had my own consideration, it's the right way for now.
 
-In addition, add a necessary "rcu_barrier()" on exit_fs();
-
-[1] https://lore.kernel.org/r/20190829101545.GC20598@infradead.org/
+[1] https://lore.kernel.org/r/20190829095954.GB20598@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/super.c | 31 ++++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ fs/erofs/erofs_fs.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 8d9f38d56b3b..499dc7f5d0e6 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -23,21 +23,6 @@ static void init_once(void *ptr)
- 	inode_init_once(&vi->vfs_inode);
- }
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index 59dcc2e8cb02..87d7ae82339a 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -62,9 +62,8 @@ enum {
  
--static int __init erofs_init_inode_cache(void)
--{
--	erofs_inode_cachep = kmem_cache_create("erofs_inode",
--					       sizeof(struct erofs_vnode), 0,
--					       SLAB_RECLAIM_ACCOUNT,
--					       init_once);
--
--	return erofs_inode_cachep ? 0 : -ENOMEM;
--}
--
--static void erofs_exit_inode_cache(void)
--{
--	kmem_cache_destroy(erofs_inode_cachep);
--}
--
- static struct inode *alloc_inode(struct super_block *sb)
+ static inline bool erofs_inode_is_data_compressed(unsigned int datamode)
  {
- 	struct erofs_vnode *vi =
-@@ -531,9 +516,14 @@ static int __init erofs_module_init(void)
- 	erofs_check_ondisk_layout_definitions();
- 	infoln("initializing erofs " EROFS_VERSION);
- 
--	err = erofs_init_inode_cache();
--	if (err)
-+	erofs_inode_cachep = kmem_cache_create("erofs_inode",
-+					       sizeof(struct erofs_vnode), 0,
-+					       SLAB_RECLAIM_ACCOUNT,
-+					       init_once);
-+	if (!erofs_inode_cachep) {
-+		err = -ENOMEM;
- 		goto icache_err;
-+	}
- 
- 	err = erofs_init_shrinker();
- 	if (err)
-@@ -555,7 +545,7 @@ static int __init erofs_module_init(void)
- zip_err:
- 	erofs_exit_shrinker();
- shrinker_err:
--	erofs_exit_inode_cache();
-+	kmem_cache_destroy(erofs_inode_cachep);
- icache_err:
- 	return err;
- }
-@@ -565,7 +555,10 @@ static void __exit erofs_module_exit(void)
- 	unregister_filesystem(&erofs_fs_type);
- 	z_erofs_exit_zip_subsystem();
- 	erofs_exit_shrinker();
--	erofs_exit_inode_cache();
-+
-+	/* Ensure all RCU free inodes are safe before cache is destroyed. */
-+	rcu_barrier();
-+	kmem_cache_destroy(erofs_inode_cachep);
- 	infoln("successfully finalize erofs");
+-	if (datamode == EROFS_INODE_FLAT_COMPRESSION)
+-		return true;
+-	return datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY;
++	return datamode == EROFS_INODE_FLAT_COMPRESSION ||
++		datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY;
  }
  
+ /* bit definitions of inode i_advise */
 -- 
 2.17.1
 
