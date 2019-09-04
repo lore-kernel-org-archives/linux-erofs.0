@@ -2,24 +2,24 @@ Return-Path: <SRS0=/jrW=W7=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44FA0C3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5FB0C3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:44 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B711221897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B711221897
+	by mail.kernel.org (Postfix) with ESMTPS id 3F31121897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3F31121897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS496XwgzDql2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS4G33xwzDqm9
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:42 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
  (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
@@ -29,22 +29,21 @@ Authentication-Results: lists.ozlabs.org;
 Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2r5HLBzDqlS
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2s0ZrKzDql2
  for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:28 +1000 (AEST)
 Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id 7F8A3CC9CCE41AD6FC5E;
+ by Forcepoint Email with ESMTP id 6F718D93F59080B35CF4;
  Wed,  4 Sep 2019 10:10:25 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:19 +0800
+ 10:10:16 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 13/25] erofs: use dsb instead of layout for ondisk
- super_block
-Date: Wed, 4 Sep 2019 10:09:00 +0800
-Message-ID: <20190904020912.63925-14-gaoxiang25@huawei.com>
+Subject: [PATCH v2 11/25] erofs: update comments in inode.c
+Date: Wed, 4 Sep 2019 10:08:58 +0800
+Message-ID: <20190904020912.63925-12-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -70,99 +69,45 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph pointed out [1], "Why is the variable name
-for the on-disk subperblock layout? We usually still
-calls this something with sb in the name, e.g. dsb.
-for disksuper block. " Let's fix it.
+As Christoph suggested [1], update them all.
 
-[1] https://lore.kernel.org/r/20190829101545.GC20598@infradead.org/
+[1] https://lore.kernel.org/r/20190829102426.GE20598@infradead.org/
+Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/super.c | 35 +++++++++++++++++------------------
- 1 file changed, 17 insertions(+), 18 deletions(-)
+ fs/erofs/inode.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index b8b0e35f6621..63cb17a4073b 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -49,9 +49,9 @@ static void free_inode(struct inode *inode)
- }
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index f6dfd0271261..a42f5fc14df9 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -147,7 +147,7 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 	if (vi->datalayout != EROFS_INODE_FLAT_INLINE)
+ 		return 0;
  
- static bool check_layout_compatibility(struct super_block *sb,
--				       struct erofs_super_block *layout)
-+				       struct erofs_super_block *dsb)
- {
--	const unsigned int feature = le32_to_cpu(layout->feature_incompat);
-+	const unsigned int feature = le32_to_cpu(dsb->feature_incompat);
+-	/* fast symlink (following ext4) */
++	/* fast symlink */
+ 	if (S_ISLNK(inode->i_mode) && inode->i_size < PAGE_SIZE) {
+ 		char *lnk = erofs_kmalloc(sbi, inode->i_size + 1, GFP_KERNEL);
  
- 	EROFS_SB(sb)->feature_incompat = feature;
+@@ -156,7 +156,7 @@ static int fill_inline_data(struct inode *inode, void *data,
  
-@@ -68,7 +68,7 @@ static int superblock_read(struct super_block *sb)
- {
- 	struct erofs_sb_info *sbi;
- 	struct buffer_head *bh;
--	struct erofs_super_block *layout;
-+	struct erofs_super_block *dsb;
- 	unsigned int blkszbits;
- 	int ret;
+ 		m_pofs += vi->inode_isize + vi->xattr_isize;
  
-@@ -80,16 +80,15 @@ static int superblock_read(struct super_block *sb)
- 	}
+-		/* inline symlink data shouldn't across page boundary as well */
++		/* inline symlink data shouldn't cross page boundary as well */
+ 		if (m_pofs + inode->i_size > PAGE_SIZE) {
+ 			kfree(lnk);
+ 			errln("inline data cross block boundary @ nid %llu",
+@@ -165,7 +165,6 @@ static int fill_inline_data(struct inode *inode, void *data,
+ 			return -EFSCORRUPTED;
+ 		}
  
- 	sbi = EROFS_SB(sb);
--	layout = (struct erofs_super_block *)((u8 *)bh->b_data
--		 + EROFS_SUPER_OFFSET);
-+	dsb = (struct erofs_super_block *)(bh->b_data + EROFS_SUPER_OFFSET);
+-		/* get in-page inline data */
+ 		memcpy(lnk, data + m_pofs, inode->i_size);
+ 		lnk[inode->i_size] = '\0';
  
- 	ret = -EINVAL;
--	if (le32_to_cpu(layout->magic) != EROFS_SUPER_MAGIC_V1) {
-+	if (le32_to_cpu(dsb->magic) != EROFS_SUPER_MAGIC_V1) {
- 		errln("cannot find valid erofs superblock");
- 		goto out;
- 	}
- 
--	blkszbits = layout->blkszbits;
-+	blkszbits = dsb->blkszbits;
- 	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
- 	if (blkszbits != LOG_BLOCK_SIZE) {
- 		errln("blksize %u isn't supported on this platform",
-@@ -97,25 +96,25 @@ static int superblock_read(struct super_block *sb)
- 		goto out;
- 	}
- 
--	if (!check_layout_compatibility(sb, layout))
-+	if (!check_layout_compatibility(sb, dsb))
- 		goto out;
- 
--	sbi->blocks = le32_to_cpu(layout->blocks);
--	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
-+	sbi->blocks = le32_to_cpu(dsb->blocks);
-+	sbi->meta_blkaddr = le32_to_cpu(dsb->meta_blkaddr);
- #ifdef CONFIG_EROFS_FS_XATTR
--	sbi->xattr_blkaddr = le32_to_cpu(layout->xattr_blkaddr);
-+	sbi->xattr_blkaddr = le32_to_cpu(dsb->xattr_blkaddr);
- #endif
- 	sbi->islotbits = ilog2(sizeof(struct erofs_inode_compact));
--	sbi->root_nid = le16_to_cpu(layout->root_nid);
--	sbi->inos = le64_to_cpu(layout->inos);
-+	sbi->root_nid = le16_to_cpu(dsb->root_nid);
-+	sbi->inos = le64_to_cpu(dsb->inos);
- 
--	sbi->build_time = le64_to_cpu(layout->build_time);
--	sbi->build_time_nsec = le32_to_cpu(layout->build_time_nsec);
-+	sbi->build_time = le64_to_cpu(dsb->build_time);
-+	sbi->build_time_nsec = le32_to_cpu(dsb->build_time_nsec);
- 
--	memcpy(&sb->s_uuid, layout->uuid, sizeof(layout->uuid));
-+	memcpy(&sb->s_uuid, dsb->uuid, sizeof(dsb->uuid));
- 
--	ret = strscpy(sbi->volume_name, layout->volume_name,
--		      sizeof(layout->volume_name));
-+	ret = strscpy(sbi->volume_name, dsb->volume_name,
-+		      sizeof(dsb->volume_name));
- 	if (ret < 0) {	/* -E2BIG */
- 		errln("bad volume name without NIL terminator");
- 		ret = -EFSCORRUPTED;
 -- 
 2.17.1
 
