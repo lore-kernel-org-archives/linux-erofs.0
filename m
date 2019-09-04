@@ -7,43 +7,44 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CCA1C3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01FDBC3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:13 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AF21A21897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AF21A21897
+	by mail.kernel.org (Postfix) with ESMTPS id 7FCEF21897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7FCEF21897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS3T43qzzDqlr
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:01 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS3c6HQYzDqmJ
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:08 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.191; helo=huawei.com;
+ (client-ip=45.249.212.190; helo=huawei.com;
  envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2f1qVfzDql2
- for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:17 +1000 (AEST)
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.59])
- by Forcepoint Email with ESMTP id 575B02FF21D1C15272DF;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2j1bRDzDqhC
+ for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:20 +1000 (AEST)
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
+ by Forcepoint Email with ESMTP id 7F63A171F2FC74A1B58E;
  Wed,  4 Sep 2019 10:10:15 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:05 +0800
+ 10:10:07 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 01/25] erofs: remove all the byte offset comments
-Date: Wed, 4 Sep 2019 10:08:48 +0800
-Message-ID: <20190904020912.63925-2-gaoxiang25@huawei.com>
+Subject: [PATCH v2 03/25] erofs: some macros are much more readable as a
+ function
+Date: Wed, 4 Sep 2019 10:08:50 +0800
+Message-ID: <20190904020912.63925-4-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -69,181 +70,88 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph suggested [1], "Please remove all the byte offset comments.
-that is something that can easily be checked with gdb or pahole."
+As Christoph suggested [1], these macros are much
+more readable as a function.
 
 [1] https://lore.kernel.org/r/20190829095954.GB20598@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/erofs_fs.h | 105 +++++++++++++++++++++++---------------------
- 1 file changed, 54 insertions(+), 51 deletions(-)
+ fs/erofs/erofs_fs.h | 22 ++++++++++++++--------
+ fs/erofs/inode.c    |  4 ++--
+ fs/erofs/xattr.c    |  2 +-
+ 3 files changed, 17 insertions(+), 11 deletions(-)
 
 diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index afa7d45ca958..49335fff9d65 100644
+index d1f152a3670a..c1220b0f26e0 100644
 --- a/fs/erofs/erofs_fs.h
 +++ b/fs/erofs/erofs_fs.h
-@@ -17,27 +17,28 @@
- #define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
- #define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
- 
-+/* 128-byte erofs on-disk super block */
- struct erofs_super_block {
--/*  0 */__le32 magic;           /* in the little endian */
--/*  4 */__le32 checksum;        /* crc32c(super_block) */
--/*  8 */__le32 features;        /* (aka. feature_compat) */
--/* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
--/* 13 */__u8 reserved;
--
--/* 14 */__le16 root_nid;
--/* 16 */__le64 inos;            /* total valid ino # (== f_files - f_favail) */
--
--/* 24 */__le64 build_time;      /* inode v1 time derivation */
--/* 32 */__le32 build_time_nsec;
--/* 36 */__le32 blocks;          /* used for statfs */
--/* 40 */__le32 meta_blkaddr;
--/* 44 */__le32 xattr_blkaddr;
--/* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
--/* 64 */__u8 volume_name[16];   /* volume name */
--/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
--
--/* 84 */__u8 reserved2[44];
--} __packed;                     /* 128 bytes */
-+	__le32 magic;           /* file system magic number */
-+	__le32 checksum;        /* crc32c(super_block) */
-+	__le32 features;        /* (aka. feature_compat) */
-+	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
-+	__u8 reserved;
-+
-+	__le16 root_nid;	/* nid of root directory */
-+	__le64 inos;            /* total valid ino # (== f_files - f_favail) */
-+
-+	__le64 build_time;      /* inode v1 time derivation */
-+	__le32 build_time_nsec;	/* inode v1 time derivation in nano scale */
-+	__le32 blocks;          /* used for statfs */
-+	__le32 meta_blkaddr;	/* start block address of metadata area */
-+	__le32 xattr_blkaddr;	/* start block address of shared xattr area */
-+	__u8 uuid[16];          /* 128-bit uuid for volume */
-+	__u8 volume_name[16];   /* volume name */
-+	__le32 requirements;    /* (aka. feature_incompat) */
-+
-+	__u8 reserved2[44];
-+} __packed;
- 
- /*
-  * erofs inode data mapping:
-@@ -73,16 +74,17 @@ static inline bool erofs_inode_is_data_compressed(unsigned int datamode)
- #define EROFS_I_VERSION_BIT             0
- #define EROFS_I_DATA_MAPPING_BIT        1
- 
-+/* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_v1 {
--/*  0 */__le16 i_advise;
-+	__le16 i_advise;	/* inode hints */
- 
- /* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
--/*  2 */__le16 i_xattr_icount;
--/*  4 */__le16 i_mode;
--/*  6 */__le16 i_nlink;
--/*  8 */__le32 i_size;
--/* 12 */__le32 i_reserved;
--/* 16 */union {
-+	__le16 i_xattr_icount;
-+	__le16 i_mode;
-+	__le16 i_nlink;
-+	__le32 i_size;
-+	__le32 i_reserved;
-+	union {
- 		/* file total compressed blocks for data mapping 1 */
- 		__le32 compressed_blocks;
- 		__le32 raw_blkaddr;
-@@ -90,10 +92,10 @@ struct erofs_inode_v1 {
- 		/* for device files, used to indicate old/new device # */
- 		__le32 rdev;
- 	} i_u __packed;
--/* 20 */__le32 i_ino;           /* only used for 32-bit stat compatibility */
--/* 24 */__le16 i_uid;
--/* 26 */__le16 i_gid;
--/* 28 */__le32 i_reserved2;
-+	__le32 i_ino;           /* only used for 32-bit stat compatibility */
-+	__le16 i_uid;
-+	__le16 i_gid;
-+	__le32 i_reserved2;
+@@ -171,16 +171,22 @@ struct erofs_xattr_entry {
+ 	char   e_name[0];       /* attribute name */
  } __packed;
  
- /* 32 bytes on-disk inode */
-@@ -101,15 +103,16 @@ struct erofs_inode_v1 {
- /* 64 bytes on-disk inode */
- #define EROFS_INODE_LAYOUT_V2   1
- 
-+/* 64-byte complete form of an ondisk inode */
- struct erofs_inode_v2 {
--/*  0 */__le16 i_advise;
-+	__le16 i_advise;	/* inode hints */
- 
- /* 1 header + n-1 * 4 bytes inline xattr to keep continuity */
--/*  2 */__le16 i_xattr_icount;
--/*  4 */__le16 i_mode;
--/*  6 */__le16 i_reserved;
--/*  8 */__le64 i_size;
--/* 16 */union {
-+	__le16 i_xattr_icount;
-+	__le16 i_mode;
-+	__le16 i_reserved;
-+	__le64 i_size;
-+	union {
- 		/* file total compressed blocks for data mapping 1 */
- 		__le32 compressed_blocks;
- 		__le32 raw_blkaddr;
-@@ -119,15 +122,15 @@ struct erofs_inode_v2 {
- 	} i_u __packed;
- 
- 	/* only used for 32-bit stat compatibility */
--/* 20 */__le32 i_ino;
--
--/* 24 */__le32 i_uid;
--/* 28 */__le32 i_gid;
--/* 32 */__le64 i_ctime;
--/* 40 */__le32 i_ctime_nsec;
--/* 44 */__le32 i_nlink;
--/* 48 */__u8   i_reserved2[16];
--} __packed;                     /* 64 bytes */
-+	__le32 i_ino;
+-#define ondisk_xattr_ibody_size(count)	({\
+-	u32 __count = le16_to_cpu(count); \
+-	((__count) == 0) ? 0 : \
+-	sizeof(struct erofs_xattr_ibody_header) + \
+-		sizeof(__u32) * ((__count) - 1); })
++static inline unsigned int erofs_xattr_ibody_size(__le16 i_xattr_icount)
++{
++	if (!i_xattr_icount)
++		return 0;
 +
-+	__le32 i_uid;
-+	__le32 i_gid;
-+	__le64 i_ctime;
-+	__le32 i_ctime_nsec;
-+	__le32 i_nlink;
-+	__u8   i_reserved2[16];
-+} __packed;
++	return sizeof(struct erofs_xattr_ibody_header) +
++		sizeof(__u32) * (le16_to_cpu(i_xattr_icount) - 1);
++}
  
- #define EROFS_MAX_SHARED_XATTRS         (128)
- /* h_shared_count between 129 ... 255 are special # */
-@@ -264,7 +267,7 @@ struct z_erofs_vle_decompressed_index {
- 		 * [1] - pointing to the tail cluster
- 		 */
- 		__le16 delta[2];
--	} di_u __packed;		/* 8 bytes */
-+	} di_u __packed;
- } __packed;
+ #define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
+-#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
+-	sizeof(struct erofs_xattr_entry) + \
+-	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
++
++static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
++{
++	return EROFS_XATTR_ALIGN(sizeof(struct erofs_xattr_entry) +
++				 e->e_name_len + le16_to_cpu(e->e_value_size));
++}
  
- #define Z_EROFS_VLE_LEGACY_INDEX_ALIGN(size) \
-@@ -273,10 +276,10 @@ struct z_erofs_vle_decompressed_index {
+ /* available compression algorithm types */
+ enum {
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 8a0574530a0a..3fc4f764b387 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -29,7 +29,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		struct erofs_inode_v2 *v2 = data;
  
- /* dirent sorts in alphabet order, thus we can do binary search */
- struct erofs_dirent {
--	__le64 nid;     /*  0, node number */
--	__le16 nameoff; /*  8, start offset of file name */
--	__u8 file_type; /* 10, file type */
--	__u8 reserved;  /* 11, reserved */
-+	__le64 nid;     /* node number */
-+	__le16 nameoff; /* start offset of file name */
-+	__u8 file_type; /* file type */
-+	__u8 reserved;  /* reserved */
- } __packed;
+ 		vi->inode_isize = sizeof(struct erofs_inode_v2);
+-		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
++		vi->xattr_isize = erofs_xattr_ibody_size(v2->i_xattr_icount);
  
- /*
+ 		inode->i_mode = le16_to_cpu(v2->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+@@ -62,7 +62,7 @@ static int read_inode(struct inode *inode, void *data)
+ 		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 
+ 		vi->inode_isize = sizeof(struct erofs_inode_v1);
+-		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
++		vi->xattr_isize = erofs_xattr_ibody_size(v1->i_xattr_icount);
+ 
+ 		inode->i_mode = le16_to_cpu(v1->i_mode);
+ 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index d80f61dde72f..620cbc15f4d0 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -231,7 +231,7 @@ static int xattr_foreach(struct xattr_iter *it,
+ 	 */
+ 	entry = *(struct erofs_xattr_entry *)(it->kaddr + it->ofs);
+ 	if (tlimit) {
+-		unsigned int entry_sz = EROFS_XATTR_ENTRY_SIZE(&entry);
++		unsigned int entry_sz = erofs_xattr_entry_size(&entry);
+ 
+ 		/* xattr on-disk corruption: xattr entry beyond xattr_isize */
+ 		if (*tlimit < entry_sz) {
 -- 
 2.17.1
 
