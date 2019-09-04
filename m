@@ -7,44 +7,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01FDBC3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 279D1C3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:18 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7FCEF21897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7FCEF21897
+	by mail.kernel.org (Postfix) with ESMTPS id A66FC21897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A66FC21897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS3c6HQYzDqmJ
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:08 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS3l3SHSzDqlR
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.190; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
+ (client-ip=45.249.212.35; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2j1bRDzDqhC
- for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:20 +1000 (AEST)
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id 7F63A171F2FC74A1B58E;
- Wed,  4 Sep 2019 10:10:15 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2m3s0BzDqlg
+ for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:24 +1000 (AEST)
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.58])
+ by Forcepoint Email with ESMTP id 60BE85B9F2CE80E7185B;
+ Wed,  4 Sep 2019 10:10:20 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:07 +0800
+ 10:10:11 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 03/25] erofs: some macros are much more readable as a
- function
-Date: Wed, 4 Sep 2019 10:08:50 +0800
-Message-ID: <20190904020912.63925-4-gaoxiang25@huawei.com>
+Subject: [PATCH v2 06/25] erofs: use feature_incompat rather than requirements
+Date: Wed, 4 Sep 2019 10:08:53 +0800
+Message-ID: <20190904020912.63925-7-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -70,88 +69,109 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph suggested [1], these macros are much
-more readable as a function.
+As Christoph said [1], "This is only cosmetic, why
+not stick to feature_compat and feature_incompat?"
 
-[1] https://lore.kernel.org/r/20190829095954.GB20598@infradead.org/
+In my thought, requirements means "incompatible"
+instead of "feature" though.
+
+[1] https://lore.kernel.org/r/20190902125109.GA9826@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/erofs_fs.h | 22 ++++++++++++++--------
- fs/erofs/inode.c    |  4 ++--
- fs/erofs/xattr.c    |  2 +-
- 3 files changed, 17 insertions(+), 11 deletions(-)
+ fs/erofs/decompressor.c |  3 ++-
+ fs/erofs/erofs_fs.h     | 12 ++++++------
+ fs/erofs/internal.h     |  2 +-
+ fs/erofs/super.c        | 10 +++++-----
+ 4 files changed, 14 insertions(+), 13 deletions(-)
 
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index df349888f911..555c04730f87 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -129,7 +129,8 @@ static int lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
+ 	support_0padding = false;
+ 
+ 	/* decompression inplace is only safe when 0padding is enabled */
+-	if (EROFS_SB(rq->sb)->requirements & EROFS_REQUIREMENT_LZ4_0PADDING) {
++	if (EROFS_SB(rq->sb)->feature_incompat &
++	    EROFS_FEATURE_INCOMPAT_LZ4_0PADDING) {
+ 		support_0padding = true;
+ 
+ 		while (!src[inputmargin & ~PAGE_MASK])
 diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index d1f152a3670a..c1220b0f26e0 100644
+index 87d7ae82339a..b2aef3bc377d 100644
 --- a/fs/erofs/erofs_fs.h
 +++ b/fs/erofs/erofs_fs.h
-@@ -171,16 +171,22 @@ struct erofs_xattr_entry {
- 	char   e_name[0];       /* attribute name */
- } __packed;
+@@ -11,17 +11,17 @@
+ #define EROFS_SUPER_OFFSET      1024
  
--#define ondisk_xattr_ibody_size(count)	({\
--	u32 __count = le16_to_cpu(count); \
--	((__count) == 0) ? 0 : \
--	sizeof(struct erofs_xattr_ibody_header) + \
--		sizeof(__u32) * ((__count) - 1); })
-+static inline unsigned int erofs_xattr_ibody_size(__le16 i_xattr_icount)
-+{
-+	if (!i_xattr_icount)
-+		return 0;
-+
-+	return sizeof(struct erofs_xattr_ibody_header) +
-+		sizeof(__u32) * (le16_to_cpu(i_xattr_icount) - 1);
-+}
+ /*
+- * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
+- * incompatible with this kernel version.
++ * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
++ * be incompatible with this kernel version.
+  */
+-#define EROFS_REQUIREMENT_LZ4_0PADDING	0x00000001
+-#define EROFS_ALL_REQUIREMENTS		EROFS_REQUIREMENT_LZ4_0PADDING
++#define EROFS_FEATURE_INCOMPAT_LZ4_0PADDING	0x00000001
++#define EROFS_ALL_FEATURE_INCOMPAT		EROFS_FEATURE_INCOMPAT_LZ4_0PADDING
  
- #define EROFS_XATTR_ALIGN(size) round_up(size, sizeof(struct erofs_xattr_entry))
--#define EROFS_XATTR_ENTRY_SIZE(entry) EROFS_XATTR_ALIGN( \
--	sizeof(struct erofs_xattr_entry) + \
--	(entry)->e_name_len + le16_to_cpu((entry)->e_value_size))
-+
-+static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
-+{
-+	return EROFS_XATTR_ALIGN(sizeof(struct erofs_xattr_entry) +
-+				 e->e_name_len + le16_to_cpu(e->e_value_size));
-+}
+ /* 128-byte erofs on-disk super block */
+ struct erofs_super_block {
+ 	__le32 magic;           /* file system magic number */
+ 	__le32 checksum;        /* crc32c(super_block) */
+-	__le32 features;        /* (aka. feature_compat) */
++	__le32 feature_compat;
+ 	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+ 	__u8 reserved;
  
- /* available compression algorithm types */
- enum {
-diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index 8a0574530a0a..3fc4f764b387 100644
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -29,7 +29,7 @@ static int read_inode(struct inode *inode, void *data)
- 		struct erofs_inode_v2 *v2 = data;
+@@ -35,7 +35,7 @@ struct erofs_super_block {
+ 	__le32 xattr_blkaddr;	/* start block address of shared xattr area */
+ 	__u8 uuid[16];          /* 128-bit uuid for volume */
+ 	__u8 volume_name[16];   /* volume name */
+-	__le32 requirements;    /* (aka. feature_incompat) */
++	__le32 feature_incompat;
  
- 		vi->inode_isize = sizeof(struct erofs_inode_v2);
--		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
-+		vi->xattr_isize = erofs_xattr_ibody_size(v2->i_xattr_icount);
+ 	__u8 reserved2[44];
+ };
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 141ea424587d..7ff36f404ec3 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -96,7 +96,7 @@ struct erofs_sb_info {
  
- 		inode->i_mode = le16_to_cpu(v2->i_mode);
- 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
-@@ -62,7 +62,7 @@ static int read_inode(struct inode *inode, void *data)
- 		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 	u8 uuid[16];                    /* 128-bit uuid for volume */
+ 	u8 volume_name[16];             /* volume name */
+-	u32 requirements;
++	u32 feature_incompat;
  
- 		vi->inode_isize = sizeof(struct erofs_inode_v1);
--		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
-+		vi->xattr_isize = erofs_xattr_ibody_size(v1->i_xattr_icount);
+ 	unsigned int mount_opt;
  
- 		inode->i_mode = le16_to_cpu(v1->i_mode);
- 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index d80f61dde72f..620cbc15f4d0 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -231,7 +231,7 @@ static int xattr_foreach(struct xattr_iter *it,
- 	 */
- 	entry = *(struct erofs_xattr_entry *)(it->kaddr + it->ofs);
- 	if (tlimit) {
--		unsigned int entry_sz = EROFS_XATTR_ENTRY_SIZE(&entry);
-+		unsigned int entry_sz = erofs_xattr_entry_size(&entry);
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 6603f0ba8905..6a7ab194783c 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -67,14 +67,14 @@ static void free_inode(struct inode *inode)
+ static bool check_layout_compatibility(struct super_block *sb,
+ 				       struct erofs_super_block *layout)
+ {
+-	const unsigned int requirements = le32_to_cpu(layout->requirements);
++	const unsigned int feature = le32_to_cpu(layout->feature_incompat);
  
- 		/* xattr on-disk corruption: xattr entry beyond xattr_isize */
- 		if (*tlimit < entry_sz) {
+-	EROFS_SB(sb)->requirements = requirements;
++	EROFS_SB(sb)->feature_incompat = feature;
+ 
+ 	/* check if current kernel meets all mandatory requirements */
+-	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
+-		errln("unidentified requirements %x, please upgrade kernel version",
+-		      requirements & ~EROFS_ALL_REQUIREMENTS);
++	if (feature & (~EROFS_ALL_FEATURE_INCOMPAT)) {
++		errln("unidentified incompatible feature %x, please upgrade kernel version",
++		      feature & ~EROFS_ALL_FEATURE_INCOMPAT);
+ 		return false;
+ 	}
+ 	return true;
 -- 
 2.17.1
 
