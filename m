@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5100FC3A5A2
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C9BDC3A5A2
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:57 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CF65E21897
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CF65E21897
+	by mail.kernel.org (Postfix) with ESMTPS id 8F57421897
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 02:11:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F57421897
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46NS4Q6k2gzDqlp
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:50 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46NS4V6dP6zDqlL
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Sep 2019 12:11:54 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
- receiver=<UNKNOWN>)
+ (client-ip=45.249.212.190; helo=huawei.com;
+ envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2s2BWwzDqhC
- for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:28 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46NS2x1ntNzDqlQ
+ for <linux-erofs@lists.ozlabs.org>; Wed,  4 Sep 2019 12:10:33 +1000 (AEST)
 Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id 745837A240A9C64E728E;
- Wed,  4 Sep 2019 10:10:25 +0800 (CST)
+ by Forcepoint Email with ESMTP id 938614BD2A40AB5CB661;
+ Wed,  4 Sep 2019 10:10:30 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.211) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 4 Sep 2019
- 10:10:15 +0800
+ 10:10:24 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Christoph Hellwig <hch@lst.de>,
  <devel@driverdev.osuosl.org>
-Subject: [PATCH v2 10/25] erofs: update erofs_fs.h comments
-Date: Wed, 4 Sep 2019 10:08:57 +0800
-Message-ID: <20190904020912.63925-11-gaoxiang25@huawei.com>
+Subject: [PATCH v2 17/25] erofs: kill __submit_bio()
+Date: Wed, 4 Sep 2019 10:09:04 +0800
+Message-ID: <20190904020912.63925-18-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190904020912.63925-1-gaoxiang25@huawei.com>
 References: <20190901055130.30572-1-hsiangkao@aol.com>
@@ -69,63 +69,152 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Christoph said [1] [2], update it now.
+As Christoph pointed out [1], "
+Why is there __submit_bio which really just obsfucates
+what is going on?  Also why is __submit_bio using
+bio_set_op_attrs instead of opencode it as the comment
+right next to it asks you to? "
 
-[1] https://lore.kernel.org/r/20190902124521.GA22153@infradead.org/
-[2] https://lore.kernel.org/r/20190902120548.GB15931@infradead.org/
+Let's use submit_bio directly instead.
+
+[1] https://lore.kernel.org/r/20190830162812.GA10694@infradead.org/
 Reported-by: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/erofs_fs.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/erofs/data.c     | 21 +++++++++++++--------
+ fs/erofs/internal.h |  7 -------
+ fs/erofs/zdata.c    |  6 ++++--
+ 3 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 18689e916e94..b1ee5654750d 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -1,5 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0-only OR Apache-2.0 */
- /*
-+ * EROFS (Enhanced ROM File System) on-disk format definition
-+ *
-  * Copyright (C) 2017-2018 HUAWEI, Inc.
-  *             http://www.huawei.com/
-  * Created by Gao Xiang <gaoxiang25@huawei.com>
-@@ -7,7 +9,6 @@
- #ifndef __EROFS_FS_H
- #define __EROFS_FS_H
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 28eda71bb1a9..70b1e353756e 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -40,7 +40,8 @@ static inline void read_endio(struct bio *bio)
  
--/* Enhanced(Extended) ROM File System */
- #define EROFS_SUPER_OFFSET      1024
+ static struct bio *erofs_grab_raw_bio(struct super_block *sb,
+ 				      erofs_blk_t blkaddr,
+-				      unsigned int nr_pages)
++				      unsigned int nr_pages,
++				      bool ismeta)
+ {
+ 	struct bio *bio = bio_alloc(GFP_NOIO, nr_pages);
  
- /*
-@@ -41,7 +42,7 @@ struct erofs_super_block {
- };
- 
- /*
-- * erofs inode datalayout:
-+ * erofs inode datalayout (i_format in on-disk inode):
-  * 0 - inode plain without inline data A:
-  * inode, [xattrs], ... | ... | no-holed data
-  * 1 - inode VLE compression B (legacy):
-@@ -187,7 +188,7 @@ static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
- 				 e->e_name_len + le16_to_cpu(e->e_value_size));
+@@ -48,6 +49,11 @@ static struct bio *erofs_grab_raw_bio(struct super_block *sb,
+ 	bio_set_dev(bio, sb->s_bdev);
+ 	bio->bi_iter.bi_sector = (sector_t)blkaddr << LOG_SECTORS_PER_BLOCK;
+ 	bio->bi_private = sb;
++	if (ismeta)
++		bio->bi_opf = REQ_OP_READ | REQ_META;
++	else
++		bio->bi_opf = REQ_OP_READ;
++
+ 	return bio;
  }
  
--/* available compression algorithm types */
-+/* available compression algorithm types (for h_algorithmtype) */
- enum {
- 	Z_EROFS_COMPRESSION_LZ4	= 0,
- 	Z_EROFS_COMPRESSION_MAX
-@@ -222,7 +223,7 @@ struct z_erofs_map_header {
- #define Z_EROFS_VLE_LEGACY_HEADER_PADDING       8
+@@ -69,14 +75,14 @@ struct page *erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr)
+ 	if (!PageUptodate(page)) {
+ 		struct bio *bio;
  
- /*
-- * Z_EROFS Variable-sized Logical Extent cluster type:
-+ * Fixed-sized output compression ondisk Logical Extent cluster type:
-  *    0 - literal (uncompressed) cluster
-  *    1 - compressed cluster (for the head logical cluster)
-  *    2 - compressed cluster (for the other logical clusters)
+-		bio = erofs_grab_raw_bio(sb, blkaddr, 1);
++		bio = erofs_grab_raw_bio(sb, blkaddr, 1, true);
+ 
+ 		if (bio_add_page(bio, page, PAGE_SIZE, 0) != PAGE_SIZE) {
+ 			err = -EFAULT;
+ 			goto err_out;
+ 		}
+ 
+-		__submit_bio(bio, REQ_OP_READ, REQ_META);
++		submit_bio(bio);
+ 		lock_page(page);
+ 
+ 		/* this page has been truncated by others */
+@@ -201,7 +207,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 	    /* not continuous */
+ 	    *last_block + 1 != current_block) {
+ submit_bio_retry:
+-		__submit_bio(bio, REQ_OP_READ, 0);
++		submit_bio(bio);
+ 		bio = NULL;
+ 	}
+ 
+@@ -271,7 +277,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 		if (nblocks > BIO_MAX_PAGES)
+ 			nblocks = BIO_MAX_PAGES;
+ 
+-		bio = erofs_grab_raw_bio(sb, blknr, nblocks);
++		bio = erofs_grab_raw_bio(sb, blknr, nblocks, false);
+ 	}
+ 
+ 	err = bio_add_page(bio, page, PAGE_SIZE, 0);
+@@ -302,8 +308,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 	/* if updated manually, continuous pages has a gap */
+ 	if (bio)
+ submit_bio_out:
+-		__submit_bio(bio, REQ_OP_READ, 0);
+-
++		submit_bio(bio);
+ 	return err ? ERR_PTR(err) : NULL;
+ }
+ 
+@@ -367,7 +372,7 @@ static int erofs_raw_access_readpages(struct file *filp,
+ 
+ 	/* the rare case (end in gaps) */
+ 	if (bio)
+-		__submit_bio(bio, REQ_OP_READ, 0);
++		submit_bio(bio);
+ 	return 0;
+ }
+ 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 90c62fb5f80d..13c8d841c43a 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -409,13 +409,6 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
+ /* data.c */
+-static inline void __submit_bio(struct bio *bio, unsigned int op,
+-				unsigned int op_flags)
+-{
+-	bio_set_op_attrs(bio, op, op_flags);
+-	submit_bio(bio);
+-}
+-
+ struct page *erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr);
+ 
+ int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 21ade322cc81..3010fa3d1ac3 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1258,7 +1258,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 
+ 		if (bio && force_submit) {
+ submit_bio_retry:
+-			__submit_bio(bio, REQ_OP_READ, 0);
++			submit_bio(bio);
+ 			bio = NULL;
+ 		}
+ 
+@@ -1270,6 +1270,8 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 			bio->bi_iter.bi_sector = (sector_t)(first_index + i) <<
+ 				LOG_SECTORS_PER_BLOCK;
+ 			bio->bi_private = bi_private;
++			bio->bi_opf = REQ_OP_READ;
++
+ 			++nr_bios;
+ 		}
+ 
+@@ -1290,7 +1292,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
+ 	} while (owned_head != Z_EROFS_PCLUSTER_TAIL);
+ 
+ 	if (bio)
+-		__submit_bio(bio, REQ_OP_READ, 0);
++		submit_bio(bio);
+ 
+ 	if (postsubmit_is_all_bypassed(q, nr_bios, force_fg))
+ 		return true;
 -- 
 2.17.1
 
