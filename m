@@ -1,61 +1,57 @@
-Return-Path: <SRS0=DYSV=XN=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=AxDc=XO=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA7E4C4CEC4
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Sep 2019 08:34:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD119C4CEC4
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 00:54:59 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 54B4621906
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Sep 2019 08:34:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 54B4621906
+	by mail.kernel.org (Postfix) with ESMTPS id 96131218AF
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 00:54:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 96131218AF
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46YCvV57WhzF4Z9
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Sep 2019 18:34:30 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46Ydfn1J2KzF4k3
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 10:54:57 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.255; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
+ (client-ip=45.249.212.190; helo=huawei.com; envelope-from=yuchao0@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga08-in.huawei.com [45.249.212.255])
+Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46YCvK5kQ5zF48x
- for <linux-erofs@lists.ozlabs.org>; Wed, 18 Sep 2019 18:34:21 +1000 (AEST)
-Received: from DGGEMM401-HUB.china.huawei.com (unknown [172.30.72.54])
- by Forcepoint Email with ESMTP id B5078A00FAE7FCD80D5B;
- Wed, 18 Sep 2019 16:34:16 +0800 (CST)
-Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
- DGGEMM401-HUB.china.huawei.com (10.3.20.209) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Wed, 18 Sep 2019 16:34:15 +0800
-Received: from architecture4 (10.140.130.215) by
- dggeme762-chm.china.huawei.com (10.3.19.108) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.1591.10; Wed, 18 Sep 2019 16:34:15 +0800
-Date: Wed, 18 Sep 2019 16:33:08 +0800
-From: Gao Xiang <gaoxiang25@huawei.com>
-To: Wei Yongjun <weiyongjun1@huawei.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46Ydfc6jGdzF4gp
+ for <linux-erofs@lists.ozlabs.org>; Thu, 19 Sep 2019 10:54:47 +1000 (AEST)
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
+ by Forcepoint Email with ESMTP id 6A79855AE3D9879AC3D2;
+ Thu, 19 Sep 2019 08:54:42 +0800 (CST)
+Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.439.0; Thu, 19 Sep
+ 2019 08:54:36 +0800
 Subject: Re: [PATCH -next] erofs: fix return value check in
  erofs_read_superblock()
-Message-ID: <20190918083308.GA30134@architecture4>
+To: Wei Yongjun <weiyongjun1@huawei.com>, Gao Xiang <xiang@kernel.org>, "Chao
+ Yu" <chao@kernel.org>, Gao Xiang <gaoxiang25@huawei.com>
 References: <20190918083033.47780-1-weiyongjun1@huawei.com>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <9c607274-7897-14c6-5211-a992ea25a992@huawei.com>
+Date: Thu, 19 Sep 2019 08:54:21 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
 In-Reply-To: <20190918083033.47780-1-weiyongjun1@huawei.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.140.130.215]
-X-ClientProxiedBy: dggeme703-chm.china.huawei.com (10.1.199.99) To
- dggeme762-chm.china.huawei.com (10.3.19.108)
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.134.22.195]
 X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -68,16 +64,13 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
- Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: kernel-janitors@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Yongjun,
-
-On Wed, Sep 18, 2019 at 08:30:33AM +0000, Wei Yongjun wrote:
+On 2019/9/18 16:30, Wei Yongjun wrote:
 > In case of error, the function read_mapping_page() returns
 > ERR_PTR() not NULL. The NULL test in the return value check
 > should be replaced with IS_ERR().
@@ -85,44 +78,6 @@ On Wed, Sep 18, 2019 at 08:30:33AM +0000, Wei Yongjun wrote:
 > Fixes: fe7c2423570d ("erofs: use read_mapping_page instead of sb_bread")
 > Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
-Reviewed-by: Gao Xiang <gaoxiang25@huawei.com>
-
-
-Right... That is my mistake on recent killing bh
-transformation...
-
-I have no idea this patch could be merged for -rc1
-since I don't know Greg could still accept patches
-or freezed...
-
-Since it's an error handling path and trivial, if
-it's some late, could I submit this later after
-erofs is merged into mainline (if it's ok) for -rc1?
-(or maybe -rc2?)
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
 Thanks,
-Gao Xiang
-
-> ---
->  fs/erofs/super.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-> index caf9a95173b0..0e369494f2f2 100644
-> --- a/fs/erofs/super.c
-> +++ b/fs/erofs/super.c
-> @@ -105,9 +105,9 @@ static int erofs_read_superblock(struct super_block *sb)
->  	int ret;
->  
->  	page = read_mapping_page(sb->s_bdev->bd_inode->i_mapping, 0, NULL);
-> -	if (!page) {
-> +	if (IS_ERR(page)) {
->  		erofs_err(sb, "cannot read erofs superblock");
-> -		return -EIO;
-> +		return PTR_ERR(page);
->  	}
->  
->  	sbi = EROFS_SB(sb);
-> 
-> 
-> 
