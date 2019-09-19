@@ -2,50 +2,54 @@ Return-Path: <SRS0=AxDc=XO=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 247CEC49ED7
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 06:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1407BC49ED7
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 07:18:25 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8F50E21907
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 06:30:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F50E21907
+	by mail.kernel.org (Postfix) with ESMTPS id 5ECEE206C2
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 07:18:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5ECEE206C2
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46Yn5Z0tShzF4fQ
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 16:30:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46Yp983KCjzDsMM
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Sep 2019 17:18:20 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.191; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
+ (client-ip=45.249.212.35; helo=huawei.com; envelope-from=yuchao0@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46Yn5S3R8zzF0Ql
- for <linux-erofs@lists.ozlabs.org>; Thu, 19 Sep 2019 16:30:01 +1000 (AEST)
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id B89A9442E70042431BFE;
- Thu, 19 Sep 2019 14:29:55 +0800 (CST)
-Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
- (10.3.19.207) with Microsoft SMTP Server (TLS) id 14.3.439.0; Thu, 19 Sep
- 2019 14:29:48 +0800
-From: Gao Xiang <gaoxiang25@huawei.com>
-To: Chao Yu <yuchao0@huawei.com>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH] MAINTAINERS: erofs: complete sub-entries for erofs
-Date: Thu, 19 Sep 2019 14:28:38 +0800
-Message-ID: <20190919062838.106423-1-gaoxiang25@huawei.com>
-X-Mailer: git-send-email 2.17.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46Yp8z4ltZzDqrs
+ for <linux-erofs@lists.ozlabs.org>; Thu, 19 Sep 2019 17:18:10 +1000 (AEST)
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.60])
+ by Forcepoint Email with ESMTP id 31534113FD72363366E2;
+ Thu, 19 Sep 2019 15:18:06 +0800 (CST)
+Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
+ (10.3.19.212) with Microsoft SMTP Server (TLS) id 14.3.439.0; Thu, 19 Sep
+ 2019 15:18:00 +0800
+Subject: Re: [PATCH] MAINTAINERS: erofs: complete sub-entries for erofs
+To: Gao Xiang <gaoxiang25@huawei.com>, <linux-erofs@lists.ozlabs.org>
+References: <20190919062838.106423-1-gaoxiang25@huawei.com>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <9db5c133-08fb-dc51-5564-caba4803d8f6@huawei.com>
+Date: Thu, 19 Sep 2019 15:17:50 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.140.130.215]
+In-Reply-To: <20190919062838.106423-1-gaoxiang25@huawei.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.134.22.195]
 X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -63,30 +67,13 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add a formal git tree and missing files for erofs
-after moving out of staging for everyone to blame
-in order for better improvement.
+On 2019/9/19 14:28, Gao Xiang wrote:
+> Add a formal git tree and missing files for erofs
+> after moving out of staging for everyone to blame
+> in order for better improvement.
+> 
+> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
----
- MAINTAINERS | 3 +++
- 1 file changed, 3 insertions(+)
+Acked-by: Chao Yu <yuchao0@huawei.com>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2b6f10ea1573..a3822e1866d8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6088,7 +6088,10 @@ M:	Gao Xiang <gaoxiang25@huawei.com>
- M:	Chao Yu <yuchao0@huawei.com>
- L:	linux-erofs@lists.ozlabs.org
- S:	Maintained
-+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git
-+F:	Documentation/filesystems/erofs.txt
- F:	fs/erofs/
-+F:	include/trace/events/erofs.h
- 
- ERRSEQ ERROR TRACKING INFRASTRUCTURE
- M:	Jeff Layton <jlayton@kernel.org>
--- 
-2.17.1
-
+Thanks,
