@@ -1,4 +1,4 @@
-Return-Path: <SRS0=aQam=X5=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=H4Ti=X6=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -7,85 +7,86 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6122FC4360C
-	for <linux-erofs@archiver.kernel.org>; Fri,  4 Oct 2019 20:47:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B99BC47404
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Oct 2019 14:21:39 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D93512133F
-	for <linux-erofs@archiver.kernel.org>; Fri,  4 Oct 2019 20:47:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1319320867
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Oct 2019 14:21:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="ggrwq10N";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="YqnRErXH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D93512133F
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="RlFu1ttm";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="siL4XsF/"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1319320867
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46lMPQ1MTMzDqgV
-	for <linux-erofs@archiver.kernel.org>; Sat,  5 Oct 2019 06:47:06 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46lpp72gM1zDqbt
+	for <linux-erofs@archiver.kernel.org>; Sun,  6 Oct 2019 00:21:35 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1570222026;
-	bh=wC2bxsyS0UYSk13lE860WDcydnLp2TBaZ4QN4kRfQcI=;
+	s=201707; t=1570285295;
+	bh=ZIMg0YrAlfnotoBfgXyRLRhbG80kqRpS/0qDvKSphlw=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
 	 From;
-	b=ggrwq10NRibP6Av6sOwTUykcKoNPZ5rBuLR6TgeJDDkuL6J5dbJ/zLcwJglYTSlW9
-	 54JDzdbipJZuGxB04zPMynNGDyp2InBgkSZRmjYkFgDnZUXxe8z39dUHNKFD0Jdnsb
-	 wa2MG1Uja9SJwt1rpk2++ZwItrPYrIL15OwrITPowThT92og0Luvm3lR2lljD2LYIf
-	 HO6dJgMukWfff7k2hnmTFX2FeY+8ndghsviqevWbLg0YpHaxLmdBQi2qlHkUZ/H5G1
-	 L7soKlDCbXWVJEE1obB8kNg+DAPyo+m+aDCwBXJtjQg4IMl30NqoqTeYZ+15b4EPI6
-	 96b0ozrlMPI8Q==
+	b=RlFu1ttmRgLHkA+wxzrEIX2PZRS5rUdS1tUJtfwx4IuYuUHfsqHEYiM38oNViImJL
+	 fDhiHr7oDUtBno1mH2P6pN5gvBzC34rJyLbktnjVmOzPHyBeji+xf/NJhPzaNDr+MG
+	 yG5USjSFLbehBXp1g7kFCGwGZmP2W+RUesU9TQ3fmFHySsKaHSbmIZ+BA3EH73m6ps
+	 qewRNkHubkAccIuLsIHLmgfXnm0lpdBf8JFgKk/D5TmOcjP1DZJINQaTPk5XlQZEOk
+	 B/XZC/xcuaX24v4DPQP9GknA8HgpLP+jcTv6m5skZXNBB7OQJzZPvmMUUBVUxs5nZL
+	 8TRhwm9vG4Pkg==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=aol.com
- (client-ip=98.137.65.31; helo=sonic315-55.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.68.147; helo=sonic302-21.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="YqnRErXH"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="siL4XsF/"; 
  dkim-atps=neutral
-Received: from sonic315-55.consmr.mail.gq1.yahoo.com
- (sonic315-55.consmr.mail.gq1.yahoo.com [98.137.65.31])
+Received: from sonic302-21.consmr.mail.gq1.yahoo.com
+ (sonic302-21.consmr.mail.gq1.yahoo.com [98.137.68.147])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46lMP6520VzDqf0
- for <linux-erofs@lists.ozlabs.org>; Sat,  5 Oct 2019 06:46:49 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46lpnz50jMzDqXs
+ for <linux-erofs@lists.ozlabs.org>; Sun,  6 Oct 2019 00:21:27 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1570222007; bh=WA/K27eGBBjTm317LQ8NxPXyt/oK9yhUK+ZcoxWd8bg=;
+ t=1570285285; bh=tBdPlJu+h/DYLhwdUAuqsP0/g4x7S0xvaBolffc1cqc=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
- b=YqnRErXHP+TIrtcixr5RUxx0O95yaQpByag35gZo5mjG4mvx9jrOdpuHNl29aD5yunRaknI2PpDG+73X7yS8FRnQ2FNvS9C+Hfe6sFqRlK8FUHn06wTb/Agp/kazLFCQ5OIda7Bizg2aaY/qleMGh9JncO/oW15JgQK30EgkmuALk05gSA9xBm3XUgVurt3uq3SLQJ/kq3w+zqJUI03GcQ5hdxOQGB2V0IUxqJEWSPR+WDw+tvgcZUDQgG3uVEMWv50OzdyO/ew336S+T2g0NQ/JhzL7x/zv2CQIteS71ZiOgKlUAliuijuVpQZUyNclK0WV+dZMInkIHEZdEWSDMw==
-X-YMail-OSG: kCm0FroVM1lFWZlOe6D9d5cqO0ldaNfkvNKDpqo74hlhTFEtu.yu_lBzdk5yLfY
- n7h6.ArqYlKIm3GCKeWdlQ17fK0V6zuK.nwIaCmUbauvtkn8j_ked94eJ76DgWYwapGkIW1Pr__o
- BnBoWpKSBYhFxNS8rlT7CURHMPtZj.NeQGFbWyHIuUP.bDJhqEI.MwslSDHyeDu5ZVh3zH7sddIX
- lSXt0B9pvQ21yLEHr7E38ZSv7Jql5Dwyfeqew3GrGaDAX8SA2NKcP5xbgDSJvM0e6JV31_jzLEeN
- EFL41HApXHiTPBEHY1R0N1WilQYJK0y6OSdluR10MfYmGqym2FPhU0eW.0.UijcphqTmH1pa9tNt
- bFrHlzc60wsmjRKqYXBY2SRIGcJY.QLGw5uYtTNdqDf26cUQQmr0tV_NcUo.mj4EgUfbVO2pFl1k
- 4lWUYrGAVOEBr3t_D9yExEprSapo_qYJB0d6VDxRT18jRzmvBPdShwhZzYbIMqtjgAkxirmukNO4
- arJuC4u6qlVBqi7SUXJXiTo6qhsPMxMUUZDNWC3tUnQCAFAk5Kfmvw27JVH0iAT20LB0WmzzLrS_
- u7fJ7va0W6I77Eg9Y8RKJz1ciihOxbhYvCegsNfPtduTpkq8aA_o32_F3pPHkifS0tkIXOSMrkyR
- 1jYosDDaK9_7eyvBevbpuvPukf694wj4id1MmqwEo1DUF14OB2lKt25XfQw0dLS4wJNXWeMbOFLO
- YIXgh7cJRBSSmu.JEPZSYpSWe2O8QhwFblMKbFqvE52CF9L9JtkZOoV3OBU5PBEn2PQj4GvhHLaj
- sjUu_1vXGBfuGSQoQ6ApWUg_al.43ympjdyiHQKbgQG6yEO409pGmD4wBS0wnCXKE4LZ9S1wzY28
- AGlUS6FHbMTej6QaZHQ7vW8eWEH9SL0Ibg9rY6zqQV_87NmIv6BWbHGjzyNJ5SX3kpYu4cz6R9r7
- v.T7rGV5W4Pngd4z9E7HTK8FPM4kJ_xSeI.gK.dgSw4OA_7KqaonM77GdASQ8CKxxMGhDZulVZx9
- N.U53aElmP94e1ShO6RbdoZBx_QBl8wgGdearsBDJh5WVM.TgKYkWYzK4OHAlDNtHXpoCgcmWGIO
- wCvkPiCNiX_xmPXL3H0BpppfH88c1R_u9GRSK6Vg7KFaUKPy3AQ43j_X0QCnV1FiLBVjg50G3q5P
- pIgN8yp6w6biPcvFflBsFnkGcXgjlQEv8x67yRNDMEBTe8DHCV7JaAzk5LtptU41QgDRPpANi3.E
- UFLte7Q4t6Xkk7cKYUAFa_RsGF8tApzuQnGddG6OyEvxAuPL47QAPruOlUmOBaBl4jmyZSm_i34I
- Mo_YPNgCp2K7u
+ b=siL4XsF/7ylnHD+a7X+E8kLrXNNm/l2gqIz815m24mdJIQZCUegCCY7wawiBHSEOO9OS2logTEWoo5UP4fEpFTePerWNPylfkMjIng2nc6MlP7c96lw249RhYGFJYgqVvnvEmEMsvniumY/jNP70Mmdn2BI2VLWW4h4g0/sUr+syeQlmODlAmQ+OBsoTt7uCmv5VX9zxrTqpSVCw/b41pXj4CrId4fuQrrYu0qopUWcWWoEnciW/oBoeXbBiKQoappRMFMik31gBc1iFFUXrXt+IUjhy94uWwaM9kv638kxQeC5opuDZyGQ9V/B58V2nrto766Ckb0qMjTB+6kydAA==
+X-YMail-OSG: csshU0QVM1mUFGWJx5sAidvtfQgzaHh49dqupNi.8iNfUb85EgFXM.6wfK4WqUa
+ DWcdEpssy3PtqjB1AGszknoyv6_bO6f1czRf2OQupjakat_2TOU653sNRPaJMt3ic9_1mq_8zDXe
+ pKSpV6klj3zXwLqYD3J6mIstzVdQY4ZeKGCzZi.jZtHk0.4Q553Symb1fHY4IHioPHNlSsx3325N
+ DqhFSUW5QOvGLsVFyvB2y1q9kXgtlYhTHlE.yyD1o40s8T90ciFPQYs.ZjGsSNZ.BHW.pZKuimPt
+ QQ2Q9hD6j12yi4lNG.PatYdm_Oc7pw9n78KzsMf3tTNZQ0eoYH3xBTo9EBmhh3Nbg_bT2OYIhbcq
+ V4fZe.C8CAU1PMAKIWLdhF7cZv1n7L78fd8eDAX6RE3v0DHOTZ7pfy4iCsrjZ3pqyx2BJlMnEfqb
+ 6pH1bZYnimTttNtjDvZhs3TNXiBfKyNBm23L7b3JAMnSIldJFCQcfnJuAcas08xWY.s7papS5rfL
+ J5gIQxokxDgtexQNH5BDDXIS4N5bpnmCD0uiAYsXLqaLeT5cLMdS8t5ShHXFWlFIGd_h51WvVjgN
+ gyyRGxLia7UoysDGbWIR9TmX0d.pT.N3rhD37VbL5iPK7JxA867Bpff4L_JFLSN3QJGqmCpsTRof
+ a5HSL1lLlVfxRstRuUX0el5RSK_9NT8HSkMbKCNGrMrc9xUDd2ljIMts14r1T86bPUfdd_RW3gBk
+ TfybiTSkNWO_H7jjn3lEhkVbAkWp0k2FY1piebcaf88MEqWKiBuK5qFeZB9xj43mqSMxeIpeZt9f
+ 1Qk7no_Aov5tC_4zhLoxgXOlTBVuLQyFSC2xRUR9PMjkaLPsR2pgobhNqgYUNB6jRH6LyfiOlxm.
+ iLEPOiVnp5WtUyW2wMg74LQ597nMye81Bf1HcJlYZoaD53vIc2c209.y0ZtBLH0dcbZzeweUF0bx
+ txdN4vjX.6rrarPd7NrocKGKamRG.rjeqiQh0cVLRtfJPbCs1_UlJIKkSFpiJ8NP2z8thXrPM3zP
+ kPrzVEawwJSUI1Hla41yfF9aGgFlITVNY_IrDFP91VvJSIthxe9iIvXv49JKAbOWMtaS6QOLvGp2
+ SYW4KQml4VZSrdTVAg410_SIN0hYdi5uQZQW5fWcpPg1_4UoDXNTeNf1NWoqYH46NHjw8otuGQOM
+ AR4r7dLmBLilut19lvyjMDKc8nC91_4cTwrLOWcn.BfJwbihWUXi0Gz2Qo7pc0hfhj7lAc2VuaYF
+ DDelw.RAyGExgxBdcWphuSRS1CF6liBeVuxovfR23gqmoYgSJ8ZixiE.DmPPSx54kOegUutYiTXl
+ 62tp5xauGCQVKW00-
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic315.consmr.mail.gq1.yahoo.com with HTTP; Fri, 4 Oct 2019 20:46:47 +0000
-Received: by smtp428.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID deb090a1363bdefbed1275484c094855; 
- Fri, 04 Oct 2019 20:46:45 +0000 (UTC)
-To: Li Guifu <bluce.liguifu@huawei.com>,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/2] erofs-utils: complete extended inode support
-Date: Sat,  5 Oct 2019 04:46:30 +0800
-Message-Id: <20191004204630.22696-2-hsiangkao@aol.com>
+ sonic302.consmr.mail.gq1.yahoo.com with HTTP; Sat, 5 Oct 2019 14:21:25 +0000
+Received: by smtp411.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 0e01244be27731c2d9909e82eb44bd90; 
+ Sat, 05 Oct 2019 14:21:21 +0000 (UTC)
+To: Li Guifu <bluce.liguifu@huawei.com>, Chao Yu <yuchao0@huawei.com>,
+ linux-erofs@lists.ozlabs.org
+Subject: [PATCH 2/2] erofs-utils: introduce shared xattr support
+Date: Sat,  5 Oct 2019 22:20:50 +0800
+Message-Id: <20191005142050.8827-2-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191004204630.22696-1-hsiangkao@aol.com>
-References: <20191004204630.22696-1-hsiangkao@aol.com>
+In-Reply-To: <20191005142050.8827-1-hsiangkao@aol.com>
+References: <20190811171049.26111-1-hsiangkao@aol.com>
+ <20191005142050.8827-1-hsiangkao@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -103,322 +104,377 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Li Guifu <blucerlee@gmail.com>
 
-There is no requirement to use extended inode (v2)
-for Android, but it's obviously useful for wider
-use cases.
+Large xattrs or xattrs shared by a lot of files
+can be stored in shared xattrs rather than
+inlined right after inode.
 
-extended inode was partially supported by obsoleted_mkfs,
-complete for new erofs-utils as well.
-
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Signed-off-by: Li Guifu <blucerlee@gmail.com>
+Signed-off-by: Gao Xiang <hsiangkao@aol.com>
 ---
- include/erofs/config.h   |   6 ++
- include/erofs/internal.h |   2 +
- lib/compress.c           |   4 +-
- lib/config.c             |   1 +
- lib/inode.c              | 119 +++++++++++++++++++++++++++++++--------
- mkfs/main.c              |  26 +++++++--
- 6 files changed, 125 insertions(+), 33 deletions(-)
+ include/erofs/config.h |   2 +
+ include/erofs/xattr.h  |   1 +
+ lib/config.c           |   1 +
+ lib/xattr.c            | 193 ++++++++++++++++++++++++++++++++++++++++-
+ mkfs/main.c            |  10 ++-
+ 5 files changed, 205 insertions(+), 2 deletions(-)
 
 diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 05fe6b2..8b09430 100644
+index 8b09430..fde936c 100644
 --- a/include/erofs/config.h
 +++ b/include/erofs/config.h
-@@ -11,6 +11,11 @@
- 
- #include "defs.h"
- 
-+enum {
-+	FORCE_INODE_COMPACT = 1,
-+	FORCE_INODE_EXTENDED,
-+};
-+
- struct erofs_configure {
- 	const char *c_version;
- 	int c_dbg_lvl;
-@@ -22,6 +27,7 @@ struct erofs_configure {
- 	char *c_src_path;
+@@ -28,6 +28,8 @@ struct erofs_configure {
  	char *c_compr_alg_master;
  	int c_compr_level_master;
-+	int c_force_inodeversion;
+ 	int c_force_inodeversion;
++	/* < 0, xattr disabled and INT_MAX, always use inline xattrs */
++	int c_inline_xattr_tolerance;
  };
  
  extern struct erofs_configure cfg;
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 07a32d2..5384946 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -53,6 +53,8 @@ struct erofs_sb_info {
- 	erofs_blk_t xattr_blkaddr;
+diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
+index 29df025..3dff1ea 100644
+--- a/include/erofs/xattr.h
++++ b/include/erofs/xattr.h
+@@ -44,5 +44,6 @@
  
- 	u32 feature_incompat;
-+	u64 build_time;
-+	u32 build_time_nsec;
- };
+ int erofs_prepare_xattr_ibody(const char *path, struct list_head *ixattrs);
+ char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size);
++int erofs_build_shared_xattrs_from_path(const char *path);
  
- /* global sbi */
-diff --git a/lib/compress.c b/lib/compress.c
-index 7935fce..7f65e5e 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -423,8 +423,8 @@ int erofs_write_compressed_file(struct erofs_inode *inode)
- 	remaining = inode->i_size;
- 
- 	while (remaining) {
--		const uint readcount = min_t(uint, remaining,
--					     sizeof(ctx.queue) - ctx.tail);
-+		const u64 readcount = min_t(u64, remaining,
-+					    sizeof(ctx.queue) - ctx.tail);
- 
- 		ret = read(fd, ctx.queue + ctx.tail, readcount);
- 		if (ret != readcount) {
+ #endif
 diff --git a/lib/config.c b/lib/config.c
-index 9c78142..110c8b6 100644
+index 110c8b6..dc10754 100644
 --- a/lib/config.c
 +++ b/lib/config.c
-@@ -22,6 +22,7 @@ void erofs_init_configure(void)
- 	cfg.c_legacy_compress = false;
+@@ -23,6 +23,7 @@ void erofs_init_configure(void)
  	cfg.c_compr_level_master = -1;
  	sbi.feature_incompat = EROFS_FEATURE_INCOMPAT_LZ4_0PADDING;
-+	cfg.c_force_inodeversion = 0;
+ 	cfg.c_force_inodeversion = 0;
++	cfg.c_inline_xattr_tolerance = 2;
  }
  
  void erofs_show_config(void)
-diff --git a/lib/inode.c b/lib/inode.c
-index 4e1e29f..d1f294a 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -8,6 +8,7 @@
-  * with heavy changes by Gao Xiang <gaoxiang25@huawei.com>
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 8156f3e..781d210 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -6,20 +6,26 @@
+  * heavily changed by Li Guifu <blucerlee@gmail.com>
+  *                and Gao Xiang <hsiangkao@aol.com>
   */
- #define _GNU_SOURCE
++#define _GNU_SOURCE
 +#include <limits.h>
- #include <string.h>
  #include <stdlib.h>
- #include <stdio.h>
-@@ -365,40 +366,81 @@ static bool erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
- {
- 	struct erofs_inode *const inode = bh->fsprivate;
- 	erofs_off_t off = erofs_btell(bh, false);
+ #include <sys/xattr.h>
+ #ifdef HAVE_LINUX_XATTR_H
+ #include <linux/xattr.h>
+ #endif
++#include <sys/stat.h>
++#include <dirent.h>
+ #include "erofs/print.h"
+ #include "erofs/hashtable.h"
+ #include "erofs/xattr.h"
++#include "erofs/cache.h"
+ 
+ #define EA_HASHTABLE_BITS 16
+ 
+ struct xattr_item {
+ 	const char *kvbuf;
+ 	unsigned int hash[2], len[2], count;
++	int shared_xattr_id;
+ 	u8 prefix;
+ 	struct hlist_node node;
+ };
+@@ -31,6 +37,9 @@ struct inode_xattr_node {
+ 
+ static DECLARE_HASHTABLE(ea_hashtable, EA_HASHTABLE_BITS);
+ 
++static LIST_HEAD(shared_xattrs_list);
++static unsigned int shared_xattrs_count, shared_xattrs_size;
++
+ static struct xattr_prefix {
+ 	const char *prefix;
+ 	u16 prefix_len;
+@@ -105,6 +114,7 @@ static struct xattr_item *xattr_item_get(u8 prefix, char *kvbuf,
+ 	item->len[1] = len[1];
+ 	item->hash[0] = hash[0];
+ 	item->hash[1] = hash[1];
++	item->shared_xattr_id = -1;
+ 	item->prefix = prefix;
+ 	hash_add(ea_hashtable, &item->node, hkey);
+ 	return item;
+@@ -152,7 +162,6 @@ static struct xattr_item *parse_one_xattr(const char *path, const char *key,
+ 	kvbuf = malloc(len[0] + len[1]);
+ 	if (!kvbuf)
+ 		return ERR_PTR(-ENOMEM);
 -
--	/* let's support compact inode currently */
--	struct erofs_inode_compact dic = {0};
-+	union {
-+		struct erofs_inode_compact dic;
-+		struct erofs_inode_extended die;
-+	} u = { {0}, };
- 	int ret;
- 
--	dic.i_format = cpu_to_le16(0 | (inode->datalayout << 1));
--	dic.i_mode = cpu_to_le16(inode->i_mode);
--	dic.i_nlink = cpu_to_le16(inode->i_nlink);
--	dic.i_size = cpu_to_le32((u32)inode->i_size);
-+	switch (inode->inode_isize) {
-+	case sizeof(struct erofs_inode_compact):
-+		u.dic.i_format = cpu_to_le16(0 | (inode->datalayout << 1));
-+		u.dic.i_mode = cpu_to_le16(inode->i_mode);
-+		u.dic.i_nlink = cpu_to_le16(inode->i_nlink);
-+		u.dic.i_size = cpu_to_le32((u32)inode->i_size);
- 
--	dic.i_ino = cpu_to_le32(inode->i_ino[0]);
-+		u.dic.i_ino = cpu_to_le32(inode->i_ino[0]);
- 
--	dic.i_uid = cpu_to_le16((u16)inode->i_uid);
--	dic.i_gid = cpu_to_le16((u16)inode->i_gid);
-+		u.dic.i_uid = cpu_to_le16((u16)inode->i_uid);
-+		u.dic.i_gid = cpu_to_le16((u16)inode->i_gid);
- 
--	switch ((inode->i_mode) >> S_SHIFT) {
--	case S_IFCHR:
--	case S_IFBLK:
--	case S_IFIFO:
--	case S_IFSOCK:
--		dic.i_u.rdev = cpu_to_le32(inode->u.i_rdev);
-+		switch ((inode->i_mode) >> S_SHIFT) {
-+		case S_IFCHR:
-+		case S_IFBLK:
-+		case S_IFIFO:
-+		case S_IFSOCK:
-+			u.dic.i_u.rdev = cpu_to_le32(inode->u.i_rdev);
-+			break;
-+
-+		default:
-+			if (is_inode_layout_compression(inode))
-+				u.dic.i_u.compressed_blocks =
-+					cpu_to_le32(inode->u.i_blocks);
-+			else
-+				u.dic.i_u.raw_blkaddr =
-+					cpu_to_le32(inode->u.i_blkaddr);
-+			break;
-+		}
- 		break;
-+	case sizeof(struct erofs_inode_extended):
-+		u.die.i_format = cpu_to_le16(1 | (inode->datalayout << 1));
-+		u.die.i_mode = cpu_to_le16(inode->i_mode);
-+		u.die.i_nlink = cpu_to_le32(inode->i_nlink);
-+		u.die.i_size = cpu_to_le64(inode->i_size);
-+
-+		u.die.i_ino = cpu_to_le32(inode->i_ino[0]);
-+
-+		u.die.i_uid = cpu_to_le16(inode->i_uid);
-+		u.die.i_gid = cpu_to_le16(inode->i_gid);
-+
-+		u.die.i_ctime = cpu_to_le64(inode->i_ctime);
-+		u.die.i_ctime_nsec = cpu_to_le32(inode->i_ctime_nsec);
-+
-+		switch ((inode->i_mode) >> S_SHIFT) {
-+		case S_IFCHR:
-+		case S_IFBLK:
-+		case S_IFIFO:
-+		case S_IFSOCK:
-+			u.die.i_u.rdev = cpu_to_le32(inode->u.i_rdev);
-+			break;
- 
--	default:
--		if (is_inode_layout_compression(inode))
--			dic.i_u.compressed_blocks =
--				cpu_to_le32(inode->u.i_blocks);
--		else
--			dic.i_u.raw_blkaddr =
--				cpu_to_le32(inode->u.i_blkaddr);
-+		default:
-+			if (is_inode_layout_compression(inode))
-+				u.die.i_u.compressed_blocks =
-+					cpu_to_le32(inode->u.i_blocks);
-+			else
-+				u.die.i_u.raw_blkaddr =
-+					cpu_to_le32(inode->u.i_blkaddr);
-+			break;
-+		}
- 		break;
-+	default:
-+		erofs_err("unsupported on-disk inode version of nid %llu",
-+			  (unsigned long long)inode->nid);
-+		BUG_ON(1);
- 	}
- 
--	ret = dev_write(&dic, off, sizeof(struct erofs_inode_compact));
-+	ret = dev_write(&u, off, inode->inode_isize);
- 	if (ret)
- 		return false;
- 	off += inode->inode_isize;
-@@ -578,6 +620,21 @@ out:
+ 	memcpy(kvbuf, key + prefixlen, len[0]);
+ 	if (len[1]) {
+ 		/* copy value to buffer */
+@@ -182,6 +191,23 @@ static int inode_xattr_add(struct list_head *hlist, struct xattr_item *item)
  	return 0;
  }
  
-+bool erofs_should_use_inode_extended(struct erofs_inode *inode)
++static int shared_xattr_add(struct xattr_item *item)
 +{
-+	if (cfg.c_force_inodeversion == FORCE_INODE_EXTENDED)
-+		return true;
-+	if (inode->i_size > UINT_MAX)
-+		return true;
-+	if (inode->i_uid > USHRT_MAX)
-+		return true;
-+	if (inode->i_gid > USHRT_MAX)
-+		return true;
-+	if (inode->i_nlink > USHRT_MAX)
-+		return true;
-+	return false;
++	struct inode_xattr_node *node = malloc(sizeof(*node));
++
++	if (!node)
++		return -ENOMEM;
++
++	init_list_head(&node->list);
++	node->item = item;
++	list_add(&node->list, &shared_xattrs_list);
++
++	shared_xattrs_size += sizeof(struct erofs_xattr_entry);
++	shared_xattrs_size = EROFS_XATTR_ALIGN(shared_xattrs_size +
++					       item->len[0] + item->len[1]);
++	return ++shared_xattrs_count;
 +}
 +
- static u32 erofs_new_encode_dev(dev_t dev)
+ static int read_xattrs_from_file(const char *path, struct list_head *ixattrs)
  {
- 	const unsigned int major = major(dev);
-@@ -593,6 +650,8 @@ int erofs_fill_inode(struct erofs_inode *inode,
- 	inode->i_mode = st->st_mode;
- 	inode->i_uid = st->st_uid;
- 	inode->i_gid = st->st_gid;
-+	inode->i_ctime = sbi.build_time;
-+	inode->i_ctime_nsec = sbi.build_time_nsec;
- 	inode->i_nlink = 1;	/* fix up later if needed */
+ 	int ret = 0;
+@@ -227,6 +253,11 @@ static int read_xattrs_from_file(const char *path, struct list_head *ixattrs)
+ 			ret = inode_xattr_add(ixattrs, item);
+ 			if (ret < 0)
+ 				goto err;
++		} else if (item->count == cfg.c_inline_xattr_tolerance + 1) {
++			ret = shared_xattr_add(item);
++			if (ret < 0)
++				goto err;
++			ret = 0;
+ 		}
+ 		kllen -= keylen + 1;
+ 		key += keylen + 1;
+@@ -242,6 +273,10 @@ int erofs_prepare_xattr_ibody(const char *path, struct list_head *ixattrs)
+ 	int ret;
+ 	struct inode_xattr_node *node;
  
- 	switch (inode->i_mode & S_IFMT) {
-@@ -616,7 +675,17 @@ int erofs_fill_inode(struct erofs_inode *inode,
- 	inode->i_srcpath[sizeof(inode->i_srcpath) - 1] = '\0';
- 
- 	inode->i_ino[1] = st->st_ino;
--	inode->inode_isize = sizeof(struct erofs_inode_compact);
++	/* check if xattr is disabled */
++	if (cfg.c_inline_xattr_tolerance < 0)
++		return 0;
 +
-+	if (erofs_should_use_inode_extended(inode)) {
-+		if (cfg.c_force_inodeversion == FORCE_INODE_COMPACT) {
-+			erofs_err("file %s cannot be in compact form",
-+				  inode->i_srcpath);
-+			return -EINVAL;
-+		}
-+		inode->inode_isize = sizeof(struct erofs_inode_extended);
-+	} else {
-+		inode->inode_isize = sizeof(struct erofs_inode_compact);
-+	}
+ 	ret = read_xattrs_from_file(path, ixattrs);
+ 	if (ret < 0)
+ 		return ret;
+@@ -254,16 +289,155 @@ int erofs_prepare_xattr_ibody(const char *path, struct list_head *ixattrs)
+ 	list_for_each_entry(node, ixattrs, list) {
+ 		const struct xattr_item *item = node->item;
  
- 	list_add(&inode->i_hash,
- 		 &inode_hashtable[st->st_ino % NR_INODE_HASHTABLE]);
++		if (item->shared_xattr_id >= 0) {
++			ret += sizeof(__le32);
++			continue;
++		}
+ 		ret += sizeof(struct erofs_xattr_entry);
+ 		ret = EROFS_XATTR_ALIGN(ret + item->len[0] + item->len[1]);
+ 	}
+ 	return ret;
+ }
+ 
++static int erofs_count_all_xattrs_from_path(const char *path)
++{
++	int ret;
++	DIR *_dir;
++	struct stat64 st;
++
++	_dir = opendir(path);
++	if (!_dir) {
++		erofs_err("%s, failed to opendir at %s: %s",
++			  __func__, path, erofs_strerror(errno));
++		return -errno;
++	}
++
++	ret = 0;
++	while (1) {
++		struct dirent *dp;
++		char buf[PATH_MAX];
++
++		/*
++		 * set errno to 0 before calling readdir() in order to
++		 * distinguish end of stream and from an error.
++		 */
++		errno = 0;
++		dp = readdir(_dir);
++		if (!dp)
++			break;
++
++		if (is_dot_dotdot(dp->d_name) ||
++		    !strncmp(dp->d_name, "lost+found", strlen("lost+found")))
++			continue;
++
++		ret = snprintf(buf, PATH_MAX, "%s/%s", path, dp->d_name);
++
++		if (ret < 0 || ret >= PATH_MAX) {
++			/* ignore the too long path */
++			ret = -ENOMEM;
++			goto fail;
++		}
++
++		ret = read_xattrs_from_file(buf, NULL);
++		if (ret)
++			goto fail;
++
++		ret = lstat64(buf, &st);
++		if (ret) {
++			ret = -errno;
++			goto fail;
++		}
++
++		if (!S_ISDIR(st.st_mode))
++			continue;
++
++		ret = erofs_count_all_xattrs_from_path(buf);
++		if (ret)
++			goto fail;
++	}
++
++	if (errno)
++		ret = -errno;
++
++fail:
++	closedir(_dir);
++	return ret;
++}
++
++int erofs_build_shared_xattrs_from_path(const char *path)
++{
++	int ret;
++	struct erofs_buffer_head *bh;
++	struct inode_xattr_node *node, *n;
++	char *buf;
++	unsigned int p;
++	erofs_off_t off;
++
++	/* check if xattr or shared xattr is disabled */
++	if (cfg.c_inline_xattr_tolerance < 0 ||
++	    cfg.c_inline_xattr_tolerance == INT_MAX)
++		return 0;
++
++	if (shared_xattrs_size || shared_xattrs_count) {
++		DBG_BUGON(1);
++		return -EINVAL;
++	}
++
++	ret = erofs_count_all_xattrs_from_path(path);
++	if (ret)
++		return ret;
++
++	if (!shared_xattrs_size)
++		return 0;
++
++	buf = malloc(shared_xattrs_size);
++	if (!buf)
++		return -ENOMEM;
++
++	bh = erofs_balloc(XATTR, shared_xattrs_size, 0, 0);
++	if (IS_ERR(bh)) {
++		free(buf);
++		return PTR_ERR(bh);
++	}
++	bh->op = &erofs_skip_write_bhops;
++
++	erofs_mapbh(bh->block, true);
++	off = erofs_btell(bh, false);
++
++	sbi.xattr_blkaddr = off / EROFS_BLKSIZ;
++	off %= EROFS_BLKSIZ;
++	p = 0;
++
++	list_for_each_entry_safe(node, n, &shared_xattrs_list, list) {
++		struct xattr_item *const item = node->item;
++		const struct erofs_xattr_entry entry = {
++			.e_name_index = item->prefix,
++			.e_name_len = item->len[0],
++			.e_value_size = cpu_to_le16(item->len[1])
++		};
++
++		list_del(&node->list);
++
++		item->shared_xattr_id = (off + p) /
++			sizeof(struct erofs_xattr_entry);
++
++		memcpy(buf + p, &entry, sizeof(entry));
++		p += sizeof(struct erofs_xattr_entry);
++		memcpy(buf + p, item->kvbuf, item->len[0] + item->len[1]);
++		p = EROFS_XATTR_ALIGN(p + item->len[0] + item->len[1]);
++		free(node);
++	}
++
++	bh->fsprivate = buf;
++	bh->op = &erofs_buf_write_bhops;
++	return 0;
++}
++
+ char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size)
+ {
+ 	struct inode_xattr_node *node, *n;
+ 	struct erofs_xattr_ibody_header *header;
++	LIST_HEAD(ilst);
+ 	unsigned int p;
+ 	char *buf = calloc(1, size);
+ 
+@@ -276,6 +450,23 @@ char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size)
+ 	p = sizeof(struct erofs_xattr_ibody_header);
+ 	list_for_each_entry_safe(node, n, ixattrs, list) {
+ 		struct xattr_item *const item = node->item;
++
++		list_del(&node->list);
++
++		/* move inline xattrs to the onstack list */
++		if (item->shared_xattr_id < 0) {
++			list_add(&node->list, &ilst);
++			continue;
++		}
++
++		*(__le32 *)(buf + p) = cpu_to_le32(item->shared_xattr_id);
++		p += sizeof(__le32);
++		++header->h_shared_count;
++		free(node);
++	}
++
++	list_for_each_entry_safe(node, n, &ilst, list) {
++		struct xattr_item *const item = node->item;
+ 		const struct erofs_xattr_entry entry = {
+ 			.e_name_index = item->prefix,
+ 			.e_name_len = item->len[0],
 diff --git a/mkfs/main.c b/mkfs/main.c
-index effc26b..4b279c0 100644
+index 4b279c0..978c5b4 100644
 --- a/mkfs/main.c
 +++ b/mkfs/main.c
-@@ -72,6 +72,18 @@ static int parse_extended_opts(const char *opts)
- 			sbi.feature_incompat &=
- 				~EROFS_FEATURE_INCOMPAT_LZ4_0PADDING;
- 		}
-+
-+		if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
-+			if (vallen)
-+				return -EINVAL;
-+			cfg.c_force_inodeversion = FORCE_INODE_COMPACT;
-+		}
-+
-+		if (MATCH_EXTENTED_OPT("force-inode-extended", token, keylen)) {
-+			if (vallen)
-+				return -EINVAL;
-+			cfg.c_force_inodeversion = FORCE_INODE_EXTENDED;
-+		}
- 	}
- 	return 0;
- }
-@@ -153,6 +165,8 @@ int erofs_mkfs_update_super_block(struct erofs_buffer_head *bh,
- 		.magic     = cpu_to_le32(EROFS_SUPER_MAGIC_V1),
- 		.blkszbits = LOG_BLOCK_SIZE,
- 		.inos   = 0,
-+		.build_time = cpu_to_le64(sbi.build_time),
-+		.build_time_nsec = cpu_to_le32(sbi.build_time_nsec),
+@@ -19,6 +19,7 @@
+ #include "erofs/inode.h"
+ #include "erofs/io.h"
+ #include "erofs/compress.h"
++#include "erofs/xattr.h"
+ 
+ #define EROFS_SUPER_END (EROFS_SUPER_OFFSET + sizeof(struct erofs_super_block))
+ 
+@@ -169,7 +170,7 @@ int erofs_mkfs_update_super_block(struct erofs_buffer_head *bh,
+ 		.build_time_nsec = cpu_to_le32(sbi.build_time_nsec),
  		.blocks = 0,
  		.meta_blkaddr  = sbi.meta_blkaddr,
- 		.xattr_blkaddr = 0,
-@@ -161,12 +175,6 @@ int erofs_mkfs_update_super_block(struct erofs_buffer_head *bh,
+-		.xattr_blkaddr = 0,
++		.xattr_blkaddr = sbi.xattr_blkaddr,
+ 		.feature_incompat = cpu_to_le32(sbi.feature_incompat),
+ 	};
  	const unsigned int sb_blksize =
- 		round_up(EROFS_SUPER_END, EROFS_BLKSIZ);
- 	char *buf;
--	struct timeval t;
--
--	if (!gettimeofday(&t, NULL)) {
--		sb.build_time      = cpu_to_le64(t.tv_sec);
--		sb.build_time_nsec = cpu_to_le32(t.tv_usec);
--	}
+@@ -259,6 +260,13 @@ int main(int argc, char **argv)
  
- 	*blocks         = erofs_mapbh(NULL, true);
- 	sb.blocks       = cpu_to_le32(*blocks);
-@@ -193,6 +201,7 @@ int main(int argc, char **argv)
- 	erofs_nid_t root_nid;
- 	struct stat64 st;
- 	erofs_blk_t nblocks;
-+	struct timeval t;
+ 	erofs_inode_manager_init();
  
- 	erofs_init_configure();
- 	fprintf(stderr, "%s %s\n", basename(argv[0]), cfg.c_version);
-@@ -214,6 +223,11 @@ int main(int argc, char **argv)
- 		return 1;
- 	}
- 
-+	if (!gettimeofday(&t, NULL)) {
-+		sbi.build_time      = t.tv_sec;
-+		sbi.build_time_nsec = t.tv_usec;
++	err = erofs_build_shared_xattrs_from_path(cfg.c_src_path);
++	if (err) {
++		erofs_err("Failed to build shared xattrs: %s",
++			  erofs_strerror(err));
++		goto exit;
 +	}
 +
- 	err = dev_open(cfg.c_img_path);
- 	if (err) {
- 		usage();
+ 	root_inode = erofs_mkfs_build_tree_from_path(NULL, cfg.c_src_path);
+ 	if (IS_ERR(root_inode)) {
+ 		err = PTR_ERR(root_inode);
 -- 
 2.17.1
 
