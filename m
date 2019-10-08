@@ -7,42 +7,41 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E1EC10F14
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 12:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80E04C10F14
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 12:54:16 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2BC3820640
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 12:54:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2BC3820640
+	by mail.kernel.org (Postfix) with ESMTPS id 397C920640
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 12:54:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 397C920640
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46ncjn5mNCzDqKS
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 23:54:05 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46ncjy1yzFzDqKb
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2019 23:54:14 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ (client-ip=45.249.212.35; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46ncj42dRlzDqKS
- for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2019 23:53:26 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46ncj54tjLzDqKS
+ for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2019 23:53:29 +1100 (AEDT)
 Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
- by Forcepoint Email with ESMTP id E389B92ADEDCDF851739;
- Tue,  8 Oct 2019 20:53:20 +0800 (CST)
+ by Forcepoint Email with ESMTP id EE9D35AAA5101B890E4B;
+ Tue,  8 Oct 2019 20:53:25 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.439.0; Tue, 8 Oct 2019
- 20:53:13 +0800
+ 20:53:16 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <yuchao0@huawei.com>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH for-next 2/5] erofs: remove dead code since managed cache is
- now built-in
-Date: Tue, 8 Oct 2019 20:56:13 +0800
-Message-ID: <20191008125616.183715-2-gaoxiang25@huawei.com>
+Subject: [PATCH for-next 5/5] erofs: set iowait for sync decompression
+Date: Tue, 8 Oct 2019 20:56:16 +0800
+Message-ID: <20191008125616.183715-5-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191008125616.183715-1-gaoxiang25@huawei.com>
 References: <20191008125616.183715-1-gaoxiang25@huawei.com>
@@ -66,141 +65,29 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-After commit 4279f3f9889f ("staging: erofs: turn cache
-strategies into mount options"), cache strategies are
-changed into mount options rather than old build configs.
-
-Let's kill useless code for obsoleted build options.
+For those tasks waiting I/O for sync decompression,
+they should be better marked as IO wait state.
 
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/erofs/utils.c | 13 ++++++-------
- fs/erofs/zdata.c | 25 ++++---------------------
- 2 files changed, 10 insertions(+), 28 deletions(-)
+ fs/erofs/zdata.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index d92b3e753a6f..f66043ee16b9 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -149,8 +149,7 @@ static void erofs_workgroup_unfreeze_final(struct erofs_workgroup *grp)
- }
- 
- static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
--					   struct erofs_workgroup *grp,
--					   bool cleanup)
-+					   struct erofs_workgroup *grp)
- {
- 	/*
- 	 * If managed cache is on, refcount of workgroups
-@@ -188,8 +187,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- }
- 
- static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
--					      unsigned long nr_shrink,
--					      bool cleanup)
-+					      unsigned long nr_shrink)
- {
- 	pgoff_t first_index = 0;
- 	void *batch[PAGEVEC_SIZE];
-@@ -208,7 +206,7 @@ static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 		first_index = grp->index + 1;
- 
- 		/* try to shrink each valid workgroup */
--		if (!erofs_try_to_release_workgroup(sbi, grp, cleanup))
-+		if (!erofs_try_to_release_workgroup(sbi, grp))
- 			continue;
- 
- 		++freed;
-@@ -245,7 +243,8 @@ void erofs_shrinker_unregister(struct super_block *sb)
- 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
- 
- 	mutex_lock(&sbi->umount_mutex);
--	erofs_shrink_workstation(sbi, ~0UL, true);
-+	/* clean up all remaining workgroups in memory */
-+	erofs_shrink_workstation(sbi, ~0UL);
- 
- 	spin_lock(&erofs_sb_list_lock);
- 	list_del(&sbi->list);
-@@ -294,7 +293,7 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 		spin_unlock(&erofs_sb_list_lock);
- 		sbi->shrinker_run_no = run_no;
- 
--		freed += erofs_shrink_workstation(sbi, nr, false);
-+		freed += erofs_shrink_workstation(sbi, nr);
- 
- 		spin_lock(&erofs_sb_list_lock);
- 		/* Get the next list element before we move this one */
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index ef32757d1aac..93f8bc1a64f6 100644
+index 878449f11665..be3c79421dba 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -574,7 +574,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 				struct list_head *pagepool)
- {
- 	struct inode *const inode = fe->inode;
--	struct erofs_sb_info *const sbi __maybe_unused = EROFS_I_SB(inode);
-+	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 	struct erofs_map_blocks *const map = &fe->map;
- 	struct z_erofs_collector *const clt = &fe->clt;
- 	const loff_t offset = page_offset(page);
-@@ -997,8 +997,6 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
- 					       struct address_space *mc,
- 					       gfp_t gfp)
- {
--	/* determined at compile time to avoid too many #ifdefs */
--	const bool nocache = __builtin_constant_p(mc) ? !mc : false;
- 	const pgoff_t index = pcl->obj.index;
- 	bool tocache = false;
+@@ -1282,8 +1282,8 @@ static void z_erofs_submit_and_unzip(struct super_block *sb,
+ 		return;
  
-@@ -1019,7 +1017,7 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
- 	 * the cached page has not been allocated and
- 	 * an placeholder is out there, prepare it now.
- 	 */
--	if (!nocache && page == PAGE_UNALLOCATED) {
-+	if (page == PAGE_UNALLOCATED) {
- 		tocache = true;
- 		goto out_allocpage;
- 	}
-@@ -1031,21 +1029,6 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
+ 	/* wait until all bios are completed */
+-	wait_event(io[JQ_SUBMIT].u.wait,
+-		   !atomic_read(&io[JQ_SUBMIT].pending_bios));
++	io_wait_event(io[JQ_SUBMIT].u.wait,
++		      !atomic_read(&io[JQ_SUBMIT].pending_bios));
  
- 	mapping = READ_ONCE(page->mapping);
- 
--	/*
--	 * if managed cache is disabled, it's no way to
--	 * get such a cached-like page.
--	 */
--	if (nocache) {
--		/* if managed cache is disabled, it is impossible `justfound' */
--		DBG_BUGON(justfound);
--
--		/* and it should be locked, not uptodate, and not truncated */
--		DBG_BUGON(!PageLocked(page));
--		DBG_BUGON(PageUptodate(page));
--		DBG_BUGON(!mapping);
--		goto out;
--	}
--
- 	/*
- 	 * unmanaged (file) pages are all locked solidly,
- 	 * therefore it is impossible for `mapping' to be NULL.
-@@ -1102,7 +1085,7 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
- 		cpu_relax();
- 		goto repeat;
- 	}
--	if (nocache || !tocache)
-+	if (!tocache)
- 		goto out;
- 	if (add_to_page_cache_lru(page, mc, index + nr, gfp)) {
- 		page->mapping = Z_EROFS_MAPPING_STAGING;
-@@ -1208,7 +1191,7 @@ static bool z_erofs_vle_submit_all(struct super_block *sb,
- 				   struct z_erofs_unzip_io *fgq,
- 				   bool force_fg)
- {
--	struct erofs_sb_info *const sbi __maybe_unused = EROFS_SB(sb);
-+	struct erofs_sb_info *const sbi = EROFS_SB(sb);
- 	z_erofs_next_pcluster_t qtail[NR_JOBQUEUES];
- 	struct z_erofs_unzip_io *q[NR_JOBQUEUES];
- 	struct bio *bio;
+ 	/* let's synchronous decompression */
+ 	z_erofs_vle_unzip_all(&io[JQ_SUBMIT], pagepool);
 -- 
 2.17.1
 
