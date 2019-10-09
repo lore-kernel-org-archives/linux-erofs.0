@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD48ECE58D
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:36:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DAF6C47404
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:37:00 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5E2A6218DE
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:36:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id BD8DD20B7C
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:36:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="M1C3Y7SJ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5E2A6218DE
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dz5eqETH"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BD8DD20B7C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46pFcg0C7hzDqQV
-	for <linux-erofs@archiver.kernel.org>; Thu, 10 Oct 2019 00:36:51 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46pFcn6kCvzDqQ3
+	for <linux-erofs@archiver.kernel.org>; Thu, 10 Oct 2019 00:36:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=linuxfoundation.org
  (client-ip=198.145.29.99; helo=mail.kernel.org;
@@ -28,35 +28,35 @@ Authentication-Results: lists.ozlabs.org;
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none)
  header.from=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.b="M1C3Y7SJ"; 
+ unprotected) header.d=kernel.org header.i=@kernel.org header.b="Dz5eqETH"; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46pFcR2hlMzDqKr
- for <linux-erofs@lists.ozlabs.org>; Thu, 10 Oct 2019 00:36:39 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46pFcY6WzJzDqQD
+ for <linux-erofs@lists.ozlabs.org>; Thu, 10 Oct 2019 00:36:45 +1100 (AEDT)
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl
  [83.86.89.107])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 3340A20B7C;
- Wed,  9 Oct 2019 13:36:37 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id A94B2218AC;
+ Wed,  9 Oct 2019 13:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1570628197;
- bh=Jos7BMuf5iHUJu5RIqQxpBwAd8fisPJSzAa4MMIi9jw=;
+ s=default; t=1570628203;
+ bh=cnZPTa4tUa+nLgU7U+UsXNFnbEfe5Wz3hZnWvLZFlzI=;
  h=Subject:To:Cc:From:Date:In-Reply-To:From;
- b=M1C3Y7SJQSlrLhrqWcuczS9DmfroWqMX6FkVZ/k2kyr3mzOM7L6eGrNGBgpQCHwnp
- SOIE+fGb+fezSH16R/TZPHMfKgQcmedD/zWiTgiPxzHnrQ7HVRRIZ9UqiPtV8txnj7
- 7tzisZ02aYYwM0B5a1LMxccun/NsCWZNgsKPM7lQ=
-Subject: Patch "staging: erofs: detect potential multiref due to corrupted
- images" has been added to the 4.19-stable tree
-To: 20190821140152.229648-1-gaoxiang25@huawei.com, gaoxiang25@huawei.com,
+ b=Dz5eqETHyN3/EQ9UoDysPKi0Vn4inYDr9viaIipUzZSajwRmmHNiI0yVTihThU2Vs
+ SFRePafvYP78eTekknp6R8NHQlCQBaizhl5aJESG1MDoGz3OpmFMt7Xxjqk27c/W55
+ uYmQE+p0NLNZcP2PrqgMzNjL/J9MKR9txnBOJV7E=
+Subject: Patch "staging: erofs: some compressed cluster should be submitted
+ for corrupted images" has been added to the 4.19-stable tree
+To: 20190819103426.87579-2-gaoxiang25@huawei.com, gaoxiang25@huawei.com,
  gregkh@linuxfoundation.org, linux-erofs@lists.ozlabs.org, miaoxie@huawei.com,
  yuchao0@huawei.com
 From: <gregkh@linuxfoundation.org>
-Date: Wed, 09 Oct 2019 15:36:22 +0200
-In-Reply-To: <20191009101239.195587-4-gaoxiang25@huawei.com>
-Message-ID: <157062818228179@kroah.com>
+Date: Wed, 09 Oct 2019 15:36:23 +0200
+In-Reply-To: <20191009101239.195587-2-gaoxiang25@huawei.com>
+Message-ID: <1570628183207241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -81,13 +81,13 @@ Sender: "Linux-erofs"
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: erofs: detect potential multiref due to corrupted images
+    staging: erofs: some compressed cluster should be submitted for corrupted images
 
 to the 4.19-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     staging-erofs-detect-potential-multiref-due-to-corrupted-images.patch
+     staging-erofs-some-compressed-cluster-should-be-submitted-for-corrupted-images.patch
 and it can be found in the queue-4.19 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
@@ -96,84 +96,65 @@ please let <stable@vger.kernel.org> know about it.
 
 From foo@baz Wed 09 Oct 2019 03:26:06 PM CEST
 From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Wed, 9 Oct 2019 18:12:39 +0800
-Subject: staging: erofs: detect potential multiref due to corrupted images
+Date: Wed, 9 Oct 2019 18:12:37 +0800
+Subject: staging: erofs: some compressed cluster should be submitted for corrupted images
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, Chao Yu <yuchao0@huawei.com>
 Cc: <linux-erofs@lists.ozlabs.org>, Miao Xie <miaoxie@huawei.com>, Gao Xiang <gaoxiang25@huawei.com>
-Message-ID: <20191009101239.195587-4-gaoxiang25@huawei.com>
+Message-ID: <20191009101239.195587-2-gaoxiang25@huawei.com>
 
 From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit e12a0ce2fa69798194f3a8628baf6edfbd5c548f upstream.
+commit ee45197c807895e156b2be0abcaebdfc116487c8 upstream.
 
-As reported by erofs-utils fuzzer, currently, multiref
-(ondisk deduplication) hasn't been supported for now,
-we should forbid it properly.
+As reported by erofs_utils fuzzer, a logical page can belong
+to at most 2 compressed clusters, if one compressed cluster
+is corrupted, but the other has been ready in submitting chain.
+
+The chain needs to submit anyway in order to keep the page
+working properly (page unlocked with PG_error set, PG_uptodate
+not set).
+
+Let's fix it now.
 
 Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190821140152.229648-1-gaoxiang25@huawei.com
-[ Gao Xiang: Since earlier kernels don't define EFSCORRUPTED,
-             let's use EIO instead. ]
+Link: https://lore.kernel.org/r/20190819103426.87579-2-gaoxiang25@huawei.com
+[ Gao Xiang: Manually backport to v4.19.y stable. ]
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/erofs/unzip_vle.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/unzip_vle.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -857,6 +857,7 @@ repeat:
- 	for (i = 0; i < nr_pages; ++i)
- 		pages[i] = NULL;
+@@ -1335,19 +1335,18 @@ static int z_erofs_vle_normalaccess_read
+ 	err = z_erofs_do_read_page(&f, page, &pagepool);
+ 	(void)z_erofs_vle_work_iter_end(&f.builder);
  
-+	err = 0;
- 	z_erofs_pagevec_ctor_init(&ctor,
- 		Z_EROFS_VLE_INLINE_PAGEVECS, work->pagevec, 0);
+-	if (err) {
++	/* if some compressed cluster ready, need submit them anyway */
++	z_erofs_submit_and_unzip(&f, &pagepool, true);
++
++	if (err)
+ 		errln("%s, failed to read, err [%d]", __func__, err);
+-		goto out;
+-	}
  
-@@ -878,8 +879,17 @@ repeat:
- 			pagenr = z_erofs_onlinepage_index(page);
+-	z_erofs_submit_and_unzip(&f, &pagepool, true);
+-out:
+ 	if (f.m_iter.mpage != NULL)
+ 		put_page(f.m_iter.mpage);
  
- 		DBG_BUGON(pagenr >= nr_pages);
--		DBG_BUGON(pages[pagenr]);
+ 	/* clean up the remaining free pages */
+ 	put_pages_list(&pagepool);
+-	return 0;
++	return err;
+ }
  
-+		/*
-+		 * currently EROFS doesn't support multiref(dedup),
-+		 * so here erroring out one multiref page.
-+		 */
-+		if (pages[pagenr]) {
-+			DBG_BUGON(1);
-+			SetPageError(pages[pagenr]);
-+			z_erofs_onlinepage_endio(pages[pagenr]);
-+			err = -EIO;
-+		}
- 		pages[pagenr] = page;
- 	}
- 	sparsemem_pages = i;
-@@ -889,7 +899,6 @@ repeat:
- 	overlapped = false;
- 	compressed_pages = grp->compressed_pages;
- 
--	err = 0;
- 	for (i = 0; i < clusterpages; ++i) {
- 		unsigned pagenr;
- 
-@@ -915,7 +924,12 @@ repeat:
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 			DBG_BUGON(pagenr >= nr_pages);
--			DBG_BUGON(pages[pagenr]);
-+			if (pages[pagenr]) {
-+				DBG_BUGON(1);
-+				SetPageError(pages[pagenr]);
-+				z_erofs_onlinepage_endio(pages[pagenr]);
-+				err = -EIO;
-+			}
- 			++sparsemem_pages;
- 			pages[pagenr] = page;
- 
+ static inline int __z_erofs_vle_normalaccess_readpages(
 
 
 Patches currently in stable-queue which might be from gaoxiang25@huawei.com are
