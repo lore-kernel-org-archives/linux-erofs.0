@@ -2,55 +2,66 @@ Return-Path: <SRS0=D1zf=YC=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F844ECE58D
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:10:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1EDDC47404
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:27:27 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 48D5D206C0
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:10:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 48D5D206C0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id A164121D56
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 13:27:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="aIH4JVrV"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A164121D56
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46p92F33MlzDqNb
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 21:10:13 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46pFPm4pbMzDqMT
+	for <linux-erofs@archiver.kernel.org>; Thu, 10 Oct 2019 00:27:24 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.190; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
+ spf=pass (mailfrom) smtp.mailfrom=linuxfoundation.org
+ (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none)
+ header.from=linuxfoundation.org
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.b="aIH4JVrV"; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46p91p3XtczDqJq
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Oct 2019 21:09:50 +1100 (AEDT)
-Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
- by Forcepoint Email with ESMTP id BC375767346BC07E61DC;
- Wed,  9 Oct 2019 18:09:46 +0800 (CST)
-Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
- (10.3.19.212) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 9 Oct 2019
- 18:09:36 +0800
-From: Gao Xiang <gaoxiang25@huawei.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, 
- Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH for-4.19 4/4] staging: erofs: detect potential multiref due to
- corrupted images
-Date: Wed, 9 Oct 2019 18:12:39 +0800
-Message-ID: <20191009101239.195587-4-gaoxiang25@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191009101239.195587-1-gaoxiang25@huawei.com>
-References: <20191009101239.195587-1-gaoxiang25@huawei.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46pFPY1LS6zDqKq
+ for <linux-erofs@lists.ozlabs.org>; Thu, 10 Oct 2019 00:27:12 +1100 (AEDT)
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl
+ [83.86.89.107])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 1B89121848;
+ Wed,  9 Oct 2019 13:27:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1570627629;
+ bh=MpykwLOybcZKZlSSM5i2L4VClhQbqc84fKcZf000bD8=;
+ h=Subject:To:Cc:From:Date:In-Reply-To:From;
+ b=aIH4JVrVUEbXbMxSRJ1ECVyu7A0vk2zX9AzfJyYZp4CXsYKE6+V9Q4gmsSbZAkA/o
+ ox8lwVHk1RxA404Ke3nmJk3xCngr0U6FWbLwsIpRePcTQCAEUSTO/N/+4tZzGiFKu3
+ 1ef77bVgvLXtjDTv6X10hS8IPHq1zhzmsKTt2Zw8=
+Subject: Patch "staging: erofs: add two missing erofs_workgroup_put for
+ corrupted images" has been added to the 5.3-stable tree
+To: 20190819103426.87579-4-gaoxiang25@huawei.com, gaoxiang25@huawei.com,
+ gregkh@linuxfoundation.org, linux-erofs@lists.ozlabs.org, miaoxie@huawei.com,
+ yuchao0@huawei.com
+From: <gregkh@linuxfoundation.org>
+Date: Wed, 09 Oct 2019 15:27:07 +0200
+In-Reply-To: <20191009100554.165048-3-gaoxiang25@huawei.com>
+Message-ID: <1570627627222158@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.140.130.215]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-stable: commit
+X-Patchwork-Hint: ignore 
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -62,83 +73,81 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Miao Xie <miaoxie@huawei.com>, linux-erofs@lists.ozlabs.org
+Cc: stable-commits@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-commit e12a0ce2fa69798194f3a8628baf6edfbd5c548f upstream.
 
-As reported by erofs-utils fuzzer, currently, multiref
-(ondisk deduplication) hasn't been supported for now,
-we should forbid it properly.
+This is a note to let you know that I've just added the patch titled
+
+    staging: erofs: add two missing erofs_workgroup_put for corrupted images
+
+to the 5.3-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     staging-erofs-add-two-missing-erofs_workgroup_put-for-corrupted-images.patch
+and it can be found in the queue-5.3 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From foo@baz Wed 09 Oct 2019 03:24:16 PM CEST
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Wed, 9 Oct 2019 18:05:52 +0800
+Subject: staging: erofs: add two missing erofs_workgroup_put for corrupted images
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, Chao Yu <yuchao0@huawei.com>
+Cc: <linux-erofs@lists.ozlabs.org>, Miao Xie <miaoxie@huawei.com>, Gao Xiang <gaoxiang25@huawei.com>
+Message-ID: <20191009100554.165048-3-gaoxiang25@huawei.com>
+
+From: Gao Xiang <gaoxiang25@huawei.com>
+
+commit 138e1a0990e80db486ab9f6c06bd5c01f9a97999 upstream.
+
+As reported by erofs-utils fuzzer, these error handling
+path will be entered to handle corrupted images.
+
+Lack of erofs_workgroup_puts will cause unmounting
+unsuccessfully.
+
+Fix these return values to EFSCORRUPTED as well.
 
 Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190821140152.229648-1-gaoxiang25@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ Gao Xiang: Since earlier kernels don't define EFSCORRUPTED,
-             let's use EIO instead. ]
+Link: https://lore.kernel.org/r/20190819103426.87579-4-gaoxiang25@huawei.com
+[ Gao Xiang: Older kernel versions don't have length validity check
+             and EFSCORRUPTED, thus backport pageofs check for now. ]
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/erofs/unzip_vle.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/unzip_vle.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index 7bd406f34f8b..0f1558c6747e 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -857,6 +857,7 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	for (i = 0; i < nr_pages; ++i)
- 		pages[i] = NULL;
+@@ -393,7 +393,11 @@ z_erofs_vle_work_lookup(const struct z_e
+ 	/* if multiref is disabled, `primary' is always true */
+ 	primary = true;
  
-+	err = 0;
- 	z_erofs_pagevec_ctor_init(&ctor,
- 		Z_EROFS_VLE_INLINE_PAGEVECS, work->pagevec, 0);
+-	DBG_BUGON(work->pageofs != f->pageofs);
++	if (work->pageofs != f->pageofs) {
++		DBG_BUGON(1);
++		erofs_workgroup_put(egrp);
++		return ERR_PTR(-EIO);
++	}
  
-@@ -878,8 +879,17 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 		DBG_BUGON(pagenr >= nr_pages);
--		DBG_BUGON(pages[pagenr]);
- 
-+		/*
-+		 * currently EROFS doesn't support multiref(dedup),
-+		 * so here erroring out one multiref page.
-+		 */
-+		if (pages[pagenr]) {
-+			DBG_BUGON(1);
-+			SetPageError(pages[pagenr]);
-+			z_erofs_onlinepage_endio(pages[pagenr]);
-+			err = -EIO;
-+		}
- 		pages[pagenr] = page;
- 	}
- 	sparsemem_pages = i;
-@@ -889,7 +899,6 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 	overlapped = false;
- 	compressed_pages = grp->compressed_pages;
- 
--	err = 0;
- 	for (i = 0; i < clusterpages; ++i) {
- 		unsigned pagenr;
- 
-@@ -915,7 +924,12 @@ static int z_erofs_vle_unzip(struct super_block *sb,
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 			DBG_BUGON(pagenr >= nr_pages);
--			DBG_BUGON(pages[pagenr]);
-+			if (pages[pagenr]) {
-+				DBG_BUGON(1);
-+				SetPageError(pages[pagenr]);
-+				z_erofs_onlinepage_endio(pages[pagenr]);
-+				err = -EIO;
-+			}
- 			++sparsemem_pages;
- 			pages[pagenr] = page;
- 
--- 
-2.17.1
+ 	/*
+ 	 * lock must be taken first to avoid grp->next == NIL between
 
+
+Patches currently in stable-queue which might be from gaoxiang25@huawei.com are
+
+queue-5.3/staging-erofs-fix-an-error-handling-in-erofs_readdir.patch
+queue-5.3/staging-erofs-detect-potential-multiref-due-to-corrupted-images.patch
+queue-5.3/staging-erofs-avoid-endless-loop-of-invalid-lookback-distance-0.patch
+queue-5.3/staging-erofs-some-compressed-cluster-should-be-submitted-for-corrupted-images.patch
+queue-5.3/staging-erofs-add-two-missing-erofs_workgroup_put-for-corrupted-images.patch
