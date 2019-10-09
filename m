@@ -7,46 +7,46 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B66AC47404
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C78C3ECE58D
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:09:54 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 567FE206C0
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 567FE206C0
+	by mail.kernel.org (Postfix) with ESMTPS id 82423206C0
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:09:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 82423206C0
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46p8tR3VbTzDqNP
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 21:03:27 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46p91r0FLNzDqMM
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 21:09:52 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
- (client-ip=45.249.212.35; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46p8sz6Gg0zDqJW
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Oct 2019 21:03:02 +1100 (AEDT)
-Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.58])
- by Forcepoint Email with ESMTP id D65B2A646410D1CB2452;
- Wed,  9 Oct 2019 18:02:56 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46p91j5RS3zDqJQ
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Oct 2019 21:09:45 +1100 (AEDT)
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.60])
+ by Forcepoint Email with ESMTP id B5AFF2616F53D8CF01C0;
+ Wed,  9 Oct 2019 18:09:41 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
- (10.3.19.213) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 9 Oct 2019
- 18:02:48 +0800
+ (10.3.19.212) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 9 Oct 2019
+ 18:09:35 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, 
  Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH for-5.3 2/5] staging: erofs: some compressed cluster should be
- submitted for corrupted images
-Date: Wed, 9 Oct 2019 18:05:51 +0800
-Message-ID: <20191009100554.165048-2-gaoxiang25@huawei.com>
+Subject: [PATCH for-4.19 2/4] staging: erofs: some compressed cluster should
+ be submitted for corrupted images
+Date: Wed, 9 Oct 2019 18:12:37 +0800
+Message-ID: <20191009101239.195587-2-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191009100554.165048-1-gaoxiang25@huawei.com>
-References: <20191009100554.165048-1-gaoxiang25@huawei.com>
+In-Reply-To: <20191009101239.195587-1-gaoxiang25@huawei.com>
+References: <20191009101239.195587-1-gaoxiang25@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.140.130.215]
@@ -85,17 +85,17 @@ Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
 Link: https://lore.kernel.org/r/20190819103426.87579-2-gaoxiang25@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ Gao Xiang: Manually backport to v5.3.y stable. ]
+[ Gao Xiang: Manually backport to v4.19.y stable. ]
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
  drivers/staging/erofs/unzip_vle.c | 11 +++++------
  1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
-index f0dab81ff816..438d78db69cf 100644
+index ad6fe6d9d00a..fc44f5ce670b 100644
 --- a/drivers/staging/erofs/unzip_vle.c
 +++ b/drivers/staging/erofs/unzip_vle.c
-@@ -1498,19 +1498,18 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+@@ -1335,19 +1335,18 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
  	err = z_erofs_do_read_page(&f, page, &pagepool);
  	(void)z_erofs_vle_work_iter_end(&f.builder);
  
@@ -110,8 +110,8 @@ index f0dab81ff816..438d78db69cf 100644
  
 -	z_erofs_submit_and_unzip(&f, &pagepool, true);
 -out:
- 	if (f.map.mpage)
- 		put_page(f.map.mpage);
+ 	if (f.m_iter.mpage != NULL)
+ 		put_page(f.m_iter.mpage);
  
  	/* clean up the remaining free pages */
  	put_pages_list(&pagepool);
@@ -119,7 +119,7 @@ index f0dab81ff816..438d78db69cf 100644
 +	return err;
  }
  
- static int z_erofs_vle_normalaccess_readpages(struct file *filp,
+ static inline int __z_erofs_vle_normalaccess_readpages(
 -- 
 2.17.1
 
