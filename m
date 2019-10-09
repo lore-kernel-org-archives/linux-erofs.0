@@ -7,19 +7,19 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1BE5C47404
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B66AC47404
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:29 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7B277206C0
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7B277206C0
+	by mail.kernel.org (Postfix) with ESMTPS id 567FE206C0
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 10:03:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 567FE206C0
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46p8tM50ggzDqNm
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 21:03:23 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46p8tR3VbTzDqNP
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Oct 2019 21:03:27 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=pass (mailfrom) smtp.mailfrom=huawei.com
  (client-ip=45.249.212.35; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
@@ -29,21 +29,21 @@ Authentication-Results: lists.ozlabs.org;
 Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46p8sz6C2fzDqJQ
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46p8sz6Gg0zDqJW
  for <linux-erofs@lists.ozlabs.org>; Wed,  9 Oct 2019 21:03:02 +1100 (AEDT)
 Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.58])
- by Forcepoint Email with ESMTP id E78DB497A395ECA0F7B3;
+ by Forcepoint Email with ESMTP id D65B2A646410D1CB2452;
  Wed,  9 Oct 2019 18:02:56 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
  (10.3.19.213) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 9 Oct 2019
- 18:02:50 +0800
+ 18:02:48 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, 
  Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH for-5.3 4/5] staging: erofs: avoid endless loop of invalid
- lookback distance 0
-Date: Wed, 9 Oct 2019 18:05:53 +0800
-Message-ID: <20191009100554.165048-4-gaoxiang25@huawei.com>
+Subject: [PATCH for-5.3 2/5] staging: erofs: some compressed cluster should be
+ submitted for corrupted images
+Date: Wed, 9 Oct 2019 18:05:51 +0800
+Message-ID: <20191009100554.165048-2-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191009100554.165048-1-gaoxiang25@huawei.com>
 References: <20191009100554.165048-1-gaoxiang25@huawei.com>
@@ -67,42 +67,59 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-commit 598bb8913d015150b7734b55443c0e53e7189fc7 upstream.
+commit ee45197c807895e156b2be0abcaebdfc116487c8 upstream.
 
-As reported by erofs-utils fuzzer, Lookback distance should
-be a positive number, so it should be actually looked back
-rather than spinning.
+As reported by erofs_utils fuzzer, a logical page can belong
+to at most 2 compressed clusters, if one compressed cluster
+is corrupted, but the other has been ready in submitting chain.
 
-Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+The chain needs to submit anyway in order to keep the page
+working properly (page unlocked with PG_error set, PG_uptodate
+not set).
+
+Let's fix it now.
+
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Cc: <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190819103426.87579-7-gaoxiang25@huawei.com
+Link: https://lore.kernel.org/r/20190819103426.87579-2-gaoxiang25@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ Gao Xiang: Since earlier kernels don't define EFSCORRUPTED,
-             let's use EIO instead. ]
+[ Gao Xiang: Manually backport to v5.3.y stable. ]
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- drivers/staging/erofs/zmap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/staging/erofs/unzip_vle.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
-index c2359321ca13..30e6d02d30de 100644
---- a/drivers/staging/erofs/zmap.c
-+++ b/drivers/staging/erofs/zmap.c
-@@ -350,6 +350,12 @@ static int vle_extent_lookback(struct z_erofs_maprecorder *m,
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index f0dab81ff816..438d78db69cf 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1498,19 +1498,18 @@ static int z_erofs_vle_normalaccess_readpage(struct file *file,
+ 	err = z_erofs_do_read_page(&f, page, &pagepool);
+ 	(void)z_erofs_vle_work_iter_end(&f.builder);
  
- 	switch (m->type) {
- 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		if (!m->delta[0]) {
-+			errln("invalid lookback distance 0 at nid %llu",
-+			      vi->nid);
-+			DBG_BUGON(1);
-+			return -EIO;
-+		}
- 		return vle_extent_lookback(m, m->delta[0]);
- 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
- 		map->m_flags &= ~EROFS_MAP_ZIPPED;
+-	if (err) {
++	/* if some compressed cluster ready, need submit them anyway */
++	z_erofs_submit_and_unzip(&f, &pagepool, true);
++
++	if (err)
+ 		errln("%s, failed to read, err [%d]", __func__, err);
+-		goto out;
+-	}
+ 
+-	z_erofs_submit_and_unzip(&f, &pagepool, true);
+-out:
+ 	if (f.map.mpage)
+ 		put_page(f.map.mpage);
+ 
+ 	/* clean up the remaining free pages */
+ 	put_pages_list(&pagepool);
+-	return 0;
++	return err;
+ }
+ 
+ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
 -- 
 2.17.1
 
