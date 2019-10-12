@@ -2,94 +2,51 @@ Return-Path: <SRS0=7Tqu=YF=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03A49C47404
-	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 00:20:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59C0BC47404
+	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 02:41:04 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A0A8A2084C
-	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 00:20:15 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="og3ZSIkG";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="sbO2JwEh"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A0A8A2084C
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id 11869206CD
+	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 02:41:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 11869206CD
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46qlp54RfNzDqbl
-	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 11:20:13 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1570839613;
-	bh=ni6X6OiEBA40qlkPhmcbQ7OhD7SgK4/gZEA2TOi/tfc=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=og3ZSIkGpb1xboEhzG3GAq2qnRhjCSSSmmUW2LSvQIU6kaKKSSLRwNx6+YfD8bO0G
-	 RSc2ZAp7hQl4DyFhMmeriFDms/TE+wvTtf59dw3++ZXcigdjc4Ad8a0RZ+zfE4gd1k
-	 lPf9cduWrXsNF6qQ6SAAP2mjrpbL+sYABGlUnEtfbaBeMfI/Sr8VJzSJstiLOPfAya
-	 9Igx+UC+pdcDY9sA9X3QNFl799ihKSxJV7E65tG9bsLr+pgbSs7qWW8qZ1eaRZluzy
-	 lUBB11RYLEmUo/p0CYKU7NLfmRr/lSDSY+Vo6Jp5Ij1RF3QW/uNorFQoxHhRGbUNe1
-	 GYl6C/KlzIZ0A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 46qpwY4vbPzDqcl
+	for <linux-erofs@archiver.kernel.org>; Sat, 12 Oct 2019 13:41:01 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=aol.com
- (client-ip=87.248.110.84; helo=sonic302-21.consmr.mail.ir2.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+ spf=pass (mailfrom) smtp.mailfrom=huawei.com
+ (client-ip=45.249.212.32; helo=huawei.com; envelope-from=gaoxiang25@huawei.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=aol.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="sbO2JwEh"; 
- dkim-atps=neutral
-Received: from sonic302-21.consmr.mail.ir2.yahoo.com
- (sonic302-21.consmr.mail.ir2.yahoo.com [87.248.110.84])
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46qlnz2NkPzDqYp
- for <linux-erofs@lists.ozlabs.org>; Sat, 12 Oct 2019 11:20:05 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1570839599; bh=x1WK0fzV9WIc2u8ZBnVGJ42mwQqJ/tWi1hU50Z/tqCo=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=sbO2JwEhBjOGeDN3jY3zTbXZnxuxh+YWrCszPYxpm25GXZ7oIQNU5oDlLH48eU5tXmF/l19nIJK/3bwrJjZfUuyGg5c10vQYbMJs/CaOEbipsvojYBlrHI1svPAChStPgVdnb9DekTEysgpPJyz2pbi5wwDK3D42P2ZQjFPWk9xI1o/+0YDl4eyQexisuLPEog0NyV9HN03y2NC6+wNz41MsFOILwpSd+U25a13hXEFQxtEc0nM2CkJtGKiqqrwmOSOKBV21TKXTPw2c/Rv9myYDXP69+ueFSkYBlM9TKmdgSDtg/h/CLSGztqxcyLmFv6avWOjAbaUxe3Iuz/+gvQ==
-X-YMail-OSG: ZcOsCb0VM1kmNJDcoWPdAR.NuC1uAq53UbVx8RWUOdMHUquHuajpVGrZaHh14ED
- p8VV_vDcf5kXSaCgaHm6FRYrXDZQJqreBxKl4rI9oXNgdkpDq7YBn_roh5cvmnrk8_qkn2g52bQP
- cjqAPx8LB05yb3OY0qKe9H_eMl23pXyzOV6R2j7sH4Cf6TvFLs9ZNPryNOCWIYEdp48TLbYqiZ6D
- OdL0W6GBA6rJvoe_nLkQNk4cuPwcDUDQI9viF3qOZ712HXJ9i8J_jOKXu4R606EoBI7puB4E5fbF
- A1ru_WGxP72NPsxs_8sy4lIh0rSZGoJb1ME1aMLkXscAuxE4ZlGQbqE13C6LW55VMN_IKf4GnZMr
- VfoFQazvuvLGIg28hhEsngevsPz_tMYWOThtqARiLP40ws5NaWP63NH.HAnZzzc_EFHfq1ECS3uP
- gut8yTKwMiExx5q3W2uQtUR4fLR2Vsm3oeLIaMTWLc.0TeuM9rel.IVC4OkMjmMPTETQZxcPzFo5
- HPUNxeVXGk1ouzP20UD8ibroB48WCyctzPGtsOQyhOFkvb8BN5.0w7elRG9siQMpOjHPsjJ8aexx
- xX_UriRPTeRwatZ103RX9Gm3VKO5pO7kE5Be7luAq4EkBGmBFs5MWe0hxedG.fMA.UP0kUuETq01
- IS6HSbJDb9pYe8HWcdNrxfmBRVdJDDAawtMNbID2G5QFYWLZRcZdbWskunf1ZJcrpcfLDli6WSQp
- I9T5TjA5G3_5GZ54CdrxGCwPym2ThjEW5EgjYbEnlWpOsRAW4NT0ph1rLtw43JgSbb6pPw6o_JPg
- TiCDJ91HZt3mNA3Mpqhcj4cR1U_raHK6_0SLKf1JDKcBBGV2ZMxClN6qodLoEB0EGN_o9hGpZ2S8
- k8TYh3NyEY5PJVRJVMATTT0wF_uCUhW05pMYhuG3eE_q5sg._WxFyxHjj5VXjHZh28T1pNczRpIS
- KzHfOdY5i0ss_tfQdPsgbdac9mBvBRo9SCt_w7RptDlKeE.3PAUbwjrJy5MTgG09L8791hQxsscn
- kD3rfNBlNxdKCzIcC2lD8jr.6EtnxwK5AygXGGV3TwVCzcnY3M5owzD.YovtOraKmylTBx1kuUjG
- njyGzllAg.KUUVTIxTHloYoUzZFsuND14.ZiejGNdJzYWc0Pd3dO24.GQ.p7vbrYuGYUKbC3oXJR
- GrvyFmT5sFxV4X94QsQ65DDoKfN5ILQd2TMwjNepzQ3qks3IvVIWkRmcaEtBWQbrvCXKjhezylTI
- ODtUiTC.D_lvHveSb2AKzfuqqKPH0qwEC4LhCZndsbLTaU79TqeAiigPckZn.1sXnVsb.oNCVnad
- qtA--
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic302.consmr.mail.ir2.yahoo.com with HTTP; Sat, 12 Oct 2019 00:19:59 +0000
-Received: by smtp419.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID fca763c3cf8568adfff2f7a344077536; 
- Sat, 12 Oct 2019 00:19:57 +0000 (UTC)
-Date: Sat, 12 Oct 2019 08:19:52 +0800
-To: Li Guifu <blucerlee@gmail.com>
-Subject: Re: [PATCH v4][ 2/2] erofs-utils: fix error handler notes when
- parameter miss
-Message-ID: <20191012001949.GB5701@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20191011170953.6267-1-blucerlee@gmail.com>
- <20191011170953.6267-2-blucerlee@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46qpwS2KVYzDqVq
+ for <linux-erofs@lists.ozlabs.org>; Sat, 12 Oct 2019 13:40:55 +1100 (AEDT)
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.58])
+ by Forcepoint Email with ESMTP id 57B9724C629F2D510FB4
+ for <linux-erofs@lists.ozlabs.org>; Sat, 12 Oct 2019 10:40:50 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.207) with Microsoft SMTP Server (TLS) id 14.3.439.0; Sat, 12 Oct
+ 2019 10:40:42 +0800
+From: Gao Xiang <gaoxiang25@huawei.com>
+To: Li Guifu <bluce.liguifu@huawei.com>, <linux-erofs@lists.ozlabs.org>
+Subject: [PATCH] erofs-utils: fix old kernel compatibility for non-lz4
+ compression
+Date: Sat, 12 Oct 2019 10:43:45 +0800
+Message-ID: <20191012024345.181737-1-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191011170953.6267-2-blucerlee@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -101,41 +58,80 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Sat, Oct 12, 2019 at 01:09:53AM +0800, Li Guifu wrote:
-> If a parameter isnot input, mkfs's error handler cannot give
-> a correct notes, fix it.
-> 
-> Signed-off-by: Li Guifu <blucerlee@gmail.com>
-> ---
->  mkfs/main.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mkfs/main.c b/mkfs/main.c
-> index 77a4b78..adfc79c 100644
-> --- a/mkfs/main.c
-> +++ b/mkfs/main.c
-> @@ -143,7 +143,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
->  	if (!cfg.c_img_path)
->  		return -ENOMEM;
->  
-> -	if (optind > argc) {
-> +	if (optind >= argc) {
->  		erofs_err("Source directory is missing");
->  		return -EINVAL;
->  	}
-> -- 
-> 2.17.1
->
+If primary algorithm is not lz4 (e.g. compression
+off), clear EROFS_FEATURE_INCOMPAT_LZ4_0PADDING
+for old kernel (upstream kernel <= 5.2.y) compatibility.
 
-Already applied.
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+---
 
-Thanks,
-Gao Xiang
+It isn't really clean for the long term, but we can wrap it later
+after more compression algorithms integrated.
+
+ lib/compress.c | 14 +++++++++++++-
+ lib/config.c   |  2 --
+ mkfs/main.c    |  3 +++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/lib/compress.c b/lib/compress.c
+index 7f65e5e26938..fdf093b69891 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -504,9 +504,21 @@ int z_erofs_compress_init(void)
+ 	/* initialize for primary compression algorithm */
+ 	int ret = erofs_compressor_init(&compresshandle,
+ 					cfg.c_compr_alg_master);
+-	if (ret || !cfg.c_compr_alg_master)
++
++	if (ret)
+ 		return ret;
+ 
++	/*
++	 * if primary algorithm is not lz4* (e.g. compression off),
++	 * clear LZ4_0PADDING feature for old kernel compatibility.
++	 */
++	if (!cfg.c_compr_alg_master ||
++	    strncmp(cfg.c_compr_alg_master, "lz4", 3))
++		sbi.feature_incompat &= ~EROFS_FEATURE_INCOMPAT_LZ4_0PADDING;
++
++	if (!cfg.c_compr_alg_master)
++		return 0;
++
+ 	compressionlevel = cfg.c_compr_level_master < 0 ?
+ 		compresshandle.alg->default_level :
+ 		cfg.c_compr_level_master;
+diff --git a/lib/config.c b/lib/config.c
+index 4cddc252b46a..46625d7c61c7 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -19,9 +19,7 @@ void erofs_init_configure(void)
+ 	cfg.c_dbg_lvl  = 0;
+ 	cfg.c_version  = PACKAGE_VERSION;
+ 	cfg.c_dry_run  = false;
+-	cfg.c_legacy_compress = false;
+ 	cfg.c_compr_level_master = -1;
+-	sbi.feature_incompat = EROFS_FEATURE_INCOMPAT_LZ4_0PADDING;
+ 	cfg.c_force_inodeversion = 0;
+ 	cfg.c_unix_timestamp = -1;
+ }
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 1df69d74b633..536b784eec01 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -215,6 +215,9 @@ int main(int argc, char **argv)
+ 	erofs_init_configure();
+ 	fprintf(stderr, "%s %s\n", basename(argv[0]), cfg.c_version);
+ 
++	cfg.c_legacy_compress = false;
++	sbi.feature_incompat = EROFS_FEATURE_INCOMPAT_LZ4_0PADDING;
++
+ 	err = mkfs_parse_options_cfg(argc, argv);
+ 	if (err) {
+ 		if (err == -EINVAL)
+-- 
+2.17.1
 
