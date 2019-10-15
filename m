@@ -2,91 +2,91 @@ Return-Path: <SRS0=WJYa=YI=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D5E8ECE588
-	for <linux-erofs@archiver.kernel.org>; Tue, 15 Oct 2019 15:38:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1F80ECE58F
+	for <linux-erofs@archiver.kernel.org>; Tue, 15 Oct 2019 15:51:14 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4933E205F4
-	for <linux-erofs@archiver.kernel.org>; Tue, 15 Oct 2019 15:38:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 9329A21835
+	for <linux-erofs@archiver.kernel.org>; Tue, 15 Oct 2019 15:51:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jl2n0G60"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4933E205F4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="nDdAJs7H";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="mKg6v8mY"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9329A21835
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 46t02Q1gkWzDr4Y
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Oct 2019 02:38:38 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 46t0Jw1pR6zDr4M
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Oct 2019 02:51:12 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1571154672;
+	bh=C12IfwyrvQWXF2OXPazSP8dK4t5PnuJWQMbXc9aEMEk=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=nDdAJs7HBev+BiLUNXFQIEPhwzjXuANBDUfYSg3GsIe9S/ztzMJUFjK0rb4PfERRw
+	 5/WvQ2qwlQSzU/ep1q07epuuBXl3C/lvFGSbz4NZWTiM+BQdZhbpV+HBHHrHTVK3le
+	 kN36wK9oXehYln/HOPGOJVcwZxwW3vyscnyPTjOaLY8A3yrXAdW4JwSiBw0BBHPjb4
+	 CrtkqWO2G4aRCXVu5QL6RVZOJbgAnjBdRDcWqKYHWqekmRpqPNTQYagtaVe6vgqHVW
+	 aI1yFjiXXpjeFibfWDQ1eVRasz49neIIhJrbrpwU7JkZo1cdE2u3X2CBt7zIuMT51x
+	 f1jygM5LVFLrg==
 Authentication-Results: lists.ozlabs.org;
- spf=pass (mailfrom) smtp.mailfrom=gmail.com
- (client-ip=2607:f8b0:4864:20::441; helo=mail-pf1-x441.google.com;
- envelope-from=blucerlee@gmail.com; receiver=<UNKNOWN>)
+ spf=pass (mailfrom) smtp.mailfrom=aol.com
+ (client-ip=77.238.178.201; helo=sonic303-20.consmr.mail.ir2.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=gmail.com
+ dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.b="Jl2n0G60"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="mKg6v8mY"; 
  dkim-atps=neutral
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com
- [IPv6:2607:f8b0:4864:20::441])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from sonic303-20.consmr.mail.ir2.yahoo.com
+ (sonic303-20.consmr.mail.ir2.yahoo.com [77.238.178.201])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 46t02L0QCdzDr3T
- for <linux-erofs@lists.ozlabs.org>; Wed, 16 Oct 2019 02:38:33 +1100 (AEDT)
-Received: by mail-pf1-x441.google.com with SMTP id q5so12699306pfg.13
- for <linux-erofs@lists.ozlabs.org>; Tue, 15 Oct 2019 08:38:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-transfer-encoding;
- bh=UOFjLSpQeOxDpzvtJqbqg/ojAd+2wcRKp3wDo7ylv44=;
- b=Jl2n0G60vWxHSPEvdhKIsRIIus8uLG517ldQC5cHo/MZM7v5ov7PdG2og3QkiMBsns
- CGBTPIFmRNS4BtbZ8PjHVIRDOrvcCfJ87Fz8yMynjepNn0M9jdGpujuGhm0VHuTZBHSu
- P4jC66K/gfQFnjXUTFuh+TZNOOJiMv/vJd3ebOyQhUXVWfdq0Nn8h1RSZUwl94/opCfq
- E97RASF/x83n8gn1IUUEh9oUQJrdrePvnpRE3k+mhX2gCbSGfSI0dsuBvdlXFnWwL4VE
- lGEKdTq+EpcCmRst6hKbYUezG2r3hT+pc9w8e4aRdKfhfPHTDhr2IuvaeRl+J1ccWN1R
- tLMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding;
- bh=UOFjLSpQeOxDpzvtJqbqg/ojAd+2wcRKp3wDo7ylv44=;
- b=kcvyTNh4RbQeKOfQdQiZ/7z9BHmnvhxSKtNG4JjpH/+Mqn4THYUDLAv8UV3ak6lTKG
- HkBpsom8UWZH8Hu/IUm5nSwweBkfFf3QzglgEPHtRrujMbCKKfkqMWk1EvWFUd/a5Doh
- AV4zA78SgqXMP1KEGxdZx4RdXlA34xPhVjRWUgMrD+NoHHgGjkT7icdRXhgDey/yTwrS
- ielYH+8DyoopkEhX8oVHvL3dGupu6gpGtg/CrYWN3PAkYwF/LOgo1LGAiilayf5+tmuy
- +7Jz73F5QKSULddr+tws/YjJgOr3fsbQvCuuIaUAndm852OvIBzAojgWhmbR6YLs3iDK
- vCww==
-X-Gm-Message-State: APjAAAX6w/nkQxjQUmHQ7ZVr5nvu+zLz4Eck6hw9wOtGe5h8rnPhwpfd
- vKpRxMZIu9XgSuDsCiS+8Sg=
-X-Google-Smtp-Source: APXvYqztkKK35EyL2bpdKrU0n/ogTlgfkbt2qc9st91c4QfkAd6kBa+dDCdmhaimCdEDt1jwXVFIsQ==
-X-Received: by 2002:a17:90a:bd82:: with SMTP id
- z2mr44477739pjr.15.1571153909895; 
- Tue, 15 Oct 2019 08:38:29 -0700 (PDT)
-Received: from [0.0.0.0] (li2016-34.members.linode.com. [172.105.123.34])
- by smtp.gmail.com with ESMTPSA id t13sm19742838pfh.12.2019.10.15.08.38.26
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Tue, 15 Oct 2019 08:38:29 -0700 (PDT)
-Subject: Re: [PATCH] erofs-utils: use cmpsgn(x, y) for standardized large
- value comparsion
-To: Gao Xiang <hsiangkao@aol.com>, Li Guifu <bluce.liguifu@huawei.com>,
- linux-erofs@lists.ozlabs.org
-References: <20191014113048.32067-1-hsiangkao@aol.com>
- <20191014235505.GB31674@hsiangkao-HP-ZHAN-66-Pro-G1>
-From: Li Guifu <blucerlee@gmail.com>
-Message-ID: <ef338ece-ea98-d4f9-18e3-db5d1e163995@gmail.com>
-Date: Tue, 15 Oct 2019 23:38:17 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20191014235505.GB31674@hsiangkao-HP-ZHAN-66-Pro-G1>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ by lists.ozlabs.org (Postfix) with ESMTPS id 46t0Jb4nxHzDr3l
+ for <linux-erofs@lists.ozlabs.org>; Wed, 16 Oct 2019 02:50:51 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1571154646; bh=8BLKdIlocnjHNd5LakcSDOyDI4PTRcm8/F4b7S75hwQ=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
+ b=mKg6v8mYLVamadSFfAKU5LBUwvwLiSkyuaI308m++2zoi9k3KKHVPHgS3AddwW3Ru+H/H+pcUI2QgjBiEIBU9+NfGxLlWbL1YW4EXVo8HIFNOaMT2IoEHdrakjVQuEEakSKVDyKE+b0SOEHM5IW9NH8OQ8DwDEYC65wXEp6wUiHilXkb2vIH4WJI32eqb+D68yFTpEEZldAblZ083ZKRIu5QJm49TKq3FJJ/st7k8RhiOWm7lXbh/1TYukXwVpeFJ/BLQoisHWsU86gMklJl3N9YwsOxHb84W3DRIBvhrwKYbqke6Nl3SCAqsNe+2K1yW99SS/9hkrXtYYi36RuSEg==
+X-YMail-OSG: 0ZCloKsVM1m2P9393kY.cQrHLu_3iHoqalxOKxm0qDzbpmifKVafFedboCBlORF
+ OdWz3e_k5Q6ck83Byk9NLO.64bHxP1dZ5KkWIefv8WKb7F1TQzXGvQF872Y6wQdJA2rboODDjXkr
+ iHCmrHPqIMO5bbgsPZBAe9HyZrW.4e5BjoJrGylUtg1HjG6VjV0tm1CQF0R8ntEGum89DwEGF.Hd
+ OxI9num7E2gJ8_0qe20ZKHhyHwsQaz46cVnqxWXHjPQVwrQpkxSd1xfjqxyzaOSFEEZwKFuZUvP9
+ ZUPZERTgRgTNP3hXTgi2dLFcFOVe2URyLJGCjhqvQS6923LKpLFn9QE8CgIrgbIVyNCxc.jWe2HC
+ efj2k.uytDZRr59n3iRk8iAaQaGFzQr6yGme_K1cZefi1HI2PdilzYfqMiDl3Ur982BPA8GdKubH
+ VZCEaJjoFp6KIvpJsIIOzXhuEUlYb6ZTlgffUrA8NaVFRCgqWFUXcoMzXTorbEkczapMRwKUljOw
+ .Umk6b5VJWusgz1lV5DauzL9zPYd7rwp02BiTHap7jeKpetkZCHrRu7cutyV.b55BPrPm6PgVWwH
+ hjVtjIzlfHPYJKq9.aSUu5qtiaNLsta00GMoHdDKahvRgQVGBmlYfSLW7hq_lVD6azA6WMCxC9hR
+ iAhK7V84GQD1XmUwemdBfsI1CHcJF1JbfPnPj8tlosybDLeEhhTBr5aYNJ1YtOX_oiLlakh6tmI1
+ sfK3hE5kWecSCSDXtxccN5c19Iap1D8I0hl.49TfI5cvONFwK8rgDSsAvfLpzGXwzBqmdl5CSLli
+ gSjbekcYgkGJaW.1T36iJe4JV4hnPzDhAS1QP5hnvNNAxGiR2e.xPV74YCBF.qLdlu.aNrJbo_Zv
+ PVEaXgV.7_eu7e9tBG5rq7AyBcdedSztRAp.i7ms2p_GGgm1H0WK6N0J1DgfwXcoSudDKNafPUkd
+ JfJjIDi_E3thHUrs3PeX0rFVM2xxk4lAqJX7QvyokPf4Q539lzGUe.NQc6_o74ZZkTv4j9DHZuGu
+ 9S.Y9cvDNQHwa7afrsP7LDxcDAV7SjoRNHibcsRbPLbzbyXbR5lajhewJZ0wEKPSVpellJjahQei
+ Mx.F6f_zqkL0mYypGbD2pwUzsebX3g8Ma_V05gnnO8DqE_AV7lrgd0dasRjUSwb73oJYXvmTaejI
+ XAqsG3wOXjm5dfEHQ4IW.boX8LN3OPTf.Qh8fSRrnqB4oXdmSOFRKihuG.BGMvCj65cwAsLUQNSh
+ YWzIbZ8Nwl.Xd2rqAvjj8ugvfROJUpTW1mBgHcjWyTWc3kMnrR5jVrPhHPzhMmDGfn9tFWPt9msG
+ q3ATT7zYs5N6C5CE-
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic303.consmr.mail.ir2.yahoo.com with HTTP; Tue, 15 Oct 2019 15:50:46 +0000
+Received: by smtp403.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 1d86730668fa1297b8062182209c974e; 
+ Tue, 15 Oct 2019 15:50:41 +0000 (UTC)
+To: Li Guifu <bluce.liguifu@huawei.com>,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v3] erofs-utils: use cmpsgn(x,
+ y) for standardized large value comparsion
+Date: Tue, 15 Oct 2019 23:50:25 +0800
+Message-Id: <20191015155025.13215-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <ef338ece-ea98-d4f9-18e3-db5d1e163995@gmail.com>
+References: <ef338ece-ea98-d4f9-18e3-db5d1e163995@gmail.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -98,85 +98,61 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
 Cc: Miao Xie <miaoxie@huawei.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Gao Xiang,
+Previously, roundup(bb->buffers.off % EROFS_BLKSIZ, alignsize)
++ incr + extrasize is an unsigned 64bit value and sgn(x) didn't
+work properly. Fix it.
 
-It runs ok, but could you resend it to adjust line algin ?
+Fixes: b0ca535297b6 ("erofs-utils: support 64-bit internal buffer cache")
+Signed-off-by: Gao Xiang <hsiangkao@aol.com>
+---
+change since v2:
+ - update an indention suggested by Guifu.
 
- >> -#define sgn(x) ({		\
- >> +#define cmpsgn(x, y) ({		\
- >>   	typeof(x) _x = (x);	\
- >> -(_x > 0) - (_x < 0); })
- >> +	typeof(y) _y = (y);	\
- >> +(_x > _y) - (_x < _y); }) ----> here
+ include/erofs/defs.h | 5 +++--
+ lib/cache.c          | 6 +++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
+diff --git a/include/erofs/defs.h b/include/erofs/defs.h
+index 15db4e3..d3c1156 100644
+--- a/include/erofs/defs.h
++++ b/include/erofs/defs.h
+@@ -136,9 +136,10 @@ typedef int64_t         s64;
+ 	type __max2 = (y);			\
+ 	__max1 > __max2 ? __max1: __max2; })
+ 
+-#define sgn(x) ({		\
++#define cmpsgn(x, y) ({		\
+ 	typeof(x) _x = (x);	\
+-(_x > 0) - (_x < 0); })
++	typeof(y) _y = (y);	\
++	(_x > _y) - (_x < _y); })
+ 
+ #define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
+ 
+diff --git a/lib/cache.c b/lib/cache.c
+index 41d2d5d..e61b201 100644
+--- a/lib/cache.c
++++ b/lib/cache.c
+@@ -80,9 +80,9 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
+ 			   bool dryrun)
+ {
+ 	const erofs_off_t alignedoffset = roundup(bb->buffers.off, alignsize);
+-	const int oob = sgn(roundup(bb->buffers.off % EROFS_BLKSIZ,
+-				    alignsize) + incr + extrasize -
+-			    EROFS_BLKSIZ);
++	const int oob = cmpsgn(roundup(bb->buffers.off % EROFS_BLKSIZ,
++				       alignsize) + incr + extrasize,
++			       EROFS_BLKSIZ);
+ 	bool tailupdate = false;
+ 	erofs_blk_t blkaddr;
+ 
+-- 
+2.17.1
 
-> On Mon, Oct 14, 2019 at 07:30:48PM +0800, Gao Xiang wrote:
->> Previously, roundup(bb->buffers.off % EROFS_BLKSIZ, alignsize)
->> + incr + extrasize is a unsigned 64bit value and sgn(x) didn't
->> work properly. Fix it.
-> 
-> Update commit message:
-> 
-> erofs-utils: use cmpsgn(x, y) for standardized large value comparsion
->      
-> Previously, roundup(bb->buffers.off % EROFS_BLKSIZ, alignsize)
-> + incr + extrasize is an unsigned 64bit value and sgn(x) didn't
-> work properly. Fix it.
->      
-> Fixes: b0ca535297b6 ("erofs-utils: support 64-bit internal buffer cache")
-> 
-> Guifu, do you have time reviewing and testing those patches?
-> I'd like to release erofs-utils 1.0 for upstreaming AOSP these days...
-> 
-> Thanks,
-> Gao Xiang
-> 
->>
->> Signed-off-by: Gao Xiang <hsiangkao@aol.com>
->> ---
->>   include/erofs/defs.h | 5 +++--
->>   lib/cache.c          | 6 +++---
->>   2 files changed, 6 insertions(+), 5 deletions(-)
->>
->> diff --git a/include/erofs/defs.h b/include/erofs/defs.h
->> index 15db4e3..db51350 100644
->> --- a/include/erofs/defs.h
->> +++ b/include/erofs/defs.h
->> @@ -136,9 +136,10 @@ typedef int64_t         s64;
->>   	type __max2 = (y);			\
->>   	__max1 > __max2 ? __max1: __max2; })
->>   
->> -#define sgn(x) ({		\
->> +#define cmpsgn(x, y) ({		\
->>   	typeof(x) _x = (x);	\
->> -(_x > 0) - (_x < 0); })
->> +	typeof(y) _y = (y);	\
->> +(_x > _y) - (_x < _y); })
->>   
->>   #define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
->>   
->> diff --git a/lib/cache.c b/lib/cache.c
->> index 41d2d5d..e61b201 100644
->> --- a/lib/cache.c
->> +++ b/lib/cache.c
->> @@ -80,9 +80,9 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
->>   			   bool dryrun)
->>   {
->>   	const erofs_off_t alignedoffset = roundup(bb->buffers.off, alignsize);
->> -	const int oob = sgn(roundup(bb->buffers.off % EROFS_BLKSIZ,
->> -				    alignsize) + incr + extrasize -
->> -			    EROFS_BLKSIZ);
->> +	const int oob = cmpsgn(roundup(bb->buffers.off % EROFS_BLKSIZ,
->> +				       alignsize) + incr + extrasize,
->> +			       EROFS_BLKSIZ);
->>   	bool tailupdate = false;
->>   	erofs_blk_t blkaddr;
->>   
->> -- 
->> 2.17.1
->>
