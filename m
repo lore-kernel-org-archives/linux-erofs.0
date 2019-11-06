@@ -1,105 +1,78 @@
-Return-Path: <SRS0=UCCL=Y5=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=TTf5=Y6=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AF8BC5DF60
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Nov 2019 15:47:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82B1CC5DF62
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Nov 2019 06:40:17 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 097B521882
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Nov 2019 15:47:08 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="B86xxeK0";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=android.com header.i=@android.com header.b="R8lPpHZa"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 097B521882
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id 25915207FA
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Nov 2019 06:40:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 25915207FA
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=fromorbit.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 476vDV0wD9zF581
-	for <linux-erofs@archiver.kernel.org>; Wed,  6 Nov 2019 02:47:06 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1572968826;
-	bh=nTlZ4bvuiZC3UZLmcNtt6grhl9XFvxhvTEusTR40j08=;
-	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=B86xxeK0vPfCjS9M217f8+gNSXaksoNazlxlK6/EKoHaQqfuqWcGCM63YK986jF2e
-	 Up6lysK8KhMpw8xTbEXhUQf2jPfbD7HSq4I300zqOPNV1U2h0Zo8dDNZRzRCD76eVB
-	 HsesNu8D2AIdInPZdIbKS9z5mR1tGdC5oD8Oaa3hvRDH8AesMLuAaLU0+givoSdzxk
-	 15EK//fAkv6ItQ7SWCOVcM3osFkGEmDT2dXWBaa0iOsoca/bBsPm5Y91l9v+YC95Y2
-	 NJT/y97QU4gn2SQ1hM27ED/kJA3yWQJ9fs+NH7Z1V+20TSOpOTSrLzK8/0yY6gqAAG
-	 rJO8/OtXMh7eg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 477H316byZzF5C5
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Nov 2019 17:40:13 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=android.com (client-ip=2607:f8b0:4864:20::542;
- helo=mail-pg1-x542.google.com; envelope-from=salyzyn@android.com;
+ smtp.helo=mail105.syd.optusnet.com.au (client-ip=211.29.132.249;
+ helo=mail105.syd.optusnet.com.au; envelope-from=david@fromorbit.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=android.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=android.com header.i=@android.com header.b="R8lPpHZa"; 
- dkim-atps=neutral
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com
- [IPv6:2607:f8b0:4864:20::542])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 476v144BlSzF53t
- for <linux-erofs@lists.ozlabs.org>; Wed,  6 Nov 2019 02:37:11 +1100 (AEDT)
-Received: by mail-pg1-x542.google.com with SMTP id 29so3161023pgm.6
- for <linux-erofs@lists.ozlabs.org>; Tue, 05 Nov 2019 07:37:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=android.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-transfer-encoding:content-language;
- bh=2/8/BwrhtmEXI7dj68SMTpCzdsjoLETsRSfZ5j8yePw=;
- b=R8lPpHZaNTKC1//4X3YRy/co01wfSuPnFkkkoDrdRRcs8xZqXtNYPLgm9OjzsXnJfg
- w/sgCdd9n+99HdKAd13HjrpckBRQK4F+I41/fuJw7ICMDJgQ0tKfn8kAw++u9jIK9Pl7
- wc3lGWI+tLAg5Fo7mlf+u1oz4ZCnt5dRpAwNiKM1EwVqGR4FwH3zMLPET/FX6DvXl/Cq
- XMn8MNwm1G21DoBMHo9twX6ox9SH+JhzmjDChdy5f2tzhmNnEaRv4FiGKkmYlD/OTP+l
- 39M21mPDgGHAV1JVejM/uCulS4TGW/MwgQAeZfS0L3/q73lP5U74GqdSjn6t5WS3czii
- QV3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding
- :content-language;
- bh=2/8/BwrhtmEXI7dj68SMTpCzdsjoLETsRSfZ5j8yePw=;
- b=OO5XD1ffjdC1HaaEk5tbhiwTQLb/d9MsdETP2SHvXY3nCMeDj87+o5swiOKltoyaGw
- QW89+0KYSfO5bQB6iOV2Xjm2s1OUagX5IhcU7yCvCKTkIe70aB1P4hVzJ9RmODMtkMxO
- I/YoCHKFEirKure5e8LpJ5X6ZR61bVL7uGvVoHj7B1aGHV6I4wb0R6r6u/uWVir+ygTk
- qxbw9KxLQbLO0JI7It9CzKFqOPdABBJzVplmSIbMwW70wdKW7Il1xHDzESlsnJ7M08qy
- mfb1euA2Rqmfy9LPcuEPeGKMFbrQ/xzIVypq8CqmJ2iPCH5+rTJ9tlkJRYNa59DRNgUZ
- g8kg==
-X-Gm-Message-State: APjAAAXZSyQ2ZU0q07YMoGAKDwQTHH9dN70jwnG5xilXBY/mXnL0h1gP
- Xr27W5IWS0HztCWUPjBfc6Euew==
-X-Google-Smtp-Source: APXvYqy6Q+jW7Nx8yhUJvITL/ENlgb+bvGP0zh9whSnmepYB/pthS+WgqdQwDBfJOEs5VO1iezn2Pw==
-X-Received: by 2002:a62:e519:: with SMTP id n25mr38428065pff.144.1572968227784; 
- Tue, 05 Nov 2019 07:37:07 -0800 (PST)
-Received: from nebulus.mtv.corp.google.com
- ([2620:15c:211:200:5404:91ba:59dc:9400])
- by smtp.googlemail.com with ESMTPSA id m13sm18037460pga.70.2019.11.05.07.37.05
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 05 Nov 2019 07:37:07 -0800 (PST)
-Subject: Re: [PATCH v15 1/4] Add flags option to get xattr method paired to
- __vfs_getxattr
-To: Jan Kara <jack@suse.cz>
-References: <20191104215253.141818-1-salyzyn@android.com>
- <20191104215253.141818-2-salyzyn@android.com>
- <20191105094830.GL22379@quack2.suse.cz>
-Message-ID: <1de43656-e751-53a2-c0da-ff44ecbabbc4@android.com>
-Date: Tue, 5 Nov 2019 07:37:04 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+ dmarc=none (p=none dis=none) header.from=fromorbit.com
+Received: from mail105.syd.optusnet.com.au (mail105.syd.optusnet.com.au
+ [211.29.132.249])
+ by lists.ozlabs.org (Postfix) with ESMTP id 477H2n2XdHzF5Bt
+ for <linux-erofs@lists.ozlabs.org>; Wed,  6 Nov 2019 17:40:01 +1100 (AEDT)
+Received: from dread.disaster.area (pa49-180-67-183.pa.nsw.optusnet.com.au
+ [49.180.67.183])
+ by mail105.syd.optusnet.com.au (Postfix) with ESMTPS id 04F453A1D93;
+ Wed,  6 Nov 2019 17:39:54 +1100 (AEDT)
+Received: from dave by dread.disaster.area with local (Exim 4.92.3)
+ (envelope-from <david@fromorbit.com>)
+ id 1iSEyu-0001iI-Op; Wed, 06 Nov 2019 17:39:52 +1100
+Date: Wed, 6 Nov 2019 17:39:52 +1100
+From: Dave Chinner <david@fromorbit.com>
+To: dsterba@suse.cz, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+ Theodore Ts'o <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>,
+ Jaegeuk Kim <jaegeuk@kernel.org>,
+ "Darrick J. Wong" <darrick.wong@oracle.com>,
+ linux-xfs@vger.kernel.org, Jan Kara <jack@suse.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ driverdevel <devel@driverdev.osuosl.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-erofs@lists.ozlabs.org,
+ Ext4 Developers List <linux-ext4@vger.kernel.org>,
+ linux-f2fs-devel@lists.sourceforge.net,
+ Linux-Arch <linux-arch@vger.kernel.org>
+Subject: Re: [RFC] errno.h: Provide EFSCORRUPTED for everybody
+Message-ID: <20191106063952.GE4614@dread.disaster.area>
+References: <20191031010736.113783-1-Valdis.Kletnieks@vt.edu>
+ <CAMuHMdXzyVBa4TZEc5eRaBzu50thgJ2TrHJLZqwhbQ=JASgWOA@mail.gmail.com>
+ <20191101213823.GW4614@dread.disaster.area>
+ <20191105151550.GK3001@twin.jikos.cz>
 MIME-Version: 1.0
-In-Reply-To: <20191105094830.GL22379@quack2.suse.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191105151550.GK3001@twin.jikos.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Optus-CM-Score: 0
+X-Optus-CM-Analysis: v=2.2 cv=P6RKvmIu c=1 sm=1 tr=0
+ a=3wLbm4YUAFX2xaPZIabsgw==:117 a=3wLbm4YUAFX2xaPZIabsgw==:17
+ a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=kj9zAlcOel0A:10 a=MeAgGD-zjQ4A:10
+ a=eJfxgxciAAAA:8 a=7-415B0cAAAA:8 a=nWWV64Vs4Ia0ohqM8ygA:9
+ a=G5VXLrwXQuX2I6J2:21 a=BA2X2tOPKDw4xi1b:21 a=CjuIK1q_8ugA:10
+ a=xM9caqqi1sUkTy8OJ5Uh:22 a=biEYGPWJfzWAr4FL6Ov7:22
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -111,80 +84,201 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Mark Salyzyn via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Mark Salyzyn <salyzyn@android.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Dave Kleikamp <shaggy@kernel.org>,
- jfs-discussion@lists.sourceforge.net, linux-doc@vger.kernel.org,
- linux-integrity@vger.kernel.org,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Martin Brandenburg <martin@omnibond.com>, samba-technical@lists.samba.org,
- Dominique Martinet <asmadeus@codewreck.org>,
- Artem Bityutskiy <dedekind1@gmail.com>,
- Adrian Hunter <adrian.hunter@intel.com>, David Howells <dhowells@redhat.com>,
- Chris Mason <clm@fb.com>, "David S. Miller" <davem@davemloft.net>,
- Andreas Dilger <adilger.kernel@dilger.ca>, Eric Paris <eparis@parisplace.org>,
- Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, netdev@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-afs@lists.infradead.org,
- Mike Marshall <hubcap@omnibond.com>, linux-xfs@vger.kernel.org,
- linux-unionfs@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
- Sage Weil <sage@redhat.com>, "Darrick J . Wong" <darrick.wong@oracle.com>,
- Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>,
- Eric Biggers <ebiggers@google.com>, Hugh Dickins <hughd@google.com>,
- James Morris <jmorris@namei.org>,
- Trond Myklebust <trond.myklebust@hammerspace.com>, cluster-devel@redhat.com,
- selinux@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>, v9fs-developer@lists.sourceforge.net,
- Ilya Dryomov <idryomov@gmail.com>, linux-ext4@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>, linux-mm@kvack.org,
- Mark Salyzyn <salyzyn@google.com>, Serge Hallyn <serge@hallyn.com>,
- ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
- Eric Van Hensbergen <ericvh@gmail.com>, linux-erofs@lists.ozlabs.org,
- Josef Bacik <josef@toxicpanda.com>, reiserfs-devel@vger.kernel.org,
- Miklos Szeredi <miklos@szeredi.hu>, Joel Becker <jlbec@evilplan.org>,
- linux-mtd@lists.infradead.org, Phillip Lougher <phillip@squashfs.org.uk>,
- David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
- ceph-devel@vger.kernel.org, devel@lists.orangefs.org,
- Gao Xiang <xiang@kernel.org>, Mimi Zohar <zohar@linux.ibm.com>,
- Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
- Theodore Ts'o <tytso@mit.edu>, linux-fsdevel@vger.kernel.org,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Mathieu Malaterre <malat@debian.org>,
- kernel-team@android.com, Jonathan Corbet <corbet@lwn.net>,
- Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org,
- Tyler Hicks <tyhicks@canonical.com>, Steve French <sfrench@samba.org>,
- linux-security-module@vger.kernel.org, ocfs2-devel@oss.oracle.com,
- Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>,
- Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- David Woodhouse <dwmw2@infradead.org>,
- Anna Schumaker <anna.schumaker@netapp.com>, linux-btrfs@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 11/5/19 1:48 AM, Jan Kara wrote:
->> @@ -228,11 +228,11 @@ static int afs_xattr_get_yfs(const struct xattr_handler *handler,
->>   		break;
->>   	case 1:
->>   		data = buf;
->> -		dsize = snprintf(buf, sizeof(buf), "%u", yacl->inherit_flag);
->> +		dsize = scnprintf(buf, sizeof(buf), "%u", yacl->inherit_flag);
->>   		break;
->>   	case 2:
->>   		data = buf;
->> -		dsize = snprintf(buf, sizeof(buf), "%u", yacl->num_cleaned);
->> +		dsize = scnprintf(buf, sizeof(buf), "%u", yacl->num_cleaned);
->>   		break;
->>   	case 3:
-> These scnprintf() changes (and there are more in the patch) probably
-> shouldn't be here... Otherwise the patch still looks good to me :).
->
-> 								Honza
->
-Good catch, they were done in locality, I forgot about them, this patch 
-series has been living for almost a year now and time has become its 
-enemy ... will spin this as a separate patch. They strike as a security 
-issue with the possibility of fragile UAF when the code is maintained by 
-future selves.
+On Tue, Nov 05, 2019 at 04:15:50PM +0100, David Sterba wrote:
+> On Sat, Nov 02, 2019 at 08:38:23AM +1100, Dave Chinner wrote:
+> > On Fri, Nov 01, 2019 at 09:57:31PM +0100, Geert Uytterhoeven wrote:
+> > > Hi Valdis,
+> > > 
+> > > On Thu, Oct 31, 2019 at 2:11 AM Valdis Kletnieks
+> > > <valdis.kletnieks@vt.edu> wrote:
+> > > > Three questions: (a) ACK/NAK on this patch, (b) should it be all in one
+> > > > patch, or one to add to errno.h and 6 patches for 6 filesystems?), and
+> > > > (c) if one patch, who gets to shepherd it through?
+> > > >
+> > > > There's currently 6 filesystems that have the same #define. Move it
+> > > > into errno.h so it's defined in just one place.
+> > > >
+> > > > Signed-off-by: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+> > > 
+> > > Thanks for your patch!
+> > > 
+> > > > --- a/include/uapi/asm-generic/errno.h
+> > > > +++ b/include/uapi/asm-generic/errno.h
+> > > > @@ -98,6 +98,7 @@
+> > > >  #define        EINPROGRESS     115     /* Operation now in progress */
+> > > >  #define        ESTALE          116     /* Stale file handle */
+> > > >  #define        EUCLEAN         117     /* Structure needs cleaning */
+> > > > +#define        EFSCORRUPTED    EUCLEAN
+> > > 
+> > > I have two questions:
+> > > a) Why not use EUCLEAN everywhere instead?
+> > >     Having two different names for the same errno complicates grepping.
+> > 
+> > Because:
+> > 	a) EUCLEAN is horrible for code documentation. EFSCORRUPTED
+> > 	describes exactly the error being returned and/or checked for.
+> > 
+> > 	b) we've used EFSCORRUPTED in XFS since 1993. i.e. it was an
+> > 	official, published error value on Irix, and we've kept it
+> > 	in the linux code for the past ~20 years because of a)
+> > 
+> > 	c) Userspace programs that include filesystem specific
+> > 	headers have already been exposed to and use EFSCORRUPTED,
+> > 	so we can't remove/change it without breaking userspace.
+> > 
+> > 	d) EUCLEAN has a convenient userspace string description
+> > 	that is appropriate for filesystem corruption: "Structure
+> > 	needs cleaning" is precisely what needs to happen. Repair of
+> > 	the filesystem (i.e. recovery to a clean state) is what is
+> > 	required to fix the error....
+> 
+> The description is very confusing to users that are also not filesystem
+> developers.
 
--- Mark
+That's a pretty good description of most error messages for modern
+software packages. Anything that is a non-trivial error requires web
+searching to understand and diagnose these days.
 
+Google knows exactly what you are looking for if you search for
+"mount structure needs cleaning" or other similar error messages.
+That means users also know what it means and what they need to
+do to address it.  i.e. it's been around long enough that there's a
+deep history in internet search engines and question forums like
+stackexchange.
+
+> "Structure needs cleaning" says what needs to be done but
+> not what happened. Unlike other error codes like "not enough memory",
+> "IO error" etc. We don't have EBUYMEM / "Buy more memory" instead of
+> ENOMEM.
+
+Message grammar is largely irrelevant. And not unique to EUCLEAN. e.g.
+EAGAIN = "Try again".
+
+> Fuzzing tests and crafted images produce most of the EUCLEAN errors and
+> in this context "structure needs cleaning" makes even less sense.
+
+It's pretty silly to argue that a developer crafting and/or fuzzing
+corrupted filesystem images is not going to understand what the
+error message returned when they successfully corrupt a filesystem
+actually means....
+
+> > > b) Perhaps both errors should use different values?
+> > 
+> > That horse bolted to userspace years ago - this is just
+> > formalising the practice that has spread across multiple linux
+> > filesystems from XFS over the past ~10 years..
+> 
+> EFSCORRUPTED is a appropriate name but to share the number with
+> EUCLEAN was a terrible decision and now every filesystem has to
+> suffer and explain to users what the code really means and point
+> to the the sad story when asked "So why don't you have a separate
+> code?".
+
+Damned if you do, damned if you don't.
+
+Back in 2005-2006, XFS developers tried to make EFSCORRUPTED a
+proper system wide errno (like we had on Irix). The NIH was strong
+in the linux community back then, and we were largely told to go
+away as the superior Linux filesystems would never need to report
+corruption to userspace so we don't need a special errno just
+because some shitty Irix filesystem port needs it.
+
+And so we didn't get a new errno and went with the second choice:
+precedence set by older unix systems....
+
+commit 9e1fd551aba7291564d5d6c28948405142d5e2ca
+Author: Nathan Scott <nathans@sgi.com>
+Date:   Tue Jun 20 03:49:47 2006 +0000
+
+    Map EFSCORRUPTED to an actual error code, not just a made up one
+    (990).  Turns out some ye-olde unices used EUCLEAN as
+    Filesystem-needs-cleaning, so now we use that too.
+    Merge of xfs-linux-melb:xfs-kern:26286a by kenmcd.
+
+diff --git a/fs/xfs/linux-2.6/xfs_linux.h b/fs/xfs/linux-2.6/xfs_linux.h
+index 3910afa7..b4083f8c 100644
+--- a/fs/xfs/linux-2.6/xfs_linux.h
++++ b/fs/xfs/linux-2.6/xfs_linux.h
+@@ -197,25 +197,9 @@ BUFFER_FNS(PrivateStart, unwritten);
+ /* bytes to clicks */
+ #define btoc(x)         (((__psunsigned_t)(x)+(NBPC-1))>>BPCSHIFT)
+ 
+-#ifndef ENOATTR
+ #define ENOATTR                ENODATA         /* Attribute not found */
+-#endif
+-
+-/* Note: EWRONGFS never visible outside the kernel */
+-#define        EWRONGFS        EINVAL          /* Mount with wrong filesystem type */
+-
+-/*
+- * XXX EFSCORRUPTED needs a real value in errno.h. asm-i386/errno.h won't
+- *     return codes out of its known range in errno.
+- * XXX Also note: needs to be < 1000 and fairly unique on Linux (mustn't
+- *     conflict with any code we use already or any code a driver may use)
+- * XXX Some options (currently we do #2):
+- *     1/ New error code ["Filesystem is corrupted", _after_ glibc updated]
+- *     2/ 990 ["Unknown error 990"]
+- *     3/ EUCLEAN ["Structure needs cleaning"]
+- *     4/ Convert EFSCORRUPTED to EIO [just prior to return into userspace]
+- */
+-#define EFSCORRUPTED    990            /* Filesystem is corrupted */
++#define EWRONGFS       EINVAL          /* Mount with wrong filesystem type */
++#define EFSCORRUPTED   EUCLEAN         /* Filesystem is corrupted */
+ 
+ #define SYNCHRONIZE()  barrier()
+ #define __return_address __builtin_return_address(0)
+
+Perhaps you should learn the history of why certain decisions were
+made before letting go with both barrels, hmmm?
+
+> I wonder what userspace package really depends on the value, that
+> would eg. change code flow. Uncommon error values usually lead to
+> a message and exit.
+> 
+> Debian code search shows only jython, e2fsprogs, xfsprogs,
+> python2.7, pypy, linux, partclone using EFSCORRUPTED. So 2 of them
+> are filesystem packages that can handle that, python/jython only
+> defines the value for IRIX platform. The rest is linux kernel, not
+> relevant.
+
+You didn't search for EUCLEAN, did you?
+
+> So please give me one example where userspace will break.
+
+ABI changes cannot be justified this way and you should damn well
+know it. Especially as EUCLEAN/EFSCORRUPTED is documented in quite a
+few man pages out there:
+
+$ git grep -l EFSCORRUPTED man/
+man/man2/ioctl_xfs_ag_geometry.2
+man/man2/ioctl_xfs_bulkstat.2
+man/man2/ioctl_xfs_fsbulkstat.2
+man/man2/ioctl_xfs_fscounts.2
+man/man2/ioctl_xfs_fsgetxattr.2
+man/man2/ioctl_xfs_fsinumbers.2
+man/man2/ioctl_xfs_fsop_geometry.2
+man/man2/ioctl_xfs_getbmapx.2
+man/man2/ioctl_xfs_getresblks.2
+man/man2/ioctl_xfs_goingdown.2
+man/man2/ioctl_xfs_inumbers.2
+man/man2/ioctl_xfs_scrub_metadata.2
+
+And EUCLEAN is in a few, too. e.g:
+
+$ man ioctl_getfsmap |grep -A 1 EUCLEAN
+       EUCLEAN
+              The filesystem metadata is corrupt and needs repair.
+
+So, yeah, the EFSCORRUPTED = EUCLEAN horse bolted long ago, and no
+amount of retconning will put the genie back in the bottle.
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
