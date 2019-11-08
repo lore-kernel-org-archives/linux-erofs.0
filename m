@@ -6,41 +6,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1C27FA372C
-	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 03:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C751C5DF60
+	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 03:35:22 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 67B6A2087E
-	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 03:23:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 67B6A2087E
+	by mail.kernel.org (Postfix) with ESMTPS id BFCDF2084C
+	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 03:35:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BFCDF2084C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 478QZt3L5MzF6ft
-	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 14:23:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 478Qrl5LrczF6jd
+	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2019 14:35:19 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.35; helo=huawei.com;
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
  envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 478QZj627WzF68h
- for <linux-erofs@lists.ozlabs.org>; Fri,  8 Nov 2019 14:23:06 +1100 (AEDT)
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id A1959A2D2644ECEF363D;
- Fri,  8 Nov 2019 11:22:57 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 478Qrb1RlyzF6SJ
+ for <linux-erofs@lists.ozlabs.org>; Fri,  8 Nov 2019 14:35:08 +1100 (AEDT)
+Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id 6C0308C89273512EAF29;
+ Fri,  8 Nov 2019 11:35:04 +0800 (CST)
 Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
- (10.3.19.208) with Microsoft SMTP Server (TLS) id 14.3.439.0; Fri, 8 Nov 2019
- 11:22:51 +0800
+ (10.3.19.214) with Microsoft SMTP Server (TLS) id 14.3.439.0; Fri, 8 Nov 2019
+ 11:34:57 +0800
 From: Gao Xiang <gaoxiang25@huawei.com>
 To: Chao Yu <chao@kernel.org>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH] erofs: drop all vle annotations for runtime names
-Date: Fri, 8 Nov 2019 11:25:26 +0800
-Message-ID: <20191108032526.40762-1-gaoxiang25@huawei.com>
+Subject: [PATCH v2] erofs: drop all vle annotations for runtime names
+Date: Fri, 8 Nov 2019 11:37:33 +0800
+Message-ID: <20191108033733.63919-1-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20191108032526.40762-1-gaoxiang25@huawei.com>
+References: <20191108032526.40762-1-gaoxiang25@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.140.130.215]
@@ -61,31 +63,31 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-vle was an old informal name of fixed-sized output
-compression from released ATC'19 paper [1].
+VLE was an old informal name of fixed-sized output
+compression came from released ATC'19 paper [1].
 
-Drop those annotations since erofs can handle all
-encoded clusters in block-aligned basis, which is
-wider than fixed-sized output compression after
+Drop those old annotations since erofs can handle
+all encoded clusters in block-aligned basis, which
+is wider than fixed-sized output compression after
 larger clustersize feature is fully implemented.
 
-Unaligned encoded won't be considered in EROFS
-since it's not friendly to inplace I/O and
-decompression inplace.
+Unaligned encoded data won't be considered in EROFS
+since it's not friendly to inplace I/O and decompression
+inplace.
 
-a) Fixed-sized output compression with 16-byte pcluster:
+a) Fixed-sized output compression with 16KB pcluster:
   ___________________________________
  |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|
  |___ 0___|___ 1___|___ 2___|___ 3___| physical blocks
 
 b) Block-aligned fixed-sized input compression with
-   16-byte pcluster:
+   16KB pcluster:
   ___________________________________
  |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxx00000|
  |___ 0___|___ 1___|___ 2___|___ 3___| physical blocks
 
 c) Block-unaligned fixed-sized input compression with
-   16-byte pcluster:
+   16KB compression unit:
   ____________________________________________
  |..xxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|x.......|
  |___ 0___|___ 1___|___ 2___|___ 3___|___ 4___| physical blocks
@@ -97,6 +99,10 @@ Refine better names for those as well.
 Cc: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
+changes since v1:
+ - fix description in commit message;
+ - fix a wrong rename "z_erofs_decompress_all" -> "z_erofs_decompress_queue".
+
  fs/erofs/internal.h |  4 +--
  fs/erofs/zdata.c    | 62 +++++++++++++++++++++------------------------
  fs/erofs/zmap.c     | 28 ++++++++++----------
@@ -118,7 +124,7 @@ index 96d97eab88e3..437020b0de2c 100644
  /*
   * Logical to physical block mapping, used by erofs_map_blocks()
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index be3c79421dba..b0ea1cd5baad 100644
+index be3c79421dba..ec842cb6515a 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
 @@ -711,7 +711,7 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
@@ -154,7 +160,7 @@ index be3c79421dba..b0ea1cd5baad 100644
  
  	DBG_BUGON(bgq->head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
 -	z_erofs_vle_unzip_all(bgq, &pagepool);
-+	z_erofs_decompress_all(bgq, &pagepool);
++	z_erofs_decompress_queue(bgq, &pagepool);
  
  	put_pages_list(&pagepool);
  	kvfree(bgq);
