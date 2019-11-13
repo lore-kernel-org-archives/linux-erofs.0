@@ -2,91 +2,91 @@ Return-Path: <SRS0=MqGi=ZF=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 988E5C43331
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 03:59:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEB46C43331
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 06:02:17 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 445FA222CF
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 03:59:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6B326206BA
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 06:02:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="YtBROfP4";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="jHPQBFmW"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 445FA222CF
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="mMskmVOQ";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="jSznvBw4"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6B326206BA
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47CW7k0slNzF4t8
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 14:58:58 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 47CYsx6VgnzF76f
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2019 17:02:13 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1573617538;
-	bh=jqL3l7lMI/OlMkhD8VVRnAkVHXXGQYtgpjxwhnUb2EE=;
+	s=201707; t=1573624933;
+	bh=XD22ERSiGCRDfA2q0rOyr5k3Vz4Z1UgUjo5KE0cIQY8=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=YtBROfP4OB79sEqFnVuuzs7xIPsxFPSJRU7WGDaapth0XXnG7WJJvngYI1Obuj6wL
-	 2vhPQ8ukeeHN83cNExcAzEqTfCyGwMK4AU2jHveu5/kpz0R6/6AEiF7goU6SC08Xvc
-	 +Y5LZL87mtKTfi+HtqzEZAs7kQZhRe+9kD3F69qJVtaLhxGiKvZS5sTDF6mI9O2KmA
-	 dflTxGmDW/Xe1BIQ3XPAF9ErN8hfP4guM+G70NXJkXn0/u+CVnrL/kV5Z60uheCSPJ
-	 AdSU0QrtqqTYk4NBLVEkXDGiD0q7nfZT+fs2hJ4toI1B14aGxPzNe7tbJ0i06+tP9r
-	 zJb84G+9azIkg==
+	b=mMskmVOQM0bLeXqsg8H0CP3PTgyIN2Pt8NmE/u11Gdja3obhhk9Lt7lpQZCxhcwId
+	 +iqIcdBoNMLs/HY1deQR4HZDlJ7PeOy4QlHwGVyqGRrRqdWjqutDCbdUH7klotgVzN
+	 iMrYi2TbU2YoCVjWxCK4XLiSTnwBTRCWosgqyPegs1mbi/7z2vLXMF3yO7yY4zPgiJ
+	 LTtI3M8t4e2SLE0mKjmlqSaMcwWcq40mDWx8juKpQGVXNXVqe7NnX5+cmOpFVoWuOk
+	 3z8F+Edl5iy2Hub1a/wye65UcyZnf7L94EYilBOWtoKhEjPwTAg+SsZyDX/ATD4Ob6
+	 0/1aZAt5rjmGg==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.65.84; helo=sonic313-21.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.65.206; helo=sonic311-25.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="jHPQBFmW"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="jSznvBw4"; 
  dkim-atps=neutral
-Received: from sonic313-21.consmr.mail.gq1.yahoo.com
- (sonic313-21.consmr.mail.gq1.yahoo.com [98.137.65.84])
+Received: from sonic311-25.consmr.mail.gq1.yahoo.com
+ (sonic311-25.consmr.mail.gq1.yahoo.com [98.137.65.206])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47CW0g3RQ6zF6lB
- for <linux-erofs@lists.ozlabs.org>; Wed, 13 Nov 2019 14:52:49 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47CYsj6vp4zF760
+ for <linux-erofs@lists.ozlabs.org>; Wed, 13 Nov 2019 17:01:59 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1573617164; bh=Z+RVYL0Q0vxGfQYo5PWDf+Wb4W4K4TREVszT2BQG33I=;
+ t=1573624916; bh=N/N4atbVXhW1Fe9A3cf7uq0Vx50hSsRxCdI7adUCkOQ=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
- b=jHPQBFmWB+aF47MsKU5j8snoQaaGp0SMdHDBonYFmQB+nK4dnqCVMq4CN5VFgdE2IVnUVjuEgouL6wUn5yd54rMzSZU9V2NIjjZKttEAfYOjn4Lw4e4zs9Is70eyOYm81k8JdbhHoQ+MC4Zvgfeg0vAfGorO53DKNUnWLWGfEEKGz1QaiHZniiQBmu3NxwPO1FGn06qM0a5QKvEGt8Ow0pW5h1ZILOGCI4luSTzc+vSvu/u0i+9lXYjN3m82s5hnAS6EwKu7lJBgPLTAObYSZY9gdZ1ac3KPywJ7kGKiwkHAevewHVDWUh0MkVG3XhD67Z+XrpwWGPU6NHWVgI+ycg==
-X-YMail-OSG: 923HQs8VM1kx8ITB7IvgfY92ILFehmEIQfJ7deRPYWD194ituXmTo_kWbxwjjdh
- YZqsZ7JpldbfGyXIbbj13n7UKdf.0T3G7jQ7mLWLK5w20t4..3BHZcqKn2VZVsFAM5JtPYGngVBM
- Tr741X7h5BAp578AeTQxglD3CAf.ITVE1goF8oOGyfqlTaGL3MnCYK2c_z3rp3nYziklhZST1XjV
- _Pdr0FCxK6gkSq9G4BTWz4q.N8l3yQfHefD1KnxuqJIXAaeZmxZK4G5ZP5yi77yBkomuWagJc0rw
- tZ.0OQ85ZDvOBqrQliJGRzNj0BpvRF1KiI6hAUscaq0UmRXv72UN3brQL54VgMGNItDtwJpj1p0O
- 3Hoz_djpXW5w_5o.8oB0_OF0RRX9zicRkEGSmuFPCEAUfKHpGQZiw.J8w4TJFR7NU6WfbkK4G.C.
- Be3LIT7wYP3fgAv0ujGfXVFxm2yuhCkgnei0xSKyaq96u5vgxwOS3SM6pR2AsSNhtr_CX5TOwEIp
- 3fDauhnFmCFJU9Keon9rO7CEoTvqhsffBiEo8m5N1xaUPEn8SznAiv6dG69siWOabds.9b_9BVLo
- jGeXs2aoSqWvzqbKfwCdIHo8EliqbOkndR3aEQGXUGRpdfRU3_rFeZXilNXiD8x8J9TxpDIpNEoQ
- 6OG5AICYpfHYcycquq8xo82pSVraDA7ykm3PNgRlr6YGME3nYmosWQckLNsMVL3oAb5II36vzbvf
- 1N5rsSnvf9aZVY.d_GRpYr9SaDLf23lnqv9IePGm1ZCn8G4AtIpXaCtTjwZ7R_8etfdfa.Zk22_P
- UJBQ5Qyr7XDcqoc26LB7Z92Lr99p05kd_Lx2oK3gFml_9TZRxdGsdnVjYHCq33hNOgTIS0RhzKHr
- ThjzlDDgqf81rF1frZnFIhindKSn_vEvNhiEi9pEvVWTVHteIcLm.Wr41fHtjjb.EYZ8F6BOlpts
- o2ejtS2I5panWD8LWlYApiWrAbHpTihwc4cqnkz_J.syg6AzMnuLUh6JI_on9B__N3uxgoCG2RDX
- r2qVnzgJOzQ5TXI1wSNZbpurK42InpcptYfaJF1VEvBMiWi_fXgBaVgWC5HLkxEDA8WFCUu_5wH2
- aFlJegdUutaCOWdPSFG_qdqbSlvnVn9RfFpeEkx85YWsOwu8eb.Sd7EkfCYAm3w5BSKpKPIXCtMr
- Blv2XOSrbv8umDzUkaMGh7D7FcYqJC7Ho45.3HMp0Ma5A21p5IjfDE._cLIzkaph2Q_WLyoIPNsT
- 1LuN3cUzIh0HSDeADXGY8S3LMxuw8nkNJLobgnuMSaNk3VcpVwJFWcpGPfgHzJ48idAU9OUf.Sjl
- 3GbkjjaM6su0zRY.fbMpKGGSF6P_ysz5L2AJBLgx5Dnjovu_VTSCsJZYgJ8KXRutHhTaeh0L_ky4
- xF50ONE9gbQk1zw--
+ b=jSznvBw4JukwiSlWotrEKH6kS9c+470KNpd0fNMEqbxOja5lhqvuya6NlwrH/fhU+nWQVYtEmlXNZEPa0Imgb0HmMiXS+aXJ2cb9Mh74FSxsps/fhgc+/HjZqzxfHYw1S59IlNz0Ee4fpB3JGnK3iZeYifeiIEwFgJh0zqsDcHLrSThgfyKRPm2YJ+rw0YrXCXusQ8PO++KJs4f3f2smZa7ntHJRkw6UvANP5Whr/Ua1wN6mjCx7RdrCInAY3UeDEfqknid5t1H2CcdTGK+iedZp+0xg8sCUHIVpQYKL/VufphWsWKiGTfLMvhmBpy37oXNZeH9TaUOWPFJJnkUXjA==
+X-YMail-OSG: FuYsQLYVM1nsVaTnW1EJ16MIJryQtmkzUX7xwUendKfECivRksTA_jvpX21Ze8p
+ kvSEh.XpSp6gxfV4MTjQ9_a.S7lCcYcISn2AjtQD54rM_CX0xuew.Oe2n6sGfrica7ySI7mhWav7
+ cuUjZx4mw01xUdqKkC7bKaBURmbgJY9hdRpswz48ayKhnJr9azXNBDrZ2fjN6J6FvlYh3FAlEVoT
+ WQutAtscAX4_PsegXC9w0gwCHLKotprCaz7UgaunzV6JLYaaKoauukACfWwm4Hqp6htw0ma_8Uyv
+ 0keI1ZNX6ylmyQAGBBiwzh2x16rYloB.uQRlgsRoW83y5X4BljrHGSHerYSe_NLryWvk4uAxShOG
+ PoqbPpT47rKZziCklG12zmHlhT6Y3Mh4EoayEYLJTDFoCjvu6urVzbHgqTmY_qaaCweOhcHwwFlF
+ IHfg_bR..b6HhlNReXGrK2v6ztkt06XzPpRDgh1dAMY0hVMlsNCmY6thP5xq68TMmCfO0_Qfbwmb
+ HeW5PHrboG1CBZzcODUITPpvNhSEjtLraz4s3cOT9jaMTWUotmmpHX9_.AaVITUoeXOoGpMuh7y2
+ YG_9uAoFdHaPieI7bdaUMFb3tX0p8XN6HQ6SwX1B5cj.plkAJ9BXv68pe0bWpPVu9hlB4iaB5GaJ
+ _3vo1l6L1w0EMJntkWXBwcwSHCgnecDUf7_TzRWr3oNGxa_2UriQcvkT7HhyYsiSE8nm4eFMXexn
+ 9EwDNdDfWwcpXMRby2tNedqsrtSfTh9ZufD.18lczN.2l7QzVoPtsCUdI3UbTvLudVoIHc6m3ovK
+ kYENi_mbMPcSnosBYmZYF14tj81efzUjEbgRqbwGhhz415ZHEz8p7nMTespwn7LRUuzg_lB32Cyj
+ 9W_cSSvS7gniG6J.tDIvkMq7xHVXb8aRr4SnmMzwdk18tsoJg016D0gBUHOqJvLE06BXvoK7ZZsj
+ 2nGngylBFmxaARWF5i6KDBnahZS_.YYgGulSkJEiMiwMj6OysoJP_P2wHNPEPK2oEQoDOZh.rYZP
+ bV2aZHpYUdw4Khza81AuKG3gjAvg349QEf2_PHpiG58F9JIz0nlQK1RnJXKyWiP.yDCYVeZmpe_6
+ bnh8QzKjF3zqlNVdYJ4KExXBjthA4WyKl1XPgZ8iltvNHPEyD2EnHcHaGzoelgbdR.PuY6UkhPzZ
+ vnGr.ootSmvtHv_R5ULJj8FqsmfpM9dND.piFuvfMRo7SAXFKc.ixlEcWN8uCMgp2T5WWw555aNp
+ E583Ue2SARoDnm4FkVEuu8xkOYrfvQTnVkRqgHPAwEfOcsKRWNiHN3WM7xaAjoHKO9U4Xti8S03Z
+ jTWQUlZgq3y2TMX9.mar9D_CuTO4QnRrmZRJ9Abm9Tl5ckp3BSBHB1Ux7lup7M2uR_Ee7zKhnvMG
+ HMWOFKsq48lpxqPk-
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic313.consmr.mail.gq1.yahoo.com with HTTP; Wed, 13 Nov 2019 03:52:44 +0000
-Received: by smtp417.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 0a574cf05c647185f8e365effd4cfc24; 
- Wed, 13 Nov 2019 03:52:43 +0000 (UTC)
+ sonic311.consmr.mail.gq1.yahoo.com with HTTP; Wed, 13 Nov 2019 06:01:56 +0000
+Received: by smtp417.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 419ee3d756c724f02396d02693011f1a; 
+ Wed, 13 Nov 2019 06:01:53 +0000 (UTC)
 To: Li Guifu <bluce.liguifu@huawei.com>, Chao Yu <yuchao0@huawei.com>,
  linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3] erofs-utils: support 128-bit filesystem UUID
-Date: Wed, 13 Nov 2019 11:52:21 +0800
-Message-Id: <20191113035221.30265-1-hsiangkao@aol.com>
+Subject: [PATCH v4] erofs-utils: support 128-bit filesystem UUID
+Date: Wed, 13 Nov 2019 14:01:41 +0800
+Message-Id: <20191113060141.9502-1-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191108080130.150123-1-gaoxiang25@huawei.com>
-References: <20191108080130.150123-1-gaoxiang25@huawei.com>
+In-Reply-To: <20191113035221.30265-1-hsiangkao@aol.com>
+References: <20191113035221.30265-1-hsiangkao@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -111,19 +111,18 @@ Cc: Chao Yu <yuchao0@huawei.com>
 Cc: Li Guifu <bluce.liguifu@huawei.com>
 Signed-off-by: Gao Xiang <hsiangkao@aol.com>
 ---
-changes since v2:
- - fix multilib false positive reported by erofs-utils-ci #83
-   https://travis-ci.org/erofs/erofs-utils-ci/builds/609603134
- - test presence of pkg-config in advance. 
+changes since v3:
+ - fix configure.ac script and fully passed travis CI
+   https://travis-ci.org/erofs/erofs-utils-ci/builds/611213382
 
- configure.ac             | 33 +++++++++++++++++++++++++++++++++
+ configure.ac             | 41 ++++++++++++++++++++++++++++++++++++++++
  include/erofs/internal.h |  1 +
  mkfs/Makefile.am         |  3 ++-
  mkfs/main.c              | 20 ++++++++++++++++++++
- 4 files changed, 56 insertions(+), 1 deletion(-)
+ 4 files changed, 64 insertions(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index a93767f..9238d3e 100644
+index a93767f..c7dbe0e 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -20,6 +20,15 @@ AC_PROG_INSTALL
@@ -153,7 +152,7 @@ index a93767f..9238d3e 100644
  # Checks for libraries.
  # Use customized LZ4 library path when specified.
  AC_ARG_WITH(lz4-incdir,
-@@ -123,6 +136,19 @@ AC_CHECK_DECL(lseek64,[AC_DEFINE(HAVE_LSEEK64_PROTOTYPE, 1,
+@@ -123,6 +136,30 @@ AC_CHECK_DECL(lseek64,[AC_DEFINE(HAVE_LSEEK64_PROTOTYPE, 1,
  # Checks for library functions.
  AC_CHECK_FUNCS([fallocate gettimeofday memset realpath strdup strerror strrchr strtoull])
  
@@ -162,27 +161,35 @@ index a93767f..9238d3e 100644
 +  PKG_CHECK_MODULES([libuuid], [uuid])
 +  # Paranoia: don't trust the result reported by pkgconfig before trying out
 +  saved_LIBS="$LIBS"
++  saved_CPPFLAGS=${CPPFLAGS}
++  CPPFLAGS="${libuuid_CFLAGS} ${CPPFLAGS}"
 +  LIBS="${libuuid_LIBS} $LIBS"
++  AC_MSG_CHECKING([libuuid usability])
 +  AC_TRY_LINK([
 +#include <uuid.h>
 +], [
-+return uuid_generate();
-+], [have_uuid=yes], [have_uuid=no])
-+  LIBS="${saved_LIBS}"], [have_uuid=no])
++uuid_t tmp;
++
++uuid_generate(tmp);
++return 0;
++], [have_uuid="yes"
++    AC_MSG_RESULT([yes])], [
++    have_uuid="no"
++    AC_MSG_RESULT([no])
++    AC_MSG_ERROR([libuuid doesn't work properly])])
++  LIBS="${saved_LIBS}"
++  CPPFLAGS="${saved_CPPFLAGS}"], [have_uuid="no"])
 +
  # Configure lz4
  test -z $LZ4_LIBS && LZ4_LIBS='-llz4'
  
-@@ -169,6 +195,13 @@ if test "x$enable_lz4" = "xyes"; then
+@@ -169,6 +206,10 @@ if test "x$enable_lz4" = "xyes"; then
    CFLAGS=${saved_CPPFLAGS}
  fi
  
-+AS_IF([test "x$have_uuid" = "xyes"],
-+   [AC_DEFINE([HAVE_LIBUUID], 1, [Define to 1 if libuuid is found])],
-+   [AS_IF([test "x$with_uuid" = "xyes"],
-+      [AC_MSG_ERROR([uuid support requested but libuuid not found])]
-+   )]
-+)
++if test "x$have_uuid" = "xyes"; then
++  AC_DEFINE([HAVE_LIBUUID], 1, [Define to 1 if libuuid is found])
++fi
 +
  AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
  AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
