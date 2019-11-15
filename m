@@ -1,135 +1,143 @@
-Return-Path: <SRS0=DYke=ZJ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=2HQV=ZH=vger.kernel.org=linux-fsdevel-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F294DC432C0
-	for <linux-erofs@archiver.kernel.org>; Sun, 17 Nov 2019 17:31:23 +0000 (UTC)
-Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A4F182084D
-	for <linux-erofs@archiver.kernel.org>; Sun, 17 Nov 2019 17:31:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6129C43141
+	for <linux-fsdevel@archiver.kernel.org>; Fri, 15 Nov 2019 00:47:23 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by mail.kernel.org (Postfix) with ESMTP id ADBA120727
+	for <linux-fsdevel@archiver.kernel.org>; Fri, 15 Nov 2019 00:47:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="lElJtmt+";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="DzB0cJrb"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A4F182084D
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
-Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
-Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47GJzF4QSbzDqdD
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Nov 2019 04:31:21 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1574011881;
-	bh=VgUZacBGjuPGPukJnAa1yL/a19s2b2oGqNcYyEDxjQY=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=lElJtmt+/0/UelXVhAvJ3Ox5c+PPP61GVAdiLaXQj8TIB7zCab9PgfKcVqpm3ragi
-	 J3tFvf73d9iaKqtLzU88epC4jHMSiK6h3FzL+oE1fhYMtmp/DZHZprpPAk2DHADjr+
-	 co94hVT1EwlRrzKSV6CI4la+z7bE4STbNMt6bAkWhxUmSdtfut4yRHRqq5HLhPqiSr
-	 jwQ9hX2J5HDGV6Ro1br/PPXbQBekY8r4xQpRW+HiPji8x6kxiTLxC9WOTfb4c37NPO
-	 LuVH2NFhBqZEjCtzbHYz4b9VGOWx+royb7lhYNMQzJ3mxFY/DxC0ArYj0NdQtyBdfU
-	 Jn1MVd2qpdifQ==
-Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.68.31; helo=sonic308-55.consmr.mail.gq1.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=aol.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="DzB0cJrb"; 
- dkim-atps=neutral
-Received: from sonic308-55.consmr.mail.gq1.yahoo.com
- (sonic308-55.consmr.mail.gq1.yahoo.com [98.137.68.31])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47GJz40xClzDqbc
- for <linux-erofs@lists.ozlabs.org>; Mon, 18 Nov 2019 04:31:09 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1574011866; bh=ocX9V8gSr9+8jVrK0+Xxc2RmTOxN+n83vzZkdWijMZI=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=DzB0cJrbmkzuWfvi+gn4SZpMo274SaAeQkxQm6G0epf+eOP3bsn3kLy4HgDQvjHXhA2M1WGh2Gm2SDViR9VqeMakAchrwgLsHb5BhqbvRp3vS/JtR7qyppGZEuPC/Q/eHSefkZpMmbhldx8XTyphEPfOKqwnbf25TLoaBS49tEPjzlh3V6NyV9AY56/HADvNNXSKLUxhIbLz2tM3NqWc5/QCt627Ckm4p08Dncx+6JiLFyb87J4GUESCNnRYGl/F+rfwyHXGT+eLQidNy8hHMuFW7HN4Ln5NlMn2oaC3VB+uTzduCIZaWKAHazT/Z53pAw9/9vJPAu4N5nstUlGOYw==
-X-YMail-OSG: zDefk0cVM1ljE5v3dg0rb2iZiiGLQFEIclEMiV8lK1bFQlmemo0aY3NzfazNMed
- XFdoAdFvnk2zbUWO_R3fZv4ZtEceP1jBXMNzetpTUDAG9VZ74F09BKF._9XabZ.Dt1zt.Bxw8tAm
- DgUN4zagocAsAo3OR2EFv6Dv4fMiJPV1NJZoeyBIVKDnOauFwbHSb6trOOfOpqbS5h9C9uUbS4I8
- RG2yd3mCpbRV6ZLNe5n10SrDisu3kdnR3WtdyTZGkTIwV2b42A052iPJPVKPODhHwJV_NyUbZr8o
- drrvWOQdj9QCYta24.5EYPNvo7vGjkj.z10kFt1LhnE6ll4kW5KvOUIqRtHmLhiwRGjOgezkwGGg
- 7NaXzwKRLdLgNJl884BpL4DPRtT.hP8q36ljiVAshhm2uZxNXwp4ZbPlqYPi3VcsOssiSRe0VN3k
- C9BPYmJ56yYoLxwAbu_OWMr9hz2QulhPWhiLJep8fYGRwe1W.T3JuwiAFqqJ7h302FC0SlHHctzM
- Jmo1jf9.eJ2Vcw6BBxvxqtzy_2uK6bqICQfqtgRvLX1O8Jkdu2RnJ0128yC6ZK4v30eUHqOv5umM
- OVvH73IbbTyS9yTWKMQixr08tTnUbcjLGi9.vh_WNb07rl9PujwXzRoaSnXvCvGbfSEkUcBx7nrW
- St3XtUHF2lUKUApiDurRNRFiERZjj9pec.q2B2sB_yedD35uhBY39.aHh_l46gFOvQo0U34mgGou
- ZUkE.bLoXmzavYBGxr0zSYgZzFYlTnzjIm45SuiHfLmNYTVhy4OMiigwhqC851XbsycekPW248pL
- SUjDve_l7bPBN15kfnAAiRaHOaXLlNAdXkquX9TfYvH5u5QXRo3zKfr4DjdCFVwpQG7cXM0zDRHI
- t2MmwJ.qYsHGzorULnJVhP1IMs3xJ6x3ojQUle2J3qo0i5p0UuiD.q92rQjRYdvNC5b3p67aeBF_
- flok2mLxaGX4Qmx215utMbcgM1pXU.YdpwLpRgzlwkz3ug6hC_1yIbvWNTJ8_.MNkKkWxOzRw.qz
- ObyVAWQbVNif4QNehEAKDlcdrocJ3J5FhWulz1Ko37V6ZHldYLC0G4I2FyMb9LT00MoXZBNubSOy
- lDT_w0BHladfhhaqNfDhODh1rvCNl2rsH08eLtY0V_eDWOPCSdAUVEeErcltrt5yUqUY6MpCa_9P
- 1gIILGPwqZoFS4IlWOFvSUGT8tvxECEf.4BA4ulDgewA05G.J10y3Ru9JsQcpGMBElQGLAm.Ms04
- iihMhQrybUn65km.sWpd53Sb4pArc69dxafs6oWNMU4Z6S_HFfyzK9oby4fwy3NJRnO05wpYZFzJ
- 0P2PmTFwjV8v0esXFgoP8nQDbIogw7E.xkU3pp0sq5ba4T3G0qUj8i8fxnC.G2WfiFNSntYuJ07J
- SOawX
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic308.consmr.mail.gq1.yahoo.com with HTTP; Sun, 17 Nov 2019 17:31:06 +0000
-Received: by smtp402.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID c6798c62e8c1ead5e69d3febad10556a; 
- Sun, 17 Nov 2019 17:31:02 +0000 (UTC)
-Date: Mon, 18 Nov 2019 01:30:55 +0800
-To: Pratik Shinde <pratikshinde320@gmail.com>
-Subject: Re: Support for uncompressed sparse files.
-Message-ID: <20191117173027.GA21516@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <CAGu0czQOorHC=JxQVpWDB2KD0NOzh13OuHj3r_4_U5hCWkkNwQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=aol.com header.i=@aol.com header.b="isNQqD3d"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727223AbfKOArX (ORCPT
+        <rfc822;linux-fsdevel@archiver.kernel.org>);
+        Thu, 14 Nov 2019 19:47:23 -0500
+Received: from sonic313-47.consmr.mail.gq1.yahoo.com ([98.137.65.110]:36791
+        "EHLO sonic313-47.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726852AbfKOArW (ORCPT
+        <rfc822;linux-fsdevel@vger.kernel.org>);
+        Thu, 14 Nov 2019 19:47:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1573778841; bh=a2y6jqLkUnatK91iLJlFJjpg3LEEcm5VqjpkZAkzkDo=; h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject; b=isNQqD3d/5HQx75lNyGUukVpaRxF7b8Lsf7Rh4pZqqVzACMQKnQ+Zjwers9OUrsOSGm/RUKTaetXFKqGSPcyQ8rF5+lq6Nq8Md4NPsiVJbDNnU6F7MBB7iP9sFQW1bJig59Fb0Q+nQ2Ky2NL0FAHAv6fi3RGeZSVzkONTg9sHsTCR9oBemGpxtk6bhl5I18y7Sii3NX1YebgwkxPS7otAdr0Inigggf242GGJ4obLEgUssjiHbYSgZjs9JL3jji4S1B58qoFcbLwhxX9aFLhr6n1ND6ax206rBvSnHZvypKf+2zcT7rXjNt8Q5btaCc8nOOfTmSm7dtHd0Y+WQGo1w==
+X-YMail-OSG: N_6BpMEVRDvd.miR6A7lED5GPdAEx7ojsA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.gq1.yahoo.com with HTTP; Fri, 15 Nov 2019 00:47:21 +0000
+Received: by smtp404.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 234bd9b13aa8560229bdcd951a34976d;
+          Fri, 15 Nov 2019 00:45:19 +0000 (UTC)
+Date:   Fri, 15 Nov 2019 08:45:14 +0800
+From:   Gao Xiang <hsiangkao@aol.com>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>, xiang@kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [bug report] staging: erofs: tidy up decompression frontend
+Message-ID: <20191115004512.GA7969@hsiangkao-HP-ZHAN-66-Pro-G1>
+References: <20191114190848.f6tlqpnybagez76g@kili.mountain>
+ <20191114220015.GA20752@bombadil.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAGu0czQOorHC=JxQVpWDB2KD0NOzh13OuHj3r_4_U5hCWkkNwQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Mailer: WebService/1.1.14728 hermes Apache-HttpAsyncClient/4.1.4
- (Java/1.8.0_181)
-X-BeenThere: linux-erofs@lists.ozlabs.org
-X-Mailman-Version: 2.1.29
-Precedence: list
-List-Id: Development of Linux EROFS file system <linux-erofs.lists.ozlabs.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linux-erofs>,
- <mailto:linux-erofs-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linux-erofs/>
-List-Post: <mailto:linux-erofs@lists.ozlabs.org>
-List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
- <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: linux-erofs@lists.ozlabs.org
-Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
-Sender: "Linux-erofs"
- <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+In-Reply-To: <20191114220015.GA20752@bombadil.infradead.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Mailer: WebService/1.1.14728 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
+Sender: linux-fsdevel-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <linux-fsdevel.vger.kernel.org>
+X-Mailing-List: linux-fsdevel@vger.kernel.org
+Message-ID: <20191115004514.7TIkSUorgDEJ1mSCFfH9qKOYaZdNvM25NmyXBmLV6_0@z>
 
-Hi Pratik,
+Hi Dan and Matthew,
 
-On Sun, Nov 17, 2019 at 03:40:43PM +0530, Pratik Shinde wrote:
-> Hello Gao,
+On Thu, Nov 14, 2019 at 02:00:15PM -0800, Matthew Wilcox wrote:
+> On Thu, Nov 14, 2019 at 10:10:03PM +0300, Dan Carpenter wrote:
+> > 	fs/erofs/zdata.c:443 z_erofs_register_collection()
+> > 	error: double unlocked 'cl->lock' (orig line 439)
+> > 
+> > fs/erofs/zdata.c
+> >    432          cl = z_erofs_primarycollection(pcl);
+> >    433          cl->pageofs = map->m_la & ~PAGE_MASK;
+> >    434  
+> >    435          /*
+> >    436           * lock all primary followed works before visible to others
+> >    437           * and mutex_trylock *never* fails for a new pcluster.
+> >    438           */
+> >    439          mutex_trylock(&cl->lock);
+> >                 ^^^^^^^^^^^^^^^^^^^^^^^^
+> >    440  
+> >    441          err = erofs_register_workgroup(inode->i_sb, &pcl->obj, 0);
+> >    442          if (err) {
+> >    443                  mutex_unlock(&cl->lock);
+> >                         ^^^^^^^^^^^^^^^^^^^^^^^
+> > How can we unlock if we don't know that the trylock succeeded?
 > 
-> I have started working on above functionality for erofs.
-> First thing we need to do is detect sparse files & determine location of
-> holes in it.
-> 
-> I was thinking of using lseek() with SEEK_HOLE & SEEK_DATA for detecting
-> holes.
-> Let me know what you think about the approach OR any other better approach
-> in your mind.
-> 
-> PS : support for SEEK_HOLE & SEEK_DATA came in 3.4 kernel.
+> The comment says it'll always succeed.  That said, this is an uncommon
+> pattern -- usually we just mutex_lock().  If there's a good reason to use
+> mutex_trylock() instead, then I'd prefer it to be guarded with a BUG_ON.
+>
 
-That is a good start to detect sparse files by SEEK_HOLE & SEEK_DATA.
+I think there is no actual problem here. If I am wrong, please kindly point out.
+The selected code snippet is too short. The current full code is
 
-And as the first step, we need to design the on-disk extent format
-for uncompressed sparse files. Is there some preliminary proposed
-ideas for this as well? :-) (I'm not sure whether Chao is busy in
-other stuffs now, we'd get in line with sparse on-disk format.)
+static struct z_erofs_collection *clregister(struct z_erofs_collector *clt,
+					     struct inode *inode,
+					     struct erofs_map_blocks *map)
+{
+	struct z_erofs_pcluster *pcl;
+	struct z_erofs_collection *cl;
+	int err;
+
+	/* no available workgroup, let's allocate one */
+	pcl = kmem_cache_alloc(pcluster_cachep, GFP_NOFS);
+	if (!pcl)
+		return ERR_PTR(-ENOMEM);
+
+^ Note that this is a new object here, which is guaranteed that the lock
+was always unlocked with the last free (and it firstly inited in init_once).
+
+	z_erofs_pcluster_init_always(pcl);
+
+	pcl->obj.index = map->m_pa >> PAGE_SHIFT;
+
+	pcl->length = (map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) |
+		(map->m_flags & EROFS_MAP_FULL_MAPPED ?
+			Z_EROFS_PCLUSTER_FULL_LENGTH : 0);
+
+	if (map->m_flags & EROFS_MAP_ZIPPED)
+		pcl->algorithmformat = Z_EROFS_COMPRESSION_LZ4;
+	else
+		pcl->algorithmformat = Z_EROFS_COMPRESSION_SHIFTED;
+
+	pcl->clusterbits = EROFS_I(inode)->z_physical_clusterbits[0];
+	pcl->clusterbits -= PAGE_SHIFT;
+
+	/* new pclusters should be claimed as type 1, primary and followed */
+	pcl->next = clt->owned_head;
+	clt->mode = COLLECT_PRIMARY_FOLLOWED;
+
+	cl = z_erofs_primarycollection(pcl);
+	cl->pageofs = map->m_la & ~PAGE_MASK;
+
+	/*
+	 * lock all primary followed works before visible to others
+	 * and mutex_trylock *never* fails for a new pcluster.
+	 */
+	mutex_trylock(&cl->lock);
+
+^ That was simply once guarded by BUG_ON, but checkpatch.pl raised a warning,
+I can use DBG_BUGON here instead.
+
+	err = erofs_register_workgroup(inode->i_sb, &pcl->obj, 0);
+	if (err) {
+		mutex_unlock(&cl->lock);
+
+^ free with unlock as a convention as one example above.
+
+		kmem_cache_free(pcluster_cachep, pcl);
+		return ERR_PTR(-EAGAIN);
+	}
 
 Thanks,
 Gao Xiang
