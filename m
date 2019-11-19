@@ -1,144 +1,108 @@
-Return-Path: <SRS0=2HQV=ZH=vger.kernel.org=linux-fsdevel-owner@kernel.org>
+Return-Path: <SRS0=ARke=ZL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6129C43141
-	for <linux-fsdevel@archiver.kernel.org>; Fri, 15 Nov 2019 00:47:23 +0000 (UTC)
-Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ADBA120727
-	for <linux-fsdevel@archiver.kernel.org>; Fri, 15 Nov 2019 00:47:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26EA1C432C0
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:51:22 +0000 (UTC)
+Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mail.kernel.org (Postfix) with ESMTPS id CDDCA222C7
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:51:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=aol.com header.i=@aol.com header.b="isNQqD3d"
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727223AbfKOArX (ORCPT
-        <rfc822;linux-fsdevel@archiver.kernel.org>);
-        Thu, 14 Nov 2019 19:47:23 -0500
-Received: from sonic313-47.consmr.mail.gq1.yahoo.com ([98.137.65.110]:36791
-        "EHLO sonic313-47.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726852AbfKOArW (ORCPT
-        <rfc822;linux-fsdevel@vger.kernel.org>);
-        Thu, 14 Nov 2019 19:47:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1573778841; bh=a2y6jqLkUnatK91iLJlFJjpg3LEEcm5VqjpkZAkzkDo=; h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject; b=isNQqD3d/5HQx75lNyGUukVpaRxF7b8Lsf7Rh4pZqqVzACMQKnQ+Zjwers9OUrsOSGm/RUKTaetXFKqGSPcyQ8rF5+lq6Nq8Md4NPsiVJbDNnU6F7MBB7iP9sFQW1bJig59Fb0Q+nQ2Ky2NL0FAHAv6fi3RGeZSVzkONTg9sHsTCR9oBemGpxtk6bhl5I18y7Sii3NX1YebgwkxPS7otAdr0Inigggf242GGJ4obLEgUssjiHbYSgZjs9JL3jji4S1B58qoFcbLwhxX9aFLhr6n1ND6ax206rBvSnHZvypKf+2zcT7rXjNt8Q5btaCc8nOOfTmSm7dtHd0Y+WQGo1w==
-X-YMail-OSG: N_6BpMEVRDvd.miR6A7lED5GPdAEx7ojsA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.gq1.yahoo.com with HTTP; Fri, 15 Nov 2019 00:47:21 +0000
-Received: by smtp404.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 234bd9b13aa8560229bdcd951a34976d;
-          Fri, 15 Nov 2019 00:45:19 +0000 (UTC)
-Date:   Fri, 15 Nov 2019 08:45:14 +0800
-From:   Gao Xiang <hsiangkao@aol.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>, xiang@kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [bug report] staging: erofs: tidy up decompression frontend
-Message-ID: <20191115004512.GA7969@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20191114190848.f6tlqpnybagez76g@kili.mountain>
- <20191114220015.GA20752@bombadil.infradead.org>
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="EzeTgs+u"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CDDCA222C7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mykernel.net
+Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
+Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
+	by lists.ozlabs.org (Postfix) with ESMTP id 47HPKz6nrDzDqXM
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 22:51:19 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=mykernel.net (client-ip=124.251.121.247;
+ helo=sender2.zoho.com.cn; envelope-from=cgxu519@mykernel.net;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=none (p=none dis=none) header.from=mykernel.net
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=mykernel.net header.i=cgxu519@mykernel.net
+ header.b="EzeTgs+u"; dkim-atps=neutral
+X-Greylist: delayed 764 seconds by postgrey-1.36 at bilbo;
+ Tue, 19 Nov 2019 22:51:04 AEDT
+Received: from sender2.zoho.com.cn (sender3-of-o52.zoho.com.cn
+ [124.251.121.247])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47HPKh1ZMMzDqMd
+ for <linux-erofs@lists.ozlabs.org>; Tue, 19 Nov 2019 22:51:01 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1574164253; 
+ s=zohomail; d=mykernel.net; i=cgxu519@mykernel.net;
+ h=From:To:Cc:Message-ID:Subject:Date:MIME-Version:Content-Transfer-Encoding:Content-Type;
+ l=865; bh=+FwHwfxfCC02esvMwBIpiezVL59KIt/RyeILg7L7HdU=;
+ b=EzeTgs+udigUBc3x4SreYE86cHePJThYfak062WykuFUFMMmlrz3bucj7Z+SICQu
+ vdMhj8aP8xPJp/fXBqyap+xmSI5smXK/w1k0Lxg+86cmarFX9sb0W5DaSYXW5mTbd8X
+ g3zsJJIomHGw93I5DDPDiBYly9rsvlQLosu8idIw=
+Received: from localhost.localdomain (218.18.229.179 [218.18.229.179]) by
+ mx.zoho.com.cn with SMTPS id 1574164251601930.7687279860228;
+ Tue, 19 Nov 2019 19:50:51 +0800 (CST)
+From: Chengguang Xu <cgxu519@mykernel.net>
+To: xiang@kernel.org,
+	chao@kernel.org
+Message-ID: <20191119115049.3401-1-cgxu519@mykernel.net>
+Subject: [PATCH] erofs: remove unnecessary output in erofs_show_options()
+Date: Tue, 19 Nov 2019 19:50:49 +0800
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191114220015.GA20752@bombadil.infradead.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Mailer: WebService/1.1.14728 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
-Sender: linux-fsdevel-owner@vger.kernel.org
-Precedence: bulk
-List-ID: <linux-fsdevel.vger.kernel.org>
-X-Mailing-List: linux-fsdevel@vger.kernel.org
-Message-ID: <20191115004514.7TIkSUorgDEJ1mSCFfH9qKOYaZdNvM25NmyXBmLV6_0@z>
+Content-Transfer-Encoding: quoted-printable
+X-ZohoCNMailClient: External
+Content-Type: text/plain; charset=utf8
+X-BeenThere: linux-erofs@lists.ozlabs.org
+X-Mailman-Version: 2.1.29
+Precedence: list
+List-Id: Development of Linux EROFS file system <linux-erofs.lists.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linux-erofs>,
+ <mailto:linux-erofs-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linux-erofs/>
+List-Post: <mailto:linux-erofs@lists.ozlabs.org>
+List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
+ <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Chengguang Xu <cgxu519@mykernel.net>, linux-erofs@lists.ozlabs.org
+Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
+Sender: "Linux-erofs"
+ <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Dan and Matthew,
+We have already handled cache_strategy option carefully,
+so incorrect setting could not pass option parsing.
+Meanwhile, print 'cache_strategy=3D(unknown)' can cause
+failure on remount.
 
-On Thu, Nov 14, 2019 at 02:00:15PM -0800, Matthew Wilcox wrote:
-> On Thu, Nov 14, 2019 at 10:10:03PM +0300, Dan Carpenter wrote:
-> > 	fs/erofs/zdata.c:443 z_erofs_register_collection()
-> > 	error: double unlocked 'cl->lock' (orig line 439)
-> > 
-> > fs/erofs/zdata.c
-> >    432          cl = z_erofs_primarycollection(pcl);
-> >    433          cl->pageofs = map->m_la & ~PAGE_MASK;
-> >    434  
-> >    435          /*
-> >    436           * lock all primary followed works before visible to others
-> >    437           * and mutex_trylock *never* fails for a new pcluster.
-> >    438           */
-> >    439          mutex_trylock(&cl->lock);
-> >                 ^^^^^^^^^^^^^^^^^^^^^^^^
-> >    440  
-> >    441          err = erofs_register_workgroup(inode->i_sb, &pcl->obj, 0);
-> >    442          if (err) {
-> >    443                  mutex_unlock(&cl->lock);
-> >                         ^^^^^^^^^^^^^^^^^^^^^^^
-> > How can we unlock if we don't know that the trylock succeeded?
-> 
-> The comment says it'll always succeed.  That said, this is an uncommon
-> pattern -- usually we just mutex_lock().  If there's a good reason to use
-> mutex_trylock() instead, then I'd prefer it to be guarded with a BUG_ON.
->
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+---
+ fs/erofs/super.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-I think there is no actual problem here. If I am wrong, please kindly point out.
-The selected code snippet is too short. The current full code is
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 06e721bd1c8c..65c7da996643 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -581,9 +581,6 @@ static int erofs_show_options(struct seq_file *seq, str=
+uct dentry *root)
+ =09=09seq_puts(seq, ",cache_strategy=3Dreadahead");
+ =09} else if (sbi->cache_strategy =3D=3D EROFS_ZIP_CACHE_READAROUND) {
+ =09=09seq_puts(seq, ",cache_strategy=3Dreadaround");
+-=09} else {
+-=09=09seq_puts(seq, ",cache_strategy=3D(unknown)");
+-=09=09DBG_BUGON(1);
+ =09}
+ #endif
+ =09return 0;
+--=20
+2.20.1
 
-static struct z_erofs_collection *clregister(struct z_erofs_collector *clt,
-					     struct inode *inode,
-					     struct erofs_map_blocks *map)
-{
-	struct z_erofs_pcluster *pcl;
-	struct z_erofs_collection *cl;
-	int err;
 
-	/* no available workgroup, let's allocate one */
-	pcl = kmem_cache_alloc(pcluster_cachep, GFP_NOFS);
-	if (!pcl)
-		return ERR_PTR(-ENOMEM);
-
-^ Note that this is a new object here, which is guaranteed that the lock
-was always unlocked with the last free (and it firstly inited in init_once).
-
-	z_erofs_pcluster_init_always(pcl);
-
-	pcl->obj.index = map->m_pa >> PAGE_SHIFT;
-
-	pcl->length = (map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) |
-		(map->m_flags & EROFS_MAP_FULL_MAPPED ?
-			Z_EROFS_PCLUSTER_FULL_LENGTH : 0);
-
-	if (map->m_flags & EROFS_MAP_ZIPPED)
-		pcl->algorithmformat = Z_EROFS_COMPRESSION_LZ4;
-	else
-		pcl->algorithmformat = Z_EROFS_COMPRESSION_SHIFTED;
-
-	pcl->clusterbits = EROFS_I(inode)->z_physical_clusterbits[0];
-	pcl->clusterbits -= PAGE_SHIFT;
-
-	/* new pclusters should be claimed as type 1, primary and followed */
-	pcl->next = clt->owned_head;
-	clt->mode = COLLECT_PRIMARY_FOLLOWED;
-
-	cl = z_erofs_primarycollection(pcl);
-	cl->pageofs = map->m_la & ~PAGE_MASK;
-
-	/*
-	 * lock all primary followed works before visible to others
-	 * and mutex_trylock *never* fails for a new pcluster.
-	 */
-	mutex_trylock(&cl->lock);
-
-^ That was simply once guarded by BUG_ON, but checkpatch.pl raised a warning,
-I can use DBG_BUGON here instead.
-
-	err = erofs_register_workgroup(inode->i_sb, &pcl->obj, 0);
-	if (err) {
-		mutex_unlock(&cl->lock);
-
-^ free with unlock as a convention as one example above.
-
-		kmem_cache_free(pcluster_cachep, pcl);
-		return ERR_PTR(-EAGAIN);
-	}
-
-Thanks,
-Gao Xiang
 
