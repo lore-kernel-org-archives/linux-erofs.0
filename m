@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26EA1C432C0
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DB7C432C0
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:54:00 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CDDCA222C7
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:51:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id A8E4120409
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 11:53:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="EzeTgs+u"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CDDCA222C7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="HRei90L1"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A8E4120409
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mykernel.net
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47HPKz6nrDzDqXM
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 22:51:19 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 47HPP15HWMzDqfV
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2019 22:53:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=mykernel.net (client-ip=124.251.121.247;
  helo=sender2.zoho.com.cn; envelope-from=cgxu519@mykernel.net;
@@ -30,31 +30,29 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=mykernel.net
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=mykernel.net header.i=cgxu519@mykernel.net
- header.b="EzeTgs+u"; dkim-atps=neutral
-X-Greylist: delayed 764 seconds by postgrey-1.36 at bilbo;
- Tue, 19 Nov 2019 22:51:04 AEDT
+ header.b="HRei90L1"; dkim-atps=neutral
 Received: from sender2.zoho.com.cn (sender3-of-o52.zoho.com.cn
  [124.251.121.247])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47HPKh1ZMMzDqMd
- for <linux-erofs@lists.ozlabs.org>; Tue, 19 Nov 2019 22:51:01 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1574164253; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47HPNr4fNtzDqSJ
+ for <linux-erofs@lists.ozlabs.org>; Tue, 19 Nov 2019 22:53:47 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1574163487; 
  s=zohomail; d=mykernel.net; i=cgxu519@mykernel.net;
  h=From:To:Cc:Message-ID:Subject:Date:MIME-Version:Content-Transfer-Encoding:Content-Type;
- l=865; bh=+FwHwfxfCC02esvMwBIpiezVL59KIt/RyeILg7L7HdU=;
- b=EzeTgs+udigUBc3x4SreYE86cHePJThYfak062WykuFUFMMmlrz3bucj7Z+SICQu
- vdMhj8aP8xPJp/fXBqyap+xmSI5smXK/w1k0Lxg+86cmarFX9sb0W5DaSYXW5mTbd8X
- g3zsJJIomHGw93I5DDPDiBYly9rsvlQLosu8idIw=
+ l=2406; bh=/8ArbtqDhV7Au/5Cc+zTy1j2h2/Ou6c99jthu04QpZw=;
+ b=HRei90L1k8QzHJ08yd0O913RhsZtA69Xp235uxxFllrmAiXRtI1k/+XybCNChLUq
+ eEI+dZopyLUfXzFsz/vFYZnupLtStmX0nTLj/zf4s7yaV2y6R1Jp+9eIILVwniGkccZ
+ /0F93szSdIlpflgFWbw1rwIGP4nIQZj3efXEwR8c=
 Received: from localhost.localdomain (218.18.229.179 [218.18.229.179]) by
- mx.zoho.com.cn with SMTPS id 1574164251601930.7687279860228;
- Tue, 19 Nov 2019 19:50:51 +0800 (CST)
+ mx.zoho.com.cn with SMTPS id 1574163483865672.5481841663604;
+ Tue, 19 Nov 2019 19:38:03 +0800 (CST)
 From: Chengguang Xu <cgxu519@mykernel.net>
 To: xiang@kernel.org,
 	chao@kernel.org
-Message-ID: <20191119115049.3401-1-cgxu519@mykernel.net>
-Subject: [PATCH] erofs: remove unnecessary output in erofs_show_options()
-Date: Tue, 19 Nov 2019 19:50:49 +0800
+Message-ID: <20191119113744.11635-1-cgxu519@mykernel.net>
+Subject: [PATCH] erofs: add error handling for erofs_fill_super()
+Date: Tue, 19 Nov 2019 19:37:44 +0800
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -76,31 +74,92 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-We have already handled cache_strategy option carefully,
-so incorrect setting could not pass option parsing.
-Meanwhile, print 'cache_strategy=3D(unknown)' can cause
-failure on remount.
+There are some potential resource leaks in error case
+of erofs_fill_super(), so add proper error handling
+for it.
 
 Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
 ---
- fs/erofs/super.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/erofs/super.c | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 06e721bd1c8c..65c7da996643 100644
+index 0e369494f2f2..06e721bd1c8c 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -581,9 +581,6 @@ static int erofs_show_options(struct seq_file *seq, str=
-uct dentry *root)
- =09=09seq_puts(seq, ",cache_strategy=3Dreadahead");
- =09} else if (sbi->cache_strategy =3D=3D EROFS_ZIP_CACHE_READAROUND) {
- =09=09seq_puts(seq, ",cache_strategy=3Dreadaround");
--=09} else {
--=09=09seq_puts(seq, ",cache_strategy=3D(unknown)");
--=09=09DBG_BUGON(1);
+@@ -369,7 +369,7 @@ static int erofs_fill_super(struct super_block *sb, voi=
+d *data, int silent)
+ =09sb->s_fs_info =3D sbi;
+ =09err =3D erofs_read_superblock(sb);
+ =09if (err)
+-=09=09return err;
++=09=09goto free;
+=20
+ =09sb->s_flags |=3D SB_RDONLY | SB_NOATIME;
+ =09sb->s_maxbytes =3D MAX_LFS_FILESIZE;
+@@ -385,7 +385,7 @@ static int erofs_fill_super(struct super_block *sb, voi=
+d *data, int silent)
+=20
+ =09err =3D erofs_parse_options(sb, data);
+ =09if (err)
+-=09=09return err;
++=09=09goto free;
+=20
+ =09if (test_opt(sbi, POSIX_ACL))
+ =09=09sb->s_flags |=3D SB_POSIXACL;
+@@ -398,29 +398,44 @@ static int erofs_fill_super(struct super_block *sb, v=
+oid *data, int silent)
+=20
+ =09/* get the root inode */
+ =09inode =3D erofs_iget(sb, ROOT_NID(sbi), true);
+-=09if (IS_ERR(inode))
+-=09=09return PTR_ERR(inode);
++=09if (IS_ERR(inode)) {
++=09=09err =3D PTR_ERR(inode);
++=09=09goto free;
++=09}
+=20
+ =09if (!S_ISDIR(inode->i_mode)) {
+ =09=09erofs_err(sb, "rootino(nid %llu) is not a directory(i_mode %o)",
+ =09=09=09  ROOT_NID(sbi), inode->i_mode);
+ =09=09iput(inode);
+-=09=09return -EINVAL;
++=09=09err =3D -EINVAL;
++=09=09goto free;
  =09}
- #endif
+=20
+ =09sb->s_root =3D d_make_root(inode);
+-=09if (!sb->s_root)
+-=09=09return -ENOMEM;
++=09if (!sb->s_root) {
++=09=09err =3D -ENOMEM;
++=09=09goto free;
++=09}
+=20
+ =09erofs_shrinker_register(sb);
+ =09/* sb->s_umount is already locked, SB_ACTIVE and SB_BORN are not set */
+ =09err =3D erofs_init_managed_cache(sb);
+ =09if (err)
+-=09=09return err;
++=09=09goto free_root_inode;
+=20
+ =09erofs_info(sb, "mounted with opts: %s, root inode @ nid %llu.",
+ =09=09   (char *)data, ROOT_NID(sbi));
++
  =09return 0;
++
++free_root_inode:
++=09dput(sb->s_root);
++=09sb->s_root =3D NULL;
++=09erofs_shrinker_unregister(sb);
++free:
++=09kfree(sbi);
++=09sb->s_fs_info =3D NULL;
++=09return err;
+ }
+=20
+ static struct dentry *erofs_mount(struct file_system_type *fs_type, int fl=
+ags,
 --=20
 2.20.1
 
