@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A98FC432C0
-	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E70C432C0
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:57 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B066D2243F
-	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 0958F2243E
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 10:23:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="HZwdBTz3"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B066D2243F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="Ul2YIIFZ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0958F2243E
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mykernel.net
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47HzLZ2GgSzDqrC
-	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 21:23:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 47HzLf6GwczDqsH
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 Nov 2019 21:23:54 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=mykernel.net (client-ip=163.53.93.251;
  helo=sender3-pp-o92.zoho.com.cn; envelope-from=cgxu519@mykernel.net;
@@ -29,29 +29,27 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=mykernel.net
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=mykernel.net header.i=cgxu519@mykernel.net
- header.b="HZwdBTz3"; dkim-atps=neutral
-X-Greylist: delayed 912 seconds by postgrey-1.36 at bilbo;
- Wed, 20 Nov 2019 21:23:37 AEDT
+ header.b="Ul2YIIFZ"; dkim-atps=neutral
 Received: from sender3-pp-o92.zoho.com.cn (sender2-pp-o92.zoho.com.cn
  [163.53.93.251])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47HzLK703SzDqKT
- for <linux-erofs@lists.ozlabs.org>; Wed, 20 Nov 2019 21:23:36 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1574244490; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47HzLL39RPzDqlL
+ for <linux-erofs@lists.ozlabs.org>; Wed, 20 Nov 2019 21:23:37 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1574244492; 
  s=zohomail; d=mykernel.net; i=cgxu519@mykernel.net;
  h=Date:From:Reply-To:To:Cc:Message-ID:In-Reply-To:References:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding;
  l=1333; bh=bI+cc8z3jGP2wVdb3YVmvSegQAtFB1j54+rsC4ghiRs=;
- b=HZwdBTz3XvGCjxDM6QZnyRQUaCC+nC4cUBoPKm+TiN0a6dqdrHeqeC1hezSdPdj3
- DHcv/3UA/Gbb44DaRVRRm0Iv9b/NEZQcPKrYkGtlBwXNbINsxYg4F8tHeES2NZH2qgF
- 9PC5FM/A5Lc+opOV2VQv6Yl0DMfFxPw1cN+C3LQs=
+ b=Ul2YIIFZaPzzDDW47Hp3RK5xvXlDOLXlTNJ3EHSQwk3WZg7obFLBJGWP9aiA5Z+L
+ QuxBwP+Pr4TlQrB4uxMta5dLsUtbOIjnLS8xLqw4YLk8Bq7nxAYwJwMtAe9k9EwO8DX
+ WMAXYHXk8Tz7RP/9etZSIu8X6+kHr0ZgyGhDV98Y=
 Received: from mail.baihui.com by mx.zoho.com.cn
- with SMTP id 1574244487566843.4047643616209;
- Wed, 20 Nov 2019 18:08:07 +0800 (CST)
-Date: Wed, 20 Nov 2019 18:08:07 +0800
+ with SMTP id 1574244491265376.2364367640208;
+ Wed, 20 Nov 2019 18:08:11 +0800 (CST)
+Date: Wed, 20 Nov 2019 18:08:11 +0800
 From: Chengguang Xu <cgxu519@mykernel.net>
 To: "Gao Xiang" <gaoxiang25@huawei.com>
-Message-ID: <16e88489188.c48b2350794.7964821448665443701@mykernel.net>
+Message-ID: <16e88489ffe.10e665830795.7449424624832388952@mykernel.net>
 In-Reply-To: <20191119125328.GA86789@architecture4>
 References: <20191119113744.11635-1-cgxu519@mykernel.net>
  <20191119125328.GA86789@architecture4>
