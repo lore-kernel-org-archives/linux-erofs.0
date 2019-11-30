@@ -2,38 +2,39 @@ Return-Path: <SRS0=12hX=ZW=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70908C432C0
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 01:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51BE8C432C0
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 02:13:29 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1378A217BC
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 01:29:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id F210120869
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 02:13:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="Ge35gXJf";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="PJlZyWS8"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1378A217BC
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="O1Ez1SvA";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="fGBs4IPV"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F210120869
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47Pv1P6vRFzDrDp
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 12:29:29 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 47Pw070yH0zDrCv
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 13:13:27 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1575077370;
-	bh=YlcAMHHVpZU/vtinfRE7Q4o1IKm5FuA/UG8HR/b5EsE=;
+	s=201707; t=1575080007;
+	bh=VBMEi3vnzgFFJii6Egz4jAIv728J2n19vO76brLUAPw=;
 	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=Ge35gXJfpw9ZEZw3ZR+sCY+DutUQe3j2qf/iW6Sq0RBzkBs5q0ZJ1tqdFmj/8nisQ
-	 ToDN3j60C03pZFppc4smNqWc2N+zhk8UU5CXPVJMSdLLZYmKwifbbK0jGNSdC52S1Y
-	 VNtlZ1Np+a7qR0leKne6xNGFFBHLXEvEvdeOKGIQlTevb81kdKt8U2BxmJEIIj8JqI
-	 KKTYNu5QzVB7EhaAWD88xg/FvL2H3rAXMYPodAIdlESpStPOHYGyvsThM1jk0CEniW
-	 lAwV/q4yLQ8WkGmGHLWI9xNHfA8ZTbXbgCojbqca3BSzPMBrCQ5+D3L9I1QsPxZw/E
-	 jM2GErYSWViAw==
+	b=O1Ez1SvA3jVIBf9NW0g27uRiJf4Fdy6lwrLFpo5hB++nteKxtKPzvs0XhzGCI5wGN
+	 9mD3ceQWTivhSTaz5Jro8k7TEPEAuJPs+vDm//1BsHxwqGThnBShx8GSnaTEBfU7BO
+	 hAPXl8sr4W/J9ic3vuKKDVGTamyen4ArQpbwGTlSQipLuo8rARW5oMMrn3hIde23DZ
+	 Mn0alx/MuXKVn0A0p3tT177QzV7A1D4qPCUEJZSAP19cTCrRpdpkyoDMYMwVBXAfxl
+	 cJ1s7vrtUBv42WSnyi1acpSmLsJHTNlGar+DMWUk0tChPydi0BU2xQC0FkRe8ETwm5
+	 qEaP/gMsy6x+Q==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
  (client-ip=98.137.69.31; helo=sonic316-55.consmr.mail.gq1.yahoo.com;
@@ -41,52 +42,53 @@ Authentication-Results: lists.ozlabs.org;
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.b="PJlZyWS8"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="fGBs4IPV"; 
  dkim-atps=neutral
 Received: from sonic316-55.consmr.mail.gq1.yahoo.com
  (sonic316-55.consmr.mail.gq1.yahoo.com [98.137.69.31])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47Pv1C3j9WzDr7f
- for <linux-erofs@lists.ozlabs.org>; Sat, 30 Nov 2019 12:29:17 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47Pw004pLdzDqQb
+ for <linux-erofs@lists.ozlabs.org>; Sat, 30 Nov 2019 13:13:18 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1575077353; bh=VKpqIjbH76/NLT3a5CjirIh27LyU7i5S4NjPigLdMdQ=;
+ t=1575079995; bh=iytEh24ZU3TS0cV8jzx8tCOHWf4jvxf9DH4Gr4yJ/lk=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=PJlZyWS8yBdnSYNOi1ToNZqLPskBf6wryE6VKRiG2geafms9qTwiB5we2lhaBrZ/eI+Yn0hpw2WeGmy9D9THI+9AmAMtZlaaz6u3weEJ9ZMay9kJiw2WlwtUJQB1goNatweizVwgSOx9Tr8dVKQ0Mt4d24DHsCcnyQvoW0kA2Z8+LlofG63hPpe3D7rgNE2y9NOTMVVtjTUxHHl9GRzkGPqXkLlYAtnV6YlXO1cRpzp3WBTsoRVWP8RrXJhRzs5hP5drURu7YGD0GLOyzcWQ/cf9qItzXto9duWL+PFndi7SuUiybRSz4f+YT3A4887EWPLVGAQZa8YthHiW4g20kg==
-X-YMail-OSG: FcrT0GkVM1m.eh6WrOzTNNXDPUKTT9VQ5vKC5l4qz_J8bg0jdwvH3FyOLAmedLZ
- KjrVH_6.BaxAzQ3WSFEPnnzj0jPaIhRaqCR5C1Hfqs70hhLZoM.EoVxiWGk9AilSS7lGAYapwkiH
- cWx1zivsGENQcbQXcKj4k5x76cFeDC2nUHHUlPSI7gY8p32knEzuEsG29U3fdPpVET83COTAndp7
- sTDseN1xoZrcf9wzHKH_YDCzh9rAjPPadLE8hmHOIzaJ_cbhwKd5aSyqvb9_DuE4XQPUYC77HnL.
- xtWlVvpBuqw8EwdrOtX9.IWyBSb1Zi2BbOOLN2DtcshhPtZsX_OVs.urUhXhQomICaSu6x7W9X1d
- g2RpGjyDrSq3tV1yWPJz3gqYzdtoQBg_Y56fJR4vlPgKTx7Q_uZdQmWGb0MDtwIhF8MzVhUmbGsp
- Diz.OwoqGXlIQF0jR0J6MRCgwinphQ7gi_AoFVLB7jFEDsHHMb0q6ZPF0CznW1Si2H5O3Zhym7It
- aeB0eSjTO09B8SGhAH1Q9Z2m9sWCluOTsTXoMMz9FLUZxWs58rFFYOcOsQTayksSQAPx3mOqzVXq
- wwuamMaF7utFD3L6fyVcU2I_qMRKPv_99gQubxAI_aIMJxd5_jx_s.XWpqcidq3rL1Lcn3N4ojxg
- u2yvbhIveooMrab0vQJCXINecQJDfthjjE6PBW7rAJ55t24.MuSZdAa1D893kXyoxVBuYElJjQI9
- V.xe3JcwZ7m879gG1SJmd4ZqMjuycRNP73zkwZppts6mVEngEQkI0.2V0EV_siX6P6yUgNgiD.78
- cEvyMOrgA5g9omFXTiZ68jMkvZeeO.DcGHYmFi118zOz7PcYMJyTvIXzEdtKsSB5NUJbayBAru__
- CCRG2lRa90prlGbUknt8DCSdwe1dhDfeUbxTDdYT6nUBELJSCIMpAPi8kgOmFbx1fbRtuS8X13fr
- 1zq.xLWZK3XDk4B3__ntc0ZtJRMOd9ftwCpGFdaZZxAVFWLO6lSBPNh98jiMFp.ljn5BOtvK6b6P
- GyuEW1AzLMTp0BK.4AsTkK5t3TX06Ks6y7FJKYHXT.K8kDjEeAiYQh7VKq88Fg6e_iiC17Ryrup2
- N_Vrml1b_ZXGrRdP6fY.QZLoMpEErM.kQdGzfafATrznNDhqEO07f8LuhUH1ZKZSw5CuQP0CmSSe
- yCkqXRrHGBU6dwE_1BOb8jvl2nsBbe5ptLW6m1jlYXMgF8HnHPi6xJbQ1YbcJbKWJmEL.E7r_eiG
- kvpOhTdovUTXmRJHlOP7QWTL4xasAPOAPXebRLoAUMIBV_SK3PP2hmQeKOVeZATplcmqL7XoHfeB
- v5O5dDcRYHg3yhiXaWj8OZXWQcJ6WBcpLGTm6.S0wrGVFw9DPJuGsHwP36MZqbxIyKmaYmDm2ugX
- FcEwu
+ b=fGBs4IPVDzQNCQg95kXS7FzaQeekN1LG/GnGlQ0lmHRGIFgTmYZCraBvDb31QrMZ/iBGVuLqWdPXf2MpUddHcEqc03zzOjK5kLaLcYZSP6R3meKxoNDBwdZCzMotmxEuO+gNWTUmRvbSHp+7vXYK+lP4ruOV1o5iot8gyKOfJ7h8YolNsFuYnhRvrWT5YdiORxdojEiswNdkphCeXltO89a1/RaZJWDE1+/wec6jF8aqR/0sS73w6utrn6c/HlbiqPiler0Eq2/BnjPMQPQgwbj5pt/4oltl9Cn+BKfbGgLXIZWJAY2GuOYC7cD0nNXWHbDmnn4ovNWu9uZEe4Q6rQ==
+X-YMail-OSG: Z.IHe9YVM1mofGXJE2VClsqwrAFvGpqlhMBLGpa83naKcRrhIhdo.UxEYkD5W8C
+ NQEoHoLWSzGNOfj9b.XunNvKD7QH9zd_mxpW7Qz075CYK8LFl4ELrHIzxGFnWBIH99aSUjeHDOJi
+ GoQee72uamo0ukX5wm3A2XKV.5gU7Q3yIIQ2edA9cs1zdnALJM3p7OUAQ8Mkqf4ak8BQORagIHzu
+ O__b1zGwjcTZtxaRH_U.n5dIhMrsjqx21EIl5QZ82KFcB1ehIvh3RjVhdcvAGv8pa6NG_vKsqW97
+ 2le9Sw2FYLXvhMpZQNitSYNdFMWFJSWFAnBqjEn715gbqBOnSqYLSuQYaZN7F9EjLuiA.ClmbVMj
+ bGSBrzr7P8TmzLd0lhSdqHR5f_FjQ7ucU1aT16hTvTg9isXTJurSoO_OePLTQIgTHmdOQODXqLRQ
+ BrD69OpUgC4MGKD2Ly0G_JFliLrSIwYOA7R1r0TGT2Gs5bqquwO32t_9E20Yv_dqg167KUurwddT
+ CkR6.UKC.LFcsmMy3uWE7mOdVy.QS5P7Peq6m3qoRHrWhfqQLj.2KMiAsxO3THsnMlOSrEOLsVVQ
+ WktZNvUUN0IbJJvGGZmCu3pHQQUOEgentCRcIxU1zvgyr5fzDdfHI_rpbL53D_QR7UJFae0sgi2z
+ xIru8ktUPsJ7lU4Mw34f50l4ZJZOIfPzw7LFv3MOUHR9WYfyBg21aFoIFbVD5FWGQ14X9z7FeXmL
+ MGbjdLc1aVjf40t62ISmDw_t_dqtH.9r7UIadegGT4q4_6KmL_n__yQnHABUCGAfTErC2ldeg8K5
+ SUTjHKUbTv9Tz5m7iBW.B6Ce.Fuoex5UjNGIXi_ah_UcHj1ZxGRIxmXgIVFgVIWmetTyeig9zz1j
+ HgyaZ3ROzBTOJ.gS8BCIlb5zVtddBHq6MAB62JvC_S6A3ynQwCKtpHCqCxbxVZotSea9LyKh9F7r
+ eA94rIhVE9qi8tNx5d01UJ5633l6ZxPx8EMTLyPmLckWZNjDDVn3uezJFjqjC_11mkVWfKIB5ulh
+ 4EWxM7RlSMJ3ok1geypm4m1OnuZA.humZXjL04VB5.E.obStzHm4dHJhgUpwsyLTMVZ_ALwgYXfK
+ zAHCDqJKZFKOd_vwRMeqQ2a5hPYCy6zZ.fNjpb1snT6I_.ntuyHOXwGP8GIeDabyAcYHwvBeG4Ea
+ m2zqWfWvnJEdmXXi760zjtmNcA9ho6j3vur7oQisrLHdSvtfbHNGFXIg9RoTY9aqY6g.Y1J6yGOn
+ BOFJiWGWo72IRlPU4DNOj4Emql9UjKdWfwMfbRxwYyauHKTOx.FLViKafj_aPmlPgStLhQ2CqOuZ
+ 3eicksOCQjIOdaO5ekDMaQ5cou6WJGu.2WJJLJCb.Csjx_iADoQlVMS3JMYvk9sZ_qdL_MiigbO7
+ WGLE-
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sat, 30 Nov 2019 01:29:13 +0000
-Received: by smtp420.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 990a34f2ac92cce4f76f378668ee19cc; 
- Sat, 30 Nov 2019 01:29:08 +0000 (UTC)
-Date: Sat, 30 Nov 2019 09:29:04 +0800
+ sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sat, 30 Nov 2019 02:13:15 +0000
+Received: by smtp426.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 705feddb06ed89f0936f2dd0cfdc3563; 
+ Sat, 30 Nov 2019 02:13:13 +0000 (UTC)
+Date: Sat, 30 Nov 2019 10:13:07 +0800
 To: David Michael <fedora.dm0@gmail.com>
 Subject: Re: Compatibility with overlayfs
-Message-ID: <20191130012900.GA2862@hsiangkao-HP-ZHAN-66-Pro-G1>
+Message-ID: <20191130021257.GA5562@hsiangkao-HP-ZHAN-66-Pro-G1>
 References: <CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com>
+ <20191130012900.GA2862@hsiangkao-HP-ZHAN-66-Pro-G1>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com>
+In-Reply-To: <20191130012900.GA2862@hsiangkao-HP-ZHAN-66-Pro-G1>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-Mailer: WebService/1.1.14728 hermes Apache-HttpAsyncClient/4.1.4
  (Java/1.8.0_181)
@@ -108,32 +110,75 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi David,
-
-On Fri, Nov 29, 2019 at 03:22:15PM -0500, David Michael wrote:
-> Hi,
+On Sat, Nov 30, 2019 at 09:29:04AM +0800, Gao Xiang via Linux-erofs wrote:
+> Hi David,
 > 
-> I tried to test EROFS on Linux 5.4 as the root file system and mounted
-> a writable overlay (with upper layer on tmpfs) over /etc, but I get
-> ENODATA errors when attempting to modify files.  For example, adding a
-> user results in "Failed to take /etc/passwd lock: No data available".
-> Files can be modified after unlinking and restoring them so they're
-> created on the upper layer.  This is not necessary with other
-> read-only file systems (at least squashfs or ext4 with the read-only
-> feature).  I tried while forcing compact and extended inodes.
+> On Fri, Nov 29, 2019 at 03:22:15PM -0500, David Michael wrote:
+> > Hi,
+> > 
+> > I tried to test EROFS on Linux 5.4 as the root file system and mounted
+> > a writable overlay (with upper layer on tmpfs) over /etc, but I get
+> > ENODATA errors when attempting to modify files.  For example, adding a
+> > user results in "Failed to take /etc/passwd lock: No data available".
+> > Files can be modified after unlinking and restoring them so they're
+> > created on the upper layer.  This is not necessary with other
+> > read-only file systems (at least squashfs or ext4 with the read-only
+> > feature).  I tried while forcing compact and extended inodes.
+> > 
+> > Is EROFS intended to be usable as a lower layer with overlayfs?
 > 
-> Is EROFS intended to be usable as a lower layer with overlayfs?
-
-Yes, and overlayfs were used on our smartphones for development use
-only as well. I think it's weird, I will try it on the latest kernel
-now, and see if I can reproduce this issue soon...
-
-Thanks for your report!
-
-Thanks,
-Gao Xiang
-
+> Yes, and overlayfs were used on our smartphones for development use
+> only as well. I think it's weird, I will try it on the latest kernel
+> now, and see if I can reproduce this issue soon...
 > 
-> Thanks.
+> Thanks for your report!
 > 
-> David
+> Thanks,
+> Gao Xiang
+
+I have reproduced this issue -- That is due to erofs will return an
+unexpected -ENODATA when calling listxattr without xattr and cause
+copy_up fail:
+
+int ovl_copy_xattr(struct dentry *old, struct dentry *new)
+{
+	ssize_t list_size, size, value_size = 0;
+	char *buf, *name, *value = NULL;
+	int uninitialized_var(error);
+	size_t slen;
+
+	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+	    !(new->d_inode->i_opflags & IOP_XATTR))
+		return 0;
+
+	list_size = vfs_listxattr(old, NULL, 0);  <- no xattr
+	if (list_size <= 0) {
+		if (list_size == -EOPNOTSUPP)
+			return 0;
+		return list_size;    <- will return -ENODATA
+	}
+
+since our products using xattr enabled EROFS with overlayfs,
+so we didn't observe this issue before. So could you try
+the following patch (If it can resolve the issue, I will
+send it for 5.5-rc2 and backport to all stable version)?
+Look forward to your feekback.
+
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index a13a78725c57..dd328c87dda7 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -649,8 +649,11 @@ ssize_t erofs_listxattr(struct dentry *dentry,
+ 	struct listxattr_iter it;
+ 
+ 	ret = init_inode_xattrs(d_inode(dentry));
+-	if (ret)
++	if (ret) {
++		if (ret == -ENODATA)
++			return 0;
+ 		return ret;
++	}
+ 
+ 	it.dentry = dentry;
+ 	it.buffer = buffer;
+
