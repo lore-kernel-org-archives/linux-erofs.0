@@ -1,77 +1,95 @@
-Return-Path: <SRS0=V3BH=ZV=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=12hX=ZW=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED258C432C3
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Nov 2019 20:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70908C432C0
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 01:29:32 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8F8B121721
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Nov 2019 20:22:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1378A217BC
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 01:29:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E8gwu6NP"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F8B121721
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="Ge35gXJf";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="PJlZyWS8"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1378A217BC
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 47PmCQ3XXbzDrH6
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 07:22:42 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::435;
- helo=mail-wr1-x435.google.com; envelope-from=fedora.dm0@gmail.com;
- receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 47Pv1P6vRFzDrDp
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Nov 2019 12:29:29 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1575077370;
+	bh=YlcAMHHVpZU/vtinfRE7Q4o1IKm5FuA/UG8HR/b5EsE=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=Ge35gXJfpw9ZEZw3ZR+sCY+DutUQe3j2qf/iW6Sq0RBzkBs5q0ZJ1tqdFmj/8nisQ
+	 ToDN3j60C03pZFppc4smNqWc2N+zhk8UU5CXPVJMSdLLZYmKwifbbK0jGNSdC52S1Y
+	 VNtlZ1Np+a7qR0leKne6xNGFFBHLXEvEvdeOKGIQlTevb81kdKt8U2BxmJEIIj8JqI
+	 KKTYNu5QzVB7EhaAWD88xg/FvL2H3rAXMYPodAIdlESpStPOHYGyvsThM1jk0CEniW
+	 lAwV/q4yLQ8WkGmGHLWI9xNHfA8ZTbXbgCojbqca3BSzPMBrCQ5+D3L9I1QsPxZw/E
+	 jM2GErYSWViAw==
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=gmail.com
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=98.137.69.31; helo=sonic316-55.consmr.mail.gq1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.b="E8gwu6NP"; 
+ unprotected) header.d=aol.com header.i=@aol.com header.b="PJlZyWS8"; 
  dkim-atps=neutral
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com
- [IPv6:2a00:1450:4864:20::435])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from sonic316-55.consmr.mail.gq1.yahoo.com
+ (sonic316-55.consmr.mail.gq1.yahoo.com [98.137.69.31])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 47PmCK4Q4SzDr3h
- for <linux-erofs@lists.ozlabs.org>; Sat, 30 Nov 2019 07:22:33 +1100 (AEDT)
-Received: by mail-wr1-x435.google.com with SMTP id c14so11980795wrn.7
- for <linux-erofs@lists.ozlabs.org>; Fri, 29 Nov 2019 12:22:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:from:date:message-id:subject:to;
- bh=XvG6ZbXzmAcc5v4vD2yyLi9mBlhe0pjhbt9CQkgsIMg=;
- b=E8gwu6NPV8X7yZC+pdOq5N4ELqAHlb8j9N28N8t+QbV1cYkNmFnRLPFAOaQH6HOQD1
- gO28bYGfo+hBJpS1NnklZ9f8ltgFG1pR/B4aEJw+PKvP3U/eRKdB1sAKqiDxtO/M1gjb
- aAJco8s2o9Gwn/roS9iqJHIRMbNP59GHZQlZI+YiM9a64KPX7VsoNJUUeyZtEM2YUhNl
- neRkjLiDjNHOJmbZl13TGckKPyG5FkhXfkFSX3tbsDY4ivZ30Pe6wRf4yFdItQlUcTDL
- HfrNcGJQ+ZqA0fgmG+H4E2e85OhBf2NsWjSOGe0cGjINDCbx+DqjrJvgsU44Cv6G7pY8
- YOlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
- bh=XvG6ZbXzmAcc5v4vD2yyLi9mBlhe0pjhbt9CQkgsIMg=;
- b=sJklyOn/gzJCTQQU0gDrP48fpDIWsKdk3r82MrFP/6M25l75jxmyiFlwY1WGeu3A4V
- XeIElnMFS5ZCjAgIkAJaWK1Yr/j7/xDHxUH1fgpfn1TTNR9voMsKS8MN7uTiVB7ARMK7
- UgKVzv/71iJx4iDzmwYuLW5jUNMZr1888nuhPiV84MwT+smAouFzOlNqJq8AgrLBnqlG
- toilh58RTZXu+FW4nC2nN1OGLCXpE0xMk8l0k7zkzajvAc65x1dpOE8JTNGcRVlZa0mQ
- lL8qxiTY2apazubeiNFkZs/30NMgb5YICjzMqVGU9CoG+SDU1wGpSV7dPPPP6U23HSJz
- CPVQ==
-X-Gm-Message-State: APjAAAX+xJJxvPr2pr/X+tcn8TrT4XL0elRC6Unha0Qb5K6hhBwZkUuD
- vOlSRRy1wo5E9JvEduCMe/1aLnOyomFQxPtpKtWIFKAd
-X-Google-Smtp-Source: APXvYqwP7HxAB4VR4RmyODfsOwEja4PAudG+a3B7S3AmYzZdeEcG85fbVU1gRqmULE3DAh7hKQmpFtLStv4zZ96TvBo=
-X-Received: by 2002:a05:6000:1612:: with SMTP id
- u18mr32190957wrb.306.1575058946482; 
- Fri, 29 Nov 2019 12:22:26 -0800 (PST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 47Pv1C3j9WzDr7f
+ for <linux-erofs@lists.ozlabs.org>; Sat, 30 Nov 2019 12:29:17 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1575077353; bh=VKpqIjbH76/NLT3a5CjirIh27LyU7i5S4NjPigLdMdQ=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+ b=PJlZyWS8yBdnSYNOi1ToNZqLPskBf6wryE6VKRiG2geafms9qTwiB5we2lhaBrZ/eI+Yn0hpw2WeGmy9D9THI+9AmAMtZlaaz6u3weEJ9ZMay9kJiw2WlwtUJQB1goNatweizVwgSOx9Tr8dVKQ0Mt4d24DHsCcnyQvoW0kA2Z8+LlofG63hPpe3D7rgNE2y9NOTMVVtjTUxHHl9GRzkGPqXkLlYAtnV6YlXO1cRpzp3WBTsoRVWP8RrXJhRzs5hP5drURu7YGD0GLOyzcWQ/cf9qItzXto9duWL+PFndi7SuUiybRSz4f+YT3A4887EWPLVGAQZa8YthHiW4g20kg==
+X-YMail-OSG: FcrT0GkVM1m.eh6WrOzTNNXDPUKTT9VQ5vKC5l4qz_J8bg0jdwvH3FyOLAmedLZ
+ KjrVH_6.BaxAzQ3WSFEPnnzj0jPaIhRaqCR5C1Hfqs70hhLZoM.EoVxiWGk9AilSS7lGAYapwkiH
+ cWx1zivsGENQcbQXcKj4k5x76cFeDC2nUHHUlPSI7gY8p32knEzuEsG29U3fdPpVET83COTAndp7
+ sTDseN1xoZrcf9wzHKH_YDCzh9rAjPPadLE8hmHOIzaJ_cbhwKd5aSyqvb9_DuE4XQPUYC77HnL.
+ xtWlVvpBuqw8EwdrOtX9.IWyBSb1Zi2BbOOLN2DtcshhPtZsX_OVs.urUhXhQomICaSu6x7W9X1d
+ g2RpGjyDrSq3tV1yWPJz3gqYzdtoQBg_Y56fJR4vlPgKTx7Q_uZdQmWGb0MDtwIhF8MzVhUmbGsp
+ Diz.OwoqGXlIQF0jR0J6MRCgwinphQ7gi_AoFVLB7jFEDsHHMb0q6ZPF0CznW1Si2H5O3Zhym7It
+ aeB0eSjTO09B8SGhAH1Q9Z2m9sWCluOTsTXoMMz9FLUZxWs58rFFYOcOsQTayksSQAPx3mOqzVXq
+ wwuamMaF7utFD3L6fyVcU2I_qMRKPv_99gQubxAI_aIMJxd5_jx_s.XWpqcidq3rL1Lcn3N4ojxg
+ u2yvbhIveooMrab0vQJCXINecQJDfthjjE6PBW7rAJ55t24.MuSZdAa1D893kXyoxVBuYElJjQI9
+ V.xe3JcwZ7m879gG1SJmd4ZqMjuycRNP73zkwZppts6mVEngEQkI0.2V0EV_siX6P6yUgNgiD.78
+ cEvyMOrgA5g9omFXTiZ68jMkvZeeO.DcGHYmFi118zOz7PcYMJyTvIXzEdtKsSB5NUJbayBAru__
+ CCRG2lRa90prlGbUknt8DCSdwe1dhDfeUbxTDdYT6nUBELJSCIMpAPi8kgOmFbx1fbRtuS8X13fr
+ 1zq.xLWZK3XDk4B3__ntc0ZtJRMOd9ftwCpGFdaZZxAVFWLO6lSBPNh98jiMFp.ljn5BOtvK6b6P
+ GyuEW1AzLMTp0BK.4AsTkK5t3TX06Ks6y7FJKYHXT.K8kDjEeAiYQh7VKq88Fg6e_iiC17Ryrup2
+ N_Vrml1b_ZXGrRdP6fY.QZLoMpEErM.kQdGzfafATrznNDhqEO07f8LuhUH1ZKZSw5CuQP0CmSSe
+ yCkqXRrHGBU6dwE_1BOb8jvl2nsBbe5ptLW6m1jlYXMgF8HnHPi6xJbQ1YbcJbKWJmEL.E7r_eiG
+ kvpOhTdovUTXmRJHlOP7QWTL4xasAPOAPXebRLoAUMIBV_SK3PP2hmQeKOVeZATplcmqL7XoHfeB
+ v5O5dDcRYHg3yhiXaWj8OZXWQcJ6WBcpLGTm6.S0wrGVFw9DPJuGsHwP36MZqbxIyKmaYmDm2ugX
+ FcEwu
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic316.consmr.mail.gq1.yahoo.com with HTTP; Sat, 30 Nov 2019 01:29:13 +0000
+Received: by smtp420.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 990a34f2ac92cce4f76f378668ee19cc; 
+ Sat, 30 Nov 2019 01:29:08 +0000 (UTC)
+Date: Sat, 30 Nov 2019 09:29:04 +0800
+To: David Michael <fedora.dm0@gmail.com>
+Subject: Re: Compatibility with overlayfs
+Message-ID: <20191130012900.GA2862@hsiangkao-HP-ZHAN-66-Pro-G1>
+References: <CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com>
 MIME-Version: 1.0
-From: David Michael <fedora.dm0@gmail.com>
-Date: Fri, 29 Nov 2019 15:22:15 -0500
-Message-ID: <CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com>
-Subject: Compatibility with overlayfs
-To: linux-erofs@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Mailer: WebService/1.1.14728 hermes Apache-HttpAsyncClient/4.1.4
+ (Java/1.8.0_181)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -83,23 +101,39 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi,
+Hi David,
 
-I tried to test EROFS on Linux 5.4 as the root file system and mounted
-a writable overlay (with upper layer on tmpfs) over /etc, but I get
-ENODATA errors when attempting to modify files.  For example, adding a
-user results in "Failed to take /etc/passwd lock: No data available".
-Files can be modified after unlinking and restoring them so they're
-created on the upper layer.  This is not necessary with other
-read-only file systems (at least squashfs or ext4 with the read-only
-feature).  I tried while forcing compact and extended inodes.
+On Fri, Nov 29, 2019 at 03:22:15PM -0500, David Michael wrote:
+> Hi,
+> 
+> I tried to test EROFS on Linux 5.4 as the root file system and mounted
+> a writable overlay (with upper layer on tmpfs) over /etc, but I get
+> ENODATA errors when attempting to modify files.  For example, adding a
+> user results in "Failed to take /etc/passwd lock: No data available".
+> Files can be modified after unlinking and restoring them so they're
+> created on the upper layer.  This is not necessary with other
+> read-only file systems (at least squashfs or ext4 with the read-only
+> feature).  I tried while forcing compact and extended inodes.
+> 
+> Is EROFS intended to be usable as a lower layer with overlayfs?
 
-Is EROFS intended to be usable as a lower layer with overlayfs?
+Yes, and overlayfs were used on our smartphones for development use
+only as well. I think it's weird, I will try it on the latest kernel
+now, and see if I can reproduce this issue soon...
 
-Thanks.
+Thanks for your report!
 
-David
+Thanks,
+Gao Xiang
+
+> 
+> Thanks.
+> 
+> David
