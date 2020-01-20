@@ -2,95 +2,92 @@ Return-Path: <SRS0=a/2g=3J=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4BB4C33CA1
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 07:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C42C33CA1
+	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 09:37:48 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8674E207E0
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 07:42:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B96272073D
+	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 09:37:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="lC205hDu";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="n/vzvH76"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8674E207E0
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="LJQ5UTlW";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="LS7aP323"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B96272073D
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 481Nsp32tzzDqTv
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 18:42:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 481RRF3yBDzDqgZ
+	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 20:37:45 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1579506126;
-	bh=GR8Fa2s+LJSI7cDNIeRFHNqs4rtnh3Cs4JXU6t6iqz0=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	s=201707; t=1579513065;
+	bh=7l3xBcxOX/YqHCs+ibOr9NKM0bU9tzQAVvLpmR4Z6OY=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=lC205hDu1YOkRf+Wz+b6BPhS3fidcZqvU8yzgKTX5N3J2jVEI7n7DE/zCfqwlo3BB
-	 vweMwKYOFAep29/24pP8XTT4FZi492JcAWJUZzm154p2S6XEdtok00BdS3rvKLsf05
-	 TIyhvwuDA40AZpm+aSyzLqjT081IkRzlcQ5u4ZTCbNMt4xLYIFRGz0cv/QV//mYAE6
-	 U66kOo/L/VAc5yfwO4UFzND6qlQQAbPAPsbokbaCP9itTizTqY/aOkZPIS6MWhe33/
-	 3SgdrADh6RMg1Oun+s/wpWB+yVP+wa0A15Y0UmVs2o+VXZCfT5iKulLqhENTYbpusz
-	 i6kXF7kWEe4Ew==
+	b=LJQ5UTlW8zOBx+HOx6NWMogwBq3W4NXGOgTtWyj5CZpqo41RrGKqCnlOqbYYzyFgK
+	 4c3EHU0xqA53b+5jD0Cv65Z6P2ANsJEzQIWptvLiIipaZhpxZ6cmSjBJo/psZpzEi4
+	 cWjBQmjuug+HVSuYBOpnqLZF7u6WCHs4n2MAkQed3HUeXajtIN/WCGK+OnmGoGGWVE
+	 neaPhs+Nxi/JB6mjnNlqngguul88Rd/bjMPmcGvTbN7yUYJDs7UaYupjyCzONk3IY6
+	 sWSYXCnn1xK6/czlBONrN/ITjwkx9/GYzAuLazPqKIIntwaHxN9LVUafhlUM1n1b+X
+	 zmPJYHlJbkY8w==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.69.206; helo=sonic312-25.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.69.84; helo=sonic314-21.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=n/vzvH76; dkim-atps=neutral
-Received: from sonic312-25.consmr.mail.gq1.yahoo.com
- (sonic312-25.consmr.mail.gq1.yahoo.com [98.137.69.206])
+ header.s=a2048 header.b=LS7aP323; dkim-atps=neutral
+Received: from sonic314-21.consmr.mail.gq1.yahoo.com
+ (sonic314-21.consmr.mail.gq1.yahoo.com [98.137.69.84])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 481Nsc6sGgzDqR0
- for <linux-erofs@lists.ozlabs.org>; Mon, 20 Jan 2020 18:41:54 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 481QXt4h58zDqdD
+ for <linux-erofs@lists.ozlabs.org>; Mon, 20 Jan 2020 19:57:32 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1579506111; bh=+XGdFgGABpN6auKCzVqr1neDE0YDg3dK3WOG9Fkcsgw=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=n/vzvH76jluZBlEiBIUtR+UnRbL6hj7O6DHzALleCvHeDrIkcp4Do7A5xi9Jv5AKTyCyVCUsIhXaK6u63ZUxFf12UQwuWOYe4qpKx991HyXwTRZxpzUDhdFmtZpBD2VxM1ggPQ0AzJuq0q3feD6PQAbfRaoxZiMbZmo9NGNG7/J+IFEFLXj9Y12lKxyqazqLvsdpT9RtRYLn70KvTC9SMBY7I7cchrdFIMWkIirRpVRvx2gD8enPd74ScEpa8+H/GQDT2c7H+8KzW+GoMOzvanVofGykzDQ2+YX14/hSJQuYzy8Jbeif4lwKzofAnZzPuA2NLiumXWSWPr/n+zHaTQ==
-X-YMail-OSG: 1sl9MbYVM1kZZbL_UnHp6lK6xnqqvCmpGzWwgrtwutMveLhcY29_JNBfUGBPDw9
- OzmerMHM4bopJVV97pfn9uDhuaYAiGkmwRYTb3uDm73p.3h5KGKyJEFQkaJjwkoEos9F3aIyNgsD
- jJaFhoaO1cTvSQHemREPkc.1dtGSDFV_qC1yaHzebi9cVMxFzhkaPGRmF7IK4de24jDROHnnF8Ld
- PIXbE8RUlmDYWNa22NueNbS0zW68Q2xQFkkb852aotTA0E1WPtj6c1.I..ST5mSos.UIw2LOTZTv
- P4GLXLA.BKidtSsVKm8h8DEoQecvd9x7j4KIxY0PmhadjQL2D1Dsqp9NEx6W_RmNX.2EdeiJFQSb
- iqto9Ul0K2TFsG8wyOVIveNuedL77ATRqMsBMgPZ5_OKJ676pkR8UDGQ32XOhSjxlCCEQSSOc3kn
- vXBXtIZd5wKf6Lvkz.ZmrogQRDMu74mcil22CWNCBO3WJpigx4TYGvSEZ9QG9kosZ7FOBsRMRDCS
- UNZ6EENrxaIhHYSVDAk8qjyIGoB1zZwNXZuA9H3R3waPwIAyhTRxBVRBGiEItzzzZh.K2Sr2R5m0
- vbVEMV77VfUv9nPw2qPgWV.vDfhoaG7Ikgo7W6W4LUJse5PeuUNebZYKemFb.aOhYciHHNCMbVYy
- OkCgRPVQ9nMCDdF5FYiB77dhJ_5OYNHHQ4uePItPEWmF_jYEjxtiydPGFRZ1PvGQiGBsAeQBcavQ
- tYqXg5wme92dm3kCTRe5IxndLOJJrqPWSI.GX1IE0kebOunaysB3MKc4FX9M7u.75QoXposWBbF9
- x21OIMsVrxQ8RrWMb0k5Oyu0qe_RiHjgXf9GseeYb17ubcwaAq9Bqv62QCDL7a6mPre3ZGfaBnRQ
- ngrFspLUeWgbgP8VBzMryvJEgGwQwhgx2QHq53Iwr3McVZPz9KRHU5X8KXv9oYJxH4FnfNM40njO
- RFz.G5RCS.yxou_myF5I.0ZL4y2rLOg4GNoO99b6jpGhMRaa3nWyfYFOdUoc9UQb9vW6O36Z_wuz
- EggDJCt0qvMYOCWDy8KUKsfDgKjBqEedpRqVdXg9.6tNEGdypm2prFKGinpwVJnYoFC_TZjyu8YA
- 2fmAnPRH_tbWDLyXCL0ZQJzzkm0mo7wQ.WgR1j42BuZOX5dYVoQW1WglQfAa7okKFbSVYzYYOzzk
- af.eoXIMh.Jt7XtqaBisiCS2n8RnZ_N9m8W3ho3Wi9qxoHB8S6dP1EedtamihUPrynEW5lnRk0Ha
- u_G5AhBX.hoYjoMPnejKHo6yvn_ay83xPqjI7UU.dh1Y6WQ76B6qpwRAEibecTOzwMg_GgB7ai_H
- GdRSDVgvmaJpyeDCAjIIc_nxYtSe5DjCl_TbVF4FgbImp4_mf0qkZumakmLvvjuVt5tySzNba5_H
- eJ3U-
+ t=1579510648; bh=0owMYed7lR2DbHghd/A0BDOJYE+mtYR+fvCs9yHxrQg=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
+ b=LS7aP323gaVps7fxkD5ZjDJM+xK9eErzFqnN9l8pEF90Th56Z3nVvgKyH65lgrKrkUv+dQ28eGJ6Ecj9lnHe3mk0gaYgAMWokpvYem9kZLLSzbRLcDE/PV/t/LTp6ZOY8bgw9brMrQdO94v6QA3he56rd5jkXxZw9EsWtWfinOE9FaEAqan+4uPZIfbyG+4OSm4ONtgGu6s9Qe78ifBG/1LVfQdO6RsvLmZPNYRqk1t/c2QNuQAIZg47ZNE2du1pGFihDv4PrVXEdWcXbW1pUfH9K3s5CIMJ2ATxQeNt+2F2mnPD/Hi/I8NqwBKAZL9H7Sp91cds91zQ4dD9ba4ckQ==
+X-YMail-OSG: JDWqZz4VM1lwaHTwmnrJWP4tdP4FYDuQ5kWhkP7CRgmKPAXMRjlG95Kgg5UquZ6
+ GxhGyrPvNV9pGIrPeP.vM9HVTkLttWN.abP0okPliAYsiJ9I0PSji7zVccpxg6s.zOzhX4R3xSd1
+ QXPoPZeWLwnkWk5.l624OtYHsAg1wUheoaxPSZxkMg8lGRZNPaCz.vyI6JssbeP.nC2aT2ctK.pH
+ gO3a_XBhQQ4EXH0Iw_C03fn8yIxV33CdBB60lwYIr96L.rcXgDZDnztce79mxw63i9UWH6Kyz0FH
+ QqjooNJecZdo61rncxlns_QlJBjbk.2qjS15JK9VnK_O7s3EGw3.bmQ4peiaUQMTaKNPRIvreGLE
+ Zecc65ZbANrmsxaxWtpHQjtzM0_Iqvh1.LEwCzLrrKDIvdHpExnYZee11Z3y3SoztEHb3eVURfss
+ JEeAvQHMNgubSanI9aEEJDT1f3FrtS0XiEDJ.FKJi7KQ5Kblxl1ZGtX6x.NzoiKQgRxx0spLxC7a
+ agQ6f1goJz0aODrTmul20vzr9iNSgxAqBmUgq2VqMMF9CWY73bYamx2wvJtEEOu7_vuN8v8nlIZo
+ _fJ7NJAD2GLddQYWHUrHdfxtIS5uew220xqD4pwTYx.2BAXdCU67QEQofcmIFlG9HEf2GZXDTBDo
+ EpDO0cgqDu89xFOhcSy0vHkomV.QFjUmbmniiptmO._x.QutwaGcOCisPz6ivGPFwOL03eNyc4tc
+ OFCM4xG8bQmf3dgQ02zmEVZWQ7YDodg8K0hd_jOAuwoeVcQO1Bb3k4LUOgPViGCtsaePg0F1XCZF
+ GDe2iOfoA.b0dUQDGEZkmCqVrj8Pj8d_6hXBarnWyFuDcs2DypGmppo9FQdWTNDXV9wU6FjrSNMJ
+ aqSv5wcYCzFk97J0AZ2b7H.S5BPpN41b2Q5EJkOU8dAYfkNScTzrbGxUgcJv_0YMqiMAG2uKusFa
+ u4pz0kcRfQUrl9FghqRbUJumlvnn9XZITrn8bxZSk3JRZhzsEh.5eCHO3Twvloh_Mky1RSjRhjFh
+ MgYhmGOXaxAuZ9jVjN_.RPXI.0c3mv1VZHX6402Jzzt3VuQErbA1IQJUl5HOL5EDqsiTpZN4RW7e
+ nzmDNEE0bngJLjkwqeCHBj3mCHLIuRTvNJ4jzNLgPRQMK7UQ2uz0vZ1oarl402sJHRmaOsQvNaWU
+ NF4StMKmrL86lBSJiYK2qKDm7ARyewRHSUJa1baoM4uKKKhT6zejTe.EjfWbXB2Amz6HimrUa_Hy
+ qVJywQLGQYO9p0WLBgH5RJzDWc6GT4H.C0qmASFXdeeT_9EN2WBRotdARBhYUDHYwar736ptdmni
+ sicNNjNzXkoV7UPyYV4XbHdSSlRybVTIr9lT1l0TYwW0ezCDNvwbNmS.EqscX6MRo6Sf6AY3aXHS
+ jn31ZlQ_VFU3ot8T5dHDb2H7xcRM-
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic312.consmr.mail.gq1.yahoo.com with HTTP; Mon, 20 Jan 2020 07:41:51 +0000
-Received: by smtp422.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 0ea4360d106f7573b5a855ac946e2ad4; 
- Mon, 20 Jan 2020 07:41:49 +0000 (UTC)
-Date: Mon, 20 Jan 2020 15:41:37 +0800
-To: Saumya Panda <saumya.iisc@gmail.com>
-Subject: Re: Problem in EROFS: Not able to read the files after mount
-Message-ID: <20200120073859.GA32421@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <CAHmfoRm7xUwuXfTZ2kr-x9fs59x7b707t183ggbLEtEyO_wznA@mail.gmail.com>
+ sonic314.consmr.mail.gq1.yahoo.com with HTTP; Mon, 20 Jan 2020 08:57:28 +0000
+Received: by smtp411.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 108e935cc9711f548eb3f10aaf32bbda; 
+ Mon, 20 Jan 2020 08:57:28 +0000 (UTC)
+To: Chao Yu <yuchao0@huawei.com>
+Subject: [PATCH 2/2] erofs: clean up z_erofs_submit_queue()
+Date: Mon, 20 Jan 2020 16:57:09 +0800
+Message-Id: <20200120085709.10320-2-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200120085709.10320-1-hsiangkao@aol.com>
+References: <20200120085709.10320-1-hsiangkao@aol.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHmfoRm7xUwuXfTZ2kr-x9fs59x7b707t183ggbLEtEyO_wznA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Mailer: WebService/1.1.14873 hermes Apache-HttpAsyncClient/4.1.4
- (Java/1.8.0_181)
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -104,76 +101,183 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
 Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Miao Xie <miaoxie@huawei.com>, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Saumya,
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-On Mon, Jan 20, 2020 at 12:25:15PM +0530, Saumya Panda wrote:
-> Hi Experts,
->    I am testing EROFS in openSuse(Kernel: 5.4.7-1-default). I used the
-> enwik8 and enwik9 as source file (
-> https://cs.fit.edu/~mmahoney/compression/textdata.html) for compression.
-> But after I mount the erofs image, I am not able to read it (it is saying
-> operation not permitted). Simple "ls" command is not working. But if I
-> create EROFS image without compression flag, then after mount I am able to
-> read the files. Seems there is some problem during compression.
-> 
-> I will appreciate if someone can help me out why this is happening.
+A label and extra variables will be eliminated,
+which is more cleaner.
 
-Could you please check if your opensuse kernel has been enabled
-the following configuration?
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+---
+ fs/erofs/zdata.c | 95 ++++++++++++++++++++----------------------------
+ 1 file changed, 40 insertions(+), 55 deletions(-)
 
-CONFIG_EROFS_FS_ZIP=y
-CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT=1
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 6ee5153801b2..9a84609b6d1b 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1148,7 +1148,7 @@ static void move_to_bypass_jobqueue(struct z_erofs_pcluster *pcl,
+ 	qtail[JQ_BYPASS] = &pcl->next;
+ }
+ 
+-static bool z_erofs_submit_queue(struct super_block *sb,
++static void z_erofs_submit_queue(struct super_block *sb,
+ 				 z_erofs_next_pcluster_t owned_head,
+ 				 struct list_head *pagepool,
+ 				 struct z_erofs_decompressqueue *fgq,
+@@ -1157,19 +1157,12 @@ static bool z_erofs_submit_queue(struct super_block *sb,
+ 	struct erofs_sb_info *const sbi = EROFS_SB(sb);
+ 	z_erofs_next_pcluster_t qtail[NR_JOBQUEUES];
+ 	struct z_erofs_decompressqueue *q[NR_JOBQUEUES];
+-	struct bio *bio;
+ 	void *bi_private;
+ 	/* since bio will be NULL, no need to initialize last_index */
+ 	pgoff_t uninitialized_var(last_index);
+-	bool force_submit = false;
+-	unsigned int nr_bios;
++	unsigned int nr_bios = 0;
++	struct bio *bio = NULL;
+ 
+-	if (owned_head == Z_EROFS_PCLUSTER_TAIL)
+-		return false;
+-
+-	force_submit = false;
+-	bio = NULL;
+-	nr_bios = 0;
+ 	bi_private = jobqueueset_init(sb, q, fgq, force_fg);
+ 	qtail[JQ_BYPASS] = &q[JQ_BYPASS]->head;
+ 	qtail[JQ_SUBMIT] = &q[JQ_SUBMIT]->head;
+@@ -1179,11 +1172,9 @@ static bool z_erofs_submit_queue(struct super_block *sb,
+ 
+ 	do {
+ 		struct z_erofs_pcluster *pcl;
+-		unsigned int clusterpages;
+-		pgoff_t first_index;
+-		struct page *page;
+-		unsigned int i = 0, bypass = 0;
+-		int err;
++		pgoff_t cur, end;
++		unsigned int i = 0;
++		bool bypass = true;
+ 
+ 		/* no possible 'owned_head' equals the following */
+ 		DBG_BUGON(owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
+@@ -1191,55 +1182,50 @@ static bool z_erofs_submit_queue(struct super_block *sb,
+ 
+ 		pcl = container_of(owned_head, struct z_erofs_pcluster, next);
+ 
+-		clusterpages = BIT(pcl->clusterbits);
++		cur = pcl->obj.index;
++		end = cur + BIT(pcl->clusterbits);
+ 
+ 		/* close the main owned chain at first */
+ 		owned_head = cmpxchg(&pcl->next, Z_EROFS_PCLUSTER_TAIL,
+ 				     Z_EROFS_PCLUSTER_TAIL_CLOSED);
+ 
+-		first_index = pcl->obj.index;
+-		force_submit |= (first_index != last_index + 1);
++		do {
++			struct page *page;
++			int err;
+ 
+-repeat:
+-		page = pickup_page_for_submission(pcl, i, pagepool,
+-						  MNGD_MAPPING(sbi),
+-						  GFP_NOFS);
+-		if (!page) {
+-			force_submit = true;
+-			++bypass;
+-			goto skippage;
+-		}
++			page = pickup_page_for_submission(pcl, i++, pagepool,
++							  MNGD_MAPPING(sbi),
++							  GFP_NOFS);
++			if (!page)
++				continue;
+ 
+-		if (bio && force_submit) {
++			if (bio && cur != last_index + 1) {
+ submit_bio_retry:
+-			submit_bio(bio);
+-			bio = NULL;
+-		}
+-
+-		if (!bio) {
+-			bio = bio_alloc(GFP_NOIO, BIO_MAX_PAGES);
++				submit_bio(bio);
++				bio = NULL;
++			}
+ 
+-			bio->bi_end_io = z_erofs_decompressqueue_endio;
+-			bio_set_dev(bio, sb->s_bdev);
+-			bio->bi_iter.bi_sector = (sector_t)(first_index + i) <<
+-				LOG_SECTORS_PER_BLOCK;
+-			bio->bi_private = bi_private;
+-			bio->bi_opf = REQ_OP_READ;
++			if (!bio) {
++				bio = bio_alloc(GFP_NOIO, BIO_MAX_PAGES);
+ 
+-			++nr_bios;
+-		}
++				bio->bi_end_io = z_erofs_decompressqueue_endio;
++				bio_set_dev(bio, sb->s_bdev);
++				bio->bi_iter.bi_sector = (sector_t)cur <<
++					LOG_SECTORS_PER_BLOCK;
++				bio->bi_private = bi_private;
++				bio->bi_opf = REQ_OP_READ;
++				++nr_bios;
++			}
+ 
+-		err = bio_add_page(bio, page, PAGE_SIZE, 0);
+-		if (err < PAGE_SIZE)
+-			goto submit_bio_retry;
++			err = bio_add_page(bio, page, PAGE_SIZE, 0);
++			if (err < PAGE_SIZE)
++				goto submit_bio_retry;
+ 
+-		force_submit = false;
+-		last_index = first_index + i;
+-skippage:
+-		if (++i < clusterpages)
+-			goto repeat;
++			last_index = cur;
++			bypass = false;
++		} while (++cur < end);
+ 
+-		if (bypass < clusterpages)
++		if (!bypass)
+ 			qtail[JQ_SUBMIT] = &pcl->next;
+ 		else
+ 			move_to_bypass_jobqueue(pcl, qtail, owned_head);
+@@ -1254,10 +1240,9 @@ static bool z_erofs_submit_queue(struct super_block *sb,
+ 	 */
+ 	if (!force_fg && !nr_bios) {
+ 		kvfree(q[JQ_SUBMIT]);
+-		return true;
++		return;
+ 	}
+ 	z_erofs_decompress_kickoff(q[JQ_SUBMIT], *force_fg, nr_bios);
+-	return true;
+ }
+ 
+ static void z_erofs_runqueue(struct super_block *sb,
+@@ -1266,9 +1251,9 @@ static void z_erofs_runqueue(struct super_block *sb,
+ {
+ 	struct z_erofs_decompressqueue io[NR_JOBQUEUES];
+ 
+-	if (!z_erofs_submit_queue(sb, clt->owned_head,
+-				  pagepool, io, &force_fg))
++	if (clt->owned_head == Z_EROFS_PCLUSTER_TAIL)
+ 		return;
++	z_erofs_submit_queue(sb, clt->owned_head, pagepool, io, &force_fg);
+ 
+ 	/* handle bypass queue (no i/o pclusters) immediately */
+ 	z_erofs_decompress_queue(&io[JQ_BYPASS], pagepool);
+-- 
+2.20.1
 
-By default, they should be enabled, but it seems not according to
-the following information you mentioned.
-
-Thanks,
-Gao Xiang
-
-> 
-> Steps followed:
-> *Erofs image creation & mount: *
-> mkfs.erofs -zlz4hc enwik8.erofs.img enwik8/
-> mkfs.erofs 1.0
->         c_version:           [     1.0]
->         c_dbg_lvl:           [       0]
->         c_dry_run:           [       0]
-> mount enwik8.erofs.img /mnt/enwik8/ -t erofs -o loop
-> 
-> ls -l /mnt/enwik8/
-> ls: cannot access '/mnt/enwik8/enwik8': Operation not supported
-> total 0
-> -????????? ? ? ? ?            ? enwik8
-> 
-> The problem seen for both lz4 & lz4hc.
-> 
-> *Erofs image creation & mount without compression: *
-> mkfs.erofs  enwik8_nocomp.erofs.img enwik8/
-> mkfs.erofs 1.0
->         c_version:           [     1.0]
->         c_dbg_lvl:           [       0]
->         c_dry_run:           [       0]
-> 
-> mount enwik8_nocomp.erofs.img /mnt/enwik8_nocomp/ -t erofs -o loop
-> 
-> ls -l /mnt/enwik8_nocomp/
-> total 97660
-> -rw-r--r-- 1 root root 100000000 Jan 20 01:27 enwik8
-> 
-> *Original enwik8 file:*
-> ls -l enwik8
-> total 97660
-> -rw-r--r-- 1 root root 100000000 Jan 20 01:14 enwik8
-> 
-> *Source code used for Lz4 and Erofs utils:*
-> https://github.com/hsiangkao/erofs-utils
-> https://github.com/lz4/lz4
-> 
-> -- 
-> Thanks,
-> Saumya Prakash Panda
