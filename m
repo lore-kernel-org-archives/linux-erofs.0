@@ -2,89 +2,55 @@ Return-Path: <SRS0=a/2g=3J=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F5E4C33CB1
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 09:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71004C32771
+	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 22:34:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4EE002073D
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 09:38:00 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="AZaSo+AK";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="SGZ/rsEM"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EE002073D
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id 2A7B422522
+	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 22:34:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2A7B422522
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 481RRV3Vc1zDqhH
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Jan 2020 20:37:58 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1579513078;
-	bh=71gFP9+7ShoEliz/wpCNLQQM7JNnTRZYgyO04op7+b4=;
-	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=AZaSo+AKUIkufhGcAJ0aHfywpnbCM2k5slv9cfhfgPKIIJw/iTh5jp+8dmadkOSat
-	 MdQg8fq6XiWGmNwUwD8IikHRZc4ICJihOAbcRwzuKHe6uHfnD8mySPuGim4ylUXu4o
-	 ADx0d87y30QNPcMrEEH5BgUbXzS9uXT9Bgg1rfm6aAdTH0dp85thclScaf8fDaqf/C
-	 vs8koVzNlDH4beAv5O5zW5/lCSHsYBFWy77ugXohwa/9eMtYt7ElJZW+9FC7PuQE5T
-	 S0uMNBvB/2K4doeGlBHQ6y6pdjRY2FgdEpGuE1NqZB/nKV10GxSngP/07mvojhLa9R
-	 yuRX2Ddd6TrZg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 481mfw2gBwzDqRr
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jan 2020 09:34:00 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=intel.com (client-ip=134.134.136.65; helo=mga03.intel.com;
+ envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.68.30; helo=sonic308-54.consmr.mail.gq1.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=aol.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=SGZ/rsEM; dkim-atps=neutral
-Received: from sonic308-54.consmr.mail.gq1.yahoo.com
- (sonic308-54.consmr.mail.gq1.yahoo.com [98.137.68.30])
+ dmarc=pass (p=none dis=none) header.from=intel.com
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 481QXt3nGZzDqd0
- for <linux-erofs@lists.ozlabs.org>; Mon, 20 Jan 2020 19:57:33 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1579510649; bh=zuUeC+q1lHGrclRsJn5X44Wy5fQ7zVbOLjUy1OQMpkE=;
- h=From:To:Cc:Subject:Date:References:From:Subject;
- b=SGZ/rsEMQGXmDTUASSxzKfrX8sJ8tnxyZoScQDBoCN5J77IEKwj/MLHkRbGykacDMw4pcG0CYvKxe+01meJzuZVvrs7+CtAVE317uVchTdhlEtLpQ2H8QyBiMfcNwmQv7lP7dPz2gAK2Fd8jeRK6AJlBUwgCXRF5reil3jNCWlmawYGItn6ao3eQqMV/e943Ft9ijjxg+y9nYcyGdzuEgzHJzsO40n9f9VU4J9RDYx7qHC41ho+Rl8GvQLTa2hyNx0gPqSVH+bP6NsCsBq1sIffC8AN5Vpt3Ixi3gGQNLxR0jkAjzDkRoAvBLIu5ZR77uJcRVSYldcnSaSfcEtRxbg==
-X-YMail-OSG: UYRY3WkVM1k2NrL2u1xuPI5eI1iQ3NMoxPiM1CsVwoFyPPxW479fmMGaXdQ3.uq
- qc9DJj86ytjn44cq7CbtfrnsKCRtzKQgD24kKDKEKmGFgPdat81r.1uyUjsKbeTwysr55Q9LeTuB
- zdkW.Mpn_HjDkeHfXuD6vFl2TMjfd_hbRQiAinrk3CvWCTicBaoiAAw338BZhNJLIE0UhOwYPjkw
- FY42jOh1D7YI7ne3u7bCeY1gdNKe6skHlnKnVGwQxdgJmfF3R1m_zw9AdiaRYlm9WeDraBg5OJd6
- 8UDHVSUNaiue9xCYAzgGH3LGtIBHY2ZwVIgXEb_1hVio8FuFcn7Op5zPH5oKimmCclKNidTtw082
- w6n3_vBllI1oGjRAd9CR0pHbNC_iyd3t.kQ6pmYdFCEaEIDe7aXFuSKSE8Rh7TgtAjjfcSnI.wPI
- Jt4S9zew1WPBnH07oGbTguCnX7IjXoP3T_HAFLi_Yr3.zhf9hmqMJAZC.plijHe5AuoVpG10995n
- MUrYOgvU3noPe.ZcnGFIjW.emzIUDVXVFf11qBYW.MsEA7EOC2iIbaVg7oPNZ46.9pQ4_avNGrYG
- r9LujY0D.jR.VkY7Ac_KOzGxu0mz_DRt_QDknYtCGoaUcxnBmLeqo_MqGr5XRuYetuECijf55Av6
- wqFr4ZcoohRICGDHgE6RUvxXiqyYCFV7tF7DdBcWBtViZyLEG9gnkrhFk6m8vjIg2nbVESBJtm7g
- 2WzkriJlUhxXHURPckoW0uyosAMrEtEiyCua9BIHRNdazZbWQQLzXcYzcIpPucZWjt7gIPIxDIDU
- 7aWGu7buhGz6VC1ehX.UGH.x5zaLSrtpyaxB8OKnzAX1Y_h3wPTkFgoL5h.jB.J00498m6jQAUrb
- zwQfudcQQ3bFGRY3EqZ7UN1TiOi.8CGqLYnaB6pbLR2U9CqCRsLvQSitJVWUM3yEE4ibDsNNkzl4
- fAAvVEYhVrK1KeZz7ECZs5buZIZd6Q10wwEeuiOo6sgcQIldyrgGFX1VoE4LMw1XqwutpshdnfoB
- 9CjC9vj7oc10mydOhKOIj_nB00ZWHK2ZZjlOSRloQ2Wm8GdROYCqmbPQuVwM0EL5RioodkuqMvC1
- 0aRTkWjfB0nWJGEXVI2E9PVUd33s9bGtZQKN4vBO5KjwXJyPDur_TDpy.8vTrVK48qg_pu.Fu_HM
- neVWcyRVb_mfYdqy22k5mPh3Yn.hH909yuqZjFQrRRBYSAhN6SPSit0KAgMYfhOwWt4YYdA08tp9
- DoSNM3SNE..p7vTKQGEf0a95J44GdBD3ou22738oa2AyEODVg07mJaYlsjt9LI7.X.aqr9LfXZg4
- h2do_EUrLZl0QN8e_7bVSO4VlC8rvArdp2KeGutIdn0spdq4i9Teqa6LlxKUzYGsDlNY-
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic308.consmr.mail.gq1.yahoo.com with HTTP; Mon, 20 Jan 2020 08:57:29 +0000
-Received: by smtp411.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 108e935cc9711f548eb3f10aaf32bbda; 
- Mon, 20 Jan 2020 08:57:24 +0000 (UTC)
-To: Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH 1/2] erofs: fold in postsubmit_is_all_bypassed()
-Date: Mon, 20 Jan 2020 16:57:08 +0800
-Message-Id: <20200120085709.10320-1-hsiangkao@aol.com>
-X-Mailer: git-send-email 2.20.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 481mfl18lbzDqJf
+ for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jan 2020 09:33:43 +1100 (AEDT)
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+ by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384;
+ 20 Jan 2020 14:33:39 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,343,1574150400"; d="scan'208";a="219764102"
+Received: from lkp-server01.sh.intel.com (HELO lkp-server01) ([10.239.97.150])
+ by orsmga008.jf.intel.com with ESMTP; 20 Jan 2020 14:33:38 -0800
+Received: from kbuild by lkp-server01 with local (Exim 4.89)
+ (envelope-from <lkp@intel.com>)
+ id 1itfc1-0006Yr-Gs; Tue, 21 Jan 2020 06:33:37 +0800
+Date: Tue, 21 Jan 2020 06:33:24 +0800
+From: kbuild test robot <lkp@intel.com>
+To: Gao Xiang <gaoxiang25@huawei.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 2e49cd3dc3aeb1207b828d8b0170f2327f4e3ac3
+Message-ID: <5e262ab4.vYijBQ4d7IYRq4+u%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-References: <20200120085709.10320-1-hsiangkao.ref@aol.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -96,67 +62,192 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: Miao Xie <miaoxie@huawei.com>, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git  dev-test
+branch HEAD: 2e49cd3dc3aeb1207b828d8b0170f2327f4e3ac3  erofs: clean up z_erofs_submit_queue()
 
-No need to introduce such separated helper since
-cache strategy compile configs was changed into
-runtime options instead in v5.4. No logic changes.
+elapsed time: 521m
 
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+configs tested: 169
+configs skipped: 1
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+x86_64               randconfig-b001-20200121
+x86_64               randconfig-b002-20200121
+x86_64               randconfig-b003-20200121
+i386                 randconfig-b001-20200121
+i386                 randconfig-b002-20200121
+i386                 randconfig-b003-20200121
+i386                             allyesconfig
+um                                  defconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+ia64                                defconfig
+powerpc                             defconfig
+i386                             alldefconfig
+i386                              allnoconfig
+i386                                defconfig
+x86_64               randconfig-g001-20200121
+x86_64               randconfig-g002-20200121
+x86_64               randconfig-g003-20200121
+i386                 randconfig-g001-20200121
+i386                 randconfig-g002-20200121
+i386                 randconfig-g003-20200121
+arc                              allyesconfig
+arc                                 defconfig
+microblaze                      mmu_defconfig
+microblaze                    nommu_defconfig
+powerpc                           allnoconfig
+powerpc                       ppc64_defconfig
+powerpc                          rhel-kconfig
+h8300                     edosk2674_defconfig
+h8300                    h8300h-sim_defconfig
+h8300                       h8s-sim_defconfig
+m68k                             allmodconfig
+m68k                       m5475evb_defconfig
+m68k                          multi_defconfig
+m68k                           sun3_defconfig
+alpha                               defconfig
+csky                                defconfig
+nds32                             allnoconfig
+nds32                               defconfig
+x86_64               randconfig-d001-20200121
+x86_64               randconfig-d002-20200121
+x86_64               randconfig-d003-20200121
+i386                 randconfig-d001-20200121
+i386                 randconfig-d002-20200121
+i386                 randconfig-d003-20200121
+openrisc             randconfig-a001-20200121
+csky                 randconfig-a001-20200121
+xtensa               randconfig-a001-20200121
+sh                   randconfig-a001-20200121
+s390                 randconfig-a001-20200121
+parisc                            allnoconfig
+parisc                            allyesonfig
+parisc                         b180_defconfig
+parisc                        c3000_defconfig
+parisc                              defconfig
+alpha                randconfig-a001-20200121
+m68k                 randconfig-a001-20200121
+mips                 randconfig-a001-20200121
+nds32                randconfig-a001-20200121
+parisc               randconfig-a001-20200121
+riscv                randconfig-a001-20200121
+mips                           32r2_defconfig
+mips                         64r6el_defconfig
+mips                             allmodconfig
+mips                              allnoconfig
+mips                             allyesconfig
+mips                      fuloong2e_defconfig
+mips                      malta_kvm_defconfig
+x86_64                              fedora-25
+x86_64                                  kexec
+x86_64                                    lkp
+x86_64                                   rhel
+x86_64                               rhel-7.6
+c6x                  randconfig-a001-20200121
+h8300                randconfig-a001-20200121
+microblaze           randconfig-a001-20200121
+nios2                randconfig-a001-20200121
+sparc64              randconfig-a001-20200121
+sh                               allmodconfig
+sh                                allnoconfig
+sh                          rsk7269_defconfig
+sh                  sh7785lcr_32bit_defconfig
+sh                            titan_defconfig
+x86_64               randconfig-a001-20200121
+x86_64               randconfig-a002-20200121
+x86_64               randconfig-a003-20200121
+i386                 randconfig-a001-20200121
+i386                 randconfig-a002-20200121
+i386                 randconfig-a003-20200121
+s390                             alldefconfig
+s390                             allmodconfig
+s390                              allnoconfig
+s390                             allyesconfig
+s390                          debug_defconfig
+s390                                defconfig
+s390                       zfcpdump_defconfig
+sparc                            allyesconfig
+sparc                               defconfig
+sparc64                          allmodconfig
+sparc64                           allnoconfig
+sparc64                          allyesconfig
+sparc64                             defconfig
+ia64                             alldefconfig
+ia64                             allmodconfig
+ia64                              allnoconfig
+ia64                             allyesconfig
+riscv                            allmodconfig
+riscv                             allnoconfig
+riscv                            allyesconfig
+riscv                               defconfig
+riscv                    nommu_virt_defconfig
+riscv                          rv32_defconfig
+x86_64               randconfig-f001-20200121
+x86_64               randconfig-f002-20200121
+x86_64               randconfig-f003-20200121
+i386                 randconfig-f001-20200121
+i386                 randconfig-f002-20200121
+i386                 randconfig-f003-20200121
+arc                  randconfig-a001-20200121
+arm                  randconfig-a001-20200121
+arm64                randconfig-a001-20200121
+ia64                 randconfig-a001-20200121
+powerpc              randconfig-a001-20200121
+sparc                randconfig-a001-20200121
+x86_64               randconfig-h001-20200121
+x86_64               randconfig-h002-20200121
+x86_64               randconfig-h003-20200121
+i386                 randconfig-h001-20200121
+i386                 randconfig-h002-20200121
+i386                 randconfig-h003-20200121
+x86_64               randconfig-e001-20200121
+x86_64               randconfig-e002-20200121
+x86_64               randconfig-e003-20200121
+i386                 randconfig-e001-20200121
+i386                 randconfig-e002-20200121
+i386                 randconfig-e003-20200121
+csky                 randconfig-a001-20200120
+openrisc             randconfig-a001-20200120
+s390                 randconfig-a001-20200120
+sh                   randconfig-a001-20200120
+xtensa               randconfig-a001-20200120
+arm                        shmobile_defconfig
+xtensa                       common_defconfig
+openrisc                    or1ksim_defconfig
+nios2                         3c120_defconfig
+xtensa                          iss_defconfig
+c6x                        evmc6678_defconfig
+c6x                              allyesconfig
+nios2                         10m50_defconfig
+openrisc                 simple_smp_defconfig
+x86_64               randconfig-c001-20200121
+x86_64               randconfig-c002-20200121
+x86_64               randconfig-c003-20200121
+i386                 randconfig-c001-20200121
+i386                 randconfig-c002-20200121
+i386                 randconfig-c003-20200121
+arm                              allmodconfig
+arm                               allnoconfig
+arm                              allyesconfig
+arm                         at91_dt_defconfig
+arm                           efm32_defconfig
+arm                          exynos_defconfig
+arm                        multi_v5_defconfig
+arm                        multi_v7_defconfig
+arm                           sunxi_defconfig
+arm64                            allmodconfig
+arm64                             allnoconfig
+arm64                            allyesconfig
+arm64                               defconfig
+
 ---
- fs/erofs/zdata.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
-
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 4fedeb4496e4..6ee5153801b2 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1148,20 +1148,6 @@ static void move_to_bypass_jobqueue(struct z_erofs_pcluster *pcl,
- 	qtail[JQ_BYPASS] = &pcl->next;
- }
- 
--static bool postsubmit_is_all_bypassed(struct z_erofs_decompressqueue *q[],
--				       unsigned int nr_bios, bool force_fg)
--{
--	/*
--	 * although background is preferred, no one is pending for submission.
--	 * don't issue workqueue for decompression but drop it directly instead.
--	 */
--	if (force_fg || nr_bios)
--		return false;
--
--	kvfree(q[JQ_SUBMIT]);
--	return true;
--}
--
- static bool z_erofs_submit_queue(struct super_block *sb,
- 				 z_erofs_next_pcluster_t owned_head,
- 				 struct list_head *pagepool,
-@@ -1262,9 +1248,14 @@ static bool z_erofs_submit_queue(struct super_block *sb,
- 	if (bio)
- 		submit_bio(bio);
- 
--	if (postsubmit_is_all_bypassed(q, nr_bios, *force_fg))
-+	/*
-+	 * although background is preferred, no one is pending for submission.
-+	 * don't issue workqueue for decompression but drop it directly instead.
-+	 */
-+	if (!force_fg && !nr_bios) {
-+		kvfree(q[JQ_SUBMIT]);
- 		return true;
--
-+	}
- 	z_erofs_decompress_kickoff(q[JQ_SUBMIT], *force_fg, nr_bios);
- 	return true;
- }
--- 
-2.20.1
-
+0-DAY kernel test infrastructure                 Open Source Technology Center
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org Intel Corporation
