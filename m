@@ -7,41 +7,39 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA781C33CAA
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 08:08:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5349EC33CAA
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 08:08:59 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A460324655
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 08:08:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A460324655
+	by mail.kernel.org (Postfix) with ESMTPS id 0F8D6217F4
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 08:08:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0F8D6217F4
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=sina.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 483FJT2LPczDqVS
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 19:08:09 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 483FKP1cKmzDqVS
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2020 19:08:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=sina.com (client-ip=202.108.3.21;
- helo=r3-21.sinamail.sina.com.cn; envelope-from=blucerlee@sina.com;
+ smtp.mailfrom=sina.com (client-ip=202.108.3.162;
+ helo=mail3-162.sinamail.sina.com.cn; envelope-from=blucerlee@sina.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=sina.com
-X-Greylist: delayed 89 seconds by postgrey-1.36 at bilbo;
- Thu, 23 Jan 2020 19:08:04 AEDT
-Received: from r3-21.sinamail.sina.com.cn (r3-21.sinamail.sina.com.cn
- [202.108.3.21])
- by lists.ozlabs.org (Postfix) with SMTP id 483FJN5Vy1zDqPS
- for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2020 19:08:00 +1100 (AEDT)
+Received: from mail3-162.sinamail.sina.com.cn (mail3-162.sinamail.sina.com.cn
+ [202.108.3.162])
+ by lists.ozlabs.org (Postfix) with SMTP id 483FKF4VsyzDqSD
+ for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2020 19:08:49 +1100 (AEDT)
 Received: from unknown (HELO localhost)([220.196.60.5]) by sina.com with ESMTP
- id 5E2954300001C3A8; Thu, 23 Jan 2020 16:07:20 +0800 (CST)
+ id 5E2953F500022221; Thu, 23 Jan 2020 16:06:21 +0800 (CST)
 X-Sender: blucerlee@sina.com
 X-Auth-ID: blucerlee@sina.com
-X-SMAIL-MID: 160376628778
+X-SMAIL-MID: 20269849283273
 From: Li Guifu <blucerlee@sina.com>
-To: LGF <wylgf01@163.com>
+To: linux-erofs@lists.ozlabs.org
 Subject: [PATCH v1] erofs-utils: introduce exclude dirs and files
-Date: Thu, 23 Jan 2020 16:07:11 +0800
-Message-Id: <20200123080711.3442-1-blucerlee@sina.com>
+Date: Thu, 23 Jan 2020 16:06:12 +0800
+Message-Id: <20200123080612.3385-1-blucerlee@sina.com>
 X-Mailer: git-send-email 2.17.1
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -54,7 +52,7 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: LGF <wylgf01@163.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
