@@ -2,61 +2,93 @@ Return-Path: <SRS0=oBYO=3S=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,URIBL_DBL_ABUSE_MALW,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C4C6C33C9E
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 00:57:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CE30C33CB2
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 02:05:19 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 277B124681
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 00:57:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 277B124681
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=fromorbit.com
+	by mail.kernel.org (Postfix) with ESMTPS id D5EB22051A
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 02:05:18 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="Kp3A/2H3";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="e1EroSJN"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5EB22051A
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 486lTF6YKZzDqNZ
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 11:57:53 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.helo=mail105.syd.optusnet.com.au (client-ip=211.29.132.249;
- helo=mail105.syd.optusnet.com.au; envelope-from=david@fromorbit.com;
- receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 486mz05j3KzDqNS
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jan 2020 13:05:16 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1580263516;
+	bh=D7IX4fx4E4IRshwCmL6MyaIUQK4/oQ1Aact0POu7XLQ=;
+	h=Date:To:Subject:References:List-Id:List-Unsubscribe:List-Archive:
+	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=Kp3A/2H3uA9qBKuP606lj0SGpw79VrY61nBU3vL39tpgXUiG1qrqDevJ8dfLfV/uT
+	 Y7IDbnFPPTdjctejnXzyZLYK8UkIUSggy3fCpgmL4Qg3mlBHRO1mgtadUjPRaXQ3FT
+	 DmLpfI5BMAiodBuhnltse1ysKLBqxhl2PGmmaBuzRlX7gEuSfwKRLlfOPEX9R/uvzY
+	 0jwnicRkF1MHtALS8TlcRRRSO9nM9K0n2Con8zIzeJ0gOLS0ZPe6rQvu70aes7oI+C
+	 4FV2Y7t71pK3FMoA9NjO6MDbmGhZyFZU4hq2rYPOHTOYZVgkgQe0aLm3mzXNOLSd08
+	 McxlUUXwEjJyQ==
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=fromorbit.com
-Received: from mail105.syd.optusnet.com.au (mail105.syd.optusnet.com.au
- [211.29.132.249])
- by lists.ozlabs.org (Postfix) with ESMTP id 486lT44Dx1zDqN8
- for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jan 2020 11:57:43 +1100 (AEDT)
-Received: from dread.disaster.area (pa49-195-111-217.pa.nsw.optusnet.com.au
- [49.195.111.217])
- by mail105.syd.optusnet.com.au (Postfix) with ESMTPS id 57DB03A1476;
- Wed, 29 Jan 2020 11:57:42 +1100 (AEDT)
-Received: from dave by dread.disaster.area with local (Exim 4.92.3)
- (envelope-from <david@fromorbit.com>)
- id 1iwbfp-0005wG-QY; Wed, 29 Jan 2020 11:57:41 +1100
-Date: Wed, 29 Jan 2020 11:57:41 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 07/12] erofs: Convert uncompressed files from readpages
- to readahead
-Message-ID: <20200129005741.GJ18610@dread.disaster.area>
-References: <20200125013553.24899-1-willy@infradead.org>
- <20200125013553.24899-8-willy@infradead.org>
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=98.137.69.84; helo=sonic314-21.consmr.mail.gq1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=reject dis=none) header.from=aol.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=e1EroSJN; dkim-atps=neutral
+Received: from sonic314-21.consmr.mail.gq1.yahoo.com
+ (sonic314-21.consmr.mail.gq1.yahoo.com [98.137.69.84])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 486mys1R0LzDqMt
+ for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jan 2020 13:05:08 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1580263504; bh=sYL6ZHN2CvlM1IdDrBrWu/a7XoJkY3p5D/tO15+rwAo=;
+ h=Date:From:To:Cc:Subject:References:From:Subject;
+ b=e1EroSJNRWZ8kxm+7PYZN7MwF6xvzHbiExOvrRQrWrwIOHzvo/8NV++nFeMrsVWL75sX+rc9kKDgSQY5nWuo0+NllKiJOMT5q2jVkF+/kkrtEhG/BVDkEzqdT05JtGHRHI/KcTKT0sVXxuGguvQGQxsdGstjWLXIkBjwJaWDYGcm5r8E0gkpfZaQR8+wbKGGqaL2UgVKvaASY2mVYtzTwVk5f+afOYK863IJqSMErli3sf9Jp0GLOaKmU1NCenQkqefsBMlvOk9CyJuve6ycsXrj6rkn31O06EdWCp0li9Clx+Rk7hQ5ROnn9heGh3AMIFPKhgr2kzSQ0TvCOaPmfA==
+X-YMail-OSG: MM0T8YoVM1laGNf25r0JB4NT_.Aq6PW3p_8D72naMKanE7VJjo2F4bDapMtaB0w
+ DG4AhySfhDU3NKJKdTwGfODEfRvYenP7jf375iURiUADoKksLnOwr4PCPNWK0k3Lu1LkhsPSKfv1
+ 9a4vlU5zDKp259k3NfPUF0uP0qNffutuH1Kc.RTH401M1BmnwVWBIaDmW52JLQBqHmMSEVR6tt5j
+ oAzWwbMyFKyS_a6Kg4qmBPy9lCUtvEdrB8JcvNwgfnO1NL7N9B_m3dSDfmFHx3OsJbln0sey4WF_
+ Jfhj1P6dsdxV5V4srX.v3quSBPOi12Dx7U3isi3PRVgSennZp7DfaoC7Pqu3QYJlFQR2PkZh6A20
+ oa8gxDmpo6fNgayJFIbm8X7V1I5zVGIKY0cNkC1OumYyGSxzyCoT1fsQMNLyDwSjVMltPJyzJLev
+ kpZw_eTra2F_UjIi1lMB8CUMiQVIxwXgk8zqT6fxqa0qEzAr1TY9QqmcIMxRSrAYDVTq3pHPyX6V
+ 60nfKFkxtKg0NH7q5xvgfGX6FCpQo5Ou0fpmxZRFo9PHZvlM69msTx1WrSKlbgKbDW75XGeprl94
+ 76_8eUH9p.2_exo93nivcTc1h6qg947OcGXYrpGMLmlgmSVatKv.aA5KHTS00cEGDb8H8vEiG1jA
+ s4qH6eQE6yRlxGZ.kuxmXWnS6xMBKKX0MjEXjK4Es_GI0yvDhjvqQ6G_x.GmTMLNKGICYE8rSOPA
+ IXKULkM7fOkmvIbM.QYSdQxwORCkYuXZ9JUcPwE6nx7mcTsWpsZJm3OczfbvfVb93h0MtVqt71.l
+ mvonbabrBA3LScYMMb1CnZnBXKaDP7d5j67Dk3qNbmcKM0wOScn6etzg36lgFLMpZs5pTUm4CIHg
+ 3WfjBTU3QA4DBh_L3JV1ViFX0aiMOPXPGTYJl3tXkshopzm7347T1c0slT.izy_X0Ix9uVuA1loK
+ SOfFVNEJK6q1RTkpxiAFehzWZAZjvJVrR2qvmtveIyhwSMLo52SCsfaonVSMQpEFnTIKW586zSkU
+ ugak9p20ubEbdFJPtw5CEAC9rImfhZ_LOgdPvxCR5eotpTIOwxnq.yfPqxOmIPhfdM5aHW_wjX2R
+ bVsgTOqmCBKwKfT1MZi2jx0_lXUgZ9dz.2CarxZal3rJQKJKOpt6bUyuvXyzuPfoMu1a7e3VMTDE
+ VY5Tpf5s9s2FKSFbOqM15xjp.pq5kKxy.7y2zuWTUlz0lAwA0zUwJqvtAmhkPBF5UPivtjC5imbo
+ UARbgWFiezK0MTHDVcnaQiHH5gRvEpehGyAOw2fIHVP9VcurKregm7yV5GbwUa8IGWdUc5X.Ge0h
+ 739Zx69mg27w8_9fYOc6nFQUrqNEXvPoYrCdUq58gARMjqS_VGPGcTis2UYx7eMoItMixPo_Mi3x
+ vgyVy3QI.tuditxPLPlh8DR3JxPwFfwjjkwF4Lrgj
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic314.consmr.mail.gq1.yahoo.com with HTTP; Wed, 29 Jan 2020 02:05:04 +0000
+Received: by smtp430.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 43729e285804c5913db09e10a57cdd94; 
+ Wed, 29 Jan 2020 02:05:00 +0000 (UTC)
+Date: Wed, 29 Jan 2020 10:04:54 +0800
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] erofs updates for 5.6-rc1
+Message-ID: <20200129020451.GA5348@hsiangkao-HP-ZHAN-66-Pro-G1>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200125013553.24899-8-willy@infradead.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Optus-CM-Score: 0
-X-Optus-CM-Analysis: v=2.3 cv=X6os11be c=1 sm=1 tr=0
- a=0OveGI8p3fsTA6FL6ss4ZQ==:117 a=0OveGI8p3fsTA6FL6ss4ZQ==:17
- a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=kj9zAlcOel0A:10 a=Jdjhy38mL1oA:10
- a=JfrnYn6hAAAA:8 a=voM4FWlXAAAA:8 a=7-415B0cAAAA:8 a=ARdszsHN92wWq2Ddru8A:9
- a=CjuIK1q_8ugA:10 a=1CNFftbPRP8L7MoqJWF3:22 a=IC2XNlieTeVoXbcui8wp:22
- a=biEYGPWJfzWAr4FL6Ov7:22
+References: <20200129020451.GA5348.ref@hsiangkao-HP-ZHAN-66-Pro-G1>
+X-Mailer: WebService/1.1.15116 hermes Apache-HttpAsyncClient/4.1.4
+ (Java/1.8.0_181)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,87 +100,66 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Miao Xie <miaoxie@huawei.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Jan 24, 2020 at 05:35:48PM -0800, Matthew Wilcox wrote:
-> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> 
-> Use the new readahead operation in erofs.  Fix what I believe to be
-> a refcounting bug in the error case.
-> 
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Cc: linux-erofs@lists.ozlabs.org
-> ---
->  fs/erofs/data.c              | 34 ++++++++++++++--------------------
->  fs/erofs/zdata.c             |  2 +-
->  include/trace/events/erofs.h |  6 +++---
->  3 files changed, 18 insertions(+), 24 deletions(-)
-> 
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index fc3a8d8064f8..335c1ab05312 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -280,42 +280,36 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
->  	return 0;
->  }
->  
-> -static int erofs_raw_access_readpages(struct file *filp,
-> +static unsigned erofs_raw_access_readahead(struct file *file,
->  				      struct address_space *mapping,
-> -				      struct list_head *pages,
-> +				      pgoff_t start,
->  				      unsigned int nr_pages)
->  {
->  	erofs_off_t last_block;
->  	struct bio *bio = NULL;
-> -	gfp_t gfp = readahead_gfp_mask(mapping);
-> -	struct page *page = list_last_entry(pages, struct page, lru);
->  
-> -	trace_erofs_readpages(mapping->host, page, nr_pages, true);
-> +	trace_erofs_readpages(mapping->host, start, nr_pages, true);
->  
->  	for (; nr_pages; --nr_pages) {
-> -		page = list_entry(pages->prev, struct page, lru);
-> +		struct page *page = readahead_page(mapping, start++);
->  
->  		prefetchw(&page->flags);
-> -		list_del(&page->lru);
->  
-> -		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
-> -			bio = erofs_read_raw_page(bio, mapping, page,
-> -						  &last_block, nr_pages, true);
-> +		bio = erofs_read_raw_page(bio, mapping, page, &last_block,
-> +				nr_pages, true);
->  
-> -			/* all the page errors are ignored when readahead */
-> -			if (IS_ERR(bio)) {
-> -				pr_err("%s, readahead error at page %lu of nid %llu\n",
-> -				       __func__, page->index,
-> -				       EROFS_I(mapping->host)->nid);
-> +		/* all the page errors are ignored when readahead */
-> +		if (IS_ERR(bio)) {
-> +			pr_err("%s, readahead error at page %lu of nid %llu\n",
-> +			       __func__, page->index,
-> +			       EROFS_I(mapping->host)->nid);
->  
-> -				bio = NULL;
-> -			}
-> +			bio = NULL;
-> +			put_page(page);
->  		}
->  
-> -		/* pages could still be locked */
->  		put_page(page);
+Hi Linus,
 
-A double put_page() on error?
+Could you consider this pull request for 5.6-rc1?
 
-Cheers,
+A regression fix, several cleanups and (maybe) plus an upcoming
+new mount api convert patch as a part of vfs update are considered
+available for this cycle.
 
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+All commits have been in linux-next and tested with no smoke out.
+
+Thanks,
+Gao Xiang
+
+The following changes since commit c79f46a282390e0f5b306007bf7b11a46d529538:
+
+  Linux 5.5-rc5 (2020-01-05 14:23:27 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-5.6-rc1
+
+for you to fetch changes up to 1e4a295567949ee8e6896a7db70afd1b6246966e:
+
+  erofs: clean up z_erofs_submit_queue() (2020-01-21 16:46:23 +0800)
+
+----------------------------------------------------------------
+Changes since last update:
+
+ - fix an out-of-bound read access introduced in v5.3,
+   which could rarely cause data corruption;
+
+ - various cleanup patches.
+
+----------------------------------------------------------------
+Gao Xiang (3):
+      erofs: fix out-of-bound read for shifted uncompressed block
+      erofs: fold in postsubmit_is_all_bypassed()
+      erofs: clean up z_erofs_submit_queue()
+
+Vladimir Zapolskiy (4):
+      erofs: correct indentation of an assigned structure inside a function
+      erofs: remove unused tag argument while finding a workgroup
+      erofs: remove unused tag argument while registering a workgroup
+      erofs: remove void tagging/untagging of workgroup pointers
+
+ fs/erofs/decompressor.c |  22 ++++-----
+ fs/erofs/internal.h     |   4 +-
+ fs/erofs/utils.c        |  15 ++----
+ fs/erofs/xattr.h        |  17 +++----
+ fs/erofs/zdata.c        | 123 +++++++++++++++++++-----------------------------
+ 5 files changed, 74 insertions(+), 107 deletions(-)
+
+
