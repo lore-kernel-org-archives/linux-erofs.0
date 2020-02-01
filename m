@@ -2,64 +2,68 @@ Return-Path: <SRS0=+HGT=3V=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_DBL_ABUSE_MALW,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC724C33CB7
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 00:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FC29C35246
+	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 15:13:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 968EC20707
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 00:26:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 53C812070C
+	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 15:13:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QxOHj2pZ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 968EC20707
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DcG4wxUB"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 53C812070C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 488ZdD46j4zDqhs
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 11:26:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 488yJs6lsTzDqdT
+	for <linux-erofs@archiver.kernel.org>; Sun,  2 Feb 2020 02:13:17 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
  envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=DcG4wxUB; 
+ dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 488Zcr1sPTzDqgk
- for <linux-erofs@lists.ozlabs.org>; Sat,  1 Feb 2020 11:25:46 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 488yJH2NLvzDqcg
+ for <linux-erofs@lists.ozlabs.org>; Sun,  2 Feb 2020 02:12:45 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
- :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=Fpw6+UEhfuhuXeKhNiLAOcNkyHMzaziNThRDurB0olw=; b=QxOHj2pZg+W0B5HIBaNQ2a1dF
- X0NQclBE2kGZleLQjTuffWwMMANrl04KeOOHt8+bcQ6CQD6k2oHx72uYHBStQflRNHip10UsC+bUF
- Fg7POZ4hQfjJ8LdBtpUUHaKx+Rje32bllb90LUXDP3WyQ/fVujZZviLRgFeAT7YsCrvLqGXY/BB/w
- XtqUGknjOioO7AGDFc7lDe+R24v4E+kG9joislUUkwVb8+Hoia9E/hsFJJBvG1VKjELdCeSa0PDu1
- rNSDke9vxTqSCLFjMRvKxnwwh4Y0P6CGwh+9iPiDkrlTR0ogML9akzWOAnGVQjmF854vphMnQomW5
- k9hsWWB1Q==;
+ d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
+ :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+ List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=vx0x9ixSyk5FO3ZgNxdf5gKeGpRW9UmfbVaEbgzrEAE=; b=DcG4wxUBBQHlTnlL3fvdg8cFjw
+ 5Dv1AcTr/YNgWG3aykyBm8YlcFdQcXQYNTnXgoM2csLfzDKG1gefpRznvkmRZ7Xb/rh9LekVoGw0X
+ QL/RZqyLUcjGkwrMmk/QTUwHQ6kZHBRfOzWn6bcmkQoQI/eA5BLvp7jPAtPwYVfsd9IuNWOypqgLO
+ SSuvx0+4N5CJHDAiVxksTVPEXzTmApNEcZ3rTEGEGX573BxVUkhgTTqHY+lK47OW1M5ia+QvKnNCF
+ E44xSuq4cbUqaIkZ6qN+5jjVzdrdmAcrVdjm3uiHOCc8lYwLsOjYLCPqX5TTtbK89dtTZIwK4QMbc
+ DRVBZBJg==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1ixgbW-0005u5-47; Sat, 01 Feb 2020 00:25:42 +0000
-Date: Fri, 31 Jan 2020 16:25:42 -0800
+ Hat Linux)) id 1ixuRu-0006Hf-9S; Sat, 01 Feb 2020 15:12:42 +0000
 From: Matthew Wilcox <willy@infradead.org>
-To: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 04/12] mm: Add readahead address space operation
-Message-ID: <20200201002542.GA20648@bombadil.infradead.org>
-References: <20200125013553.24899-1-willy@infradead.org>
- <20200125013553.24899-5-willy@infradead.org>
- <4e28eb80-d602-47e6-51ec-63bb39e1a296@infradead.org>
+To: linux-fsdevel@vger.kernel.org
+Subject: [PATCH v4 07/12] erofs: Convert uncompressed files from readpages to
+ readahead
+Date: Sat,  1 Feb 2020 07:12:35 -0800
+Message-Id: <20200201151240.24082-8-willy@infradead.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200201151240.24082-1-willy@infradead.org>
+References: <20200201151240.24082-1-willy@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4e28eb80-d602-47e6-51ec-63bb39e1a296@infradead.org>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -71,29 +75,132 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-btrfs@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org,
+ "Matthew Wilcox \(Oracle\)" <willy@infradead.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Jan 24, 2020 at 07:57:40PM -0800, Randy Dunlap wrote:
-> > +``readahead``
-> > +	called by the VM to read pages associated with the address_space
-> > +	object.  The pages are consecutive in the page cache and are
-> > +        locked.  The implementation should decrement the page refcount after
-> > +        attempting I/O on each page.  Usually the page will be unlocked by
-> > +        the I/O completion handler.  If the function does not attempt I/O on
-> > +        some pages, return the number of pages which were not read so the
-> > +        common code can unlock the pages for you.
-> > +
-> 
-> Please use consistent indentation (tabs).
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-This turned out to be not my fault.  The vim rst ... mode?  plugin?
-Whatever it is, it's converting tabs to spaces!  To fix it, I had to
-rename the file to .txt, make the edits, then rename it back.  This is
-very poor behaviour.
+Use the new readahead operation in erofs
+
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: linux-erofs@lists.ozlabs.org
+---
+ fs/erofs/data.c              | 33 +++++++++++++--------------------
+ fs/erofs/zdata.c             |  2 +-
+ include/trace/events/erofs.h |  6 +++---
+ 3 files changed, 17 insertions(+), 24 deletions(-)
+
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index fc3a8d8064f8..514b43463a21 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -280,42 +280,35 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
+ 	return 0;
+ }
+ 
+-static int erofs_raw_access_readpages(struct file *filp,
++static unsigned erofs_raw_access_readahead(struct file *file,
+ 				      struct address_space *mapping,
+-				      struct list_head *pages,
++				      pgoff_t start,
+ 				      unsigned int nr_pages)
+ {
+ 	erofs_off_t last_block;
+ 	struct bio *bio = NULL;
+-	gfp_t gfp = readahead_gfp_mask(mapping);
+-	struct page *page = list_last_entry(pages, struct page, lru);
+ 
+-	trace_erofs_readpages(mapping->host, page, nr_pages, true);
++	trace_erofs_readpages(mapping->host, start, nr_pages, true);
+ 
+ 	for (; nr_pages; --nr_pages) {
+-		page = list_entry(pages->prev, struct page, lru);
++		struct page *page = readahead_page(mapping, start++);
+ 
+ 		prefetchw(&page->flags);
+-		list_del(&page->lru);
+ 
+-		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
+-			bio = erofs_read_raw_page(bio, mapping, page,
+-						  &last_block, nr_pages, true);
++		bio = erofs_read_raw_page(bio, mapping, page, &last_block,
++				nr_pages, true);
+ 
+-			/* all the page errors are ignored when readahead */
+-			if (IS_ERR(bio)) {
+-				pr_err("%s, readahead error at page %lu of nid %llu\n",
+-				       __func__, page->index,
+-				       EROFS_I(mapping->host)->nid);
++		/* all the page errors are ignored when readahead */
++		if (IS_ERR(bio)) {
++			pr_err("%s, readahead error at page %lu of nid %llu\n",
++			       __func__, page->index,
++			       EROFS_I(mapping->host)->nid);
+ 
+-				bio = NULL;
+-			}
++			bio = NULL;
+ 		}
+ 
+-		/* pages could still be locked */
+ 		put_page(page);
+ 	}
+-	DBG_BUGON(!list_empty(pages));
+ 
+ 	/* the rare case (end in gaps) */
+ 	if (bio)
+@@ -358,7 +351,7 @@ static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
+ /* for uncompressed (aligned) files and raw access for other files */
+ const struct address_space_operations erofs_raw_access_aops = {
+ 	.readpage = erofs_raw_access_readpage,
+-	.readpages = erofs_raw_access_readpages,
++	.readahead = erofs_raw_access_readahead,
+ 	.bmap = erofs_bmap,
+ };
+ 
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 80e47f07d946..17f45fcb8c5c 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1315,7 +1315,7 @@ static int z_erofs_readpages(struct file *filp, struct address_space *mapping,
+ 	struct page *head = NULL;
+ 	LIST_HEAD(pagepool);
+ 
+-	trace_erofs_readpages(mapping->host, lru_to_page(pages),
++	trace_erofs_readpages(mapping->host, lru_to_page(pages)->index,
+ 			      nr_pages, false);
+ 
+ 	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
+diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
+index 27f5caa6299a..bf9806fd1306 100644
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -113,10 +113,10 @@ TRACE_EVENT(erofs_readpage,
+ 
+ TRACE_EVENT(erofs_readpages,
+ 
+-	TP_PROTO(struct inode *inode, struct page *page, unsigned int nrpage,
++	TP_PROTO(struct inode *inode, pgoff_t start, unsigned int nrpage,
+ 		bool raw),
+ 
+-	TP_ARGS(inode, page, nrpage, raw),
++	TP_ARGS(inode, start, nrpage, raw),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+@@ -129,7 +129,7 @@ TRACE_EVENT(erofs_readpages,
+ 	TP_fast_assign(
+ 		__entry->dev	= inode->i_sb->s_dev;
+ 		__entry->nid	= EROFS_I(inode)->nid;
+-		__entry->start	= page->index;
++		__entry->start	= start;
+ 		__entry->nrpage	= nrpage;
+ 		__entry->raw	= raw;
+ 	),
+-- 
+2.24.1
+
