@@ -1,68 +1,59 @@
-Return-Path: <SRS0=+HGT=3V=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=/AwM=3X=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=FAKE_REPLY_C,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_DBL_ABUSE_MALW,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28544C33CB3
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 15:14:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF51AC3524D
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Feb 2020 09:10:36 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CDB8D20723
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Feb 2020 15:14:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="bY3NBrXn"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CDB8D20723
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id AA1482080D
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Feb 2020 09:10:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AA1482080D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 488yKn6yCBzDqdb
-	for <linux-erofs@archiver.kernel.org>; Sun,  2 Feb 2020 02:14:05 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48B29Q4fHYzDqN6
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Feb 2020 20:10:34 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=huawei.com;
+ envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- spf=none (no SPF record) smtp.mailfrom=infradead.org
- (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
- envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=bY3NBrXn; 
- dkim-atps=neutral
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:e::133])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga03-in.huawei.com [45.249.212.189])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 488yJL33zFzDqcF
- for <linux-erofs@lists.ozlabs.org>; Sun,  2 Feb 2020 02:12:50 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
- MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
- :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
- :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=Ml5Puu4JmLRdzMhiiCOiBo4ACbPsQdjTb+QSPxS+DKY=; b=bY3NBrXng43eEHaP4qFkNBHkjA
- /0ai0QxQPvj+vzTnehD7kfdwvHZ8vzjptHG3nMCtmSDzhJPLlrrRvHwMG04vHV9fd/CCJRTd7hZ9S
- kCY6iKxXzzldIpqfDcbhn1eEv9lpm3OwGdFjku0KJeD/QhITkP89Q8r/3MLB+25BxQPdL5yjJPCI/
- zaoC9Cl+tOymw4aTP+dhrGrhEN9KAUrBXzsBIHlqEM/UfvzLlZxLPkERj8Ov2t+ljIWtVaj85jqMP
- h352PTKYgXTRiVZYfWwYCWlL9sM65Px7gR4w2uvH7jwuclAa5kmfsGcMYSDK+NcJWFvdA8OCVg7ot
- FV+G0YLQ==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1ixuRu-0006HT-5R; Sat, 01 Feb 2020 15:12:42 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v4 04/12] mm: Add readahead address space operation
-Date: Sat,  1 Feb 2020 07:12:32 -0800
-Message-Id: <20200201151240.24082-5-willy@infradead.org>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20200201151240.24082-1-willy@infradead.org>
-References: <20200201151240.24082-1-willy@infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48B2964Ng3zDqKV
+ for <linux-erofs@lists.ozlabs.org>; Mon,  3 Feb 2020 20:10:12 +1100 (AEDT)
+Received: from DGGEMM402-HUB.china.huawei.com (unknown [172.30.72.55])
+ by Forcepoint Email with ESMTP id E080C6EECFB682975B24;
+ Mon,  3 Feb 2020 17:09:57 +0800 (CST)
+Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
+ DGGEMM402-HUB.china.huawei.com (10.3.20.210) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Mon, 3 Feb 2020 17:09:57 +0800
+Received: from architecture4 (10.160.196.180) by
+ dggeme762-chm.china.huawei.com (10.3.19.108) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1713.5; Mon, 3 Feb 2020 17:09:57 +0800
+Date: Mon, 3 Feb 2020 17:08:55 +0800
+From: Gao Xiang <gaoxiang25@huawei.com>
+To: Li Guifu <blucerlee@sina.com>
+Subject: Re: [PATCH v1] erofs-utils: introduce exclude dirs and files
+Message-ID: <20200203090853.GA114889@architecture4>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20200123080711.3442-1-blucerlee@sina.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Originating-IP: [10.160.196.180]
+X-ClientProxiedBy: dggeme708-chm.china.huawei.com (10.1.199.104) To
+ dggeme762-chm.china.huawei.com (10.3.19.108)
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,163 +65,401 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-ext4@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: LGF <wylgf01@163.com>, Miao Xie <miaoxie@huawei.com>,
+ linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Hi Guifu,
 
-This replaces ->readpages with a saner interface:
- - Return the number of pages not read instead of an ignored error code.
- - Pages are already in the page cache when ->readahead is called.
- - Implementation looks up the pages in the page cache instead of
-   having them passed in a linked list.
+On Thu, Jan 23, 2020 at 03:04:02PM +0800, Li Guifu wrote:
+> 
+> From: Li Guifu <blucer.lee@foxmail.com>
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: linux-btrfs@vger.kernel.org
-Cc: linux-erofs@lists.ozlabs.org
-Cc: linux-ext4@vger.kernel.org
-Cc: linux-f2fs-devel@lists.sourceforge.net
-Cc: linux-xfs@vger.kernel.org
-Cc: cluster-devel@redhat.com
-Cc: ocfs2-devel@oss.oracle.com
----
- Documentation/filesystems/locking.rst |  7 ++++++-
- Documentation/filesystems/vfs.rst     | 14 ++++++++++++++
- include/linux/fs.h                    |  2 ++
- include/linux/pagemap.h               | 12 ++++++++++++
- mm/readahead.c                        | 13 ++++++++++++-
- 5 files changed, 46 insertions(+), 2 deletions(-)
+I could imagine that gmail is hard to work on mainland China,
+but what's wrong with @foxmail.com this time? It could be better
+to use some email address from a stable provider.
 
-diff --git a/Documentation/filesystems/locking.rst b/Documentation/filesystems/locking.rst
-index 5057e4d9dcd1..3d10729caf44 100644
---- a/Documentation/filesystems/locking.rst
-+++ b/Documentation/filesystems/locking.rst
-@@ -239,6 +239,8 @@ prototypes::
- 	int (*readpage)(struct file *, struct page *);
- 	int (*writepages)(struct address_space *, struct writeback_control *);
- 	int (*set_page_dirty)(struct page *page);
-+	unsigned (*readahead)(struct file *, struct address_space *,
-+				 pgoff_t start, unsigned nr_pages);
- 	int (*readpages)(struct file *filp, struct address_space *mapping,
- 			struct list_head *pages, unsigned nr_pages);
- 	int (*write_begin)(struct file *, struct address_space *mapping,
-@@ -271,7 +273,8 @@ writepage:		yes, unlocks (see below)
- readpage:		yes, unlocks
- writepages:
- set_page_dirty		no
--readpages:
-+readahead:		yes, unlocks
-+readpages:		no
- write_begin:		locks the page		 exclusive
- write_end:		yes, unlocks		 exclusive
- bmap:
-@@ -295,6 +298,8 @@ the request handler (/dev/loop).
- ->readpage() unlocks the page, either synchronously or via I/O
- completion.
- 
-+->readahead() unlocks the pages like ->readpage().
-+
- ->readpages() populates the pagecache with the passed pages and starts
- I/O against them.  They come unlocked upon I/O completion.
- 
-diff --git a/Documentation/filesystems/vfs.rst b/Documentation/filesystems/vfs.rst
-index 7d4d09dd5e6d..c2bc345f2169 100644
---- a/Documentation/filesystems/vfs.rst
-+++ b/Documentation/filesystems/vfs.rst
-@@ -706,6 +706,8 @@ cache in your filesystem.  The following members are defined:
- 		int (*readpage)(struct file *, struct page *);
- 		int (*writepages)(struct address_space *, struct writeback_control *);
- 		int (*set_page_dirty)(struct page *page);
-+		unsigned (*readahead)(struct file *filp, struct address_space *mapping,
-+				 pgoff_t start, unsigned nr_pages);
- 		int (*readpages)(struct file *filp, struct address_space *mapping,
- 				 struct list_head *pages, unsigned nr_pages);
- 		int (*write_begin)(struct file *, struct address_space *mapping,
-@@ -781,6 +783,18 @@ cache in your filesystem.  The following members are defined:
- 	If defined, it should set the PageDirty flag, and the
- 	PAGECACHE_TAG_DIRTY tag in the radix tree.
- 
-+``readahead``
-+	Called by the VM to read pages associated with the address_space
-+	object.  The pages are consecutive in the page cache and
-+	are locked.  The implementation should decrement the page
-+	refcount after attempting I/O on each page.  Usually the
-+	page will be unlocked by the I/O completion handler.  If the
-+	function does not attempt I/O on some pages, return the number
-+	of pages which were not read so the caller can unlock the pages
-+	for you.  Set PageUptodate if the I/O completes successfully.
-+	Setting PageError on any page will be ignored; simply unlock
-+	the page if an I/O error occurs.
-+
- ``readpages``
- 	called by the VM to read pages associated with the address_space
- 	object.  This is essentially just a vector version of readpage.
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 41584f50af0d..3bfc142e7d10 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -375,6 +375,8 @@ struct address_space_operations {
- 	 */
- 	int (*readpages)(struct file *filp, struct address_space *mapping,
- 			struct list_head *pages, unsigned nr_pages);
-+	unsigned (*readahead)(struct file *, struct address_space *,
-+			pgoff_t start, unsigned nr_pages);
- 
- 	int (*write_begin)(struct file *, struct address_space *mapping,
- 				loff_t pos, unsigned len, unsigned flags,
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index ccb14b6a16b5..a2cf007826f2 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -630,6 +630,18 @@ static inline int add_to_page_cache(struct page *page,
- 	return error;
- }
- 
-+/*
-+ * Only call this from a ->readahead implementation.
-+ */
-+static inline
-+struct page *readahead_page(struct address_space *mapping, pgoff_t index)
-+{
-+	struct page *page = xa_load(&mapping->i_pages, index);
-+	VM_BUG_ON_PAGE(!PageLocked(page), page);
-+
-+	return page;
-+}
-+
- static inline unsigned long dir_pages(struct inode *inode)
- {
- 	return (unsigned long)(inode->i_size + PAGE_SIZE - 1) >>
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 7daef0038b14..b2ed0baf3a5d 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -121,7 +121,18 @@ static void read_pages(struct address_space *mapping, struct file *filp,
- 
- 	blk_start_plug(&plug);
- 
--	if (mapping->a_ops->readpages) {
-+	if (mapping->a_ops->readahead) {
-+		unsigned left = mapping->a_ops->readahead(filp, mapping,
-+				start, nr_pages);
-+
-+		while (left) {
-+			struct page *page = readahead_page(mapping,
-+					start + nr_pages - left);
-+			unlock_page(page);
-+			put_page(page);
-+			left--;
-+		}
-+	} else if (mapping->a_ops->readpages) {
- 		mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
- 		/* Clean up the remaining pages */
- 		put_pages_list(pages);
--- 
-2.24.1
+> 
+> Add support exlcude directory when build image with long option
+> arg --exclude-path=dir1/dir2,dir11/dir22 or short option arg
+> -e dir1/dir2,dir11/dir22 that seperated by ','
 
+How about the following commit message?
+
+Add excluded file feature "--exclude-path=", which can be used
+to build EROFS image without some user specific files or dirs.
+Such multiple files can be seperated by ','.
+
+and I tend to avoid the short option '-e' in order to keep it
+for later use (e.g. file system encryption).
+
+> 
+> Signed-off-by: Li Guifu <blucer.lee@foxmail.com>
+> ---
+>  include/erofs/exclude.h |  28 ++++++++
+>  lib/Makefile.am         |   2 +-
+>  lib/exclude.c           | 149 ++++++++++++++++++++++++++++++++++++++++
+>  lib/inode.c             |  10 +++
+>  mkfs/main.c             |  13 +++-
+>  5 files changed, 200 insertions(+), 2 deletions(-)
+>  create mode 100644 include/erofs/exclude.h
+>  create mode 100644 lib/exclude.c
+> 
+> diff --git a/include/erofs/exclude.h b/include/erofs/exclude.h
+> new file mode 100644
+> index 0000000..3f9fb4d
+> --- /dev/null
+> +++ b/include/erofs/exclude.h
+> @@ -0,0 +1,28 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * erofs-utils\include\erofs\exclude.h
+
+erofs-utils/include/erofs/exclude.h
+
+No backslash here
+
+> + * Created by Li Guifu <blucer.lee@foxmail.com>
+> + */
+> +
+> +#ifndef __EROFS_EXCLUDE_H
+> +#define __EROFS_EXCLUDE_H
+> +
+> +struct rule_entry {
+
+rule is too general here. exclude_rule_entry
+
+> +	struct list_head list;
+> +	struct list_head hlist;
+> +	char *name;
+> +};
+> +
+> +void erofs_init_rules(void);
+> +void erofs_free_rules(void);
+
+
+Same here erofs_init_exclude_rules(), erofs_free_exclude_rules();
+
+> +int erofs_parse_exclude_path(const char *args);
+> +struct rule_entry *erofs_pattern_matched(const char *s);
+> +struct rule_entry *erofs_entry_matched(struct rule_entry *e,
+> +				   const char *s, unsigned int len);
+
+> +
+> +static inline int erofs_is_pattern_end(struct rule_entry *e)
+> +{
+> +	return list_empty(&e->hlist);
+> +}
+> +#endif
+> +
+> diff --git a/lib/Makefile.am b/lib/Makefile.am
+> index 1ff81f9..e4b51e6 100644
+> --- a/lib/Makefile.am
+> +++ b/lib/Makefile.am
+> @@ -3,7 +3,7 @@
+>  
+>  noinst_LTLIBRARIES = liberofs.la
+>  liberofs_la_SOURCES = config.c io.c cache.c inode.c xattr.c \
+> -		      compress.c compressor.c
+> +		      compress.c compressor.c exclude.c
+>  liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+>  if ENABLE_LZ4
+>  liberofs_la_CFLAGS += ${LZ4_CFLAGS}
+> diff --git a/lib/exclude.c b/lib/exclude.c
+> new file mode 100644
+> index 0000000..25a9d32
+> --- /dev/null
+> +++ b/lib/exclude.c
+> @@ -0,0 +1,149 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * erofs-utils\lib\exclude.c
+
+Same here.
+
+> + * Created by Li Guifu <blucer.lee@foxmail.com>
+> + */
+> +
+> +#include <string.h>
+> +#include <errno.h>
+> +#include <stdlib.h>
+> +
+> +#include "erofs/defs.h"
+> +#include "erofs/list.h"
+> +#include "erofs/print.h"
+> +#include "erofs/exclude.h"
+> +
+> +static struct rule_entry ext_rule;
+
+exclude_rule ?
+
+> +
+> +static struct rule_entry *new_entry(const char *s, unsigned int len)
+
+The function name is too general as well. new_exclude_rule() 
+
+> +{
+> +	struct rule_entry *e = malloc(sizeof(struct rule_entry));
+> +
+> +	if (!e)
+> +		return NULL;
+
+How about using ERR_PTR(-ENOMEM) instead...
+
+> +
+> +	e->name = strndup(s, len);
+> +	if (!e->name)
+> +		goto err_strdup;
+> +
+> +	init_list_head(&e->hlist);
+> +	init_list_head(&e->list);
+> +
+> +	return e;
+> +
+> +err_strdup:
+> +	free(e);
+> +	return NULL;
+
+Same here.
+
+> +}
+> +
+> +struct rule_entry *erofs_entry_matched(struct rule_entry *e,
+> +				   const char *s, unsigned int len)
+> +{
+> +	struct rule_entry *pos;
+> +
+> +	while (*s == '/') {
+> +		s++;
+> +		len--;
+> +	}
+> +	list_for_each_entry(pos, &e->hlist, list) {
+> +		unsigned int l = strlen(pos->name);
+> +
+> +		if (l == len && !strcmp(pos->name, s))
+> +			return pos;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +
+> +static int add_rules(struct rule_entry *e, const char *s)
+
+Same here.
+
+> +{
+> +	const char *ptr;
+> +	struct rule_entry *le;
+> +
+> +	while (*s == '/')
+> +		s++;
+> +	ptr = s;
+> +
+> +forward:
+> +	while(*ptr != '/' && *ptr != '\0')
+> +		ptr++;
+> +
+> +	le = erofs_entry_matched(e, s, ptr - s);
+> +	if (!le) {
+> +		struct rule_entry *me = new_entry(s, ptr - s);
+> +
+> +		if (!me)
+> +			return -ENOMEM;
+> +		list_add_tail(&me->list, &e->hlist);
+> +		le = me;
+> +	}
+> +	e = le;
+> +
+> +	if (*ptr++ != '\0') {
+> +		s = ptr;
+> +		goto forward;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void free_rules(struct list_head *h)
+
+Same here.
+
+> +{
+> +	struct rule_entry *e, *n;
+> +
+> +	list_for_each_entry_safe(e, n, h, list) {
+> +		list_del(&e->list);
+> +		free_rules(&e->hlist);
+> +		free(e->name);
+> +		free(e);
+> +	}
+> +}
+> +void erofs_init_rules(void)
+> +{
+> +	init_list_head(&ext_rule.list);
+> +	init_list_head(&ext_rule.hlist);
+> +	ext_rule.name = "/";
+> +}
+> +
+> +void erofs_free_rules(void)
+> +{
+> +	free_rules(&ext_rule.hlist);
+> +}
+> +
+> +int erofs_parse_exclude_path(const char *args)
+> +{
+> +	const char *str, *ptr = args;
+> +	const char sep = ',';
+> +
+> +forward:
+> +	while(*ptr != sep && *ptr != '\0')
+> +		ptr++;
+> +
+> +	str = strndup(args, ptr - args);
+> +	if (!str)
+> +		goto err_free_paths;
+> +
+> +	if (add_rules(&ext_rule, str))
+> +		goto err_free_paths;
+> +
+> +	if (*ptr++ != '\0') {
+> +		args = ptr;
+> +		goto forward;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_free_paths:
+> +	erofs_free_rules();
+> +	return -ENOMEM;
+> +}
+> +
+> +struct rule_entry *erofs_pattern_matched(const char *s)
+> +{
+> +	unsigned int len = strlen(s);
+> +
+> +	if (!len)
+> +		return &ext_rule;
+> +
+> +	return erofs_entry_matched(&ext_rule, s, len);
+> +}
+> diff --git a/lib/inode.c b/lib/inode.c
+> index bd0652b..6278ff8 100644
+> --- a/lib/inode.c
+> +++ b/lib/inode.c
+> @@ -20,6 +20,7 @@
+>  #include "erofs/io.h"
+>  #include "erofs/compress.h"
+>  #include "erofs/xattr.h"
+> +#include "erofs/exclude.h"
+>  
+>  struct erofs_sb_info sbi;
+>  
+> @@ -825,6 +826,7 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
+>  	DIR *_dir;
+>  	struct dirent *dp;
+>  	struct erofs_dentry *d;
+> +	struct rule_entry *e;
+>  
+>  	ret = erofs_prepare_xattr_ibody(dir->i_srcpath, &dir->i_xattrs);
+>  	if (ret < 0)
+> @@ -863,6 +865,7 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
+>  		return ERR_PTR(-errno);
+>  	}
+>  
+> +	e = erofs_pattern_matched(dir->i_srcpath + strlen(cfg.c_src_path));
+>  	while (1) {
+>  		/*
+>  		 * set errno to 0 before calling readdir() in order to
+> @@ -876,7 +879,14 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
+>  		if (is_dot_dotdot(dp->d_name) ||
+>  		    !strncmp(dp->d_name, "lost+found", strlen("lost+found")))
+>  			continue;
+> +		if (e) {
+> +			struct rule_entry *le;
+>  
+> +			le = erofs_entry_matched(e, dp->d_name,
+> +						 strlen(dp->d_name));
+> +			if (le && erofs_is_pattern_end(le))
+> +				continue;
+> +		}
+>  		d = erofs_d_alloc(dir, dp->d_name);
+>  		if (IS_ERR(d)) {
+>  			ret = PTR_ERR(d);
+> diff --git a/mkfs/main.c b/mkfs/main.c
+> index 817a6c1..ab718cb 100644
+> --- a/mkfs/main.c
+> +++ b/mkfs/main.c
+> @@ -21,6 +21,7 @@
+>  #include "erofs/io.h"
+>  #include "erofs/compress.h"
+>  #include "erofs/xattr.h"
+> +#include "erofs/exclude.h"
+>  
+>  #ifdef HAVE_LIBUUID
+>  #include <uuid/uuid.h>
+> @@ -30,6 +31,7 @@
+>  
+>  static struct option long_options[] = {
+>  	{"help", no_argument, 0, 1},
+> +	{"exclude-path", required_argument, NULL, 'e'},
+
+        {"exclude-path", required_argument, NULL, 2},
+
+>  	{0, 0, 0, 0},
+>  };
+>  
+> @@ -127,7 +129,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+>  	char *endptr;
+>  	int opt, i;
+>  
+> -	while((opt = getopt_long(argc, argv, "d:x:z:E:T:",
+> +	while((opt = getopt_long(argc, argv, "d:x:z:E:T:e:",
+
+Leave it unchanged.
+
+(opt = getopt_long(argc, argv, "d:x:z:E:T:",
+
+>  				 long_options, NULL)) != -1) {
+>  		switch (opt) {
+>  		case 'z':
+> @@ -178,6 +180,13 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+>  			}
+>  			break;
+>  
+> +		case 'e':
+
+		case 2:
+
+Thanks,
+Gao Xiang
+
+> +			if (erofs_parse_exclude_path(optarg)) {
+> +				usage();
+> +				exit(0);
+> +			}
+> +			break;
+> +
+>  		case 1:
+>  			usage();
+>  			exit(0);
+> @@ -334,6 +343,7 @@ int main(int argc, char **argv)
+>  	struct timeval t;
+>  
+>  	erofs_init_configure();
+> +	erofs_init_rules();
+>  	fprintf(stderr, "%s %s\n", basename(argv[0]), cfg.c_version);
+>  
+>  	cfg.c_legacy_compress = false;
+> @@ -429,6 +439,7 @@ exit:
+>  	z_erofs_compress_exit();
+>  	dev_close();
+>  	erofs_exit_configure();
+> +	erofs_free_rules();
+>  
+>  	if (err) {
+>  		erofs_err("\tCould not format the device : %s\n",
+> -- 
+> 2.17.1
+> 
+> 
