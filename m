@@ -2,25 +2,26 @@ Return-Path: <SRS0=ifUu=37=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D153C352A4
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 01:06:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFCD1C352A4
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 01:06:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E63E820637
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 01:06:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 90A9E20661
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 01:06:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="IXp8ySq9"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E63E820637
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="q+zRvM7O"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 90A9E20661
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Gl2s1zK1zDqBy
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 12:06:13 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Gl2y64k4zDqCp
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2020 12:06:18 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -29,33 +30,36 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=IXp8ySq9; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=q+zRvM7O; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Gl0L5yf0zDqBy
- for <linux-erofs@lists.ozlabs.org>; Tue, 11 Feb 2020 12:04:02 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Gl0P3DV6zDqBS
+ for <linux-erofs@lists.ozlabs.org>; Tue, 11 Feb 2020 12:04:05 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
- MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
- Content-ID:Content-Description:In-Reply-To:References;
- bh=g3I96AED9xpuGVWKIIlCSpxOQGT6kirVfcGE/lGEHHY=; b=IXp8ySq9j05vmGKD4e3tUEEGfd
- hOOyiHFx8qObGT74MoBcbdPXktSRwwJozKH2633qw95TupzWzEwuw1RJ+zmC1prIg4EQiX6bkcTS/
- 0aEQnOicMRpSjIA7dWMiAfE/9Cf++1qsl2uYViTvYIU9O27fy+VPmGQaU+EVbrXiIS/Ve7Cz47wmm
- QwBj1rPdBjR5+Q91XSAGgtCeOxAmZq1V5TIWdDqAdbUwe1ENxNkasVWcWE/bLyd5sZX47hK5A5qP4
- 3u2UGE1vs769eDMQYnouLR87lD0ngEJvRttC6ZyZmpI+LPbwedvBRKxNUYNCE7pOiiMAsD7nQkHUb
- vwpQTIXg==;
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=gNmBP2JYUyk+l9vVjSopvavD5DUUhW7hR9wGSwi0ypk=; b=q+zRvM7OoP7EzGdrNndsa/IM0V
+ CaSZ2sVmqPPX+vs1TCTIqDnfWEdqTT7H4F4EPM8LLvHEJo1TPo6xv6i/pOe0OEL+PMh+tZfA9P/h+
+ bo/vteh1oOO5/gTZ6tkdErl8STn2DHsckvps0VfCMnU5OUBIKpgpl1KL7hXhCOZN7ZO9OgLL+DZOq
+ 1u+7+IPyafu/zUqJdRE+En401twVvpcz6moo7vavL7bY2tVS0y+0kwsextbvsEhMl1/5vMClZbxAz
+ U5mfj1kpW+SLhyQxMbPUVn6gBPZTc2ejjxdcYC6bV+NEx5wsUERg9gU3T2zvHN3yQFhH+6xw/JZUA
+ HGMS8BpQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j1Jxu-0001ne-9M; Tue, 11 Feb 2020 01:03:50 +0000
+ Hat Linux)) id 1j1Jxu-0001oD-JL; Tue, 11 Feb 2020 01:03:50 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v5 00/13] Change readahead API
-Date: Mon, 10 Feb 2020 17:03:35 -0800
-Message-Id: <20200211010348.6872-1-willy@infradead.org>
+Subject: [PATCH v5 09/13] erofs: Convert compressed files from readpages to
+ readahead
+Date: Mon, 10 Feb 2020 17:03:44 -0800
+Message-Id: <20200211010348.6872-10-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200211010348.6872-1-willy@infradead.org>
+References: <20200211010348.6872-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -80,97 +84,79 @@ Sender: "Linux-erofs"
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-This series adds a readahead address_space operation to eventually
-replace the readpages operation.  The key difference is that
-pages are added to the page cache as they are allocated (and
-then looked up by the filesystem) instead of passing them on a
-list to the readpages operation and having the filesystem add
-them to the page cache.  It's a net reduction in code for each
-implementation, more efficient than walking a list, and solves
-the direct-write vs buffered-read problem reported by yu kuai at
-https://lore.kernel.org/linux-fsdevel/20200116063601.39201-1-yukuai3@huawei.com/
+Use the new readahead operation in erofs.
 
-v5 switches to passing a readahead_control struct (mirroring the
-writepages_control struct passed to writepages).  This has a number of
-advantages:
- - It fixes a number of bugs in various implementations, eg forgetting to
-   increment 'start', an off-by-one error in 'nr_pages' or treating 'start'
-   as a byte offset instead of a page offset.
- - It allows us to change the arguments without changing all the
-   implementations of ->readahead which just call mpage_readahead() or
-   iomap_readahead()
- - Figuring out which pages haven't been attempted by the implementation
-   is more natural this way.
- - There's less code in each implementation.
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ fs/erofs/zdata.c | 29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-This version deletes a lot more lines than previous versions of the patch
--- we're net -97 lines instead of -17 with v4.  It'll be even more when
-we can finish the conversion and remove all the ->readpages support code,
-including read_cache_pages().
-
-Also new in v5 is patch 5 which adds page_cache_readahead_limit() and
-converts ext4 and f2fs to use it for their Merkel trees.
-
-Matthew Wilcox (Oracle) (13):
-  mm: Fix the return type of __do_page_cache_readahead
-  mm: Ignore return value of ->readpages
-  mm: Put readahead pages in cache earlier
-  mm: Add readahead address space operation
-  mm: Add page_cache_readahead_limit
-  fs: Convert mpage_readpages to mpage_readahead
-  btrfs: Convert from readpages to readahead
-  erofs: Convert uncompressed files from readpages to readahead
-  erofs: Convert compressed files from readpages to readahead
-  ext4: Convert from readpages to readahead
-  f2fs: Convert from readpages to readahead
-  fuse: Convert from readpages to readahead
-  iomap: Convert from readpages to readahead
-
- Documentation/filesystems/locking.rst |   6 +-
- Documentation/filesystems/vfs.rst     |  13 +++
- drivers/staging/exfat/exfat_super.c   |   7 +-
- fs/block_dev.c                        |   7 +-
- fs/btrfs/extent_io.c                  |  48 +++------
- fs/btrfs/extent_io.h                  |   3 +-
- fs/btrfs/inode.c                      |  16 ++-
- fs/erofs/data.c                       |  39 +++----
- fs/erofs/zdata.c                      |  29 ++----
- fs/ext2/inode.c                       |  10 +-
- fs/ext4/ext4.h                        |   3 +-
- fs/ext4/inode.c                       |  23 ++---
- fs/ext4/readpage.c                    |  22 ++--
- fs/ext4/verity.c                      |  35 +------
- fs/f2fs/data.c                        |  50 ++++-----
- fs/f2fs/f2fs.h                        |   5 +-
- fs/f2fs/verity.c                      |  35 +------
- fs/fat/inode.c                        |   7 +-
- fs/fuse/file.c                        |  46 ++++-----
- fs/gfs2/aops.c                        |  23 ++---
- fs/hpfs/file.c                        |   7 +-
- fs/iomap/buffered-io.c                | 103 ++++++-------------
- fs/iomap/trace.h                      |   2 +-
- fs/isofs/inode.c                      |   7 +-
- fs/jfs/inode.c                        |   7 +-
- fs/mpage.c                            |  38 +++----
- fs/nilfs2/inode.c                     |  15 +--
- fs/ocfs2/aops.c                       |  34 +++---
- fs/omfs/file.c                        |   7 +-
- fs/qnx6/inode.c                       |   7 +-
- fs/reiserfs/inode.c                   |   8 +-
- fs/udf/inode.c                        |   7 +-
- fs/xfs/xfs_aops.c                     |  13 +--
- fs/zonefs/super.c                     |   7 +-
- include/linux/fs.h                    |   2 +
- include/linux/iomap.h                 |   3 +-
- include/linux/mpage.h                 |   4 +-
- include/linux/pagemap.h               |  84 +++++++++++++++
- include/trace/events/erofs.h          |   6 +-
- include/trace/events/f2fs.h           |   6 +-
- mm/internal.h                         |   2 +-
- mm/migrate.c                          |   2 +-
- mm/readahead.c                        | 143 ++++++++++++++++----------
- 43 files changed, 422 insertions(+), 519 deletions(-)
-
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 17f45fcb8c5c..7c02015d501d 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1303,28 +1303,23 @@ static bool should_decompress_synchronously(struct erofs_sb_info *sbi,
+ 	return nr <= sbi->max_sync_decompress_pages;
+ }
+ 
+-static int z_erofs_readpages(struct file *filp, struct address_space *mapping,
+-			     struct list_head *pages, unsigned int nr_pages)
++static void z_erofs_readahead(struct readahead_control *rac)
+ {
+-	struct inode *const inode = mapping->host;
++	struct inode *const inode = rac->mapping->host;
+ 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
+ 
+-	bool sync = should_decompress_synchronously(sbi, nr_pages);
++	bool sync = should_decompress_synchronously(sbi, readahead_count(rac));
+ 	struct z_erofs_decompress_frontend f = DECOMPRESS_FRONTEND_INIT(inode);
+-	gfp_t gfp = mapping_gfp_constraint(mapping, GFP_KERNEL);
+-	struct page *head = NULL;
++	struct page *page, *head = NULL;
+ 	LIST_HEAD(pagepool);
+ 
+-	trace_erofs_readpages(mapping->host, lru_to_page(pages)->index,
+-			      nr_pages, false);
++	trace_erofs_readpages(inode, readahead_index(rac),
++			readahead_count(rac), false);
+ 
+-	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
+-
+-	for (; nr_pages; --nr_pages) {
+-		struct page *page = lru_to_page(pages);
++	f.headoffset = readahead_offset(rac);
+ 
++	readahead_for_each(rac, page) {
+ 		prefetchw(&page->flags);
+-		list_del(&page->lru);
+ 
+ 		/*
+ 		 * A pure asynchronous readahead is indicated if
+@@ -1333,11 +1328,6 @@ static int z_erofs_readpages(struct file *filp, struct address_space *mapping,
+ 		 */
+ 		sync &= !(PageReadahead(page) && !head);
+ 
+-		if (add_to_page_cache_lru(page, mapping, page->index, gfp)) {
+-			list_add(&page->lru, &pagepool);
+-			continue;
+-		}
+-
+ 		set_page_private(page, (unsigned long)head);
+ 		head = page;
+ 	}
+@@ -1366,11 +1356,10 @@ static int z_erofs_readpages(struct file *filp, struct address_space *mapping,
+ 
+ 	/* clean up the remaining free pages */
+ 	put_pages_list(&pagepool);
+-	return 0;
+ }
+ 
+ const struct address_space_operations z_erofs_aops = {
+ 	.readpage = z_erofs_readpage,
+-	.readpages = z_erofs_readpages,
++	.readahead = z_erofs_readahead,
+ };
+ 
 -- 
 2.25.0
 
