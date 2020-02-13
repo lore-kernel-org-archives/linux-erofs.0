@@ -2,52 +2,76 @@ Return-Path: <SRS0=9oqF=4B=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18AC1C2BA83
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Feb 2020 16:19:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14938C352A3
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Feb 2020 19:38:25 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C641F206ED
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Feb 2020 16:19:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C641F206ED
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=os.inf.tu-dresden.de
+	by mail.kernel.org (Postfix) with ESMTPS id C1F29218AC
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Feb 2020 19:38:24 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b9pE2Xrk"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C1F29218AC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48JMCl0L3GzDqRc
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Feb 2020 03:19:31 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
- smtp.mailfrom=os.inf.tu-dresden.de (client-ip=141.76.48.99;
- helo=os.inf.tu-dresden.de; envelope-from=mplaneta@os.inf.tu-dresden.de;
+	by lists.ozlabs.org (Postfix) with ESMTP id 48JRdB680SzDqVQ
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Feb 2020 06:38:22 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=redhat.com (client-ip=207.211.31.81;
+ helo=us-smtp-delivery-1.mimecast.com; envelope-from=msnitzer@redhat.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none)
- header.from=os.inf.tu-dresden.de
-Received: from os.inf.tu-dresden.de (os.inf.tu-dresden.de [141.76.48.99])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=b9pE2Xrk; 
+ dkim-atps=neutral
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [207.211.31.81])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48JMCZ5VgXzDqRZ
- for <linux-erofs@lists.ozlabs.org>; Fri, 14 Feb 2020 03:19:21 +1100 (AEDT)
-Received: from [2002:8d4c:3001:48::120:84]
- by os.inf.tu-dresden.de with esmtpsa (TLS1.3:TLS_AES_128_GCM_SHA256:128) (Exim
- 4.93.0.3) id 1j2HCw-0004Br-Lm; Thu, 13 Feb 2020 17:19:18 +0100
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48JRd63RpFzDqTT
+ for <linux-erofs@lists.ozlabs.org>; Fri, 14 Feb 2020 06:38:16 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1581622693;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=IwQHI79iQNnLF0R813K4ZfyJ/4oVZzBfHd4LqqijBNs=;
+ b=b9pE2XrkADLdmoUXE5loiw60zI483fnL4xEntBVEP2HoE9X5iIx3f53SlD4pM0wtn3FDXt
+ ZdQ8UiVWMcL+tqUqpD0b6zHOHtSkw24Byyqgx/1bxE5VgJFOKVJ1Gq1UozX38dCRYZ4RN+
+ Ks+0BtUHooLUb+TilLvVOeWW6UwlZ70=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-421-2EOjsAokOgC2pnOKYZU8tQ-1; Thu, 13 Feb 2020 10:36:51 -0500
+X-MC-Unique: 2EOjsAokOgC2pnOKYZU8tQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D3280100550E;
+ Thu, 13 Feb 2020 15:36:49 +0000 (UTC)
+Received: from localhost (unknown [10.18.25.174])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id A17CD5DA85;
+ Thu, 13 Feb 2020 15:36:46 +0000 (UTC)
+Date: Thu, 13 Feb 2020 10:36:45 -0500
+From: Mike Snitzer <snitzer@redhat.com>
+To: Maksym Planeta <mplaneta@os.inf.tu-dresden.de>
 Subject: Re: Remove WQ_CPU_INTENSIVE flag from unbound wq's
-To: Mike Snitzer <snitzer@redhat.com>
+Message-ID: <20200213153645.GA11313@redhat.com>
 References: <20200213141823.2174236-1-mplaneta@os.inf.tu-dresden.de>
- <20200213153645.GA11313@redhat.com>
-From: Maksym Planeta <mplaneta@os.inf.tu-dresden.de>
-Message-ID: <82715589-8b59-5cfd-a32f-1e57871327fe@os.inf.tu-dresden.de>
-Date: Thu, 13 Feb 2020 17:19:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <20200213153645.GA11313@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200213141823.2174236-1-mplaneta@os.inf.tu-dresden.de>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,32 +93,20 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Thu, Feb 13 2020 at  9:18am -0500,
+Maksym Planeta <mplaneta@os.inf.tu-dresden.de> wrote:
 
-
-On 13/02/2020 16:36, Mike Snitzer wrote:
-> On Thu, Feb 13 2020 at  9:18am -0500,
-> Maksym Planeta <mplaneta@os.inf.tu-dresden.de> wrote:
+> The documentation [1] says that WQ_CPU_INTENSIVE is "meaningless" for
+> unbound wq. I remove this flag from places where unbound queue is
+> allocated. This is supposed to improve code readability.
 > 
->> The documentation [1] says that WQ_CPU_INTENSIVE is "meaningless" for
->> unbound wq. I remove this flag from places where unbound queue is
->> allocated. This is supposed to improve code readability.
->>
->> 1. https://www.kernel.org/doc/html/latest/core-api/workqueue.html#flags
->>
->> Signed-off-by: Maksym Planeta <mplaneta@os.inf.tu-dresden.de>
+> 1. https://www.kernel.org/doc/html/latest/core-api/workqueue.html#flags
 > 
-> What the Documentation says aside, have you cross referenced with the
-> code?  And/or have you done benchmarks to verify no changes?
-> 
+> Signed-off-by: Maksym Planeta <mplaneta@os.inf.tu-dresden.de>
 
-It seems so from the code. Although, I'm not 100% confident. I did not 
-run benchmarks, instead I relied that on the assumption that 
-documentation is correct.
+What the Documentation says aside, have you cross referenced with the
+code?  And/or have you done benchmarks to verify no changes?
 
-> Thanks,
-> Mike
-> 
+Thanks,
+Mike
 
--- 
-Regards,
-Maksym Planeta
