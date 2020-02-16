@@ -7,64 +7,65 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B51A2C2BA83
-	for <linux-erofs@archiver.kernel.org>; Sun, 16 Feb 2020 13:26:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 216C6C2BA83
+	for <linux-erofs@archiver.kernel.org>; Sun, 16 Feb 2020 13:32:46 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5D9272084E
-	for <linux-erofs@archiver.kernel.org>; Sun, 16 Feb 2020 13:26:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id BA77A2084E
+	for <linux-erofs@archiver.kernel.org>; Sun, 16 Feb 2020 13:32:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="NDwQ5Yqu";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="Dvt2I3m8"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5D9272084E
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="WNdKVQ81";
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="EYT5RE3h"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA77A2084E
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48L7Dd6wWvzDqfF
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 00:26:25 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48L7Mw00rMzDqfF
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 00:32:44 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1581859586;
-	bh=gtYn+2pH8fqWIcEEsn+Q9upKBNntWijpDZiLMdZeTpE=;
+	s=201707; t=1581859964;
+	bh=azVc5mBDSa5NOS51AdJsc63IlsYhmgQ480+rYdrq850=;
 	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
 	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=NDwQ5YquoDvocoTh8jGGW5EzImNZok8TznikN0m2ErbUjdCi99ETKmUq1uxhG861p
-	 tpFr6QWw++r0kPzYcxj1bUorG3HFjvtlaX6cuezuCSxjIRQFh+yJTgWSY8p3bnJFKW
-	 bsCA/rFITof3yy0uXWKsx3NMOivydZHTSrU0rr4kfroWIxyGJmDUr0wa0F/aXbM3YW
-	 xGuRtdu05C1SmcRYmVyG4D5aLwaj9pbVVeW6O6d3OZzYqkVass4dnnx932CAN39frk
-	 lPYRi1nUrjqD4EAlcuB3cCtBOGyjVOX64LvIjwtdxy3n8ikkZXHR3ZgqRZNtK8rgXp
-	 w7nh43gaIDmkA==
+	b=WNdKVQ81Jn/dzL+KeIgLkB9i2yAkL+bTE956twVKdzWhTgqlWjS0Js1QlFej12BIM
+	 YmYaGcn5Vt4tWrygcLM8NAgDNtBPDvvskSsqcR7STcXiP1delobhqTnBlcawBbE90/
+	 i6MadGG+xq3s9TVIP3vR22V7WNIMykiAKAvSvfnbQokp4oR/rijYcg41jSDaRK1aSs
+	 vv0JI8WGKmjVvOPKRp+Bev8oFQvJy7lyEZsq8OnRCu20dCkH5BgS70X4kdjKjIh1cA
+	 KvWWPGCy/39iRxPOzVTbK3wZxFgovVZwHHOHBHo8CZvntt112ynx+yateq9bt4cF3E
+	 hP/cB7f1zdZfw==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=aliyun.com (client-ip=115.124.30.4;
- helo=out30-4.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
+ smtp.mailfrom=aliyun.com (client-ip=115.124.30.53;
+ helo=out30-53.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none)
  header.from=aliyun.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
- header.s=s1024 header.b=Dvt2I3m8; dkim-atps=neutral
-Received: from out30-4.freemail.mail.aliyun.com
- (out30-4.freemail.mail.aliyun.com [115.124.30.4])
+ header.s=s1024 header.b=EYT5RE3h; dkim-atps=neutral
+Received: from out30-53.freemail.mail.aliyun.com
+ (out30-53.freemail.mail.aliyun.com [115.124.30.53])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48L7DR6lzhzDqdf
- for <linux-erofs@lists.ozlabs.org>; Mon, 17 Feb 2020 00:26:15 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48L7Mp1gCtzDqdf
+ for <linux-erofs@lists.ozlabs.org>; Mon, 17 Feb 2020 00:32:37 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aliyun.com; s=s1024;
- t=1581859567; h=From:To:Subject:Date:Message-Id;
- bh=FOZH7UGcdrrxuRDJX5UPRivN/mv4LFV4hmmzrEUfSdQ=;
- b=Dvt2I3m8iaG7GfGN3p048f16zXeQJxO+Qbrx4tMwUCpNdi5aH2xMK1OJSSDgNNaUhcNjOooYgOG3wVINu6dU/oYzllk5FVjbKMy1kUt7ZH+wDyLWLzO4kJ3+z8MUc/sy5p1ozYUjTczt6pFROchZtNueI16wue9fFiPC2qUo9eM=
+ t=1581859943; h=From:To:Subject:Date:Message-Id;
+ bh=reMBb8Q5Up5MA+NvOmWKzWSYNpotKS/mTswc8XhEWwY=;
+ b=EYT5RE3hKp0lsPUSGDAHPmhpHqiteUiKqZdTA9u4xK/8RM4tYJYdS9cjslffVU1ajpIiicEoF8AOSTD5fNSYTVhKLf0JpK4UCh3TrvDCxnaO+dLA26epBNVkqfhTuZkGoCJHa9F4pbcYLtv7FptYluMT7R+fZRVpmZeAW4ZhpM4=
 X-Alimail-AntiSpam: AC=CONTINUE; BC=0.07357798|-1; CH=green;
  DM=CONTINUE|CONTINUE|true|0.171228-0.00788569-0.820886;
- DS=CONTINUE|ham_alarm|0.0013084-0.000113428-0.998578; FP=0|0|0|0|0|-1|-1|-1;
- HT=e01e04420; MF=bluce.lee@aliyun.com; NM=1; PH=DS; RN=5; RT=5; SR=0;
- TI=SMTPD_---0Tq5JATn_1581859565; 
+ DS=CONTINUE|ham_alarm|0.0013084-0.000113428-0.998578;
+ FP=10117728157975446754|1|1|3|0|-1|-1|-1; HT=e01e07488;
+ MF=bluce.lee@aliyun.com; NM=1; PH=DS; RN=5; RT=5; SR=0;
+ TI=SMTPD_---0Tq5JB-G_1581859941; 
 Received: from localhost(mailfrom:bluce.lee@aliyun.com
- fp:SMTPD_---0Tq5JATn_1581859565) by smtp.aliyun-inc.com(127.0.0.1);
- Sun, 16 Feb 2020 21:26:05 +0800
+ fp:SMTPD_---0Tq5JB-G_1581859941) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 16 Feb 2020 21:32:21 +0800
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4] erofs-utils: introduce exclude dirs and files
-Date: Sun, 16 Feb 2020 21:26:03 +0800
-Message-Id: <20200216132603.49042-1-bluce.lee@aliyun.com>
+Subject: [PATCH v5] erofs-utils: introduce exclude dirs and files
+Date: Sun, 16 Feb 2020 21:32:19 +0800
+Message-Id: <20200216133219.50216-1-bluce.lee@aliyun.com>
 X-Mailer: git-send-email 2.17.1
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -95,13 +96,17 @@ options.
 Signed-off-by: Li Guifu <blucer.lee@foxmail.com>
 Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
+change since v5:
+ - add regex free
+ - clean log print
+
  include/erofs/exclude.h |  28 +++++++++
  lib/Makefile.am         |   2 +-
- lib/exclude.c           | 127 ++++++++++++++++++++++++++++++++++++++++
+ lib/exclude.c           | 133 ++++++++++++++++++++++++++++++++++++++++
  lib/inode.c             |   5 ++
  man/mkfs.erofs.1        |   8 +++
- mkfs/main.c             |  36 ++++++++++--
- 6 files changed, 199 insertions(+), 7 deletions(-)
+ mkfs/main.c             |  36 +++++++++--
+ 6 files changed, 205 insertions(+), 7 deletions(-)
  create mode 100644 include/erofs/exclude.h
  create mode 100644 lib/exclude.c
 
@@ -154,10 +159,10 @@ index 1ff81f9..e4b51e6 100644
  liberofs_la_CFLAGS += ${LZ4_CFLAGS}
 diff --git a/lib/exclude.c b/lib/exclude.c
 new file mode 100644
-index 0000000..a293eec
+index 0000000..268a6f7
 --- /dev/null
 +++ b/lib/exclude.c
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,133 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * erofs-utils/lib/exclude.c
@@ -215,7 +220,7 @@ index 0000000..a293eec
 +	}
 +
 +	list_add_tail(&r->list, h);
-+	erofs_dump("Insert exclude path:[%s]\n", s);
++	erofs_info("Insert exclude:[%s]\n", s);
 +	return r;
 +err_rule:
 +	free(r);
@@ -229,6 +234,12 @@ index 0000000..a293eec
 +	list_for_each_entry_safe(r, n, &exclude_head, list) {
 +		list_del(&r->list);
 +		free(r->pattern);
++		free(r);
++	}
++
++	list_for_each_entry_safe(r, n, &regex_exclude_head, list) {
++		list_del(&r->list);
++		regfree(r->reg);
 +		free(r);
 +	}
 +}
