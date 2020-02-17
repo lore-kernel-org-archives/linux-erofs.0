@@ -2,71 +2,66 @@ Return-Path: <SRS0=OLZc=4F=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 197B5C761A6
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 13:17:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E38BC34034
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 16:13:07 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BC61E206E2
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 13:17:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 95305214D8
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 16:13:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="KWGSK7w9";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="llKwYabl"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BC61E206E2
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FzBT7RrO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 95305214D8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Lkzz38S0zDqjd
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 00:17:35 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1581945455;
-	bh=67u7qJ4kopESfNWHNWIqTwhTGECFzUWNxHmK/Jdiv4M=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=KWGSK7w9TeOdwUivefLjtb7eFsdUR/8/Ymuv5aZuHQwGBRIfwYOO+/gNfUtXOPD0F
-	 FxJfWMLmH568tMGX7gmXMoFigpY3+7dfL9zqxWslVixuq7Wp+Kviz288OoMaXa28Cp
-	 +evUEf2rCq2hQ0AJVVAh5wON88BunM82WYglG2AiQqfOZCFcPmAQSwd2ND134bEsk6
-	 /9I5u1WiCR1m/Y8TPQTWkxHW2ZlIsXXd3oI9rtSX2MSZY/jU9t2eJbYvyt6AibIzSg
-	 TgW0amnNHLY5muECEokqL1ojOpYMBSdfzk4HhDbNtBFdeFF6uNgh7cIvOA9VzlTzla
-	 87l1bLSZqFvbQ==
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=aliyun.com (client-ip=115.124.30.40;
- helo=out30-40.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
+	by lists.ozlabs.org (Postfix) with ESMTP id 48LptQ5x71zDqX2
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 03:13:02 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
+ smtp.mailfrom=bombadil.infradead.org (client-ip=2607:7c80:54:e::133;
+ helo=bombadil.infradead.org; envelope-from=mchehab@bombadil.infradead.org;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none)
- header.from=aliyun.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
- header.s=s1024 header.b=llKwYabl; dkim-atps=neutral
-Received: from out30-40.freemail.mail.aliyun.com
- (out30-40.freemail.mail.aliyun.com [115.124.30.40])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org;
+ dmarc=fail (p=none dis=none) header.from=kernel.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48LkzX6vRrzDqQK
- for <linux-erofs@lists.ozlabs.org>; Tue, 18 Feb 2020 00:17:11 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aliyun.com; s=s1024;
- t=1581945417; h=From:To:Subject:Date:Message-Id;
- bh=rXiLp8UdwzA5xHJp/6RsCC6N5PHT0N8MSWA99G5aons=;
- b=llKwYablEXcBI6LozfYU5+naWTdpqEmB16d0KcN+fjcYnxnrulyQiv5i0o67VaqSRH9UY1Tly+4bmU3BoGQPiE393NvKyUYAbgvy8Zs1VNK1LeTrxD/3eTa7ysH8AcBERmbvieI/LePOl1/C2QXGSIuzRhYRlNirtZboB1rk5MM=
-X-Alimail-AntiSpam: AC=CONTINUE; BC=0.06357798|-1; CH=green;
- DM=CONTINUE|CONTINUE|true|0.171228-0.00788569-0.820886;
- DS=CONTINUE|ham_alarm|0.0013084-0.000113428-0.998578;
- FP=10115476358161761506|2|1|3|0|-1|-1|-1; HT=e01e07488;
- MF=bluce.lee@aliyun.com; NM=1; PH=DS; RN=4; RT=4; SR=0;
- TI=SMTPD_---0TqA7Tzz_1581945414; 
-Received: from localhost(mailfrom:bluce.lee@aliyun.com
- fp:SMTPD_---0TqA7Tzz_1581945414) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 17 Feb 2020 21:16:55 +0800
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6] erofs-utils: introduce exclude dirs and files
-Date: Mon, 17 Feb 2020 21:16:53 +0800
-Message-Id: <20200217131653.54489-1-bluce.lee@aliyun.com>
-X-Mailer: git-send-email 2.17.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Lpt86kCczDq67
+ for <linux-erofs@lists.ozlabs.org>; Tue, 18 Feb 2020 03:12:48 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20170209; h=Sender:Content-Transfer-Encoding:
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+ Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=sCEdXKX/OnbnlqCeyDnNw1soXSc6Zm8CxThqV0PKMgo=; b=FzBT7RrO0el3zbdX91nH3iSZgv
+ 7Mf9mxrvWCUvCFVwa+4I1gwkTazc39gJtY4P+MvkFMaY5IE/Qsygd+7JUolHs0S6Apz30on0Kotti
+ 7McBy9/vfny4ld+zQXgRnyBSq8tVkTxz004N5gB+FEAOBLQKssFzWGu7dRpkL25s7lcSS+zf6kE6R
+ D9tGj8Xiu51BgBHsAhqm+zEHx0GdiI7tNnxZgXvBNGgpYwRKAquRCcuIB0z21Vwp3yJSDd5vNeyco
+ NNYAl7GRCUCVmMNLmhuRQXUlKt5UQS3o2jQmz46QzVcL4LcMYMMSFsVBYbe0sFVvweBBkyrCqW94T
+ nREqj7kQ==;
+Received: from x2f7f83d.dyn.telefonica.de ([2.247.248.61]
+ helo=bombadil.infradead.org)
+ by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1j3j0f-0006uc-Vf; Mon, 17 Feb 2020 16:12:45 +0000
+Received: from mchehab by bombadil.infradead.org with local (Exim 4.92.3)
+ (envelope-from <mchehab@bombadil.infradead.org>)
+ id 1j3j0a-000fa8-3o; Mon, 17 Feb 2020 17:12:32 +0100
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Subject: [PATCH 15/44] docs: filesystems: convert erofs.txt to ReST
+Date: Mon, 17 Feb 2020 17:12:01 +0100
+Message-Id: <402d1d2f7252b8a683f7a9c6867bc5428da64026.1581955849.git.mchehab+huawei@kernel.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <cover.1581955849.git.mchehab+huawei@kernel.org>
+References: <cover.1581955849.git.mchehab+huawei@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -78,348 +73,340 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Li Guifu via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Li Guifu <bluce.lee@aliyun.com>
-Cc: Li GuiFu <bluce.lee@aliyun.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+ linux-fsdevel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
+ linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Li GuiFu <bluce.lee@aliyun.com>
+- Add a SPDX header;
+- Add a document title;
+- Some whitespace fixes and new line breaks;
+- Mark literal blocks as such;
+- Add table markups;
+- Add lists markups;
+- Add it to filesystems/index.rst.
 
-Add excluded file feature "--exclude-path=" and '--exclude-regex=',
-which can be used to build EROFS image without some user specific
-files or dirs. Note that you may give multiple '--exclude-path'
-or '--exclude-regex' options.
-
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Signed-off-by: Li Guifu <bluce.lee@aliyun.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- change since v6, fix as comments suggested by Gao Xiang
-  - update a new email address
-  - refact regex and pattern match
+ .../filesystems/{erofs.txt => erofs.rst}      | 175 ++++++++++--------
+ Documentation/filesystems/index.rst           |   1 +
+ 2 files changed, 103 insertions(+), 73 deletions(-)
+ rename Documentation/filesystems/{erofs.txt => erofs.rst} (54%)
 
- include/erofs/exclude.h |  26 ++++++++
- lib/Makefile.am         |   2 +-
- lib/exclude.c           | 136 ++++++++++++++++++++++++++++++++++++++++
- lib/inode.c             |   5 ++
- man/mkfs.erofs.1        |   8 +++
- mkfs/main.c             |  36 +++++++++--
- 6 files changed, 206 insertions(+), 7 deletions(-)
- create mode 100644 include/erofs/exclude.h
- create mode 100644 lib/exclude.c
-
-diff --git a/include/erofs/exclude.h b/include/erofs/exclude.h
-new file mode 100644
-index 0000000..0a82dbe
---- /dev/null
-+++ b/include/erofs/exclude.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * erofs-utils/include/erofs/exclude.h
-+ *
-+ * Created by Li Guifu <bluce.lee@aliyun.com>
-+ */
-+#ifndef __EROFS_EXCLUDE_H
-+#define __EROFS_EXCLUDE_H
-+#include <sys/types.h>
-+#include <regex.h>
+diff --git a/Documentation/filesystems/erofs.txt b/Documentation/filesystems/erofs.rst
+similarity index 54%
+rename from Documentation/filesystems/erofs.txt
+rename to Documentation/filesystems/erofs.rst
+index db6d39c3ae71..bf145171c2bf 100644
+--- a/Documentation/filesystems/erofs.txt
++++ b/Documentation/filesystems/erofs.rst
+@@ -1,3 +1,9 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
-+struct erofs_exclude_rule {
-+	struct list_head list;
++======================================
++Enhanced Read-Only File System - EROFS
++======================================
 +
-+	char *pattern;		/* save original pattern for exact or regex match */
-+	regex_t reg;
-+};
-+
-+void erofs_exclude_set_root(const char *rootdir);
-+void erofs_cleanup_exclude_rules(void);
-+
-+int erofs_parse_exclude_path(const char *args, bool is_regex);
-+struct erofs_exclude_rule *erofs_is_exclude_path(const char *dir,
-+						 const char *name);
-+#endif
-+
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 1ff81f9..e4b51e6 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -3,7 +3,7 @@
+ Overview
+ ========
  
- noinst_LTLIBRARIES = liberofs.la
- liberofs_la_SOURCES = config.c io.c cache.c inode.c xattr.c \
--		      compress.c compressor.c
-+		      compress.c compressor.c exclude.c
- liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
- if ENABLE_LZ4
- liberofs_la_CFLAGS += ${LZ4_CFLAGS}
-diff --git a/lib/exclude.c b/lib/exclude.c
-new file mode 100644
-index 0000000..6dae67e
---- /dev/null
-+++ b/lib/exclude.c
-@@ -0,0 +1,136 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * erofs-utils/lib/exclude.c
-+ *
-+ * Created by Li Guifu <bluce.lee@aliyun.com>
-+ */
-+#include <string.h>
-+#include <stdlib.h>
-+#include "erofs/err.h"
-+#include "erofs/list.h"
-+#include "erofs/print.h"
-+#include "erofs/exclude.h"
-+
-+#define EXCLUDE_RULE_EXACT_SIZE	offsetof(struct erofs_exclude_rule, reg)
-+#define EXCLUDE_RULE_REGEX_SIZE	sizeof(struct erofs_exclude_rule)
-+
-+static LIST_HEAD(exclude_head);
-+static LIST_HEAD(regex_exclude_head);
-+
-+static unsigned int rpathlen;		/* root directory prefix length */
-+
-+void erofs_exclude_set_root(const char *rootdir)
-+{
-+	rpathlen = strlen(rootdir);
-+}
-+
-+static void dump_regerror(int errcode, const char *s, const regex_t *preg)
-+{
-+	char str[1024]; /* overflow safe */
-+
-+	regerror(errcode, preg, str, 1024);
-+	erofs_err("invalid regex %s,because %s\n", s, str);
-+}
-+
-+static struct erofs_exclude_rule *erofs_insert_exclude(const char *s,
-+						       bool is_regex)
-+{
-+	int ret = -ENOMEM;
-+	struct erofs_exclude_rule *r;
-+	struct list_head *h;
-+	unsigned int size;
-+
-+	size = is_regex ? EXCLUDE_RULE_REGEX_SIZE : EXCLUDE_RULE_EXACT_SIZE;
-+	r = malloc(size);
-+	if (!r)
-+		return ERR_PTR(-ENOMEM);
-+
-+	r->pattern = strdup(s);
-+	if (!r->pattern)
-+		goto err_rule;
-+
-+	if (is_regex) {
-+		ret = regcomp(&r->reg, s, REG_EXTENDED|REG_NOSUB);
-+		if(ret) {
-+			dump_regerror(ret, s, &r->reg);
-+			goto err_rule;
-+		}
-+		h = &regex_exclude_head;
-+	} else {
-+		h = &exclude_head;
-+	}
-+
-+	list_add_tail(&r->list, h);
-+	erofs_info("Insert exclude:[%s]\n", s);
-+	return r;
-+
-+err_rule:
-+	free(r);
-+	return ERR_PTR(ret);
-+}
-+
-+static inline void erofs_free_exclude_rules(struct list_head *h)
-+{
-+	struct erofs_exclude_rule *r, *n;
-+
-+	list_for_each_entry_safe(r, n, h, list) {
-+		list_del(&r->list);
-+		free(r->pattern);
-+		free(r);
-+	}
-+}
-+
-+void erofs_cleanup_exclude_rules(void)
-+{
-+	erofs_free_exclude_rules(&exclude_head);
-+	erofs_free_exclude_rules(&regex_exclude_head);
-+}
-+
-+int erofs_parse_exclude_path(const char *args, bool is_regex)
-+{
-+	struct erofs_exclude_rule *r = erofs_insert_exclude(args, is_regex);
-+
-+	if (IS_ERR(r)) {
-+		erofs_cleanup_exclude_rules();
-+		return PTR_ERR(r);
-+	}
-+	return 0;
-+}
-+
-+struct erofs_exclude_rule *erofs_is_exclude_path(const char *dir,
-+						 const char *name)
-+{
-+	char buf[PATH_MAX];
-+	const char *s;
-+	struct erofs_exclude_rule *r;
-+
-+	if (!dir) {
-+		/* no prefix */
-+		s = name;
-+	} else {
-+		sprintf(buf, "%s/%s", dir, name);
-+		s = buf;
-+	}
-+
-+	s += rpathlen;
-+	while (*s == '/')
-+		s++;
-+
-+	list_for_each_entry(r, &exclude_head, list) {
-+		if (!strcmp(r->pattern, s))
-+			return r;
-+	}
-+
-+	list_for_each_entry(r, &regex_exclude_head, list) {
-+		int ret = regexec(&r->reg, s, (size_t)0, NULL, 0);
-+
-+		if(!ret)
-+			return r;
-+		else if (ret != REG_NOMATCH)
-+			dump_regerror(ret, s, &r->reg);
-+
-+	}
-+
-+	return NULL;
-+}
-+
-diff --git a/lib/inode.c b/lib/inode.c
-index bd0652b..7114023 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -20,6 +20,7 @@
- #include "erofs/io.h"
- #include "erofs/compress.h"
- #include "erofs/xattr.h"
-+#include "erofs/exclude.h"
+@@ -6,6 +12,7 @@ from other read-only file systems, it aims to be designed for flexibility,
+ scalability, but be kept simple and high performance.
  
- struct erofs_sb_info sbi;
- 
-@@ -877,6 +878,10 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
- 		    !strncmp(dp->d_name, "lost+found", strlen("lost+found")))
- 			continue;
- 
-+		/* skip if it's a exclude file */
-+		if (erofs_is_exclude_path(dir->i_srcpath, dp->d_name))
-+			continue;
+ It is designed as a better filesystem solution for the following scenarios:
 +
- 		d = erofs_d_alloc(dir, dp->d_name);
- 		if (IS_ERR(d)) {
- 			ret = PTR_ERR(d);
-diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
-index d6bf828..ab19927 100644
---- a/man/mkfs.erofs.1
-+++ b/man/mkfs.erofs.1
-@@ -52,6 +52,14 @@ Forcely generate extended inodes (64-byte inodes) to output.
- Set all files to the given UNIX timestamp. Reproducible builds requires setting
- all to a specific one.
- .TP
-+.BI "\-\-exclude-path=" path
-+Ignore file that matches the exact literal path.
-+You may give multiple `--exclude-path' options.
-+.TP
-+.BI "\-\-exclude-regex=" path
-+Ignore file that matches the exact literal path given by a regex expression
-+You may give multiple `--exclude-regex` options
-+.TP
- .B \-\-help
- Display this help and exit.
- .SH AUTHOR
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 817a6c1..d0c9869 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -21,6 +21,7 @@
- #include "erofs/io.h"
- #include "erofs/compress.h"
- #include "erofs/xattr.h"
-+#include "erofs/exclude.h"
+  - read-only storage media or
  
- #ifdef HAVE_LIBUUID
- #include <uuid/uuid.h>
-@@ -30,6 +31,8 @@
+  - part of a fully trusted read-only solution, which means it needs to be
+@@ -17,6 +24,7 @@ It is designed as a better filesystem solution for the following scenarios:
+    for those embedded devices with limited memory (ex, smartphone);
  
- static struct option long_options[] = {
- 	{"help", no_argument, 0, 1},
-+	{"exclude-path", required_argument, NULL, 2},
-+	{"exclude-regex", required_argument, NULL, 3},
- 	{0, 0, 0, 0},
- };
- 
-@@ -50,12 +53,14 @@ static void usage(void)
- {
- 	fputs("usage: [options] FILE DIRECTORY\n\n"
- 	      "Generate erofs image from DIRECTORY to FILE, and [options] are:\n"
--	      " -zX[,Y]   X=compressor (Y=compression level, optional)\n"
--	      " -d#       set output message level to # (maximum 9)\n"
--	      " -x#       set xattr tolerance to # (< 0, disable xattrs; default 2)\n"
--	      " -EX[,...] X=extended options\n"
--	      " -T#       set a fixed UNIX timestamp # to all files\n"
--	      " --help    display this help and exit\n"
-+	      " -zX[,Y]          X=compressor (Y=compression level, optional)\n"
-+	      " -d#              set output message level to # (maximum 9)\n"
-+	      " -x#              set xattr tolerance to # (< 0, disable xattrs; default 2)\n"
-+	      " -EX[,...]        X=extended options\n"
-+	      " -T#              set a fixed UNIX timestamp # to all files\n"
-+	      " --exclude-path=X avoid including file X (X = exact literal path)\n"
-+	      " --exclude-regex=X avoid including file X (X = exact literal path of a regex)\n"
-+	      " --help           display this help and exit\n"
- 	      "\nAvailable compressors are: ", stderr);
- 	print_available_compressors(stderr, ", ");
- }
-@@ -178,6 +183,23 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 			}
- 			break;
- 
-+		case 2:
-+			opt = erofs_parse_exclude_path(optarg, false);
-+			if (opt) {
-+				erofs_err("failed to parse exclude path: %s",
-+					  erofs_strerror(opt));
-+				return opt;
-+			}
-+			break;
-+		case 3:
-+			opt = erofs_parse_exclude_path(optarg, true);
-+			if (opt) {
-+				erofs_err("failed to parse exclude path: %s",
-+					  erofs_strerror(opt));
-+				return opt;
-+			}
-+			break;
+ Here is the main features of EROFS:
 +
- 		case 1:
- 			usage();
- 			exit(0);
-@@ -372,6 +394,7 @@ int main(int argc, char **argv)
- 	}
+  - Little endian on-disk design;
  
- 	erofs_show_config();
-+	erofs_exclude_set_root(cfg.c_src_path);
+  - Currently 4KB block size (nobh) and therefore maximum 16TB address space;
+@@ -24,13 +32,17 @@ Here is the main features of EROFS:
+  - Metadata & data could be mixed by design;
  
- 	sb_bh = erofs_buffer_init();
- 	if (IS_ERR(sb_bh)) {
-@@ -428,6 +451,7 @@ int main(int argc, char **argv)
- exit:
- 	z_erofs_compress_exit();
- 	dev_close();
-+	erofs_cleanup_exclude_rules();
- 	erofs_exit_configure();
+  - 2 inode versions for different requirements:
++
++   =====================  ============  =====================================
+                           compact (v1)  extended (v2)
+-   Inode metadata size:   32 bytes      64 bytes
+-   Max file size:         4 GB          16 EB (also limited by max. vol size)
+-   Max uids/gids:         65536         4294967296
+-   File change time:      no            yes (64 + 32-bit timestamp)
+-   Max hardlinks:         65536         4294967296
+-   Metadata reserved:     4 bytes       14 bytes
++   =====================  ============  =====================================
++   Inode metadata size    32 bytes      64 bytes
++   Max file size          4 GB          16 EB (also limited by max. vol size)
++   Max uids/gids          65536         4294967296
++   File change time       no            yes (64 + 32-bit timestamp)
++   Max hardlinks          65536         4294967296
++   Metadata reserved      4 bytes       14 bytes
++   =====================  ============  =====================================
  
- 	if (err) {
+  - Support extended attributes (xattrs) as an option;
+ 
+@@ -43,29 +55,36 @@ Here is the main features of EROFS:
+ 
+ The following git tree provides the file system user-space tools under
+ development (ex, formatting tool mkfs.erofs):
+->> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
++
++- git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
+ 
+ Bugs and patches are welcome, please kindly help us and send to the following
+ linux-erofs mailing list:
+->> linux-erofs mailing list   <linux-erofs@lists.ozlabs.org>
++
++- linux-erofs mailing list   <linux-erofs@lists.ozlabs.org>
+ 
+ Mount options
+ =============
+ 
++===================    =========================================================
+ (no)user_xattr         Setup Extended User Attributes. Note: xattr is enabled
+                        by default if CONFIG_EROFS_FS_XATTR is selected.
+ (no)acl                Setup POSIX Access Control List. Note: acl is enabled
+                        by default if CONFIG_EROFS_FS_POSIX_ACL is selected.
+ cache_strategy=%s      Select a strategy for cached decompression from now on:
+-                         disabled: In-place I/O decompression only;
+-                        readahead: Cache the last incomplete compressed physical
++
++		       ==========  =============================================
++                         disabled  In-place I/O decompression only;
++                        readahead  Cache the last incomplete compressed physical
+                                    cluster for further reading. It still does
+                                    in-place I/O decompression for the rest
+                                    compressed physical clusters;
+-                       readaround: Cache the both ends of incomplete compressed
++                       readaround  Cache the both ends of incomplete compressed
+                                    physical clusters for further reading.
+                                    It still does in-place I/O decompression
+                                    for the rest compressed physical clusters.
++		       ==========  =============================================
++===================    =========================================================
+ 
+ On-disk details
+ ===============
+@@ -73,7 +92,7 @@ On-disk details
+ Summary
+ -------
+ Different from other read-only file systems, an EROFS volume is designed
+-to be as simple as possible:
++to be as simple as possible::
+ 
+                                 |-> aligned with the block size
+    ____________________________________________________________
+@@ -83,41 +102,45 @@ to be as simple as possible:
+ 
+ All data areas should be aligned with the block size, but metadata areas
+ may not. All metadatas can be now observed in two different spaces (views):
++
+  1. Inode metadata space
++
+     Each valid inode should be aligned with an inode slot, which is a fixed
+     value (32 bytes) and designed to be kept in line with compact inode size.
+ 
+     Each inode can be directly found with the following formula:
+          inode offset = meta_blkaddr * block_size + 32 * nid
+ 
+-                                |-> aligned with 8B
+-                                           |-> followed closely
+-    + meta_blkaddr blocks                                      |-> another slot
+-     _____________________________________________________________________
+-    |  ...   | inode |  xattrs  | extents  | data inline | ... | inode ...
+-    |________|_______|(optional)|(optional)|__(optional)_|_____|__________
+-             |-> aligned with the inode slot size
+-                  .                   .
+-                .                         .
+-              .                              .
+-            .                                    .
+-          .                                         .
+-        .                                              .
+-      .____________________________________________________|-> aligned with 4B
+-      | xattr_ibody_header | shared xattrs | inline xattrs |
+-      |____________________|_______________|_______________|
+-      |->    12 bytes    <-|->x * 4 bytes<-|               .
+-                          .                .                 .
+-                    .                      .                   .
+-               .                           .                     .
+-           ._______________________________.______________________.
+-           | id | id | id | id |  ... | id | ent | ... | ent| ... |
+-           |____|____|____|____|______|____|_____|_____|____|_____|
+-                                           |-> aligned with 4B
+-                                                       |-> aligned with 4B
++    ::
++
++				    |-> aligned with 8B
++					    |-> followed closely
++	+ meta_blkaddr blocks                                      |-> another slot
++	_____________________________________________________________________
++	|  ...   | inode |  xattrs  | extents  | data inline | ... | inode ...
++	|________|_______|(optional)|(optional)|__(optional)_|_____|__________
++		|-> aligned with the inode slot size
++		    .                   .
++		    .                         .
++		.                              .
++		.                                    .
++	    .                                         .
++	    .                                              .
++	.____________________________________________________|-> aligned with 4B
++	| xattr_ibody_header | shared xattrs | inline xattrs |
++	|____________________|_______________|_______________|
++	|->    12 bytes    <-|->x * 4 bytes<-|               .
++			    .                .                 .
++			.                      .                   .
++		.                           .                     .
++	    ._______________________________.______________________.
++	    | id | id | id | id |  ... | id | ent | ... | ent| ... |
++	    |____|____|____|____|______|____|_____|_____|____|_____|
++					    |-> aligned with 4B
++							|-> aligned with 4B
+ 
+     Inode could be 32 or 64 bytes, which can be distinguished from a common
+-    field which all inode versions have -- i_format:
++    field which all inode versions have -- i_format::
+ 
+         __________________               __________________
+        |     i_format     |             |     i_format     |
+@@ -132,16 +155,19 @@ may not. All metadatas can be now observed in two different spaces (views):
+     proper alignment, and they could be optional for different data mappings.
+     _currently_ total 4 valid data mappings are supported:
+ 
++    ==  ====================================================================
+      0  flat file data without data inline (no extent);
+      1  fixed-sized output data compression (with non-compacted indexes);
+      2  flat file data with tail packing data inline (no extent);
+      3  fixed-sized output data compression (with compacted indexes, v5.3+).
++    ==  ====================================================================
+ 
+     The size of the optional xattrs is indicated by i_xattr_count in inode
+     header. Large xattrs or xattrs shared by many different files can be
+     stored in shared xattrs metadata rather than inlined right after inode.
+ 
+  2. Shared xattrs metadata space
++
+     Shared xattrs space is similar to the above inode space, started with
+     a specific block indicated by xattr_blkaddr, organized one by one with
+     proper align.
+@@ -149,11 +175,13 @@ may not. All metadatas can be now observed in two different spaces (views):
+     Each share xattr can also be directly found by the following formula:
+          xattr offset = xattr_blkaddr * block_size + 4 * xattr_id
+ 
+-                           |-> aligned by  4 bytes
+-    + xattr_blkaddr blocks                     |-> aligned with 4 bytes
+-     _________________________________________________________________________
+-    |  ...   | xattr_entry |  xattr data | ... |  xattr_entry | xattr data  ...
+-    |________|_____________|_____________|_____|______________|_______________
++    ::
++
++			    |-> aligned by  4 bytes
++	+ xattr_blkaddr blocks                     |-> aligned with 4 bytes
++	_________________________________________________________________________
++	|  ...   | xattr_entry |  xattr data | ... |  xattr_entry | xattr data  ...
++	|________|_____________|_____________|_____|______________|_______________
+ 
+ Directories
+ -----------
+@@ -163,19 +191,21 @@ random file lookup, and all directory entries are _strictly_ recorded in
+ alphabetical order in order to support improved prefix binary search
+ algorithm (could refer to the related source code).
+ 
+-                 ___________________________
+-                /                           |
+-               /              ______________|________________
+-              /              /              | nameoff1       | nameoffN-1
+- ____________.______________._______________v________________v__________
+-| dirent | dirent | ... | dirent | filename | filename | ... | filename |
+-|___.0___|____1___|_____|___N-1__|____0_____|____1_____|_____|___N-1____|
+-     \                           ^
+-      \                          |                           * could have
+-       \                         |                             trailing '\0'
+-        \________________________| nameoff0
++::
+ 
+-                             Directory block
++		    ___________________________
++		    /                           |
++		/              ______________|________________
++		/              /              | nameoff1       | nameoffN-1
++    ____________.______________._______________v________________v__________
++    | dirent | dirent | ... | dirent | filename | filename | ... | filename |
++    |___.0___|____1___|_____|___N-1__|____0_____|____1_____|_____|___N-1____|
++	\                           ^
++	\                          |                           * could have
++	\                         |                             trailing '\0'
++	    \________________________| nameoff0
++
++				Directory block
+ 
+ Note that apart from the offset of the first filename, nameoff0 also indicates
+ the total number of directory entries in this block since it is no need to
+@@ -184,28 +214,27 @@ introduce another on-disk field at all.
+ Compression
+ -----------
+ Currently, EROFS supports 4KB fixed-sized output transparent file compression,
+-as illustrated below:
++as illustrated below::
+ 
+-         |---- Variant-Length Extent ----|-------- VLE --------|----- VLE -----
+-         clusterofs                      clusterofs            clusterofs
+-         |                               |                     |   logical data
+-_________v_______________________________v_____________________v_______________
+-... |    .        |             |        .    |             |  .          | ...
+-____|____.________|_____________|________.____|_____________|__.__________|____
+-    |-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|
+-         size          size          size          size          size
+-          .                             .                .                   .
+-           .                       .               .                  .
+-            .                  .              .                .
+-      _______._____________._____________._____________._____________________
+-         ... |             |             |             | ... physical data
+-      _______|_____________|_____________|_____________|_____________________
+-             |-> cluster <-|-> cluster <-|-> cluster <-|
+-                  size          size          size
++	    |---- Variant-Length Extent ----|-------- VLE --------|----- VLE -----
++	    clusterofs                      clusterofs            clusterofs
++	    |                               |                     |   logical data
++    _________v_______________________________v_____________________v_______________
++    ... |    .        |             |        .    |             |  .          | ...
++    ____|____.________|_____________|________.____|_____________|__.__________|____
++	|-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|-> cluster <-|
++	    size          size          size          size          size
++	    .                             .                .                   .
++	    .                       .               .                  .
++		.                  .              .                .
++	_______._____________._____________._____________._____________________
++	    ... |             |             |             | ... physical data
++	_______|_____________|_____________|_____________|_____________________
++		|-> cluster <-|-> cluster <-|-> cluster <-|
++		    size          size          size
+ 
+ Currently each on-disk physical cluster can contain 4KB (un)compressed data
+ at most. For each logical cluster, there is a corresponding on-disk index to
+ describe its cluster type, physical cluster address, etc.
+ 
+ See "struct z_erofs_vle_decompressed_index" in erofs_fs.h for more details.
+-
+diff --git a/Documentation/filesystems/index.rst b/Documentation/filesystems/index.rst
+index 4230f49d2732..03a493b27920 100644
+--- a/Documentation/filesystems/index.rst
++++ b/Documentation/filesystems/index.rst
+@@ -61,6 +61,7 @@ Documentation for filesystem implementations.
+    dlmfs
+    ecryptfs
+    efivarfs
++   erofs
+    fuse
+    overlayfs
+    virtiofs
 -- 
-2.17.1
+2.24.1
 
