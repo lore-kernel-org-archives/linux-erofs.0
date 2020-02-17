@@ -2,65 +2,63 @@ Return-Path: <SRS0=OLZc=4F=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4E4FC34021
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 16:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71A9AC34030
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 18:46:43 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5444820718
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 16:13:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1F8F220836
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2020 18:46:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GMuzjHpY"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5444820718
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GGafPZiC"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F8F220836
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Lpv739vxzDqX8
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 03:13:39 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
- smtp.mailfrom=bombadil.infradead.org (client-ip=2607:7c80:54:e::133;
- helo=bombadil.infradead.org; envelope-from=mchehab@bombadil.infradead.org;
- receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48LtHg4qhczDqjX
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 05:46:39 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
- dmarc=fail (p=none dis=none) header.from=kernel.org
+ spf=none (no SPF record) smtp.mailfrom=infradead.org
+ (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
+ envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=GMuzjHpY; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=GGafPZiC; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Lptz3m0czDq67
- for <linux-erofs@lists.ozlabs.org>; Tue, 18 Feb 2020 03:13:31 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48LtHH1DwDzDqYC
+ for <linux-erofs@lists.ozlabs.org>; Tue, 18 Feb 2020 05:46:19 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=Sender:Content-Transfer-Encoding:
- MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-Type:
- Content-ID:Content-Description:In-Reply-To:References;
- bh=79mrsdMpZPq81EcHssJU6sAclSp6O+HRgk1tiwv0Vl8=; b=GMuzjHpYp20+IP116h8bDp0g41
- ttVv3QJJR7FUdGUEREIUbjI+FUFjDSURRen682to2IXcwuRloQMyivCGW0qj86X72Kvp1WppX4YSF
- KBNTZhQI4rrwMsNuFOEBTsFYSoyIjfuhXQtkFp51xA162kdPm79JVt9XIZ0172I/NqXRxeERVPF9L
- kLpRpq7LmR/RnnjrPy/y+l34kcRu6hNJOaGfDY1XqGzt5O0+3y1BFL1SEB5+/2nSR6nonL9n110Kx
- N4rWXQRqkj1rqfV3jAF6Ow+Wmr+s/DXyeHln9cn6x1qRSToaShgKICUy4iF4JXV3I10hB9VhSPmLY
- BoN4dDdw==;
-Received: from ip-109-41-129-189.web.vodafone.de ([109.41.129.189]
- helo=bombadil.infradead.org)
- by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1j3j0c-0006ud-6y; Mon, 17 Feb 2020 16:12:34 +0000
-Received: from mchehab by bombadil.infradead.org with local (Exim 4.92.3)
- (envelope-from <mchehab@bombadil.infradead.org>)
- id 1j3j0Z-000fYx-H7; Mon, 17 Feb 2020 17:12:31 +0100
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Subject: [PATCH 00/44] Manually convert filesystem FS documents to ReST
-Date: Mon, 17 Feb 2020 17:11:46 +0100
-Message-Id: <cover.1581955849.git.mchehab+huawei@kernel.org>
-X-Mailer: git-send-email 2.24.1
+ d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=WrDwJ8nFqwwFHCEUmvBtLvKI87rds+XByqpS5q3jL/I=; b=GGafPZiC2dFK8pvgk9y9yCNXsD
+ t0X14/DAGwm8tumWtSBNeHlGs6pU6ofKY5h5T2Gumm8ttaGKXoy4XyguucHMdoPNkkbycBh7NXd+Q
+ tqEGpO/clXINLbrqJrecx7BvcHhl1z5OI2SfDpbdKSLkhB+6NyJygLwzCV2MflDQLRjN9Cug6Ki/a
+ w508YQJA+HlKekwrg2z2Xuj4HYd6w5RYDGoHeesibMKIZ1lka97LNuQSSPOtxcRcKgwFS9TVKYEja
+ pJ50VSMbDhI8IbTMc9WqgWS3nLFTd8kdS6nl6gPlOEP/mMDkWBvrKPNCJARs3eGxQJ1ypqfnEkcwi
+ F37yA4Tg==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
+ Hat Linux)) id 1j3lPM-0005DS-Ee; Mon, 17 Feb 2020 18:46:16 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: linux-fsdevel@vger.kernel.org
+Subject: [PATCH v6 16/16] mm: Use memalloc_nofs_save in readahead path
+Date: Mon, 17 Feb 2020 10:46:10 -0800
+Message-Id: <20200217184613.19668-30-willy@infradead.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200217184613.19668-1-willy@infradead.org>
+References: <20200217184613.19668-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -74,185 +72,70 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>,
- Martin Brandenburg <martin@omnibond.com>, Jan Kara <jack@suse.cz>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Amir Goldstein <amir73il@gmail.com>, Bob Copeland <me@bobcopeland.com>,
- David Howells <dhowells@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- linux-mtd@lists.infradead.org, Tyler Hicks <code@tyhicks.com>,
- linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>,
- Naohiro Aota <naohiro.aota@wdc.com>, Christoph Hellwig <hch@infradead.org>,
- linux-nilfs@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
- Sage Weil <sage@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
- Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
- Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>,
- Chris Mason <clm@fb.com>, Ryusuke Konishi <konishi.ryusuke@gmail.com>,
- cluster-devel@redhat.com, v9fs-developer@lists.sourceforge.net,
- Gao Xiang <xiang@kernel.org>, linux-ext4@vger.kernel.org,
- Salah Triki <salah.triki@gmail.com>, Alexey Dobriyan <adobriyan@gmail.com>,
- devel@lists.orangefs.org, ecryptfs@vger.kernel.org,
- Eric Van Hensbergen <ericvh@gmail.com>, Josef Bacik <josef@toxicpanda.com>,
- linux-fsdevel@vger.kernel.org, Joel Becker <jlbec@evilplan.org>,
- "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
- David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
- ceph-devel@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
- Anton Altaparmakov <anton@tuxera.com>, Damien Le Moal <damien.lemoal@wdc.com>,
- Luis de Bethencourt <luisbg@kernel.org>, Nicolas Pitre <nico@fluxnic.net>,
- linux-ntfs-dev@lists.sourceforge.net, Jeff Layton <jlayton@kernel.org>,
- linux-f2fs-devel@lists.sourceforge.net, linux-btrfs@vger.kernel.org,
- Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>,
- Phillip Lougher <phillip@squashfs.org.uk>, Johannes Thumshirn <jth@kernel.org>,
- linux-erofs@lists.ozlabs.org, linux-karma-devel@lists.sourceforge.net,
- ocfs2-devel@oss.oracle.com
+Cc: linux-xfs@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+ linux-kernel@vger.kernel.org,
+ "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
+ linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
+ Cong Wang <xiyou.wangcong@gmail.com>, linux-ext4@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-There are lots of plain text documents under Documentation/filesystems.
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Manually convert several of those to ReST and add them to the index file.
+Ensure that memory allocations in the readahead path do not attempt to
+reclaim file-backed pages, which could lead to a deadlock.  It is
+possible, though unlikely this is the root cause of a problem observed
+by Cong Wang.
 
-Mauro Carvalho Chehab (44):
-  docs: filesystems: convert 9p.txt to ReST
-  docs: filesystems: convert adfs.txt to ReST
-  docs: filesystems: convert affs.txt to ReST
-  docs: filesystems: convert afs.txt to ReST
-  docs: filesystems: convert autofs-mount-control.txt to ReST
-  docs: filesystems: convert befs.txt to ReST
-  docs: filesystems: convert bfs.txt to ReST
-  docs: filesystems: convert btrfs.txt to ReST
-  docs: filesystems: convert ceph.txt to ReST
-  docs: filesystems: convert cramfs.txt to ReST
-  docs: filesystems: convert debugfs.txt to ReST
-  docs: filesystems: convert dlmfs.txt to ReST
-  docs: filesystems: convert ecryptfs.txt to ReST
-  docs: filesystems: convert efivarfs.txt to ReST
-  docs: filesystems: convert erofs.txt to ReST
-  docs: filesystems: convert ext2.txt to ReST
-  docs: filesystems: convert ext3.txt to ReST
-  docs: filesystems: convert f2fs.txt to ReST
-  docs: filesystems: convert gfs2.txt to ReST
-  docs: filesystems: convert gfs2-uevents.txt to ReST
-  docs: filesystems: convert hfsplus.txt to ReST
-  docs: filesystems: convert hfs.txt to ReST
-  docs: filesystems: convert hpfs.txt to ReST
-  docs: filesystems: convert inotify.txt to ReST
-  docs: filesystems: convert isofs.txt to ReST
-  docs: filesystems: convert nilfs2.txt to ReST
-  docs: filesystems: convert ntfs.txt to ReST
-  docs: filesystems: convert ocfs2-online-filecheck.txt to ReST
-  docs: filesystems: convert ocfs2.txt to ReST
-  docs: filesystems: convert omfs.txt to ReST
-  docs: filesystems: convert orangefs.txt to ReST
-  docs: filesystems: convert proc.txt to ReST
-  docs: filesystems: convert qnx6.txt to ReST
-  docs: filesystems: convert ramfs-rootfs-initramfs.txt to ReST
-  docs: filesystems: convert relay.txt to ReST
-  docs: filesystems: convert romfs.txt to ReST
-  docs: filesystems: convert squashfs.txt to ReST
-  docs: filesystems: convert sysfs.txt to ReST
-  docs: filesystems: convert sysv-fs.txt to ReST
-  docs: filesystems: convert tmpfs.txt to ReST
-  docs: filesystems: convert ubifs-authentication.rst.txt to ReST
-  docs: filesystems: convert ubifs.txt to ReST
-  docs: filesystems: convert udf.txt to ReST
-  docs: filesystems: convert zonefs.txt to ReST
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+---
+ mm/readahead.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
- Documentation/filesystems/{9p.txt => 9p.rst}  |  114 +-
- .../filesystems/{adfs.txt => adfs.rst}        |   29 +-
- .../filesystems/{affs.txt => affs.rst}        |   62 +-
- .../filesystems/{afs.txt => afs.rst}          |   73 +-
- ...t-control.txt => autofs-mount-control.rst} |  102 +-
- .../filesystems/{befs.txt => befs.rst}        |   59 +-
- .../filesystems/{bfs.txt => bfs.rst}          |   37 +-
- .../filesystems/{btrfs.txt => btrfs.rst}      |    3 +
- .../filesystems/{ceph.txt => ceph.rst}        |   26 +-
- .../filesystems/{cramfs.txt => cramfs.rst}    |   19 +-
- .../filesystems/{debugfs.txt => debugfs.rst}  |   54 +-
- .../filesystems/{dlmfs.txt => dlmfs.rst}      |   28 +-
- .../{ecryptfs.txt => ecryptfs.rst}            |   44 +-
- .../{efivarfs.txt => efivarfs.rst}            |    5 +-
- .../filesystems/{erofs.txt => erofs.rst}      |  175 +-
- .../filesystems/{ext2.txt => ext2.rst}        |   41 +-
- .../filesystems/{ext3.txt => ext3.rst}        |    2 +
- .../filesystems/{f2fs.txt => f2fs.rst}        |  252 +--
- .../{gfs2-uevents.txt => gfs2-uevents.rst}    |   20 +-
- .../filesystems/{gfs2.txt => gfs2.rst}        |   20 +-
- .../filesystems/{hfs.txt => hfs.rst}          |   23 +-
- .../filesystems/{hfsplus.txt => hfsplus.rst}  |    2 +
- .../filesystems/{hpfs.txt => hpfs.rst}        |  239 ++-
- Documentation/filesystems/index.rst           |   46 +-
- .../filesystems/{inotify.txt => inotify.rst}  |   33 +-
- Documentation/filesystems/isofs.rst           |   64 +
- Documentation/filesystems/isofs.txt           |   48 -
- .../filesystems/{nilfs2.txt => nilfs2.rst}    |   40 +-
- .../filesystems/{ntfs.txt => ntfs.rst}        |  143 +-
- ...lecheck.txt => ocfs2-online-filecheck.rst} |   45 +-
- .../filesystems/{ocfs2.txt => ocfs2.rst}      |   31 +-
- Documentation/filesystems/omfs.rst            |  112 ++
- Documentation/filesystems/omfs.txt            |  106 --
- .../{orangefs.txt => orangefs.rst}            |  187 +-
- .../filesystems/{proc.txt => proc.rst}        | 1498 +++++++++--------
- .../filesystems/{qnx6.txt => qnx6.rst}        |   22 +
- ...itramfs.txt => ramfs-rootfs-initramfs.rst} |   54 +-
- .../filesystems/{relay.txt => relay.rst}      |  129 +-
- .../filesystems/{romfs.txt => romfs.rst}      |   42 +-
- .../{squashfs.txt => squashfs.rst}            |   60 +-
- .../filesystems/{sysfs.txt => sysfs.rst}      |  324 ++--
- .../filesystems/{sysv-fs.txt => sysv-fs.rst}  |  155 +-
- .../filesystems/{tmpfs.txt => tmpfs.rst}      |   44 +-
- .../filesystems/ubifs-authentication.rst      |   10 +-
- .../filesystems/{ubifs.txt => ubifs.rst}      |   25 +-
- .../filesystems/{udf.txt => udf.rst}          |   21 +-
- .../filesystems/{zonefs.txt => zonefs.rst}    |  106 +-
- 47 files changed, 2739 insertions(+), 2035 deletions(-)
- rename Documentation/filesystems/{9p.txt => 9p.rst} (63%)
- rename Documentation/filesystems/{adfs.txt => adfs.rst} (85%)
- rename Documentation/filesystems/{affs.txt => affs.rst} (86%)
- rename Documentation/filesystems/{afs.txt => afs.rst} (90%)
- rename Documentation/filesystems/{autofs-mount-control.txt => autofs-mount-control.rst} (89%)
- rename Documentation/filesystems/{befs.txt => befs.rst} (83%)
- rename Documentation/filesystems/{bfs.txt => bfs.rst} (71%)
- rename Documentation/filesystems/{btrfs.txt => btrfs.rst} (96%)
- rename Documentation/filesystems/{ceph.txt => ceph.rst} (91%)
- rename Documentation/filesystems/{cramfs.txt => cramfs.rst} (88%)
- rename Documentation/filesystems/{debugfs.txt => debugfs.rst} (91%)
- rename Documentation/filesystems/{dlmfs.txt => dlmfs.rst} (86%)
- rename Documentation/filesystems/{ecryptfs.txt => ecryptfs.rst} (70%)
- rename Documentation/filesystems/{efivarfs.txt => efivarfs.rst} (85%)
- rename Documentation/filesystems/{erofs.txt => erofs.rst} (54%)
- rename Documentation/filesystems/{ext2.txt => ext2.rst} (91%)
- rename Documentation/filesystems/{ext3.txt => ext3.rst} (88%)
- rename Documentation/filesystems/{f2fs.txt => f2fs.rst} (84%)
- rename Documentation/filesystems/{gfs2-uevents.txt => gfs2-uevents.rst} (94%)
- rename Documentation/filesystems/{gfs2.txt => gfs2.rst} (76%)
- rename Documentation/filesystems/{hfs.txt => hfs.rst} (80%)
- rename Documentation/filesystems/{hfsplus.txt => hfsplus.rst} (95%)
- rename Documentation/filesystems/{hpfs.txt => hpfs.rst} (66%)
- rename Documentation/filesystems/{inotify.txt => inotify.rst} (83%)
- create mode 100644 Documentation/filesystems/isofs.rst
- delete mode 100644 Documentation/filesystems/isofs.txt
- rename Documentation/filesystems/{nilfs2.txt => nilfs2.rst} (89%)
- rename Documentation/filesystems/{ntfs.txt => ntfs.rst} (85%)
- rename Documentation/filesystems/{ocfs2-online-filecheck.txt => ocfs2-online-filecheck.rst} (77%)
- rename Documentation/filesystems/{ocfs2.txt => ocfs2.rst} (88%)
- create mode 100644 Documentation/filesystems/omfs.rst
- delete mode 100644 Documentation/filesystems/omfs.txt
- rename Documentation/filesystems/{orangefs.txt => orangefs.rst} (83%)
- rename Documentation/filesystems/{proc.txt => proc.rst} (65%)
- rename Documentation/filesystems/{qnx6.txt => qnx6.rst} (98%)
- rename Documentation/filesystems/{ramfs-rootfs-initramfs.txt => ramfs-rootfs-initramfs.rst} (91%)
- rename Documentation/filesystems/{relay.txt => relay.rst} (91%)
- rename Documentation/filesystems/{romfs.txt => romfs.rst} (86%)
- rename Documentation/filesystems/{squashfs.txt => squashfs.rst} (91%)
- rename Documentation/filesystems/{sysfs.txt => sysfs.rst} (56%)
- rename Documentation/filesystems/{sysv-fs.txt => sysv-fs.rst} (73%)
- rename Documentation/filesystems/{tmpfs.txt => tmpfs.rst} (86%)
- rename Documentation/filesystems/{ubifs.txt => ubifs.rst} (91%)
- rename Documentation/filesystems/{udf.txt => udf.rst} (83%)
- rename Documentation/filesystems/{zonefs.txt => zonefs.rst} (90%)
-
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 566693f4e539..ae8abab939a3 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -22,6 +22,7 @@
+ #include <linux/mm_inline.h>
+ #include <linux/blk-cgroup.h>
+ #include <linux/fadvise.h>
++#include <linux/sched/mm.h>
+ 
+ #include "internal.h"
+ 
+@@ -157,6 +158,18 @@ void page_cache_readahead_limit(struct address_space *mapping,
+ 		._nr_pages = 0,
+ 	};
+ 
++	/*
++	 * Partway through the readahead operation, we will have added
++	 * locked pages to the page cache, but will not yet have submitted
++	 * them for I/O.  Adding another page may need to allocate memory,
++	 * which can trigger memory reclaim.  Telling the VM we're in
++	 * the middle of a filesystem operation will cause it to not
++	 * touch file-backed pages, preventing a deadlock.  Most (all?)
++	 * filesystems already specify __GFP_NOFS in their mapping's
++	 * gfp_mask, but let's be explicit here.
++	 */
++	unsigned int nofs = memalloc_nofs_save();
++
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+ 	 */
+@@ -210,6 +223,7 @@ void page_cache_readahead_limit(struct address_space *mapping,
+ 	if (readahead_count(&rac))
+ 		read_pages(&rac, &page_pool);
+ 	BUG_ON(!list_empty(&page_pool));
++	memalloc_nofs_restore(nofs);
+ }
+ EXPORT_SYMBOL_GPL(page_cache_readahead_limit);
+ 
 -- 
-2.24.1
-
+2.25.0
 
