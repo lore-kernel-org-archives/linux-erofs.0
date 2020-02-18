@@ -2,25 +2,25 @@ Return-Path: <SRS0=DvCx=4G=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61C17C3404B
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 21:13:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC67CC34031
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 21:21:26 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 17E8D24125
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 21:13:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8CCC22173E
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Feb 2020 21:21:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SdZgWPml"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 17E8D24125
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="L9ufQZtG"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8CCC22173E
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48MYW2459gzDqGX
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 08:13:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48MYgl6YmdzDqV7
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 08:21:23 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -29,39 +29,39 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=SdZgWPml; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=L9ufQZtG; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48MYTW3KFdzDqck
- for <linux-erofs@lists.ozlabs.org>; Wed, 19 Feb 2020 08:12:31 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48MYgf4PLbzDq6Q
+ for <linux-erofs@lists.ozlabs.org>; Wed, 19 Feb 2020 08:21:18 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=C6+FIzbRd5o0hW1kRRKUBom8n/N7TIIIJ10n6Bm+gNU=; b=SdZgWPmlYVT0XMUjMwdirbyYq5
- z/MvgHdWZUONYcHl0TnpfiGDmf095oomwV/N/RH6GifFj/rwydwe+kq6f2tbOAtJRElqxHz5Dgnh+
- EW7uBjnC3wOpboaXgsOCVQRD30ui8pjcMOhoklr/TvrXbI8o6CiPf6ruIhRLe6FKvhd2qrDgFPK1I
- KmNAWjN7hvSGK0O5AQs3X+tXrG9yBpfQMM6X25JmPmgGOzUnAROE3QwvicPpE9MgRzP8MlaGrDSXQ
- mBWD91boJiYlTGiZfTXKX3BebkqowPF+MM0ZAndsu5z1koT2azK+W51G0UZDdJcX2CL0ZNSIzEO5Y
- 20S6gvOQ==;
+ bh=0HtJTFPkdLwAcbGGhAHyzxa8a1mSgpc758IYlfDOg/k=; b=L9ufQZtGybPYd67zmz67Xgy4Tn
+ mZsneK5DIi4+EdZSTDy3qMq6jC4G9yjF4A0m3HKQqgfmPcf89rxgAlz7TflzrDt+lPKQjG8DBB0Nc
+ hFwG4XwkG9NeYBz6KYBZ58AKe0IfPIrYhHeqqinr+nlcKs9GdGtB8jhCcawcvPy3icitqNTTzH4jP
+ ZCAGflog5kL6wL3IvL71BWNMv5PaAXyucj7tYF+EQU4HI4NEjXGWh1T+shXyemzhRpUXmIabqr29C
+ 5LaP21DN5DNYTONx+gIE3+S5Zr0Asg51I2iJBLolcYDkCch1kyQ608fu1c/WOZsk9fwFBAcPrEAy8
+ FZTOuLoQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4AAO-0006yP-HR; Tue, 18 Feb 2020 21:12:28 +0000
-Date: Tue, 18 Feb 2020 13:12:28 -0800
+ Hat Linux)) id 1j4AIt-0003y5-Bi; Tue, 18 Feb 2020 21:21:15 +0000
+Date: Tue, 18 Feb 2020 13:21:15 -0800
 From: Matthew Wilcox <willy@infradead.org>
-To: Dave Chinner <david@fromorbit.com>
-Subject: Re: [PATCH v6 11/19] btrfs: Convert from readpages to readahead
-Message-ID: <20200218211228.GF24185@bombadil.infradead.org>
+To: John Hubbard <jhubbard@nvidia.com>
+Subject: Re: [PATCH v6 01/19] mm: Return void from various readahead functions
+Message-ID: <20200218212115.GG24185@bombadil.infradead.org>
 References: <20200217184613.19668-1-willy@infradead.org>
- <20200217184613.19668-19-willy@infradead.org>
- <20200218065758.GQ10776@dread.disaster.area>
+ <20200217184613.19668-2-willy@infradead.org>
+ <29d2d7ca-7f2b-7eb4-78bc-f2af36c4c426@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200218065758.GQ10776@dread.disaster.area>
+In-Reply-To: <29d2d7ca-7f2b-7eb4-78bc-f2af36c4c426@nvidia.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -82,178 +82,38 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Feb 18, 2020 at 05:57:58PM +1100, Dave Chinner wrote:
-> On Mon, Feb 17, 2020 at 10:45:59AM -0800, Matthew Wilcox wrote:
-> > From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> > 
-> > Use the new readahead operation in btrfs.  Add a
-> > readahead_for_each_batch() iterator to optimise the loop in the XArray.
-> > 
-> > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> > ---
-> >  fs/btrfs/extent_io.c    | 46 +++++++++++++----------------------------
-> >  fs/btrfs/extent_io.h    |  3 +--
-> >  fs/btrfs/inode.c        | 16 +++++++-------
-> >  include/linux/pagemap.h | 27 ++++++++++++++++++++++++
-> >  4 files changed, 49 insertions(+), 43 deletions(-)
-> > 
-> > diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-> > index c0f202741e09..e97a6acd6f5d 100644
-> > --- a/fs/btrfs/extent_io.c
-> > +++ b/fs/btrfs/extent_io.c
-> > @@ -4278,52 +4278,34 @@ int extent_writepages(struct address_space *mapping,
-> >  	return ret;
-> >  }
-> >  
-> > -int extent_readpages(struct address_space *mapping, struct list_head *pages,
-> > -		     unsigned nr_pages)
-> > +void extent_readahead(struct readahead_control *rac)
-> >  {
-> >  	struct bio *bio = NULL;
-> >  	unsigned long bio_flags = 0;
-> >  	struct page *pagepool[16];
-> >  	struct extent_map *em_cached = NULL;
-> > -	struct extent_io_tree *tree = &BTRFS_I(mapping->host)->io_tree;
-> > -	int nr = 0;
-> > +	struct extent_io_tree *tree = &BTRFS_I(rac->mapping->host)->io_tree;
-> >  	u64 prev_em_start = (u64)-1;
-> > +	int nr;
-> >  
-> > -	while (!list_empty(pages)) {
-> > -		u64 contig_end = 0;
-> > -
-> > -		for (nr = 0; nr < ARRAY_SIZE(pagepool) && !list_empty(pages);) {
-> > -			struct page *page = lru_to_page(pages);
-> > -
-> > -			prefetchw(&page->flags);
-> > -			list_del(&page->lru);
-> > -			if (add_to_page_cache_lru(page, mapping, page->index,
-> > -						readahead_gfp_mask(mapping))) {
-> > -				put_page(page);
-> > -				break;
-> > -			}
-> > -
-> > -			pagepool[nr++] = page;
-> > -			contig_end = page_offset(page) + PAGE_SIZE - 1;
-> > -		}
-> > +	readahead_for_each_batch(rac, pagepool, ARRAY_SIZE(pagepool), nr) {
-> > +		u64 contig_start = page_offset(pagepool[0]);
-> > +		u64 contig_end = page_offset(pagepool[nr - 1]) + PAGE_SIZE - 1;
+On Tue, Feb 18, 2020 at 01:05:29PM -0800, John Hubbard wrote:
+> This is an easy review and obviously correct, so:
 > 
-> So this assumes a contiguous page range is returned, right?
+>     Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 
-Yes.  That's documented in the readahead API and is the behaviour of
-the code.  I mean, btrfs asserts it's true while most of the rest of
-the kernel is indifferent to it, but it's the documented and actual
-behaviour.
+Thanks
 
-> >  
-> > -		if (nr) {
-> > -			u64 contig_start = page_offset(pagepool[0]);
-> > +		ASSERT(contig_start + nr * PAGE_SIZE - 1 == contig_end);
+> Thoughts for the future of the API:
 > 
-> Ok, yes it does. :)
-> 
-> I don't see how readahead_for_each_batch() guarantees that, though.
+> I will add that I could envision another patchset that went in the
+> opposite direction, and attempted to preserve the information about
+> how many pages were successfully read ahead. And that would be nice
+> to have (at least IMHO), even all the way out to the syscall level,
+> especially for the readahead syscall.
 
-I ... don't see how it doesn't?  We start at rac->_start and iterate
-through the consecutive pages in the page cache.  readahead_for_each_batch()
-does assume that __do_page_cache_readahead() has its current behaviour
-of putting the pages in the page cache in order, and kicks off a new
-call to ->readahead() every time it has to skip an index for whatever
-reason (eg page already in page cache).
+Right, and that was where I went initially.  It turns out to be a
+non-trivial aount of work to do the book-keeping to find out how many
+pages were _attempted_, and since we don't wait for the I/O to complete,
+we don't know how many _succeeded_, and we also don't know how many
+weren't attempted because they were already there, and how many weren't
+attempted because somebody else has raced with us and is going to attempt
+them themselves, and how many weren't attempted because we just ran out
+of memory, and decided to give up.
 
-> > -	if (bio)
-> > -		return submit_one_bio(bio, 0, bio_flags);
-> > -	return 0;
-> > +	if (bio) {
-> > +		if (submit_one_bio(bio, 0, bio_flags))
-> > +			return;
-> > +	}
-> >  }
-> 
-> Shouldn't that just be
-> 
-> 	if (bio)
-> 		submit_one_bio(bio, 0, bio_flags);
+Also, we don't know how many pages were successfully read, and then the
+system decided to evict before the program found out how many were read,
+let alone before it did any action based on that.
 
-It should, but some overzealous person decided to mark submit_one_bio()
-as __must_check, so I have to work around that.
-
-> > +static inline unsigned int readahead_page_batch(struct readahead_control *rac,
-> > +		struct page **array, unsigned int size)
-> > +{
-> > +	unsigned int batch = 0;
-> 
-> Confusing when put alongside rac->_batch_count counting the number
-> of pages in the batch, and "batch" being the index into the page
-> array, and they aren't the same counts....
-
-Yes.  Renamed to 'i'.
-
-> > +	XA_STATE(xas, &rac->mapping->i_pages, rac->_start);
-> > +	struct page *page;
-> > +
-> > +	rac->_batch_count = 0;
-> > +	xas_for_each(&xas, page, rac->_start + rac->_nr_pages - 1) {
-> 
-> That just iterates pages in the start,end doesn't it? What
-> guarantees that this fills the array with a contiguous page range?
-
-The behaviour of __do_page_cache_readahead().  Dave Howells also has a
-usecase for xas_for_each_contig(), so I'm going to add that soon.
-
-> > +		VM_BUG_ON_PAGE(!PageLocked(page), page);
-> > +		VM_BUG_ON_PAGE(PageTail(page), page);
-> > +		array[batch++] = page;
-> > +		rac->_batch_count += hpage_nr_pages(page);
-> > +		if (PageHead(page))
-> > +			xas_set(&xas, rac->_start + rac->_batch_count);
-> 
-> What on earth does this do? Comments please!
-
-		/*
-		 * The page cache isn't using multi-index entries yet,
-		 * so xas_for_each() won't do the right thing for
-		 * large pages.  This can be removed once the page cache
-		 * is converted.
-		 */
-
-> > +
-> > +		if (batch == size)
-> > +			break;
-> > +	}
-> > +
-> > +	return batch;
-> > +}
-> 
-> Seems a bit big for an inline function.
-
-It's only called by btrfs at the moment.  If it gets more than one caller,
-then sure, let's move it out of line.
-
-> > +
-> > +#define readahead_for_each_batch(rac, array, size, nr)			\
-> > +	for (; (nr = readahead_page_batch(rac, array, size));		\
-> > +			readahead_next(rac))
-> 
-> I had to go look at the caller to work out what "size" refered to
-> here.
-> 
-> This is complex enough that it needs proper API documentation.
-
-How about just:
-
--#define readahead_for_each_batch(rac, array, size, nr)                 \
--       for (; (nr = readahead_page_batch(rac, array, size));           \
-+#define readahead_for_each_batch(rac, array, array_sz, nr)             \
-+       for (; (nr = readahead_page_batch(rac, array, array_sz));       \
-
-(corresponding rename in readahead_page_batch).  I mean, we could also
-do:
-
-#define readahead_for_each_batch(rac, array, nr)			\
-	for (; (nr = readahead_page_batch(rac, array, ARRAY_SIZE(array)); \
-			readahead_next(rac))
-
-making it less flexible, but easier to use.
+So, given all that complexity, and the fact that nobody actually does
+anything with the limited and incorrect information we tried to provide
+today, I think it's fair to say that anybody who wants to start to do
+anything with that information can delve into all the complexity around
+"what number should we return, and what does it really mean".  In the
+meantime, let's just ditch the complexity and pretense that this number
+means anything.
