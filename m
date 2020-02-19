@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B5DFC34056
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:04:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E5A7C3524E
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:04:34 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B84A0207FD
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:04:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id DA5F6207FD
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:04:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="F3kXDDpZ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B84A0207FD
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="pCtXQgv4"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DA5F6207FD
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48N9Fc5Yr1zDqR3
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 08:04:20 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48N9Fq033RzDqNv
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 08:04:31 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -30,32 +30,32 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=F3kXDDpZ; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=pCtXQgv4; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48N99y1dYZzDqCR
- for <linux-erofs@lists.ozlabs.org>; Thu, 20 Feb 2020 08:01:07 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48N9B13sNDzDqCR
+ for <linux-erofs@lists.ozlabs.org>; Thu, 20 Feb 2020 08:01:13 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=xVXe2mHxuFlpJauTFAREACgBtskK8JQqv16NulPdwMo=; b=F3kXDDpZ016zj77nzf3xs9HNhB
- c39hgvEiXMXpDmXJJghRyVbQMd9bQMtSAzeQLHly/ybPqD2ydVSEI4rkiaB9n4MrV5lJMO5TAOHpT
- LsA4+sqAh3sjH6idXLPtUndMdxvuT67kL2DMo4IotYTvlEvyNqU15dBP/gmtAHMJiYi1zlhefB+pQ
- okljimRMCao3QCzBUAxBJQKIRfcethiQohvU/9XCsH/VS+Vpp+HAgX2+R1ONMyFmghwTrN6Tmau8B
- beKkIxg+LolJhz+78XZwS7VZsuxlQ7gLLHa+AyMl78a/LXsGBf7EVWA8feUeASUtSsf4m1jAST6h0
- JPdvTb6Q==;
+ bh=ilETxbAF/LnQ+7vQ62oXBRdetg0lVhl7+QmSqIaqn70=; b=pCtXQgv4jom00XDYTY0fYEcMBK
+ ZTYRThGmAkJTi8wYgl9f5mtvJNhGbmyydXumLL8qv0JcGiKc2OV5l4h9Cbpl021GfCVT6KdPV6NXp
+ ugPJNVJ6i9myr/7Haui2EkR6jj9KUcBj+EytJw8g9P2YvppnPcxaAuaK1hOc9Y+J01A8pzOuMkFpk
+ 55PaVn8haSoigcXBAESNi0i9Ayzyt1/9GoSQ3wiHXu/46rv0BF64Hjd71/qwKc3zz2JlOKMw6x9B7
+ im4rGPcm6Div02O4s5x5iUJ9uGwpGXsU3TXZFezjocQ3A+TBDxZJUzatatF7+CU8FibB5IQbHpx/v
+ AJzVZi4g==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4WSv-0008Ve-Kf; Wed, 19 Feb 2020 21:01:05 +0000
+ Hat Linux)) id 1j4WSu-0008TO-RZ; Wed, 19 Feb 2020 21:01:04 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v7 24/24] mm: Use memalloc_nofs_save in readahead path
-Date: Wed, 19 Feb 2020 13:01:03 -0800
-Message-Id: <20200219210103.32400-25-willy@infradead.org>
+Subject: [PATCH v7 03/24] mm: Ignore return value of ->readpages
+Date: Wed, 19 Feb 2020 13:00:42 -0800
+Message-Id: <20200219210103.32400-4-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200219210103.32400-1-willy@infradead.org>
 References: <20200219210103.32400-1-willy@infradead.org>
@@ -72,70 +72,68 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+Cc: linux-xfs@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
  linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
  linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
- Cong Wang <xiyou.wangcong@gmail.com>, linux-ext4@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+ Dave Chinner <dchinner@redhat.com>, linux-ext4@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
+ linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Ensure that memory allocations in the readahead path do not attempt to
-reclaim file-backed pages, which could lead to a deadlock.  It is
-possible, though unlikely this is the root cause of a problem observed
-by Cong Wang.
+We used to assign the return value to a variable, which we then ignored.
+Remove the pretence of caring.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 ---
- mm/readahead.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ mm/readahead.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/mm/readahead.c b/mm/readahead.c
-index bbe7208fcc2d..9fb5f77dcf69 100644
+index 41a592886da7..61b15b6b9e72 100644
 --- a/mm/readahead.c
 +++ b/mm/readahead.c
-@@ -22,6 +22,7 @@
- #include <linux/mm_inline.h>
- #include <linux/blk-cgroup.h>
- #include <linux/fadvise.h>
-+#include <linux/sched/mm.h>
+@@ -113,17 +113,16 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
  
- #include "internal.h"
+ EXPORT_SYMBOL(read_cache_pages);
  
-@@ -186,6 +187,18 @@ void page_cache_readahead_unbounded(struct address_space *mapping,
- 	};
- 	unsigned long i;
+-static int read_pages(struct address_space *mapping, struct file *filp,
++static void read_pages(struct address_space *mapping, struct file *filp,
+ 		struct list_head *pages, unsigned int nr_pages, gfp_t gfp)
+ {
+ 	struct blk_plug plug;
+ 	unsigned page_idx;
+-	int ret;
  
-+	/*
-+	 * Partway through the readahead operation, we will have added
-+	 * locked pages to the page cache, but will not yet have submitted
-+	 * them for I/O.  Adding another page may need to allocate memory,
-+	 * which can trigger memory reclaim.  Telling the VM we're in
-+	 * the middle of a filesystem operation will cause it to not
-+	 * touch file-backed pages, preventing a deadlock.  Most (all?)
-+	 * filesystems already specify __GFP_NOFS in their mapping's
-+	 * gfp_mask, but let's be explicit here.
-+	 */
-+	unsigned int nofs = memalloc_nofs_save();
-+
- 	/*
- 	 * Preallocate as many pages as we will need.
- 	 */
-@@ -230,6 +243,7 @@ void page_cache_readahead_unbounded(struct address_space *mapping,
- 	 * will then handle the error.
- 	 */
- 	read_pages(&rac, &page_pool);
-+	memalloc_nofs_restore(nofs);
+ 	blk_start_plug(&plug);
+ 
+ 	if (mapping->a_ops->readpages) {
+-		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
++		mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
+ 		/* Clean up the remaining pages */
+ 		put_pages_list(pages);
+ 		goto out;
+@@ -136,12 +135,9 @@ static int read_pages(struct address_space *mapping, struct file *filp,
+ 			mapping->a_ops->readpage(filp, page);
+ 		put_page(page);
+ 	}
+-	ret = 0;
+ 
+ out:
+ 	blk_finish_plug(&plug);
+-
+-	return ret;
  }
- EXPORT_SYMBOL_GPL(page_cache_readahead_unbounded);
  
+ /*
 -- 
 2.25.0
 
