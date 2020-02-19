@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA625C11D0C
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B562C11D00
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:02:06 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7BB5124672
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:01:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2C65024676
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:02:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GfmzNvrx"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7BB5124672
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="PS8q7Ipk"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2C65024676
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48N9Bk1bPlzDqNv
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 08:01:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48N9Bz3kKWzDqCX
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 08:02:03 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -30,32 +30,32 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=GfmzNvrx; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=PS8q7Ipk; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48N99w2pgDzDqN6
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48N99w1SVszDqCZ
  for <linux-erofs@lists.ozlabs.org>; Thu, 20 Feb 2020 08:01:07 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=Cq11a3Et0pjl7ytuFO9ggJAHwiQeJdhfAdDYVeF6iqQ=; b=GfmzNvrxH/CGQZVX177lgl6pDy
- RGo9ku/1oWsQwgOAz6gYCCxZbqzTWoWUrrscFylthMghhX8XTkFhuBUc3VDPtLiNqLMMoFWTrGwqj
- gHFqKLLhrIrMIClKPwa34n6Djc6kZj9oMX0S2Kwb03Y1PbdvzTxGj7J7oVa/Z/6aQNSftCx+xbCsR
- 6gEmmDRNQGkc6+fZQBEmJxN4t2BEKNqEMlmczd/Ilt+uuuaZdWHT05nJaAmI2HG2OpBOzW9PF6kix
- aEsTF0CdFLJHqYTOamC/kZ4RlwZmEWFYuZaQSt6VeusAR8rs+IsdFXb4GzFbT7c7vmDR4CAjlrcCg
- LIys7jEg==;
+ bh=3U55cLjJX7KGhr1/TPumQnWQjhTiVjudfLMoODuK6ko=; b=PS8q7Ipk4cg0IHxyL7TDJ0kPvR
+ zb4V1nHvxMn7qZHrrDPC1o7UjVCFFKAD/sNg/uYpld8ds/h+PlJUmxziX7r7wwKKWKQbLD/0Nw0UY
+ +Rb6szB3+8z6ZcirP4eQ7sb300PHCMalkuN2AaNdCyXUkhRaXcgWINQsSB5xOk1ii0VtcnUQRgk0Z
+ kZTwg6eEsRUWaZGEqktmxkaiIiVrOIiyfz6ZGVP9yWC9/sbsEAjJJ9g3TQdk9aDVWqEv5ZZHk9Gbb
+ RXTEIYX1uu6kHcS6K42DK+fj3xoNiy0ZUwRbUd05BlCg6d+MRAhIO/iI8aV7zwNBN71/VuavyNAue
+ IMz24TAA==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4WSv-0008Uk-Bk; Wed, 19 Feb 2020 21:01:05 +0000
+ Hat Linux)) id 1j4WSu-0008TG-P4; Wed, 19 Feb 2020 21:01:04 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v7 17/24] ext4: Convert from readpages to readahead
-Date: Wed, 19 Feb 2020 13:00:56 -0800
-Message-Id: <20200219210103.32400-18-willy@infradead.org>
+Subject: [PATCH v7 01/24] mm: Move readahead prototypes from mm.h
+Date: Wed, 19 Feb 2020 13:00:40 -0800
+Message-Id: <20200219210103.32400-2-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200219210103.32400-1-willy@infradead.org>
 References: <20200219210103.32400-1-willy@infradead.org>
@@ -83,161 +83,107 @@ Sender: "Linux-erofs"
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Use the new readahead operation in ext4
+The readahead code is part of the page cache so should be found in the
+pagemap.h file.  force_page_cache_readahead is only used within mm,
+so move it to mm/internal.h instead.  Remove the parameter names where
+they add no value, and rename the ones which were actively misleading.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- fs/ext4/ext4.h     |  3 +--
- fs/ext4/inode.c    | 21 +++++++++------------
- fs/ext4/readpage.c | 22 ++++++++--------------
- 3 files changed, 18 insertions(+), 28 deletions(-)
+ block/blk-core.c        |  1 +
+ include/linux/mm.h      | 19 -------------------
+ include/linux/pagemap.h |  8 ++++++++
+ mm/fadvise.c            |  2 ++
+ mm/internal.h           |  2 ++
+ 5 files changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 4441331d06cc..1570a0b51b73 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3279,8 +3279,7 @@ static inline void ext4_set_de_type(struct super_block *sb,
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 089e890ab208..41417bb93634 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -20,6 +20,7 @@
+ #include <linux/blk-mq.h>
+ #include <linux/highmem.h>
+ #include <linux/mm.h>
++#include <linux/pagemap.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/string.h>
+ #include <linux/init.h>
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 52269e56c514..68dcda9a2112 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2401,25 +2401,6 @@ extern vm_fault_t filemap_page_mkwrite(struct vm_fault *vmf);
+ int __must_check write_one_page(struct page *page);
+ void task_dirty_inc(struct task_struct *tsk);
  
- /* readpages.c */
- extern int ext4_mpage_readpages(struct address_space *mapping,
--				struct list_head *pages, struct page *page,
--				unsigned nr_pages, bool is_readahead);
-+		struct readahead_control *rac, struct page *page);
- extern int __init ext4_init_post_read_processing(void);
- extern void ext4_exit_post_read_processing(void);
- 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index e60aca791d3f..d674c5f9066c 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3226,23 +3226,20 @@ static int ext4_readpage(struct file *file, struct page *page)
- 		ret = ext4_readpage_inline(inode, page);
- 
- 	if (ret == -EAGAIN)
--		return ext4_mpage_readpages(page->mapping, NULL, page, 1,
--						false);
-+		return ext4_mpage_readpages(page->mapping, NULL, page);
- 
- 	return ret;
- }
- 
--static int
--ext4_readpages(struct file *file, struct address_space *mapping,
--		struct list_head *pages, unsigned nr_pages)
-+static void ext4_readahead(struct readahead_control *rac)
- {
--	struct inode *inode = mapping->host;
-+	struct inode *inode = rac->mapping->host;
- 
--	/* If the file has inline data, no need to do readpages. */
-+	/* If the file has inline data, no need to do readahead. */
- 	if (ext4_has_inline_data(inode))
--		return 0;
-+		return;
- 
--	return ext4_mpage_readpages(mapping, pages, NULL, nr_pages, true);
-+	ext4_mpage_readpages(rac->mapping, rac, NULL);
- }
- 
- static void ext4_invalidatepage(struct page *page, unsigned int offset,
-@@ -3587,7 +3584,7 @@ static int ext4_set_page_dirty(struct page *page)
- 
- static const struct address_space_operations ext4_aops = {
- 	.readpage		= ext4_readpage,
--	.readpages		= ext4_readpages,
-+	.readahead		= ext4_readahead,
- 	.writepage		= ext4_writepage,
- 	.writepages		= ext4_writepages,
- 	.write_begin		= ext4_write_begin,
-@@ -3604,7 +3601,7 @@ static const struct address_space_operations ext4_aops = {
- 
- static const struct address_space_operations ext4_journalled_aops = {
- 	.readpage		= ext4_readpage,
--	.readpages		= ext4_readpages,
-+	.readahead		= ext4_readahead,
- 	.writepage		= ext4_writepage,
- 	.writepages		= ext4_writepages,
- 	.write_begin		= ext4_write_begin,
-@@ -3620,7 +3617,7 @@ static const struct address_space_operations ext4_journalled_aops = {
- 
- static const struct address_space_operations ext4_da_aops = {
- 	.readpage		= ext4_readpage,
--	.readpages		= ext4_readpages,
-+	.readahead		= ext4_readahead,
- 	.writepage		= ext4_writepage,
- 	.writepages		= ext4_writepages,
- 	.write_begin		= ext4_da_write_begin,
-diff --git a/fs/ext4/readpage.c b/fs/ext4/readpage.c
-index c1769afbf799..66275f25235d 100644
---- a/fs/ext4/readpage.c
-+++ b/fs/ext4/readpage.c
-@@ -7,8 +7,8 @@
-  *
-  * This was originally taken from fs/mpage.c
-  *
-- * The intent is the ext4_mpage_readpages() function here is intended
-- * to replace mpage_readpages() in the general case, not just for
-+ * The ext4_mpage_readpages() function here is intended to
-+ * replace mpage_readahead() in the general case, not just for
-  * encrypted files.  It has some limitations (see below), where it
-  * will fall back to read_block_full_page(), but these limitations
-  * should only be hit when page_size != block_size.
-@@ -222,8 +222,7 @@ static inline loff_t ext4_readpage_limit(struct inode *inode)
- }
- 
- int ext4_mpage_readpages(struct address_space *mapping,
--			 struct list_head *pages, struct page *page,
--			 unsigned nr_pages, bool is_readahead)
-+		struct readahead_control *rac, struct page *page)
- {
- 	struct bio *bio = NULL;
- 	sector_t last_block_in_bio = 0;
-@@ -241,6 +240,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
- 	int length;
- 	unsigned relative_block = 0;
- 	struct ext4_map_blocks map;
-+	unsigned int nr_pages = rac ? readahead_count(rac) : 1;
- 
- 	map.m_pblk = 0;
- 	map.m_lblk = 0;
-@@ -251,14 +251,9 @@ int ext4_mpage_readpages(struct address_space *mapping,
- 		int fully_mapped = 1;
- 		unsigned first_hole = blocks_per_page;
- 
--		if (pages) {
--			page = lru_to_page(pages);
+-/* readahead.c */
+-#define VM_READAHEAD_PAGES	(SZ_128K / PAGE_SIZE)
 -
-+		if (rac) {
-+			page = readahead_page(rac);
- 			prefetchw(&page->flags);
--			list_del(&page->lru);
--			if (add_to_page_cache_lru(page, mapping, page->index,
--				  readahead_gfp_mask(mapping)))
--				goto next_page;
- 		}
+-int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
+-			pgoff_t offset, unsigned long nr_to_read);
+-
+-void page_cache_sync_readahead(struct address_space *mapping,
+-			       struct file_ra_state *ra,
+-			       struct file *filp,
+-			       pgoff_t offset,
+-			       unsigned long size);
+-
+-void page_cache_async_readahead(struct address_space *mapping,
+-				struct file_ra_state *ra,
+-				struct file *filp,
+-				struct page *pg,
+-				pgoff_t offset,
+-				unsigned long size);
+-
+ extern unsigned long stack_guard_gap;
+ /* Generic expand stack which grows the stack according to GROWS{UP,DOWN} */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index ccb14b6a16b5..24894b9b90c9 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -614,6 +614,14 @@ int replace_page_cache_page(struct page *old, struct page *new, gfp_t gfp_mask);
+ void delete_from_page_cache_batch(struct address_space *mapping,
+ 				  struct pagevec *pvec);
  
- 		if (page_has_buffers(page))
-@@ -381,7 +376,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
- 			bio->bi_iter.bi_sector = blocks[0] << (blkbits - 9);
- 			bio->bi_end_io = mpage_end_io;
- 			bio_set_op_attrs(bio, REQ_OP_READ,
--						is_readahead ? REQ_RAHEAD : 0);
-+						rac ? REQ_RAHEAD : 0);
- 		}
++#define VM_READAHEAD_PAGES	(SZ_128K / PAGE_SIZE)
++
++void page_cache_sync_readahead(struct address_space *, struct file_ra_state *,
++		struct file *, pgoff_t index, unsigned long req_count);
++void page_cache_async_readahead(struct address_space *, struct file_ra_state *,
++		struct file *, struct page *, pgoff_t index,
++		unsigned long req_count);
++
+ /*
+  * Like add_to_page_cache_locked, but used to add newly allocated pages:
+  * the page is new, so we can just run __SetPageLocked() against it.
+diff --git a/mm/fadvise.c b/mm/fadvise.c
+index 4f17c83db575..3efebfb9952c 100644
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -22,6 +22,8 @@
  
- 		length = first_hole << blkbits;
-@@ -406,10 +401,9 @@ int ext4_mpage_readpages(struct address_space *mapping,
- 		else
- 			unlock_page(page);
- 	next_page:
--		if (pages)
-+		if (rac)
- 			put_page(page);
- 	}
--	BUG_ON(pages && !list_empty(pages));
- 	if (bio)
- 		submit_bio(bio);
- 	return 0;
+ #include <asm/unistd.h>
+ 
++#include "internal.h"
++
+ /*
+  * POSIX_FADV_WILLNEED could set PG_Referenced, and POSIX_FADV_NOREUSE could
+  * deactivate the pages and clear PG_Referenced.
+diff --git a/mm/internal.h b/mm/internal.h
+index 3cf20ab3ca01..83f353e74654 100644
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -49,6 +49,8 @@ void unmap_page_range(struct mmu_gather *tlb,
+ 			     unsigned long addr, unsigned long end,
+ 			     struct zap_details *details);
+ 
++int force_page_cache_readahead(struct address_space *, struct file *,
++		pgoff_t index, unsigned long nr_to_read);
+ extern unsigned int __do_page_cache_readahead(struct address_space *mapping,
+ 		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
+ 		unsigned long lookahead_size);
 -- 
 2.25.0
 
