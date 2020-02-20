@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AF0CC11D05
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 16:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0745CC11D0C
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 16:57:52 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2DB0F206F4
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 16:24:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id AE7952465D
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 16:57:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lxTIdidZ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2DB0F206F4
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XxNghq7r"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AE7952465D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Nfzx5Y5DzDqM0
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Feb 2020 03:24:13 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Ngkj4d1VzDqSl
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Feb 2020 03:57:49 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -29,39 +29,39 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=lxTIdidZ; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=XxNghq7r; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Nfzq14PXzDqGc
- for <linux-erofs@lists.ozlabs.org>; Fri, 21 Feb 2020 03:24:06 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48NgkT4fV9zDqRD
+ for <linux-erofs@lists.ozlabs.org>; Fri, 21 Feb 2020 03:57:37 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=/X+cuahXNVjwX8kIjzPU/QZUMEm+qIm+lNxfvhlX3EA=; b=lxTIdidZw2P2UO9t/Oji3FNceT
- +CjnxJZogq66GLHl3rhRoufVhXPoH7CxN5rw1pgrMvr7szk03lJeq2TvDL3R2ys6m86hnGj7sXBXg
- AQaHFo4WLWH90RnuR6backVMmU/lhsJTXMH7V42hfdxcXElLYWAoi8WkszieVn0N2xZmXUiT1EECe
- GJX8uJUjnaFLb7zI2vKxvhhrKwSedVafnnaMtZd9zrJbg6npgPtnxSYDtx+h9J81ITalXizKXonPp
- SQVVA+pyipbUonuljCpyE7+n90vEPRYltjJb/REqxUNVBonREpCV+ttQEEWV7EF1CEorahGhIHM1b
- 9p1J3F8g==;
+ bh=qHvBZa6xH4q8QoO0XjztoHEsiwUeumDdhpQiwafJ4fA=; b=XxNghq7rFzqnKm0SVydd0tHTdn
+ n4s70eVOvmXv6xE4upQLTZABvYZeabWIKMlGk6r1YJRae6i8tpYXe5dtM9zo+Nvpbtu1wnMIhCRDY
+ nXaWx7ub/Z7OzeYS+E/BNUzS6JOhGzIvL1BAO8xZgolQ++p6TjxSiG17Yqf5R/+hI5Tk6WktBEQFl
+ ALA1Z2m00fN67lT/dRb+VmatCW5BfMt0zqFVJecwEgC4ipDl7wtLI+budHd68slvGKbN8MEQRduxB
+ hi02UijAGWWe/BHat9owg4eLO9dGnV9K9muMrZ8ZBwLUooYgWOvcD2lcfCIagHu0PZetNNM4A6azz
+ Ltap/rvQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4ocO-0001zg-A1; Thu, 20 Feb 2020 16:24:04 +0000
-Date: Thu, 20 Feb 2020 08:24:04 -0800
+ Hat Linux)) id 1j4p8p-0005KC-2B; Thu, 20 Feb 2020 16:57:35 +0000
+Date: Thu, 20 Feb 2020 08:57:34 -0800
 From: Matthew Wilcox <willy@infradead.org>
 To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v7 21/24] iomap: Restructure iomap_readpages_actor
-Message-ID: <20200220162404.GY24185@bombadil.infradead.org>
+Subject: Re: [PATCH v7 22/24] iomap: Convert from readpages to readahead
+Message-ID: <20200220165734.GZ24185@bombadil.infradead.org>
 References: <20200219210103.32400-1-willy@infradead.org>
- <20200219210103.32400-22-willy@infradead.org>
- <20200220154741.GB19577@infradead.org>
+ <20200219210103.32400-23-willy@infradead.org>
+ <20200220154912.GC19577@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200220154741.GB19577@infradead.org>
+In-Reply-To: <20200220154912.GC19577@infradead.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -82,22 +82,36 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Feb 20, 2020 at 07:47:41AM -0800, Christoph Hellwig wrote:
-> On Wed, Feb 19, 2020 at 01:01:00PM -0800, Matthew Wilcox wrote:
-> > From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> > 
-> > By putting the 'have we reached the end of the page' condition at the end
-> > of the loop instead of the beginning, we can remove the 'submit the last
-> > page' code from iomap_readpages().  Also check that iomap_readpage_actor()
-> > didn't return 0, which would lead to an endless loop.
+On Thu, Feb 20, 2020 at 07:49:12AM -0800, Christoph Hellwig wrote:
+> > +/**
+> > + * iomap_readahead - Attempt to read pages from a file.
+> > + * @rac: Describes the pages to be read.
+> > + * @ops: The operations vector for the filesystem.
+> > + *
+> > + * This function is for filesystems to call to implement their readahead
+> > + * address_space operation.
+> > + *
+> > + * Context: The file is pinned by the caller, and the pages to be read are
+> > + * all locked and have an elevated refcount.  This function will unlock
+> > + * the pages (once I/O has completed on them, or I/O has been determined to
+> > + * not be necessary).  It will also decrease the refcount once the pages
+> > + * have been submitted for I/O.  After this point, the page may be removed
+> > + * from the page cache, and should not be referenced.
+> > + */
 > 
-> I'm obviously biassed a I wrote the original code, but I find the new
-> very much harder to understand (not that the previous one was easy, this
-> is tricky code..).
+> Isn't the context documentation something that belongs into the aop
+> documentation?  I've never really seen the value of duplicating this
+> information in method instances, as it is just bound to be out of date
+> rather sooner than later.
 
-Agreed, I found the original code hard to understand.  I think this is
-easier because now cur_page doesn't leak outside this loop, so it has
-an obvious lifecycle.
+I'm in two minds about it as well.  There's definitely no value in
+providing kernel-doc for implementations of a common interface ... so
+rather than fixing the nilfs2 kernel-doc, I just deleted it.  But this
+isn't just the implementation, like nilfs2_readahead() is, it's a library
+function for filesystems to call, so it deserves documentation.  On the
+other hand, there's no real thought to this on the part of the filesystem;
+the implementation just calls this with the appropriate ops pointer.
 
-I'm kind of optimistic for Dave Howells' iov_iter addition of an
-ITER_MAPPING.  That might simplify all of this code.
+Then again, I kind of feel like we need more documentation of iomap to
+help filesystems convert to using it.  But maybe kernel-doc isn't the
+mechanism to provide that.
