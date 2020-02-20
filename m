@@ -6,64 +6,68 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5B9FC11D0C
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 15:55:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D43FBC11D05
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 15:57:38 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5B2492465D
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 15:55:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 86C7A2465D
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 15:57:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="PM/AprBi"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B2492465D
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="otE+N0vt"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 86C7A2465D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48NfLD3HTDzDqWd
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Feb 2020 02:55:00 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
- spf=none (no SPF record) smtp.mailfrom=infradead.org
- (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
- envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48NfPC6k04zDqWc
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Feb 2020 02:57:35 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
+ smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
+ helo=bombadil.infradead.org;
+ envelope-from=batv+d8ceb162cb84e4d8f427+6024+infradead.org+hch@bombadil.srs.infradead.org;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=PM/AprBi; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=otE+N0vt; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48NfL71Z69zDqV4
- for <linux-erofs@lists.ozlabs.org>; Fri, 21 Feb 2020 02:54:55 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48NfP565rfzDqT3
+ for <linux-erofs@lists.ozlabs.org>; Fri, 21 Feb 2020 02:57:29 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=D6I8jW+2llttZsSrEwC7oLd5yfRbnmR5fQ3XY07h6/A=; b=PM/AprBicbU39edYsbWTpTc0Na
- emVcq7cb+NHUM6oooQNEoXkG8+bHD9DPrTjjG2z2x3T5qTsF2asVZBk11hr9EbGPUjnd00E3//wQZ
- Ybl+M5Ncbk5X+eqZuv5FQg2IiH2QMSkNvYYPTlkj7xTRE/LwRRrh6jsluV0sdP9tbDuj8LPcnDHs1
- hcDRVlsCikcg/+gbg3xn8+BGR6mA7HS7wgpHnbqj5ErHAFq/eFM9zwR+c5djfNPqtTIEOm8KczQWy
- Y9fVsWdlNqjO9NJrXN3ek4kvMofOELyh95VqWLxea4QhQIGt2c5AYVzLVexEyX6ylz0YB4RkWIKLh
- T/R9auvw==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4oA8-00077l-7Q; Thu, 20 Feb 2020 15:54:52 +0000
-Date: Thu, 20 Feb 2020 07:54:52 -0800
-From: Matthew Wilcox <willy@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
+ bh=+/UHJ6F1pbYDweJDUZAgvqKfayrQBowwGTnz0WdYGiI=; b=otE+N0vtlyX9xN010Sejc78VWm
+ +Z6Nhr8BvmGUNrIO9afuJHhxoLPaunjuFqSB3Vbfkg92cFJ3CGndTAJiSloW8688jbu+LsyPnwsfM
+ 7+EZh4a1KpVzbLiwzv7LZrgnYjvExYmxe48vBmhmvCOPmZ7sVJnLeHwyQwYksv3nnnaQLNldoXsYQ
+ u1gQv6uFtIOengP5ajM30qweiLUQ49UDY3r+ygUvyonu17lsTwaYIiH/5oz7IhvQ4fhsYNWJY/9Ww
+ eOATcZg8cPjWf2FcknrxS05+tCQGLf31jvSwLk8Ndl9n4CBxBjuYStE6NyuIbPzCKDkbX2IXV3hgI
+ bWJ8ZdIw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
+ Hat Linux)) id 1j4oCd-0000Ht-HF; Thu, 20 Feb 2020 15:57:27 +0000
+Date: Thu, 20 Feb 2020 07:57:27 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v7 14/24] btrfs: Convert from readpages to readahead
-Message-ID: <20200220155452.GX24185@bombadil.infradead.org>
+Message-ID: <20200220155727.GA32232@infradead.org>
 References: <20200219210103.32400-1-willy@infradead.org>
  <20200219210103.32400-15-willy@infradead.org>
  <SN4PR0401MB35987D7B76007B93B1C5CE5E9B130@SN4PR0401MB3598.namprd04.prod.outlook.com>
  <20200220134849.GV24185@bombadil.infradead.org>
  <20200220154658.GA19577@infradead.org>
+ <20200220155452.GX24185@bombadil.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200220154658.GA19577@infradead.org>
+In-Reply-To: <20200220155452.GX24185@bombadil.infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ bombadil.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,31 +79,39 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
+Cc: "cluster-devel@redhat.com" <cluster-devel@redhat.com>,
  Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "linux-f2fs-devel@lists.sourceforge.net"
  <linux-f2fs-devel@lists.sourceforge.net>,
- "cluster-devel@redhat.com" <cluster-devel@redhat.com>,
+ Christoph Hellwig <hch@infradead.org>,
  "linux-mm@kvack.org" <linux-mm@kvack.org>,
  "ocfs2-devel@oss.oracle.com" <ocfs2-devel@oss.oracle.com>,
  "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
  "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
  "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
+ "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
  "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Feb 20, 2020 at 07:46:58AM -0800, Christoph Hellwig wrote:
-> On Thu, Feb 20, 2020 at 05:48:49AM -0800, Matthew Wilcox wrote:
-> > btrfs: Convert from readpages to readahead
-> >   
-> > Implement the new readahead method in btrfs.  Add a readahead_page_batch()
-> > to optimise fetching a batch of pages at once.
+On Thu, Feb 20, 2020 at 07:54:52AM -0800, Matthew Wilcox wrote:
+> On Thu, Feb 20, 2020 at 07:46:58AM -0800, Christoph Hellwig wrote:
+> > On Thu, Feb 20, 2020 at 05:48:49AM -0800, Matthew Wilcox wrote:
+> > > btrfs: Convert from readpages to readahead
+> > >   
+> > > Implement the new readahead method in btrfs.  Add a readahead_page_batch()
+> > > to optimise fetching a batch of pages at once.
+> > 
+> > Shouldn't this readahead_page_batch heper go into a separate patch so
+> > that it clearly stands out?
 > 
-> Shouldn't this readahead_page_batch heper go into a separate patch so
-> that it clearly stands out?
+> I'll move it into 'Put readahead pages in cache earlier' for v8 (the
+> same patch where we add readahead_page())
 
-I'll move it into 'Put readahead pages in cache earlier' for v8 (the
-same patch where we add readahead_page())
+One argument for keeping it in a patch of its own is that btrfs appears
+to be the only user, and Goldwyn has a WIP conversion of btrfs to iomap,
+so it might go away pretty soon and we could just revert the commit.
+
+But this starts to get into really minor details, so I'll shut up now :)
