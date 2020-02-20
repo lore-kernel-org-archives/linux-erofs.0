@@ -1,66 +1,50 @@
-Return-Path: <SRS0=ChUK=4H=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=60vh=4I=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F904C34056
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A004FC7619D
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 02:48:33 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F3016207FD
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Feb 2020 21:05:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lpY8UU0a"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F3016207FD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 315FA24671
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 02:48:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 315FA24671
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48N9Gk0YG1zDqNv
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 08:05:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48NJtl2L0yzDqRr
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Feb 2020 13:48:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.35; helo=huawei.com;
+ envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- spf=none (no SPF record) smtp.mailfrom=infradead.org
- (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
- envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=lpY8UU0a; 
- dkim-atps=neutral
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:e::133])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga07-in.huawei.com [45.249.212.35])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48N9B80QSQzDqBV
- for <linux-erofs@lists.ozlabs.org>; Thu, 20 Feb 2020 08:01:20 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
- MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
- :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=0plDwDk1qrRVYfteD+bNdGxMrdBat4pqPVYwNSP5AJk=; b=lpY8UU0a27DYgPHNCDbqbfFeBu
- j1zcJzrpWZV2gyZt1PaCbEW2Qv6LIii40DQ8lIy5HGw51I0MSbUNbKDx6lh4fwu2t9nVnfa31SRzT
- dWvP5iWSGdZYTrkJk1OQrh4+T7n9UZ4lp/vG7MOUNS7NG1zS9eRIoc/C5n0ZPYxxLtaD/T8r/R+ZF
- Wi1LokRB4GBbcL7remCQx7b+NQTeXraOEvy7/vC4oOo6pl52sKy2oEeue4OTNuwMjvymhX3YUYPGL
- A+ac+TBjloZDc4+HDMhwSo3g0OZeTykQW5cpL+lZPrPQjQ3e6cvD5AZq+p3ObD79LvOXe37mbSqiX
- GKe1Csrw==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j4WSu-0008TK-QN; Wed, 19 Feb 2020 21:01:04 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v7 02/24] mm: Return void from various readahead functions
-Date: Wed, 19 Feb 2020 13:00:41 -0800
-Message-Id: <20200219210103.32400-3-willy@infradead.org>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20200219210103.32400-1-willy@infradead.org>
-References: <20200219210103.32400-1-willy@infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48NJtd34RmzDqRM
+ for <linux-erofs@lists.ozlabs.org>; Thu, 20 Feb 2020 13:48:21 +1100 (AEDT)
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.60])
+ by Forcepoint Email with ESMTP id F1CCA9F985FD4C5CF48A;
+ Thu, 20 Feb 2020 10:48:12 +0800 (CST)
+Received: from architecture4.huawei.com (10.160.196.180) by smtp.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server (TLS) id 14.3.439.0; Thu, 20 Feb
+ 2020 10:48:02 +0800
+From: Gao Xiang <gaoxiang25@huawei.com>
+To: Chao Yu <yuchao0@huawei.com>, <linux-erofs@lists.ozlabs.org>
+Subject: [PATCH v3] erofs: convert workstn to XArray
+Date: Thu, 20 Feb 2020 10:46:42 +0800
+Message-ID: <20200220024642.91529-1-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.160.196.180]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,185 +56,406 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
- linux-kernel@vger.kernel.org,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
- Dave Chinner <dchinner@redhat.com>, linux-ext4@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: Miao Xie <miaoxie@huawei.com>, LKML <linux-kernel@vger.kernel.org>,
+ Matthew Wilcox <willy@infradead.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+XArray has friendly APIs and it will replace the old radix
+tree in the near future.
 
-ondemand_readahead has two callers, neither of which use the return value.
-That means that both ra_submit and __do_page_cache_readahead() can return
-void, and we don't need to worry that a present page in the readahead
-window causes us to return a smaller nr_pages than we ought to have.
+This convert makes use of __xa_cmpxchg when inserting on
+a just inserted item by other thread. In detail, instead
+of totally looking up again as what we did for the old
+radix tree, it will try to legitimize the current in-tree
+item in the XArray therefore more effective.
 
-Similarly, no caller uses the return value from force_page_cache_readahead().
+In addition, naming is rather a challenge for non-English
+speaker like me. The basic idea of workstn is to provide
+a runtime sparse array with items arranged in the physical
+block number order. Such items (was called workgroup) can be
+used to record compress clusters or for later new features.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+However, both workgroup and workstn seem not good names from
+whatever point of view, so I'd like to rename them as pslot
+and managed_pslots to stand for physical slots. This patch
+handles the second as a part of the radix tree convert.
+
+Cc: Chao Yu <yuchao0@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- mm/fadvise.c   |  4 ----
- mm/internal.h  | 12 ++++++------
- mm/readahead.c | 31 +++++++++++++------------------
- 3 files changed, 19 insertions(+), 28 deletions(-)
+Changes since v2:
+ - add path to bail out all potential __xa_cmpxchg()
+   errors pointed out by Chao.
 
-diff --git a/mm/fadvise.c b/mm/fadvise.c
-index 3efebfb9952c..0e66f2aaeea3 100644
---- a/mm/fadvise.c
-+++ b/mm/fadvise.c
-@@ -104,10 +104,6 @@ int generic_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
- 		if (!nrpages)
- 			nrpages = ~0UL;
+ fs/erofs/internal.h |  8 ++---
+ fs/erofs/super.c    |  2 +-
+ fs/erofs/utils.c    | 88 +++++++++++++++++----------------------------
+ fs/erofs/zdata.c    | 76 ++++++++++++++++++++-------------------
+ 4 files changed, 76 insertions(+), 98 deletions(-)
+
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index c4c6dcdc89ad..5eead7fdc7a6 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -52,8 +52,8 @@ struct erofs_sb_info {
+ 	struct list_head list;
+ 	struct mutex umount_mutex;
  
--		/*
--		 * Ignore return value because fadvise() shall return
--		 * success even if filesystem can't retrieve a hint,
--		 */
- 		force_page_cache_readahead(mapping, file, start_index, nrpages);
- 		break;
- 	case POSIX_FADV_NOREUSE:
-diff --git a/mm/internal.h b/mm/internal.h
-index 83f353e74654..15aaebebd768 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -49,20 +49,20 @@ void unmap_page_range(struct mmu_gather *tlb,
- 			     unsigned long addr, unsigned long end,
- 			     struct zap_details *details);
+-	/* the dedicated workstation for compression */
+-	struct radix_tree_root workstn_tree;
++	/* managed XArray arranged in physical block number */
++	struct xarray managed_pslots;
  
--int force_page_cache_readahead(struct address_space *, struct file *,
-+void force_page_cache_readahead(struct address_space *, struct file *,
- 		pgoff_t index, unsigned long nr_to_read);
--extern unsigned int __do_page_cache_readahead(struct address_space *mapping,
--		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
-+void __do_page_cache_readahead(struct address_space *, struct file *,
-+		pgoff_t index, unsigned long nr_to_read,
- 		unsigned long lookahead_size);
+ 	/* threshold for decompression synchronously */
+ 	unsigned int max_sync_decompress_pages;
+@@ -402,8 +402,8 @@ static inline void *erofs_get_pcpubuf(unsigned int pagenr)
+ int erofs_workgroup_put(struct erofs_workgroup *grp);
+ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+ 					     pgoff_t index);
+-int erofs_register_workgroup(struct super_block *sb,
+-			     struct erofs_workgroup *grp);
++struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
++					       struct erofs_workgroup *grp);
+ void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
+ void erofs_shrinker_register(struct super_block *sb);
+ void erofs_shrinker_unregister(struct super_block *sb);
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 057e6d7b5b7f..b514c67e5fc2 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -425,7 +425,7 @@ static int erofs_fill_super(struct super_block *sb, void *data, int silent)
+ 		sb->s_flags &= ~SB_POSIXACL;
  
- /*
-  * Submit IO for the read-ahead request in file_ra_state.
-  */
--static inline unsigned long ra_submit(struct file_ra_state *ra,
-+static inline void ra_submit(struct file_ra_state *ra,
- 		struct address_space *mapping, struct file *filp)
+ #ifdef CONFIG_EROFS_FS_ZIP
+-	INIT_RADIX_TREE(&sbi->workstn_tree, GFP_ATOMIC);
++	xa_init(&sbi->managed_pslots);
+ #endif
+ 
+ 	/* get the root inode */
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index fddc5059c930..4396b424373f 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -37,9 +37,6 @@ void *erofs_get_pcpubuf(unsigned int pagenr)
+ /* global shrink count (for all mounted EROFS instances) */
+ static atomic_long_t erofs_global_shrink_cnt;
+ 
+-#define __erofs_workgroup_get(grp)	atomic_inc(&(grp)->refcount)
+-#define __erofs_workgroup_put(grp)	atomic_dec(&(grp)->refcount)
+-
+ static int erofs_workgroup_get(struct erofs_workgroup *grp)
  {
--	return __do_page_cache_readahead(mapping, filp,
--					ra->start, ra->size, ra->async_size);
-+	__do_page_cache_readahead(mapping, filp,
-+			ra->start, ra->size, ra->async_size);
+ 	int o;
+@@ -66,7 +63,7 @@ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+ 
+ repeat:
+ 	rcu_read_lock();
+-	grp = radix_tree_lookup(&sbi->workstn_tree, index);
++	grp = xa_load(&sbi->managed_pslots, index);
+ 	if (grp) {
+ 		if (erofs_workgroup_get(grp)) {
+ 			/* prefer to relax rcu read side */
+@@ -80,43 +77,37 @@ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+ 	return grp;
  }
  
- /*
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 2fe72cd29b47..41a592886da7 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -149,10 +149,8 @@ static int read_pages(struct address_space *mapping, struct file *filp,
-  * the pages first, then submits them for I/O. This avoids the very bad
-  * behaviour which would occur if page allocations are causing VM writeback.
-  * We really don't want to intermingle reads and writes like that.
-- *
-- * Returns the number of pages requested, or the maximum amount of I/O allowed.
-  */
--unsigned int __do_page_cache_readahead(struct address_space *mapping,
-+void __do_page_cache_readahead(struct address_space *mapping,
- 		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
- 		unsigned long lookahead_size)
+-int erofs_register_workgroup(struct super_block *sb,
+-			     struct erofs_workgroup *grp)
++struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
++					       struct erofs_workgroup *grp)
  {
-@@ -166,7 +164,7 @@ unsigned int __do_page_cache_readahead(struct address_space *mapping,
- 	gfp_t gfp_mask = readahead_gfp_mask(mapping);
- 
- 	if (isize == 0)
--		goto out;
-+		return;
- 
- 	end_index = ((isize - 1) >> PAGE_SHIFT);
- 
-@@ -211,23 +209,21 @@ unsigned int __do_page_cache_readahead(struct address_space *mapping,
- 	if (nr_pages)
- 		read_pages(mapping, filp, &page_pool, nr_pages, gfp_mask);
- 	BUG_ON(!list_empty(&page_pool));
--out:
--	return nr_pages;
- }
- 
- /*
-  * Chunk the readahead into 2 megabyte units, so that we don't pin too much
-  * memory at once.
-  */
--int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
--			       pgoff_t offset, unsigned long nr_to_read)
-+void force_page_cache_readahead(struct address_space *mapping,
-+		struct file *filp, pgoff_t offset, unsigned long nr_to_read)
- {
- 	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
- 	struct file_ra_state *ra = &filp->f_ra;
- 	unsigned long max_pages;
- 
- 	if (unlikely(!mapping->a_ops->readpage && !mapping->a_ops->readpages))
+-	struct erofs_sb_info *sbi;
+-	int err;
+-
+-	/* grp shouldn't be broken or used before */
+-	if (atomic_read(&grp->refcount) != 1) {
+-		DBG_BUGON(1);
 -		return -EINVAL;
-+		return;
+-	}
+-
+-	err = radix_tree_preload(GFP_NOFS);
+-	if (err)
+-		return err;
+-
+-	sbi = EROFS_SB(sb);
+-	xa_lock(&sbi->workstn_tree);
++	struct erofs_sb_info *const sbi = EROFS_SB(sb);
++	struct erofs_workgroup *pre;
  
  	/*
- 	 * If the request exceeds the readahead window, allow the read to
-@@ -245,7 +241,6 @@ int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
- 		offset += this_chunk;
- 		nr_to_read -= this_chunk;
- 	}
--	return 0;
- }
- 
- /*
-@@ -378,11 +373,10 @@ static int try_context_readahead(struct address_space *mapping,
- /*
-  * A minimal readahead algorithm for trivial sequential/random reads.
-  */
--static unsigned long
--ondemand_readahead(struct address_space *mapping,
--		   struct file_ra_state *ra, struct file *filp,
--		   bool hit_readahead_marker, pgoff_t offset,
--		   unsigned long req_size)
-+static void ondemand_readahead(struct address_space *mapping,
-+		struct file_ra_state *ra, struct file *filp,
-+		bool hit_readahead_marker, pgoff_t offset,
-+		unsigned long req_size)
- {
- 	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
- 	unsigned long max_pages = ra->ra_pages;
-@@ -428,7 +422,7 @@ ondemand_readahead(struct address_space *mapping,
- 		rcu_read_unlock();
- 
- 		if (!start || start - offset > max_pages)
--			return 0;
-+			return;
- 
- 		ra->start = start;
- 		ra->size = start - offset;	/* old async_size */
-@@ -464,7 +458,8 @@ ondemand_readahead(struct address_space *mapping,
- 	 * standalone, small random read
- 	 * Read as is, and do not pollute the readahead state.
+-	 * Bump up reference count before making this workgroup
+-	 * visible to other users in order to avoid potential UAF
+-	 * without serialized by workstn_lock.
++	 * Bump up a reference count before making this visible
++	 * to others for the XArray in order to avoid potential
++	 * UAF without serialized by xa_lock.
  	 */
--	return __do_page_cache_readahead(mapping, filp, offset, req_size, 0);
-+	__do_page_cache_readahead(mapping, filp, offset, req_size, 0);
-+	return;
+-	__erofs_workgroup_get(grp);
+-
+-	err = radix_tree_insert(&sbi->workstn_tree, grp->index, grp);
+-	if (err)
+-		/*
+-		 * it's safe to decrease since the workgroup isn't visible
+-		 * and refcount >= 2 (cannot be freezed).
+-		 */
+-		__erofs_workgroup_put(grp);
++	atomic_inc(&grp->refcount);
  
- initial_readahead:
- 	ra->start = offset;
-@@ -489,7 +484,7 @@ ondemand_readahead(struct address_space *mapping,
- 		}
- 	}
- 
--	return ra_submit(ra, mapping, filp);
-+	ra_submit(ra, mapping, filp);
+-	xa_unlock(&sbi->workstn_tree);
+-	radix_tree_preload_end();
+-	return err;
++repeat:
++	xa_lock(&sbi->managed_pslots);
++	pre = __xa_cmpxchg(&sbi->managed_pslots, grp->index,
++			   NULL, grp, GFP_NOFS);
++	if (pre) {
++		if (xa_is_err(pre)) {
++			pre = ERR_PTR(xa_err(pre));
++		} else if (erofs_workgroup_get(pre)) {
++			/* try to legitimize the current in-tree one */
++			xa_unlock(&sbi->managed_pslots);
++			cond_resched();
++			goto repeat;
++		}
++		atomic_dec(&grp->refcount);
++		grp = pre;
++	}
++	xa_unlock(&sbi->managed_pslots);
++	return grp;
  }
  
- /**
+ static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
+@@ -155,7 +146,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ 
+ 	/*
+ 	 * Note that all cached pages should be unattached
+-	 * before deleted from the radix tree. Otherwise some
++	 * before deleted from the XArray. Otherwise some
+ 	 * cached pages could be still attached to the orphan
+ 	 * old workgroup when the new one is available in the tree.
+ 	 */
+@@ -169,7 +160,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ 	 * however in order to avoid some race conditions, add a
+ 	 * DBG_BUGON to observe this in advance.
+ 	 */
+-	DBG_BUGON(radix_tree_delete(&sbi->workstn_tree, grp->index) != grp);
++	DBG_BUGON(xa_erase(&sbi->managed_pslots, grp->index) != grp);
+ 
+ 	/*
+ 	 * If managed cache is on, last refcount should indicate
+@@ -182,22 +173,11 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+ 					      unsigned long nr_shrink)
+ {
+-	pgoff_t first_index = 0;
+-	void *batch[PAGEVEC_SIZE];
++	struct erofs_workgroup *grp;
+ 	unsigned int freed = 0;
++	unsigned long index;
+ 
+-	int i, found;
+-repeat:
+-	xa_lock(&sbi->workstn_tree);
+-
+-	found = radix_tree_gang_lookup(&sbi->workstn_tree,
+-				       batch, first_index, PAGEVEC_SIZE);
+-
+-	for (i = 0; i < found; ++i) {
+-		struct erofs_workgroup *grp = batch[i];
+-
+-		first_index = grp->index + 1;
+-
++	xa_for_each(&sbi->managed_pslots, index, grp) {
+ 		/* try to shrink each valid workgroup */
+ 		if (!erofs_try_to_release_workgroup(sbi, grp))
+ 			continue;
+@@ -206,10 +186,6 @@ static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
+ 		if (!--nr_shrink)
+ 			break;
+ 	}
+-	xa_unlock(&sbi->workstn_tree);
+-
+-	if (i && nr_shrink)
+-		goto repeat;
+ 	return freed;
+ }
+ 
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 80e47f07d946..c4b6c9aa87ec 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -67,16 +67,6 @@ static void z_erofs_pcluster_init_once(void *ptr)
+ 		pcl->compressed_pages[i] = NULL;
+ }
+ 
+-static void z_erofs_pcluster_init_always(struct z_erofs_pcluster *pcl)
+-{
+-	struct z_erofs_collection *cl = z_erofs_primarycollection(pcl);
+-
+-	atomic_set(&pcl->obj.refcount, 1);
+-
+-	DBG_BUGON(cl->nr_pages);
+-	DBG_BUGON(cl->vcnt);
+-}
+-
+ int __init z_erofs_init_zip_subsystem(void)
+ {
+ 	pcluster_cachep = kmem_cache_create("erofs_compress",
+@@ -341,26 +331,19 @@ static int z_erofs_lookup_collection(struct z_erofs_collector *clt,
+ 				     struct inode *inode,
+ 				     struct erofs_map_blocks *map)
+ {
+-	struct erofs_workgroup *grp;
+-	struct z_erofs_pcluster *pcl;
++	struct z_erofs_pcluster *pcl = clt->pcl;
+ 	struct z_erofs_collection *cl;
+ 	unsigned int length;
+ 
+-	grp = erofs_find_workgroup(inode->i_sb, map->m_pa >> PAGE_SHIFT);
+-	if (!grp)
+-		return -ENOENT;
+-
+-	pcl = container_of(grp, struct z_erofs_pcluster, obj);
++	/* to avoid unexpected loop formed by corrupted images */
+ 	if (clt->owned_head == &pcl->next || pcl == clt->tailpcl) {
+ 		DBG_BUGON(1);
+-		erofs_workgroup_put(grp);
+ 		return -EFSCORRUPTED;
+ 	}
+ 
+ 	cl = z_erofs_primarycollection(pcl);
+ 	if (cl->pageofs != (map->m_la & ~PAGE_MASK)) {
+ 		DBG_BUGON(1);
+-		erofs_workgroup_put(grp);
+ 		return -EFSCORRUPTED;
+ 	}
+ 
+@@ -368,7 +351,6 @@ static int z_erofs_lookup_collection(struct z_erofs_collector *clt,
+ 	if (length & Z_EROFS_PCLUSTER_FULL_LENGTH) {
+ 		if ((map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) > length) {
+ 			DBG_BUGON(1);
+-			erofs_workgroup_put(grp);
+ 			return -EFSCORRUPTED;
+ 		}
+ 	} else {
+@@ -391,7 +373,6 @@ static int z_erofs_lookup_collection(struct z_erofs_collector *clt,
+ 	/* clean tailpcl if the current owned_head is Z_EROFS_PCLUSTER_TAIL */
+ 	if (clt->owned_head == Z_EROFS_PCLUSTER_TAIL)
+ 		clt->tailpcl = NULL;
+-	clt->pcl = pcl;
+ 	clt->cl = cl;
+ 	return 0;
+ }
+@@ -402,6 +383,7 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
+ {
+ 	struct z_erofs_pcluster *pcl;
+ 	struct z_erofs_collection *cl;
++	struct erofs_workgroup *grp;
+ 	int err;
+ 
+ 	/* no available workgroup, let's allocate one */
+@@ -409,7 +391,7 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
+ 	if (!pcl)
+ 		return -ENOMEM;
+ 
+-	z_erofs_pcluster_init_always(pcl);
++	atomic_set(&pcl->obj.refcount, 1);
+ 	pcl->obj.index = map->m_pa >> PAGE_SHIFT;
+ 
+ 	pcl->length = (map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) |
+@@ -429,19 +411,29 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
+ 	clt->mode = COLLECT_PRIMARY_FOLLOWED;
+ 
+ 	cl = z_erofs_primarycollection(pcl);
++
++	/* must be cleaned before freeing to slab */
++	DBG_BUGON(cl->nr_pages);
++	DBG_BUGON(cl->vcnt);
++
+ 	cl->pageofs = map->m_la & ~PAGE_MASK;
+ 
+ 	/*
+ 	 * lock all primary followed works before visible to others
+ 	 * and mutex_trylock *never* fails for a new pcluster.
+ 	 */
+-	mutex_trylock(&cl->lock);
++	DBG_BUGON(!mutex_trylock(&cl->lock));
+ 
+-	err = erofs_register_workgroup(inode->i_sb, &pcl->obj);
+-	if (err) {
+-		mutex_unlock(&cl->lock);
+-		kmem_cache_free(pcluster_cachep, pcl);
+-		return -EAGAIN;
++	grp = erofs_insert_workgroup(inode->i_sb, &pcl->obj);
++	if (IS_ERR(grp)) {
++		err = PTR_ERR(grp);
++		goto err_out;
++	}
++
++	if (grp != &pcl->obj) {
++		clt->pcl = container_of(grp, struct z_erofs_pcluster, obj);
++		err = -EEXIST;
++		goto err_out;
+ 	}
+ 	/* used to check tail merging loop due to corrupted images */
+ 	if (clt->owned_head == Z_EROFS_PCLUSTER_TAIL)
+@@ -450,12 +442,18 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
+ 	clt->pcl = pcl;
+ 	clt->cl = cl;
+ 	return 0;
++
++err_out:
++	mutex_unlock(&cl->lock);
++	kmem_cache_free(pcluster_cachep, pcl);
++	return err;
+ }
+ 
+ static int z_erofs_collector_begin(struct z_erofs_collector *clt,
+ 				   struct inode *inode,
+ 				   struct erofs_map_blocks *map)
+ {
++	struct erofs_workgroup *grp;
+ 	int ret;
+ 
+ 	DBG_BUGON(clt->cl);
+@@ -469,21 +467,25 @@ static int z_erofs_collector_begin(struct z_erofs_collector *clt,
+ 		return -EINVAL;
+ 	}
+ 
+-repeat:
+-	ret = z_erofs_lookup_collection(clt, inode, map);
+-	if (ret == -ENOENT) {
++	grp = erofs_find_workgroup(inode->i_sb, map->m_pa >> PAGE_SHIFT);
++	if (grp) {
++		clt->pcl = container_of(grp, struct z_erofs_pcluster, obj);
++	} else {
+ 		ret = z_erofs_register_collection(clt, inode, map);
+ 
+-		/* someone registered at the same time, give another try */
+-		if (ret == -EAGAIN) {
+-			cond_resched();
+-			goto repeat;
+-		}
++		if (!ret)
++			goto out;
++		if (ret != -EEXIST)
++			return ret;
+ 	}
+ 
+-	if (ret)
++	ret = z_erofs_lookup_collection(clt, inode, map);
++	if (ret) {
++		erofs_workgroup_put(&clt->pcl->obj);
+ 		return ret;
++	}
+ 
++out:
+ 	z_erofs_pagevec_ctor_init(&clt->vector, Z_EROFS_NR_INLINE_PAGEVECS,
+ 				  clt->cl->pagevec, clt->cl->vcnt);
+ 
 -- 
-2.25.0
+2.17.1
 
