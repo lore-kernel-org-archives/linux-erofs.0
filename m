@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FE5BC4BA00
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 772DAC4BA01
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:47 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0A4D120675
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 29D7720675
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hHF5tUr4"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0A4D120675
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="PZ8e3cBz"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 29D7720675
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt2W6YCNzDqML
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:52:35 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt2h6ThVzDqMx
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:52:44 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -33,25 +33,25 @@ Received: from bombadil.infradead.org (bombadil.infradead.org
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy66Gw4zDqGF
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy707xQzDqKl
  for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 08:48:46 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=WiFEUIefG63/61aNx/2cgoSMrFF7Zi6b++Gf/UDmxNI=; b=hHF5tUr4B5IR4ue1Z8PPPkBMiz
- s0ldawlP5MFOL44KPu1D0LyLJBtVLvQsESU/f8WX8ZV0Cjoh5ddin2VAm2hkQm20/1i76hQGSaRKW
- Wst8Vz0C8dFoL8XB58LOIk9QF3HgbfzOBoOKvT3CLZoXCfYnA8hoBgecTjTNifKeLK6ruZIVLcbbd
- m3eQ3Bu8ZcTrqzUrBwjU6tqSBGNLskSySkHssjrGC1irjzzyZPY4e+JpxyiCk7nPBCbNtj++p1Y9A
- a0j5LZzth6NAHIJ96tT7KETFHlYMJ3krk+5zoG4wn8z1szwi5VpsdHl2HZE8PJQSP21WW5I0TPzYj
- 48lrDngA==;
+ bh=2x6mr17+IWiABUrH32RRedDjvVTqyCBcBDcULt4oGp0=; b=PZ8e3cBzBVyhOkiqBpWxfXN4l5
+ xX1H3oq8gNl24M5eLkiGq7cvdo2d/+LXFFgro13sGXfH/TxL1lz+SitBPjbM5nJUIBJduLCRfuoZN
+ lRSg3soAax+qgzq+tFKq2E0HwX5+ZJtvf6GARvAtg6KQo5TkEGqUNUehXdbHRXTX7r2bf5VT2g+wM
+ 5pRT9wV3BS+lN7qCiNtsR4XhVhj39d8PJfS6AYi99sUACj5L+7nDfMOvgg28i24COXeeWH+zc44ZZ
+ HQsScXR6OxEB5TS4Qd6yNiuyPu8nhF4G5y5x+DBEtU4CfZ/gyo52apJLlS4vHweapHlWzAkyaGWbh
+ yQkniXbQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j6i4H-0007pn-7F; Tue, 25 Feb 2020 21:48:41 +0000
+ Hat Linux)) id 1j6i4H-0007pX-2l; Tue, 25 Feb 2020 21:48:41 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v8 09/25] mm: Remove 'page_offset' from readahead loop
-Date: Tue, 25 Feb 2020 13:48:22 -0800
-Message-Id: <20200225214838.30017-10-willy@infradead.org>
+Subject: [PATCH v8 05/25] mm: Add new readahead_control API
+Date: Tue, 25 Feb 2020 13:48:18 -0800
+Message-Id: <20200225214838.30017-6-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200225214838.30017-1-willy@infradead.org>
 References: <20200225214838.30017-1-willy@infradead.org>
@@ -68,56 +68,178 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
- linux-kernel@vger.kernel.org,
+Cc: linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
  linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-ext4@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
- linux-btrfs@vger.kernel.org
+ linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Replace the page_offset variable with 'index + i'.
+Filesystems which implement the upcoming ->readahead method will get
+their pages by calling readahead_page() or readahead_page_batch().
+These functions support large pages, even though none of the filesystems
+to be converted do yet.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 ---
- mm/readahead.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ include/linux/pagemap.h | 140 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 140 insertions(+)
 
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 7ce320854bad..ddc63d3b07b8 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -180,12 +180,10 @@ void __do_page_cache_readahead(struct address_space *mapping,
- 	 * Preallocate as many pages as we will need.
- 	 */
- 	for (i = 0; i < nr_to_read; i++) {
--		pgoff_t page_offset = index + i;
--
--		if (page_offset > end_index)
-+		if (index + i > end_index)
- 			break;
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 24894b9b90c9..232892d37071 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -638,6 +638,146 @@ static inline int add_to_page_cache(struct page *page,
+ 	return error;
+ }
  
--		page = xa_load(&mapping->i_pages, page_offset);
-+		page = xa_load(&mapping->i_pages, index + i);
- 		if (page && !xa_is_value(page)) {
- 			/*
- 			 * Page already present?  Kick off the current batch of
-@@ -199,7 +197,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
- 		page = __page_cache_alloc(gfp_mask);
- 		if (!page)
- 			break;
--		page->index = page_offset;
-+		page->index = index + i;
- 		list_add(&page->lru, &page_pool);
- 		if (i == nr_to_read - lookahead_size)
- 			SetPageReadahead(page);
++/**
++ * struct readahead_control - Describes a readahead request.
++ *
++ * A readahead request is for consecutive pages.  Filesystems which
++ * implement the ->readahead method should call readahead_page() or
++ * readahead_page_batch() in a loop and attempt to start I/O against
++ * each page in the request.
++ *
++ * Most of the fields in this struct are private and should be accessed
++ * by the functions below.
++ *
++ * @file: The file, used primarily by network filesystems for authentication.
++ *	  May be NULL if invoked internally by the filesystem.
++ * @mapping: Readahead this filesystem object.
++ */
++struct readahead_control {
++	struct file *file;
++	struct address_space *mapping;
++/* private: use the readahead_* accessors instead */
++	pgoff_t _index;
++	unsigned int _nr_pages;
++	unsigned int _batch_count;
++};
++
++/**
++ * readahead_page - Get the next page to read.
++ * @rac: The current readahead request.
++ *
++ * Context: The page is locked and has an elevated refcount.  The caller
++ * should decreases the refcount once the page has been submitted for I/O
++ * and unlock the page once all I/O to that page has completed.
++ * Return: A pointer to the next page, or %NULL if we are done.
++ */
++static inline struct page *readahead_page(struct readahead_control *rac)
++{
++	struct page *page;
++
++	BUG_ON(rac->_batch_count > rac->_nr_pages);
++	rac->_nr_pages -= rac->_batch_count;
++	rac->_index += rac->_batch_count;
++
++	if (!rac->_nr_pages) {
++		rac->_batch_count = 0;
++		return NULL;
++	}
++
++	page = xa_load(&rac->mapping->i_pages, rac->_index);
++	VM_BUG_ON_PAGE(!PageLocked(page), page);
++	rac->_batch_count = hpage_nr_pages(page);
++
++	return page;
++}
++
++static inline unsigned int __readahead_batch(struct readahead_control *rac,
++		struct page **array, unsigned int array_sz)
++{
++	unsigned int i = 0;
++	XA_STATE(xas, &rac->mapping->i_pages, 0);
++	struct page *page;
++
++	BUG_ON(rac->_batch_count > rac->_nr_pages);
++	rac->_nr_pages -= rac->_batch_count;
++	rac->_index += rac->_batch_count;
++	rac->_batch_count = 0;
++
++	xas_set(&xas, rac->_index);
++	rcu_read_lock();
++	xas_for_each(&xas, page, rac->_index + rac->_nr_pages - 1) {
++		VM_BUG_ON_PAGE(!PageLocked(page), page);
++		VM_BUG_ON_PAGE(PageTail(page), page);
++		array[i++] = page;
++		rac->_batch_count += hpage_nr_pages(page);
++
++		/*
++		 * The page cache isn't using multi-index entries yet,
++		 * so the xas cursor needs to be manually moved to the
++		 * next index.  This can be removed once the page cache
++		 * is converted.
++		 */
++		if (PageHead(page))
++			xas_set(&xas, rac->_index + rac->_batch_count);
++
++		if (i == array_sz)
++			break;
++	}
++	rcu_read_unlock();
++
++	return i;
++}
++
++/**
++ * readahead_page_batch - Get a batch of pages to read.
++ * @rac: The current readahead request.
++ * @array: An array of pointers to struct page.
++ *
++ * Context: The pages are locked and have an elevated refcount.  The caller
++ * should decreases the refcount once the page has been submitted for I/O
++ * and unlock the page once all I/O to that page has completed.
++ * Return: The number of pages placed in the array.  0 indicates the request
++ * is complete.
++ */
++#define readahead_page_batch(rac, array)				\
++	__readahead_batch(rac, array, ARRAY_SIZE(array))
++
++/**
++ * readahead_pos - The byte offset into the file of this readahead request.
++ * @rac: The readahead request.
++ */
++static inline loff_t readahead_pos(struct readahead_control *rac)
++{
++	return (loff_t)rac->_index * PAGE_SIZE;
++}
++
++/**
++ * readahead_length - The number of bytes in this readahead request.
++ * @rac: The readahead request.
++ */
++static inline loff_t readahead_length(struct readahead_control *rac)
++{
++	return (loff_t)rac->_nr_pages * PAGE_SIZE;
++}
++
++/**
++ * readahead_index - The index of the first page in this readahead request.
++ * @rac: The readahead request.
++ */
++static inline pgoff_t readahead_index(struct readahead_control *rac)
++{
++	return rac->_index;
++}
++
++/**
++ * readahead_count - The number of pages in this readahead request.
++ * @rac: The readahead request.
++ */
++static inline unsigned int readahead_count(struct readahead_control *rac)
++{
++	return rac->_nr_pages;
++}
++
+ static inline unsigned long dir_pages(struct inode *inode)
+ {
+ 	return (unsigned long)(inode->i_size + PAGE_SIZE - 1) >>
 -- 
 2.25.0
 
