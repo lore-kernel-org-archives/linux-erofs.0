@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E240C4BA01
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 456FEC4BA00
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:44 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D5D7F2176D
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E786B2176D
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="IIhsfZ0b"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5D7F2176D
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="A+ugosl7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E786B2176D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt1J0wV8zDqCx
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:51:32 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt1V1XHXzDqCx
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:51:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -33,25 +33,25 @@ Received: from bombadil.infradead.org (bombadil.infradead.org
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy43JVQzDqFJ
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy42nsLzDqFB
  for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 08:48:43 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=evTY31DqHAylaVK14FCazUbyCyZrPs9uY1g9NsZBoKM=; b=IIhsfZ0bRCatmUUwO5GNWWhN0w
- TQ5RxJqR1jTsP3CCRjkhi9aW+sDQ99YteuKrrg0WoL8zam0thf7xJP46n8jCfLL35/x8YSS7hzveW
- kIDyzLZyarHRKktEA/bSfs9IDmRkrxAAEMfh84TXfLPzSX0nirI5egNhCCJMJuhRbtilCjhYtWhQZ
- RIfJtLP5/wKNGqo8XAk4N+YZNfbK4SHY+L/6gLBbShLijOJAlF9ePll+J0Nh+6LFDrVwleRjvjTEB
- PfFDlVyrzeippsMXTMl7IBWJWao8m7wcvP1q9TO7dnt5uBb3jf8QJ76GHsIvH/cNLsfy8ZVtUNzpT
- 4FksGcgw==;
+ bh=0gMh1yamRVaNETPSTUEglHum9p/xixoA+LVU7RwCI34=; b=A+ugosl7XCuWZ0DZM060VhasbF
+ LlgbO5ELIQJ449viGm0I1EI7L0UglVYvyBriRpH8pBN+Rmj714EtqvFrMaosZr24PrysRfLaHRbus
+ QPSl3wzAaCuxS8hDzpCGhTD8X6bOOyCQ1vFuSYSN48wlEYAR2dKQnRt3n1ww8iX1t3NhnDsNxW/D+
+ 8NQfScKs2JhrTJV3TmYoXBX9y+9NBU0TzMuU3vu3FcLiH3QoiWjmtt4tk2jxf2c4WgVjtlmOna6E+
+ uGFSvdXtlaqgrmld7J0hqWFeqCKw0sMvK4sLrLFjwM5dcgtCPADXi0SCBPNZo+JeJ6/L85qK3eqe+
+ YVIWitkw==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j6i4H-0007r6-Lm; Tue, 25 Feb 2020 21:48:41 +0000
+ Hat Linux)) id 1j6i4H-0007rL-OM; Tue, 25 Feb 2020 21:48:41 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v8 21/25] ext4: Pass the inode to ext4_mpage_readpages
-Date: Tue, 25 Feb 2020 13:48:34 -0800
-Message-Id: <20200225214838.30017-22-willy@infradead.org>
+Subject: [PATCH v8 23/25] f2fs: Pass the inode to f2fs_mpage_readpages
+Date: Tue, 25 Feb 2020 13:48:36 -0800
+Message-Id: <20200225214838.30017-24-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200225214838.30017-1-willy@infradead.org>
 References: <20200225214838.30017-1-willy@infradead.org>
@@ -85,65 +85,45 @@ of the mapping.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- fs/ext4/ext4.h     | 2 +-
- fs/ext4/inode.c    | 4 ++--
- fs/ext4/readpage.c | 3 +--
- 3 files changed, 4 insertions(+), 5 deletions(-)
+ fs/f2fs/data.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 1570a0b51b73..bc1b34ba6eab 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3278,7 +3278,7 @@ static inline void ext4_set_de_type(struct super_block *sb,
- }
- 
- /* readpages.c */
--extern int ext4_mpage_readpages(struct address_space *mapping,
-+extern int ext4_mpage_readpages(struct inode *inode,
- 		struct readahead_control *rac, struct page *page);
- extern int __init ext4_init_post_read_processing(void);
- extern void ext4_exit_post_read_processing(void);
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index d674c5f9066c..4f3703c1408d 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3226,7 +3226,7 @@ static int ext4_readpage(struct file *file, struct page *page)
- 		ret = ext4_readpage_inline(inode, page);
- 
- 	if (ret == -EAGAIN)
--		return ext4_mpage_readpages(page->mapping, NULL, page);
-+		return ext4_mpage_readpages(inode, NULL, page);
- 
- 	return ret;
- }
-@@ -3239,7 +3239,7 @@ static void ext4_readahead(struct readahead_control *rac)
- 	if (ext4_has_inline_data(inode))
- 		return;
- 
--	ext4_mpage_readpages(rac->mapping, rac, NULL);
-+	ext4_mpage_readpages(inode, rac, NULL);
- }
- 
- static void ext4_invalidatepage(struct page *page, unsigned int offset,
-diff --git a/fs/ext4/readpage.c b/fs/ext4/readpage.c
-index 66275f25235d..5761e9961682 100644
---- a/fs/ext4/readpage.c
-+++ b/fs/ext4/readpage.c
-@@ -221,13 +221,12 @@ static inline loff_t ext4_readpage_limit(struct inode *inode)
- 	return i_size_read(inode);
- }
- 
--int ext4_mpage_readpages(struct address_space *mapping,
-+int ext4_mpage_readpages(struct inode *inode,
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 237dff36fe73..c8b042979fc4 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2159,12 +2159,11 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
+  * use ->readpage() or do the necessary surgery to decouple ->readpages()
+  * from read-ahead.
+  */
+-static int f2fs_mpage_readpages(struct address_space *mapping,
++static int f2fs_mpage_readpages(struct inode *inode,
  		struct readahead_control *rac, struct page *page)
  {
  	struct bio *bio = NULL;
  	sector_t last_block_in_bio = 0;
- 
 -	struct inode *inode = mapping->host;
- 	const unsigned blkbits = inode->i_blkbits;
- 	const unsigned blocks_per_page = PAGE_SIZE >> blkbits;
- 	const unsigned blocksize = 1 << blkbits;
+ 	struct f2fs_map_blocks map;
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+ 	struct compress_ctx cc = {
+@@ -2276,7 +2275,7 @@ static int f2fs_read_data_page(struct file *file, struct page *page)
+ 	if (f2fs_has_inline_data(inode))
+ 		ret = f2fs_read_inline_data(inode, page);
+ 	if (ret == -EAGAIN)
+-		ret = f2fs_mpage_readpages(page_file_mapping(page), NULL, page);
++		ret = f2fs_mpage_readpages(inode, NULL, page);
+ 	return ret;
+ }
+ 
+@@ -2293,7 +2292,7 @@ static void f2fs_readahead(struct readahead_control *rac)
+ 	if (f2fs_has_inline_data(inode))
+ 		return;
+ 
+-	f2fs_mpage_readpages(rac->mapping, rac, NULL);
++	f2fs_mpage_readpages(inode, rac, NULL);
+ }
+ 
+ int f2fs_encrypt_one_page(struct f2fs_io_info *fio)
 -- 
 2.25.0
 
