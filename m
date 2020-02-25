@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAF92C4BA00
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7510CC4BA01
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:08 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 69DF82176D
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:51:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2479120675
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:52:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="WIHF9+LX"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 69DF82176D
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="iHzf862V"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2479120675
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt1n0n2XzDqH4
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:51:57 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Rt1x4YvSzDqH4
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:52:05 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -33,26 +33,25 @@ Received: from bombadil.infradead.org (bombadil.infradead.org
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy452ZrzDqFL
- for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 08:48:44 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy66tdWzDqKP
+ for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 08:48:46 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=N8mal8tXyb7/UVVGOgH2vlx/8gSb72v7qjBMVpUgq/g=; b=WIHF9+LXXUhBHO6Ig0ZD8IR2jd
- DKyEgp/ZmocZrQ4xg49+iDc0bEdZqNKqTLHbWta+WISWhKxtDN2yA4DS7vs4jyrXwS4PT/LxFuft4
- 9O65OHE6/6Dj7dc/GnRhsi0E6TJ1a6ekL4vCiPB0rwVbuYzfdlaLOpBc+8S0EWjaxNO4EgGILERNI
- m/FOcP+s8XKauQHimJw4re2md8zoZqjRB013jw4QuQ1QAgjQmd6zwO0fIwC2QYKChlPopnzFhgIg0
- dp+tVvJ2zroIrDOTevah6wSF2erZk+xFY1MT23ZPUjkVcvxdutqNV9Jekw8ifSA8Z20+1gEqpaArN
- 1vXbHlEA==;
+ bh=ilETxbAF/LnQ+7vQ62oXBRdetg0lVhl7+QmSqIaqn70=; b=iHzf862VL2VnrxSBkf4KbYamDC
+ CkAw3ckh0Ylis+8A2gD1tE/+sqpsOYn1GJwj3zGciT52rDRE4m0vdfZ7aI9JOPqa2rMNsHj0xnCpC
+ I3GODW75NyWOqmJnjKkMp6Pecsnp8iQcEVaFuetDZak3WRdImHTxdDyRxOkEdN4WqEC2Kc2Ll+gnG
+ +DdrY2XLIMobmag3BKii8SF/TJoLLW5ueWTDMxUETv3fSF1uu91n/AHyfoeNMN2CTYgTED+7Wnkc9
+ 8sZ01LxeSQBoAXKhI3uSwc5QiOhgh52GC+Tyxxv5YR6SFRl7pKghdca4VxL+bi9kpFJI7sqMJIoiB
+ H+sDEH1g==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j6i4H-0007qe-IO; Tue, 25 Feb 2020 21:48:41 +0000
+ Hat Linux)) id 1j6i4H-0007pP-0Y; Tue, 25 Feb 2020 21:48:41 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v8 18/25] erofs: Convert uncompressed files from readpages to
- readahead
-Date: Tue, 25 Feb 2020 13:48:31 -0800
-Message-Id: <20200225214838.30017-19-willy@infradead.org>
+Subject: [PATCH v8 03/25] mm: Ignore return value of ->readpages
+Date: Tue, 25 Feb 2020 13:48:16 -0800
+Message-Id: <20200225214838.30017-4-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200225214838.30017-1-willy@infradead.org>
 References: <20200225214838.30017-1-willy@infradead.org>
@@ -69,140 +68,68 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+Cc: linux-xfs@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+ linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-ext4@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
+ Dave Chinner <dchinner@redhat.com>, linux-ext4@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
+ linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Use the new readahead operation in erofs
+We used to assign the return value to a variable, which we then ignored.
+Remove the pretence of caring.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Gao Xiang <gaoxiang25@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 ---
- fs/erofs/data.c              | 39 +++++++++++++-----------------------
- fs/erofs/zdata.c             |  2 +-
- include/trace/events/erofs.h |  6 +++---
- 3 files changed, 18 insertions(+), 29 deletions(-)
+ mm/readahead.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index fc3a8d8064f8..d0542151e8c4 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -280,47 +280,36 @@ static int erofs_raw_access_readpage(struct file *file, struct page *page)
- 	return 0;
- }
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 41a592886da7..61b15b6b9e72 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -113,17 +113,16 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
  
--static int erofs_raw_access_readpages(struct file *filp,
--				      struct address_space *mapping,
--				      struct list_head *pages,
--				      unsigned int nr_pages)
-+static void erofs_raw_access_readahead(struct readahead_control *rac)
+ EXPORT_SYMBOL(read_cache_pages);
+ 
+-static int read_pages(struct address_space *mapping, struct file *filp,
++static void read_pages(struct address_space *mapping, struct file *filp,
+ 		struct list_head *pages, unsigned int nr_pages, gfp_t gfp)
  {
- 	erofs_off_t last_block;
- 	struct bio *bio = NULL;
--	gfp_t gfp = readahead_gfp_mask(mapping);
--	struct page *page = list_last_entry(pages, struct page, lru);
--
--	trace_erofs_readpages(mapping->host, page, nr_pages, true);
-+	struct page *page;
+ 	struct blk_plug plug;
+ 	unsigned page_idx;
+-	int ret;
  
--	for (; nr_pages; --nr_pages) {
--		page = list_entry(pages->prev, struct page, lru);
-+	trace_erofs_readpages(rac->mapping->host, readahead_index(rac),
-+			readahead_count(rac), true);
+ 	blk_start_plug(&plug);
  
-+	while ((page = readahead_page(rac))) {
- 		prefetchw(&page->flags);
--		list_del(&page->lru);
- 
--		if (!add_to_page_cache_lru(page, mapping, page->index, gfp)) {
--			bio = erofs_read_raw_page(bio, mapping, page,
--						  &last_block, nr_pages, true);
-+		bio = erofs_read_raw_page(bio, rac->mapping, page, &last_block,
-+				readahead_count(rac), true);
- 
--			/* all the page errors are ignored when readahead */
--			if (IS_ERR(bio)) {
--				pr_err("%s, readahead error at page %lu of nid %llu\n",
--				       __func__, page->index,
--				       EROFS_I(mapping->host)->nid);
-+		/* all the page errors are ignored when readahead */
-+		if (IS_ERR(bio)) {
-+			pr_err("%s, readahead error at page %lu of nid %llu\n",
-+			       __func__, page->index,
-+			       EROFS_I(rac->mapping->host)->nid);
- 
--				bio = NULL;
--			}
-+			bio = NULL;
- 		}
- 
--		/* pages could still be locked */
+ 	if (mapping->a_ops->readpages) {
+-		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
++		mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
+ 		/* Clean up the remaining pages */
+ 		put_pages_list(pages);
+ 		goto out;
+@@ -136,12 +135,9 @@ static int read_pages(struct address_space *mapping, struct file *filp,
+ 			mapping->a_ops->readpage(filp, page);
  		put_page(page);
  	}
--	DBG_BUGON(!list_empty(pages));
+-	ret = 0;
  
- 	/* the rare case (end in gaps) */
- 	if (bio)
- 		submit_bio(bio);
--	return 0;
+ out:
+ 	blk_finish_plug(&plug);
+-
+-	return ret;
  }
  
- static int erofs_get_block(struct inode *inode, sector_t iblock,
-@@ -358,7 +347,7 @@ static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
- /* for uncompressed (aligned) files and raw access for other files */
- const struct address_space_operations erofs_raw_access_aops = {
- 	.readpage = erofs_raw_access_readpage,
--	.readpages = erofs_raw_access_readpages,
-+	.readahead = erofs_raw_access_readahead,
- 	.bmap = erofs_bmap,
- };
- 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 80e47f07d946..17f45fcb8c5c 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1315,7 +1315,7 @@ static int z_erofs_readpages(struct file *filp, struct address_space *mapping,
- 	struct page *head = NULL;
- 	LIST_HEAD(pagepool);
- 
--	trace_erofs_readpages(mapping->host, lru_to_page(pages),
-+	trace_erofs_readpages(mapping->host, lru_to_page(pages)->index,
- 			      nr_pages, false);
- 
- 	f.headoffset = (erofs_off_t)lru_to_page(pages)->index << PAGE_SHIFT;
-diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-index 27f5caa6299a..bf9806fd1306 100644
---- a/include/trace/events/erofs.h
-+++ b/include/trace/events/erofs.h
-@@ -113,10 +113,10 @@ TRACE_EVENT(erofs_readpage,
- 
- TRACE_EVENT(erofs_readpages,
- 
--	TP_PROTO(struct inode *inode, struct page *page, unsigned int nrpage,
-+	TP_PROTO(struct inode *inode, pgoff_t start, unsigned int nrpage,
- 		bool raw),
- 
--	TP_ARGS(inode, page, nrpage, raw),
-+	TP_ARGS(inode, start, nrpage, raw),
- 
- 	TP_STRUCT__entry(
- 		__field(dev_t,		dev	)
-@@ -129,7 +129,7 @@ TRACE_EVENT(erofs_readpages,
- 	TP_fast_assign(
- 		__entry->dev	= inode->i_sb->s_dev;
- 		__entry->nid	= EROFS_I(inode)->nid;
--		__entry->start	= page->index;
-+		__entry->start	= start;
- 		__entry->nrpage	= nrpage;
- 		__entry->raw	= raw;
- 	),
+ /*
 -- 
 2.25.0
 
