@@ -4,24 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87C5FC4BA19
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:49:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCC2C4BA0A
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:49:26 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3C3C321927
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:49:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 5227A20675
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Feb 2020 21:49:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="CsHGUAep"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C3C321927
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="D9msPfR5"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5227A20675
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48RsyZ0zVczDqDJ
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:49:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48Rsyq1dttzDqCx
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:49:23 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -33,25 +33,25 @@ Received: from bombadil.infradead.org (bombadil.infradead.org
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy41T45zDqD7
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48Rsy419gwzDqCl
  for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 08:48:43 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=rMcV50ueBpteR9LXkwAudPimKgybkJUfXQ/lOrRcnKc=; b=CsHGUAep6LhQaabD2KWiIEV0lW
- 8DzIJa2XG+iXaLddhcZ23/dmd2k5EZnrcQ74J51wciR1hgoSNbc07DtcMBmJjf8yyCvZ6/Ye2/fu2
- WTYV8ip/Zgyetuqd6clnSc5g/hOOXCbR2cV1Zuelv24mymOSeD/9fW28DdjpprDygAIt51QdbcBFc
- CuE2dNblQkzefXmFZ674DMRoBtzt4iQHjZzP/0qEqWOOuHJ+VL1dUl/8KeQCv5Mr7B05kR/SFysTl
- tRi9sSlJITXI8GhIQCORoNBQ8NnvPpLbqtyiyjOYMlqjf2s1PoAZU8yLlEPjQupkO5XyPWMVw+y/j
- gwcVsQxQ==;
+ bh=w0+748cvV8fqYYK5S7voSb7ryQvDDane/jjiQr++miE=; b=D9msPfR51FpFSkZ4yp+PvhVq9v
+ /8p2vUtvBmnkH+0U7AiCEitHwnmrbb0Cj2wMmeOctMytUSo4X8ujdyuUBoovpMt7WuBwa4WMXaCT8
+ lJYnZPkuWdxmkK/iIMi7H5gcLcYFemoFXyY3kyyRIM1Dn5pufEjmUJ9gQzULSpxpUh9x+yBzTL4Jf
+ yV+nMQ8Kaq8SvlJoXbw4pKqlkmvjaLOIai5s31f+Zaep5jzhTbikbpl+vVWFQfvcBOyaX7nFC6OKq
+ LIYbX1na3KxvUbHt1FIQ8CiO9Y5QC71++xY8kJhJLpHWtXqhLwOs7fPhZiAAHIz25pHh4LMEgvCfS
+ jmQam+xg==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1j6i4H-0007qB-Dl; Tue, 25 Feb 2020 21:48:41 +0000
+ Hat Linux)) id 1j6i4H-0007pz-AT; Tue, 25 Feb 2020 21:48:41 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v8 15/25] mm: Use memalloc_nofs_save in readahead path
-Date: Tue, 25 Feb 2020 13:48:28 -0800
-Message-Id: <20200225214838.30017-16-willy@infradead.org>
+Subject: [PATCH v8 12/25] mm: Move end_index check out of readahead loop
+Date: Tue, 25 Feb 2020 13:48:25 -0800
+Message-Id: <20200225214838.30017-13-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200225214838.30017-1-willy@infradead.org>
 References: <20200225214838.30017-1-willy@infradead.org>
@@ -68,12 +68,11 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+Cc: linux-xfs@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
  linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
- Cong Wang <xiyou.wangcong@gmail.com>, linux-ext4@vger.kernel.org,
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-ext4@vger.kernel.org,
  linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
@@ -81,57 +80,61 @@ Sender: "Linux-erofs"
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Ensure that memory allocations in the readahead path do not attempt to
-reclaim file-backed pages, which could lead to a deadlock.  It is
-possible, though unlikely this is the root cause of a problem observed
-by Cong Wang.
+By reducing nr_to_read, we can eliminate this check from inside the loop.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 ---
- mm/readahead.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ mm/readahead.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
 diff --git a/mm/readahead.c b/mm/readahead.c
-index 0afb55a49909..7f2d54fb1691 100644
+index d01531ef9f3c..a37b68f66233 100644
 --- a/mm/readahead.c
 +++ b/mm/readahead.c
-@@ -22,6 +22,7 @@
- #include <linux/mm_inline.h>
- #include <linux/blk-cgroup.h>
- #include <linux/fadvise.h>
-+#include <linux/sched/mm.h>
- 
- #include "internal.h"
- 
-@@ -185,6 +186,18 @@ void page_cache_readahead_unbounded(struct address_space *mapping,
+@@ -167,8 +167,6 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 		unsigned long lookahead_size)
+ {
+ 	struct inode *inode = mapping->host;
+-	struct page *page;
+-	unsigned long end_index;	/* The last page we want to read */
+ 	LIST_HEAD(page_pool);
+ 	loff_t isize = i_size_read(inode);
+ 	gfp_t gfp_mask = readahead_gfp_mask(mapping);
+@@ -178,22 +176,29 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 		._index = index,
  	};
  	unsigned long i;
++	pgoff_t end_index;	/* The last page we want to read */
  
-+	/*
-+	 * Partway through the readahead operation, we will have added
-+	 * locked pages to the page cache, but will not yet have submitted
-+	 * them for I/O.  Adding another page may need to allocate memory,
-+	 * which can trigger memory reclaim.  Telling the VM we're in
-+	 * the middle of a filesystem operation will cause it to not
-+	 * touch file-backed pages, preventing a deadlock.  Most (all?)
-+	 * filesystems already specify __GFP_NOFS in their mapping's
-+	 * gfp_mask, but let's be explicit here.
-+	 */
-+	unsigned int nofs = memalloc_nofs_save();
-+
+ 	if (isize == 0)
+ 		return;
+ 
+-	end_index = ((isize - 1) >> PAGE_SHIFT);
++	end_index = (isize - 1) >> PAGE_SHIFT;
++	if (index > end_index)
++		return;
++	/* Avoid wrapping to the beginning of the file */
++	if (index + nr_to_read < index)
++		nr_to_read = ULONG_MAX - index + 1;
++	/* Don't read past the page containing the last byte of the file */
++	if (index + nr_to_read >= end_index)
++		nr_to_read = end_index - index + 1;
+ 
  	/*
  	 * Preallocate as many pages as we will need.
  	 */
-@@ -229,6 +242,7 @@ void page_cache_readahead_unbounded(struct address_space *mapping,
- 	 * will then handle the error.
- 	 */
- 	read_pages(&rac, &page_pool, false);
-+	memalloc_nofs_restore(nofs);
- }
- EXPORT_SYMBOL_GPL(page_cache_readahead_unbounded);
+ 	for (i = 0; i < nr_to_read; i++) {
+-		if (index + i > end_index)
+-			break;
++		struct page *page = xa_load(&mapping->i_pages, index + i);
  
+ 		BUG_ON(index + i != rac._index + rac._nr_pages);
+ 
+-		page = xa_load(&mapping->i_pages, index + i);
+ 		if (page && !xa_is_value(page)) {
+ 			/*
+ 			 * Page already present?  Kick off the current batch of
 -- 
 2.25.0
 
