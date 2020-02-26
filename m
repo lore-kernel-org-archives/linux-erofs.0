@@ -2,51 +2,68 @@ Return-Path: <SRS0=PAtq=4O=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7794C4BA0F
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DD29C4BA13
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 17:01:40 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A6E462084E
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 08:12:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A6E462084E
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id B3AE42467F
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 17:01:39 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="b4gRu9Om"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B3AE42467F
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48S7nR1Hd1zDqkc
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Feb 2020 19:12:11 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.191; helo=huawei.com;
- envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48SMXK4DWFzDqjc
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Feb 2020 04:01:37 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
+ smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
+ helo=bombadil.infradead.org;
+ envelope-from=batv+7931773228f1d9803703+6030+infradead.org+hch@bombadil.srs.infradead.org;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga05-in.huawei.com [45.249.212.191])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=b4gRu9Om; 
+ dkim-atps=neutral
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48S7n51gQzzDqc3
- for <linux-erofs@lists.ozlabs.org>; Wed, 26 Feb 2020 19:11:51 +1100 (AEDT)
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.59])
- by Forcepoint Email with ESMTP id A634F2CE09A151771A07;
- Wed, 26 Feb 2020 16:11:46 +0800 (CST)
-Received: from architecture4.huawei.com (10.160.196.180) by smtp.huawei.com
- (10.3.19.204) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 26 Feb
- 2020 16:11:36 +0800
-From: Gao Xiang <gaoxiang25@huawei.com>
-To: Chao Yu <yuchao0@huawei.com>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v2 2/3] erofs: use LZ4_decompress_safe() for full decoding
-Date: Wed, 26 Feb 2020 16:10:07 +0800
-Message-ID: <20200226081008.86348-2-gaoxiang25@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200226081008.86348-1-gaoxiang25@huawei.com>
-References: <20200226081008.86348-1-gaoxiang25@huawei.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48SMX30DcQzDqcX
+ for <linux-erofs@lists.ozlabs.org>; Thu, 27 Feb 2020 04:01:21 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+ :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=hhQ9YBl81zQvhfWadY0dEbDydMLxnfW9YM0h14jX4a0=; b=b4gRu9OmDpOpG4+91cUD2P0Fvx
+ rwIA1FZxWgyqg54ixZ2mlE7je+4s02JEfApEECCDtBJZOsOCCCQypvdX4wlnpTzyq3GzniYslygSp
+ 0JLM3hJczJhHf6sPZnzEVoXaF0BjXMr7Sau/bOjj78BwbTBoLYT0As4XBg3LZA4cCSraqX2yl635x
+ P0GeGjaSAjr/yoe31Xsg5u1v6aDOjH3+k/QDvhsXylJIuy7m6nJ0VChbG4oj9ux1VoZSn++eE6CLS
+ nvwJVc8B+ap1PhLLk3dgexnb7LCihqx+unp7n6RFCEuxFFJLK99PLd8EgLQxWjGh2LTvEZCdFHFm2
+ mjT6Qmyw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
+ Hat Linux)) id 1j703j-0006LS-7W; Wed, 26 Feb 2020 17:01:19 +0000
+Date: Wed, 26 Feb 2020 09:01:19 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v8 05/25] mm: Add new readahead_control API
+Message-ID: <20200226170119.GA22837@infradead.org>
+References: <20200225214838.30017-1-willy@infradead.org>
+ <20200225214838.30017-6-willy@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.160.196.180]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200225214838.30017-6-willy@infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ bombadil.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -58,59 +75,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Miao Xie <miaoxie@huawei.com>, LKML <linux-kernel@vger.kernel.org>,
- Lasse Collin <lasse.collin@tukaani.org>
+Cc: linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+ linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Lasse pointed out, "EROFS uses LZ4_decompress_safe_partial
-for both partial and full blocks. Thus when it is decoding a
-full block, it doesn't know if the LZ4 decoder actually decoded
-all the input. The real uncompressed size could be bigger than
-the value stored in the file system metadata.
+On Tue, Feb 25, 2020 at 01:48:18PM -0800, Matthew Wilcox wrote:
+> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> 
+> Filesystems which implement the upcoming ->readahead method will get
+> their pages by calling readahead_page() or readahead_page_batch().
+> These functions support large pages, even though none of the filesystems
+> to be converted do yet.
+> 
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-Using LZ4_decompress_safe instead of _safe_partial when
-decompressing a full block would help to detect errors."
+Looks good,
 
-So it's reasonable to use _safe in case of potential corrupted
-images and it might have some speed gain as well although
-I didn't observe much difference.
-
-Note that legacy compressor (< 5.3, no LZ4_0PADDING) could
-encode extra data in a pcluster, which is excluded as well.
-
-Cc: Lasse Collin <lasse.collin@tukaani.org>
-Fixes: 0ffd71bcc3a0 ("staging: erofs: introduce LZ4 decompression inplace")
-[ Gao Xiang: v5.3+, I will manually backport this to stable later. ]
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
----
- fs/erofs/decompressor.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 5779a15c2cd6..cd978af6bdb9 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -157,9 +157,15 @@ static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
- 		}
- 	}
- 
--	ret = LZ4_decompress_safe_partial(src + inputmargin, out,
--					  inlen, rq->outputsize,
--					  rq->outputsize);
-+	/* legacy format could compress extra data in a pcluster. */
-+	if (rq->partial_decoding || !support_0padding)
-+		ret = LZ4_decompress_safe_partial(src + inputmargin, out,
-+						  inlen, rq->outputsize,
-+						  rq->outputsize);
-+	else
-+		ret = LZ4_decompress_safe(src + inputmargin, out,
-+					  inlen, rq->outputsize);
-+
- 	if (ret < 0) {
- 		erofs_err(rq->sb, "failed to decompress, in[%u, %u] out[%u]",
- 			  inlen, inputmargin, rq->outputsize);
--- 
-2.17.1
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
