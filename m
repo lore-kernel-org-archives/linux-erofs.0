@@ -1,60 +1,60 @@
-Return-Path: <SRS0=lQ8n=4Q=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=ylHl=4R=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE171C3F2D2
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Feb 2020 19:46:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A1BC3F2D2
+	for <linux-erofs@archiver.kernel.org>; Sat, 29 Feb 2020 01:13:16 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6C5DF246A2
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Feb 2020 19:46:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ac2eCzsj"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6C5DF246A2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id CFB6B24672
+	for <linux-erofs@archiver.kernel.org>; Sat, 29 Feb 2020 01:13:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CFB6B24672
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48Tg602cPdzDr1S
-	for <linux-erofs@archiver.kernel.org>; Sat, 29 Feb 2020 06:46:48 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48TpLd1BwQzDrCS
+	for <linux-erofs@archiver.kernel.org>; Sat, 29 Feb 2020 12:13:13 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=sashal@kernel.org; receiver=<UNKNOWN>)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.255; helo=huawei.com;
+ envelope-from=gaoxiang25@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=kernel.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=default header.b=Ac2eCzsj; dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga08-in.huawei.com [45.249.212.255])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48Tg3p5BMBzDqfb
- for <linux-erofs@lists.ozlabs.org>; Sat, 29 Feb 2020 06:44:54 +1100 (AEDT)
-Received: from localhost (unknown [137.135.114.1])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 17C3F2469D;
- Fri, 28 Feb 2020 19:44:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1582919092;
- bh=GtzUOUZfYfso0z7LZO8ZMsfUiy9ROA5jckCwXM3IFRs=;
- h=Date:From:To:To:To:CC:Cc:Subject:In-Reply-To:References:From;
- b=Ac2eCzsjkx3Wj7GkxZ5+28BD5xZsH1d1rE9ULBItjaig54oNFYJdhCBwZ8K42EyP1
- EFYPg22RI0tyqFKA2cXYPnCBkUxBqCqevqPUXscuOwykiHepKNlV2TYrZ3MAp/hY9t
- iVBoDPsfkijYMY/PoNPSa1hJeSotWDdEt4/uliTk=
-Date: Fri, 28 Feb 2020 19:44:50 +0000
-From: Sasha Levin <sashal@kernel.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48TpLV0RcDzDqPC
+ for <linux-erofs@lists.ozlabs.org>; Sat, 29 Feb 2020 12:13:02 +1100 (AEDT)
+Received: from DGGEMM402-HUB.china.huawei.com (unknown [172.30.72.55])
+ by Forcepoint Email with ESMTP id 259E8AE0469AE690B3C0;
+ Sat, 29 Feb 2020 09:12:57 +0800 (CST)
+Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
+ DGGEMM402-HUB.china.huawei.com (10.3.20.210) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Sat, 29 Feb 2020 09:12:56 +0800
+Received: from architecture4 (10.160.196.180) by
+ dggeme762-chm.china.huawei.com (10.3.19.108) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1713.5; Sat, 29 Feb 2020 09:12:56 +0800
+Date: Sat, 29 Feb 2020 09:11:26 +0800
+From: Gao Xiang <gaoxiang25@huawei.com>
 To: Sasha Levin <sashal@kernel.org>
-To: Gao Xiang <gaoxiang25@huawei.com>
-To: Chao Yu <yuchao0@huawei.com>, <linux-erofs@lists.ozlabs.org>
 Subject: Re: [PATCH v2 1/3] erofs: correct the remaining shrink objects
-In-Reply-To: <20200226081008.86348-1-gaoxiang25@huawei.com>
+Message-ID: <20200229011126.GA103844@architecture4>
 References: <20200226081008.86348-1-gaoxiang25@huawei.com>
-Message-Id: <20200228194452.17C3F2469D@mail.kernel.org>
+ <20200228194452.17C3F2469D@mail.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20200228194452.17C3F2469D@mail.kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Originating-IP: [10.160.196.180]
+X-ClientProxiedBy: dggeme718-chm.china.huawei.com (10.1.199.114) To
+ dggeme762-chm.china.huawei.com (10.3.19.108)
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -66,49 +66,58 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Miao Xie <miaoxie@huawei.com>, LKML <linux-kernel@vger.kernel.org>,
- stable@vger.kernel.org
+Cc: Miao Xie <miaoxie@huawei.com>, linux-erofs@lists.ozlabs.org,
+ LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi
+Hi,
 
-[This is an automated email]
+On Fri, Feb 28, 2020 at 07:44:50PM +0000, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag
+> fixing commit: e7e9a307be9d ("staging: erofs: introduce workstation for decompression").
+> 
+> The bot has tested the following trees: v5.5.6, v5.4.22, v4.19.106.
+> 
+> v5.5.6: Build OK!
+> v5.4.22: Failed to apply! Possible dependencies:
+>     bda17a4577da ("erofs: remove dead code since managed cache is now built-in")
+> 
+> v4.19.106: Failed to apply! Possible dependencies:
+>     05f9d4a0c8c4 ("staging: erofs: use the new LZ4_decompress_safe_partial()")
+>     0a64d62d5399 ("staging: erofs: fixed -Wmissing-prototype warnings by making functions static.")
+>     14f362b4f405 ("staging: erofs: clean up internal.h")
+>     152a333a5895 ("staging: erofs: add compacted compression indexes support")
+>     22fe04a77d10 ("staging: erofs: clean up shrinker stuffs")
+>     3b423417d0d1 ("staging: erofs: clean up erofs_map_blocks_iter")
+>     5fb76bb04216 ("staging: erofs: cleanup `z_erofs_vle_normalaccess_readpages'")
+>     6e78901a9f23 ("staging: erofs: separate erofs_get_meta_page")
+>     7dd68b147d60 ("staging: erofs: use explicit unsigned int type")
+>     7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
+>     89fcd8360e7b ("staging: erofs: change 'unsigned' to 'unsigned int'")
+>     8be31270362b ("staging: erofs: introduce erofs_grab_bio")
+>     ab47dd2b0819 ("staging: erofs: cleanup z_erofs_vle_work_{lookup, register}")
+>     bda17a4577da ("erofs: remove dead code since managed cache is now built-in")
+>     d1ab82443bed ("staging: erofs: Modify conditional checks")
+>     e7dfb1cff65b ("staging: erofs: fixed -Wmissing-prototype warnings by moving prototypes to header file.")
+>     f0950b02a74c ("staging: erofs: Modify coding style alignments")
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: e7e9a307be9d ("staging: erofs: introduce workstation for decompression").
+I will manually backport this if it can not be automatically applied.
 
-The bot has tested the following trees: v5.5.6, v5.4.22, v4.19.106.
+Thanks,
+Gao Xiang
 
-v5.5.6: Build OK!
-v5.4.22: Failed to apply! Possible dependencies:
-    bda17a4577da ("erofs: remove dead code since managed cache is now built-in")
-
-v4.19.106: Failed to apply! Possible dependencies:
-    05f9d4a0c8c4 ("staging: erofs: use the new LZ4_decompress_safe_partial()")
-    0a64d62d5399 ("staging: erofs: fixed -Wmissing-prototype warnings by making functions static.")
-    14f362b4f405 ("staging: erofs: clean up internal.h")
-    152a333a5895 ("staging: erofs: add compacted compression indexes support")
-    22fe04a77d10 ("staging: erofs: clean up shrinker stuffs")
-    3b423417d0d1 ("staging: erofs: clean up erofs_map_blocks_iter")
-    5fb76bb04216 ("staging: erofs: cleanup `z_erofs_vle_normalaccess_readpages'")
-    6e78901a9f23 ("staging: erofs: separate erofs_get_meta_page")
-    7dd68b147d60 ("staging: erofs: use explicit unsigned int type")
-    7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
-    89fcd8360e7b ("staging: erofs: change 'unsigned' to 'unsigned int'")
-    8be31270362b ("staging: erofs: introduce erofs_grab_bio")
-    ab47dd2b0819 ("staging: erofs: cleanup z_erofs_vle_work_{lookup, register}")
-    bda17a4577da ("erofs: remove dead code since managed cache is now built-in")
-    d1ab82443bed ("staging: erofs: Modify conditional checks")
-    e7dfb1cff65b ("staging: erofs: fixed -Wmissing-prototype warnings by moving prototypes to header file.")
-    f0950b02a74c ("staging: erofs: Modify coding style alignments")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+> -- 
+> Thanks
+> Sasha
