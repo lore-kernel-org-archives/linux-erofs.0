@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 173CDC4332D
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:36:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D646C4332D
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:37:05 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C145C20709
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:36:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E0F3D2070A
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:37:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="E0FTtgTt"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C145C20709
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="deGAQsoV"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E0F3D2070A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48kRDZ5rdnzDqN3
-	for <linux-erofs@archiver.kernel.org>; Sat, 21 Mar 2020 01:36:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48kRDt4zltzDrCT
+	for <linux-erofs@archiver.kernel.org>; Sat, 21 Mar 2020 01:37:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -30,32 +30,32 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=E0FTtgTt; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=deGAQsoV; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48kQwD3LKrzF08L
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48kQwD2ldRzDvrM
  for <linux-erofs@lists.ozlabs.org>; Sat, 21 Mar 2020 01:22:36 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=49NtNRM5Qadqr2s26GFYIu6ccM4cU9VUpklTy0+xovg=; b=E0FTtgTtz0yZlhH4ofIVbriAHB
- sTcm0KlBxGCDqJL5h2BClG8TCud/MgZSuN6zllQaNRABOd3FiIzhSD28W0uPhRE+OXp2FLnxg9Ije
- w5ImPXAYqmHnap4hlA0LhaV+0dfloCWAqkLTz3TsVEbAuhJgbtDMOE/8zP3jjb7g4DzTV5fRUQBsZ
- GdGT31rvq+hFYcM51CWSgEVC3TJdr2rAq89P0hoN0L+9ocaHkA5xwsykojuwl+ldlF6AXb4/AyCok
- 0mg5tVNXxxxbIFYwsWS4xSEl8/olcWLUd0FF/YbN6FySftoToCaTP0bqX5EPh7/cMWI2dRDYHnKDX
- Yk0OKh7A==;
+ bh=yWCBnvZVE3mmN89bJgz6VBayzBfFVIn+l+u0xcbyIA0=; b=deGAQsoVntPgsI+2QSGHOLEoOX
+ uSbzvpNzOlMtAyBhInlzlhkSgyBzf7AYCDlgPhpH3fhpJ6WXwho/SvHn0T2IqqSC5cf76a1KGQNkA
+ BRbRE55acqnKuGpuZYyXQCcs/twImkjG/z1LsUgzER/4eWdRrf/6seqewUpC5yVtN42X6l2TD4Gc7
+ qtV7IQoxq3iQ3DcXnMw0Aa1LDc9BL7CnEPo8lPoBGKn2odheQzzhAkkSRrnXt/8F4MOfsszK+aAI7
+ 8MAzPbejsUJEvS2pfOn6++ZN8iE0gE6N+VZlEYBDsFnam4WJFBvMGcWi7thKCquZ3mQ39eoQOoi7f
+ 8jdnKclA==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1jFIXh-0000h0-0T; Fri, 20 Mar 2020 14:22:33 +0000
+ Hat Linux)) id 1jFIXh-0000hw-EC; Fri, 20 Mar 2020 14:22:33 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v9 01/25] mm: Move readahead prototypes from mm.h
-Date: Fri, 20 Mar 2020 07:22:07 -0700
-Message-Id: <20200320142231.2402-2-willy@infradead.org>
+Subject: [PATCH v9 09/25] mm: Remove 'page_offset' from readahead loop
+Date: Fri, 20 Mar 2020 07:22:15 -0700
+Message-Id: <20200320142231.2402-10-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200320142231.2402-1-willy@infradead.org>
 References: <20200320142231.2402-1-willy@infradead.org>
@@ -85,110 +85,44 @@ Sender: "Linux-erofs"
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-The readahead code is part of the page cache so should be found in the
-pagemap.h file.  force_page_cache_readahead is only used within mm,
-so move it to mm/internal.h instead.  Remove the parameter names where
-they add no value, and rename the ones which were actively misleading.
+Replace the page_offset variable with 'index + i'.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: William Kucharski <william.kucharski@oracle.com>
 ---
- block/blk-core.c        |  1 +
- include/linux/mm.h      | 19 -------------------
- include/linux/pagemap.h |  8 ++++++++
- mm/fadvise.c            |  2 ++
- mm/internal.h           |  2 ++
- 5 files changed, 13 insertions(+), 19 deletions(-)
+ mm/readahead.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 089e890ab208..41417bb93634 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -20,6 +20,7 @@
- #include <linux/blk-mq.h>
- #include <linux/highmem.h>
- #include <linux/mm.h>
-+#include <linux/pagemap.h>
- #include <linux/kernel_stat.h>
- #include <linux/string.h>
- #include <linux/init.h>
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 52269e56c514..68dcda9a2112 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2401,25 +2401,6 @@ extern vm_fault_t filemap_page_mkwrite(struct vm_fault *vmf);
- int __must_check write_one_page(struct page *page);
- void task_dirty_inc(struct task_struct *tsk);
- 
--/* readahead.c */
--#define VM_READAHEAD_PAGES	(SZ_128K / PAGE_SIZE)
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 7ce320854bad..ddc63d3b07b8 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -180,12 +180,10 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 	 * Preallocate as many pages as we will need.
+ 	 */
+ 	for (i = 0; i < nr_to_read; i++) {
+-		pgoff_t page_offset = index + i;
 -
--int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
--			pgoff_t offset, unsigned long nr_to_read);
--
--void page_cache_sync_readahead(struct address_space *mapping,
--			       struct file_ra_state *ra,
--			       struct file *filp,
--			       pgoff_t offset,
--			       unsigned long size);
--
--void page_cache_async_readahead(struct address_space *mapping,
--				struct file_ra_state *ra,
--				struct file *filp,
--				struct page *pg,
--				pgoff_t offset,
--				unsigned long size);
--
- extern unsigned long stack_guard_gap;
- /* Generic expand stack which grows the stack according to GROWS{UP,DOWN} */
- extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index ccb14b6a16b5..24894b9b90c9 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -614,6 +614,14 @@ int replace_page_cache_page(struct page *old, struct page *new, gfp_t gfp_mask);
- void delete_from_page_cache_batch(struct address_space *mapping,
- 				  struct pagevec *pvec);
+-		if (page_offset > end_index)
++		if (index + i > end_index)
+ 			break;
  
-+#define VM_READAHEAD_PAGES	(SZ_128K / PAGE_SIZE)
-+
-+void page_cache_sync_readahead(struct address_space *, struct file_ra_state *,
-+		struct file *, pgoff_t index, unsigned long req_count);
-+void page_cache_async_readahead(struct address_space *, struct file_ra_state *,
-+		struct file *, struct page *, pgoff_t index,
-+		unsigned long req_count);
-+
- /*
-  * Like add_to_page_cache_locked, but used to add newly allocated pages:
-  * the page is new, so we can just run __SetPageLocked() against it.
-diff --git a/mm/fadvise.c b/mm/fadvise.c
-index 4f17c83db575..3efebfb9952c 100644
---- a/mm/fadvise.c
-+++ b/mm/fadvise.c
-@@ -22,6 +22,8 @@
- 
- #include <asm/unistd.h>
- 
-+#include "internal.h"
-+
- /*
-  * POSIX_FADV_WILLNEED could set PG_Referenced, and POSIX_FADV_NOREUSE could
-  * deactivate the pages and clear PG_Referenced.
-diff --git a/mm/internal.h b/mm/internal.h
-index 3cf20ab3ca01..83f353e74654 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -49,6 +49,8 @@ void unmap_page_range(struct mmu_gather *tlb,
- 			     unsigned long addr, unsigned long end,
- 			     struct zap_details *details);
- 
-+int force_page_cache_readahead(struct address_space *, struct file *,
-+		pgoff_t index, unsigned long nr_to_read);
- extern unsigned int __do_page_cache_readahead(struct address_space *mapping,
- 		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
- 		unsigned long lookahead_size);
+-		page = xa_load(&mapping->i_pages, page_offset);
++		page = xa_load(&mapping->i_pages, index + i);
+ 		if (page && !xa_is_value(page)) {
+ 			/*
+ 			 * Page already present?  Kick off the current batch of
+@@ -199,7 +197,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 		page = __page_cache_alloc(gfp_mask);
+ 		if (!page)
+ 			break;
+-		page->index = page_offset;
++		page->index = index + i;
+ 		list_add(&page->lru, &page_pool);
+ 		if (i == nr_to_read - lookahead_size)
+ 			SetPageReadahead(page);
 -- 
 2.25.1
 
