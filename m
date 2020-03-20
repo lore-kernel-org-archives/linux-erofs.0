@@ -2,65 +2,62 @@ Return-Path: <SRS0=EiX3=5F=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91013C4332B
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87286C4332B
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 16:58:42 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3F2D420732
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 14:41:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3962E20767
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Mar 2020 16:58:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="pcB/9QPT"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3F2D420732
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="cRbat8RE"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3962E20767
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48kRLT3hTHzDqR6
-	for <linux-erofs@archiver.kernel.org>; Sat, 21 Mar 2020 01:41:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48kVNJ3xWrzDrh7
+	for <linux-erofs@archiver.kernel.org>; Sat, 21 Mar 2020 03:58:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=ebiggers@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- spf=none (no SPF record) smtp.mailfrom=infradead.org
- (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
- envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=pcB/9QPT; 
- dkim-atps=neutral
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:e::133])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ dmarc=pass (p=none dis=none) header.from=kernel.org
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=default header.b=cRbat8RE; dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48kQwR2NYTzDsq3
- for <linux-erofs@lists.ozlabs.org>; Sat, 21 Mar 2020 01:22:47 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
- MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
- :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=/SQrh0NC9B/4IIKX+SOFUuY0GCDKmd4E0NcfkuJjHos=; b=pcB/9QPTh7YnWOIm2ghnxPADsV
- jUNiKAT2ROOLf8Z0Kjh4GVizaWHd4Jl/BSMdUeOliFlhPlmDsQsZly7IDmulQdWX1MQQtfwueam0h
- bbx25ng2ceWN+WX7wV06ox7qBfFWp0bP1hmNYXbotqiG9wCLlYnHcrJw1Seky/BAuB8S7xlgRbeAq
- 6r9g2t/3XGz15oLBcpXU7U60KXdkUN6ipfcM1atlL4fkiEeO0tIkUyBONGyp2ZNjWPrh/V5d1l7/b
- DQaZKaioxJR02IiMDVquobwUYu9B7lnym1K/M5ttAYCmn+ib8iUrBtRLofKBP2wvE9fD0COZvWqas
- qxL+ahjg==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1jFIXi-0000jv-8O; Fri, 20 Mar 2020 14:22:34 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v9 23/25] f2fs: Pass the inode to f2fs_mpage_readpages
-Date: Fri, 20 Mar 2020 07:22:29 -0700
-Message-Id: <20200320142231.2402-24-willy@infradead.org>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20200320142231.2402-1-willy@infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48kVN96prnzDrMG
+ for <linux-erofs@lists.ozlabs.org>; Sat, 21 Mar 2020 03:58:33 +1100 (AEDT)
+Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net
+ [107.3.166.239])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 6434C20753;
+ Fri, 20 Mar 2020 16:58:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1584723510;
+ bh=AxLDPN4LwuxzW4xjwlSgsVf6rtc0JFVKxbo5//wmPgc=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=cRbat8REA7EmmJnmLCrWxRoNW5LgyCKm+4EsNDf5E4lY0nLcYrSE6Jyr+LkCnKmyi
+ n3W2x46nv8ZHmzqeZMc86Mj56kXxAhIEwG1PHXCTucYL5iivPYgJLLRVtDE0DPEV3X
+ iA5d4+HsRZ/BNe0ydHe/SfLeiRxRKGyEVqIcRkok=
+Date: Fri, 20 Mar 2020 09:58:28 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v9 12/25] mm: Move end_index check out of readahead loop
+Message-ID: <20200320165828.GB851@sol.localdomain>
 References: <20200320142231.2402-1-willy@infradead.org>
+ <20200320142231.2402-13-willy@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200320142231.2402-13-willy@infradead.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,65 +69,76 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, William Kucharski <william.kucharski@oracle.com>,
- linux-kernel@vger.kernel.org,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+Cc: cluster-devel@redhat.com, linux-mm@kvack.org,
+ John Hubbard <jhubbard@nvidia.com>, linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
+ William Kucharski <william.kucharski@oracle.com>, linux-btrfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
  linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-btrfs@vger.kernel.org
+ ocfs2-devel@oss.oracle.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+On Fri, Mar 20, 2020 at 07:22:18AM -0700, Matthew Wilcox wrote:
+> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> 
+> By reducing nr_to_read, we can eliminate this check from inside the loop.
+> 
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+> Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+> ---
+>  mm/readahead.c | 17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
+> 
+> diff --git a/mm/readahead.c b/mm/readahead.c
+> index d01531ef9f3c..a37b68f66233 100644
+> --- a/mm/readahead.c
+> +++ b/mm/readahead.c
+> @@ -167,8 +167,6 @@ void __do_page_cache_readahead(struct address_space *mapping,
+>  		unsigned long lookahead_size)
+>  {
+>  	struct inode *inode = mapping->host;
+> -	struct page *page;
+> -	unsigned long end_index;	/* The last page we want to read */
+>  	LIST_HEAD(page_pool);
+>  	loff_t isize = i_size_read(inode);
+>  	gfp_t gfp_mask = readahead_gfp_mask(mapping);
+> @@ -178,22 +176,29 @@ void __do_page_cache_readahead(struct address_space *mapping,
+>  		._index = index,
+>  	};
+>  	unsigned long i;
+> +	pgoff_t end_index;	/* The last page we want to read */
+>  
+>  	if (isize == 0)
+>  		return;
+>  
+> -	end_index = ((isize - 1) >> PAGE_SHIFT);
+> +	end_index = (isize - 1) >> PAGE_SHIFT;
+> +	if (index > end_index)
+> +		return;
+> +	/* Avoid wrapping to the beginning of the file */
+> +	if (index + nr_to_read < index)
+> +		nr_to_read = ULONG_MAX - index + 1;
+> +	/* Don't read past the page containing the last byte of the file */
+> +	if (index + nr_to_read >= end_index)
+> +		nr_to_read = end_index - index + 1;
 
-This function now only uses the mapping argument to look up the inode,
-and both callers already have the inode, so just pass the inode instead
-of the mapping.
+There seem to be a couple off-by-one errors here.  Shouldn't it be:
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: William Kucharski <william.kucharski@oracle.com>
----
- fs/f2fs/data.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+	/* Avoid wrapping to the beginning of the file */
+	if (index + nr_to_read < index)
+		nr_to_read = ULONG_MAX - index;
+	/* Don't read past the page containing the last byte of the file */
+	if (index + nr_to_read > end_index)
+		nr_to_read = end_index - index + 1;
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 237dff36fe73..c8b042979fc4 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2159,12 +2159,11 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
-  * use ->readpage() or do the necessary surgery to decouple ->readpages()
-  * from read-ahead.
-  */
--static int f2fs_mpage_readpages(struct address_space *mapping,
-+static int f2fs_mpage_readpages(struct inode *inode,
- 		struct readahead_control *rac, struct page *page)
- {
- 	struct bio *bio = NULL;
- 	sector_t last_block_in_bio = 0;
--	struct inode *inode = mapping->host;
- 	struct f2fs_map_blocks map;
- #ifdef CONFIG_F2FS_FS_COMPRESSION
- 	struct compress_ctx cc = {
-@@ -2276,7 +2275,7 @@ static int f2fs_read_data_page(struct file *file, struct page *page)
- 	if (f2fs_has_inline_data(inode))
- 		ret = f2fs_read_inline_data(inode, page);
- 	if (ret == -EAGAIN)
--		ret = f2fs_mpage_readpages(page_file_mapping(page), NULL, page);
-+		ret = f2fs_mpage_readpages(inode, NULL, page);
- 	return ret;
- }
- 
-@@ -2293,7 +2292,7 @@ static void f2fs_readahead(struct readahead_control *rac)
- 	if (f2fs_has_inline_data(inode))
- 		return;
- 
--	f2fs_mpage_readpages(rac->mapping, rac, NULL);
-+	f2fs_mpage_readpages(inode, rac, NULL);
- }
- 
- int f2fs_encrypt_one_page(struct f2fs_io_info *fio)
--- 
-2.25.1
+I.e., 'ULONG_MAX - index' rather than 'ULONG_MAX - index + 1', so that
+'index + nr_to_read' is then ULONG_MAX rather than overflowed to 0.
 
+Then 'index + nr_to_read > end_index' rather 'index + nr_to_read >= end_index',
+since otherwise nr_to_read can be increased by 1 rather than decreased or stay
+the same as expected.
+
+- Eric
