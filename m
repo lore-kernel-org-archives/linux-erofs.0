@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30C74C43331
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CDD3C43331
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D663A20663
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D2D3D20663
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="sybOeWei"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D663A20663
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rIfwwr2u"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2D3D20663
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48mQsT4v5GzDr4r
-	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 07:27:09 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48mQsf05JjzDqwC
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 07:27:18 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -33,25 +33,25 @@ Received: from bombadil.infradead.org (bombadil.infradead.org
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48mQms5j0YzDr34
- for <linux-erofs@lists.ozlabs.org>; Tue, 24 Mar 2020 07:23:09 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48mQmv0l0czDr39
+ for <linux-erofs@lists.ozlabs.org>; Tue, 24 Mar 2020 07:23:10 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=ykZ7IuC8advQejUJ0lOkRVAnnG5oVVkFQ9dbVDPkTN8=; b=sybOeWeiTrkmw1qiW786U7mK5L
- Myre1Zl/ePlzyA9y6wyEzWqxZFL9JL76EBnfU5uaFs43nfh9nKKwx/SNKtof1+zw4RAz/qc2r1Ai4
- g7e01QA0ej9GIFOpZbUvvjeF8xhZxlHRLlqRk8z6Bd6wMY23J0NFdQZS+bkJ9YU4Yo/kbVNW1lp8a
- rm5A4g+juf0RuDivldfrwVj5jJZmcnbf0eGecxHHejiyGSEkZj0wwziSTQb2JISxbI3ebBSxFUqlQ
- c+SRmziYTFEpbGZv8fK5bUnafUAIl3eTk/SBYZvTMJgnZsJKZ97uvQgRK9+wntRcA8Vjviw5ybh2o
- MwKioJRg==;
+ bh=tVTCrH8cQ/F5ivWRNhrAQ0ihqzkrHbjiqbn9CKzaols=; b=rIfwwr2ujm4sHIILzMYdQAjIcw
+ zXDYj70t8jps/X53ROSqAtikL1S7ctNZa1wzvP0pNsyVCnIe9phSTbJFmQHhrQ0hzhLDxAONlzLKD
+ z8lF0JNa0u3Lo7XosbztKUbmMGrobcaDzDKiSlTSdEbvLOQV3GmWQ7CaAzOjwbHlHNvak/CPLSTZC
+ lZLFPceOpZ9quoPILXhxizPG7bPSDG0yLlTn0iyRM48HHjVe640I3OiyW9yhut+JotmvlIQk/wUNf
+ LwHJ4/BExIV09zzbhXJ+F411WRU5klsKST/cPY6DlxUz+9Vdi4A6vCzcaC8FuXeW8GX05TSfuyLm1
+ f/opqMkw==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1jGTbB-0003VH-Ps; Mon, 23 Mar 2020 20:23:01 +0000
+ Hat Linux)) id 1jGTbB-0003Uh-GN; Mon, 23 Mar 2020 20:23:01 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v10 13/25] mm: Add page_cache_readahead_unbounded
-Date: Mon, 23 Mar 2020 13:22:47 -0700
-Message-Id: <20200323202259.13363-14-willy@infradead.org>
+Subject: [PATCH v10 04/25] mm: Move readahead nr_pages check into read_pages
+Date: Mon, 23 Mar 2020 13:22:38 -0700
+Message-Id: <20200323202259.13363-5-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200323202259.13363-1-willy@infradead.org>
 References: <20200323202259.13363-1-willy@infradead.org>
@@ -69,279 +69,75 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: linux-xfs@vger.kernel.org, William Kucharski <william.kucharski@oracle.com>,
- Eric Biggers <ebiggers@google.com>, linux-kernel@vger.kernel.org,
+ John Hubbard <jhubbard@nvidia.com>, linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- Christoph Hellwig <hch@lst.de>, linux-btrfs@vger.kernel.org
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, Zi Yan <ziy@nvidia.com>,
+ linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
+ linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-ext4 and f2fs have duplicated the guts of the readahead code so
-they can read past i_size.  Instead, separate out the guts of the
-readahead code so they can call it directly.
+Simplify the callers by moving the check for nr_pages and the BUG_ON
+into read_pages().
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Tested-by: Eric Biggers <ebiggers@google.com>
 ---
- fs/ext4/verity.c        | 35 ++-------------------
- fs/f2fs/data.c          |  2 +-
- fs/f2fs/f2fs.h          |  3 --
- fs/f2fs/verity.c        | 35 ++-------------------
- include/linux/pagemap.h |  3 ++
- mm/readahead.c          | 68 ++++++++++++++++++++++++++++-------------
- 6 files changed, 55 insertions(+), 91 deletions(-)
+ mm/readahead.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ext4/verity.c b/fs/ext4/verity.c
-index dc5ec724d889..dec1244dd062 100644
---- a/fs/ext4/verity.c
-+++ b/fs/ext4/verity.c
-@@ -342,37 +342,6 @@ static int ext4_get_verity_descriptor(struct inode *inode, void *buf,
- 	return desc_size;
- }
- 
--/*
-- * Prefetch some pages from the file's Merkle tree.
-- *
-- * This is basically a stripped-down version of __do_page_cache_readahead()
-- * which works on pages past i_size.
-- */
--static void ext4_merkle_tree_readahead(struct address_space *mapping,
--				       pgoff_t start_index, unsigned long count)
--{
--	LIST_HEAD(pages);
--	unsigned int nr_pages = 0;
--	struct page *page;
--	pgoff_t index;
--	struct blk_plug plug;
--
--	for (index = start_index; index < start_index + count; index++) {
--		page = xa_load(&mapping->i_pages, index);
--		if (!page || xa_is_value(page)) {
--			page = __page_cache_alloc(readahead_gfp_mask(mapping));
--			if (!page)
--				break;
--			page->index = index;
--			list_add(&page->lru, &pages);
--			nr_pages++;
--		}
--	}
--	blk_start_plug(&plug);
--	ext4_mpage_readpages(mapping, &pages, NULL, nr_pages, true);
--	blk_finish_plug(&plug);
--}
--
- static struct page *ext4_read_merkle_tree_page(struct inode *inode,
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
-@@ -386,8 +355,8 @@ static struct page *ext4_read_merkle_tree_page(struct inode *inode,
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
--			ext4_merkle_tree_readahead(inode->i_mapping, index,
--						   num_ra_pages);
-+			page_cache_readahead_unbounded(inode->i_mapping, NULL,
-+					index, num_ra_pages, 0);
- 		page = read_mapping_page(inode->i_mapping, index, NULL);
- 	}
- 	return page;
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index dbde309349d0..adc4766782e1 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2148,7 +2148,7 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
-  * use ->readpage() or do the necessary surgery to decouple ->readpages()
-  * from read-ahead.
-  */
--int f2fs_mpage_readpages(struct address_space *mapping,
-+static int f2fs_mpage_readpages(struct address_space *mapping,
- 			struct list_head *pages, struct page *page,
- 			unsigned nr_pages, bool is_readahead)
- {
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 3e727a6af08e..d59b715d7870 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3369,9 +3369,6 @@ int f2fs_reserve_new_block(struct dnode_of_data *dn);
- int f2fs_get_block(struct dnode_of_data *dn, pgoff_t index);
- int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from);
- int f2fs_reserve_block(struct dnode_of_data *dn, pgoff_t index);
--int f2fs_mpage_readpages(struct address_space *mapping,
--			struct list_head *pages, struct page *page,
--			unsigned nr_pages, bool is_readahead);
- struct page *f2fs_get_read_data_page(struct inode *inode, pgoff_t index,
- 			int op_flags, bool for_write);
- struct page *f2fs_find_data_page(struct inode *inode, pgoff_t index);
-diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-index d7d430a6f130..865c9fb774fb 100644
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -222,37 +222,6 @@ static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
- 	return size;
- }
- 
--/*
-- * Prefetch some pages from the file's Merkle tree.
-- *
-- * This is basically a stripped-down version of __do_page_cache_readahead()
-- * which works on pages past i_size.
-- */
--static void f2fs_merkle_tree_readahead(struct address_space *mapping,
--				       pgoff_t start_index, unsigned long count)
--{
--	LIST_HEAD(pages);
--	unsigned int nr_pages = 0;
--	struct page *page;
--	pgoff_t index;
--	struct blk_plug plug;
--
--	for (index = start_index; index < start_index + count; index++) {
--		page = xa_load(&mapping->i_pages, index);
--		if (!page || xa_is_value(page)) {
--			page = __page_cache_alloc(readahead_gfp_mask(mapping));
--			if (!page)
--				break;
--			page->index = index;
--			list_add(&page->lru, &pages);
--			nr_pages++;
--		}
--	}
--	blk_start_plug(&plug);
--	f2fs_mpage_readpages(mapping, &pages, NULL, nr_pages, true);
--	blk_finish_plug(&plug);
--}
--
- static struct page *f2fs_read_merkle_tree_page(struct inode *inode,
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
-@@ -266,8 +235,8 @@ static struct page *f2fs_read_merkle_tree_page(struct inode *inode,
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
--			f2fs_merkle_tree_readahead(inode->i_mapping, index,
--						   num_ra_pages);
-+			page_cache_readahead_unbounded(inode->i_mapping, NULL,
-+					index, num_ra_pages, 0);
- 		page = read_mapping_page(inode->i_mapping, index, NULL);
- 	}
- 	return page;
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 89fd6a62bfa5..84e1bd68fda4 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -619,6 +619,9 @@ void page_cache_sync_readahead(struct address_space *, struct file_ra_state *,
- void page_cache_async_readahead(struct address_space *, struct file_ra_state *,
- 		struct file *, struct page *, pgoff_t index,
- 		unsigned long req_count);
-+void page_cache_readahead_unbounded(struct address_space *, struct file *,
-+		pgoff_t index, unsigned long nr_to_read,
-+		unsigned long lookahead_count);
- 
- /*
-  * Like add_to_page_cache_locked, but used to add newly allocated pages:
 diff --git a/mm/readahead.c b/mm/readahead.c
-index 998fdd23c0b1..ae231a5312cb 100644
+index 61b15b6b9e72..9fcd4e32b62d 100644
 --- a/mm/readahead.c
 +++ b/mm/readahead.c
-@@ -156,37 +156,34 @@ static void read_pages(struct readahead_control *rac, struct list_head *pages,
- 		rac->_index++;
- }
+@@ -119,6 +119,9 @@ static void read_pages(struct address_space *mapping, struct file *filp,
+ 	struct blk_plug plug;
+ 	unsigned page_idx;
  
--/*
-- * __do_page_cache_readahead() actually reads a chunk of disk.  It allocates
-- * the pages first, then submits them for I/O. This avoids the very bad
-- * behaviour which would occur if page allocations are causing VM writeback.
-- * We really don't want to intermingle reads and writes like that.
-+/**
-+ * page_cache_readahead_unbounded - Start unchecked readahead.
-+ * @mapping: File address space.
-+ * @file: This instance of the open file; used for authentication.
-+ * @index: First page index to read.
-+ * @nr_to_read: The number of pages to read.
-+ * @lookahead_size: Where to start the next readahead.
-+ *
-+ * This function is for filesystems to call when they want to start
-+ * readahead beyond a file's stated i_size.  This is almost certainly
-+ * not the function you want to call.  Use page_cache_async_readahead()
-+ * or page_cache_sync_readahead() instead.
-+ *
-+ * Context: File is referenced by caller.  Mutexes may be held by caller.
-+ * May sleep, but will not reenter filesystem to reclaim memory.
-  */
--void __do_page_cache_readahead(struct address_space *mapping,
--		struct file *filp, pgoff_t index, unsigned long nr_to_read,
-+void page_cache_readahead_unbounded(struct address_space *mapping,
-+		struct file *file, pgoff_t index, unsigned long nr_to_read,
- 		unsigned long lookahead_size)
- {
--	struct inode *inode = mapping->host;
- 	LIST_HEAD(page_pool);
--	loff_t isize = i_size_read(inode);
- 	gfp_t gfp_mask = readahead_gfp_mask(mapping);
- 	struct readahead_control rac = {
- 		.mapping = mapping,
--		.file = filp,
-+		.file = file,
- 		._index = index,
- 	};
- 	unsigned long i;
--	pgoff_t end_index;	/* The last page we want to read */
--
--	if (isize == 0)
--		return;
--
--	end_index = (isize - 1) >> PAGE_SHIFT;
--	if (index > end_index)
--		return;
--	/* Don't read past the page containing the last byte of the file */
--	if (nr_to_read > end_index - index)
--		nr_to_read = end_index - index + 1;
- 
- 	/*
- 	 * Preallocate as many pages as we will need.
-@@ -230,6 +227,35 @@ void __do_page_cache_readahead(struct address_space *mapping,
- 	 */
- 	read_pages(&rac, &page_pool, false);
- }
-+EXPORT_SYMBOL_GPL(page_cache_readahead_unbounded);
-+
-+/*
-+ * __do_page_cache_readahead() actually reads a chunk of disk.  It allocates
-+ * the pages first, then submits them for I/O. This avoids the very bad
-+ * behaviour which would occur if page allocations are causing VM writeback.
-+ * We really don't want to intermingle reads and writes like that.
-+ */
-+void __do_page_cache_readahead(struct address_space *mapping,
-+		struct file *file, pgoff_t index, unsigned long nr_to_read,
-+		unsigned long lookahead_size)
-+{
-+	struct inode *inode = mapping->host;
-+	loff_t isize = i_size_read(inode);
-+	pgoff_t end_index;	/* The last page we want to read */
-+
-+	if (isize == 0)
++	if (!nr_pages)
 +		return;
 +
-+	end_index = (isize - 1) >> PAGE_SHIFT;
-+	if (index > end_index)
-+		return;
-+	/* Don't read past the page containing the last byte of the file */
-+	if (nr_to_read > end_index - index)
-+		nr_to_read = end_index - index + 1;
+ 	blk_start_plug(&plug);
+ 
+ 	if (mapping->a_ops->readpages) {
+@@ -138,6 +141,8 @@ static void read_pages(struct address_space *mapping, struct file *filp,
+ 
+ out:
+ 	blk_finish_plug(&plug);
 +
-+	page_cache_readahead_unbounded(mapping, file, index, nr_to_read,
-+			lookahead_size);
-+}
++	BUG_ON(!list_empty(pages));
+ }
  
  /*
-  * Chunk the readahead into 2 megabyte units, so that we don't pin too much
+@@ -180,8 +185,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 			 * contiguous pages before continuing with the next
+ 			 * batch.
+ 			 */
+-			if (nr_pages)
+-				read_pages(mapping, filp, &page_pool, nr_pages,
++			read_pages(mapping, filp, &page_pool, nr_pages,
+ 						gfp_mask);
+ 			nr_pages = 0;
+ 			continue;
+@@ -202,9 +206,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 	 * uptodate then the caller will launch readpage again, and
+ 	 * will then handle the error.
+ 	 */
+-	if (nr_pages)
+-		read_pages(mapping, filp, &page_pool, nr_pages, gfp_mask);
+-	BUG_ON(!list_empty(&page_pool));
++	read_pages(mapping, filp, &page_pool, nr_pages, gfp_mask);
+ }
+ 
+ /*
 -- 
 2.25.1
 
