@@ -4,24 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A2EFC10DCE
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 435BDC43331
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:28:05 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0DFCC20663
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:27:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E6F8420663
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:28:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FtAV/0IY"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0DFCC20663
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QVp1sbQS"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E6F8420663
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48mQtP14J3zDr2y
-	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 07:27:57 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48mQtW2H5vzDr3F
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 07:28:03 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -30,32 +30,32 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=FtAV/0IY; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=QVp1sbQS; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48mQmx3qqKzDr5J
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48mQmx0ptjzDr40
  for <linux-erofs@lists.ozlabs.org>; Tue, 24 Mar 2020 07:23:13 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=PaU0E8Bve7jBa01t57OFuZRPqHzqqGYR2616on4MjoM=; b=FtAV/0IYZ82pna3t2LH2h5bC2G
- Vb8FR5EKiNb/HcpSdO4URVdvXvWD1aCc9BT5gxwvcNAt0+r8bUoLWhXQnAtF0yigzWKf1Eg8e0Ihy
- aWDGdVMxKnveaHBJ3BKEL+6bqrSV7aVuLPXOI31ubeFYtMR4w+k03VwpYX/bdd1UpUdZckJsa7Tkh
- U5FcyUKaSaZmSt2dYn4qMqoKLN99REX1BRR94tGgmT2majmWbUHbe16CEsr27WzktK6akSsctR3b+
- cDMcBvKpCw+SxKAg2YPuhsqgkSY0b/CHat3BbDVr9ofkC03soRuIpxobxU3WPL8wu7RmoeGLC8WqK
- pvCGjWLg==;
+ bh=XisjuD/NJqVjAr7NhGsi2kpVMpAaLj5MxX5s2PLOtP8=; b=QVp1sbQSWrmuCwlnJeernJw3L0
+ jaKAL74rgGK1myGvSE5v591t5Y+zvhzGS2QDKx/PXS1946k5G/HtzGsI3Pvd6Wuni5hbFTRM9jcoW
+ S6wfYx79Kd64CFLLWOer6TzbLpEVaEoQ5CCt0QF4evU6cL85rH60LkqHJk4P9Rb10k420k9g5CBrM
+ tyX4yDj9LHDMESo5H9+l7zhMB9ZMdU+ti82J1WWr+EUg7xHE3cYGQUPyMFheYqKsBD9chcrFR7FWS
+ FPoQhZjhQSxhwlxtIE8F8KvjDuIUTwtesa+106LQ/fdRSPVfJYiIWnXQfAPVsmrIFaK9BoLvQgPXz
+ L59bprEw==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1jGTbB-0003Ut-JU; Mon, 23 Mar 2020 20:23:01 +0000
+ Hat Linux)) id 1jGTbC-0003Vw-4I; Mon, 23 Mar 2020 20:23:02 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v10 07/25] mm: Rename various 'offset' parameters to 'index'
-Date: Mon, 23 Mar 2020 13:22:41 -0700
-Message-Id: <20200323202259.13363-8-willy@infradead.org>
+Subject: [PATCH v10 22/25] f2fs: Convert from readpages to readahead
+Date: Mon, 23 Mar 2020 13:22:56 -0700
+Message-Id: <20200323202259.13363-23-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200323202259.13363-1-willy@infradead.org>
 References: <20200323202259.13363-1-willy@infradead.org>
@@ -73,11 +73,11 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: linux-xfs@vger.kernel.org, William Kucharski <william.kucharski@oracle.com>,
- linux-kernel@vger.kernel.org,
+ Eric Biggers <ebiggers@google.com>, linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, Zi Yan <ziy@nvidia.com>,
- linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+ Jaegeuk Kim <jaegeuk@kernel.org>, linux-ext4@vger.kernel.org,
  linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
@@ -85,288 +85,176 @@ Sender: "Linux-erofs"
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-The word 'offset' is used ambiguously to mean 'byte offset within
-a page', 'byte offset from the start of the file' and 'page offset
-from the start of the file'.  Use 'index' to mean 'page offset
-from the start of the file' throughout the readahead code.
+Use the new readahead operation in f2fs
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
 Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Acked-by: Jaegeuk Kim <jaegeuk@kernel.org>
 ---
- mm/readahead.c | 86 ++++++++++++++++++++++++--------------------------
- 1 file changed, 42 insertions(+), 44 deletions(-)
+ fs/f2fs/data.c              | 47 +++++++++++++++----------------------
+ include/trace/events/f2fs.h |  6 ++---
+ 2 files changed, 22 insertions(+), 31 deletions(-)
 
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 9d9aa4ffc7d4..8a65d6bd97e0 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -156,7 +156,7 @@ static void read_pages(struct readahead_control *rac, struct list_head *pages,
-  * We really don't want to intermingle reads and writes like that.
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index adc4766782e1..2109ce23076d 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2149,8 +2149,7 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
+  * from read-ahead.
   */
- void __do_page_cache_readahead(struct address_space *mapping,
--		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
-+		struct file *filp, pgoff_t index, unsigned long nr_to_read,
- 		unsigned long lookahead_size)
+ static int f2fs_mpage_readpages(struct address_space *mapping,
+-			struct list_head *pages, struct page *page,
+-			unsigned nr_pages, bool is_readahead)
++		struct readahead_control *rac, struct page *page)
  {
- 	struct inode *inode = mapping->host;
-@@ -180,7 +180,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
- 	 * Preallocate as many pages as we will need.
- 	 */
- 	for (page_idx = 0; page_idx < nr_to_read; page_idx++) {
--		pgoff_t page_offset = offset + page_idx;
-+		pgoff_t page_offset = index + page_idx;
+ 	struct bio *bio = NULL;
+ 	sector_t last_block_in_bio = 0;
+@@ -2168,6 +2167,7 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ 		.nr_cpages = 0,
+ 	};
+ #endif
++	unsigned nr_pages = rac ? readahead_count(rac) : 1;
+ 	unsigned max_nr_pages = nr_pages;
+ 	int ret = 0;
  
- 		if (page_offset > end_index)
- 			break;
-@@ -219,7 +219,7 @@ void __do_page_cache_readahead(struct address_space *mapping,
-  * memory at once.
-  */
- void force_page_cache_readahead(struct address_space *mapping,
--		struct file *filp, pgoff_t offset, unsigned long nr_to_read)
-+		struct file *filp, pgoff_t index, unsigned long nr_to_read)
- {
- 	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
- 	struct file_ra_state *ra = &filp->f_ra;
-@@ -239,9 +239,9 @@ void force_page_cache_readahead(struct address_space *mapping,
+@@ -2181,15 +2181,9 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ 	map.m_may_create = false;
  
- 		if (this_chunk > nr_to_read)
- 			this_chunk = nr_to_read;
--		__do_page_cache_readahead(mapping, filp, offset, this_chunk, 0);
-+		__do_page_cache_readahead(mapping, filp, index, this_chunk, 0);
+ 	for (; nr_pages; nr_pages--) {
+-		if (pages) {
+-			page = list_last_entry(pages, struct page, lru);
+-
++		if (rac) {
++			page = readahead_page(rac);
+ 			prefetchw(&page->flags);
+-			list_del(&page->lru);
+-			if (add_to_page_cache_lru(page, mapping,
+-						  page_index(page),
+-						  readahead_gfp_mask(mapping)))
+-				goto next_page;
+ 		}
  
--		offset += this_chunk;
-+		index += this_chunk;
- 		nr_to_read -= this_chunk;
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+@@ -2199,7 +2193,7 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ 				ret = f2fs_read_multi_pages(&cc, &bio,
+ 							max_nr_pages,
+ 							&last_block_in_bio,
+-							is_readahead, false);
++							rac != NULL, false);
+ 				f2fs_destroy_compress_ctx(&cc);
+ 				if (ret)
+ 					goto set_error_page;
+@@ -2222,7 +2216,7 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ #endif
+ 
+ 		ret = f2fs_read_single_page(inode, page, max_nr_pages, &map,
+-					&bio, &last_block_in_bio, is_readahead);
++					&bio, &last_block_in_bio, rac);
+ 		if (ret) {
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+ set_error_page:
+@@ -2231,8 +2225,10 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ 			zero_user_segment(page, 0, PAGE_SIZE);
+ 			unlock_page(page);
+ 		}
++#ifdef CONFIG_F2FS_FS_COMPRESSION
+ next_page:
+-		if (pages)
++#endif
++		if (rac)
+ 			put_page(page);
+ 
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+@@ -2242,16 +2238,15 @@ static int f2fs_mpage_readpages(struct address_space *mapping,
+ 				ret = f2fs_read_multi_pages(&cc, &bio,
+ 							max_nr_pages,
+ 							&last_block_in_bio,
+-							is_readahead, false);
++							rac != NULL, false);
+ 				f2fs_destroy_compress_ctx(&cc);
+ 			}
+ 		}
+ #endif
  	}
- }
-@@ -322,21 +322,21 @@ static unsigned long get_next_ra_size(struct file_ra_state *ra,
-  */
- 
- /*
-- * Count contiguously cached pages from @offset-1 to @offset-@max,
-+ * Count contiguously cached pages from @index-1 to @index-@max,
-  * this count is a conservative estimation of
-  * 	- length of the sequential read sequence, or
-  * 	- thrashing threshold in memory tight systems
-  */
- static pgoff_t count_history_pages(struct address_space *mapping,
--				   pgoff_t offset, unsigned long max)
-+				   pgoff_t index, unsigned long max)
- {
- 	pgoff_t head;
- 
- 	rcu_read_lock();
--	head = page_cache_prev_miss(mapping, offset - 1, max);
-+	head = page_cache_prev_miss(mapping, index - 1, max);
- 	rcu_read_unlock();
- 
--	return offset - 1 - head;
-+	return index - 1 - head;
+-	BUG_ON(pages && !list_empty(pages));
+ 	if (bio)
+ 		__submit_bio(F2FS_I_SB(inode), bio, DATA);
+-	return pages ? 0 : ret;
++	return ret;
  }
  
- /*
-@@ -344,13 +344,13 @@ static pgoff_t count_history_pages(struct address_space *mapping,
-  */
- static int try_context_readahead(struct address_space *mapping,
- 				 struct file_ra_state *ra,
--				 pgoff_t offset,
-+				 pgoff_t index,
- 				 unsigned long req_size,
- 				 unsigned long max)
- {
- 	pgoff_t size;
- 
--	size = count_history_pages(mapping, offset, max);
-+	size = count_history_pages(mapping, index, max);
- 
- 	/*
- 	 * not enough history pages:
-@@ -363,10 +363,10 @@ static int try_context_readahead(struct address_space *mapping,
- 	 * starts from beginning of file:
- 	 * it is a strong indication of long-run stream (or whole-file-read)
- 	 */
--	if (size >= offset)
-+	if (size >= index)
- 		size *= 2;
- 
--	ra->start = offset;
-+	ra->start = index;
- 	ra->size = min(size + req_size, max);
- 	ra->async_size = 1;
- 
-@@ -378,13 +378,13 @@ static int try_context_readahead(struct address_space *mapping,
-  */
- static void ondemand_readahead(struct address_space *mapping,
- 		struct file_ra_state *ra, struct file *filp,
--		bool hit_readahead_marker, pgoff_t offset,
-+		bool hit_readahead_marker, pgoff_t index,
- 		unsigned long req_size)
- {
- 	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
- 	unsigned long max_pages = ra->ra_pages;
- 	unsigned long add_pages;
--	pgoff_t prev_offset;
-+	pgoff_t prev_index;
- 
- 	/*
- 	 * If the request exceeds the readahead window, allow the read to
-@@ -396,15 +396,15 @@ static void ondemand_readahead(struct address_space *mapping,
- 	/*
- 	 * start of file
- 	 */
--	if (!offset)
-+	if (!index)
- 		goto initial_readahead;
- 
- 	/*
--	 * It's the expected callback offset, assume sequential access.
-+	 * It's the expected callback index, assume sequential access.
- 	 * Ramp up sizes, and push forward the readahead window.
- 	 */
--	if ((offset == (ra->start + ra->size - ra->async_size) ||
--	     offset == (ra->start + ra->size))) {
-+	if ((index == (ra->start + ra->size - ra->async_size) ||
-+	     index == (ra->start + ra->size))) {
- 		ra->start += ra->size;
- 		ra->size = get_next_ra_size(ra, max_pages);
- 		ra->async_size = ra->size;
-@@ -421,14 +421,14 @@ static void ondemand_readahead(struct address_space *mapping,
- 		pgoff_t start;
- 
- 		rcu_read_lock();
--		start = page_cache_next_miss(mapping, offset + 1, max_pages);
-+		start = page_cache_next_miss(mapping, index + 1, max_pages);
- 		rcu_read_unlock();
- 
--		if (!start || start - offset > max_pages)
-+		if (!start || start - index > max_pages)
- 			return;
- 
- 		ra->start = start;
--		ra->size = start - offset;	/* old async_size */
-+		ra->size = start - index;	/* old async_size */
- 		ra->size += req_size;
- 		ra->size = get_next_ra_size(ra, max_pages);
- 		ra->async_size = ra->size;
-@@ -443,29 +443,29 @@ static void ondemand_readahead(struct address_space *mapping,
- 
- 	/*
- 	 * sequential cache miss
--	 * trivial case: (offset - prev_offset) == 1
--	 * unaligned reads: (offset - prev_offset) == 0
-+	 * trivial case: (index - prev_index) == 1
-+	 * unaligned reads: (index - prev_index) == 0
- 	 */
--	prev_offset = (unsigned long long)ra->prev_pos >> PAGE_SHIFT;
--	if (offset - prev_offset <= 1UL)
-+	prev_index = (unsigned long long)ra->prev_pos >> PAGE_SHIFT;
-+	if (index - prev_index <= 1UL)
- 		goto initial_readahead;
- 
- 	/*
- 	 * Query the page cache and look for the traces(cached history pages)
- 	 * that a sequential stream would leave behind.
- 	 */
--	if (try_context_readahead(mapping, ra, offset, req_size, max_pages))
-+	if (try_context_readahead(mapping, ra, index, req_size, max_pages))
- 		goto readit;
- 
- 	/*
- 	 * standalone, small random read
- 	 * Read as is, and do not pollute the readahead state.
- 	 */
--	__do_page_cache_readahead(mapping, filp, offset, req_size, 0);
-+	__do_page_cache_readahead(mapping, filp, index, req_size, 0);
- 	return;
- 
- initial_readahead:
--	ra->start = offset;
-+	ra->start = index;
- 	ra->size = get_init_ra_size(req_size, max_pages);
- 	ra->async_size = ra->size > req_size ? ra->size - req_size : ra->size;
- 
-@@ -476,7 +476,7 @@ static void ondemand_readahead(struct address_space *mapping,
- 	 * the resulted next readahead window into the current one.
- 	 * Take care of maximum IO pages as above.
- 	 */
--	if (offset == ra->start && ra->size == ra->async_size) {
-+	if (index == ra->start && ra->size == ra->async_size) {
- 		add_pages = get_next_ra_size(ra, max_pages);
- 		if (ra->size + add_pages <= max_pages) {
- 			ra->async_size = add_pages;
-@@ -495,9 +495,8 @@ static void ondemand_readahead(struct address_space *mapping,
-  * @mapping: address_space which holds the pagecache and I/O vectors
-  * @ra: file_ra_state which holds the readahead state
-  * @filp: passed on to ->readpage() and ->readpages()
-- * @offset: start offset into @mapping, in pagecache page-sized units
-- * @req_size: hint: total size of the read which the caller is performing in
-- *            pagecache pages
-+ * @index: Index of first page to be read.
-+ * @req_count: Total number of pages being read by the caller.
-  *
-  * page_cache_sync_readahead() should be called when a cache miss happened:
-  * it will submit the read.  The readahead logic may decide to piggyback more
-@@ -506,7 +505,7 @@ static void ondemand_readahead(struct address_space *mapping,
-  */
- void page_cache_sync_readahead(struct address_space *mapping,
- 			       struct file_ra_state *ra, struct file *filp,
--			       pgoff_t offset, unsigned long req_size)
-+			       pgoff_t index, unsigned long req_count)
- {
- 	/* no read-ahead */
- 	if (!ra->ra_pages)
-@@ -517,12 +516,12 @@ void page_cache_sync_readahead(struct address_space *mapping,
- 
- 	/* be dumb */
- 	if (filp && (filp->f_mode & FMODE_RANDOM)) {
--		force_page_cache_readahead(mapping, filp, offset, req_size);
-+		force_page_cache_readahead(mapping, filp, index, req_count);
- 		return;
- 	}
- 
- 	/* do read-ahead */
--	ondemand_readahead(mapping, ra, filp, false, offset, req_size);
-+	ondemand_readahead(mapping, ra, filp, false, index, req_count);
+ static int f2fs_read_data_page(struct file *file, struct page *page)
+@@ -2270,28 +2265,24 @@ static int f2fs_read_data_page(struct file *file, struct page *page)
+ 	if (f2fs_has_inline_data(inode))
+ 		ret = f2fs_read_inline_data(inode, page);
+ 	if (ret == -EAGAIN)
+-		ret = f2fs_mpage_readpages(page_file_mapping(page),
+-						NULL, page, 1, false);
++		ret = f2fs_mpage_readpages(page_file_mapping(page), NULL, page);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(page_cache_sync_readahead);
  
-@@ -531,21 +530,20 @@ EXPORT_SYMBOL_GPL(page_cache_sync_readahead);
-  * @mapping: address_space which holds the pagecache and I/O vectors
-  * @ra: file_ra_state which holds the readahead state
-  * @filp: passed on to ->readpage() and ->readpages()
-- * @page: the page at @offset which has the PG_readahead flag set
-- * @offset: start offset into @mapping, in pagecache page-sized units
-- * @req_size: hint: total size of the read which the caller is performing in
-- *            pagecache pages
-+ * @page: The page at @index which triggered the readahead call.
-+ * @index: Index of first page to be read.
-+ * @req_count: Total number of pages being read by the caller.
-  *
-  * page_cache_async_readahead() should be called when a page is used which
-- * has the PG_readahead flag; this is a marker to suggest that the application
-+ * is marked as PageReadahead; this is a marker to suggest that the application
-  * has used up enough of the readahead window that we should start pulling in
-  * more pages.
-  */
- void
- page_cache_async_readahead(struct address_space *mapping,
- 			   struct file_ra_state *ra, struct file *filp,
--			   struct page *page, pgoff_t offset,
--			   unsigned long req_size)
-+			   struct page *page, pgoff_t index,
-+			   unsigned long req_count)
+-static int f2fs_read_data_pages(struct file *file,
+-			struct address_space *mapping,
+-			struct list_head *pages, unsigned nr_pages)
++static void f2fs_readahead(struct readahead_control *rac)
  {
- 	/* no read-ahead */
- 	if (!ra->ra_pages)
-@@ -569,7 +567,7 @@ page_cache_async_readahead(struct address_space *mapping,
- 		return;
+-	struct inode *inode = mapping->host;
+-	struct page *page = list_last_entry(pages, struct page, lru);
++	struct inode *inode = rac->mapping->host;
  
- 	/* do read-ahead */
--	ondemand_readahead(mapping, ra, filp, true, offset, req_size);
-+	ondemand_readahead(mapping, ra, filp, true, index, req_count);
+-	trace_f2fs_readpages(inode, page, nr_pages);
++	trace_f2fs_readpages(inode, readahead_index(rac), readahead_count(rac));
+ 
+ 	if (!f2fs_is_compress_backend_ready(inode))
+-		return 0;
++		return;
+ 
+ 	/* If the file has inline data, skip readpages */
+ 	if (f2fs_has_inline_data(inode))
+-		return 0;
++		return;
+ 
+-	return f2fs_mpage_readpages(mapping, pages, NULL, nr_pages, true);
++	f2fs_mpage_readpages(rac->mapping, rac, NULL);
  }
- EXPORT_SYMBOL_GPL(page_cache_async_readahead);
+ 
+ int f2fs_encrypt_one_page(struct f2fs_io_info *fio)
+@@ -3773,7 +3764,7 @@ static void f2fs_swap_deactivate(struct file *file)
+ 
+ const struct address_space_operations f2fs_dblock_aops = {
+ 	.readpage	= f2fs_read_data_page,
+-	.readpages	= f2fs_read_data_pages,
++	.readahead	= f2fs_readahead,
+ 	.writepage	= f2fs_write_data_page,
+ 	.writepages	= f2fs_write_data_pages,
+ 	.write_begin	= f2fs_write_begin,
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 67a97838c2a0..d72da4a33883 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -1375,9 +1375,9 @@ TRACE_EVENT(f2fs_writepages,
+ 
+ TRACE_EVENT(f2fs_readpages,
+ 
+-	TP_PROTO(struct inode *inode, struct page *page, unsigned int nrpage),
++	TP_PROTO(struct inode *inode, pgoff_t start, unsigned int nrpage),
+ 
+-	TP_ARGS(inode, page, nrpage),
++	TP_ARGS(inode, start, nrpage),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+@@ -1389,7 +1389,7 @@ TRACE_EVENT(f2fs_readpages,
+ 	TP_fast_assign(
+ 		__entry->dev	= inode->i_sb->s_dev;
+ 		__entry->ino	= inode->i_ino;
+-		__entry->start	= page->index;
++		__entry->start	= start;
+ 		__entry->nrpage	= nrpage;
+ 	),
  
 -- 
 2.25.1
