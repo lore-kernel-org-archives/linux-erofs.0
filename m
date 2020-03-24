@@ -1,63 +1,92 @@
-Return-Path: <SRS0=nqan=5I=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=FvvI=5J=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C77B5C10DCE
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68845C4332B
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 08:20:29 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7A0DA2073C
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2020 20:50:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 16338207FF
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 08:20:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="coWkHNes"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7A0DA2073C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="HKWW6E15";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="KfpHGsNy"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 16338207FF
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48mRMy65n4zDr2K
-	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 07:50:06 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=ebiggers@kernel.org; receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48mkhW3gtxzDqw1
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Mar 2020 19:20:27 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1585038027;
+	bh=wspaI/WqCh0xN/xb14ALdS7Ow0Y6iycP0EGsDMDwkO8=;
+	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
+	 List-Post:List-Help:List-Subscribe:From:Reply-To:From;
+	b=HKWW6E15LclEtz1N1wk9v74gtpRepffSNVW1YjHMrTF5j3+iTcV4GScGQPO0BJdpb
+	 A8dF7Xv3+dvCB4WtwPAeywKOwJqbLz29HRz8O2vNgaiS0PvyxD0p3GiMO9TsNHY6VN
+	 o7bc8S/xLAdjaGwObYPF+sVepBd9Yzw/yZj/CIbn5P6zEoUbkhzH4qZO4EH2dwaoLG
+	 CMFCPM76MDuE1jDLLNh3YvdxZH/rWGs+5I04eBUIYGD1Yz8ca7YYS5LPOB+Vhx8CbE
+	 ZCKVPrsip6axQ7sqzDHmX5CZC5t8sWIXpdQ/MeRTZYo69Hlhf+Yli6/ARMtesVCOlp
+	 MKFpWREfeyBvQ==
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=kernel.org
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=default header.b=coWkHNes; dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=66.163.186.204; helo=sonic310-23.consmr.mail.ne1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=reject dis=none) header.from=aol.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=KfpHGsNy; dkim-atps=neutral
+Received: from sonic310-23.consmr.mail.ne1.yahoo.com
+ (sonic310-23.consmr.mail.ne1.yahoo.com [66.163.186.204])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48mRMq2tJlzDr0V
- for <linux-erofs@lists.ozlabs.org>; Tue, 24 Mar 2020 07:49:58 +1100 (AEDT)
-Received: from gmail.com (unknown [104.132.1.76])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 2370A20719;
- Mon, 23 Mar 2020 20:49:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1584996596;
- bh=uca8lceeryIzQMAk4G4iarM7sj/2pw+KF5opo+TrNGY=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=coWkHNesJ3VgUDx8upr085r4HZYltqISo1yUGjJ/WXKfvNR+04jgsegcd1wxMZodR
- fQGiy5Lk9Drq+w7ah2QA9gYBnXswZgZRIqxSJS3M98zDeMk86vooA8s3ntT5pmzqG+
- 0iFnw5waVySEm2t9URBP8tlPK7izf9Vhqov96a5c=
-Date: Mon, 23 Mar 2020 13:49:54 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v10 12/25] mm: Move end_index check out of readahead loop
-Message-ID: <20200323204954.GB61708@gmail.com>
-References: <20200323202259.13363-1-willy@infradead.org>
- <20200323202259.13363-13-willy@infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48mkhK44xFzDqs3
+ for <linux-erofs@lists.ozlabs.org>; Tue, 24 Mar 2020 19:20:14 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1585038010; bh=bwRFpDkboiemWvBPQMBpFEPz8a5WGylEmulfIHlbggQ=;
+ h=From:To:Cc:Subject:Date:References:From:Subject;
+ b=KfpHGsNyGdMVv/RQcGe30ZeQ3VbCDh9BDJtnwp0GGnb+l+xt+SjIulPyYaja3Vx+kFbsB0eBQ0fodPPK0GrhxbNLMhXxSZhp/KGTpD/P0w6zNeA47NzoqPQX2oQjrk5TO+6NgNLCzURUM/L0goGBoP13MR0zovPQFQEUvdRFte3RoWI/CGnRryMG1ZPYH8KxVNeuEcbF/wqHS1lzn/99pTuQrljoTsxf4LoY+doFWhOQcaKNbaa9FlbDV3RBhlU49W5VagFHOn3vENhnDjXg3TOuMfR2Sdx2UySoes89bcsOzDfx3mxDWozdPymhdZ8ljz6DU0pJ/2s18a4fcP/MBQ==
+X-YMail-OSG: 5_oNnTAVM1l0lW5mkaR32GbbBsUYncyhZz33eW_XIKmeon.9ASjnx2BIpVfUPLd
+ gP1Mxe85TGT7QgtScPJPrUjg3r3Vp2ej3G5JjqLryO1xNLBP5EYbRgPGxM81VzPNLMGcjZJeucjP
+ wbG4wCgWNIGXC1DjjnTxlwmFMRhJ44Qchs.mK4gfP_Q3bnZ8bV15eKwDbX1NoRN6bdoYjAA.5KrU
+ TGxvUDFS24lzV4Wz9vh9oe6ndMvYX8nzk.VzzBF05PqOn0rmanxkNbFr1a7GAB0QGHseJZM4RTVf
+ o8Rp.PqTa3iiHhULYFVSlidonFroF9lI7IOkaQ0NUMgkZSABuAF4a5SjEMBrUvMqLLIK.xGA7Jhy
+ ryLWUtiwlCiK8CWIOFmlIH91trbTKlVJlq512l.xMkbZ4hkhFa4zDXZ6GRanV781Uiuk3uQpqYva
+ 1fhbJz4sWE69gzBl4gKpXy5Hsymn_BqlIO_qFRWDVG6S3zd6mZnvmbM_49eVNn5_wGhqkc7G.1Sm
+ 5tIz1iENHQoEaR7_tUO27vbPuapZmgYUQmTqWhpC6b3gI._HwfgnLpRfutk95qtg05jFrJBkqsND
+ 1slahcFLtegC1g1VK4e8qhQg48C24WVTGa05eyxFTR46IUdpsjtiaHfEAOvtwnGVfTge8f8sti_A
+ j.zDm7B.IiP_AiG9c1anirT6fosSyr7MzaUQ5dpnMnHGExQiU6vG86cgpGIq5dYrr0xP.KnYfZ4z
+ PspkLGaDol1dDrdV3JKxO4Nf.fZ5wtYNvyp7ibZg6FCAP_NiEaFYc_5hUf7LEZmziYCJCOJYm4zz
+ AQl8UC9zbR9Ii9miNhN4_Eh.M7qMqszZjqDtsTr.BaPEU6kITGHjv3uhNOALub67tE7xROU83UOK
+ VOS0akfGhaH7bawSB7ANKEqxiMXrolF62WRcPyl0sFlTOs5sXVyZTHWE8GST69t6zElnIXKymbT3
+ PIWfbLDc07WrSEReailJngNkCAcRjiTo.uyucJsOWSYOi.3iaIsdK.buNYbnjkhFHCfLGFGE4CjN
+ 7lNL7vHNqouDHCUqdfv4HppaXPgl_roexuiu8q1oyHoqVmzFlsRYgHoBNN0v9AmEyH4Cto1JE4vh
+ Kk7YIoKOE3NeMwgHtJ6pdxfo_niBaQOqi82_7hWo6gf4E6MnbS2EyalQ4RfqJ.kohiCbRVijeP7S
+ djh_Kr3.q_cL0oPS87DvsmB6hSJGOCoV0f1ff.nOyjUPBS620deNcQaDIuszkjBL1CZ7piBqIrKF
+ znuvzb2RFCTLXiVnb.il14B2PfX04d0WFC55lZmHUaO35F7pPepiUNlyYNvpXXar0JiDZtnfGMVx
+ CVrkes1nfMgj8RWRLu8UHalMT4i72jJ3Pbs_jHJcSYDahztRrCeJ67wgfAwsEMe3Z8QggybyYZfh
+ VCtgsWv5J9rs_49msIdkj0N3hoT3UxTSB_ioy
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic310.consmr.mail.ne1.yahoo.com with HTTP; Tue, 24 Mar 2020 08:20:10 +0000
+Received: by smtp409.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
+ ID 0cf8867b50cd90ab07bcd9ca49924ad3; 
+ Tue, 24 Mar 2020 08:20:05 +0000 (UTC)
+To: linux-erofs@lists.ozlabs.org, Li Guifu <bluce.liguifu@huawei.com>,
+ Li GuiFu <bluce.lee@aliyun.com>
+Subject: [PATCH] erofs-utils: avoid using old compatibility type uint
+Date: Tue, 24 Mar 2020 16:19:49 +0800
+Message-Id: <20200324081949.26355-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200323202259.13363-13-willy@infradead.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 8bit
+References: <20200324081949.26355-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,75 +98,78 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: cluster-devel@redhat.com, linux-mm@kvack.org,
- John Hubbard <jhubbard@nvidia.com>, linux-kernel@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- William Kucharski <william.kucharski@oracle.com>, linux-btrfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- ocfs2-devel@oss.oracle.com
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Mar 23, 2020 at 01:22:46PM -0700, Matthew Wilcox wrote:
-> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> 
-> By reducing nr_to_read, we can eliminate this check from inside the loop.
-> 
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-> Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-> ---
->  mm/readahead.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
-> 
-> diff --git a/mm/readahead.c b/mm/readahead.c
-> index d01531ef9f3c..998fdd23c0b1 100644
-> --- a/mm/readahead.c
-> +++ b/mm/readahead.c
-> @@ -167,8 +167,6 @@ void __do_page_cache_readahead(struct address_space *mapping,
->  		unsigned long lookahead_size)
->  {
->  	struct inode *inode = mapping->host;
-> -	struct page *page;
-> -	unsigned long end_index;	/* The last page we want to read */
->  	LIST_HEAD(page_pool);
->  	loff_t isize = i_size_read(inode);
->  	gfp_t gfp_mask = readahead_gfp_mask(mapping);
-> @@ -178,22 +176,26 @@ void __do_page_cache_readahead(struct address_space *mapping,
->  		._index = index,
->  	};
->  	unsigned long i;
-> +	pgoff_t end_index;	/* The last page we want to read */
->  
->  	if (isize == 0)
->  		return;
->  
-> -	end_index = ((isize - 1) >> PAGE_SHIFT);
-> +	end_index = (isize - 1) >> PAGE_SHIFT;
-> +	if (index > end_index)
-> +		return;
-> +	/* Don't read past the page containing the last byte of the file */
-> +	if (nr_to_read > end_index - index)
-> +		nr_to_read = end_index - index + 1;
->  
->  	/*
->  	 * Preallocate as many pages as we will need.
->  	 */
->  	for (i = 0; i < nr_to_read; i++) {
-> -		if (index + i > end_index)
-> -			break;
-> +		struct page *page = xa_load(&mapping->i_pages, index + i);
->  
->  		BUG_ON(index + i != rac._index + rac._nr_pages);
->  
-> -		page = xa_load(&mapping->i_pages, index + i);
->  		if (page && !xa_is_value(page)) {
->  			/*
->  			 * Page already present?  Kick off the current batch of
-> -- 
+This should fix the following buildroot autobuild issues
+with some configration on ARM platform [1]:
 
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+compress.c: In function 'vle_compress_one':
+compress.c:209:10: error: unknown type name 'uint'
+    const uint qh_aligned = round_down(ctx->head, EROFS_BLKSIZ);
+          ^~~~
+compress.c:210:10: error: unknown type name 'uint'
+    const uint qh_after = ctx->head - qh_aligned;
+          ^~~~
+compress.c: In function 'z_erofs_convert_to_compacted_format':
+compress.c:313:8: error: unknown type name 'uint'
+  const uint headerpos = Z_EROFS_VLE_EXTENT_ALIGN(inode->inode_isize +
+        ^~~~
+compress.c:316:8: error: unknown type name 'uint'
+  const uint totalidx = (legacymetasize -
+        ^~~~
 
-- Eric
+[1] http://autobuild.buildroot.net/results/842a3c6416416d7badf4db9f38e3b231093a786a
+Signed-off-by: Gao Xiang <hsiangkao@aol.com>
+---
+ lib/compress.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/lib/compress.c b/lib/compress.c
+index b14ff17..6cc68ed 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -204,8 +204,9 @@ nocompression:
+ 		len -= count;
+ 
+ 		if (!final && ctx->head >= EROFS_CONFIG_COMPR_MAX_SZ) {
+-			const uint qh_aligned = round_down(ctx->head, EROFS_BLKSIZ);
+-			const uint qh_after = ctx->head - qh_aligned;
++			const unsigned int qh_aligned =
++				round_down(ctx->head, EROFS_BLKSIZ);
++			const unsigned int qh_after = ctx->head - qh_aligned;
+ 
+ 			memmove(ctx->queue, ctx->queue + qh_aligned,
+ 				len + qh_after);
+@@ -308,11 +309,11 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 					unsigned int legacymetasize,
+ 					unsigned int logical_clusterbits)
+ {
+-	const uint headerpos = Z_EROFS_VLE_EXTENT_ALIGN(inode->inode_isize +
+-							inode->xattr_isize) +
+-			       sizeof(struct z_erofs_map_header);
+-	const uint totalidx = (legacymetasize -
+-			       Z_EROFS_LEGACY_MAP_HEADER_SIZE) / 8;
++	const unsigned int mpos = Z_EROFS_VLE_EXTENT_ALIGN(inode->inode_isize +
++							   inode->xattr_isize) +
++				  sizeof(struct z_erofs_map_header);
++	const unsigned int totalidx = (legacymetasize -
++				       Z_EROFS_LEGACY_MAP_HEADER_SIZE) / 8;
+ 	u8 *out, *in;
+ 	struct z_erofs_compressindex_vec cv[16];
+ 	/* # of 8-byte units so that it can be aligned with 32 bytes */
+@@ -324,7 +325,7 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 	if (logical_clusterbits > 14)	/* currently not supported */
+ 		return -ENOTSUP;
+ 	if (logical_clusterbits == 12) {
+-		compacted_4b_initial = (32 - headerpos % 32) / 4;
++		compacted_4b_initial = (32 - mpos % 32) / 4;
+ 		if (compacted_4b_initial == 32 / 4)
+ 			compacted_4b_initial = 0;
+ 
+-- 
+2.20.1
+
