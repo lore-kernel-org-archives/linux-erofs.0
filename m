@@ -3,22 +3,22 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A03BC2D0E7
-	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 07:40:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D0DC43331
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 07:43:45 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 281CE206E6
-	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 07:40:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 281CE206E6
+	by mail.kernel.org (Postfix) with ESMTPS id A33DF206E6
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 07:43:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A33DF206E6
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48pYgR41mSzDqym
-	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 18:40:51 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 48pYkl67qPzDrFn
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Mar 2020 18:43:43 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
  envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
@@ -27,27 +27,26 @@ Authentication-Results: lists.ozlabs.org;
 Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48pYg810mNzDqWS
- for <linux-erofs@lists.ozlabs.org>; Fri, 27 Mar 2020 18:40:30 +1100 (AEDT)
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
- by Forcepoint Email with ESMTP id DBC6541DD72FF724A76A;
- Fri, 27 Mar 2020 15:40:20 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48pYhx1mwjzDqY6
+ for <linux-erofs@lists.ozlabs.org>; Fri, 27 Mar 2020 18:42:09 +1100 (AEDT)
+Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.60])
+ by Forcepoint Email with ESMTP id 337B86471CB043EFAF78;
+ Fri, 27 Mar 2020 15:42:06 +0800 (CST)
 Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
- (10.3.19.206) with Microsoft SMTP Server (TLS) id 14.3.487.0; Fri, 27 Mar
- 2020 15:40:12 +0800
-Subject: Re: [PATCH] erofs-utils: avoid _LARGEFILE64_SOURCE and _GNU_SOURCE
- redefinition
+ (10.3.19.213) with Microsoft SMTP Server (TLS) id 14.3.487.0; Fri, 27 Mar
+ 2020 15:41:57 +0800
+Subject: Re: [PATCH] erofs-utils: avoid using old compatibility type uint
 To: Gao Xiang <hsiangkao@aol.com>, <linux-erofs@lists.ozlabs.org>, Li Guifu
  <bluce.liguifu@huawei.com>, Li GuiFu <bluce.lee@aliyun.com>
-References: <20200314105256.20142-1-hsiangkao.ref@aol.com>
- <20200314105256.20142-1-hsiangkao@aol.com>
+References: <20200324081949.26355-1-hsiangkao.ref@aol.com>
+ <20200324081949.26355-1-hsiangkao@aol.com>
 From: Chao Yu <yuchao0@huawei.com>
-Message-ID: <ff5c9cdb-5eeb-2d3b-b7fa-fdc16d7fadaf@huawei.com>
-Date: Fri, 27 Mar 2020 15:40:11 +0800
+Message-ID: <451f49e9-d1ee-2bc9-75ff-49e9c7cacc69@huawei.com>
+Date: Fri, 27 Mar 2020 15:41:57 +0800
 User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
  Thunderbird/52.9.1
 MIME-Version: 1.0
-In-Reply-To: <20200314105256.20142-1-hsiangkao@aol.com>
+In-Reply-To: <20200324081949.26355-1-hsiangkao@aol.com>
 Content-Type: text/plain; charset="windows-1252"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -68,22 +67,27 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2020/3/14 18:52, Gao Xiang via Linux-erofs wrote:
-> From: Gao Xiang <gaoxiang25@huawei.com>
+On 2020/3/24 16:19, Gao Xiang via Linux-erofs wrote:
+> This should fix the following buildroot autobuild issues
+> with some configration on ARM platform [1]:
 > 
-> This patch can be used to resolve the following build errors:
+> compress.c: In function 'vle_compress_one':
+> compress.c:209:10: error: unknown type name 'uint'
+>     const uint qh_aligned = round_down(ctx->head, EROFS_BLKSIZ);
+>           ^~~~
+> compress.c:210:10: error: unknown type name 'uint'
+>     const uint qh_after = ctx->head - qh_aligned;
+>           ^~~~
+> compress.c: In function 'z_erofs_convert_to_compacted_format':
+> compress.c:313:8: error: unknown type name 'uint'
+>   const uint headerpos = Z_EROFS_VLE_EXTENT_ALIGN(inode->inode_isize +
+>         ^~~~
+> compress.c:316:8: error: unknown type name 'uint'
+>   const uint totalidx = (legacymetasize -
+>         ^~~~
 > 
-> compress.c:10: error: "_LARGEFILE64_SOURCE" redefined [-Werror]
->  #define _LARGEFILE64_SOURCE
-> 
-> <command-line>: note: this is the location of the previous definition
-> 
-> io.c:9: error: "_LARGEFILE64_SOURCE" redefined [-Werror]
->  #define _LARGEFILE64_SOURCE
-> 
-> <command-line>: note: this is the location of the previous definition
-> 
-> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+> [1] http://autobuild.buildroot.net/results/842a3c6416416d7badf4db9f38e3b231093a786a
+> Signed-off-by: Gao Xiang <hsiangkao@aol.com>
 
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
