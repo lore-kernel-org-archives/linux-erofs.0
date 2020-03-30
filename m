@@ -2,93 +2,61 @@ Return-Path: <SRS0=4Tr7=5P=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D25AC43331
-	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2020 02:39:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AED6C43331
+	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2020 20:40:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F21412078B
-	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2020 02:39:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 500512078B
+	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2020 20:40:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="U3PToL5e";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="BDgnOAJJ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F21412078B
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="YcDeCn9G"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 500512078B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 48rGr04sr0zDqLd
-	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2020 13:39:12 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1585535952;
-	bh=VJrZVTAbvW++YLVdua1XwHjl1sWEymPpBgvh4sU6uDw=;
-	h=Date:To:Subject:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=U3PToL5eMA0Mf0WX4Lp7u+BzYrCVz3LH8ougUCtRSBKNFLiVguo0/epMSrgmOZfnM
-	 8mk2tS9TkfGXV4EwC12hAa3vroT9aAwqdghSbJs0JhsOvXRaf2I30AGG8qU2DAYnP3
-	 M/y+mQwxK2sB9q7DNzyHdj3H0jh7rq8VgUz1duFhX5vMBsCOB7NJcvI9qVWSrv+QpT
-	 1vwU1oYoPRim+1+IFaFklaa5pVzvjqEqruN4QNz+/s6uQWBZBTChYmFypqFk7ZbR0r
-	 uAHQ3+0nOc0GL36gCTK1+vbIld6zg+e3HbXNWybRfrj5LMOvWPrwrwFxeLzcmI9TKE
-	 9iMukAgi7ctkw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 48rkqP6szczDqdx
+	for <linux-erofs@archiver.kernel.org>; Tue, 31 Mar 2020 07:40:17 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=66.163.185.33; helo=sonic313-10.consmr.mail.ne1.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=aol.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=BDgnOAJJ; dkim-atps=neutral
-Received: from sonic313-10.consmr.mail.ne1.yahoo.com
- (sonic313-10.consmr.mail.ne1.yahoo.com [66.163.185.33])
+ dmarc=pass (p=none dis=none) header.from=kernel.org
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=default header.b=YcDeCn9G; dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 48rGqp0pDczDqB0
- for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2020 13:38:59 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1585535936; bh=VD70aeVEGZzqHFz6t1O4xsHegNnmsjzLe99VqM0PnYI=;
- h=Date:From:To:Cc:Subject:References:From:Subject;
- b=BDgnOAJJyyQN7W8Xtn6o2PGR2Cg3SdTScuhUnYY0WCmRW34yj8rNvJHL5GuA0hBXjJPkq97yaHmaUX6wEp1kthAKjJAST/QwiRXDFnSKrKaFscScaJZbS38utwyLC7+Km/ywHT3vnsAehFOYNvoo7tMuIYBNatN/k3/4Ly2sKLEGgIOrdUXI2OO6DdBbSKg6/D69B9vqbtfpyNxQj27u/MwYkdQLCVZtZEaQagiNWruA6TCG2gT4s0AEEE0pAGoODAH53zxje0JDJnY41payd04igsNHDEDzsLZHTfvqGY4XyerVzLJFIpGaiF+jzb7yJVqDCke3ZWUJaYzhIY5uIQ==
-X-YMail-OSG: xTFBxcYVM1mbjayfIp4dm6zffI88jjoYlXxO_oLCjEPmgAYfjgh93gq6FdR9Ay7
- 3a1vldahmOpihGMhB8iQmnQxwf6Jws5Y9MFDvLizxjTEyIt.DhZlzJr03LG_Aqdt.bY9LB_rGRYy
- kT30W.CMgKtgs8mspVPTunTTIc8YEuIqTQ3QfWH3gdU093vWrlGIK26lkNX65eebwcycAJAs4Eu_
- CLwC6gVLcqYP0YhjeBzsR.XCGnb6JsEUTQTzxc4g8yCCjohSz0U0fVh7jVmJN7C4EaTy7uiI3yJs
- w8wHOd7cG94bd1J2mif1fv6zRcmbf0E2CYHKACjNSf7KdrtVlQ41s90ynMHohzkQ4_qMx6Xngc5p
- HeqfwSuFvqIbA6.HZaYX4HIjVY1qEQCE3gbiv6AvMFgkfVLy.0kUsc_scv6oYnsBEl.vKnuTBwlB
- 20dboLrgGRjLcNOe1FYEtXAbjxaeFtuERhs6zn2wiiAq8wzU1Dh15Wslv9UDNKGpR7z9vQCBRmJD
- TVpZ3EqOjdHyT..t8_y8782G7C18ykbxUH0FLfy1Q0.Vhq7c_RSsyU_mDPEceXePTmJ0iBfjojsu
- 6wl9EPHbcHUENqzGeK0y6xm13gAtR92GQ.C1h9NJdZyqjajHrkH0Odb0MnLuVnEBX8bhl0z7uanY
- b.F.Xx4BtyxeK9n6LUqWIIJxJnlJ28SLsI.OoJD9765zGse8ClzA5vV9BJd5FXguQwPrjipzhdKo
- tzZnQzfydLdnr5JcZCtN.j8L_5wzaKMmmGNFbYWO0vvuNfaS6.7Os9SqWwWUw3fUHx3sHhdgGno2
- TQRtMzDxdWQSI5g4vD3kzBHmMzA5mQZ3fgueZmMczw3g.OP8WtVvoeMWDVYUpDJz7a0zJSJmqpRi
- QDTlZsh0KbaJ7ez.YN3nKTlC7tiLLKOYMnzRgopw.ljvXQuGcYDh02xbbIBp.7mJUSV.mGYmxWEQ
- 4.9CH45rieqwHfoFOItsMGRUe4QYhmycbzG8Y4AZv0hFv_elUTcdgPrsbenZ1_FFjJJhafpeWF7J
- I2RKxiMqg5GQ9Hr.Ifpd1NoFXAv13JxP1GJVHh5Z0VHclcPBmg6VJBrjhE6WlsgZGeycPf3eIA.t
- pOSZL.J77wGARq8Z9Q2L5wv7lyBicWcEv_LIUdvz45N01MQjWE1GmMt.8Qjca.vC9o.G56kbXSg7
- KeX_wgZDOm4G7m6p6bAro0WiRMKczNjTH4WZXx7pIFT6UYGfc8JWTfljCIOtDgeFUV.8uGkn.zZ0
- WPPkcRfiXFq6ft36aGY4jAd6rXjyzh3zsexw3h6aXD6SJ9C4WfUvCxc.62lJUUjx7uZXFSG6GWpI
- 9WCWOLh.zogHV8fahiNXPAlzdh.gFy7Ixjv7v1h9YFXCnEFJrONSjBbT6tDizNubevEDvLMH3.T0
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic313.consmr.mail.ne1.yahoo.com with HTTP; Mon, 30 Mar 2020 02:38:56 +0000
-Received: by smtp423.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA
- ID 0ff86b82b40f8556fdf33f02e5fb3ea4; 
- Mon, 30 Mar 2020 02:38:51 +0000 (UTC)
-Date: Mon, 30 Mar 2020 10:38:40 +0800
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] erofs updates for 5.7-rc1
-Message-ID: <20200330023830.GA5112@hsiangkao-HP-ZHAN-66-Pro-G1>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 48rkqF4NcpzDqcP
+ for <linux-erofs@lists.ozlabs.org>; Tue, 31 Mar 2020 07:40:09 +1100 (AEDT)
+Subject: Re: [GIT PULL] erofs updates for 5.7-rc1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1585600806;
+ bh=cHzfQoKbVQUqHdX+/LrYyMnzkUBykPIX2ElSc3E/KmM=;
+ h=From:In-Reply-To:References:Date:To:Cc:From;
+ b=YcDeCn9GSXm1aCDZN566cLL2fkG7pRnwvJO7+wq5xigfGK9CBKRiPp0a653slMD+1
+ LK2AnFWxUXh+4luqOikeyBMBoUQnvPPuUQq9xIMFUpYWevdR3ou27OmS6yZfPuz3vl
+ sHnPFWcJhcuXhS6D4444uQdXnTcM2SJnJB10lFyc=
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20200330023830.GA5112@hsiangkao-HP-ZHAN-66-Pro-G1>
 References: <20200330023830.GA5112.ref@hsiangkao-HP-ZHAN-66-Pro-G1>
-X-Mailer: WebService/1.1.15555 hermes Apache-HttpAsyncClient/4.1.4
- (Java/1.8.0_242)
+ <20200330023830.GA5112@hsiangkao-HP-ZHAN-66-Pro-G1>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20200330023830.GA5112@hsiangkao-HP-ZHAN-66-Pro-G1>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git
+ tags/erofs-for-5.7-rc1
+X-PR-Tracked-Commit-Id: 20741a6e146cab59745c7f25abf49d891a83f8e9
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 377ad0c28c1df7b0634e697f34bdea8325f39a66
+Message-Id: <158560080684.3259.12757063213872171906.pr-tracker-bot@kernel.org>
+Date: Mon, 30 Mar 2020 20:40:06 +0000
+To: Gao Xiang <hsiangkao@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -100,65 +68,24 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Miao Xie <miaoxie@huawei.com>,
- LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- linux-erofs@lists.ozlabs.org
+ Linus Torvalds <torvalds@linux-foundation.org>, Miao Xie <miaoxie@huawei.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Linus,
+The pull request you sent on Mon, 30 Mar 2020 10:38:40 +0800:
 
-Could you consider this pull request for 5.7-rc1?
+> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-5.7-rc1
 
-Another maintaining updates with a XArray adaptation, several fixes
-for shrinker and corrupted images are ready for this cycle.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/377ad0c28c1df7b0634e697f34bdea8325f39a66
 
-All commits have been stress tested with no noticeable smoke out and
-have been in linux-next as well. This merges cleanly with master.
+Thank you!
 
-Thanks,
-Gao Xiang
-
-The following changes since commit 98d54f81e36ba3bf92172791eba5ca5bd813989b:
-
-  Linux 5.6-rc4 (2020-03-01 16:38:46 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-5.7-rc1
-
-for you to fetch changes up to 20741a6e146cab59745c7f25abf49d891a83f8e9:
-
-  MAINTAINERS: erofs: update my email address (2020-03-28 14:12:33 +0800)
-
-----------------------------------------------------------------
-Changes since last update:
-
- - Convert radix tree usage to XArray;
-
- - Fix shrink scan count on multiple filesystem instances;
-
- - Better handling for specific corrupted images;
-
- - Update my email address in MAINTAINERS.
-
-----------------------------------------------------------------
-Gao Xiang (5):
-      erofs: convert workstn to XArray
-      erofs: correct the remaining shrink objects
-      erofs: use LZ4_decompress_safe() for full decoding
-      erofs: handle corrupted images whose decompressed size less than it'd be
-      MAINTAINERS: erofs: update my email address
-
- MAINTAINERS             |  2 +-
- fs/erofs/decompressor.c | 22 ++++++++----
- fs/erofs/internal.h     |  8 ++---
- fs/erofs/super.c        |  2 +-
- fs/erofs/utils.c        | 90 ++++++++++++++++++-------------------------------
- fs/erofs/zdata.c        | 76 +++++++++++++++++++++--------------------
- 6 files changed, 94 insertions(+), 106 deletions(-)
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
