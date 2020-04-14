@@ -1,95 +1,66 @@
-Return-Path: <SRS0=H13C=55=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=wA7t=56=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26057C2BA19
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Apr 2020 16:49:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 340DDC38A2B
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:19:57 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C90012063A
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Apr 2020 16:49:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D76AF2076D
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:19:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="g2LZasiV";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="G6N26eb/"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C90012063A
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SymO5HGA"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D76AF2076D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 491F275v8BzDqMy
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 02:49:03 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1586796543;
-	bh=kFg+wHDUHmAuDWOSsun71hpT3WgTNsI866dvfPGK13A=;
-	h=Date:To:Subject:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=g2LZasiVn4QZ0ekP6MzlgyRJtTBbgf6WXwNpwwW6oJLKMPbQyS2Gl3FCoXysfT6sH
-	 BZucMPXSlsie24GnAhdlv78KwuOE7yj+yqNWJrVfkju6ypvSx7dmYod5TZ1S+Dsfhq
-	 0JBl8MwoPeKpmUhPFwuhzw7faAqGRcakectO3PbBNMr4mwfKrXRkyLxt7Cnni6W33+
-	 nkfi/T03bL7XWvRC2qnyOKGFFOft/Sg8mReXA8oBYjIMP3PXbWYCQvtWR1FtQBU121
-	 IN+JUYwgRg8A/nDCEYQy551qUiPmpn0coCAGfJiVuvPgzIpTX3q3sdWmgsIduTAlQB
-	 PhjbbYggbOsrQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 491q0p1RMJzDqRg
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Apr 2020 01:19:54 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=66.163.187.59; helo=sonic308-36.consmr.mail.ne1.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+ spf=none (no SPF record) smtp.mailfrom=infradead.org
+ (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
+ envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=reject dis=none) header.from=aol.com
+ dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=G6N26eb/; dkim-atps=neutral
-Received: from sonic308-36.consmr.mail.ne1.yahoo.com
- (sonic308-36.consmr.mail.ne1.yahoo.com [66.163.187.59])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ unprotected) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=SymO5HGA; 
+ dkim-atps=neutral
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 491F1q2gSgzDqLf
- for <linux-erofs@lists.ozlabs.org>; Tue, 14 Apr 2020 02:48:44 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1586796520; bh=bElmMGeGrTv4UdyeT/oxmt1v3extMJthOFW7mXr0BPk=;
- h=Date:From:To:Cc:Subject:References:From:Subject;
- b=G6N26eb/yIVXiQw0qE6W8f1AUrYzP2Vnj639Wh1dRrPcss2DmnvhpM6jv3pahSdqrFPJylW7ww6buFHDad/XWvsA0ORW2x4Pqk2m7Rl3wB//SK75W/34y8J46ioDHOwyfgZuoNAirliNbZMXd2ssFqHczVm6uwjizaz8w4+roui8RAImkHC1G8HM0eLi+lIN+UpXYFFzsHxk0/fpUN7p1G+a08pwx9Q5aXfZHZH6JmyFThQVGq3uLKmzFlPLEIMb4NFQpKquxYjJdjfNPnsB8XJgTLhVI0idEPo/POaX9oGrUXioupjEW8jrcagzTy6jliHX7oUMzGd4K7n/idELdQ==
-X-YMail-OSG: LNqYr_cVM1k37p0BEArws0j2SMpuYOmfY_EMhqarqChYwpxuxB8KFGB5vV9fJsz
- iIhnJb3jaXvCGfE2aSt4doan7aJ6dnzbyn89vnjq_SV8cDsINa2Fqtq5gc4ss64xsowGwGkY0CFL
- bkDlKb.TBuK5i6h5kMoSuaco4ej32E_P1gf2QALa7eJ4GjX3kPp1EPZiOY7t91D7aYL8_D_qdt3H
- vO3CrC3b3OzsJM2iIxCQTrZhgw_xhCgXknUXKldyXSCljK.xwsr6ptXFP0ShFiClnDhnnzQSeb8U
- 8moIDJ0FYYVSUa5fkj9bVqabZrzyVLc1F11Q19S1nCLBWPK3XhvJyJYWLAXyfcB.b.GvP2KFnYxd
- .622OG1af5W_BeM9zU.B0c_zanoiWMHY5iDCE4YL7hr0Z9_vvXrbkIdlZzinFy1cDN.jqFa6Audw
- gINBZnjZwlUDG_kWvj7oLaD6DBTOlN5FSKkY3TqJCvii_60QSyGPbhVDbzMpyoK9WrDLrc9Qdcxv
- vplOG2bPeK6hS1GT4th80ccQjURFsuAX4URg1Ud7Pg.Rgy5_m3ChN8gh_gPG6s6yro2abNq1zTVk
- 5MiCxH5yW6Um1DLHst.PQPVBq0jsOJJINwuE52hU5csMNA1iS878f2XIdgfuJ80uGTw9C0Suq7MV
- jUQPvf7Jn.r0CPz6wIduG5MdgGa5MUc6EaQ9Uk2BgNfahC6Cjhlm1NdcNMBrpoQKcFCw2MeCoqOX
- XtKpIYf0Cwkg3P_imu2PoQSeZEBtLzT7fk1O2mdzN7Add.8_6nITJWcVQ9tLbKVk5cO0HzcmEX7G
- Wk3y05Z.DkCwSpSMcv1Pt2tu2Jm5sCTeBqMvJeRrc0sWL2q8Z_Hv.ZmxNrFPZ7yIhNm3tp7M33Oi
- YUy0yCJ2V8JL71R14dSZ9slsRCO26FHABrYpmPfindFDov.JMXs7_zdnKFTDtVehI.Pf1xUAh8WP
- eGk0o2xRK12vs3jQejL8E3_HS7MSqPRXf9.2YkjO9Mbn3MXzicXwMk00MgoB8EV_tGnMZCtZIwYw
- foZddko11qm3tQQONrDFvdKb9qax0V2OWdPkraYbNgpukrtllXThKRQhV2u34MzH3hmr3_urqUQs
- ClkLC64opRM.mNzxEj.VxatPE83c0L5SREGkqlyOHuHTA9bofUTDAb02wx7mVSNIOH8CIyvO8GS_
- 71HVoS2qnZAM_.wmbp1Lyyow_1hO6MGdI42Gg8O2AH5E5faSJVUDvjfsVcv2SiaiCKIOZvlOKCxX
- v9jYAeL6UkGR0Yy3ugJ6EPuNc1WvWQi9gkbZ6aNb7RshbfeE_dscpY1d691.OuEZa2dVD.of3eIn
- DqS2tCYzshoHXS.Hq5wHrwSAUsFwh12D8q0VPrMoQ3E0aTchM7X7hCVNafw95qXWfliTAppfKhiM
- EUiz_SVqm8in1o_lrVJUImDS0i2fBFlWRye6G2WZC.oU45UJJqcfnqc5_0WiZN8Ktf.JESTnVovd
- BytjHtcq9zOOXZcUjJ_3yQ73uipcIyH3TcxKvspLA2cqw95M.gQwTZc76yQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic308.consmr.mail.ne1.yahoo.com with HTTP; Mon, 13 Apr 2020 16:48:40 +0000
-Received: by smtp424.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
- ID 700b38ef91bca85d70b21427f6befc3c; 
- Mon, 13 Apr 2020 16:46:38 +0000 (UTC)
-Date: Tue, 14 Apr 2020 00:46:08 +0800
-To: linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [ANNOUNCE] erofs-utils: release 1.1
-Message-ID: <20200413164544.GA5578@hsiangkao-HP-ZHAN-66-Pro-G1>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 491pcx0JjtzDqFS
+ for <linux-erofs@lists.ozlabs.org>; Wed, 15 Apr 2020 01:02:40 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=kZSWYbADCDtb2xc4p+R2B9mS5JBLfDUqpyTeSWepChg=; b=SymO5HGAbpe9T0rDtXI9ENlsLW
+ 6EtrIKUCjHAASTMiqKZ24uuNITN+8FrRPz6g4/Rp6VUIcOL7E0Hi84cBqSkXjZtX9ruszUzTeENX/
+ hM70szKkQwJ0ELzpCIFMi1FyqIrt4pmqYy4CbtQkWHCKod//vor6g4KAiB4c4v3cJAHDlhOTLRKfq
+ tJZ8oJM8RUKSwjTFmUSH3lvOG0sEO+iqy6Wb27JG1LEXEi8d07F4eFFopJgKSMNLkVRcp7K9aQLFa
+ laTbMtnVza536VuBoG3ZUofXABiH1+BYwShEgk6AflXbMBs191GBPK3jDkUbf10DEUkGnGSOkQjW0
+ qv23d94Q==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
+ Hat Linux)) id 1jON59-0006O3-Q5; Tue, 14 Apr 2020 15:02:35 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v11 03/25] mm: Ignore return value of ->readpages
+Date: Tue, 14 Apr 2020 08:02:11 -0700
+Message-Id: <20200414150233.24495-4-willy@infradead.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200414150233.24495-1-willy@infradead.org>
+References: <20200414150233.24495-1-willy@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
-References: <20200413164544.GA5578.ref@hsiangkao-HP-ZHAN-66-Pro-G1>
-X-Mailer: WebService/1.1.15620 hermes_aol Apache-HttpAsyncClient/4.1.4
- (Java/11.0.6)
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -101,44 +72,69 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: Lasse Collin <lasse.collin@tukaani.org>,
- LKML <linux-kernel@vger.kernel.org>, Miao Xie <miaoxie@huawei.com>
+Cc: linux-xfs@vger.kernel.org, William Kucharski <william.kucharski@oracle.com>,
+ John Hubbard <jhubbard@nvidia.com>, linux-kernel@vger.kernel.org,
+ "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
+ linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
+ linux-mm@kvack.org, ocfs2-devel@oss.oracle.com,
+ Dave Chinner <dchinner@redhat.com>, linux-fsdevel@vger.kernel.org,
+ linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ Christoph Hellwig <hch@lst.de>, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi folks,
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-A new version erofs-utils 1.1 is available at:
-git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git tags/v1.1
+We used to assign the return value to a variable, which we then ignored.
+Remove the pretence of caring.
 
-It's actually a maintenance release including the following updates:
-  - (mkfs.erofs) add a manual for mkfs.erofs;
-  - (mkfs.erofs) add superblock checksum support;
-  - (mkfs.erofs) add filesystem UUID support;
-  - (mkfs.erofs) add exclude files support;
-  - (mkfs.erofs) fix compiling issues under some specific conditions,
-                 mainly reported by various buildbots;
-  - (mkfs.erofs) minor code cleanups;
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+---
+ mm/readahead.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-EROFS LZMA support is still ongoing, and the previous preliminary
-progress is available at
- https://lore.kernel.org/r/20200229045017.12424-1-hsiangkao@aol.com
-and
- https://lore.kernel.org/r/20200306020252.9041-1-hsiangkao@aol.com
-some minor updates I'd like to send out with the next WIP version.
-
-In addition, as discussed with Lasse before, XZ Utils liblzma would
-probably support fixed-sized output compression officially later
-as well. But it may need some more time then.
-
-Recently I have little time for features due to struggling with my
-upcoming English test which has been greatly impacted (delayed) by
-corona. While I'm still keeping up with community by email and
-available for all potential issues and/or responses if any.
-
-Thanks,
-Gao Xiang
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 41a592886da7..61b15b6b9e72 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -113,17 +113,16 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
+ 
+ EXPORT_SYMBOL(read_cache_pages);
+ 
+-static int read_pages(struct address_space *mapping, struct file *filp,
++static void read_pages(struct address_space *mapping, struct file *filp,
+ 		struct list_head *pages, unsigned int nr_pages, gfp_t gfp)
+ {
+ 	struct blk_plug plug;
+ 	unsigned page_idx;
+-	int ret;
+ 
+ 	blk_start_plug(&plug);
+ 
+ 	if (mapping->a_ops->readpages) {
+-		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
++		mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
+ 		/* Clean up the remaining pages */
+ 		put_pages_list(pages);
+ 		goto out;
+@@ -136,12 +135,9 @@ static int read_pages(struct address_space *mapping, struct file *filp,
+ 			mapping->a_ops->readpage(filp, page);
+ 		put_page(page);
+ 	}
+-	ret = 0;
+ 
+ out:
+ 	blk_finish_plug(&plug);
+-
+-	return ret;
+ }
+ 
+ /*
+-- 
+2.25.1
 
