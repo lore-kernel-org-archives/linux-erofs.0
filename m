@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 458C6C2BA19
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF512C38A2B
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:23:53 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EC2502063A
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:23:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8F7822063A
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2020 15:23:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="mVT1NSNp"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EC2502063A
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="utxnrz3v"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F7822063A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 491q5C3PFrzDqnp
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 Apr 2020 01:23:43 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 491q5N0zRwzDqnG
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Apr 2020 01:23:52 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
  spf=none (no SPF record) smtp.mailfrom=infradead.org
  (client-ip=2607:7c80:54:e::133; helo=bombadil.infradead.org;
@@ -30,32 +30,32 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20170209 header.b=mVT1NSNp; 
+ header.a=rsa-sha256 header.s=bombadil.20170209 header.b=utxnrz3v; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 491pd25t9NzDqWq
+ by lists.ozlabs.org (Postfix) with ESMTPS id 491pd242jxzDqDF
  for <linux-erofs@lists.ozlabs.org>; Wed, 15 Apr 2020 01:02:46 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=wgHaMQ5NgsDKhTvfEwz+JAE6nlgMEKsX9P0uFTq8za0=; b=mVT1NSNp4+99ljtt8f5ensst1H
- BVN9ODww8/c4MKOX1APGFzeneBVLRxMFCc2GXaB3wFMrQtvT87NSC0nLVH4Ir7GVIADnlHy7ruhV9
- d0vpxR70DyLbIhoPTYtmPAAb4YTMvpBUjtmFpAZmFQrAYzrbrHiUMmBebE8LE0QtToKrgBWhXWfl8
- M57DLAhccVC9xC6vdxATVRnAzCSBZFBKkDZNxwlXvmpf9HutyUjq74veM+s5TR2/B6rIxfZiksWyV
- O6La15VtrLxkSJi6lyVR/jl/kkIIbv8f+Le7ZaSJJYx1c3rjAki3fFnbvWkmdr0RyHnInKmW1seFo
- OiLMGEOw==;
+ bh=WfxVIQbzH9o8gavebp1mRU1CPxrl55pCfYyCVUPCjeY=; b=utxnrz3vTeaE2MmO4KHCnLGYE3
+ MY8TBtA84T93LzmFRoxfwGLXp+AnifxNBEOyHkVUt++LE3uFa0N3wrQ+nK5RSU43Ia4XRn+/1K2k+
+ r4j4MH4CtMN/haSqJ64Dvs3gdCAtZpnYlZYMnazXiRjrJJurwomFH1sNMn8MsFrvJA/qDB6icJxIw
+ BXPKVOVd6QrksY7rKyX5iofBaSwRFzD7mr7XhT1dnLg+jqSAoOE8pjI587n6VfT7jYx9/5U/5ihzv
+ c9cG1tYHLDvaqE/AyWcOznXdGGOxCLuTfgf/sOG1tBw0ZXe53z26EPaTvad2escHU84R8pJx/h0+2
+ udGUVreA==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red
- Hat Linux)) id 1jON5A-0006Ox-73; Tue, 14 Apr 2020 15:02:36 +0000
+ Hat Linux)) id 1jON5A-0006Ol-4U; Tue, 14 Apr 2020 15:02:36 +0000
 From: Matthew Wilcox <willy@infradead.org>
 To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v11 14/25] mm: Document why we don't set PageReadahead
-Date: Tue, 14 Apr 2020 08:02:22 -0700
-Message-Id: <20200414150233.24495-15-willy@infradead.org>
+Subject: [PATCH v11 12/25] mm: Move end_index check out of readahead loop
+Date: Tue, 14 Apr 2020 08:02:20 -0700
+Message-Id: <20200414150233.24495-13-willy@infradead.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200414150233.24495-1-willy@infradead.org>
 References: <20200414150233.24495-1-willy@infradead.org>
@@ -73,47 +73,71 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: linux-xfs@vger.kernel.org, William Kucharski <william.kucharski@oracle.com>,
- linux-kernel@vger.kernel.org,
+ John Hubbard <jhubbard@nvidia.com>, linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
  linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
  linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- Christoph Hellwig <hch@lst.de>, linux-btrfs@vger.kernel.org
+ linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-If the page is already in cache, we don't set PageReadahead on it.
+By reducing nr_to_read, we can eliminate this check from inside the loop.
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 Reviewed-by: William Kucharski <william.kucharski@oracle.com>
 ---
- mm/readahead.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ mm/readahead.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/mm/readahead.c b/mm/readahead.c
-index ae231a5312cb..73cb59ed5cff 100644
+index d01531ef9f3c..998fdd23c0b1 100644
 --- a/mm/readahead.c
 +++ b/mm/readahead.c
-@@ -195,9 +195,12 @@ void page_cache_readahead_unbounded(struct address_space *mapping,
+@@ -167,8 +167,6 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 		unsigned long lookahead_size)
+ {
+ 	struct inode *inode = mapping->host;
+-	struct page *page;
+-	unsigned long end_index;	/* The last page we want to read */
+ 	LIST_HEAD(page_pool);
+ 	loff_t isize = i_size_read(inode);
+ 	gfp_t gfp_mask = readahead_gfp_mask(mapping);
+@@ -178,22 +176,26 @@ void __do_page_cache_readahead(struct address_space *mapping,
+ 		._index = index,
+ 	};
+ 	unsigned long i;
++	pgoff_t end_index;	/* The last page we want to read */
  
+ 	if (isize == 0)
+ 		return;
+ 
+-	end_index = ((isize - 1) >> PAGE_SHIFT);
++	end_index = (isize - 1) >> PAGE_SHIFT;
++	if (index > end_index)
++		return;
++	/* Don't read past the page containing the last byte of the file */
++	if (nr_to_read > end_index - index)
++		nr_to_read = end_index - index + 1;
+ 
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+ 	 */
+ 	for (i = 0; i < nr_to_read; i++) {
+-		if (index + i > end_index)
+-			break;
++		struct page *page = xa_load(&mapping->i_pages, index + i);
+ 
+ 		BUG_ON(index + i != rac._index + rac._nr_pages);
+ 
+-		page = xa_load(&mapping->i_pages, index + i);
  		if (page && !xa_is_value(page)) {
  			/*
--			 * Page already present?  Kick off the current batch of
--			 * contiguous pages before continuing with the next
--			 * batch.
-+			 * Page already present?  Kick off the current batch
-+			 * of contiguous pages before continuing with the
-+			 * next batch.  This page may be the one we would
-+			 * have intended to mark as Readahead, but we don't
-+			 * have a stable reference to this page, and it's
-+			 * not worth getting one just for that.
- 			 */
- 			read_pages(&rac, &page_pool, true);
- 			continue;
+ 			 * Page already present?  Kick off the current batch of
 -- 
 2.25.1
 
