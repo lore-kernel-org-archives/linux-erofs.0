@@ -2,101 +2,55 @@ Return-Path: <SRS0=zhC4=7K=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A4FAC433DF
-	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 08:49:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA4B7C433E0
+	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 09:25:28 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DF6DD2075F
-	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 08:49:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gjVgOV6Z";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gjVgOV6Z"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DF6DD2075F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 654E0208E4
+	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 09:25:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 654E0208E4
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 49XhGJ6DgVzDqXb
-	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 18:49:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 49Xj3V0P8pzDqXK
+	for <linux-erofs@archiver.kernel.org>; Thu, 28 May 2020 19:25:26 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=205.139.110.120;
- helo=us-smtp-1.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
+ envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=gjVgOV6Z; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=gjVgOV6Z; 
- dkim-atps=neutral
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [205.139.110.120])
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 49XhG504lXzDqH4
- for <linux-erofs@lists.ozlabs.org>; Thu, 28 May 2020 18:49:31 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1590655766;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:content-type:content-type;
- bh=2pnC083V0pnYzb6yk8o50sOtDplBpj/ICt68p1h9nVg=;
- b=gjVgOV6Z6kELXXpc8QmJIiveJbXugVh2NO3L7YR8pDJFr9mKtPHG/B3VtukclW0U4s8fht
- AF01WYx81LYDrhFbAHupvGtAdJa2vN63dxyy6BMcfy/NmCV/52QW5Lm+ZIeQqpi3cxhMfF
- CGNQHJ8XG2/R/L61R4ei75nKw62jzW4=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1590655766;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:content-type:content-type;
- bh=2pnC083V0pnYzb6yk8o50sOtDplBpj/ICt68p1h9nVg=;
- b=gjVgOV6Z6kELXXpc8QmJIiveJbXugVh2NO3L7YR8pDJFr9mKtPHG/B3VtukclW0U4s8fht
- AF01WYx81LYDrhFbAHupvGtAdJa2vN63dxyy6BMcfy/NmCV/52QW5Lm+ZIeQqpi3cxhMfF
- CGNQHJ8XG2/R/L61R4ei75nKw62jzW4=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-496-XodfZtLoON-yaSBowe7K-g-1; Thu, 28 May 2020 04:49:24 -0400
-X-MC-Unique: XodfZtLoON-yaSBowe7K-g-1
-Received: by mail-pj1-f69.google.com with SMTP id o9so4777328pjw.8
- for <linux-erofs@lists.ozlabs.org>; Thu, 28 May 2020 01:49:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id;
- bh=2pnC083V0pnYzb6yk8o50sOtDplBpj/ICt68p1h9nVg=;
- b=ZvuqWFrpfeXzSKo9orVrZgzkWtW6zHdppYCtZhTHGaY+sjdOhWHpBtZwcWX6bAm+8F
- h8sjczHxsj51YbseryQmoj8AGJDWeoJqUJOELa+RRqlBzLiXg3eXOQep+cTYzgeS5lON
- y4DBktJpbUtCyz5z4X682qx/wReMebBGxrHUSVP57RXw3AgMenONzjuI+5ZJuNlAeTBh
- ksS+LqZ85M6GyuNCv4ex0h2BnF1e2SN3pl7dJJAAKpOsJNJ7eHKO2ud84UL0J+Jp2MqL
- rbpwYcDmpQMmlM0nRlrZf4s5vnUAxs+0c8RYouQp/MY2OGvHLGVAs1pMrE+jkwZG9wBN
- NLdA==
-X-Gm-Message-State: AOAM531CeoGChCpudajH2GMPS9nY3A3laMK16t4zcDYGbC2+HfVeSizt
- yFeOq/iD4rMMxKoUNn9E6LqWGGifZoBxic84KMfhdYGnugV2M54Foj1jSsVR2rnfvzhKl1XS9M7
- eflUg5+4u6zdyT4l5rP57lbTG
-X-Received: by 2002:a17:902:a502:: with SMTP id
- s2mr2517703plq.267.1590655762871; 
- Thu, 28 May 2020 01:49:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzlfbw5cs5+wHYj6N0Z8vXHmqrSjF0itXJonVuBbXoOBY00ULWOzWT03Au0097wsdr6IHNWBA==
-X-Received: by 2002:a17:902:a502:: with SMTP id
- s2mr2517681plq.267.1590655762531; 
- Thu, 28 May 2020 01:49:22 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id q9sm4099712pff.62.2020.05.28.01.49.19
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 May 2020 01:49:22 -0700 (PDT)
-From: Gao Xiang <hsiangkao@redhat.com>
-To: linux-erofs@lists.ozlabs.org,
-	Chao Yu <chao@kernel.org>
-Subject: [PATCH] erofs: suppress false positive last_block warning
-Date: Thu, 28 May 2020 04:48:44 -0400
-Message-Id: <20200528084844.23359-1-hsiangkao@redhat.com>
-X-Mailer: git-send-email 2.18.1
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
+ by lists.ozlabs.org (Postfix) with ESMTPS id 49Xj3N2fQmzDqVq
+ for <linux-erofs@lists.ozlabs.org>; Thu, 28 May 2020 19:25:16 +1000 (AEST)
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.58])
+ by Forcepoint Email with ESMTP id 236CE8628A9E2B396CDF;
+ Thu, 28 May 2020 17:25:09 +0800 (CST)
+Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
+ (10.3.19.207) with Microsoft SMTP Server (TLS) id 14.3.487.0; Thu, 28 May
+ 2020 17:25:06 +0800
+Subject: Re: [PATCH] erofs: suppress false positive last_block warning
+To: Gao Xiang <hsiangkao@redhat.com>, <linux-erofs@lists.ozlabs.org>, Chao Yu
+ <chao@kernel.org>
+References: <20200528084844.23359-1-hsiangkao@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <4bc811ed-f406-1f77-94f7-5e61c4657001@huawei.com>
+Date: Thu, 28 May 2020 17:25:05 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <20200528084844.23359-1-hsiangkao@redhat.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.134.22.195]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -113,45 +67,21 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Andrew mentioned, some rare specific gcc versions could report
-last_block uninitialized warning. Actually last_block doesn't need
-to be uninitialized first from its implementation due to bio == NULL
-condition. After a bio is allocated, last_block will be assigned
-then.
+On 2020/5/28 16:48, Gao Xiang wrote:
+> As Andrew mentioned, some rare specific gcc versions could report
+> last_block uninitialized warning. Actually last_block doesn't need
+> to be uninitialized first from its implementation due to bio == NULL
+> condition. After a bio is allocated, last_block will be assigned
+> then.
+> 
+> The detailed analysis is in this thread [1]. So let's silence those
+> confusing gccs simply.
+> 
+> [1] https://lore.kernel.org/r/20200421072839.GA13867@hsiangkao-HP-ZHAN-66-Pro-G1
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-The detailed analysis is in this thread [1]. So let's silence those
-confusing gccs simply.
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
-[1] https://lore.kernel.org/r/20200421072839.GA13867@hsiangkao-HP-ZHAN-66-Pro-G1
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
----
- fs/erofs/data.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index fc3a8d8064f8..2812645b361e 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -265,7 +265,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
-  */
- static int erofs_raw_access_readpage(struct file *file, struct page *page)
- {
--	erofs_off_t last_block;
-+	erofs_off_t uninitialized_var(last_block);
- 	struct bio *bio;
- 
- 	trace_erofs_readpage(page, true);
-@@ -285,7 +285,7 @@ static int erofs_raw_access_readpages(struct file *filp,
- 				      struct list_head *pages,
- 				      unsigned int nr_pages)
- {
--	erofs_off_t last_block;
-+	erofs_off_t uninitialized_var(last_block);
- 	struct bio *bio = NULL;
- 	gfp_t gfp = readahead_gfp_mask(mapping);
- 	struct page *page = list_last_entry(pages, struct page, lru);
--- 
-2.18.1
-
+Thanks,
