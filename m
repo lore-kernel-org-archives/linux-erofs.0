@@ -2,113 +2,60 @@ Return-Path: <SRS0=QZAy=74=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-10.2 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3811FC433E0
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 08:09:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C59DBC433E0
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 08:45:55 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D7269206E2
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 08:09:29 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MQeAtAU6";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FgpHdlYC"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D7269206E2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7E4062067B
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 08:45:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7E4062067B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 49lkWX0BW9zDqN1
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 18:09:28 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 49llKX6f6jzDqYX
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2020 18:45:52 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=207.211.31.120;
- helo=us-smtp-1.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.190; helo=huawei.com;
+ envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=MQeAtAU6; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FgpHdlYC; 
- dkim-atps=neutral
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
+ dmarc=none (p=none dis=none) header.from=huawei.com
+X-Greylist: delayed 959 seconds by postgrey-1.36 at bilbo;
+ Mon, 15 Jun 2020 18:45:44 AEST
+Received: from huawei.com (szxga04-in.huawei.com [45.249.212.190])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 49lkTM3CJczDqLx
- for <linux-erofs@lists.ozlabs.org>; Mon, 15 Jun 2020 18:07:34 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1592208450;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=BeGGnxeP+9Ph9j16Zyt+G5pj4OrBDsCw7yZLIS0o8yM=;
- b=MQeAtAU65k3uLytcQc7kanJwXCYaRtK3QsGz7IzBwIDJSZWL4oyr/qUlgCsoRJkoINq3O7
- Talg104SV74B1RF+II1dFGNuK4KhHe+eEN4sp/PN68FOu+l+iuC2PbDV3yAGZDUBX4o8Sj
- zzHKYvub6tSIq/VhmqUujdWYBPd8CFM=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1592208451;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=BeGGnxeP+9Ph9j16Zyt+G5pj4OrBDsCw7yZLIS0o8yM=;
- b=FgpHdlYC/gCuPfSEiuPPQmn1HQ5V7sVxdyAUxe9kryGtQ/kC0w5tU96Ws2QjriptkkIffR
- PEwUe7QxINT65NEXlAKJjLIr+kLHa0DMROVdt/VgszxXxT3Esu0kQEPrEC9Xdrkdx7QAzm
- doCjOTA6UdlZm9kw2RY8LgLAeISKy6s=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-491-3GGZJS3sNgWahNq40KMVAA-1; Mon, 15 Jun 2020 04:07:27 -0400
-X-MC-Unique: 3GGZJS3sNgWahNq40KMVAA-1
-Received: by mail-pl1-f199.google.com with SMTP id bh7so10825345plb.2
- for <linux-erofs@lists.ozlabs.org>; Mon, 15 Jun 2020 01:07:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to:user-agent;
- bh=+QGlrYD7CnoOZ2xHryUMQtseNDSspP2GFuEENx6xWTg=;
- b=PomN8jBC7ZUQd1LwICsH69Airphm6bNwtE94ejViBp8L0A2evw5hF3vAWO18mejzFA
- sbRt6/Csjn06HFPVHxMHXaS1Z0EAfyl/VrsiMK2WSM0/HWJfWNZXX9+DYZv5yefCa48I
- tqxvTCJc28s2aumQdcEg46DPO2QkcjY9mxbSubU1NRuvwcmlXwskhlNxkv4Td18XXk8n
- mAzHYWTmf/nWOwm8Dmv2FylPTu2/qMNmdGD28ltnuv7Hx4YYm+ST8JgBYBsqruD/d7wI
- jsgrQ7gs0zHgdgf5x7VD/Q9BY2mz0+0xJnU8YZDb1fv/sew0BZ32blX/gD+QcNodIAFl
- CuFw==
-X-Gm-Message-State: AOAM531heWzRgYbJoJXteFgy+vpkFgr/Z/ilqV9Oy3EMN9xtAj3XN6VN
- zoXOTeAKcmpE8NFWSqqHKsdyAQikYl6bXADh/ZBVN2NCFB04nv3/PFtpKcj11toD/W3jiPTErhr
- f1qI0pPiyVSUqyY6dFgB+Ov+N
-X-Received: by 2002:a17:90a:ad03:: with SMTP id
- r3mr11041329pjq.104.1592208446519; 
- Mon, 15 Jun 2020 01:07:26 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzzQIhf04M46QfAh9dC0OF2x3Gg0pBCHU0ZNkauVlVtPuKKppWZqX7qMQYC9uA7dNku9F6pOQ==
-X-Received: by 2002:a17:90a:ad03:: with SMTP id
- r3mr11041302pjq.104.1592208446284; 
- Mon, 15 Jun 2020 01:07:26 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id o2sm11603522pjp.53.2020.06.15.01.07.22
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Jun 2020 01:07:25 -0700 (PDT)
-Date: Mon, 15 Jun 2020 16:07:14 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Jason Yan <yanaijie@huawei.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 49llKN3PYNzDqXJ
+ for <linux-erofs@lists.ozlabs.org>; Mon, 15 Jun 2020 18:45:40 +1000 (AEST)
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id 22705C249E38EBCC0C97;
+ Mon, 15 Jun 2020 16:29:08 +0800 (CST)
+Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
+ (10.3.19.201) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 15 Jun
+ 2020 16:29:00 +0800
 Subject: Re: [PATCH] erofs: Eliminate usage of uninitialized_var() macro
-Message-ID: <20200615080714.GB25317@xiangao.remote.csb>
+To: Gao Xiang <hsiangkao@redhat.com>, Jason Yan <yanaijie@huawei.com>
 References: <20200615040141.3627746-1-yanaijie@huawei.com>
  <20200615072521.GA25317@xiangao.remote.csb>
  <783fe4f9-fb1f-7f5e-c900-7e30d5c85222@huawei.com>
+ <20200615080714.GB25317@xiangao.remote.csb>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <4319ff76-c61f-e266-354f-83526207c767@huawei.com>
+Date: Mon, 15 Jun 2020 16:29:00 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-In-Reply-To: <783fe4f9-fb1f-7f5e-c900-7e30d5c85222@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=gbk
+In-Reply-To: <20200615080714.GB25317@xiangao.remote.csb>
+Content-Type: text/plain; charset="gbk"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+X-Originating-IP: [10.134.22.195]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -127,63 +74,73 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Jun 15, 2020 at 03:43:09PM +0800, Jason Yan wrote:
+On 2020/6/15 16:07, Gao Xiang wrote:
+> On Mon, Jun 15, 2020 at 03:43:09PM +0800, Jason Yan wrote:
+>>
+>>
+>> �?2020/6/15 15:25, Gao Xiang 写道:
+>>> Hi Jason,
+>>>
+>>> On Mon, Jun 15, 2020 at 12:01:41PM +0800, Jason Yan wrote:
+>>>> This is an effort to eliminate the uninitialized_var() macro[1].
+>>>>
+>>>> The use of this macro is the wrong solution because it forces off ANY
+>>>> analysis by the compiler for a given variable. It even masks "unused
+>>>> variable" warnings.
+>>>>
+>>>> Quoted from Linus[2]:
+>>>>
+>>>> "It's a horrible thing to use, in that it adds extra cruft to the
+>>>> source code, and then shuts up a compiler warning (even the _reliable_
+>>>> warnings from gcc)."
+>>>>
+>>>> The gcc option "-Wmaybe-uninitialized" has been disabled and this change
+>>>> will not produce any warnnings even with "make W=1".
+>>>>
+>>>> [1] https://github.com/KSPP/linux/issues/81
+>>>> [2] https://lore.kernel.org/lkml/CA+55aFz2500WfbKXAx8s67wrm9=yVJu65TpLgN_ybYNv0VEOKA@mail.gmail.com/
+>>>>
+>>>> Cc: Kees Cook <keescook@chromium.org>
+>>>> Cc: Chao Yu <yuchao0@huawei.com>
+>>>> Signed-off-by: Jason Yan <yanaijie@huawei.com>
+>>>> ---
+>>>
+>>> I'm fine with the patch since "-Wmaybe-uninitialized" has been disabled and
+>>> I've also asked Kees for it in private previously.
+>>>
+>>> I still remembered that Kees sent out a treewide patch. Sorry about that
+>>> I don't catch up it... But what is wrong with the original patchset?
+>>>
+>>
+>> Yes, Kees has remind me of that and I will let him handle it. So you can
+>> ignore this patch.
 > 
-> 
-> 在 2020/6/15 15:25, Gao Xiang 写道:
-> > Hi Jason,
-> > 
-> > On Mon, Jun 15, 2020 at 12:01:41PM +0800, Jason Yan wrote:
-> > > This is an effort to eliminate the uninitialized_var() macro[1].
-> > > 
-> > > The use of this macro is the wrong solution because it forces off ANY
-> > > analysis by the compiler for a given variable. It even masks "unused
-> > > variable" warnings.
-> > > 
-> > > Quoted from Linus[2]:
-> > > 
-> > > "It's a horrible thing to use, in that it adds extra cruft to the
-> > > source code, and then shuts up a compiler warning (even the _reliable_
-> > > warnings from gcc)."
-> > > 
-> > > The gcc option "-Wmaybe-uninitialized" has been disabled and this change
-> > > will not produce any warnnings even with "make W=1".
-> > > 
-> > > [1] https://github.com/KSPP/linux/issues/81
-> > > [2] https://lore.kernel.org/lkml/CA+55aFz2500WfbKXAx8s67wrm9=yVJu65TpLgN_ybYNv0VEOKA@mail.gmail.com/
-> > > 
-> > > Cc: Kees Cook <keescook@chromium.org>
-> > > Cc: Chao Yu <yuchao0@huawei.com>
-> > > Signed-off-by: Jason Yan <yanaijie@huawei.com>
-> > > ---
-> > 
-> > I'm fine with the patch since "-Wmaybe-uninitialized" has been disabled and
-> > I've also asked Kees for it in private previously.
-> > 
-> > I still remembered that Kees sent out a treewide patch. Sorry about that
-> > I don't catch up it... But what is wrong with the original patchset?
-> > 
-> 
-> Yes, Kees has remind me of that and I will let him handle it. So you can
-> ignore this patch.
+> Okay, I was just wondering if this part should be send out via EROFS tree
+> for this cycle. However if there was an automatic generated patch by Kees,
+> I think perhaps Linus could pick them out directly. But anyway, both ways
+> are fine with me. ;) Ping me when needed.
 
-Okay, I was just wondering if this part should be send out via EROFS tree
-for this cycle. However if there was an automatic generated patch by Kees,
-I think perhaps Linus could pick them out directly. But anyway, both ways
-are fine with me. ;) Ping me when needed.
+Either way is okay to me.
+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
 Thanks,
-Gao Xiang
 
 > 
 > Thanks,
-> Jason
+> Gao Xiang
 > 
-> > Thanks,
-> > Gao Xiang
-> > 
-> > 
-> > .
-> > 
+>>
+>> Thanks,
+>> Jason
+>>
+>>> Thanks,
+>>> Gao Xiang
+>>>
+>>>
+>>> .
+>>>
+>>
 > 
-
+> .
+> 
