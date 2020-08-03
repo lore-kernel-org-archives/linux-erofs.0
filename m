@@ -1,62 +1,56 @@
-Return-Path: <SRS0=zfql=BK=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=1aD4=BN=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C00A3C433E0
-	for <linux-erofs@archiver.kernel.org>; Fri, 31 Jul 2020 18:48:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4A97C433E3
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2020 12:27:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 867CB22B3F
-	for <linux-erofs@archiver.kernel.org>; Fri, 31 Jul 2020 18:48:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 867CB22B3F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6068A204EC
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2020 12:27:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6068A204EC
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4BJGWW5DCpzDqf4
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Aug 2020 04:48:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4BKxw40QfNzDqVC
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2020 22:27:00 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mga17.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
+ envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=intel.com
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4BJGWP63BtzDqD2
- for <linux-erofs@lists.ozlabs.org>; Sat,  1 Aug 2020 04:48:15 +1000 (AEST)
-IronPort-SDR: KiZprUnIrbClvrUiE/qAkgpSMV6QQUiPz1eOiqwTEzcl7ViZrwg///SyoJKFUL4DyPB6FjxsOB
- MAXygjQwcwVg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9698"; a="131918363"
-X-IronPort-AV: E=Sophos;i="5.75,419,1589266800"; d="scan'208";a="131918363"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
- by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 31 Jul 2020 11:48:13 -0700
-IronPort-SDR: 8ESwd5MehCdpIFcJd1xg4KS/rkjRhBroCij+3rxJ9jopi8xkBDsQpttzh8k2fZxhGQvHTx0HU9
- T20Nyi+eUyPQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,419,1589266800"; d="scan'208";a="323317693"
-Received: from lkp-server01.sh.intel.com (HELO e21119890065) ([10.239.97.150])
- by fmsmga002.fm.intel.com with ESMTP; 31 Jul 2020 11:48:12 -0700
-Received: from kbuild by e21119890065 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1k1a4h-00004i-Az; Fri, 31 Jul 2020 18:48:11 +0000
-Date: Sat, 01 Aug 2020 02:47:47 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- b361b45cc1a1f69d2a6b4b16087d560dcdff9f71
-Message-ID: <5f246753.OXbPZdS4x9KLQE0c%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4BKxvj2Rq6zDqSl
+ for <linux-erofs@lists.ozlabs.org>; Mon,  3 Aug 2020 22:26:37 +1000 (AEST)
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id 6BD612846B9A9A6760EE;
+ Mon,  3 Aug 2020 20:26:27 +0800 (CST)
+Received: from [10.164.122.247] (10.164.122.247) by smtp.huawei.com
+ (10.3.19.203) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 3 Aug 2020
+ 20:26:22 +0800
+Subject: Re: [PATCH] erofs: fix extended inode could cross boundary
+To: Gao Xiang <hsiangkao@redhat.com>, <linux-erofs@lists.ozlabs.org>
+References: <20200729175801.GA23973@xiangao.remote.csb>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <54db9f70-5c4e-8ba4-0a14-ff6b792fe5b4@huawei.com>
+Date: Mon, 3 Aug 2020 20:26:22 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20200729175801.GA23973@xiangao.remote.csb>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.164.122.247]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,89 +62,30 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git  dev-test
-branch HEAD: b361b45cc1a1f69d2a6b4b16087d560dcdff9f71  erofs: remove WQ_CPU_INTENSIVE flag from unbound wq's
+On 2020/7/30 1:58, Gao Xiang wrote:
+> Each ondisk inode should be aligned with inode slot boundary
+> (32-byte alignment) because of nid calculation formula, so all
+> compact inodes (32 byte) cannot across page boundary. However,
+> extended inode is now 64-byte form, which can across page boundary
+> in principle if the location is specified on purpose, although
+> it's hard to be generated by mkfs due to the allocation policy
+> and rarely used by Android use case now mainly for > 4GiB files.
+> 
+> For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
+> be read from disk properly and cause out-of-bound memory read
+> with random value.
+> 
+> Let's fix now.
+> 
+> Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+> Cc: <stable@vger.kernel.org> # 4.19+
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-elapsed time: 725m
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 
-configs tested: 66
-configs skipped: 1
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-c6x                              allyesconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-powerpc                             defconfig
-i386                 randconfig-a005-20200731
-i386                 randconfig-a004-20200731
-i386                 randconfig-a006-20200731
-i386                 randconfig-a002-20200731
-i386                 randconfig-a001-20200731
-i386                 randconfig-a003-20200731
-x86_64               randconfig-a015-20200731
-x86_64               randconfig-a014-20200731
-x86_64               randconfig-a016-20200731
-x86_64               randconfig-a012-20200731
-x86_64               randconfig-a013-20200731
-x86_64               randconfig-a011-20200731
-i386                 randconfig-a016-20200731
-i386                 randconfig-a012-20200731
-i386                 randconfig-a014-20200731
-i386                 randconfig-a015-20200731
-i386                 randconfig-a011-20200731
-i386                 randconfig-a013-20200731
-riscv                            allyesconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                            allmodconfig
-x86_64                                   rhel
-x86_64                           allyesconfig
-x86_64                    rhel-7.6-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                                  kexec
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Thanks,
