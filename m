@@ -1,111 +1,104 @@
-Return-Path: <SRS0=KPXX=BU=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=8tvS=BV=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55825C433DF
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2020 12:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AD76C433E0
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Aug 2020 07:01:38 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 048672070B
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2020 12:16:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2DAC9207DE
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Aug 2020 07:01:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hrzdbe/s";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hrzdbe/s"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 048672070B
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g7Pg5x+T";
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g7Pg5x+T"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2DAC9207DE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4BQFLN69QGzDqTm
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2020 22:16:12 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4BQkJv6PYnzDqSl
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Aug 2020 17:01:35 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=207.211.31.120;
- helo=us-smtp-1.mimecast.com; envelope-from=hsiangkao@redhat.com;
+ smtp.mailfrom=redhat.com (client-ip=205.139.110.61;
+ helo=us-smtp-delivery-1.mimecast.com; envelope-from=hsiangkao@redhat.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=hrzdbe/s; 
+ header.s=mimecast20190719 header.b=g7Pg5x+T; 
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=hrzdbe/s; 
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=g7Pg5x+T; 
  dkim-atps=neutral
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
+ [205.139.110.61])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4BQFLD4vzKzDqJH
- for <linux-erofs@lists.ozlabs.org>; Mon, 10 Aug 2020 22:16:04 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4BQkJg71fKzDqS2
+ for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2020 17:01:22 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597061761;
+ s=mimecast20190719; t=1597129278;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=mFGq01KB6yv2eF3br0aTnbULoIv6iDtWfkD0dwkNAI0=;
- b=hrzdbe/suvHLV690hffor2q7rmmR8ibz7Cn+gLVzp2uZZOB0D5APTSRiQ1N0N5vd6XL2az
- AGnlr/vdXsmoaUq0/looD6mgAh2/NI26xVD6SbNeTNEqsldhp+nlbF3f0ijP3RkiBdRSbL
- /qllBjvgtlWprxfPvSsAHX9rTWsmjGY=
+ to:to:cc:cc:content-type:content-type;
+ bh=TEG2fDTMrT9CyNXx3j58WMIBzVoaSf9PoptkoEoE8fA=;
+ b=g7Pg5x+TuAgbCuWvpUokLGFmn3VgVR8k549Kl5YTlSJjo+M4UNyCiQf//aTelo/bh44YNW
+ lDkjo76uNo+iG7jwFbFjMlqCU3LG0M1AoATDOBcrxHAdop8NaOVylw3W9x6SP4BlTEHLPz
+ qwJxNxiH1869hLbxaRmsMU22MKw1cfw=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597061761;
+ s=mimecast20190719; t=1597129278;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=mFGq01KB6yv2eF3br0aTnbULoIv6iDtWfkD0dwkNAI0=;
- b=hrzdbe/suvHLV690hffor2q7rmmR8ibz7Cn+gLVzp2uZZOB0D5APTSRiQ1N0N5vd6XL2az
- AGnlr/vdXsmoaUq0/looD6mgAh2/NI26xVD6SbNeTNEqsldhp+nlbF3f0ijP3RkiBdRSbL
- /qllBjvgtlWprxfPvSsAHX9rTWsmjGY=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-511-7n76jlKSP_GAHc9L5JxUDA-1; Mon, 10 Aug 2020 08:14:47 -0400
-X-MC-Unique: 7n76jlKSP_GAHc9L5JxUDA-1
-Received: by mail-pf1-f198.google.com with SMTP id y13so7632422pfp.5
- for <linux-erofs@lists.ozlabs.org>; Mon, 10 Aug 2020 05:14:46 -0700 (PDT)
+ to:to:cc:cc:content-type:content-type;
+ bh=TEG2fDTMrT9CyNXx3j58WMIBzVoaSf9PoptkoEoE8fA=;
+ b=g7Pg5x+TuAgbCuWvpUokLGFmn3VgVR8k549Kl5YTlSJjo+M4UNyCiQf//aTelo/bh44YNW
+ lDkjo76uNo+iG7jwFbFjMlqCU3LG0M1AoATDOBcrxHAdop8NaOVylw3W9x6SP4BlTEHLPz
+ qwJxNxiH1869hLbxaRmsMU22MKw1cfw=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-332-Q3Jo4tLFMV6SeaFZzQgfBA-1; Tue, 11 Aug 2020 03:01:14 -0400
+X-MC-Unique: Q3Jo4tLFMV6SeaFZzQgfBA-1
+Received: by mail-pj1-f71.google.com with SMTP id s4so1645796pjq.8
+ for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2020 00:01:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=mFGq01KB6yv2eF3br0aTnbULoIv6iDtWfkD0dwkNAI0=;
- b=Zb3SBMUSIJChpU7tISxqky3xsPvXrHVR+jg5rdOtONh4eXLGOPP+9X2tsrjoRCNknb
- UjB8w6f906Neh8R2J9Q5gmEb35vlGm3ALuIWzSCc5BSoP9JQ6bRvBatPYlcYV+Zhq4iL
- dfUvPcQzZbkWm2KA/73z9Lbh7LarYCRMFYdl7pqTraShZgX6aIShYA7yhtFEbS/KbK+x
- AAxSyoe1+iXb1myfeCEdT9wDqn3CSi3wtjby7kBPc0X+t3gWwysUQdUE6h+Lk22WhGtL
- L3p6YRN12U5swrijzfHZN9nzTopq2v467G1eRWQM8oudd4hTUZU+lBm4jh8Wwcxc34rE
- 9ueQ==
-X-Gm-Message-State: AOAM531cyMJvVI33zH05A+X1IYxQU/zaLK379U8mxUB6TlcOIZonBSZB
- 4zeV58FTvKF3ru3RANMPNwzHfZDU8ezTdT0FoPoyHbqKrBBdHv6xl5pu7upjKrhnOqMgZV+vmZG
- eInytcGaKXMIan+uzKzG8FKcT
-X-Received: by 2002:a17:90a:b78e:: with SMTP id
- m14mr25463848pjr.94.1597061686087; 
- Mon, 10 Aug 2020 05:14:46 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxwzStnT1u0RTwRtZhvrYJsV6+Z8bupkxANdv4pxTA87mAexwynwJf+TvDHVo5R1Izkxqwdlg==
-X-Received: by 2002:a17:90a:b78e:: with SMTP id
- m14mr25463826pjr.94.1597061685829; 
- Mon, 10 Aug 2020 05:14:45 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id;
+ bh=TEG2fDTMrT9CyNXx3j58WMIBzVoaSf9PoptkoEoE8fA=;
+ b=RpUGonIuawi/8viAfwNtbUw//Xuy8u68djA5VxMIrO4au2BO4KWwJuiPKhfJtcBn+5
+ hJr/Etog+7j0FNIggnFJngKglPJh+ed6cUgF4tbXFD8SWAYY9bidzCtSj06enxF51W9R
+ HleV9F9MHmuLpEzDiyMf8zuoQLzmSq5X0nS+2SrQv4Bboqzg6I+rQMycJjvk9DvqpBQZ
+ lpE7VGku6R5uxxX3/AQWx2+9OmgwHmDmRL2ejT0XstxGYdOJaFomdfevvL8DV3x0GMUN
+ kcKZ8YRYsLzXVG9V1WutPGVJbZzHCXFb3kVocp2WXCc/r910jupbRxazAACFbf5m5RDb
+ lU8w==
+X-Gm-Message-State: AOAM533WOfUD2XORqNiVNDKv4hX8TyOP79irIo0JvGkzD1XRLJQROmQ6
+ FE6hhVqRyj9DI4Zs/eMrk5f6W8h61aahrRp0A3fDw1Atm54Bb3+4YEnhb7IywC+m1amFCjJCCAl
+ IVAmqxrIXUDnX3bcfUoAyd5ci
+X-Received: by 2002:a17:902:b417:: with SMTP id
+ x23mr25968239plr.231.1597129273223; 
+ Tue, 11 Aug 2020 00:01:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy/PxAh0tVI6Za7raz5oYvg/ytWr1qauzk4b41fv1H/5Mxa/CRU1ZHv8AgkFi0j4qdCop3bmw==
+X-Received: by 2002:a17:902:b417:: with SMTP id
+ x23mr25968217plr.231.1597129272976; 
+ Tue, 11 Aug 2020 00:01:12 -0700 (PDT)
 Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id a2sm23693831pfh.152.2020.08.10.05.14.42
+ by smtp.gmail.com with ESMTPSA id y19sm24098541pfn.77.2020.08.11.00.01.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 10 Aug 2020 05:14:45 -0700 (PDT)
-Date: Mon, 10 Aug 2020 20:14:34 +0800
+ Tue, 11 Aug 2020 00:01:12 -0700 (PDT)
 From: Gao Xiang <hsiangkao@redhat.com>
-To: Chao Yu <yuchao0@huawei.com>, linmiaohe <linmiaohe@huawei.com>
-Subject: Re: [PATCH] erofs: Convert to use the fallthrough macro
-Message-ID: <20200810121434.GA13109@xiangao.remote.csb>
-References: <1596878486-23499-1-git-send-email-linmiaohe@huawei.com>
- <f8ff563e-3d20-fc44-37ca-7eb05407ddc8@huawei.com>
-MIME-Version: 1.0
-In-Reply-To: <f8ff563e-3d20-fc44-37ca-7eb05407ddc8@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+To: linux-erofs@lists.ozlabs.org,
+	Chao Yu <yuchao0@huawei.com>
+Subject: [PATCH] erofs: avoid duplicated permission check for "trusted." xattrs
+Date: Tue, 11 Aug 2020 15:00:20 +0800
+Message-Id: <20200811070020.6339-1-hsiangkao@redhat.com>
+X-Mailer: git-send-email 2.18.1
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -117,35 +110,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: xiang@kernel.org, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
+Cc: Hongyu Jin <hongyu.jin@unisoc.com>, LKML <linux-kernel@vger.kernel.org>,
+ stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Aug 10, 2020 at 11:39:42AM +0800, Chao Yu wrote:
-> On 2020/8/8 17:21, linmiaohe wrote:
-> > From: Miaohe Lin <linmiaohe@huawei.com>
-> > 
-> > Convert the uses of fallthrough comments to fallthrough macro.
-> > 
-> > Signed-off-by: Hongxiang Lou <louhongxiang@huawei.com>
-> > Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-> 
-> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Don't recheck it since xattr_permission() already
+checks CAP_SYS_ADMIN capability.
 
-Looks good to me too,
+Just follow 5d3ce4f70172 ("f2fs: avoid duplicated permission check for "trusted." xattrs")
 
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
+Reported-by: Hongyu Jin <hongyu.jin@unisoc.com>
+[ Gao Xiang: since it could cause some complex Android overlay
+  permission issue as well on android-5.4+, so it'd be better to
+  backport to 5.4+ rather than pure cleanup on mainline. ]
+Cc: <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+related commit:
+https://android-review.googlesource.com/c/kernel/common/+/1121623/6/fs/xattr.c#b284
 
-(Although it seems some exist discussions here, e.g.,
- https://lore.kernel.org/r/20200708065512.GN2005@dread.disaster.area 
- Will confirm that before the next cycle.)
+ fs/erofs/xattr.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Thanks,
-Gao Xiang
-
-> 
-> Thanks,
-> 
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 87e437e7b34f..f86e3247febc 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -473,8 +473,6 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+ 			return -EOPNOTSUPP;
+ 		break;
+ 	case EROFS_XATTR_INDEX_TRUSTED:
+-		if (!capable(CAP_SYS_ADMIN))
+-			return -EPERM;
+ 		break;
+ 	case EROFS_XATTR_INDEX_SECURITY:
+ 		break;
+-- 
+2.18.1
 
