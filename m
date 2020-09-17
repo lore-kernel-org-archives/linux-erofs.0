@@ -2,57 +2,109 @@ Return-Path: <SRS0=zwGU=C2=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A561EC433E2
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 01:27:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF5FFC433E2
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 02:21:46 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DB55A2072E
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 01:27:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB55A2072E
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id 3EC502072E
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 02:21:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ibVGEe9X";
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ibVGEe9X"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3EC502072E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4BsK8S6lyPzDqhH
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 11:27:36 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4BsLLw3nVdzDqbp
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2020 12:21:44 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
- envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
+ smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
+ helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=huawei.com
-Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
+ dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=ibVGEe9X; 
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ibVGEe9X; 
+ dkim-atps=neutral
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4BsK0n3tDhzDqSB
- for <linux-erofs@lists.ozlabs.org>; Thu, 17 Sep 2020 11:20:57 +1000 (AEST)
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
- by Forcepoint Email with ESMTP id C82E18A2BAD876DB442E;
- Thu, 17 Sep 2020 09:05:30 +0800 (CST)
-Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
- (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.487.0; Thu, 17 Sep
- 2020 09:05:28 +0800
-Subject: Re: [PATCH] erofs: remove unneeded parameter
-To: Gao Xiang <hsiangkao@redhat.com>, Chao Yu <chao@kernel.org>
-References: <20200916140604.3799-1-chao@kernel.org>
- <20200916143304.GA23176@xiangao.remote.csb>
- <20200916143648.GA23921@xiangao.remote.csb>
-From: Chao Yu <yuchao0@huawei.com>
-Message-ID: <72eab76b-0b05-2e0e-d711-8961a254a49a@huawei.com>
-Date: Thu, 17 Sep 2020 09:05:28 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4BsLLh6y0nzDqGN
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Sep 2020 12:21:29 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1600309286;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=N4dsBjdtcU4ASBhl61wjASbXtJpfQbVEgyM+D/rYJHU=;
+ b=ibVGEe9XPpT25cy0iAo07NdxnCbS6CtG+Sl6Dovr4qrbDCuKa6HpJFwkkhh8DO1Tlh9GX5
+ 2XGl/HVz4/dGF7tPVum4FD2r7QXo07QQ1KxBxf3PtMCGJFon6Eho+q3TiJ9wwnJhjZcDLU
+ bcQajraSQfnLElXy0xqFsCC57MCh3/w=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1600309286;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=N4dsBjdtcU4ASBhl61wjASbXtJpfQbVEgyM+D/rYJHU=;
+ b=ibVGEe9XPpT25cy0iAo07NdxnCbS6CtG+Sl6Dovr4qrbDCuKa6HpJFwkkhh8DO1Tlh9GX5
+ 2XGl/HVz4/dGF7tPVum4FD2r7QXo07QQ1KxBxf3PtMCGJFon6Eho+q3TiJ9wwnJhjZcDLU
+ bcQajraSQfnLElXy0xqFsCC57MCh3/w=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-363-EPdrZzreNUqwmHGS-q-bWQ-1; Wed, 16 Sep 2020 22:21:22 -0400
+X-MC-Unique: EPdrZzreNUqwmHGS-q-bWQ-1
+Received: by mail-pg1-f199.google.com with SMTP id a184so490483pgc.16
+ for <linux-erofs@lists.ozlabs.org>; Wed, 16 Sep 2020 19:21:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=N4dsBjdtcU4ASBhl61wjASbXtJpfQbVEgyM+D/rYJHU=;
+ b=q65jkYV5v4z86CLbSPOZ2AIzLlxOJ0+LNupcYI8d+jzdMyCa67s6zzgyStykFFWeou
+ qY+QN53D6gU4XPIOLIPTeXVYl/f2D9/yAXl4NcuYmI+ImqUi4ZCev4E81BUtXFUU52qT
+ 9A7BCkEpSyezmDzOjqhtehqiBGQ8Gi66F6UF9lDS92X11EpRoYpMZO6tNZIS5QamEjb8
+ WfkBhe2qagGYPk4YbLVmRipuZCLzCMajr52s1HxS0SmYCfOU6Wuis+oLBb0nF8S9Vj37
+ fsa1TFF++u6LNaV4rDdGK/HWwy7fO51dbCjShuewuntZ6lCADfVBxl4OIOxnBefc3Div
+ b/Fw==
+X-Gm-Message-State: AOAM530u8BM6BOx2rPYo83DwcTt1YIgsSZuCm6+wXDSkUV8lAgaPm3lL
+ Zg/tZw7CDYN2M3fktiVQg/av9gLOkpguG6g0J/LzCbpgGDqBvq8fVEuSWRhLMDKSoJU9qRw175w
+ uTU4GUAIqJrCSC13dbhl60tHq
+X-Received: by 2002:aa7:9a90:0:b029:142:2501:39e7 with SMTP id
+ w16-20020aa79a900000b0290142250139e7mr9108785pfi.54.1600309281153; 
+ Wed, 16 Sep 2020 19:21:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyeaJVz11MtazIIwXq4sTHziPNu0GZHEoeqcQaC+iA9ZRm+rBmogCojJtJL/NsMAtaxH6rGbA==
+X-Received: by 2002:aa7:9a90:0:b029:142:2501:39e7 with SMTP id
+ w16-20020aa79a900000b0290142250139e7mr9108776pfi.54.1600309280942; 
+ Wed, 16 Sep 2020 19:21:20 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id i17sm18191887pfa.2.2020.09.16.19.21.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 16 Sep 2020 19:21:20 -0700 (PDT)
+Date: Thu, 17 Sep 2020 10:21:10 +0800
+From: Gao Xiang <hsiangkao@redhat.com>
+To: Chao Yu <yuchao0@huawei.com>
+Subject: Re: [PATCH v2] erofs: remove unneeded parameter
+Message-ID: <20200917022110.GA18734@xiangao.remote.csb>
+References: <20200917011821.22767-1-yuchao0@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20200916143648.GA23921@xiangao.remote.csb>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.114.67]
-X-CFilter-Loop: Reflected
+In-Reply-To: <20200917011821.22767-1-yuchao0@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
+X-Mimecast-Spam-Score: 0.002
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,40 +121,24 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Xiang,
-
-On 2020/9/16 22:36, Gao Xiang wrote:
-> On Wed, Sep 16, 2020 at 10:33:04PM +0800, Gao Xiang wrote:
->> Hi Chao,
->>
->> On Wed, Sep 16, 2020 at 10:06:04PM +0800, Chao Yu wrote:
->>> From: Chao Yu <yuchao0@huawei.com>
->>>
->>> In below call path, no page will be cached into @pagepool list
->>> or grabbed from @pagepool list:
->>> - z_erofs_readpage
->>>   - z_erofs_do_read_page
->>>    - preload_compressed_pages
->>>    - erofs_allocpage
->>>
->>> Let's get rid of this unneeded parameter.
->>
->> That would be unneeded after .readahead() is introduced recently
->> (so add_to_page_cache_lru() is also moved to mm code), so I agree
->> with you on it.
+On Thu, Sep 17, 2020 at 09:18:21AM +0800, Chao Yu wrote:
+> After commit 0615090c5044 ("erofs: convert compressed files from
+> readpages to readahead"), add_to_page_cache_lru() was moved to mm
+> code, so that in below call path, no page will be cached into
+> @pagepool list or grabbed from @pagepool list:
+> - z_erofs_readpage
+>  - z_erofs_do_read_page
+>   - preload_compressed_pages
+>   - erofs_allocpage
 > 
-> (cont.)
+> Let's get rid of this unneeded @pagepool parameter.
 > 
-> ... also it'd be better to add such historical reason to the commit
-> message... since it was of some use before...
+> Signed-off-by: Chao Yu <yuchao0@huawei.com>
 
-No problem, let me revise it in v2. :)
+Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
+
+Will apply it later :)
 
 Thanks,
+Gao Xiang
 
-> 
-> Thanks,
-> Gao Xiang
-> 
-> .
-> 
