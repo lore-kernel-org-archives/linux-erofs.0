@@ -2,77 +2,97 @@ Return-Path: <SRS0=aIo8=DM=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2A7CC4363A
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 07:32:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 237ADC4363A
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 08:53:22 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8266C20756
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 07:32:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E13692064C
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 08:53:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mykernel.net header.i=cgxu519@mykernel.net header.b="TIfsumYy"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8266C20756
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mykernel.net
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="QjODL7vd";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="pu1+d6vb"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E13692064C
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C4XNd4cQ7zDqGc
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 18:32:01 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=mykernel.net (client-ip=163.53.93.243;
- helo=sender2-op-o12.zoho.com.cn; envelope-from=cgxu519@mykernel.net;
- receiver=<UNKNOWN>)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C4ZBQ4vptzDqGB
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Oct 2020 19:53:18 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1601887998;
+	bh=YihIIQ901qRNmvQpKZFksI7mfFTei16yXVIkYkkjKjU=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=QjODL7vdumKAL9cU1JdncEwnlJN3/a2hkKcHGo7452Dk8JPh4y9isFKCE2XTTdFY8
+	 0XKuUzo2PslA4bJqtB/hJiMcShJGFIHitQDrHL2GXFwdyNaOezr5+Nu28DXrWYgkiW
+	 QUAayTINXWUd0/jrUFOZSbNMFXQCBYWFQk+f+zi7s7vPyAU3B+YoD8gWXthu6B4IYb
+	 77g3S+ZBneIVVgppFOMlvfSMMjMdTcwmDOdhoVaxe8xoh0s7sqjWU10Gd+wSJ+i5qT
+	 vyJ+Jr2jTTPgD2a0Fw/sJ1G+cvDV8+XrGb5kVBlzjIml+Y7LY8qGDYX00FlBzX5tFK
+	 o6SVaWnZmKlnA==
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=mykernel.net
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=mykernel.net header.i=cgxu519@mykernel.net
- header.a=rsa-sha256 header.s=zohomail header.b=TIfsumYy; 
- dkim-atps=neutral
-X-Greylist: delayed 928 seconds by postgrey-1.36 at bilbo;
- Mon, 05 Oct 2020 18:31:50 AEDT
-Received: from sender2-op-o12.zoho.com.cn (sender2-op-o12.zoho.com.cn
- [163.53.93.243])
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=98.137.66.148; helo=sonic317-22.consmr.mail.gq1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=reject dis=none) header.from=aol.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=pu1+d6vb; dkim-atps=neutral
+Received: from sonic317-22.consmr.mail.gq1.yahoo.com
+ (sonic317-22.consmr.mail.gq1.yahoo.com [98.137.66.148])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C4XNQ23d1zDqFY
- for <linux-erofs@lists.ozlabs.org>; Mon,  5 Oct 2020 18:31:46 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1601882166; cv=none; d=zoho.com.cn; s=zohoarc; 
- b=CkTn9az3Qk8KS1/eFSxngRDs7m3P0dj6XGBpm4VwWz1/4TP3xn0Hpl5RgvBOdMwTv6ZnirrZm08KABwNagnbTriVRmJMzho6PAJSmYZELL8tc94kZ9zUGT6DNRMsgbJQqv6h6AZ45GmoMGkJy7mgfX8sFE5eHK9cQFEmPiYY2hY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zoho.com.cn;
- s=zohoarc; t=1601882166;
- h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To;
- bh=1t0NFyvHXnuE38Ag5hVgN66ANa2MI0MONrLwSKRfZGc=; 
- b=LHfrHnAaNAH+7wWvJJ7WFevyFK4juhQQVD4jYpzZsitoZDZ0rgpKg+ialOwU2cS8AHggzSE2FvROkGYTC5lrePoaNKzSYnFYc7b+gb5PQHBW3Zx+cqmGtfy73cQUGse6xNTJ0ZJuu8t3sCM6/j4e2lkN6mjpaal/tmazD9JQCcc=
-ARC-Authentication-Results: i=1; mx.zoho.com.cn;
- dkim=pass  header.i=mykernel.net;
- spf=pass  smtp.mailfrom=cgxu519@mykernel.net;
- dmarc=pass header.from=<cgxu519@mykernel.net>
- header.from=<cgxu519@mykernel.net>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1601882166; 
- s=zohomail; d=mykernel.net; i=cgxu519@mykernel.net;
- h=From:To:Cc:Message-ID:Subject:Date:MIME-Version:Content-Transfer-Encoding:Content-Type;
- bh=1t0NFyvHXnuE38Ag5hVgN66ANa2MI0MONrLwSKRfZGc=;
- b=TIfsumYyNzPtD+Docwi1vVZ3mSrPeJ+7tUV16e9I4RoPM65WqW4gctnoxqUa0pkx
- 8Rk9XeTPn0ccef5DuIiRleQQ3ZLRfH0Kt5FEcyFg8JhtRuqZQytL2yT0u2pwJFmPb+y
- RO8ubRAR2ZS64UDzn1LPqgRgfp3LY1/Urtgv2kWI=
-Received: from localhost.localdomain (113.87.90.58 [113.87.90.58]) by
- mx.zoho.com.cn with SMTPS id 160188216368511.498811694850588;
- Mon, 5 Oct 2020 15:16:03 +0800 (CST)
-From: Chengguang Xu <cgxu519@mykernel.net>
-To: xiang@kernel.org,
-	chao@kernel.org
-Message-ID: <20201005071550.66193-1-cgxu519@mykernel.net>
-Subject: [PATCH] erofs: remove unnecessary enum entries
-Date: Mon,  5 Oct 2020 15:15:50 +0800
-X-Mailer: git-send-email 2.26.2
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C4ZB13F4fzDqCg
+ for <linux-erofs@lists.ozlabs.org>; Mon,  5 Oct 2020 19:52:54 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
+ t=1601887968; bh=qllqhq2qFQ0qUfvltfxIVnThB1kZtoutyYjeo3HG3g4=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+ b=pu1+d6vblsW31HgyqdbombqviG+86I/7hjRbf/8ueZArHYRh6REQXfmoOmdDkZ1fgc113lfzOSKAxI49otIvO3Towj4gSPYt2kfQ+XKTev07bnSG8mQqpotosk4H/VPx/WSaPi1RRqiDNOtnccdyHqlp61DCiqUVz/3Xvg/vWN+R0TWLctPOTDuqx0xP4g2vfdQkEzH/1CNMZWSBjVgoGINKVT3g3OOmVMHFgOCN+Dy8WM5gB6aeVN9R3OiQSRSIpUj4/oypPG7gkUhBdZkm+RptGeiV2pwvLcGMhS8PNrYGgKe0II8odrnfQUkkHeOqGgo1wOC2xuBI0m2NcW6BAg==
+X-YMail-OSG: GnF556gVM1kjIkNjUkekN_MCBO3T0p9DI7wkrbCUZdKruMk4z6vEkQ1fK1MorqV
+ _04Tcw2WpfeYx8e85HKsci.HqteoefjrYoOSTNfoHoCMOrnslpy4kP5WckAQ1moMqA2tjfIpPpI6
+ m9jWHb63sf6Rgb2oyQtLU_LTRTVk2jXSQg41uRAFnCfSK9k0nVCEhaW2L5Jzz9ByaR5qhr_4oD.e
+ lNH1ATjThTNIlaeWcIydGws7k5RMWyQACFDgpROOTcxp1lfFmOLXs.dY88ZPms4BWMvT4Ithjkjp
+ UbukM8mNcr6s1FkmV7LzvYlcMYPiPVdunvwblptKxQlTnY9aKAV9l.fD9ly9TG7Hvlnp.zaP5YBE
+ bjBD1vygp7WsaGslEmYexrJI65QI7vpPlX_S1OWsfBb6XAbwwcSvJXlNc32vciuvU5obUfPLyOzb
+ Q2pICiaV6RWrJE9tUKXrJDiTX9uElcuvzggU5u_jqIs.y6odgnZXlw4f3_odVsAa5liioq.HamJz
+ dXIxrQj_N1AnoS7qYNXFplobwgciTg9nGxeOnerWmKVpuYPl_DzU5XXtA19ssAtDI3Zdmrbprsdh
+ LxNIWPACCawBdcmtxMHX8CTOkx0yydI.KeiJx3an_281P4wyvTfKcDE3NQxmAYnNRkZadxtlufG1
+ B4tiGhI7js4s6bH7xJK5pamSlZMXBjpUCDkOiO9ZprTcGvcZbKAF8OTbVrsJzn0fMHdy2Npd2n4K
+ cy1pLK8pqerZYbTGsjHaeEWR.td7bjqbw9c7HSs9qZD4qfGljhn_iUfO8t5vSc1V0b37lhT83ePg
+ VoMSIeRiJHNGJrlkZm2tTLDxox0G7NlbVnQqfKsnLoMapiCOXgKaLsTVDhfMOeHvZEuJ9yp1jbSG
+ y63eJ7ZSQwlDQ6zLIHVwDplNqp_MOz_bWjJuDMZGYx1gR8k_Yj.6sc.EmJJHthNraNqKWCj0PbVS
+ hT3r7nHSy8tacA6TcFew5YsMYIbgN1VhGFulo8Th2vQ_fGVfoYUldP13S.1uaB0CU9FqsrekbnXj
+ Pfq5jEeWQDoCkvPMqYiyMMHgn2IZS3JwNnbv4Hy4AZh0C_8ngwO6rFk.NnUvZELbaypk_BTg83nb
+ gt0gzYAwXA9YACMckO5qZCrTdR.J3hQarZvUWW.Q73rLKj2rDjfYqJVdy6IY16fLritSvIrl.ah0
+ _3vVD1_yOI49dKbNsOe7Bwj24wcY.FlpMlmIEm01h5dySMj6kRrPsLgYvegphy8BBgCpJERQy6J4
+ a3dKR.i1k2JoIOTxxx9p7kCK030vcDyBie2NpSWM7v4tddQyUm2JjJvrPizfq1aWfwtE3twcmdBS
+ bIIcvTMf3NVUvebXMZywCuzXYQ5Fxxy9s00bGwsmhS_tKRcI.GEHYncFQkur.XejiUPy69OGwZS.
+ Wp7WhnV9KBRRRIZcC3wMiMiYxifMFjkNuxeScZU23vaxJ.YDPZVlnESo2FkXzqeePWb2sb0r_VhL
+ q3dlIV9nvgXy_lbfCIamD.R7.Zr5Rx40ggusR_tWpsNaW1Q--
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic317.consmr.mail.gq1.yahoo.com with HTTP; Mon, 5 Oct 2020 08:52:48 +0000
+Received: by smtp420.mail.ir2.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
+ ID 279a67c40d1be20734964bc23925dc2c; 
+ Mon, 05 Oct 2020 08:52:42 +0000 (UTC)
+Date: Mon, 5 Oct 2020 16:52:32 +0800
+To: Chengguang Xu <cgxu519@mykernel.net>
+Subject: Re: [PATCH] erofs: remove unnecessary enum entries
+Message-ID: <20201005085230.GA14487@hsiangkao-HP-ZHAN-66-Pro-G1>
+References: <20201005071550.66193-1-cgxu519@mykernel.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-ZohoCNMailClient: External
-Content-Type: text/plain; charset=utf8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201005071550.66193-1-cgxu519@mykernel.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Mailer: WebService/1.1.16718
+ mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
+ Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -84,34 +104,21 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Chengguang Xu <cgxu519@mykernel.net>, linux-erofs@lists.ozlabs.org
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: xiang@kernel.org, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Opt_nouser_xattr and Opt_noacl are useless, so just remove them.
+On Mon, Oct 05, 2020 at 03:15:50PM +0800, Chengguang Xu wrote:
+> Opt_nouser_xattr and Opt_noacl are useless, so just remove them.
+> 
+> Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+> ---
 
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
----
- fs/erofs/super.c | 2 --
- 1 file changed, 2 deletions(-)
+Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index ddaa516c008a..b9a09806512a 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -211,9 +211,7 @@ static void erofs_default_options(struct erofs_fs_conte=
-xt *ctx)
-=20
- enum {
- =09Opt_user_xattr,
--=09Opt_nouser_xattr,
- =09Opt_acl,
--=09Opt_noacl,
- =09Opt_cache_strategy,
- =09Opt_err
- };
---=20
-2.26.2
-
+Thanks,
+Gao Xiang
 
