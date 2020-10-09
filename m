@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 110A7C433E7
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:21:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D82BC433E7
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:22:05 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 78D9922282
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:21:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 78D9922282
+	by mail.kernel.org (Postfix) with ESMTPS id 969A222282
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:22:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 969A222282
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C7LcN36QCzDqnD
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 08:21:56 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C7LcW0dCSzDqmY
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 08:22:03 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.115; helo=mga14.intel.com;
+ smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mga17.intel.com;
  envelope-from=ira.weiny@intel.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=intel.com
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C7Jdd3XgzzDqbk;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C7Jdd3Ym8zDqbq;
  Sat, 10 Oct 2020 06:52:53 +1100 (AEDT)
-IronPort-SDR: 9+xf6xHdalC1iFfl3kyB5rJmvQehIX1AZLdbam99IDNGOBu49JDyNZElYNyKC8+BuJKXN+WoRj
- XXIdyyW/iJxg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="164743969"
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="164743969"
+IronPort-SDR: CsbYt6TYCOTOMtH4M8YRYjidnwqxztvhj/cvDDdoMe7rtVZbZyNesRHvjh8e/n2FIBzDio62+t
+ E+zdCVDKXKOw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="145397510"
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="145397510"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
- by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
  09 Oct 2020 12:52:50 -0700
-IronPort-SDR: raa31ON9t7yf3LIgfzeAsEKPUCppaesVfvBVJ2ruufMJvWsy9JzU1jTdgl2++U0w8tR7AuyOxm
- Q4+3OjaqYbiw==
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="298531317"
+IronPort-SDR: 0rzHuL4N+KM4WVW+vmL+eEj1y192PC4ThPKt2jdycOAoxaq6uEUOpoOJAuFDFbsfnCMTEcEeiF
+ lMErav9d18Iw==
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="419537108"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
- by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Oct 2020 12:52:50 -0700
+ by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Oct 2020 12:52:47 -0700
 From: ira.weiny@intel.com
 To: Andrew Morton <akpm@linux-foundation.org>,
  Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
  Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
  Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH RFC PKS/PMEM 34/58] fs/erofs: Utilize new kmap_thread()
-Date: Fri,  9 Oct 2020 12:50:09 -0700
-Message-Id: <20201009195033.3208459-35-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 33/58] fs/cramfs: Utilize new kmap_thread()
+Date: Fri,  9 Oct 2020 12:50:08 -0700
+Message-Id: <20201009195033.3208459-34-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -82,13 +82,13 @@ Cc: linux-aio@kvack.org, linux-efi@vger.kernel.org, kvm@vger.kernel.org,
  amd-gfx@lists.freedesktop.org, linux-afs@lists.infradead.org,
  cluster-devel@redhat.com, linux-cachefs@redhat.com,
  intel-wired-lan@lists.osuosl.org, xen-devel@lists.xenproject.org,
- Gao Xiang <xiang@kernel.org>, linux-ext4@vger.kernel.org,
- Fenghua Yu <fenghua.yu@intel.com>, ecryptfs@vger.kernel.org,
+ linux-ext4@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
  linux-um@lists.infradead.org, intel-gfx@lists.freedesktop.org,
- linux-erofs@lists.ozlabs.org, reiserfs-devel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
- Dan Williams <dan.j.williams@intel.com>, io-uring@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+ ecryptfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-bcache@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+ io-uring@vger.kernel.org, linux-nfs@vger.kernel.org,
+ Nicolas Pitre <nico@fluxnic.net>, linux-ntfs-dev@lists.sourceforge.net,
  netdev@vger.kernel.org, kexec@lists.infradead.org,
  linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
  linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
@@ -102,58 +102,52 @@ From: Ira Weiny <ira.weiny@intel.com>
 The kmap() calls in this FS are localized to a single thread.  To avoid
 the over head of global PKRS updates use the new kmap_thread() call.
 
-Cc: Gao Xiang <xiang@kernel.org>
-Cc: Chao Yu <chao@kernel.org>
+Cc: Nicolas Pitre <nico@fluxnic.net>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- fs/erofs/super.c | 4 ++--
- fs/erofs/xattr.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/cramfs/inode.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index ddaa516c008a..41696b60f1b3 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -139,7 +139,7 @@ static int erofs_read_superblock(struct super_block *sb)
+diff --git a/fs/cramfs/inode.c b/fs/cramfs/inode.c
+index 912308600d39..003c014a42ed 100644
+--- a/fs/cramfs/inode.c
++++ b/fs/cramfs/inode.c
+@@ -247,8 +247,8 @@ static void *cramfs_blkdev_read(struct super_block *sb, unsigned int offset,
+ 		struct page *page = pages[i];
  
- 	sbi = EROFS_SB(sb);
+ 		if (page) {
+-			memcpy(data, kmap(page), PAGE_SIZE);
+-			kunmap(page);
++			memcpy(data, kmap_thread(page), PAGE_SIZE);
++			kunmap_thread(page);
+ 			put_page(page);
+ 		} else
+ 			memset(data, 0, PAGE_SIZE);
+@@ -826,7 +826,7 @@ static int cramfs_readpage(struct file *file, struct page *page)
  
--	data = kmap(page);
-+	data = kmap_thread(page);
- 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
+ 	maxblock = (inode->i_size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	bytes_filled = 0;
+-	pgdata = kmap(page);
++	pgdata = kmap_thread(page);
  
- 	ret = -EINVAL;
-@@ -189,7 +189,7 @@ static int erofs_read_superblock(struct super_block *sb)
- 	}
- 	ret = 0;
- out:
+ 	if (page->index < maxblock) {
+ 		struct super_block *sb = inode->i_sb;
+@@ -914,13 +914,13 @@ static int cramfs_readpage(struct file *file, struct page *page)
+ 
+ 	memset(pgdata + bytes_filled, 0, PAGE_SIZE - bytes_filled);
+ 	flush_dcache_page(page);
 -	kunmap(page);
 +	kunmap_thread(page);
- 	put_page(page);
- 	return ret;
- }
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index c8c381eadcd6..1771baa99d77 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -20,7 +20,7 @@ static inline void xattr_iter_end(struct xattr_iter *it, bool atomic)
- {
- 	/* the only user of kunmap() is 'init_inode_xattrs' */
- 	if (!atomic)
--		kunmap(it->page);
-+		kunmap_thread(it->page);
- 	else
- 		kunmap_atomic(it->kaddr);
+ 	SetPageUptodate(page);
+ 	unlock_page(page);
+ 	return 0;
  
-@@ -96,7 +96,7 @@ static int init_inode_xattrs(struct inode *inode)
- 	}
- 
- 	/* read in shared xattr array (non-atomic, see kmalloc below) */
--	it.kaddr = kmap(it.page);
-+	it.kaddr = kmap_thread(it.page);
- 	atomic_map = false;
- 
- 	ih = (struct erofs_xattr_ibody_header *)(it.kaddr + it.ofs);
+ err:
+-	kunmap(page);
++	kunmap_thread(page);
+ 	ClearPageUptodate(page);
+ 	SetPageError(page);
+ 	unlock_page(page);
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 
