@@ -7,19 +7,19 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00D4BC433E7
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 22:09:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D40F7C433E7
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 22:10:00 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7AEEE222C3
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 22:09:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7AEEE222C3
+	by mail.kernel.org (Postfix) with ESMTPS id 750F92231B
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 22:10:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 750F92231B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C7Mgh3cmhzDqnx
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 09:09:52 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C7Mgp5p7vzDqv1
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 09:09:58 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=intel.com (client-ip=134.134.136.31; helo=mga06.intel.com;
  envelope-from=ira.weiny@intel.com; receiver=<UNKNOWN>)
@@ -28,32 +28,31 @@ Authentication-Results: lists.ozlabs.org;
 Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C7Jg55tcgzDqY1;
- Sat, 10 Oct 2020 06:54:09 +1100 (AEDT)
-IronPort-SDR: JQDOB7OHqxyQ0oAFgZbPy3XjWcsgcAaqMHUwAi7TIOjMoEoS5JAoS4Zu5dk8/0knFZQBfv0bFt
- 8Mz/JwZ+eW+g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="227179226"
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="227179226"
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C7Jg85mWCzDqLZ;
+ Sat, 10 Oct 2020 06:54:12 +1100 (AEDT)
+IronPort-SDR: JFJ5hRSm2R9ey3XDjVBALwgwSJbqkh4mDHo8N5zvEfyQ8Coxu+hrUabHjQUYfe5uO7x+RsBwmc
+ pLEt0jEhvENQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="227179241"
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="227179241"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Oct 2020 12:54:07 -0700
-IronPort-SDR: src9VKOvZKZdzmhAmOplZF/CbXKWViy2IZEce2k3Dk75HVdMa01qWYEbu8ywq24hGpakhLlrfI
- iYxmJaXcxtuw==
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="519847335"
+ 09 Oct 2020 12:54:10 -0700
+IronPort-SDR: LoljxrxdEbdUiebRGt6guGtjo6SPfpWGHMJuLgTgYB7BeDU8CJtiGau7DzbQyZ+Y5gpHVnCtT5
+ urTwCEpflSRg==
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="343972696"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
- by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Oct 2020 12:54:06 -0700
+ by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Oct 2020 12:54:09 -0700
 From: ira.weiny@intel.com
 To: Andrew Morton <akpm@linux-foundation.org>,
  Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
  Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
  Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH RFC PKS/PMEM 57/58] nvdimm/pmem: Stray access protection for
- pmem->virt_addr
-Date: Fri,  9 Oct 2020 12:50:32 -0700
-Message-Id: <20201009195033.3208459-58-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 58/58] [dax|pmem]: Enable stray access protection
+Date: Fri,  9 Oct 2020 12:50:33 -0700
+Message-Id: <20201009195033.3208459-59-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -100,45 +99,52 @@ Sender: "Linux-erofs"
 
 From: Ira Weiny <ira.weiny@intel.com>
 
-The pmem driver uses a cached virtual address to access its memory
-directly.  Because the nvdimm driver is well aware of the special
-protections it has mapped memory with, we call dev_access_[en|dis]able()
-around the direct pmem->virt_addr (pmem_addr) usage instead of the
-unnecessary overhead of trying to get a page to kmap.
+Protecting against stray writes is particularly important for PMEM
+because, unlike writes to anonymous memory, writes to PMEM persists
+across a reboot.  Thus data corruption could result in permanent loss of
+data.
+
+While stray writes are more serious than reads, protection is also
+enabled for reads.  This helps to detect bugs in code which would
+incorrectly access device memory and prevents a more serious machine
+checks should those bug reads from a poison page.
+
+Enable stray access protection by setting the flag in pgmap which
+requests it.  There is no option presented to the user.  If Zone Device
+Access Protection not be supported this flag will have no affect.
 
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- drivers/nvdimm/pmem.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dax/device.c  | 2 ++
+ drivers/nvdimm/pmem.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
+diff --git a/drivers/dax/device.c b/drivers/dax/device.c
+index 1e89513f3c59..e6fb35b4f0fb 100644
+--- a/drivers/dax/device.c
++++ b/drivers/dax/device.c
+@@ -430,6 +430,8 @@ int dev_dax_probe(struct device *dev)
+ 	}
+ 
+ 	dev_dax->pgmap.type = MEMORY_DEVICE_GENERIC;
++	dev_dax->pgmap.flags |= PGMAP_PROT_ENABLED;
++
+ 	addr = devm_memremap_pages(dev, &dev_dax->pgmap);
+ 	if (IS_ERR(addr))
+ 		return PTR_ERR(addr);
 diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index fab29b514372..e4dc1ae990fc 100644
+index e4dc1ae990fc..9fcd8338e23f 100644
 --- a/drivers/nvdimm/pmem.c
 +++ b/drivers/nvdimm/pmem.c
-@@ -148,7 +148,9 @@ static blk_status_t pmem_do_read(struct pmem_device *pmem,
- 	if (unlikely(is_bad_pmem(&pmem->bb, sector, len)))
- 		return BLK_STS_IOERR;
- 
-+	dev_access_enable(false);
- 	rc = read_pmem(page, page_off, pmem_addr, len);
-+	dev_access_disable(false);
- 	flush_dcache_page(page);
- 	return rc;
- }
-@@ -180,11 +182,13 @@ static blk_status_t pmem_do_write(struct pmem_device *pmem,
- 	 * after clear poison.
- 	 */
- 	flush_dcache_page(page);
-+	dev_access_enable(false);
- 	write_pmem(pmem_addr, page, page_off, len);
- 	if (unlikely(bad_pmem)) {
- 		rc = pmem_clear_poison(pmem, pmem_off, len);
- 		write_pmem(pmem_addr, page, page_off, len);
+@@ -426,6 +426,8 @@ static int pmem_attach_disk(struct device *dev,
+ 		return -EBUSY;
  	}
-+	dev_access_disable(false);
  
- 	return rc;
- }
++	pmem->pgmap.flags |= PGMAP_PROT_ENABLED;
++
+ 	q = blk_alloc_queue(dev_to_node(dev));
+ 	if (!q)
+ 		return -ENOMEM;
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 
