@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F88C433DF
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:38:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 404BAC433E7
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:42:40 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D3AA422282
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:38:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D3AA422282
+	by mail.kernel.org (Postfix) with ESMTPS id B5F8020709
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Oct 2020 21:42:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B5F8020709
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C7Lzr66SdzDqdg
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 08:38:48 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C7M4F6SsKzDqgq
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 08:42:37 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.88; helo=mga01.intel.com;
+ smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com;
  envelope-from=ira.weiny@intel.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=intel.com
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C7JfF0MzrzDqMF;
- Sat, 10 Oct 2020 06:53:22 +1100 (AEDT)
-IronPort-SDR: 2+FeCPXmlfmZl+OHT/vYZUytJ89eGQqU2JHAgR6DKNSGKac2JOIsgyFs00UAfkXY4XB1byAE1h
- 8Lqn1x8IKNhQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="182976427"
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="182976427"
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C7JfJ3gNXzDqJf;
+ Sat, 10 Oct 2020 06:53:28 +1100 (AEDT)
+IronPort-SDR: aDMRjFRdnAsZZ3ggZtR+elR9M3oBso92dbpTTnoqKhxJ94pcLC9XwAkl4H0kdQr0kxOs+wzZ9f
+ jBInZCgVV2fA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9769"; a="250226290"
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="250226290"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
- by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Oct 2020 12:53:19 -0700
-IronPort-SDR: W4xxziDMxkncUnjnfmhtERgTle+fDEBI/syTBEG/tlt++YK2v+9/w8FvvM36z1FzCpPIzrEgyR
- 3zBS2pDk0hzg==
-X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="354959339"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Oct 2020 12:53:26 -0700
+IronPort-SDR: 2ROrwlCi2HA6jb/vbADUiWNpPA9fz//CxLO3iPg6ChQCY2CkDUKdp2BuOf7Z0K54YjJfUTECcl
+ a5kJtnEVjTKQ==
+X-IronPort-AV: E=Sophos;i="5.77,355,1596524400"; d="scan'208";a="329006788"
 Received: from iweiny-desk2.sc.intel.com (HELO localhost) ([10.3.52.147])
- by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Oct 2020 12:53:18 -0700
+ by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Oct 2020 12:53:25 -0700
 From: ira.weiny@intel.com
 To: Andrew Morton <akpm@linux-foundation.org>,
  Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
  Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
  Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH RFC PKS/PMEM 42/58] drivers/scsi: Utilize new kmap_thread()
-Date: Fri,  9 Oct 2020 12:50:17 -0700
-Message-Id: <20201009195033.3208459-43-ira.weiny@intel.com>
+Subject: [PATCH RFC PKS/PMEM 44/58] drivers/xen: Utilize new kmap_thread()
+Date: Fri,  9 Oct 2020 12:50:19 -0700
+Message-Id: <20201009195033.3208459-45-ira.weiny@intel.com>
 X-Mailer: git-send-email 2.28.0.rc0.12.gb6a658bd00c9
 In-Reply-To: <20201009195033.3208459-1-ira.weiny@intel.com>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
@@ -77,23 +77,22 @@ Cc: linux-aio@kvack.org, linux-efi@vger.kernel.org, kvm@vger.kernel.org,
  samba-technical@lists.samba.org, Ira Weiny <ira.weiny@intel.com>,
  ceph-devel@vger.kernel.org, drbd-dev@lists.linbit.com,
  devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
- linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org,
+ Stefano Stabellini <sstabellini@kernel.org>, linux-scsi@vger.kernel.org,
  linux-nvdimm@lists.01.org, linux-rdma@vger.kernel.org, x86@kernel.org,
  amd-gfx@lists.freedesktop.org, linux-afs@lists.infradead.org,
  cluster-devel@redhat.com, linux-cachefs@redhat.com,
  intel-wired-lan@lists.osuosl.org, xen-devel@lists.xenproject.org,
- linux-ext4@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- Fenghua Yu <fenghua.yu@intel.com>, linux-um@lists.infradead.org,
- "James E.J. Bottomley" <jejb@linux.ibm.com>, ecryptfs@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, reiserfs-devel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
+ linux-ext4@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+ linux-um@lists.infradead.org, intel-gfx@lists.freedesktop.org,
+ ecryptfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-bcache@vger.kernel.org, linux-nilfs@vger.kernel.org,
  Dan Williams <dan.j.williams@intel.com>, io-uring@vger.kernel.org,
- linux-nfs@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>,
- linux-ntfs-dev@lists.sourceforge.net, netdev@vger.kernel.org,
- kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
- bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-btrfs@vger.kernel.org
+ linux-nfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+ netdev@vger.kernel.org, kexec@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+ linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
@@ -103,79 +102,28 @@ From: Ira Weiny <ira.weiny@intel.com>
 These kmap() calls are localized to a single thread.  To avoid the over
 head of global PKRS updates use the new kmap_thread() call.
 
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
 Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 ---
- drivers/scsi/ipr.c     | 8 ++++----
- drivers/scsi/pmcraid.c | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/xen/gntalloc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index b0aa58d117cc..a5a0b8feb661 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -3923,9 +3923,9 @@ static int ipr_copy_ucode_buffer(struct ipr_sglist *sglist,
- 			buffer += bsize_elem) {
- 		struct page *page = sg_page(sg);
- 
--		kaddr = kmap(page);
-+		kaddr = kmap_thread(page);
- 		memcpy(kaddr, buffer, bsize_elem);
--		kunmap(page);
-+		kunmap_thread(page);
- 
- 		sg->length = bsize_elem;
- 
-@@ -3938,9 +3938,9 @@ static int ipr_copy_ucode_buffer(struct ipr_sglist *sglist,
- 	if (len % bsize_elem) {
- 		struct page *page = sg_page(sg);
- 
--		kaddr = kmap(page);
-+		kaddr = kmap_thread(page);
- 		memcpy(kaddr, buffer, len % bsize_elem);
--		kunmap(page);
-+		kunmap_thread(page);
- 
- 		sg->length = len % bsize_elem;
+diff --git a/drivers/xen/gntalloc.c b/drivers/xen/gntalloc.c
+index 3fa40c723e8e..3b78e055feff 100644
+--- a/drivers/xen/gntalloc.c
++++ b/drivers/xen/gntalloc.c
+@@ -184,9 +184,9 @@ static int add_grefs(struct ioctl_gntalloc_alloc_gref *op,
+ static void __del_gref(struct gntalloc_gref *gref)
+ {
+ 	if (gref->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
+-		uint8_t *tmp = kmap(gref->page);
++		uint8_t *tmp = kmap_thread(gref->page);
+ 		tmp[gref->notify.pgoff] = 0;
+-		kunmap(gref->page);
++		kunmap_thread(gref->page);
  	}
-diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
-index aa9ae2ae8579..4b05ba4b8a11 100644
---- a/drivers/scsi/pmcraid.c
-+++ b/drivers/scsi/pmcraid.c
-@@ -3269,13 +3269,13 @@ static int pmcraid_copy_sglist(
- 	for (i = 0; i < (len / bsize_elem); i++, sg = sg_next(sg), buffer += bsize_elem) {
- 		struct page *page = sg_page(sg);
- 
--		kaddr = kmap(page);
-+		kaddr = kmap_thread(page);
- 		if (direction == DMA_TO_DEVICE)
- 			rc = copy_from_user(kaddr, buffer, bsize_elem);
- 		else
- 			rc = copy_to_user(buffer, kaddr, bsize_elem);
- 
--		kunmap(page);
-+		kunmap_thread(page);
- 
- 		if (rc) {
- 			pmcraid_err("failed to copy user data into sg list\n");
-@@ -3288,14 +3288,14 @@ static int pmcraid_copy_sglist(
- 	if (len % bsize_elem) {
- 		struct page *page = sg_page(sg);
- 
--		kaddr = kmap(page);
-+		kaddr = kmap_thread(page);
- 
- 		if (direction == DMA_TO_DEVICE)
- 			rc = copy_from_user(kaddr, buffer, len % bsize_elem);
- 		else
- 			rc = copy_to_user(buffer, kaddr, len % bsize_elem);
- 
--		kunmap(page);
-+		kunmap_thread(page);
- 
- 		sg->length = len % bsize_elem;
- 	}
+ 	if (gref->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
+ 		notify_remote_via_evtchn(gref->notify.event);
 -- 
 2.28.0.rc0.12.gb6a658bd00c9
 
