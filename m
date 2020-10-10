@@ -2,96 +2,81 @@ Return-Path: <SRS0=UtWP=DR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E34CC433DF
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 02:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC44C433E7
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 03:08:43 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 62A3C20709
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 02:22:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 62A3C20709
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 51692221FF
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 03:08:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="edx7xet+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 51692221FF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C7THP2M5zzDqw9
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 13:22:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=suse.de
- (client-ip=195.135.220.15; helo=mx2.suse.de; envelope-from=colyli@suse.de;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C7VJS1zpczDqwD
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 14:08:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=nvidia.com (client-ip=216.228.121.143;
+ helo=hqnvemgate24.nvidia.com; envelope-from=jhubbard@nvidia.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=none (p=none dis=none) header.from=suse.de
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ dmarc=pass (p=none dis=none) header.from=nvidia.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=nvidia.com header.i=@nvidia.com header.a=rsa-sha256
+ header.s=n1 header.b=edx7xet+; dkim-atps=neutral
+X-Greylist: delayed 919 seconds by postgrey-1.36 at bilbo;
+ Sat, 10 Oct 2020 14:08:34 AEDT
+Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
+ [216.228.121.143])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C7TFV6dM5zDqrW;
- Sat, 10 Oct 2020 13:20:59 +1100 (AEDT)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id B0EF9AC65;
- Sat, 10 Oct 2020 02:20:53 +0000 (UTC)
-Subject: Re: [PATCH RFC PKS/PMEM 48/58] drivers/md: Utilize new kmap_thread()
-To: ira.weiny@intel.com
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C7VJL1mYCzDqvV
+ for <linux-erofs@lists.ozlabs.org>; Sat, 10 Oct 2020 14:08:33 +1100 (AEDT)
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
+ hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B5f8121a50000>; Fri, 09 Oct 2020 19:51:17 -0700
+Received: from [10.2.51.144] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 10 Oct
+ 2020 02:53:07 +0000
+Subject: Re: [PATCH RFC PKS/PMEM 57/58] nvdimm/pmem: Stray access protection
+ for pmem->virt_addr
+To: <ira.weiny@intel.com>, Andrew Morton <akpm@linux-foundation.org>, "Thomas
+ Gleixner" <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "Borislav
+ Petkov" <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra
+ <peterz@infradead.org>
 References: <20201009195033.3208459-1-ira.weiny@intel.com>
- <20201009195033.3208459-49-ira.weiny@intel.com>
-From: Coly Li <colyli@suse.de>
-Autocrypt: addr=colyli@suse.de; keydata=
- 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
-Message-ID: <c802fbf4-f67a-b205-536d-9c71b440f9c8@suse.de>
-Date: Sat, 10 Oct 2020 10:20:34 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.12.1
+ <20201009195033.3208459-58-ira.weiny@intel.com>
+From: John Hubbard <jhubbard@nvidia.com>
+Message-ID: <bd3f5ece-0e7b-4c15-abbc-1b3b943334dc@nvidia.com>
+Date: Fri, 9 Oct 2020 19:53:07 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-In-Reply-To: <20201009195033.3208459-49-ira.weiny@intel.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20201009195033.3208459-58-ira.weiny@intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1602298277; bh=hKwlK3WolBLUufkeWDHCi6j+X4NXa8gQFiKyGjbOY3s=;
+ h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
+ MIME-Version:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+ b=edx7xet+HWktPTMH7LfazMaeZj84i5/Le7BE3m/9xNKYA9bmh246jZEvn48F/uMcW
+ RRn8BggXdwK6EgYw84fvX6LW3WH/wQjijcVtcfekd8K6KkJdzgyiWWhhWRHsAgsUWu
+ ErO3rgTi0L/NWozRhmjxim3aejVQ7k0j+Xmczu6ahvjgHQEdG1f6IxukspiHHh4eDZ
+ vXW13vRjbU9kKvq3xSMRRweChxuwg1Gt9UWgcBiwICYzh7lbhEKe0zR7+e8y/8iSgu
+ 9o2Hr0ioZGbS1OLU7+SDtKlkAPg/fZiUxFefl5DnOwU2H5+VRhK6GCiKvAXlVbpTMd
+ H8SS1utYxNiTQ==
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -104,27 +89,23 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: linux-aio@kvack.org, linux-efi@vger.kernel.org, kvm@vger.kernel.org,
- linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- linux-mmc@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
- dri-devel@lists.freedesktop.org, linux-mm@kvack.org,
- target-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-kselftest@vger.kernel.org, samba-technical@lists.samba.org,
- Thomas Gleixner <tglx@linutronix.de>, drbd-dev@lists.linbit.com,
- devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
- linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-nvdimm@lists.01.org, linux-rdma@vger.kernel.org, x86@kernel.org,
- ceph-devel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- io-uring@vger.kernel.org, cluster-devel@redhat.com,
- Ingo Molnar <mingo@redhat.com>, intel-wired-lan@lists.osuosl.org,
+ linux-doc@vger.kernel.org, linux-mmc@vger.kernel.org,
+ Dave Hansen <dave.hansen@linux.intel.com>, dri-devel@lists.freedesktop.org,
+ linux-mm@kvack.org, target-devel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-kselftest@vger.kernel.org,
+ samba-technical@lists.samba.org, ceph-devel@vger.kernel.org,
+ drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org,
+ linux-cifs@vger.kernel.org, linux-nilfs@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-nvdimm@lists.01.org,
+ linux-rdma@vger.kernel.org, x86@kernel.org, amd-gfx@lists.freedesktop.org,
+ linux-afs@lists.infradead.org, cluster-devel@redhat.com,
+ linux-cachefs@redhat.com, intel-wired-lan@lists.osuosl.org,
  xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
- Kent Overstreet <kent.overstreet@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>,
- linux-afs@lists.infradead.org, linux-um@lists.infradead.org,
+ Fenghua Yu <fenghua.yu@intel.com>, linux-um@lists.infradead.org,
  intel-gfx@lists.freedesktop.org, ecryptfs@vger.kernel.org,
  linux-erofs@lists.ozlabs.org, reiserfs-devel@vger.kernel.org,
  linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, linux-cachefs@redhat.com,
+ Dan Williams <dan.j.williams@intel.com>, io-uring@vger.kernel.org,
  linux-nfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
  netdev@vger.kernel.org, kexec@lists.infradead.org,
  linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
@@ -134,63 +115,46 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2020/10/10 03:50, ira.weiny@intel.com wrote:
+On 10/9/20 12:50 PM, ira.weiny@intel.com wrote:
 > From: Ira Weiny <ira.weiny@intel.com>
 > 
-> These kmap() calls are localized to a single thread.  To avoid the over
-> head of global PKRS updates use the new kmap_thread() call.
+> The pmem driver uses a cached virtual address to access its memory
+> directly.  Because the nvdimm driver is well aware of the special
+> protections it has mapped memory with, we call dev_access_[en|dis]able()
+> around the direct pmem->virt_addr (pmem_addr) usage instead of the
+> unnecessary overhead of trying to get a page to kmap.
 > 
-
-Hi Ira,
-
-There were a number of options considered.
-
-1) Attempt to change all the thread local kmap() calls to kmap_atomic()
-2) Introduce a flags parameter to kmap() to indicate if the mapping
-should be global or not
-3) Change ~20-30 call sites to 'kmap_global()' to indicate that they
-require a global mapping of the pages
-4) Change ~209 call sites to 'kmap_thread()' to indicate that the
-mapping is to be used within that thread of execution only
-
-
-I copied the above information from patch 00/58 to this message. The
-idea behind kmap_thread() is fine to me, but as you said the new api is
-very easy to be missed in new code (even for me). I would like to be
-supportive to option 2) introduce a flag to kmap(), then we won't forget
-the new thread-localized kmap method, and people won't ask why a
-_thread() function is called but no kthread created.
-
-Thanks.
-
-
-Coly Li
-
-
-
-> Cc: Coly Li <colyli@suse.de> (maintainer:BCACHE (BLOCK LAYER CACHE))
-> Cc: Kent Overstreet <kent.overstreet@gmail.com> (maintainer:BCACHE (BLOCK LAYER CACHE))
 > Signed-off-by: Ira Weiny <ira.weiny@intel.com>
 > ---
->  drivers/md/bcache/request.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>   drivers/nvdimm/pmem.c | 4 ++++
+>   1 file changed, 4 insertions(+)
 > 
-> diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-> index c7cadaafa947..a4571f6d09dd 100644
-> --- a/drivers/md/bcache/request.c
-> +++ b/drivers/md/bcache/request.c
-> @@ -44,10 +44,10 @@ static void bio_csum(struct bio *bio, struct bkey *k)
->  	uint64_t csum = 0;
->  
->  	bio_for_each_segment(bv, bio, iter) {
-> -		void *d = kmap(bv.bv_page) + bv.bv_offset;
-> +		void *d = kmap_thread(bv.bv_page) + bv.bv_offset;
->  
->  		csum = bch_crc64_update(csum, d, bv.bv_len);
-> -		kunmap(bv.bv_page);
-> +		kunmap_thread(bv.bv_page);
->  	}
->  
->  	k->ptr[KEY_PTRS(k)] = csum & (~0ULL >> 1);
-> 
+> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+> index fab29b514372..e4dc1ae990fc 100644
+> --- a/drivers/nvdimm/pmem.c
+> +++ b/drivers/nvdimm/pmem.c
+> @@ -148,7 +148,9 @@ static blk_status_t pmem_do_read(struct pmem_device *pmem,
+>   	if (unlikely(is_bad_pmem(&pmem->bb, sector, len)))
+>   		return BLK_STS_IOERR;
+>   
+> +	dev_access_enable(false);
+>   	rc = read_pmem(page, page_off, pmem_addr, len);
+> +	dev_access_disable(false);
 
+Hi Ira!
+
+The APIs should be tweaked to use a symbol (GLOBAL, PER_THREAD), instead of
+true/false. Try reading the above and you'll see that it sounds like it's
+doing the opposite of what it is ("enable_this(false)" sounds like a clumsy
+API design to *disable*, right?). And there is no hint about the scope.
+
+And it *could* be so much more readable like this:
+
+     dev_access_enable(DEV_ACCESS_THIS_THREAD);
+
+
+
+thanks,
+-- 
+John Hubbard
+NVIDIA
