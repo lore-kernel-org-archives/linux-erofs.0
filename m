@@ -2,84 +2,59 @@ Return-Path: <SRS0=UtWP=DR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF2EC433DF
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 06:58:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C175C433E7
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 07:32:21 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 65DEA207E8
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 06:58:44 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="IKFTIVFz";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=hansenpartnership.com header.i=@hansenpartnership.com header.b="BgjiTham"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65DEA207E8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=HansenPartnership.com
+	by mail.kernel.org (Postfix) with ESMTPS id F244B207CD
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 07:32:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F244B207CD
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C7bPv0mQCzDqw0
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 17:58:43 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C7c8g1dwSzDqw1
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2020 18:32:19 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=hansenpartnership.com (client-ip=66.63.167.143;
- helo=bedivere.hansenpartnership.com;
- envelope-from=james.bottomley@hansenpartnership.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none)
- header.from=HansenPartnership.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- secure) header.d=hansenpartnership.com header.i=@hansenpartnership.com
- header.a=rsa-sha256 header.s=20151216 header.b=IKFTIVFz; 
- dkim=pass (1024-bit key) header.d=hansenpartnership.com
- header.i=@hansenpartnership.com header.a=rsa-sha256 header.s=20151216
- header.b=BgjiTham; dkim-atps=neutral
-Received: from bedivere.hansenpartnership.com (bedivere.hansenpartnership.com
- [66.63.167.143])
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=huawei.com;
+ envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ dmarc=none (p=none dis=none) header.from=huawei.com
+Received: from huawei.com (szxga06-in.huawei.com [45.249.212.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C7bPh1nxnzDqv6;
- Sat, 10 Oct 2020 17:58:31 +1100 (AEDT)
-Received: from localhost (localhost [127.0.0.1])
- by bedivere.hansenpartnership.com (Postfix) with ESMTP id 2492A8EE25D;
- Fri,  9 Oct 2020 19:43:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
- s=20151216; t=1602297797;
- bh=H8TP93foEqN1ktQ8Zvn50X/i2mF1Mo+G3bAPl3laMS8=;
- h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
- b=IKFTIVFzGPRTOXbvF4guFV0idy0d2c5GY0pNpauMNCD265o/8xML504AQiHNNKINI
- 03VTbsdpTlx1IvRxmapAuFqbOyRLRkynjYBLceWgnAFSazyacAGjs/kfFiiin3dxCG
- 9/K3u5C/d7R0kHrIFRdMX77E7sQ6OOI7DSaYWfn4=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
- by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new,
- port 10024)
- with ESMTP id 3vw63n_vJBCB; Fri,  9 Oct 2020 19:43:16 -0700 (PDT)
-Received: from jarvis (c-73-35-198-56.hsd1.wa.comcast.net [73.35.198.56])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 0DE4F8EE120;
- Fri,  9 Oct 2020 19:43:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
- s=20151216; t=1602297796;
- bh=H8TP93foEqN1ktQ8Zvn50X/i2mF1Mo+G3bAPl3laMS8=;
- h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
- b=BgjiThamK3sRChTIWem3VqlcTVcZOY3Z2GNJyIwpezgtDJLGW3IszUxOTE+yoCAWv
- V48K29iXWIdEyZfVjEsU0FSlh3cTrvJt0EqAPo1Ll9Jsfhk5OlUorelNGWOoKpuPOj
- SS1Y94jSiSEug+8lBRnZGZxsf1hZ1ZG8/+ovIeYw=
-Message-ID: <95d137992900152a0453f7ba37771cb9025121fa.camel@HansenPartnership.com>
-Subject: Re: [PATCH RFC PKS/PMEM 22/58] fs/f2fs: Utilize new kmap_thread()
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: Eric Biggers <ebiggers@kernel.org>, ira.weiny@intel.com
-Date: Fri, 09 Oct 2020 19:43:13 -0700
-In-Reply-To: <20201009213434.GA839@sol.localdomain>
-References: <20201009195033.3208459-1-ira.weiny@intel.com>
- <20201009195033.3208459-23-ira.weiny@intel.com>
- <20201009213434.GA839@sol.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C7c8X050CzDqvD
+ for <linux-erofs@lists.ozlabs.org>; Sat, 10 Oct 2020 18:32:07 +1100 (AEDT)
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id 92639645EF79D472F6FF;
+ Sat, 10 Oct 2020 15:31:57 +0800 (CST)
+Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server (TLS) id 14.3.487.0; Sat, 10 Oct
+ 2020 15:31:47 +0800
+Subject: Re: [PATCH v2] AOSP: erofs-utils: add fs_config support
+To: Gao Xiang <hsiangkao@aol.com>, Li Guifu <bluce.lee@aliyun.com>, Li Guifu
+ <bluce.liguifu@huawei.com>, <linux-erofs@lists.ozlabs.org>
+References: <20200928213549.17580-1-hsiangkao@aol.com>
+ <20200929051302.3324-1-hsiangkao@aol.com>
+ <20201007150215.GA30128@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <20201009023048.GA16011@hsiangkao-HP-ZHAN-66-Pro-G1>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <8f2addff-8a46-2cb6-5d72-5a0ba2f96dda@huawei.com>
+Date: Sat, 10 Oct 2020 15:31:47 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
+In-Reply-To: <20201009023048.GA16011@hsiangkao-HP-ZHAN-66-Pro-G1>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.136.114.67]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -91,91 +66,40 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-aio@kvack.org, linux-efi@vger.kernel.org, kvm@vger.kernel.org,
- linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- linux-mmc@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
- dri-devel@lists.freedesktop.org, linux-mm@kvack.org,
- target-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-kselftest@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org,
- linux-cifs@vger.kernel.org, linux-nilfs@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-nvdimm@lists.01.org,
- linux-rdma@vger.kernel.org, x86@kernel.org, amd-gfx@lists.freedesktop.org,
- linux-afs@lists.infradead.org, cluster-devel@redhat.com,
- Ingo Molnar <mingo@redhat.com>, intel-wired-lan@lists.osuosl.org,
- kexec@lists.infradead.org, xen-devel@lists.xenproject.org,
- linux-ext4@vger.kernel.org, bpf@vger.kernel.org,
- Dan Williams <dan.j.williams@intel.com>, Fenghua Yu <fenghua.yu@intel.com>,
- intel-gfx@lists.freedesktop.org, ecryptfs@vger.kernel.org,
- linux-um@lists.infradead.org, reiserfs-devel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org,
- io-uring@vger.kernel.org, linux-cachefs@redhat.com, linux-nfs@vger.kernel.org,
- linux-ntfs-dev@lists.sourceforge.net, netdev@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, samba-technical@lists.samba.org,
- linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, 2020-10-09 at 14:34 -0700, Eric Biggers wrote:
-> On Fri, Oct 09, 2020 at 12:49:57PM -0700, ira.weiny@intel.com wrote:
-> > From: Ira Weiny <ira.weiny@intel.com>
-> > 
-> > The kmap() calls in this FS are localized to a single thread.  To
-> > avoid the over head of global PKRS updates use the new
-> > kmap_thread() call.
-> > 
-> > Cc: Jaegeuk Kim <jaegeuk@kernel.org>
-> > Cc: Chao Yu <chao@kernel.org>
-> > Signed-off-by: Ira Weiny <ira.weiny@intel.com>
-> > ---
-> >  fs/f2fs/f2fs.h | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-> > index d9e52a7f3702..ff72a45a577e 100644
-> > --- a/fs/f2fs/f2fs.h
-> > +++ b/fs/f2fs/f2fs.h
-> > @@ -2410,12 +2410,12 @@ static inline struct page
-> > *f2fs_pagecache_get_page(
-> >  
-> >  static inline void f2fs_copy_page(struct page *src, struct page
-> > *dst)
-> >  {
-> > -	char *src_kaddr = kmap(src);
-> > -	char *dst_kaddr = kmap(dst);
-> > +	char *src_kaddr = kmap_thread(src);
-> > +	char *dst_kaddr = kmap_thread(dst);
-> >  
-> >  	memcpy(dst_kaddr, src_kaddr, PAGE_SIZE);
-> > -	kunmap(dst);
-> > -	kunmap(src);
-> > +	kunmap_thread(dst);
-> > +	kunmap_thread(src);
-> >  }
+On 2020/10/9 10:32, Gao Xiang via Linux-erofs wrote:
+> On Wed, Oct 07, 2020 at 11:02:18PM +0800, Gao Xiang via Linux-erofs wrote:
+>> On Tue, Sep 29, 2020 at 01:13:02PM +0800, Gao Xiang wrote:
+>>> So that mkfs can directly generate images with fs_config.
+>>> All code for AOSP is wraped up with WITH_ANDROID macro.
+>>>
+>>> Signed-off-by: Gao Xiang <hsiangkao@aol.com>
+>>> ---
+>>> changes since v1:
+>>>   - fix compile issues on Android / Linux build;
+>>>   - tested with Android system booting;
+>>
+>> Guifu, some feedback on this?
+>> I'd like to merge it for AOSP preparation.
 > 
-> Wouldn't it make more sense to switch cases like this to
-> kmap_atomic()?
-> The pages are only mapped to do a memcpy(), then they're immediately
-> unmapped.
+> I will merge this if still no response at the end of this
+> week. Since this main logic has already been used by other
+> Android vendors for months and I do need to go forward on
+> AOSP stuff.
 
-On a VIPT/VIVT architecture, this is horrendously wasteful.  You're
-taking something that was mapped at colour c_src mapping it to a new
-address src_kaddr, which is likely a different colour and necessitates
-flushing the original c_src, then you copy it to dst_kaddr, which is
-also likely a different colour from c_dst, so dst_kaddr has to be
-flushed on kunmap and c_dst has to be invalidated on kmap.  What we
-should have is an architectural primitive for doing this, something
-like kmemcopy_arch(dst, src).  PIPT architectures can implement it as
-the above (possibly losing kmap if they don't need it) but VIPT/VIVT
-architectures can set up a correctly coloured mapping so they can
-simply copy from c_src to c_dst without any need to flush and the data
-arrives cache hot at c_dst.
+Good job! :)
 
-James
+Acked-by: Chao Yu <yuchao0@huawei.com>
 
+Thanks,
 
+> 
+> Thanks,
+> Gao Xiang
+> 
+>>
+> .
+> 
