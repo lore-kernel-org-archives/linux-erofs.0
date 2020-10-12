@@ -4,90 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 747A0C433DF
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 00:23:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43337C433E7
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 00:39:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 52C3A20756
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 00:23:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 4DC6F20756
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 00:39:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="PPYjnqr9";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="A3hyUOIQ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 52C3A20756
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="dZZuyVms";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="LWP+gbak"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4DC6F20756
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4C8fXP0pTmzDqs8
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 11:23:01 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4C8fv93gfVzDqs8
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2020 11:39:17 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1602462181;
-	bh=9JI5Vzbyw82X04Levchs85hzWeAeeTPq/1fSq4ZNFiI=;
-	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:From;
-	b=PPYjnqr9f/xiH8yq5VHpO8nKYniMv/pHLqL+oVlCps9ceVqiB8PeLBecMfC9W6LAG
-	 ZTjN2HATV5koDPA0RbusaSNWNyBbGFhlYlnnJPlMbn0J1n72tJw2gKEoWg72p3S/+x
-	 doUh1rG/bMbRWc9poOUWNYEMzKWVE6neGp6VF/rT+QRjGhFPbNBgSnOcTXj6Fqvw4Q
-	 oSuHf8WZDRHFzLkkpv8UzOd8k7LlWEcScKv6Kbs8aDq7DpjRceZ+NJtF2oM3Q17boA
-	 ZmwB4bEpPbpSD9UswuxFWVTzo593r5nsN2hMWlSX36QE+xfr4VQK7daDUszm2ds8Fs
-	 uphTBE5hks34g==
+	s=201707; t=1602463157;
+	bh=EX4pvPD61hKa4uqBMZsKgouGJtmZcKosEHblPNh3bEk=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
+	 From;
+	b=dZZuyVmswlSpvbbPx6SB9bUakArL0d4DEh5iBsZc+2luDgJjwgc9HYbkwzFQL7KAU
+	 84T8o+/wlPgAbUaPs2yOApZn8UjoFz8c1y8lS/ZJmM/gs2yiQ4CAxtx4weLOziDE8L
+	 WuB1UobEJjQhDAsLDu7UkPFISi7+PgOr3+Cvr1p4IVyfvycKrRx6nL3y/fOvcrQCmo
+	 1LLw8GLCGA+LDgbD+LwC1a0yquwYNj9KrGLy7ISwaNBPhi9HMkfs4JzVnHR79DDmkX
+	 Pba8tOFSMfzlFfKwJbL7fAKKtDlX6WhXcI1/6o3lHYEesbTxOraZmaJBRU5Ol9fmY4
+	 EZrKMEqGeVY4Q==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.69.83; helo=sonic314-20.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.64.84; helo=sonic305-21.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=A3hyUOIQ; dkim-atps=neutral
-Received: from sonic314-20.consmr.mail.gq1.yahoo.com
- (sonic314-20.consmr.mail.gq1.yahoo.com [98.137.69.83])
+ header.s=a2048 header.b=LWP+gbak; dkim-atps=neutral
+Received: from sonic305-21.consmr.mail.gq1.yahoo.com
+ (sonic305-21.consmr.mail.gq1.yahoo.com [98.137.64.84])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4C8fXB5yqTzDqqD
- for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2020 11:22:48 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4C8ftz1sG0zDqqD
+ for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2020 11:39:05 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1602462164; bh=Ye/6Go7GuhNU7DvscsGE3NEtwCP4/51Rogf6dNHfAcw=;
- h=From:To:Cc:Subject:Date:References:From:Subject;
- b=A3hyUOIQmfq+/gebvITini4TPSeXm4/Uv58DOMhsA5r41uK5EzLQohAETaaZnHACrJTlpzsPOhI8ZDE3fkLMebHfxOszmG3EcFw04kGWqxN6Oz+6wk67AfS8TizbBTjrqC7AIUOjXmKy4q6LNB+FUo3iuPrhNInTN9CzJ0tFIEHoeVUw2atK4jYBPHv+hYHDvqL7286EZdLNa069Xsq7uxX7fMhhzHA/hUmt9WiqzYlQXPGAw4AMuCBxiAVoE4Hc48DIzCtiGC0pRqLNbXMBxb9jT9XDx2/ikwZYvEv6FYGZ4tef7cQBvVNxleycXYuNBwyhwqOiYegqPH6GOJscFA==
-X-YMail-OSG: .JQ9ngwVM1m5I0Rwk84lCao76P77pmawi8prulVAiAeA.cKjIQSOEcJVXwfpCBb
- k4RDTD2gusqdbLTpm92Wg5R9o6fDJTImDVcpBM2mTYy9W5cTgO7QgZti72r8Mm2Wxc3zLEfr.qjk
- FqELUIDnNQZb2uo2oqbrx4EWCWp96U8tqDgfWsddSRg8j5GiOlPVLySmcCMGZhhcCBTGiNJohCk_
- qO7Qfew8U2yZdMjSfw19SwqeG129e34o84pfDfNPa7j72tZzfSAmEiiDSk2GxNwrmrTICQKrohcE
- IlSG9wqmEHEC.4wF583jj14tuEoh8RSz1j4C0ke8sJ4jVpiQhPVVZhb_oHK44oH9GzrwGoWhG.3l
- HBMVOGg6aL8TVsl7n1r7jeZdY_nCbL7rvFIrXypnta9BXxLfO7aXfGKsSnb3kwWdQYecvm_V6P5z
- IDrUgaSNE2H8Gi9QxcFnPvqwByQASawaqdugnsRySMYp6FdFDy7hP1pPUOWa33B8cDgvKizaoien
- 1.xbo_qNFpSW3fQh7JSG7ljBJ0oUrAvma.ItkusXdfXYcVPJmxqwmvllUANAMnN7mFUL6rgn7wJv
- uVsF1HHm_wJ89ILhL_1t8GmQrlf8lr1Bwu7i25dEFji5U_urYsS1RMKAZhjdKs89HdLtlPHPs5Jo
- fyssP7RwOM8FIV3_Onl40zq_artxXfl8L8RKPh2MQ6MzArX.u1otq7vxB2a6fOs.R0n7aftWGfMM
- 8PozYB2W5RroxwHZkDjlg0Jlg02F_BliDqkxl5mnSilI7B9_AI9K2yVD3N5JXnN6Y_iV8niV_Vjn
- QdHuGKjq2iGQi9yr2qScQJP_NuISjX6GZTTF.jhjk9vbaa6Ud33C90Ll7BitqFh.uLV9_tyoZk8D
- QsuwJ8awZDeT5ug.9LAqW63qa_7S0a.RWcm4iwMjSKsAPjFc_ij.Mu1L6s_X1kiBl4iGDF81Z4iD
- q94TIHbMwaYMaY3YkHaSGZd1Qqexha1xDFk8e2tl7EbWmI933oo8fVGPnFFH_YpgQMCfHh6u2zXZ
- GgKPqIt275A8_qIiVvgQo3wltdXKhh5.ZAcS08fCYtsbTvCzRk8nya7hfLhowARFKd.jF_k51ngJ
- IMFCtmOPiPHXtVYI.UUE.7P6etzhWUcswXt1WsbOAUN1zGGhY8G8xKiRDlIg_9xifuBue4GuDCQF
- dV.3BW8Z6BStZSQQOiWuwKhEP_TMO5oMqKWVpubTViZSUOhwfg2W4K0tKZUFQvaUJuaE8vhDEa6A
- al9MuvizIgofZLO_3ERSXv1jHuGV2gAZrHYb6oA5XNqnBHB9inHVT5gUhIpNtYV1UOWVZ1FjpyUk
- iUWJl6hzxDTPBlI_3rpiFLlognK2QNWSYHZKxxTTFo._6YMb7GT_pI71PhSOx_1NMOSKgP9Fkbko
- 0o_S0N_2_vdC3.Y7Z_V3au3n3hXS5TPiKO0nLlNb_ROvxFgyy3CaA3VlW5bvGb3ouB2bqgIoDvZz
- AMG4mTLOxb4UhCEKEze6ImCNZRk02WPu4HGVHg0zKxeHl9picrJhl_u9nV2iD9GWUcuC_z6sfzA0
- dMY_T8lAX1Q--
+ t=1602463142; bh=s+nu9RMXzt5lSGKWlRH7NpLvEXFQndkB2w0L2lZ5pO0=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject;
+ b=LWP+gbakt/6ACbvqwWErjDqQii+fF93vLlI6wotOrqhh5qW+5yObgX3vbrk3zHAI3qaq2b4f+1e4otZMq3jMdRa16Npc5Cf4n+S0dZFum0cDsAj8JNxN65IcIAxvG/hyYO3U+LuwjS2yqCmyT8yU9C4XojTWk1ZeiUL+v30mSN0zWPLZ8QiLehJHIyhu//9nfLe/ePibqIgJiIylk1a6EpYZS0RMRZ7KjdiDIG2FwJ/onvp7xcofpkoe68jnWNHR5P8iHTCHHDp76XyziAJEgEmot7IEZ+fGoUbNO0YO18wGud6Rv6qUxT1LRZygtt95998Nw4et1yOjNL/T59rlhg==
+X-YMail-OSG: Dz97OBsVM1kdXTDZ2KRYBRFsBxLrYXFrjlEf_Xy9ZTWPNV2cqtqtpKtjgDCOavo
+ 7ZEiNA4Iubpqjuhje6bUsOS82D07yAHDtsA6iOlkgNLOa9P3_aX8t1cCPo2UU3T24pDdaTG4XAvI
+ WQskcRWJfLL_xwQFE0xN3Es4LD4PUNAzU7P4jdw4fob2xz3GGAOBvIKPdCjekI4SYdw3OBTqhRDE
+ 7g_m6L.rJJabvhqoUwzEb7dny13jW5bKv5xUvJUTwcBRiUNST.dYKap21vZDYGrgUmiXy8DnsCE3
+ qY8ZmQ71UO5nOaTaiAdY8xxY6tokxiQJ00l04ZYv.83BVKNErsiPm9WxXxsMrG4rQyF3cvTE_BAo
+ euSKzlEaBrrR_jaA.QbvH_LOLB4.ZOlhqgt56A.Q5cdDmVowHhww6JlJzBcuZuqxWVxqn7Szvv3m
+ QPgrfKV5SNd_DyoIgXMf5bFTVLgYKxnwmH6m9s_LLuyJTeh3.TgR_CX0.XaSutYYFtJgiWuTiQlx
+ rTVbSN1zFi6vSHDhX46SZ4KJsPIizqK2YYJ.2QR.cBIPVvVUsCfdHDQdgsKd_p9Vk2qYrtH_w4BV
+ VdwW3vYTZSt7r0_TpGAfL4rmmUQMMsilerlbe1lDq4FvQ3EEeGOb.5NOP_dS6b9R40DOKun7j_JS
+ BlTvT3RNXP77QMnDtWID47iaPCFeRCjuP.GTmfrtv_xcQb7yxbsXHnxAioyxQKpgGgl491YRba6c
+ YIO67ExXMM28vr_tzr6S4N5m39uTVWC.BEN7e93obMPkVngPqsWW06v7FoVQxWFmvVnKvjejc8hQ
+ VHwkVbBQxqg5aBlTPEH6lLnZo5izpA2eoANTFEdxUd2vrdV2lLcp67c5ZHOyN5bKiH5XGdRb9oLJ
+ MjIOrffU42RzIy5l80gaXG0VdQWFxGxp0unNPxBGRp3_Vti.iB_yB2WEisBBRTVQAuYlTFfROxSC
+ W2uVVXk4mSBl7pssQucUNfokFBIHLmQGTIgCbu0r6doX099zoT85YiDnEY9xKWpUlRo3MfHD5kPF
+ b1SYBADmzTHzb5NZxwhhyEKCnVwYoFK4Vdz6nr0ux7RjhxgZN5YBFESxtgVArAw1atbFNQLZbTAq
+ I4vCnbVOQ5WKA7q4PFO9FWywiUXwy1hPO5mR0aBhHwYMQL_15HtjVD82QOrMwO4U5RPwBrQhmPyx
+ z4XwbwqJhUhhGxXhyrQ5644ko5tiIydKUvFzo853xfT3gaunL44rVa7skLmZINOR2mHciITIns9X
+ gEZ.BZMmUWfdo5dj5lSdRBeMx98eTdq6YKENQPNF8oQFykqKj1FJrxejSPrantNGLgwxxE_p7w1T
+ W4BZ6SyLnKFrPToh_JS7V8e.H6cA8rVlhIz0TMFKqmfS7.NfhOUVz1qEw5xh9ussa7wMC0VEl5Wf
+ 9Lme6yqxcaeDoVD1UU0wEAbQwvsawWHmAi5S.9RJf8DI3Q8OVxsB8F63.EhOuxEBDzRGBxaWxajZ
+ txXF9aNA3AfC_OVdrbZtBLGulYShQYacijjkgYcRtC0qVAk28wEiiEnzxAL2Nv9uu5WdqwqdCpoL
+ umda_v81RyQ--
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic314.consmr.mail.gq1.yahoo.com with HTTP; Mon, 12 Oct 2020 00:22:44 +0000
-Received: by smtp401.mail.ir2.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
- ID 86645acc1ffdeaabdf705b76912c56b5; 
- Mon, 12 Oct 2020 00:22:39 +0000 (UTC)
+ sonic305.consmr.mail.gq1.yahoo.com with HTTP; Mon, 12 Oct 2020 00:39:02 +0000
+Received: by smtp404.mail.ir2.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
+ ID 6560d697440fc141bbc952eeeba38b6b; 
+ Mon, 12 Oct 2020 00:39:00 +0000 (UTC)
 To: linux-erofs@lists.ozlabs.org
 Subject: [PATCH] AOSP: erofs-utils: update usage due to fs_config
-Date: Mon, 12 Oct 2020 08:22:27 +0800
-Message-Id: <20201012002227.1882-1-hsiangkao@aol.com>
+Date: Mon, 12 Oct 2020 08:38:05 +0800
+Message-Id: <20201012003805.4068-1-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20201012002227.1882-1-hsiangkao@aol.com>
+References: <20201012002227.1882-1-hsiangkao@aol.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-References: <20201012002227.1882-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -105,13 +107,15 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-After fs_config support is added, usage() is also needed
-to be updated as well.
+After fs_config support is added, usage() should
+be updated together as well.
 
 Fixes: 8a9e8046f170 ("AOSP: erofs-utils: add fs_config support")
 Cc: Li Guifu <bluce.lee@aliyun.com>
 Signed-off-by: Gao Xiang <hsiangkao@aol.com>
 ---
+v2: fix commit message expression.
+
  mkfs/main.c | 24 +++++++++++++++---------
  1 file changed, 15 insertions(+), 9 deletions(-)
 
