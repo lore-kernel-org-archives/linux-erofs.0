@@ -1,98 +1,96 @@
-Return-Path: <SRS0=NhJ5=D2=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=dBaT=D5=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7817C433DF
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Oct 2020 06:53:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD7E1C388F7
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Oct 2020 14:58:31 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6642422263
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Oct 2020 06:53:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E11AD2463B
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Oct 2020 14:58:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="Ec3qZHBW";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="CgyalStd"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6642422263
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="YC8gTnN8";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=aol.com header.i=@aol.com header.b="KPVI26Pf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E11AD2463B
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
-Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CF6sw3L8qzDqcj
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Oct 2020 17:53:40 +1100 (AEDT)
+Received: from bilbo.ozlabs.org (unknown [IPv6:2401:3900:2:1::3])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CH9Tr5fFKzDqpC
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Oct 2020 01:58:24 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1603090420;
-	bh=LRkzZHN17hATmjXLAfMAsXW0TbdmVf2KNYjICeqqrqE=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=Ec3qZHBWFIbcQSRAleqCXM78coclpCoDCOIcb4zK1bM/JiKFlW9El617BUoBctsda
-	 WDqGM9M8VX7BbpVzbc1xHOY56c5CuUbgspQwiWJ7wBS9r7KCLFh1K9qZcZ9jcRGvgC
-	 RNay+pHSvodzi9rGFADeJzoAutvvsA9bXQwydBezFBZ2BBYWYkI6ewT6UBeSO3FqCz
-	 +AW0IyTFWUgrSHrcvCwLr481LyVGcPUXcysg6XUqMU3Arv9nJsrjt0qg0y4PB9XBcB
-	 P++G8dVzRUFRSbAD08Yh2GTInaT3E7+MvEnnyielBULQ63q76FEZrfUohZqoQ+qY6C
-	 YVSjAAZWqTDMA==
+	s=201707; t=1603378704;
+	bh=qV2byjeQqm0Y5uJUXi6uR0t1KdGPCrZdU/rxhJR9Xv4=;
+	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
+	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=YC8gTnN87qVrh1U7A6YaVSG3txDLCbStR0AMrmnT57iDwDZqxRnWhh3cfdshFzalj
+	 oCeSzzhsUkj+5/y5sqnd4S0Ov6YiHtMQabGb/AuNnYpBigLuxn3FwiFvxIU9nUtVTa
+	 OEl9xNllDZWcHpybhgAoiwIfI3gfBbYND60RP6kxwlajmbmy8sdT1G8QhZJCfMZT9v
+	 J32yiPahrOBU2/oS/4/dQ61KgwE0PGaIaSiG5Jerbj3fqwido9cOwrrvxzwtJ+ngid
+	 2rNev0Nrp4xty+HMyiA2Zy7gL5hTOiQhJMVERGm0J3WbR4aPWIXGu/PPI5TGQIKsee
+	 gMPUFHWdkDxcQ==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.69.84; helo=sonic314-21.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.64.83; helo=sonic305-20.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=reject dis=none) header.from=aol.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=CgyalStd; dkim-atps=neutral
-Received: from sonic314-21.consmr.mail.gq1.yahoo.com
- (sonic314-21.consmr.mail.gq1.yahoo.com [98.137.69.84])
+ header.s=a2048 header.b=KPVI26Pf; dkim-atps=neutral
+Received: from sonic305-20.consmr.mail.gq1.yahoo.com
+ (sonic305-20.consmr.mail.gq1.yahoo.com [98.137.64.83])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CF6sf4mvzzDqGQ
- for <linux-erofs@lists.ozlabs.org>; Mon, 19 Oct 2020 17:53:23 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CH9TH6Q43zDqp7
+ for <linux-erofs@lists.ozlabs.org>; Fri, 23 Oct 2020 01:57:53 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1603090396; bh=CKj+XWC68kL1d4GQCIH7hOI148gOq6xTL2bLNkizx8U=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
- b=CgyalStdO2crt2CB2tJ7ijN3T/DHvEX5acefGcejG4l9I0cFy/OLVXtsp8VOw2NJjghtwohXjxcM76/salDntdzuhNdhudgh1kLHi070al2yDUhLfSCegkyDTgUsFN7WD9lSBWElKVzaNG+vrqGlSZFQpmdrJaFOyyxv96nF2f6lj92mTVZxNPNhRixl1lWDOVB0by8lHogxxgukazHZ9Xj9irX7QSbBIf6Dxz/X/U68D088AeS11V9zgzefQCtbUGYCU7G0jsxwzFjfjDDs/aMEQ82TcTkvA0VodwlFQR3WMAucmZ4ZSiA9EwSh6lJWTNmHhD07X8Zi2kB1Z2dhkQ==
-X-YMail-OSG: h5vzRrAVM1kbCgnFoFcoRthVfG_Y0n0rCC80IXGFoOB71Dna84EDpp5A6.jY4Td
- kqivUT7K5zzABueH_H2ZD0DXPhITKJBIawn6ORRnsjNnBQBtY5Zqbtctnzqs5IA9WH0LUliS3Ptm
- VE4a1g31SVAX1wGFeBWylFtoMCaw8Rc0l8wxkRJ4XPXDAS8z.4ei5A.Q_QC.ynct9jMVKsp7Sqsp
- 3LuEgJoCuyKQ7vgif1SNnIhpuoUI_UReLhtGmyD06IUiO0f4A.1pbu.oAGUQmpC_tT73gW23jXPI
- 1H1087os5LUx8roH5oOxZCmMxkANbzqywQb.uFt198QTTtQw0YhPjhwF5nOQugfGDtxB2Bwhtf5w
- qOIDcVFJuzi613FLD0u7F8KEf2V5XpCkiU7uNuwekKcPsP4fJVnz7RPE6LdPM.7Eze356KfqPd_L
- H.aT5UX489BS_.OSsKWnGF1VexXgNC9WQ1gsrCmIF9vDW8R8z7KvX8kC5xWS_O4cBGezwMnA_I_Q
- NpsYyShrt6QC4foRYwEra9EcvS8sDLSe70pcwo4ni5ePUkezMhJNy3MCH2UniZkjBUeUjm.yd01E
- LnDBtBOUJzYwd5HY9AQsCgHl8k_DJJMCtOMSwHwK2gK_JEglr1Gj9aOP4KCQQSiP4nx8N47bZVMb
- U5ah3tqF9kxVp3w6qisMReE8jL45vihN5pabUVMZZVIVqUvdVyVKehkG2X58IxsT7pDvfI8cwyPC
- 27B1uOhoT23MbROe0ifOpGfUy.pN8l8cVZESYHd43ff8Q4PZbebIEAJj7.cpbAI5z5w0aR.e_FGh
- FUh_RQkXmgUrCHFPuoxBnzFSSutofuYcKkKwj7bUqHXcnwESwqZB2Ql4tjC4EqGo1X8q7olr5PJL
- 4j7iXV_YuD4WC30jyV48rcVtMJIc6dK._bBLjDYSHdeRU8r76IcjE3bUvRFLrAP5EshJvqhBriQx
- u3xLdJ80tf56zWWPVL3o4DFpKEb7c1U_y_ps3pPTd3iQTobZjTw9PaUt2Grh5sms5w7bZoyyyM_E
- bOdqOhPLDWYp9gpxh8Ust0njTwfs_Hx2hDTP5X3Amtr_JCCd80goxK5vKBLxWhwcnqJ3Dyq7mgGB
- KLabBHJoT93xjqfwf0tZ5mS5IQsobtNXhULEXT6jaSxtQpkSdqrRRkeg3VkLtiXXOBOXJ196R_cM
- CfRYbrKKbeiYBA_q9APGEygvBquW6IHyI6hqwyeYaOr9TaPx0xdo6Dn6yamx8TBMaH_QJnsogGs6
- rO_xCpHCuA89BmYBEmw7VgRFi0ol3JvpnuGxM4kRxAPlarowjBeFtHEh2_.S6w0Sqml0MaVX6oQm
- DJkon6dr1jT8d1Qf02ztUWnCE3bWl3JCQb_LtxsJ5X4DISQ7ESeiBSyL4zfIwkeSO6zz8wUcii0Q
- 8NBx9.ZuXZAtCkWf5HFHlemj60YBUza86cTgGd0.iuoP.jv5Q4d2iy9TA0Sj3wtzPDVrhRrNp22h
- dUtsYa1up2F7PTerJPz_hdHJU11WH0lpGRaJkF..f_JAUxDNpCII-
+ t=1603378667; bh=zwvCVywwXJPAfIYLckNHNuWz6WV1ugE9tkAOhdwuh+Q=;
+ h=From:To:Cc:Subject:Date:References:From:Subject;
+ b=KPVI26PfB2zvjqVtYl+hsGKEYFFkRf+eH1d/yODVyn2WtY5864tg5tv1jZs88BGYRRFUv7UMtJAgn9oOJrli2z4kxk9FW8U1aeu/v1GCbexQtmwqToI550kDqeW7FitdpHbM1Rnt5no6OMAEbfcbY1UD7bMLJmTdGdqodmxatzEE04UDvRcgG/dX+dvkrkjsuidb6MEexl+vfMxdnpKXOLtJ9kTuDTXMjMHU/ea1BxlF68bfJOwUZy80bn3cLBQTen7tnUPPgOayxndTMz4sb0D4qOZ2V8JoprotPMbtFJ4EKluDs5DGxB3J9rupGnRcrGmh5S81V/1qi5EeVVZn7Q==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1603378667; bh=kTKfwPtRcMupfOfzpbJghKL1mSB1qE5MJA44VBqlRTg=;
+ h=From:To:Subject:Date;
+ b=Qs3JjbA4fFuSKhEPS5+H1EU0b9INW7Tw3MiIqGeFl19ZK3Y9uIpbe0ZzrAJZfatr8gzr8ZN0bRJM7j04UZWYmx1UT68EjKUm/94Ryy6J0cqhZdZhGlL3CA5OvYogktGb8C5cA41wYq5Jek9YpDy/OosZACKydmfvpMIcLS8U2MqnhX6x0K68Y99gOHs1z4hWZT4S0PJVPgIvh4macgO6CYJWhPr3yH6ju+xH8jXTGOucsQPaiAs1sxyvMURouCeYIy3gPoSXdPHldkUaaq2h1qLDGwDy3gWtlyZkwI7XrokMFGyWLfTbHOt6y2XQnlgPM5qDp8EuOl3SJ2/rln5LWQ==
+X-YMail-OSG: fug733IVM1lyEPsuo0Pa6rWYM16GzXzkRydgiJ58pHeDptLq7cjSa5XN5GxaQZN
+ ST1KP8o6.KOH.R9qw1EcLvgKxTrLzj.cIxclQPlhWVny2o7KBe1YQCNAgc6lLA6f5HAPwHhmKRw3
+ h_1qdm3vk06pqWplzf4rOpOvJlVzV0H1ZpbuESBAZzSenXM76DxED87cKLdiYaoOImR.RxxgryxJ
+ TjJPL6lWcs3lMCFe_pj._5x.x.PYa4hISlcykWAMgYMqx7_qqLM2G_9B2L0pSrBnfzuGdV9TEYv3
+ jobnezwnb6ghBMwrm55OMxvsr6pZtYt.RE1rLHff5KftS.jsGnh_HCQmt4b7gyved5EDWE.56QQQ
+ SN1Z2SCNwUaOQbIOrIqeXrZxoiwY1oaS6m4NBpYXkLw.zpwqt4rFOb7v9PBQk8.p7CB0zg2ifY2.
+ NjSruitUMpXtWCRuBsse7W36A8WOu5gPACTyEmbx1B1o7HrY64rM3iz.3AmCPUdOcat9bQLmPFi8
+ dkWw1B0_jXJaa8vluTSQ.427Q3vZZMH8ph2VyCktMXyDPbPl405WRnasR8u3WJ9lUVBSrO1UZKRP
+ qOnSGU1GMui37SoIebcrLIfmgcd6b729N4SgFQXTfw6lZ7Jjw3G9xyOd54r3RVsCmamZu6F3plpU
+ J2SN5ky8q1_6QGfFxuhZ_Tp.UQlAQHEGaO4uo0KRhVA8fjAvvd_P3MxEphhrNQcKMCaF_u.TIuOo
+ PdRnA0CDcNMqdERrgTV4dQj1g51p2J7GFQYun4IYR_fo2TaQY.W9bK_4_9Pfwn1PUswk4eu0kmjx
+ lt9F.44oxWdmID9gmx0P5gnCWJTuii6PaJxYmwehsJvgRc5q1TUxsI3pHE0xRaGbWcK2EdvrIItR
+ NqGFX8bPgSts7IsgAZptSsP70G1YcSxYylypAXZXpqj0ppqxjc.sc69kG3shn5VuJHe9w8P1rtyH
+ Lbs1yOPISBdoFmGFDByZ3_UR_0uST9IOxmGGP7qmOM6jOED1mjcPRbFSXXXEVJ4kSwzBP2UT6AQI
+ efNbwr6Ss0ebq9c7PopvUYwGR0HKY__RJ5QGcuzZ1iPdxSKOMzS6O80fQCGLUCJSIaE5YrRCk9j7
+ v4tRHFfRPkntp7kQGhJVJIiTVvZBh1n89y1yGlusLRq.NkxffBefsv7RIseCzrOwjtdYjPFAZjPG
+ nDpNr2ySlDncrpQxU_1PXYUtUkA_SHfqxXBA9ySIlM8gw2lmriZzdwJrJ_VLdVqDhA5OOicw6aXf
+ RIMCy4KtVj9vfUVUeaTr62OPro6PV9HrujpQoV23PxTMRvIrdwibOcwTbcC_1pCFJNHCASTO9QX9
+ kTWSzRvACdGcYjQaL50c8Vx8f0DaAecPusGzMNSMbGFpmd7x6lyef7xY.OsGRoXdg.MWdlwS9Mac
+ rXzTwCKJEbh6voo9NsL6fZZAWrcOiw01l2HQlKlnnk_BEMi_ZqHmjZQqOyEAccSm_cu2.6NDxlOn
+ 9yWAAfXq88vz7ePnu4293IsmTX7hbPX9QUajS
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic314.consmr.mail.gq1.yahoo.com with HTTP; Mon, 19 Oct 2020 06:53:16 +0000
-Received: by smtp404.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
- ID 7215aa1fac895b568ea789aed290417e; 
- Mon, 19 Oct 2020 06:53:14 +0000 (UTC)
-Date: Mon, 19 Oct 2020 14:53:08 +0800
-To: Huang Jianan <jnhuang95@gmail.com>
-Subject: Re: [PATCH] erofs-utils: fuse: fix the clerical error in ASSERT
-Message-ID: <20201019065302.GA23392@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20201019044921.124654-1-huangjianan@oppo.com>
+ sonic305.consmr.mail.gq1.yahoo.com with HTTP; Thu, 22 Oct 2020 14:57:47 +0000
+Received: by smtp401.mail.ir2.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
+ ID 354b2034a70b817070abfec37b60849b; 
+ Thu, 22 Oct 2020 14:57:44 +0000 (UTC)
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 1/4] erofs: fix setting up pcluster for temporary pages
+Date: Thu, 22 Oct 2020 22:57:21 +0800
+Message-Id: <20201022145724.27284-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201019044921.124654-1-huangjianan@oppo.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Mailer: WebService/1.1.16868
- mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
- Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
+Content-Transfer-Encoding: 8bit
+References: <20201022145724.27284-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -106,47 +104,42 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
 Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: guoweichao@oppo.com, linux-erofs@lists.ozlabs.org, zhangshiming@oppo.com
+Cc: stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Oct 19, 2020 at 12:49:21PM +0800, Huang Jianan wrote:
-> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-> ---
->  fuse/read.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fuse/read.c b/fuse/read.c
-> index fd70a2a..e2f967a 100644
-> --- a/fuse/read.c
-> +++ b/fuse/read.c
-> @@ -120,7 +120,7 @@ size_t erofs_read_data_compression(struct erofs_vnode *vnode, char *buffer,
->  			length = end - map.m_la;
->  			partial = true;
->  		} else {
-> -			ASSERT(end == map.m_la + map_m_llen);
-> +			ASSERT(end == map.m_la + map.m_llen);
->  			length = map.m_llen;
->  			partial = !(map.m_flags & EROFS_MAP_FULL_MAPPED);
->  		}
-> -- 
-> 2.25.1
-> 
+From: Gao Xiang <hsiangkao@redhat.com>
 
-Reviewed-by: Gao Xiang <hsiangkao@aol.com>
+pcluster should be only set up for all managed pages instead of
+temporary pages. Since it currently uses page->mapping to identify,
+the impact is minor for now.
 
-Thanks, I will fold this in to the original patch.
+Fixes: 5ddcee1f3a1c ("erofs: get rid of __stagingpage_alloc helper")
+Cc: <stable@vger.kernel.org> # 5.5+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+ fs/erofs/zdata.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-btw, if we merge the erofsfuse codebase to the master branch
-eventually, the following matters should be be done in advance
-(if you have some extra time or interest):
- - get rid of customized error reporting, use erofs_xxx instead;
- - get rid of erofs_vnode, ..., use erofs_inode instead;
- - further clean up.
-
-and I will keep working on this as well.
-
-Thanks,
-Gao Xiang
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 50912a5420b4..86fd3bf62af6 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1078,8 +1078,11 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
+ 		cond_resched();
+ 		goto repeat;
+ 	}
+-	set_page_private(page, (unsigned long)pcl);
+-	SetPagePrivate(page);
++
++	if (tocache) {
++		set_page_private(page, (unsigned long)pcl);
++		SetPagePrivate(page);
++	}
+ out:	/* the only exit (for tracing and debugging) */
+ 	return page;
+ }
+-- 
+2.24.0
 
