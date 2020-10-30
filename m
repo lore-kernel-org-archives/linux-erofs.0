@@ -2,109 +2,69 @@ Return-Path: <SRS0=p8rZ=EF=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8260EC4363A
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 12:34:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 222F1C4741F
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 12:37:46 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D231F2087E
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 12:34:43 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bhrq+dOg";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BgZff4qm"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D231F2087E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 45E0B2071A
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 12:37:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 45E0B2071A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tuxera.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CN1wK4CM6zDqkc
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 23:34:41 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CN1zp4f41zDqw4
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2020 23:37:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
+ smtp.mailfrom=tuxera.com (client-ip=82.197.21.90; helo=mgw-01.mpynet.fi;
+ envelope-from=vladimir@tuxera.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=Bhrq+dOg; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=BgZff4qm; 
- dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ dmarc=none (p=none dis=none) header.from=tuxera.com
+Received: from mgw-01.mpynet.fi (mgw-01.mpynet.fi [82.197.21.90])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CN1wC75cwzDqdP
- for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2020 23:34:35 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1604061272;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XAmzxJQllJxgJKv1AtyeQXuYcVwa9Qk2yemCyLRyAiY=;
- b=Bhrq+dOgvATRr0zrN7CDnh0qEQ1e2AUiAQc2Knd048OiB8V47JYoBeSGvCKkWVnQ6kicmb
- MelQzxfuN4BeczxkJmJhx/QXv01PZh1OB4MtGtSyaNMAsuZFLj3fX8WEDzDb8HEtw3nK3C
- Ki+C34ZmdRNMUgfqL7B/b6shfB0bNwU=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1604061273;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XAmzxJQllJxgJKv1AtyeQXuYcVwa9Qk2yemCyLRyAiY=;
- b=BgZff4qmh5n7hCsAdgaYkzPUG/r3ShW8Kc2i0QwZ39ceNCLgYoCWJwYPC2UXw+UKgvpxjx
- GU7A2N3WV6w4qdK7bTI6Utdt5nGkOLa0/GA9qRG3LWEfg0i0+Txmh7Jcyb1j1vnFWRoMdf
- TU7UsF7sHAktONv9fkZC2wc102Nj4Bg=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-533-PtSEVPvZOGyREeDRWPqbSg-1; Fri, 30 Oct 2020 08:34:31 -0400
-X-MC-Unique: PtSEVPvZOGyREeDRWPqbSg-1
-Received: by mail-pf1-f198.google.com with SMTP id s12so4739133pfu.11
- for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2020 05:34:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=XAmzxJQllJxgJKv1AtyeQXuYcVwa9Qk2yemCyLRyAiY=;
- b=hQUifvHLgtGX/Jqsip44+PCVEVm+s8dt6Q4SGvKhNr158j1bIM4Ty11CcG1RkG0Iq5
- XguN3voQp5UpbIZOtDpvbjHBzRoH4PGd1uLVuq7DJ8/Tf1kmbnu9nhh9UorYn0nWKGtR
- 9fyX5Z1qjKznflhprgDgW4uZa0gcPYTlK8dXq/smDYtx2HhuTAyoDwRdu/gAnHsQDe9W
- 47zvEw8wRVB5cvmhfOGvVv9I948uN+LyegX9vTLidIXrprY6L1EHHV0qd6LIhZCbmLuV
- A942Rubj4wDXhc0zTL+5Bt3rcM8pbUBqktK7Qd4KeRoyXA9YH+Uj4i/PxQXHwIm0yAHO
- ceQg==
-X-Gm-Message-State: AOAM5329eO9RzOCibSQ7lyejawjUqF70ml/IabL6eDOpIaOcePjJ8GXA
- WQ3ABPBLm8ZglswJlcq6IiscHA5uCuBPhd41k+a7jyep2dxRv95jcOob++0wECJbiK5Yu+XLbWw
- MrM1jqJ/I1MYTv2v1PnYPM7m1
-X-Received: by 2002:a17:90b:3587:: with SMTP id
- mm7mr2806932pjb.234.1604061270051; 
- Fri, 30 Oct 2020 05:34:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwxGfhu1ixzQl8L3gVldvcEGQyW1KMLuNZzEaD+gErasEeEcIsym8gjNEOXQp67FCmvq2rrYA==
-X-Received: by 2002:a17:90b:3587:: with SMTP id
- mm7mr2806914pjb.234.1604061269892; 
- Fri, 30 Oct 2020 05:34:29 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id v3sm3522986pjk.23.2020.10.30.05.34.27
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 30 Oct 2020 05:34:29 -0700 (PDT)
-Date: Fri, 30 Oct 2020 20:34:19 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Vladimir Zapolskiy <vladimir@tuxera.com>
-Subject: Re: [PATCH] erofs: remove a void EROFS_VERSION macro set in Makefile
-Message-ID: <20201030123419.GA133455@xiangao.remote.csb>
-References: <20201030122839.25431-1-vladimir@tuxera.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CN1zh6cnbzDqkf
+ for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2020 23:37:36 +1100 (AEDT)
+Received: from pps.filterd (mgw-01.mpynet.fi [127.0.0.1])
+ by mgw-01.mpynet.fi (8.16.0.42/8.16.0.42) with SMTP id 09UCBMOo060917;
+ Fri, 30 Oct 2020 14:20:42 +0200
+Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
+ by mgw-01.mpynet.fi with ESMTP id 34g4hx0uhv-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+ Fri, 30 Oct 2020 14:20:42 +0200
+Received: from [192.168.108.50] (194.100.106.190) by tuxera-exch.ad.tuxera.com
+ (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+ Fri, 30 Oct 2020 14:20:42 +0200
+Subject: Re: [PATCH 1/4] erofs: fix setting up pcluster for temporary pages
+To: <linux-erofs@lists.ozlabs.org>, Gao Xiang <hsiangkao@redhat.com>
+References: <20201022145724.27284-1-hsiangkao.ref@aol.com>
+ <20201022145724.27284-1-hsiangkao@aol.com>
+From: Vladimir Zapolskiy <vladimir@tuxera.com>
+Message-ID: <ba952daf-c55d-c251-9dfc-3bf199a2d4ff@tuxera.com>
+Date: Fri, 30 Oct 2020 14:20:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-In-Reply-To: <20201030122839.25431-1-vladimir@tuxera.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20201022145724.27284-1-hsiangkao@aol.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [194.100.106.190]
+X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
+ tuxera-exch.ad.tuxera.com (10.20.48.11)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312, 18.0.737
+ definitions=2020-10-30_04:2020-10-30,
+ 2020-10-30 signatures=0
+X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 spamscore=0
+ malwarescore=0
+ suspectscore=2 mlxscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010300095
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -116,24 +76,64 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Oct 30, 2020 at 02:28:39PM +0200, Vladimir Zapolskiy wrote:
-> Since commit 4f761fa253b4 ("erofs: rename errln/infoln/debugln to
-> erofs_{err, info, dbg}") the defined macro EROFS_VERSION has no affect,
-> therefore removing it from the Makefile is a non-functional change.
+Hello Gao Xiang,
+
+On 10/22/20 5:57 PM, Gao Xiang via Linux-erofs wrote:
+> From: Gao Xiang <hsiangkao@redhat.com>
 > 
-> Signed-off-by: Vladimir Zapolskiy <vladimir@tuxera.com>
-> ---
+> pcluster should be only set up for all managed pages instead of
+> temporary pages. Since it currently uses page->mapping to identify,
+> the impact is minor for now.
+> 
+> Fixes: 5ddcee1f3a1c ("erofs: get rid of __stagingpage_alloc helper")
+> Cc: <stable@vger.kernel.org> # 5.5+
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
-Yeah, since we have feature bits now, and fs runtime version
-isn't very important... Thanks for doing this!
+I was looking exactly at this problem recently, my change is one-to-one
+to your fix, thus I can provide a tag:
 
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
+Tested-by: Vladimir Zapolskiy <vladimir@tuxera.com>
 
-Thanks,
-Gao Xiang
 
+The fixed problem is minor, but the kernel log becomes polluted, if
+a page allocation debug option is enabled:
+
+     % md5sum ~/erofs/testfile
+     BUG: Bad page state in process kworker/u9:0  pfn:687de
+     page:0000000057b8bcb4 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x687de
+     flags: 0x4000000000002000(private)
+     raw: 4000000000002000 dead000000000100 dead000000000122 0000000000000000
+     raw: 0000000000000000 ffff888066758690 00000000ffffffff 0000000000000000
+     page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+     Modules linked in:
+     CPU: 1 PID: 602 Comm: kworker/u9:0 Not tainted 5.9.1 #2
+     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+     Workqueue: erofs_unzipd z_erofs_decompressqueue_work
+     Call Trace:
+      dump_stack+0x84/0xba
+      bad_page.cold+0xac/0xb1
+      check_free_page_bad+0xb0/0xc0
+      free_pcp_prepare+0x2c8/0x2d0
+      free_unref_page+0x18/0xf0
+      put_pages_list+0x11a/0x120
+      z_erofs_decompressqueue_work+0xc9/0x110
+      ? z_erofs_decompress_pcluster.isra.0+0xf10/0xf10
+      ? read_word_at_a_time+0x12/0x20
+      ? strscpy+0xc7/0x1a0
+      process_one_work+0x30c/0x730
+      worker_thread+0x91/0x640
+      ? __kasan_check_read+0x11/0x20
+      ? rescuer_thread+0x8a0/0x8a0
+      kthread+0x1dd/0x200
+      ? kthread_unpark+0xa0/0xa0
+      ret_from_fork+0x1f/0x30
+     Disabling lock debugging due to kernel taint
+
+--
+Best wishes,
+Vladimir
