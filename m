@@ -7,69 +7,70 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA20EC2D0A3
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Nov 2020 14:36:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C19F7C2D0A3
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Nov 2020 14:38:39 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 74E5B22243
-	for <linux-erofs@archiver.kernel.org>; Sun,  1 Nov 2020 14:36:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id EBAD12158C
+	for <linux-erofs@archiver.kernel.org>; Sun,  1 Nov 2020 14:38:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="RRBTYroy";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="DqTT83ch"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 74E5B22243
+	dkim=pass (2048-bit key) header.d=lists.ozlabs.org header.i=@lists.ozlabs.org header.b="VvbN9GMP";
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="hVAljx4g"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EBAD12158C
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CPJX61krJzDqZN
-	for <linux-erofs@archiver.kernel.org>; Mon,  2 Nov 2020 01:36:38 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CPJZP2Ft2zDqZB
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Nov 2020 01:38:37 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1604241398;
-	bh=rDik0BJgLXnR/nm4avs+sjdqpYChCMpTMFQo6Gh5ZoE=;
+	s=201707; t=1604241517;
+	bh=WsJC4CwVTgI7HwoKljo5e+m/jbXg9YYPPo2X9yt8XVU=;
 	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
 	 From;
-	b=RRBTYroyG3cbf1EAk+XH3zUJFd6nDxfJFmQ00UUBVYWFalP1EVStklxh4Q+HRWjHA
-	 stMaTJJJ3sfX3vD1dT9Np/8+E2REJguaGXO1ETtwR0MQNV8JlWLBJlarXTMuyYPMKW
-	 YNfCS1bq2RjOXyv5DdORdDZA6TRWGYNuyNJcKUvh1cRx1ie4rjJykh6Td+EaDxrnlF
-	 TUutTxe1aJzh//PJNwFTkt2wKyoAdctEWdZVMky6hEP/Tq0bkBpWsay7TTVL24nv2q
-	 I/Tn8N+D645Bqmk7S3RN1UMzolakk+MPtxfQQy8TvzyhmmxINfnhoUE5JDSBXiqVMw
-	 Ek3NzYaN5OT1A==
+	b=VvbN9GMPCdzY5v/vStGTk79E3Eojjdoxs/G4xGdUc9zevo1uMp2iPeWwliW+lEQCo
+	 CRIsp/S8l8DN3E1gXJGkiHOcE4FNzgGXB39zm4+LyGSQIES/SLmU/L2Z14S6tlcQBx
+	 o/jY12bXFGcWXdVZr8W2XHqFVCOa77SYogqn+KciZHeki2reyK/wMqhNeGuH/Gmnhm
+	 EHBWYbunO8PF9NCvn4v9mdd0RhGYfjDHTs99m1Qvymm7ESBUu0rZHA/I+qzL4g6meG
+	 tDYQ3owvcaqk60yZpKr2x+/Agh/Pqn295VNGI6m7ss+RQxSZ7nuvCOw5pzer4xvxhm
+	 k6hLFeu0/jydw==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=aliyun.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=bluce.lee@aliyun.com;
+ smtp.mailfrom=aliyun.com (client-ip=115.124.30.38;
+ helo=out30-38.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none)
  header.from=aliyun.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
- header.s=s1024 header.b=DqTT83ch; dkim-atps=neutral
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
+ header.s=s1024 header.b=hVAljx4g; dkim-atps=neutral
+Received: from out30-38.freemail.mail.aliyun.com
+ (out30-38.freemail.mail.aliyun.com [115.124.30.38])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CPJWx1GD5zDqXR
- for <linux-erofs@lists.ozlabs.org>; Mon,  2 Nov 2020 01:36:27 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CPJZD2CTwzDqXQ
+ for <linux-erofs@lists.ozlabs.org>; Mon,  2 Nov 2020 01:38:27 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aliyun.com; s=s1024;
- t=1604241361; h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type;
- bh=GTZ1HWOY+twzog1s2uEp4fYeR0WHj/Ln5koZQ9BEBOs=;
- b=DqTT83chJRzN3BG05lK8JoK5rMbStWgyOg/oY24BYEymcYx6o6LFhskUWvx4T59J8pCaBP9qF5gdz5RRcY3JHFQiVo3zAJ7vSRiBYEB3sgBm2UTwd2PO5OAHcPOVz98tSPbyTIIt9JKtxUdcyHj2rxkcxQutFWH2niigENzgrek=
-X-Alimail-AntiSpam: AC=CONTINUE; BC=0.1090529|-1; CH=green; DM=|CONTINUE|false|;
- DS=CONTINUE|ham_enroll_verification|0.0019872-0.000163998-0.997849;
- FP=0|0|0|0|0|-1|-1|-1; HT=e01e04394; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
- RN=2; RT=2; SR=0; TI=SMTPD_---0UDpU0oL_1604241360; 
+ t=1604241489; h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type;
+ bh=wiIKmCyRdLxM38Oyq8UxEVFcew5GG+ZLoIx/cYk3Rr0=;
+ b=hVAljx4gB0P161DIbISZOb5swhcPjtwkKe0RL8OdkzYnMm0vqDOBbtWFS3hBy1PGAP+nrMlFmpl+GOac0obKEvyplO5SUn9c+3NYKTy7gJlZs6t2jp3z8XvDyl/LVKKBdveP8R7w5uJvt/lDsszn6X2n2cT9hgUgrM/33gsUOxg=
+X-Alimail-AntiSpam: AC=CONTINUE; BC=0.1615965|-1; CH=green; DM=|CONTINUE|false|;
+ DS=CONTINUE|ham_regular_dialog|0.00780324-0.000858712-0.991338;
+ FP=0|0|0|0|0|-1|-1|-1; HT=e01e04407; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
+ RN=2; RT=2; SR=0; TI=SMTPD_---0UDposAJ_1604241488; 
 Received: from 192.168.3.18(mailfrom:bluce.lee@aliyun.com
- fp:SMTPD_---0UDpU0oL_1604241360) by smtp.aliyun-inc.com(127.0.0.1);
- Sun, 01 Nov 2020 22:36:00 +0800
-Subject: Re: [PATCH 1/4] erofs-utils: fix build error without lz4 library
+ fp:SMTPD_---0UDposAJ_1604241488) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 01 Nov 2020 22:38:08 +0800
+Subject: Re: [PATCH 2/4] erofs-utils: support $SOURCE_DATE_EPOCH
 To: Gao Xiang <hsiangkao@redhat.com>, linux-erofs@lists.ozlabs.org
 References: <20201030123020.133084-1-hsiangkao@redhat.com>
-Message-ID: <282ad807-52bc-deb2-4293-97207a56b0de@aliyun.com>
-Date: Sun, 1 Nov 2020 22:35:59 +0800
+ <20201030123020.133084-2-hsiangkao@redhat.com>
+Message-ID: <1e58bbbf-8eda-bbe8-278e-442311cb4457@aliyun.com>
+Date: Sun, 1 Nov 2020 22:38:08 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <20201030123020.133084-1-hsiangkao@redhat.com>
+In-Reply-To: <20201030123020.133084-2-hsiangkao@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -93,13 +94,15 @@ Sender: "Linux-erofs"
 
 
 On 2020/10/30 20:30, Gao Xiang wrote:
-> This fixes a recent build error if lz4 library doesn't install,
+> Currently, we use -T to set a given UNIX timestamp for all
+> files, yet reproducible builds [1] requires what is called
+> "timestamp clamping", IOW, a timestamp must be used no later
+> than the value of this variable.
 > 
-> /bin/sh ../libtool  --tag=CC   --mode=link gcc -Wall -Werror -I../include -g -O2   -o mkfs.erofs mkfs_erofs-main.o -luuid  ../lib/liberofs.la  -llz4
-> libtool: link: gcc -Wall -Werror -I../include -g -O2 -o mkfs.erofs mkfs_erofs-main.o  -luuid ../lib/.libs/liberofs.a -llz4
-> /usr/bin/ld: cannot find -llz4
+> Let's support $SOURCE_DATE_EPOCH as well.
 > 
-> Fixes: c497d89e5eac ("erofs-utils: enhance static linking for lz4 1.8.x")
+> [1] https://reproducible-builds.org/specs/source-date-epoch/
+> Suggested-by: nl6720 <nl6720@gmail.com>
 > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 
 It looks good
