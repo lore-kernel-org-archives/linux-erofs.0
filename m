@@ -2,26 +2,27 @@ Return-Path: <SRS0=4boh=FB=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C7D9C2D0E4
-	for <linux-erofs@archiver.kernel.org>; Fri, 27 Nov 2020 13:17:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3950C63798
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Nov 2020 14:35:11 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 23E142223F
-	for <linux-erofs@archiver.kernel.org>; Fri, 27 Nov 2020 13:17:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 9C0DD221EB
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Nov 2020 14:35:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y3a0T9BJ";
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BIBF0dyK"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 23E142223F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AJZqimr/";
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I//Tn3Ec"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9C0DD221EB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CjFXt1sWXzDrfN
-	for <linux-erofs@archiver.kernel.org>; Sat, 28 Nov 2020 00:17:34 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CjHGN4d4WzDrh2
+	for <linux-erofs@archiver.kernel.org>; Sat, 28 Nov 2020 01:35:08 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=redhat.com (client-ip=63.128.21.124;
  helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
@@ -30,82 +31,72 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=Y3a0T9BJ; 
+ header.s=mimecast20190719 header.b=AJZqimr/; 
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=BIBF0dyK; 
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=I//Tn3Ec; 
  dkim-atps=neutral
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CjFX31dDHzDrRH
- for <linux-erofs@lists.ozlabs.org>; Sat, 28 Nov 2020 00:16:49 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CjHG60Y6FzDrgV
+ for <linux-erofs@lists.ozlabs.org>; Sat, 28 Nov 2020 01:34:53 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606483006;
+ s=mimecast20190719; t=1606487689;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=QVXWPpYgXcdOY4MY7ilUhTKav+S3jlh8i9zTxFO2mVo=;
- b=Y3a0T9BJ4Md9Fl+vGeFG+p3a52xfRG3r7e3nrB3nJjEe3rIERZ43BIwUsGtLJkpEpXHMoO
- z0VymDU4L5EkNw4Y+2eJLBSVy+efR7TJRTlVWPgzhSl2OISwf4CLollVh79aS+sfFwcL3H
- wyb8ytsHbUlAGsrnilszefyahsc6U8o=
+ to:to:cc:cc:content-type:content-type;
+ bh=xMR1e74cQ7Fu3lSwQgxGkn5J/jDyljHgi6wsjzM4+Zc=;
+ b=AJZqimr/tpU4ILTOGLcxmr1V0nfDw6coGmLE9OHtcdN6OzwpdiFQykIQXvgnhjUC50s1OZ
+ ZrV4l8oznGt17T+eysrdBlcP/K5mO+gazsRppGpvRxkgPtxNBp55rCOakedKXFG2COobI0
+ hthwHpFuBqJ0iujxoRyfm63wzW2wmyU=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606483007;
+ s=mimecast20190719; t=1606487690;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=QVXWPpYgXcdOY4MY7ilUhTKav+S3jlh8i9zTxFO2mVo=;
- b=BIBF0dyKwJ0vQAqs8aqxSIz0PFCniTp9pqJ46C5SMGXk+0snMpVZ65h3s8TJNnlr3OWhDu
- 0+slrbqBAeVWGlDkVk/zj2aA2WR4vv6Ey5xoedtJ2FpUnjuDSE8Q0Py4Qu/ZxxLJr4rYmh
- THOSP0ZnfWIQnf39Edefj21YHsZIQBk=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-484-O2dMsx26Nia35aXlCuRfDw-1; Fri, 27 Nov 2020 08:16:44 -0500
-X-MC-Unique: O2dMsx26Nia35aXlCuRfDw-1
-Received: by mail-pl1-f198.google.com with SMTP id t13so3553281plo.16
- for <linux-erofs@lists.ozlabs.org>; Fri, 27 Nov 2020 05:16:44 -0800 (PST)
+ to:to:cc:cc:content-type:content-type;
+ bh=xMR1e74cQ7Fu3lSwQgxGkn5J/jDyljHgi6wsjzM4+Zc=;
+ b=I//Tn3EcBtFoHX/W5sxCyDwkMq0/uNXqWa6bQfgA0dUh+g69tWb2O25uq/EY+5EXsjAKmS
+ xxgkvBw58IAOq/uITizJNq9RkNRUdDsjmoTnjKaB+IbrQpmEmV6/9LTfCIo9Nm5YApqj7l
+ FonIAbAoih0zzvGDb+YVxBPV1okXM4o=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-278-QGQ4Wx5uNjOxBCiJzBaqyw-1; Fri, 27 Nov 2020 09:34:48 -0500
+X-MC-Unique: QGQ4Wx5uNjOxBCiJzBaqyw-1
+Received: by mail-pf1-f199.google.com with SMTP id q22so4095959pfj.20
+ for <linux-erofs@lists.ozlabs.org>; Fri, 27 Nov 2020 06:34:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=QVXWPpYgXcdOY4MY7ilUhTKav+S3jlh8i9zTxFO2mVo=;
- b=OBDXntxWvS/YVPV3gYyzANG5Ve0cuEuhsI2qWWEHNQtfckOK1rKk35DTFFoFeBPKKT
- R+KaNu8y6FQWgGB4fj2lueOFDuMm4ZejGtWsf75o2OpTqxCPadj1d+CR8YluvEfSWfdC
- b2kfkCuHSvQ/mqF3vaGi9W9IND6QgxHI2DTntXlwgBW2zfJJy7u3E3QyFksKLk+y1a3D
- 0hTr4gFZyiGkbQDC/10BKdqdMRksCknYHxlgYLje9qc2PLv2vz1rEAsrH/0IGBWHGIgS
- cp0uJ0kiZI2WPXts9w9cNFYYjEtmUe1LCL8+QFK7tKcgDC+2JeVzjpe45Vro39mxdu6p
- MGbg==
-X-Gm-Message-State: AOAM531xW35lsho5K6nm+L4hf9CIihqsZpu2qB7TOLlpavg55fY+9Y++
- JJSYKPXQJ9AnZ1VAqpKjf5dSY6Rt0Drocd7gciLxCcY8DctyIgp2UgNX9IseTsLw1luEx5kgQ6N
- 4Y2tUWU/VNBuNza8x5Ki8k47PWFZgIO3xNwvGtICZ4NcqFhQL+0zI8CZayNr/diznO1jO3HWAxR
- /+9g==
-X-Received: by 2002:a17:90a:df05:: with SMTP id
- gp5mr10097723pjb.143.1606483003676; 
- Fri, 27 Nov 2020 05:16:43 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzolQKEh1HlPSE3HvSPgxISF81YRI9NapShhOr5keryKqeenyRjqp1KKBhO72VgQRGUkz4+4g==
-X-Received: by 2002:a17:90a:df05:: with SMTP id
- gp5mr10097684pjb.143.1606483003336; 
- Fri, 27 Nov 2020 05:16:43 -0800 (PST)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id;
+ bh=xMR1e74cQ7Fu3lSwQgxGkn5J/jDyljHgi6wsjzM4+Zc=;
+ b=Q0SpNxkr8g0hdEJ8oy1DgQ0Ghu/S2oGVUIhIxEoD3eYt4NDQo6vOAtGSX1n0a9k0xE
+ IRS3Izo5aQ+bYkPIiqlctzPkKf517vTi6HULTxk2klqUMu6vaoiPa7Hg8SBJxgSrQo4+
+ T9j+Id4ydIZubiVV1kNF4M8EChEYB5vWAfBD4xVqKDfX9nxWH4ruTaKqXh4qG+JD+5WE
+ sRN6brTrqpbTSlhGNEbQ80iYNHXthKCyH+Wk6p4VEFHItrQCg52dOyM+gqLrwZhmaIV0
+ 1r6Jimu1YlTp14rfvBjQuvYOKbTjKe+AF0w04Drk7jY9iRBVt2vtUawzoh4F05TTcyM8
+ CREg==
+X-Gm-Message-State: AOAM5336xHv9qAv3YwSortzc0WDQBXT5CvMlJGLqYapEmX2Ljyda1piI
+ HClJjS1bOCmXhf5NT1v04stk2+VXWWQ0lK2E34wN92Pa2UN+edju5Ip3+Zrw9EvlpMPfJRIb+dv
+ ZZKZ0MR42g6ik+9TUDqCHmofW7iUBxA6Xl393/FOdjTPe5AVU79EozHjdKloSYXqXQFIqhYN5vM
+ LggQ==
+X-Received: by 2002:a63:83:: with SMTP id 125mr6958964pga.423.1606487686815;
+ Fri, 27 Nov 2020 06:34:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzfjADfpvHeWa03hdxqJOYzhZyGY5cd1upHB3llcgVQ57rPi3rWBRaBqllhWTx4/dsyUkg55A==
+X-Received: by 2002:a63:83:: with SMTP id 125mr6958949pga.423.1606487686518;
+ Fri, 27 Nov 2020 06:34:46 -0800 (PST)
 Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id i4sm7063591pgg.67.2020.11.27.05.16.41
+ by smtp.gmail.com with ESMTPSA id ge21sm10374664pjb.5.2020.11.27.06.34.44
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 27 Nov 2020 05:16:42 -0800 (PST)
-Date: Fri, 27 Nov 2020 21:16:30 +0800
+ Fri, 27 Nov 2020 06:34:46 -0800 (PST)
 From: Gao Xiang <hsiangkao@redhat.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH v3 0/3] erofs-utils: introduce fuse implementation
-Message-ID: <20201127131630.GA654423@xiangao.remote.csb>
-References: <20201127114617.13055-1-hsiangkao.ref@aol.com>
- <20201127114617.13055-1-hsiangkao@aol.com>
-MIME-Version: 1.0
-In-Reply-To: <20201127114617.13055-1-hsiangkao@aol.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Subject: [PATCH] erofs-utils: xattr: fix OOB access due to alignment
+Date: Fri, 27 Nov 2020 22:33:59 +0800
+Message-Id: <20201127143359.667374-1-hsiangkao@redhat.com>
+X-Mailer: git-send-email 2.18.4
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="US-ASCII"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -117,34 +108,67 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Guo Weichao <guoweichao@oppo.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Nov 27, 2020 at 07:46:14PM +0800, Gao Xiang via Linux-erofs wrote:
-> From: Gao Xiang <hsiangkao@redhat.com>
-> 
-> changes since v2:
->  - erofs_dbg() -> erofs_dump() in signal_handle_sigsegv() (Guifu);
->  - get rid of unnecessary new lines (Guifu).
-> 
-> changes since v1:
->  - fix off-by-one error of namebuf in erofs_fill_dentries();
->  - drop unused "struct erofs_super_block super;" in lib/super.c; 
->  - fix clang/32-bit build errors founded by travis CI.
+From: Gao Xiang <hsiangkao@aol.com>
 
-FYI, I will apply this to dev branch since it has been of some
-preliminary deployment by some vendor, plus it's disabled
-by default for the upcoming erofs-utils 1.2. And it's already
-in shape after several rounds cleanup.
+erofs_buf_write_bhops can only be safely used for block-aligned
+buffers, otherwise, it could write random out-of-bound data due
+to buffer alignment. Such random data is meaningless but it does
+harm to reproducable builds.
 
-I'm looking into and will add more automated testcase coverage
-for this stuff.
+Fixes: 116ac0a254fc ("erofs-utils: introduce shared xattr support")
+Reported-by: Huang Jianan <huangjianan@oppo.com>
+Signed-off-by: Gao Xiang <hsiangkao@aol.com>
+---
+ lib/xattr.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-Incremental bugfixes / improvements for erofsfuse are always
-welcome!
-
-Thanks,
-Gao Xiang
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 2596601..49ebb9c 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -18,6 +18,7 @@
+ #include "erofs/hashtable.h"
+ #include "erofs/xattr.h"
+ #include "erofs/cache.h"
++#include "erofs/io.h"
+ 
+ #define EA_HASHTABLE_BITS 16
+ 
+@@ -522,6 +523,21 @@ static void erofs_cleanxattrs(bool sharedxattrs)
+ 	shared_xattrs_size = shared_xattrs_count = 0;
+ }
+ 
++static bool erofs_bh_flush_write_shared_xattrs(struct erofs_buffer_head *bh)
++{
++	void *buf = bh->fsprivate;
++	int err = dev_write(buf, erofs_btell(bh, false), shared_xattrs_size);
++
++	if (err)
++		return false;
++	free(buf);
++	return erofs_bh_flush_generic_end(bh);
++}
++
++static struct erofs_bhops erofs_write_shared_xattrs_bhops = {
++	.flush = erofs_bh_flush_write_shared_xattrs,
++};
++
+ int erofs_build_shared_xattrs_from_path(const char *path)
+ {
+ 	int ret;
+@@ -586,7 +602,7 @@ int erofs_build_shared_xattrs_from_path(const char *path)
+ 		free(node);
+ 	}
+ 	bh->fsprivate = buf;
+-	bh->op = &erofs_buf_write_bhops;
++	bh->op = &erofs_write_shared_xattrs_bhops;
+ out:
+ 	erofs_cleanxattrs(true);
+ 	return 0;
+-- 
+2.18.4
 
