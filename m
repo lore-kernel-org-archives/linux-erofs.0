@@ -1,109 +1,72 @@
-Return-Path: <SRS0=eXq/=FG=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=qOHo=FH=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8B2BC64E7C
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Dec 2020 10:41:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF8E2C63777
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Dec 2020 08:47:45 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B7B0522203
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Dec 2020 10:41:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B7B0522203
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8DA8D20C56
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Dec 2020 08:47:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8DA8D20C56
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CmFrT59VszDr3b
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Dec 2020 21:41:29 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CmqGj41rzzDrQ2
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Dec 2020 19:47:41 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
+	s=201707; t=1606985261;
+	bh=hS3ibs4caZkahrzgcMN2TAJo2B2H5Muwb2NidDYlIzQ=;
+	h=Date:To:Subject:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:From;
+	b=Tc4hffqepHw3tC/6DSvB8zdGoom1S6BCbfqAMZW4KNgQpWUBfMNHDCa2l38R2csCN
+	 Z7N4mpb0AnjUs54vI2gSH7MlBzVtfrULYsfs+LuWePrTikJd4Houe5ZIIy9Xv6EMP+
+	 oebv6g/75VW3BDJcL0qs7MrXFbBXBp8DhHYPYxelBT6N3esqo9aSqmPz/OZVbLqSSN
+	 5e1FsVF0diaCqUSP7TePeebji0mYDk1LJtlQXdvu0Wbawx93Mesm6+VkrpN5JW7Lea
+	 5VF0UijQXivc3APavOlXU/kLi0HBEo6RcFej0arxQTsq+1SYKpf7GA1aqVQkR1RCjM
+	 68ipi3w+ioqGw==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
+ smtp.mailfrom=boldwhite24.com (client-ip=80.211.42.67;
+ helo=mail.boldwhite24.com; envelope-from=diego.sanchez@boldwhite24.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=iiL5YbJh; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iiL5YbJh; 
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none)
+ header.from=boldwhite24.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=boldwhite24.com header.i=@boldwhite24.com
+ header.a=rsa-sha256 header.s=mail header.b=JBZaLaJW; 
  dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+Received: from mail.boldwhite24.com (mail.boldwhite24.com [80.211.42.67])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CmFrM70JxzDqkd
- for <linux-erofs@lists.ozlabs.org>; Wed,  2 Dec 2020 21:41:23 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606905680;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=KSwBOUDyXPcIBtTerXOppu0M3t5O1iaRxWsFEw9vC5M=;
- b=iiL5YbJhYMppMA0fp3u5/79kOkgY9JqihdfN34Y2Ixvg5RfIhxlkz9hGoMVBP7IoZVQv8F
- R/3exDmhRrm1DjjuMCTZpeo3UQfGC/lSBG065cMFX1D6pbddprLD/oc+bQjDFJHYqbTzy+
- PYfip7oqscFkWx5SXRRjGuy6j6OIUOU=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606905680;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=KSwBOUDyXPcIBtTerXOppu0M3t5O1iaRxWsFEw9vC5M=;
- b=iiL5YbJhYMppMA0fp3u5/79kOkgY9JqihdfN34Y2Ixvg5RfIhxlkz9hGoMVBP7IoZVQv8F
- R/3exDmhRrm1DjjuMCTZpeo3UQfGC/lSBG065cMFX1D6pbddprLD/oc+bQjDFJHYqbTzy+
- PYfip7oqscFkWx5SXRRjGuy6j6OIUOU=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-409-wv_rSSisNR6EmNG5XY-SEQ-1; Wed, 02 Dec 2020 05:41:18 -0500
-X-MC-Unique: wv_rSSisNR6EmNG5XY-SEQ-1
-Received: by mail-pf1-f198.google.com with SMTP id r8so992932pfh.9
- for <linux-erofs@lists.ozlabs.org>; Wed, 02 Dec 2020 02:41:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=KSwBOUDyXPcIBtTerXOppu0M3t5O1iaRxWsFEw9vC5M=;
- b=Bsc4EuQyR8766mJl9lyrg6lSm6WWThdf+iZuKhAplTOtH5w9INsrwCbBDjhiJz/PK5
- MdWj299wWW9bg0Zv3kh8fMVnUOdQvEKAg4RnLyictflzypL7fARzwwUzWpXpBTQFA9Cs
- HpJDx1uVoonzXQ7DGcshl8AYUDxUCFYDgpbVT9EXv8UdD+QfDhEApi/M6Jf4vO/bl6cH
- iKavZ1uVarPfp1zIuM4qSpjnMuxNzv0IdGvtkYECKvvOP/9thvWqCCznNMH4ccs78L8S
- 2EAWgFM1fH5b5f6qWBUlvLsZldNHazvTh7K6eARGTtjfwtLeg/QQMZPiJvip17UKMFDA
- YQlQ==
-X-Gm-Message-State: AOAM532nJLqLojrg5VNz+rbXtrAMJ69niMHzWV427AxSz9MpzwYPEyVF
- cpcNONqGCJu+jRcQACQFQo8SXN4WIt5cRsqzjhnU3yoj2qu6+V9q8haO+HIAkz7dfvSEG0e2jGr
- UtbXmb3qvbxHOkyWcKhqmGqFt
-X-Received: by 2002:a63:6882:: with SMTP id d124mr2066870pgc.197.1606905677137; 
- Wed, 02 Dec 2020 02:41:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzRh6v2UqWcsTIxbX8rSEitLs9ZoK8VZoIzwksWR2LjzoRTqmKNweDKS3PXe9fEfsnDIxnp7A==
-X-Received: by 2002:a63:6882:: with SMTP id d124mr2066860pgc.197.1606905676925; 
- Wed, 02 Dec 2020 02:41:16 -0800 (PST)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id bf3sm1613982pjb.45.2020.12.02.02.41.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Dec 2020 02:41:16 -0800 (PST)
-Date: Wed, 2 Dec 2020 18:41:05 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Yue Hu <zbestahu@gmail.com>
-Subject: Re: About Segmentation fault of mkfs.erofs in AOSP
-Message-ID: <20201202104105.GA1505758@xiangao.remote.csb>
-References: <20201201192309.00007531.zbestahu@gmail.com>
- <20201201114253.GA1323470@xiangao.remote.csb>
- <20201201194843.000068c5.zbestahu@gmail.com>
- <20201201115158.GA1325175@xiangao.remote.csb>
- <20201202175929.0000666a.zbestahu@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CmqD76DJVzDrMF
+ for <linux-erofs@lists.ozlabs.org>; Thu,  3 Dec 2020 19:45:27 +1100 (AEDT)
+Received: by mail.boldwhite24.com (Postfix, from userid 1001)
+ id 00F56A2E0A; Thu,  3 Dec 2020 08:45:16 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=boldwhite24.com;
+ s=mail; t=1606985120;
+ bh=hS3ibs4caZkahrzgcMN2TAJo2B2H5Muwb2NidDYlIzQ=;
+ h=Date:From:To:Subject:From;
+ b=JBZaLaJWi5anokhwKhyLY1XkBN2wSoqyv+r9ELsaVUDY54RtxvzFFNN9672Bk1mG8
+ D9/M1OPI7JOiJ23jJiPJF1HSOE5MuG1J1s+nid6IPMrrXf0kYoJgl7VUWyvhjw3//V
+ ye+LUukvkPO8622FSvmuotf6pmcXASx9omdzDlbhUcxgrWMWPoNjNGvl2GDAMZPRXN
+ XJZkVwt2OkZyx7HlvQtn0nuyRshT17MTuIDaWKE7ov1F/ASDG+Nf0O0KwJvzQo2wDr
+ 3W1NQp74zq/wPAm0HOX/O1bj08PqOZvBsr/VA8Q7DWcyWyr2DNbhpWurB6N2Y4Ba69
+ bGRlbq9zwnrjw==
+Received: by mail.boldwhite24.com for <linux-erofs@lists.ozlabs.org>;
+ Thu,  3 Dec 2020 08:45:13 GMT
+Message-ID: <20201203074501-0.1.2m.amiu.0.ea8me8wtj4@boldwhite24.com>
+Date: Thu,  3 Dec 2020 08:45:13 GMT
+To: <linux-erofs@lists.ozlabs.org>
+Subject: Disinfection
+X-Mailer: mail.boldwhite24.com
 MIME-Version: 1.0
-In-Reply-To: <20201202175929.0000666a.zbestahu@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -115,50 +78,32 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@yulong.com, linux-erofs <linux-erofs@lists.ozlabs.org>,
- zhangwen@yulong.com
+From: =?utf-8?q?_Diego_S=C3=A1nchez_via_Linux-erofs?=
+ <linux-erofs@lists.ozlabs.org>
+Reply-To: =?UTF-8?Q? Diego_S=C3=A1nchez ?= <diego.sanchez@boldwhite24.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Dec 02, 2020 at 05:59:29PM +0800, Yue Hu wrote:
-> On Tue, 1 Dec 2020 19:51:58 +0800
-> Gao Xiang <hsiangkao@redhat.com> wrote:
-> 
-> > > Gao Xiang <hsiangkao@redhat.com> wrote:
-> > >   
+Good morning,
 
-...
+looking for companies interested in raising additional capital by diversi=
+fying their offer in soaps, liquids and gels for hand disinfection and co=
+smetics for body and hair care.
 
-> > > > 
-> > > > Which lz4 version is used? it would be better to use lz4 1.9.3
-> > > > (or 1.9.2 with some unexpected CR issues.)  
-> > > 
-> > > Hi Xiang,
-> > > 
-> > > ok, let me check.  
-> > 
-> > At least, lz4 1.8.3 ~ 1.9.1 are buggy, for more details, see:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/tree/README?h=dev#n107
-> > 
-> 
-> wow, working fine when i upgrade lz4 version from 1.8.3 to 1.9.3 bypass vndk error.
-> 
+The distribution of innovative products corresponding to the current pref=
+erences of customers in the field of hygiene and preventive healthcare al=
+lows our partners to gain new markets and achieve better economic results=
+=2E
 
-Thanks for the feedback, I'm now working on add unique testcases to
-intercept such broken lz4 versions as well, the WIP branch is
-https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/log/?h=experimental-test
+In addition to products with bactericidal action, our range includes show=
+er gels, shampoos and hair conditioners, as well as efficient, concentrat=
+ed detergents.
 
-> And seems canned fs config processing has minor issue. I will double check and submit patch if possible.
+The versatility (suitable for all skin types) combined with an affordable=
+ price means that customers make an informed choice of a product among ot=
+hers available on the market.
 
-Comments, patches, evaluation are always welcome :)
-(btw, I'm about to release erofs-utils v1.2 this month...)
+Are you interested in cooperation?
 
-Thanks,
-Gao Xiang
-
-> 
-> Thank you!
-> 
-> > >   
-
+Diego S=C3=A1nchez
