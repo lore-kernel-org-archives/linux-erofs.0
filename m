@@ -2,79 +2,111 @@ Return-Path: <SRS0=VaLi=FJ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 832C4C4361A
-	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 09:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 447B0C433FE
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 09:09:51 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E69CF22D72
-	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 09:07:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E69CF22D72
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id B8AC222D72
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 09:09:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B8AC222D72
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Cp3cx0SZXzDqnf
-	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 20:07:45 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1607159265;
-	bh=9UMqJCwJi3/rCFNODXLSGOx5mYSEf8+BVHp6Q3Xd+bU=;
-	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=TJ6hcLuKajQKir0Wrpst1vqgiH4igx62pm+oNuH8f4jy9olpSGiEltVuQz319H1f/
-	 GLKgxnaKeZ6j56i8HQXlnMEPCr4mv1G/0cGMTu5gwL9vfBnynQ7a+73xvUSoHXYvri
-	 xvpiOQd+rkepjC3lqSX4aVjwB8wQV4MZaHlX/3kTG3hfJ1BZUuND+yKzpfTX/L+EA+
-	 FpbfUB8h/4DN3+GFz8b3JMu4DVUophTgCDvqm6VL8fDMOX2bPHGsZBob3pbdvBW/yt
-	 tjMjc3ZmJvASyz3CDtaZEFBq9CH9vikr2P5Dhsn75hLPfyKntgbECJmG/DXHrnfobB
-	 5eTvDPQHFUTYg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Cp3gJ6sHrzDqkR
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Dec 2020 20:09:48 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=aliyun.com (client-ip=115.124.30.50;
- helo=out30-50.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
+ smtp.mailfrom=redhat.com (client-ip=63.128.21.124;
+ helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none)
- header.from=aliyun.com
+Authentication-Results: lists.ozlabs.org;
+ dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
- header.s=s1024 header.b=mLUEdgfh; dkim-atps=neutral
-Received: from out30-50.freemail.mail.aliyun.com
- (out30-50.freemail.mail.aliyun.com [115.124.30.50])
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=aFwRMQen; 
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aFwRMQen; 
+ dkim-atps=neutral
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Cp3Zs02FxzDqlP
- for <linux-erofs@lists.ozlabs.org>; Sat,  5 Dec 2020 20:05:54 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aliyun.com; s=s1024;
- t=1607159136; h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type;
- bh=L/PROY6hu9gSZJcv+h4HU2azBVYVNY1O+Rh7bS4YewU=;
- b=mLUEdgfh9k6O+2t0ExJf5b2Dng6K8L1BJP3o22F+Sd3dQm9GPtRoEf1Rck/wuCUbIhCR19WbiuIG9M10Tz+YN6xKxouBagyR7mrOrGbOe+PVjCCg34UAWuyK/Fyoswxa6SaN0Aiqhw2OGx9q6xyp8pN7SK0BSAeuBvwzQ+lc4EI=
-X-Alimail-AntiSpam: AC=CONTINUE; BC=0.07400145|-1; CH=green;
- DM=|CONTINUE|false|;
- DS=CONTINUE|ham_regular_dialog|0.0128104-0.000970121-0.986219;
- FP=0|0|0|0|0|-1|-1|-1; HT=e01e04400; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
- RN=3; RT=3; SR=0; TI=SMTPD_---0UHa1xpi_1607159135; 
-Received: from 172.168.2.18(mailfrom:bluce.lee@aliyun.com
- fp:SMTPD_---0UHa1xpi_1607159135) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 05 Dec 2020 17:05:36 +0800
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Cp3gC3hqRzDq8F
+ for <linux-erofs@lists.ozlabs.org>; Sat,  5 Dec 2020 20:09:43 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1607159380;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=gecV/gH482+Xw3GgpYHPDQgme36/4knyiAKGgAX2OKI=;
+ b=aFwRMQenWRsZRCCNkR+397z/+Gvg0pNG1SITFxEUl/LsoSG3C2fp+GCtKLiAwFD1UNKC26
+ mdagB66UX8nUYBXq02YbQuLUl6VCRuVqKeU+9YHOEiCs0Csx0lNeaqC/EJRtSFgAkf8cUJ
+ 3lOt4Ez/IbiKPdvcgN8pcIsgRmvblzw=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1607159380;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=gecV/gH482+Xw3GgpYHPDQgme36/4knyiAKGgAX2OKI=;
+ b=aFwRMQenWRsZRCCNkR+397z/+Gvg0pNG1SITFxEUl/LsoSG3C2fp+GCtKLiAwFD1UNKC26
+ mdagB66UX8nUYBXq02YbQuLUl6VCRuVqKeU+9YHOEiCs0Csx0lNeaqC/EJRtSFgAkf8cUJ
+ 3lOt4Ez/IbiKPdvcgN8pcIsgRmvblzw=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-318-m968r-w_O4WbooaEjkoaJw-1; Sat, 05 Dec 2020 04:09:38 -0500
+X-MC-Unique: m968r-w_O4WbooaEjkoaJw-1
+Received: by mail-pf1-f200.google.com with SMTP id e68so5396795pfe.4
+ for <linux-erofs@lists.ozlabs.org>; Sat, 05 Dec 2020 01:09:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=gecV/gH482+Xw3GgpYHPDQgme36/4knyiAKGgAX2OKI=;
+ b=A6/IersObaLEbCipGlu5pUM7prF+wWoMI4SL/wiX/XYBAKZC2GaUx6zErkVDkNZhhU
+ XCOMz1aUVrnIwyHKUOJtapQXveCHP7TFF/q0Aq/4z+748rDwtChTlXfueyXKcbG85kKJ
+ ygR/0IoPuBXwIncmcWAi5HDCTuP5C/MIBRBM8qFW189ukfiI8ICZS6oo/BtCqeXKIhB/
+ 3IExWkSRzNwHH30IeUlKe2+N7DzL7B4RgsrLI1M1HvWV1L/bKBdDGHvHusiG2dFhQmyP
+ Q2wdv7Iv9zFVEheRy1KBRf4E28EAKTQwB6T+h/nngutHBb25elJouNHlttihnJXT1frx
+ MsPQ==
+X-Gm-Message-State: AOAM532zbdyTmbn1Q7LUZHuCbqx2QGiNpfe9ZvMT5OLdLsABPU2UhIRm
+ FHJ/wB2v0CNspdT0COwVqCKLA960rVOTtENUJbjfPHDqCKc2TfDONocLhM9jleUaR/hLlIIWPvY
+ 6o+cWaiXXxoKMf8WZAJ3OQmG4
+X-Received: by 2002:a62:68c7:0:b029:197:c7e0:6d8f with SMTP id
+ d190-20020a6268c70000b0290197c7e06d8fmr7816544pfc.74.1607159377516; 
+ Sat, 05 Dec 2020 01:09:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJytAgDDE6zFq6AWHXlKgRYZeU1IZVYB2/cfeqhBAEYEEiWSX5QKf9uAfIuJ0lOSo+xU5hjbow==
+X-Received: by 2002:a62:68c7:0:b029:197:c7e0:6d8f with SMTP id
+ d190-20020a6268c70000b0290197c7e06d8fmr7816523pfc.74.1607159377230; 
+ Sat, 05 Dec 2020 01:09:37 -0800 (PST)
+Received: from xiangao.remote.csb ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id e66sm6929363pfe.165.2020.12.05.01.09.35
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 05 Dec 2020 01:09:36 -0800 (PST)
+Date: Sat, 5 Dec 2020 17:09:26 +0800
+From: Gao Xiang <hsiangkao@redhat.com>
+To: Li GuiFu <bluce.lee@aliyun.com>
 Subject: Re: [PATCH] erofs-utils: update i_nlink stat for directories
-To: Gao Xiang <hsiangkao@redhat.com>
+Message-ID: <20201205090926.GD2333547@xiangao.remote.csb>
 References: <20201205055732.14276-1-hsiangkao.ref@aol.com>
  <20201205055732.14276-1-hsiangkao@aol.com>
  <ed88d60a-77a9-f189-3586-a6d6aef510d9@aliyun.com>
  <20201205083837.GA2333547@xiangao.remote.csb>
  <20201205084303.GB2333547@xiangao.remote.csb>
-Message-ID: <e3594931-7cf2-b91e-cd0c-76c1d1750ab0@aliyun.com>
-Date: Sat, 5 Dec 2020 17:05:35 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+ <e3594931-7cf2-b91e-cd0c-76c1d1750ab0@aliyun.com>
 MIME-Version: 1.0
-In-Reply-To: <20201205084303.GB2333547@xiangao.remote.csb>
+In-Reply-To: <e3594931-7cf2-b91e-cd0c-76c1d1750ab0@aliyun.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -86,58 +118,63 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Li GuiFu via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Li GuiFu <bluce.lee@aliyun.com>
 Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Sat, Dec 05, 2020 at 05:05:35PM +0800, Li GuiFu wrote:
+
+...
+
+> >>>
+> >>>> @@ -957,6 +974,10 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
+> >>>>  			ret = PTR_ERR(d);
+> >>>>  			goto err_closedir;
+> >>>>  		}
+> >>>> +
+> >>>> +		/* to count i_nlink for directories */
+> >>>> +		d->type = (dp->d_type == DT_DIR ?
+> >>>> +			EROFS_FT_DIR : EROFS_FT_UNKNOWN);
+> >>>>  	}
+> >>>>  
+> >>> It's confused that d->type was set to EROFS_FT_UNKNOWN when not a dir
+> >>> It's not clearness whether the program goes wrong or get the wrong data
+> >>> Actually it's a correct procedure
+> >>
+> >> It's just set temporarily, since only dirs are useful when counting subdirs, so
+> >> only needs to differ dirs and non-dirs here. (Previously d->type is unused
+> >> at this time.)
+> > 
+> > btw, I once tried to set up d->type via dp->d_type here, but it increases a
+> > lot of code and seems unnecessary (since deriving from i_mode is enough).
+> > So again, here we only cares about dir and non-dirs (we don't care much about
+> > the specific kind of non-dirs here).
+> > 
+> > Thanks,
+> > Gao Xiang
+> > 
+> >>
+> >> ...
+> >>
+> >>>> -		d->type = erofs_type_by_mode[d->inode->i_mode >> S_SHIFT];
+> >>>> +		ftype = erofs_mode_to_ftype(d->inode->i_mode);
+> >>>> +		DBG_BUGON(d->type != EROFS_FT_UNKNOWN && d->type != ftype);
+> >>>> +		d->type = ftype;
+> >>
+> >> The real on-disk d->type will be set here rather than the above.
+> Yes, what it makes confused is here, EROFS_FT_UNKNOWN is just temporary.
+> So how about change to ASSERT at EROFS_FT_DIR
+> 
+> DBG_BUGON(d->type == EROFS_FT_DIR && ftype != EROFS_FT_DIR);
+> 
+
+Ok, how about the following statement:
+DBG_BUGON(ftype == EROFS_FT_DIR && d->type != ftype);
+
+It will save some words. I will send the next version soon.
+
+Thanks,
+Gao Xiang
 
 
-On 2020/12/5 16:43, Gao Xiang wrote:
-> On Sat, Dec 05, 2020 at 04:38:37PM +0800, Gao Xiang wrote:
->> On Sat, Dec 05, 2020 at 04:32:44PM +0800, Li GuiFu via Linux-erofs wrote:
->>
->> ...
->>
->>>
->>>> @@ -957,6 +974,10 @@ struct erofs_inode *erofs_mkfs_build_tree(struct erofs_inode *dir)
->>>>  			ret = PTR_ERR(d);
->>>>  			goto err_closedir;
->>>>  		}
->>>> +
->>>> +		/* to count i_nlink for directories */
->>>> +		d->type = (dp->d_type == DT_DIR ?
->>>> +			EROFS_FT_DIR : EROFS_FT_UNKNOWN);
->>>>  	}
->>>>  
->>> It's confused that d->type was set to EROFS_FT_UNKNOWN when not a dir
->>> It's not clearness whether the program goes wrong or get the wrong data
->>> Actually it's a correct procedure
->>
->> It's just set temporarily, since only dirs are useful when counting subdirs, so
->> only needs to differ dirs and non-dirs here. (Previously d->type is unused
->> at this time.)
-> 
-> btw, I once tried to set up d->type via dp->d_type here, but it increases a
-> lot of code and seems unnecessary (since deriving from i_mode is enough).
-> So again, here we only cares about dir and non-dirs (we don't care much about
-> the specific kind of non-dirs here).
-> 
-> Thanks,
-> Gao Xiang
-> 
->>
->> ...
->>
->>>> -		d->type = erofs_type_by_mode[d->inode->i_mode >> S_SHIFT];
->>>> +		ftype = erofs_mode_to_ftype(d->inode->i_mode);
->>>> +		DBG_BUGON(d->type != EROFS_FT_UNKNOWN && d->type != ftype);
->>>> +		d->type = ftype;
->>
->> The real on-disk d->type will be set here rather than the above.
-Yes, what it makes confused is here, EROFS_FT_UNKNOWN is just temporary.
-So how about change to ASSERT at EROFS_FT_DIR
-
-DBG_BUGON(d->type == EROFS_FT_DIR && ftype != EROFS_FT_DIR);
