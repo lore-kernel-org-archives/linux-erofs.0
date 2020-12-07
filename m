@@ -7,51 +7,51 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D3F9C433FE
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Dec 2020 14:44:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63F90C433FE
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Dec 2020 17:09:35 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EAEEC2337F
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Dec 2020 14:44:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EAEEC2337F
+	by mail.kernel.org (Postfix) with ESMTPS id C0A8323884
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Dec 2020 17:09:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C0A8323884
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CqR0p0W43zDqX7
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 01:44:42 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4CqVCx0df6zDqVr
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 04:09:33 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=134.134.136.126; helo=mga18.intel.com;
+ smtp.mailfrom=intel.com (client-ip=192.55.52.93; helo=mga11.intel.com;
  envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=intel.com
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CqR0h3fSZzDqT1
- for <linux-erofs@lists.ozlabs.org>; Tue,  8 Dec 2020 01:44:30 +1100 (AEDT)
-IronPort-SDR: B1l/7lk1q1+cUem5UEpvSpXB82Hwmvv9IrwdGC0gl4GX/vfv0WF5pG+IOB9+7WjBZO+emU7sCn
- 6D6rPLOI9sVw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9827"; a="161477178"
-X-IronPort-AV: E=Sophos;i="5.78,399,1599548400"; d="scan'208";a="161477178"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 07 Dec 2020 06:44:09 -0800
-IronPort-SDR: HSb1x7ZPHnmYDwV7x/KNQ7lgKAxtajQQVRoecUkREI71S7YVIkmDdVGPVjW0LqQlZD5CCMYBXp
- Ocp8rMFK+Erg==
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4CqVCn6F92zDqSF
+ for <linux-erofs@lists.ozlabs.org>; Tue,  8 Dec 2020 04:09:21 +1100 (AEDT)
+IronPort-SDR: j2rptMnbSwpvCKkcgIUcH5IriPT1D27BnpHg7tmYphvwk3S0K6a/bzUnDdll8FZuYz33f6J2V6
+ cBdpD2EYLWrw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9828"; a="170226814"
+X-IronPort-AV: E=Sophos;i="5.78,400,1599548400"; d="scan'208";a="170226814"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 07 Dec 2020 09:09:18 -0800
+IronPort-SDR: tqh3T7HT9Wu/3NjJa6/6akwHXnsT/CeNKh28uWcIsQZR0qwNgOPzlQyZODl14qwuO93kT08qad
+ DzjPe+uLALHQ==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,399,1599548400"; d="scan'208";a="436772585"
+X-IronPort-AV: E=Sophos;i="5.78,400,1599548400"; d="scan'208";a="541564206"
 Received: from lkp-server01.sh.intel.com (HELO f1d34cfde454) ([10.239.97.150])
- by fmsmga001.fm.intel.com with ESMTP; 07 Dec 2020 06:44:07 -0800
+ by fmsmga005.fm.intel.com with ESMTP; 07 Dec 2020 09:09:16 -0800
 Received: from kbuild by f1d34cfde454 with local (Exim 4.92)
  (envelope-from <lkp@intel.com>)
- id 1kmHkE-00005F-Ue; Mon, 07 Dec 2020 14:44:07 +0000
-Date: Mon, 07 Dec 2020 22:43:19 +0800
+ id 1kmK0h-00008R-QU; Mon, 07 Dec 2020 17:09:15 +0000
+Date: Tue, 08 Dec 2020 01:08:58 +0800
 From: kernel test robot <lkp@intel.com>
 To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- c8390cfaa07cb9e9ccaa946a1919b69dfb34bad1
-Message-ID: <5fce3f87.KOiFMgiXzbmn0pNJ%lkp@intel.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 789409aeab9842d3fbc05c4351297863346d0082
+Message-ID: <5fce61aa.aFHO7tBW8MveZIJX%lkp@intel.com>
 User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -72,12 +72,12 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git  dev
-branch HEAD: c8390cfaa07cb9e9ccaa946a1919b69dfb34bad1  erofs: remove a void EROFS_VERSION macro set in Makefile
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git  dev-test
+branch HEAD: 789409aeab9842d3fbc05c4351297863346d0082  erofs: simplify try_to_claim_pcluster()
 
-elapsed time: 723m
+elapsed time: 724m
 
-configs tested: 96
+configs tested: 113
 configs skipped: 2
 
 The following configs have been built successfully.
@@ -89,36 +89,57 @@ arm64                            allyesconfig
 arm64                               defconfig
 arm                              allyesconfig
 arm                              allmodconfig
-arm                       imx_v6_v7_defconfig
-arm                          tango4_defconfig
-microblaze                      mmu_defconfig
-arm                        trizeps4_defconfig
-xtensa                generic_kc705_defconfig
-m68k                        mvme16x_defconfig
-m68k                          amiga_defconfig
-mips                      pistachio_defconfig
-arm                            zeus_defconfig
-arm                     eseries_pxa_defconfig
-sh                          r7780mp_defconfig
-powerpc64                           defconfig
+arm                         shannon_defconfig
+arc                         haps_hs_defconfig
+sh                               j2_defconfig
+mips                         cobalt_defconfig
+s390                       zfcpdump_defconfig
+arm                          prima2_defconfig
+sh                   secureedge5410_defconfig
+arm                       netwinder_defconfig
+powerpc                        warp_defconfig
+um                            kunit_defconfig
+arc                      axs103_smp_defconfig
+powerpc                      walnut_defconfig
+sh                             sh03_defconfig
+powerpc                     asp8347_defconfig
+arm                         s3c6400_defconfig
+powerpc                     tqm8555_defconfig
 arm                          ixp4xx_defconfig
-sh                          rsk7203_defconfig
-powerpc                     pseries_defconfig
-mips                  decstation_64_defconfig
-arm                          pxa168_defconfig
-mips                           ci20_defconfig
-powerpc                     ep8248e_defconfig
-mips                       rbtx49xx_defconfig
-arm                            dove_defconfig
+sh                           se7780_defconfig
+powerpc                     powernv_defconfig
+sh                          r7780mp_defconfig
+powerpc                      ppc64e_defconfig
+arm                          iop32x_defconfig
+mips                         tb0226_defconfig
+powerpc                     stx_gp3_defconfig
+mips                         rt305x_defconfig
+nios2                         3c120_defconfig
+powerpc                 mpc834x_itx_defconfig
+powerpc                    klondike_defconfig
+sparc64                          alldefconfig
+arm                         mv78xx0_defconfig
+powerpc                         ps3_defconfig
+powerpc                    ge_imp3a_defconfig
+powerpc                 mpc832x_rdb_defconfig
+csky                                defconfig
+powerpc                 mpc837x_rdb_defconfig
+sh                          landisk_defconfig
+arm64                            alldefconfig
+arm                            u300_defconfig
+microblaze                      mmu_defconfig
 ia64                             allmodconfig
 ia64                                defconfig
 ia64                             allyesconfig
 m68k                             allmodconfig
 m68k                                defconfig
 m68k                             allyesconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+c6x                              allyesconfig
 nds32                               defconfig
 nios2                            allyesconfig
-csky                                defconfig
 alpha                               defconfig
 alpha                            allyesconfig
 xtensa                           allyesconfig
@@ -134,10 +155,6 @@ sparc                            allyesconfig
 sparc                               defconfig
 i386                               tinyconfig
 i386                                defconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-c6x                              allyesconfig
 mips                             allyesconfig
 mips                             allmodconfig
 powerpc                          allyesconfig
