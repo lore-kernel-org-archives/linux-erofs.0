@@ -2,24 +2,23 @@ Return-Path: <SRS0=LOeX=FM=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 420F9C433FE
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 10:36:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 630ECC4361B
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 10:49:28 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7EFC5238EB
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 10:36:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7EFC5238EB
+	by mail.kernel.org (Postfix) with ESMTPS id DDDEC23AA7
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 10:49:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DDDEC23AA7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4CqxRZ5sdFzDqZ2
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 21:36:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Cqxkt1JfrzDqZb
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Dec 2020 21:49:26 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=redhat.com (client-ip=63.128.21.124;
  helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
@@ -28,74 +27,73 @@ Authentication-Results: lists.ozlabs.org;
  dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=FDo+4ewZ; 
+ header.s=mimecast20190719 header.b=Rdgz+Fkm; 
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FDo+4ewZ; 
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Rdgz+Fkm; 
  dkim-atps=neutral
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4CqxRG4X5xzDqGn
- for <linux-erofs@lists.ozlabs.org>; Tue,  8 Dec 2020 21:35:53 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Cqxgk5r7QzDqS4
+ for <linux-erofs@lists.ozlabs.org>; Tue,  8 Dec 2020 21:46:41 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607423750;
+ s=mimecast20190719; t=1607424399;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=XLaPgrslu1QG7gwYF7LzvnzPEl7alt7MxFbFNamqP+w=;
- b=FDo+4ewZwL2VHR/13eO/L8BaHJ1Vgw5/wxKJ6kwhJKwCITJzWlsAJ13Ujal+1iGTlW+BQJ
- 5QygmZuwci2CBINemwYVM7eMkJDb/dbNeu72AkK0O/Qi3FcO349GwDAwc+qEorHgmamB6p
- okXnzz++YROpBi614OCqFUy48SNbHqA=
+ bh=6J7yIt7zqDSkwMsxNQ0gl/rypHTz6CfNQjqIdgk+jqw=;
+ b=Rdgz+Fkmx4/t6V8CGzMhGqKCXSD7ykE/KCj+l5i+oVwLIQFk92MkkE/9piwvj0c4wyoLC1
+ YsTRpwm4i1qlN+bcnMmxZIbW9/zVhL2dOhU/8ejsBxC4g74HeWI/jeARaDLOvnhWcKKtdp
+ BFA4FevLA0d5weyhklD4aKPB7V4lDsQ=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607423750;
+ s=mimecast20190719; t=1607424399;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=XLaPgrslu1QG7gwYF7LzvnzPEl7alt7MxFbFNamqP+w=;
- b=FDo+4ewZwL2VHR/13eO/L8BaHJ1Vgw5/wxKJ6kwhJKwCITJzWlsAJ13Ujal+1iGTlW+BQJ
- 5QygmZuwci2CBINemwYVM7eMkJDb/dbNeu72AkK0O/Qi3FcO349GwDAwc+qEorHgmamB6p
- okXnzz++YROpBi614OCqFUy48SNbHqA=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-262-qlNDgwg5PEmkmBzAW4oYSQ-1; Tue, 08 Dec 2020 05:35:48 -0500
-X-MC-Unique: qlNDgwg5PEmkmBzAW4oYSQ-1
-Received: by mail-pf1-f198.google.com with SMTP id x26so12306918pfo.23
- for <linux-erofs@lists.ozlabs.org>; Tue, 08 Dec 2020 02:35:48 -0800 (PST)
+ bh=6J7yIt7zqDSkwMsxNQ0gl/rypHTz6CfNQjqIdgk+jqw=;
+ b=Rdgz+Fkmx4/t6V8CGzMhGqKCXSD7ykE/KCj+l5i+oVwLIQFk92MkkE/9piwvj0c4wyoLC1
+ YsTRpwm4i1qlN+bcnMmxZIbW9/zVhL2dOhU/8ejsBxC4g74HeWI/jeARaDLOvnhWcKKtdp
+ BFA4FevLA0d5weyhklD4aKPB7V4lDsQ=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-84-Swachz9lOCisMwoGjCqUqA-1; Tue, 08 Dec 2020 05:46:37 -0500
+X-MC-Unique: Swachz9lOCisMwoGjCqUqA-1
+Received: by mail-pg1-f197.google.com with SMTP id q4so733197pgn.0
+ for <linux-erofs@lists.ozlabs.org>; Tue, 08 Dec 2020 02:46:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to:user-agent;
- bh=XLaPgrslu1QG7gwYF7LzvnzPEl7alt7MxFbFNamqP+w=;
- b=DsJMqHIiaLdKKx+qpADPs7qR7ibMKX+/lEVChHbb+nNpbKkgFKMLr/iVAzE4Ew1+1V
- wKsG4TjkcZ4MjmJi6HGn3sDjzF8PHSh7Y6TX8QkMpYBPX1FLlFZ6abwybDjxyumc6CcG
- K+hL371GD8zi7a6aEZ8xuGEoF8J6188FdrL2CiuoZwJKnyrRPC8Y11QBwBiGzVhpZVHo
- tLmy5DrU0VzEV+aY1rMGdV9LV/AhQI8f6oBQBWtykNaM6X6ij+qWjW0iVL7UWoNBRKVA
- U9WgzDNmbXQLGvaPhFIQwOD7jz2anAIVwi/Rj03tnmMQh5ndrQSueB76waH0S5r2ZAOL
- wIyQ==
-X-Gm-Message-State: AOAM532A9p0F6g/YXukMcDT/fWcaZAVkitCw6KkzKY3D5BOqYaOtleF1
- Iymwi7cfkIwBAcdMfDavWgz21DdwIEsDwEsswSJzE8IHlUyrq7OUl9nkabWbf7Qszte9aYXpEfa
- 9/vFpWa7nfPLeo/TC8GJv2e2h
-X-Received: by 2002:a17:90a:fcc:: with SMTP id
- 70mr3600204pjz.168.1607423747383; 
- Tue, 08 Dec 2020 02:35:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJztDBlr72XiF9Ilx9JCyhIn71Da4bqc6vk4bMvLO3rwF29VJWxEarI/ux32I+n917OG7sm3QA==
-X-Received: by 2002:a17:90a:fcc:: with SMTP id
- 70mr3600186pjz.168.1607423747159; 
- Tue, 08 Dec 2020 02:35:47 -0800 (PST)
+ bh=6J7yIt7zqDSkwMsxNQ0gl/rypHTz6CfNQjqIdgk+jqw=;
+ b=PCoBmim6gAZgXgrAqn5TXY1K1l/wf/S2c04wPh15Isvpu053AKNyFiIiu46sZDmHRR
+ 9WIEa6YRgp3+wkJucad7j9f50Ogp1uZjDA7girtg11EyMiX6OxebLNN4lmk8ciM1BjAg
+ zNe5CqMv2NOmRYSlYCkOTjNsc9HZBLHKsqwSVlEPGmhwD/m9IntFOqJ2Y2Cp1GXQOsqS
+ tCpw4+YaACLrD9g1l5NDnxwlfhB2Q/fhmmSm9avecMnBvRayPoWkiZmYY3726NESxJY1
+ A8R0wQGqHTtMOlh4NpFHyrJcAnDwCDZQHeVPXu6v112YociKMVnvdvSI37P/iacclugY
+ /Aqg==
+X-Gm-Message-State: AOAM532sZ46sCHreW1M+GnPF0EQrnSiUEoyrW6dK24f+o7aA9s46uiFx
+ duJjV6WmWFN0GYCBli/6ytxvOSv0GNEE0xZ5xHZQmivBKVniJ/8HmeT1Hjq6GyN54QdR+E7/gIv
+ NkyhK8U8KTqItdWD5oi1asLI7
+X-Received: by 2002:a17:90a:4bc3:: with SMTP id
+ u3mr3811438pjl.56.1607424396412; 
+ Tue, 08 Dec 2020 02:46:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyVoFLWmyxlNZ3rUBYkDhl5XskptEnMXkPhEeVuLOKQuUPkfcUJTENTfIM4P+UeoldLXkZtTw==
+X-Received: by 2002:a17:90a:4bc3:: with SMTP id
+ u3mr3811421pjl.56.1607424396227; 
+ Tue, 08 Dec 2020 02:46:36 -0800 (PST)
 Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id f92sm2855575pjk.54.2020.12.08.02.35.44
+ by smtp.gmail.com with ESMTPSA id cl23sm2727416pjb.23.2020.12.08.02.46.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Dec 2020 02:35:46 -0800 (PST)
-Date: Tue, 8 Dec 2020 18:35:35 +0800
+ Tue, 08 Dec 2020 02:46:35 -0800 (PST)
+Date: Tue, 8 Dec 2020 18:46:26 +0800
 From: Gao Xiang <hsiangkao@redhat.com>
-To: Huang Jianan <huangjianan@oppo.com>
-Subject: Re: [PATCH v2] erofs: fix wrong address in erofs_get_block
-Message-ID: <20201208103535.GA3139231@xiangao.remote.csb>
-References: <20201208093133.5865-1-huangjianan@oppo.com>
- <9fb238a9-ad1e-cf7b-7b42-291e5f0e8929@huawei.com>
+To: nl6720 <nl6720@gmail.com>
+Subject: Re: Cannot build erofs-utils 1.2: multiple definition of `sbi'
+Message-ID: <20201208104626.GA3140556@xiangao.remote.csb>
+References: <10789285.Na0ui7I3VY@walnut>
 MIME-Version: 1.0
-In-Reply-To: <9fb238a9-ad1e-cf7b-7b42-291e5f0e8929@huawei.com>
+In-Reply-To: <10789285.Na0ui7I3VY@walnut>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
@@ -114,35 +112,33 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: zhangshiming@oppo.com, linux-erofs@lists.ozlabs.org, guoweichao@oppo.com
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Dec 08, 2020 at 05:48:10PM +0800, Chao Yu wrote:
-> On 2020/12/8 17:31, Huang Jianan wrote:
-> > iblock indicates the number of i_blkbits-sized blocks rather than
-> > sectors, fix it.
-> > 
-> > If the data has a disk mapping, map_bh should be used to read the
-> > correct data from the device.
-> 
-> Thanks for the fix, I was misled by sector_t type...
-> 
-> What about avoiding using generic_block_bmap() which uses buffer_head
-> structure, it limits mapped size to 32-bits:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/jaegeuk/f2fs.git/commit/?h=dev-test&id=b876f4c94c3d1688edea021d45a528571499e0b9
+Hi nl6720,
 
-Also a minor thing is to Cc: LKML <linux-kernel@vger.kernel.org>
-in the next version and for all kernel patches, which is needed
-for upstreaming.
+On Tue, Dec 08, 2020 at 12:35:42PM +0200, nl6720 wrote:
+> Hi,
+> 
+> I'm having trouble building erofs-utils 1.2. It fails in "Making all in mkfs":
+> 
+> /bin/sh ../libtool  --tag=CC   --mode=link gcc -Wall -Werror -I../include -march=x86-64 -mtune=generic -O2 -pipe -fno-plt  -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now -o mkfs.erofs mkfs_erofs-main.o -luuid  ../lib/liberofs.la  -R/usr/lib -llz4 
+> libtool: link: gcc -Wall -Werror -I../include -march=x86-64 -mtune=generic -O2 -pipe -fno-plt -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z -Wl,relro -Wl,-z -Wl,now -o mkfs.erofs mkfs_erofs-main.o  -luuid ../lib/.libs/liberofs.a -llz4 -Wl,-rpath -Wl,/usr/lib
+> /usr/bin/ld: ../lib/.libs/liberofs.a(liberofs_la-inode.o):(.bss+0x40000): multiple definition of `sbi'; ../lib/.libs/liberofs.a(liberofs_la-super.o):(.bss+0x0): first defined here
+> 
+> This is on Arch Linux with:
+> binutils 2.35.1-1
+> gcc 10.2.0-4
+> libtool 2.4.6+42+gb88cebd5-14
 
-(quite closing to merging window...)
+Thanks for the quick feedback! since inode.o is for just mkfs, and super.o is for just erofsfuse,
+so I didn't observe such issue before with my configuration... I think it may need a
+temporary fix for packaging (if erofsfuse is unneeded, since lz4-1.9.3 is needed safely,
+is just get rid of the one in lib/super.c, or move these two into lib/config.c....)
+I will submit a formal submission later....
 
 Thanks,
 Gao Xiang
-
-> 
-> Thanks,
 
