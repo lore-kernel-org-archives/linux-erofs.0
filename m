@@ -2,86 +2,109 @@ Return-Path: <SRS0=cd6d=GA=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79617C433DB
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 11:47:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F985C433E0
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 12:44:40 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BA95F221F0
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 11:47:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA95F221F0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5090A208B6
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 12:44:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5090A208B6
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4D4G4G4h9TzDqC0
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 22:47:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4D4HLX3VzDzDqC3
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Dec 2020 23:44:36 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::433;
- helo=mail-pf1-x433.google.com; envelope-from=zbestahu@gmail.com;
+ smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
+ helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
- dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
- header.s=20161025 header.b=VE221IZY; dkim-atps=neutral
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
- [IPv6:2607:f8b0:4864:20::433])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=YOeK9t3r; 
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YOeK9t3r; 
+ dkim-atps=neutral
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4D4G471rJ6zDq9d
- for <linux-erofs@lists.ozlabs.org>; Mon, 28 Dec 2020 22:47:00 +1100 (AEDT)
-Received: by mail-pf1-x433.google.com with SMTP id t22so6178417pfl.3
- for <linux-erofs@lists.ozlabs.org>; Mon, 28 Dec 2020 03:47:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=G/CxAUQMBB/950W7ILF3H1Z+TUvEYtltBR44JZrmK9M=;
- b=VE221IZYlcSXTl95w7uni52pEv4X7hoX9RmNVYxm6lGyX6lSt2dDjegCgQB10MFtBj
- ywLihMJj2tdhffraCo6gnNr+RN+dyd8P/u+0IUGZ6av2HH8oxGWgQy1TcvS1nhm+cEaW
- WHshLWhjLZtNxzSvvHHcgNWmEWpOKIGz7xOlSFmTllwfhIQf9pqBQIuLbtIykyxPKidp
- BKzvaxN/G4e/EceVGAcxjuIFyQ6AZ8UPu+je+L59JHcSCYzfdbRO97JohEJOukW1sdhw
- /GahCYpBmia7sE7wdVFi/fTlg1q49EQxelC1HW3decLkqVM4migvi9CoUTf6QhWBpfJT
- jsbw==
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4D4HLC6d3PzDqBm
+ for <linux-erofs@lists.ozlabs.org>; Mon, 28 Dec 2020 23:44:17 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1609159454;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=eNXNZbTb3NZzXN009Xt98WU8NUriNWM/XUV786DSoZY=;
+ b=YOeK9t3rlMNKO2dP/62INZkG+0w/2cLDsD/cCjRMJNcUcIoh4NDf8hrJIC29kde7z/Hd7d
+ zRN7vn2gp5E+IG7WnUNzXaVMSKbBdt/rCgpmflEDaVjd+OBYLAnTZ/jT+vmoVBFfQbiL79
+ s/mbO8PwFHG92LPMldtLrEVncXdZajs=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1609159454;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=eNXNZbTb3NZzXN009Xt98WU8NUriNWM/XUV786DSoZY=;
+ b=YOeK9t3rlMNKO2dP/62INZkG+0w/2cLDsD/cCjRMJNcUcIoh4NDf8hrJIC29kde7z/Hd7d
+ zRN7vn2gp5E+IG7WnUNzXaVMSKbBdt/rCgpmflEDaVjd+OBYLAnTZ/jT+vmoVBFfQbiL79
+ s/mbO8PwFHG92LPMldtLrEVncXdZajs=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-47-8ql-9O1EOIaN9kSssQoG_A-1; Mon, 28 Dec 2020 07:44:11 -0500
+X-MC-Unique: 8ql-9O1EOIaN9kSssQoG_A-1
+Received: by mail-pg1-f200.google.com with SMTP id 139so8089748pgd.11
+ for <linux-erofs@lists.ozlabs.org>; Mon, 28 Dec 2020 04:44:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=G/CxAUQMBB/950W7ILF3H1Z+TUvEYtltBR44JZrmK9M=;
- b=ICXdIU1tamsgf+XZPdXfZiCYNUX5toThCgPZs5f8Tr+XFPit9K0ufJnu6+GQ8TH5V5
- w8GunGmTPSoVeWqcaHMmRjlBrB0zprChZUT6KYAQohNWa0ps6kCjusWZuQVUp52+t5b/
- YEWZTtOXbNsUW4rcCUncfkp1hffG+Mt/nG2+X117ttcqT/qBfMOVNSAoFRoM1V6b6eJq
- EfupAu3hsoHC60ewkQ0fvE0r+2xWVLHdsmbte8EOpmw1mKb4g6p3ZEZ4rgwBiFop2YBf
- /v40BoNFId+vJ/r+wcPOEtOliYujNZEFD3FPgRO+8LjKeKU3U112cgaB9fsoeiCeLBu4
- 0jNA==
-X-Gm-Message-State: AOAM531L7CuPkrQzE54sMVwup/saPApBwp6eMxL0NaSvEapi+0kcYyFt
- D6PpsYjPWlxyeczI64yblRY=
-X-Google-Smtp-Source: ABdhPJxMOsHzv2A6GUj0yFsDL3GKTK4Eixcd73ZSuMQDaSOsbwFGaCAWLUWHGRDorpWTGqcrQFz0Ow==
-X-Received: by 2002:a63:c64c:: with SMTP id x12mr37295217pgg.293.1609156016920; 
- Mon, 28 Dec 2020 03:46:56 -0800 (PST)
-Received: from localhost ([103.220.76.197])
- by smtp.gmail.com with ESMTPSA id k125sm35451759pga.57.2020.12.28.03.46.54
- (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
- Mon, 28 Dec 2020 03:46:56 -0800 (PST)
-Date: Mon, 28 Dec 2020 19:46:56 +0800
-From: Yue Hu <zbestahu@gmail.com>
-To: Gao Xiang <hsiangkao@redhat.com>
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=eNXNZbTb3NZzXN009Xt98WU8NUriNWM/XUV786DSoZY=;
+ b=BSLMDGWcz6tUvunNhYi/jLu3CmlKcfiem2tCiMieX4oO6O3vgFqvWYswxchtuG/I4b
+ 0N+h8BlOC+sz8cphlsyNVuOIBANUawn3km3IsnsNiI4UhUPymd2Zczb6Ol5BRS5VcHXY
+ U2uzE0fzXD2+/Fkmy4IehcF/viRaiBCvQt3H4UjAFrWIul0/PV7dKHk8xMo/MGMRNC+t
+ AKTrYk044nLfdOhkDT9FSqn76VBz5XszKIpFYptbY5vSW6ykOhKVpMO+nnU/V0oCKKNL
+ kTeOZGzoET7WZ1V+S3eW4QRqz2oN6+MbtBsOvJ3MiU1e++Ia17yyYXpbeRiKz66OYfr2
+ Tv+Q==
+X-Gm-Message-State: AOAM531ZTb24r0OzYY+Us5ICFlKGEGeCa4oPP3JcE6Qh96nZzI9sN8SM
+ DRQCBgLzGnSGYM+LFWYKalIJEd7NXrBl47OgdxIouSkSXYWsHpC+kkasNWLh5QfAzlAqNpV3MaV
+ Tlm1GJUdsFxiaVO3abv6IQBDL
+X-Received: by 2002:a17:902:ee83:b029:da:3483:3957 with SMTP id
+ a3-20020a170902ee83b02900da34833957mr20435831pld.38.1609159450460; 
+ Mon, 28 Dec 2020 04:44:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwOv6s2tpvnwx47x8qapyUX1c7891HtsfwuMjFzFhHc5k5cSgIZZgcwzPxSDQe1BU/yiDkXJg==
+X-Received: by 2002:a17:902:ee83:b029:da:3483:3957 with SMTP id
+ a3-20020a170902ee83b02900da34833957mr20435820pld.38.1609159450279; 
+ Mon, 28 Dec 2020 04:44:10 -0800 (PST)
+Received: from xiangao.remote.csb ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id s23sm20706554pgj.29.2020.12.28.04.44.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 28 Dec 2020 04:44:09 -0800 (PST)
+Date: Mon, 28 Dec 2020 20:43:58 +0800
+From: Gao Xiang <hsiangkao@redhat.com>
+To: Yue Hu <zbestahu@gmail.com>, Huang Jianan <huangjianan@oppo.com>
 Subject: Re: [PATCH v2] AOSP: erofs-utils: fix sub-directory prefix for
  canned fs_config
-Message-ID: <20201228194656.000059dc.zbestahu@gmail.com>
-In-Reply-To: <20201228105146.2939914-1-hsiangkao@redhat.com>
+Message-ID: <20201228124358.GB2944077@xiangao.remote.csb>
 References: <20201226062736.29920-1-hsiangkao@aol.com>
  <20201228105146.2939914-1-hsiangkao@redhat.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
+ <20201228194656.000059dc.zbestahu@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20201228194656.000059dc.zbestahu@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -93,115 +116,28 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yue Hu <huyue2@yulong.com>, zhangwen@yulong.com,
- linux-erofs@lists.ozlabs.org
+Cc: Yue Hu <huyue2@yulong.com>, linux-erofs@lists.ozlabs.org,
+ zhangwen@yulong.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Xiang,
+On Mon, Dec 28, 2020 at 07:46:56PM +0800, Yue Hu wrote:
+> Hi Xiang,
+> 
+> Works fine to me for canned/non-canned fs_config.
+> 
+> Tested-by: Yue Hu <huyue2@yulong.com>
+> 
 
-Works fine to me for canned/non-canned fs_config.
+Okay, got it. thanks you all for this :) 
 
-Tested-by: Yue Hu <huyue2@yulong.com>
+(also another link for indirect call: https://lwn.net/Articles/774743/
+ , so as long as some switch table, I'd like to avoid such usage...)
 
-Thx.
+Thanks,
+Gao Xiang
 
-On Mon, 28 Dec 2020 18:51:46 +0800
-Gao Xiang <hsiangkao@redhat.com> wrote:
+> Thx.
 
-> From: Gao Xiang <hsiangkao@aol.com>
-> 
-> "failed to find [%s] in canned fs_config" was observed by using
-> "--fs-config-file" option as reported by Yue Hu [1].
-> 
-> The root cause was that the mountpoint prefix to subdirectories is
-> also needed if "--mount-point" presents. However, such prefix cannot
-> be added by just using erofs_fspath().
-> 
-> One exception is that the root directory itself needs to be handled
-> specially for canned fs_config. For such case, the prefix of the root
-> directory has to be dropped instead.
-> 
-> [1]
-> https://lkml.kernel.org/r/20201222020430.12512-1-zbestahu@gmail.com
-> 
-> Link:
-> https://lore.kernel.org/r/20201226062736.29920-1-hsiangkao@aol.com
-> Fixes: 8a9e8046f170 ("AOSP: erofs-utils: add fs_config support")
-> Reported-by: Yue Hu <huyue2@yulong.com> Signed-off-by: Gao Xiang
-> <hsiangkao@aol.com> ---
-> changes since v2:
->  - fix IS_ROOT misuse reported by Jianan, very sorry about this since
->    I know little about canned fs_config.
-> 
-> (please kindly test again...)
-> 
->  lib/inode.c | 39 +++++++++++++++++++++++++--------------
->  1 file changed, 25 insertions(+), 14 deletions(-)
-> 
-> diff --git a/lib/inode.c b/lib/inode.c
-> index 0c4839d..e6159c9 100644
-> --- a/lib/inode.c
-> +++ b/lib/inode.c
-> @@ -696,32 +696,43 @@ int erofs_droid_inode_fsconfig(struct
-> erofs_inode *inode, /* filesystem_config does not preserve file type
-> bits */ mode_t stat_file_type_mask = st->st_mode & S_IFMT;
->  	unsigned int uid = 0, gid = 0, mode = 0;
-> -	char *fspath;
-> +	const char *fspath;
-> +	char *decorated = NULL;
->  
->  	inode->capabilities = 0;
-> +	if (!cfg.fs_config_file && !cfg.mount_point)
-> +		return 0;
-> +
-> +	if (!cfg.mount_point ||
-> +	/* have to drop the mountpoint for rootdir of canned
-> fsconfig */
-> +	    (cfg.fs_config_file && erofs_fspath(path)[0] == '\0')) {
-> +		fspath = erofs_fspath(path);
-> +	} else {
-> +		if (asprintf(&decorated, "%s/%s", cfg.mount_point,
-> +			     erofs_fspath(path)) <= 0)
-> +			return -ENOMEM;
-> +		fspath = decorated;
-> +	}
-> +
->  	if (cfg.fs_config_file)
-> -		canned_fs_config(erofs_fspath(path),
-> +		canned_fs_config(fspath,
->  				 S_ISDIR(st->st_mode),
->  				 cfg.target_out_path,
->  				 &uid, &gid, &mode,
-> &inode->capabilities);
-> -	else if (cfg.mount_point) {
-> -		if (asprintf(&fspath, "%s/%s", cfg.mount_point,
-> -			     erofs_fspath(path)) <= 0)
-> -			return -ENOMEM;
-> -
-> +	else
->  		fs_config(fspath, S_ISDIR(st->st_mode),
->  			  cfg.target_out_path,
->  			  &uid, &gid, &mode, &inode->capabilities);
-> -		free(fspath);
-> -	}
-> -	st->st_uid = uid;
-> -	st->st_gid = gid;
-> -	st->st_mode = mode | stat_file_type_mask;
->  
->  	erofs_dbg("/%s -> mode = 0x%x, uid = 0x%x, gid = 0x%x, "
->  		  "capabilities = 0x%" PRIx64 "\n",
-> -		  erofs_fspath(path),
-> -		  mode, uid, gid, inode->capabilities);
-> +		  fspath, mode, uid, gid, inode->capabilities);
-> +
-> +	if (decorated)
-> +		free(decorated);
-> +	st->st_uid = uid;
-> +	st->st_gid = gid;
-> +	st->st_mode = mode | stat_file_type_mask;
->  	return 0;
->  }
->  #else
 
