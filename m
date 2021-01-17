@@ -2,102 +2,106 @@ Return-Path: <SRS0=qOts=GU=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6472C433E0
-	for <linux-erofs@archiver.kernel.org>; Sun, 17 Jan 2021 17:46:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C065FC433E0
+	for <linux-erofs@archiver.kernel.org>; Sun, 17 Jan 2021 17:46:56 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C5B4B21919
-	for <linux-erofs@archiver.kernel.org>; Sun, 17 Jan 2021 17:46:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C5B4B21919
+	by mail.kernel.org (Postfix) with ESMTPS id 421E021919
+	for <linux-erofs@archiver.kernel.org>; Sun, 17 Jan 2021 17:46:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 421E021919
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DJj5x6WtczDrR9
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Jan 2021 04:46:45 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DJj664rzzzDrR9
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Jan 2021 04:46:54 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1610905605;
-	bh=Ayq9GtJk/YOjXH8w59YS4nb/u2UDL4+cToKhJAoOAKo=;
-	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=Z8mYLyIynPAid5tsLKFu+12I6Tq6cuiZ16DzuGtYFoHAGwORG8trGu5uCTq1iip7Q
-	 u5Xv4XsFj4VuMuQoAX6axKoXbAOxuwTvS/l5BhUAJDXom5WPrMqdggm3Dy4hpGY1Jo
-	 fvR0VcHVgiwRDKSAPIq/5dWgLnQsq7TnDN9GoaRRMgjWuWYv3GtX8K+mVfsNb/1KWH
-	 Tq3bqTuoDlWOh8znmYG3duYTKED5BozRbtf6DjzqUL5r6bN3kZo/iECtT8c8kCep+n
-	 7K599q7SCvJ2tYZpuP2FltfFQavk5dm6gDn+rsDwBsiTroXv/KOPuffqdTbA7FOMJO
-	 BEVOieXNY77MA==
+	s=201707; t=1610905614;
+	bh=MY9y8sEmEw4UMiPwoeI9t05kUrAMiqbFgco3VXtrkK0=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=C6ETo+DD6eJ+wsS8y9WKzLUqNPvsWNYps033d24ms14LrIqeV4JEFwPmRhtvPDi/s
+	 i7mJL6rVnGR0DvaHd9jkOqWacZaikTnkUmpP0yNPOyqneX350vYMvPqPJjr+EAwF+i
+	 qNaeubD6Y8X/fJrFTMIlRY5FXLSYiqhO91LpGn6tts0Vt3BPnOI146MhoMycJnTVTe
+	 lNho2nBWLgGk1OAgiNy6OskGLuypwSxbWVWlPC2R20eBPpNgoTfcBUuJIBQt+MOkM5
+	 Z8rPWQe7y9fDjZZxvIOvel/xs9aVhOROC85Ewy26Zi8WzsbQQ7UrwTT/99wjqgVXCG
+	 OtpFTOD2p7d4g==
 Authentication-Results: lists.ozlabs.org;
  spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.65.205; helo=sonic311-24.consmr.mail.gq1.yahoo.com;
+ (client-ip=98.137.65.147; helo=sonic309-21.consmr.mail.gq1.yahoo.com;
  envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
-Received: from sonic311-24.consmr.mail.gq1.yahoo.com
- (sonic311-24.consmr.mail.gq1.yahoo.com [98.137.65.205])
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=Nv9T7iwu; dkim-atps=neutral
+Received: from sonic309-21.consmr.mail.gq1.yahoo.com
+ (sonic309-21.consmr.mail.gq1.yahoo.com [98.137.65.147])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4DJj5d46lTzDqts
- for <linux-erofs@lists.ozlabs.org>; Mon, 18 Jan 2021 04:46:27 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4DJj5g6RS3zDqty
+ for <linux-erofs@lists.ozlabs.org>; Mon, 18 Jan 2021 04:46:31 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048;
- t=1610905581; bh=wMMNB98/M1bNWJlZQgJRWhKmtLvmUXKvr0mc4xmWx80=;
- h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To;
- b=pg255kxBOqCg2QKIrJ9X4RVapbCl6UzphVDqTD0PETtrxrPIfFmbkedkEPjvBdWoykMM/FazSmGzIyRYYLOp3N3tIi0Cz0Go5tsJF1B6J4etSzmfVig3VKNPctL1G8Nj04vDsq4aDQQin/JJyLSLcBEC7hglxm4/68PVki+yZRAQgkRtplfO+t6tAesp74Ltw7APwAT0igxJ4BBLEUgmxX3iQHv6c/JNykzZlLpfPgY3rO5qTeIP+fjVmIN0YrMDrGRhBHjNvUj5Q6bAaFKH9fGUvarMEXnYXYfwMrGMeEjMGZfAnCiNhbsVV5jgVxQTnNoeUcYc6oJmPh/J1RcYtw==
+ t=1610905587; bh=NwmT2T+d7Y53cVpmP6XkSiWf58IlKLbPbbrlYlECeaY=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To;
+ b=Nv9T7iwu/dN6Rp+1x54cmKNLBFgYpupTwhU0E8/IVrSE5UUQ9nc1HPBacprf9oELZdb8Qg9nU3aFX3HeMtHMuYVxeO3ZjmMBeFd0H/tx4SJOYqrJX/yaT+3MMVHo9dnox0mFH+8o+3CB8FJ/XQ8WiXORSJ9We7S/7JoxN9rsI4agXYeV0qm9QkH9JIVl/2Dju+w903PoBy7yivzfkHLDW7ZAQ1WFEMooWQgMY/imbw1GulKlqFEiHJJoAyX7zYjboT4cOVjkIchVjBL3Ij4ufH242m6/3JqAZ/GmxhIjI9DYRvEMD77onBedMZBFsko9GVkFJlplt1ai1wdvY2ve0Q==
 X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1610905581; bh=V0nGpWJp9DfGKwM1n9Z2Y+sFW3AsoiKKRx5mZEGFevl=;
+ t=1610905587; bh=G3KNONlVsEaNZok7NGJdxhD4oEXur7cZHz1DyiYakJm=;
  h=From:To:Subject:Date:From:Subject:Reply-To;
- b=S9GoHotXKJvGUjMCL64h4RXBFwNR6ATFv2Vpzj77dxSRGHBa2znk56FuD25xotE3PbfSbclmE0Q86eRW4U+Sd8WmWwa6d02mf+SJyqlrHPZEg/SZjPHcBCmyfxCAt6fLCfPdYPP5z3zt2L+xhf0hQdkd32JkXmdq7FkPfNWNstvafrY6rTf5pQOonJfCppGdWxStVpnmA9F2O/VBLhtYKO03upVD7+nRPD/O8H+oxDjykqyZsxlJIK4OfYeMLtGsLHHXX7yk7EpSlRxNFVflO06WyB+NZhk8HiPeR80sWsSBQiUikGvkuhWPYZ1GFksViQ7irl2kuzkoGohhKvjWsA==
-X-YMail-OSG: MPHCIuUVM1mCtKa974Tb6Ninlvk7q.fdcD8vLDBBOS_97XkUZ6klrnYobhbCjko
- zY.OuD9ik0F1MOYl7d5BNohUxtGVatvLrNTroLM2rW.VEptdcfoLFJ7ccWgF09RzdO4H0MokiC5q
- 41ri2kRT3Rwuugr9D.lGFSC8fc4a7eSdecvTIkyKoYNmK658tR8fVduO4OKcuv5fLZvZdsIy1lfN
- muVxuTxw2IvgsI5.hGpFCBxljdx5tRUOV.9BpaVtgEcRFzOOx7cFJRXT1sqNDNa_L_rUP3bBQGVX
- XkJS0LR1TdldPMjYz8fiXqlM7OevRBHBWURFTeMjA_yw6E4wZ5xl1Bqj3xDZ1zZ6sTgv90SOtvGZ
- 9V0ZB4WAl9yEFnSbNr1t7JZSRs6xoGdmjBJKNPUe.NG_MoE2bcaXW8GQsBssFdnYZaHY9RBPoG8g
- HspaBHqZ6IJP2nz474aV8AIEZQCpZi3GsVIHVBAbzBn9He_0kWLveGd5IlPqzgVAYZZHzTSTzIpx
- WwX7tdgKV8wgF.fyaUiqYexib0CKC70ws7blOBKw8wppdd22L_z4i.0cOOldVI3xPfd0tXXdfw28
- ksYEs5RxPYqKowANb0eNhu6dpwKuaTdYuKdPex0P7oL6Zma2QwvDK_smjcaHwlw_cicSPzEbb1OG
- 600U4ijskj3hutYUEtDqVZOrs6xhYyQlE87T3GPnv3JuxWCEjs.XiiGf7V_LhReUwxhkoGH9Gv_t
- iT8eTGAG2O3ov5rTaepgA_lgeNWWW.DnP4aAjFPtREcckbM9y39L4U.WF2q.YwxYZ5dXvG2NafGm
- Md1NBE30SJq0RK43hFgOaAgHYMq_6N3dGJzWEp2v7povx0MMaB7RTc5Cbt0r85lGyHcXIDHbP8EX
- 2LYSN7HQaizwRprzEzajGmCo32bLoyqJypKF6Xu.D4dWNGDO3E4xC3UJjixJmQjClW7JOl_uBX8k
- 7.Kk1zWgFAAiimqF30WDb_hmi4COhQjobqPfYlQ6xpyc5pgpzI0HzDmG6G92G9jPC5vcZZ.tIzbz
- 4177fv3SUghZT09x4gPXjtesex.TuMkMbTOSQJQ0JIL5QhLIDaO60ruAO7TeMphHNk06C_sEWCeK
- nKOOFDHiJ9t85kPJbf5AxVPKzYkZIZBxFsDvqD8ypdxMifEsOu1sL4HMkI0E7dICYWTo8E9_HBOz
- 19gaAo1ynyWFi4ZwPKAc5EBoFNUcyt87spq4QFuTAou9w7J1zmkl3QglU0RxXcbM6JpXTeKMmo5y
- K8SIgbbjfU7s28ebQgrugPdKRHmMSE0iXkVrQI9ORLHo3_rn50d1OkCLjYRJ0C.tYWY4bSp7Ldru
- Ije3p.cjbX_.frmvOFJ148p9yr.HEdlZv_yJrq75NUz.OwvqwmvhHCabZbB4lfNcAdDz_VqQZ2TJ
- RDDEPcKGD3RE1W0HQBUj7uiUuVaQen_xRQ2Yf.fBNfZe4ZOyU6_284Gl1y7CO6B3VwbyKikcklcs
- QyuVjyvZ8Cb8NCXYf7hpokY2OroDBWid3HqdS5QPHpwZdWfKuJqWzHJBPU6fzbQYfJJ29eO_GCTg
- vg0it2e1c2zIwGTlt4RmkUOJGuJ6ZYC0qbtkmdV2LQtdryztBWB_A8wGb7e_.RrFeiHvb4R9D4hi
- FRQptNjEcjZ9v7dQ7q9ZuEFuwxA_jRzQwF74n1fsChSa6hHKgNEHyvwYsDpvU90.2so29wJv1Cap
- 16W1X6dI34Iy_U86iqU7ND.K0jqy_kFxb4LtMX.i5HE7Cs2uMiXSM_zhUoP8Ot5mh1.9VRvyzawo
- M1htQm0rr.2YmSH7.tUdsoTKgMlypHy1Nqh9CDEWwY0FfcWJk_sK1a3q3yx13qNeQBidVMmU0ybg
- RwAo8vxc2PqwbI3eYjNPYoDcCcb0w8i2oubgRGUAbsQxbHV_VUYydB1OwNKqI8bvHka9wVPTjGHH
- rx3rE19DevH_SE65h1obZKonqiwGoqp2fUe.IJ32Pqr9puZRygD7T7RNUwJrl8mooeJhCNrMQHlo
- FrOGNgiyeFGyrk7RwEQyZ5mKfTlXkwNNOPJ0kfqvttJd_03KpSpKF9R3Hev_xIcnZtZMdH2ogVSn
- ETvsih4.Xzr92Jfsj.hfpPTEwNpSbesm9qjKjtwDTY7bG29qKZX2VQZMi5_wAqyBHv6NPBjXAOh_
- HjW6GpBBrMaQNp2V_NbgXaL7nDc7.eqJraUrnmrEKROWcBZRi_MjICFNsF8Jib4a9M8DtgcSBTgY
- ret8e5gD5GV_at1RQcSM5qZs41HZP5fzTU_vlMvQ9er6Ncv6SRqWyixS3ApsOonI8f7FLPmNajWy
- fBNcq3zBBEUas0.9RC2jtr.B4lKGsMlR3w0xVSgarsnx1Rr5DG1QNQjJ3KKfNhwMnRdVOjvUGfEv
- Ht2awNazjovxvIM.ATBVkuT1hm6yczeBZayxz.fSQkwVoaF_7zf5y9Nv4HUIKQ932BrVXcsGkJki
- HQKtErBOPioN0QFQELv6ue60GSrUieG9cZIPUkheyjc0lgjwiEQagITohE_dhd.CNOUZL.i2DxGW
- _R5ReL8K05bXEc7XADDs-
+ b=NaGN5nDYQ6flDuxu/w7iBAOae0Ew2vh6LoBbxcuVrME1f+wsf14icfauVwrhYzBkh99u4Dk31fvgGvvTDW6t7S0UTox7dNVcJkoleOsiyM/mybyWQG3AwJCZiYQIVskQmrTa4T6zgeHrBAH1bgSLBzHMYwO2lhmFJR7xyUepTWeMg1HWMzbZyp3Wir8kd5gvlda/2YFhj1fnVcKGedA4f8od2kSmFQY4rE3/accDArf80Wj6HMdkRCCwKcibp++BH8lfiOcCDhldOlwh0BesI/+zxxtfrPBzhZhLgQttsU2MJ0Krph1OM20k4lYp5iOt6B7bkRX0Xis62t7KZXxFEQ==
+X-YMail-OSG: aAKjjMIVM1ny3FGmwWcJStyM0dl3X6x3OEB5DcpngIaCmMLm11rY3JUN.U.ppLI
+ VOdwAH_KZK0S7w9iTwQoHzookEpmosHzzE_aWBnnnOHYtgcWrPY7jAqzYnGd89tO2ELZarInSOi9
+ Polj7acgn6RccDgbvie83BV6UvDvDsLGlPps1leuQ5qWMdh7fJe0QgobHrCTEEawja_nq7X4qbpC
+ xKXvsEroAKxmuRTvuRUAM.jHAbeprbFLFDcIwvO7.pf1NgwjZK.aT60qpssAIQcXu1UrjLadxWXN
+ DwDHTsjGxEcIAHkeji2K4sY1kv760ueb757iBOKlDyk6vR_qQJnIMjU0ncwQb72PEg6Cr3mZ641G
+ G0ukhoeP7XUd0db4T.OFw.qVvgTGp_lZ8xK2_b_jwanHCDbA3D68WVVOCZxeU63pvcapHcStHW5S
+ nc8G_.sZEdnDWuZqPTgBFqPeCfmFBD4xOt9TY32_BJKTroUgtDCFcVrdQGxVrExBnL9OcL99gVSn
+ I1xdfaZ890RXLxH7q9QNRyr47Stu61WLN8UJgTKRxR5wzKEpHeCH0HJIAcvkSLqeVF4NH4YMzlDY
+ R13dl.QViqAJk9qxwqQXsfsMqBrMEefsRFMQmFkG74dcdo27F8kwY.4mP7nDZ0EJvukFbWNey_.e
+ JOW2DjsXY8A3_s8Qn6zMi5ETPE5wodI4xDhxFacCZR2FqUYSEcf6.hDETzIgRXIT1P_uIX7BPoca
+ ABOciICWYZOZKMnfht494cRRSDJsiSHZCHELlRfHgLT6odQ6GUt6KLUCB5wId7NdCmQVenmECj_8
+ hOTFVot3ew0qmuL8Sq57x8Xv9tRzby5cr_fQg7iIH3B8kD0qgQ6E.hsM.cbL9g4liOieNHghGPnr
+ lTHGEyuHSi6QhTieTEqxC1TMbc4kpooEd7jqOxHOol6HUwks0xqleG88vsHLltGAAwCQsjOStuww
+ Ui5FzFNXWnYQQ6Jx5.Di_VkxZ.0Se4hJAYe3MfZIhZbdntEsLWjc1cJiaPJMaeERbHjXwMij.YUB
+ V2SzIXcpwxqS_NIioSq4.dqhWw7xw03YgXLHnUxzP6U9sH_SEbcAtF5VOj84ZTBGTsFDkORmMo2H
+ .7k5BSQlbG0IbDMGPM.we9EpVNNdQrjf4c18fjbrHh9eEq3SsYNlEb7fBpaEET3ESUD7Ye5FlItK
+ aBqThEfDGH4WQB.O7pn1ZXhnfOLRNJlB_9SXXwtmo6lUMRlfQvABjTZFoqI4te0zBF0jugChoeh1
+ kyNr7KwzYdCMFU_zOzy5Jv9EiGrEUowIDLRS24pWFgPor49FWl5KWqpE.6OgVhCTg3V21H4GecjT
+ qNEZAQelzImnSzS49tvoE.gVX4epq1gcL2j8PbZnNqHP31XTdvGxwFZQGUUw9XnxrHrlPyMf2N3Q
+ 59j0A_F.4_zqAJP5oDrzXivLZFeofbqjsjOR__c_BKJr.VZrfmNF7WVb_d_OXix.0.nfesOgRsXi
+ 8ubyMELPSw3hN0RRpCTUcj1vWrIH4GD.E27yq0nkaRdRHBruhWQXh1prqXoPNbJMWQrxUmt4KHtN
+ CjG6HID_ywrKvf9zO5674AnnR7_Q1jV0oGQH0bcV1OAoayaLv46TRF8RIBfcRkHxZFA0Vku8Ayxk
+ g_etDCqrR53JXIiLG53621bRG_6GMtu4u61qItbgiCtD09JNdiejwF3VbJuCzvO.fYHBoHNLTEbG
+ ol4WPYCwJ_Q5neWAKcup3rupRkDhZcAPbK0_AuJbX3mylkF8BFCiiRQczRal4CkyoOjbv_rp5UGe
+ craKrEOiOeA_ykqrzV77sMKvgQSrTZzVdBtMU67D4ffLaclcgo6Jzwp9V3MO4i3qoIZj_TjsDz6i
+ U.4Tw4ButtMSC0phbFdvcC.Wywpd3sOihORoCaq2NRdnq8KdsGQg0xKVYl8cIQ0CtDprU1JbE5Gx
+ V2AgS399vEw2W7R0UVIYUyjigqq45w0K2SEdvEb3TK_9T1g8v4xVoKArq4ROVuIDdBvjJUbEHZ3_
+ FIWVvOJjv1d.d7Uybr7X_awpNEIomISaLifDwM0dT_167Tzdrhaf0aqYyK_k_7njBFk4oIR4Wv4v
+ mdM6zdwRMVyamqqfkbgyLcikrcUO0EhXDXUC8.jDZoH0GWA9aF6gG88F_VtAe0n6NntwueS2KARy
+ wSTfvSba_ItjJjLvY3tVw3t6OmYsZymeLQHD6tagaGJ.PNUK0LLKgBVlXRuB_LdHdtsilQkWfa09
+ auVQoyOHcJ0zDaS2IaZg9D5oGhltE4tNWqrepm9bubfxXfc.zLcy7Rir.ZQyXVHuvhI16yl8CIDW
+ 7qsAcosRAp_TqEdkxUBilc97U7Qws0C9iK1Ox_63XMBhkZpd4owhsgN23VlMhgwJa8B.00AWxOQU
+ 4GYD4LRwVHyNS9ME.UBv3MuVrVaugiqOVt.bnMdX6mo51wMPRUpM3BvJmpMCRQn3UuV4czOnQQCY
+ c4Ay9kfBo8HOzBBToqprOmYszRSy0Iith_ji_ZiRfTlNpqpo5LlpbTDLwY1FWnTJvWMHAtQGnpn9
+ 1Kuj4FwDsEy.581ze.nh.7F1FFotw6WggLljU8C8-
 Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic311.consmr.mail.gq1.yahoo.com with HTTP; Sun, 17 Jan 2021 17:46:21 +0000
+ sonic309.consmr.mail.gq1.yahoo.com with HTTP; Sun, 17 Jan 2021 17:46:27 +0000
 Received: by smtp401.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA
  ID 84aafc302758bb6691fa0c94699b2296; 
- Sun, 17 Jan 2021 17:46:16 +0000 (UTC)
+ Sun, 17 Jan 2021 17:46:25 +0000 (UTC)
 To: linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH v0 0/4] erofs-utils: add LZMA fixed-sized output
- compression support
-Date: Mon, 18 Jan 2021 01:45:59 +0800
-Message-Id: <20210117174603.17943-1-hsiangkao@aol.com>
+Subject: [RFC PATCH v0 2/4] erofs-utils: add liblzma dependency
+Date: Mon, 18 Jan 2021 01:46:01 +0800
+Message-Id: <20210117174603.17943-3-hsiangkao@aol.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20210117174603.17943-1-hsiangkao@aol.com>
+References: <20210117174603.17943-1-hsiangkao@aol.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-References: <20210117174603.17943-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -118,54 +122,49 @@ Sender: "Linux-erofs"
 
 From: Gao Xiang <hsiangkao@aol.com>
 
-Hi folks,
+liblzma [1] has an experimental fixed-sized output LZMA compression
+support now. Let's use it to have a try!
 
-Thanks to Lasse, liblzma finally has a preliminary usable fixed-sized
-output compression support. I've made a quick integration and it seems
-work. The preliminary C/R result of this is:
- 459382784  enwik9_4k.squashfs.xz.img
- 401649664  enwik9_8k.squashfs.xz.img
- 371617792  enwik9_4k.lzma.erofs.img
- 360972288  enwik9_16k.squashfs.xz.img
-
-* Also -zlzma,1,
- 389115904  enwik9_4k.lzma.erofs.img
-
-So it's worthwhile to take the further step and get an entire solution.
-
-TODOs:
- - make a formal configure.ac / Makefile.am rather than such hack;
- - save DICT_SIZE to super block rather than using a fixed value;
- - support threaded compression to boost up build time (including
-   segment compression);
- - look on sorting out kernel side support.
-
-Thanks,
-Gao Xiang
+TODO:
+	complete configure.ac / Makefile.am
 
 Cc: Lasse Collin <lasse.collin@tukaani.org>
+Signed-off-by: Gao Xiang <hsiangkao@aol.com>
+---
+ fuse/Makefile.am | 2 +-
+ lib/Makefile.am  | 1 +
+ mkfs/Makefile.am | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
-Gao Xiang (4):
-  erofs-utils: clevel set up as an individual function
-  erofs-utils: add liblzma dependency
-  erofs-utils: mkfs: add LZMA algorithm support
-  erofs-utils: fuse: add LZMA algorithm support
-
- fuse/Makefile.am         |  2 +-
- include/erofs_fs.h       |  3 +-
- lib/Makefile.am          |  2 +
- lib/compress.c           | 16 ++++---
- lib/compressor.c         | 23 +++++++---
- lib/compressor.h         |  7 ++-
- lib/compressor_liblzma.c | 93 ++++++++++++++++++++++++++++++++++++++++
- lib/compressor_lz4.c     |  1 -
- lib/compressor_lz4hc.c   | 21 ++++++---
- lib/data.c               |  7 +--
- lib/decompress.c         | 62 +++++++++++++++++++++++++++
- mkfs/Makefile.am         |  2 +-
- 12 files changed, 211 insertions(+), 28 deletions(-)
- create mode 100644 lib/compressor_liblzma.c
-
+diff --git a/fuse/Makefile.am b/fuse/Makefile.am
+index e7757bc7d047..e471cb810c8c 100644
+--- a/fuse/Makefile.am
++++ b/fuse/Makefile.am
+@@ -7,4 +7,4 @@ erofsfuse_SOURCES = dir.c main.c
+ erofsfuse_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ erofsfuse_CFLAGS += -DFUSE_USE_VERSION=26 ${libfuse_CFLAGS} ${libselinux_CFLAGS}
+ erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse_LIBS} ${liblz4_LIBS} ${libselinux_LIBS}
+-
++erofsfuse_LDADD += -L/tmp/xz-test/lib -llzma
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index f21dc35eda51..e048a16d73f2 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -13,3 +13,4 @@ liberofs_la_SOURCES += compressor_lz4hc.c
+ endif
+ endif
+ 
++liberofs_la_CFLAGS += -I/tmp/xz-test/include
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 8b8e05132bc0..7993cb76ee23 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -7,4 +7,4 @@ AM_CPPFLAGS = ${libuuid_CFLAGS} ${libselinux_CFLAGS}
+ mkfs_erofs_SOURCES = main.c
+ mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ mkfs_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${liblz4_LIBS}
+-
++mkfs_erofs_LDADD += -L/tmp/xz-test/lib -llzma
 -- 
 2.24.0
 
