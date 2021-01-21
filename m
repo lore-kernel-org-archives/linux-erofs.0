@@ -7,56 +7,55 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35BDAC433DB
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9E0C433E0
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:46 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6C64723A1C
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6C64723A1C
+	by mail.kernel.org (Postfix) with ESMTPS id 0BBB923A1C
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0BBB923A1C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=mail.scut.edu.cn
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Rm1h86zDrRF
-	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:40:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Rv6mhrzDrQ5
+	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:40:43 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=mail.scut.edu.cn (client-ip=202.38.213.20; helo=mail.scut.edu.cn;
  envelope-from=sehuww@mail.scut.edu.cn; receiver=<UNKNOWN>)
 Received: from mail.scut.edu.cn (stumail1.scut.edu.cn [202.38.213.20])
- by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Qy1lLJzDqVT
- for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:39:53 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Qy4xt0zDqV4
+ for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:39:54 +1100 (AEDT)
 Received: from DESKTOP-N4CECTO.huww98.cn (unknown [59.53.40.31])
- by front (Coremail) with SMTP id AWSowADn7eFDrglgpLbbAQ--.1175S7;
+ by front (Coremail) with SMTP id AWSowADn7eFDrglgpLbbAQ--.1175S5;
  Fri, 22 Jan 2021 00:39:34 +0800 (CST)
 From: Hu Weiwen <sehuww@mail.scut.edu.cn>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/7] erofs-utils: tests: fix memory leakage in fssum
-Date: Fri, 22 Jan 2021 00:37:11 +0800
-Message-Id: <20210121163715.10660-4-sehuww@mail.scut.edu.cn>
+Subject: [PATCH 1/7] erofs-utils: tests: fix when lz4 is not enabled
+Date: Fri, 22 Jan 2021 00:37:09 +0800
+Message-Id: <20210121163715.10660-2-sehuww@mail.scut.edu.cn>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
 References: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AWSowADn7eFDrglgpLbbAQ--.1175S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxWFW7Jr4UCr18Cw4xAr15XFb_yoW5GFykpa
- 1SyasYvr18AryxtwnrX3s8CasIg3y3tr1UCayqywn7Za45Jr1vg343tFWSgF98JFySvr48
- Ary5ZrW7uFs5Gr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
- 9KBjDU0xBIdaVrnRJUUUBI14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
- rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
- x26xkF7I0E14v26r1I6r4UM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
- Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84
- ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UM2AI
- xVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20x
- vE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xv
- r2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVWUMxAIw28Icx
- kI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2Iq
- xVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUXVWUAwCIc40Y0x0EwIxGrwCI42
- IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY
- 6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aV
- CY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRRiL05UUUUU==
-X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQAZsB
+X-CM-TRANSID: AWSowADn7eFDrglgpLbbAQ--.1175S5
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+ VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYC7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E
+ 6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l82xGYIkIc2x26280x7IE14
+ v26r18M28IrcIa0xkI8VCY1x0267AKxVWUXVWUCwA2ocxC64kIII0Yj41l84x0c7CEw4AK
+ 67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I
+ 0E14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E
+ 14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I
+ 80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCj
+ c4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY02Avz4
+ vE14v_JwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+ 14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIx
+ kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
+ wI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
+ 4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUY9akU
+ UUUU=
+X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQAVsN
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,115 +73,27 @@ Sender: "Linux-erofs"
 
 Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
 ---
- tests/src/fssum.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ tests/src/Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tests/src/fssum.c b/tests/src/fssum.c
-index 10d6275..0f40452 100644
---- a/tests/src/fssum.c
-+++ b/tests/src/fssum.c
-@@ -31,6 +31,7 @@
- #include <endian.h>
+diff --git a/tests/src/Makefile.am b/tests/src/Makefile.am
+index 4959592..ad272d6 100644
+--- a/tests/src/Makefile.am
++++ b/tests/src/Makefile.am
+@@ -2,11 +2,12 @@
+ # Makefile.am
  
- #define CS_SIZE 16
-+#define CS_STR_SIZE (CS_SIZE * 2 + 1)
- #define CHUNKS	128
+ AUTOMAKE_OPTIONS	= foreign
+-noinst_PROGRAMS		= fssum badlz4
++noinst_PROGRAMS		= fssum
  
- #ifdef __linux__
-@@ -209,16 +210,13 @@ sum_add_time(sum_t *dst, time_t t)
- 	sum_add_u64(dst, t);
- }
+ fssum_SOURCES = md5.c fssum.c
  
--char *
--sum_to_string(sum_t *dst)
-+void
-+sum_to_string(sum_t *dst, char *s)
- {
- 	int i;
--	char *s = alloc(CS_SIZE * 2 + 1);
- 
- 	for (i = 0; i < CS_SIZE; ++i)
- 		sprintf(s + i * 2, "%02x", dst->out[i]);
--
--	return s;
- }
- 
- int
-@@ -523,7 +521,7 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
- 		exit(-1);
- 	}
- 
--	d = fdopendir(dirfd);
-+	d = fdopendir(dup(dirfd));
- 	if (!d) {
- 		perror("opendir");
- 		exit(-1);
-@@ -547,6 +545,7 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
- 		}
- 		++entries;
- 	}
-+	closedir(d);
- 	qsort(namelist, entries, sizeof(*namelist), namecmp);
- 	for (i = 0; i < entries; ++i) {
- 		struct stat64 st;
-@@ -674,21 +673,19 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
- 		sum_fini(&meta);
- 		if (gen_manifest || in_manifest) {
- 			char *fn;
--			char *m;
--			char *c;
-+			char m[CS_STR_SIZE];
-+			char c[CS_STR_SIZE];
- 
- 			if (S_ISDIR(st.st_mode))
- 				strcat(path, "/");
- 			fn = escape(path);
--			m = sum_to_string(&meta);
--			c = sum_to_string(&cs);
-+			sum_to_string(&meta, m);
-+			sum_to_string(&cs, c);
- 
- 			if (gen_manifest)
- 				fprintf(out_fp, "%s %s %s\n", fn, m, c);
- 			if (in_manifest)
- 				check_manifest(fn, m, c, 0);
--			free(c);
--			free(m);
- 			free(fn);
- 		}
- 		sum_add_sum(dircs, &cs);
-@@ -696,6 +693,9 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
- next:
- 		free(path);
- 	}
-+	for (i = 0; i < entries; ++i)
-+		free(namelist[i]);
-+	free(namelist);
- }
- 
- int
-@@ -713,6 +713,7 @@ main(int argc, char *argv[])
- 	int elen;
- 	int n_flags = 0;
- 	const char *allopts = "heEfuUgGoOaAmMcCdDtTsSnNw:r:vx:";
-+	char sum_string[CS_STR_SIZE];
- 
- 	out_fp = stdout;
- 	while ((c = getopt(argc, argv, allopts)) != EOF) {
-@@ -871,9 +872,11 @@ main(int argc, char *argv[])
- 		if (!gen_manifest)
- 			fprintf(out_fp, "%s:", flagstring);
- 
--		fprintf(out_fp, "%s\n", sum_to_string(&cs));
-+		sum_to_string(&cs, sum_string);
-+		fprintf(out_fp, "%s\n", sum_string);
- 	} else {
--		if (strcmp(checksum, sum_to_string(&cs)) == 0) {
-+		sum_to_string(&cs, sum_string);
-+		if (strcmp(checksum, sum_string) == 0) {
- 			printf("OK\n");
- 			exit(0);
- 		} else {
+ if ENABLE_LZ4
++noinst_PROGRAMS += badlz4
+ badlz4_SOURCES = badlz4.c
+ badlz4_LDADD = ${liblz4_LIBS}
+ endif
 -- 
 2.30.0
 
