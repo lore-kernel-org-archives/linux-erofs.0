@@ -2,58 +2,61 @@ Return-Path: <SRS0=hezN=GY=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B49ECC433E0
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35BDAC433DB
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:39 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 224A023A1C
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 224A023A1C
+	by mail.kernel.org (Postfix) with ESMTPS id 6C64723A1C
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6C64723A1C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=mail.scut.edu.cn
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7RZ63mfzDrS7
-	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:40:26 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Rm1h86zDrRF
+	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:40:36 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=mail.scut.edu.cn (client-ip=202.38.213.20; helo=mail.scut.edu.cn;
  envelope-from=sehuww@mail.scut.edu.cn; receiver=<UNKNOWN>)
 Received: from mail.scut.edu.cn (stumail1.scut.edu.cn [202.38.213.20])
- by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Qx2nr1zDqW5
- for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:39:52 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Qy1lLJzDqVT
+ for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:39:53 +1100 (AEDT)
 Received: from DESKTOP-N4CECTO.huww98.cn (unknown [59.53.40.31])
- by front (Coremail) with SMTP id AWSowADn7eFDrglgpLbbAQ--.1175S4;
- Fri, 22 Jan 2021 00:39:33 +0800 (CST)
+ by front (Coremail) with SMTP id AWSowADn7eFDrglgpLbbAQ--.1175S7;
+ Fri, 22 Jan 2021 00:39:34 +0800 (CST)
 From: Hu Weiwen <sehuww@mail.scut.edu.cn>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 0/7] Setup tests
-Date: Fri, 22 Jan 2021 00:37:08 +0800
-Message-Id: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
+Subject: [PATCH 3/7] erofs-utils: tests: fix memory leakage in fssum
+Date: Fri, 22 Jan 2021 00:37:11 +0800
+Message-Id: <20210121163715.10660-4-sehuww@mail.scut.edu.cn>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
+References: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AWSowADn7eFDrglgpLbbAQ--.1175S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxJF47Cr1xAw1ktryftry7ZFb_yoW5AF4xp3
- s0kr1Fqw1xCF97Cw1S9wnrZ3Z8KFWxJr1UA347Ar10yF1jvr1j9w4xKrnxAr43Wr40gw47
- Zas2vrWfWr1rAwUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
- 9KBjDU0xBIdaVrnRJUUUkv14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
- rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
- 1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
- 6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r
- 4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
- I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
- 4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY02Avz4vE14v_JwCF
- 04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
- 18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64vI
- r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
- 1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF
- 0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUjYLkUUUUU=
-X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQATsL
+X-CM-TRANSID: AWSowADn7eFDrglgpLbbAQ--.1175S7
+X-Coremail-Antispam: 1UD129KBjvJXoWxWFW7Jr4UCr18Cw4xAr15XFb_yoW5GFykpa
+ 1SyasYvr18AryxtwnrX3s8CasIg3y3tr1UCayqywn7Za45Jr1vg343tFWSgF98JFySvr48
+ Ary5ZrW7uFs5Gr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+ 9KBjDU0xBIdaVrnRJUUUBI14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+ rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
+ x26xkF7I0E14v26r1I6r4UM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+ Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84
+ ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UM2AI
+ xVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20x
+ vE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xv
+ r2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVWUMxAIw28Icx
+ kI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2Iq
+ xVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUXVWUAwCIc40Y0x0EwIxGrwCI42
+ IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY
+ 6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aV
+ CY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRRiL05UUUUU==
+X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQAZsB
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,88 +72,117 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi all,
+Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+---
+ tests/src/fssum.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-I have successfully got all tests work on GitHub Actions, including:
-
-make check (skip all tests that requires mount)
-sudo make check (mount with kernel support)
-FSTYPE=erofsfuse make check (mount with erofsfuse)
-make distcheck
-
-Each test is run on two configuration: build with lz4 v1.8.3, and build without
-lz4.
-
-Note that fuse related tests will need this patch [1] to success.
-
-[1]: https://lore.kernel.org/linux-erofs/20210121163143.9481-1-sehuww@mail.scut.edu.cn/
-
-Hu Weiwen (7):
-  erofs-utils: tests: fix when lz4 is not enabled
-  erofs-utils: tests: fix on out-of-tree build
-  erofs-utils: tests: fix memory leakage in fssum
-  erofs-utils: tests: fix distcheck
-  erofs-utils: tests: check battach on full buffer block
-  erofs-utils: tests: fix fuse build order
-  erofs-utils: tests: enable GitHub Actions
-
- .github/workflows/c.yml          | 49 ++++++++++++++++++++++++++++
- .gitignore                       |  2 ++
- Makefile.am                      |  3 +-
- lib/Makefile.am                  | 19 ++++++++++-
- tests/Makefile.am                | 26 +++++++++++++++
- tests/common/rc                  |  2 +-
- tests/erofs/001                  |  2 +-
- tests/erofs/{001.out => 001-out} |  0
- tests/erofs/002                  |  2 +-
- tests/erofs/{002.out => 002-out} |  0
- tests/erofs/003                  |  2 +-
- tests/erofs/{003.out => 003-out} |  0
- tests/erofs/004                  |  2 +-
- tests/erofs/{004.out => 004-out} |  0
- tests/erofs/005                  |  2 +-
- tests/erofs/{005.out => 005-out} |  0
- tests/erofs/006                  |  2 +-
- tests/erofs/{006.out => 006-out} |  0
- tests/erofs/007                  |  4 +--
- tests/erofs/{007.out => 007-out} |  0
- tests/erofs/008                  |  2 +-
- tests/erofs/{008.out => 008-out} |  0
- tests/erofs/009                  |  2 +-
- tests/erofs/{009.out => 009-out} |  0
- tests/erofs/010                  |  2 +-
- tests/erofs/{010.out => 010-out} |  0
- tests/erofs/011                  |  2 +-
- tests/erofs/{011.out => 011-out} |  0
- tests/erofs/012                  |  2 +-
- tests/erofs/{012.out => 012-out} |  0
- tests/erofs/013                  |  2 +-
- tests/erofs/{013.out => 013-out} |  0
- tests/erofs/014                  |  2 +-
- tests/erofs/{014.out => 014-out} |  0
- tests/erofs/015                  | 55 ++++++++++++++++++++++++++++++++
- tests/erofs/015-out              |  2 ++
- tests/src/Makefile.am            |  5 +--
- tests/src/fssum.c                | 31 ++++++++++--------
- 38 files changed, 190 insertions(+), 34 deletions(-)
- create mode 100644 .github/workflows/c.yml
- rename tests/erofs/{001.out => 001-out} (100%)
- rename tests/erofs/{002.out => 002-out} (100%)
- rename tests/erofs/{003.out => 003-out} (100%)
- rename tests/erofs/{004.out => 004-out} (100%)
- rename tests/erofs/{005.out => 005-out} (100%)
- rename tests/erofs/{006.out => 006-out} (100%)
- rename tests/erofs/{007.out => 007-out} (100%)
- rename tests/erofs/{008.out => 008-out} (100%)
- rename tests/erofs/{009.out => 009-out} (100%)
- rename tests/erofs/{010.out => 010-out} (100%)
- rename tests/erofs/{011.out => 011-out} (100%)
- rename tests/erofs/{012.out => 012-out} (100%)
- rename tests/erofs/{013.out => 013-out} (100%)
- rename tests/erofs/{014.out => 014-out} (100%)
- create mode 100755 tests/erofs/015
- create mode 100644 tests/erofs/015-out
-
---
+diff --git a/tests/src/fssum.c b/tests/src/fssum.c
+index 10d6275..0f40452 100644
+--- a/tests/src/fssum.c
++++ b/tests/src/fssum.c
+@@ -31,6 +31,7 @@
+ #include <endian.h>
+ 
+ #define CS_SIZE 16
++#define CS_STR_SIZE (CS_SIZE * 2 + 1)
+ #define CHUNKS	128
+ 
+ #ifdef __linux__
+@@ -209,16 +210,13 @@ sum_add_time(sum_t *dst, time_t t)
+ 	sum_add_u64(dst, t);
+ }
+ 
+-char *
+-sum_to_string(sum_t *dst)
++void
++sum_to_string(sum_t *dst, char *s)
+ {
+ 	int i;
+-	char *s = alloc(CS_SIZE * 2 + 1);
+ 
+ 	for (i = 0; i < CS_SIZE; ++i)
+ 		sprintf(s + i * 2, "%02x", dst->out[i]);
+-
+-	return s;
+ }
+ 
+ int
+@@ -523,7 +521,7 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
+ 		exit(-1);
+ 	}
+ 
+-	d = fdopendir(dirfd);
++	d = fdopendir(dup(dirfd));
+ 	if (!d) {
+ 		perror("opendir");
+ 		exit(-1);
+@@ -547,6 +545,7 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
+ 		}
+ 		++entries;
+ 	}
++	closedir(d);
+ 	qsort(namelist, entries, sizeof(*namelist), namecmp);
+ 	for (i = 0; i < entries; ++i) {
+ 		struct stat64 st;
+@@ -674,21 +673,19 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
+ 		sum_fini(&meta);
+ 		if (gen_manifest || in_manifest) {
+ 			char *fn;
+-			char *m;
+-			char *c;
++			char m[CS_STR_SIZE];
++			char c[CS_STR_SIZE];
+ 
+ 			if (S_ISDIR(st.st_mode))
+ 				strcat(path, "/");
+ 			fn = escape(path);
+-			m = sum_to_string(&meta);
+-			c = sum_to_string(&cs);
++			sum_to_string(&meta, m);
++			sum_to_string(&cs, c);
+ 
+ 			if (gen_manifest)
+ 				fprintf(out_fp, "%s %s %s\n", fn, m, c);
+ 			if (in_manifest)
+ 				check_manifest(fn, m, c, 0);
+-			free(c);
+-			free(m);
+ 			free(fn);
+ 		}
+ 		sum_add_sum(dircs, &cs);
+@@ -696,6 +693,9 @@ sum(int dirfd, int level, sum_t *dircs, char *path_prefix, char *path_in)
+ next:
+ 		free(path);
+ 	}
++	for (i = 0; i < entries; ++i)
++		free(namelist[i]);
++	free(namelist);
+ }
+ 
+ int
+@@ -713,6 +713,7 @@ main(int argc, char *argv[])
+ 	int elen;
+ 	int n_flags = 0;
+ 	const char *allopts = "heEfuUgGoOaAmMcCdDtTsSnNw:r:vx:";
++	char sum_string[CS_STR_SIZE];
+ 
+ 	out_fp = stdout;
+ 	while ((c = getopt(argc, argv, allopts)) != EOF) {
+@@ -871,9 +872,11 @@ main(int argc, char *argv[])
+ 		if (!gen_manifest)
+ 			fprintf(out_fp, "%s:", flagstring);
+ 
+-		fprintf(out_fp, "%s\n", sum_to_string(&cs));
++		sum_to_string(&cs, sum_string);
++		fprintf(out_fp, "%s\n", sum_string);
+ 	} else {
+-		if (strcmp(checksum, sum_to_string(&cs)) == 0) {
++		sum_to_string(&cs, sum_string);
++		if (strcmp(checksum, sum_string) == 0) {
+ 			printf("OK\n");
+ 			exit(0);
+ 		} else {
+-- 
 2.30.0
 
