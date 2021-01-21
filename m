@@ -7,55 +7,56 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1436DC433DB
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:32:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 927C6C433E0
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:05 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 48BC5206D8
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:32:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 48BC5206D8
+	by mail.kernel.org (Postfix) with ESMTPS id B9BD923A22
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Jan 2021 16:40:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B9BD923A22
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=mail.scut.edu.cn
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Gc2nwlzDrRB
-	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:32:40 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DM7R66M00zDqV4
+	for <linux-erofs@archiver.kernel.org>; Fri, 22 Jan 2021 03:40:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=mail.scut.edu.cn (client-ip=202.38.213.20; helo=mail.scut.edu.cn;
  envelope-from=sehuww@mail.scut.edu.cn; receiver=<UNKNOWN>)
 Received: from mail.scut.edu.cn (stumail1.scut.edu.cn [202.38.213.20])
- by lists.ozlabs.org (Postfix) with ESMTP id 4DM7GP29jGzDrQ4
- for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:32:24 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTP id 4DM7Qx1FvVzDqVT
+ for <linux-erofs@lists.ozlabs.org>; Fri, 22 Jan 2021 03:39:52 +1100 (AEDT)
 Received: from DESKTOP-N4CECTO.huww98.cn (unknown [59.53.40.31])
- by front (Coremail) with SMTP id AWSowAAXH+N_rAlgZazbAQ--.55262S4;
- Fri, 22 Jan 2021 00:32:00 +0800 (CST)
+ by front (Coremail) with SMTP id AWSowADn7eFDrglgpLbbAQ--.1175S9;
+ Fri, 22 Jan 2021 00:39:35 +0800 (CST)
 From: Hu Weiwen <sehuww@mail.scut.edu.cn>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: fuse: fix random readlink error
-Date: Fri, 22 Jan 2021 00:31:43 +0800
-Message-Id: <20210121163143.9481-1-sehuww@mail.scut.edu.cn>
+Subject: [PATCH 5/7] erofs-utils: tests: check battach on full buffer block
+Date: Fri, 22 Jan 2021 00:37:13 +0800
+Message-Id: <20210121163715.10660-6-sehuww@mail.scut.edu.cn>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210121112702.GA2918836@xiangao.remote.csb>
-References: <20210121112702.GA2918836@xiangao.remote.csb>
+In-Reply-To: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
+References: <20210121163715.10660-1-sehuww@mail.scut.edu.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AWSowAAXH+N_rAlgZazbAQ--.55262S4
-X-Coremail-Antispam: 1UD129KBjvJXoWrZF15uw45Jw17Jw13Wr45KFg_yoW8Jr4Upr
- s0kFW5Jr4ftry3Ar4fGFs8Wa4rGr97Wr1jk392ka1fZF17Jrn8ua4rGayqqryrAr48Cr4x
- JanrXFZY9F4UZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
- 9KBjDU0xBIdaVrnRJUUUkq14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
- rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
- 1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
- 6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r
- 4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
- I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
- 4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY02Avz4vE14v_JwCF
- 04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
- 18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64vI
- r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
- 1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF
- 0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7VUU89N7UUUUU==
-X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQARsJ
+X-CM-TRANSID: AWSowADn7eFDrglgpLbbAQ--.1175S9
+X-Coremail-Antispam: 1UD129KBjvJXoW7uF13KFW7Wr1kXr4DGFyrXrb_yoW5JF43pw
+ 4DKF1Fvr1xJFnFvw4Sgr17ZF1rKwnYyr4UAw4xW348ZFyqkF1UJ3ykKr4UJr9rGr42gr48
+ Z3Z2qFyrGr18t3JanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+ 9KBjDU0xBIdaVrnRJUUUBq14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+ rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
+ kIc2x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
+ z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr
+ 1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1U
+ M2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjx
+ v20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l
+ F7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVWUMxAIw2
+ 8IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4l
+ x2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUXVWUAwCIc40Y0x0EwIxGrw
+ CI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI
+ 42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z2
+ 80aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sREiL03UUUUU==
+X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQAHBlepTBDfZQAdsF
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -71,51 +72,102 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-readlink should fill a **null terminated** string in buffer.
+regression test for
+https://lore.kernel.org/linux-erofs/20210118123945.23676-1-sehuww@mail.scut.edu.cn/
 
-Also, read should return number of bytes remaining on EOF.
-
-Link: https://lore.kernel.org/linux-erofs/20210121101233.GC6680@DESKTOP-N4CECTO.huww98.cn/
 Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
 ---
- fuse/main.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ tests/Makefile.am   |  4 ++++
+ tests/erofs/015     | 55 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/015-out |  2 ++
+ 3 files changed, 61 insertions(+)
+ create mode 100755 tests/erofs/015
+ create mode 100644 tests/erofs/015-out
 
-diff --git a/fuse/main.c b/fuse/main.c
-index c162912..bc1e496 100644
---- a/fuse/main.c
-+++ b/fuse/main.c
-@@ -71,6 +71,12 @@ static int erofsfuse_read(const char *path, char *buffer,
- 	if (ret)
- 		return ret;
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 3702f91..03f3ab3 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -82,6 +82,10 @@ TESTS_OUT += erofs/013-out
+ TESTS += erofs/014
+ TESTS_OUT += erofs/014-out
  
-+	if (offset >= vi.i_size)
-+		return 0;
++# 015 - battach on full buffer block
++TESTS += erofs/015
++TESTS_OUT += erofs/015-out
 +
-+	if (offset + size > vi.i_size)
-+		size = vi.i_size - offset;
+ dist_check_SCRIPTS = common/rc $(TESTS)
+ dist_check_DATA = $(TESTS_OUT)
+ 
+diff --git a/tests/erofs/015 b/tests/erofs/015
+new file mode 100755
+index 0000000..f445ba1
+--- /dev/null
++++ b/tests/erofs/015
+@@ -0,0 +1,55 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++seq=`basename $0`
++seqres=$RESULT_DIR/$seq
 +
- 	ret = erofs_pread(&vi, buffer, size, offset);
- 	if (ret)
- 		return ret;
-@@ -79,10 +85,16 @@ static int erofsfuse_read(const char *path, char *buffer,
- 
- static int erofsfuse_readlink(const char *path, char *buffer, size_t size)
- {
--	int ret = erofsfuse_read(path, buffer, size, 0, NULL);
-+	int ret;
-+	size_t path_len;
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
 +
-+	erofs_dbg("path:%s size=%zd", path, size);
-+	ret = erofsfuse_read(path, buffer, size, 0, NULL);
- 
- 	if (ret < 0)
- 		return ret;
-+	path_len = min(size - 1, (size_t)ret);
-+	buffer[path_len] = '\0';
- 	return 0;
- }
- 
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++if [ -z $SCRATCH_DEV ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++# collect files pending for verification
++head -c 4032 /dev/urandom > $localdir/1
++head -c 4095 /dev/urandom > $localdir/2
++head -c 12345 /dev/urandom > $localdir/3  # arbitrary size
++
++_scratch_mkfs -Eforce-inode-compact $localdir || _fail "failed to mkfs"
++
++# verify the uncompressed image
++_require_erofs
++
++_scratch_mount 2>>$seqres.full
++
++FSSUM_OPTS="-MAC"
++[ $FSTYP = "erofsfuse" ] && FSSUM_OPTS="${FSSUM_OPTS}T"
++
++sum1=`$FSSUM_PROG $FSSUM_OPTS $localdir`
++echo "$localdir checksum is $sum1" >>$seqres.full
++sum2=`$FSSUM_PROG $FSSUM_OPTS $SCRATCH_MNT`
++echo "$SCRATCH_MNT checksum is $sum2" >>$seqres.full
++
++[ "x$sum1" = "x$sum2" ] || _fail "-->checkMD5 FAILED"
++_scratch_unmount
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/015-out b/tests/erofs/015-out
+new file mode 100644
+index 0000000..fee0fcf
+--- /dev/null
++++ b/tests/erofs/015-out
+@@ -0,0 +1,2 @@
++QA output created by 015
++Silence is golden
 -- 
 2.30.0
 
