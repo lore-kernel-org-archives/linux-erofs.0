@@ -8,66 +8,65 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11407C433E0
-	for <linux-erofs@archiver.kernel.org>; Sat,  6 Feb 2021 15:29:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 074F2C433DB
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Feb 2021 15:29:48 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [203.11.71.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9ACA164E7D
-	for <linux-erofs@archiver.kernel.org>; Sat,  6 Feb 2021 15:29:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9ACA164E7D
+	by mail.kernel.org (Postfix) with ESMTPS id 59F4564E7D
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Feb 2021 15:29:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 59F4564E7D
 Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from bilbo.ozlabs.org (lists.ozlabs.org [IPv6:2401:3900:2:1::3])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DXx6M3Cl6zDwlf
-	for <linux-erofs@archiver.kernel.org>; Sun,  7 Feb 2021 02:29:31 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DXx6d3QkCzDwlq
+	for <linux-erofs@archiver.kernel.org>; Sun,  7 Feb 2021 02:29:45 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lists.ozlabs.org;
-	s=201707; t=1612625371;
-	bh=hgxIN1xz6WNtMS2XX6++ji+mL1lsSUdOLZCakEZ17hI=;
+	s=201707; t=1612625385;
+	bh=hfMPaa345vJ3bt2EoJYhoILeEv4EX1t2pP7RuQp3i5w=;
 	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
 	 From;
-	b=Cax4jpjgEdRW3Iu5/Ylgdiry+RjDY/TEO/ZiR/VAjrXXNF82iehmGo//IEGVH4ue7
-	 EGIf7qIqcM+tiXLyBoTt9ql5eqqA2BUDZ0Lee1p0kkG61lhPhIfbe+smJmgygpKz9H
-	 n9SQifHjWCIF5/sAuGBXcuHKUkv2OSaWi7ftyaLI+TGNt9UV714QJ6R2i8RBljD9qS
-	 TiW/iJqyXra5spbF9M0FfOzlxEXguYk9E7aUIGDU8foK9H6PUZQFVAXfazzlx5fEC3
-	 YsvkEZXVrO4GnSODxIGZZJMOP41c9VzJpztZ+vknAJZpo3AYJ+avEQVNfIGvaKErgr
-	 dWbZfwMJDudcg==
+	b=KaJ9EVzEWPftK4EmfxwKduIoXbAgPLkomv1xu7hlEQHfSMynJXkDrNf/R6p35d46Z
+	 vaZudz1A94upnNiahpgpFd2cGV8e248OCcWlBS9h6WNShm2EQdmVKilywjVChQ1wkJ
+	 id76wYviPKoJ6hSGK6E66ejztT6iGU5ho2gSH1vkEGRDPGlN2DdLIsFl/cdeuZ751Z
+	 uCayvV+6bmNDmh4T7ic5i8DV19A1CPerpyNOjAwegviPDm/MD6HgbuNZxRkQpt3guc
+	 gjWJ1rb9og/na+3z0AbTfsbZNcRDAqPFCIW85t1F2gdZTnBV4DZ4ojItJ/fkpAbJDQ
+	 TrgK4qYmL1fqA==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=aliyun.com (client-ip=115.124.30.16;
- helo=out30-16.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
+ smtp.mailfrom=aliyun.com (client-ip=115.124.30.5;
+ helo=out30-5.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
  unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
- header.s=s1024 header.b=YATxWL4Y; dkim-atps=neutral
-Received: from out30-16.freemail.mail.aliyun.com
- (out30-16.freemail.mail.aliyun.com [115.124.30.16])
+ header.s=s1024 header.b=fzkfbnj3; dkim-atps=neutral
+Received: from out30-5.freemail.mail.aliyun.com
+ (out30-5.freemail.mail.aliyun.com [115.124.30.5])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4DXx633dHYzDwjP
- for <linux-erofs@lists.ozlabs.org>; Sun,  7 Feb 2021 02:29:14 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4DXx6H4NRQzDwkk
+ for <linux-erofs@lists.ozlabs.org>; Sun,  7 Feb 2021 02:29:27 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aliyun.com; s=s1024;
- t=1612625330; h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type;
- bh=QSmsTJ+Wv9wEcTFD7i0msaKTG7/aWn89btTxRmrHcOE=;
- b=YATxWL4Y0cNkYo730ez8wDsgCBLqlC277ZsxePKtVr5mY7Rp+BJTUK6CLQIO3BOAnMvQdvGox+00MM2yH3TYLRAosPSGi4QxSgK9KqiO1ngpvhsApC7RspdYoHhAVyhocXvd2tR075hpVPQz0inW2WiCAiMJAE5flmCEPVx0+DU=
-X-Alimail-AntiSpam: AC=CONTINUE; BC=0.1552433|-1; CH=green; DM=|CONTINUE|false|;
- DS=CONTINUE|ham_enroll_verification|0.0270403-0.000693898-0.972266;
- FP=0|0|0|0|0|-1|-1|-1; HT=e01e04420; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
- RN=2; RT=2; SR=0; TI=SMTPD_---0UO0t.rd_1612625328; 
+ t=1612625361; h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type;
+ bh=b3VetzAb749+j8iqV2VZV2tUOoa/OOBSIKo5EmlC36s=;
+ b=fzkfbnj3UBxk8h+84Y+XGSP7ptYNoAuZ/emKjTXSwcfBwHO2VaZezc3OzVa6GW+6K7OENk/KHyxrYJApEVRwibSvTasDt0IoUeVjGb7zvnTSnVdqqWIZvQW8vRu+IsF0287S5T7LII5prMJ+3bnGeML/Kd4Z+b6KpU+N/G8meRQ=
+X-Alimail-AntiSpam: AC=CONTINUE; BC=0.1582487|-1; CH=green; DM=|CONTINUE|false|;
+ DS=CONTINUE|ham_social|0.00362215-0.000703358-0.995675; FP=0|0|0|0|0|-1|-1|-1;
+ HT=alimailimapcm10staff010182156082; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
+ RN=2; RT=2; SR=0; TI=SMTPD_---0UO0r6lI_1612625360; 
 Received: from 192.168.3.32(mailfrom:bluce.lee@aliyun.com
- fp:SMTPD_---0UO0t.rd_1612625328) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 06 Feb 2021 23:28:48 +0800
-Subject: Re: [PATCH v7 1/3] erofs-utils: get rid of `end' argument from
- erofs_mapbh()
+ fp:SMTPD_---0UO0r6lI_1612625360) by smtp.aliyun-inc.com(127.0.0.1);
+ Sat, 06 Feb 2021 23:29:20 +0800
+Subject: Re: [PATCH v7 2/3] erofs-utils: introduce erofs_bfind_for_attach()
 To: Gao Xiang <hsiangkao@aol.com>, linux-erofs@lists.ozlabs.org
 References: <20210122171153.27404-1-hsiangkao@aol.com>
- <20210122171153.27404-2-hsiangkao@aol.com>
-Message-ID: <0d6fadd3-29ca-2c05-559c-ae5d4e4d9eb4@aliyun.com>
-Date: Sat, 6 Feb 2021 23:28:48 +0800
+ <20210122171153.27404-3-hsiangkao@aol.com>
+Message-ID: <16ba323e-c488-d5a1-87a6-d618f364b5aa@aliyun.com>
+Date: Sat, 6 Feb 2021 23:29:20 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.6.1
 MIME-Version: 1.0
-In-Reply-To: <20210122171153.27404-2-hsiangkao@aol.com>
+In-Reply-To: <20210122171153.27404-3-hsiangkao@aol.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -91,21 +90,15 @@ Sender: "Linux-erofs"
 
 
 On 2021/1/23 1:11, Gao Xiang via Linux-erofs wrote:
-> From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+> From: Gao Xiang <hsiangkao@aol.com>
 > 
-> `end` arguement is completely broken now. Also, it could
-> be reintroduced later if needed.
+> Seperate erofs_balloc() to make the logic more clearer.
 > 
-> Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+> Cc: Hu Weiwen <sehuww@mail.scut.edu.cn>
 > Signed-off-by: Gao Xiang <hsiangkao@aol.com>
 > ---
->  include/erofs/cache.h |  2 +-
->  lib/cache.c           |  6 ++----
->  lib/compress.c        |  2 +-
->  lib/inode.c           | 10 +++++-----
->  lib/xattr.c           |  2 +-
->  mkfs/main.c           |  2 +-
->  6 files changed, 11 insertions(+), 13 deletions(-)
+>  lib/cache.c | 81 +++++++++++++++++++++++++++++++++--------------------
+>  1 file changed, 50 insertions(+), 31 deletions(-)
 > 
 
 It looks good
