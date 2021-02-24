@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D979EC433DB
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F04BC433E0
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:53:25 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0B32164F3F
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:51:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0B32164F3F
+	by mail.kernel.org (Postfix) with ESMTPS id 6BAC564F62
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:53:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6BAC564F62
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Dlwm934Phz3cGT
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 23:51:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Dlwnt6rq5z3cJl
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 23:53:22 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kLMRAqk/;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kTBdEF4h;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=sashal@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=kLMRAqk/; 
+ header.s=k20201202 header.b=kTBdEF4h; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Dlwm72KNnz30HH
- for <linux-erofs@lists.ozlabs.org>; Wed, 24 Feb 2021 23:51:51 +1100 (AEDT)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DFC864F2F;
- Wed, 24 Feb 2021 12:51:46 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Dlwnr3V0yz30My
+ for <linux-erofs@lists.ozlabs.org>; Wed, 24 Feb 2021 23:53:20 +1100 (AEDT)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23F5664F65;
+ Wed, 24 Feb 2021 12:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1614171107;
+ s=k20201202; t=1614171198;
  bh=56+ww6HVKiCAXIOYHwWgkq3AMZVIPzuPJWfd/2OqmEk=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=kLMRAqk/LVGydsL9St7e8uVNrVO4I2RljdBuRI76/8SlJbOJt43K/y+sgwJeLpS2s
- TliolTEhqryxZUNI0nG5vGDzNk6q6Az3gmslu7eN/vBCrnCze4dbCAP7yYoZ+CvvY2
- Pbe3hMwbEuCch6L5U5CWH6V2ui6/FgPwe7X8QLfieAjhv8n71YlOZqeS4WPyipMeZd
- q/wsuTWSdns0ERycVuPKyUXO4+RoJA4TBtbgLSdR9fHVCHh772EcKGUqhavgFH+kXj
- tugMkjtht+JF9CIxez4NCTSDtpNhyzdCPbay35CvN132ELryB9f7Bx5X3NkqHJRJGU
- oi1eW86wXKpUQ==
+ b=kTBdEF4h+z8OlIbJJ6sfWTISbTN8Rc+lKnzlYplmw+MwYjpxuMjza3WZIxgW1C1b3
+ 1dTbkLhEA9jKrzc5SOSPvB4H/tcvZqf2CgwP96A8jawtNqXgJdeyrzc3Ow5vFPnpKj
+ 3eti4mn8zPmRBlEVhIubCSfTmYUwMY7PFI6/IvQ7wuKByxKuP4nFa//MAC1C7HmBlI
+ PRc+RrkyxmuSYqxLnmta7AlB9LE/kfII7tz/93vOULoZOWlJNYBbB0pm4DPat3PBBx
+ BbwgFutsvf0mgEdPVGN1Uu8LNM61dgEdg7SZhqao8wcwY3S81aot9PcKnCq0Lx1jnu
+ hGmUhbPJ5jmzA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 60/67] erofs: fix shift-out-of-bounds of blkszbits
-Date: Wed, 24 Feb 2021 07:50:18 -0500
-Message-Id: <20210224125026.481804-60-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 49/56] erofs: fix shift-out-of-bounds of blkszbits
+Date: Wed, 24 Feb 2021 07:52:05 -0500
+Message-Id: <20210224125212.482485-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
-References: <20210224125026.481804-1-sashal@kernel.org>
+In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
+References: <20210224125212.482485-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
