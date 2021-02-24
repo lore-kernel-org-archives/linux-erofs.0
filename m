@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F04BC433E0
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B506C433DB
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:54:31 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6BAC564F62
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:53:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6BAC564F62
+	by mail.kernel.org (Postfix) with ESMTPS id D637864F5D
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 12:54:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D637864F5D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Dlwnt6rq5z3cJl
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 23:53:22 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Dlwq934Xlz3cK7
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Feb 2021 23:54:29 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kTBdEF4h;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nkgAEiNw;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=sashal@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=kTBdEF4h; 
+ header.s=k20201202 header.b=nkgAEiNw; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Dlwnr3V0yz30My
- for <linux-erofs@lists.ozlabs.org>; Wed, 24 Feb 2021 23:53:20 +1100 (AEDT)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23F5664F65;
- Wed, 24 Feb 2021 12:53:17 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Dlwq76x3Wz30N5
+ for <linux-erofs@lists.ozlabs.org>; Wed, 24 Feb 2021 23:54:27 +1100 (AEDT)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C63C564F8A;
+ Wed, 24 Feb 2021 12:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1614171198;
- bh=56+ww6HVKiCAXIOYHwWgkq3AMZVIPzuPJWfd/2OqmEk=;
+ s=k20201202; t=1614171265;
+ bh=ZDSGtqQMqznruC3i1uHg8aXjYRDodJFZt8lPSkU8j7E=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=kTBdEF4h+z8OlIbJJ6sfWTISbTN8Rc+lKnzlYplmw+MwYjpxuMjza3WZIxgW1C1b3
- 1dTbkLhEA9jKrzc5SOSPvB4H/tcvZqf2CgwP96A8jawtNqXgJdeyrzc3Ow5vFPnpKj
- 3eti4mn8zPmRBlEVhIubCSfTmYUwMY7PFI6/IvQ7wuKByxKuP4nFa//MAC1C7HmBlI
- PRc+RrkyxmuSYqxLnmta7AlB9LE/kfII7tz/93vOULoZOWlJNYBbB0pm4DPat3PBBx
- BbwgFutsvf0mgEdPVGN1Uu8LNM61dgEdg7SZhqao8wcwY3S81aot9PcKnCq0Lx1jnu
- hGmUhbPJ5jmzA==
+ b=nkgAEiNwQ9F2FAriAhKX0p1/O5aCmio35m9N3dDMCL4ZF3f5y3z/a//9uw/wbsI28
+ IMsSCrbjKo2xa/C2C/9QIQ0VzmJwcHdmAitl79Hrb8Yt+vUaLu2d8+ADYIOgsLmrWL
+ FVYHUmIqG3TqjH/gU8eZU1j+b8RnGLGQltJMhLno5CNcEZBE3oXIpL9wHQnKSo3BFq
+ R+qn4gTVSi7QmHqTeQYuYg0DRfMdwuYXvEJZbSsuBaaH5iWHtYP3JQHVjm9iB6N5hn
+ PhD6MMpm6bnEK6ae4fafNL+CeRmMdzbytFAA1mSWOsKZz9TcuWvAyuG9Vwj+4EQnla
+ hWGZGUEtljrrw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 49/56] erofs: fix shift-out-of-bounds of blkszbits
-Date: Wed, 24 Feb 2021 07:52:05 -0500
-Message-Id: <20210224125212.482485-49-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 34/40] erofs: fix shift-out-of-bounds of blkszbits
+Date: Wed, 24 Feb 2021 07:53:34 -0500
+Message-Id: <20210224125340.483162-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
-References: <20210224125212.482485-1-sashal@kernel.org>
+In-Reply-To: <20210224125340.483162-1-sashal@kernel.org>
+References: <20210224125340.483162-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -98,10 +98,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index be10b16ea66ee..d5a6b9b888a56 100644
+index 0e369494f2f2c..22e059b4f745c 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -158,8 +158,8 @@ static int erofs_read_superblock(struct super_block *sb)
+@@ -124,8 +124,8 @@ static int erofs_read_superblock(struct super_block *sb)
  	blkszbits = dsb->blkszbits;
  	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
  	if (blkszbits != LOG_BLOCK_SIZE) {
