@@ -1,38 +1,38 @@
 Return-Path: <SRS0=Fn/m=H4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.1 required=3.0 tests=BAYES_50,
+X-Spam-Level: *
+X-Spam-Status: No, score=1.6 required=3.0 tests=BAYES_50,DATE_IN_PAST_03_06,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C64B1C433DB
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Feb 2021 15:31:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5201C433DB
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 Feb 2021 18:37:24 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D724F64EE7
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Feb 2021 15:31:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D724F64EE7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mitmagazin.com
+	by mail.kernel.org (Postfix) with ESMTPS id EB4BB64F27
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 Feb 2021 18:37:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB4BB64F27
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=mmafightland.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DnDCJ2vK8z3cZq
-	for <linux-erofs@archiver.kernel.org>; Sat, 27 Feb 2021 02:31:24 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4DnJKt40j9z3cc4
+	for <linux-erofs@archiver.kernel.org>; Sat, 27 Feb 2021 05:37:22 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
  spf=neutral (access neither permitted nor denied)
- smtp.mailfrom=mitmagazin.com (client-ip=173.254.228.69; helo=mmawarfare.com;
- envelope-from=hsameaysonmoi@mitmagazin.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 776 seconds by postgrey-1.36 at boromir;
- Sat, 27 Feb 2021 02:31:22 AEDT
+ smtp.mailfrom=mmafightland.com (client-ip=173.254.228.69; helo=mmawarfare.com;
+ envelope-from=hsameaysonmoi@mmafightland.com; receiver=<UNKNOWN>)
+X-Greylist: delayed 4016 seconds by postgrey-1.36 at boromir;
+ Sat, 27 Feb 2021 05:37:20 AEDT
 Received: from mmawarfare.com (unknown [173.254.228.69])
- by lists.ozlabs.org (Postfix) with ESMTP id 4DnDCG0MWjz30Nc
- for <linux-erofs@lists.ozlabs.org>; Sat, 27 Feb 2021 02:31:22 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTP id 4DnJKr1BG8z30JS
+ for <linux-erofs@lists.ozlabs.org>; Sat, 27 Feb 2021 05:37:20 +1100 (AEDT)
 To: linux-erofs@lists.ozlabs.org
-Subject: Remote control distance: about 1000m
-Message-ID: <b95330b4c6fec638d16b89c781bae48d@dronesgator.com>
-Date: Fri, 26 Feb 2021 16:02:44 +0100
-From: "Jan Wilson" <hsameyfsonmoi@mitmagazin.com>
+Subject: check again this smart drone
+Message-ID: <eed282f838ef30d1c7fe32cd12255e32@dronesgator.com>
+Date: Fri, 26 Feb 2021 16:31:27 +0100
+From: "Jan Wilson" <hsameyfsonmoi@mmafightland.com>
 MIME-Version: 1.0
 X-Mailer-Sent-By: 1
 Content-Type: text/plain; format=flowed; charset="UTF-8"
