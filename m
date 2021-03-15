@@ -2,110 +2,57 @@ Return-Path: <SRS0=whNr=IN=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECC8EC433E0
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Mar 2021 11:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 761C8C433DB
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Mar 2021 19:35:10 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4EE0064E61
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Mar 2021 11:29:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EE0064E61
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 62E5F64F4B
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Mar 2021 19:35:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 62E5F64F4B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4DzZ1p5thkz2yjS
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Mar 2021 22:29:02 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ES0zV5hq;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EYTd8U5p;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Dzmph0kbWz301y
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Mar 2021 06:35:08 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=63.128.21.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=ES0zV5hq; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EYTd8U5p; 
- dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com;
+ envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4DzZ1l69PLz2yRL
- for <linux-erofs@lists.ozlabs.org>; Mon, 15 Mar 2021 22:28:59 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615807734;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=k/i+8wDEvbmjTfeLtLR4DtORse2gYPTQ1pHIrK7qNYU=;
- b=ES0zV5hqFERlPPVrAoAl1/Mgu2k6EkKnW12LTnTAM9/ZLM9DIiKiJnRy5AWRuTSgFtdcvJ
- lPiiYCXbcKPSaAJPDfwoKidGwXaqKrcbL0fNi8ZUs86ySlb1G6SgzTRSo38hW5TYyTGuM3
- roocXoFHA8w8XbSV56N3cj7tAFKg64E=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615807735;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=k/i+8wDEvbmjTfeLtLR4DtORse2gYPTQ1pHIrK7qNYU=;
- b=EYTd8U5pJspLjB3TNTwR777Q77SEE7Jb1/PxNsBMr0zbUYIbS0Np/CvjkolOoGs/4xo12B
- WckObswbG0VM4Ro85E2zGowiEhXyW2HgyvF5c7/UxbEIne2J7cFKExV7zC3t9twfk5V8Zw
- a1pLS3LDF3UUJXtNvE51MihcIwuM164=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-268-H3eixk6hOvWeu_vEtWerzw-1; Mon, 15 Mar 2021 07:28:50 -0400
-X-MC-Unique: H3eixk6hOvWeu_vEtWerzw-1
-Received: by mail-pj1-f72.google.com with SMTP id r18so13337062pjz.1
- for <linux-erofs@lists.ozlabs.org>; Mon, 15 Mar 2021 04:28:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=k/i+8wDEvbmjTfeLtLR4DtORse2gYPTQ1pHIrK7qNYU=;
- b=GERL7GVNANgVdcxbRZeetCvhoGHWYvPokudbMKow4ktxL6INav80q5BI0hYyqZEwpP
- zQ1wKGrAIqt/iK1IAmjWPitsPMl/8ZYDpivff9JOcUe+UEFvN4reWjQpJfMfMNl5iuVl
- OZMnvp15zo+Sn4g1uNXxgNR6N76HwauZej4j/TMlw4KKddyNREILFubKUgwbkR6is1hc
- 8oneoqwh+CfFZg3xElh0QPynQug48llzRvQqKmaexT6xnpO5/GCqi/ZLW/Ac0ZBvHWwp
- 3byl7HW8XBK+SVJX+RS9W+hMXGM4RtSvSYlgWH+6QOSwKcZuStBwhJ12z0epHJBhIdTS
- Ts8A==
-X-Gm-Message-State: AOAM531urNLe3F6eCC3ljJMAhi22ymEiT+Bbmx1Kpzo3vB8KZaa0epT4
- /a1Fk0zhDsu//Tn++4L3sRDa3TT6WtpBSbBfdoLaQB4zH1Yni14AHRt5Mq+OBKZNGMQCx2+1pVT
- UGDVy83h/1PxHEIJqLYWtmNkY
-X-Received: by 2002:a17:902:aa87:b029:e5:e1fc:be6 with SMTP id
- d7-20020a170902aa87b02900e5e1fc0be6mr11730373plr.4.1615807729835; 
- Mon, 15 Mar 2021 04:28:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzmWpZTgaL3v2Mj5LM9VDdAu+NKLqarMrzFd4GFRQwFyf4fK7sC/SmQFyQwrbfXAQORInKilg==
-X-Received: by 2002:a17:902:aa87:b029:e5:e1fc:be6 with SMTP id
- d7-20020a170902aa87b02900e5e1fc0be6mr11730362plr.4.1615807729632; 
- Mon, 15 Mar 2021 04:28:49 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id t22sm11605800pjw.54.2021.03.15.04.28.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Mar 2021 04:28:49 -0700 (PDT)
-Date: Mon, 15 Mar 2021 19:28:38 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Huang Jianan <huangjianan@oppo.com>
-Subject: Re: [PATCH v5 2/2] erofs: decompress in endio if possible
-Message-ID: <20210315112838.GB838000@xiangao.remote.csb>
-References: <20210305062219.557128-1-huangjianan@oppo.com>
- <20210305095840.31025-1-huangjianan@oppo.com>
- <20210305095840.31025-2-huangjianan@oppo.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Dzmpc6DCzz2yxb
+ for <linux-erofs@lists.ozlabs.org>; Tue, 16 Mar 2021 06:34:57 +1100 (AEDT)
+IronPort-SDR: 9DoQBrhRESdizY5VS6ULnokKOgzuXyuEwO/cWfUgRykOk0I5+IVrlPrTJ7fCFT0aEUd5ZvKrs6
+ ib6T4Aex/azw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9924"; a="274187319"
+X-IronPort-AV: E=Sophos;i="5.81,251,1610438400"; d="scan'208";a="274187319"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 15 Mar 2021 12:34:49 -0700
+IronPort-SDR: DoA4l6ejX7Nmsk7GoXGVI5Mtmdns6YaDb8d4mktF8W277TKtXAGYjSkr1DipY9vN4FpFnDXEZi
+ NWPN6Y6aqw9Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,251,1610438400"; d="scan'208";a="410759231"
+Received: from lkp-server02.sh.intel.com (HELO 1dc5e1a854f4) ([10.239.97.151])
+ by orsmga007.jf.intel.com with ESMTP; 15 Mar 2021 12:34:47 -0700
+Received: from kbuild by 1dc5e1a854f4 with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1lLszH-0000cH-2b; Mon, 15 Mar 2021 19:34:47 +0000
+Date: Tue, 16 Mar 2021 03:33:49 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@redhat.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 7041fecd3512b53e628dc4d1ca1fc7734e9b95dc
+Message-ID: <604fb69d.AeYbuPmqiNtpBRAz%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-In-Reply-To: <20210305095840.31025-2-huangjianan@oppo.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -117,88 +64,148 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: zhangshiming@oppo.com, linux-erofs@lists.ozlabs.org, guoweichao@oppo.com,
- linux-kernel@vger.kernel.org
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Mar 05, 2021 at 05:58:40PM +0800, Huang Jianan via Linux-erofs wrote:
-> z_erofs_decompressqueue_endio may not be executed in the atomic
-> context, for example, when dm-verity is turned on. In this scenario,
-> data can be decompressed directly to get rid of additional kworker
-> scheduling overhead. Also, it makes no sense to apply synchronous
-> decompression for such case.
-> 
-> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-> Signed-off-by: Guo Weichao <guoweichao@oppo.com>
-> ---
->  fs/erofs/internal.h |  2 ++
->  fs/erofs/super.c    |  1 +
->  fs/erofs/zdata.c    | 16 +++++++++++++---
->  3 files changed, 16 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-> index 67a7ec945686..e325da7be237 100644
-> --- a/fs/erofs/internal.h
-> +++ b/fs/erofs/internal.h
-> @@ -53,6 +53,8 @@ struct erofs_fs_context {
->  
->  	/* threshold for decompression synchronously */
->  	unsigned int max_sync_decompress_pages;
-> +	/* decide whether to decompress synchronously */
-> +	bool readahead_sync_decompress;
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 7041fecd3512b53e628dc4d1ca1fc7734e9b95dc  erofs: decompress in endio if possible
 
-I updated this as below:
+elapsed time: 720m
 
- 	/* current strategy of how to use managed cache */
- 	unsigned char cache_strategy;
-+	/* strategy of sync decompression (false - auto, true - force on) */
-+	bool readahead_sync_decompress;
- 
- 	/* threshold for decompression synchronously */
- 	unsigned int max_sync_decompress_pages;
+configs tested: 122
+configs skipped: 3
 
->  #endif
->  	unsigned int mount_opt;
->  };
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-...
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+x86_64                           allyesconfig
+riscv                            allmodconfig
+sh                           se7750_defconfig
+powerpc                      chrp32_defconfig
+arc                         haps_hs_defconfig
+mips                     loongson1c_defconfig
+xtensa                    smp_lx200_defconfig
+ia64                         bigsur_defconfig
+sh                                  defconfig
+sh                               alldefconfig
+mips                           jazz_defconfig
+powerpc                     taishan_defconfig
+riscv             nommu_k210_sdcard_defconfig
+mips                      loongson3_defconfig
+arc                      axs103_smp_defconfig
+m68k                       m5208evb_defconfig
+arm                           h3600_defconfig
+arc                 nsimosci_hs_smp_defconfig
+sparc                       sparc32_defconfig
+mips                   sb1250_swarm_defconfig
+arm                       mainstone_defconfig
+nios2                            allyesconfig
+arm                           omap1_defconfig
+arm                           spitz_defconfig
+powerpc                     tqm8541_defconfig
+sh                          polaris_defconfig
+sh                             espt_defconfig
+arm                           stm32_defconfig
+arm                         s5pv210_defconfig
+arm                       aspeed_g4_defconfig
+mips                        workpad_defconfig
+powerpc                    amigaone_defconfig
+mips                          rm200_defconfig
+ia64                             allyesconfig
+powerpc                      ppc44x_defconfig
+sh                          rsk7269_defconfig
+powerpc                      walnut_defconfig
+powerpc                      cm5200_defconfig
+m68k                            mac_defconfig
+mips                           xway_defconfig
+arc                    vdk_hs38_smp_defconfig
+sparc64                          alldefconfig
+alpha                               defconfig
+sh                           se7780_defconfig
+alpha                            alldefconfig
+sh                        apsh4ad0a_defconfig
+arm                         vf610m4_defconfig
+sh                            hp6xx_defconfig
+arm                       omap2plus_defconfig
+sh                           se7724_defconfig
+arm                          ep93xx_defconfig
+powerpc                 mpc837x_rdb_defconfig
+ia64                             allmodconfig
+ia64                                defconfig
+m68k                             allmodconfig
+m68k                                defconfig
+m68k                             allyesconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+nds32                               defconfig
+csky                                defconfig
+alpha                            allyesconfig
+xtensa                           allyesconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+i386                             allyesconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                               tinyconfig
+i386                                defconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                          allyesconfig
+powerpc                          allmodconfig
+powerpc                           allnoconfig
+x86_64               randconfig-a006-20210315
+x86_64               randconfig-a001-20210315
+x86_64               randconfig-a005-20210315
+x86_64               randconfig-a004-20210315
+x86_64               randconfig-a002-20210315
+x86_64               randconfig-a003-20210315
+i386                 randconfig-a001-20210315
+i386                 randconfig-a005-20210315
+i386                 randconfig-a003-20210315
+i386                 randconfig-a002-20210315
+i386                 randconfig-a004-20210315
+i386                 randconfig-a006-20210315
+i386                 randconfig-a013-20210315
+i386                 randconfig-a016-20210315
+i386                 randconfig-a011-20210315
+i386                 randconfig-a012-20210315
+i386                 randconfig-a014-20210315
+i386                 randconfig-a015-20210315
+riscv                    nommu_k210_defconfig
+riscv                            allyesconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+x86_64                    rhel-7.6-kselftests
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                      rhel-8.3-kbuiltin
+x86_64                                  kexec
 
-> @@ -720,8 +723,14 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
->  		return;
->  	}
->  
-> -	if (!atomic_add_return(bios, &io->pending_bios))
-> -		queue_work(z_erofs_workqueue, &io->u.work);
-> +	if (!atomic_add_return(bios, &io->pending_bios)) {
-> +		if (in_atomic() || irqs_disabled()) {
-> +			queue_work(z_erofs_workqueue, &io->u.work);
-> +			sbi->ctx.readahead_sync_decompress = true;
-> +		} else {
-> +			z_erofs_decompressqueue_work(&io->u.work);
-> +		}
-> +	}
+clang tested configs:
+x86_64               randconfig-a011-20210315
+x86_64               randconfig-a016-20210315
+x86_64               randconfig-a013-20210315
+x86_64               randconfig-a015-20210315
+x86_64               randconfig-a014-20210315
+x86_64               randconfig-a012-20210315
 
-Also updated this as below to return as early as possible:
-
--	if (!atomic_add_return(bios, &io->pending_bios))
-+	if (atomic_add_return(bios, &io->pending_bios))
-+		return;
-+	/* Use workqueue and sync decompression for atomic contexts only */
-+	if (in_atomic() || irqs_disabled()) {
- 		queue_work(z_erofs_workqueue, &io->u.work);
-+		sbi->ctx.readahead_sync_decompress = true;
-+		return;
-+	}
-+	z_erofs_decompressqueue_work(&io->u.work);
- }
-
-Otherwise, it looks good to me. I've applied to dev-test
-for preliminary testing.
-
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
-
-Thanks,
-Gao Xiang
-
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
