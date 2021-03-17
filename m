@@ -2,54 +2,57 @@ Return-Path: <SRS0=MNjO=IP=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A596C43381
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 06:46:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF68C433DB
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 19:27:28 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9802364FA7
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 06:46:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9802364FA7
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id 31DC664F21
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 19:27:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 31DC664F21
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F0gfL2GrWz30NV
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 17:46:02 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F10Xs453zz30QS
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Mar 2021 06:27:25 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=szxga06-in.huawei.com;
- envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+ smtp.mailfrom=intel.com (client-ip=192.55.52.115; helo=mga14.intel.com;
+ envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F0gfJ3Vqwz2yQw
- for <linux-erofs@lists.ozlabs.org>; Wed, 17 Mar 2021 17:46:00 +1100 (AEDT)
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
- by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4F0gcS6v2fzkb8C;
- Wed, 17 Mar 2021 14:44:24 +0800 (CST)
-Received: from [10.136.110.154] (10.136.110.154) by smtp.huawei.com
- (10.3.19.201) with Microsoft SMTP Server (TLS) id 14.3.498.0; Wed, 17 Mar
- 2021 14:45:53 +0800
-Subject: Re: [PATCH 2/2] erofs: use sync decompression for atomic contexts only
-To: Huang Jianan <huangjianan@oppo.com>, <linux-erofs@lists.ozlabs.org>
-References: <20210317035448.13921-1-huangjianan@oppo.com>
- <20210317035448.13921-3-huangjianan@oppo.com>
-From: Chao Yu <yuchao0@huawei.com>
-Message-ID: <62153424-198c-807e-cced-33dd90279174@huawei.com>
-Date: Wed, 17 Mar 2021 14:45:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F10Xp4PZhz30JP
+ for <linux-erofs@lists.ozlabs.org>; Thu, 18 Mar 2021 06:27:21 +1100 (AEDT)
+IronPort-SDR: H907XDIJZCd6dA/HTKq7FSBfygMljdSAUi2Vy58jtOa+FzGlvUYPou5mTO7/wJ+8vXevoYCcCy
+ +bSRPbq+REoQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9926"; a="188899631"
+X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; d="scan'208";a="188899631"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 17 Mar 2021 12:27:19 -0700
+IronPort-SDR: bVr30JsfSVXsCYxwlDXCPUU8kdMLzvaLqlZf7dSEREOrlVVSY34dppBHBf/fQlTjwOqwU0QVL4
+ 5YgUlSS017Mw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; d="scan'208";a="411584973"
+Received: from lkp-server02.sh.intel.com (HELO 1c294c63cb86) ([10.239.97.151])
+ by orsmga007.jf.intel.com with ESMTP; 17 Mar 2021 12:27:17 -0700
+Received: from kbuild by 1c294c63cb86 with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1lMbp6-0000pQ-V6; Wed, 17 Mar 2021 19:27:16 +0000
+Date: Thu, 18 Mar 2021 03:26:48 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@redhat.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 49f9e359229ccfb3a8c7df7e6ef793b7fbd3fb52
+Message-ID: <605257f8.neEfXTje7sgljcxA%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-In-Reply-To: <20210317035448.13921-3-huangjianan@oppo.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.110.154]
-X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,21 +64,158 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: zhangshiming@oppo.com, guoweichao@oppo.com, linux-kernel@vger.kernel.org
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2021/3/17 11:54, Huang Jianan via Linux-erofs wrote:
-> Sync decompression was introduced to get rid of additional kworker
-> scheduling overhead. But there is no such overhead in non-atomic
-> contexts. Therefore, it should be better to turn off sync decompression
-> to avoid the current thread waiting in z_erofs_runqueue.
-> 
-> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-> Signed-off-by: Guo Weichao <guoweichao@oppo.com>
-> Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 49f9e359229ccfb3a8c7df7e6ef793b7fbd3fb52  erofs: use sync decompression for atomic contexts only
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+elapsed time: 722m
 
-Thanks,
+configs tested: 132
+configs skipped: 2
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+x86_64                           allyesconfig
+riscv                            allmodconfig
+i386                             allyesconfig
+riscv                            allyesconfig
+nds32                            alldefconfig
+arm                      pxa255-idp_defconfig
+arm                         lpc32xx_defconfig
+sh                     sh7710voipgw_defconfig
+powerpc                    socrates_defconfig
+arc                         haps_hs_defconfig
+arm                       spear13xx_defconfig
+powerpc                     mpc512x_defconfig
+sh                          landisk_defconfig
+powerpc                    mvme5100_defconfig
+m68k                       m5249evb_defconfig
+sh                            titan_defconfig
+powerpc                      ppc40x_defconfig
+sh                        edosk7705_defconfig
+powerpc                 mpc8540_ads_defconfig
+mips                         bigsur_defconfig
+riscv                            alldefconfig
+powerpc                     ep8248e_defconfig
+powerpc                        icon_defconfig
+mips                           ip28_defconfig
+arm                         lpc18xx_defconfig
+sh                          kfr2r09_defconfig
+powerpc                      arches_defconfig
+ia64                        generic_defconfig
+sh                           se7206_defconfig
+sh                           se7724_defconfig
+arm                       cns3420vb_defconfig
+mips                           rs90_defconfig
+arm                          simpad_defconfig
+mips                     loongson1c_defconfig
+sh                        sh7785lcr_defconfig
+arm                        clps711x_defconfig
+sparc                       sparc32_defconfig
+powerpc                     stx_gp3_defconfig
+powerpc                 mpc836x_mds_defconfig
+powerpc                      pcm030_defconfig
+arm                     eseries_pxa_defconfig
+powerpc                   lite5200b_defconfig
+powerpc                     ppa8548_defconfig
+arm                         hackkit_defconfig
+ia64                                defconfig
+mips                          malta_defconfig
+mips                        vocore2_defconfig
+powerpc                     mpc5200_defconfig
+powerpc                   motionpro_defconfig
+nios2                            alldefconfig
+mips                           ip27_defconfig
+arm                         palmz72_defconfig
+m68k                            q40_defconfig
+m68k                          atari_defconfig
+parisc                generic-64bit_defconfig
+m68k                       bvme6000_defconfig
+powerpc                    adder875_defconfig
+sh                          sdk7786_defconfig
+powerpc                      cm5200_defconfig
+powerpc                  storcenter_defconfig
+sh                   sh7770_generic_defconfig
+mips                    maltaup_xpa_defconfig
+ia64                             allmodconfig
+ia64                             allyesconfig
+m68k                             allmodconfig
+m68k                                defconfig
+m68k                             allyesconfig
+nds32                               defconfig
+nios2                            allyesconfig
+csky                                defconfig
+alpha                               defconfig
+alpha                            allyesconfig
+xtensa                           allyesconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                               tinyconfig
+i386                                defconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                          allyesconfig
+powerpc                          allmodconfig
+powerpc                           allnoconfig
+i386                 randconfig-a001-20210317
+i386                 randconfig-a005-20210317
+i386                 randconfig-a002-20210317
+i386                 randconfig-a003-20210317
+i386                 randconfig-a004-20210317
+i386                 randconfig-a006-20210317
+i386                 randconfig-a013-20210317
+i386                 randconfig-a016-20210317
+i386                 randconfig-a011-20210317
+i386                 randconfig-a012-20210317
+i386                 randconfig-a015-20210317
+i386                 randconfig-a014-20210317
+x86_64               randconfig-a006-20210317
+x86_64               randconfig-a001-20210317
+x86_64               randconfig-a005-20210317
+x86_64               randconfig-a004-20210317
+x86_64               randconfig-a003-20210317
+x86_64               randconfig-a002-20210317
+riscv                    nommu_k210_defconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+x86_64                    rhel-7.6-kselftests
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                      rhel-8.3-kbuiltin
+x86_64                                  kexec
+
+clang tested configs:
+x86_64               randconfig-a011-20210317
+x86_64               randconfig-a016-20210317
+x86_64               randconfig-a013-20210317
+x86_64               randconfig-a014-20210317
+x86_64               randconfig-a015-20210317
+x86_64               randconfig-a012-20210317
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
