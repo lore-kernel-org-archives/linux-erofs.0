@@ -1,58 +1,56 @@
-Return-Path: <SRS0=MNjO=IP=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=gcOj=IR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF68C433DB
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 19:27:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 081DBC433E0
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 02:16:04 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 31DC664F21
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Mar 2021 19:27:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 31DC664F21
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 60BB564F1C
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 02:16:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 60BB564F1C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F10Xs453zz30QS
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 Mar 2021 06:27:25 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F1nYt0Qv0z3c3r
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 13:16:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.115; helo=mga14.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F10Xp4PZhz30JP
- for <linux-erofs@lists.ozlabs.org>; Thu, 18 Mar 2021 06:27:21 +1100 (AEDT)
-IronPort-SDR: H907XDIJZCd6dA/HTKq7FSBfygMljdSAUi2Vy58jtOa+FzGlvUYPou5mTO7/wJ+8vXevoYCcCy
- +bSRPbq+REoQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9926"; a="188899631"
-X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; d="scan'208";a="188899631"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
- by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 17 Mar 2021 12:27:19 -0700
-IronPort-SDR: bVr30JsfSVXsCYxwlDXCPUU8kdMLzvaLqlZf7dSEREOrlVVSY34dppBHBf/fQlTjwOqwU0QVL4
- 5YgUlSS017Mw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,257,1610438400"; d="scan'208";a="411584973"
-Received: from lkp-server02.sh.intel.com (HELO 1c294c63cb86) ([10.239.97.151])
- by orsmga007.jf.intel.com with ESMTP; 17 Mar 2021 12:27:17 -0700
-Received: from kbuild by 1c294c63cb86 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1lMbp6-0000pQ-V6; Wed, 17 Mar 2021 19:27:16 +0000
-Date: Thu, 18 Mar 2021 03:26:48 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- 49f9e359229ccfb3a8c7df7e6ef793b7fbd3fb52
-Message-ID: <605257f8.neEfXTje7sgljcxA%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.190; helo=szxga04-in.huawei.com;
+ envelope-from=yuchao0@huawei.com; receiver=<UNKNOWN>)
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F1nYR54RNz3bxZ
+ for <linux-erofs@lists.ozlabs.org>; Fri, 19 Mar 2021 13:15:32 +1100 (AEDT)
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
+ by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F1nVK65MjzmXLp;
+ Fri, 19 Mar 2021 10:12:57 +0800 (CST)
+Received: from [10.136.110.154] (10.136.110.154) by smtp.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.498.0; Fri, 19 Mar
+ 2021 10:15:19 +0800
+Subject: Re: [PATCH v2] erofs: fix bio->bi_max_vecs behavior change
+To: Gao Xiang <hsiangkao@aol.com>, <linux-erofs@lists.ozlabs.org>, Chao Yu
+ <chao@kernel.org>
+References: <20210306033109.28466-1-hsiangkao@aol.com>
+ <20210306040438.8084-1-hsiangkao@aol.com>
+From: Chao Yu <yuchao0@huawei.com>
+Message-ID: <dffa941d-63b5-2068-80f4-dd012f520147@huawei.com>
+Date: Fri, 19 Mar 2021 10:15:18 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20210306040438.8084-1-hsiangkao@aol.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.136.110.154]
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,158 +62,176 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: Martin
+ DEVERA <devik@eaxlabs.cz>, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: 49f9e359229ccfb3a8c7df7e6ef793b7fbd3fb52  erofs: use sync decompression for atomic contexts only
+On 2021/3/6 12:04, Gao Xiang wrote:
+> From: Gao Xiang <hsiangkao@redhat.com>
+> 
+> Martin reported an issue that directory read could be hung on the
+> latest -rc kernel with some certain image. The root cause is that
+> commit baa2c7c97153 ("block: set .bi_max_vecs as actual allocated
+> vector number") changes .bi_max_vecs behavior. bio->bi_max_vecs
+> is set as actual allocated vector number rather than the requested
+> number now.
+> 
+> Let's avoid using .bi_max_vecs completely instead.
+> 
+> Reported-by: Martin DEVERA <devik@eaxlabs.cz>
+> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+> ---
+> change since v1:
+>   - since bio->bi_max_vecs doesn't record extent blocks anymore,
+>     introduce a remaining extent block to avoid extent excess.
+> 
+>   fs/erofs/data.c | 28 +++++++++++-----------------
+>   1 file changed, 11 insertions(+), 17 deletions(-)
+> 
+> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+> index f88851c5c250..1249e74b3bf0 100644
+> --- a/fs/erofs/data.c
+> +++ b/fs/erofs/data.c
+> @@ -129,6 +129,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   					      struct page *page,
+>   					      erofs_off_t *last_block,
+>   					      unsigned int nblocks,
+> +					      unsigned int *eblks,
+>   					      bool ra)
+>   {
+>   	struct inode *const inode = mapping->host;
+> @@ -145,8 +146,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   
+>   	/* note that for readpage case, bio also equals to NULL */
+>   	if (bio &&
+> -	    /* not continuous */
+> -	    *last_block + 1 != current_block) {
+> +	    (*last_block + 1 != current_block || !*eblks)) {
 
-elapsed time: 722m
+Xiang,
 
-configs tested: 132
-configs skipped: 2
+I found below function during checking bi_max_vecs usage in f2fs:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+/**
+  * bio_full - check if the bio is full
+  * @bio:        bio to check
+  * @len:        length of one segment to be added
+  *
+  * Return true if @bio is full and one segment with @len bytes can't be
+  * added to the bio, otherwise return false
+  */
+static inline bool bio_full(struct bio *bio, unsigned len)
+{
+         if (bio->bi_vcnt >= bio->bi_max_vecs)
+                 return true;
 
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-x86_64                           allyesconfig
-riscv                            allmodconfig
-i386                             allyesconfig
-riscv                            allyesconfig
-nds32                            alldefconfig
-arm                      pxa255-idp_defconfig
-arm                         lpc32xx_defconfig
-sh                     sh7710voipgw_defconfig
-powerpc                    socrates_defconfig
-arc                         haps_hs_defconfig
-arm                       spear13xx_defconfig
-powerpc                     mpc512x_defconfig
-sh                          landisk_defconfig
-powerpc                    mvme5100_defconfig
-m68k                       m5249evb_defconfig
-sh                            titan_defconfig
-powerpc                      ppc40x_defconfig
-sh                        edosk7705_defconfig
-powerpc                 mpc8540_ads_defconfig
-mips                         bigsur_defconfig
-riscv                            alldefconfig
-powerpc                     ep8248e_defconfig
-powerpc                        icon_defconfig
-mips                           ip28_defconfig
-arm                         lpc18xx_defconfig
-sh                          kfr2r09_defconfig
-powerpc                      arches_defconfig
-ia64                        generic_defconfig
-sh                           se7206_defconfig
-sh                           se7724_defconfig
-arm                       cns3420vb_defconfig
-mips                           rs90_defconfig
-arm                          simpad_defconfig
-mips                     loongson1c_defconfig
-sh                        sh7785lcr_defconfig
-arm                        clps711x_defconfig
-sparc                       sparc32_defconfig
-powerpc                     stx_gp3_defconfig
-powerpc                 mpc836x_mds_defconfig
-powerpc                      pcm030_defconfig
-arm                     eseries_pxa_defconfig
-powerpc                   lite5200b_defconfig
-powerpc                     ppa8548_defconfig
-arm                         hackkit_defconfig
-ia64                                defconfig
-mips                          malta_defconfig
-mips                        vocore2_defconfig
-powerpc                     mpc5200_defconfig
-powerpc                   motionpro_defconfig
-nios2                            alldefconfig
-mips                           ip27_defconfig
-arm                         palmz72_defconfig
-m68k                            q40_defconfig
-m68k                          atari_defconfig
-parisc                generic-64bit_defconfig
-m68k                       bvme6000_defconfig
-powerpc                    adder875_defconfig
-sh                          sdk7786_defconfig
-powerpc                      cm5200_defconfig
-powerpc                  storcenter_defconfig
-sh                   sh7770_generic_defconfig
-mips                    maltaup_xpa_defconfig
-ia64                             allmodconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-s390                                defconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                               tinyconfig
-i386                                defconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a001-20210317
-i386                 randconfig-a005-20210317
-i386                 randconfig-a002-20210317
-i386                 randconfig-a003-20210317
-i386                 randconfig-a004-20210317
-i386                 randconfig-a006-20210317
-i386                 randconfig-a013-20210317
-i386                 randconfig-a016-20210317
-i386                 randconfig-a011-20210317
-i386                 randconfig-a012-20210317
-i386                 randconfig-a015-20210317
-i386                 randconfig-a014-20210317
-x86_64               randconfig-a006-20210317
-x86_64               randconfig-a001-20210317
-x86_64               randconfig-a005-20210317
-x86_64               randconfig-a004-20210317
-x86_64               randconfig-a003-20210317
-x86_64               randconfig-a002-20210317
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-x86_64                    rhel-7.6-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
+         if (bio->bi_iter.bi_size > UINT_MAX - len)
+                 return true;
 
-clang tested configs:
-x86_64               randconfig-a011-20210317
-x86_64               randconfig-a016-20210317
-x86_64               randconfig-a013-20210317
-x86_64               randconfig-a014-20210317
-x86_64               randconfig-a015-20210317
-x86_64               randconfig-a012-20210317
+         return false;
+}
 
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Could you please check that whether it will be better to use bio_full()
+rather than using left-space-in-bio maintained by erofs itself? something
+like:
+
+if (bio && (bio_full(bio, PAGE_SIZE) ||
+	/* not continuous */
+	(*last_block + 1 != current_block))
+
+I'm thinking we need to decouple bio detail implementation as much as
+possible, to avoid regression whenever bio used/max size definition
+updates, though I've no idea how to fix f2fs case.
+
+Let me know if you have other concern.
+
+Thanks,
+
+>   submit_bio_retry:
+>   		submit_bio(bio);
+>   		bio = NULL;
+> @@ -216,7 +216,8 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   		if (nblocks > DIV_ROUND_UP(map.m_plen, PAGE_SIZE))
+>   			nblocks = DIV_ROUND_UP(map.m_plen, PAGE_SIZE);
+>   
+> -		bio = bio_alloc(GFP_NOIO, bio_max_segs(nblocks));
+> +		*eblks = bio_max_segs(nblocks);
+> +		bio = bio_alloc(GFP_NOIO, *eblks);
+>   
+>   		bio->bi_end_io = erofs_readendio;
+>   		bio_set_dev(bio, sb->s_bdev);
+> @@ -229,16 +230,8 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   	/* out of the extent or bio is full */
+>   	if (err < PAGE_SIZE)
+>   		goto submit_bio_retry;
+> -
+> +	--*eblks;
+>   	*last_block = current_block;
+> -
+> -	/* shift in advance in case of it followed by too many gaps */
+> -	if (bio->bi_iter.bi_size >= bio->bi_max_vecs * PAGE_SIZE) {
+> -		/* err should reassign to 0 after submitting */
+> -		err = 0;
+> -		goto submit_bio_out;
+> -	}
+> -
+>   	return bio;
+>   
+>   err_out:
+> @@ -252,7 +245,6 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   
+>   	/* if updated manually, continuous pages has a gap */
+>   	if (bio)
+> -submit_bio_out:
+>   		submit_bio(bio);
+>   	return err ? ERR_PTR(err) : NULL;
+>   }
+> @@ -264,23 +256,26 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+>   static int erofs_raw_access_readpage(struct file *file, struct page *page)
+>   {
+>   	erofs_off_t last_block;
+> +	unsigned int eblks;
+>   	struct bio *bio;
+>   
+>   	trace_erofs_readpage(page, true);
+>   
+>   	bio = erofs_read_raw_page(NULL, page->mapping,
+> -				  page, &last_block, 1, false);
+> +				  page, &last_block, 1, &eblks, false);
+>   
+>   	if (IS_ERR(bio))
+>   		return PTR_ERR(bio);
+>   
+> -	DBG_BUGON(bio);	/* since we have only one bio -- must be NULL */
+> +	if (bio)
+> +		submit_bio(bio);
+>   	return 0;
+>   }
+>   
+>   static void erofs_raw_access_readahead(struct readahead_control *rac)
+>   {
+>   	erofs_off_t last_block;
+> +	unsigned int eblks;
+>   	struct bio *bio = NULL;
+>   	struct page *page;
+>   
+> @@ -291,7 +286,7 @@ static void erofs_raw_access_readahead(struct readahead_control *rac)
+>   		prefetchw(&page->flags);
+>   
+>   		bio = erofs_read_raw_page(bio, rac->mapping, page, &last_block,
+> -				readahead_count(rac), true);
+> +				readahead_count(rac), &eblks, true);
+>   
+>   		/* all the page errors are ignored when readahead */
+>   		if (IS_ERR(bio)) {
+> @@ -305,7 +300,6 @@ static void erofs_raw_access_readahead(struct readahead_control *rac)
+>   		put_page(page);
+>   	}
+>   
+> -	/* the rare case (end in gaps) */
+>   	if (bio)
+>   		submit_bio(bio);
+>   }
+> 
