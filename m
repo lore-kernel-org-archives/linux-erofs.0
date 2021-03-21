@@ -1,110 +1,102 @@
-Return-Path: <SRS0=gcOj=IR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=+X6V=IT=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90165C433DB
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 04:16:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 010FDC433C1
+	for <linux-erofs@archiver.kernel.org>; Sun, 21 Mar 2021 18:33:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 94CFD64E89
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 04:16:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 94CFD64E89
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 198BB6194C
+	for <linux-erofs@archiver.kernel.org>; Sun, 21 Mar 2021 18:33:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 198BB6194C
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F1rF92G0Dz3bsw
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 Mar 2021 15:16:45 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F3R8C5Sj9z2yYk
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 05:32:59 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1616351579;
+	bh=5NT1AvVCC0DpiG7Qx23E8he89GP36QzzaoNJbXBzx1c=;
+	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
+	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=KS7YgRAH+mMDRwDAJKgYT3tke96JQ4c7gt5CUqa3VmZH1dogmkLDvYGP2vB3ZTdFL
+	 Bbk6Jp19QEt63Bazw+7M74lH6GuiOY6+xr/7DOnQryUXdH6Ifkf1woTrgN4JHMOmqI
+	 foizdWOnQRi5a/xyCVI8VqHBLMsbLmqR2P1QPSHoXf9/l9I3LDPdms2ZeOLXDazMZM
+	 zvm+Ss6JG+SKpi8bB83Hca4sehXwuCc2o/vx9GqdYyB63GhKtokyQjRvpbr/U2UC4Y
+	 3kUKmzm3LhHycYLHETGBQqvQChAwskCN7J+GuTTzrvDwFs4oXnzJIgGfAFaxzDc+oK
+	 MqwOaxjgIuWKw==
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RgffCLKX;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RgffCLKX;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=RgffCLKX; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RgffCLKX; 
- dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=98.137.65.147; helo=sonic309-21.consmr.mail.gq1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=MLJ0SRdg; dkim-atps=neutral
+Received: from sonic309-21.consmr.mail.gq1.yahoo.com
+ (sonic309-21.consmr.mail.gq1.yahoo.com [98.137.65.147])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F1rF60swZz30CW
- for <linux-erofs@lists.ozlabs.org>; Fri, 19 Mar 2021 15:16:40 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1616127396;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Fhkm3I7YJkrB4vQzfYOVqceaFTpMmkPj/a4yOIpQi6U=;
- b=RgffCLKXYXGQwoLW98ngj0qoDpBWUuVZDBNv710tH2j2f0dPZiGB2w2agqm2rhfzJokFK+
- USN0zobFkeXSAF+QVUlHSBEB6ID5LoTDFSMqrW5jklQIbfE0p1aBrN3NiKmwUoGwUBKj4Y
- hIKel+4B+sKikikj9yAwo9MRS0q0/28=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1616127396;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Fhkm3I7YJkrB4vQzfYOVqceaFTpMmkPj/a4yOIpQi6U=;
- b=RgffCLKXYXGQwoLW98ngj0qoDpBWUuVZDBNv710tH2j2f0dPZiGB2w2agqm2rhfzJokFK+
- USN0zobFkeXSAF+QVUlHSBEB6ID5LoTDFSMqrW5jklQIbfE0p1aBrN3NiKmwUoGwUBKj4Y
- hIKel+4B+sKikikj9yAwo9MRS0q0/28=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-95-VM2dASl7O_mFIoBRKwRFTw-1; Fri, 19 Mar 2021 00:16:33 -0400
-X-MC-Unique: VM2dASl7O_mFIoBRKwRFTw-1
-Received: by mail-pg1-f197.google.com with SMTP id b20so880896pgs.4
- for <linux-erofs@lists.ozlabs.org>; Thu, 18 Mar 2021 21:16:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=Fhkm3I7YJkrB4vQzfYOVqceaFTpMmkPj/a4yOIpQi6U=;
- b=CbHjgfKiAkMGzbN6Rnv4L3Oeo6pIksehlWNTo4DlacGlC+cy2WhjKrk4CI6cwbqFn4
- cjT7tWqg+tuhLxxaj9i2QjV9ri/thln61USSRiGoZPGQHqFUxkkC07VsL861JPNgeqOo
- 3hrB14k1Zp88iIzPIvrBqaPnDlkfKya4QE9YXi0bbXaF5l//1VuywM5y1oVgcAQEiOl0
- QAB8UjPYke1aVxipeT+zSPiEKQvviv7kFLbctHeA1HZKzrKLGoEZwBP+2M/1Jdef9SDH
- GFyUAIj+UCd5bzVaXNdZzfIKLYBt6jA24mo2s3//C+WNoHqr5X1up0xiQr8Rr8u4f+z2
- EbqA==
-X-Gm-Message-State: AOAM531kWilmF+r0HrwIfqTjS9sj0RqYPGrGKDnt/6Ydh+nyC4t2bjaU
- hK22SojAjf7kGXBpMfGTeYbaS+HBIWFPF6odXOGUa986Jwa6RTWwkg9LMIGmitUMYNJYrw5BQ9D
- p4BDqBfTpnSpNMNgFPNJ4huzj
-X-Received: by 2002:a17:90a:5284:: with SMTP id
- w4mr7561398pjh.29.1616127392283; 
- Thu, 18 Mar 2021 21:16:32 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz6yU8WKXeC//FEBmjUB4/v+p+sRLJt6wM50P29v0rcFSpGwIdiUxrwif9mSFPQyLZbSwodGQ==
-X-Received: by 2002:a17:90a:5284:: with SMTP id
- w4mr7561382pjh.29.1616127391987; 
- Thu, 18 Mar 2021 21:16:31 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id g21sm3855236pfk.30.2021.03.18.21.16.28
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 18 Mar 2021 21:16:31 -0700 (PDT)
-Date: Fri, 19 Mar 2021 12:16:21 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Chao Yu <yuchao0@huawei.com>
-Subject: Re: [PATCH v2] erofs: fix bio->bi_max_vecs behavior change
-Message-ID: <20210319041621.GB1431129@xiangao.remote.csb>
-References: <20210306033109.28466-1-hsiangkao@aol.com>
- <20210306040438.8084-1-hsiangkao@aol.com>
- <dffa941d-63b5-2068-80f4-dd012f520147@huawei.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F3R871Z4wz2xy8
+ for <linux-erofs@lists.ozlabs.org>; Mon, 22 Mar 2021 05:32:51 +1100 (AEDT)
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1616351564; bh=NfVtU2QVpQqfqCUuFeaMmv36lCPjja248jyLjJAjQr4=;
+ h=X-Sonic-MF:From:To:Subject:Date:From:Subject;
+ b=d2QCcVWFgbd4Rc9kuyDJBbUjX9hbvi3+IwIDJbLTwYj8b3UJq768WAARQBA/LwWv/2GaQiG3GxOmPpRtOSbb8Y4qxeg6C2Cp+2q8yMtlrxJR7e2FuvBR7jVkfDUsZrg1cOGKq0+sLRIao6n9ei2TnqKwA6wFLm+DLFXZnpUfMEpY2gSqL1gyETs75B4io5WS1FWH99v2khDmOCguLqgng17iY1oj8I6I4HbWy0d71uYZD4BurlhVPtl7xarqBseC/kVgWrgPIixfJm9LbON9558HiYGB1hFzSyKV4lmOwvIHoID5vzKoHL9FkPX8Wm7NWwY1por050WTrptIvRHLaA==
+X-YMail-OSG: hwLQye8VM1nJ381WQiaK9flY5zGriAc5scDjuvcrjoD.QTejgA7xVLMN1sjnEb_
+ qK8UQwoo47t2zTwvJPBSZQyG3TzVwJyqAryYbMH1a5dwJNdMWQmplNe5Ve8ouacVw5uPI3STBjUd
+ pBX5sCJ0SIKPy3RP8.HkePGJdS9v75gGvHNDxs6tz4jlhaCZmuCr1ZjlR3GCrD9ePwDsacPCUfXb
+ EOApNQWyPzS4oJ_RDaAOJBY6500_GOj8xfzudXD43p0AxgQf7WqGaKYP_QQD3u2SIkmkk0HOAhh9
+ jRB_EszqpDUSnn0Bn7J4RtDUzXmtAR7NPYynDzbHZI4OQ0RRftWzz7.NmBLsxf5RhlmJik0q4y7Q
+ RiICzIrnASXZaPN7U04gQA8q5hOzSzdZKz5j.sSRodJ6OvwUfFmA9jE_W841uIPzcHtHM0XQQz8c
+ QRdZ0PaNio4BSm6CaTbVS4wYqdLka8EdAdswshr.Rg7aTg.zmzln4kdxbNLNCG1t3WEHYa.RHMVZ
+ RNpVY_6nBoTEFxd_kJBObBnoYeiZ0sUHB81cbGY2Xed6ev9TnzP5u7TUhTdIpmWbPHwjyHIYoGRv
+ pYI04TcKm.sdgVYwYL9mrNwfXelWwBH6Ll9FQ0o4oyXc5U2fjqPsD3OTjkiTtc7TzlPtk4dv2JKf
+ ZtFCFvjIaJY_OhpLrIia2jTT8HQIBXQKThcIYIUqnNI18h6.EwbigGw_.qiTTB7cxDzKL1uOc6Ur
+ ggEi2qKOCJJum8rAHRu4chz8Xb8dFWp6YoDlHZxTQ._T4CDbbggdnOo73SZjVYzoOt8uRZhD_DN6
+ YDbhKZCgGEwsAdd0d2.s5ZgBW87yWiXQaxR7UnsQZjHPBs2gFAUxdmwIYgjVPQplQ5FOIB0gKVCB
+ jH0gmVwOdzowYLhuOKkAkJoSAYGZkEFbj6jZpLKAFGmQ0xrjAUTsWYqxIYjzIqJ5UxYfJZh.PCmi
+ 6dJmcmh4PaxOQQ15ULbV7ZkZXDT6N12_DIry7BPdLgX47NlEe9nbmGk4UNqlNquDy6rUEXlNUMT1
+ PQiFtf5MmEyqEWx_51m45rZ1fBtT8fB187MGl9vT6MEg0uuatMhK7n9xxYxsYVyy0RJusC.OOVFD
+ xDeUfmEIo466x8kwZVfO6195n3VcwSGLlSqWwmSPFGu514WuvqQhgOCmudNZRzOvQT5NWTJopyp0
+ i0ztTdwC38MPzMPmdi8.5Dw9gPBU9yFt2SiaonYD_UsXFEwBxAovGzTgJPqcDcAbucDkRB_v_R4X
+ gfEkvxsPtzt2a3kDBH.S7FauVwQ8_NSs8z2IWXtlV_MHNBazoEhfLLoJ2Ci15TcFRGNgMmD8CBLy
+ p89L8OKJ9CUNGCGq9JEElMuKm8bqcU0wnaLS07o.rsNniUSNt5.QDzdLawEnAdSd6lh2McA1jTwx
+ .sbRJhMLQF1HBcVL1Mobf_Ouvt4FyI4JL9PndZgnVEqiDTp4XBXhgGch8Wi9WyqKpfev76kZFOLL
+ qmlfR4Y8U3p6nJufYED0G7XPL2gPilvA17IV7W2yUJwmgkDxIYkA3Xt2HWjFjaeQdPf9AbvB9nTr
+ AbZtfaITV6qJKDLdwhJlAQUGgni5yKtddTi2Wm5ONk0JbNE8rDfyjIpIB8N90CRnAYhJrlilq4p0
+ rRie2pVT6GdXJmYHRX0VqaeN.xYB2mQ3v98CP3ZHGxoFYE4IfUO8BJaKGV6Heu_wX0HAIt5n5mOC
+ _YMrhaWaoU.nGOxGoGf9jmBkSHbDW.6M0bhPNzSqLMCfzV36zTzWQpYiSZ2tjmVYnnE_U0cae00t
+ nxEEEp79dAqQnk2thG1vx2fdc_KzduR2J8g.z2a9JjOpHpu7WVx.EDa6Z6Myz6KkcD0InjdQulH4
+ G6O0tC71YivHWtixxOVKnemb6SFkJQ5sXf8eT7CzovCq1CZIcfNnyU14f7xUm46yyft8cCnNIM8X
+ 1Bkdrwg14UxMm4tC_TTYzb7AYDJOW3b6Qpw1JhI8EECZ8bHKXwW2kf1pl_taaz5daQqu4NnkWfb5
+ Po.W0bSCQx.Dtm4xLuRUqXw2Z_QiEikHtIpoKvPnYGUO4Yw2haKkBRAFzfyd07rE.Wg2xh2O9JKr
+ nijkMpMV3vge7_VQUgO3LBC2Z9XBk9wtpFeUD6g4hBsY4JdY5qgVYbrOS5brOuLbIJw4tqF9kN00
+ JD2SXqbMWKSFFJFccoXprb2nujtBRf6qOaEb06C1aEjBgx27GSPDnmYRmJhw0YXcvFW5xcr5_UBv
+ hpJkSGG0miHj5H4bBbHMvqzWhU58BBd1SpE.wPpxiVbznYhxYiI4BfkiUlDJ6HMKgENeuJoRkPtg
+ B9IPdpviqlUArgySkmhX6AvZXZABmmJyzPWCilzR8i4MVdMI6QXzsdy72J0DRZzLEljfqPKjAl5V
+ SbDlTfCmPGrb.37KBNcRyHd2NMp0EJbuX2464nVtN1NwI8mfbXuERpnYU0Vz7gWgamwsDGvfPSoJ
+ rEkwKdBZKMfVJ8h8iU64nK6a0a8r0VSDJF87xaumERIkmpfrpIT4d3ykIMzbtU4USF42dO_cFEvZ
+ xvORchoePnuimayJpeoH.UverCZGSLJnhClFvx.yJk0nzaEPpjT0-
+X-Sonic-MF: <hsiangkao@aol.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic309.consmr.mail.gq1.yahoo.com with HTTP; Sun, 21 Mar 2021 18:32:44 +0000
+Received: by kubenode506.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP
+ Server) with ESMTPA ID 4ad1b36e7e2e8805f0c9a4fae9f83cf7; 
+ Sun, 21 Mar 2021 18:32:40 +0000 (UTC)
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2] erofs: complete a missing case for inplace I/O
+Date: Mon, 22 Mar 2021 02:32:27 +0800
+Message-Id: <20210321183227.5182-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <dffa941d-63b5-2068-80f4-dd012f520147@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+References: <20210321183227.5182-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -116,77 +108,114 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Martin DEVERA <devik@eaxlabs.cz>, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Chao,
+From: Gao Xiang <hsiangkao@redhat.com>
 
-On Fri, Mar 19, 2021 at 10:15:18AM +0800, Chao Yu wrote:
-> On 2021/3/6 12:04, Gao Xiang wrote:
+Add a missing case which could cause unnecessary page allocation but
+not directly use inplace I/O instead, which increases runtime extra
+memory footprint.
 
-...
+The detail is, considering an online file-backed page, the right half
+of the page is chosen to be cached (e.g. the end page of a readahead
+request) and some of its data doesn't exist in managed cache, so the
+pcluster will be definitely kept in the submission chain. (IOWs, it
+cannot be decompressed without I/O, e.g., due to the bypass queue).
 
-> > +	    (*last_block + 1 != current_block || !*eblks)) {
-> 
-> Xiang,
-> 
-> I found below function during checking bi_max_vecs usage in f2fs:
-> 
-> /**
->  * bio_full - check if the bio is full
->  * @bio:        bio to check
->  * @len:        length of one segment to be added
->  *
->  * Return true if @bio is full and one segment with @len bytes can't be
->  * added to the bio, otherwise return false
->  */
-> static inline bool bio_full(struct bio *bio, unsigned len)
-> {
->         if (bio->bi_vcnt >= bio->bi_max_vecs)
->                 return true;
-> 
->         if (bio->bi_iter.bi_size > UINT_MAX - len)
->                 return true;
-> 
->         return false;
-> }
-> 
-> Could you please check that whether it will be better to use bio_full()
-> rather than using left-space-in-bio maintained by erofs itself? something
-> like:
-> 
-> if (bio && (bio_full(bio, PAGE_SIZE) ||
-> 	/* not continuous */
-> 	(*last_block + 1 != current_block))
-> 
-> I'm thinking we need to decouple bio detail implementation as much as
-> possible, to avoid regression whenever bio used/max size definition
-> updates, though I've no idea how to fix f2fs case.
+Currently, DELAYEDALLOC/TRYALLOC cases can be downgraded as NOINPLACE,
+and stop online pages from inplace I/O. After this patch, unneeded page
+allocations won't be observed in pickup_page_for_submission() then.
 
-Thanks for your suggestion.
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+v1: https://lore.kernel.org/r/20201022145724.27284-4-hsiangkao@aol.com
 
-Not quite sure I understand the idea... The original problem was that
-when EROFS bio_alloc, the number of requested bvec also partially stood
-for remaining blocks of the current on-disk extent to limit the read
-length. but after that bio behavior change, bi_max_vec could be increased
-internally by block layer (e.g. 1 --> 4), so bi_max_vecs is no longer
-as what we expect (I mean passed-in). so could cause read request
-out-of-bound or hung. That's why I decided to record it manually (never
-rely on bio statistics anymore...)
+This is a follow-up of previous patch, which can tolerate ro_fsstress
+now. The principle is that DELAYEDALLOC/TRYALLOC with new managed pages
+indicate that I/O is needed so no needed to downgrade to NOINPLACE
+as mentioned in the commit message.
 
-Also btw, AFAIK, Jianan is still investigating to use iomap instead
-(mainly resolve tail-packing inline path). And I'm also busy in big
-pcluster and LZMA new features for the next cycle. So I think we might
-leave it just as is and it would be replaced with iomap in the future.
+Post it independently rather than mixed in the upcoming bigpcluster
+patchset thus make it easier for users to decide to backport or not.
 
-Thanks,
-Gao Xiang
+ fs/erofs/zdata.c | 44 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
 
-> 
-> Let me know if you have other concern.
-> 
-> Thanks,
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 7ab8a4e3dfcb..cd9b76216925 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -104,6 +104,12 @@ enum z_erofs_collectmode {
+ 	 * |_______PRIMARY_FOLLOWED_______|________PRIMARY_HOOKED___________|
+ 	 */
+ 	COLLECT_PRIMARY_HOOKED,
++	/*
++	 * a weak form of COLLECT_PRIMARY_FOLLOWED, the difference is that it
++	 * could be dispatched into bypass queue later due to uptodated managed
++	 * pages. All related online pages cannot be reused for inplace I/O (or
++	 * pagevec) since it can be directly decoded without I/O submission.
++	 */
+ 	COLLECT_PRIMARY_FOLLOWED_NOINPLACE,
+ 	/*
+ 	 * The current collection has been linked with the owned chain, and
+@@ -186,21 +192,25 @@ static void preload_compressed_pages(struct z_erofs_collector *clt,
+ 
+ 		if (page) {
+ 			t = tag_compressed_page_justfound(page);
+-		} else if (type == DELAYEDALLOC) {
+-			t = tagptr_init(compressed_page_t, PAGE_UNALLOCATED);
+-		} else if (type == TRYALLOC) {
+-			newpage = erofs_allocpage(pagepool, gfp);
+-			if (!newpage)
+-				goto dontalloc;
+-
+-			set_page_private(newpage, Z_EROFS_PREALLOCATED_PAGE);
+-			t = tag_compressed_page_justfound(newpage);
+-		} else {	/* DONTALLOC */
+-dontalloc:
+-			if (standalone)
+-				clt->compressedpages = pages;
++		} else {
++			/* I/O is needed, no possible to decompress directly */
+ 			standalone = false;
+-			continue;
++			switch (type) {
++			case DELAYEDALLOC:
++				t = tagptr_init(compressed_page_t,
++						PAGE_UNALLOCATED);
++				break;
++			case TRYALLOC:
++				newpage = erofs_allocpage(pagepool, gfp);
++				if (!newpage)
++					continue;
++				set_page_private(newpage,
++						 Z_EROFS_PREALLOCATED_PAGE);
++				t = tag_compressed_page_justfound(newpage);
++				break;
++			default:        /* DONTALLOC */
++				continue;
++			}
+ 		}
+ 
+ 		if (!cmpxchg_relaxed(pages, NULL, tagptr_cast_ptr(t)))
+@@ -214,7 +224,11 @@ static void preload_compressed_pages(struct z_erofs_collector *clt,
+ 		}
+ 	}
+ 
+-	if (standalone)		/* downgrade to PRIMARY_FOLLOWED_NOINPLACE */
++	/*
++	 * don't do inplace I/O if all compressed pages are available in
++	 * managed cache since it can be moved to the bypass queue instead.
++	 */
++	if (standalone)
+ 		clt->mode = COLLECT_PRIMARY_FOLLOWED_NOINPLACE;
+ }
+ 
+-- 
+2.20.1
 
