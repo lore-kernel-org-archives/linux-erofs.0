@@ -1,102 +1,59 @@
-Return-Path: <SRS0=+X6V=IT=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=kU1q=IU=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 010FDC433C1
-	for <linux-erofs@archiver.kernel.org>; Sun, 21 Mar 2021 18:33:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA04C433C1
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 17:47:15 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 198BB6194C
-	for <linux-erofs@archiver.kernel.org>; Sun, 21 Mar 2021 18:33:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 198BB6194C
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id 1664061994
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 17:47:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1664061994
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F3R8C5Sj9z2yYk
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 05:32:59 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1616351579;
-	bh=5NT1AvVCC0DpiG7Qx23E8he89GP36QzzaoNJbXBzx1c=;
-	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
-	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=KS7YgRAH+mMDRwDAJKgYT3tke96JQ4c7gt5CUqa3VmZH1dogmkLDvYGP2vB3ZTdFL
-	 Bbk6Jp19QEt63Bazw+7M74lH6GuiOY6+xr/7DOnQryUXdH6Ifkf1woTrgN4JHMOmqI
-	 foizdWOnQRi5a/xyCVI8VqHBLMsbLmqR2P1QPSHoXf9/l9I3LDPdms2ZeOLXDazMZM
-	 zvm+Ss6JG+SKpi8bB83Hca4sehXwuCc2o/vx9GqdYyB63GhKtokyQjRvpbr/U2UC4Y
-	 3kUKmzm3LhHycYLHETGBQqvQChAwskCN7J+GuTTzrvDwFs4oXnzJIgGfAFaxzDc+oK
-	 MqwOaxjgIuWKw==
-Authentication-Results: lists.ozlabs.org;
- spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
- (client-ip=98.137.65.147; helo=sonic309-21.consmr.mail.gq1.yahoo.com;
- envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
- header.s=a2048 header.b=MLJ0SRdg; dkim-atps=neutral
-Received: from sonic309-21.consmr.mail.gq1.yahoo.com
- (sonic309-21.consmr.mail.gq1.yahoo.com [98.137.65.147])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F424x5ntJz30CL
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Mar 2021 04:47:13 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=intel.com (client-ip=192.55.52.120; helo=mga04.intel.com;
+ envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F3R871Z4wz2xy8
- for <linux-erofs@lists.ozlabs.org>; Mon, 22 Mar 2021 05:32:51 +1100 (AEDT)
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1616351564; bh=NfVtU2QVpQqfqCUuFeaMmv36lCPjja248jyLjJAjQr4=;
- h=X-Sonic-MF:From:To:Subject:Date:From:Subject;
- b=d2QCcVWFgbd4Rc9kuyDJBbUjX9hbvi3+IwIDJbLTwYj8b3UJq768WAARQBA/LwWv/2GaQiG3GxOmPpRtOSbb8Y4qxeg6C2Cp+2q8yMtlrxJR7e2FuvBR7jVkfDUsZrg1cOGKq0+sLRIao6n9ei2TnqKwA6wFLm+DLFXZnpUfMEpY2gSqL1gyETs75B4io5WS1FWH99v2khDmOCguLqgng17iY1oj8I6I4HbWy0d71uYZD4BurlhVPtl7xarqBseC/kVgWrgPIixfJm9LbON9558HiYGB1hFzSyKV4lmOwvIHoID5vzKoHL9FkPX8Wm7NWwY1por050WTrptIvRHLaA==
-X-YMail-OSG: hwLQye8VM1nJ381WQiaK9flY5zGriAc5scDjuvcrjoD.QTejgA7xVLMN1sjnEb_
- qK8UQwoo47t2zTwvJPBSZQyG3TzVwJyqAryYbMH1a5dwJNdMWQmplNe5Ve8ouacVw5uPI3STBjUd
- pBX5sCJ0SIKPy3RP8.HkePGJdS9v75gGvHNDxs6tz4jlhaCZmuCr1ZjlR3GCrD9ePwDsacPCUfXb
- EOApNQWyPzS4oJ_RDaAOJBY6500_GOj8xfzudXD43p0AxgQf7WqGaKYP_QQD3u2SIkmkk0HOAhh9
- jRB_EszqpDUSnn0Bn7J4RtDUzXmtAR7NPYynDzbHZI4OQ0RRftWzz7.NmBLsxf5RhlmJik0q4y7Q
- RiICzIrnASXZaPN7U04gQA8q5hOzSzdZKz5j.sSRodJ6OvwUfFmA9jE_W841uIPzcHtHM0XQQz8c
- QRdZ0PaNio4BSm6CaTbVS4wYqdLka8EdAdswshr.Rg7aTg.zmzln4kdxbNLNCG1t3WEHYa.RHMVZ
- RNpVY_6nBoTEFxd_kJBObBnoYeiZ0sUHB81cbGY2Xed6ev9TnzP5u7TUhTdIpmWbPHwjyHIYoGRv
- pYI04TcKm.sdgVYwYL9mrNwfXelWwBH6Ll9FQ0o4oyXc5U2fjqPsD3OTjkiTtc7TzlPtk4dv2JKf
- ZtFCFvjIaJY_OhpLrIia2jTT8HQIBXQKThcIYIUqnNI18h6.EwbigGw_.qiTTB7cxDzKL1uOc6Ur
- ggEi2qKOCJJum8rAHRu4chz8Xb8dFWp6YoDlHZxTQ._T4CDbbggdnOo73SZjVYzoOt8uRZhD_DN6
- YDbhKZCgGEwsAdd0d2.s5ZgBW87yWiXQaxR7UnsQZjHPBs2gFAUxdmwIYgjVPQplQ5FOIB0gKVCB
- jH0gmVwOdzowYLhuOKkAkJoSAYGZkEFbj6jZpLKAFGmQ0xrjAUTsWYqxIYjzIqJ5UxYfJZh.PCmi
- 6dJmcmh4PaxOQQ15ULbV7ZkZXDT6N12_DIry7BPdLgX47NlEe9nbmGk4UNqlNquDy6rUEXlNUMT1
- PQiFtf5MmEyqEWx_51m45rZ1fBtT8fB187MGl9vT6MEg0uuatMhK7n9xxYxsYVyy0RJusC.OOVFD
- xDeUfmEIo466x8kwZVfO6195n3VcwSGLlSqWwmSPFGu514WuvqQhgOCmudNZRzOvQT5NWTJopyp0
- i0ztTdwC38MPzMPmdi8.5Dw9gPBU9yFt2SiaonYD_UsXFEwBxAovGzTgJPqcDcAbucDkRB_v_R4X
- gfEkvxsPtzt2a3kDBH.S7FauVwQ8_NSs8z2IWXtlV_MHNBazoEhfLLoJ2Ci15TcFRGNgMmD8CBLy
- p89L8OKJ9CUNGCGq9JEElMuKm8bqcU0wnaLS07o.rsNniUSNt5.QDzdLawEnAdSd6lh2McA1jTwx
- .sbRJhMLQF1HBcVL1Mobf_Ouvt4FyI4JL9PndZgnVEqiDTp4XBXhgGch8Wi9WyqKpfev76kZFOLL
- qmlfR4Y8U3p6nJufYED0G7XPL2gPilvA17IV7W2yUJwmgkDxIYkA3Xt2HWjFjaeQdPf9AbvB9nTr
- AbZtfaITV6qJKDLdwhJlAQUGgni5yKtddTi2Wm5ONk0JbNE8rDfyjIpIB8N90CRnAYhJrlilq4p0
- rRie2pVT6GdXJmYHRX0VqaeN.xYB2mQ3v98CP3ZHGxoFYE4IfUO8BJaKGV6Heu_wX0HAIt5n5mOC
- _YMrhaWaoU.nGOxGoGf9jmBkSHbDW.6M0bhPNzSqLMCfzV36zTzWQpYiSZ2tjmVYnnE_U0cae00t
- nxEEEp79dAqQnk2thG1vx2fdc_KzduR2J8g.z2a9JjOpHpu7WVx.EDa6Z6Myz6KkcD0InjdQulH4
- G6O0tC71YivHWtixxOVKnemb6SFkJQ5sXf8eT7CzovCq1CZIcfNnyU14f7xUm46yyft8cCnNIM8X
- 1Bkdrwg14UxMm4tC_TTYzb7AYDJOW3b6Qpw1JhI8EECZ8bHKXwW2kf1pl_taaz5daQqu4NnkWfb5
- Po.W0bSCQx.Dtm4xLuRUqXw2Z_QiEikHtIpoKvPnYGUO4Yw2haKkBRAFzfyd07rE.Wg2xh2O9JKr
- nijkMpMV3vge7_VQUgO3LBC2Z9XBk9wtpFeUD6g4hBsY4JdY5qgVYbrOS5brOuLbIJw4tqF9kN00
- JD2SXqbMWKSFFJFccoXprb2nujtBRf6qOaEb06C1aEjBgx27GSPDnmYRmJhw0YXcvFW5xcr5_UBv
- hpJkSGG0miHj5H4bBbHMvqzWhU58BBd1SpE.wPpxiVbznYhxYiI4BfkiUlDJ6HMKgENeuJoRkPtg
- B9IPdpviqlUArgySkmhX6AvZXZABmmJyzPWCilzR8i4MVdMI6QXzsdy72J0DRZzLEljfqPKjAl5V
- SbDlTfCmPGrb.37KBNcRyHd2NMp0EJbuX2464nVtN1NwI8mfbXuERpnYU0Vz7gWgamwsDGvfPSoJ
- rEkwKdBZKMfVJ8h8iU64nK6a0a8r0VSDJF87xaumERIkmpfrpIT4d3ykIMzbtU4USF42dO_cFEvZ
- xvORchoePnuimayJpeoH.UverCZGSLJnhClFvx.yJk0nzaEPpjT0-
-X-Sonic-MF: <hsiangkao@aol.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic309.consmr.mail.gq1.yahoo.com with HTTP; Sun, 21 Mar 2021 18:32:44 +0000
-Received: by kubenode506.mail-prod1.omega.gq1.yahoo.com (VZM Hermes SMTP
- Server) with ESMTPA ID 4ad1b36e7e2e8805f0c9a4fae9f83cf7; 
- Sun, 21 Mar 2021 18:32:40 +0000 (UTC)
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs: complete a missing case for inplace I/O
-Date: Mon, 22 Mar 2021 02:32:27 +0800
-Message-Id: <20210321183227.5182-1-hsiangkao@aol.com>
-X-Mailer: git-send-email 2.20.1
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F424W2Jv1z309j
+ for <linux-erofs@lists.ozlabs.org>; Tue, 23 Mar 2021 04:46:46 +1100 (AEDT)
+IronPort-SDR: 5bX/WCigdxESJ8Ga0pzL4aQ9g8rHNezdtY72LH21ktr3SNW+YsehULsonZKZ4WolC+qgGiFnea
+ JvJyE4hCgfEQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9931"; a="187998452"
+X-IronPort-AV: E=Sophos;i="5.81,269,1610438400"; d="scan'208";a="187998452"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Mar 2021 10:46:43 -0700
+IronPort-SDR: fVKsKa4aObwftemGVYzeRprtXDB7nk7+jO979nJO3jcdXaSDbpzy/uMQ7EpPCDthj7ei04vzJB
+ 3Ii4Tm06pw9Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,269,1610438400"; d="scan'208";a="375774257"
+Received: from lkp-server01.sh.intel.com (HELO 69d8fcc516b7) ([10.239.97.150])
+ by orsmga006.jf.intel.com with ESMTP; 22 Mar 2021 10:46:41 -0700
+Received: from kbuild by 69d8fcc516b7 with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1lOOdU-0000Cb-Nz; Mon, 22 Mar 2021 17:46:40 +0000
+Date: Tue, 23 Mar 2021 01:46:08 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@redhat.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ f3382f3159d7a1b7228f844940fe8534f9beab98
+Message-ID: <6058d7e0.QdHTL9idhua6zXg+%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-References: <20210321183227.5182-1-hsiangkao.ref@aol.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -108,114 +65,171 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Gao Xiang <hsiangkao@aol.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <hsiangkao@redhat.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: f3382f3159d7a1b7228f844940fe8534f9beab98  erofs: complete a missing case for inplace I/O
 
-Add a missing case which could cause unnecessary page allocation but
-not directly use inplace I/O instead, which increases runtime extra
-memory footprint.
+elapsed time: 723m
 
-The detail is, considering an online file-backed page, the right half
-of the page is chosen to be cached (e.g. the end page of a readahead
-request) and some of its data doesn't exist in managed cache, so the
-pcluster will be definitely kept in the submission chain. (IOWs, it
-cannot be decompressed without I/O, e.g., due to the bypass queue).
+configs tested: 145
+configs skipped: 3
 
-Currently, DELAYEDALLOC/TRYALLOC cases can be downgraded as NOINPLACE,
-and stop online pages from inplace I/O. After this patch, unneeded page
-allocations won't be observed in pickup_page_for_submission() then.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+x86_64                           allyesconfig
+riscv                            allmodconfig
+i386                             allyesconfig
+riscv                            allyesconfig
+arm                         socfpga_defconfig
+m68k                         apollo_defconfig
+parisc                generic-64bit_defconfig
+xtensa                       common_defconfig
+powerpc                 mpc837x_mds_defconfig
+m68k                       m5208evb_defconfig
+arc                         haps_hs_defconfig
+sh                   rts7751r2dplus_defconfig
+sh                                  defconfig
+sh                          urquell_defconfig
+xtensa                    xip_kc705_defconfig
+sh                        sh7757lcr_defconfig
+m68k                        m5407c3_defconfig
+sh                          polaris_defconfig
+powerpc                      mgcoge_defconfig
+mips                      pic32mzda_defconfig
+powerpc                      arches_defconfig
+m68k                       m5475evb_defconfig
+mips                          rm200_defconfig
+alpha                            allyesconfig
+powerpc                     skiroot_defconfig
+arc                          axs103_defconfig
+nds32                            alldefconfig
+arm                          pcm027_defconfig
+powerpc                       ppc64_defconfig
+mips                       lemote2f_defconfig
+mips                           ip28_defconfig
+arm                             mxs_defconfig
+riscv                            alldefconfig
+powerpc                      katmai_defconfig
+sh                        edosk7705_defconfig
+arm                     eseries_pxa_defconfig
+arm                      tct_hammer_defconfig
+powerpc                      walnut_defconfig
+arm                      footbridge_defconfig
+mips                   sb1250_swarm_defconfig
+sh                               alldefconfig
+powerpc                 mpc832x_rdb_defconfig
+powerpc                     ep8248e_defconfig
+sh                     magicpanelr2_defconfig
+powerpc                    klondike_defconfig
+sh                        dreamcast_defconfig
+powerpc                     kilauea_defconfig
+powerpc                    sam440ep_defconfig
+m68k                          hp300_defconfig
+powerpc                   bluestone_defconfig
+m68k                       m5275evb_defconfig
+arm                            mmp2_defconfig
+i386                                defconfig
+sh                          rsk7201_defconfig
+powerpc                  iss476-smp_defconfig
+mips                           ip27_defconfig
+riscv             nommu_k210_sdcard_defconfig
+powerpc                     kmeter1_defconfig
+ia64                          tiger_defconfig
+arm                        vexpress_defconfig
+ia64                      gensparse_defconfig
+mips                         db1xxx_defconfig
+arm                       versatile_defconfig
+arm                            dove_defconfig
+mips                        vocore2_defconfig
+arm                          simpad_defconfig
+powerpc                 mpc836x_rdk_defconfig
+openrisc                         alldefconfig
+m68k                       m5249evb_defconfig
+mips                        maltaup_defconfig
+arm                           omap1_defconfig
+powerpc                 mpc8272_ads_defconfig
+mips                            gpr_defconfig
+sh                           se7619_defconfig
+powerpc                      ppc44x_defconfig
+powerpc                 mpc8315_rdb_defconfig
+ia64                             allmodconfig
+ia64                                defconfig
+ia64                             allyesconfig
+m68k                             allmodconfig
+m68k                                defconfig
+m68k                             allyesconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+nds32                               defconfig
+nios2                            allyesconfig
+csky                                defconfig
+alpha                               defconfig
+xtensa                           allyesconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                               tinyconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                          allyesconfig
+powerpc                          allmodconfig
+powerpc                           allnoconfig
+i386                 randconfig-a004-20210322
+i386                 randconfig-a003-20210322
+i386                 randconfig-a001-20210322
+i386                 randconfig-a002-20210322
+i386                 randconfig-a006-20210322
+i386                 randconfig-a005-20210322
+x86_64               randconfig-a012-20210322
+x86_64               randconfig-a015-20210322
+x86_64               randconfig-a013-20210322
+x86_64               randconfig-a014-20210322
+x86_64               randconfig-a016-20210322
+x86_64               randconfig-a011-20210322
+i386                 randconfig-a014-20210322
+i386                 randconfig-a011-20210322
+i386                 randconfig-a015-20210322
+i386                 randconfig-a016-20210322
+i386                 randconfig-a012-20210322
+i386                 randconfig-a013-20210322
+riscv                    nommu_k210_defconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+x86_64                    rhel-7.6-kselftests
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                      rhel-8.3-kbuiltin
+x86_64                                  kexec
+
+clang tested configs:
+x86_64               randconfig-a002-20210322
+x86_64               randconfig-a003-20210322
+x86_64               randconfig-a001-20210322
+x86_64               randconfig-a006-20210322
+x86_64               randconfig-a004-20210322
+x86_64               randconfig-a005-20210322
+
 ---
-v1: https://lore.kernel.org/r/20201022145724.27284-4-hsiangkao@aol.com
-
-This is a follow-up of previous patch, which can tolerate ro_fsstress
-now. The principle is that DELAYEDALLOC/TRYALLOC with new managed pages
-indicate that I/O is needed so no needed to downgrade to NOINPLACE
-as mentioned in the commit message.
-
-Post it independently rather than mixed in the upcoming bigpcluster
-patchset thus make it easier for users to decide to backport or not.
-
- fs/erofs/zdata.c | 44 +++++++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
-
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 7ab8a4e3dfcb..cd9b76216925 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -104,6 +104,12 @@ enum z_erofs_collectmode {
- 	 * |_______PRIMARY_FOLLOWED_______|________PRIMARY_HOOKED___________|
- 	 */
- 	COLLECT_PRIMARY_HOOKED,
-+	/*
-+	 * a weak form of COLLECT_PRIMARY_FOLLOWED, the difference is that it
-+	 * could be dispatched into bypass queue later due to uptodated managed
-+	 * pages. All related online pages cannot be reused for inplace I/O (or
-+	 * pagevec) since it can be directly decoded without I/O submission.
-+	 */
- 	COLLECT_PRIMARY_FOLLOWED_NOINPLACE,
- 	/*
- 	 * The current collection has been linked with the owned chain, and
-@@ -186,21 +192,25 @@ static void preload_compressed_pages(struct z_erofs_collector *clt,
- 
- 		if (page) {
- 			t = tag_compressed_page_justfound(page);
--		} else if (type == DELAYEDALLOC) {
--			t = tagptr_init(compressed_page_t, PAGE_UNALLOCATED);
--		} else if (type == TRYALLOC) {
--			newpage = erofs_allocpage(pagepool, gfp);
--			if (!newpage)
--				goto dontalloc;
--
--			set_page_private(newpage, Z_EROFS_PREALLOCATED_PAGE);
--			t = tag_compressed_page_justfound(newpage);
--		} else {	/* DONTALLOC */
--dontalloc:
--			if (standalone)
--				clt->compressedpages = pages;
-+		} else {
-+			/* I/O is needed, no possible to decompress directly */
- 			standalone = false;
--			continue;
-+			switch (type) {
-+			case DELAYEDALLOC:
-+				t = tagptr_init(compressed_page_t,
-+						PAGE_UNALLOCATED);
-+				break;
-+			case TRYALLOC:
-+				newpage = erofs_allocpage(pagepool, gfp);
-+				if (!newpage)
-+					continue;
-+				set_page_private(newpage,
-+						 Z_EROFS_PREALLOCATED_PAGE);
-+				t = tag_compressed_page_justfound(newpage);
-+				break;
-+			default:        /* DONTALLOC */
-+				continue;
-+			}
- 		}
- 
- 		if (!cmpxchg_relaxed(pages, NULL, tagptr_cast_ptr(t)))
-@@ -214,7 +224,11 @@ static void preload_compressed_pages(struct z_erofs_collector *clt,
- 		}
- 	}
- 
--	if (standalone)		/* downgrade to PRIMARY_FOLLOWED_NOINPLACE */
-+	/*
-+	 * don't do inplace I/O if all compressed pages are available in
-+	 * managed cache since it can be moved to the bypass queue instead.
-+	 */
-+	if (standalone)
- 		clt->mode = COLLECT_PRIMARY_FOLLOWED_NOINPLACE;
- }
- 
--- 
-2.20.1
-
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
