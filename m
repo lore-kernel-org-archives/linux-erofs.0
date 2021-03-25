@@ -1,59 +1,84 @@
-Return-Path: <SRS0=kU1q=IU=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=kahm=IX=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA04C433C1
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 17:47:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 537DDC433DB
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Mar 2021 07:11:25 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1664061994
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Mar 2021 17:47:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1664061994
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4A21761A27
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Mar 2021 07:11:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A21761A27
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F424x5ntJz30CL
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Mar 2021 04:47:13 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F5bqt74f1z30J6
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Mar 2021 18:11:22 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=PnUiACrH;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.120; helo=mga04.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42f;
+ helo=mail-pf1-x42f.google.com; envelope-from=zbestahu@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=PnUiACrH; dkim-atps=neutral
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com
+ [IPv6:2607:f8b0:4864:20::42f])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F424W2Jv1z309j
- for <linux-erofs@lists.ozlabs.org>; Tue, 23 Mar 2021 04:46:46 +1100 (AEDT)
-IronPort-SDR: 5bX/WCigdxESJ8Ga0pzL4aQ9g8rHNezdtY72LH21ktr3SNW+YsehULsonZKZ4WolC+qgGiFnea
- JvJyE4hCgfEQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9931"; a="187998452"
-X-IronPort-AV: E=Sophos;i="5.81,269,1610438400"; d="scan'208";a="187998452"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Mar 2021 10:46:43 -0700
-IronPort-SDR: fVKsKa4aObwftemGVYzeRprtXDB7nk7+jO979nJO3jcdXaSDbpzy/uMQ7EpPCDthj7ei04vzJB
- 3Ii4Tm06pw9Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,269,1610438400"; d="scan'208";a="375774257"
-Received: from lkp-server01.sh.intel.com (HELO 69d8fcc516b7) ([10.239.97.150])
- by orsmga006.jf.intel.com with ESMTP; 22 Mar 2021 10:46:41 -0700
-Received: from kbuild by 69d8fcc516b7 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1lOOdU-0000Cb-Nz; Mon, 22 Mar 2021 17:46:40 +0000
-Date: Tue, 23 Mar 2021 01:46:08 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- f3382f3159d7a1b7228f844940fe8534f9beab98
-Message-ID: <6058d7e0.QdHTL9idhua6zXg+%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F5bqq417hz2ysh
+ for <linux-erofs@lists.ozlabs.org>; Thu, 25 Mar 2021 18:11:18 +1100 (AEDT)
+Received: by mail-pf1-x42f.google.com with SMTP id c204so1096367pfc.4
+ for <linux-erofs@lists.ozlabs.org>; Thu, 25 Mar 2021 00:11:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=oe6nREtlXO3tav0DHg4KkK1IYtnrvguu/l3h920mzVQ=;
+ b=PnUiACrHB9QmlDQd41YOaHfwCS3aMUFIPrkckG/+w6kSuN7smRBe8qE9Sw9bQHiQBh
+ p8Ef+Qw9ggQIKodRcrodLve4UZd+ZtOasy/Sn2zHATxRJmW8aCxYWLfKFGPq233OjAFS
+ CQ2pannwwhLBCSbIq/jnEC/c945VLrAVBFc83IK0rcJptwX99wVSRTHBeA+us7PPISgE
+ gFYeSEysTtAYLpu7UaeRCBwTFG8n3WHX5u8fH8N873oVVkDRT9o6PSH+PqSiAU8or4dB
+ 1Y5uVt+zB7bIzna6qD8rGZ6I7mvYKdqrsyZulHpfKMX3vZE1cEcvWQIGmFHCctF0rHWN
+ uT+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=oe6nREtlXO3tav0DHg4KkK1IYtnrvguu/l3h920mzVQ=;
+ b=Mnrk2/J/m+rCkiO40Kcqa7jvkMFRFtXG1O9tMvAo8kcytkADvFajmhg0EPafN/gIuC
+ JvJ7Ld7tQ/7KjmfX7jxycAK71R/TS0VBoojLWa76Az0KZklvEAR4D2hPQu9+QP0VZLEe
+ xTittLWX+CiLdIuTgXrMpZhaRePiiTRk/4Nvqj3anulvHFbx4e+pKJPMp3IltvhxOZCK
+ oVpS8yJlPEiuBl/jAdo4cFl0qqm+XutTbzJHxIlJjfK/caarJNhn2QI6pwvZrRiz/6K3
+ u+AcOYIfu/B6c3/N5ihIxf4yvTbmF29vFQaoTjcqK3yQh3mloa408LdpQB9C0lBQ8zwI
+ WLcw==
+X-Gm-Message-State: AOAM531cEMGoHTtMIMmbmpuvIxmgTGN9YkD62r7Krt+chzWyiV8t0lCX
+ bkqt8dZ+PEzDWTPGTtvNQoA=
+X-Google-Smtp-Source: ABdhPJx0VemFa+fZ/Jo9BLsyQg3V5vTwqfc+6LhBApVqGK3tImoz7KsBSWW3EmKJGKJFo54/Zldo9w==
+X-Received: by 2002:a65:53c8:: with SMTP id z8mr5104242pgr.340.1616656273540; 
+ Thu, 25 Mar 2021 00:11:13 -0700 (PDT)
+Received: from tj.ccdomain.com ([103.220.76.197])
+ by smtp.gmail.com with ESMTPSA id 190sm4415094pgh.61.2021.03.25.00.11.11
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 25 Mar 2021 00:11:12 -0700 (PDT)
+From: Yue Hu <zbestahu@gmail.com>
+To: xiang@kernel.org,
+	chao@kernel.org
+Subject: [PATCH] erofs: don't use erofs_map_blocks() any more
+Date: Thu, 25 Mar 2021 15:10:08 +0800
+Message-Id: <20210325071008.573-1-zbestahu@gmail.com>
+X-Mailer: git-send-email 2.29.2.windows.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,171 +90,100 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: huyue2@yulong.com, linux-erofs@lists.ozlabs.org, zbestahu@163.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: f3382f3159d7a1b7228f844940fe8534f9beab98  erofs: complete a missing case for inplace I/O
+From: Yue Hu <huyue2@yulong.com>
 
-elapsed time: 723m
+Currently, erofs_map_blocks() will be called only from
+erofs_{bmap, read_raw_page} which are all for uncompressed files.
+So, the compression branch in erofs_map_blocks() is pointless. Let's
+remove it and use erofs_map_blocks_flatmode() directly. Also update
+related comments.
 
-configs tested: 145
-configs skipped: 3
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-x86_64                           allyesconfig
-riscv                            allmodconfig
-i386                             allyesconfig
-riscv                            allyesconfig
-arm                         socfpga_defconfig
-m68k                         apollo_defconfig
-parisc                generic-64bit_defconfig
-xtensa                       common_defconfig
-powerpc                 mpc837x_mds_defconfig
-m68k                       m5208evb_defconfig
-arc                         haps_hs_defconfig
-sh                   rts7751r2dplus_defconfig
-sh                                  defconfig
-sh                          urquell_defconfig
-xtensa                    xip_kc705_defconfig
-sh                        sh7757lcr_defconfig
-m68k                        m5407c3_defconfig
-sh                          polaris_defconfig
-powerpc                      mgcoge_defconfig
-mips                      pic32mzda_defconfig
-powerpc                      arches_defconfig
-m68k                       m5475evb_defconfig
-mips                          rm200_defconfig
-alpha                            allyesconfig
-powerpc                     skiroot_defconfig
-arc                          axs103_defconfig
-nds32                            alldefconfig
-arm                          pcm027_defconfig
-powerpc                       ppc64_defconfig
-mips                       lemote2f_defconfig
-mips                           ip28_defconfig
-arm                             mxs_defconfig
-riscv                            alldefconfig
-powerpc                      katmai_defconfig
-sh                        edosk7705_defconfig
-arm                     eseries_pxa_defconfig
-arm                      tct_hammer_defconfig
-powerpc                      walnut_defconfig
-arm                      footbridge_defconfig
-mips                   sb1250_swarm_defconfig
-sh                               alldefconfig
-powerpc                 mpc832x_rdb_defconfig
-powerpc                     ep8248e_defconfig
-sh                     magicpanelr2_defconfig
-powerpc                    klondike_defconfig
-sh                        dreamcast_defconfig
-powerpc                     kilauea_defconfig
-powerpc                    sam440ep_defconfig
-m68k                          hp300_defconfig
-powerpc                   bluestone_defconfig
-m68k                       m5275evb_defconfig
-arm                            mmp2_defconfig
-i386                                defconfig
-sh                          rsk7201_defconfig
-powerpc                  iss476-smp_defconfig
-mips                           ip27_defconfig
-riscv             nommu_k210_sdcard_defconfig
-powerpc                     kmeter1_defconfig
-ia64                          tiger_defconfig
-arm                        vexpress_defconfig
-ia64                      gensparse_defconfig
-mips                         db1xxx_defconfig
-arm                       versatile_defconfig
-arm                            dove_defconfig
-mips                        vocore2_defconfig
-arm                          simpad_defconfig
-powerpc                 mpc836x_rdk_defconfig
-openrisc                         alldefconfig
-m68k                       m5249evb_defconfig
-mips                        maltaup_defconfig
-arm                           omap1_defconfig
-powerpc                 mpc8272_ads_defconfig
-mips                            gpr_defconfig
-sh                           se7619_defconfig
-powerpc                      ppc44x_defconfig
-powerpc                 mpc8315_rdb_defconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-s390                                defconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                               tinyconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a004-20210322
-i386                 randconfig-a003-20210322
-i386                 randconfig-a001-20210322
-i386                 randconfig-a002-20210322
-i386                 randconfig-a006-20210322
-i386                 randconfig-a005-20210322
-x86_64               randconfig-a012-20210322
-x86_64               randconfig-a015-20210322
-x86_64               randconfig-a013-20210322
-x86_64               randconfig-a014-20210322
-x86_64               randconfig-a016-20210322
-x86_64               randconfig-a011-20210322
-i386                 randconfig-a014-20210322
-i386                 randconfig-a011-20210322
-i386                 randconfig-a015-20210322
-i386                 randconfig-a016-20210322
-i386                 randconfig-a012-20210322
-i386                 randconfig-a013-20210322
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-x86_64                    rhel-7.6-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
-
-clang tested configs:
-x86_64               randconfig-a002-20210322
-x86_64               randconfig-a003-20210322
-x86_64               randconfig-a001-20210322
-x86_64               randconfig-a006-20210322
-x86_64               randconfig-a004-20210322
-x86_64               randconfig-a005-20210322
-
+Signed-off-by: Yue Hu <huyue2@yulong.com>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+ fs/erofs/data.c     | 19 ++-----------------
+ fs/erofs/internal.h |  6 ++----
+ 2 files changed, 4 insertions(+), 21 deletions(-)
+
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 1249e74..ebac756 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -109,21 +109,6 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	return err;
+ }
+ 
+-int erofs_map_blocks(struct inode *inode,
+-		     struct erofs_map_blocks *map, int flags)
+-{
+-	if (erofs_inode_is_data_compressed(EROFS_I(inode)->datalayout)) {
+-		int err = z_erofs_map_blocks_iter(inode, map, flags);
+-
+-		if (map->mpage) {
+-			put_page(map->mpage);
+-			map->mpage = NULL;
+-		}
+-		return err;
+-	}
+-	return erofs_map_blocks_flatmode(inode, map, flags);
+-}
+-
+ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 					      struct address_space *mapping,
+ 					      struct page *page,
+@@ -159,7 +144,7 @@ static inline struct bio *erofs_read_raw_page(struct bio *bio,
+ 		erofs_blk_t blknr;
+ 		unsigned int blkoff;
+ 
+-		err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
++		err = erofs_map_blocks_flatmode(inode, &map, EROFS_GET_BLOCKS_RAW);
+ 		if (err)
+ 			goto err_out;
+ 
+@@ -318,7 +303,7 @@ static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
+ 			return 0;
+ 	}
+ 
+-	if (!erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW))
++	if (!erofs_map_blocks_flatmode(inode, &map, EROFS_GET_BLOCKS_RAW))
+ 		return erofs_blknr(map.m_pa);
+ 
+ 	return 0;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 30e63b7..db8c847 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -289,7 +289,7 @@ static inline unsigned int erofs_inode_datalayout(unsigned int value)
+ extern const struct address_space_operations z_erofs_aops;
+ 
+ /*
+- * Logical to physical block mapping, used by erofs_map_blocks()
++ * Logical to physical block mapping
+  *
+  * Different with other file systems, it is used for 2 access modes:
+  *
+@@ -336,7 +336,7 @@ struct erofs_map_blocks {
+ 	struct page *mpage;
+ };
+ 
+-/* Flags used by erofs_map_blocks() */
++/* Flags used by erofs_map_blocks_flatmode() */
+ #define EROFS_GET_BLOCKS_RAW    0x0001
+ 
+ /* zmap.c */
+@@ -358,8 +358,6 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
+ /* data.c */
+ struct page *erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr);
+ 
+-int erofs_map_blocks(struct inode *, struct erofs_map_blocks *, int);
+-
+ /* inode.c */
+ static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
+ {
+-- 
+1.9.1
+
