@@ -1,58 +1,105 @@
-Return-Path: <SRS0=kahm=IX=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=xvF/=IZ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 311F6C433C1
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Mar 2021 21:21:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97B58C433DB
+	for <linux-erofs@archiver.kernel.org>; Sat, 27 Mar 2021 03:50:06 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5DD0961A43
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Mar 2021 21:21:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5DD0961A43
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8F43A61A24
+	for <linux-erofs@archiver.kernel.org>; Sat, 27 Mar 2021 03:50:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F43A61A24
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F5yhD6t6Rz30Cj
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Mar 2021 08:21:00 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mga17.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4F6lGh1vzqz3bt4
+	for <linux-erofs@archiver.kernel.org>; Sat, 27 Mar 2021 14:50:04 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1616817004;
+	bh=xpKRxQ1nym4KNjqeSxdKbTuSsk5hiF4ck9LaGFFFvYE=;
+	h=To:Subject:Date:References:List-Id:List-Unsubscribe:List-Archive:
+	 List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=CIk0+cox/oPDOtHrnY6G829vNr/Fm+35tkFpi8mtFXyoz07kzb32+B/gOxWzvzVY2
+	 SCb3Th+6089+8YRTE3RaXUSgqRryAhImZjfc5MQ3dbzxj/o0mntLWR+i1kyUjZ+oOr
+	 8IS/mGhIePYS93AXqhX70+M98pRrmfLbPD8OrNr8lzozSPbqVdrbv6mlP53NOIG6Zv
+	 XGuJwBLKzmo1b6o5KQ1a0yVmuI6IIktO/UWlScVPNl+FdXKSIsumY1ypNocsdr8Pnl
+	 szxFmz0MclcEW0rK/VL/TSXy4AKQM5YEx/HCSNZR8hcDe/lytF+1bdOnMFyuXtzQEI
+	 SLLPTVG56E9hA==
+Authentication-Results: lists.ozlabs.org;
+ spf=pass (sender SPF authorized) smtp.mailfrom=aol.com
+ (client-ip=98.137.68.84; helo=sonic306-21.consmr.mail.gq1.yahoo.com;
+ envelope-from=hsiangkao@aol.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=aol.com header.i=@aol.com header.a=rsa-sha256
+ header.s=a2048 header.b=Af0X2d6n; dkim-atps=neutral
+Received: from sonic306-21.consmr.mail.gq1.yahoo.com
+ (sonic306-21.consmr.mail.gq1.yahoo.com [98.137.68.84])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F5yhC1HfFz2yR1
- for <linux-erofs@lists.ozlabs.org>; Fri, 26 Mar 2021 08:20:53 +1100 (AEDT)
-IronPort-SDR: h9lsng+UFvPad96bYRT7mvaV/Gf+DoZkss6KqLPPT3fVwsOApU3f9CndMfMeFQRy/JVRLC2GtE
- 4vg+89ngaWkw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9934"; a="171000214"
-X-IronPort-AV: E=Sophos;i="5.81,278,1610438400"; d="scan'208";a="171000214"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 Mar 2021 14:20:49 -0700
-IronPort-SDR: VXM8M63kbtLw/CFqP+9hNJBD2aRoFo5qcx+ghlXK77lIH0hTqKQoD+DRLUfa1KAdAG2jEW9Tv6
- xfJXX1mKX3gA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,278,1610438400"; d="scan'208";a="514809064"
-Received: from lkp-server01.sh.intel.com (HELO 69d8fcc516b7) ([10.239.97.150])
- by fmsmga001.fm.intel.com with ESMTP; 25 Mar 2021 14:20:47 -0700
-Received: from kbuild by 69d8fcc516b7 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1lPXPL-0002Gg-9B; Thu, 25 Mar 2021 21:20:47 +0000
-Date: Fri, 26 Mar 2021 05:19:48 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:erofs/bigpcluster] BUILD SUCCESS
- 16a26a97614f95067d504448db4f54a3b88aed3b
-Message-ID: <605cfe74.ab7RpVeB0BhZZPuM%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4F6lGZ74W3z2yyb
+ for <linux-erofs@lists.ozlabs.org>; Sat, 27 Mar 2021 14:49:56 +1100 (AEDT)
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1616816991; bh=AZyjOMs0JAv/04m6cOjSZJVcc8/temhTLDUFP5U8Tq3=;
+ h=X-Sonic-MF:From:To:Subject:Date:From:Subject;
+ b=gH3kfWdQ7ef+NA/8U3MxM3FUkV6L80mf8oQPifDcFydKSMA8OIRGLxKIaHUO/KuFVwkKqfzuGHG/euXXkK+YkrvvJ6kcRn65oFm2UheKS+JcVTJe0qU796AeyFeLafiXywpwzK9neBPKq1g/fPjqkRIdUC+9iedBu0btG2w2v8RmdlI3OX/BSpImBvmBOT5HezgXpd4b6hM6pLSh0XDIT5zzW1Kun5lGRUUYadBkJDAByt0W+k0vW8JYk/rqHaBpy0z7DY7cehKiiqa7A3lgiuq7QkJLVcv4bjUmM6GnO6si3ibWyVH6MBuVtaEoeRk3n5hapO8AE9oWFSrl2vPWcA==
+X-YMail-OSG: YzRLW2YVM1nkvdr8YXHatVxlnNFtnmZnNtNF_tBR4AmQ7yDGOgwDf2w7uNXqqU1
+ TBOsu3.jKol5P2U4S18n.5UM1nR1W8asIedeZAoAnBLLt283sOgMK1fxNE514YYdmaNs9N.l9PRB
+ RnD186XYN5FQPhvxBWANSSva3CJMFSmOMJ520jONRXaexe7WnwPAThsai_QTk2J4I3KC37UqgkcI
+ r229GNQ0C0435K7KrE9XP9J_anH1FA4CU0H_._3KWMC44LZxNYgqzT.K2uF_CKh2alKDpPbYxVrg
+ sieLnmTrvc88IzmJ5lL2DLPPmmF5avvkXUSB6ZbWsAI42KkWcN9nC6DBxDeLPQe_25h4hUfRiD46
+ H3VAQVM2pRz7wbHAqko4tfqKohUTZ3nHnbjSBWE9Mj0fSlVu6iyUS.KNkBIn3tWd4Rsq5bd770Qy
+ S9DlOTMWuyT7j9NFG.kKYlFIFPMRFIltOnEzgJxFV0hrU2PQW_ziGgqVeoiH61mNDY4rBvbLSyEh
+ CIyuv2IE8p4PUAAPC5W3BbxnRRA3TfsMPEwFVkM_r8eVNN0UPpZF0loxE.MZSQEjfftS2eoGSkgJ
+ 1ulzV3L6qgKcZb9WMZAV1sc9YrehRkmapxXnNugUmjPRkc0u4dLpyrsM_P5E69LG.CVtRzJrioFu
+ It69BVBApjZEFGqfbIXNxn4f3ot2_JkMPffdGVxbU2MTygGROsAANVkc6Kk3I8Z2tkP1BY.Xso5J
+ XqWgStjac2aGvNvVUhC2OKI1O4OIq.dGoim.KOhaRil0QM77QvYliia9FRP4CuCybZzyspu_1IIY
+ SxHswc5DIfjLJH2pgKphlxtpSA3N67kCEr2BtswDGGuwF5O0KefbjFbNkyT5D.Kylvid1BptZ_B5
+ hrjtAEo1t_CeCuiY7DsSkb2Zjksb66aa54s8Hbl2n7op8NUERFyAb6LquXZZv.bBj48PwnJ4mm9k
+ kv6A4yy27auwhzk53QlhpTyLnKtcNIX2JARnLpZUXmT8g6D0.B3sQPbEb6zFSdT3QDD_Y8JTegiD
+ E3etToCM48.T6S0WdwB2Gg0m._Ps2f_rQJOs3AYsRnWFWMjSAE1TRW2aoBPSlasOsCchjY1UyXw6
+ Fi07YsixVnPiIPSJXCuIew0GJ_zWibSTjyaerAy2bxyST6SuhAQE7cpVEQXjApzfevlArmopQRZo
+ EhvQLq5ma.C2mwHG3SfubYbI5.sZuWx4O8ugfZSfiLIKWg84VE0w2gkP2.1n0kG9M43ewK900X9n
+ ZXc01CSbgcXSWjZopQuStQFZ_6pn2ZE15cpzvSbHlxYPXQvcDS57H2DPhTPYKJ9rzHlvL44QRsK4
+ KW7X6L1tWw6MmqMgxHvoPzHfCVJLCf2hetpxcbHP7Xxcq7CwAQGjjeVc11wDD4d21bOXbql3.Lql
+ Yx7ucBiXZCv47gRrXzY3h7O7oMebSSqc_XGWW8jSs4Ubl8i3ewmjNleVRishrw4Md4CLkQt8bHTc
+ tyCayjOijP6tu6ryqI.ZcU6I9YGw7kafLAajtlTO20SAjYwbYh0Bramc8u4NHx6AMdwKcBpMvK.j
+ 5RXi.2u2FnRw8lFtdEXbAEyI2kM6d0ye0YzzhtQm1oT4FTMwIf2CKx1cQEX2u6WeR37I.TN2cBqK
+ VSnWIe_pCzLGptBxRUgn0Fhzgzea3um6pP14vqQajqOkpENTPq9qQgCx_iH1dZADzrInOJBiOpSU
+ 06tC.l6ygrAsACo68P2EmVD9rHdovmFiiIYdpaTHrIitFlgfVSDeRvB1qN_UhJ_YRGZw.mv3iar1
+ nbWUudx5b6aV7P_QmeHCEkIBqsrTPXAQAA8Y3_4Kfa9PGeUIFlMw8zodQ_4letvw6NAIymeHz7tU
+ v5wBqf6UGo44wdxV6X2ACHTNOQh9tzSpCf4e.1rWEnJ2fKHaDJtuxAcp0VcsjS3KtfB31vdzLgCD
+ bSgu.dcNN_8KMFoQNULb3O_QVN1fzkeP45bhFoIDWDGOT2RKleADOqq_5gQ5MG_Df0QzJw3qPf61
+ 78gHuA0DgdR60myhEv3eds_IxHPGojyV7ARBjfozzdOqNeybISGUhmbS5EEGkHtT77hz23Sldn8H
+ MyIsqlL7FfuHOelg8MPv1dowCD2wHUuooyF9jTrvzjvVR3YMDDPxztYkdNoZxZI3peyJ8OWkRwit
+ YN1NVhrHjSvWwKmS0lmkbi7UsBToDvMl08zzwWX23cmp0hbf8DiUYM9jRtLo4QmTjmZlY8FVNB_D
+ rL8.s4nD4Q.dtns5jMuzhM9hdzkO5MG8Sn1G0GOUluvyvBcE7Vv.bLzop_icm1pkwEuMGdvhnOKe
+ Ox1x63D_MDfSqAlop16tlP1E3XIiz8soCeCJKCTwU3lpUtPLOeEGjK3OLsXtbOle2cGm_4qa_IZO
+ gxObgzNf065MIpMso2wWN6QJejCE0IS4McM8dtI2fKeT2ESi0US6cWQIBrmQ2zmQH.uWzE..flax
+ JmfZ_IegxJZX5DjgPFlsvxn.TrD.Ot4mQceSuY4Q0kHm0qeSmel16iPRm9M0My7y29SuNfVNk0RT
+ yMJ8TsFNDhwzv4ljbUGM2l9iZWwmxYDXBCX_e6_7GXuntgCxMN0YlW7vvaHmv0zPszt7m7kd4gV6
+ 5Hl91exXgv0WgoyKAayULenSVZ3P9p_bt._jgSyxCMkVJKKp1wNP30eGSqFQG.YoCLAhUNPuyguO
+ kCxOjqrUD6qIieJ4LaK2WEQ--
+X-Sonic-MF: <hsiangkao@aol.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic306.consmr.mail.gq1.yahoo.com with HTTP; Sat, 27 Mar 2021 03:49:51 +0000
+Received: by kubenode529.mail-prod1.omega.ir2.yahoo.com (VZM Hermes SMTP
+ Server) with ESMTPA ID b79f63fb2a60f2e9a0e41858735ab882; 
+ Sat, 27 Mar 2021 03:49:47 +0000 (UTC)
+To: linux-erofs@lists.ozlabs.org, Chao Yu <yuchao0@huawei.com>,
+ Chao Yu <chao@kernel.org>
+Subject: [PATCH 0/4] erofs: introduce on-disk compression configurations
+Date: Sat, 27 Mar 2021 11:49:32 +0800
+Message-Id: <20210327034936.12537-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+References: <20210327034936.12537-1-hsiangkao.ref@aol.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,232 +111,57 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+From: Gao Xiang via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Gao Xiang <hsiangkao@aol.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git erofs/bigpcluster
-branch HEAD: 16a26a97614f95067d504448db4f54a3b88aed3b  erofs: support decompress big pcluster for lz4 backend
+From: Gao Xiang <hsiangkao@redhat.com>
 
-elapsed time: 720m
+Hi folks,
 
-configs tested: 206
-configs skipped: 3
+When we provides support for different algorithms or big pcluster, it'd
+be necessary to record some configuration in the per-fs basis.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+For example, when big pcluster feature for lz4 is enabled, we need to
+know the largest pclustersize in the whole fs instance to adjust per-CPU
+buffers in advance, which will be used to handle in-place decompression
+failure for inplace IO then. And we also need to record global arguments
+(e.g. dict_size) for the upcoming LZMA algorithm support.
 
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-riscv                            allmodconfig
-x86_64                           allyesconfig
-i386                             allyesconfig
-riscv                            allyesconfig
-mips                           ip28_defconfig
-powerpc                   lite5200b_defconfig
-arm                         s5pv210_defconfig
-powerpc                   currituck_defconfig
-h8300                            alldefconfig
-powerpc                     ksi8560_defconfig
-powerpc                  mpc885_ads_defconfig
-xtensa                         virt_defconfig
-arm                           corgi_defconfig
-powerpc64                           defconfig
-sh                            titan_defconfig
-m68k                        m5407c3_defconfig
-mips                        qi_lb60_defconfig
-mips                         tb0226_defconfig
-arm                              alldefconfig
-sh                               alldefconfig
-m68k                       m5475evb_defconfig
-sh                   secureedge5410_defconfig
-arm                        cerfcube_defconfig
-powerpc                     mpc5200_defconfig
-arm                          pxa3xx_defconfig
-sh                          rsk7264_defconfig
-csky                                defconfig
-sh                     sh7710voipgw_defconfig
-m68k                        stmark2_defconfig
-arm                       mainstone_defconfig
-mips                       bmips_be_defconfig
-arm                        multi_v7_defconfig
-s390                          debug_defconfig
-arc                      axs103_smp_defconfig
-arm                        keystone_defconfig
-sh                           se7619_defconfig
-arm                        spear3xx_defconfig
-powerpc                 mpc836x_rdk_defconfig
-mips                           gcw0_defconfig
-arc                         haps_hs_defconfig
-um                             i386_defconfig
-arm                          badge4_defconfig
-sh                           se7780_defconfig
-alpha                            alldefconfig
-mips                      pic32mzda_defconfig
-ia64                          tiger_defconfig
-parisc                generic-32bit_defconfig
-mips                         db1xxx_defconfig
-powerpc                      cm5200_defconfig
-arm                       cns3420vb_defconfig
-mips                         tb0287_defconfig
-um                                allnoconfig
-m68k                          atari_defconfig
-arm                          pcm027_defconfig
-microblaze                      mmu_defconfig
-mips                           ip27_defconfig
-sparc64                             defconfig
-mips                       rbtx49xx_defconfig
-ia64                      gensparse_defconfig
-arm                      jornada720_defconfig
-mips                     loongson1c_defconfig
-powerpc                     sequoia_defconfig
-powerpc                      katmai_defconfig
-powerpc                     sbc8548_defconfig
-arm                   milbeaut_m10v_defconfig
-arm                           sunxi_defconfig
-arm                       aspeed_g5_defconfig
-microblaze                          defconfig
-mips                  cavium_octeon_defconfig
-powerpc                       ppc64_defconfig
-m68k                           sun3_defconfig
-xtensa                  cadence_csp_defconfig
-mips                     cu1830-neo_defconfig
-powerpc                   bluestone_defconfig
-powerpc                     redwood_defconfig
-arm                             mxs_defconfig
-riscv                            alldefconfig
-powerpc                     pq2fads_defconfig
-sh                        sh7763rdp_defconfig
-arm                         vf610m4_defconfig
-powerpc                      acadia_defconfig
-s390                             alldefconfig
-powerpc                 mpc834x_mds_defconfig
-arc                          axs103_defconfig
-powerpc                 mpc837x_rdb_defconfig
-powerpc                 xes_mpc85xx_defconfig
-powerpc                     tqm5200_defconfig
-powerpc                 linkstation_defconfig
-mips                          malta_defconfig
-csky                             alldefconfig
-powerpc                     tqm8548_defconfig
-arm                        multi_v5_defconfig
-sh                           sh2007_defconfig
-powerpc                        fsp2_defconfig
-arm                            xcep_defconfig
-m68k                        mvme147_defconfig
-ia64                             allmodconfig
-m68k                          amiga_defconfig
-arc                            hsdk_defconfig
-arm                          imote2_defconfig
-xtensa                    xip_kc705_defconfig
-mips                  maltasmvp_eva_defconfig
-mips                          rm200_defconfig
-arm                         lpc32xx_defconfig
-mips                      maltaaprp_defconfig
-sh                          lboxre2_defconfig
-arm                         axm55xx_defconfig
-ia64                        generic_defconfig
-m68k                            mac_defconfig
-sh                         ecovec24_defconfig
-nds32                            alldefconfig
-arm                           spitz_defconfig
-powerpc                        icon_defconfig
-powerpc                   motionpro_defconfig
-powerpc                 mpc832x_rdb_defconfig
-arm                            dove_defconfig
-arm                          gemini_defconfig
-sh                           se7751_defconfig
-powerpc                    klondike_defconfig
-sh                           se7343_defconfig
-openrisc                    or1ksim_defconfig
-m68k                                defconfig
-powerpc                      pasemi_defconfig
-arm64                            alldefconfig
-arm                       multi_v4t_defconfig
-arm                          ixp4xx_defconfig
-arc                        nsimosci_defconfig
-sh                          polaris_defconfig
-arm                       imx_v6_v7_defconfig
-mips                       lemote2f_defconfig
-powerpc                     powernv_defconfig
-mips                 decstation_r4k_defconfig
-arm                       aspeed_g4_defconfig
-sh                          kfr2r09_defconfig
-mips                             allmodconfig
-mips                           ip32_defconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-s390                                defconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                               tinyconfig
-i386                                defconfig
-mips                             allyesconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-x86_64               randconfig-a002-20210325
-x86_64               randconfig-a003-20210325
-x86_64               randconfig-a006-20210325
-x86_64               randconfig-a001-20210325
-x86_64               randconfig-a005-20210325
-x86_64               randconfig-a004-20210325
-i386                 randconfig-a003-20210325
-i386                 randconfig-a004-20210325
-i386                 randconfig-a001-20210325
-i386                 randconfig-a002-20210325
-i386                 randconfig-a006-20210325
-i386                 randconfig-a005-20210325
-i386                 randconfig-a014-20210325
-i386                 randconfig-a011-20210325
-i386                 randconfig-a015-20210325
-i386                 randconfig-a016-20210325
-i386                 randconfig-a013-20210325
-i386                 randconfig-a012-20210325
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-um                               allmodconfig
-um                               allyesconfig
-um                                  defconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
+Therefore, this patchset introduces a new INCOMPAT feature called
+COMPR_CFGS, which provides an available algorithm bitmap in the sb
+and a variable array list to store corresponding arguments for each
+available algorithms.
 
-clang tested configs:
-x86_64               randconfig-a012-20210325
-x86_64               randconfig-a015-20210325
-x86_64               randconfig-a014-20210325
-x86_64               randconfig-a013-20210325
-x86_64               randconfig-a011-20210325
-x86_64               randconfig-a016-20210325
+Since such a INCOMPAT sb feature will be introduced, it'd be better to
+reuse such bit for BIGPCLUSTER feature as well since BIGPCLUSTER feature
+depends on COMPR_CFGS and will be released together with COMPR_CFGS.
 
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+If COMPR_CFGS is disabled, the field of available algorithm bitmap would
+become a lz4_max_distance (which is now reserved as 0), and max_distance
+can be safely ignored for old kernels since 64k lz4 dictionary is always
+enough even new images could reduce the sliding window.
+
+Thanks,
+Gao Xiang
+
+Gao Xiang (3):
+  erofs: introduce erofs_sb_has_xxx() helpers
+  erofs: introduce on-disk lz4 fs configurations
+  erofs: add on-disk compression configurations
+
+Huang Jianan (1):
+  erofs: support adjust lz4 history window size
+
+ fs/erofs/decompressor.c |  35 ++++++++--
+ fs/erofs/erofs_fs.h     |  23 +++++--
+ fs/erofs/internal.h     |  33 +++++++++
+ fs/erofs/super.c        | 149 +++++++++++++++++++++++++++++++++++++++-
+ 4 files changed, 228 insertions(+), 12 deletions(-)
+
+-- 
+2.20.1
+
