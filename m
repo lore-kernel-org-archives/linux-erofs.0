@@ -2,106 +2,63 @@ Return-Path: <SRS0=xEWh=I6=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 760C9C433ED
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 06:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4D54C433B4
+	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 11:37:01 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C823061056
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 06:01:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C823061056
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D2243610E8
+	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 11:37:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2243610E8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=mail.scut.edu.cn
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4F9syT3mMCz304L
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 17:01:53 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QZSEF3ts;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c+FiaeYa;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FB1P73LZWz30DN
+	for <linux-erofs@archiver.kernel.org>; Thu,  1 Apr 2021 22:36:59 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=216.205.24.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=hsiangkao@redhat.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=QZSEF3ts; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=c+FiaeYa; 
- dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4F9syR3pNqz2yRy
- for <linux-erofs@lists.ozlabs.org>; Thu,  1 Apr 2021 17:01:49 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1617256904;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=uRp0FnEdaqle2H/TogerMFKhoHHBVp1EhFPgzJWw6ac=;
- b=QZSEF3tsnEqz6E7PjKnRP+S3lVUH6AZ9+lHJJh1KTVL66h8krRt62kBptpOM3+bJOQCOa5
- J8DhDxuXqV63yVP5lYs7M6Q9Si3jySVvZAp0/uJLpwxf1TbaO39MkKqcEvOLgStguooqSr
- ao7BWH+0fEjvo2pAgpQ7mGjIiuUuvBI=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1617256905;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=uRp0FnEdaqle2H/TogerMFKhoHHBVp1EhFPgzJWw6ac=;
- b=c+FiaeYazykxYHBf5afMWtfaO5p/qjrdYAyPm/emgTwN0plPhGjpcOIaJ2UWbxBX9gMlMe
- sEtS7ihgg0TbI8kOJDOD4G7IVMU6C5TnP20zVN8btDrq+9CS2kCwqxaT7sZfjxxtdPNtcu
- nB9Qy0gry+zuBI2UMbVkzzRkMbCrGVY=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-567-OcxNtm-ZO9mEzky12beIKQ-1; Thu, 01 Apr 2021 02:01:43 -0400
-X-MC-Unique: OcxNtm-ZO9mEzky12beIKQ-1
-Received: by mail-pj1-f70.google.com with SMTP id r18so2609877pjz.1
- for <linux-erofs@lists.ozlabs.org>; Wed, 31 Mar 2021 23:01:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=uRp0FnEdaqle2H/TogerMFKhoHHBVp1EhFPgzJWw6ac=;
- b=oeXAc6oLI+bv+3H1tkP/D8nFuWOJQ+nt0W/8eTP5jHLW8vkTapyf/xbRBKOuNxMSeO
- 5Vho3aZd63Qo5TPksu7cPvrenGP9wVv9muJtI+rhY8rlpW1GcgeT06p90nLQTab4qy9s
- Jj70wSpVObWguuT+H679La1bw7aeEitECQATvzbjeLXaVzUA0aBMDf2X2EGHxHJD9JxM
- 9HHt3IlQxdEcBHpwJ5uNFcrl+5zK/MAzBasf/pgJWINIo/XsLlkxon8ZX9FZEAJKxem/
- 7HO2xSQ6OgipLs9M1PjOSGPlIt7m59plhy5e2wwSfIuq26ka6WX13wrIH8yI0FICLYAu
- VBFw==
-X-Gm-Message-State: AOAM533xK86YpWYvKd1nr07vGTTpNB/wEixUGYJP0lrIvH10pksQ5jQt
- KJBlf9a5wwiPdCVQ1387oPu2BdQN8EuV9aNl6+yvunyE5jHEuEam0EAI8aO54RuGOxrb6au79Yv
- ZEFsWO1Eu8qsR0dsAmq+xarmh
-X-Received: by 2002:a63:2259:: with SMTP id t25mr6082462pgm.395.1617256901999; 
- Wed, 31 Mar 2021 23:01:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxnZAPRGA9OBW9PMkBZS4dz2pRpf7kQylYUYycKMmq14JgVkE39uxi8OK0GM2lWo0k9NUiwFw==
-X-Received: by 2002:a63:2259:: with SMTP id t25mr6082451pgm.395.1617256901754; 
- Wed, 31 Mar 2021 23:01:41 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id gm9sm4010629pjb.13.2021.03.31.23.01.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 31 Mar 2021 23:01:41 -0700 (PDT)
-Date: Thu, 1 Apr 2021 14:01:32 +0800
-From: Gao Xiang <hsiangkao@redhat.com>
-To: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Subject: Re: [PATCH] erofs-utils: add command line argument to override uid/gid
-Message-ID: <20210401060132.GA3827683@xiangao.remote.csb>
-References: <20210401052903.18700-1-sehuww@mail.scut.edu.cn>
+ smtp.mailfrom=mail.scut.edu.cn (client-ip=202.38.213.20; helo=mail.scut.edu.cn;
+ envelope-from=sehuww@mail.scut.edu.cn; receiver=<UNKNOWN>)
+X-Greylist: delayed 22028 seconds by postgrey-1.36 at boromir;
+ Thu, 01 Apr 2021 22:36:55 AEDT
+Received: from mail.scut.edu.cn (stumail1.scut.edu.cn [202.38.213.20])
+ by lists.ozlabs.org (Postfix) with ESMTP id 4FB1P36kLFz2xgH
+ for <linux-erofs@lists.ozlabs.org>; Thu,  1 Apr 2021 22:36:54 +1100 (AEDT)
+Received: from laptop.huww98.cn (unknown [125.216.246.30])
+ by front (Coremail) with SMTP id AWSowAAXH9c6sGVgKTsJAA--.30589S4;
+ Thu, 01 Apr 2021 19:36:27 +0800 (CST)
+From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+To: hsiangkao@redhat.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2] erofs-utils: add cmd argument to override uid/gid
+Date: Thu,  1 Apr 2021 19:36:10 +0800
+Message-Id: <20210401113610.49094-1-sehuww@mail.scut.edu.cn>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210401060132.GA3827683@xiangao.remote.csb>
+References: <20210401060132.GA3827683@xiangao.remote.csb>
 MIME-Version: 1.0
-In-Reply-To: <20210401052903.18700-1-sehuww@mail.scut.edu.cn>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hsiangkao@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AWSowAAXH9c6sGVgKTsJAA--.30589S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxuF45XFWkJw4UGr4UKFWrAFb_yoWrGF1rpF
+ n0qF1kCFy8tasrCFWftr929r1Fg3Z7CFZFka9ruw4Iyr98AFyvqr1jqFZxWr1kWrWkCFWY
+ vrZ2vay3CrnrAaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+ 9KBjDU0xBIdaVrnRJUUUyK14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+ rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+ 1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+ 6F4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr
+ 1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv
+ 7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r
+ 1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCF04k20xvY0x0E
+ wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
+ 80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64vIr41lIxAIcVC0
+ I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04
+ k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY
+ 1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjfU5WlkUUUUU
+X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQASBlepTBMIEQAHsq
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -113,35 +70,135 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Weiwen,
+Also added '--all-root' option to set uid and gid to root conveniently.
 
-On Thu, Apr 01, 2021 at 01:29:03PM +0800, Hu Weiwen wrote:
-> Also added '--all-root' option to set uid and gid to root conveniently.
-> 
-> This function can be useful if we want to pack some data owned by user with
-> large uid, but we want to use compact inode.
-> 
-> Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+This function can be useful if we want to pack some data owned by user with
+large uid, but we want to use compact inode.
 
-How about using long options for all options, e.g.
- --all-root,
- --force-uid=,
- --force-gid=, (seems squashfs uses such naming).
+This interface mimics that of 'mksquashfs'.
 
-since I'd like to leave short options for more common usages.
+Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+---
+ include/erofs/config.h |  2 ++
+ lib/config.c           |  2 ++
+ lib/inode.c            |  4 ++--
+ man/mkfs.erofs.1       |  9 +++++++++
+ mkfs/main.c            | 23 +++++++++++++++++++++++
+ 5 files changed, 38 insertions(+), 2 deletions(-)
 
-And you might need to update manpage as well, so I can apply it
-ASAP...
-
-(Btw, even compact inodes have 16-bit ranges, we could introduce
- some mapping table to remap sparse uid/gid into a compact form,
- if that is what you want, you could help to implement it as well :) )
-
-Thanks,
-Gao Xiang
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 02ddf59..e6eaef6 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -54,6 +54,8 @@ struct erofs_configure {
+ 	/* < 0, xattr disabled and INT_MAX, always use inline xattrs */
+ 	int c_inline_xattr_tolerance;
+ 	u64 c_unix_timestamp;
++	u32 c_uid;
++	u32 c_gid;
+ #ifdef WITH_ANDROID
+ 	char *mount_point;
+ 	char *target_out_path;
+diff --git a/lib/config.c b/lib/config.c
+index 3ecd481..b8df239 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -24,6 +24,8 @@ void erofs_init_configure(void)
+ 	cfg.c_force_inodeversion = 0;
+ 	cfg.c_inline_xattr_tolerance = 2;
+ 	cfg.c_unix_timestamp = -1;
++	cfg.c_uid = -1;
++	cfg.c_gid = -1;
+ }
+ 
+ void erofs_show_config(void)
+diff --git a/lib/inode.c b/lib/inode.c
+index 40189fe..d52facf 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -752,8 +752,8 @@ int erofs_fill_inode(struct erofs_inode *inode,
+ 	if (err)
+ 		return err;
+ 	inode->i_mode = st->st_mode;
+-	inode->i_uid = st->st_uid;
+-	inode->i_gid = st->st_gid;
++	inode->i_uid = cfg.c_uid == -1 ? st->st_uid : cfg.c_uid;
++	inode->i_gid = cfg.c_gid == -1 ? st->st_gid : cfg.c_gid;
+ 	inode->i_ctime = st->st_ctime;
+ 	inode->i_ctime_nsec = st->st_ctim.tv_nsec;
+ 
+diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
+index dcaf9d7..254c3ec 100644
+--- a/man/mkfs.erofs.1
++++ b/man/mkfs.erofs.1
+@@ -69,6 +69,15 @@ You may give multiple `--exclude-regex` options.
+ .BI "\-\-file-contexts=" file
+ Specify a \fIfile_contexts\fR file to setup / override selinux labels.
+ .TP
++.BI "\-\-force-uid=" UID
++Set all file uids to \fIUID\fR.
++.TP
++.BI "\-\-force-gid=" GID
++Set all file gids to \fIGID\fR.
++.TP
++.B \-\-all-root
++Make all files owned by root.
++.TP
+ .B \-\-help
+ Display this help and exit.
+ .SH AUTHOR
+diff --git a/mkfs/main.c b/mkfs/main.c
+index d9c4c7f..72b7f17 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -36,6 +36,9 @@ static struct option long_options[] = {
+ #ifdef HAVE_LIBSELINUX
+ 	{"file-contexts", required_argument, NULL, 4},
+ #endif
++	{"force-uid", required_argument, NULL, 5},
++	{"force-gid", required_argument, NULL, 6},
++	{"all-root", no_argument, NULL, 7},
+ #ifdef WITH_ANDROID
+ 	{"mount-point", required_argument, NULL, 10},
+ 	{"product-out", required_argument, NULL, 11},
+@@ -74,6 +77,9 @@ static void usage(void)
+ #ifdef HAVE_LIBSELINUX
+ 	      " --file-contexts=X  specify a file contexts file to setup selinux labels\n"
+ #endif
++	      " --force-uid=UID    set all file uids to UID\n"
++	      " --force-gid=GID    set all file gids to GID\n"
++	      " --all-root         make all files owned by root\n"
+ 	      " --help             display this help and exit\n"
+ #ifdef WITH_ANDROID
+ 	      "\nwith following android-specific options:\n"
+@@ -233,6 +239,23 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			if (opt && opt != -EBUSY)
+ 				return opt;
+ 			break;
++		case 5:
++			cfg.c_uid = strtoul(optarg, &endptr, 0);
++			if (cfg.c_uid == -1 || *endptr != '\0') {
++				erofs_err("invalid uid %s", optarg);
++				return -EINVAL;
++			}
++			break;
++		case 6:
++			cfg.c_gid = strtoul(optarg, &endptr, 0);
++			if (cfg.c_gid == -1 || *endptr != '\0') {
++				erofs_err("invalid gid %s", optarg);
++				return -EINVAL;
++			}
++			break;
++		case 7:
++			cfg.c_uid = cfg.c_gid = 0;
++			break;
+ #ifdef WITH_ANDROID
+ 		case 10:
+ 			cfg.mount_point = optarg;
+-- 
+2.25.1
 
