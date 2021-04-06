@@ -1,62 +1,50 @@
-Return-Path: <SRS0=Wav2=JC=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=4izf=JD=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21022C433ED
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Apr 2021 12:11:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0ED9C433ED
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Apr 2021 16:27:29 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2BA59613AE
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Apr 2021 12:11:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2BA59613AE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=mail.scut.edu.cn
+	by mail.kernel.org (Postfix) with ESMTPS id 371B4613D0
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Apr 2021 16:27:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 371B4613D0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=canonical.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FDTzV675lz30C3
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Apr 2021 22:11:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=mail.scut.edu.cn (client-ip=202.38.213.20; helo=mail.scut.edu.cn;
- envelope-from=sehuww@mail.scut.edu.cn; receiver=<UNKNOWN>)
-Received: from mail.scut.edu.cn (stumail1.scut.edu.cn [202.38.213.20])
- by lists.ozlabs.org (Postfix) with ESMTP id 4FDTzR0ywdz2yyj
- for <linux-erofs@lists.ozlabs.org>; Mon,  5 Apr 2021 22:11:45 +1000 (AEST)
-Received: from laptop (unknown [125.216.246.30])
- by front (Coremail) with SMTP id AWSowABHT9dj_mpgcCUaAA--.12552S3;
- Mon, 05 Apr 2021 20:11:20 +0800 (CST)
-Date: Mon, 5 Apr 2021 20:11:35 +0800
-From: =?utf-8?B?6IOh546u5paH?= <sehuww@mail.scut.edu.cn>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: Re: [PATCH] erofs-utils: get rid of inode->i_srcpath
-Message-ID: <20210405121135.GA159690@laptop>
-References: <20210405094950.150983-1-sehuww@mail.scut.edu.cn>
- <20210405113525.GB378859@xiangao.remote.csb>
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FFCbz6X8pz2yxB
+	for <linux-erofs@archiver.kernel.org>; Wed,  7 Apr 2021 02:27:27 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+ spf=none (no SPF record) smtp.mailfrom=canonical.com
+ (client-ip=91.189.89.112; helo=youngberry.canonical.com;
+ envelope-from=colin.king@canonical.com; receiver=<UNKNOWN>)
+Received: from youngberry.canonical.com (youngberry.canonical.com
+ [91.189.89.112])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FFCbw6Jfdz2xfS
+ for <linux-erofs@lists.ozlabs.org>; Wed,  7 Apr 2021 02:27:23 +1000 (AEST)
+Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
+ by youngberry.canonical.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128) (Exim 4.86_2)
+ (envelope-from <colin.king@canonical.com>)
+ id 1lToXv-0006Um-2c; Tue, 06 Apr 2021 16:27:19 +0000
+From: Colin King <colin.king@canonical.com>
+To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+ linux-erofs@lists.ozlabs.org
+Subject: [PATCH][next] erofs: fix uninitialized variable i used in a while-loop
+Date: Tue,  6 Apr 2021 17:27:18 +0100
+Message-Id: <20210406162718.429852-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210405113525.GB378859@xiangao.remote.csb>
-X-CM-TRANSID: AWSowABHT9dj_mpgcCUaAA--.12552S3
-X-Coremail-Antispam: 1UD129KBjvJXoW7ur17uFWkXry5Jr4xKryUZFb_yoW8GFyfpr
- 4xCFyfK3W5t3srWr1Iyw1UXr93K393Jr98Ga4Fvr4kuFsxWFyvvryftasF9ryDury0yay0
- va1jvry5W3yDAa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
- 9KBjDU0xBIdaVrnRJUUUyab7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I2
- 0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
- A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xII
- jxv20xvEc7CjxVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwV
- C2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVAC
- Y4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJV
- W8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41l42xK82IYc2Ij64vIr41l4I8I
- 3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxV
- WUGVWUWwC2zVAF1VAY17CE14v26r1Y6r17MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAF
- wI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcI
- k0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_
- Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8pnQUUUUUU==
-X-CM-SenderInfo: qsqrljqqwxllyrt6zt1loo2ulxwovvfxof0/1tbiAQASBlepTBMIEQAfsy
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,49 +56,36 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Apr 05, 2021 at 07:35:25PM +0800, Gao Xiang wrote:
-> Hi Weiwen,
-> 
-> On Mon, Apr 05, 2021 at 05:49:50PM +0800, Hu Weiwen wrote:
-> > This cut the memory usage by half.
-> > 
-> > Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-> > ---
-> 
-> I have to hold on this patch for now, 3 main reasons here:
->  1) I'd like to apply big pcluster first, which is a main new feature
->     for erofs-utils 1.3;
+From: Colin Ian King <colin.king@canonical.com>
 
-OK
+The while-loop iterates until src is non-null or i is 3, however, the
+loop counter i is not intinitialied to zero, causing incorrect iteration
+counts.  Fix this by initializing it to zero.
 
->  2) even though it saves memory usage (and not sure how much memory
->     you need to save), I think srcpath is more useful for debugging
->     and file tracing; Also, I think we could flush inode in advance to
->     save memory usage (e.g. by using bflush()) as well.
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 1aa5f2e2feed ("erofs: support decompress big pcluster for lz4 backend")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ fs/erofs/decompressor.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I think flush in advance is a good idea. But it needs more investigation.
-Ideally, I want to make the space complexity O(1), so that we can pack an
-arbitrarily large number of files. It's better not to save every seen inode
-structure in memory.
-
-If I remember it correctly, when packing a dataset consisting of ~5m files,
-mkfs.erofs takes 30-40GiB memory. I think this can hinder some use cases.
-
-As for debugging, maybe we can create a routine that travels up the directory
-tree to rebuild the path when needed? (Just like `pwd'.) Or, for mkfs, we can
-just pass around a pointer to the current working path.
-
-Thanks,
-Hu Weiwen
-
->  3) if src_path is too large, how about malloc() it as the first step,
->     even that, I'd like to apply it after erofs-utils 1.3 is out...
-> 
-> Thanks,
-> Gao Xiang
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index fe46a9c34923..8687ff81406b 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -154,6 +154,7 @@ static void *z_erofs_handle_inplace_io(struct z_erofs_decompress_req *rq,
+ 	}
+ 	kunmap_atomic(inpage);
+ 	might_sleep();
++	i = 0;
+ 	while (1) {
+ 		src = vm_map_ram(rq->in, nrpages_in, -1);
+ 		/* retry two more times (totally 3 times) */
+-- 
+2.30.2
 
