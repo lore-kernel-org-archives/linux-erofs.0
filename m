@@ -2,62 +2,68 @@ Return-Path: <SRS0=CaSx=JG=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2EEEC43460
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 10:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9422AC43460
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 17:59:24 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1499C61104
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 10:53:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1499C61104
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id C0CD461165
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 17:59:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C0CD461165
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FGw3b387Pz3bT6
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 20:53:47 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RAr3scnQ;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FH5Vf2jRyz3bqZ
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Apr 2021 03:59:22 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=RAr3scnQ; 
- dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
+ (client-ip=209.85.166.197; helo=mail-il1-f197.google.com;
+ envelope-from=385vwyakbaooeklwmxxqdmbbup.saasxqgeqdoazfqzf.oay@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com;
+ receiver=<UNKNOWN>)
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
+ [209.85.166.197])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FGw3X39gTz2yZB
- for <linux-erofs@lists.ozlabs.org>; Fri,  9 Apr 2021 20:53:44 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CE37610D0;
- Fri,  9 Apr 2021 10:53:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1617965621;
- bh=ujp85nn5IZ9hiRavTEJKD/oMXPuebJQIsoNwcleLqoI=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=RAr3scnQ7872pPG4MlYyl1PD/wyzISEhscpgVJtlp0LsOPr0wgju+tsIbBGkZbaSL
- 63/dwIRbBtFYYpRkIVGeYmFYXjZ9/U33Be3vRfx5jeZlHGE5OUlyoKp7w/YXm2mJ26
- DxK8EGPGpj4fmd6fMC/7wEJ4+hMNfD32+v4y6vHm2ibhH70b/NWLI4uxTJsKaSeUr4
- w/j+x0Rq6aHwbXvmN8KjnLmesywrpp+N3ucHv6NTFMOUqywEJo8cSaMr/w+uzduxg4
- SPuTpr6GntaZr8GsXOCHTRfQmOvVphwaGIu3re01AaoEaU9/FRKSY8hb5tsj0aFfGn
- cX/sYwHx+jKhQ==
-From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org, Chao Yu <yuchao0@huawei.com>,
- Chao Yu <chao@kernel.org>
-Subject: [PATCH v3.1 02/10] erofs: introduce multipage per-CPU buffers
-Date: Fri,  9 Apr 2021 18:53:35 +0800
-Message-Id: <20210409105335.18725-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210407043927.10623-3-xiang@kernel.org>
-References: <20210407043927.10623-3-xiang@kernel.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FH5Vc0Xf5z3bVD
+ for <linux-erofs@lists.ozlabs.org>; Sat, 10 Apr 2021 03:59:17 +1000 (AEST)
+Received: by mail-il1-f197.google.com with SMTP id m8so3986847ilh.12
+ for <linux-erofs@lists.ozlabs.org>; Fri, 09 Apr 2021 10:59:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+ bh=0+Ew6rNNg3ztpKhQhG/z/BAPWHH+xWvZmjOvCb1fdu8=;
+ b=KKiL/OMn7c/UvTWJcb3S1qHIRKoIcYe0Xf/18WeZa1DViYbrValcY1Q8WQ6xRKAmGT
+ Oe9WHL4ZbFa2xsb7U0/ZCHNAD4AW34s10cR1nswlcBkeRVWbX02DVKfB7isAYct7eXkB
+ ipGAgGKGjaRaNFjhHwwVP4ZHzKOxCVXtA9kkfxpKpjYGkfQOUqqe5nJ1yVDT7LkMVU7w
+ yrmY7d9MJyOJlzAYYSONONuBRQMddghXumef2iUX563cQ0NfvKpTAvxrAUBVGe9SLrwQ
+ 7aGDeahDjEQenPOUTZYa1b2vxiFxryJz9IrKSy3QSZE0PiUAexqhVgaT35rEgfW1aw9S
+ HPbw==
+X-Gm-Message-State: AOAM533nXczD84x3AW6NDOypHUotzHohqzCycPEXx72e5X+XKjzUfE9a
+ npq/WWm0GSVzHnMBWfhBqInTIw4le8Jp8IhNhiHT0/lh7uPm
+X-Google-Smtp-Source: ABdhPJzkQ8GpqnpBVrEegTqvzPxggMdUSz72bWw5uFKXrGcQBqAvYcvPw96M9nSuvyJIMq+fJ1pLRoxWv7LEAw2mn8I7p7x6vJjO
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a02:c908:: with SMTP id t8mr15943562jao.78.1617991155447; 
+ Fri, 09 Apr 2021 10:59:15 -0700 (PDT)
+Date: Fri, 09 Apr 2021 10:59:15 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000012002d05bf8dec8d@google.com>
+Subject: [syzbot] BUG: spinlock bad magic in erofs_pcpubuf_growsize
+From: syzbot <syzbot+d6a0e4b80bd39f54c2f6@syzkaller.appspotmail.com>
+To: akpm@linux-foundation.org, bp@alien8.de, chao@kernel.org, hpa@zytor.com, 
+ jmattson@google.com, joro@8bytes.org, kvm@vger.kernel.org, 
+ linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
+ mark.rutland@arm.com, masahiroy@kernel.org, mingo@redhat.com, 
+ pbonzini@redhat.com, peterz@infradead.org, rafael.j.wysocki@intel.com, 
+ rostedt@goodmis.org, seanjc@google.com, syzkaller-bugs@googlegroups.com, 
+ tglx@linutronix.de, vkuznets@redhat.com, wanpengli@tencent.com, 
+ will@kernel.org, x86@kernel.org, xiang@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,312 +75,77 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <hsiangkao@redhat.com>
+Hello,
 
-To deal the with the cases which inplace decompression is infeasible
-for some inplace I/O. Per-CPU buffers was introduced to get rid of page
-allocation latency and thrash for low-latency decompression algorithms
-such as lz4.
+syzbot found the following issue on:
 
-For the big pcluster feature, introduce multipage per-CPU buffers to
-keep such inplace I/O pclusters temporarily as well but note that
-per-CPU pages are just consecutive virtually.
+HEAD commit:    9c54130c Add linux-next specific files for 20210406
+git tree:       linux-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=1654617ed00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d125958c3995ddcd
+dashboard link: https://syzkaller.appspot.com/bug?extid=d6a0e4b80bd39f54c2f6
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=101a5786d00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1147dd0ed00000
 
-When a new big pcluster fs is mounted, its max pclustersize will be
-read and per-CPU buffers can be growed if needed. Shrinking adjustable
-per-CPU buffers is more complex (because we don't know if such size
-is still be used), so currently just release them all when unloading.
+The issue was bisected to:
 
-Acked-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+commit 997acaf6b4b59c6a9c259740312a69ea549cc684
+Author: Mark Rutland <mark.rutland@arm.com>
+Date:   Mon Jan 11 15:37:07 2021 +0000
+
+    lockdep: report broken irq restoration
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=11d8d7aad00000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=13d8d7aad00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=15d8d7aad00000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+d6a0e4b80bd39f54c2f6@syzkaller.appspotmail.com
+Fixes: 997acaf6b4b5 ("lockdep: report broken irq restoration")
+
+loop0: detected capacity change from 0 to 31
+BUG: spinlock bad magic on CPU#1, syz-executor062/8434
+ lock: 0xffff8880b9c31d60, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+CPU: 1 PID: 8434 Comm: syz-executor062 Not tainted 5.12.0-rc6-next-20210406-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ debug_spin_lock_before kernel/locking/spinlock_debug.c:83 [inline]
+ do_raw_spin_lock+0x216/0x2b0 kernel/locking/spinlock_debug.c:112
+ erofs_pcpubuf_growsize+0x36f/0x620 fs/erofs/pcpubuf.c:83
+ z_erofs_load_lz4_config+0x1ef/0x3e0 fs/erofs/decompressor.c:64
+ erofs_read_superblock fs/erofs/super.c:331 [inline]
+ erofs_fc_fill_super+0xe84/0x1d10 fs/erofs/super.c:499
+ get_tree_bdev+0x440/0x760 fs/super.c:1293
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1498
+ do_new_mount fs/namespace.c:2905 [inline]
+ path_mount+0x132a/0x1fa0 fs/namespace.c:3235
+ do_mount fs/namespace.c:3248 [inline]
+ __do_sys_mount fs/namespace.c:3456 [inline]
+ __se_sys_mount fs/namespace.c:3433 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x444f7a
+Code: 83 c4 08 5b 5d c3 66 2e 0f 1f 84 00 00 00 00 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffe1fa3c2a8 EFLAGS: 00000286 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 00007ffe1fa3c300 RCX: 0000000000444f7a
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffe1fa3c2c0
+RBP: 00007ffe1fa3c2c0 R08: 00007ffe1fa3c300 R09: 
+
+
 ---
-change since v3:
- - add annotation to erofs_{get,put}_pcpubuf() to silence a sparse
-   warning since they should be used in pairs but not self contained.
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
- fs/erofs/Makefile       |   2 +-
- fs/erofs/decompressor.c |   8 ++-
- fs/erofs/internal.h     |  24 ++-----
- fs/erofs/pcpubuf.c      | 138 ++++++++++++++++++++++++++++++++++++++++
- fs/erofs/super.c        |   1 +
- fs/erofs/utils.c        |  12 ----
- 6 files changed, 151 insertions(+), 34 deletions(-)
- create mode 100644 fs/erofs/pcpubuf.c
-
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index af159539fc1b..1f9aced49070 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- 
- obj-$(CONFIG_EROFS_FS) += erofs.o
--erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
-+erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 27aa6a99b371..fb4838c0f0df 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -47,7 +47,9 @@ int z_erofs_load_lz4_config(struct super_block *sb,
- 	EROFS_SB(sb)->lz4.max_distance_pages = distance ?
- 					DIV_ROUND_UP(distance, PAGE_SIZE) + 1 :
- 					LZ4_MAX_DISTANCE_PAGES;
--	return 0;
-+
-+	/* TODO: use max pclusterblks after bigpcluster is enabled */
-+	return erofs_pcpubuf_growsize(1);
- }
- 
- static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
-@@ -114,7 +116,7 @@ static void *generic_copy_inplace_data(struct z_erofs_decompress_req *rq,
- 	 * pages should be copied in order to avoid being overlapped.
- 	 */
- 	struct page **in = rq->in;
--	u8 *const tmp = erofs_get_pcpubuf(0);
-+	u8 *const tmp = erofs_get_pcpubuf(1);
- 	u8 *tmpp = tmp;
- 	unsigned int inlen = rq->inputsize - pageofs_in;
- 	unsigned int count = min_t(uint, inlen, PAGE_SIZE - pageofs_in);
-@@ -271,7 +273,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
- 	 * compressed data is preferred.
- 	 */
- 	if (rq->outputsize <= PAGE_SIZE * 7 / 8) {
--		dst = erofs_get_pcpubuf(0);
-+		dst = erofs_get_pcpubuf(1);
- 		if (IS_ERR(dst))
- 			return PTR_ERR(dst);
- 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 05b02f99324c..f707d28a46d9 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -197,9 +197,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
- 
- /* hard limit of pages per compressed cluster */
- #define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
--#define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
--#else
--#define EROFS_PCPUBUF_NR_PAGES          0
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
- /* we strictly follow PAGE_SIZE and no buffer head yet */
-@@ -405,24 +402,15 @@ int erofs_namei(struct inode *dir, struct qstr *name,
- /* dir.c */
- extern const struct file_operations erofs_dir_fops;
- 
-+/* pcpubuf.c */
-+void *erofs_get_pcpubuf(unsigned int requiredpages);
-+void erofs_put_pcpubuf(void *ptr);
-+int erofs_pcpubuf_growsize(unsigned int nrpages);
-+void erofs_pcpubuf_exit(void);
-+
- /* utils.c / zdata.c */
- struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
- 
--#if (EROFS_PCPUBUF_NR_PAGES > 0)
--void *erofs_get_pcpubuf(unsigned int pagenr);
--#define erofs_put_pcpubuf(buf) do { \
--	(void)&(buf);	\
--	preempt_enable();	\
--} while (0)
--#else
--static inline void *erofs_get_pcpubuf(unsigned int pagenr)
--{
--	return ERR_PTR(-EOPNOTSUPP);
--}
--
--#define erofs_put_pcpubuf(buf) do {} while (0)
--#endif
--
- #ifdef CONFIG_EROFS_FS_ZIP
- int erofs_workgroup_put(struct erofs_workgroup *grp);
- struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
-diff --git a/fs/erofs/pcpubuf.c b/fs/erofs/pcpubuf.c
-new file mode 100644
-index 000000000000..401ccfa2c155
---- /dev/null
-+++ b/fs/erofs/pcpubuf.c
-@@ -0,0 +1,138 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (C) Gao Xiang <xiang@kernel.org>
-+ *
-+ * For low-latency decompression algorithms (e.g. lz4), reserve consecutive
-+ * per-CPU virtual memory (in pages) in advance to store such inplace I/O
-+ * data if inplace decompression is failed (due to unmet inplace margin for
-+ * example).
-+ */
-+#include "internal.h"
-+
-+struct erofs_pcpubuf {
-+	raw_spinlock_t lock;
-+	void *ptr;
-+	struct page **pages;
-+	unsigned int nrpages;
-+};
-+
-+static DEFINE_PER_CPU(struct erofs_pcpubuf, erofs_pcb);
-+
-+void *erofs_get_pcpubuf(unsigned int requiredpages)
-+	__acquires(pcb->lock)
-+{
-+	struct erofs_pcpubuf *pcb = &get_cpu_var(erofs_pcb);
-+
-+	raw_spin_lock(&pcb->lock);
-+	/* check if the per-CPU buffer is too small */
-+	if (requiredpages > pcb->nrpages) {
-+		raw_spin_unlock(&pcb->lock);
-+		put_cpu_var(erofs_pcb);
-+		/* (for sparse checker) pretend pcb->lock is still taken */
-+		__acquire(pcb->lock);
-+		return NULL;
-+	}
-+	return pcb->ptr;
-+}
-+
-+void erofs_put_pcpubuf(void *ptr) __releases(pcb->lock)
-+{
-+	struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, smp_processor_id());
-+
-+	DBG_BUGON(pcb->ptr != ptr);
-+	raw_spin_unlock(&pcb->lock);
-+	put_cpu_var(erofs_pcb);
-+}
-+
-+/* the next step: support per-CPU page buffers hotplug */
-+int erofs_pcpubuf_growsize(unsigned int nrpages)
-+{
-+	static DEFINE_MUTEX(pcb_resize_mutex);
-+	static unsigned int pcb_nrpages;
-+	LIST_HEAD(pagepool);
-+	int delta, cpu, ret, i;
-+
-+	mutex_lock(&pcb_resize_mutex);
-+	delta = nrpages - pcb_nrpages;
-+	ret = 0;
-+	/* avoid shrinking pcpubuf, since no idea how many fses rely on */
-+	if (delta <= 0)
-+		goto out;
-+
-+	for_each_possible_cpu(cpu) {
-+		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
-+		struct page **pages, **oldpages;
-+		void *ptr, *old_ptr;
-+
-+		pages = kmalloc_array(nrpages, sizeof(*pages), GFP_KERNEL);
-+		if (!pages) {
-+			ret = -ENOMEM;
-+			break;
-+		}
-+
-+		for (i = 0; i < nrpages; ++i) {
-+			pages[i] = erofs_allocpage(&pagepool, GFP_KERNEL);
-+			if (!pages[i]) {
-+				ret = -ENOMEM;
-+				oldpages = pages;
-+				goto free_pagearray;
-+			}
-+		}
-+		ptr = vmap(pages, nrpages, VM_MAP, PAGE_KERNEL);
-+		if (!ptr) {
-+			ret = -ENOMEM;
-+			oldpages = pages;
-+			goto free_pagearray;
-+		}
-+		raw_spin_lock(&pcb->lock);
-+		old_ptr = pcb->ptr;
-+		pcb->ptr = ptr;
-+		oldpages = pcb->pages;
-+		pcb->pages = pages;
-+		i = pcb->nrpages;
-+		pcb->nrpages = nrpages;
-+		raw_spin_unlock(&pcb->lock);
-+
-+		if (!oldpages) {
-+			DBG_BUGON(old_ptr);
-+			continue;
-+		}
-+
-+		if (old_ptr)
-+			vunmap(old_ptr);
-+free_pagearray:
-+		while (i)
-+			list_add(&oldpages[--i]->lru, &pagepool);
-+		kfree(oldpages);
-+		if (ret)
-+			break;
-+	}
-+	pcb_nrpages = nrpages;
-+	put_pages_list(&pagepool);
-+out:
-+	mutex_unlock(&pcb_resize_mutex);
-+	return ret;
-+}
-+
-+void erofs_pcpubuf_exit(void)
-+{
-+	int cpu, i;
-+
-+	for_each_possible_cpu(cpu) {
-+		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
-+
-+		if (pcb->ptr) {
-+			vunmap(pcb->ptr);
-+			pcb->ptr = NULL;
-+		}
-+		if (!pcb->pages)
-+			continue;
-+
-+		for (i = 0; i < pcb->nrpages; ++i)
-+			if (pcb->pages[i])
-+				put_page(pcb->pages[i]);
-+		kfree(pcb->pages);
-+		pcb->pages = NULL;
-+	}
-+}
-+
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index b641658e772f..41fbfee4990c 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -684,6 +684,7 @@ static void __exit erofs_module_exit(void)
- 	/* Ensure all RCU free inodes are safe before cache is destroyed. */
- 	rcu_barrier();
- 	kmem_cache_destroy(erofs_inode_cachep);
-+	erofs_pcpubuf_exit();
- }
- 
- /* get filesystem statistics */
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index de9986d2f82f..6758c5b19f7c 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -21,18 +21,6 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
- 	return page;
- }
- 
--#if (EROFS_PCPUBUF_NR_PAGES > 0)
--static struct {
--	u8 data[PAGE_SIZE * EROFS_PCPUBUF_NR_PAGES];
--} ____cacheline_aligned_in_smp erofs_pcpubuf[NR_CPUS];
--
--void *erofs_get_pcpubuf(unsigned int pagenr)
--{
--	preempt_disable();
--	return &erofs_pcpubuf[smp_processor_id()].data[pagenr * PAGE_SIZE];
--}
--#endif
--
- #ifdef CONFIG_EROFS_FS_ZIP
- /* global shrink count (for all mounted EROFS instances) */
- static atomic_long_t erofs_global_shrink_cnt;
--- 
-2.20.1
-
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches
