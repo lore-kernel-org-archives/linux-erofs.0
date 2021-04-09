@@ -1,59 +1,63 @@
-Return-Path: <SRS0=q60N=JE=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=CaSx=JG=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDAF8C433B4
-	for <linux-erofs@archiver.kernel.org>; Wed,  7 Apr 2021 17:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2EEEC43460
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 10:53:49 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 414DE61242
-	for <linux-erofs@archiver.kernel.org>; Wed,  7 Apr 2021 17:31:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 414DE61242
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1499C61104
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 10:53:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1499C61104
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FFrz56jWnz304X
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Apr 2021 03:31:13 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FGw3b387Pz3bT6
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Apr 2021 20:53:47 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RAr3scnQ;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=k20201202 header.b=RAr3scnQ; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FFrz31y7Mz2y0K
- for <linux-erofs@lists.ozlabs.org>; Thu,  8 Apr 2021 03:31:09 +1000 (AEST)
-IronPort-SDR: ZJxFphlNGFNcOZj05wXmak4v+oWYnpSauAfojm5SbYTuX48BZlINCeBN8pYn7IKCUFiskC1UeU
- 3Ynimb7toO1Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9947"; a="278625479"
-X-IronPort-AV: E=Sophos;i="5.82,203,1613462400"; d="scan'208";a="278625479"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 07 Apr 2021 10:31:07 -0700
-IronPort-SDR: NIFWYzsChQ3CiKCn/LE2bQvvSUHjc3PzNv8Z8amR37bo+bPm2Vq+KscuzP87EoSUA/QfflAdy2
- Ut542rIOv2NQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,203,1613462400"; d="scan'208";a="441400874"
-Received: from lkp-server01.sh.intel.com (HELO 69d8fcc516b7) ([10.239.97.150])
- by fmsmga004.fm.intel.com with ESMTP; 07 Apr 2021 10:31:05 -0700
-Received: from kbuild by 69d8fcc516b7 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1lUC1B-000DYU-1b; Wed, 07 Apr 2021 17:31:05 +0000
-Date: Thu, 08 Apr 2021 01:30:23 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@redhat.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- df7bb621ce5ad12c32e2518f8a564d3ea29149c7
-Message-ID: <606dec2f.ip8sj2I3X7OhxgcN%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FGw3X39gTz2yZB
+ for <linux-erofs@lists.ozlabs.org>; Fri,  9 Apr 2021 20:53:44 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CE37610D0;
+ Fri,  9 Apr 2021 10:53:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1617965621;
+ bh=ujp85nn5IZ9hiRavTEJKD/oMXPuebJQIsoNwcleLqoI=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=RAr3scnQ7872pPG4MlYyl1PD/wyzISEhscpgVJtlp0LsOPr0wgju+tsIbBGkZbaSL
+ 63/dwIRbBtFYYpRkIVGeYmFYXjZ9/U33Be3vRfx5jeZlHGE5OUlyoKp7w/YXm2mJ26
+ DxK8EGPGpj4fmd6fMC/7wEJ4+hMNfD32+v4y6vHm2ibhH70b/NWLI4uxTJsKaSeUr4
+ w/j+x0Rq6aHwbXvmN8KjnLmesywrpp+N3ucHv6NTFMOUqywEJo8cSaMr/w+uzduxg4
+ SPuTpr6GntaZr8GsXOCHTRfQmOvVphwaGIu3re01AaoEaU9/FRKSY8hb5tsj0aFfGn
+ cX/sYwHx+jKhQ==
+From: Gao Xiang <xiang@kernel.org>
+To: linux-erofs@lists.ozlabs.org, Chao Yu <yuchao0@huawei.com>,
+ Chao Yu <chao@kernel.org>
+Subject: [PATCH v3.1 02/10] erofs: introduce multipage per-CPU buffers
+Date: Fri,  9 Apr 2021 18:53:35 +0800
+Message-Id: <20210409105335.18725-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210407043927.10623-3-xiang@kernel.org>
+References: <20210407043927.10623-3-xiang@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,206 +69,312 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: df7bb621ce5ad12c32e2518f8a564d3ea29149c7  erofs: enable big pcluster feature
+From: Gao Xiang <hsiangkao@redhat.com>
 
-elapsed time: 731m
+To deal the with the cases which inplace decompression is infeasible
+for some inplace I/O. Per-CPU buffers was introduced to get rid of page
+allocation latency and thrash for low-latency decompression algorithms
+such as lz4.
 
-configs tested: 182
-configs skipped: 3
+For the big pcluster feature, introduce multipage per-CPU buffers to
+keep such inplace I/O pclusters temporarily as well but note that
+per-CPU pages are just consecutive virtually.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+When a new big pcluster fs is mounted, its max pclustersize will be
+read and per-CPU buffers can be growed if needed. Shrinking adjustable
+per-CPU buffers is more complex (because we don't know if such size
+is still be used), so currently just release them all when unloading.
 
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-x86_64                           allyesconfig
-riscv                            allmodconfig
-i386                             allyesconfig
-riscv                            allyesconfig
-nds32                            alldefconfig
-powerpc                   motionpro_defconfig
-powerpc                 linkstation_defconfig
-mips                       capcella_defconfig
-arm                          pxa168_defconfig
-nios2                               defconfig
-arc                          axs101_defconfig
-alpha                            alldefconfig
-s390                                defconfig
-mips                        nlm_xlp_defconfig
-m68k                                defconfig
-powerpc                 mpc834x_itx_defconfig
-mips                  maltasmvp_eva_defconfig
-arm                       netwinder_defconfig
-arm                     am200epdkit_defconfig
-mips                          rb532_defconfig
-powerpc                   currituck_defconfig
-arm                            qcom_defconfig
-powerpc                    mvme5100_defconfig
-s390                             allyesconfig
-m68k                       m5275evb_defconfig
-arc                        nsimosci_defconfig
-sh                          lboxre2_defconfig
-mips                         tb0287_defconfig
-arm                         lpc18xx_defconfig
-powerpc                      ep88xc_defconfig
-arm                     eseries_pxa_defconfig
-sparc                            alldefconfig
-sparc                       sparc32_defconfig
-arm                       aspeed_g4_defconfig
-arm                             pxa_defconfig
-powerpc                      mgcoge_defconfig
-arm                        keystone_defconfig
-powerpc64                           defconfig
-m68k                          sun3x_defconfig
-arm                         mv78xx0_defconfig
-m68k                         amcore_defconfig
-alpha                            allyesconfig
-sh                            hp6xx_defconfig
-arc                     nsimosci_hs_defconfig
-mips                           ip27_defconfig
-arm                          iop32x_defconfig
-sh                           sh2007_defconfig
-powerpc                           allnoconfig
-sh                      rts7751r2d1_defconfig
-sh                          rsk7264_defconfig
-powerpc                          allyesconfig
-mips                     loongson1c_defconfig
-sh                           se7780_defconfig
-s390                       zfcpdump_defconfig
-nios2                         3c120_defconfig
-m68k                        m5407c3_defconfig
-powerpc                    klondike_defconfig
-powerpc                      ppc44x_defconfig
-sh                          sdk7780_defconfig
-powerpc                      arches_defconfig
-csky                             alldefconfig
-powerpc                        fsp2_defconfig
-arm                           sunxi_defconfig
-powerpc                     pq2fads_defconfig
-m68k                        mvme16x_defconfig
-mips                           rs90_defconfig
-sh                             shx3_defconfig
-arm                            hisi_defconfig
-ia64                            zx1_defconfig
-arm                        neponset_defconfig
-mips                           ci20_defconfig
-arm                         shannon_defconfig
-mips                        jmr3927_defconfig
-arm                          ep93xx_defconfig
-mips                        nlm_xlr_defconfig
-sh                        sh7757lcr_defconfig
-arm                  colibri_pxa300_defconfig
-sh                          kfr2r09_defconfig
-arm                      footbridge_defconfig
-xtensa                           alldefconfig
-mips                      loongson3_defconfig
-arc                      axs103_smp_defconfig
-sh                               j2_defconfig
-sh                            titan_defconfig
-arm                           omap1_defconfig
-powerpc                       maple_defconfig
-arm                        shmobile_defconfig
-mips                        maltaup_defconfig
-riscv             nommu_k210_sdcard_defconfig
-powerpc                     powernv_defconfig
-powerpc                 mpc8313_rdb_defconfig
-ia64                        generic_defconfig
-sh                              ul2_defconfig
-xtensa                generic_kc705_defconfig
-powerpc                    adder875_defconfig
-arm                             rpc_defconfig
-arm                        vexpress_defconfig
-powerpc                          allmodconfig
-powerpc                 mpc834x_mds_defconfig
-sh                           se7721_defconfig
-mips                           ip28_defconfig
-powerpc                   lite5200b_defconfig
-ia64                          tiger_defconfig
-mips                            gpr_defconfig
-arc                                 defconfig
-powerpc                      katmai_defconfig
-arm                        mini2440_defconfig
-powerpc                      acadia_defconfig
-arm                       aspeed_g5_defconfig
-arm                          ixp4xx_defconfig
-arm                            zeus_defconfig
-sh                 kfr2r09-romimage_defconfig
-sh                          landisk_defconfig
-x86_64                              defconfig
-powerpc                       eiger_defconfig
-arm                        trizeps4_defconfig
-sh                          rsk7203_defconfig
-powerpc                      pcm030_defconfig
-arm                       multi_v4t_defconfig
-arm                       spear13xx_defconfig
-riscv                          rv32_defconfig
-powerpc                      walnut_defconfig
-arm                          simpad_defconfig
-parisc                              defconfig
-um                             i386_defconfig
-powerpc                     ksi8560_defconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                             allyesconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-sh                               allmodconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-mips                             allyesconfig
-mips                             allmodconfig
-i386                 randconfig-a006-20210407
-i386                 randconfig-a003-20210407
-i386                 randconfig-a001-20210407
-i386                 randconfig-a004-20210407
-i386                 randconfig-a002-20210407
-i386                 randconfig-a005-20210407
-x86_64               randconfig-a014-20210407
-x86_64               randconfig-a015-20210407
-x86_64               randconfig-a013-20210407
-x86_64               randconfig-a011-20210407
-x86_64               randconfig-a012-20210407
-x86_64               randconfig-a016-20210407
-i386                 randconfig-a014-20210407
-i386                 randconfig-a011-20210407
-i386                 randconfig-a016-20210407
-i386                 randconfig-a012-20210407
-i386                 randconfig-a015-20210407
-i386                 randconfig-a013-20210407
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-um                               allmodconfig
-um                                allnoconfig
-um                               allyesconfig
-um                                  defconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
-
+Acked-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+change since v3:
+ - add annotation to erofs_{get,put}_pcpubuf() to silence a sparse
+   warning since they should be used in pairs but not self contained.
+
+ fs/erofs/Makefile       |   2 +-
+ fs/erofs/decompressor.c |   8 ++-
+ fs/erofs/internal.h     |  24 ++-----
+ fs/erofs/pcpubuf.c      | 138 ++++++++++++++++++++++++++++++++++++++++
+ fs/erofs/super.c        |   1 +
+ fs/erofs/utils.c        |  12 ----
+ 6 files changed, 151 insertions(+), 34 deletions(-)
+ create mode 100644 fs/erofs/pcpubuf.c
+
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index af159539fc1b..1f9aced49070 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ 
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+-erofs-objs := super.o inode.o data.o namei.o dir.o utils.o
++erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 27aa6a99b371..fb4838c0f0df 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -47,7 +47,9 @@ int z_erofs_load_lz4_config(struct super_block *sb,
+ 	EROFS_SB(sb)->lz4.max_distance_pages = distance ?
+ 					DIV_ROUND_UP(distance, PAGE_SIZE) + 1 :
+ 					LZ4_MAX_DISTANCE_PAGES;
+-	return 0;
++
++	/* TODO: use max pclusterblks after bigpcluster is enabled */
++	return erofs_pcpubuf_growsize(1);
+ }
+ 
+ static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+@@ -114,7 +116,7 @@ static void *generic_copy_inplace_data(struct z_erofs_decompress_req *rq,
+ 	 * pages should be copied in order to avoid being overlapped.
+ 	 */
+ 	struct page **in = rq->in;
+-	u8 *const tmp = erofs_get_pcpubuf(0);
++	u8 *const tmp = erofs_get_pcpubuf(1);
+ 	u8 *tmpp = tmp;
+ 	unsigned int inlen = rq->inputsize - pageofs_in;
+ 	unsigned int count = min_t(uint, inlen, PAGE_SIZE - pageofs_in);
+@@ -271,7 +273,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 	 * compressed data is preferred.
+ 	 */
+ 	if (rq->outputsize <= PAGE_SIZE * 7 / 8) {
+-		dst = erofs_get_pcpubuf(0);
++		dst = erofs_get_pcpubuf(1);
+ 		if (IS_ERR(dst))
+ 			return PTR_ERR(dst);
+ 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 05b02f99324c..f707d28a46d9 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -197,9 +197,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 
+ /* hard limit of pages per compressed cluster */
+ #define Z_EROFS_CLUSTER_MAX_PAGES       (CONFIG_EROFS_FS_CLUSTER_PAGE_LIMIT)
+-#define EROFS_PCPUBUF_NR_PAGES          Z_EROFS_CLUSTER_MAX_PAGES
+-#else
+-#define EROFS_PCPUBUF_NR_PAGES          0
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
+ /* we strictly follow PAGE_SIZE and no buffer head yet */
+@@ -405,24 +402,15 @@ int erofs_namei(struct inode *dir, struct qstr *name,
+ /* dir.c */
+ extern const struct file_operations erofs_dir_fops;
+ 
++/* pcpubuf.c */
++void *erofs_get_pcpubuf(unsigned int requiredpages);
++void erofs_put_pcpubuf(void *ptr);
++int erofs_pcpubuf_growsize(unsigned int nrpages);
++void erofs_pcpubuf_exit(void);
++
+ /* utils.c / zdata.c */
+ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp);
+ 
+-#if (EROFS_PCPUBUF_NR_PAGES > 0)
+-void *erofs_get_pcpubuf(unsigned int pagenr);
+-#define erofs_put_pcpubuf(buf) do { \
+-	(void)&(buf);	\
+-	preempt_enable();	\
+-} while (0)
+-#else
+-static inline void *erofs_get_pcpubuf(unsigned int pagenr)
+-{
+-	return ERR_PTR(-EOPNOTSUPP);
+-}
+-
+-#define erofs_put_pcpubuf(buf) do {} while (0)
+-#endif
+-
+ #ifdef CONFIG_EROFS_FS_ZIP
+ int erofs_workgroup_put(struct erofs_workgroup *grp);
+ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+diff --git a/fs/erofs/pcpubuf.c b/fs/erofs/pcpubuf.c
+new file mode 100644
+index 000000000000..401ccfa2c155
+--- /dev/null
++++ b/fs/erofs/pcpubuf.c
+@@ -0,0 +1,138 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) Gao Xiang <xiang@kernel.org>
++ *
++ * For low-latency decompression algorithms (e.g. lz4), reserve consecutive
++ * per-CPU virtual memory (in pages) in advance to store such inplace I/O
++ * data if inplace decompression is failed (due to unmet inplace margin for
++ * example).
++ */
++#include "internal.h"
++
++struct erofs_pcpubuf {
++	raw_spinlock_t lock;
++	void *ptr;
++	struct page **pages;
++	unsigned int nrpages;
++};
++
++static DEFINE_PER_CPU(struct erofs_pcpubuf, erofs_pcb);
++
++void *erofs_get_pcpubuf(unsigned int requiredpages)
++	__acquires(pcb->lock)
++{
++	struct erofs_pcpubuf *pcb = &get_cpu_var(erofs_pcb);
++
++	raw_spin_lock(&pcb->lock);
++	/* check if the per-CPU buffer is too small */
++	if (requiredpages > pcb->nrpages) {
++		raw_spin_unlock(&pcb->lock);
++		put_cpu_var(erofs_pcb);
++		/* (for sparse checker) pretend pcb->lock is still taken */
++		__acquire(pcb->lock);
++		return NULL;
++	}
++	return pcb->ptr;
++}
++
++void erofs_put_pcpubuf(void *ptr) __releases(pcb->lock)
++{
++	struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, smp_processor_id());
++
++	DBG_BUGON(pcb->ptr != ptr);
++	raw_spin_unlock(&pcb->lock);
++	put_cpu_var(erofs_pcb);
++}
++
++/* the next step: support per-CPU page buffers hotplug */
++int erofs_pcpubuf_growsize(unsigned int nrpages)
++{
++	static DEFINE_MUTEX(pcb_resize_mutex);
++	static unsigned int pcb_nrpages;
++	LIST_HEAD(pagepool);
++	int delta, cpu, ret, i;
++
++	mutex_lock(&pcb_resize_mutex);
++	delta = nrpages - pcb_nrpages;
++	ret = 0;
++	/* avoid shrinking pcpubuf, since no idea how many fses rely on */
++	if (delta <= 0)
++		goto out;
++
++	for_each_possible_cpu(cpu) {
++		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
++		struct page **pages, **oldpages;
++		void *ptr, *old_ptr;
++
++		pages = kmalloc_array(nrpages, sizeof(*pages), GFP_KERNEL);
++		if (!pages) {
++			ret = -ENOMEM;
++			break;
++		}
++
++		for (i = 0; i < nrpages; ++i) {
++			pages[i] = erofs_allocpage(&pagepool, GFP_KERNEL);
++			if (!pages[i]) {
++				ret = -ENOMEM;
++				oldpages = pages;
++				goto free_pagearray;
++			}
++		}
++		ptr = vmap(pages, nrpages, VM_MAP, PAGE_KERNEL);
++		if (!ptr) {
++			ret = -ENOMEM;
++			oldpages = pages;
++			goto free_pagearray;
++		}
++		raw_spin_lock(&pcb->lock);
++		old_ptr = pcb->ptr;
++		pcb->ptr = ptr;
++		oldpages = pcb->pages;
++		pcb->pages = pages;
++		i = pcb->nrpages;
++		pcb->nrpages = nrpages;
++		raw_spin_unlock(&pcb->lock);
++
++		if (!oldpages) {
++			DBG_BUGON(old_ptr);
++			continue;
++		}
++
++		if (old_ptr)
++			vunmap(old_ptr);
++free_pagearray:
++		while (i)
++			list_add(&oldpages[--i]->lru, &pagepool);
++		kfree(oldpages);
++		if (ret)
++			break;
++	}
++	pcb_nrpages = nrpages;
++	put_pages_list(&pagepool);
++out:
++	mutex_unlock(&pcb_resize_mutex);
++	return ret;
++}
++
++void erofs_pcpubuf_exit(void)
++{
++	int cpu, i;
++
++	for_each_possible_cpu(cpu) {
++		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
++
++		if (pcb->ptr) {
++			vunmap(pcb->ptr);
++			pcb->ptr = NULL;
++		}
++		if (!pcb->pages)
++			continue;
++
++		for (i = 0; i < pcb->nrpages; ++i)
++			if (pcb->pages[i])
++				put_page(pcb->pages[i]);
++		kfree(pcb->pages);
++		pcb->pages = NULL;
++	}
++}
++
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index b641658e772f..41fbfee4990c 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -684,6 +684,7 @@ static void __exit erofs_module_exit(void)
+ 	/* Ensure all RCU free inodes are safe before cache is destroyed. */
+ 	rcu_barrier();
+ 	kmem_cache_destroy(erofs_inode_cachep);
++	erofs_pcpubuf_exit();
+ }
+ 
+ /* get filesystem statistics */
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index de9986d2f82f..6758c5b19f7c 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -21,18 +21,6 @@ struct page *erofs_allocpage(struct list_head *pool, gfp_t gfp)
+ 	return page;
+ }
+ 
+-#if (EROFS_PCPUBUF_NR_PAGES > 0)
+-static struct {
+-	u8 data[PAGE_SIZE * EROFS_PCPUBUF_NR_PAGES];
+-} ____cacheline_aligned_in_smp erofs_pcpubuf[NR_CPUS];
+-
+-void *erofs_get_pcpubuf(unsigned int pagenr)
+-{
+-	preempt_disable();
+-	return &erofs_pcpubuf[smp_processor_id()].data[pagenr * PAGE_SIZE];
+-}
+-#endif
+-
+ #ifdef CONFIG_EROFS_FS_ZIP
+ /* global shrink count (for all mounted EROFS instances) */
+ static atomic_long_t erofs_global_shrink_cnt;
+-- 
+2.20.1
+
