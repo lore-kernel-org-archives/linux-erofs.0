@@ -1,60 +1,85 @@
-Return-Path: <SRS0=rnHf=JM=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=GA1v=JQ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 820ACC433ED
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Apr 2021 03:27:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39E53C433B4
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Apr 2021 10:26:45 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F1DE9611AB
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Apr 2021 03:27:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F1DE9611AB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 82FE161166
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Apr 2021 10:26:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 82FE161166
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FLPsf4nxcz30Cp
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Apr 2021 13:27:18 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FP2zl1YfZz2xy1
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Apr 2021 20:26:43 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=QXNW+XL0;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=uUoDcp6h;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1035;
+ helo=mail-pj1-x1035.google.com; envelope-from=zbestahu@gmail.com;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=QXNW+XL0; 
- dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=uUoDcp6h; dkim-atps=neutral
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com
+ [IPv6:2607:f8b0:4864:20::1035])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FLPsc44B6z2yZF
- for <linux-erofs@lists.ozlabs.org>; Thu, 15 Apr 2021 13:27:16 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 326F16103E;
- Thu, 15 Apr 2021 03:27:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1618457232;
- bh=YOTTnMazYp58ZqXGV/bIvBZvvcAPBzK+4Fh37NV2Xs8=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=QXNW+XL0/zLB1CvQ7P2igm2qXl5aDuRnMS9zmEq8gYqUDONPBu5dh4+rQah0kak8y
- YiYKOY6g0iLGd3l9OlJPtVvjjDJlKUaFCWp24GFH2glrA5s8zET34DS3u5dTWpb9+X
- lHxt7mOQhcwj/3OpCVCg9ZCVeproQB7tPazdyTDZjoCBaPYROhM0yd+5KnsjMs/MwM
- qbppCBWonysKLb6Uoq7EhvnfWSOJAoXFsSgXAFZxsTX4MyIUHn5xzNHN3sliGZnKW6
- /HN4FSbCM7smZeuMR3uGYjQ5AciKN5MkMkpfqKPj/6qiHXuwn1DrSKhPpH9VJjcvLp
- kDOOHwLweWAmw==
-From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1.1 1/8] erofs-utils: support adjust lz4 history window size
-Date: Thu, 15 Apr 2021 11:27:05 +0800
-Message-Id: <20210415032705.27515-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210411034844.12673-1-xiang@kernel.org>
-References: <20210411034844.12673-1-xiang@kernel.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FP2zj2H8Zz2xYc
+ for <linux-erofs@lists.ozlabs.org>; Mon, 19 Apr 2021 20:26:40 +1000 (AEST)
+Received: by mail-pj1-x1035.google.com with SMTP id
+ y22-20020a17090a8b16b0290150ae1a6d2bso1335725pjn.0
+ for <linux-erofs@lists.ozlabs.org>; Mon, 19 Apr 2021 03:26:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=SsoScbFAcL8FkdE1UMldI0OlgZNvmlvhjr8KfKtHYxc=;
+ b=uUoDcp6hF+0v+R0ZBgrJ7v5vFkvGh7/VVrhSd86/pHSkdM5wKbx8eQBWVYLcZjsAL5
+ 8zf55yayHfyaBhzKaI6aFTTQ+5xq5nxLvaO3S1oRwu6dsfMCJ70Zc5pxML6UFpv9lBVm
+ zxDwVeO+8oY1E3JTMIsn7GhMP3TAB03O0AVekBG/skpEyPLRK0liOqjo1UonCn+Kmrqw
+ tF/tTMolIgh2obz7DkXO34+7VXDEIHcE90atb0BXald4I9Knl5djn6h9ZzBircvxs3Ns
+ m8AmNgJB/4/5XGyTsObDTZ7XZE1kJT6iaTjCVBA4jzXvyoqYpIc3LdZWAxF4zY8SkB1w
+ jHeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=SsoScbFAcL8FkdE1UMldI0OlgZNvmlvhjr8KfKtHYxc=;
+ b=lQD0wvC48Lqy5rlC+FwnLnpegtq2ZfTCk9fA8tSPQjaKxzQWftzp8IAf8I7WqOuzz8
+ jYX9sbzDK7sMAvqLnx7MTbzIZwkOqU3T9pps2DDlzLXepBtpi6DTzTK6bycuzCJCkaji
+ yCfIgkMt41r6MAFGE75bE2Qky/zJBJnlBpLEP+Gam2iZuTXIXhJzRWIYWUkjbpz1jhOm
+ xCYlxv2ltlyqNiQ1wfuV1jrVVQkwNv64uDkriJRkMKR4k3hJWFY8rzhGwnc6OkkOJXnS
+ g4aTBB8k+yhimhSUvCVlFUWfei0dTlmh08WdkwLyqLW8K7AjnG+cM4dQhxo6pg4spU82
+ iXkQ==
+X-Gm-Message-State: AOAM533jsH1JaNoHT+J8kBBvyyd5iD9ag+wOShqio72m2sEQc+yqIciW
+ sfHmwsXhO6UVR8aGtPMrpz8=
+X-Google-Smtp-Source: ABdhPJwgPQ550Z+Hyob0M75sEMzQ/vZLHdvZddWMMNCk4umzDWS51pOfGBFC9adQM/njCkn/WTcMYA==
+X-Received: by 2002:a17:90a:d707:: with SMTP id
+ y7mr24966563pju.50.1618827995421; 
+ Mon, 19 Apr 2021 03:26:35 -0700 (PDT)
+Received: from tj.ccdomain.com ([103.220.76.197])
+ by smtp.gmail.com with ESMTPSA id o8sm15164516pjh.20.2021.04.19.03.26.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 19 Apr 2021 03:26:34 -0700 (PDT)
+From: Yue Hu <zbestahu@gmail.com>
+To: xiang@kernel.org,
+	chao@kernel.org
+Subject: [PATCH] erofs: remove the occupied parameter from
+ z_erofs_pagevec_enqueue()
+Date: Mon, 19 Apr 2021 18:26:23 +0800
+Message-Id: <20210419102623.2015-1-zbestahu@gmail.com>
+X-Mailer: git-send-email 2.29.2.windows.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -68,130 +93,68 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <xiang@kernel.org>, Guo Weichao <guoweichao@oppo.com>
+Cc: huyue2@yulong.com, linux-erofs@lists.ozlabs.org, zbestahu@163.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Huang Jianan <huangjianan@oppo.com>
+From: Yue Hu <huyue2@yulong.com>
 
-lz4 uses LZ4_DISTANCE_MAX to record history preservation. When
-using rolling decompression, a block with a higher compression
-ratio will cause a larger memory allocation (up to 64k). It may
-cause a large resource burden in extreme cases on devices with
-small memory and a large number of concurrent IOs. So appropriately
-reducing this value can improve performance.
+No any behavior to variable occupied in z_erofs_attach_page() which
+is only caller to z_erofs_pagevec_enqueue().
 
-Decreasing this value will reduce the compression ratio (except
-when input_size <LZ4_DISTANCE_MAX). But considering that erofs
-currently only supports 4k output, reducing this value will not
-significantly reduce the compression benefits.
-
-The maximum value of LZ4_DISTANCE_MAX defined by lz4 is 64k, and
-we can only reduce this value. For the old kernel, it just can't
-reduce the memory allocation during rolling decompression without
-affecting the decompression result.
-
-Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-Signed-off-by: Guo Weichao <guoweichao@oppo.com>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
+Signed-off-by: Yue Hu <huyue2@yulong.com>
 ---
-changes since v1:
- - fix missing LZ4_DISTANCE_MAX definition for lz4hc reported
-   by travis CI.
+ fs/erofs/zdata.c | 4 +---
+ fs/erofs/zpvec.h | 5 +----
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
- include/erofs/internal.h | 1 +
- include/erofs_fs.h       | 3 ++-
- lib/compressor_lz4.c     | 5 +++++
- lib/compressor_lz4hc.c   | 6 ++++++
- mkfs/main.c              | 1 +
- 5 files changed, 15 insertions(+), 1 deletion(-)
-
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index ac5b270329e2..3849980d8eab 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -79,6 +79,7 @@ struct erofs_sb_info {
- 	u64 inos;
- 
- 	u8 uuid[16];
-+	u16 lz4_max_distance;
- };
- 
- /* global sbi */
-diff --git a/include/erofs_fs.h b/include/erofs_fs.h
-index a69f179a51a5..ae2305c1eb79 100644
---- a/include/erofs_fs.h
-+++ b/include/erofs_fs.h
-@@ -41,7 +41,8 @@ struct erofs_super_block {
- 	__u8 uuid[16];          /* 128-bit uuid for volume */
- 	__u8 volume_name[16];   /* volume name */
- 	__le32 feature_incompat;
--	__u8 reserved2[44];
-+	__le16 lz4_max_distance;
-+	__u8 reserved2[42];
- };
- 
- /*
-diff --git a/lib/compressor_lz4.c b/lib/compressor_lz4.c
-index 8540a0d01cbb..292d0f27fe0e 100644
---- a/lib/compressor_lz4.c
-+++ b/lib/compressor_lz4.c
-@@ -10,6 +10,10 @@
- #include "erofs/internal.h"
- #include "compressor.h"
- 
-+#ifndef LZ4_DISTANCE_MAX	/* history window size */
-+#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
-+#endif
-+
- static int lz4_compress_destsize(struct erofs_compress *c,
- 				 int compression_level,
- 				 void *src, unsigned int *srcsize,
-@@ -32,6 +36,7 @@ static int compressor_lz4_exit(struct erofs_compress *c)
- static int compressor_lz4_init(struct erofs_compress *c)
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 3851e1a..e9231da 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -298,7 +298,6 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+ 			       enum z_erofs_page_type type)
  {
- 	c->alg = &erofs_compressor_lz4;
-+	sbi.lz4_max_distance = LZ4_DISTANCE_MAX;
- 	return 0;
- }
+ 	int ret;
+-	bool occupied;
  
-diff --git a/lib/compressor_lz4hc.c b/lib/compressor_lz4hc.c
-index 6680563986c3..14c3a71b0a80 100644
---- a/lib/compressor_lz4hc.c
-+++ b/lib/compressor_lz4hc.c
-@@ -11,6 +11,10 @@
- #include "erofs/internal.h"
- #include "compressor.h"
+ 	/* give priority for inplaceio */
+ 	if (clt->mode >= COLLECT_PRIMARY &&
+@@ -306,8 +305,7 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+ 	    z_erofs_try_inplace_io(clt, page))
+ 		return 0;
  
-+#ifndef LZ4_DISTANCE_MAX	/* history window size */
-+#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
-+#endif
-+
- static int lz4hc_compress_destsize(struct erofs_compress *c,
- 				   int compression_level,
- 				   void *src,
-@@ -44,6 +48,8 @@ static int compressor_lz4hc_init(struct erofs_compress *c)
- 	c->private_data = LZ4_createStreamHC();
- 	if (!c->private_data)
- 		return -ENOMEM;
-+
-+	sbi.lz4_max_distance = LZ4_DISTANCE_MAX;
- 	return 0;
- }
+-	ret = z_erofs_pagevec_enqueue(&clt->vector,
+-				      page, type, &occupied);
++	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
+ 	clt->cl->vcnt += (unsigned int)ret;
  
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 6bc179db8dc3..8a9611f0f3d0 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -322,6 +322,7 @@ int erofs_mkfs_update_super_block(struct erofs_buffer_head *bh,
- 		.feature_incompat = cpu_to_le32(sbi.feature_incompat),
- 		.feature_compat = cpu_to_le32(sbi.feature_compat &
- 					      ~EROFS_FEATURE_COMPAT_SB_CHKSUM),
-+		.lz4_max_distance = cpu_to_le16(sbi.lz4_max_distance),
- 	};
- 	const unsigned int sb_blksize =
- 		round_up(EROFS_SUPER_END, EROFS_BLKSIZ);
+ 	return ret ? 0 : -EAGAIN;
+diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
+index 1d67cbd..95a6207 100644
+--- a/fs/erofs/zpvec.h
++++ b/fs/erofs/zpvec.h
+@@ -107,10 +107,8 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
+ 
+ static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 					   struct page *page,
+-					   enum z_erofs_page_type type,
+-					   bool *occupied)
++					   enum z_erofs_page_type type)
+ {
+-	*occupied = false;
+ 	if (!ctor->next && type)
+ 		if (ctor->index + 1 == ctor->nr)
+ 			return false;
+@@ -125,7 +123,6 @@ static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 	/* should remind that collector->next never equal to 1, 2 */
+ 	if (type == (uintptr_t)ctor->next) {
+ 		ctor->next = page;
+-		*occupied = true;
+ 	}
+ 	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
+ 	return true;
 -- 
-2.20.1
+1.9.1
 
