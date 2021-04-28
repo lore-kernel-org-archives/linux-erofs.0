@@ -1,4 +1,4 @@
-Return-Path: <SRS0=6tRW=JY=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=vkr2=JZ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D23A4C433B4
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Apr 2021 02:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D689C433B4
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:03:58 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 59BD461289
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Apr 2021 02:50:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 59BD461289
+	by mail.kernel.org (Postfix) with ESMTPS id A5D5D613F9
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:03:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A5D5D613F9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FTmTH0V1Fz2yx9
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Apr 2021 12:50:11 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FVQ3w2rsvz2yx2
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 14:03:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FW0guIzJ;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=UIC2R8fo;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=FW0guIzJ; 
+ header.s=k20201202 header.b=UIC2R8fo; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FTmTD6sBfz2xZB
- for <linux-erofs@lists.ozlabs.org>; Tue, 27 Apr 2021 12:50:08 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC8BA6023B;
- Tue, 27 Apr 2021 02:50:05 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FVQ3t5Gcrz2xg6
+ for <linux-erofs@lists.ozlabs.org>; Wed, 28 Apr 2021 14:03:54 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C78661078;
+ Wed, 28 Apr 2021 04:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1619491806;
- bh=jNYn19U4dhZVGahgF+rsxkUDVtUaGkaSyCxD+ycuX/4=;
+ s=k20201202; t=1619582632;
+ bh=LdzSLi7PgoSn/22ipbiZLp8yzYiOPTRphKu5v+e6W5o=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=FW0guIzJv0WZn0/CwuJHe/wIFaIAq+OcE4B8J5iYgsudVq/5yALX0eLAh1UkLkX6e
- NROKiDwPaix0rWtonSu7X6m/X0bnf03Ey4VEWY+jv4EwtcYQ4WyahJBci0mlwycVjs
- 5Z5qIoi/fyC5mt80qOKs6tEoex/kWWqJjdGw89PAK5fLY9zsHW9zh5kFWsYSQB3CDm
- kouuqYGL6XrxbUWff29H+bEws6HIg5MxkqBb+zc4oki5t/47EWUrb1HwXilQaKDfu1
- 9f8KAJJjGluIOqXXkZoQGFYA06IkG3fWHOk/gb7uR5+a6dD6aBmaU24WdS+EMzz7pj
- nBmdw3KZ1wrEg==
+ b=UIC2R8foXfwZClR38fwTf2AL10DvhbjE0MN1PMP9jn780SRlHumte+wL5+a8o38jR
+ hpRf8LrIslVHtaZmo6UfjvrKjOrZTYGUBk+gzNJ6nZ/iP4yUnH5n/vJNE4WhzHs7J/
+ bOxjr4yAtX4oV5uTIZJlb6UBzPMOu+b4WfQlro61jLDsyz+ewk6BBoHAXGjDbksdHZ
+ hhHasGQTIx10Lk9IiWdTC3d2OTT+ZnkqW98FxZiPuWhR4C4FEV0lf9run8HLsu5rQL
+ Sv3pTyvqN5he7mjg13I+3WoeS0+5kVV4E/MWzRbU48/alF5pmZpM/4nJXcKK+UqVxs
+ 0c6cbgii0t3hg==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org,
 	Li Guifu <bluce.liguifu@huawei.com>
-Subject: [PATCH v2 2/3] erofs-utils: warn out experimental big pcluster
-Date: Tue, 27 Apr 2021 10:49:59 +0800
-Message-Id: <20210427024959.10885-1-xiang@kernel.org>
+Subject: [PATCH v3 2/5] erofs-utils: warn out experimental big pcluster
+Date: Wed, 28 Apr 2021 12:03:42 +0800
+Message-Id: <20210428040345.4047-2-xiang@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210427023722.7996-2-xiang@kernel.org>
-References: <20210427023722.7996-2-xiang@kernel.org>
+In-Reply-To: <20210428040345.4047-1-xiang@kernel.org>
+References: <20210428040345.4047-1-xiang@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -79,9 +79,6 @@ logging level to 2 in order to print warn messages.
 
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
-v2:
- - use erofs_warn() and set default dbglevel to 2.
-
  lib/compress.c   | 2 ++
  lib/config.c     | 2 +-
  man/mkfs.erofs.1 | 3 ++-
