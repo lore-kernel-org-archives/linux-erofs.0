@@ -7,53 +7,56 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A22C2C43460
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11CA1C433ED
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:04:01 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 22A8961078
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:03:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 22A8961078
+	by mail.kernel.org (Postfix) with ESMTPS id A58E261078
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 04:04:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A58E261078
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FVQ3x6XJcz300C
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 14:03:57 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FVQ3z343Hz2ym4
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Apr 2021 14:03:59 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=LwfX78xz;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=WtXAYBZd;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=LwfX78xz; 
+ header.s=k20201202 header.b=WtXAYBZd; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FVQ3t5JSvz2yYc
- for <linux-erofs@lists.ozlabs.org>; Wed, 28 Apr 2021 14:03:54 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6137613C5;
- Wed, 28 Apr 2021 04:03:49 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FVQ3w3JKvz2yx9
+ for <linux-erofs@lists.ozlabs.org>; Wed, 28 Apr 2021 14:03:55 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75265613F9;
+ Wed, 28 Apr 2021 04:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1619582630;
- bh=kW4waYApMV+LHrJe+lsqQTspTkGpF1dZjnXg+v3qAPA=;
- h=From:To:Cc:Subject:Date:From;
- b=LwfX78xz6YLWS1f8XpbKT484BD23bRXjVn1Vt9fB/B4pcISqKhcaKMEG/RAharySn
- LHHk6EdqVv8ZoJJww7UnPHWcAYkR8+YysHZq0RMEo/EgQzVDPSb5FxAvETCnsQ1P7q
- l8UswnaIJADxRhu/vkH3Po0/8S8vyeNwNcmsE2MwM2+WpkAZrBmjEhiByyHRoywNlU
- NyL3UMjIEgBlfzn0W3Xkzj4IwaCAr3OoJWbmN4zRzmJ+kZT9LLgZevrIltKXpwyA9p
- tURbwlTzpO44OCc9N6wJ69mYXaLEYJ29p/W6cjijk70oOWe/gvh8OLn96vqSsrE+se
- E+gl8kqBOWSXQ==
+ s=k20201202; t=1619582634;
+ bh=Hiptm4aYTdiQEZXis1/XdouCn7EVs1t6ziX6CDTNHrA=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=WtXAYBZdTOSCtf2Dr/l2yFplc4k3g5htGWw0yvVdXdDrCv93QjjTAW0E/AEKDJ6JH
+ mJirU6v1bnxMyKiald6gjzm+NolJWMUzZbmWyKn1p6+wCpwfb+vsmxoSg1Tmugj2QV
+ BmQ+L8Y+9yu6OIguKZCVgptHMYRWrVMJgjEA2WrZBbu7IyQFKArITDFP2Hc4BfePrJ
+ wZN0ZVsklHhTcUjlqkpiTMmQRjjnEA4d4MQiM7qvVZAIfc1dMKNcR4y7dmWfppc3n5
+ Xo/nur5DV0hM7ptefP6/2bd6hlBGu6IsV9RRdH9R8s3JnVCjOu/GxzV302xicglfhs
+ Eu89PF496QzRA==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org,
 	Li Guifu <bluce.liguifu@huawei.com>
-Subject: [PATCH v3 1/5] erofs-utils: sync up with in-kernel erofs_fs.h
-Date: Wed, 28 Apr 2021 12:03:41 +0800
-Message-Id: <20210428040345.4047-1-xiang@kernel.org>
+Subject: [PATCH v3 3/5] erofs-utils: manpage: add missing -C option for big
+ pcluster
+Date: Wed, 28 Apr 2021 12:03:43 +0800
+Message-Id: <20210428040345.4047-3-xiang@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210428040345.4047-1-xiang@kernel.org>
+References: <20210428040345.4047-1-xiang@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -72,75 +75,28 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This matches the latest in-kernel version.
+Update the manpage as well.
 
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- include/erofs_fs.h | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ man/mkfs.erofs.1 | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/erofs_fs.h b/include/erofs_fs.h
-index 52da7abaac92..18fc1820c58c 100644
---- a/include/erofs_fs.h
-+++ b/include/erofs_fs.h
-@@ -27,13 +27,15 @@
- 	 EROFS_FEATURE_INCOMPAT_COMPR_CFGS | \
- 	 EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER)
- 
--/* 128-byte erofs on-disk super block */
-+#define EROFS_SB_EXTSLOT_SIZE	16
-+
-+/* erofs on-disk super block (currently 128 bytes) */
- struct erofs_super_block {
- 	__le32 magic;           /* file system magic number */
- 	__le32 checksum;        /* crc32c(super_block) */
- 	__le32 feature_compat;
- 	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
--	__u8 reserved;
-+	__u8 sb_extslots;	/* superblock size = 128 + sb_extslots * 16 */
- 
- 	__le16 root_nid;	/* nid of root directory */
- 	__le64 inos;            /* total valid ino # (== f_files - f_favail) */
-@@ -49,8 +51,9 @@ struct erofs_super_block {
- 	union {
- 		/* bitmap for available compression algorithms */
- 		__le16 available_compr_algs;
-+		/* customized sliding window size instead of 64k by default */
- 		__le16 lz4_max_distance;
--	} u1;
-+	} __packed u1;
- 	__u8 reserved2[42];
- };
- 
-@@ -87,6 +90,9 @@ static inline bool erofs_inode_is_data_compressed(unsigned int datamode)
- #define EROFS_I_VERSION_BIT             0
- #define EROFS_I_DATALAYOUT_BIT          1
- 
-+#define EROFS_I_ALL	\
-+	((1 << (EROFS_I_DATALAYOUT_BIT + EROFS_I_DATALAYOUT_BITS)) - 1)
-+
- /* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_compact {
- 	__le16 i_format;	/* inode format hints */
-@@ -209,6 +215,7 @@ enum {
- 	Z_EROFS_COMPRESSION_LZ4	= 0,
- 	Z_EROFS_COMPRESSION_MAX
- };
-+#define Z_EROFS_ALL_COMPR_ALGS		(1 << (Z_EROFS_COMPRESSION_MAX - 1))
- 
- /* 14 bytes (+ length field = 16 bytes) */
- struct z_erofs_lz4_cfgs {
-@@ -238,9 +245,7 @@ struct z_erofs_map_header {
- 	__u8	h_algorithmtype;
- 	/*
- 	 * bit 0-2 : logical cluster bits - 12, e.g. 0 for 4096;
--	 * bit 3-4 : (physical - logical) cluster bits of head 1:
--	 *       For example, if logical clustersize = 4096, 1 for 8192.
--	 * bit 5-7 : (physical - logical) cluster bits of head 2.
-+	 * bit 3-7 : reserved.
- 	 */
- 	__u8	h_clusterbits;
- };
+diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
+index 2520b6a08974..4f2e43565799 100644
+--- a/man/mkfs.erofs.1
++++ b/man/mkfs.erofs.1
+@@ -24,6 +24,10 @@ from \fISOURCE\fR directory.
+ Set an algorithm for file compression, which can be set with an optional
+ compression level separated by a comma.
+ .TP
++.BI "\-C " max-pcluster-size
++Specify the maximum size of compress physical cluster in bytes. It may enable
++big pcluster feature if needed (Linux v5.13+).
++.TP
+ .BI "\-d " #
+ Specify the level of debugging messages. The default is 2, which shows basic
+ warning messages.
 -- 
 2.20.1
 
