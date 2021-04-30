@@ -2,62 +2,71 @@ Return-Path: <SRS0=6/AP=J3=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CED5EC433ED
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Apr 2021 04:04:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16769C433ED
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Apr 2021 16:15:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 70F6E611AC
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Apr 2021 04:04:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 70F6E611AC
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 45BC561468
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Apr 2021 16:15:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 45BC561468
+Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FWdz80mf2z2yxY
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Apr 2021 14:04:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IDiwiPEQ;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FWyBX068Mz2yyL
+	for <linux-erofs@archiver.kernel.org>; Sat,  1 May 2021 02:15:00 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1619799300;
+	bh=0fbQ05b6VEzzv+PNawFHM489kH8aiSlSB6CV4mxDpXU=;
+	h=Subject:To:References:Date:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
+	 From;
+	b=hUDFvrllsi6xS2rOl5GsS+WAhxl3kq+lptzaywELU+LFfYc7SDfmtJTqtzrIOYiq3
+	 9cTuJlxcpwkakWNc/TvinZFkQkA6GaeAli4/sFJQWtfj6z5h48M+Xg31Sa84zkXy4x
+	 1kndM7y6AWdpcoPHqp/9kX83pTFE/DxeNo6mmFQfrRDQFZ4bWoOKdUGIFalNWjkcAQ
+	 bDGSSb1fefr+QMCff+HFY5GHFnWGI0uzvTIlwPTI7VXrLe1cj/h1Kgx7iSjNR4BZ6K
+	 +szCh6ecT9tsYql923F1MR434gYb/Itn5efy4IckZBLNxfU0Q65kE5zxB35MnrNyfU
+	 ixyK7WypCFgEQ==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=IDiwiPEQ; 
- dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=aliyun.com (client-ip=115.124.30.5;
+ helo=out30-5.freemail.mail.aliyun.com; envelope-from=bluce.lee@aliyun.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=aliyun.com header.i=@aliyun.com header.a=rsa-sha256
+ header.s=s1024 header.b=Mh8JmoJr; dkim-atps=neutral
+Received: from out30-5.freemail.mail.aliyun.com
+ (out30-5.freemail.mail.aliyun.com [115.124.30.5])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FWdz61GFFz2yyj
- for <linux-erofs@lists.ozlabs.org>; Fri, 30 Apr 2021 14:04:01 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4DBF61441;
- Fri, 30 Apr 2021 04:03:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1619755440;
- bh=H8mgb1DnwAxCW49sTNCp4fxCn6yzcQzu1iqc2tKfnOc=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=IDiwiPEQUjh5wN11i1aX3PKK7fL26VILxWzaEN+RNpTewWe2sF6/y0qAklPStOW1w
- HYaNnXgzKPbQjo0dx/hQTPgS5jwRPTRa2X3M7RcAgwk1PS50p/DWNYNKRaKH2xjHQB
- z2TXE1/yaHLYga8LA7fpwVibmR4XRAMPG9MkJpMXd9TEViw11HKS+oz38KX0R5zsms
- i+AX6gJ4R57WQoCJxSIXMb6JEN9KQeGufeA0iiMCTdiZ92JLT/EdAyWnIaL/nx2os+
- /lZzGyCfI2M0VIpaxybGQ9LlRzO+Rla4BkuufEb0zsTsoct6FMO9lD+iDFCIM+LQ+J
- Sk0/SgacdAGNw==
-From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org,
-	Li Guifu <bluce.liguifu@huawei.com>
-Subject: [PATCH v4 5/5] erofs-utils: manpage: add manual for erofsfuse
-Date: Fri, 30 Apr 2021 12:03:45 +0800
-Message-Id: <20210430040345.17120-5-xiang@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210430040345.17120-1-xiang@kernel.org>
-References: <20210430040345.17120-1-xiang@kernel.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FWyBS1FhFz2y6N
+ for <linux-erofs@lists.ozlabs.org>; Sat,  1 May 2021 02:14:54 +1000 (AEST)
+X-Alimail-AntiSpam: AC=CONTINUE; BC=0.2507601|-1; CH=green; DM=|CONTINUE|false|;
+ DS=CONTINUE|ham_enroll_verification|0.0543826-0.00365727-0.94196;
+ FP=0|0|0|0|0|-1|-1|-1; HT=e01e04423; MF=bluce.lee@aliyun.com; NM=1; PH=DS;
+ RN=3; RT=3; SR=0; TI=SMTPD_---0UXHjxAA_1619799287; 
+Received: from 192.168.3.32(mailfrom:bluce.lee@aliyun.com
+ fp:SMTPD_---0UXHjxAA_1619799287) by smtp.aliyun-inc.com(127.0.0.1);
+ Sat, 01 May 2021 00:14:47 +0800
+Subject: Re: [PATCH 1/3] erofs-utils: sync up with in-kernel erofs_fs.h
+To: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org,
+ Li Guifu <bluce.liguifu@huawei.com>
+References: <20210427023722.7996-1-xiang@kernel.org>
+Message-ID: <20d517a9-499b-d5e3-f3ba-687a31fb036d@aliyun.com>
+Date: Sat, 1 May 2021 00:14:47 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210427023722.7996-1-xiang@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,69 +78,23 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <xiang@kernel.org>
+From: Li GuiFu via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Li GuiFu <bluce.lee@aliyun.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This patch adds missing erofsfuse manpage.
 
-Signed-off-by: Gao Xiang <xiang@kernel.org>
----
- man/erofsfuse.1 | 44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
- create mode 100644 man/erofsfuse.1
 
-diff --git a/man/erofsfuse.1 b/man/erofsfuse.1
-new file mode 100644
-index 000000000000..6bd48b0460bd
---- /dev/null
-+++ b/man/erofsfuse.1
-@@ -0,0 +1,44 @@
-+.\" Copyright (c) 2021 Gao Xiang <xiang@kernel.org>
-+.\"
-+.TH EROFSFUSE 1
-+.SH NAME
-+erofsfuse \- FUSE file system client for erofs file system
-+.SH SYNOPSIS
-+\fBerofsfuse\fR [\fIOPTIONS\fR] \fIDEVICE\fR \fIMOUNTPOINT\fR
-+.SH DESCRIPTION
-+.B erofsfuse
-+is a FUSE file system client that supports reading from devices or image files
-+containing erofs file system.
-+.SH OPTIONS
-+.SS "general options:"
-+.TP
-+\fB\-o\fR opt,[opt...]
-+mount options
-+.TP
-+\fB\-h\fR   \fB\-\-help\fR
-+display help and exit
-+.SS "erofsfuse options:"
-+.TP
-+.BI "\-\-dbglevel=" #
-+Specify the level of debugging messages. The default is 2, which shows basic
-+warning messages.
-+.SS "FUSE options:"
-+.TP
-+\fB-d -o\fR debug
-+enable debug output (implies -f)
-+.TP
-+\fB-f\fR
-+foreground operation
-+.TP
-+\fB-s\fR
-+disable multi-threaded operation
-+.P
-+For other FUSE options please see
-+.BR mount.fuse (8)
-+or see the output of
-+.I erofsfuse \-\-help
-+.SH AVAILABILITY
-+\fBerofsfuse\fR is part of erofs-utils package and is available from
-+git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git.
-+.SH SEE ALSO
-+.BR mount.fuse (8)
--- 
-2.20.1
+On 2021/4/27 10:37, Gao Xiang wrote:
+> This matches the latest in-kernel version.
+> 
+> Signed-off-by: Gao Xiang <xiang@kernel.org>
+> ---
+>  include/erofs_fs.h | 17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
+> 
+It looks good
+Reviewed-by: Li Guifu <bluce.lee@aliyun.com>
 
+Thanks,
