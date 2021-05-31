@@ -1,58 +1,62 @@
-Return-Path: <SRS0=0voy=KR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=1sIR=K2=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62416C2B9F2
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 May 2021 13:09:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D01CC47082
+	for <linux-erofs@archiver.kernel.org>; Mon, 31 May 2021 14:31:33 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6342D6128A
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 May 2021 13:09:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6342D6128A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0E88D601FC
+	for <linux-erofs@archiver.kernel.org>; Mon, 31 May 2021 14:31:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E88D601FC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4FnP2D6b39z2yxx
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 May 2021 23:09:24 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4FtyQr0jhCz2ysq
+	for <linux-erofs@archiver.kernel.org>; Tue,  1 Jun 2021 00:31:32 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ZDnKmzm+;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mga17.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=k20201202 header.b=ZDnKmzm+; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4FnP276S7Xz2yYJ
- for <linux-erofs@lists.ozlabs.org>; Sat, 22 May 2021 23:09:12 +1000 (AEST)
-IronPort-SDR: xL4+YDTlmnQUZhtOdw0AhBwfX/EvMxtjccxQtLPuqyOBFxQgclC5nnzpM+YqGRCB6sHGXTeJq3
- HDkChToIgIvw==
-X-IronPort-AV: E=McAfee;i="6200,9189,9991"; a="181960037"
-X-IronPort-AV: E=Sophos;i="5.82,319,1613462400"; d="scan'208";a="181960037"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
- by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 May 2021 06:09:08 -0700
-IronPort-SDR: LGs2WjlRoHquOgFWr+356OKZ4yViGosVZh6nbYA4Wy4d+UnQH7J7YDPJU3L5Rwpu0Nf6FlNKuS
- aWWzTYHbLIkA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,319,1613462400"; d="scan'208";a="412952123"
-Received: from lkp-server02.sh.intel.com (HELO 1ec8406c5392) ([10.239.97.151])
- by orsmga002.jf.intel.com with ESMTP; 22 May 2021 06:09:07 -0700
-Received: from kbuild by 1ec8406c5392 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1lkRNL-0000DI-0k; Sat, 22 May 2021 13:09:07 +0000
-Date: Sat, 22 May 2021 21:08:40 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <xiang@kernel.org>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- c439c3306fea10eead49d0c628823c1ac95a39c2
-Message-ID: <60a90258.u91VdAKW4ANBoND0%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4FtyQm1v4Sz2xb8
+ for <linux-erofs@lists.ozlabs.org>; Tue,  1 Jun 2021 00:31:27 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3976461042;
+ Mon, 31 May 2021 14:31:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1622471485;
+ bh=vOtIEAH/8MnqIBK3exH+T8JWCpnoQ7/hXA5Z+wsayH4=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=ZDnKmzm+Ei9CQ5L5lQSqAHj5aRA19ctW6C0xSgoevmWmq0GJtYlR6ul2/4YIH0IRf
+ vzS2uR2RpL9sBnRywg9A7K2gbPcbjrfW5dMTFI7vlx0xoAGL6QVPJLJvyxofFzrafl
+ BAueUw48sznzLB3QJF1gBVzlJqzyQ8GAlbjLapLROIYTFO87S/zeVybM8/h737ErI3
+ u4ntJ/Z8yMaK/M4tYHzS6HhQRQksQ8QIMcwlYvvHYLvAUfDknFUkDZqHrFSJ52Ku5X
+ qVdVKH1IuufBX2pZFldxAr4KLo1s9sDot7W235sTSiOOqjbo2CRR2ZeKZikfeNDQCp
+ MwUOOqSx1pNZg==
+From: Gao Xiang <xiang@kernel.org>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 2/3] erofs-utils: README: big pcluster feature update
+Date: Mon, 31 May 2021 22:31:16 +0800
+Message-Id: <20210531143117.6327-2-xiang@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210531143117.6327-1-xiang@kernel.org>
+References: <20210531143117.6327-1-xiang@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,124 +68,48 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: c439c3306fea10eead49d0c628823c1ac95a39c2  erofs: remove the occupied parameter from z_erofs_pagevec_enqueue()
+Add some description for end users to know its usage.
 
-elapsed time: 2044m
-
-configs tested: 98
-configs skipped: 2
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-arm                            mmp2_defconfig
-powerpc                        warp_defconfig
-powerpc                     skiroot_defconfig
-arm                            mps2_defconfig
-powerpc                 mpc836x_mds_defconfig
-sh                           se7705_defconfig
-powerpc                     tqm5200_defconfig
-arm                             mxs_defconfig
-arm                        mvebu_v5_defconfig
-parisc                           allyesconfig
-arm                        spear6xx_defconfig
-mips                      pic32mzda_defconfig
-arm                           stm32_defconfig
-m68k                          sun3x_defconfig
-sparc                       sparc64_defconfig
-powerpc                       maple_defconfig
-arc                        vdk_hs38_defconfig
-parisc                generic-64bit_defconfig
-arm                           viper_defconfig
-s390                                defconfig
-x86_64                            allnoconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a001-20210521
-i386                 randconfig-a005-20210521
-i386                 randconfig-a002-20210521
-i386                 randconfig-a006-20210521
-i386                 randconfig-a003-20210521
-i386                 randconfig-a004-20210521
-x86_64               randconfig-a013-20210521
-x86_64               randconfig-a014-20210521
-x86_64               randconfig-a012-20210521
-x86_64               randconfig-a016-20210521
-x86_64               randconfig-a015-20210521
-x86_64               randconfig-a011-20210521
-i386                 randconfig-a016-20210521
-i386                 randconfig-a011-20210521
-i386                 randconfig-a015-20210521
-i386                 randconfig-a012-20210521
-i386                 randconfig-a014-20210521
-i386                 randconfig-a013-20210521
-riscv                    nommu_k210_defconfig
-riscv                            allyesconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-riscv                            allmodconfig
-um                               allmodconfig
-um                                allnoconfig
-um                               allyesconfig
-um                                  defconfig
-x86_64                           allyesconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
-
-clang tested configs:
-x86_64               randconfig-b001-20210521
-x86_64               randconfig-a006-20210521
-x86_64               randconfig-a001-20210521
-x86_64               randconfig-a005-20210521
-x86_64               randconfig-a003-20210521
-x86_64               randconfig-a004-20210521
-x86_64               randconfig-a002-20210521
-
+Link: https://lore.kernel.org/r/20210522055057.25004-2-xiang@kernel.org
+Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+ README | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/README b/README
+index bcf30e11aa52..af9cdf11c78a 100644
+--- a/README
++++ b/README
+@@ -74,6 +74,24 @@ In addition, you could specify a higher compression level to get a
+ (slightly) better compression ratio than the default level, e.g.
+  $ mkfs.erofs -zlz4hc,12 foo.erofs.img foo/
+ 
++How to generate EROFS big pcluster images (Linux 5.13+)
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++In order to get much better compression ratios (thus better sequential
++read performance for common storage devices), big pluster feature has
++been introduced since linux-5.13, which is not forward-compatible with
++old kernels.
++
++In details, -C is used to specify the maximum size of each big pcluster
++in bytes, e.g.
++ $ mkfs.erofs -zlz4hc -C65536 foo.erofs.img foo/
++
++So in that case, pcluster size can be 64KiB at most.
++
++Note that large pcluster size can cause bad random performance, so
++please evaluate carefully in advance. Or make your own per-(sub)file
++compression strategies according to file access patterns if needed.
++
+ How to generate legacy EROFS images (Linux 4.19+)
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-- 
+2.20.1
+
