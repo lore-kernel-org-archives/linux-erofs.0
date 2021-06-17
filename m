@@ -1,53 +1,86 @@
-Return-Path: <SRS0=O26p=LK=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=6U2p=LL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CF3EC48BE8
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Jun 2021 12:54:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2632C2B9F4
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 08:32:13 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 15A85613C1
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Jun 2021 12:54:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 15A85613C1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 64898613DF
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 08:32:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 64898613DF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4G4lWt46WXz3bV0
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Jun 2021 22:54:50 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4G5FfN4w0lz3033
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 18:32:12 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=c3rKWTXa;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
- helo=out30-42.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42d;
+ helo=mail-pf1-x42d.google.com; envelope-from=zbestahu@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=c3rKWTXa; dkim-atps=neutral
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com
+ [IPv6:2607:f8b0:4864:20::42d])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4G4lWn42szz2xvb
- for <linux-erofs@lists.ozlabs.org>; Wed, 16 Jun 2021 22:54:45 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04420; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UccglIQ_1623848067; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UccglIQ_1623848067) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 16 Jun 2021 20:54:28 +0800
-Date: Wed, 16 Jun 2021 20:54:26 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Yue Hu <zbestahu@gmail.com>
-Subject: Re: [PATCH] erofs-utils: correct the only tail-end data comment in
- __allocate_inode_bh_data()
-Message-ID: <YMn0giPxXljefwK7@B-P7TQMD6M-0146.local>
-References: <20210616080112.941-1-zbestahu@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4G5FfJ6201z2yxL
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jun 2021 18:32:07 +1000 (AEST)
+Received: by mail-pf1-x42d.google.com with SMTP id u18so4396526pfk.11
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jun 2021 01:32:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=glZyjdypy92mNPNqQNw06jJZZ/iEMRko6EpLAEVWzuM=;
+ b=c3rKWTXaS35HCZSUJbSsFKn7DQFvHU9f2IfdYbaU8E1NOH0cFY3379vOcfSS4MhuAF
+ SN1ui31RGo7ZSkLDQCTdMc6+oY3et7pgCt//98/ITiLzZc4FIm9ROfRIddlNAzHigmSV
+ sX7cXLZSYz5edt9agw8oqQg/wfhynyZefAlg0HuTg9rEOcAa3C/arH2EVTVFkxfrDt9/
+ +dCr473i38SHVEXaBY6gC4PKh8EZOLc8/61TPJ6FMazGki5rbBVnyBlD5gaFtUiX4GkA
+ ibx2lDwYbDlP8V28isoFafUVLh+GfEKZ3C40VUociMP0Ba46wFWrfIC6POahwSb1nsRR
+ s9zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=glZyjdypy92mNPNqQNw06jJZZ/iEMRko6EpLAEVWzuM=;
+ b=QbdRW9uIMrJeactBJvAyQPBTEU99saSqr5/x+dgFyva0m6kuSUDQLpr26LuDsTFUDY
+ GWyJ5lbFCLp/erp+rsWWRRU5Ng3hQZs38eP31aSlEDk+wR2XtLX8ywfGLUd0ZY6YG/lV
+ s4w0UgZsh8nmdzMoEmKrn8Xv2fDkSZIw+o48JHRiC3KGzrFJxZPeq82gnBy2zl6ZwAxs
+ HU1/crp1Y97Mef3kAH02Pjg8xoAFkJm5Cua4HqSuY9OuvsDBH6cPjrMPFGcYHI+X7Vqe
+ 7yaZOsJNQMjOddmsX4jvSh1nZpLLHixqNsLoUBB1wQZycgawi1/7UWMxTRqTbbWEQw6q
+ O8LQ==
+X-Gm-Message-State: AOAM533whMYwgY+qcCiLT9tqk68VwNgVTQbH1vRMugAmD0qH/vJVQP1V
+ Jn+DvKejDJefuoci0oyC3+ICcXmWSNCuEQ==
+X-Google-Smtp-Source: ABdhPJx5cFE93cUrcO3Wc2CB+vXXiEyTJfti9O0J3PY03owO5pNtmI9Da8Mlx2V5v82TWI93OIVPDA==
+X-Received: by 2002:aa7:949c:0:b029:2fa:c881:dd0 with SMTP id
+ z28-20020aa7949c0000b02902fac8810dd0mr4142956pfk.9.1623918724531; 
+ Thu, 17 Jun 2021 01:32:04 -0700 (PDT)
+Received: from tj.ccdomain.com ([103.220.76.197])
+ by smtp.gmail.com with ESMTPSA id v1sm4165641pjg.19.2021.06.17.01.32.00
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 17 Jun 2021 01:32:04 -0700 (PDT)
+From: Yue Hu <zbestahu@gmail.com>
+To: linux-erofs@lists.ozlabs.org,
+	xiang@kernel.org
+Subject: [PATCH] erofs-utils: do not check ->idata_size for compressed files
+ in erofs_prepare_inode_buffer()
+Date: Thu, 17 Jun 2021 16:29:54 +0800
+Message-Id: <20210617082954.1001-1-zbestahu@gmail.com>
+X-Mailer: git-send-email 2.29.2.windows.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210616080112.941-1-zbestahu@gmail.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,21 +92,51 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: zbestahu@163.com, huyue2@yulong.com, xiang@kernel.org,
- linux-erofs@lists.ozlabs.org
+Cc: huyue2@yulong.com, zbestahu@163.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Jun 16, 2021 at 04:01:12PM +0800, Yue Hu wrote:
-> From: Yue Hu <huyue2@yulong.com>
-> 
-> nblocks = 0 means only tail-end data which may be inlined or not(ENOSPC).
-> Acturally, we also observed this non-inline tail-end data case.
-> 
-> Signed-off-by: Yue Hu <huyue2@yulong.com>
+From: Yue Hu <huyue2@yulong.com>
 
-Reviewed-by: Gao Xiang <xiang@kernel.org>
+erofs_write_compressed_file() will always set inode->idata_size = 0
+if succeed, that means no tail-end data for compressed files. So, no
+need to call erofs_prepare_tail_block() which is used to handle
+tail-end data for that case. Just skip it.
 
-Thanks,
-Gao Xiang
+Also, correct 'a inode' -> 'an inode'.
+
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+---
+ lib/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/inode.c b/lib/inode.c
+index b6108db..b5f66de 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -111,7 +111,7 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+ 	return d;
+ }
+ 
+-/* allocate main data for a inode */
++/* allocate main data for an inode */
+ static int __allocate_inode_bh_data(struct erofs_inode *inode,
+ 				    unsigned long nblocks)
+ {
+@@ -572,11 +572,11 @@ static int erofs_prepare_inode_buffer(struct erofs_inode *inode)
+ 		int ret;
+ 
+ 		inode->datalayout = EROFS_INODE_FLAT_PLAIN;
+-noinline:
+ 		/* expend an extra block for tail-end data */
+ 		ret = erofs_prepare_tail_block(inode);
+ 		if (ret)
+ 			return ret;
++noinline:
+ 		bh = erofs_balloc(INODE, inodesize, 0, 0);
+ 		if (IS_ERR(bh))
+ 			return PTR_ERR(bh);
+-- 
+1.9.1
+
