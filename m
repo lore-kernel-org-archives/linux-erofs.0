@@ -2,54 +2,89 @@ Return-Path: <SRS0=6U2p=LL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0A9CC2B9F4
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 09:31:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2E50C2B9F4
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 10:14:50 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5615360FE6
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 09:31:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5615360FE6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 173A6613EA
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 10:14:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 173A6613EA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4G5Gyz64d7z3c8p
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 19:31:39 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4G5Hwn3gh7z3bsW
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jun 2021 20:14:49 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=Yvil2jcN;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::536;
+ helo=mail-pg1-x536.google.com; envelope-from=zbestahu@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=Yvil2jcN; dkim-atps=neutral
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com
+ [IPv6:2607:f8b0:4864:20::536])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4G5Gxy1m6pz3brv
- for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jun 2021 19:30:45 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UciME3j_1623922227; 
-Received: from bogon(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UciME3j_1623922227) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 17 Jun 2021 17:30:28 +0800
-Date: Thu, 17 Jun 2021 17:30:26 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Yue Hu <zbestahu@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4G5Hwj0RFKz30C3
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jun 2021 20:14:44 +1000 (AEST)
+Received: by mail-pg1-x536.google.com with SMTP id q15so4546450pgg.12
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jun 2021 03:14:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=Uq1mh1fAP7ZZGx2a3h1U7Z6L+r4csC7jCRoxP3HapzE=;
+ b=Yvil2jcNkQd1teUMc2/NDIbQgcQNtPzQ2sKc5ZoFqCqXR62k7BWpqZ3xh3MQ4HDmGF
+ UjTKrV5+rM4a1J7U9R3BUgpwtx1IGJHXbvIjxkn7IxSDcPO1pBeQJLMm50+9ykXNRopA
+ fWmMzheun6mAdwTygw2Y9Z3HsJ+QVjzN9YkbGVy4GbZzruRqomE1fiXAJJCys047Vb0Z
+ LjXWFxq2C7Ta4fVZP2j6ChBe1NqEhsveLeBsESuhAwaTDEOc2j9ZQCADiSu+9/hTMweP
+ 7oIitQDwZPvcTX9r+5iSGZ9NULsZDkhy0P0y87+nQmebQLKqbexuvn9ttP4PreudGIRH
+ jL9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=Uq1mh1fAP7ZZGx2a3h1U7Z6L+r4csC7jCRoxP3HapzE=;
+ b=Pb75iB05MRGtrjoODp69tYW+2rh3l4JWiccjgB7gtQuBW468Mg8Lf2Y7qAeSEEEOlR
+ +mglo4ho3KaxmYKRGjsuQHED+2jBwqnWHjKVtohAb1GAQOjIcHXcexPb8EEFTykcBU8q
+ Y3TQD64v3ldrnOOtwQiTNVlojYvIwLVOUhvmXnA4W+S3xpxP9Sh+LabQguATzo4pYioX
+ G3QvJC7Rd5b8wHzgH0j/lO7HK79CEshMtjccDoAyN8zgVwp6pJsSsMkXSKmwKZmWVfVz
+ G2f2ZkMSGXgKQuR3ftYz4vc5SwUjidvTPukKLTbtNPuLqjd4yudIJb6WTcOcR6J1Ghuk
+ vb+A==
+X-Gm-Message-State: AOAM530jedE/bUTioBCzbQpndKtlmLdHgu8GGfaWn1JxlnuKq4gyGpSs
+ QdaylJarxO2G1TF/9ibFirE=
+X-Google-Smtp-Source: ABdhPJxK18J+SjdIHu5/m+DuqC7D0tQQ77YkXrF0/UAhQkQ8ZkWetTz9Kfg+DZ5eC/+1HDdqQqZg8A==
+X-Received: by 2002:aa7:93d2:0:b029:2ea:5909:ebfc with SMTP id
+ y18-20020aa793d20000b02902ea5909ebfcmr4634758pff.40.1623924879138; 
+ Thu, 17 Jun 2021 03:14:39 -0700 (PDT)
+Received: from localhost ([103.220.76.197])
+ by smtp.gmail.com with ESMTPSA id b9sm677798pfm.124.2021.06.17.03.14.31
+ (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+ Thu, 17 Jun 2021 03:14:38 -0700 (PDT)
+Date: Thu, 17 Jun 2021 18:14:17 +0800
+From: Yue Hu <zbestahu@gmail.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Subject: Re: [PATCH] erofs-utils: do not check ->idata_size for compressed
  files in erofs_prepare_inode_buffer()
-Message-ID: <YMsWMhNg6yC+osEK@bogon>
+Message-ID: <20210617181350.000005e6.zbestahu@gmail.com>
+In-Reply-To: <YMsWMhNg6yC+osEK@bogon>
 References: <20210617082954.1001-1-zbestahu@gmail.com> <YMsQHU+iSKE+FRO5@bogon>
  <20210617171555.0000673e.zbestahu@gmail.com>
- <YMsVhf2JgQOm1fDE@bogon>
+ <YMsVhf2JgQOm1fDE@bogon> <YMsWMhNg6yC+osEK@bogon>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YMsVhf2JgQOm1fDE@bogon>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -67,91 +102,100 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Jun 17, 2021 at 05:27:33PM +0800, Gao Xiang wrote:
-> On Thu, Jun 17, 2021 at 05:15:55PM +0800, Yue Hu wrote:
-> > On Thu, 17 Jun 2021 17:04:29 +0800
-> > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
-> > 
-> > > Hi Yue,
-> > > 
-> > > On Thu, Jun 17, 2021 at 04:29:54PM +0800, Yue Hu wrote:
-> > > > From: Yue Hu <huyue2@yulong.com>
-> > > > 
-> > > > erofs_write_compressed_file() will always set inode->idata_size = 0
-> > > > if succeed, that means no tail-end data for compressed files. So, no
-> > > > need to call erofs_prepare_tail_block() which is used to handle
-> > > > tail-end data for that case. Just skip it.  
-> > > 
-> > > Thanks for the patch, due to somewhat long time so I don't quite
-> > > remember the exact logic here now...
-> > > 
-> > > Yet from the description before, it's not strictly correct
-> > > since my original intention would be to support tail-packing
-> > > inline compressed data which is similar to uncompressed case
-> > > to decrease tail extent I/O and save more space.
-> > 
-> > nice.
-> > 
-> > > 
-> > > BTW, if you have some interest, would you like to implement it? :)
-> > 
-> > I don't know if i can finish it. But i would like to have a try :)
-> 
-> My rough thought is to try to inline the last tail compresseed
-> extent after the on-disk compressed extents, maybe we could let
-> it work for non-compact (legacy) compress index format cases...
+On Thu, 17 Jun 2021 17:30:26 +0800
+Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
 
-I mean try to implement non-compact (legacy) compress index format cases
-first.
+> On Thu, Jun 17, 2021 at 05:27:33PM +0800, Gao Xiang wrote:
+> > On Thu, Jun 17, 2021 at 05:15:55PM +0800, Yue Hu wrote:  
+> > > On Thu, 17 Jun 2021 17:04:29 +0800
+> > > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+> > >   
+> > > > Hi Yue,
+> > > > 
+> > > > On Thu, Jun 17, 2021 at 04:29:54PM +0800, Yue Hu wrote:  
+> > > > > From: Yue Hu <huyue2@yulong.com>
+> > > > > 
+> > > > > erofs_write_compressed_file() will always set inode->idata_size = 0
+> > > > > if succeed, that means no tail-end data for compressed files. So, no
+> > > > > need to call erofs_prepare_tail_block() which is used to handle
+> > > > > tail-end data for that case. Just skip it.    
+> > > > 
+> > > > Thanks for the patch, due to somewhat long time so I don't quite
+> > > > remember the exact logic here now...
+> > > > 
+> > > > Yet from the description before, it's not strictly correct
+> > > > since my original intention would be to support tail-packing
+> > > > inline compressed data which is similar to uncompressed case
+> > > > to decrease tail extent I/O and save more space.  
+> > > 
+> > > nice.
+> > >   
+> > > > 
+> > > > BTW, if you have some interest, would you like to implement it? :)  
+> > > 
+> > > I don't know if i can finish it. But i would like to have a try :)  
+> > 
+> > My rough thought is to try to inline the last tail compresseed
+> > extent after the on-disk compressed extents, maybe we could let
+> > it work for non-compact (legacy) compress index format cases...  
+> 
+> I mean try to implement non-compact (legacy) compress index format cases
+> first.
+
+Ok, let me try to implement it.
+
+Thanks.
 
 > 
-> Yeah, if you have extra time and interest, more ideas / thoughts /
-> discussions are always welcomed ;)
-> 
-> Thanks,
-> Gao Xiang
-> 
-> 
 > > 
-> > Thanks.
+> > Yeah, if you have extra time and interest, more ideas / thoughts /
+> > discussions are always welcomed ;)
 > > 
+> > Thanks,
+> > Gao Xiang
+> > 
+> >   
 > > > 
-> > > Thanks,
-> > > Gao Xiang
-> > > 
+> > > Thanks.
+> > >   
 > > > > 
-> > > > Also, correct 'a inode' -> 'an inode'.
-> > > > 
-> > > > Signed-off-by: Yue Hu <huyue2@yulong.com>
-> > > > ---
-> > > >  lib/inode.c | 4 ++--
-> > > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > > 
-> > > > diff --git a/lib/inode.c b/lib/inode.c
-> > > > index b6108db..b5f66de 100644
-> > > > --- a/lib/inode.c
-> > > > +++ b/lib/inode.c
-> > > > @@ -111,7 +111,7 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
-> > > >  	return d;
-> > > >  }
-> > > >  
-> > > > -/* allocate main data for a inode */
-> > > > +/* allocate main data for an inode */
-> > > >  static int __allocate_inode_bh_data(struct erofs_inode *inode,
-> > > >  				    unsigned long nblocks)
-> > > >  {
-> > > > @@ -572,11 +572,11 @@ static int erofs_prepare_inode_buffer(struct erofs_inode *inode)
-> > > >  		int ret;
-> > > >  
-> > > >  		inode->datalayout = EROFS_INODE_FLAT_PLAIN;
-> > > > -noinline:
-> > > >  		/* expend an extra block for tail-end data */
-> > > >  		ret = erofs_prepare_tail_block(inode);
-> > > >  		if (ret)
-> > > >  			return ret;
-> > > > +noinline:
-> > > >  		bh = erofs_balloc(INODE, inodesize, 0, 0);
-> > > >  		if (IS_ERR(bh))
-> > > >  			return PTR_ERR(bh);
-> > > > -- 
-> > > > 1.9.1  
+> > > > Thanks,
+> > > > Gao Xiang
+> > > >   
+> > > > > 
+> > > > > Also, correct 'a inode' -> 'an inode'.
+> > > > > 
+> > > > > Signed-off-by: Yue Hu <huyue2@yulong.com>
+> > > > > ---
+> > > > >  lib/inode.c | 4 ++--
+> > > > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > > > 
+> > > > > diff --git a/lib/inode.c b/lib/inode.c
+> > > > > index b6108db..b5f66de 100644
+> > > > > --- a/lib/inode.c
+> > > > > +++ b/lib/inode.c
+> > > > > @@ -111,7 +111,7 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+> > > > >  	return d;
+> > > > >  }
+> > > > >  
+> > > > > -/* allocate main data for a inode */
+> > > > > +/* allocate main data for an inode */
+> > > > >  static int __allocate_inode_bh_data(struct erofs_inode *inode,
+> > > > >  				    unsigned long nblocks)
+> > > > >  {
+> > > > > @@ -572,11 +572,11 @@ static int erofs_prepare_inode_buffer(struct erofs_inode *inode)
+> > > > >  		int ret;
+> > > > >  
+> > > > >  		inode->datalayout = EROFS_INODE_FLAT_PLAIN;
+> > > > > -noinline:
+> > > > >  		/* expend an extra block for tail-end data */
+> > > > >  		ret = erofs_prepare_tail_block(inode);
+> > > > >  		if (ret)
+> > > > >  			return ret;
+> > > > > +noinline:
+> > > > >  		bh = erofs_balloc(INODE, inodesize, 0, 0);
+> > > > >  		if (IS_ERR(bh))
+> > > > >  			return PTR_ERR(bh);
+> > > > > -- 
+> > > > > 1.9.1    
+
