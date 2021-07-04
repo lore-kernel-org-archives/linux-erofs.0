@@ -1,63 +1,52 @@
-Return-Path: <SRS0=df6f=LZ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=O50f=L4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.3 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E928C11F66
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Jul 2021 02:50:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AC85C07E95
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Jul 2021 13:34:01 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 40D8E61443
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Jul 2021 02:50:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 40D8E61443
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id 82568613F1
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Jul 2021 13:34:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 82568613F1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GFjPW6TV9z2yyC
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Jul 2021 12:50:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GHqXl0DRsz301C
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Jul 2021 23:33:59 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com;
- envelope-from=cy.fan@huawei.com; receiver=<UNKNOWN>)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
- bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GFjPP5fsnz2yMV
- for <linux-erofs@lists.ozlabs.org>; Thu,  1 Jul 2021 12:50:17 +1000 (AEST)
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GFhv848PXzXn5p;
- Thu,  1 Jul 2021 10:27:32 +0800 (CST)
-Received: from dggpemm500021.china.huawei.com (7.185.36.109) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Thu, 1 Jul 2021 10:32:53 +0800
-Received: from [10.174.177.223] (10.174.177.223) by
- dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Thu, 1 Jul 2021 10:32:52 +0800
-Subject: Re: [PATCH] lz4: fixs use-after-free Read in
- LZ4_decompress_safe_partial
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-References: <20210630032358.949122-1-cy.fan@huawei.com>
- <YNxYqXhw5g7Nl3JP@B-P7TQMD6M-0146.local>
-From: Chengyang Fan <cy.fan@huawei.com>
-Message-ID: <f9d65118-13e1-8b08-c34c-690dca7b6bab@huawei.com>
-Date: Thu, 1 Jul 2021 10:32:51 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
+ helo=out30-44.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GHqXd59lqz2yMp
+ for <linux-erofs@lists.ozlabs.org>; Sun,  4 Jul 2021 23:33:51 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0UeeMY2m_1625405608; 
+Received: from
+ e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0UeeMY2m_1625405608) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 04 Jul 2021 21:33:42 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs: add "noinline_data" extended option
+Date: Sun,  4 Jul 2021 21:33:27 +0800
+Message-Id: <20210704133327.32151-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
 MIME-Version: 1.0
-In-Reply-To: <YNxYqXhw5g7Nl3JP@B-P7TQMD6M-0146.local>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.174.177.223]
-X-ClientProxiedBy: dggeme715-chm.china.huawei.com (10.1.199.111) To
- dggpemm500021.china.huawei.com (7.185.36.109)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,117 +58,65 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, terrelln@fb.com,
- Yann Collet <yann.collet.73@gmail.com>, akpm@linux-foundation.org,
- linux-erofs@lists.ozlabs.org, thisisrast7@gmail.com
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+In order to add preliminary DAX feature support.
 
-On 2021/6/30 19:42, Gao Xiang wrote:
-> (also +cc Yann as well as Nick..)
->
-> Hi Chengyang,
->
-> If I understand correctly, is this a manually produced fuzzed
-> EROFS compressed data? If it's just a normal image, could you
-> also share the original image?
-Yeah, this is the generated fuzzed data, not the normal image.
-> On Wed, Jun 30, 2021 at 11:23:58AM +0800, Chengyang Fan wrote:
->> ==================================================================
->> BUG: KASAN: use-after-free in get_unaligned_le16 include/linux/unaligned/access_ok.h:10 [inline]
->> BUG: KASAN: use-after-free in LZ4_readLE16 lib/lz4/lz4defs.h:132 [inline]
->> BUG: KASAN: use-after-free in LZ4_decompress_generic lib/lz4/lz4_decompress.c:281 [inline]
->> BUG: KASAN: use-after-free in LZ4_decompress_safe_partial+0xf50/0x1480 lib/lz4/lz4_decompress.c:465
->> Read of size 2 at addr ffff888017851000 by task kworker/u12:0/2056
->>
->> CPU: 0 PID: 2056 Comm: kworker/u12:0 Not tainted 5.10.40 #2
->> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
->> Workqueue: erofs_unzipd z_erofs_decompressqueue_work
->> Call Trace:
->>   __dump_stack lib/dump_stack.c:77 [inline]
->>   dump_stack+0x137/0x1be lib/dump_stack.c:118
->>   print_address_description+0x6c/0x640 mm/kasan/report.c:385
->>   __kasan_report mm/kasan/report.c:545 [inline]
->>   kasan_report+0x13d/0x1e0 mm/kasan/report.c:562
->>   get_unaligned_le16 include/linux/unaligned/access_ok.h:10 [inline]
->>   LZ4_readLE16 lib/lz4/lz4defs.h:132 [inline]
->>   LZ4_decompress_generic lib/lz4/lz4_decompress.c:281 [inline]
->>   LZ4_decompress_safe_partial+0xf50/0x1480 lib/lz4/lz4_decompress.c:465
->>   z_erofs_lz4_decompress+0x839/0xc90 fs/erofs/decompressor.c:162
->>   z_erofs_decompress_generic fs/erofs/decompressor.c:291 [inline]
->>   z_erofs_decompress+0x57e/0xe10 fs/erofs/decompressor.c:344
->>   z_erofs_decompress_pcluster+0x13d1/0x2310 fs/erofs/zdata.c:880
->>   z_erofs_decompress_queue fs/erofs/zdata.c:958 [inline]
->>   z_erofs_decompressqueue_work+0xde/0x140 fs/erofs/zdata.c:969
->>   process_one_work+0x780/0xfc0 kernel/workqueue.c:2269
->>   worker_thread+0xaa4/0x1460 kernel/workqueue.c:2415
->>   kthread+0x39a/0x3c0 kernel/kthread.c:292
->>   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
->>
->> The buggy address belongs to the page:
->> page:00000000a79b76f1 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x17851
->> flags: 0xfff00000000000()
->> raw: 00fff00000000000 ffffea000081b9c8 ffffea00006ac6c8 0000000000000000
->> raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
->> page dumped because: kasan: bad access detected
->>
->> Memory state around the buggy address:
->>   ffff888017850f00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->>   ffff888017850f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> ffff888017851000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->>                     ^
->>   ffff888017851080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->>   ffff888017851100: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> ==================================================================
->> erofs: (device loop0): z_erofs_lz4_decompress: failed to decompress -4099 in[4096, 0] out[9000]
->>
->> Off-by-one error causes the above issue. In LZ4_decompress_generic(),
->> `iend = src + srcSize`. It means the valid address range should be
->> [src, iend - 1]. Therefore, when checking whether the reading is
->> out-of-bounds, it should be  `>= iend` rather than `> iend`.
->>
->> Reported-by: Hulk Robot <hulkci@huawei.com>
->> Signed-off-by: Chengyang Fan <cy.fan@huawei.com>
->> ---
->>   lib/lz4/lz4_decompress.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/lib/lz4/lz4_decompress.c b/lib/lz4/lz4_decompress.c
->> index 926f4823d5ea..ec51837cd31f 100644
->> --- a/lib/lz4/lz4_decompress.c
->> +++ b/lib/lz4/lz4_decompress.c
->> @@ -234,7 +234,7 @@ static FORCE_INLINE int LZ4_decompress_generic(
->>   					length = oend - op;
->>   				}
->>   				if ((endOnInput)
->> -					&& (ip + length > iend)) {
->> +					&& (ip + length >= iend)) {
-> I'm not sure it should be fixed as this.
->
-> The current lz4 decompression code was from lz4 1.8.3, and I saw
-> several following up fixes for incomplete input partial decoding
-> in recent LZ4 upstream, you could check them out together. However,
-> EROFS should never pass incomplete lz4 compressed data to the LZ4
-> side unless it's somewhat a corrupted image on purpose.
-> https://github.com/lz4/lz4/blame/dev/lib/lz4.c
->
-> Thanks,
-> Gao Xiang
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ include/erofs/config.h | 1 +
+ lib/inode.c            | 5 +++++
+ mkfs/main.c            | 6 ++++++
+ 3 files changed, 12 insertions(+)
 
-This is the fault injection, not an error caused by normal EROFS.
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 67e7a0fed24c..8124f3b36baf 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -44,6 +44,7 @@ struct erofs_configure {
+ 	bool c_random_pclusterblks;
+ #endif
+ 	char c_timeinherit;
++	bool c_noinline_data;
+ 
+ #ifdef HAVE_LIBSELINUX
+ 	struct selabel_handle *sehnd;
+diff --git a/lib/inode.c b/lib/inode.c
+index 97f0cf763baf..38906370f533 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -562,6 +562,11 @@ static int erofs_prepare_inode_buffer(struct erofs_inode *inode)
+ 	if (is_inode_layout_compression(inode))
+ 		goto noinline;
+ 
++	if (cfg.c_noinline_data && S_ISREG(inode->i_mode)) {
++		inode->datalayout = EROFS_INODE_FLAT_PLAIN;
++		goto noinline;
++	}
++
+ 	/*
+ 	 * if the file size is block-aligned for uncompressed files,
+ 	 * should use EROFS_INODE_FLAT_PLAIN data mapping mode.
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 28539da5ea5f..10fe14d7a722 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -161,6 +161,12 @@ static int parse_extended_opts(const char *opts)
+ 				return -EINVAL;
+ 			erofs_sb_clear_sb_chksum();
+ 		}
++
++		if (MATCH_EXTENTED_OPT("noinline_data", token, keylen)) {
++			if (vallen)
++				return -EINVAL;
++			cfg.c_noinline_data = true;
++		}
+ 	}
+ 	return 0;
+ }
+-- 
+2.24.4
 
-Thanks for you advice, I will recheck the bugfixes of LZ4 upstream.
-
-
-Thanks,
-
-Chengyang Fan
-
->>   					/*
->>   					 * Error :
->>   					 * read attempt beyond
->> -- 
->> 2.18.0.huawei.25
-> .
