@@ -1,55 +1,63 @@
-Return-Path: <SRS0=dgCb=L6=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=OmaH=MB=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3328FC07E96
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Jul 2021 07:35:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BD38C07E96
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jul 2021 01:47:28 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D359B61995
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Jul 2021 07:35:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D359B61995
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id D9B7C61468
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jul 2021 01:47:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D9B7C61468
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GJvV54JzGz306y
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Jul 2021 17:35:25 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GLbdB4hqVz3bXQ
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jul 2021 11:47:26 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=dOo57F2N;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mga17.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=djwong@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=k20201202 header.b=dOo57F2N; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GJvV12yYzz3cXX
- for <linux-erofs@lists.ozlabs.org>; Tue,  6 Jul 2021 17:35:19 +1000 (AEST)
-X-IronPort-AV: E=McAfee;i="6200,9189,10036"; a="189448201"
-X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; d="scan'208";a="189448201"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
- by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 06 Jul 2021 00:34:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; d="scan'208";a="644709033"
-Received: from lkp-server01.sh.intel.com (HELO 4aae0cb4f5b5) ([10.239.97.150])
- by fmsmga006.fm.intel.com with ESMTP; 06 Jul 2021 00:34:14 -0700
-Received: from kbuild by 4aae0cb4f5b5 with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1m0faw-000CnY-6w; Tue, 06 Jul 2021 07:34:14 +0000
-Date: Tue, 06 Jul 2021 15:33:20 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <xiang@kernel.org>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- c48349f04faac13303836167def3e44b605c4576
-Message-ID: <60e40740.cIqSfTT4/+FZFCtb%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GLbd730Ndz3017
+ for <linux-erofs@lists.ozlabs.org>; Fri,  9 Jul 2021 11:47:23 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7FF661467;
+ Fri,  9 Jul 2021 01:47:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1625795239;
+ bh=AxPtbs0Ibe28YfzDelIbWVWHx5RyiZJ+8AWoVrRqFvc=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=dOo57F2Ninx9LXwqIND2y6Ppp7I5kISl2R1N+tgu4iv3NMJ1vjzaTVP4RWOEhNulC
+ PHSXgfEQyp111O6VZE7cxekixiyrSdN/f39vdrDE4FDjvu/dMOWT3wAcN+UuPjxZj7
+ 2wn+z9esBt7bVPy/cEc0xzWeTg/mm6qS4T3NtTk8VKaJ6pSIcIkxzittvnxL5BbtPx
+ jkexxlocRqZwL/QDG6zXnVfvWxUValB7F1qwWzZlu8Vzmtxesrpv9TIiF25JPFKI1A
+ 5PBDRYqgEsUghXc02l4xFaf9Z4MWl0gd5pczICeyH2mMk+jQknAYOOQbhkMCN2ROGN
+ hVSyBSI7hce1Q==
+Date: Thu, 8 Jul 2021 18:47:19 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [RFC PATCH v1.1 2/2] erofs: dax support for non-tailpacking
+ regular file
+Message-ID: <20210709014719.GD11634@locust>
+References: <20210704135056.42723-3-hsiangkao@linux.alibaba.com>
+ <20210705132153.223839-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20210705132153.223839-1-hsiangkao@linux.alibaba.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,178 +69,248 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: nvdimm@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
+ Joseqh Qi <joseph.qi@linux.alibaba.com>, Liu Bo <bo.liu@linux.alibaba.com>,
+ linux-fsdevel@vger.kernel.org, Liu Jiang <gerry@linux.alibaba.com>,
+ linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: c48349f04faac13303836167def3e44b605c4576  erofs: better comment z_erofs_readahead()
+On Mon, Jul 05, 2021 at 09:21:53PM +0800, Gao Xiang wrote:
+> DAX is quite useful for some VM use cases in order to save guest
+> memory extremely with minimal lightweight EROFS.
+> 
+> In order to prepare for such use cases, add preliminary dax support
+> for non-tailpacking regular files for now.
+> 
+> Tested with the DRAM-emulated PMEM and the EROFS image generated by
+> "mkfs.erofs -Enoinline_data enwik9.fsdax.img enwik9"
+> 
+> Cc: nvdimm@lists.linux.dev
+> Cc: linux-fsdevel@vger.kernel.org
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> ---
+> change since v1:
+>  - update missing hunks due to patch spliting...
+>     bdev_dax_supported(...)
+>     erofs_file_mmap(...)   
+> 
+>  fs/erofs/data.c     | 43 +++++++++++++++++++++++++++++++++++++++++--
+>  fs/erofs/inode.c    |  5 +++++
+>  fs/erofs/internal.h |  2 ++
+>  fs/erofs/super.c    | 26 ++++++++++++++++++++++++--
+>  4 files changed, 72 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+> index 0f82b4cb474c..c188c629be45 100644
+> --- a/fs/erofs/data.c
+> +++ b/fs/erofs/data.c
+> @@ -6,7 +6,7 @@
+>  #include "internal.h"
+>  #include <linux/prefetch.h>
+>  #include <linux/iomap.h>
+> -
+> +#include <linux/dax.h>
+>  #include <trace/events/erofs.h>
+>  
+>  static void erofs_readendio(struct bio *bio)
+> @@ -323,6 +323,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+>  		return ret;
+>  
+>  	iomap->bdev = inode->i_sb->s_bdev;
+> +	iomap->dax_dev = EROFS_I_SB(inode)->dax_dev;
+>  	iomap->offset = map.m_la;
+>  	iomap->length = map.m_llen;
+>  
+> @@ -382,6 +383,11 @@ static ssize_t erofs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+>  	if (!iov_iter_count(to))
+>  		return 0;
+>  
+> +#ifdef CONFIG_FS_DAX
+> +	if (IS_DAX(iocb->ki_filp->f_mapping->host))
+> +		return dax_iomap_rw(iocb, to, &erofs_iomap_ops);
+> +#endif
+> +
+>  	if (iocb->ki_flags & IOCB_DIRECT) {
+>  		int err = erofs_prepare_dio(iocb, to);
+>  
+> @@ -410,9 +416,42 @@ const struct address_space_operations erofs_raw_access_aops = {
+>  	.direct_IO = noop_direct_IO,
+>  };
+>  
+> +#ifdef CONFIG_FS_DAX
+> +static vm_fault_t erofs_dax_huge_fault(struct vm_fault *vmf,
+> +		enum page_entry_size pe_size)
+> +{
+> +	return dax_iomap_fault(vmf, pe_size, NULL, NULL, &erofs_iomap_ops);
+> +}
+> +
+> +static vm_fault_t erofs_dax_fault(struct vm_fault *vmf)
+> +{
+> +	return erofs_dax_huge_fault(vmf, PE_SIZE_PTE);
+> +}
+> +
+> +static const struct vm_operations_struct erofs_dax_vm_ops = {
+> +	.fault		= erofs_dax_fault,
+> +	.huge_fault	= erofs_dax_huge_fault,
+> +};
+> +
+> +static int erofs_file_mmap(struct file *file, struct vm_area_struct *vma)
+> +{
+> +	if (!IS_DAX(file_inode(file)))
+> +		return generic_file_readonly_mmap(file, vma);
+> +
+> +	if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE))
+> +		return -EINVAL;
+> +
+> +	vma->vm_ops = &erofs_dax_vm_ops;
+> +	vma->vm_flags |= VM_HUGEPAGE;
+> +	return 0;
+> +}
+> +#else
+> +#define erofs_file_mmap	generic_file_readonly_mmap
+> +#endif
+> +
+>  const struct file_operations erofs_file_fops = {
+>  	.llseek		= generic_file_llseek,
+>  	.read_iter	= erofs_file_read_iter,
+> -	.mmap		= generic_file_readonly_mmap,
+> +	.mmap		= erofs_file_mmap,
+>  	.splice_read	= generic_file_splice_read,
+>  };
+> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+> index 00edb7562fea..695b97acb9a6 100644
+> --- a/fs/erofs/inode.c
+> +++ b/fs/erofs/inode.c
+> @@ -174,6 +174,11 @@ static struct page *erofs_read_inode(struct inode *inode,
+>  	inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec;
+>  	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec;
+>  
+> +	inode->i_flags &= ~S_DAX;
+> +	if (test_opt(&sbi->ctx, DAX) && S_ISREG(inode->i_mode) &&
+> +	    vi->datalayout == EROFS_INODE_FLAT_PLAIN)
+> +		inode->i_flags |= S_DAX;
+> +
+>  	if (!nblks)
+>  		/* measure inode.i_blocks as generic filesystems */
+>  		inode->i_blocks = roundup(inode->i_size, EROFS_BLKSIZ) >> 9;
+> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+> index 2669c785d548..8b0542d35148 100644
+> --- a/fs/erofs/internal.h
+> +++ b/fs/erofs/internal.h
+> @@ -83,6 +83,7 @@ struct erofs_sb_info {
+>  
+>  	struct erofs_sb_lz4_info lz4;
+>  #endif	/* CONFIG_EROFS_FS_ZIP */
+> +	struct dax_device *dax_dev;
+>  	u32 blocks;
+>  	u32 meta_blkaddr;
+>  #ifdef CONFIG_EROFS_FS_XATTR
+> @@ -115,6 +116,7 @@ struct erofs_sb_info {
+>  /* Mount flags set via mount options or defaults */
+>  #define EROFS_MOUNT_XATTR_USER		0x00000010
+>  #define EROFS_MOUNT_POSIX_ACL		0x00000020
+> +#define EROFS_MOUNT_DAX			0x00000040
+>  
+>  #define clear_opt(ctx, option)	((ctx)->mount_opt &= ~EROFS_MOUNT_##option)
+>  #define set_opt(ctx, option)	((ctx)->mount_opt |= EROFS_MOUNT_##option)
+> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> index 8fc6c04b54f4..b44a964ab24f 100644
+> --- a/fs/erofs/super.c
+> +++ b/fs/erofs/super.c
+> @@ -11,6 +11,7 @@
+>  #include <linux/crc32c.h>
+>  #include <linux/fs_context.h>
+>  #include <linux/fs_parser.h>
+> +#include <linux/dax.h>
+>  #include "xattr.h"
+>  
+>  #define CREATE_TRACE_POINTS
+> @@ -355,6 +356,7 @@ enum {
+>  	Opt_user_xattr,
+>  	Opt_acl,
+>  	Opt_cache_strategy,
+> +	Opt_dax,
+>  	Opt_err
+>  };
+>  
+> @@ -370,6 +372,7 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
+>  	fsparam_flag_no("acl",		Opt_acl),
+>  	fsparam_enum("cache_strategy",	Opt_cache_strategy,
+>  		     erofs_param_cache_strategy),
+> +	fsparam_flag("dax",             Opt_dax),
+>  	{}
+>  };
+>  
+> @@ -410,6 +413,14 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+>  		ctx->cache_strategy = result.uint_32;
+>  #else
+>  		errorfc(fc, "compression not supported, cache_strategy ignored");
+> +#endif
+> +		break;
+> +	case Opt_dax:
+> +#ifdef CONFIG_FS_DAX
+> +		warnfc(fc, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
+> +		set_opt(ctx, DAX);
 
-elapsed time: 721m
+You might want to allow 'dax=always' and 'dax=never' to maintain parity
+with xfs/ext4's mount options...
 
-configs tested: 152
-configs skipped: 3
+--D
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-arm                     eseries_pxa_defconfig
-arc                    vdk_hs38_smp_defconfig
-powerpc                       ppc64_defconfig
-powerpc                     kilauea_defconfig
-xtensa                  nommu_kc705_defconfig
-powerpc                     sbc8548_defconfig
-arm                         vf610m4_defconfig
-powerpc                      acadia_defconfig
-m68k                             allyesconfig
-mips                   sb1250_swarm_defconfig
-arm                     davinci_all_defconfig
-arm                         socfpga_defconfig
-mips                     loongson1c_defconfig
-mips                        maltaup_defconfig
-sparc64                          alldefconfig
-xtensa                          iss_defconfig
-arm                          pcm027_defconfig
-xtensa                    smp_lx200_defconfig
-x86_64                              defconfig
-h8300                       h8s-sim_defconfig
-sh                           se7722_defconfig
-m68k                            q40_defconfig
-um                               alldefconfig
-mips                     cu1830-neo_defconfig
-arm                         at91_dt_defconfig
-powerpc                 canyonlands_defconfig
-openrisc                    or1ksim_defconfig
-powerpc                      ppc44x_defconfig
-powerpc                    mvme5100_defconfig
-sparc                       sparc64_defconfig
-mips                    maltaup_xpa_defconfig
-sh                             shx3_defconfig
-riscv                               defconfig
-m68k                             alldefconfig
-arc                        nsim_700_defconfig
-arm                            dove_defconfig
-powerpc                 mpc837x_mds_defconfig
-arm                      integrator_defconfig
-sh                           se7750_defconfig
-sh                                  defconfig
-arc                      axs103_smp_defconfig
-sh                           se7721_defconfig
-powerpc                    ge_imp3a_defconfig
-arm                        realview_defconfig
-csky                             alldefconfig
-xtensa                       common_defconfig
-mips                         rt305x_defconfig
-sh                         ap325rxa_defconfig
-powerpc               mpc834x_itxgp_defconfig
-sh                         apsh4a3a_defconfig
-mips                        bcm47xx_defconfig
-s390                       zfcpdump_defconfig
-mips                  cavium_octeon_defconfig
-m68k                       m5475evb_defconfig
-mips                     cu1000-neo_defconfig
-mips                  maltasmvp_eva_defconfig
-mips                      pic32mzda_defconfig
-arm                       imx_v6_v7_defconfig
-arm                        magician_defconfig
-arm                           tegra_defconfig
-powerpc                 mpc8315_rdb_defconfig
-powerpc                  mpc885_ads_defconfig
-m68k                        mvme16x_defconfig
-m68k                         amcore_defconfig
-x86_64                            allnoconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a004-20210705
-i386                 randconfig-a006-20210705
-i386                 randconfig-a001-20210705
-i386                 randconfig-a003-20210705
-i386                 randconfig-a005-20210705
-i386                 randconfig-a002-20210705
-i386                 randconfig-a004-20210706
-i386                 randconfig-a006-20210706
-i386                 randconfig-a001-20210706
-i386                 randconfig-a003-20210706
-i386                 randconfig-a005-20210706
-i386                 randconfig-a002-20210706
-x86_64               randconfig-a004-20210705
-x86_64               randconfig-a002-20210705
-x86_64               randconfig-a005-20210705
-x86_64               randconfig-a006-20210705
-x86_64               randconfig-a003-20210705
-x86_64               randconfig-a001-20210705
-i386                 randconfig-a015-20210706
-i386                 randconfig-a016-20210706
-i386                 randconfig-a012-20210706
-i386                 randconfig-a011-20210706
-i386                 randconfig-a014-20210706
-i386                 randconfig-a013-20210706
-i386                 randconfig-a015-20210705
-i386                 randconfig-a016-20210705
-i386                 randconfig-a012-20210705
-i386                 randconfig-a011-20210705
-i386                 randconfig-a014-20210705
-i386                 randconfig-a013-20210705
-riscv                    nommu_k210_defconfig
-riscv                            allyesconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                          rv32_defconfig
-riscv                            allmodconfig
-x86_64                    rhel-8.3-kselftests
-um                           x86_64_defconfig
-um                             i386_defconfig
-um                            kunit_defconfig
-x86_64                           allyesconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
-
-clang tested configs:
-x86_64               randconfig-b001-20210705
-x86_64               randconfig-a015-20210705
-x86_64               randconfig-a014-20210705
-x86_64               randconfig-a012-20210705
-x86_64               randconfig-a011-20210705
-x86_64               randconfig-a016-20210705
-x86_64               randconfig-a013-20210705
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+> +#else
+> +		errorfc(fc, "dax options not supported");
+>  #endif
+>  		break;
+>  	default:
+> @@ -496,10 +507,17 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+>  		return -ENOMEM;
+>  
+>  	sb->s_fs_info = sbi;
+> +	sbi->dax_dev = fs_dax_get_by_bdev(sb->s_bdev);
+>  	err = erofs_read_superblock(sb);
+>  	if (err)
+>  		return err;
+>  
+> +	if (test_opt(ctx, DAX) &&
+> +	    !bdev_dax_supported(sb->s_bdev, EROFS_BLKSIZ)) {
+> +		errorfc(fc, "DAX unsupported by block device. Turning off DAX.");
+> +		clear_opt(ctx, DAX);
+> +	}
+> +
+>  	sb->s_flags |= SB_RDONLY | SB_NOATIME;
+>  	sb->s_maxbytes = MAX_LFS_FILESIZE;
+>  	sb->s_time_gran = 1;
+> @@ -609,6 +627,8 @@ static void erofs_kill_sb(struct super_block *sb)
+>  	sbi = EROFS_SB(sb);
+>  	if (!sbi)
+>  		return;
+> +	if (sbi->dax_dev)
+> +		fs_put_dax(sbi->dax_dev);
+>  	kfree(sbi);
+>  	sb->s_fs_info = NULL;
+>  }
+> @@ -711,8 +731,8 @@ static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
+>  
+>  static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+>  {
+> -	struct erofs_sb_info *sbi __maybe_unused = EROFS_SB(root->d_sb);
+> -	struct erofs_fs_context *ctx __maybe_unused = &sbi->ctx;
+> +	struct erofs_sb_info *sbi = EROFS_SB(root->d_sb);
+> +	struct erofs_fs_context *ctx = &sbi->ctx;
+>  
+>  #ifdef CONFIG_EROFS_FS_XATTR
+>  	if (test_opt(ctx, XATTR_USER))
+> @@ -734,6 +754,8 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+>  	else if (ctx->cache_strategy == EROFS_ZIP_CACHE_READAROUND)
+>  		seq_puts(seq, ",cache_strategy=readaround");
+>  #endif
+> +	if (test_opt(ctx, DAX))
+> +		seq_puts(seq, ",dax");
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.24.4
+> 
