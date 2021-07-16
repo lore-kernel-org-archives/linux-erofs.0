@@ -2,62 +2,57 @@ Return-Path: <SRS0=SOra=MI=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63A32C07E95
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:03:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8649DC07E95
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:05:12 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AF79D6128C
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:03:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AF79D6128C
+	by mail.kernel.org (Postfix) with ESMTPS id 13509613BB
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:05:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 13509613BB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GRDyZ2x3yz305r
-	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:03:34 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GRF0Q5dLxz305t
+	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:05:10 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
+ helo=out30-131.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GRDyR0Fjtz2yN4
- for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:03:23 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04420; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=10; SR=0; TI=SMTPD_---0Ufzr3Mb_1626447785; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GRF0H5Zfkz2yN4
+ for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:05:03 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R641e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=9; SR=0; TI=SMTPD_---0UfzeaRF_1626447887; 
 Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0Ufzr3Mb_1626447785) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 16 Jul 2021 23:03:06 +0800
-Date: Fri, 16 Jul 2021 23:03:04 +0800
+ fp:SMTPD_---0UfzeaRF_1626447887) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 16 Jul 2021 23:04:48 +0800
+Date: Fri, 16 Jul 2021 23:04:46 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 1/2] iomap: support tail packing inline read
-Message-ID: <YPGfqLcSiH3/z2RT@B-P7TQMD6M-0146.local>
-Mail-Followup-To: Matthew Wilcox <willy@infradead.org>,
- linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>,
- "Darrick J. Wong" <djwong@kernel.org>,
- Christoph Hellwig <hch@infradead.org>, Chao Yu <chao@kernel.org>,
- Liu Bo <bo.liu@linux.alibaba.com>,
- Joseph Qi <joseph.qi@linux.alibaba.com>,
- Liu Jiang <gerry@linux.alibaba.com>
-References: <20210716050724.225041-1-hsiangkao@linux.alibaba.com>
- <20210716050724.225041-2-hsiangkao@linux.alibaba.com>
- <YPGDZYT9OxdgNYf2@casper.infradead.org>
- <YPGQB3zT4Wp4Q38X@B-P7TQMD6M-0146.local>
- <YPGbNCdCNXIpNdqd@casper.infradead.org>
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: Re: [PATCH] iomap: Add missing flush_dcache_page
+Message-ID: <YPGgDoyn7pgM+7Vb@B-P7TQMD6M-0146.local>
+Mail-Followup-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Andreas Gruenbacher <agruenba@redhat.com>,
+ Christoph Hellwig <hch@infradead.org>,
+ "Darrick J . Wong" <djwong@kernel.org>, linux-xfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
+ linux-erofs@lists.ozlabs.org, stable@vger.kernel.org
+References: <20210716150032.1089982-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YPGbNCdCNXIpNdqd@casper.infradead.org>
+In-Reply-To: <20210716150032.1089982-1-willy@infradead.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,78 +64,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: "Darrick J. Wong" <djwong@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
- Christoph Hellwig <hch@infradead.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Liu Bo <bo.liu@linux.alibaba.com>, linux-fsdevel@vger.kernel.org,
- Liu Jiang <gerry@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Cc: linux-xfs@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+ "Darrick J . Wong" <djwong@kernel.org>, stable@vger.kernel.org,
+ Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
+ Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Jul 16, 2021 at 03:44:04PM +0100, Matthew Wilcox wrote:
-> On Fri, Jul 16, 2021 at 09:56:23PM +0800, Gao Xiang wrote:
-> > Hi Matthew,
-> > 
-> > On Fri, Jul 16, 2021 at 02:02:29PM +0100, Matthew Wilcox wrote:
-> > > On Fri, Jul 16, 2021 at 01:07:23PM +0800, Gao Xiang wrote:
-> > > > This tries to add tail packing inline read to iomap. Different from
-> > > > the previous approach, it only marks the block range uptodate in the
-> > > > page it covers.
-> > > 
-> > > Why?  This path is called under two circumstances: readahead and readpage.
-> > > In both cases, we're trying to bring the entire page uptodate.  The inline
-> > > extent is always the tail of the file, so we may as well zero the part of
-> > > the page past the end of file and mark the entire page uptodate instead
-> > > and leaving the end of the page !uptodate.
-> > > 
-> > > I see the case where, eg, we have the first 2048 bytes of the file
-> > > out-of-inode and then 20 bytes in the inode.  So we'll create the iop
-> > > for the head of the file, but then we may as well finish the entire
-> > > PAGE_SIZE chunk as part of this iteration rather than update 2048-3071
-> > > as being uptodate and leave the 3072-4095 block for a future iteration.
-> > 
-> > Thanks for your comments. Hmm... If I understand the words above correctly,
-> > what I'd like to do is to cover the inline extents (blocks) only
-> > reported by iomap_begin() rather than handling other (maybe)
-> > logical-not-strictly-relevant areas such as post-EOF (even pages
-> > will be finally entirely uptodated), I think such zeroed area should
-> > be handled by from the point of view of the extent itself
-> > 
-> >          if (iomap_block_needs_zeroing(inode, iomap, pos)) {
-> >                  zero_user(page, poff, plen);
-> >                  iomap_set_range_uptodate(page, poff, plen);
-> >                  goto done;
-> >          }
+On Fri, Jul 16, 2021 at 04:00:32PM +0100, Matthew Wilcox (Oracle) wrote:
+> Inline data needs to be flushed from the kernel's view of a page before
+> it's mapped by userspace.
 > 
-> That does work.  But we already mapped the page to write to it, and
-> we already have to zero to the end of the block.  Why not zero to
-> the end of the page?  It saves an iteration around the loop, it saves
-> a mapping of the page, and it saves a call to flush_dcache_page().
+> Cc: stable@vger.kernel.org
+> Fixes: 19e0c58f6552 ("iomap: generic inline data handling")
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-I completely understand your concern, and that's also (sort of) why I
-left iomap_read_inline_page() to make the old !pos behavior as before.
-
-Anyway, I could update Christoph's patch to behave like what you
-suggested. Will do later since I'm now taking some rest...
-
-> 
-> > The benefits I can think out are 1) it makes the logic understand
-> > easier and no special cases just for tail-packing handling 2) it can
-> > be then used for any inline extent cases (I mean e.g. in the middle of
-> > the file) rather than just tail-packing inline blocks although currently
-> > there is a BUG_ON to prevent this but it's easier to extend even further.
-> > 3) it can be used as a part for later partial page uptodate logic in
-> > order to match the legacy buffer_head logic (I remember something if my
-> > memory is not broken about this...)
-> 
-> Hopefully the legacy buffer_head logic will go away soon.
-
-Hmmm.. I partially agree on this (I agree buffer_head is a legacy stuff
-but...), considering some big PAGE_SIZE like 64kb or bigger, partial
-uptodate can save I/O for random file read pattern in general (not mmap
-read, yes, also considering readahead, but I received some regression
-due to I/O amplification like this when I was at the previous * 2 company).
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+(will update on my side as well)
 
 Thanks,
 Gao Xiang
 
+> ---
+>  fs/iomap/buffered-io.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+> index 41da4f14c00b..fe60c603f4ca 100644
+> --- a/fs/iomap/buffered-io.c
+> +++ b/fs/iomap/buffered-io.c
+> @@ -222,6 +222,7 @@ iomap_read_inline_data(struct inode *inode, struct page *page,
+>  	memcpy(addr, iomap->inline_data, size);
+>  	memset(addr + size, 0, PAGE_SIZE - size);
+>  	kunmap_atomic(addr);
+> +	flush_dcache_page(page);
+>  	SetPageUptodate(page);
+>  }
+>  
+> -- 
+> 2.30.2
