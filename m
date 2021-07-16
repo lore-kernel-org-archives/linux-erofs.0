@@ -2,57 +2,67 @@ Return-Path: <SRS0=SOra=MI=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8649DC07E95
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:05:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F34FFC07E95
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:06:34 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 13509613BB
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:05:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 13509613BB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 73217613CF
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:06:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73217613CF
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GRF0Q5dLxz305t
-	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:05:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GRF21157Rz305v
+	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:06:33 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=W4kk2VIp;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
+ smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
+ helo=casper.infradead.org;
+ envelope-from=batv+382ccfd9051a34597009+6536+infradead.org+hch@casper.srs.infradead.org;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
+ header.s=casper.20170209 header.b=W4kk2VIp; 
+ dkim-atps=neutral
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GRF0H5Zfkz2yN4
- for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:05:03 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R641e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=9; SR=0; TI=SMTPD_---0UfzeaRF_1626447887; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UfzeaRF_1626447887) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 16 Jul 2021 23:04:48 +0800
-Date: Fri, 16 Jul 2021 23:04:46 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GRF1z29yWz2yN4
+ for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:06:29 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=p2jp4TKVKUbRaXkEqpueJ3r5TGVZqBxb3+WOYtKL/lo=; b=W4kk2VIp/COn5HR9jLXvO6E1r4
+ V5nRtkY79aVdM8qeu1MDonnLzyTvZhnmgAKOl/Ur2osTRhkIN7QYmxqHSKGJmZG+feq77wERJstSi
+ 7siJjLU1rFj9z33dxKQeN2lnEvWfXnJ22CVnQL9J77UXZEicN52c/9ut0OFDA6eFcriumUQ6cQp0J
+ vkEpm8qqTYQjAceIOu7ttQlDTybU5nzSh2+kCPAut4YHzLutC5JtpCUyCcJqD7pod3QvgItO4aN7e
+ nr/m5sLTqkfViKMEH2oXYhcvwDYm8EvkXaQmKXqGfnijYqWqp2kUMBCd09KL4XGKWlwLyMzZMajeL
+ OBj6aRuw==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
+ Linux)) id 1m4PNy-004ZkD-2i; Fri, 16 Jul 2021 15:04:36 +0000
+Date: Fri, 16 Jul 2021 16:04:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
 To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Subject: Re: [PATCH] iomap: Add missing flush_dcache_page
-Message-ID: <YPGgDoyn7pgM+7Vb@B-P7TQMD6M-0146.local>
-Mail-Followup-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Andreas Gruenbacher <agruenba@redhat.com>,
- Christoph Hellwig <hch@infradead.org>,
- "Darrick J . Wong" <djwong@kernel.org>, linux-xfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
- linux-erofs@lists.ozlabs.org, stable@vger.kernel.org
+Message-ID: <YPGf8o7vo6/9iTE5@infradead.org>
 References: <20210716150032.1089982-1-willy@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20210716150032.1089982-1-willy@infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ casper.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -79,13 +89,6 @@ On Fri, Jul 16, 2021 at 04:00:32PM +0100, Matthew Wilcox (Oracle) wrote:
 > Cc: stable@vger.kernel.org
 > Fixes: 19e0c58f6552 ("iomap: generic inline data handling")
 > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-(will update on my side as well)
-
-Thanks,
-Gao Xiang
-
 > ---
 >  fs/iomap/buffered-io.c | 1 +
 >  1 file changed, 1 insertion(+)
@@ -99,8 +102,8 @@ Gao Xiang
 >  	memset(addr + size, 0, PAGE_SIZE - size);
 >  	kunmap_atomic(addr);
 > +	flush_dcache_page(page);
->  	SetPageUptodate(page);
->  }
->  
-> -- 
-> 2.30.2
+
+.. and all writes into a kmap also need such a flush, so this needs to
+move a line up.  My plan was to add a memcpy_to_page_and_pad helper
+ala memcpy_to_page to get various file systems and drivers out of the
+business of cache flushing as much as we can.
