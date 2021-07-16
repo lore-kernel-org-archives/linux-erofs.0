@@ -1,49 +1,52 @@
-Return-Path: <SRS0=g/qA=ME=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=SOra=MI=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3662C07E99
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Jul 2021 12:03:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD169C07E95
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 05:08:02 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8EDBD6044F
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Jul 2021 12:03:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8EDBD6044F
+	by mail.kernel.org (Postfix) with ESMTPS id 1AC8C613EE
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 05:08:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1AC8C613EE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GNj8T2Ldrz303x
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Jul 2021 22:03:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GQzlN4x73z2ysq
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:08:00 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=hsiangkao@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
+ helo=out30-45.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GNj8M2zSjz2yNp
- for <linux-erofs@lists.ozlabs.org>; Mon, 12 Jul 2021 22:03:14 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=10; SR=0; TI=SMTPD_---0UfXFBmR_1626091362; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GQzlD1rQCz2yMm
+ for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jul 2021 15:07:50 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R281e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=10; SR=0; TI=SMTPD_---0UfwgDyq_1626412048; 
 Received: from
  e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UfXFBmR_1626091362) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 12 Jul 2021 20:02:48 +0800
+ fp:SMTPD_---0UfwgDyq_1626412048) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 16 Jul 2021 13:07:42 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 0/2] erofs: dio/dax support for non-tailpacking cases
-Date: Mon, 12 Jul 2021 20:02:39 +0800
-Message-Id: <20210712120241.199903-1-hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org,
+	linux-fsdevel@vger.kernel.org
+Subject: [PATCH 1/2] iomap: support tail packing inline read
+Date: Fri, 16 Jul 2021 13:07:23 +0800
+Message-Id: <20210716050724.225041-2-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20210716050724.225041-1-hsiangkao@linux.alibaba.com>
+References: <20210716050724.225041-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -57,52 +60,145 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: nvdimm@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Liu Bo <bo.liu@linux.alibaba.com>, linux-fsdevel@vger.kernel.org,
- Gao Xiang <hsiangkao@linux.alibaba.com>, Liu Jiang <gerry@linux.alibaba.com>
+Cc: "Darrick J. Wong" <djwong@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+ Christoph Hellwig <hch@infradead.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Liu Bo <bo.liu@linux.alibaba.com>, Gao Xiang <hsiangkao@linux.alibaba.com>,
+ Liu Jiang <gerry@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi folks,
+This tries to add tail packing inline read to iomap. Different from
+the previous approach, it only marks the block range uptodate in the
+page it covers. Also, leave the original pos == 0 case as a fast path
+but rename it to iomap_read_inline_page().
 
-This patchset mainly adds preliminary EROFS iomap dio/dax support
-for non-tailpacking uncompressed cases.
+The write path remains untouched since EROFS cannot be used for
+testing. It'd be better to be implemented if upcoming real users care
+rather than leave untested dead code around.
 
-Direct I/O is useful in certain scenarios for uncompressed files.
-For example, double pagecache can be avoid by direct I/O when
-loop device is used for uncompressed files containing upper layer
-compressed filesystem.
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/iomap/buffered-io.c | 41 +++++++++++++++++++++++++++++++++++------
+ fs/iomap/direct-io.c   |  8 ++++++--
+ 2 files changed, 41 insertions(+), 8 deletions(-)
 
-Also, DAX is quite useful for some VM use cases in order to
-save guest memory extremely by using the minimal lightweight EROFS.
-
-Tail-packing inline iomap support will be handled later since
-currently iomap doesn't support such data pattern, which is
-independent to non-tailpacking cases.
-
-Comments are welcome. Thanks for your time on reading this!
-
-Thanks,
-Gao Xiang
-
-changes since v1:
- - allow 'dax=always' and 'dax=never' to keep in sync with ext4/xfs
-
-Gao Xiang (1):
-  erofs: dax support for non-tailpacking regular file
-
-Huang Jianan (1):
-  erofs: iomap support for non-tailpacking DIO
-
- fs/erofs/Kconfig    |   1 +
- fs/erofs/data.c     | 142 +++++++++++++++++++++++++++++++++++++++++++-
- fs/erofs/inode.c    |   9 ++-
- fs/erofs/internal.h |   4 ++
- fs/erofs/super.c    |  60 ++++++++++++++++++-
- 5 files changed, 212 insertions(+), 4 deletions(-)
-
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index 9023717c5188..c6d6d7f9d5a6 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -206,7 +206,7 @@ struct iomap_readpage_ctx {
+ };
+ 
+ static void
+-iomap_read_inline_data(struct inode *inode, struct page *page,
++iomap_read_inline_page(struct inode *inode, struct page *page,
+ 		struct iomap *iomap)
+ {
+ 	size_t size = i_size_read(inode);
+@@ -225,10 +225,33 @@ iomap_read_inline_data(struct inode *inode, struct page *page,
+ 	SetPageUptodate(page);
+ }
+ 
++/*
++ * Different from iomap_read_inline_page, which makes the range of
++ * some tail blocks in the page uptodate and doesn't clean post-EOF.
++ */
++static void
++iomap_read_inline_data(struct inode *inode, struct page *page,
++		struct iomap *iomap, loff_t pos, unsigned int plen)
++{
++	unsigned int poff = offset_in_page(pos);
++	unsigned int delta = pos - iomap->offset;
++	unsigned int alignedsize = roundup(plen, i_blocksize(inode));
++	void *addr;
++
++	/* make sure that inline_data doesn't cross page boundary */
++	BUG_ON(plen > PAGE_SIZE - offset_in_page(iomap->inline_data));
++	BUG_ON(plen != i_size_read(inode) - pos);
++	addr = kmap_atomic(page);
++	memcpy(addr + poff, iomap->inline_data + delta, plen);
++	memset(addr + poff + plen, 0, alignedsize - plen);
++	kunmap_atomic(addr);
++	iomap_set_range_uptodate(page, poff, alignedsize);
++}
++
+ static inline bool iomap_block_needs_zeroing(struct inode *inode,
+ 		struct iomap *iomap, loff_t pos)
+ {
+-	return iomap->type != IOMAP_MAPPED ||
++	return (iomap->type != IOMAP_MAPPED && iomap->type != IOMAP_INLINE) ||
+ 		(iomap->flags & IOMAP_F_NEW) ||
+ 		pos >= i_size_read(inode);
+ }
+@@ -245,9 +268,8 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
+ 	unsigned poff, plen;
+ 	sector_t sector;
+ 
+-	if (iomap->type == IOMAP_INLINE) {
+-		WARN_ON_ONCE(pos);
+-		iomap_read_inline_data(inode, page, iomap);
++	if (iomap->type == IOMAP_INLINE && !pos) {
++		iomap_read_inline_page(inode, page, iomap);
+ 		return PAGE_SIZE;
+ 	}
+ 
+@@ -262,6 +284,10 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
+ 		goto done;
+ 	}
+ 
++	if (iomap->type == IOMAP_INLINE) {
++		iomap_read_inline_data(inode, page, iomap, pos, plen);
++		goto done;
++	}
+ 	ctx->cur_page_in_bio = true;
+ 	if (iop)
+ 		atomic_add(plen, &iop->read_bytes_pending);
+@@ -598,6 +624,9 @@ iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, unsigned flags,
+ 	BUG_ON(pos + len > iomap->offset + iomap->length);
+ 	if (srcmap != iomap)
+ 		BUG_ON(pos + len > srcmap->offset + srcmap->length);
++	/* no available tail-packing write user yet, never allow it for now */
++	if (WARN_ON_ONCE(srcmap->type == IOMAP_INLINE && iomap->offset))
++		return -EIO;
+ 
+ 	if (fatal_signal_pending(current))
+ 		return -EINTR;
+@@ -616,7 +645,7 @@ iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, unsigned flags,
+ 	}
+ 
+ 	if (srcmap->type == IOMAP_INLINE)
+-		iomap_read_inline_data(inode, page, srcmap);
++		iomap_read_inline_page(inode, page, srcmap);
+ 	else if (iomap->flags & IOMAP_F_BUFFER_HEAD)
+ 		status = __block_write_begin_int(page, pos, len, NULL, srcmap);
+ 	else
+diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
+index 9398b8c31323..a905939dea4e 100644
+--- a/fs/iomap/direct-io.c
++++ b/fs/iomap/direct-io.c
+@@ -380,7 +380,10 @@ iomap_dio_inline_actor(struct inode *inode, loff_t pos, loff_t length,
+ 	struct iov_iter *iter = dio->submit.iter;
+ 	size_t copied;
+ 
+-	BUG_ON(pos + length > PAGE_SIZE - offset_in_page(iomap->inline_data));
++	if (WARN_ON_ONCE(pos && (dio->flags & IOMAP_DIO_WRITE)))
++		return -EIO;
++	/* inline data should be in the same page boundary */
++	BUG_ON(length > PAGE_SIZE - offset_in_page(iomap->inline_data));
+ 
+ 	if (dio->flags & IOMAP_DIO_WRITE) {
+ 		loff_t size = inode->i_size;
+@@ -394,7 +397,8 @@ iomap_dio_inline_actor(struct inode *inode, loff_t pos, loff_t length,
+ 			mark_inode_dirty(inode);
+ 		}
+ 	} else {
+-		copied = copy_to_iter(iomap->inline_data + pos, length, iter);
++		copied = copy_to_iter(iomap->inline_data + pos - iomap->offset,
++				length, iter);
+ 	}
+ 	dio->size += copied;
+ 	return copied;
 -- 
 2.24.4
 
