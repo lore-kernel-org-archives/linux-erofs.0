@@ -2,67 +2,88 @@ Return-Path: <SRS0=SOra=MI=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F34FFC07E95
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B8BC12002
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:53:48 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 73217613CF
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:06:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73217613CF
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 73458608FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jul 2021 15:53:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73458608FE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GRF21157Rz305v
-	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:06:33 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GRG4V0jrXz303t
+	for <linux-erofs@archiver.kernel.org>; Sat, 17 Jul 2021 01:53:46 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=W4kk2VIp;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=qUSqXqr/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
- smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
- helo=casper.infradead.org;
- envelope-from=batv+382ccfd9051a34597009+6536+infradead.org+hch@casper.srs.infradead.org;
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::d30;
+ helo=mail-io1-xd30.google.com; envelope-from=andreas.gruenbacher@gmail.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=W4kk2VIp; 
- dkim-atps=neutral
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=qUSqXqr/; dkim-atps=neutral
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com
+ [IPv6:2607:f8b0:4864:20::d30])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GRF1z29yWz2yN4
- for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:06:29 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=p2jp4TKVKUbRaXkEqpueJ3r5TGVZqBxb3+WOYtKL/lo=; b=W4kk2VIp/COn5HR9jLXvO6E1r4
- V5nRtkY79aVdM8qeu1MDonnLzyTvZhnmgAKOl/Ur2osTRhkIN7QYmxqHSKGJmZG+feq77wERJstSi
- 7siJjLU1rFj9z33dxKQeN2lnEvWfXnJ22CVnQL9J77UXZEicN52c/9ut0OFDA6eFcriumUQ6cQp0J
- vkEpm8qqTYQjAceIOu7ttQlDTybU5nzSh2+kCPAut4YHzLutC5JtpCUyCcJqD7pod3QvgItO4aN7e
- nr/m5sLTqkfViKMEH2oXYhcvwDYm8EvkXaQmKXqGfnijYqWqp2kUMBCd09KL4XGKWlwLyMzZMajeL
- OBj6aRuw==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
- Linux)) id 1m4PNy-004ZkD-2i; Fri, 16 Jul 2021 15:04:36 +0000
-Date: Fri, 16 Jul 2021 16:04:18 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: Re: [PATCH] iomap: Add missing flush_dcache_page
-Message-ID: <YPGf8o7vo6/9iTE5@infradead.org>
-References: <20210716150032.1089982-1-willy@infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GRG4L6RHbz2yy3
+ for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jul 2021 01:53:37 +1000 (AEST)
+Received: by mail-io1-xd30.google.com with SMTP id l5so11139904iok.7
+ for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jul 2021 08:53:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+ bh=yShQ0w4qzLoVnuPkOVdukVpyIyk/pCo4eKwDcVHu++E=;
+ b=qUSqXqr/51Qsk99OqBkZ1bu50pzl443gJ88idV65QHwFQXDybGkypN5TfGy/Xjt+TF
+ SBIpZQdWLPm6SgZjqzzpxr/i9Ndcs+9v/AZlRS6UAHPYv+ny132MYHTKvqppqv1ZGjqj
+ LPqRT4IhdeHDwAmetkXvhy3xs2PY30ZwdyZECeeoFi5j/Z6A6i5xilImoZjzqkQQRuZF
+ GrmTSmI6II7RXQXzoPoSErEAr/3XgxkkBc495fy0rFxPGToiM2JpKB5ErBHSfZjXl4Q3
+ R2Rt0oc9uRqLW0zN7mvL3nSUnzfdsZSOZFWNrK+fHL/CrxvrDvRtgkJCuYTMYOC6N7fT
+ P/MA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to;
+ bh=yShQ0w4qzLoVnuPkOVdukVpyIyk/pCo4eKwDcVHu++E=;
+ b=UQ+7WeqdHKEe9rw2Po4OZuEGGyI2FyV02Z3ADfcNyH0EH0jqOwALxrgoB+UtfH1hWH
+ cMq/kPIti3crtDP8Pajp8kExBRr1+yVbXjQkDuwejJivZEqKqz0+U+KeRWpoCe1a0hyp
+ If7uyECNkWonBIjSGx3SewshYeuNx6T0gNQuQT7oRtHA5efE6/VjXqq3IVhASegrnJNL
+ bldoKvpmwJ6StetO6I5n4MZCewEQe02gtoIwIljDjEXTElSXOT42C3LUA1WgqbW4/RHK
+ /7SGSwK3SwNTegVmHy3hWz0u+XMu5XZnCa5/Ph0NjvX+LFLZ0Gaw/0RG7/bpkeOSQKeT
+ ewLw==
+X-Gm-Message-State: AOAM533XT05ZDDqrvcHMe2ff3USECjLGZ6WeYpBtvNPgIGGrIS/GPMSD
+ w91XKE396308s/tKR+07mqCCaUzfq/SIgMFNDiE=
+X-Google-Smtp-Source: ABdhPJxXIP3px6bE903QFzXiDL8FsSzF8D/Z+LKnJqHfKwdULQ3dBLvztnF9spyN0ub8f+zFBc2br/Wp1e0jwWWkBpY=
+X-Received: by 2002:a6b:c90f:: with SMTP id z15mr7703884iof.183.1626450810983; 
+ Fri, 16 Jul 2021 08:53:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210716150032.1089982-1-willy@infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- casper.infradead.org. See http://www.infradead.org/rpr.html
+References: <20210716050724.225041-1-hsiangkao@linux.alibaba.com>
+ <20210716050724.225041-2-hsiangkao@linux.alibaba.com>
+ <YPGDZYT9OxdgNYf2@casper.infradead.org>
+ <YPGQB3zT4Wp4Q38X@B-P7TQMD6M-0146.local>
+ <YPGbNCdCNXIpNdqd@casper.infradead.org>
+ <YPGfqLcSiH3/z2RT@B-P7TQMD6M-0146.local>
+In-Reply-To: <YPGfqLcSiH3/z2RT@B-P7TQMD6M-0146.local>
+From: =?UTF-8?Q?Andreas_Gr=C3=BCnbacher?= <andreas.gruenbacher@gmail.com>
+Date: Fri, 16 Jul 2021 17:53:19 +0200
+Message-ID: <CAHpGcMJzEiJUbD=7ZOdH7NF+gq9MuEi8=ym34ay7QAm5_91s7g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] iomap: support tail packing inline read
+To: Matthew Wilcox <willy@infradead.org>, linux-erofs@lists.ozlabs.org, 
+ Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, 
+ "Darrick J. Wong" <djwong@kernel.org>, Christoph Hellwig <hch@infradead.org>,
+ Chao Yu <chao@kernel.org>, 
+ Liu Bo <bo.liu@linux.alibaba.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, 
+ Liu Jiang <gerry@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,36 +95,80 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
- "Darrick J . Wong" <djwong@kernel.org>, stable@vger.kernel.org,
- Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
- Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Jul 16, 2021 at 04:00:32PM +0100, Matthew Wilcox (Oracle) wrote:
-> Inline data needs to be flushed from the kernel's view of a page before
-> it's mapped by userspace.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 19e0c58f6552 ("iomap: generic inline data handling")
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> ---
->  fs/iomap/buffered-io.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-> index 41da4f14c00b..fe60c603f4ca 100644
-> --- a/fs/iomap/buffered-io.c
-> +++ b/fs/iomap/buffered-io.c
-> @@ -222,6 +222,7 @@ iomap_read_inline_data(struct inode *inode, struct page *page,
->  	memcpy(addr, iomap->inline_data, size);
->  	memset(addr + size, 0, PAGE_SIZE - size);
->  	kunmap_atomic(addr);
-> +	flush_dcache_page(page);
+Am Fr., 16. Juli 2021 um 17:03 Uhr schrieb Gao Xiang
+<hsiangkao@linux.alibaba.com>:
+> On Fri, Jul 16, 2021 at 03:44:04PM +0100, Matthew Wilcox wrote:
+> > On Fri, Jul 16, 2021 at 09:56:23PM +0800, Gao Xiang wrote:
+> > > Hi Matthew,
+> > >
+> > > On Fri, Jul 16, 2021 at 02:02:29PM +0100, Matthew Wilcox wrote:
+> > > > On Fri, Jul 16, 2021 at 01:07:23PM +0800, Gao Xiang wrote:
+> > > > > This tries to add tail packing inline read to iomap. Different from
+> > > > > the previous approach, it only marks the block range uptodate in the
+> > > > > page it covers.
+> > > >
+> > > > Why?  This path is called under two circumstances: readahead and readpage.
+> > > > In both cases, we're trying to bring the entire page uptodate.  The inline
+> > > > extent is always the tail of the file, so we may as well zero the part of
+> > > > the page past the end of file and mark the entire page uptodate instead
+> > > > and leaving the end of the page !uptodate.
+> > > >
+> > > > I see the case where, eg, we have the first 2048 bytes of the file
+> > > > out-of-inode and then 20 bytes in the inode.  So we'll create the iop
+> > > > for the head of the file, but then we may as well finish the entire
+> > > > PAGE_SIZE chunk as part of this iteration rather than update 2048-3071
+> > > > as being uptodate and leave the 3072-4095 block for a future iteration.
+> > >
+> > > Thanks for your comments. Hmm... If I understand the words above correctly,
+> > > what I'd like to do is to cover the inline extents (blocks) only
+> > > reported by iomap_begin() rather than handling other (maybe)
+> > > logical-not-strictly-relevant areas such as post-EOF (even pages
+> > > will be finally entirely uptodated), I think such zeroed area should
+> > > be handled by from the point of view of the extent itself
+> > >
+> > >          if (iomap_block_needs_zeroing(inode, iomap, pos)) {
+> > >                  zero_user(page, poff, plen);
+> > >                  iomap_set_range_uptodate(page, poff, plen);
+> > >                  goto done;
+> > >          }
+> >
+> > That does work.  But we already mapped the page to write to it, and
+> > we already have to zero to the end of the block.  Why not zero to
+> > the end of the page?  It saves an iteration around the loop, it saves
+> > a mapping of the page, and it saves a call to flush_dcache_page().
+>
+> I completely understand your concern, and that's also (sort of) why I
+> left iomap_read_inline_page() to make the old !pos behavior as before.
+>
+> Anyway, I could update Christoph's patch to behave like what you
+> suggested. Will do later since I'm now taking some rest...
 
-.. and all writes into a kmap also need such a flush, so this needs to
-move a line up.  My plan was to add a memcpy_to_page_and_pad helper
-ala memcpy_to_page to get various file systems and drivers out of the
-business of cache flushing as much as we can.
+Looking forward to that for some testing; Christoph's version was
+already looking pretty good.
+
+This code is a bit brittle, hopefully less so with the recent iop
+fixes on iomap-for-next.
+
+> > > The benefits I can think out are 1) it makes the logic understand
+> > > easier and no special cases just for tail-packing handling 2) it can
+> > > be then used for any inline extent cases (I mean e.g. in the middle of
+> > > the file) rather than just tail-packing inline blocks although currently
+> > > there is a BUG_ON to prevent this but it's easier to extend even further.
+> > > 3) it can be used as a part for later partial page uptodate logic in
+> > > order to match the legacy buffer_head logic (I remember something if my
+> > > memory is not broken about this...)
+> >
+> > Hopefully the legacy buffer_head logic will go away soon.
+>
+> Hmmm.. I partially agree on this (I agree buffer_head is a legacy stuff
+> but...), considering some big PAGE_SIZE like 64kb or bigger, partial
+> uptodate can save I/O for random file read pattern in general (not mmap
+> read, yes, also considering readahead, but I received some regression
+> due to I/O amplification like this when I was at the previous * 2 company).
+
+Thanks,
+Andreas
