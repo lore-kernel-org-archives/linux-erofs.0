@@ -2,62 +2,78 @@ Return-Path: <SRS0=RNpQ=ML=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1393C636C9
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 08:41:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 235E6C07E9B
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 11:20:10 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1F2D5611CC
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 08:41:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F2D5611CC
+	by mail.kernel.org (Postfix) with ESMTPS id 5115E610C7
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 11:20:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5115E610C7
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GSwLF4d4Sz30DR
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 18:41:25 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GSzsM4DlHz30G8
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 21:20:07 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=A9Xm6YNl;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=h1qdBi0F;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
  helo=casper.infradead.org;
  envelope-from=batv+9026cc9f21ac068c1222+6539+infradead.org+hch@casper.srs.infradead.org;
  receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
+ header.s=casper.20170209 header.b=h1qdBi0F; 
+ dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GSwKY1nQ4z2xnc
- for <linux-erofs@lists.ozlabs.org>; Mon, 19 Jul 2021 18:40:43 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GSzsB32lXz2yY9
+ for <linux-erofs@lists.ozlabs.org>; Mon, 19 Jul 2021 21:19:54 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ References:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=cc8WxTp9u8HYpKx7zXqvjDzDZErsRxFk/MMnyKkMLQg=; b=A9Xm6YNlWN+nzI/dpgXm0abe3A
- luJ1k4KEHp2gDhChrg4AiKI+M2OZ0q+Ux0kqutpjRVUORh32sJIEUA+Arf7sYFFaUVusZPNRER6MD
- CIUar6CD9U4dE5V1h8tVC37BNxgzxwnM/1BgOaC7jyW6/R0TZUEFnMOI14yYCIXgRb5qxTiR/Ynmz
- m+2Elq52B126zZr+Kcytn4Xq7rRrlOSxTV9yGflhkk80X3rJV9CFp961ly+zL1kf8P0jwmQ0nyT8L
- hyQSQLKZuF5VKo7Ixfq8omp22OV4030nCh9yUdu2buSXncSp7cIZh+LLeDgFHGRAo0wIZPqXZggjM
- xKgjAg0Q==;
+ bh=XRraZAxjHWHOmKDHLSEsZ8UjvPxlwYc6y4fq7IIgfIQ=; b=h1qdBi0FWIlit/z9Kr+XrqBsI2
+ 8zGpF3RiZW81r65EUD8AOdCS5gMjNpuAwM5GfsuJnGIBIdlO6ajbmKyu0YlZhjoGpxIWvovLGulb0
+ +ngRKmWAGi5Q4LL5rkDiAgHGqvtNsCI+o4aUgF7Lom+mJNC5Uco8q6X0cyT9KBR+/lLHZbg0/B1D2
+ ZlxsXcHG+QEqLhO/LnIVys+tZHfQWPJDZJO4stCWDkyvftKpCdBWHr4dvnn6kdep4sZfZxcpiMbpU
+ 7G80OcHXKGajF53erZ23RAJfv2Dcmm66BZxo/dlPrZCBNvnj+tORfSn7/vRYFcGMO+C70MH7S3AqU
+ SLckoFZw==;
 Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
- Linux)) id 1m5Oo1-006f6U-0s; Mon, 19 Jul 2021 08:39:22 +0000
-Date: Mon, 19 Jul 2021 09:39:17 +0100
+ Linux)) id 1m5RFT-006nL5-Qf; Mon, 19 Jul 2021 11:15:56 +0000
+Date: Mon, 19 Jul 2021 12:15:47 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH] iomap: Add missing flush_dcache_page
-Message-ID: <YPU6NVlfIh4PfbPl@infradead.org>
-References: <20210716150032.1089982-1-willy@infradead.org>
- <YPGf8o7vo6/9iTE5@infradead.org>
- <YPHBqlLJQKQgRHqH@casper.infradead.org>
+To: Andreas Gr??nbacher <andreas.gruenbacher@gmail.com>,
+ Christoph Hellwig <hch@infradead.org>,
+ Matthew Wilcox <willy@infradead.org>, linux-erofs@lists.ozlabs.org,
+ Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ "Darrick J. Wong" <djwong@kernel.org>, Chao Yu <chao@kernel.org>,
+ Liu Bo <bo.liu@linux.alibaba.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Liu Jiang <gerry@linux.alibaba.com>
+Subject: Re: [PATCH 1/2] iomap: support tail packing inline read
+Message-ID: <YPVe41YqpfGLNsBS@infradead.org>
+References: <20210716050724.225041-1-hsiangkao@linux.alibaba.com>
+ <20210716050724.225041-2-hsiangkao@linux.alibaba.com>
+ <YPGDZYT9OxdgNYf2@casper.infradead.org>
+ <YPGQB3zT4Wp4Q38X@B-P7TQMD6M-0146.local>
+ <YPGbNCdCNXIpNdqd@casper.infradead.org>
+ <YPGfqLcSiH3/z2RT@B-P7TQMD6M-0146.local>
+ <CAHpGcMJzEiJUbD=7ZOdH7NF+gq9MuEi8=ym34ay7QAm5_91s7g@mail.gmail.com>
+ <YPLdSja/4FBsjss/@B-P7TQMD6M-0146.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YPHBqlLJQKQgRHqH@casper.infradead.org>
+In-Reply-To: <YPLdSja/4FBsjss/@B-P7TQMD6M-0146.local>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  casper.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -71,34 +87,49 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-xfs@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
- "Darrick J . Wong" <djwong@kernel.org>, stable@vger.kernel.org,
- Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
- Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, Jul 16, 2021 at 06:28:10PM +0100, Matthew Wilcox wrote:
-> > >  	memcpy(addr, iomap->inline_data, size);
-> > >  	memset(addr + size, 0, PAGE_SIZE - size);
-> > >  	kunmap_atomic(addr);
-> > > +	flush_dcache_page(page);
-> > 
-> > .. and all writes into a kmap also need such a flush, so this needs to
-> > move a line up.  My plan was to add a memcpy_to_page_and_pad helper
-> > ala memcpy_to_page to get various file systems and drivers out of the
-> > business of cache flushing as much as we can.
-> 
-> hm?  It's absolutely allowed to flush the page after calling kunmap.
-> Look at zero_user_segments(), for example.
+On Sat, Jul 17, 2021 at 09:38:18PM +0800, Gao Xiang wrote:
+> >From 62f367245492e389711bcebbf7da5adae586299f Mon Sep 17 00:00:00 2001
+> From: Christoph Hellwig <hch@lst.de>
+> Date: Fri, 16 Jul 2021 10:52:48 +0200
+> Subject: [PATCH] iomap: support tail packing inline read
 
-Documentation/core-api/cachetlb.rst states that any user page obtained
-using kmap needs a flush_kernel_dcache_page after modification.
-flush_dcache_page is a strict superset of flush_kernel_dcache_page.
-That beeing said flushing after kmap updates is a complete mess.
-arm as probably the poster child for dcache challenged plus highmem
-architectures always flushed caches from kunmap and, and arc has
-a flush_dcache_page that doesn't work at all on a highmem page that
-is not kmapped (where kmap_atomic and kmap_local_page don't count as
-kmapped as they don't set page->virtual).
+I'd still credit this to you as you did all the hard work.
+
+> +	/* inline source data must be inside a single page */
+> +	BUG_ON(iomap->length > PAGE_SIZE - offset_in_page(iomap->inline_data));
+> +	/* handle tail-packing blocks cross the current page into the next */
+> +	if (size > PAGE_SIZE - poff)
+> +		size = PAGE_SIZE - poff;
+
+This should probably use min or min_t.
+
+>  
+>  	addr = kmap_atomic(page);
+> -	memcpy(addr, iomap->inline_data, size);
+> -	memset(addr + size, 0, PAGE_SIZE - size);
+> +	memcpy(addr + poff, iomap->inline_data - iomap->offset + pos, size);
+> +	memset(addr + poff + size, 0, PAGE_SIZE - poff - size);
+>  	kunmap_atomic(addr);
+> -	SetPageUptodate(page);
+> +	flush_dcache_page(page);
+
+The flush_dcache_page addition should be a separate patch.
+
+>  
+>  	if (dio->flags & IOMAP_DIO_WRITE) {
+>  		loff_t size = inode->i_size;
+> @@ -394,7 +395,8 @@ iomap_dio_inline_actor(struct inode *inode, loff_t pos, loff_t length,
+>  			mark_inode_dirty(inode);
+>  		}
+>  	} else {
+> -		copied = copy_to_iter(iomap->inline_data + pos, length, iter);
+> +		copied = copy_to_iter(iomap->inline_data + pos - iomap->offset,
+> +				length, iter);
+
+We also need to take the offset into account for the write side.
+I guess it would be nice to have a local variable for the inline
+address to not duplicate that calculation multiple times.
