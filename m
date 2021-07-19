@@ -2,48 +2,56 @@ Return-Path: <SRS0=RNpQ=ML=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D03C6C636C9
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 15:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95D15C07E9D
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 15:29:46 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6ADFC61375
-	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 15:23:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6ADFC61375
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id 0A61060FED
+	for <linux-erofs@archiver.kernel.org>; Mon, 19 Jul 2021 15:29:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0A61060FED
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GT5Fp168gz30GN
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Jul 2021 01:23:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
- spf=none (no SPF record) smtp.mailfrom=lst.de
- (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de;
- receiver=<UNKNOWN>)
-X-Greylist: delayed 583 seconds by postgrey-1.36 at boromir;
- Tue, 20 Jul 2021 01:23:04 AEST
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GT5PN5Hm5z30HK
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Jul 2021 01:29:44 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GT5Fh0Jr1z2xKP
- for <linux-erofs@lists.ozlabs.org>; Tue, 20 Jul 2021 01:23:03 +1000 (AEST)
-Received: by verein.lst.de (Postfix, from userid 2407)
- id 1206568BFE; Mon, 19 Jul 2021 17:13:12 +0200 (CEST)
-Date: Mon, 19 Jul 2021 17:13:10 +0200
-From: Christoph Hellwig <hch@lst.de>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GT5PH4P90z302g
+ for <linux-erofs@lists.ozlabs.org>; Tue, 20 Jul 2021 01:29:37 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UgI5qI7_1626708560; 
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0UgI5qI7_1626708560) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 19 Jul 2021 23:29:22 +0800
+Date: Mon, 19 Jul 2021 23:29:20 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v3] iomap: support tail packing inline read
-Message-ID: <20210719151310.GA22355@lst.de>
+Message-ID: <YPWaUNeV1K13vpGF@B-P7TQMD6M-0146.local>
+Mail-Followup-To: Matthew Wilcox <willy@infradead.org>,
+ linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
+ LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
+ "Darrick J . Wong" <djwong@kernel.org>,
+ Andreas Gruenbacher <andreas.gruenbacher@gmail.com>
 References: <20210719144747.189634-1-hsiangkao@linux.alibaba.com>
  <YPWUBhxhoaEp8Frn@casper.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 In-Reply-To: <YPWUBhxhoaEp8Frn@casper.infradead.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,6 +72,24 @@ Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 On Mon, Jul 19, 2021 at 04:02:30PM +0100, Matthew Wilcox wrote:
+> On Mon, Jul 19, 2021 at 10:47:47PM +0800, Gao Xiang wrote:
+> > @@ -246,18 +245,19 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
+> >  	unsigned poff, plen;
+> >  	sector_t sector;
+> >  
+> > -	if (iomap->type == IOMAP_INLINE) {
+> > -		WARN_ON_ONCE(pos);
+> > -		iomap_read_inline_data(inode, page, iomap);
+> > -		return PAGE_SIZE;
+> > -	}
+> > -
+> > -	/* zero post-eof blocks as the page may be mapped */
+> >  	iop = iomap_page_create(inode, page);
+> > +	/* needs to skip some leading uptodated blocks */
+> >  	iomap_adjust_read_range(inode, iop, &pos, length, &poff, &plen);
+> >  	if (plen == 0)
+> >  		goto done;
+> >  
 > > +	if (iomap->type == IOMAP_INLINE) {
 > > +		iomap_read_inline_data(inode, page, iomap, pos);
 > > +		plen = PAGE_SIZE - poff;
@@ -74,6 +100,27 @@ On Mon, Jul 19, 2021 at 04:02:30PM +0100, Matthew Wilcox wrote:
 > GFS2 needs for there to _not_ be an iop for inline data.  That's
 > why I said we need to sort out when to create an iop before moving
 > the IOMAP_INLINE case below the creation of the iop.
+
+I have no idea how it breaks Andreas' case from the previous commit
+message: "
+iomap: Don't create iomap_page objects for inline files
+In iomap_readpage_actor, don't create iop objects for inline inodes.
+Otherwise, iomap_read_inline_data will set PageUptodate without setting
+iop->uptodate, and iomap_page_release will eventually complain.
+
+To prevent this kind of bug from occurring in the future, make sure the
+page doesn't have private data attached in iomap_read_inline_data.
+"
+
+After this patch, iomap_read_inline_data() will set iop->uptodate with
+iomap_set_range_uptodate() rather than set PageUptodate() directly, 
+so iomap_page_release won't complain.
+
+Am I missing something?
+
+Thanks,
+Gao Xiang
+
 > 
 > If we're not going to do that first, then I recommend leaving the
 > IOMAP_INLINE case where it is and changing it to ...
@@ -83,6 +130,3 @@ On Mon, Jul 19, 2021 at 04:02:30PM +0100, Matthew Wilcox wrote:
 > 
 > ... and have iomap_read_inline_data() return the number of bytes that
 > it copied + zeroed (ie PAGE_SIZE - poff).
-
-Returning the bytes is much cleaner anyway.  But we still need to deal
-with the sub-page uptodate status in one form or another.
