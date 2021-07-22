@@ -2,52 +2,55 @@ Return-Path: <SRS0=5K2Z=MO=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5A88C6377D
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jul 2021 05:56:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4A67C63793
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jul 2021 16:51:21 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 424BA61264
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jul 2021 05:56:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 424BA61264
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 3CA93613B2
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jul 2021 16:51:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3CA93613B2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GVhY16xpTz3085
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jul 2021 15:56:53 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GVz476WS2z302J
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Jul 2021 02:51:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nAXgxxdG;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=djwong@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=k20201202 header.b=nAXgxxdG; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GVhXy2SZ7z2yP5
- for <linux-erofs@lists.ozlabs.org>; Thu, 22 Jul 2021 15:56:47 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0Ugaix7h_1626933391; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0Ugaix7h_1626933391) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 22 Jul 2021 13:56:32 +0800
-Date: Thu, 22 Jul 2021 13:56:30 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GVz406n2hz2yMg
+ for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jul 2021 02:51:12 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9EB360BD3;
+ Thu, 22 Jul 2021 16:51:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1626972669;
+ bh=YPFjIV/cOfo9frdHbxz8MEqY64Kh1mVpesIueSZqjno=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=nAXgxxdGtBBkU8sn4fROa9JZHXVZajAjmGPJtJSdY3L6/CM/2QBFUl3l7IzZxoXyj
+ CA6ta6IH7o9hBD5w/cB6Rnus2PfnjWRLiYGZDRhXreNFdWkUFKstCejnNzXhm1Cmem
+ GwIsywdwsq01gSQYwxaksmS32B/Uhz3YxE6d/5BupSJPnKByJuCFatZXXPl4aAmn3N
+ Pl6Wd1nYSMYStmwtemRcGL4PMDKcLEwVVU1Y/o9RUz4027v38a3LPsD4BKGrS8uO27
+ xWh9Cn0jOuG0Myd+zW52DdDwL9Bu3CGrpjGl4mx+CxOaLjjIcHDk+L8WEUHCX79G0q
+ e7bGYJzb4JQcw==
+Date: Thu, 22 Jul 2021 09:51:09 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
 To: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH v6] iomap: support tail packing inline read
-Message-ID: <YPkIjhVq+MzVl1Sk@B-P7TQMD6M-0146.local>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
- linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>,
- "Darrick J . Wong" <djwong@kernel.org>,
- Matthew Wilcox <willy@infradead.org>,
- Andreas Gruenbacher <andreas.gruenbacher@gmail.com>
+Message-ID: <20210722165109.GD8639@magnolia>
 References: <20210722031729.51628-1-hsiangkao@linux.alibaba.com>
  <20210722053947.GA28594@lst.de>
 MIME-Version: 1.0
@@ -66,15 +69,12 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: "Darrick J . Wong" <djwong@kernel.org>,
- Andreas Gruenbacher <andreas.gruenbacher@gmail.com>,
+Cc: Andreas Gruenbacher <andreas.gruenbacher@gmail.com>,
  LKML <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@infradead.org>,
  linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
-
-Hi Christoph,
 
 On Thu, Jul 22, 2021 at 07:39:47AM +0200, Christoph Hellwig wrote:
 > I think some of the language here is confusing - mostly about tail
@@ -83,17 +83,6 @@ On Thu, Jul 22, 2021 at 07:39:47AM +0200, Christoph Hellwig wrote:
 > new helper to check the size, and removes the error on trying to
 > write with a non-zero pos, as it can be trivially supported now.
 > 
-
-Many thanks for your time and hard work on revising this again. I'm
-fine with this version and the update for iomap_write_begin(), and
-I will do test hours later as I said before.
-
-Hopefully this version could be confirmed by Andreas on the gfs2
-side as well.
-
-Thanks,
-Gao Xiang
-
 > ---
 > From 0f9c6ac6c2e372739b29195d25bebb8dd87e583a Mon Sep 17 00:00:00 2001
 > From: Gao Xiang <hsiangkao@linux.alibaba.com>
@@ -103,6 +92,20 @@ Gao Xiang
 > Add support for offsets into the inline data page at iomap->inline_data
 > to cater for the EROFS tailpackng case where a small data is stored
 > right after the inode.
+
+The commit message is a little misleading -- this adds support for
+inline data pages at nonzero (but page-aligned) file offsets, not file
+offsets into the page itself.  I suggest:
+
+"Add support for reading inline data content into the page cache from
+nonzero page-aligned file offsets.  This enables the EROFS tailpacking
+mode where the last few bytes of the file are stored right after the
+inode."
+
+The code changes look good to me.
+
+--D
+
 > 
 > Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 > ---
@@ -255,3 +258,4 @@ Gao Xiang
 >   * and page_done will be called for each page written to.  This only applies to
 > -- 
 > 2.30.2
+> 
