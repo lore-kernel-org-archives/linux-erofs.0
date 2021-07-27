@@ -2,65 +2,79 @@ Return-Path: <SRS0=Dndu=MT=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 370AFC4338F
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:04:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C561C4338F
+	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:23:54 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A8D6861B20
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:04:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A8D6861B20
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id C5E5261B41
+	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:23:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C5E5261B41
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GZ0T31J74z307R
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jul 2021 01:04:55 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GZ0tw3QK6z304j
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jul 2021 01:23:52 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=k1rZzZE6;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::12d;
+ helo=mail-lf1-x12d.google.com; envelope-from=andreas.gruenbacher@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=k1rZzZE6; dkim-atps=neutral
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com
+ [IPv6:2a00:1450:4864:20::12d])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GZ0Sz60Qzz2yYS
- for <linux-erofs@lists.ozlabs.org>; Wed, 28 Jul 2021 01:04:49 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=10; SR=0; TI=SMTPD_---0UhAAkxc_1627398276; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UhAAkxc_1627398276) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 27 Jul 2021 23:04:38 +0800
-Date: Tue, 27 Jul 2021 23:04:36 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Matthew Wilcox <willy@infradead.org>,
- "Darrick J . Wong" <djwong@kernel.org>
-Subject: Re: [PATCH v7] iomap: make inline data support more flexible
-Message-ID: <YQAghPSTWdTGYAm5@B-P7TQMD6M-0146.local>
-Mail-Followup-To: Matthew Wilcox <willy@infradead.org>,
- "Darrick J . Wong" <djwong@kernel.org>, dsterba@suse.cz,
- Christoph Hellwig <hch@lst.de>,
- Andreas Gruenbacher <agruenba@redhat.com>,
- Huang Jianan <huangjianan@oppo.com>, linux-erofs@lists.ozlabs.org,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- Andreas Gruenbacher <andreas.gruenbacher@gmail.com>
-References: <CAHpGcMKZP8b3TbRv3D-pcrE_iDU5TKUFHst9emuQmRPntFSArA@mail.gmail.com>
- <CAHpGcMJBhWcwteLDSBU3hgwq1tk_+LqogM1ZM=Fv8U0VtY5hMg@mail.gmail.com>
- <20210723174131.180813-1-hsiangkao@linux.alibaba.com>
- <20210725221639.426565-1-agruenba@redhat.com>
- <YP4zUvnBCAb86Mny@B-P7TQMD6M-0146.local>
- <20210726110611.459173-1-agruenba@redhat.com>
- <20210726121702.GA528@lst.de> <20210727082042.GI5047@twin.jikos.cz>
- <YQALsvt0UWGW+iMw@casper.infradead.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GZ0tp2Xksz3022
+ for <linux-erofs@lists.ozlabs.org>; Wed, 28 Jul 2021 01:23:45 +1000 (AEST)
+Received: by mail-lf1-x12d.google.com with SMTP id r17so22310952lfe.2
+ for <linux-erofs@lists.ozlabs.org>; Tue, 27 Jul 2021 08:23:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=pv8Xg1UA/7fyTc8laa/BULTDLowBOTs+1yEN3epTYrc=;
+ b=k1rZzZE6xcYi05EXrs4BUpn5+NWrXsCgMXx9Jh7jyRxpfmdG5gGSegc1GAgHUmueGk
+ zbjWmhL9vCPf6rULaA9f7eOS08DUjzTIEPuDBJdi8HHqV5MW9B3K4AtcpNnYm2C2eVmO
+ +bebb5Fq/OBgJ/fbng6BdbbK2JSJkxVJD1pM3ZvukhltkIyHYkG1NJfAI6yJl8pTVnLB
+ x82qUN1w6r0H0qYqjWpgypsVhaRnNAFG8W5wDI2B5U6yBh8k0UzJr7J2LgzJaAhPPJyV
+ UX/qJgsbFfd4Xx8vFylNt+BPqkkbKYTbi/tPVwNfvooaMcgIK+UvAr1PXGw01DtsuLRG
+ +VCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=pv8Xg1UA/7fyTc8laa/BULTDLowBOTs+1yEN3epTYrc=;
+ b=kJbu4WjP3oCCMvfMuwZbIE+8E8yxA4uWCJByF3tcZVk+gYkf42MtN+8hCJmEy6faoc
+ UC5b6kO4viT847u902TMwGCDIVCDMphZzHh2a5CChhSGJkFeJOknkOf1sc1s4o6i/dwC
+ XKMEEJUJ/mcYdPieW5TsWl+gjai82DigSawHxC3g0SIwv7SwZiudceN9NpY4e+WKFD/d
+ xLcOYGvT9ya18VaRZTeYiUyfUB6MxT9LjxhZlcFZuH0RgfEdK5EaDt4/y/5FoNbQXXTT
+ FjGhTZACDh1PiKBmYVRhp3b2BzGbzmgLrKmkzdvmyUUS7BUmXkqdiI2DjALNglcHpFsm
+ UBkg==
+X-Gm-Message-State: AOAM5339J6YDE4h9G3z+E9HbxCd/XusTvuWraanL8UcD8uLQDfeH8lnk
+ hIod7vaQfmYNqbhy4qDqgCfmz7nIKMcu8OOUM2w=
+X-Google-Smtp-Source: ABdhPJyVDbvQ7qncQhs4SVaYYBTv9KMgYQvTwvyKtxlDr16izB9z9m67AoqweJ0AbPriRysFKNAlhLR4SIpnStFfwX4=
+X-Received: by 2002:a05:6512:70a:: with SMTP id
+ b10mr16786306lfs.166.1627399418758; 
+ Tue, 27 Jul 2021 08:23:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YQALsvt0UWGW+iMw@casper.infradead.org>
+References: <20210727025956.80684-1-hsiangkao@linux.alibaba.com>
+ <20210727151051.GH8572@magnolia>
+In-Reply-To: <20210727151051.GH8572@magnolia>
+From: =?UTF-8?Q?Andreas_Gr=C3=BCnbacher?= <andreas.gruenbacher@gmail.com>
+Date: Tue, 27 Jul 2021 17:23:25 +0200
+Message-ID: <CAHpGcMJ2znSzZOEVZmFNDy-Yh+0HbkgRKs_jhGpRRwHUW3VxXg@mail.gmail.com>
+Subject: Re:
+To: "Darrick J. Wong" <djwong@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,50 +86,21 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>, linux-kernel@vger.kernel.org,
- Andreas Gruenbacher <andreas.gruenbacher@gmail.com>, dsterba@suse.cz,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- Christoph Hellwig <hch@lst.de>
+Cc: Andreas Gruenbacher <agruenba@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@infradead.org>,
+ Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+ linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Jul 27, 2021 at 02:35:46PM +0100, Matthew Wilcox wrote:
-> On Tue, Jul 27, 2021 at 10:20:42AM +0200, David Sterba wrote:
-> > On Mon, Jul 26, 2021 at 02:17:02PM +0200, Christoph Hellwig wrote:
-> > > > Subject: iomap: Support tail packing
-> > > 
-> > > I can't say I like this "tail packing" language here when we have the
-> > > perfectly fine inline wording.  Same for various comments in the actual
-> > > code.
-> > 
-> > Yes please, don't call it tail-packing when it's an inline extent, we'll
-> > use that for btrfs eventually and conflating the two terms has been
-> > cofusing users. Except reiserfs, no linux filesystem does tail-packing.
-> 
-> Hmm ... I see what reiserfs does as packing tails of multiple files into
-> one block.  What gfs2 (and ext4) do is inline data.  Erofs packs the
-> tail of a single file into the same block as the inode.  If I understand
+Am Di., 27. Juli 2021 um 17:11 Uhr schrieb Darrick J. Wong <djwong@kernel.org>:
+> I'll change the subject to:
+>
+> iomap: support reading inline data from non-zero pos
 
-Plus each erofs block can have multiple inodes (thus multi-tail blocks) 
-oo as long as the meta block itself can fit.
-
-No matter what it's called, it's a kind of inline data (I think inline
-means that data mixes with metadata according to [1]). I was called it
-tail-block inline initially... whatever.
-
-Hopefully, Darrick could update the v8 title if some concern here.
-
-[1] https://www.kernel.org/doc/Documentation/filesystems/fiemap.txt
+That surely works for me.
 
 Thanks,
-Gao Xiang
-
-> what btrfs does correctly, it stores data in the btree.  But (like
-> gfs2/ext4), it's only for the entire-file-is-small case, not for
-> its-just-ten-bytes-into-the-last-block case.
-> 
-> So what would you call what erofs is doing if not tail-packing?
-> Wikipedia calls it https://en.wikipedia.org/wiki/Block_suballocation
-> which doesn't quite fit.  We need a phrase which means "this isn't
-> just for small files but for small tails of large files".
+Andreas
