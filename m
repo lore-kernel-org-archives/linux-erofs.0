@@ -1,61 +1,64 @@
-Return-Path: <SRS0=Dndu=MT=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=eft8=MV=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MISSING_SUBJECT,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20F06C4338F
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:10:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9955BC4338F
+	for <linux-erofs@archiver.kernel.org>; Thu, 29 Jul 2021 03:25:14 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A145561B22
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Jul 2021 15:10:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A145561B22
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 12FED6103E
+	for <linux-erofs@archiver.kernel.org>; Thu, 29 Jul 2021 03:25:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 12FED6103E
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GZ0c12Jr5z307q
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jul 2021 01:10:57 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GZwrl5794z3bmy
+	for <linux-erofs@archiver.kernel.org>; Thu, 29 Jul 2021 13:25:11 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DLb1lMqe;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=CmQJQH43;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
- envelope-from=djwong@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+ spf=none (no SPF record) smtp.mailfrom=infradead.org
+ (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org;
+ envelope-from=willy@infradead.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=DLb1lMqe; 
+ secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
+ header.s=casper.20170209 header.b=CmQJQH43; 
  dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GZ0bx665Dz2yYJ
- for <linux-erofs@lists.ozlabs.org>; Wed, 28 Jul 2021 01:10:53 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7558A61B22;
- Tue, 27 Jul 2021 15:10:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1627398651;
- bh=QILXXyl+4UVoKu+w2GVccS1nGY9cICQZzAdNlg3ZVZI=;
- h=Date:From:To:Cc:References:In-Reply-To:From;
- b=DLb1lMqepbzZ6OpeN0e74xTz/mi+LfHI9SeW868EOYDwKHwdRmlOBcHLTnOjtX547
- BhWJfEUeVdYXg3tXRny0KP2FG92j+O9Q2K0SmQa92BMD7oIeY4KbwLCWs5UMTaao5U
- wGTh9OGBQY7kC8pRVFyO5eGFjRfByXvjbYX8Z3LofLhC20bmY+gmldytx21JaiOhZy
- Uj9gwy4YhOFH8qPX1AF6Gbyi3OlkL+3NCUC8SC3se0hrFI4XH5mSDG+UGTIePXVFBN
- D4r0rjrRk8/ZA+ck73qpaq9Nl5LeqkO31jgz8mlPX4ngIBEi/3/XAk1mSIL6mVL9TN
- IB4AJTCTPSUtg==
-Date: Tue, 27 Jul 2021 08:10:51 -0700
-From: "Darrick J. Wong" <djwong@kernel.org>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Message-ID: <20210727151051.GH8572@magnolia>
-References: <20210727025956.80684-1-hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GZwrc63MJz2yLd
+ for <linux-erofs@lists.ozlabs.org>; Thu, 29 Jul 2021 13:25:02 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+ Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+ Content-Description:In-Reply-To:References;
+ bh=Zx24Tdms2CAcVL+Y0xOOs/yG6aW6xTMzubnm9RhAPcs=; b=CmQJQH43AEoXaW6IJUt9izAtX1
+ nkDtCr++9IelU/oLypXAuC4T4bx4cGCi9ychlZmYlTz5n3DMVxN5w7aQdahPJA4R+eggkUzB8PF+1
+ UlsPalGGzI0z8qrMs66jk2fASWKfU8cdnOJULDzBMGKHA+oQn1J/Ddag8hGwY+LO9g7vgUtiuxVg0
+ J06bxwWImi5fyAnx5TpHOgTnKSt+3g4e553AEsxoMwFIRkfLDbXys3Ht/ENgNyh80l05luVzjIStH
+ Zbc6ZbAqhDPTOZkssqqzYxOqpSiV7/WdLM85limjNXxnqoBC6WHFZYYnTeWtCJjA349EqIKx/tqTN
+ CAQKsHEg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
+ Hat Linux)) id 1m8weA-00GgCH-Gr; Thu, 29 Jul 2021 03:24:08 +0000
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To: linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
+ linux-xfs@vger.kernel.org
+Subject: [PATCH v2] iomap: Support inline data with block size < page size
+Date: Thu, 29 Jul 2021 04:23:44 +0100
+Message-Id: <20210729032344.3975412-1-willy@infradead.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210727025956.80684-1-hsiangkao@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -67,223 +70,98 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@infradead.org>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, linux-fsdevel@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>
+Cc: agruenba@redhat.com, hch@lst.de,
+ "Matthew Wilcox \(Oracle\)" <willy@infradead.org>, djwong@kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-I'll change the subject to:
+Remove the restriction that inline data must start on a page boundary
+in a file.  This allows, for example, the first 2KiB to be stored out
+of line and the trailing 30 bytes to be stored inline.
 
-iomap: support reading inline data from non-zero pos
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+v2:
+ - Rebase on top of iomap: Support file tail packing v9
 
-The existing inline data support only works for cases where the entire
-file is stored as inline data.  For larger files, EROFS stores the
-initial blocks separately and the remainder of the file ("file tail")
-adjacent to the inode.  Generalise inline data to allow reading the
-inline file tail.  Tails may not cross a page boundary in memory.
+ fs/iomap/buffered-io.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-We currently have no filesystems that support tails and writing,
-so that case is currently disabled (see iomap_write_begin_inline).
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index 66b733537c46..50f18985ed13 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -209,28 +209,26 @@ static int iomap_read_inline_data(struct inode *inode, struct page *page,
+ 		struct iomap *iomap)
+ {
+ 	size_t size = i_size_read(inode) - iomap->offset;
++	size_t poff = offset_in_page(iomap->offset);
+ 	void *addr;
+ 
+ 	if (PageUptodate(page))
+-		return 0;
++		return PAGE_SIZE - poff;
+ 
+-	/* inline data must start page aligned in the file */
+-	if (WARN_ON_ONCE(offset_in_page(iomap->offset)))
+-		return -EIO;
+ 	if (WARN_ON_ONCE(size > PAGE_SIZE -
+ 			 offset_in_page(iomap->inline_data)))
+ 		return -EIO;
+ 	if (WARN_ON_ONCE(size > iomap->length))
+ 		return -EIO;
+-	if (WARN_ON_ONCE(page_has_private(page)))
+-		return -EIO;
++	if (poff > 0)
++		iomap_page_create(inode, page);
+ 
+-	addr = kmap_atomic(page);
++	addr = kmap_atomic(page) + poff;
+ 	memcpy(addr, iomap->inline_data, size);
+-	memset(addr + size, 0, PAGE_SIZE - size);
++	memset(addr + size, 0, PAGE_SIZE - poff - size);
+ 	kunmap_atomic(addr);
+-	SetPageUptodate(page);
+-	return 0;
++	iomap_set_range_uptodate(page, poff, PAGE_SIZE - poff);
++	return PAGE_SIZE - poff;
+ }
+ 
+ static inline bool iomap_block_needs_zeroing(struct inode *inode,
+@@ -252,13 +250,8 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
+ 	unsigned poff, plen;
+ 	sector_t sector;
+ 
+-	if (iomap->type == IOMAP_INLINE) {
+-		int ret = iomap_read_inline_data(inode, page, iomap);
+-
+-		if (ret)
+-			return ret;
+-		return PAGE_SIZE;
+-	}
++	if (iomap->type == IOMAP_INLINE)
++		return iomap_read_inline_data(inode, page, iomap);
+ 
+ 	/* zero post-eof blocks as the page may be mapped */
+ 	iop = iomap_page_create(inode, page);
+@@ -593,10 +586,15 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, int flags,
+ static int iomap_write_begin_inline(struct inode *inode,
+ 		struct page *page, struct iomap *srcmap)
+ {
++	int ret;
++
+ 	/* needs more work for the tailpacking case, disable for now */
+ 	if (WARN_ON_ONCE(srcmap->offset != 0))
+ 		return -EIO;
+-	return iomap_read_inline_data(inode, page, srcmap);
++	ret = iomap_read_inline_data(inode, page, srcmap);
++	if (ret < 0)
++		return ret;
++	return 0;
+ }
+ 
+ static int
+-- 
+2.30.2
 
-If that's ok with everyone,
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-
---D
-
-
-On Tue, Jul 27, 2021 at 10:59:56AM +0800, Gao Xiang wrote:
-> The existing inline data support only works for cases where the entire
-> file is stored as inline data.  For larger files, EROFS stores the
-> initial blocks separately and then can pack a small tail adjacent to the
-> inode.  Generalise inline data to allow for tail packing.  Tails may not
-> cross a page boundary in memory.
-> 
-> We currently have no filesystems that support tail packing and writing,
-> so that case is currently disabled (see iomap_write_begin_inline).
-> 
-> Cc: Darrick J. Wong <djwong@kernel.org>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> ---
-> v8: https://lore.kernel.org/r/20210726145734.214295-1-hsiangkao@linux.alibaba.com
-> changes since v8:
->  - update the subject to 'iomap: Support file tail packing' as there
->    are clearly a number of ways to make the inline data support more
->    flexible (Matthew);
-> 
->  - add one extra safety check (Darrick):
-> 	if (WARN_ON_ONCE(size > iomap->length))
-> 		return -EIO;
-> 
->  fs/iomap/buffered-io.c | 42 ++++++++++++++++++++++++++++++------------
->  fs/iomap/direct-io.c   | 10 ++++++----
->  include/linux/iomap.h  | 18 ++++++++++++++++++
->  3 files changed, 54 insertions(+), 16 deletions(-)
-> 
-> diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-> index 87ccb3438bec..f429b9d87dbe 100644
-> --- a/fs/iomap/buffered-io.c
-> +++ b/fs/iomap/buffered-io.c
-> @@ -205,25 +205,32 @@ struct iomap_readpage_ctx {
->  	struct readahead_control *rac;
->  };
->  
-> -static void
-> -iomap_read_inline_data(struct inode *inode, struct page *page,
-> +static int iomap_read_inline_data(struct inode *inode, struct page *page,
->  		struct iomap *iomap)
->  {
-> -	size_t size = i_size_read(inode);
-> +	size_t size = i_size_read(inode) - iomap->offset;
->  	void *addr;
->  
->  	if (PageUptodate(page))
-> -		return;
-> +		return 0;
->  
-> -	BUG_ON(page_has_private(page));
-> -	BUG_ON(page->index);
-> -	BUG_ON(size > PAGE_SIZE - offset_in_page(iomap->inline_data));
-> +	/* inline data must start page aligned in the file */
-> +	if (WARN_ON_ONCE(offset_in_page(iomap->offset)))
-> +		return -EIO;
-> +	if (WARN_ON_ONCE(size > PAGE_SIZE -
-> +			 offset_in_page(iomap->inline_data)))
-> +		return -EIO;
-> +	if (WARN_ON_ONCE(size > iomap->length))
-> +		return -EIO;
-> +	if (WARN_ON_ONCE(page_has_private(page)))
-> +		return -EIO;
->  
->  	addr = kmap_atomic(page);
->  	memcpy(addr, iomap->inline_data, size);
->  	memset(addr + size, 0, PAGE_SIZE - size);
->  	kunmap_atomic(addr);
->  	SetPageUptodate(page);
-> +	return 0;
->  }
->  
->  static inline bool iomap_block_needs_zeroing(struct inode *inode,
-> @@ -247,8 +254,10 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
->  	sector_t sector;
->  
->  	if (iomap->type == IOMAP_INLINE) {
-> -		WARN_ON_ONCE(pos);
-> -		iomap_read_inline_data(inode, page, iomap);
-> +		int ret = iomap_read_inline_data(inode, page, iomap);
-> +
-> +		if (ret)
-> +			return ret;
->  		return PAGE_SIZE;
->  	}
->  
-> @@ -589,6 +598,15 @@ __iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, int flags,
->  	return 0;
->  }
->  
-> +static int iomap_write_begin_inline(struct inode *inode,
-> +		struct page *page, struct iomap *srcmap)
-> +{
-> +	/* needs more work for the tailpacking case, disable for now */
-> +	if (WARN_ON_ONCE(srcmap->offset != 0))
-> +		return -EIO;
-> +	return iomap_read_inline_data(inode, page, srcmap);
-> +}
-> +
->  static int
->  iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, unsigned flags,
->  		struct page **pagep, struct iomap *iomap, struct iomap *srcmap)
-> @@ -618,7 +636,7 @@ iomap_write_begin(struct inode *inode, loff_t pos, unsigned len, unsigned flags,
->  	}
->  
->  	if (srcmap->type == IOMAP_INLINE)
-> -		iomap_read_inline_data(inode, page, srcmap);
-> +		status = iomap_write_begin_inline(inode, page, srcmap);
->  	else if (iomap->flags & IOMAP_F_BUFFER_HEAD)
->  		status = __block_write_begin_int(page, pos, len, NULL, srcmap);
->  	else
-> @@ -671,11 +689,11 @@ static size_t iomap_write_end_inline(struct inode *inode, struct page *page,
->  	void *addr;
->  
->  	WARN_ON_ONCE(!PageUptodate(page));
-> -	BUG_ON(pos + copied > PAGE_SIZE - offset_in_page(iomap->inline_data));
-> +	BUG_ON(!iomap_inline_data_valid(iomap));
->  
->  	flush_dcache_page(page);
->  	addr = kmap_atomic(page);
-> -	memcpy(iomap->inline_data + pos, addr + pos, copied);
-> +	memcpy(iomap_inline_data(iomap, pos), addr + pos, copied);
->  	kunmap_atomic(addr);
->  
->  	mark_inode_dirty(inode);
-> diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
-> index 9398b8c31323..41ccbfc9dc82 100644
-> --- a/fs/iomap/direct-io.c
-> +++ b/fs/iomap/direct-io.c
-> @@ -378,23 +378,25 @@ iomap_dio_inline_actor(struct inode *inode, loff_t pos, loff_t length,
->  		struct iomap_dio *dio, struct iomap *iomap)
->  {
->  	struct iov_iter *iter = dio->submit.iter;
-> +	void *inline_data = iomap_inline_data(iomap, pos);
->  	size_t copied;
->  
-> -	BUG_ON(pos + length > PAGE_SIZE - offset_in_page(iomap->inline_data));
-> +	if (WARN_ON_ONCE(!iomap_inline_data_valid(iomap)))
-> +		return -EIO;
->  
->  	if (dio->flags & IOMAP_DIO_WRITE) {
->  		loff_t size = inode->i_size;
->  
->  		if (pos > size)
-> -			memset(iomap->inline_data + size, 0, pos - size);
-> -		copied = copy_from_iter(iomap->inline_data + pos, length, iter);
-> +			memset(iomap_inline_data(iomap, size), 0, pos - size);
-> +		copied = copy_from_iter(inline_data, length, iter);
->  		if (copied) {
->  			if (pos + copied > size)
->  				i_size_write(inode, pos + copied);
->  			mark_inode_dirty(inode);
->  		}
->  	} else {
-> -		copied = copy_to_iter(iomap->inline_data + pos, length, iter);
-> +		copied = copy_to_iter(inline_data, length, iter);
->  	}
->  	dio->size += copied;
->  	return copied;
-> diff --git a/include/linux/iomap.h b/include/linux/iomap.h
-> index 479c1da3e221..b8ec145b2975 100644
-> --- a/include/linux/iomap.h
-> +++ b/include/linux/iomap.h
-> @@ -97,6 +97,24 @@ iomap_sector(struct iomap *iomap, loff_t pos)
->  	return (iomap->addr + pos - iomap->offset) >> SECTOR_SHIFT;
->  }
->  
-> +/*
-> + * Returns the inline data pointer for logical offset @pos.
-> + */
-> +static inline void *iomap_inline_data(struct iomap *iomap, loff_t pos)
-> +{
-> +	return iomap->inline_data + pos - iomap->offset;
-> +}
-> +
-> +/*
-> + * Check if the mapping's length is within the valid range for inline data.
-> + * This is used to guard against accessing data beyond the page inline_data
-> + * points at.
-> + */
-> +static inline bool iomap_inline_data_valid(struct iomap *iomap)
-> +{
-> +	return iomap->length <= PAGE_SIZE - offset_in_page(iomap->inline_data);
-> +}
-> +
->  /*
->   * When a filesystem sets page_ops in an iomap mapping it returns, page_prepare
->   * and page_done will be called for each page written to.  This only applies to
-> -- 
-> 2.24.4
-> 
