@@ -2,136 +2,53 @@ Return-Path: <SRS0=S08A=NJ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FC2EC4338F
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 04:36:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69B6FC4338F
+	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 07:03:45 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9625061053
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 04:36:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9625061053
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id AEC0C61056
+	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 07:03:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AEC0C61056
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GqFTh2Gk8z3bPV
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 14:36:24 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1629261384;
-	bh=gaKOOXa40kzzvyevzD+iQ53oN0bsSSNAuKgdMHsYL4g=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=e5r21JpZjIP4SISDOe5hCPd0XyTHrNCIky93XGyFNS08Wz7Inyd6OkH1wBbtnrSAy
-	 pGSy4BjLR0g4t8qxXNIIS1zuFci4Gk3IHbhLy2vyXse5GJuugRmhmmh4o24pRdJFvT
-	 zLAvD2XcCHZbtfzdxHsxyTDDt8//TYDyDAog2XKIju6bNXYUOgCToFXVt/5Ztp5z92
-	 Kz9W38h6fZKzmbbQQeOHgCoxSVF1LvaQrcc50Tg239vyv65w+XIhrPSlJzGqOsCxHW
-	 sip/vpAQX7VcHyl3TGIBdOFJyvD7dD5cTvOhNbnB+WQAQ2TF7IpK5srXO1Yn5YrGRJ
-	 ps7cXab47aqMA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GqJlg3JF3z3bNy
+	for <linux-erofs@archiver.kernel.org>; Wed, 18 Aug 2021 17:03:43 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=oppo.com (client-ip=40.107.130.71;
- helo=apc01-hk2-obe.outbound.protection.outlook.com;
- envelope-from=huangjianan@oppo.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=oppo.com header.i=@oppo.com header.a=rsa-sha256
- header.s=selector1 header.b=wEJsJPch; 
- dkim-atps=neutral
-Received: from APC01-HK2-obe.outbound.protection.outlook.com
- (mail-eopbgr1300071.outbound.protection.outlook.com [40.107.130.71])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=hsiangkao@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GqFTc5F3Dz303f
- for <linux-erofs@lists.ozlabs.org>; Wed, 18 Aug 2021 14:36:19 +1000 (AEST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mZhvUt/Mn6AVvrRJ5KnOXFw+HyFQJHPY7AqnPm7aQu/voyA/HitTeWkF2rkBuKAQrytsZn9dyMFsQAEz+1QXXBbqSFrAqPhkh0yaWYmO/Bh5+JlJTCDt9a5g3/J4Ji5kV9brPInsDpytzzRhwIHEjMdGstwAzTn7JnyDJSEGafFN5aqiT2cAcLGbNqpF1zrzqjSsnfqpufbMCk+YFnp3cLTPtb2Nl3QoDyHZZyQcWXIGZUwe+oc9x+DXD6eIr3DQBECbl5d2ETGPB51RqoEjG2tXB2N2WX/4jrgD+ripUyLaPI3cjqEEZFgXurL09S119ZWxsl8w/9/fOR6ZiCl61A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gaKOOXa40kzzvyevzD+iQ53oN0bsSSNAuKgdMHsYL4g=;
- b=iDUVDdeFzq0C9RwP77MOTIb3tVCih0GqLYw1bKq8UgBpj8fU74I4BozSATUwIZjRShTn8bm0/GmdjLpF/I9vKc2v6PDQA8Tj+FyJi6ywp3AQuK1METF8eAYeNz62Ocw9lu3IL7Vhy5gGlqbdyPjZNI3uT35tZAvZQ7U7fGPAiyb77u2ujfITFj75HRybSik6rxHXqpfPwA5ZDpm4EhmMsar1hFPGa1DPO0fWIkJaj4b3FFf1kmxnN8jCJVPrFZHh56WU6XPN2SMshym11OfM1XKBfbMvbNIusvziozypTyEH7zDvNNbixwkHctI5u2ig7hi1ZRnoDUmOCyDJjpO6mA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oppo.com; dmarc=pass action=none header.from=oppo.com;
- dkim=pass header.d=oppo.com; arc=none
-Authentication-Results: lists.ozlabs.org; dkim=none (message not signed)
- header.d=none;lists.ozlabs.org; dmarc=none action=none header.from=oppo.com;
-Received: from SG2PR02MB4108.apcprd02.prod.outlook.com (2603:1096:4:96::19) by
- SG2PR02MB3943.apcprd02.prod.outlook.com (2603:1096:4:2c::15) with
- Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4415.18; Wed, 18 Aug 2021 04:35:59 +0000
-Received: from SG2PR02MB4108.apcprd02.prod.outlook.com
- ([fe80::98eb:b373:a778:a6a5]) by SG2PR02MB4108.apcprd02.prod.outlook.com
- ([fe80::98eb:b373:a778:a6a5%7]) with mapi id 15.20.4415.024; Wed, 18 Aug 2021
- 04:35:59 +0000
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: add mkfs.erofs and erofsfuse to .gitignore
-Date: Wed, 18 Aug 2021 12:35:39 +0800
-Message-Id: <20210818043539.25417-1-huangjianan@oppo.com>
-X-Mailer: git-send-email 2.25.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: HK2PR0401CA0004.apcprd04.prod.outlook.com
- (2603:1096:202:2::14) To SG2PR02MB4108.apcprd02.prod.outlook.com
- (2603:1096:4:96::19)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4GqJlW6YBGz2yR4
+ for <linux-erofs@lists.ozlabs.org>; Wed, 18 Aug 2021 17:03:32 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R911e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UjgIOt5_1629270197; 
+Received: from
+ e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0UjgIOt5_1629270197) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 18 Aug 2021 15:03:25 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>,
+ Liu Bo <bo.liu@linux.alibaba.com>
+Subject: [PATCH 2/4] erofs-utils: introduce sha256
+Date: Wed, 18 Aug 2021 15:03:14 +0800
+Message-Id: <20210818070316.1970-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20210818070316.1970-1-hsiangkao@linux.alibaba.com>
+References: <20210818070316.1970-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from PC80253450.adc.com (58.252.5.73) by
- HK2PR0401CA0004.apcprd04.prod.outlook.com (2603:1096:202:2::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19 via Frontend
- Transport; Wed, 18 Aug 2021 04:35:58 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 05e6cee7-d18c-416a-a0a9-08d96201ad60
-X-MS-TrafficTypeDiagnostic: SG2PR02MB3943:
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <SG2PR02MB3943B9B685EAEBF1C5073289C3FF9@SG2PR02MB3943.apcprd02.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1051;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kdD17cF2z/MCORd7PrFYUF2fHZBD8EUO1jZpNucRD1DRy3yFZUOARDRiO6rcPxQvKXdaIoMuFvcj8PyThn0s2+KTIYAuG5Pd0qcEwTJN/9UaCwJmtg/4XLVfBexqctRLhaqjuR72MpySeJECmGJ3ZMozSYhTclG+m6L79nKW5lf56IZNV09+Rmm6MMpPYJYtgfdCbfY0ka+szmYa5mmpqIKVwECGwA5JN+enyEob+26ZJEnDMN4LG8cyJYADcvjZtlranaIk5eHQhRcGF4jS+K0GetuANMj5oZjzOXFPt413/r7Ie5Wxf7tTb/610DWT7B0e7JJIBay8mnhlbBdfVNxIMdLfgU+TIknUkELTIMinbYvnMNRnnRnh4T0xz1D6k1uCKyu4FVfTUmgpSSmv5+bdwYQuLrBnS9LUF0hegQjmYqfrm800fR/SKgW/dOkBaVk+Qz1jtFN1oIQLhnG8bg7ykEW0Rl25vWtxvNckIN4/5aMM1pRGPdnHSWxcUwKzBVCPu2gQ6BCR25ID7tXCfw1yaksZd2bjdq8cucXDjATuGX+b0NGyejX8ebA90xMZfRtHQeL8yjlKjQBx9uBWQpNqDRoJwG+1Pc1O/8kkkSMXtkHeDAykdL57Tw3WKtauhzx2ovXWNx2ooAP+zMm34fErOxVIhaG/Oowx7DfeZNshUEHXAzag3x20Bd4QCYIVYRY5ZOjYX0h2Y3DZ9ZHDpeyH42mmJeeHUKWFKxLotfzlJT+/W7TID1h65oBxbqg+
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:SG2PR02MB4108.apcprd02.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(396003)(136003)(366004)(346002)(39860400002)(376002)(38350700002)(1076003)(6512007)(38100700002)(6486002)(2906002)(8676002)(66476007)(4326008)(5660300002)(107886003)(956004)(186003)(86362001)(6666004)(2616005)(6916009)(558084003)(316002)(66556008)(26005)(52116002)(36756003)(8936002)(83380400001)(6506007)(66946007)(478600001)(11606007)(142923001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?fAv2zPiEqrEGq8I26yc03fbWIN1FzdlWbljQ/7to+CzWKE72bdAns3pzHIro?=
- =?us-ascii?Q?iZtzhqqlv3gJ2ACM7uM4I+LfmgAlTva+iSbHK3sTeJ4Qn/IHTh/hUlhHKHcK?=
- =?us-ascii?Q?8DSfPI79nQaHphKGJrkvULZ433ULZZvswzB4cM7Wj3azYamlOA3JKhlwXEcU?=
- =?us-ascii?Q?SL4FJXKyF78B51bH9bfj+IbvrGKIWemEpXwhWdp4ss9ApsyT7E+v+d5OaBE5?=
- =?us-ascii?Q?XIvp8g4HMjw32/8Nfcn1wP1tH0GVhPvWVKvcFLYZwZ/po+0XolpEmtNpaVVj?=
- =?us-ascii?Q?31SzKMnAxfkhxSwijyBVAcb/+py0t68uvpCBVJDflO3oFNmv9JwHu116/MqD?=
- =?us-ascii?Q?HYb+P+SjEXMWEYmlfYAoYKoamPrVkuDjQ/1sT6t9PWWxdV9GbKe1urr55dhd?=
- =?us-ascii?Q?nJz1fQY/jaMDGYPzBTzAzT1/G/rS4Bz3ate8TUiZ1N4kHPHeqUahKJ8+1mQ4?=
- =?us-ascii?Q?kMfFDM6z6Ai44R7Me7o/fiDew7Bsnyf63UzaLcguapifkfXtgoVHKc90KGmU?=
- =?us-ascii?Q?mN15asYPxJVrZ5ibmWIcb2tGtgPFyDd15LuPlpk3I6SJQUR2er9ktE9KAjy/?=
- =?us-ascii?Q?SjyRuy/nethi/PkLRG5MPoxJ79bYDRf8+X9EieVFhczbrDOxoBJ+tqwqNtYL?=
- =?us-ascii?Q?ai5p7ZVUFR9g/cU/xWjIrlZgMiLC98RpQeFsImSUWWILXkgOJeDLqe88O4ct?=
- =?us-ascii?Q?nL/Eqrj6XSDWMRkdeiPtK3ZfvQeKTe+GW6dJDaAKpzgfs4OqMZzssvr1V3gf?=
- =?us-ascii?Q?YgZ+07sNi7QuXeAGe/GumvwrFkkwm28qfQc313pALCU5+xW8U4X8dKS18PV/?=
- =?us-ascii?Q?uGoo+4NA7MdeUA7iAXnnWac9QCm81c6gLmpg28/wQcZ7a33V4aeirLX7oaIG?=
- =?us-ascii?Q?oxViD0LAA0EgCGgc+7Lrs+CcR3PelchJebB5vnqAYjTlxTubssy0vN89KJr5?=
- =?us-ascii?Q?5EgOBAvDj3WhmtuO0vSmsaOG97rxKpAL2qVSbnB6OmQmVvUlw3d2vPukpVHK?=
- =?us-ascii?Q?pdHIyGW0M89dFwmfcRJUInTarrFufcObwdmkffi+BfPlQqcitweY4WYnQeDe?=
- =?us-ascii?Q?619NFfR+vUNHniJxiwraN8hkT9AYhflDfQWh4k9SK11N50XV23ijE/5yf/U/?=
- =?us-ascii?Q?5VZytIt19Q8NGgl3N0losCTedO3G591GYchL5VM0Pwg1wQWBX+N6j3uEIoPd?=
- =?us-ascii?Q?8YEjU6Un8P5wT594JxQ69X2NrceNmAWDgXiQw5uvRNn4KoBF92Plmik7Xk34?=
- =?us-ascii?Q?5VM41QwvLDLet52TetuTh0VBZ1lfkwH4GYO77dhYCVijDqslDiYqwMzyjT/v?=
- =?us-ascii?Q?54yS6xDfAOvje4/GZ8Iij2ui?=
-X-OriginatorOrg: oppo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 05e6cee7-d18c-416a-a0a9-08d96201ad60
-X-MS-Exchange-CrossTenant-AuthSource: SG2PR02MB4108.apcprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Aug 2021 04:35:59.5104 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f1905eb1-c353-41c5-9516-62b4a54b5ee6
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /9pcjF0kclPP51OpC/4U77Nmhp0wqAFrB+3OKrPN8r2dJiP2IeG8p/Ttojisggmnfll0wEPXZT27F/GJhC1q/w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SG2PR02MB3943
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -143,28 +60,289 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Huang Jianan via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Huang Jianan <huangjianan@oppo.com>
-Cc: yh@oppo.com, kevin.liw@oppo.com, guoweichao@oppo.com, guanyuewei@oppo.com
+Cc: Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Eryu Guan <eguan@linux.alibaba.com>, Liu Jiang <gerry@linux.alibaba.com>,
+ Peng Tao <tao.peng@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
----
- .gitignore | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+A simple sha256 approach copied from e2fsprogs.
 
-diff --git a/.gitignore b/.gitignore
-index 8bdd505..0e54836 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -27,4 +27,5 @@ configure.scan
- libtool
- stamp-h
- stamp-h1
--
-+mkfs.erofs
-+erofsfuse
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/Makefile.am |   2 +-
+ lib/sha256.c    | 248 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 249 insertions(+), 1 deletion(-)
+ create mode 100644 lib/sha256.c
+
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 0768d6aa5871..8e4ed37f9c70 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -22,7 +22,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+ noinst_HEADERS += compressor.h
+ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
+ 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
+-		      hashmap.c
++		      hashmap.c sha256.c
+ liberofs_la_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
+ if ENABLE_LZ4
+ liberofs_la_CFLAGS += ${LZ4_CFLAGS}
+diff --git a/lib/sha256.c b/lib/sha256.c
+new file mode 100644
+index 000000000000..68e039ab9c91
+--- /dev/null
++++ b/lib/sha256.c
+@@ -0,0 +1,248 @@
++/*
++ * sha256.c --- The sha256 algorithm
++ *
++ * Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
++ * (copied from libtomcrypt and then relicensed under GPLv2)
++ *
++ * %Begin-Header%
++ * This file may be redistributed under the terms of the GNU Library
++ * General Public License, version 2.
++ * %End-Header%
++ */
++#include "erofs/defs.h"
++#include <string.h>
++
++static const __u32 K[64] = {
++    0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
++    0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
++    0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
++    0xc19bf174UL, 0xe49b69c1UL, 0xefbe4786UL, 0x0fc19dc6UL, 0x240ca1ccUL,
++    0x2de92c6fUL, 0x4a7484aaUL, 0x5cb0a9dcUL, 0x76f988daUL, 0x983e5152UL,
++    0xa831c66dUL, 0xb00327c8UL, 0xbf597fc7UL, 0xc6e00bf3UL, 0xd5a79147UL,
++    0x06ca6351UL, 0x14292967UL, 0x27b70a85UL, 0x2e1b2138UL, 0x4d2c6dfcUL,
++    0x53380d13UL, 0x650a7354UL, 0x766a0abbUL, 0x81c2c92eUL, 0x92722c85UL,
++    0xa2bfe8a1UL, 0xa81a664bUL, 0xc24b8b70UL, 0xc76c51a3UL, 0xd192e819UL,
++    0xd6990624UL, 0xf40e3585UL, 0x106aa070UL, 0x19a4c116UL, 0x1e376c08UL,
++    0x2748774cUL, 0x34b0bcb5UL, 0x391c0cb3UL, 0x4ed8aa4aUL, 0x5b9cca4fUL,
++    0x682e6ff3UL, 0x748f82eeUL, 0x78a5636fUL, 0x84c87814UL, 0x8cc70208UL,
++    0x90befffaUL, 0xa4506cebUL, 0xbef9a3f7UL, 0xc67178f2UL
++};
++
++/* Various logical functions */
++#define Ch(x,y,z)       (z ^ (x & (y ^ z)))
++#define Maj(x,y,z)      (((x | y) & z) | (x & y))
++#define S(x, n)         RORc((x),(n))
++#define R(x, n)         (((x)&0xFFFFFFFFUL)>>(n))
++#define Sigma0(x)       (S(x, 2) ^ S(x, 13) ^ S(x, 22))
++#define Sigma1(x)       (S(x, 6) ^ S(x, 11) ^ S(x, 25))
++#define Gamma0(x)       (S(x, 7) ^ S(x, 18) ^ R(x, 3))
++#define Gamma1(x)       (S(x, 17) ^ S(x, 19) ^ R(x, 10))
++#define RORc(x, y) ( ((((__u32)(x)&0xFFFFFFFFUL)>>(__u32)((y)&31)) | ((__u32)(x)<<(__u32)(32-((y)&31)))) & 0xFFFFFFFFUL)
++
++#define RND(a,b,c,d,e,f,g,h,i)                         \
++     t0 = h + Sigma1(e) + Ch(e, f, g) + K[i] + W[i];   \
++     t1 = Sigma0(a) + Maj(a, b, c);                    \
++     d += t0;                                          \
++     h  = t0 + t1;
++
++#define STORE64H(x, y) \
++	do { \
++		(y)[0] = (unsigned char)(((x)>>56)&255);\
++		(y)[1] = (unsigned char)(((x)>>48)&255);\
++		(y)[2] = (unsigned char)(((x)>>40)&255);\
++		(y)[3] = (unsigned char)(((x)>>32)&255);\
++		(y)[4] = (unsigned char)(((x)>>24)&255);\
++		(y)[5] = (unsigned char)(((x)>>16)&255);\
++		(y)[6] = (unsigned char)(((x)>>8)&255);\
++		(y)[7] = (unsigned char)((x)&255); } while(0)
++
++#define STORE32H(x, y)                                                                     \
++  do { (y)[0] = (unsigned char)(((x)>>24)&255); (y)[1] = (unsigned char)(((x)>>16)&255);   \
++       (y)[2] = (unsigned char)(((x)>>8)&255); (y)[3] = (unsigned char)((x)&255); } while(0)
++
++#define LOAD32H(x, y)                            \
++  do { x = ((__u32)((y)[0] & 255)<<24) | \
++           ((__u32)((y)[1] & 255)<<16) | \
++           ((__u32)((y)[2] & 255)<<8)  | \
++           ((__u32)((y)[3] & 255)); } while(0)
++
++struct sha256_state {
++    __u64 length;
++    __u32 state[8], curlen;
++    unsigned char buf[64];
++};
++
++/* This is a highly simplified version from libtomcrypt */
++struct hash_state {
++	struct sha256_state sha256;
++};
++
++static void sha256_compress(struct hash_state * md, const unsigned char *buf)
++{
++    __u32 S[8], W[64], t0, t1;
++    __u32 t;
++    int i;
++
++    /* copy state into S */
++    for (i = 0; i < 8; i++) {
++        S[i] = md->sha256.state[i];
++    }
++
++    /* copy the state into 512-bits into W[0..15] */
++    for (i = 0; i < 16; i++) {
++        LOAD32H(W[i], buf + (4*i));
++    }
++
++    /* fill W[16..63] */
++    for (i = 16; i < 64; i++) {
++        W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
++    }
++
++    /* Compress */
++     for (i = 0; i < 64; ++i) {
++         RND(S[0],S[1],S[2],S[3],S[4],S[5],S[6],S[7],i);
++         t = S[7]; S[7] = S[6]; S[6] = S[5]; S[5] = S[4];
++         S[4] = S[3]; S[3] = S[2]; S[2] = S[1]; S[1] = S[0]; S[0] = t;
++     }
++
++    /* feedback */
++    for (i = 0; i < 8; i++) {
++        md->sha256.state[i] = md->sha256.state[i] + S[i];
++    }
++}
++
++static void sha256_init(struct hash_state * md)
++{
++    md->sha256.curlen = 0;
++    md->sha256.length = 0;
++    md->sha256.state[0] = 0x6A09E667UL;
++    md->sha256.state[1] = 0xBB67AE85UL;
++    md->sha256.state[2] = 0x3C6EF372UL;
++    md->sha256.state[3] = 0xA54FF53AUL;
++    md->sha256.state[4] = 0x510E527FUL;
++    md->sha256.state[5] = 0x9B05688CUL;
++    md->sha256.state[6] = 0x1F83D9ABUL;
++    md->sha256.state[7] = 0x5BE0CD19UL;
++}
++
++#define MIN(x, y) ( ((x)<(y))?(x):(y) )
++#define SHA256_BLOCKSIZE 64
++static void sha256_process(struct hash_state * md, const unsigned char *in, unsigned long inlen)
++{
++    unsigned long n;
++
++    while (inlen > 0) {
++	    if (md->sha256.curlen == 0 && inlen >= SHA256_BLOCKSIZE) {
++		    sha256_compress(md, in);
++		    md->sha256.length += SHA256_BLOCKSIZE * 8;
++		    in += SHA256_BLOCKSIZE;
++		    inlen -= SHA256_BLOCKSIZE;
++	    } else {
++		    n = MIN(inlen, (SHA256_BLOCKSIZE - md->sha256.curlen));
++		    memcpy(md->sha256.buf + md->sha256.curlen, in, (size_t)n);
++		    md->sha256.curlen += n;
++		    in += n;
++		    inlen -= n;
++		    if (md->sha256.curlen == SHA256_BLOCKSIZE) {
++			    sha256_compress(md, md->sha256.buf);
++			    md->sha256.length += 8*SHA256_BLOCKSIZE;
++			    md->sha256.curlen = 0;
++		    }
++	    }
++    }
++}
++
++static void sha256_done(struct hash_state * md, unsigned char *out)
++{
++    int i;
++
++    /* increase the length of the message */
++    md->sha256.length += md->sha256.curlen * 8;
++
++    /* append the '1' bit */
++    md->sha256.buf[md->sha256.curlen++] = (unsigned char)0x80;
++
++    /* if the length is currently above 56 bytes we append zeros
++     * then compress.  Then we can fall back to padding zeros and length
++     * encoding like normal.
++     */
++    if (md->sha256.curlen > 56) {
++        while (md->sha256.curlen < 64) {
++            md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
++        }
++        sha256_compress(md, md->sha256.buf);
++        md->sha256.curlen = 0;
++    }
++
++    /* pad upto 56 bytes of zeroes */
++    while (md->sha256.curlen < 56) {
++        md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
++    }
++
++    /* store length */
++    STORE64H(md->sha256.length, md->sha256.buf+56);
++    sha256_compress(md, md->sha256.buf);
++
++    /* copy output */
++    for (i = 0; i < 8; i++) {
++        STORE32H(md->sha256.state[i], out+(4*i));
++    }
++}
++
++void erofs_sha256(const unsigned char *in, unsigned long in_size,
++		  unsigned char out[32])
++{
++	struct hash_state md;
++
++	sha256_init(&md);
++	sha256_process(&md, in, in_size);
++	sha256_done(&md, out);
++}
++
++#ifdef UNITTEST
++static const struct {
++	char *msg;
++	unsigned char hash[32];
++} tests[] = {
++	{ "",
++	  { 0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14,
++	    0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f, 0xb9, 0x24,
++	    0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
++	    0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55 }
++	},
++	{ "abc",
++	  { 0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
++	    0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
++	    0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c,
++	    0xb4, 0x10, 0xff, 0x61, 0xf2, 0x00, 0x15, 0xad }
++	},
++	{ "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
++	  { 0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8,
++	    0xe5, 0xc0, 0x26, 0x93, 0x0c, 0x3e, 0x60, 0x39,
++	    0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67,
++	    0xf6, 0xec, 0xed, 0xd4, 0x19, 0xdb, 0x06, 0xc1 }
++	},
++};
++
++int main(int argc, char **argv)
++{
++	int i;
++	int errors = 0;
++	unsigned char tmp[32];
++
++	for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
++		unsigned char *msg = (unsigned char *) tests[i].msg;
++		int len = strlen(tests[i].msg);
++
++		ext2fs_sha256(msg, len, tmp);
++		printf("SHA256 test message %d: ", i);
++		if (memcmp(tmp, tests[i].hash, 32) != 0) {
++			printf("FAILED\n");
++			errors++;
++		} else
++			printf("OK\n");
++	}
++	return errors;
++}
++
++#endif /* UNITTEST */
 -- 
-2.25.1
+2.24.4
 
