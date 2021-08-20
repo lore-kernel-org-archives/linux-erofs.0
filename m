@@ -2,54 +2,74 @@ Return-Path: <SRS0=LfZ1=NL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=0.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4111BC4320A
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 10:00:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D742CC4338F
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 12:34:48 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BDBFC60EBD
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 10:00:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BDBFC60EBD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 685D460F45
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 12:34:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 685D460F45
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GrcbD3Kb8z30QG
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 20:00:56 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Grh0l0KcDz3d8t
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Aug 2021 22:34:47 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20161025 header.b=lutN4JU3;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::12c;
+ helo=mail-il1-x12c.google.com; envelope-from=igoreisberg@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20161025 header.b=lutN4JU3; dkim-atps=neutral
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com
+ [IPv6:2607:f8b0:4864:20::12c])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Grcb66Jf3z30JT
- for <linux-erofs@lists.ozlabs.org>; Fri, 20 Aug 2021 20:00:46 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R251e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=hsiangkao@linux.alibaba.com; NM=1; PH=DS; RN=9; SR=0;
- TI=SMTPD_---0UkJjDtn_1629453621; 
-Received: from
- e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UkJjDtn_1629453621) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 20 Aug 2021 18:00:27 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>,
- Liu Bo <bo.liu@linux.alibaba.com>
-Subject: [PATCH v3 1/2] erofs: introduce chunk-based file on-disk format
-Date: Fri, 20 Aug 2021 18:00:18 +0800
-Message-Id: <20210820100019.208490-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20210819063310.177035-1-hsiangkao@linux.alibaba.com>
-References: <20210819063310.177035-1-hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Grh0B1VW9z3cLP
+ for <linux-erofs@lists.ozlabs.org>; Fri, 20 Aug 2021 22:34:17 +1000 (AEST)
+Received: by mail-il1-x12c.google.com with SMTP id u7so9374879ilk.7
+ for <linux-erofs@lists.ozlabs.org>; Fri, 20 Aug 2021 05:34:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:from:date:message-id:subject:to;
+ bh=JWCUufuuwhNarbqsGFPFj/uqXOuC4DDjcyui5VTRZhU=;
+ b=lutN4JU3MlzsDojz3hHjI1LdCZ0Zx2i4KpDVcRDahTvPW3hx95WUj74gKzItp5mDCH
+ zIiOIVkVCFkqWIyUgTWzPYwfCPbRYaG7Ayb+q6E1hR+XUgYzhZL8CS050CvT2+daat5L
+ TfEXDvMP5Qr8kbfYC2KXPVQar52lLQAhZJDu65eMMHeeiGeRK8TTEFPeKQIXGACJixbp
+ C0wZouv0C88iNbG/NtyjCB6uPxYdE03P27UDdUPF0qBCfxRZzJQCf8MugSBctpyCXLo6
+ MR6wm5zbIBb+y3qa7+KwXJuhYwWEKaAAOcXGxtqx5TCoHkPixzDkseeHwgMGpuKq3wai
+ rmBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+ bh=JWCUufuuwhNarbqsGFPFj/uqXOuC4DDjcyui5VTRZhU=;
+ b=U/pYG9GD1emgED+LPC9qvyS19NRWJtal80OMJ+VKkHncQQVL9VxABKtiqCC9k3g+Hc
+ wo6vQEOo5B2A3Lur4AAwj6eyj0PnUtDYprPFB52Fdo6Exzul4W3EgrTcgZHEH1JuSqpF
+ vmxyRoUSTSqA1ONsW/mlg777Xzo60yhXNJyBm5vCiHFDT5aKyZEkaoXxWAMgBdmepNpN
+ 3xsnOmh54lc9xa3YT/m2yXZ4/lpgohlRNzTc/m5qr/tyiFj7JSPmHrh051yCZiE6jnqe
+ l+fjaAanvzShoFp0bxs91xK529UYW2gFsAjvWIt/s6kUl+NAKp9L9kYwwPRJXtEI5deh
+ KrCQ==
+X-Gm-Message-State: AOAM530AZ/Ox53nL0H3YG2svUz3KPxMGA8bw3Jnh0BuAHAnoZbjl4i3D
+ NXg41tpJ7kRnE1lIodARK2TCdBO9MKP1Mio5iBgMoJqiHII=
+X-Google-Smtp-Source: ABdhPJxIrn3EJJn5vWuYAdvi98s3XHjBggqaA+lc8qaxtyd+wyOMDOGPTqD77ZKt1wgo27jYOuAfeqN6dEOG1NtVEGY=
+X-Received: by 2002:a92:dd12:: with SMTP id n18mr13852155ilm.180.1629462853592; 
+ Fri, 20 Aug 2021 05:34:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Igor Eisberg <igoreisberg@gmail.com>
+Date: Fri, 20 Aug 2021 15:34:05 +0300
+Message-ID: <CABjEcnGniBcadC4DDV4xCio8UmZyhSGWt+_gi_ESbYwoOQ2E0w@mail.gmail.com>
+Subject: An issue with erofsfuse
+To: linux-erofs@lists.ozlabs.org
+Content-Type: multipart/alternative; boundary="000000000000902a0305c9fce2dc"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,190 +81,58 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peng Tao <tao.peng@linux.alibaba.com>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Eryu Guan <eguan@linux.alibaba.com>,
- Liu Jiang <gerry@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Currently, uncompressed data except for tail-packing inline is
-consecutive on disk.
+--000000000000902a0305c9fce2dc
+Content-Type: text/plain; charset="UTF-8"
 
-In order to support chunk-based data deduplication, add a new
-corresponding inode data layout.
+Hey there, getting straight to the point.
+Our team is using Debian 10, in which erofs mounting is not supported and
+we have no option of updating the kernel, nor do we have sudo permissions
+on this server.
 
-In the future, the data source of chunks can be either (un)compressed.
+Our only choice is to use erofsfuse to mount an Android image (compression
+was used on that image), for the sole purpose of extracting its contents to
+another folder for processing.
+Tried on Debian 10, pop_OS! and even the latest Kubuntu (where native
+mounting is supported), but on all of them I could not copy files which are
+compressed from the mounted image to another location (ext4 file system).
 
-Reviewed-by: Liu Bo <bo.liu@linux.alibaba.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
-changes since v2:
- - introduce EROFS_BLOCK_MAP_ENTRY_SIZE suggested by Chao.
+The error I'm getting is: "Operation not supported (95)"
 
- Documentation/filesystems/erofs.rst | 16 ++++++++--
- fs/erofs/erofs_fs.h                 | 47 +++++++++++++++++++++++++++--
- 2 files changed, 59 insertions(+), 4 deletions(-)
+Notes:
+* Only extremely small (< 1 KB) files which are stored uncompressed are
+copied successfully.
+* Copying works perfectly when mounting the image with "sudo mount" on the
+latest Kubuntu, so it has to be something with erofsfuse.
 
-diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
-index 868e3972227f..d484408a90c1 100644
---- a/Documentation/filesystems/erofs.rst
-+++ b/Documentation/filesystems/erofs.rst
-@@ -156,13 +156,14 @@ may not. All metadatas can be now observed in two different spaces (views):
- 
-     Xattrs, extents, data inline are followed by the corresponding inode with
-     proper alignment, and they could be optional for different data mappings.
--    _currently_ total 4 valid data mappings are supported:
-+    _currently_ total 5 data layouts are supported:
- 
-     ==  ====================================================================
-      0  flat file data without data inline (no extent);
-      1  fixed-sized output data compression (with non-compacted indexes);
-      2  flat file data with tail packing data inline (no extent);
--     3  fixed-sized output data compression (with compacted indexes, v5.3+).
-+     3  fixed-sized output data compression (with compacted indexes, v5.3+);
-+     4  chunk-based file (v5.15+).
-     ==  ====================================================================
- 
-     The size of the optional xattrs is indicated by i_xattr_count in inode
-@@ -213,6 +214,17 @@ Note that apart from the offset of the first filename, nameoff0 also indicates
- the total number of directory entries in this block since it is no need to
- introduce another on-disk field at all.
- 
-+Chunk-based file
-+----------------
-+In order to support chunk-based data deduplication, a new inode data layout has
-+been supported since Linux v5.15: Files are split in equal-sized data chunks
-+with ``extents`` area of the inode metadata indicating how to get the chunk
-+data: these can be simply as a 4-byte block address array or in the 8-byte
-+chunk index form (see struct erofs_inode_chunk_index in erofs_fs.h for more
-+details.)
-+
-+By the way, chunk-based files are all uncompressed for now.
-+
- Data compression
- ----------------
- EROFS implements LZ4 fixed-sized output compression which generates fixed-sized
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 0f8da74570b4..b0b23f41abc3 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -4,6 +4,7 @@
-  *
-  * Copyright (C) 2017-2018 HUAWEI, Inc.
-  *             https://www.huawei.com/
-+ * Copyright (C) 2021, Alibaba Cloud
-  */
- #ifndef __EROFS_FS_H
- #define __EROFS_FS_H
-@@ -19,10 +20,12 @@
- #define EROFS_FEATURE_INCOMPAT_LZ4_0PADDING	0x00000001
- #define EROFS_FEATURE_INCOMPAT_COMPR_CFGS	0x00000002
- #define EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER	0x00000002
-+#define EROFS_FEATURE_INCOMPAT_CHUNKED_FILE	0x00000004
- #define EROFS_ALL_FEATURE_INCOMPAT		\
- 	(EROFS_FEATURE_INCOMPAT_LZ4_0PADDING | \
- 	 EROFS_FEATURE_INCOMPAT_COMPR_CFGS | \
--	 EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER)
-+	 EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER | \
-+	 EROFS_FEATURE_INCOMPAT_CHUNKED_FILE)
- 
- #define EROFS_SB_EXTSLOT_SIZE	16
- 
-@@ -64,13 +67,16 @@ struct erofs_super_block {
-  * inode, [xattrs], last_inline_data, ... | ... | no-holed data
-  * 3 - inode compression D:
-  * inode, [xattrs], map_header, extents ... | ...
-- * 4~7 - reserved
-+ * 4 - inode chunk-based E:
-+ * inode, [xattrs], chunk indexes ... | ...
-+ * 5~7 - reserved
-  */
- enum {
- 	EROFS_INODE_FLAT_PLAIN			= 0,
- 	EROFS_INODE_FLAT_COMPRESSION_LEGACY	= 1,
- 	EROFS_INODE_FLAT_INLINE			= 2,
- 	EROFS_INODE_FLAT_COMPRESSION		= 3,
-+	EROFS_INODE_CHUNK_BASED			= 4,
- 	EROFS_INODE_DATALAYOUT_MAX
- };
- 
-@@ -90,6 +96,19 @@ static inline bool erofs_inode_is_data_compressed(unsigned int datamode)
- #define EROFS_I_ALL	\
- 	((1 << (EROFS_I_DATALAYOUT_BIT + EROFS_I_DATALAYOUT_BITS)) - 1)
- 
-+/* indicate chunk blkbits, thus 'chunksize = blocksize << chunk blkbits' */
-+#define EROFS_CHUNK_FORMAT_BLKBITS_MASK		0x001F
-+/* with chunk indexes or just a 4-byte blkaddr array */
-+#define EROFS_CHUNK_FORMAT_INDEXES		0x0020
-+
-+#define EROFS_CHUNK_FORMAT_ALL	\
-+	(EROFS_CHUNK_FORMAT_BLKBITS_MASK | EROFS_CHUNK_FORMAT_INDEXES)
-+
-+struct erofs_inode_chunk_info {
-+	__le16 format;		/* chunk blkbits, etc. */
-+	__le16 reserved;
-+};
-+
- /* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_compact {
- 	__le16 i_format;	/* inode format hints */
-@@ -107,6 +126,9 @@ struct erofs_inode_compact {
- 
- 		/* for device files, used to indicate old/new device # */
- 		__le32 rdev;
-+
-+		/* for chunk-based files, it contains the summary info */
-+		struct erofs_inode_chunk_info c;
- 	} i_u;
- 	__le32 i_ino;           /* only used for 32-bit stat compatibility */
- 	__le16 i_uid;
-@@ -135,6 +157,9 @@ struct erofs_inode_extended {
- 
- 		/* for device files, used to indicate old/new device # */
- 		__le32 rdev;
-+
-+		/* for chunk-based files, it contains the summary info */
-+		struct erofs_inode_chunk_info c;
- 	} i_u;
- 
- 	/* only used for 32-bit stat compatibility */
-@@ -204,6 +229,19 @@ static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
- 				 e->e_name_len + le16_to_cpu(e->e_value_size));
- }
- 
-+/* represent a zeroed chunk (hole) */
-+#define EROFS_NULL_ADDR			-1
-+
-+/* 4-byte block address array */
-+#define EROFS_BLOCK_MAP_ENTRY_SIZE	sizeof(__le32)
-+
-+/* 8-byte inode chunk indexes */
-+struct erofs_inode_chunk_index {
-+	__le16 advise;		/* always 0, don't care for now */
-+	__le16 device_id;	/* back-end storage id, always 0 for now */
-+	__le32 blkaddr;		/* start block address of this inode chunk */
-+};
-+
- /* maximum supported size of a physical compression cluster */
- #define Z_EROFS_PCLUSTER_MAX_SIZE	(1024 * 1024)
- 
-@@ -338,9 +376,14 @@ static inline void erofs_check_ondisk_layout_definitions(void)
- 	BUILD_BUG_ON(sizeof(struct erofs_inode_extended) != 64);
- 	BUILD_BUG_ON(sizeof(struct erofs_xattr_ibody_header) != 12);
- 	BUILD_BUG_ON(sizeof(struct erofs_xattr_entry) != 4);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_chunk_info) != 4);
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_chunk_index) != 8);
- 	BUILD_BUG_ON(sizeof(struct z_erofs_map_header) != 8);
- 	BUILD_BUG_ON(sizeof(struct z_erofs_vle_decompressed_index) != 8);
- 	BUILD_BUG_ON(sizeof(struct erofs_dirent) != 12);
-+	/* keep in sync between 2 index structures for better extendibility */
-+	BUILD_BUG_ON(sizeof(struct erofs_inode_chunk_index) !=
-+		     sizeof(struct z_erofs_vle_decompressed_index));
- 
- 	BUILD_BUG_ON(BIT(Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS) <
- 		     Z_EROFS_VLE_CLUSTER_TYPE_MAX - 1);
--- 
-2.24.4
+Anything you can do to help resolve this?
 
+Best,
+Igor.
+
+--000000000000902a0305c9fce2dc
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr">Hey there, getting straight to the point.=
+<div>Our team is using Debian 10, in which erofs mounting is not supported =
+and we have no option of updating the kernel, nor do we have sudo permissio=
+ns on this server.</div><div><br></div><div>Our only choice is to use erofs=
+fuse to mount an Android image (compression was used on that image), for th=
+e sole purpose of extracting its contents to another folder for processing.=
+</div><div>Tried on Debian 10, pop_OS! and even the latest Kubuntu (where n=
+ative mounting is supported), but on all of them I could not copy files whi=
+ch are compressed from the mounted image to another location (ext4 file sys=
+tem).</div><div><br></div><div>The error I&#39;m getting is: &quot;Operatio=
+n not supported (95)&quot;</div><div><br></div><div>Notes:</div><div>* Only=
+ extremely small (&lt; 1 KB) files which are stored uncompressed are copied=
+ successfully.</div><div>* Copying works perfectly when mounting the image =
+with &quot;sudo mount&quot; on the latest Kubuntu, so it has to be somethin=
+g with erofsfuse.</div><div><br></div><div>Anything=C2=A0you can do to help=
+ resolve this?</div><div><br></div><div>Best,</div><div>Igor.</div></div></=
+div>
+
+--000000000000902a0305c9fce2dc--
