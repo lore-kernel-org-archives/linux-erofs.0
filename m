@@ -2,57 +2,71 @@ Return-Path: <SRS0=8EwB=NW=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0985C432BE
-	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 11:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 297B5C432BE
+	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 11:56:43 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 17C4960FE8
-	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 11:16:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 17C4960FE8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6B2896101B
+	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 11:56:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6B2896101B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=163.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4GzPl14Zp3z2yK3
-	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 21:16:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4GzPks0G4Fz2yHw
- for <linux-erofs@lists.ozlabs.org>; Tue, 31 Aug 2021 21:15:59 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R401e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=hsiangkao@linux.alibaba.com; NM=1; PH=DS; RN=6; SR=0;
- TI=SMTPD_---0Uml4rfi_1630408550; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0Uml4rfi_1630408550) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 31 Aug 2021 19:15:51 +0800
-Date: Tue, 31 Aug 2021 19:15:50 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Yue Hu <zbestahu@163.com>
+	by lists.ozlabs.org (Postfix) with ESMTP id 4GzQdh6kzjz2yK1
+	for <linux-erofs@archiver.kernel.org>; Tue, 31 Aug 2021 21:56:40 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=MMxsdNGO;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org;
+ spf=pass (sender SPF authorized) smtp.mailfrom=163.com
+ (client-ip=220.181.12.15; helo=m12-15.163.com; envelope-from=zbestahu@163.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256
+ header.s=s110527 header.b=MMxsdNGO; dkim-atps=neutral
+Received: from m12-15.163.com (m12-15.163.com [220.181.12.15])
+ by lists.ozlabs.org (Postfix) with ESMTP id 4GzQdX6XTtz2xbB
+ for <linux-erofs@lists.ozlabs.org>; Tue, 31 Aug 2021 21:56:24 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+ s=s110527; h=Date:From:Subject:Message-ID:MIME-Version; bh=BFXmK
+ HOVFDZsciPa4FD6tPNwrKmxshnSm1QgNrp/6cs=; b=MMxsdNGOq3n0jqstb71uN
+ cJqUZMx28lOUw0xcV8mF9HPJExcjZ9g89hApgUr3fXWgTg5AoVLz5dRMBi0JoUOK
+ rIiCbaPb5Bjj6XAdNBb4HukvSgY684A+nZFx0Aqezvr0UoEIe3GlmAqcyapUjzyU
+ sQTdBwCGx4sIPY4udkSVuk=
+Received: from localhost (unknown [218.94.48.178])
+ by smtp11 (Coremail) with SMTP id D8CowADnHu_WGC5hkoS0AA--.1127S2;
+ Tue, 31 Aug 2021 19:56:09 +0800 (CST)
+Date: Tue, 31 Aug 2021 19:56:14 +0800
+From: Yue Hu <zbestahu@163.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Subject: Re: [PATCH] erofs-utils: do not check ->idata_size for compressed
  files in erofs_prepare_inode_buffer()
-Message-ID: <YS4PZvVbdHGqurAD@B-P7TQMD6M-0146.local>
+Message-ID: <20210831195614.000036e6.zbestahu@163.com>
+In-Reply-To: <YS4PZvVbdHGqurAD@B-P7TQMD6M-0146.local>
 References: <20210617082954.1001-1-zbestahu@gmail.com> <YMsQHU+iSKE+FRO5@bogon>
  <20210617171555.0000673e.zbestahu@gmail.com>
  <YMsVhf2JgQOm1fDE@bogon> <YMsWMhNg6yC+osEK@bogon>
  <20210617181350.000005e6.zbestahu@gmail.com>
  <20210831170029.000015a2.zbestahu@163.com>
+ <YS4PZvVbdHGqurAD@B-P7TQMD6M-0146.local>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210831170029.000015a2.zbestahu@163.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: D8CowADnHu_WGC5hkoS0AA--.1127S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxZrWktr15CryrAF4UKr4xtFb_yoWrArW8pF
+ W5Ka48tF48Jr1UAr4Iyr40gFyxt34rJr1UX3ZYqFyrXFn0vr1IqF18Kr45uF9rWFn2q3yq
+ vr4jvasxWayYyaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+ 9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jbPEfUUUUU=
+X-Originating-IP: [218.94.48.178]
+X-CM-SenderInfo: p2eh23xdkxqiywtou0bp/xtbBZg4AEVaD9GxS+QABse
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,101 +84,110 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Yue,
+On Tue, 31 Aug 2021 19:15:50 +0800
+Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
 
-On Tue, Aug 31, 2021 at 05:00:29PM +0800, Yue Hu wrote:
-> On Thu, 17 Jun 2021 18:14:17 +0800
-> Yue Hu <zbestahu@gmail.com> wrote:
+> Hi Yue,
 > 
-> > On Thu, 17 Jun 2021 17:30:26 +0800
-> > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
-> > 
-> > > On Thu, Jun 17, 2021 at 05:27:33PM +0800, Gao Xiang wrote:  
-> > > > On Thu, Jun 17, 2021 at 05:15:55PM +0800, Yue Hu wrote:    
-> > > > > On Thu, 17 Jun 2021 17:04:29 +0800
-> > > > > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
-> > > > >     
-> > > > > > Hi Yue,
-> > > > > > 
-> > > > > > On Thu, Jun 17, 2021 at 04:29:54PM +0800, Yue Hu wrote:    
-> > > > > > > From: Yue Hu <huyue2@yulong.com>
+> On Tue, Aug 31, 2021 at 05:00:29PM +0800, Yue Hu wrote:
+> > On Thu, 17 Jun 2021 18:14:17 +0800
+> > Yue Hu <zbestahu@gmail.com> wrote:
+> >   
+> > > On Thu, 17 Jun 2021 17:30:26 +0800
+> > > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+> > >   
+> > > > On Thu, Jun 17, 2021 at 05:27:33PM +0800, Gao Xiang wrote:    
+> > > > > On Thu, Jun 17, 2021 at 05:15:55PM +0800, Yue Hu wrote:      
+> > > > > > On Thu, 17 Jun 2021 17:04:29 +0800
+> > > > > > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+> > > > > >       
+> > > > > > > Hi Yue,
 > > > > > > > 
-> > > > > > > erofs_write_compressed_file() will always set inode->idata_size = 0
-> > > > > > > if succeed, that means no tail-end data for compressed files. So, no
-> > > > > > > need to call erofs_prepare_tail_block() which is used to handle
-> > > > > > > tail-end data for that case. Just skip it.      
+> > > > > > > On Thu, Jun 17, 2021 at 04:29:54PM +0800, Yue Hu wrote:      
+> > > > > > > > From: Yue Hu <huyue2@yulong.com>
+> > > > > > > > 
+> > > > > > > > erofs_write_compressed_file() will always set inode->idata_size = 0
+> > > > > > > > if succeed, that means no tail-end data for compressed files. So, no
+> > > > > > > > need to call erofs_prepare_tail_block() which is used to handle
+> > > > > > > > tail-end data for that case. Just skip it.        
+> > > > > > > 
+> > > > > > > Thanks for the patch, due to somewhat long time so I don't quite
+> > > > > > > remember the exact logic here now...
+> > > > > > > 
+> > > > > > > Yet from the description before, it's not strictly correct
+> > > > > > > since my original intention would be to support tail-packing
+> > > > > > > inline compressed data which is similar to uncompressed case
+> > > > > > > to decrease tail extent I/O and save more space.      
 > > > > > > 
-> > > > > > Thanks for the patch, due to somewhat long time so I don't quite
-> > > > > > remember the exact logic here now...
+> > > > > > nice.
+> > > > > >       
+> > > > > > > 
+> > > > > > > BTW, if you have some interest, would you like to implement it? :)      
 > > > > > > 
-> > > > > > Yet from the description before, it's not strictly correct
-> > > > > > since my original intention would be to support tail-packing
-> > > > > > inline compressed data which is similar to uncompressed case
-> > > > > > to decrease tail extent I/O and save more space.    
+> > > > > > I don't know if i can finish it. But i would like to have a try :)      
 > > > > > 
-> > > > > nice.
-> > > > >     
-> > > > > > 
-> > > > > > BTW, if you have some interest, would you like to implement it? :)    
-> > > > > 
-> > > > > I don't know if i can finish it. But i would like to have a try :)    
+> > > > > My rough thought is to try to inline the last tail compresseed
+> > > > > extent after the on-disk compressed extents, maybe we could let
+> > > > > it work for non-compact (legacy) compress index format cases...      
 > > > > 
-> > > > My rough thought is to try to inline the last tail compresseed
-> > > > extent after the on-disk compressed extents, maybe we could let
-> > > > it work for non-compact (legacy) compress index format cases...    
-> > > 
-> > > I mean try to implement non-compact (legacy) compress index format cases
-> > > first.
-> 
-> I'm trying to do it under 4.19 code (since i have no 5.x environment temporarily).
-> 
-> Now, i think mkfs should be done. But, kernel side seems not working fine(no crash,
-> no decompression warning/bug). Only some files are working, others not. I'm sure i
-> can catch the inline data correctly via file dump. And I'm trying debug the issue.
-> Maybe i need more time to read/understand more decompression code related.
-> 
-> BTW, now i understand no need to go z_erofs_vle_work_xxx for inline part(cur-end)
-> , just go next_part after mapping as below, am i right? 
-> 
-
-You are right. For the common cases (except for fiemap or cases to get the exact
-decompressed length), we only need to calculate the start of the compression extent,
-so it's transversal in the reverse order.
-
-But really... Again, I don't suggest using 4.19 staging code for real production
-or further development. The uncompressed part is considered as stable, but
-compression side may not (also it was disabled by default). Please also see,
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/staging/erofs/Kconfig?h=v4.19#n86
-
-" config EROFS_FS_ZIP
-  bool "EROFS Data Compresssion Support"
-  depends on EROFS_FS
-  help
-    Currently we support VLE Compression only.
-    Play at your own risk.
-
-    If you don't want to use compression feature, say N. "
-
-Our original first real production codebase was between 5.2~5.3. Therefore,
-I suggest using >= 5.4 LTS codebase for production. You could also find
-some backport codebase on github, e.g.:
-https://github.com/nolange/erofs_kernel_4_19
-, which backports 5.6 erofs codebase to 4.19.
-
-As for tail-packing inline extent feature, how about focusing on on-disk
-design and mkfs/erofsfuse implementation first as PoC?
-
-I'm afraid that if you only focus on 4.19 codebase, the format of compact
-indexes will be ignored, but "compact indexes" is the default option for
-erofs now since it has less metadata overhead than non-compact indexes,
-so both the sequential / random read are better.
-
-Thanks,
-Gao Xiang
-
-> Thanks.
->   
+> > > > I mean try to implement non-compact (legacy) compress index format cases
+> > > > first.  
 > > 
-> > Ok, let me try to implement it.
+> > I'm trying to do it under 4.19 code (since i have no 5.x environment temporarily).
 > > 
+> > Now, i think mkfs should be done. But, kernel side seems not working fine(no crash,
+> > no decompression warning/bug). Only some files are working, others not. I'm sure i
+> > can catch the inline data correctly via file dump. And I'm trying debug the issue.
+> > Maybe i need more time to read/understand more decompression code related.
+> > 
+> > BTW, now i understand no need to go z_erofs_vle_work_xxx for inline part(cur-end)
+> > , just go next_part after mapping as below, am i right? 
+> >   
+> 
+> You are right. For the common cases (except for fiemap or cases to get the exact
+> decompressed length), we only need to calculate the start of the compression extent,
+> so it's transversal in the reverse order.
+> 
+> But really... Again, I don't suggest using 4.19 staging code for real production
+> or further development. The uncompressed part is considered as stable, but
+> compression side may not (also it was disabled by default). Please also see,
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/staging/erofs/Kconfig?h=v4.19#n86
+> 
+> " config EROFS_FS_ZIP
+>   bool "EROFS Data Compresssion Support"
+>   depends on EROFS_FS
+>   help
+>     Currently we support VLE Compression only.
+>     Play at your own risk.
+> 
+>     If you don't want to use compression feature, say N. "
+> 
+> Our original first real production codebase was between 5.2~5.3. Therefore,
+> I suggest using >= 5.4 LTS codebase for production. You could also find
+> some backport codebase on github, e.g.:
+> https://github.com/nolange/erofs_kernel_4_19
+> , which backports 5.6 erofs codebase to 4.19.
+> 
+> As for tail-packing inline extent feature, how about focusing on on-disk
+> design and mkfs/erofsfuse implementation first as PoC?
+> 
+> I'm afraid that if you only focus on 4.19 codebase, the format of compact
+> indexes will be ignored, but "compact indexes" is the default option for
+> erofs now since it has less metadata overhead than non-compact indexes,
+> so both the sequential / random read are better.
+
+OK, let me develop it under 5.4. I need taking time to find it:)
+
+Thanks.
+
+> 
+> Thanks,
+> Gao Xiang
+> 
 > > Thanks.
+> >     
+> > > 
+> > > Ok, let me try to implement it.
+> > > 
+> > > Thanks.  
+
