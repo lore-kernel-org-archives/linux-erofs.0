@@ -2,66 +2,67 @@ Return-Path: <SRS0=l39h=N5=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A0EC4332F
-	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 00:11:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DEC7C433F5
+	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 00:13:23 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D09C7610E5
-	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 00:11:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D09C7610E5
+	by mail.kernel.org (Postfix) with ESMTPS id A649C60ED8
+	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 00:13:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A649C60ED8
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H3Qfk3B1zz2yHL
-	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 10:11:26 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H3Qhx2VNsz2yHN
+	for <linux-erofs@archiver.kernel.org>; Tue,  7 Sep 2021 10:13:21 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=g9tICKpi;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=mWK/O0Je;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=g9tICKpi; 
+ header.s=k20201202 header.b=mWK/O0Je; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H3Qfg3fBwz2xnc
- for <linux-erofs@lists.ozlabs.org>; Tue,  7 Sep 2021 10:11:23 +1000 (AEST)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FFDA60ED8;
- Tue,  7 Sep 2021 00:11:03 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H3Qht0cRPz2xtV
+ for <linux-erofs@lists.ozlabs.org>; Tue,  7 Sep 2021 10:13:17 +1000 (AEST)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 331C26109D;
+ Tue,  7 Sep 2021 00:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1630973481;
- bh=eEMqmHncb0jQ+YWjdQJLi7TmfiXDXYQ6feqH19dJIcY=;
+ s=k20201202; t=1630973595;
+ bh=h8sS6fhCsLaxVgbfHdeJG93QNaiq4Fo+C+TufZx+Upk=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=g9tICKpiz6yH0FyHyHBEpXpTsOu+cUUn/UQSIh3vdUjn4ihulbbyhZWDMpDeLkL3L
- YN7KZiJxcGysrNw5JmFhmtwOO2wAMticWjnZSjRddwtDVuIP+NQyNvpRw08Y6Upiy3
- mnAvzfvntdpWQnakZu3AWx64ZZL4dPB+RzUDYSLgsdQyZzw6/dLj6Prkp/YFx/5u4a
- 1xiNBVQ0AlSUaLlyI4SskJiJOVzrGoc3ZwtfA8wAXhEAyN84Bi8eoOcKupI1q7ehhq
- jxtGtzi7H6VyhwCGbP/BKqnuuGBaUiWUAgd57OWDPBszXylglP2eKyE7eMGxcSxwjW
- v76urL6H6pnAg==
-Date: Tue, 7 Sep 2021 08:10:45 +0800
+ b=mWK/O0JeBPFYIOL9+PBq+G33vwMnu6LK6ZUeXZGAcp7q1bOuaZ1gHR9o0KAyhs6Jn
+ vcPgWGf0gDAM701i5Zc056BzjzFLThc6kBAT6vQrpRbe9jOvisux+pyWxDhJdttbl7
+ Q4bLe4aeViqPtv/b0cgetcwc5Hdrj4GfaPqvKCCshK0WDDgRHuaM37w0DJ4ItKo2tZ
+ D5mJKNOe9aUTu3xXYsYNh7Cz/1VpwCuIW7Zgt3rQ1aHOpG4PRiXm5+znMn19EnFqeG
+ SI699l+hZ4ET5mTTWR+VVUYOHeBixZ96xf1dvdr5wtKQJ9yLcp17L+Xk1zs5vPy0yr
+ vEtqwHmI47CRA==
+Date: Tue, 7 Sep 2021 08:12:55 +0800
 From: Gao Xiang <xiang@kernel.org>
 To: Huang Jianan <huangjianan@oppo.com>
-Subject: Re: [PATCH] uerofs-utils: fix random data for block-aligned
- uncompressed file
-Message-ID: <20210907001038.GC23541@hsiangkao-HP-ZHAN-66-Pro-G1>
+Subject: Re: [PATCH v3] erofs-utils: support per-inode compress pcluster
+Message-ID: <20210907001250.GD23541@hsiangkao-HP-ZHAN-66-Pro-G1>
 Mail-Followup-To: Huang Jianan <huangjianan@oppo.com>,
  linux-erofs@lists.ozlabs.org, yh@oppo.com, kevin.liw@oppo.com,
  guoweichao@oppo.com, guanyuwei@oppo.com
-References: <20210906081359.17440-1-huangjianan@oppo.com>
- <20210906081359.17440-2-huangjianan@oppo.com>
+References: <20210818042715.24416-1-huangjianan@oppo.com>
+ <20210825033523.20058-1-huangjianan@oppo.com>
+ <20210905175919.GA24755@hsiangkao-HP-ZHAN-66-Pro-G1>
+ <c234da57-dc77-e1c9-d17e-41e4e873834e@oppo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210906081359.17440-2-huangjianan@oppo.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c234da57-dc77-e1c9-d17e-41e4e873834e@oppo.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -80,43 +81,47 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Sep 06, 2021 at 04:13:59PM +0800, Huang Jianan via Linux-erofs wrote:
-> If the file size is block-aligned for uncompressed files, i_u is
-> meaningless for erofs_inode on disk, but it's not cleared when
-> datalayout is seted in erofs_prepare_inode_buffer. Clear the entire
-> erofs_inode to zero to fix this.
+On Mon, Sep 06, 2021 at 05:38:43PM +0800, Huang Jianan via Linux-erofs wrote:
+> 在 2021/9/6 1:59, Gao Xiang 写道:
+> > On Wed, Aug 25, 2021 at 11:35:23AM +0800, Huang Jianan via Linux-erofs wrote:
+> > > Add an option to configure per-inode compression strategy. Each line
+> > > of the file should be in the following form:
+> > > 
+> > > <Regular-expression> <pcluster-in-bytes>
+> > > 
+> > > When pcluster is 0, it means that the file shouldn't be compressed.
+> > > 
+> > > Signed-off-by: Huang Jianan <huangjianan@oppo.com>
+> > > ---
+> > > changes since v2:
+> > >   - change compress_rule to compress_hints for better understanding. (Gao Xiang)
+> > >   - use default "-C" value when input physical clustersize is invalid. (Gao Xiang)
+> > >   - change the val of WITH_ANDROID option to a separated patch. (Gao Xiang)
+> > > 
+> > > changes since v1:
+> > >   - rename c_pclusterblks to c_physical_clusterblks and place it in union.
+> > >   - change cfg.c_physical_clusterblks > 1 to erofs_sb_has_big_pcluster() since
+> > >     it's per-inode compression strategy.
+> > > 
+> > Hi Jianan,
+> > 
+> > I sorted out a version this weekend (e.g. bump up max pclustersize if
+> > needed and update the man page), would you mind confirm on your side
+> > as well?
+> Hi Xiang,
 > 
-> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-> ---
->  lib/inode.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/inode.c b/lib/inode.c
-> index 0ad703d..1397cc5 100644
-> --- a/lib/inode.c
-> +++ b/lib/inode.c
-> @@ -834,7 +834,7 @@ static struct erofs_inode *erofs_new_inode(void)
->  	static unsigned int counter;
->  	struct erofs_inode *inode;
->  
-> -	inode = malloc(sizeof(struct erofs_inode));
-> +	inode = calloc(1, sizeof(struct erofs_inode));
+> Thanks for your modification, looks good to me.
+> > Also, it'd be better to add some functionality testcases to cover this
+> > if you have extra time:
+> Ok, should I use the experimental-tests branch now?
 
-If we decide to do this, how about removing all
-	inode->idata_size = 0;
-	inode->xattr_isize = 0;
-	inode->extent_isize = 0;
-
-	inode->bh = inode->bh_inline = inode->bh_data = NULL;
-	inode->idata = NULL;
-?
+Yeah, please check out this if you have extra time.
 
 Thanks,
 Gao Xiang
-
->  	if (!inode)
->  		return ERR_PTR(-ENOMEM);
->  
-> -- 
-> 2.25.1
+ 
 > 
+> Thanks,
+> Jianan
+> > Thanks,
+> > Gao Xiang
