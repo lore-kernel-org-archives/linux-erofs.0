@@ -2,51 +2,52 @@ Return-Path: <SRS0=bl67=OB=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC38C433EF
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8740DC433F5
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:38 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 93C1C61208
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 93C1C61208
+	by mail.kernel.org (Postfix) with ESMTPS id 039E161206
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 039E161206
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H6Dr322Krz2yQ0
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 23:59:15 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H6DrS5NPGz2yPT
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 23:59:36 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=szxga03-in.huawei.com;
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com;
  envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 1154 seconds by postgrey-1.36 at boromir;
- Sat, 11 Sep 2021 23:59:03 AEST
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
  bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H6Dqq2KYkz2y8R
- for <linux-erofs@lists.ozlabs.org>; Sat, 11 Sep 2021 23:59:01 +1000 (AEST)
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
- by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4H6DNm64DDz8spB;
- Sat, 11 Sep 2021 21:39:04 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H6DrK304Gz2yHw
+ for <linux-erofs@lists.ozlabs.org>; Sat, 11 Sep 2021 23:59:29 +1000 (AEST)
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
+ by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4H6DJv47r0zbmG1;
+ Sat, 11 Sep 2021 21:35:43 +0800 (CST)
 Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Sat, 11 Sep 2021 21:39:37 +0800
+ 15.1.2308.8; Sat, 11 Sep 2021 21:39:46 +0800
 Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
  (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Sat, 11 Sep
- 2021 21:39:37 +0800
+ 2021 21:39:45 +0800
 From: Guo Xuenan <guoxuenan@huawei.com>
 To: <xiang@kernel.org>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v1 1/5] erofs-utils: introduce dump.erofs for utils
-Date: Sat, 11 Sep 2021 21:46:31 +0800
-Message-ID: <20210911134635.1253426-1-guoxuenan@huawei.com>
+Subject: [PATCH v1 5/5] dump.erofs: add -I options to dump the layout of a
+ particular inode on disk
+Date: Sat, 11 Sep 2021 21:46:35 +0800
+Message-ID: <20210911134635.1253426-5-guoxuenan@huawei.com>
 X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20210911134635.1253426-1-guoxuenan@huawei.com>
+References: <20210911134635.1253426-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -72,197 +73,195 @@ Sender: "Linux-erofs"
 
 From: mpiglet <mpiglet@outlook.com>
 
-Add dump-tool for erofs to facilitate users directly
-analyzing the erofs image file.
-
 Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
 Signed-off-by: mpiglet <mpiglet@outlook.com>
 ---
- Makefile.am        |  2 +-
- configure.ac       |  2 ++
- dump/Makefile.am   | 10 ++++++
- dump/main.c        | 84 ++++++++++++++++++++++++++++++++++++++++++++++
- include/erofs/io.h |  3 ++
- lib/namei.c        |  4 +--
- 6 files changed, 102 insertions(+), 3 deletions(-)
- create mode 100644 dump/Makefile.am
- create mode 100644 dump/main.c
+ dump/main.c | 108 +++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 91 insertions(+), 17 deletions(-)
 
-diff --git a/Makefile.am b/Makefile.am
-index b804aa9..fedf7b5 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -3,7 +3,7 @@
- 
- ACLOCAL_AMFLAGS = -I m4
- 
--SUBDIRS = man lib mkfs
-+SUBDIRS = man lib mkfs dump
- if ENABLE_FUSE
- SUBDIRS += fuse
- endif
-diff --git a/configure.ac b/configure.ac
-index f626064..f4fe548 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -280,6 +280,8 @@ AC_CONFIG_FILES([Makefile
- 		 man/Makefile
- 		 lib/Makefile
- 		 mkfs/Makefile
-+		 dump/Makefile
- 		 fuse/Makefile])
-+
- AC_OUTPUT
- 
-diff --git a/dump/Makefile.am b/dump/Makefile.am
-new file mode 100644
-index 0000000..e664799
---- /dev/null
-+++ b/dump/Makefile.am
-@@ -0,0 +1,10 @@
-+# SPDX-License-Identifier: GPL-2.0+
-+# Makefile.am
-+
-+AUTOMAKE_OPTIONS = foreign
-+bin_PROGRAMS     = dump.erofs
-+AM_CPPFLAGS = ${libuuid_CFLAGS} ${libselinux_CFLAGS}
-+dump_erofs_SOURCES = main.c
-+dump_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
-+dump_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${liblz4_LIBS}
-+
 diff --git a/dump/main.c b/dump/main.c
-new file mode 100644
-index 0000000..8fbc24a
---- /dev/null
+index 2389cef..efce309 100644
+--- a/dump/main.c
 +++ b/dump/main.c
-@@ -0,0 +1,84 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * dump/main.c
-+ *
-+ * Copyright (C) 2021-2022 HUAWEI, Inc.
-+ *             http://www.huawei.com/
-+ * Created by Wang Qi <mpiglet@outlook.com>
-+ *            Guo Xuenan <guoxuenan@huawei.com>
-+ */
-+
-+#include <stdlib.h>
-+#include <getopt.h>
-+#include <sys/sysmacros.h>
-+#include <time.h>
-+#include <lz4.h>
-+
-+#include "erofs/print.h"
-+#include "erofs/io.h"
-+
-+static struct option long_options[] = {
-+	{"help", no_argument, 0, 1},
-+	{0, 0, 0, 0},
-+};
-+
-+static void usage(void)
-+{
-+	fputs("usage: [options] erofs-image \n\n"
-+		"Dump erofs layout from erofs-image, and [options] are:\n"
-+		"-v/-V      print dump.erofs version info\n"
-+		"-h/--help  display this help and exit\n", stderr);
-+}
-+static void dumpfs_print_version(void)
-+{
-+	fprintf(stderr, "dump.erofs %s\n", cfg.c_version);
-+}
-+
-+static int dumpfs_parse_options_cfg(int argc, char **argv)
-+{
-+	int opt;
-+
-+	while ((opt = getopt_long(argc, argv, "sSvVi:I:h",
-+					long_options, NULL)) != -1) {
-+		switch (opt) {
-+		case 'v':
-+		case 'V':
-+			dumpfs_print_version();
-+			exit(0);
-+		case 'h':
-+		case 1:
-+		    usage();
-+		    exit(0);
-+		default: /* '?' */
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (optind >= argc)
-+		return -EINVAL;
-+
-+	cfg.c_img_path = strdup(argv[optind++]);
-+	if (!cfg.c_img_path)
-+		return -ENOMEM;
-+
-+	if (optind < argc) {
-+		erofs_err("unexpected argument: %s\n", argv[optind]);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int err = 0;
-+
-+	erofs_init_configure();
-+	err = dumpfs_parse_options_cfg(argc, argv);
-+	if (err) {
-+		if (err == -EINVAL)
-+			usage();
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-diff --git a/include/erofs/io.h b/include/erofs/io.h
-index 5574245..00e5de8 100644
---- a/include/erofs/io.h
-+++ b/include/erofs/io.h
-@@ -10,6 +10,7 @@
- #define __EROFS_IO_H
+@@ -21,8 +21,10 @@ struct dumpcfg {
+ 	bool print_superblock;
+ 	bool print_inode;
+ 	bool print_statistic;
++	bool print_inode_phy;
+ 	bool print_version;
+ 	u64 ino;
++	u64 ino_phy;
+ };
+ static struct dumpcfg dumpcfg;
  
- #include <unistd.h>
-+#include <sys/types.h>
- #include "internal.h"
+@@ -105,6 +107,7 @@ static void usage(void)
+ 		"-s         print information about superblock\n"
+ 		"-S         print statistic information of the erofs-image\n"
+ 		"-i #       print target # inode info\n"
++		"-I #       print target # inode on-disk info\n"
+ 		"-v/-V      print dump.erofs version info\n"
+ 		"-h/--help  display this help and exit\n", stderr);
+ }
+@@ -136,6 +139,11 @@ static int dumpfs_parse_options_cfg(int argc, char **argv)
+ 			dumpcfg.print_inode = true;
+ 			dumpcfg.ino = i;
+ 			break;
++		case 'I':
++			i = atoll(optarg);
++			dumpcfg.print_inode_phy = true;
++			dumpcfg.ino_phy = i;
++			break;
+ 		case 'h':
+ 		case 1:
+ 		    usage();
+@@ -402,25 +410,25 @@ static void dumpfs_print_inode(void)
+ 	fprintf(stderr, "Inode %lu info:\n", dumpcfg.ino);
+ 	switch (inode.inode_isize) {
+ 	case 32:
+-		fprintf(stderr, "	File inode is compacted layout\n");
++		fprintf(stderr, "File inode is compacted layout\n");
+ 		break;
+ 	case 64:
+-		fprintf(stderr, "	File inode is extended layout\n");
++		fprintf(stderr, "File inode is extended layout\n");
+ 		break;
+ 	default:
+ 		erofs_err("unsupported inode layout\n");
+ 	}
+-	fprintf(stderr, "	File size:		%lu\n",
++	fprintf(stderr, "File size:		%lu\n",
+ 			inode.i_size);
+-	fprintf(stderr, "	File nid:		%lu\n",
++	fprintf(stderr, "File nid:		%lu\n",
+ 			inode.nid);
+-	fprintf(stderr, "	File extent size:	%u\n",
++	fprintf(stderr, "File extent size:	%u\n",
+ 			inode.extent_isize);
+-	fprintf(stderr, "	File xattr size:	%u\n",
++	fprintf(stderr, "File xattr size:	%u\n",
+ 			inode.xattr_isize);
+-	fprintf(stderr, "	File inode size:	%u\n",
++	fprintf(stderr, "File inode size:	%u\n",
+ 			inode.inode_isize);
+-	fprintf(stderr, "	File type:		");
++	fprintf(stderr, "File type:		");
+ 	switch (inode.i_mode & S_IFMT) {
+ 	case S_IFREG:
+ 		fprintf(stderr, "regular\n");
+@@ -453,13 +461,13 @@ static void dumpfs_print_inode(void)
+ 		return;
+ 	}
  
- #ifndef O_BINARY
-@@ -25,6 +26,8 @@ int dev_fillzero(u64 offset, size_t len, bool padding);
- int dev_fsync(void);
- int dev_resize(erofs_blk_t nblocks);
- u64 dev_length(void);
-+dev_t erofs_new_decode_dev(u32 dev);
-+int erofs_read_inode_from_disk(struct erofs_inode *vi);
+-	fprintf(stderr, "	File original size:	%lu\n"
+-			"	File on-disk size:	%lu\n",
++	fprintf(stderr, "File original size:	%lu\n"
++			"File on-disk size:	%lu\n",
+ 			inode.i_size, size);
+-	fprintf(stderr, "	File compress rate:	%.2f%%\n",
++	fprintf(stderr, "File compress rate:	%.2f%%\n",
+ 			(double)(100 * size) / (double)(inode.i_size));
  
- static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
- 			    u32 nblocks)
-diff --git a/lib/namei.c b/lib/namei.c
-index 4e06ba4..21631f1 100644
---- a/lib/namei.c
-+++ b/lib/namei.c
-@@ -15,7 +15,7 @@
- #include "erofs/print.h"
- #include "erofs/io.h"
+-	fprintf(stderr, "	File datalayout:	");
++	fprintf(stderr, "File datalayout:	");
+ 	switch (inode.datalayout) {
+ 	case EROFS_INODE_FLAT_PLAIN:
+ 		fprintf(stderr, "EROFS_INODE_FLAT_PLAIN\n");
+@@ -477,18 +485,82 @@ static void dumpfs_print_inode(void)
+ 		break;
+ 	}
  
--static dev_t erofs_new_decode_dev(u32 dev)
-+dev_t erofs_new_decode_dev(u32 dev)
- {
- 	const unsigned int major = (dev & 0xfff00) >> 8;
- 	const unsigned int minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
-@@ -23,7 +23,7 @@ static dev_t erofs_new_decode_dev(u32 dev)
- 	return makedev(major, minor);
+-	fprintf(stderr, "	File create time:	%s", ctime(&t));
+-	fprintf(stderr, "	File uid:		%u\n", inode.i_uid);
+-	fprintf(stderr, "	File gid:		%u\n", inode.i_gid);
+-	fprintf(stderr, "	File hard-link count:	%u\n", inode.i_nlink);
++	fprintf(stderr, "File create time:	%s", ctime(&t));
++	fprintf(stderr, "File uid:		%u\n", inode.i_uid);
++	fprintf(stderr, "File gid:		%u\n", inode.i_gid);
++	fprintf(stderr, "File hard-link count:	%u\n", inode.i_nlink);
+ 
+ 	err = get_path_by_nid(sbi.root_nid, sbi.root_nid, nid, path, 0);
+ 	if (!err)
+-		fprintf(stderr, "	File path:		%s\n", path);
++		fprintf(stderr, "File path:		%s\n", path);
+ 	else
+ 		fprintf(stderr, "Path not found\n");
  }
  
--static int erofs_read_inode_from_disk(struct erofs_inode *vi)
-+int erofs_read_inode_from_disk(struct erofs_inode *vi)
++static void dumpfs_print_inode_phy(void)
++{
++	int err;
++	erofs_nid_t nid = dumpcfg.ino_phy;
++	struct erofs_inode inode = {.nid = nid};
++	char path[PATH_MAX + 1] = {0};
++
++	err = erofs_read_inode_from_disk(&inode);
++	if (err < 0) {
++		erofs_err("read inode %lu from disk failed", nid);
++		return;
++	}
++
++	const erofs_off_t ibase = iloc(inode.nid);
++	const erofs_off_t pos = Z_EROFS_VLE_LEGACY_INDEX_ALIGN(
++			ibase + inode.inode_isize + inode.xattr_isize);
++	erofs_blk_t blocks = inode.u.i_blocks;
++	erofs_blk_t start = 0;
++	erofs_blk_t end = 0;
++	struct erofs_map_blocks map = {
++		.index = UINT_MAX,
++		.m_la = 0,
++	};
++
++	fprintf(stderr, "Inode %lu on-disk info:\n", nid);
++	switch (inode.datalayout) {
++	case EROFS_INODE_FLAT_INLINE:
++	case EROFS_INODE_FLAT_PLAIN:
++		if (inode.u.i_blkaddr == NULL_ADDR)
++			start = end = erofs_blknr(pos);
++		else {
++			start = inode.u.i_blkaddr;
++			end = start + BLK_ROUND_UP(inode.i_size) - 1;
++		}
++		fprintf(stderr, "File size:			%lu\n",
++				inode.i_size);
++		fprintf(stderr,
++				"	Plain Block Address:		%u - %u\n",
++				start, end);
++		break;
++
++	case EROFS_INODE_FLAT_COMPRESSION_LEGACY:
++	case EROFS_INODE_FLAT_COMPRESSION:
++		err = z_erofs_map_blocks_iter(&inode, &map);
++		if (err)
++			erofs_err("get file blocks range failed");
++
++		start = erofs_blknr(map.m_pa);
++		end = start - 1 + blocks;
++		fprintf(stderr,
++				"	Compressed Block Address:	%u - %u\n",
++				start, end);
++		break;
++	}
++
++	err = get_path_by_nid(sbi.root_nid, sbi.root_nid, nid, path, 0);
++	if (!err)
++		fprintf(stderr, "File Path:			%s\n",
++				path);
++	else
++		erofs_err("path not found");
++}
++
++
+ static int get_file_type(const char *filename)
  {
- 	int ret, ifmt;
- 	char buf[sizeof(struct erofs_inode_extended)];
+ 	char *postfix = strrchr(filename, '.');
+@@ -810,5 +882,7 @@ int main(int argc, char **argv)
+ 	if (dumpcfg.print_inode)
+ 		dumpfs_print_inode();
+ 
++	if (dumpcfg.print_inode_phy)
++		dumpfs_print_inode_phy();
+ 	return 0;
+ }
 -- 
 2.25.4
 
