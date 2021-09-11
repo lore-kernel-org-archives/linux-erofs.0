@@ -7,47 +7,46 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ED9FC433F5
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC38C433EF
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:17 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1DC77611C3
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1DC77611C3
+	by mail.kernel.org (Postfix) with ESMTPS id 93C1C61208
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 13:59:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 93C1C61208
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H6Dqy5fzQz2yPX
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 23:59:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H6Dr322Krz2yQ0
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Sep 2021 23:59:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=szxga03-in.huawei.com;
  envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
+X-Greylist: delayed 1154 seconds by postgrey-1.36 at boromir;
+ Sat, 11 Sep 2021 23:59:03 AEST
 Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
  bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H6Dqq3G5Pz2yHb
- for <linux-erofs@lists.ozlabs.org>; Sat, 11 Sep 2021 23:59:00 +1000 (AEST)
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
- by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4H6DNr6Lhqz8sw0;
- Sat, 11 Sep 2021 21:39:08 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H6Dqq2KYkz2y8R
+ for <linux-erofs@lists.ozlabs.org>; Sat, 11 Sep 2021 23:59:01 +1000 (AEST)
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
+ by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4H6DNm64DDz8spB;
+ Sat, 11 Sep 2021 21:39:04 +0800 (CST)
 Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Sat, 11 Sep 2021 21:39:41 +0800
+ 15.1.2308.8; Sat, 11 Sep 2021 21:39:37 +0800
 Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
  (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Sat, 11 Sep
- 2021 21:39:41 +0800
+ 2021 21:39:37 +0800
 From: Guo Xuenan <guoxuenan@huawei.com>
 To: <xiang@kernel.org>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v1 2/5] dump.erofs: add "-s" option to dump superblock
- information
-Date: Sat, 11 Sep 2021 21:46:32 +0800
-Message-ID: <20210911134635.1253426-2-guoxuenan@huawei.com>
+Subject: [PATCH v1 1/5] erofs-utils: introduce dump.erofs for utils
+Date: Sat, 11 Sep 2021 21:46:31 +0800
+Message-ID: <20210911134635.1253426-1-guoxuenan@huawei.com>
 X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20210911134635.1253426-1-guoxuenan@huawei.com>
-References: <20210911134635.1253426-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -71,108 +70,199 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+From: mpiglet <mpiglet@outlook.com>
+
+Add dump-tool for erofs to facilitate users directly
+analyzing the erofs image file.
+
 Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
 Signed-off-by: mpiglet <mpiglet@outlook.com>
 ---
- dump/main.c | 58 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ Makefile.am        |  2 +-
+ configure.ac       |  2 ++
+ dump/Makefile.am   | 10 ++++++
+ dump/main.c        | 84 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/erofs/io.h |  3 ++
+ lib/namei.c        |  4 +--
+ 6 files changed, 102 insertions(+), 3 deletions(-)
+ create mode 100644 dump/Makefile.am
+ create mode 100644 dump/main.c
 
+diff --git a/Makefile.am b/Makefile.am
+index b804aa9..fedf7b5 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -3,7 +3,7 @@
+ 
+ ACLOCAL_AMFLAGS = -I m4
+ 
+-SUBDIRS = man lib mkfs
++SUBDIRS = man lib mkfs dump
+ if ENABLE_FUSE
+ SUBDIRS += fuse
+ endif
+diff --git a/configure.ac b/configure.ac
+index f626064..f4fe548 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -280,6 +280,8 @@ AC_CONFIG_FILES([Makefile
+ 		 man/Makefile
+ 		 lib/Makefile
+ 		 mkfs/Makefile
++		 dump/Makefile
+ 		 fuse/Makefile])
++
+ AC_OUTPUT
+ 
+diff --git a/dump/Makefile.am b/dump/Makefile.am
+new file mode 100644
+index 0000000..e664799
+--- /dev/null
++++ b/dump/Makefile.am
+@@ -0,0 +1,10 @@
++# SPDX-License-Identifier: GPL-2.0+
++# Makefile.am
++
++AUTOMAKE_OPTIONS = foreign
++bin_PROGRAMS     = dump.erofs
++AM_CPPFLAGS = ${libuuid_CFLAGS} ${libselinux_CFLAGS}
++dump_erofs_SOURCES = main.c
++dump_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
++dump_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${liblz4_LIBS}
++
 diff --git a/dump/main.c b/dump/main.c
-index 8fbc24a..25ac89f 100644
---- a/dump/main.c
+new file mode 100644
+index 0000000..8fbc24a
+--- /dev/null
 +++ b/dump/main.c
-@@ -17,6 +17,12 @@
+@@ -0,0 +1,84 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * dump/main.c
++ *
++ * Copyright (C) 2021-2022 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Wang Qi <mpiglet@outlook.com>
++ *            Guo Xuenan <guoxuenan@huawei.com>
++ */
++
++#include <stdlib.h>
++#include <getopt.h>
++#include <sys/sysmacros.h>
++#include <time.h>
++#include <lz4.h>
++
++#include "erofs/print.h"
++#include "erofs/io.h"
++
++static struct option long_options[] = {
++	{"help", no_argument, 0, 1},
++	{0, 0, 0, 0},
++};
++
++static void usage(void)
++{
++	fputs("usage: [options] erofs-image \n\n"
++		"Dump erofs layout from erofs-image, and [options] are:\n"
++		"-v/-V      print dump.erofs version info\n"
++		"-h/--help  display this help and exit\n", stderr);
++}
++static void dumpfs_print_version(void)
++{
++	fprintf(stderr, "dump.erofs %s\n", cfg.c_version);
++}
++
++static int dumpfs_parse_options_cfg(int argc, char **argv)
++{
++	int opt;
++
++	while ((opt = getopt_long(argc, argv, "sSvVi:I:h",
++					long_options, NULL)) != -1) {
++		switch (opt) {
++		case 'v':
++		case 'V':
++			dumpfs_print_version();
++			exit(0);
++		case 'h':
++		case 1:
++		    usage();
++		    exit(0);
++		default: /* '?' */
++			return -EINVAL;
++		}
++	}
++
++	if (optind >= argc)
++		return -EINVAL;
++
++	cfg.c_img_path = strdup(argv[optind++]);
++	if (!cfg.c_img_path)
++		return -ENOMEM;
++
++	if (optind < argc) {
++		erofs_err("unexpected argument: %s\n", argv[optind]);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++int main(int argc, char **argv)
++{
++	int err = 0;
++
++	erofs_init_configure();
++	err = dumpfs_parse_options_cfg(argc, argv);
++	if (err) {
++		if (err == -EINVAL)
++			usage();
++		return -1;
++	}
++
++	return 0;
++}
+diff --git a/include/erofs/io.h b/include/erofs/io.h
+index 5574245..00e5de8 100644
+--- a/include/erofs/io.h
++++ b/include/erofs/io.h
+@@ -10,6 +10,7 @@
+ #define __EROFS_IO_H
+ 
+ #include <unistd.h>
++#include <sys/types.h>
+ #include "internal.h"
+ 
+ #ifndef O_BINARY
+@@ -25,6 +26,8 @@ int dev_fillzero(u64 offset, size_t len, bool padding);
+ int dev_fsync(void);
+ int dev_resize(erofs_blk_t nblocks);
+ u64 dev_length(void);
++dev_t erofs_new_decode_dev(u32 dev);
++int erofs_read_inode_from_disk(struct erofs_inode *vi);
+ 
+ static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
+ 			    u32 nblocks)
+diff --git a/lib/namei.c b/lib/namei.c
+index 4e06ba4..21631f1 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -15,7 +15,7 @@
  #include "erofs/print.h"
  #include "erofs/io.h"
  
-+struct dumpcfg {
-+	bool print_superblock;
-+	bool print_version;
-+};
-+static struct dumpcfg dumpcfg;
-+
- static struct option long_options[] = {
- 	{"help", no_argument, 0, 1},
- 	{0, 0, 0, 0},
-@@ -26,6 +32,7 @@ static void usage(void)
+-static dev_t erofs_new_decode_dev(u32 dev)
++dev_t erofs_new_decode_dev(u32 dev)
  {
- 	fputs("usage: [options] erofs-image \n\n"
- 		"Dump erofs layout from erofs-image, and [options] are:\n"
-+		"-s          print information about superblock\n"
- 		"-v/-V      print dump.erofs version info\n"
- 		"-h/--help  display this help and exit\n", stderr);
- }
-@@ -41,6 +48,9 @@ static int dumpfs_parse_options_cfg(int argc, char **argv)
- 	while ((opt = getopt_long(argc, argv, "sSvVi:I:h",
- 					long_options, NULL)) != -1) {
- 		switch (opt) {
-+		case 's':
-+			dumpcfg.print_superblock = true;
-+			break;
- 		case 'v':
- 		case 'V':
- 			dumpfs_print_version();
-@@ -68,6 +78,39 @@ static int dumpfs_parse_options_cfg(int argc, char **argv)
- 	return 0;
+ 	const unsigned int major = (dev & 0xfff00) >> 8;
+ 	const unsigned int minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
+@@ -23,7 +23,7 @@ static dev_t erofs_new_decode_dev(u32 dev)
+ 	return makedev(major, minor);
  }
  
-+static void dumpfs_print_superblock(void)
-+{
-+	time_t time = sbi.build_time;
-+
-+	fprintf(stderr, "Filesystem magic number:	0x%04X\n", EROFS_SUPER_MAGIC_V1);
-+	fprintf(stderr, "Filesystem blocks: 		%lu\n", sbi.blocks);
-+	fprintf(stderr, "Filesystem meta block:		%u\n", sbi.meta_blkaddr);
-+	fprintf(stderr, "Filesystem xattr block:	%u\n", sbi.xattr_blkaddr);
-+	fprintf(stderr, "Filesystem root nid:		%ld\n", sbi.root_nid);
-+	fprintf(stderr, "Filesystem valid inos:		%lu\n", sbi.inos);
-+	fprintf(stderr, "Filesystem created:		%s", ctime(&time));
-+	fprintf(stderr, "Filesystem uuid:		");
-+	for (int i = 0; i < 16; i++)
-+		fprintf(stderr, "%02x", sbi.uuid[i]);
-+	fprintf(stderr, "\n");
-+
-+	if (erofs_sb_has_lz4_0padding())
-+		fprintf(stderr, "Filesystem support lz4 0padding\n");
-+	else
-+		fprintf(stderr, "Filesystem not support lz4 0padding\n");
-+
-+	if (erofs_sb_has_big_pcluster())
-+		fprintf(stderr, "Filesystem support big pcluster\n");
-+	else
-+		fprintf(stderr, "Filesystem not support big pcluster\n");
-+
-+	if (erofs_sb_has_sb_chksum())
-+		fprintf(stderr, "Filesystem has super block checksum feature\n");
-+	else
-+		fprintf(stderr, "Filesystem has no superblock checksum feature\n");
-+
-+}
-+
- int main(int argc, char **argv)
+-static int erofs_read_inode_from_disk(struct erofs_inode *vi)
++int erofs_read_inode_from_disk(struct erofs_inode *vi)
  {
- 	int err = 0;
-@@ -80,5 +123,20 @@ int main(int argc, char **argv)
- 		return -1;
- 	}
- 
-+	err = dev_open_ro(cfg.c_img_path);
-+	if (err) {
-+		erofs_err("open image file failed");
-+		return -1;
-+	}
-+
-+	err = erofs_read_superblock();
-+	if (err) {
-+		erofs_err("read superblock failed");
-+		return -1;
-+	}
-+
-+	if (dumpcfg.print_superblock)
-+		dumpfs_print_superblock();
-+
- 	return 0;
- }
+ 	int ret, ifmt;
+ 	char buf[sizeof(struct erofs_inode_extended)];
 -- 
 2.25.4
 
