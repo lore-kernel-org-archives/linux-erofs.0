@@ -2,85 +2,52 @@ Return-Path: <SRS0=XnZ4=OD=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61AAEC433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 07:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8661BC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 08:49:23 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C132860FDA
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 07:25:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C132860FDA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id A13F160FBF
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 08:49:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A13F160FBF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H7J0L2zS1z2yKR
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 17:25:06 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=I0LVTvJN;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H7KsY2cFJz2yKQ
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Sep 2021 18:49:21 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::432;
- helo=mail-pf1-x432.google.com; envelope-from=zbestahu@gmail.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
- header.s=20210112 header.b=I0LVTvJN; dkim-atps=neutral
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com
- [IPv6:2607:f8b0:4864:20::432])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
+ helo=out30-132.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H7J0F3zDpz2xfw
- for <linux-erofs@lists.ozlabs.org>; Mon, 13 Sep 2021 17:24:59 +1000 (AEST)
-Received: by mail-pf1-x432.google.com with SMTP id g14so7965238pfm.1
- for <linux-erofs@lists.ozlabs.org>; Mon, 13 Sep 2021 00:24:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=rne45CFHVF3Ed+57mqPI4S8t0BZnsiIJa5Mce5cnMFs=;
- b=I0LVTvJN3u3LWC1FrrPIH1QhzeKn39Yh9Z96gRmixJ15fAXrUJMXNtI+W/YWdVtxeY
- 9VDd2Kfd3QsQcwl1OAkNh+YARxq3iINnSVB3LK/DRiEnmMWgMPTGQMe1GM7wm2XPRqsE
- scpbov5JJEzBge1BaTGNUEkbhGxAo99oa5h0z8/drxKk7Le+uE09iL9JhzABQre+oMdF
- w/L4axgqjsQ7bqsgTuQQQpWDcjrwVkWQwSedgzDnJsuy97Dydbui5aM6zQuY/jG5TsSu
- 0nnf2JmMW5NbXCzr603ZVH7j4uOg2N/XRIQyS1DUIBl8ze8V58s8EcBJLF3+g/Rwi41Z
- vstg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=rne45CFHVF3Ed+57mqPI4S8t0BZnsiIJa5Mce5cnMFs=;
- b=wwwUjNnRC+BbRBYRzcYqAfvAeQ+6h0IItH1M0Tx7YCo7n5iBm5vgmFe9qYMaxv9vP6
- MCF03USO9e89o06VGBTogMWoj90dZvdKgYrogJ7Xycnt23/J7lNngunH0Po/pdDcDRNT
- vfI4SwCvFFNzD2+dJEX2wFERqyvg1bnzD1SQsB8xOuJixjmSpILd6kEU7ipuSNCmehz8
- 9XZcqL5WY0jnTxF5OkI/k+y3Pf0K3Z0bSuMSflEqKPvvA/O/TlOqIaEAmzBpCopylK3O
- W5sQw77BgLFs8mJtqOx6ReKzlHnu6NYz7MgGfQqAqKatycnYI7IJAmIHceqFE7D0ZtmI
- P5aA==
-X-Gm-Message-State: AOAM530FXQ/rv3WMEYgkeuCFbmLWhkNCNMuvST/vi39CKZu15VNchaQ+
- SIN7AqitqYhqr1phG/c/FYs=
-X-Google-Smtp-Source: ABdhPJz3kPSM1iVUOv123Y56zIId76DGu9yYy2/Q5GwwNmIPqpUoV376MCwV7pvmNJQoe5h9wCF0tw==
-X-Received: by 2002:a62:e302:0:b0:3f2:628b:3103 with SMTP id
- g2-20020a62e302000000b003f2628b3103mr9843177pfh.39.1631517896240; 
- Mon, 13 Sep 2021 00:24:56 -0700 (PDT)
-Received: from tj.ccdomain.com ([103.220.76.197])
- by smtp.gmail.com with ESMTPSA id u12sm5687365pjx.31.2021.09.13.00.24.54
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Sep 2021 00:24:55 -0700 (PDT)
-From: Yue Hu <zbestahu@gmail.com>
-To: xiang@kernel.org,
-	chao@kernel.org
-Subject: [PATCH] erofs: fix compacted_{4b_initial,
- 2b} when compacted_4b_initial > totalidx
-Date: Mon, 13 Sep 2021 15:24:05 +0800
-Message-Id: <20210913072405.1128-1-zbestahu@gmail.com>
-X-Mailer: git-send-email 2.29.2.windows.3
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H7KsQ0t5jz2xtT
+ for <linux-erofs@lists.ozlabs.org>; Mon, 13 Sep 2021 18:49:06 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R621e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UoBPA7m_1631522925; 
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0UoBPA7m_1631522925) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 13 Sep 2021 16:48:47 +0800
+Date: Mon, 13 Sep 2021 16:48:45 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: Yue Hu <zbestahu@gmail.com>
+Subject: Re: [PATCH] erofs: fix compacted_{4b_initial, 2b} when
+ compacted_4b_initial > totalidx
+Message-ID: <YT8QbaAEkqBw//R0@B-P7TQMD6M-0146.local>
+References: <20210913072405.1128-1-zbestahu@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210913072405.1128-1-zbestahu@gmail.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -92,39 +59,52 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@yulong.com, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, zhangwen@yulong.com, zbestahu@163.com
+Cc: linux-kernel@vger.kernel.org, zbestahu@163.com, huyue2@yulong.com,
+ linux-erofs@lists.ozlabs.org, zhangwen@yulong.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Yue Hu <huyue2@yulong.com>
+Hi Yue,
 
-mkfs.erofs will treat compacted_4b_initial & compacted_2b as 0 if
-compacted_4b_initial > totalidx, kernel should be aligned with it
-accordingly.
+On Mon, Sep 13, 2021 at 03:24:05PM +0800, Yue Hu wrote:
+> From: Yue Hu <huyue2@yulong.com>
+> 
+> mkfs.erofs will treat compacted_4b_initial & compacted_2b as 0 if
+> compacted_4b_initial > totalidx, kernel should be aligned with it
+> accordingly.
 
-Signed-off-by: Yue Hu <huyue2@yulong.com>
----
- fs/erofs/zmap.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+There is no difference between compacted_4b_initial or compacted_4b_end
+for compacted 4B. Since in this way totalidx for compact 2B won't larger
+than 16 (number of lclusters in a compacted 2B pack.)
 
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index 9fb98d8..4f941b6 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -369,7 +369,10 @@ static int compacted_load_cluster_from_disk(struct z_erofs_maprecorder *m,
- 	if (compacted_4b_initial == 32 / 4)
- 		compacted_4b_initial = 0;
- 
--	if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
-+	if (compacted_4b_initial > totalidx) {
-+		compacted_4b_initial = 0;
-+		compacted_2b = 0;
-+	} else if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
- 		compacted_2b = rounddown(totalidx - compacted_4b_initial, 16);
- 	else
- 		compacted_2b = 0;
--- 
-1.9.1
+So it can be handled in either compacted_4b_initial or compacted_4b_end
+cases, because there are all compacted 4B.
 
+Thanks,
+Gao Xiang
+
+> 
+> Signed-off-by: Yue Hu <huyue2@yulong.com>
+> ---
+>  fs/erofs/zmap.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+> index 9fb98d8..4f941b6 100644
+> --- a/fs/erofs/zmap.c
+> +++ b/fs/erofs/zmap.c
+> @@ -369,7 +369,10 @@ static int compacted_load_cluster_from_disk(struct z_erofs_maprecorder *m,
+>  	if (compacted_4b_initial == 32 / 4)
+>  		compacted_4b_initial = 0;
+>  
+> -	if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
+> +	if (compacted_4b_initial > totalidx) {
+> +		compacted_4b_initial = 0;
+> +		compacted_2b = 0;
+> +	} else if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
+>  		compacted_2b = rounddown(totalidx - compacted_4b_initial, 16);
+>  	else
+>  		compacted_2b = 0;
+> -- 
+> 1.9.1
