@@ -2,53 +2,59 @@ Return-Path: <SRS0=awAR=OE=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 909FFC433F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 05:11:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 360C8C433F5
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:37:55 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CAA72610F9
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 05:11:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CAA72610F9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8907C60F4A
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:37:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8907C60F4A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H7s0D2fXMz2yPy
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 15:11:56 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H7wDd1fWqz2yPF
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 17:37:53 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43;
- helo=out30-43.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H7s03549rz2yKG
- for <linux-erofs@lists.ozlabs.org>; Tue, 14 Sep 2021 15:11:44 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R241e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UoLKGKe_1631596285; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UoLKGKe_1631596285) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 14 Sep 2021 13:11:27 +0800
-Date: Tue, 14 Sep 2021 13:11:25 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Yue Hu <zbestahu@gmail.com>
-Subject: Re: [PATCH] erofs: fix compacted_2b if compacted_4b_initial > totalidx
-Message-ID: <YUAu/YVWmS3hMDsp@B-P7TQMD6M-0146.local>
-References: <20210914035915.1190-1-zbestahu@gmail.com>
- <YUAm+kOdKcCzgcEy@B-P7TQMD6M-0146.local>
- <20210914125748.00003cd2.zbestahu@gmail.com>
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.188; helo=szxga02-in.huawei.com;
+ envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H7wDY4tc9z2xlG
+ for <linux-erofs@lists.ozlabs.org>; Tue, 14 Sep 2021 17:37:49 +1000 (AEST)
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+ by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4H7w7l2QKRzQmdp;
+ Tue, 14 Sep 2021 15:33:39 +0800 (CST)
+Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Tue, 14 Sep 2021 15:37:44 +0800
+Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
+ (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Tue, 14 Sep
+ 2021 15:37:43 +0800
+From: Guo Xuenan <guoxuenan@huawei.com>
+To: <linux-erofs@lists.ozlabs.org>
+Subject: [PATCH v2 5/5] dump.erofs: add -I options to dump the layout of a
+ particular inode on disk
+Date: Tue, 14 Sep 2021 15:44:24 +0800
+Message-ID: <20210914074424.1875409-5-guoxuenan@huawei.com>
+X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20210914074424.1875409-1-guoxuenan@huawei.com>
+References: <20210914074424.1875409-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210914125748.00003cd2.zbestahu@gmail.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.175.101.6]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemm600004.china.huawei.com (7.193.23.242)
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -60,74 +66,204 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, zbestahu@163.com, huyue2@yulong.com,
- linux-erofs@lists.ozlabs.org, zhangwen@yulong.com
+Cc: mpiglet@outlook.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Sep 14, 2021 at 12:57:48PM +0800, Yue Hu wrote:
-> On Tue, 14 Sep 2021 12:37:14 +0800
-> Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
-> 
-> > On Tue, Sep 14, 2021 at 11:59:15AM +0800, Yue Hu wrote:
-> > > From: Yue Hu <huyue2@yulong.com>
-> > > 
-> > > Currently, the whole indexes will only be compacted 4B if
-> > > compacted_4b_initial > totalidx. So, the calculated compacted_2b
-> > > is worthless for that case. It may waste CPU resources.
-> > > 
-> > > No need to update compacted_4b_initial as mkfs since it's used to
-> > > fulfill the alignment of the 1st compacted_2b pack and would handle
-> > > the case above.
-> > > 
-> > > We also need to clarify compacted_4b_end here. It's used for the
-> > > last lclusters which aren't fitted in the previous compacted_2b
-> > > packs.
-> > > 
-> > > Some messages are from Xiang.
-> > > 
-> > > Signed-off-by: Yue Hu <huyue2@yulong.com>  
-> > 
-> > Looks good to me,
-> > Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> > 
-> > (although I think the subject title would be better changed into
-> >  "clear compacted_2b if compacted_4b_initial > totalidx"
-> 
-> Yeah, 'clear' is much better for this change.
+From: Wang Qi <mpiglet@outlook.com>
 
-Ok, I will update this when later applying.
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+Signed-off-by: Wang Qi <mpiglet@outlook.com>
+---
+ dump/main.c  | 90 +++++++++++++++++++++++++++++++++++++++++++++++-----
+ lib/config.c |  3 ++
+ 2 files changed, 85 insertions(+), 8 deletions(-)
 
-Thanks,
-Gao Xiang
+diff --git a/dump/main.c b/dump/main.c
+index 233de50..5f20e84 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -23,8 +23,10 @@ struct dumpcfg {
+ 	bool print_superblock;
+ 	bool print_inode;
+ 	bool print_statistic;
++	bool print_inode_phy;
+ 	bool print_version;
+ 	u64 ino;
++	u64 ino_phy;
+ };
+ static struct dumpcfg dumpcfg;
+ 
+@@ -111,9 +113,10 @@ static void usage(void)
+ 	fputs("usage: [options] erofs-image\n\n"
+ 		"Dump erofs layout from erofs-image, and [options] are:\n"
+ 		"--help  display this help and exit.\n"
++		"-i #    print target # inode info\n"
++		"-I #    print target # inode on-disk info\n"
+ 		"-s      print information about superblock\n"
+ 		"-S      print statistic information of the erofs-image\n"
+-		"-i #    print target # inode info\n"
+ 		"-V      print the version number of dump.erofs and exit.\n",
+ 		stdout);
+ }
+@@ -128,7 +131,7 @@ static int dumpfs_parse_options_cfg(int argc, char **argv)
+ 	int opt;
+ 	u64 i;
+ 
+-	while ((opt = getopt_long(argc, argv, "i:sSV",
++	while ((opt = getopt_long(argc, argv, "i:I:sSV",
+ 					long_options, NULL)) != -1) {
+ 		switch (opt) {
+ 		case 'i':
+@@ -136,6 +139,11 @@ static int dumpfs_parse_options_cfg(int argc, char **argv)
+ 			dumpcfg.print_inode = true;
+ 			dumpcfg.ino = i;
+ 			break;
++		case 'I':
++			i = atoll(optarg);
++			dumpcfg.print_inode_phy = true;
++			dumpcfg.ino_phy = i;
++			break;
+ 		case 's':
+ 			dumpcfg.print_superblock = true;
+ 			break;
+@@ -188,6 +196,7 @@ static int get_file_compressed_size(struct erofs_inode *inode,
+ 	}
+ 	return 0;
+ }
++
+ static int get_path_by_nid(erofs_nid_t nid, erofs_nid_t parent_nid,
+ 		erofs_nid_t target, char *path, unsigned int pos)
+ {
+@@ -270,6 +279,69 @@ static int get_path_by_nid(erofs_nid_t nid, erofs_nid_t parent_nid,
+ 	return -1;
+ }
+ 
++static void dumpfs_print_inode_phy(void)
++{
++	int err;
++	erofs_nid_t nid = dumpcfg.ino_phy;
++	struct erofs_inode inode = {.nid = nid};
++	char path[PATH_MAX + 1] = {0};
++
++	err = erofs_read_inode_from_disk(&inode);
++	if (err < 0) {
++		erofs_err("read inode %lu from disk failed", nid);
++		return;
++	}
++
++	const erofs_off_t ibase = iloc(inode.nid);
++	const erofs_off_t pos = Z_EROFS_VLE_LEGACY_INDEX_ALIGN(
++			ibase + inode.inode_isize + inode.xattr_isize);
++	erofs_blk_t blocks = inode.u.i_blocks;
++	erofs_blk_t start = 0;
++	erofs_blk_t end = 0;
++	struct erofs_map_blocks map = {
++		.index = UINT_MAX,
++		.m_la = 0,
++	};
++
++	fprintf(stdout, "Inode %lu on-disk info:\n", nid);
++	err = get_path_by_nid(sbi.root_nid, sbi.root_nid, nid, path, 0);
++	if (!err)
++		fprintf(stderr, "File Path:			%s\n",
++				path);
++	else
++		erofs_err("path not found");
++
++	switch (inode.datalayout) {
++	case EROFS_INODE_FLAT_INLINE:
++	case EROFS_INODE_FLAT_PLAIN:
++		if (inode.u.i_blkaddr == NULL_ADDR)
++			start = end = erofs_blknr(pos);
++		else {
++			start = inode.u.i_blkaddr;
++			end = start + BLK_ROUND_UP(inode.i_size) - 1;
++		}
++		fprintf(stdout, "File size:			%lu\n",
++				inode.i_size);
++		fprintf(stdout,
++				"Plain Block Address:		%u - %u\n",
++				start, end);
++		break;
++
++	case EROFS_INODE_FLAT_COMPRESSION_LEGACY:
++	case EROFS_INODE_FLAT_COMPRESSION:
++		err = z_erofs_map_blocks_iter(&inode, &map, 0);
++		if (err)
++			erofs_err("get file blocks range failed");
++
++		start = erofs_blknr(map.m_pa);
++		end = start - 1 + blocks;
++		fprintf(stderr,
++				"Compressed Block Address:	%u - %u\n",
++				start, end);
++		break;
++	}
++}
++
+ static void dumpfs_print_inode(void)
+ {
+ 	int err;
+@@ -648,19 +720,19 @@ int main(int argc, char **argv)
+ 	if (err) {
+ 		if (err == -EINVAL)
+ 			usage();
+-		goto out;
++		goto exit;
+ 	}
+ 
+ 	err = dev_open_ro(cfg.c_img_path);
+ 	if (err) {
+ 		erofs_err("open image file failed");
+-		goto out;
++		goto exit;
+ 	}
+ 
+ 	err = erofs_read_superblock();
+ 	if (err) {
+ 		erofs_err("read superblock failed");
+-		goto out;
++		goto exit;
+ 	}
+ 
+ 	if (dumpcfg.print_superblock)
+@@ -671,8 +743,10 @@ int main(int argc, char **argv)
+ 
+ 	if (dumpcfg.print_inode)
+ 		dumpfs_print_inode();
+-out:
+-	if (cfg.c_img_path)
+-		free(cfg.c_img_path);
++
++	if (dumpcfg.print_inode_phy)
++		dumpfs_print_inode_phy();
++exit:
++	erofs_exit_configure();
+ 	return err;
+ }
+diff --git a/lib/config.c b/lib/config.c
+index 99fcf49..405fae6 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -7,6 +7,7 @@
+  * Created by Li Guifu <bluce.liguifu@huawei.com>
+  */
+ #include <string.h>
++#include <stdlib.h>
+ #include "erofs/print.h"
+ #include "erofs/internal.h"
+ 
+@@ -45,6 +46,8 @@ void erofs_exit_configure(void)
+ 	if (cfg.sehnd)
+ 		selabel_close(cfg.sehnd);
+ #endif
++	if (cfg.c_img_path)
++		free(cfg.c_img_path);
+ }
+ 
+ static unsigned int fullpath_prefix;	/* root directory prefix length */
+-- 
+2.25.4
 
-> 
-> Thanks.
-> 
-> >  since 'fix'-likewise words could trigger some AI bot for stable
-> >  kernel backporting..)
-> > 
-> > Thanks,
-> > Gao Xiang
-> > 
-> > > ---
-> > >  fs/erofs/zmap.c | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-> > > index 9fb98d8..aeed404 100644
-> > > --- a/fs/erofs/zmap.c
-> > > +++ b/fs/erofs/zmap.c
-> > > @@ -369,7 +369,8 @@ static int compacted_load_cluster_from_disk(struct z_erofs_maprecorder *m,
-> > >  	if (compacted_4b_initial == 32 / 4)
-> > >  		compacted_4b_initial = 0;
-> > >  
-> > > -	if (vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B)
-> > > +	if ((vi->z_advise & Z_EROFS_ADVISE_COMPACTED_2B) &&
-> > > +	    compacted_4b_initial <= totalidx) {
-> > >  		compacted_2b = rounddown(totalidx - compacted_4b_initial, 16);
-> > >  	else
-> > >  		compacted_2b = 0;
-> > > -- 
-> > > 1.9.1  
