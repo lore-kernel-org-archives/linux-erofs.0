@@ -2,52 +2,49 @@ Return-Path: <SRS0=awAR=OE=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DBC8C433F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:38:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F676C4332F
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:38:24 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 37AB660F21
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:38:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 37AB660F21
+	by mail.kernel.org (Postfix) with ESMTPS id B3AF461056
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 07:38:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B3AF461056
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4H7wFC6tCRz2xlG
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 17:38:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4H7wFB3NN2z2yPJ
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Sep 2021 17:38:22 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com;
  envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
  bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4H7wF52FDGz2xr1
- for <linux-erofs@lists.ozlabs.org>; Tue, 14 Sep 2021 17:38:17 +1000 (AEST)
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4H7w7k05kXzbmN9;
- Tue, 14 Sep 2021 15:33:38 +0800 (CST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4H7wF43h6Bz2xlG
+ for <linux-erofs@lists.ozlabs.org>; Tue, 14 Sep 2021 17:38:16 +1000 (AEST)
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
+ by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4H7wCD46Q2zW4Tm;
+ Tue, 14 Sep 2021 15:36:40 +0800 (CST)
 Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
  dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 14 Sep 2021 15:37:43 +0800
+ 15.1.2308.8; Tue, 14 Sep 2021 15:37:36 +0800
 Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
  (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Tue, 14 Sep
- 2021 15:37:42 +0800
+ 2021 15:37:35 +0800
 From: Guo Xuenan <guoxuenan@huawei.com>
 To: <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v2 4/5] dump.erofs: add -i options to dump file information of
- specific inode number
-Date: Tue, 14 Sep 2021 15:44:23 +0800
-Message-ID: <20210914074424.1875409-4-guoxuenan@huawei.com>
+Subject: [PATCH v2 1/5] erofs-utils: introduce dump.erofs
+Date: Tue, 14 Sep 2021 15:44:20 +0800
+Message-ID: <20210914074424.1875409-1-guoxuenan@huawei.com>
 X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20210914074424.1875409-1-guoxuenan@huawei.com>
-References: <20210914074424.1875409-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -73,218 +70,205 @@ Sender: "Linux-erofs"
 
 From: Wang Qi <mpiglet@outlook.com>
 
+Add dump-tool for erofs to facilitate users directly
+analyzing the erofs image file.
+
 Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
 Signed-off-by: Wang Qi <mpiglet@outlook.com>
 ---
- dump/main.c | 161 +++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 159 insertions(+), 2 deletions(-)
+ Makefile.am        |  2 +-
+ configure.ac       |  2 ++
+ dump/Makefile.am   |  9 +++++
+ dump/main.c        | 85 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/erofs/io.h |  3 ++
+ lib/namei.c        |  5 ++-
+ 6 files changed, 102 insertions(+), 4 deletions(-)
+ create mode 100644 dump/Makefile.am
+ create mode 100644 dump/main.c
 
+diff --git a/Makefile.am b/Makefile.am
+index b804aa9..fedf7b5 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -3,7 +3,7 @@
+ 
+ ACLOCAL_AMFLAGS = -I m4
+ 
+-SUBDIRS = man lib mkfs
++SUBDIRS = man lib mkfs dump
+ if ENABLE_FUSE
+ SUBDIRS += fuse
+ endif
+diff --git a/configure.ac b/configure.ac
+index f626064..f4fe548 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -280,6 +280,8 @@ AC_CONFIG_FILES([Makefile
+ 		 man/Makefile
+ 		 lib/Makefile
+ 		 mkfs/Makefile
++		 dump/Makefile
+ 		 fuse/Makefile])
++
+ AC_OUTPUT
+ 
+diff --git a/dump/Makefile.am b/dump/Makefile.am
+new file mode 100644
+index 0000000..8e18c0f
+--- /dev/null
++++ b/dump/Makefile.am
+@@ -0,0 +1,9 @@
++# SPDX-License-Identifier: GPL-2.0+
++# Makefile.am
++
++AUTOMAKE_OPTIONS = foreign
++bin_PROGRAMS     = dump.erofs
++dump_erofs_SOURCES = main.c
++dump_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
++dump_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${liblz4_LIBS}
++
 diff --git a/dump/main.c b/dump/main.c
-index 0778354..233de50 100644
---- a/dump/main.c
+new file mode 100644
+index 0000000..8f299ca
+--- /dev/null
 +++ b/dump/main.c
-@@ -21,8 +21,10 @@
- 
- struct dumpcfg {
- 	bool print_superblock;
-+	bool print_inode;
- 	bool print_statistic;
- 	bool print_version;
-+	u64 ino;
- };
- static struct dumpcfg dumpcfg;
- 
-@@ -109,8 +111,9 @@ static void usage(void)
- 	fputs("usage: [options] erofs-image\n\n"
- 		"Dump erofs layout from erofs-image, and [options] are:\n"
- 		"--help  display this help and exit.\n"
--		"-s          print information about superblock\n"
-+		"-s      print information about superblock\n"
- 		"-S      print statistic information of the erofs-image\n"
-+		"-i #    print target # inode info\n"
- 		"-V      print the version number of dump.erofs and exit.\n",
- 		stdout);
- }
-@@ -123,10 +126,16 @@ static void dumpfs_print_version(void)
- static int dumpfs_parse_options_cfg(int argc, char **argv)
- {
- 	int opt;
-+	u64 i;
- 
--	while ((opt = getopt_long(argc, argv, "sSV",
-+	while ((opt = getopt_long(argc, argv, "i:sSV",
- 					long_options, NULL)) != -1) {
- 		switch (opt) {
-+		case 'i':
-+			i = atoll(optarg);
-+			dumpcfg.print_inode = true;
-+			dumpcfg.ino = i;
-+			break;
- 		case 's':
- 			dumpcfg.print_superblock = true;
- 			break;
-@@ -179,6 +188,151 @@ static int get_file_compressed_size(struct erofs_inode *inode,
- 	}
- 	return 0;
- }
-+static int get_path_by_nid(erofs_nid_t nid, erofs_nid_t parent_nid,
-+		erofs_nid_t target, char *path, unsigned int pos)
+@@ -0,0 +1,85 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2021-2022 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Wang Qi <mpiglet@outlook.com>
++ *            Guo Xuenan <guoxuenan@huawei.com>
++ */
++
++#include <stdlib.h>
++#include <getopt.h>
++#include <sys/sysmacros.h>
++#include <time.h>
++#include <lz4.h>
++
++#include "erofs/print.h"
++#include "erofs/io.h"
++
++static struct option long_options[] = {
++	{"help", no_argument, 0, 1},
++	{0, 0, 0, 0},
++};
++
++static void usage(void)
 +{
-+	int err;
-+	struct erofs_inode inode = {.nid = nid};
-+	erofs_off_t offset;
-+	char buf[EROFS_BLKSIZ];
-+
-+	path[pos++] = '/';
-+	if (target == sbi.root_nid)
-+		return 0;
-+
-+	err = erofs_read_inode_from_disk(&inode);
-+	if (err) {
-+		erofs_err("read inode %lu failed", nid);
-+		return err;
-+	}
-+
-+	offset = 0;
-+	while (offset < inode.i_size) {
-+		erofs_off_t maxsize = min_t(erofs_off_t,
-+					inode.i_size - offset, EROFS_BLKSIZ);
-+		struct erofs_dirent *de = (void *)buf;
-+		struct erofs_dirent *end;
-+		unsigned int nameoff;
-+
-+		err = erofs_pread(&inode, buf, maxsize, offset);
-+		if (err)
-+			return err;
-+
-+		nameoff = le16_to_cpu(de->nameoff);
-+		if (nameoff < sizeof(struct erofs_dirent) ||
-+		    nameoff >= PAGE_SIZE) {
-+			erofs_err("invalid de[0].nameoff %u @ nid %llu",
-+				  nameoff, nid | 0ULL);
-+			return -EFSCORRUPTED;
-+		}
-+
-+		end = (void *)buf + nameoff;
-+		while (de < end) {
-+			const char *dname;
-+			unsigned int dname_len;
-+
-+			nameoff = le16_to_cpu(de->nameoff);
-+			dname = (char *)buf + nameoff;
-+			if (de + 1 >= end)
-+				dname_len = strnlen(dname, maxsize - nameoff);
-+			else
-+				dname_len = le16_to_cpu(de[1].nameoff)
-+					- nameoff;
-+
-+			/* a corrupted entry is found */
-+			if (nameoff + dname_len > maxsize ||
-+			    dname_len > EROFS_NAME_LEN) {
-+				erofs_err("bogus dirent @ nid %llu",
-+						le64_to_cpu(de->nid) | 0ULL);
-+				DBG_BUGON(1);
-+				return -EFSCORRUPTED;
-+			}
-+
-+			if (de->nid == target) {
-+				memcpy(path + pos, dname, dname_len);
-+				return 0;
-+			}
-+
-+			if (de->file_type == EROFS_FT_DIR &&
-+					de->nid != parent_nid &&
-+					de->nid != nid) {
-+				memcpy(path + pos, dname, dname_len);
-+				err = get_path_by_nid(de->nid, nid,
-+						target, path, pos + dname_len);
-+				if (!err)
-+					return 0;
-+				memset(path + pos, 0, dname_len);
-+			}
-+			++de;
-+		}
-+		offset += maxsize;
-+	}
-+	return -1;
++	fputs("usage: [options] erofs-image\n\n"
++		"Dump erofs layout from erofs-image, and [options] are:\n"
++		"--help  display this help and exit.\n"
++		"-V      print the version number of dump.erofs and exit.\n",
++		stderr);
++}
++static void dumpfs_print_version(void)
++{
++	fprintf(stderr, "dump.erofs %s\n", cfg.c_version);
 +}
 +
-+static void dumpfs_print_inode(void)
++static int dumpfs_parse_options_cfg(int argc, char **argv)
 +{
-+	int err;
-+	erofs_off_t size;
-+	u16 access_mode;
-+	time_t t;
-+	erofs_nid_t nid = dumpcfg.ino;
-+	struct erofs_inode inode = {.nid = nid};
-+	char path[PATH_MAX + 1] = {0};
-+	char access_mode_str[] = "rwxrwxrwx";
++	int opt;
 +
-+	err = erofs_read_inode_from_disk(&inode);
-+	if (err) {
-+		erofs_err("read inode %lu from disk failed", nid);
-+		return;
++	while ((opt = getopt_long(argc, argv, "V",
++					long_options, NULL)) != -1) {
++		switch (opt) {
++		case 'V':
++			dumpfs_print_version();
++			exit(0);
++		case 1:
++		    usage();
++		    exit(0);
++		default: /* '?' */
++			return -EINVAL;
++		}
 +	}
 +
-+	err = get_file_compressed_size(&inode, &size);
-+	if (err) {
-+		erofs_err("get file size failed\n");
-+		return;
++	if (optind >= argc)
++		return -EINVAL;
++
++	cfg.c_img_path = strdup(argv[optind++]);
++	if (!cfg.c_img_path)
++		return -ENOMEM;
++
++	if (optind < argc) {
++		erofs_err("unexpected argument: %s\n", argv[optind]);
++		return -EINVAL;
 +	}
-+
-+	fprintf(stdout, "Inode %lu info:\n", dumpcfg.ino);
-+	err = get_path_by_nid(sbi.root_nid, sbi.root_nid, nid, path, 0);
-+
-+	fprintf(stdout, "File path:            %s\n",
-+			!err ? path : "path not found");
-+	fprintf(stdout, "File nid:             %lu\n", inode.nid);
-+	fprintf(stdout, "File inode core size: %d\n", inode.inode_isize);
-+	fprintf(stdout, "File original size:   %lu\n", inode.i_size);
-+	fprintf(stdout,	"File on-disk size:    %lu\n", size);
-+	fprintf(stdout, "File compress rate:   %.2f%%\n",
-+			(double)(100 * size) / (double)(inode.i_size));
-+	fprintf(stdout, "File extent size:     %u\n", inode.extent_isize);
-+	fprintf(stdout,	"File xattr size:      %u\n", inode.xattr_isize);
-+	fprintf(stdout, "File type:            ");
-+	switch (inode.i_mode & S_IFMT) {
-+	case S_IFBLK:  fprintf(stdout, "block device\n");     break;
-+	case S_IFCHR:  fprintf(stdout, "character device\n"); break;
-+	case S_IFDIR:  fprintf(stdout, "directory\n");        break;
-+	case S_IFIFO:  fprintf(stdout, "FIFO/pipe\n");        break;
-+	case S_IFLNK:  fprintf(stdout, "symlink\n");          break;
-+	case S_IFREG:  fprintf(stdout, "regular file\n");     break;
-+	case S_IFSOCK: fprintf(stdout, "socket\n");           break;
-+	default:       fprintf(stdout, "unknown?\n");         break;
-+	}
-+
-+	access_mode = inode.i_mode & 0777;
-+	t = inode.i_ctime;
-+	for (int i = 8; i >= 0; i--)
-+		if (((access_mode >> i) & 1) == 0)
-+			access_mode_str[8 - i] = '-';
-+	fprintf(stdout, "File access:          %04o/%s\n",
-+			access_mode, access_mode_str);
-+	fprintf(stdout, "File uid:             %u\n", inode.i_uid);
-+	fprintf(stdout, "File gid:             %u\n", inode.i_gid);
-+	fprintf(stdout, "File datalayout:      %d\n", inode.datalayout);
-+	fprintf(stdout,	"File nlink:           %u\n", inode.i_nlink);
-+	fprintf(stdout, "File create time:     %s", ctime(&t));
-+	fprintf(stdout, "File access time:     %s", ctime(&t));
-+	fprintf(stdout, "File modify time:     %s", ctime(&t));
++	return 0;
 +}
- 
- static int get_file_type(const char *filename)
- {
-@@ -514,6 +668,9 @@ int main(int argc, char **argv)
- 
- 	if (dumpcfg.print_statistic)
- 		dumpfs_print_statistic();
 +
-+	if (dumpcfg.print_inode)
-+		dumpfs_print_inode();
- out:
- 	if (cfg.c_img_path)
- 		free(cfg.c_img_path);
++int main(int argc, char **argv)
++{
++	int err = 0;
++
++	erofs_init_configure();
++	err = dumpfs_parse_options_cfg(argc, argv);
++
++	if (cfg.c_img_path)
++		free(cfg.c_img_path);
++
++	if (err) {
++		if (err == -EINVAL)
++			usage();
++		return -1;
++	}
++
++	return 0;
++}
+diff --git a/include/erofs/io.h b/include/erofs/io.h
+index 5574245..00e5de8 100644
+--- a/include/erofs/io.h
++++ b/include/erofs/io.h
+@@ -10,6 +10,7 @@
+ #define __EROFS_IO_H
+ 
+ #include <unistd.h>
++#include <sys/types.h>
+ #include "internal.h"
+ 
+ #ifndef O_BINARY
+@@ -25,6 +26,8 @@ int dev_fillzero(u64 offset, size_t len, bool padding);
+ int dev_fsync(void);
+ int dev_resize(erofs_blk_t nblocks);
+ u64 dev_length(void);
++dev_t erofs_new_decode_dev(u32 dev);
++int erofs_read_inode_from_disk(struct erofs_inode *vi);
+ 
+ static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
+ 			    u32 nblocks)
+diff --git a/lib/namei.c b/lib/namei.c
+index 4e06ba4..b45e9d8 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -5,7 +5,6 @@
+  * Created by Li Guifu <blucerlee@gmail.com>
+  */
+ #include <linux/kdev_t.h>
+-#include <sys/types.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <errno.h>
+@@ -15,7 +14,7 @@
+ #include "erofs/print.h"
+ #include "erofs/io.h"
+ 
+-static dev_t erofs_new_decode_dev(u32 dev)
++dev_t erofs_new_decode_dev(u32 dev)
+ {
+ 	const unsigned int major = (dev & 0xfff00) >> 8;
+ 	const unsigned int minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
+@@ -23,7 +22,7 @@ static dev_t erofs_new_decode_dev(u32 dev)
+ 	return makedev(major, minor);
+ }
+ 
+-static int erofs_read_inode_from_disk(struct erofs_inode *vi)
++int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ {
+ 	int ret, ifmt;
+ 	char buf[sizeof(struct erofs_inode_extended)];
 -- 
 2.25.4
 
