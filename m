@@ -2,52 +2,50 @@ Return-Path: <SRS0=8NqK=OL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F374C433EF
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97744C433FE
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:11 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A55BB611BD
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A55BB611BD
+	by mail.kernel.org (Postfix) with ESMTPS id 1D548611C5
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1D548611C5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HDP9z2G1fz2yPf
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 00:36:07 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HDPB05zGDz2yb7
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 00:36:08 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
- helo=out30-42.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HDP9r2QBwz2xZL
- for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 00:35:56 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R461e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0Up8yjG5_1632234933; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HDP9w3Qx6z2xZL
+ for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 00:36:03 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
+ MF=hsiangkao@linux.alibaba.com; NM=1; PH=DS; RN=5; SR=0;
+ TI=SMTPD_---0Up8yjG5_1632234933; 
 Received: from
  e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
  fp:SMTPD_---0Up8yjG5_1632234933) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 21 Sep 2021 22:35:47 +0800
+ Tue, 21 Sep 2021 22:35:44 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org,
 	Chao Yu <chao@kernel.org>
-Subject: [PATCH 2/2] erofs: clean up erofs_map_blocks tracepoints
-Date: Tue, 21 Sep 2021 22:35:31 +0800
-Message-Id: <20210921143531.81356-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/2] erofs: fix up erofs_lookup tracepoint
+Date: Tue, 21 Sep 2021 22:35:30 +0800
+Message-Id: <20210921143531.81356-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20210921143531.81356-1-hsiangkao@linux.alibaba.com>
-References: <20210921143531.81356-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -62,148 +60,48 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>,
- LKML <linux-kernel@vger.kernel.org>
+ LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Since the new type of chunk-based files is introduced, there is no
-need to leave flatmode tracepoints. Rename to erofs_map_blocks.
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-Add the missing FIEMAP tracepoint map flag as well.
-
+Fixes: 13f06f48f7bf ("staging: erofs: support tracepoint")
+Cc: stable@vger.kernel.org # 4.19+
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/data.c              | 31 ++++++++++++++-----------------
- include/trace/events/erofs.h |  7 ++++---
- 2 files changed, 18 insertions(+), 20 deletions(-)
+ include/trace/events/erofs.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 9db8297..020c3e0 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -26,14 +26,11 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 				     struct erofs_map_blocks *map,
- 				     int flags)
- {
--	int err = 0;
- 	erofs_blk_t nblocks, lastblk;
- 	u64 offset = map->m_la;
- 	struct erofs_inode *vi = EROFS_I(inode);
- 	bool tailendpacking = (vi->datalayout == EROFS_INODE_FLAT_INLINE);
- 
--	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
--
- 	nblocks = DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
- 	lastblk = nblocks - tailendpacking;
- 
-@@ -57,8 +54,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 				  "inline data cross block boundary @ nid %llu",
- 				  vi->nid);
- 			DBG_BUGON(1);
--			err = -EFSCORRUPTED;
--			goto err_out;
-+			return -EFSCORRUPTED;
- 		}
- 
- 		map->m_flags |= EROFS_MAP_META;
-@@ -67,14 +63,10 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 			  "internal error @ nid: %llu (size %llu), m_la 0x%llx",
- 			  vi->nid, inode->i_size, map->m_la);
- 		DBG_BUGON(1);
--		err = -EIO;
--		goto err_out;
-+		return -EIO;
- 	}
--
- 	map->m_llen = map->m_plen;
--err_out:
--	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
--	return err;
-+	return 0;
- }
- 
- static int erofs_map_blocks(struct inode *inode,
-@@ -89,6 +81,7 @@ static int erofs_map_blocks(struct inode *inode,
- 	erofs_off_t pos;
- 	int err = 0;
- 
-+	trace_erofs_map_blocks_enter(inode, map, flags);
- 	if (map->m_la >= inode->i_size) {
- 		/* leave out-of-bound access unmapped */
- 		map->m_flags = 0;
-@@ -96,8 +89,10 @@ static int erofs_map_blocks(struct inode *inode,
- 		goto out;
- 	}
- 
--	if (vi->datalayout != EROFS_INODE_CHUNK_BASED)
--		return erofs_map_blocks_flatmode(inode, map, flags);
-+	if (vi->datalayout != EROFS_INODE_CHUNK_BASED) {
-+		err = erofs_map_blocks_flatmode(inode, map, flags);
-+		goto out;
-+	}
- 
- 	if (vi->chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
- 		unit = sizeof(*idx);			/* chunk index */
-@@ -109,9 +104,10 @@ static int erofs_map_blocks(struct inode *inode,
- 		    vi->xattr_isize, unit) + unit * chunknr;
- 
- 	page = erofs_get_meta_page(inode->i_sb, erofs_blknr(pos));
--	if (IS_ERR(page))
--		return PTR_ERR(page);
--
-+	if (IS_ERR(page)) {
-+		err = PTR_ERR(page);
-+		goto out;
-+	}
- 	map->m_la = chunknr << vi->chunkbits;
- 	map->m_plen = min_t(erofs_off_t, 1UL << vi->chunkbits,
- 			    roundup(inode->i_size - map->m_la, EROFS_BLKSIZ));
-@@ -147,11 +143,12 @@ static int erofs_map_blocks(struct inode *inode,
- 		map->m_flags = EROFS_MAP_MAPPED;
- 		break;
- 	}
-+	map->m_llen = map->m_plen;
- out_unlock:
- 	unlock_page(page);
- 	put_page(page);
- out:
--	map->m_llen = map->m_plen;
-+	trace_erofs_map_blocks_exit(inode, map, flags, 0);
- 	return err;
- }
- 
 diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-index db4f2ce..5c91edd 100644
+index bf9806f..db4f2ce 100644
 --- a/include/trace/events/erofs.h
 +++ b/include/trace/events/erofs.h
-@@ -19,7 +19,8 @@
- 		{ 1,		"DIR" })
+@@ -35,20 +35,20 @@
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+ 		__field(erofs_nid_t,	nid	)
+-		__field(const char *,	name	)
++		__string(name,		dentry->d_name.name	)
+ 		__field(unsigned int,	flags	)
+ 	),
  
- #define show_map_flags(flags) __print_flags(flags, "|",	\
--	{ EROFS_GET_BLOCKS_RAW,	"RAW" })
-+	{ EROFS_GET_BLOCKS_RAW,	"RAW" },		\
-+	{ EROFS_GET_BLOCKS_FIEMAP, "FIEMAP" })
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->nid	= EROFS_I(dir)->nid;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
  
- #define show_mflags(flags) __print_flags(flags, "",	\
- 	{ EROFS_MAP_MAPPED,	"M" },			\
-@@ -169,7 +170,7 @@
- 		  __entry->flags ? show_map_flags(__entry->flags) : "NULL")
+ 	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
+ 		show_dev_nid(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
  );
- 
--DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_flatmode_enter,
-+DEFINE_EVENT(erofs__map_blocks_enter, erofs_map_blocks_enter,
- 	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
- 		 unsigned flags),
- 
-@@ -221,7 +222,7 @@
- 		  show_mflags(__entry->mflags), __entry->ret)
- );
- 
--DEFINE_EVENT(erofs__map_blocks_exit, erofs_map_blocks_flatmode_exit,
-+DEFINE_EVENT(erofs__map_blocks_exit, erofs_map_blocks_exit,
- 	TP_PROTO(struct inode *inode, struct erofs_map_blocks *map,
- 		 unsigned flags, int ret),
  
 -- 
 1.8.3.1
