@@ -2,50 +2,58 @@ Return-Path: <SRS0=LzaZ=OM=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B70C433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 09:52:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C324C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 13:21:22 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D87CA61178
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 09:52:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D87CA61178
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6292B61153
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 13:21:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6292B61153
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=139.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HDtr73KQKz2ymc
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 19:52:23 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HDtqz0yKlz2yWG
- for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 19:52:09 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R941e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0UpDev3j_1632304305; 
-Received: from
- e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UpDev3j_1632304305) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 22 Sep 2021 17:51:52 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>,
- Liu Bo <bo.liu@linux.alibaba.com>
-Subject: [PATCH] erofs: fix misbehavior of unsupported chunk format check
-Date: Wed, 22 Sep 2021 17:51:41 +0800
-Message-Id: <20210922095141.233938-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HDzTD06CDz2yPK
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 23:21:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+ spf=pass (sender SPF authorized) smtp.mailfrom=139.com
+ (client-ip=120.232.169.114; helo=n169-114.mail.139.com;
+ envelope-from=cgxu519@139.com; receiver=<UNKNOWN>)
+Received: from n169-114.mail.139.com (n169-114.mail.139.com [120.232.169.114])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HDzT56Tbpz2xWx
+ for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 23:21:10 +1000 (AEST)
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM: 
+X-RM-SPAM-FLAG: 00000000
+Received: from [192.168.255.10] (unknown[113.108.77.67])
+ by rmsmtp-lg-appmail-39-12053 (RichMail) with SMTP id 2f15614b2db0269-70997;
+ Wed, 22 Sep 2021 21:20:51 +0800 (CST)
+X-RM-TRANSID: 2f15614b2db0269-70997
+Message-ID: <314324e7-02d7-dc43-b270-fb8117953549@139.com>
+Date: Wed, 22 Sep 2021 21:20:50 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.1
+From: Chengguang Xu <cgxu519@139.com>
+Subject: Re: [PATCH v3] ovl: fix null pointer when
+ filesystemdoesn'tsupportdirect IO
+To: Huang Jianan <huangjianan@oppo.com>, linux-unionfs@vger.kernel.org,
+ miklos@szeredi.hu, linux-erofs@lists.ozlabs.org, xiang@kernel.org,
+ chao@kernel.org
+References: <9ef909de-1854-b4be-d272-2b4cda52329f@oppo.com>
+ <20210922072326.3538-1-huangjianan@oppo.com>
+ <e42a183f-274c-425f-2012-3ff0003e1fcb@139.com>
+ <919e929d-6af7-b729-9fd2-954cd1e52999@oppo.com>
+In-Reply-To: <919e929d-6af7-b729-9fd2-954cd1e52999@oppo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -58,39 +66,120 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>,
- LKML <linux-kernel@vger.kernel.org>
+Cc: zhangshiming@oppo.com, linux-kernel@vger.kernel.org, cgxu519@mykernel.net,
+ yh@oppo.com, guanyuwei@oppo.com, linux-fsdevel@vger.kernel.org,
+ guoweichao@oppo.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Unsupported chunk format should be checked with
-"if (vi->chunkformat & ~EROFS_CHUNK_FORMAT_ALL)"
+在 2021/9/22 16:24, Huang Jianan 写道:
+>
+>
+> 在 2021/9/22 16:06, Chengguang Xu 写道:
+>> 在 2021/9/22 15:23, Huang Jianan 写道:
+>>> From: Huang Jianan <huangjianan@oppo.com>
+>>>
+>>> At present, overlayfs provides overlayfs inode to users. Overlayfs
+>>> inode provides ovl_aops with noop_direct_IO to avoid open failure
+>>> with O_DIRECT. But some compressed filesystems, such as erofs and
+>>> squashfs, don't support direct_IO.
+>>>
+>>> Users who use f_mapping->a_ops->direct_IO to check O_DIRECT support,
+>>> will read file through this way. This will cause overlayfs to access
+>>> a non-existent direct_IO function and cause panic due to null pointer:
+>>
+>> I just looked around the code more closely, in open_with_fake_path(),
+>>
+>> do_dentry_open() has already checked O_DIRECT open flag and 
+>> a_ops->direct_IO of underlying real address_space.
+>>
+>> Am I missing something?
+>>
+>>
+>
+> It seems that loop_update_dio will set lo->use_dio after open file 
+> without set O_DIRECT.
+> loop_update_dio will check f_mapping->a_ops->direct_IO but it deal 
+> with ovl_aops with
+> noop _direct_IO.
+>
+> So I think we still need a new aops?
 
-Found when checking with 4k-byte blockmap (although currently mkfs
-uses inode chunk indexes format by default.)
 
-Fixes: c5aa903a59db ("erofs: support reading chunk-based uncompressed files")
-Cc: Liu Bo <bo.liu@linux.alibaba.com>
-Cc: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It means we should only set ->direct_IO for overlayfs inodes whose 
+underlying fs has DIRECT IO ability.
 
-diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index 31ac3a7..a552399 100644
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -176,7 +176,7 @@ static struct page *erofs_read_inode(struct inode *inode,
- 	}
- 
- 	if (vi->datalayout == EROFS_INODE_CHUNK_BASED) {
--		if (!(vi->chunkformat & EROFS_CHUNK_FORMAT_ALL)) {
-+		if (vi->chunkformat & ~EROFS_CHUNK_FORMAT_ALL) {
- 			erofs_err(inode->i_sb,
- 				  "unsupported chunk format %x of nid %llu",
- 				  vi->chunkformat, vi->nid);
--- 
-1.8.3.1
+
+Hi Miklos,
+
+Is it right solution for this kind of issue? What do you think?
+
+
+Thanks,
+
+Chengguang
+
+
+
+>
+> Thanks,
+> Jianan
+>
+>> Thanks,
+>>
+>> Chengguang
+>>
+>>
+>>>
+>>> Kernel panic - not syncing: CFI failure (target: 0x0)
+>>> CPU: 6 PID: 247 Comm: loop0
+>>> Call Trace:
+>>>   panic+0x188/0x45c
+>>>   __cfi_slowpath+0x0/0x254
+>>>   __cfi_slowpath+0x200/0x254
+>>>   generic_file_read_iter+0x14c/0x150
+>>>   vfs_iocb_iter_read+0xac/0x164
+>>>   ovl_read_iter+0x13c/0x2fc
+>>>   lo_rw_aio+0x2bc/0x458
+>>>   loop_queue_work+0x4a4/0xbc0
+>>>   kthread_worker_fn+0xf8/0x1d0
+>>>   loop_kthread_worker_fn+0x24/0x38
+>>>   kthread+0x29c/0x310
+>>>   ret_from_fork+0x10/0x30
+>>>
+>>> The filesystem may only support direct_IO for some file types. For
+>>> example, erofs supports direct_IO for uncompressed files. So return
+>>> -EINVAL when the file doesn't support direct_IO to fix this problem.
+>>>
+>>> Fixes: 5b910bd615ba ("ovl: fix GPF in swapfile_activate of file from 
+>>> overlayfs over xfs")
+>>> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
+>>> ---
+>>> change since v2:
+>>>   - Return error in ovl_open directly. (Chengguang Xu)
+>>>
+>>> Change since v1:
+>>>   - Return error to user rather than fall back to buffered io. 
+>>> (Chengguang Xu)
+>>>
+>>>   fs/overlayfs/file.c | 4 ++++
+>>>   1 file changed, 4 insertions(+)
+>>>
+>>> diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+>>> index d081faa55e83..a0c99ea35daf 100644
+>>> --- a/fs/overlayfs/file.c
+>>> +++ b/fs/overlayfs/file.c
+>>> @@ -157,6 +157,10 @@ static int ovl_open(struct inode *inode, struct 
+>>> file *file)
+>>>       if (IS_ERR(realfile))
+>>>           return PTR_ERR(realfile);
+>>>   +    if ((f->f_flags & O_DIRECT) && (!realfile->f_mapping->a_ops ||
+>>> +        !realfile->f_mapping->a_ops->direct_IO))
+>>> +        return -EINVAL;
+>>> +
+>>>       file->private_data = realfile;
+>>>         return 0;
+>>
+>
 
