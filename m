@@ -1,52 +1,58 @@
-Return-Path: <SRS0=8NqK=OL=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=LzaZ=OM=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97744C433FE
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50521C433EF
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 02:00:45 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1D548611C5
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Sep 2021 14:36:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1D548611C5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5586160230
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 02:00:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5586160230
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=139.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HDPB05zGDz2yb7
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 00:36:08 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HDP9w3Qx6z2xZL
- for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 00:36:03 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=hsiangkao@linux.alibaba.com; NM=1; PH=DS; RN=5; SR=0;
- TI=SMTPD_---0Up8yjG5_1632234933; 
-Received: from
- e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0Up8yjG5_1632234933) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 21 Sep 2021 22:35:44 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org,
-	Chao Yu <chao@kernel.org>
-Subject: [PATCH 1/2] erofs: fix up erofs_lookup tracepoint
-Date: Tue, 21 Sep 2021 22:35:30 +0800
-Message-Id: <20210921143531.81356-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HDhMv0SpKz2yd6
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Sep 2021 12:00:43 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+ spf=pass (sender SPF authorized) smtp.mailfrom=139.com
+ (client-ip=120.232.169.112; helo=n169-112.mail.139.com;
+ envelope-from=cgxu519@139.com; receiver=<UNKNOWN>)
+X-Greylist: delayed 197 seconds by postgrey-1.36 at boromir;
+ Wed, 22 Sep 2021 12:00:39 AEST
+Received: from n169-112.mail.139.com (n169-112.mail.139.com [120.232.169.112])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HDhMq2pRpz2xtP
+ for <linux-erofs@lists.ozlabs.org>; Wed, 22 Sep 2021 12:00:39 +1000 (AEST)
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM: 
+X-RM-SPAM-FLAG: 00000000
+Received: from [192.168.255.10] (unknown[113.108.77.67])
+ by rmsmtp-lg-appmail-25-12028 (RichMail) with SMTP id 2efc614a8d6bb63-64fb6;
+ Wed, 22 Sep 2021 09:56:59 +0800 (CST)
+X-RM-TRANSID: 2efc614a8d6bb63-64fb6
+Message-ID: <3633c6e5-028c-fc77-3b8e-da9903f97ac5@139.com>
+Date: Wed, 22 Sep 2021 09:56:59 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.1
+Subject: Re: [PATCH] ovl: fix null pointer when filesystem doesn't support
+ direct IO
+To: Huang Jianan <huangjianan@oppo.com>, linux-unionfs@vger.kernel.org,
+ miklos@szeredi.hu, linux-erofs@lists.ozlabs.org, xiang@kernel.org,
+ chao@kernel.org
+References: <20210918121346.12084-1-huangjianan@oppo.com>
+From: Chengguang Xu <cgxu519@139.com>
+In-Reply-To: <20210918121346.12084-1-huangjianan@oppo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -59,50 +65,76 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>,
- LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Cc: zhangshiming@oppo.com, linux-kernel@vger.kernel.org, yh@oppo.com,
+ guanyuwei@oppo.com, guoweichao@oppo.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Fix up a misuse that the filename pointer isn't always valid in
-the ring buffer, and we should copy the content instead.
+在 2021/9/18 20:13, Huang Jianan 写道:
+> From: Huang Jianan <huangjianan@oppo.com>
+>
+> At present, overlayfs provides overlayfs inode to users. Overlayfs
+> inode provides ovl_aops with noop_direct_IO to avoid open failure
+> with O_DIRECT. But some compressed filesystems, such as erofs and
+> squashfs, don't support direct_IO.
+>
+> Users who use f_mapping->a_ops->direct_IO to check O_DIRECT support,
+> will read file through this way. This will cause overlayfs to access
+> a non-existent direct_IO function and cause panic due to null pointer:
+>
+> Kernel panic - not syncing: CFI failure (target: 0x0)
+> CPU: 6 PID: 247 Comm: loop0
+> Call Trace:
+>   panic+0x188/0x45c
+>   __cfi_slowpath+0x0/0x254
+>   __cfi_slowpath+0x200/0x254
+>   generic_file_read_iter+0x14c/0x150
+>   vfs_iocb_iter_read+0xac/0x164
+>   ovl_read_iter+0x13c/0x2fc
+>   lo_rw_aio+0x2bc/0x458
+>   loop_queue_work+0x4a4/0xbc0
+>   kthread_worker_fn+0xf8/0x1d0
+>   loop_kthread_worker_fn+0x24/0x38
+>   kthread+0x29c/0x310
+>   ret_from_fork+0x10/0x30
+>
+> The filesystem may only support direct_IO for some file types. For
+> example, erofs supports direct_IO for uncompressed files. So fall
+> back to buffered io only when the file doesn't support direct_IO to
+> fix this problem.
 
-Fixes: 13f06f48f7bf ("staging: erofs: support tracepoint")
-Cc: stable@vger.kernel.org # 4.19+
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- include/trace/events/erofs.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-index bf9806f..db4f2ce 100644
---- a/include/trace/events/erofs.h
-+++ b/include/trace/events/erofs.h
-@@ -35,20 +35,20 @@
- 	TP_STRUCT__entry(
- 		__field(dev_t,		dev	)
- 		__field(erofs_nid_t,	nid	)
--		__field(const char *,	name	)
-+		__string(name,		dentry->d_name.name	)
- 		__field(unsigned int,	flags	)
- 	),
- 
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->nid	= EROFS_I(dir)->nid;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->flags	= flags;
- 	),
- 
- 	TP_printk("dev = (%d,%d), pnid = %llu, name:%s, flags:%x",
- 		show_dev_nid(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->flags)
- );
- 
--- 
-1.8.3.1
+IMO, return error to user seems better option than fall back to
+
+buffered io directly.
+
+
+Thanks,
+
+Chengguang
+
+
+>
+> Fixes: 5b910bd615ba ("ovl: fix GPF in swapfile_activate of file from overlayfs over xfs")
+> Signed-off-by: Huang Jianan <huangjianan@oppo.com>
+> ---
+>   fs/overlayfs/file.c | 4 ++++
+>   1 file changed, 4 insertions(+)
+>
+> diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+> index d081faa55e83..998c60770b81 100644
+> --- a/fs/overlayfs/file.c
+> +++ b/fs/overlayfs/file.c
+> @@ -296,6 +296,10 @@ static ssize_t ovl_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+>   	if (ret)
+>   		return ret;
+>   
+> +	if ((iocb->ki_flags & IOCB_DIRECT) && (!real.file->f_mapping->a_ops ||
+> +		!real.file->f_mapping->a_ops->direct_IO))
+> +		iocb->ki_flags &= ~IOCB_DIRECT;
+> +
+>   	old_cred = ovl_override_creds(file_inode(file)->i_sb);
+>   	if (is_sync_kiocb(iocb)) {
+>   		ret = vfs_iter_read(real.file, iter, &iocb->ki_pos,
 
