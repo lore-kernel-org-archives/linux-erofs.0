@@ -2,58 +2,57 @@ Return-Path: <SRS0=Or+M=PG=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7BBC433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51BEBC4321E
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:37 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A26A161278
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A26A161278
+	by mail.kernel.org (Postfix) with ESMTPS id F3D1261278
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org F3D1261278
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HXkjT2Ftfz2yQG
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 15:41:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HXkjW4Zxlz2ywM
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Oct 2021 15:41:35 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=kqmSP0G2;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=CkxKoMuj;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
- smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:e::133;
+ smtp.mailfrom=bombadil.srs.infradead.org (client-ip=198.137.202.133;
  helo=bombadil.infradead.org;
  envelope-from=batv+653fb0268b18c2e086a8+6630+infradead.org+hch@bombadil.srs.infradead.org;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=bombadil.20210309 header.b=kqmSP0G2; 
+ header.s=bombadil.20210309 header.b=CkxKoMuj; 
  dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:e::133])
+ [198.137.202.133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HXkjC6vZkz2yR8
- for <linux-erofs@lists.ozlabs.org>; Mon, 18 Oct 2021 15:41:19 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HXkjF58THz2yR8
+ for <linux-erofs@lists.ozlabs.org>; Mon, 18 Oct 2021 15:41:21 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=PrmU1McI9Lz9rWePxXHiZdW7Le1GN8Zv7TzW7GRRfmk=; b=kqmSP0G28bXwqsOaac9zgy8mG9
- sgDyCDreo12HKn9hSHBatwTc+6RVOsAGfryKp5eKcp2238Kj6ixr1CLtQrI4HBYWDQxiZ7BO6SWWP
- wmp6BNvIwT2XgPJy5+WHiTvfySe3FQqJpUU9gNCh/b/uOOFVoqXyuRnR8M/W8oHybKfwu7XxnBmSy
- vWaIxgRB11YOrhj73JWsnK+0oXJv7JUKAj6adtdHb2aQo8wkNGwd6FkdNnvt5uNJZVKeGBvE8L+mr
- XneWfaX1FVA0rLX0r3NApCsXEhOqxw9ZhpR/6om21C1SjBzZmWz7FZ2gUwVo/u3KWFgEw8r/ReHdc
- jxgVAIRQ==;
+ bh=/UOhk+aCjmw4IcKFQxJFjUhaacfvQMsVGHtw6Oh0pgU=; b=CkxKoMujhZqoxQRJYNyGS8jHjo
+ vbn089JMcwf37uulTqPfRphpwcY91taME/BA8zjO0pS1iaZbFa83nLPeqJ8LN7rSYJ4FxdQlQxomj
+ hldGGJEESQumIYSrzeiDDJoX5L6q7avTppucP/fp8chrOjkhvo1v2pXmXPhbrz0uLLvRl+xRswuvs
+ 1Tl3Uy+bCWXqlUO3ZkdPJcPKQ8tD4nVIW539Y+H+KKcX+UUJcpSbcvTlEz9caQyg4vI8Ujjuo3Vle
+ bMuhCITX5netBR5sFzp5zMZhZyZsytHz0Np20tuw/FiD7iOUyxnbqPZYBoqafTaMySJRgasnjtGsR
+ ahHosd5g==;
 Received: from 089144211028.atnat0020.highway.a1.net ([89.144.211.28]
  helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mcKSW-00E3IX-In; Mon, 18 Oct 2021 04:41:13 +0000
+ id 1mcKSN-00E3G7-AG; Mon, 18 Oct 2021 04:41:03 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: 
-Subject: [PATCH 05/11] dax: move the partition alignment check into
- fs_dax_get_by_bdev
-Date: Mon, 18 Oct 2021 06:40:48 +0200
-Message-Id: <20211018044054.1779424-6-hch@lst.de>
+Subject: [PATCH 02/11] dax: remove CONFIG_DAX_DRIVER
+Date: Mon, 18 Oct 2021 06:40:45 +0200
+Message-Id: <20211018044054.1779424-3-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211018044054.1779424-1-hch@lst.de>
 References: <20211018044054.1779424-1-hch@lst.de>
@@ -82,63 +81,68 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-fs_dax_get_by_bdev is the primary interface to find a dax device for a
-block device, so move the partition alignment check there instead of
-wiring it up through ->dax_supported.
+CONFIG_DAX_DRIVER only selects CONFIG_DAX now, so remove it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/dax/super.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/dax/Kconfig        | 4 ----
+ drivers/nvdimm/Kconfig     | 2 +-
+ drivers/s390/block/Kconfig | 2 +-
+ fs/fuse/Kconfig            | 2 +-
+ 4 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index 04fc680542e8d..482fe775324a4 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -93,6 +93,12 @@ struct dax_device *fs_dax_get_by_bdev(struct block_device *bdev)
- 	if (!blk_queue_dax(bdev->bd_disk->queue))
- 		return NULL;
- 
-+	if ((get_start_sect(bdev) * SECTOR_SIZE) % PAGE_SIZE ||
-+	    (bdev_nr_sectors(bdev) * SECTOR_SIZE) % PAGE_SIZE) {
-+		pr_info("%pg: error: unaligned partition for dax\n", bdev);
-+		return NULL;
-+	}
-+
- 	id = dax_read_lock();
- 	dax_dev = xa_load(&dax_hosts, (unsigned long)bdev->bd_disk);
- 	if (!dax_dev || !dax_alive(dax_dev) || !igrab(&dax_dev->inode))
-@@ -107,10 +113,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
- 		struct block_device *bdev, int blocksize, sector_t start,
- 		sector_t sectors)
- {
--	pgoff_t pgoff, pgoff_end;
--	sector_t last_page;
--	int err;
+diff --git a/drivers/dax/Kconfig b/drivers/dax/Kconfig
+index d2834c2cfa10d..954ab14ba7778 100644
+--- a/drivers/dax/Kconfig
++++ b/drivers/dax/Kconfig
+@@ -1,8 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-config DAX_DRIVER
+-	select DAX
+-	bool
 -
- 	if (blocksize != PAGE_SIZE) {
- 		pr_info("%pg: error: unsupported blocksize for dax\n", bdev);
- 		return false;
-@@ -121,19 +123,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
- 		return false;
- 	}
- 
--	err = bdev_dax_pgoff(bdev, start, PAGE_SIZE, &pgoff);
--	if (err) {
--		pr_info("%pg: error: unaligned partition for dax\n", bdev);
--		return false;
--	}
--
--	last_page = PFN_DOWN((start + sectors - 1) * 512) * PAGE_SIZE / 512;
--	err = bdev_dax_pgoff(bdev, last_page, PAGE_SIZE, &pgoff_end);
--	if (err) {
--		pr_info("%pg: error: unaligned partition for dax\n", bdev);
--		return false;
--	}
--
- 	return true;
- }
- EXPORT_SYMBOL_GPL(generic_fsdax_supported);
+ menuconfig DAX
+ 	tristate "DAX: direct access to differentiated memory"
+ 	select SRCU
+diff --git a/drivers/nvdimm/Kconfig b/drivers/nvdimm/Kconfig
+index b7d1eb38b27d4..347fe7afa5830 100644
+--- a/drivers/nvdimm/Kconfig
++++ b/drivers/nvdimm/Kconfig
+@@ -22,7 +22,7 @@ if LIBNVDIMM
+ config BLK_DEV_PMEM
+ 	tristate "PMEM: Persistent memory block device support"
+ 	default LIBNVDIMM
+-	select DAX_DRIVER
++	select DAX
+ 	select ND_BTT if BTT
+ 	select ND_PFN if NVDIMM_PFN
+ 	help
+diff --git a/drivers/s390/block/Kconfig b/drivers/s390/block/Kconfig
+index d0416dbd0cd81..e3710a762abae 100644
+--- a/drivers/s390/block/Kconfig
++++ b/drivers/s390/block/Kconfig
+@@ -5,7 +5,7 @@ comment "S/390 block device drivers"
+ config DCSSBLK
+ 	def_tristate m
+ 	select FS_DAX_LIMITED
+-	select DAX_DRIVER
++	select DAX
+ 	prompt "DCSSBLK support"
+ 	depends on S390 && BLOCK
+ 	help
+diff --git a/fs/fuse/Kconfig b/fs/fuse/Kconfig
+index 40ce9a1c12e5d..038ed0b9aaa5d 100644
+--- a/fs/fuse/Kconfig
++++ b/fs/fuse/Kconfig
+@@ -45,7 +45,7 @@ config FUSE_DAX
+ 	select INTERVAL_TREE
+ 	depends on VIRTIO_FS
+ 	depends on FS_DAX
+-	depends on DAX_DRIVER
++	depends on DAX
+ 	help
+ 	  This allows bypassing guest page cache and allows mapping host page
+ 	  cache directly in guest address space.
 -- 
 2.30.2
 
