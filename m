@@ -2,59 +2,59 @@ Return-Path: <SRS0=uu2n=PH=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E7B6C433EF
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Oct 2021 13:03:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75FDDC433F5
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Oct 2021 13:04:20 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AC34D61378
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Oct 2021 13:03:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AC34D61378
+	by mail.kernel.org (Postfix) with ESMTPS id 12A1061360
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Oct 2021 13:04:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 12A1061360
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HYYpd2kMTz30Bm
-	for <linux-erofs@archiver.kernel.org>; Wed, 20 Oct 2021 00:03:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HYYq65MTzz307g
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 Oct 2021 00:04:18 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=PypRr6vT;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=bCpjhUh1;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=chao@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=PypRr6vT; 
+ header.s=k20201202 header.b=bCpjhUh1; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HYYpZ2MFqz2yp2
- for <linux-erofs@lists.ozlabs.org>; Wed, 20 Oct 2021 00:03:50 +1100 (AEDT)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAA1061360;
- Tue, 19 Oct 2021 13:03:45 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HYYq36wgNz2xrl
+ for <linux-erofs@lists.ozlabs.org>; Wed, 20 Oct 2021 00:04:15 +1100 (AEDT)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD0C61372;
+ Tue, 19 Oct 2021 13:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1634648627;
- bh=I7JwFHSmv1BT930lTSC6hdElWCbCHQMERETOEA78i0k=;
+ s=k20201202; t=1634648653;
+ bh=y4bwIP99bgP7Ml+JufuaLWJMSFCpFb2IgDQsVZrKASk=;
  h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
- b=PypRr6vTgk9g7BuW7HmQemLz1Sf8vLq9WneM3HZL0HS4l5YHlXjNOcmo3bvd4Rxxm
- sJymSzuPjxmz3AZ2SKr7IrWHJ0SkLy/CuCbcGxYDCcrN0aBLcx7YKqpqh/f8/22SQ0
- kgAr/TIEYmLHLU3dNxhC9EQZeUINGLdhIMEzF43lkvsrVJHzInLHB5SkDUlo1+ghjm
- Taf/y1i/iR0FdkpYI4krHFAMWpl72LEBHVnre0nWa2UIXzQoh3rk+f1K7frfRtSoPO
- AXIJohp0sXPvDur0u24O2Sg6xPbJWwygnw4wHU1LPPSsnnIrkgPo3xMvT96++JE5qG
- x1hXCRI1hdcbQ==
-Message-ID: <88cc9caf-1d50-2d0f-de0e-09456339b996@kernel.org>
-Date: Tue, 19 Oct 2021 21:03:44 +0800
+ b=bCpjhUh1VcXA9BupCXm2ZZIsAfA8v60rDCJCENAgyUd5lCl3+Xh1Qq5gGs02IAK4f
+ HxvuxGpmjCgp6U260CCqlBEdvmMQu0PYJ71NGSLMwjx4ozStUNNQ9aTLCiFohPX8fc
+ yLMbN8r33Bb2WrtgQgmkXvZJ1c7Aav2zZr+6JS/OdLRDgf8p+xnX0bFMOYuZrFXt+3
+ G25b1BglnnHmAu/ZOGUXw2sWnUd0vpIJ7gYzyNpN/aUnLaZtRD9oU5FuVjGCAFhX6x
+ Tre/X9bbk+IWoVgQo+i5milRvsGdiEYeyAqoW5Kg9cqhW6dEgvjFVMCQk5SqRX8AAO
+ wPMvlSz9YaD1A==
+Message-ID: <e920e58d-d003-32cb-2910-64eea15beb58@kernel.org>
+Date: Tue, 19 Oct 2021 21:04:09 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.2.0
-Subject: Re: [PATCH 6/7] erofs: rename some generic methods in decompressor
+Subject: Re: [PATCH 7/7] erofs: lzma compression support
 Content-Language: en-US
 To: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org,
  LKML <linux-kernel@vger.kernel.org>
 References: <20211010213145.17462-1-xiang@kernel.org>
- <20211010213145.17462-7-xiang@kernel.org>
+ <20211010213145.17462-8-xiang@kernel.org>
 From: Chao Yu <chao@kernel.org>
-In-Reply-To: <20211010213145.17462-7-xiang@kernel.org>
+In-Reply-To: <20211010213145.17462-8-xiang@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -80,11 +80,21 @@ Sender: "Linux-erofs"
 On 2021/10/11 5:31, Gao Xiang wrote:
 > From: Gao Xiang <hsiangkao@linux.alibaba.com>
 > 
-> Previously, some LZ4 methods were named with `generic'. However, while
-> evaluating the effective LZMA approach, it seems they aren't quite
-> generic at all (e.g. no need preparing dstpages for most LZMA cases.)
+> Add MicroLZMA support in order to maximize compression ratios for
+> specific scenarios. For example, it's useful for low-end embedded
+> boards and as a secondary algorithm in a file for specific access
+> patterns.
 > 
-> Avoid such naming instead.
+> MicroLZMA is a new container format for raw LZMA1, which was created
+> by Lasse Collin aiming to minimize old LZMA headers and get rid of
+> unnecessary EOPM (end of payload marker) as well as to enable
+> fixed-sized output compression, especially for 4KiB pclusters.
+> 
+> Similar to LZ4, inplace I/O approach is used to minimize runtime
+> memory footprint when dealing with I/O. Overlapped decompression is
+> handled with 1) bounced buffer for data under processing or 2) extra
+> short-lived pages from the on-stack pagepool which will be shared in
+> the same read request (128KiB for example).
 > 
 > Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
