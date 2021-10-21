@@ -2,129 +2,46 @@ Return-Path: <SRS0=k3n5=PJ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31CB5C433EF
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 02:59:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA81C433F5
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 07:24:13 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9543061130
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 02:59:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9543061130
-Authentication-Results: mail.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.ozlabs.org
+	by mail.kernel.org (Postfix) with ESMTPS id 0AD1D610A2
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 07:24:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0AD1D610A2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HZXJT1qp1z2ymF
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 13:59:37 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1634785177;
-	bh=Xre25pChu8Onpt/t/pO3tBUlebhyOb9rQIOf4iLgQB8=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=CG3ivUW6/7o0/BVT8CQgWTGEXVxPoDIuoNrxHdvMsWnPEkVkETbMWOCt8dkPWQ6Ko
-	 Y/CDbSaSVm8bFinnpO0cNtMsNEx9NS4RGUpQLP+6izb35HGWq5Op1gr9lsFj8gxHqV
-	 2KTCa2DIfaSWH65JkmK0hsmhjCNLBviHN1luIVjeMwd96x4vDl2i8usxiP2qu2lbEp
-	 iXyTjfymLKbTKjHj7BDIQfQAQXQFKcJPqVSRbqLQMYbmClrM0vg3GBgGlS32fDHd75
-	 4sCNpypU5d2ha/raAqRnKepaKcQHkQBIbh9emvgNyIbD/CRBkAZJtBWaXqbM5lLn28
-	 2Ozp7ek1M3w6A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HZf9k3zwJz2ybM
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Oct 2021 18:24:10 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=oppo.com (client-ip=2a01:111:f400:febd::602;
- helo=apc01-sg2-obe.outbound.protection.outlook.com;
- envelope-from=huangjianan@oppo.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=oppo.com header.i=@oppo.com header.a=rsa-sha256
- header.s=selector1 header.b=QK2tn4YB; 
- dkim-atps=neutral
-Received: from APC01-SG2-obe.outbound.protection.outlook.com
- (mail-sg2apc01on0602.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:febd::602])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43;
+ helo=out30-43.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HZXJK2l7pz2xth
- for <linux-erofs@lists.ozlabs.org>; Thu, 21 Oct 2021 13:59:29 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lhLJkYakYGiBlPSjQgg1oP742yz/AGbYHSdRhYgbV8ajp9QRRdEmDBKcsLttd8R9yXqsFUOX+sbRU8WMOtU6WLO/7C5sZrTGf4yEUFoXhlh80nI+ukNYjjRcW/ZqIHsSD4bNC+RJKeRcg2LnpyA+JxHS/eK5csaEgvuESMXiHiYdnthiRboOqDlAPmWHgwMMz9FApLeV72BEtuT9LPSWh/vfa7fV6DVdo9xFlmROFJZw5yw/SuiZ8CZ6r2WTQZ/DaNg4FUyfNi23jvaB90qDTHVB3HVhaOglXw4pe7KaQ/EybXsq7Rk+0A0xFv9M7kebKKfFvGOjNx671+59zZqimA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Xre25pChu8Onpt/t/pO3tBUlebhyOb9rQIOf4iLgQB8=;
- b=kXHK5OAQOc0rAW4qgdU3hSNt/AGgdeN/oMLYrsASrNmwEkKRaPEly0s5PMxKCGqx+ghxsd3yeHWJ9Klrbtuiz0drHRGT2q2tr6mPiZLjTl2ODlUVfXao+DeIs0ZFJFhdnbasKYCxhqzU245PIgu+rW1Unf/A5Qe5A0p67MnzM1x1n/UeOIo28CECh/5/W/N8xImOBZwkRKWMmYO5u5SqtwaIumIsrso9h7LDridCIaSDaPd2QGyJ+8jo0bNOo0XQtaYgzqr+PvkJlEdX+N5V2FhVmSWbsrxS7mgUZ8+WMQFQRNdyABDNARo4eWPonYQ0wXA0Pl1fIw7tgOC8QaEs5w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oppo.com; dmarc=pass action=none header.from=oppo.com;
- dkim=pass header.d=oppo.com; arc=none
-Authentication-Results: lists.ozlabs.org; dkim=none (message not signed)
- header.d=none;lists.ozlabs.org; dmarc=none action=none header.from=oppo.com;
-Received: from SG2PR02MB4108.apcprd02.prod.outlook.com (2603:1096:4:96::19) by
- SG2PR02MB4203.apcprd02.prod.outlook.com (2603:1096:4:9d::17) with
- Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4608.17; Thu, 21 Oct 2021 02:58:58 +0000
-Received: from SG2PR02MB4108.apcprd02.prod.outlook.com
- ([fe80::8062:2651:e9c8:ddc6]) by SG2PR02MB4108.apcprd02.prod.outlook.com
- ([fe80::8062:2651:e9c8:ddc6%6]) with mapi id 15.20.4608.019; Thu, 21 Oct 2021
- 02:58:58 +0000
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: add dump.erofs to .gitignore
-Date: Thu, 21 Oct 2021 10:58:46 +0800
-Message-Id: <20211021025847.1136-1-huangjianan@oppo.com>
-X-Mailer: git-send-email 2.25.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: HK2PR0302CA0008.apcprd03.prod.outlook.com
- (2603:1096:202::18) To SG2PR02MB4108.apcprd02.prod.outlook.com
- (2603:1096:4:96::19)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HZf9d55XLz2xfD
+ for <linux-erofs@lists.ozlabs.org>; Thu, 21 Oct 2021 18:24:03 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Ut77vqc_1634801026; 
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0Ut77vqc_1634801026) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 21 Oct 2021 15:23:47 +0800
+Date: Thu, 21 Oct 2021 15:23:46 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: Huang Jianan <huangjianan@oppo.com>
+Subject: Re: [PATCH] erofs-utils: add dump.erofs to .gitignore
+Message-ID: <YXEVgiqy6AOZdzLE@B-P7TQMD6M-0146.local>
+References: <20211021025847.1136-1-huangjianan@oppo.com>
 MIME-Version: 1.0
-Received: from PC80253450.adc.com (58.255.79.105) by
- HK2PR0302CA0008.apcprd03.prod.outlook.com (2603:1096:202::18) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4628.9 via Frontend Transport; Thu, 21 Oct 2021 02:58:56 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a2e1d376-5d69-4ad3-cd20-08d9943eb984
-X-MS-TrafficTypeDiagnostic: SG2PR02MB4203:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <SG2PR02MB42030F7DC8D038101C322554C3BF9@SG2PR02MB4203.apcprd02.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1051;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8B98OtSLXLb11Q7UoDsnZ90kijKUX7J4bEZ//8jadqJNw+jGudfN0hV0198WMPcBd1dBvOah8dUxYObPC9rUPmvroCNLpnvUXIcPWFAMIHsX9pbD3UxSjGWx6MMSeK/nIMFADMPJGwmvuU4/OESmBQcrL6CYNdCBUa4d1U18cE3HIc+Ag9mATgPvHcN4fAsmwTrGCByh69jpLnGud4PQUQGPGOs9V124uJGg7TpaU4QyUCDtIOiezM9lKDO8HbHogIw4HeCk7gfMSdZ2+Pb7VlcNIsy80gXj9csoi7QnqYbr9MWR/7zqqDB99r+SWlMSg4ij/uGuq2XDS2UPNiDMaAbVXfg9uEC57GtzlXImnke4eNsMo2PndK20yv2oE0XEaIWuz6RqtTVhqe8aWElM9x4BxlbYbinppZjt5HjGKDdMRb0ZHTW5SCuUP0DQat4ofKg+QFzkGb18YneqL55DqXNXSNAZEu9aoE/NOd1gj24IbVVldgXR31qmhg6EDPaZYmnCnv/THacFY24fPPEPz5VvmVh3IiVtxcMZwNmIDK6xDEtAP2QRuitjQE0LEwA0g6VDZpzV4c0xhbWStPHMLUCdpRGdPfUAwAsSDbReeT4UL3uHlOvwn2SFSH1gKyrZ4FVwVzlzBpa9QCXtkhcOniu3gELQFB0LjIcVajpkgxm18D3ER7ve+BnQIDb0CWynfXhLG34S3DIWfIDSwsEoXApQQLuhmAI/X/zy6Pa2Nca/4qd28fAcsfsy98G02l8r
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:SG2PR02MB4108.apcprd02.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(66556008)(66476007)(26005)(66946007)(38100700002)(6486002)(6916009)(8936002)(52116002)(316002)(36756003)(107886003)(6666004)(956004)(86362001)(558084003)(4326008)(186003)(2906002)(5660300002)(6506007)(2616005)(1076003)(8676002)(38350700002)(508600001)(6512007)(11606007)(142923001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?T40PNTieYIDJPMrktQ6RlDymk9GBxAwWuM4wijdVcr9xduPcw/FWqkgJr4hk?=
- =?us-ascii?Q?OFdk7PTb4tib0EQcUExRLhT4TwEY0O9gfjerAFoxuAO+txaZilN2QJooVsv2?=
- =?us-ascii?Q?03kGVhDgGuJfd56kdb/UHQeX0oyhFxwnPYkC8lgy4SpYdUD+PdLcQ/KrjtIP?=
- =?us-ascii?Q?tt6NfH0Kxz/dzsOA+Qlo1NAEUnH5jnk/asyNjX+l+aKZBNGqp5n/oW8Kv4Wn?=
- =?us-ascii?Q?jiQVfw797f/5Q56MtEkQBztE7pX/c6aqjmqy7imnIE8G6tqxK9C2uWbdDBId?=
- =?us-ascii?Q?YE0sE8ZnSdz5rPbxRmMh1LgBrTutEcgxjLuwFKrJmDsmsnTLwvOKkvKzle4A?=
- =?us-ascii?Q?4gv7RGvwntsORwlg8QpzEewXDqgc8FSDi8G848w2gCTQa1qt8WX6/B/qGlu0?=
- =?us-ascii?Q?pIT8PJZE2mM9mXYKKioyEyiffblhzhRxi1L8hPGIfkw+rPcZiW1K5+MdETS5?=
- =?us-ascii?Q?w6WUO5ypS87g6J47jqo/YBl4dBi8Jvin1GGWdhXkiEhYjF7KsS6SEulB+fGa?=
- =?us-ascii?Q?kyBAlcI7xHl6bk6rozDgaLiRm9dKOy2wKjPSgFoucxWg002+ksJIUv5Bfomn?=
- =?us-ascii?Q?gH8zy4S11cdthxsa3dBH4Y6grha4Fg2VN3mYCcLOd30KK7JTPnf51mtc7jWO?=
- =?us-ascii?Q?benHcRa3W+Ge6TBVRBqLcs2o7EIN5jNSz84prc8wfSBf6tBlZ8cTm03Pm1wG?=
- =?us-ascii?Q?btOPECnGz1WZpXCr2BLqtKF5bOr5zmjHmc0pdZwFI60QrneZtRVq0kIod+SR?=
- =?us-ascii?Q?sslqxBUdNg32rB2wfibs8Qw2VOKrfeE9KmD72N/aUCbvgb5T4Rx+wswCBKHX?=
- =?us-ascii?Q?43yiMCL3C54ep3mh+Azkt114Hsxk7uk4MJVoZiu2HgDS5Jayzi4ZzDe9l7sj?=
- =?us-ascii?Q?0NT4cap60kG9GUzY2tHALwi3FMXO2TwRx2FpCg2UiEsQuczUFWPaw116Oj1T?=
- =?us-ascii?Q?OqbgwFwkPsV6glgjCATwv6m/N+xskWiDu47CVfy5l8pTp6BO1IXbCX6XrZ4K?=
- =?us-ascii?Q?qth9QyYM7P3dcgyDrgj7IdM5SfFBjFoxeXRtVjD8wq+HCTlyEY57BPJDW+hz?=
- =?us-ascii?Q?/attT5j3GBb+muOR/Qg9UZZ+vDYyLw4A9LQmU30tCCEExmjHZqrEn0be6e4E?=
- =?us-ascii?Q?2olQGHSqjjRsrHbSST2/YlwU4rCo+kQa94B/FBO8l8QATjR0esN+ga2CaF8l?=
- =?us-ascii?Q?mb84WzD3Cj3+O3LrPHBZTbD8XOC8uw8Qv/+ifL39IcI2qFP1YN5A04bUUMPN?=
- =?us-ascii?Q?GNVq2M3zeQ4VHxGfWy7cL4JcjC+qDQB9WPZQHNgyL9ihbwymO03c9a4nAAAc?=
- =?us-ascii?Q?xcbZqKqhhJOI6cr8a8rmvYC1?=
-X-OriginatorOrg: oppo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a2e1d376-5d69-4ad3-cd20-08d9943eb984
-X-MS-Exchange-CrossTenant-AuthSource: SG2PR02MB4108.apcprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2021 02:58:58.0072 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f1905eb1-c353-41c5-9516-62b4a54b5ee6
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 05IzxJWmLyRsXmcGEApKFvwl6KdoptBBUEIxHHrMrApgdgiZlowdZMBf5MiQOrqWZ/oab8yBF77sw597MUfaTQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SG2PR02MB4203
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20211021025847.1136-1-huangjianan@oppo.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -136,26 +53,31 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Huang Jianan via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Huang Jianan <huangjianan@oppo.com>
-Cc: yh@oppo.com, guoweichao@oppo.com, zhangshiming@oppo.com, guanyuwei@oppo.com
+Cc: yh@oppo.com, guoweichao@oppo.com, linux-erofs@lists.ozlabs.org,
+ zhangshiming@oppo.com, guanyuwei@oppo.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
----
- .gitignore | 1 +
- 1 file changed, 1 insertion(+)
+On Thu, Oct 21, 2021 at 10:58:46AM +0800, Huang Jianan via Linux-erofs wrote:
 
-diff --git a/.gitignore b/.gitignore
-index 7bc3f58..27403d4 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -29,3 +29,4 @@ stamp-h
- stamp-h1
- /mkfs/mkfs.erofs
- /fuse/erofsfuse
-+/dump/dump.erofs
--- 
-2.25.1
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
+Thanks,
+Gao Xiang
+
+> ---
+>  .gitignore | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/.gitignore b/.gitignore
+> index 7bc3f58..27403d4 100644
+> --- a/.gitignore
+> +++ b/.gitignore
+> @@ -29,3 +29,4 @@ stamp-h
+>  stamp-h1
+>  /mkfs/mkfs.erofs
+>  /fuse/erofsfuse
+> +/dump/dump.erofs
+> -- 
+> 2.25.1
