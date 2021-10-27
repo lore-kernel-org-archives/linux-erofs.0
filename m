@@ -2,48 +2,54 @@ Return-Path: <SRS0=PKUw=PP=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D4F6C433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 11:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43850C433EF
+	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 11:57:50 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B6730610A0
-	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 11:51:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B6730610A0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6D869608FE
+	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 11:57:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6D869608FE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HfRqk39Rgz2yNC
-	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 22:51:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HfRyh0tJ0z2yNT
+	for <linux-erofs@archiver.kernel.org>; Wed, 27 Oct 2021 22:57:48 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=hsiangkao@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
- (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HfRqZ10ryz2xrC
- for <linux-erofs@lists.ozlabs.org>; Wed, 27 Oct 2021 22:51:33 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R731e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0Utt49wT_1635335473; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0Utt49wT_1635335473) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 27 Oct 2021 19:51:14 +0800
-Date: Wed, 27 Oct 2021 19:51:13 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Todor Ivanov <t.i.ivanov@gmail.com>
-Subject: Re: Question about mkfs.erofs and reproducible builds
-Message-ID: <YXk9MYJFAg9BLxrn@B-P7TQMD6M-0146.local>
-References: <CAOv4OrXs9-4o0JvCdSus=WBjPqUbm+YES_QrsuXkv13dt7SKjQ@mail.gmail.com>
- <YXk3kK1+NLu2h9o1@B-P7TQMD6M-0146.local>
- <CAOv4OrXqGNZMT9=jPVVxUgrcdnRtJnTk3gnufA6cKeoWDkQNvQ@mail.gmail.com>
+ smtp.mailfrom=huawei.com (client-ip=45.249.212.255; helo=szxga08-in.huawei.com;
+ envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HfRyX0jZTz2xvL
+ for <linux-erofs@lists.ozlabs.org>; Wed, 27 Oct 2021 22:57:39 +1100 (AEDT)
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
+ by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HfRw86fL9z1DDrN;
+ Wed, 27 Oct 2021 19:55:36 +0800 (CST)
+Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Wed, 27 Oct 2021 19:57:32 +0800
+Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
+ (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Wed, 27 Oct
+ 2021 19:57:31 +0800
+From: Guo Xuenan <guoxuenan@huawei.com>
+To: <xiang@kernel.org>, <linux-erofs@lists.ozlabs.org>
+Subject: [PATCH 2/3] erofs-utils: dump: add -i options to dump file
+ information of specific inode number
+Date: Wed, 27 Oct 2021 20:03:50 +0800
+Message-ID: <20211027120351.2885966-2-guoxuenan@huawei.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211027120351.2885966-1-guoxuenan@huawei.com>
+References: <20211027120351.2885966-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAOv4OrXqGNZMT9=jPVVxUgrcdnRtJnTk3gnufA6cKeoWDkQNvQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.175.101.6]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ kwepemm600004.china.huawei.com (7.193.23.242)
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,85 +61,205 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: daeho43@gmail.com, mpiglet@outlook.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Oct 27, 2021 at 02:41:54PM +0300, Todor Ivanov wrote:
->     Hi, Gao,
-> 
->     This is how I installed mkfs.erofs on debian10:
-> 
-> apt-get install pkg-config liblz4-dev gawk
-> wget
-> http://ftp.debian.org/debian/pool/main/e/erofs-utils/erofs-utils_1.3.orig.tar.gz
-> tar xvzpf erofs-utils_1.3.orig.tar.gz
-> cd erofs-utils-1.3/
-> ./autogen.sh
-> ./configure
-> make
-> make install
-> 
-> Can you tell me where do I clone it from and if build instructions are
-> different?
+From: Wang Qi <mpiglet@outlook.com>
 
-You could get the latest dev branch from:
-git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git -b dev
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+Signed-off-by: Wang Qi <mpiglet@outlook.com>
+---
+ dump/main.c | 135 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 134 insertions(+), 1 deletion(-)
 
-We fixed some reproducable build issues recently, I think it might
-be related to
-https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?id=6324fac820c28c6a946f595fa58a0abba0f48eb4
+diff --git a/dump/main.c b/dump/main.c
+index 98ee68b..8a31345 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -17,8 +17,10 @@
+ 
+ struct erofsdump_cfg {
+ 	unsigned int totalshow;
++	bool show_inode;
+ 	bool show_superblock;
+ 	bool show_statistics;
++	u64 ino;
+ };
+ static struct erofsdump_cfg dumpcfg;
+ 
+@@ -82,6 +84,9 @@ static struct erofsdump_feature feature_lists[] = {
+ };
+ 
+ static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid);
++static inline int erofs_checkdirent(struct erofs_dirent *de,
++		struct erofs_dirent *last_de,
++		u32 maxsize, const char *dname);
+ 
+ static void usage(void)
+ {
+@@ -89,6 +94,7 @@ static void usage(void)
+ 	      "Dump erofs layout from IMAGE, and [options] are:\n"
+ 	      " -S      show statistic information of the image\n"
+ 	      " -V      print the version number of dump.erofs and exit.\n"
++	      " -i #    show the target inode info of nid #\n"
+ 	      " -s      show information about superblock\n"
+ 	      " --help  display this help and exit.\n",
+ 	      stderr);
+@@ -102,10 +108,17 @@ static void erofsdump_print_version(void)
+ static int erofsdump_parse_options_cfg(int argc, char **argv)
+ {
+ 	int opt;
++	u64 i;
+ 
+-	while ((opt = getopt_long(argc, argv, "SVs",
++	while ((opt = getopt_long(argc, argv, "SVi:s",
+ 				  long_options, NULL)) != -1) {
+ 		switch (opt) {
++		case 'i':
++			i = atoll(optarg);
++			dumpcfg.show_inode = true;
++			dumpcfg.ino = i;
++			++dumpcfg.totalshow;
++			break;
+ 		case 's':
+ 			dumpcfg.show_superblock = true;
+ 			++dumpcfg.totalshow;
+@@ -331,6 +344,123 @@ static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid)
+ 	return 0;
+ }
+ 
++static int erofs_get_pathname(erofs_nid_t nid, erofs_nid_t parent_nid,
++		erofs_nid_t target, char *path, unsigned int pos)
++{
++	int err;
++	struct erofs_inode inode = {.nid = nid};
++	erofs_off_t offset;
++	char buf[EROFS_BLKSIZ];
++
++	path[pos++] = '/';
++	if (target == sbi.root_nid)
++		return 0;
++
++	err = erofs_read_inode_from_disk(&inode);
++	if (err) {
++		erofs_err("read inode %lu failed", nid);
++		return err;
++	}
++
++	offset = 0;
++	while (offset < inode.i_size) {
++		erofs_off_t maxsize = min_t(erofs_off_t,
++					inode.i_size - offset, EROFS_BLKSIZ);
++		struct erofs_dirent *de = (void *)buf;
++		struct erofs_dirent *end;
++		unsigned int nameoff;
++
++		err = erofs_pread(&inode, buf, maxsize, offset);
++		if (err)
++			return err;
++
++		nameoff = le16_to_cpu(de->nameoff);
++		end = (void *)buf + nameoff;
++		while (de < end) {
++			const char *dname;
++			int len;
++
++			nameoff = le16_to_cpu(de->nameoff);
++			dname = (char *)buf + nameoff;
++			len = erofs_checkdirent(de, end, maxsize, dname);
++			if (len < 0)
++				return len;
++
++			if (de->nid == target) {
++				memcpy(path + pos, dname, len);
++				return 0;
++			}
++
++			if (de->file_type == EROFS_FT_DIR &&
++					de->nid != parent_nid &&
++					de->nid != nid) {
++				memcpy(path + pos, dname, len);
++				err = erofs_get_pathname(de->nid, nid,
++						target, path, pos + len);
++				if (!err)
++					return 0;
++				memset(path + pos, 0, len);
++			}
++			++de;
++		}
++		offset += maxsize;
++	}
++	return -1;
++}
++
++static void dumpfs_print_inode(void)
++{
++	int err;
++	erofs_off_t size;
++	u16 access_mode;
++	time_t t;
++	erofs_nid_t nid = dumpcfg.ino;
++	struct erofs_inode inode = {.nid = nid};
++	char path[PATH_MAX + 1] = {0};
++	char access_mode_str[] = "rwxrwxrwx";
++	char timebuf[128] = {0};
++
++	err = erofs_read_inode_from_disk(&inode);
++	if (err) {
++		erofs_err("read inode %lu from disk failed", nid);
++		return;
++	}
++
++	err = erofs_get_occupied_size(&inode, &size);
++	if (err) {
++		erofs_err("get file size failed\n");
++		return;
++	}
++
++	err = erofs_get_pathname(sbi.root_nid, sbi.root_nid, nid, path, 0);
++	if (err < 0) {
++		fprintf(stderr, "File: Path not found.\n");
++		return;
++	}
++
++	fprintf(stdout, "File : %s\n", path);
++	fprintf(stdout, "Inode: %lu  ", inode.nid);
++	fprintf(stdout, "Links: %u  ", inode.i_nlink);
++	fprintf(stdout, "Layout: %d\n", inode.datalayout);
++	fprintf(stdout, "File size: %lu   ", inode.i_size);
++	fprintf(stdout,	"On-disk size: %lu   ", size);
++	fprintf(stdout, "Compress rate: %.2f%%\n",
++			(double)(100 * size) / (double)(inode.i_size));
++	fprintf(stdout, "Inode size: %d   ", inode.inode_isize);
++	fprintf(stdout, "Extent size: %u   ", inode.extent_isize);
++	fprintf(stdout,	"Xattr size: %u\n", inode.xattr_isize);
++	access_mode = inode.i_mode & 0777;
++	t = inode.i_ctime;
++	strftime(timebuf, sizeof(timebuf),
++			"%Y-%m-%d %H:%M:%S", localtime(&t));
++	for (int i = 8; i >= 0; i--)
++		if (((access_mode >> i) & 1) == 0)
++			access_mode_str[8 - i] = '-';
++	fprintf(stdout, "Uid: %u   Gid: %u  ", inode.i_uid, inode.i_gid);
++	fprintf(stdout, "Access: %04o/%s\n", access_mode, access_mode_str);
++	fprintf(stdout, "Birth : %s\n", timebuf);
++}
++
+ static void erofsdump_print_chart_row(char *col1, unsigned int col2,
+ 		double col3, char *col4)
+ {
+@@ -512,6 +642,9 @@ int main(int argc, char **argv)
+ 	if (dumpcfg.show_statistics)
+ 		erofsdump_print_statistic();
+ 
++	if (dumpcfg.show_inode)
++		dumpfs_print_inode();
++
+ exit:
+ 	erofs_exit_configure();
+ 	return err;
+-- 
+2.31.1
 
-Thanks,
-Gao Xiang
-
-> 
-> Kind regards,
-> Todor
-> 
-> On Wed, Oct 27, 2021 at 2:27 PM Gao Xiang <hsiangkao@linux.alibaba.com>
-> wrote:
-> 
-> > Hi Todor,
-> >
-> > On Wed, Oct 27, 2021 at 02:11:24PM +0300, Todor Ivanov wrote:
-> > >         Hello,
-> > >
-> > >         We are trying to replace squashfs with erofs and face an issue
-> > with
-> > > reproducing the build from one and the same source folder. The source
-> > > folder is "/etc" actually taken from an offline ubuntu 20.04 image and
-> > > mounted as read-only.
-> > >         I managed to narrow down the scope and it turns out that the
-> > issue
-> > > is when you have a file starting with "." (dot) in this folder. I.e.:
-> > >
-> > > etc/.anyfilename
-> > >
-> > > If I remove this file the erofs image of "etc" is reproducible (-T and -U
-> > > are used as well)
-> > >
-> > > The issue is somehow related to the other 76 subfolders of etc and this
-> > > file starting with dot. For example if I create such .anyfilename in usr
-> > or
-> > > var, there is no issue. Also if I create this file under
-> > > etc/xdg/.anyfilename, this is fine as well.
-> > > I also tried with etc from debian10 and the result is the same. Removing
-> > > any file that starts with dot directly under etc, makes the erofs build
-> > > reproducible.
-> > > Do you have any advice on this?
-> >
-> > In principle filenames starting with '.' won't impact anything about
-> > reproducible builds...
-> >
-> > Let me investigate it now... But may I ask which erofs-utils version
-> > is used? Does it still happen on the latest dev branch?
-> >
-> > Thanks,
-> > Gao Xiang
-> >
-> > >
-> > > Regards,
-> > > Todor
-> >
