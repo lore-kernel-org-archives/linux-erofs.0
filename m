@@ -2,45 +2,47 @@ Return-Path: <SRS0=QxX4=PR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A017C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F660C433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:10 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6A19661179
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6A19661179
+	by mail.kernel.org (Postfix) with ESMTPS id D618F61175
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D618F61175
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Hgc3g0gGDz2yWR
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 20:06:07 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Hgc3h2tX4z2yHH
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 20:06:08 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=huawei.com (client-ip=45.249.212.188; helo=szxga02-in.huawei.com;
  envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
 Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
  bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Hgc3W5Grwz2y8R
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Hgc3W5brZz2yHH
  for <linux-erofs@lists.ozlabs.org>; Fri, 29 Oct 2021 20:05:57 +1100 (AEDT)
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
- by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Hgc3J3QDPz90XY;
- Fri, 29 Oct 2021 17:05:48 +0800 (CST)
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
+ by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Hgc3F1zSGz90N4;
+ Fri, 29 Oct 2021 17:05:45 +0800 (CST)
 Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Fri, 29 Oct 2021 17:05:48 +0800
+ 15.1.2308.15; Fri, 29 Oct 2021 17:05:50 +0800
 Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
  (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Fri, 29 Oct
- 2021 17:05:48 +0800
+ 2021 17:05:49 +0800
 From: Guo Xuenan <guoxuenan@huawei.com>
 To: <xiang@kernel.org>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v3 1/5] erofs-utils: add support for the full decompressed
- length
-Date: Fri, 29 Oct 2021 17:12:40 +0800
-Message-ID: <20211029091244.1162119-1-guoxuenan@huawei.com>
+Subject: [PATCH v3 3/5] erofs-utils: dump: add option to print specified file
+ infomation.
+Date: Fri, 29 Oct 2021 17:12:42 +0800
+Message-ID: <20211029091244.1162119-3-guoxuenan@huawei.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211029091244.1162119-1-guoxuenan@huawei.com>
+References: <20211029091244.1162119-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -64,247 +66,220 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Huang Jianan <huangjianan@oppo.com>
+From: Wang Qi <mpiglet@outlook.com>
 
-Previously, there is no need to get the full decompressed length since
-EROFS supports partial decompression. However for some other cases
-such as fiemap, the full decompressed length is necessary for iomap to
-make it work properly.
+add option --nid to print information of specific nid, including
+file name/file links/file size/data layout/compression ratio etc..
 
-This patch adds a way to get the full decompressed length. Note that
-it takes more metadata overhead and it'd be avoided if possible in the
-performance sensitive scenario.
-
-Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+Signed-off-by: Wang Qi <mpiglet@outlook.com>
 ---
- include/erofs/internal.h |  8 +++-
- lib/data.c               |  2 +-
- lib/zmap.c               | 99 ++++++++++++++++++++++++++++++++++++----
- 3 files changed, 97 insertions(+), 12 deletions(-)
+ dump/main.c | 141 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 138 insertions(+), 3 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 8b154ed..a487871 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -259,6 +259,12 @@ struct erofs_map_blocks {
- 	erofs_blk_t index;
+diff --git a/dump/main.c b/dump/main.c
+index c5e82d1..78e952e 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -17,8 +17,10 @@
+ 
+ struct erofsdump_cfg {
+ 	unsigned int totalshow;
++	bool show_inode;
+ 	bool show_superblock;
+ 	bool show_statistics;
++	erofs_nid_t nid;
+ };
+ static struct erofsdump_cfg dumpcfg;
+ 
+@@ -64,7 +66,8 @@ struct erofs_statistics {
+ static struct erofs_statistics stats;
+ 
+ static struct option long_options[] = {
+-	{"help", no_argument, 0, 1},
++	{"help", no_argument, NULL, 1},
++	{"nid", required_argument, NULL, 2},
+ 	{0, 0, 0, 0},
  };
  
-+/*
-+ * Used to get the exact decompressed length, e.g. fiemap (consider lookback
-+ * approach instead if possible since it's more metadata lightweight.)
-+ */
-+#define EROFS_GET_BLOCKS_FIEMAP	0x0002
-+
- /* super.c */
- int erofs_read_superblock(void);
+@@ -82,14 +85,18 @@ static struct erofsdump_feature feature_lists[] = {
+ };
  
-@@ -271,7 +277,7 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
- /* zmap.c */
- int z_erofs_fill_inode(struct erofs_inode *vi);
- int z_erofs_map_blocks_iter(struct erofs_inode *vi,
--			    struct erofs_map_blocks *map);
-+			    struct erofs_map_blocks *map, int flags);
+ static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid);
++static inline int erofs_checkdirent(struct erofs_dirent *de,
++		struct erofs_dirent *last_de,
++		u32 maxsize, const char *dname);
  
- #ifdef EUCLEAN
- #define EFSCORRUPTED	EUCLEAN		/* Filesystem is corrupted */
-diff --git a/lib/data.c b/lib/data.c
-index 641d840..30e7312 100644
---- a/lib/data.c
-+++ b/lib/data.c
-@@ -201,7 +201,7 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 	while (end > offset) {
- 		map.m_la = end - 1;
+ static void usage(void)
+ {
+ 	fputs("usage: [options] IMAGE\n\n"
+ 	      "Dump erofs layout from IMAGE, and [options] are:\n"
+-	      " -S      show statistic information of the image\n"
+ 	      " -V      print the version number of dump.erofs and exit.\n"
+ 	      " -s      show information about superblock\n"
++	      " -S      show statistic information of the image\n"
++	      " --nid=# show the target inode info of nid #\n"
+ 	      " --help  display this help and exit.\n",
+ 	      stderr);
+ }
+@@ -103,7 +110,7 @@ static int erofsdump_parse_options_cfg(int argc, char **argv)
+ {
+ 	int opt;
  
--		ret = z_erofs_map_blocks_iter(inode, &map);
-+		ret = z_erofs_map_blocks_iter(inode, &map, 0);
- 		if (ret)
- 			break;
- 
-diff --git a/lib/zmap.c b/lib/zmap.c
-index 458030b..f6a8ccf 100644
---- a/lib/zmap.c
-+++ b/lib/zmap.c
-@@ -159,9 +159,34 @@ static unsigned int decode_compactedbits(unsigned int lobits,
- 	return lo;
+-	while ((opt = getopt_long(argc, argv, "SVs",
++	while ((opt = getopt_long(argc, argv, "SV:s",
+ 				  long_options, NULL)) != -1) {
+ 		switch (opt) {
+ 		case 's':
+@@ -117,6 +124,11 @@ static int erofsdump_parse_options_cfg(int argc, char **argv)
+ 		case 'V':
+ 			erofsdump_print_version();
+ 			exit(0);
++		case 2:
++			dumpcfg.show_inode = true;
++			dumpcfg.nid = (erofs_nid_t)atoll(optarg);
++			++dumpcfg.totalshow;
++			break;
+ 		case 1:
+ 			usage();
+ 			exit(0);
+@@ -330,6 +342,126 @@ static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid)
+ 	return 0;
  }
  
-+static int get_compacted_la_distance(unsigned int lclusterbits,
-+				     unsigned int encodebits,
-+				     unsigned int vcnt, u8 *in, int i)
++static int erofs_get_pathname(erofs_nid_t nid, erofs_nid_t parent_nid,
++		erofs_nid_t target, char *path, unsigned int pos)
 +{
-+	const unsigned int lomask = (1 << lclusterbits) - 1;
-+	unsigned int lo, d1 = 0;
-+	u8 type;
-+
-+	DBG_BUGON(i >= vcnt);
-+
-+	do {
-+		lo = decode_compactedbits(lclusterbits, lomask,
-+					  in, encodebits * i, &type);
-+
-+		if (type != Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD)
-+			return d1;
-+		++d1;
-+	} while (++i < vcnt);
-+
-+	/* vcnt - 1 (Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD) item */
-+	if (!(lo & Z_EROFS_VLE_DI_D0_CBLKCNT))
-+		d1 += lo - 1;
-+	return d1;
-+}
-+
- static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 				  unsigned int amortizedshift,
--				  unsigned int eofs)
-+				  unsigned int eofs, bool lookahead)
- {
- 	struct erofs_inode *const vi = m->inode;
- 	const unsigned int lclusterbits = vi->z_logical_clusterbits;
-@@ -190,6 +215,11 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 	m->type = type;
- 	if (type == Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD) {
- 		m->clusterofs = 1 << lclusterbits;
-+
-+		/* figure out lookahead_distance: delta[1] if needed */
-+		if (lookahead)
-+			m->delta[1] = get_compacted_la_distance(lclusterbits,
-+						encodebits, vcnt, in, i);
- 		if (lo & Z_EROFS_VLE_DI_D0_CBLKCNT) {
- 			if (!big_pcluster) {
- 				DBG_BUGON(1);
-@@ -260,7 +290,7 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- }
- 
- static int compacted_load_cluster_from_disk(struct z_erofs_maprecorder *m,
--					    unsigned long lcn)
-+					    unsigned long lcn, bool lookahead)
- {
- 	struct erofs_inode *const vi = m->inode;
- 	const unsigned int lclusterbits = vi->z_logical_clusterbits;
-@@ -310,11 +340,12 @@ out:
- 	err = z_erofs_reload_indexes(m, erofs_blknr(pos));
- 	if (err)
- 		return err;
--	return unpack_compacted_index(m, amortizedshift, erofs_blkoff(pos));
-+	return unpack_compacted_index(m, amortizedshift, erofs_blkoff(pos),
-+				      lookahead);
- }
- 
- static int z_erofs_load_cluster_from_disk(struct z_erofs_maprecorder *m,
--					  unsigned int lcn)
-+					  unsigned int lcn, bool lookahead)
- {
- 	const unsigned int datamode = m->inode->datalayout;
- 
-@@ -322,7 +353,7 @@ static int z_erofs_load_cluster_from_disk(struct z_erofs_maprecorder *m,
- 		return legacy_load_cluster_from_disk(m, lcn);
- 
- 	if (datamode == EROFS_INODE_FLAT_COMPRESSION)
--		return compacted_load_cluster_from_disk(m, lcn);
-+		return compacted_load_cluster_from_disk(m, lcn, lookahead);
- 
- 	return -EINVAL;
- }
-@@ -345,7 +376,7 @@ static int z_erofs_extent_lookback(struct z_erofs_maprecorder *m,
- 
- 	/* load extent head logical cluster if needed */
- 	lcn -= lookback_distance;
--	err = z_erofs_load_cluster_from_disk(m, lcn);
-+	err = z_erofs_load_cluster_from_disk(m, lcn, false);
- 	if (err)
- 		return err;
- 
-@@ -394,7 +425,7 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
- 	if (m->compressedlcs)
- 		goto out;
- 
--	err = z_erofs_load_cluster_from_disk(m, lcn);
-+	err = z_erofs_load_cluster_from_disk(m, lcn, false);
- 	if (err)
- 		return err;
- 
-@@ -440,8 +471,50 @@ err_bonus_cblkcnt:
- 	return -EFSCORRUPTED;
- }
- 
-+static int z_erofs_get_extent_decompressedlen(struct z_erofs_maprecorder *m)
-+{
-+	struct erofs_inode *const vi = m->inode;
-+	struct erofs_map_blocks *map = m->map;
-+	unsigned int lclusterbits = vi->z_logical_clusterbits;
-+	u64 lcn = m->lcn, headlcn = map->m_la >> lclusterbits;
 +	int err;
++	erofs_off_t offset;
++	char buf[EROFS_BLKSIZ];
++	struct erofs_inode inode = { .nid = nid };
 +
-+	do {
-+		/* handle the last EOF pcluster (no next HEAD lcluster) */
-+		if ((lcn << lclusterbits) >= vi->i_size) {
-+			map->m_llen = vi->i_size - map->m_la;
-+			return 0;
-+		}
++	path[pos++] = '/';
++	if (target == sbi.root_nid)
++		return 0;
 +
-+		err = z_erofs_load_cluster_from_disk(m, lcn, true);
++	err = erofs_read_inode_from_disk(&inode);
++	if (err) {
++		erofs_err("read inode %lu failed", nid);
++		return err;
++	}
++
++	offset = 0;
++	while (offset < inode.i_size) {
++		erofs_off_t maxsize = min_t(erofs_off_t,
++					inode.i_size - offset, EROFS_BLKSIZ);
++		struct erofs_dirent *de = (void *)buf;
++		struct erofs_dirent *end;
++		unsigned int nameoff;
++
++		err = erofs_pread(&inode, buf, maxsize, offset);
 +		if (err)
 +			return err;
 +
-+		if (m->type == Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD) {
-+			DBG_BUGON(!m->delta[1] &&
-+				  m->clusterofs != 1 << lclusterbits);
-+		} else if (m->type == Z_EROFS_VLE_CLUSTER_TYPE_PLAIN ||
-+			   m->type == Z_EROFS_VLE_CLUSTER_TYPE_HEAD) {
-+			/* go on until the next HEAD lcluster */
-+			if (lcn != headlcn)
-+				break;
-+			m->delta[1] = 1;
-+		} else {
-+			erofs_err("unknown type %u @ lcn %lu of nid %llu",
-+				  m->type, lcn, (unsigned long long)vi->nid);
-+			DBG_BUGON(1);
-+			return -EOPNOTSUPP;
-+		}
-+		lcn += m->delta[1];
-+	} while (m->delta[1]);
++		nameoff = le16_to_cpu(de->nameoff);
++		end = (void *)buf + nameoff;
++		while (de < end) {
++			const char *dname;
++			int len;
 +
-+	map->m_llen = (lcn << lclusterbits) + m->clusterofs - map->m_la;
-+	return 0;
++			nameoff = le16_to_cpu(de->nameoff);
++			dname = (char *)buf + nameoff;
++			len = erofs_checkdirent(de, end, maxsize, dname);
++			if (len < 0)
++				return len;
++
++			if (de->nid == target) {
++				memcpy(path + pos, dname, len);
++				path[pos + len] = '\0';
++				return 0;
++			}
++
++			if (de->file_type == EROFS_FT_DIR &&
++					de->nid != parent_nid &&
++					de->nid != nid) {
++				memcpy(path + pos, dname, len);
++				err = erofs_get_pathname(de->nid, nid,
++						target, path, pos + len);
++				if (!err)
++					return 0;
++				memset(path + pos, 0, len);
++			}
++			++de;
++		}
++		offset += maxsize;
++	}
++	return -1;
 +}
 +
- int z_erofs_map_blocks_iter(struct erofs_inode *vi,
--			    struct erofs_map_blocks *map)
-+			    struct erofs_map_blocks *map,
-+			    int flags)
- {
- 	struct z_erofs_maprecorder m = {
- 		.inode = vi,
-@@ -470,7 +543,7 @@ int z_erofs_map_blocks_iter(struct erofs_inode *vi,
- 	initial_lcn = ofs >> lclusterbits;
- 	endoff = ofs & ((1 << lclusterbits) - 1);
- 
--	err = z_erofs_load_cluster_from_disk(&m, initial_lcn);
-+	err = z_erofs_load_cluster_from_disk(&m, initial_lcn, false);
- 	if (err)
- 		goto out;
- 
-@@ -512,11 +585,17 @@ int z_erofs_map_blocks_iter(struct erofs_inode *vi,
- 
- 	map->m_llen = end - map->m_la;
- 	map->m_pa = blknr_to_addr(m.pblk);
-+	map->m_flags |= EROFS_MAP_MAPPED;
- 
- 	err = z_erofs_get_extent_compressedlen(&m, initial_lcn);
- 	if (err)
- 		goto out;
--	map->m_flags |= EROFS_MAP_MAPPED;
++static void erofsdump_show_fileinfo(void)
++{
++	int err;
++	erofs_off_t size;
++	u16 access_mode;
++	time_t time_sec;
++	u32 time_nsec;
++	erofs_nid_t nid = dumpcfg.nid;
++	struct erofs_inode inode = { .nid = nid };
++	char path[PATH_MAX + 1] = {0};
++	char access_mode_str[] = "rwxrwxrwx";
++	char timebuf[128] = {0};
 +
-+	if (flags & EROFS_GET_BLOCKS_FIEMAP) {
-+		err = z_erofs_get_extent_decompressedlen(&m);
-+		if (!err)
-+			map->m_flags |= EROFS_MAP_FULL_MAPPED;
++	err = erofs_read_inode_from_disk(&inode);
++	if (err) {
++		erofs_err("failed to find inode %lu from disk", nid);
++		return;
 +	}
++
++	err = erofs_get_occupied_size(&inode, &size);
++	if (err) {
++		erofs_err("get file size failed\n");
++		return;
++	}
++
++	err = erofs_get_pathname(sbi.root_nid, sbi.root_nid, nid, path, 0);
++	if (err < 0) {
++		fprintf(stderr, "File: Path not found.\n");
++		return;
++	}
++
++	time_sec = inode.i_ctime;
++	time_nsec = inode.i_ctime_nsec;
++	strftime(timebuf, sizeof(timebuf),
++			"%Y-%m-%d %H:%M:%S", localtime(&time_sec));
++	access_mode = inode.i_mode & 0777;
++	for (int i = 8; i >= 0; i--)
++		if (((access_mode >> i) & 1) == 0)
++			access_mode_str[8 - i] = '-';
++	fprintf(stdout, "File : %s\n", path);
++	fprintf(stdout, "Inode: %lu  ", inode.nid);
++	fprintf(stdout, "Links: %u  ", inode.i_nlink);
++	fprintf(stdout, "Layout: %d\n", inode.datalayout);
++	fprintf(stdout, "Inode size: %d   ", inode.inode_isize);
++	fprintf(stdout, "Extent size: %u   ", inode.extent_isize);
++	fprintf(stdout,	"Xattr size: %u\n", inode.xattr_isize);
++	fprintf(stdout, "File size: %lu  ", inode.i_size);
++	fprintf(stdout,	"On-disk size: %lu  ", size);
++	fprintf(stdout, "Compression ratio: %.2f%%\n",
++			(double)(100 * size) / (double)(inode.i_size));
++	fprintf(stdout, "Uid: %u   Gid: %u  ", inode.i_uid, inode.i_gid);
++	fprintf(stdout, "Access: %04o/%s\n", access_mode, access_mode_str);
++	fprintf(stdout, "Timestamp: %s.%09d\n", timebuf, time_nsec);
++}
++
+ static void erofsdump_print_chart_row(char *col1, unsigned int col2,
+ 		double col3, char *col4)
+ {
+@@ -511,6 +643,9 @@ int main(int argc, char **argv)
+ 	if (dumpcfg.show_statistics)
+ 		erofsdump_print_statistic();
  
- out:
- 	erofs_dbg("m_la %" PRIu64 " m_pa %" PRIu64 " m_llen %" PRIu64 " m_plen %" PRIu64 " m_flags 0%o",
++	if (dumpcfg.show_inode)
++		erofsdump_show_fileinfo();
++
+ exit:
+ 	erofs_exit_configure();
+ 	return err;
 -- 
 2.31.1
 
