@@ -2,50 +2,92 @@ Return-Path: <SRS0=QxX4=PR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28808C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 05:52:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC450C433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 06:20:38 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A075861040
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 05:52:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A075861040
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=yulong.com
+	by mail.kernel.org (Postfix) with ESMTPS id 43F156115B
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 06:20:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 43F156115B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HgWlq2qkWz2ypB
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 16:52:07 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=yulong.com (client-ip=113.96.223.78; helo=qq.com;
- envelope-from=huyue2@yulong.com; receiver=<UNKNOWN>)
-Received: from qq.com (smtpbg413.qq.com [113.96.223.78])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HgXNh6pnLz2yb5
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 17:20:36 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=rHi5YhKL;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=S6CjmYqZ;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org;
+ spf=pass (sender SPF authorized) smtp.mailfrom=suse.de
+ (client-ip=195.135.220.28; helo=smtp-out1.suse.de;
+ envelope-from=colyli@suse.de; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256
+ header.s=susede2_rsa header.b=rHi5YhKL; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=S6CjmYqZ; 
+ dkim-atps=neutral
+X-Greylist: delayed 316 seconds by postgrey-1.36 at boromir;
+ Fri, 29 Oct 2021 17:20:32 AEDT
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HgWlh6f9dz2xXc
- for <linux-erofs@lists.ozlabs.org>; Fri, 29 Oct 2021 16:52:00 +1100 (AEDT)
-X-QQ-mid: bizesmtp32t1635486639t6g1enlz
-Received: from tj.ccdomain.com (unknown [218.94.48.178])
- by esmtp6.qq.com (ESMTP) with 
- id ; Fri, 29 Oct 2021 13:50:24 +0800 (CST)
-X-QQ-SSF: 01400000000000Z0Z000B00A0000000
-X-QQ-FEAT: Mzskoac49OgAryltguf54KH8t16f3YIGLF+IJNZXPcwXU/qNj1yvx1wYFfzYp
- zSDob/pWeibO8iNhLOGWe1PCm3DL+jKn0uH5qN+EqDSMmISC5YTzHusX7o3bpDV60PdNLxx
- jT72/oaVHhVaHiiLkwckhYdmb+2Ks+Xrfu2jTiYGyMN5am2fsuSTmx7+8K8UvM97ag8D65h
- CbnwGON5SBY0xheXOnDLUlZwiZ8fFRQT9PfKIWRg+DgKzTIHGYfzamOwQjgOmZMR9ClJ9w2
- sgVKL5FP1IwgwfVDoEhzoze4a73UdeqY+GiVs6v5Lhr84lv2+RWY6dIRHMNdKDB3TQHDuGd
- yYCqEvoFiVbAHxmSnXn9eghcuO6n6AxW8bx0BBv
-X-QQ-GoodBg: 2
-From: Yue Hu <huyue2@yulong.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH v2 0/2] erofs-utils: compression inline feature
-Date: Fri, 29 Oct 2021 13:49:29 +0800
-Message-Id: <cover.1635485195.git.huyue2@yulong.com>
-X-Mailer: git-send-email 2.29.2.windows.3
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HgXNc22DQz2xrl
+ for <linux-erofs@lists.ozlabs.org>; Fri, 29 Oct 2021 17:20:32 +1100 (AEDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 2CA2721968;
+ Fri, 29 Oct 2021 06:15:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1635488112; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=E919aeXK8dC3N34MDRziiU6STn2FmtpVBAk+ecOLJjo=;
+ b=rHi5YhKLU0rlCRHyPeKnauDRrrKyNolq7E6F6dDcjkjrYygp8K9iGOEHJj1sMmsNmnFoqm
+ JXUgJyq68i9P1XXycPxZOj9RRmHZ61CddjBbgHSqzeBEgXTEn3O/eT1/pGQOrrjanxFKqN
+ Ws1Xa0M9ZepgclsMvVLPpSC9aP/pzDs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1635488112;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=E919aeXK8dC3N34MDRziiU6STn2FmtpVBAk+ecOLJjo=;
+ b=S6CjmYqZCZ0yYeJGy3BiUS6TxG8jiMGcenKddoe10AYo6bdOAQvrpluZxu5uvYpr7RJ4EU
+ 3KaNhyzDb7UqKtAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 55C5313AF5;
+ Fri, 29 Oct 2021 06:15:09 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id Ah71CW2Re2HXXAAAMHmgww
+ (envelope-from <colyli@suse.de>); Fri, 29 Oct 2021 06:15:09 +0000
+Message-ID: <b11bb34b-8fdf-b6ed-b305-e7145f2a7ab2@suse.de>
+Date: Fri, 29 Oct 2021 14:15:07 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:yulong.com:qybgforeign:qybgforeign6
-X-QQ-Bgrelay: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.2.1
+Subject: Re: Readahead for compressed data
+Content-Language: en-US
+To: Matthew Wilcox <willy@infradead.org>, linux-fsdevel@vger.kernel.org,
+ Jan Kara <jack@suse.cz>, Phillip Lougher <phillip@squashfs.org.uk>,
+ linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org,
+ linux-ntfs-dev@lists.sourceforge.net, ntfs3@lists.linux.dev,
+ linux-bcache@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+ David Howells <dhowells@redhat.com>
+References: <YXHK5HrQpJu9oy8w@casper.infradead.org>
+From: Coly Li <colyli@suse.de>
+In-Reply-To: <YXHK5HrQpJu9oy8w@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -57,38 +99,73 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: zhangwen@yulong.com, Yue Hu <huyue2@yulong.com>, geshifei@yulong.com,
- shaojunjun@yulong.com
+Cc: linux-bcachefs@vger.kernel.org, Kent Overstreet <kent.overstreet@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Now, we only support tail-end inline data for uncompressed file. We should
-also support it for compressed file to further decrease tail extent I/O and
-save more space. That is original intention as well from Xiang.
+On 10/22/21 4:17 AM, Matthew Wilcox wrote:
+> As far as I can tell, the following filesystems support compressed data:
+>
+> bcachefs, btrfs, erofs, ntfs, squashfs, zisofs
 
-Note that tail pcluster data is compressed by 4KB in this patch, which looks
-like inefficent. As Xiang mentioned, there is another better way to handle it.
-This patch is just using 4KB compression policy, we may improve it next.
+Hi Matthew,
+
+There is a new bcachefs mailing list linux-bcachefs@vger.kernel.org for 
+bcachefs. I add it in Cc in this reply email.
+
+Just FYI for you and other receivers.
 
 Thanks.
 
-Yue Hu (2):
-  erofs-utils: support tail-packing inline compressed data
-  erofs-utils: fuse: support tail-packing inline compressed data
-
- include/erofs/internal.h |   4 ++
- include/erofs_fs.h       |  10 ++-
- lib/compress.c           |  76 ++++++++++++++++++-----
- lib/compressor.c         |   9 +--
- lib/decompress.c         |   7 ++-
- lib/inode.c              |  40 ++++++------
- lib/zmap.c               | 130 ++++++++++++++++++++++++++++++++++++---
- mkfs/main.c              |   6 ++
- 8 files changed, 228 insertions(+), 54 deletions(-)
-
--- 
-2.29.0
+Coly Li
 
 
+>
+> I'd like to make it easier and more efficient for filesystems to
+> implement compressed data.  There are a lot of approaches in use today,
+> but none of them seem quite right to me.  I'm going to lay out a few
+> design considerations next and then propose a solution.  Feel free to
+> tell me I've got the constraints wrong, or suggest alternative solutions.
+>
+> When we call ->readahead from the VFS, the VFS has decided which pages
+> are going to be the most useful to bring in, but it doesn't know how
+> pages are bundled together into blocks.  As I've learned from talking to
+> Gao Xiang, sometimes the filesystem doesn't know either, so this isn't
+> something we can teach the VFS.
+>
+> We (David) added readahead_expand() recently to let the filesystem
+> opportunistically add pages to the page cache "around" the area requested
+> by the VFS.  That reduces the number of times the filesystem has to
+> decompress the same block.  But it can fail (due to memory allocation
+> failures or pages already being present in the cache).  So filesystems
+> still have to implement some kind of fallback.
+>
+> For many (all?) compression algorithms (all?) the data must be mapped at
+> all times.  Calling kmap() and kunmap() would be an intolerable overhead.
+> At the same time, we cannot write to a page in the page cache which is
+> marked Uptodate.  It might be mapped into userspace, or a read() be in
+> progress against it.  For writable filesystems, it might even be dirty!
+> As far as I know, no compression algorithm supports "holes", implying
+> that we must allocate memory which is then discarded.
+>
+> To me, this calls for a vmap() based approach.  So I'm thinking
+> something like ...
+>
+> void *readahead_get_block(struct readahead_control *ractl, loff_t start,
+> 			size_t len);
+> void readahead_put_block(struct readahead_control *ractl, void *addr,
+> 			bool success);
+>
+> Once you've figured out which bytes this encrypted block expands to, you
+> call readahead_get_block(), specifying the offset in the file and length
+> and get back a pointer.  When you're done decompressing that block of
+> the file, you get rid of it again.
+>
+> It's the job of readahead_get_block() to allocate additional pages
+> into the page cache or temporary pages.  readahead_put_block() will
+> mark page cache pages as Uptodate if 'success' is true, and unlock
+> them.  It'll free any temporary pages.
+>
+> Thoughts?  Anyone want to be the guinea pig?  ;-)
 
