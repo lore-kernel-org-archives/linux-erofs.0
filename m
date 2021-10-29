@@ -2,54 +2,61 @@ Return-Path: <SRS0=QxX4=PR=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EFA9C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AC32C433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 14:55:37 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AE64D6117A
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 09:06:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AE64D6117A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=huawei.com
+	by mail.kernel.org (Postfix) with ESMTPS id A1496610EA
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 14:55:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A1496610EA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Hgc463Cysz307g
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Oct 2021 20:06:30 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Hglpv1Fqqz2ywR
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 01:55:35 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com;
- envelope-from=guoxuenan@huawei.com; receiver=<UNKNOWN>)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
- bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Hgc4151tQz2xg6
- for <linux-erofs@lists.ozlabs.org>; Fri, 29 Oct 2021 20:06:25 +1100 (AEDT)
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Hgc145nblzZcYq;
- Fri, 29 Oct 2021 17:03:52 +0800 (CST)
-Received: from kwepemm600004.china.huawei.com (7.193.23.242) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Fri, 29 Oct 2021 17:05:49 +0800
-Received: from huawei.com (10.175.101.6) by kwepemm600004.china.huawei.com
- (7.193.23.242) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Fri, 29 Oct
- 2021 17:05:48 +0800
-From: Guo Xuenan <guoxuenan@huawei.com>
-To: <xiang@kernel.org>, <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH v3 2/5] erofs-utils: dump: add feature for collecting
- filesystem statistics.
-Date: Fri, 29 Oct 2021 17:12:41 +0800
-Message-ID: <20211029091244.1162119-2-guoxuenan@huawei.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211029091244.1162119-1-guoxuenan@huawei.com>
-References: <20211029091244.1162119-1-guoxuenan@huawei.com>
+ smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
+ (client-ip=209.85.166.72; helo=mail-io1-f72.google.com;
+ envelope-from=3xwt8yqkbahgouvgwhhanwllez.ckkchaqoanykjpajp.yki@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com;
+ receiver=<UNKNOWN>)
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Hglpq5GVdz2xr5
+ for <linux-erofs@lists.ozlabs.org>; Sat, 30 Oct 2021 01:55:30 +1100 (AEDT)
+Received: by mail-io1-f72.google.com with SMTP id
+ x21-20020a0566022c5500b005ddd625f399so6870648iov.3
+ for <linux-erofs@lists.ozlabs.org>; Fri, 29 Oct 2021 07:55:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+ bh=Nc6eX6JxrBpodsbbP9rc/IvjwCtF/vxxtgIRwubdq1g=;
+ b=sGAKTn94e3D+AEuNKcbxa2WcyE6cjdtGaPZ80dKXRfUNu63YdWgaZhKspx1s6feJlz
+ xm83ClJzfoJD6w/6qv31Ll4jtQCIDO65sjDscRzmDMcsYYwHvBa8HP8hi0FLm7zA01yD
+ spX97mKsOnrEXXeN+ygfyzEuCfIOcr9fT07at1m6Bo7/cctQmNDjGsrLp4LNCcQLDAMZ
+ WPtk7KjcwyIU+80KhBtbBgR7TQeQHQVf1NFc7QmR7veGB2A3v2NQuBEQIsLZ4VoIrnhj
+ FkajigMDQc/Xw1PIQinlYzWj/iA8CXEPFZNvAQiR+QbalZO+pGOEAxblVh8cJZxrCuVW
+ A2yQ==
+X-Gm-Message-State: AOAM530eGryrf0mB5W55FIOh0tHrP18+2aa/rQuRHJXRfYKQSVUpQJM1
+ /RlKiRPrR4G9Mc9cd2K5DmKmwjLjuQtwX21Pa9YghBpSMfPp
+X-Google-Smtp-Source: ABdhPJzr5U/5+ySyD7OcHEbSRzLjiyj5aoj6n/nbMvJctfo85r247GhnxBcu3wCfQstkQ9vGrIF8++emiyBUi4InUhcZhq7lw2iT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.175.101.6]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm600004.china.huawei.com (7.193.23.242)
-X-CFilter-Loop: Reflected
+X-Received: by 2002:a02:cac8:: with SMTP id f8mr8615519jap.65.1635519327045;
+ Fri, 29 Oct 2021 07:55:27 -0700 (PDT)
+Date: Fri, 29 Oct 2021 07:55:27 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000830d1205cf7f0477@google.com>
+Subject: [syzbot] KASAN: use-after-free Read in LZ4_decompress_safe_partial
+From: syzbot <syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com>
+To: chao@kernel.org, gaoxiang25@huawei.com, gregkh@linuxfoundation.org, 
+ linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+ viro@zeniv.linux.org.uk, xiang@kernel.org, yuchao0@huawei.com
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,470 +68,135 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: mpiglet@outlook.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Wang Qi <mpiglet@outlook.com>
+Hello,
 
-Add -S option, for printing statistics of the overall disk, including
-file type(by file extension)/size statistics and distribution, number
-of compressed and uncompressed files, whole compression ratio of image.
+syzbot found the following issue on:
 
-Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
-Signed-off-by: Wang Qi <mpiglet@outlook.com>
+HEAD commit:    87066fdd2e30 Revert "mm/secretmem: use refcount_t instead ..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=10c2c88cb00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=59f3ef2b4077575
+dashboard link: https://syzkaller.appspot.com/bug?extid=63d688f1d899c588fb71
+compiler:       Debian clang version 11.0.1-2, GNU ld (GNU Binutils for Debian) 2.35.2
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17032c4ab00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=170f8c3cb00000
+
+The issue was bisected to:
+
+commit f86cf25a609107960cf05263e491463feaae1f99
+Author: Gao Xiang <gaoxiang25@huawei.com>
+Date:   Tue Aug 28 03:39:48 2018 +0000
+
+    Revert "staging: erofs: disable compiling temporarile"
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=11de0328b00000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=13de0328b00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=15de0328b00000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com
+Fixes: f86cf25a6091 ("Revert "staging: erofs: disable compiling temporarile"")
+
+==================================================================
+BUG: KASAN: use-after-free in get_unaligned_le16 include/asm-generic/unaligned.h:27 [inline]
+BUG: KASAN: use-after-free in LZ4_readLE16 lib/lz4/lz4defs.h:132 [inline]
+BUG: KASAN: use-after-free in LZ4_decompress_generic lib/lz4/lz4_decompress.c:285 [inline]
+BUG: KASAN: use-after-free in LZ4_decompress_safe_partial+0xff8/0x1580 lib/lz4/lz4_decompress.c:469
+Read of size 2 at addr ffff88806dd1f000 by task kworker/u5:0/150
+
+CPU: 1 PID: 150 Comm: kworker/u5:0 Not tainted 5.15.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: erofs_unzipd z_erofs_decompressqueue_work
+Call Trace:
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x1dc/0x2d8 lib/dump_stack.c:106
+ print_address_description+0x66/0x3e0 mm/kasan/report.c:256
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report+0x19a/0x1f0 mm/kasan/report.c:459
+ get_unaligned_le16 include/asm-generic/unaligned.h:27 [inline]
+ LZ4_readLE16 lib/lz4/lz4defs.h:132 [inline]
+ LZ4_decompress_generic lib/lz4/lz4_decompress.c:285 [inline]
+ LZ4_decompress_safe_partial+0xff8/0x1580 lib/lz4/lz4_decompress.c:469
+ z_erofs_lz4_decompress+0x4c3/0x1100 fs/erofs/decompressor.c:226
+ z_erofs_decompress_generic fs/erofs/decompressor.c:354 [inline]
+ z_erofs_decompress+0xa8e/0xe30 fs/erofs/decompressor.c:407
+ z_erofs_decompress_pcluster+0x15e4/0x2550 fs/erofs/zdata.c:977
+ z_erofs_decompress_queue fs/erofs/zdata.c:1055 [inline]
+ z_erofs_decompressqueue_work+0x123/0x1a0 fs/erofs/zdata.c:1066
+ process_one_work+0x853/0x1140 kernel/workqueue.c:2297
+ worker_thread+0xac1/0x1320 kernel/workqueue.c:2444
+ kthread+0x453/0x480 kernel/kthread.c:319
+ ret_from_fork+0x1f/0x30
+
+The buggy address belongs to the page:
+page:ffffea0001b747c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x6dd1f
+flags: 0xfff00000000000(node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000000000 ffffea0001b74408 ffffea0001b74ac8 0000000000000000
+raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as freed
+page last allocated via order 0, migratetype Movable, gfp_mask 0x1100dca(GFP_HIGHUSER_MOVABLE|__GFP_ZERO), pid 6527, ts 51734930672, free_ts 51749499849
+ prep_new_page mm/page_alloc.c:2424 [inline]
+ get_page_from_freelist+0x779/0xa30 mm/page_alloc.c:4153
+ __alloc_pages+0x255/0x580 mm/page_alloc.c:5375
+ alloc_pages_vma+0x668/0x1030 mm/mempolicy.c:2152
+ do_anonymous_page+0x31b/0x14b0 mm/memory.c:3768
+ handle_pte_fault mm/memory.c:4557 [inline]
+ __handle_mm_fault mm/memory.c:4694 [inline]
+ handle_mm_fault+0x1860/0x2560 mm/memory.c:4792
+ do_user_addr_fault+0x8ce/0x10c0 arch/x86/mm/fault.c:1397
+ handle_page_fault arch/x86/mm/fault.c:1485 [inline]
+ exc_page_fault+0xa1/0x1e0 arch/x86/mm/fault.c:1541
+ asm_exc_page_fault+0x1e/0x30
+page last free stack trace:
+ reset_page_owner include/linux/page_owner.h:24 [inline]
+ free_pages_prepare mm/page_alloc.c:1338 [inline]
+ free_pcp_prepare+0xc29/0xd20 mm/page_alloc.c:1389
+ free_unref_page_prepare mm/page_alloc.c:3315 [inline]
+ free_unref_page_list+0x11f/0xa50 mm/page_alloc.c:3431
+ release_pages+0x18cb/0x1b00 mm/swap.c:963
+ tlb_batch_pages_flush mm/mmu_gather.c:49 [inline]
+ tlb_flush_mmu_free mm/mmu_gather.c:242 [inline]
+ tlb_flush_mmu+0x780/0x910 mm/mmu_gather.c:249
+ tlb_finish_mmu+0xcb/0x200 mm/mmu_gather.c:340
+ exit_mmap+0x3dd/0x6f0 mm/mmap.c:3173
+ __mmput+0x111/0x3a0 kernel/fork.c:1115
+ exec_mmap+0x53e/0x640 fs/exec.c:1030
+ begin_new_exec+0x6c9/0x1180 fs/exec.c:1288
+ load_elf_binary+0x836/0x3bc0 fs/binfmt_elf.c:1001
+ search_binary_handler fs/exec.c:1725 [inline]
+ exec_binprm fs/exec.c:1766 [inline]
+ bprm_execve+0x8eb/0x1470 fs/exec.c:1835
+ do_execveat_common+0x44c/0x590 fs/exec.c:1924
+ do_execve fs/exec.c:1992 [inline]
+ __do_sys_execve fs/exec.c:2068 [inline]
+ __se_sys_execve fs/exec.c:2063 [inline]
+ __x64_sys_execve+0x8e/0xa0 fs/exec.c:2063
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Memory state around the buggy address:
+ ffff88806dd1ef00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff88806dd1ef80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff88806dd1f000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                   ^
+ ffff88806dd1f080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff88806dd1f100: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+
 ---
- dump/Makefile.am         |   2 +-
- dump/main.c              | 357 ++++++++++++++++++++++++++++++++++++++-
- include/erofs/internal.h |   1 +
- lib/namei.c              |   2 +-
- 4 files changed, 359 insertions(+), 3 deletions(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/dump/Makefile.am b/dump/Makefile.am
-index f0246d7..4759901 100644
---- a/dump/Makefile.am
-+++ b/dump/Makefile.am
-@@ -6,4 +6,4 @@ bin_PROGRAMS     = dump.erofs
- AM_CPPFLAGS = ${libuuid_CFLAGS}
- dump_erofs_SOURCES = main.c
- dump_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
--dump_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${libuuid_LIBS}
-+dump_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${libuuid_LIBS} ${liblz4_LIBS}
-diff --git a/dump/main.c b/dump/main.c
-index 5b7ac5c..c5e82d1 100644
---- a/dump/main.c
-+++ b/dump/main.c
-@@ -18,9 +18,51 @@
- struct erofsdump_cfg {
- 	unsigned int totalshow;
- 	bool show_superblock;
-+	bool show_statistics;
- };
- static struct erofsdump_cfg dumpcfg;
- 
-+static const char chart_format[] = "%-16s	%-11d %8.2f%% |%-50s|\n";
-+static const char header_format[] = "%-16s %11s %16s |%-50s|\n";
-+static char *file_types[] = {
-+	".txt", ".so", ".xml", ".apk",
-+	".odex", ".vdex", ".oat", ".rc",
-+	".otf", ".txt", "others",
-+};
-+#define OTHERFILETYPE	ARRAY_SIZE(file_types)
-+/* (1 << FILE_MAX_SIZE_BITS)KB */
-+#define	FILE_MAX_SIZE_BITS	16
-+
-+static const char * const file_category_types[] = {
-+	[EROFS_FT_UNKNOWN] = "unknown type",
-+	[EROFS_FT_REG_FILE] = "regular file",
-+	[EROFS_FT_DIR] = "directory",
-+	[EROFS_FT_CHRDEV] = "char dev",
-+	[EROFS_FT_BLKDEV] = "block dev",
-+	[EROFS_FT_FIFO] = "FIFO file",
-+	[EROFS_FT_SOCK] = "SOCK file",
-+	[EROFS_FT_SYMLINK] = "symlink file",
-+};
-+
-+struct erofs_statistics {
-+	unsigned long files;
-+	unsigned long compressed_files;
-+	unsigned long uncompressed_files;
-+	unsigned long files_total_size;
-+	unsigned long files_total_origin_size;
-+	double compress_rate;
-+
-+	/* [statistics] # of files based on inode_info->flags */
-+	unsigned long file_category_stat[EROFS_FT_MAX];
-+	/* [statistics] # of files based on file name extensions */
-+	unsigned int file_type_stat[OTHERFILETYPE];
-+	/* [statistics] # of files based on the original size of files */
-+	unsigned int file_original_size[FILE_MAX_SIZE_BITS + 1];
-+	/* [statistics] # of files based on the compressed size of files */
-+	unsigned int file_comp_size[FILE_MAX_SIZE_BITS + 1];
-+};
-+static struct erofs_statistics stats;
-+
- static struct option long_options[] = {
- 	{"help", no_argument, 0, 1},
- 	{0, 0, 0, 0},
-@@ -39,10 +81,13 @@ static struct erofsdump_feature feature_lists[] = {
- 	{ false, EROFS_FEATURE_INCOMPAT_CHUNKED_FILE, "chunked_file" },
- };
- 
-+static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid);
-+
- static void usage(void)
- {
- 	fputs("usage: [options] IMAGE\n\n"
- 	      "Dump erofs layout from IMAGE, and [options] are:\n"
-+	      " -S      show statistic information of the image\n"
- 	      " -V      print the version number of dump.erofs and exit.\n"
- 	      " -s      show information about superblock\n"
- 	      " --help  display this help and exit.\n",
-@@ -58,13 +103,17 @@ static int erofsdump_parse_options_cfg(int argc, char **argv)
- {
- 	int opt;
- 
--	while ((opt = getopt_long(argc, argv, "Vs",
-+	while ((opt = getopt_long(argc, argv, "SVs",
- 				  long_options, NULL)) != -1) {
- 		switch (opt) {
- 		case 's':
- 			dumpcfg.show_superblock = true;
- 			++dumpcfg.totalshow;
- 			break;
-+		case 'S':
-+			dumpcfg.show_statistics = true;
-+			++dumpcfg.totalshow;
-+			break;
- 		case 'V':
- 			erofsdump_print_version();
- 			exit(0);
-@@ -90,6 +139,309 @@ static int erofsdump_parse_options_cfg(int argc, char **argv)
- 	return 0;
- }
- 
-+static int erofs_get_occupied_size(struct erofs_inode *inode,
-+		erofs_off_t *size)
-+{
-+	*size = 0;
-+	switch (inode->datalayout) {
-+	case EROFS_INODE_FLAT_INLINE:
-+	case EROFS_INODE_FLAT_PLAIN:
-+	case EROFS_INODE_CHUNK_BASED:
-+		stats.uncompressed_files++;
-+		*size = inode->i_size;
-+		break;
-+	case EROFS_INODE_FLAT_COMPRESSION_LEGACY:
-+	case EROFS_INODE_FLAT_COMPRESSION:
-+		stats.compressed_files++;
-+		*size = inode->u.i_blocks * EROFS_BLKSIZ;
-+		break;
-+	default:
-+		erofs_err("unknown datalayout");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+static int erofs_getfile_extension(const char *filename)
-+{
-+	char *postfix = strrchr(filename, '.');
-+	int type = 0;
-+
-+	if (!postfix)
-+		return OTHERFILETYPE - 1;
-+	for (type = 0; type < OTHERFILETYPE - 1; ++type) {
-+		if (strcmp(postfix, file_types[type]) == 0)
-+			break;
-+	}
-+	return type;
-+}
-+
-+static void update_file_size_statatics(erofs_off_t occupied_size,
-+		erofs_off_t original_size)
-+{
-+	int occupied_size_mark, original_size_mark;
-+
-+	original_size_mark = 0;
-+	occupied_size_mark = 0;
-+	occupied_size >>= 10;
-+	original_size >>= 10;
-+
-+	while (occupied_size || original_size) {
-+		if (occupied_size) {
-+			occupied_size >>= 1;
-+			occupied_size_mark++;
-+		}
-+		if (original_size) {
-+			original_size >>= 1;
-+			original_size_mark++;
-+		}
-+	}
-+
-+	if (original_size_mark >= FILE_MAX_SIZE_BITS)
-+		stats.file_original_size[FILE_MAX_SIZE_BITS]++;
-+	else
-+		stats.file_original_size[original_size_mark]++;
-+
-+	if (occupied_size_mark >= FILE_MAX_SIZE_BITS)
-+		stats.file_comp_size[FILE_MAX_SIZE_BITS]++;
-+	else
-+		stats.file_comp_size[occupied_size_mark]++;
-+}
-+
-+static inline int erofs_checkdirent(struct erofs_dirent *de,
-+		struct erofs_dirent *last_de,
-+		u32 maxsize, const char *dname)
-+{
-+	int dname_len;
-+	unsigned int nameoff = le16_to_cpu(de->nameoff);
-+
-+	if (nameoff < sizeof(struct erofs_dirent) ||
-+			nameoff >= PAGE_SIZE) {
-+		erofs_err("invalid de[0].nameoff %u @ nid %llu",
-+				nameoff, de->nid | 0ULL);
-+		return -EFSCORRUPTED;
-+	}
-+
-+	dname_len = (de + 1 >= last_de) ? strnlen(dname, maxsize - nameoff) :
-+				le16_to_cpu(de[1].nameoff) - nameoff;
-+	/* a corrupted entry is found */
-+	if (nameoff + dname_len > maxsize ||
-+			dname_len > EROFS_NAME_LEN) {
-+		erofs_err("bogus dirent @ nid %llu",
-+				le64_to_cpu(de->nid) | 0ULL);
-+		DBG_BUGON(1);
-+		return -EFSCORRUPTED;
-+	}
-+	if (de->file_type >= EROFS_FT_MAX) {
-+		erofs_err("invalid file type %llu", de->nid);
-+		return -EFSCORRUPTED;
-+	}
-+	return dname_len;
-+}
-+
-+static int erofs_read_dirent(struct erofs_dirent *de,
-+		erofs_nid_t nid, erofs_nid_t parent_nid,
-+		const char *dname)
-+{
-+	int err;
-+	erofs_off_t occupied_size = 0;
-+	struct erofs_inode inode = { .nid = de->nid };
-+
-+	stats.files++;
-+	stats.file_category_stat[de->file_type]++;
-+	err = erofs_read_inode_from_disk(&inode);
-+	if (err) {
-+		erofs_err("read file inode from disk failed!");
-+		return err;
-+	}
-+
-+	err = erofs_get_occupied_size(&inode, &occupied_size);
-+	if (err) {
-+		erofs_err("get file size failed\n");
-+		return err;
-+	}
-+
-+	if (de->file_type == EROFS_FT_REG_FILE) {
-+		stats.files_total_origin_size += inode.i_size;
-+		stats.file_type_stat[erofs_getfile_extension(dname)]++;
-+		stats.files_total_size += occupied_size;
-+		update_file_size_statatics(occupied_size, inode.i_size);
-+	}
-+
-+	if ((de->file_type == EROFS_FT_DIR)
-+			&& de->nid != nid && de->nid != parent_nid) {
-+		err = erofs_read_dir(de->nid, nid);
-+		if (err) {
-+			erofs_err("parse dir nid %llu error occurred\n",
-+					de->nid);
-+			return err;
-+		}
-+	}
-+	return 0;
-+}
-+
-+
-+static int erofs_read_dir(erofs_nid_t nid, erofs_nid_t parent_nid)
-+{
-+	int err;
-+	erofs_off_t offset;
-+	char buf[EROFS_BLKSIZ];
-+	struct erofs_inode vi = { .nid = nid };
-+
-+	err = erofs_read_inode_from_disk(&vi);
-+	if (err)
-+		return err;
-+
-+	offset = 0;
-+	while (offset < vi.i_size) {
-+		erofs_off_t maxsize = min_t(erofs_off_t,
-+						vi.i_size - offset, EROFS_BLKSIZ);
-+		struct erofs_dirent *de = (void *)buf;
-+		struct erofs_dirent *end;
-+		unsigned int nameoff;
-+
-+		err = erofs_pread(&vi, buf, maxsize, offset);
-+		if (err)
-+			return err;
-+
-+		nameoff = le16_to_cpu(de->nameoff);
-+		end = (void *)buf + nameoff;
-+		while (de < end) {
-+			const char *dname;
-+			int ret;
-+
-+			/* skip "." and ".." dentry */
-+			if (de->nid == nid || de->nid == parent_nid) {
-+				de++;
-+				continue;
-+			}
-+
-+			dname = (char *)buf + nameoff;
-+			ret = erofs_checkdirent(de, end, maxsize, dname);
-+			if (ret < 0)
-+				return ret;
-+			ret = erofs_read_dirent(de, nid, parent_nid, dname);
-+			if (ret < 0)
-+				return ret;
-+			++de;
-+		}
-+		offset += maxsize;
-+	}
-+	return 0;
-+}
-+
-+static void erofsdump_print_chart_row(char *col1, unsigned int col2,
-+		double col3, char *col4)
-+{
-+	char row[500] = {0};
-+
-+	sprintf(row, chart_format, col1, col2, col3, col4);
-+	fprintf(stdout, row);
-+}
-+
-+static void erofsdump_filesize_distribution(const char *title,
-+		unsigned int *file_counts, unsigned int len)
-+{
-+	char col1[30];
-+	unsigned int col2;
-+	double col3;
-+	char col4[400];
-+	unsigned int lowerbound = 0;
-+	unsigned int upperbound = 1;
-+
-+	fprintf(stdout, "\n%s file size distribution:\n", title);
-+	fprintf(stdout, header_format, ">=(KB) .. <(KB) ", "count",
-+			"ratio", "distribution");
-+	for (int i = 0; i < len; i++) {
-+		memset(col1, 0, sizeof(col1));
-+		memset(col4, 0, sizeof(col4));
-+		if (i == len - 1)
-+			sprintf(col1, "%6d ..", lowerbound);
-+		else if (i <= 6)
-+			sprintf(col1, "%6d .. %-6d", lowerbound, upperbound);
-+		else
-+
-+			sprintf(col1, "%6d .. %-6d", lowerbound, upperbound);
-+		col2 = file_counts[i];
-+		if (stats.file_category_stat[EROFS_FT_REG_FILE])
-+			col3 = (double)(100 * col2) /
-+				stats.file_category_stat[EROFS_FT_REG_FILE];
-+		else
-+			col3 = 0.0;
-+		memset(col4, '#', col3 / 2);
-+		erofsdump_print_chart_row(col1, col2, col3, col4);
-+		lowerbound = upperbound;
-+		upperbound <<= 1;
-+	}
-+}
-+
-+static void erofsdump_filetype_distribution(char **file_types, unsigned int len)
-+{
-+	char col1[30];
-+	unsigned int col2;
-+	double col3;
-+	char col4[401];
-+
-+	fprintf(stdout, "\nFile type distribution:\n");
-+	fprintf(stdout, header_format, "type", "count", "ratio",
-+			"distribution");
-+	for (int i = 0; i < len; i++) {
-+		memset(col1, 0, sizeof(col1));
-+		memset(col4, 0, sizeof(col4));
-+		sprintf(col1, "%-17s", file_types[i]);
-+		col2 = stats.file_type_stat[i];
-+		if (stats.file_category_stat[EROFS_FT_REG_FILE])
-+			col3 = (double)(100 * col2) /
-+				stats.file_category_stat[EROFS_FT_REG_FILE];
-+		else
-+			col3 = 0.0;
-+		memset(col4, '#', col3 / 2);
-+		erofsdump_print_chart_row(col1, col2, col3, col4);
-+	}
-+}
-+
-+static void erofsdump_file_statistic(void)
-+{
-+	fprintf(stdout, "Filesystem total file count:		%lu\n",
-+			stats.files);
-+	for (int i = 0; i < EROFS_FT_MAX; i++)
-+		fprintf(stdout, "Filesystem %s count:		%lu\n",
-+			file_category_types[i], stats.file_category_stat[i]);
-+
-+	stats.compress_rate = (double)(100 * stats.files_total_size) /
-+		(double)(stats.files_total_origin_size);
-+	fprintf(stdout, "Filesystem compressed files:            %lu\n",
-+			stats.compressed_files);
-+	fprintf(stdout, "Filesystem uncompressed files:          %lu\n",
-+			stats.uncompressed_files);
-+	fprintf(stdout, "Filesystem total original file size:    %lu Bytes\n",
-+			stats.files_total_origin_size);
-+	fprintf(stdout, "Filesystem total file size:             %lu Bytes\n",
-+			stats.files_total_size);
-+	fprintf(stdout, "Filesystem compress rate:               %.2f%%\n",
-+			stats.compress_rate);
-+}
-+
-+static void erofsdump_print_statistic(void)
-+{
-+	int err;
-+
-+	err = erofs_read_dir(sbi.root_nid, sbi.root_nid);
-+	if (err) {
-+		erofs_err("read dir failed");
-+		return;
-+	}
-+
-+	erofsdump_file_statistic();
-+	erofsdump_filesize_distribution("Original",
-+			stats.file_original_size,
-+			ARRAY_SIZE(stats.file_original_size));
-+	erofsdump_filesize_distribution("On-disk",
-+			stats.file_comp_size,
-+			ARRAY_SIZE(stats.file_comp_size));
-+	erofsdump_filetype_distribution(file_types, OTHERFILETYPE);
-+}
-+
- static void erofsdump_show_superblock(void)
- {
- 	time_t time = sbi.build_time;
-@@ -156,6 +508,9 @@ int main(int argc, char **argv)
- 	if (dumpcfg.show_superblock)
- 		erofsdump_show_superblock();
- 
-+	if (dumpcfg.show_statistics)
-+		erofsdump_print_statistic();
-+
- exit:
- 	erofs_exit_configure();
- 	return err;
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index a487871..139656c 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -269,6 +269,7 @@ struct erofs_map_blocks {
- int erofs_read_superblock(void);
- 
- /* namei.c */
-+int erofs_read_inode_from_disk(struct erofs_inode *vi);
- int erofs_ilookup(const char *path, struct erofs_inode *vi);
- 
- /* data.c */
-diff --git a/lib/namei.c b/lib/namei.c
-index b4bdabf..56f199a 100644
---- a/lib/namei.c
-+++ b/lib/namei.c
-@@ -22,7 +22,7 @@ static dev_t erofs_new_decode_dev(u32 dev)
- 	return makedev(major, minor);
- }
- 
--static int erofs_read_inode_from_disk(struct erofs_inode *vi)
-+int erofs_read_inode_from_disk(struct erofs_inode *vi)
- {
- 	int ret, ifmt;
- 	char buf[sizeof(struct erofs_inode_extended)];
--- 
-2.31.1
-
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches
