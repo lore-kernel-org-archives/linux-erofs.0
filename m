@@ -2,52 +2,54 @@ Return-Path: <SRS0=5plw=PS=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF837C433EF
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 02:01:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDBBAC433F5
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 02:01:44 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4CF1661154
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 02:01:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4CF1661154
+	by mail.kernel.org (Postfix) with ESMTPS id 4295161154
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 02:01:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4295161154
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Hh2bP5Cp2z305d
-	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 13:01:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Hh2bV6zPVz3bsp
+	for <linux-erofs@archiver.kernel.org>; Sat, 30 Oct 2021 13:01:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uZnYlBli;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Wub9UPAB;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
  envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=uZnYlBli; 
+ header.s=k20201202 header.b=Wub9UPAB; 
  dkim-atps=neutral
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Hh2bG5FWlz2yph
- for <linux-erofs@lists.ozlabs.org>; Sat, 30 Oct 2021 13:01:30 +1100 (AEDT)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6401C610E5;
- Sat, 30 Oct 2021 02:01:24 +0000 (UTC)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Hh2bR5FHhz304y
+ for <linux-erofs@lists.ozlabs.org>; Sat, 30 Oct 2021 13:01:39 +1100 (AEDT)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BE146115B;
+ Sat, 30 Oct 2021 02:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1635559287;
- bh=ExVuC2ZaY7Do2FA9UtpmcQD32fubZ8kspvXT2mzenEc=;
- h=From:To:Cc:Subject:Date:From;
- b=uZnYlBliPsd9rGkU5TsebJHsAAzrJ2K5ejKekc1tdqCJ9VoE6LLZyt8FWbpBa50WY
- 77Ega3H0omcljQnZjx+YrI8K8C4L8NZkdSqeW3aTCdRTMWi40Jdfwj3I9VFjxOqhxn
- h2n/YCqoTSPW4bvsNgC5Y9kkt1pzQ1ILPtBqDAxYOkh3/X3LnY849Uu8HqrdNj7P8K
- hoVVSe+Zv/YH4AV3ALvnzmO57QGTmOxfz6hbxG5elskjZRARpuRFiJTghsQnkjEC1I
- +Mjset6KNCWKS4WN9ciFCgwoU+VGO3yVM1WARyaCY+ObiqIsE6x0fE2c7C4vSYMtNH
- zq2YE8DlSyXfA==
+ s=k20201202; t=1635559297;
+ bh=brrCMlV0dR2WbgTUVmdEjDVsdq0pLovzPciahRjf4+0=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=Wub9UPABKVVrZ9XF3EKMBpB5koAL/cITBG6FziHJiah5EqHuRdohPXy/hym+goN3c
+ vZHFgEF1yT9mEpcBvKB7az30JdlgjT0YPgiLyKQ8rKkQiG1bFvfyZrXNH62ixdiRZw
+ D+LFLSlJrXCdeT7N5RtSRMdtFuTGQK0idstpNICLFB2KWnMF1lGjQt9jmxuTec+eBY
+ 6mOz/UxwTNf4opDq+CYviJsWfE5fJ/8sFPw0g5PLHR5C9ClfYNElFuREPX5MoCB+Ed
+ u/p7ad55nOWTNtnpKCgDHw0hi2TgUAr6EwbpZx0OhuSaCNbuxPqDRivPE8XdNIDsa8
+ mkvG5Se99L7jw==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/3] erofs-utils: add liblzma dependency
-Date: Sat, 30 Oct 2021 10:01:16 +0800
-Message-Id: <20211030020118.13898-1-xiang@kernel.org>
+Subject: [PATCH 3/3] erofs-utils: mkfs: add LZMA algorithm support
+Date: Sat, 30 Oct 2021 10:01:18 +0800
+Message-Id: <20211030020118.13898-3-xiang@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20211030020118.13898-1-xiang@kernel.org>
+References: <20211030020118.13898-1-xiang@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -66,155 +68,289 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-liblzma [1] has a fixed-sized output LZMA compression implementation
-now since v5.3.2alpha. Let's add such dependency in the build system.
-
-[1] https://git.tukaani.org/?p=xz.git
+This patch adds LZMA compression algorithm support to erofs-utils
+compression framework with upstream liblzma.
 
 Cc: Lasse Collin <lasse.collin@tukaani.org>
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- README           |  3 +++
- configure.ac     | 49 ++++++++++++++++++++++++++++++++++++++++++++++++
- fuse/Makefile.am |  3 ++-
- lib/Makefile.am  |  1 +
- mkfs/Makefile.am |  3 ++-
- 5 files changed, 57 insertions(+), 2 deletions(-)
+ include/erofs/config.h   |   1 +
+ include/erofs_fs.h       |   6 +++
+ lib/Makefile.am          |   3 ++
+ lib/compress.c           |  37 ++++++++++++--
+ lib/compressor.c         |   3 ++
+ lib/compressor.h         |   1 +
+ lib/compressor_liblzma.c | 105 +++++++++++++++++++++++++++++++++++++++
+ mkfs/main.c              |   1 -
+ 8 files changed, 152 insertions(+), 5 deletions(-)
+ create mode 100644 lib/compressor_liblzma.c
 
-diff --git a/README b/README
-index 3f8301006ccc..333dcb49cc42 100644
---- a/README
-+++ b/README
-@@ -8,6 +8,7 @@ Dependencies & build
- --------------------
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 574dd52be12d..a18c88301279 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -60,6 +60,7 @@ struct erofs_configure {
  
-  lz4 1.8.0+ for lz4 enabled [2], lz4 1.9.3+ highly recommended [4][5].
-+ XZ Utils 5.3.2alpha [6] or later versions for MicroLZMA enabled.
+ 	u32 c_pclusterblks_max, c_pclusterblks_def;
+ 	u32 c_max_decompressed_extent_bytes;
++	u32 c_dict_size;
+ 	u64 c_unix_timestamp;
+ 	u32 c_uid, c_gid;
+ #ifdef WITH_ANDROID
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index 86ad6f5fd86c..4291970753a8 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -261,6 +261,12 @@ struct z_erofs_lz4_cfgs {
+ 	u8 reserved[10];
+ } __packed;
  
-  libfuse 2.6+ for erofsfuse enabled as a plus.
++/* 14 bytes (+ length field = 16 bytes) */
++struct z_erofs_lzma_cfgs {
++	__le32 dict_size;
++	__le16 format;
++	u8 reserved[8];
++} __packed;
+ #define Z_EROFS_LZMA_MAX_DICT_SIZE	(8 * Z_EROFS_PCLUSTER_MAX_SIZE)
  
-@@ -221,3 +222,5 @@ Comments
-     https://github.com/lz4/lz4/issues/783
- 
-     which is also resolved in lz4-1.9.3.
-+
-+[6] https://tukaani.org/xz/xz-5.3.2alpha.tar.xz
-diff --git a/configure.ac b/configure.ac
-index b2c32259c5bd..b50c00c5d6c1 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -69,6 +69,10 @@ AC_ARG_ENABLE(lz4,
-    [AS_HELP_STRING([--disable-lz4], [disable LZ4 compression support @<:@default=enabled@:>@])],
-    [enable_lz4="$enableval"], [enable_lz4="yes"])
- 
-+AC_ARG_ENABLE(lzma,
-+   [AS_HELP_STRING([--enable-lzma], [enable LZMA compression support @<:@default=no@:>@])],
-+   [enable_lzma="$enableval"], [enable_lzma="no"])
-+
- AC_ARG_ENABLE(fuse,
-    [AS_HELP_STRING([--enable-fuse], [enable erofsfuse @<:@default=no@:>@])],
-    [enable_fuse="$enableval"], [enable_fuse="no"])
-@@ -99,6 +103,14 @@ AC_ARG_WITH(lz4-libdir,
- AC_ARG_VAR([LZ4_CFLAGS], [C compiler flags for lz4])
- AC_ARG_VAR([LZ4_LIBS], [linker flags for lz4])
- 
-+AC_ARG_WITH(liblzma-incdir,
-+   [AS_HELP_STRING([--with-liblzma-incdir=DIR], [liblzma include directory])], [
-+   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
-+
-+AC_ARG_WITH(liblzma-libdir,
-+   [AS_HELP_STRING([--with-liblzma-libdir=DIR], [liblzma lib directory])], [
-+   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
-+
- # Checks for header files.
- AC_CHECK_HEADERS(m4_flatten([
- 	dirent.h
-@@ -263,10 +275,36 @@ if test "x$enable_lz4" = "xyes"; then
-   CPPFLAGS=${saved_CPPFLAGS}
- fi
- 
-+if test "x$enable_lzma" = "xyes"; then
-+  saved_CPPFLAGS=${CPPFLAGS}
-+  test -z "${with_liblzma_incdir}" ||
-+    CPPFLAGS="-I$with_liblzma_incdir $CPPFLAGS"
-+  AC_CHECK_HEADERS([lzma.h],[have_lzmah="yes"], [])
-+
-+  if test "x${have_lzmah}" = "xyes" ; then
-+    saved_LIBS="$LIBS"
-+    saved_LDFLAGS="$LDFLAGS"
-+
-+    test -z "${with_liblzma_libdir}" ||
-+      LDFLAGS="-L$with_liblzma_libdir ${LDFLAGS}"
-+    AC_CHECK_LIB(lzma, lzma_microlzma_encoder, [],
-+      [AC_MSG_ERROR([Cannot find proper liblzma])])
-+
-+    AC_CHECK_DECL(lzma_microlzma_encoder, [have_liblzma="yes"],
-+      [AC_MSG_ERROR([Cannot find proper liblzma])], [[
-+#include <lzma.h>
-+    ]])
-+    LDFLAGS="${saved_LDFLAGS}"
-+    LIBS="${saved_LIBS}"
-+  fi
-+  CPPFLAGS="${saved_CPPFLAGS}"
-+fi
-+
- # Set up needed symbols, conditionals and compiler/linker flags
- AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
- AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
- AM_CONDITIONAL([ENABLE_FUSE], [test "x${have_fuse}" = "xyes"])
-+AM_CONDITIONAL([ENABLE_LIBLZMA], [test "x${have_liblzma}" = "xyes"])
- 
- if test "x$have_uuid" = "xyes"; then
-   AC_DEFINE([HAVE_LIBUUID], 1, [Define to 1 if libuuid is found])
-@@ -293,6 +331,17 @@ if test "x${have_lz4}" = "xyes"; then
- fi
- AC_SUBST([liblz4_LIBS])
- 
-+if test "x${have_liblzma}" = "xyes"; then
-+  AC_DEFINE([HAVE_LIBLZMA], [1], [Define to 1 if liblzma is enabled.])
-+  liblzma_LIBS="-llzma"
-+  test -z "${with_liblzma_libdir}" ||
-+    liblzma_LIBS="-L${with_liblzma_libdir} $liblzma_LIBS"
-+  test -z "${with_liblzma_incdir}" ||
-+    liblzma_CFLAGS="-I${with_liblzma_incdir}"
-+  AC_SUBST([liblzma_LIBS])
-+  AC_SUBST([liblzma_CFLAGS])
-+fi
-+
- AC_CONFIG_FILES([Makefile
- 		 man/Makefile
- 		 lib/Makefile
-diff --git a/fuse/Makefile.am b/fuse/Makefile.am
-index 6893a97ccaf1..7b007f3fec11 100644
---- a/fuse/Makefile.am
-+++ b/fuse/Makefile.am
-@@ -5,4 +5,5 @@ bin_PROGRAMS     = erofsfuse
- erofsfuse_SOURCES = dir.c main.c
- erofsfuse_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
- erofsfuse_CFLAGS += -DFUSE_USE_VERSION=26 ${libfuse_CFLAGS} ${libselinux_CFLAGS}
--erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse_LIBS} ${liblz4_LIBS} ${libselinux_LIBS}
-+erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse_LIBS} ${liblz4_LIBS} \
-+	${libselinux_LIBS} ${liblzma_LIBS}
+ /*
 diff --git a/lib/Makefile.am b/lib/Makefile.am
-index b64d90b3e144..370de844146f 100644
+index 370de844146f..58ad192c51b3 100644
 --- a/lib/Makefile.am
 +++ b/lib/Makefile.am
-@@ -31,3 +31,4 @@ if ENABLE_LZ4HC
+@@ -31,4 +31,7 @@ if ENABLE_LZ4HC
  liberofs_la_SOURCES += compressor_lz4hc.c
  endif
  endif
-+liberofs_la_CFLAGS += ${liblzma_CFLAGS}
-diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
-index e488f86cff90..2a4bc1d58769 100644
---- a/mkfs/Makefile.am
-+++ b/mkfs/Makefile.am
-@@ -5,4 +5,5 @@ bin_PROGRAMS     = mkfs.erofs
- AM_CPPFLAGS = ${libuuid_CFLAGS} ${libselinux_CFLAGS}
- mkfs_erofs_SOURCES = main.c
- mkfs_erofs_CFLAGS = -Wall -Werror -I$(top_srcdir)/include
--mkfs_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} ${liblz4_LIBS}
-+mkfs_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
-+	${liblz4_LIBS} ${liblzma_LIBS}
++if ENABLE_LIBLZMA
+ liberofs_la_CFLAGS += ${liblzma_CFLAGS}
++liberofs_la_SOURCES += compressor_liblzma.c
++endif
+diff --git a/lib/compress.c b/lib/compress.c
+index 6ca5bedaf596..98be7a26383b 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -588,6 +588,8 @@ static int erofs_get_compress_algorithm_id(const char *name)
+ {
+ 	if (!strcmp(name, "lz4") || !strcmp(name, "lz4hc"))
+ 		return Z_EROFS_COMPRESSION_LZ4;
++	if (!strcmp(name, "lzma"))
++		return Z_EROFS_COMPRESSION_LZMA;
+ 	return -ENOTSUP;
+ }
+ 
+@@ -619,6 +621,29 @@ int z_erofs_build_compr_cfgs(struct erofs_buffer_head *sb_bh)
+ 				sizeof(lz4alg));
+ 		bh->op = &erofs_drop_directly_bhops;
+ 	}
++#ifdef HAVE_LIBLZMA
++	if (sbi.available_compr_algs & (1 << Z_EROFS_COMPRESSION_LZMA)) {
++		struct {
++			__le16 size;
++			struct z_erofs_lzma_cfgs lzma;
++		} __packed lzmaalg = {
++			.size = cpu_to_le16(sizeof(struct z_erofs_lzma_cfgs)),
++			.lzma = {
++				.dict_size = cpu_to_le32(cfg.c_dict_size),
++			}
++		};
++
++		bh = erofs_battach(bh, META, sizeof(lzmaalg));
++		if (IS_ERR(bh)) {
++			DBG_BUGON(1);
++			return PTR_ERR(bh);
++		}
++		erofs_mapbh(bh->block);
++		ret = dev_write(&lzmaalg, erofs_btell(bh, false),
++				sizeof(lzmaalg));
++		bh->op = &erofs_drop_directly_bhops;
++	}
++#endif
+ 	return ret;
+ }
+ 
+@@ -632,17 +657,18 @@ int z_erofs_compress_init(struct erofs_buffer_head *sb_bh)
+ 		return ret;
+ 
+ 	/*
+-	 * if primary algorithm is not lz4* (e.g. compression off),
+-	 * clear LZ4_0PADDING feature for old kernel compatibility.
++	 * if primary algorithm is empty (e.g. compression off),
++	 * clear 0PADDING feature for old kernel compatibility.
+ 	 */
+ 	if (!cfg.c_compr_alg_master ||
+-	    strncmp(cfg.c_compr_alg_master, "lz4", 3))
++	    (cfg.c_legacy_compress && !strcmp(cfg.c_compr_alg_master, "lz4")))
+ 		erofs_sb_clear_lz4_0padding();
+ 
+ 	if (!cfg.c_compr_alg_master)
+ 		return 0;
+ 
+-	ret = erofs_compressor_setlevel(&compresshandle, cfg.c_compr_level_master);
++	ret = erofs_compressor_setlevel(&compresshandle,
++					cfg.c_compr_level_master);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -668,6 +694,9 @@ int z_erofs_compress_init(struct erofs_buffer_head *sb_bh)
+ 		erofs_warn("EXPERIMENTAL big pcluster feature in use. Use at your own risk!");
+ 	}
+ 
++	if (ret != Z_EROFS_COMPRESSION_LZ4)
++		erofs_sb_set_compr_cfgs();
++
+ 	if (erofs_sb_has_compr_cfgs()) {
+ 		sbi.available_compr_algs |= 1 << ret;
+ 		return z_erofs_build_compr_cfgs(sb_bh);
+diff --git a/lib/compressor.c b/lib/compressor.c
+index 89c1be10dd0c..ad12cdf2ceed 100644
+--- a/lib/compressor.c
++++ b/lib/compressor.c
+@@ -17,6 +17,9 @@ static struct erofs_compressor *compressors[] = {
+ #endif
+ 		&erofs_compressor_lz4,
+ #endif
++#if HAVE_LIBLZMA
++		&erofs_compressor_lzma,
++#endif
+ };
+ 
+ int erofs_compress_destsize(struct erofs_compress *c,
+diff --git a/lib/compressor.h b/lib/compressor.h
+index d1b43c87291f..aa85ae0bdc2f 100644
+--- a/lib/compressor.h
++++ b/lib/compressor.h
+@@ -43,6 +43,7 @@ struct erofs_compress {
+ /* list of compression algorithms */
+ extern struct erofs_compressor erofs_compressor_lz4;
+ extern struct erofs_compressor erofs_compressor_lz4hc;
++extern struct erofs_compressor erofs_compressor_lzma;
+ 
+ int erofs_compress_destsize(struct erofs_compress *c,
+ 			    void *src, unsigned int *srcsize,
+diff --git a/lib/compressor_liblzma.c b/lib/compressor_liblzma.c
+new file mode 100644
+index 000000000000..e9bfcc556c54
+--- /dev/null
++++ b/lib/compressor_liblzma.c
+@@ -0,0 +1,105 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs-utils/lib/compressor_liblzma.c
++ *
++ * Copyright (C) 2021 Gao Xiang <xiang@kernel.org>
++ */
++#include <stdlib.h>
++#include <lzma.h>
++#include "erofs/config.h"
++#include "erofs/print.h"
++#include "erofs/internal.h"
++#include "compressor.h"
++
++struct erofs_liblzma_context {
++	lzma_options_lzma opt;
++	lzma_stream strm;
++};
++
++static int erofs_liblzma_compress_destsize(struct erofs_compress *c,
++					   void *src, unsigned int *srcsize,
++					   void *dst, unsigned int dstsize)
++{
++	struct erofs_liblzma_context *ctx = c->private_data;
++	lzma_stream *strm = &ctx->strm;
++
++	lzma_ret ret = lzma_microlzma_encoder(strm, &ctx->opt);
++	if (ret != LZMA_OK)
++		return -EFAULT;
++
++	strm->next_in = src;
++	strm->avail_in = *srcsize;
++	strm->next_out = dst;
++	strm->avail_out = dstsize;
++
++	ret = lzma_code(strm, LZMA_FINISH);
++	if (ret != LZMA_STREAM_END)
++		return -EBADMSG;
++
++	*srcsize = strm->total_in;
++	return strm->total_out;
++}
++
++static int erofs_compressor_liblzma_exit(struct erofs_compress *c)
++{
++	struct erofs_liblzma_context *ctx = c->private_data;
++
++	if (!ctx)
++		return -EINVAL;
++
++	lzma_end(&ctx->strm);
++	free(ctx);
++	return 0;
++}
++
++static int erofs_compressor_liblzma_setlevel(struct erofs_compress *c,
++					     int compression_level)
++{
++	struct erofs_liblzma_context *ctx = c->private_data;
++
++	if (compression_level < 0)
++		compression_level = LZMA_PRESET_DEFAULT;
++
++	if (lzma_lzma_preset(&ctx->opt, compression_level))
++		return -EINVAL;
++
++	/* XXX: temporary hack */
++	if (cfg.c_dict_size) {
++		if (cfg.c_dict_size > Z_EROFS_LZMA_MAX_DICT_SIZE) {
++			erofs_err("dict size %u is too large", cfg.c_dict_size);
++			return -EINVAL;
++		}
++		ctx->opt.dict_size = cfg.c_dict_size;
++	} else {
++		if (ctx->opt.dict_size > Z_EROFS_LZMA_MAX_DICT_SIZE)
++			ctx->opt.dict_size = Z_EROFS_LZMA_MAX_DICT_SIZE;
++		cfg.c_dict_size = ctx->opt.dict_size;
++	}
++	c->compression_level = compression_level;
++	return 0;
++}
++
++static int erofs_compressor_liblzma_init(struct erofs_compress *c)
++{
++	struct erofs_liblzma_context *ctx;
++
++	c->alg = &erofs_compressor_lzma;
++	ctx = malloc(sizeof(*ctx));
++	if (!ctx)
++		return -ENOMEM;
++	ctx->strm = (lzma_stream)LZMA_STREAM_INIT;
++	c->private_data = ctx;
++	erofs_warn("EXPERIMENTAL MicroLZMA feature in use. Use at your own risk!");
++	erofs_warn("Note that it may take more time since the compressor is still single-threaded for now.");
++	return 0;
++}
++
++struct erofs_compressor erofs_compressor_lzma = {
++	.name = "lzma",
++	.default_level = LZMA_PRESET_DEFAULT,
++	.best_level = LZMA_PRESET_EXTREME,
++	.init = erofs_compressor_liblzma_init,
++	.exit = erofs_compressor_liblzma_exit,
++	.setlevel = erofs_compressor_liblzma_setlevel,
++	.compress_destsize = erofs_liblzma_compress_destsize,
++};
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 055d077988e9..028cf5a8911c 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -147,7 +147,6 @@ static int parse_extended_opts(const char *opts)
+ 				return -EINVAL;
+ 			/* disable compacted indexes and 0padding */
+ 			cfg.c_legacy_compress = true;
+-			erofs_sb_clear_lz4_0padding();
+ 		}
+ 
+ 		if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
 -- 
 2.20.1
 
