@@ -2,46 +2,48 @@ Return-Path: <SRS0=6TON=PZ=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E233C433F5
-	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 08:13:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27FE3C433EF
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 08:24:08 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5C1EE61165
-	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 08:13:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5C1EE61165
+	by mail.kernel.org (Postfix) with ESMTPS id 10D92611EF
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 08:24:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 10D92611EF
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=yulong.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HmVVq5Ld8z2yQH
-	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 19:13:07 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HmVlT0qTgz2yQw
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Nov 2021 19:24:05 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=yulong.com (client-ip=59.36.132.88; helo=qq.com;
+ smtp.mailfrom=yulong.com (client-ip=54.204.34.129; helo=smtpbguseast1.qq.com;
  envelope-from=huyue2@yulong.com; receiver=<UNKNOWN>)
-Received: from qq.com (smtpbg477.qq.com [59.36.132.88])
+X-Greylist: delayed 702 seconds by postgrey-1.36 at boromir;
+ Sat, 06 Nov 2021 19:23:56 AEDT
+Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HmVVb0145z2xgN
- for <linux-erofs@lists.ozlabs.org>; Sat,  6 Nov 2021 19:12:53 +1100 (AEDT)
-X-QQ-mid: bizesmtp33t1636186279tvwp0k76
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HmVlJ0snNz2xtN
+ for <linux-erofs@lists.ozlabs.org>; Sat,  6 Nov 2021 19:23:48 +1100 (AEDT)
+X-QQ-mid: bizesmtp42t1636187009tfv3czrk
 Received: from localhost.localdomain (unknown [218.94.48.178])
  by esmtp6.qq.com (ESMTP) with 
- id ; Sat, 06 Nov 2021 16:11:06 +0800 (CST)
-X-QQ-SSF: 01400000000000Z0Z000B00A0000000
-X-QQ-FEAT: 3uawQE1sH+2vGgiHXOOPTcN3eogYudOGeZ0/H+BgLJlyaPqdCmMa2YMLCjtuy
- BrK06CwiB08EFMShwuVeJhFKsnCaL8cPiR39E4EVeP2+IvShdggsaudzG/BTkq3oht7orpo
- 2i5Dd9+22wVsRGKcCvinhtGS71ON1gHEGbdYO1/Fjh80lvUEVb7w6ljR82YvPTyJGLUapbS
- Qg9Lh0DkydHpS0cGPdySs0QegZxJIKvaBgUqHHdciNTGGcY5Nx05u4e+u8ZsZTVn5vFFSLm
- FU3USSDoBRihjGiCJLyvtSq4JvyBuLAtPqgYDWOeRP9nvB2pM6p30qO+9yX1FZm9zR8rlDG
- x9cBUrLFMj9RgCcHplp97bKElp5piXPwp/+f+Aw
+ id ; Sat, 06 Nov 2021 16:23:20 +0800 (CST)
+X-QQ-SSF: 01400000000000Z0Z000000A0000000
+X-QQ-FEAT: PiGp83eJkfylU46hdeyC/FtC94gproOiLDGpMY/C+3DkWRINGBskox7qsPNsE
+ 5YCiph5qH2NFWHrwtoAE6kRLXLdOvQvF+FMAB2in/q4Jqp0mc8uci6GO7JxitxQdG5QSdHI
+ sG5VteqGwTzp41rhnOPRGm0PMH9caWhWgilpAICuZ/5ek4vqMEW87X70eVCu/RxkgK4YXyV
+ pwzijCJN3ICkZF4e/sLAcvXOxytBcy5C0+XH6yJxsLCEsEE8z+qEtf/7Nre/OqJRLqTt110
+ lTh+wCuhPJx9tg4Q6XE3pVeABREbB16PV/8LU8FDbcv4DAGmovc3xTD0F3KnZSRqU/7S/97
+ BR0aiWgLjo7biVTAES12wm0JVQbiMoCdYGUbVn0zxc+BDm7Dbd3Y09DBbUxag==
 X-QQ-GoodBg: 2
 From: Yue Hu <huyue2@yulong.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs: remove useless cache strategy of DELAYEDALLOC
-Date: Sat,  6 Nov 2021 16:11:00 +0800
-Message-Id: <20211106081100.21478-1-huyue2@yulong.com>
+Subject: [PATCH v2] erofs: remove useless cache strategy of DELAYEDALLOC
+Date: Sat,  6 Nov 2021 16:23:15 +0800
+Message-Id: <20211106082315.25781-1-huyue2@yulong.com>
 X-Mailer: git-send-email 2.17.1
 X-QQ-SENDSIZE: 520
 Feedback-ID: bizesmtp:yulong.com:qybgforeign:qybgforeign5
@@ -63,12 +65,16 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-DELAYEDALLOC is not used at all, remove related dead code.
+DELAYEDALLOC is not used at all, remove related dead code. Also,
+remove the blank line at the end of zdata.h.
 
 Signed-off-by: Yue Hu <huyue2@yulong.com>
 ---
+v2: remove the blank line at the end of zdata.h.
+
  fs/erofs/zdata.c | 20 --------------------
- 1 file changed, 20 deletions(-)
+ fs/erofs/zdata.h |  1 -
+ 2 files changed, 21 deletions(-)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
 index bcb1b91b234f..812c7c6ae456 100644
@@ -118,6 +124,15 @@ index bcb1b91b234f..812c7c6ae456 100644
  	/* process the target tagged pointer */
  	t = tagptr_init(compressed_page_t, page);
  	justfound = tagptr_unfold_tags(t);
+diff --git a/fs/erofs/zdata.h b/fs/erofs/zdata.h
+index 879df5362777..4a69515dea75 100644
+--- a/fs/erofs/zdata.h
++++ b/fs/erofs/zdata.h
+@@ -179,4 +179,3 @@ static inline void z_erofs_onlinepage_endio(struct page *page)
+ #define Z_EROFS_VMAP_GLOBAL_PAGES	2048
+ 
+ #endif
+-
 -- 
 2.17.1
 
