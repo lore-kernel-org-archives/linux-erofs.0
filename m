@@ -2,21 +2,21 @@ Return-Path: <SRS0=k0XQ=P4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26F16C4321E
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 928C2C4332F
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:37 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CEAC2610E9
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CEAC2610E9
+	by mail.kernel.org (Postfix) with ESMTPS id 3F51E61186
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3F51E61186
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLr93wjsz2yn9
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:34:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLrD00m4z305P
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:34:36 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=AwTyippi;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=b+PYedII;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -25,33 +25,33 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=AwTyippi; 
+ header.s=casper.20170209 header.b=b+PYedII; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLqZ5v9Qz30G6
- for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 19:34:02 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLqf0yCfz303H
+ for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 19:34:06 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=YI5KXoTh/4gwEroExLHzFhWVvpPDf4+n7V/Xox3B544=; b=AwTyippiAZmoz/Kfz0zWZ1oNbr
- 14RYnWC4s144kGri6OGi6exkkFBSqXwsho6c5f58x7DkOWCziZlBcyrUBi0QtIxOaDq2vKDf1d8YP
- QIs1cRsfc41v4e2hm2QP8vJ8qUMo2N7E0VFZyqxdRM1HDHGVuG9ysNhgE/yQ2HVlrziFbBvbO07yG
- IEkg0Krp6lFZS8nvD3l+q+d4Ysr9e+ItusH0opTuwyg+K08Lh0ajLUgazLtXCSCXwVdQ8mNqY/QTl
- i1oSVCDOOm9vyKUN93Mc59w3ssrysrc1Dr1bAqP2f+VDYnz3fWP1WlP4ea/Yz4ZJwC90/CTYuqv9E
- 6K+f+qYQ==;
+ bh=brXsiud4Cc0AgfRTr4nbCZuEA3TzdfnPNyojG8VnBfw=; b=b+PYedIIgGjCdMCp9JN/B8B1Fz
+ nzGeNiytbR6ImqRNS4vswOWH638cDm5VRSAitO6lGR+yV/I/Mz2iufYPGI1Y1GX1IfNXWO7JHC4ld
+ fEzA52mVx4lCysgJIIwa69LyDX4hyeuPdKgbYC8DhqLL6Y8vrE5UVY453IQYCupw9RKT4TsXvf2ce
+ j+ewr0bulk+Ez7yJgzAmbWDuIKmcUNTufJ5ljbdNaEC9XUayw1afVZIMZLjhbdRsIoNb6B7m+WiJa
+ HgAsWfZs/0KGoArpevAcNfqJzQStr/V52bfoKMqM4fyX+hMXZKusk/jwOEJCnVmIpMa7W4rq6AHIj
+ j82xNF8w==;
 Received: from [2001:4bb8:19a:7ee7:fb46:2fe1:8652:d9d4] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mkMZj-000s8n-3T; Tue, 09 Nov 2021 08:33:52 +0000
+ id 1mkMZm-000sAK-3U; Tue, 09 Nov 2021 08:33:55 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 22/29] iomap: add a IOMAP_DAX flag
-Date: Tue,  9 Nov 2021 09:33:02 +0100
-Message-Id: <20211109083309.584081-23-hch@lst.de>
+Subject: [PATCH 24/29] xfs: use xfs_direct_write_iomap_ops for DAX zeroing
+Date: Tue,  9 Nov 2021 09:33:04 +0100
+Message-Id: <20211109083309.584081-25-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211109083309.584081-1-hch@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
@@ -79,65 +79,37 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add a flag so that the file system can easily detect DAX operations.
+While the buffered write iomap ops do work due to the fact that zeroing
+never allocates blocks, the DAX zeroing should use the direct ops just
+like actual DAX I/O.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/dax.c              | 7 ++++---
- include/linux/iomap.h | 1 +
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_iomap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 5b52b878124ac..0bd6cdcbacfc4 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1180,7 +1180,7 @@ int dax_zero_range(struct inode *inode, loff_t pos, loff_t len, bool *did_zero,
- 		.inode		= inode,
- 		.pos		= pos,
- 		.len		= len,
--		.flags		= IOMAP_ZERO,
-+		.flags		= IOMAP_DAX | IOMAP_ZERO,
- 	};
- 	int ret;
+diff --git a/fs/xfs/xfs_iomap.c b/fs/xfs/xfs_iomap.c
+index 8cef3b68cba78..704292c6ce0c7 100644
+--- a/fs/xfs/xfs_iomap.c
++++ b/fs/xfs/xfs_iomap.c
+@@ -1324,7 +1324,7 @@ xfs_zero_range(
  
-@@ -1308,6 +1308,7 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 		.inode		= iocb->ki_filp->f_mapping->host,
- 		.pos		= iocb->ki_pos,
- 		.len		= iov_iter_count(iter),
-+		.flags		= IOMAP_DAX,
- 	};
- 	loff_t done = 0;
- 	int ret;
-@@ -1461,7 +1462,7 @@ static vm_fault_t dax_iomap_pte_fault(struct vm_fault *vmf, pfn_t *pfnp,
- 		.inode		= mapping->host,
- 		.pos		= (loff_t)vmf->pgoff << PAGE_SHIFT,
- 		.len		= PAGE_SIZE,
--		.flags		= IOMAP_FAULT,
-+		.flags		= IOMAP_DAX | IOMAP_FAULT,
- 	};
- 	vm_fault_t ret = 0;
- 	void *entry;
-@@ -1570,7 +1571,7 @@ static vm_fault_t dax_iomap_pmd_fault(struct vm_fault *vmf, pfn_t *pfnp,
- 	struct iomap_iter iter = {
- 		.inode		= mapping->host,
- 		.len		= PMD_SIZE,
--		.flags		= IOMAP_FAULT,
-+		.flags		= IOMAP_DAX | IOMAP_FAULT,
- 	};
- 	vm_fault_t ret = VM_FAULT_FALLBACK;
- 	pgoff_t max_pgoff;
-diff --git a/include/linux/iomap.h b/include/linux/iomap.h
-index 6d1b08d0ae930..146a7e3e3ea11 100644
---- a/include/linux/iomap.h
-+++ b/include/linux/iomap.h
-@@ -141,6 +141,7 @@ struct iomap_page_ops {
- #define IOMAP_NOWAIT		(1 << 5) /* do not block */
- #define IOMAP_OVERWRITE_ONLY	(1 << 6) /* only pure overwrites allowed */
- #define IOMAP_UNSHARE		(1 << 7) /* unshare_file_range */
-+#define IOMAP_DAX		(1 << 8) /* DAX mapping */
+ 	if (IS_DAX(inode))
+ 		return dax_zero_range(inode, pos, len, did_zero,
+-				      &xfs_buffered_write_iomap_ops);
++				      &xfs_direct_write_iomap_ops);
+ 	return iomap_zero_range(inode, pos, len, did_zero,
+ 				&xfs_buffered_write_iomap_ops);
+ }
+@@ -1339,7 +1339,7 @@ xfs_truncate_page(
  
- struct iomap_ops {
- 	/*
+ 	if (IS_DAX(inode))
+ 		return dax_truncate_page(inode, pos, did_zero,
+-					&xfs_buffered_write_iomap_ops);
++					&xfs_direct_write_iomap_ops);
+ 	return iomap_truncate_page(inode, pos, did_zero,
+ 				   &xfs_buffered_write_iomap_ops);
+ }
 -- 
 2.30.2
 
