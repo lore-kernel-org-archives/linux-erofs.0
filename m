@@ -2,21 +2,21 @@ Return-Path: <SRS0=k0XQ=P4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3880AC4707A
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A0EBC433F5
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:04 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D9593611C1
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D9593611C1
+	by mail.kernel.org (Postfix) with ESMTPS id 2679F610E9
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2679F610E9
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLqV3tJXz2ymw
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:33:58 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLqZ5ZT8z3bhg
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:34:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=k+J4p1sx;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=SOG3snbC;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -25,33 +25,33 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=k+J4p1sx; 
+ header.s=casper.20170209 header.b=SOG3snbC; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLq71DmGz2yJF
- for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 19:33:39 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLq90cMsz2yJF
+ for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 19:33:41 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=9DfHXjXpwPV16JwxKDzlwLsQrCaf21dbRLJzYHAhNZM=; b=k+J4p1sxv4GIaf/pZry1mADwB+
- Ar1HiQrfR69z+VUk+LXPZwyTUodROP6Ve2JzAJaLMLYKGRK2OL7DDKMIHeGPn3jFxKNlLvXYsyelf
- TOkCDzO0pNwMWvfo4xkbl6QMwmB+MsxPivzTRf3Y41pDkQ+OnrH5ig+xpkzEFpmu8x16htqod2pJy
- /G/Yvb1ksftU66dUi9xDWAuBfQYqIfgnrrTnDC1t60iM2U8YX9P9wjw1hVd9b8Nwa/CIq2Yf1kEUT
- WAiAtLf9ZLb3DGoYBWz/exnngImMfLdkhciTOz/OKeKkkIWbM0lVNy3hRWeXtiPMoMqgcdTTivSmi
- q/cr92yQ==;
+ bh=nsipimcnsyS/B0mUTKc1w7RvYVd94QXif4VmP6OnJ7M=; b=SOG3snbCeJFUNnpml/J+nGIFgP
+ 11Rn4mb7f2DlhTGj7RN7VChnDm3Kc7nnt3ugFvyLhPzYC/aVMPav+/ZdZnkkV+C8SGkiSuFBPlmiq
+ +OlDsroYRkp5Z7qJsqAM9LoUeLZdRih0+vjY/R9LbESTRS/PNy3qme0CF0vll5vxbJ5FnNeetrv00
+ LHf4krhOqEKcByFNJMYS7khd2ax5/pWQRsi+oLDfJlcZ8dz6cjDnoSHusXpAyTUsaiFW7nqLLfAsO
+ qUqyM7FpXzWRPuISCSoM0P5W1S+i4zpKjfv1bi0L3ZBd8jMPV+SnYd3weWCOI+oK+qZxN2yVl739E
+ SR4KAVmg==;
 Received: from [2001:4bb8:19a:7ee7:fb46:2fe1:8652:d9d4] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mkMZK-000s09-9X; Tue, 09 Nov 2021 08:33:27 +0000
+ id 1mkMZN-000s15-PP; Tue, 09 Nov 2021 08:33:30 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
-Date: Tue,  9 Nov 2021 09:32:47 +0100
-Message-Id: <20211109083309.584081-8-hch@lst.de>
+Subject: [PATCH 09/29] dm-linear: add a linear_dax_pgoff helper
+Date: Tue,  9 Nov 2021 09:32:49 +0100
+Message-Id: <20211109083309.584081-10-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211109083309.584081-1-hch@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
@@ -79,81 +79,100 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Factor out another DAX setup helper to simplify future changes.  Also
-move the experimental warning after the checks to not clutter the log
-too much if the setup failed.
+Add a helper to perform the entire remapping for DAX accesses.  This
+helper open codes bdev_dax_pgoff given that the alignment checks have
+already been done by the submitting file system and don't need to be
+repeated.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Mike Snitzer <snitzer@redhat.com>
 ---
- fs/xfs/xfs_super.c | 47 +++++++++++++++++++++++++++-------------------
- 1 file changed, 28 insertions(+), 19 deletions(-)
+ drivers/md/dm-linear.c | 49 +++++++++++++-----------------------------
+ 1 file changed, 15 insertions(+), 34 deletions(-)
 
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index e21459f9923a8..875fd3151d6c9 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -340,6 +340,32 @@ xfs_buftarg_is_dax(
- 			bdev_nr_sectors(bt->bt_bdev));
+diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
+index 0a260c35aeeed..90de42f6743ac 100644
+--- a/drivers/md/dm-linear.c
++++ b/drivers/md/dm-linear.c
+@@ -163,63 +163,44 @@ static int linear_iterate_devices(struct dm_target *ti,
  }
  
-+static int
-+xfs_setup_dax_always(
-+	struct xfs_mount	*mp)
+ #if IS_ENABLED(CONFIG_FS_DAX)
++static struct dax_device *linear_dax_pgoff(struct dm_target *ti, pgoff_t *pgoff)
 +{
-+	struct super_block	*sb = mp->m_super;
++	struct linear_c *lc = ti->private;
++	sector_t sector = linear_map_sector(ti, *pgoff << PAGE_SECTORS_SHIFT);
 +
-+	if (!xfs_buftarg_is_dax(sb, mp->m_ddev_targp) &&
-+	   (!mp->m_rtdev_targp || !xfs_buftarg_is_dax(sb, mp->m_rtdev_targp))) {
-+		xfs_alert(mp,
-+			"DAX unsupported by block device. Turning off DAX.");
-+		goto disable_dax;
-+	}
-+
-+	if (xfs_has_reflink(mp)) {
-+		xfs_alert(mp, "DAX and reflink cannot be used together!");
-+		return -EINVAL;
-+	}
-+
-+	xfs_warn(mp, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
-+	return 0;
-+
-+disable_dax:
-+	xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
-+	return 0;
++	*pgoff = (get_start_sect(lc->dev->bdev) + sector) >> PAGE_SECTORS_SHIFT;
++	return lc->dev->dax_dev;
 +}
 +
- STATIC int
- xfs_blkdev_get(
- 	xfs_mount_t		*mp,
-@@ -1593,26 +1619,9 @@ xfs_fs_fill_super(
- 		sb->s_flags |= SB_I_VERSION;
- 
- 	if (xfs_has_dax_always(mp)) {
--		bool rtdev_is_dax = false, datadev_is_dax;
+ static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
+ 		long nr_pages, void **kaddr, pfn_t *pfn)
+ {
+-	long ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
 -
--		xfs_warn(mp,
--		"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
--
--		datadev_is_dax = xfs_buftarg_is_dax(sb, mp->m_ddev_targp);
--		if (mp->m_rtdev_targp)
--			rtdev_is_dax = xfs_buftarg_is_dax(sb,
--						mp->m_rtdev_targp);
--		if (!rtdev_is_dax && !datadev_is_dax) {
--			xfs_alert(mp,
--			"DAX unsupported by block device. Turning off DAX.");
--			xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
--		}
--		if (xfs_has_reflink(mp)) {
--			xfs_alert(mp,
--		"DAX and reflink cannot be used together!");
--			error = -EINVAL;
-+		error = xfs_setup_dax_always(mp);
-+		if (error)
- 			goto out_filestream_unmount;
--		}
- 	}
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages * PAGE_SIZE, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
+ }
  
- 	if (xfs_has_discard(mp)) {
+ static size_t linear_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+ 
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
+ }
+ 
+ static size_t linear_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+ 
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
+ }
+ 
+ static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
+ 				      size_t nr_pages)
+ {
+-	int ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+-
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages << PAGE_SHIFT, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_zero_page_range(dax_dev, pgoff, nr_pages);
+ }
+ 
 -- 
 2.30.2
 
