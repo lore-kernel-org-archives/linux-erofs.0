@@ -2,46 +2,48 @@ Return-Path: <SRS0=k0XQ=P4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41857C433EF
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 03:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F012C433F5
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 03:17:11 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C099C61156
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 03:10:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C099C61156
+	by mail.kernel.org (Postfix) with ESMTPS id EAF5C61002
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 03:17:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EAF5C61002
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HpCfT2yNHz2yg6
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 14:10:41 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HpCnx4bXsz2yg1
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 14:17:09 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
- helo=out30-56.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
+ helo=out30-131.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HpCfK3cchz2yHP
- for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 14:10:28 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UviXRY0_1636427418; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HpCnt1Yrvz2xKK
+ for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 14:17:05 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0Uvj108s_1636427808; 
 Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UviXRY0_1636427418) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 09 Nov 2021 11:10:20 +0800
-Date: Tue, 9 Nov 2021 11:10:18 +0800
+ fp:SMTPD_---0Uvj108s_1636427808) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 09 Nov 2021 11:16:49 +0800
+Date: Tue, 9 Nov 2021 11:16:47 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: Huang Jianan <huangjianan@oppo.com>
-Subject: Re: [PATCH 1/2] erofs: add sysfs interface
-Message-ID: <YYnmmla6xh5Y4d30@B-P7TQMD6M-0146.local>
+Subject: Re: [PATCH 2/2] erofs: add sysfs node to control sync decompression
+ strategy
+Message-ID: <YYnoHw+boVFtcyfv@B-P7TQMD6M-0146.local>
 References: <20211109025445.12427-1-huangjianan@oppo.com>
+ <20211109025445.12427-2-huangjianan@oppo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20211109025445.12427-1-huangjianan@oppo.com>
+In-Reply-To: <20211109025445.12427-2-huangjianan@oppo.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,30 +61,53 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Jianan,
-
-On Tue, Nov 09, 2021 at 10:54:44AM +0800, Huang Jianan via Linux-erofs wrote:
-
-You might need to add a "From:" tag here, otherwise, the author will
-show "Huang Jianan via Linux-erofs" due to your mailing server...
-
-> Add sysfs interface to configure erofs related parameters in the
-> future.
-
-s/in the future/Later/
-
+On Tue, Nov 09, 2021 at 10:54:45AM +0800, Huang Jianan via Linux-erofs wrote:
+> Although readpage is a synchronous path, there will be no additional
+> kworker scheduling overhead in non-atomic contexts. So we can add a
+> sysfs node to allow disable sync decompression.
 > 
 > Signed-off-by: Huang Jianan <huangjianan@oppo.com>
 > ---
->  fs/erofs/Makefile   |   2 +-
->  fs/erofs/internal.h |  10 ++
->  fs/erofs/super.c    |  12 +++
->  fs/erofs/sysfs.c    | 239 ++++++++++++++++++++++++++++++++++++++++++++
+>  fs/erofs/internal.h | 2 +-
+>  fs/erofs/super.c    | 2 +-
+>  fs/erofs/sysfs.c    | 6 ++++++
+>  fs/erofs/zdata.c    | 9 ++++-----
+>  4 files changed, 12 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+> index d0cd712dc222..1ab96878009d 100644
+> --- a/fs/erofs/internal.h
+> +++ b/fs/erofs/internal.h
+> @@ -60,7 +60,7 @@ struct erofs_mount_opts {
+>  #ifdef CONFIG_EROFS_FS_ZIP
+>  	/* current strategy of how to use managed cache */
+>  	unsigned char cache_strategy;
+> -	/* strategy of sync decompression (false - auto, true - force on) */
+> +	/* strategy of sync decompression (false - disable, true - force on) */
 
-At a quick glance, we might need to add sysfs API documentation
-as well:
-Documentation/ABI/testing/sysfs-fs-erofs
+Please leave false - auto.
+
+>  	bool readahead_sync_decompress;
+>  
+>  	/* threshold for decompression synchronously */
+> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> index abc1da5d1719..26585d865503 100644
+> --- a/fs/erofs/super.c
+> +++ b/fs/erofs/super.c
+> @@ -423,7 +423,7 @@ static void erofs_default_options(struct erofs_fs_context *ctx)
+>  #ifdef CONFIG_EROFS_FS_ZIP
+>  	ctx->opt.cache_strategy = EROFS_ZIP_CACHE_READAROUND;
+>  	ctx->opt.max_sync_decompress_pages = 3;
+> -	ctx->opt.readahead_sync_decompress = false;
+> +	ctx->opt.readahead_sync_decompress = true;
+
+Please leave readahead_sync_decompress = false 'auto' by default.
+
+I don't like .readpage() applies async decompression since it's
+actually a sync way, otherwise, it will cause more scheduling
+overhead, see:
+https://lore.kernel.org/r/20201016160443.18685-1-willy@infradead.org
+https://lore.kernel.org/r/20201102184312.25926-16-willy@infradead.org
 
 Thanks,
 Gao Xiang
-
