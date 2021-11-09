@@ -2,21 +2,21 @@ Return-Path: <SRS0=k0XQ=P4=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2BCBC31D97
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99991C4167B
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:51 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5FA5161186
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5FA5161186
+	by mail.kernel.org (Postfix) with ESMTPS id 451BB610E9
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 451BB610E9
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLqJ0hwMz308G
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:33:48 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HpLqL01dSz2yms
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Nov 2021 19:33:50 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=rdR1iIJU;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=CuJDt0Fn;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -25,33 +25,34 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=rdR1iIJU; 
+ header.s=casper.20170209 header.b=CuJDt0Fn; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLq45rpZz2yHb
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HpLq45Ql0z2xXd
  for <linux-erofs@lists.ozlabs.org>; Tue,  9 Nov 2021 19:33:35 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=/UOhk+aCjmw4IcKFQxJFjUhaacfvQMsVGHtw6Oh0pgU=; b=rdR1iIJUysmE8nRJhVw9bNqNcp
- 8echW5oA/94avlJbwg/FA9CdiX+4EB8Uscv9tIdbDEZPSzHUThgHJr/VpORs7fHOLVLmbHm6FSnCa
- c3p/0Zwb54leaozWprP8d+hr4t/bdbofDGxBNHnWcwDsiNHBK9RcdMfr1C2NIWBAUUKVlg4d4xG0q
- C/5EaO5wXfo4kT/HsbD82Gju/ex+0pI9PnUZVuRzsDnTqPqkyx5F5yZMJ3ULme8b0+IcHCSeBcVzA
- 2Ix9scM8foqKqTHFSUXzLvvhTp+JKBiBJkvU/icgDP2UGaG4sBE31/3zDeOGp9n6KHXlBemoMny1o
- X75Qcpug==;
+ bh=PrmU1McI9Lz9rWePxXHiZdW7Le1GN8Zv7TzW7GRRfmk=; b=CuJDt0FnnSJ1eRr3YU30gflIA6
+ 5CCyiEF5PJ92FLWSC5MIrL2oH/HvW4JocKHiNlKk53JCqDzd/ckeXXc2zjfc+Q5VpKYbrY6owJYE1
+ bd4bldr9fdxNNWB/TJ3uOl0qQSqz847WVXvuknaL4G1y9MO7XW5obvlN+sFSF2aPN7NtTYpBfBBCk
+ lCOIJmFMmk2HWX/bA8RoUdDE2LpUM3knxONSKfFdJTzGHFn3Eh/RmVJo4ZhGtXdzyxdB041usXmfr
+ YPoaGNkMnx0dmYe61d55DOrfJlq0O0+WS5XMVD8VYwZ8QNZlI2PRnvOg/51w4Q6RBTR0HukCpwuWF
+ b0zyKNrw==;
 Received: from [2001:4bb8:19a:7ee7:fb46:2fe1:8652:d9d4] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mkMZD-000ryI-IK; Tue, 09 Nov 2021 08:33:20 +0000
+ id 1mkMZI-000rzk-Aa; Tue, 09 Nov 2021 08:33:25 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 03/29] dax: remove CONFIG_DAX_DRIVER
-Date: Tue,  9 Nov 2021 09:32:43 +0100
-Message-Id: <20211109083309.584081-4-hch@lst.de>
+Subject: [PATCH 06/29] dax: move the partition alignment check into
+ fs_dax_get_by_bdev
+Date: Tue,  9 Nov 2021 09:32:46 +0100
+Message-Id: <20211109083309.584081-7-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211109083309.584081-1-hch@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
@@ -79,68 +80,63 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-CONFIG_DAX_DRIVER only selects CONFIG_DAX now, so remove it.
+fs_dax_get_by_bdev is the primary interface to find a dax device for a
+block device, so move the partition alignment check there instead of
+wiring it up through ->dax_supported.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/dax/Kconfig        | 4 ----
- drivers/nvdimm/Kconfig     | 2 +-
- drivers/s390/block/Kconfig | 2 +-
- fs/fuse/Kconfig            | 2 +-
- 4 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/dax/super.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/dax/Kconfig b/drivers/dax/Kconfig
-index d2834c2cfa10d..954ab14ba7778 100644
---- a/drivers/dax/Kconfig
-+++ b/drivers/dax/Kconfig
-@@ -1,8 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
--config DAX_DRIVER
--	select DAX
--	bool
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index 04fc680542e8d..482fe775324a4 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -93,6 +93,12 @@ struct dax_device *fs_dax_get_by_bdev(struct block_device *bdev)
+ 	if (!blk_queue_dax(bdev->bd_disk->queue))
+ 		return NULL;
+ 
++	if ((get_start_sect(bdev) * SECTOR_SIZE) % PAGE_SIZE ||
++	    (bdev_nr_sectors(bdev) * SECTOR_SIZE) % PAGE_SIZE) {
++		pr_info("%pg: error: unaligned partition for dax\n", bdev);
++		return NULL;
++	}
++
+ 	id = dax_read_lock();
+ 	dax_dev = xa_load(&dax_hosts, (unsigned long)bdev->bd_disk);
+ 	if (!dax_dev || !dax_alive(dax_dev) || !igrab(&dax_dev->inode))
+@@ -107,10 +113,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 		struct block_device *bdev, int blocksize, sector_t start,
+ 		sector_t sectors)
+ {
+-	pgoff_t pgoff, pgoff_end;
+-	sector_t last_page;
+-	int err;
 -
- menuconfig DAX
- 	tristate "DAX: direct access to differentiated memory"
- 	select SRCU
-diff --git a/drivers/nvdimm/Kconfig b/drivers/nvdimm/Kconfig
-index b7d1eb38b27d4..347fe7afa5830 100644
---- a/drivers/nvdimm/Kconfig
-+++ b/drivers/nvdimm/Kconfig
-@@ -22,7 +22,7 @@ if LIBNVDIMM
- config BLK_DEV_PMEM
- 	tristate "PMEM: Persistent memory block device support"
- 	default LIBNVDIMM
--	select DAX_DRIVER
-+	select DAX
- 	select ND_BTT if BTT
- 	select ND_PFN if NVDIMM_PFN
- 	help
-diff --git a/drivers/s390/block/Kconfig b/drivers/s390/block/Kconfig
-index d0416dbd0cd81..e3710a762abae 100644
---- a/drivers/s390/block/Kconfig
-+++ b/drivers/s390/block/Kconfig
-@@ -5,7 +5,7 @@ comment "S/390 block device drivers"
- config DCSSBLK
- 	def_tristate m
- 	select FS_DAX_LIMITED
--	select DAX_DRIVER
-+	select DAX
- 	prompt "DCSSBLK support"
- 	depends on S390 && BLOCK
- 	help
-diff --git a/fs/fuse/Kconfig b/fs/fuse/Kconfig
-index 40ce9a1c12e5d..038ed0b9aaa5d 100644
---- a/fs/fuse/Kconfig
-+++ b/fs/fuse/Kconfig
-@@ -45,7 +45,7 @@ config FUSE_DAX
- 	select INTERVAL_TREE
- 	depends on VIRTIO_FS
- 	depends on FS_DAX
--	depends on DAX_DRIVER
-+	depends on DAX
- 	help
- 	  This allows bypassing guest page cache and allows mapping host page
- 	  cache directly in guest address space.
+ 	if (blocksize != PAGE_SIZE) {
+ 		pr_info("%pg: error: unsupported blocksize for dax\n", bdev);
+ 		return false;
+@@ -121,19 +123,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 		return false;
+ 	}
+ 
+-	err = bdev_dax_pgoff(bdev, start, PAGE_SIZE, &pgoff);
+-	if (err) {
+-		pr_info("%pg: error: unaligned partition for dax\n", bdev);
+-		return false;
+-	}
+-
+-	last_page = PFN_DOWN((start + sectors - 1) * 512) * PAGE_SIZE / 512;
+-	err = bdev_dax_pgoff(bdev, last_page, PAGE_SIZE, &pgoff_end);
+-	if (err) {
+-		pr_info("%pg: error: unaligned partition for dax\n", bdev);
+-		return false;
+-	}
+-
+ 	return true;
+ }
+ EXPORT_SYMBOL_GPL(generic_fsdax_supported);
 -- 
 2.30.2
 
