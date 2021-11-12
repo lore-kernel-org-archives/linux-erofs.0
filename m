@@ -2,19 +2,19 @@ Return-Path: <SRS0=HUho=P7=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 488A3C433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 12:31:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3825DC433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 12:32:00 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 464A560E73
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 12:31:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 464A560E73
+	by mail.kernel.org (Postfix) with ESMTPS id 98E8961029
+	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 12:31:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 98E8961029
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HrHyh6b8kz2ywR
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 23:31:56 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HrHyk2R6Sz30Hr
+	for <linux-erofs@archiver.kernel.org>; Fri, 12 Nov 2021 23:31:58 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
  helo=out30-42.freemail.mail.aliyun.com;
@@ -24,21 +24,23 @@ Received: from out30-42.freemail.mail.aliyun.com
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HrHyW4L1fz2xtf
- for <linux-erofs@lists.ozlabs.org>; Fri, 12 Nov 2021 23:31:44 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HrHyf3C5zz2xtf
+ for <linux-erofs@lists.ozlabs.org>; Fri, 12 Nov 2021 23:31:53 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
  NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0UwBaAUF_1636720289; 
 Received: from
  e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
  fp:SMTPD_---0UwBaAUF_1636720289) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 12 Nov 2021 20:31:34 +0800
+ Fri, 12 Nov 2021 20:31:38 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/3] erofs-utils: add extra device I/O interface
-Date: Fri, 12 Nov 2021 20:31:26 +0800
-Message-Id: <20211112123128.126741-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 3/3] erofs-utils: add extra blob device support
+Date: Fri, 12 Nov 2021 20:31:28 +0800
+Message-Id: <20211112123128.126741-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20211112123128.126741-1-hsiangkao@linux.alibaba.com>
+References: <20211112123128.126741-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -57,281 +59,270 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In order for erofsfuse to support multiple devices.
+In this patch, blob data from chunked-based files is redirected to
+another blob file.
+
+In order to redirect that, "--blobdev" should be used to specify
+the output blob file/device for all chunk-based files, e.g.
+ mkfs.erofs --blobdev blob.erofs --chunksize 4096 foo.erofs foo
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-changes since v1:
- - add erofsfuse multiple device support.
+ fuse/main.c               |  2 +-
+ include/erofs/blobchunk.h |  3 +-
+ include/erofs/cache.h     |  5 ++++
+ include/erofs/config.h    |  1 +
+ include/erofs/internal.h  |  5 +++-
+ lib/blobchunk.c           | 58 +++++++++++++++++++++++++++++++++++----
+ mkfs/main.c               | 15 +++++++++-
+ 7 files changed, 80 insertions(+), 9 deletions(-)
 
- fsck/main.c        |  8 ++++----
- include/erofs/io.h | 10 ++++++----
- lib/data.c         |  6 +++---
- lib/io.c           | 48 +++++++++++++++++++++++++++++++++++++---------
- lib/namei.c        |  4 ++--
- lib/super.c        |  2 +-
- lib/zmap.c         |  4 ++--
- mkfs/main.c        |  2 +-
- 8 files changed, 58 insertions(+), 26 deletions(-)
-
-diff --git a/fsck/main.c b/fsck/main.c
-index d81d60024c8a..b742e3579c59 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -97,7 +97,7 @@ static int erofs_check_sb_chksum(void)
- 	u32 crc;
- 	struct erofs_super_block *sb;
+diff --git a/fuse/main.c b/fuse/main.c
+index 21939cd15923..de494b79b8ad 100644
+--- a/fuse/main.c
++++ b/fuse/main.c
+@@ -153,7 +153,7 @@ static int optional_opt_func(void *data, const char *arg, int key,
  
--	ret = blk_read(buf, 0, 1);
-+	ret = blk_read(0, buf, 0, 1);
- 	if (ret) {
- 		erofs_err("failed to read superblock to check checksum: %d",
- 			  ret);
-@@ -317,7 +317,7 @@ static int verify_compressed_inode(struct erofs_inode *inode)
- 			BUG_ON(!buffer);
- 		}
+ 	switch (key) {
+ 	case 1:
+-		ret = blob_open_ro(arg);
++		ret = blob_open_ro(arg + sizeof("--device=") - 1);
+ 		if (ret)
+ 			return -1;
+ 		++sbi.extra_devices;
+diff --git a/include/erofs/blobchunk.h b/include/erofs/blobchunk.h
+index b418227e0ef8..85efe0f1687f 100644
+--- a/include/erofs/blobchunk.h
++++ b/include/erofs/blobchunk.h
+@@ -13,6 +13,7 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode, erofs_off_t off);
+ int erofs_blob_write_chunked_file(struct erofs_inode *inode);
+ int erofs_blob_remap(void);
+ void erofs_blob_exit(void);
+-int erofs_blob_init(void);
++int erofs_blob_init(const char *);
++int erofs_generate_devtable(void);
  
--		ret = dev_read(raw, map.m_pa, map.m_plen);
-+		ret = dev_read(0, raw, map.m_pa, map.m_plen);
- 		if (ret < 0) {
- 			erofs_err("failed to read compressed data of m_pa %" PRIu64 ", m_plen %" PRIu64 " @ nid %llu: %d",
- 				  map.m_pa, map.m_plen, inode->nid | 0ULL, ret);
-@@ -381,7 +381,7 @@ static int erofs_verify_xattr(struct erofs_inode *inode)
+ #endif
+diff --git a/include/erofs/cache.h b/include/erofs/cache.h
+index e324d929b0b9..b19d54e1b4f4 100644
+--- a/include/erofs/cache.h
++++ b/include/erofs/cache.h
+@@ -19,6 +19,8 @@ struct erofs_buffer_block;
+ #define INODE		2
+ /* shared xattrs */
+ #define XATTR		3
++/* device table */
++#define DEVT		4
+ 
+ struct erofs_bhops {
+ 	bool (*preflush)(struct erofs_buffer_head *bh);
+@@ -56,6 +58,9 @@ static inline const int get_alignsize(int type, int *type_ret)
+ 	} else if (type == XATTR) {
+ 		*type_ret = META;
+ 		return sizeof(struct erofs_xattr_entry);
++	} else if (type == DEVT) {
++		*type_ret = META;
++		return EROFS_DEVT_SLOT_SIZE;
  	}
  
- 	addr = iloc(inode->nid) + inode->inode_isize;
--	ret = dev_read(buf, addr, xattr_hdr_size);
-+	ret = dev_read(0, buf, addr, xattr_hdr_size);
- 	if (ret < 0) {
- 		erofs_err("failed to read xattr header @ nid %llu: %d",
- 			  inode->nid | 0ULL, ret);
-@@ -411,7 +411,7 @@ static int erofs_verify_xattr(struct erofs_inode *inode)
- 	while (remaining > 0) {
- 		unsigned int entry_sz;
+ 	if (type == META)
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index a18c88301279..8d459c692dac 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -51,6 +51,7 @@ struct erofs_configure {
+ 	/* related arguments for mkfs.erofs */
+ 	char *c_img_path;
+ 	char *c_src_path;
++	char *c_blobdev_path;
+ 	char *c_compress_hints_file;
+ 	char *c_compr_alg_master;
+ 	int c_compr_level_master;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 974c069baa4f..f22a016373ca 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -93,7 +93,10 @@ struct erofs_sb_info {
  
--		ret = dev_read(buf, addr, xattr_entry_size);
-+		ret = dev_read(0, buf, addr, xattr_entry_size);
- 		if (ret) {
- 			erofs_err("failed to read xattr entry @ nid %llu: %d",
- 				  inode->nid | 0ULL, ret);
-diff --git a/include/erofs/io.h b/include/erofs/io.h
-index 9d73adc5f5f9..10a3681882e1 100644
---- a/include/erofs/io.h
-+++ b/include/erofs/io.h
-@@ -15,11 +15,13 @@
- #define O_BINARY	0
+ 	u32 checksum;
+ 	u16 extra_devices;
+-	u16 device_id_mask;
++	union {
++		u16 devt_slotoff;		/* used for mkfs */
++		u16 device_id_mask;		/* used for others */
++	};
+ };
+ 
+ /* global sbi */
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index a0ff79c748c6..96d1d49e92f9 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -24,6 +24,8 @@ struct erofs_blobchunk {
+ static struct hashmap blob_hashmap;
+ static FILE *blobfile;
+ static erofs_blk_t remapped_base;
++static bool multidev;
++static struct erofs_buffer_head *bh_devt;
+ 
+ static struct erofs_blobchunk *erofs_blob_getchunk(int fd,
+ 		unsigned int chunksize)
+@@ -102,19 +104,25 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode,
+ {
+ 	struct erofs_inode_chunk_index idx = {0};
+ 	unsigned int dst, src, unit;
++	erofs_blk_t base_blkaddr = 0;
+ 
+ 	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+ 		unit = sizeof(struct erofs_inode_chunk_index);
+ 	else
+ 		unit = EROFS_BLOCK_MAP_ENTRY_SIZE;
+ 
++	if (multidev)
++		idx.device_id = 1;
++	else
++		base_blkaddr = remapped_base;
++
+ 	for (dst = src = 0; dst < inode->extent_isize;
+ 	     src += sizeof(void *), dst += unit) {
+ 		struct erofs_blobchunk *chunk;
+ 
+ 		chunk = *(void **)(inode->chunkindexes + src);
+ 
+-		idx.blkaddr = chunk->blkaddr + remapped_base;
++		idx.blkaddr = base_blkaddr + chunk->blkaddr;
+ 		if (unit == EROFS_BLOCK_MAP_ENTRY_SIZE)
+ 			memcpy(inode->chunkindexes + dst, &idx.blkaddr, unit);
+ 		else
+@@ -183,6 +191,20 @@ int erofs_blob_remap(void)
+ 
+ 	fflush(blobfile);
+ 	length = ftell(blobfile);
++	if (multidev) {
++		struct erofs_deviceslot dis = {
++			.blocks = erofs_blknr(length),
++		};
++
++		pos_out = erofs_btell(bh_devt, false);
++		ret = dev_write(&dis, pos_out, sizeof(dis));
++		if (ret)
++			return ret;
++
++		bh_devt->op = &erofs_drop_directly_bhops;
++		erofs_bdrop(bh_devt, false);
++		return 0;
++	}
+ 	bh = erofs_balloc(DATA, length, 0, 0);
+ 	if (IS_ERR(bh))
+ 		return PTR_ERR(bh);
+@@ -206,16 +228,42 @@ void erofs_blob_exit(void)
+ 	hashmap_free(&blob_hashmap, 1);
+ }
+ 
+-int erofs_blob_init(void)
++int erofs_blob_init(const char *blobfile_path)
+ {
++	if (!blobfile_path) {
+ #ifdef HAVE_TMPFILE64
+-	blobfile = tmpfile64();
++		blobfile = tmpfile64();
+ #else
+-	blobfile = tmpfile();
++		blobfile = tmpfile();
  #endif
++		multidev = false;
++	} else {
++		blobfile = fopen(blobfile_path, "wb");
++		multidev = true;
++	}
+ 	if (!blobfile)
+-		return -ENOMEM;
++		return -EACCES;
  
-+void blob_closeall(void);
-+int blob_open_ro(const char *dev);
- int dev_open(const char *devname);
- int dev_open_ro(const char *dev);
- void dev_close(void);
- int dev_write(const void *buf, u64 offset, size_t len);
--int dev_read(void *buf, u64 offset, size_t len);
-+int dev_read(int device_id, void *buf, u64 offset, size_t len);
- int dev_fillzero(u64 offset, size_t len, bool padding);
- int dev_fsync(void);
- int dev_resize(erofs_blk_t nblocks);
-@@ -38,10 +40,10 @@ static inline int blk_write(const void *buf, erofs_blk_t blkaddr,
- 			 blknr_to_addr(nblocks));
- }
- 
--static inline int blk_read(void *buf, erofs_blk_t start,
--			    u32 nblocks)
-+static inline int blk_read(int device_id, void *buf,
-+			   erofs_blk_t start, u32 nblocks)
- {
--	return dev_read(buf, blknr_to_addr(start),
-+	return dev_read(device_id, buf, blknr_to_addr(start),
- 			 blknr_to_addr(nblocks));
- }
- 
-diff --git a/lib/data.c b/lib/data.c
-index b5f0196c97dd..b83cbff3e731 100644
---- a/lib/data.c
-+++ b/lib/data.c
-@@ -91,7 +91,7 @@ int erofs_map_blocks(struct erofs_inode *inode,
- 	pos = roundup(iloc(vi->nid) + vi->inode_isize +
- 		      vi->xattr_isize, unit) + unit * chunknr;
- 
--	err = blk_read(buf, erofs_blknr(pos), 1);
-+	err = blk_read(0, buf, erofs_blknr(pos), 1);
- 	if (err < 0)
- 		return -EIO;
- 
-@@ -176,7 +176,7 @@ static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 			map.m_la = ptr;
- 		}
- 
--		ret = dev_read(estart, map.m_pa, eend - map.m_la);
-+		ret = dev_read(0, estart, map.m_pa, eend - map.m_la);
- 		if (ret < 0)
- 			return -EIO;
- 		ptr = eend;
-@@ -240,7 +240,7 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 				break;
- 			}
- 		}
--		ret = dev_read(raw, map.m_pa, map.m_plen);
-+		ret = dev_read(0, raw, map.m_pa, map.m_plen);
- 		if (ret < 0)
- 			break;
- 
-diff --git a/lib/io.c b/lib/io.c
-index 279c7dd4b877..a0d366a4c3f1 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -26,6 +26,7 @@
- static const char *erofs_devname;
- int erofs_devfd = -1;
- static u64 erofs_devsz;
-+static unsigned int erofs_nblobs, erofs_blobfd[256];
- 
- int dev_get_blkdev_size(int fd, u64 *bytes)
- {
-@@ -106,6 +107,30 @@ int dev_open(const char *dev)
+ 	hashmap_init(&blob_hashmap, erofs_blob_hashmap_cmp, 0);
  	return 0;
  }
- 
-+void blob_closeall(void)
++
++int erofs_generate_devtable(void)
 +{
-+	unsigned int i;
++	struct erofs_deviceslot dis;
 +
-+	for (i = 0; i < erofs_nblobs; ++i)
-+		close(erofs_blobfd[i]);
-+	erofs_nblobs = 0;
-+}
++	if (!multidev)
++		return 0;
 +
-+int blob_open_ro(const char *dev)
-+{
-+	int fd = open(dev, O_RDONLY | O_BINARY);
++	bh_devt = erofs_balloc(DEVT, sizeof(dis), 0, 0);
++	if (IS_ERR(bh_devt))
++		return PTR_ERR(bh_devt);
 +
-+	if (fd < 0) {
-+		erofs_err("failed to open(%s).", dev);
-+		return -errno;
-+	}
-+
-+	erofs_blobfd[erofs_nblobs] = fd;
-+	erofs_info("successfully to open blob%u %s", erofs_nblobs, dev);
-+	++erofs_nblobs;
++	dis = (struct erofs_deviceslot) {};
++	erofs_mapbh(bh_devt->block);
++	bh_devt->op = &erofs_skip_write_bhops;
++	sbi.devt_slotoff = erofs_btell(bh_devt, false) / EROFS_DEVT_SLOT_SIZE;
++	sbi.extra_devices = 1;
++	erofs_sb_set_device_table();
 +	return 0;
 +}
-+
- /* XXX: temporary soluation. Disk I/O implementation needs to be refactored. */
- int dev_open_ro(const char *dev)
- {
-@@ -229,9 +254,9 @@ int dev_resize(unsigned int blocks)
- 	return dev_fillzero(st.st_size, length, true);
- }
- 
--int dev_read(void *buf, u64 offset, size_t len)
-+int dev_read(int device_id, void *buf, u64 offset, size_t len)
- {
--	int ret;
-+	int ret, fd;
- 
- 	if (cfg.c_dry_run)
- 		return 0;
-@@ -240,16 +265,21 @@ int dev_read(void *buf, u64 offset, size_t len)
- 		erofs_err("buf is NULL");
- 		return -EINVAL;
- 	}
--	if (offset >= erofs_devsz || len > erofs_devsz ||
--	    offset > erofs_devsz - len) {
--		erofs_err("read posion[%" PRIu64 ", %zd] is too large beyond the end of device(%" PRIu64 ").",
--			  offset, len, erofs_devsz);
--		return -EINVAL;
-+
-+	if (!device_id) {
-+		fd = erofs_devfd;
-+	} else {
-+		if (device_id > erofs_nblobs) {
-+			erofs_err("invalid device id %d", device_id);
-+			return -ENODEV;
-+		}
-+		fd = erofs_blobfd[device_id - 1];
- 	}
-+
- #ifdef HAVE_PREAD64
--	ret = pread64(erofs_devfd, buf, len, (off64_t)offset);
-+	ret = pread64(fd, buf, len, (off64_t)offset);
- #else
--	ret = pread(erofs_devfd, buf, len, (off_t)offset);
-+	ret = pread(fd, buf, len, (off_t)offset);
- #endif
- 	if (ret != (int)len) {
- 		erofs_err("Failed to read data from device - %s:[%" PRIu64 ", %zd].",
-diff --git a/lib/namei.c b/lib/namei.c
-index 56f199aba382..7377e74fad9b 100644
---- a/lib/namei.c
-+++ b/lib/namei.c
-@@ -30,7 +30,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
- 	struct erofs_inode_extended *die;
- 	const erofs_off_t inode_loc = iloc(vi->nid);
- 
--	ret = dev_read(buf, inode_loc, sizeof(*dic));
-+	ret = dev_read(0, buf, inode_loc, sizeof(*dic));
- 	if (ret < 0)
- 		return -EIO;
- 
-@@ -47,7 +47,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
- 	case EROFS_INODE_LAYOUT_EXTENDED:
- 		vi->inode_isize = sizeof(struct erofs_inode_extended);
- 
--		ret = dev_read(buf + sizeof(*dic), inode_loc + sizeof(*dic),
-+		ret = dev_read(0, buf + sizeof(*dic), inode_loc + sizeof(*dic),
- 			       sizeof(*die) - sizeof(*dic));
- 		if (ret < 0)
- 			return -EIO;
-diff --git a/lib/super.c b/lib/super.c
-index 0c3040394272..bf4d4318a321 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -30,7 +30,7 @@ int erofs_read_superblock(void)
- 	unsigned int blkszbits;
- 	int ret;
- 
--	ret = blk_read(data, 0, 1);
-+	ret = blk_read(0, data, 0, 1);
- 	if (ret < 0) {
- 		erofs_err("cannot read erofs superblock: %d", ret);
- 		return -EIO;
-diff --git a/lib/zmap.c b/lib/zmap.c
-index 7dbda87c3b13..9dd0c7633a45 100644
---- a/lib/zmap.c
-+++ b/lib/zmap.c
-@@ -38,7 +38,7 @@ static int z_erofs_fill_inode_lazy(struct erofs_inode *vi)
- 		  vi->datalayout == EROFS_INODE_FLAT_COMPRESSION_LEGACY);
- 	pos = round_up(iloc(vi->nid) + vi->inode_isize + vi->xattr_isize, 8);
- 
--	ret = dev_read(buf, pos, sizeof(buf));
-+	ret = dev_read(0, buf, pos, sizeof(buf));
- 	if (ret < 0)
- 		return -EIO;
- 
-@@ -88,7 +88,7 @@ static int z_erofs_reload_indexes(struct z_erofs_maprecorder *m,
- 	if (map->index == eblk)
- 		return 0;
- 
--	ret = blk_read(mpage, eblk, 1);
-+	ret = blk_read(0, mpage, eblk, 1);
- 	if (ret < 0)
- 		return -EIO;
- 
 diff --git a/mkfs/main.c b/mkfs/main.c
-index 4ea5467679b7..2604bf2abd6b 100644
+index 2604bf2abd6b..740e67be6d13 100644
 --- a/mkfs/main.c
 +++ b/mkfs/main.c
-@@ -436,7 +436,7 @@ static int erofs_mkfs_superblock_csum_set(void)
- 	u32 crc;
- 	struct erofs_super_block *sb;
+@@ -47,6 +47,7 @@ static struct option long_options[] = {
+ 	{"compress-hints", required_argument, NULL, 10},
+ 	{"chunksize", required_argument, NULL, 11},
+ 	{"quiet", no_argument, 0, 12},
++	{"blobdev", required_argument, NULL, 13},
+ #ifdef WITH_ANDROID
+ 	{"mount-point", required_argument, NULL, 512},
+ 	{"product-out", required_argument, NULL, 513},
+@@ -83,6 +84,7 @@ static void usage(void)
+ 	      " -UX                   use a given filesystem UUID\n"
+ #endif
+ 	      " --all-root            make all files owned by root\n"
++	      " --blobdev=X           specify an extra device X for chunk data\n"
+ 	      " --chunksize=#         generate chunk-based files with #-byte chunks\n"
+ 	      " --compress-hints=X    specify a file to configure per-file compression strategy\n"
+ 	      " --exclude-path=X      avoid including file X (X = exact literal path)\n"
+@@ -348,6 +350,9 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 		case 12:
+ 			quiet = true;
+ 			break;
++		case 13:
++			cfg.c_blobdev_path = optarg;
++			break;
+ 		case 1:
+ 			usage();
+ 			exit(0);
+@@ -401,6 +406,8 @@ int erofs_mkfs_update_super_block(struct erofs_buffer_head *bh,
+ 		.feature_incompat = cpu_to_le32(sbi.feature_incompat),
+ 		.feature_compat = cpu_to_le32(sbi.feature_compat &
+ 					      ~EROFS_FEATURE_COMPAT_SB_CHKSUM),
++		.extra_devices = cpu_to_le16(sbi.extra_devices),
++		.devt_slotoff = cpu_to_le16(sbi.devt_slotoff),
+ 	};
+ 	const unsigned int sb_blksize =
+ 		round_up(EROFS_SUPER_END, EROFS_BLKSIZ);
+@@ -549,7 +556,7 @@ int main(int argc, char **argv)
+ 	}
  
--	ret = blk_read(buf, 0, 1);
-+	ret = blk_read(0, buf, 0, 1);
- 	if (ret) {
- 		erofs_err("failed to read superblock to set checksum: %s",
- 			  erofs_strerror(ret));
+ 	if (cfg.c_chunkbits) {
+-		err = erofs_blob_init();
++		err = erofs_blob_init(cfg.c_blobdev_path);
+ 		if (err)
+ 			return 1;
+ 	}
+@@ -626,6 +633,12 @@ int main(int argc, char **argv)
+ 		goto exit;
+ 	}
+ 
++	err = erofs_generate_devtable();
++	if (err) {
++		erofs_err("Failed to generate device table: %s",
++			  erofs_strerror(err));
++		goto exit;
++	}
+ #ifdef HAVE_LIBUUID
+ 	uuid_unparse_lower(sbi.uuid, uuid_str);
+ #endif
 -- 
 2.24.4
 
