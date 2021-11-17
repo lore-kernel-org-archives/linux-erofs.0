@@ -1,46 +1,53 @@
-Return-Path: <SRS0=KC2W=QD=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=uc5s=QE=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=archiver.kernel.org@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B0FC433F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Nov 2021 09:50:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE038C43219
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Nov 2021 01:58:29 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 96EAA6321A
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Nov 2021 09:50:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 96EAA6321A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1BCA663223
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Nov 2021 01:58:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1BCA663223
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HthBL2HSGz2yQ9
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Nov 2021 20:50:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Hv5gR38jQz2yPs
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Nov 2021 12:58:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=au1tqJVK;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
- helo=out30-44.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ smtp.mailfrom=kernel.org (client-ip=198.145.29.99; helo=mail.kernel.org;
+ envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
+ header.s=k20201202 header.b=au1tqJVK; 
+ dkim-atps=neutral
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HthBB0c9cz2y8P
- for <linux-erofs@lists.ozlabs.org>; Tue, 16 Nov 2021 20:50:09 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UwqPg0-_1637056181; 
-Received: from
- e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0UwqPg0-_1637056181) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 16 Nov 2021 17:49:53 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Hv5gJ3XyMz2yKF
+ for <linux-erofs@lists.ozlabs.org>; Wed, 17 Nov 2021 12:58:20 +1100 (AEDT)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 483A861507;
+ Wed, 17 Nov 2021 01:58:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1637114297;
+ bh=PRJryqcWA510OeZ9+pEAM5ITo2Z6coa+TrWWWXs+4x8=;
+ h=From:To:Cc:Subject:Date:From;
+ b=au1tqJVKH/AaO289/+g0UP5TyRkfU2QG2/4LW2ZBu5rMa/8d3qbhKXWQruXsxftWQ
+ ijMzhC0ZYcCNslcA4Ej9q15HwPiQeqV7Q6B9/xB1tv6OIJ8qOVESaVQu20LUwGxs3c
+ CNP01GuqkzniJo24Az5KucaUpKzv6cacLdfzypFCBh8WSHSLnQ1JfkmIv63CFpi70R
+ rHRG2HZnsRkakVgTpOEEmc8dZnkGukXdkp1e1s+PbswtteoRnk5YTcb8tJFLRfFJpw
+ wrsCUpPUFtF5Sv0fv9rPgooxr8Rs1S25Z4Rv0warBptGxLtTavcTHvM2mS5+W0movu
+ T0Vj/0u3GM1ZQ==
+From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4 5/6] erofs-utils: fsck: support multiple devices
-Date: Tue, 16 Nov 2021 17:49:38 +0800
-Message-Id: <20211116094939.32246-6-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20211116094939.32246-1-hsiangkao@linux.alibaba.com>
-References: <20211116094939.32246-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/2] erofs-utils: mkfs: enable block map chunk format
+Date: Wed, 17 Nov 2021 09:57:56 +0800
+Message-Id: <20211117015757.3323-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -54,147 +61,150 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yan Song <imeoer@linux.alibaba.com>, Peng Tao <tao.peng@linux.alibaba.com>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Liu Bo <bo.liu@linux.alibaba.com>,
- Changwei Ge <chge@linux.alibaba.com>, Gao Xiang <hsiangkao@linux.alibaba.com>,
- Liu Jiang <gerry@linux.alibaba.com>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add preliminary multiple device support for fsck feature.
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+
+Use 4-byte block map format by default unless a blob device is
+given or chunk index format is forcely specified.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fsck/main.c | 43 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 10 deletions(-)
+ include/erofs/config.h |  8 +++++++-
+ lib/blobchunk.c        | 12 +++++++-----
+ lib/inode.c            |  5 ++++-
+ man/mkfs.erofs.1       |  6 ++++++
+ mkfs/main.c            | 20 ++++++++++++++++++++
+ 5 files changed, 44 insertions(+), 7 deletions(-)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index b742e3579c59..7bee5605b9df 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -24,6 +24,7 @@ static struct erofsfsck_cfg fsckcfg;
- static struct option long_options[] = {
- 	{"help", no_argument, 0, 1},
- 	{"extract", no_argument, 0, 2},
-+	{"device", required_argument, 0, 3},
- 	{0, 0, 0, 0},
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 8d459c692dac..2040dc6ff154 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -27,6 +27,11 @@ enum {
+ 	FORCE_INODE_EXTENDED,
  };
  
-@@ -34,6 +35,7 @@ static void usage(void)
- 	      " -V              print the version number of fsck.erofs and exit.\n"
- 	      " -d#             set output message level to # (maximum 9)\n"
- 	      " -p              print total compression ratio of all files\n"
-+	      " --device=X      specify an extra device to be used together\n"
- 	      " --extract       check if all files are well encoded\n"
- 	      " --help          display this help and exit.\n",
- 	      stderr);
-@@ -46,7 +48,7 @@ static void erofsfsck_print_version(void)
++enum {
++	FORCE_INODE_BLOCK_MAP = 1,
++	FORCE_INODE_CHUNK_INDEXES,
++};
++
+ enum {
+ 	TIMESTAMP_NONE,
+ 	TIMESTAMP_FIXED,
+@@ -55,7 +60,8 @@ struct erofs_configure {
+ 	char *c_compress_hints_file;
+ 	char *c_compr_alg_master;
+ 	int c_compr_level_master;
+-	int c_force_inodeversion;
++	char c_force_inodeversion;
++	char c_force_chunkformat;
+ 	/* < 0, xattr disabled and INT_MAX, always use inline xattrs */
+ 	int c_inline_xattr_tolerance;
  
- static int erofsfsck_parse_options_cfg(int argc, char **argv)
- {
--	int opt, i;
-+	int opt, ret;
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index a10ca8cc8750..5cbb8315b277 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -110,16 +110,18 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode,
+ 	bool first_extent = true;
+ 	erofs_blk_t base_blkaddr = 0;
  
- 	while ((opt = getopt_long(argc, argv, "Vd:p",
- 				  long_options, NULL)) != -1) {
-@@ -55,12 +57,12 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
- 			erofsfsck_print_version();
- 			exit(0);
- 		case 'd':
--			i = atoi(optarg);
--			if (i < EROFS_MSG_MIN || i > EROFS_MSG_MAX) {
--				erofs_err("invalid debug level %d", i);
-+			ret = atoi(optarg);
-+			if (ret < EROFS_MSG_MIN || ret > EROFS_MSG_MAX) {
-+				erofs_err("invalid debug level %d", ret);
++	if (multidev) {
++		idx.device_id = 1;
++		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
++	} else {
++		base_blkaddr = remapped_base;
++	}
++
+ 	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+ 		unit = sizeof(struct erofs_inode_chunk_index);
+ 	else
+ 		unit = EROFS_BLOCK_MAP_ENTRY_SIZE;
+ 
+-	if (multidev)
+-		idx.device_id = 1;
+-	else
+-		base_blkaddr = remapped_base;
+-
+ 	for (dst = src = 0; dst < inode->extent_isize;
+ 	     src += sizeof(void *), dst += unit) {
+ 		struct erofs_blobchunk *chunk;
+diff --git a/lib/inode.c b/lib/inode.c
+index 855a0383f31e..5cbfc780e45f 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -390,7 +390,10 @@ int erofs_write_file(struct erofs_inode *inode)
+ 
+ 	if (cfg.c_chunkbits) {
+ 		inode->u.chunkbits = cfg.c_chunkbits;
+-		inode->u.chunkformat = EROFS_CHUNK_FORMAT_INDEXES;
++		/* chunk indexes when explicitly specified */
++		inode->u.chunkformat = 0;
++		if (cfg.c_force_chunkformat == FORCE_INODE_CHUNK_INDEXES)
++			inode->u.chunkformat = EROFS_CHUNK_FORMAT_INDEXES;
+ 		return erofs_blob_write_chunked_file(inode);
+ 	}
+ 
+diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
+index 71a26d88121a..f2e7d690c215 100644
+--- a/man/mkfs.erofs.1
++++ b/man/mkfs.erofs.1
+@@ -51,6 +51,12 @@ Forcely generate compact inodes (32-byte inodes) to output.
+ .TP
+ .BI force-inode-extended
+ Forcely generate extended inodes (64-byte inodes) to output.
++.TP
++.BI force-inode-blockmap
++Forcely generate inode chunk format in 4-byte block address array.
++.TP
++.BI force-chunk-indexes
++Forcely generate inode chunk format in 8-byte chunk indexes (with device id).
+ .RE
+ .TP
+ .BI "\-T " #
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 29042c801794..58a64411b868 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -174,6 +174,18 @@ static int parse_extended_opts(const char *opts)
  				return -EINVAL;
- 			}
--			cfg.c_dbg_lvl = i;
-+			cfg.c_dbg_lvl = ret;
- 			break;
- 		case 'p':
- 			fsckcfg.print_comp_ratio = true;
-@@ -71,6 +73,12 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
- 		case 2:
- 			fsckcfg.check_decomp = true;
- 			break;
-+		case 3:
-+			ret = blob_open_ro(optarg);
-+			if (ret)
-+				return ret;
-+			++sbi.extra_devices;
-+			break;
- 		default:
- 			return -EINVAL;
+ 			cfg.c_noinline_data = true;
  		}
-@@ -275,6 +283,7 @@ static int verify_compressed_inode(struct erofs_inode *inode)
- 	struct erofs_map_blocks map = {
- 		.index = UINT_MAX,
- 	};
-+	struct erofs_map_dev mdev;
- 	int ret = 0;
- 	u64 pchunk_len = 0;
- 	erofs_off_t end = inode->i_size;
-@@ -317,10 +326,21 @@ static int verify_compressed_inode(struct erofs_inode *inode)
- 			BUG_ON(!buffer);
- 		}
- 
--		ret = dev_read(0, raw, map.m_pa, map.m_plen);
-+		mdev = (struct erofs_map_dev) {
-+			.m_deviceid = map.m_deviceid,
-+			.m_pa = map.m_pa,
-+		};
-+		ret = erofs_map_dev(&sbi, &mdev);
-+		if (ret) {
-+			erofs_err("failed to map device of m_pa %" PRIu64 ", m_deviceid %u @ nid %llu: %d",
-+				  map.m_pa, map.m_deviceid, inode->nid | 0ULL, ret);
-+			goto out;
++
++		if (MATCH_EXTENTED_OPT("force-inode-blockmap", token, keylen)) {
++			if (vallen)
++				return -EINVAL;
++			cfg.c_force_chunkformat = FORCE_INODE_BLOCK_MAP;
 +		}
 +
-+		ret = dev_read(mdev.m_deviceid, raw, mdev.m_pa, map.m_plen);
- 		if (ret < 0) {
- 			erofs_err("failed to read compressed data of m_pa %" PRIu64 ", m_plen %" PRIu64 " @ nid %llu: %d",
--				  map.m_pa, map.m_plen, inode->nid | 0ULL, ret);
-+				  mdev.m_pa, map.m_plen, inode->nid | 0ULL, ret);
- 			goto out;
- 		}
- 
-@@ -336,7 +356,7 @@ static int verify_compressed_inode(struct erofs_inode *inode)
- 
- 		if (ret < 0) {
- 			erofs_err("failed to decompress data of m_pa %" PRIu64 ", m_plen %" PRIu64 " @ nid %llu: %d",
--				  map.m_pa, map.m_plen, inode->nid | 0ULL, ret);
-+				  mdev.m_pa, map.m_plen, inode->nid | 0ULL, ret);
- 			goto out;
- 		}
++		if (MATCH_EXTENTED_OPT("force-chunk-indexes", token, keylen)) {
++			if (vallen)
++				return -EINVAL;
++			cfg.c_force_chunkformat = FORCE_INODE_CHUNK_INDEXES;
++		}
  	}
-@@ -558,12 +578,12 @@ int main(int argc, char **argv)
- 	err = erofs_read_superblock();
- 	if (err) {
- 		erofs_err("failed to read superblock");
--		goto exit;
-+		goto exit_dev_close;
- 	}
- 
- 	if (erofs_sb_has_sb_chksum() && erofs_check_sb_chksum()) {
- 		erofs_err("failed to verify superblock checksum");
--		goto exit;
-+		goto exit_dev_close;
- 	}
- 
- 	erofs_check_inode(sbi.root_nid, sbi.root_nid);
-@@ -582,7 +602,10 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
-+exit_dev_close:
-+	dev_close();
- exit:
-+	blob_closeall();
- 	erofs_exit_configure();
- 	return err ? 1 : 0;
+ 	return 0;
  }
+@@ -369,6 +381,14 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 		erofs_err("--blobdev must be used together with --chunksize");
+ 		return -EINVAL;
+ 	}
++
++	/* TODO: can be implemented with (deviceslot) mapped_blkaddr */
++	if (cfg.c_blobdev_path &&
++	    cfg.c_force_chunkformat == FORCE_INODE_BLOCK_MAP) {
++		erofs_err("--blobdev cannot work with block map currently");
++		return -EINVAL;
++	}
++
+ 	cfg.c_img_path = strdup(argv[optind++]);
+ 	if (!cfg.c_img_path)
+ 		return -ENOMEM;
 -- 
-2.24.4
+2.20.1
 
