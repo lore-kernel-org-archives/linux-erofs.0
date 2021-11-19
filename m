@@ -2,57 +2,79 @@ Return-Path: <SRS0=ZU6g=QG=lists.ozlabs.org=linux-erofs-bounces+linux-erofs=arch
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBDCDC433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 Nov 2021 14:35:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F7EAC433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 Nov 2021 17:21:40 +0000 (UTC)
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 62B9261265
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 Nov 2021 14:35:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 62B9261265
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 93D4D61A79
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 Nov 2021 17:21:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 93D4D61A79
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.ozlabs.org
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HwfMg0dQgz30JT
-	for <linux-erofs@archiver.kernel.org>; Sat, 20 Nov 2021 01:35:11 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Hwk3k0pB6z3bXW
+	for <linux-erofs@archiver.kernel.org>; Sat, 20 Nov 2021 04:21:38 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=aF5jKuDu;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel-com.20210112.gappssmtp.com header.i=@intel-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=FQ6M7eMM;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linuxfoundation.org (client-ip=198.145.29.99;
- helo=mail.kernel.org; envelope-from=gregkh@linuxfoundation.org;
+ smtp.mailfrom=intel.com (client-ip=2607:f8b0:4864:20::632;
+ helo=mail-pl1-x632.google.com; envelope-from=dan.j.williams@intel.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org
- header.a=rsa-sha256 header.s=korg header.b=aF5jKuDu; 
- dkim-atps=neutral
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=intel-com.20210112.gappssmtp.com
+ header.i=@intel-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=FQ6M7eMM; dkim-atps=neutral
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com
+ [IPv6:2607:f8b0:4864:20::632])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HwfMb0MwRz3054
- for <linux-erofs@lists.ozlabs.org>; Sat, 20 Nov 2021 01:35:07 +1100 (AEDT)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C484261544;
- Fri, 19 Nov 2021 14:35:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1637332505;
- bh=Zs8ojHOvUyupkzVZor19pPn1zCFVJGXGj8wKEL8A9gI=;
- h=Subject:To:Cc:From:Date:In-Reply-To:From;
- b=aF5jKuDuJgOEOqg2soSEW2bD/VcLngZUD52hXWPjzbHcxgKIPA2mwkfApvgA+s4P2
- 2Yoq0rY/9b7IekAUsNkCao9FYoO+v4iFLHzcVBAzLIQ72F35rL7KbkTbt78yINtyK9
- AC9nfFh7kOcr3YW2VjJQRZGadF4DP9y4WJt0n5No=
-Subject: Patch "erofs: remove the occupied parameter from
- z_erofs_pagevec_enqueue()" has been added to the 5.10-stable tree
-To: gregkh@linuxfoundation.org, hsiangkao@linux.alibaba.com, huyue2@yulong.com,
- linux-erofs@lists.ozlabs.org, xiang@kernel.org
-From: <gregkh@linuxfoundation.org>
-Date: Fri, 19 Nov 2021 15:34:54 +0100
-In-Reply-To: <20211116010819.122905-1-hsiangkao@linux.alibaba.com>
-Message-ID: <163733249415942@kroah.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Hwk3Y5fZbz2ywV
+ for <linux-erofs@lists.ozlabs.org>; Sat, 20 Nov 2021 04:21:21 +1100 (AEDT)
+Received: by mail-pl1-x632.google.com with SMTP id k4so8603210plx.8
+ for <linux-erofs@lists.ozlabs.org>; Fri, 19 Nov 2021 09:21:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=intel-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=2U/4HYKnAZR7qNMIeDCg5S//595luEluzFk14uv4gBU=;
+ b=FQ6M7eMMvPf80QsdTpoBZi0VrX8bn7QeX7OvbRABdgkNvCMNjXzl7/FKjSfSUjRkzX
+ F1usfPnFQYNtajLRg0QRwSSgzt8mzXj0XCG2cnk0+F0m/6Zhw3KmrGwYuAHqWjDxU8h7
+ LoqDBYl4kQUeXb8kAZzT8ViJ+hkv5vLV1Goy6Yaluym7CVIoftX3Jldatma/nAYXl27p
+ pclrbJHG5C0Blu/232w4rLGJUG53x/PsyFdu4/UMHnSQZ8XMlr5FFqwE0la2E0Wy9pBi
+ QLaClBcQjJDmbuAEv+kCOvcY8AEg2J0pE5d377NWsFamWj8v0zJjbYMN2j8PjhK8WH2h
+ Pe+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=2U/4HYKnAZR7qNMIeDCg5S//595luEluzFk14uv4gBU=;
+ b=d2Nyh8bnOyM6Ggq83RPPn1nUExJhXKSs/BhSVonhS80q/ZqaW9WZEPyQLO7ygU9Nic
+ pr9vZCKTuJcz8DCZ5c6PEFu+rnF9Tbuo5DYpRwZcPBwPRTFjPoAT+XmtxgV1BYSA+vx2
+ koTVGbIVxE8CBmPlOMiaLIXDyC8E6Kb5S6iHPN2RoelBOJ2KhBr5x1wy86R6L5UHf1on
+ 0anTBclxPJwkO9A6lRULCH7/W/Qr/o1wXvq2pnqaIogo8qjbYzBudcq3bwJLLbwPz06X
+ XupstiNIGKw0OX32avLgCV5KHDoBQONGHXtRXfQTJoipqBf3UrK4jdRb/GAKeZ0Ji/sN
+ 2QGA==
+X-Gm-Message-State: AOAM530M8gWfxFD9xC4B6cVlJj0KVNCn7pE2NFx/ylb8vlIct2aMdw5d
+ v8FOvK3x0BsOnB7MCQTpR74jtEO1gROna8cuZ/5vYw==
+X-Google-Smtp-Source: ABdhPJxOTsb7kpZ1mbQBZyHvrw/GjkoPNdlC1Mnmi7QTa5v33P77eZ447VYbGdz8Hsj3aBiYzZhGTejFWOktm98P3BA=
+X-Received: by 2002:a17:90b:1e49:: with SMTP id
+ pi9mr1505670pjb.220.1637342480174; 
+ Fri, 19 Nov 2021 09:21:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-stable: commit
-X-Patchwork-Hint: ignore 
+References: <20211109083309.584081-1-hch@lst.de>
+ <20211109083309.584081-2-hch@lst.de>
+ <CAPcyv4ijKTcABMs2tZEuPWo1WDOux+4XWN=DNF5v8SrQRSbfDg@mail.gmail.com>
+ <20211119065645.GB15524@lst.de>
+In-Reply-To: <20211119065645.GB15524@lst.de>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Fri, 19 Nov 2021 09:21:09 -0800
+Message-ID: <CAPcyv4iFG0n-vdaEi4h5ken6mPrgW6Kz6UXCTRfaHi-c99GBnw@mail.gmail.com>
+Subject: Re: [PATCH 01/29] nvdimm/pmem: move dax_attribute_group from dax to
+ pmem
+To: Christoph Hellwig <hch@lst.de>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,98 +86,45 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: stable-commits@vger.kernel.org
+Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
+ linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
+ virtualization@lists.linux-foundation.org,
+ linux-xfs <linux-xfs@vger.kernel.org>,
+ device-mapper development <dm-devel@redhat.com>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ linux-ext4 <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Thu, Nov 18, 2021 at 10:56 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> On Wed, Nov 17, 2021 at 09:44:25AM -0800, Dan Williams wrote:
+> > On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
+> > >
+> > > dax_attribute_group is only used by the pmem driver, and can avoid the
+> > > completely pointless lookup by the disk name if moved there.  This
+> > > leaves just a single caller of dax_get_by_host, so move dax_get_by_host
+> > > into the same ifdef block as that caller.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > > Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+> > > Link: https://lore.kernel.org/r/20210922173431.2454024-3-hch@lst.de
+> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> >
+> > This one already made v5.16-rc1.
+>
+> Yes, but 5.16-rc1 did not exist yet when I pointed the series.
+>
+> Note that the series also has a conflict against 5.16-rc1 in pmem.c,
+> and buildbot pointed out the file systems need explicit dax.h
+> includes in a few files for some configurations.
+>
+> The current branch is here, I just did not bother to repost without
+> any comments:
+>
+>    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dax-block-cleanup
+>
+> no functional changes.
 
-This is a note to let you know that I've just added the patch titled
-
-    erofs: remove the occupied parameter from z_erofs_pagevec_enqueue()
-
-to the 5.10-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     erofs-remove-the-occupied-parameter-from-z_erofs_pagevec_enqueue.patch
-and it can be found in the queue-5.10 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From foo@baz Fri Nov 19 03:21:54 PM CET 2021
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-Date: Tue, 16 Nov 2021 09:08:18 +0800
-Subject: erofs: remove the occupied parameter from z_erofs_pagevec_enqueue()
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org
-Cc: linux-erofs@lists.ozlabs.org, Yue Hu <huyue2@yulong.com>, Gao Xiang <xiang@kernel.org>, Gao Xiang <hsiangkao@linux.alibaba.com>
-Message-ID: <20211116010819.122905-1-hsiangkao@linux.alibaba.com>
-
-From: Yue Hu <huyue2@yulong.com>
-
-commit 7dea3de7d384f4c8156e8bd93112ba6db1eb276c upstream.
-
-No any behavior to variable occupied in z_erofs_attach_page() which
-is only caller to z_erofs_pagevec_enqueue().
-
-Link: https://lore.kernel.org/r/20210419102623.2015-1-zbestahu@gmail.com
-Signed-off-by: Yue Hu <huyue2@yulong.com>
-Reviewed-by: Gao Xiang <xiang@kernel.org>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/erofs/zdata.c |    4 +---
- fs/erofs/zpvec.h |    5 +----
- 2 files changed, 2 insertions(+), 7 deletions(-)
-
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -282,7 +282,6 @@ static int z_erofs_attach_page(struct z_
- 			       enum z_erofs_page_type type)
- {
- 	int ret;
--	bool occupied;
- 
- 	/* give priority for inplaceio */
- 	if (clt->mode >= COLLECT_PRIMARY &&
-@@ -290,8 +289,7 @@ static int z_erofs_attach_page(struct z_
- 	    z_erofs_try_inplace_io(clt, page))
- 		return 0;
- 
--	ret = z_erofs_pagevec_enqueue(&clt->vector,
--				      page, type, &occupied);
-+	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
- 	clt->cl->vcnt += (unsigned int)ret;
- 
- 	return ret ? 0 : -EAGAIN;
---- a/fs/erofs/zpvec.h
-+++ b/fs/erofs/zpvec.h
-@@ -107,10 +107,8 @@ static inline void z_erofs_pagevec_ctor_
- 
- static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
- 					   struct page *page,
--					   enum z_erofs_page_type type,
--					   bool *occupied)
-+					   enum z_erofs_page_type type)
- {
--	*occupied = false;
- 	if (!ctor->next && type)
- 		if (ctor->index + 1 == ctor->nr)
- 			return false;
-@@ -125,7 +123,6 @@ static inline bool z_erofs_pagevec_enque
- 	/* should remind that collector->next never equal to 1, 2 */
- 	if (type == (uintptr_t)ctor->next) {
- 		ctor->next = page;
--		*occupied = true;
- 	}
- 	ctor->pages[ctor->index++] = tagptr_fold(erofs_vtptr_t, page, type);
- 	return true;
-
-
-Patches currently in stable-queue which might be from hsiangkao@linux.alibaba.com are
-
-queue-5.10/erofs-fix-unsafe-pagevec-reuse-of-hooked-pclusters.patch
-queue-5.10/erofs-remove-the-occupied-parameter-from-z_erofs_pagevec_enqueue.patch
+Do you just want to send me a pull request after you add all the acks?
