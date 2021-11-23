@@ -4,68 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B7BD7C433F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Nov 2021 03:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 310F7C433EF
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Nov 2021 03:51:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4HyqgN1D3qz2ybD
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Nov 2021 14:41:20 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4HyqvK4SrZz2yb9
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Nov 2021 14:51:41 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel-com.20210112.gappssmtp.com header.i=@intel-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=Y08/be2u;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel-com.20210112.gappssmtp.com header.i=@intel-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=jaUppntJ;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=2607:f8b0:4864:20::102b;
- helo=mail-pj1-x102b.google.com; envelope-from=dan.j.williams@intel.com;
+ smtp.mailfrom=intel.com (client-ip=2607:f8b0:4864:20::1033;
+ helo=mail-pj1-x1033.google.com; envelope-from=dan.j.williams@intel.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=intel-com.20210112.gappssmtp.com
  header.i=@intel-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=Y08/be2u; dkim-atps=neutral
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com
- [IPv6:2607:f8b0:4864:20::102b])
+ header.s=20210112 header.b=jaUppntJ; dkim-atps=neutral
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
+ [IPv6:2607:f8b0:4864:20::1033])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4HyqgJ3KM3z2xrP
- for <linux-erofs@lists.ozlabs.org>; Tue, 23 Nov 2021 14:41:15 +1100 (AEDT)
-Received: by mail-pj1-x102b.google.com with SMTP id
- w33-20020a17090a6ba400b001a722a06212so1231827pjj.0
- for <linux-erofs@lists.ozlabs.org>; Mon, 22 Nov 2021 19:41:15 -0800 (PST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4HyqvC0Q4dz2yNr
+ for <linux-erofs@lists.ozlabs.org>; Tue, 23 Nov 2021 14:51:28 +1100 (AEDT)
+Received: by mail-pj1-x1033.google.com with SMTP id v23so15502408pjr.5
+ for <linux-erofs@lists.ozlabs.org>; Mon, 22 Nov 2021 19:51:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=yuisy9zT1caIpoCJEL+LfomruK38WXIi70xmI7lYDdI=;
- b=Y08/be2uy1a6FHo2yuq5V6dIERIFe+eeTyXLXTKFjFxfAYARUBwDdqRv9XulygxcF5
- 4zZfKtYGqV6eckQSPyIqI+Gn3GMQFWIP9FXR6DHHwN+9GDnZm18bVZGFa88rvhT3Zhp8
- eBxG8SJu0LWqmuhUvXdN5Q8E0N7Fv2c7+1ZOSnPpTxrI3q5JIXNMGFvAj0k+TWuhQgQG
- tLoyO8DVm7L0ndxV5dBnp+whJ587dE90ANm0vqzPKJbxSHtsEtd3ERFpgMcAPItk+09G
- dbm69RRAjzWoV6a6vlvEHV0tkZfEJqiOGj5p0uoKbINk6WBGJnIFfCSAm3gIT8TG78mL
- kVoQ==
+ :cc; bh=set6lIbZWt1UwkjEncJQUmHWp82483Zo0VHgKUnBt0w=;
+ b=jaUppntJAg9/mAuYY2fdr9gBd/oPSVvQjQU9MV63keKS4G12JP+nEpEbf/XFgQhTnX
+ lYhroHBz4A/n/ueNjXRdi4PGz3IaMMWx7LGsyQ+k3PmsLBwgA59MgQmr1YDS9DWkwjiz
+ h84Lz9nQApqhFCv5vhWhKtFCwv3whkuknXHpmp6xY5puSg20rPurJJzE+22u3JyTEE6e
+ V2urCXYlCDQCwVaaqgneBsM+4H995+ijZVTqf+fHfdEatR6QlNecFf1J/UGHfHqEPUgZ
+ uA/eGzna5QhHm2jHR+WAFoVlyr/aaF9uDy12SjgTOzdukRcbvTwMgK4DzpeCeqXvlNDK
+ as+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=yuisy9zT1caIpoCJEL+LfomruK38WXIi70xmI7lYDdI=;
- b=k/dfrYGJOnyspHc85cS0jJv6VOCyPzPlj6jWQN4hOivPHDQEd5GqT1pA2tisCqYuQb
- yZolpI2oGXfZDNephU4WvSzn0RsLDPV9xwSPSanJbNQA7BpAf0tHHXsUilE9gtfIn41Y
- tx9rmuORT9K6zX33RlY+et1o8nhXQZiARYx3dirYXKDCsLfrxECKzjUWkzffoLnlFnb5
- ccpZvyC01FCWxrvHXl7LPksJUm3zDABwS8rUQbkNuf5CDleFTdGlQjGXFMlTdecrLg12
- 56p0PmjJClUhT1SDmvz2icdbCVG6VIOMlZZmJ0SbP6XLWhf6E22Um/dRgt3MGBczqIU/
- P8mA==
-X-Gm-Message-State: AOAM530Yd/yoxRdwvKjEsNXq3DzcUPZgeo7QqAqSW53wzxlSVH/jbqwh
- GhwK1/HbPJhXJkeNCVrvLjXocpx2AB8TAFfpBZ/x1BXKBiw=
-X-Google-Smtp-Source: ABdhPJwgBzEQtBEEt5JgwawqvX/CZbZsaXh/qAQWeeflxeagBI6MsJ+fyqKdfOXHrkiL5G4d5gMRZlq/mNM2Mj9gTds=
-X-Received: by 2002:a17:90b:1e07:: with SMTP id
- pg7mr2525502pjb.93.1637638872640; 
- Mon, 22 Nov 2021 19:41:12 -0800 (PST)
+ bh=set6lIbZWt1UwkjEncJQUmHWp82483Zo0VHgKUnBt0w=;
+ b=yNGkSbnG4HKjIsmLT8bLLo54nR42CghwqeUSF5SbOqKtU2HP7v1Y0VJLJCsJtlqiQA
+ WB+y6K9xCP98gSlJhMY/mGWwCd+RC1WUtHQj1VMWbXUN7j4tvJ+nY4+xUR6qd/47cp+0
+ bN83rwD7ewFhMBfbtsFAIXU5KIqkZwni5RqLYa7CV4bsEUyTfG3y+keLvz4MxvrxQXDK
+ l2TbXuPPcRVe/3TMM/3CrbJzehEG/8/Hj+2KuQmOYXAwOvGln7OVIHLVgwRMhxc2gL5b
+ cqFvrZlKgnS61TGWKPzTOI5eu7UB0/XbuSvDoOKIQXDruE+4Nx2zI4QGOE7/epvWIb/u
+ BYag==
+X-Gm-Message-State: AOAM533RciXkIhMqjoOuFTa8z0GohraIjbQSYvbfvNuD1qnpprgpXOLR
+ h7FmBjJnnvOQvu9dS0Ii6AX628gHWRh+uUYRK3R1JA==
+X-Google-Smtp-Source: ABdhPJwgdeM7vJZ2DKKwalEr7KeonINU2K18nZr67CpB7ixzXQKpSb7Eol7dgHhzUPEgLb+CGDYy92xBtwbeaxDZs1M=
+X-Received: by 2002:a17:902:6acb:b0:142:76c3:d35f with SMTP id
+ i11-20020a1709026acb00b0014276c3d35fmr2967201plt.89.1637639486743; Mon, 22
+ Nov 2021 19:51:26 -0800 (PST)
 MIME-Version: 1.0
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-7-hch@lst.de>
-In-Reply-To: <20211109083309.584081-7-hch@lst.de>
+ <20211109083309.584081-8-hch@lst.de>
+In-Reply-To: <20211109083309.584081-8-hch@lst.de>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Mon, 22 Nov 2021 19:41:01 -0800
-Message-ID: <CAPcyv4imYR=NLizABpZA+gKH+amNQ6jcVNQhtF+1jyevdWzmBw@mail.gmail.com>
-Subject: Re: [PATCH 06/29] dax: move the partition alignment check into
- fs_dax_get_by_bdev
+Date: Mon, 22 Nov 2021 19:51:15 -0800
+Message-ID: <CAPcyv4jnLdFaDwLTeRhJcTzyjd-psZRgWqVDqzOAZr3EGLbF2w@mail.gmail.com>
+Subject: Re: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
 To: Christoph Hellwig <hch@lst.de>
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -92,9 +90,10 @@ Sender: "Linux-erofs"
 
 On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> fs_dax_get_by_bdev is the primary interface to find a dax device for a
-> block device, so move the partition alignment check there instead of
-> wiring it up through ->dax_supported.
+> Factor out another DAX setup helper to simplify future changes.  Also
+> move the experimental warning after the checks to not clutter the log
+> too much if the setup failed.
 >
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
