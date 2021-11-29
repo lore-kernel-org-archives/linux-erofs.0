@@ -4,13 +4,13 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88C0AC433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C7D4C433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:04 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJ41nCSz305K
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:00 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJ66ChWz3cR1
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=SvmFV2K6;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=WyDrKe/B;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -19,37 +19,34 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=SvmFV2K6; 
+ header.s=casper.20170209 header.b=WyDrKe/B; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHQ0Jtlz3cWC
- for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:25 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHQ0yH4z2yg5
+ for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:23 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
- References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
- Content-Type:Content-ID:Content-Description;
- bh=UKPlOruGYXgvpYiUrVEWmqUFKgTCebZbbinpg8lZZWY=; b=SvmFV2K6BH98rrmkUK23eJq8Cc
- SPT1+17YYhBTJUiEA9tDobk8ioPedPiE6jDfNf42bafFOCuj89DFF2p0sihzAHHuUkXcDEQ7GtEYh
- bhHvoDwGNRLm3n0ZKz40+9tRqbZb2Hn2GB6MDQxBSrsHGvPLmYcNk7h2QMEIphbr+BSzGHi8JWZ5R
- HhD6rXsQlVJJohX5fBVJUPP2hyWiIA9UbqnEvL63jQIe6dpMazA8WnsmiSAnfOCv5EoH1ier71Ujd
- EY9138E0le+Ibmm+92S3jdMVeSzCje+1mE/7lAesO/5a3TQpCXoFvA80C9uf9cjZaua/RMNT9UwpS
- O6+CA6jQ==;
+ Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+ Content-Description:In-Reply-To:References;
+ bh=y+N6T9OX7HOXSR0XwGBs9AqYCmtI5mlyJgGLesZ2HD4=; b=WyDrKe/Bh7nQ7b/8LTVDbNFSYn
+ EXxq5n73/ibf7zm6FmAT7XVapvybXUPlIXP78x4LNgdHQjtaVpQbj3XC2X3raEe99lvIRSxOmR7wW
+ HiLQFMH92Ia/3oGO/pOBIv+fFbSdLCDdMhrsch/OnvhZd5mpH/29mtxEaEAJmrkCBxOc1wfFWNiM6
+ rh/11Uz6PTBjfTQAj6T0jTJTP6rj3K0mpycAiDunQm4hT8eUpq7Ss6q5cooBawGxSohnff0n4TPZ4
+ A9BNZkhL6PdqBIQElzxZLhNJAaZpf1SaVpH4aSbq7eHNN5/AkQlQrGoHjmlPCKPlRx4cjrl73Dh/y
+ 2ICGPwQA==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnY-0073Kv-0W; Mon, 29 Nov 2021 10:22:13 +0000
+ id 1mrdnP-0073IP-RJ; Mon, 29 Nov 2021 10:22:04 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 06/29] dax: move the partition alignment check into
- fs_dax_get_by_bdev
-Date: Mon, 29 Nov 2021 11:21:40 +0100
-Message-Id: <20211129102203.2243509-7-hch@lst.de>
+Subject: decouple DAX from block devices v2
+Date: Mon, 29 Nov 2021 11:21:34 +0100
+Message-Id: <20211129102203.2243509-1-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
-References: <20211129102203.2243509-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
@@ -74,64 +71,21 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-fs_dax_get_by_bdev is the primary interface to find a dax device for a
-block device, so move the partition alignment check there instead of
-wiring it up through ->dax_supported.
+Hi Dan,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/dax/super.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+this series decouples the DAX from the block layer so that the
+block_device is not needed at all for the DAX I/O path.
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index c8500b7e2d8a2..f2cef47bdeafd 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -92,6 +92,12 @@ struct dax_device *fs_dax_get_by_bdev(struct block_device *bdev)
- 	if (!blk_queue_dax(bdev->bd_disk->queue))
- 		return NULL;
- 
-+	if ((get_start_sect(bdev) * SECTOR_SIZE) % PAGE_SIZE ||
-+	    (bdev_nr_sectors(bdev) * SECTOR_SIZE) % PAGE_SIZE) {
-+		pr_info("%pg: error: unaligned partition for dax\n", bdev);
-+		return NULL;
-+	}
-+
- 	id = dax_read_lock();
- 	dax_dev = xa_load(&dax_hosts, (unsigned long)bdev->bd_disk);
- 	if (!dax_dev || !dax_alive(dax_dev) || !igrab(&dax_dev->inode))
-@@ -106,10 +112,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
- 		struct block_device *bdev, int blocksize, sector_t start,
- 		sector_t sectors)
- {
--	pgoff_t pgoff, pgoff_end;
--	sector_t last_page;
--	int err;
--
- 	if (blocksize != PAGE_SIZE) {
- 		pr_info("%pg: error: unsupported blocksize for dax\n", bdev);
- 		return false;
-@@ -120,19 +122,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
- 		return false;
- 	}
- 
--	err = bdev_dax_pgoff(bdev, start, PAGE_SIZE, &pgoff);
--	if (err) {
--		pr_info("%pg: error: unaligned partition for dax\n", bdev);
--		return false;
--	}
--
--	last_page = PFN_DOWN((start + sectors - 1) * 512) * PAGE_SIZE / 512;
--	err = bdev_dax_pgoff(bdev, last_page, PAGE_SIZE, &pgoff_end);
--	if (err) {
--		pr_info("%pg: error: unaligned partition for dax\n", bdev);
--		return false;
--	}
--
- 	return true;
- }
- EXPORT_SYMBOL_GPL(generic_fsdax_supported);
--- 
-2.30.2
-
+Changes since v1:
+ - rebase on latest v5.16-rc
+ - ensure the new dax zeroing helpers are always declared
+ - fix a dax_dev leak in pmem_attach_disk
+ - remove '\n' from an xfs format string
+ - fix a pre-existing error handling bug in alloc_dev
+ - fix a few whitespace issues
+ - tighten an error check
+ - use s64/u64 a little more
+ - improve a few commit messages
+ - add a CONFIG_FS_DAX ifdef to stub out IOMAP_DAX
+ - improve how IOMAP_DAX is introduced and better document why it is
+   added
