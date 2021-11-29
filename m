@@ -4,13 +4,13 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F130C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EABAEC433EF
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJG5jLmz3cCs
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJK3g3gz3cQq
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:13 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=tooSDpcq;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=ohP17clv;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -19,33 +19,34 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=tooSDpcq; 
+ header.s=casper.20170209 header.b=ohP17clv; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHR49K8z2yb3
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHP6Plxz30Bl
  for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:23 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=Og+Y/LRPMRgZw3tJ8cXpjgwviRJJrJn9nJJ+2xu2tuc=; b=tooSDpcqoQvrM3NLXmSjjO50ZQ
- 9UtXgS8Bhc9kkeWfQhlUoq3T9ey8lcuv8ncdemQh5KsRP2pvu0PfDhZrdgpyTiKVqNZx6GyKStLHU
- TaAD+KLUIaflLvjfbJV04HNPduJ6Mu/D8l/kdCHMA3TZWYRPw8OOP2Nv7YS+CzVkyPik0zUGa7JJN
- H7+OFwwh5010zD43YpZf8N1KPxlt2ij0T/naH7tL/2Ea7g6pF/BMTzbmZJVmzdK8/3vTd+xXjBW7d
- 4MfbNzP5khcvpQf0UN9SkRifFylostsyI1RqNuYh6bxeDOhCCC+DzvF94M6PYtfh3vMEh+3K7Xeqc
- fy0SIHBw==;
+ bh=HTYz1Y4fNAv5SZChQtzZKEkNd3Xtp7cxZoXIJv9I/xw=; b=ohP17clv9ahgRF0mMUPu1BGXCK
+ InQHe7q66/HGMyv/EbZ2YrEebFIa6MqqWlQWIw4eXXIkZsbUsCLHtuEIh5UkkIYzRRG6reTKsCe/2
+ Rb4sEfH2fBQua+/kli1m0iJGOGA6uTmNOP/eOTV2y2ZxYnFgPf3a+MzasrkeyF0aIsT8TP6sJpVmy
+ 15p+47WfRD2HYDOFwU0ueYMlkkZEx/lSztYpzR1hA6mj4OU8iXu1ayOWxddZ/ArA+QsEJYUXjJQJY
+ 7Roodc5quZBW5ffArMTrNCv/bipKcfD+YS5IGK2R5Sessr1MSRkfFXC5byYipBOEK2m9VF5Pmi+b8
+ Zc/bD2/g==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnR-0073Ig-7d; Mon, 29 Nov 2021 10:22:06 +0000
+ id 1mrdnW-0073KW-JZ; Mon, 29 Nov 2021 10:22:11 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 01/29] dm: fix alloc_dax error handling in alloc_dev
-Date: Mon, 29 Nov 2021 11:21:35 +0100
-Message-Id: <20211129102203.2243509-2-hch@lst.de>
+Subject: [PATCH 05/29] dax: remove the pgmap sanity checks in
+ generic_fsdax_supported
+Date: Mon, 29 Nov 2021 11:21:39 +0100
+Message-Id: <20211129102203.2243509-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
 References: <20211129102203.2243509-1-hch@lst.de>
@@ -73,31 +74,84 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Make sure ->dax_dev is NULL on error so that the cleanup path doesn't
-trip over an ERR_PTR.
+Drivers that register a dax_dev should make sure it works, no need
+to double check from the file system.
 
-Reported-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/md/dm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dax/super.c | 49 +--------------------------------------------
+ 1 file changed, 1 insertion(+), 48 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 662742a310cbb..acc84dc1bded5 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1786,8 +1786,10 @@ static struct mapped_device *alloc_dev(int minor)
- 	if (IS_ENABLED(CONFIG_DAX_DRIVER)) {
- 		md->dax_dev = alloc_dax(md, md->disk->disk_name,
- 					&dm_dax_ops, 0);
--		if (IS_ERR(md->dax_dev))
-+		if (IS_ERR(md->dax_dev)) {
-+			md->dax_dev = NULL;
- 			goto bad;
-+		}
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index bf77c3da5d56d..c8500b7e2d8a2 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -106,13 +106,9 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 		struct block_device *bdev, int blocksize, sector_t start,
+ 		sector_t sectors)
+ {
+-	bool dax_enabled = false;
+ 	pgoff_t pgoff, pgoff_end;
+-	void *kaddr, *end_kaddr;
+-	pfn_t pfn, end_pfn;
+ 	sector_t last_page;
+-	long len, len2;
+-	int err, id;
++	int err;
+ 
+ 	if (blocksize != PAGE_SIZE) {
+ 		pr_info("%pg: error: unsupported blocksize for dax\n", bdev);
+@@ -137,49 +133,6 @@ bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 		return false;
  	}
  
- 	format_dev_t(md->name, MKDEV(_major, minor));
+-	id = dax_read_lock();
+-	len = dax_direct_access(dax_dev, pgoff, 1, &kaddr, &pfn);
+-	len2 = dax_direct_access(dax_dev, pgoff_end, 1, &end_kaddr, &end_pfn);
+-
+-	if (len < 1 || len2 < 1) {
+-		pr_info("%pg: error: dax access failed (%ld)\n",
+-				bdev, len < 1 ? len : len2);
+-		dax_read_unlock(id);
+-		return false;
+-	}
+-
+-	if (IS_ENABLED(CONFIG_FS_DAX_LIMITED) && pfn_t_special(pfn)) {
+-		/*
+-		 * An arch that has enabled the pmem api should also
+-		 * have its drivers support pfn_t_devmap()
+-		 *
+-		 * This is a developer warning and should not trigger in
+-		 * production. dax_flush() will crash since it depends
+-		 * on being able to do (page_address(pfn_to_page())).
+-		 */
+-		WARN_ON(IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API));
+-		dax_enabled = true;
+-	} else if (pfn_t_devmap(pfn) && pfn_t_devmap(end_pfn)) {
+-		struct dev_pagemap *pgmap, *end_pgmap;
+-
+-		pgmap = get_dev_pagemap(pfn_t_to_pfn(pfn), NULL);
+-		end_pgmap = get_dev_pagemap(pfn_t_to_pfn(end_pfn), NULL);
+-		if (pgmap && pgmap == end_pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX
+-				&& pfn_t_to_page(pfn)->pgmap == pgmap
+-				&& pfn_t_to_page(end_pfn)->pgmap == pgmap
+-				&& pfn_t_to_pfn(pfn) == PHYS_PFN(__pa(kaddr))
+-				&& pfn_t_to_pfn(end_pfn) == PHYS_PFN(__pa(end_kaddr)))
+-			dax_enabled = true;
+-		put_dev_pagemap(pgmap);
+-		put_dev_pagemap(end_pgmap);
+-
+-	}
+-	dax_read_unlock(id);
+-
+-	if (!dax_enabled) {
+-		pr_info("%pg: error: dax support not enabled\n", bdev);
+-		return false;
+-	}
+ 	return true;
+ }
+ EXPORT_SYMBOL_GPL(generic_fsdax_supported);
 -- 
 2.30.2
 
