@@ -4,65 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88036C433F5
-	for <linux-erofs@archiver.kernel.org>; Sat, 27 Nov 2021 19:06:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4802EC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J1h1G4LCpz307W
-	for <linux-erofs@archiver.kernel.org>; Sun, 28 Nov 2021 06:06:42 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJ143Y9z3c5l
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:22:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=mmZTvR2S;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=Y8DZYvud;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org;
- envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
+ smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
+ helo=casper.infradead.org;
+ envelope-from=batv+13c9c90cf431a9f4f7f6+6672+infradead.org+hch@casper.srs.infradead.org;
+ receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256
- header.s=k20201202 header.b=mmZTvR2S; 
+ secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
+ header.s=casper.20170209 header.b=Y8DZYvud; 
  dkim-atps=neutral
-X-Greylist: delayed 498 seconds by postgrey-1.36 at boromir;
- Sun, 28 Nov 2021 06:06:40 AEDT
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
- bits)) (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J1h1D114Tz3bXV
- for <linux-erofs@lists.ozlabs.org>; Sun, 28 Nov 2021 06:06:39 +1100 (AEDT)
-Received: from mail.kernel.org (unknown [198.145.29.99])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 4F12260EC1;
- Sat, 27 Nov 2021 18:58:17 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPS id B32D160174;
- Sat, 27 Nov 2021 18:58:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1638039496;
- bh=8nQ53Up+ro1K0NzJ9qoy6TvyU4mDwcYEHjLnlaxulNo=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=mmZTvR2SBtukDiPVwOMMh/uvzFFRzXORAhRm2tlL+U6xglULRdWQi8th+RMaKin7P
- EX9A6utcWA1dmMlXwndVZrdKGDSl5tR8Q5lS21XjM60F4NgwXbrfbDCTVbf14wXJ+4
- HRjCcqrqrSJgOElrsRoQW4uC90htb8B73U8YYQviw35fsUe6f2H8fo2Qz4BaQGND/3
- be+mEw7IXfhPjzZXL6C2A0Bm5UrArp0YNUHQLY8Jqj+9D89SscNUQojpDRDqTjv/EF
- 6LNLHkX811fh2zRRuh67L0h4bO+oH4+mbPM+6d9mks2tiRDFsw83bXynCaOG7NXnxQ
- Rkn16I9+wehhw==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain
- [127.0.0.1])
- by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id AD91C60074;
- Sat, 27 Nov 2021 18:58:16 +0000 (UTC)
-Subject: Re: [GIT PULL] erofs fixes for 5.16-rc3
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20211127045306.GA17766@hsiangkao-HP-ZHAN-66-Pro-G1>
-References: <20211127045306.GA17766@hsiangkao-HP-ZHAN-66-Pro-G1>
-X-PR-Tracked-List-Id: Development of Linux EROFS file system
- <linux-erofs.lists.ozlabs.org>
-X-PR-Tracked-Message-Id: <20211127045306.GA17766@hsiangkao-HP-ZHAN-66-Pro-G1>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git
- tags/erofs-for-5.16-rc3-fixes
-X-PR-Tracked-Commit-Id: 57bbeacdbee72a54eb97d56b876cf9c94059fc34
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 52dc4c640ac5521cc95b3b87f9d2d276c12c07bb
-Message-Id: <163803949670.17852.12698146502651849127.pr-tracker-bot@kernel.org>
-Date: Sat, 27 Nov 2021 18:58:16 +0000
-To: Gao Xiang <xiang@kernel.org>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHR4Sn2z3cY4
+ for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:27 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+ References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+ Content-Type:Content-ID:Content-Description;
+ bh=pF7o2XZaeCSXZgokxwNptFBQJgxMldOSCvDZoV+K934=; b=Y8DZYvudjPxHVJkoQC7Cucvayq
+ FzVr6VxuTgx17YYUddKef4eiP/Scvn/LH6anQ7cDBMad/w83U+GeaRCyPWJhmOjMS9FCCkXFMlbDF
+ JDIgkE0Qg735Q8B+T3VkRI2AWaB87iNqCsi81LR0X2iwEHAD/LkpGT8vB6Is4cAwLUE7h3vvv55xR
+ NfOM7Yyv5raJ1oB8cU9cWFxxUcJLY3uQUXdAVHfVLoO2IpJwC14bIxQQI1cHAvfTgdP48X7Oyq4zQ
+ ntiKEyhSxW6uRhpGW9+ZrnwHG8DLQb9PZhoXDK2WzqHOM1KY0pZ8TXheo6HE1eFMhOp3xMAXKgmE7
+ wg2K2xZg==;
+Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1mrdnc-0073MS-7i; Mon, 29 Nov 2021 10:22:17 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 09/29] dm-linear: add a linear_dax_pgoff helper
+Date: Mon, 29 Nov 2021 11:21:43 +0100
+Message-Id: <20211129102203.2243509-10-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
+References: <20211129102203.2243509-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ casper.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,22 +64,110 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Miao Xie <miaoxie@huawei.com>, linux-erofs@lists.ozlabs.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- LKML <linux-kernel@vger.kernel.org>
+Cc: nvdimm@lists.linux.dev, Mike Snitzer <snitzer@redhat.com>,
+ linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
+ dm-devel@redhat.com, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ Ira Weiny <ira.weiny@intel.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The pull request you sent on Sat, 27 Nov 2021 12:53:09 +0800:
+Add a helper to perform the entire remapping for DAX accesses.  This
+helper open codes bdev_dax_pgoff given that the alignment checks have
+already been done by the submitting file system and don't need to be
+repeated.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-5.16-rc3-fixes
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Mike Snitzer <snitzer@redhat.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/md/dm-linear.c | 49 +++++++++++++-----------------------------
+ 1 file changed, 15 insertions(+), 34 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/52dc4c640ac5521cc95b3b87f9d2d276c12c07bb
-
-Thank you!
-
+diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
+index 0a260c35aeeed..90de42f6743ac 100644
+--- a/drivers/md/dm-linear.c
++++ b/drivers/md/dm-linear.c
+@@ -163,63 +163,44 @@ static int linear_iterate_devices(struct dm_target *ti,
+ }
+ 
+ #if IS_ENABLED(CONFIG_FS_DAX)
++static struct dax_device *linear_dax_pgoff(struct dm_target *ti, pgoff_t *pgoff)
++{
++	struct linear_c *lc = ti->private;
++	sector_t sector = linear_map_sector(ti, *pgoff << PAGE_SECTORS_SHIFT);
++
++	*pgoff = (get_start_sect(lc->dev->bdev) + sector) >> PAGE_SECTORS_SHIFT;
++	return lc->dev->dax_dev;
++}
++
+ static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
+ 		long nr_pages, void **kaddr, pfn_t *pfn)
+ {
+-	long ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+-
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages * PAGE_SIZE, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
+ }
+ 
+ static size_t linear_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+ 
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
+ }
+ 
+ static size_t linear_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+ 
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
+ }
+ 
+ static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
+ 				      size_t nr_pages)
+ {
+-	int ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+-
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages << PAGE_SHIFT, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_zero_page_range(dax_dev, pgoff, nr_pages);
+ }
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.30.2
+
