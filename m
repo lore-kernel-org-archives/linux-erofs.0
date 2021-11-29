@@ -4,13 +4,13 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1EA25C433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A29CC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 10:23:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJQ4XlZz3cZP
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J2hJT1CZmz3cTX
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Nov 2021 21:23:21 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=dFflzIo0;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=Qve86oEP;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  smtp.mailfrom=casper.srs.infradead.org (client-ip=2001:8b0:10b:1236::1;
@@ -19,33 +19,33 @@ Authentication-Results: lists.ozlabs.org; spf=none (no SPF record)
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256
- header.s=casper.20170209 header.b=dFflzIo0; 
+ header.s=casper.20170209 header.b=Qve86oEP; 
  dkim-atps=neutral
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHT36nJz3cYy
- for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:24 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J2hHT53sKz3cY3
+ for <linux-erofs@lists.ozlabs.org>; Mon, 29 Nov 2021 21:22:23 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=3l7FLtzAqnYh4gF+Ec/d9OSuDMjLokSs8f79jM8yBAE=; b=dFflzIo0AA/DU/9aMi6QPwtNhr
- 5GIHF36SJArozdQryqg5utOMEdpIE+RdBiIhAzfx3HDhmEfVNpWthQvTD+P8Mj3aY3hWFt3gX1SZg
- pXIW4nYaWd3RSBYfXpg/z1mwBi8fkeM0/s68yIZ4fKeCCnylRVMH5zyqakroauNowO+h+VS3pBzU8
- FsKzaSOiVpS/WyyMhuRPKBzzzuM9tkW9E4i6VAjndNiqsPbPwmYtnE6lNsg7RKg0E93kzc6VMkhPM
- l5hj4VX9PjEWCR6m32bNrlDMVJ1sBRpS+auVWQ2RReQRu8bA6qImk9rENhP/heQg6MhukJE/5leIb
- ggNbP+yg==;
+ bh=ym5SXKSkcY5yjLbafTLHLzk4qEufBPEYqn+LUGRKebE=; b=Qve86oEPdKU6yZByQUGE4uqGPA
+ wN+dDIkYeCU7y0Cte07Z374R1rna6LpLf5af55YHgc1/QzuJcMODUy9ei8PtiyR/anY7k4yIUy4VY
+ 6Iml7QYYTSm/bwwgikdJ33U7a9LiicsvPguD+abweOH0v67YEQUyJHoVh4hexAY5AJ6X2hlsL9rKx
+ c0CuD33WmCK9CpPaM+Jf+eyz18qikAssrnaD9y2DhlWXeTB9N4TGD524xTtvQJESe/XzCXTM+crrj
+ I/3VUu9nLh/HZQBL2BRRZ5lxYYSybfX+HuB2ZVVgEeWHNP5NrQ+lY3zfAQDpQjqwTTIrLye4VvBF5
+ tataXuMQ==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnZ-0073LD-CV; Mon, 29 Nov 2021 10:22:14 +0000
+ id 1mrdnS-0073J2-IG; Mon, 29 Nov 2021 10:22:07 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
-Date: Mon, 29 Nov 2021 11:21:41 +0100
-Message-Id: <20211129102203.2243509-8-hch@lst.de>
+Subject: [PATCH 02/29] dm: make the DAX support depend on CONFIG_FS_DAX
+Date: Mon, 29 Nov 2021 11:21:36 +0100
+Message-Id: <20211129102203.2243509-3-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
 References: <20211129102203.2243509-1-hch@lst.de>
@@ -67,90 +67,124 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Cc: nvdimm@lists.linux.dev, Mike Snitzer <snitzer@redhat.com>,
  linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
  virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
- dm-devel@redhat.com, "Darrick J . Wong" <djwong@kernel.org>,
- linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ dm-devel@redhat.com, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
  Ira Weiny <ira.weiny@intel.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Factor out another DAX setup helper to simplify future changes.  Also
-move the experimental warning after the checks to not clutter the log
-too much if the setup failed.
+The device mapper DAX support is all hanging off a block device and thus
+can't be used with device dax.  Make it depend on CONFIG_FS_DAX instead
+of CONFIG_DAX_DRIVER.  This also means that bdev_dax_pgoff only needs to
+be built under CONFIG_FS_DAX now.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Acked-by: Mike Snitzer <snitzer@redhat.com>
 ---
- fs/xfs/xfs_super.c | 47 +++++++++++++++++++++++++++-------------------
- 1 file changed, 28 insertions(+), 19 deletions(-)
+ drivers/dax/super.c        | 6 ++----
+ drivers/md/dm-linear.c     | 2 +-
+ drivers/md/dm-log-writes.c | 2 +-
+ drivers/md/dm-stripe.c     | 2 +-
+ drivers/md/dm-writecache.c | 2 +-
+ drivers/md/dm.c            | 2 +-
+ 6 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index e21459f9923a8..875fd3151d6c9 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -340,6 +340,32 @@ xfs_buftarg_is_dax(
- 			bdev_nr_sectors(bt->bt_bdev));
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index b882cf8106ea3..e20d0cef10a18 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -63,7 +63,7 @@ static int dax_host_hash(const char *host)
+ 	return hashlen_hash(hashlen_string("DAX", host)) % DAX_HASH_SIZE;
  }
  
-+static int
-+xfs_setup_dax_always(
-+	struct xfs_mount	*mp)
-+{
-+	struct super_block	*sb = mp->m_super;
-+
-+	if (!xfs_buftarg_is_dax(sb, mp->m_ddev_targp) &&
-+	   (!mp->m_rtdev_targp || !xfs_buftarg_is_dax(sb, mp->m_rtdev_targp))) {
-+		xfs_alert(mp,
-+			"DAX unsupported by block device. Turning off DAX.");
-+		goto disable_dax;
-+	}
-+
-+	if (xfs_has_reflink(mp)) {
-+		xfs_alert(mp, "DAX and reflink cannot be used together!");
-+		return -EINVAL;
-+	}
-+
-+	xfs_warn(mp, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
-+	return 0;
-+
-+disable_dax:
-+	xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
-+	return 0;
-+}
-+
- STATIC int
- xfs_blkdev_get(
- 	xfs_mount_t		*mp,
-@@ -1593,26 +1619,9 @@ xfs_fs_fill_super(
- 		sb->s_flags |= SB_I_VERSION;
+-#ifdef CONFIG_BLOCK
++#if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
+ #include <linux/blkdev.h>
  
- 	if (xfs_has_dax_always(mp)) {
--		bool rtdev_is_dax = false, datadev_is_dax;
--
--		xfs_warn(mp,
--		"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
--
--		datadev_is_dax = xfs_buftarg_is_dax(sb, mp->m_ddev_targp);
--		if (mp->m_rtdev_targp)
--			rtdev_is_dax = xfs_buftarg_is_dax(sb,
--						mp->m_rtdev_targp);
--		if (!rtdev_is_dax && !datadev_is_dax) {
--			xfs_alert(mp,
--			"DAX unsupported by block device. Turning off DAX.");
--			xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
--		}
--		if (xfs_has_reflink(mp)) {
--			xfs_alert(mp,
--		"DAX and reflink cannot be used together!");
--			error = -EINVAL;
-+		error = xfs_setup_dax_always(mp);
-+		if (error)
- 			goto out_filestream_unmount;
--		}
- 	}
+ int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
+@@ -80,7 +80,6 @@ int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
+ }
+ EXPORT_SYMBOL(bdev_dax_pgoff);
  
- 	if (xfs_has_discard(mp)) {
+-#if IS_ENABLED(CONFIG_FS_DAX)
+ /**
+  * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
+  * @host: alternate name for the device registered by a dax driver
+@@ -219,8 +218,7 @@ bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(dax_supported);
+-#endif /* CONFIG_FS_DAX */
+-#endif /* CONFIG_BLOCK */
++#endif /* CONFIG_BLOCK && CONFIG_FS_DAX */
+ 
+ enum dax_device_flags {
+ 	/* !alive + rcu grace period == no new operations / mappings */
+diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
+index 66ba16713f696..0a260c35aeeed 100644
+--- a/drivers/md/dm-linear.c
++++ b/drivers/md/dm-linear.c
+@@ -162,7 +162,7 @@ static int linear_iterate_devices(struct dm_target *ti,
+ 	return fn(ti, lc->dev, lc->start, ti->len, data);
+ }
+ 
+-#if IS_ENABLED(CONFIG_DAX_DRIVER)
++#if IS_ENABLED(CONFIG_FS_DAX)
+ static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
+ 		long nr_pages, void **kaddr, pfn_t *pfn)
+ {
+diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
+index 0b3ef977ceeba..3155875d4e5b0 100644
+--- a/drivers/md/dm-log-writes.c
++++ b/drivers/md/dm-log-writes.c
+@@ -901,7 +901,7 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
+ 	limits->io_min = limits->physical_block_size;
+ }
+ 
+-#if IS_ENABLED(CONFIG_DAX_DRIVER)
++#if IS_ENABLED(CONFIG_FS_DAX)
+ static int log_dax(struct log_writes_c *lc, sector_t sector, size_t bytes,
+ 		   struct iov_iter *i)
+ {
+diff --git a/drivers/md/dm-stripe.c b/drivers/md/dm-stripe.c
+index 6660b6b53d5bf..f084607220293 100644
+--- a/drivers/md/dm-stripe.c
++++ b/drivers/md/dm-stripe.c
+@@ -300,7 +300,7 @@ static int stripe_map(struct dm_target *ti, struct bio *bio)
+ 	return DM_MAPIO_REMAPPED;
+ }
+ 
+-#if IS_ENABLED(CONFIG_DAX_DRIVER)
++#if IS_ENABLED(CONFIG_FS_DAX)
+ static long stripe_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
+ 		long nr_pages, void **kaddr, pfn_t *pfn)
+ {
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index 4b8991cde223d..4f31591d2d25e 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -38,7 +38,7 @@
+ #define BITMAP_GRANULARITY	PAGE_SIZE
+ #endif
+ 
+-#if IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API) && IS_ENABLED(CONFIG_DAX_DRIVER)
++#if IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API) && IS_ENABLED(CONFIG_FS_DAX)
+ #define DM_WRITECACHE_HAS_PMEM
+ #endif
+ 
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index acc84dc1bded5..b93fcc91176e5 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1783,7 +1783,7 @@ static struct mapped_device *alloc_dev(int minor)
+ 	md->disk->private_data = md;
+ 	sprintf(md->disk->disk_name, "dm-%d", minor);
+ 
+-	if (IS_ENABLED(CONFIG_DAX_DRIVER)) {
++	if (IS_ENABLED(CONFIG_FS_DAX)) {
+ 		md->dax_dev = alloc_dax(md, md->disk->disk_name,
+ 					&dm_dax_ops, 0);
+ 		if (IS_ERR(md->dax_dev)) {
 -- 
 2.30.2
 
