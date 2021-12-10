@@ -4,34 +4,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B7007C433FE
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:37:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17DC3C433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9N5f5Qptz3c4h
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:37:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NBz3P8dz3c56
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:47 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
+ helo=out30-57.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+X-Greylist: delayed 307 seconds by postgrey-1.36 at boromir;
+ Fri, 10 Dec 2021 18:41:43 AEDT
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9N5b1vt9z2yng
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:37:06 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8ADFS_1639121800; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NBv20T3z2yng
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:42 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
+ MF=jefflexu@linux.alibaba.com; NM=1; PH=DS; RN=12; SR=0;
+ TI=SMTPD_---0V-8E0Od_1639121780; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-8ADFS_1639121800) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:40 +0800
+ fp:SMTPD_---0V-8E0Od_1639121780) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:21 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 17/19] netfs: support on demand read
-Date: Fri, 10 Dec 2021 15:36:17 +0800
-Message-Id: <20211210073619.21667-18-jefflexu@linux.alibaba.com>
+Subject: [RFC 01/19] cachefiles: add mode command
+Date: Fri, 10 Dec 2021 15:36:01 +0800
+Message-Id: <20211210073619.21667-2-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,82 +59,105 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add demand_read() callback to netfs_cache_ops to implement demand read.
+fscache/cachefiles used to serve as a local cache for remote fs.
+This patch set introduces a new use case, in which local read-only
+fs could implement demand read with fscache.
 
-To implement demand-read semantics, the data blob file is a sparse file
-on the first beginning. When fs starts to access the data blob file, it
-will "cache miss" (hit the  hole) and then .issue_op() callback will be
-called to prepare the data.
-
-.issue_op() callback could call netfs_demand_read() helper function
-introduced in this patch to prepare the data, which will in turn call
-.demand_read() callback of fscache backend.
+Thus 'mode' field is used to distinguish which mode cachefiles works in.
+User daemon could set the specified mode with 'mode' command. If user
+daemon doesn't ever explicitly set the mode, then cachefiles serves as
+the local cache for remote fs by default.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 26 ++++++++++++++++++++++++++
- include/linux/netfs.h  |  4 ++++
- 2 files changed, 30 insertions(+)
+ fs/cachefiles/daemon.c   | 35 +++++++++++++++++++++++++++++++++++
+ fs/cachefiles/internal.h |  6 ++++++
+ 2 files changed, 41 insertions(+)
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index ade1523fc180..3460cfd7a570 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -1125,6 +1125,32 @@ int netfs_readpage_demand(struct folio *folio,
- }
- EXPORT_SYMBOL(netfs_readpage_demand);
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 40a792421fc1..951963e72b44 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -41,6 +41,7 @@ static int cachefiles_daemon_dir(struct cachefiles_cache *, char *);
+ static int cachefiles_daemon_inuse(struct cachefiles_cache *, char *);
+ static int cachefiles_daemon_secctx(struct cachefiles_cache *, char *);
+ static int cachefiles_daemon_tag(struct cachefiles_cache *, char *);
++static int cachefiles_daemon_mode(struct cachefiles_cache *, char *);
+ static int cachefiles_daemon_bind(struct cachefiles_cache *, char *);
+ static void cachefiles_daemon_unbind(struct cachefiles_cache *);
  
-+void netfs_demand_read(struct netfs_read_subrequest *subreq)
+@@ -75,6 +76,7 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
+ 	{ "inuse",	cachefiles_daemon_inuse		},
+ 	{ "secctx",	cachefiles_daemon_secctx	},
+ 	{ "tag",	cachefiles_daemon_tag		},
++	{ "mode",	cachefiles_daemon_mode		},
+ 	{ "",		NULL				}
+ };
+ 
+@@ -663,6 +665,39 @@ static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args)
+ 	return -EINVAL;
+ }
+ 
++/*
++ * Set the cache mode
++ * - command: "mode cache|demand"
++ */
++static int cachefiles_daemon_mode(struct cachefiles_cache *cache, char *args)
 +{
-+	struct netfs_read_request *rreq = subreq->rreq;
-+	struct netfs_cache_resources *cres = &rreq->cache_resources;
-+	loff_t start_pos;
-+	size_t len;
-+	int ret;
++	enum cachefiles_mode mode;
 +
-+	start_pos = subreq->start + subreq->transferred;
-+	len = subreq->len - subreq->transferred;
++	_enter(",%s", args);
 +
-+	/*
-+	 * In success case (ret == 0), user daemon has downloaded data for us,
-+	 * thus transform to NETFS_READ_FROM_CACHE state and advertise that 0
-+	 * byte readed, so that the request will enter into INCOMPLETE state and
-+	 * re-read from backing file.
-+	 */
-+	ret = cres->ops->demand_read(cres, start_pos, len);
-+	if (!ret) {
-+		subreq->source = NETFS_READ_FROM_CACHE;
-+		__clear_bit(NETFS_SREQ_WRITE_TO_CACHE, &subreq->flags);
++	if (test_bit(CACHEFILES_READY, &cache->flags)) {
++		pr_err("Cache already started\n");
++		return -EINVAL;
 +	}
 +
-+	netfs_subreq_terminated(subreq, ret, false);
++	if (!*args) {
++		pr_err("Empty mode specified\n");
++		return -EINVAL;
++	}
++
++	if (!strncmp(args, "cache", strlen("cache"))) {
++		mode = CACHEFILES_MODE_CACHE;
++	} else if (!strncmp(args, "demand", strlen("demand"))) {
++		mode = CACHEFILES_MODE_DEMAND;
++	} else {
++		pr_err("Invalid mode specified\n");
++		return -EINVAL;
++	}
++
++	cache->mode = mode;
++	return 0;
 +}
 +
  /*
-  * Prepare a folio for writing without reading first
-  * @folio: The folio being prepared
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index 5f45eb31defd..8a9dae361f07 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -253,6 +253,9 @@ struct netfs_cache_ops {
- 	int (*prepare_write)(struct netfs_cache_resources *cres,
- 			     loff_t *_start, size_t *_len, loff_t i_size,
- 			     bool no_space_allocated_yet);
-+
-+	int (*demand_read)(struct netfs_cache_resources *cres,
-+			   loff_t start_pos, size_t len);
+  * Bind a directory as a cache
+  */
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index f42021b3a0be..1366e4319b4e 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -60,6 +60,11 @@ struct cachefiles_object {
+ #define CACHEFILES_OBJECT_USING_TMPFILE	0		/* Have an unlinked tmpfile */
  };
  
- struct readahead_control;
-@@ -271,6 +274,7 @@ extern int netfs_write_begin(struct file *, struct address_space *,
- 			     void **,
- 			     const struct netfs_read_request_ops *,
- 			     void *);
-+extern void netfs_demand_read(struct netfs_read_subrequest *);
- 
- extern void netfs_subreq_terminated(struct netfs_read_subrequest *, ssize_t, bool);
- extern void netfs_stats_show(struct seq_file *);
++enum cachefiles_mode {
++	CACHEFILES_MODE_CACHE,	/* local cache for netfs (Default) */
++	CACHEFILES_MODE_DEMAND,	/* demand read for read-only fs */
++};
++
+ /*
+  * Cache files cache definition
+  */
+@@ -93,6 +98,7 @@ struct cachefiles_cache {
+ 	sector_t			brun;		/* when to stop culling */
+ 	sector_t			bcull;		/* when to start culling */
+ 	sector_t			bstop;		/* when to stop allocating */
++	enum cachefiles_mode		mode;
+ 	unsigned long			flags;
+ #define CACHEFILES_READY		0	/* T if cache prepared */
+ #define CACHEFILES_DEAD			1	/* T if cache dead */
 -- 
 2.27.0
 
