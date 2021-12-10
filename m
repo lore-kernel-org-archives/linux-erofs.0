@@ -4,39 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1DB0C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:52:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BFCAC433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 11:05:19 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NRR2tVnz3c5Z
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:52:35 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9Sjp0kYlz3c5l
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 22:05:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OLXt6cEU;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OLXt6cEU;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
- helo=out30-132.freemail.mail.aliyun.com;
- envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ smtp.mailfrom=redhat.com (client-ip=170.10.133.124;
+ helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=OLXt6cEU; 
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OLXt6cEU; 
+ dkim-atps=neutral
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NRJ6X69z3bXV
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:52:27 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-80.qr_1639121801; 
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-80.qr_1639121801) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:42 +0800
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
-To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
- chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 18/19] cachefiles: support on demand read
-Date: Fri, 10 Dec 2021 15:36:18 +0800
-Message-Id: <20211210073619.21667-19-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
-References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9Sjf4k5Rz3bVC
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 22:05:07 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1639134304;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3tIObzwONcMa5RCd0Hkumd34/K1eKJP2JRRip7obC0A=;
+ b=OLXt6cEUk4dlI1Ozc1g1WaY+wki2TDPyUQCeLFo2DAg5bd7+dWGB9hDYFGvwliKywXvuzH
+ lQf1Jq045mKyUqHZxc75kIzS4Dh4TE19B/+6pa9iOR4JkwaXGCTFhEIROWSvmMN+V4UXR8
+ PL9mfCE6vjfDaO3+EhTD9l+Xa3gUsvM=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1639134304;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3tIObzwONcMa5RCd0Hkumd34/K1eKJP2JRRip7obC0A=;
+ b=OLXt6cEUk4dlI1Ozc1g1WaY+wki2TDPyUQCeLFo2DAg5bd7+dWGB9hDYFGvwliKywXvuzH
+ lQf1Jq045mKyUqHZxc75kIzS4Dh4TE19B/+6pa9iOR4JkwaXGCTFhEIROWSvmMN+V4UXR8
+ PL9mfCE6vjfDaO3+EhTD9l+Xa3gUsvM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-384-npGU6MadO1yZ0BthSq5lCw-1; Fri, 10 Dec 2021 06:04:58 -0500
+X-MC-Unique: npGU6MadO1yZ0BthSq5lCw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 25790100E32C;
+ Fri, 10 Dec 2021 11:04:57 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.122])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 887B85D9D5;
+ Fri, 10 Dec 2021 11:04:54 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+ Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+ Kingdom.
+ Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20211210073619.21667-3-jefflexu@linux.alibaba.com>
+References: <20211210073619.21667-3-jefflexu@linux.alibaba.com>
+ <20211210073619.21667-1-jefflexu@linux.alibaba.com>
+To: Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: Re: [RFC 02/19] cachefiles: implement key scheme for demand-read mode
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <269787.1639134293.1@warthog.procyon.org.uk>
+Date: Fri, 10 Dec 2021 11:04:53 +0000
+Message-ID: <269788.1639134293@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -49,376 +89,27 @@ List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 Cc: tao.peng@linux.alibaba.com, linux-kernel@vger.kernel.org,
- joseph.qi@linux.alibaba.com, bo.liu@linux.alibaba.com,
- linux-fsdevel@vger.kernel.org, eguan@linux.alibaba.com,
- gerry@linux.alibaba.com
+ dhowells@redhat.com, joseph.qi@linux.alibaba.com, linux-cachefs@redhat.com,
+ bo.liu@linux.alibaba.com, linux-fsdevel@vger.kernel.org,
+ gerry@linux.alibaba.com, linux-erofs@lists.ozlabs.org, eguan@linux.alibaba.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-fs can call cachefiles_demand_read() helper function to enqueue read
-request for demand reading.
+Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
 
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
----
- fs/cachefiles/daemon.c   | 148 +++++++++++++++++++++++++++------------
- fs/cachefiles/internal.h |  16 +++++
- fs/cachefiles/io.c       |  56 +++++++++++++++
- 3 files changed, 175 insertions(+), 45 deletions(-)
+> Thus simplify the logic of placing backing files, in which backing files
+> are under "cache/<volume>/" directory directly.
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 951963e72b44..7d174a39cd1c 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -44,6 +44,7 @@ static int cachefiles_daemon_tag(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_mode(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_bind(struct cachefiles_cache *, char *);
- static void cachefiles_daemon_unbind(struct cachefiles_cache *);
-+static int cachefiles_daemon_done(struct cachefiles_cache *, char *);
- 
- static unsigned long cachefiles_open;
- 
-@@ -77,6 +78,7 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
- 	{ "secctx",	cachefiles_daemon_secctx	},
- 	{ "tag",	cachefiles_daemon_tag		},
- 	{ "mode",	cachefiles_daemon_mode		},
-+	{ "done",	cachefiles_daemon_done		},
- 	{ "",		NULL				}
- };
- 
-@@ -110,6 +112,8 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
- 	INIT_LIST_HEAD(&cache->volumes);
- 	INIT_LIST_HEAD(&cache->object_list);
- 	spin_lock_init(&cache->object_list_lock);
-+	idr_init(&cache->reqs);
-+	spin_lock_init(&cache->reqs_lock);
- 
- 	/* set default caching limits
- 	 * - limit at 1% free space and/or free files
-@@ -144,6 +148,7 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
- 	cachefiles_daemon_unbind(cache);
- 
- 	/* clean up the control file interface */
-+	idr_destroy(&cache->reqs);
- 	cache->cachefilesd = NULL;
- 	file->private_data = NULL;
- 	cachefiles_open = 0;
-@@ -164,6 +169,7 @@ static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
- 	unsigned long long b_released;
- 	unsigned f_released;
- 	char buffer[256];
-+	void *buf;
- 	int n;
- 
- 	//_enter(",,%zu,", buflen);
-@@ -171,38 +177,53 @@ static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
- 	if (!test_bit(CACHEFILES_READY, &cache->flags))
- 		return 0;
- 
--	/* check how much space the cache has */
--	cachefiles_has_space(cache, 0, 0, cachefiles_has_space_check);
--
--	/* summarise */
--	f_released = atomic_xchg(&cache->f_released, 0);
--	b_released = atomic_long_xchg(&cache->b_released, 0);
--	clear_bit(CACHEFILES_STATE_CHANGED, &cache->flags);
--
--	n = snprintf(buffer, sizeof(buffer),
--		     "cull=%c"
--		     " frun=%llx"
--		     " fcull=%llx"
--		     " fstop=%llx"
--		     " brun=%llx"
--		     " bcull=%llx"
--		     " bstop=%llx"
--		     " freleased=%x"
--		     " breleased=%llx",
--		     test_bit(CACHEFILES_CULLING, &cache->flags) ? '1' : '0',
--		     (unsigned long long) cache->frun,
--		     (unsigned long long) cache->fcull,
--		     (unsigned long long) cache->fstop,
--		     (unsigned long long) cache->brun,
--		     (unsigned long long) cache->bcull,
--		     (unsigned long long) cache->bstop,
--		     f_released,
--		     b_released);
-+	if (cache->mode == CACHEFILES_MODE_CACHE) {
-+		/* check how much space the cache has */
-+		cachefiles_has_space(cache, 0, 0, cachefiles_has_space_check);
-+
-+		/* summarise */
-+		f_released = atomic_xchg(&cache->f_released, 0);
-+		b_released = atomic_long_xchg(&cache->b_released, 0);
-+		clear_bit(CACHEFILES_STATE_CHANGED, &cache->flags);
-+
-+		n = snprintf(buffer, sizeof(buffer),
-+				"cull=%c"
-+				" frun=%llx"
-+				" fcull=%llx"
-+				" fstop=%llx"
-+				" brun=%llx"
-+				" bcull=%llx"
-+				" bstop=%llx"
-+				" freleased=%x"
-+				" breleased=%llx",
-+				test_bit(CACHEFILES_CULLING, &cache->flags) ? '1' : '0',
-+				(unsigned long long) cache->frun,
-+				(unsigned long long) cache->fcull,
-+				(unsigned long long) cache->fstop,
-+				(unsigned long long) cache->brun,
-+				(unsigned long long) cache->bcull,
-+				(unsigned long long) cache->bstop,
-+				f_released,
-+				b_released);
-+		buf = buffer;
-+	} else {
-+		struct cachefiles_req *req;
-+		int id = 0;
-+
-+		spin_lock(&cache->reqs_lock);
-+		req = idr_get_next(&cache->reqs, &id);
-+		spin_unlock(&cache->reqs_lock);
-+		if (!req)
-+			return 0;
-+
-+		buf = &req->req_in;
-+		n = sizeof(req->req_in);
-+	}
- 
- 	if (n > buflen)
- 		return -EMSGSIZE;
- 
--	if (copy_to_user(_buffer, buffer, n) != 0)
-+	if (copy_to_user(_buffer, buf, n) != 0)
- 		return -EFAULT;
- 
- 	return n;
-@@ -291,7 +312,7 @@ static ssize_t cachefiles_daemon_write(struct file *file,
-  * - use EPOLLOUT to indicate culling state
-  */
- static __poll_t cachefiles_daemon_poll(struct file *file,
--					   struct poll_table_struct *poll)
-+				       struct poll_table_struct *poll)
- {
- 	struct cachefiles_cache *cache = file->private_data;
- 	__poll_t mask;
-@@ -299,11 +320,16 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
- 	poll_wait(file, &cache->daemon_pollwq, poll);
- 	mask = 0;
- 
--	if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
--		mask |= EPOLLIN;
-+	if (cache->mode == CACHEFILES_MODE_CACHE) {
-+		if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
-+			mask |= EPOLLIN;
- 
--	if (test_bit(CACHEFILES_CULLING, &cache->flags))
--		mask |= EPOLLOUT;
-+		if (test_bit(CACHEFILES_CULLING, &cache->flags))
-+			mask |= EPOLLOUT;
-+	} else {
-+		if(!idr_is_empty(&cache->reqs))
-+			mask |= EPOLLIN;
-+	}
- 
- 	return mask;
- }
-@@ -313,7 +339,7 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
-  * - can be tail-called
-  */
- static int cachefiles_daemon_range_error(struct cachefiles_cache *cache,
--					 char *args)
-+		char *args)
- {
- 	pr_err("Free space limits must be in range 0%%<=stop<cull<run<100%%\n");
- 
-@@ -546,6 +572,38 @@ static int cachefiles_daemon_tag(struct cachefiles_cache *cache, char *args)
- 	return 0;
- }
- 
-+/*
-+ * Request completion
-+ * - command: "done <id>"
-+ */
-+static int cachefiles_daemon_done(struct cachefiles_cache *cache, char *args)
-+{
-+	unsigned long id;
-+	int ret;
-+	struct cachefiles_req *req;
-+
-+	_enter(",%s", args);
-+
-+	if (!*args) {
-+		pr_err("Empty id specified\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = kstrtoul(args, 0, &id);
-+	if (ret)
-+		return ret;
-+
-+	spin_lock(&cache->reqs_lock);
-+	req = idr_remove(&cache->reqs, id);
-+	spin_unlock(&cache->reqs_lock);
-+	if (!req)
-+		return -EINVAL;
-+
-+	complete(&req->done);
-+
-+	return 0;
-+}
-+
- /*
-  * Request a node in the cache be culled from the current working directory
-  * - command: "cull <name>"
-@@ -704,22 +762,22 @@ static int cachefiles_daemon_mode(struct cachefiles_cache *cache, char *args)
- static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
- {
- 	_enter("{%u,%u,%u,%u,%u,%u},%s",
--	       cache->frun_percent,
--	       cache->fcull_percent,
--	       cache->fstop_percent,
--	       cache->brun_percent,
--	       cache->bcull_percent,
--	       cache->bstop_percent,
--	       args);
-+			cache->frun_percent,
-+			cache->fcull_percent,
-+			cache->fstop_percent,
-+			cache->brun_percent,
-+			cache->bcull_percent,
-+			cache->bstop_percent,
-+			args);
- 
- 	if (cache->fstop_percent >= cache->fcull_percent ||
--	    cache->fcull_percent >= cache->frun_percent ||
--	    cache->frun_percent  >= 100)
-+			cache->fcull_percent >= cache->frun_percent ||
-+			cache->frun_percent  >= 100)
- 		return -ERANGE;
- 
- 	if (cache->bstop_percent >= cache->bcull_percent ||
--	    cache->bcull_percent >= cache->brun_percent ||
--	    cache->brun_percent  >= 100)
-+			cache->bcull_percent >= cache->brun_percent ||
-+			cache->brun_percent  >= 100)
- 		return -ERANGE;
- 
- 	if (*args) {
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index 1366e4319b4e..72e6e8744788 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -15,6 +15,7 @@
- #include <linux/fscache-cache.h>
- #include <linux/cred.h>
- #include <linux/security.h>
-+#include <linux/idr.h>
- 
- #define CACHEFILES_DIO_BLOCK_SIZE 4096
- 
-@@ -65,6 +66,18 @@ enum cachefiles_mode {
- 	CACHEFILES_MODE_DEMAND,	/* demand read for read-only fs */
- };
- 
-+struct cachefiles_req_in {
-+	uint64_t id;
-+	uint64_t off;
-+	uint64_t len;
-+	char path[NAME_MAX];
-+};
-+
-+struct cachefiles_req {
-+	struct completion done;
-+	struct cachefiles_req_in req_in;
-+};
-+
- /*
-  * Cache files cache definition
-  */
-@@ -107,6 +120,9 @@ struct cachefiles_cache {
- 	char				*rootdirname;	/* name of cache root directory */
- 	char				*secctx;	/* LSM security context */
- 	char				*tag;		/* cache binding tag */
-+
-+	struct idr			reqs;
-+	spinlock_t			reqs_lock;
- };
- 
- #include <trace/events/cachefiles.h>
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 95e9107dc3bb..b4f6187f4022 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -540,12 +540,68 @@ static void cachefiles_end_operation(struct netfs_cache_resources *cres)
- 	fscache_end_cookie_access(fscache_cres_cookie(cres), fscache_access_io_end);
- }
- 
-+static struct cachefiles_req *cachefiles_alloc_req(struct cachefiles_object *object,
-+						   loff_t start_pos,
-+						   size_t len)
-+{
-+	struct cachefiles_req *req;
-+	struct cachefiles_req_in *req_in;
-+
-+	req = kzalloc(sizeof(*req), GFP_KERNEL);
-+	if (!req)
-+		return NULL;
-+
-+	req_in = &req->req_in;
-+
-+	req_in->off = start_pos;
-+	req_in->len = len;
-+	strncpy(req_in->path, object->d_name, sizeof(req_in->path));
-+
-+	init_completion(&req->done);
-+
-+	return req;
-+}
-+
-+int cachefiles_demand_read(struct netfs_cache_resources *cres,
-+			   loff_t start_pos, size_t len)
-+{
-+	struct cachefiles_object *object;
-+	struct cachefiles_cache *cache;
-+	struct cachefiles_req *req;
-+	int ret;
-+
-+	object = cachefiles_cres_object(cres);
-+	cache = object->volume->cache;
-+
-+	req = cachefiles_alloc_req(object, start_pos, len);
-+	if (!req)
-+		return -ENOMEM;
-+
-+	spin_lock(&cache->reqs_lock);
-+	ret = idr_alloc(&cache->reqs, req, 0, 0, GFP_KERNEL);
-+	if (ret >= 0)
-+		req->req_in.id = ret;
-+	spin_unlock(&cache->reqs_lock);
-+	if (ret < 0) {
-+		kfree(req);
-+		return -ENOMEM;
-+	}
-+
-+	wake_up_all(&cache->daemon_pollwq);
-+
-+	wait_for_completion(&req->done);
-+	kfree(req);
-+
-+	return 0;
-+}
-+
- static const struct netfs_cache_ops cachefiles_netfs_cache_ops = {
- 	.end_operation		= cachefiles_end_operation,
- 	.read			= cachefiles_read,
- 	.write			= cachefiles_write,
- 	.prepare_read		= cachefiles_prepare_read,
- 	.prepare_write		= cachefiles_prepare_write,
-+	.demand_read		= cachefiles_demand_read,
- };
- 
- /*
--- 
-2.27.0
+You then have a scalability issue on the directory inode lock - and there may
+also be limits on the capacity of a directory.  The hash function is meant to
+work the same, no matter the cpu arch, so you should be able to copy that to
+userspace and derive the hash yourself.
+
+> Also skip coherency checking currently to ease the development and debug.
+
+Better if you can do that in erofs rather than cachefiles.  Just set your
+coherency data to all zeros or something.
+
+David
 
