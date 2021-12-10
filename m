@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 952B6C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:42:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38B2BC433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:42:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NCR1b6fz3bW6
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:42:11 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NCV5xN8z3cB0
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:42:14 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
+ helo=out30-57.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NCF3xRxz3c6s
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:56 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R861e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8ADEJ_1639121792; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NCR2MG7z3c6Q
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:42:09 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8PLSf_1639121802; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-8ADEJ_1639121792) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:33 +0800
+ fp:SMTPD_---0V-8PLSf_1639121802) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:43 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 11/19] cachefiles: refactor cachefiles_prepare_read
-Date: Fri, 10 Dec 2021 15:36:11 +0800
-Message-Id: <20211210073619.21667-12-jefflexu@linux.alibaba.com>
+Subject: [RFC 19/19] erofs: support on demand read
+Date: Fri, 10 Dec 2021 15:36:19 +0800
+Message-Id: <20211210073619.21667-20-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,29 +56,31 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In demand-read mode, fs using fscache for demand-read doesn't know and
-care the exact file size of the data blob file, and thus skip the file
-size check in this case.
-
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/io.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/erofs/fscache.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 60b1eac2ce78..95e9107dc3bb 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -341,7 +341,8 @@ static enum netfs_read_source cachefiles_prepare_read(struct netfs_read_subreque
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index c849d3a89520..3d254cf7a0e3 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -83,9 +83,15 @@ static void erofs_priv_cleanup(struct address_space *mapping, void *netfs_priv)
+ {
+ }
  
- 	_enter("%zx @%llx/%llx", subreq->len, subreq->start, i_size);
++static void erofs_issue_op(struct netfs_read_subrequest *subreq)
++{
++	netfs_demand_read(subreq);
++}
++
+ const struct netfs_read_request_ops erofs_req_ops = {
+ 	.begin_cache_operation  = erofs_begin_cache_operation,
+ 	.cleanup		= erofs_priv_cleanup,
++	.issue_op		= erofs_issue_op,
+ };
  
--	if (subreq->start >= i_size) {
-+	if (subreq->rreq->type == NETFS_TYPE_CACHE &&
-+	    subreq->start >= i_size) {
- 		ret = NETFS_FILL_WITH_ZEROES;
- 		why = cachefiles_trace_read_after_eof;
- 		goto out_no_object;
+ struct page *erofs_readpage_from_fscache(struct fscache_cookie *cookie,
 -- 
 2.27.0
 
