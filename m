@@ -4,11 +4,11 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D53B5C433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75530C433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NC51VPJz3bfv
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NC64kk2z3cDV
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:54 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
  helo=out30-44.freemail.mail.aliyun.com;
@@ -18,20 +18,20 @@ Received: from out30-44.freemail.mail.aliyun.com
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC03Yh8z3c7N
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC04fdfz3c7v
  for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:47 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8PLQN_1639121791; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8PLQ6_1639121790; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-8PLQN_1639121791) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:32 +0800
+ fp:SMTPD_---0V-8PLQ6_1639121790) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:31 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 10/19] netfs: refactor netfs_rreq_prepare_read
-Date: Fri, 10 Dec 2021 15:36:10 +0800
-Message-Id: <20211210073619.21667-11-jefflexu@linux.alibaba.com>
+Subject: [RFC 09/19] netfs: refactor netfs_rreq_unlock()
+Date: Fri, 10 Dec 2021 15:36:09 +0800
+Message-Id: <20211210073619.21667-10-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,44 +56,52 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In demand-read mode, fs using fscache for demand-read doesn't know and
-care the exact file size of the data blob file, and thus skip the file
-size check in this case.
+In demand-read case, the input folio of netfs API is may not the page
+cache inside the address space of the netfs file. Instead it may be just
+a temporary page used to contain the data.
+
+Thus iterate corresponding pages through rreq->folio directly.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ fs/netfs/read_helper.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index af12a7996672..ade1523fc180 100644
+index 04d0cc2fca83..af12a7996672 100644
 --- a/fs/netfs/read_helper.c
 +++ b/fs/netfs/read_helper.c
-@@ -776,14 +776,16 @@ netfs_rreq_prepare_read(struct netfs_read_request *rreq,
- 		goto out;
+@@ -414,6 +414,22 @@ static void netfs_rreq_unlock(struct netfs_read_request *rreq)
+ 	pgoff_t last_page = ((rreq->start + rreq->len) / PAGE_SIZE) - 1;
+ 	bool subreq_failed = false;
  
- 	if (source == NETFS_DOWNLOAD_FROM_SERVER) {
--		/* Call out to the netfs to let it shrink the request to fit
--		 * its own I/O sizes and boundaries.  If it shinks it here, it
--		 * will be called again to make simultaneous calls; if it wants
--		 * to make serial calls, it can indicate a short read and then
--		 * we will call it again.
--		 */
--		if (subreq->len > rreq->i_size - subreq->start)
--			subreq->len = rreq->i_size - subreq->start;
-+		if (rreq->type == NETFS_TYPE_CACHE) {
-+			/* Call out to the netfs to let it shrink the request to fit
-+			 * its own I/O sizes and boundaries.  If it shinks it here, it
-+			 * will be called again to make simultaneous calls; if it wants
-+			 * to make serial calls, it can indicate a short read and then
-+			 * we will call it again.
-+			 */
-+			if (subreq->len > rreq->i_size - subreq->start)
-+				subreq->len = rreq->i_size - subreq->start;
++	if (rreq->type == NETFS_TYPE_DEMAND) {
++		folio = rreq->folio;
++
++		list_for_each_entry(subreq, &rreq->subrequests, rreq_link) {
++			subreq_failed = (subreq->error < 0);
++			if (subreq_failed)
++				break;
 +		}
++
++		if (!subreq_failed)
++			folio_mark_uptodate(folio);
++
++		if (!test_bit(NETFS_RREQ_DONT_UNLOCK_FOLIOS, &rreq->flags))
++			folio_unlock(folio);
++	} else {
++
+ 	XA_STATE(xas, &rreq->mapping->i_pages, start_page);
  
- 		if (rreq->netfs_ops->clamp_length &&
- 		    !rreq->netfs_ops->clamp_length(subreq)) {
+ 	if (test_bit(NETFS_RREQ_FAILED, &rreq->flags)) {
+@@ -480,6 +496,7 @@ static void netfs_rreq_unlock(struct netfs_read_request *rreq)
+ 		}
+ 	}
+ 	rcu_read_unlock();
++	}
+ 
+ 	task_io_account_read(account);
+ 	if (rreq->netfs_ops->done)
 -- 
 2.27.0
 
