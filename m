@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C113BC433FE
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D82A6C433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:42:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NCG0K1jz3c6k
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:42:02 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NCP4LVQz3c74
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:42:09 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
+ helo=out30-45.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC75rFlz3c9V
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:55 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R791e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8PLPo_1639121789; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC443ZGz3brd
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:51 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8E0Pr_1639121788; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-8PLPo_1639121789) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:29 +0800
+ fp:SMTPD_---0V-8E0Pr_1639121788) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:28 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 08/19] netfs: refactor netfs_clear_unread()
-Date: Fri, 10 Dec 2021 15:36:08 +0800
-Message-Id: <20211210073619.21667-9-jefflexu@linux.alibaba.com>
+Subject: [RFC 07/19] netfs: add netfs_readpage_demand()
+Date: Fri, 10 Dec 2021 15:36:07 +0800
+Message-Id: <20211210073619.21667-8-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,96 +56,106 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In demand-read case, the input folio of netfs API is may not the page
-cache inside the address space of the netfs file. Instead it may be just
-a temporary page used to contain the data.
+netfs_readpage_demand() is the demand-read version of
+netfs_readpage().
 
-In this case, use bvec based iov_iter.
+When netfs API works in demand-read mode, fs using fscache shall call
+netfs_readpage_demand() instead.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 33 +++++++++++++++++++++++++++------
- include/linux/netfs.h  |  2 ++
- 2 files changed, 29 insertions(+), 6 deletions(-)
+ fs/netfs/read_helper.c | 63 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/netfs.h  |  3 ++
+ 2 files changed, 66 insertions(+)
 
 diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index 26fa688f6300..04d0cc2fca83 100644
+index 9240b85548e4..26fa688f6300 100644
 --- a/fs/netfs/read_helper.c
 +++ b/fs/netfs/read_helper.c
-@@ -157,6 +157,18 @@ static void __netfs_put_subrequest(struct netfs_read_subrequest *subreq,
- 	netfs_put_read_request(rreq, was_async);
+@@ -1022,6 +1022,69 @@ int netfs_readpage(struct file *file,
  }
+ EXPORT_SYMBOL(netfs_readpage);
  
-+static void netfs_init_iov_iter_bvec(struct netfs_read_subrequest *subreq,
-+				     struct iov_iter *iter)
++int netfs_readpage_demand(struct folio *folio,
++			  const struct netfs_read_request_ops *ops,
++			  void *netfs_priv)
 +{
-+	struct bio_vec *bvec = &subreq->bvec;
++	struct netfs_read_request *rreq;
++	unsigned int debug_index = 0;
++	int ret;
 +
-+	bvec->bv_page	= folio_page(subreq->rreq->folio, 0);
-+	bvec->bv_offset	= subreq->start + subreq->transferred;
-+	bvec->bv_len	= subreq->len   - subreq->transferred;
++	_enter("%lx", folio_index(folio));
 +
-+	iov_iter_bvec(iter, READ, bvec, 1, bvec->bv_len);
++	rreq = __netfs_alloc_read_request(ops, netfs_priv, NULL);
++	if (!rreq) {
++		if (netfs_priv)
++			ops->cleanup(netfs_priv, folio_file_mapping(folio));
++		folio_unlock(folio);
++		return -ENOMEM;
++	}
++	rreq->type	= NETFS_TYPE_DEMAND;
++	rreq->folio	= folio;
++	rreq->start	= folio_file_pos(folio);
++	rreq->len	= folio_size(folio);
++	__set_bit(NETFS_RREQ_DONT_UNLOCK_FOLIOS, &rreq->flags);
++
++	if (ops->begin_cache_operation) {
++		ret = ops->begin_cache_operation(rreq);
++		if (ret == -ENOMEM || ret == -EINTR || ret == -ERESTARTSYS) {
++			folio_unlock(folio);
++			goto out;
++		}
++	}
++
++	netfs_stat(&netfs_n_rh_readpage);
++	trace_netfs_read(rreq, rreq->start, rreq->len, netfs_read_trace_readpage);
++
++	netfs_get_read_request(rreq);
++
++	atomic_set(&rreq->nr_rd_ops, 1);
++	do {
++		if (!netfs_rreq_submit_slice(rreq, &debug_index))
++			break;
++
++	} while (rreq->submitted < rreq->len);
++
++	/* Keep nr_rd_ops incremented so that the ref always belongs to us, and
++	 * the service code isn't punted off to a random thread pool to
++	 * process.
++	 */
++	do {
++		wait_var_event(&rreq->nr_rd_ops, atomic_read(&rreq->nr_rd_ops) == 1);
++		netfs_rreq_assess(rreq, false);
++	} while (test_bit(NETFS_RREQ_IN_PROGRESS, &rreq->flags));
++
++	ret = rreq->error;
++	if (ret == 0 && rreq->submitted < rreq->len) {
++		trace_netfs_failure(rreq, NULL, ret, netfs_fail_short_readpage);
++		ret = -EIO;
++	}
++out:
++	netfs_put_read_request(rreq, false);
++	return ret;
 +}
++EXPORT_SYMBOL(netfs_readpage_demand);
 +
  /*
-  * Clear the unread part of an I/O request.
-  */
-@@ -164,9 +176,14 @@ static void netfs_clear_unread(struct netfs_read_subrequest *subreq)
- {
- 	struct iov_iter iter;
- 
--	iov_iter_xarray(&iter, READ, &subreq->rreq->mapping->i_pages,
--			subreq->start + subreq->transferred,
--			subreq->len   - subreq->transferred);
-+	if (subreq->rreq->type == NETFS_TYPE_CACHE) {
-+		iov_iter_xarray(&iter, READ, &subreq->rreq->mapping->i_pages,
-+				subreq->start + subreq->transferred,
-+				subreq->len   - subreq->transferred);
-+	} else { /* type == NETFS_TYPE_DEMAND */
-+		netfs_init_iov_iter_bvec(subreq, &iter);
-+	}
-+
- 	iov_iter_zero(iov_iter_count(&iter), &iter);
- }
- 
-@@ -190,9 +207,13 @@ static void netfs_read_from_cache(struct netfs_read_request *rreq,
- 	struct iov_iter iter;
- 
- 	netfs_stat(&netfs_n_rh_read);
--	iov_iter_xarray(&iter, READ, &rreq->mapping->i_pages,
--			subreq->start + subreq->transferred,
--			subreq->len   - subreq->transferred);
-+	if (subreq->rreq->type == NETFS_TYPE_CACHE) {
-+		iov_iter_xarray(&iter, READ, &subreq->rreq->mapping->i_pages,
-+				subreq->start + subreq->transferred,
-+				subreq->len   - subreq->transferred);
-+	} else { /* type == NETFS_TYPE_DEMAND */
-+		netfs_init_iov_iter_bvec(subreq, &iter);
-+	}
- 
- 	cres->ops->read(cres, subreq->start, &iter, read_hole,
- 			netfs_cache_read_terminated, subreq);
+  * Prepare a folio for writing without reading first
+  * @folio: The folio being prepared
 diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index de6948bcc80a..5f45eb31defd 100644
+index 638ea5d63869..de6948bcc80a 100644
 --- a/include/linux/netfs.h
 +++ b/include/linux/netfs.h
-@@ -17,6 +17,7 @@
- #include <linux/workqueue.h>
- #include <linux/fs.h>
- #include <linux/pagemap.h>
-+#include <linux/bvec.h>
- 
- /*
-  * Overload PG_private_2 to give us PG_fscache - this is used to indicate that
-@@ -146,6 +147,7 @@ struct netfs_read_subrequest {
- #define NETFS_SREQ_SHORT_READ		2	/* Set if there was a short read from the cache */
- #define NETFS_SREQ_SEEK_DATA_READ	3	/* Set if ->read() should SEEK_DATA first */
- #define NETFS_SREQ_NO_PROGRESS		4	/* Set if we didn't manage to read any data */
-+	struct bio_vec 		bvec;
- };
- 
- enum netfs_read_request_type {
+@@ -261,6 +261,9 @@ extern int netfs_readpage(struct file *,
+ 			  struct folio *,
+ 			  const struct netfs_read_request_ops *,
+ 			  void *);
++extern int netfs_readpage_demand(struct folio *,
++				 const struct netfs_read_request_ops *,
++				 void *);
+ extern int netfs_write_begin(struct file *, struct address_space *,
+ 			     loff_t, unsigned int, unsigned int, struct folio **,
+ 			     void **,
 -- 
 2.27.0
 
