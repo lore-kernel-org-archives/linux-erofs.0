@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A16BC433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1749AC433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NC80NtVz2yng
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:56 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NC93zrWz3c6j
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
+ helo=out30-57.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC13k9qz3bmk
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:49 +1100 (AEDT)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC32m0Wz303F
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:50 +1100 (AEDT)
 X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-80.ma_1639121782; 
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-80.nN_1639121785; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-80.ma_1639121782) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:22 +0800
+ fp:SMTPD_---0V-80.nN_1639121785) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:26 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 02/19] cachefiles: implement key scheme for demand-read mode
-Date: Fri, 10 Dec 2021 15:36:02 +0800
-Message-Id: <20211210073619.21667-3-jefflexu@linux.alibaba.com>
+Subject: [RFC 05/19] netfs: refactor netfs_alloc_read_request
+Date: Fri, 10 Dec 2021 15:36:05 +0800
+Message-Id: <20211210073619.21667-6-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,66 +56,55 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In demand-read mode, user daemon may prepare data blob files in advance
-before they are lookud up.
-
-Thus simplify the logic of placing backing files, in which backing files
-are under "cache/<volume>/" directory directly.
-
-Also skip coherency checking currently to ease the development and debug.
-
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/namei.c | 8 +++++++-
- fs/cachefiles/xattr.c | 5 +++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ fs/netfs/read_helper.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
-index 61d412580353..981e6e80690b 100644
---- a/fs/cachefiles/namei.c
-+++ b/fs/cachefiles/namei.c
-@@ -603,11 +603,17 @@ static bool cachefiles_open_file(struct cachefiles_object *object,
- bool cachefiles_look_up_object(struct cachefiles_object *object)
+diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
+index 4247916c7100..9240b85548e4 100644
+--- a/fs/netfs/read_helper.c
++++ b/fs/netfs/read_helper.c
+@@ -37,7 +37,7 @@ static void netfs_put_subrequest(struct netfs_read_subrequest *subreq,
+ 		__netfs_put_subrequest(subreq, was_async);
+ }
+ 
+-static struct netfs_read_request *netfs_alloc_read_request(
++static struct netfs_read_request *__netfs_alloc_read_request(
+ 	const struct netfs_read_request_ops *ops, void *netfs_priv,
+ 	struct file *file)
  {
- 	struct cachefiles_volume *volume = object->volume;
--	struct dentry *dentry, *fan = volume->fanout[(u8)object->cookie->key_hash];
-+	struct cachefiles_cache *cache = volume->cache;
-+	struct dentry *dentry, *fan;
- 	int ret;
+@@ -48,8 +48,6 @@ static struct netfs_read_request *netfs_alloc_read_request(
+ 	if (rreq) {
+ 		rreq->netfs_ops	= ops;
+ 		rreq->netfs_priv = netfs_priv;
+-		rreq->inode	= file_inode(file);
+-		rreq->i_size	= i_size_read(rreq->inode);
+ 		rreq->debug_id	= atomic_inc_return(&debug_ids);
+ 		INIT_LIST_HEAD(&rreq->subrequests);
+ 		INIT_WORK(&rreq->work, netfs_rreq_work);
+@@ -63,6 +61,21 @@ static struct netfs_read_request *netfs_alloc_read_request(
+ 	return rreq;
+ }
  
- 	_enter("OBJ%x,%s,", object->debug_id, object->d_name);
- 
-+	if (cache->mode == CACHEFILES_MODE_CACHE)
-+		fan = volume->fanout[(u8)object->cookie->key_hash];
-+	else
-+		fan = volume->dentry;
++static struct netfs_read_request *netfs_alloc_read_request(
++	const struct netfs_read_request_ops *ops, void *netfs_priv,
++	struct file *file)
++{
++	struct netfs_read_request *rreq;
 +
- 	/* Look up path "cache/vol/fanout/file". */
- 	ret = cachefiles_inject_read_error();
- 	if (ret == 0)
-diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
-index 0601c46a22ef..f562dd0d4bdd 100644
---- a/fs/cachefiles/xattr.c
-+++ b/fs/cachefiles/xattr.c
-@@ -88,6 +88,7 @@ int cachefiles_set_object_xattr(struct cachefiles_object *object)
-  */
- int cachefiles_check_auxdata(struct cachefiles_object *object, struct file *file)
++	rreq = __netfs_alloc_read_request(ops, netfs_priv, file);
++	if (rreq) {
++		rreq->inode	= file_inode(file);
++		rreq->i_size	= i_size_read(rreq->inode);
++	}
++
++	return rreq;
++}
++
+ static void netfs_get_read_request(struct netfs_read_request *rreq)
  {
-+	struct cachefiles_cache *cache = object->volume->cache;
- 	struct cachefiles_xattr *buf;
- 	struct dentry *dentry = file->f_path.dentry;
- 	unsigned int len = object->cookie->aux_len, tlen;
-@@ -96,6 +97,10 @@ int cachefiles_check_auxdata(struct cachefiles_object *object, struct file *file
- 	ssize_t xlen;
- 	int ret = -ESTALE;
- 
-+	/* TODO: coherency check */
-+	if (cache->mode == CACHEFILES_MODE_DEMAND)
-+		return 0;
-+
- 	tlen = sizeof(struct cachefiles_xattr) + len;
- 	buf = kmalloc(tlen, GFP_KERNEL);
- 	if (!buf)
+ 	refcount_inc(&rreq->usage);
 -- 
 2.27.0
 
