@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1749AC433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:41:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E76CC433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 07:42:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NC93zrWz3c6j
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:57 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4J9NCB6vdWz3cNW
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Dec 2021 18:41:58 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
- helo=out30-57.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
+ helo=out30-54.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+Received: from out30-54.freemail.mail.aliyun.com
+ (out30-54.freemail.mail.aliyun.com [115.124.30.54])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC32m0Wz303F
- for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:50 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4J9NC357kzz2yng
+ for <linux-erofs@lists.ozlabs.org>; Fri, 10 Dec 2021 18:41:51 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-80.nN_1639121785; 
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V-8PLOr_1639121783; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V-80.nN_1639121785) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 10 Dec 2021 15:36:26 +0800
+ fp:SMTPD_---0V-8PLOr_1639121783) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 10 Dec 2021 15:36:24 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [RFC 05/19] netfs: refactor netfs_alloc_read_request
-Date: Fri, 10 Dec 2021 15:36:05 +0800
-Message-Id: <20211210073619.21667-6-jefflexu@linux.alibaba.com>
+Subject: [RFC 03/19] cachefiles: refactor cachefiles_adjust_size()
+Date: Fri, 10 Dec 2021 15:36:03 +0800
+Message-Id: <20211210073619.21667-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
 References: <20211210073619.21667-1-jefflexu@linux.alibaba.com>
@@ -56,55 +56,37 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+In demand-read mode, fs using fscache for demand-read doesn't know the
+exact file size of the data blob file, and the input @object_size
+parameter of fscache_acquire_cookie() could be fake in this case.
+
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ fs/cachefiles/interface.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index 4247916c7100..9240b85548e4 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -37,7 +37,7 @@ static void netfs_put_subrequest(struct netfs_read_subrequest *subreq,
- 		__netfs_put_subrequest(subreq, was_async);
- }
- 
--static struct netfs_read_request *netfs_alloc_read_request(
-+static struct netfs_read_request *__netfs_alloc_read_request(
- 	const struct netfs_read_request_ops *ops, void *netfs_priv,
- 	struct file *file)
+diff --git a/fs/cachefiles/interface.c b/fs/cachefiles/interface.c
+index 51c968cd00a6..b85051250cb7 100644
+--- a/fs/cachefiles/interface.c
++++ b/fs/cachefiles/interface.c
+@@ -110,6 +110,7 @@ static int cachefiles_adjust_size(struct cachefiles_object *object)
  {
-@@ -48,8 +48,6 @@ static struct netfs_read_request *netfs_alloc_read_request(
- 	if (rreq) {
- 		rreq->netfs_ops	= ops;
- 		rreq->netfs_priv = netfs_priv;
--		rreq->inode	= file_inode(file);
--		rreq->i_size	= i_size_read(rreq->inode);
- 		rreq->debug_id	= atomic_inc_return(&debug_ids);
- 		INIT_LIST_HEAD(&rreq->subrequests);
- 		INIT_WORK(&rreq->work, netfs_rreq_work);
-@@ -63,6 +61,21 @@ static struct netfs_read_request *netfs_alloc_read_request(
- 	return rreq;
- }
+ 	struct iattr newattrs;
+ 	struct file *file = object->file;
++	struct cachefiles_cache *cache = object->volume->cache;
+ 	uint64_t ni_size;
+ 	loff_t oi_size;
+ 	int ret;
+@@ -123,6 +124,9 @@ static int cachefiles_adjust_size(struct cachefiles_object *object)
+ 	if (!file)
+ 		return -ENOBUFS;
  
-+static struct netfs_read_request *netfs_alloc_read_request(
-+	const struct netfs_read_request_ops *ops, void *netfs_priv,
-+	struct file *file)
-+{
-+	struct netfs_read_request *rreq;
++	if (cache->mode == CACHEFILES_MODE_DEMAND)
++		return 0;
 +
-+	rreq = __netfs_alloc_read_request(ops, netfs_priv, file);
-+	if (rreq) {
-+		rreq->inode	= file_inode(file);
-+		rreq->i_size	= i_size_read(rreq->inode);
-+	}
-+
-+	return rreq;
-+}
-+
- static void netfs_get_read_request(struct netfs_read_request *rreq)
- {
- 	refcount_inc(&rreq->usage);
+ 	oi_size = i_size_read(file_inode(file));
+ 	if (oi_size == ni_size)
+ 		return 0;
 -- 
 2.27.0
 
