@@ -4,64 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0D75BC433F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Dec 2021 14:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4698C433EF
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Dec 2021 14:28:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JJJjW2pPlz2yp0
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Dec 2021 01:28:47 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JJJjZ1dhLz304y
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Dec 2021 01:28:50 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1640096927;
-	bh=8R/YZNx5T0lGVJ/lTtulFUVMJuZmEza15lfVi4DdwHM=;
-	h=Date:Subject:To:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=HPxpoWfev6ARHYT7RE1JbG0yyEkL+47OJTLE3vhjfLsPgSkf54KGTyFL5T81kC5Bb
-	 lgUQdL3oMX2O0XmZ+5tLE5dG6zzhgB82690lJHHYjZocGaXpVrffz9aX+j9T0j1LdW
-	 LLlPYxna490Mkk5m+HB8SoMQfJWjNmDin8kWE2pIIRzDfGCglgLTgxwkQYenXSwvyO
-	 DyH32lDLtCECS/Io4PVS9BdfhtPL+LBoBCy9t64MSMkDsNEUF5oA5ZxsMtD1a7F+sl
-	 y7jBVrgaPoLsXGW5sbFWvCvzJGomN7c7q47+L4kmyF0AvrCdoVXYJeJcoEA93fB0vf
-	 prMeJse7FhwOQ==
+	s=201707; t=1640096930;
+	bh=DMrErtHi5MonYL8dQYxSquG+q1c2qTnpjf2pkhqRma4=;
+	h=Date:In-Reply-To:References:Subject:To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=k8fzBQVzWIV69JuWL2or16BUUFJQ7xuRyr5wMHpQnalYxsXEPcOlAPq6leMrXNVU/
+	 XH57eLWmOa4ZhjQITetadlZZi56Y9ajI1+UUwg5FZOsOe7FiyoAIUr+wJ154hkmgYn
+	 qchjQxJ+Ib4yq+uGr632OGZC04aJj/E3b+xG6fURKg39Pb+++8YOC0qApho7lHp6EQ
+	 8BACMC6qj1vQvubXAN0PSxBdIs4IUBRlf4L0z7yPPWKcl/W0MJ194VQgLrMGb9wROW
+	 BBsjyjGE2eqwlWO+gjjzjIWkAUyQ7lNlOsZPAWywo51389v0xe1FxDFZ67P5JoueFk
+	 ehYAZrhYc/JLg==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
  smtp.mailfrom=flex--zhangkelvin.bounces.google.com
- (client-ip=2607:f8b0:4864:20::a49; helo=mail-vk1-xa49.google.com;
- envelope-from=3ketbyqskc3ytbuhaeyfpchaiiafy.wigfchor-ylizmfcmnm.itfuvm.ila@flex--zhangkelvin.bounces.google.com;
+ (client-ip=2607:f8b0:4864:20::749; helo=mail-qk1-x749.google.com;
+ envelope-from=3k-tbyqskc3gvdwjcgahrejckkcha.ykihejqt-ankboheopo.kvhwxo.knc@flex--zhangkelvin.bounces.google.com;
  receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
  unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256
- header.s=20210112 header.b=TUMxsUvw; dkim-atps=neutral
-Received: from mail-vk1-xa49.google.com (mail-vk1-xa49.google.com
- [IPv6:2607:f8b0:4864:20::a49])
+ header.s=20210112 header.b=SbKA9Py3; dkim-atps=neutral
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com
+ [IPv6:2607:f8b0:4864:20::749])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JJJjN47vcz2xsj
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JJJjN4HkBz2xsk
  for <linux-erofs@lists.ozlabs.org>; Wed, 22 Dec 2021 01:28:39 +1100 (AEDT)
-Received: by mail-vk1-xa49.google.com with SMTP id
- g4-20020ac5c1c4000000b00312a2a1de20so2413984vkk.12
+Received: by mail-qk1-x749.google.com with SMTP id
+ bj32-20020a05620a192000b0046dcca212b6so8397807qkb.6
  for <linux-erofs@lists.ozlabs.org>; Tue, 21 Dec 2021 06:28:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
- bh=8R/YZNx5T0lGVJ/lTtulFUVMJuZmEza15lfVi4DdwHM=;
- b=bNkMOXtmbCrBN0qTcfRUluqXS61n0rjd6PQ0Q9cT2+/yj0dkYCsPY0rzifmK9rGvet
- 27qAfuokSNZ3lthzgeWbGe989H58NTahtpEtyEj1pkhW5nWlKffHGIVVx8Dkj/tbTedD
- YQGujw95dAiVFcU7WCD2hOHcZeV3+6s07oAbVAXV1ElpE1yYYuEbz804eeyY225LdQ0y
- dQSO5L+EfWK2JLKpki7sjCFPScIGSZS6erO/ImSuf5Y4eabTXRsv5ngi1sapKqauJmPy
- V8RdgKJca58RxhMENsRTAP0RM9F9PPByreJBvKL8ASOF2KBtRhSL8NPEbzM788eusVbG
- hl1Q==
-X-Gm-Message-State: AOAM5337OSpLSFBAIx5jkBCDxmSQWap6qx+BvITMKGEmUJWEQt0u+jt+
- vLwTFywq50MyPW4rIsnP+nu9wVGBGia0Q4rhkLPnGqEbJjv63KkIGZP9Kg6LMPN8wpadyaXg+7P
- ImaSIhXwlzA/kzMxp0xm/fhQc7jGbXcM9wSqUCAgjqziq2vwAD65jdL4Ho1tJKTuJBxC61+9jMX
- 9+eVeoW0g=
-X-Google-Smtp-Source: ABdhPJxYZ/AG6IdrENotBMq3aJhMKQrFgwmjP7QyT/mAFfxW35qv87Qxv4h58y0KmK0tSWJua1/5EvF4eGi7hsDlkA==
+ h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+ :references:subject:from:to:cc;
+ bh=DMrErtHi5MonYL8dQYxSquG+q1c2qTnpjf2pkhqRma4=;
+ b=ox3MoHcNkas2J8OJjZVdtW0Tfk+iy2Aza+v2qNk4zRoixyra0P7xny+Jcs12/ioWLR
+ NEt433Pz0HIz//H7MkyphHNoT1uSLPLLdXqM4YKsh9yU9rh+IFTL24AYgOdYJI7CUyy2
+ n7XQGA1TnnfsJQAqHW911yPe4ENnr9NuLrZ8dF13QkznS40KHphaw/ebVCVTyssQKqpD
+ GHNCtXUQBsAEGCuzvKPIHCTUzFMckAJNghOFrG0n9cbo6KAFaK+lC8k9SpxVcGQTJ4i7
+ 6DQ9z5mgLSp9VsYV1kTHFUkx/qH5unwTFTU4RpYLrQmNQk7a/9LtjhRm+1bxQ9VeCYrh
+ IIcg==
+X-Gm-Message-State: AOAM531DaIUtbsvJhShy5ihjzLtoMOn/ZlE2Nafaxmc2qfkPpUiTKDUs
+ /cHFv8V6+sQE7E/cDlrYEaN4CxmOmTWHaWxr08h0OJk72qzBp9gsu4BuReJLf512MFpP5CSr8c+
+ OMh0so0Fp0BOlcjqv63XbBp5TEv1tShw5ebLyBBU0b4LkL7iDiM0ijd6apnGQGm3FcgOhIrKShf
+ 8ixet4dDo=
+X-Google-Smtp-Source: ABdhPJw4xsdXARFg39cQbKwWg4pYbqfYyNr3261PzaQgDDuHr/dzarMCaEAKuKnhR57VXlaRNOUq58TvIwTaEjapGw==
 X-Received: from zhangkelvin-big.c.googlers.com
  ([fda3:e722:ac3:cc00:14:4d90:c0a8:1f4a])
- (user=zhangkelvin job=sendgmr) by 2002:a05:6122:50e:: with SMTP id
- x14mr1339573vko.7.1640096913683; Tue, 21 Dec 2021 06:28:33 -0800 (PST)
-Date: Tue, 21 Dec 2021 06:28:28 -0800
-Message-Id: <20211221142829.4123631-1-zhangkelvin@google.com>
+ (user=zhangkelvin job=sendgmr) by 2002:a05:622a:64e:: with SMTP id
+ a14mr2366429qtb.496.1640096915925; Tue, 21 Dec 2021 06:28:35 -0800 (PST)
+Date: Tue, 21 Dec 2021 06:28:29 -0800
+In-Reply-To: <20211221142829.4123631-1-zhangkelvin@google.com>
+Message-Id: <20211221142829.4123631-2-zhangkelvin@google.com>
 Mime-Version: 1.0
+References: <20211221142829.4123631-1-zhangkelvin@google.com>
 X-Mailer: git-send-email 2.34.1.307.g9b7440fafd-goog
-Subject: [PATCH v1 1/2] Add some comments about const-ness around iterate API
+Subject: [PATCH v1 2/2] Add API to get on disk size of an inode
 To: linux-erofs mailing list <linux-erofs@lists.ozlabs.org>,
  Miao Xie <miaoxie@huawei.com>, Fang Wei <fangwei1@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
@@ -83,31 +87,78 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Change-Id: I297a56ba14a37ef5eced95330a5b09109378ca44
+Change-Id: I60fa9346737b14418bd3fa1d12f760aaf0a0cca5
 Signed-off-by: Kelvin Zhang <zhangkelvin@google.com>
 ---
- include/erofs/dir.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ dump/main.c              |  4 ++--
+ include/erofs/internal.h |  2 ++
+ lib/data.c               | 21 +++++++++++++++++++++
+ 3 files changed, 25 insertions(+), 2 deletions(-)
 
-diff --git a/include/erofs/dir.h b/include/erofs/dir.h
-index 77656ca..59bd40d 100644
---- a/include/erofs/dir.h
-+++ b/include/erofs/dir.h
-@@ -39,6 +39,14 @@ typedef int (*erofs_readdir_cb)(struct erofs_dir_context *);
-  * the callback context. |de_namelen| is the exact dirent name length.
-  */
- struct erofs_dir_context {
-+	/* During execution of |erofs_iterate_dir|, the function needs
-+	 * to read the values inside |erofs_inode* dir|. So it is important
-+	 * that the callback function does not modify stuct pointed by
-+	 * |dir|. It is OK to repoint |dir| to other objects.
-+	 * Unfortunately, it's not possible to enforce this restriction
-+	 * with const keyword, as |erofs_iterate_dir| needs to modify
-+	 * struct pointed by |dir|.
-+	 */
- 	struct erofs_inode *dir;
- 	erofs_readdir_cb cb;
- 	erofs_nid_t pnid;		/* optional */
+diff --git a/dump/main.c b/dump/main.c
+index 71b44b4..cdde561 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -175,7 +175,7 @@ static int erofsdump_parse_options_cfg(int argc, char **argv)
+ 	return 0;
+ }
+ 
+-static int erofs_get_occupied_size(struct erofs_inode *inode,
++static int dump_get_occupied_size(struct erofs_inode *inode,
+ 		erofs_off_t *size)
+ {
+ 	*size = 0;
+@@ -291,7 +291,7 @@ static int erofs_read_dirent(struct erofs_dirent *de,
+ 		return err;
+ 	}
+ 
+-	err = erofs_get_occupied_size(&inode, &occupied_size);
++	err = dump_get_occupied_size(&inode, &occupied_size);
+ 	if (err) {
+ 		erofs_err("get file size failed\n");
+ 		return err;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 947304f..8f13e69 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -320,6 +320,8 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
+ int erofs_map_blocks(struct erofs_inode *inode,
+ 		struct erofs_map_blocks *map, int flags);
+ int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map);
++int erofs_get_occupied_size(const struct erofs_inode *inode,
++			    erofs_off_t *size);
+ /* zmap.c */
+ int z_erofs_fill_inode(struct erofs_inode *vi);
+ int z_erofs_map_blocks_iter(struct erofs_inode *vi,
+diff --git a/lib/data.c b/lib/data.c
+index 27710f9..92e54b5 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -320,3 +320,24 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
+ 	}
+ 	return -EINVAL;
+ }
++
++int erofs_get_occupied_size(const struct erofs_inode *inode,
++			    erofs_off_t *size)
++{
++	*size = 0;
++	switch (inode->datalayout) {
++	case EROFS_INODE_FLAT_INLINE:
++	case EROFS_INODE_FLAT_PLAIN:
++	case EROFS_INODE_CHUNK_BASED:
++		*size = inode->i_size;
++		break;
++	case EROFS_INODE_FLAT_COMPRESSION_LEGACY:
++	case EROFS_INODE_FLAT_COMPRESSION:
++		*size = inode->u.i_blocks * EROFS_BLKSIZ;
++		break;
++	default:
++		erofs_err("unknown datalayout");
++		return -1;
++	}
++	return 0;
++}
 -- 
 2.34.1.307.g9b7440fafd-goog
 
