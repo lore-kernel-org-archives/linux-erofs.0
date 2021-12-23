@@ -4,36 +4,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A448BC433F5
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 08:26:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D81C4C433F5
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 08:50:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JKNb25tQzz30R1
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 19:26:54 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JKP6M0H4Hz2yxV
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 19:50:35 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=hsiangkao@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
+ helo=out30-56.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JKNZw6HzTz2xsb
- for <linux-erofs@lists.ozlabs.org>; Thu, 23 Dec 2021 19:26:48 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R421e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0V.Wa4u1_1640247975; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JKP5D1Nv5z2yN1
+ for <linux-erofs@lists.ozlabs.org>; Thu, 23 Dec 2021 19:49:31 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0V.WIoWQ_1640249348; 
 Received: from
  e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0V.Wa4u1_1640247975) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 23 Dec 2021 16:26:23 +0800
+ fp:SMTPD_---0V.WIoWQ_1640249348) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 23 Dec 2021 16:49:17 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs-utils: dump: fix --path after converting
- erofs_get_pathname()
-Date: Thu, 23 Dec 2021 16:26:13 +0800
-Message-Id: <20211223082614.74875-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 2/2] erofs-utils: lib: fix --blobdev without
+ -Eforce-chunk-indexes
+Date: Thu, 23 Dec 2021 16:49:07 +0800
+Message-Id: <20211223084907.93020-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20211223082614.74875-2-hsiangkao@linux.alibaba.com>
+References: <20211223082614.74875-2-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -52,29 +54,37 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Otherwise it reports:
- $ dump.erofs --path=/ foo.erofs.img
- <E> erofs: file path not found @ nid 36
+blockmap is used by default, chunk indexes should be switched
+instead if --blobdev is specified.
 
-Fixes: e6082718f743 ("erofs-utils: lib: add API to get pathname of EROFS inode")
+Fixes: 016bd812be1e ("erofs-utils: mkfs: enable block map chunk format")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- dump/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/blobchunk.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/dump/main.c b/dump/main.c
-index 9d05d89..0616113 100644
---- a/dump/main.c
-+++ b/dump/main.c
-@@ -345,7 +345,7 @@ static void erofsdump_show_fileinfo(bool show_extent)
- 		return;
- 	}
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 5e9a88a..2e06b0c 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -113,7 +113,7 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode,
  
--	err = erofs_get_pathname(dumpcfg.nid, path, sizeof(path));
-+	err = erofs_get_pathname(inode.nid, path, sizeof(path));
- 	if (err < 0) {
- 		erofs_err("file path not found @ nid %llu", inode.nid | 0ULL);
- 		return;
+ 	if (multidev) {
+ 		idx.device_id = 1;
+-		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
++		DBG_BUGON(!(inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES));
+ 	} else {
+ 		base_blkaddr = remapped_base;
+ 	}
+@@ -171,6 +171,8 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode)
+ 	int fd, ret;
+ 
+ 	inode->u.chunkformat |= inode->u.chunkbits - LOG_BLOCK_SIZE;
++	if (multidev)
++		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
+ 
+ 	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+ 		unit = sizeof(struct erofs_inode_chunk_index);
 -- 
 2.24.4
 
