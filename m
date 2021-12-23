@@ -4,39 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB71EC433F5
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Dec 2021 03:21:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62CAEC433EF
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 08:26:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JJds71BjLz2yw9
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Dec 2021 14:21:31 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JKNb1255Qz2ywt
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Dec 2021 19:26:53 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
- helo=out30-42.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=hsiangkao@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JJds15KY3z2xtv
- for <linux-erofs@lists.ozlabs.org>; Wed, 22 Dec 2021 14:21:23 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JKNZs33qzz2xsb
+ for <linux-erofs@lists.ozlabs.org>; Thu, 23 Dec 2021 19:26:41 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R851e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0V.NrnyB_1640143272; 
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0V.NrnyB_1640143272) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 22 Dec 2021 11:21:14 +0800
-Date: Wed, 22 Dec 2021 11:21:12 +0800
+ NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0V.Wa4u1_1640247975; 
+Received: from
+ e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0V.Wa4u1_1640247975) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 23 Dec 2021 16:26:24 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Kelvin Zhang <zhangkelvin@google.com>
-Subject: Re: [PATCH v1] erofs-utils: lib: Fix 8MB bug on uncompressed extent
- size
-Message-ID: <YcKZqAwRVMZ7+c5J@B-P7TQMD6M-0146.local>
-References: <20211222020307.273150-1-zhangkelvin@google.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 2/2] erofs-utils: lib: fix --blobdev without
+ -Eforce-chunk-indexes
+Date: Thu, 23 Dec 2021 16:26:14 +0800
+Message-Id: <20211223082614.74875-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20211223082614.74875-1-hsiangkao@linux.alibaba.com>
+References: <20211223082614.74875-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20211222020307.273150-1-zhangkelvin@google.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -48,77 +49,42 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Miao Xie <miaoxie@huawei.com>,
- linux-erofs mailing list <linux-erofs@lists.ozlabs.org>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Dec 21, 2021 at 06:03:07PM -0800, Kelvin Zhang wrote:
-> Previously, uncompressed extent can be at most 8MB before mkfs.erofs
-> crashes on some error condition. This is due to a minor bug in how
-> compressed indices are encoded. This patch fixes the issue.
-> 
-> Signed-off-by: Kelvin Zhang <zhangkelvin@google.com>
+blockmap is used by default, chunk indexes should be switched
+instead if --blobdev is specified.
 
-I have to hold this for a while and look into (evaluate) that when I
-get a full free time... (maybe a week later.) I understand it's not
-quite urgent for all of us currently..
+Fixes: 016bd812be1e ("erofs-utils: mkfs: enable block map chunk format")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/blobchunk.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-I still stuck into ztailpacking inline feature for now... 
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 5e9a88a..2e06b0c 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -113,7 +113,7 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode,
+ 
+ 	if (multidev) {
+ 		idx.device_id = 1;
+-		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
++		DBG_BUGON(inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES);
+ 	} else {
+ 		base_blkaddr = remapped_base;
+ 	}
+@@ -171,6 +171,8 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode)
+ 	int fd, ret;
+ 
+ 	inode->u.chunkformat |= inode->u.chunkbits - LOG_BLOCK_SIZE;
++	if (multidev)
++		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
+ 
+ 	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+ 		unit = sizeof(struct erofs_inode_chunk_index);
+-- 
+2.24.4
 
-Thanks,
-Gao Xiang
-
-> ---
->  include/erofs_fs.h |  2 +-
->  lib/compress.c     | 21 ++++++++++++++++++++-
->  2 files changed, 21 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/erofs_fs.h b/include/erofs_fs.h
-> index 9a91877..13eaf24 100644
-> --- a/include/erofs_fs.h
-> +++ b/include/erofs_fs.h
-> @@ -353,7 +353,7 @@ enum {
->   * compressed block count of a compressed extent (in logical clusters, aka.
->   * block count of a pcluster).
->   */
-> -#define Z_EROFS_VLE_DI_D0_CBLKCNT		(1 << 11)
-> +#define Z_EROFS_VLE_DI_D0_CBLKCNT		(1U << 11)
->  
->  struct z_erofs_vle_decompressed_index {
->  	__le16 di_advise;
-> diff --git a/lib/compress.c b/lib/compress.c
-> index 98be7a2..23e571c 100644
-> --- a/lib/compress.c
-> +++ b/lib/compress.c
-> @@ -97,7 +97,26 @@ static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
->  		} else if (d0) {
->  			type = Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD;
->  
-> -			di.di_u.delta[0] = cpu_to_le16(d0);
-> +			/* If the |Z_EROFS_VLE_DI_D0_CBLKCNT| bit is set, parser
-> +			 * will interpret |delta[0]| as size of pcluster, rather
-> +			 * than distance to last head cluster. Normally this
-> +			 * isn't a problem, because uncompressed extent size are
-> +			 * below Z_EROFS_VLE_DI_D0_CBLKCNT * BLOCK_SIZE = 8MB.
-> +			 * But with large pcluster it's possible to go over this
-> +			 * number, resulting in corrupted compressed indices.
-> +			 * To solve this, we use Z_EROFS_VLE_DI_D0_CBLKCNT-1 if
-> +			 * the uncompressed extent size goes above 8MB. This is
-> +			 * OK because if kernel sees another non-head cluster
-> +			 * after going back by |delta[0]| blocks, kernel will
-> +			 * just keep looking back.
-> +			 */
-> +			if (d0 & Z_EROFS_VLE_DI_D0_CBLKCNT) {
-> +				di.di_u.delta[0] = max(
-> +					d0 & (~Z_EROFS_VLE_DI_D0_CBLKCNT),
-> +					Z_EROFS_VLE_DI_D0_CBLKCNT-1);
-> +			} else {
-> +				di.di_u.delta[0] = cpu_to_le16(d0);
-> +			}
->  			di.di_u.delta[1] = cpu_to_le16(d1);
->  		} else {
->  			type = raw ? Z_EROFS_VLE_CLUSTER_TYPE_PLAIN :
-> -- 
-> 2.34.1.448.ga2b2bfdf31-goog
