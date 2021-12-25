@@ -4,40 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63D97C433EF
-	for <linux-erofs@archiver.kernel.org>; Sat, 25 Dec 2021 07:12:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3FB9C433EF
+	for <linux-erofs@archiver.kernel.org>; Sat, 25 Dec 2021 20:24:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JLZrS66gXz305Z
-	for <linux-erofs@archiver.kernel.org>; Sat, 25 Dec 2021 18:12:40 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JLwPh02w1z304R
+	for <linux-erofs@archiver.kernel.org>; Sun, 26 Dec 2021 07:24:08 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=OBBA5LZF;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ smtp.mailfrom=intel.com (client-ip=134.134.136.126; helo=mga18.intel.com;
+ envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256
+ header.s=Intel header.b=OBBA5LZF; dkim-atps=neutral
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JLZrN3RT0z2yqC
- for <linux-erofs@lists.ozlabs.org>; Sat, 25 Dec 2021 18:12:35 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R361e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0V.hE4ok_1640415990; 
-Received: from
- e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0V.hE4ok_1640415990) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 25 Dec 2021 15:06:37 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org,
-	Chao Yu <chao@kernel.org>
-Subject: [PATCH v3 3/5] erofs: support unaligned data decompression
-Date: Sat, 25 Dec 2021 15:06:24 +0800
-Message-Id: <20211225070626.74080-4-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20211225070626.74080-1-hsiangkao@linux.alibaba.com>
-References: <20211225070626.74080-1-hsiangkao@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JLwPW2fDhz2xCx
+ for <linux-erofs@lists.ozlabs.org>; Sun, 26 Dec 2021 07:23:53 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1640463839; x=1671999839;
+ h=date:from:to:cc:subject:message-id:mime-version:
+ content-transfer-encoding;
+ bh=wwj6qZTRJaxtYR6pHVHb2purb3Bo/NMfu1YwHX/03pc=;
+ b=OBBA5LZFhdfH892lDFmCi1XJEzQPhklzC4nZdRaIDoOHriIAlo2gKUu4
+ mIVE+hCqfzopIw8K2qIyR9XCKNxyjljdauOgxQCGp2G9V9amlxokxLVac
+ DJZmig+U9c08ki1uEwJWdRsYpazOpxyZyoTYCM2mWjnARLqS+BcPuUldx
+ b09xigxicKnM9stKc1A0nRP0Uqng18SfTviTSh63kqb/DW2y4conx/F4H
+ d6MLouVPLvzNZqm+kQYI1pVYRS/JHYRHySX1EzE4rctql/tFYCDV6XOqc
+ e6qD+D5tmcOJYQm4tFNQ+Gw8UVl+bD8+shMTqvsoEYD/qxyfRtQ6Hhhez g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10208"; a="227906051"
+X-IronPort-AV: E=Sophos;i="5.88,235,1635231600"; d="scan'208";a="227906051"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 25 Dec 2021 12:22:49 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,235,1635231600"; d="scan'208";a="509434762"
+Received: from lkp-server01.sh.intel.com (HELO e357b3ef1427) ([10.239.97.150])
+ by orsmga007.jf.intel.com with ESMTP; 25 Dec 2021 12:22:47 -0800
+Received: from kbuild by e357b3ef1427 with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1n1DZ1-0004en-1z; Sat, 25 Dec 2021 20:22:47 +0000
+Date: Sun, 26 Dec 2021 04:22:04 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 9204beaeb1c1bf4eeac42df048c5bd829deedfff
+Message-ID: <61c77d6c.cHSSo7FEya5mje3s%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -49,94 +68,156 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yue Hu <huyue2@yulong.com>,
- LKML <linux-kernel@vger.kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Previously, compressed data was assumed as block-aligned. This
-should be changed due to in-block tail-packing inline data.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 9204beaeb1c1bf4eeac42df048c5bd829deedfff  erofs: add on-disk compressed tail-packing inline support
 
-Signed-off-by: Yue Hu <huyue2@yulong.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+elapsed time: 720m
+
+configs tested: 130
+configs skipped: 3
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+i386                 randconfig-c001-20211225
+mips                         rt305x_defconfig
+powerpc                    ge_imp3a_defconfig
+xtensa                generic_kc705_defconfig
+mips                             allyesconfig
+sh                         microdev_defconfig
+sparc                       sparc32_defconfig
+arc                          axs101_defconfig
+mips                         tb0226_defconfig
+arc                     nsimosci_hs_defconfig
+arm                       cns3420vb_defconfig
+powerpc                      ppc64e_defconfig
+arm                             ezx_defconfig
+sh                              ul2_defconfig
+sh                        sh7757lcr_defconfig
+ia64                          tiger_defconfig
+powerpc                       ppc64_defconfig
+sh                           se7619_defconfig
+riscv                            allmodconfig
+openrisc                         alldefconfig
+h8300                    h8300h-sim_defconfig
+powerpc                        cell_defconfig
+arm                            mps2_defconfig
+sh                          lboxre2_defconfig
+powerpc                         ps3_defconfig
+h8300                       h8s-sim_defconfig
+sh                          landisk_defconfig
+sh                          sdk7786_defconfig
+arm                         nhk8815_defconfig
+arm                          pxa3xx_defconfig
+arm                            mmp2_defconfig
+sh                        sh7785lcr_defconfig
+m68k                             allyesconfig
+mips                     cu1830-neo_defconfig
+sh                          urquell_defconfig
+arm                           sama5_defconfig
+powerpc                   lite5200b_defconfig
+powerpc                   bluestone_defconfig
+arm                           stm32_defconfig
+arm                           tegra_defconfig
+arm                              alldefconfig
+arm                         vf610m4_defconfig
+arm                        magician_defconfig
+nds32                               defconfig
+powerpc                    adder875_defconfig
+sh                        edosk7705_defconfig
+arm                  randconfig-c002-20211225
+ia64                             allmodconfig
+ia64                                defconfig
+ia64                             allyesconfig
+m68k                             allmodconfig
+m68k                                defconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+alpha                               defconfig
+csky                                defconfig
+nios2                            allyesconfig
+alpha                            allyesconfig
+xtensa                           allyesconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+i386                             allyesconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                                defconfig
+i386                   debian-10.3-kselftests
+i386                              debian-10.3
+mips                             allmodconfig
+powerpc                           allnoconfig
+powerpc                          allmodconfig
+powerpc                          allyesconfig
+x86_64               randconfig-a013-20211225
+x86_64               randconfig-a015-20211225
+x86_64               randconfig-a011-20211225
+x86_64               randconfig-a012-20211225
+x86_64               randconfig-a014-20211225
+x86_64               randconfig-a016-20211225
+i386                 randconfig-a012-20211225
+i386                 randconfig-a011-20211225
+i386                 randconfig-a014-20211225
+i386                 randconfig-a016-20211225
+i386                 randconfig-a015-20211225
+i386                 randconfig-a013-20211225
+arc                  randconfig-r043-20211225
+s390                 randconfig-r044-20211225
+riscv                randconfig-r042-20211225
+riscv                    nommu_k210_defconfig
+riscv                            allyesconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+x86_64                    rhel-8.3-kselftests
+um                           x86_64_defconfig
+um                             i386_defconfig
+x86_64                           allyesconfig
+x86_64                               rhel-8.3
+x86_64                          rhel-8.3-func
+x86_64                                  kexec
+x86_64                              defconfig
+
+clang tested configs:
+riscv                randconfig-c006-20211226
+powerpc              randconfig-c003-20211226
+i386                 randconfig-c001-20211226
+x86_64               randconfig-c007-20211226
+i386                 randconfig-a002-20211225
+i386                 randconfig-a005-20211225
+i386                 randconfig-a001-20211225
+i386                 randconfig-a004-20211225
+i386                 randconfig-a003-20211225
+i386                 randconfig-a006-20211225
+x86_64               randconfig-a003-20211225
+x86_64               randconfig-a001-20211225
+x86_64               randconfig-a005-20211225
+x86_64               randconfig-a004-20211225
+x86_64               randconfig-a002-20211225
+x86_64               randconfig-a006-20211225
+hexagon              randconfig-r041-20211225
+hexagon              randconfig-r045-20211225
+
 ---
- fs/erofs/decompressor.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
-
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 4dd2ca61465c..3a067127a22d 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -118,7 +118,7 @@ static int z_erofs_lz4_prepare_dstpages(struct z_erofs_lz4_decompress_ctx *ctx,
- 
- static void *z_erofs_lz4_handle_overlap(struct z_erofs_lz4_decompress_ctx *ctx,
- 			void *inpage, unsigned int *inputmargin, int *maptype,
--			bool support_0padding)
-+			bool may_inplace)
- {
- 	struct z_erofs_decompress_req *rq = ctx->rq;
- 	unsigned int omargin, total, i, j;
-@@ -127,7 +127,7 @@ static void *z_erofs_lz4_handle_overlap(struct z_erofs_lz4_decompress_ctx *ctx,
- 
- 	if (rq->inplace_io) {
- 		omargin = PAGE_ALIGN(ctx->oend) - ctx->oend;
--		if (rq->partial_decoding || !support_0padding ||
-+		if (rq->partial_decoding || !may_inplace ||
- 		    omargin < LZ4_DECOMPRESS_INPLACE_MARGIN(rq->inputsize))
- 			goto docopy;
- 
-@@ -203,15 +203,13 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
- 				      u8 *out)
- {
- 	struct z_erofs_decompress_req *rq = ctx->rq;
-+	bool support_0padding = false, may_inplace = false;
- 	unsigned int inputmargin;
- 	u8 *headpage, *src;
--	bool support_0padding;
- 	int ret, maptype;
- 
- 	DBG_BUGON(*rq->in == NULL);
- 	headpage = kmap_atomic(*rq->in);
--	inputmargin = 0;
--	support_0padding = false;
- 
- 	/* LZ4 decompression inplace is only safe if zero_padding is enabled */
- 	if (erofs_sb_has_zero_padding(EROFS_SB(rq->sb))) {
-@@ -223,11 +221,13 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
- 			kunmap_atomic(headpage);
- 			return ret;
- 		}
-+		may_inplace = !((rq->pageofs_in + rq->inputsize) &
-+				(EROFS_BLKSIZ - 1));
- 	}
- 
- 	inputmargin = rq->pageofs_in;
- 	src = z_erofs_lz4_handle_overlap(ctx, headpage, &inputmargin,
--					 &maptype, support_0padding);
-+					 &maptype, may_inplace);
- 	if (IS_ERR(src))
- 		return PTR_ERR(src);
- 
-@@ -317,7 +317,8 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
- {
- 	const unsigned int nrpages_out =
- 		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
--	const unsigned int righthalf = PAGE_SIZE - rq->pageofs_out;
-+	const unsigned int righthalf = min_t(unsigned int, rq->outputsize,
-+					     PAGE_SIZE - rq->pageofs_out);
- 	unsigned char *src, *dst;
- 
- 	if (nrpages_out > 2) {
-@@ -330,7 +331,7 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
- 		return 0;
- 	}
- 
--	src = kmap_atomic(*rq->in);
-+	src = kmap_atomic(*rq->in) + rq->pageofs_in;
- 	if (rq->out[0]) {
- 		dst = kmap_atomic(rq->out[0]);
- 		memcpy(dst + rq->pageofs_out, src, righthalf);
--- 
-2.24.4
-
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
