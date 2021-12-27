@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 94150C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF3EAC43217
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMJ6553z306j
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:40 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyML1lL2z3c61
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
- helo=out30-44.freemail.mail.aliyun.com;
- envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMB4XWYz2xBb
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:33 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMC4RRvz30BM
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:35 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R911e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.vxTKl_1640609705; 
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.wf8nA_1640609691; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.vxTKl_1640609705) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:55:06 +0800
+ fp:SMTPD_---0V.wf8nA_1640609691) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:54:52 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 18/23] cachefiles: use idr tree managing pending demand read
-Date: Mon, 27 Dec 2021 20:54:39 +0800
-Message-Id: <20211227125444.21187-19-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 06/23] erofs: export erofs_map_blocks()
+Date: Mon, 27 Dec 2021 20:54:27 +0800
+Message-Id: <20211227125444.21187-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,65 +56,42 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This is in prep for implementing .demand_read() callback for cachefiles.
-
-In the following patch, .demand_read() callback is responsible for
-notifying user daemon the requested file range (hole) to read. Then
-.demand_read() callback will get blocked until user daemon has prepared
-data and filled the hole.
-
-This patch introduces an idr tree to manage all these pending
-demand-read IO.
+... so that it can be used in the following introduced fs/erofs/fscache.c.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c   | 3 +++
- fs/cachefiles/internal.h | 4 ++++
- 2 files changed, 7 insertions(+)
+ fs/erofs/data.c     | 4 ++--
+ fs/erofs/internal.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 892a9bdba53f..01496fa8c263 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -118,6 +118,8 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
- 	INIT_LIST_HEAD(&cache->volumes);
- 	INIT_LIST_HEAD(&cache->object_list);
- 	spin_lock_init(&cache->object_list_lock);
-+	idr_init(&cache->reqs);
-+	spin_lock_init(&cache->reqs_lock);
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 0e35ef3f9f3d..477aaff0c832 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -77,8 +77,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	return err;
+ }
  
- 	/* set default caching limits
- 	 * - limit at 1% free space and/or free files
-@@ -152,6 +154,7 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
- 	cachefiles_daemon_unbind(cache);
+-static int erofs_map_blocks(struct inode *inode,
+-			    struct erofs_map_blocks *map, int flags)
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 3265688af7f9..45fb6f5d11b5 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -447,6 +447,8 @@ struct page *erofs_get_meta_page(struct super_block *sb, erofs_blk_t blkaddr);
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
+ int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+ 		 u64 start, u64 len);
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags);
  
- 	/* clean up the control file interface */
-+	idr_destroy(&cache->reqs);
- 	cache->cachefilesd = NULL;
- 	file->private_data = NULL;
- 	cachefiles_open = 0;
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index a8e6500889d7..af8ac8107f77 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -15,6 +15,7 @@
- #include <linux/fscache-cache.h>
- #include <linux/cred.h>
- #include <linux/security.h>
-+#include <linux/idr.h>
- 
- #define CACHEFILES_DIO_BLOCK_SIZE 4096
- 
-@@ -102,6 +103,9 @@ struct cachefiles_cache {
- 	char				*rootdirname;	/* name of cache root directory */
- 	char				*secctx;	/* LSM security context */
- 	char				*tag;		/* cache binding tag */
-+
-+	struct idr			reqs;
-+	spinlock_t			reqs_lock;
- };
- 
- #include <trace/events/cachefiles.h>
+ /* inode.c */
+ static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
 -- 
 2.27.0
 
