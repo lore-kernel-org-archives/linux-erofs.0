@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 803BBC433FE
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6CE2C433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMW0qjqz3c8m
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:51 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMX30fTz3c9Q
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:52 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
- helo=out30-132.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyML2rTKz2xBb
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:37 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.wXYVp_1640609703; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMJ49VPz3bP6
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:36 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R231e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.w7GZ4_1640609706; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.wXYVp_1640609703) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:55:04 +0800
+ fp:SMTPD_---0V.w7GZ4_1640609706) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:55:07 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 16/23] erofs: add 'uuid' mount option
-Date: Mon, 27 Dec 2021 20:54:37 +0800
-Message-Id: <20211227125444.21187-17-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 19/23] cachefiles: implement .demand_read() for demand read
+Date: Mon, 27 Dec 2021 20:54:40 +0800
+Message-Id: <20211227125444.21187-20-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,57 +56,114 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Introduce 'uuid' mount option to enable the nodev mode, in which erofs
-could be mounted from blob files instead of blkdev. By then users could
-specify the path of bootstrap blob file containing the complete erofs
-image.
+Implement .demand_read() callback for cachefiels backend.
+
+.demand_read() callback is responsible for notifying user daemon the
+pending request to process, and will get blocked until user daemon has
+prepared data and filled the hole.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/super.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/cachefiles/internal.h | 12 +++++++++
+ fs/cachefiles/io.c       | 56 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 68 insertions(+)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index ea56122f7a35..4f17aedc4acd 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -451,6 +451,7 @@ enum {
- 	Opt_dax,
- 	Opt_dax_enum,
- 	Opt_device,
-+	Opt_uuid,
- 	Opt_err
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index af8ac8107f77..eeb6ad7dcd49 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -61,6 +61,18 @@ struct cachefiles_object {
+ #define CACHEFILES_OBJECT_USING_TMPFILE	0		/* Have an unlinked tmpfile */
  };
  
-@@ -475,6 +476,7 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
- 	fsparam_flag("dax",             Opt_dax),
- 	fsparam_enum("dax",		Opt_dax_enum, erofs_dax_param_enums),
- 	fsparam_string("device",	Opt_device),
-+	fsparam_string("uuid",		Opt_uuid),
- 	{}
- };
- 
-@@ -570,6 +572,12 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 		}
- 		++ctx->devs->extra_devices;
- 		break;
-+	case Opt_uuid:
-+		kfree(ctx->opt.uuid);
-+		ctx->opt.uuid = kstrdup(param->string, GFP_KERNEL);
-+		if (!ctx->opt.uuid)
-+			return -ENOMEM;
-+		break;
- 	default:
- 		return -ENOPARAM;
- 	}
-@@ -784,6 +792,7 @@ static void erofs_fc_free(struct fs_context *fc)
- 	struct erofs_fs_context *ctx = fc->fs_private;
- 
- 	erofs_free_dev_context(ctx->devs);
-+	kfree(ctx->opt.uuid);
- 	kfree(ctx);
++struct cachefiles_req_in {
++	uint64_t id;
++	uint64_t off;
++	uint64_t len;
++	char path[NAME_MAX];
++};
++
++struct cachefiles_req {
++	struct completion done;
++	struct cachefiles_req_in req_in;
++};
++
+ /*
+  * Cache files cache definition
+  */
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index 60b1eac2ce78..376603e5ed99 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -539,12 +539,68 @@ static void cachefiles_end_operation(struct netfs_cache_resources *cres)
+ 	fscache_end_cookie_access(fscache_cres_cookie(cres), fscache_access_io_end);
  }
  
++static struct cachefiles_req *cachefiles_alloc_req(struct cachefiles_object *object,
++						   loff_t start_pos,
++						   size_t len)
++{
++	struct cachefiles_req *req;
++	struct cachefiles_req_in *req_in;
++
++	req = kzalloc(sizeof(*req), GFP_KERNEL);
++	if (!req)
++		return NULL;
++
++	req_in = &req->req_in;
++
++	req_in->off = start_pos;
++	req_in->len = len;
++	strncpy(req_in->path, object->d_name, sizeof(req_in->path));
++
++	init_completion(&req->done);
++
++	return req;
++}
++
++int cachefiles_demand_read(struct netfs_cache_resources *cres,
++			   loff_t start_pos, size_t len)
++{
++	struct cachefiles_object *object;
++	struct cachefiles_cache *cache;
++	struct cachefiles_req *req;
++	int ret;
++
++	object = cachefiles_cres_object(cres);
++	cache = object->volume->cache;
++
++	req = cachefiles_alloc_req(object, start_pos, len);
++	if (!req)
++		return -ENOMEM;
++
++	spin_lock(&cache->reqs_lock);
++	ret = idr_alloc(&cache->reqs, req, 0, 0, GFP_KERNEL);
++	if (ret >= 0)
++		req->req_in.id = ret;
++	spin_unlock(&cache->reqs_lock);
++	if (ret < 0) {
++		kfree(req);
++		return -ENOMEM;
++	}
++
++	wake_up_all(&cache->daemon_pollwq);
++
++	wait_for_completion(&req->done);
++	kfree(req);
++
++	return 0;
++}
++
+ static const struct netfs_cache_ops cachefiles_netfs_cache_ops = {
+ 	.end_operation		= cachefiles_end_operation,
+ 	.read			= cachefiles_read,
+ 	.write			= cachefiles_write,
+ 	.prepare_read		= cachefiles_prepare_read,
+ 	.prepare_write		= cachefiles_prepare_write,
++	.demand_read		= cachefiles_demand_read,
+ };
+ 
+ /*
 -- 
 2.27.0
 
