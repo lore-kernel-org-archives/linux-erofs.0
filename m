@@ -4,75 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9E40C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 09:39:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26029C433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMt0r0WW2z2yph
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 20:39:24 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=f+YyA36S;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyM924qTz2yxP
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:33 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62d;
- helo=mail-pl1-x62d.google.com; envelope-from=zbestahu@gmail.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
- header.s=20210112 header.b=f+YyA36S; dkim-atps=neutral
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com
- [IPv6:2607:f8b0:4864:20::62d])
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMt0l3lCpz2x9Z
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 20:39:17 +1100 (AEDT)
-Received: by mail-pl1-x62d.google.com with SMTP id n16so11071489plc.2
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 01:39:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=0MTfeDrD4s6CQETZ+bCP0r0wHlG/QajpnwMYP0Ju9Yk=;
- b=f+YyA36S5zeXppUfS2VWgUe/F175DWEr/XNoe810Zv/09Rz/dNBMTt0ap6C8RKngiF
- UqgQ9UY3Beo6uUwCFWBjRDtHGaYpBQwIogzxEnKP9sEvrQL4ZWrOKgUjIKNHDnKnLtOz
- AN7I7e8ZzLzLr+bPRM3Dd64Zyj3U7HlKzPyyRt4IybmPzUFNSn8yBRjWXBx2OzeWp7iI
- paNDj3GKO+wKC+KYgDSZAzYAkEY4l4F5Jc4YI4um3bB+z3ifuu32rePQlojwTBTsH8W4
- o26eHGaN1d6bJZwG1OFwicGXcDFjZ5aqQUqHynqzx1h0pJzdkZ9I18YUq3XEs+L5WI3T
- b2kQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=0MTfeDrD4s6CQETZ+bCP0r0wHlG/QajpnwMYP0Ju9Yk=;
- b=Fsk2wUZTip6266aR/joREWjFCgaUbxCIHqL5dMWSJSOhqO3CZhDcslmiiARLtpoyvA
- 49nF1wwsf+lBYhSChUWEypiqcq7GV02FQGlCjfAlA8QFgiUG4fxiZtLQ02WWSdFgLNif
- IlwSdMxGzVXZulvnFJNS+fw24ZH4QcLaqHkDT9LMDDtCFU0noPugqaC8lGmO4e7iNmLf
- 7HwUsnnU2qSFnweQ8ZoEfGUwkUO13QSRGA76bCnYpcEBvelqsmouGxjJDe2RsXvxjURa
- ApBnqRpz5wt/BtCnR/LVOPU8sJwBkZ3oW9stNEfys5ya+hAMDM3Da88Wpfpx1X68kbOG
- XCAg==
-X-Gm-Message-State: AOAM532aWPeulfUnAPk7KnWv0oB1TaU7lXAkwfP2UvsSqliF/7g+X3bq
- 5yHRuENBZv//mg2hdATCTcA=
-X-Google-Smtp-Source: ABdhPJy1knG3g+LLFd4JfNGwgBm+K4Fl6QjpYJ/gBaVCSj0XWop/wm9G8DCtrdUUycu2BVeGuvlAtA==
-X-Received: by 2002:a17:90a:f402:: with SMTP id
- ch2mr19864336pjb.223.1640597954305; 
- Mon, 27 Dec 2021 01:39:14 -0800 (PST)
-Received: from localhost ([103.220.76.197])
- by smtp.gmail.com with ESMTPSA id k70sm13800117pgd.19.2021.12.27.01.39.11
- (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
- Mon, 27 Dec 2021 01:39:14 -0800 (PST)
-Date: Mon, 27 Dec 2021 17:36:26 +0800
-From: Yue Hu <zbestahu@gmail.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: Re: [PATCH v3 4/5] erofs: support inline data decompression
-Message-ID: <20211227173626.000036ee.zbestahu@gmail.com>
-In-Reply-To: <YcmGwXlhx4n04Pf2@B-P7TQMD6M-0146.local>
-References: <20211225070626.74080-1-hsiangkao@linux.alibaba.com>
- <20211225070626.74080-5-hsiangkao@linux.alibaba.com>
- <20211227161819.00000148.zbestahu@gmail.com>
- <YcmGwXlhx4n04Pf2@B-P7TQMD6M-0146.local>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyM10Qb2z2xvP
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:22 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R571e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.vxTIo_1640609693; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0V.vxTIo_1640609693) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:54:54 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v1 08/23] erofs: register global fscache volume
+Date: Mon, 27 Dec 2021 20:54:29 +0800
+Message-Id: <20211227125444.21187-9-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
+References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -84,256 +48,135 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: geshifei@coolpad.com, LKML <linux-kernel@vger.kernel.org>,
- zhangwen@coolpad.com, Yue Hu <huyue2@yulong.com>, linux-erofs@lists.ozlabs.org,
- shaojunjun@coolpad.com
+Cc: tao.peng@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ joseph.qi@linux.alibaba.com, bo.liu@linux.alibaba.com,
+ linux-fsdevel@vger.kernel.org, eguan@linux.alibaba.com,
+ gerry@linux.alibaba.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, 27 Dec 2021 17:26:25 +0800
-Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+All erofs instances will share one global fscache volume.
 
-> On Mon, Dec 27, 2021 at 04:18:19PM +0800, Yue Hu wrote:
-> > Hi Xiang,
-> > 
-> > On Sat, 25 Dec 2021 15:06:25 +0800
-> > Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
-> >   
-> > > From: Yue Hu <huyue2@yulong.com>
-> > > 
-> > > Currently, we have already support tail-packing inline for
-> > > uncompressed file, let's also implement this for compressed
-> > > files to save I/Os and storage space.
-> > > 
-> > > Different from normal pclusters, compressed data is available
-> > > in advance because of other metadata I/Os. Therefore, they
-> > > directly move into the bypass queue without extra I/O submission.
-> > > 
-> > > It's the last compression feature before folio/subpage support.
-> > > 
-> > > Signed-off-by: Yue Hu <huyue2@yulong.com>
-> > > Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> > > ---
-> > >  fs/erofs/zdata.c | 128 ++++++++++++++++++++++++++++++++---------------
-> > >  fs/erofs/zdata.h |  24 ++++++++-
-> > >  2 files changed, 109 insertions(+), 43 deletions(-)
-> > > 
-> > > diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-> > > index bc765d8a6dc2..e6ef02634e08 100644
-> > > --- a/fs/erofs/zdata.c
-> > > +++ b/fs/erofs/zdata.c
-> > > @@ -82,12 +82,13 @@ static struct z_erofs_pcluster *z_erofs_alloc_pcluster(unsigned int nrpages)
-> > >  
-> > >  static void z_erofs_free_pcluster(struct z_erofs_pcluster *pcl)
-> > >  {
-> > > +	unsigned int pclusterpages = z_erofs_pclusterpages(pcl);
-> > >  	int i;
-> > >  
-> > >  	for (i = 0; i < ARRAY_SIZE(pcluster_pool); ++i) {
-> > >  		struct z_erofs_pcluster_slab *pcs = pcluster_pool + i;
-> > >  
-> > > -		if (pcl->pclusterpages > pcs->maxpages)
-> > > +		if (pclusterpages > pcs->maxpages)
-> > >  			continue;
-> > >  
-> > >  		kmem_cache_free(pcs->slab, pcl);
-> > > @@ -298,6 +299,7 @@ int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
-> > >  		container_of(grp, struct z_erofs_pcluster, obj);
-> > >  	int i;
-> > >  
-> > > +	DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
-> > >  	/*
-> > >  	 * refcount of workgroup is now freezed as 1,
-> > >  	 * therefore no need to worry about available decompression users.
-> > > @@ -331,6 +333,7 @@ int erofs_try_to_free_cached_page(struct page *page)
-> > >  	if (erofs_workgroup_try_to_freeze(&pcl->obj, 1)) {
-> > >  		unsigned int i;
-> > >  
-> > > +		DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
-> > >  		for (i = 0; i < pcl->pclusterpages; ++i) {
-> > >  			if (pcl->compressed_pages[i] == page) {
-> > >  				WRITE_ONCE(pcl->compressed_pages[i], NULL);
-> > > @@ -458,6 +461,7 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
-> > >  				       struct inode *inode,
-> > >  				       struct erofs_map_blocks *map)
-> > >  {
-> > > +	bool ztailpacking = map->m_flags & EROFS_MAP_META;
-> > >  	struct z_erofs_pcluster *pcl;
-> > >  	struct z_erofs_collection *cl;
-> > >  	struct erofs_workgroup *grp;
-> > > @@ -469,12 +473,12 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
-> > >  	}
-> > >  
-> > >  	/* no available pcluster, let's allocate one */
-> > > -	pcl = z_erofs_alloc_pcluster(map->m_plen >> PAGE_SHIFT);
-> > > +	pcl = z_erofs_alloc_pcluster(ztailpacking ? 1 :
-> > > +				     map->m_plen >> PAGE_SHIFT);
-> > >  	if (IS_ERR(pcl))
-> > >  		return PTR_ERR(pcl);
-> > >  
-> > >  	atomic_set(&pcl->obj.refcount, 1);
-> > > -	pcl->obj.index = map->m_pa >> PAGE_SHIFT;
-> > >  	pcl->algorithmformat = map->m_algorithmformat;
-> > >  	pcl->length = (map->m_llen << Z_EROFS_PCLUSTER_LENGTH_BIT) |
-> > >  		(map->m_flags & EROFS_MAP_FULL_MAPPED ?
-> > > @@ -494,16 +498,25 @@ static int z_erofs_register_collection(struct z_erofs_collector *clt,
-> > >  	mutex_init(&cl->lock);
-> > >  	DBG_BUGON(!mutex_trylock(&cl->lock));
-> > >  
-> > > -	grp = erofs_insert_workgroup(inode->i_sb, &pcl->obj);
-> > > -	if (IS_ERR(grp)) {
-> > > -		err = PTR_ERR(grp);
-> > > -		goto err_out;
-> > > -	}
-> > > +	if (ztailpacking) {
-> > > +		pcl->obj.index = 0;	/* which indicates ztailpacking */
-> > > +		pcl->pageofs_in = erofs_blkoff(map->m_pa);
-> > > +		pcl->tailpacking_size = map->m_plen;
-> > > +	} else {
-> > > +		pcl->obj.index = map->m_pa >> PAGE_SHIFT;
-> > >  
-> > > -	if (grp != &pcl->obj) {
-> > > -		clt->pcl = container_of(grp, struct z_erofs_pcluster, obj);
-> > > -		err = -EEXIST;
-> > > -		goto err_out;
-> > > +		grp = erofs_insert_workgroup(inode->i_sb, &pcl->obj);
-> > > +		if (IS_ERR(grp)) {
-> > > +			err = PTR_ERR(grp);
-> > > +			goto err_out;
-> > > +		}
-> > > +
-> > > +		if (grp != &pcl->obj) {
-> > > +			clt->pcl = container_of(grp,
-> > > +					struct z_erofs_pcluster, obj);
-> > > +			err = -EEXIST;
-> > > +			goto err_out;
-> > > +		}
-> > >  	}
-> > >  	/* used to check tail merging loop due to corrupted images */
-> > >  	if (clt->owned_head == Z_EROFS_PCLUSTER_TAIL)
-> > > @@ -532,17 +545,20 @@ static int z_erofs_collector_begin(struct z_erofs_collector *clt,
-> > >  	DBG_BUGON(clt->owned_head == Z_EROFS_PCLUSTER_NIL);
-> > >  	DBG_BUGON(clt->owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
-> > >  
-> > > -	if (!PAGE_ALIGNED(map->m_pa)) {
-> > > -		DBG_BUGON(1);
-> > > -		return -EINVAL;
-> > > +	if (map->m_flags & EROFS_MAP_META) {
-> > > +		if ((map->m_pa & ~PAGE_MASK) + map->m_plen > PAGE_SIZE) {
-> > > +			DBG_BUGON(1);
-> > > +			return -EFSCORRUPTED;
-> > > +		}
-> > > +		goto tailpacking;
-> > >  	}
-> > >  
-> > >  	grp = erofs_find_workgroup(inode->i_sb, map->m_pa >> PAGE_SHIFT);
-> > >  	if (grp) {
-> > >  		clt->pcl = container_of(grp, struct z_erofs_pcluster, obj);
-> > >  	} else {
-> > > +tailpacking:
-> > >  		ret = z_erofs_register_collection(clt, inode, map);
-> > > -
-> > >  		if (!ret)
-> > >  			goto out;
-> > >  		if (ret != -EEXIST)
-> > > @@ -558,9 +574,9 @@ static int z_erofs_collector_begin(struct z_erofs_collector *clt,
-> > >  out:
-> > >  	z_erofs_pagevec_ctor_init(&clt->vector, Z_EROFS_NR_INLINE_PAGEVECS,
-> > >  				  clt->cl->pagevec, clt->cl->vcnt);
-> > > -
-> > >  	/* since file-backed online pages are traversed in reverse order */
-> > > -	clt->icpage_ptr = clt->pcl->compressed_pages + clt->pcl->pclusterpages;
-> > > +	clt->icpage_ptr = clt->pcl->compressed_pages +
-> > > +			z_erofs_pclusterpages(clt->pcl);
-> > >  	return 0;
-> > >  }
-> > >  
-> > > @@ -687,8 +703,26 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
-> > >  	else
-> > >  		cache_strategy = DONTALLOC;
-> > >  
-> > > -	preload_compressed_pages(clt, MNGD_MAPPING(sbi),
-> > > -				 cache_strategy, pagepool);
-> > > +	if (z_erofs_is_inline_pcluster(clt->pcl)) {  
-> > 
-> > current cache_strategy is only for preload_compressed_pages(), so the cache_strategy should be
-> > needless for inline branch.
-> >   
-> 
-> Ok, you are right. will update.
-> 
-> > > +		struct page *mpage;
-> > > +
-> > > +		mpage = erofs_get_meta_page(inode->i_sb,
-> > > +					    erofs_blknr(map->m_pa));  
-> > 
-> > could we just use the map->mpage directly if it's what we want(which is the most cases when test),
-> > if not we erofs_get_meta_page()?  
-> 
-> Nope, I tend to avoid this since I will introduce a new subpage
-> feature to clean up all erofs_get_meta_page() usage.
-> 
-> Not because we cannot do like this, just to avoid coupling and messy.
+In this using scenario, one erofs instance could be mounted from one (or
+multiple) blob files instead of blkdev. The number of blob files that
+each erofs instance could correspond to is limited, since these blob
+files are quite large in size. For example, when used for container
+image distribution, one erofs instance used for container image for
+node.js will correspond to ~20 blob files in total. Thus in densely
+employed environment, there could be as many as hundreds of containers
+and thus thousands of fscache cookies under one fscache volume.
 
-got it.
+Then as for cachefiles backend, the hash table managing all cookies
+under one volume contains 32K slots. Thus the hashing functionality shall
+scale well in this case. Besides, cachefiles backend will scatter
+backing files under 256 fan sub-directoris, and thus the scalability of
+looking up backing files shall also not be an issue.
 
-> 
-> >   
-> > > +		if (IS_ERR(mpage)) {
-> > > +			err = PTR_ERR(mpage);
-> > > +			erofs_err(inode->i_sb,
-> > > +				  "failed to get inline page, err %d", err);
-> > > +			goto err_out;
-> > > +		}
-> > > +		/* TODO: new subpage feature will get rid of it */
-> > > +		unlock_page(mpage);
-> > > +
-> > > +		WRITE_ONCE(clt->pcl->compressed_pages[0], mpage);
-> > > +		clt->mode = COLLECT_PRIMARY_FOLLOWED_NOINPLACE;
-> > > +	} else {
-> > > +		preload_compressed_pages(clt, MNGD_MAPPING(sbi),
-> > > +					 cache_strategy, pagepool);
-> > > +	}
-> > >  
-> > >  hitted:
-> > >  	/*
-> > > @@ -844,6 +878,7 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
-> > >  				       struct page **pagepool)
-> > >  {
-> > >  	struct erofs_sb_info *const sbi = EROFS_SB(sb);
-> > > +	unsigned int pclusterpages = z_erofs_pclusterpages(pcl);
-> > >  	struct z_erofs_pagevec_ctor ctor;
-> > >  	unsigned int i, inputsize, outputsize, llen, nr_pages;
-> > >  	struct page *pages_onstack[Z_EROFS_VMAP_ONSTACK_PAGES];
-> > > @@ -925,16 +960,15 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
-> > >  	overlapped = false;
-> > >  	compressed_pages = pcl->compressed_pages;
-> > >  
-> > > -	for (i = 0; i < pcl->pclusterpages; ++i) {
-> > > +	for (i = 0; i < pclusterpages; ++i) {
-> > >  		unsigned int pagenr;
-> > >  
-> > >  		page = compressed_pages[i];
-> > > -
-> > >  		/* all compressed pages ought to be valid */
-> > >  		DBG_BUGON(!page);
-> > > -		DBG_BUGON(z_erofs_page_is_invalidated(page));
-> > >  
-> > > -		if (!z_erofs_is_shortlived_page(page)) {
-> > > +		if (!z_erofs_is_inline_pcluster(pcl) &&  
-> > 
-> > some inline checks may exist for noinline case if it's bigpcluster. And i understand the
-> > behavior of ztailpacking page is differ from normal page. So better to branch them? moving
-> > the inline check outside the for loop?   
-> 
-> The truth is that I really don't want to add any complexity of this code.
-> Also it's my next target to clean up. But I would never separate
-> ztailpacking cases alone....
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ fs/erofs/Makefile   |  2 +-
+ fs/erofs/fscache.c  | 21 +++++++++++++++++++++
+ fs/erofs/internal.h |  5 +++++
+ fs/erofs/super.c    |  7 +++++++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/fscache.c
 
-got it.
-
-> 
-> Thanks,
-> Gao Xiang
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index 756fe2d65272..f9a3609625aa 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ 
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+-erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o
++erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o fscache.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
+ erofs-$(CONFIG_EROFS_FS_ZIP_LZMA) += decompressor_lzma.o
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+new file mode 100644
+index 000000000000..cdbbe3f15a20
+--- /dev/null
++++ b/fs/erofs/fscache.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2021, Alibaba Cloud
++ */
++#include "internal.h"
++
++static struct fscache_volume *volume;
++
++int __init erofs_fscache_init(void)
++{
++	volume = fscache_acquire_volume("erofs", NULL, NULL, 0);
++	if (!volume)
++		return -EINVAL;
++
++	return 0;
++}
++
++void erofs_fscache_cleanup(void)
++{
++	fscache_relinquish_volume(volume, NULL, false);
++}
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index c9ee8c247202..d464642e9d35 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/iomap.h>
++#include <linux/fscache.h>
+ #include "erofs_fs.h"
+ 
+ /* redefine pr_fmt "erofs: " */
+@@ -569,6 +570,10 @@ static inline int z_erofs_load_lzma_config(struct super_block *sb,
+ }
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
++/* fscache.c */
++int erofs_fscache_init(void);
++void erofs_fscache_cleanup(void);
++
+ #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
+ 
+ #endif	/* __EROFS_INTERNAL_H */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 80c00c34eafc..517d74f3c303 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -876,6 +876,10 @@ static int __init erofs_module_init(void)
+ 	if (err)
+ 		goto zip_err;
+ 
++	err = erofs_fscache_init();
++	if (err)
++		goto fscache_err;
++
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -883,6 +887,8 @@ static int __init erofs_module_init(void)
+ 	return 0;
+ 
+ fs_err:
++	erofs_fscache_cleanup();
++fscache_err:
+ 	z_erofs_exit_zip_subsystem();
+ zip_err:
+ 	z_erofs_lzma_exit();
+@@ -901,6 +907,7 @@ static void __exit erofs_module_exit(void)
+ 	/* Ensure all RCU free inodes / pclusters are safe to be destroyed. */
+ 	rcu_barrier();
+ 
++	erofs_fscache_cleanup();
+ 	z_erofs_exit_zip_subsystem();
+ 	z_erofs_lzma_exit();
+ 	erofs_exit_shrinker();
+-- 
+2.27.0
 
