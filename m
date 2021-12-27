@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2CCDC433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 13:01:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2CCDC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 13:01:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyTt6xV6z2yxx
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Dec 2021 00:01:22 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyVV45Bzz300S
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 Dec 2021 00:01:54 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130;
- helo=out30-130.freemail.mail.aliyun.com;
- envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyTp5BsDz2ymk
- for <linux-erofs@lists.ozlabs.org>; Tue, 28 Dec 2021 00:01:17 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyVR5ggpz2xMF
+ for <linux-erofs@lists.ozlabs.org>; Tue, 28 Dec 2021 00:01:51 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R461e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.xJoSA_1640609704; 
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.xJoQp_1640609696; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.xJoSA_1640609704) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:55:05 +0800
+ fp:SMTPD_---0V.xJoQp_1640609696) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:54:57 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 17/23] netfs: support on demand read
-Date: Mon, 27 Dec 2021 20:54:38 +0800
-Message-Id: <20211227125444.21187-18-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 10/23] erofs: add anonymous inode managing page cache of
+ blob file
+Date: Mon, 27 Dec 2021 20:54:31 +0800
+Message-Id: <20211227125444.21187-11-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,96 +57,87 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add demand_read() callback to netfs_cache_ops to implement demand
-reading.
-
-The precondition for implementing demand reading semantic is that, all
-blob files are sparse and have been placed under corresponding directory
-on the first beginning. When upper fs starts to access the blob file, it
-will "cache miss" (hit the hole) and then .issue_op() callback will be
-called to prepare the data.
-
-Then the working flow is as described below. The .issue_op() callback
-could be implemented by netfs_demand_read() helper, which will in turn
-call .demand_read() callback of corresponding fscache backend to prepare
-the data.
-
-The implementation of .demand_read() callback can be backend specific.
-The following patch will introduce an implementation of .demand_read()
-callback for cachefiles, which will notify user daemon the requested
-file range to read. The .demand_read() callback will get blocked until
-the user daemon has prepared the corresponding data.
-
-Then once .demand_read() callback returns with 0, it is guaranteed that
-the requested data has been ready. In this case, transform this IO
-request to NETFS_READ_FROM_CACHE state, initiate an incomplete
-completion and then retry to read from backing file.
+Introduce one anonymous inode for managing page cache of corresponding
+blob file. Then erofs could read directly from the address space of the
+anonymous inode when cache hit.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 26 ++++++++++++++++++++++++++
- include/linux/netfs.h  |  4 ++++
- 2 files changed, 30 insertions(+)
+ fs/erofs/fscache.c  | 35 +++++++++++++++++++++++++++++++++++
+ fs/erofs/internal.h |  1 +
+ 2 files changed, 36 insertions(+)
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index ca84918b6b5d..8aac65132b67 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -1006,6 +1006,32 @@ int netfs_readpage(struct file *file,
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 15c5bb0f8ea5..4dfca7c95710 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -34,6 +34,33 @@ static void erofs_fscache_cleanup_cookie(struct erofs_cookie_ctx *ctx)
+ 	ctx->cookie = NULL;
  }
- EXPORT_SYMBOL(netfs_readpage);
  
-+void netfs_demand_read(struct netfs_read_subrequest *subreq)
++static const struct address_space_operations erofs_fscache_aops = {
++};
++
++static int erofs_fscache_get_inode(struct erofs_cookie_ctx *ctx,
++				   struct super_block *sb)
 +{
-+	struct netfs_read_request *rreq = subreq->rreq;
-+	struct netfs_cache_resources *cres = &rreq->cache_resources;
-+	loff_t start_pos;
-+	size_t len;
-+	int ret;
++	struct inode *const inode = new_inode(sb);
 +
-+	start_pos = subreq->start + subreq->transferred;
-+	len = subreq->len - subreq->transferred;
++	if (!inode)
++		return -ENOMEM;
 +
-+	/*
-+	 * In success case (ret == 0), user daemon has downloaded data for us,
-+	 * thus transform to NETFS_READ_FROM_CACHE state and advertise that 0
-+	 * byte readed, so that the request will enter into INCOMPLETE state and
-+	 * retry to read from backing file.
-+	 */
-+	ret = cres->ops->demand_read(cres, start_pos, len);
-+	if (!ret) {
-+		subreq->source = NETFS_READ_FROM_CACHE;
-+		__clear_bit(NETFS_SREQ_WRITE_TO_CACHE, &subreq->flags);
-+	}
++	set_nlink(inode, 1);
++	inode->i_size = OFFSET_MAX;
 +
-+	netfs_subreq_terminated(subreq, ret, false);
++	inode->i_mapping->a_ops = &erofs_fscache_aops;
++	mapping_set_gfp_mask(inode->i_mapping,
++			GFP_NOFS | __GFP_HIGHMEM | __GFP_MOVABLE);
++	ctx->inode = inode;
++	return 0;
 +}
 +
- /*
-  * Prepare a folio for writing without reading first
-  * @folio: The folio being prepared
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index b46c39d98bbd..80a738762deb 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -244,6 +244,9 @@ struct netfs_cache_ops {
- 	int (*prepare_write)(struct netfs_cache_resources *cres,
- 			     loff_t *_start, size_t *_len, loff_t i_size,
- 			     bool no_space_allocated_yet);
++static void erofs_fscache_put_inode(struct erofs_cookie_ctx *ctx)
++{
++	iput(ctx->inode);
++	ctx->inode = NULL;
++}
 +
-+	int (*demand_read)(struct netfs_cache_resources *cres,
-+			   loff_t start_pos, size_t len);
+ static int erofs_fscahce_init_ctx(struct erofs_cookie_ctx *ctx,
+ 				  struct super_block *sb, char *path)
+ {
+@@ -45,12 +72,20 @@ static int erofs_fscahce_init_ctx(struct erofs_cookie_ctx *ctx,
+ 		return ret;
+ 	}
+ 
++	ret = erofs_fscache_get_inode(ctx, sb);
++	if (ret) {
++		erofs_err(sb, "failed to get anonymous inode\n");
++		erofs_fscache_cleanup_cookie(ctx);
++		return ret;
++	}
++
+ 	return 0;
+ }
+ 
+ static void erofs_fscache_cleanup_ctx(struct erofs_cookie_ctx *ctx)
+ {
+ 	erofs_fscache_cleanup_cookie(ctx);
++	erofs_fscache_put_inode(ctx);
+ }
+ 
+ struct erofs_cookie_ctx *erofs_fscache_get_ctx(struct super_block *sb,
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 4179c3dcb7f9..2e4f267b37e7 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -93,6 +93,7 @@ struct erofs_sb_lz4_info {
+ 
+ struct erofs_cookie_ctx {
+ 	struct fscache_cookie *cookie;
++	struct inode *inode;
  };
  
- struct readahead_control;
-@@ -259,6 +262,7 @@ extern int netfs_write_begin(struct file *, struct address_space *,
- 			     void **,
- 			     const struct netfs_read_request_ops *,
- 			     void *);
-+extern void netfs_demand_read(struct netfs_read_subrequest *);
- 
- extern void netfs_subreq_terminated(struct netfs_read_subrequest *, ssize_t, bool);
- extern void netfs_stats_show(struct seq_file *);
+ struct erofs_sb_info {
 -- 
 2.27.0
 
