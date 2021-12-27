@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BEB0EC433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 522FEC4332F
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMP2T5Kz302G
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:45 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMQ6SLSz307C
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:46 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
+ helo=out30-45.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMG3cNhz30RS
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:37 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.xJoPB_1640609686; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMF0lnnz3bbx
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:35 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.xJoSm_1640609709; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.xJoPB_1640609686) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:54:47 +0800
+ fp:SMTPD_---0V.xJoSm_1640609709) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:55:10 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 02/23] cachefiles: add mode command to distinguish modes
-Date: Mon, 27 Dec 2021 20:54:23 +0800
-Message-Id: <20211227125444.21187-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 21/23] cachefiles: implement .read() for demand read
+Date: Mon, 27 Dec 2021 20:54:42 +0800
+Message-Id: <20211227125444.21187-22-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,87 +56,70 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add one flag bit to distinguish the new introduced demand-read mode from
-the original mode. User daemon could set the specified mode with 'mode'
-command. If user daemon doesn't ever explicitly set the mode, then the
-behaviour is the same with that prior this patch, i.e. cachefiles serves
-as the local cache for remote fs by default.
+Once notified, user daemon need to get more details of the request by
+reading the devnode. The readed information includes the file range of
+the request, with which user daemon could somehow prepare corresponding
+data (e.g. download from remote through network) and fill the hole.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c   | 32 ++++++++++++++++++++++++++++++++
- fs/cachefiles/internal.h |  1 +
- 2 files changed, 33 insertions(+)
+ fs/cachefiles/daemon.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
 diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 871f1e0f423d..892a9bdba53f 100644
+index 311dcd911a85..ce4cc5617dfc 100644
 --- a/fs/cachefiles/daemon.c
 +++ b/fs/cachefiles/daemon.c
-@@ -41,6 +41,7 @@ static int cachefiles_daemon_dir(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_inuse(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_secctx(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_tag(struct cachefiles_cache *, char *);
-+static int cachefiles_daemon_mode(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_bind(struct cachefiles_cache *, char *);
- static void cachefiles_daemon_unbind(struct cachefiles_cache *);
- 
-@@ -83,6 +84,7 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
- 	{ "inuse",	cachefiles_daemon_inuse		},
- 	{ "secctx",	cachefiles_daemon_secctx	},
- 	{ "tag",	cachefiles_daemon_tag		},
-+	{ "mode",	cachefiles_daemon_mode		},
- 	{ "",		NULL				}
- };
- 
-@@ -671,6 +673,36 @@ static int cachefiles_daemon_inuse(struct cachefiles_cache *cache, char *args)
- 	return -EINVAL;
+@@ -29,6 +29,8 @@ static ssize_t cachefiles_daemon_write(struct file *, const char __user *,
+ 				       size_t, loff_t *);
+ static __poll_t cachefiles_daemon_poll(struct file *,
+ 					   struct poll_table_struct *);
++static ssize_t cachefiles_demand_read(struct file *, char __user *, size_t,
++				      loff_t *);
+ static __poll_t cachefiles_demand_poll(struct file *,
+ 					   struct poll_table_struct *);
+ static int cachefiles_daemon_frun(struct cachefiles_cache *, char *);
+@@ -63,6 +65,7 @@ const struct file_operations cachefiles_demand_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= cachefiles_daemon_open,
+ 	.release	= cachefiles_daemon_release,
++	.read		= cachefiles_demand_read,
+ 	.write		= cachefiles_daemon_write,
+ 	.poll		= cachefiles_demand_poll,
+ 	.llseek		= noop_llseek,
+@@ -322,6 +325,32 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
+ 	return mask;
  }
  
-+/*
-+ * Set the cache mode
-+ * - command: "mode cache|demand"
-+ */
-+static int cachefiles_daemon_mode(struct cachefiles_cache *cache, char *args)
++static ssize_t cachefiles_demand_read(struct file *file, char __user *_buffer,
++				      size_t buflen, loff_t *pos)
 +{
-+	_enter(",%s", args);
++	struct cachefiles_cache *cache = file->private_data;
++	struct cachefiles_req *req;
++	int n, id = 0;
 +
-+	if (test_bit(CACHEFILES_READY, &cache->flags)) {
-+		pr_err("Cache already started\n");
-+		return -EINVAL;
-+	}
++	if (!test_bit(CACHEFILES_READY, &cache->flags))
++		return 0;
 +
-+	if (!*args) {
-+		pr_err("Empty mode specified\n");
-+		return -EINVAL;
-+	}
++	spin_lock(&cache->reqs_lock);
++	req = idr_get_next(&cache->reqs, &id);
++	spin_unlock(&cache->reqs_lock);
++	if (!req)
++		return 0;
 +
-+	if (!strncmp(args, "cache", strlen("cache"))) {
-+		clear_bit(CACHEFILES_DEMAND_MODE, &cache->flags);
-+	} else if (!strncmp(args, "demand", strlen("demand"))) {
-+		set_bit(CACHEFILES_DEMAND_MODE, &cache->flags);
-+	} else {
-+		pr_err("Invalid mode specified\n");
-+		return -EINVAL;
-+	}
++	n = sizeof(req->req_in);
++	if (n > buflen)
++		return -EMSGSIZE;
 +
-+	return 0;
++	if (copy_to_user(_buffer, &req->req_in, n) != 0)
++		return -EFAULT;
++
++	return n;
 +}
 +
- /*
-  * Bind a directory as a cache
-  */
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index e0ed811d628d..a8e6500889d7 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -98,6 +98,7 @@ struct cachefiles_cache {
- #define CACHEFILES_DEAD			1	/* T if cache dead */
- #define CACHEFILES_CULLING		2	/* T if cull engaged */
- #define CACHEFILES_STATE_CHANGED	3	/* T if state changed (poll trigger) */
-+#define CACHEFILES_DEMAND_MODE		4	/* T if works in demand read mode for read-only fs */
- 	char				*rootdirname;	/* name of cache root directory */
- 	char				*secctx;	/* LSM security context */
- 	char				*tag;		/* cache binding tag */
+ static __poll_t cachefiles_demand_poll(struct file *file,
+ 					   struct poll_table_struct *poll)
+ {
 -- 
 2.27.0
 
