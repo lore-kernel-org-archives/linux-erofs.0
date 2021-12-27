@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 631FCC4332F
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB18FC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMY6nZFz3c7D
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMd39jkz3bnJ
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130;
+ helo=out30-130.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMR2h24z2yxW
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:45 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.wXYWr_1640609710; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMX0rg8z3c9K
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:51 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.vZtXb_1640609697; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.wXYWr_1640609710) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:55:11 +0800
+ fp:SMTPD_---0V.vZtXb_1640609697) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:54:58 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 22/23] cachefiles: add done command for demand read
-Date: Mon, 27 Dec 2021 20:54:43 +0800
-Message-Id: <20211227125444.21187-23-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 11/23] erofs: register cookie context for bootstrap
+Date: Mon, 27 Dec 2021 20:54:32 +0800
+Message-Id: <20211227125444.21187-12-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,78 +56,73 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Once has prepared data and filled the hole, user daemon could notify
-cachefiles backend by writing 'done' command to devnode.
+Something worth mentioning about the cleanup routine.
 
-With done command, the id originally readed from devnode is transferred
-back to cachefiles backend. This id identifies the position of the
-completed request inside the idr tree, and thus cachefiles backend could
-find the corresponding completed request once gets notified.
+1. The init routine is prior to when the root inode gets initialized,
+and thus the corresponding cleanup routine shall be placed under
+.kill_sb() callback.
+
+2. The init routine will instantiate anonymous inodes under the
+super_block, and thus .put_super() callback shall also contain the
+cleanup routine. Or we'll get "VFS: Busy inodes after unmount." warning.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/super.c    | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index ce4cc5617dfc..36d0bcf5fc3f 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -48,6 +48,7 @@ static int cachefiles_daemon_tag(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_mode(struct cachefiles_cache *, char *);
- static int cachefiles_daemon_bind(struct cachefiles_cache *, char *);
- static void cachefiles_daemon_unbind(struct cachefiles_cache *);
-+static int cachefiles_daemon_done(struct cachefiles_cache *, char *);
- 
- static unsigned long cachefiles_open;
- 
-@@ -91,6 +92,7 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
- 	{ "secctx",	cachefiles_daemon_secctx	},
- 	{ "tag",	cachefiles_daemon_tag		},
- 	{ "mode",	cachefiles_daemon_mode		},
-+	{ "done",	cachefiles_daemon_done		},
- 	{ "",		NULL				}
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 2e4f267b37e7..4ee4ff6774ba 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -141,6 +141,8 @@ struct erofs_sb_info {
+ 	u8 volume_name[16];             /* volume name */
+ 	u32 feature_compat;
+ 	u32 feature_incompat;
++
++	struct erofs_cookie_ctx *bootstrap;
  };
  
-@@ -604,6 +606,38 @@ static int cachefiles_daemon_tag(struct cachefiles_cache *cache, char *args)
- 	return 0;
- }
+ #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 517d74f3c303..141cabd01d32 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -663,6 +663,16 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	else
+ 		sbi->dax_dev = NULL;
  
-+/*
-+ * Request completion
-+ * - command: "done <id>"
-+ */
-+static int cachefiles_daemon_done(struct cachefiles_cache *cache, char *args)
-+{
-+	unsigned long id;
-+	int ret;
-+	struct cachefiles_req *req;
++	if (!sb->s_bdev) {
++		struct erofs_cookie_ctx *bootstrap;
 +
-+	_enter(",%s", args);
++		bootstrap = erofs_fscache_get_ctx(sb, ctx->opt.uuid);
++		if (IS_ERR(bootstrap))
++			return PTR_ERR(bootstrap);
 +
-+	if (!*args) {
-+		pr_err("Empty id specified\n");
-+		return -EINVAL;
++		sbi->bootstrap = bootstrap;
 +	}
 +
-+	ret = kstrtoul(args, 0, &id);
-+	if (ret)
-+		return ret;
-+
-+	spin_lock(&cache->reqs_lock);
-+	req = idr_remove(&cache->reqs, id);
-+	spin_unlock(&cache->reqs_lock);
-+	if (!req)
-+		return -EINVAL;
-+
-+	complete(&req->done);
-+
-+	return 0;
-+}
-+
- /*
-  * Request a node in the cache be culled from the current working directory
-  * - command: "cull <name>"
+ 	err = erofs_read_superblock(sb);
+ 	if (err)
+ 		return err;
+@@ -820,6 +830,7 @@ static void erofs_kill_sb(struct super_block *sb)
+ 		return;
+ 
+ 	erofs_free_dev_context(sbi->devs);
++	erofs_fscache_put_ctx(sbi->bootstrap);
+ 	fs_put_dax(sbi->dax_dev);
+ 	kfree(sbi);
+ 	sb->s_fs_info = NULL;
+@@ -837,6 +848,8 @@ static void erofs_put_super(struct super_block *sb)
+ 	iput(sbi->managed_cache);
+ 	sbi->managed_cache = NULL;
+ #endif
++	erofs_fscache_put_ctx(sbi->bootstrap);
++	sbi->bootstrap = NULL;
+ }
+ 
+ static struct file_system_type erofs_fs_type = {
 -- 
 2.27.0
 
