@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5ED6AC433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B72B9C433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 13:00:11 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyNf4CZjz2yxx
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:56:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMySV2mPgz2ywH
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 Dec 2021 00:00:10 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43;
- helo=out30-43.freemail.mail.aliyun.com;
- envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyNZ5WgNz2ynD
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:56:46 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R311e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMySR2htnz2x9B
+ for <linux-erofs@lists.ozlabs.org>; Tue, 28 Dec 2021 00:00:07 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R791e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.wXYT2_1640609685; 
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.w7GWF_1640609687; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.wXYT2_1640609685) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:54:46 +0800
+ fp:SMTPD_---0V.w7GWF_1640609687) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:54:48 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 01/23] cachefiles: add cachefiles_demand devnode
-Date: Mon, 27 Dec 2021 20:54:22 +0800
-Message-Id: <20211227125444.21187-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 03/23] cachefiles: detect backing file size in demand-read
+ mode
+Date: Mon, 27 Dec 2021 20:54:24 +0800
+Message-Id: <20211227125444.21187-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,97 +57,91 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-fscache/cachefiles used to serve as a local cache for remote fs. The
-following patches will introduce a new use case, in which local
-read-only fs could implement demand reading with fscache. By then the
-user daemon needs to read and poll on the devnode, and thus the original
-cachefiles devnode can't be reused in this case.
+When upper read-only fs uses fscache for demand reading, it has no idea
+on the size of the backed file. (You need to input the file size as the
+@object_size parameter when calling fscache_acquire_cookie().)
 
-Thus create a new devnode specifically for the new mode. The following
-patches will add more file_operations.
+In this using scenario, user daemon is responsible for preparing all
+backing files with correct file size (though they can be all sparse
+files), and the upper fs shall guarantee that past EOF access will never
+happen.
+
+Then with this precondition, cachefiles can detect the actual size of
+backing file, and set it as the size of backed file.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c   |  8 ++++++++
- fs/cachefiles/internal.h |  1 +
- fs/cachefiles/main.c     | 12 ++++++++++++
- 3 files changed, 21 insertions(+)
+ fs/cachefiles/namei.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 40a792421fc1..871f1e0f423d 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -56,6 +56,14 @@ const struct file_operations cachefiles_daemon_fops = {
- 	.llseek		= noop_llseek,
- };
- 
-+const struct file_operations cachefiles_demand_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= cachefiles_daemon_open,
-+	.release	= cachefiles_daemon_release,
-+	.write		= cachefiles_daemon_write,
-+	.llseek		= noop_llseek,
-+};
-+
- struct cachefiles_daemon_cmd {
- 	char name[8];
- 	int (*handler)(struct cachefiles_cache *cache, char *args);
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index 421423819d63..e0ed811d628d 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -145,6 +145,7 @@ extern int cachefiles_has_space(struct cachefiles_cache *cache,
-  * daemon.c
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+index 074722c21522..54123b2693cd 100644
+--- a/fs/cachefiles/namei.c
++++ b/fs/cachefiles/namei.c
+@@ -511,9 +511,19 @@ struct file *cachefiles_create_tmpfile(struct cachefiles_object *object)
   */
- extern const struct file_operations cachefiles_daemon_fops;
-+extern const struct file_operations cachefiles_demand_fops;
+ static bool cachefiles_create_file(struct cachefiles_object *object)
+ {
++	struct cachefiles_cache *cache = object->volume->cache;
+ 	struct file *file;
+ 	int ret;
  
- /*
-  * error_inject.c
-diff --git a/fs/cachefiles/main.c b/fs/cachefiles/main.c
-index 3f369c6f816d..0a423274d283 100644
---- a/fs/cachefiles/main.c
-+++ b/fs/cachefiles/main.c
-@@ -39,6 +39,12 @@ static struct miscdevice cachefiles_dev = {
- 	.fops	= &cachefiles_daemon_fops,
- };
- 
-+static struct miscdevice cachefiles_demand_dev = {
-+	.minor	= MISC_DYNAMIC_MINOR,
-+	.name	= "cachefiles_demand",
-+	.fops	= &cachefiles_demand_fops,
-+};
++	/*
++	 * Demand read mode requires that backing files have been prepared with
++	 * correct file size under corresponding directory. We can get here when
++	 * the backing file doesn't exist under corresponding directory, or the
++	 * file size is unexpected 0.
++	 */
++	if (test_bit(CACHEFILES_DEMAND_MODE, &cache->flags))
++		return false;
 +
- /*
-  * initialise the fs caching module
-  */
-@@ -52,6 +58,9 @@ static int __init cachefiles_init(void)
- 	ret = misc_register(&cachefiles_dev);
+ 	ret = cachefiles_has_space(object->volume->cache, 1, 0,
+ 				   cachefiles_has_space_for_create);
  	if (ret < 0)
- 		goto error_dev;
-+	ret = misc_register(&cachefiles_demand_dev);
-+	if (ret < 0)
-+		goto error_demand_dev;
- 
- 	/* create an object jar */
- 	ret = -ENOMEM;
-@@ -68,6 +77,8 @@ static int __init cachefiles_init(void)
- 	return 0;
- 
- error_object_jar:
-+	misc_deregister(&cachefiles_demand_dev);
-+error_demand_dev:
- 	misc_deregister(&cachefiles_dev);
- error_dev:
- 	cachefiles_unregister_error_injection();
-@@ -86,6 +97,7 @@ static void __exit cachefiles_exit(void)
- 	pr_info("Unloading\n");
- 
- 	kmem_cache_destroy(cachefiles_object_jar);
-+	misc_deregister(&cachefiles_demand_dev);
- 	misc_deregister(&cachefiles_dev);
- 	cachefiles_unregister_error_injection();
+@@ -530,6 +540,32 @@ static bool cachefiles_create_file(struct cachefiles_object *object)
+ 	return true;
  }
+ 
++/*
++ * Fs using fscache for demand reading may have no idea of the file size of
++ * backing files. Thus the demand read mode requires that backing files have
++ * been prepared with correct file size under corresponding directory. Then
++ * fscache backend is responsible for taking the file size of the backing file
++ * as the object size.
++ */
++static int cachefiles_recheck_size(struct cachefiles_object *object,
++				   struct file *file)
++{
++	loff_t size;
++	struct cachefiles_cache *cache = object->volume->cache;
++
++	if (!test_bit(CACHEFILES_DEMAND_MODE, &cache->flags))
++		return 0;
++
++	size = i_size_read(file_inode(file));
++	if (size) {
++		object->cookie->object_size = size;
++		return 0;
++	} else {
++		return -EINVAL;
++	}
++
++}
++
+ /*
+  * Open an existing file, checking its attributes and replacing it if it is
+  * stale.
+@@ -569,6 +605,10 @@ static bool cachefiles_open_file(struct cachefiles_object *object,
+ 	}
+ 	_debug("file -> %pd positive", dentry);
+ 
++	ret = cachefiles_recheck_size(object, file);
++	if (ret < 0)
++		goto check_failed;
++
+ 	ret = cachefiles_check_auxdata(object, file);
+ 	if (ret < 0)
+ 		goto check_failed;
 -- 
 2.27.0
 
