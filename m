@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB18FC433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:55:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7584CC433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 12:56:04 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMd39jkz3bnJ
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:55:57 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JMyMl0FGgz3bXj
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Dec 2021 23:56:03 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130;
- helo=out30-130.freemail.mail.aliyun.com;
- envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
+ helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
+ receiver=<UNKNOWN>)
+Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
+ [47.88.44.36])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMX0rg8z3c9K
- for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:51 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.vZtXb_1640609697; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JMyMh07dbz2yn3
+ for <linux-erofs@lists.ozlabs.org>; Mon, 27 Dec 2021 23:55:59 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V.w7GYT_1640609702; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V.vZtXb_1640609697) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 27 Dec 2021 20:54:58 +0800
+ fp:SMTPD_---0V.w7GYT_1640609702) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 27 Dec 2021 20:55:02 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v1 11/23] erofs: register cookie context for bootstrap
-Date: Mon, 27 Dec 2021 20:54:32 +0800
-Message-Id: <20211227125444.21187-12-jefflexu@linux.alibaba.com>
+Subject: [PATCH v1 15/23] erofs: implement fscache-based data read for data
+ blobs
+Date: Mon, 27 Dec 2021 20:54:36 +0800
+Message-Id: <20211227125444.21187-16-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
 References: <20211227125444.21187-1-jefflexu@linux.alibaba.com>
@@ -56,73 +57,113 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Something worth mentioning about the cleanup routine.
-
-1. The init routine is prior to when the root inode gets initialized,
-and thus the corresponding cleanup routine shall be placed under
-.kill_sb() callback.
-
-2. The init routine will instantiate anonymous inodes under the
-super_block, and thus .put_super() callback shall also contain the
-cleanup routine. Or we'll get "VFS: Busy inodes after unmount." warning.
+This patch implements the data plane of reading data from data blob file
+over fscache.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/internal.h |  2 ++
- fs/erofs/super.c    | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
+ fs/erofs/data.c     |  3 +++
+ fs/erofs/fscache.c  | 25 +++++++++++++++++++++++--
+ fs/erofs/internal.h |  1 +
+ 3 files changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 2e4f267b37e7..4ee4ff6774ba 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -141,6 +141,8 @@ struct erofs_sb_info {
- 	u8 volume_name[16];             /* volume name */
- 	u32 feature_compat;
- 	u32 feature_incompat;
-+
-+	struct erofs_cookie_ctx *bootstrap;
- };
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index f0857c285fac..621769ab5753 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -166,6 +166,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 	/* primary device by default */
+ 	map->m_bdev = sb->s_bdev;
+ 	map->m_daxdev = EROFS_SB(sb)->dax_dev;
++	map->m_ctx = EROFS_SB(sb)->bootstrap;
  
- #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 517d74f3c303..141cabd01d32 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -663,6 +663,16 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 	else
- 		sbi->dax_dev = NULL;
- 
-+	if (!sb->s_bdev) {
-+		struct erofs_cookie_ctx *bootstrap;
-+
-+		bootstrap = erofs_fscache_get_ctx(sb, ctx->opt.uuid);
-+		if (IS_ERR(bootstrap))
-+			return PTR_ERR(bootstrap);
-+
-+		sbi->bootstrap = bootstrap;
-+	}
-+
- 	err = erofs_read_superblock(sb);
- 	if (err)
- 		return err;
-@@ -820,6 +830,7 @@ static void erofs_kill_sb(struct super_block *sb)
- 		return;
- 
- 	erofs_free_dev_context(sbi->devs);
-+	erofs_fscache_put_ctx(sbi->bootstrap);
- 	fs_put_dax(sbi->dax_dev);
- 	kfree(sbi);
- 	sb->s_fs_info = NULL;
-@@ -837,6 +848,8 @@ static void erofs_put_super(struct super_block *sb)
- 	iput(sbi->managed_cache);
- 	sbi->managed_cache = NULL;
- #endif
-+	erofs_fscache_put_ctx(sbi->bootstrap);
-+	sbi->bootstrap = NULL;
+ 	if (map->m_deviceid) {
+ 		down_read(&devs->rwsem);
+@@ -176,6 +177,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 		}
+ 		map->m_bdev = dif->bdev;
+ 		map->m_daxdev = dif->dax_dev;
++		map->m_ctx = dif->ctx;
+ 		up_read(&devs->rwsem);
+ 	} else if (devs->extra_devices) {
+ 		down_read(&devs->rwsem);
+@@ -192,6 +194,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 				map->m_pa -= startoff;
+ 				map->m_bdev = dif->bdev;
+ 				map->m_daxdev = dif->dax_dev;
++				map->m_ctx = dif->ctx;
+ 				break;
+ 			}
+ 		}
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index bfcec831d58a..7d4f6682e521 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -77,12 +77,24 @@ static inline void do_copy_page(struct page *from, struct page *to,
+ 	kunmap_atomic(vfrom);
  }
  
- static struct file_system_type erofs_fs_type = {
++static struct page *erofs_fscache_get_page(struct erofs_cookie_ctx *ctx,
++					   erofs_blk_t blkaddr)
++{
++	struct page *page;
++
++	page = erofs_readpage_from_fscache(ctx, blkaddr);
++	if (!IS_ERR(page))
++		lock_page(page);
++	return page;
++}
++
+ static int erofs_fscache_do_readpage(struct file *file, struct page *page)
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+ 	struct super_block *sb = inode->i_sb;
+ 	struct erofs_map_blocks map;
++	struct erofs_map_dev mdev;
+ 	erofs_off_t o_la, pa;
+ 	size_t offset, len;
+ 	struct page *ipage;
+@@ -105,6 +117,15 @@ static int erofs_fscache_do_readpage(struct file *file, struct page *page)
+ 		return 0;
+ 	}
+ 
++	mdev = (struct erofs_map_dev) {
++		.m_deviceid = map.m_deviceid,
++		.m_pa = map.m_pa,
++	};
++
++	ret = erofs_map_dev(inode->i_sb, &mdev);
++	if (ret)
++		return ret;
++
+ 	/*
+ 	 * 1) For FLAT_PLAIN/FLAT_INLINE layout, the output map.m_la shall be
+ 	 * equal to o_la, and the output map.m_pa is exactly the physical
+@@ -114,9 +135,9 @@ static int erofs_fscache_do_readpage(struct file *file, struct page *page)
+ 	 * physical address of this chunk boundary. So we need to recalculate
+ 	 * the actual physical address of o_la.
+ 	 */
+-	pa = map.m_pa + o_la - map.m_la;
++	pa = mdev.m_pa + o_la - map.m_la;
+ 
+-	ipage = erofs_get_meta_page(sb, erofs_blknr(pa));
++	ipage = erofs_fscache_get_page(mdev.m_ctx, erofs_blknr(pa));
+ 	if (IS_ERR(ipage))
+ 		return PTR_ERR(ipage);
+ 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index f60577a7aade..b21c3751e88d 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -447,6 +447,7 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
+ struct erofs_map_dev {
+ 	struct block_device *m_bdev;
+ 	struct dax_device *m_daxdev;
++	struct erofs_cookie_ctx *m_ctx;
+ 
+ 	erofs_off_t m_pa;
+ 	unsigned int m_deviceid;
 -- 
 2.27.0
 
