@@ -4,38 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1847DC433EF
-	for <linux-erofs@archiver.kernel.org>; Sun,  2 Jan 2022 04:00:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58177C433F5
+	for <linux-erofs@archiver.kernel.org>; Sun,  2 Jan 2022 04:01:01 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JRQCZ18DYz2ywt
-	for <linux-erofs@archiver.kernel.org>; Sun,  2 Jan 2022 15:00:58 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JRQCb3lTlz307W
+	for <linux-erofs@archiver.kernel.org>; Sun,  2 Jan 2022 15:00:59 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130;
+ helo=out30-130.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JRQCQ0882z2xX8
- for <linux-erofs@lists.ozlabs.org>; Sun,  2 Jan 2022 15:00:48 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R691e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=hsiangkao@linux.alibaba.com;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JRQCQ0yVlz2yb9
+ for <linux-erofs@lists.ozlabs.org>; Sun,  2 Jan 2022 15:00:46 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R851e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=hsiangkao@linux.alibaba.com;
  NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0V0Xfdc3_1641096018; 
 Received: from
  e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
  fp:SMTPD_---0V0Xfdc3_1641096018) by smtp.aliyun-inc.com(127.0.0.1);
- Sun, 02 Jan 2022 12:00:33 +0800
+ Sun, 02 Jan 2022 12:00:27 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>,
  Liu Bo <bo.liu@linux.alibaba.com>
-Subject: [PATCH v2 3/5] erofs: use meta buffers for super operations
-Date: Sun,  2 Jan 2022 12:00:15 +0800
-Message-Id: <20220102040017.51352-4-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 0/5] erofs: get rid of erofs_get_meta_page()
+Date: Sun,  2 Jan 2022 12:00:12 +0800
+Message-Id: <20220102040017.51352-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20220102040017.51352-1-hsiangkao@linux.alibaba.com>
-References: <20220102040017.51352-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,213 +53,41 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Get rid of old erofs_get_meta_page() within super operations by
-using on-stack meta buffers in order to prepare subpage and folio
-features.
+Hi folks,
 
-Reviewed-by: Yue Hu <huyue2@yulong.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/super.c | 105 ++++++++++++-----------------------------------
- 1 file changed, 26 insertions(+), 79 deletions(-)
+erofs_get_meta_page() is actually inflexible since it's too
+close to the page itself.
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 0724ad5fd6cf..38305fa2969b 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -2,6 +2,7 @@
- /*
-  * Copyright (C) 2017-2018 HUAWEI, Inc.
-  *             https://www.huawei.com/
-+ * Copyright (C) 2021, Alibaba Cloud
-  */
- #include <linux/module.h>
- #include <linux/buffer_head.h>
-@@ -124,80 +125,48 @@ static bool check_layout_compatibility(struct super_block *sb,
- 
- #ifdef CONFIG_EROFS_FS_ZIP
- /* read variable-sized metadata, offset will be aligned by 4-byte */
--static void *erofs_read_metadata(struct super_block *sb, struct page **pagep,
-+static void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
- 				 erofs_off_t *offset, int *lengthp)
- {
--	struct page *page = *pagep;
- 	u8 *buffer, *ptr;
- 	int len, i, cnt;
--	erofs_blk_t blk;
- 
- 	*offset = round_up(*offset, 4);
--	blk = erofs_blknr(*offset);
-+	ptr = erofs_read_metabuf(buf, sb, erofs_blknr(*offset), EROFS_KMAP);
-+	if (IS_ERR(ptr))
-+		return ptr;
- 
--	if (!page || page->index != blk) {
--		if (page) {
--			unlock_page(page);
--			put_page(page);
--		}
--		page = erofs_get_meta_page(sb, blk);
--		if (IS_ERR(page))
--			goto err_nullpage;
--	}
--
--	ptr = kmap(page);
- 	len = le16_to_cpu(*(__le16 *)&ptr[erofs_blkoff(*offset)]);
- 	if (!len)
- 		len = U16_MAX + 1;
- 	buffer = kmalloc(len, GFP_KERNEL);
--	if (!buffer) {
--		buffer = ERR_PTR(-ENOMEM);
--		goto out;
--	}
-+	if (!buffer)
-+		return ERR_PTR(-ENOMEM);
- 	*offset += sizeof(__le16);
- 	*lengthp = len;
- 
- 	for (i = 0; i < len; i += cnt) {
- 		cnt = min(EROFS_BLKSIZ - (int)erofs_blkoff(*offset), len - i);
--		blk = erofs_blknr(*offset);
--
--		if (!page || page->index != blk) {
--			if (page) {
--				kunmap(page);
--				unlock_page(page);
--				put_page(page);
--			}
--			page = erofs_get_meta_page(sb, blk);
--			if (IS_ERR(page)) {
--				kfree(buffer);
--				goto err_nullpage;
--			}
--			ptr = kmap(page);
--		}
-+		ptr = erofs_read_metabuf(buf, sb, erofs_blknr(*offset),
-+					 EROFS_KMAP);
-+		if (IS_ERR(ptr))
-+			return ptr;
- 		memcpy(buffer + i, ptr + erofs_blkoff(*offset), cnt);
- 		*offset += cnt;
- 	}
--out:
--	kunmap(page);
--	*pagep = page;
- 	return buffer;
--err_nullpage:
--	*pagep = NULL;
--	return page;
- }
- 
- static int erofs_load_compr_cfgs(struct super_block *sb,
- 				 struct erofs_super_block *dsb)
- {
--	struct erofs_sb_info *sbi;
--	struct page *page;
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
- 	unsigned int algs, alg;
- 	erofs_off_t offset;
--	int size, ret;
-+	int size, ret = 0;
- 
--	sbi = EROFS_SB(sb);
- 	sbi->available_compr_algs = le16_to_cpu(dsb->u1.available_compr_algs);
--
- 	if (sbi->available_compr_algs & ~Z_EROFS_ALL_COMPR_ALGS) {
- 		erofs_err(sb, "try to load compressed fs with unsupported algorithms %x",
- 			  sbi->available_compr_algs & ~Z_EROFS_ALL_COMPR_ALGS);
-@@ -205,21 +174,16 @@ static int erofs_load_compr_cfgs(struct super_block *sb,
- 	}
- 
- 	offset = EROFS_SUPER_OFFSET + sbi->sb_size;
--	page = NULL;
- 	alg = 0;
--	ret = 0;
--
- 	for (algs = sbi->available_compr_algs; algs; algs >>= 1, ++alg) {
- 		void *data;
- 
- 		if (!(algs & 1))
- 			continue;
- 
--		data = erofs_read_metadata(sb, &page, &offset, &size);
--		if (IS_ERR(data)) {
--			ret = PTR_ERR(data);
--			goto err;
--		}
-+		data = erofs_read_metadata(sb, &buf, &offset, &size);
-+		if (IS_ERR(data))
-+			return PTR_ERR(data);
- 
- 		switch (alg) {
- 		case Z_EROFS_COMPRESSION_LZ4:
-@@ -234,13 +198,9 @@ static int erofs_load_compr_cfgs(struct super_block *sb,
- 		}
- 		kfree(data);
- 		if (ret)
--			goto err;
--	}
--err:
--	if (page) {
--		unlock_page(page);
--		put_page(page);
-+			break;
- 	}
-+	erofs_put_metabuf(&buf);
- 	return ret;
- }
- #else
-@@ -261,7 +221,7 @@ static int erofs_init_devices(struct super_block *sb,
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	unsigned int ondisk_extradevs;
- 	erofs_off_t pos;
--	struct page *page = NULL;
-+	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
- 	struct erofs_device_info *dif;
- 	struct erofs_deviceslot *dis;
- 	void *ptr;
-@@ -285,22 +245,13 @@ static int erofs_init_devices(struct super_block *sb,
- 	pos = le16_to_cpu(dsb->devt_slotoff) * EROFS_DEVT_SLOT_SIZE;
- 	down_read(&sbi->devs->rwsem);
- 	idr_for_each_entry(&sbi->devs->tree, dif, id) {
--		erofs_blk_t blk = erofs_blknr(pos);
- 		struct block_device *bdev;
- 
--		if (!page || page->index != blk) {
--			if (page) {
--				kunmap(page);
--				unlock_page(page);
--				put_page(page);
--			}
--
--			page = erofs_get_meta_page(sb, blk);
--			if (IS_ERR(page)) {
--				up_read(&sbi->devs->rwsem);
--				return PTR_ERR(page);
--			}
--			ptr = kmap(page);
-+		ptr = erofs_read_metabuf(&buf, sb, erofs_blknr(pos),
-+					 EROFS_KMAP);
-+		if (IS_ERR(ptr)) {
-+			up_read(&sbi->devs->rwsem);
-+			return PTR_ERR(ptr);
- 		}
- 		dis = ptr + erofs_blkoff(pos);
- 
-@@ -320,11 +271,7 @@ static int erofs_init_devices(struct super_block *sb,
- 	}
- err_out:
- 	up_read(&sbi->devs->rwsem);
--	if (page) {
--		kunmap(page);
--		unlock_page(page);
--		put_page(page);
--	}
-+	erofs_put_metabuf(&buf);
- 	return err;
- }
- 
+In order to prepare for folio and subpage features, introduce
+on-stack meta buffer descriptor instead and convert all
+erofs_get_meta_page() users to use it.
+
+It can also be used for new potential backends such as fscache or mtd.
+
+Patches are trivial.
+
+Thanks,
+Gao Xiang
+
+changes since v1:
+ - fix unbalanced put_metabuf in xattrs.
+
+Gao Xiang (5):
+  erofs: introduce meta buffer operations
+  erofs: use meta buffers for inode operations
+  erofs: use meta buffers for super operations
+  erofs: use meta buffers for xattr operations
+  erofs: use meta buffers for zmap operations
+
+ fs/erofs/data.c     | 102 +++++++++++++++++++++++----------
+ fs/erofs/inode.c    |  68 +++++++++++-----------
+ fs/erofs/internal.h |  22 +++++++-
+ fs/erofs/super.c    | 105 +++++++++-------------------------
+ fs/erofs/xattr.c    | 134 +++++++++++++-------------------------------
+ fs/erofs/zdata.c    |  23 +++-----
+ fs/erofs/zmap.c     |  56 ++++++------------
+ 7 files changed, 214 insertions(+), 296 deletions(-)
+
 -- 
 2.24.4
 
