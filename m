@@ -4,37 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A43B8C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jan 2022 11:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52EA5C433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jan 2022 14:21:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Jb0500mKjz30Lc
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jan 2022 22:51:32 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Jb3Pb6KGMz30LJ
+	for <linux-erofs@archiver.kernel.org>; Sat, 15 Jan 2022 01:21:07 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=g60dh5/2;
+	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
- helo=out30-45.freemail.mail.aliyun.com;
- envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-45.freemail.mail.aliyun.com
- (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+ smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1032;
+ helo=mail-pj1-x1032.google.com; envelope-from=jnhuang95@gmail.com;
+ receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20210112 header.b=g60dh5/2; dkim-atps=neutral
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
+ [IPv6:2607:f8b0:4864:20::1032])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Jb04w1gcWz2xsY
- for <linux-erofs@lists.ozlabs.org>; Fri, 14 Jan 2022 22:51:24 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=2; SR=0; TI=SMTPD_---0V1otL6J_1642161054; 
-Received: from
- e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0V1otL6J_1642161054) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 14 Jan 2022 19:50:58 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v9 0/2] erofs-utils: support tail-packing inline compressed
- data
-Date: Fri, 14 Jan 2022 19:50:51 +0800
-Message-Id: <20220114115053.28824-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Jb3PR08l4z2yyK
+ for <linux-erofs@lists.ozlabs.org>; Sat, 15 Jan 2022 01:20:56 +1100 (AEDT)
+Received: by mail-pj1-x1032.google.com with SMTP id
+ ie23-20020a17090b401700b001b38a5318easo14245927pjb.2
+ for <linux-erofs@lists.ozlabs.org>; Fri, 14 Jan 2022 06:20:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:to:cc:references
+ :from:in-reply-to:content-transfer-encoding;
+ bh=FWA4Yk5Y0Jcg68gewVhtCzAhox+VDVaZRIZAXDWpBl0=;
+ b=g60dh5/2MzZ82VH9X5vzasWMnCZJExJdAfNmW6efH1OhAOCsLBc0xmJb2d7BQ6IHuj
+ lYCXd5qnr8Wa7OEe7j+my38kVu222f4HiuW96PKxsU/+xIjX92bwHbuQ/BEOxtHIYAr1
+ zkbBuhyP9as9B7nPA4p0OCjtexWnOA8NtYn5wXjBFDIdFxZQwykuvzJlkQ3zRD1Jpcke
+ QtzVszHGQ9RW5xqmOTgmP8Et1zBenWr6C5Kq0QwbgMXzMJK1Wu57I2NKLMsTBLZMMh8/
+ wVdHpSkL+NjtRDJDPXYx1VkDiv/Q2gHykoYnL2fObobKrPimZEo65dCtg0SbvjApXx10
+ u6Ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :to:cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=FWA4Yk5Y0Jcg68gewVhtCzAhox+VDVaZRIZAXDWpBl0=;
+ b=sZ2YaH8FAX6njgtoiyA5yTiL4XuHsXWkXJ5aWRRkQy0saJ6o1LePbhMHHJyugumv6R
+ 42l+asYBYgfefu4ImQex3do16oSvmF3UzXUwso7A7LjguUKQmz9ywZRbJaprfGFSIyDs
+ MQFg3ei6Gu8pLDELN6ezgRuP4a7Vj/ZzH2x5tgHJvBiv4SQF47lMZLrFe1CE/q2j9uDf
+ Puo72LOmHe5ffVqeZpt7Vjz3BRayMs8xoKNzeVYrhuMmM143BEOx7o+tv+/G4ZgLDuJC
+ 4jWn04LpRMA++gBlPvEkXd9SN0e4SLEW3ehDz8kcvsXpoc6Z0LvHZBs0WSA6RuYlKsux
+ Py1w==
+X-Gm-Message-State: AOAM533w0P8DOEIspnzezVhF38NCR1Db4wGwSLicnC5cw1bfjTxGAxJR
+ lpNvUkzixWtgFxJrnaGMUNw=
+X-Google-Smtp-Source: ABdhPJwh8LooMNvlhocZpSRYGt9xgpUuOwkIShQB4ler+yHQbAI59GAjBloFq3IQyGb4rm1OIUK1cQ==
+X-Received: by 2002:a17:90b:4a45:: with SMTP id
+ lb5mr2611999pjb.220.1642170052679; 
+ Fri, 14 Jan 2022 06:20:52 -0800 (PST)
+Received: from [0.0.0.0] (li1080-207.members.linode.com. [45.33.61.207])
+ by smtp.gmail.com with ESMTPSA id g6sm4804961pgk.37.2022.01.14.06.20.48
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 14 Jan 2022 06:20:52 -0800 (PST)
+Message-ID: <0feb9212-f515-62f1-033f-a4af78241be6@gmail.com>
+Date: Fri, 14 Jan 2022 22:20:43 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.2
+Subject: Re: [PATCH v2 0/3] fs/erofs: new filesystem
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+References: <20210822154843.10971-1-jnhuang95@gmail.com>
+ <20210823123646.9765-1-jnhuang95@gmail.com>
+ <20210825224042.GF858@bill-the-cat> <YdWHxPMyojsdcg9v@B-P7TQMD6M-0146.local>
+From: Huang Jianan <jnhuang95@gmail.com>
+In-Reply-To: <YdWHxPMyojsdcg9v@B-P7TQMD6M-0146.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -47,55 +85,46 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Tom Rini <trini@konsulko.com>, linux-erofs@lists.ozlabs.org,
+ u-boot@lists.denx.de
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-v8: https://lore.kernel.org/r/20211224012316.42929-1-hsiangkao@linux.alibaba.com
-
-This is a follow-up of previous v6 Yue Hu's patchset. It implements
-tail-packing inline for compressed files. In particular, called
-tail pcluster inline.
-
-Here is some evaluation of Linux 5.10.87 source code (75368 inodes):
-linux-5.10.87 (erofs, uncompressed)		972570624
-
-linux-5.10.87 (erofs, lz4hc,9 4k tailpacking)	391696384
-linux-5.10.87 (erofs, lz4hc,9 8k tailpacking)	368807936
-linux-5.10.87 (erofs, lz4hc,9 16k tailpacking)	345649152
-
-linux-5.10.87 (erofs, lz4hc,9 4k vanilla)	416079872
-linux-5.10.87 (erofs, lz4hc,9 8k vanilla)	395493376
-linux-5.10.87 (erofs, lz4hc,9 16k vanilla)	383213568
-
-Usage:
-mkfs.erofs -zlz4hc -Eztailpacking foo.erofs.img foo/
+在 2022/1/5 19:57, Gao Xiang 写道:
+> Hi Jianan,
+>
+> On Wed, Aug 25, 2021 at 06:40:42PM -0400, Tom Rini wrote:
+>> On Mon, Aug 23, 2021 at 08:36:43PM +0800, Huang Jianan wrote:
+>>
+>>> From: Huang Jianan <huangjianan@oppo.com>
+>>>
+>>> Add erofs filesystem support.
+>>>
+>>> The code is adapted from erofs-utils in order to reduce maintenance
+>>> burden and keep with the latest feature.
+>>>
+>>> Changes since v1:
+>>>   - fix the inconsistency between From and SoB (Bin Meng);
+>>>   - add missing license header;
+>>>
+>>> Huang Jianan (3):
+>>>    fs/erofs: add erofs filesystem support
+>>>    fs/erofs: add lz4 1.8.3 decompressor
+>>>    fs/erofs: add lz4 decompression support
+>> Aside from what I've just now sent, can you please extend the existing
+>> py/tests/ to cover basic functionality here, ensure they run on sandbox
+>> and in CI?  Thanks.
+> Any further progress on this work? At least sync it up with erofs-utils
+> 1.4?
+I'm still working on this, the new version will be sent soon.
 
 Thanks,
-Gao Xiang
-
-changes since v8:
- - [1/2] sync up with the latest in-kernel version;
- - [2/2] fix an assertion failure in debugging mode.
-
-Yue Hu (2):
-  erofs-utils: fuse: support tail-packing inline compressed data
-  erofs-utils: mkfs: support tail-packing inline compressed data
-
- include/erofs/config.h   |   1 +
- include/erofs/internal.h |   6 ++
- include/erofs_fs.h       |  10 +++-
- lib/compress.c           | 122 ++++++++++++++++++++++++++++++---------
- lib/compressor.c         |  16 +++--
- lib/compressor.h         |   2 +-
- lib/decompress.c         |   5 +-
- lib/inode.c              |  57 +++++++++++++-----
- lib/namei.c              |   2 +-
- lib/zmap.c               |  99 +++++++++++++++++++++++--------
- mkfs/main.c              |   8 +++
- 11 files changed, 251 insertions(+), 77 deletions(-)
-
--- 
-2.24.4
+Jianan
+> Thanks,
+> Gao Xiang
+>
+>> -- 
+>> Tom
+>
 
