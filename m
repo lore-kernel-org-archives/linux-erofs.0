@@ -4,35 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E5AF4C433EF
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jan 2022 13:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 804FEC433F5
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jan 2022 13:13:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JdTjB3PgGz3bN6
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jan 2022 00:13:02 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JdTjH0hZTz3bN7
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jan 2022 00:13:07 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
- helo=out30-56.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
+ helo=out30-57.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JdThh5YDGz30Lm
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JdThj2pn9z30Lp
  for <linux-erofs@lists.ozlabs.org>; Wed, 19 Jan 2022 00:12:36 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V2C2avm_1642511537; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R411e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V2C1Qxj_1642511548; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V2C2avm_1642511537) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 18 Jan 2022 21:12:18 +0800
+ fp:SMTPD_---0V2C1Qxj_1642511548) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 18 Jan 2022 21:12:29 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 01/20] netfs: make @file optional in
- netfs_alloc_read_request()
-Date: Tue, 18 Jan 2022 21:11:57 +0800
-Message-Id: <20220118131216.85338-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 10/20] erofs: register global fscache volume
+Date: Tue, 18 Jan 2022 21:12:06 +0800
+Message-Id: <20220118131216.85338-11-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220118131216.85338-1-jefflexu@linux.alibaba.com>
 References: <20220118131216.85338-1-jefflexu@linux.alibaba.com>
@@ -55,80 +54,128 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Make the @file parameter optional, and derive inode from the @folio
-parameter instead in order to support file system internal requests.
+All erofs instances will share one global fscache volume.
 
-@file parameter can't be removed completely, since it also works as
-the private data of ops->init_rreq().
+In this using scenario, one erofs instance could be mounted from one (or
+multiple) blob files instead of blkdev. The number of blob files that
+each erofs instance could correspond to is limited, since these blob
+files are quite large in size. For example, when used for container
+image distribution, one erofs instance used for container image for
+node.js will correspond to ~20 blob files in total. Thus in densely
+employed environment, there could be as many as hundreds of containers
+and thus thousands of fscache cookies under one fscache volume.
+
+Then as for cachefiles backend, the hash table managing all cookies
+under one volume contains 32K slots. Thus the hashing functionality shall
+scale well in this case. Besides, cachefiles backend will scatter
+backing files under 256 fan sub-directoris, and thus the scalability of
+looking up backing files shall also not be an issue.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/read_helper.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/erofs/Makefile   |  3 ++-
+ fs/erofs/fscache.c  | 21 +++++++++++++++++++++
+ fs/erofs/internal.h |  5 +++++
+ fs/erofs/super.c    |  7 +++++++
+ 4 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/fscache.c
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index 8c58cff420ba..ca84918b6b5d 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -39,7 +39,7 @@ static void netfs_put_subrequest(struct netfs_read_subrequest *subreq,
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index 8a3317e38e5a..21999e8a4728 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -1,7 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0-only
  
- static struct netfs_read_request *netfs_alloc_read_request(
- 	const struct netfs_read_request_ops *ops, void *netfs_priv,
--	struct file *file)
-+	struct inode *inode, struct file *file)
- {
- 	static atomic_t debug_ids;
- 	struct netfs_read_request *rreq;
-@@ -48,7 +48,7 @@ static struct netfs_read_request *netfs_alloc_read_request(
- 	if (rreq) {
- 		rreq->netfs_ops	= ops;
- 		rreq->netfs_priv = netfs_priv;
--		rreq->inode	= file_inode(file);
-+		rreq->inode	= inode;
- 		rreq->i_size	= i_size_read(rreq->inode);
- 		rreq->debug_id	= atomic_inc_return(&debug_ids);
- 		INIT_LIST_HEAD(&rreq->subrequests);
-@@ -870,6 +870,7 @@ void netfs_readahead(struct readahead_control *ractl,
- 		     void *netfs_priv)
- {
- 	struct netfs_read_request *rreq;
-+	struct inode *inode = file_inode(ractl->file);
- 	unsigned int debug_index = 0;
- 	int ret;
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+-erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o sysfs.o
++erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o sysfs.o \
++	      fscache.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
+ erofs-$(CONFIG_EROFS_FS_ZIP_LZMA) += decompressor_lzma.o
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+new file mode 100644
+index 000000000000..9c32f42e1056
+--- /dev/null
++++ b/fs/erofs/fscache.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright (C) 2021, Alibaba Cloud
++ */
++#include "internal.h"
++
++static struct fscache_volume *volume;
++
++int __init erofs_init_fscache(void)
++{
++	volume = fscache_acquire_volume("erofs", NULL, NULL, 0);
++	if (!volume)
++		return -EINVAL;
++
++	return 0;
++}
++
++void erofs_exit_fscache(void)
++{
++	fscache_relinquish_volume(volume, NULL, false);
++}
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 2b9337d385ce..c2608a469107 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/iomap.h>
++#include <linux/fscache.h>
+ #include "erofs_fs.h"
  
-@@ -878,7 +879,7 @@ void netfs_readahead(struct readahead_control *ractl,
- 	if (readahead_count(ractl) == 0)
- 		goto cleanup;
+ /* redefine pr_fmt "erofs: " */
+@@ -616,6 +617,10 @@ static inline int z_erofs_load_lzma_config(struct super_block *sb,
+ }
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
  
--	rreq = netfs_alloc_read_request(ops, netfs_priv, ractl->file);
-+	rreq = netfs_alloc_read_request(ops, netfs_priv, inode, ractl->file);
- 	if (!rreq)
- 		goto cleanup;
- 	rreq->mapping	= ractl->mapping;
-@@ -948,12 +949,13 @@ int netfs_readpage(struct file *file,
- 		   void *netfs_priv)
- {
- 	struct netfs_read_request *rreq;
-+	struct inode *inode = folio_file_mapping(folio)->host;
- 	unsigned int debug_index = 0;
- 	int ret;
++/* fscache.c */
++int erofs_init_fscache(void);
++void erofs_exit_fscache(void);
++
+ #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
  
- 	_enter("%lx", folio_index(folio));
+ #endif	/* __EROFS_INTERNAL_H */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 12755217631f..798f0c379e35 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -814,6 +814,10 @@ static int __init erofs_module_init(void)
+ 	if (err)
+ 		goto sysfs_err;
  
--	rreq = netfs_alloc_read_request(ops, netfs_priv, file);
-+	rreq = netfs_alloc_read_request(ops, netfs_priv, inode, file);
- 	if (!rreq) {
- 		if (netfs_priv)
- 			ops->cleanup(folio_file_mapping(folio), netfs_priv);
-@@ -1122,7 +1124,7 @@ int netfs_write_begin(struct file *file, struct address_space *mapping,
- 	}
++	err = erofs_init_fscache();
++	if (err)
++		goto fscache_err;
++
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -821,6 +825,8 @@ static int __init erofs_module_init(void)
+ 	return 0;
  
- 	ret = -ENOMEM;
--	rreq = netfs_alloc_read_request(ops, netfs_priv, file);
-+	rreq = netfs_alloc_read_request(ops, netfs_priv, inode, file);
- 	if (!rreq)
- 		goto error;
- 	rreq->mapping		= folio_file_mapping(folio);
+ fs_err:
++	erofs_exit_fscache();
++fscache_err:
+ 	erofs_exit_sysfs();
+ sysfs_err:
+ 	z_erofs_exit_zip_subsystem();
+@@ -841,6 +847,7 @@ static void __exit erofs_module_exit(void)
+ 	/* Ensure all RCU free inodes / pclusters are safe to be destroyed. */
+ 	rcu_barrier();
+ 
++	erofs_exit_fscache();
+ 	erofs_exit_sysfs();
+ 	z_erofs_exit_zip_subsystem();
+ 	z_erofs_lzma_exit();
 -- 
 2.27.0
 
