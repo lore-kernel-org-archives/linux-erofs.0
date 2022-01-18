@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CAF2AC433FE
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jan 2022 13:13:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88AEAC433FE
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jan 2022 13:13:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JdTjl2zmMz30MG
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jan 2022 00:13:31 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JdTjm6XFGz3bck
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jan 2022 00:13:32 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.88.44.36;
- helo=out4436.biz.mail.alibaba.com; envelope-from=jefflexu@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out4436.biz.mail.alibaba.com (out4436.biz.mail.alibaba.com
- [47.88.44.36])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
+ helo=out30-44.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JdThz570fz3bPB
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JdThz4m24z3bP1
  for <linux-erofs@lists.ozlabs.org>; Wed, 19 Jan 2022 00:12:51 +1100 (AEDT)
 X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V2C1oxt_1642511546; 
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=12; SR=0; TI=SMTPD_---0V2C1oyZ_1642511553; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V2C1oxt_1642511546) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 18 Jan 2022 21:12:26 +0800
+ fp:SMTPD_---0V2C1oyZ_1642511553) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 18 Jan 2022 21:12:33 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 08/20] erofs: export erofs_map_blocks()
-Date: Tue, 18 Jan 2022 21:12:04 +0800
-Message-Id: <20220118131216.85338-9-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 14/20] erofs: implement fscache-based metadata read
+Date: Tue, 18 Jan 2022 21:12:10 +0800
+Message-Id: <20220118131216.85338-15-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220118131216.85338-1-jefflexu@linux.alibaba.com>
 References: <20220118131216.85338-1-jefflexu@linux.alibaba.com>
@@ -54,42 +54,111 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-... so that it can be used in the following introduced fs/erofs/fscache.c.
+This patch implements the data plane of reading metadata from bootstrap
+blob file over fscache.
+
+Be noted that currently it only supports the scenario where the backing
+file has no hole. Once it hits a hole of the backing file, erofs will
+fail the IO with -EOPNOTSUPP for now. The following patch will fix this
+issue, i.e. implementing the demand reading mode.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/data.c     | 4 ++--
- fs/erofs/internal.h | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/erofs/data.c     | 11 +++++++++--
+ fs/erofs/fscache.c  | 33 +++++++++++++++++++++++++++++++++
+ fs/erofs/internal.h |  3 +++
+ 3 files changed, 45 insertions(+), 2 deletions(-)
 
 diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index fa7ddb7ad980..f3aa133866e5 100644
+index f3aa133866e5..51ccbc02dd73 100644
 --- a/fs/erofs/data.c
 +++ b/fs/erofs/data.c
-@@ -104,8 +104,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return 0;
- }
- 
--static int erofs_map_blocks(struct inode *inode,
--			    struct erofs_map_blocks *map, int flags)
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags)
+@@ -31,15 +31,22 @@ void erofs_put_metabuf(struct erofs_buf *buf)
+ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+ 			erofs_blk_t blkaddr, enum erofs_kmap_type type)
  {
- 	struct super_block *sb = inode->i_sb;
- 	struct erofs_inode *vi = EROFS_I(inode);
+-	struct address_space *const mapping = sb->s_bdev->bd_inode->i_mapping;
++	struct address_space *mapping;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 	erofs_off_t offset = blknr_to_addr(blkaddr);
+ 	pgoff_t index = offset >> PAGE_SHIFT;
+ 	struct page *page = buf->page;
+ 
+ 	if (!page || page->index != index) {
+ 		erofs_put_metabuf(buf);
+-		page = read_cache_page_gfp(mapping, index,
++		if (erofs_bdev_mode(sb)) {
++			mapping = sb->s_bdev->bd_inode->i_mapping;
++			page = read_cache_page_gfp(mapping, index,
+ 				mapping_gfp_constraint(mapping, ~__GFP_FS));
++		} else {
++			page = erofs_fscache_read_cache_page(sbi->bootstrap,
++				index);
++		}
+ 		if (IS_ERR(page))
+ 			return page;
+ 		/* should already be PageUptodate, no need to lock page */
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 74683df6144d..5a25ae523e5e 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -6,9 +6,42 @@
+ 
+ static struct fscache_volume *volume;
+ 
++static int erofs_blob_begin_cache_operation(struct netfs_read_request *rreq)
++{
++	return fscache_begin_read_operation(&rreq->cache_resources,
++					    rreq->netfs_priv);
++}
++
++/* .cleanup() is needed if rreq->netfs_priv is non-NULL */
++static void erofs_noop_cleanup(struct address_space *mapping, void *netfs_priv)
++{
++}
++
++static const struct netfs_read_request_ops erofs_blob_req_ops = {
++	.begin_cache_operation  = erofs_blob_begin_cache_operation,
++	.cleanup		= erofs_noop_cleanup,
++};
++
++static int erofs_fscache_blob_readpage(struct file *data, struct page *page)
++{
++	struct folio *folio = page_folio(page);
++	struct erofs_fscache_context *ctx =
++		(struct erofs_fscache_context *)data;
++
++	return netfs_readpage(NULL, folio, &erofs_blob_req_ops, ctx->cookie);
++}
++
+ static const struct address_space_operations erofs_fscache_blob_aops = {
++	.readpage = erofs_fscache_blob_readpage,
+ };
+ 
++struct page *erofs_fscache_read_cache_page(struct erofs_fscache_context *ctx,
++					   pgoff_t index)
++{
++	DBG_BUGON(!ctx->inode);
++	return read_mapping_page(ctx->inode->i_mapping, index, ctx);
++}
++
+ static int erofs_fscache_init_cookie(struct erofs_fscache_context *ctx,
+ 				     char *path)
+ {
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index b8272fb95fd6..f9f94d63d40f 100644
+index 277dcd5888ea..fca706cfaf72 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -484,6 +484,8 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
- int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
- int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
- 		 u64 start, u64 len);
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags);
+@@ -633,6 +633,9 @@ struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
+ 						char *path, bool need_inode);
+ void erofs_fscache_put_ctx(struct erofs_fscache_context *ctx);
  
- /* inode.c */
- static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
++struct page *erofs_fscache_read_cache_page(struct erofs_fscache_context *ctx,
++					   pgoff_t index);
++
+ #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
+ 
+ #endif	/* __EROFS_INTERNAL_H */
 -- 
 2.27.0
 
