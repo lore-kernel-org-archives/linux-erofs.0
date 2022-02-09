@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6627C433FE
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2EF58C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5M0Vptz3cJl
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:43 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5N2gtZz3cN7
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:44 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
- helo=out30-56.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq544LDQz3bPM
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:27 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R921e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zaQSC_1644386479; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq56668mz2yfc
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:29 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zflly_1644386476; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V3zaQSC_1644386479) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Feb 2022 14:01:19 +0800
+ fp:SMTPD_---0V3zflly_1644386476) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Feb 2022 14:01:17 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 08/22] erofs: add mode checking helper
-Date: Wed,  9 Feb 2022 14:00:54 +0800
-Message-Id: <20220209060108.43051-9-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 06/22] erofs: use meta buffers for erofs_read_superblock()
+Date: Wed,  9 Feb 2022 14:00:52 +0800
+Message-Id: <20220209060108.43051-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
 References: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
@@ -56,36 +56,54 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Until then erofs is exactly blockdev based filesystem. In other using
-scenarios (e.g. container image), erofs needs to run upon files.
-
-This patch set is going to introduces a new nodev mode, in which erofs
-could be mounted from a bootstrap blob file containing complete erofs
-image.
-
-Add a helper checking which mode erofs works in.
+The only change is that, meta buffers read cache page without __GFP_FS
+flag, which shall not matter.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/internal.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/erofs/super.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index f9f94d63d40f..2b9337d385ce 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -161,6 +161,11 @@ struct erofs_sb_info {
- #define set_opt(opt, option)	((opt)->mount_opt |= EROFS_MOUNT_##option)
- #define test_opt(opt, option)	((opt)->mount_opt & EROFS_MOUNT_##option)
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 915eefe0d7e2..12755217631f 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -281,21 +281,19 @@ static int erofs_init_devices(struct super_block *sb,
+ static int erofs_read_superblock(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+-	struct page *page;
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	struct erofs_super_block *dsb;
+ 	unsigned int blkszbits;
+ 	void *data;
+ 	int ret;
  
-+static inline bool erofs_bdev_mode(struct super_block *sb)
-+{
-+	return sb->s_bdev;
-+}
-+
- enum {
- 	EROFS_ZIP_CACHE_DISABLED,
- 	EROFS_ZIP_CACHE_READAHEAD,
+-	page = read_mapping_page(sb->s_bdev->bd_inode->i_mapping, 0, NULL);
+-	if (IS_ERR(page)) {
++	data = erofs_read_metabuf(&buf, sb, 0, EROFS_KMAP);
++	if (IS_ERR(data)) {
+ 		erofs_err(sb, "cannot read erofs superblock");
+-		return PTR_ERR(page);
++		return PTR_ERR(data);
+ 	}
+ 
+ 	sbi = EROFS_SB(sb);
+-
+-	data = kmap(page);
+ 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
+ 
+ 	ret = -EINVAL;
+@@ -365,8 +363,7 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	if (erofs_sb_has_ztailpacking(sbi))
+ 		erofs_info(sb, "EXPERIMENTAL compressed inline data feature in use. Use at your own risk!");
+ out:
+-	kunmap(page);
+-	put_page(page);
++	erofs_put_metabuf(&buf);
+ 	return ret;
+ }
+ 
 -- 
 2.27.0
 
