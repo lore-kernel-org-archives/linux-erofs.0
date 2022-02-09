@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5EF1AC433F5
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20527C433FE
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5b5Mfrz3cQN
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:55 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5d3Qd8z3bV1
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
- helo=out30-132.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
+ helo=out30-131.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq5L385lz3bV8
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:41 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zaQUp_1644386492; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq5L68H8z3cHW
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:42 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R631e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zaQVI_1644386495; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V3zaQUp_1644386492) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Feb 2022 14:01:33 +0800
+ fp:SMTPD_---0V3zaQVI_1644386495) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Feb 2022 14:01:35 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 18/22] erofs: implement fscache-based data read for data
- blobs
-Date: Wed,  9 Feb 2022 14:01:04 +0800
-Message-Id: <20220209060108.43051-19-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 20/22] erofs: implement fscache-based data readahead for
+ non-inline layout
+Date: Wed,  9 Feb 2022 14:01:06 +0800
+Message-Id: <20220209060108.43051-21-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
 References: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
@@ -57,85 +57,76 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This patch implements the data plane of reading data from data blob file
-over fscache.
-
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/data.c     |  3 +++
- fs/erofs/fscache.c  | 16 +++++++++++++---
- fs/erofs/internal.h |  1 +
- 3 files changed, 17 insertions(+), 3 deletions(-)
+ fs/erofs/fscache.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 1bff99576883..c5ccf55c050c 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -200,6 +200,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
- 	map->m_bdev = sb->s_bdev;
- 	map->m_daxdev = EROFS_SB(sb)->dax_dev;
- 	map->m_dax_part_off = EROFS_SB(sb)->dax_part_off;
-+	map->m_ctx = EROFS_SB(sb)->bootstrap;
- 
- 	if (map->m_deviceid) {
- 		down_read(&devs->rwsem);
-@@ -211,6 +212,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
- 		map->m_bdev = dif->bdev;
- 		map->m_daxdev = dif->dax_dev;
- 		map->m_dax_part_off = dif->dax_part_off;
-+		map->m_ctx = dif->ctx;
- 		up_read(&devs->rwsem);
- 	} else if (devs->extra_devices) {
- 		down_read(&devs->rwsem);
-@@ -228,6 +230,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
- 				map->m_bdev = dif->bdev;
- 				map->m_daxdev = dif->dax_dev;
- 				map->m_dax_part_off = dif->dax_part_off;
-+				map->m_ctx = dif->ctx;
- 				break;
- 			}
- 		}
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index fcd686f4dc9f..c7762e154064 100644
+index c8a0851230e5..ef5eef33e3d5 100644
 --- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -68,11 +68,21 @@ static inline int erofs_fscache_get_map(struct erofs_fscache_map *fsmap,
- 					struct erofs_map_blocks *map,
- 					struct super_block *sb)
+@@ -197,6 +197,7 @@ static int erofs_fscache_readpage(struct file *file, struct page *page)
+ 
+ enum erofs_fscache_readahead_type {
+ 	EROFS_FSCACHE_READAHEAD_TYPE_HOLE,
++	EROFS_FSCACHE_READAHEAD_TYPE_NOINLINE,
+ };
+ 
+ static int erofs_fscache_do_readahead(struct readahead_control *rac,
+@@ -205,10 +206,14 @@ static int erofs_fscache_do_readahead(struct readahead_control *rac,
  {
--	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	struct erofs_map_dev mdev;
-+	int ret;
+ 	size_t offset, length, done;
+ 	struct page *page;
++	int ret = 0;
+ 
+ 	/*
+-	 * 1) For CHUNK_BASED (HOLE), the output map.m_la is rounded down to
+-	 *    the nearest chunk boundary, and thus offset will be non-zero.
++	 * 1) For CHUNK_BASED (HOLE/NOINLINE), the output map.m_la is rounded
++	 *    down to the nearest chunk boundary, and thus offset will be
++	 *    non-zero.
++	 * 2) For the other cases, the output map.m_la shall be equal to o_la,
++	 *    and thus offset will be zero.
+ 	 */
+ 	offset = fsmap->o_la - fsmap->m_la;
+ 	length = fsmap->m_llen - offset;
+@@ -222,11 +227,18 @@ static int erofs_fscache_do_readahead(struct readahead_control *rac,
+ 		case EROFS_FSCACHE_READAHEAD_TYPE_HOLE:
+ 			zero_user(page, 0, PAGE_SIZE);
+ 			break;
++		case EROFS_FSCACHE_READAHEAD_TYPE_NOINLINE:
++			ret = erofs_fscache_readpage_noinline(page, fsmap);
++			fsmap->m_pa += EROFS_BLKSIZ;
++			break;
+ 		default:
+ 			DBG_BUGON(1);
+ 			return -EINVAL;
+ 		}
+ 
++		if (ret)
++			return ret;
 +
-+	mdev = (struct erofs_map_dev) {
-+		.m_deviceid = map->m_deviceid,
-+		.m_pa = map->m_pa,
-+	};
+ 		SetPageUptodate(page);
+ 		unlock_page(page);
+ 	}
+@@ -263,7 +275,16 @@ static void erofs_fscache_readahead(struct readahead_control *rac)
+ 			ret = erofs_fscache_do_readahead(rac, &fsmap,
+ 					EROFS_FSCACHE_READAHEAD_TYPE_HOLE);
+ 		} else {
++			ret = erofs_fscache_get_map(&fsmap, &map, sb);
++			if (ret)
++				return;
 +
-+	ret = erofs_map_dev(sb, &mdev);
-+	if (ret)
-+		return ret;
- 
--	fsmap->m_ctx  = sbi->bootstrap;
-+	fsmap->m_ctx  = mdev.m_ctx;
-+	fsmap->m_pa   = mdev.m_pa;
- 	fsmap->m_la   = map->m_la;
--	fsmap->m_pa   = map->m_pa;
- 	fsmap->m_llen = map->m_llen;
- 
- 	return 0;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 5d514c7b73cc..6ccf14952b2d 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -486,6 +486,7 @@ struct erofs_map_dev {
- 	struct block_device *m_bdev;
- 	struct dax_device *m_daxdev;
- 	u64 m_dax_part_off;
-+	struct erofs_fscache_context *m_ctx;
- 
- 	erofs_off_t m_pa;
- 	unsigned int m_deviceid;
+ 			switch (vi->datalayout) {
++			case EROFS_INODE_FLAT_PLAIN:
++			case EROFS_INODE_CHUNK_BASED:
++				ret = erofs_fscache_do_readahead(rac, &fsmap,
++					EROFS_FSCACHE_READAHEAD_TYPE_NOINLINE);
++				break;
+ 			default:
+ 				DBG_BUGON(1);
+ 				return;
 -- 
 2.27.0
 
