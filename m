@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C36BC433EF
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:06:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4378C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:06:52 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JtqC6625Sz30BL
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:06:42 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JtqCH3GfXz3bPS
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:06:51 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.8;
- helo=out199-8.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.9;
+ helo=out199-9.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com;
  receiver=<UNKNOWN>)
-Received: from out199-8.us.a.mail.aliyun.com (out199-8.us.a.mail.aliyun.com
- [47.90.199.8])
+Received: from out199-9.us.a.mail.aliyun.com (out199-9.us.a.mail.aliyun.com
+ [47.90.199.9])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JtqC34fyrz2x9Q
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:06:39 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R571e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zeEc2_1644386483; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JtqCD1H5hz2x9S
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:06:47 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zd5nv_1644386493; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V3zeEc2_1644386483) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Feb 2022 14:01:23 +0800
+ fp:SMTPD_---0V3zd5nv_1644386493) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Feb 2022 14:01:34 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 11/22] erofs: add anonymous inode managing page cache of
- blob file
-Date: Wed,  9 Feb 2022 14:00:57 +0800
-Message-Id: <20220209060108.43051-12-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 19/22] erofs: implement fscache-based data readahead for
+ hole
+Date: Wed,  9 Feb 2022 14:01:05 +0800
+Message-Id: <20220209060108.43051-20-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
 References: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
@@ -57,125 +57,133 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Introduce one anonymous inode for managing page cache of corresponding
-blob file. Then erofs could read directly from the address space of the
-anonymous inode when cache hit.
+Implement fscache-based data readahead. This patch only supports
+readahead for hole, while the following patches will handle other cases.
+
+Besides this patch also registers an individual bdi for each erofs
+instance, so that readahead can be enabled.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/fscache.c  | 45 ++++++++++++++++++++++++++++++++++++++++++---
- fs/erofs/internal.h |  3 ++-
- 2 files changed, 44 insertions(+), 4 deletions(-)
+ fs/erofs/fscache.c | 83 ++++++++++++++++++++++++++++++++++++++++++++++
+ fs/erofs/super.c   |  4 +++
+ 2 files changed, 87 insertions(+)
 
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index c043d7709d65..3addd9aa549c 100644
+index c7762e154064..c8a0851230e5 100644
 --- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -6,6 +6,9 @@
+@@ -195,12 +195,95 @@ static int erofs_fscache_readpage(struct file *file, struct page *page)
+ 	return ret;
+ }
  
- static struct fscache_volume *volume;
- 
-+static const struct address_space_operations erofs_fscache_blob_aops = {
++enum erofs_fscache_readahead_type {
++	EROFS_FSCACHE_READAHEAD_TYPE_HOLE,
 +};
 +
- static int erofs_fscache_init_cookie(struct erofs_fscache_context *ctx,
- 				     char *path)
- {
-@@ -36,8 +39,34 @@ void erofs_fscache_cleanup_cookie(struct erofs_fscache_context *ctx)
- 	ctx->cookie = NULL;
- }
- 
-+static int erofs_fscache_get_inode(struct erofs_fscache_context *ctx,
-+				   struct super_block *sb)
++static int erofs_fscache_do_readahead(struct readahead_control *rac,
++				      struct erofs_fscache_map *fsmap,
++				      enum erofs_fscache_readahead_type type)
 +{
-+	struct inode *const inode = new_inode(sb);
++	size_t offset, length, done;
++	struct page *page;
 +
-+	if (!inode)
-+		return -ENOMEM;
++	/*
++	 * 1) For CHUNK_BASED (HOLE), the output map.m_la is rounded down to
++	 *    the nearest chunk boundary, and thus offset will be non-zero.
++	 */
++	offset = fsmap->o_la - fsmap->m_la;
++	length = fsmap->m_llen - offset;
 +
-+	set_nlink(inode, 1);
-+	inode->i_size = OFFSET_MAX;
++	for (done = 0; done < length; done += PAGE_SIZE) {
++		page = readahead_page(rac);
++		if (!page)
++			break;
 +
-+	inode->i_mapping->a_ops = &erofs_fscache_blob_aops;
-+	mapping_set_gfp_mask(inode->i_mapping,
-+			GFP_NOFS | __GFP_HIGHMEM | __GFP_MOVABLE);
-+	ctx->inode = inode;
-+	return 0;
-+}
-+
-+static inline
-+void erofs_fscache_put_inode(struct erofs_fscache_context *ctx)
-+{
-+	iput(ctx->inode);
-+	ctx->inode = NULL;
-+}
-+
- static int erofs_fscache_init_ctx(struct erofs_fscache_context *ctx,
--				  struct super_block *sb, char *path)
-+				  struct super_block *sb, char *path,
-+				  bool need_inode)
- {
- 	int ret;
- 
-@@ -47,6 +76,15 @@ static int erofs_fscache_init_ctx(struct erofs_fscache_context *ctx,
- 		return ret;
- 	}
- 
-+	if (need_inode) {
-+		ret = erofs_fscache_get_inode(ctx, sb);
-+		if (ret) {
-+			erofs_err(sb, "failed to get anonymous inode");
-+			erofs_fscache_cleanup_cookie(ctx);
-+			return ret;
++		switch (type) {
++		case EROFS_FSCACHE_READAHEAD_TYPE_HOLE:
++			zero_user(page, 0, PAGE_SIZE);
++			break;
++		default:
++			DBG_BUGON(1);
++			return -EINVAL;
 +		}
++
++		SetPageUptodate(page);
++		unlock_page(page);
 +	}
 +
- 	return 0;
- }
- 
-@@ -54,10 +92,11 @@ static inline
- void erofs_fscache_cleanup_ctx(struct erofs_fscache_context *ctx)
- {
- 	erofs_fscache_cleanup_cookie(ctx);
-+	erofs_fscache_put_inode(ctx);
- }
- 
- struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
--						char *path)
-+						char *path, bool need_inode)
- {
- 	struct erofs_fscache_context *ctx;
- 	int ret;
-@@ -66,7 +105,7 @@ struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
- 	if (!ctx)
- 		return ERR_PTR(-ENOMEM);
- 
--	ret = erofs_fscache_init_ctx(ctx, sb, path);
-+	ret = erofs_fscache_init_ctx(ctx, sb, path, need_inode);
- 	if (ret) {
- 		kfree(ctx);
- 		return ERR_PTR(ret);
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 1f5bc69e8e9f..bb5e992fe0df 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -99,6 +99,7 @@ struct erofs_sb_lz4_info {
- 
- struct erofs_fscache_context {
- 	struct fscache_cookie *cookie;
-+	struct inode *inode;
++	return done;
++}
++
++static void erofs_fscache_readahead(struct readahead_control *rac)
++{
++	struct inode *inode = rac->mapping->host;
++	struct erofs_inode *vi = EROFS_I(inode);
++	struct super_block *sb = inode->i_sb;
++	size_t length = readahead_length(rac);
++	struct erofs_map_blocks map;
++	struct erofs_fscache_map fsmap;
++	int ret;
++
++	if (erofs_inode_is_data_compressed(vi->datalayout)) {
++		erofs_info(sb, "compressed layout not supported yet");
++		return;
++	}
++
++	while (length) {
++		map.m_la = fsmap.o_la = readahead_pos(rac);
++
++		ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
++		if (ret)
++			return;
++
++		if (!(map.m_flags & EROFS_MAP_MAPPED)) {
++			/* Only CHUNK_BASED layout supports hole. */
++			fsmap.m_la   = map.m_la;
++			fsmap.m_llen = map.m_llen;
++			ret = erofs_fscache_do_readahead(rac, &fsmap,
++					EROFS_FSCACHE_READAHEAD_TYPE_HOLE);
++		} else {
++			switch (vi->datalayout) {
++			default:
++				DBG_BUGON(1);
++				return;
++			}
++		}
++
++		if (ret <= 0)
++			return;
++
++		length -= ret;
++	}
++}
++
+ static const struct address_space_operations erofs_fscache_blob_aops = {
+ 	.readpage = erofs_fscache_readpage_blob,
  };
  
- struct erofs_sb_info {
-@@ -626,7 +627,7 @@ int erofs_init_fscache(void);
- void erofs_exit_fscache(void);
+ const struct address_space_operations erofs_fscache_access_aops = {
+ 	.readpage = erofs_fscache_readpage,
++	.readahead = erofs_fscache_readahead,
+ };
  
- struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
--						char *path);
-+						char *path, bool need_inode);
- void erofs_fscache_put_ctx(struct erofs_fscache_context *ctx);
+ struct page *erofs_fscache_read_cache_page(struct erofs_fscache_context *ctx,
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index f058a04a00c7..2942029a7049 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -616,6 +616,10 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 			return PTR_ERR(bootstrap);
  
- #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
+ 		sbi->bootstrap = bootstrap;
++
++		err = super_setup_bdi(sb);
++		if (err)
++			return err;
+ 	}
+ 
+ 	err = erofs_read_superblock(sb);
 -- 
 2.27.0
 
