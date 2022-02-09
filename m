@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBD54C433F5
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:06:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C36BC433EF
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:06:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4JtqC51zPTz3bPM
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:06:41 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4JtqC6625Sz30BL
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:06:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.14;
- helo=out199-14.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.8;
+ helo=out199-8.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com;
  receiver=<UNKNOWN>)
-Received: from out199-14.us.a.mail.aliyun.com (out199-14.us.a.mail.aliyun.com
- [47.90.199.14])
+Received: from out199-8.us.a.mail.aliyun.com (out199-8.us.a.mail.aliyun.com
+ [47.90.199.8])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4JtqC23LLfz2x9Q
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:06:38 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R701e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zaQT8_1644386484; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4JtqC34fyrz2x9Q
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:06:39 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R571e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zeEc2_1644386483; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V3zaQT8_1644386484) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Feb 2022 14:01:25 +0800
+ fp:SMTPD_---0V3zeEc2_1644386483) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Feb 2022 14:01:23 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 12/22] erofs: add erofs_fscache_read_page() helper
-Date: Wed,  9 Feb 2022 14:00:58 +0800
-Message-Id: <20220209060108.43051-13-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 11/22] erofs: add anonymous inode managing page cache of
+ blob file
+Date: Wed,  9 Feb 2022 14:00:57 +0800
+Message-Id: <20220209060108.43051-12-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
 References: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
@@ -56,66 +57,125 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add erofs_fscache_read_page() helper reading from fscache. It supports
-on-demand read semantics. That is, it will make the backend prepare for
-the data when cache miss. Once data ready, it will reinitiate a read
-from the cache.
-
-This helper can then be used to implement .readpage() of on-demand
-reading semantics.
+Introduce one anonymous inode for managing page cache of corresponding
+blob file. Then erofs could read directly from the address space of the
+anonymous inode when cache hit.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/fscache.c | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ fs/erofs/fscache.c  | 45 ++++++++++++++++++++++++++++++++++++++++++---
+ fs/erofs/internal.h |  3 ++-
+ 2 files changed, 44 insertions(+), 4 deletions(-)
 
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 3addd9aa549c..f4aade711664 100644
+index c043d7709d65..3addd9aa549c 100644
 --- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -6,6 +6,42 @@
+@@ -6,6 +6,9 @@
  
  static struct fscache_volume *volume;
  
-+static int erofs_fscache_read_page(struct fscache_cookie *cookie,
-+				   struct page *page, loff_t start_pos)
++static const struct address_space_operations erofs_fscache_blob_aops = {
++};
++
+ static int erofs_fscache_init_cookie(struct erofs_fscache_context *ctx,
+ 				     char *path)
+ {
+@@ -36,8 +39,34 @@ void erofs_fscache_cleanup_cookie(struct erofs_fscache_context *ctx)
+ 	ctx->cookie = NULL;
+ }
+ 
++static int erofs_fscache_get_inode(struct erofs_fscache_context *ctx,
++				   struct super_block *sb)
 +{
-+	struct netfs_cache_resources cres;
-+	struct bio_vec bvec[1];
-+	struct iov_iter iter;
-+	int ret;
++	struct inode *const inode = new_inode(sb);
 +
-+	memset(&cres, 0, sizeof(cres));
++	if (!inode)
++		return -ENOMEM;
 +
-+	ret = fscache_begin_read_operation(&cres, cookie);
-+	if (ret)
-+		return ret;
++	set_nlink(inode, 1);
++	inode->i_size = OFFSET_MAX;
 +
-+	bvec[0].bv_page         = page;
-+	bvec[0].bv_offset       = 0;
-+	bvec[0].bv_len          = PAGE_SIZE;
-+	iov_iter_bvec(&iter, READ, bvec, ARRAY_SIZE(bvec), PAGE_SIZE);
-+
-+	ret = fscache_read(&cres, start_pos, &iter,
-+			   NETFS_READ_HOLE_FAIL, NULL, NULL);
-+	/*
-+	 * -ENODATA will be returned when cache miss. In this case, make the
-+	 * backend prepare for the data and then reinitiate a read from cache.
-+	 */
-+	if (ret == -ENODATA) {
-+		ret = fscache_ondemand_read(&cres, start_pos, PAGE_SIZE);
-+		if (ret == 0)
-+			ret = fscache_read(&cres, start_pos, &iter,
-+					   NETFS_READ_HOLE_FAIL, NULL, NULL);
-+	}
-+
-+	fscache_end_operation(&cres);
-+	return ret;
++	inode->i_mapping->a_ops = &erofs_fscache_blob_aops;
++	mapping_set_gfp_mask(inode->i_mapping,
++			GFP_NOFS | __GFP_HIGHMEM | __GFP_MOVABLE);
++	ctx->inode = inode;
++	return 0;
 +}
 +
- static const struct address_space_operations erofs_fscache_blob_aops = {
++static inline
++void erofs_fscache_put_inode(struct erofs_fscache_context *ctx)
++{
++	iput(ctx->inode);
++	ctx->inode = NULL;
++}
++
+ static int erofs_fscache_init_ctx(struct erofs_fscache_context *ctx,
+-				  struct super_block *sb, char *path)
++				  struct super_block *sb, char *path,
++				  bool need_inode)
+ {
+ 	int ret;
+ 
+@@ -47,6 +76,15 @@ static int erofs_fscache_init_ctx(struct erofs_fscache_context *ctx,
+ 		return ret;
+ 	}
+ 
++	if (need_inode) {
++		ret = erofs_fscache_get_inode(ctx, sb);
++		if (ret) {
++			erofs_err(sb, "failed to get anonymous inode");
++			erofs_fscache_cleanup_cookie(ctx);
++			return ret;
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -54,10 +92,11 @@ static inline
+ void erofs_fscache_cleanup_ctx(struct erofs_fscache_context *ctx)
+ {
+ 	erofs_fscache_cleanup_cookie(ctx);
++	erofs_fscache_put_inode(ctx);
+ }
+ 
+ struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
+-						char *path)
++						char *path, bool need_inode)
+ {
+ 	struct erofs_fscache_context *ctx;
+ 	int ret;
+@@ -66,7 +105,7 @@ struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
+ 	if (!ctx)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	ret = erofs_fscache_init_ctx(ctx, sb, path);
++	ret = erofs_fscache_init_ctx(ctx, sb, path, need_inode);
+ 	if (ret) {
+ 		kfree(ctx);
+ 		return ERR_PTR(ret);
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 1f5bc69e8e9f..bb5e992fe0df 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -99,6 +99,7 @@ struct erofs_sb_lz4_info {
+ 
+ struct erofs_fscache_context {
+ 	struct fscache_cookie *cookie;
++	struct inode *inode;
  };
  
+ struct erofs_sb_info {
+@@ -626,7 +627,7 @@ int erofs_init_fscache(void);
+ void erofs_exit_fscache(void);
+ 
+ struct erofs_fscache_context *erofs_fscache_get_ctx(struct super_block *sb,
+-						char *path);
++						char *path, bool need_inode);
+ void erofs_fscache_put_ctx(struct erofs_fscache_context *ctx);
+ 
+ #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
 -- 
 2.27.0
 
