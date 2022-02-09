@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C3151C4332F
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 42EBAC433F5
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 06:01:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5J11wpz3cFq
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:40 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Jtq5K4fMFz3bc5
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Feb 2022 17:01:41 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
+ helo=out30-45.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq526Hxtz2x9Q
- for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:26 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zaQRs_1644386477; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Jtq541QvPz30Nx
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Feb 2022 17:01:27 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V3zwJlc_1644386480; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V3zaQRs_1644386477) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Feb 2022 14:01:18 +0800
+ fp:SMTPD_---0V3zwJlc_1644386480) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Feb 2022 14:01:21 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 07/22] erofs: export erofs_map_blocks()
-Date: Wed,  9 Feb 2022 14:00:53 +0800
-Message-Id: <20220209060108.43051-8-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 09/22] erofs: register global fscache volume
+Date: Wed,  9 Feb 2022 14:00:55 +0800
+Message-Id: <20220209060108.43051-10-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
 References: <20220209060108.43051-1-jefflexu@linux.alibaba.com>
@@ -56,42 +56,128 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-... so that it can be used in the following introduced fs/erofs/fscache.c.
+All erofs instances will share one global fscache volume.
+
+In this using scenario, one erofs instance could be mounted from one (or
+multiple) blob files instead of blkdev. The number of blob files that
+each erofs instance could correspond to is limited, since these blob
+files are quite large in size. For example, when used for container
+image distribution, one erofs instance used for container image for
+node.js will correspond to ~20 blob files in total. Thus in densely
+employed environment, there could be as many as hundreds of containers
+and thus thousands of fscache cookies under one fscache volume.
+
+Then as for cachefiles backend, the hash table managing all cookies
+under one volume contains 32K slots. Thus the hashing functionality shall
+scale well in this case. Besides, cachefiles backend will scatter
+backing files under 256 fan sub-directoris, and thus the scalability of
+looking up backing files shall also not be an issue.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/data.c     | 4 ++--
- fs/erofs/internal.h | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/erofs/Makefile   |  3 ++-
+ fs/erofs/fscache.c  | 21 +++++++++++++++++++++
+ fs/erofs/internal.h |  5 +++++
+ fs/erofs/super.c    |  7 +++++++
+ 4 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 fs/erofs/fscache.c
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 226a57c57ee6..6e2a28242453 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -104,8 +104,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return 0;
- }
+diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
+index 8a3317e38e5a..21999e8a4728 100644
+--- a/fs/erofs/Makefile
++++ b/fs/erofs/Makefile
+@@ -1,7 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0-only
  
--static int erofs_map_blocks(struct inode *inode,
--			    struct erofs_map_blocks *map, int flags)
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct erofs_inode *vi = EROFS_I(inode);
+ obj-$(CONFIG_EROFS_FS) += erofs.o
+-erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o sysfs.o
++erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o sysfs.o \
++	      fscache.o
+ erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
+ erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
+ erofs-$(CONFIG_EROFS_FS_ZIP_LZMA) += decompressor_lzma.o
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+new file mode 100644
+index 000000000000..9c32f42e1056
+--- /dev/null
++++ b/fs/erofs/fscache.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright (C) 2021, Alibaba Cloud
++ */
++#include "internal.h"
++
++static struct fscache_volume *volume;
++
++int __init erofs_init_fscache(void)
++{
++	volume = fscache_acquire_volume("erofs", NULL, NULL, 0);
++	if (!volume)
++		return -EINVAL;
++
++	return 0;
++}
++
++void erofs_exit_fscache(void)
++{
++	fscache_relinquish_volume(volume, NULL, false);
++}
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index b8272fb95fd6..f9f94d63d40f 100644
+index 2b9337d385ce..c2608a469107 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -484,6 +484,8 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
- int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
- int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
- 		 u64 start, u64 len);
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags);
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/iomap.h>
++#include <linux/fscache.h>
+ #include "erofs_fs.h"
  
- /* inode.c */
- static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
+ /* redefine pr_fmt "erofs: " */
+@@ -616,6 +617,10 @@ static inline int z_erofs_load_lzma_config(struct super_block *sb,
+ }
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
++/* fscache.c */
++int erofs_init_fscache(void);
++void erofs_exit_fscache(void);
++
+ #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
+ 
+ #endif	/* __EROFS_INTERNAL_H */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 12755217631f..798f0c379e35 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -814,6 +814,10 @@ static int __init erofs_module_init(void)
+ 	if (err)
+ 		goto sysfs_err;
+ 
++	err = erofs_init_fscache();
++	if (err)
++		goto fscache_err;
++
+ 	err = register_filesystem(&erofs_fs_type);
+ 	if (err)
+ 		goto fs_err;
+@@ -821,6 +825,8 @@ static int __init erofs_module_init(void)
+ 	return 0;
+ 
+ fs_err:
++	erofs_exit_fscache();
++fscache_err:
+ 	erofs_exit_sysfs();
+ sysfs_err:
+ 	z_erofs_exit_zip_subsystem();
+@@ -841,6 +847,7 @@ static void __exit erofs_module_exit(void)
+ 	/* Ensure all RCU free inodes / pclusters are safe to be destroyed. */
+ 	rcu_barrier();
+ 
++	erofs_exit_fscache();
+ 	erofs_exit_sysfs();
+ 	z_erofs_exit_zip_subsystem();
+ 	z_erofs_lzma_exit();
 -- 
 2.27.0
 
