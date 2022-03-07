@@ -4,59 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7DEA0C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 06:17:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 391C8C433FE
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 12:33:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KBpD16XvPz30RQ
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 17:17:53 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YEuSRwA5;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KByYL1c1Qz3bSl
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 23:33:26 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=134.134.136.24; helo=mga09.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256
- header.s=Intel header.b=YEuSRwA5; dkim-atps=neutral
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KBpCw57CKz2ymt
- for <linux-erofs@lists.ozlabs.org>; Mon,  7 Mar 2022 17:17:41 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1646633869; x=1678169869;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=AJfOp8hnYR5EToyNeCW2bENOSo33a0Djf+9U7UbrUW8=;
- b=YEuSRwA5Uz+iNC0Ic9xjI96NWoPwtJiaBY/wxHkv6DqqLwCe5LTSgdO7
- zWSXCT0pMNqySUfUxbiPTiJaLwKLvnIB0ki9BHLATV3sBluydvHSMwJDu
- gSEBN7eET8RSXKCI4Nl3oDsZaih6jIhIefpk9bTvd9VlUA7P+q7TpDPku
- NGaRv3BMB9JugeJjnPGTKSD6V2RMBvP9hZnEIx1tnV0Uq1rq6D5rsSXcg
- XHjsq+K/eKZJ/GywnZPu4bwxYrX0GkSk1gjmtPwVkeJGvpIdk31GiFS0t
- YCZHCJrHM200gBHbqOgDzkFWRgCZrKjw+okwLv0ihrSvrQbB7IMr8KcXX A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10278"; a="254041735"
-X-IronPort-AV: E=Sophos;i="5.90,161,1643702400"; d="scan'208";a="254041735"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
- by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 06 Mar 2022 22:16:39 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,161,1643702400"; d="scan'208";a="631736424"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
- by FMSMGA003.fm.intel.com with ESMTP; 06 Mar 2022 22:16:37 -0800
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1nR6fY-000014-1N; Mon, 07 Mar 2022 06:16:32 +0000
-Date: Mon, 07 Mar 2022 13:41:20 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- 23002f78e2a71a54dc492d2ce0d9724c8e98c908
-Message-ID: <62259b00.vZ1DjsggU3wM+CJj%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KByYC5L7Pz30L7
+ for <linux-erofs@lists.ozlabs.org>; Mon,  7 Mar 2022 23:33:16 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V6WFbBz_1646656388; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0V6WFbBz_1646656388) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 07 Mar 2022 20:33:09 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v4 02/21] cachefiles: export write routine
+Date: Mon,  7 Mar 2022 20:32:46 +0800
+Message-Id: <20220307123305.79520-3-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220307123305.79520-1-jefflexu@linux.alibaba.com>
+References: <20220307123305.79520-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,162 +48,170 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: gregkh@linuxfoundation.org, willy@infradead.org,
+ linux-kernel@vger.kernel.org, joseph.qi@linux.alibaba.com,
+ linux-fsdevel@vger.kernel.org, gerry@linux.alibaba.com,
+ torvalds@linux-foundation.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: 23002f78e2a71a54dc492d2ce0d9724c8e98c908  erofs: clean up preload_compressed_pages()
+Extract and export the generic routine of writing data to cache files.
 
-elapsed time: 4819m
+This is used by the following patch implementing on-demand read mode.
+Since it will be called inside cachefiles, make the interface generic
+and unrelated to netfs_cache_resources.
 
-configs tested: 132
-configs skipped: 3
+It is worth nothing that, ki->inval_counter is not initialized after
+this cleanup. It shall not make any visible difference, since
+inval_counter is no longer used in the write completion routine, i.e.
+cachefiles_write_complete().
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-i386                          randconfig-c001
-sh                            migor_defconfig
-arm                           sunxi_defconfig
-arm                         axm55xx_defconfig
-arm                        mvebu_v7_defconfig
-arm                        cerfcube_defconfig
-h8300                            alldefconfig
-powerpc                  iss476-smp_defconfig
-sh                             sh03_defconfig
-m68k                       m5275evb_defconfig
-sh                           se7751_defconfig
-riscv                            allmodconfig
-sh                 kfr2r09-romimage_defconfig
-sh                               alldefconfig
-sh                          sdk7780_defconfig
-sh                            titan_defconfig
-sh                          lboxre2_defconfig
-sh                          kfr2r09_defconfig
-sh                          r7780mp_defconfig
-arm                           sama5_defconfig
-arm                         lubbock_defconfig
-sparc                       sparc64_defconfig
-riscv             nommu_k210_sdcard_defconfig
-xtensa                generic_kc705_defconfig
-sh                          urquell_defconfig
-powerpc                     ep8248e_defconfig
-arm                         vf610m4_defconfig
-m68k                          multi_defconfig
-nds32                            alldefconfig
-arm                            qcom_defconfig
-um                             i386_defconfig
-sh                        sh7757lcr_defconfig
-sh                ecovec24-romimage_defconfig
-sh                   secureedge5410_defconfig
-arm                           u8500_defconfig
-m68k                          sun3x_defconfig
-powerpc                        cell_defconfig
-arm                       omap2plus_defconfig
-s390                          debug_defconfig
-arm                           h5000_defconfig
-arm                            mps2_defconfig
-arm                        clps711x_defconfig
-m68k                        m5407c3_defconfig
-sh                           se7712_defconfig
-h8300                     edosk2674_defconfig
-arc                        vdk_hs38_defconfig
-arm                            hisi_defconfig
-arm                  randconfig-c002-20220303
-arm                  randconfig-c002-20220304
-arm                  randconfig-c002-20220302
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc64                            defconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-x86_64                        randconfig-a006
-x86_64                        randconfig-a004
-x86_64                        randconfig-a002
-riscv                    nommu_k210_defconfig
-riscv                            allyesconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-x86_64                    rhel-8.3-kselftests
-um                           x86_64_defconfig
-x86_64                           allyesconfig
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                         rhel-8.3-kunit
-x86_64                                  kexec
-
-clang tested configs:
-x86_64                        randconfig-c007
-powerpc              randconfig-c003-20220303
-riscv                randconfig-c006-20220303
-i386                          randconfig-c001
-arm                  randconfig-c002-20220303
-mips                 randconfig-c004-20220303
-powerpc              randconfig-c003-20220302
-riscv                randconfig-c006-20220302
-arm                  randconfig-c002-20220302
-mips                 randconfig-c004-20220302
-arm                  colibri_pxa270_defconfig
-i386                             allyesconfig
-powerpc                      ppc64e_defconfig
-i386                          randconfig-a002
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a012
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-i386                          randconfig-a011
-i386                          randconfig-a013
-i386                          randconfig-a015
-hexagon              randconfig-r045-20220304
-hexagon              randconfig-r041-20220304
-hexagon              randconfig-r045-20220303
-riscv                randconfig-r042-20220303
-hexagon              randconfig-r041-20220303
-hexagon              randconfig-r045-20220302
-hexagon              randconfig-r041-20220302
-
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+ fs/cachefiles/internal.h | 10 +++++++
+ fs/cachefiles/io.c       | 61 +++++++++++++++++++++++-----------------
+ 2 files changed, 45 insertions(+), 26 deletions(-)
+
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index c793d33b0224..e80673d0ab97 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -201,6 +201,16 @@ extern void cachefiles_put_object(struct cachefiles_object *object,
+  */
+ extern bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
+ 				       enum fscache_want_state want_state);
++extern int __cachefiles_prepare_write(struct cachefiles_object *object,
++				      struct file *file,
++				      loff_t *_start, size_t *_len,
++				      bool no_space_allocated_yet);
++extern int __cachefiles_write(struct cachefiles_object *object,
++			      struct file *file,
++			      loff_t start_pos,
++			      struct iov_iter *iter,
++			      netfs_io_terminated_t term_func,
++			      void *term_func_priv);
+ 
+ /*
+  * key.c
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index 753986ea1583..8dbc1eb254a3 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -278,36 +278,33 @@ static void cachefiles_write_complete(struct kiocb *iocb, long ret)
+ /*
+  * Initiate a write to the cache.
+  */
+-static int cachefiles_write(struct netfs_cache_resources *cres,
+-			    loff_t start_pos,
+-			    struct iov_iter *iter,
+-			    netfs_io_terminated_t term_func,
+-			    void *term_func_priv)
++int __cachefiles_write(struct cachefiles_object *object,
++		       struct file *file,
++		       loff_t start_pos,
++		       struct iov_iter *iter,
++		       netfs_io_terminated_t term_func,
++		       void *term_func_priv)
+ {
+-	struct cachefiles_object *object;
+ 	struct cachefiles_cache *cache;
+ 	struct cachefiles_kiocb *ki;
+ 	struct inode *inode;
+-	struct file *file;
+ 	unsigned int old_nofs;
+-	ssize_t ret = -ENOBUFS;
++	ssize_t ret;
+ 	size_t len = iov_iter_count(iter);
+ 
+-	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE))
+-		goto presubmission_error;
+ 	fscache_count_write();
+-	object = cachefiles_cres_object(cres);
+ 	cache = object->volume->cache;
+-	file = cachefiles_cres_file(cres);
+ 
+ 	_enter("%pD,%li,%llx,%zx/%llx",
+ 	       file, file_inode(file)->i_ino, start_pos, len,
+ 	       i_size_read(file_inode(file)));
+ 
+-	ret = -ENOMEM;
+ 	ki = kzalloc(sizeof(struct cachefiles_kiocb), GFP_KERNEL);
+-	if (!ki)
+-		goto presubmission_error;
++	if (!ki) {
++		if (term_func)
++			term_func(term_func_priv, -ENOMEM, false);
++		return -ENOMEM;
++	}
+ 
+ 	refcount_set(&ki->ki_refcnt, 2);
+ 	ki->iocb.ki_filp	= file;
+@@ -316,7 +313,6 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	ki->iocb.ki_hint	= ki_hint_validate(file_write_hint(file));
+ 	ki->iocb.ki_ioprio	= get_current_ioprio();
+ 	ki->object		= object;
+-	ki->inval_counter	= cres->inval_counter;
+ 	ki->start		= start_pos;
+ 	ki->len			= len;
+ 	ki->term_func		= term_func;
+@@ -371,11 +367,24 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	cachefiles_put_kiocb(ki);
+ 	_leave(" = %zd", ret);
+ 	return ret;
++}
+ 
+-presubmission_error:
+-	if (term_func)
+-		term_func(term_func_priv, ret, false);
+-	return ret;
++static int cachefiles_write(struct netfs_cache_resources *cres,
++			    loff_t start_pos,
++			    struct iov_iter *iter,
++			    netfs_io_terminated_t term_func,
++			    void *term_func_priv)
++{
++	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE)) {
++		if (term_func)
++			term_func(term_func_priv, -ENOBUFS, false);
++		return -ENOBUFS;
++	}
++
++	return __cachefiles_write(cachefiles_cres_object(cres),
++				  cachefiles_cres_file(cres),
++				  start_pos, iter,
++				  term_func, term_func_priv);
+ }
+ 
+ /*
+@@ -486,13 +495,12 @@ static enum netfs_read_source cachefiles_prepare_read(struct netfs_read_subreque
+ /*
+  * Prepare for a write to occur.
+  */
+-static int __cachefiles_prepare_write(struct netfs_cache_resources *cres,
+-				      loff_t *_start, size_t *_len, loff_t i_size,
+-				      bool no_space_allocated_yet)
++int __cachefiles_prepare_write(struct cachefiles_object *object,
++			       struct file *file,
++			       loff_t *_start, size_t *_len,
++			       bool no_space_allocated_yet)
+ {
+-	struct cachefiles_object *object = cachefiles_cres_object(cres);
+ 	struct cachefiles_cache *cache = object->volume->cache;
+-	struct file *file = cachefiles_cres_file(cres);
+ 	loff_t start = *_start, pos;
+ 	size_t len = *_len, down;
+ 	int ret;
+@@ -579,7 +587,8 @@ static int cachefiles_prepare_write(struct netfs_cache_resources *cres,
+ 	}
+ 
+ 	cachefiles_begin_secure(cache, &saved_cred);
+-	ret = __cachefiles_prepare_write(cres, _start, _len, i_size,
++	ret = __cachefiles_prepare_write(object, cachefiles_cres_file(cres),
++					 _start, _len,
+ 					 no_space_allocated_yet);
+ 	cachefiles_end_secure(cache, saved_cred);
+ 	return ret;
+-- 
+2.27.0
+
