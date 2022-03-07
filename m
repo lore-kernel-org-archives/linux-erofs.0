@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1E86BC433F5
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 12:33:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8352CC433FE
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 12:33:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KByYN4yS9z3bYh
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 23:33:28 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KByYQ0jxDz3bWM
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Mar 2022 23:33:30 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
- helo=out30-57.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KByYC5sV1z30Nj
- for <linux-erofs@lists.ozlabs.org>; Mon,  7 Mar 2022 23:33:16 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V6VlXv8_1646656387; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KByYD0vr9z30Q9
+ for <linux-erofs@lists.ozlabs.org>; Mon,  7 Mar 2022 23:33:17 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R291e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=15; SR=0; TI=SMTPD_---0V6VOena_1646656390; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V6VlXv8_1646656387) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 07 Mar 2022 20:33:08 +0800
+ fp:SMTPD_---0V6VOena_1646656390) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 07 Mar 2022 20:33:11 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4 01/21] fscache: export fscache_end_operation()
-Date: Mon,  7 Mar 2022 20:32:45 +0800
-Message-Id: <20220307123305.79520-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v4 03/21] cachefiles: introduce on-demand read mode
+Date: Mon,  7 Mar 2022 20:32:47 +0800
+Message-Id: <20220307123305.79520-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220307123305.79520-1-jefflexu@linux.alibaba.com>
 References: <20220307123305.79520-1-jefflexu@linux.alibaba.com>
@@ -56,86 +56,287 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Export fscache_end_operation() to avoid code duplication.
+Fscache/cachefiles used to serve as a local cache for remote fs. This
+patch, along with the following patches, introduces a new on-demand read
+mode for cachefiles, which can boost the scenario where on-demand read
+semantics is needed, e.g. container image distribution.
 
-Besides, considering the paired fscache_begin_read_operation() is
-already exported, it shall make sense to also export
-fscache_end_operation().
+The essential difference between the original mode and on-demand read
+mode is that, in the original mode, when cache miss, netfs itself will
+fetch data from remote, and then write the fetched data into cache file.
+While in on-demand read mode, a user daemon is responsible for fetching
+data and then writing to the cache file.
+
+This patch only adds the command to enable on-demand read mode. An
+optional parameter to "bind" command is added. On-demand mode will be
+turned on when this optional argument matches "ondemand" exactly, i.e.
+"bind ondemand". Otherwise cachefiles will keep working in the original
+mode.
+
+The following patches will implement the data plane of on-demand read
+mode.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Liu Bo <bo.liu@linux.alibaba.com>
 ---
- fs/fscache/internal.h   | 11 -----------
- fs/nfs/fscache.c        |  8 --------
- include/linux/fscache.h | 14 ++++++++++++++
- 3 files changed, 14 insertions(+), 19 deletions(-)
+ fs/cachefiles/Kconfig    |  11 ++++
+ fs/cachefiles/daemon.c   | 132 +++++++++++++++++++++++++++++++--------
+ fs/cachefiles/internal.h |   6 ++
+ 3 files changed, 124 insertions(+), 25 deletions(-)
 
-diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
-index f121c21590dc..ed1c9ed737f2 100644
---- a/fs/fscache/internal.h
-+++ b/fs/fscache/internal.h
-@@ -70,17 +70,6 @@ static inline void fscache_see_cookie(struct fscache_cookie *cookie,
- 			     where);
+diff --git a/fs/cachefiles/Kconfig b/fs/cachefiles/Kconfig
+index 719faeeda168..58aad1fb4c5c 100644
+--- a/fs/cachefiles/Kconfig
++++ b/fs/cachefiles/Kconfig
+@@ -26,3 +26,14 @@ config CACHEFILES_ERROR_INJECTION
+ 	help
+ 	  This permits error injection to be enabled in cachefiles whilst a
+ 	  cache is in service.
++
++config CACHEFILES_ONDEMAND
++	bool "Support for on-demand read"
++	depends on CACHEFILES
++	default n
++	help
++	  This permits on-demand read mode of cachefiles. In this mode, when
++	  cache miss, the cachefiles backend instead of netfs, is responsible
++          for fetching data, e.g. through user daemon.
++
++	  If unsure, say N.
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 7ac04ee2c0a0..c0c3a3cbee28 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -78,6 +78,65 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
+ 	{ "",		NULL				}
+ };
+ 
++#ifdef CONFIG_CACHEFILES_ONDEMAND
++static inline void cachefiles_ondemand_open(struct cachefiles_cache *cache)
++{
++	xa_init_flags(&cache->reqs, XA_FLAGS_ALLOC);
++	rwlock_init(&cache->reqs_lock);
++}
++
++static inline void cachefiles_ondemand_release(struct cachefiles_cache *cache)
++{
++	xa_destroy(&cache->reqs);
++}
++
++static inline __poll_t cachefiles_ondemand_mask(struct cachefiles_cache *cache)
++{
++	__poll_t mask = 0;
++
++	if (!xa_empty(&cache->reqs))
++		mask |= EPOLLIN;
++
++	if (test_bit(CACHEFILES_CULLING, &cache->flags))
++		mask |= EPOLLOUT;
++
++	return mask;
++}
++
++static inline
++bool cachefiles_ondemand_daemon_bind(struct cachefiles_cache *cache, char *args)
++{
++	if (!strcmp(args, "ondemand")) {
++		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
++		return true;
++	}
++
++	return false;
++}
++
++#else
++static inline void cachefiles_ondemand_open(struct cachefiles_cache *cache) {}
++static inline void cachefiles_ondemand_release(struct cachefiles_cache *cache) {}
++
++static inline
++__poll_t cachefiles_ondemand_mask(struct cachefiles_cache *cache)
++{
++	return 0;
++}
++
++static inline
++bool cachefiles_ondemand_daemon_bind(struct cachefiles_cache *cache, char *args)
++{
++	return false;
++}
++#endif
++
++static inline
++ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
++					char __user *_buffer, size_t buflen)
++{
++	return -EOPNOTSUPP;
++}
+ 
+ /*
+  * Prepare a cache for caching.
+@@ -108,6 +167,7 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
+ 	INIT_LIST_HEAD(&cache->volumes);
+ 	INIT_LIST_HEAD(&cache->object_list);
+ 	spin_lock_init(&cache->object_list_lock);
++	cachefiles_ondemand_open(cache);
+ 
+ 	/* set default caching limits
+ 	 * - limit at 1% free space and/or free files
+@@ -139,6 +199,7 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
+ 
+ 	set_bit(CACHEFILES_DEAD, &cache->flags);
+ 
++	cachefiles_ondemand_release(cache);
+ 	cachefiles_daemon_unbind(cache);
+ 
+ 	/* clean up the control file interface */
+@@ -152,23 +213,15 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
+ 	return 0;
  }
  
 -/*
-- * io.c
+- * Read the cache state.
 - */
--static inline void fscache_end_operation(struct netfs_cache_resources *cres)
--{
--	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
+-static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
+-				      size_t buflen, loff_t *pos)
++static ssize_t cachefiles_do_daemon_read(struct cachefiles_cache *cache,
++					 char __user *_buffer,
++					 size_t buflen)
+ {
+-	struct cachefiles_cache *cache = file->private_data;
+ 	unsigned long long b_released;
+ 	unsigned f_released;
+ 	char buffer[256];
+ 	int n;
+ 
+-	//_enter(",,%zu,", buflen);
 -
--	if (ops)
--		ops->end_operation(cres);
--}
+-	if (!test_bit(CACHEFILES_READY, &cache->flags))
+-		return 0;
 -
- /*
-  * main.c
-  */
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index cfe901650ab0..39654ca72d3d 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -249,14 +249,6 @@ void nfs_fscache_release_file(struct inode *inode, struct file *filp)
- 	}
+ 	/* check how much space the cache has */
+ 	cachefiles_has_space(cache, 0, 0, cachefiles_has_space_check);
+ 
+@@ -206,6 +259,25 @@ static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
+ 	return n;
  }
  
--static inline void fscache_end_operation(struct netfs_cache_resources *cres)
--{
--	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
--
--	if (ops)
--		ops->end_operation(cres);
--}
--
- /*
-  * Fallback page reading interface.
-  */
-diff --git a/include/linux/fscache.h b/include/linux/fscache.h
-index 296c5f1d9f35..d2430da8aa67 100644
---- a/include/linux/fscache.h
-+++ b/include/linux/fscache.h
-@@ -456,6 +456,20 @@ int fscache_begin_read_operation(struct netfs_cache_resources *cres,
- 	return -ENOBUFS;
- }
- 
-+/**
-+ * fscache_end_operation - End the read operation for the netfs lib
-+ * @cres: The cache resources for the read operation
-+ *
-+ * Clean up the resources at the end of the read request.
++/*
++ * Read the cache state.
 + */
-+static inline void fscache_end_operation(struct netfs_cache_resources *cres)
++static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
++				      size_t buflen, loff_t *pos)
 +{
-+	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
++	struct cachefiles_cache *cache = file->private_data;
 +
-+	if (ops)
-+		ops->end_operation(cres);
++	//_enter(",,%zu,", buflen);
++
++	if (!test_bit(CACHEFILES_READY, &cache->flags))
++		return 0;
++
++	if (likely(!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags)))
++		return cachefiles_do_daemon_read(cache, _buffer, buflen);
++	else
++		return cachefiles_ondemand_daemon_read(cache, _buffer, buflen);
 +}
 +
- /**
-  * fscache_read - Start a read from the cache.
-  * @cres: The cache resources to use
+ /*
+  * Take a command from cachefilesd, parse it and act on it.
+  */
+@@ -284,6 +356,21 @@ static ssize_t cachefiles_daemon_write(struct file *file,
+ 	goto error;
+ }
+ 
++
++static inline
++__poll_t cachefiles_daemon_mask(struct cachefiles_cache *cache)
++{
++	__poll_t mask = 0;
++
++	if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
++		mask |= EPOLLIN;
++
++	if (test_bit(CACHEFILES_CULLING, &cache->flags))
++		mask |= EPOLLOUT;
++
++	return mask;
++}
++
+ /*
+  * Poll for culling state
+  * - use EPOLLOUT to indicate culling state
+@@ -292,18 +379,13 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
+ 					   struct poll_table_struct *poll)
+ {
+ 	struct cachefiles_cache *cache = file->private_data;
+-	__poll_t mask;
+ 
+ 	poll_wait(file, &cache->daemon_pollwq, poll);
+-	mask = 0;
+-
+-	if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
+-		mask |= EPOLLIN;
+-
+-	if (test_bit(CACHEFILES_CULLING, &cache->flags))
+-		mask |= EPOLLOUT;
+ 
+-	return mask;
++	if (likely(!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags)))
++		return cachefiles_daemon_mask(cache);
++	else
++		return cachefiles_ondemand_mask(cache);
+ }
+ 
+ /*
+@@ -687,11 +769,6 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 	    cache->brun_percent  >= 100)
+ 		return -ERANGE;
+ 
+-	if (*args) {
+-		pr_err("'bind' command doesn't take an argument\n");
+-		return -EINVAL;
+-	}
+-
+ 	if (!cache->rootdirname) {
+ 		pr_err("No cache directory specified\n");
+ 		return -EINVAL;
+@@ -703,6 +780,11 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 		return -EBUSY;
+ 	}
+ 
++	if (!cachefiles_ondemand_daemon_bind(cache, args) && *args) {
++		pr_err("'bind' command doesn't take an argument\n");
++		return -EINVAL;
++	}
++
+ 	/* Make sure we have copies of the tag string */
+ 	if (!cache->tag) {
+ 		/*
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index e80673d0ab97..3f791882fa3f 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -15,6 +15,7 @@
+ #include <linux/fscache-cache.h>
+ #include <linux/cred.h>
+ #include <linux/security.h>
++#include <linux/xarray.h>
+ 
+ #define CACHEFILES_DIO_BLOCK_SIZE 4096
+ 
+@@ -98,9 +99,14 @@ struct cachefiles_cache {
+ #define CACHEFILES_DEAD			1	/* T if cache dead */
+ #define CACHEFILES_CULLING		2	/* T if cull engaged */
+ #define CACHEFILES_STATE_CHANGED	3	/* T if state changed (poll trigger) */
++#define CACHEFILES_ONDEMAND_MODE	4	/* T if in on-demand read mode */
+ 	char				*rootdirname;	/* name of cache root directory */
+ 	char				*secctx;	/* LSM security context */
+ 	char				*tag;		/* cache binding tag */
++#ifdef CONFIG_CACHEFILES_ONDEMAND
++	struct xarray			reqs;		/* xarray of pending on-demand requests */
++	rwlock_t			reqs_lock;	/* Lock for reqs xarray */
++#endif
+ };
+ 
+ #include <trace/events/cachefiles.h>
 -- 
 2.27.0
 
