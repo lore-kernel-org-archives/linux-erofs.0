@@ -4,59 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07CC1C433F5
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Mar 2022 09:13:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7E5DC433EF
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Mar 2022 11:16:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KCV4S38Ghz3bT4
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Mar 2022 20:13:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=aeAk82rU;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KD8l22SX1z3bTs
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Mar 2022 22:15:58 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.136; helo=mga12.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256
- header.s=Intel header.b=aeAk82rU; dkim-atps=neutral
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
+ helo=out30-131.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KCV4J72DSz30Fn
- for <linux-erofs@lists.ozlabs.org>; Tue,  8 Mar 2022 20:13:31 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1646730818; x=1678266818;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=AGYzNdAViy7rM1NbSsOUn28cwkS3MlZo2OyEk9YtRB0=;
- b=aeAk82rUuKMOBhhari17Wz+Q6rKLmCE974IiGPbfxUmSu62kXg8HDG+s
- Vfkzy9EQxCgukWlqKIjbxIQR6cBpC8ijcmZqF78+04YBpwrSbDKTI0ldT
- 9xmaZRBcwCDmGdrAJ+RTa0wXU0IoUogHW/dF0fQkTpVGcTWi2/8OZoPaP
- lVrAnNkVzvKu/JFsNYYY+2dU2wp5ki4vfOaX6eub/635obuwPIrCeLSRL
- EL/ZI5y3zwjrxTx3bvKcMsyXTaAPWpNvabLecuifB77lbLwDioErUJR82
- UNxpPMiGeok0HkOppMSgE5H/bozQwW5SVtQn9qMMGZGirpRxokORgnX9D A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10279"; a="234590312"
-X-IronPort-AV: E=Sophos;i="5.90,164,1643702400"; d="scan'208";a="234590312"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
- by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 08 Mar 2022 01:12:19 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,164,1643702400"; d="scan'208";a="495386934"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
- by orsmga003.jf.intel.com with ESMTP; 08 Mar 2022 01:12:17 -0800
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1nRVtB-0001Be-5l; Tue, 08 Mar 2022 09:12:17 +0000
-Date: Tue, 08 Mar 2022 17:11:51 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 5e397957c517d40be16f9bd4d1dfc76804fe3255
-Message-ID: <62271dd7.c46j9c3/M8ytdyyi%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KD8kw2TVxz2ywb
+ for <linux-erofs@lists.ozlabs.org>; Wed,  9 Mar 2022 22:15:47 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0V6jihDJ_1646824537; 
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0V6jihDJ_1646824537) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 09 Mar 2022 19:15:38 +0800
+Date: Wed, 9 Mar 2022 19:15:36 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: fs/erofs/zmap.c:394 z_erofs_get_extent_compressedlen() warn:
+ should '1 << lclusterbits' be a 64 bit type?
+Message-ID: <YiiMWCZS7bzeAFme@B-P7TQMD6M-0146.local>
+References: <202203091002.lJVzsX6e-lkp@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <202203091002.lJVzsX6e-lkp@intel.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,158 +48,106 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: kbuild-all@lists.01.org, kbuild@lists.01.org, linux-erofs@lists.ozlabs.org,
+ lkp@intel.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 5e397957c517d40be16f9bd4d1dfc76804fe3255  erofs: clean up preload_compressed_pages()
+Hi Dan,
 
-elapsed time: 732m
+On Wed, Mar 09, 2022 at 01:27:08PM +0300, Dan Carpenter wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
+> head:   92f90cc9fe0e7a984ea3d4bf3d120e30ba8a2118
+> commit: cec6e93beadfd145758af2c0854fcc2abb8170cb erofs: support parsing big pcluster compress indexes
+> config: i386-randconfig-m021-20220307 (https://download.01.org/0day-ci/archive/20220309/202203091002.lJVzsX6e-lkp@intel.com/config)
+> compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
+> 
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+> smatch warnings:
+> fs/erofs/zmap.c:394 z_erofs_get_extent_compressedlen() warn: should '1 << lclusterbits' be a 64 bit type?
+> fs/erofs/zmap.c:423 z_erofs_get_extent_compressedlen() warn: should 'm->compressedlcs << lclusterbits' be a 64 bit type?
+> 
+> vim +394 fs/erofs/zmap.c
+> 
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  381  static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  382  					    unsigned int initial_lcn)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  383  {
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  384  	struct erofs_inode *const vi = EROFS_I(m->inode);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  385  	struct erofs_map_blocks *const map = m->map;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  386  	const unsigned int lclusterbits = vi->z_logical_clusterbits;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  387  	unsigned long lcn;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  388  	int err;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  389  
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  390  	DBG_BUGON(m->type != Z_EROFS_VLE_CLUSTER_TYPE_PLAIN &&
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  391  		  m->type != Z_EROFS_VLE_CLUSTER_TYPE_HEAD);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  392  	if (!(map->m_flags & EROFS_MAP_ZIPPED) ||
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  393  	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1)) {
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07 @394  		map->m_plen = 1 << lclusterbits;
+> 
+> 1ULL << lclusterbits?
 
-configs tested: 129
-configs skipped: 3
+Thanks for the report!
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+In practice, m_plen won't be larger than 1MiB due to on-disk constraint
+for compression mode, so we're always safe here. m_plen only can be
+larger than 4GiB for non-compression mode.
 
-gcc tested configs:
-arm                              allmodconfig
-arm                              allyesconfig
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-i386                          randconfig-c001
-i386                 randconfig-c001-20220307
-mips                 randconfig-c004-20220307
-mips                 randconfig-c004-20220308
-alpha                            alldefconfig
-arm                      footbridge_defconfig
-m68k                           sun3_defconfig
-sh                           se7722_defconfig
-sh                          urquell_defconfig
-powerpc                      ep88xc_defconfig
-arm                         nhk8815_defconfig
-sh                          landisk_defconfig
-mips                           ip32_defconfig
-mips                      fuloong2e_defconfig
-m68k                          atari_defconfig
-mips                    maltaup_xpa_defconfig
-openrisc                 simple_smp_defconfig
-sh                        edosk7705_defconfig
-arm                            zeus_defconfig
-powerpc                   currituck_defconfig
-powerpc                      ppc40x_defconfig
-xtensa                           alldefconfig
-microblaze                          defconfig
-powerpc                 mpc834x_itx_defconfig
-m68k                       m5249evb_defconfig
-arm                            hisi_defconfig
-riscv                               defconfig
-arc                          axs101_defconfig
-sh                           se7751_defconfig
-sparc                            allyesconfig
-mips                      maltasmvp_defconfig
-arm                  randconfig-c002-20220308
-arm                  randconfig-c002-20220307
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc64                            defconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                               defconfig
-i386                                defconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a005-20220307
-i386                 randconfig-a004-20220307
-i386                 randconfig-a003-20220307
-i386                 randconfig-a006-20220307
-i386                 randconfig-a002-20220307
-i386                 randconfig-a001-20220307
-x86_64               randconfig-a003-20220307
-x86_64               randconfig-a001-20220307
-x86_64               randconfig-a002-20220307
-x86_64               randconfig-a006-20220307
-x86_64               randconfig-a004-20220307
-x86_64               randconfig-a005-20220307
-x86_64                        randconfig-a006
-x86_64                        randconfig-a004
-x86_64                        randconfig-a002
-riscv                    nommu_k210_defconfig
-riscv                            allyesconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                          rv32_defconfig
-riscv                            allmodconfig
-x86_64                    rhel-8.3-kselftests
-um                           x86_64_defconfig
-um                             i386_defconfig
-x86_64                           allyesconfig
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                         rhel-8.3-kunit
-x86_64                                  kexec
+Yet we could update this on the static analysis side, I will submit a
+patch later.
 
-clang tested configs:
-x86_64                        randconfig-c007
-riscv                randconfig-c006-20220308
-powerpc              randconfig-c003-20220308
-i386                          randconfig-c001
-arm                  randconfig-c002-20220308
-mips                 randconfig-c004-20220308
-powerpc                      walnut_defconfig
-mips                        qi_lb60_defconfig
-powerpc                     skiroot_defconfig
-mips                           mtx1_defconfig
-mips                     loongson2k_defconfig
-arm                         bcm2835_defconfig
-arm                        vexpress_defconfig
-hexagon                             defconfig
-mips                           ip22_defconfig
-i386                          randconfig-a002
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a012
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-i386                          randconfig-a011
-i386                          randconfig-a013
-i386                          randconfig-a015
-i386                 randconfig-a012-20220307
-i386                 randconfig-a013-20220307
-i386                 randconfig-a015-20220307
-i386                 randconfig-a011-20220307
-i386                 randconfig-a014-20220307
-i386                 randconfig-a016-20220307
+> 
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  395  		return 0;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  396  	}
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  397  
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  398  	lcn = m->lcn + 1;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  399  	if (m->compressedlcs)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  400  		goto out;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  401  	if (lcn == initial_lcn)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  402  		goto err_bonus_cblkcnt;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  403  
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  404  	err = z_erofs_load_cluster_from_disk(m, lcn);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  405  	if (err)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  406  		return err;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  407  
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  408  	switch (m->type) {
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  409  	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  410  		if (m->delta[0] != 1)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  411  			goto err_bonus_cblkcnt;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  412  		if (m->compressedlcs)
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  413  			break;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  414  		fallthrough;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  415  	default:
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  416  		erofs_err(m->inode->i_sb,
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  417  			  "cannot found CBLKCNT @ lcn %lu of nid %llu",
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  418  			  lcn, vi->nid);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  419  		DBG_BUGON(1);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  420  		return -EFSCORRUPTED;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  421  	}
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  422  out:
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07 @423  	map->m_plen = m->compressedlcs << lclusterbits;
+> 
+> Same thing here.
 
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Ditto.
+
+Thanks,
+Gao Xiang
+
+> 
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  424  	return 0;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  425  err_bonus_cblkcnt:
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  426  	erofs_err(m->inode->i_sb,
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  427  		  "bogus CBLKCNT @ lcn %lu of nid %llu",
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  428  		  lcn, vi->nid);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  429  	DBG_BUGON(1);
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  430  	return -EFSCORRUPTED;
+> cec6e93beadfd1 fs/erofs/zmap.c              Gao Xiang 2021-04-07  431  }
+> 
+> ---
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+> 
