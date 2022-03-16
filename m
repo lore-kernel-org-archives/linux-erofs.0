@@ -4,38 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFCD7C433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 01:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67184C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 01:23:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KJCFz0PPyz30Bl
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 12:23:19 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KJCG05cx3z30KV
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 12:23:20 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KJCFr1q03z2xF0
- for <linux-erofs@lists.ozlabs.org>; Wed, 16 Mar 2022 12:23:11 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KJCFt0l4qz2xt0
+ for <linux-erofs@lists.ozlabs.org>; Wed, 16 Mar 2022 12:23:09 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0V7JXUrL_1647393780; 
+ NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0V7JXUqC_1647393769; 
 Received: from
  e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0V7JXUrL_1647393780) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 16 Mar 2022 09:23:03 +0800
+ fp:SMTPD_---0V7JXUqC_1647393769) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 16 Mar 2022 09:22:59 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org,
 	Chao Yu <chao@kernel.org>
-Subject: [PATCH 2/2] erofs: support inode lookup with metabuf
-Date: Wed, 16 Mar 2022 09:22:46 +0800
-Message-Id: <20220316012246.95131-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/2] erofs: support read directory inodes with metabuf
+Date: Wed, 16 Mar 2022 09:22:45 +0800
+Message-Id: <20220316012246.95131-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20220316012246.95131-1-hsiangkao@linux.alibaba.com>
-References: <20220316012246.95131-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,158 +53,134 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This converts the remaining inode lookup part by using metabuf in a
-straight-forward way. Except that it doesn't use kmap_atomic()
-anymore since we now have to maintain two metabuf together.
+Previously, directory inodes are directly handled with page cache
+interfaces.
 
-After this patch, all uncompressed paths are handled with metabuf
-instead of page structure.
+In order to support sub-page directory blocks and folios, let's
+convert them into the latest metabuf infrastructure as well and
+this patch addresses the readdir case first.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/namei.c | 54 +++++++++++++++++++++---------------------------
- 1 file changed, 24 insertions(+), 30 deletions(-)
+ fs/erofs/data.c     | 12 +++++++++---
+ fs/erofs/dir.c      | 21 ++++++---------------
+ fs/erofs/internal.h |  2 ++
+ 3 files changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
-index 8629e616028c..554efa363317 100644
---- a/fs/erofs/namei.c
-+++ b/fs/erofs/namei.c
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 226a57c57ee6..780db1e5f4b7 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -28,10 +28,10 @@ void erofs_put_metabuf(struct erofs_buf *buf)
+ 	buf->page = NULL;
+ }
+ 
+-void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+-			erofs_blk_t blkaddr, enum erofs_kmap_type type)
++void *erofs_bread(struct erofs_buf *buf, struct inode *inode,
++		  erofs_blk_t blkaddr, enum erofs_kmap_type type)
+ {
+-	struct address_space *const mapping = sb->s_bdev->bd_inode->i_mapping;
++	struct address_space *const mapping = inode->i_mapping;
+ 	erofs_off_t offset = blknr_to_addr(blkaddr);
+ 	pgoff_t index = offset >> PAGE_SHIFT;
+ 	struct page *page = buf->page;
+@@ -60,6 +60,12 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+ 	return buf->base + (offset & ~PAGE_MASK);
+ }
+ 
++void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
++			 erofs_blk_t blkaddr, enum erofs_kmap_type type)
++{
++	return erofs_bread(buf, sb->s_bdev->bd_inode, blkaddr, type);
++}
++
+ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 				     struct erofs_map_blocks *map,
+ 				     int flags)
+diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
+index eee9b0b31b63..66b971ff7d9d 100644
+--- a/fs/erofs/dir.c
++++ b/fs/erofs/dir.c
 @@ -2,6 +2,7 @@
  /*
   * Copyright (C) 2017-2018 HUAWEI, Inc.
   *             https://www.huawei.com/
-+ * Copyright (C) 2022, Alibaba Cloud
++ * Copyright (C) 2021-2022, Alibaba Cloud
   */
- #include "xattr.h"
+ #include "internal.h"
  
-@@ -86,14 +87,14 @@ static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
- 	return ERR_PTR(-ENOENT);
- }
- 
--static struct page *find_target_block_classic(struct inode *dir,
--					      struct erofs_qstr *name,
--					      int *_ndirents)
-+static void *find_target_block_classic(struct erofs_buf *target,
-+				       struct inode *dir,
-+				       struct erofs_qstr *name,
-+				       int *_ndirents)
+@@ -67,7 +68,7 @@ static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
+ static int erofs_readdir(struct file *f, struct dir_context *ctx)
  {
- 	unsigned int startprfx, endprfx;
- 	int head, back;
--	struct address_space *const mapping = dir->i_mapping;
--	struct page *candidate = ERR_PTR(-ENOENT);
-+	void *candidate = ERR_PTR(-ENOENT);
- 
- 	startprfx = endprfx = 0;
- 	head = 0;
-@@ -101,10 +102,11 @@ static struct page *find_target_block_classic(struct inode *dir,
- 
- 	while (head <= back) {
- 		const int mid = head + (back - head) / 2;
--		struct page *page = read_mapping_page(mapping, mid, NULL);
-+		struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
-+		struct erofs_dirent *de;
- 
--		if (!IS_ERR(page)) {
--			struct erofs_dirent *de = kmap_atomic(page);
-+		de = erofs_bread(&buf, dir, mid, EROFS_KMAP);
-+		if (!IS_ERR(de)) {
- 			const int nameoff = nameoff_from_disk(de->nameoff,
- 							      EROFS_BLKSIZ);
- 			const int ndirents = nameoff / sizeof(*de);
-@@ -113,13 +115,12 @@ static struct page *find_target_block_classic(struct inode *dir,
- 			struct erofs_qstr dname;
- 
- 			if (!ndirents) {
--				kunmap_atomic(de);
--				put_page(page);
-+				erofs_put_metabuf(&buf);
- 				erofs_err(dir->i_sb,
- 					  "corrupted dir block %d @ nid %llu",
- 					  mid, EROFS_I(dir)->nid);
- 				DBG_BUGON(1);
--				page = ERR_PTR(-EFSCORRUPTED);
-+				de = ERR_PTR(-EFSCORRUPTED);
- 				goto out;
- 			}
- 
-@@ -135,7 +136,6 @@ static struct page *find_target_block_classic(struct inode *dir,
- 
- 			/* string comparison without already matched prefix */
- 			diff = erofs_dirnamecmp(name, &dname, &matched);
--			kunmap_atomic(de);
- 
- 			if (!diff) {
- 				*_ndirents = 0;
-@@ -145,11 +145,12 @@ static struct page *find_target_block_classic(struct inode *dir,
- 				startprfx = matched;
- 
- 				if (!IS_ERR(candidate))
--					put_page(candidate);
--				candidate = page;
-+					erofs_put_metabuf(target);
-+				*target = buf;
-+				candidate = de;
- 				*_ndirents = ndirents;
- 			} else {
--				put_page(page);
-+				erofs_put_metabuf(&buf);
- 
- 				back = mid - 1;
- 				endprfx = matched;
-@@ -158,8 +159,8 @@ static struct page *find_target_block_classic(struct inode *dir,
- 		}
- out:		/* free if the candidate is valid */
- 		if (!IS_ERR(candidate))
--			put_page(candidate);
--		return page;
-+			erofs_put_metabuf(target);
-+		return de;
- 	}
- 	return candidate;
- }
-@@ -169,8 +170,7 @@ int erofs_namei(struct inode *dir,
- 		erofs_nid_t *nid, unsigned int *d_type)
- {
- 	int ndirents;
--	struct page *page;
--	void *data;
+ 	struct inode *dir = file_inode(f);
+-	struct address_space *mapping = dir->i_mapping;
 +	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
- 	struct erofs_dirent *de;
- 	struct erofs_qstr qn;
+ 	const size_t dirsize = i_size_read(dir);
+ 	unsigned int i = ctx->pos / EROFS_BLKSIZ;
+ 	unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
+@@ -75,26 +76,19 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 	bool initial = true;
  
-@@ -181,26 +181,20 @@ int erofs_namei(struct inode *dir,
- 	qn.end = name->name + name->len;
+ 	while (ctx->pos < dirsize) {
+-		struct page *dentry_page;
+ 		struct erofs_dirent *de;
+ 		unsigned int nameoff, maxsize;
  
- 	ndirents = 0;
--	page = find_target_block_classic(dir, &qn, &ndirents);
+-		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (dentry_page == ERR_PTR(-ENOMEM)) {
+-			err = -ENOMEM;
+-			break;
+-		} else if (IS_ERR(dentry_page)) {
++		de = erofs_bread(&buf, dir, i, EROFS_KMAP);
++		if (IS_ERR(de)) {
+ 			erofs_err(dir->i_sb,
+ 				  "fail to readdir of logical block %u of nid %llu",
+ 				  i, EROFS_I(dir)->nid);
+-			err = -EFSCORRUPTED;
++			err = PTR_ERR(de);
+ 			break;
+ 		}
  
--	if (IS_ERR(page))
--		return PTR_ERR(page);
-+	de = find_target_block_classic(&buf, dir, &qn, &ndirents);
-+	if (IS_ERR(de))
-+		return PTR_ERR(de);
+-		de = (struct erofs_dirent *)kmap(dentry_page);
+-
+ 		nameoff = le16_to_cpu(de->nameoff);
+-
+ 		if (nameoff < sizeof(struct erofs_dirent) ||
+ 		    nameoff >= PAGE_SIZE) {
+ 			erofs_err(dir->i_sb,
+@@ -119,10 +113,6 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		err = erofs_fill_dentries(dir, ctx, de, &ofs,
+ 					  nameoff, maxsize);
+ skip_this:
+-		kunmap(dentry_page);
+-
+-		put_page(dentry_page);
+-
+ 		ctx->pos = blknr_to_addr(i) + ofs;
  
--	data = kmap_atomic(page);
- 	/* the target page has been mapped */
- 	if (ndirents)
--		de = find_target_dirent(&qn, data, EROFS_BLKSIZ, ndirents);
--	else
--		de = (struct erofs_dirent *)data;
-+		de = find_target_dirent(&qn, (u8 *)de, EROFS_BLKSIZ, ndirents);
- 
- 	if (!IS_ERR(de)) {
- 		*nid = le64_to_cpu(de->nid);
- 		*d_type = de->file_type;
+ 		if (err)
+@@ -130,6 +120,7 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		++i;
+ 		ofs = 0;
  	}
--
--	kunmap_atomic(data);
--	put_page(page);
--
 +	erofs_put_metabuf(&buf);
- 	return PTR_ERR_OR_ZERO(de);
+ 	return err < 0 ? err : 0;
  }
  
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 5aa2cf2c2f80..5298c4ee277d 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -479,6 +479,8 @@ struct erofs_map_dev {
+ extern const struct file_operations erofs_file_fops;
+ void erofs_unmap_metabuf(struct erofs_buf *buf);
+ void erofs_put_metabuf(struct erofs_buf *buf);
++void *erofs_bread(struct erofs_buf *buf, struct inode *inode,
++		  erofs_blk_t blkaddr, enum erofs_kmap_type type);
+ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+ 			 erofs_blk_t blkaddr, enum erofs_kmap_type type);
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
 -- 
 2.24.4
 
