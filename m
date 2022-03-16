@@ -4,74 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33F7CC433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 12:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21F79C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 13:17:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KJTdD5xRrz30Fn
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 23:10:56 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256 header.s=google header.b=WvmzwvFt;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KJW6H3zb1z30Dr
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Mar 2022 00:17:43 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=konsulko.com (client-ip=2607:f8b0:4864:20::f30;
- helo=mail-qv1-xf30.google.com; envelope-from=trini@konsulko.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256
- header.s=google header.b=WvmzwvFt; dkim-atps=neutral
-Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com
- [IPv6:2607:f8b0:4864:20::f30])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
+ helo=out30-56.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KJTdB2MRTz30HX
- for <linux-erofs@lists.ozlabs.org>; Wed, 16 Mar 2022 23:10:54 +1100 (AEDT)
-Received: by mail-qv1-xf30.google.com with SMTP id j5so1599535qvs.13
- for <linux-erofs@lists.ozlabs.org>; Wed, 16 Mar 2022 05:10:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=konsulko.com; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=4ea6CPjT+8qV8ISTiLeKonKOOW211QC2r3Obyi6gsPY=;
- b=WvmzwvFtsJgnFvY6hLTmm/l7KmvkogevFEUu0moUEfyagGm/tWpeTRSwgpgOYC2W3W
- YGyWYkoyQotnQDIpP7bH7QQlsYciXzJNW6+TuggYzhdY/4DU87j3d1BsEymQXccw17Z3
- MylfPHrovrUYXjSSfF26jez5bQs+suzcr7MgY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=4ea6CPjT+8qV8ISTiLeKonKOOW211QC2r3Obyi6gsPY=;
- b=BBwjBr+Zqdws8R5wZtTMYmLUthsLdSGy7l88vOp0Svg/YITJSwSYTn+FN5dcMUPIz5
- j6cRZv5Dc3cgeiKQ53phzixjAb1NHLImoNeWHLJbNafG3YwgNno82tEMNzRpz2e2lj6/
- x4n5RD/OUfLnr6alFrlHAXx5OX7YGsVBV27ld5WRS7BhXXB1B5eRy2AJr648tLgWSOxh
- +rHeKf44Bhf7kBIaferaidWDd8dbeVlLs3DUsRLq5Swk9elLHnF3kJIyo4mwsiHQ0OEL
- RIgohMa/jnYVvcoIOKFtREZ4zzVEvcBI+xsY2dMB8yRnm8MC/8plw41yvUTbkjLOf/3g
- wbdA==
-X-Gm-Message-State: AOAM533hbK3Gta8rlVrchi68GJ4Vmu9yaCAtxjVNQ8iUChF7xqaKsWRk
- LjA15ZjhFIC22tGTfCxhUvRF2w==
-X-Google-Smtp-Source: ABdhPJwb6Bosnp6R7Hgtj0y7SQubqT3l83KBU3/aehnOvf6zv/OvDoF4jvakRS0SdGN7FrBktHnKxw==
-X-Received: by 2002:ad4:5762:0:b0:43a:5c52:30bd with SMTP id
- r2-20020ad45762000000b0043a5c5230bdmr20483831qvx.131.1647432651640; 
- Wed, 16 Mar 2022 05:10:51 -0700 (PDT)
-Received: from bill-the-cat
- (2603-6081-7b01-cbda-2ef0-5dff-fedb-a8ba.res6.spectrum.com.
- [2603:6081:7b01:cbda:2ef0:5dff:fedb:a8ba])
- by smtp.gmail.com with ESMTPSA id
- m3-20020a05622a118300b002e1beed4908sm1264772qtk.3.2022.03.16.05.10.50
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 16 Mar 2022 05:10:50 -0700 (PDT)
-Date: Wed, 16 Mar 2022 08:10:49 -0400
-From: Tom Rini <trini@konsulko.com>
-To: Huang Jianan <jnhuang95@gmail.com>
-Subject: Re: [PATCH v4 5/5] test/py: Add tests for the erofs
-Message-ID: <20220316121049.GK577378@bill-the-cat>
-References: <20220226070551.9833-1-jnhuang95@gmail.com>
- <20220226070551.9833-6-jnhuang95@gmail.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KJW6B0lWNz301K
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Mar 2022 00:17:37 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R241e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0V7NDH9X_1647436648; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0V7NDH9X_1647436648) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 16 Mar 2022 21:17:29 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v5 03/22] cachefiles: introduce on-demand read mode
+Date: Wed, 16 Mar 2022 21:17:04 +0800
+Message-Id: <20220316131723.111553-4-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
+References: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="vk/v8fjDPiDepTtA"
-Content-Disposition: inline
-In-Reply-To: <20220226070551.9833-6-jnhuang95@gmail.com>
-X-Clacks-Overhead: GNU Terry Pratchett
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -83,45 +48,295 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: u-boot@lists.denx.de, linux-erofs@lists.ozlabs.org
+Cc: gregkh@linuxfoundation.org, willy@infradead.org,
+ linux-kernel@vger.kernel.org, joseph.qi@linux.alibaba.com,
+ linux-fsdevel@vger.kernel.org, luodaowen.backend@bytedance.com,
+ gerry@linux.alibaba.com, torvalds@linux-foundation.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Fscache/cachefiles used to serve as a local cache for remote fs. This
+patch, along with the following patches, introduces a new on-demand read
+mode for cachefiles, which can boost the scenario where on-demand read
+semantics is needed, e.g. container image distribution.
 
---vk/v8fjDPiDepTtA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The essential difference between the original mode and on-demand read
+mode is that, in the original mode, when cache miss, netfs itself will
+fetch data from remote, and then write the fetched data into cache file.
+While in on-demand read mode, a user daemon is responsible for fetching
+data and then writing to the cache file.
 
-On Sat, Feb 26, 2022 at 03:05:51PM +0800, Huang Jianan wrote:
+This patch only adds the command to enable on-demand read mode. An
+optional parameter to "bind" command is added. On-demand mode will be
+turned on when this optional argument matches "ondemand" exactly, i.e.
+"bind ondemand". Otherwise cachefiles will keep working in the original
+mode.
 
-> Add Python scripts to test 'ls' and 'load' commands, as well as
-> test related filesystem functions.
->=20
-> Signed-off-by: Huang Jianan <jnhuang95@gmail.com>
+The following patches will implement the data plane of on-demand read
+mode.
 
-Applied to u-boot/next, thanks!
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ fs/cachefiles/Kconfig    |  11 ++++
+ fs/cachefiles/daemon.c   | 132 +++++++++++++++++++++++++++++++--------
+ fs/cachefiles/internal.h |   6 ++
+ 3 files changed, 124 insertions(+), 25 deletions(-)
 
---=20
-Tom
+diff --git a/fs/cachefiles/Kconfig b/fs/cachefiles/Kconfig
+index 719faeeda168..58aad1fb4c5c 100644
+--- a/fs/cachefiles/Kconfig
++++ b/fs/cachefiles/Kconfig
+@@ -26,3 +26,14 @@ config CACHEFILES_ERROR_INJECTION
+ 	help
+ 	  This permits error injection to be enabled in cachefiles whilst a
+ 	  cache is in service.
++
++config CACHEFILES_ONDEMAND
++	bool "Support for on-demand read"
++	depends on CACHEFILES
++	default n
++	help
++	  This permits on-demand read mode of cachefiles. In this mode, when
++	  cache miss, the cachefiles backend instead of netfs, is responsible
++          for fetching data, e.g. through user daemon.
++
++	  If unsure, say N.
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 7ac04ee2c0a0..c0c3a3cbee28 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -78,6 +78,65 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
+ 	{ "",		NULL				}
+ };
+ 
++#ifdef CONFIG_CACHEFILES_ONDEMAND
++static inline void cachefiles_ondemand_open(struct cachefiles_cache *cache)
++{
++	xa_init_flags(&cache->reqs, XA_FLAGS_ALLOC);
++	rwlock_init(&cache->reqs_lock);
++}
++
++static inline void cachefiles_ondemand_release(struct cachefiles_cache *cache)
++{
++	xa_destroy(&cache->reqs);
++}
++
++static inline __poll_t cachefiles_ondemand_mask(struct cachefiles_cache *cache)
++{
++	__poll_t mask = 0;
++
++	if (!xa_empty(&cache->reqs))
++		mask |= EPOLLIN;
++
++	if (test_bit(CACHEFILES_CULLING, &cache->flags))
++		mask |= EPOLLOUT;
++
++	return mask;
++}
++
++static inline
++bool cachefiles_ondemand_daemon_bind(struct cachefiles_cache *cache, char *args)
++{
++	if (!strcmp(args, "ondemand")) {
++		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
++		return true;
++	}
++
++	return false;
++}
++
++#else
++static inline void cachefiles_ondemand_open(struct cachefiles_cache *cache) {}
++static inline void cachefiles_ondemand_release(struct cachefiles_cache *cache) {}
++
++static inline
++__poll_t cachefiles_ondemand_mask(struct cachefiles_cache *cache)
++{
++	return 0;
++}
++
++static inline
++bool cachefiles_ondemand_daemon_bind(struct cachefiles_cache *cache, char *args)
++{
++	return false;
++}
++#endif
++
++static inline
++ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
++					char __user *_buffer, size_t buflen)
++{
++	return -EOPNOTSUPP;
++}
+ 
+ /*
+  * Prepare a cache for caching.
+@@ -108,6 +167,7 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
+ 	INIT_LIST_HEAD(&cache->volumes);
+ 	INIT_LIST_HEAD(&cache->object_list);
+ 	spin_lock_init(&cache->object_list_lock);
++	cachefiles_ondemand_open(cache);
+ 
+ 	/* set default caching limits
+ 	 * - limit at 1% free space and/or free files
+@@ -139,6 +199,7 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
+ 
+ 	set_bit(CACHEFILES_DEAD, &cache->flags);
+ 
++	cachefiles_ondemand_release(cache);
+ 	cachefiles_daemon_unbind(cache);
+ 
+ 	/* clean up the control file interface */
+@@ -152,23 +213,15 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
+ 	return 0;
+ }
+ 
+-/*
+- * Read the cache state.
+- */
+-static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
+-				      size_t buflen, loff_t *pos)
++static ssize_t cachefiles_do_daemon_read(struct cachefiles_cache *cache,
++					 char __user *_buffer,
++					 size_t buflen)
+ {
+-	struct cachefiles_cache *cache = file->private_data;
+ 	unsigned long long b_released;
+ 	unsigned f_released;
+ 	char buffer[256];
+ 	int n;
+ 
+-	//_enter(",,%zu,", buflen);
+-
+-	if (!test_bit(CACHEFILES_READY, &cache->flags))
+-		return 0;
+-
+ 	/* check how much space the cache has */
+ 	cachefiles_has_space(cache, 0, 0, cachefiles_has_space_check);
+ 
+@@ -206,6 +259,25 @@ static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
+ 	return n;
+ }
+ 
++/*
++ * Read the cache state.
++ */
++static ssize_t cachefiles_daemon_read(struct file *file, char __user *_buffer,
++				      size_t buflen, loff_t *pos)
++{
++	struct cachefiles_cache *cache = file->private_data;
++
++	//_enter(",,%zu,", buflen);
++
++	if (!test_bit(CACHEFILES_READY, &cache->flags))
++		return 0;
++
++	if (likely(!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags)))
++		return cachefiles_do_daemon_read(cache, _buffer, buflen);
++	else
++		return cachefiles_ondemand_daemon_read(cache, _buffer, buflen);
++}
++
+ /*
+  * Take a command from cachefilesd, parse it and act on it.
+  */
+@@ -284,6 +356,21 @@ static ssize_t cachefiles_daemon_write(struct file *file,
+ 	goto error;
+ }
+ 
++
++static inline
++__poll_t cachefiles_daemon_mask(struct cachefiles_cache *cache)
++{
++	__poll_t mask = 0;
++
++	if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
++		mask |= EPOLLIN;
++
++	if (test_bit(CACHEFILES_CULLING, &cache->flags))
++		mask |= EPOLLOUT;
++
++	return mask;
++}
++
+ /*
+  * Poll for culling state
+  * - use EPOLLOUT to indicate culling state
+@@ -292,18 +379,13 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
+ 					   struct poll_table_struct *poll)
+ {
+ 	struct cachefiles_cache *cache = file->private_data;
+-	__poll_t mask;
+ 
+ 	poll_wait(file, &cache->daemon_pollwq, poll);
+-	mask = 0;
+-
+-	if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
+-		mask |= EPOLLIN;
+-
+-	if (test_bit(CACHEFILES_CULLING, &cache->flags))
+-		mask |= EPOLLOUT;
+ 
+-	return mask;
++	if (likely(!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags)))
++		return cachefiles_daemon_mask(cache);
++	else
++		return cachefiles_ondemand_mask(cache);
+ }
+ 
+ /*
+@@ -687,11 +769,6 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 	    cache->brun_percent  >= 100)
+ 		return -ERANGE;
+ 
+-	if (*args) {
+-		pr_err("'bind' command doesn't take an argument\n");
+-		return -EINVAL;
+-	}
+-
+ 	if (!cache->rootdirname) {
+ 		pr_err("No cache directory specified\n");
+ 		return -EINVAL;
+@@ -703,6 +780,11 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 		return -EBUSY;
+ 	}
+ 
++	if (!cachefiles_ondemand_daemon_bind(cache, args) && *args) {
++		pr_err("'bind' command doesn't take an argument\n");
++		return -EINVAL;
++	}
++
+ 	/* Make sure we have copies of the tag string */
+ 	if (!cache->tag) {
+ 		/*
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index e80673d0ab97..3f791882fa3f 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -15,6 +15,7 @@
+ #include <linux/fscache-cache.h>
+ #include <linux/cred.h>
+ #include <linux/security.h>
++#include <linux/xarray.h>
+ 
+ #define CACHEFILES_DIO_BLOCK_SIZE 4096
+ 
+@@ -98,9 +99,14 @@ struct cachefiles_cache {
+ #define CACHEFILES_DEAD			1	/* T if cache dead */
+ #define CACHEFILES_CULLING		2	/* T if cull engaged */
+ #define CACHEFILES_STATE_CHANGED	3	/* T if state changed (poll trigger) */
++#define CACHEFILES_ONDEMAND_MODE	4	/* T if in on-demand read mode */
+ 	char				*rootdirname;	/* name of cache root directory */
+ 	char				*secctx;	/* LSM security context */
+ 	char				*tag;		/* cache binding tag */
++#ifdef CONFIG_CACHEFILES_ONDEMAND
++	struct xarray			reqs;		/* xarray of pending on-demand requests */
++	rwlock_t			reqs_lock;	/* Lock for reqs xarray */
++#endif
+ };
+ 
+ #include <trace/events/cachefiles.h>
+-- 
+2.27.0
 
---vk/v8fjDPiDepTtA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEEGjx/cOCPqxcHgJu/FHw5/5Y0tywFAmIx08kACgkQFHw5/5Y0
-tyxUzQv9G9SHDE48h2YlnTSgO+/dYbe7JM/9wgnqIbWXzcwQ7+/H0PXLqz6MtL3p
-uTAvCrAxoBcazNrLoESc1ljJTDXz/RA8BEH4yo0X6t7oVZEp4uOsYvAGgPP9R4XK
-CR7vitk85kVlt2F5rplud3GHC/wtr2t8Hn2bB82ETVW1cpv08m4hEXW8vxJhj2Ho
-5hj5QuqE3+qWNX7iLuYNd79GMkwrFBdM4t+ZEV1mZAlFVLUeH3oFuqekX3+aENR3
-eOpCqzFwF3gPjpIdVYJ72WtjlWhEsPE0eLClyCAtU97Oyuw5asaV3vGsrmda8Rba
-ONEKNGLfTvGXiQW1CrYDXtW1DuwHL2RTGSFZVY/kAZR/a5Dg778Yim2YP8YA+YtK
-c9fMwZVMHirjKTIUMUgWTsJ3C8nKZz2MvtE4f1ILYurlffZfLSx5+sSnHwu2WBx5
-Ap2o2lmD8lHvdg4FlWrcQ9zpEYXxpZtHAM7rv4nxCB+hsqW56sF9sOTfX8RJzT9S
-1YN36Dge
-=NWfd
------END PGP SIGNATURE-----
-
---vk/v8fjDPiDepTtA--
