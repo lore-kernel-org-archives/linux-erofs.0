@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F184C433F5
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 13:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BC45AC4332F
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 13:18:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KJW6f6zKrz30hV
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Mar 2022 00:18:02 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KJW6h2RX6z30NV
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Mar 2022 00:18:04 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
- helo=out30-132.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
+ helo=out30-44.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KJW6K4mqHz30KL
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KJW6K6FBnz30Kq
  for <linux-erofs@lists.ozlabs.org>; Thu, 17 Mar 2022 00:17:45 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0V7NDHAq_1647436657; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R411e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0V7Mu9.1_1647436655; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V7NDHAq_1647436657) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 16 Mar 2022 21:17:38 +0800
+ fp:SMTPD_---0V7Mu9.1_1647436655) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 16 Mar 2022 21:17:36 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v5 09/22] erofs: make erofs_map_blocks() generally available
-Date: Wed, 16 Mar 2022 21:17:10 +0800
-Message-Id: <20220316131723.111553-10-jefflexu@linux.alibaba.com>
+Subject: [PATCH v5 08/22] erofs: use meta buffers for erofs_read_superblock()
+Date: Wed, 16 Mar 2022 21:17:09 +0800
+Message-Id: <20220316131723.111553-9-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
 References: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
@@ -56,42 +56,55 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-... so that it can be used in the following introduced fs/erofs/fscache.c.
+The only change is that, meta buffers read cache page without __GFP_FS
+flag, which shall not matter.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
 ---
- fs/erofs/data.c     | 4 ++--
- fs/erofs/internal.h | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/erofs/super.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 226a57c57ee6..6e2a28242453 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -104,8 +104,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
- 	return 0;
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 915eefe0d7e2..12755217631f 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -281,21 +281,19 @@ static int erofs_init_devices(struct super_block *sb,
+ static int erofs_read_superblock(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+-	struct page *page;
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	struct erofs_super_block *dsb;
+ 	unsigned int blkszbits;
+ 	void *data;
+ 	int ret;
+ 
+-	page = read_mapping_page(sb->s_bdev->bd_inode->i_mapping, 0, NULL);
+-	if (IS_ERR(page)) {
++	data = erofs_read_metabuf(&buf, sb, 0, EROFS_KMAP);
++	if (IS_ERR(data)) {
+ 		erofs_err(sb, "cannot read erofs superblock");
+-		return PTR_ERR(page);
++		return PTR_ERR(data);
+ 	}
+ 
+ 	sbi = EROFS_SB(sb);
+-
+-	data = kmap(page);
+ 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
+ 
+ 	ret = -EINVAL;
+@@ -365,8 +363,7 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	if (erofs_sb_has_ztailpacking(sbi))
+ 		erofs_info(sb, "EXPERIMENTAL compressed inline data feature in use. Use at your own risk!");
+ out:
+-	kunmap(page);
+-	put_page(page);
++	erofs_put_metabuf(&buf);
+ 	return ret;
  }
  
--static int erofs_map_blocks(struct inode *inode,
--			    struct erofs_map_blocks *map, int flags)
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct erofs_inode *vi = EROFS_I(inode);
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 5aa2cf2c2f80..e424293f47a2 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -484,6 +484,8 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
- int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
- int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
- 		 u64 start, u64 len);
-+int erofs_map_blocks(struct inode *inode,
-+		     struct erofs_map_blocks *map, int flags);
- 
- /* inode.c */
- static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
 -- 
 2.27.0
 
