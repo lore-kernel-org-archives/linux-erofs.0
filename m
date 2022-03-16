@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CFC3FC433F5
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 13:18:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F184C433F5
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Mar 2022 13:18:04 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KJW6c30Tyz30Fn
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Mar 2022 00:18:00 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KJW6f6zKrz30hV
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Mar 2022 00:18:02 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54;
- helo=out30-54.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
+ helo=out30-132.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KJW6J27PXz30J6
- for <linux-erofs@lists.ozlabs.org>; Thu, 17 Mar 2022 00:17:43 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R511e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0V7N1EXY_1647436652; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KJW6K4mqHz30KL
+ for <linux-erofs@lists.ozlabs.org>; Thu, 17 Mar 2022 00:17:45 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0V7NDHAq_1647436657; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V7N1EXY_1647436652) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 16 Mar 2022 21:17:33 +0800
+ fp:SMTPD_---0V7NDHAq_1647436657) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 16 Mar 2022 21:17:38 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v5 06/22] cachefiles: implement on-demand read
-Date: Wed, 16 Mar 2022 21:17:07 +0800
-Message-Id: <20220316131723.111553-7-jefflexu@linux.alibaba.com>
+Subject: [PATCH v5 09/22] erofs: make erofs_map_blocks() generally available
+Date: Wed, 16 Mar 2022 21:17:10 +0800
+Message-Id: <20220316131723.111553-10-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
 References: <20220316131723.111553-1-jefflexu@linux.alibaba.com>
@@ -56,225 +56,42 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Implement the data plane of on-demand read mode.
-
-A new NETFS_READ_HOLE_ONDEMAND flag is introduced to indicate that
-on-demand read should be done when a cache miss encountered. In this
-case, the read routine will send a READ request to user daemon, along
-with the anonymous fd and the file range that shall be read. Now user
-daemon is responsible for fetching data in the given file range, and
-then writing the fetched data into cache file with the given anonymous
-fd.
-
-After sending the READ request, the read routine will hang there, until
-the READ request is handled by user daemon. Then it will retry to read
-from the same file range. If a cache miss is encountered again on the
-same file range, the read routine will fail then.
+... so that it can be used in the following introduced fs/erofs/fscache.c.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c          | 65 +++++++++++++++++++++++++++++++++
- fs/cachefiles/internal.h        |  9 +++++
- fs/cachefiles/io.c              | 11 ++++++
- include/linux/netfs.h           |  1 +
- include/uapi/linux/cachefiles.h |  7 ++++
- 5 files changed, 93 insertions(+)
+ fs/erofs/data.c     | 4 ++--
+ fs/erofs/internal.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 2ecfdf194206..29af8943f270 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -47,6 +47,7 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *, char *);
- static void cachefiles_daemon_unbind(struct cachefiles_cache *);
- #ifdef CONFIG_CACHEFILES_ONDEMAND
- static int cachefiles_ondemand_cinit(struct cachefiles_cache *, char *);
-+static int cachefiles_ondemand_cread(struct cachefiles_cache *, char *);
- #endif
- 
- static unsigned long cachefiles_open;
-@@ -82,6 +83,7 @@ static const struct cachefiles_daemon_cmd cachefiles_daemon_cmds[] = {
- 	{ "tag",	cachefiles_daemon_tag		},
- #ifdef CONFIG_CACHEFILES_ONDEMAND
- 	{ "cinit",	cachefiles_ondemand_cinit	},
-+	{ "cread",	cachefiles_ondemand_cread	},
- #endif
- 	{ "",		NULL				}
- };
-@@ -264,6 +266,36 @@ static int cachefiles_ondemand_cinit(struct cachefiles_cache *cache, char *args)
- 	return ret;
- }
- 
-+/*
-+ * Read request completion
-+ * - command: "cread <id>"
-+ */
-+static int cachefiles_ondemand_cread(struct cachefiles_cache *cache, char *args)
-+{
-+	struct cachefiles_req *req;
-+	unsigned long id;
-+	int ret;
-+
-+	if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
-+		return -EOPNOTSUPP;
-+
-+	if (!*args) {
-+		pr_err("Empty id specified\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = kstrtoul(args, 0, &id);
-+	if (ret)
-+		return ret;
-+
-+	req = xa_erase(&cache->reqs, id);
-+	if (!req)
-+		return -EINVAL;
-+
-+	complete(&req->done);
-+	return 0;
-+}
-+
- static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- {
- 	struct cachefiles_object *object;
-@@ -471,6 +503,28 @@ static int init_close_req(struct cachefiles_req *req, void *private)
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 226a57c57ee6..6e2a28242453 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -104,8 +104,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
  	return 0;
  }
  
-+struct cachefiles_read_ctx {
-+	loff_t off;
-+	size_t len;
-+};
-+
-+static int init_read_req(struct cachefiles_req *req, void *private)
-+{
-+	struct cachefiles_object *object = req->object;
-+	struct cachefiles_read *load = (void *)&req->msg.data;
-+	struct cachefiles_read_ctx *read_ctx = private;
-+	int fd = object->fd;
-+
-+	/* Stop enqueuig request when daemon closes anon_fd prematurely. */
-+	if (WARN_ON_ONCE(fd == -1))
-+		return -EIO;
-+
-+	load->off = read_ctx->off;
-+	load->len = read_ctx->len;
-+	load->fd  = fd;
-+	return 0;
-+}
-+
- int cachefiles_ondemand_init_object(struct cachefiles_object *object)
+-static int erofs_map_blocks(struct inode *inode,
+-			    struct erofs_map_blocks *map, int flags)
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags)
  {
- 	struct fscache_cookie *cookie = object->cookie;
-@@ -504,6 +558,17 @@ void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object)
- 				     init_close_req, NULL);
- }
+ 	struct super_block *sb = inode->i_sb;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 5aa2cf2c2f80..e424293f47a2 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -484,6 +484,8 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
+ int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+ 		 u64 start, u64 len);
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags);
  
-+int cachefiles_ondemand_read(struct cachefiles_object *object,
-+			     loff_t pos, size_t len)
-+{
-+	struct cachefiles_read_ctx read_ctx = {pos, len};
-+
-+	return cachefiles_ondemand_send_req(object,
-+					    CACHEFILES_OP_READ,
-+					    sizeof(struct cachefiles_read),
-+					    init_read_req, &read_ctx);
-+}
-+
- #else
- static inline void cachefiles_ondemand_open(struct cachefiles_cache *cache) {}
- static inline void cachefiles_ondemand_release(struct cachefiles_cache *cache) {}
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index eaac9fae74eb..770b37e23bcc 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -168,6 +168,8 @@ extern const struct file_operations cachefiles_daemon_fops;
- #ifdef CONFIG_CACHEFILES_ONDEMAND
- extern int cachefiles_ondemand_init_object(struct cachefiles_object *object);
- extern void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object);
-+extern int cachefiles_ondemand_read(struct cachefiles_object *object,
-+				    loff_t pos, size_t len);
- 
- #else
- static inline
-@@ -178,6 +180,13 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- 
- static inline
- void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object) {}
-+
-+static inline
-+int cachefiles_ondemand_read(struct cachefiles_object *object,
-+			     loff_t pos, size_t len)
-+{
-+	return -EOPNOTSUPP;
-+}
- #endif
- 
- /*
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 8dbc1eb254a3..ee1283ba7a2c 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -95,6 +95,7 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
- 	       file, file_inode(file)->i_ino, start_pos, len,
- 	       i_size_read(file_inode(file)));
- 
-+retry:
- 	/* If the caller asked us to seek for data before doing the read, then
- 	 * we should do that now.  If we find a gap, we fill it with zeros.
- 	 */
-@@ -119,6 +120,16 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
- 			if (read_hole == NETFS_READ_HOLE_FAIL)
- 				goto presubmission_error;
- 
-+			if (read_hole == NETFS_READ_HOLE_ONDEMAND) {
-+				if (!cachefiles_ondemand_read(object, off, len)) {
-+					/* fail the read if no progress achieved */
-+					read_hole = NETFS_READ_HOLE_FAIL;
-+					goto retry;
-+				}
-+
-+				goto presubmission_error;
-+			}
-+
- 			iov_iter_zero(len, iter);
- 			skipped = len;
- 			ret = 0;
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index 614f22213e21..2a9c50d3a928 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -203,6 +203,7 @@ enum netfs_read_from_hole {
- 	NETFS_READ_HOLE_IGNORE,
- 	NETFS_READ_HOLE_CLEAR,
- 	NETFS_READ_HOLE_FAIL,
-+	NETFS_READ_HOLE_ONDEMAND,
- };
- 
- /*
-diff --git a/include/uapi/linux/cachefiles.h b/include/uapi/linux/cachefiles.h
-index 47e53043cfad..48a0dbac9a92 100644
---- a/include/uapi/linux/cachefiles.h
-+++ b/include/uapi/linux/cachefiles.h
-@@ -9,6 +9,7 @@
- enum cachefiles_opcode {
- 	CACHEFILES_OP_OPEN,
- 	CACHEFILES_OP_CLOSE,
-+	CACHEFILES_OP_READ,
- };
- 
- /*
-@@ -41,4 +42,10 @@ struct cachefiles_close {
- 	__u32 fd;
- };
- 
-+struct cachefiles_read {
-+	__u64 off;
-+	__u64 len;
-+	__u32 fd;
-+};
-+
- #endif
+ /* inode.c */
+ static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
 -- 
 2.27.0
 
