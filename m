@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A50E8C433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:22:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0D2BAC433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:22:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1Sp1mmWz30KZ
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:22:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1Sq4Synz3bNr
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:22:51 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
- helo=out30-57.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
+ helo=out30-44.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1Sh1kRpz30Bk
- for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:22:43 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89qR-b_1648210953; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1Sk6sfgz30C8
+ for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:22:46 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R551e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89qR.F_1648210956; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V89qR-b_1648210953) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 25 Mar 2022 20:22:34 +0800
+ fp:SMTPD_---0V89qR.F_1648210956) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 25 Mar 2022 20:22:37 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 06/22] cachefiles: enable on-demand read mode
-Date: Fri, 25 Mar 2022 20:22:07 +0800
-Message-Id: <20220325122223.102958-7-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 08/22] erofs: use meta buffers for erofs_read_superblock()
+Date: Fri, 25 Mar 2022 20:22:09 +0800
+Message-Id: <20220325122223.102958-9-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
 References: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
@@ -57,48 +57,56 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Enable on-demand read mode by adding an optional parameter to the "bind"
-command.
-
-On-demand mode will be turned on when this parameter is "ondemand", i.e.
-"bind ondemand". Otherwise cachefiles will work in the original mode.
+The only change is that, meta buffers read cache page without __GFP_FS
+flag, which shall not matter.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/erofs/super.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 91b88a499737..2c38c5361bda 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -741,11 +741,6 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
- 	    cache->brun_percent  >= 100)
- 		return -ERANGE;
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 915eefe0d7e2..12755217631f 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -281,21 +281,19 @@ static int erofs_init_devices(struct super_block *sb,
+ static int erofs_read_superblock(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+-	struct page *page;
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	struct erofs_super_block *dsb;
+ 	unsigned int blkszbits;
+ 	void *data;
+ 	int ret;
  
--	if (*args) {
--		pr_err("'bind' command doesn't take an argument\n");
--		return -EINVAL;
--	}
--
- 	if (!cache->rootdirname) {
- 		pr_err("No cache directory specified\n");
- 		return -EINVAL;
-@@ -757,6 +752,14 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
- 		return -EBUSY;
+-	page = read_mapping_page(sb->s_bdev->bd_inode->i_mapping, 0, NULL);
+-	if (IS_ERR(page)) {
++	data = erofs_read_metabuf(&buf, sb, 0, EROFS_KMAP);
++	if (IS_ERR(data)) {
+ 		erofs_err(sb, "cannot read erofs superblock");
+-		return PTR_ERR(page);
++		return PTR_ERR(data);
  	}
  
-+	if (IS_ENABLED(CONFIG_CACHEFILES_ONDEMAND) &&
-+	    !strcmp(args, "ondemand")) {
-+		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
-+	} else if (*args) {
-+		pr_err("'bind' command doesn't take an argument\n");
-+		return -EINVAL;
-+	}
-+
- 	/* Make sure we have copies of the tag string */
- 	if (!cache->tag) {
- 		/*
+ 	sbi = EROFS_SB(sb);
+-
+-	data = kmap(page);
+ 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
+ 
+ 	ret = -EINVAL;
+@@ -365,8 +363,7 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	if (erofs_sb_has_ztailpacking(sbi))
+ 		erofs_info(sb, "EXPERIMENTAL compressed inline data feature in use. Use at your own risk!");
+ out:
+-	kunmap(page);
+-	put_page(page);
++	erofs_put_metabuf(&buf);
+ 	return ret;
+ }
+ 
 -- 
 2.27.0
 
