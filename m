@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E833C433FE
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:23:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96941C433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:27:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1TK20SYz3bPR
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:23:17 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1Zj0jXdz308b
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:27:57 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.5;
- helo=out199-5.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com;
- receiver=<UNKNOWN>)
-Received: from out199-5.us.a.mail.aliyun.com (out199-5.us.a.mail.aliyun.com
- [47.90.199.5])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1TG58ltz30JD
- for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:23:14 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R311e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89zY52_1648210976; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1Zc5RbYz2yP7
+ for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:27:51 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89qQzr_1648210947; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V89zY52_1648210976) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 25 Mar 2022 20:22:57 +0800
+ fp:SMTPD_---0V89qQzr_1648210947) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 25 Mar 2022 20:22:28 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 21/22] erofs: implement fscache-based data readahead
-Date: Fri, 25 Mar 2022 20:22:22 +0800
-Message-Id: <20220325122223.102958-22-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 02/22] cachefiles: extract write routine
+Date: Fri, 25 Mar 2022 20:22:03 +0800
+Message-Id: <20220325122223.102958-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
 References: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
@@ -57,161 +57,163 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Implements fscache-based data readahead. Also registers an individual
-bdi for each erofs instance to enable readahead.
+Extract the generic routine of writing data to cache files, and make it
+generally available.
+
+This will be used by the following patch implementing on-demand read
+mode. Since it's called inside cachefiles module in this case, make the
+interface generic and unrelated to netfs_cache_resources.
+
+It is worth nothing that, ki->inval_counter is not initialized after
+this cleanup. It shall not make any visible difference, since
+inval_counter is no longer used in the write completion routine, i.e.
+cachefiles_write_complete().
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/fscache.c | 114 +++++++++++++++++++++++++++++++++++++++++++++
- fs/erofs/super.c   |   4 ++
- 2 files changed, 118 insertions(+)
+ fs/cachefiles/internal.h | 10 +++++++
+ fs/cachefiles/io.c       | 61 +++++++++++++++++++++++-----------------
+ 2 files changed, 45 insertions(+), 26 deletions(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index cbb39657615e..589d1e7c2b1b 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -191,12 +191,126 @@ static int erofs_fscache_readpage(struct file *file, struct page *page)
- 	return ret;
- }
- 
-+static inline size_t erofs_fscache_calc_len(struct erofs_map_blocks *map,
-+					    size_t len, size_t done)
-+{
-+	/*
-+	 * 1) For CHUNK_BASED layout, the output m_la is rounded down to the
-+	 * nearest chunk boundary, and the output m_llen actually starts from
-+	 * the start of the containing chunk.
-+	 * 2) For other cases, the output m_la is equal to o_la.
-+	 */
-+	size_t length = map->m_llen - (map->o_la - map->m_la);
-+
-+	return min_t(size_t, length, len - done);
-+}
-+
-+static inline void erofs_fscache_unlock_folios(struct readahead_control *rac,
-+					       size_t len)
-+{
-+	while (len) {
-+		struct folio *folio = readahead_folio(rac);
-+
-+		len -= folio_size(folio);
-+		folio_mark_uptodate(folio);
-+		folio_unlock(folio);
-+	}
-+}
-+
-+static void erofs_fscache_readahead(struct readahead_control *rac)
-+{
-+	struct inode *inode = rac->mapping->host;
-+	struct erofs_inode *vi = EROFS_I(inode);
-+	struct super_block *sb = inode->i_sb;
-+	size_t len, done = 0;
-+	loff_t start;
-+	int ret;
-+
-+	if (erofs_inode_is_data_compressed(vi->datalayout)) {
-+		erofs_info(sb, "compressed layout not supported yet");
-+		return;
-+	}
-+
-+	if (!readahead_count(rac))
-+		return;
-+
-+	start = readahead_pos(rac);
-+	len = readahead_length(rac);
-+
-+	do {
-+		struct erofs_map_blocks map;
-+
-+		map.m_la = map.o_la = start + done;
-+
-+		ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
-+		if (ret)
-+			return;
-+
-+		/* Read-ahead Hole
-+		 * Two cases will hit this:
-+		 * 1) EOF. Imposibble in readahead routine;
-+		 * 2) hole. Only CHUNK_BASED layout supports hole.
-+		 */
-+		if (!(map.m_flags & EROFS_MAP_MAPPED)) {
-+			struct iov_iter iter;
-+			loff_t offset = start + done;
-+			size_t count = erofs_fscache_calc_len(&map, len, done);
-+
-+			iov_iter_xarray(&iter, READ, &rac->mapping->i_pages, offset, count);
-+			iov_iter_zero(count, &iter);
-+
-+			erofs_fscache_unlock_folios(rac, count);
-+			ret = count;
-+			continue;
-+		}
-+
-+		ret = erofs_fscache_get_map(&map, sb);
-+		if (ret)
-+			return;
-+
-+		/* Read-ahead Inline */
-+		if (map.m_flags & EROFS_MAP_META) {
-+			struct folio *folio = readahead_folio(rac);
-+
-+			ret = erofs_fscache_readpage_inline(folio, &map);
-+			if (!ret) {
-+				folio_mark_uptodate(folio);
-+				ret = folio_size(folio);
-+			}
-+
-+			folio_unlock(folio);
-+			continue;
-+		}
-+
-+		/* Read-ahead No-inline */
-+		if (vi->datalayout == EROFS_INODE_FLAT_PLAIN ||
-+		    vi->datalayout == EROFS_INODE_FLAT_INLINE ||
-+		    vi->datalayout == EROFS_INODE_CHUNK_BASED) {
-+			struct fscache_cookie *cookie = map.m_fscache->cookie;
-+			loff_t offset = start + done;
-+			size_t count = erofs_fscache_calc_len(&map, len, done);
-+			loff_t pstart = map.m_pa + (map.o_la - map.m_la);
-+
-+			ret = erofs_fscache_read_folios(cookie, rac->mapping,
-+					offset, count, pstart);
-+			if (!ret) {
-+				erofs_fscache_unlock_folios(rac, count);
-+				ret = count;
-+			}
-+		} else {
-+			DBG_BUGON(1);
-+			return;
-+		}
-+	} while (ret > 0 && ((done += ret) < len));
-+}
-+
- static const struct address_space_operations erofs_fscache_blob_aops = {
- 	.readpage = erofs_fscache_readpage_blob,
- };
- 
- const struct address_space_operations erofs_fscache_access_aops = {
- 	.readpage = erofs_fscache_readpage,
-+	.readahead = erofs_fscache_readahead,
- };
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index c793d33b0224..e80673d0ab97 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -201,6 +201,16 @@ extern void cachefiles_put_object(struct cachefiles_object *object,
+  */
+ extern bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
+ 				       enum fscache_want_state want_state);
++extern int __cachefiles_prepare_write(struct cachefiles_object *object,
++				      struct file *file,
++				      loff_t *_start, size_t *_len,
++				      bool no_space_allocated_yet);
++extern int __cachefiles_write(struct cachefiles_object *object,
++			      struct file *file,
++			      loff_t start_pos,
++			      struct iov_iter *iter,
++			      netfs_io_terminated_t term_func,
++			      void *term_func_priv);
  
  /*
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 9a6f35e0c22b..8ac400581784 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -619,6 +619,10 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 			return PTR_ERR(bootstrap);
+  * key.c
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index 753986ea1583..8dbc1eb254a3 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -278,36 +278,33 @@ static void cachefiles_write_complete(struct kiocb *iocb, long ret)
+ /*
+  * Initiate a write to the cache.
+  */
+-static int cachefiles_write(struct netfs_cache_resources *cres,
+-			    loff_t start_pos,
+-			    struct iov_iter *iter,
+-			    netfs_io_terminated_t term_func,
+-			    void *term_func_priv)
++int __cachefiles_write(struct cachefiles_object *object,
++		       struct file *file,
++		       loff_t start_pos,
++		       struct iov_iter *iter,
++		       netfs_io_terminated_t term_func,
++		       void *term_func_priv)
+ {
+-	struct cachefiles_object *object;
+ 	struct cachefiles_cache *cache;
+ 	struct cachefiles_kiocb *ki;
+ 	struct inode *inode;
+-	struct file *file;
+ 	unsigned int old_nofs;
+-	ssize_t ret = -ENOBUFS;
++	ssize_t ret;
+ 	size_t len = iov_iter_count(iter);
  
- 		sbi->bootstrap = bootstrap;
+-	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE))
+-		goto presubmission_error;
+ 	fscache_count_write();
+-	object = cachefiles_cres_object(cres);
+ 	cache = object->volume->cache;
+-	file = cachefiles_cres_file(cres);
+ 
+ 	_enter("%pD,%li,%llx,%zx/%llx",
+ 	       file, file_inode(file)->i_ino, start_pos, len,
+ 	       i_size_read(file_inode(file)));
+ 
+-	ret = -ENOMEM;
+ 	ki = kzalloc(sizeof(struct cachefiles_kiocb), GFP_KERNEL);
+-	if (!ki)
+-		goto presubmission_error;
++	if (!ki) {
++		if (term_func)
++			term_func(term_func_priv, -ENOMEM, false);
++		return -ENOMEM;
++	}
+ 
+ 	refcount_set(&ki->ki_refcnt, 2);
+ 	ki->iocb.ki_filp	= file;
+@@ -316,7 +313,6 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	ki->iocb.ki_hint	= ki_hint_validate(file_write_hint(file));
+ 	ki->iocb.ki_ioprio	= get_current_ioprio();
+ 	ki->object		= object;
+-	ki->inval_counter	= cres->inval_counter;
+ 	ki->start		= start_pos;
+ 	ki->len			= len;
+ 	ki->term_func		= term_func;
+@@ -371,11 +367,24 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	cachefiles_put_kiocb(ki);
+ 	_leave(" = %zd", ret);
+ 	return ret;
++}
+ 
+-presubmission_error:
+-	if (term_func)
+-		term_func(term_func_priv, ret, false);
+-	return ret;
++static int cachefiles_write(struct netfs_cache_resources *cres,
++			    loff_t start_pos,
++			    struct iov_iter *iter,
++			    netfs_io_terminated_t term_func,
++			    void *term_func_priv)
++{
++	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE)) {
++		if (term_func)
++			term_func(term_func_priv, -ENOBUFS, false);
++		return -ENOBUFS;
++	}
 +
-+		err = super_setup_bdi(sb);
-+		if (err)
-+			return err;
++	return __cachefiles_write(cachefiles_cres_object(cres),
++				  cachefiles_cres_file(cres),
++				  start_pos, iter,
++				  term_func, term_func_priv);
+ }
+ 
+ /*
+@@ -486,13 +495,12 @@ static enum netfs_read_source cachefiles_prepare_read(struct netfs_read_subreque
+ /*
+  * Prepare for a write to occur.
+  */
+-static int __cachefiles_prepare_write(struct netfs_cache_resources *cres,
+-				      loff_t *_start, size_t *_len, loff_t i_size,
+-				      bool no_space_allocated_yet)
++int __cachefiles_prepare_write(struct cachefiles_object *object,
++			       struct file *file,
++			       loff_t *_start, size_t *_len,
++			       bool no_space_allocated_yet)
+ {
+-	struct cachefiles_object *object = cachefiles_cres_object(cres);
+ 	struct cachefiles_cache *cache = object->volume->cache;
+-	struct file *file = cachefiles_cres_file(cres);
+ 	loff_t start = *_start, pos;
+ 	size_t len = *_len, down;
+ 	int ret;
+@@ -579,7 +587,8 @@ static int cachefiles_prepare_write(struct netfs_cache_resources *cres,
  	}
  
- 	err = erofs_read_superblock(sb);
+ 	cachefiles_begin_secure(cache, &saved_cred);
+-	ret = __cachefiles_prepare_write(cres, _start, _len, i_size,
++	ret = __cachefiles_prepare_write(object, cachefiles_cres_file(cres),
++					 _start, _len,
+ 					 no_space_allocated_yet);
+ 	cachefiles_end_secure(cache, saved_cred);
+ 	return ret;
 -- 
 2.27.0
 
