@@ -4,35 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 000BDC433FE
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:22:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67DB2C4332F
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 12:22:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1St4MLPz306d
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:22:54 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KQ1Sv75mQz30RN
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Mar 2022 23:22:55 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
- helo=out30-133.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1Sm0VPjz305j
- for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:22:47 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89aFr5_1648210950; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KQ1Sn4l84z30Qy
+ for <linux-erofs@lists.ozlabs.org>; Fri, 25 Mar 2022 23:22:48 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V89zY2j_1648210959; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V89aFr5_1648210950) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 25 Mar 2022 20:22:31 +0800
+ fp:SMTPD_---0V89zY2j_1648210959) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 25 Mar 2022 20:22:40 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 04/22] cachefiles: notify user daemon when withdrawing
- cookie
-Date: Fri, 25 Mar 2022 20:22:05 +0800
-Message-Id: <20220325122223.102958-5-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 10/22] erofs: add mode checking helper
+Date: Fri, 25 Mar 2022 20:22:11 +0800
+Message-Id: <20220325122223.102958-11-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
 References: <20220325122223.102958-1-jefflexu@linux.alibaba.com>
@@ -58,128 +57,36 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Notify user daemon that cookie is going to be withdrawn, providing a
-hint that the associated anon_fd can be closed. The anon_fd attached in
-the CLOSE request shall be same with that in the previous OPEN request.
+Until then erofs is exactly blockdev based filesystem. In other using
+scenarios (e.g. container image), erofs needs to run upon files.
 
-Be noted that this is only a hint. User daemon can close the anon_fd
-when receiving the CLOSE request, then it will receive another anon_fd
-if the cookie gets looked up. Or it can also ignore the CLOSE request,
-and keep writing data into the anon_fd. However the next time cookie
-gets looked up, the user daemon will still receive another anon_fd.
+This patch set is going to introduces a new nodev mode, in which erofs
+could be mounted from a bootstrap blob file containing complete erofs
+image.
+
+Add a helper checking which mode erofs works in.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/interface.c       |  2 ++
- fs/cachefiles/internal.h        |  3 +++
- fs/cachefiles/ondemand.c        | 27 +++++++++++++++++++++++++++
- include/uapi/linux/cachefiles.h |  5 +++++
- 4 files changed, 37 insertions(+)
+ fs/erofs/internal.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/cachefiles/interface.c b/fs/cachefiles/interface.c
-index ae93cee9d25d..c5b8fefd4ccc 100644
---- a/fs/cachefiles/interface.c
-+++ b/fs/cachefiles/interface.c
-@@ -322,6 +322,8 @@ static void cachefiles_commit_object(struct cachefiles_object *object,
- static void cachefiles_clean_up_object(struct cachefiles_object *object,
- 				       struct cachefiles_cache *cache)
- {
-+	cachefiles_ondemand_cleanup_object(object);
-+
- 	if (test_bit(FSCACHE_COOKIE_RETIRED, &object->cookie->flags)) {
- 		if (!test_bit(CACHEFILES_OBJECT_USING_TMPFILE, &object->flags)) {
- 			cachefiles_see_object(object, cachefiles_obj_see_clean_delete);
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index 8a0f1b691aca..c80b519a887b 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -280,6 +280,7 @@ extern int cachefiles_ondemand_cinit(struct cachefiles_cache *cache,
- 				     char *args);
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index e424293f47a2..1486e2573667 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -161,6 +161,11 @@ struct erofs_sb_info {
+ #define set_opt(opt, option)	((opt)->mount_opt |= EROFS_MOUNT_##option)
+ #define test_opt(opt, option)	((opt)->mount_opt & EROFS_MOUNT_##option)
  
- extern int cachefiles_ondemand_init_object(struct cachefiles_object *object);
-+extern void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object);
- 
- #else
- ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
-@@ -292,6 +293,8 @@ static inline int cachefiles_ondemand_init_object(struct cachefiles_object *obje
- {
- 	return 0;
- }
-+
-+static inline void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object) {}
- #endif
- 
- /*
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index 0742c4a7797a..7fd518e01e5a 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -199,6 +199,12 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 		goto err_put_fd;
- 	}
- 
-+	/* CLOSE request has no reply */
-+	if (msg->opcode == CACHEFILES_OP_CLOSE) {
-+		xa_erase(&cache->reqs, id);
-+		complete(&req->done);
-+	}
-+
- 	return n;
- 
- err_put_fd:
-@@ -322,6 +328,19 @@ static int init_open_req(struct cachefiles_req *req, void *private)
- 	return 0;
- }
- 
-+static int init_close_req(struct cachefiles_req *req, void *private)
++static inline bool erofs_is_nodev_mode(struct super_block *sb)
 +{
-+	struct cachefiles_object *object = req->object;
-+	struct cachefiles_close *load = (void *)req->msg.data;
-+	int fd = object->fd;
-+
-+	if (WARN_ON_ONCE(fd == -1))
-+		return -EIO;
-+
-+	load->fd = fd;
-+	return 0;
++	return !sb->s_bdev;
 +}
 +
- int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- {
- 	struct fscache_cookie *cookie = object->cookie;
-@@ -346,3 +365,11 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- 					    CACHEFILES_OP_OPEN, data_len,
- 					    init_open_req, NULL);
- }
-+
-+void cachefiles_ondemand_cleanup_object(struct cachefiles_object *object)
-+{
-+	cachefiles_ondemand_send_req(object,
-+				     CACHEFILES_OP_CLOSE,
-+				     sizeof(struct cachefiles_close),
-+				     init_close_req, NULL);
-+}
-diff --git a/include/uapi/linux/cachefiles.h b/include/uapi/linux/cachefiles.h
-index 0c44d68be6bd..03047e4b7df2 100644
---- a/include/uapi/linux/cachefiles.h
-+++ b/include/uapi/linux/cachefiles.h
-@@ -12,6 +12,7 @@
- 
- enum cachefiles_opcode {
- 	CACHEFILES_OP_OPEN,
-+	CACHEFILES_OP_CLOSE,
- };
- 
- /*
-@@ -40,4 +41,8 @@ enum cachefiles_open_flags {
- 	CACHEFILES_OPEN_WANT_CACHE_SIZE,
- };
- 
-+struct cachefiles_close {
-+	__u32 fd;
-+};
-+
- #endif
+ enum {
+ 	EROFS_ZIP_CACHE_DISABLED,
+ 	EROFS_ZIP_CACHE_READAHEAD,
 -- 
 2.27.0
 
