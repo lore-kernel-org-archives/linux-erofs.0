@@ -4,37 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6449EC433F5
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 08:23:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CBD6BC433FE
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 11:58:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KTbt00llnz2yZw
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 19:23:36 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
- spf=softfail (domain owner discourages use of this
- host) smtp.mailfrom=hxqcjt.com (client-ip=59.172.37.74; helo=test;
- envelope-from=chengyu@hxqcjt.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 88 seconds by postgrey-1.36 at boromir;
- Thu, 31 Mar 2022 19:23:26 AEDT
-Received: from test (unknown [59.172.37.74])
- by lists.ozlabs.org (Postfix) with ESMTP id 4KTbsp54y6z2xts
- for <linux-erofs@lists.ozlabs.org>; Thu, 31 Mar 2022 19:23:26 +1100 (AEDT)
-Received: from pc275 ([114.104.182.244]) by test with Microsoft
- SMTPSVC(7.5.7601.17514); Thu, 31 Mar 2022 16:20:59 +0800
-X-GUID: 028747C4-DCBB-4E7B-8DB3-38C094F6FCDF
-X-Has-Attach: no
-From: =?UTF-8?B?Iue0p+aApemAmuefpe+8mumCrueuse+8iOezu+e7n+S8mOWMlu+8iSI=?=
- <chengyu@hxqcjt.com>
-Subject: =?UTF-8?B?bGludXgtZXJvZnPlhbPkuo7vvJrlkK/nlKjmlrDpgq7ku7bns7vnu5/pgJrn?=
- =?UTF-8?B?n6XvvIE=?=
-To: "linux-erofs" <linux-erofs@lists.ozlabs.org>
-Content-Type: multipart/alternative; charset=UTF-8;
- boundary="----=_821_NextPart671076163028_=----"
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KThdf5GbMz2yg7
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 22:58:14 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
+ helo=out30-131.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KThdW3sDSz2xBf
+ for <linux-erofs@lists.ozlabs.org>; Thu, 31 Mar 2022 22:58:06 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V8iijnE_1648727878; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0V8iijnE_1648727878) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 31 Mar 2022 19:57:59 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v7 03/19] cachefiles: notify user daemon when withdrawing
+ cookie
+Date: Thu, 31 Mar 2022 19:57:37 +0800
+Message-Id: <20220331115753.89431-4-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220331115753.89431-1-jefflexu@linux.alibaba.com>
+References: <20220331115753.89431-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Date: Thu, 31 Mar 2022 16:20:46 +0800
-Message-Id: <202203311620464885832@hxqcjt.com>
-X-Mailer: Foxmail 7, 2, 5, 140[cn]
-X-OriginalArrivalTime: 31 Mar 2022 08:20:59.0337 (UTC)
- FILETIME=[4082D390:01D844D8]
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -46,43 +49,146 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: gregkh@linuxfoundation.org, fannaihao@baidu.com, willy@infradead.org,
+ linux-kernel@vger.kernel.org, tianzichen@kuaishou.com,
+ joseph.qi@linux.alibaba.com, linux-fsdevel@vger.kernel.org,
+ luodaowen.backend@bytedance.com, gerry@linux.alibaba.com,
+ torvalds@linux-foundation.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This is a multi-part message in MIME format
+Notify user daemon that cookie is going to be withdrawn, providing a
+hint that the associated anon_fd can be closed. The anon_fd attached in
+the CLOSE request shall be same with that in the previous OPEN request.
 
-------=_821_NextPart671076163028_=----
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Be noted that this is only a hint. User daemon can close the anon_fd
+when receiving the CLOSE request, then it will receive another anon_fd
+if the cookie gets looked up. Or it can also ignore the CLOSE request,
+and keep writing data into the anon_fd. However the next time cookie
+gets looked up, the user daemon will still receive another anon_fd.
 
-PHA+DQoJ6YCa55+l77yabGludXgtZXJvZnNAbGlzdHMub3psYWJzLm9yZ+eUseS6jumCrueuseWN
-oemhv++8jOWwhuS6jjIwMjLlubQ05pyI6LW35byA5aeL5Y2H57qn6YKu566x57O757uf77yM546w
-5Zyo5o+Q5YmN6YeH6ZuG5L+h5oGv5pa55L6/5Y2H57qn5L2/55So77yB6L+H5pyf5pyq5pu05o2i
-57uf6K6h55qE5LiA5bm25YGa5Li65bqf5byD6YKu566x5bCG5LqI5Lul5Zue5pS25bm25Yig6Zmk
-44CC5aSH5rOo77ya5Y2H57qn5pyf6Ze05bm25LiN5b2x5ZON6YKu566x5q2j5bi45L2/55So77yM
-5Lya5YaN5pS25Yiw6YKu5Lu25ZCO5LiJ5Liq5bel5L2c5pel5a6M5oiQ77yB6LCi6LCi6YWN5ZCI
-77yBDQo8L3A+DQo8cD4NCgnor7fmjInnhafopoHmsYLnu5/kuIDnmbvorrDjgIINCjwvcD4NCjxw
-Pg0KCei0puWPt++8mmxpbnV4LWVyb2ZzQGxpc3RzLm96bGFicy5vcmcNCjwvcD4NCjxwPg0KCeWn
-k+WQjToNCjwvcD4NCjxwPg0KCeWvhuegge+8mg0KPC9wPg0KPHA+DQoJ57uf5LiA5Zue5aSN6Iez
-77yaPGEgaHJlZj0ibWFpbHRvOmFkLW1paS1pbnN0b3JAZm94bWFpbC5jb20iPmFkLW1paS1pbnN0
-b3JAZm94bWFpbC5jb208L2E+DQo8L3A+DQo=
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ fs/cachefiles/interface.c       |  2 ++
+ fs/cachefiles/internal.h        |  5 +++++
+ fs/cachefiles/ondemand.c        | 34 +++++++++++++++++++++++++++++++++
+ include/uapi/linux/cachefiles.h |  5 +++++
+ 4 files changed, 46 insertions(+)
 
-------=_821_NextPart671076163028_=----
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-PHA+DQoJ6YCa55+l77yabGludXgtZXJvZnNAbGlzdHMub3psYWJzLm9yZ+eUseS6jumCrueuseWN
-oemhv++8jOWwhuS6jjIwMjLlubQ05pyI6LW35byA5aeL5Y2H57qn6YKu566x57O757uf77yM546w
-5Zyo5o+Q5YmN6YeH6ZuG5L+h5oGv5pa55L6/5Y2H57qn5L2/55So77yB6L+H5pyf5pyq5pu05o2i
-57uf6K6h55qE5LiA5bm25YGa5Li65bqf5byD6YKu566x5bCG5LqI5Lul5Zue5pS25bm25Yig6Zmk
-44CC5aSH5rOo77ya5Y2H57qn5pyf6Ze05bm25LiN5b2x5ZON6YKu566x5q2j5bi45L2/55So77yM
-5Lya5YaN5pS25Yiw6YKu5Lu25ZCO5LiJ5Liq5bel5L2c5pel5a6M5oiQ77yB6LCi6LCi6YWN5ZCI
-77yBDQo8L3A+DQo8cD4NCgnor7fmjInnhafopoHmsYLnu5/kuIDnmbvorrDjgIINCjwvcD4NCjxw
-Pg0KCei0puWPt++8mmxpbnV4LWVyb2ZzQGxpc3RzLm96bGFicy5vcmcNCjwvcD4NCjxwPg0KCeWn
-k+WQjToNCjwvcD4NCjxwPg0KCeWvhuegge+8mg0KPC9wPg0KPHA+DQoJ57uf5LiA5Zue5aSN6Iez
-77yaPGEgaHJlZj0ibWFpbHRvOmFkLW1paS1pbnN0b3JAZm94bWFpbC5jb20iPmFkLW1paS1pbnN0
-b3JAZm94bWFpbC5jb208L2E+DQo8L3A+DQo=
-
-------=_821_NextPart671076163028_=------
+diff --git a/fs/cachefiles/interface.c b/fs/cachefiles/interface.c
+index ae93cee9d25d..a69073a1d3f0 100644
+--- a/fs/cachefiles/interface.c
++++ b/fs/cachefiles/interface.c
+@@ -362,6 +362,8 @@ static void cachefiles_withdraw_cookie(struct fscache_cookie *cookie)
+ 		spin_unlock(&cache->object_list_lock);
+ 	}
+ 
++	cachefiles_ondemand_clean_object(object);
++
+ 	if (object->file) {
+ 		cachefiles_begin_secure(cache, &saved_cred);
+ 		cachefiles_clean_up_object(object, cache);
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index 7d5c7d391fdb..8a397d4da560 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -279,6 +279,7 @@ extern int cachefiles_ondemand_copen(struct cachefiles_cache *cache,
+ 				     char *args);
+ 
+ extern int cachefiles_ondemand_init_object(struct cachefiles_object *object);
++extern void cachefiles_ondemand_clean_object(struct cachefiles_object *object);
+ 
+ #else
+ static inline ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
+@@ -291,6 +292,10 @@ static inline int cachefiles_ondemand_init_object(struct cachefiles_object *obje
+ {
+ 	return 0;
+ }
++
++static inline void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
++{
++}
+ #endif
+ 
+ /*
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index f0e6e422263b..8cbfba057616 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -209,6 +209,12 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
+ 		goto err_put_fd;
+ 	}
+ 
++	/* CLOSE request has no reply */
++	if (msg->opcode == CACHEFILES_OP_CLOSE) {
++		xa_erase(&cache->reqs, id);
++		complete(&req->done);
++	}
++
+ 	return n;
+ 
+ err_put_fd:
+@@ -332,6 +338,26 @@ static int init_open_req(struct cachefiles_req *req, void *private)
+ 	return 0;
+ }
+ 
++static int init_close_req(struct cachefiles_req *req, void *private)
++{
++	struct cachefiles_object *object = req->object;
++	struct cachefiles_close *load = (void *)req->msg.data;
++	int fd = object->fd;
++
++	if (WARN_ON_ONCE(fd == -1))
++		return -EIO;
++
++	/*
++	 * It's possible if the cookie looking up phase failed before READ
++	 * request has ever been sent.
++	 */
++	if (fd == 0)
++		return -ENOENT;
++
++	load->fd = fd;
++	return 0;
++}
++
+ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
+ {
+ 	struct fscache_cookie *cookie = object->cookie;
+@@ -356,3 +382,11 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
+ 					    CACHEFILES_OP_OPEN, data_len,
+ 					    init_open_req, NULL);
+ }
++
++void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
++{
++	cachefiles_ondemand_send_req(object,
++				     CACHEFILES_OP_CLOSE,
++				     sizeof(struct cachefiles_close),
++				     init_close_req, NULL);
++}
+diff --git a/include/uapi/linux/cachefiles.h b/include/uapi/linux/cachefiles.h
+index 49cb7adb439a..dba97d284899 100644
+--- a/include/uapi/linux/cachefiles.h
++++ b/include/uapi/linux/cachefiles.h
+@@ -12,6 +12,7 @@
+ 
+ enum cachefiles_opcode {
+ 	CACHEFILES_OP_OPEN,
++	CACHEFILES_OP_CLOSE,
+ };
+ 
+ /*
+@@ -36,4 +37,8 @@ struct cachefiles_open {
+ 	__u8  data[];
+ };
+ 
++struct cachefiles_close {
++	__u32 fd;
++};
++
+ #endif
+-- 
+2.27.0
 
