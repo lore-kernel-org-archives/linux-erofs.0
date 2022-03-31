@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43929C433EF
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 11:58:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8252DC4332F
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 11:58:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KThf14YJlz3c03
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 22:58:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KThf30wN6z3c1Y
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Mar 2022 22:58:35 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
- helo=out30-44.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KThdj6bVzz3048
- for <linux-erofs@lists.ozlabs.org>; Thu, 31 Mar 2022 22:58:17 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R991e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V8imrrw_1648727885; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KThdn3lYxz2yRK
+ for <linux-erofs@lists.ozlabs.org>; Thu, 31 Mar 2022 22:58:20 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V8imrtn_1648727892; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V8imrrw_1648727885) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 31 Mar 2022 19:58:06 +0800
+ fp:SMTPD_---0V8imrtn_1648727892) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 31 Mar 2022 19:58:12 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v7 08/19] erofs: add mode checking helper
-Date: Thu, 31 Mar 2022 19:57:42 +0800
-Message-Id: <20220331115753.89431-9-jefflexu@linux.alibaba.com>
+Subject: [PATCH v7 12/19] erofs: add erofs_fscache_read_folios() helper
+Date: Thu, 31 Mar 2022 19:57:46 +0800
+Message-Id: <20220331115753.89431-13-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220331115753.89431-1-jefflexu@linux.alibaba.com>
 References: <20220331115753.89431-1-jefflexu@linux.alibaba.com>
@@ -57,36 +57,59 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Until then erofs is exactly blockdev based filesystem.
+Add erofs_fscache_read_folios() helper reading from fscache. It supports
+on-demand read semantics. That is, it will make the backend prepare for
+the data when cache miss. Once data ready, it will reinitiate a read
+from the cache.
 
-A new fscache-based mode is going to be introduced for erofs to support
-scenarios where on-demand read semantics is needed, e.g. container
-image distribution. In this case, erofs could be mounted from data blobs
-through fscache.
-
-Add a helper checking which mode erofs works in.
+This helper can then be used to implement .readpage()/.readahead() of
+on-demand read semantics.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/internal.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/erofs/fscache.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index fe9564e5091e..05a97533b1e9 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -161,6 +161,11 @@ struct erofs_sb_info {
- #define set_opt(opt, option)	((opt)->mount_opt |= EROFS_MOUNT_##option)
- #define test_opt(opt, option)	((opt)->mount_opt & EROFS_MOUNT_##option)
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 1c88614203d2..d38a6efc8e50 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -5,6 +5,35 @@
+ #include <linux/fscache.h>
+ #include "internal.h"
  
-+static inline bool erofs_is_fscache_mode(struct super_block *sb)
++/*
++ * Read data from fscache and fill the read data into page cache described by
++ * @start/len, which shall be both aligned with PAGE_SIZE. @pstart describes
++ * the start physical address in the cache file.
++ */
++static int erofs_fscache_read_folios(struct fscache_cookie *cookie,
++				     struct address_space *mapping,
++				     loff_t start, size_t len,
++				     loff_t pstart)
 +{
-+	return IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) && !sb->s_bdev;
++	struct netfs_cache_resources cres;
++	struct iov_iter iter;
++	int ret;
++
++	memset(&cres, 0, sizeof(cres));
++
++	ret = fscache_begin_read_operation(&cres, cookie);
++	if (ret)
++		return ret;
++
++	iov_iter_xarray(&iter, READ, &mapping->i_pages, start, len);
++
++	ret = fscache_read(&cres, pstart, &iter,
++			   NETFS_READ_HOLE_ONDEMAND, NULL, NULL);
++
++	fscache_end_operation(&cres);
++	return ret;
 +}
 +
- enum {
- 	EROFS_ZIP_CACHE_DISABLED,
- 	EROFS_ZIP_CACHE_READAHEAD,
+ static const struct address_space_operations erofs_fscache_meta_aops = {
+ };
+ 
 -- 
 2.27.0
 
