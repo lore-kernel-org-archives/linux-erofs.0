@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2FE00C433F5
-	for <linux-erofs@archiver.kernel.org>; Wed,  6 Apr 2022 07:56:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E1DBC433EF
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Apr 2022 07:56:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KYH0G5b6tz3bcr
-	for <linux-erofs@archiver.kernel.org>; Wed,  6 Apr 2022 17:56:46 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KYH0J1SfSz3bWx
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Apr 2022 17:56:48 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43;
- helo=out30-43.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
+ helo=out30-132.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KYH012FkLz2ypP
- for <linux-erofs@lists.ozlabs.org>; Wed,  6 Apr 2022 17:56:32 +1000 (AEST)
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KYH020lTwz3bXG
+ for <linux-erofs@lists.ozlabs.org>; Wed,  6 Apr 2022 17:56:33 +1000 (AEST)
 X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V9LC84J_1649231782; 
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=18; SR=0; TI=SMTPD_---0V9KyhrA_1649231785; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0V9LC84J_1649231782) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 06 Apr 2022 15:56:23 +0800
+ fp:SMTPD_---0V9KyhrA_1649231785) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 06 Apr 2022 15:56:26 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v8 06/20] cachefiles: enable on-demand read mode
-Date: Wed,  6 Apr 2022 15:55:58 +0800
-Message-Id: <20220406075612.60298-7-jefflexu@linux.alibaba.com>
+Subject: [PATCH v8 08/20] erofs: make erofs_map_blocks() generally available
+Date: Wed,  6 Apr 2022 15:56:00 +0800
+Message-Id: <20220406075612.60298-9-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220406075612.60298-1-jefflexu@linux.alibaba.com>
 References: <20220406075612.60298-1-jefflexu@linux.alibaba.com>
@@ -57,48 +57,42 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Enable on-demand read mode by adding an optional parameter to the "bind"
-command.
-
-On-demand mode will be turned on when this parameter is "ondemand", i.e.
-"bind ondemand". Otherwise cachefiles will work in the original mode.
+... so that it can be used in the following introduced fscache mode.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/daemon.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/erofs/data.c     | 4 ++--
+ fs/erofs/internal.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index d155a6da90d3..bd902a4c4cd8 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -738,11 +738,6 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
- 	    cache->brun_percent  >= 100)
- 		return -ERANGE;
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 780db1e5f4b7..bc22642358ec 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -110,8 +110,8 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
+ 	return 0;
+ }
  
--	if (*args) {
--		pr_err("'bind' command doesn't take an argument\n");
--		return -EINVAL;
--	}
--
- 	if (!cache->rootdirname) {
- 		pr_err("No cache directory specified\n");
- 		return -EINVAL;
-@@ -754,6 +749,14 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
- 		return -EBUSY;
- 	}
+-static int erofs_map_blocks(struct inode *inode,
+-			    struct erofs_map_blocks *map, int flags)
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 5298c4ee277d..fe9564e5091e 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -486,6 +486,8 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
+ int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+ 		 u64 start, u64 len);
++int erofs_map_blocks(struct inode *inode,
++		     struct erofs_map_blocks *map, int flags);
  
-+	if (IS_ENABLED(CONFIG_CACHEFILES_ONDEMAND) &&
-+	    !strcmp(args, "ondemand")) {
-+		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
-+	} else if (*args) {
-+		pr_err("'bind' command doesn't take an argument\n");
-+		return -EINVAL;
-+	}
-+
- 	/* Make sure we have copies of the tag string */
- 	if (!cache->tag) {
- 		/*
+ /* inode.c */
+ static inline unsigned long erofs_inode_hash(erofs_nid_t nid)
 -- 
 2.27.0
 
