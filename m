@@ -4,77 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6094FC433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Apr 2022 15:35:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74CD2C433F5
+	for <linux-erofs@archiver.kernel.org>; Thu, 14 Apr 2022 08:10:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kdmr44Hvnz3bWm
-	for <linux-erofs@archiver.kernel.org>; Thu, 14 Apr 2022 01:35:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KfBwR4th9z2yn1
+	for <linux-erofs@archiver.kernel.org>; Thu, 14 Apr 2022 18:10:31 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PVPqatHF;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PVPqatHF;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=M5KQ7mfZ;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=redhat.com (client-ip=170.10.133.124;
- helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com;
+ smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::d2e;
+ helo=mail-io1-xd2e.google.com; envelope-from=zhangjiachen.jaycee@bytedance.com;
  receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (1024-bit key;
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=PVPqatHF; 
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PVPqatHF; 
- dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
+ unprotected) header.d=bytedance-com.20210112.gappssmtp.com
+ header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=M5KQ7mfZ; dkim-atps=neutral
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com
+ [IPv6:2607:f8b0:4864:20::d2e])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Kdmqz5Lfvz2yLg
- for <linux-erofs@lists.ozlabs.org>; Thu, 14 Apr 2022 01:35:09 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649864104;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=Sk1v32UTIyZH37LdAUzNEF5obtPm583SsWSiAI9jtSE=;
- b=PVPqatHF3EO/5sZ9UHKmI0Lh28J2LKI9qS+t9zB33oYywz1Exd4TeclCe9cDAfLPRbpyRD
- a+NMGsT8HmFaGw5cEV6BKqct3vlDrRX4TLPOh1Dy5hrwBgSs2OcEJHAmv8GgI3iQqL+kxE
- 9uwooZf532fnfuPdkzL35YsNBD2hVwU=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649864104;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=Sk1v32UTIyZH37LdAUzNEF5obtPm583SsWSiAI9jtSE=;
- b=PVPqatHF3EO/5sZ9UHKmI0Lh28J2LKI9qS+t9zB33oYywz1Exd4TeclCe9cDAfLPRbpyRD
- a+NMGsT8HmFaGw5cEV6BKqct3vlDrRX4TLPOh1Dy5hrwBgSs2OcEJHAmv8GgI3iQqL+kxE
- 9uwooZf532fnfuPdkzL35YsNBD2hVwU=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-490-LhXBCQdeMm2JQunRUBAsEg-1; Wed, 13 Apr 2022 11:35:00 -0400
-X-MC-Unique: LhXBCQdeMm2JQunRUBAsEg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
- [10.11.54.8])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5040585A5BC;
- Wed, 13 Apr 2022 15:35:00 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.37.45])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 8ED7AC27E9D;
- Wed, 13 Apr 2022 15:34:58 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
- Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
- Kingdom.
- Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-To: torvalds@linux-foundation.org
-Subject: [GIT PULL] fscache: Miscellaneous fixes
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KfBwM1sJSz2xY0
+ for <linux-erofs@lists.ozlabs.org>; Thu, 14 Apr 2022 18:10:24 +1000 (AEST)
+Received: by mail-io1-xd2e.google.com with SMTP id x4so4573267iop.7
+ for <linux-erofs@lists.ozlabs.org>; Thu, 14 Apr 2022 01:10:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+ bh=80GuG9Z2OB5edjjpunkIyc1yhfEaarhhzGyq+14i704=;
+ b=M5KQ7mfZv6mFYhtnrBqG00dB7LnKFIRZKqw/pvrepjt7LV24VvlIxp5D7/Zz+9yyXR
+ pcPjKG43Q7cC/d27eRU9Uby1RPUAJagk37XLqjEYf0jrR3uZ0NTRg/BqxNix5DT830yN
+ blUsYDqUPI6g4xemqC5mcga57q1wFsimEU2d4ClWinFeFdloxNm4+KyNvyrmWGeB7TnC
+ xOngQ5jnzDeIF3XJ7SWRDm7xX90JSeRdnTrSeQO2u/JsNzoe4X1kiUvv2BWKzItBFiOn
+ VNF2kjjlqE1CGO8JP7USrdhkvHGrgL56OIwU5At1X5HRheWcOfAqA91iYGuCnSiVo0A1
+ mlsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to;
+ bh=80GuG9Z2OB5edjjpunkIyc1yhfEaarhhzGyq+14i704=;
+ b=Axy7/FlGlCbUV9y4ZXfb+Mu/4Io+nwbjlQWlYWtRrUhT4wY/Xp9cmOFg4JlbJ6c0Uw
+ w3wguHcHGe5Mv60hHZ2xWJGReafOWcuZit69xZBJzx2yNOqUTkzceZbapfiSJhGgQ5YD
+ AgSTa6YNtz/4xREL/Jn/BEOB5s4jgo5V2dVf9ttGOYfXkKqmf4AsE+c70u2TqiiCDvcJ
+ 8dcl1r6E/Fa//7dPJ52Y14h5MgmrO2yrqt5xonJEL3rM8QUtKYrb8qFHt6/YH6reN4AJ
+ dhRdtGIeWI2v5yv8D6klqAdJecRSorFmGW5kEGXSlQsnwmJQtLskYqzSDasruXDN+mY7
+ TB8A==
+X-Gm-Message-State: AOAM533n+a98qU7GTGYupnHBYRzw93MnO+1soEyzqANfYqYlLtBgny1p
+ wLaJmNfmW4682KRBDLbTbzZ/9gkthRmb1BDOTcDpnA==
+X-Google-Smtp-Source: ABdhPJyQyyUIJu7HSaI/sHH6jgGH90kBT3f1SyDRMUnKe+RNtKh/8DVg+hrLhzrO3qrrF7NYPZxCyZP+Y63gqiTXviI=
+X-Received: by 2002:a05:6638:3e8f:b0:326:72cb:2b49 with SMTP id
+ ch15-20020a0566383e8f00b0032672cb2b49mr715190jab.247.1649923821659; Thu, 14
+ Apr 2022 01:10:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <2266867.1649864097.1@warthog.procyon.org.uk>
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 13 Apr 2022 16:34:57 +0100
-Message-ID: <2266868.1649864097@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+References: <20220406075612.60298-1-jefflexu@linux.alibaba.com>
+ <YlLS47A9TpHyZJQi@B-P7TQMD6M-0146.local>
+In-Reply-To: <YlLS47A9TpHyZJQi@B-P7TQMD6M-0146.local>
+From: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Date: Thu, 14 Apr 2022 16:10:10 +0800
+Message-ID: <CAFQAk7iUuaUL40NGzOkCOL=P9d6PgsDjRoKLs_5KDycaA9RQ4w@mail.gmail.com>
+Subject: Re: Re: [PATCH v8 00/20] fscache,
+ erofs: fscache-based on-demand read semantics
+To: Jeffle Xu <jefflexu@linux.alibaba.com>, dhowells@redhat.com, 
+ linux-cachefs@redhat.com, xiang@kernel.org, chao@kernel.org, 
+ linux-erofs@lists.ozlabs.org, torvalds@linux-foundation.org, 
+ gregkh@linuxfoundation.org, willy@infradead.org, 
+ linux-fsdevel@vger.kernel.org, joseph.qi@linux.alibaba.com, 
+ bo.liu@linux.alibaba.com, tao.peng@linux.alibaba.com, gerry@linux.alibaba.com, 
+ eguan@linux.alibaba.com, linux-kernel@vger.kernel.org, 
+ luodaowen.backend@bytedance.com, tianzichen@kuaishou.com, fannaihao@baidu.com
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -86,85 +85,65 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-cachefs@redhat.com, Dave Wysochanski <dwysocha@redhat.com>,
- Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org,
- dhowells@redhat.com, linux-fsdevel@vger.kernel.org,
- Yue Hu <huyue2@coolpad.com>, Gao Xiang <hsiangkao@linux.alibaba.com>,
- linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Linus,
+On Sun, Apr 10, 2022 at 8:52 PM Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+>
+> On Wed, Apr 06, 2022 at 03:55:52PM +0800, Jeffle Xu wrote:
+> > changes since v7:
+> > - rebased to 5.18-rc1
+> > - include "cachefiles: unmark inode in use in error path" patch into
+> >   this patchset to avoid warning from test robot (patch 1)
+> > - cachefiles: rename [cookie|volume]_key_len field of struct
+> >   cachefiles_open to [cookie|volume]_key_size to avoid potential
+> >   misunderstanding. Also add more documentation to
+> >   include/uapi/linux/cachefiles.h. (patch 3)
+> > - cachefiles: valid check for error code returned from user daemon
+> >   (patch 3)
+> > - cachefiles: change WARN_ON_ONCE() to pr_info_once() when user daemon
+> >   closes anon_fd prematurely (patch 4/5)
+> > - ready for complete review
+> >
+> >
+> > Kernel Patchset
+> > ---------------
+> > Git tree:
+> >
+> >     https://github.com/lostjeffle/linux.git jingbo/dev-erofs-fscache-v8
+> >
+> > Gitweb:
+> >
+> >     https://github.com/lostjeffle/linux/commits/jingbo/dev-erofs-fscache-v8
+> >
+> >
+> > User Daemon for Quick Test
+> > --------------------------
+> > Git tree:
+> >
+> >     https://github.com/lostjeffle/demand-read-cachefilesd.git main
+> >
+> > Gitweb:
+> >
+> >     https://github.com/lostjeffle/demand-read-cachefilesd
+> >
+>
+> Btw, we've also finished a preliminary end-to-end on-demand download
+> daemon in order to test the fscache on-demand kernel code as a real
+> end-to-end workload for container use cases:
+>
+> User guide: https://github.com/dragonflyoss/image-service/blob/fscache/docs/nydus-fscache.md
+> Video: https://youtu.be/F4IF2_DENXo
+>
+> Thanks,
+> Gao Xiang
 
-Here's a collection of fscache and cachefiles fixes and misc small
-cleanups.  The two main fixes are:
+Hi Xiang,
 
- (1) Add a missing unmark of the inode in-use mark in an error path.
+I think this feature is interesting and promising. So I have performed
+some tests according to the user guide. Hope it can be an upstream
+feature.
 
- (2) Fix a KASAN slab-out-of-bounds error when setting the xattr on a
-     cachefiles volume due to the wrong length being given to memcpy().
-
-In addition, there's the removal of an unused parameter, removal of an
-unused Kconfig option, conditionalising a bit of procfs-related stuff and
-some doc fixes.
-
-David
-
-Link: https://lore.kernel.org/r/164945915630.773423.14655306154231712324.s=
-tgit@warthog.procyon.org.uk/
-
----
-The following changes since commit 42e7a03d3badebd4e70aea5362d6914dfc7c220=
-b:
-
-  Merge tag 'hyperv-fixes-signed-20220407' of git://git.kernel.org/pub/scm=
-/linux/kernel/git/hyperv/linux (2022-04-07 06:35:34 -1000)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git tags=
-/fscache-fixes-20220413
-
-for you to fetch changes up to 61132ceeda723d2c48cbc2610ca3213a7fcb083b:
-
-  fscache: remove FSCACHE_OLD_API Kconfig option (2022-04-08 23:54:37 +010=
-0)
-
-----------------------------------------------------------------
-fscache fixes
-
-----------------------------------------------------------------
-Dave Wysochanski (1):
-      cachefiles: Fix KASAN slab-out-of-bounds in cachefiles_set_volume_xa=
-ttr
-
-Jeffle Xu (1):
-      cachefiles: unmark inode in use in error path
-
-Yue Hu (6):
-      docs: filesystems: caching/backend-api.rst: correct two relinquish A=
-PIs use
-      docs: filesystems: caching/backend-api.rst: fix an object withdrawn =
-API
-      fscache: Remove the cookie parameter from fscache_clear_page_bits()
-      fscache: Move fscache_cookies_seq_ops specific code under CONFIG_PRO=
-C_FS
-      fscache: Use wrapper fscache_set_cache_state() directly when relinqu=
-ishing
-      fscache: remove FSCACHE_OLD_API Kconfig option
-
- Documentation/filesystems/caching/backend-api.rst |  8 +++---
- Documentation/filesystems/caching/netfs-api.rst   | 25 +++++++++--------
- fs/afs/write.c                                    |  3 +--
- fs/cachefiles/namei.c                             | 33 ++++++++++++++++--=
------
- fs/cachefiles/xattr.c                             |  2 +-
- fs/fscache/Kconfig                                |  3 ---
- fs/fscache/cache.c                                |  2 +-
- fs/fscache/cookie.c                               |  4 ++-
- fs/fscache/internal.h                             |  4 +++
- fs/fscache/io.c                                   |  5 ++--
- include/linux/fscache.h                           |  4 +--
- 11 files changed, 53 insertions(+), 40 deletions(-)
-
+Thanks,
+Jiachen
