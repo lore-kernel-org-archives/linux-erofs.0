@@ -4,35 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D8745C433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 12:42:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84886C433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 12:42:38 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kfwvv3Ny4z3fVZ
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 22:42:35 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Kfwvx1dSGz3cLc
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 22:42:37 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131;
- helo=out30-131.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
+ helo=out30-132.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Kfwmt214Fz3ds1
- for <linux-erofs@lists.ozlabs.org>; Fri, 15 Apr 2022 22:36:29 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R681e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VA7VPQE_1650026181; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Kfwmz0cZXz3cLZ
+ for <linux-erofs@lists.ozlabs.org>; Fri, 15 Apr 2022 22:36:34 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R761e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VA7Ug.q_1650026184; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0VA7VPQE_1650026181) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 15 Apr 2022 20:36:22 +0800
+ fp:SMTPD_---0VA7Ug.q_1650026184) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 15 Apr 2022 20:36:25 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v9 04/21] cachefiles: notify user daemon when withdrawing
- cookie
-Date: Fri, 15 Apr 2022 20:35:57 +0800
-Message-Id: <20220415123614.54024-5-jefflexu@linux.alibaba.com>
+Subject: [PATCH v9 06/21] cachefiles: enable on-demand read mode
+Date: Fri, 15 Apr 2022 20:35:59 +0800
+Message-Id: <20220415123614.54024-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
 References: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
@@ -58,139 +57,78 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Notify the user daemon that cookie is going to be withdrawn, providing a
-hint that the associated anonymous fd can be closed.
+Enable on-demand read mode by adding an optional parameter to the "bind"
+command.
 
-Be noted that this is only a hint. The user daemon may close the
-associated anonymous fd when receiving the CLOSE request, then it will
-receive another anonymous fd when the cookie gets looked up. Or it may
-ignore the CLOSE request, and keep writing data through the anonymous
-fd. However the next time the cookie gets looked up, the user daemon
-will still receive another new anonymous fd.
+On-demand mode will be turned on when this parameter is "ondemand", i.e.
+"bind ondemand". Otherwise cachefiles will work in the original mode.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/interface.c       |  2 ++
- fs/cachefiles/internal.h        |  5 +++++
- fs/cachefiles/ondemand.c        | 38 +++++++++++++++++++++++++++++++++
- include/uapi/linux/cachefiles.h |  1 +
- 4 files changed, 46 insertions(+)
+ fs/cachefiles/daemon.c | 13 ++++++++-----
+ fs/cachefiles/io.c     | 11 -----------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/fs/cachefiles/interface.c b/fs/cachefiles/interface.c
-index ae93cee9d25d..a69073a1d3f0 100644
---- a/fs/cachefiles/interface.c
-+++ b/fs/cachefiles/interface.c
-@@ -362,6 +362,8 @@ static void cachefiles_withdraw_cookie(struct fscache_cookie *cookie)
- 		spin_unlock(&cache->object_list_lock);
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 2e946e4eb65a..c8bde21ace6a 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -758,11 +758,6 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 	    cache->brun_percent  >= 100)
+ 		return -ERANGE;
+ 
+-	if (*args) {
+-		pr_err("'bind' command doesn't take an argument\n");
+-		return -EINVAL;
+-	}
+-
+ 	if (!cache->rootdirname) {
+ 		pr_err("No cache directory specified\n");
+ 		return -EINVAL;
+@@ -774,6 +769,14 @@ static int cachefiles_daemon_bind(struct cachefiles_cache *cache, char *args)
+ 		return -EBUSY;
  	}
  
-+	cachefiles_ondemand_clean_object(object);
-+
- 	if (object->file) {
- 		cachefiles_begin_secure(cache, &saved_cred);
- 		cachefiles_clean_up_object(object, cache);
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index 9b83d8c82709..15332eae43c0 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -286,6 +286,7 @@ extern int cachefiles_ondemand_copen(struct cachefiles_cache *cache,
- 				     char *args);
- 
- extern int cachefiles_ondemand_init_object(struct cachefiles_object *object);
-+extern void cachefiles_ondemand_clean_object(struct cachefiles_object *object);
- 
- #else
- static inline ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
-@@ -298,6 +299,10 @@ static inline int cachefiles_ondemand_init_object(struct cachefiles_object *obje
- {
- 	return 0;
- }
-+
-+static inline void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
-+{
-+}
- #endif
- 
- /*
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index eec883640efa..7ce383536f27 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -229,6 +229,12 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 		goto err_put_fd;
- 	}
- 
-+	/* CLOSE request has no reply */
-+	if (msg->opcode == CACHEFILES_OP_CLOSE) {
-+		xa_erase(&cache->reqs, id);
-+		complete(&req->done);
++	if (IS_ENABLED(CONFIG_CACHEFILES_ONDEMAND) &&
++	    !strcmp(args, "ondemand")) {
++		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
++	} else if (*args) {
++		pr_err("'bind' command doesn't take an argument\n");
++		return -EINVAL;
 +	}
 +
- 	return n;
+ 	/* Make sure we have copies of the tag string */
+ 	if (!cache->tag) {
+ 		/*
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index ccf77a969653..000a28f46e59 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -95,7 +95,6 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
+ 	       file, file_inode(file)->i_ino, start_pos, len,
+ 	       i_size_read(file_inode(file)));
  
- err_put_fd:
-@@ -293,6 +299,13 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
- 			goto out;
- 		}
+-retry:
+ 	/* If the caller asked us to seek for data before doing the read, then
+ 	 * we should do that now.  If we find a gap, we fill it with zeros.
+ 	 */
+@@ -120,16 +119,6 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
+ 			if (read_hole == NETFS_READ_HOLE_FAIL)
+ 				goto presubmission_error;
  
-+		if (opcode != CACHEFILES_OP_OPEN && object->ondemand_id <= 0) {
-+			WARN_ON_ONCE(object->ondemand_id == 0);
-+			xas_unlock(&xas);
-+			ret = -EIO;
-+			goto out;
-+		}
-+
- 		xas.xa_index = 0;
- 		xas_find_marked(&xas, UINT_MAX, XA_FREE_MARK);
- 		if (xas.xa_node == XAS_RESTART)
-@@ -349,6 +362,25 @@ static int cachefiles_ondemand_init_open_req(struct cachefiles_req *req,
- 	return 0;
- }
- 
-+static int cachefiles_ondemand_init_close_req(struct cachefiles_req *req,
-+					      void *private)
-+{
-+	struct cachefiles_object *object = req->object;
-+	int object_id = object->ondemand_id;
-+
-+	/*
-+	 * It's possiblie that object id is still 0 if the cookie looking up
-+	 * phase failed before OPEN request has ever been sent. Also avoid
-+	 * sending CLOSE request for CACHEFILES_ONDEMAND_ID_CLOSED, which means
-+	 * anon_fd has already been closed.
-+	 */
-+	if (object_id <= 0)
-+		return -ENOENT;
-+
-+	req->msg.object_id = object_id;
-+	return 0;
-+}
-+
- int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- {
- 	struct fscache_cookie *cookie = object->cookie;
-@@ -372,3 +404,9 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- 	return cachefiles_ondemand_send_req(object, CACHEFILES_OP_OPEN,
- 			data_len, cachefiles_ondemand_init_open_req, NULL);
- }
-+
-+void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
-+{
-+	cachefiles_ondemand_send_req(object, CACHEFILES_OP_CLOSE, 0,
-+			cachefiles_ondemand_init_close_req, NULL);
-+}
-diff --git a/include/uapi/linux/cachefiles.h b/include/uapi/linux/cachefiles.h
-index 521f2fe4fe9c..37a0071037c8 100644
---- a/include/uapi/linux/cachefiles.h
-+++ b/include/uapi/linux/cachefiles.h
-@@ -12,6 +12,7 @@
- 
- enum cachefiles_opcode {
- 	CACHEFILES_OP_OPEN,
-+	CACHEFILES_OP_CLOSE,
- };
- 
- /*
+-			if (read_hole == NETFS_READ_HOLE_ONDEMAND) {
+-				ret = cachefiles_ondemand_read(object, off, len);
+-				if (ret)
+-					goto presubmission_error;
+-
+-				/* fail the read if no progress achieved */
+-				read_hole = NETFS_READ_HOLE_FAIL;
+-				goto retry;
+-			}
+-
+ 			iov_iter_zero(len, iter);
+ 			skipped = len;
+ 			ret = 0;
 -- 
 2.27.0
 
