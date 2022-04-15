@@ -4,59 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D30F1C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 01:12:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35F19C433F5
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 12:42:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kfdb6130cz3bWf
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 11:12:02 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GEZny4Cn;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Kfwvm6dlRz3dsW
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 22:42:28 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=intel.com (client-ip=192.55.52.93; helo=mga11.intel.com;
- envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256
- header.s=Intel header.b=GEZny4Cn; dkim-atps=neutral
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
+ helo=out30-56.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KfdZy3KTRz2yZf
- for <linux-erofs@lists.ozlabs.org>; Fri, 15 Apr 2022 11:11:48 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1649985114; x=1681521114;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=50+b1xECbUGmjp3kz8XL9xkm2ruHUx0Uv/fhljDa8NQ=;
- b=GEZny4CnQ5pEqi2tYo+HZsr2ltSsTC7UixzF42/6Y6VZ9mbS22YDDCTX
- GyLWubeQzDRI0yo/e+Gcfe6qcE1nuLf4lKWaCGI2tetXS585BylXe6kOu
- G3CxbgIir6zAYCdqqgd8uctGEuCHYKo83YqM/iZu201/wBoELHfF+kjmh
- ceC0mDtpEUwZ4d/jVDEKFSn8LxS5mS/HlJO7BNNMw51A3iYRdx0Z0dqjD
- IqK1vW6xmgpdxId/9dHKG7Y3CR4Km1wcVfyfvhCNkZkLXPQGFP6cqpbD5
- HHVCcmvMW5vurYkACh2e5GHAODRPgDrsDHcRPTCggXmIVxzMXbL0S0FNl A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10317"; a="260664455"
-X-IronPort-AV: E=Sophos;i="5.90,261,1643702400"; d="scan'208";a="260664455"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 14 Apr 2022 18:10:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,261,1643702400"; d="scan'208";a="527622788"
-Received: from lkp-server01.sh.intel.com (HELO 3abc53900bec) ([10.239.97.150])
- by orsmga006.jf.intel.com with ESMTP; 14 Apr 2022 18:10:43 -0700
-Received: from kbuild by 3abc53900bec with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1nfATy-0001Mb-Gv;
- Fri, 15 Apr 2022 01:10:42 +0000
-Date: Fri, 15 Apr 2022 09:10:14 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- 3c096ea0f51171fe4e2144da513d8259d55e5a13
-Message-ID: <6258c5f6.CZqYYwi2caUZtkRy%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Kfwmr50gvz3drk
+ for <linux-erofs@lists.ozlabs.org>; Fri, 15 Apr 2022 22:36:28 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VA7VPPx_1650026179; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0VA7VPPx_1650026179) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 15 Apr 2022 20:36:20 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v9 03/21] cachefiles: unbind cachefiles gracefully in
+ on-demand mode
+Date: Fri, 15 Apr 2022 20:35:56 +0800
+Message-Id: <20220415123614.54024-4-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
+References: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,148 +49,136 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: gregkh@linuxfoundation.org, fannaihao@baidu.com, willy@infradead.org,
+ linux-kernel@vger.kernel.org, tianzichen@kuaishou.com,
+ joseph.qi@linux.alibaba.com, zhangjiachen.jaycee@bytedance.com,
+ linux-fsdevel@vger.kernel.org, luodaowen.backend@bytedance.com,
+ gerry@linux.alibaba.com, torvalds@linux-foundation.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: 3c096ea0f51171fe4e2144da513d8259d55e5a13  Documentation/ABI: sysfs-fs-erofs: Fix Sphinx errors
+Add a refcount to avoid the deadlock in on-demand read mode. The
+on-demand read mode will pin the corresponding cachefiles object for
+each anonymous fd. The cachefiles object is unpinned when the anonymous
+fd gets closed. When the user daemon exits and the fd of
+"/dev/cachefiles" device node gets closed, it will wait for all
+cahcefiles objects gets withdrawn. Then if there's any anonymous fd
+getting closed after the fd of the device node, the user daemon will
+hang forever, waiting for all objects getting withdrawn.
 
-elapsed time: 1972m
+To fix this, add a refcount indicating if there's any object pinned by
+anonymous fds. The cachefiles cache gets unbound and withdrawn when the
+refcount decreased to 0. It won't change the behaviour of the original
+mode, in which case the cachefiles cache gets unbound and withdrawn as
+long as the fd of the device node gets closed. Besides, kref_get() is
+adequate whilst kref_get_unless_zero() is not needed here, since no more
+anonymous fd will be created when the .release() callback of the device
+node fd has already been called.
 
-configs tested: 119
-configs skipped: 3
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ fs/cachefiles/daemon.c   | 24 +++++++++++++++++++++---
+ fs/cachefiles/internal.h |  3 +++
+ fs/cachefiles/ondemand.c |  3 +++
+ 3 files changed, 27 insertions(+), 3 deletions(-)
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm64                               defconfig
-arm64                            allyesconfig
-arm                              allmodconfig
-arm                                 defconfig
-arm                              allyesconfig
-i386                          randconfig-c001
-sh                             sh03_defconfig
-powerpc                 mpc837x_mds_defconfig
-arc                        vdk_hs38_defconfig
-mips                  decstation_64_defconfig
-openrisc                  or1klitex_defconfig
-mips                      maltasmvp_defconfig
-xtensa                         virt_defconfig
-m68k                       m5475evb_defconfig
-arm                        shmobile_defconfig
-arm                        oxnas_v6_defconfig
-arm                        keystone_defconfig
-arm                             rpc_defconfig
-mips                         mpc30x_defconfig
-powerpc                     pq2fads_defconfig
-ia64                          tiger_defconfig
-parisc64                            defconfig
-powerpc                     taishan_defconfig
-sh                  sh7785lcr_32bit_defconfig
-arm                         assabet_defconfig
-parisc                generic-64bit_defconfig
-x86_64                           alldefconfig
-arm                           sunxi_defconfig
-xtensa                           alldefconfig
-x86_64                              defconfig
-arm                           u8500_defconfig
-arm                        spear6xx_defconfig
-arm                            mps2_defconfig
-x86_64                        randconfig-c001
-arm                  randconfig-c002-20220413
-arm                  randconfig-c002-20220414
-ia64                             allmodconfig
-ia64                             allyesconfig
-ia64                                defconfig
-m68k                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-nios2                               defconfig
-arc                              allyesconfig
-alpha                               defconfig
-alpha                            allyesconfig
-csky                                defconfig
-nios2                            allyesconfig
-h8300                            allyesconfig
-xtensa                           allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-s390                                defconfig
-s390                             allmodconfig
-parisc                              defconfig
-parisc                           allyesconfig
-s390                             allyesconfig
-sparc                               defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-i386                                defconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                           allnoconfig
-powerpc                          allmodconfig
-i386                          randconfig-a012
-i386                          randconfig-a014
-i386                          randconfig-a016
-x86_64                        randconfig-a006
-x86_64                        randconfig-a004
-x86_64                        randconfig-a002
-riscv                randconfig-r042-20220413
-arc                  randconfig-r043-20220413
-s390                 randconfig-r044-20220413
-riscv                    nommu_virt_defconfig
-riscv                          rv32_defconfig
-riscv                               defconfig
-riscv                    nommu_k210_defconfig
-riscv                             allnoconfig
-riscv                            allmodconfig
-riscv                            allyesconfig
-x86_64                    rhel-8.3-kselftests
-um                             i386_defconfig
-um                           x86_64_defconfig
-x86_64                          rhel-8.3-func
-x86_64                                  kexec
-x86_64                           allyesconfig
-x86_64                         rhel-8.3-kunit
-x86_64                               rhel-8.3
-
-clang tested configs:
-x86_64                        randconfig-c007
-powerpc              randconfig-c003-20220413
-arm                  randconfig-c002-20220413
-i386                          randconfig-c001
-riscv                randconfig-c006-20220413
-mips                 randconfig-c004-20220413
-powerpc              randconfig-c003-20220414
-arm                  randconfig-c002-20220414
-arm                       spear13xx_defconfig
-mips                malta_qemu_32r6_defconfig
-arm                      tct_hammer_defconfig
-powerpc                     tqm5200_defconfig
-arm                        multi_v5_defconfig
-mips                           mtx1_defconfig
-arm                        spear3xx_defconfig
-arm                       mainstone_defconfig
-arm                       netwinder_defconfig
-mips                        workpad_defconfig
-x86_64                        randconfig-a005
-x86_64                        randconfig-a003
-x86_64                        randconfig-a001
-i386                          randconfig-a002
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a012
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-hexagon              randconfig-r041-20220414
-hexagon              randconfig-r045-20220414
-riscv                randconfig-r042-20220414
-
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 69ca22aa6abf..2e946e4eb65a 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -111,6 +111,7 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
+ 	INIT_LIST_HEAD(&cache->volumes);
+ 	INIT_LIST_HEAD(&cache->object_list);
+ 	spin_lock_init(&cache->object_list_lock);
++	kref_init(&cache->unbind_pincount);
+ #ifdef CONFIG_CACHEFILES_ONDEMAND
+ 	xa_init_flags(&cache->reqs, XA_FLAGS_ALLOC);
+ 	xa_init_flags(&cache->ondemand_ids, XA_FLAGS_ALLOC1);
+@@ -157,6 +158,25 @@ static void cachefiles_flush_reqs(struct cachefiles_cache *cache)
+ }
+ #endif
+ 
++static void cachefiles_release_cache(struct kref *kref)
++{
++	struct cachefiles_cache *cache;
++
++	cache = container_of(kref, struct cachefiles_cache, unbind_pincount);
++	cachefiles_daemon_unbind(cache);
++	kfree(cache);
++}
++
++void cachefiles_put_unbind_pincount(struct cachefiles_cache *cache)
++{
++	kref_put(&cache->unbind_pincount, cachefiles_release_cache);
++}
++
++void cachefiles_get_unbind_pincount(struct cachefiles_cache *cache)
++{
++	kref_get(&cache->unbind_pincount);
++}
++
+ /*
+  * Release a cache.
+  */
+@@ -173,14 +193,12 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
+ #ifdef CONFIG_CACHEFILES_ONDEMAND
+ 	cachefiles_flush_reqs(cache);
+ #endif
+-	cachefiles_daemon_unbind(cache);
+-
+ 	/* clean up the control file interface */
+ 	cache->cachefilesd = NULL;
+ 	file->private_data = NULL;
+ 	cachefiles_open = 0;
+ 
+-	kfree(cache);
++	cachefiles_put_unbind_pincount(cache);
+ 
+ 	_leave("");
+ 	return 0;
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index 8ebe238af20b..9b83d8c82709 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -109,6 +109,7 @@ struct cachefiles_cache {
+ 	char				*rootdirname;	/* name of cache root directory */
+ 	char				*secctx;	/* LSM security context */
+ 	char				*tag;		/* cache binding tag */
++	struct kref			unbind_pincount;/* refcount to do daemon unbind */
+ #ifdef CONFIG_CACHEFILES_ONDEMAND
+ 	struct xarray			reqs;		/* xarray of pending on-demand requests */
+ 	struct xarray			ondemand_ids;	/* xarray for ondemand_id allocation */
+@@ -167,6 +168,8 @@ extern int cachefiles_has_space(struct cachefiles_cache *cache,
+  * daemon.c
+  */
+ extern const struct file_operations cachefiles_daemon_fops;
++extern void cachefiles_get_unbind_pincount(struct cachefiles_cache *cache);
++extern void cachefiles_put_unbind_pincount(struct cachefiles_cache *cache);
+ 
+ /*
+  * error_inject.c
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 890cd3ecc2f0..eec883640efa 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -14,6 +14,7 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
+ 	object->ondemand_id = CACHEFILES_ONDEMAND_ID_CLOSED;
+ 	xa_erase(&cache->ondemand_ids, object_id);
+ 	cachefiles_put_object(object, cachefiles_obj_put_ondemand_fd);
++	cachefiles_put_unbind_pincount(cache);
+ 	return 0;
+ }
+ 
+@@ -169,6 +170,8 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
+ 	load->fd = fd;
+ 	req->msg.object_id = object_id;
+ 	object->ondemand_id = object_id;
++
++	cachefiles_get_unbind_pincount(cache);
+ 	return 0;
+ 
+ err_put_fd:
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.27.0
+
