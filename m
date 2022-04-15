@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57CA4C433F5
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 12:42:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 15EE6C433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 12:42:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KfwwC6P0dz3fVV
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 22:42:51 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KfwwF4R9cz3fRj
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Apr 2022 22:42:53 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
- helo=out30-56.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
+ helo=out30-132.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KfwnD4Wkdz3dtY
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KfwnF0wyJz3dvk
  for <linux-erofs@lists.ozlabs.org>; Fri, 15 Apr 2022 22:36:48 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R611e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VA7Ug1q_1650026197; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VA7Cc42_1650026200; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0VA7Ug1q_1650026197) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 15 Apr 2022 20:36:38 +0800
+ fp:SMTPD_---0VA7Cc42_1650026200) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 15 Apr 2022 20:36:41 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v9 14/21] erofs: add erofs_fscache_read_folios() helper
-Date: Fri, 15 Apr 2022 20:36:07 +0800
-Message-Id: <20220415123614.54024-15-jefflexu@linux.alibaba.com>
+Subject: [PATCH v9 16/21] erofs: register fscache context for extra data blobs
+Date: Fri, 15 Apr 2022 20:36:09 +0800
+Message-Id: <20220415123614.54024-17-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
 References: <20220415123614.54024-1-jefflexu@linux.alibaba.com>
@@ -57,83 +57,92 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add erofs_fscache_read_folios() helper reading from fscache. It supports
-on-demand read semantics. That is, it will make the backend prepare for
-the data when cache miss. Once data ready, it will read from the cache.
+Similar to the multi device mode, erofs could be mounted from one
+primary data blob (mandatory) and multiple extra data blobs (optional).
 
-This helper can then be used to implement .readpage()/.readahead() of
-on-demand read semantics.
+Register fscache context for each extra data blob.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/fscache.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ fs/erofs/data.c     | 3 +++
+ fs/erofs/internal.h | 2 ++
+ fs/erofs/super.c    | 8 +++++++-
+ 3 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 1c88614203d2..066f68c062e2 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -5,6 +5,59 @@
- #include <linux/fscache.h>
- #include "internal.h"
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index bc22642358ec..14b64d960541 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -199,6 +199,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 	map->m_bdev = sb->s_bdev;
+ 	map->m_daxdev = EROFS_SB(sb)->dax_dev;
+ 	map->m_dax_part_off = EROFS_SB(sb)->dax_part_off;
++	map->m_fscache = EROFS_SB(sb)->s_fscache;
  
-+/*
-+ * Read data from fscache and fill the read data into page cache described by
-+ * @start/len, which shall be both aligned with PAGE_SIZE. @pstart describes
-+ * the start physical address in the cache file.
-+ */
-+static int erofs_fscache_read_folios(struct fscache_cookie *cookie,
-+				     struct address_space *mapping,
-+				     loff_t start, size_t len,
-+				     loff_t pstart)
-+{
-+	enum netfs_io_source source;
-+	struct netfs_io_subrequest subreq;
-+	struct netfs_io_request rreq;
-+	struct netfs_cache_resources *cres = &rreq.cache_resources;
-+	struct iov_iter iter;
-+	size_t done = 0;
-+	int ret;
-+
-+	memset(&rreq, 0, sizeof(rreq));
-+	memset(&subreq, 0, sizeof(subreq));
-+	subreq.rreq = &rreq;
-+
-+	ret = fscache_begin_read_operation(cres, cookie);
-+	if (ret)
-+		return ret;
-+
-+	while (done < len) {
-+		subreq.start = pstart + done;
-+		subreq.len = len - done;
-+		subreq.flags = 1 << NETFS_SREQ_ONDEMAND;
-+
-+		source = cres->ops->prepare_read(&subreq, LLONG_MAX);
-+		if (WARN_ON(subreq.len == 0))
-+			source = NETFS_INVALID_READ;
-+		if (source != NETFS_READ_FROM_CACHE) {
-+			ret = -EIO;
-+			goto out;
-+		}
-+
-+		iov_iter_xarray(&iter, READ, &mapping->i_pages,
-+				start + done, subreq.len);
-+		ret = fscache_read(cres, subreq.start, &iter,
-+				   NETFS_READ_HOLE_FAIL, NULL, NULL);
-+		if (ret)
-+			goto out;
-+
-+		done += subreq.len;
-+	}
-+out:
-+	fscache_end_operation(cres);
-+	return ret;
-+}
-+
- static const struct address_space_operations erofs_fscache_meta_aops = {
- };
+ 	if (map->m_deviceid) {
+ 		down_read(&devs->rwsem);
+@@ -210,6 +211,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 		map->m_bdev = dif->bdev;
+ 		map->m_daxdev = dif->dax_dev;
+ 		map->m_dax_part_off = dif->dax_part_off;
++		map->m_fscache = dif->fscache;
+ 		up_read(&devs->rwsem);
+ 	} else if (devs->extra_devices) {
+ 		down_read(&devs->rwsem);
+@@ -227,6 +229,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 				map->m_bdev = dif->bdev;
+ 				map->m_daxdev = dif->dax_dev;
+ 				map->m_dax_part_off = dif->dax_part_off;
++				map->m_fscache = dif->fscache;
+ 				break;
+ 			}
+ 		}
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 386658416159..fa488af8dfcf 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -49,6 +49,7 @@ typedef u32 erofs_blk_t;
  
+ struct erofs_device_info {
+ 	char *path;
++	struct erofs_fscache *fscache;
+ 	struct block_device *bdev;
+ 	struct dax_device *dax_dev;
+ 	u64 dax_part_off;
+@@ -482,6 +483,7 @@ static inline int z_erofs_map_blocks_iter(struct inode *inode,
+ #endif	/* !CONFIG_EROFS_FS_ZIP */
+ 
+ struct erofs_map_dev {
++	struct erofs_fscache *m_fscache;
+ 	struct block_device *m_bdev;
+ 	struct dax_device *m_daxdev;
+ 	u64 m_dax_part_off;
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 61dc900295f9..c6755bcae4a6 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -259,7 +259,12 @@ static int erofs_init_devices(struct super_block *sb,
+ 		}
+ 		dis = ptr + erofs_blkoff(pos);
+ 
+-		if (!erofs_is_fscache_mode(sb)) {
++		if (erofs_is_fscache_mode(sb)) {
++			err = erofs_fscache_register_cookie(sb, &dif->fscache,
++							    dif->path, false);
++			if (err)
++				break;
++		} else {
+ 			bdev = blkdev_get_by_path(dif->path,
+ 						  FMODE_READ | FMODE_EXCL,
+ 						  sb->s_type);
+@@ -710,6 +715,7 @@ static int erofs_release_device_info(int id, void *ptr, void *data)
+ 	fs_put_dax(dif->dax_dev);
+ 	if (dif->bdev)
+ 		blkdev_put(dif->bdev, FMODE_READ | FMODE_EXCL);
++	erofs_fscache_unregister_cookie(&dif->fscache);
+ 	kfree(dif->path);
+ 	kfree(dif);
+ 	return 0;
 -- 
 2.27.0
 
