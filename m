@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56235C433F5
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Apr 2022 15:12:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 22CF4C433EF
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Apr 2022 16:14:52 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KkgxZ6w3Sz3bY8
-	for <linux-erofs@archiver.kernel.org>; Fri, 22 Apr 2022 01:12:02 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KkjL21HQFz3bYG
+	for <linux-erofs@archiver.kernel.org>; Fri, 22 Apr 2022 02:14:50 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56;
- helo=out30-56.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57;
+ helo=out30-57.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KkgxT4tgKz2yHD
- for <linux-erofs@lists.ozlabs.org>; Fri, 22 Apr 2022 01:11:54 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VAg.y.s_1650553903; 
-Received: from 192.168.31.65(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0VAg.y.s_1650553903) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 21 Apr 2022 23:11:45 +0800
-Message-ID: <a79e09a0-16d2-4d73-af9f-05a259431040@linux.alibaba.com>
-Date: Thu, 21 Apr 2022 23:11:43 +0800
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KkjKt6D1Rz2yHL
+ for <linux-erofs@lists.ozlabs.org>; Fri, 22 Apr 2022 02:14:40 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R821e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=19; SR=0; TI=SMTPD_---0VAgYtNo_1650557669; 
+Received: from 30.15.235.48(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0VAgYtNo_1650557669) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 22 Apr 2022 00:14:31 +0800
+Message-ID: <2067a5c7-4e24-f449-4676-811d12e9ab72@linux.alibaba.com>
+Date: Fri, 22 Apr 2022 00:14:29 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.6.1
-Subject: Re: [PATCH v9 06/21] cachefiles: enable on-demand read mode
+Subject: Re: EMFILE/ENFILE mitigation needed in erofs?
 Content-Language: en-US
 To: David Howells <dhowells@redhat.com>
-References: <20220415123614.54024-7-jefflexu@linux.alibaba.com>
+References: <20220415123614.54024-3-jefflexu@linux.alibaba.com>
  <20220415123614.54024-1-jefflexu@linux.alibaba.com>
- <1445691.1650550659@warthog.procyon.org.uk>
+ <1447543.1650552898@warthog.procyon.org.uk>
 From: JeffleXu <jefflexu@linux.alibaba.com>
-In-Reply-To: <1445691.1650550659@warthog.procyon.org.uk>
+In-Reply-To: <1447543.1650552898@warthog.procyon.org.uk>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -64,57 +64,47 @@ Sender: "Linux-erofs"
 
 
 
-On 4/21/22 10:17 PM, David Howells wrote:
+On 4/21/22 10:54 PM, David Howells wrote:
 > Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
 > 
->> +	if (IS_ENABLED(CONFIG_CACHEFILES_ONDEMAND) &&
->> +	    !strcmp(args, "ondemand")) {
->> +		set_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags);
->> +	} else if (*args) {
->> +		pr_err("'bind' command doesn't take an argument\n");
+>> +	fd_install(fd, file);
 > 
-> The error message isn't true if CONFIG_CACHEFILES_ONDEMAND=y.  It would be
-> better to say "Invalid argument to the 'bind' command".
-
-Right. Or users may gets confused then. Will be fixed in the next version.
-
-> 
->> -retry:
->>  	/* If the caller asked us to seek for data before doing the read, then
->>  	 * we should do that now.  If we find a gap, we fill it with zeros.
->>  	 */
->> @@ -120,16 +119,6 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
->>  			if (read_hole == NETFS_READ_HOLE_FAIL)
->>  				goto presubmission_error;
->>  
->> -			if (read_hole == NETFS_READ_HOLE_ONDEMAND) {
->> -				ret = cachefiles_ondemand_read(object, off, len);
->> -				if (ret)
->> -					goto presubmission_error;
->> -
->> -				/* fail the read if no progress achieved */
->> -				read_hole = NETFS_READ_HOLE_FAIL;
->> -				goto retry;
->> -			}
->> -
+> Do you need to mitigate potential EMFILE/ENFILE problems?  You're potentially
+> trebling up the number of accounted systemwide fds: one for erofs itself, one
+> anonfd per cache object file to communicate with the daemon and one in the
+> daemon to talk to the server.  Cachefiles has a fourth internally, but it's
+> kept off the books - further, cachefiles closes them fairly quickly after a
+> period of nonuse.
 > 
 
-Sorry, it's my mistake when doing "git rebase". The previous version
-(v8) actually calls cachefiles_ondemand_read() in cachefiles_read().
-However as explained in the commit message of patch 5 ("cachefiles:
-implement on-demand read"), fscache_read() can only detect if the
-requested file range is fully cache miss, whilst it can't detect if it
-is partial cache miss, i.e. there's a hole inside the requested file range.
+Hi, thanks for pointing it out.
 
-Thus in this patchset (v9), we move the entry of calling
-cachefiles_ondemand_read() from cachefiles_read() to
-cachefiles_prepare_read(). The above "deletion of newly added code" is
-actually reverting the previous change to cachefiles_read(). It was
-mistakenly merged to this patch when I was doing "git rebase"...
-Actually it should be merged to patch 5 ("cachefiles: implement
-on-demand read"), which initially introduce the change to cachefiles_read().
+1. Actually in our using scenarios, one erofs filesystem is formed of
+several chunk-deduplicated blobs (which are really cached by
+Cachefiles), while each blob can contain many files of erofs. For
+example, one container image for node.js will correspond to ~20 blob
+files in total. Only these blob files are cached by Cachefiles. In
+densely employed environment, there could be hundreds of containers and
+thus thousands of backing files on one machine. That is, only tens of
+thousands of fds/files is needed in this case.
 
-Apologize for the careless mistake...
+2. Our user daemon will configure rlimit-nofile to a reasonably large
+(e.g. 1 million) value, so that it won't fail when trying to allocate fds.
+
+https://github.com/dragonflyoss/image-service/blob/master/src/bin/nydusd/main.rs#L152
+
+3. Our user daemon will close the anonymous fd once the corresponding
+backing file has fully downloaded, to free the fd resources.
+
+4. Even if fd/file allocation fails (in cachefiles_ondemand_get_fd()),
+the INIT request will fail, and thus the erofs mount will fail then.
+That is, it won't break the upper erofs in this case.
+
+5. If later we find that the number of fds/files is indeed an issue,
+then we also plan to make the user daemon close some fds to spare some
+free resources. And then the Cachefiles kernel module needs to
+reallocate an anonymous fd for the backing file when cache miss. But it
+remains to be done later if it's really needed.
 
 
 -- 
