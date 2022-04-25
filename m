@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06308C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 12:22:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 14D8DC4321E
+	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 12:22:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kn3zz4ccnz3bhQ
-	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 22:22:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Kn4024wN0z3brS
+	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 22:22:26 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132;
- helo=out30-132.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Kn3zp1bhJz3bZZ
- for <linux-erofs@lists.ozlabs.org>; Mon, 25 Apr 2022 22:22:12 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=20; SR=0; TI=SMTPD_---0VBE4bHK_1650889322; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Kn3zq5Nn2z3bfC
+ for <linux-erofs@lists.ozlabs.org>; Mon, 25 Apr 2022 22:22:14 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R511e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=20; SR=0; TI=SMTPD_---0VBE4bIb_1650889326; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0VBE4bHK_1650889322) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 25 Apr 2022 20:22:03 +0800
+ fp:SMTPD_---0VBE4bIb_1650889326) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 25 Apr 2022 20:22:07 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v10 11/21] erofs: register fscache volume
-Date: Mon, 25 Apr 2022 20:21:33 +0800
-Message-Id: <20220425122143.56815-12-jefflexu@linux.alibaba.com>
+Subject: [PATCH v10 14/21] erofs: add erofs_fscache_read_folios() helper
+Date: Mon, 25 Apr 2022 20:21:36 +0800
+Message-Id: <20220425122143.56815-15-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220425122143.56815-1-jefflexu@linux.alibaba.com>
 References: <20220425122143.56815-1-jefflexu@linux.alibaba.com>
@@ -57,160 +57,84 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-A new fscache based mode is going to be introduced for erofs, in which
-case on-demand read semantics is implemented through fscache.
+Add erofs_fscache_read_folios() helper reading from fscache. It supports
+on-demand read semantics. That is, it will make the backend prepare for
+the data when cache miss. Once data ready, it will read from the cache.
 
-As the first step, register fscache volume for each erofs filesystem.
-That means, data blobs can not be shared among erofs filesystems. In the
-following iteration, we are going to introduce the domain semantics, in
-which case several erofs filesystems can belong to one domain, and data
-blobs can be shared among these erofs filesystems of one domain.
+This helper can then be used to implement .readpage()/.readahead() of
+on-demand read semantics.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/Kconfig    | 10 ++++++++++
- fs/erofs/Makefile   |  1 +
- fs/erofs/fscache.c  | 37 +++++++++++++++++++++++++++++++++++++
- fs/erofs/internal.h | 16 ++++++++++++++++
- fs/erofs/super.c    |  5 +++++
- 5 files changed, 69 insertions(+)
- create mode 100644 fs/erofs/fscache.c
+ fs/erofs/fscache.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index f57255ab88ed..85490370e0ca 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -98,3 +98,13 @@ config EROFS_FS_ZIP_LZMA
- 	  systems will be readable without selecting this option.
- 
- 	  If unsure, say N.
-+
-+config EROFS_FS_ONDEMAND
-+	bool "EROFS fscache-based on-demand read support"
-+	depends on CACHEFILES_ONDEMAND && (EROFS_FS=m && FSCACHE || EROFS_FS=y && FSCACHE=y)
-+	default n
-+	help
-+	  This permits EROFS to use fscache-backed data blobs with on-demand
-+	  read support.
-+
-+	  If unsure, say N.
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 8a3317e38e5a..99bbc597a3e9 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -5,3 +5,4 @@ erofs-objs := super.o inode.o data.o namei.o dir.o utils.o pcpubuf.o sysfs.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
- erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o
- erofs-$(CONFIG_EROFS_FS_ZIP_LZMA) += decompressor_lzma.o
-+erofs-$(CONFIG_EROFS_FS_ONDEMAND) += fscache.o
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-new file mode 100644
-index 000000000000..7a6d0239ebb1
---- /dev/null
+index 26f038d9c4e1..ac02af8cce3e 100644
+--- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -0,0 +1,37 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
+@@ -5,6 +5,60 @@
+ #include <linux/fscache.h>
+ #include "internal.h"
+ 
 +/*
-+ * Copyright (C) 2022, Alibaba Cloud
++ * Read data from fscache and fill the read data into page cache described by
++ * @start/len, which shall be both aligned with PAGE_SIZE. @pstart describes
++ * the start physical address in the cache file.
 + */
-+#include <linux/fscache.h>
-+#include "internal.h"
-+
-+int erofs_fscache_register_fs(struct super_block *sb)
++static int erofs_fscache_read_folios(struct fscache_cookie *cookie,
++				     struct address_space *mapping,
++				     loff_t start, size_t len,
++				     loff_t pstart)
 +{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+	struct fscache_volume *volume;
-+	char *name;
-+	int ret = 0;
++	enum netfs_io_source source;
++	struct netfs_io_request rreq = {};
++	struct netfs_io_subrequest subreq = { .rreq = &rreq, };
++	struct netfs_cache_resources *cres = &rreq.cache_resources;
++	struct super_block *sb = mapping->host->i_sb;
++	struct iov_iter iter;
++	size_t done = 0;
++	int ret;
 +
-+	name = kasprintf(GFP_KERNEL, "erofs,%s", sbi->opt.fsid);
-+	if (!name)
-+		return -ENOMEM;
++	ret = fscache_begin_read_operation(cres, cookie);
++	if (ret)
++		return ret;
 +
-+	volume = fscache_acquire_volume(name, NULL, NULL, 0);
-+	if (IS_ERR_OR_NULL(volume)) {
-+		erofs_err(sb, "failed to register volume for %s", name);
-+		ret = volume ? PTR_ERR(volume) : -EOPNOTSUPP;
-+		volume = NULL;
++	while (done < len) {
++		subreq.start = pstart + done;
++		subreq.len = len - done;
++		subreq.flags = 1 << NETFS_SREQ_ONDEMAND;
++
++		source = cres->ops->prepare_read(&subreq, LLONG_MAX);
++		if (WARN_ON(subreq.len == 0))
++			source = NETFS_INVALID_READ;
++		if (source != NETFS_READ_FROM_CACHE) {
++			erofs_err(sb, "failed to fscache prepare_read (source %d)",
++				  source);
++			ret = -EIO;
++			goto out;
++		}
++
++		iov_iter_xarray(&iter, READ, &mapping->i_pages,
++				start + done, subreq.len);
++		ret = fscache_read(cres, subreq.start, &iter,
++				   NETFS_READ_HOLE_FAIL, NULL, NULL);
++		if (ret) {
++			erofs_err(sb, "failed to fscache_read (ret %d)", ret);
++			goto out;
++		}
++
++		done += subreq.len;
 +	}
-+
-+	sbi->volume = volume;
-+	kfree(name);
++out:
++	fscache_end_operation(cres);
 +	return ret;
 +}
 +
-+void erofs_fscache_unregister_fs(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
-+
-+	fscache_relinquish_volume(sbi->volume, NULL, false);
-+	sbi->volume = NULL;
-+}
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 05a97533b1e9..e4f6a13f161f 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -74,6 +74,7 @@ struct erofs_mount_opts {
- 	unsigned int max_sync_decompress_pages;
- #endif
- 	unsigned int mount_opt;
-+	char *fsid;
+ static const struct address_space_operations erofs_fscache_meta_aops = {
  };
  
- struct erofs_dev_context {
-@@ -146,6 +147,9 @@ struct erofs_sb_info {
- 	/* sysfs support */
- 	struct kobject s_kobj;		/* /sys/fs/erofs/<devname> */
- 	struct completion s_kobj_unregister;
-+
-+	/* fscache support */
-+	struct fscache_volume *volume;
- };
- 
- #define EROFS_SB(sb) ((struct erofs_sb_info *)(sb)->s_fs_info)
-@@ -618,6 +622,18 @@ static inline int z_erofs_load_lzma_config(struct super_block *sb,
- }
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
-+/* fscache.c */
-+#ifdef CONFIG_EROFS_FS_ONDEMAND
-+int erofs_fscache_register_fs(struct super_block *sb);
-+void erofs_fscache_unregister_fs(struct super_block *sb);
-+#else
-+static inline int erofs_fscache_register_fs(struct super_block *sb)
-+{
-+	return 0;
-+}
-+static inline void erofs_fscache_unregister_fs(struct super_block *sb) {}
-+#endif
-+
- #define EFSCORRUPTED    EUCLEAN         /* Filesystem is corrupted */
- 
- #endif	/* __EROFS_INTERNAL_H */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 724d5ff0d78c..fd8daa447237 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -602,6 +602,10 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 	if (erofs_is_fscache_mode(sb)) {
- 		sb->s_blocksize = EROFS_BLKSIZ;
- 		sb->s_blocksize_bits = LOG_BLOCK_SIZE;
-+
-+		err = erofs_fscache_register_fs(sb);
-+		if (err)
-+			return err;
- 	} else {
- 		if (!sb_set_blocksize(sb, EROFS_BLKSIZ)) {
- 			erofs_err(sb, "failed to set erofs blksize");
-@@ -768,6 +772,7 @@ static void erofs_kill_sb(struct super_block *sb)
- 
- 	erofs_free_dev_context(sbi->devs);
- 	fs_put_dax(sbi->dax_dev);
-+	erofs_fscache_unregister_fs(sb);
- 	kfree(sbi);
- 	sb->s_fs_info = NULL;
- }
 -- 
 2.27.0
 
