@@ -4,40 +4,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB7E4C433F5
-	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 04:12:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62D72C433F5
+	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 12:22:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kms6x10Y1z3bc8
-	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 14:12:41 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Kn3zc4HlQz3bcv
+	for <linux-erofs@archiver.kernel.org>; Mon, 25 Apr 2022 22:22:04 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.7;
- helo=out199-7.us.a.mail.aliyun.com; envelope-from=hongnan.li@linux.alibaba.com;
- receiver=<UNKNOWN>)
-X-Greylist: delayed 308 seconds by postgrey-1.36 at boromir;
- Mon, 25 Apr 2022 14:12:33 AEST
-Received: from out199-7.us.a.mail.aliyun.com (out199-7.us.a.mail.aliyun.com
- [47.90.199.7])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133;
+ helo=out30-133.freemail.mail.aliyun.com;
+ envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Kms6n21gRz2xm2
- for <linux-erofs@lists.ozlabs.org>; Mon, 25 Apr 2022 14:12:32 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R981e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hongnan.li@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VB6FjoQ_1650859632; 
-Received: from localhost(mailfrom:hongnan.li@linux.alibaba.com
- fp:SMTPD_---0VB6FjoQ_1650859632) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 25 Apr 2022 12:07:12 +0800
-From: Hongnan Li <hongnan.li@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org,
-	xiang@kernel.org,
-	chao@kernel.org
-Subject: [PATCH v2 resend] erofs: make filesystem exportable
-Date: Mon, 25 Apr 2022 12:07:12 +0800
-Message-Id: <20220425040712.91685-1-hongnan.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20220424130104.102365-1-hongnan.li@linux.alibaba.com>
-References: <20220424130104.102365-1-hongnan.li@linux.alibaba.com>
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Kn3zT2D2xz2yHZ
+ for <linux-erofs@lists.ozlabs.org>; Mon, 25 Apr 2022 22:21:55 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=20; SR=0; TI=SMTPD_---0VBE4bDE_1650889305; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0VBE4bDE_1650889305) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 25 Apr 2022 20:21:46 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
+ chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: [PATCH v10 01/21] cachefiles: extract write routine
+Date: Mon, 25 Apr 2022 20:21:23 +0800
+Message-Id: <20220425122143.56815-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220425122143.56815-1-jefflexu@linux.alibaba.com>
+References: <20220425122143.56815-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -51,125 +48,173 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, fannaihao@baidu.com, willy@infradead.org,
+ linux-kernel@vger.kernel.org, tianzichen@kuaishou.com,
+ joseph.qi@linux.alibaba.com, zhangjiachen.jaycee@bytedance.com,
+ linux-fsdevel@vger.kernel.org, luodaowen.backend@bytedance.com,
+ gerry@linux.alibaba.com, torvalds@linux-foundation.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Implement export operations in order to make EROFS support accessing
-inodes with filehandles so that it can be exported via NFS and used
-by overlayfs.
+Extract the generic routine of writing data to cache files, and make it
+generally available.
 
-Without this patch, 'exportfs -rv' will report:
-exportfs: /root/erofs_mp does not support NFS export
+This will be used by the following patch implementing on-demand read
+mode. Since it's called inside CacheFiles module, make the interface
+generic and unrelated to netfs_cache_resources.
 
-Also tested with unionmount-testsuite and the testcase below passes now:
-./run --ov --erofs --verify hard-link
+It is worth noting that, ki->inval_counter is not initialized after
+this cleanup. It shall not make any visible difference, since
+inval_counter is no longer used in the write completion routine, i.e.
+cachefiles_write_complete().
 
-For more details about the testcase, see:
-https://github.com/amir73il/unionmount-testsuite/pull/6
-
-Signed-off-by: Hongnan Li <hongnan.li@linux.alibaba.com>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Acked-by: David Howells <dhowells@redhat.com>
 ---
- fs/erofs/internal.h |  2 +-
- fs/erofs/namei.c    |  5 ++---
- fs/erofs/super.c    | 40 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+), 4 deletions(-)
+ fs/cachefiles/internal.h | 10 +++++++
+ fs/cachefiles/io.c       | 61 +++++++++++++++++++++++-----------------
+ 2 files changed, 45 insertions(+), 26 deletions(-)
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 5298c4ee277d..12c65f647324 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -509,7 +509,7 @@ int erofs_getattr(struct user_namespace *mnt_userns, const struct path *path,
- /* namei.c */
- extern const struct inode_operations erofs_dir_iops;
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index c793d33b0224..e80673d0ab97 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -201,6 +201,16 @@ extern void cachefiles_put_object(struct cachefiles_object *object,
+  */
+ extern bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
+ 				       enum fscache_want_state want_state);
++extern int __cachefiles_prepare_write(struct cachefiles_object *object,
++				      struct file *file,
++				      loff_t *_start, size_t *_len,
++				      bool no_space_allocated_yet);
++extern int __cachefiles_write(struct cachefiles_object *object,
++			      struct file *file,
++			      loff_t start_pos,
++			      struct iov_iter *iter,
++			      netfs_io_terminated_t term_func,
++			      void *term_func_priv);
  
--int erofs_namei(struct inode *dir, struct qstr *name,
-+int erofs_namei(struct inode *dir, const struct qstr *name,
- 		erofs_nid_t *nid, unsigned int *d_type);
+ /*
+  * key.c
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index 9dc81e781f2b..50a14e8f0aac 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -277,36 +277,33 @@ static void cachefiles_write_complete(struct kiocb *iocb, long ret)
+ /*
+  * Initiate a write to the cache.
+  */
+-static int cachefiles_write(struct netfs_cache_resources *cres,
+-			    loff_t start_pos,
+-			    struct iov_iter *iter,
+-			    netfs_io_terminated_t term_func,
+-			    void *term_func_priv)
++int __cachefiles_write(struct cachefiles_object *object,
++		       struct file *file,
++		       loff_t start_pos,
++		       struct iov_iter *iter,
++		       netfs_io_terminated_t term_func,
++		       void *term_func_priv)
+ {
+-	struct cachefiles_object *object;
+ 	struct cachefiles_cache *cache;
+ 	struct cachefiles_kiocb *ki;
+ 	struct inode *inode;
+-	struct file *file;
+ 	unsigned int old_nofs;
+-	ssize_t ret = -ENOBUFS;
++	ssize_t ret;
+ 	size_t len = iov_iter_count(iter);
  
- /* dir.c */
-diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
-index 554efa363317..fd75506799c4 100644
---- a/fs/erofs/namei.c
-+++ b/fs/erofs/namei.c
-@@ -165,9 +165,8 @@ static void *find_target_block_classic(struct erofs_buf *target,
- 	return candidate;
+-	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE))
+-		goto presubmission_error;
+ 	fscache_count_write();
+-	object = cachefiles_cres_object(cres);
+ 	cache = object->volume->cache;
+-	file = cachefiles_cres_file(cres);
+ 
+ 	_enter("%pD,%li,%llx,%zx/%llx",
+ 	       file, file_inode(file)->i_ino, start_pos, len,
+ 	       i_size_read(file_inode(file)));
+ 
+-	ret = -ENOMEM;
+ 	ki = kzalloc(sizeof(struct cachefiles_kiocb), GFP_KERNEL);
+-	if (!ki)
+-		goto presubmission_error;
++	if (!ki) {
++		if (term_func)
++			term_func(term_func_priv, -ENOMEM, false);
++		return -ENOMEM;
++	}
+ 
+ 	refcount_set(&ki->ki_refcnt, 2);
+ 	ki->iocb.ki_filp	= file;
+@@ -314,7 +311,6 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	ki->iocb.ki_flags	= IOCB_DIRECT | IOCB_WRITE;
+ 	ki->iocb.ki_ioprio	= get_current_ioprio();
+ 	ki->object		= object;
+-	ki->inval_counter	= cres->inval_counter;
+ 	ki->start		= start_pos;
+ 	ki->len			= len;
+ 	ki->term_func		= term_func;
+@@ -369,11 +365,24 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+ 	cachefiles_put_kiocb(ki);
+ 	_leave(" = %zd", ret);
+ 	return ret;
++}
+ 
+-presubmission_error:
+-	if (term_func)
+-		term_func(term_func_priv, ret, false);
+-	return ret;
++static int cachefiles_write(struct netfs_cache_resources *cres,
++			    loff_t start_pos,
++			    struct iov_iter *iter,
++			    netfs_io_terminated_t term_func,
++			    void *term_func_priv)
++{
++	if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE)) {
++		if (term_func)
++			term_func(term_func_priv, -ENOBUFS, false);
++		return -ENOBUFS;
++	}
++
++	return __cachefiles_write(cachefiles_cres_object(cres),
++				  cachefiles_cres_file(cres),
++				  start_pos, iter,
++				  term_func, term_func_priv);
  }
  
--int erofs_namei(struct inode *dir,
--		struct qstr *name,
--		erofs_nid_t *nid, unsigned int *d_type)
-+int erofs_namei(struct inode *dir, const struct qstr *name, erofs_nid_t *nid,
-+		unsigned int *d_type)
+ /*
+@@ -484,13 +493,12 @@ static enum netfs_io_source cachefiles_prepare_read(struct netfs_io_subrequest *
+ /*
+  * Prepare for a write to occur.
+  */
+-static int __cachefiles_prepare_write(struct netfs_cache_resources *cres,
+-				      loff_t *_start, size_t *_len, loff_t i_size,
+-				      bool no_space_allocated_yet)
++int __cachefiles_prepare_write(struct cachefiles_object *object,
++			       struct file *file,
++			       loff_t *_start, size_t *_len,
++			       bool no_space_allocated_yet)
  {
- 	int ndirents;
- 	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 0c4b41130c2f..1c77b7acabd0 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -13,6 +13,7 @@
- #include <linux/fs_context.h>
- #include <linux/fs_parser.h>
- #include <linux/dax.h>
-+#include <linux/exportfs.h>
- #include "xattr.h"
+-	struct cachefiles_object *object = cachefiles_cres_object(cres);
+ 	struct cachefiles_cache *cache = object->volume->cache;
+-	struct file *file = cachefiles_cres_file(cres);
+ 	loff_t start = *_start, pos;
+ 	size_t len = *_len, down;
+ 	int ret;
+@@ -577,7 +585,8 @@ static int cachefiles_prepare_write(struct netfs_cache_resources *cres,
+ 	}
  
- #define CREATE_TRACE_POINTS
-@@ -577,6 +578,44 @@ static int erofs_init_managed_cache(struct super_block *sb)
- static int erofs_init_managed_cache(struct super_block *sb) { return 0; }
- #endif
- 
-+static struct inode *erofs_nfs_get_inode(struct super_block *sb,
-+		u64 ino, u32 generation)
-+{
-+	return erofs_iget(sb, ino, false);
-+}
-+
-+static struct dentry *erofs_fh_to_dentry(struct super_block *sb, struct fid *fid,
-+		int fh_len, int fh_type)
-+{
-+	return generic_fh_to_dentry(sb, fid, fh_len, fh_type,
-+				    erofs_nfs_get_inode);
-+}
-+
-+static struct dentry *erofs_fh_to_parent(struct super_block *sb, struct fid *fid,
-+		int fh_len, int fh_type)
-+{
-+	return generic_fh_to_parent(sb, fid, fh_len, fh_type,
-+				    erofs_nfs_get_inode);
-+}
-+
-+static struct dentry *erofs_get_parent(struct dentry *child)
-+{
-+	erofs_nid_t nid;
-+	unsigned int d_type;
-+	int err;
-+
-+	err = erofs_namei(d_inode(child), &dotdot_name, &nid, &d_type);
-+	if (err)
-+		return ERR_PTR(err);
-+	return d_obtain_alias(erofs_iget(child->d_sb, nid, d_type == FT_DIR));
-+}
-+
-+static const struct export_operations erofs_export_ops = {
-+	.fh_to_dentry = erofs_fh_to_dentry,
-+	.fh_to_parent = erofs_fh_to_parent,
-+	.get_parent = erofs_get_parent,
-+};
-+
- static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- {
- 	struct inode *inode;
-@@ -618,6 +657,7 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 	sb->s_time_gran = 1;
- 
- 	sb->s_op = &erofs_sops;
-+	sb->s_export_op = &erofs_export_ops;
- 	sb->s_xattr = erofs_xattr_handlers;
- 
- 	if (test_opt(&sbi->opt, POSIX_ACL))
+ 	cachefiles_begin_secure(cache, &saved_cred);
+-	ret = __cachefiles_prepare_write(cres, _start, _len, i_size,
++	ret = __cachefiles_prepare_write(object, cachefiles_cres_file(cres),
++					 _start, _len,
+ 					 no_space_allocated_yet);
+ 	cachefiles_end_secure(cache, saved_cred);
+ 	return ret;
 -- 
-2.19.1.6.gb485710b
+2.27.0
 
