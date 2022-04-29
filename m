@@ -4,76 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B7DAC433FE
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Apr 2022 10:26:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 686C7C433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Apr 2022 12:36:38 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KqTDS3C4jz3bl5
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Apr 2022 20:26:32 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=k34t64cr;
-	dkim-atps=neutral
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KqX6X69Mwz3bdK
+	for <linux-erofs@archiver.kernel.org>; Fri, 29 Apr 2022 22:36:36 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::102c;
- helo=mail-pj1-x102c.google.com; envelope-from=yinxin.x@bytedance.com;
- receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org; dkim=pass (2048-bit key;
- unprotected) header.d=bytedance-com.20210112.gappssmtp.com
- header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=k34t64cr; dkim-atps=neutral
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com
- [IPv6:2607:f8b0:4864:20::102c])
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43;
+ helo=out30-43.freemail.mail.aliyun.com;
+ envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KqTDD1f2xz2ybB
- for <linux-erofs@lists.ozlabs.org>; Fri, 29 Apr 2022 20:26:17 +1000 (AEST)
-Received: by mail-pj1-x102c.google.com with SMTP id
- w5-20020a17090aaf8500b001d74c754128so10176011pjq.0
- for <linux-erofs@lists.ozlabs.org>; Fri, 29 Apr 2022 03:26:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=R9vQyV3VXopoorldZBhqjQOAWXe3vDxv13+Q7J/GRjI=;
- b=k34t64cr0M1Pd5rgryr65LjFpeQq9cxLmOP8dt0bLLIiDZpB/xS5ywbHML+rq9KFP8
- qJ5A+kupDtJAPClN2y/KVp/wmfyCXAiD8zycTA1LxjqAnGio7h27B2W7G/3ZJesFTrjM
- EnDPcOoc3gcd8Vqn4zEj8OSqB8ALRpoQSaB5/Ys78FUGef/K5+WjSe3oDpII+HyKYsmX
- GmwRDT5ozDLcDIIstFsM15Ngm6eRMbVIW4bONfEkNlRaRaI8q/KMv3b1A7OAC+Aw2qaK
- 1Aix8Y6hUaMSXiQuUiyH2cLQXQlMjf/OdcwNQJvLgA7oVsXVG9SWzrPU2sZPpa9XDWSv
- Jotw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=R9vQyV3VXopoorldZBhqjQOAWXe3vDxv13+Q7J/GRjI=;
- b=2BNTUexhpOo+W87PGY1I/+/Q1f1vh+iGrLRcwvb7HvVusfNWv86aBh31/kd0HtSAxW
- NtW4Uek8Y5XIGKOk3JuRmFBxzl4m3sg5ELL2vRU1DPpE7lJ/bRAzLyb6wcdtCZJiKhat
- f1oJmuIRXNLbAWiUPTIQgx59qaw9wGpVrKUXZP04/3lWHeSFdUdfe6ZeQJJYCVbiZfcI
- wMb1S2pzG5pwmT2Jef6scbwEstJU+oR7IEuMwwiwFSl53u35EeonMl2Xn0o7YVBBejJa
- MtD+AWwcLEIHRLmoARYBrSkoHvBmFXn2psUr2H/x5faoUTnYNmGOhQ/a47JkztnpKwT6
- BeYg==
-X-Gm-Message-State: AOAM532c0BVQrH5FrcKa5EBdpJ63j/QI9fO20+17a6ts2jkhG7QywV5l
- p0iRCiF1xQxPbjSTDTnkWhL7/A==
-X-Google-Smtp-Source: ABdhPJy6M+E3y/ei0uS1zFcgKhBsp3sk6J3D0I/zhjzkWgMr5WPhz+ZNkg/j9ZjgM0cUVu0Yt3heaw==
-X-Received: by 2002:a17:90b:1c01:b0:1d2:add6:805f with SMTP id
- oc1-20020a17090b1c0100b001d2add6805fmr3086211pjb.29.1651227973166; 
- Fri, 29 Apr 2022 03:26:13 -0700 (PDT)
-Received: from yinxin.bytedance.net ([139.177.225.228])
- by smtp.gmail.com with ESMTPSA id
- l5-20020a63ea45000000b003c1b2bea056sm1042659pgk.84.2022.04.29.03.26.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Apr 2022 03:26:12 -0700 (PDT)
-From: Xin Yin <yinxin.x@bytedance.com>
-To: jefflexu@linux.alibaba.com,
-	xiang@kernel.org,
-	dhowells@redhat.com
-Subject: [RFC PATCH 0/1] erofs: change to use asynchronous io for fscache
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KqX6Q01NKz2xrc
+ for <linux-erofs@lists.ozlabs.org>; Fri, 29 Apr 2022 22:36:27 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=9; SR=0; TI=SMTPD_---0VBi7oKH_1651235776; 
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com
+ fp:SMTPD_---0VBi7oKH_1651235776) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 29 Apr 2022 20:36:18 +0800
+Date: Fri, 29 Apr 2022 20:36:16 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: Xin Yin <yinxin.x@bytedance.com>
+Subject: Re: [RFC PATCH 0/1] erofs: change to use asynchronous io for fscache
  readahead
-Date: Fri, 29 Apr 2022 07:38:48 +0800
-Message-Id: <20220428233849.321495-1-yinxin.x@bytedance.com>
-X-Mailer: git-send-email 2.25.1
+Message-ID: <YmvbwKSdiCosPhAV@B-P7TQMD6M-0146.local>
+Mail-Followup-To: Xin Yin <yinxin.x@bytedance.com>,
+ jefflexu@linux.alibaba.com, xiang@kernel.org, dhowells@redhat.com,
+ linux-erofs@lists.ozlabs.org, linux-cachefs@redhat.com,
+ linux-fsdevel@vger.kernel.org, boyu.mt@taobao.com,
+ lizefan.x@bytedance.com
+References: <20220428233849.321495-1-yinxin.x@bytedance.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220428233849.321495-1-yinxin.x@bytedance.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -85,45 +53,69 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
- linux-erofs@lists.ozlabs.org, Xin Yin <yinxin.x@bytedance.com>
+Cc: boyu.mt@taobao.com, dhowells@redhat.com, linux-fsdevel@vger.kernel.org,
+ linux-cachefs@redhat.com, lizefan.x@bytedance.com,
+ linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Jeffle & Xiang
+Hi Xin,
 
-I have tested your fscache,erofs: fscache-based on-demand read semantics 
-v9 patches sets https://www.spinics.net/lists/linux-fsdevel/msg216178.html.
-For now , it works fine with the nydus image-service. After the image data 
-is fully loaded to local storage, it does have great IO performance gain 
-compared with nydus V5 which is based on fuse.
+On Fri, Apr 29, 2022 at 07:38:48AM +0800, Xin Yin wrote:
+> Hi Jeffle & Xiang
+> 
+> I have tested your fscache,erofs: fscache-based on-demand read semantics 
+> v9 patches sets https://www.spinics.net/lists/linux-fsdevel/msg216178.html.
+> For now , it works fine with the nydus image-service. After the image data 
+> is fully loaded to local storage, it does have great IO performance gain 
+> compared with nydus V5 which is based on fuse.
 
-For 4K random read , fscache-based erofs can get the same performance with 
-the original local filesystem. But I still saw a performance drop in the 4K 
-sequential read case. And I found the root cause is in erofs_fscache_readahead() 
-we use synchronous IO , which may stall the readahead pipelining.
+Yeah, thanks for your interest and efforts. Actually I'm pretty sure you
+could observe CPU, bandwidth and latency improvement on the dense deployed
+scenarios since our goal is to provide native performance when the data is
+ready, as well as image on-demand read, flexible cache data management to
+end users.
 
-I have tried to change to use asynchronous io during erofs fscache readahead 
-procedure, as what netfs did. Then I saw a great performance gain.
+> 
+> For 4K random read , fscache-based erofs can get the same performance with 
+> the original local filesystem. But I still saw a performance drop in the 4K 
+> sequential read case. And I found the root cause is in erofs_fscache_readahead() 
+> we use synchronous IO , which may stall the readahead pipelining.
+> 
 
-Here are my test steps and results:
-- generate nydus v6 format image , in which stored a large file for IO test.
-- launch nydus image-service , and  make image data fully loaded to local storage (ext4).
-- run fio with below cmd.
-fio -ioengine=psync -bs=4k -size=5G -direct=0 -thread -rw=read -filename=./test_image  -name="test" -numjobs=1 -iodepth=16 -runtime=60
+Yeah, that is a known TODO, in principle, when such part of data is locally
+available, it will have the similar performance (bandwidth, latency, CPU
+loading) as loop device. But we don't implement asynchronous I/O for now,
+since we need to make the functionality work first, so thanks for your
+patch addressing this.
 
-v9 patches: 202654 KB/s
-v9 patches + async readahead patch: 407213 KB/s
-ext4: 439912 KB/s
+> I have tried to change to use asynchronous io during erofs fscache readahead 
+> procedure, as what netfs did. Then I saw a great performance gain.
+> 
+> Here are my test steps and results:
+> - generate nydus v6 format image , in which stored a large file for IO test.
+> - launch nydus image-service , and  make image data fully loaded to local storage (ext4).
+> - run fio with below cmd.
+> fio -ioengine=psync -bs=4k -size=5G -direct=0 -thread -rw=read -filename=./test_image  -name="test" -numjobs=1 -iodepth=16 -runtime=60
 
+Yeah, although I can see what you mean (to test buffered I/O), the
+argument is still somewhat messy (maybe because we don't support
+fscache-based direct I/O for now. That is another TODO but with
+low priority.)
 
-Xin Yin (1):
-  erofs: change to use asynchronous io for fscache readahead
+> 
+> v9 patches: 202654 KB/s
+> v9 patches + async readahead patch: 407213 KB/s
+> ext4: 439912 KB/s
 
- fs/erofs/fscache.c | 256 ++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 245 insertions(+), 11 deletions(-)
+May I ask if such ext4 image is through a loop device? If not, that is
+reasonable. Anyway, it's not a big problem for now, we could optimize
+it later since it should be exactly the same finally.
 
--- 
-2.11.0
+And I will drop a message to Jeffle for further review since we're
+closing to another 5-day national holiday.
+
+Thanks again!
+Gao Xiang
 
