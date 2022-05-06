@@ -4,36 +4,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8469AC433F5
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 May 2022 19:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25BA9C433FE
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 May 2022 19:46:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Kw1Kd6xg3z3c7D
-	for <linux-erofs@archiver.kernel.org>; Sat,  7 May 2022 05:46:45 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Kw1Kg437kz3c9w
+	for <linux-erofs@archiver.kernel.org>; Sat,  7 May 2022 05:46:47 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
- helo=out30-44.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.42;
+ helo=out30-42.freemail.mail.aliyun.com;
  envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4Kw1KW4WZFz3byX
- for <linux-erofs@lists.ozlabs.org>; Sat,  7 May 2022 05:46:37 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=hsiangkao@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VCTGriZ_1651866373; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4Kw1KW4xB6z3byY
+ for <linux-erofs@lists.ozlabs.org>; Sat,  7 May 2022 05:46:39 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=hsiangkao@linux.alibaba.com;
+ NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VCTGrli_1651866393; 
 Received: from
  e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com
- fp:SMTPD_---0VCTGriZ_1651866373) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 07 May 2022 03:46:31 +0800
+ fp:SMTPD_---0VCTGrli_1651866393) by smtp.aliyun-inc.com(127.0.0.1);
+ Sat, 07 May 2022 03:46:34 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org,
 	Chao Yu <chao@kernel.org>
-Subject: [PATCH 1/3] erofs: get rid of erofs_prepare_dio() helper
-Date: Sat,  7 May 2022 03:46:10 +0800
-Message-Id: <20220506194612.117120-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 3/3] erofs: refine on-disk definition comments
+Date: Sat,  7 May 2022 03:46:12 +0800
+Message-Id: <20220506194612.117120-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20220506194612.117120-1-hsiangkao@linux.alibaba.com>
+References: <20220506194612.117120-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -53,75 +55,106 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Fold in erofs_prepare_dio() and it seems much clearer.
+Fix some outdated comments and typos, hopefully helpful.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/data.c | 40 +++++++++++++++-------------------------
- 1 file changed, 15 insertions(+), 25 deletions(-)
+ fs/erofs/erofs_fs.h | 37 +++++++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 18 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index bb9c1fd48c19..fa9fdc6a5966 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -366,42 +366,32 @@ static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
- 	return iomap_bmap(mapping, block, &erofs_iomap_ops);
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index 1238ca104f09..000fa2738974 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -79,15 +79,15 @@ struct erofs_super_block {
+ 
+ /*
+  * erofs inode datalayout (i_format in on-disk inode):
+- * 0 - inode plain without inline data A:
++ * 0 - uncompressed flat inode without tail-packing inline data:
+  * inode, [xattrs], ... | ... | no-holed data
+- * 1 - inode VLE compression B (legacy):
+- * inode, [xattrs], extents ... | ...
+- * 2 - inode plain with inline data C:
+- * inode, [xattrs], last_inline_data, ... | ... | no-holed data
+- * 3 - inode compression D:
++ * 1 - compressed inode with non-compact indexes:
++ * inode, [xattrs], [map_header], extents ... | ...
++ * 2 - uncompressed flat inode with tail-packing inline data:
++ * inode, [xattrs], tailpacking data, ... | ... | no-holed data
++ * 3 - compressed inode with compact indexes:
+  * inode, [xattrs], map_header, extents ... | ...
+- * 4 - inode chunk-based E:
++ * 4 - chunk-based inode with (optional) multi-device support:
+  * inode, [xattrs], chunk indexes ... | ...
+  * 5~7 - reserved
+  */
+@@ -106,7 +106,7 @@ static inline bool erofs_inode_is_data_compressed(unsigned int datamode)
+ 		datamode == EROFS_INODE_FLAT_COMPRESSION_LEGACY;
  }
  
--static int erofs_prepare_dio(struct kiocb *iocb, struct iov_iter *to)
-+static ssize_t erofs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
- {
- 	struct inode *inode = file_inode(iocb->ki_filp);
--	loff_t align = iocb->ki_pos | iov_iter_count(to) |
--		iov_iter_alignment(to);
--	struct block_device *bdev = inode->i_sb->s_bdev;
--	unsigned int blksize_mask;
--
--	if (bdev)
--		blksize_mask = (1 << ilog2(bdev_logical_block_size(bdev))) - 1;
--	else
--		blksize_mask = (1 << inode->i_blkbits) - 1;
--
--	if (align & blksize_mask)
--		return -EINVAL;
--	return 0;
--}
+-/* bit definitions of inode i_advise */
++/* bit definitions of inode i_format */
+ #define EROFS_I_VERSION_BITS            1
+ #define EROFS_I_DATALAYOUT_BITS         3
  
--static ssize_t erofs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
--{
- 	/* no need taking (shared) inode lock since it's a ro filesystem */
- 	if (!iov_iter_count(to))
- 		return 0;
+@@ -140,8 +140,9 @@ struct erofs_inode_compact {
+ 	__le32 i_size;
+ 	__le32 i_reserved;
+ 	union {
+-		/* file total compressed blocks for data mapping 1 */
++		/* total compressed blocks for compressed inodes */
+ 		__le32 compressed_blocks;
++		/* block address for uncompressed flat inodes */
+ 		__le32 raw_blkaddr;
  
- #ifdef CONFIG_FS_DAX
--	if (IS_DAX(iocb->ki_filp->f_mapping->host))
-+	if (IS_DAX(inode))
- 		return dax_iomap_rw(iocb, to, &erofs_iomap_ops);
- #endif
- 	if (iocb->ki_flags & IOCB_DIRECT) {
--		int err = erofs_prepare_dio(iocb, to);
--
--		if (!err)
--			return iomap_dio_rw(iocb, to, &erofs_iomap_ops,
--					    NULL, 0, 0);
--		if (err < 0)
--			return err;
-+		loff_t align = iocb->ki_pos | iov_iter_count(to) |
-+			iov_iter_alignment(to);
-+		struct block_device *bdev = inode->i_sb->s_bdev;
-+		unsigned int blksize_mask;
-+
-+		if (bdev)
-+			blksize_mask = bdev_logical_block_size(bdev) - 1;
-+		else
-+			blksize_mask = (1 << inode->i_blkbits) - 1;
-+
-+		if (align & blksize_mask)
-+			return -EINVAL;
-+		return iomap_dio_rw(iocb, to, &erofs_iomap_ops, NULL, 0, 0);
- 	}
- 	return filemap_read(iocb, to, 0);
- }
+ 		/* for device files, used to indicate old/new device # */
+@@ -156,9 +157,9 @@ struct erofs_inode_compact {
+ 	__le32 i_reserved2;
+ };
+ 
+-/* 32 bytes on-disk inode */
++/* 32-byte on-disk inode */
+ #define EROFS_INODE_LAYOUT_COMPACT	0
+-/* 64 bytes on-disk inode */
++/* 64-byte on-disk inode */
+ #define EROFS_INODE_LAYOUT_EXTENDED	1
+ 
+ /* 64-byte complete form of an ondisk inode */
+@@ -171,8 +172,9 @@ struct erofs_inode_extended {
+ 	__le16 i_reserved;
+ 	__le64 i_size;
+ 	union {
+-		/* file total compressed blocks for data mapping 1 */
++		/* total compressed blocks for compressed inodes */
+ 		__le32 compressed_blocks;
++		/* block address for uncompressed flat inodes */
+ 		__le32 raw_blkaddr;
+ 
+ 		/* for device files, used to indicate old/new device # */
+@@ -365,17 +367,16 @@ enum {
+ 
+ struct z_erofs_vle_decompressed_index {
+ 	__le16 di_advise;
+-	/* where to decompress in the head cluster */
++	/* where to decompress in the head lcluster */
+ 	__le16 di_clusterofs;
+ 
+ 	union {
+-		/* for the head cluster */
++		/* for the HEAD lclusters */
+ 		__le32 blkaddr;
+ 		/*
+-		 * for the rest clusters
+-		 * eg. for 4k page-sized cluster, maximum 4K*64k = 256M)
+-		 * [0] - pointing to the head cluster
+-		 * [1] - pointing to the tail cluster
++		 * for the NONHEAD lclusters
++		 * [0] - distance to its HEAD lcluster
++		 * [1] - distance to the next HEAD lcluster
+ 		 */
+ 		__le16 delta[2];
+ 	} di_u;
 -- 
 2.24.4
 
