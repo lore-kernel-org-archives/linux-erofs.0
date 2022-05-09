@@ -4,35 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BC400C433F5
-	for <linux-erofs@archiver.kernel.org>; Mon,  9 May 2022 07:40:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70F8CC433EF
+	for <linux-erofs@archiver.kernel.org>; Mon,  9 May 2022 07:40:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4KxY4j2dCRz3bxM
-	for <linux-erofs@archiver.kernel.org>; Mon,  9 May 2022 17:40:53 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4KxY4k6zW1z3cGD
+	for <linux-erofs@archiver.kernel.org>; Mon,  9 May 2022 17:40:54 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized)
- smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44;
- helo=out30-44.freemail.mail.aliyun.com;
+ smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45;
+ helo=out30-45.freemail.mail.aliyun.com;
  envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by lists.ozlabs.org (Postfix) with ESMTPS id 4KxY4b0BC5z3bl5
- for <linux-erofs@lists.ozlabs.org>; Mon,  9 May 2022 17:40:46 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=20; SR=0; TI=SMTPD_---0VCfaIjH_1652082033; 
+ by lists.ozlabs.org (Postfix) with ESMTPS id 4KxY4c428fz3cBR
+ for <linux-erofs@lists.ozlabs.org>; Mon,  9 May 2022 17:40:48 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R331e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=20; SR=0; TI=SMTPD_---0VCggc9B_1652082039; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0VCfaIjH_1652082033) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 09 May 2022 15:40:34 +0800
+ fp:SMTPD_---0VCggc9B_1652082039) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 09 May 2022 15:40:40 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com, linux-cachefs@redhat.com, xiang@kernel.org,
  chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH v11 03/22] cachefiles: unbind cachefiles gracefully in
- on-demand mode
-Date: Mon,  9 May 2022 15:40:09 +0800
-Message-Id: <20220509074028.74954-4-jefflexu@linux.alibaba.com>
+Subject: [PATCH v11 07/22] cachefiles: add tracepoints for on-demand read mode
+Date: Mon,  9 May 2022 15:40:13 +0800
+Message-Id: <20220509074028.74954-8-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220509074028.74954-1-jefflexu@linux.alibaba.com>
 References: <20220509074028.74954-1-jefflexu@linux.alibaba.com>
@@ -58,119 +57,267 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs"
  <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add a refcount to avoid the deadlock in on-demand read mode. The
-on-demand read mode will pin the corresponding cachefiles object for
-each anonymous fd. The cachefiles object is unpinned when the anonymous
-fd gets closed. When the user daemon exits and the fd of
-"/dev/cachefiles" device node gets closed, it will wait for all
-cahcefiles objects getting withdrawn. Then if there's any anonymous fd
-getting closed after the fd of the device node, the user daemon will
-hang forever, waiting for all objects getting withdrawn.
+Add tracepoints for on-demand read mode. Currently following tracepoints
+are added:
 
-To fix this, add a refcount indicating if there's any object pinned by
-anonymous fds. The cachefiles cache gets unbound and withdrawn when the
-refcount is decreased to 0. It won't change the behaviour of the
-original mode, in which case the cachefiles cache gets unbound and
-withdrawn as long as the fd of the device node gets closed.
+	OPEN request / COPEN reply
+	CLOSE request
+	READ request / CREAD reply
+	write through anonymous fd
+	release of anonymous fd
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Acked-by: David Howells <dhowells@redhat.com>
 ---
- fs/cachefiles/daemon.c   | 19 ++++++++++++++++---
- fs/cachefiles/internal.h |  3 +++
- fs/cachefiles/ondemand.c |  3 +++
- 3 files changed, 22 insertions(+), 3 deletions(-)
+ fs/cachefiles/ondemand.c          |   7 ++
+ include/trace/events/cachefiles.h | 174 ++++++++++++++++++++++++++++++
+ 2 files changed, 181 insertions(+)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index d5417da7f792..5b1d0642c749 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -111,6 +111,7 @@ static int cachefiles_daemon_open(struct inode *inode, struct file *file)
- 	INIT_LIST_HEAD(&cache->volumes);
- 	INIT_LIST_HEAD(&cache->object_list);
- 	spin_lock_init(&cache->object_list_lock);
-+	refcount_set(&cache->unbind_pincount, 1);
- 	xa_init_flags(&cache->reqs, XA_FLAGS_ALLOC);
- 	xa_init_flags(&cache->ondemand_ids, XA_FLAGS_ALLOC1);
- 
-@@ -164,6 +165,20 @@ static void cachefiles_flush_reqs(struct cachefiles_cache *cache)
- 	xa_destroy(&cache->ondemand_ids);
- }
- 
-+void cachefiles_put_unbind_pincount(struct cachefiles_cache *cache)
-+{
-+	if (refcount_dec_and_test(&cache->unbind_pincount)) {
-+		cachefiles_daemon_unbind(cache);
-+		cachefiles_open = 0;
-+		kfree(cache);
-+	}
-+}
-+
-+void cachefiles_get_unbind_pincount(struct cachefiles_cache *cache)
-+{
-+	refcount_inc(&cache->unbind_pincount);
-+}
-+
- /*
-  * Release a cache.
-  */
-@@ -179,14 +194,12 @@ static int cachefiles_daemon_release(struct inode *inode, struct file *file)
- 
- 	if (cachefiles_in_ondemand_mode(cache))
- 		cachefiles_flush_reqs(cache);
--	cachefiles_daemon_unbind(cache);
- 
- 	/* clean up the control file interface */
- 	cache->cachefilesd = NULL;
- 	file->private_data = NULL;
--	cachefiles_open = 0;
- 
--	kfree(cache);
-+	cachefiles_put_unbind_pincount(cache);
- 
- 	_leave("");
- 	return 0;
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index 4f5150a96849..e5c612888f84 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -109,6 +109,7 @@ struct cachefiles_cache {
- 	char				*rootdirname;	/* name of cache root directory */
- 	char				*secctx;	/* LSM security context */
- 	char				*tag;		/* cache binding tag */
-+	refcount_t			unbind_pincount;/* refcount to do daemon unbind */
- 	struct xarray			reqs;		/* xarray of pending on-demand requests */
- 	struct xarray			ondemand_ids;	/* xarray for ondemand_id allocation */
- 	u32				ondemand_id_next;
-@@ -171,6 +172,8 @@ extern int cachefiles_has_space(struct cachefiles_cache *cache,
-  * daemon.c
-  */
- extern const struct file_operations cachefiles_daemon_fops;
-+extern void cachefiles_get_unbind_pincount(struct cachefiles_cache *cache);
-+extern void cachefiles_put_unbind_pincount(struct cachefiles_cache *cache);
- 
- /*
-  * error_inject.c
 diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index 64fc312b16d3..7946ee6c40be 100644
+index 3470d4e8f0cb..a41ae6efc545 100644
 --- a/fs/cachefiles/ondemand.c
 +++ b/fs/cachefiles/ondemand.c
-@@ -14,6 +14,7 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
- 	object->ondemand_id = CACHEFILES_ONDEMAND_ID_CLOSED;
+@@ -30,6 +30,7 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
+ 	xa_unlock(&cache->reqs);
+ 
  	xa_erase(&cache->ondemand_ids, object_id);
++	trace_cachefiles_ondemand_fd_release(object, object_id);
  	cachefiles_put_object(object, cachefiles_obj_put_ondemand_fd);
-+	cachefiles_put_unbind_pincount(cache);
+ 	cachefiles_put_unbind_pincount(cache);
+ 	return 0;
+@@ -55,6 +56,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	trace_cachefiles_ondemand_fd_write(object, file_inode(file), pos, len);
+ 	ret = __cachefiles_write(object, file, pos, iter, NULL, NULL);
+ 	if (!ret)
+ 		ret = len;
+@@ -93,6 +95,7 @@ static long cachefiles_ondemand_fd_ioctl(struct file *filp, unsigned int ioctl,
+ 	if (!req)
+ 		return -EINVAL;
+ 
++	trace_cachefiles_ondemand_cread(object, id);
+ 	complete(&req->done);
  	return 0;
  }
+@@ -166,6 +169,7 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 		clear_bit(FSCACHE_COOKIE_NO_DATA_TO_READ, &cookie->flags);
+ 	else
+ 		set_bit(FSCACHE_COOKIE_NO_DATA_TO_READ, &cookie->flags);
++	trace_cachefiles_ondemand_copen(req->object, id, size);
  
-@@ -169,6 +170,8 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- 	load->fd = fd;
- 	req->msg.object_id = object_id;
+ out:
+ 	complete(&req->done);
+@@ -213,6 +217,7 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
  	object->ondemand_id = object_id;
-+
-+	cachefiles_get_unbind_pincount(cache);
+ 
+ 	cachefiles_get_unbind_pincount(cache);
++	trace_cachefiles_ondemand_open(object, &req->msg, load);
  	return 0;
  
  err_put_fd:
+@@ -426,6 +431,7 @@ static int cachefiles_ondemand_init_close_req(struct cachefiles_req *req,
+ 		return -ENOENT;
+ 
+ 	req->msg.object_id = object_id;
++	trace_cachefiles_ondemand_close(object, &req->msg);
+ 	return 0;
+ }
+ 
+@@ -452,6 +458,7 @@ static int cachefiles_ondemand_init_read_req(struct cachefiles_req *req,
+ 	req->msg.object_id = object_id;
+ 	load->off = read_ctx->off;
+ 	load->len = read_ctx->len;
++	trace_cachefiles_ondemand_read(object, &req->msg, load);
+ 	return 0;
+ }
+ 
+diff --git a/include/trace/events/cachefiles.h b/include/trace/events/cachefiles.h
+index 93df9391bd7f..d8d4d73fe7b6 100644
+--- a/include/trace/events/cachefiles.h
++++ b/include/trace/events/cachefiles.h
+@@ -673,6 +673,180 @@ TRACE_EVENT(cachefiles_io_error,
+ 		      __entry->error)
+ 	    );
+ 
++TRACE_EVENT(cachefiles_ondemand_open,
++	    TP_PROTO(struct cachefiles_object *obj, struct cachefiles_msg *msg,
++		     struct cachefiles_open *load),
++
++	    TP_ARGS(obj, msg, load),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj		)
++		    __field(unsigned int,	msg_id		)
++		    __field(unsigned int,	object_id	)
++		    __field(unsigned int,	fd		)
++		    __field(unsigned int,	flags		)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->msg_id	= msg->msg_id;
++		    __entry->object_id	= msg->object_id;
++		    __entry->fd		= load->fd;
++		    __entry->flags	= load->flags;
++			   ),
++
++	    TP_printk("o=%08x mid=%x oid=%x fd=%d f=%x",
++		      __entry->obj,
++		      __entry->msg_id,
++		      __entry->object_id,
++		      __entry->fd,
++		      __entry->flags)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_copen,
++	    TP_PROTO(struct cachefiles_object *obj, unsigned int msg_id,
++		     long len),
++
++	    TP_ARGS(obj, msg_id, len),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj	)
++		    __field(unsigned int,	msg_id	)
++		    __field(long,		len	)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->msg_id	= msg_id;
++		    __entry->len	= len;
++			   ),
++
++	    TP_printk("o=%08x mid=%x l=%lx",
++		      __entry->obj,
++		      __entry->msg_id,
++		      __entry->len)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_close,
++	    TP_PROTO(struct cachefiles_object *obj, struct cachefiles_msg *msg),
++
++	    TP_ARGS(obj, msg),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj		)
++		    __field(unsigned int,	msg_id		)
++		    __field(unsigned int,	object_id	)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->msg_id	= msg->msg_id;
++		    __entry->object_id	= msg->object_id;
++			   ),
++
++	    TP_printk("o=%08x mid=%x oid=%x",
++		      __entry->obj,
++		      __entry->msg_id,
++		      __entry->object_id)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_read,
++	    TP_PROTO(struct cachefiles_object *obj, struct cachefiles_msg *msg,
++		     struct cachefiles_read *load),
++
++	    TP_ARGS(obj, msg, load),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj		)
++		    __field(unsigned int,	msg_id		)
++		    __field(unsigned int,	object_id	)
++		    __field(loff_t,		start		)
++		    __field(size_t,		len		)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->msg_id	= msg->msg_id;
++		    __entry->object_id	= msg->object_id;
++		    __entry->start	= load->off;
++		    __entry->len	= load->len;
++			   ),
++
++	    TP_printk("o=%08x mid=%x oid=%x s=%llx l=%zx",
++		      __entry->obj,
++		      __entry->msg_id,
++		      __entry->object_id,
++		      __entry->start,
++		      __entry->len)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_cread,
++	    TP_PROTO(struct cachefiles_object *obj, unsigned int msg_id),
++
++	    TP_ARGS(obj, msg_id),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj	)
++		    __field(unsigned int,	msg_id	)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->msg_id	= msg_id;
++			   ),
++
++	    TP_printk("o=%08x mid=%x",
++		      __entry->obj,
++		      __entry->msg_id)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_fd_write,
++	    TP_PROTO(struct cachefiles_object *obj, struct inode *backer,
++		     loff_t start, size_t len),
++
++	    TP_ARGS(obj, backer, start, len),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj	)
++		    __field(unsigned int,	backer	)
++		    __field(loff_t,		start	)
++		    __field(size_t,		len	)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->backer	= backer->i_ino;
++		    __entry->start	= start;
++		    __entry->len	= len;
++			   ),
++
++	    TP_printk("o=%08x iB=%x s=%llx l=%zx",
++		      __entry->obj,
++		      __entry->backer,
++		      __entry->start,
++		      __entry->len)
++	    );
++
++TRACE_EVENT(cachefiles_ondemand_fd_release,
++	    TP_PROTO(struct cachefiles_object *obj, int object_id),
++
++	    TP_ARGS(obj, object_id),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	obj		)
++		    __field(unsigned int,	object_id	)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->obj	= obj ? obj->debug_id : 0;
++		    __entry->object_id	= object_id;
++			   ),
++
++	    TP_printk("o=%08x oid=%x",
++		      __entry->obj,
++		      __entry->object_id)
++	    );
++
+ #endif /* _TRACE_CACHEFILES_H */
+ 
+ /* This part must be outside protection */
 -- 
 2.27.0
 
