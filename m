@@ -4,34 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41872C43334
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Jun 2022 09:03:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12375C433EF
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Jun 2022 19:57:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LKFP93SdMz3byk
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Jun 2022 19:03:25 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LKWvW5xhkz3c00
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Jun 2022 05:57:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XdfPjCaS;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aUk9DmeV;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XdfPjCaS;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aUk9DmeV;
+	dkim-atps=neutral
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LKFP303vZz304m
-	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Jun 2022 19:03:15 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VFyY9Pu_1654851787;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VFyY9Pu_1654851787)
-          by smtp.aliyun-inc.com;
-          Fri, 10 Jun 2022 17:03:08 +0800
-Date: Fri, 10 Jun 2022 17:03:06 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Jia Zhu <zhujia.zj@bytedance.com>, David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] cachefiles: narrow the scope of flushed requests when
- releasing fd
-Message-ID: <YqMIyn7TgV1mVkiR@B-P7TQMD6M-0146.local>
-References: <1a03d5de-e0cf-b23d-b12a-f46795125968@bytedance.com>
- <b62a09fc-a42c-72b5-eb42-37b52b3d529f@bytedance.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LKWvN4QyJz3btn
+	for <linux-erofs@lists.ozlabs.org>; Sat, 11 Jun 2022 05:57:03 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1654891020;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3jeCJ0CjL8hICbgbmxyJPv0Y5Yht4wCE++YK2OlK3WY=;
+	b=XdfPjCaSk2bQ139KmAQznKYjdSTt3fTWJspWqvX0/bQEeDmq9pRVo7I7gKZL9yji1yfkxP
+	/TMtYvI5l8zQ+ZoV20BqI4uu/OghiG5SF7vD3iBkjnGw7xKRSR4lHf6I0y7CsC+fXN1yX4
+	K/KPxOdGhzP7ijqi5s+f61He2rzHIR4=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1654891021;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3jeCJ0CjL8hICbgbmxyJPv0Y5Yht4wCE++YK2OlK3WY=;
+	b=aUk9DmeVFRZSpOB78Pp8rUGcbfyL6iMA+icsvTFLVT3yyV8QjRcnopZ/4qMglW253YOXNs
+	1iHbZ42om+acxv+8XNq/iBrmJ0FABF15c1n7d4SfKvOd0eYl0eXKI6bTYTq6HEcLd8J6Pq
+	PEihtQ2ZRA7vf5qPcpJObLYh8ybtYJw=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-569-M8QfIXxwP5OeAGJTwAbgMw-1; Fri, 10 Jun 2022 15:56:56 -0400
+X-MC-Unique: M8QfIXxwP5OeAGJTwAbgMw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 03FE238164CF;
+	Fri, 10 Jun 2022 19:56:56 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.62])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 5DA042166B26;
+	Fri, 10 Jun 2022 19:56:54 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+	Kingdom.
+	Registered in England and Wales under Company Registration No. 3798903
+Subject: [PATCH 1/3] afs: Fix some checker issues
+From: David Howells <dhowells@redhat.com>
+Date: Fri, 10 Jun 2022 20:56:53 +0100
+Message-ID:  <165489101362.703883.116656646897687627.stgit@warthog.procyon.org.uk>
+In-Reply-To:  <165489100590.703883.11054313979289027590.stgit@warthog.procyon.org.uk>
+References:  <165489100590.703883.11054313979289027590.stgit@warthog.procyon.org.uk>
+User-Agent: StGit/1.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <b62a09fc-a42c-72b5-eb42-37b52b3d529f@bytedance.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,52 +82,33 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-cachefs@redhat.com, linux-erofs@lists.ozlabs.org, yinxin.x@bytedance.com
+Cc: linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, linux-erofs@lists.ozlabs.org, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org, v9fs-developer@lists.sourceforge.net, ceph-devel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-afs@lists.infradead.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Jun 09, 2022 at 04:54:10PM +0800, Jia Zhu wrote:
-> 
-> When an anonymous fd is released, only flush the requests
-> associated with it, rather than all of requests in xarray.
-> 
-> Fixes: 9032b6e8589f ("cachefiles: implement on-demand read")
-> Signed-off-by: Jia Zhu <zhujia.zj@bytedance.com>
+Remove an unused global variable and make another static as reported by
+make C=1.
 
-Looks good to me, thanks for catching this!
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+---
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+ fs/afs/volume.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Hi David,
+diff --git a/fs/afs/volume.c b/fs/afs/volume.c
+index 94a3d247924b..cc665cef0abe 100644
+--- a/fs/afs/volume.c
++++ b/fs/afs/volume.c
+@@ -9,8 +9,7 @@
+ #include <linux/slab.h>
+ #include "internal.h"
+ 
+-unsigned __read_mostly afs_volume_gc_delay = 10;
+-unsigned __read_mostly afs_volume_record_life = 60 * 60;
++static unsigned __read_mostly afs_volume_record_life = 60 * 60;
+ 
+ /*
+  * Insert a volume into a cell.  If there's an existing volume record, that is
 
-Could you apply this patch to your tree? I think it'd be much better
-to have cachefiles patches via your tree as long as no code coupling..
 
-Thanks a lot!
-
-Thanks,
-Gao Xiang
-
-
-> ---
->  fs/cachefiles/ondemand.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-> index a41ae6efc545..1fee702d5529 100644
-> --- a/fs/cachefiles/ondemand.c
-> +++ b/fs/cachefiles/ondemand.c
-> @@ -21,7 +21,8 @@ static int cachefiles_ondemand_fd_release(struct inode
-> *inode,
->  	 * anon_fd.
->  	 */
->  	xas_for_each(&xas, req, ULONG_MAX) {
-> -		if (req->msg.opcode == CACHEFILES_OP_READ) {
-> +		if (req->msg.object_id == object_id &&
-> +		    req->msg.opcode == CACHEFILES_OP_READ) {
->  			req->error = -EIO;
->  			complete(&req->done);
->  			xas_store(&xas, NULL);
-> -- 
-> 2.20.1
-> 
