@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43E08C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 11:34:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D5433C43334
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 11:49:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LM8cB6Y0wz3cMr
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 21:34:34 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LM8xC2MMhz3bmD
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 21:49:19 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=GdOw7yAM;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=C2VNNnSD;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2604:1380:4601:e00::1; helo=ams.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=GdOw7yAM;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=C2VNNnSD;
 	dkim-atps=neutral
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LM8c53bBdz3blC
-	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jun 2022 21:34:29 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LM8x80qK0z2xCB
+	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jun 2022 21:49:15 +1000 (AEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by ams.source.kernel.org (Postfix) with ESMTPS id 2B89AB80D3A;
-	Mon, 13 Jun 2022 11:34:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE7FC34114;
-	Mon, 13 Jun 2022 11:34:24 +0000 (UTC)
+	by ams.source.kernel.org (Postfix) with ESMTPS id 993B3B80D3A;
+	Mon, 13 Jun 2022 11:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D887EC34114;
+	Mon, 13 Jun 2022 11:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1655120065;
+	s=korg; t=1655120951;
 	bh=ZjDVsKHFBSnws36ePAnZg275uQcp5H4PcRvFzlD2OCY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=GdOw7yAMTFxOtA1uIG2rgNiapakQfWnLMWiyHKauhP60cOEWFLhhU6YCfuehZ7/3F
-	 SEMXPUP2zht6b6B9NZ5JUOBkLujbvj8izhd3/QNwn8xvHfP6o+PN9XsSrQZDUAe3tu
-	 G+4cVlx+UfapznwBQ8Vo+Zp5V5G4MeRrM+yCMJTE=
+	b=C2VNNnSDuzssjT4v8h5W44Kbe+IzWJJ1+4cOzM4wbbZ39q5RujfIuCLloKczU12KN
+	 vEzp3thvxFLwmn0rtXp9X6gG9FT6hfQ1P1zL2PHMcZHin51ex2EQ3Imaz2lXPrqqwe
+	 fc+fTLuvUdvqx/eGxCVomjVhybqiUWBpD1J8y74k=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5.18 222/339] iov_iter: Fix iter_xarray_get_pages{,_alloc}()
-Date: Mon, 13 Jun 2022 12:10:47 +0200
-Message-Id: <20220613094933.390057932@linuxfoundation.org>
+Subject: [PATCH 5.17 195/298] iov_iter: Fix iter_xarray_get_pages{,_alloc}()
+Date: Mon, 13 Jun 2022 12:11:29 +0200
+Message-Id: <20220613094931.021071516@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
