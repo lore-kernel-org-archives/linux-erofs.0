@@ -4,71 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3BC43C433EF
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 09:19:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BA65C43334
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 11:19:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LM5cV5NqGz3c7d
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 19:19:38 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LM8HJ26y7z3c7h
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jun 2022 21:19:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGkPUOzC;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGkPUOzC;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=aUphnpHk;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGkPUOzC;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGkPUOzC;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=aUphnpHk;
 	dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LM5cP6gBCz2xn8
-	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jun 2022 19:19:32 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1655111968;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w+/GwuuQGFS111woXNsLKjQljVwtMltJeO1V2zF9Vjo=;
-	b=hGkPUOzCZMlvJ4sqDuUJIlTyxGwAbARH9361qG7qHdS8SfcqsfOWccDehqOYw68bVClzFN
-	OorKoMiIuS94w2Mv4YCdnLyHYHRg6WzxL971A1c/c/MRlPPJymTmkVJJN9a/LCSRG01nV1
-	WbUZWtwPTC7LUZdtJrGWV6mTsaw9hwM=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1655111968;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w+/GwuuQGFS111woXNsLKjQljVwtMltJeO1V2zF9Vjo=;
-	b=hGkPUOzCZMlvJ4sqDuUJIlTyxGwAbARH9361qG7qHdS8SfcqsfOWccDehqOYw68bVClzFN
-	OorKoMiIuS94w2Mv4YCdnLyHYHRg6WzxL971A1c/c/MRlPPJymTmkVJJN9a/LCSRG01nV1
-	WbUZWtwPTC7LUZdtJrGWV6mTsaw9hwM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-619-t37ddbngOHOr1NtMTjiYhg-1; Mon, 13 Jun 2022 05:19:21 -0400
-X-MC-Unique: t37ddbngOHOr1NtMTjiYhg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LM8HC5hBJz3blF
+	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jun 2022 21:19:50 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2B90A101E9BE;
-	Mon, 13 Jun 2022 09:19:21 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.62])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 201EC492CA2;
-	Mon, 13 Jun 2022 09:19:19 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <YqSQ++8UnEW0AJ2y@zeniv-ca.linux.org.uk>
-References: <YqSQ++8UnEW0AJ2y@zeniv-ca.linux.org.uk> <YqRyL2sIqQNDfky2@debian> <YqSGv6uaZzLxKfmG@zeniv-ca.linux.org.uk> <YqSMmC/UuQpXdxtR@zeniv-ca.linux.org.uk>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: mainline build failure due to 6c77676645ad ("iov_iter: Fix iter_xarray_get_pages{,_alloc}()")
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 37EE560EAE;
+	Mon, 13 Jun 2022 11:19:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2422FC34114;
+	Mon, 13 Jun 2022 11:19:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1655119186;
+	bh=VDEMdKayyI9mHvjQiuo3UP5gP86R8hGnkAqeLT6SQmc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=aUphnpHkeiwAoEJ/p8vT5D+KX5PuNdMmyVw1T+WW0YoYkAXoe5UIYO25XR/O4RCFk
+	 BOZwRoTreLZlx2xJ9Uee8lxlos9w3aqtMCDVsk32al/tAXuasg6YNqOvmA9bgnY9vP
+	 VEXuy3v+N5DK0qzYmsGcagcnkPOnSi2+1nd5wzQU=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 5.15 164/247] iov_iter: Fix iter_xarray_get_pages{,_alloc}()
+Date: Mon, 13 Jun 2022 12:11:06 +0200
+Message-Id: <20220613094927.932137292@linuxfoundation.org>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1075695.1655111958.1@warthog.procyon.org.uk>
-Date: Mon, 13 Jun 2022 10:19:18 +0100
-Message-ID: <1075696.1655111958@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,20 +58,103 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Dominique Martinet <asmadeus@codewreck.org>, linux-kernel@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, dhowells@redhat.com, linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org, devel@lists.orangefs.org, Mike Marshall <hubcap@omnibond.com>
+Cc: Sasha Levin <sashal@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dominique Martinet <asmadeus@codewreck.org>, Jeff Layton <jlayton@kernel.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-cachefs@redhat.com, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org, devel@lists.orangefs.org, Mike Marshall <hubcap@omnibond.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Al Viro <viro@zeniv.linux.org.uk> wrote:
+From: David Howells <dhowells@redhat.com>
 
-> The reason we can't overflow on multiplication there, BTW, is that we have
-> nr <= count, and count has come from weirdly open-coded
-> 	DIV_ROUND_UP(size + offset, PAGE_SIZE)
-> IMO we'd better make it explicit, so how about the following:
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+[ Upstream commit 6c77676645ad42993e0a8bdb8dafa517851a352a ]
 
-It seems reasonable.
+The maths at the end of iter_xarray_get_pages() to calculate the actual
+size doesn't work under some circumstances, such as when it's been asked to
+extract a partial single page.  Various terms of the equation cancel out
+and you end up with actual == offset.  The same issue exists in
+iter_xarray_get_pages_alloc().
 
-Reviewed-by: David Howells <dhowells@redhat.com>
+Fix these to just use min() to select the lesser amount from between the
+amount of page content transcribed into the buffer, minus the offset, and
+the size limit specified.
+
+This doesn't appear to have caused a problem yet upstream because network
+filesystems aren't getting the pages from an xarray iterator, but rather
+passing it directly to the socket, which just iterates over it.  Cachefiles
+*does* do DIO from one to/from ext4/xfs/btrfs/etc. but it always asks for
+whole pages to be written or read.
+
+Fixes: 7ff5062079ef ("iov_iter: Add ITER_XARRAY")
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Alexander Viro <viro@zeniv.linux.org.uk>
+cc: Dominique Martinet <asmadeus@codewreck.org>
+cc: Mike Marshall <hubcap@omnibond.com>
+cc: Gao Xiang <xiang@kernel.org>
+cc: linux-afs@lists.infradead.org
+cc: v9fs-developer@lists.sourceforge.net
+cc: devel@lists.orangefs.org
+cc: linux-erofs@lists.ozlabs.org
+cc: linux-cachefs@redhat.com
+cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ lib/iov_iter.c | 20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
+
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index 6d146f77601d..be07eb24ab2f 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -1436,7 +1436,7 @@ static ssize_t iter_xarray_get_pages(struct iov_iter *i,
+ {
+ 	unsigned nr, offset;
+ 	pgoff_t index, count;
+-	size_t size = maxsize, actual;
++	size_t size = maxsize;
+ 	loff_t pos;
+ 
+ 	if (!size || !maxpages)
+@@ -1463,13 +1463,7 @@ static ssize_t iter_xarray_get_pages(struct iov_iter *i,
+ 	if (nr == 0)
+ 		return 0;
+ 
+-	actual = PAGE_SIZE * nr;
+-	actual -= offset;
+-	if (nr == count && size > 0) {
+-		unsigned last_offset = (nr > 1) ? 0 : offset;
+-		actual -= PAGE_SIZE - (last_offset + size);
+-	}
+-	return actual;
++	return min(nr * PAGE_SIZE - offset, maxsize);
+ }
+ 
+ /* must be done on non-empty ITER_IOVEC one */
+@@ -1604,7 +1598,7 @@ static ssize_t iter_xarray_get_pages_alloc(struct iov_iter *i,
+ 	struct page **p;
+ 	unsigned nr, offset;
+ 	pgoff_t index, count;
+-	size_t size = maxsize, actual;
++	size_t size = maxsize;
+ 	loff_t pos;
+ 
+ 	if (!size)
+@@ -1633,13 +1627,7 @@ static ssize_t iter_xarray_get_pages_alloc(struct iov_iter *i,
+ 	if (nr == 0)
+ 		return 0;
+ 
+-	actual = PAGE_SIZE * nr;
+-	actual -= offset;
+-	if (nr == count && size > 0) {
+-		unsigned last_offset = (nr > 1) ? 0 : offset;
+-		actual -= PAGE_SIZE - (last_offset + size);
+-	}
+-	return actual;
++	return min(nr * PAGE_SIZE - offset, maxsize);
+ }
+ 
+ ssize_t iov_iter_get_pages_alloc(struct iov_iter *i,
+-- 
+2.35.1
+
+
 
