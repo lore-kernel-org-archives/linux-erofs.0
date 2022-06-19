@@ -4,62 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B58BBC43334
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jun 2022 08:01:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 211ECC433EF
+	for <linux-erofs@archiver.kernel.org>; Sun, 19 Jun 2022 00:19:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LNvkn26k3z3bl4
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jun 2022 18:01:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LQYLg1gqBz3bwQ
+	for <linux-erofs@archiver.kernel.org>; Sun, 19 Jun 2022 10:19:39 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=fulltravel.it header.i=@fulltravel.it header.a=rsa-sha256 header.s=default header.b=biT6vWdU;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=lpwSoKfT;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=ds1313.tmddedicated.eu (client-ip=107.6.142.131; helo=ds1313.tmddedicated.eu; envelope-from=fulltravel@ds1313.tmddedicated.eu; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=fulltravel.it header.i=@fulltravel.it header.a=rsa-sha256 header.s=default header.b=biT6vWdU;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=lpwSoKfT;
 	dkim-atps=neutral
-Received: from ds1313.tmddedicated.eu (ds1313.tmddedicated.eu [107.6.142.131])
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LNvkh2bwrz2xKX
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jun 2022 18:01:16 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fulltravel.it; s=default; h=Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Message-ID:Reply-To:From:Date:Subject:To:Sender:Cc:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=tlcpU5TAFmFJNCnTSU5BiUS9jFDckiaSo9ZzQWoN/sE=; b=biT6vWdUycM7iHCN+jM0u5aDaB
-	uXnfJNqcIu6s6aF+eCrIH/Uv7H819LGzmWYjy89C4qTwq/VVqEPl8RT5pCmodFl/fA0/ZsHn38kux
-	fPYA27vnlvs/AL5D28EDV7HXbv3J7FeO+/bGRTw7j5NphquUAjHptoytUzX3MkZ0tnfe4iwkqljxw
-	fTkdU+rxPJwHpHZnEFl6zwuoBPomMFjG9Q9/ihyZ3MHDekm8Rc9BpiUFEkggEvQGxhJif00G0KOe9
-	t8oYdRKVcfpJvYF/E99G+8hwhHxd/d8sFK0GOnmOWGP8TejhaQiMD0HdQ8x84jqR7kutGAZH3wwRx
-	LU1sZRlQ==;
-Received: from fulltravel by ds1313.tmddedicated.eu with local (Exim 4.95)
-	(envelope-from <fulltravel@ds1313.tmddedicated.eu>)
-	id 1o1jHc-0004uo-9e
-	for linux-erofs@lists.ozlabs.org;
-	Thu, 16 Jun 2022 06:47:12 +0000
-To: linux-erofs@lists.ozlabs.org
-Subject: =?UTF-8?Q?Contatto_Pubblicit=C3=A0?=
-X-PHP-Script: www.fulltravel.it/index.php for 162.247.74.7
-X-PHP-Originating-Script: 1002:PHPMailer.php
-Date: Thu, 16 Jun 2022 06:47:12 +0000
-From: "FullTravel.it" <noreply@fulltravel.it>
-Message-ID: <Zn8q0cGlrFsRDYb8Ulvwt8rsYIkCl57mFGH3SI3Sw@www.fulltravel.it>
-X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LQYLW6kfLz3bhf
+	for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jun 2022 10:19:31 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 41DE160AE7;
+	Sun, 19 Jun 2022 00:19:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C371BC3411A;
+	Sun, 19 Jun 2022 00:19:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1655597967;
+	bh=O+ZM0Cqi3Uuf67Id2quo+Fg1yOGML3ldASAxDhGo5Rc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=lpwSoKfTLpwYlyWtUcBvaxcEx57QevVx86/RiKuwR1uZKMNsxCAmAL29HhlNP9N2G
+	 VsI9bWwIRCOmgKYr8uYXIUI5Q0HDTlkPCoDN9w4XTW1NrMqTWk8NA24g1y1ymIuq0Z
+	 x5L8FGe6Hb5qmNrbOXcBbSXGCKbsT2ElamEty7/wsSt9aQKWahwwDQsUiJH1l4z+AI
+	 zgmTyaEdqkrkhmBO3I2nsXteph/IDSj4BErcMC4VArtJryvHB30fPWEAhQtQ4kbhCW
+	 ioyyLa8xOHr5GzkIEdEk9zjtYJ87uePMP6zNtNbbS78MGNmeChQxU/ub2dwixVCBdi
+	 Sy+FUECcrDfSw==
+Message-ID: <0c139517-e976-5017-8e7a-d34c38f0f6bb@kernel.org>
+Date: Sun, 19 Jun 2022 08:19:25 +0800
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="b1_Zn8q0cGlrFsRDYb8Ulvwt8rsYIkCl57mFGH3SI3Sw"
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ds1313.tmddedicated.eu
-X-AntiAbuse: Original Domain - lists.ozlabs.org
-X-AntiAbuse: Originator/Caller UID/GID - [1002 993] / [47 12]
-X-AntiAbuse: Sender Address Domain - ds1313.tmddedicated.eu
-X-Get-Message-Sender-Via: ds1313.tmddedicated.eu: authenticated_id: fulltravel/from_h
-X-Authenticated-Sender: ds1313.tmddedicated.eu: noreply@fulltravel.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v2] erofs: update ctx->pos for every emitted dirent
+Content-Language: en-US
+To: Hongnan Li <hongnan.li@linux.alibaba.com>, linux-erofs@lists.ozlabs.org,
+ xiang@kernel.org
+References: <20220527072536.68516-1-hongnan.li@linux.alibaba.com>
+ <20220609034006.76649-1-hongnan.li@linux.alibaba.com>
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <20220609034006.76649-1-hongnan.li@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -71,42 +64,85 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Reply-To: marketing@fullttravel.it
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This is a multi-part message in MIME format.
+On 2022/6/9 11:40, Hongnan Li wrote:
+> erofs_readdir update ctx->pos after filling a batch of dentries
+> and it may cause dir/files duplication for NFS readdirplus which
+> depends on ctx->pos to fill dir correctly. So update ctx->pos for
+> every emitted dirent in erofs_fill_dentries to fix it.
+> 
+> Fixes: 3e917cc305c6 ("erofs: make filesystem exportable")
+> Signed-off-by: Hongnan Li <hongnan.li@linux.alibaba.com>
+> ---
+>   fs/erofs/dir.c | 20 ++++++++++----------
+>   1 file changed, 10 insertions(+), 10 deletions(-)
+> 
+> diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
+> index 18e59821c597..94ef5287237a 100644
+> --- a/fs/erofs/dir.c
+> +++ b/fs/erofs/dir.c
+> @@ -22,10 +22,9 @@ static void debug_one_dentry(unsigned char d_type, const char *de_name,
+>   }
+>   
+>   static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
+> -			       void *dentry_blk, unsigned int *ofs,
+> +			       void *dentry_blk, struct erofs_dirent *de,
+>   			       unsigned int nameoff, unsigned int maxsize)
+>   {
+> -	struct erofs_dirent *de = dentry_blk + *ofs;
+>   	const struct erofs_dirent *end = dentry_blk + nameoff;
+>   
+>   	while (de < end) {
+> @@ -59,9 +58,8 @@ static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
+>   			/* stopped by some reason */
+>   			return 1;
+>   		++de;
+> -		*ofs += sizeof(struct erofs_dirent);
+> +		ctx->pos += sizeof(struct erofs_dirent);
+>   	}
+> -	*ofs = maxsize;
+>   	return 0;
+>   }
+>   
+> @@ -95,7 +93,7 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+>   				  "invalid de[0].nameoff %u @ nid %llu",
+>   				  nameoff, EROFS_I(dir)->nid);
+>   			err = -EFSCORRUPTED;
+> -			goto skip_this;
+> +			break;
+>   		}
+>   
+>   		maxsize = min_t(unsigned int,
+> @@ -106,17 +104,19 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+>   			initial = false;
+>   
+>   			ofs = roundup(ofs, sizeof(struct erofs_dirent));
+> -			if (ofs >= nameoff)
+> +			if (ofs >= nameoff) {
+> +				ctx->pos = blknr_to_addr(i) + ofs;
+>   				goto skip_this;
+> +			}
+>   		}
+>   
+> -		err = erofs_fill_dentries(dir, ctx, de, &ofs,
+> -					  nameoff, maxsize);
+> -skip_this:
+>   		ctx->pos = blknr_to_addr(i) + ofs;
 
---b1_Zn8q0cGlrFsRDYb8Ulvwt8rsYIkCl57mFGH3SI3Sw
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Why updating ctx->pos before erofs_fill_dentries()?
 
-Da:  Julia want to meet you! Click Here: https://queen22.page.link/photos?64b 
-67glyq
-Telefono: 473467038470
-Email: linux-erofs@lists.ozlabs.org
---
-Questa email è stata spedita da FullTravel.it (https://www.fulltravel.it)
+Thanks,
 
---b1_Zn8q0cGlrFsRDYb8Ulvwt8rsYIkCl57mFGH3SI3Sw
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-<!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
-<head>
-<title>Contatto Pubblicità</title>
-</head>
-<body>
-<p>Da: <img src="https://s.w.org/images/core/emoji/14.0.0/72x72/1f970.png" alt="🥰" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Julia want to meet you! Click Here: https://queen22.page.link/photos?64b <img src="https://s.w.org/images/core/emoji/14.0.0/72x72/1f970.png" alt="🥰" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
-<p>67glyq</p>
-<p>Telefono: 473467038470<br />
-Email: linux-erofs@lists.ozlabs.org</p>
-<p>--<br />
-Questa email è stata spedita da FullTravel.it (https://www.fulltravel.it)</p>
-</body>
-</html>
-
-
---b1_Zn8q0cGlrFsRDYb8Ulvwt8rsYIkCl57mFGH3SI3Sw--
-
+> -
+> +		err = erofs_fill_dentries(dir, ctx, de, (void *)de + ofs,
+> +					  nameoff, maxsize);
+>   		if (err)
+>   			break;
+> +		ctx->pos = blknr_to_addr(i) + maxsize;
+> +skip_this:
+>   		++i;
+>   		ofs = 0;
+>   	}
