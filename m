@@ -4,32 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E657C433EF
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 08:16:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73F00C43334
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 11:39:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LXvRn022Fz3cDb
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 18:16:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hongnan.li@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LXzxx6Db1z3cg2
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 21:39:01 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1656502741;
+	bh=mr46B25ZUmI7GGQ5t6X0E3WzxzV6Pf3dl/rRvmfxgMo=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=LSfr0CijkeVEhkNb4GGsWWVSy3ZWvBDfeDmFUiYda43PzS0a7eNYD4CxfH4Mth21R
+	 vQSiVXmAV5hkeEGHinFsljDF6b9fzu9o2vLiCtbtcYdj7dsegFu0JTvSI+t/4HfnDE
+	 3az7QwL0MKXmMZpXKxYXOH5hXKorxtjBYZ6nU9OZA1LnLAg2Ep2Qij74b8U/atOoOY
+	 S9xAV1LT/8mpZd+wAivqUC50tHv36aWeT6FCLREh74C0Nv/rrnVxPJ0VsBN0Dd5T9p
+	 l9BEEG7EwTb2J1ybEZTZlzp+JcziciM27nR+IeeyS2uI104E8KhZB+oIsfU03ZYxlS
+	 ojHSByI6qIJCA==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.29; helo=smtp-out2.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=tL3h0ntz;
+	dkim-atps=neutral
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LXvRf4LvZz2xnN
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 18:15:57 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hongnan.li@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VHn30-k_1656490550;
-Received: from localhost(mailfrom:hongnan.li@linux.alibaba.com fp:SMTPD_---0VHn30-k_1656490550)
-          by smtp.aliyun-inc.com;
-          Wed, 29 Jun 2022 16:15:51 +0800
-From: Hongnan Li <hongnan.li@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org,
-	xiang@kernel.org,
-	chao@kernel.org
-Subject: [PATCH v3] erofs: update ctx->pos for every emitted dirent
-Date: Wed, 29 Jun 2022 16:15:50 +0800
-Message-Id: <20220629081550.23501-1-hongnan.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20220527072536.68516-1-hongnan.li@linux.alibaba.com>
-References: <20220527072536.68516-1-hongnan.li@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LXzxq1l7Tz3c9Z
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 21:38:54 +1000 (AEST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id EC9501F915;
+	Wed, 29 Jun 2022 11:38:51 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id AAF30133D1;
+	Wed, 29 Jun 2022 11:38:49 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id 0M6THck5vGLFPwAAMHmgww
+	(envelope-from <wqu@suse.com>); Wed, 29 Jun 2022 11:38:49 +0000
+To: u-boot@lists.denx.de
+Subject: [PATCH 1/8] fs: fat: unexport file_fat_read_at()
+Date: Wed, 29 Jun 2022 19:38:22 +0800
+Message-Id: <b28b8d554dd3d1fc6bed8fc7f5b9cb71e1880e38.1656502685.git.wqu@suse.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1656502685.git.wqu@suse.com>
+References: <cover.1656502685.git.wqu@suse.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,79 +67,48 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+From: Qu Wenruo via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Qu Wenruo <wqu@suse.com>
+Cc: trini@konsulko.com, jnhuang95@gmail.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, thomas.petazzoni@bootlin.com, miquel.raynal@bootlin.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-erofs_readdir update ctx->pos after filling a batch of dentries
-and it may cause dir/files duplication for NFS readdirplus which
-depends on ctx->pos to fill dir correctly. So update ctx->pos for
-every emitted dirent in erofs_fill_dentries to fix it.
+That function is only utilized inside fat driver, unexport it.
 
-Fixes: 3e917cc305c6 ("erofs: make filesystem exportable")
-Signed-off-by: Hongnan Li <hongnan.li@linux.alibaba.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 ---
- fs/erofs/dir.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ fs/fat/fat.c  | 4 ++--
+ include/fat.h | 2 --
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
-index 18e59821c597..6fc325052853 100644
---- a/fs/erofs/dir.c
-+++ b/fs/erofs/dir.c
-@@ -22,10 +22,9 @@ static void debug_one_dentry(unsigned char d_type, const char *de_name,
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index df9ea2c028fc..dcceccbcee0a 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1243,8 +1243,8 @@ out_free_itr:
+ 	return ret;
  }
  
- static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
--			       void *dentry_blk, unsigned int *ofs,
-+			       void *dentry_blk, struct erofs_dirent *de,
- 			       unsigned int nameoff, unsigned int maxsize)
+-int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+-		     loff_t maxsize, loff_t *actread)
++static int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
++			    loff_t maxsize, loff_t *actread)
  {
--	struct erofs_dirent *de = dentry_blk + *ofs;
- 	const struct erofs_dirent *end = dentry_blk + nameoff;
- 
- 	while (de < end) {
-@@ -59,9 +58,8 @@ static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
- 			/* stopped by some reason */
- 			return 1;
- 		++de;
--		*ofs += sizeof(struct erofs_dirent);
-+		ctx->pos += sizeof(struct erofs_dirent);
- 	}
--	*ofs = maxsize;
- 	return 0;
- }
- 
-@@ -95,7 +93,7 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 				  "invalid de[0].nameoff %u @ nid %llu",
- 				  nameoff, EROFS_I(dir)->nid);
- 			err = -EFSCORRUPTED;
--			goto skip_this;
-+			break;
- 		}
- 
- 		maxsize = min_t(unsigned int,
-@@ -106,17 +104,17 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 			initial = false;
- 
- 			ofs = roundup(ofs, sizeof(struct erofs_dirent));
-+			ctx->pos = blknr_to_addr(i) + ofs;
- 			if (ofs >= nameoff)
- 				goto skip_this;
- 		}
- 
--		err = erofs_fill_dentries(dir, ctx, de, &ofs,
-+		err = erofs_fill_dentries(dir, ctx, de, (void *)de + ofs,
- 					  nameoff, maxsize);
--skip_this:
--		ctx->pos = blknr_to_addr(i) + ofs;
--
- 		if (err)
- 			break;
-+		ctx->pos = blknr_to_addr(i) + maxsize;
-+skip_this:
- 		++i;
- 		ofs = 0;
- 	}
+ 	fsdata fsdata;
+ 	fat_itr *itr;
+diff --git a/include/fat.h b/include/fat.h
+index bd8e450b33a3..a9756fb4cd1b 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -200,8 +200,6 @@ static inline u32 sect_to_clust(fsdata *fsdata, int sect)
+ int file_fat_detectfs(void);
+ int fat_exists(const char *filename);
+ int fat_size(const char *filename, loff_t *size);
+-int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+-		     loff_t maxsize, loff_t *actread);
+ int file_fat_read(const char *filename, void *buffer, int maxsize);
+ int fat_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info);
+ int fat_register_device(struct blk_desc *dev_desc, int part_no);
 -- 
-2.35.3
+2.36.1
 
