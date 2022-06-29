@@ -4,53 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17DC2C43334
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 11:39:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 871D7C43334
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 11:39:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LXzy03TQ2z3c9Z
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 21:39:04 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LXzy30S3dz3dR9
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 21:39:07 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1656502744;
-	bh=z3GbE9mx5CCrqo9xfI+63v/1zfie4tXfQ6g0f+eqfy0=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=LGhWyGnphUS6StefjongChtiU/+63jYpen/Bcrw8HdWP69wmJvk/w4fnQZh7lTBV5
-	 /Ft/JM7a0YVzH+quwgjdi7z/OK04+Xq0n9S6OV/To5t2dfotEd0gNIphM1Pc0R/qxW
-	 JtNyN0DAI3LzdDlXM3u6xMhAMWY1nHVMawD7Haz+pJ2F7uOXTDl1AB7//zN4DSmZvW
-	 T1fu30FVVQLP3uM+4mqf/7P1S6SM02t9iQ8Fu6pDl0FziHvImk1HfJfW63JFvJr9wS
-	 T2pb5hQUVvEMHy8NTloHXWR8Vewirhb7B6EWG0a53ey+P5HooioWMfWCl7EN8uD6PO
-	 dy7nwVHIz10og==
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.28; helo=smtp-out1.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
+	s=201707; t=1656502747;
+	bh=7y0xdegoE/qvJXezDri4FFPx3jPOeWDAMQ91i07uFx8=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=jRVFoBgYGAP9VvJ8BGjbnuEgmuXrl3xhvHOYpVM6fk1OsRqLuO230zszfnTr/fc4T
+	 JV0S2TRpKwBh09xOxlFPSrpA5n8pN3xRRJADEMPP06pvF5NaJuv6z9tBt0rTGOXJtY
+	 /U+nIGa5kfdYBBXh2wFQxA6Mc4xYVW8VXLy+ceNoQ92l7ZRCXCrZEIp6fiJbMTrK6E
+	 4LWr1N/rvRNzaiQNfsLhwUMOnEPU7LXa9ahEDN4tKgr9pOLkgdKwue0XJtT7vVBxNQ
+	 7wz8OrXXKheXw1OwOt8g7aOuPvw3bl7QEr2Cky7LNjv+M84JmzUuyQ73KCefZvqSor
+	 P+j+r36+LKBfA==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.29; helo=smtp-out2.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=QMzjdKlM;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=qt5GL8bB;
 	dkim-atps=neutral
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LXzxq1hrCz3c9K
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 21:38:53 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LXzxs0tWTz3c9K
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 21:38:57 +1000 (AEST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 4CB51220C1;
-	Wed, 29 Jun 2022 11:38:49 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 944A71FE7B;
+	Wed, 29 Jun 2022 11:38:54 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0D488133D1;
-	Wed, 29 Jun 2022 11:38:46 +0000 (UTC)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 55AB2133D1;
+	Wed, 29 Jun 2022 11:38:52 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
 	by imap2.suse-dmz.suse.de with ESMTPSA
-	id sDjRMsY5vGLFPwAAMHmgww
-	(envelope-from <wqu@suse.com>); Wed, 29 Jun 2022 11:38:46 +0000
+	id yBu5CMw5vGLFPwAAMHmgww
+	(envelope-from <wqu@suse.com>); Wed, 29 Jun 2022 11:38:52 +0000
 To: u-boot@lists.denx.de
-Subject: [PATCH 0/8] U-boot: fs: add generic unaligned read offset handling
-Date: Wed, 29 Jun 2022 19:38:21 +0800
-Message-Id: <cover.1656502685.git.wqu@suse.com>
+Subject: [PATCH 2/8] fs: btrfs: fix a bug which no data get read if the length is not 0
+Date: Wed, 29 Jun 2022 19:38:23 +0800
+Message-Id: <0c873979cf1c277e7a3a46b8839014990ee1b874.1656502685.git.wqu@suse.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1656502685.git.wqu@suse.com>
+References: <cover.1656502685.git.wqu@suse.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -70,138 +73,67 @@ Cc: trini@konsulko.com, jnhuang95@gmail.com, joaomarcos.costa@bootlin.com, marek
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-[CHANGELOG]
-RFC->v1:
-- More (manual) testing
-  Unfortunately, in the latest master (75967970850a), the fs-tests.sh
-  always seems to hang at preparing the fs image.
+[BUG]
+When testing with unaligned read, if a specific length is passed in,
+btrfs driver will read out nothing:
 
-  Thus still has to do manual testing, tested btrfs, ext4 and fat, with
-  aligned and unaligned read, also added soft link read, all looks fine here.
+ => load host 0 $kernel_addr_r 5k_file 0x1000 0
+ 0 bytes read in 0 ms
 
-  Extra testing is still appreciated.
+But if no length is passed in, it works fine, even if we pass a non-zero
+length:
 
-- Two more btrfs specific bug fixes
-  All exposed during manual tests
+ => load host 0 $kernel_addr_r 5k_file 0 0x1000
+ 1024 bytes read in 0 ms
 
-- Remove the tailing unaligned block handling
-  In fact, all fses can easily handle such case, just a min() call is
-  enough.
+[CAUSE]
+In btrfs_read() if we have a larger size than our file, we will try to
+truncate it using the file size.
 
-- Remove the support for sandboxfs
-  Since it's using read() calls, really no need to do block alignment
-  check.
+However the real file size is not initialized if @len is not zero, thus
+we always truncate our length to 0, and cause the problem.
 
-- Enhanced blocksize check
-  Ensure the returned blocksize is not only non-error, but also
-  non-zero.
+[FIX]
+Fix it by just always do the file size check.
 
-This patchset can be fetched from github:
-https://github.com/adam900710/u-boot/tree/fs_unaligned_read
+In fact btrfs_size() always follow soft link, thus it will return the
+real file size correctly.
 
-[BACKGROUND]
-Unlike FUSE/Kernel which always pass aligned read range, U-boot fs code
-just pass the request range to underlying fses.
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/btrfs.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-Under most case, this works fine, as U-boot only really needs to read
-the whole file (aka, 0 for both offset and len, len will be later
-determined using file size).
-
-But if some advanced user/script wants to extract kernel/initramfs from
-combined image, we may need to do unaligned read in that case.
-
-[ADVANTAGE]
-This patchset will handle unaligned read range in _fs_read():
-
-- Get blocksize of the underlying fs
-
-- Read the leading block contianing the unaligned range
-  The full block will be stored in a local buffer, then only copy
-  the bytes in the unaligned range into the destination buffer.
-
-  If the first block covers the whole range, we just call it aday.
-
-- Read the remaining range which starts at block aligned offset
-  For most common case, which is 0 offset and 0 len, the code will not
-  be changed at all.
-
-Just one extra get_blocksize() call, and for FAT/Btrfs/EROFS they all have
-cached blocksize, thus it takes almost no extra cost.
-
-Although for EXT4, it doesn't seem to cache the blocksize globally,
-thus has to do a path resolve and grab the blocksize.
-
-[DISADVANTAGE]
-The involved problem is:
-
-- Extra path resolving
-  All those supported fs may have to do one extra path resolve if the
-  read offset is not aligned.
-
-  For EXT4, it will do one extra path resolve just to grab the
-  blocksize.
-
-For data read which starts at offset 0 (the most common case), it
-should cause *NO* difference in performance.
-As the extra handling is only for unaligned offset.
-
-The common path is not really modified.
-
-[SUPPORTED FSES]
-
-- Btrfs (manually tested*)
-- Ext4 (manually tested)
-- FAT (manually tested)
-- Erofs
-- ubifs (unable to test, due to compile failure)
-
-*: Failed to get the test cases run, thus have to go sandbox mode, and
-attach an image with target fs, load the target file (with unaligned
-range) and compare the result using md5sum.
-
-For EXT4/FAT, they may need extra cleanup, as their existing unaligned
-range handling is no longer needed anymore, cleaning them up should free 
-more code lines than the added one.
-
-Just not confident enough to modify them all by myself.
-
-[UNSUPPORTED FSES]
-- Squashfs
-  They don't support non-zero offset, thus it can not handle the block
-  aligned range.
-  Need extra help to add block aligned offset support.
-
-- Semihostfs
-- Sandboxfs
-  They all use read() directly, no need to do alignment check at all.
-
-Extra testing/feedback is always appreciated.
-
-Qu Wenruo (8):
-  fs: fat: unexport file_fat_read_at()
-  fs: btrfs: fix a bug which no data get read if the length is not 0
-  fs: btrfs: fix a crash if specified range is beyond file size
-  fs: btrfs: move the unaligned read code to _fs_read() for btrfs
-  fs: ext4: rely on _fs_read() to handle leading unaligned block read
-  fs: fat: rely on higher layer to get block aligned read range
-  fs: ubifs: rely on higher layer to do unaligned read
-  fs: erofs: add unaligned read range handling
-
- fs/btrfs/btrfs.c      |  33 ++++++++---
- fs/btrfs/inode.c      |  89 +++--------------------------
- fs/erofs/internal.h   |   1 +
- fs/erofs/super.c      |   6 ++
- fs/ext4/ext4fs.c      |  22 +++++++
- fs/fat/fat.c          |  17 +++++-
- fs/fs.c               | 130 +++++++++++++++++++++++++++++++++++++++---
- fs/ubifs/ubifs.c      |  13 +++--
- include/btrfs.h       |   1 +
- include/erofs.h       |   1 +
- include/ext4fs.h      |   1 +
- include/fat.h         |   3 +-
- include/ubifs_uboot.h |   1 +
- 13 files changed, 212 insertions(+), 106 deletions(-)
-
+diff --git a/fs/btrfs/btrfs.c b/fs/btrfs/btrfs.c
+index 741c6e20f533..9145727058d4 100644
+--- a/fs/btrfs/btrfs.c
++++ b/fs/btrfs/btrfs.c
+@@ -246,16 +246,17 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!len) {
+-		ret = btrfs_size(file, &real_size);
+-		if (ret < 0) {
+-			error("Failed to get inode size: %s", file);
+-			return ret;
+-		}
+-		len = real_size;
++	ret = btrfs_size(file, &real_size);
++	if (ret < 0) {
++		error("Failed to get inode size: %s", file);
++		return ret;
+ 	}
+ 
+-	if (len > real_size - offset)
++	/*
++	 * If the length is 0 (meaning read the whole file) or the range is
++	 * beyond file size, truncate it to the end of the file.
++	 */
++	if (!len || len > real_size - offset)
+ 		len = real_size - offset;
+ 
+ 	ret = btrfs_file_read(root, ino, offset, len, buf);
 -- 
 2.36.1
 
