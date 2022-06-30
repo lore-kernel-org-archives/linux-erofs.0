@@ -4,68 +4,60 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90747C43334
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 12:53:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90004C43334
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jun 2022 10:06:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LY1cH3jNPz3cdk
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jun 2022 22:53:51 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LYYsD6fqbz3cdw
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jun 2022 20:06:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256 header.s=google header.b=bjxYUzrN;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=JyRaAuOR;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=konsulko.com (client-ip=2607:f8b0:4864:20::f30; helo=mail-qv1-xf30.google.com; envelope-from=trini@konsulko.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2607:f8b0:4864:20::22b; helo=mail-oi1-x22b.google.com; envelope-from=sjg@google.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256 header.s=google header.b=bjxYUzrN;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=JyRaAuOR;
 	dkim-atps=neutral
-Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LY1c90Ygtz30D8
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 22:53:42 +1000 (AEST)
-Received: by mail-qv1-xf30.google.com with SMTP id c1so24518456qvi.11
-        for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jun 2022 05:53:42 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LYYs50vwSz3bm8
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jun 2022 20:06:47 +1000 (AEST)
+Received: by mail-oi1-x22b.google.com with SMTP id i3so1046108oif.13
+        for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jun 2022 03:06:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=/4bff15D+nY/gHRlKW2uLNIt4hIWR6BwmCkO+OKY2JY=;
-        b=bjxYUzrN+ACXmAzWcgEKqpuWfySTW6JwiMhM9Tf622JeZxWQusqKkjNkjacADEGnt4
-         aM3LAyGKsi3S5AVB9AqHgzd1X/ad2ih2ksBATvBDhezpvMNX7tkRI8h6H2YJgU1Km6lq
-         kcW25hDLpvhTfCeXPxoZbbDB2jPWWpigcIKV4=
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MkXUcE+SH8JfFpz08xbJfhHc/D7QFv5vAzdLbXGElck=;
+        b=JyRaAuOR5P7b3c+dMsQoZD/LLR48yTgS+jlPzsF5hhz+M9j9HYqZULiGdWrA0ZXHuX
+         xUb9RYTotjWMMfM4XOZvw9Na6HP0PgeZZm6w311PEmqeKx/u72Ah53UqYUFh9VpM0nM1
+         ihozAbAfBpwQ/hcZZPjZ6RV+v8hVEhnyD7spQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/4bff15D+nY/gHRlKW2uLNIt4hIWR6BwmCkO+OKY2JY=;
-        b=cf+etys8OQ6xCEX6Gi6B1j9302DiTlulhg7JoP3Aw3YGCE+9Wqdq2/jG82Y2ImVne4
-         cUqZTBkhlox0z/JYcwNaqeHvBQCO4Y6/nekF9f3wLtPlNdwZlndE6+os0NlJPK6k1Vvw
-         P4BYubZTJTi8a3qYpx06W+Gweboga7gCEyxEcS3BlU3waDJxCL+jKvlD0u8U1BXHjcYU
-         Yt21OF3gz1Vlr5UrWSP7Nw0puOaN+YYUGXlZywFNF3JGTtztElNau7ud0H9clOQiU4St
-         vP4u26WFnvKoWABR7WrUbJHBYt3zAYI6ofh7LuYF71oa4j3ZAz4p3UfyAgeymhBYv+nk
-         jUJg==
-X-Gm-Message-State: AJIora+2IoJeo+Fm+bnKk4YamrXPOg/eAGxXVVntf7++C0vPNVAN6Ruy
-	vMEXrXkCv3mZqHvjP/hQazyQeA==
-X-Google-Smtp-Source: AGRyM1v4wuMFHQhhOaVqEyWZEijAcwxUejvBWDUdHQeQBzSWPvdSO7BWNBpROZNlam4ucAkAL5fufw==
-X-Received: by 2002:a05:622a:354:b0:317:7a1d:ce4e with SMTP id r20-20020a05622a035400b003177a1dce4emr2244347qtw.419.1656507217043;
-        Wed, 29 Jun 2022 05:53:37 -0700 (PDT)
-Received: from bill-the-cat (cpe-65-184-195-139.ec.res.rr.com. [65.184.195.139])
-        by smtp.gmail.com with ESMTPSA id 196-20020a3704cd000000b006a6ae9150fesm12637186qke.41.2022.06.29.05.53.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 05:53:36 -0700 (PDT)
-Date: Wed, 29 Jun 2022 08:53:34 -0400
-From: Tom Rini <trini@konsulko.com>
-To: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Subject: Re: [PATCH 0/8] u-boot: fs: add generic unaligned read handling
-Message-ID: <20220629125334.GC1146598@bill-the-cat>
-References: <cover.1656401086.git.wqu@suse.com>
- <20220628141708.GJ1146598@bill-the-cat>
- <8728cb97-6bb6-fae9-025b-42bd1a439386@gmx.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MkXUcE+SH8JfFpz08xbJfhHc/D7QFv5vAzdLbXGElck=;
+        b=nKVCPdJzryOLc9V6EIcBqJC6r/RNEw7kdTuDTE0sMBbuED1N75S3OZapQI3g5TIwWa
+         eXXCu6xJbBG+2Lct1biIgRD+Jy5WvgiEHVkou9oyURxB20otlSKkcfE2TUD/59wxzO6+
+         U7/Qi8c+znjjQMEUM0nQ0Ysu8nciZbuFzY+VQvMwT5VC9Z2gHcAXwSE2BV5UNolck//y
+         jam3CtK/ztCNH5lxzS3ZBUngXL689d6qUnMoKJK+bVNkURS4YuPdGGGPXVf626YpJ+6e
+         HwzIqGn4DSRsYRtaDQPFqdrRdJLZ3LJJsX215crNO9JYp7DKpF4qKa0L5pJ+MoeiPbBI
+         rx2A==
+X-Gm-Message-State: AJIora9pjP9IGrXH1hVeYVfAjX81gcer5Rj820ZQdZDIjYwuldYsCXzv
+	LWaresLNfHKnddVd1ooBHJwnInLD7eweuHVhN64VGg==
+X-Google-Smtp-Source: AGRyM1sCsKyVX/+cKZDzLLoaSV3uTCPPX7odjgNYeJL/yuQbFiIeFA+dETd2CJPNRf+eBgaoZI/kSsZz2zdjdB8XZMA=
+X-Received: by 2002:a05:6808:f8b:b0:335:cc46:6575 with SMTP id
+ o11-20020a0568080f8b00b00335cc466575mr603723oiw.64.1656583601329; Thu, 30 Jun
+ 2022 03:06:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="hCRFYJKfs6IGypzU"
-Content-Disposition: inline
-In-Reply-To: <8728cb97-6bb6-fae9-025b-42bd1a439386@gmx.com>
-X-Clacks-Overhead: GNU Terry Pratchett
+References: <cover.1656401086.git.wqu@suse.com> <9f4b43b84a688b0367a87da2d4e0eb303a36bf32.1656401086.git.wqu@suse.com>
+In-Reply-To: <9f4b43b84a688b0367a87da2d4e0eb303a36bf32.1656401086.git.wqu@suse.com>
+From: Simon Glass <sjg@chromium.org>
+Date: Thu, 30 Jun 2022 04:06:23 -0600
+Message-ID: <CAPnjgZ1yNXwQ44HBwe147hrC1mYsU4Lnyz-WVDHR_anwqYLBSg@mail.gmail.com>
+Subject: Re: [PATCH RFC 6/8] fs: sandboxfs: add sandbox_fs_get_blocksize()
+To: Qu Wenruo <wqu@suse.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -77,119 +69,133 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: jnhuang95@gmail.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, u-boot@lists.denx.de, Qu Wenruo <wqu@suse.com>, thomas.petazzoni@bootlin.com, miquel.raynal@bootlin.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: Tom Rini <trini@konsulko.com>, jnhuang95@gmail.com, Joao Marcos Costa <joaomarcos.costa@bootlin.com>, =?UTF-8?B?TWFyZWsgQmVow7pu?= <marek.behun@nic.cz>, U-Boot Mailing List <u-boot@lists.denx.de>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Miquel Raynal <miquel.raynal@bootlin.com>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Tue, 28 Jun 2022 at 01:28, Qu Wenruo <wqu@suse.com> wrote:
+>
+> This is to make sandboxfs to report blocksize it supports for
+> _fs_read() to handle unaligned read.
+>
+> Unlike all other fses, sandboxfs can handle unaligned read/write without
+> any problem since it's calling read()/write(), which doesn't bother the
+> blocksize at all.
+>
+> This change is mostly to make testing of _fs_read() much easier.
+>
+> Cc: Simon Glass <sjg@chromium.org>
+> Signed-off-by: Qu Wenruo <wqu@suse.com>
+> ---
+>  arch/sandbox/cpu/os.c  | 11 +++++++++++
+>  fs/fs.c                |  2 +-
+>  fs/sandbox/sandboxfs.c | 14 ++++++++++++++
+>  include/os.h           |  8 ++++++++
+>  include/sandboxfs.h    |  1 +
+>  5 files changed, 35 insertions(+), 1 deletion(-)
 
---hCRFYJKfs6IGypzU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Simon Glass <sjg@chromium.org>
 
-On Wed, Jun 29, 2022 at 09:40:58AM +0800, Qu Wenruo wrote:
->=20
->=20
-> On 2022/6/28 22:17, Tom Rini wrote:
-> > On Tue, Jun 28, 2022 at 03:28:00PM +0800, Qu Wenruo wrote:
-> > > [BACKGROUND]
-> > > Unlike FUSE/Kernel which always pass aligned read range, U-boot fs co=
-de
-> > > just pass the request range to underlying fses.
-> > >=20
-> > > Under most case, this works fine, as U-boot only really needs to read
-> > > the whole file (aka, 0 for both offset and len, len will be later
-> > > determined using file size).
-> > >=20
-> > > But if some advanced user/script wants to extract kernel/initramfs fr=
-om
-> > > combined image, we may need to do unaligned read in that case.
-> > >=20
-> > > [ADVANTAGE]
-> > > This patchset will handle unaligned read range in _fs_read():
-> > >=20
-> > > - Get blocksize of the underlying fs
-> > >=20
-> > > - Read the leading block contianing the unaligned range
-> > >    The full block will be stored in a local buffer, then only copy
-> > >    the bytes in the unaligned range into the destination buffer.
-> > >=20
-> > >    If the first block covers the whole range, we just call it aday.
-> > >=20
-> > > - Read the aligned range if there is any
-> > >=20
-> > > - Read the tailing block containing the unaligned range
-> > >    And copy the covered range into the destination.
-> > >=20
-> > > [DISADVANTAGE]
-> > > There are mainly two problems:
-> > >=20
-> > > - Extra memory allocation for every _fs_read() call
-> > >    For the leading and tailing block.
-> > >=20
-> > > - Extra path resolving
-> > >    All those supported fs will have to do extra path resolving up to 2
-> > >    times (one for the leading block, one for the tailing block).
-> > >    This may slow down the read.
-> >=20
-> > This conceptually seems like a good thing.  Can you please post some
-> > before/after times of reading large images from the supported
-> > filesystems?
-> >=20
->=20
-> One thing to mention is, this change doesn't really bother large file rea=
-d.
->=20
-> As the patchset is splitting a large read into 3 parts:
->=20
-> 1) Leading block
-> 2) Aligned blocks, aka the main part of a large file
-> 3) Tailing block
->=20
-> Most time should still be spent on part 2), not much different than the
-> old code. Part 1) and Part 3) are at most 2 blocks (aka, 2 * 4KiB for
-> most modern large enough fses).
->=20
-> So I doubt it would make any difference for large file read.
->=20
->=20
-> Furthermore, as pointed out by Huang Jianan, currently the patchset can
-> not handle read on soft link correctly, thus I'd update the series to do
-> the split into even less parts:
->=20
-> 1) Leading block
->    For the unaligned initial block
->=20
-> 2) Aligned blocks until the end
->    The tailing block should still starts at a block aligned position,
->    thus most filesystems is already handling them correctly.
->    (Just a min(end, blockend) is enough for most cases already).
->=20
-> Anyway, I'll try to craft some benchmarking for file reads using sandbox.
-> But please don't expect much (or any) difference in that case.
+with a comment as requested below
 
-The rework sounds good.  And doing it without any real impact to
-performance either way is good.
+>
+> diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
+> index 5ea54179176c..6c29f29bdd9b 100644
+> --- a/arch/sandbox/cpu/os.c
+> +++ b/arch/sandbox/cpu/os.c
+> @@ -46,6 +46,17 @@ ssize_t os_read(int fd, void *buf, size_t count)
+>         return read(fd, buf, count);
+>  }
+>
+> +ssize_t os_get_blocksize(int fd)
+> +{
+> +       struct stat stat = {0};
+> +       int ret;
+> +
+> +       ret = fstat(fd, &stat);
+> +       if (ret < 0)
+> +               return -errno;
+> +       return stat.st_blksize;
+> +}
+> +
+>  ssize_t os_write(int fd, const void *buf, size_t count)
+>  {
+>         return write(fd, buf, count);
+> diff --git a/fs/fs.c b/fs/fs.c
+> index 7e4ead9b790b..337d5711c28c 100644
+> --- a/fs/fs.c
+> +++ b/fs/fs.c
+> @@ -261,7 +261,7 @@ static struct fstype_info fstypes[] = {
+>                 .exists = sandbox_fs_exists,
+>                 .size = sandbox_fs_size,
+>                 .read = fs_read_sandbox,
+> -               .get_blocksize = fs_get_blocksize_unsupported,
+> +               .get_blocksize = sandbox_fs_get_blocksize,
+>                 .write = fs_write_sandbox,
+>                 .uuid = fs_uuid_unsupported,
+>                 .opendir = fs_opendir_unsupported,
+> diff --git a/fs/sandbox/sandboxfs.c b/fs/sandbox/sandboxfs.c
+> index 4ae41d5b4db1..130fee088621 100644
+> --- a/fs/sandbox/sandboxfs.c
+> +++ b/fs/sandbox/sandboxfs.c
+> @@ -55,6 +55,20 @@ int sandbox_fs_read_at(const char *filename, loff_t pos, void *buffer,
+>         return ret;
+>  }
+>
+> +int sandbox_fs_get_blocksize(const char *filename)
+> +{
+> +       int fd;
+> +       int ret;
+> +
+> +       fd = os_open(filename, OS_O_RDONLY);
+> +       if (fd < 0)
+> +               return fd;
+> +
+> +       ret = os_get_blocksize(fd);
+> +       os_close(fd);
+> +       return ret;
+> +}
+> +
+>  int sandbox_fs_write_at(const char *filename, loff_t pos, void *buffer,
+>                         loff_t towrite, loff_t *actwrite)
+>  {
+> diff --git a/include/os.h b/include/os.h
+> index 10e198cf503e..a864d9ca39b2 100644
+> --- a/include/os.h
+> +++ b/include/os.h
+> @@ -26,6 +26,14 @@ struct sandbox_state;
+>   */
+>  ssize_t os_read(int fd, void *buf, size_t count);
+>
+> +/**
+> + * Get the optimial blocksize through stat() call.
+> + *
+> + * @fd:                File descriptor as returned by os_open()
+> + * Return:     >=0 for the blocksize. <0 for error.
+> + */
+> +ssize_t os_get_blocksize(int fd);
+> +
+>  /**
+>   * Access to the OS write() system call
+>   *
+> diff --git a/include/sandboxfs.h b/include/sandboxfs.h
+> index 783dd5c88a73..6937068f7b82 100644
+> --- a/include/sandboxfs.h
+> +++ b/include/sandboxfs.h
+> @@ -32,6 +32,7 @@ void sandbox_fs_close(void);
+>  int sandbox_fs_ls(const char *dirname);
+>  int sandbox_fs_exists(const char *filename);
+>  int sandbox_fs_size(const char *filename, loff_t *size);
+> +int sandbox_fs_get_blocksize(const char *filename);
 
---=20
-Tom
+Please add a full comment.
 
---hCRFYJKfs6IGypzU
-Content-Type: application/pgp-signature; name="signature.asc"
+>  int fs_read_sandbox(const char *filename, void *buf, loff_t offset, loff_t len,
+>                     loff_t *actread);
+>  int fs_write_sandbox(const char *filename, void *buf, loff_t offset,
+> --
+> 2.36.1
+>
 
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEEGjx/cOCPqxcHgJu/FHw5/5Y0tywFAmK8S00ACgkQFHw5/5Y0
-tyyL7gv/RsMcVnrx02hMQxtQG4UuktxMz9gftbRFDC6xJrV5olnwzqgRXOxT1I3c
-Yeabw66LR0XBog1E5UDnGIw/aDwahB5Zv74EHl912Y42PHSRSvV1ILacCih+tyW7
-YgzHCnikt6Dp0D6yd9KK+RUxGfCGrD2izWjrpBhKJJkSOAXVMwdTxZyDkf67/Pjq
-CCQ4Lc35o45BwBB9bZ1NIQl6FQQ/pXxHADu5Ttnk2ZaHycF07UYsCddvkqD2+kjC
-Ta+LLKXGT10FwFEGJwAInRk8oY9xre0wuTbDtMUzGRJry7If65si9KRTWoiQ5Ffq
-3zwKTQqr6rL0hvVRDvGdWbTGICd86eANHdkJhRl1ZO5XrsouyZGgH6KB1XPgHk0O
-hwANXxtXOnI2sYLN7vCe2zfkOlr+iz5Bx+a7Up/hbrXlhA8YRNba+i1036edcHmg
-hhpzbSu4nCJRJVuKakQpg5LSUx5PvCfr7RVp6FHVXf8bdtj1AkrQZnp73DrzJOmK
-PrVMFS+t
-=W9My
------END PGP SIGNATURE-----
-
---hCRFYJKfs6IGypzU--
+Regards,
+Simon
