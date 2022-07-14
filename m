@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB9B0C433EF
-	for <linux-erofs@archiver.kernel.org>; Thu, 14 Jul 2022 13:21:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7278C433EF
+	for <linux-erofs@archiver.kernel.org>; Thu, 14 Jul 2022 13:21:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LkFWj3knVz3cCp
-	for <linux-erofs@archiver.kernel.org>; Thu, 14 Jul 2022 23:21:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56; helo=out30-56.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LkFWp2lTDz3cd8
+	for <linux-erofs@archiver.kernel.org>; Thu, 14 Jul 2022 23:21:58 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LkFW90vmlz3c6n
-	for <linux-erofs@lists.ozlabs.org>; Thu, 14 Jul 2022 23:21:23 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VJJkPLG_1657804870;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VJJkPLG_1657804870)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LkFWl5XyQz3c1l
+	for <linux-erofs@lists.ozlabs.org>; Thu, 14 Jul 2022 23:21:55 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VJJkPEO_1657804860;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VJJkPEO_1657804860)
           by smtp.aliyun-inc.com;
-          Thu, 14 Jul 2022 21:21:12 +0800
+          Thu, 14 Jul 2022 21:21:01 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org,
 	Chao Yu <chao@kernel.org>
-Subject: [PATCH 09/16] erofs: get rid of `enum z_erofs_page_type'
-Date: Thu, 14 Jul 2022 21:20:44 +0800
-Message-Id: <20220714132051.46012-10-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 02/16] erofs: clean up z_erofs_collector_begin()
+Date: Thu, 14 Jul 2022 21:20:37 +0800
+Message-Id: <20220714132051.46012-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20220714132051.46012-1-hsiangkao@linux.alibaba.com>
 References: <20220714132051.46012-1-hsiangkao@linux.alibaba.com>
@@ -46,94 +46,74 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Remove it since pagevec[] is no longer used.
+Rearrange the code and get rid of all gotos.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/zdata.c | 30 +++++-------------------------
- 1 file changed, 5 insertions(+), 25 deletions(-)
+ fs/erofs/zdata.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 9065e160d6a6..cdfb2706e4ae 100644
+index 1b6816dd235f..c7be447ac64d 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -27,17 +27,6 @@ static struct z_erofs_pcluster_slab pcluster_pool[] __read_mostly = {
- 	_PCLP(Z_EROFS_PCLUSTER_MAX_PAGES)
- };
- 
--/* page type in pagevec for decompress subsystem */
--enum z_erofs_page_type {
--	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
--	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
--
--	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
--
--	Z_EROFS_VLE_PAGE_TYPE_HEAD,
--	Z_EROFS_VLE_PAGE_TYPE_MAX
--};
--
- struct z_erofs_bvec_iter {
- 	struct page *bvpage;
- 	struct z_erofs_bvset *bvset;
-@@ -429,7 +418,6 @@ int erofs_try_to_free_cached_page(struct page *page)
- 	return ret;
- }
- 
--/* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
- static bool z_erofs_try_inplace_io(struct z_erofs_decompress_frontend *fe,
- 				   struct z_erofs_bvec *bvec)
+@@ -521,7 +521,7 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
+ static int z_erofs_collector_begin(struct z_erofs_decompress_frontend *fe)
  {
-@@ -447,13 +435,11 @@ static bool z_erofs_try_inplace_io(struct z_erofs_decompress_frontend *fe,
- 
- /* callers must be with pcluster lock held */
- static int z_erofs_attach_page(struct z_erofs_decompress_frontend *fe,
--			       struct z_erofs_bvec *bvec,
--			       enum z_erofs_page_type type)
-+			       struct z_erofs_bvec *bvec, bool exclusive)
- {
+ 	struct erofs_map_blocks *map = &fe->map;
+-	struct erofs_workgroup *grp;
++	struct erofs_workgroup *grp = NULL;
  	int ret;
  
--	if (fe->mode >= COLLECT_PRIMARY &&
--	    type == Z_EROFS_PAGE_TYPE_EXCLUSIVE) {
-+	if (fe->mode >= COLLECT_PRIMARY && exclusive) {
- 		/* give priority for inplaceio to use file pages first */
- 		if (z_erofs_try_inplace_io(fe, bvec))
- 			return 0;
-@@ -718,10 +704,9 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 	struct erofs_map_blocks *const map = &fe->map;
- 	const loff_t offset = page_offset(page);
--	bool tight = true;
-+	bool tight = true, exclusive;
+ 	DBG_BUGON(fe->pcl);
+@@ -530,33 +530,31 @@ static int z_erofs_collector_begin(struct z_erofs_decompress_frontend *fe)
+ 	DBG_BUGON(fe->owned_head == Z_EROFS_PCLUSTER_NIL);
+ 	DBG_BUGON(fe->owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
  
- 	enum z_erofs_cache_alloctype cache_strategy;
--	enum z_erofs_page_type page_type;
- 	unsigned int cur, end, spiltted, index;
- 	int err = 0;
- 
-@@ -798,12 +783,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 		goto next_part;
+-	if (map->m_flags & EROFS_MAP_META) {
+-		if ((map->m_pa & ~PAGE_MASK) + map->m_plen > PAGE_SIZE) {
+-			DBG_BUGON(1);
+-			return -EFSCORRUPTED;
+-		}
+-		goto tailpacking;
++	if (!(map->m_flags & EROFS_MAP_META)) {
++		grp = erofs_find_workgroup(fe->inode->i_sb,
++					   map->m_pa >> PAGE_SHIFT);
++	} else if ((map->m_pa & ~PAGE_MASK) + map->m_plen > PAGE_SIZE) {
++		DBG_BUGON(1);
++		return -EFSCORRUPTED;
  	}
  
--	/* let's derive page type */
--	page_type = cur ? Z_EROFS_VLE_PAGE_TYPE_HEAD :
--		(!spiltted ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
--			(tight ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
--				Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED));
--
-+	exclusive = (!cur && (!spiltted || tight));
- 	if (cur)
- 		tight &= (fe->mode >= COLLECT_PRIMARY_FOLLOWED);
+-	grp = erofs_find_workgroup(fe->inode->i_sb, map->m_pa >> PAGE_SHIFT);
+ 	if (grp) {
+ 		fe->pcl = container_of(grp, struct z_erofs_pcluster, obj);
++		ret = -EEXIST;
+ 	} else {
+-tailpacking:
+ 		ret = z_erofs_register_pcluster(fe);
+-		if (!ret)
+-			goto out;
+-		if (ret != -EEXIST)
+-			return ret;
+ 	}
  
-@@ -812,7 +792,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 					.page = page,
- 					.offset = offset - map->m_la,
- 					.end = end,
--				  }), page_type);
-+				  }), exclusive);
- 	/* should allocate an additional short-lived page for bvset */
- 	if (err == -EAGAIN && !fe->candidate_bvpage) {
- 		fe->candidate_bvpage = alloc_page(GFP_NOFS | __GFP_NOFAIL);
+-	ret = z_erofs_lookup_pcluster(fe);
+-	if (ret) {
+-		erofs_workgroup_put(&fe->pcl->obj);
++	if (ret == -EEXIST) {
++		ret = z_erofs_lookup_pcluster(fe);
++		if (ret) {
++			erofs_workgroup_put(&fe->pcl->obj);
++			return ret;
++		}
++	} else if (ret) {
+ 		return ret;
+ 	}
+ 
+-out:
+ 	z_erofs_pagevec_ctor_init(&fe->vector, Z_EROFS_NR_INLINE_PAGEVECS,
+ 				  fe->pcl->pagevec, fe->pcl->vcnt);
+ 	/* since file-backed online pages are traversed in reverse order */
 -- 
 2.24.4
 
