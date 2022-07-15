@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B972C43334
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Jul 2022 15:42:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4897DCCA47C
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Jul 2022 15:42:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Lkwbn0Rbkz30BP
-	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 01:42:45 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43; helo=out30-43.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Lkwbp6PmXz3c7V
+	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 01:42:46 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LkwbZ6mkqz3cdb
-	for <linux-erofs@lists.ozlabs.org>; Sat, 16 Jul 2022 01:42:34 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VJPnC6._1657899741;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VJPnC6._1657899741)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Lkwbd6D8qz3cFj
+	for <linux-erofs@lists.ozlabs.org>; Sat, 16 Jul 2022 01:42:37 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VJPnC8s_1657899747;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VJPnC8s_1657899747)
           by smtp.aliyun-inc.com;
-          Fri, 15 Jul 2022 23:42:22 +0800
+          Fri, 15 Jul 2022 23:42:28 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org,
 	Chao Yu <chao@kernel.org>
-Subject: [PATCH v2 09/16] erofs: get rid of `enum z_erofs_page_type'
-Date: Fri, 15 Jul 2022 23:41:56 +0800
-Message-Id: <20220715154203.48093-10-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 14/16] erofs: introduce z_erofs_do_decompressed_bvec()
+Date: Fri, 15 Jul 2022 23:42:01 +0800
+Message-Id: <20220715154203.48093-15-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20220715154203.48093-1-hsiangkao@linux.alibaba.com>
 References: <20220715154203.48093-1-hsiangkao@linux.alibaba.com>
@@ -46,94 +46,102 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Remove it since pagevec[] is no longer used.
+Both out_bvecs and in_bvecs share the common logic for decompressed
+buffers. So let's make a helper for this.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/zdata.c | 30 +++++-------------------------
- 1 file changed, 5 insertions(+), 25 deletions(-)
+ fs/erofs/zdata.c | 49 ++++++++++++++++++++++--------------------------
+ 1 file changed, 22 insertions(+), 27 deletions(-)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 2d5e2ed3e5f5..f2a513299d82 100644
+index d93ba0adcf9e..d4db2c1d53a6 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -27,17 +27,6 @@ static struct z_erofs_pcluster_slab pcluster_pool[] __read_mostly = {
- 	_PCLP(Z_EROFS_PCLUSTER_MAX_PAGES)
+@@ -861,6 +861,26 @@ struct z_erofs_decompress_backend {
+ 	unsigned int onstack_used;
  };
  
--/* (obsoleted) page type for online pages */
--enum z_erofs_page_type {
--	/* including Z_EROFS_VLE_PAGE_TAIL_EXCLUSIVE */
--	Z_EROFS_PAGE_TYPE_EXCLUSIVE,
--
--	Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED,
--
--	Z_EROFS_VLE_PAGE_TYPE_HEAD,
--	Z_EROFS_VLE_PAGE_TYPE_MAX
--};
--
- struct z_erofs_bvec_iter {
- 	struct page *bvpage;
- 	struct z_erofs_bvset *bvset;
-@@ -429,7 +418,6 @@ int erofs_try_to_free_cached_page(struct page *page)
- 	return ret;
- }
- 
--/* page_type must be Z_EROFS_PAGE_TYPE_EXCLUSIVE */
- static bool z_erofs_try_inplace_io(struct z_erofs_decompress_frontend *fe,
- 				   struct z_erofs_bvec *bvec)
++static int z_erofs_do_decompressed_bvec(struct z_erofs_decompress_backend *be,
++					struct z_erofs_bvec *bvec)
++{
++	unsigned int pgnr = (bvec->offset + be->pcl->pageofs_out) >> PAGE_SHIFT;
++	struct page *oldpage;
++
++	DBG_BUGON(pgnr >= be->pcl->nr_pages);
++	oldpage = be->decompressed_pages[pgnr];
++	be->decompressed_pages[pgnr] = bvec->page;
++
++	/* error out if one pcluster is refenenced multiple times. */
++	if (oldpage) {
++		DBG_BUGON(1);
++		z_erofs_page_mark_eio(oldpage);
++		z_erofs_onlinepage_endio(oldpage);
++		return -EFSCORRUPTED;
++	}
++	return 0;
++}
++
+ static int z_erofs_parse_out_bvecs(struct z_erofs_decompress_backend *be)
  {
-@@ -447,13 +435,11 @@ static bool z_erofs_try_inplace_io(struct z_erofs_decompress_frontend *fe,
+ 	struct z_erofs_pcluster *pcl = be->pcl;
+@@ -871,27 +891,14 @@ static int z_erofs_parse_out_bvecs(struct z_erofs_decompress_backend *be)
+ 	z_erofs_bvec_iter_begin(&biter, &pcl->bvset, Z_EROFS_INLINE_BVECS, 0);
+ 	for (i = 0; i < pcl->vcnt; ++i) {
+ 		struct z_erofs_bvec bvec;
+-		unsigned int pgnr;
  
- /* callers must be with pcluster lock held */
- static int z_erofs_attach_page(struct z_erofs_decompress_frontend *fe,
--			       struct z_erofs_bvec *bvec,
--			       enum z_erofs_page_type type)
-+			       struct z_erofs_bvec *bvec, bool exclusive)
- {
- 	int ret;
+ 		z_erofs_bvec_dequeue(&biter, &bvec, &old_bvpage);
  
--	if (fe->mode >= COLLECT_PRIMARY &&
--	    type == Z_EROFS_PAGE_TYPE_EXCLUSIVE) {
-+	if (fe->mode >= COLLECT_PRIMARY && exclusive) {
- 		/* give priority for inplaceio to use file pages first */
- 		if (z_erofs_try_inplace_io(fe, bvec))
- 			return 0;
-@@ -718,10 +704,9 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 	struct erofs_sb_info *const sbi = EROFS_I_SB(inode);
- 	struct erofs_map_blocks *const map = &fe->map;
- 	const loff_t offset = page_offset(page);
--	bool tight = true;
-+	bool tight = true, exclusive;
+ 		if (old_bvpage)
+ 			z_erofs_put_shortlivedpage(be->pagepool, old_bvpage);
  
- 	enum z_erofs_cache_alloctype cache_strategy;
--	enum z_erofs_page_type page_type;
- 	unsigned int cur, end, spiltted, index;
- 	int err = 0;
- 
-@@ -798,12 +783,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 		goto next_part;
+-		pgnr = (bvec.offset + pcl->pageofs_out) >> PAGE_SHIFT;
+-		DBG_BUGON(pgnr >= pcl->nr_pages);
+ 		DBG_BUGON(z_erofs_page_is_invalidated(bvec.page));
+-		/*
+-		 * currently EROFS doesn't support multiref(dedup),
+-		 * so here erroring out one multiref page.
+-		 */
+-		if (be->decompressed_pages[pgnr]) {
+-			DBG_BUGON(1);
+-			z_erofs_page_mark_eio(be->decompressed_pages[pgnr]);
+-			z_erofs_onlinepage_endio(be->decompressed_pages[pgnr]);
+-			err = -EFSCORRUPTED;
+-		}
+-		be->decompressed_pages[pgnr] = bvec.page;
++		err = z_erofs_do_decompressed_bvec(be, &bvec);
  	}
  
--	/* let's derive page type */
--	page_type = cur ? Z_EROFS_VLE_PAGE_TYPE_HEAD :
--		(!spiltted ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
--			(tight ? Z_EROFS_PAGE_TYPE_EXCLUSIVE :
--				Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED));
--
-+	exclusive = (!cur && (!spiltted || tight));
- 	if (cur)
- 		tight &= (fe->mode >= COLLECT_PRIMARY_FOLLOWED);
+ 	old_bvpage = z_erofs_bvec_iter_end(&biter);
+@@ -911,7 +918,6 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
+ 	for (i = 0; i < pclusterpages; ++i) {
+ 		struct z_erofs_bvec *bvec = &pcl->compressed_bvecs[i];
+ 		struct page *page = bvec->page;
+-		unsigned int pgnr;
  
-@@ -812,7 +792,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 					.page = page,
- 					.offset = offset - map->m_la,
- 					.end = end,
--				  }), page_type);
-+				  }), exclusive);
- 	/* should allocate an additional short-lived page for bvset */
- 	if (err == -EAGAIN && !fe->candidate_bvpage) {
- 		fe->candidate_bvpage = alloc_page(GFP_NOFS | __GFP_NOFAIL);
+ 		/* compressed pages ought to be present before decompressing */
+ 		if (!page) {
+@@ -933,18 +939,7 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
+ 					err = -EIO;
+ 				continue;
+ 			}
+-
+-			pgnr = (bvec->offset + pcl->pageofs_out) >> PAGE_SHIFT;
+-			DBG_BUGON(pgnr >= pcl->nr_pages);
+-			if (be->decompressed_pages[pgnr]) {
+-				DBG_BUGON(1);
+-				z_erofs_page_mark_eio(
+-						be->decompressed_pages[pgnr]);
+-				z_erofs_onlinepage_endio(
+-						be->decompressed_pages[pgnr]);
+-				err = -EFSCORRUPTED;
+-			}
+-			be->decompressed_pages[pgnr] = page;
++			err = z_erofs_do_decompressed_bvec(be, bvec);
+ 			*overlapped = true;
+ 		}
+ 	}
 -- 
 2.24.4
 
