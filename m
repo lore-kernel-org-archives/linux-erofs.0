@@ -4,33 +4,60 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB984C433EF
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Jul 2022 15:48:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91663C43334
+	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 04:02:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Lkwjr35P4z3c8P
-	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 01:48:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.11; helo=out199-11.us.a.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out199-11.us.a.mail.aliyun.com (out199-11.us.a.mail.aliyun.com [47.90.199.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LlF1F3WDyz3c70
+	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 14:02:25 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PH+eZ9cR;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PH+eZ9cR;
+	dkim-atps=neutral
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Lkwjk5cpMz2xKj
-	for <linux-erofs@lists.ozlabs.org>; Sat, 16 Jul 2022 01:47:54 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VJPnC79_1657899744;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VJPnC79_1657899744)
-          by smtp.aliyun-inc.com;
-          Fri, 15 Jul 2022 23:42:25 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org,
-	Chao Yu <chao@kernel.org>
-Subject: [PATCH v2 11/16] erofs: get rid of `z_pagemap_global'
-Date: Fri, 15 Jul 2022 23:41:58 +0800
-Message-Id: <20220715154203.48093-12-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20220715154203.48093-1-hsiangkao@linux.alibaba.com>
-References: <20220715154203.48093-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LlF1505SSz2xgX
+	for <linux-erofs@lists.ozlabs.org>; Sat, 16 Jul 2022 14:02:10 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1657944137; x=1689480137;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=BMW8TySjg46R7m1ZgHn4uIlwBw8IcjeMq41JnsZUx9Q=;
+  b=PH+eZ9cRLU034rTWvRw998hyssgpS7pJNqU7V0J2j8VDwASy+Snv/8F7
+   o75PWg4F7JsoZpYIQLUZfwnXLyYGyJIo9zLUaWXqWyHtjVJKyDQ9n7vpS
+   BW9AtumIG5fGmkcfuBW6pOs82q+kRTuyPF/MBjQISq6cbgyhS3Fg69P+R
+   xgFMstoZy23eUafMWDEpU3VTW+e05pNuqiS65Yr/sy8umM1D5cWyC5d/7
+   VgCmkm0HHZRAaOfGjLnbBFrz1KNtYtPGKGkcYc4fCeq1lxki27lP/677J
+   4TESWlf8THl0gJLwDLCaoqKH9AgKQMApqnJbgF6f6StvxVT5PAMI8M39V
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10409"; a="372258323"
+X-IronPort-AV: E=Sophos;i="5.92,275,1650956400"; 
+   d="scan'208";a="372258323"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 21:01:58 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,275,1650956400"; 
+   d="scan'208";a="686184552"
+Received: from lkp-server02.sh.intel.com (HELO ff137eb26ff1) ([10.239.97.151])
+  by FMSMGA003.fm.intel.com with ESMTP; 15 Jul 2022 21:01:57 -0700
+Received: from kbuild by ff137eb26ff1 with local (Exim 4.95)
+	(envelope-from <lkp@intel.com>)
+	id 1oCZ08-00017R-Nn;
+	Sat, 16 Jul 2022 04:01:56 +0000
+Date: Sat, 16 Jul 2022 12:01:21 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ 410bae521617656ad1acf84e0b68c643bcb1beab
+Message-ID: <62d23811.ncnAyaTN94FW6AC8%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -42,86 +69,139 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In order to introduce multi-reference pclusters for compressed data
-deduplication, let's get rid of the global page array for now since
-it needs to be re-designed then at least.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: 410bae521617656ad1acf84e0b68c643bcb1beab  erofs: introduce multi-reference pclusters (fully-referenced)
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/zdata.c | 28 ++++------------------------
- fs/erofs/zdata.h |  1 -
- 2 files changed, 4 insertions(+), 25 deletions(-)
+elapsed time: 723m
 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index d1f907f4757d..3f735ca0415e 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -291,9 +291,6 @@ struct z_erofs_decompress_frontend {
- 	.inode = __i, .owned_head = Z_EROFS_PCLUSTER_TAIL, \
- 	.mode = Z_EROFS_PCLUSTER_FOLLOWED, .backmost = true }
- 
--static struct page *z_pagemap_global[Z_EROFS_VMAP_GLOBAL_PAGES];
--static DEFINE_MUTEX(z_pagemap_global_lock);
--
- static void z_erofs_bind_cache(struct z_erofs_decompress_frontend *fe,
- 			       enum z_erofs_cache_alloctype type,
- 			       struct page **pagepool)
-@@ -966,26 +963,11 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 	mutex_lock(&pcl->lock);
- 	nr_pages = pcl->nr_pages;
- 
--	if (nr_pages <= Z_EROFS_VMAP_ONSTACK_PAGES) {
-+	if (nr_pages <= Z_EROFS_VMAP_ONSTACK_PAGES)
- 		pages = pages_onstack;
--	} else if (nr_pages <= Z_EROFS_VMAP_GLOBAL_PAGES &&
--		   mutex_trylock(&z_pagemap_global_lock)) {
--		pages = z_pagemap_global;
--	} else {
--		gfp_t gfp_flags = GFP_KERNEL;
--
--		if (nr_pages > Z_EROFS_VMAP_GLOBAL_PAGES)
--			gfp_flags |= __GFP_NOFAIL;
--
-+	else
- 		pages = kvmalloc_array(nr_pages, sizeof(struct page *),
--				       gfp_flags);
--
--		/* fallback to global pagemap for the lowmem scenario */
--		if (!pages) {
--			mutex_lock(&z_pagemap_global_lock);
--			pages = z_pagemap_global;
--		}
--	}
-+				       GFP_KERNEL | __GFP_NOFAIL);
- 
- 	for (i = 0; i < nr_pages; ++i)
- 		pages[i] = NULL;
-@@ -1065,9 +1047,7 @@ static int z_erofs_decompress_pcluster(struct super_block *sb,
- 		z_erofs_onlinepage_endio(page);
- 	}
- 
--	if (pages == z_pagemap_global)
--		mutex_unlock(&z_pagemap_global_lock);
--	else if (pages != pages_onstack)
-+	if (pages != pages_onstack)
- 		kvfree(pages);
- 
- 	pcl->nr_pages = 0;
-diff --git a/fs/erofs/zdata.h b/fs/erofs/zdata.h
-index 75f6fd435388..43c91bd2d84f 100644
---- a/fs/erofs/zdata.h
-+++ b/fs/erofs/zdata.h
-@@ -175,6 +175,5 @@ static inline void z_erofs_onlinepage_endio(struct page *page)
- 
- #define Z_EROFS_VMAP_ONSTACK_PAGES	\
- 	min_t(unsigned int, THREAD_SIZE / 8 / sizeof(struct page *), 96U)
--#define Z_EROFS_VMAP_GLOBAL_PAGES	2048
- 
- #endif
+configs tested: 114
+configs skipped: 3
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm64                            allyesconfig
+arm                                 defconfig
+arm                              allyesconfig
+i386                          randconfig-c001
+arm                      footbridge_defconfig
+xtensa                              defconfig
+openrisc                    or1ksim_defconfig
+arm                        mvebu_v7_defconfig
+powerpc                 mpc85xx_cds_defconfig
+parisc                generic-32bit_defconfig
+arm                           u8500_defconfig
+sh                          urquell_defconfig
+s390                       zfcpdump_defconfig
+m68k                             alldefconfig
+mips                           jazz_defconfig
+arm                          simpad_defconfig
+arm                       multi_v4t_defconfig
+powerpc                     ep8248e_defconfig
+sh                        sh7763rdp_defconfig
+mips                    maltaup_xpa_defconfig
+mips                      loongson3_defconfig
+arm                        keystone_defconfig
+powerpc                      tqm8xx_defconfig
+xtensa                    xip_kc705_defconfig
+powerpc                     tqm8555_defconfig
+sh                        sh7785lcr_defconfig
+mips                            ar7_defconfig
+sh                         ecovec24_defconfig
+m68k                        m5307c3_defconfig
+ia64                             alldefconfig
+openrisc                 simple_smp_defconfig
+riscv                    nommu_virt_defconfig
+riscv                          rv32_defconfig
+riscv                    nommu_k210_defconfig
+riscv                             allnoconfig
+i386                   debian-10.3-kselftests
+i386                              debian-10.3
+ia64                             allmodconfig
+csky                              allnoconfig
+alpha                             allnoconfig
+arc                               allnoconfig
+m68k                             allyesconfig
+m68k                             allmodconfig
+arc                              allyesconfig
+alpha                            allyesconfig
+powerpc                           allnoconfig
+mips                             allyesconfig
+powerpc                          allmodconfig
+sh                               allmodconfig
+i386                             allyesconfig
+i386                                defconfig
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+x86_64                        randconfig-a006
+i386                          randconfig-a001
+i386                          randconfig-a003
+i386                          randconfig-a005
+x86_64                        randconfig-a011
+x86_64                        randconfig-a013
+x86_64                        randconfig-a015
+i386                          randconfig-a012
+i386                          randconfig-a014
+i386                          randconfig-a016
+arc                  randconfig-r043-20220716
+arc                  randconfig-r043-20220715
+s390                 randconfig-r044-20220716
+riscv                randconfig-r042-20220716
+x86_64                    rhel-8.3-kselftests
+x86_64                           allyesconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                          rhel-8.3-func
+x86_64                           rhel-8.3-syz
+x86_64                         rhel-8.3-kunit
+
+clang tested configs:
+mips                      pic32mzda_defconfig
+mips                           mtx1_defconfig
+powerpc                      ppc64e_defconfig
+arm                       aspeed_g4_defconfig
+arm                          moxart_defconfig
+powerpc                     ppa8548_defconfig
+mips                      maltaaprp_defconfig
+arm                        mvebu_v5_defconfig
+arm                         bcm2835_defconfig
+powerpc                    socrates_defconfig
+powerpc               mpc834x_itxgp_defconfig
+arm                       netwinder_defconfig
+mips                       lemote2f_defconfig
+arm                   milbeaut_m10v_defconfig
+powerpc                    ge_imp3a_defconfig
+arm                          collie_defconfig
+mips                     cu1830-neo_defconfig
+powerpc                      obs600_defconfig
+arm                            dove_defconfig
+x86_64                        randconfig-k001
+x86_64                        randconfig-a001
+x86_64                        randconfig-a003
+x86_64                        randconfig-a005
+i386                          randconfig-a002
+i386                          randconfig-a006
+i386                          randconfig-a004
+x86_64                        randconfig-a012
+x86_64                        randconfig-a014
+x86_64                        randconfig-a016
+i386                          randconfig-a015
+i386                          randconfig-a011
+i386                          randconfig-a013
+riscv                randconfig-r042-20220715
+s390                 randconfig-r044-20220715
+hexagon              randconfig-r045-20220715
+hexagon              randconfig-r041-20220715
+hexagon              randconfig-r045-20220716
+hexagon              randconfig-r041-20220716
+
 -- 
-2.24.4
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp
