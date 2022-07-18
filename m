@@ -4,60 +4,140 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91663C43334
-	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 04:02:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9CE3FC433EF
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Jul 2022 11:21:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LlF1F3WDyz3c70
-	for <linux-erofs@archiver.kernel.org>; Sat, 16 Jul 2022 14:02:25 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LmffZ3Qm9z3bXn
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Jul 2022 21:21:10 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PH+eZ9cR;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=GHK8XAPw;
+	dkim=pass (1024-bit key; unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=KWUaD7tF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=oracle.com (client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=dan.carpenter@oracle.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PH+eZ9cR;
+	dkim=pass (2048-bit key; unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=GHK8XAPw;
+	dkim=pass (1024-bit key; unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=KWUaD7tF;
 	dkim-atps=neutral
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LlF1505SSz2xgX
-	for <linux-erofs@lists.ozlabs.org>; Sat, 16 Jul 2022 14:02:10 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657944137; x=1689480137;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=BMW8TySjg46R7m1ZgHn4uIlwBw8IcjeMq41JnsZUx9Q=;
-  b=PH+eZ9cRLU034rTWvRw998hyssgpS7pJNqU7V0J2j8VDwASy+Snv/8F7
-   o75PWg4F7JsoZpYIQLUZfwnXLyYGyJIo9zLUaWXqWyHtjVJKyDQ9n7vpS
-   BW9AtumIG5fGmkcfuBW6pOs82q+kRTuyPF/MBjQISq6cbgyhS3Fg69P+R
-   xgFMstoZy23eUafMWDEpU3VTW+e05pNuqiS65Yr/sy8umM1D5cWyC5d/7
-   VgCmkm0HHZRAaOfGjLnbBFrz1KNtYtPGKGkcYc4fCeq1lxki27lP/677J
-   4TESWlf8THl0gJLwDLCaoqKH9AgKQMApqnJbgF6f6StvxVT5PAMI8M39V
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10409"; a="372258323"
-X-IronPort-AV: E=Sophos;i="5.92,275,1650956400"; 
-   d="scan'208";a="372258323"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 21:01:58 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,275,1650956400"; 
-   d="scan'208";a="686184552"
-Received: from lkp-server02.sh.intel.com (HELO ff137eb26ff1) ([10.239.97.151])
-  by FMSMGA003.fm.intel.com with ESMTP; 15 Jul 2022 21:01:57 -0700
-Received: from kbuild by ff137eb26ff1 with local (Exim 4.95)
-	(envelope-from <lkp@intel.com>)
-	id 1oCZ08-00017R-Nn;
-	Sat, 16 Jul 2022 04:01:56 +0000
-Date: Sat, 16 Jul 2022 12:01:21 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 410bae521617656ad1acf84e0b68c643bcb1beab
-Message-ID: <62d23811.ncnAyaTN94FW6AC8%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
-MIME-Version: 1.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LmffP1L9Rz2yT0
+	for <linux-erofs@lists.ozlabs.org>; Mon, 18 Jul 2022 21:20:53 +1000 (AEST)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26IB44RZ019928;
+	Mon, 18 Jul 2022 11:20:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : content-type : mime-version; s=corp-2022-7-12;
+ bh=Al3R7w6qflMNSh6TdicQjp4e+QLtM+CgVviRUf6LtNw=;
+ b=GHK8XAPw0pVQR0b7BbOrX/iXdid0tOy+rk6vGTtsrunztxYZJEvcd4yrryo+8qRY2qEj
+ cuO5YebzlYem2V8nOBvldMPQi+V/np8A2rnmcfk+F8iKfZrqo2TRXloiGZ4MGjYvc3Zj
+ jWGWi5HHIEbHahSH+T3iSdmasNEmEyj3r0pU4acHAHZlKc2NU7YMpaCaocpaC27EgEpR
+ +aRZ9AO8CDpVms/CPPYqTsp8FtZV5lqSoal+VHGl3GuYFAEDnN8/SZJhejMV4z+RNLk0
+ 4bIkD6tMO2IEPqJM3jQp3VK3YV64l9jQOqMaEyOlRr6z+wNIWiFz0gb9bQMTyp2CJniU Gw== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hbnvtaxtg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 18 Jul 2022 11:20:23 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 26IB4wHt028116;
+	Mon, 18 Jul 2022 11:20:21 GMT
+Received: from nam04-dm6-obe.outbound.protection.outlook.com (mail-dm6nam04lp2044.outbound.protection.outlook.com [104.47.73.44])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3hc1ma5t7a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 18 Jul 2022 11:20:21 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nBQOTIn5RSORbVmSaWgxQSsHjvi4n4HTDCVhj99UMnIBP1l8P5ai/BfNaqVDVRQVF4JMa56pPimI1m6aPjS4Pz0TLg1N/wkHEADwRNfXcXTdlDr/9HUqWxGFP6rBazMGzUI6dYq1pw2+e2f6NGkLcxS+PnbNHnafT7eVvIWi/HPiXfpqiH5EkYbp79moL/26te6un3kF9dhs1amA4vT43nAgHqGS9Nc6U+Xkbf2XrllgRKsWORfeAGZIHC/5Ag2CQgZ/OFTQe36qtPNI/jCTE2wOREZcnFS7wYR2KOaeECvYj8Kcb1EAo77+8cVg6o/WGdq6SEHkoD43/Uk5hZ8SAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Al3R7w6qflMNSh6TdicQjp4e+QLtM+CgVviRUf6LtNw=;
+ b=BhYJnH2UaywmKluRvUeHWO8L+CTZ/m07uH2j9UVzIC49b68Hthq7rnBkU6KMsL8wACLKFKz3nw95QyX/X6EymTNb4LWZ6RaWhcLC5v+bFNtb7kvkc0VmxBMitOWK+jhjU4Tgay3Z1HQQvLW/esCzaK/lJzQy4rJe/PjXGdU+uZ1stJ4y6z0MkG6kuC9xkrjGk8ZaznfPfoxwPS9/NdnJlgzP2aeahf9YWDgVhG4ZpFWbAzYPcymyenCj1RSJ5XSqR/W/gQP16itf6HVwpviRoaTY8yUanrrcjvKzTa1rK5KT3bDrDGeIL86Wzx9G0yFBg86AJ8xmW37djTiIxNfhpA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Al3R7w6qflMNSh6TdicQjp4e+QLtM+CgVviRUf6LtNw=;
+ b=KWUaD7tF/GEg+6jBRsiW+0ShQn5tvQi+8WGM1xWOLHvw65diepP2+wg+9Ft+bne8kXSozJfcrKw0YRN4AVlHqC44cyRj8g5mklfuABy2umGuqdATTQfZ6fQWoi/UUg5pdjN+CGh4gIh8CM6v2RooH1QOxNMWkSxHVf/fdQew/+c=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by CH2PR10MB3992.namprd10.prod.outlook.com
+ (2603:10b6:610:9::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5438.14; Mon, 18 Jul
+ 2022 11:20:19 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::5020:9b82:5917:40b]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::5020:9b82:5917:40b%6]) with mapi id 15.20.5438.023; Mon, 18 Jul 2022
+ 11:20:19 +0000
+Date: Mon, 18 Jul 2022 14:20:08 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Gao Xiang <xiang@kernel.org>
+Subject: [PATCH] erofs: clean up a loop
+Message-ID: <YtVB6GBWHVSc6fbU@kili>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+X-ClientProxiedBy: ZR0P278CA0181.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:44::14) To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: eede3d02-786c-444c-a8c7-08da68af7f58
+X-MS-TrafficTypeDiagnostic: CH2PR10MB3992:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 	83XrbEaSsiKI6nlFhp1rD8vE1VlAMM2BDJEHP85am6Us1w99YmEWVbTLFzdAJt4P+MJKnQhWSc8mGADd6ZBNxmAU9BeQVPA/LEiGe0POBF0euO5hmgXuy39JJ97WanDLlb79PVbRThTUjG5f9CflWZ0Ghy9a/acJ9udOiH/SYJN5IfgqOZ4+T4TJzGcr/5faZDd+q9Tx5QcBEyH1Klxz5nYGW/plE5kBaa/oNi09LV9rzbYzKi8IysfvHUJOJiGSJqXJqr/njF47HS0wKwF0UUhTx4U2y0cIez7bEn4DNK9AjOW74wWAcxWlgDPoytFITz0bQc9qEw7GjXupGcBboD9kyFA5fRKqjGOl/GzE74ycIcL86pwIaKK9+mVEUxyJU6gUfUCillffV4C3vwx9O/4bLU5L0l6OrSS4YFXGYLvKB5EOfjoPq9E5BVMAzExPDT6iR7sF9/F4BZssxaPurAcpULnwuo3xh6EXEApbvLo7/qiQwMUu8ne4rWum+QO7Lw48lxMSLQP+yMLhX1zx7ml69505fawCeV9hujJRLrvxL4Kyyot2OUaGi4GlY6C1G2Sx18cX5x6Oh7/FXADuGEg1cZqTPNIImuVfZujEabO6FGoIkgFyGs8B8ze9JYFjJosHHxSX/zOseXyCPAvnA1iOSWMpjHJ9pX5Asz0w9xQqMT9vNo4JFXqr0DcCuFDoCiPFkMmdZq1WQp3NGLrXQ5iLL6GJjTbVCQSoIaVfLL0YfIwykpIvS+/LmYHjSCHdtspJ/uFR7Q9TgVTbsDkJc09aD7vsFDPBiExkmopJBadFKBP71dGEF9MegcJT00rw
+X-Forefront-Antispam-Report: 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1001MB2365.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(7916004)(346002)(366004)(396003)(376002)(39860400002)(136003)(66556008)(4326008)(6486002)(8676002)(186003)(6512007)(83380400001)(26005)(54906003)(6916009)(316002)(9686003)(6666004)(478600001)(66946007)(4744005)(33716001)(38100700002)(5660300002)(44832011)(8936002)(41300700001)(86362001)(66476007)(52116002)(2906002)(38350700002)(6506007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 	=?us-ascii?Q?q8HU9mTnsLIWIxFFfJ7IjRBHzK0w10Mw+miD8791bxeMdFb13M+aFviRdrr7?=
+ =?us-ascii?Q?xsg00X0wtklbakS14RR7S3ycGK4Y7DsKo35GA5GWTH+2iThoUzHaxm6pCIiH?=
+ =?us-ascii?Q?yAu37+J/F+V/rCbYUf8OX5FLx7RUHJ1RoxRZLv5o5REuJunw1Cvx/U3Dic9q?=
+ =?us-ascii?Q?ztO0hM4gLyIHrE4QqnLO4jS2OhYs/nrnJxOIYKNI7AsQoPjQmDP6+SNMyX1d?=
+ =?us-ascii?Q?CbmO7vxFc06wwEcAJuxERjwp0AKbgb8K6aBlLKdRtOiXJQqbCimxp5D/u+wR?=
+ =?us-ascii?Q?qMJHLZ6HLZqgH86HrBP1tJnKxDvIlQDvOmC62KtO8CB0BTNcJYR66/hfKsgs?=
+ =?us-ascii?Q?q3EBsk5rs4gMsQxlfsCI6IG4Vr+NDUtXzuunM9qN1PTiR79JPqreMp64PbCp?=
+ =?us-ascii?Q?7FZlj7VaNd3xYi2q6vQN3mxzbxcES6L5IKrTzDkyT8Fp9p8nVyKnVne6YWfA?=
+ =?us-ascii?Q?RD/zneWhO9+6WBqvO+P89gyGadlAvIh61ABN9o9UI1n/yK0hxCck9g/eAp6E?=
+ =?us-ascii?Q?dBV0GCa+lrTX3UlV5sVdQuw6Ro8BOOVY4s7cZlHOdmOEg5q+/lW4VYvd7iMQ?=
+ =?us-ascii?Q?m2jnAWl2oJKzsXGq5zYiTc0Z9pwW6S+gBKH0vY+tz4h2gkVohRwl41AeuOZ5?=
+ =?us-ascii?Q?kcTVY0OqPli2RgqBUb/BbCFZ2W5N9ZzBHbfv4XPW51Yud3/cUMeB8R0IK7XI?=
+ =?us-ascii?Q?oA4daNOgJiSKeqGcccGaNmqeZIcws5G98Up3k2SjwZMEXipbEExjRs4TJYdr?=
+ =?us-ascii?Q?GZs9Ld2QUAWfvUOCWq77CFbWMJF9q24H1gg6uMFF/23itaNjnnXKeOJ3w0Hj?=
+ =?us-ascii?Q?MYI2pkL0Mq94Z9CM+lk0MMcK9yfFgfxwa046yBLBAfo4pztCAmLw4uEv6NoK?=
+ =?us-ascii?Q?NIz9RIf1tQHUbHrGZu7UqSD02zzC4KX2Fnwes0ubIYS7T2s8kWSQGrZZB4S6?=
+ =?us-ascii?Q?aQbVzWMBwXxTL21xqcWOZhwo+CAHAw1UUOQB+DAvet4A4IUoll3pqETnoKGW?=
+ =?us-ascii?Q?wRBC+iG/y5csNKTUH7zrqdL1W1UI3yPsaCN2AHYKpXsFqzomEe1EOo5GYqPX?=
+ =?us-ascii?Q?itwXbrmRNq1uWKyf9JGe+/m30nnS78OQjcM5FlRNc7dORlGafYDElKHb57gj?=
+ =?us-ascii?Q?hLaSaUDi91BwvWRO218OZNWmDWNZ7oRyh3k923bJJAG7IqClhM6Skru+lKxE?=
+ =?us-ascii?Q?e/l3iIW0z3gN/MsHza3FaQxE8EoKlYKlnHogKtbG6/hrl9wpZH9OvmydUzzf?=
+ =?us-ascii?Q?loYcJQtW4VBQTzeXyVk0UAkwJQizUXUbCW0cS8bZjF94JwBq9NlhzI8k5Pqd?=
+ =?us-ascii?Q?+E1QuiaNjCpIDUDxBchZK6XeEwV/ZghQtnylle5/8Crqsebrd8LgwNvjUC28?=
+ =?us-ascii?Q?GtITADdaTJTFGkIedBayxhytFnHhGrMle9WS0Knh+zXbHDAeUe/kSGKSKAhD?=
+ =?us-ascii?Q?KmEBsbaMhfxU2/zcWZupIGi3eoldJZud6ekd97Jc7TBKabXceItAamoHHhIh?=
+ =?us-ascii?Q?s1FsNyo/DPOYLRgfDsf67C/tv0dfxfV/nEVBfRR5nDUJ6IE0pOkMomUbxpg5?=
+ =?us-ascii?Q?N5/RhUl5fNRt7KwQb0S2HIicoFvNAOrQF5hWI+AzQn4YCkzofbnpygb01iCt?=
+ =?us-ascii?Q?XA=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eede3d02-786c-444c-a8c7-08da68af7f58
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jul 2022 11:20:19.3147
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TdQN9FJEBC8tlk78FkZMAqnOrEthUcmePHo9q347OKtsYRLOShy1DZWPPOa8lFyQgU7oFJXnpM93eKPWqqS1G4aIbS16R31konmwYQC5mNw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR10MB3992
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-18_10,2022-07-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 bulkscore=0 phishscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 spamscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207180049
+X-Proofpoint-GUID: Y_6OuKPhtHwHlnypCtCmI7OekCwVFTqs
+X-Proofpoint-ORIG-GUID: Y_6OuKPhtHwHlnypCtCmI7OekCwVFTqs
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,139 +149,33 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: kernel-janitors@vger.kernel.org, linux-erofs@lists.ozlabs.org, Yue Hu <huyue2@coolpad.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 410bae521617656ad1acf84e0b68c643bcb1beab  erofs: introduce multi-reference pclusters (fully-referenced)
+It's easier to see what this loop is doing when the decrement is in
+the normal place.
 
-elapsed time: 723m
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+ fs/erofs/zdata.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-configs tested: 114
-configs skipped: 3
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm64                            allyesconfig
-arm                                 defconfig
-arm                              allyesconfig
-i386                          randconfig-c001
-arm                      footbridge_defconfig
-xtensa                              defconfig
-openrisc                    or1ksim_defconfig
-arm                        mvebu_v7_defconfig
-powerpc                 mpc85xx_cds_defconfig
-parisc                generic-32bit_defconfig
-arm                           u8500_defconfig
-sh                          urquell_defconfig
-s390                       zfcpdump_defconfig
-m68k                             alldefconfig
-mips                           jazz_defconfig
-arm                          simpad_defconfig
-arm                       multi_v4t_defconfig
-powerpc                     ep8248e_defconfig
-sh                        sh7763rdp_defconfig
-mips                    maltaup_xpa_defconfig
-mips                      loongson3_defconfig
-arm                        keystone_defconfig
-powerpc                      tqm8xx_defconfig
-xtensa                    xip_kc705_defconfig
-powerpc                     tqm8555_defconfig
-sh                        sh7785lcr_defconfig
-mips                            ar7_defconfig
-sh                         ecovec24_defconfig
-m68k                        m5307c3_defconfig
-ia64                             alldefconfig
-openrisc                 simple_smp_defconfig
-riscv                    nommu_virt_defconfig
-riscv                          rv32_defconfig
-riscv                    nommu_k210_defconfig
-riscv                             allnoconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-ia64                             allmodconfig
-csky                              allnoconfig
-alpha                             allnoconfig
-arc                               allnoconfig
-m68k                             allyesconfig
-m68k                             allmodconfig
-arc                              allyesconfig
-alpha                            allyesconfig
-powerpc                           allnoconfig
-mips                             allyesconfig
-powerpc                          allmodconfig
-sh                               allmodconfig
-i386                             allyesconfig
-i386                                defconfig
-x86_64                        randconfig-a004
-x86_64                        randconfig-a002
-x86_64                        randconfig-a006
-i386                          randconfig-a001
-i386                          randconfig-a003
-i386                          randconfig-a005
-x86_64                        randconfig-a011
-x86_64                        randconfig-a013
-x86_64                        randconfig-a015
-i386                          randconfig-a012
-i386                          randconfig-a014
-i386                          randconfig-a016
-arc                  randconfig-r043-20220716
-arc                  randconfig-r043-20220715
-s390                 randconfig-r044-20220716
-riscv                randconfig-r042-20220716
-x86_64                    rhel-8.3-kselftests
-x86_64                           allyesconfig
-um                             i386_defconfig
-um                           x86_64_defconfig
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                           rhel-8.3-syz
-x86_64                         rhel-8.3-kunit
-
-clang tested configs:
-mips                      pic32mzda_defconfig
-mips                           mtx1_defconfig
-powerpc                      ppc64e_defconfig
-arm                       aspeed_g4_defconfig
-arm                          moxart_defconfig
-powerpc                     ppa8548_defconfig
-mips                      maltaaprp_defconfig
-arm                        mvebu_v5_defconfig
-arm                         bcm2835_defconfig
-powerpc                    socrates_defconfig
-powerpc               mpc834x_itxgp_defconfig
-arm                       netwinder_defconfig
-mips                       lemote2f_defconfig
-arm                   milbeaut_m10v_defconfig
-powerpc                    ge_imp3a_defconfig
-arm                          collie_defconfig
-mips                     cu1830-neo_defconfig
-powerpc                      obs600_defconfig
-arm                            dove_defconfig
-x86_64                        randconfig-k001
-x86_64                        randconfig-a001
-x86_64                        randconfig-a003
-x86_64                        randconfig-a005
-i386                          randconfig-a002
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a012
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-i386                          randconfig-a015
-i386                          randconfig-a011
-i386                          randconfig-a013
-riscv                randconfig-r042-20220715
-s390                 randconfig-r044-20220715
-hexagon              randconfig-r045-20220715
-hexagon              randconfig-r041-20220715
-hexagon              randconfig-r045-20220716
-hexagon              randconfig-r041-20220716
-
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 601cfcb07c50..2691100eb231 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -419,8 +419,8 @@ static bool z_erofs_try_inplace_io(struct z_erofs_decompress_frontend *fe,
+ {
+ 	struct z_erofs_pcluster *const pcl = fe->pcl;
+ 
+-	while (fe->icur > 0) {
+-		if (!cmpxchg(&pcl->compressed_bvecs[--fe->icur].page,
++	while (fe->icur--) {
++		if (!cmpxchg(&pcl->compressed_bvecs[fe->icur].page,
+ 			     NULL, bvec->page)) {
+ 			pcl->compressed_bvecs[fe->icur] = *bvec;
+ 			return true;
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.35.1
+
