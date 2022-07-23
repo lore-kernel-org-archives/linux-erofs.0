@@ -4,62 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11F8DC43334
-	for <linux-erofs@archiver.kernel.org>; Sat, 23 Jul 2022 07:17:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F7ACC43334
+	for <linux-erofs@archiver.kernel.org>; Sat, 23 Jul 2022 07:17:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Lqd1R1bPcz3byv
-	for <linux-erofs@archiver.kernel.org>; Sat, 23 Jul 2022 17:17:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Lqd1T732Wz3c5q
+	for <linux-erofs@archiver.kernel.org>; Sat, 23 Jul 2022 17:17:49 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=I0Ls7QDr;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=SkxdbuRx;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1034; helo=mail-pj1-x1034.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=I0Ls7QDr;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=SkxdbuRx;
 	dkim-atps=neutral
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Lqd1J6xWtz2xmg
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Lqd1K0Szjz3blb
 	for <linux-erofs@lists.ozlabs.org>; Sat, 23 Jul 2022 17:17:39 +1000 (AEST)
-Received: by mail-pj1-x1034.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so5939125pjf.2
+Received: by mail-pl1-x634.google.com with SMTP id q5so6246561plr.11
         for <linux-erofs@lists.ozlabs.org>; Sat, 23 Jul 2022 00:17:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id;
-        bh=PC66+4+YT3ZBRVvgOLMJXcnU2Ik04X9Dtm2qlRs/X8k=;
-        b=I0Ls7QDrG18CA5ariGrHA5giNsYxGBfVc+BftI9/twk5yc8uyUgyVa5ek5CEoklfkN
-         lAnrnoY7RQIXLcFdHYKuywrz+4sE8HdiJ3b4nGvruTv/H1Foyjx0dkGbmyRh1JtQ3ZSl
-         SigvMBNW+38AQ7EgP+Kq8XcjYanf36ymlEDd3QBD4ugwgTM7lZpQZJ5f3vzOMQTFrTsc
-         jXkV7xSEBCTjdJHtiJi2XxujTIFjjn8EhwL8oOUMdp5swtep90JEeBnkfTTIlG0lwelw
-         en4RRpNRtwECDPeBtnfLBorgfB1rDXnjDcZE4I+OaTS3GduYILqCB9umuGymIPJSpNfl
-         MRGA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :in-reply-to:references;
+        bh=xvSPk/kMBjNo78lXbzngYRP4R7U33XUYvUp+I4vHPog=;
+        b=SkxdbuRxr5IguDQYWFFUr6FT0260xz12JV3LVwpWKd83re4GtbB+kM/Fp3tGOBHRr+
+         4dn3rhBJdJsPC6vW26MdKwdu5bnC+T3oi2/Oc3eGop97LLPzVoPusuo6jq94zJrEXpug
+         KDKaLvq1dRCVujYTu1DRhVtYT9pEuKpKg3qE9JeuH+4UFGEfwuklyamft42dzrKZjQAC
+         uQak1x1iv22sYxIbQsgAO6F42bCZpYzw8aKvtmJ6AtkNAmlROcqmWzWo7CB4CkX48w24
+         tjjk6HOPyV1PoCLtyUirDWDYHAjsSSdOmNN75czctWRiUE42Ict+B+swxUeogQ37gtaW
+         PL6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=PC66+4+YT3ZBRVvgOLMJXcnU2Ik04X9Dtm2qlRs/X8k=;
-        b=hqwhz1/tWv/kb/2mViZN/Izg6mGPbBmk2pWl2FMn/T4CZvLaTV8v9k0PwD0173wr5o
-         3mg/4KW/o0uCoO03OaNMILRIpFpogl/I9XplI3h0rlRRT5EyCLWsLswsmw+MeKxFPk9t
-         x8nXWD1tziAUSk8UipYykyioVamxDDFhq8MBPfZmssm8hhCeUwmlYHEa/3pAEV5FSeNu
-         nyht7rQKoA2EvrKM1Y6hPpJ8aRWSFrLBeW75NiRjA0SWOpEA6UyYd+g6fMWk5pxMm79T
-         0aKOQ2KxO9/tQFnGBWq7WNV9ReVI4+902J5tNDKMV/Lczolk7ZmN4PuZ1XxZemoBCOrV
-         Clvg==
-X-Gm-Message-State: AJIora8+Lar63LF+DCVbKYFMme7rJTuSrJrNNyDjZUqwmT5fz5iC5aQ7
-	YW3UylM8cy3yPGQm6s5ukNS6mtrzKZY=
-X-Google-Smtp-Source: AGRyM1uru1to8eUp7Z+rMj78kVNG+vjNH8+HXP+O7q6gUbS9EsC3iMbqc0jB26s4OHYLhVyDFFd6Tw==
-X-Received: by 2002:a17:902:ab48:b0:16d:1175:9ed5 with SMTP id ij8-20020a170902ab4800b0016d11759ed5mr3419637plb.19.1658560653542;
-        Sat, 23 Jul 2022 00:17:33 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:in-reply-to:references;
+        bh=xvSPk/kMBjNo78lXbzngYRP4R7U33XUYvUp+I4vHPog=;
+        b=3NGBK38url8atoeRbS9qI4Rvjm1ZpvsTPKMpZRZE3jwLGihNWoaRhggE1yZvlFdohC
+         P4plrZmIgQwsGEiTZHdwV7o3hgQ/3it2/PWrFqZXHeHZFJEllsngNCOfVT8yehkvwjpa
+         76rReDN+o+S0XEEx13BXfQpAvoHLUO5eR1fqGko3B2GNdSL9ZsffR5E2AQh8hNF2wF+9
+         yo0VJsCVsPDEXbxDyGYngJs3LjwBKF5bna+sAWdoFaETjB94OkDxrRKA0lct4zM9hBGU
+         +vUUP3nRFAfhFceCPeC+MjXgNIpo6T9HlIGm6lpS9Zvlis2co1c53c9TuDPp+eY3SHbw
+         n8Ig==
+X-Gm-Message-State: AJIora/WBvH/WDYuvBaxbFknRwlmUcR0/NNWnsQf5pN3uB6PYr8X9yvk
+	rqQMHm2o+wX1mm/NtSgna2Jf8pZfB14=
+X-Google-Smtp-Source: AGRyM1tiUPc7jlo/80ZxFv2E0Z49sIl8o8k5K+RgodTZDckayuplvGEHrQB1/fgeSO9HFe6xWMBszQ==
+X-Received: by 2002:a17:902:e886:b0:16d:5184:11fa with SMTP id w6-20020a170902e88600b0016d518411famr1452406plg.2.1658560657233;
+        Sat, 23 Jul 2022 00:17:37 -0700 (PDT)
 Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id y66-20020a633245000000b00411955c03e5sm4535290pgy.29.2022.07.23.00.17.31
+        by smtp.gmail.com with ESMTPSA id y66-20020a633245000000b00411955c03e5sm4535290pgy.29.2022.07.23.00.17.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Jul 2022 00:17:33 -0700 (PDT)
+        Sat, 23 Jul 2022 00:17:37 -0700 (PDT)
 From: Yue Hu <zbestahu@gmail.com>
 X-Google-Original-From: Yue Hu <huyue2@coolpad.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH v2 0/3] erofs-utils: compressed fragments feature
-Date: Sat, 23 Jul 2022 15:17:12 +0800
-Message-Id: <cover.1658556336.git.huyue2@coolpad.com>
+Subject: [RFC PATCH v2 2/3] erofs-utils: lib: support on-disk offset for shifted decompression
+Date: Sat, 23 Jul 2022 15:17:14 +0800
+Message-Id: <f0063da92e828e42bbd7e876ffb2e612f205faa7.1658556336.git.huyue2@coolpad.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <cover.1658556336.git.huyue2@coolpad.com>
+References: <cover.1658556336.git.huyue2@coolpad.com>
+In-Reply-To: <cover.1658556336.git.huyue2@coolpad.com>
+References: <cover.1658556336.git.huyue2@coolpad.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,77 +81,87 @@ Cc: huyue2@coolpad.com, zbestahu@163.com, shaojunjun@coolpad.com, zhangwen@coolp
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In order to achieve greater compression ratio, let's introduce
-compressed fragments feature which can merge tail of per-file or the
-whole files into one special inode to reach the target.
+Add support to uncompressed data layout with on-disk offset for
+compressed files.
 
-And we can also set pcluster size to fragments inode for different
-compression requirments.
+Signed-off-by: Yue Hu <huyue2@coolpad.com>
+---
+ include/erofs/decompress.h |  3 +++
+ lib/data.c                 |  8 +++++++-
+ lib/decompress.c           | 10 ++++++++--
+ 3 files changed, 18 insertions(+), 3 deletions(-)
 
-In this patchset, we also improve the uncompressed data layout of
-compressed files. Just write it from 'clusterofs' instead of 0 since it
-can benefit from in-place I/O. For now, it only goes with fragments.
-
-The main idea above is from Xiang.
-
-Here is some test data of Linux 5.10.87 source code under Ubuntu 18.04:
-
-linux-5.10.87 (erofs, uncompressed)                1.1G
-
-linux-5.10.87 (erofs, lz4hc,12 4k fragments,4k)    301M
-linux-5.10.87 (erofs, lz4hc,12 8k fragments,8k)    268M
-linux-5.10.87 (erofs, lz4hc,12 16k fragments,16k)  242M
-linux-5.10.87 (erofs, lz4hc,12 32k fragments,32k)  225M
-linux-5.10.87 (erofs, lz4hc,12 64k fragments,64k)  217M
-
-linux-5.10.87 (erofs, lz4hc,12 4k vanilla)         396M
-linux-5.10.87 (erofs, lz4hc,12 8k vanilla)         376M
-linux-5.10.87 (erofs, lz4hc,12 16k vanilla)        364M
-linux-5.10.87 (erofs, lz4hc,12 32k vanilla)        359M
-linux-5.10.87 (erofs, lz4hc,12 64k vanilla)        358M
-
-Usage:
-mkfs.erofs -zlz4hc,12 -C65536 -Efragments,65536 foo.erofs.img foo/
-
-Changes since v1:
- - mainly optimize index space for fragment inode;
- - add merging tail with len <= pclustersize into fragments directly;
- - use a inode instead of nid to avoid multiple load fragments;
- - fix memory leak of building fragments;
- - minor change to diff special fragments with normal inode.
- - rebase to commit cb058526 with patch [1];
- - code cleanup.
-
-Note that inode will be extended version (64 bytes) due to mtime, may
-use 'force-inode-compact' option to reduce the size if mtime careless.
-
-[1] https://lore.kernel.org/linux-erofs/20220722053610.23912-1-huyue2@coolpad.com/
-
-Yue Hu (3):
-  erofs-utils: lib: add support for fragments data decompression
-  erofs-utils: lib: support on-disk offset for shifted decompression
-  erofs-utils: introduce compressed fragments support
-
- include/erofs/compress.h   |   3 +-
- include/erofs/config.h     |   3 +-
- include/erofs/decompress.h |   3 ++
- include/erofs/fragments.h  |  25 +++++++++
- include/erofs/inode.h      |   2 +
- include/erofs/internal.h   |  14 +++++
- include/erofs_fs.h         |  24 ++++++---
- lib/Makefile.am            |   4 +-
- lib/compress.c             | 108 +++++++++++++++++++++++++++----------
- lib/data.c                 |  58 ++++++++++++++++++--
- lib/decompress.c           |  10 +++-
- lib/fragments.c            |  76 ++++++++++++++++++++++++++
- lib/inode.c                |  43 ++++++++++-----
- lib/super.c                |  24 ++++++++-
- lib/zmap.c                 |  18 +++++--
- mkfs/main.c                |  64 +++++++++++++++++++---
- 16 files changed, 412 insertions(+), 67 deletions(-)
- create mode 100644 include/erofs/fragments.h
- create mode 100644 lib/fragments.c
-
+diff --git a/include/erofs/decompress.h b/include/erofs/decompress.h
+index 82bf7b8..b622df5 100644
+--- a/include/erofs/decompress.h
++++ b/include/erofs/decompress.h
+@@ -23,6 +23,9 @@ struct z_erofs_decompress_req {
+ 	unsigned int decodedskip;
+ 	unsigned int inputsize, decodedlength;
+ 
++	/* head offset of uncompressed data */
++	unsigned int shiftedhead;
++
+ 	/* indicate the algorithm will be used for decompression */
+ 	unsigned int alg;
+ 	bool partial_decoding;
+diff --git a/lib/data.c b/lib/data.c
+index 2f3ebb8..16e2ffd 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -226,7 +226,7 @@ static int z_erofs_do_read_data(struct erofs_inode *inode, char *buffer,
+ 	};
+ 	struct erofs_map_dev mdev;
+ 	bool partial;
+-	unsigned int bufsize = 0;
++	unsigned int bufsize = 0, head;
+ 	char *raw = NULL;
+ 	int ret = 0;
+ 
+@@ -308,10 +308,16 @@ static int z_erofs_do_read_data(struct erofs_inode *inode, char *buffer,
+ 		if (ret < 0)
+ 			break;
+ 
++		head = 0;
++		if (erofs_sb_has_fragments() &&
++		    map.m_algorithmformat == Z_EROFS_COMPRESSION_SHIFTED)
++			head = erofs_blkoff(end);
++
+ 		ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
+ 					.in = raw,
+ 					.out = buffer + end - offset,
+ 					.decodedskip = skip,
++					.shiftedhead = head,
+ 					.inputsize = map.m_plen,
+ 					.decodedlength = length,
+ 					.alg = map.m_algorithmformat,
+diff --git a/lib/decompress.c b/lib/decompress.c
+index 1661f91..08a0861 100644
+--- a/lib/decompress.c
++++ b/lib/decompress.c
+@@ -132,14 +132,20 @@ out:
+ int z_erofs_decompress(struct z_erofs_decompress_req *rq)
+ {
+ 	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED) {
++		unsigned int count, rightpart;
++
+ 		if (rq->inputsize > EROFS_BLKSIZ)
+ 			return -EFSCORRUPTED;
+ 
+ 		DBG_BUGON(rq->decodedlength > EROFS_BLKSIZ);
+ 		DBG_BUGON(rq->decodedlength < rq->decodedskip);
+ 
+-		memcpy(rq->out, rq->in + rq->decodedskip,
+-		       rq->decodedlength - rq->decodedskip);
++		count = rq->decodedlength - rq->decodedskip;
++		rightpart = min(EROFS_BLKSIZ - rq->shiftedhead, count);
++
++		memcpy(rq->out, rq->in + (erofs_sb_has_fragments() ?
++		       rq->shiftedhead : rq->decodedskip), rightpart);
++		memcpy(rq->out + rightpart, rq->in, count - rightpart);
+ 		return 0;
+ 	}
+ 
 -- 
 2.17.1
 
