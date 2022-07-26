@@ -4,53 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 323DAC43334
-	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 05:23:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1AD4DC43334
+	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 05:23:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LsQKj5mkpz3bZY
-	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 15:23:05 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LsQKm4Whwz3c2N
+	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 15:23:08 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1658812985;
-	bh=ZLc970s389r/cBG+Tk6HiktCaenz0z1leWM65Yqb4cM=;
+	s=201707; t=1658812988;
+	bh=2nhzVVuKofriwbmEVC76SfMev9B/InrAWOCi8ssri1I=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=V4F5X7LsDA7oKX2rqmi/38vAGRWjPLPGXdvFiXKrirPFcV6VvOPwdFKCoQsiIHhYc
-	 inozMkO+bdVbe8tQW2b/HqnLoTahV0WmA0C0E0oXTAo99vj8wb+XZPNI5hs57e2W29
-	 a85fwoRwcWLQbGO2bkPvNIPlRS8tGB7qfu01MMaAmJM5hnsNH0VXNYRtS6Dm6us2iQ
-	 YNO4d+oGYd0CVjIayb7T9Hr5EHuCp2zrxtWIb6OgeWpXD4fm1bvZwZUt2kcc73D6o7
-	 HxYNQEuL2rEC9u+6uL2zxkP1btWUNUJbXvN3hjXI1yUhQm1upU99mAFV9n+YvOyWgY
-	 SeN8Bg86qbX4A==
+	b=mY7wqruGRZ8bu4j9bobvqoXnBCQk41fpYmcMT7WZludtnVaidaXuLPqxyJVuR/XZj
+	 E7XMN/1zy8rVSmcsk0g+Vzx+63iYXfGms9gGsE1VQmRVRev6D0WLfTzS77QEyKorco
+	 vX7Is2T2agwH4C9DLlo2Qvy99R7FTYVfHMlvYWB2NUdGMCAA8lm6A0R2cINmCgRDfV
+	 uQlDGyyhTQV6SzvvHWFeqx6gcUwEpPUgKXMdcNfYX+eg2XXi9fELdgOcWOGFiKqKho
+	 OkcnUIoQKiMy0qvqJy+YimGoDqr/7mDRuWf3J2b1jG2avEh/YtN+tLrPDThSPjwxZS
+	 o37pF64nntfjg==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.28; helo=smtp-out1.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=fLk6TudH;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=r67x0JW4;
 	dkim-atps=neutral
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LsQKS3DRnz3bsy
-	for <linux-erofs@lists.ozlabs.org>; Tue, 26 Jul 2022 15:22:52 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LsQKV1ppMz3c2s
+	for <linux-erofs@lists.ozlabs.org>; Tue, 26 Jul 2022 15:22:54 +1000 (AEST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 6155A34B51;
-	Tue, 26 Jul 2022 05:22:46 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D48C434BB2;
+	Tue, 26 Jul 2022 05:22:51 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6788913A12;
-	Tue, 26 Jul 2022 05:22:44 +0000 (UTC)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7724213A12;
+	Tue, 26 Jul 2022 05:22:49 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
 	by imap2.suse-dmz.suse.de with ESMTPSA
-	id eDLEDiR632IFOwAAMHmgww
-	(envelope-from <wqu@suse.com>); Tue, 26 Jul 2022 05:22:44 +0000
+	id 0KpeEil632IFOwAAMHmgww
+	(envelope-from <wqu@suse.com>); Tue, 26 Jul 2022 05:22:49 +0000
 To: u-boot@lists.denx.de
-Subject: [PATCH v2 3/8] fs: btrfs: fix a crash if specified range is beyond file size
-Date: Tue, 26 Jul 2022 13:22:11 +0800
-Message-Id: <c4ffb7fcc552dda16491d47f07b5c3a418fc4f69.1658812744.git.wqu@suse.com>
+Subject: [PATCH v2 5/8] fs: ext4: rely on _fs_read() to handle leading unaligned block read
+Date: Tue, 26 Jul 2022 13:22:13 +0800
+Message-Id: <b8c561e7523fe53d49c5279a644736851930d1ad.1658812744.git.wqu@suse.com>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <cover.1658812744.git.wqu@suse.com>
 References: <cover.1658812744.git.wqu@suse.com>
@@ -73,53 +73,80 @@ Cc: trini@konsulko.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, thomas
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-[BUG]
-When try to read a range beyond file size, btrfs driver will cause
-crash/segfault:
-
- => load host 0 $kernel_addr_r 5k_file 0 0x2000
- SEGFAULT
-
-[CAUSE]
-In btrfs_read(), if @len is 0, we will truncated it to file end, but if
-file end is beyond our file size, this truncation will underflow @len,
-making it -3K in this case.
-
-And later that @len is used to memzero the output buffer, resulting
-above crash.
-
-[FIX]
-Just error out if @offset is already beyond our file size.
-
-Now it will fail properly with correct error message:
-
- => load host 0 $kernel_addr_r 5m_origin 0 0x2000
- BTRFS: Read range beyond file size, offset 8192 file size 5120
-
- Failed to load '5m_origin'
+Just add ext4_get_blocksize() and a new assert() in ext4fs_read_file().
 
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 ---
- fs/btrfs/btrfs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/ext4fs.c | 22 ++++++++++++++++++++++
+ fs/fs.c          |  2 +-
+ include/ext4fs.h |  1 +
+ 3 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/btrfs.c b/fs/btrfs/btrfs.c
-index 9145727058d4..bf9e1f2f17cf 100644
---- a/fs/btrfs/btrfs.c
-+++ b/fs/btrfs/btrfs.c
-@@ -252,6 +252,12 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
- 		return ret;
- 	}
+diff --git a/fs/ext4/ext4fs.c b/fs/ext4/ext4fs.c
+index 4c89152ce4ad..b0568e77a895 100644
+--- a/fs/ext4/ext4fs.c
++++ b/fs/ext4/ext4fs.c
+@@ -69,6 +69,8 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
+ 	short status;
+ 	struct ext_block_cache cache;
  
-+	if (offset >= real_size) {
-+		error("Read range beyond file size, offset %llu file size %llu",
-+			offset, real_size);
-+		return -EINVAL;
-+	}
++	assert(IS_ALIGNED(pos, blocksize));
 +
- 	/*
- 	 * If the length is 0 (meaning read the whole file) or the range is
- 	 * beyond file size, truncate it to the end of the file.
+ 	ext_cache_init(&cache);
+ 
+ 	/* Adjust len so it we can't read past the end of the file. */
+@@ -259,6 +261,26 @@ int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+ 	return ext4fs_read(buf, offset, len, len_read);
+ }
+ 
++int ext4_get_blocksize(const char *filename)
++{
++	struct ext_filesystem *fs;
++	int log2blksz;
++	int log2_fs_blocksize;
++	loff_t file_len;
++	int ret;
++
++	ret = ext4fs_open(filename, &file_len);
++	if (ret < 0) {
++		printf("** File not found %s **\n", filename);
++		return -1;
++	}
++	fs = get_fs();
++	log2blksz = fs->dev_desc->log2blksz;
++	log2_fs_blocksize = LOG2_BLOCK_SIZE(ext4fs_file->data) - log2blksz;
++
++	return (1 << (log2_fs_blocksize + log2blksz));
++}
++
+ int ext4fs_uuid(char *uuid_str)
+ {
+ 	if (ext4fs_root == NULL)
+diff --git a/fs/fs.c b/fs/fs.c
+index 1e9f778e1f11..3d6cc6b38b26 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -236,7 +236,7 @@ static struct fstype_info fstypes[] = {
+ 		.exists = ext4fs_exists,
+ 		.size = ext4fs_size,
+ 		.read = ext4_read_file,
+-		.get_blocksize = fs_get_blocksize_unsupported,
++		.get_blocksize = ext4_get_blocksize,
+ #ifdef CONFIG_CMD_EXT4_WRITE
+ 		.write = ext4_write_file,
+ 		.ln = ext4fs_create_link,
+diff --git a/include/ext4fs.h b/include/ext4fs.h
+index cb5d9cc0a5c0..0f4cf32dcc2a 100644
+--- a/include/ext4fs.h
++++ b/include/ext4fs.h
+@@ -161,6 +161,7 @@ int ext4fs_probe(struct blk_desc *fs_dev_desc,
+ 		 struct disk_partition *fs_partition);
+ int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+ 		   loff_t *actread);
++int ext4_get_blocksize(const char *filename);
+ int ext4_read_superblock(char *buffer);
+ int ext4fs_uuid(char *uuid_str);
+ void ext_cache_init(struct ext_block_cache *cache);
 -- 
 2.37.0
 
