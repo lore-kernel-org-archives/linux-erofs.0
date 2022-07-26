@@ -4,69 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23960C433EF
-	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 02:12:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24937C433EF
+	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 05:22:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LsL675RYkz3byr
-	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 12:12:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4LsQKT2TWHz3c1b
+	for <linux-erofs@archiver.kernel.org>; Tue, 26 Jul 2022 15:22:53 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1658812973;
+	bh=60QKSZRDYmiSFFkaLjJ9PS6V3yMYs7nLJ/2LOgJ1nBU=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=JqVkvUnId3bs/daJFIdapPR5fHQTojQL65bCUBpIa6KH3tsIvKL9Wjn/snvwE3ffC
+	 ePZ8xXd7ejczean19TaocLpQa89L+MoB70yA2Oi/yibcf+cIMpgT6dovKmMAQoDZ5Q
+	 Cr5/hjZzPTEn6HE4BZZkoKWXWKRy3v0/ig8dJ/KMfnbAK6FTcm1kWWOwBnVJetJSrU
+	 1e0zyPCVYJksMnRgns5IBxN6d/Nzp8BvV/9n0uwLe9WsLqni7CHyCoQDKXDIdusWVf
+	 goXTQhsel3VwGIUjefD/TYHUiuERg/VO9VjTpPZY+2ziGssEG/nPAl9U5hFWOgR2/Z
+	 ncCz5sULL2nww==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.29; helo=smtp-out2.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256 header.s=google header.b=XKCIA4PL;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=XqxJaDZr;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=konsulko.com (client-ip=2607:f8b0:4864:20::f36; helo=mail-qv1-xf36.google.com; envelope-from=trini@konsulko.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=konsulko.com header.i=@konsulko.com header.a=rsa-sha256 header.s=google header.b=XKCIA4PL;
-	dkim-atps=neutral
-Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LsL642xDxz3bXD
-	for <linux-erofs@lists.ozlabs.org>; Tue, 26 Jul 2022 12:12:42 +1000 (AEST)
-Received: by mail-qv1-xf36.google.com with SMTP id b11so5183663qvo.11
-        for <linux-erofs@lists.ozlabs.org>; Mon, 25 Jul 2022 19:12:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=JHEl4AsUGM2/gSizYBBfeutiug8IP3uRWF4Ytkdrbvg=;
-        b=XKCIA4PLHALCAXI1cRbpmJo0JCQWA9+MmPFEsxMPxts1mCWLtE5d28ctL3AJmlSGHe
-         tuVqLvMmw2h9MBuWKPBTHqyFLZPPMPqlV8dvoX65fjtmaHZ34NK2AAXoxvuc4nrqd5PI
-         Tloorl3JUxNA3CF/GJGlxc3j7s2aqXGzGfyxs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=JHEl4AsUGM2/gSizYBBfeutiug8IP3uRWF4Ytkdrbvg=;
-        b=tf9XcfcwQnirO2Kv7ShxgC7Y0ew3xjNibidxL6y/1Xx01lJw4PM5nnUtsLl2Nl5KY1
-         BiOkubUJ5yfwGGCCqOhhbWj17R2qJcJgtPXMPykEgWllzddSTba0PePf6hpev+LGI12C
-         B0Sdq6eimWURCUEoFPV3tcUoaR1dHULjh6AISXSXyS9PVwwmJiUFoDA1ZUn05ezyY42l
-         0LN0md1c1Cc4Ua5KIGbwdvdYw8bC6EKqvBMsl1orXDB9SYpoHKdaj98v9JtSB70nX8PL
-         hPQ9d/oGb3g0pyRMIZyOsXx8ELT8GcLGwp2hyychrFPPOYskA/P/QzzScBDCB/pKgVcn
-         wQfg==
-X-Gm-Message-State: AJIora+tEddu0jIIHowXMw6W1lJ1CGzsaqyJmju00vERvjgBouud/XYw
-	VvA+c+XtC19jVDkJR8VSN+rKvg==
-X-Google-Smtp-Source: AGRyM1vTK5tY/1suFzgnsOa4YOOdPA42xGdhEl0IFNgTY/LosxdnFPYOqQPqht804UrbM0+bXSee4g==
-X-Received: by 2002:a05:6214:19cb:b0:474:5447:2090 with SMTP id j11-20020a05621419cb00b0047454472090mr4303603qvc.93.1658801558834;
-        Mon, 25 Jul 2022 19:12:38 -0700 (PDT)
-Received: from bill-the-cat (cpe-65-184-195-139.ec.res.rr.com. [65.184.195.139])
-        by smtp.gmail.com with ESMTPSA id m9-20020a05620a13a900b006ab935c1563sm9785937qki.8.2022.07.25.19.12.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jul 2022 19:12:37 -0700 (PDT)
-Date: Mon, 25 Jul 2022 22:12:35 -0400
-From: Tom Rini <trini@konsulko.com>
-To: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Subject: Re: [PATCH 1/8] fs: fat: unexport file_fat_read_at()
-Message-ID: <20220726021235.GI1146598@bill-the-cat>
-References: <cover.1656502685.git.wqu@suse.com>
- <b28b8d554dd3d1fc6bed8fc7f5b9cb71e1880e38.1656502685.git.wqu@suse.com>
- <20220725222850.GA3420905@bill-the-cat>
- <6271e1a2-db85-fb20-6ea8-d23afcb6bc69@gmx.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4LsQKM2qmnz2ywl
+	for <linux-erofs@lists.ozlabs.org>; Tue, 26 Jul 2022 15:22:47 +1000 (AEST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id ABA651F9CB;
+	Tue, 26 Jul 2022 05:22:43 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5319E13A12;
+	Tue, 26 Jul 2022 05:22:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id OBeOCSF632IFOwAAMHmgww
+	(envelope-from <wqu@suse.com>); Tue, 26 Jul 2022 05:22:41 +0000
+To: u-boot@lists.denx.de
+Subject: [PATCH v2 2/8] fs: btrfs: fix a bug which no data get read if the length is not 0
+Date: Tue, 26 Jul 2022 13:22:10 +0800
+Message-Id: <8caea01ab60ad356e06558cdf18dfba0db622daf.1658812744.git.wqu@suse.com>
+X-Mailer: git-send-email 2.37.0
+In-Reply-To: <cover.1658812744.git.wqu@suse.com>
+References: <cover.1658812744.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="J7ZhEZwEjSe6poEw"
-Content-Disposition: inline
-In-Reply-To: <6271e1a2-db85-fb20-6ea8-d23afcb6bc69@gmx.com>
-X-Clacks-Overhead: GNU Terry Pratchett
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -78,56 +67,73 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: joaomarcos.costa@bootlin.com, marek.behun@nic.cz, u-boot@lists.denx.de, Qu Wenruo <wqu@suse.com>, thomas.petazzoni@bootlin.com, miquel.raynal@bootlin.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+From: Qu Wenruo via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Qu Wenruo <wqu@suse.com>
+Cc: trini@konsulko.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, thomas.petazzoni@bootlin.com, miquel.raynal@bootlin.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+[BUG]
+When testing with unaligned read, if a specific length is passed in,
+btrfs driver will read out nothing:
 
---J7ZhEZwEjSe6poEw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ => load host 0 $kernel_addr_r 5k_file 0x1000 0
+ 0 bytes read in 0 ms
 
-On Tue, Jul 26, 2022 at 09:35:51AM +0800, Qu Wenruo wrote:
->=20
->=20
-> On 2022/7/26 06:28, Tom Rini wrote:
-> > On Wed, Jun 29, 2022 at 07:38:22PM +0800, Qu Wenruo wrote:
-> >=20
-> > > That function is only utilized inside fat driver, unexport it.
-> > >=20
-> > > Signed-off-by: Qu Wenruo <wqu@suse.com>
-> >=20
-> > The series has a fails to build on nokia_rx51:
-> > https://source.denx.de/u-boot/u-boot/-/jobs/471877#L483
-> > which to me says doing 64bit division (likely related to block size,
-> > etc) without using the appropriate helper macros to turn them in to bit
-> > shifts instead.
-> >=20
-> Should I update and resend the series or just send the incremental
-> update to fix the U64/U32 division?
+But if no length is passed in, it works fine, even if we pass a non-zero
+length:
 
-Please rebase and resend the whole series, thanks.
+ => load host 0 $kernel_addr_r 5k_file 0 0x1000
+ 1024 bytes read in 0 ms
 
---=20
-Tom
+[CAUSE]
+In btrfs_read() if we have a larger size than our file, we will try to
+truncate it using the file size.
 
---J7ZhEZwEjSe6poEw
-Content-Type: application/pgp-signature; name="signature.asc"
+However the real file size is not initialized if @len is not zero, thus
+we always truncate our length to 0, and cause the problem.
 
------BEGIN PGP SIGNATURE-----
+[FIX]
+Fix it by just always do the file size check.
 
-iQGzBAABCgAdFiEEGjx/cOCPqxcHgJu/FHw5/5Y0tywFAmLfTZAACgkQFHw5/5Y0
-tyzamAv/VH/kckEoZrZfP9tTiGmXdHr8Cx9Moey60Y0h8J/WoUaWdZiVF8wNbI6e
-8teJBnbQnmJoeG7BGcbQNv4z+r/G6V1qX8wKjdHvAMArRIg2HmeDjRl50oHTUmag
-BNQEBzE5nSGrz03GOUuSTeey1uQjwHHAiNVxRhJ6e9j2SEpBgDv3Nc2Ohycqowui
-v8xsSaEiXFOcI4PUoRjo0+EIoIjvWRMXYbVbAvqtXI9oMSTISfKpMTvi5dvHvICz
-ANCN9hkiIzXu/hAQ7dQA4/sVfUhc2E4VSkfY+0NkUQrVxtm5VN/beMeiUNesoFcz
-tMRy7dN81IKJrjVbp6Qu+ZF7rC/ZTTXqRZIzjh6gfuwqPnHcTYoSOSOlMVnlAcpc
-uU/34xyLOMBr2me1e0tdm9QQ8yQOTPF8VCzoo3OnSmLpgTUuKYg+RmQD68Zv6Pfr
-tBqhfam87jCVBlt8CRBI5LFSGEnulBPdG2IbM6FLHD0gX1HyCBK8PR9aBL7Rdqo9
-XO0aET4o
-=EqzV
------END PGP SIGNATURE-----
+In fact btrfs_size() always follow soft link, thus it will return the
+real file size correctly.
 
---J7ZhEZwEjSe6poEw--
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/btrfs.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/fs/btrfs/btrfs.c b/fs/btrfs/btrfs.c
+index 741c6e20f533..9145727058d4 100644
+--- a/fs/btrfs/btrfs.c
++++ b/fs/btrfs/btrfs.c
+@@ -246,16 +246,17 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!len) {
+-		ret = btrfs_size(file, &real_size);
+-		if (ret < 0) {
+-			error("Failed to get inode size: %s", file);
+-			return ret;
+-		}
+-		len = real_size;
++	ret = btrfs_size(file, &real_size);
++	if (ret < 0) {
++		error("Failed to get inode size: %s", file);
++		return ret;
+ 	}
+ 
+-	if (len > real_size - offset)
++	/*
++	 * If the length is 0 (meaning read the whole file) or the range is
++	 * beyond file size, truncate it to the end of the file.
++	 */
++	if (!len || len > real_size - offset)
+ 		len = real_size - offset;
+ 
+ 	ret = btrfs_file_read(root, ino, offset, len, buf);
+-- 
+2.37.0
+
