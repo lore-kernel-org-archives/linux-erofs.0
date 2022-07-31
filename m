@@ -4,60 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F659C04A68
-	for <linux-erofs@archiver.kernel.org>; Thu, 28 Jul 2022 15:08:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA63BC00140
+	for <linux-erofs@archiver.kernel.org>; Sun, 31 Jul 2022 09:10:42 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4LtvDb5MLzz2xjn
-	for <linux-erofs@archiver.kernel.org>; Fri, 29 Jul 2022 01:08:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Lwb805bKzz2yp5
+	for <linux-erofs@archiver.kernel.org>; Sun, 31 Jul 2022 19:10:40 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=H6cuJTji;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20210705 header.b=kxZJlDCf;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=canonical.com (client-ip=185.125.188.121; helo=smtp-relay-canonical-1.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=H6cuJTji;
+	dkim=pass (2048-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20210705 header.b=kxZJlDCf;
 	dkim-atps=neutral
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4LtvDP5Ppkz2xJH
-	for <linux-erofs@lists.ozlabs.org>; Fri, 29 Jul 2022 01:08:30 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1659020917; x=1690556917;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Bne8AMA87lwnL+7HJ4JVInermJX5LHWKq/qCJmQllnk=;
-  b=H6cuJTjivLq6UgK3LzX7yL1vclytcbja01aGabX+byXHDXNq4cRChR6m
-   T/ctsXAFtOinZaKM7IMcMTPlr/JyUjV8Juxp+dVuG5Og5X0KUz/9V5oHG
-   JBhooLm6LckaTT1Whrf9i8EwFENHSMh9VhHQ8lRJ+rLGF7cJpXzieFkRE
-   yzUUj9+Dat/ROwe4yXk4a4Ue9etzA/EoSae294GKwIzmfA1koNnSwMZcY
-   EV+wFifTFIAXEUkoJo9I3t1u/YTuD9nnZw2u+Yz1CtbYXcmTj55I8w68l
-   xT9uV6sKBvEep5wP111qeFadINTyezwrf/ESWNclknxpXQZelUP3UaVAd
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10422"; a="374837184"
-X-IronPort-AV: E=Sophos;i="5.93,198,1654585200"; 
-   d="scan'208";a="374837184"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2022 08:08:24 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,198,1654585200"; 
-   d="scan'208";a="633725116"
-Received: from lkp-server01.sh.intel.com (HELO e0eace57cfef) ([10.239.97.150])
-  by orsmga001.jf.intel.com with ESMTP; 28 Jul 2022 08:08:23 -0700
-Received: from kbuild by e0eace57cfef with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1oH57e-000AEQ-1M;
-	Thu, 28 Jul 2022 15:08:22 +0000
-Date: Thu, 28 Jul 2022 23:08:06 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 4cdfa6ef7aa015cb922af4608e53de0c62638010
-Message-ID: <62e2a656.IRFsen2qCJ/JwRij%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Lwb7q4WNHz2xGS
+	for <linux-erofs@lists.ozlabs.org>; Sun, 31 Jul 2022 19:10:30 +1000 (AEST)
+Received: from LT2ubnt.fritz.box (ip-062-143-094-109.um16.pools.vodafone-ip.de [62.143.94.109])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 2DB3E3F3D5;
+	Sun, 31 Jul 2022 09:10:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1659258624;
+	bh=ZYITxB6qJdVbTaH6uRUHZyxmH7u+8MycV97iKVyQWBA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+	b=kxZJlDCf5XV6RouYZJLUIDs3uZI/JgTdP2q+BDx4k5J7dJUti13k5eimjHSCfueOS
+	 F4Q3JicoPcH+QBlqHWoYht4jAhClJhZ0ynUBQJFXpaHJwOahX172Onby/iAuaIdcQ3
+	 VgXvP1x/COm0dsSgaCT8ih5SgFan5Ibjsm8+ElrTIG5pJ2rKHX1Lx02ytTePnf9EnJ
+	 KXIqgFzDA0TlfeqqZn41k7iSUir35LapUbo+DgcLU/EEkcCxUdD7e6o3xPp2bZ/ll5
+	 GXvtvpGlAENIlM6DvgcdNoVypk/J4d+kvMhGZddWwuqhWyVWzn2GTlpoR0kWAg/u+Y
+	 VbmbMIeQNHqXw==
+From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+To: Huang Jianan <jnhuang95@gmail.com>
+Subject: [PATCH 1/1] fs/erofs: silence erofs_probe()
+Date: Sun, 31 Jul 2022 11:10:06 +0200
+Message-Id: <20220731091006.50073-1-heinrich.schuchardt@canonical.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,163 +57,52 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: u-boot@lists.denx.de, linux-erofs@lists.ozlabs.org, Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 4cdfa6ef7aa015cb922af4608e53de0c62638010  erofs: update ctx->pos for every emitted dirent
+fs_set_blk_dev() probes all file-systems until it finds one that matches
+the volume. We do not expect any console output for non-matching
+file-systems.
 
-elapsed time: 1100m
+Convert error messages in erofs_read_superblock() to debug output.
 
-configs tested: 135
-configs skipped: 6
+Fixes: 830613f8f5bb ("fs/erofs: add erofs filesystem support")
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+---
+ fs/erofs/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-i386                                defconfig
-i386                             allyesconfig
-arc                  randconfig-r043-20220727
-x86_64                        randconfig-a002
-x86_64                        randconfig-a004
-x86_64                        randconfig-a006
-um                           x86_64_defconfig
-um                             i386_defconfig
-csky                              allnoconfig
-alpha                             allnoconfig
-arc                               allnoconfig
-riscv                             allnoconfig
-arm64                            allyesconfig
-arm                                 defconfig
-arm                              allyesconfig
-x86_64                           rhel-8.3-kvm
-x86_64                          rhel-8.3-func
-x86_64                           rhel-8.3-syz
-x86_64                    rhel-8.3-kselftests
-x86_64                         rhel-8.3-kunit
-arc                        vdk_hs38_defconfig
-mips                            ar7_defconfig
-m68k                        stmark2_defconfig
-sh                          lboxre2_defconfig
-powerpc                           allnoconfig
-mips                             allyesconfig
-powerpc                          allmodconfig
-sh                               allmodconfig
-i386                          randconfig-a012
-i386                          randconfig-a014
-i386                          randconfig-a016
-x86_64                              defconfig
-x86_64                           allyesconfig
-x86_64                               rhel-8.3
-m68k                             allyesconfig
-m68k                             allmodconfig
-arc                              allyesconfig
-alpha                            allyesconfig
-m68k                         amcore_defconfig
-arm                            lart_defconfig
-sh                           se7712_defconfig
-mips                     decstation_defconfig
-xtensa                  cadence_csp_defconfig
-arc                                 defconfig
-powerpc                      pasemi_defconfig
-powerpc                 mpc837x_rdb_defconfig
-x86_64                        randconfig-a011
-x86_64                        randconfig-a013
-x86_64                        randconfig-a015
-powerpc                         ps3_defconfig
-arm                        mvebu_v7_defconfig
-arm                         vf610m4_defconfig
-xtensa                       common_defconfig
-i386                          randconfig-c001
-sparc                       sparc64_defconfig
-arm                           sama5_defconfig
-arm                            qcom_defconfig
-i386                          debian-10.3-kvm
-i386                        debian-10.3-kunit
-i386                         debian-10.3-func
-arm                            hisi_defconfig
-m68k                        m5272c3_defconfig
-sh                          rsk7264_defconfig
-mips                  decstation_64_defconfig
-arm                         assabet_defconfig
-sh                         ecovec24_defconfig
-powerpc                 mpc8540_ads_defconfig
-sh                   sh7770_generic_defconfig
-m68k                          amiga_defconfig
-arm                         cm_x300_defconfig
-ia64                                defconfig
-xtensa                    smp_lx200_defconfig
-parisc64                            defconfig
-csky                             alldefconfig
-arm                           viper_defconfig
-mips                 randconfig-c004-20220728
-powerpc              randconfig-c003-20220728
-loongarch                           defconfig
-loongarch                         allnoconfig
-riscv                    nommu_virt_defconfig
-riscv                          rv32_defconfig
-riscv                    nommu_k210_defconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-xtensa                           allyesconfig
-arm                           u8500_defconfig
-powerpc                 linkstation_defconfig
-s390                 randconfig-r044-20220728
-riscv                randconfig-r042-20220728
-arc                  randconfig-r043-20220728
-nios2                            allyesconfig
-nios2                               defconfig
-parisc                              defconfig
-parisc                           allyesconfig
-powerpc                    amigaone_defconfig
-sh                          landisk_defconfig
-ia64                        generic_defconfig
-arc                            hsdk_defconfig
-s390                                defconfig
-s390                             allmodconfig
-alpha                               defconfig
-s390                             allyesconfig
-
-clang tested configs:
-hexagon              randconfig-r041-20220727
-hexagon              randconfig-r045-20220727
-x86_64                        randconfig-a001
-x86_64                        randconfig-a003
-riscv                randconfig-r042-20220727
-s390                 randconfig-r044-20220727
-x86_64                        randconfig-a005
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-hexagon              randconfig-r041-20220728
-hexagon              randconfig-r045-20220728
-i386                          randconfig-a002
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a012
-powerpc                    mvme5100_defconfig
-powerpc                      pmac32_defconfig
-arm                        spear3xx_defconfig
-x86_64                        randconfig-k001
-i386                          randconfig-a011
-i386                          randconfig-a013
-i386                          randconfig-a015
-powerpc                 mpc8315_rdb_defconfig
-mips                      pic32mzda_defconfig
-hexagon                             defconfig
-arm                          ixp4xx_defconfig
-mips                 randconfig-c004-20220728
-x86_64                        randconfig-c007
-s390                 randconfig-c005-20220728
-powerpc              randconfig-c003-20220728
-i386                          randconfig-c001
-riscv                randconfig-c006-20220728
-arm                  randconfig-c002-20220728
-mips                malta_qemu_32r6_defconfig
-powerpc                    gamecube_defconfig
-arm                          collie_defconfig
-
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 4cca322b9e..095754dc28 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -65,14 +65,14 @@ int erofs_read_superblock(void)
+ 
+ 	ret = erofs_blk_read(data, 0, 1);
+ 	if (ret < 0) {
+-		erofs_err("cannot read erofs superblock: %d", ret);
++		erofs_dbg("cannot read erofs superblock: %d", ret);
+ 		return -EIO;
+ 	}
+ 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
+ 
+ 	ret = -EINVAL;
+ 	if (le32_to_cpu(dsb->magic) != EROFS_SUPER_MAGIC_V1) {
+-		erofs_err("cannot find valid erofs superblock");
++		erofs_dbg("cannot find valid erofs superblock");
+ 		return ret;
+ 	}
+ 
+@@ -81,7 +81,7 @@ int erofs_read_superblock(void)
+ 	blkszbits = dsb->blkszbits;
+ 	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
+ 	if (blkszbits != LOG_BLOCK_SIZE) {
+-		erofs_err("blksize %u isn't supported on this platform",
++		erofs_dbg("blksize %u isn't supported on this platform",
+ 			  1 << blkszbits);
+ 		return ret;
+ 	}
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.36.1
+
