@@ -4,33 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 206B4C00140
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 04:03:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C565DC25B0E
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 11:46:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4M5gd72gwLz3bYk
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 14:03:55 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4M5stJ62FLz3bcc
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 21:46:00 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1660563960;
+	bh=eTUxYj1OZDkY14aB7vIzWLz6w9dpyMmDNCfmBP+tQss=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=dhVt1+0LYiK0nr/BTUApSUojfUomjMotdjOAtOUjXl9crL1rNn4BWyFz9M0EuAh2l
+	 yS2W+QHHFI6E5QXA6h40/TZmV+kQ9NnF6WCMr0EN0rdpe57SY4BuskSCpD1hFGydci
+	 vkUbsd6k8OlIW2Ka1aKAo4CagOVfc0o5nsiHod7t2CGFZWcQLKXr2oKb5GRso0TQn8
+	 CPnl2Hi1q4KIRcz23txvHbz+IN+TO6XBiLelXXFoeTUzjoCrM8egPL8FbuZVIKgPwX
+	 TpNS0JkeVaxlF3OzigFFny18hUBERRRsTakaVo5miuU7sAFaIgRXj8MpmKCWza1p2Z
+	 7yavHJXwhNXKQ==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.29; helo=smtp-out2.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=vYKQQAcO;
+	dkim-atps=neutral
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4M5gd37443z2xGd
-	for <linux-erofs@lists.ozlabs.org>; Mon, 15 Aug 2022 14:03:49 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R971e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VMClCGr_1660536217;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VMClCGr_1660536217)
-          by smtp.aliyun-inc.com;
-          Mon, 15 Aug 2022 12:03:38 +0800
-Date: Mon, 15 Aug 2022 12:03:36 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Sun Ke <sunke32@huawei.com>
-Subject: Re: [PATCH] erofs: fix error return code in
- erofs_fscache_meta_read_folio and erofs_fscache_read_folio
-Message-ID: <YvnFmNrR912UHMr3@B-P7TQMD6M-0146.local>
-References: <20220815034829.3940803-1-sunke32@huawei.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4M5stB2NMKz2yjC
+	for <linux-erofs@lists.ozlabs.org>; Mon, 15 Aug 2022 21:45:54 +1000 (AEST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id B808D20866;
+	Mon, 15 Aug 2022 11:45:46 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 35DCE13A93;
+	Mon, 15 Aug 2022 11:45:43 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id uGLIOucx+mLsGAAAMHmgww
+	(envelope-from <wqu@suse.com>); Mon, 15 Aug 2022 11:45:43 +0000
+To: u-boot@lists.denx.de
+Subject: [PATCH v3 2/8] fs: btrfs: fix a bug which no data get read if the length is not 0
+Date: Mon, 15 Aug 2022 19:45:13 +0800
+Message-Id: <bf56479cb718f70cc595caf5af081f0dbb49e9e7.1660563403.git.wqu@suse.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <cover.1660563403.git.wqu@suse.com>
+References: <cover.1660563403.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220815034829.3940803-1-sunke32@huawei.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -42,55 +67,73 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, linux-erofs@lists.ozlabs.org, yinxin.x@bytedance.com
+From: Qu Wenruo via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Qu Wenruo <wqu@suse.com>
+Cc: trini@konsulko.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, thomas.petazzoni@bootlin.com, miquel.raynal@bootlin.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Aug 15, 2022 at 11:48:29AM +0800, Sun Ke wrote:
-> If erofs_fscache_alloc_request fail and then goto out, it will return 0.
-> it should return a negative error code instead of 0.
-> 
-> Fixes: d435d53228dd ("erofs: change to use asynchronous io for fscache readpage/readahead")
-> Signed-off-by: Sun Ke <sunke32@huawei.com>
+[BUG]
+When testing with unaligned read, if a specific length is passed in,
+btrfs driver will read out nothing:
 
-Thanks for the catch! Looks good to me,
+ => load host 0 $kernel_addr_r 5k_file 0x1000 0
+ 0 bytes read in 0 ms
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+But if no length is passed in, it works fine, even if we pass a non-zero
+length:
 
-Thanks,
-Gao Xiang
+ => load host 0 $kernel_addr_r 5k_file 0 0x1000
+ 1024 bytes read in 0 ms
 
-> ---
->  fs/erofs/fscache.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-> index 8e01d89c3319..b5fd9d71e67f 100644
-> --- a/fs/erofs/fscache.c
-> +++ b/fs/erofs/fscache.c
-> @@ -222,8 +222,10 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
->  
->  	rreq = erofs_fscache_alloc_request(folio_mapping(folio),
->  				folio_pos(folio), folio_size(folio));
-> -	if (IS_ERR(rreq))
-> +	if (IS_ERR(rreq)) {
-> +		ret = PTR_ERR(rreq);
->  		goto out;
-> +	}
->  
->  	return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
->  				rreq, mdev.m_pa);
-> @@ -301,8 +303,10 @@ static int erofs_fscache_read_folio(struct file *file, struct folio *folio)
->  
->  	rreq = erofs_fscache_alloc_request(folio_mapping(folio),
->  				folio_pos(folio), folio_size(folio));
-> -	if (IS_ERR(rreq))
-> +	if (IS_ERR(rreq)) {
-> +		ret = PTR_ERR(rreq);
->  		goto out_unlock;
-> +	}
->  
->  	pstart = mdev.m_pa + (pos - map.m_la);
->  	return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
-> -- 
-> 2.31.1
+[CAUSE]
+In btrfs_read() if we have a larger size than our file, we will try to
+truncate it using the file size.
+
+However the real file size is not initialized if @len is not zero, thus
+we always truncate our length to 0, and cause the problem.
+
+[FIX]
+Fix it by just always do the file size check.
+
+In fact btrfs_size() always follow soft link, thus it will return the
+real file size correctly.
+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/btrfs.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/fs/btrfs/btrfs.c b/fs/btrfs/btrfs.c
+index 4cdbbbe3d066..309cd595d37d 100644
+--- a/fs/btrfs/btrfs.c
++++ b/fs/btrfs/btrfs.c
+@@ -246,16 +246,17 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!len) {
+-		ret = btrfs_size(file, &real_size);
+-		if (ret < 0) {
+-			error("Failed to get inode size: %s", file);
+-			return ret;
+-		}
+-		len = real_size;
++	ret = btrfs_size(file, &real_size);
++	if (ret < 0) {
++		error("Failed to get inode size: %s", file);
++		return ret;
+ 	}
+ 
+-	if (len > real_size - offset)
++	/*
++	 * If the length is 0 (meaning read the whole file) or the range is
++	 * beyond file size, truncate it to the end of the file.
++	 */
++	if (!len || len > real_size - offset)
+ 		len = real_size - offset;
+ 
+ 	ret = btrfs_file_read(root, ino, offset, len, buf);
+-- 
+2.37.1
+
