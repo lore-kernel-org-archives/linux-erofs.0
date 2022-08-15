@@ -4,53 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28634C25B06
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 11:46:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0760AC00140
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 11:46:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4M5stM3nyZz2yjC
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 21:46:03 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4M5stQ42RNz3bkm
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Aug 2022 21:46:06 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1660563963;
-	bh=gsHg5/alQcTRp96b1M8LR+g9AnV9yvQ2Ftt9iKDE7lc=;
+	s=201707; t=1660563966;
+	bh=pa2DMiG9S3CyUHkRL/8ty/NybH2uIbDVUCnFXp2wS5k=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=bCO9UIpx1T7HDmp6+LNtP39326VcnueBl4xOxszlpvKz7T8WkxX7OyXoAFWBjhEFI
-	 SYgxn5HtR8tQhV4GBcX6OwEVRmlLBYmyRDkj60hMuXWv74nku9Lz0wKOgbs4VMRBAb
-	 9UH+bfTMT+JwgTY1c8fxMsRhVzs/uDhneDR+iqodHYWH08W4taY2EafRTMqghgNhi+
-	 LRg8BO09TWgEcElt4NqWGUlUk9r9C/80B6mKO39HDoUzT1eDVa42+40XQX5J/nSuJc
-	 sZUnoIFA8+ae/X2W6JTowKYoMDe9EbKweO5CFnrghXJOPxIt4FKY5w2gMapTBgoJt/
-	 aEPtWuNFt+UfA==
+	b=BebvU1FKuJiIuELgDjJk8kdGc0ZIM8AzNliNd9pL4qo2d31VqD0Z6ZNRh37papQHC
+	 itJ94PBIgITQ7t+tPS2En4ocBHMGIVP6wP+jGXdNIo1YQCAqzinRXi5J4Vq557FqLL
+	 t+doxYTy3uZai169N+nz421G8j++JTNo/180u7mkQW8xyr2xA0g7nrZZzSzFI0DhLp
+	 ph86rBsT3NbPnuVclkumSPZdHr5iJ0VPfFdRc4v5o3q9XsS/v0aND4RaXNvP7w5Vw0
+	 ccKnhnpdl4cHpjgZz0u5vt/ix+v9f0WJaeH40wa+BnTNjvY0NMmRGQTtllOO7JL5eQ
+	 TJvjLbv0F6CvQ==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=195.135.220.29; helo=smtp-out2.suse.de; envelope-from=wqu@suse.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=Q+Wjd9H0;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=OMHmcLzH;
 	dkim-atps=neutral
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4M5stB1W1Dz2xrH
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4M5stB36Hbz2ywc
 	for <linux-erofs@lists.ozlabs.org>; Mon, 15 Aug 2022 21:45:54 +1000 (AEST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id BCE8C20853;
-	Mon, 15 Aug 2022 11:45:43 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id A29DE20873;
+	Mon, 15 Aug 2022 11:45:50 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4FB2613A93;
-	Mon, 15 Aug 2022 11:45:40 +0000 (UTC)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 30D7713A93;
+	Mon, 15 Aug 2022 11:45:46 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
 	by imap2.suse-dmz.suse.de with ESMTPSA
-	id KCleBeQx+mLsGAAAMHmgww
-	(envelope-from <wqu@suse.com>); Mon, 15 Aug 2022 11:45:40 +0000
+	id UOeYOeox+mLsGAAAMHmgww
+	(envelope-from <wqu@suse.com>); Mon, 15 Aug 2022 11:45:46 +0000
 To: u-boot@lists.denx.de
-Subject: [PATCH v3 1/8] fs: fat: unexport file_fat_read_at()
-Date: Mon, 15 Aug 2022 19:45:12 +0800
-Message-Id: <45a6f44305500b3f7f3d5488ae8bfa9463ba8b31.1660563403.git.wqu@suse.com>
+Subject: [PATCH v3 3/8] fs: btrfs: fix a crash if specified range is beyond file size
+Date: Mon, 15 Aug 2022 19:45:14 +0800
+Message-Id: <ff312a9000f93c0b785a148854a1550d291557d7.1660563403.git.wqu@suse.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <cover.1660563403.git.wqu@suse.com>
 References: <cover.1660563403.git.wqu@suse.com>
@@ -73,42 +73,53 @@ Cc: trini@konsulko.com, joaomarcos.costa@bootlin.com, marek.behun@nic.cz, thomas
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-That function is only utilized inside fat driver, unexport it.
+[BUG]
+When try to read a range beyond file size, btrfs driver will cause
+crash/segfault:
+
+ => load host 0 $kernel_addr_r 5k_file 0 0x2000
+ SEGFAULT
+
+[CAUSE]
+In btrfs_read(), if @len is 0, we will truncated it to file end, but if
+file end is beyond our file size, this truncation will underflow @len,
+making it -3K in this case.
+
+And later that @len is used to memzero the output buffer, resulting
+above crash.
+
+[FIX]
+Just error out if @offset is already beyond our file size.
+
+Now it will fail properly with correct error message:
+
+ => load host 0 $kernel_addr_r 5m_origin 0 0x2000
+ BTRFS: Read range beyond file size, offset 8192 file size 5120
+
+ Failed to load '5m_origin'
 
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 ---
- fs/fat/fat.c  | 4 ++--
- include/fat.h | 2 --
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ fs/btrfs/btrfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index df9ea2c028fc..dcceccbcee0a 100644
---- a/fs/fat/fat.c
-+++ b/fs/fat/fat.c
-@@ -1243,8 +1243,8 @@ out_free_itr:
- 	return ret;
- }
+diff --git a/fs/btrfs/btrfs.c b/fs/btrfs/btrfs.c
+index 309cd595d37d..74a992fa012d 100644
+--- a/fs/btrfs/btrfs.c
++++ b/fs/btrfs/btrfs.c
+@@ -252,6 +252,12 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
+ 		return ret;
+ 	}
  
--int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
--		     loff_t maxsize, loff_t *actread)
-+static int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
-+			    loff_t maxsize, loff_t *actread)
- {
- 	fsdata fsdata;
- 	fat_itr *itr;
-diff --git a/include/fat.h b/include/fat.h
-index bd8e450b33a3..a9756fb4cd1b 100644
---- a/include/fat.h
-+++ b/include/fat.h
-@@ -200,8 +200,6 @@ static inline u32 sect_to_clust(fsdata *fsdata, int sect)
- int file_fat_detectfs(void);
- int fat_exists(const char *filename);
- int fat_size(const char *filename, loff_t *size);
--int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
--		     loff_t maxsize, loff_t *actread);
- int file_fat_read(const char *filename, void *buffer, int maxsize);
- int fat_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info);
- int fat_register_device(struct blk_desc *dev_desc, int part_no);
++	if (offset >= real_size) {
++		error("Read range beyond file size, offset %llu file size %llu",
++			offset, real_size);
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * If the length is 0 (meaning read the whole file) or the range is
+ 	 * beyond file size, truncate it to the end of the file.
 -- 
 2.37.1
 
