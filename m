@@ -4,60 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE149ECAAA1
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Sep 2022 02:05:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B828C6FA82
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Sep 2022 02:52:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MKJ650mZXz304v
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Sep 2022 12:05:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MLY2v3rZNz3016
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Sep 2022 12:52:23 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dicDfPLr;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=KS9rVULv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Two or more type TXT spf records found.) smtp.mailfrom=intel.com (client-ip=192.55.52.120; helo=mga04.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::535; helo=mail-pg1-x535.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dicDfPLr;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=KS9rVULv;
 	dkim-atps=neutral
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MKJ5y6hgPz2xGn
-	for <linux-erofs@lists.ozlabs.org>; Sat,  3 Sep 2022 12:05:41 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662170743; x=1693706743;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=oqy1H0Gn7neto3IAHbYPBEpPkwrvyz9y8k0HEwoiTA0=;
-  b=dicDfPLryv4U1KlklYHfteZC/ikISfRBvZMqmY8+xHc7K6iDiQ1AXhTa
-   SdVXAlbJhAsnpdTuygqO9RvThp7bPHMPXM+liBVHiDdmtLRXK1HtmnNKa
-   bdYk85kWyBHGKmSwvHFfuPV2SMPvE3vivktdmoo7D+aQlnyoJVtE8j0dy
-   6YlFDqkHje/Wa+pO8IyhI7RZ5qKFqvCVNTM1Ta+gNFnZX8umS/JgypVJT
-   Ot1MBg3PZwOSuP6SFOgvWMI0nPVuXtkVpIjA7+mrgTT8RpVrqYQ/gNCix
-   Y75utpvkGZdmh1FJXj9harH1CYG/rs4ijxtt3umYUZoJ0oso/MQJph6ge
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10458"; a="294861150"
-X-IronPort-AV: E=Sophos;i="5.93,286,1654585200"; 
-   d="scan'208";a="294861150"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2022 19:05:39 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,286,1654585200"; 
-   d="scan'208";a="941495654"
-Received: from lkp-server02.sh.intel.com (HELO 95dfd251caa2) ([10.239.97.151])
-  by fmsmga005.fm.intel.com with ESMTP; 02 Sep 2022 19:05:38 -0700
-Received: from kbuild by 95dfd251caa2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1oUIXR-0000t1-2J;
-	Sat, 03 Sep 2022 02:05:37 +0000
-Date: Sat, 03 Sep 2022 10:05:03 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 76f9306986513ef1fd5a903c17531830adbaa5f3
-Message-ID: <6312b64f.mE2Cxdgx4PtQys18%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MLY2q6rkpz2yWl
+	for <linux-erofs@lists.ozlabs.org>; Mon,  5 Sep 2022 12:52:19 +1000 (AEST)
+Received: by mail-pg1-x535.google.com with SMTP id q63so6949141pga.9
+        for <linux-erofs@lists.ozlabs.org>; Sun, 04 Sep 2022 19:52:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date;
+        bh=XYjN5lCzbHoFRvPw87nv7GSMGFiv+rXmIHlgogPYD78=;
+        b=KS9rVULvIRKH48Om6LQ+6iIm24kAIIRDXu3FYYwmVPYgGZhiXgA2mZfKwomCcTgp+G
+         +yPI7l0/4oph4/cyGMmTnrQUalwz8X6AWBnrqKnGyAhWHrNDhEW0y7ZSu3jkmFFziKjh
+         5Zz7fpfuLlSlAxVayvP7djE54cL5wdcYdIiVnZ0gEwrbNTEv5IDyvPDHIz0W73TfIGlt
+         uBo4HD1On+Sp1AF0+LNk1hBF+lAUUUD9ARrD3EJcCErkO4GoLfK4dR22d7SKxartlkJq
+         w1dzYGnscJZT34tbaT9tbyNvM30G2x1PiNdKMZRI7y/XcxOpELrXSptum3PG4TFmHaRp
+         giGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=XYjN5lCzbHoFRvPw87nv7GSMGFiv+rXmIHlgogPYD78=;
+        b=Bsf0GDA0f5oONR7hqIxJRUAp/UIKNHnQ+UfGHGkis4PgVynXyvbOmEj6sbrLpyhOdC
+         Chfgn/CZAIxtPZt7AoQwDXLXwvru6EdDbbLTTEPH9cKbraNvnjCqCcqY0kVyzqlsxoxk
+         ctq4L7ktVKmn8ynAJRhdFAxgiJJ3gNgLb9oqEML8zmlxWAugzxHSyjA4LFR2ZTDuSnoq
+         ZC65kNMla13rFDh/ErOx1nOzLOAmHln2AkglOnEyZl69LdqpUU6FhPSTJ903krgTpEJD
+         9PNmqZptKzy15FbyzCobWDS+LnqY9MlDp5lxuxrqr+U2jd5WfJFAVLzRE7M+ksuliTia
+         6ROQ==
+X-Gm-Message-State: ACgBeo03yj9BVZZ5I9b9zK6YecPEOh5sGHDLfXF0JSe/n8XuAMpLlmT4
+	0XVvXJ3CU0JntTyc43wYYOe4mC0Kzkw=
+X-Google-Smtp-Source: AA6agR7ii4RJul/+7uaDLJSDKbX7JAMxUJsi5s33pC3AB56V40ENiplAYE459/gc0+Y3L+eQgaWRuQ==
+X-Received: by 2002:a63:1f1b:0:b0:429:b4be:72f0 with SMTP id f27-20020a631f1b000000b00429b4be72f0mr39391296pgf.622.1662346337074;
+        Sun, 04 Sep 2022 19:52:17 -0700 (PDT)
+Received: from localhost.localdomain ([156.236.96.165])
+        by smtp.gmail.com with ESMTPSA id i194-20020a6287cb000000b0053788e9f865sm6378729pfe.21.2022.09.04.19.52.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Sep 2022 19:52:16 -0700 (PDT)
+From: Yue Hu <zbestahu@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [RFC PATCH v6 3/4] erofs-utils: mkfs: support interlaced uncompressed data layout
+Date: Mon,  5 Sep 2022 10:51:46 +0800
+Message-Id: <a499aa4f070de64ab8dac9d4168d83f78cc53ac9.1662345408.git.huyue2@coolpad.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <5a6077e3e3745ae80f2a0fc13444898e86cc838d.1662345408.git.huyue2@coolpad.com>
+References: <5a6077e3e3745ae80f2a0fc13444898e86cc838d.1662345408.git.huyue2@coolpad.com>
+In-Reply-To: <cover.1662345408.git.huyue2@coolpad.com>
+References: <cover.1662345408.git.huyue2@coolpad.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,145 +76,73 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Yue Hu <huyue2@coolpad.com>, zhangwen@coolpad.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 76f9306986513ef1fd5a903c17531830adbaa5f3  erofs: fix pcluster use-after-free on UP platforms
+From: Yue Hu <huyue2@coolpad.com>
 
-elapsed time: 1137m
+This can benefit from in-place I/O we are using.
 
-configs tested: 120
-configs skipped: 2
+Signed-off-by: Yue Hu <huyue2@coolpad.com>
+---
+v6: clean all first + cleanup + minor change to title
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+ lib/compress.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-x86_64                              defconfig
-powerpc                           allnoconfig
-m68k                             allmodconfig
-arc                              allyesconfig
-x86_64                               rhel-8.3
-alpha                            allyesconfig
-m68k                             allyesconfig
-powerpc                          allmodconfig
-mips                             allyesconfig
-x86_64                        randconfig-a013
-sh                               allmodconfig
-arc                  randconfig-r043-20220901
-x86_64                        randconfig-a002
-x86_64                        randconfig-a006
-i386                          randconfig-a016
-x86_64                        randconfig-a011
-i386                          randconfig-a001
-x86_64                           allyesconfig
-x86_64                           rhel-8.3-syz
-x86_64                          rhel-8.3-func
-i386                          randconfig-a014
-x86_64                           rhel-8.3-kvm
-i386                          randconfig-a003
-x86_64                        randconfig-a004
-x86_64                         rhel-8.3-kunit
-i386                          randconfig-a012
-x86_64                        randconfig-a015
-i386                          randconfig-a005
-x86_64                    rhel-8.3-kselftests
-i386                             allyesconfig
-i386                                defconfig
-csky                              allnoconfig
-alpha                             allnoconfig
-arc                               allnoconfig
-riscv                             allnoconfig
-arm                         lubbock_defconfig
-sh                           se7750_defconfig
-m68k                          amiga_defconfig
-powerpc                     mpc83xx_defconfig
-mips                     decstation_defconfig
-mips                            ar7_defconfig
-powerpc                      tqm8xx_defconfig
-alpha                            alldefconfig
-i386                          randconfig-c001
-arm64                            allyesconfig
-arm                                 defconfig
-arm                              allyesconfig
-sh                            shmin_defconfig
-sh                             espt_defconfig
-sparc                            alldefconfig
-loongarch                           defconfig
-loongarch                         allnoconfig
-sparc                       sparc64_defconfig
-mips                           ip32_defconfig
-mips                            gpr_defconfig
-arm                          pxa3xx_defconfig
-mips                           ci20_defconfig
-sh                          lboxre2_defconfig
-riscv                    nommu_virt_defconfig
-riscv                          rv32_defconfig
-riscv                    nommu_k210_defconfig
-i386                   debian-10.3-kselftests
-i386                              debian-10.3
-microblaze                      mmu_defconfig
-powerpc                     sequoia_defconfig
-openrisc                 simple_smp_defconfig
-arm                            mps2_defconfig
-x86_64                        randconfig-c001
-arm                  randconfig-c002-20220902
-arm                            hisi_defconfig
-sh                         apsh4a3a_defconfig
-powerpc                  storcenter_defconfig
-powerpc                      cm5200_defconfig
-mips                 randconfig-c004-20220901
-arm                           stm32_defconfig
-powerpc                     pq2fads_defconfig
-mips                       bmips_be_defconfig
-arm                          badge4_defconfig
-arm                        oxnas_v6_defconfig
-s390                       zfcpdump_defconfig
-powerpc                     tqm8541_defconfig
-sh                          r7785rp_defconfig
-mips                     loongson1b_defconfig
-i386                          debian-10.3-kvm
-i386                        debian-10.3-kunit
-i386                         debian-10.3-func
-s390                                defconfig
-s390                             allmodconfig
-arc                                 defconfig
-alpha                               defconfig
-s390                             allyesconfig
-nios2                            allyesconfig
-nios2                               defconfig
-parisc                              defconfig
-parisc64                            defconfig
-parisc                           allyesconfig
-ia64                             allmodconfig
-
-clang tested configs:
-hexagon              randconfig-r041-20220901
-riscv                randconfig-r042-20220901
-s390                 randconfig-r044-20220901
-i386                          randconfig-a015
-x86_64                        randconfig-a001
-i386                          randconfig-a013
-x86_64                        randconfig-a012
-x86_64                        randconfig-a005
-x86_64                        randconfig-a003
-hexagon              randconfig-r045-20220901
-i386                          randconfig-a011
-x86_64                        randconfig-a014
-i386                          randconfig-a002
-i386                          randconfig-a004
-x86_64                        randconfig-a016
-i386                          randconfig-a006
-x86_64                        randconfig-k001
-powerpc                      walnut_defconfig
-arm                       spear13xx_defconfig
-mips                          ath79_defconfig
-powerpc                      katmai_defconfig
-
+diff --git a/lib/compress.c b/lib/compress.c
+index fd02053..4bd4e6b 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -139,11 +139,12 @@ static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
+ 	ctx->clusterofs = clusterofs + count;
+ }
+ 
+-static int write_uncompressed_extent(struct z_erofs_vle_compress_ctx *ctx,
++static int write_uncompressed_extent(struct erofs_inode *inode,
++				     struct z_erofs_vle_compress_ctx *ctx,
+ 				     unsigned int *len, char *dst)
+ {
+ 	int ret;
+-	unsigned int count;
++	unsigned int count, interlaced_offset, rightpart;
+ 
+ 	/* reset clusterofs to 0 if permitted */
+ 	if (!erofs_sb_has_lz4_0padding() && ctx->clusterofs &&
+@@ -153,11 +154,19 @@ static int write_uncompressed_extent(struct z_erofs_vle_compress_ctx *ctx,
+ 		ctx->clusterofs = 0;
+ 	}
+ 
+-	/* write uncompressed data */
+ 	count = min(EROFS_BLKSIZ, *len);
+ 
+-	memcpy(dst, ctx->queue + ctx->head, count);
+-	memset(dst + count, 0, EROFS_BLKSIZ - count);
++	/*
++	 * write uncompressed data from clusterofs which can benefit from
++	 * in-place I/O, loop shift right when to exceed EROFS_BLKSIZ.
++	 */
++	interlaced_offset = 0; /* will set it to clusterofs */
++	rightpart = min(EROFS_BLKSIZ - interlaced_offset, count);
++
++	memset(dst, 0, EROFS_BLKSIZ);
++
++	memcpy(dst + interlaced_offset, ctx->queue + ctx->head, rightpart);
++	memcpy(dst, ctx->queue + ctx->head + rightpart, count - rightpart);
+ 
+ 	erofs_dbg("Writing %u uncompressed data to block %u",
+ 		  count, ctx->blkaddr);
+@@ -263,7 +272,8 @@ static int vle_compress_one(struct erofs_inode *inode,
+ 						len, true);
+ 			else
+ nocompression:
+-				ret = write_uncompressed_extent(ctx, &len, dst);
++				ret = write_uncompressed_extent(inode, ctx,
++								&len, dst);
+ 
+ 			if (ret < 0)
+ 				return ret;
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.17.1
+
