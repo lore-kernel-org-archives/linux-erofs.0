@@ -4,29 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A90A0ECAAD5
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Sep 2022 11:46:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2CE32ECAAD5
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Sep 2022 11:46:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MMNrc0pGDz3bVB
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Sep 2022 21:46:24 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56; helo=out30-56.freemail.mail.aliyun.com; envelope-from=ziyangzhang@linux.alibaba.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 302 seconds by postgrey-1.36 at boromir; Tue, 06 Sep 2022 21:46:19 AEST
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MMNrl57Scz3bYM
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Sep 2022 21:46:31 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=ziyangzhang@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MMNrW6Ytyz2yT0
-	for <linux-erofs@lists.ozlabs.org>; Tue,  6 Sep 2022 21:46:19 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=ziyangzhang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VOrDaJM_1662464466;
-Received: from localhost.localdomain(mailfrom:ZiyangZhang@linux.alibaba.com fp:SMTPD_---0VOrDaJM_1662464466)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MMNrf1Yfyz3bcF
+	for <linux-erofs@lists.ozlabs.org>; Tue,  6 Sep 2022 21:46:26 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=ziyangzhang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VOrDaP7_1662464476;
+Received: from localhost.localdomain(mailfrom:ZiyangZhang@linux.alibaba.com fp:SMTPD_---0VOrDaP7_1662464476)
           by smtp.aliyun-inc.com;
-          Tue, 06 Sep 2022 19:41:10 +0800
+          Tue, 06 Sep 2022 19:41:20 +0800
 From: ZiyangZhang <ZiyangZhang@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/4] erofs-utils: introduce z_erofs_inmem_extent
-Date: Tue,  6 Sep 2022 19:40:54 +0800
-Message-Id: <20220906114057.151445-1-ZiyangZhang@linux.alibaba.com>
+Subject: [PATCH 3/4] erofs-utils: fuse: introduce partial-referenced pclusters
+Date: Tue,  6 Sep 2022 19:40:56 +0800
+Message-Id: <20220906114057.151445-3-ZiyangZhang@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220906114057.151445-1-ZiyangZhang@linux.alibaba.com>
+References: <20220906114057.151445-1-ZiyangZhang@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -46,240 +47,101 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-In order to introduce deduplicatation for compressed pclusters.
-A lookahead extent is recorded so that the following deduplication
-process can adjust the previous extent on demand.
+Due to deduplication for compressed data, pclusters can be partially
+referenced with their prefixes.
 
-Also, in the future, it can be used for parallel compression
-as well.
+Decompression algorithms should know that in advance, otherwise they
+will fail out unexpectedly.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Ziyang Zhang <ZiyangZhang@linux.alibaba.com>
 ---
- lib/compress.c | 87 ++++++++++++++++++++++++++++----------------------
- 1 file changed, 48 insertions(+), 39 deletions(-)
+ include/erofs/internal.h | 3 +++
+ include/erofs_fs.h       | 3 +++
+ lib/data.c               | 3 ++-
+ lib/zmap.c               | 6 ++++++
+ 4 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/lib/compress.c b/lib/compress.c
-index fd02053..3c1d9db 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -22,12 +22,19 @@
- static struct erofs_compress compresshandle;
- static unsigned int algorithmtype[2];
- 
--struct z_erofs_vle_compress_ctx {
--	u8 *metacur;
-+struct z_erofs_inmem_extent {
-+	erofs_blk_t blkaddr;
-+	unsigned int compressedblks;
-+	unsigned int length;
-+	bool raw;
-+};
- 
-+struct z_erofs_vle_compress_ctx {
- 	u8 queue[EROFS_CONFIG_COMPR_MAX_SZ * 2];
-+	struct z_erofs_inmem_extent e;	/* (lookahead) extent */
-+
-+	u8 *metacur;
- 	unsigned int head, tail;
--	unsigned int compressedblks;
- 	erofs_blk_t blkaddr;		/* pointing to the next blkaddr */
- 	u16 clusterofs;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 2e0aae8..2ae7737 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -279,6 +279,7 @@ enum {
+ 	BH_Mapped,
+ 	BH_Encoded,
+ 	BH_FullMapped,
++	BH_Partialref,
  };
-@@ -43,7 +50,7 @@ static unsigned int vle_compressmeta_capacity(erofs_off_t filesize)
- 	return Z_EROFS_LEGACY_MAP_HEADER_SIZE + indexsize;
- }
  
--static void vle_write_indexes_final(struct z_erofs_vle_compress_ctx *ctx)
-+static void z_erofs_write_indexes_final(struct z_erofs_vle_compress_ctx *ctx)
- {
- 	const unsigned int type = Z_EROFS_VLE_CLUSTER_TYPE_PLAIN;
- 	struct z_erofs_vle_decompressed_index di;
-@@ -59,10 +66,10 @@ static void vle_write_indexes_final(struct z_erofs_vle_compress_ctx *ctx)
- 	ctx->metacur += sizeof(di);
- }
+ /* Has a disk mapping */
+@@ -289,6 +290,8 @@ enum {
+ #define EROFS_MAP_ENCODED	(1 << BH_Encoded)
+ /* The length of extent is full */
+ #define EROFS_MAP_FULL_MAPPED	(1 << BH_FullMapped)
++/* The extent refers to partial compressed data */
++#define EROFS_MAP_PARTIAL_REF	(1 << BH_Partialref)
  
--static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
--			      unsigned int count, bool raw)
-+static void z_erofs_write_indexes(struct z_erofs_vle_compress_ctx *ctx)
- {
- 	unsigned int clusterofs = ctx->clusterofs;
-+	unsigned int count = ctx->e.length;
- 	unsigned int d0 = 0, d1 = (clusterofs + count) / EROFS_BLKSIZ;
- 	struct z_erofs_vle_decompressed_index di;
- 	unsigned int type;
-@@ -76,13 +83,13 @@ static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
- 		 * A lcluster cannot have three parts with the middle one which
- 		 * is well-compressed for !ztailpacking cases.
- 		 */
--		DBG_BUGON(!raw && !cfg.c_ztailpacking);
--		type = raw ? Z_EROFS_VLE_CLUSTER_TYPE_PLAIN :
-+		DBG_BUGON(!ctx->e.raw && !cfg.c_ztailpacking);
-+		type = ctx->e.raw ? Z_EROFS_VLE_CLUSTER_TYPE_PLAIN :
- 			Z_EROFS_VLE_CLUSTER_TYPE_HEAD;
- 		advise = cpu_to_le16(type << Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT);
+ struct erofs_map_blocks {
+ 	char mpage[EROFS_BLKSIZ];
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index 08f9761..09f672b 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -355,6 +355,9 @@ enum {
+ #define Z_EROFS_VLE_DI_CLUSTER_TYPE_BITS        2
+ #define Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT         0
  
- 		di.di_advise = advise;
--		di.di_u.blkaddr = cpu_to_le32(ctx->blkaddr);
-+		di.di_u.blkaddr = cpu_to_le32(ctx->e.blkaddr);
- 		memcpy(ctx->metacur, &di, sizeof(di));
- 		ctx->metacur += sizeof(di);
- 
-@@ -95,7 +102,7 @@ static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
- 		/* XXX: big pcluster feature should be per-inode */
- 		if (d0 == 1 && erofs_sb_has_big_pcluster()) {
- 			type = Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD;
--			di.di_u.delta[0] = cpu_to_le16(ctx->compressedblks |
-+			di.di_u.delta[0] = cpu_to_le16(ctx->e.compressedblks |
- 					Z_EROFS_VLE_DI_D0_CBLKCNT);
- 			di.di_u.delta[1] = cpu_to_le16(d1);
- 		} else if (d0) {
-@@ -119,9 +126,9 @@ static void vle_write_indexes(struct z_erofs_vle_compress_ctx *ctx,
- 				di.di_u.delta[0] = cpu_to_le16(d0);
- 			di.di_u.delta[1] = cpu_to_le16(d1);
++/* (noncompact, HEAD) This pcluster refers to compressed data partially */
++#define Z_EROFS_VLE_DI_PARTIAL_REF		(1 << 15)
++
+ /*
+  * D0_CBLKCNT will be marked _only_ at the 1st non-head lcluster to store the
+  * compressed block count of a compressed extent (in logical clusters, aka.
+diff --git a/lib/data.c b/lib/data.c
+index ad7b2cb..9b2ab6a 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -258,7 +258,8 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
  		} else {
--			type = raw ? Z_EROFS_VLE_CLUSTER_TYPE_PLAIN :
-+			type = ctx->e.raw ? Z_EROFS_VLE_CLUSTER_TYPE_PLAIN :
- 				Z_EROFS_VLE_CLUSTER_TYPE_HEAD;
--			di.di_u.blkaddr = cpu_to_le32(ctx->blkaddr);
-+			di.di_u.blkaddr = cpu_to_le32(ctx->e.blkaddr);
- 		}
- 		advise = cpu_to_le16(type << Z_EROFS_VLE_DI_CLUSTER_TYPE_BIT);
- 		di.di_advise = advise;
-@@ -226,18 +233,16 @@ static int vle_compress_one(struct erofs_inode *inode,
- 			    struct z_erofs_vle_compress_ctx *ctx,
- 			    bool final)
- {
-+	static char dstbuf[EROFS_CONFIG_COMPR_MAX_SZ + EROFS_BLKSIZ];
-+	char *const dst = dstbuf + EROFS_BLKSIZ;
- 	struct erofs_compress *const h = &compresshandle;
- 	unsigned int len = ctx->tail - ctx->head;
--	unsigned int count;
- 	int ret;
--	static char dstbuf[EROFS_CONFIG_COMPR_MAX_SZ + EROFS_BLKSIZ];
--	char *const dst = dstbuf + EROFS_BLKSIZ;
- 
- 	while (len) {
- 		unsigned int pclustersize =
- 			z_erofs_get_max_pclusterblks(inode) * EROFS_BLKSIZ;
- 		bool may_inline = (cfg.c_ztailpacking && final);
--		bool raw;
- 
- 		if (len <= pclustersize) {
- 			if (!final)
-@@ -246,10 +251,11 @@ static int vle_compress_one(struct erofs_inode *inode,
- 				goto nocompression;
+ 			DBG_BUGON(end != map.m_la + map.m_llen);
+ 			length = map.m_llen;
+-			partial = !(map.m_flags & EROFS_MAP_FULL_MAPPED);
++			partial = !(map.m_flags & EROFS_MAP_FULL_MAPPED) ||
++				(map.m_flags & EROFS_MAP_PARTIAL_REF);
  		}
  
--		count = min(len, cfg.c_max_decompressed_extent_bytes);
-+		ctx->e.length = min(len,
-+				cfg.c_max_decompressed_extent_bytes);
- 		ret = erofs_compress_destsize(h, ctx->queue + ctx->head,
--					      &count, dst, pclustersize,
--					      !(final && len == count));
-+				&ctx->e.length, dst, pclustersize,
-+				!(final && len == ctx->e.length));
- 		if (ret <= 0) {
- 			if (ret != -EAGAIN) {
- 				erofs_err("failed to compress %s: %s",
-@@ -267,17 +273,17 @@ nocompression:
+ 		if (map.m_la < offset) {
+diff --git a/lib/zmap.c b/lib/zmap.c
+index abe0d31..56efaa7 100644
+--- a/lib/zmap.c
++++ b/lib/zmap.c
+@@ -99,6 +99,7 @@ struct z_erofs_maprecorder {
+ 	u16 delta[2];
+ 	erofs_blk_t pblk, compressedlcs;
+ 	erofs_off_t nextpackoff;
++	bool partialref;
+ };
  
- 			if (ret < 0)
- 				return ret;
--			count = ret;
-+			ctx->e.length = ret;
+ static int z_erofs_reload_indexes(struct z_erofs_maprecorder *m,
+@@ -161,6 +162,9 @@ static int legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
+ 		break;
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
+ 	case Z_EROFS_VLE_CLUSTER_TYPE_HEAD:
++		if (advise & Z_EROFS_VLE_DI_PARTIAL_REF)
++			m->partialref = true;
++
+ 		m->clusterofs = le16_to_cpu(di->di_clusterofs);
+ 		m->pblk = le32_to_cpu(di->di_u.blkaddr);
+ 		break;
+@@ -602,6 +606,8 @@ static int z_erofs_do_map_blocks(struct erofs_inode *vi,
+ 		goto out;
+ 	}
  
- 			/*
- 			 * XXX: For now, we have to leave `ctx->compressedblks
- 			 * = 1' since there is no way to generate compressed
- 			 * indexes after the time that ztailpacking is decided.
- 			 */
--			ctx->compressedblks = 1;
--			raw = true;
-+			ctx->e.compressedblks = 1;
-+			ctx->e.raw = true;
- 		/* tailpcluster should be less than 1 block */
--		} else if (may_inline && len == count &&
-+		} else if (may_inline && len == ctx->e.length &&
- 			   ret < EROFS_BLKSIZ) {
- 			if (ctx->clusterofs + len <= EROFS_BLKSIZ) {
- 				inode->eof_tailraw = malloc(len);
-@@ -292,19 +298,20 @@ nocompression:
- 			ret = z_erofs_fill_inline_data(inode, dst, ret, false);
- 			if (ret < 0)
- 				return ret;
--			ctx->compressedblks = 1;
--			raw = false;
-+			ctx->e.compressedblks = 1;
-+			ctx->e.raw = false;
- 		} else {
- 			unsigned int tailused, padding;
- 
--			if (may_inline && len == count)
-+			if (may_inline && len == ctx->e.length)
- 				tryrecompress_trailing(ctx->queue + ctx->head,
--						       &count, dst, &ret);
-+						&ctx->e.length, dst, &ret);
- 
- 			tailused = ret & (EROFS_BLKSIZ - 1);
- 			padding = 0;
--			ctx->compressedblks = BLK_ROUND_UP(ret);
--			DBG_BUGON(ctx->compressedblks * EROFS_BLKSIZ >= count);
-+			ctx->e.compressedblks = BLK_ROUND_UP(ret);
-+			DBG_BUGON(ctx->e.compressedblks * EROFS_BLKSIZ >=
-+				  ctx->e.length);
- 
- 			/* zero out garbage trailing data for non-0padding */
- 			if (!erofs_sb_has_lz4_0padding())
-@@ -315,21 +322,22 @@ nocompression:
- 
- 			/* write compressed data */
- 			erofs_dbg("Writing %u compressed data to %u of %u blocks",
--				  count, ctx->blkaddr, ctx->compressedblks);
-+				  ctx->e.length, ctx->blkaddr,
-+				  ctx->e.compressedblks);
- 
- 			ret = blk_write(dst - padding, ctx->blkaddr,
--					ctx->compressedblks);
-+					ctx->e.compressedblks);
- 			if (ret)
- 				return ret;
--			raw = false;
-+			ctx->e.raw = false;
- 		}
-+		/* write indexes for this pcluster */
-+		ctx->e.blkaddr = ctx->blkaddr;
-+		z_erofs_write_indexes(ctx);
- 
--		ctx->head += count;
--		/* write compression indexes for this pcluster */
--		vle_write_indexes(ctx, count, raw);
--
--		ctx->blkaddr += ctx->compressedblks;
--		len -= count;
-+		ctx->blkaddr += ctx->e.compressedblks;
-+		ctx->head += ctx->e.length;
-+		len -= ctx->e.length;
- 
- 		if (!final && ctx->head >= EROFS_CONFIG_COMPR_MAX_SZ) {
- 			const unsigned int qh_aligned =
-@@ -654,6 +662,7 @@ int erofs_write_compressed_file(struct erofs_inode *inode)
- 	ctx.metacur = compressmeta + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
- 	ctx.head = ctx.tail = 0;
- 	ctx.clusterofs = 0;
-+	ctx.e.length = 0;
- 	remaining = inode->i_size;
- 
- 	while (remaining) {
-@@ -679,7 +688,7 @@ int erofs_write_compressed_file(struct erofs_inode *inode)
- 	DBG_BUGON(compressed_blocks < !!inode->idata_size);
- 	compressed_blocks -= !!inode->idata_size;
- 
--	vle_write_indexes_final(&ctx);
-+	z_erofs_write_indexes_final(&ctx);
- 	legacymetasize = ctx.metacur - compressmeta;
- 	/* estimate if data compression saves space or not */
- 	if (compressed_blocks * EROFS_BLKSIZ + inode->idata_size +
++	if (m.partialref)
++		map->m_flags |= EROFS_MAP_PARTIAL_REF;
+ 	map->m_llen = end - map->m_la;
+ 	if (flags & EROFS_GET_BLOCKS_FINDTAIL)
+ 		vi->z_tailextent_headlcn = m.lcn;
 -- 
 2.27.0
 
