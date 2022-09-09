@@ -4,69 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DD73C38145
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Sep 2022 06:49:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BECA5C54EE9
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Sep 2022 02:23:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MNV954XjBz3bZs
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Sep 2022 16:49:29 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=oHAp0tnW;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::534; helo=mail-pg1-x534.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=oHAp0tnW;
-	dkim-atps=neutral
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MP0Cy6Lbwz3bZC
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Sep 2022 12:23:42 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57; helo=out30-57.freemail.mail.aliyun.com; envelope-from=jnhuang@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MNV8y5YzDz2xJS
-	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Sep 2022 16:49:20 +1000 (AEST)
-Received: by mail-pg1-x534.google.com with SMTP id 202so15801244pgc.8
-        for <linux-erofs@lists.ozlabs.org>; Wed, 07 Sep 2022 23:49:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date;
-        bh=iK+jXg5NmojrjrXTvcBk5UVdDJeNZinaYGMOcpZC3/8=;
-        b=oHAp0tnWXJ81IHC5ZFwfbAdD8DIhC2yqLrgizCbBZ8c0lemiyoBBb+dBqgDIZWdQ1J
-         Hsrmo7+GFUfedzBzOj0mHNIYce/b5hC7D+sm5tMFOdLhsl/0epi4YGsBTKxrMIwAWNsf
-         wZhAQCBbqslAZMyjOvDAT+X/XUchHIriMYhKeAMcpgUvjuQn8soULx9pja/b5BK3bIf/
-         3zzlMYNq6SVI4uJfAGsb0DJBCDPUNT6AjCvCMFjk5iF3pwGyGRXALo5yTUVd6a41TJSN
-         6tQqnvxSzQM5IvADL1o4NlowFpS9TWyIVONwic8eV9FSm8tiqs5WBkVCGz1rzyvCUmAM
-         TYIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date;
-        bh=iK+jXg5NmojrjrXTvcBk5UVdDJeNZinaYGMOcpZC3/8=;
-        b=rBudyfQPi7poGkCmzRUQ7t1TSPh1hsXLV3ORP1O2qSNRoqYZI1hCjCqVseTR8mCsHp
-         HNsv97X1cLY9EnLedBSuvVOihYDIQ0NcdeyXw2oXX7hOp6v9qvjGEpsCNBN2Tz04Hndx
-         2um8GaqVo9ZZ1hxGWFevClEHNnH9zjbLHyDgYE1mtY0Tos9h3amXt6yVZNqMrMtpuYaU
-         ezP9/sQO5UY5S+kOSzacklOmhJONjrRR/JUst83HdywwIRIJkQW5p43ZDFcAqnq9a2Ug
-         h+5aiA+VMGjpU9KVSJvTEcsOZ3V9qSlKcf/rXMIihGAuIjEXMfKviF6IutSPk737ogEB
-         h0sw==
-X-Gm-Message-State: ACgBeo3fjTvlyeGimWfRarTKwZ2rN7ET2ho1ZewJM1V+HArsMdzI2Ofd
-	/a0kVVOQuu+94+u/20d+zb8h0Vyh0Ym39A==
-X-Google-Smtp-Source: AA6agR5g0ssNDJNYCDYXHAlKO7pnWMd0buFZ5w8+Wi+bRA0ye/AK1s9OcGtBXH3K7j4TLTJvluQxtA==
-X-Received: by 2002:a05:6a00:1590:b0:53a:d2fd:9b0f with SMTP id u16-20020a056a00159000b0053ad2fd9b0fmr7867955pfk.80.1662619755862;
-        Wed, 07 Sep 2022 23:49:15 -0700 (PDT)
-Received: from ?IPV6:fdbd:ff1:ce00:427:1cff:3226:873b:1ccd? ([2404:9dc0:cd01::21])
-        by smtp.gmail.com with ESMTPSA id s5-20020a170902a50500b0016f1ef2cd44sm12146072plq.154.2022.09.07.23.49.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Sep 2022 23:49:15 -0700 (PDT)
-Message-ID: <79eccbcc-b18e-80c4-5c8f-89213f047db8@bytedance.com>
-Date: Thu, 8 Sep 2022 14:49:09 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MP0Cr6MSjz2yWl
+	for <linux-erofs@lists.ozlabs.org>; Fri,  9 Sep 2022 12:23:36 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R781e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=jnhuang@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VP7G-q-_1662689909;
+Received: from localhost.localdomain(mailfrom:jnhuang@linux.alibaba.com fp:SMTPD_---0VP7G-q-_1662689909)
+          by smtp.aliyun-inc.com;
+          Fri, 09 Sep 2022 10:18:29 +0800
+From: Huang Jianan <jnhuang@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 3/4] erofs-utils: tests: add test for dump.erofs
+Date: Fri,  9 Sep 2022 10:18:15 +0800
+Message-Id: <20220909021816.10544-3-jnhuang@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.1 (Apple Git-133)
+In-Reply-To: <20220909021816.10544-1-jnhuang@linux.alibaba.com>
+References: <20220909021816.10544-1-jnhuang@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.0
-Subject: Re: [PATCH V2 0/5] Introduce erofs shared domain
-To: linux-erofs@lists.ozlabs.org, xiang@kernel.org, chao@kernel.org
-References: <20220902105305.79687-1-zhujia.zj@bytedance.com>
-From: Jia Zhu <zhujia.zj@bytedance.com>
-In-Reply-To: <20220902105305.79687-1-zhujia.zj@bytedance.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -79,96 +41,141 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.org, yinxin.x@bytedance.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-[E2E Container Demo for Quick Test]
-===================================
-[Issue]
-     https://github.com/containerd/nydus-snapshotter/issues/161
+Add basic functional check for dump.erofs.
 
-[Pull Request]
-     https://github.com/containerd/nydus-snapshotter/pull/162
+Signed-off-by: Huang Jianan <jnhuang@linux.alibaba.com>
+---
+ tests/Makefile.am   |  6 +++-
+ tests/erofs/021     | 83 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/021.out |  2 ++
+ 3 files changed, 90 insertions(+), 1 deletion(-)
+ create mode 100755 tests/erofs/021
+ create mode 100644 tests/erofs/021.out
 
-在 2022/9/2 18:53, Jia Zhu 写道:
-> Changes since V1:
-> 0. Only initialize one pseudo fs to manage anonymous inodes(cookies).
-> 1. Remove ctx's 'ref' field and replace it with inode's i_count.
-> 2. Add lock in erofs_fscache_unregister_cookie() to avoid race condition
->     between cookie's get/put/search.
-> 3. Remove useless blank lines.
-> 
-> [Kernel Patchset]
-> ===============
-> Git tree:
-> 	https://github.com/userzj/linux.git zhujia/shared-domain-v2
-> Git web:
-> 	https://github.com/userzj/linux/tree/zhujia/shared-domain-v2
-> 
-> [Background]
-> ============
-> In ondemand read mode, we use individual volume to present an erofs
-> mountpoint, cookies to present bootstrap and data blobs.
-> 
-> In which case, since cookies can't be shared between fscache volumes,
-> even if the data blobs between different mountpoints are exactly same,
-> they can't be shared.
-> 
-> [Introduction]
-> ==============
-> Here we introduce erofs shared domain to resolve above mentioned case.
-> Several erofs filesystems can belong to one domain, and data blobs can
-> be shared among these erofs filesystems of same domain.
-> 
-> [Usage]
-> Users could specify 'domain_id' mount option to create or join into a
-> domain which reuses the same cookies(blobs).
-> 
-> [Design]
-> ========
-> 1. Use pseudo mnt to manage domain's lifecycle.
-> 2. Use a linked list to maintain & traverse domains.
-> 3. Use pseudo sb to create anonymous inode for recording cookie's info
->     and manage cookies lifecycle.
-> 
-> [Flow Path]
-> ===========
-> 1. User specify a new 'domain_id' in mount option.
->     1.1 Traverse domain list, compare domain_id with existing domain.[Miss]
->     1.2 Create a new domain(volume), add it to domain list.
->     1.3 Traverse pseudo sb's inode list, compare cookie name with
->         existing cookies.[Miss]
->     1.4 Alloc new anonymous inodes and cookies.
-> 
-> 2. User specify an existing 'domain_id' in mount option and the data
->     blob is existed in domain.
->     2.1 Traverse domain list, compare domain_id with existing domain.[Hit]
->     2.2 Reuse the domain and increase its refcnt.
->     2.3 Traverse pseudo sb's inode list, compare cookie name with
->     	   existing cookies.[Hit]
->     2.4 Reuse the cookie and increase its refcnt.
-> [Test]
-> ======
-> Git web:
-> 	https://github.com/userzj/demand-read-cachefilesd/tree/shared-domain
-> More test cases will be added to:
-> 	https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/log/?h=experimental-tests-fscache
-> 
-> RFC: https://lore.kernel.org/all/YxAlO%2FDHDrIAafR2@B-P7TQMD6M-0146.local/
-> V1: https://lore.kernel.org/all/20220902034748.60868-1-zhujia.zj@bytedance.com/
-> 
-> 
-> Jia Zhu (5):
->    erofs: add 'domain_id' mount option for on-demand read sementics
->    erofs: introduce fscache-based domain
->    erofs: add 'domain_id' prefix when register sysfs
->    erofs: remove duplicated unregister_cookie
->    erofs: support fscache based shared domain
-> 
->   fs/erofs/fscache.c  | 168 +++++++++++++++++++++++++++++++++++++++++++-
->   fs/erofs/internal.h |  31 +++++++-
->   fs/erofs/super.c    |  94 +++++++++++++++++++------
->   fs/erofs/sysfs.c    |  11 ++-
->   4 files changed, 278 insertions(+), 26 deletions(-)
-> 
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index b85ae89..bb1624d 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -22,7 +22,8 @@ TESTS_ENVIRONMENT = \
+ 	fi; \
+ 	[ -z $$MKFS_EROFS_PROG ] && export MKFS_EROFS_PROG=../mkfs/mkfs.erofs; \
+ 	[ -z $$FSCK_EROFS_PROG ] && export FSCK_EROFS_PROG=../fsck/fsck.erofs; \
+-	[ -z $$EROFSFUSE_PROG ] && export EROFSFUSE_PROG=../fuse/erofsfuse;
++	[ -z $$EROFSFUSE_PROG ] && export EROFSFUSE_PROG=../fuse/erofsfuse; \
++	[ -z $$DUMP_EROFS_PROG ] && export DUMP_EROFS_PROG=../dump/dump.erofs;
+ 
+ if ENABLE_LZ4
+ TESTS_ENVIRONMENT += export lz4_on=1;
+@@ -91,6 +92,9 @@ TESTS += erofs/018
+ # 019 - check extended attribute functionality
+ TESTS += erofs/019
+ 
++# 021 - check dump basic functionality
++TESTS += erofs/021
++
+ EXTRA_DIST = common/rc erofs
+ 
+ clean-local: clean-local-check
+diff --git a/tests/erofs/021 b/tests/erofs/021
+new file mode 100755
+index 0000000..2bb45e7
+--- /dev/null
++++ b/tests/erofs/021
+@@ -0,0 +1,83 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++#
++# 021 check dump basic functionality
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++_require_erofs
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++[ -z "$lz4hc_on" ] && \
++	_notrun "lz4hc compression is disabled, skipped."
++
++if [ -z ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++# collect files pending for verification
++dirs=`find ../ -maxdepth 1 -type d -printf '%p:'`
++IFS=':'
++for d in $dirs; do
++	[ $d = '../' ] && continue
++	[ -z "${d##\.\./tests*}" ] && continue
++	[ -z "${d##\.\./\.*}" ] && continue
++	cp -nR $d $localdir
++done
++unset IFS
++
++uuid="98136b8d-d5a7-429c-b6ea-2021f19d7d93"
++timestamp="Thu Jan  1 08:00:00 1970"
++
++MKFS_OPTIONS="${MKFS_OPTIONS} -zlz4hc -T0 -U$uuid"
++_scratch_mkfs $localdir >> $seqres.full 2>&1 || _fail "failed to mkfs"
++_scratch_mount 2>>$seqres.full
++
++do_dump="$DUMP_EROFS_PROG $SCRATCH_DEV"
++echo "dump information for $SCRATCH_DEV" >>$seqres.full
++
++uuid_dump=`$do_dump |awk '/UUID/{print $3}'`
++echo "uuid: $uuid_dump" >>$seqres.full
++[ "x$uuid" = "x$uuid_dump" ] || _fail "check uuid fail"
++
++timestamp_dump=`$do_dump |awk -F"created:[ ]+" '/created:/{print $2}'`
++echo "timestamp: $timestamp_dump" >>$seqres.full
++[ "x$timestamp" = "x$timestamp_dump" ] || _fail "check timestamp fail"
++
++nid_sb=`$do_dump |awk '/root nid/{print $4}'`
++echo "root nid from superblock: $nid_sb" >>$seqres.full
++nid_ino=`$do_dump --path=/ |awk '/NID/{print $2}'`
++echo "root nid from inode: $nid_ino" >>$seqres.full
++[ "x$nid_sb" = "x$nid_ino" ] || _fail "check root nid fail"
++
++dirs_dump=`$do_dump --path=/ --ls |awk '/\s*[0-9]+\s+[0-9]+\s+/{print $3}'`
++echo "list root directory:\n$dirs_dump" >>$seqres.full
++dirs_ls=`ls -aU $SCRATCH_MNT`
++echo "list root directory for $SCRATCH_MNT:\n$dirs_ls" >>$seqres.full
++[ "x$dirs_dump" = "x$dirs_ls" ] || _fail "check ls fail"
++
++_scratch_unmount
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/021.out b/tests/erofs/021.out
+new file mode 100644
+index 0000000..09f4062
+--- /dev/null
++++ b/tests/erofs/021.out
+@@ -0,0 +1,2 @@
++QA output created by 021
++Silence is golden
+-- 
+2.34.1
+
