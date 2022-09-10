@@ -4,43 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6CAFECAAD5
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Sep 2022 06:51:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30BA4C6FA82
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Sep 2022 06:51:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MPk6s1cwxz3bk8
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Sep 2022 16:51:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MPk6w33lGz3bk9
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Sep 2022 16:51:52 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=kqYZ5Rij;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=TY6vqRLM;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+74593d5eb0e0b46c37a4+6957+infradead.org+hch@bombadil.srs.infradead.org; receiver=<UNKNOWN>)
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MPk6S2fMdz2yxc
-	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Sep 2022 16:51:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MPk6S3rW8z2yyT
+	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Sep 2022 16:51:27 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=vqMGMaEkOmTqVQylBL+skkFNuiQaEqBjU4MG7KR5LL0=; b=kqYZ5RijV8voK/z0zN+91658ME
-	othEptJ5Jh2KM6dR4Cxso2p8jnG+xQo2M5kHEwh9mo1XVCJT3+LjcQVT86P0gUbIOZqNeFapGyX/h
-	/OdgGVYp+QTVSkxLppYxTFUKdb59n7fqclYWiXunNSvOEQZbHZ7Al4fPyqE+Y7niQJCNcFr1QpNzt
-	E9JUwcNBCafe3zyNEyvt4LB8sGEahpq/lVI09ZRV8hg7amkemarEy1CYLP/bzYggDRP43uf/Xx2Fa
-	L7KwLUlqXcGXEbb1eNQP//XtM7trmDf+dq+zs0ZJyirR+O7PS1uicM9oKe1DTjiDKpApviawkwvvL
-	FHmOX0DA==;
+	bh=fQqaIwOPxSuMna00dQRnvLHVvXRo+zAlkdWprGAd+Cc=; b=TY6vqRLMJhvweO+6nWY/Yk6QCH
+	2wbbFyPkYsHGjWKYBe7GnKXWBeP7BegsJdll9FnrtOthJp4dUf1Kvsl5a/qlVyFhFhLHEPwEE0WQL
+	wDaXd5YpJFiR0RumNIFaRd1Po+fn9GcxeyCCNfN1fJY7mmjO9rTpn8caq4TXFBBayzRcOc6bu4NKh
+	IoDNIXl5IexFES5+qwaLTG71wyLwN1NbONFzYKyCJUeec2R61kCjzTUcXjZLj0pLvBFd+WW7ty19m
+	JKcjT5Dzix0LV4x4Q6R9PV7MhsSEKNMJR6LZPTnwjwtyUHob7eNK6sy3hKBwQOGcSJCPj2NHLWdC9
+	4OgUvzQQ==;
 Received: from [2001:4bb8:198:38af:e8dc:dbbd:a9d:5c54] (helo=localhost)
 	by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1oWuKd-006pZX-Fw; Sat, 10 Sep 2022 06:51:12 +0000
+	id 1oWuKj-006pb8-02; Sat, 10 Sep 2022 06:51:17 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>,
 	Matthew Wilcox <willy@infradead.org>,
 	Johannes Weiner <hannes@cmpxchg.org>,
 	Suren Baghdasaryan <surenb@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 2/5] sched/psi: export psi_memstall_{enter,leave}
-Date: Sat, 10 Sep 2022 08:50:55 +0200
-Message-Id: <20220910065058.3303831-3-hch@lst.de>
+Subject: [PATCH 4/5] erofs: add manual PSI accounting for the compressed address space
+Date: Sat, 10 Sep 2022 08:50:57 +0200
+Message-Id: <20220910065058.3303831-5-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220910065058.3303831-1-hch@lst.de>
 References: <20220910065058.3303831-1-hch@lst.de>
@@ -62,34 +62,68 @@ Cc: linux-mm@kvack.org, Josef Bacik <josef@toxicpanda.com>, linux-block@vger.ker
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-To properly account for all refaults from file system logic, file systems
-need to call psi_memstall_enter directly, so export it.
+erofs uses an additional address space for compressed data read from disk
+in addition to the one directly associated with the inode.  Reading into
+the lower address space is open coded using add_to_page_cache_lru instead
+of using the filemap.c helper for page allocation micro-optimizations,
+which means it is not covered by the MM PSI annotations for ->read_folio
+and ->readahead, so add manual ones instead.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- kernel/sched/psi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/erofs/zdata.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index ecb4b4ff4ce0a..7f6030091aeee 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -917,6 +917,7 @@ void psi_memstall_enter(unsigned long *flags)
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 5792ca9e0d5ef..143a101a36887 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -7,6 +7,7 @@
+ #include "zdata.h"
+ #include "compress.h"
+ #include <linux/prefetch.h>
++#include <linux/psi.h>
  
- 	rq_unlock_irq(rq, &rf);
- }
-+EXPORT_SYMBOL_GPL(psi_memstall_enter);
+ #include <trace/events/erofs.h>
  
- /**
-  * psi_memstall_leave - mark the end of an memory stall section
-@@ -946,6 +947,7 @@ void psi_memstall_leave(unsigned long *flags)
+@@ -1365,6 +1366,8 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 	struct block_device *last_bdev;
+ 	unsigned int nr_bios = 0;
+ 	struct bio *bio = NULL;
++	/* initialize to 1 to make skip psi_memstall_leave unless needed */
++	unsigned long pflags = 1;
  
- 	rq_unlock_irq(rq, &rf);
- }
-+EXPORT_SYMBOL_GPL(psi_memstall_leave);
+ 	bi_private = jobqueueset_init(sb, q, fgq, force_fg);
+ 	qtail[JQ_BYPASS] = &q[JQ_BYPASS]->head;
+@@ -1414,10 +1417,15 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 			if (bio && (cur != last_index + 1 ||
+ 				    last_bdev != mdev.m_bdev)) {
+ submit_bio_retry:
++				if (!pflags)
++					psi_memstall_leave(&pflags);
+ 				submit_bio(bio);
+ 				bio = NULL;
+ 			}
  
- #ifdef CONFIG_CGROUPS
- int psi_cgroup_alloc(struct cgroup *cgroup)
++			if (unlikely(PageWorkingset(page)))
++				psi_memstall_enter(&pflags);
++
+ 			if (!bio) {
+ 				bio = bio_alloc(mdev.m_bdev, BIO_MAX_VECS,
+ 						REQ_OP_READ, GFP_NOIO);
+@@ -1445,8 +1453,11 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 			move_to_bypass_jobqueue(pcl, qtail, owned_head);
+ 	} while (owned_head != Z_EROFS_PCLUSTER_TAIL);
+ 
+-	if (bio)
++	if (bio) {
++		if (!pflags)
++			psi_memstall_leave(&pflags);
+ 		submit_bio(bio);
++	}
+ 
+ 	/*
+ 	 * although background is preferred, no one is pending for submission.
 -- 
 2.30.2
 
