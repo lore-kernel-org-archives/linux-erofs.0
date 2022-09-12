@@ -4,31 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 31B49ECAAA1
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Sep 2022 08:35:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13D41C6FA83
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Sep 2022 08:40:17 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MR0KG4tpMz3bhQ
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Sep 2022 18:35:14 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MR0R43LYVz3f4X
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Sep 2022 18:40:16 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=<UNKNOWN>)
-X-Greylist: delayed 66 seconds by postgrey-1.36 at boromir; Mon, 12 Sep 2022 18:35:09 AEST
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MR0K96zC8z3062
-	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Sep 2022 18:35:09 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MR0Pq5vP1z3c6r
+	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Sep 2022 18:39:11 +1000 (AEST)
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id 4FDB468B05; Mon, 12 Sep 2022 10:35:05 +0200 (CEST)
-Date: Mon, 12 Sep 2022 10:35:04 +0200
+	id 3E45768C7B; Mon, 12 Sep 2022 10:33:54 +0200 (CEST)
+Date: Mon, 12 Sep 2022 10:33:53 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
+To: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH 1/5] mm: add PSI accounting around ->read_folio and
  ->readahead calls
-Message-ID: <20220912083504.GB11318@lst.de>
-References: <20220910065058.3303831-1-hch@lst.de> <20220910065058.3303831-2-hch@lst.de> <bcabe527-7940-8658-1728-28d64bd3cf80@kernel.dk>
+Message-ID: <20220912083353.GA11318@lst.de>
+References: <20220910065058.3303831-1-hch@lst.de> <20220910065058.3303831-2-hch@lst.de> <YxzW2wZzhaDvjS1c@casper.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bcabe527-7940-8658-1728-28d64bd3cf80@kernel.dk>
+In-Reply-To: <YxzW2wZzhaDvjS1c@casper.infradead.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -41,33 +40,12 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-mm@kvack.org, linux-erofs@lists.ozlabs.org, Josef Bacik <josef@toxicpanda.com>, Matthew Wilcox <willy@infradead.org>, linux-block@vger.kernel.org, Chris Mason <clm@fb.com>, Johannes Weiner <hannes@cmpxchg.org>, David Sterba <dsterba@suse.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Suren Baghdasaryan <surenb@google.com>, Christoph Hellwig <hch@lst.de>, linux-btrfs@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, linux-mm@kvack.org, linux-erofs@lists.ozlabs.org, Josef Bacik <josef@toxicpanda.com>, linux-block@vger.kernel.org, Chris Mason <clm@fb.com>, Johannes Weiner <hannes@cmpxchg.org>, David Sterba <dsterba@suse.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Suren Baghdasaryan <surenb@google.com>, Christoph Hellwig <hch@lst.de>, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Sat, Sep 10, 2022 at 05:34:02AM -0600, Jens Axboe wrote:
-> >  	/* Start the actual read. The read will unlock the page. */
-> > +	if (unlikely(workingset))
-> > +		psi_memstall_enter(&pflags);
-> >  	error = filler(file, folio);
-> > +	if (unlikely(workingset))
-> > +		psi_memstall_leave(&pflags);
-> >  	if (error)
-> >  		return error;
-> 
-> I think this would read better as:
-> 
->   	/* Start the actual read. The read will unlock the page. */
-> 	if (unlikely(workingset)) {
-> 		psi_memstall_enter(&pflags);
-> 		error = filler(file, folio);
-> 		psi_memstall_leave(&pflags);
-> 	} else {
-> 		error = filler(file, folio);
-> 	}
->   	if (error)
->   		return error;
+On Sat, Sep 10, 2022 at 07:26:35PM +0100, Matthew Wilcox wrote:
+> I don't have time to look at this properly right now (about to catch a
+> bus to the plane), but I think this should be |=, not =?
 
-I had it both ways.  For any non-trivial code in the conditionals I
-tend to go with your version all the time.  But for two times a single
-lines both variants tends to suck, so I can live with either one.
+Yes.
