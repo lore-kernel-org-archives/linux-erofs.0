@@ -4,40 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACB60C6FA82
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Sep 2022 06:34:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61CAAC54EE9
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Sep 2022 10:55:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MRYbz0kvvz3bYk
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Sep 2022 16:34:55 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MRgNt3Y67z3bdk
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Sep 2022 20:55:42 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=Ac2paRBT;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::636; helo=mail-pl1-x636.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=Ac2paRBT;
+	dkim-atps=neutral
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MRYbv4V41z2xGH
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Sep 2022 16:34:50 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R571e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VPeAMF._1663050886;
-Received: from 30.221.130.76(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VPeAMF._1663050886)
-          by smtp.aliyun-inc.com;
-          Tue, 13 Sep 2022 14:34:47 +0800
-Message-ID: <b9794188-f1e1-20ab-6aec-04312cbb02bf@linux.alibaba.com>
-Date: Tue, 13 Sep 2022 14:34:46 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.0
-Subject: Re: [External] Re: [PATCH V2 2/5] erofs: introduce fscache-based
- domain
-Content-Language: en-US
-To: Jia Zhu <zhujia.zj@bytedance.com>, linux-erofs@lists.ozlabs.org,
- xiang@kernel.org, chao@kernel.org
-References: <20220902105305.79687-1-zhujia.zj@bytedance.com>
- <20220902105305.79687-3-zhujia.zj@bytedance.com>
- <ac567b29-dd30-7b65-aefb-3f23e59781cb@linux.alibaba.com>
- <fe9199a2-a8d5-98c9-461b-e7a2cbf87516@bytedance.com>
-From: JeffleXu <jefflexu@linux.alibaba.com>
-In-Reply-To: <fe9199a2-a8d5-98c9-461b-e7a2cbf87516@bytedance.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MRgNp3VNHz2yPH
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Sep 2022 20:55:37 +1000 (AEST)
+Received: by mail-pl1-x636.google.com with SMTP id k21so879768pls.11
+        for <linux-erofs@lists.ozlabs.org>; Tue, 13 Sep 2022 03:55:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date;
+        bh=/up3SkrBIZVFgzZ4e3zYRgkPH915UUyIxAd/J03ekoE=;
+        b=Ac2paRBTMs5FaoSf7Xt0RxhuY6a9MLENgCF+lwN64Injqyjbby5Qa6snxPtJBUIJVh
+         lvdpsAnWKTi6VHy/zwcXlkkylJF2Z1UfR77No1/ID1nbs0ayx5VqgSNmxTniRZhVK2/X
+         tS10XmFrL/JpvJAlwltlWrefkDjqHGFegFl+oztreEtX+FCrVs5q46W+P9DoxQc+OuML
+         afucZWDbg4R+UMHdwewuLN+3Aj4Hcuz/S7eU8VG59/sJ6U+VkGCnt2tWpUInt7h9UDK6
+         /L2LMMOjzbNfeAf0tKC1ip0376ApWVaN2S4JgUG8A7I8toZNIpkZJA8uHUNdLhP8iYJh
+         fTSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=/up3SkrBIZVFgzZ4e3zYRgkPH915UUyIxAd/J03ekoE=;
+        b=IxCSfyjS778RjLMLuzduSS4oJIKeRlxk5+QyKDSJYQBtDkJJWIWWqDSa834hdKu589
+         SsiEp43Qmo1+qrDJF7jviM3nkdfkjaWXA0DC0rFyrhoycUTkO75lFUTRmF0rg4RJ8tDL
+         fdgw0q6nnq/hswR6bKzheThpVXYrGEo+swRim6nDwzIoem5+0Jcet5vkvssZUFcuq6zX
+         uFspPa1P4OEycphgfBwIeArfF7xj/JW411xfvCY17fknVjC5FGXm38G/MAhlH3VYo418
+         lvkODkC7tV5FH4Y9uDzAlEY6QyiOxqr5cQjeUPO7QpgK+DpFsIWEwsahYLdAqBV1LXw3
+         kYVA==
+X-Gm-Message-State: ACgBeo2p6jeVfn+c5qFhOXS/Zsi/CUs2WdBVgnY1VGfmfYFBYarZp+JN
+	oB5Zh19LtPKw+EdspUtF70cDVb97Z8k=
+X-Google-Smtp-Source: AA6agR6DtxBo6hvptXef9vUoIuc5DVRVC54US7Yl7YFeUvYTWy9M0/nfWwV84KUXEtlsGyMJZQ6knQ==
+X-Received: by 2002:a17:90a:9295:b0:202:582b:1765 with SMTP id n21-20020a17090a929500b00202582b1765mr3238093pjo.99.1663066535309;
+        Tue, 13 Sep 2022 03:55:35 -0700 (PDT)
+Received: from localhost.localdomain ([156.236.96.165])
+        by smtp.gmail.com with ESMTPSA id g17-20020aa796b1000000b0054097cb2da6sm7475290pfk.38.2022.09.13.03.55.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Sep 2022 03:55:35 -0700 (PDT)
+From: Yue Hu <zbestahu@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [RFC PATCH v8 1/4] erofs-utils: fuse: support interlaced uncompressed pcluster
+Date: Tue, 13 Sep 2022 18:54:46 +0800
+Message-Id: <5a6077e3e3745ae80f2a0fc13444898e86cc838d.1663065968.git.huyue2@coolpad.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <cover.1663065968.git.huyue2@coolpad.com>
+References: <cover.1663065968.git.huyue2@coolpad.com>
+In-Reply-To: <cover.1663065968.git.huyue2@coolpad.com>
+References: <cover.1663065968.git.huyue2@coolpad.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -49,37 +76,119 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.org, yinxin.x@bytedance.com
+Cc: Yue Hu <huyue2@coolpad.com>, shaojunjun@coolpad.com, zhangwen@coolpad.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+From: Yue Hu <huyue2@coolpad.com>
 
+Support uncompressed data layout with on-disk interlaced offset in
+compression mode for erofsfuse.
 
-On 9/13/22 12:31 PM, Jia Zhu wrote:
-> 
-> 
-> 在 2022/9/9 16:42, JeffleXu 写道:
->>>   int erofs_fscache_register_cookie(struct super_block *sb,
->>>                     struct erofs_fscache **fscache,
->>>                     char *name, bool need_inode)
->>> @@ -495,7 +581,8 @@ int erofs_fscache_register_fs(struct super_block
->>> *sb)
->>>       char *name;
->>>       int ret = 0;
->>>   -    name = kasprintf(GFP_KERNEL, "erofs,%s", sbi->opt.fsid);
->>> +    name = kasprintf(GFP_KERNEL, "erofs,%s",
->>> +            sbi->domain ? sbi->domain->domain_id : sbi->opt.fsid);
->>
->> Do we also need to encode the cookie name in the "<domain_id>,<fsid>"
->> format? This will affect the path of the cache files.
->>
-> I think even though the cookies have the same name, they belong to
-> different volumes(path). Cookies do not affect each other.
-> Are there other benefits to doing so?
+Signed-off-by: Yue Hu <huyue2@coolpad.com>
+---
+ include/erofs/decompress.h |  3 +++
+ include/erofs_fs.h         |  2 ++
+ lib/data.c                 |  8 +++++++-
+ lib/decompress.c           | 17 +++++++++++++++--
+ 4 files changed, 27 insertions(+), 3 deletions(-)
 
-Okay. The current implementation is correct. Please ignore the noise.
-
-
+diff --git a/include/erofs/decompress.h b/include/erofs/decompress.h
+index 82bf7b8..a9067cb 100644
+--- a/include/erofs/decompress.h
++++ b/include/erofs/decompress.h
+@@ -23,6 +23,9 @@ struct z_erofs_decompress_req {
+ 	unsigned int decodedskip;
+ 	unsigned int inputsize, decodedlength;
+ 
++	/* cut point of interlaced uncompressed data */
++	unsigned int interlaced_offset;
++
+ 	/* indicate the algorithm will be used for decompression */
+ 	unsigned int alg;
+ 	bool partial_decoding;
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index 08f9761..b8a7421 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -294,11 +294,13 @@ struct z_erofs_lzma_cfgs {
+  * bit 1 : HEAD1 big pcluster (0 - off; 1 - on)
+  * bit 2 : HEAD2 big pcluster (0 - off; 1 - on)
+  * bit 3 : tailpacking inline pcluster (0 - off; 1 - on)
++ * bit 4 : interlaced plain pcluster (0 - off; 1 - on)
+  */
+ #define Z_EROFS_ADVISE_COMPACTED_2B		0x0001
+ #define Z_EROFS_ADVISE_BIG_PCLUSTER_1		0x0002
+ #define Z_EROFS_ADVISE_BIG_PCLUSTER_2		0x0004
+ #define Z_EROFS_ADVISE_INLINE_PCLUSTER		0x0008
++#define Z_EROFS_ADVISE_INTERLACED_PCLUSTER	0x0010
+ 
+ struct z_erofs_map_header {
+ 	__le16	h_reserved1;
+diff --git a/lib/data.c b/lib/data.c
+index ad7b2cb..2d76816 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -226,7 +226,7 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
+ 	};
+ 	struct erofs_map_dev mdev;
+ 	bool partial;
+-	unsigned int bufsize = 0;
++	unsigned int bufsize = 0, interlaced_offset;
+ 	char *raw = NULL;
+ 	int ret = 0;
+ 
+@@ -287,10 +287,16 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
+ 		if (ret < 0)
+ 			break;
+ 
++		interlaced_offset = 0;
++		if ((inode->z_advise & Z_EROFS_ADVISE_INTERLACED_PCLUSTER) &&
++		    map.m_algorithmformat == Z_EROFS_COMPRESSION_SHIFTED)
++			interlaced_offset = erofs_blkoff(map.m_la);
++
+ 		ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
+ 					.in = raw,
+ 					.out = buffer + end - offset,
+ 					.decodedskip = skip,
++					.interlaced_offset = interlaced_offset,
+ 					.inputsize = map.m_plen,
+ 					.decodedlength = length,
+ 					.alg = map.m_algorithmformat,
+diff --git a/lib/decompress.c b/lib/decompress.c
+index 1661f91..39da555 100644
+--- a/lib/decompress.c
++++ b/lib/decompress.c
+@@ -132,14 +132,27 @@ out:
+ int z_erofs_decompress(struct z_erofs_decompress_req *rq)
+ {
+ 	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED) {
++		unsigned int count, rightpart, skip;
++
+ 		if (rq->inputsize > EROFS_BLKSIZ)
+ 			return -EFSCORRUPTED;
+ 
+ 		DBG_BUGON(rq->decodedlength > EROFS_BLKSIZ);
+ 		DBG_BUGON(rq->decodedlength < rq->decodedskip);
+ 
+-		memcpy(rq->out, rq->in + rq->decodedskip,
+-		       rq->decodedlength - rq->decodedskip);
++		count = rq->decodedlength - rq->decodedskip;
++
++		if (rq->interlaced_offset) {
++			skip = erofs_blkoff(rq->interlaced_offset +
++					    rq->decodedskip);
++			rightpart = min(EROFS_BLKSIZ - skip, count);
++		} else {
++			skip = rq->decodedskip;
++			rightpart = count;
++		}
++		memcpy(rq->out, rq->in + skip, rightpart);
++		memcpy(rq->out + rightpart, rq->in, count - rightpart);
++
+ 		return 0;
+ 	}
+ 
 -- 
-Thanks,
-Jingbo
+2.17.1
+
