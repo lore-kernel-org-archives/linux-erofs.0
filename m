@@ -4,46 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A3F4ECAAD3
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Sep 2022 09:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD90DECAAD3
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Sep 2022 09:42:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MSsgV4dylz3c18
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Sep 2022 19:42:30 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MSsgY633tz3bgQ
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Sep 2022 19:42:33 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=os6+qAq+;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=XCKKlba9;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+aa90abf7a61f323a8d2f+6962+infradead.org+hch@bombadil.srs.infradead.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=os6+qAq+;
+	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=XCKKlba9;
 	dkim-atps=neutral
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MSsgL3xMrz3bZC
-	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Sep 2022 19:42:20 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MSsgK5Z1Gz3052
+	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Sep 2022 19:42:18 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
 	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
 	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=Sn1STluEcmAEl2IDkRqQTtdfy5beUs4WRE2QQKAsD/8=; b=os6+qAq+Yh06rcP0f4OouU/22o
-	oWMxav2lmp8ydZQlV6kYJHiVg8ZVYPX5Z5bUp7SoaxqFj/nUS4D885nff+ExvyS+/ZeTUGV4jsgEU
-	ER77a8FARvGVxYQc08pU28vamvOLA93UJlOYB+wMD6hJYfaFlwU7gVGEBvA4QBbVOudz8qGi3zl6j
-	PD4HWCk7kfMEuJEharZdxwNNq3YjLexhD9ZuJU9XTK/fP5VUj1cnMn1ePeBY44Kxrp22zlpCAneVa
-	pYT72nSZOveSvkojw81g64FzZrU9pT28Z+dU81UCAkWPRoOJZqNkQwmhvF/DotA52n+uG+9hsXvG2
-	598sGqsQ==;
+	bh=SxtVDqdat7BUx/W51wS73TW46FWCaaqoJViREBV0E4g=; b=XCKKlba980yHrEb7U2Z7nxXZcq
+	YZzQTA/3rSfLmxP/itoKa1cbxHecjo6lZ+/daLAoQ54ZywDoNmcYhRKQh7BhjSSHYgAkEROhNV0/F
+	14GG/i0DGrSzBpEno94+6Ri22JjcTLo6AeQn1wLhshEvNQWMAE80uVSy7lfx0Ic4vGDqbQuJxd+jz
+	TiTrR0NISz7uCi8jJpu5X0J1hYZD+scAZRZY54MvRA9w34a9r6/My0FLliJ93QY1RS4/0GnzTnRsB
+	BSei3Ct+cvW3zZBM7lACxj9tSoD9XtuX3iLfVJvhdqhe9e4BywOrgFoGIoW0PNpYxnkBWmNGmZv+S
+	fkJwuS3g==;
 Received: from [185.122.133.20] (helo=localhost)
 	by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1oYlNq-005b3C-78; Thu, 15 Sep 2022 09:42:10 +0000
+	id 1oYlNk-005b0u-Ql; Thu, 15 Sep 2022 09:42:05 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>,
 	Matthew Wilcox <willy@infradead.org>,
 	Johannes Weiner <hannes@cmpxchg.org>,
 	Suren Baghdasaryan <surenb@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 3/5] btrfs: add manual PSI accounting for compressed reads
-Date: Thu, 15 Sep 2022 10:41:58 +0100
-Message-Id: <20220915094200.139713-4-hch@lst.de>
+Subject: [PATCH 1/5] mm: add PSI accounting around ->read_folio and ->readahead calls
+Date: Thu, 15 Sep 2022 10:41:56 +0100
+Message-Id: <20220915094200.139713-2-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220915094200.139713-1-hch@lst.de>
 References: <20220915094200.139713-1-hch@lst.de>
@@ -65,83 +65,140 @@ Cc: linux-mm@kvack.org, Josef Bacik <josef@toxicpanda.com>, linux-block@vger.ker
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-btrfs compressed reads try to always read the entire compressed chunk,
-even if only a subset is requested.  Currently this is covered by the
-magic PSI accounting underneath submit_bio, but that is about to go
-away. Instead add manual psi_memstall_{enter,leave} annotations.
+PSI tries to account for the cost of bringing back in pages discarded by
+the MM LRU management.  Currently the prime place for that is hooked into
+the bio submission path, which is a rather bad place:
 
-Note that for readahead this really should be using readahead_expand,
-but the additionals reads are also done for plain ->read_folio where
-readahead_expand can't work, so this overall logic is left as-is for
-now.
+ - it does not actually account I/O for non-block file systems, of which
+   we have many
+ - it adds overhead and a layering violation to the block layer
+
+Add the accounting into the two places in the core MM code that read
+pages into an address space by calling into ->read_folio and ->readahead
+so that the entire file system operations are covered, to broaden
+the coverage and allow removing the accounting in the block layer going
+forward.
+
+As psi_memstall_enter can deal with nested calls this will not lead to
+double accounting even while the bio annotations are still present.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: David Sterba <dsterba@suse.com>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 ---
- fs/btrfs/compression.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ include/linux/pagemap.h |  2 ++
+ mm/filemap.c            |  7 +++++++
+ mm/readahead.c          | 22 ++++++++++++++++++----
+ 3 files changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index e84d22c5c6a83..370788b9b1249 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -15,6 +15,7 @@
- #include <linux/string.h>
- #include <linux/backing-dev.h>
- #include <linux/writeback.h>
-+#include <linux/psi.h>
- #include <linux/slab.h>
- #include <linux/sched/mm.h>
- #include <linux/log2.h>
-@@ -519,7 +520,8 @@ static u64 bio_end_offset(struct bio *bio)
-  */
- static noinline int add_ra_bio_pages(struct inode *inode,
- 				     u64 compressed_end,
--				     struct compressed_bio *cb)
-+				     struct compressed_bio *cb,
-+				     unsigned long *pflags)
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 0178b2040ea38..201dc7281640b 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -1173,6 +1173,8 @@ struct readahead_control {
+ 	pgoff_t _index;
+ 	unsigned int _nr_pages;
+ 	unsigned int _batch_count;
++	bool _workingset;
++	unsigned long _pflags;
+ };
+ 
+ #define DEFINE_READAHEAD(ractl, f, r, m, i)				\
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 15800334147b3..c943d1b90cc26 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2382,6 +2382,8 @@ static void filemap_get_read_batch(struct address_space *mapping,
+ static int filemap_read_folio(struct file *file, filler_t filler,
+ 		struct folio *folio)
  {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	unsigned long end_index;
-@@ -588,6 +590,9 @@ static noinline int add_ra_bio_pages(struct inode *inode,
- 			continue;
- 		}
++	bool workingset = folio_test_workingset(folio);
++	unsigned long pflags;
+ 	int error;
  
-+		if (PageWorkingset(page))
-+			psi_memstall_enter(pflags);
+ 	/*
+@@ -2390,8 +2392,13 @@ static int filemap_read_folio(struct file *file, filler_t filler,
+ 	 * fails.
+ 	 */
+ 	folio_clear_error(folio);
 +
- 		ret = set_page_extent_mapped(page);
- 		if (ret < 0) {
- 			unlock_page(page);
-@@ -674,6 +679,8 @@ void btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 	u64 em_len;
- 	u64 em_start;
- 	struct extent_map *em;
-+	/* Initialize to 1 to make skip psi_memstall_leave unless needed */
-+	unsigned long pflags = 1;
- 	blk_status_t ret;
- 	int ret2;
- 	int i;
-@@ -729,7 +736,7 @@ void btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 		goto fail;
- 	}
- 
--	add_ra_bio_pages(inode, em_start + em_len, cb);
-+	add_ra_bio_pages(inode, em_start + em_len, cb, &pflags);
- 
- 	/* include any pages we added in add_ra-bio_pages */
- 	cb->len = bio->bi_iter.bi_size;
-@@ -810,6 +817,9 @@ void btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 		}
- 	}
- 
-+	if (!pflags)
+ 	/* Start the actual read. The read will unlock the page. */
++	if (unlikely(workingset))
++		psi_memstall_enter(&pflags);
+ 	error = filler(file, folio);
++	if (unlikely(workingset))
 +		psi_memstall_leave(&pflags);
+ 	if (error)
+ 		return error;
+ 
+diff --git a/mm/readahead.c b/mm/readahead.c
+index fdcd28cbd92de..b10f0cf81d804 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -122,6 +122,7 @@
+ #include <linux/task_io_accounting_ops.h>
+ #include <linux/pagevec.h>
+ #include <linux/pagemap.h>
++#include <linux/psi.h>
+ #include <linux/syscalls.h>
+ #include <linux/file.h>
+ #include <linux/mm_inline.h>
+@@ -152,6 +153,8 @@ static void read_pages(struct readahead_control *rac)
+ 	if (!readahead_count(rac))
+ 		return;
+ 
++	if (unlikely(rac->_workingset))
++		psi_memstall_enter(&rac->_pflags);
+ 	blk_start_plug(&plug);
+ 
+ 	if (aops->readahead) {
+@@ -179,6 +182,9 @@ static void read_pages(struct readahead_control *rac)
+ 	}
+ 
+ 	blk_finish_plug(&plug);
++	if (unlikely(rac->_workingset))
++		psi_memstall_leave(&rac->_pflags);
++	rac->_workingset = false;
+ 
+ 	BUG_ON(readahead_count(rac));
+ }
+@@ -252,6 +258,7 @@ void page_cache_ra_unbounded(struct readahead_control *ractl,
+ 		}
+ 		if (i == nr_to_read - lookahead_size)
+ 			folio_set_readahead(folio);
++		ractl->_workingset |= folio_test_workingset(folio);
+ 		ractl->_nr_pages++;
+ 	}
+ 
+@@ -480,11 +487,14 @@ static inline int ra_alloc_folio(struct readahead_control *ractl, pgoff_t index,
+ 	if (index == mark)
+ 		folio_set_readahead(folio);
+ 	err = filemap_add_folio(ractl->mapping, folio, index, gfp);
+-	if (err)
++	if (err) {
+ 		folio_put(folio);
+-	else
+-		ractl->_nr_pages += 1UL << order;
+-	return err;
++		return err;
++	}
 +
- 	if (refcount_dec_and_test(&cb->pending_ios))
- 		finish_compressed_bio_read(cb);
- 	return;
++	ractl->_nr_pages += 1UL << order;
++	ractl->_workingset |= folio_test_workingset(folio);
++	return 0;
+ }
+ 
+ void page_cache_ra_order(struct readahead_control *ractl,
+@@ -826,6 +836,10 @@ void readahead_expand(struct readahead_control *ractl,
+ 			put_page(page);
+ 			return;
+ 		}
++		if (unlikely(PageWorkingset(page)) && !ractl->_workingset) {
++			ractl->_workingset = true;
++			psi_memstall_enter(&ractl->_pflags);
++		}
+ 		ractl->_nr_pages++;
+ 		if (ra) {
+ 			ra->size++;
 -- 
 2.30.2
 
