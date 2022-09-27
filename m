@@ -4,30 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0D9EAC6FA90
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Sep 2022 06:36:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAB54C6FA83
+	for <linux-erofs@archiver.kernel.org>; Tue, 27 Sep 2022 08:59:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Mc8zG3Wzkz3c1G
-	for <linux-erofs@archiver.kernel.org>; Tue, 27 Sep 2022 16:36:26 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4McD7z0tvMz3c23
+	for <linux-erofs@archiver.kernel.org>; Tue, 27 Sep 2022 18:59:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=GgBmwcCk;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=GgBmwcCk;
+	dkim-atps=neutral
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Mc8z85Hzgz3bbm
-	for <linux-erofs@lists.ozlabs.org>; Tue, 27 Sep 2022 16:36:19 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VQqcSYY_1664260568;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VQqcSYY_1664260568)
-          by smtp.aliyun-inc.com;
-          Tue, 27 Sep 2022 14:36:13 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs: clean up unnecessary code and comments
-Date: Tue, 27 Sep 2022 14:36:06 +0800
-Message-Id: <20220927063607.54832-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4McD7r0DxFz2xsD
+	for <linux-erofs@lists.ozlabs.org>; Tue, 27 Sep 2022 18:59:03 +1000 (AEST)
+Received: by mail-pl1-x634.google.com with SMTP id z20so1618245plb.10
+        for <linux-erofs@lists.ozlabs.org>; Tue, 27 Sep 2022 01:59:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=moz07TbQsZiM7w/D7SkEWNGBlBmpAeho7lKvgwF+ioc=;
+        b=GgBmwcCkCghH3MmiFp36Bde43puo4yGC6iHlrQyyrizw7oRjuKA66En2G4yrAdj/Hm
+         x75igb7Y2V5fQgBHvtXdEP9vrqSM8nAkGLcs1+tViPK1OPp8EpSSr/aBMRSGiZC48Vxu
+         P6Xv/hQ2ifGTD9Qtfm0/5pve8/z1pwNzUDMVeaMmfjbL6RGR4T8x6107BNAEFCsrra05
+         z2gqE8SKGmB2FtxIric0wWe8/zOyAaiOsoRlb6sj3CEegylEaws1mdTIM+A0u4+AVo9y
+         nDDcDbj0XoSypdTwHmHwyz9nL1YrvS1pdXaiydwayVeGYESLhkGaazDr4oIM/IwK2JLi
+         GCzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=moz07TbQsZiM7w/D7SkEWNGBlBmpAeho7lKvgwF+ioc=;
+        b=uxoYTGvOP6Xfb7zG/7BT2bzcT9ZH9hRpOcUYVNNIiBvGbiU2UYHx8yXRW0329ogmBh
+         r/Y/eQwgLqu0Q2ZSlJUSQnK/xVX/CM/xJMHxDLzbfEB1ILibsJ2OgSAkYP85Cw6tFLOK
+         dBnqvnSrIknzDAWpmTZcHmtXGdVjRth7yqC419hOkc6XeNJiYy3K3PVj23bPlHvVsqc/
+         PMoXZT5iyyBnGeYAcRtI1NwPf01e9NokSdTvlHLytUZfBPdT9yY5XKdVMpacS1V4dSPk
+         7buuQmPLDTBGancMa1Oka46CS6eQGI+WA/lGfRVmp87dKD3fJFMf+A7naIpSrCYaHPmk
+         b3Aw==
+X-Gm-Message-State: ACrzQf0YCKtWKP0236VczHTHm0uILa+ti3M/IxWr+xhc57NNw76Ly6u1
+	Bxof2vIxE2ZZkk+4qgLl4Wc=
+X-Google-Smtp-Source: AMsMyM7iCEjOg8Cze41po0WsIFUj30hSloeEo+ux85VFzGjsUyG+MekPzJ/Xwfw68xK91RCWJd3ZxA==
+X-Received: by 2002:a17:902:f152:b0:179:f329:8d6d with SMTP id d18-20020a170902f15200b00179f3298d6dmr781012plb.122.1664269140134;
+        Tue, 27 Sep 2022 01:59:00 -0700 (PDT)
+Received: from localhost ([156.236.96.165])
+        by smtp.gmail.com with ESMTPSA id q10-20020aa7982a000000b0053e56165f42sm1140996pfl.146.2022.09.27.01.58.58
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 27 Sep 2022 01:58:59 -0700 (PDT)
+Date: Tue, 27 Sep 2022 17:01:47 +0800
+From: Yue Hu <zbestahu@gmail.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH 2/2] erofs: clean up erofs_iget()
+Message-ID: <20220927170147.000021fe.zbestahu@gmail.com>
+In-Reply-To: <20220927063607.54832-2-hsiangkao@linux.alibaba.com>
+References: <20220927063607.54832-1-hsiangkao@linux.alibaba.com>
+	<20220927063607.54832-2-hsiangkao@linux.alibaba.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -39,109 +79,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Some conditional macros and comments are useless.
+On Tue, 27 Sep 2022 14:36:07 +0800
+Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/internal.h |  2 --
- fs/erofs/namei.c    | 11 +----------
- fs/erofs/xattr.h    |  2 --
- fs/erofs/zmap.c     |  3 +--
- 4 files changed, 2 insertions(+), 16 deletions(-)
+> isdir indicated REQ_META|REQ_PRIO which no longer works now.
+> Get rid of isdir entirely.
+> 
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index a6333c283e3d..0318530bc78a 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -196,7 +196,6 @@ enum {
- 	EROFS_ZIP_CACHE_READAROUND
- };
- 
--#ifdef CONFIG_EROFS_FS_ZIP
- #define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
- 
- /* basic unit of the workstation of a super_block */
-@@ -236,7 +235,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
- 	return atomic_cond_read_relaxed(&grp->refcount,
- 					VAL != EROFS_LOCKED_MAGIC);
- }
--#endif	/* !CONFIG_EROFS_FS_ZIP */
- 
- /* we strictly follow PAGE_SIZE and no buffer head yet */
- #define LOG_BLOCK_SIZE		PAGE_SHIFT
-diff --git a/fs/erofs/namei.c b/fs/erofs/namei.c
-index fd75506799c4..afbb80d4e2f1 100644
---- a/fs/erofs/namei.c
-+++ b/fs/erofs/namei.c
-@@ -185,7 +185,6 @@ int erofs_namei(struct inode *dir, const struct qstr *name, erofs_nid_t *nid,
- 	if (IS_ERR(de))
- 		return PTR_ERR(de);
- 
--	/* the target page has been mapped */
- 	if (ndirents)
- 		de = find_target_dirent(&qn, (u8 *)de, EROFS_BLKSIZ, ndirents);
- 
-@@ -197,9 +196,7 @@ int erofs_namei(struct inode *dir, const struct qstr *name, erofs_nid_t *nid,
- 	return PTR_ERR_OR_ZERO(de);
- }
- 
--/* NOTE: i_mutex is already held by vfs */
--static struct dentry *erofs_lookup(struct inode *dir,
--				   struct dentry *dentry,
-+static struct dentry *erofs_lookup(struct inode *dir, struct dentry *dentry,
- 				   unsigned int flags)
- {
- 	int err;
-@@ -207,17 +204,11 @@ static struct dentry *erofs_lookup(struct inode *dir,
- 	unsigned int d_type;
- 	struct inode *inode;
- 
--	DBG_BUGON(!d_really_is_negative(dentry));
--	/* dentry must be unhashed in lookup, no need to worry about */
--	DBG_BUGON(!d_unhashed(dentry));
--
- 	trace_erofs_lookup(dir, dentry, flags);
- 
--	/* file name exceeds fs limit */
- 	if (dentry->d_name.len > EROFS_NAME_LEN)
- 		return ERR_PTR(-ENAMETOOLONG);
- 
--	/* false uninitialized warnings on gcc 4.8.x */
- 	err = erofs_namei(dir, &dentry->d_name, &nid, &d_type);
- 
- 	if (err == -ENOENT) {
-diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
-index 332462c59f11..0a43c9ee9f8f 100644
---- a/fs/erofs/xattr.h
-+++ b/fs/erofs/xattr.h
-@@ -39,9 +39,7 @@ static inline unsigned int xattrblock_offset(struct erofs_sb_info *sbi,
- #ifdef CONFIG_EROFS_FS_XATTR
- extern const struct xattr_handler erofs_xattr_user_handler;
- extern const struct xattr_handler erofs_xattr_trusted_handler;
--#ifdef CONFIG_EROFS_FS_SECURITY
- extern const struct xattr_handler erofs_xattr_security_handler;
--#endif
- 
- static inline const struct xattr_handler *erofs_xattr_handler(unsigned int idx)
- {
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index ccdddb755be8..0a2e41adc78a 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -743,8 +743,7 @@ static int z_erofs_do_map_blocks(struct inode *inode,
- 	return err;
- }
- 
--int z_erofs_map_blocks_iter(struct inode *inode,
--			    struct erofs_map_blocks *map,
-+int z_erofs_map_blocks_iter(struct inode *inode, struct erofs_map_blocks *map,
- 			    int flags)
- {
- 	struct erofs_inode *const vi = EROFS_I(inode);
--- 
-2.24.4
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
 
+> ---
+>  fs/erofs/inode.c             | 24 ++++++++----------------
+>  fs/erofs/internal.h          |  2 +-
+>  fs/erofs/namei.c             |  2 +-
+>  fs/erofs/super.c             |  8 ++++----
+>  include/trace/events/erofs.h | 11 ++++-------
+>  5 files changed, 18 insertions(+), 29 deletions(-)
+> 
