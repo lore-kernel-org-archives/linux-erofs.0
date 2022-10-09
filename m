@@ -4,37 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77A33C433FE
-	for <linux-erofs@archiver.kernel.org>; Sat,  8 Oct 2022 09:06:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B25BC433F5
+	for <linux-erofs@archiver.kernel.org>; Sun,  9 Oct 2022 09:51:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MkznY6pwcz3c6d
-	for <linux-erofs@archiver.kernel.org>; Sat,  8 Oct 2022 20:06:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Mlckb2d5sz3drS
+	for <linux-erofs@archiver.kernel.org>; Sun,  9 Oct 2022 20:51:19 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=M0BkIGpC;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::430; helo=mail-pf1-x430.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=M0BkIGpC;
+	dkim-atps=neutral
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MkznT54MQz2y8J
-	for <linux-erofs@lists.ozlabs.org>; Sat,  8 Oct 2022 20:06:37 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VRc0d2._1665219991;
-Received: from 30.221.130.66(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VRc0d2._1665219991)
-          by smtp.aliyun-inc.com;
-          Sat, 08 Oct 2022 17:06:32 +0800
-Message-ID: <4fbf60f5-4ed1-3dd8-e4d3-de796e701956@linux.alibaba.com>
-Date: Sat, 8 Oct 2022 17:06:31 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MlckQ2vHgz3bXG
+	for <linux-erofs@lists.ozlabs.org>; Sun,  9 Oct 2022 20:51:07 +1100 (AEDT)
+Received: by mail-pf1-x430.google.com with SMTP id h13so7053112pfr.7
+        for <linux-erofs@lists.ozlabs.org>; Sun, 09 Oct 2022 02:51:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=z4m/+MFcLOu4fQCGtHWhklBXP7FJWyhQPBvhnJItC0c=;
+        b=M0BkIGpCPs5WRIhkp5YvPZkU11BRLUcfcPNWBr3DX2G/p7/g7R0/gWmemHB6ZtiJw6
+         jJlsadqBG5YSHH1FbvPluGZTEHsH8CynoCL5n/Rwvbfq8AZ2s00eduguIaNplfp168nJ
+         4SVwb1BM4Imfwk5YISPgREglA7TCyGIo6lW/AYsnrm14/mFiDBLBGZzhrWTxpiJKh7RJ
+         XNXZ4/CSmAl0PZ/G4AMnlnLtPQikFhtu9tEE2Vg2y7E8MWtLkyUk82+9jT/kuIeVRX5r
+         EjTPdmtsl7eDlzOYEogrczXyUuRKb6e3pJ6r9lm1bfWt1RfSVz+EJXZlpENZgJP8AIbd
+         vDwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=z4m/+MFcLOu4fQCGtHWhklBXP7FJWyhQPBvhnJItC0c=;
+        b=ASpm29kkBCPUIk3bdDN1zvlWnzGlu3GR/hcu+Y7Q340RzHIgt3VmrhAcOUMBCEGv5e
+         kwDihyIoNAa8i64rRB+WJXyfsmhxyj5Hazu2Qe3UCeFHgs+43B5oSrQSPU480KSk7UJW
+         bYLRV/QShvtiqEjO0f3nwo+Y7ZBG1RSPMCjqD0Ox4K/hhS+bvN3nkJ8Avl/DwNpwSGUb
+         hfd0H1B+Awl95DWmvxyED7Om2VUxCKyfz8WkhCyLB5kS9yLylX+OG3RWDoB6gdY8LZ1i
+         ggTukiJTBTW59ghPFiaEderxMnlXTXJIJQdNV0JxfI522V35QtBNqwf0vhhJdMtmNAcU
+         UW5Q==
+X-Gm-Message-State: ACrzQf28Nf3aLP8Nwbz8o40530Ld/DWwNWekKxZGMnG6KL9wRQDM5gdC
+	1u3BgW6mBNK52dCTnx7N2c2j0w==
+X-Google-Smtp-Source: AMsMyM7F2xzqmrYGH1iUoyWGCA+/PPWnIKp4VkJG06mIj7pLxR5nygmemQM7ncAmvXBG27h9VFZziw==
+X-Received: by 2002:a05:6a00:1a08:b0:545:362c:b219 with SMTP id g8-20020a056a001a0800b00545362cb219mr13787740pfv.27.1665309064778;
+        Sun, 09 Oct 2022 02:51:04 -0700 (PDT)
+Received: from [10.3.156.122] ([63.216.146.190])
+        by smtp.gmail.com with ESMTPSA id b7-20020a621b07000000b0053b723a74f7sm4795147pfb.90.2022.10.09.02.51.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 09 Oct 2022 02:51:04 -0700 (PDT)
+Message-ID: <35dfe983-f916-d972-497d-269ec44cf7bf@bytedance.com>
+Date: Sun, 9 Oct 2022 17:50:58 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.3.0
-Subject: Re: [RFC PATCH 2/5] cachefiles: extract ondemand info field from
- cachefiles_object
-Content-Language: en-US
-To: Jia Zhu <zhujia.zj@bytedance.com>, dhowells@redhat.com, xiang@kernel.org
+Subject: Re: [External] Re: [RFC PATCH 2/5] cachefiles: extract ondemand info
+ field from cachefiles_object
+To: JeffleXu <jefflexu@linux.alibaba.com>, dhowells@redhat.com,
+ xiang@kernel.org
 References: <20220818135204.49878-1-zhujia.zj@bytedance.com>
  <20220818135204.49878-3-zhujia.zj@bytedance.com>
-From: JeffleXu <jefflexu@linux.alibaba.com>
-In-Reply-To: <20220818135204.49878-3-zhujia.zj@bytedance.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <4fbf60f5-4ed1-3dd8-e4d3-de796e701956@linux.alibaba.com>
+From: Jia Zhu <zhujia.zj@bytedance.com>
+In-Reply-To: <4fbf60f5-4ed1-3dd8-e4d3-de796e701956@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -52,49 +90,50 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 
-On 8/18/22 9:52 PM, Jia Zhu wrote:
-
->  /*
->   * Backing file state.
->   */
-> @@ -67,8 +73,7 @@ struct cachefiles_object {
->  	unsigned long			flags;
->  #define CACHEFILES_OBJECT_USING_TMPFILE	0		/* Have an unlinked tmpfile */
->  #ifdef CONFIG_CACHEFILES_ONDEMAND
-> -	int				ondemand_id;
-> -	enum cachefiles_object_state	state;
-> +	void				*private;
->  #endif
->  };
-
-Personally I would prefer
-
-	struct cachefiles_object {
-		...
-	#ifdef CONFIG_CACHEFILES_ONDEMAND
-		struct cachefiles_ondemand_info *private;
-	#endif
-	}
-
-and
-
-> @@ -88,6 +93,7 @@ void cachefiles_put_object(struct cachefiles_object
-*object,
->  		ASSERTCMP(object->file, ==, NULL);
->
->  		kfree(object->d_name);
-> + #ifdef CONFIG_CACHEFILES_ONDEMAND
-> +		kfree(object->private);
-> + #endif
->
->  		cache = object->volume->cache->cache;
->  		fscache_put_cookie(object->cookie,
-
-so that we can get rid of CACHEFILES_ONDEMAND_OBJINFO() stuff, to make
-the code more readable.
-
-
-
--- 
-Thanks,
-Jingbo
+在 2022/10/8 17:06, JeffleXu 写道:
+> 
+> 
+> On 8/18/22 9:52 PM, Jia Zhu wrote:
+> 
+>>   /*
+>>    * Backing file state.
+>>    */
+>> @@ -67,8 +73,7 @@ struct cachefiles_object {
+>>   	unsigned long			flags;
+>>   #define CACHEFILES_OBJECT_USING_TMPFILE	0		/* Have an unlinked tmpfile */
+>>   #ifdef CONFIG_CACHEFILES_ONDEMAND
+>> -	int				ondemand_id;
+>> -	enum cachefiles_object_state	state;
+>> +	void				*private;
+>>   #endif
+>>   };
+> 
+> Personally I would prefer
+> 
+> 	struct cachefiles_object {
+> 		...
+> 	#ifdef CONFIG_CACHEFILES_ONDEMAND
+> 		struct cachefiles_ondemand_info *private;
+> 	#endif
+> 	}
+> 
+> and
+> 
+>> @@ -88,6 +93,7 @@ void cachefiles_put_object(struct cachefiles_object
+> *object,
+>>   		ASSERTCMP(object->file, ==, NULL);
+>>
+>>   		kfree(object->d_name);
+>> + #ifdef CONFIG_CACHEFILES_ONDEMAND
+>> +		kfree(object->private);
+>> + #endif
+>>
+>>   		cache = object->volume->cache->cache;
+>>   		fscache_put_cookie(object->cookie,
+> 
+> so that we can get rid of CACHEFILES_ONDEMAND_OBJINFO() stuff, to make
+> the code more readable.
+Hi JingBo. Thanks for your review. I'll revise it in next version.
+> 
+> 
+> 
