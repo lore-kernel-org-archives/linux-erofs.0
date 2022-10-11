@@ -4,68 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC2D6C433FE
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Oct 2022 09:28:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2353BC433F5
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Oct 2022 13:16:24 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MmDB16lcRz3cJx
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Oct 2022 20:28:41 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MmxBG3VVlz3bjr
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Oct 2022 00:16:22 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=delyorkcreative.academy header.i=@delyorkcreative.academy header.a=rsa-sha256 header.s=default header.b=gZwNzK+H;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=lvAIf4QB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=delyorkcreative.academy (client-ip=142.93.37.208; helo=delyorkcreative.delyorkcreative.academy; envelope-from=noreply@delyorkcreative.academy; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::102c; helo=mail-pj1-x102c.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=delyorkcreative.academy header.i=@delyorkcreative.academy header.a=rsa-sha256 header.s=default header.b=gZwNzK+H;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance-com.20210112.gappssmtp.com header.i=@bytedance-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=lvAIf4QB;
 	dkim-atps=neutral
-X-Greylist: delayed 1435 seconds by postgrey-1.36 at boromir; Mon, 10 Oct 2022 20:28:32 AEDT
-Received: from delyorkcreative.delyorkcreative.academy (delyorkcreative.delyorkcreative.academy [142.93.37.208])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MmD9r3GFjz305X
-	for <linux-erofs@lists.ozlabs.org>; Mon, 10 Oct 2022 20:28:32 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=delyorkcreative.academy; s=default; h=Content-Type:MIME-Version:Message-ID:
-	Date:Subject:To:From:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=mcUz+l3PdQunRzz2XZlzlpOKhf6ma8z6dGE2NBaP+Jo=; b=gZwNzK+HAKY+AyUOxHD5FHZSty
-	K7j4VzKKVvOzZ3Rl6jXrmqANxp7ZAKJVR+wvsOvxJbzcZHqigFj6JyLl5egElOTTFNtYj/Iq9u6ju
-	F9y1MI+ij1zqz15boczIUYQAs4CoVkCwP2DIEz+xML/tGKMI8nXaAIHgX7/7CIWH1cBu2leYoYi+n
-	cZukUPLTQ4Ko1ijNQORM4fNXcW4mPdCmy/ux7AF4nXqTbVoT6yQio2NixI7RfYWll1W5ewRO6g1px
-	v7I/uGOEaXtwuM8PHuwzXmQDUgnehEcVLTpsfb376J5nh8WlDMnteYqjEAOS6UxXgjPmX0NCG+1CB
-	bJvuRaGw==;
-Received: from [20.25.129.65] (port=62567 helo=bs1092)
-	by delyorkcreative.delyorkcreative.academy with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.95)
-	(envelope-from <noreply@delyorkcreative.academy>)
-	id 1ohoi7-0008An-Fe
-	for linux-erofs@lists.ozlabs.org;
-	Mon, 10 Oct 2022 09:04:31 +0000
-thread-index: Adjch0450AIiQsR5TNaotA6Rx/e62g==
-Thread-Topic: Your Order details: 55465025
-From: =?utf-8?Q?support?= <noreply@delyorkcreative.academy>
-To: <linux-erofs@lists.ozlabs.org>
-Subject: Your Order details: 55465025
-Date: Mon, 10 Oct 2022 09:04:29 -0000
-Message-ID: <A05A2DE6BEA94D438A8E2FA0E23E7356@bs1092>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MmxB666hwz2yJQ
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Oct 2022 00:16:12 +1100 (AEDT)
+Received: by mail-pj1-x102c.google.com with SMTP id g8-20020a17090a128800b0020c79f987ceso8195809pja.5
+        for <linux-erofs@lists.ozlabs.org>; Tue, 11 Oct 2022 06:16:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cJfl8b4fc5aHHIhFWhzN2k2LY2nGC5nCZll+W9C835A=;
+        b=lvAIf4QBk0UcFLO6PiJJg86w0laxYXesd9zaLggmiI/bPsWMs/y59FRYN5a2MlkrFB
+         kHNNUct/0KTw0+If7O/z6FgHMjtQLvxk2uZMDNd47THzMJgaJKXEioNyZqI3+CN3e2td
+         DsfNCgLHtf9+DCUaxUSjg/FyyognjZPJR0InKcFMDXYV+WLLG2k84URhECvX1RT6j5Rf
+         sx5JvSfCr169NupNT7BbriSQjpmaQOM67tmUKTra+hC2u1xPQbghzgqhzNqmYe3A7Ov6
+         k0dkO3PmiyARZtqcZgmTNp7dRrzdqyjfgRUE4/1BpgI5eN2qLTvzSi4n/NzqLBCpeqq2
+         bcCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cJfl8b4fc5aHHIhFWhzN2k2LY2nGC5nCZll+W9C835A=;
+        b=czBTQ7rt4Bfp/jQLofBzbrpzJrrJYIMNHrTfdleG3HtkZErsT+Wri6vLiCv1LhZBBj
+         W2tFdu5f7p6QZ8Vr8swqco5sw7k1XehaK9P18rnVUxZIrtb6yZZAAaVPP6pDCpJV2ovB
+         MWSl26qOFHES2mTeHHtwI/nKeNr0iiM0rBc1YF7IcjzOxLFdy8HV1l3NhWT6mnwZiXX+
+         9z5lrDv2bPr+x7hYvw7D0qu2dU4VpyIw6WywQATrgjECg0NFFALog9y9nVAA7RmISf7h
+         2+illUrcx1U2zcVruEfTABToEJ/mUZdk4+JveLdewjiE20kqOjHGicD+gGfWFJBsxY+n
+         J4Mg==
+X-Gm-Message-State: ACrzQf3Cqs/JNiaUPsM05/eE3p9HKPGibi8w9KV2vKKSvNjo69BurYGg
+	fCSJVAJrgBD7m4PwuqjzVqhxMg==
+X-Google-Smtp-Source: AMsMyM4bERKRfHpegTRstSNduCPP4P/YDOsG9rkyWHCwP9qmDoL4zBWQ/GXsIDwjiawN6FCg/OzgWg==
+X-Received: by 2002:a17:90a:4d4d:b0:20b:1f3f:f19a with SMTP id l13-20020a17090a4d4d00b0020b1f3ff19amr26256108pjh.36.1665494169071;
+        Tue, 11 Oct 2022 06:16:09 -0700 (PDT)
+Received: from C02G705SMD6V.bytedance.net ([63.216.146.190])
+        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00181f8523f60sm4773415pln.225.2022.10.11.06.16.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Oct 2022 06:16:08 -0700 (PDT)
+From: Jia Zhu <zhujia.zj@bytedance.com>
+To: dhowells@redhat.com,
+	xiang@kernel.org,
+	jefflexu@linux.alibaba.com
+Subject: [PATCH 1/5] cachefiles: introduce object ondemand state
+Date: Tue, 11 Oct 2022 21:15:48 +0800
+Message-Id: <20221011131552.23833-2-zhujia.zj@bytedance.com>
+X-Mailer: git-send-email 2.37.0 (Apple Git-136)
+In-Reply-To: <20221011131552.23833-1-zhujia.zj@bytedance.com>
+References: <20221011131552.23833-1-zhujia.zj@bytedance.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_260B_01D8DC87.4E39B4D0"
-X-Mailer: Microsoft CDO for Windows 2000
-Content-Class: urn:content-classes:message
-Importance: normal
-Priority: normal
-X-MimeOLE: Produced By Microsoft MimeOLE
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - delyorkcreative.delyorkcreative.academy
-X-AntiAbuse: Original Domain - lists.ozlabs.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - delyorkcreative.academy
-X-Get-Message-Sender-Via: delyorkcreative.delyorkcreative.academy: authenticated_id: noreply@delyorkcreative.academy
-X-Authenticated-Sender: delyorkcreative.delyorkcreative.academy: noreply@delyorkcreative.academy
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -77,38 +80,157 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: linux-kernel@vger.kernel.org, linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, yinxin.x@bytedance.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This is a multi-part message in MIME format.
+Previously, @ondemand_id field was used not only to identify ondemand
+state of the object, but also to represent the index of the xarray.
+This commit introduces @state field to decouple the role of @ondemand_id
+and adds helpers to access it.
 
-------=_NextPart_000_260B_01D8DC87.4E39B4D0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Signed-off-by: Jia Zhu <zhujia.zj@bytedance.com>
+Reviewed-by: Xin Yin <yinxin.x@bytedance.com>
+---
+ fs/cachefiles/internal.h | 33 +++++++++++++++++++++++++++++++++
+ fs/cachefiles/ondemand.c | 15 +++++++++------
+ 2 files changed, 42 insertions(+), 6 deletions(-)
 
-
-------=_NextPart_000_260B_01D8DC87.4E39B4D0
-Content-Type: text/html;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-
-PFA+SW52b2ljZSBmb3IgbGludXgtZXJvZnNAbGlzdHMub3psYWJzLm9yZzxCUj4tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLTxCUj5HRUVLIFRFQ0ggU1FVQUQgTExDOkJlc3QgT25saW5lIFRlY2huaWNh
-bCBTb2x1dGlvbjxCUj5QUk9EVUNUIERFU0NSSVBUSU9OOjxCUj4tLS0tLS0tLS0tLS0tLS0tLS0t
-PEJSPkEvQyBUeXBlIDotIFBlcnNvbmFsIEhvbWUgU3Vic2NyaXB0aW9uPEJSPlByb2R1Y3Q6LSBH
-Sy9QQzM8QlI+RGV2aWNlOi0gVXB0byAzIERldmljZTxCUj5JbnZvaWNlIElEOiBHRUVLNTU0NjUw
-MjU8QlI+UXVuYXRpdHk6LSAxPEJSPlRlbnVyZTotIDEgWWVhcjxCUj5QYXltZW50IE1vZGU6LSBP
-bmxpbmU8QlI+RGVhciBsaW51eC1lcm9mc0BsaXN0cy5vemxhYnMub3JnLDxCUj5UaGFuayB5b3Ug
-Zm9yIGNob29zaW5nIG91ciBzZXJ2aWNlcy5Zb3VyIFBlcnNvbmFsIFN1YnNjcmlwdGlvbiBHRUVL
-U1FVQUQgQ0FSRSB3aWxsIEV4cGlyZSB0b2RheS4gVGhlIFN1YnNjcmlwdGlvbiBXaWxsIEF1dG8t
-IFJlbmV3LjxCUj5Zb3VyIHN1YnNjcmlwdGlvbiBoYXMgYmVlbiByZW5ld2VkIGZvciBhbm90aGVy
-IG9uZSB5ZWFyIHdpdGggR2Vlay1TcXVhZCBmb3ImbmJzcDsgJDMzOC4wNSwgYW5kIGFtb3VudCBo
-YXMgYmVlbiBkZWR1Y3RlZCBmcm9tIHRoZSByZWdpc3RlcmVkIHBheW1lbnQgbWV0aG9kLCBvbiAx
-MC0xMC0yMDIyLjwvUD4NCjxQPk5PVEU6PEJSPklmIHlvdSBoYXZlIGFueSBxdWVzdGlvbiBhYm91
-dCB0aGlzIGludm9pY2Ugb3IgeW91IHdhbnQgdG8gY2FuY2VsIHRoZSBzdWJzY3JpcHRpb24sIHlv
-dSBjYW4gY2FsbCBvdXQgb3VyIEN1c3RvbWVyIFN1cHBvcnQgYXQgOiArMSg4MDUpLTkyNC03MzAy
-LjwvUD4NCjxQPlJlZ2FyZHMsPEJSPkdlZWsgU3F1YWQgVGVhbTwvUD4NCjxQPiZuYnNwOzwvUD4=
-
-------=_NextPart_000_260B_01D8DC87.4E39B4D0--
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index 2ad58c465208..2dcc8b6ad536 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -17,6 +17,7 @@
+ #include <linux/security.h>
+ #include <linux/xarray.h>
+ #include <linux/cachefiles.h>
++#include <linux/atomic.h>
+ 
+ #define CACHEFILES_DIO_BLOCK_SIZE 4096
+ 
+@@ -44,6 +45,11 @@ struct cachefiles_volume {
+ 	struct dentry			*fanout[256];	/* Fanout subdirs */
+ };
+ 
++enum cachefiles_object_state {
++	CACHEFILES_ONDEMAND_OBJSTATE_close, /* Anonymous fd closed by daemon or initial state */
++	CACHEFILES_ONDEMAND_OBJSTATE_open, /* Anonymous fd associated with object is available */
++};
++
+ /*
+  * Backing file state.
+  */
+@@ -62,6 +68,7 @@ struct cachefiles_object {
+ #define CACHEFILES_OBJECT_USING_TMPFILE	0		/* Have an unlinked tmpfile */
+ #ifdef CONFIG_CACHEFILES_ONDEMAND
+ 	int				ondemand_id;
++	enum cachefiles_object_state	state;
+ #endif
+ };
+ 
+@@ -296,6 +303,32 @@ extern void cachefiles_ondemand_clean_object(struct cachefiles_object *object);
+ extern int cachefiles_ondemand_read(struct cachefiles_object *object,
+ 				    loff_t pos, size_t len);
+ 
++#define CACHEFILES_OBJECT_STATE_FUNCS(_state)	\
++static inline bool								\
++cachefiles_ondemand_object_is_##_state(const struct cachefiles_object *object) \
++{												\
++	/*
++	 * Pairs with smp_store_release() in set_object_##_state()
++	 * I.e. another task can publish state concurrently, by executing
++	 * a RELEASE barrier. We need to use smp_load_acquire() here
++	 * to safely ACQUIRE the memory the other task published.
++	 */											\
++	return smp_load_acquire(&object->state) == CACHEFILES_ONDEMAND_OBJSTATE_##_state; \
++}												\
++												\
++static inline void								\
++cachefiles_ondemand_set_object_##_state(struct cachefiles_object *object) \
++{												\
++	/*
++	 * Pairs with smp_load_acquire() in object_is_##_state()
++	 * I.e. here we publish a state with a RELEASE barrier
++	 * so that concurrent tasks can ACQUIRE it.
++	 */											\
++	smp_store_release(&object->state, CACHEFILES_ONDEMAND_OBJSTATE_##_state); \
++}
++
++CACHEFILES_OBJECT_STATE_FUNCS(open);
++CACHEFILES_OBJECT_STATE_FUNCS(close);
+ #else
+ static inline ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
+ 					char __user *_buffer, size_t buflen)
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 0254ed39f68c..e81d72c7bb4c 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -15,6 +15,7 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
+ 
+ 	xa_lock(&cache->reqs);
+ 	object->ondemand_id = CACHEFILES_ONDEMAND_ID_CLOSED;
++	cachefiles_ondemand_set_object_close(object);
+ 
+ 	/*
+ 	 * Flush all pending READ requests since their completion depends on
+@@ -176,6 +177,8 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 		set_bit(FSCACHE_COOKIE_NO_DATA_TO_READ, &cookie->flags);
+ 	trace_cachefiles_ondemand_copen(req->object, id, size);
+ 
++	cachefiles_ondemand_set_object_open(req->object);
++
+ out:
+ 	complete(&req->done);
+ 	return ret;
+@@ -363,7 +366,8 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
+ 		/* coupled with the barrier in cachefiles_flush_reqs() */
+ 		smp_mb();
+ 
+-		if (opcode != CACHEFILES_OP_OPEN && object->ondemand_id <= 0) {
++		if (opcode != CACHEFILES_OP_OPEN &&
++			!cachefiles_ondemand_object_is_open(object)) {
+ 			WARN_ON_ONCE(object->ondemand_id == 0);
+ 			xas_unlock(&xas);
+ 			ret = -EIO;
+@@ -430,7 +434,6 @@ static int cachefiles_ondemand_init_close_req(struct cachefiles_req *req,
+ 					      void *private)
+ {
+ 	struct cachefiles_object *object = req->object;
+-	int object_id = object->ondemand_id;
+ 
+ 	/*
+ 	 * It's possible that object id is still 0 if the cookie looking up
+@@ -438,10 +441,10 @@ static int cachefiles_ondemand_init_close_req(struct cachefiles_req *req,
+ 	 * sending CLOSE request for CACHEFILES_ONDEMAND_ID_CLOSED, which means
+ 	 * anon_fd has already been closed.
+ 	 */
+-	if (object_id <= 0)
++	if (!cachefiles_ondemand_object_is_open(object))
+ 		return -ENOENT;
+ 
+-	req->msg.object_id = object_id;
++	req->msg.object_id = object->ondemand_id;
+ 	trace_cachefiles_ondemand_close(object, &req->msg);
+ 	return 0;
+ }
+@@ -460,7 +463,7 @@ static int cachefiles_ondemand_init_read_req(struct cachefiles_req *req,
+ 	int object_id = object->ondemand_id;
+ 
+ 	/* Stop enqueuing requests when daemon has closed anon_fd. */
+-	if (object_id <= 0) {
++	if (!cachefiles_ondemand_object_is_open(object)) {
+ 		WARN_ON_ONCE(object_id == 0);
+ 		pr_info_once("READ: anonymous fd closed prematurely.\n");
+ 		return -EIO;
+@@ -485,7 +488,7 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
+ 	 * creating a new tmpfile as the cache file. Reuse the previously
+ 	 * allocated object ID if any.
+ 	 */
+-	if (object->ondemand_id > 0)
++	if (cachefiles_ondemand_object_is_open(object))
+ 		return 0;
+ 
+ 	volume_key_size = volume->key[0] + 1;
+-- 
+2.20.1
 
