@@ -4,43 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D97DC433FE
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 08:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 78479C43217
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 09:14:24 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtLrw0KFFz3dqs
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 19:50:08 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=uniontech.com (client-ip=54.204.34.129; helo=smtpbguseast1.qq.com; envelope-from=chenlinxuan@uniontech.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 2199 seconds by postgrey-1.36 at boromir; Thu, 20 Oct 2022 19:50:02 AEDT
-Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtMNt5JPhz3dqm
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 20:14:22 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtLrp3QXhz3c46
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Oct 2022 19:49:57 +1100 (AEDT)
-X-QQ-mid: bizesmtp84t1666253578tm89pjze
-Received: from [10.20.52.53] ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with SMTP id 0
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Oct 2022 16:12:57 +0800 (CST)
-X-QQ-SSF: 01400000000000B0E000000A0000000
-X-QQ-FEAT: cIAm9Ti9Z0xB2hAnhT416P5/SygxhsqniWmSAneh31Nn4tLI63NajNR9mDebZ
-	jKOriceCI+A2xD6t3tp7dyAOHyUl4TTdjsuelOBhIMHU7ncAx9qWavabO0gYMHxz9SLSH3L
-	lm/O4sm1rrdBDl5Eg8krpdctwM+xq6S/s9bYkU9mPGDMiWgJQkYQtcIDZ/6Cd24GEQM7i9x
-	wDDRNwoWzSoKFKZWPpbUKNJ60XJ1GWDIoRi4fJ8EqMMdYMSsqdAj+kyAM5vFfb2k+N++UB2
-	rOPXXRmnZIBln6SU7UO9LdKvrnkWvrv0kbZkEUnOdrNDCbspVp76StGa/mzDb3ybh0CrJhh
-	yvXgb6VUYVwiYP+gHb+hjlxk+tg0PcItZRAWnEpD9bLh+fCFNw=
-X-QQ-GoodBg: 2
-Message-ID: <70667519DD94DA0B+b911194e-0b38-9674-eb9f-5ed8d93a3044@uniontech.com>
-Date: Thu, 20 Oct 2022 16:12:57 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtMNn0QWfz2ypV
+	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Oct 2022 20:14:15 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VSebUEb_1666257248;
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VSebUEb_1666257248)
+          by smtp.aliyun-inc.com;
+          Thu, 20 Oct 2022 17:14:10 +0800
+Date: Thu, 20 Oct 2022 17:14:07 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: Chao Yu <chao@kernel.org>
+Subject: Re: [PATCH] erofs: fix possible memory leak in erofs_init_sysfs()
+Message-ID: <Y1ERX8jrpkQRAp2Z@B-P7TQMD6M-0146.local>
+References: <20221018073947.693206-1-yangyingliang@huawei.com>
+ <Y09fJXi42XV/PF4W@B-P7TQMD6M-0146.local>
+ <64640ad2-45c5-d07e-60ab-a14e5de5998a@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Content-Language: en-US
-To: linux-erofs mailing list <linux-erofs@lists.ozlabs.org>
-From: chenlinxuan <chenlinxuan@uniontech.com>
-Subject: A little patch fix dev_read to make it works with large file
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybglogicsvr:qybglogicsvr6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <64640ad2-45c5-d07e-60ab-a14e5de5998a@kernel.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -52,95 +43,88 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: gregkh@linuxfoundation.org, huangjianan@oppo.com, Joseph Qi <joseph.qi@linux.alibaba.com>, Yang Yingliang <yangyingliang@huawei.com>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-When using `fsck.erofs` to extract some image have a very large file 
-(3G) inside, my fsck.erofs report some thing like:
+Hi Chao,
 
-<E> erofs_io: Failed to read data from device - erofs.image:[4096, 
-2147483648].
-<E> erofs: failed to read data of m_pa 4096, m_plen 2147483648 @ nid 40: -17
-<E> erofs: Failed to extract filesystem
+On Thu, Oct 20, 2022 at 04:49:34PM +0800, Chao Yu wrote:
+> On 2022/10/19 10:21, Gao Xiang wrote:
+> > Hi Yingliang,
+> > 
+> > On Tue, Oct 18, 2022 at 03:39:47PM +0800, Yang Yingliang wrote:
+> > > Inject fault while probing module, kset_register() may fail,
+> > > if it fails, but the refcount of kobject is not decreased to
+> > > 0, the name allocated in kobject_set_name() is leaked. Fix
+> > > this by calling kset_put(), so that name can be freed in
+> > > callback function kobject_cleanup().
+> > > 
+> > > unreferenced object 0xffff888101d228c0 (size 8):
+> > >    comm "modprobe", pid 276, jiffies 4294722700 (age 13.151s)
+> > >    hex dump (first 8 bytes):
+> > >      65 72 6f 66 73 00 ff ff                          erofs...
+> > >    backtrace:
+> > >      [<00000000e2a9a4a6>] __kmalloc_node_track_caller+0x44/0x1b0
+> > >      [<00000000b8ce02de>] kstrdup+0x3a/0x70
+> > >      [<000000004a0e01d2>] kstrdup_const+0x63/0x80
+> > >      [<00000000051b6cda>] kvasprintf_const+0x149/0x180
+> > >      [<000000004dc51dad>] kobject_set_name_vargs+0x56/0x150
+> > >      [<00000000b30f0bad>] kobject_set_name+0xab/0xe0
+> > > 
+> > > Fixes: 168e9a76200c ("erofs: add sysfs interface")
+> > > Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+> > 
+> > Thanks for the catch, the issue itself seems true.  However, I found
+> > several fses all have this issue.
+> > 
+> > After I did some discussion with Joseph Qi offline, I'd like to wait
+> > for the conclusion of the following thread:
+> > https://lore.kernel.org/r/bf27f347-5ced-98e5-f188-659cc2a9736f@linux.alibaba.com
+> > 
+> > Since I tend to think kset_put() should be one fail step of
+> > kset_register().
+> 
+> I guess in error path, it missed to free kobj->name which was allocated by
+> kobject_set_name(&erofs_root.kobj, "erofs"), so calling kset_put() here looks
+> fine?
 
-You can use this script to reproduce this issue.
+We looked into this yesterday.  I think the main problem is that the
+kset_put() a reference which is set in kset_init() of kset_register().
 
-#!/bin/env sh
+Therefore such refernece belongs to an internal implementation and
+should not be treated for each kset_register() caller.
 
-mkdir tmp extract
-dd if=/dev/urandom of=tmp/big_file bs=1M count=2048
+Please correct me if I'm wrong here.
 
-mkfs.erofs erofs.image tmp
-fsck.erofs erofs.image --extract=extract
+Thanks,
+Gao Xiang
 
-I found that dev_open will failed if we can not get all data we want 
-with one pread call.
-
-I write this little patch try to fix this issue.
-
-This is my first patch send via email, sorry if anything goes wrong.
-
- From 156af5b173c1f9e2a91e4d2126214b96966babd1 Mon Sep 17 00:00:00 2001
-From: chenlinxuan <chenlinxuan@uniontech.com>
-Date: Thu, 20 Oct 2022 14:39:17 +0800
-Subject: [PATCH] erofs-utils: lib: fix dev_read
-
-We need to keep calling pread until we get all data we want
----
-  lib/io.c | 28 +++++++++++++++++++++-------
-  1 file changed, 21 insertions(+), 7 deletions(-)
-
-diff --git a/lib/io.c b/lib/io.c
-index 524cfb4..bd3d790 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -256,7 +256,7 @@ int dev_resize(unsigned int blocks)
-
-  int dev_read(int device_id, void *buf, u64 offset, size_t len)
-  {
--   int ret, fd;
-+   int read_count, fd;
-
-     if (cfg.c_dry_run)
-         return 0;
-@@ -278,15 +278,29 @@ int dev_read(int device_id, void *buf, u64 offset, 
-size_t len)
-         fd = erofs_blobfd[device_id - 1];
-     }
-
-+   while (len > 0) {
-  #ifdef HAVE_PREAD64
--   ret = pread64(fd, buf, len, (off64_t)offset);
-+       read_count = pread64(fd, buf, len, (off64_t)offset);
-  #else
--   ret = pread(fd, buf, len, (off_t)offset);
-+       read_count = pread(fd, buf, len, (off_t)offset);
-  #endif
--   if (ret != (int)len) {
--       erofs_err("Failed to read data from device - %s:[%" PRIu64 ", 
-%zd].",
--             erofs_devname, offset, len);
--       return -errno;
-+       if (read_count == -1 || read_count ==  0) {
-+           if (errno) {
-+               erofs_err("Failed to read data from device - "
-+                     "%s:[%" PRIu64 ", %zd].",
-+                     erofs_devname, offset, len);
-+               return -errno;
-+           } else {
-+               erofs_err("Reach EOF of device - "
-+                     "%s:[%" PRIu64 ", %zd].",
-+                     erofs_devname, offset, len);
-+               return -EINVAL;
-+           }
-+       }
-+
-+       offset += read_count;
-+       len -= read_count;
-+       buf += read_count;
-     }
-     return 0;
-  }
--- 
-2.37.3
-
+> 
+> Thanks,
+> 
+> > 
+> > Thanks,
+> > Gao Xiang
+> > 
+> > > ---
+> > >   fs/erofs/sysfs.c | 4 +++-
+> > >   1 file changed, 3 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
+> > > index 783bb7b21b51..653b35001bc5 100644
+> > > --- a/fs/erofs/sysfs.c
+> > > +++ b/fs/erofs/sysfs.c
+> > > @@ -254,8 +254,10 @@ int __init erofs_init_sysfs(void)
+> > >   	kobject_set_name(&erofs_root.kobj, "erofs");
+> > >   	erofs_root.kobj.parent = fs_kobj;
+> > >   	ret = kset_register(&erofs_root);
+> > > -	if (ret)
+> > > +	if (ret) {
+> > > +		kset_put(&erofs_root);
+> > >   		goto root_err;
+> > > +	}
+> > >   	ret = kobject_init_and_add(&erofs_feat, &erofs_feat_ktype,
+> > >   				   NULL, "features");
+> > > -- 
+> > > 2.25.1
