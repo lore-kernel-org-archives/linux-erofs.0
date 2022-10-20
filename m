@@ -4,51 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68DA0C433FE
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 08:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A009DC433FE
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 08:49:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtKyx4J1fz3cht
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 19:10:17 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtLrY6ky3z3dqr
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Oct 2022 19:49:49 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RUrUJY+Z;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RbDjjmZb;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.68.75; helo=ams.source.kernel.org; envelope-from=chao@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RUrUJY+Z;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RbDjjmZb;
 	dkim-atps=neutral
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtKyp038Bz3bjh
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Oct 2022 19:10:09 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtLrQ0cjLz3c2Q
+	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Oct 2022 19:49:41 +1100 (AEDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by ams.source.kernel.org (Postfix) with ESMTPS id 4FEC1B8269E;
-	Thu, 20 Oct 2022 08:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 458F4C433D7;
-	Thu, 20 Oct 2022 08:10:01 +0000 (UTC)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 1CB1C61A78;
+	Thu, 20 Oct 2022 08:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C175BC4347C;
+	Thu, 20 Oct 2022 08:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1666253403;
-	bh=TZH3HlrUcw85qXpZBg1C/yHHkc3IDLD5ROD1X0bKVM8=;
+	s=k20201202; t=1666255778;
+	bh=k6Q3lhZz1PgZiJfwCgaOdN9aQHwyrMWGPtO0uO6xdFs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=RUrUJY+ZQID6beKKY8k/RIFOChFc6D1S84jdodkaPggjPAtO3AfUyUWiYQIuE3MEP
-	 zaL6Gtg63O0Fe0KWa/SsjRS3BcUlJ5ASCyxCaXQzK4SPlIkG7czgBPbpCJ6bRGDFbu
-	 jBQeGqIH5kTj8k8x8lZnbvBFdiCfrXzhkCM6xjdMbHWJ9OrrKuVD1sWKApkksSKoy1
-	 Ov0WKaEGoOssY3kM2nJdPhZ8S9frYiSwASv9nTPhshse4s2gITPwGhvf2yppCScqrM
-	 BAm2v3bjBh2Xb+pTHmKQKrFelaDDB8iJePbq3q37+KX2DngBF7IDCeqhV2KvfyBSOG
-	 fuT8Z8hw2l0Kg==
-Message-ID: <0b2d44b0-7a72-2788-b8cc-b5c1ecfbcbae@kernel.org>
-Date: Thu, 20 Oct 2022 16:09:59 +0800
+	b=RbDjjmZbIYRApL8c1P5kp/De1nRQxIOn7V1hTkAXPsaBRH6C9tLi3nZBacRlNJVbk
+	 9qw1Jwi6IuaKIyjbh/C4c4UOwbM9xkKwfrMR/WDvgWtH4TGojJbFWvUaEFBO8uIS4E
+	 k9UNFzAD/EQhHG6EFapXBVqTS7CJIEyTSaEZG5+IS6RaZgMbgnysLjy4I20TZfI8fJ
+	 RfAHVKDNukEhEDKPHt2eWV877JrnYtGvK2Xm9tx4yAfuGbu7Pnh+BkDPS4OMUFPGVE
+	 Mo6ZR/nP02RQvE0IZiUOn1pOFr8bfNrqp3a10DC0jq7+wu7j33zgIFkgt8M/M0KClf
+	 95tIXSiH6+knA==
+Message-ID: <64640ad2-45c5-d07e-60ab-a14e5de5998a@kernel.org>
+Date: Thu, 20 Oct 2022 16:49:34 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.1
-Subject: Re: [PATCH v2] erofs: protect s_inodes with s_inode_list_lock
+Subject: Re: [PATCH] erofs: fix possible memory leak in erofs_init_sysfs()
 Content-Language: en-US
-To: Dawei Li <set_pte_at@outlook.com>, xiang@kernel.org
-References: <TYCP286MB23238380DE3B74874E8D78ABCA299@TYCP286MB2323.JPNP286.PROD.OUTLOOK.COM>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>,
+ Yang Yingliang <yangyingliang@huawei.com>
+References: <20221018073947.693206-1-yangyingliang@huawei.com>
+ <Y09fJXi42XV/PF4W@B-P7TQMD6M-0146.local>
 From: Chao Yu <chao@kernel.org>
-In-Reply-To: <TYCP286MB23238380DE3B74874E8D78ABCA299@TYCP286MB2323.JPNP286.PROD.OUTLOOK.COM>
+In-Reply-To: <Y09fJXi42XV/PF4W@B-P7TQMD6M-0146.local>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -62,24 +64,74 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@coolpad.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: Joseph Qi <joseph.qi@linux.alibaba.com>, gregkh@linuxfoundation.org, linux-erofs@lists.ozlabs.org, huangjianan@oppo.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2022/10/17 9:55, Dawei Li wrote:
-> s_inodes is superblock-specific resource, which should be
-> protected by sb's specific lock s_inode_list_lock.
+On 2022/10/19 10:21, Gao Xiang wrote:
+> Hi Yingliang,
 > 
-> v2: update the locking mechanisim to protect mutual-exclusive access
-> both for s_inode_list_lock & erofs_fscache_domain_init_cookie(), as the
-> reviewing comments from Jia Zhu.
+> On Tue, Oct 18, 2022 at 03:39:47PM +0800, Yang Yingliang wrote:
+>> Inject fault while probing module, kset_register() may fail,
+>> if it fails, but the refcount of kobject is not decreased to
+>> 0, the name allocated in kobject_set_name() is leaked. Fix
+>> this by calling kset_put(), so that name can be freed in
+>> callback function kobject_cleanup().
+>>
+>> unreferenced object 0xffff888101d228c0 (size 8):
+>>    comm "modprobe", pid 276, jiffies 4294722700 (age 13.151s)
+>>    hex dump (first 8 bytes):
+>>      65 72 6f 66 73 00 ff ff                          erofs...
+>>    backtrace:
+>>      [<00000000e2a9a4a6>] __kmalloc_node_track_caller+0x44/0x1b0
+>>      [<00000000b8ce02de>] kstrdup+0x3a/0x70
+>>      [<000000004a0e01d2>] kstrdup_const+0x63/0x80
+>>      [<00000000051b6cda>] kvasprintf_const+0x149/0x180
+>>      [<000000004dc51dad>] kobject_set_name_vargs+0x56/0x150
+>>      [<00000000b30f0bad>] kobject_set_name+0xab/0xe0
+>>
+>> Fixes: 168e9a76200c ("erofs: add sysfs interface")
+>> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 > 
-> v1: https://lore.kernel.org/all/TYCP286MB23237A9993E0FFCFE5C2BDBECA269@TYCP286MB2323.JPNP286.PROD.OUTLOOK.COM/
+> Thanks for the catch, the issue itself seems true.  However, I found
+> several fses all have this issue.
 > 
-> base-commit: 8436c4a57bd147b0bd2943ab499bb8368981b9e1
+> After I did some discussion with Joseph Qi offline, I'd like to wait
+> for the conclusion of the following thread:
+> https://lore.kernel.org/r/bf27f347-5ced-98e5-f188-659cc2a9736f@linux.alibaba.com
 > 
-> Signed-off-by: Dawei Li <set_pte_at@outlook.com>
+> Since I tend to think kset_put() should be one fail step of
+> kset_register().
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+I guess in error path, it missed to free kobj->name which was allocated by
+kobject_set_name(&erofs_root.kobj, "erofs"), so calling kset_put() here looks
+fine?
 
 Thanks,
+
+> 
+> Thanks,
+> Gao Xiang
+> 
+>> ---
+>>   fs/erofs/sysfs.c | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
+>> index 783bb7b21b51..653b35001bc5 100644
+>> --- a/fs/erofs/sysfs.c
+>> +++ b/fs/erofs/sysfs.c
+>> @@ -254,8 +254,10 @@ int __init erofs_init_sysfs(void)
+>>   	kobject_set_name(&erofs_root.kobj, "erofs");
+>>   	erofs_root.kobj.parent = fs_kobj;
+>>   	ret = kset_register(&erofs_root);
+>> -	if (ret)
+>> +	if (ret) {
+>> +		kset_put(&erofs_root);
+>>   		goto root_err;
+>> +	}
+>>   
+>>   	ret = kobject_init_and_add(&erofs_feat, &erofs_feat_ktype,
+>>   				   NULL, "features");
+>> -- 
+>> 2.25.1
