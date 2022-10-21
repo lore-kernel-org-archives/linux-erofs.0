@@ -4,47 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8DF69C4167B
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B780C43217
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpCl42bKz3drY
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:22:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpCr3vQLz3dqb
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:04 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1666318979;
-	bh=K8n3hu8gsmNnf0snz6xQchFocXq9/Kk9WeHFAHivz+U=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=Sm5ebZ89iX8N1tU1RNL/pNW7a0vevFWAOFHctvDckq+hV4MiTBFwej9XO0A1WhFJA
-	 PTYtAC+67hG1F99bLnePu9rtWz4LoZNZ74fMIrLfi1JqDmSa8fWiPhr5kASUOS5wIK
-	 Nf39HZs8QJubafwEqqX//ZwBkGaOGkw3loTJ0I71c3a42XIPJQmJqecCRD27ieUFzK
-	 TsjWY2nip+4FgH2ZBjRPclyJlSdlawDRUrtBwrtkmi57K91ulifn2eXRLMenSrdaRb
-	 pIcU1/aqvFGw4BVByfZxGS1/MUMz7SuTuwy9GqZaWGZXZ66P9XqtTnpTsItKt1ZVI3
-	 KAtmI+gRzvnyw==
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.188; helo=szxga02-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+	s=201707; t=1666318984;
+	bh=WSEXmwx0N4x8ur/qaN3uPQl5/rYkkcR4UAdgcwqWvX0=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=cE+3WXytc85ckSSg1mm1acPWxaMQMLZ0W3fCXdXYWZz84QoLtEeRpRJefELblY0XJ
+	 4HtW6h3ADTLjyyHCiJ5BdNYONQtxeaWaiZZR6myOw6+mfp4zlcoDn0o4RmvncBn34B
+	 oRDiQn9sHgi2SU7R1fd5mm2a0rlBKw6AuUei5tG+Z4P90n+7B5eglhOSfR7nT6FXG5
+	 dX5CQ/uG2z2aZRfMQagEu7MaQ22uwNshHy07Zx2lyljx1IizIIRfHczg/Ih2WjCsiO
+	 DcmQFvonCAl9MLZDPqorRza3WEGw92xMOUszKymTL5U30xvbT8eYYWuBSpTweRPTWk
+	 bR/WRroqufthg==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.255; helo=szxga08-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpCY5D1jz2ywV
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:22:44 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpCY5GZkz2yxd
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:22:48 +1100 (AEDT)
 Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.57])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MtpC82VSGzHvDB;
-	Fri, 21 Oct 2022 10:22:28 +0800 (CST)
+	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Mtp5w3XNvz1P7D4;
+	Fri, 21 Oct 2022 10:17:56 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
  dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 21 Oct 2022 10:22:36 +0800
+ 15.1.2375.31; Fri, 21 Oct 2022 10:22:42 +0800
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 21 Oct
- 2022 10:22:35 +0800
+ 2022 10:22:41 +0800
 To: <linux-kernel@vger.kernel.org>, <qemu-devel@nongnu.org>,
 	<linux-f2fs-devel@lists.sourceforge.net>, <linux-erofs@lists.ozlabs.org>,
 	<ocfs2-devel@oss.oracle.com>, <linux-mtd@lists.infradead.org>,
 	<amd-gfx@lists.freedesktop.org>
-Subject: [PATCH 00/11] fix memory leak while kset_register() fails
-Date: Fri, 21 Oct 2022 10:20:51 +0800
-Message-ID: <20221021022102.2231464-1-yangyingliang@huawei.com>
+Subject: [PATCH 06/11] firmware: qemu_fw_cfg: fix possible memory leak in fw_cfg_build_symlink()
+Date: Fri, 21 Oct 2022 10:20:57 +0800
+Message-ID: <20221021022102.2231464-7-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221021022102.2231464-1-yangyingliang@huawei.com>
+References: <20221021022102.2231464-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -69,49 +72,44 @@ Cc: alexander.deucher@amd.com, richard@nod.at, mst@redhat.com, gregkh@linuxfound
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The previous discussion link:
-https://lore.kernel.org/lkml/0db486eb-6927-927e-3629-958f8f211194@huawei.com/T/
+Inject fault while loading module, kset_register() may fail, if
+it fails, but the refcount of kobject is not decreased to 0, the
+name allocated in kobject_set_name() is leaked. To fix this by
+calling kset_put(), so that name can be freed in callback function
+kobject_cleanup() and 'subdir' is freed in kset_release().
 
-kset_register() is currently used in some places without calling
-kset_put() in error path, because the callers think it should be
-kset internal thing to do, but the driver core can not know what
-caller doing with that memory at times. The memory could be freed
-both in kset_put() and error path of caller, if it is called in
-kset_register().
+unreferenced object 0xffff88810ad69050 (size 8):
+  comm "swapper/0", pid 1, jiffies 4294677178 (age 38.812s)
+  hex dump (first 8 bytes):
+    65 74 63 00 81 88 ff ff                          etc.....
+  backtrace:
+    [<00000000a80c7bf1>] __kmalloc_node_track_caller+0x44/0x1b0
+    [<000000003f0167c7>] kstrdup+0x3a/0x70
+    [<0000000049336709>] kstrdup_const+0x41/0x60
+    [<00000000175616e4>] kvasprintf_const+0xf5/0x180
+    [<000000004bcc30f7>] kobject_set_name_vargs+0x56/0x150
+    [<000000004b0251bd>] kobject_set_name+0xab/0xe0
+    [<00000000700151fb>] fw_cfg_sysfs_probe+0xa5b/0x1320
 
-So make the function documentation more explicit about calling
-kset_put() in the error path of caller first, so that people
-have a chance to know what to do here, then fixes this leaks
-by calling kset_put() from callers.
+Fixes: 246c46ebaeae ("firmware: create directory hierarchy for sysfs fw_cfg entries")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+---
+ drivers/firmware/qemu_fw_cfg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Liu Shixin (1):
-  ubifs: Fix memory leak in ubifs_sysfs_init()
-
-Yang Yingliang (10):
-  kset: fix documentation for kset_register()
-  kset: add null pointer check in kset_put()
-  bus: fix possible memory leak in bus_register()
-  kobject: fix possible memory leak in kset_create_and_add()
-  class: fix possible memory leak in __class_register()
-  firmware: qemu_fw_cfg: fix possible memory leak in
-    fw_cfg_build_symlink()
-  f2fs: fix possible memory leak in f2fs_init_sysfs()
-  erofs: fix possible memory leak in erofs_init_sysfs()
-  ocfs2: possible memory leak in mlog_sys_init()
-  drm/amdgpu/discovery: fix possible memory leak
-
- drivers/base/bus.c                            | 4 +++-
- drivers/base/class.c                          | 6 ++++++
- drivers/firmware/qemu_fw_cfg.c                | 2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c | 5 +++--
- fs/erofs/sysfs.c                              | 4 +++-
- fs/f2fs/sysfs.c                               | 4 +++-
- fs/ocfs2/cluster/masklog.c                    | 7 ++++++-
- fs/ubifs/sysfs.c                              | 2 ++
- include/linux/kobject.h                       | 3 ++-
- lib/kobject.c                                 | 5 ++++-
- 10 files changed, 33 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/firmware/qemu_fw_cfg.c b/drivers/firmware/qemu_fw_cfg.c
+index a69399a6b7c0..d036e69cabbb 100644
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -544,7 +544,7 @@ static int fw_cfg_build_symlink(struct kset *dir,
+ 			}
+ 			ret = kset_register(subdir);
+ 			if (ret) {
+-				kfree(subdir);
++				kset_put(subdir);
+ 				break;
+ 			}
+ 
 -- 
 2.25.1
 
