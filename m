@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC32CC4167B
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1F71C4332F
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:24 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpD61bvfz3dql
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpDC2h5Vz3drS
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:23 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1666318998;
-	bh=tVer8AZTrK9nyCudHIpk3LZZ7sbS0elDElqNKzjcfkQ=;
+	s=201707; t=1666319003;
+	bh=dyGVpi/cxfdKsPC0auDFM0qgMAIU47NidVfdyPK5ykE=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=k38PktamUCVr5nTPx6932uTx1I4qaOvWmSc0PNOgj6T+UbWsxQKcLZc7/tFhGTHp2
-	 zUr3bidqsb0tVGjZiQ5R9ychIU7oqm5WUysCuapbdeeQufRjXKvLJp/0EQoy/fY5ZO
-	 W6iu00F2Saxm2Wv/hecc0J2nNilN1LINOv+/ebVtuANupOAJ8cLLP0IaNBU5ovMO2y
-	 mQ8c/zA/RxL8XM6MbVf4wgCFva/94AF6UMFeb7ylvAkUHDNAis/rHH2GkaS4MpKWlk
-	 lc+y7HmvdSJjmxnO0vnq7fdnFTLrMOYRIgAsv3AW9q5YIvQbX8iv2vEtQ/p9lK6PWE
-	 pLA6d2zFFxheQ==
+	b=O1wV1uT2ZhKwSXXRFMDRTTIAjteZiZrp40/6S7sOiWf3TSn7lE0Oo2s1y32Eq4Run
+	 mGGu8ogl4rY6aZcUDLl9+BWCbvgFqRnpelk1GZfWrbIW3JtQAJhzj9Wu1A81l09ImB
+	 lnOSlEobIb2NLbh4Lv3HMrPp1VnhKH9KlEj4jzDQVzFHjcWk/IL/d/ScMuVn53l4ho
+	 29UeOTt93GiWS5PutkW708ggUUA9l1pMC+lz6AWhfZwkzZIEt9STb+ONyyVMC+AzJe
+	 gy1foiztiKiOmuRI+YC2sLoxXiWk/gZ/CG7bPvOuOQnSpQa9pWW32PwwdnSE5bnVRj
+	 5KjNeOo0eTvPw==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.188; helo=szxga02-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
 Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpCc4nY9z2yxd
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpCc5LnMz3c7V
 	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:22:52 +1100 (AEDT)
 Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.57])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MtpCM5YgKzHv3Y;
-	Fri, 21 Oct 2022 10:22:39 +0800 (CST)
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MtpCN0WmtzHvCB;
+	Fri, 21 Oct 2022 10:22:40 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
  dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
@@ -37,14 +37,14 @@ Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 21 Oct
- 2022 10:22:39 +0800
+ 2022 10:22:36 +0800
 To: <linux-kernel@vger.kernel.org>, <qemu-devel@nongnu.org>,
 	<linux-f2fs-devel@lists.sourceforge.net>, <linux-erofs@lists.ozlabs.org>,
 	<ocfs2-devel@oss.oracle.com>, <linux-mtd@lists.infradead.org>,
 	<amd-gfx@lists.freedesktop.org>
-Subject: [PATCH 04/11] kobject: fix possible memory leak in kset_create_and_add()
-Date: Fri, 21 Oct 2022 10:20:55 +0800
-Message-ID: <20221021022102.2231464-5-yangyingliang@huawei.com>
+Subject: [PATCH 01/11] kset: fix documentation for kset_register()
+Date: Fri, 21 Oct 2022 10:20:52 +0800
+Message-ID: <20221021022102.2231464-2-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221021022102.2231464-1-yangyingliang@huawei.com>
 References: <20221021022102.2231464-1-yangyingliang@huawei.com>
@@ -72,44 +72,35 @@ Cc: alexander.deucher@amd.com, richard@nod.at, mst@redhat.com, gregkh@linuxfound
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Inject fault while loading module (e.g. qemu_fw_cfg.ko), kset_register()
-may fail in kset_create_and_add(), if it fails, but the refcount of kobject
-is not decreased to 0, the name allocated in kset_create() is leaked. To fix
-this by calling kset_put(), so that name can be freed in callback function
-kobject_cleanup() and kset can be freed in kset_release().
+kset_register() is currently used in some places without calling
+kset_put() in error path, because the callers think it should be
+kset internal thing to do, but the driver core can not know what
+caller doing with that memory at times. The memory could be freed
+both in kset_put() and error path of caller, if it is called in
+kset_register().
 
-unreferenced object 0xffff888103cc8c08 (size 8):
-  comm "modprobe", pid 508, jiffies 4294915182 (age 120.020s)
-  hex dump (first 8 bytes):
-    62 79 5f 6e 61 6d 65 00                          by_name.
-  backtrace:
-    [<00000000572f97f9>] __kmalloc_track_caller+0x1ae/0x320
-    [<00000000a167a5cc>] kstrdup+0x3a/0x70
-    [<000000001cd0d05e>] kstrdup_const+0x68/0x80
-    [<00000000b9101e6d>] kvasprintf_const+0x10b/0x190
-    [<0000000088f2b8df>] kobject_set_name_vargs+0x56/0x150
-    [<000000003f8aca68>] kobject_set_name+0xab/0xe0
-    [<00000000249f7816>] kset_create_and_add+0x72/0x200
+So make the function documentation more explicit about calling
+kset_put() in the error path of caller.
 
-Fixes: b727c702896f ("kset: add kset_create_and_add function")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 ---
- lib/kobject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/kobject.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/lib/kobject.c b/lib/kobject.c
-index 6da04353d974..e77f37200876 100644
+index a0b2dbfcfa23..6da04353d974 100644
 --- a/lib/kobject.c
 +++ b/lib/kobject.c
-@@ -985,7 +985,7 @@ struct kset *kset_create_and_add(const char *name,
- 		return NULL;
- 	error = kset_register(kset);
- 	if (error) {
--		kfree(kset);
-+		kset_put(kset);
- 		return NULL;
- 	}
- 	return kset;
+@@ -834,6 +834,9 @@ EXPORT_SYMBOL_GPL(kobj_sysfs_ops);
+ /**
+  * kset_register() - Initialize and add a kset.
+  * @k: kset.
++ *
++ * If this function returns an error, kset_put() must be called to
++ * properly clean up the memory associated with the object.
+  */
+ int kset_register(struct kset *k)
+ {
 -- 
 2.25.1
 
