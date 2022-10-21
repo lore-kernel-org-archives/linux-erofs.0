@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F351C4332F
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7E1FC433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpDc6rYdz2ywV
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:44 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpDk2JPGz3bY8
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:50 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1666319025;
-	bh=1tpP1hkNdWvN34AYxj6RVP7WehDDZKUj72Nls7FxEGk=;
+	s=201707; t=1666319030;
+	bh=Le9tPcdohqK3UOrnanVaHtQhl6eTkZN7tCulrd3hy6g=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=I6zacPqSToji9dyfJh8bskWuoN3K5n2a/qXR20ZWxMAThSLTRsPhRQ4Y+JUnFViy+
-	 OBh1WaPDrhPmfojKGYWkj76Jq/ARV7lmCUjYslTDTP3yOYvcDD/b5n4Iyp+exEMsH0
-	 RTQYr5Xe66hLjYnQikMkzcrINd1BShcMiZs7sJ8ofK2jOnpe9B/lVqUcbah333rNtp
-	 1bAx0+2LOZYPbPWcQSebs3hlhU/hyk6b65gP+LB7sFPPl7/zVVYeaJ9UPPP9JvdhIh
-	 iU79tYipd/3SBeJeUUA0fbTEmH0+H5J2a1nKV2nEAAlYF4VEBI/rqOl0sEgLhLQe5J
-	 7zGyeI3WzSPRg==
+	b=C1UCe6PwWH3v6756CQTjl7hawmGQh5GhcDycBOjvsrI++przCAeCJwX8SgHYEXYfb
+	 xMqbcxcnfejsXdzUwbVrnlulWgbvvUDQpn2n9Kez8xYf7uVm4ghsE3e6LkJjuTsR72
+	 2KDqzI61ooF2Ml3IgOwDkjL/2IPl5QYd1OXkfuzzAVmLDhWElgbKNGWMTpdqZT4NN+
+	 QazesMXNrbvo/C5N1fdp4YDwpYpugIQQNWmTMr0wphVe9y633O/O/2MoYSqY9Wn3m3
+	 ibN/t91koVJmZTVqs8HozwILRy8x4+GA6rnNTyXeJevksniQap3B3PDgHA9H+lW6H4
+	 M9pBIYG8pk8fw==
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpD45tDZz3c7L
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:23:16 +1100 (AEDT)
-Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.54])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Mtp7b16HRzpVdt;
-	Fri, 21 Oct 2022 10:19:23 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpD82wq2z3drV
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:23:20 +1100 (AEDT)
+Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.56])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Mtp605R63zmVCd;
+	Fri, 21 Oct 2022 10:18:00 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
+ dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 21 Oct 2022 10:22:43 +0800
+ 15.1.2375.31; Fri, 21 Oct 2022 10:22:46 +0800
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 21 Oct
- 2022 10:22:42 +0800
+ 2022 10:22:46 +0800
 To: <linux-kernel@vger.kernel.org>, <qemu-devel@nongnu.org>,
 	<linux-f2fs-devel@lists.sourceforge.net>, <linux-erofs@lists.ozlabs.org>,
 	<ocfs2-devel@oss.oracle.com>, <linux-mtd@lists.infradead.org>,
 	<amd-gfx@lists.freedesktop.org>
-Subject: [PATCH 07/11] f2fs: fix possible memory leak in f2fs_init_sysfs()
-Date: Fri, 21 Oct 2022 10:20:58 +0800
-Message-ID: <20221021022102.2231464-8-yangyingliang@huawei.com>
+Subject: [PATCH 11/11] ubifs: Fix memory leak in ubifs_sysfs_init()
+Date: Fri, 21 Oct 2022 10:21:02 +0800
+Message-ID: <20221021022102.2231464-12-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221021022102.2231464-1-yangyingliang@huawei.com>
 References: <20221021022102.2231464-1-yangyingliang@huawei.com>
@@ -72,47 +72,52 @@ Cc: alexander.deucher@amd.com, richard@nod.at, mst@redhat.com, gregkh@linuxfound
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Inject fault while loading module, kset_register() may fail,
-if it fails, but the refcount of kobject is not decreased to
-0, the name allocated in kobject_set_name() is leaked. Fix
-this by calling kset_put(), so that name can be freed in
-callback function kobject_cleanup().
+From: Liu Shixin <liushixin2@huawei.com>
 
-unreferenced object 0xffff888101b7cc80 (size 8):
-  comm "modprobe", pid 252, jiffies 4294691378 (age 31.760s)
-  hex dump (first 8 bytes):
-    66 32 66 73 00 88 ff ff                          f2fs....
-  backtrace:
-    [<000000001db5b408>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<000000002783a073>] kstrdup+0x3a/0x70
-    [<00000000ead2b281>] kstrdup_const+0x63/0x80
-    [<000000003e5cf8f7>] kvasprintf_const+0x149/0x180
-    [<00000000c4d949ff>] kobject_set_name_vargs+0x56/0x150
-    [<0000000044611660>] kobject_set_name+0xab/0xe0
+When insmod ubifs.ko, a kmemleak reported as below:
 
-Fixes: bf9e697ecd42 ("f2fs: expose features to sysfs entry")
+ unreferenced object 0xffff88817fb1a780 (size 8):
+   comm "insmod", pid 25265, jiffies 4295239702 (age 100.130s)
+   hex dump (first 8 bytes):
+     75 62 69 66 73 00 ff ff                          ubifs...
+   backtrace:
+     [<ffffffff81b3fc4c>] slab_post_alloc_hook+0x9c/0x3c0
+     [<ffffffff81b44bf3>] __kmalloc_track_caller+0x183/0x410
+     [<ffffffff8198d3da>] kstrdup+0x3a/0x80
+     [<ffffffff8198d486>] kstrdup_const+0x66/0x80
+     [<ffffffff83989325>] kvasprintf_const+0x155/0x190
+     [<ffffffff83bf55bb>] kobject_set_name_vargs+0x5b/0x150
+     [<ffffffff83bf576b>] kobject_set_name+0xbb/0xf0
+     [<ffffffff8100204c>] do_one_initcall+0x14c/0x5a0
+     [<ffffffff8157e380>] do_init_module+0x1f0/0x660
+     [<ffffffff815857be>] load_module+0x6d7e/0x7590
+     [<ffffffff8158644f>] __do_sys_finit_module+0x19f/0x230
+     [<ffffffff815866b3>] __x64_sys_finit_module+0x73/0xb0
+     [<ffffffff88c98e85>] do_syscall_64+0x35/0x80
+     [<ffffffff88e00087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+When kset_register() failed, we should call kset_put to cleanup it.
+
+Fixes: 2e3cbf425804 ("ubifs: Export filesystem error counters")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
 ---
- fs/f2fs/sysfs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ubifs/sysfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index df27afd71ef4..2ef7a48967be 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -1250,8 +1250,10 @@ int __init f2fs_init_sysfs(void)
- 	kobject_set_name(&f2fs_kset.kobj, "f2fs");
- 	f2fs_kset.kobj.parent = fs_kobj;
- 	ret = kset_register(&f2fs_kset);
--	if (ret)
-+	if (ret) {
-+		kset_put(&f2fs_kset);
- 		return ret;
-+	}
+diff --git a/fs/ubifs/sysfs.c b/fs/ubifs/sysfs.c
+index 06ad8fa1fcfb..54270ad36321 100644
+--- a/fs/ubifs/sysfs.c
++++ b/fs/ubifs/sysfs.c
+@@ -144,6 +144,8 @@ int __init ubifs_sysfs_init(void)
+ 	kobject_set_name(&ubifs_kset.kobj, "ubifs");
+ 	ubifs_kset.kobj.parent = fs_kobj;
+ 	ret = kset_register(&ubifs_kset);
++	if (ret)
++		kset_put(&ubifs_kset);
  
- 	ret = kobject_init_and_add(&f2fs_feat, &f2fs_feat_ktype,
- 				   NULL, "features");
+ 	return ret;
+ }
 -- 
 2.25.1
 
