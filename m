@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43C2EC4321E
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A09EAC433FE
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 02:23:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpDJ5jDLz3c7V
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:28 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MtpDQ1P5Zz3dqc
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Oct 2022 13:23:34 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1666319008;
-	bh=anE6kFKk4KL8osB9HOW0knNDcuVxgwcI8Ym8jD8Lx2Y=;
+	s=201707; t=1666319014;
+	bh=XcnBacFtkvcakgxinsPtVgsUyh+z9XVNjaHmktAFVU4=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=gwx9AJiQRSAjW1PRRCjoSzIXgKQ83SCd4R2SDlRk5W6XLQ4s9G85BRSJhpNyarViM
-	 exVINMQWmcEWukNx9bjbBuelba4RXAC4MCWpqqyHGpUfSipr+FunDIi9ftnLGffSmn
-	 F/S38ukFT/72FXB95kujGzAQrfEB4XCx58QZXTMXpnoCq8TUpDGSQUkW7HB2n+gOVY
-	 3kkXREzYssoCthwZvHaxlLfyH2rZ64E1UPEffjBFkGqrbBmU4EKapGQWrt+r+IPmxd
-	 hwjIgD37AkNQAx1upo/QXWd5XFuzl56TP9feG8zg49xr0akhjR2Liqun9Opr94KAaP
-	 5xm3WYIp4EF5g==
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.188; helo=szxga02-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+	b=YiPw45oV24vbaOIk10hfVJWSvbrX8fHYx6d2izqXEfP8zwDvz//fWsZp3sCUJGFI1
+	 cTokncHLdSRvyNWjUGA/cnLRDpBYsxCFe0CownlFyNToJWqjEfjgGkdayj0YNagSmC
+	 ABCZn/A4sYm6LgMVWWRerIvwNXsKmAUtN6KjEwrEOGOSnzJ5Yo50ZpGIe/xMZ2v5yX
+	 OFbUiq7QWWWHkxYZiGP41hPUoXggdMj2DZtryVN6pHQxjhF4TEe+UKK4sxuSsdLeD9
+	 JlTShLRnTD+0SRVPvO70QrZ1Uy/OTsg1wTqFXphUYj6Izv1aZYqUXsMoBNBblumf5v
+	 4Sk/uR/X1nQhg==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=yangyingliang@huawei.com; receiver=<UNKNOWN>)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpCd0HrCz3c8j
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:22:53 +1100 (AEDT)
-Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.57])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MtpCN18FmzHvCF;
-	Fri, 21 Oct 2022 10:22:40 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MtpD10PVWz3cDb
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Oct 2022 13:23:12 +1100 (AEDT)
+Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.56])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Mtp7V36sMzpVfQ;
+	Fri, 21 Oct 2022 10:19:18 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
+ dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 21 Oct 2022 10:22:44 +0800
+ 15.1.2375.31; Fri, 21 Oct 2022 10:22:38 +0800
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 21 Oct
- 2022 10:22:43 +0800
+ 2022 10:22:37 +0800
 To: <linux-kernel@vger.kernel.org>, <qemu-devel@nongnu.org>,
 	<linux-f2fs-devel@lists.sourceforge.net>, <linux-erofs@lists.ozlabs.org>,
 	<ocfs2-devel@oss.oracle.com>, <linux-mtd@lists.infradead.org>,
 	<amd-gfx@lists.freedesktop.org>
-Subject: [PATCH 08/11] erofs: fix possible memory leak in erofs_init_sysfs()
-Date: Fri, 21 Oct 2022 10:20:59 +0800
-Message-ID: <20221021022102.2231464-9-yangyingliang@huawei.com>
+Subject: [PATCH 02/11] kset: add null pointer check in kset_put()
+Date: Fri, 21 Oct 2022 10:20:53 +0800
+Message-ID: <20221021022102.2231464-3-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221021022102.2231464-1-yangyingliang@huawei.com>
 References: <20221021022102.2231464-1-yangyingliang@huawei.com>
@@ -72,46 +72,28 @@ Cc: alexander.deucher@amd.com, richard@nod.at, mst@redhat.com, gregkh@linuxfound
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Inject fault while loading module, kset_register() may fail,
-if it fails, but the refcount of kobject is not decreased to
-0, the name allocated in kobject_set_name() is leaked. Fix
-this by calling kset_put(), so that name can be freed in
-callback function kobject_cleanup().
+kset_put() can be called from drivers, add null pointer
+check to make it more robust.
 
-unreferenced object 0xffff888101d228c0 (size 8):
-  comm "modprobe", pid 276, jiffies 4294722700 (age 13.151s)
-  hex dump (first 8 bytes):
-    65 72 6f 66 73 00 ff ff                          erofs...
-  backtrace:
-    [<00000000e2a9a4a6>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<00000000b8ce02de>] kstrdup+0x3a/0x70
-    [<000000004a0e01d2>] kstrdup_const+0x63/0x80
-    [<00000000051b6cda>] kvasprintf_const+0x149/0x180
-    [<000000004dc51dad>] kobject_set_name_vargs+0x56/0x150
-    [<00000000b30f0bad>] kobject_set_name+0xab/0xe0
-
-Fixes: 168e9a76200c ("erofs: add sysfs interface")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 ---
- fs/erofs/sysfs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/kobject.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
-index 783bb7b21b51..653b35001bc5 100644
---- a/fs/erofs/sysfs.c
-+++ b/fs/erofs/sysfs.c
-@@ -254,8 +254,10 @@ int __init erofs_init_sysfs(void)
- 	kobject_set_name(&erofs_root.kobj, "erofs");
- 	erofs_root.kobj.parent = fs_kobj;
- 	ret = kset_register(&erofs_root);
--	if (ret)
-+	if (ret) {
-+		kset_put(&erofs_root);
- 		goto root_err;
-+	}
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index 57fb972fea05..e81de8ba41a2 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -195,7 +195,8 @@ static inline struct kset *kset_get(struct kset *k)
  
- 	ret = kobject_init_and_add(&erofs_feat, &erofs_feat_ktype,
- 				   NULL, "features");
+ static inline void kset_put(struct kset *k)
+ {
+-	kobject_put(&k->kobj);
++	if (k)
++		kobject_put(&k->kobj);
+ }
+ 
+ static inline const struct kobj_type *get_ktype(struct kobject *kobj)
 -- 
 2.25.1
 
