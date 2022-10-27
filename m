@@ -4,30 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 885FDFA3743
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A5E6FA373E
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:19 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCf6vszz3cBf
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45; helo=out30-45.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCk0QLqz3cFk
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43; helo=out30-43.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCK6cXrz30Ky
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:35:57 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAsArv_1666859753;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAsArv_1666859753)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCN5vdyz30Ky
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:36:00 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAtIf8_1666859755;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAtIf8_1666859755)
           by smtp.aliyun-inc.com;
-          Thu, 27 Oct 2022 16:35:54 +0800
+          Thu, 27 Oct 2022 16:35:56 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com,
 	jlayton@kernel.org,
 	linux-cachefs@redhat.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 4/9] fscache,netfs: rename netfs_read_from_hole as fscache_read_from_hole
-Date: Thu, 27 Oct 2022 16:35:42 +0800
-Message-Id: <20221027083547.46933-5-jefflexu@linux.alibaba.com>
+Subject: [PATCH 6/9] fscache,netfs: rename netfs_cache_resources as fscache_resources
+Date: Thu, 27 Oct 2022 16:35:44 +0800
+Message-Id: <20221027083547.46933-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
 References: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
@@ -48,178 +48,496 @@ Cc: linux-fsdevel@vger.kernel.org, linux-cifs@vger.kernel.org, linux-nfs@vger.ke
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Rename netfs_read_from_hole as fscache_read_from_hole to make raw
-fscache APIs more neutral independent on libnetfs.
+Rename netfs_cache_resources as fscache_resources to make raw fscache
+APIs more neutral independent on libnetfs.
 
 This is a cleanup without logic change.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/io.c      |  6 +++---
- fs/cifs/fscache.c       |  2 +-
- fs/erofs/fscache.c      |  2 +-
- fs/netfs/io.c           |  6 +++---
- fs/nfs/fscache.c        |  2 +-
- include/linux/fscache.h |  8 ++++----
- include/linux/netfs.h   | 10 +++++-----
- 7 files changed, 18 insertions(+), 18 deletions(-)
+ fs/cachefiles/interface.c     |  2 +-
+ fs/cachefiles/internal.h      |  6 +++---
+ fs/cachefiles/io.c            | 14 +++++++-------
+ fs/cifs/fscache.c             |  6 +++---
+ fs/erofs/fscache.c            |  2 +-
+ fs/fscache/io.c               | 14 +++++++-------
+ fs/netfs/buffered_read.c      |  2 +-
+ fs/netfs/io.c                 |  6 +++---
+ fs/nfs/fscache.c              |  4 ++--
+ include/linux/fscache-cache.h |  8 ++++----
+ include/linux/fscache.h       | 16 ++++++++--------
+ include/linux/netfs.h         | 18 +++++++++---------
+ 12 files changed, 49 insertions(+), 49 deletions(-)
 
+diff --git a/fs/cachefiles/interface.c b/fs/cachefiles/interface.c
+index a69073a1d3f0..82ccbd957725 100644
+--- a/fs/cachefiles/interface.c
++++ b/fs/cachefiles/interface.c
+@@ -270,7 +270,7 @@ static bool cachefiles_shorten_object(struct cachefiles_object *object,
+ /*
+  * Resize the backing object.
+  */
+-static void cachefiles_resize_cookie(struct netfs_cache_resources *cres,
++static void cachefiles_resize_cookie(struct fscache_resources *cres,
+ 				     loff_t new_size)
+ {
+ 	struct cachefiles_object *object = cachefiles_cres_object(cres);
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index 897cc01b8b56..be8e0367ca0f 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -134,13 +134,13 @@ struct cachefiles_req {
+ #include <trace/events/cachefiles.h>
+ 
+ static inline
+-struct file *cachefiles_cres_file(struct netfs_cache_resources *cres)
++struct file *cachefiles_cres_file(struct fscache_resources *cres)
+ {
+ 	return cres->cache_priv2;
+ }
+ 
+ static inline
+-struct cachefiles_object *cachefiles_cres_object(struct netfs_cache_resources *cres)
++struct cachefiles_object *cachefiles_cres_object(struct fscache_resources *cres)
+ {
+ 	return fscache_cres_cookie(cres)->cache_priv;
+ }
+@@ -229,7 +229,7 @@ extern void cachefiles_put_object(struct cachefiles_object *object,
+ /*
+  * io.c
+  */
+-extern bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
++extern bool cachefiles_begin_operation(struct fscache_resources *cres,
+ 				       enum fscache_want_state want_state);
+ extern int __cachefiles_prepare_write(struct cachefiles_object *object,
+ 				      struct file *file,
 diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 6931032b837c..2dce7af0fbcf 100644
+index ff4d8a309d51..9aace92a7503 100644
 --- a/fs/cachefiles/io.c
 +++ b/fs/cachefiles/io.c
-@@ -73,7 +73,7 @@ static void cachefiles_read_complete(struct kiocb *iocb, long ret)
- static int cachefiles_read(struct netfs_cache_resources *cres,
+@@ -70,7 +70,7 @@ static void cachefiles_read_complete(struct kiocb *iocb, long ret)
+ /*
+  * Initiate a read from the cache.
+  */
+-static int cachefiles_read(struct netfs_cache_resources *cres,
++static int cachefiles_read(struct fscache_resources *cres,
  			   loff_t start_pos,
  			   struct iov_iter *iter,
--			   enum netfs_read_from_hole read_hole,
-+			   enum fscache_read_from_hole read_hole,
- 			   fscache_io_terminated_t term_func,
- 			   void *term_func_priv)
+ 			   enum fscache_read_from_hole read_hole,
+@@ -194,7 +194,7 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
+  * Query the occupancy of the cache in a region, returning where the next chunk
+  * of data starts and how long it is.
+  */
+-static int cachefiles_query_occupancy(struct netfs_cache_resources *cres,
++static int cachefiles_query_occupancy(struct fscache_resources *cres,
+ 				      loff_t start, size_t len, size_t granularity,
+ 				      loff_t *_data_start, size_t *_data_len)
  {
-@@ -98,7 +98,7 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
- 	/* If the caller asked us to seek for data before doing the read, then
- 	 * we should do that now.  If we find a gap, we fill it with zeros.
- 	 */
--	if (read_hole != NETFS_READ_HOLE_IGNORE) {
-+	if (read_hole != FSCACHE_READ_HOLE_IGNORE) {
- 		loff_t off = start_pos, off2;
+@@ -367,7 +367,7 @@ int __cachefiles_write(struct cachefiles_object *object,
+ 	return ret;
+ }
  
- 		off2 = cachefiles_inject_read_error();
-@@ -116,7 +116,7 @@ static int cachefiles_read(struct netfs_cache_resources *cres,
- 			 * return success.
- 			 */
- 			ret = -ENODATA;
--			if (read_hole == NETFS_READ_HOLE_FAIL)
-+			if (read_hole == FSCACHE_READ_HOLE_FAIL)
- 				goto presubmission_error;
+-static int cachefiles_write(struct netfs_cache_resources *cres,
++static int cachefiles_write(struct fscache_resources *cres,
+ 			    loff_t start_pos,
+ 			    struct iov_iter *iter,
+ 			    fscache_io_terminated_t term_func,
+@@ -389,7 +389,7 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+  * Prepare a read operation, shortening it to a cached/uncached
+  * boundary as appropriate.
+  */
+-static enum fscache_io_source cachefiles_prepare_read(struct netfs_cache_resources *cres,
++static enum fscache_io_source cachefiles_prepare_read(struct fscache_resources *cres,
+ 					loff_t *_start, size_t *_len,
+ 					unsigned long *_flags, loff_t i_size)
+ {
+@@ -581,7 +581,7 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
+ 				    cachefiles_has_space_for_write);
+ }
  
- 			iov_iter_zero(len, iter);
+-static int cachefiles_prepare_write(struct netfs_cache_resources *cres,
++static int cachefiles_prepare_write(struct fscache_resources *cres,
+ 				    loff_t *_start, size_t *_len, loff_t i_size,
+ 				    bool no_space_allocated_yet)
+ {
+@@ -608,7 +608,7 @@ static int cachefiles_prepare_write(struct netfs_cache_resources *cres,
+ /*
+  * Clean up an operation.
+  */
+-static void cachefiles_end_operation(struct netfs_cache_resources *cres)
++static void cachefiles_end_operation(struct fscache_resources *cres)
+ {
+ 	struct file *file = cachefiles_cres_file(cres);
+ 
+@@ -629,7 +629,7 @@ static const struct fscache_ops cachefiles_fscache_ops = {
+ /*
+  * Open the cache file when beginning a cache operation.
+  */
+-bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
++bool cachefiles_begin_operation(struct fscache_resources *cres,
+ 				enum fscache_want_state want_state)
+ {
+ 	struct cachefiles_object *object = cachefiles_cres_object(cres);
 diff --git a/fs/cifs/fscache.c b/fs/cifs/fscache.c
-index a1751b956318..3145e0993313 100644
+index 3145e0993313..6d5431a6a9a0 100644
 --- a/fs/cifs/fscache.c
 +++ b/fs/cifs/fscache.c
-@@ -156,7 +156,7 @@ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = fscache_read(&cres, page_offset(page), &iter, NETFS_READ_HOLE_FAIL,
-+	ret = fscache_read(&cres, page_offset(page), &iter, FSCACHE_READ_HOLE_FAIL,
- 			   NULL, NULL);
- 	fscache_end_operation(&cres);
- 	return ret;
+@@ -140,7 +140,7 @@ void cifs_fscache_release_inode_cookie(struct inode *inode)
+  */
+ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 	struct fscache_cookie *cookie = cifs_inode_cookie(inode);
+ 	struct iov_iter iter;
+ 	struct bio_vec bvec[1];
+@@ -168,7 +168,7 @@ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
+ static int fscache_fallback_write_page(struct inode *inode, struct page *page,
+ 				       bool no_space_allocated_yet)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 	struct fscache_cookie *cookie = cifs_inode_cookie(inode);
+ 	struct iov_iter iter;
+ 	struct bio_vec bvec[1];
+@@ -229,7 +229,7 @@ int __cifs_fscache_query_occupancy(struct inode *inode,
+ 				   pgoff_t *_data_first,
+ 				   unsigned int *_data_nr_pages)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 	struct fscache_cookie *cookie = cifs_inode_cookie(inode);
+ 	loff_t start, data_start;
+ 	size_t len, data_len;
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index bf216478afa2..1cc0437eab50 100644
+index 1cc0437eab50..6fbdf067a669 100644
 --- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -195,7 +195,7 @@ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
- 				start + done, subreq->len);
+@@ -144,7 +144,7 @@ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
+ 	enum fscache_io_source source;
+ 	struct super_block *sb = rreq->mapping->host->i_sb;
+ 	struct netfs_io_subrequest *subreq;
+-	struct netfs_cache_resources *cres = &rreq->cache_resources;
++	struct fscache_resources *cres = &rreq->cache_resources;
+ 	struct iov_iter iter;
+ 	loff_t start = rreq->start;
+ 	size_t len = rreq->len;
+diff --git a/fs/fscache/io.c b/fs/fscache/io.c
+index 3ef93fdcb3b3..b328914c2ba5 100644
+--- a/fs/fscache/io.c
++++ b/fs/fscache/io.c
+@@ -20,7 +20,7 @@
+  * See if the target cache object is at the specified minimum state of
+  * accessibility yet, and if not, wait for it.
+  */
+-bool fscache_wait_for_operation(struct netfs_cache_resources *cres,
++bool fscache_wait_for_operation(struct fscache_resources *cres,
+ 				enum fscache_want_state want_state)
+ {
+ 	struct fscache_cookie *cookie = fscache_cres_cookie(cres);
+@@ -68,7 +68,7 @@ EXPORT_SYMBOL(fscache_wait_for_operation);
+  *
+  * Attaches the resources required to the operation resources record.
+  */
+-static int fscache_begin_operation(struct netfs_cache_resources *cres,
++static int fscache_begin_operation(struct fscache_resources *cres,
+ 				   struct fscache_cookie *cookie,
+ 				   enum fscache_want_state want_state,
+ 				   enum fscache_access_trace why)
+@@ -142,7 +142,7 @@ static int fscache_begin_operation(struct netfs_cache_resources *cres,
+ 	return -ENOBUFS;
+ }
  
- 		ret = fscache_read(cres, subreq->start, &iter,
--				   NETFS_READ_HOLE_FAIL,
-+				   FSCACHE_READ_HOLE_FAIL,
- 				   erofc_fscache_subreq_complete, subreq);
- 		if (ret == -EIOCBQUEUED)
- 			ret = 0;
+-int __fscache_begin_read_operation(struct netfs_cache_resources *cres,
++int __fscache_begin_read_operation(struct fscache_resources *cres,
+ 				   struct fscache_cookie *cookie)
+ {
+ 	return fscache_begin_operation(cres, cookie, FSCACHE_WANT_PARAMS,
+@@ -150,7 +150,7 @@ int __fscache_begin_read_operation(struct netfs_cache_resources *cres,
+ }
+ EXPORT_SYMBOL(__fscache_begin_read_operation);
+ 
+-int __fscache_begin_write_operation(struct netfs_cache_resources *cres,
++int __fscache_begin_write_operation(struct fscache_resources *cres,
+ 				    struct fscache_cookie *cookie)
+ {
+ 	return fscache_begin_operation(cres, cookie, FSCACHE_WANT_PARAMS,
+@@ -199,7 +199,7 @@ bool fscache_dirty_folio(struct address_space *mapping, struct folio *folio,
+ EXPORT_SYMBOL(fscache_dirty_folio);
+ 
+ struct fscache_write_request {
+-	struct netfs_cache_resources cache_resources;
++	struct fscache_resources cache_resources;
+ 	struct address_space	*mapping;
+ 	loff_t			start;
+ 	size_t			len;
+@@ -253,7 +253,7 @@ void __fscache_write_to_cache(struct fscache_cookie *cookie,
+ 			      bool cond)
+ {
+ 	struct fscache_write_request *wreq;
+-	struct netfs_cache_resources *cres;
++	struct fscache_resources *cres;
+ 	struct iov_iter iter;
+ 	int ret = -ENOBUFS;
+ 
+@@ -306,7 +306,7 @@ EXPORT_SYMBOL(__fscache_write_to_cache);
+  */
+ void __fscache_resize_cookie(struct fscache_cookie *cookie, loff_t new_size)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 
+ 	trace_fscache_resize(cookie, new_size);
+ 	if (fscache_begin_operation(&cres, cookie, FSCACHE_WANT_WRITE,
+diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
+index 0ce535852151..6bf215da4c93 100644
+--- a/fs/netfs/buffered_read.c
++++ b/fs/netfs/buffered_read.c
+@@ -97,7 +97,7 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
+ static void netfs_cache_expand_readahead(struct netfs_io_request *rreq,
+ 					 loff_t *_start, size_t *_len, loff_t i_size)
+ {
+-	struct netfs_cache_resources *cres = &rreq->cache_resources;
++	struct fscache_resources *cres = &rreq->cache_resources;
+ 
+ 	if (cres->ops && cres->ops->expand_readahead)
+ 		cres->ops->expand_readahead(cres, _start, _len, i_size);
 diff --git a/fs/netfs/io.c b/fs/netfs/io.c
-index 992f3eebd2ee..2fc211376dc2 100644
+index 2fc211376dc2..7fd2627e259a 100644
 --- a/fs/netfs/io.c
 +++ b/fs/netfs/io.c
-@@ -43,7 +43,7 @@ static void netfs_cache_read_terminated(void *priv, ssize_t transferred_or_error
-  */
- static void netfs_read_from_cache(struct netfs_io_request *rreq,
+@@ -45,7 +45,7 @@ static void netfs_read_from_cache(struct netfs_io_request *rreq,
  				  struct netfs_io_subrequest *subreq,
--				  enum netfs_read_from_hole read_hole)
-+				  enum fscache_read_from_hole read_hole)
+ 				  enum fscache_read_from_hole read_hole)
  {
- 	struct netfs_cache_resources *cres = &rreq->cache_resources;
+-	struct netfs_cache_resources *cres = &rreq->cache_resources;
++	struct fscache_resources *cres = &rreq->cache_resources;
  	struct iov_iter iter;
-@@ -251,7 +251,7 @@ static void netfs_rreq_short_read(struct netfs_io_request *rreq,
- 	netfs_get_subrequest(subreq, netfs_sreq_trace_get_short_read);
- 	atomic_inc(&rreq->nr_outstanding);
- 	if (subreq->source == FSCACHE_READ_FROM_CACHE)
--		netfs_read_from_cache(rreq, subreq, NETFS_READ_HOLE_CLEAR);
-+		netfs_read_from_cache(rreq, subreq, FSCACHE_READ_HOLE_CLEAR);
- 	else
- 		netfs_read_from_server(rreq, subreq);
- }
-@@ -580,7 +580,7 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
- 		netfs_read_from_server(rreq, subreq);
- 		break;
- 	case FSCACHE_READ_FROM_CACHE:
--		netfs_read_from_cache(rreq, subreq, NETFS_READ_HOLE_IGNORE);
-+		netfs_read_from_cache(rreq, subreq, FSCACHE_READ_HOLE_IGNORE);
- 		break;
- 	default:
- 		BUG();
+ 
+ 	netfs_stat(&netfs_n_rh_read);
+@@ -165,7 +165,7 @@ static void netfs_rreq_copy_terminated(void *priv, ssize_t transferred_or_error,
+  */
+ static void netfs_rreq_do_write_to_cache(struct netfs_io_request *rreq)
+ {
+-	struct netfs_cache_resources *cres = &rreq->cache_resources;
++	struct fscache_resources *cres = &rreq->cache_resources;
+ 	struct netfs_io_subrequest *subreq, *next, *p;
+ 	struct iov_iter iter;
+ 	int ret;
+@@ -484,7 +484,7 @@ static enum fscache_io_source netfs_cache_prepare_read(struct netfs_io_subreques
+ 						       loff_t i_size)
+ {
+ 	struct netfs_io_request *rreq = subreq->rreq;
+-	struct netfs_cache_resources *cres = &rreq->cache_resources;
++	struct fscache_resources *cres = &rreq->cache_resources;
+ 
+ 	if (cres->ops)
+ 		return cres->ops->prepare_read(cres, &subreq->start,
 diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index e861d7bae305..509236f8b750 100644
+index 509236f8b750..cea5f11c0af9 100644
 --- a/fs/nfs/fscache.c
 +++ b/fs/nfs/fscache.c
-@@ -258,7 +258,7 @@ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
- 	if (ret < 0)
- 		return ret;
+@@ -242,7 +242,7 @@ void nfs_fscache_release_file(struct inode *inode, struct file *filp)
+  */
+ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 	struct fscache_cookie *cookie = nfs_i_fscache(inode);
+ 	struct iov_iter iter;
+ 	struct bio_vec bvec[1];
+@@ -270,7 +270,7 @@ static int fscache_fallback_read_page(struct inode *inode, struct page *page)
+ static int fscache_fallback_write_page(struct inode *inode, struct page *page,
+ 				       bool no_space_allocated_yet)
+ {
+-	struct netfs_cache_resources cres;
++	struct fscache_resources cres;
+ 	struct fscache_cookie *cookie = nfs_i_fscache(inode);
+ 	struct iov_iter iter;
+ 	struct bio_vec bvec[1];
+diff --git a/include/linux/fscache-cache.h b/include/linux/fscache-cache.h
+index a174cedf4d90..a05ab349c26e 100644
+--- a/include/linux/fscache-cache.h
++++ b/include/linux/fscache-cache.h
+@@ -65,14 +65,14 @@ struct fscache_cache_ops {
+ 	void (*withdraw_cookie)(struct fscache_cookie *cookie);
  
--	ret = fscache_read(&cres, page_offset(page), &iter, NETFS_READ_HOLE_FAIL,
-+	ret = fscache_read(&cres, page_offset(page), &iter, FSCACHE_READ_HOLE_FAIL,
- 			   NULL, NULL);
- 	fscache_end_operation(&cres);
- 	return ret;
+ 	/* Change the size of a data object */
+-	void (*resize_cookie)(struct netfs_cache_resources *cres,
++	void (*resize_cookie)(struct fscache_resources *cres,
+ 			      loff_t new_size);
+ 
+ 	/* Invalidate an object */
+ 	bool (*invalidate_cookie)(struct fscache_cookie *cookie);
+ 
+ 	/* Begin an operation for the netfs lib */
+-	bool (*begin_operation)(struct netfs_cache_resources *cres,
++	bool (*begin_operation)(struct fscache_resources *cres,
+ 				enum fscache_want_state want_state);
+ 
+ 	/* Prepare to write to a live cache object */
+@@ -110,7 +110,7 @@ extern void fscache_end_cookie_access(struct fscache_cookie *cookie,
+ extern void fscache_cookie_lookup_negative(struct fscache_cookie *cookie);
+ extern void fscache_resume_after_invalidation(struct fscache_cookie *cookie);
+ extern void fscache_caching_failed(struct fscache_cookie *cookie);
+-extern bool fscache_wait_for_operation(struct netfs_cache_resources *cred,
++extern bool fscache_wait_for_operation(struct fscache_resources *cres,
+ 				       enum fscache_want_state state);
+ 
+ /**
+@@ -140,7 +140,7 @@ static inline void *fscache_get_key(struct fscache_cookie *cookie)
+ 		return cookie->key;
+ }
+ 
+-static inline struct fscache_cookie *fscache_cres_cookie(struct netfs_cache_resources *cres)
++static inline struct fscache_cookie *fscache_cres_cookie(struct fscache_resources *cres)
+ {
+ 	return cres->cache_priv;
+ }
 diff --git a/include/linux/fscache.h b/include/linux/fscache.h
-index ee8e14f142e8..80455e00c520 100644
+index d6546dc714b8..e955df30845b 100644
 --- a/include/linux/fscache.h
 +++ b/include/linux/fscache.h
-@@ -496,18 +496,18 @@ static inline void fscache_end_operation(struct netfs_cache_resources *cres)
-  * @read_hole indicates how a partially populated region in the cache should be
-  * handled.  It can be one of a number of settings:
-  *
-- *	NETFS_READ_HOLE_IGNORE - Just try to read (may return a short read).
-+ *	FSCACHE_READ_HOLE_IGNORE - Just try to read (may return a short read).
-  *
-- *	NETFS_READ_HOLE_CLEAR - Seek for data, clearing the part of the buffer
-+ *	FSCACHE_READ_HOLE_CLEAR - Seek for data, clearing the part of the buffer
-  *				skipped over, then do as for IGNORE.
-  *
-- *	NETFS_READ_HOLE_FAIL - Give ENODATA if we encounter a hole.
-+ *	FSCACHE_READ_HOLE_FAIL - Give ENODATA if we encounter a hole.
+@@ -169,8 +169,8 @@ extern void __fscache_unuse_cookie(struct fscache_cookie *, const void *, const
+ extern void __fscache_relinquish_cookie(struct fscache_cookie *, bool);
+ extern void __fscache_resize_cookie(struct fscache_cookie *, loff_t);
+ extern void __fscache_invalidate(struct fscache_cookie *, const void *, loff_t, unsigned int);
+-extern int __fscache_begin_read_operation(struct netfs_cache_resources *, struct fscache_cookie *);
+-extern int __fscache_begin_write_operation(struct netfs_cache_resources *, struct fscache_cookie *);
++extern int __fscache_begin_read_operation(struct fscache_resources *, struct fscache_cookie *);
++extern int __fscache_begin_write_operation(struct fscache_resources *, struct fscache_cookie *);
+ 
+ extern void __fscache_write_to_cache(struct fscache_cookie *, struct address_space *,
+ 				     loff_t, size_t, loff_t, fscache_io_terminated_t, void *,
+@@ -423,7 +423,7 @@ void fscache_invalidate(struct fscache_cookie *cookie,
+  * Returns a pointer to the operations table if usable or NULL if not.
   */
  static inline
- int fscache_read(struct netfs_cache_resources *cres,
+-const struct fscache_ops *fscache_operation_valid(const struct netfs_cache_resources *cres)
++const struct fscache_ops *fscache_operation_valid(const struct fscache_resources *cres)
+ {
+ 	return fscache_resources_valid(cres) ? cres->ops : NULL;
+ }
+@@ -450,7 +450,7 @@ const struct fscache_ops *fscache_operation_valid(const struct netfs_cache_resou
+  * * Other error code from the cache, such as -ENOMEM.
+  */
+ static inline
+-int fscache_begin_read_operation(struct netfs_cache_resources *cres,
++int fscache_begin_read_operation(struct fscache_resources *cres,
+ 				 struct fscache_cookie *cookie)
+ {
+ 	if (fscache_cookie_enabled(cookie))
+@@ -464,7 +464,7 @@ int fscache_begin_read_operation(struct netfs_cache_resources *cres,
+  *
+  * Clean up the resources at the end of the read request.
+  */
+-static inline void fscache_end_operation(struct netfs_cache_resources *cres)
++static inline void fscache_end_operation(struct fscache_resources *cres)
+ {
+ 	const struct fscache_ops *ops = fscache_operation_valid(cres);
+ 
+@@ -504,7 +504,7 @@ static inline void fscache_end_operation(struct netfs_cache_resources *cres)
+  *	FSCACHE_READ_HOLE_FAIL - Give ENODATA if we encounter a hole.
+  */
+ static inline
+-int fscache_read(struct netfs_cache_resources *cres,
++int fscache_read(struct fscache_resources *cres,
  		 loff_t start_pos,
  		 struct iov_iter *iter,
--		 enum netfs_read_from_hole read_hole,
-+		 enum fscache_read_from_hole read_hole,
- 		 fscache_io_terminated_t term_func,
- 		 void *term_func_priv)
+ 		 enum fscache_read_from_hole read_hole,
+@@ -535,7 +535,7 @@ int fscache_read(struct netfs_cache_resources *cres,
+  * * Other error code from the cache, such as -ENOMEM.
+  */
+ static inline
+-int fscache_begin_write_operation(struct netfs_cache_resources *cres,
++int fscache_begin_write_operation(struct fscache_resources *cres,
+ 				  struct fscache_cookie *cookie)
  {
+ 	if (fscache_cookie_enabled(cookie))
+@@ -563,7 +563,7 @@ int fscache_begin_write_operation(struct netfs_cache_resources *cres,
+  * error code otherwise.
+  */
+ static inline
+-int fscache_write(struct netfs_cache_resources *cres,
++int fscache_write(struct fscache_resources *cres,
+ 		  loff_t start_pos,
+ 		  struct iov_iter *iter,
+ 		  fscache_io_terminated_t term_func,
 diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index 2cac478607a8..998402e34c00 100644
+index 2ff3a65458a6..91a4382cbd1f 100644
 --- a/include/linux/netfs.h
 +++ b/include/linux/netfs.h
-@@ -221,10 +221,10 @@ struct netfs_request_ops {
+@@ -133,7 +133,7 @@ struct netfs_inode {
  /*
-  * How to handle reading from a hole.
+  * Resources required to do operations on a cache.
   */
--enum netfs_read_from_hole {
--	NETFS_READ_HOLE_IGNORE,
--	NETFS_READ_HOLE_CLEAR,
--	NETFS_READ_HOLE_FAIL,
-+enum fscache_read_from_hole {
-+	FSCACHE_READ_HOLE_IGNORE,
-+	FSCACHE_READ_HOLE_CLEAR,
-+	FSCACHE_READ_HOLE_FAIL,
- };
+-struct netfs_cache_resources {
++struct fscache_resources {
+ 	const struct fscache_ops	*ops;
+ 	void				*cache_priv;
+ 	void				*cache_priv2;
+@@ -177,7 +177,7 @@ struct netfs_io_request {
+ 	struct work_struct	work;
+ 	struct inode		*inode;		/* The file being accessed */
+ 	struct address_space	*mapping;	/* The mapping being accessed */
+-	struct netfs_cache_resources cache_resources;
++	struct fscache_resources cache_resources;
+ 	struct list_head	subrequests;	/* Contributory I/O operations */
+ 	void			*netfs_priv;	/* Private data for the netfs */
+ 	unsigned int		debug_id;
+@@ -233,10 +233,10 @@ enum fscache_read_from_hole {
+  */
+ struct fscache_ops {
+ 	/* End an operation */
+-	void (*end_operation)(struct netfs_cache_resources *cres);
++	void (*end_operation)(struct fscache_resources *cres);
  
- /*
-@@ -239,7 +239,7 @@ struct netfs_cache_ops {
- 	int (*read)(struct netfs_cache_resources *cres,
+ 	/* Read data from the cache */
+-	int (*read)(struct netfs_cache_resources *cres,
++	int (*read)(struct fscache_resources *cres,
  		    loff_t start_pos,
  		    struct iov_iter *iter,
--		    enum netfs_read_from_hole read_hole,
-+		    enum fscache_read_from_hole read_hole,
- 		    fscache_io_terminated_t term_func,
+ 		    enum fscache_read_from_hole read_hole,
+@@ -244,34 +244,34 @@ struct fscache_ops {
  		    void *term_func_priv);
  
+ 	/* Write data to the cache */
+-	int (*write)(struct netfs_cache_resources *cres,
++	int (*write)(struct fscache_resources *cres,
+ 		     loff_t start_pos,
+ 		     struct iov_iter *iter,
+ 		     fscache_io_terminated_t term_func,
+ 		     void *term_func_priv);
+ 
+ 	/* Expand readahead request */
+-	void (*expand_readahead)(struct netfs_cache_resources *cres,
++	void (*expand_readahead)(struct fscache_resources *cres,
+ 				 loff_t *_start, size_t *_len, loff_t i_size);
+ 
+ 	/* Prepare a read operation, shortening it to a cached/uncached
+ 	 * boundary as appropriate.
+ 	 */
+-	enum fscache_io_source (*prepare_read)(struct netfs_cache_resources *cres,
++	enum fscache_io_source (*prepare_read)(struct fscache_resources *cres,
+ 					     loff_t *_start, size_t *_len,
+ 					     unsigned long *_flags, loff_t i_size);
+ 
+ 	/* Prepare a write operation, working out what part of the write we can
+ 	 * actually do.
+ 	 */
+-	int (*prepare_write)(struct netfs_cache_resources *cres,
++	int (*prepare_write)(struct fscache_resources *cres,
+ 			     loff_t *_start, size_t *_len, loff_t i_size,
+ 			     bool no_space_allocated_yet);
+ 
+ 	/* Query the occupancy of the cache in a region, returning where the
+ 	 * next chunk of data starts and how long it is.
+ 	 */
+-	int (*query_occupancy)(struct netfs_cache_resources *cres,
++	int (*query_occupancy)(struct fscache_resources *cres,
+ 			       loff_t start, size_t len, size_t granularity,
+ 			       loff_t *_data_start, size_t *_data_len);
+ };
 -- 
 2.19.1.6.gb485710b
 
