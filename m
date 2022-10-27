@@ -4,31 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE132FA3744
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 949F1FA373E
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCV0nTbz3cFs
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:06 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCY0ntcz3bqn
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:09 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCJ3x4Mz2xs1
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:35:54 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAl7YM_1666859747;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAl7YM_1666859747)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCJ4Qshz30Ky
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:35:55 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R671e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAtIcr_1666859749;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAtIcr_1666859749)
           by smtp.aliyun-inc.com;
-          Thu, 27 Oct 2022 16:35:48 +0800
+          Thu, 27 Oct 2022 16:35:51 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com,
 	jlayton@kernel.org,
 	linux-cachefs@redhat.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 0/9] fscache,netfs: decouple raw fscache APIs from libnetfs
-Date: Thu, 27 Oct 2022 16:35:38 +0800
-Message-Id: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH 2/9] fscache,netfs: rename netfs_io_source as fscache_io_source
+Date: Thu, 27 Oct 2022 16:35:40 +0800
+Message-Id: <20221027083547.46933-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
+References: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -46,114 +48,363 @@ Cc: linux-fsdevel@vger.kernel.org, linux-cifs@vger.kernel.org, linux-nfs@vger.ke
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Git tree:
+Fscache is now also used for local fs (e.g. erofs) in on-demand read
+scenarios, which tends to access backing files with raw fscache API such
+as fscache_read() instead of libnetfs.  Thus we'd better make raw
+fscache APIs more neutral independent on libnetfs to facilitate those
+who are not using libnetfs yet.
 
-    https://github.com/lostjeffle/linux.git jingbo/clean-fscache-v1-clean-netfs
-
-Gitweb:
-
-    https://github.com/lostjeffle/linux/commits/jingbo/clean-fscache-v1-clean-netfs
-
-
-[Rationale]
-===========
-Fscache has been landed as a generic caching management framework in
-the Linux kernel for decades.  It aims to manage cache data availability
-or fetch data if needed.  Currently it's mainly used for network fses,
-but in principle the main caching subsystem can be used more widely.
-
-We do really like fscache framework and we believe it'd be better to
-reuse such framework if possible instead of duplicating other
-alternatives for better maintenance and testing.  Therefore for our
-container image use cases, we applied the existing fscache to implement
-on-demand read for erofs in the past months.  For more details, also see
-[1].
-
-In short, here each erofs filesystem is composed of multiple blobs (or
-devices).  Each blob corresponds to one fscache cookie to strictly
-follow on-disk format and implement the image downloading in a
-deterministic manner, which means it has a unique checksum and is signed
-by vendors.
-
-Data of each erofs inode can be scattered among multiple blobs (cookie)
-since erofs supports chunk-level deduplication.  In this case, each
-erofs inode can correspond to multiple cookies, and there's a logical to
-physical offset mapping between the logical offset in erofs inode and
-the physical offset in the backing file.
-
-As described above, per-cookie netfs model can not be used here
-directly.  Instead, we'd like to propose/decouple a simple set of raw
-fscache APIs, e.g. fscache_read(), to access cache for all fses to use.
-We believe it's useful since it's like the relationship between raw bio
-and iomap, both of which are useful for local fses.  However, after
-fscache/netfs rework, libnetfs is preferred to access fscache, making
-fscache closely coupled with libnetfs.
-
-Therefore, a more simple neutral raw fscache APIs is shown here which is
-independent to libnetfs for those who are not using libnetfs.
-
-
-[Patchset Organization]
-=======================
-patch 1: decouple prepare_read() from netfs_io_subrequest
-
-patch 2-9:
-All structures related to cache accessing will be transformed with
-"fscache_" prefix, and defined in fscache namespace.  The whole
-transition is divided into separate patches to facilitate code review,
-with each patch transforming one structure.
+Rename netfs_io_source as fscache_io_source.  This is a cleanup without
+logic change.
 
 It is worth noting that the structure declaration is temporarily placed
 in netfs.h, and will be moved to fscache.h when all related structures
-are transformed to "fscache_" prefixed finally.  The reason is that, in
+are transformed to "fscache_" prefix finally.  The reason is that, in
 the intermediate state during the transition, the declarations of
 related structures are scattered among fscache.h and netfs.h.  This will
 cause a bidirectional reference of these two headers, and compilation
 error then.  As a work around, keep the declaration in netfs.h
-temporarily, until all structures are transformed and then moved to
-fscache.h (in patch 9).
+temporarily.
 
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ fs/cachefiles/io.c                | 10 ++++----
+ fs/erofs/fscache.c                |  6 ++---
+ fs/netfs/io.c                     | 42 +++++++++++++++----------------
+ include/linux/netfs.h             | 14 +++++------
+ include/trace/events/cachefiles.h |  4 +--
+ include/trace/events/netfs.h      | 14 +++++------
+ 6 files changed, 45 insertions(+), 45 deletions(-)
 
-[Following cleanup for erofs]
-=============================
-We will also cleanup erofs based on fscache_read() so that it won't rely
-on netfs internals anymore. For example, erofs can implement its own
-request completion routine, so that it can get rid of reliance on
-netfs_io_request and netfs_io_subrequest.
-
-
-[1] https://lore.kernel.org/all/Yoj1AcHoBPqir++H@debian/
-
-
-Jingbo Xu (9):
-  fscache: decouple prepare_read() from netfs_io_subrequest
-  fscache,netfs: rename netfs_io_source as fscache_io_source
-  fscache,netfs: rename netfs_io_terminated_t as fscache_io_terminated_t
-  fscache,netfs: rename netfs_read_from_hole as fscache_read_from_hole
-  fscache,netfs: rename netfs_cache_ops as fscache_ops
-  fscache,netfs: rename netfs_cache_resources as fscache_resources
-  fscache,netfs: define flags for prepare_read()
-  fscache,netfs: move PageFsCache() family helpers to fscache.h
-  fscache,netfs: move "fscache_" prefixed structures to fscache.h
-
- fs/afs/internal.h                 |   2 +-
- fs/cachefiles/interface.c         |   2 +-
- fs/cachefiles/internal.h          |   8 +-
- fs/cachefiles/io.c                |  84 ++++++------
- fs/cifs/fscache.c                 |   8 +-
- fs/erofs/fscache.c                |  17 ++-
- fs/fscache/io.c                   |  18 +--
- fs/netfs/buffered_read.c          |   2 +-
- fs/netfs/io.c                     |  67 +++++-----
- fs/nfs/fscache.c                  |   6 +-
- fs/nfs/fscache.h                  |   2 +-
- include/linux/fscache-cache.h     |   8 +-
- include/linux/fscache.h           | 211 +++++++++++++++++++++++++++---
- include/linux/netfs.h             | 173 +-----------------------
- include/trace/events/cachefiles.h |  27 ++--
- include/trace/events/netfs.h      |  14 +-
- 16 files changed, 330 insertions(+), 319 deletions(-)
-
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index d5b6a2a75161..9214060b4781 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -389,7 +389,7 @@ static int cachefiles_write(struct netfs_cache_resources *cres,
+  * Prepare a read operation, shortening it to a cached/uncached
+  * boundary as appropriate.
+  */
+-static enum netfs_io_source cachefiles_prepare_read(struct netfs_cache_resources *cres,
++static enum fscache_io_source cachefiles_prepare_read(struct netfs_cache_resources *cres,
+ 					loff_t *_start, size_t *_len,
+ 					unsigned long *_flags, loff_t i_size)
+ {
+@@ -399,7 +399,7 @@ static enum netfs_io_source cachefiles_prepare_read(struct netfs_cache_resources
+ 	struct fscache_cookie *cookie = fscache_cres_cookie(cres);
+ 	const struct cred *saved_cred;
+ 	struct file *file = cachefiles_cres_file(cres);
+-	enum netfs_io_source ret = NETFS_DOWNLOAD_FROM_SERVER;
++	enum fscache_io_source ret = FSCACHE_DOWNLOAD_FROM_SERVER;
+ 	loff_t start = *_start;
+ 	size_t len = *_len;
+ 	loff_t off, to;
+@@ -409,7 +409,7 @@ static enum netfs_io_source cachefiles_prepare_read(struct netfs_cache_resources
+ 	_enter("%zx @%llx/%llx", len, start, i_size);
+ 
+ 	if (start >= i_size) {
+-		ret = NETFS_FILL_WITH_ZEROES;
++		ret = FSCACHE_FILL_WITH_ZEROES;
+ 		why = cachefiles_trace_read_after_eof;
+ 		goto out_no_object;
+ 	}
+@@ -483,7 +483,7 @@ static enum netfs_io_source cachefiles_prepare_read(struct netfs_cache_resources
+ 	}
+ 
+ 	why = cachefiles_trace_read_have_data;
+-	ret = NETFS_READ_FROM_CACHE;
++	ret = FSCACHE_READ_FROM_CACHE;
+ 	goto out;
+ 
+ download_and_store:
+@@ -494,7 +494,7 @@ static enum netfs_io_source cachefiles_prepare_read(struct netfs_cache_resources
+ 			__clear_bit(NETFS_SREQ_ONDEMAND, _flags);
+ 			goto retry;
+ 		}
+-		ret = NETFS_INVALID_READ;
++		ret = FSCACHE_INVALID_READ;
+ 	}
+ out:
+ 	cachefiles_end_secure(cache, saved_cred);
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index a4013f9bdb5c..bf216478afa2 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -141,7 +141,7 @@ static void erofc_fscache_subreq_complete(void *priv,
+ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
+ 				struct netfs_io_request *rreq, loff_t pstart)
+ {
+-	enum netfs_io_source source;
++	enum fscache_io_source source;
+ 	struct super_block *sb = rreq->mapping->host->i_sb;
+ 	struct netfs_io_subrequest *subreq;
+ 	struct netfs_cache_resources *cres = &rreq->cache_resources;
+@@ -179,8 +179,8 @@ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
+ 		source = cres->ops->prepare_read(cres, &subreq->start,
+ 				&subreq->len, &subreq->flags, LLONG_MAX);
+ 		if (WARN_ON(subreq->len == 0))
+-			source = NETFS_INVALID_READ;
+-		if (source != NETFS_READ_FROM_CACHE) {
++			source = FSCACHE_INVALID_READ;
++		if (source != FSCACHE_READ_FROM_CACHE) {
+ 			erofs_err(sb, "failed to fscache prepare_read (source %d)",
+ 				  source);
+ 			ret = -EIO;
+diff --git a/fs/netfs/io.c b/fs/netfs/io.c
+index 297423220fb1..992f3eebd2ee 100644
+--- a/fs/netfs/io.c
++++ b/fs/netfs/io.c
+@@ -250,7 +250,7 @@ static void netfs_rreq_short_read(struct netfs_io_request *rreq,
+ 
+ 	netfs_get_subrequest(subreq, netfs_sreq_trace_get_short_read);
+ 	atomic_inc(&rreq->nr_outstanding);
+-	if (subreq->source == NETFS_READ_FROM_CACHE)
++	if (subreq->source == FSCACHE_READ_FROM_CACHE)
+ 		netfs_read_from_cache(rreq, subreq, NETFS_READ_HOLE_CLEAR);
+ 	else
+ 		netfs_read_from_server(rreq, subreq);
+@@ -276,9 +276,9 @@ static bool netfs_rreq_perform_resubmissions(struct netfs_io_request *rreq)
+ 	__clear_bit(NETFS_RREQ_INCOMPLETE_IO, &rreq->flags);
+ 	list_for_each_entry(subreq, &rreq->subrequests, rreq_link) {
+ 		if (subreq->error) {
+-			if (subreq->source != NETFS_READ_FROM_CACHE)
++			if (subreq->source != FSCACHE_READ_FROM_CACHE)
+ 				break;
+-			subreq->source = NETFS_DOWNLOAD_FROM_SERVER;
++			subreq->source = FSCACHE_DOWNLOAD_FROM_SERVER;
+ 			subreq->error = 0;
+ 			netfs_stat(&netfs_n_rh_download_instead);
+ 			trace_netfs_sreq(subreq, netfs_sreq_trace_download_instead);
+@@ -310,7 +310,7 @@ static void netfs_rreq_is_still_valid(struct netfs_io_request *rreq)
+ 		return;
+ 
+ 	list_for_each_entry(subreq, &rreq->subrequests, rreq_link) {
+-		if (subreq->source == NETFS_READ_FROM_CACHE) {
++		if (subreq->source == FSCACHE_READ_FROM_CACHE) {
+ 			subreq->error = -ESTALE;
+ 			__set_bit(NETFS_RREQ_INCOMPLETE_IO, &rreq->flags);
+ 		}
+@@ -401,10 +401,10 @@ void netfs_subreq_terminated(struct netfs_io_subrequest *subreq,
+ 	       transferred_or_error);
+ 
+ 	switch (subreq->source) {
+-	case NETFS_READ_FROM_CACHE:
++	case FSCACHE_READ_FROM_CACHE:
+ 		netfs_stat(&netfs_n_rh_read_done);
+ 		break;
+-	case NETFS_DOWNLOAD_FROM_SERVER:
++	case FSCACHE_DOWNLOAD_FROM_SERVER:
+ 		netfs_stat(&netfs_n_rh_download_done);
+ 		break;
+ 	default:
+@@ -468,7 +468,7 @@ void netfs_subreq_terminated(struct netfs_io_subrequest *subreq,
+ 	goto out;
+ 
+ failed:
+-	if (subreq->source == NETFS_READ_FROM_CACHE) {
++	if (subreq->source == FSCACHE_READ_FROM_CACHE) {
+ 		netfs_stat(&netfs_n_rh_read_failed);
+ 		set_bit(NETFS_RREQ_INCOMPLETE_IO, &rreq->flags);
+ 	} else {
+@@ -480,7 +480,7 @@ void netfs_subreq_terminated(struct netfs_io_subrequest *subreq,
+ }
+ EXPORT_SYMBOL(netfs_subreq_terminated);
+ 
+-static enum netfs_io_source netfs_cache_prepare_read(struct netfs_io_subrequest *subreq,
++static enum fscache_io_source netfs_cache_prepare_read(struct netfs_io_subrequest *subreq,
+ 						       loff_t i_size)
+ {
+ 	struct netfs_io_request *rreq = subreq->rreq;
+@@ -490,26 +490,26 @@ static enum netfs_io_source netfs_cache_prepare_read(struct netfs_io_subrequest
+ 		return cres->ops->prepare_read(cres, &subreq->start,
+ 				&subreq->len, &subreq->flags, i_size);
+ 	if (subreq->start >= rreq->i_size)
+-		return NETFS_FILL_WITH_ZEROES;
+-	return NETFS_DOWNLOAD_FROM_SERVER;
++		return FSCACHE_FILL_WITH_ZEROES;
++	return FSCACHE_DOWNLOAD_FROM_SERVER;
+ }
+ 
+ /*
+  * Work out what sort of subrequest the next one will be.
+  */
+-static enum netfs_io_source
++static enum fscache_io_source
+ netfs_rreq_prepare_read(struct netfs_io_request *rreq,
+ 			struct netfs_io_subrequest *subreq)
+ {
+-	enum netfs_io_source source;
++	enum fscache_io_source source;
+ 
+ 	_enter("%llx-%llx,%llx", subreq->start, subreq->start + subreq->len, rreq->i_size);
+ 
+ 	source = netfs_cache_prepare_read(subreq, rreq->i_size);
+-	if (source == NETFS_INVALID_READ)
++	if (source == FSCACHE_INVALID_READ)
+ 		goto out;
+ 
+-	if (source == NETFS_DOWNLOAD_FROM_SERVER) {
++	if (source == FSCACHE_DOWNLOAD_FROM_SERVER) {
+ 		/* Call out to the netfs to let it shrink the request to fit
+ 		 * its own I/O sizes and boundaries.  If it shinks it here, it
+ 		 * will be called again to make simultaneous calls; if it wants
+@@ -521,13 +521,13 @@ netfs_rreq_prepare_read(struct netfs_io_request *rreq,
+ 
+ 		if (rreq->netfs_ops->clamp_length &&
+ 		    !rreq->netfs_ops->clamp_length(subreq)) {
+-			source = NETFS_INVALID_READ;
++			source = FSCACHE_INVALID_READ;
+ 			goto out;
+ 		}
+ 	}
+ 
+ 	if (WARN_ON(subreq->len == 0))
+-		source = NETFS_INVALID_READ;
++		source = FSCACHE_INVALID_READ;
+ 
+ out:
+ 	subreq->source = source;
+@@ -542,7 +542,7 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
+ 				    unsigned int *_debug_index)
+ {
+ 	struct netfs_io_subrequest *subreq;
+-	enum netfs_io_source source;
++	enum fscache_io_source source;
+ 
+ 	subreq = netfs_alloc_subrequest(rreq);
+ 	if (!subreq)
+@@ -564,7 +564,7 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
+ 	 * again and ask it to download the next piece.
+ 	 */
+ 	source = netfs_rreq_prepare_read(rreq, subreq);
+-	if (source == NETFS_INVALID_READ)
++	if (source == FSCACHE_INVALID_READ)
+ 		goto subreq_failed;
+ 
+ 	atomic_inc(&rreq->nr_outstanding);
+@@ -573,13 +573,13 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
+ 
+ 	trace_netfs_sreq(subreq, netfs_sreq_trace_submit);
+ 	switch (source) {
+-	case NETFS_FILL_WITH_ZEROES:
++	case FSCACHE_FILL_WITH_ZEROES:
+ 		netfs_fill_with_zeroes(rreq, subreq);
+ 		break;
+-	case NETFS_DOWNLOAD_FROM_SERVER:
++	case FSCACHE_DOWNLOAD_FROM_SERVER:
+ 		netfs_read_from_server(rreq, subreq);
+ 		break;
+-	case NETFS_READ_FROM_CACHE:
++	case FSCACHE_READ_FROM_CACHE:
+ 		netfs_read_from_cache(rreq, subreq, NETFS_READ_HOLE_IGNORE);
+ 		break;
+ 	default:
+diff --git a/include/linux/netfs.h b/include/linux/netfs.h
+index b8171b3b9e2d..4cd7341c79b4 100644
+--- a/include/linux/netfs.h
++++ b/include/linux/netfs.h
+@@ -108,11 +108,11 @@ static inline int wait_on_page_fscache_killable(struct page *page)
+ 	return folio_wait_private_2_killable(page_folio(page));
+ }
+ 
+-enum netfs_io_source {
+-	NETFS_FILL_WITH_ZEROES,
+-	NETFS_DOWNLOAD_FROM_SERVER,
+-	NETFS_READ_FROM_CACHE,
+-	NETFS_INVALID_READ,
++enum fscache_io_source {
++	FSCACHE_FILL_WITH_ZEROES,
++	FSCACHE_DOWNLOAD_FROM_SERVER,
++	FSCACHE_READ_FROM_CACHE,
++	FSCACHE_INVALID_READ,
+ } __mode(byte);
+ 
+ typedef void (*netfs_io_terminated_t)(void *priv, ssize_t transferred_or_error,
+@@ -153,7 +153,7 @@ struct netfs_io_subrequest {
+ 	refcount_t		ref;
+ 	short			error;		/* 0 or error that occurred */
+ 	unsigned short		debug_index;	/* Index in list (for debugging output) */
+-	enum netfs_io_source	source;		/* Where to read from/write to */
++	enum fscache_io_source	source;		/* Where to read from/write to */
+ 	unsigned long		flags;
+ #define NETFS_SREQ_COPY_TO_CACHE	0	/* Set if should copy the data to the cache */
+ #define NETFS_SREQ_CLEAR_TAIL		1	/* Set if the rest of the read should be cleared */
+@@ -257,7 +257,7 @@ struct netfs_cache_ops {
+ 	/* Prepare a read operation, shortening it to a cached/uncached
+ 	 * boundary as appropriate.
+ 	 */
+-	enum netfs_io_source (*prepare_read)(struct netfs_cache_resources *cres,
++	enum fscache_io_source (*prepare_read)(struct netfs_cache_resources *cres,
+ 					     loff_t *_start, size_t *_len,
+ 					     unsigned long *_flags, loff_t i_size);
+ 
+diff --git a/include/trace/events/cachefiles.h b/include/trace/events/cachefiles.h
+index 62da0596f65b..cb39fa750735 100644
+--- a/include/trace/events/cachefiles.h
++++ b/include/trace/events/cachefiles.h
+@@ -431,7 +431,7 @@ TRACE_EVENT(cachefiles_prep_read,
+ 	    TP_PROTO(loff_t start,
+ 		     size_t len,
+ 		     unsigned short flags,
+-		     enum netfs_io_source source,
++		     enum fscache_io_source source,
+ 		     enum cachefiles_prepare_read_trace why,
+ 		     ino_t cache_inode),
+ 
+@@ -439,7 +439,7 @@ TRACE_EVENT(cachefiles_prep_read,
+ 
+ 	    TP_STRUCT__entry(
+ 		    __field(unsigned short,		flags		)
+-		    __field(enum netfs_io_source,	source		)
++		    __field(enum fscache_io_source,	source		)
+ 		    __field(enum cachefiles_prepare_read_trace,	why	)
+ 		    __field(size_t,			len		)
+ 		    __field(loff_t,			start		)
+diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
+index beec534cbaab..abf506453125 100644
+--- a/include/trace/events/netfs.h
++++ b/include/trace/events/netfs.h
+@@ -36,10 +36,10 @@
+ 	E_(netfs_rreq_trace_unmark,		"UNMARK ")
+ 
+ #define netfs_sreq_sources					\
+-	EM(NETFS_FILL_WITH_ZEROES,		"ZERO")		\
+-	EM(NETFS_DOWNLOAD_FROM_SERVER,		"DOWN")		\
+-	EM(NETFS_READ_FROM_CACHE,		"READ")		\
+-	E_(NETFS_INVALID_READ,			"INVL")		\
++	EM(FSCACHE_FILL_WITH_ZEROES,		"ZERO")		\
++	EM(FSCACHE_DOWNLOAD_FROM_SERVER,	"DOWN")		\
++	EM(FSCACHE_READ_FROM_CACHE,		"READ")		\
++	E_(FSCACHE_INVALID_READ,		"INVL")		\
+ 
+ #define netfs_sreq_traces					\
+ 	EM(netfs_sreq_trace_download_instead,	"RDOWN")	\
+@@ -195,7 +195,7 @@ TRACE_EVENT(netfs_sreq,
+ 		    __field(unsigned short,		index		)
+ 		    __field(short,			error		)
+ 		    __field(unsigned short,		flags		)
+-		    __field(enum netfs_io_source,	source		)
++		    __field(enum fscache_io_source,	source		)
+ 		    __field(enum netfs_sreq_trace,	what		)
+ 		    __field(size_t,			len		)
+ 		    __field(size_t,			transferred	)
+@@ -235,7 +235,7 @@ TRACE_EVENT(netfs_failure,
+ 		    __field(short,			index		)
+ 		    __field(short,			error		)
+ 		    __field(unsigned short,		flags		)
+-		    __field(enum netfs_io_source,	source		)
++		    __field(enum fscache_io_source,	source		)
+ 		    __field(enum netfs_failure,		what		)
+ 		    __field(size_t,			len		)
+ 		    __field(size_t,			transferred	)
+@@ -247,7 +247,7 @@ TRACE_EVENT(netfs_failure,
+ 		    __entry->index	= sreq ? sreq->debug_index : -1;
+ 		    __entry->error	= error;
+ 		    __entry->flags	= sreq ? sreq->flags : 0;
+-		    __entry->source	= sreq ? sreq->source : NETFS_INVALID_READ;
++		    __entry->source	= sreq ? sreq->source : FSCACHE_INVALID_READ;
+ 		    __entry->what	= what;
+ 		    __entry->len	= sreq ? sreq->len : rreq->len;
+ 		    __entry->transferred = sreq ? sreq->transferred : 0;
 -- 
 2.19.1.6.gb485710b
 
