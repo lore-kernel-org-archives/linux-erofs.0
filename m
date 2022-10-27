@@ -4,30 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E85F4C38A2D
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07903C38A2D
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 08:36:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCv3Wwdz3cH0
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.18; helo=out199-18.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out199-18.us.a.mail.aliyun.com (out199-18.us.a.mail.aliyun.com [47.90.199.18])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4MyfCy493sz3cD6
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Oct 2022 19:36:30 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.2; helo=out199-2.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out199-2.us.a.mail.aliyun.com (out199-2.us.a.mail.aliyun.com [47.90.199.2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCR2kzRz3cCX
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:36:02 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAtIeX_1666859754;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAtIeX_1666859754)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4MyfCX1n2Rz3cDm
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Oct 2022 19:36:07 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VTAlX3P_1666859759;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTAlX3P_1666859759)
           by smtp.aliyun-inc.com;
-          Thu, 27 Oct 2022 16:35:55 +0800
+          Thu, 27 Oct 2022 16:36:00 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: dhowells@redhat.com,
 	jlayton@kernel.org,
 	linux-cachefs@redhat.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 5/9] fscache,netfs: rename netfs_cache_ops as fscache_ops
-Date: Thu, 27 Oct 2022 16:35:43 +0800
-Message-Id: <20221027083547.46933-6-jefflexu@linux.alibaba.com>
+Subject: [PATCH 9/9] fscache,netfs: move "fscache_" prefixed structures to fscache.h
+Date: Thu, 27 Oct 2022 16:35:47 +0800
+Message-Id: <20221027083547.46933-10-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
 References: <20221027083547.46933-1-jefflexu@linux.alibaba.com>
@@ -48,102 +48,268 @@ Cc: linux-fsdevel@vger.kernel.org, linux-cifs@vger.kernel.org, linux-nfs@vger.ke
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Rename netfs_cache_ops as fscache_ops to make raw fscache APIs more
-neutral independent on libnetfs.
+Since all related structures has been transformed with "fscache_"
+prefix, move all these structures to fscache.h as a final cleanup.
+
+Besides, make netfs.h include fscache.h rather than the other way
+around.  This is an intuitive change since libnetfs lives one layer
+above fscache, accessing backing files with facache.
 
 This is a cleanup without logic change.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/cachefiles/io.c      | 4 ++--
- include/linux/fscache.h | 8 ++++----
- include/linux/netfs.h   | 4 ++--
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ fs/afs/internal.h       |  2 +-
+ fs/erofs/fscache.c      |  1 +
+ fs/nfs/fscache.h        |  2 +-
+ include/linux/fscache.h | 80 ++++++++++++++++++++++++++++++++++++++++-
+ include/linux/netfs.h   | 80 +----------------------------------------
+ 5 files changed, 83 insertions(+), 82 deletions(-)
 
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 2dce7af0fbcf..ff4d8a309d51 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -617,7 +617,7 @@ static void cachefiles_end_operation(struct netfs_cache_resources *cres)
- 	fscache_end_cookie_access(fscache_cres_cookie(cres), fscache_access_io_end);
- }
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 723d162078a3..5d1314265e3d 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -14,7 +14,7 @@
+ #include <linux/key.h>
+ #include <linux/workqueue.h>
+ #include <linux/sched.h>
+-#include <linux/fscache.h>
++#include <linux/netfs.h>
+ #include <linux/backing-dev.h>
+ #include <linux/uuid.h>
+ #include <linux/mm_types.h>
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index e30a42a35ae7..69531be66b28 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -4,6 +4,7 @@
+  * Copyright (C) 2022, Bytedance Inc. All rights reserved.
+  */
+ #include <linux/fscache.h>
++#include <linux/netfs.h>
+ #include "internal.h"
  
--static const struct netfs_cache_ops cachefiles_netfs_cache_ops = {
-+static const struct fscache_ops cachefiles_fscache_ops = {
- 	.end_operation		= cachefiles_end_operation,
- 	.read			= cachefiles_read,
- 	.write			= cachefiles_write,
-@@ -635,7 +635,7 @@ bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
- 	struct cachefiles_object *object = cachefiles_cres_object(cres);
+ static DEFINE_MUTEX(erofs_domain_list_lock);
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 2a37af880978..a0715f83a529 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -12,7 +12,7 @@
+ #include <linux/nfs_fs.h>
+ #include <linux/nfs_mount.h>
+ #include <linux/nfs4_mount.h>
+-#include <linux/fscache.h>
++#include <linux/netfs.h>
+ #include <linux/iversion.h>
  
- 	if (!cachefiles_cres_file(cres)) {
--		cres->ops = &cachefiles_netfs_cache_ops;
-+		cres->ops = &cachefiles_fscache_ops;
- 		if (object->file) {
- 			spin_lock(&object->lock);
- 			if (!cres->cache_priv2 && object->file)
+ #ifdef CONFIG_NFS_FSCACHE
 diff --git a/include/linux/fscache.h b/include/linux/fscache.h
-index 80455e00c520..d6546dc714b8 100644
+index 034d009c0de7..457226a396d2 100644
 --- a/include/linux/fscache.h
 +++ b/include/linux/fscache.h
-@@ -423,7 +423,7 @@ void fscache_invalidate(struct fscache_cookie *cookie,
-  * Returns a pointer to the operations table if usable or NULL if not.
-  */
- static inline
--const struct netfs_cache_ops *fscache_operation_valid(const struct netfs_cache_resources *cres)
-+const struct fscache_ops *fscache_operation_valid(const struct netfs_cache_resources *cres)
- {
- 	return fscache_resources_valid(cres) ? cres->ops : NULL;
- }
-@@ -466,7 +466,7 @@ int fscache_begin_read_operation(struct netfs_cache_resources *cres,
-  */
- static inline void fscache_end_operation(struct netfs_cache_resources *cres)
- {
--	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
-+	const struct fscache_ops *ops = fscache_operation_valid(cres);
+@@ -15,7 +15,6 @@
+ #define _LINUX_FSCACHE_H
  
- 	if (ops)
- 		ops->end_operation(cres);
-@@ -511,7 +511,7 @@ int fscache_read(struct netfs_cache_resources *cres,
- 		 fscache_io_terminated_t term_func,
- 		 void *term_func_priv)
- {
--	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
-+	const struct fscache_ops *ops = fscache_operation_valid(cres);
- 	return ops->read(cres, start_pos, iter, read_hole,
- 			 term_func, term_func_priv);
- }
-@@ -569,7 +569,7 @@ int fscache_write(struct netfs_cache_resources *cres,
- 		  fscache_io_terminated_t term_func,
- 		  void *term_func_priv)
- {
--	const struct netfs_cache_ops *ops = fscache_operation_valid(cres);
-+	const struct fscache_ops *ops = fscache_operation_valid(cres);
- 	return ops->write(cres, start_pos, iter, term_func, term_func_priv);
- }
+ #include <linux/fs.h>
+-#include <linux/netfs.h>
+ #include <linux/writeback.h>
+ #include <linux/pagemap.h>
  
+@@ -151,6 +150,85 @@ struct fscache_cookie {
+ #define FSCACHE_REQ_COPY_TO_CACHE	0	/* Set if should copy the data to the cache */
+ #define FSCACHE_REQ_ONDEMAND		1	/* Set if it's from on-demand read mode */
+ 
++enum fscache_io_source {
++	FSCACHE_FILL_WITH_ZEROES,
++	FSCACHE_DOWNLOAD_FROM_SERVER,
++	FSCACHE_READ_FROM_CACHE,
++	FSCACHE_INVALID_READ,
++} __mode(byte);
++
++typedef void (*fscache_io_terminated_t)(void *priv, ssize_t transferred_or_error,
++				      bool was_async);
++
++/*
++ * Resources required to do operations on a cache.
++ */
++struct fscache_resources {
++	const struct fscache_ops	*ops;
++	void				*cache_priv;
++	void				*cache_priv2;
++	unsigned int			debug_id;	/* Cookie debug ID */
++	unsigned int			inval_counter;	/* object->inval_counter at begin_op */
++};
++
++/*
++ * How to handle reading from a hole.
++ */
++enum fscache_read_from_hole {
++	FSCACHE_READ_HOLE_IGNORE,
++	FSCACHE_READ_HOLE_CLEAR,
++	FSCACHE_READ_HOLE_FAIL,
++};
++
++/*
++ * Table of operations for access to a cache.  This is obtained by
++ * rreq->ops->begin_cache_operation().
++ */
++struct fscache_ops {
++	/* End an operation */
++	void (*end_operation)(struct fscache_resources *cres);
++
++	/* Read data from the cache */
++	int (*read)(struct fscache_resources *cres,
++		    loff_t start_pos,
++		    struct iov_iter *iter,
++		    enum fscache_read_from_hole read_hole,
++		    fscache_io_terminated_t term_func,
++		    void *term_func_priv);
++
++	/* Write data to the cache */
++	int (*write)(struct fscache_resources *cres,
++		     loff_t start_pos,
++		     struct iov_iter *iter,
++		     fscache_io_terminated_t term_func,
++		     void *term_func_priv);
++
++	/* Expand readahead request */
++	void (*expand_readahead)(struct fscache_resources *cres,
++				 loff_t *_start, size_t *_len, loff_t i_size);
++
++	/* Prepare a read operation, shortening it to a cached/uncached
++	 * boundary as appropriate.
++	 */
++	enum fscache_io_source (*prepare_read)(struct fscache_resources *cres,
++					     loff_t *_start, size_t *_len,
++					     unsigned long *_flags, loff_t i_size);
++
++	/* Prepare a write operation, working out what part of the write we can
++	 * actually do.
++	 */
++	int (*prepare_write)(struct fscache_resources *cres,
++			     loff_t *_start, size_t *_len, loff_t i_size,
++			     bool no_space_allocated_yet);
++
++	/* Query the occupancy of the cache in a region, returning where the
++	 * next chunk of data starts and how long it is.
++	 */
++	int (*query_occupancy)(struct fscache_resources *cres,
++			       loff_t start, size_t len, size_t granularity,
++			       loff_t *_data_start, size_t *_data_len);
++};
++
+ /*
+  * slow-path functions for when there is actually caching available, and the
+  * netfs does actually have a valid token
 diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index 998402e34c00..2ff3a65458a6 100644
+index 2ad4e1e88106..1977f953633a 100644
 --- a/include/linux/netfs.h
 +++ b/include/linux/netfs.h
-@@ -134,7 +134,7 @@ struct netfs_inode {
-  * Resources required to do operations on a cache.
-  */
- struct netfs_cache_resources {
--	const struct netfs_cache_ops	*ops;
-+	const struct fscache_ops	*ops;
- 	void				*cache_priv;
- 	void				*cache_priv2;
- 	unsigned int			debug_id;	/* Cookie debug ID */
-@@ -231,7 +231,7 @@ enum fscache_read_from_hole {
-  * Table of operations for access to a cache.  This is obtained by
-  * rreq->ops->begin_cache_operation().
-  */
--struct netfs_cache_ops {
-+struct fscache_ops {
- 	/* End an operation */
- 	void (*end_operation)(struct netfs_cache_resources *cres);
+@@ -16,19 +16,10 @@
  
+ #include <linux/workqueue.h>
+ #include <linux/fs.h>
++#include <linux/fscache.h>
+ 
+ enum netfs_sreq_ref_trace;
+ 
+-enum fscache_io_source {
+-	FSCACHE_FILL_WITH_ZEROES,
+-	FSCACHE_DOWNLOAD_FROM_SERVER,
+-	FSCACHE_READ_FROM_CACHE,
+-	FSCACHE_INVALID_READ,
+-} __mode(byte);
+-
+-typedef void (*fscache_io_terminated_t)(void *priv, ssize_t transferred_or_error,
+-				      bool was_async);
+-
+ /*
+  * Per-inode context.  This wraps the VFS inode.
+  */
+@@ -41,17 +32,6 @@ struct netfs_inode {
+ 	loff_t			remote_i_size;	/* Size of the remote file */
+ };
+ 
+-/*
+- * Resources required to do operations on a cache.
+- */
+-struct fscache_resources {
+-	const struct fscache_ops	*ops;
+-	void				*cache_priv;
+-	void				*cache_priv2;
+-	unsigned int			debug_id;	/* Cookie debug ID */
+-	unsigned int			inval_counter;	/* object->inval_counter at begin_op */
+-};
+-
+ /*
+  * Descriptor for a single component subrequest.
+  */
+@@ -128,64 +108,6 @@ struct netfs_request_ops {
+ 	void (*done)(struct netfs_io_request *rreq);
+ };
+ 
+-/*
+- * How to handle reading from a hole.
+- */
+-enum fscache_read_from_hole {
+-	FSCACHE_READ_HOLE_IGNORE,
+-	FSCACHE_READ_HOLE_CLEAR,
+-	FSCACHE_READ_HOLE_FAIL,
+-};
+-
+-/*
+- * Table of operations for access to a cache.  This is obtained by
+- * rreq->ops->begin_cache_operation().
+- */
+-struct fscache_ops {
+-	/* End an operation */
+-	void (*end_operation)(struct fscache_resources *cres);
+-
+-	/* Read data from the cache */
+-	int (*read)(struct fscache_resources *cres,
+-		    loff_t start_pos,
+-		    struct iov_iter *iter,
+-		    enum fscache_read_from_hole read_hole,
+-		    fscache_io_terminated_t term_func,
+-		    void *term_func_priv);
+-
+-	/* Write data to the cache */
+-	int (*write)(struct fscache_resources *cres,
+-		     loff_t start_pos,
+-		     struct iov_iter *iter,
+-		     fscache_io_terminated_t term_func,
+-		     void *term_func_priv);
+-
+-	/* Expand readahead request */
+-	void (*expand_readahead)(struct fscache_resources *cres,
+-				 loff_t *_start, size_t *_len, loff_t i_size);
+-
+-	/* Prepare a read operation, shortening it to a cached/uncached
+-	 * boundary as appropriate.
+-	 */
+-	enum fscache_io_source (*prepare_read)(struct fscache_resources *cres,
+-					     loff_t *_start, size_t *_len,
+-					     unsigned long *_flags, loff_t i_size);
+-
+-	/* Prepare a write operation, working out what part of the write we can
+-	 * actually do.
+-	 */
+-	int (*prepare_write)(struct fscache_resources *cres,
+-			     loff_t *_start, size_t *_len, loff_t i_size,
+-			     bool no_space_allocated_yet);
+-
+-	/* Query the occupancy of the cache in a region, returning where the
+-	 * next chunk of data starts and how long it is.
+-	 */
+-	int (*query_occupancy)(struct fscache_resources *cres,
+-			       loff_t start, size_t len, size_t granularity,
+-			       loff_t *_data_start, size_t *_data_len);
+-};
+-
+ struct readahead_control;
+ void netfs_readahead(struct readahead_control *);
+ int netfs_read_folio(struct file *, struct folio *);
 -- 
 2.19.1.6.gb485710b
 
