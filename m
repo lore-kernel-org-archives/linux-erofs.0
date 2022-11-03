@@ -4,33 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A506C38A02
-	for <linux-erofs@archiver.kernel.org>; Mon, 31 Oct 2022 09:12:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18BF2C4332F
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Nov 2022 11:30:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4N16qZ5gv8z3cBv
-	for <linux-erofs@archiver.kernel.org>; Mon, 31 Oct 2022 20:12:26 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.45; helo=out30-45.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4N31lj2DJCz3cHZ
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Nov 2022 22:30:41 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=leemhuis.info (client-ip=80.237.130.52; helo=wp530.webpack.hosteurope.de; envelope-from=regressions@leemhuis.info; receiver=<UNKNOWN>)
+X-Greylist: delayed 1301 seconds by postgrey-1.36 at boromir; Thu, 03 Nov 2022 22:30:33 AEDT
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4N16qR1LtTz2xnM
-	for <linux-erofs@lists.ozlabs.org>; Mon, 31 Oct 2022 20:12:17 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VTTcWV5_1667207530;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VTTcWV5_1667207530)
-          by smtp.aliyun-inc.com;
-          Mon, 31 Oct 2022 17:12:11 +0800
-Date: Mon, 31 Oct 2022 17:12:09 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Yue Hu <zbestahu@gmail.com>
-Subject: Re: [PATCH v2] erofs-utils: avoid the potentially wrong m_plen for
- big pcluster
-Message-ID: <Y1+RaSe7kmFg12/3@B-P7TQMD6M-0146.local>
-References: <20221031022653.14981-1-zbestahu@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4N31lY16g5z3bjd
+	for <linux-erofs@lists.ozlabs.org>; Thu,  3 Nov 2022 22:30:31 +1100 (AEDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+	id 1oqY5Y-0006kG-JP; Thu, 03 Nov 2022 12:08:48 +0100
+Message-ID: <9114cdb0-9d2a-d863-9157-40f182b110a8@leemhuis.info>
+Date: Thu, 3 Nov 2022 12:08:48 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20221031022653.14981-1-zbestahu@gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Content-Language: en-US, de-DE
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+To: "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+References: <20220915094200.139713-1-hch@lst.de>
+ <20220915094200.139713-4-hch@lst.de>
+ <d20a0a85-e415-cf78-27f9-77dd7a94bc8d@leemhuis.info>
+Subject: Re: [REGESSION] systemd-oomd overreacting due to PSI changes for
+ Btrfs #forregzbot
+In-Reply-To: <d20a0a85-e415-cf78-27f9-77dd7a94bc8d@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1667475033;417961eb;
+X-HE-SMSGID: 1oqY5Y-0006kG-JP
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -42,101 +49,34 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org, zhangwen@coolpad.com
+Cc: linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, linux-mm@kvack.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Oct 31, 2022 at 10:26:53AM +0800, Yue Hu wrote:
-> From: Yue Hu <huyue2@coolpad.com>
+On 03.11.22 11:46, Thorsten Leemhuis wrote:
+> On 15.09.22 11:41, Christoph Hellwig wrote:
+>> btrfs compressed reads try to always read the entire compressed chunk,
+>> even if only a subset is requested.  Currently this is covered by the
+>> magic PSI accounting underneath submit_bio, but that is about to go
+>> away. Instead add manual psi_memstall_{enter,leave} annotations.
+>>
+>> Note that for readahead this really should be using readahead_expand,
+>> but the additionals reads are also done for plain ->read_folio where
+>> readahead_expand can't work, so this overall logic is left as-is for
+>> now.
 > 
-> Keep in sync with the kernel commit 0d53d2e882f9 ("erofs: avoid the
-> potentially wrong m_plen for big pcluster").
-> 
-> Signed-off-by: Yue Hu <huyue2@coolpad.com>
+> It seems this patch makes systemd-oomd overreact on my day-to-day
+> machine and aggressively kill applications. I'm not the only one that
+> noticed such a behavior with 6.1 pre-releases:
+> https://bugzilla.redhat.com/show_bug.cgi?id=2133829
+> https://bugzilla.redhat.com/show_bug.cgi?id=2134971
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Great, the kernel's regression tracker reports a regression and forgets
+to tell his regression tracking bot about it to ensure it's tracked... :-D
 
-Thanks,
-Gao Xiang
+#regzbot ^introduced 4088a47e78f9
+#regzbot title mm/btrfs: systemd-oomd overreacting due to PSI changes
+for Btrfs
+#regzbot ignore-activity
 
-> ---
-> v2: rebase on latest dev branch
-> 
->  lib/zmap.c | 16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
-> 
-> diff --git a/lib/zmap.c b/lib/zmap.c
-> index 1c6706a..89e9da1 100644
-> --- a/lib/zmap.c
-> +++ b/lib/zmap.c
-> @@ -115,7 +115,7 @@ struct z_erofs_maprecorder {
->  	u8  type, headtype;
->  	u16 clusterofs;
->  	u16 delta[2];
-> -	erofs_blk_t pblk, compressedlcs;
-> +	erofs_blk_t pblk, compressedblks;
->  	erofs_off_t nextpackoff;
->  	bool partialref;
->  };
-> @@ -172,7 +172,7 @@ static int legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
->  				DBG_BUGON(1);
->  				return -EFSCORRUPTED;
->  			}
-> -			m->compressedlcs = m->delta[0] &
-> +			m->compressedblks = m->delta[0] &
->  				~Z_EROFS_VLE_DI_D0_CBLKCNT;
->  			m->delta[0] = 1;
->  		}
-> @@ -274,7 +274,7 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
->  				DBG_BUGON(1);
->  				return -EFSCORRUPTED;
->  			}
-> -			m->compressedlcs = lo & ~Z_EROFS_VLE_DI_D0_CBLKCNT;
-> +			m->compressedblks = lo & ~Z_EROFS_VLE_DI_D0_CBLKCNT;
->  			m->delta[0] = 1;
->  			return 0;
->  		} else if (i + 1 != (int)vcnt) {
-> @@ -471,7 +471,7 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
->  	}
->  
->  	lcn = m->lcn + 1;
-> -	if (m->compressedlcs)
-> +	if (m->compressedblks)
->  		goto out;
->  
->  	err = z_erofs_load_cluster_from_disk(m, lcn, false);
-> @@ -480,7 +480,7 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
->  
->  	/*
->  	 * If the 1st NONHEAD lcluster has already been handled initially w/o
-> -	 * valid compressedlcs, which means at least it mustn't be CBLKCNT, or
-> +	 * valid compressedblks, which means at least it mustn't be CBLKCNT, or
->  	 * an internal implemenatation error is detected.
->  	 *
->  	 * The following code can also handle it properly anyway, but let's
-> @@ -496,12 +496,12 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
->  		 * if the 1st NONHEAD lcluster is actually PLAIN or HEAD type
->  		 * rather than CBLKCNT, it's a 1 lcluster-sized pcluster.
->  		 */
-> -		m->compressedlcs = 1;
-> +		m->compressedblks = 1 << (lclusterbits - LOG_BLOCK_SIZE);
->  		break;
->  	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
->  		if (m->delta[0] != 1)
->  			goto err_bonus_cblkcnt;
-> -		if (m->compressedlcs)
-> +		if (m->compressedblks)
->  			break;
->  		/* fallthrough */
->  	default:
-> @@ -511,7 +511,7 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
->  		return -EFSCORRUPTED;
->  	}
->  out:
-> -	map->m_plen = m->compressedlcs << lclusterbits;
-> +	map->m_plen = m->compressedblks << LOG_BLOCK_SIZE;
->  	return 0;
->  err_bonus_cblkcnt:
->  	erofs_err("bogus CBLKCNT @ lcn %lu of nid %llu",
-> -- 
-> 2.17.1
+Ciao, Thorsten
