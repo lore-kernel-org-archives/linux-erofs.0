@@ -4,33 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB517C433FE
-	for <linux-erofs@archiver.kernel.org>; Fri,  4 Nov 2022 05:40:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52C3BC43217
+	for <linux-erofs@archiver.kernel.org>; Fri,  4 Nov 2022 05:40:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4N3TxP04J4z3cNG
-	for <linux-erofs@archiver.kernel.org>; Fri,  4 Nov 2022 16:40:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4N3TxR6kbmz3dsB
+	for <linux-erofs@archiver.kernel.org>; Fri,  4 Nov 2022 16:40:43 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57; helo=out30-57.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4N3TxJ1p3hz3bjX
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4N3TxJ1rvfz3bm9
 	for <linux-erofs@lists.ozlabs.org>; Fri,  4 Nov 2022 16:40:34 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VTve-EV_1667540429;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTve-EV_1667540429)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VTveMTL_1667540428;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VTveMTL_1667540428)
           by smtp.aliyun-inc.com;
-          Fri, 04 Nov 2022 13:40:30 +0800
+          Fri, 04 Nov 2022 13:40:29 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs: put metabuf in error path in fscache mode
-Date: Fri,  4 Nov 2022 13:40:27 +0800
-Message-Id: <20221104054028.52208-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH 0/2] erofs: misc fixes for erofs in fscache mode
+Date: Fri,  4 Nov 2022 13:40:26 +0800
+Message-Id: <20221104054028.52208-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20221104054028.52208-1-jefflexu@linux.alibaba.com>
-References: <20221104054028.52208-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -48,30 +46,15 @@ Cc: linux-kernel@vger.kernel.org, yinxin.x@bytedance.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-For tail packing layout, put metabuf when error is encountered.
+There are several minor fixes for the data path of the fscache mode.
 
-Fixes: 1ae9470c3e14 ("erofs: clean up .read_folio() and .readahead() in fscache mode")
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- fs/erofs/fscache.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Jingbo Xu (2):
+  erofs: put metabuf in error path in fscache mode
+  erofs: get correct count for unmapped range in fscache mode
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index fe05bc51f9f2..83559008bfa8 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -287,8 +287,10 @@ static int erofs_fscache_data_read(struct address_space *mapping,
- 			return PTR_ERR(src);
- 
- 		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, PAGE_SIZE);
--		if (copy_to_iter(src + offset, size, &iter) != size)
-+		if (copy_to_iter(src + offset, size, &iter) != size) {
-+			erofs_put_metabuf(&buf);
- 			return -EFAULT;
-+		}
- 		iov_iter_zero(PAGE_SIZE - size, &iter);
- 		erofs_put_metabuf(&buf);
- 		return PAGE_SIZE;
+ fs/erofs/fscache.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
 -- 
 2.19.1.6.gb485710b
 
