@@ -4,75 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F20E5C4332F
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Nov 2022 11:44:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2259CC4332F
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Nov 2022 12:12:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4N9nY12vTjz3cJG
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Nov 2022 22:44:53 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H0e91hfR;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H0e91hfR;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H0e91hfR;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H0e91hfR;
-	dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4N9p8V53Lpz3dts
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Nov 2022 23:12:10 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.15; helo=out199-15.us.a.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out199-15.us.a.mail.aliyun.com (out199-15.us.a.mail.aliyun.com [47.90.199.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4N9nXt4y1lz3bb2
-	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Nov 2022 22:44:45 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1668426281;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EMhSzxc71gtsWdv7tBdLboQapjVVOXhkp285VQ60rL4=;
-	b=H0e91hfR0q3LFfeFBnu5xRq2Z2XXYdxp36NIBtfUN9C5KWoPRuYEROnGvdzuoj/+OyxGjW
-	yN8bGzuiICs6cxoZjyzUlwK9bDeJ1CywUeCNt4PFYjEyr98QugMAyZOyao05OoLVJ32elo
-	Za41f0riYqxeY5tfDaRngWNH0YQiZec=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1668426281;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EMhSzxc71gtsWdv7tBdLboQapjVVOXhkp285VQ60rL4=;
-	b=H0e91hfR0q3LFfeFBnu5xRq2Z2XXYdxp36NIBtfUN9C5KWoPRuYEROnGvdzuoj/+OyxGjW
-	yN8bGzuiICs6cxoZjyzUlwK9bDeJ1CywUeCNt4PFYjEyr98QugMAyZOyao05OoLVJ32elo
-	Za41f0riYqxeY5tfDaRngWNH0YQiZec=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-177-Otw1wR4uPsei68QnsffE2A-1; Mon, 14 Nov 2022 06:44:37 -0500
-X-MC-Unique: Otw1wR4uPsei68QnsffE2A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EA228101A528;
-	Mon, 14 Nov 2022 11:44:36 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.24])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id E805140C6EC2;
-	Mon, 14 Nov 2022 11:44:35 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20221111090813.72068-1-jefflexu@linux.alibaba.com>
-References: <20221111090813.72068-1-jefflexu@linux.alibaba.com>
-To: Jingbo Xu <jefflexu@linux.alibaba.com>
-Subject: Re: [PATCH] erofs: fix missing xas_retry() in fscache mode
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4N9p854WLmz3cNG
+	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Nov 2022 23:11:47 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VUmziyc_1668427899;
+Received: from 30.221.128.223(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VUmziyc_1668427899)
+          by smtp.aliyun-inc.com;
+          Mon, 14 Nov 2022 20:11:40 +0800
+Message-ID: <55b07140-f7b9-6c25-acf0-93e9fbce0828@linux.alibaba.com>
+Date: Mon, 14 Nov 2022 20:11:39 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <575541.1668426273.1@warthog.procyon.org.uk>
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Nov 2022 11:44:33 +0000
-Message-ID: <575542.1668426273@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.0
+Subject: Re: [PATCH] erofs: fix missing xas_retry() in fscache mode
+Content-Language: en-US
+To: David Howells <dhowells@redhat.com>
+References: <20221111090813.72068-1-jefflexu@linux.alibaba.com>
+ <575542.1668426273@warthog.procyon.org.uk>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <575542.1668426273@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -84,20 +45,42 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-erofs@lists.ozlabs.org, yinxin.x@bytedance.com
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, yinxin.x@bytedance.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
+Hi David,
 
-> The xarray iteration only holds RCU
+Thanks for the comment.
 
-I would say "the RCU read lock".
+On 11/14/22 7:44 PM, David Howells wrote:
+> Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
+> 
+>> The xarray iteration only holds RCU
+> 
+> I would say "the RCU read lock".
 
-Also, I think you've copied the code to which my dodgy-maths fix applies:
+Yeah, this looks clearer. I will update the commit message in v2 later.
 
-	https://lore.kernel.org/linux-fsdevel/166757988611.950645.762695906984689=
-3164.stgit@warthog.procyon.org.uk/
+> 
+> Also, I think you've copied the code to which my dodgy-maths fix applies:
+> 
+> 	https://lore.kernel.org/linux-fsdevel/166757988611.950645.7626959069846893164.stgit@warthog.procyon.org.uk/
+> 
 
-David
+Thanks for the kindly reminder. Yeah this code was ever copied from
+libnetfs. In the scenario of erofs, currently req->start is always
+aligned with folio size and erofs doesn't support large folio yet. Thus
+req->start won't be inside the folio so far, and I think the current
+code works well in the scenario of erofs, though the issue indeed exist
+mathematically.
 
+Actually I'm working on the support for large folio now, and the
+completion routine of erofs in fscache mode will be refactored quite a
+lot. I think this issue will be fixed along with the refactoring.
+
+Thanks again for the suggestion :)
+
+-- 
+Thanks,
+Jingbo
