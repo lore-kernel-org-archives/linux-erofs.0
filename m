@@ -4,58 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1DBB5C4332F
-	for <linux-erofs@archiver.kernel.org>; Fri, 25 Nov 2022 13:01:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 899F2C43217
+	for <linux-erofs@archiver.kernel.org>; Sat, 26 Nov 2022 00:58:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NJZkY1L4Hz3f2v
-	for <linux-erofs@archiver.kernel.org>; Sat, 26 Nov 2022 00:01:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=rN3HdXqT;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=rN3HdXqT;
-	dkim-atps=neutral
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NJtdB4WdGz3f4Z
+	for <linux-erofs@archiver.kernel.org>; Sat, 26 Nov 2022 11:58:06 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.57; helo=out30-57.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NJZkM6jLYz3cFn
-	for <linux-erofs@lists.ozlabs.org>; Sat, 26 Nov 2022 00:01:31 +1100 (AEDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id D7B01623D2;
-	Fri, 25 Nov 2022 13:01:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E731EC433C1;
-	Fri, 25 Nov 2022 13:01:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1669381287;
-	bh=Bd6+TW+SUllGke4xXPsi3E6NWwGNc4MDvTSGFvrCkNU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rN3HdXqTCE4bVjC5CMTwEYV/a3IqLkxDV8dp6hFvDxLFX7AnpNe8ReTonzysdsYOH
-	 Z8uxb6ZC+Pzpf/C76pu/5Sv0zibmR6Hu1RB9G0Og5MecEpDXIBvcTp8wXTQLuPA0H2
-	 irjJcfK9oQK/83jsOKllASa9HpcPSDP460eKPrJoenS1Uy3yGBNvfMWjnfcj9Ny2hA
-	 V7c+OOkTU1rj36gqP+plmOFMGnYcfXVgyIQiyCCIVua2ZkyDO5vLRb1DsXxff+Jt3u
-	 JCb0In9/OEMc6LiCC6iQDPCFRsWf3y3xE5h2OmSigcgPq+yrmVX0j6mHIhMkBGGY2R
-	 ht3jRsPiafuTg==
-Date: Fri, 25 Nov 2022 21:01:21 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH v5 1/2] fscache,cachefiles: add prepare_ondemand_read()
- callback
-Message-ID: <Y4C8ocemviAGpxRC@debian>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	Jingbo Xu <jefflexu@linux.alibaba.com>, jlayton@kernel.org,
-	xiang@kernel.org, chao@kernel.org, linux-cachefs@redhat.com,
-	linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20221124034212.81892-2-jefflexu@linux.alibaba.com>
- <20221124034212.81892-1-jefflexu@linux.alibaba.com>
- <2386961.1669377478@warthog.procyon.org.uk>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NJtd734b3z3bnZ
+	for <linux-erofs@lists.ozlabs.org>; Sat, 26 Nov 2022 11:58:02 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VVgyB1f_1669424276;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VVgyB1f_1669424276)
+          by smtp.aliyun-inc.com;
+          Sat, 26 Nov 2022 08:57:57 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	chao@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH 0/2] erofs: support large folio in fscache mode
+Date: Sat, 26 Nov 2022 08:57:54 +0800
+Message-Id: <20221126005756.7662-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <2386961.1669377478@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -67,32 +42,31 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: jlayton@kernel.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, linux-erofs@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi David,
+Patch 1 is the main part of supporting large folio in fscache mode. It
+relies on a pending patch[1] adding .prepare_ondemand_read() interface
+in Cachefiles.
 
-On Fri, Nov 25, 2022 at 11:57:58AM +0000, David Howells wrote:
-> Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
-> 
-> > Add prepare_ondemand_read() callback dedicated for the on-demand read
-> > scenario, so that callers from this scenario can be decoupled from
-> > netfs_io_subrequest.
-> > 
-> > The original cachefiles_prepare_read() is now refactored to a generic
-> > routine accepting a parameter list instead of netfs_io_subrequest.
-> > There's no logic change, except that the debug id of subrequest and
-> > request is removed from trace_cachefiles_prep_read().
-> > 
-> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> > Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-> 
-> Acked-by: David Howells <dhowells@redhat.com>
+Patch 2 just turns the switch on and enables the feature. It enables large
+folio for both fscache and the original device mode (in uncompressed
+data format). And thus I think the previous patch[2] exclusively for the
+device mode is not needed then.
 
-Thanks!  I will apply them for -next, and soon Jingbo will
-submit large folios support for erofs iomap/fscache modes.
+[1] https://lore.kernel.org/all/20221124034212.81892-1-jefflexu@linux.alibaba.com/
+[2] https://lore.kernel.org/all/20221110074023.8059-1-jefflexu@linux.alibaba.com/
 
-Thank all again,
-Gao Xiang
+
+Jingbo Xu (2):
+  erofs: support large folio in fscache mode
+  erofs: enable large folio support for non-compressed format
+
+ fs/erofs/fscache.c | 117 +++++++++++++++++++--------------------------
+ fs/erofs/inode.c   |   1 +
+ 2 files changed, 50 insertions(+), 68 deletions(-)
+
+-- 
+2.19.1.6.gb485710b
 
