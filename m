@@ -4,34 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A8F1C433FE
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Nov 2022 02:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A245AC433FE
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Nov 2022 02:59:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NL9D30P2Wz3fPd
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Nov 2022 13:59:15 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43; helo=out30-43.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NL9D72Tklz3fPV
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Nov 2022 13:59:19 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=houtao@huaweicloud.com; receiver=<UNKNOWN>)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NL91k3j88z3f8s
-	for <linux-erofs@lists.ozlabs.org>; Mon, 28 Nov 2022 13:50:18 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VVnFHae_1669603812;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VVnFHae_1669603812)
-          by smtp.aliyun-inc.com;
-          Mon, 28 Nov 2022 10:50:13 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: xiang@kernel.org,
-	chao@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/2] erofs: support large folios for fscache mode
-Date: Mon, 28 Nov 2022 10:50:10 +0800
-Message-Id: <20221128025011.36352-2-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20221128025011.36352-1-jefflexu@linux.alibaba.com>
-References: <20221128025011.36352-1-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NL9643l02z3fGB
+	for <linux-erofs@lists.ozlabs.org>; Mon, 28 Nov 2022 13:54:02 +1100 (AEDT)
+Received: from mail02.huawei.com (unknown [172.30.67.153])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4NL95n2N5Gz4f3p16
+	for <linux-erofs@lists.ozlabs.org>; Mon, 28 Nov 2022 10:53:49 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP4 (Coremail) with SMTP id gCh0CgCXu9i+IoRjnd0cBQ--.33892S4;
+	Mon, 28 Nov 2022 10:53:52 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-cachefs@redhat.com
+Subject: [PATCH] fscache: Use wake_up_var() to wake up pending volume acquisition
+Date: Mon, 28 Nov 2022 11:19:29 +0800
+Message-Id: <20221128031929.3918348-1-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: gCh0CgCXu9i+IoRjnd0cBQ--.33892S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxCF45KrWftrWxXrWxury7trb_yoW5Xr1xp3
+	9I9FWft3ykX342yw4rXw47Z34S9FykGFs7Cr4vkryUAF47Jr1ktF1Ika95uFW7C39rJrWa
+	q3WYk345Ww4UA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUgKb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
+	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
+	CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
+	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJV
+	Cq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBI
+	daVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,215 +59,77 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, linux-erofs@lists.ozlabs.org, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, houtao1@huawei.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-When large folios supported, one folio can be split into several slices,
-each of which may be mapped to META/UNMAPPED/MAPPED, and the folio can
-be unlocked as a whole only when all slices have completed.
+From: Hou Tao <houtao1@huawei.com>
 
-Thus always allocate erofs_fscache_request for each .read_folio() or
-.readahead(). In this case, only when all slices of the folio or folio
-range have completed, the request will be marked as completed and the
-folio or folio range will be unlocked then.
+The freeing of relinquished volume will wake up the pending volume
+acquisition by using wake_up_bit(), however it is mismatched with
+wait_var_event() used in fscache_wait_on_volume_collision() and it will
+never wake up the waiter in the wait-queue because these two functions
+operate on different wait-queues.
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+According to the implementation in fscache_wait_on_volume_collision(),
+if the wake-up of pending acquisition is delayed longer than 20 seconds
+(e.g., due to the delay of on-demand fd closing), the first
+wait_var_event_timeout() will timeout and the following wait_var_event()
+will hang forever as shown below:
+
+ FS-Cache: Potential volume collision new=00000024 old=00000022
+ ......
+ INFO: task mount:1148 blocked for more than 122 seconds.
+       Not tainted 6.1.0-rc6+ #1
+ task:mount           state:D stack:0     pid:1148  ppid:1
+ Call Trace:
+  <TASK>
+  __schedule+0x2f6/0xb80
+  schedule+0x67/0xe0
+  fscache_wait_on_volume_collision.cold+0x80/0x82
+  __fscache_acquire_volume+0x40d/0x4e0
+  erofs_fscache_register_volume+0x51/0xe0 [erofs]
+  erofs_fscache_register_fs+0x19c/0x240 [erofs]
+  erofs_fc_fill_super+0x746/0xaf0 [erofs]
+  vfs_get_super+0x7d/0x100
+  get_tree_nodev+0x16/0x20
+  erofs_fc_get_tree+0x20/0x30 [erofs]
+  vfs_get_tree+0x24/0xb0
+  path_mount+0x2fa/0xa90
+  do_mount+0x7c/0xa0
+  __x64_sys_mount+0x8b/0xe0
+  do_syscall_64+0x30/0x60
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixing it by using wake_up_var() instead of wake_up_bit(). In addition
+because waitqueue_active() is used in wake_up_var() and clear_bit()
+doesn't imply any memory barrier, so do smp_mb__after_atomic() before
+invoking wake_up_var().
+
+Fixes: 62ab63352350 ("fscache: Implement volume registration")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 ---
- fs/erofs/fscache.c | 116 +++++++++++++++++++--------------------------
- 1 file changed, 48 insertions(+), 68 deletions(-)
+ fs/fscache/volume.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 3cfe1af7a46e..0643b205c7eb 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -167,32 +167,18 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
- 	return ret;
- }
- 
--/*
-- * Read into page cache in the range described by (@pos, @len).
-- *
-- * On return, if the output @unlock is true, the caller is responsible for page
-- * unlocking; otherwise the callee will take this responsibility through request
-- * completion.
-- *
-- * The return value is the number of bytes successfully handled, or negative
-- * error code on failure. The only exception is that, the length of the range
-- * instead of the error code is returned on failure after request is allocated,
-- * so that .readahead() could advance rac accordingly.
-- */
--static int erofs_fscache_data_read(struct address_space *mapping,
--				   loff_t pos, size_t len, bool *unlock)
-+static int erofs_fscache_data_read_slice(struct erofs_fscache_request *req)
- {
-+	struct address_space *mapping = req->mapping;
- 	struct inode *inode = mapping->host;
- 	struct super_block *sb = inode->i_sb;
--	struct erofs_fscache_request *req;
-+	loff_t pos = req->start + req->submitted;
- 	struct erofs_map_blocks map;
- 	struct erofs_map_dev mdev;
- 	struct iov_iter iter;
- 	size_t count;
- 	int ret;
- 
--	*unlock = true;
--
- 	map.m_la = pos;
- 	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
- 	if (ret)
-@@ -201,36 +187,37 @@ static int erofs_fscache_data_read(struct address_space *mapping,
- 	if (map.m_flags & EROFS_MAP_META) {
- 		struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
- 		erofs_blk_t blknr;
--		size_t offset, size;
-+		size_t offset;
- 		void *src;
- 
- 		/* For tail packing layout, the offset may be non-zero. */
- 		offset = erofs_blkoff(map.m_pa);
- 		blknr = erofs_blknr(map.m_pa);
--		size = map.m_llen;
-+		count = map.m_llen;
- 
- 		src = erofs_read_metabuf(&buf, sb, blknr, EROFS_KMAP);
- 		if (IS_ERR(src))
- 			return PTR_ERR(src);
- 
--		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, PAGE_SIZE);
--		if (copy_to_iter(src + offset, size, &iter) != size) {
-+		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, count);
-+		if (copy_to_iter(src + offset, count, &iter) != count) {
- 			erofs_put_metabuf(&buf);
- 			return -EFAULT;
+diff --git a/fs/fscache/volume.c b/fs/fscache/volume.c
+index ab8ceddf9efa..cf8293bb1aca 100644
+--- a/fs/fscache/volume.c
++++ b/fs/fscache/volume.c
+@@ -348,7 +348,12 @@ static void fscache_wake_pending_volume(struct fscache_volume *volume,
+ 		if (fscache_volume_same(cursor, volume)) {
+ 			fscache_see_volume(cursor, fscache_volume_see_hash_wake);
+ 			clear_bit(FSCACHE_VOLUME_ACQUIRE_PENDING, &cursor->flags);
+-			wake_up_bit(&cursor->flags, FSCACHE_VOLUME_ACQUIRE_PENDING);
++			/*
++			 * Paired with barrier in wait_var_event(). Check
++			 * waitqueue_active() and wake_up_var() for details.
++			 */
++			smp_mb__after_atomic();
++			wake_up_var(&cursor->flags);
+ 			return;
  		}
--		iov_iter_zero(PAGE_SIZE - size, &iter);
- 		erofs_put_metabuf(&buf);
--		return PAGE_SIZE;
-+		req->submitted += count;
-+		return 0;
  	}
- 
-+	count = req->len - req->submitted;
- 	if (!(map.m_flags & EROFS_MAP_MAPPED)) {
--		count = len;
- 		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, count);
- 		iov_iter_zero(count, &iter);
--		return count;
-+		req->submitted += count;
-+		return 0;
- 	}
- 
--	count = min_t(size_t, map.m_llen - (pos - map.m_la), len);
-+	count = min_t(size_t, map.m_llen - (pos - map.m_la), count);
- 	DBG_BUGON(!count || count % PAGE_SIZE);
- 
- 	mdev = (struct erofs_map_dev) {
-@@ -241,68 +228,61 @@ static int erofs_fscache_data_read(struct address_space *mapping,
- 	if (ret)
- 		return ret;
- 
--	req = erofs_fscache_req_alloc(mapping, pos, count);
--	if (IS_ERR(req))
--		return PTR_ERR(req);
--
--	*unlock = false;
--	ret = erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
-+	return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
- 			req, mdev.m_pa + (pos - map.m_la), count);
--	if (ret)
--		req->error = ret;
-+}
- 
--	erofs_fscache_req_put(req);
--	return count;
-+/*
-+ * Read into page cache in the range described by (req->start, req->len).
-+ */
-+static int erofs_fscache_data_read(struct erofs_fscache_request *req)
-+{
-+	int ret;
-+
-+	do {
-+		ret = erofs_fscache_data_read_slice(req);
-+		if (ret)
-+			req->error = ret;
-+	} while (!ret && req->submitted < req->len);
-+
-+	return ret;
- }
- 
- static int erofs_fscache_read_folio(struct file *file, struct folio *folio)
- {
--	bool unlock;
-+	struct erofs_fscache_request *req;
- 	int ret;
- 
--	DBG_BUGON(folio_size(folio) != EROFS_BLKSIZ);
--
--	ret = erofs_fscache_data_read(folio_mapping(folio), folio_pos(folio),
--				      folio_size(folio), &unlock);
--	if (unlock) {
--		if (ret > 0)
--			folio_mark_uptodate(folio);
-+	req = erofs_fscache_req_alloc(folio_mapping(folio),
-+			folio_pos(folio), folio_size(folio));
-+	if (IS_ERR(req)) {
- 		folio_unlock(folio);
-+		return PTR_ERR(req);
- 	}
--	return ret < 0 ? ret : 0;
-+
-+	ret = erofs_fscache_data_read(req);
-+	erofs_fscache_req_put(req);
-+	return ret;
- }
- 
- static void erofs_fscache_readahead(struct readahead_control *rac)
- {
--	struct folio *folio;
--	size_t len, done = 0;
--	loff_t start, pos;
--	bool unlock;
--	int ret, size;
-+	struct erofs_fscache_request *req;
- 
- 	if (!readahead_count(rac))
- 		return;
- 
--	start = readahead_pos(rac);
--	len = readahead_length(rac);
-+	req = erofs_fscache_req_alloc(rac->mapping,
-+			readahead_pos(rac), readahead_length(rac));
-+	if (IS_ERR(req))
-+		return;
- 
--	do {
--		pos = start + done;
--		ret = erofs_fscache_data_read(rac->mapping, pos,
--					      len - done, &unlock);
--		if (ret <= 0)
--			return;
-+	/* The request completion will drop refs on the folios. */
-+	while (readahead_folio(rac))
-+		;
- 
--		size = ret;
--		while (size) {
--			folio = readahead_folio(rac);
--			size -= folio_size(folio);
--			if (unlock) {
--				folio_mark_uptodate(folio);
--				folio_unlock(folio);
--			}
--		}
--	} while ((done += ret) < len);
-+	erofs_fscache_data_read(req);
-+	erofs_fscache_req_put(req);
- }
- 
- static const struct address_space_operations erofs_fscache_meta_aops = {
 -- 
-2.19.1.6.gb485710b
+2.29.2
 
