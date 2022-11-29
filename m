@@ -4,63 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1218C4332F
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Nov 2022 10:01:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DE1D2C4321E
+	for <linux-erofs@archiver.kernel.org>; Tue, 29 Nov 2022 11:58:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NLyY82Shsz3bP6
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Nov 2022 21:01:48 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=ptc+gdLo;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1034; helo=mail-pj1-x1034.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=ptc+gdLo;
-	dkim-atps=neutral
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NM1856s6Bz3bSk
+	for <linux-erofs@archiver.kernel.org>; Tue, 29 Nov 2022 22:58:45 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.6; helo=out30-6.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-6.freemail.mail.aliyun.com (out30-6.freemail.mail.aliyun.com [115.124.30.6])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NLyY20TYXz30QS
-	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Nov 2022 21:01:39 +1100 (AEDT)
-Received: by mail-pj1-x1034.google.com with SMTP id w15-20020a17090a380f00b0021873113cb4so12920839pjb.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 29 Nov 2022 02:01:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/qi+J6kzvsPJwzznh9PRE8GU9tlUzaAtAd33MOx/ZAs=;
-        b=ptc+gdLo4shz/SvqVTeVhbcw0sXAmNx5gKIABub1EVbkNxTwYRJlrOZEi8qzu1TlXA
-         wltMYJdCAcQu0JEzqo3Hv3ArUY6QyQsOEDFwPhGQ5ycHOXBQ90oCGkoHadtB/4aUHis7
-         VhssiBOaAeEgL0qiWGu7nCsw+09ty+A1o39MTDYoUH2twzH+CpIDobLqV8kO5T0lP3MW
-         aJ5rG4N00B1R346DOUwzDWQE3xAB6cWZXOIuwTDWuI9Bc2teqAE32qyplavJW58lV3qO
-         ZsmHJLbPp4GPXXGkixNtDDueQwtsDjqEtou9OsCgd5mSJDb9YbuQzP+i8UbOqUsaF58A
-         FJzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/qi+J6kzvsPJwzznh9PRE8GU9tlUzaAtAd33MOx/ZAs=;
-        b=DDjfPqD6m8hLWlovOnNLObBdAWk1CxWZVRBBYts4g6rVKu9J5Ym8I0nC1o/l/4WlCJ
-         2pFFx4iGwasvZxYOM5jByc4MYfEUYVgRWjwA336W/DQ3zt2mCPGpPS6yTfFyQ85b3oP5
-         CdaT1ZoO+thkSzSuF1lR6q20G+TC+Pkzji9qjoRoDZSxKgQ/0oRuc7ztNGf+2XIp9a2H
-         Yim6Yqe8VT1TdHtYe1lkAgCwsK2LwrDAXen3teXJpyLLGX1j1c/0RO7KCG4VwKo1b2SF
-         VveXNOvVjWrMopRoEQdaWAhC1ONsyDyiWUxyFBynsb+rjdNcO6uG/hEjxN/tn21kg/kC
-         Ifrw==
-X-Gm-Message-State: ANoB5pncZkLA52wCF6uG4hcQ7ekaVBh0cHnrItpz3Fz6Y7JqBdsnbVzT
-	BS8OlHHJXtXxzsSvl6On8FV/WslcpxQ=
-X-Google-Smtp-Source: AA0mqf5EeDyDBCyOHfjU738iQPiqDT/8oiLLYB8wlKi6lbz7gVJUYnqte7Z8iw3Kh45RkWFBFCBZBA==
-X-Received: by 2002:a17:902:9a01:b0:186:8791:e9a7 with SMTP id v1-20020a1709029a0100b001868791e9a7mr39444040plp.91.1669716096727;
-        Tue, 29 Nov 2022 02:01:36 -0800 (PST)
-Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id z14-20020a1709027e8e00b00188fdae6e0esm10404631pla.44.2022.11.29.02.01.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Nov 2022 02:01:36 -0800 (PST)
-From: Yue Hu <zbestahu@gmail.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3] erofs-utils: mkfs: support fragment deduplication
-Date: Tue, 29 Nov 2022 18:00:53 +0800
-Message-Id: <20221129100053.10665-1-zbestahu@gmail.com>
-X-Mailer: git-send-email 2.17.1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NM1802Xrsz30QX
+	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Nov 2022 22:58:39 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VW-qli8_1669723114;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VW-qli8_1669723114)
+          by smtp.aliyun-inc.com;
+          Tue, 29 Nov 2022 19:58:35 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	chao@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v3 1/2] erofs: support large folios for fscache mode
+Date: Tue, 29 Nov 2022 19:58:32 +0800
+Message-Id: <20221129115833.41062-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20221129115833.41062-1-jefflexu@linux.alibaba.com>
+References: <20221129115833.41062-1-jefflexu@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,512 +43,320 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yue Hu <huyue2@coolpad.com>, zbestahu@163.com, shaojunjun@coolpad.com, zhangwen@coolpad.com
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Yue Hu <huyue2@coolpad.com>
+When large folios supported, one folio can be split into several slices,
+each of which may be mapped to META/UNMAPPED/MAPPED, and the folio can
+be unlocked as a whole only when all slices have completed.
 
-Previously, there's no fragment deduplication when this feature is
-introduced. Let's support it now.
+Thus always allocate erofs_fscache_request for each .read_folio() or
+.readahead(). In this case, only when all slices of the folio or folio
+range have completed, the request will be marked as completed and the
+folio or folio range will be unlocked then.
 
-With this patch, for Linux 5.10.1 + 5.10.87 source code:
+In this case, one folio (from .read_folio()) or one folio range (from
+.readahead()) can be mapped into several slices, with each slice mapped
+to different cookies, and thus each slice needs its own
+netfs_cache_resources.  Here we introduce listed requests to support
+this, where each .read_folio() or .readahead() calling can correspond to
+a list of requests, with each request reading from the corresponding
+cookie.
 
-[before]
- 32k pcluster + lz4hc,12 + fragment		454M
- 64k pcluster + lz4hc,12 + fragment		439M
-128k pcluster + lz4hc,12 + fragment		431M
- 32k pcluster + lz4hc,12 + fragment + dedupe	376M
- 64k pcluster + lz4hc,12 + fragment + dedupe	384M
-128k pcluster + lz4hc,12 + fragment + dedupe	399M
-
-[after]
- 32k pcluster + lz4hc,12 + fragment		316M
- 64k pcluster + lz4hc,12 + fragment		300M
-128k pcluster + lz4hc,12 + fragment		292M
- 32k pcluster + lz4hc,12 + fragment + dedupe	291M
- 64k pcluster + lz4hc,12 + fragment + dedupe	286M
-128k pcluster + lz4hc,12 + fragment + dedupe	283M
-
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Yue Hu <huyue2@coolpad.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
-v3: 
-- modify acrroding to Xiang's comments in v2
-- simplify the logic in vle_compress_one
-- fix the crash for 1MB pcluster
+ fs/erofs/fscache.c | 166 ++++++++++++++++++++++++---------------------
+ 1 file changed, 88 insertions(+), 78 deletions(-)
 
-v2: mainly improve the logic in compression
-
- include/erofs/fragments.h |   3 +-
- lib/compress.c            | 115 ++++++++++++++++++++----
- lib/fragments.c           | 180 +++++++++++++++++++++++++++++++++++++-
- 3 files changed, 277 insertions(+), 21 deletions(-)
-
-diff --git a/include/erofs/fragments.h b/include/erofs/fragments.h
-index 5444384..6c51fc9 100644
---- a/include/erofs/fragments.h
-+++ b/include/erofs/fragments.h
-@@ -15,8 +15,9 @@ extern "C"
- extern const char *frags_packedname;
- #define EROFS_PACKED_INODE	frags_packedname
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 3e794891cd91..86d5cd5f909f 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -13,6 +13,7 @@ static struct vfsmount *erofs_pseudo_mnt;
  
-+int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *crc);
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
--			   unsigned int len);
-+			   unsigned int len, u32 crc);
- struct erofs_inode *erofs_mkfs_build_fragments(void);
- int erofs_fragments_init(void);
- void erofs_fragments_exit(void);
-diff --git a/lib/compress.c b/lib/compress.c
-index 17b3213..7e01932 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -33,6 +33,10 @@ struct z_erofs_vle_compress_ctx {
- 	unsigned int head, tail;
- 	erofs_blk_t blkaddr;		/* pointing to the next blkaddr */
- 	u16 clusterofs;
-+
-+	u32 crc;
-+	unsigned int pclustersize;
-+	erofs_off_t remaining;
+ struct erofs_fscache_request {
+ 	struct netfs_cache_resources cache_resources;
++	struct erofs_fscache_request *parent;
+ 	struct address_space	*mapping;	/* The mapping being accessed */
+ 	loff_t			start;		/* Start position */
+ 	size_t			len;		/* Length of the request */
+@@ -22,7 +23,7 @@ struct erofs_fscache_request {
  };
  
- #define Z_EROFS_LEGACY_MAP_HEADER_SIZE	\
-@@ -162,10 +166,10 @@ static void z_erofs_write_indexes(struct z_erofs_vle_compress_ctx *ctx)
- 	ctx->clusterofs = clusterofs + count;
- }
- 
--static int z_erofs_compress_dedupe(struct erofs_inode *inode,
--				   struct z_erofs_vle_compress_ctx *ctx,
-+static int z_erofs_compress_dedupe(struct z_erofs_vle_compress_ctx *ctx,
- 				   unsigned int *len)
+ static struct erofs_fscache_request *erofs_fscache_req_alloc(struct address_space *mapping,
+-					     loff_t start, size_t len)
++		loff_t start, size_t len, struct erofs_fscache_request *parent)
  {
-+	struct erofs_inode *inode = ctx->inode;
- 	int ret = 0;
+ 	struct erofs_fscache_request *req;
  
- 	do {
-@@ -319,30 +323,62 @@ static void tryrecompress_trailing(void *in, unsigned int *insize,
- 	*compressedsize = ret;
- }
- 
--static int vle_compress_one(struct z_erofs_vle_compress_ctx *ctx,
--			    bool final)
-+static void z_erofs_fragments_dedupe_update(struct z_erofs_vle_compress_ctx *ctx,
-+					    unsigned int *len)
-+{
-+	struct erofs_inode *inode = ctx->inode;
-+	const unsigned int remaining = ctx->remaining + *len;
-+
-+	DBG_BUGON(!inode->fragment_size);
-+
-+	/* try to close the gap if it gets larger (should be rare) */
-+	if (inode->fragment_size < remaining) {
-+		ctx->pclustersize = roundup(remaining - inode->fragment_size,
-+					    EROFS_BLKSIZ);
-+		return;
+@@ -34,6 +35,10 @@ static struct erofs_fscache_request *erofs_fscache_req_alloc(struct address_spac
+ 	req->start   = start;
+ 	req->len     = len;
+ 	refcount_set(&req->ref, 1);
++	if (parent) {
++		req->parent = parent;
++		refcount_inc(&parent->ref);
 +	}
-+
-+	inode->fragmentoff += inode->fragment_size - remaining;
-+	inode->fragment_size = remaining;
-+
-+	erofs_dbg("Reducing fragment size to %u at %lu",
-+		  inode->fragment_size, inode->fragmentoff);
-+
-+	/* it's ending */
-+	ctx->head += remaining;
-+	ctx->remaining = 0;
-+	*len = 0;
-+}
-+
-+static int vle_compress_one(struct z_erofs_vle_compress_ctx *ctx, bool fixup)
+ 
+ 	return req;
+ }
+@@ -56,17 +61,22 @@ static void erofs_fscache_req_complete(struct erofs_fscache_request *req)
+ 		folio_unlock(folio);
+ 	}
+ 	rcu_read_unlock();
+-
+-	if (req->cache_resources.ops)
+-		req->cache_resources.ops->end_operation(&req->cache_resources);
+-
+-	kfree(req);
+ }
+ 
+ static void erofs_fscache_req_put(struct erofs_fscache_request *req)
  {
- 	static char dstbuf[EROFS_CONFIG_COMPR_MAX_SZ + EROFS_BLKSIZ];
- 	struct erofs_inode *inode = ctx->inode;
- 	char *const dst = dstbuf + EROFS_BLKSIZ;
- 	struct erofs_compress *const h = &compresshandle;
- 	unsigned int len = ctx->tail - ctx->head;
-+	bool final = !ctx->remaining;
+-	if (refcount_dec_and_test(&req->ref))
+-		erofs_fscache_req_complete(req);
++	struct erofs_fscache_request *parent = req->parent;
++
++	if (refcount_dec_and_test(&req->ref)) {
++		if (!parent)
++			erofs_fscache_req_complete(req);
++		if (req->cache_resources.ops)
++			req->cache_resources.ops->end_operation(&req->cache_resources);
++		kfree(req);
++
++		if (parent)
++			erofs_fscache_req_put(parent);
++	}
+ }
+ 
+ static void erofs_fscache_subreq_complete(void *priv,
+@@ -74,8 +84,12 @@ static void erofs_fscache_subreq_complete(void *priv,
+ {
+ 	struct erofs_fscache_request *req = priv;
+ 
+-	if (IS_ERR_VALUE(transferred_or_error))
+-		req->error = transferred_or_error;
++	if (IS_ERR_VALUE(transferred_or_error)) {
++		if (req->parent)
++			req->parent->error = transferred_or_error;
++		else
++			req->error = transferred_or_error;
++	}
+ 	erofs_fscache_req_put(req);
+ }
+ 
+@@ -152,7 +166,7 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
+ 	}
+ 
+ 	req = erofs_fscache_req_alloc(folio_mapping(folio),
+-				folio_pos(folio), folio_size(folio));
++			folio_pos(folio), folio_size(folio), NULL);
+ 	if (IS_ERR(req)) {
+ 		folio_unlock(folio);
+ 		return PTR_ERR(req);
+@@ -167,32 +181,20 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
+ 	return ret;
+ }
+ 
+-/*
+- * Read into page cache in the range described by (@pos, @len).
+- *
+- * On return, if the output @unlock is true, the caller is responsible for page
+- * unlocking; otherwise the callee will take this responsibility through request
+- * completion.
+- *
+- * The return value is the number of bytes successfully handled, or negative
+- * error code on failure. The only exception is that, the length of the range
+- * instead of the error code is returned on failure after request is allocated,
+- * so that .readahead() could advance rac accordingly.
+- */
+-static int erofs_fscache_data_read(struct address_space *mapping,
+-				   loff_t pos, size_t len, bool *unlock)
++static int erofs_fscache_data_read_slice(struct erofs_fscache_request *req)
+ {
++	struct address_space *mapping = req->mapping;
+ 	struct inode *inode = mapping->host;
+ 	struct super_block *sb = inode->i_sb;
+-	struct erofs_fscache_request *req;
++	loff_t pos = req->start + req->submitted;
++	struct erofs_fscache_request *new;
+ 	struct erofs_map_blocks map;
+ 	struct erofs_map_dev mdev;
+ 	struct iov_iter iter;
++	loff_t pstart;
+ 	size_t count;
  	int ret;
  
- 	while (len) {
--		unsigned int pclustersize =
--			z_erofs_get_max_pclusterblks(inode) * EROFS_BLKSIZ;
- 		bool may_inline = (cfg.c_ztailpacking && final);
- 		bool may_packing = (cfg.c_fragments && final &&
- 				   !erofs_is_packed_inode(inode));
+-	*unlock = true;
+-
+ 	map.m_la = pos;
+ 	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
+ 	if (ret)
+@@ -201,36 +203,37 @@ static int erofs_fscache_data_read(struct address_space *mapping,
+ 	if (map.m_flags & EROFS_MAP_META) {
+ 		struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 		erofs_blk_t blknr;
+-		size_t offset, size;
++		size_t offset;
+ 		void *src;
  
--		if (z_erofs_compress_dedupe(inode, ctx, &len) && !final)
-+		if (z_erofs_compress_dedupe(ctx, &len) && !final)
- 			break;
+ 		/* For tail packing layout, the offset may be non-zero. */
+ 		offset = erofs_blkoff(map.m_pa);
+ 		blknr = erofs_blknr(map.m_pa);
+-		size = map.m_llen;
++		count = map.m_llen;
  
--		if (len <= pclustersize) {
-+		if (len <= ctx->pclustersize) {
- 			if (!final || !len)
- 				break;
- 			if (may_packing) {
-+				if (inode->fragment_size && !fixup) {
-+					ctx->remaining = inode->fragment_size;
-+					ctx->pclustersize =
-+						roundup(len, EROFS_BLKSIZ);
-+					ctx->e.length = 0;
-+					return -EAGAIN;
-+				}
- 				ctx->e.length = len;
- 				goto frag_packing;
- 			}
-@@ -353,7 +389,7 @@ static int vle_compress_one(struct z_erofs_vle_compress_ctx *ctx,
- 		ctx->e.length = min(len,
- 				cfg.c_max_decompressed_extent_bytes);
- 		ret = erofs_compress_destsize(h, ctx->queue + ctx->head,
--				&ctx->e.length, dst, pclustersize,
-+				&ctx->e.length, dst, ctx->pclustersize,
- 				!(final && len == ctx->e.length));
- 		if (ret <= 0) {
- 			if (ret != -EAGAIN) {
-@@ -385,11 +421,12 @@ nocompression:
- 			ctx->e.compressedblks = 1;
- 			ctx->e.raw = true;
- 		} else if (may_packing && len == ctx->e.length &&
--			   ret < pclustersize) {
-+			   ret < ctx->pclustersize && (!inode->fragment_size ||
-+			   fixup)) {
- frag_packing:
- 			ret = z_erofs_pack_fragments(inode,
- 						     ctx->queue + ctx->head,
--						     len);
-+						     len, ctx->crc);
- 			if (ret < 0)
- 				return ret;
- 			ctx->e.compressedblks = 0; /* indicate a fragment */
-@@ -425,6 +462,21 @@ frag_packing:
- 			DBG_BUGON(ctx->e.compressedblks * EROFS_BLKSIZ >=
- 				  ctx->e.length);
+ 		src = erofs_read_metabuf(&buf, sb, blknr, EROFS_KMAP);
+ 		if (IS_ERR(src))
+ 			return PTR_ERR(src);
  
-+			/*
-+			 * Try to recompress a litte more if there's space left
-+			 * for fragment deduplication.
-+			 */
-+			if (may_packing && len == ctx->e.length && tailused &&
-+			    ctx->tail < sizeof(ctx->queue)) {
-+				DBG_BUGON(!inode->fragment_size);
-+
-+				ctx->remaining = inode->fragment_size;
-+				ctx->pclustersize =
-+					ctx->e.compressedblks * EROFS_BLKSIZ;
-+				ctx->e.length = 0;
-+				return -EAGAIN;
-+			}
-+
- 			/* zero out garbage trailing data for non-0padding */
- 			if (!erofs_sb_has_lz4_0padding())
- 				memset(dst + ret, 0,
-@@ -454,6 +506,9 @@ frag_packing:
- 		ctx->head += ctx->e.length;
- 		len -= ctx->e.length;
- 
-+		if (fixup && ctx->e.compressedblks)
-+			z_erofs_fragments_dedupe_update(ctx, &len);
-+
- 		if (!final && ctx->head >= EROFS_CONFIG_COMPR_MAX_SZ) {
- 			const unsigned int qh_aligned =
- 				round_down(ctx->head, EROFS_BLKSIZ);
-@@ -736,10 +791,9 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd)
- {
- 	struct erofs_buffer_head *bh;
- 	static struct z_erofs_vle_compress_ctx ctx;
--	erofs_off_t remaining;
- 	erofs_blk_t blkaddr, compressed_blocks;
- 	unsigned int legacymetasize;
--	int ret;
-+	int ret = 0;
- 	u8 *compressmeta = malloc(vle_compressmeta_capacity(inode->i_size));
- 
- 	if (!compressmeta)
-@@ -775,6 +829,16 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd)
- 	inode->idata_size = 0;
- 	inode->fragment_size = 0;
- 
-+	/*
-+	 * Dedupe fragments before compression to avoid writing duplicate parts
-+	 * into packed inode.
-+	 */
-+	if (cfg.c_fragments && !erofs_is_packed_inode(inode)) {
-+		ret = z_erofs_fragments_dedupe(inode, fd, &ctx.crc);
-+		if (ret < 0)
-+			goto err_bdrop;
-+	}
-+
- 	blkaddr = erofs_mapbh(bh->block);	/* start_blkaddr */
- 	ctx.inode = inode;
- 	ctx.blkaddr = blkaddr;
-@@ -782,22 +846,25 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd)
- 	ctx.head = ctx.tail = 0;
- 	ctx.clusterofs = 0;
- 	ctx.e.length = 0;
--	remaining = inode->i_size;
-+	ctx.e.compressedblks = 0;
-+	ctx.pclustersize = z_erofs_get_max_pclusterblks(inode) * EROFS_BLKSIZ;
-+	ctx.remaining = inode->i_size - inode->fragment_size;
- 
--	while (remaining) {
--		const u64 readcount = min_t(u64, remaining,
-+	while (ctx.remaining) {
-+		const u64 readcount = min_t(u64, ctx.remaining,
- 					    sizeof(ctx.queue) - ctx.tail);
-+		bool fixup = ret < 0;
- 
- 		ret = read(fd, ctx.queue + ctx.tail, readcount);
- 		if (ret != readcount) {
- 			ret = -errno;
- 			goto err_bdrop;
+-		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, PAGE_SIZE);
+-		if (copy_to_iter(src + offset, size, &iter) != size) {
++		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, count);
++		if (copy_to_iter(src + offset, count, &iter) != count) {
+ 			erofs_put_metabuf(&buf);
+ 			return -EFAULT;
  		}
--		remaining -= readcount;
-+		ctx.remaining -= readcount;
- 		ctx.tail += readcount;
- 
--		ret = vle_compress_one(&ctx, !remaining);
--		if (ret)
-+		ret = vle_compress_one(&ctx, fixup);
-+		if (ret && ret != -EAGAIN)
- 			goto err_free_idata;
- 	}
- 	DBG_BUGON(ctx.head != ctx.tail);
-@@ -807,6 +874,16 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd)
- 	DBG_BUGON(compressed_blocks < !!inode->idata_size);
- 	compressed_blocks -= !!inode->idata_size;
- 
-+	if (inode->fragment_size && ctx.e.compressedblks) {
-+		z_erofs_write_indexes(&ctx);
-+
-+		inode->z_advise |= Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
-+		ctx.e.length = inode->fragment_size;
-+		ctx.e.compressedblks = 0;
-+		ctx.e.raw = true;
-+		ctx.e.partial = false;
-+		ctx.e.blkaddr = ctx.blkaddr;
-+	}
- 	z_erofs_write_indexes(&ctx);
- 	z_erofs_write_indexes_final(&ctx);
- 	legacymetasize = ctx.metacur - compressmeta;
-diff --git a/lib/fragments.c b/lib/fragments.c
-index b8c37d5..48c133f 100644
---- a/lib/fragments.c
-+++ b/lib/fragments.c
-@@ -10,14 +10,183 @@
- #include "erofs/inode.h"
- #include "erofs/compress.h"
- #include "erofs/print.h"
-+#include "erofs/internal.h"
- #include "erofs/fragments.h"
- 
-+struct erofs_fragment_dedupe_item {
-+	struct list_head	list;
-+	unsigned int		length, nr_dup;
-+	erofs_off_t		pos;
-+	u8			data[];
-+};
-+
-+#define FRAGMENT_HASHTABLE_SIZE		65536
-+#define FRAGMENT_HASH(crc)		(crc & (FRAGMENT_HASHTABLE_SIZE - 1))
-+
-+static struct list_head dupli_frags[FRAGMENT_HASHTABLE_SIZE];
-+static unsigned int len_to_hash; /* the fragment length for crc32 hash */
-+
- static FILE *packedfile;
- const char *frags_packedname = "packed_file";
- 
-+static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
-+					 u32 crc)
-+{
-+	struct erofs_fragment_dedupe_item *cur, *di = NULL;
-+	struct list_head *head;
-+	u8 *data;
-+	unsigned int length;
-+	int ret;
-+
-+	head = &dupli_frags[FRAGMENT_HASH(crc)];
-+	if (list_empty(head))
+-		iov_iter_zero(PAGE_SIZE - size, &iter);
+ 		erofs_put_metabuf(&buf);
+-		return PAGE_SIZE;
++		req->submitted += count;
 +		return 0;
+ 	}
+ 
++	count = req->len - req->submitted;
+ 	if (!(map.m_flags & EROFS_MAP_MAPPED)) {
+-		count = len;
+ 		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, count);
+ 		iov_iter_zero(count, &iter);
+-		return count;
++		req->submitted += count;
++		return 0;
+ 	}
+ 
+-	count = min_t(size_t, map.m_llen - (pos - map.m_la), len);
++	count = min_t(size_t, map.m_llen - (pos - map.m_la), count);
+ 	DBG_BUGON(!count || count % PAGE_SIZE);
+ 
+ 	mdev = (struct erofs_map_dev) {
+@@ -241,68 +244,75 @@ static int erofs_fscache_data_read(struct address_space *mapping,
+ 	if (ret)
+ 		return ret;
+ 
+-	req = erofs_fscache_req_alloc(mapping, pos, count);
+-	if (IS_ERR(req))
+-		return PTR_ERR(req);
++	pstart = mdev.m_pa + (pos - map.m_la);
++	if (!req->submitted)
++		return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
++				req, pstart, count);
 +
-+	/* XXX: no need to read so much for smaller? */
-+	if (inode->i_size < 2 * EROFS_CONFIG_COMPR_MAX_SZ)
-+		length = inode->i_size;
-+	else
-+		length = 2 * EROFS_CONFIG_COMPR_MAX_SZ;
-+
-+	data = malloc(length);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	ret = lseek(fd, inode->i_size - length, SEEK_SET);
-+	if (ret == -1) {
-+		ret = -errno;
-+		goto out;
-+	}
-+
-+	ret = read(fd, data, length);
-+	if (ret != length) {
-+		ret = -errno;
-+		goto out;
-+	}
-+
-+	list_for_each_entry(cur, head, list) {
-+		unsigned int e1, e2, i = 0;
-+
-+		DBG_BUGON(cur->length < len_to_hash + 1);
-+		DBG_BUGON(length < len_to_hash + 1);
-+
-+		e1 = cur->length - len_to_hash - 1;
-+		e2 = length - len_to_hash - 1;
-+
-+		if (memcmp(cur->data + e1 + 1, data + e2 + 1, len_to_hash))
-+			continue;
-+
-+		while (i <= min(e1, e2) && cur->data[e1 - i] == data[e2 - i])
-+			i++;
-+
-+		if (i && (!di || i + len_to_hash > di->nr_dup)) {
-+			cur->nr_dup = i + len_to_hash;
-+			di = cur;
-+
-+			/* full match */
-+			if (i == min(e1, e2) + 1)
-+				break;
-+		}
-+	}
-+	if (!di)
-+		goto out;
-+
-+	DBG_BUGON(di->length < di->nr_dup);
-+
-+	inode->fragment_size = di->nr_dup;
-+	inode->fragmentoff = di->pos + di->length - di->nr_dup;
-+
-+	erofs_dbg("Dedupe %u fragment data at %lu", inode->fragment_size,
-+		  inode->fragmentoff);
-+out:
-+	free(data);
++	/* allocate a child request if current request ever been submitted */
++	new = erofs_fscache_req_alloc(mapping,
++			req->start + req->submitted, count, req);
++	if (IS_ERR(new))
++		return PTR_ERR(new);
+ 
+-	*unlock = false;
+ 	ret = erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
+-			req, mdev.m_pa + (pos - map.m_la), count);
+-	if (ret)
+-		req->error = ret;
++					      new, pstart, count);
++	req->submitted += count;
++	erofs_fscache_req_put(new);
 +	return ret;
 +}
-+
-+
-+int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *crc_ret)
+ 
+-	erofs_fscache_req_put(req);
+-	return count;
++/*
++ * Read into page cache in the range described by (req->start, req->len).
++ */
++static int erofs_fscache_data_read(struct erofs_fscache_request *req)
 +{
-+	u8 data_to_hash[len_to_hash];
-+	u32 crc;
 +	int ret;
 +
-+	if (inode->i_size <= len_to_hash)
-+		return 0;
++	do {
++		ret = erofs_fscache_data_read_slice(req);
++		if (ret)
++			req->error = ret;
++	} while (!ret && req->submitted < req->len);
 +
-+	ret = lseek(fd, inode->i_size - len_to_hash, SEEK_SET);
-+	if (ret == -1)
-+		return -errno;
-+
-+	ret = read(fd, data_to_hash, len_to_hash);
-+	if (ret != len_to_hash)
-+		return -errno;
-+
-+	crc = erofs_crc32c(~0, data_to_hash, len_to_hash);
-+	*crc_ret = crc;
-+
-+	ret = z_erofs_fragments_dedupe_find(inode, fd, crc);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = lseek(fd, 0, SEEK_SET);
-+	if (ret == -1)
-+		return -errno;
-+	return 0;
-+}
-+
-+static int z_erofs_fragments_dedupe_insert(void *data, unsigned int len,
-+					   erofs_off_t pos, u32 crc)
-+{
-+	struct erofs_fragment_dedupe_item *di;
-+
-+	if (len <= len_to_hash)
-+		return 0;
-+
-+	di = malloc(sizeof(*di) + len);
-+	if (!di)
-+		return -ENOMEM;
-+
-+	memcpy(di->data, data, len);
-+	di->length = len;
-+	di->pos = pos;
-+	di->nr_dup = 0;
-+
-+	list_add_tail(&di->list, &dupli_frags[FRAGMENT_HASH(crc)]);
-+	return 0;
-+}
-+
-+static inline void z_erofs_fragments_dedupe_init(unsigned int clen)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < FRAGMENT_HASHTABLE_SIZE; ++i)
-+		init_list_head(&dupli_frags[i]);
-+
-+	len_to_hash = clen;
-+}
-+
-+static void z_erofs_fragments_dedupe_exit(void)
-+{
-+	struct erofs_fragment_dedupe_item *di, *n;
-+	struct list_head *head;
-+	unsigned int i;
-+
-+	for (i = 0; i < FRAGMENT_HASHTABLE_SIZE; ++i) {
-+		head = &dupli_frags[i];
-+
-+		if (list_empty(head))
-+			continue;
-+
-+		list_for_each_entry_safe(di, n, head, list)
-+			free(di);
-+	}
-+}
-+
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
--			   unsigned int len)
-+			   unsigned int len, u32 crc)
++	return ret;
+ }
+ 
+ static int erofs_fscache_read_folio(struct file *file, struct folio *folio)
  {
-+	int ret;
-+
- 	inode->z_advise |= Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
- 	inode->fragmentoff = ftell(packedfile);
- 	inode->fragment_size = len;
-@@ -35,6 +204,11 @@ int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
+-	bool unlock;
++	struct erofs_fscache_request *req;
+ 	int ret;
  
- 	erofs_dbg("Recording %u fragment data at %lu", inode->fragment_size,
- 		  inode->fragmentoff);
+-	DBG_BUGON(folio_size(folio) != EROFS_BLKSIZ);
+-
+-	ret = erofs_fscache_data_read(folio_mapping(folio), folio_pos(folio),
+-				      folio_size(folio), &unlock);
+-	if (unlock) {
+-		if (ret > 0)
+-			folio_mark_uptodate(folio);
++	req = erofs_fscache_req_alloc(folio_mapping(folio),
++			folio_pos(folio), folio_size(folio), NULL);
++	if (IS_ERR(req)) {
+ 		folio_unlock(folio);
++		return PTR_ERR(req);
+ 	}
+-	return ret < 0 ? ret : 0;
 +
-+	ret = z_erofs_fragments_dedupe_insert(data, len, inode->fragmentoff,
-+					      crc);
-+	if (ret)
-+		return ret;
- 	return len;
++	ret = erofs_fscache_data_read(req);
++	erofs_fscache_req_put(req);
++	return ret;
  }
  
-@@ -50,6 +224,8 @@ void erofs_fragments_exit(void)
+ static void erofs_fscache_readahead(struct readahead_control *rac)
  {
- 	if (packedfile)
- 		fclose(packedfile);
-+
-+	z_erofs_fragments_dedupe_exit();
+-	struct folio *folio;
+-	size_t len, done = 0;
+-	loff_t start, pos;
+-	bool unlock;
+-	int ret, size;
++	struct erofs_fscache_request *req;
+ 
+ 	if (!readahead_count(rac))
+ 		return;
+ 
+-	start = readahead_pos(rac);
+-	len = readahead_length(rac);
++	req = erofs_fscache_req_alloc(rac->mapping,
++			readahead_pos(rac), readahead_length(rac), NULL);
++	if (IS_ERR(req))
++		return;
+ 
+-	do {
+-		pos = start + done;
+-		ret = erofs_fscache_data_read(rac->mapping, pos,
+-					      len - done, &unlock);
+-		if (ret <= 0)
+-			return;
++	/* The request completion will drop refs on the folios. */
++	while (readahead_folio(rac))
++		;
+ 
+-		size = ret;
+-		while (size) {
+-			folio = readahead_folio(rac);
+-			size -= folio_size(folio);
+-			if (unlock) {
+-				folio_mark_uptodate(folio);
+-				folio_unlock(folio);
+-			}
+-		}
+-	} while ((done += ret) < len);
++	erofs_fscache_data_read(req);
++	erofs_fscache_req_put(req);
  }
  
- int erofs_fragments_init(void)
-@@ -61,5 +237,7 @@ int erofs_fragments_init(void)
- #endif
- 	if (!packedfile)
- 		return -ENOMEM;
-+
-+	z_erofs_fragments_dedupe_init(16);
- 	return 0;
- }
+ static const struct address_space_operations erofs_fscache_meta_aops = {
 -- 
-2.17.1
+2.19.1.6.gb485710b
 
