@@ -4,32 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A28AC4321E
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Dec 2022 09:30:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 655FAC4321E
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Dec 2022 15:01:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NQdZS5VZXz3bf0
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Dec 2022 20:30:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NQmvq3vShz3bg8
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Dec 2022 02:01:11 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.7; helo=out30-7.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-7.freemail.mail.aliyun.com (out30-7.freemail.mail.aliyun.com [115.124.30.7])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NQdZM34Mvz30RH
-	for <linux-erofs@lists.ozlabs.org>; Mon,  5 Dec 2022 20:30:34 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hsiangkao@linux.alibaba.com;NM=0;PH=DS;RN=8;SR=0;TI=SMTPD_---0VWQvSYN_1670232627;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VWQvSYN_1670232627)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NQmvg4V6Zz3bY0
+	for <linux-erofs@lists.ozlabs.org>; Tue,  6 Dec 2022 02:01:02 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=0;PH=DS;RN=5;SR=0;TI=SMTPD_---0VWWWV0Z_1670252457;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VWWWV0Z_1670252457)
           by smtp.aliyun-inc.com;
-          Mon, 05 Dec 2022 17:30:29 +0800
-Date: Mon, 5 Dec 2022 17:30:26 +0800
+          Mon, 05 Dec 2022 23:00:58 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: syzbot <syzbot+2ae90e873e97f1faf6f2@syzkaller.appspotmail.com>
-Subject: Re: [syzbot] KASAN: use-after-free Read in z_erofs_transform_plain
-Message-ID: <Y426Mo9cweiBi77q@B-P7TQMD6M-0146.local>
-References: <00000000000041127805ef10446a@google.com>
+To: linux-erofs@lists.ozlabs.org,
+	Chao Yu <chao@kernel.org>
+Subject: [PATCH 2/2] erofs: validate the extent length for uncompressed pclusters
+Date: Mon,  5 Dec 2022 23:00:50 +0800
+Message-Id: <20221205150050.47784-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20221205150050.47784-1-hsiangkao@linux.alibaba.com>
+References: <20221205150050.47784-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <00000000000041127805ef10446a@google.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -41,50 +42,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>, syzbot+2ae90e873e97f1faf6f2@syzkaller.appspotmail.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Dec 05, 2022 at 12:13:47AM -0800, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    97ee9d1c1696 Merge tag 'block-6.1-2022-12-02' of git://git..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1786b2f5880000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=2325e409a9a893e1
-> dashboard link: https://syzkaller.appspot.com/bug?extid=2ae90e873e97f1faf6f2
-> compiler:       Debian clang version 13.0.1-++20220126092033+75e33f71c2da-1~exp1~20220126212112.63, GNU ld (GNU Binutils for Debian) 2.35.2
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=115e5c47880000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=170fa3d5880000
-> 
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/6a6a9ff34dfa/disk-97ee9d1c.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/2a01a4182c2b/vmlinux-97ee9d1c.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/4371158e8c25/bzImage-97ee9d1c.xz
-> mounted in repro: https://storage.googleapis.com/syzbot-assets/22dcea976d97/mount_0.gz
-> 
+syzkaller reported a KASAN use-after-free:
+https://syzkaller.appspot.com/bug?extid=2ae90e873e97f1faf6f2
 
-It seems another report due to mixed ztailpacking (inline) and
-non-inlined pclusters at once.
+The referenced fuzzed image actually has two issues:
+ - m_pa == 0 as a non-inlined pcluster;
+ - The logical length is longer than its physical length.
 
-(Although I need to add another check for mixed algorithm formats for
- a single pcluster as well..)
+The first issue has already been addressed.  This patch addresses
+the second issue by checking the extent length validity.
 
-#syz fix: erofs: Fix pcluster memleak when its block address is zero 
+Reported-by: syzbot+2ae90e873e97f1faf6f2@syzkaller.appspotmail.com
+Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/zmap.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> The issue was bisected to:
-> 
-> commit dcbe6803fffd387f72b48c2373b5f5ed12a5804b
-> Author: Gao Xiang <hsiangkao@linux.alibaba.com>
-> Date:   Thu May 12 11:58:33 2022 +0000
-> 
->     erofs: fix buffer copy overflow of ztailpacking feature
-> 
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 98eff1259de4..0150570c33aa 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -698,6 +698,11 @@ static int z_erofs_do_map_blocks(struct inode *inode,
+ 	}
+ 
+ 	if (m.headtype == Z_EROFS_VLE_CLUSTER_TYPE_PLAIN) {
++		if (map->m_llen > map->m_plen) {
++			DBG_BUGON(1);
++			err = -EFSCORRUPTED;
++			goto unmap_out;
++		}
+ 		if (vi->z_advise & Z_EROFS_ADVISE_INTERLACED_PCLUSTER)
+ 			map->m_algorithmformat =
+ 				Z_EROFS_COMPRESSION_INTERLACED;
+-- 
+2.24.4
 
-It caused KASAN to begin to report, but it's not the root cause. Just
-ignore it.
-
-Thanks,
-Gao Xiang
