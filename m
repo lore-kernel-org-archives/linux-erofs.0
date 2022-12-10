@@ -4,64 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90267C4332F
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Dec 2022 02:22:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 233EEC4332F
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Dec 2022 02:22:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NTWr10DVHz3bgH
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Dec 2022 13:22:25 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NTWr64J6Lz3bgW
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Dec 2022 13:22:30 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=YeYQ/enY;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=GyInDtvv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42a; helo=mail-pf1-x42a.google.com; envelope-from=raj.khem@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::436; helo=mail-pf1-x436.google.com; envelope-from=raj.khem@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=YeYQ/enY;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=GyInDtvv;
 	dkim-atps=neutral
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NTWqn4x6dz3bVP
-	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Dec 2022 13:22:13 +1100 (AEDT)
-Received: by mail-pf1-x42a.google.com with SMTP id a14so4968355pfa.1
-        for <linux-erofs@lists.ozlabs.org>; Fri, 09 Dec 2022 18:22:13 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NTWqp4nS7z3bVP
+	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Dec 2022 13:22:14 +1100 (AEDT)
+Received: by mail-pf1-x436.google.com with SMTP id d82so4935691pfd.11
+        for <linux-erofs@lists.ozlabs.org>; Fri, 09 Dec 2022 18:22:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=U/ii1dil+CbFFXLB+JoOAXlZbxGAp4w7qPIBdB4vFF8=;
-        b=YeYQ/enY2GpsVToJRpYrMwX/WP0eGGyrxtiny3TW6Q6rcoK6cDr08LmNSR69iUmqbp
-         SazuY6Uvx9kv5UK1wGcEHztTPyBYabrACocJRt0xKxPeuFC0+j4Dm0UB+dEDJPD/J2zT
-         Y+EIxZRB5G5xJVUFWF+rrtXa/U+pjGLRm9gTaBumAZIpyTGaJFEhQSneiljPUQ12slBZ
-         Qggi2wRC4A4aUSDyYHo0SzV1ePsz564Mykfg7iFtmyCuqOshMeb38DPbsi5CBhqNjsF7
-         BHW3CMELFYMZw9CmshnAHzvk8YneQQdxML3UbWH9YqRAal9lDjfqyp5MYjzrWk4Tq90A
-         N4lQ==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EJCBNdHJZOaV9Vz7eP03zVF14YpB9OyDmXNL9/9F9SI=;
+        b=GyInDtvvMza3FAEnA5JX1cIvZ4hdIUT7MLyzBsYi3hrE+6GUwGzG9E49KmYqocfoxY
+         xDt1oRKHAfvunOszsOyc+clnNUJ6sEJa0nKLIBQTXi9WGdX4m2eP+mDvd3w2zz03MDBy
+         +RUl+guHkAYoe35V0xf4oKa5o5itJWDg/pEZk8waUTZ14b9geIiNKqamuT/VHapBJYlU
+         KvuMsZw4F0PyGq5JmAIO/2aTpE/2xav6MQqD58jtaeXTurMnLKfNt01zdcC9+0C7+GVZ
+         PP7Bc7x5sK73wHoIESBcR9DMOEM8RwnBjkqMkgO8cAlbx3VD9nMScdcnKhXdgaKi78Rq
+         kXlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=U/ii1dil+CbFFXLB+JoOAXlZbxGAp4w7qPIBdB4vFF8=;
-        b=PQL3xm1/AiVATPcah0fP2jDoF98bvGw5wwePTUft4Retqg7lUILneGQRskcnXkAvlA
-         +j7R+gRfBlvYLlFOa3TMk/Q0n8Lz6g2ZF8Sgc+0/miCp+tLftBaz2/uYidQO3hvXsZfj
-         l5u4A0sU9qbN5PUKKzcZVxfc+MeGmlcXnuojaAj3krZksPGiDq7I5zDW8jVXZfJx8Xsm
-         UGtGEluDFjcYY9J8f7fTiYD7rrzQ9G+zp/cX4biNHgHRnTWiEbBiPAYAWQ6m3xT+Acqj
-         cd1ykaU3gX9Ha+wKMO2W2Sms1UcqQcyfrROdKB0jOTRWEC/JEQcBhvxFxwjRKPVEZ6YJ
-         n6Ag==
-X-Gm-Message-State: ANoB5pkZZxBs50Kx2bk1QtscZizoh1Z0Nv4c6R8845a6zFpA1nNgAup9
-	imNaTr/oz5GEuyQ45Gm1Z5TwjxHUcPA=
-X-Google-Smtp-Source: AA0mqf645GqBDEat8qR2GbeKktLiyuTh8P2p6/+b/wamZnBXVUYEejNcIQArntpKULpaV0XIx0w3Hw==
-X-Received: by 2002:a62:1c93:0:b0:576:45c8:100f with SMTP id c141-20020a621c93000000b0057645c8100fmr6809204pfc.23.1670638930188;
-        Fri, 09 Dec 2022 18:22:10 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EJCBNdHJZOaV9Vz7eP03zVF14YpB9OyDmXNL9/9F9SI=;
+        b=8Bzl1zdGdKCMFKslqoZ46X2Kd6nRA0Rv5fyXRgdAys3gSMTRs7M1z1SfXtVHY9bp/N
+         2/xiDdBZyKe3bGGLUS0kO0EWaZHhn+e77XNNZWQTsmT7cNcEy1lDUovnhz7g2SU+zy8e
+         V2r9FtLuAAhstKEd/lBCgcvGCbv3a0+hAuD9bTD1orUP+GjdH2R/0BDH4auTb/NQm3XM
+         SxebKv1mwpaOoWjtDdu6HP+NFgjGWJz+I09XZ5f6HcqUEVBPk/Vvd+mQXpYn2Pc9XhWd
+         RCid/P33Qt3G4Ft/8CCmFnqOsYx2ggQeoj7ziu/PUrKNv9epmlHr6E4DBKp9GEp2WK8y
+         82+A==
+X-Gm-Message-State: ANoB5plqicoxG5jXmbCxcDsj5ApRK1whiVQAkDcRiJgO8SEWl9/zTLL0
+	ERfx+E4rXSeTAyESccKuW9w52Cbb0LQ=
+X-Google-Smtp-Source: AA0mqf5SU7z4Zq6pO913O/fkFrAb6qH8ULw6Y914nUViqpwLlObR0ikDPoFKyEUzURnONYIu5kvraw==
+X-Received: by 2002:a05:6a00:188b:b0:576:9eed:61de with SMTP id x11-20020a056a00188b00b005769eed61demr10267935pfh.4.1670638932017;
+        Fri, 09 Dec 2022 18:22:12 -0800 (PST)
 Received: from apollo.hsd1.ca.comcast.net ([2601:646:9181:1cf0::7d9c])
-        by smtp.gmail.com with ESMTPSA id b64-20020a621b43000000b0056c3a0dc65fsm1814475pfb.71.2022.12.09.18.22.09
+        by smtp.gmail.com with ESMTPSA id b64-20020a621b43000000b0056c3a0dc65fsm1814475pfb.71.2022.12.09.18.22.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Dec 2022 18:22:09 -0800 (PST)
+        Fri, 09 Dec 2022 18:22:11 -0800 (PST)
 From: Khem Raj <raj.khem@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [[PATCH v2 1/3] configure: use AC_SYS_LARGEFILE
-Date: Fri,  9 Dec 2022 18:22:05 -0800
-Message-Id: <20221210022207.757975-1-raj.khem@gmail.com>
+Subject: [[PATCH v2 3/3] erofs: replace [l]stat64 by equivalent [l]stat
+Date: Fri,  9 Dec 2022 18:22:07 -0800
+Message-Id: <20221210022207.757975-3-raj.khem@gmail.com>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221210022207.757975-1-raj.khem@gmail.com>
+References: <20221210022207.757975-1-raj.khem@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -79,28 +82,106 @@ Cc: Khem Raj <raj.khem@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The autoconf macro AC_SYS_LARGEFILE defines _FILE_OFFSET_BITS=64
-where necessary to ensure that off_t and all interfaces using off_t
-are 64bit, even on 32bit systems.
-
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
- configure.ac | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/inode.c | 10 +++++-----
+ lib/xattr.c |  4 ++--
+ mkfs/main.c |  4 ++--
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index a736ff0..b880bb0 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -13,6 +13,8 @@ AC_CONFIG_MACRO_DIR([m4])
- AC_CONFIG_AUX_DIR(config)
- AM_INIT_AUTOMAKE([foreign -Wall])
+diff --git a/lib/inode.c b/lib/inode.c
+index f192510..38003fc 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -773,7 +773,7 @@ static u32 erofs_new_encode_dev(dev_t dev)
  
-+AC_SYS_LARGEFILE
-+
- # Checks for programs.
- AM_PROG_AR
- AC_PROG_CC
+ #ifdef WITH_ANDROID
+ int erofs_droid_inode_fsconfig(struct erofs_inode *inode,
+-			       struct stat64 *st,
++			       struct stat *st,
+ 			       const char *path)
+ {
+ 	/* filesystem_config does not preserve file type bits */
+@@ -818,7 +818,7 @@ int erofs_droid_inode_fsconfig(struct erofs_inode *inode,
+ }
+ #else
+ static int erofs_droid_inode_fsconfig(struct erofs_inode *inode,
+-				      struct stat64 *st,
++				      struct stat *st,
+ 				      const char *path)
+ {
+ 	return 0;
+@@ -826,7 +826,7 @@ static int erofs_droid_inode_fsconfig(struct erofs_inode *inode,
+ #endif
+ 
+ static int erofs_fill_inode(struct erofs_inode *inode,
+-			    struct stat64 *st,
++			    struct stat *st,
+ 			    const char *path)
+ {
+ 	int err = erofs_droid_inode_fsconfig(inode, st, path);
+@@ -910,7 +910,7 @@ static struct erofs_inode *erofs_new_inode(void)
+ /* get the inode from the (source) path */
+ static struct erofs_inode *erofs_iget_from_path(const char *path, bool is_src)
+ {
+-	struct stat64 st;
++	struct stat st;
+ 	struct erofs_inode *inode;
+ 	int ret;
+ 
+@@ -918,7 +918,7 @@ static struct erofs_inode *erofs_iget_from_path(const char *path, bool is_src)
+ 	if (!is_src)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	ret = lstat64(path, &st);
++	ret = lstat(path, &st);
+ 	if (ret)
+ 		return ERR_PTR(-errno);
+ 
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 71ffe3e..fd0e728 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -467,7 +467,7 @@ static int erofs_count_all_xattrs_from_path(const char *path)
+ {
+ 	int ret;
+ 	DIR *_dir;
+-	struct stat64 st;
++	struct stat st;
+ 
+ 	_dir = opendir(path);
+ 	if (!_dir) {
+@@ -502,7 +502,7 @@ static int erofs_count_all_xattrs_from_path(const char *path)
+ 			goto fail;
+ 		}
+ 
+-		ret = lstat64(buf, &st);
++		ret = lstat(buf, &st);
+ 		if (ret) {
+ 			ret = -errno;
+ 			goto fail;
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 0e601d9..ca1ac16 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -582,7 +582,7 @@ int main(int argc, char **argv)
+ 	struct erofs_buffer_head *sb_bh;
+ 	struct erofs_inode *root_inode;
+ 	erofs_nid_t root_nid;
+-	struct stat64 st;
++	struct stat st;
+ 	erofs_blk_t nblocks;
+ 	struct timeval t;
+ 	char uuid_str[37] = "not available";
+@@ -610,7 +610,7 @@ int main(int argc, char **argv)
+ 			return 1;
+ 	}
+ 
+-	err = lstat64(cfg.c_src_path, &st);
++	err = lstat(cfg.c_src_path, &st);
+ 	if (err)
+ 		return 1;
+ 	if (!S_ISDIR(st.st_mode)) {
 -- 
 2.38.1
 
