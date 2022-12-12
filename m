@@ -4,61 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E1B4C4332F
-	for <linux-erofs@archiver.kernel.org>; Sun, 11 Dec 2022 05:09:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA72BC4332F
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Dec 2022 07:01:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NVCVP4v9Lz3bhJ
-	for <linux-erofs@archiver.kernel.org>; Sun, 11 Dec 2022 16:09:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NVsx80ctJz3bgn
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Dec 2022 18:01:32 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Z9qkO7xz;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RD2iWcGq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=134.134.136.24; helo=mga09.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Z9qkO7xz;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RD2iWcGq;
 	dkim-atps=neutral
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NVCV816qzz30hh
-	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Dec 2022 16:09:16 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670735360; x=1702271360;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=YvhuK8bksgfu8zTcuNkJcCcvQ6+JIBnOrYPpn4+P1BI=;
-  b=Z9qkO7xz+4hUtXyon5P7wRQBs/JW7bMCedt/aU3inTDVf8gFS+A6ew+I
-   Rnuxp1mD7w5n9pkwnAPByaRHJZeXCDZiZoGLgzDOkmfk8YcxyY7CZFRgd
-   Spdu8KYyN1QEtNXif8ukHj66TaCcteiM6MRCVmDmz1MhAGXpDDrwU5cFm
-   Kse5rktON2/AdunrCcCfyz0MhKE+69lxgjNNgvgfJl/W8EkJproUewcXa
-   rpsP458UGWeBbgcatTlvNNA6XG4Q5fDAWOhRs5yovRQ2puGc0IQUPfa1i
-   in5IyjWrlAHz6OwNcebXmXADr7CSRrXO5pambcNP30LMMXnSVZ9Mnme+C
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10557"; a="318822061"
-X-IronPort-AV: E=Sophos;i="5.96,235,1665471600"; 
-   d="scan'208";a="318822061"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2022 21:09:11 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10557"; a="976677219"
-X-IronPort-AV: E=Sophos;i="5.96,235,1665471600"; 
-   d="scan'208";a="976677219"
-Received: from lkp-server01.sh.intel.com (HELO b5d47979f3ad) ([10.239.97.150])
-  by fmsmga005.fm.intel.com with ESMTP; 10 Dec 2022 21:09:10 -0800
-Received: from kbuild by b5d47979f3ad with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1p4EaL-0002rS-1j;
-	Sun, 11 Dec 2022 05:09:09 +0000
-Date: Sun, 11 Dec 2022 13:08:32 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- c505feba4c0d76084e56ec498ce819f02a7043ae
-Message-ID: <639565d0.FEF91a38lLn3afo2%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NVswz3Rhzz2xVr
+	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Dec 2022 18:01:23 +1100 (AEDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id EBD5960EA9;
+	Mon, 12 Dec 2022 07:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8FE2C433EF;
+	Mon, 12 Dec 2022 07:01:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1670828479;
+	bh=kEC/bBy/GTyYEBCgbPrMyXtSHdKJIlAGnQpUleGGwZI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=RD2iWcGqSwJ8Vjn1J3j24lv892KhzL/IAalLN+QOQ1WVvw23cy9x2JaZ0l607yhQd
+	 POvOefa211GYpDgCOtGThvdeL3HaSj+bstUvxTiWmp5ncG2/W+NkFx7UJa5Sl18XSk
+	 kqXd4r+kwsad4y/mMWV7yAG6Dpl9gz1Mx0tzdf6dt/uX22gXBMa/ZZnnWD59Usn2A5
+	 pFKMcNghokirApjflY9VinSikE+czRVUdbqOgAjmIORST8uAjTaA64qcO9v0H3Wiqq
+	 fYgWe50UaadU5C2MqFOWXQrMK330OPVodLqgKxRjh/i00txk4nMRVXb/lEY77cpDD2
+	 B+m0Gxi0PKBmA==
+Date: Mon, 12 Dec 2022 15:01:12 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [GIT PULL] erofs updates for 6.2-rc1 (fscache part inclusive)
+Message-ID: <Y5bRuDiEwUAK1si1@debian>
+Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-erofs@lists.ozlabs.org, linux-cachefs@redhat.com,
+	LKML <linux-kernel@vger.kernel.org>,
+	David Howells <dhowells@redhat.com>,
+	Jeff Layton <jlayton@kernel.org>, Chao Yu <chao@kernel.org>,
+	Yue Hu <huyue2@coolpad.com>, Jingbo Xu <jefflexu@linux.alibaba.com>,
+	Hou Tao <houtao1@huawei.com>,
+	Chen Zhongjin <chenzhongjin@huawei.com>,
+	Jia Zhu <zhujia.zj@bytedance.com>
+References: <Y5TB6E77vbpRMhIk@debian>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Y5TB6E77vbpRMhIk@debian>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,111 +68,118 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Yue Hu <huyue2@coolpad.com>, Chen Zhongjin <chenzhongjin@huawei.com>, Jeff Layton <jlayton@kernel.org>, LKML <linux-kernel@vger.kernel.org>, David Howells <dhowells@redhat.com>, linux-cachefs@redhat.com, Hou Tao <houtao1@huawei.com>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: c505feba4c0d76084e56ec498ce819f02a7043ae  erofs: validate the extent length for uncompressed pclusters
+Hi Linus,
 
-elapsed time: 725m
+On Sun, Dec 11, 2022 at 01:29:21AM +0800, Gao Xiang wrote:
+> Hi Linus,
+> 
+> Once the merge window opens, could you consider this pull request for
+> 6.2-rc1?
+> 
+> In this cycle, large folios are now enabled in the iomap/fscache mode
+> for uncompressed files first.  In order to do that, we've also cleaned
+> up better interfaces between erofs and fscache, which are acked by
+> fscache/netfs folks and included in this pull request.
+> 
+> Other than that, there are random fixes around erofs over fscache and
+> crafted images by syzbot, minor cleanups and documentation updates.
+> 
+> Note that there could be a trivial conflict between erofs and vfs
+> tree according to linux-next report [1].
+> 
+> Happy Holidays!
+> Gao Xiang
+> 
+> [1] https://lore.kernel.org/r/20221205092415.56cc6e19@canb.auug.org.au/
+> 
+> The following changes since commit eb7081409f94a9a8608593d0fb63a1aa3d6f95d8:
+> 
+>   Linux 6.1-rc6 (2022-11-20 16:02:16 -0800)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.2-rc1
+> 
+> for you to fetch changes up to c505feba4c0d76084e56ec498ce819f02a7043ae:
+> 
 
-configs tested: 85
-configs skipped: 2
+Sorry for bothering again.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Just having seen v6.2 pull request requirements together with
+Linux 6.1 announcement.
 
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-i386                          randconfig-a001
-i386                          randconfig-a003
-x86_64                        randconfig-a004
-x86_64                            allnoconfig
-x86_64                        randconfig-a002
-i386                          randconfig-a014
-i386                          randconfig-a005
-ia64                             allmodconfig
-i386                          randconfig-a012
-arc                               allnoconfig
-x86_64                        randconfig-a013
-x86_64                          rhel-8.3-rust
-powerpc                           allnoconfig
-powerpc                          allmodconfig
-alpha                             allnoconfig
-x86_64                        randconfig-a011
-x86_64                        randconfig-a006
-i386                              allnoconfig
-arm                               allnoconfig
-x86_64                    rhel-8.3-kselftests
-sh                               allmodconfig
-mips                             allyesconfig
-i386                          randconfig-a016
-x86_64                          rhel-8.3-func
-x86_64                        randconfig-a015
-arc                                 defconfig
-s390                             allmodconfig
-arc                  randconfig-r043-20221211
-alpha                               defconfig
-s390                                defconfig
-arm                  randconfig-r046-20221211
-s390                             allyesconfig
-x86_64                              defconfig
-x86_64                           rhel-8.3-bpf
-x86_64                         rhel-8.3-kunit
-m68k                             allyesconfig
-x86_64                           rhel-8.3-kvm
-x86_64                           allyesconfig
-m68k                             allmodconfig
-x86_64                           rhel-8.3-syz
-arc                              allyesconfig
-x86_64                               rhel-8.3
-alpha                            allyesconfig
-arc                        nsim_700_defconfig
-i386                                defconfig
-ia64                            zx1_defconfig
-arm                        realview_defconfig
-powerpc                     tqm8555_defconfig
-alpha                            alldefconfig
-mips                    maltaup_xpa_defconfig
-powerpc                     pq2fads_defconfig
-i386                             allyesconfig
-arm                                 defconfig
-arm                              allyesconfig
-arm64                            allyesconfig
-i386                          randconfig-c001
-mips                     decstation_defconfig
-sh                           se7206_defconfig
-riscv                             allnoconfig
-m68k                            q40_defconfig
-riscv                               defconfig
+Comparing with the latest -next on the last Thursday, there was one-liner
+addition on
+commit 927e5010ff5b ("erofs: use kmap_local_page() only for erofs_bread()")
+as below:
 
-clang tested configs:
-x86_64                        randconfig-a014
-i386                          randconfig-a013
-i386                          randconfig-a002
-x86_64                        randconfig-a001
-x86_64                        randconfig-a003
-x86_64                        randconfig-a005
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a016
-x86_64                        randconfig-a012
-i386                          randconfig-a015
-i386                          randconfig-a011
-hexagon              randconfig-r041-20221211
-hexagon              randconfig-r045-20221211
-riscv                randconfig-r042-20221211
-s390                 randconfig-r044-20221211
-mips                  cavium_octeon_defconfig
-powerpc                     kmeter1_defconfig
-arm                          sp7021_defconfig
-powerpc                      obs600_defconfig
-arm                              alldefconfig
-arm                                 defconfig
-x86_64                        randconfig-k001
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 85932086d23f..5b3a793103af 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -268,6 +268,7 @@ static int erofs_fill_inode(struct inode *inode)
+ 	case S_IFDIR:
+ 		inode->i_op = &erofs_dir_iops;
+ 		inode->i_fop = &erofs_dir_fops;
++		inode_nohighmem(inode);
+ 		break;
+ 	case S_IFLNK:
+ 		err = erofs_fill_symlink(inode, kaddr, ofs)
 
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+since I found erofs_lookup() could break on x86 platform with HIGHMEM
+enabled this weekend and I made all dirs inode_nohighmem() and folded
+into the original patch since it's no needed to keep dirs in HIGHMEM.
+I don't find other strange other than this.
+
+Because there is no -next version on Monday, if you would like to
+take all commits in -next you could take
+  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.2-rc1-alt
+
+instead (the top commit is e5293c693d68f705787480159c4cd332c09c5e67.)
+
+In that way I will send another patch to fix the issue above later,
+but if it's possible, it'd be better to apply "tags/erofs-for-6.2-rc1"
+directly...
+
+The diffstat of tags/erofs-for-6.2-rc1-alt is:
+
+Chen Zhongjin (1):
+      erofs: Fix pcluster memleak when its block address is zero
+
+Gao Xiang (5):
+      erofs: update documentation
+      erofs: clean up cached I/O strategies
+      erofs: use kmap_local_page() only for erofs_bread()
+      erofs: fix missing unmap if z_erofs_get_extent_compressedlen() fails
+      erofs: validate the extent length for uncompressed pclusters
+
+Hou Tao (1):
+      erofs: check the uniqueness of fsid in shared domain in advance
+
+Jingbo Xu (5):
+      erofs: enable large folios for iomap mode
+      fscache,cachefiles: add prepare_ondemand_read() callback
+      erofs: switch to prepare_ondemand_read() in fscache mode
+      erofs: support large folios for fscache mode
+      erofs: enable large folios for fscache mode
+
+ Documentation/filesystems/erofs.rst |  38 ++--
+ fs/cachefiles/io.c                  |  77 ++++---
+ fs/erofs/data.c                     |  10 +-
+ fs/erofs/fscache.c                  | 408 ++++++++++++++++--------------------
+ fs/erofs/inode.c                    |   1 +
+ fs/erofs/internal.h                 |  13 +-
+ fs/erofs/super.c                    |   2 +-
+ fs/erofs/xattr.c                    |   8 +-
+ fs/erofs/zdata.c                    |  80 +++----
+ fs/erofs/zmap.c                     |  15 +-
+ include/linux/netfs.h               |   8 +
+ include/trace/events/cachefiles.h   |  27 +--
+ 12 files changed, 343 insertions(+), 344 deletions(-)
+
+Thanks,
+Gao Xiang
