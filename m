@@ -4,62 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81ADAC4332F
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Dec 2022 09:18:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56F83C4332F
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Dec 2022 09:23:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NWXwJ0Bm2z3bk8
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Dec 2022 20:18:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NWY2k5qtWz3bjc
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Dec 2022 20:23:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=YiUTuWbx;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=a0gaepRC;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::102e; helo=mail-pj1-x102e.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::630; helo=mail-pl1-x630.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=YiUTuWbx;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=a0gaepRC;
 	dkim-atps=neutral
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NWXw91lFBz3bY0
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Dec 2022 20:18:00 +1100 (AEDT)
-Received: by mail-pj1-x102e.google.com with SMTP id e7-20020a17090a77c700b00216928a3917so2869540pjs.4
-        for <linux-erofs@lists.ozlabs.org>; Tue, 13 Dec 2022 01:18:00 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NWY2b0s6gz30QQ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Dec 2022 20:23:32 +1100 (AEDT)
+Received: by mail-pl1-x630.google.com with SMTP id 17so7558674pll.0
+        for <linux-erofs@lists.ozlabs.org>; Tue, 13 Dec 2022 01:23:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AlM7+ttnWIA5hW9SWmsTKhtM1CABzvvKuddCfyKleUc=;
-        b=YiUTuWbxrvy1KoypF14E+VW51q+8mcpKHBOFEvY9zUcZ8y11u12/HM/JU5/mfspseh
-         79UzBaUO2c77tvrlbGMtRifKeDHerQzVvPJxIL5evNxIQT5FI7LiEpLzohqpkV0ik8fE
-         byKaQ5UQrvBhCUqNFGOlK0bSZrmGxNWD7ePo/4nkrGDH+aPgXq3hXAytPFAQt2l226Xk
-         dZT1dE9OGvQrpek8Hw4PoTgnppguHkX1F5vn/G3eEeQpzZLSZT2J1c7ppzhmcxGuBTNg
-         a2tDuV5azk1GVolrIyjPnP1RFDwH32bs9oLUu7x8gvkLn/nTTnt6HVNcTmWOx6fNJ7Cn
-         EqNg==
+        bh=KUKQRH2E7IyO+7Nd0+q4ItnT7LtVHFeHRMpP7q9oMRA=;
+        b=a0gaepRCkAzzHdSt67Q2mqA05UfjZkvj8hQAVBJJOgOGLuxUwVXz6DoOMuL6tE1HV+
+         JsydRg39t1P8j0M23r+JGL1y6WAqXE/rwoq1muUbVJwo+Noprv6KAm+q4+rGqbxRf5Ax
+         YlhF0RY4oy0GJuvSTFCccXsUhhA2mVALKCVcF/feikSU6aW+VRPwjKM+7LUqMQv2SUeU
+         3kJr8ZFsaNfwROWL+hkVo4cAEwhLjUHi2uKkT4ksS3xvQrFJ8/JDi5AhK+nsQRB8JVan
+         muLIjkk0tRZNZPbCpzJh7pp0t7GsUgSj3LfrwoFhW3ZrNhNQ43y+qyFmfmL8N1TsVf/2
+         4u6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AlM7+ttnWIA5hW9SWmsTKhtM1CABzvvKuddCfyKleUc=;
-        b=myHv8/IXLF8WDy91gJzwWFXycZ1UUD2F28Arqg4e+lo6jh78+vkWAZmLmfjykoCGBs
-         /SkO5xlNFutxAZmzmW8f5vN8YmsRSD2pIEgj3HlnrNeHnbd82UxFJ2qtv9ZopQzoefNr
-         HT2RK9kqrPXL8r+1A3iEchKtpeb9jEYrJAsNo+cM43yXBYfgmWeQGlPzX/NiW5HQzY/b
-         tgjZPZ1slqNJafsafdAEeRvLuhcKnOnhJZX4+gyUq37qDxhSIAaz5mlzHlsRwSrFj+Wb
-         X3RmDaprYhezHq8vqFWekr7H67xdC7JNsYWAkJ3NKEN2aVWk/da6OmeazYHJ+j2lej2d
-         vakg==
-X-Gm-Message-State: ANoB5pnt+b93nR7jB7dPzDIrHwIfK+SAn7gmL+rxLFLbAZQHLqUOdirh
-	TDqRdEkZjWvD9my2wPQpZRvLdJz5aQU=
-X-Google-Smtp-Source: AA0mqf4eGZ9FMikwYb9IBEcrQ5MkRTz/neOCwyZbCZrsL1L/6sV3upV0qmCnMYKblVFkPVfNZ3X4Jg==
-X-Received: by 2002:a17:902:7104:b0:189:bf5d:c951 with SMTP id a4-20020a170902710400b00189bf5dc951mr18889891pll.26.1670923077956;
-        Tue, 13 Dec 2022 01:17:57 -0800 (PST)
+        bh=KUKQRH2E7IyO+7Nd0+q4ItnT7LtVHFeHRMpP7q9oMRA=;
+        b=3FR0J4xwoQdjem8ccEKdMAYh6Vyj8iN/2ROBU1qt+fe10Gt/QgdW7wx8OH86CswQi+
+         OuhyAKTo1XxnLQLCjALiPp2smv99mOHloxt4D3JProbXDfcejSm8PMc+9SlhD7xHr6sE
+         rXjxYt4DX9i+Ej+cdvdIoFdGRdaEoxMqke2GPbJAUPdJSxdh5SqQiYyyMccVeRKwRNi0
+         kxF9/PBNPgdUQbCn70Ydsgg5GBmn7ZUmizKqT2u37R6fwkPbEZBFY2cbNQtGdfNZpD7k
+         hLF3Jgtox8ckt8DEoXQ8r3FRDoREChCQLmKbvQw7ZnTngGixDGdrSbU5Rm+Y1Cpj/esi
+         XJog==
+X-Gm-Message-State: ANoB5pnkwLkbud6edLuGs8k6jeeXB4Hrsk/BtS5zj0KLOBDIYyCRaAZy
+	tlsOyZD4cCIW0auWtVRUROHq1Hleras=
+X-Google-Smtp-Source: AA0mqf4azMfd5klX7qEZBOSGtEpomSeVtRZ8xvp9J+TIBY1ITbOmJJjuFyO/zROoSYsi2sjZT2WGrw==
+X-Received: by 2002:a05:6a20:c991:b0:9d:efbe:a117 with SMTP id gy17-20020a056a20c99100b0009defbea117mr20328916pzb.39.1670923409865;
+        Tue, 13 Dec 2022 01:23:29 -0800 (PST)
 Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id bi12-20020a170902bf0c00b001782398648dsm5886489plb.8.2022.12.13.01.17.56
+        by smtp.gmail.com with ESMTPSA id b3-20020a637143000000b0046feb2754e5sm6494346pgn.28.2022.12.13.01.23.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Dec 2022 01:17:57 -0800 (PST)
+        Tue, 13 Dec 2022 01:23:29 -0800 (PST)
 From: Yue Hu <zbestahu@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs-utils: fix fragmentoff overflow for large packed inode
-Date: Tue, 13 Dec 2022 17:17:46 +0800
-Message-Id: <20221213091746.16683-1-zbestahu@gmail.com>
+Subject: [PATCH v2] erofs-utils: check the return value of lseek in inode.c
+Date: Tue, 13 Dec 2022 17:23:17 +0800
+Message-Id: <20221213092317.17236-1-zbestahu@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -72,115 +72,58 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yue Hu <huyue2@coolpad.com>, raj.khem@gmail.com, zhangwen@coolpad.com
+Cc: Yue Hu <huyue2@coolpad.com>, zhangwen@coolpad.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 From: Yue Hu <huyue2@coolpad.com>
 
-The return value of ftell() is a long int, use ftello{64} instead. Also,
-need to return at once if it fails. Meanwhile, use lseek64 for large
-file position as well to avoid this error if we have it.
+Need to check if we got an error. Also, make erofs_write_file() static.
 
 Signed-off-by: Yue Hu <huyue2@coolpad.com>
 ---
-v2:
-- lseek64 -> erofs_lseek64
-- remove change in inode.c
-- minor commit message update
+v2: check ret < 0 rather than ret == -1
 
- configure.ac    |  2 ++
- lib/fragments.c | 33 ++++++++++++++++++++++++++++-----
- 2 files changed, 30 insertions(+), 5 deletions(-)
+ lib/inode.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index a736ff0..5c9666a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -190,6 +190,8 @@ AC_CHECK_FUNCS(m4_flatten([
- 	llistxattr
- 	memset
- 	realpath
-+	lseek64
-+	ftello64
- 	pread64
- 	pwrite64
- 	strdup
-diff --git a/lib/fragments.c b/lib/fragments.c
-index e69ae47..c67c1bb 100644
---- a/lib/fragments.c
-+++ b/lib/fragments.c
-@@ -3,7 +3,18 @@
-  * Copyright (C), 2022, Coolpad Group Limited.
-  * Created by Yue Hu <huyue2@coolpad.com>
-  */
-+#ifndef _LARGEFILE_SOURCE
-+#define _LARGEFILE_SOURCE
-+#endif
-+#ifndef _LARGEFILE64_SOURCE
-+#define _LARGEFILE64_SOURCE
-+#endif
-+#ifndef _FILE_OFFSET_BITS
-+#define _FILE_OFFSET_BITS 64
-+#endif
-+#ifndef _GNU_SOURCE
- #define _GNU_SOURCE
-+#endif
- #include <stdlib.h>
- #include <unistd.h>
- #include "erofs/err.h"
-@@ -30,6 +41,12 @@ static struct list_head dupli_frags[FRAGMENT_HASHSIZE];
- static FILE *packedfile;
- const char *frags_packedname = "packed_file";
+diff --git a/lib/inode.c b/lib/inode.c
+index 9de4dec..e675b45 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -406,7 +406,7 @@ static int write_uncompressed_file_from_fd(struct erofs_inode *inode, int fd)
+ 	return 0;
+ }
  
-+#ifndef HAVE_LSEEK64
-+#define erofs_lseek64 lseek
-+#else
-+#define erofs_lseek64 lseek64
-+#endif
-+
- static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
- 					 u32 crc)
+-int erofs_write_file(struct erofs_inode *inode)
++static int erofs_write_file(struct erofs_inode *inode)
  {
-@@ -53,8 +70,7 @@ static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
- 	if (!data)
- 		return -ENOMEM;
+ 	int ret, fd;
  
--	ret = lseek(fd, inode->i_size - length, SEEK_SET);
--	if (ret < 0) {
-+	if (erofs_lseek64(fd, inode->i_size - length, SEEK_SET) < 0) {
- 		ret = -errno;
- 		goto out;
- 	}
-@@ -113,8 +129,7 @@ int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *tofcrc)
- 	if (inode->i_size <= EROFS_TOF_HASHLEN)
- 		return 0;
- 
--	ret = lseek(fd, inode->i_size - EROFS_TOF_HASHLEN, SEEK_SET);
--	if (ret < 0)
-+	if (erofs_lseek64(fd, inode->i_size - EROFS_TOF_HASHLEN, SEEK_SET) < 0)
- 		return -errno;
- 
- 	ret = read(fd, data_to_hash, EROFS_TOF_HASHLEN);
-@@ -192,9 +207,17 @@ void z_erofs_fragments_commit(struct erofs_inode *inode)
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
- 			   unsigned int len, u32 tofcrc)
- {
-+#ifdef HAVE_FTELLO64
-+	off64_t offset = ftello64(packedfile);
-+#else
-+	off_t offset = ftello(packedfile);
-+#endif
+@@ -1196,7 +1196,10 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
+ 	struct erofs_inode *inode;
  	int ret;
  
--	inode->fragmentoff = ftell(packedfile);
-+	if (offset < 0)
-+		return -errno;
+-	lseek(fd, 0, SEEK_SET);
++	ret = lseek(fd, 0, SEEK_SET);
++	if (ret < 0)
++		return ERR_PTR(-errno);
 +
-+	inode->fragmentoff = (erofs_off_t)offset;
- 	inode->fragment_size = len;
+ 	ret = fstat64(fd, &st);
+ 	if (ret)
+ 		return ERR_PTR(-errno);
+@@ -1223,7 +1226,10 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
  
- 	if (fwrite(data, len, 1, packedfile) != 1)
+ 	ret = erofs_write_compressed_file(inode, fd);
+ 	if (ret == -ENOSPC) {
+-		lseek(fd, 0, SEEK_SET);
++		ret = lseek(fd, 0, SEEK_SET);
++		if (ret < 0)
++			return ERR_PTR(-errno);
++
+ 		ret = write_uncompressed_file_from_fd(inode, fd);
+ 	}
+ 
 -- 
 2.17.1
 
