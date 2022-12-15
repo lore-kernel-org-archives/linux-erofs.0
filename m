@@ -4,66 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46EE1C4332F
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 08:59:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E781C4332F
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 12:58:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NXmPN5LMNz3bg6
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 19:59:04 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NXsjZ6JtQz3bgJ
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 23:58:26 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=nPWwRbZ2;
+	dkim=pass (2048-bit key; unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=eE7Ak6jK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62a; helo=mail-pl1-x62a.google.com; envelope-from=raj.khem@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linaro.org (client-ip=2a00:1450:4864:20::32b; helo=mail-wm1-x32b.google.com; envelope-from=tudor.ambarus@linaro.org; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=nPWwRbZ2;
+	dkim=pass (2048-bit key; unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=eE7Ak6jK;
 	dkim-atps=neutral
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NXmP44fBJz30RT
-	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 19:58:47 +1100 (AEDT)
-Received: by mail-pl1-x62a.google.com with SMTP id d7so6144310pll.9
-        for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 00:58:47 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NXsjT095tz3bNs
+	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 23:58:18 +1100 (AEDT)
+Received: by mail-wm1-x32b.google.com with SMTP id f13-20020a1cc90d000000b003d08c4cf679so1750267wmb.5
+        for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 04:58:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=heDpuAS5mXUhds1vOzkAHyKbq4SYOTfBojQ89B7OY8s=;
-        b=nPWwRbZ2TzpbF8Uw2fOQBeuoomLgM7yzVPH3Wf5iaUSy0J1dmWALFIhs3CoIMWpBwL
-         4AEwd45QAZ3xZ2VL1uAyRrfc7nxg/RbZGlGl3+GZTIEU2339lri+5RTKCHjak5z+EH4o
-         363p2OL/JSPdux8dSTT3BOmwIbzMURvQHf0hGkAq74iWj+1Rwy+OZUqptorz9I3PFFEe
-         Cfqzbd+VZDsG6hn45F4SU5Rm+PY4V63UUWoUxyBDs48bnCa5Zjz5Vmw16z3I9fH8lrxT
-         n/33QVTavlMxyJY4H4IYUXf/Vy7zqJQuU3v+PWvX7vVmPoMjQSlDW6GGuSq+fjHLk1X4
-         kzsw==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jwYH3ujKbU1Du63Snr0pMmTST6dRtu8bysSgCO116YY=;
+        b=eE7Ak6jKbiwDMWCYFiVygnx51rea3oQHieIRkFnhtDwwYfp/LsMkHbhtRPZVK6aISa
+         uLwjgtpouvOwWtkNrZfMvShhUFEJfF1bv4xpC0hJv4MDH/fHgic41HvZGPa+7djniI9y
+         ABoLhXEYzoqliCHvnq0Vy+Cy3hwFMZA2QKrOPMr7KaqF36XjL6pQ0Oqds4h7B1vbn8y0
+         q2C/+aSFf52Ou1LZx+f/2gtGmo9RFVgDoYxGi8Y7pRj2F+PMeRV0TltprCgf6er47WSZ
+         Gr5+2C8x+i0MxlhSjpYY5Snw0WyA8LIBddTl6h0N6t8JtnTU+lgUiZzAs7aVE0DEkQNu
+         7QsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=heDpuAS5mXUhds1vOzkAHyKbq4SYOTfBojQ89B7OY8s=;
-        b=gZdkL6y7KB4eA/VrxQFAcIFsfe4IYWIpmU4o2/+f1t6boeiEV7IWNaVcWxuO1jgnp9
-         4iTyMJI/j8nZ2v8AcmvxD/r7PnIkYPbgZQlO1Ik8iKKYBwSMQWkN2ExYdVpV+xn/hPei
-         mixx/cKU2BcvPQu6/eG3IBpx5Kn0fybCcBA68M496y1BdHR1BIjoOS2Ws9HpMKoRJHBd
-         Bpkt8RSYI1sJxLX8hAKxVPXMC7+ZoSd3bE0+MQdrW8CiLAOfTIe1T83DpyO9UHOKGHmi
-         U/gEGp3DLJPdGikKUzYHE+E9gI1hHYAgoxLata5LbP8R9EJ7bG6SZnECJEUY/BP29Rsq
-         lyNg==
-X-Gm-Message-State: ANoB5plw2Wxyfuyn7uxsz/PlkrZcJdnP1G/27yii5HNJJ76/0TXbyoYY
-	0amHcMnYJWhM0ljH2W1eOi8VmTfLrzc=
-X-Google-Smtp-Source: AA0mqf6KEm+Q0rbVMIdD2iLq0Fax7mA094/zMYrvAma4RVBc5i+CyEFvemhvNM1cfmTTiVyy5VaoBg==
-X-Received: by 2002:a17:903:54:b0:189:ba1f:b16a with SMTP id l20-20020a170903005400b00189ba1fb16amr24829744pla.10.1671094724160;
-        Thu, 15 Dec 2022 00:58:44 -0800 (PST)
-Received: from apollo.hsd1.ca.comcast.net ([2601:646:9181:1cf0::7d9c])
-        by smtp.gmail.com with ESMTPSA id f21-20020a170902f39500b00186a6b63525sm3247881ple.120.2022.12.15.00.58.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Dec 2022 00:58:43 -0800 (PST)
-From: Khem Raj <raj.khem@gmail.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4 1/3] configure: Use 64bit off_t
-Date: Thu, 15 Dec 2022 00:58:40 -0800
-Message-Id: <20221215085842.130804-1-raj.khem@gmail.com>
-X-Mailer: git-send-email 2.39.0
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=jwYH3ujKbU1Du63Snr0pMmTST6dRtu8bysSgCO116YY=;
+        b=BfJWPrYbsknZoEjJtx6vRIPI2oC+Ze+993B/1EjHLMBMbrwnR0c5AiZ65x3RGDxrzE
+         VazNEtM1LzDY9CH9fqd/xX1p7r8aP5XpeoZL8g21nXSezamp+DIdrf68Stu9l0XzJ7Qb
+         7GIsWz18rak6cNfsg8hMkmY2P88mCA9A/3T7XkZNgEU89qGyUvnXU2zEnXjIJu0VYq5k
+         fx3+J/TObPND2mtqiGXm4XjAWu3hJlbvip5R7ukCQ75NNT82a5jtOHik6iEzYLhaJ79b
+         zMUIc4oJL73Lu+bRb9BgjDDcPcnjIir9NQtNupvCj74coplYEnzPHS02JX5xi7OzucUC
+         zkTA==
+X-Gm-Message-State: ANoB5pmlWZ9TN5egUVn6IGlgg5jbDGuZ2DKkeu3j+/3470ny7wPEkjY6
+	zVUkYF6yHyNeGnLX2NBeZOl6t3BRyPGudySYr7U=
+X-Google-Smtp-Source: AA0mqf4atkMpL65PjLsyFlVw5AF8QsgJ5VGJ8W+Ej+Ee5o9xomZOkrFcTbIpIpdByvvfcuZBFLcTNg==
+X-Received: by 2002:a05:600c:3b84:b0:3cf:8762:22c2 with SMTP id n4-20020a05600c3b8400b003cf876222c2mr22284442wms.38.1671109092141;
+        Thu, 15 Dec 2022 04:58:12 -0800 (PST)
+Received: from [192.168.2.104] ([79.115.63.55])
+        by smtp.gmail.com with ESMTPSA id q11-20020a7bce8b000000b003d23a3b783bsm5852026wmj.10.2022.12.15.04.58.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Dec 2022 04:58:11 -0800 (PST)
+Message-ID: <17c7a0fb-9dc3-6197-358b-894aeb8ee662@linaro.org>
+Date: Thu, 15 Dec 2022 14:58:10 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Content-Language: en-US
+To: linux-erofs@lists.ozlabs.org, xiang@kernel.org, chao@kernel.org,
+ huyue2@coolpad.com, jefflexu@linux.alibaba.com
+From: Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: BUG: unable to handle kernel paging request in
+ z_erofs_decompress_queue
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,32 +81,31 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Khem Raj <raj.khem@gmail.com>
+Cc: joneslee@google.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Pass -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 via CFLAGS
-this enabled large file support on 32bit architectures
+Hi, Gao, Chao, Yue, Jeffle, all,
 
-Signed-off-by: Khem Raj <raj.khem@gmail.com>
----
- configure.ac | 3 +++
- 1 file changed, 3 insertions(+)
+Syzbot reported a bug at [1] that is reproducible in upstream kernel
+since
+   commit 47e4937a4a7c ("erofs: move erofs out of staging")
 
-diff --git a/configure.ac b/configure.ac
-index a736ff0..c2b948c 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -319,6 +319,9 @@ if test "x$enable_lzma" = "xyes"; then
-   CPPFLAGS="${saved_CPPFLAGS}"
- fi
- 
-+# Enable 64-bit off_t
-+CFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
-+
- # Set up needed symbols, conditionals and compiler/linker flags
- AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
- AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
--- 
-2.39.0
+and up to (inclusively)
+   commit 2bfab9c0edac ("erofs: record the longest decompressed size in 
+this round")
 
+The first commit that makes this bug go away is:
+   commit 267f2492c8f7 ("erofs: introduce multi-reference pclusters 
+(fully-referenced)")
+Although, this commit looks like new support and not like an explicit
+bug fix.
+
+I'd like to fix the lts kernels. I'm happy to try any suggestions or do
+some tests. Please let me know if the bug rings a bell.
+
+Thanks,
+ta
+
+[1] 
+https://syzkaller.appspot.com/bug?id=a9b56d324d0de9233ad80633826fac76836d792a
