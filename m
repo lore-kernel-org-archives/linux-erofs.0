@@ -4,67 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C2E7C4332F
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 08:59:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46EE1C4332F
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 08:59:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NXmPH1rJBz3bW0
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 19:58:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NXmPN5LMNz3bg6
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Dec 2022 19:59:04 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=BjAyFpPw;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=nPWwRbZ2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::102b; helo=mail-pj1-x102b.google.com; envelope-from=raj.khem@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62a; helo=mail-pl1-x62a.google.com; envelope-from=raj.khem@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=BjAyFpPw;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=nPWwRbZ2;
 	dkim-atps=neutral
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NXmP453lYz3bNy
-	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 19:58:48 +1100 (AEDT)
-Received: by mail-pj1-x102b.google.com with SMTP id t11-20020a17090a024b00b0021932afece4so2041372pje.5
-        for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 00:58:48 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NXmP44fBJz30RT
+	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 19:58:47 +1100 (AEDT)
+Received: by mail-pl1-x62a.google.com with SMTP id d7so6144310pll.9
+        for <linux-erofs@lists.ozlabs.org>; Thu, 15 Dec 2022 00:58:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pZ7hxoKNbTjaybD4RlFEQkUEwp1y3rxCjfROeQyRoZQ=;
-        b=BjAyFpPwtCmeKp69CUCkvB7gvs3Bnjq6nKL1jPmGL1Fje6/ZFsIVIMEGY3bRmeDjfC
-         gwEWM8zj9EH4P/2RVZ5dFaI0Sosm9A2zplJtv4vJtKjXhzEI5rhbap4u1rbV971MfUFl
-         N8rYvQfSZAizS0gwYlm+Nj8chGTzp/ox9rvys6f0z8bWwnvNcz9qCPJWNTIOCNvjuZXJ
-         oFsKIShUJjTh4OpmUJDapPtKDX6ikUvb7ZQuVkQ+QSxgtKXgImeNdMELDsbWqsqimmWJ
-         hCf+q6OHVDKrg/sdYShUzMvAIwVWY3DGkVavR88mBxqDYpPDbN3MoDeA6XYigiOrpAX5
-         n8pg==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=heDpuAS5mXUhds1vOzkAHyKbq4SYOTfBojQ89B7OY8s=;
+        b=nPWwRbZ2TzpbF8Uw2fOQBeuoomLgM7yzVPH3Wf5iaUSy0J1dmWALFIhs3CoIMWpBwL
+         4AEwd45QAZ3xZ2VL1uAyRrfc7nxg/RbZGlGl3+GZTIEU2339lri+5RTKCHjak5z+EH4o
+         363p2OL/JSPdux8dSTT3BOmwIbzMURvQHf0hGkAq74iWj+1Rwy+OZUqptorz9I3PFFEe
+         Cfqzbd+VZDsG6hn45F4SU5Rm+PY4V63UUWoUxyBDs48bnCa5Zjz5Vmw16z3I9fH8lrxT
+         n/33QVTavlMxyJY4H4IYUXf/Vy7zqJQuU3v+PWvX7vVmPoMjQSlDW6GGuSq+fjHLk1X4
+         kzsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pZ7hxoKNbTjaybD4RlFEQkUEwp1y3rxCjfROeQyRoZQ=;
-        b=W4v8oPQ35VXs7VFBjurMdfN0yEF6KuaD9LH3qpb6AF9LOOTd67uHlOhZOn75sctGhY
-         fbV9WJ0q9XC0CloSfcrVzuIWMmaH+zTaa53U3JCE4hPrEwOHmJbgsDajz/iv2UhIumYx
-         NkJRSE9cL/lzuh2XyGp/2pcVJvVGQg9NRtBcSFCMH9oauSehWWTNzr/fv2DFGfiyo1yI
-         fMSMKFK20KuP53prQ4/CPruMZrlweD7FjcGaOyKWjMZmcG8SnuvBhXun9vddVeCR7pVh
-         hmYbUarNuao5uboshdbkS3ttxwHH5EP87veFuT/PfPGq9Nl2Ym67nAE06/UTIVpD7SSI
-         F3wQ==
-X-Gm-Message-State: ANoB5pkVVYnb7nppT8MGEgAvhKZIiuIs31gW4r0rn5VpQk/hJrTDTB/M
-	5x/xAHbObqfwqiHGi1xeG6cW6Y/F3fY=
-X-Google-Smtp-Source: AA0mqf5q1COjzE482KpHJ7IlcDlYoJLOqVFgEJsForxABtXDi+5t4fF6PDi74mFqfUpmDuBTpdWo5Q==
-X-Received: by 2002:a17:903:1109:b0:185:441f:70a1 with SMTP id n9-20020a170903110900b00185441f70a1mr37427473plh.38.1671094725808;
-        Thu, 15 Dec 2022 00:58:45 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=heDpuAS5mXUhds1vOzkAHyKbq4SYOTfBojQ89B7OY8s=;
+        b=gZdkL6y7KB4eA/VrxQFAcIFsfe4IYWIpmU4o2/+f1t6boeiEV7IWNaVcWxuO1jgnp9
+         4iTyMJI/j8nZ2v8AcmvxD/r7PnIkYPbgZQlO1Ik8iKKYBwSMQWkN2ExYdVpV+xn/hPei
+         mixx/cKU2BcvPQu6/eG3IBpx5Kn0fybCcBA68M496y1BdHR1BIjoOS2Ws9HpMKoRJHBd
+         Bpkt8RSYI1sJxLX8hAKxVPXMC7+ZoSd3bE0+MQdrW8CiLAOfTIe1T83DpyO9UHOKGHmi
+         U/gEGp3DLJPdGikKUzYHE+E9gI1hHYAgoxLata5LbP8R9EJ7bG6SZnECJEUY/BP29Rsq
+         lyNg==
+X-Gm-Message-State: ANoB5plw2Wxyfuyn7uxsz/PlkrZcJdnP1G/27yii5HNJJ76/0TXbyoYY
+	0amHcMnYJWhM0ljH2W1eOi8VmTfLrzc=
+X-Google-Smtp-Source: AA0mqf6KEm+Q0rbVMIdD2iLq0Fax7mA094/zMYrvAma4RVBc5i+CyEFvemhvNM1cfmTTiVyy5VaoBg==
+X-Received: by 2002:a17:903:54:b0:189:ba1f:b16a with SMTP id l20-20020a170903005400b00189ba1fb16amr24829744pla.10.1671094724160;
+        Thu, 15 Dec 2022 00:58:44 -0800 (PST)
 Received: from apollo.hsd1.ca.comcast.net ([2601:646:9181:1cf0::7d9c])
-        by smtp.gmail.com with ESMTPSA id f21-20020a170902f39500b00186a6b63525sm3247881ple.120.2022.12.15.00.58.45
+        by smtp.gmail.com with ESMTPSA id f21-20020a170902f39500b00186a6b63525sm3247881ple.120.2022.12.15.00.58.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Dec 2022 00:58:45 -0800 (PST)
+        Thu, 15 Dec 2022 00:58:43 -0800 (PST)
 From: Khem Raj <raj.khem@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4 3/3] internal.h: Make LFS mandatory for all usecases
-Date: Thu, 15 Dec 2022 00:58:42 -0800
-Message-Id: <20221215085842.130804-3-raj.khem@gmail.com>
+Subject: [PATCH v4 1/3] configure: Use 64bit off_t
+Date: Thu, 15 Dec 2022 00:58:40 -0800
+Message-Id: <20221215085842.130804-1-raj.khem@gmail.com>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215085842.130804-1-raj.khem@gmail.com>
-References: <20221215085842.130804-1-raj.khem@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -82,38 +79,28 @@ Cc: Khem Raj <raj.khem@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-erosfs depend on the consistent use of a 64bit offset
-type, force downstreams to use transparent LFS (_FILE_OFFSET_BITS=64),
-so that it becomes impossible for them to use 32bit interfaces.
+Pass -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 via CFLAGS
+this enabled large file support on 32bit architectures
 
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 ---
- include/erofs/internal.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ configure.ac | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 6a70f11..d3b2986 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -21,6 +21,7 @@ typedef unsigned short umode_t;
+diff --git a/configure.ac b/configure.ac
+index a736ff0..c2b948c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -319,6 +319,9 @@ if test "x$enable_lzma" = "xyes"; then
+   CPPFLAGS="${saved_CPPFLAGS}"
+ fi
  
- #include "erofs_fs.h"
- #include <fcntl.h>
-+#include <sys/types.h> /* for off_t definition */
- 
- #ifndef PATH_MAX
- #define PATH_MAX        4096    /* # chars in a path name including nul */
-@@ -104,6 +105,10 @@ struct erofs_sb_info {
- 	};
- };
- 
++# Enable 64-bit off_t
++CFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
 +
-+/* make sure that any user of the erofs headers has atleast 64bit off_t type */
-+extern int erofs_assert_largefile[sizeof(off_t)-8];
-+
- /* global sbi */
- extern struct erofs_sb_info sbi;
- 
+ # Set up needed symbols, conditionals and compiler/linker flags
+ AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
 -- 
 2.39.0
 
