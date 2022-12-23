@@ -4,48 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87E92C4332F
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Dec 2022 22:55:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6DABC4332F
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Dec 2022 15:32:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NdQdl5s5Rz3bZJ
-	for <linux-erofs@archiver.kernel.org>; Fri, 23 Dec 2022 09:55:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.166.72; helo=mail-io1-f72.google.com; envelope-from=3ceckywkbaogcijukvvobkzzsn.qyyqvoecobmyxdoxd.myw@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=<UNKNOWN>)
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NdrlJ2Nmkz3bVZ
+	for <linux-erofs@archiver.kernel.org>; Sat, 24 Dec 2022 02:32:12 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=RkLgtlP2;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+a36cbb7ae26730e9169d+7061+infradead.org+hch@bombadil.srs.infradead.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=RkLgtlP2;
+	dkim-atps=neutral
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NdQdf0m2Rz3bP1
-	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Dec 2022 09:55:48 +1100 (AEDT)
-Received: by mail-io1-f72.google.com with SMTP id l21-20020a5d9315000000b006df7697880aso1277470ion.23
-        for <linux-erofs@lists.ozlabs.org>; Thu, 22 Dec 2022 14:55:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aXosvzq+A5vhYtuAlYzsv0/1c7zz/aBO/fowD1BzMYI=;
-        b=IpS20mFRw/glFjur7WA+5HPbdRKLx0jXmNkvjGspmz8P2kMzLkwc4KfJ81lH80VH7k
-         zc67bMWiLdXLFuP4NyMgZEL0CK7IlWEejhCbLs30KOrg+OR0jhennuYYqUTQohfu6oEm
-         fMPlru20Kayd+C3MZB8Vad4gRykPteQlUTMfIk4W75qzWWqet6T4rgFd0VmUBtMI2eEY
-         0BQXGrLDFGCbpCXafASOh5rD/cmCQk1OHW70Y45fpGsdBT5jFaw2RG18azFpFRsonbyM
-         h1XHSF2ojidpc2E3lMbGoDSg/3+2E2gK4gPDyBVrPRjGF/kPg3sVp1rW1Mh8X4TPFiD8
-         gDDg==
-X-Gm-Message-State: AFqh2kpqxkDNZYHt5D8hlu3n0tp+rKLQlhKjUBU3/7Ss2w0+50ogl/nO
-	R50WgK5N4Qi59UDz35+SGUgBVlNu5NICLUsVzC6SkaU7zXxC
-X-Google-Smtp-Source: AMrXdXvYmJJ7+eFLnjMIqZuM5kFZXz/Oth90FBvGMSa/1IQ24ZqM8yFCBJwCzt5wTL4cQoXYsuNsEAKFO+o3FMK8oM3o2z9D6EV0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ndrl54f4wz3bVZ
+	for <linux-erofs@lists.ozlabs.org>; Sat, 24 Dec 2022 02:31:57 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=YI+GETaE07zfIF6gTr93yZkoaqmkXGRyTSkPLa22IzA=; b=RkLgtlP2zs+0grtCP2XKKuFJes
+	6FHjSru80hSAyAYCWjR4giWwoV3DaU3XpMF7/3HZDUa+E/kozrd+x6VmAXg4TRMKJHW9b8wzSyfeD
+	VokI0tlui9x8PQhh88Z82EqORo/ZAaFcoi8Gbx6S9ZrNjmqThuHWTTIRq3+YEjgq3IX5yINDVvjt+
+	e0+/qxQDLcU/llLFjIUrhW0P/9m/nHcrhbkOptvrE3r4S9ZgmuFyMLR/rPv50gmRKgcXjautu9IC5
+	U8MyiLTneJokeOtEKvUEFCZUMIUmLTbzJVU1SPbmDcoK0FIf2BAPGpTW1uoenfctyu+YHc+9jx57b
+	guycEkxA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+	id 1p8k0x-009SnO-0o; Fri, 23 Dec 2022 15:31:15 +0000
+Date: Fri, 23 Dec 2022 07:31:14 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH v5 3/3] mm: Make filemap_release_folio() better inform
+ shrink_folio_list()
+Message-ID: <Y6XJwvjKyTgRIiI3@infradead.org>
+References: <167172131368.2334525.8569808925687731937.stgit@warthog.procyon.org.uk>
+ <167172134962.2334525.570622889806603086.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-X-Received: by 2002:a5e:850f:0:b0:6ec:f27e:58a5 with SMTP id
- i15-20020a5e850f000000b006ecf27e58a5mr584311ioj.15.1671749745808; Thu, 22 Dec
- 2022 14:55:45 -0800 (PST)
-Date: Thu, 22 Dec 2022 14:55:45 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000c0a08805f07291a0@google.com>
-Subject: [syzbot] [erofs?] WARNING: CPU: NUM PID: NUM at mm/page_alloc.c:LINE get_page_from_freeli
-From: syzbot <syzbot+c3729cda01706a04fb98@syzkaller.appspotmail.com>
-To: akpm@linux-foundation.org, chao@kernel.org, linux-erofs@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	syzkaller-bugs@googlegroups.com, xiang@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <167172134962.2334525.570622889806603086.stgit@warthog.procyon.org.uk>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -57,41 +58,49 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Shyam Prasad N <nspmangalore@gmail.com>, linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, Rohith Surabattula <rohiths.msft@gmail.com>, Jeff Layton <jlayton@kernel.org>, Dave Wysochanski <dwysocha@redhat.com>, ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-afs@lists.infradead.org, Steve French <sfrench@samba.org>, linux-mm@kvack.org, linux-erofs@lists.ozlabs.org, linux-cachefs@redhat.com, linux-ext4@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Ilya Dryomov <idryomov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dominique Martinet <asmadeus@codewreck.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hello,
+On Thu, Dec 22, 2022 at 03:02:29PM +0000, David Howells wrote:
+> Make filemap_release_folio() return one of three values:
+> 
+>  (0) FILEMAP_CANT_RELEASE_FOLIO
+> 
+>      Couldn't release the folio's private data, so the folio can't itself
+>      be released.
+> 
+>  (1) FILEMAP_RELEASED_FOLIO
+> 
+>      The private data on the folio was released and the folio can be
+>      released.
+> 
+>  (2) FILEMAP_FOLIO_HAD_NO_PRIVATE
 
-syzbot found the following issue on:
+These names read really odd, due to the different placementments
+of FOLIO, the present vs past tense and the fact that 2 also released
+the folio, and the reliance of callers that one value of an enum
+must be 0, while no unprecedented, is a bit ugly.
 
-HEAD commit:    f9ff5644bcc0 Merge tag 'hsi-for-6.2' of git://git.kernel.o..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=15aa58f7880000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=827916bd156c2ec6
-dashboard link: https://syzkaller.appspot.com/bug?extid=c3729cda01706a04fb98
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11bdd020480000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=12c53ab3880000
+But do we even need them?  What abut just open coding
+filemap_release_folio (which is a mostly trivial function) in
+shrink_folio_list, which is the only place that cares?
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/0c8a5f06ceb3/disk-f9ff5644.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/be222e852ae2/vmlinux-f9ff5644.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/d9f42a53b05e/bzImage-f9ff5644.xz
-mounted in repro: https://storage.googleapis.com/syzbot-assets/7f2f76b76cd2/mount_0.gz
+	if (folio_has_private(folio) && folio_needs_release(folio)) {
+		if (folio_test_writeback(folio))
+			goto activate_locked;
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+c3729cda01706a04fb98@syzkaller.appspotmail.com
+		if (mapping && mapping->a_ops->release_folio) {
+			if (!mapping->a_ops->release_folio(folio, gfp))
+				goto activate_locked;
+		} else {
+			if (!try_to_free_buffers(folio))
+				goto activate_locked;
+		}
 
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 4386 at mm/page_alloc.c:3829 get_page_from_freeli
+		if (!mapping && folio_ref_count(folio) == 1) {
+			...
 
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+alternatively just keep using filemap_release_folio and just add the
+folio_needs_release in the first branch.  That duplicates the test,
+but makes the change a one-liner.
