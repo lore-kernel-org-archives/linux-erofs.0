@@ -4,53 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8EFC0C4167B
-	for <linux-erofs@archiver.kernel.org>; Mon, 26 Dec 2022 10:33:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0468EC4167B
+	for <linux-erofs@archiver.kernel.org>; Mon, 26 Dec 2022 18:38:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NgYzX0y1Hz3bgF
-	for <linux-erofs@archiver.kernel.org>; Mon, 26 Dec 2022 21:33:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=houtao@huaweicloud.com; receiver=<UNKNOWN>)
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NgmlC1jDMz3bdn
+	for <linux-erofs@archiver.kernel.org>; Tue, 27 Dec 2022 05:38:47 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1672079927;
+	bh=UGh9r/jsaAqCGWD2zZzfloJ7Dxl5ALoC+WNsAoZ68QE=;
+	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
+	 From;
+	b=iubzwBUI/n2ni/a/OEj72i8S8tNd+XLKDdtWsROq6/GlrtoCGGTgXEYygHwHkg6kR
+	 cFKhcJ+j+zs7W0Al/A2ypAHpxMUaf5bc3cl5B1orRQ0nXiRsA/mOgydKIebL5pX6A5
+	 iiPf1R1blb4NxFqlzBypJ1Wyo6bm7VzW0eK28NXSzN8KZeHYDc2/ckM9fi+WdCBWoP
+	 BIOw+XWndx3qZ6Rb1gwgg4F6a8IvWlBixp/uXoEwU29J79neLO9aKiCXNt0rhmUvLF
+	 tPmPyyMqNwf6H98kysiUvFKpor5GAMUZpaeFa8p7ZzyYSJY+gAHFbjG5fxW3e5nUVJ
+	 qaaEeURcQihiA==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2607:f8b0:4864:20::32a; helo=mail-ot1-x32a.google.com; envelope-from=dhavale@google.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20210112 header.b=YZsJ/Wu7;
+	dkim-atps=neutral
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NgYzD0xk8z304m
-	for <linux-erofs@lists.ozlabs.org>; Mon, 26 Dec 2022 21:33:26 +1100 (AEDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4NgYz01D5cz4f3nVG
-	for <linux-erofs@lists.ozlabs.org>; Mon, 26 Dec 2022 18:33:16 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.124.27])
-	by APP4 (Coremail) with SMTP id gCh0CgBH_rFreKlj6SMxAg--.54373S5;
-	Mon, 26 Dec 2022 18:33:18 +0800 (CST)
-From: Hou Tao <houtao@huaweicloud.com>
-To: linux-cachefs@redhat.com
-Subject: [PATCH v2 1/2] fscache: Use wait_on_bit() to wait for the freeing of relinquished volume
-Date: Mon, 26 Dec 2022 18:33:08 +0800
-Message-Id: <20221226103309.953112-2-houtao@huaweicloud.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20221226103309.953112-1-houtao@huaweicloud.com>
-References: <20221226103309.953112-1-houtao@huaweicloud.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ngml26Whsz2xJF
+	for <linux-erofs@lists.ozlabs.org>; Tue, 27 Dec 2022 05:38:37 +1100 (AEDT)
+Received: by mail-ot1-x32a.google.com with SMTP id l8-20020a056830054800b006705fd35eceso6997689otb.12
+        for <linux-erofs@lists.ozlabs.org>; Mon, 26 Dec 2022 10:38:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UGh9r/jsaAqCGWD2zZzfloJ7Dxl5ALoC+WNsAoZ68QE=;
+        b=Gv+6I8+imzaIsEuqZrtmsFxOdwPByGgN3F0VQDeEJW7irmke8+kLZH85k/LT46lgeL
+         KaE9vBfgL4aTT4gLwuz6zAG/HFY695lV7WeSUCQeraUJioY5+svPZF6P23vDtaUqZMnM
+         JE0cDgbinTFQA3e9goaulW28pxjWZ+OljA5zOMziXvu/xu0v4YFb1SLXFkcImZDX3H+u
+         wkl6bvRNoAQlAaPP/NMmk20bTobsZzCtHCWAKG/r+MEf7lyGKPql70VJQY4iq6k0U8oH
+         PSsstBxXGgAPiQS8Hlz3ESM2jfqRYQNwlob9qHkKjj/ryoNbnmOqE0AemmrxY4ya17NW
+         UE5g==
+X-Gm-Message-State: AFqh2kqc4qrcP56XrVZUFgJ5mIJ2pD87eCkK1veL+yYK+7sqIdWXIKCK
+	IODtHjAYKY22+mjuAMwo8XDLd3IFnzo9WRQZY0wLzA==
+X-Google-Smtp-Source: AMrXdXt5SjHOi+TWqO0LV+UDUGSbTzxqs+KFHbaCN4ODYEykVdplk0Q24mZQeayTPNtb1D6EbXC1S+xwLm5fcmuv0VA=
+X-Received: by 2002:a05:6830:108d:b0:678:202c:1b93 with SMTP id
+ y13-20020a056830108d00b00678202c1b93mr1321705oto.160.1672079914091; Mon, 26
+ Dec 2022 10:38:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: gCh0CgBH_rFreKlj6SMxAg--.54373S5
-X-Coremail-Antispam: 1UD129KBjvJXoWxCF45KrWftrWxXrWxury7trb_yoW5KFWkp3
-	9I9343trW8X3sFyw4kJw47Z34SgFykJan7CrWvkry7Aa1rtF15tF10k3s8uay7A3yDJrW2
-	va1jq3sIgw1UAFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvGb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
-	A2048vs2IY020Ec7CjxVAFwI0_JFI_Gr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr
-	0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY
-	17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcV
-	C0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY
-	6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa
-	73UjIFyTuYvjxUzl1vUUUUU
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
-X-CFilter-Loop: Reflected
+References: <20221222011529.3471280-1-dhavale@google.com> <Y6PFfEnJE3g98X/e@debian>
+In-Reply-To: <Y6PFfEnJE3g98X/e@debian>
+Date: Mon, 26 Dec 2022 10:38:23 -0800
+Message-ID: <CAB=BE-Qh72tB+z9zRxqiC7Jg+RVcip1+vHJXopuzykR08FYiCA@mail.gmail.com>
+Subject: Re: [PATCH] EROFS: Replace erofs_unzipd workqueue with per-cpu threads
+To: Sandeep Dhavale <dhavale@google.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
+	Yue Hu <huyue2@coolpad.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, kernel-team@android.com, 
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -62,94 +71,192 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, houtao1@huawei.com, linux-erofs@lists.ozlabs.org
+From: Sandeep Dhavale via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Sandeep Dhavale <dhavale@google.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Hou Tao <houtao1@huawei.com>
+On Wed, Dec 21, 2022 at 6:48 PM Gao Xiang <xiang@kernel.org> wrote:
+>
+> Hi Sandeen,
+>
+> On Thu, Dec 22, 2022 at 01:15:29AM +0000, Sandeep Dhavale wrote:
+> > Using per-cpu thread pool we can reduce the scheduling latency compared
+> > to workqueue implementation. With this patch scheduling latency and
+> > variation is reduced as per-cpu threads are SCHED_FIFO kthread_workers.
+> >
+> > The results were evaluated on arm64 Android devices running 5.10 kernel.
+> >
+> > The table below shows resulting improvements of total scheduling latency
+> > for the same app launch benchmark runs with 50 iterations. Scheduling
+> > latency is the latency between when the task (workqueue kworker vs
+> > kthread_worker) became eligible to run to when it actually started
+> > running.
+> > +-------------------------+-----------+----------------+---------+
+> > |                         | workqueue | kthread_worker |  diff   |
+> > +-------------------------+-----------+----------------+---------+
+> > | Average (us)            |     15253 |           2914 | -80.89% |
+> > | Median (us)             |     14001 |           2912 | -79.20% |
+> > | Minimum (us)            |      3117 |           1027 | -67.05% |
+> > | Maximum (us)            |     30170 |           3805 | -87.39% |
+> > | Standard deviation (us) |      7166 |            359 |         |
+> > +-------------------------+-----------+----------------+---------+
+> >
+> > Signed-off-by: Sandeep Dhavale <dhavale@google.com>
+>
+> Thanks for the patch.  Generally, This path looks good to me (compared
+> with softirq context.)
+>
+> With the background at LPC 22, I can see how important such low latency
+> requirement is needed for Android upstream and AOSP.  However, could you
+> add some link or some brief background to other folks without such
+> impression?
+>
+> > ---
+> >  fs/erofs/zdata.c | 84 +++++++++++++++++++++++++++++++++++-------------
+> >  fs/erofs/zdata.h |  4 ++-
+> >  2 files changed, 64 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+> > index ccf7c55d477f..646667dbe615 100644
+> > --- a/fs/erofs/zdata.c
+> > +++ b/fs/erofs/zdata.c
+> > @@ -8,6 +8,7 @@
+> >  #include "compress.h"
+> >  #include <linux/prefetch.h>
+> >  #include <linux/psi.h>
+> > +#include <linux/slab.h>
+> >
+> >  #include <trace/events/erofs.h>
+> >
+> > @@ -184,26 +185,56 @@ typedef tagptr1_t compressed_page_t;
+> >  #define tag_compressed_page_justfound(page) \
+> >       tagptr_fold(compressed_page_t, page, 1)
+> >
+> > -static struct workqueue_struct *z_erofs_workqueue __read_mostly;
+> > +static struct kthread_worker **z_erofs_kthread_pool;
+> >
+> > -void z_erofs_exit_zip_subsystem(void)
+> > +static void z_erofs_destroy_kthread_pool(void)
+> >  {
+> > -     destroy_workqueue(z_erofs_workqueue);
+> > -     z_erofs_destroy_pcluster_pool();
+> > +     unsigned long cpu;
+> > +
+> > +     for_each_possible_cpu(cpu) {
+> > +             if (z_erofs_kthread_pool[cpu]) {
+> > +                     kthread_destroy_worker(z_erofs_kthread_pool[cpu]);
+> > +                     z_erofs_kthread_pool[cpu] = NULL;
+> > +             }
+> > +     }
+> > +     kfree(z_erofs_kthread_pool);
+> >  }
+> >
+> > -static inline int z_erofs_init_workqueue(void)
+> > +static int z_erofs_create_kthread_workers(void)
+> >  {
+> > -     const unsigned int onlinecpus = num_possible_cpus();
+> > +     unsigned long cpu;
+> > +     struct kthread_worker *worker;
+> > +
+> > +     for_each_possible_cpu(cpu) {
+> > +             worker = kthread_create_worker_on_cpu(cpu, 0, "z_erofs/%ld", cpu);
+>
+> how about calling them as erofs_worker/%ld, since in the future they
+> can also be used for other uses (like verification or decryption).
+>
+Sure, it makes sense.
 
-The freeing of relinquished volume will wake up the pending volume
-acquisition by using wake_up_bit(), however it is mismatched with
-wait_var_event() used in fscache_wait_on_volume_collision() and it will
-never wake up the waiter in the wait-queue because these two functions
-operate on different wait-queues.
+> > +             if (IS_ERR(worker)) {
+> > +                     z_erofs_destroy_kthread_pool();
+> > +                     return -ENOMEM;
+> > +             }
+> > +             sched_set_fifo(worker->task);
+>
+> Could we add some kernel configuration option to enable/disable this,
+> since I'm not sure if all users need RT threads.
+>
+Ok, will do.
+> > +             z_erofs_kthread_pool[cpu] = worker;
+> > +     }
+> > +     return 0;
+> > +}
+> >
+> > -     /*
+> > -      * no need to spawn too many threads, limiting threads could minimum
+> > -      * scheduling overhead, perhaps per-CPU threads should be better?
+> > -      */
+> > -     z_erofs_workqueue = alloc_workqueue("erofs_unzipd",
+> > -                                         WQ_UNBOUND | WQ_HIGHPRI,
+> > -                                         onlinecpus + onlinecpus / 4);
+> > -     return z_erofs_workqueue ? 0 : -ENOMEM;
+> > +static int z_erofs_init_kthread_pool(void)
+> > +{
+> > +     int err;
+> > +
+> > +     z_erofs_kthread_pool = kcalloc(num_possible_cpus(),
+> > +                     sizeof(struct kthread_worker *), GFP_ATOMIC);
+> > +     if (!z_erofs_kthread_pool)
+> > +             return -ENOMEM;
+> > +     err = z_erofs_create_kthread_workers();
+> > +
+> > +     return err;
+> > +}
+> > +
+> > +
+> > +void z_erofs_exit_zip_subsystem(void)
+> > +{
+> > +     z_erofs_destroy_kthread_pool();
+> > +     z_erofs_destroy_pcluster_pool();
+> >  }
+> >
+> >  int __init z_erofs_init_zip_subsystem(void)
+> > @@ -211,10 +242,16 @@ int __init z_erofs_init_zip_subsystem(void)
+> >       int err = z_erofs_create_pcluster_pool();
+> >
+> >       if (err)
+> > -             return err;
+> > -     err = z_erofs_init_workqueue();
+> > +             goto out_error_pcluster_pool;
+> > +
+> > +     err = z_erofs_init_kthread_pool();
+> >       if (err)
+> > -             z_erofs_destroy_pcluster_pool();
+> > +             goto out_error_kthread_pool;
+> > +
+> > +     return err;
+> > +out_error_kthread_pool:
+> > +     z_erofs_destroy_pcluster_pool();
+> > +out_error_pcluster_pool:
+> >       return err;
+> >  }
+> >
+> > @@ -1143,7 +1180,7 @@ static void z_erofs_decompress_queue(const struct z_erofs_decompressqueue *io,
+> >       }
+> >  }
+> >
+> > -static void z_erofs_decompressqueue_work(struct work_struct *work)
+> > +static void z_erofs_decompressqueue_kthread_work(struct kthread_work *work)
+> >  {
+> >       struct z_erofs_decompressqueue *bgq =
+> >               container_of(work, struct z_erofs_decompressqueue, u.work);
+> > @@ -1170,15 +1207,16 @@ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+> >
+> >       if (atomic_add_return(bios, &io->pending_bios))
+> >               return;
+> > -     /* Use workqueue and sync decompression for atomic contexts only */
+> > +     /* Use kthread_workers and sync decompression for atomic contexts only */
+> >       if (in_atomic() || irqs_disabled()) {
+> > -             queue_work(z_erofs_workqueue, &io->u.work);
+> > +             kthread_queue_work(z_erofs_kthread_pool[raw_smp_processor_id()],
+> > +                            &io->u.work);
+>
+> Should we need to handle cpu online/offline as well?
+>
+Ok, let me try to add cpuhp support. I will work on V2.
 
-According to the implementation in fscache_wait_on_volume_collision(),
-if the wake-up of pending acquisition is delayed longer than 20 seconds
-(e.g., due to the delay of on-demand fd closing), the first
-wait_var_event_timeout() will timeout and the following wait_var_event()
-will hang forever as shown below:
+> Thanks,
+> Gao Xiang
 
- FS-Cache: Potential volume collision new=00000024 old=00000022
- ......
- INFO: task mount:1148 blocked for more than 122 seconds.
-       Not tainted 6.1.0-rc6+ #1
- task:mount           state:D stack:0     pid:1148  ppid:1
- Call Trace:
-  <TASK>
-  __schedule+0x2f6/0xb80
-  schedule+0x67/0xe0
-  fscache_wait_on_volume_collision.cold+0x80/0x82
-  __fscache_acquire_volume+0x40d/0x4e0
-  erofs_fscache_register_volume+0x51/0xe0 [erofs]
-  erofs_fscache_register_fs+0x19c/0x240 [erofs]
-  erofs_fc_fill_super+0x746/0xaf0 [erofs]
-  vfs_get_super+0x7d/0x100
-  get_tree_nodev+0x16/0x20
-  erofs_fc_get_tree+0x20/0x30 [erofs]
-  vfs_get_tree+0x24/0xb0
-  path_mount+0x2fa/0xa90
-  do_mount+0x7c/0xa0
-  __x64_sys_mount+0x8b/0xe0
-  do_syscall_64+0x30/0x60
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Considering that wake_up_bit() is more selective, so fixing it by using
-wait_on_bit() instead of wait_var_event() to wait for the freeing of
-relinquished volume. In addition because waitqueue_active() is used in
-wake_up_bit() and clear_bit() doesn't imply any memory barrier, so also
-adding smp_mb__after_atomic() before wake_up_bit().
-
-Fixes: 62ab63352350 ("fscache: Implement volume registration")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
----
- fs/fscache/volume.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/fs/fscache/volume.c b/fs/fscache/volume.c
-index ab8ceddf9efa..fc3dd3bc851d 100644
---- a/fs/fscache/volume.c
-+++ b/fs/fscache/volume.c
-@@ -141,13 +141,14 @@ static bool fscache_is_acquire_pending(struct fscache_volume *volume)
- static void fscache_wait_on_volume_collision(struct fscache_volume *candidate,
- 					     unsigned int collidee_debug_id)
- {
--	wait_var_event_timeout(&candidate->flags,
--			       !fscache_is_acquire_pending(candidate), 20 * HZ);
-+	wait_on_bit_timeout(&candidate->flags, FSCACHE_VOLUME_ACQUIRE_PENDING,
-+			    TASK_UNINTERRUPTIBLE, 20 * HZ);
- 	if (fscache_is_acquire_pending(candidate)) {
- 		pr_notice("Potential volume collision new=%08x old=%08x",
- 			  candidate->debug_id, collidee_debug_id);
- 		fscache_stat(&fscache_n_volumes_collision);
--		wait_var_event(&candidate->flags, !fscache_is_acquire_pending(candidate));
-+		wait_on_bit(&candidate->flags, FSCACHE_VOLUME_ACQUIRE_PENDING,
-+			    TASK_UNINTERRUPTIBLE);
- 	}
- }
- 
-@@ -348,6 +349,11 @@ static void fscache_wake_pending_volume(struct fscache_volume *volume,
- 		if (fscache_volume_same(cursor, volume)) {
- 			fscache_see_volume(cursor, fscache_volume_see_hash_wake);
- 			clear_bit(FSCACHE_VOLUME_ACQUIRE_PENDING, &cursor->flags);
-+			/*
-+			 * Paired with barrier in wait_on_bit(). Check
-+			 * wake_up_bit() and waitqueue_active() for details.
-+			 */
-+			smp_mb__after_atomic();
- 			wake_up_bit(&cursor->flags, FSCACHE_VOLUME_ACQUIRE_PENDING);
- 			return;
- 		}
--- 
-2.29.2
-
+Thanks,
+Sandeep.
