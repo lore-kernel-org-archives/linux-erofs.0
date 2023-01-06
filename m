@@ -4,29 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA91BC3DA7A
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 12:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9312C4708D
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 12:59:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NpNh5352Qz3c9S
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 23:59:01 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.6; helo=out30-6.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-6.freemail.mail.aliyun.com (out30-6.freemail.mail.aliyun.com [115.124.30.6])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NpNh82bDkz3c9F
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 23:59:04 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.54; helo=out30-54.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NpNgk1VXBz3c63
-	for <linux-erofs@lists.ozlabs.org>; Fri,  6 Jan 2023 23:58:41 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VZ-Jgw5_1673009614;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZ-Jgw5_1673009614)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NpNgl0s8Dz3c63
+	for <linux-erofs@lists.ozlabs.org>; Fri,  6 Jan 2023 23:58:42 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VZ-H5ZQ_1673009616;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZ-H5ZQ_1673009616)
           by smtp.aliyun-inc.com;
-          Fri, 06 Jan 2023 20:53:35 +0800
+          Fri, 06 Jan 2023 20:53:37 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH 4/6] erofs: implement .read_iter for page cache sharing
-Date: Fri,  6 Jan 2023 20:53:28 +0800
-Message-Id: <20230106125330.55529-5-jefflexu@linux.alibaba.com>
+Subject: [RFC PATCH 6/6] erofs: enable page cache sharing in fscache mode
+Date: Fri,  6 Jan 2023 20:53:30 +0800
+Message-Id: <20230106125330.55529-7-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230106125330.55529-1-jefflexu@linux.alibaba.com>
 References: <20230106125330.55529-1-jefflexu@linux.alibaba.com>
@@ -47,104 +47,90 @@ Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-When page cache sharing enabled, page caches are managed in the address
-space of blobs rather than erofs inodes.  All erofs inodes sharing one
+Erofs supports chunk deduplication to reduce disk usage.  Furthermore we
+can make inodes share page cache of these deduplicated chunks to reduce
+the memory usage.  This shall be much usable in container scenarios as
+deduplication is requisite for container image.
+
+This can be achieved by managing page cache of deduplicated chunks in
+blob's address space.  In this way, all inodes sharing the deduplicated
 chunk will refer to and share the page cache in the blob's address
 space.
 
+So far there are some restrictions for enabling this feature.
+
+The page cache sharing feature also supports .mmap().  The reverse
+mapping requires that one vma can not be shared among inodes and can
+be linked to only one inode.  As the vma will be finally linked to the
+blob's address space when page cache sharing enabled, the restriction of
+the reverse mapping actually requires that the mapped file area can not
+be mapped to multiple blobs.  Thus page cache sharing can only be
+enabled for those files mapped to one blob.
+
+The chunk based data layout guarantees that a chunk will not cross the
+device (blob) boundary.  Thus in chunk based data layout, those files
+smaller than the chunk size shall be guaranteed to be mapped to one
+blob.  As chunk size is tunable at a per-file basis, this restriction
+can be relaxed at image building phase.  As long as we ensure that the
+file can not be deduplicated, the file's chunk size can be set to a
+reasonable value larger than the file size, so that the page cache
+sharing feature can be enabled on this file later.
+
+The second restriction is that EROFS_BLKSIZ mus be multiples of
+PAGE_SIZE to avoid data leakage.  Otherwise unrelated data may be
+exposed at the end of the last page, since file's data is arranged in
+unit of EROFS_BLKSIZ in the image.
+
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/fscache.c  | 64 +++++++++++++++++++++++++++++++++++++++++++++
- fs/erofs/internal.h |  1 +
- 2 files changed, 65 insertions(+)
+ fs/erofs/inode.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index ea276884f043..1f2a42dd1590 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -320,6 +320,70 @@ const struct address_space_operations erofs_fscache_access_aops = {
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index d3b8736fa124..8fe9b29422b5 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -241,6 +241,29 @@ static int erofs_fill_symlink(struct inode *inode, void *kaddr,
+ 	return 0;
+ }
  
- static const struct file_operations erofs_fscache_meta_fops = {};
- 
-+static ssize_t erofs_fscache_share_file_read_iter(struct kiocb *iocb,
-+						  struct iov_iter *to)
++static bool erofs_can_share_page_cache(struct inode *inode)
 +{
-+	struct file *filp = iocb->ki_filp;
-+	struct inode *inode = file_inode(filp);
-+	/* since page cache sharing is enabled only when i_size <= chunk_size */
-+	struct erofs_map_blocks map = {}; /* .m_la = 0 */
-+	struct erofs_map_dev mdev;
-+	struct folio *folio;
-+	ssize_t already_read = 0;
-+	int ret = 0;
++	struct erofs_inode *vi = EROFS_I(inode);
 +
-+	/* no need taking (shared) inode lock since it's a ro filesystem */
-+	if (!iov_iter_count(to))
-+		return 0;
++	/* enable page cache sharing only in share domain mode */
++	if (!erofs_is_fscache_mode(inode->i_sb) ||
++	    !EROFS_SB(inode->i_sb)->domain_id)
++		return false;
 +
-+	if (IS_DAX(inode) || iocb->ki_flags & IOCB_DIRECT)
-+		return -EOPNOTSUPP;
++	if (vi->datalayout != EROFS_INODE_CHUNK_BASED)
++		return false;
 +
-+	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
-+	if (ret)
-+		return ret;
++	/* avoid crossing multi devicces/blobs */
++	if (inode->i_size > 1UL << vi->chunkbits)
++		return false;
 +
-+	mdev = (struct erofs_map_dev) {
-+		.m_deviceid = map.m_deviceid,
-+		.m_pa = map.m_pa,
-+	};
-+	ret = erofs_map_dev(inode->i_sb, &mdev);
-+	if (ret)
-+		return ret;
++	/* avoid data leakage in mmap routine */
++	if (EROFS_BLKSIZ % PAGE_SIZE)
++		return false;
 +
-+	do {
-+		size_t bytes, copied, offset, fsize;
-+		pgoff_t index = (mdev.m_pa >> PAGE_SHIFT) + (iocb->ki_pos >> PAGE_SHIFT);
-+
-+		folio = read_cache_folio(mdev.m_fscache->inode->i_mapping, index, NULL, NULL);
-+		if (IS_ERR(folio)) {
-+			ret = PTR_ERR(folio);
-+			break;
-+		}
-+
-+		fsize = folio_size(folio);
-+		offset = iocb->ki_pos & (fsize - 1);
-+		bytes = min_t(size_t, inode->i_size - iocb->ki_pos, iov_iter_count(to));
-+		bytes = min_t(size_t, bytes, fsize - offset);
-+		copied = copy_folio_to_iter(folio, offset, bytes, to);
-+		folio_put(folio);
-+		iocb->ki_pos += copied;
-+		already_read += copied;
-+		if (copied < bytes) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+	} while (iov_iter_count(to) && iocb->ki_pos < inode->i_size);
-+
-+	file_accessed(filp);
-+	return already_read ? already_read : ret;
++	return true;
 +}
 +
-+const struct file_operations erofs_fscache_share_file_fops = {
-+	.llseek		= generic_file_llseek,
-+	.read_iter	= erofs_fscache_share_file_read_iter,
-+};
-+
- static void erofs_fscache_domain_put(struct erofs_domain *domain)
+ static int erofs_fill_inode(struct inode *inode)
  {
- 	mutex_lock(&erofs_domain_list_lock);
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 24d471fe2fa4..386e2fd4c025 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -617,6 +617,7 @@ struct erofs_fscache *erofs_fscache_register_cookie(struct super_block *sb,
- void erofs_fscache_unregister_cookie(struct erofs_fscache *fscache);
- 
- extern const struct address_space_operations erofs_fscache_access_aops;
-+extern const struct file_operations erofs_fscache_share_file_fops;
- #else
- static inline int erofs_fscache_register_fs(struct super_block *sb)
- {
+ 	struct erofs_inode *vi = EROFS_I(inode);
+@@ -262,6 +285,10 @@ static int erofs_fill_inode(struct inode *inode)
+ 		inode->i_op = &erofs_generic_iops;
+ 		if (erofs_inode_is_data_compressed(vi->datalayout))
+ 			inode->i_fop = &generic_ro_fops;
++#ifdef CONFIG_EROFS_FS_ONDEMAND
++		else if (erofs_can_share_page_cache(inode))
++			inode->i_fop = &erofs_fscache_share_file_fops;
++#endif
+ 		else
+ 			inode->i_fop = &erofs_file_fops;
+ 		break;
 -- 
 2.19.1.6.gb485710b
 
