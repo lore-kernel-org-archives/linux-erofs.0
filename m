@@ -4,29 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C8B9C3DA7A
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 12:58:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3FBAC3DA7A
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 12:58:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NpNgz46TKz3bhv
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 23:58:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56; helo=out30-56.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NpNh23Pd8z3c6K
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Jan 2023 23:58:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.43; helo=out30-43.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NpNgh3w22z3c63
-	for <linux-erofs@lists.ozlabs.org>; Fri,  6 Jan 2023 23:58:39 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VZ-H5YK_1673009611;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZ-H5YK_1673009611)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NpNgk0x57z3c4Y
+	for <linux-erofs@lists.ozlabs.org>; Fri,  6 Jan 2023 23:58:41 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VZ-Iakh_1673009615;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZ-Iakh_1673009615)
           by smtp.aliyun-inc.com;
-          Fri, 06 Jan 2023 20:53:32 +0800
+          Fri, 06 Jan 2023 20:53:36 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH 1/6] erofs: remove unused device mapping in the meta routine
-Date: Fri,  6 Jan 2023 20:53:25 +0800
-Message-Id: <20230106125330.55529-2-jefflexu@linux.alibaba.com>
+Subject: [RFC PATCH 5/6] erofs: implement .mmap for page cache sharing
+Date: Fri,  6 Jan 2023 20:53:29 +0800
+Message-Id: <20230106125330.55529-6-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230106125330.55529-1-jefflexu@linux.alibaba.com>
 References: <20230106125330.55529-1-jefflexu@linux.alibaba.com>
@@ -47,81 +47,75 @@ Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Currently there're two anonymous inodes (inode and anon_inode in struct
-erofs_fscache) may be used for each blob.  The former is only for
-bootstrap and used as the address_space of page cache, while the latter
-is used for both bootstrap and data blobs when share domain mode enabled
-and behaves as a sentinel in the shared domain.
+In mmap(2), replace vma->vm_file with the anonymous file associated with
+the blob, so that the vma will be linked to the address_space of the
+blob.
 
-In prep for the following support for page cache sharing, following
-patch will unify these two anonymous inodes.  That is, the unified
-anonymous inode not only acts as the address_space of page cache, but
-also a sentinel in share domain mode.
-
-However the current meta routine can't work if above change applied.
-Current meta routine will make a device mapping, and superblock of the
-filesystem is required to do the device mapping.  Currently the
-superblock is derived from the input meta folio, which is reasonable
-since the anonymous inode (used for the address_space of page cache) is
-always allocated from the filesystem's sb.  However after anonymous
-inodes are unified, that is no longer always true.  For example, in
-share domain mode, the unified anonymous inode will be allocated from
-pseudo mnt, and the superblock derived from the folio is actually a
-pseudo sb, which can't be used for the device mapping at all.
-
-As for the meta routine itself, currently metadata is always on
-bootstrap, which means device mapping is not needed so far.  After
-removing the redundant device mapping logic, we can derive the required
-fscache_ctx from anonymous inode's i_private.
+One thing worth noting is that, we return error early in mmap(2) if
+users attempt to map beyond the file size.  Normally filesystems won't
+restrict this in mmap(2).  The checking is done in the fault handler,
+and SIGBUS will be signaled to users if they actually attempt to access
+the area beyond the end of the file.  However since vma->vm_file has
+been changed to the anonymous file in mmap(2), we can no way derive the
+file size of the original file.  As file size is immutable in ro
+filesystem, let's fail early in mmap(2) in this case.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/fscache.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ fs/erofs/fscache.c | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
 diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 014e20962376..03de4dc99302 100644
+index 1f2a42dd1590..98341d4d9c0d 100644
 --- a/fs/erofs/fscache.c
 +++ b/fs/erofs/fscache.c
-@@ -164,18 +164,8 @@ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
- static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
- {
- 	int ret;
--	struct super_block *sb = folio_mapping(folio)->host->i_sb;
-+	struct erofs_fscache *ctx = folio_mapping(folio)->host->i_private;
- 	struct erofs_fscache_request *req;
--	struct erofs_map_dev mdev = {
--		.m_deviceid = 0,
--		.m_pa = folio_pos(folio),
--	};
--
--	ret = erofs_map_dev(sb, &mdev);
--	if (ret) {
--		folio_unlock(folio);
--		return ret;
--	}
+@@ -379,9 +379,46 @@ static ssize_t erofs_fscache_share_file_read_iter(struct kiocb *iocb,
+ 	return already_read ? already_read : ret;
+ }
  
- 	req = erofs_fscache_req_alloc(folio_mapping(folio),
- 				folio_pos(folio), folio_size(folio));
-@@ -184,8 +174,8 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
- 		return PTR_ERR(req);
- 	}
++static const struct vm_operations_struct erofs_fscache_share_file_vm_ops = {
++	.fault = filemap_fault,
++};
++
++static int erofs_fscache_share_file_mmap(struct file *file,
++					 struct vm_area_struct *vma)
++{
++	struct inode *inode = file_inode(file);
++	/* since page cache sharing is enabled only when i_size <= chunk_size */
++	struct erofs_map_blocks map = {}; /* .m_la = 0 */
++	struct erofs_map_dev mdev;
++	int ret;
++
++	if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE))
++		return -EINVAL;
++
++	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
++	if (ret)
++		return ret;
++
++	mdev = (struct erofs_map_dev) {
++		.m_deviceid = map.m_deviceid,
++		.m_pa = map.m_pa,
++	};
++	ret = erofs_map_dev(inode->i_sb, &mdev);
++	if (ret)
++		return ret;
++
++	vma_set_file(vma, mdev.m_fscache->file);
++	vma->vm_pgoff = (mdev.m_pa >> PAGE_SHIFT) + vma->vm_pgoff;
++	vma->vm_ops = &erofs_fscache_share_file_vm_ops;
++
++	file_accessed(file);
++	return 0;
++}
++
+ const struct file_operations erofs_fscache_share_file_fops = {
+ 	.llseek		= generic_file_llseek,
+ 	.read_iter	= erofs_fscache_share_file_read_iter,
++	.mmap		= erofs_fscache_share_file_mmap,
+ };
  
--	ret = erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
--				req, mdev.m_pa, folio_size(folio));
-+	ret = erofs_fscache_read_folios_async(ctx->cookie, req,
-+				folio_pos(folio), folio_size(folio));
- 	if (ret)
- 		req->error = ret;
- 
-@@ -469,6 +459,7 @@ struct erofs_fscache *erofs_fscache_acquire_cookie(struct super_block *sb,
- 		inode->i_size = OFFSET_MAX;
- 		inode->i_mapping->a_ops = &erofs_fscache_meta_aops;
- 		mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
-+		inode->i_private = ctx;
- 
- 		ctx->inode = inode;
- 	}
+ static void erofs_fscache_domain_put(struct erofs_domain *domain)
 -- 
 2.19.1.6.gb485710b
 
