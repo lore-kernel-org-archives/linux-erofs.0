@@ -4,63 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62A50C54EBE
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Jan 2023 09:28:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 062E7C46467
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Jan 2023 21:40:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Nrlqg0Gl8z3cBy
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Jan 2023 20:28:47 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Ns43f1nyPz3c7S
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 08:40:14 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=pVMFD8oN;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ArEcV3rz;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::435; helo=mail-pf1-x435.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=134.134.136.20; helo=mga02.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=pVMFD8oN;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ArEcV3rz;
 	dkim-atps=neutral
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NrlqR47ZYz3c6P
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Jan 2023 20:28:33 +1100 (AEDT)
-Received: by mail-pf1-x435.google.com with SMTP id a184so8320840pfa.9
-        for <linux-erofs@lists.ozlabs.org>; Tue, 10 Jan 2023 01:28:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TS2twotEf8RIGQv7ZktzMYjKlLNxYtX2mDYr/mgoMX8=;
-        b=pVMFD8oNvIY1EqiP5WvdrLH2YRy1jiwRsCgO4M27bSXlv/4r2fa/0lEB/HXKmVgiKA
-         X810jqS28bAawv0I8O435xiNupwBy8WwP9eff2jh+2ym83lUZbz0Tccr1hSFgFyK563Q
-         sOeEuubLaedTmczZ28iOf7WpKnAme10kbsdUpX7Saws5u/A7vUrppBiJ+ocSeIGLZB8r
-         KSa0oARCSOimrL1jBmPdCYnC4K3TQF/aVvUWED829MOytZezST6MokzzZ4J8axxWjfCw
-         g8tT2KsVJNye8f2yLMyAP5vcnUE5kwjr7nsXppU3Gr9nDLPSpnmRiq0wS2TxhHULjMG0
-         kzXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TS2twotEf8RIGQv7ZktzMYjKlLNxYtX2mDYr/mgoMX8=;
-        b=UqZBHhQN6rrmUKjfjrBs0oWnLOF0FNwP0A3ivYy4XS8PxUm2TT9Zmim2KE/sK7v4K/
-         0sSs8Pj6YxDV1rLCTSxKIWvYrHTYru/ldY0OiaEvMjyDB/D1n3wLYS92baasL6Ft6e/8
-         pFgGggRF5oBTrvD/IIC38fpQ6spCn3UhHx9lD+TXSxcXv7pFxvprovz8fE+7WkAp2X38
-         uNO80Gezwg/Iv052E6jRpLfRC3SUpRv14u/E7+M/XG5bz4iZtoykc4kVGV+UAZhK74qr
-         4MT9Y9HthhcUaZM6HGcfnqeVj6WSdoI5M+nOBpcjdL58e+JQQA1Pn1HpHsKYTnZJFIiT
-         sm0Q==
-X-Gm-Message-State: AFqh2krrgc3jC5cb6eOJrxQYePNOAxer8VWgg+mpsjUrctPYpBIKWt0l
-	CrWhB5SQpP9cQJA1mI6qlaSGAMIfIcA=
-X-Google-Smtp-Source: AMrXdXsRBe3+1FkAW1tsNFC+LqEZieV3z2Ur7WqMnrS5kTI7uwkMus+EsQfNWunmfrc5OF0eq0cnJA==
-X-Received: by 2002:aa7:9732:0:b0:580:d722:10e7 with SMTP id k18-20020aa79732000000b00580d72210e7mr62866680pfg.24.1673342911315;
-        Tue, 10 Jan 2023 01:28:31 -0800 (PST)
-Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id 125-20020a620483000000b005817fa83bcesm4866880pfe.76.2023.01.10.01.28.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jan 2023 01:28:30 -0800 (PST)
-From: Yue Hu <zbestahu@gmail.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 1/3] erofs-utils: lib: export parts of erofs_pread()
-Date: Tue, 10 Jan 2023 17:28:19 +0800
-Message-Id: <2a43acac96332c626483f6320eb0e06aba62c776.1673342258.git.huyue2@coolpad.com>
-X-Mailer: git-send-email 2.17.1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ns43T2L58z3bWF
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Jan 2023 08:39:59 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1673386805; x=1704922805;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=FnIlhWRN5hYPa9fPD6PUR2A8M458FqEjluUGDwPST+I=;
+  b=ArEcV3rz+aN3j+vP6LRMqHv0NaSMQDtz//hjWySoBVkZDDHie+MF3xvE
+   BjhlPYps0Rd9JH7xX/r1RQFbGGTH+twjyyFx8KgWqlX2exGgKsTIwhucN
+   hdT71jm+VHM7PbePGFM8AQRUF7i2BwNU7Ei9qUgqak5gLZqcSG5psQnqT
+   PCbDBlPWO4SsZNPgVIQJjfR7JmoC/96BMn5zr3+nG4beMLFrfq5IW6RLo
+   Qrk9n1nyjvv6r5GbpCZHW4LPHOb3qf4uaT/HIB8RlJUFBhOyFcKImwfIK
+   vNaNJlJbFkYBk4/GhBSXdnRZZSLDrAdPxbac/TyOhQJ/H/16FA12YlhDP
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="311069170"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="311069170"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 13:39:52 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="725681421"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="725681421"
+Received: from lkp-server02.sh.intel.com (HELO f1920e93ebb5) ([10.239.97.151])
+  by fmsmga004.fm.intel.com with ESMTP; 10 Jan 2023 13:39:51 -0800
+Received: from kbuild by f1920e93ebb5 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1pFMLW-0008OF-1L;
+	Tue, 10 Jan 2023 21:39:50 +0000
+Date: Wed, 11 Jan 2023 05:38:50 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 12724ba38992bd045e92a9a88a868a530f89d13e
+Message-ID: <63bddaea.4JA1ZCVNYKWYBS7N%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,276 +70,130 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yue Hu <huyue2@coolpad.com>, zhangwen@coolpad.com
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Yue Hu <huyue2@coolpad.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 12724ba38992bd045e92a9a88a868a530f89d13e  erofs: fix kvcalloc() misuse with __GFP_NOFAIL
 
-Export parts of erofs_pread() to avoid duplicated code in
-erofs_verify_inode_data(). Let's make two helpers for this.
+elapsed time: 720m
 
-Signed-off-by: Yue Hu <huyue2@coolpad.com>
----
-v3: rename the helpers as {z_}erofs_read_one_data
+configs tested: 104
+configs skipped: 2
 
-v2: use parameter trimmed instead of partial
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
- include/erofs/internal.h |   5 ++
- lib/data.c               | 153 ++++++++++++++++++++++-----------------
- 2 files changed, 91 insertions(+), 67 deletions(-)
+gcc tested configs:
+alpha                            allyesconfig
+m68k                             allyesconfig
+m68k                             allmodconfig
+arc                              allyesconfig
+i386                 randconfig-a011-20230109
+i386                 randconfig-a013-20230109
+i386                 randconfig-a012-20230109
+i386                 randconfig-a014-20230109
+i386                 randconfig-a016-20230109
+i386                 randconfig-a015-20230109
+i386                              allnoconfig
+arm                               allnoconfig
+arc                               allnoconfig
+alpha                             allnoconfig
+x86_64                            allnoconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+powerpc                           allnoconfig
+arc                                 defconfig
+s390                             allmodconfig
+alpha                               defconfig
+sh                               allmodconfig
+s390                                defconfig
+arm                                 defconfig
+mips                             allyesconfig
+x86_64               randconfig-a016-20230109
+x86_64                              defconfig
+powerpc                          allmodconfig
+s390                             allyesconfig
+i386                                defconfig
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+x86_64                           allyesconfig
+x86_64                               rhel-8.3
+x86_64                        randconfig-a006
+ia64                             allmodconfig
+arm64                            allyesconfig
+arm                              allyesconfig
+i386                          randconfig-a003
+x86_64               randconfig-a014-20230109
+i386                          randconfig-a001
+x86_64               randconfig-a011-20230109
+x86_64               randconfig-a013-20230109
+x86_64               randconfig-a012-20230109
+x86_64               randconfig-a015-20230109
+x86_64                          rhel-8.3-func
+i386                          randconfig-a005
+x86_64                    rhel-8.3-kselftests
+x86_64                           rhel-8.3-bpf
+i386                             allyesconfig
+x86_64                           rhel-8.3-syz
+x86_64                         rhel-8.3-kunit
+x86_64                           rhel-8.3-kvm
+arc                  randconfig-r043-20230110
+riscv                             allnoconfig
+s390                 randconfig-r044-20230110
+riscv                randconfig-r042-20230110
+riscv                randconfig-r042-20230109
+s390                 randconfig-r044-20230109
+arm                  randconfig-r046-20230108
+arc                  randconfig-r043-20230108
+arc                  randconfig-r043-20230109
+riscv                    nommu_virt_defconfig
+riscv                          rv32_defconfig
+riscv                    nommu_k210_defconfig
+i386                   debian-10.3-kselftests
+i386                              debian-10.3
+i386                          debian-10.3-kvm
+i386                        debian-10.3-kunit
+i386                         debian-10.3-func
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 206913c..08a3877 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -355,6 +355,11 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
- int erofs_map_blocks(struct erofs_inode *inode,
- 		struct erofs_map_blocks *map, int flags);
- int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map);
-+int erofs_read_one_data(struct erofs_map_blocks *map, char *buffer, u64 offset,
-+			size_t len);
-+int z_erofs_read_one_data(struct erofs_inode *inode,
-+			struct erofs_map_blocks *map, char *raw, char *buffer,
-+			erofs_off_t skip, erofs_off_t length, bool trimmed);
- 
- static inline int erofs_get_occupied_size(const struct erofs_inode *inode,
- 					  erofs_off_t *size)
-diff --git a/lib/data.c b/lib/data.c
-index 76a6677..c7d08e7 100644
---- a/lib/data.c
-+++ b/lib/data.c
-@@ -158,19 +158,38 @@ int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map)
- 	return 0;
- }
- 
-+int erofs_read_one_data(struct erofs_map_blocks *map, char *buffer, u64 offset,
-+			size_t len)
-+{
-+	struct erofs_map_dev mdev;
-+	int ret;
-+
-+	mdev = (struct erofs_map_dev) {
-+		.m_deviceid = map->m_deviceid,
-+		.m_pa = map->m_pa,
-+	};
-+	ret = erofs_map_dev(&sbi, &mdev);
-+	if (ret)
-+		return ret;
-+
-+	ret = dev_read(mdev.m_deviceid, buffer, mdev.m_pa + offset, len);
-+	if (ret < 0)
-+		return -EIO;
-+	return 0;
-+}
-+
- static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 			       erofs_off_t size, erofs_off_t offset)
- {
- 	struct erofs_map_blocks map = {
- 		.index = UINT_MAX,
- 	};
--	struct erofs_map_dev mdev;
- 	int ret;
- 	erofs_off_t ptr = offset;
- 
- 	while (ptr < offset + size) {
- 		char *const estart = buffer + ptr - offset;
--		erofs_off_t eend;
-+		erofs_off_t eend, moff = 0;
- 
- 		map.m_la = ptr;
- 		ret = erofs_map_blocks(inode, &map, 0);
-@@ -179,14 +198,6 @@ static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 
- 		DBG_BUGON(map.m_plen != map.m_llen);
- 
--		mdev = (struct erofs_map_dev) {
--			.m_deviceid = map.m_deviceid,
--			.m_pa = map.m_pa,
--		};
--		ret = erofs_map_dev(&sbi, &mdev);
--		if (ret)
--			return ret;
--
- 		/* trim extent */
- 		eend = min(offset + size, map.m_la + map.m_llen);
- 		DBG_BUGON(ptr < map.m_la);
-@@ -204,19 +215,73 @@ static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 		}
- 
- 		if (ptr > map.m_la) {
--			mdev.m_pa += ptr - map.m_la;
-+			moff = ptr - map.m_la;
- 			map.m_la = ptr;
- 		}
- 
--		ret = dev_read(mdev.m_deviceid, estart, mdev.m_pa,
--			       eend - map.m_la);
--		if (ret < 0)
--			return -EIO;
-+		ret = erofs_read_one_data(&map, estart, moff, eend - map.m_la);
-+		if (ret)
-+			return ret;
- 		ptr = eend;
- 	}
- 	return 0;
- }
- 
-+int z_erofs_read_one_data(struct erofs_inode *inode,
-+			struct erofs_map_blocks *map, char *raw, char *buffer,
-+			erofs_off_t skip, erofs_off_t length, bool trimmed)
-+{
-+	struct erofs_map_dev mdev;
-+	int ret = 0;
-+
-+	if (map->m_flags & EROFS_MAP_FRAGMENT) {
-+		struct erofs_inode packed_inode = {
-+			.nid = sbi.packed_nid,
-+		};
-+
-+		ret = erofs_read_inode_from_disk(&packed_inode);
-+		if (ret) {
-+			erofs_err("failed to read packed inode from disk");
-+			return ret;
-+		}
-+
-+		return erofs_pread(&packed_inode, buffer, length - skip,
-+				   inode->fragmentoff + skip);
-+	}
-+
-+	/* no device id here, thus it will always succeed */
-+	mdev = (struct erofs_map_dev) {
-+		.m_pa = map->m_pa,
-+	};
-+	ret = erofs_map_dev(&sbi, &mdev);
-+	if (ret) {
-+		DBG_BUGON(1);
-+		return ret;
-+	}
-+
-+	ret = dev_read(mdev.m_deviceid, raw, mdev.m_pa, map->m_plen);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
-+			.in = raw,
-+			.out = buffer,
-+			.decodedskip = skip,
-+			.interlaced_offset =
-+				map->m_algorithmformat == Z_EROFS_COMPRESSION_INTERLACED ?
-+					erofs_blkoff(map->m_la) : 0,
-+			.inputsize = map->m_plen,
-+			.decodedlength = length,
-+			.alg = map->m_algorithmformat,
-+			.partial_decoding = trimmed ? true :
-+				!(map->m_flags & EROFS_MAP_FULL_MAPPED) ||
-+					(map->m_flags & EROFS_MAP_PARTIAL_REF),
-+			 });
-+	if (ret < 0)
-+		return ret;
-+	return 0;
-+}
-+
- static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 			     erofs_off_t size, erofs_off_t offset)
- {
-@@ -224,9 +289,8 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 	struct erofs_map_blocks map = {
- 		.index = UINT_MAX,
- 	};
--	struct erofs_map_dev mdev;
--	bool partial;
--	unsigned int bufsize = 0, interlaced_offset;
-+	bool trimmed;
-+	unsigned int bufsize = 0;
- 	char *raw = NULL;
- 	int ret = 0;
- 
-@@ -238,28 +302,17 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 		if (ret)
- 			break;
- 
--		/* no device id here, thus it will always succeed */
--		mdev = (struct erofs_map_dev) {
--			.m_pa = map.m_pa,
--		};
--		ret = erofs_map_dev(&sbi, &mdev);
--		if (ret) {
--			DBG_BUGON(1);
--			break;
--		}
--
- 		/*
- 		 * trim to the needed size if the returned extent is quite
- 		 * larger than requested, and set up partial flag as well.
- 		 */
- 		if (end < map.m_la + map.m_llen) {
- 			length = end - map.m_la;
--			partial = true;
-+			trimmed = true;
- 		} else {
- 			DBG_BUGON(end != map.m_la + map.m_llen);
- 			length = map.m_llen;
--			partial = !(map.m_flags & EROFS_MAP_FULL_MAPPED) ||
--				(map.m_flags & EROFS_MAP_PARTIAL_REF);
-+			trimmed = false;
- 		}
- 
- 		if (map.m_la < offset) {
-@@ -276,25 +329,6 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 			continue;
- 		}
- 
--		if (map.m_flags & EROFS_MAP_FRAGMENT) {
--			struct erofs_inode packed_inode = {
--				.nid = sbi.packed_nid,
--			};
--
--			ret = erofs_read_inode_from_disk(&packed_inode);
--			if (ret) {
--				erofs_err("failed to read packed inode from disk");
--				return ret;
--			}
--
--			ret = z_erofs_read_data(&packed_inode,
--					buffer + end - offset, length - skip,
--					inode->fragmentoff + skip);
--			if (ret < 0)
--				break;
--			continue;
--		}
--
- 		if (map.m_plen > bufsize) {
- 			bufsize = map.m_plen;
- 			raw = realloc(raw, bufsize);
-@@ -303,24 +337,9 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 				break;
- 			}
- 		}
--		ret = dev_read(mdev.m_deviceid, raw, mdev.m_pa, map.m_plen);
--		if (ret < 0)
--			break;
- 
--		interlaced_offset = 0;
--		if (map.m_algorithmformat == Z_EROFS_COMPRESSION_INTERLACED)
--			interlaced_offset = erofs_blkoff(map.m_la);
--
--		ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
--					.in = raw,
--					.out = buffer + end - offset,
--					.decodedskip = skip,
--					.interlaced_offset = interlaced_offset,
--					.inputsize = map.m_plen,
--					.decodedlength = length,
--					.alg = map.m_algorithmformat,
--					.partial_decoding = partial
--					 });
-+		ret = z_erofs_read_one_data(inode, &map, raw,
-+				buffer + end - offset, skip, length, trimmed);
- 		if (ret < 0)
- 			break;
- 	}
+clang tested configs:
+i386                 randconfig-a004-20230109
+i386                 randconfig-a002-20230109
+i386                 randconfig-a003-20230109
+i386                 randconfig-a001-20230109
+x86_64                        randconfig-a001
+x86_64                        randconfig-a003
+x86_64                        randconfig-a005
+i386                 randconfig-a005-20230109
+i386                 randconfig-a006-20230109
+i386                          randconfig-a002
+i386                          randconfig-a004
+x86_64               randconfig-a003-20230109
+x86_64                          rhel-8.3-rust
+i386                          randconfig-a006
+x86_64               randconfig-a002-20230109
+x86_64               randconfig-a004-20230109
+x86_64               randconfig-a005-20230109
+x86_64               randconfig-a001-20230109
+x86_64               randconfig-a006-20230109
+hexagon              randconfig-r045-20230109
+arm                  randconfig-r046-20230109
+arm                  randconfig-r046-20230110
+riscv                randconfig-r042-20230108
+hexagon              randconfig-r041-20230108
+hexagon              randconfig-r045-20230110
+hexagon              randconfig-r041-20230109
+hexagon              randconfig-r045-20230108
+hexagon              randconfig-r041-20230110
+s390                 randconfig-r044-20230108
+riscv                          rv32_defconfig
+powerpc                      ppc64e_defconfig
+powerpc                      ppc44x_defconfig
+x86_64                        randconfig-a012
+x86_64                        randconfig-a014
+x86_64                        randconfig-a016
+
 -- 
-2.17.1
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp
