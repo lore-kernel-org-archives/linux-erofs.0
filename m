@@ -4,63 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D71DEC46467
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 01:50:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 661A3C54EBC
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 01:50:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Ns9bx2dlcz3cdW
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 12:50:05 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Ns9c25Mwlz3cdN
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 12:50:10 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=Rjd8Biwf;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=VSi98dx8;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::52c; helo=mail-pg1-x52c.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42a; helo=mail-pf1-x42a.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=Rjd8Biwf;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=VSi98dx8;
 	dkim-atps=neutral
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ns9bg35Bxz306l
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Jan 2023 12:49:49 +1100 (AEDT)
-Received: by mail-pg1-x52c.google.com with SMTP id 141so9556511pgc.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 10 Jan 2023 17:49:49 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ns9bg6H7Xz3c65
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Jan 2023 12:49:51 +1100 (AEDT)
+Received: by mail-pf1-x42a.google.com with SMTP id k19so10281430pfg.11
+        for <linux-erofs@lists.ozlabs.org>; Tue, 10 Jan 2023 17:49:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Oy1hdelKoqONk+Wvx+XxLh7TycZUcuqF0eNgEM95Ocw=;
-        b=Rjd8Biwfj1bpHqgGJcCfn4B+NdYaUpRZMiW1bldhIOtlfkVPKl6D45jTib80HyjR81
-         4oS4m+Hd1vkoenKaTUlgCfk2FqCpNldZg/iJL7mvT/vSASrCjazPyMWYgLl6Gp+1FNfM
-         W2i5wp68n1t2mmaZEo1SFWa7PCDP0fXcmpciugA+kt2Y7vHChKSch3XXncQ35TLr1EkQ
-         qXTG7Yg40YQLt7iwYwH003kHIsdiuDkGB23RhzEkRFVL2H+YjR3GPpJTu5VZ7a167EMi
-         tABChC9XEAQpOheRwkzvkrLGiIKdrlVUE8ZJUnp0qOVnIF+VS1QO8/cXTagMA3sU+2e8
-         3TRw==
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+somNYB4QjQh87fmh5RL0427NfaPhPDoM4PgorryzSY=;
+        b=VSi98dx8ltYKaqcE5Od8sKSBAAHX1NrNP2w5qu7ESmAJ9h3J5Hsr0Qk+PhKxKHtEBz
+         k13aPukM3CZO/AStMp0ZZaueO7MxyUgrl6x0hP6WwUV+mPLIrwk4J3fNprZY4xedDjR/
+         CiGBIMP1K9FZg5ziJUBFploycKNvMbrE4XbEQzary6rbTQbtqXArf7/pa1QQnWgDe0LA
+         5KraXeVIrzV35GZFX8ViCalCT7Go6YzIU8pipvSwDwoPtSN+4R2pX8jaB4do95pFPtXQ
+         sX9sSjYjjdJUaDKuXVuBBNsBPaF/+IeLknGTRG9FcWjBAtDnYPIKu8vHtZoEaiojFPV6
+         mcbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Oy1hdelKoqONk+Wvx+XxLh7TycZUcuqF0eNgEM95Ocw=;
-        b=cBGwtEgAwqsz5aK+0fbwimBb3Xf18THivXw6HB9juYmSTNFoHiWXUdts58Kp6f3gWt
-         UhfC8xyBFmyvJlrZzyMhSuHnh6zqA2CBoBmY9bXyfgqQwZBlRjQzWs9wqoad+efri4/X
-         bm/wesag0wsPolvWO9yivN1n4Zo9gWWTujuZvtQlS0y8dmETMpefDKQydDYrJepseOx0
-         OAO39EUpvk/lYdf9mV3qXGff5y0p0mRt63soIGBZIkBNC9W3agoYAPVBJyOZVGbnwhFm
-         FvAgpvbk92SkS2UQtzSLYSfHtdbAbxFG72EbGllDoeklLFRwGztey/LpE1qWpcmollrb
-         lwhg==
-X-Gm-Message-State: AFqh2kokoP97fi3VSJRDs3lbNUvKbJ2qrhyjbi5npbaKWF9F6wN4uF0X
-	TQGBHP6afiBhA77IMrZT83PPO63yYDY=
-X-Google-Smtp-Source: AMrXdXsz7gYPp776HGSqUbpS5NwSJ9N6goeIWsxTt4ItB6kvN833mvjYkJHZqd3ib98EaT7GgVtNog==
-X-Received: by 2002:a05:6a00:a07:b0:580:9431:1b1a with SMTP id p7-20020a056a000a0700b0058094311b1amr87302606pfh.5.1673401786271;
-        Tue, 10 Jan 2023 17:49:46 -0800 (PST)
+        h=references:in-reply-to:references:in-reply-to:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+somNYB4QjQh87fmh5RL0427NfaPhPDoM4PgorryzSY=;
+        b=YmklR5ZX8cpUUebzwpAmi5mthGlxxXL2SZiN2LH5X8uTGuEc6yzxMDK9P8xPYGmd4W
+         Kd/kAGJfuSCeR51crCxFti/kGlVh2QKj0WmnPFKTMEPzafavlqiCABzN166z3Rvju+ji
+         mQekVpDYPuKSxJuMwMf2dSafa1xpthjbQpPmuthK1G4438XG94k3LtCQooe+Xlm8+bT+
+         uKHngSRNtCAh4jgyl2LtFY2zLd3/ApiNBVOwz+xlxGVMZvLFw6nZoB+LrxIm0PI2fury
+         nhix/LtqikZIrCRZBjG+UbcmeRDGXTtTfrf3xRKY/cvI0c1OGSMHMM83nNDWRXNIrHLO
+         ZCbA==
+X-Gm-Message-State: AFqh2kpDbmxy1piL2VbhS1nm4Up2Kh6O2H8nnPGEZGuiBfXrZv/qu56u
+	o76KP1ClCZGVev3sfsRMr7+B+SNlOa4=
+X-Google-Smtp-Source: AMrXdXvPVvTRIdyVZliPGcK280sHma6j+1kNEk37YZD9xjb7oLrjvH4aZbcz2/FEKhe83GMtmle4HA==
+X-Received: by 2002:a62:1c8a:0:b0:58b:3168:4d53 with SMTP id c132-20020a621c8a000000b0058b31684d53mr2038318pfc.24.1673401789364;
+        Tue, 10 Jan 2023 17:49:49 -0800 (PST)
 Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id w2-20020a623002000000b0056283e2bdbdsm8669847pfw.138.2023.01.10.17.49.44
+        by smtp.gmail.com with ESMTPSA id w2-20020a623002000000b0056283e2bdbdsm8669847pfw.138.2023.01.10.17.49.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jan 2023 17:49:45 -0800 (PST)
+        Tue, 10 Jan 2023 17:49:49 -0800 (PST)
 From: Yue Hu <zbestahu@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH resend v3 1/3] erofs-utils: lib: export parts of erofs_pread()
-Date: Wed, 11 Jan 2023 09:49:26 +0800
-Message-Id: <ff560da9c798b2ca1f1a663a000501486d865487.1673401718.git.huyue2@coolpad.com>
+Subject: [PATCH resend v3 3/3] erofs-utils: fsck: add a check to packed inode
+Date: Wed, 11 Jan 2023 09:49:28 +0800
+Message-Id: <ce29198d32f284c19589877c4c9e4e1588ad77b3.1673401718.git.huyue2@coolpad.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <ff560da9c798b2ca1f1a663a000501486d865487.1673401718.git.huyue2@coolpad.com>
+References: <ff560da9c798b2ca1f1a663a000501486d865487.1673401718.git.huyue2@coolpad.com>
+In-Reply-To: <ff560da9c798b2ca1f1a663a000501486d865487.1673401718.git.huyue2@coolpad.com>
+References: <ff560da9c798b2ca1f1a663a000501486d865487.1673401718.git.huyue2@coolpad.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -78,266 +83,60 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Yue Hu <huyue2@coolpad.com>
 
-Export parts of erofs_pread() to avoid duplicated code in
-erofs_verify_inode_data(). Let's make two helpers for this.
+Add a check to packed inode for fsck.erofs.
 
 Signed-off-by: Yue Hu <huyue2@coolpad.com>
 ---
- include/erofs/internal.h |   5 ++
- lib/data.c               | 153 ++++++++++++++++++++++-----------------
- 2 files changed, 91 insertions(+), 67 deletions(-)
+ fsck/main.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 206913c..08a3877 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -355,6 +355,11 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
- int erofs_map_blocks(struct erofs_inode *inode,
- 		struct erofs_map_blocks *map, int flags);
- int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map);
-+int erofs_read_one_data(struct erofs_map_blocks *map, char *buffer, u64 offset,
-+			size_t len);
-+int z_erofs_read_one_data(struct erofs_inode *inode,
-+			struct erofs_map_blocks *map, char *raw, char *buffer,
-+			erofs_off_t skip, erofs_off_t length, bool trimmed);
- 
- static inline int erofs_get_occupied_size(const struct erofs_inode *inode,
- 					  erofs_off_t *size)
-diff --git a/lib/data.c b/lib/data.c
-index fce3da2..c7d08e7 100644
---- a/lib/data.c
-+++ b/lib/data.c
-@@ -158,19 +158,38 @@ int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map)
- 	return 0;
- }
- 
-+int erofs_read_one_data(struct erofs_map_blocks *map, char *buffer, u64 offset,
-+			size_t len)
-+{
-+	struct erofs_map_dev mdev;
-+	int ret;
-+
-+	mdev = (struct erofs_map_dev) {
-+		.m_deviceid = map->m_deviceid,
-+		.m_pa = map->m_pa,
-+	};
-+	ret = erofs_map_dev(&sbi, &mdev);
-+	if (ret)
-+		return ret;
-+
-+	ret = dev_read(mdev.m_deviceid, buffer, mdev.m_pa + offset, len);
-+	if (ret < 0)
-+		return -EIO;
-+	return 0;
-+}
-+
- static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 			       erofs_off_t size, erofs_off_t offset)
- {
- 	struct erofs_map_blocks map = {
- 		.index = UINT_MAX,
- 	};
--	struct erofs_map_dev mdev;
- 	int ret;
- 	erofs_off_t ptr = offset;
- 
- 	while (ptr < offset + size) {
- 		char *const estart = buffer + ptr - offset;
--		erofs_off_t eend;
-+		erofs_off_t eend, moff = 0;
- 
- 		map.m_la = ptr;
- 		ret = erofs_map_blocks(inode, &map, 0);
-@@ -179,14 +198,6 @@ static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 
- 		DBG_BUGON(map.m_plen != map.m_llen);
- 
--		mdev = (struct erofs_map_dev) {
--			.m_deviceid = map.m_deviceid,
--			.m_pa = map.m_pa,
--		};
--		ret = erofs_map_dev(&sbi, &mdev);
--		if (ret)
--			return ret;
--
- 		/* trim extent */
- 		eend = min(offset + size, map.m_la + map.m_llen);
- 		DBG_BUGON(ptr < map.m_la);
-@@ -204,19 +215,73 @@ static int erofs_read_raw_data(struct erofs_inode *inode, char *buffer,
- 		}
- 
- 		if (ptr > map.m_la) {
--			mdev.m_pa += ptr - map.m_la;
-+			moff = ptr - map.m_la;
- 			map.m_la = ptr;
- 		}
- 
--		ret = dev_read(mdev.m_deviceid, estart, mdev.m_pa,
--			       eend - map.m_la);
--		if (ret < 0)
--			return -EIO;
-+		ret = erofs_read_one_data(&map, estart, moff, eend - map.m_la);
-+		if (ret)
-+			return ret;
- 		ptr = eend;
+diff --git a/fsck/main.c b/fsck/main.c
+index a01ca76..6b42252 100644
+--- a/fsck/main.c
++++ b/fsck/main.c
+@@ -450,7 +450,8 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
  	}
- 	return 0;
- }
  
-+int z_erofs_read_one_data(struct erofs_inode *inode,
-+			struct erofs_map_blocks *map, char *raw, char *buffer,
-+			erofs_off_t skip, erofs_off_t length, bool trimmed)
-+{
-+	struct erofs_map_dev mdev;
-+	int ret = 0;
-+
-+	if (map->m_flags & EROFS_MAP_FRAGMENT) {
-+		struct erofs_inode packed_inode = {
-+			.nid = sbi.packed_nid,
-+		};
-+
-+		ret = erofs_read_inode_from_disk(&packed_inode);
-+		if (ret) {
-+			erofs_err("failed to read packed inode from disk");
-+			return ret;
+ 	if (fsckcfg.print_comp_ratio) {
+-		fsckcfg.logical_blocks += BLK_ROUND_UP(inode->i_size);
++		if (!erofs_is_packed_inode(inode))
++			fsckcfg.logical_blocks += BLK_ROUND_UP(inode->i_size);
+ 		fsckcfg.physical_blocks += BLK_ROUND_UP(pchunk_len);
+ 	}
+ out:
+@@ -696,6 +697,8 @@ static int erofsfsck_check_inode(erofs_nid_t pnid, erofs_nid_t nid)
+ 			ret = erofs_extract_dir(&inode);
+ 			break;
+ 		case S_IFREG:
++			if (erofs_is_packed_inode(&inode))
++				goto verify;
+ 			ret = erofs_extract_file(&inode);
+ 			break;
+ 		case S_IFLNK:
+@@ -731,7 +734,7 @@ verify:
+ 		ret = erofs_iterate_dir(&ctx, true);
+ 	}
+ 
+-	if (!ret)
++	if (!ret && !erofs_is_packed_inode(&inode))
+ 		erofsfsck_set_attributes(&inode, fsckcfg.extract_path);
+ 
+ 	if (ret == -ECANCELED)
+@@ -786,6 +789,14 @@ int main(int argc, char **argv)
+ 		goto exit_put_super;
+ 	}
+ 
++	if (erofs_sb_has_fragments()) {
++		err = erofsfsck_check_inode(sbi.packed_nid, sbi.packed_nid);
++		if (err) {
++			erofs_err("failed to verify packed file");
++			goto exit_put_super;
 +		}
-+
-+		return erofs_pread(&packed_inode, buffer, length - skip,
-+				   inode->fragmentoff + skip);
 +	}
 +
-+	/* no device id here, thus it will always succeed */
-+	mdev = (struct erofs_map_dev) {
-+		.m_pa = map->m_pa,
-+	};
-+	ret = erofs_map_dev(&sbi, &mdev);
-+	if (ret) {
-+		DBG_BUGON(1);
-+		return ret;
-+	}
-+
-+	ret = dev_read(mdev.m_deviceid, raw, mdev.m_pa, map->m_plen);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
-+			.in = raw,
-+			.out = buffer,
-+			.decodedskip = skip,
-+			.interlaced_offset =
-+				map->m_algorithmformat == Z_EROFS_COMPRESSION_INTERLACED ?
-+					erofs_blkoff(map->m_la) : 0,
-+			.inputsize = map->m_plen,
-+			.decodedlength = length,
-+			.alg = map->m_algorithmformat,
-+			.partial_decoding = trimmed ? true :
-+				!(map->m_flags & EROFS_MAP_FULL_MAPPED) ||
-+					(map->m_flags & EROFS_MAP_PARTIAL_REF),
-+			 });
-+	if (ret < 0)
-+		return ret;
-+	return 0;
-+}
-+
- static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 			     erofs_off_t size, erofs_off_t offset)
- {
-@@ -224,9 +289,8 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 	struct erofs_map_blocks map = {
- 		.index = UINT_MAX,
- 	};
--	struct erofs_map_dev mdev;
--	bool partial;
--	unsigned int bufsize = 0, interlaced_offset;
-+	bool trimmed;
-+	unsigned int bufsize = 0;
- 	char *raw = NULL;
- 	int ret = 0;
- 
-@@ -238,28 +302,17 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 		if (ret)
- 			break;
- 
--		/* no device id here, thus it will always succeed */
--		mdev = (struct erofs_map_dev) {
--			.m_pa = map.m_pa,
--		};
--		ret = erofs_map_dev(&sbi, &mdev);
--		if (ret) {
--			DBG_BUGON(1);
--			break;
--		}
--
- 		/*
- 		 * trim to the needed size if the returned extent is quite
- 		 * larger than requested, and set up partial flag as well.
- 		 */
- 		if (end < map.m_la + map.m_llen) {
- 			length = end - map.m_la;
--			partial = true;
-+			trimmed = true;
- 		} else {
- 			DBG_BUGON(end != map.m_la + map.m_llen);
- 			length = map.m_llen;
--			partial = !(map.m_flags & EROFS_MAP_FULL_MAPPED) ||
--				(map.m_flags & EROFS_MAP_PARTIAL_REF);
-+			trimmed = false;
- 		}
- 
- 		if (map.m_la < offset) {
-@@ -276,25 +329,6 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 			continue;
- 		}
- 
--		if (map.m_flags & EROFS_MAP_FRAGMENT) {
--			struct erofs_inode packed_inode = {
--				.nid = sbi.packed_nid,
--			};
--
--			ret = erofs_read_inode_from_disk(&packed_inode);
--			if (ret) {
--				erofs_err("failed to read packed inode from disk");
--				return ret;
--			}
--
--			ret = erofs_pread(&packed_inode, buffer + end - offset,
--					  length - skip,
--					  inode->fragmentoff + skip);
--			if (ret < 0)
--				break;
--			continue;
--		}
--
- 		if (map.m_plen > bufsize) {
- 			bufsize = map.m_plen;
- 			raw = realloc(raw, bufsize);
-@@ -303,24 +337,9 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
- 				break;
- 			}
- 		}
--		ret = dev_read(mdev.m_deviceid, raw, mdev.m_pa, map.m_plen);
--		if (ret < 0)
--			break;
- 
--		interlaced_offset = 0;
--		if (map.m_algorithmformat == Z_EROFS_COMPRESSION_INTERLACED)
--			interlaced_offset = erofs_blkoff(map.m_la);
--
--		ret = z_erofs_decompress(&(struct z_erofs_decompress_req) {
--					.in = raw,
--					.out = buffer + end - offset,
--					.decodedskip = skip,
--					.interlaced_offset = interlaced_offset,
--					.inputsize = map.m_plen,
--					.decodedlength = length,
--					.alg = map.m_algorithmformat,
--					.partial_decoding = partial
--					 });
-+		ret = z_erofs_read_one_data(inode, &map, raw,
-+				buffer + end - offset, skip, length, trimmed);
- 		if (ret < 0)
- 			break;
- 	}
+ 	err = erofsfsck_check_inode(sbi.root_nid, sbi.root_nid);
+ 	if (fsckcfg.corrupted) {
+ 		if (!fsckcfg.extract_path)
 -- 
 2.17.1
 
