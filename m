@@ -4,32 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6C76C5479D
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 08:16:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9F7CC46467
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 08:16:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NsL9B4mCnz3cKm
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 19:15:58 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.44; helo=out30-44.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NsL9F3Qq6z3cdb
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Jan 2023 19:16:01 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.56; helo=out30-56.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NsL963xcRz3bVP
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NsL964T8gz3bhW
 	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Jan 2023 19:15:53 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VZMNsX7_1673424948;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZMNsX7_1673424948)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VZMMK3D_1673424947;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZMMK3D_1673424947)
           by smtp.aliyun-inc.com;
-          Wed, 11 Jan 2023 16:15:49 +0800
+          Wed, 11 Jan 2023 16:15:48 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs: add documentation for 'domain_id' mount option
-Date: Wed, 11 Jan 2023 16:15:46 +0800
-Message-Id: <20230111081547.126322-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH 0/2] erofs: misc cleanups for fscache mode
+Date: Wed, 11 Jan 2023 16:15:45 +0800
+Message-Id: <20230111081547.126322-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230111081547.126322-1-jefflexu@linux.alibaba.com>
-References: <20230111081547.126322-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -47,28 +45,16 @@ Cc: huyue2@coolpad.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The share domain feature for fscache mode has been merged, and let's add
-documentation for 'domain_id' mount option.
+Some trivial cleanups for fscache mode.
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- Documentation/filesystems/erofs.rst | 3 +++
- 1 file changed, 3 insertions(+)
+Jingbo Xu (2):
+  erofs: add documentation for 'domain_id' mount option
+  erofs: clean up parsing of fscache related options
 
-diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
-index 067fd1670b1f..958cad2c4997 100644
---- a/Documentation/filesystems/erofs.rst
-+++ b/Documentation/filesystems/erofs.rst
-@@ -120,6 +120,9 @@ dax={always,never}     Use direct access (no page cache).  See
- dax                    A legacy option which is an alias for ``dax=always``.
- device=%s              Specify a path to an extra device to be used together.
- fsid=%s                Specify a filesystem image ID for Fscache back-end.
-+domain_id=%s           Specify a domain ID for Fscache back-end.  The blob
-+                       images are shared among filesystem instances in the same
-+                       domain.
- ===================    =========================================================
- 
- Sysfs Entries
+ Documentation/filesystems/erofs.rst |  3 +++
+ fs/erofs/super.c                    | 13 ++++++-------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
 -- 
 2.19.1.6.gb485710b
 
