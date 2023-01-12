@@ -4,58 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E5143C54EBD
-	for <linux-erofs@archiver.kernel.org>; Thu, 12 Jan 2023 06:17:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB07BC54EBD
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Jan 2023 06:54:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4NsvVD2hLtz3cfH
-	for <linux-erofs@archiver.kernel.org>; Thu, 12 Jan 2023 17:17:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=houtao@huaweicloud.com; receiver=<UNKNOWN>)
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4NswK014bzz3cfS
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Jan 2023 17:54:44 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.8; helo=out30-8.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-8.freemail.mail.aliyun.com (out30-8.freemail.mail.aliyun.com [115.124.30.8])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4NsvV73vCMz3bh4
-	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Jan 2023 17:17:35 +1100 (AEDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4NsvTz4jVBz4f3tRm
-	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Jan 2023 14:17:27 +0800 (CST)
-Received: from [10.174.176.117] (unknown [10.174.176.117])
-	by APP4 (Coremail) with SMTP id gCh0CgCnXLD3pb9j6QdIBg--.57168S2;
-	Thu, 12 Jan 2023 14:17:30 +0800 (CST)
-Subject: Re: [PATCH v2 2/2] fscache: Add the missing smp_mb__after_atomic()
- before wake_up_bit()
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-cachefs@redhat.com
-References: <20221226103309.953112-1-houtao@huaweicloud.com>
- <20221226103309.953112-3-houtao@huaweicloud.com>
- <8b0af045-25c1-9848-3c8c-de7da94d06da@linux.alibaba.com>
-From: Hou Tao <houtao@huaweicloud.com>
-Message-ID: <f70cae75-d866-f70d-1fea-4213b0fb8fef@huaweicloud.com>
-Date: Thu, 12 Jan 2023 14:17:27 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4NswJt3tT7z3c4w
+	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Jan 2023 17:54:38 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VZPuEUZ_1673506473;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VZPuEUZ_1673506473)
+          by smtp.aliyun-inc.com;
+          Thu, 12 Jan 2023 14:54:34 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	chao@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 2/2] erofs: clean up parsing of fscache related options
+Date: Thu, 12 Jan 2023 14:54:31 +0800
+Message-Id: <20230112065431.124926-3-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230112065431.124926-1-jefflexu@linux.alibaba.com>
+References: <20230112065431.124926-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <8b0af045-25c1-9848-3c8c-de7da94d06da@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-CM-TRANSID: gCh0CgCnXLD3pb9j6QdIBg--.57168S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Ary8Gr4fXrW3Zr1DWFW3Wrg_yoW8Ww43pr
-	WkWFySga18X39Fy3yDXw17u34SgrWUKan7Gr10y3WUAr4FvrWF93WSkF98ua47A395JrWx
-	Z3WUK3y3XryUArJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUyEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4CEbIxvr21l42xK82IYc2Ij
-	64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE
-	2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-	xK8VAvwI8IcIk0rVW3JVWrJr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY
-	1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU189N3UUUUU==
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -67,53 +43,57 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: David Howells <dhowells@redhat.com>, linux-erofs@lists.ozlabs.org, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, houtao1@huawei.com
+Cc: huyue2@coolpad.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi,
+... to avoid the mess of conditional preprocessing as we are continually
+adding fscache related mount options.
 
-On 1/12/2023 12:34 PM, Jingbo Xu wrote:
->
-> On 12/26/22 6:33 PM, Hou Tao wrote:
->> From: Hou Tao <houtao1@huawei.com>
->>
->> fscache_create_volume_work() uses wake_up_bit() to wake up the processes
->> which are waiting for the completion of volume creation. According to
->> comments in wake_up_bit() and waitqueue_active(), an extra smp_mb() is
->> needed to guarantee the memory order between FSCACHE_VOLUME_CREATING
->> flag and waitqueue_active() before invoking wake_up_bit().
->>
->> Considering clear_bit_unlock() before wake_up_bit() is an atomic
->> operation, use smp_mb__after_atomic() instead of smp_mb() to provide
->> such guarantee.
->>
->> Signed-off-by: Hou Tao <houtao1@huawei.com>
->> ---
->>  fs/fscache/volume.c | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/fs/fscache/volume.c b/fs/fscache/volume.c
->> index fc3dd3bc851d..734d17f404e7 100644
->> --- a/fs/fscache/volume.c
->> +++ b/fs/fscache/volume.c
->> @@ -281,6 +281,11 @@ static void fscache_create_volume_work(struct work_struct *work)
->>  				 fscache_access_acquire_volume_end);
->>  
->>  	clear_bit_unlock(FSCACHE_VOLUME_CREATING, &volume->flags);
->> +	/*
->> +	 * Paired with barrier in wait_on_bit(). Check wake_up_bit() and
->> +	 * waitqueue_active() for details.
->> +	 */
->> +	smp_mb__after_atomic();
->>  	wake_up_bit(&volume->flags, FSCACHE_VOLUME_CREATING);
->>  	fscache_put_volume(volume, fscache_volume_put_create_work);
->>  }
-> LGTM.
->
-> Actually I'm thinking if clear_and_wake_up_bit() could be used here.
-> Ditto for patch 1.
-Good idea. Just find the presence of clear_and_wake_up_bit(). Will do in v3 for
-both patch 1 & patch 2.
->
+Reviewd-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ fs/erofs/super.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 481788c24a68..626a615dafc2 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -577,26 +577,25 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+ 		}
+ 		++ctx->devs->extra_devices;
+ 		break;
+-	case Opt_fsid:
+ #ifdef CONFIG_EROFS_FS_ONDEMAND
++	case Opt_fsid:
+ 		kfree(ctx->fsid);
+ 		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->fsid)
+ 			return -ENOMEM;
+-#else
+-		errorfc(fc, "fsid option not supported");
+-#endif
+ 		break;
+ 	case Opt_domain_id:
+-#ifdef CONFIG_EROFS_FS_ONDEMAND
+ 		kfree(ctx->domain_id);
+ 		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->domain_id)
+ 			return -ENOMEM;
++		break;
+ #else
+-		errorfc(fc, "domain_id option not supported");
+-#endif
++	case Opt_fsid:
++	case Opt_domain_id:
++		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
+ 		break;
++#endif
+ 	default:
+ 		return -ENOPARAM;
+ 	}
+-- 
+2.19.1.6.gb485710b
 
