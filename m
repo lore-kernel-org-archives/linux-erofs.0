@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6923C636D3
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Feb 2023 03:02:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93695C61DA4
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Feb 2023 03:47:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4P7L6k29hqz3f7j
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Feb 2023 14:02:22 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4P7M6q5vKSz3f55
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Feb 2023 14:47:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4P7L6C6J33z3f6p
-	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Feb 2023 14:01:55 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VamroM2_1675393310;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VamroM2_1675393310)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4P7M6l3gLnz3bT0
+	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Feb 2023 14:47:26 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R631e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0Van-GYb_1675396041;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Van-GYb_1675396041)
           by smtp.aliyun-inc.com;
-          Fri, 03 Feb 2023 11:01:51 +0800
+          Fri, 03 Feb 2023 11:47:21 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 8/9] erofs: add helper checking if page cache sharing shall be enabled
-Date: Fri,  3 Feb 2023 11:01:42 +0800
-Message-Id: <20230203030143.73105-9-jefflexu@linux.alibaba.com>
+	linux-erofs@lists.ozlabs.org,
+	zhujia.zj@bytedance.com,
+	houtao1@huawei.com
+Subject: [PATCH 0/2] erofs: cleanup for fscache mode
+Date: Fri,  3 Feb 2023 11:47:18 +0800
+Message-Id: <20230203034720.24619-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230203030143.73105-1-jefflexu@linux.alibaba.com>
-References: <20230203030143.73105-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,86 +43,24 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.org
+Cc: huyue2@coolpad.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Erofs supports chunk deduplication to reduce disk usage.  Furthermore we
-can make inodes share page cache of these deduplicated chunks to reduce
-the memory usage.  This shall be much usable in container scenarios as
-deduplication is requisite for container image.
+These are misc cleanup for fscache mode, while patch 2 is dependent on
+the page cache sharing codebase [1].
 
-This can be achieved by managing page cache of deduplicated chunks in
-blob's address space.  In this way, all inodes sharing the deduplicated
-chunk will refer to and share the page cache in the blob's address
-space.
+[1] https://lore.kernel.org/all/20230203030143.73105-1-jefflexu@linux.alibaba.com/
 
-So far there are some restrictions for enabling this feature.
+Jingbo Xu (2):
+  erofs: simplify instantiation of pseudo mount in fscache mode
+  erofs: simplify the name collision checking in share domain mode
 
-The page cache sharing feature also supports .mmap().  The reverse
-mapping requires that one vma can not be shared among inodes and can
-be linked to only one inode.  As the vma will be finally linked to the
-blob's address space when page cache sharing enabled, the restriction of
-the reverse mapping actually requires that the mapped file area can not
-be mapped to multiple blobs.  Thus page cache sharing can only be
-enabled for those files mapped to one blob.
+ fs/erofs/fscache.c  | 84 ++++++++++++++++++++-------------------------
+ fs/erofs/internal.h | 15 ++++----
+ fs/erofs/super.c    | 37 +++++---------------
+ 3 files changed, 53 insertions(+), 83 deletions(-)
 
-The chunk based data layout guarantees that a chunk will not cross the
-device (blob) boundary.  Thus in chunk based data layout, those files
-smaller than the chunk size shall be guaranteed to be mapped to one
-blob.  As chunk size is tunable at a per-file basis, this restriction
-can be relaxed at image building phase.  As long as we ensure that the
-file can not be deduplicated, the file's chunk size can be set to a
-reasonable value larger than the file size, so that the page cache
-sharing feature can be enabled on this file later.
-
-The second restriction is that EROFS_BLKSIZ mus be multiples of
-PAGE_SIZE to avoid data leakage.  Otherwise unrelated data may be
-exposed at the end of the last page, since file's data is arranged in
-unit of EROFS_BLKSIZ in the image.
-
-Considering all these restrictions, add a helper checking if page cache
-sharing shall be enabled for specific file.
-
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- fs/erofs/internal.h | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
-
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 60d14561fb46..6019b076c625 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -369,6 +369,29 @@ static inline unsigned int erofs_inode_datalayout(unsigned int value)
- 			      EROFS_I_DATALAYOUT_BITS);
- }
- 
-+static inline bool erofs_can_share_page(struct inode *inode)
-+{
-+	struct erofs_inode *vi = EROFS_I(inode);
-+	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
-+
-+	/* enable page cache sharing only in share domain mode */
-+	if (!erofs_is_fscache_mode(inode->i_sb) || !sbi->domain_id)
-+		return false;
-+
-+	if (vi->datalayout != EROFS_INODE_CHUNK_BASED)
-+		return false;
-+
-+	/* avoid crossing multi devicces/blobs */
-+	if (inode->i_size > 1UL << vi->chunkbits)
-+		return false;
-+
-+	/* avoid data leakage in mmap routine */
-+	if (EROFS_BLKSIZ % PAGE_SIZE)
-+		return false;
-+
-+	return true;
-+}
-+
- /*
-  * Different from grab_cache_page_nowait(), reclaiming is never triggered
-  * when allocating new pages.
 -- 
 2.19.1.6.gb485710b
 
