@@ -4,62 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8706C61DA4
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Feb 2023 15:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FB68C61DA4
+	for <linux-erofs@archiver.kernel.org>; Sat,  4 Feb 2023 09:31:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4P7fLL0hZgz3f6v
-	for <linux-erofs@archiver.kernel.org>; Sat,  4 Feb 2023 02:13:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=HKf7Vjeo;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.43; helo=mga05.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=HKf7Vjeo;
-	dkim-atps=neutral
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4P86hg1rs2z3f8C
+	for <linux-erofs@archiver.kernel.org>; Sat,  4 Feb 2023 20:30:59 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4P7fL923Chz3bZj
-	for <linux-erofs@lists.ozlabs.org>; Sat,  4 Feb 2023 02:13:15 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675437201; x=1706973201;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+qhJGcdQMX1iSW34SbhRnsrfh1meYsJgBSEcMcY+h0U=;
-  b=HKf7VjeoLrZQCGllagGJeHpBsSXRTtJE4io7LNGF8On/4yzxHE+tGFah
-   cARZ3lndSVjlQlVf5e1n6o3gQsAiVzqrimNPbfKBSUpo14EJodiMNG9O9
-   +EXC3iKkdmc6qVZv6Wh80g/Zt+UkukXqDsUQawoJmRLNHqOuB3Qvs8as8
-   lss5w+UHLAm5tMmGdWuzSbfaTxpE8A5++LYSflpkxz62Wa7511R69pSSx
-   DbGJSdnzM/hV4x+3l00lCmo0/KrvAxOVg/KO1lprxlPG5UlySdnVCriF5
-   LApzdEbypPldxI5UdKUrskXnEgD+sRZgsSbb6UgPGOLXhISaUgt905y4G
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10610"; a="414978556"
-X-IronPort-AV: E=Sophos;i="5.97,270,1669104000"; 
-   d="scan'208";a="414978556"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2023 07:13:12 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10610"; a="789722313"
-X-IronPort-AV: E=Sophos;i="5.97,270,1669104000"; 
-   d="scan'208";a="789722313"
-Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
-  by orsmga004.jf.intel.com with ESMTP; 03 Feb 2023 07:13:10 -0800
-Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1pNxkO-0000aZ-18;
-	Fri, 03 Feb 2023 15:13:04 +0000
-Date: Fri, 3 Feb 2023 23:12:48 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
-	chao@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH v3 7/9] erofs: implement .mmap for page cache sharing
-Message-ID: <202302032301.KaFzWF1g-lkp@intel.com>
-References: <20230203030143.73105-8-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4P86hY5bW2z3c4B
+	for <linux-erofs@lists.ozlabs.org>; Sat,  4 Feb 2023 20:30:52 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VarVFJk_1675503047;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VarVFJk_1675503047)
+          by smtp.aliyun-inc.com;
+          Sat, 04 Feb 2023 17:30:48 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org,
+	Chao Yu <chao@kernel.org>,
+	Yue Hu <huyue2@coolpad.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: [PATCH 2/6] erofs: avoid tagged pointers to mark sync decompression
+Date: Sat,  4 Feb 2023 17:30:36 +0800
+Message-Id: <20230204093040.97967-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20230204093040.97967-1-hsiangkao@linux.alibaba.com>
+References: <20230204093040.97967-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230203030143.73105-8-jefflexu@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -71,61 +44,152 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Jingbo,
+We could just use a boolean in z_erofs_decompressqueue for sync
+decompression to simplify the code.
 
-Thank you for the patch! Perhaps something to improve:
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/zdata.c | 42 ++++++++++++++++--------------------------
+ fs/erofs/zdata.h |  2 +-
+ 2 files changed, 17 insertions(+), 27 deletions(-)
 
-[auto build test WARNING on xiang-erofs/dev-test]
-[also build test WARNING on xiang-erofs/dev xiang-erofs/fixes linus/master v6.2-rc6 next-20230203]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Jingbo-Xu/erofs-support-readahead-in-meta-routine/20230203-110255
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-patch link:    https://lore.kernel.org/r/20230203030143.73105-8-jefflexu%40linux.alibaba.com
-patch subject: [PATCH v3 7/9] erofs: implement .mmap for page cache sharing
-config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20230203/202302032301.KaFzWF1g-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/499758ba5c442083b32a76a3fd55b734df0c486b
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Jingbo-Xu/erofs-support-readahead-in-meta-routine/20230203-110255
-        git checkout 499758ba5c442083b32a76a3fd55b734df0c486b
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash fs/erofs/
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
->> fs/erofs/fscache.c:435:12: warning: no previous prototype for 'erofs_fscache_share_fault' [-Wmissing-prototypes]
-     435 | vm_fault_t erofs_fscache_share_fault(struct vm_fault *vmf)
-         |            ^~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/erofs_fscache_share_fault +435 fs/erofs/fscache.c
-
-   434	
- > 435	vm_fault_t erofs_fscache_share_fault(struct vm_fault *vmf)
-   436	{
-   437		struct erofs_fscache_finfo *finfo = vmf->vma->vm_file->private_data;
-   438	
-   439		if (unlikely(vmf->pgoff >= finfo->max_idx))
-   440			return VM_FAULT_SIGBUS;
-   441		return filemap_fault(vmf);
-   442	}
-   443	
-
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 5200bb86e264..f015a90839f6 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1157,12 +1157,12 @@ static void z_erofs_decompressqueue_work(struct work_struct *work)
+ }
+ 
+ static void z_erofs_decompress_kickoff(struct z_erofs_decompressqueue *io,
+-				       bool sync, int bios)
++				       int bios)
+ {
+ 	struct erofs_sb_info *const sbi = EROFS_SB(io->sb);
+ 
+ 	/* wake up the caller thread for sync decompression */
+-	if (sync) {
++	if (io->sync) {
+ 		if (!atomic_add_return(bios, &io->pending_bios))
+ 			complete(&io->u.done);
+ 		return;
+@@ -1294,9 +1294,8 @@ static struct page *pickup_page_for_submission(struct z_erofs_pcluster *pcl,
+ 	return page;
+ }
+ 
+-static struct z_erofs_decompressqueue *
+-jobqueue_init(struct super_block *sb,
+-	      struct z_erofs_decompressqueue *fgq, bool *fg)
++static struct z_erofs_decompressqueue *jobqueue_init(struct super_block *sb,
++			      struct z_erofs_decompressqueue *fgq, bool *fg)
+ {
+ 	struct z_erofs_decompressqueue *q;
+ 
+@@ -1313,6 +1312,7 @@ jobqueue_init(struct super_block *sb,
+ 		init_completion(&fgq->u.done);
+ 		atomic_set(&fgq->pending_bios, 0);
+ 		q->eio = false;
++		q->sync = true;
+ 	}
+ 	q->sb = sb;
+ 	q->head = Z_EROFS_PCLUSTER_TAIL_CLOSED;
+@@ -1326,20 +1326,6 @@ enum {
+ 	NR_JOBQUEUES,
+ };
+ 
+-static void *jobqueueset_init(struct super_block *sb,
+-			      struct z_erofs_decompressqueue *q[],
+-			      struct z_erofs_decompressqueue *fgq, bool *fg)
+-{
+-	/*
+-	 * if managed cache is enabled, bypass jobqueue is needed,
+-	 * no need to read from device for all pclusters in this queue.
+-	 */
+-	q[JQ_BYPASS] = jobqueue_init(sb, fgq + JQ_BYPASS, NULL);
+-	q[JQ_SUBMIT] = jobqueue_init(sb, fgq + JQ_SUBMIT, fg);
+-
+-	return tagptr_cast_ptr(tagptr_fold(tagptr1_t, q[JQ_SUBMIT], *fg));
+-}
+-
+ static void move_to_bypass_jobqueue(struct z_erofs_pcluster *pcl,
+ 				    z_erofs_next_pcluster_t qtail[],
+ 				    z_erofs_next_pcluster_t owned_head)
+@@ -1361,8 +1347,7 @@ static void move_to_bypass_jobqueue(struct z_erofs_pcluster *pcl,
+ 
+ static void z_erofs_decompressqueue_endio(struct bio *bio)
+ {
+-	tagptr1_t t = tagptr_init(tagptr1_t, bio->bi_private);
+-	struct z_erofs_decompressqueue *q = tagptr_unfold_ptr(t);
++	struct z_erofs_decompressqueue *q = bio->bi_private;
+ 	blk_status_t err = bio->bi_status;
+ 	struct bio_vec *bvec;
+ 	struct bvec_iter_all iter_all;
+@@ -1381,7 +1366,7 @@ static void z_erofs_decompressqueue_endio(struct bio *bio)
+ 	}
+ 	if (err)
+ 		q->eio = true;
+-	z_erofs_decompress_kickoff(q, tagptr_unfold_tags(t), -1);
++	z_erofs_decompress_kickoff(q, -1);
+ 	bio_put(bio);
+ }
+ 
+@@ -1394,7 +1379,6 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 	struct address_space *mc = MNGD_MAPPING(EROFS_SB(sb));
+ 	z_erofs_next_pcluster_t qtail[NR_JOBQUEUES];
+ 	struct z_erofs_decompressqueue *q[NR_JOBQUEUES];
+-	void *bi_private;
+ 	z_erofs_next_pcluster_t owned_head = f->owned_head;
+ 	/* bio is NULL initially, so no need to initialize last_{index,bdev} */
+ 	pgoff_t last_index;
+@@ -1404,7 +1388,13 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 	unsigned long pflags;
+ 	int memstall = 0;
+ 
+-	bi_private = jobqueueset_init(sb, q, fgq, force_fg);
++	/*
++	 * if managed cache is enabled, bypass jobqueue is needed,
++	 * no need to read from device for all pclusters in this queue.
++	 */
++	q[JQ_BYPASS] = jobqueue_init(sb, fgq + JQ_BYPASS, NULL);
++	q[JQ_SUBMIT] = jobqueue_init(sb, fgq + JQ_SUBMIT, force_fg);
++
+ 	qtail[JQ_BYPASS] = &q[JQ_BYPASS]->head;
+ 	qtail[JQ_SUBMIT] = &q[JQ_SUBMIT]->head;
+ 
+@@ -1473,7 +1463,7 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 				last_bdev = mdev.m_bdev;
+ 				bio->bi_iter.bi_sector = (sector_t)cur <<
+ 					LOG_SECTORS_PER_BLOCK;
+-				bio->bi_private = bi_private;
++				bio->bi_private = q[JQ_SUBMIT];
+ 				if (f->readahead)
+ 					bio->bi_opf |= REQ_RAHEAD;
+ 				++nr_bios;
+@@ -1506,7 +1496,7 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 		kvfree(q[JQ_SUBMIT]);
+ 		return;
+ 	}
+-	z_erofs_decompress_kickoff(q[JQ_SUBMIT], *force_fg, nr_bios);
++	z_erofs_decompress_kickoff(q[JQ_SUBMIT], nr_bios);
+ }
+ 
+ static void z_erofs_runqueue(struct z_erofs_decompress_frontend *f,
+diff --git a/fs/erofs/zdata.h b/fs/erofs/zdata.h
+index d98c95212985..b139de5473a9 100644
+--- a/fs/erofs/zdata.h
++++ b/fs/erofs/zdata.h
+@@ -110,7 +110,7 @@ struct z_erofs_decompressqueue {
+ 		struct work_struct work;
+ 	} u;
+ 
+-	bool eio;
++	bool eio, sync;
+ };
+ 
+ static inline bool z_erofs_is_inline_pcluster(struct z_erofs_pcluster *pcl)
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.24.4
+
