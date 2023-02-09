@@ -4,36 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E585C636CC
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 03:07:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE2D0C05027
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 03:22:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PC1yG0xhGz3chK
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 14:07:50 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PC2HZ193xz3chB
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 14:22:50 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC1yC28Qmz3bVr
-	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 14:07:47 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VbEHIIN_1675912062;
-Received: from 30.97.49.34(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VbEHIIN_1675912062)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC2HT2yK3z3bT7
+	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 14:22:44 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VbE36X2_1675912957;
+Received: from 30.97.49.34(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VbE36X2_1675912957)
           by smtp.aliyun-inc.com;
-          Thu, 09 Feb 2023 11:07:43 +0800
-Message-ID: <64d37ad6-c875-7671-5a82-53dd9a03955f@linux.alibaba.com>
-Date: Thu, 9 Feb 2023 11:07:42 +0800
+          Thu, 09 Feb 2023 11:22:40 +0800
+Message-ID: <f01cda32-8540-b213-c221-2670f0669c5d@linux.alibaba.com>
+Date: Thu, 9 Feb 2023 11:22:37 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH v3 2/2] erofs: remove unused EROFS_GET_BLOCKS_RAW flag
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- chao@kernel.org, linux-erofs@lists.ozlabs.org, huyue2@coolpad.com
-References: <20230209024825.17335-1-jefflexu@linux.alibaba.com>
- <20230209024825.17335-2-jefflexu@linux.alibaba.com>
+Subject: Re: [PATCH] erofs: make kobj_type structures constant
+To: =?UTF-8?Q?Thomas_Wei=c3=9fschuh?= <linux@weissschuh.net>,
+ Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+ Yue Hu <huyue2@coolpad.com>, Jeffle Xu <jefflexu@linux.alibaba.com>
+References: <20230209-kobj_type-erofs-v1-1-078c945e2c4b@weissschuh.net>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230209024825.17335-2-jefflexu@linux.alibaba.com>
+In-Reply-To: <20230209-kobj_type-erofs-v1-1-078c945e2c4b@weissschuh.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -45,151 +45,62 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 
 
-On 2023/2/9 10:48, Jingbo Xu wrote:
-> For erofs_map_blocks() and erofs_map_blocks_flatmode(), the flags
-> argument is always EROFS_GET_BLOCKS_RAW.  Thus remove the unused flags
-> parameter for these two functions.
+On 2023/2/9 11:21, Thomas Weißschuh wrote:
+> Since commit ee6d3dd4ed48 ("driver core: make kobj_type constant.")
+> the driver core allows the usage of const struct kobj_type.
 > 
-> Besides EROFS_GET_BLOCKS_RAW is originally introduced for reading
-> compressed (raw) data for compressed files.  However it's never used
-> actually and let's remove it now.
+> Take advantage of this to constify the structure definitions to prevent
+> modification at runtime.
 > 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
 Thanks,
 Gao Xiang
 
 > ---
->   fs/erofs/data.c              | 14 ++++++--------
->   fs/erofs/fscache.c           |  2 +-
->   fs/erofs/internal.h          | 10 ++++------
->   include/trace/events/erofs.h |  1 -
->   4 files changed, 11 insertions(+), 16 deletions(-)
+>   fs/erofs/sysfs.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index 2713257ee718..032e12dccb84 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -74,8 +74,7 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
->   }
->   
->   static int erofs_map_blocks_flatmode(struct inode *inode,
-> -				     struct erofs_map_blocks *map,
-> -				     int flags)
-> +				     struct erofs_map_blocks *map)
->   {
->   	erofs_blk_t nblocks, lastblk;
->   	u64 offset = map->m_la;
-> @@ -114,8 +113,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
->   	return 0;
->   }
->   
-> -int erofs_map_blocks(struct inode *inode,
-> -		     struct erofs_map_blocks *map, int flags)
-> +int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map)
->   {
->   	struct super_block *sb = inode->i_sb;
->   	struct erofs_inode *vi = EROFS_I(inode);
-> @@ -127,7 +125,7 @@ int erofs_map_blocks(struct inode *inode,
->   	void *kaddr;
->   	int err = 0;
->   
-> -	trace_erofs_map_blocks_enter(inode, map, flags);
-> +	trace_erofs_map_blocks_enter(inode, map, 0);
->   	map->m_deviceid = 0;
->   	if (map->m_la >= inode->i_size) {
->   		/* leave out-of-bound access unmapped */
-> @@ -137,7 +135,7 @@ int erofs_map_blocks(struct inode *inode,
->   	}
->   
->   	if (vi->datalayout != EROFS_INODE_CHUNK_BASED) {
-> -		err = erofs_map_blocks_flatmode(inode, map, flags);
-> +		err = erofs_map_blocks_flatmode(inode, map);
->   		goto out;
->   	}
->   
-> @@ -189,7 +187,7 @@ int erofs_map_blocks(struct inode *inode,
->   out:
->   	if (!err)
->   		map->m_llen = map->m_plen;
-> -	trace_erofs_map_blocks_exit(inode, map, flags, 0);
-> +	trace_erofs_map_blocks_exit(inode, map, 0, err);
->   	return err;
->   }
->   
-> @@ -252,7 +250,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
->   	map.m_la = offset;
->   	map.m_llen = length;
->   
-> -	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
-> +	ret = erofs_map_blocks(inode, &map);
->   	if (ret < 0)
->   		return ret;
->   
-> diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-> index 03de4dc99302..9658cf8689d9 100644
-> --- a/fs/erofs/fscache.c
-> +++ b/fs/erofs/fscache.c
-> @@ -197,7 +197,7 @@ static int erofs_fscache_data_read_slice(struct erofs_fscache_request *primary)
->   	int ret;
->   
->   	map.m_la = pos;
-> -	ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
-> +	ret = erofs_map_blocks(inode, &map);
->   	if (ret)
->   		return ret;
->   
-> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-> index 48a2f33de15a..8a6ae820cd6d 100644
-> --- a/fs/erofs/internal.h
-> +++ b/fs/erofs/internal.h
-> @@ -401,16 +401,15 @@ struct erofs_map_blocks {
->   	unsigned int m_flags;
+> diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
+> index fd476961f742..435e515c0792 100644
+> --- a/fs/erofs/sysfs.c
+> +++ b/fs/erofs/sysfs.c
+> @@ -179,13 +179,13 @@ static const struct sysfs_ops erofs_attr_ops = {
+>   	.store	= erofs_attr_store,
 >   };
 >   
-> -#define EROFS_GET_BLOCKS_RAW    0x0001
->   /*
->    * Used to get the exact decompressed length, e.g. fiemap (consider lookback
->    * approach instead if possible since it's more metadata lightweight.)
->    */
-> -#define EROFS_GET_BLOCKS_FIEMAP	0x0002
-> +#define EROFS_GET_BLOCKS_FIEMAP		0x0001
->   /* Used to map the whole extent if non-negligible data is requested for LZMA */
-> -#define EROFS_GET_BLOCKS_READMORE	0x0004
-> +#define EROFS_GET_BLOCKS_READMORE	0x0002
->   /* Used to map tail extent for tailpacking inline or fragment pcluster */
-> -#define EROFS_GET_BLOCKS_FINDTAIL	0x0008
-> +#define EROFS_GET_BLOCKS_FINDTAIL	0x0004
+> -static struct kobj_type erofs_sb_ktype = {
+> +static const struct kobj_type erofs_sb_ktype = {
+>   	.default_groups = erofs_groups,
+>   	.sysfs_ops	= &erofs_attr_ops,
+>   	.release	= erofs_sb_release,
+>   };
 >   
->   enum {
->   	Z_EROFS_COMPRESSION_SHIFTED = Z_EROFS_COMPRESSION_MAX,
-> @@ -458,8 +457,7 @@ void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
->   int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *dev);
->   int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
->   		 u64 start, u64 len);
-> -int erofs_map_blocks(struct inode *inode,
-> -		     struct erofs_map_blocks *map, int flags);
-> +int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map);
->   struct inode *erofs_iget(struct super_block *sb, erofs_nid_t nid);
->   int erofs_getattr(struct user_namespace *mnt_userns, const struct path *path,
->   		  struct kstat *stat, u32 request_mask,
-> diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-> index f0e43e40a4a1..cf4a0d28b178 100644
-> --- a/include/trace/events/erofs.h
-> +++ b/include/trace/events/erofs.h
-> @@ -19,7 +19,6 @@ struct erofs_map_blocks;
->   		{ 1,		"DIR" })
+> -static struct kobj_type erofs_ktype = {
+> +static const struct kobj_type erofs_ktype = {
+>   	.sysfs_ops	= &erofs_attr_ops,
+>   };
 >   
->   #define show_map_flags(flags) __print_flags(flags, "|",	\
-> -	{ EROFS_GET_BLOCKS_RAW,		"RAW" },	\
->   	{ EROFS_GET_BLOCKS_FIEMAP,	"FIEMAP" },	\
->   	{ EROFS_GET_BLOCKS_READMORE,	"READMORE" },	\
->   	{ EROFS_GET_BLOCKS_FINDTAIL,	"FINDTAIL" })
+> @@ -193,7 +193,7 @@ static struct kset erofs_root = {
+>   	.kobj	= {.ktype = &erofs_ktype},
+>   };
+>   
+> -static struct kobj_type erofs_feat_ktype = {
+> +static const struct kobj_type erofs_feat_ktype = {
+>   	.default_groups = erofs_feat_groups,
+>   	.sysfs_ops	= &erofs_attr_ops,
+>   };
+> 
+> ---
+> base-commit: 0983f6bf2bfc0789b51ddf7315f644ff4da50acb
+> change-id: 20230209-kobj_type-erofs-0f0f4c901045
+> 
+> Best regards,
