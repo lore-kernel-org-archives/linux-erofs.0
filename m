@@ -4,71 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CA99C05027
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 03:30:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90B64C636CC
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 03:30:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PC2SP5Rmmz3cht
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 14:30:29 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PC2SW0R49z3cgs
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 14:30:35 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=d1s3KZm3;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=weissschuh.net header.i=@weissschuh.net header.a=rsa-sha256 header.s=mail header.b=kM1azusV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=weissschuh.net (client-ip=2a01:4f8:c010:41de::1; helo=todd.t-8ch.de; envelope-from=linux@weissschuh.net; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=d1s3KZm3;
+	dkim=pass (1024-bit key; unprotected) header.d=weissschuh.net header.i=@weissschuh.net header.a=rsa-sha256 header.s=mail header.b=kM1azusV;
 	dkim-atps=neutral
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+X-Greylist: delayed 531 seconds by postgrey-1.36 at boromir; Thu, 09 Feb 2023 14:30:20 AEDT
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC2SD5YfSz3bT7
-	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 14:30:19 +1100 (AEDT)
-Received: by mail-pj1-x1036.google.com with SMTP id v18-20020a17090ae99200b00230f079dcd9so4876208pjy.1
-        for <linux-erofs@lists.ozlabs.org>; Wed, 08 Feb 2023 19:30:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ynm5YDNy6wcGn0EJjvlzzZ1xEB+UsfPBkImjjL8XoAs=;
-        b=d1s3KZm3RPrzckGBfTN1l7phbnT0auQM1xfqJC5KIlfApVpjCB+EboJqnHefcD0VKG
-         3F4bfkWVtLv5M2TSZ7W2JM7lmrt9HQ4UH1DleNm+Aj8iEdeZfgkYrK5ZchZYR121qFOq
-         MTkSKvpi1J7E/zghgJGfBKy7Jt213M3Y8Rgs9BNyhiV8Tyv1Eiuh51Qa6O5NisBWXbub
-         jMWC0SYrJGcaIl5iOk7ZB6zI9bae43UaEHcGDDSan4jPzExaOCmzXL4GKcrTw9UDGZcJ
-         u3TUgL+mpiAv0FtrkV0JjKqXQ/4lGQxQf6yxttTGKUcgbXIPWkCiJDaqbXQPB9dzHX7Y
-         7dww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ynm5YDNy6wcGn0EJjvlzzZ1xEB+UsfPBkImjjL8XoAs=;
-        b=zVBAizbTU3pLVKoEiRYVbQHqTOJTa9wguZpPmDhuoNb3dtezvVLtMOjLLhP3gSySSO
-         PNFLpOUKDwg2TU0dwcHqKM7EwJw8uGsz8srF1YR4A4cxdi+l62UtQLDpudipZD+8RCfN
-         T7pHpa3g7l/p0K3B7AO7RLqOKyiL1QP0CHJ0Sz0+wlWU7RHoq2gjGh5u30rZqIFq98vb
-         SLIGQMeA0+wBYN0d/ZiSa5KASBJbVU+/mV7yRsOzg2cgi0m0yp64a82kAykAXCk6u9/h
-         c12yHIeBNMFFnSG5gFZPYH3GTi9edjzwWc0dRjFHfXvpyVnvPwqjFHfLkPOqNJeB4gjM
-         zx/w==
-X-Gm-Message-State: AO0yUKXy5BTq/zqv8TWVJ6mww9get964dZxhZlPCaprt5GpSN8RM90f/
-	ov4OS77bb0k86lz3vClEHML1oguEojc=
-X-Google-Smtp-Source: AK7set8y75DwEB+NEpOeE3Qt/AFjnbz2f2clpWbT3NxooXsaJY83We2CjNffGMf4S2TErpYSZxFbBg==
-X-Received: by 2002:a17:903:32c9:b0:196:82d2:93a with SMTP id i9-20020a17090332c900b0019682d2093amr12749822plr.11.1675913416946;
-        Wed, 08 Feb 2023 19:30:16 -0800 (PST)
-Received: from localhost ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id jl24-20020a170903135800b0019608291564sm221877plb.134.2023.02.08.19.30.15
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 08 Feb 2023 19:30:16 -0800 (PST)
-Date: Thu, 9 Feb 2023 11:36:00 +0800
-From: Yue Hu <zbestahu@gmail.com>
-To: Jingbo Xu <jefflexu@linux.alibaba.com>
-Subject: Re: [PATCH v3 1/2] erofs: update print symbols for various flags in
- trace
-Message-ID: <20230209113600.000051c1.zbestahu@gmail.com>
-In-Reply-To: <20230209024825.17335-1-jefflexu@linux.alibaba.com>
-References: <20230209024825.17335-1-jefflexu@linux.alibaba.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC2SD74xtz3bVr
+	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 14:30:20 +1100 (AEDT)
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
+	s=mail; t=1675912875;
+	bh=GzTnOHgMbSFV51+peCeUABmUpKMMKHKkU+nhDrjkC3s=;
+	h=From:Date:Subject:To:Cc:From;
+	b=kM1azusVeo8YqS/mKVwRJyUm02Q35NZ+rnVV3JN2cb5sFe6DiL4ryRaVqK7+YP7dM
+	 ohxQq7ZITmpe/jwqHistwI0g9lZfXWfeqvt8r4Smo8Z7SqdiP2c1N88oLnQPxNb7pp
+	 4sOrcH3g4+bRA6U/qqJhqjgt0MDdF7KfBww38TP8=
+Date: Thu, 09 Feb 2023 03:21:13 +0000
+Subject: [PATCH] erofs: make kobj_type structures constant
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20230209-kobj_type-erofs-v1-1-078c945e2c4b@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIAKhm5GMC/x2N0QrCMAwAf2Xk2UBW58P8FRFpa+qiox2JijL27
+ wYf7+C4FYxV2ODYraD8FpNWHfpdB3mK9cYoV2cIFPYUaMRHS/fL87swsrZiSIXKkEfqaTiAVyk
+ aY9JY8+Rdfc2zy0W5yOe/OZ237QcCtezRdgAAAA==
+To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
+ Yue Hu <huyue2@coolpad.com>, Jeffle Xu <jefflexu@linux.alibaba.com>
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1675912873; l=1414;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=GzTnOHgMbSFV51+peCeUABmUpKMMKHKkU+nhDrjkC3s=;
+ b=Hu1XTvtiAXnaFLNKa2cFfVQtx11qktQnpeyv0vYantYPjDbxAigCn4m27SeZnx1WtJzmJSljQ
+ plY3WVhODHrDUqcZCOn09JhUws1rdrAAZQ7XHMZ9CMuMl4LJeSAR9cP
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,51 +61,56 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, zhangwen@coolpad.com, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu,  9 Feb 2023 10:48:24 +0800
-Jingbo Xu <jefflexu@linux.alibaba.com> wrote:
+Since commit ee6d3dd4ed48 ("driver core: make kobj_type constant.")
+the driver core allows the usage of const struct kobj_type.
 
-> As new flags introduced, the corresponding print symbols for trace are
-> not added accordingly.  Add these missing print symbols for these flags.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Take advantage of this to constify the structure definitions to prevent
+modification at runtime.
 
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+---
+ fs/erofs/sysfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> ---
-> v3: print symbols for EROFS_GET_BLOCKS_RAW is deleted in patch 2
-> ---
->  include/trace/events/erofs.h | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-> index e095d36db939..f0e43e40a4a1 100644
-> --- a/include/trace/events/erofs.h
-> +++ b/include/trace/events/erofs.h
-> @@ -19,12 +19,18 @@ struct erofs_map_blocks;
->  		{ 1,		"DIR" })
->  
->  #define show_map_flags(flags) __print_flags(flags, "|",	\
-> -	{ EROFS_GET_BLOCKS_RAW,	"RAW" })
-> +	{ EROFS_GET_BLOCKS_RAW,		"RAW" },	\
-> +	{ EROFS_GET_BLOCKS_FIEMAP,	"FIEMAP" },	\
-> +	{ EROFS_GET_BLOCKS_READMORE,	"READMORE" },	\
-> +	{ EROFS_GET_BLOCKS_FINDTAIL,	"FINDTAIL" })
->  
->  #define show_mflags(flags) __print_flags(flags, "",	\
-> -	{ EROFS_MAP_MAPPED,	"M" },			\
-> -	{ EROFS_MAP_META,	"I" },			\
-> -	{ EROFS_MAP_ENCODED,	"E" })
-> +	{ EROFS_MAP_MAPPED,		"M" },		\
-> +	{ EROFS_MAP_META,		"I" },		\
-> +	{ EROFS_MAP_ENCODED,		"E" },		\
-> +	{ EROFS_MAP_FULL_MAPPED,	"F" },		\
-> +	{ EROFS_MAP_FRAGMENT,		"R" },		\
-> +	{ EROFS_MAP_PARTIAL_REF,	"P" })
->  
->  TRACE_EVENT(erofs_lookup,
->  
+diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
+index fd476961f742..435e515c0792 100644
+--- a/fs/erofs/sysfs.c
++++ b/fs/erofs/sysfs.c
+@@ -179,13 +179,13 @@ static const struct sysfs_ops erofs_attr_ops = {
+ 	.store	= erofs_attr_store,
+ };
+ 
+-static struct kobj_type erofs_sb_ktype = {
++static const struct kobj_type erofs_sb_ktype = {
+ 	.default_groups = erofs_groups,
+ 	.sysfs_ops	= &erofs_attr_ops,
+ 	.release	= erofs_sb_release,
+ };
+ 
+-static struct kobj_type erofs_ktype = {
++static const struct kobj_type erofs_ktype = {
+ 	.sysfs_ops	= &erofs_attr_ops,
+ };
+ 
+@@ -193,7 +193,7 @@ static struct kset erofs_root = {
+ 	.kobj	= {.ktype = &erofs_ktype},
+ };
+ 
+-static struct kobj_type erofs_feat_ktype = {
++static const struct kobj_type erofs_feat_ktype = {
+ 	.default_groups = erofs_feat_groups,
+ 	.sysfs_ops	= &erofs_attr_ops,
+ };
+
+---
+base-commit: 0983f6bf2bfc0789b51ddf7315f644ff4da50acb
+change-id: 20230209-kobj_type-erofs-0f0f4c901045
+
+Best regards,
+-- 
+Thomas Weißschuh <linux@weissschuh.net>
 
