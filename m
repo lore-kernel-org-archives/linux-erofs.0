@@ -4,65 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC772C05027
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 05:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7AF7CC05027
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 05:18:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PC4jz0ZZyz3c4B
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 16:12:23 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=KoxOwAfB;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=KoxOwAfB;
-	dkim-atps=neutral
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PC4sS5klvz3cNR
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Feb 2023 16:18:52 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC4jt1CW1z3c4B
-	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 16:12:17 +1100 (AEDT)
-Received: by mail-pj1-x1029.google.com with SMTP id rm7-20020a17090b3ec700b0022c05558d22so1187210pjb.5
-        for <linux-erofs@lists.ozlabs.org>; Wed, 08 Feb 2023 21:12:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=i/zmyB5ed7X1QuJ3E3Pi4MYoQa0o5KmmlWf5Y2v7TIw=;
-        b=KoxOwAfB2evDlwQdC43RR3+cvwXl+CsNC6c5ASdcFA88hHBZAb2JGL+SUEr6MwRZA1
-         gkVsEeNFr6rOHIeNcjL6Jy3Ego+8VfORmEsufcLyu+D9q2bI4JWAr8PxVRj3DW47eTWn
-         H2Ju4G8oDpPmZhXBDmDLA1F0+Mtv8OlMt8xyJhl5VK28btX6Wb+kb3lU8FdEDB6G1DKu
-         /qN5wTdBUkJT7qezEklgq2kCqkmqu3inMC41/FfVPEP5jD9KRf3jYWAqJiSRtlwWQ4cO
-         abq6xWHJqq2U5WEiVoZsS+A3ZGM+DU+xKP3L0O4nGlz+4mXpKfy4UWFksWXYdjcvGfFA
-         mU1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=i/zmyB5ed7X1QuJ3E3Pi4MYoQa0o5KmmlWf5Y2v7TIw=;
-        b=A0VGVbM7KyCtLaJyepnNJsdnw/5tzj8D9XbpdLbLIEN1uFxYKYe2VcSKsg2/ORoCiG
-         xnZiM4NE7WPKRXBdSjJrXfi4a4K7GweekrBI1I2eeYbiYEK0cdxw3PiL88DJWIQRaE+Z
-         EasBueV84+4gp4m1hkSz0bEbbnPcbyGSENMyhrbi82ZMu56tLh+E6jyy/CMN3ecf/qLF
-         mJRTMKDk0Kwnl5VQ6DdHqmnA7MXp327p6bMLY+/AHZWSHm2GIw3hWUhDkFFUsM0RbFJ7
-         EWQqf6UZLI7zKlhJ54Kk5Hv4HYO0MWjbULAANrqEt3hlLCArsMvYJCdBSNjNPnNtu0kY
-         1SSg==
-X-Gm-Message-State: AO0yUKVvUm866DacIlY8BAb+KFvoahvG7saiv2OhZOl5BfsoMiv28vgN
-	x2IrQOUwBR+UP8pZ736lRH0=
-X-Google-Smtp-Source: AK7set85mRngGbLrqjwx1O+DEVdLiY/kT/apfyuSlakyXvcI9AVxfkuo2PRWjoBZ/zKfJ3O8qxh68Q==
-X-Received: by 2002:a05:6a20:e40d:b0:be:96d4:f863 with SMTP id nh13-20020a056a20e40d00b000be96d4f863mr7500208pzb.18.1675919535038;
-        Wed, 08 Feb 2023 21:12:15 -0800 (PST)
-Received: from localhost.localdomain ([156.236.96.165])
-        by smtp.gmail.com with ESMTPSA id n25-20020aa79059000000b005882b189a44sm356207pfo.104.2023.02.08.21.12.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Feb 2023 21:12:14 -0800 (PST)
-From: Yue Hu <zbestahu@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PC4sJ37WKz3c4B
+	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Feb 2023 16:18:43 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VbEauiy_1675919919;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VbEauiy_1675919919)
+          by smtp.aliyun-inc.com;
+          Thu, 09 Feb 2023 13:18:39 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH] Documentation/ABI: sysfs-fs-erofs: update supported features
-Date: Thu,  9 Feb 2023 13:11:28 +0800
-Message-Id: <20230209051128.10571-1-zbestahu@gmail.com>
-X-Mailer: git-send-email 2.17.1
+	linux-erofs@lists.ozlabs.org,
+	zhujia.zj@bytedance.com
+Subject: [PATCH v2 1/4] erofs: remove unused device mapping in meta routine
+Date: Thu,  9 Feb 2023 13:18:35 +0800
+Message-Id: <20230209051838.33297-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230209051838.33297-1-jefflexu@linux.alibaba.com>
+References: <20230209051838.33297-1-jefflexu@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,33 +44,63 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@coolpad.com, linux-kernel@vger.kernel.org, zhangwen@coolpad.com
+Cc: huyue2@coolpad.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Yue Hu <huyue2@coolpad.com>
+Currently metadata is always on bootstrap, and thus device mapping is
+not needed so far.  Remove the redundant device mapping in the meta
+routine.
 
-Add missing feaures for sysfs-fs-erofs feature doc.
-
-Signed-off-by: Yue Hu <huyue2@coolpad.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 ---
- Documentation/ABI/testing/sysfs-fs-erofs | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/erofs/fscache.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-fs-erofs b/Documentation/ABI/testing/sysfs-fs-erofs
-index bb4681a01811..284224d1b56f 100644
---- a/Documentation/ABI/testing/sysfs-fs-erofs
-+++ b/Documentation/ABI/testing/sysfs-fs-erofs
-@@ -4,7 +4,8 @@ Contact:	"Huang Jianan" <huangjianan@oppo.com>
- Description:	Shows all enabled kernel features.
- 		Supported features:
- 		zero_padding, compr_cfgs, big_pcluster, chunked_file,
--		device_table, compr_head2, sb_chksum.
-+		device_table, compr_head2, sb_chksum, ztailpacking,
-+		dedupe, fragments.
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 014e20962376..03de4dc99302 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -164,18 +164,8 @@ static int erofs_fscache_read_folios_async(struct fscache_cookie *cookie,
+ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
+ {
+ 	int ret;
+-	struct super_block *sb = folio_mapping(folio)->host->i_sb;
++	struct erofs_fscache *ctx = folio_mapping(folio)->host->i_private;
+ 	struct erofs_fscache_request *req;
+-	struct erofs_map_dev mdev = {
+-		.m_deviceid = 0,
+-		.m_pa = folio_pos(folio),
+-	};
+-
+-	ret = erofs_map_dev(sb, &mdev);
+-	if (ret) {
+-		folio_unlock(folio);
+-		return ret;
+-	}
  
- What:		/sys/fs/erofs/<disk>/sync_decompress
- Date:		November 2021
+ 	req = erofs_fscache_req_alloc(folio_mapping(folio),
+ 				folio_pos(folio), folio_size(folio));
+@@ -184,8 +174,8 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
+ 		return PTR_ERR(req);
+ 	}
+ 
+-	ret = erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
+-				req, mdev.m_pa, folio_size(folio));
++	ret = erofs_fscache_read_folios_async(ctx->cookie, req,
++				folio_pos(folio), folio_size(folio));
+ 	if (ret)
+ 		req->error = ret;
+ 
+@@ -469,6 +459,7 @@ struct erofs_fscache *erofs_fscache_acquire_cookie(struct super_block *sb,
+ 		inode->i_size = OFFSET_MAX;
+ 		inode->i_mapping->a_ops = &erofs_fscache_meta_aops;
+ 		mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
++		inode->i_private = ctx;
+ 
+ 		ctx->inode = inode;
+ 	}
 -- 
-2.17.1
+2.19.1.6.gb485710b
 
