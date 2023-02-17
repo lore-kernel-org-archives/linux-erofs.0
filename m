@@ -4,62 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C83D4C636D4
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Feb 2023 03:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96172C05027
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Feb 2023 05:50:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PHyWb60Hwz3f3B
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Feb 2023 14:50:19 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GbMUt8zV;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.115; helo=mga14.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GbMUt8zV;
-	dkim-atps=neutral
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PJ1BH1Zv0z3f4D
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Feb 2023 16:50:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PHyWR0zy6z3c8h
-	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Feb 2023 14:50:05 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676605811; x=1708141811;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=O+c6MjNUQXeadDzpM+t8VgVjrw7GBTRFLweCYRCA8HY=;
-  b=GbMUt8zV221EKi36ikD9jDQPMnFNilfPR38u0FS8T+/mnDXpHN2GpCHZ
-   xxvlguY5qmiaOv8B366igf9mTgMzCze6ebBAqqWkNmirxeJ5JF3CY6wfs
-   /AeB9AO52iATOVE+h3tcktNB+SCdYhcrp22aSfnCP0HYLCejCpOi3xFKJ
-   whw1ZAO2Zm2acRkjw/2mKd4oXXKgg0iUs/L6u8DZ4ca7zdjmsQoLUJm+R
-   bOfPocqbKPVfuwalopEqJwXCsWCH623yKYTpU8d+doXpcKslBp8KY5cQf
-   7ugMeOGadeFwrcedz1igrihyqjHpqW+Y4EphfHTwUs1RcDbwu+V7jtvb1
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10623"; a="331903914"
-X-IronPort-AV: E=Sophos;i="5.97,304,1669104000"; 
-   d="scan'208";a="331903914"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2023 19:50:01 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10623"; a="915946649"
-X-IronPort-AV: E=Sophos;i="5.97,304,1669104000"; 
-   d="scan'208";a="915946649"
-Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
-  by fmsmga006.fm.intel.com with ESMTP; 16 Feb 2023 19:49:59 -0800
-Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1pSrl0-000B5h-01;
-	Fri, 17 Feb 2023 03:49:58 +0000
-Date: Fri, 17 Feb 2023 11:49:51 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.or,
-	chao@kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH 1/2] erofs: convert hardcoded blocksize to sb->s_blocksize
-Message-ID: <202302171143.RmhVCgqe-lkp@intel.com>
-References: <20230216094745.47868-1-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PJ1B73RDjz3cg0
+	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Feb 2023 16:50:22 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VbrLVSL_1676613017;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VbrLVSL_1676613017)
+          by smtp.aliyun-inc.com;
+          Fri, 17 Feb 2023 13:50:17 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.or,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 2/2] erofs: set block size to the on-disk block size
+Date: Fri, 17 Feb 2023 13:50:16 +0800
+Message-Id: <20230217055016.71462-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230217055016.71462-1-jefflexu@linux.alibaba.com>
+References: <20230217055016.71462-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230216094745.47868-1-jefflexu@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -71,69 +44,164 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Jingbo,
+Set the block size to that specified in on-disk superblock.
 
-Thank you for the patch! Yet something to improve:
+Also remove the hard constraint of PAGE_SIZE block size for the
+uncompressed device backend.  This constraint is temporarily remained
+for compressed device and fscache backend, as there is more work needed
+to handle the condition where the block size is not equal to PAGE_SIZE.
 
-[auto build test ERROR on xiang-erofs/dev-test]
-[also build test ERROR on xiang-erofs/dev next-20230216]
-[cannot apply to xiang-erofs/fixes linus/master v6.2-rc8]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+It is worth noting that the on-disk block size is read prior to
+erofs_superblock_csum_verify(), as the read block size is needed in the
+latter.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Jingbo-Xu/erofs-set-block-size-to-the-on-disk-block-size/20230216-175045
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-patch link:    https://lore.kernel.org/r/20230216094745.47868-1-jefflexu%40linux.alibaba.com
-patch subject: [PATCH 1/2] erofs: convert hardcoded blocksize to sb->s_blocksize
-config: mips-allyesconfig (https://download.01.org/0day-ci/archive/20230217/202302171143.RmhVCgqe-lkp@intel.com/config)
-compiler: mips-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/30b09ec3be57f3777d22e71d2d4e5ec70d9227f8
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Jingbo-Xu/erofs-set-block-size-to-the-on-disk-block-size/20230216-175045
-        git checkout 30b09ec3be57f3777d22e71d2d4e5ec70d9227f8
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ fs/erofs/erofs_fs.h |  2 +-
+ fs/erofs/inode.c    |  3 ++-
+ fs/erofs/internal.h |  8 --------
+ fs/erofs/super.c    | 42 +++++++++++++++++++++++++++---------------
+ 4 files changed, 30 insertions(+), 25 deletions(-)
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202302171143.RmhVCgqe-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   arch/mips/kernel/head.o: in function `kernel_entry':
-   (.ref.text+0xac): relocation truncated to fit: R_MIPS_26 against `start_kernel'
-   init/main.o: in function `set_reset_devices':
-   main.c:(.init.text+0x20): relocation truncated to fit: R_MIPS_26 against `_mcount'
-   main.c:(.init.text+0x30): relocation truncated to fit: R_MIPS_26 against `__sanitizer_cov_trace_pc'
-   init/main.o: in function `debug_kernel':
-   main.c:(.init.text+0xa4): relocation truncated to fit: R_MIPS_26 against `_mcount'
-   main.c:(.init.text+0xb4): relocation truncated to fit: R_MIPS_26 against `__sanitizer_cov_trace_pc'
-   init/main.o: in function `quiet_kernel':
-   main.c:(.init.text+0x128): relocation truncated to fit: R_MIPS_26 against `_mcount'
-   main.c:(.init.text+0x138): relocation truncated to fit: R_MIPS_26 against `__sanitizer_cov_trace_pc'
-   init/main.o: in function `warn_bootconfig':
-   main.c:(.init.text+0x1ac): relocation truncated to fit: R_MIPS_26 against `_mcount'
-   main.c:(.init.text+0x1bc): relocation truncated to fit: R_MIPS_26 against `__sanitizer_cov_trace_pc'
-   init/main.o: in function `init_setup':
-   main.c:(.init.text+0x234): relocation truncated to fit: R_MIPS_26 against `_mcount'
-   main.c:(.init.text+0x254): additional relocation overflows omitted from the output
-   mips-linux-ld: fs/erofs/data.o: in function `erofs_map_blocks_flatmode.constprop.0':
->> data.c:(.text.erofs_map_blocks_flatmode.constprop.0+0x118): undefined reference to `__divdi3'
-   mips-linux-ld: fs/erofs/namei.o: in function `erofs_find_target_block.constprop.0':
->> namei.c:(.text.erofs_find_target_block.constprop.0+0xf8): undefined reference to `__divdi3'
-   mips-linux-ld: fs/erofs/zmap.o: in function `compacted_load_cluster_from_disk':
->> zmap.c:(.text.compacted_load_cluster_from_disk+0x224): undefined reference to `__divdi3'
-
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index dbcd24371002..5c7647d68c07 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -53,7 +53,7 @@ struct erofs_super_block {
+ 	__le32 magic;           /* file system magic number */
+ 	__le32 checksum;        /* crc32c(super_block) */
+ 	__le32 feature_compat;
+-	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
++	__u8 blkszbits;         /* filesystem block size */
+ 	__u8 sb_extslots;	/* superblock size = 128 + sb_extslots * 16 */
+ 
+ 	__le16 root_nid;	/* nid of root directory */
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index de26dac4e07e..0e6ff8a98c68 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -291,7 +291,8 @@ static int erofs_fill_inode(struct inode *inode)
+ 	}
+ 
+ 	if (erofs_inode_is_data_compressed(vi->datalayout)) {
+-		if (!erofs_is_fscache_mode(inode->i_sb))
++		if (!erofs_is_fscache_mode(inode->i_sb) &&
++		    inode->i_sb->s_blocksize_bits == PAGE_SHIFT)
+ 			err = z_erofs_fill_inode(inode);
+ 		else
+ 			err = -EOPNOTSUPP;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 8a85e7af5c92..a4986b91d46d 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -240,14 +240,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 					VAL != EROFS_LOCKED_MAGIC);
+ }
+ 
+-/* we strictly follow PAGE_SIZE and no buffer head yet */
+-#define LOG_BLOCK_SIZE		PAGE_SHIFT
+-#define EROFS_BLKSIZ		(1 << LOG_BLOCK_SIZE)
+-
+-#if (EROFS_BLKSIZ % 4096 || !EROFS_BLKSIZ)
+-#error erofs cannot be used in this platform
+-#endif
+-
+ enum erofs_kmap_type {
+ 	EROFS_NO_KMAP,		/* don't map the buffer */
+ 	EROFS_KMAP,		/* use kmap_local_page() to map the buffer */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index c97615c96ef8..89011a4ed274 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -349,6 +349,14 @@ static int erofs_read_superblock(struct super_block *sb)
+ 		goto out;
+ 	}
+ 
++	blkszbits = dsb->blkszbits;
++	sbi->blkszbits = dsb->blkszbits;
++	if (blkszbits < 9 || blkszbits > PAGE_SHIFT) {
++		erofs_err(sb, "blkszbits %u isn't supported on this platform",
++			  blkszbits);
++		goto out;
++	}
++
+ 	sbi->feature_compat = le32_to_cpu(dsb->feature_compat);
+ 	if (erofs_sb_has_sb_chksum(sbi)) {
+ 		ret = erofs_superblock_csum_verify(sb, data);
+@@ -357,19 +365,11 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	}
+ 
+ 	ret = -EINVAL;
+-	blkszbits = dsb->blkszbits;
+-	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
+-	if (blkszbits != LOG_BLOCK_SIZE) {
+-		erofs_err(sb, "blkszbits %u isn't supported on this platform",
+-			  blkszbits);
+-		goto out;
+-	}
+-
+ 	if (!check_layout_compatibility(sb, dsb))
+ 		goto out;
+ 
+ 	sbi->sb_size = 128 + dsb->sb_extslots * EROFS_SB_EXTSLOT_SIZE;
+-	if (sbi->sb_size > EROFS_BLKSIZ) {
++	if (sbi->sb_size > PAGE_SIZE - EROFS_SUPER_OFFSET) {
+ 		erofs_err(sb, "invalid sb_extslots %u (more than a fs block)",
+ 			  sbi->sb_size);
+ 		goto out;
+@@ -736,8 +736,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 
+ 	sbi->blkszbits = PAGE_SHIFT;
+ 	if (erofs_is_fscache_mode(sb)) {
+-		sb->s_blocksize = EROFS_BLKSIZ;
+-		sb->s_blocksize_bits = LOG_BLOCK_SIZE;
++		sb->s_blocksize = PAGE_SIZE;
++		sb->s_blocksize_bits = PAGE_SHIFT;
+ 
+ 		err = erofs_fscache_register_fs(sb);
+ 		if (err)
+@@ -747,8 +747,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		if (err)
+ 			return err;
+ 	} else {
+-		if (!sb_set_blocksize(sb, EROFS_BLKSIZ)) {
+-			erofs_err(sb, "failed to set erofs blksize");
++		if (!sb_set_blocksize(sb, PAGE_SIZE)) {
++			errorfc(fc, "failed to set initial blksize");
+ 			return -EINVAL;
+ 		}
+ 
+@@ -761,12 +761,24 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	if (err)
+ 		return err;
+ 
+-	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
+-		BUILD_BUG_ON(EROFS_BLKSIZ != PAGE_SIZE);
++	if (sb->s_blocksize_bits != sbi->blkszbits) {
++		if (erofs_is_fscache_mode(sb)) {
++			errorfc(fc, "unsupported blksize for fscache mode");
++			return -EINVAL;
++		}
++		if (!sb_set_blocksize(sb, 1 << sbi->blkszbits)) {
++			errorfc(fc, "failed to set erofs blksize");
++			return -EINVAL;
++		}
++	}
+ 
++	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
+ 		if (!sbi->dax_dev) {
+ 			errorfc(fc, "DAX unsupported by block device. Turning off DAX.");
+ 			clear_opt(&sbi->opt, DAX_ALWAYS);
++		} else if (sbi->blkszbits != PAGE_SHIFT) {
++			errorfc(fc, "unsupported blocksize for DAX");
++			clear_opt(&sbi->opt, DAX_ALWAYS);
+ 		}
+ 	}
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.19.1.6.gb485710b
+
