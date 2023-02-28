@@ -4,30 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95C5CC64EC7
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Feb 2023 18:55:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8520C64ED6
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 Feb 2023 18:55:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PR64q0tCvz3cLb
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 Mar 2023 05:55:23 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PR64v2dGXz3cLX
+	for <linux-erofs@archiver.kernel.org>; Wed,  1 Mar 2023 05:55:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PR64d4400z3c7X
-	for <linux-erofs@lists.ozlabs.org>; Wed,  1 Mar 2023 05:55:13 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VckM4RK_1677610508;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VckM4RK_1677610508)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PR64d422hz3c3W
+	for <linux-erofs@lists.ozlabs.org>; Wed,  1 Mar 2023 05:55:11 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VckM4Mf_1677610501;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VckM4Mf_1677610501)
           by smtp.aliyun-inc.com;
-          Wed, 01 Mar 2023 02:55:09 +0800
+          Wed, 01 Mar 2023 02:55:06 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/3] erofs-utils: add `-Eall-fragments` option
-Date: Wed,  1 Mar 2023 02:54:59 +0800
-Message-Id: <20230228185459.117762-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/3] erofs-utils: get rid of useless nr_dup
+Date: Wed,  1 Mar 2023 02:54:57 +0800
+Message-Id: <20230228185459.117762-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230228185459.117762-1-hsiangkao@linux.alibaba.com>
-References: <20230228185459.117762-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,233 +43,81 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-It's almost the same as `-Efragments` option, except that will
-explicitly pack the whole data into the special inode instead.
+Also refine the longest detection.
 
+Fixes: 990c7e383795 ("erofs-utils: mkfs: support fragment deduplication")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- configure.ac              |  1 +
- include/erofs/config.h    |  1 +
- include/erofs/fragments.h |  1 +
- lib/compress.c            | 32 ++++++++++++++++-------------
- lib/fragments.c           | 43 ++++++++++++++++++++++++++++++++++++++-
- man/mkfs.erofs.1          | 25 ++++++++++++++---------
- mkfs/main.c               |  6 ++++++
- 7 files changed, 84 insertions(+), 25 deletions(-)
+ lib/fragments.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index cdbeb33..4dbe86f 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -134,6 +134,7 @@ AC_CHECK_HEADERS(m4_flatten([
- 	stdlib.h
- 	string.h
- 	sys/ioctl.h
-+	sys/mman.h
- 	sys/stat.h
- 	sys/sysmacros.h
- 	sys/time.h
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 39a6162..648a3e8 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -48,6 +48,7 @@ struct erofs_configure {
- 	bool c_noinline_data;
- 	bool c_ztailpacking;
- 	bool c_fragments;
-+	bool c_all_fragments;
- 	bool c_dedupe;
- 	bool c_ignore_mtime;
- 	bool c_showprogress;
-diff --git a/include/erofs/fragments.h b/include/erofs/fragments.h
-index 4caaf6b..21753ec 100644
---- a/include/erofs/fragments.h
-+++ b/include/erofs/fragments.h
-@@ -16,6 +16,7 @@ extern const char *frags_packedname;
- #define EROFS_PACKED_INODE	frags_packedname
- 
- int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *tofcrc);
-+int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd, u32 tofcrc);
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
- 			   unsigned int len, u32 tofcrc);
- void z_erofs_fragments_commit(struct erofs_inode *inode);
-diff --git a/lib/compress.c b/lib/compress.c
-index 8169990..65c6f90 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -899,22 +899,26 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd)
- 	ctx.remaining = inode->i_size - inode->fragment_size;
- 	ctx.fix_dedupedfrag = false;
- 	ctx.fragemitted = false;
-+	if (cfg.c_all_fragments && !erofs_is_packed_inode(inode) &&
-+	    !inode->fragment_size) {
-+		ret = z_erofs_pack_file_from_fd(inode, fd, ctx.tof_chksum);
-+	} else {
-+		while (ctx.remaining) {
-+			const u64 rx = min_t(u64, ctx.remaining,
-+					     sizeof(ctx.queue) - ctx.tail);
-+
-+			ret = read(fd, ctx.queue + ctx.tail, rx);
-+			if (ret != rx) {
-+				ret = -errno;
-+				goto err_bdrop;
-+			}
-+			ctx.remaining -= rx;
-+			ctx.tail += rx;
- 
--	while (ctx.remaining) {
--		const u64 readcount = min_t(u64, ctx.remaining,
--					    sizeof(ctx.queue) - ctx.tail);
--
--		ret = read(fd, ctx.queue + ctx.tail, readcount);
--		if (ret != readcount) {
--			ret = -errno;
--			goto err_bdrop;
-+			ret = vle_compress_one(&ctx);
-+			if (ret)
-+				goto err_free_idata;
- 		}
--		ctx.remaining -= readcount;
--		ctx.tail += readcount;
--
--		ret = vle_compress_one(&ctx);
--		if (ret)
--			goto err_free_idata;
- 	}
- 	DBG_BUGON(ctx.head != ctx.tail);
- 
 diff --git a/lib/fragments.c b/lib/fragments.c
-index 1e41485..ebff4b5 100644
+index c67c1bb..1e41485 100644
 --- a/lib/fragments.c
 +++ b/lib/fragments.c
-@@ -17,6 +17,7 @@
- #endif
- #include <stdlib.h>
- #include <unistd.h>
-+#include <sys/mman.h>
- #include "erofs/err.h"
- #include "erofs/inode.h"
- #include "erofs/compress.h"
-@@ -154,7 +155,11 @@ static int z_erofs_fragments_dedupe_insert(void *data, unsigned int len,
+@@ -26,7 +26,7 @@
  
- 	if (len <= EROFS_TOF_HASHLEN)
- 		return 0;
--
-+	if (len > EROFS_CONFIG_COMPR_MAX_SZ) {
-+		data += len - EROFS_CONFIG_COMPR_MAX_SZ;
-+		pos += len - EROFS_CONFIG_COMPR_MAX_SZ;
-+		len = EROFS_CONFIG_COMPR_MAX_SZ;
-+	}
- 	di = malloc(sizeof(*di) + len);
- 	if (!di)
- 		return -ENOMEM;
-@@ -204,6 +209,42 @@ void z_erofs_fragments_commit(struct erofs_inode *inode)
- 	erofs_sb_set_fragments();
- }
+ struct erofs_fragment_dedupe_item {
+ 	struct list_head	list;
+-	unsigned int		length, nr_dup;
++	unsigned int		length;
+ 	erofs_off_t		pos;
+ 	u8			data[];
+ };
+@@ -53,7 +53,7 @@ static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
+ 	struct erofs_fragment_dedupe_item *cur, *di = NULL;
+ 	struct list_head *head;
+ 	u8 *data;
+-	unsigned int length, e2;
++	unsigned int length, e2, deduped;
+ 	int ret;
  
-+int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd,
-+			      u32 tofcrc)
-+{
-+#ifdef HAVE_FTELLO64
-+	off64_t offset = ftello64(packedfile);
-+#else
-+	off_t offset = ftello(packedfile);
-+#endif
-+	char *memblock;
-+	int rc;
-+
-+	if (offset < 0)
-+		return -errno;
-+
-+	memblock = mmap(NULL, inode->i_size, PROT_READ, MAP_SHARED, fd, 0);
-+	if (memblock == MAP_FAILED)
-+		return -EFAULT;
-+
-+	inode->fragmentoff = (erofs_off_t)offset;
-+	inode->fragment_size = inode->i_size;
-+
-+	if (fwrite(memblock, inode->fragment_size, 1, packedfile) != 1) {
-+		rc = -EIO;
-+		goto out;
-+	}
-+
-+	erofs_dbg("Recording %u fragment data at %lu", inode->fragment_size,
-+		  inode->fragmentoff);
-+
-+	rc = z_erofs_fragments_dedupe_insert(memblock, inode->fragment_size,
-+					     inode->fragmentoff, tofcrc);
-+out:
-+	munmap(memblock, inode->i_size);
-+	return rc;
-+}
-+
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
- 			   unsigned int len, u32 tofcrc)
- {
-diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
-index ba66a81..61ed24b 100644
---- a/man/mkfs.erofs.1
-+++ b/man/mkfs.erofs.1
-@@ -42,6 +42,21 @@ and may take an extra argument using the equals ('=') sign.
- The following extended options are supported:
- .RS 1.2i
- .TP
-+.BI all-fragments
-+Forcely record the whole files into a special inode for better compression and
-+it may take an argument as the pcluster size of the packed inode in bytes.
-+(Linux v6.1+)
-+.TP
-+.BI dedupe
-+Enable global compressed data deduplication to minimize duplicated data in
-+the filesystem. It may be used with \fI-Efragments\fR option together to
-+further reduce image sizes. (Linux v6.1+)
-+.TP
-+.BI fragments
-+Pack the tail part (pcluster) of compressed files or the whole files into a
-+special inode for smaller image sizes, and it may take an argument as the
-+pcluster size of the packed inode in bytes. (Linux v6.1+)
-+.TP
- .BI force-inode-compact
- Forcely generate compact inodes (32-byte inodes) to output.
- .TP
-@@ -64,16 +79,6 @@ Don't inline regular files to enable FSDAX for these files (Linux v5.15+).
- .BI ztailpacking
- Pack the tail part (pcluster) of compressed files into its metadata to save
- more space and the tail part I/O. (Linux v5.17+)
--.TP
--.BI fragments
--Pack the tail part (pcluster) of compressed files or the whole files into a
--special inode for smaller image sizes, and it may take an argument as the
--pcluster size of the packed inode in bytes. (Linux v6.1+)
--.TP
--.BI dedupe
--Enable global compressed data deduplication to minimize duplicated data in
--the filesystem. It may be used with \fI-Efragments\fR option together to
--further reduce image sizes. (Linux v6.1+)
- .RE
- .TP
- .BI "\-L " volume-label
-diff --git a/mkfs/main.c b/mkfs/main.c
-index d055902..bc973e7 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -208,10 +208,16 @@ static int parse_extended_opts(const char *opts)
- 			cfg.c_ztailpacking = true;
+ 	head = &dupli_frags[FRAGMENT_HASH(crc)];
+@@ -83,6 +83,7 @@ static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
+ 
+ 	DBG_BUGON(length <= EROFS_TOF_HASHLEN);
+ 	e2 = length - EROFS_TOF_HASHLEN;
++	deduped = 0;
+ 
+ 	list_for_each_entry(cur, head, list) {
+ 		unsigned int e1, mn, i = 0;
+@@ -97,22 +98,22 @@ static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
+ 		while (i < mn && cur->data[e1 - i - 1] == data[e2 - i - 1])
+ 			++i;
+ 
+-		if (i && (!di || i + EROFS_TOF_HASHLEN > di->nr_dup)) {
+-			cur->nr_dup = i + EROFS_TOF_HASHLEN;
++		if (!di || i + EROFS_TOF_HASHLEN > deduped) {
++			deduped = i + EROFS_TOF_HASHLEN;
+ 			di = cur;
+ 
+ 			/* full match */
+-			if (i == mn)
++			if (i == e2)
+ 				break;
  		}
+ 	}
+ 	if (!di)
+ 		goto out;
  
-+		if (MATCH_EXTENTED_OPT("all-fragments", token, keylen)) {
-+			cfg.c_all_fragments = true;
-+			goto handle_fragment;
-+		}
-+
- 		if (MATCH_EXTENTED_OPT("fragments", token, keylen)) {
- 			char *endptr;
- 			u64 i;
+-	DBG_BUGON(di->length < di->nr_dup);
++	DBG_BUGON(di->length < deduped);
  
-+handle_fragment:
- 			cfg.c_fragments = true;
- 			if (vallen) {
- 				i = strtoull(value, &endptr, 0);
+-	inode->fragment_size = di->nr_dup;
+-	inode->fragmentoff = di->pos + di->length - di->nr_dup;
++	inode->fragment_size = deduped;
++	inode->fragmentoff = di->pos + di->length - deduped;
+ 
+ 	erofs_dbg("Dedupe %u tail data at %llu", inode->fragment_size,
+ 		  inode->fragmentoff | 0ULL);
+@@ -161,7 +162,6 @@ static int z_erofs_fragments_dedupe_insert(void *data, unsigned int len,
+ 	memcpy(di->data, data, len);
+ 	di->length = len;
+ 	di->pos = pos;
+-	di->nr_dup = 0;
+ 
+ 	list_add_tail(&di->list, &dupli_frags[FRAGMENT_HASH(crc)]);
+ 	return 0;
 -- 
 2.36.1
 
