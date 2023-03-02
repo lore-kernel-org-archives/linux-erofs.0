@@ -4,36 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE91EC678D4
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Mar 2023 13:30:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 869EFC678D4
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Mar 2023 14:39:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PSBmr0m8Qz3cd1
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Mar 2023 00:30:20 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PSDJf5sWrz3cd9
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Mar 2023 01:39:30 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PSBmm1FpNz3cKn
-	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Mar 2023 00:30:15 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VcxX7ku_1677763810;
-Received: from 30.97.48.239(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VcxX7ku_1677763810)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PSDJW5yctz3cLs
+	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Mar 2023 01:39:23 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vcxl6A1_1677767957;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vcxl6A1_1677767957)
           by smtp.aliyun-inc.com;
-          Thu, 02 Mar 2023 21:30:11 +0800
-Message-ID: <415e4402-03b8-e192-0b40-08e479e510d4@linux.alibaba.com>
-Date: Thu, 2 Mar 2023 21:30:10 +0800
+          Thu, 02 Mar 2023 22:39:18 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v4 2/2] erofs: set block size to the on-disk block size
+Date: Thu,  2 Mar 2023 22:39:15 +0800
+Message-Id: <20230302143915.111739-3-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230302143915.111739-1-jefflexu@linux.alibaba.com>
+References: <20230302143915.111739-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH v3 1/2] erofs: avoid hardcoded blocksize for subpage block
- support
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- chao@kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
-References: <20230220025046.103777-1-jefflexu@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230220025046.103777-1-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -49,293 +48,201 @@ Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Set the block size to that specified in on-disk superblock.
 
+Also remove the hard constraint of PAGE_SIZE block size for the
+uncompressed device backend.  This constraint is temporarily remained
+for compressed device and fscache backend, as there is more work needed
+to handle the condition where the block size is not equal to PAGE_SIZE.
 
-On 2023/2/20 10:50, Jingbo Xu wrote:
-> As the first step of converting hardcoded blocksize to that specified in
-> on-disk superblock, convert all call sites of hardcoded blocksize to
-> sb->s_blocksize except for:
-> 
-> 1) use sbi->blkszbits instead of sb->s_blocksize in
-> erofs_superblock_csum_verify() since sb->s_blocksize has not been
-> updated with the on-disk blocksize yet when the function is called.
-> 
-> 2) use inode->i_blkbits instead of sb->s_blocksize in erofs_bread(),
-> since the inode operated on may be an anonymous inode in fscache mode.
-> Currently the anonymous inode is allocated from an anonymous mount
-> maintained in erofs, while in the near future we may allocate anonymous
-> inodes from a generic API directly and thus have no access to the
-> anonymous inode's i_sb.  Thus we keep the block size in i_blkbits for
-> anonymous inodes in fscache mode.
-> 
-> Be noted that this patch only gets rid of the hardcoded blocksize, in
-> preparation for actually setting the on-disk block size in the following
-> patch.  The hard limit of constraining the block size to PAGE_SIZE still
-> exists until the next patch.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-> ---
-> v3: introduce erofs_iblks() to avoid potential warning of "undefined
-> reference to `__divdi3'" [1]
-> 
-> [1] https://lore.kernel.org/all/202302180056.Qg8HFrkU-lkp@intel.com/
-> 
-> v1: https://lore.kernel.org/all/20230216094745.47868-1-jefflexu@linux.alibaba.com/
-> v2: https://lore.kernel.org/all/20230217055016.71462-2-jefflexu@linux.alibaba.com/
-> ---
->   fs/erofs/data.c              | 48 ++++++++++++++++++++----------------
->   fs/erofs/decompressor.c      |  6 ++---
->   fs/erofs/decompressor_lzma.c |  4 +--
->   fs/erofs/dir.c               | 21 ++++++++--------
->   fs/erofs/fscache.c           |  5 ++--
->   fs/erofs/inode.c             | 20 ++++++++-------
->   fs/erofs/internal.h          | 20 ++++++---------
->   fs/erofs/namei.c             | 14 +++++------
->   fs/erofs/super.c             | 24 +++++++++---------
->   fs/erofs/xattr.c             | 40 ++++++++++++++----------------
->   fs/erofs/xattr.h             | 10 ++++----
->   fs/erofs/zdata.c             | 18 ++++++++------
->   fs/erofs/zmap.c              | 29 +++++++++++-----------
->   include/trace/events/erofs.h |  4 +--
->   14 files changed, 134 insertions(+), 129 deletions(-)
-> 
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index 032e12dccb84..5ad40734fd77 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -27,11 +27,15 @@ void erofs_put_metabuf(struct erofs_buf *buf)
->   	buf->page = NULL;
->   }
->   
-> +/*
-> + * Derive the block size from inode->i_blkbits to make compatible with
-> + * anonymous inode in fscache mode.
-> + */
->   void *erofs_bread(struct erofs_buf *buf, struct inode *inode,
->   		  erofs_blk_t blkaddr, enum erofs_kmap_type type)
->   {
-> +	erofs_off_t offset = blkaddr << inode->i_blkbits;
->   	struct address_space *const mapping = inode->i_mapping;
-> -	erofs_off_t offset = blknr_to_addr(blkaddr);
->   	pgoff_t index = offset >> PAGE_SHIFT;
->   	struct page *page = buf->page;
->   	struct folio *folio;
-> @@ -79,24 +83,25 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
->   	erofs_blk_t nblocks, lastblk;
->   	u64 offset = map->m_la;
->   	struct erofs_inode *vi = EROFS_I(inode);
-> +	struct super_block *sb = inode->i_sb;
->   	bool tailendpacking = (vi->datalayout == EROFS_INODE_FLAT_INLINE);
->   
-> -	nblocks = DIV_ROUND_UP(inode->i_size, EROFS_BLKSIZ);
-> +	nblocks = erofs_iblks(inode);
->   	lastblk = nblocks - tailendpacking;
->   
->   	/* there is no hole in flatmode */
->   	map->m_flags = EROFS_MAP_MAPPED;
-> -	if (offset < blknr_to_addr(lastblk)) {
-> -		map->m_pa = blknr_to_addr(vi->raw_blkaddr) + map->m_la;
-> -		map->m_plen = blknr_to_addr(lastblk) - offset;
-> +	if (offset < erofs_pos(sb, lastblk)) {
-> +		map->m_pa = erofs_pos(sb, vi->raw_blkaddr) + map->m_la;
-> +		map->m_plen = erofs_pos(sb, lastblk) - offset;
->   	} else if (tailendpacking) {
->   		map->m_pa = erofs_iloc(inode) + vi->inode_isize +
-> -			vi->xattr_isize + erofs_blkoff(offset);
-> +			vi->xattr_isize + erofs_blkoff(sb, offset);
->   		map->m_plen = inode->i_size - offset;
->   
->   		/* inline data should be located in the same meta block */
-> -		if (erofs_blkoff(map->m_pa) + map->m_plen > EROFS_BLKSIZ) {
-> -			erofs_err(inode->i_sb,
-> +		if (erofs_blkoff(sb, map->m_pa) + map->m_plen > sb->s_blocksize) {
-> +			erofs_err(sb,
->   				  "inline data cross block boundary @ nid %llu",
+It is worth noting that the on-disk block size is read prior to
+erofs_superblock_csum_verify(), as the read block size is needed in the
+latter.
 
-Could we save a line for this?  I think we don't need to keep 80-char for
-the print message line.
+Besides, later we are going to make erofs refer to tar data blobs (which
+is 512-byte aligned) for OCI containers, where the block size is 512
+bytes.  In this case, the 512-byte block size may not be adequate for a
+directory to contain enough dirents.  To fix this, we are also going to
+introduce directory block size independent on the block size.
 
+Due to we have already supported block size smaller than PAGE_SIZE now,
+disable all these images with such separated directory block size until
+we supported this feature later.
 
->   				  vi->nid);
->   			DBG_BUGON(1);
-> @@ -104,7 +109,7 @@ static int erofs_map_blocks_flatmode(struct inode *inode,
->   		}
->   		map->m_flags |= EROFS_MAP_META;
->   	} else {
-> -		erofs_err(inode->i_sb,
-> +		erofs_err(sb,
->   			  "internal error @ nid: %llu (size %llu), m_la 0x%llx",
->   			  vi->nid, inode->i_size, map->m_la);
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ fs/erofs/erofs_fs.h |  5 +++--
+ fs/erofs/inode.c    |  3 ++-
+ fs/erofs/internal.h | 11 ++---------
+ fs/erofs/super.c    | 46 +++++++++++++++++++++++++++++----------------
+ 4 files changed, 37 insertions(+), 28 deletions(-)
 
-Same here.
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index dbcd24371002..ac9c2ff3aa66 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -53,7 +53,7 @@ struct erofs_super_block {
+ 	__le32 magic;           /* file system magic number */
+ 	__le32 checksum;        /* crc32c(super_block) */
+ 	__le32 feature_compat;
+-	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
++	__u8 blkszbits;         /* filesystem block size */
+ 	__u8 sb_extslots;	/* superblock size = 128 + sb_extslots * 16 */
+ 
+ 	__le16 root_nid;	/* nid of root directory */
+@@ -75,7 +75,8 @@ struct erofs_super_block {
+ 	} __packed u1;
+ 	__le16 extra_devices;	/* # of devices besides the primary device */
+ 	__le16 devt_slotoff;	/* startoff = devt_slotoff * devt_slotsize */
+-	__u8 reserved[6];
++	__u8 dirblkbits;	/* directory block size */
++	__u8 reserved[5];
+ 	__le64 packed_nid;	/* nid of the special packed inode */
+ 	__u8 reserved2[24];
+ };
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index de26dac4e07e..0e6ff8a98c68 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -291,7 +291,8 @@ static int erofs_fill_inode(struct inode *inode)
+ 	}
+ 
+ 	if (erofs_inode_is_data_compressed(vi->datalayout)) {
+-		if (!erofs_is_fscache_mode(inode->i_sb))
++		if (!erofs_is_fscache_mode(inode->i_sb) &&
++		    inode->i_sb->s_blocksize_bits == PAGE_SHIFT)
+ 			err = z_erofs_fill_inode(inode);
+ 		else
+ 			err = -EOPNOTSUPP;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index d8019d835405..f99ba4061a3b 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -148,7 +148,8 @@ struct erofs_sb_info {
+ 	u16 device_id_mask;	/* valid bits of device id to be used */
+ 
+ 	unsigned char islotbits;	/* inode slot unit size in bit shift */
+-	unsigned char blkszbits;
++	unsigned char blkszbits;	/* filesystem block size */
++	unsigned char dirblkbits;	/* directory block size */
+ 
+ 	u32 sb_size;			/* total superblock size */
+ 	u32 build_time_nsec;
+@@ -240,14 +241,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+ 					VAL != EROFS_LOCKED_MAGIC);
+ }
+ 
+-/* we strictly follow PAGE_SIZE and no buffer head yet */
+-#define LOG_BLOCK_SIZE		PAGE_SHIFT
+-#define EROFS_BLKSIZ		(1 << LOG_BLOCK_SIZE)
+-
+-#if (EROFS_BLKSIZ % 4096 || !EROFS_BLKSIZ)
+-#error erofs cannot be used in this platform
+-#endif
+-
+ enum erofs_kmap_type {
+ 	EROFS_NO_KMAP,		/* don't map the buffer */
+ 	EROFS_KMAP,		/* use kmap_local_page() to map the buffer */
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index c97615c96ef8..d5fa0f582cbe 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -330,7 +330,6 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	struct erofs_sb_info *sbi;
+ 	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	struct erofs_super_block *dsb;
+-	unsigned int blkszbits;
+ 	void *data;
+ 	int ret;
+ 
+@@ -349,6 +348,17 @@ static int erofs_read_superblock(struct super_block *sb)
+ 		goto out;
+ 	}
+ 
++	sbi->blkszbits  = dsb->blkszbits;
++	sbi->dirblkbits = dsb->dirblkbits;
++	if (sbi->blkszbits < 9 || sbi->blkszbits > PAGE_SHIFT) {
++		erofs_err(sb, "blkszbits %u isn't supported", sbi->blkszbits);
++		goto out;
++	}
++	if (sbi->dirblkbits) {
++		erofs_err(sb, "dirblkbits %u isn't supported", sbi->dirblkbits);
++		goto out;
++	}
++
+ 	sbi->feature_compat = le32_to_cpu(dsb->feature_compat);
+ 	if (erofs_sb_has_sb_chksum(sbi)) {
+ 		ret = erofs_superblock_csum_verify(sb, data);
+@@ -357,19 +367,11 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	}
+ 
+ 	ret = -EINVAL;
+-	blkszbits = dsb->blkszbits;
+-	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
+-	if (blkszbits != LOG_BLOCK_SIZE) {
+-		erofs_err(sb, "blkszbits %u isn't supported on this platform",
+-			  blkszbits);
+-		goto out;
+-	}
+-
+ 	if (!check_layout_compatibility(sb, dsb))
+ 		goto out;
+ 
+ 	sbi->sb_size = 128 + dsb->sb_extslots * EROFS_SB_EXTSLOT_SIZE;
+-	if (sbi->sb_size > EROFS_BLKSIZ) {
++	if (sbi->sb_size > PAGE_SIZE - EROFS_SUPER_OFFSET) {
+ 		erofs_err(sb, "invalid sb_extslots %u (more than a fs block)",
+ 			  sbi->sb_size);
+ 		goto out;
+@@ -736,8 +738,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 
+ 	sbi->blkszbits = PAGE_SHIFT;
+ 	if (erofs_is_fscache_mode(sb)) {
+-		sb->s_blocksize = EROFS_BLKSIZ;
+-		sb->s_blocksize_bits = LOG_BLOCK_SIZE;
++		sb->s_blocksize = PAGE_SIZE;
++		sb->s_blocksize_bits = PAGE_SHIFT;
+ 
+ 		err = erofs_fscache_register_fs(sb);
+ 		if (err)
+@@ -747,8 +749,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		if (err)
+ 			return err;
+ 	} else {
+-		if (!sb_set_blocksize(sb, EROFS_BLKSIZ)) {
+-			erofs_err(sb, "failed to set erofs blksize");
++		if (!sb_set_blocksize(sb, PAGE_SIZE)) {
++			errorfc(fc, "failed to set initial blksize");
+ 			return -EINVAL;
+ 		}
+ 
+@@ -761,12 +763,24 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	if (err)
+ 		return err;
+ 
+-	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
+-		BUILD_BUG_ON(EROFS_BLKSIZ != PAGE_SIZE);
++	if (sb->s_blocksize_bits != sbi->blkszbits) {
++		if (erofs_is_fscache_mode(sb)) {
++			errorfc(fc, "unsupported blksize for fscache mode");
++			return -EINVAL;
++		}
++		if (!sb_set_blocksize(sb, 1 << sbi->blkszbits)) {
++			errorfc(fc, "failed to set erofs blksize");
++			return -EINVAL;
++		}
++	}
+ 
++	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
+ 		if (!sbi->dax_dev) {
+ 			errorfc(fc, "DAX unsupported by block device. Turning off DAX.");
+ 			clear_opt(&sbi->opt, DAX_ALWAYS);
++		} else if (sbi->blkszbits != PAGE_SHIFT) {
++			errorfc(fc, "unsupported blocksize for DAX");
++			clear_opt(&sbi->opt, DAX_ALWAYS);
+ 		}
+ 	}
+ 
+-- 
+2.19.1.6.gb485710b
 
-
->   		DBG_BUGON(1);
-> @@ -148,29 +153,29 @@ int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map)
->   	pos = ALIGN(erofs_iloc(inode) + vi->inode_isize +
->   		    vi->xattr_isize, unit) + unit * chunknr;
->   
-> -	kaddr = erofs_read_metabuf(&buf, sb, erofs_blknr(pos), EROFS_KMAP);
-> +	kaddr = erofs_read_metabuf(&buf, sb, erofs_blknr(sb, pos), EROFS_KMAP);
->   	if (IS_ERR(kaddr)) {
->   		err = PTR_ERR(kaddr);
->   		goto out;
->   	}
->   	map->m_la = chunknr << vi->chunkbits;
->   	map->m_plen = min_t(erofs_off_t, 1UL << vi->chunkbits,
-> -			    roundup(inode->i_size - map->m_la, EROFS_BLKSIZ));
-> +			round_up(inode->i_size - map->m_la, sb->s_blocksize));
->   
->   	/* handle block map */
->   	if (!(vi->chunkformat & EROFS_CHUNK_FORMAT_INDEXES)) {
-> -		__le32 *blkaddr = kaddr + erofs_blkoff(pos);
-> +		__le32 *blkaddr = kaddr + erofs_blkoff(sb, pos);
->   
->   		if (le32_to_cpu(*blkaddr) == EROFS_NULL_ADDR) {
->   			map->m_flags = 0;
->   		} else {
-> -			map->m_pa = blknr_to_addr(le32_to_cpu(*blkaddr));
-> +			map->m_pa = erofs_pos(sb, le32_to_cpu(*blkaddr));
->   			map->m_flags = EROFS_MAP_MAPPED;
->   		}
->   		goto out_unlock;
->   	}
->   	/* parse chunk indexes */
-> -	idx = kaddr + erofs_blkoff(pos);
-> +	idx = kaddr + erofs_blkoff(sb, pos);
->   	switch (le32_to_cpu(idx->blkaddr)) {
->   	case EROFS_NULL_ADDR:
->   		map->m_flags = 0;
-> @@ -178,7 +183,7 @@ int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map)
->   	default:
->   		map->m_deviceid = le16_to_cpu(idx->device_id) &
->   			EROFS_SB(sb)->device_id_mask;
-> -		map->m_pa = blknr_to_addr(le32_to_cpu(idx->blkaddr));
-> +		map->m_pa = erofs_pos(sb, le32_to_cpu(idx->blkaddr));
->   		map->m_flags = EROFS_MAP_MAPPED;
->   		break;
->   	}
-> @@ -222,8 +227,8 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
->   
->   			if (!dif->mapped_blkaddr)
->   				continue;
-> -			startoff = blknr_to_addr(dif->mapped_blkaddr);
-> -			length = blknr_to_addr(dif->blocks);
-> +			startoff = erofs_pos(sb, dif->mapped_blkaddr);
-> +			length = erofs_pos(sb, dif->blocks);
->   
->   			if (map->m_pa >= startoff &&
->   			    map->m_pa < startoff + length) {
-> @@ -244,6 +249,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
->   		unsigned int flags, struct iomap *iomap, struct iomap *srcmap)
->   {
->   	int ret;
-> +	struct super_block *sb = inode->i_sb;
->   	struct erofs_map_blocks map;
->   	struct erofs_map_dev mdev;
->   
-> @@ -258,7 +264,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
->   		.m_deviceid = map.m_deviceid,
->   		.m_pa = map.m_pa,
->   	};
-> -	ret = erofs_map_dev(inode->i_sb, &mdev);
-> +	ret = erofs_map_dev(sb, &mdev);
->   	if (ret)
->   		return ret;
->   
-> @@ -284,11 +290,11 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
->   		struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
->   
->   		iomap->type = IOMAP_INLINE;
-> -		ptr = erofs_read_metabuf(&buf, inode->i_sb,
-> -					 erofs_blknr(mdev.m_pa), EROFS_KMAP);
-> +		ptr = erofs_read_metabuf(&buf, sb,
-> +				erofs_blknr(sb, mdev.m_pa), EROFS_KMAP);
->   		if (IS_ERR(ptr))
->   			return PTR_ERR(ptr);
-> -		iomap->inline_data = ptr + erofs_blkoff(mdev.m_pa);
-> +		iomap->inline_data = ptr + erofs_blkoff(sb, mdev.m_pa);
->   		iomap->private = buf.base;
->   	} else {
->   		iomap->type = IOMAP_MAPPED;
-> diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-> index 51b7ac7166d9..21fc6897d225 100644
-> --- a/fs/erofs/decompressor.c
-> +++ b/fs/erofs/decompressor.c
-> @@ -42,7 +42,7 @@ int z_erofs_load_lz4_config(struct super_block *sb,
->   		if (!sbi->lz4.max_pclusterblks) {
->   			sbi->lz4.max_pclusterblks = 1;	/* reserved case */
->   		} else if (sbi->lz4.max_pclusterblks >
-> -			   Z_EROFS_PCLUSTER_MAX_SIZE / EROFS_BLKSIZ) {
-> +			   Z_EROFS_PCLUSTER_MAX_SIZE >> sb->s_blocksize_bits) {
->   			erofs_err(sb, "too large lz4 pclusterblks %u",
->   				  sbi->lz4.max_pclusterblks);
->   			return -EINVAL;
-> @@ -221,13 +221,13 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
->   		support_0padding = true;
->   		ret = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
->   				min_t(unsigned int, rq->inputsize,
-> -				      EROFS_BLKSIZ - rq->pageofs_in));
-> +				      rq->sb->s_blocksize - rq->pageofs_in));
->   		if (ret) {
->   			kunmap_atomic(headpage);
->   			return ret;
->   		}
->   		may_inplace = !((rq->pageofs_in + rq->inputsize) &
-> -				(EROFS_BLKSIZ - 1));
-> +				(rq->sb->s_blocksize - 1));
->   	}
->   
->   	inputmargin = rq->pageofs_in;
-> diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-> index 091fd5adf818..d44c377c5b69 100644
-> --- a/fs/erofs/decompressor_lzma.c
-> +++ b/fs/erofs/decompressor_lzma.c
-> @@ -166,8 +166,8 @@ int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
->   	/* 1. get the exact LZMA compressed size */
->   	kin = kmap(*rq->in);
->   	err = z_erofs_fixup_insize(rq, kin + rq->pageofs_in,
-> -				   min_t(unsigned int, rq->inputsize,
-> -					 EROFS_BLKSIZ - rq->pageofs_in));
-> +			min_t(unsigned int, rq->inputsize,
-> +			      rq->sb->s_blocksize - rq->pageofs_in));
->   	if (err) {
->   		kunmap(*rq->in);
->   		return err;
-> diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
-> index 6970b09b8307..849319457181 100644
-> --- a/fs/erofs/dir.c
-> +++ b/fs/erofs/dir.c
-> @@ -50,9 +50,11 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
->   {
->   	struct inode *dir = file_inode(f);
->   	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
-> +	struct super_block *sb = dir->i_sb;
-> +	unsigned long bsz = sb->s_blocksize;
->   	const size_t dirsize = i_size_read(dir);
-> -	unsigned int i = ctx->pos / EROFS_BLKSIZ;
-> -	unsigned int ofs = ctx->pos % EROFS_BLKSIZ;
-> +	unsigned int i = erofs_blknr(sb, ctx->pos);
-> +	unsigned int ofs = erofs_blkoff(sb, ctx->pos);
->   	int err = 0;
->   	bool initial = true;
->   
-> @@ -62,7 +64,7 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
->   
->   		de = erofs_bread(&buf, dir, i, EROFS_KMAP);
->   		if (IS_ERR(de)) {
-> -			erofs_err(dir->i_sb,
-> +			erofs_err(sb,
-
-
-Same here,
-
-Otherwise it looks good to me,
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Thanks,
-Gao Xiang
-
->   				  "fail to readdir of logical block %u of nid %llu",
->   				  i, EROFS_I(dir)->nid);
->   			err = PTR_ERR(de);
