@@ -4,28 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 187D0C678D5
-	for <linux-erofs@archiver.kernel.org>; Sat,  4 Mar 2023 19:57:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF2E0C678D5
+	for <linux-erofs@archiver.kernel.org>; Sat,  4 Mar 2023 19:58:24 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PTbH42Kgwz3cG7
-	for <linux-erofs@archiver.kernel.org>; Sun,  5 Mar 2023 06:57:52 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PTbHg2rFGz3cdJ
+	for <linux-erofs@archiver.kernel.org>; Sun,  5 Mar 2023 06:58:23 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PTbGz2Yj1z2ygG
-	for <linux-erofs@lists.ozlabs.org>; Sun,  5 Mar 2023 06:57:45 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vd4BHWM_1677959853;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vd4BHWM_1677959853)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PTbHb20nJz2ygG
+	for <linux-erofs@lists.ozlabs.org>; Sun,  5 Mar 2023 06:58:19 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vd47ESv_1677959894;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vd47ESv_1677959894)
           by smtp.aliyun-inc.com;
-          Sun, 05 Mar 2023 03:57:40 +0800
+          Sun, 05 Mar 2023 03:58:15 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Subject: [PATCH 1/5] erofs-utils: fix delta[1] out-of-bound of compact indexes
-Date: Sun,  5 Mar 2023 03:57:32 +0800
-Message-Id: <20230304195732.119053-1-hsiangkao@linux.alibaba.com>
+Date: Sun,  5 Mar 2023 03:58:08 +0800
+Message-Id: <20230304195812.120063-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20230304195732.119053-1-hsiangkao@linux.alibaba.com>
+References: <20230304195732.119053-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
