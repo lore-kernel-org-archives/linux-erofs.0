@@ -4,37 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DEAC8C678D4
-	for <linux-erofs@archiver.kernel.org>; Mon,  6 Mar 2023 09:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 337BEC678D4
+	for <linux-erofs@archiver.kernel.org>; Mon,  6 Mar 2023 09:26:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PVY7z3H9Xz3cHX
-	for <linux-erofs@archiver.kernel.org>; Mon,  6 Mar 2023 20:25:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PVY9y5zNtz3cG1
+	for <linux-erofs@archiver.kernel.org>; Mon,  6 Mar 2023 20:26:46 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=aGpHk5/E;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=aGpHk5/E;
+	dkim-atps=neutral
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PVY7v3kCVz2xVn
-	for <linux-erofs@lists.ozlabs.org>; Mon,  6 Mar 2023 20:24:58 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VdDPjS5_1678094693;
-Received: from 30.97.49.22(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VdDPjS5_1678094693)
-          by smtp.aliyun-inc.com;
-          Mon, 06 Mar 2023 17:24:54 +0800
-Message-ID: <a29c01b5-2a53-80dd-552a-8762d7df903a@linux.alibaba.com>
-Date: Mon, 6 Mar 2023 17:24:53 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PVY9t3smcz3bym
+	for <linux-erofs@lists.ozlabs.org>; Mon,  6 Mar 2023 20:26:42 +1100 (AEDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id EF6BE60B2C;
+	Mon,  6 Mar 2023 09:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2167C433EF;
+	Mon,  6 Mar 2023 09:26:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1678094799;
+	bh=57FrCCZ2Wq+YAZlBEbTVLCXLXyHrbe4LXgxzAP6Rt70=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=aGpHk5/EASsEtl4vKnAkGUaXhtbPzA/d2cXgftsQx8PVrRgVXQNsAAnUOBX1GgX6I
+	 G/6gfIFXfw4GETwfv8Vqa+2mueXnJba6vq4doCPeNTZ+42jYFYMi/XGYUBkeA8X/oD
+	 ElKS799bOnXufZBGOEBscaDcXEpJHRp87DtATu56G0m7hUhBUbQpW3gm1nxMrdfglF
+	 0ZbBUcHJGIkJmz/Hsybihbq8zOv2if13KJ/EEandIpN1dFYg7WzDuihAtyiEKIBsW3
+	 NHz3uKORaef+IPel5P8LpgPELeV5dFcgKzByHGHs4b9oIVc5RyT13xsoOqXUWsxf3W
+	 aynSxAyBPrijQ==
+Date: Mon, 6 Mar 2023 10:26:33 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v3 00/10] acl: drop posix acl handlers from xattr handlers
+Message-ID: <20230306092633.tobpejvw7mwcx22v@wittgenstein>
+References: <20230125-fs-acl-remove-generic-xattr-handlers-v3-0-f760cc58967d@kernel.org>
+ <20230201133020.GA31902@lst.de>
+ <20230201134254.fai2vc7gtzj6iikx@wittgenstein>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH 1/2] erofs-utils: get rid of z_erofs_do_map_blocks()
- forward declaration
-To: Yue Hu <zbestahu@gmail.com>
-References: <e90f4dc828bb45b1a3ccbd1769a590410f3a82da.1678092797.git.huyue2@coolpad.com>
- <6d65a6fa-869d-8259-b271-7e20332188f6@linux.alibaba.com>
- <20230306172539.00001276.zbestahu@gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230306172539.00001276.zbestahu@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230201134254.fai2vc7gtzj6iikx@wittgenstein>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -46,216 +61,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@coolpad.com, linux-erofs@lists.ozlabs.org, zhangwen@coolpad.com
+Cc: linux-unionfs@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-mtd@lists.infradead.org, Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org, Seth Forshee <sforshee@kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/3/6 17:25, Yue Hu wrote:
-> On Mon, 6 Mar 2023 17:00:25 +0800
-> Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+On Wed, Feb 01, 2023 at 02:42:54PM +0100, Christian Brauner wrote:
+> On Wed, Feb 01, 2023 at 02:30:20PM +0100, Christoph Hellwig wrote:
+> > This version looks good to me, but I'd really prefer if a reiserfs
+> > insider could look over the reiserfs patches.
 > 
->> On 2023/3/6 16:54, Yue Hu wrote:
->>> From: Yue Hu <huyue2@coolpad.com>
->>>
->>> Keep in sync with the kernel commit 999f2f9a63f4 ("erofs: get rid of
->>> z_erofs_do_map_blocks() forward declaration").
->>
->> Does z_erofs_do_map_blocks() already keep in sync with the kernel
->> implementation?  Anyway, it's just another question indepentently
->> to this patch.
-> 
-> Ok, let me correct the message in v2.
+> I consider this material for v6.4 even with an -rc8 for v6.3. So there's
+> time but we shouldn't block it on reiserfs. Especially, since it's
+> marked deprecated.
 
-Nope, you just need to submit a new patch to sync these.
+So I've applied this now. If there's still someone interested in
+checking the reiserfs bits more than what we did with xfstests they
+should please do so. But I don't want to hold up this series waiting for
+that to happen.
 
 > 
->>
->>>
->>> Signed-off-by: Yue Hu <huyue2@coolpad.com>
->>> ---
->>>    lib/zmap.c | 156 ++++++++++++++++++++++++++---------------------------
->>>    1 file changed, 76 insertions(+), 80 deletions(-)
->>>
->>> diff --git a/lib/zmap.c b/lib/zmap.c
->>> index 69b468d..3c665f8 100644
->>> --- a/lib/zmap.c
->>> +++ b/lib/zmap.c
->>> @@ -10,10 +10,6 @@
->>>    #include "erofs/io.h"
->>>    #include "erofs/print.h"
->>>    
->>> -static int z_erofs_do_map_blocks(struct erofs_inode *vi,
->>> -				 struct erofs_map_blocks *map,
->>> -				 int flags);
->>> -
->>>    int z_erofs_fill_inode(struct erofs_inode *vi)
->>>    {
->>>    	if (!erofs_sb_has_big_pcluster() &&
->>> @@ -29,82 +25,6 @@ int z_erofs_fill_inode(struct erofs_inode *vi)
->>>    	return 0;
->>>    }
->>>    
->>> -static int z_erofs_fill_inode_lazy(struct erofs_inode *vi)
->>> -{
->>> -	int ret;
->>> -	erofs_off_t pos;
->>> -	struct z_erofs_map_header *h;
->>> -	char buf[sizeof(struct z_erofs_map_header)];
->>> -
->>> -	if (vi->flags & EROFS_I_Z_INITED)
->>> -		return 0;
->>> -
->>> -	pos = round_up(iloc(vi->nid) + vi->inode_isize + vi->xattr_isize, 8);
->>> -	ret = dev_read(0, buf, pos, sizeof(buf));
->>> -	if (ret < 0)
->>> -		return -EIO;
->>> -
->>> -	h = (struct z_erofs_map_header *)buf;
->>> -	/*
->>> -	 * if the highest bit of the 8-byte map header is set, the whole file
->>> -	 * is stored in the packed inode. The rest bits keeps z_fragmentoff.
->>> -	 */
->>> -	if (h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT) {
->>> -		vi->z_advise = Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
->>> -		vi->fragmentoff = le64_to_cpu(*(__le64 *)h) ^ (1ULL << 63);
->>> -		vi->z_tailextent_headlcn = 0;
->>> -		goto out;
->>> -	}
->>> -
->>> -	vi->z_advise = le16_to_cpu(h->h_advise);
->>> -	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
->>> -	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
->>> -
->>> -	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX) {
->>> -		erofs_err("unknown compression format %u for nid %llu",
->>> -			  vi->z_algorithmtype[0], (unsigned long long)vi->nid);
->>> -		return -EOPNOTSUPP;
->>> -	}
->>> -
->>> -	vi->z_logical_clusterbits = LOG_BLOCK_SIZE + (h->h_clusterbits & 7);
->>> -	if (vi->datalayout == EROFS_INODE_FLAT_COMPRESSION &&
->>> -	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1) ^
->>> -	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2)) {
->>> -		erofs_err("big pcluster head1/2 of compact indexes should be consistent for nid %llu",
->>> -			  vi->nid * 1ULL);
->>> -		return -EFSCORRUPTED;
->>> -	}
->>> -
->>> -	if (vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER) {
->>> -		struct erofs_map_blocks map = { .index = UINT_MAX };
->>> -
->>> -		vi->idata_size = le16_to_cpu(h->h_idata_size);
->>> -		ret = z_erofs_do_map_blocks(vi, &map,
->>> -					    EROFS_GET_BLOCKS_FINDTAIL);
->>> -		if (!map.m_plen ||
->>> -		    erofs_blkoff(map.m_pa) + map.m_plen > EROFS_BLKSIZ) {
->>> -			erofs_err("invalid tail-packing pclustersize %llu",
->>> -				  map.m_plen | 0ULL);
->>> -			return -EFSCORRUPTED;
->>> -		}
->>> -		if (ret < 0)
->>> -			return ret;
->>> -	}
->>> -	if (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER &&
->>> -	    !(h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT)) {
->>> -		struct erofs_map_blocks map = { .index = UINT_MAX };
->>> -
->>> -		vi->fragmentoff = le32_to_cpu(h->h_fragmentoff);
->>> -		ret = z_erofs_do_map_blocks(vi, &map,
->>> -					    EROFS_GET_BLOCKS_FINDTAIL);
->>> -		if (ret < 0)
->>> -			return ret;
->>> -	}
->>> -out:
->>> -	vi->flags |= EROFS_I_Z_INITED;
->>> -	return 0;
->>> -}
->>> -
->>>    struct z_erofs_maprecorder {
->>>    	struct erofs_inode *inode;
->>>    	struct erofs_map_blocks *map;
->>> @@ -675,6 +595,82 @@ out:
->>>    	return err;
->>>    }
->>>    
->>> +static int z_erofs_fill_inode_lazy(struct erofs_inode *vi)
->>> +{
->>> +	int ret;
->>> +	erofs_off_t pos;
->>> +	struct z_erofs_map_header *h;
->>> +	char buf[sizeof(struct z_erofs_map_header)];
->>> +
->>> +	if (vi->flags & EROFS_I_Z_INITED)
->>> +		return 0;
->>> +
->>> +	pos = round_up(iloc(vi->nid) + vi->inode_isize + vi->xattr_isize, 8);
->>> +	ret = dev_read(0, buf, pos, sizeof(buf));
->>> +	if (ret < 0)
->>> +		return -EIO;
->>> +
->>> +	h = (struct z_erofs_map_header *)buf;
->>> +	/*
->>> +	 * if the highest bit of the 8-byte map header is set, the whole file
->>> +	 * is stored in the packed inode. The rest bits keeps z_fragmentoff.
->>> +	 */
->>> +	if (h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT) {
->>> +		vi->z_advise = Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
->>> +		vi->fragmentoff = le64_to_cpu(*(__le64 *)h) ^ (1ULL << 63);
->>> +		vi->z_tailextent_headlcn = 0;
->>> +		goto out;
->>> +	}
->>> +
->>> +	vi->z_advise = le16_to_cpu(h->h_advise);
->>> +	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
->>> +	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
->>> +
->>> +	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX) {
->>> +		erofs_err("unknown compression format %u for nid %llu",
->>> +			  vi->z_algorithmtype[0], (unsigned long long)vi->nid);
->>> +		return -EOPNOTSUPP;
->>> +	}
->>> +
->>> +	vi->z_logical_clusterbits = LOG_BLOCK_SIZE + (h->h_clusterbits & 7);
->>> +	if (vi->datalayout == EROFS_INODE_FLAT_COMPRESSION &&
->>> +	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1) ^
->>> +	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2)) {
->>> +		erofs_err("big pcluster head1/2 of compact indexes should be consistent for nid %llu",
->>> +			  vi->nid * 1ULL);
->>> +		return -EFSCORRUPTED;
->>> +	}
->>> +
->>> +	if (vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER) {
->>> +		struct erofs_map_blocks map = { .index = UINT_MAX };
->>> +
->>> +		vi->idata_size = le16_to_cpu(h->h_idata_size);
->>> +		ret = z_erofs_do_map_blocks(vi, &map,
->>> +					    EROFS_GET_BLOCKS_FINDTAIL);
->>> +		if (!map.m_plen ||
->>> +		    erofs_blkoff(map.m_pa) + map.m_plen > EROFS_BLKSIZ) {
->>> +			erofs_err("invalid tail-packing pclustersize %llu",
->>> +				  map.m_plen | 0ULL);
->>> +			return -EFSCORRUPTED;
->>> +		}
->>> +		if (ret < 0)
->>> +			return ret;
->>> +	}
->>> +	if (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER &&
->>> +	    !(h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT)) {
->>> +		struct erofs_map_blocks map = { .index = UINT_MAX };
->>> +
->>> +		vi->fragmentoff = le32_to_cpu(h->h_fragmentoff);
->>> +		ret = z_erofs_do_map_blocks(vi, &map,
->>> +					    EROFS_GET_BLOCKS_FINDTAIL);
->>> +		if (ret < 0)
->>> +			return ret;
->>> +	}
->>> +out:
->>> +	vi->flags |= EROFS_I_Z_INITED;
->>> +	return 0;
->>> +}
->>> +
->>>    int z_erofs_map_blocks_iter(struct erofs_inode *vi,
->>>    			    struct erofs_map_blocks *map,
->>>    			    int flags)
+> Fwiw, I've tested reiserfs with xfstests on a kernel with and without
+> this series applied and there's no regressions. But it's overall pretty
+> buggy at least according to xfstests. Which is expected, I guess.
