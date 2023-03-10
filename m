@@ -4,41 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BDC3C64EC4
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Mar 2023 11:18:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9007C742A7
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Mar 2023 16:40:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PY3Sx4m10z3chq
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Mar 2023 22:18:25 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=joseph.qi@linux.alibaba.com; receiver=<UNKNOWN>)
-X-Greylist: delayed 303 seconds by postgrey-1.36 at boromir; Fri, 10 Mar 2023 22:18:20 AEDT
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PYBcg0cnrz3ch8
+	for <linux-erofs@archiver.kernel.org>; Sat, 11 Mar 2023 03:40:35 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=V+8fpkbi;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.68.75; helo=ams.source.kernel.org; envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=V+8fpkbi;
+	dkim-atps=neutral
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PY3Sr6hMPz3cFd
-	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Mar 2023 22:18:20 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0VdX95E7_1678446789;
-Received: from 30.221.128.251(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0VdX95E7_1678446789)
-          by smtp.aliyun-inc.com;
-          Fri, 10 Mar 2023 19:13:10 +0800
-Message-ID: <faca55dc-fe0d-9014-ede2-f55124cb4227@linux.alibaba.com>
-Date: Fri, 10 Mar 2023 19:13:09 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PYBcV64qSz3cDM
+	for <linux-erofs@lists.ozlabs.org>; Sat, 11 Mar 2023 03:40:26 +1100 (AEDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by ams.source.kernel.org (Postfix) with ESMTPS id 99E51B82345;
+	Fri, 10 Mar 2023 16:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3F5C433A4;
+	Fri, 10 Mar 2023 16:40:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1678466421;
+	bh=lF4WQCD0iAfVt+U1sHPjQ+RcRXvl9M8ViINfhAY6SF8=;
+	h=Date:From:To:Cc:Subject:From;
+	b=V+8fpkbisZNTc39jlqnOxlbNiBvxEmUYsdJ6F+oOUw5nJLfqqE5Wii6BgLDDlRhSi
+	 1PclQm+31z6r8bt8mmvNFxEvnpnXOmXSJ7BnP+RE47Duofyqx2ZJFc0CsZ5dmgb4aY
+	 joyrhG63M+GrXerqaZ0BH1+A8aHZn6/HJhPBkGpsAjq4qrrLOnvJZmuVFQ1GHmUk0H
+	 In9SlABlwBMhAHMuIcVdU8S/fZQUqNwSjToOLJXwD5/gFxtUzBBeMpDTwQfXtIqL1t
+	 1aTaG60cy0CcRSXVGGVEb6XXbAZpqAInHN7GswlWb4PJVhKNloaAgumwiBQeftif48
+	 44ASInrgcn9gg==
+Date: Sat, 11 Mar 2023 00:40:14 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] erofs fixes for 6.3-rc2
+Message-ID: <ZAtdbhFmLD4MCRk+@debian>
+Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>,
+	Yangtao Li <frank.li@vivo.com>, Yue Hu <huyue2@coolpad.com>,
+	Chao Yu <chao@kernel.org>, Jingbo Xu <jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH v4 4/5] ocfs2: convert to use i_blockmask()
-To: Yangtao Li <frank.li@vivo.com>, xiang@kernel.org, chao@kernel.org,
- huyue2@coolpad.com, jefflexu@linux.alibaba.com, tytso@mit.edu,
- adilger.kernel@dilger.ca, rpeterso@redhat.com, agruenba@redhat.com,
- mark@fasheh.com, jlbec@evilplan.org, viro@zeniv.linux.org.uk,
- brauner@kernel.org
-References: <20230310054829.4241-1-frank.li@vivo.com>
- <20230310054829.4241-4-frank.li@vivo.com>
-Content-Language: en-US
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20230310054829.4241-4-frank.li@vivo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -50,50 +61,64 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, cluster-devel@redhat.com, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org, linux-erofs@lists.ozlabs.org, ocfs2-devel@oss.oracle.com
+Cc: Yangtao Li <frank.li@vivo.com>, LKML <linux-kernel@vger.kernel.org>, Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Hi Linus,
 
+Could you consider these fixes for 6.3-rc2?
 
-On 3/10/23 1:48 PM, Yangtao Li wrote:
-> Use i_blockmask() to simplify code. BTW convert ocfs2_is_io_unaligned
-> to return bool type and the fact that the value will be the same
-> (i.e. that ->i_blkbits is never changed by ocfs2).
-> 
-> Signed-off-by: Yangtao Li <frank.li@vivo.com>
-> ---
->  fs/ocfs2/file.c | 9 ++-------
->  1 file changed, 2 insertions(+), 7 deletions(-)
-> 
-> diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-> index efb09de4343d..7fd06a4d27d4 100644
-> --- a/fs/ocfs2/file.c
-> +++ b/fs/ocfs2/file.c
-> @@ -2159,14 +2159,9 @@ int ocfs2_check_range_for_refcount(struct inode *inode, loff_t pos,
->  	return ret;
->  }
->  
-> -static int ocfs2_is_io_unaligned(struct inode *inode, size_t count, loff_t pos)
-> +static bool ocfs2_is_io_unaligned(struct inode *inode, size_t count, loff_t pos)
->  {
-> -	int blockmask = inode->i_sb->s_blocksize - 1;
-> -	loff_t final_size = pos + count;
-> -
-> -	if ((pos & blockmask) || (final_size & blockmask))
-> -		return 1;
-> -	return 0;
-> +	return ((pos | count) & i_blockmask(inode)) != 0;
+The most important one reverts an improper fix which can cause an
+unexpected warning more often on specific images, and another one
+fixes LZMA decompression on 32-bit platforms.  The others are minor
+fixes and cleanups.
 
-Or !!((pos | count) & i_blockmask(inode))?
-
-My concern is just like erofs, we'd better get vfs helper into mainline
-first. Or can we fold the whole series into one patch? Since it's simple
-enough I think.
+All commits have been in -next and tested without strange happening.
 
 Thanks,
-Joseph
+Gao Xiang
 
->  }
->  
->  static int ocfs2_inode_lock_for_extent_tree(struct inode *inode,
+The following changes since commit fe15c26ee26efa11741a7b632e9f23b01aca4cc6:
+
+  Linux 6.3-rc1 (2023-03-05 14:52:03 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.3-rc2-fixes
+
+for you to fetch changes up to 3993f4f456309580445bb515fbc609d995b6a3ae:
+
+  erofs: use wrapper i_blocksize() in erofs_file_read_iter() (2023-03-09 23:36:04 +0800)
+
+----------------------------------------------------------------
+Changes since last update:
+
+ - Fix LZMA decompression failure on HIGHMEM platforms;
+
+ - Revert an inproper fix since it is actually an implementation
+   issue of vmalloc();
+
+ - Avoid a wrong DBG_BUGON since it could be triggered with -EINTR;
+
+ - Minor cleanups.
+
+----------------------------------------------------------------
+Gao Xiang (3):
+      erofs: fix wrong kunmap when using LZMA on HIGHMEM platforms
+      erofs: Revert "erofs: fix kvcalloc() misuse with __GFP_NOFAIL"
+      erofs: get rid of a useless DBG_BUGON
+
+Yangtao Li (1):
+      erofs: mark z_erofs_lzma_init/erofs_pcpubuf_init w/ __init
+
+Yue Hu (1):
+      erofs: use wrapper i_blocksize() in erofs_file_read_iter()
+
+ fs/erofs/data.c              |  2 +-
+ fs/erofs/decompressor_lzma.c |  4 ++--
+ fs/erofs/internal.h          |  4 ++--
+ fs/erofs/pcpubuf.c           |  2 +-
+ fs/erofs/zdata.c             | 12 ++++++------
+ fs/erofs/zmap.c              |  3 ---
+ 6 files changed, 12 insertions(+), 15 deletions(-)
