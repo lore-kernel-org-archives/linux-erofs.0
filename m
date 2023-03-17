@@ -4,30 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63224C74A5B
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Mar 2023 08:50:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68200C74A5B
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Mar 2023 08:50:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PdHs15BDvz3chv
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Mar 2023 19:50:29 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PdHs46fqwz3chB
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Mar 2023 19:50:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PdHrr6c4qz3cMh
-	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Mar 2023 19:50:20 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Ve2QCsX_1679043015;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Ve2QCsX_1679043015)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PdHrs02KWz3cMk
+	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Mar 2023 19:50:19 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Ve2QCpG_1679043010;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Ve2QCpG_1679043010)
           by smtp.aliyun-inc.com;
-          Fri, 17 Mar 2023 16:50:16 +0800
+          Fri, 17 Mar 2023 16:50:14 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/2] erofs-utils: lazy write directory data
-Date: Fri, 17 Mar 2023 16:50:09 +0800
-Message-Id: <20230317085009.15435-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/2] erofs-utils: fix up nlink for d_type unsupported fses
+Date: Fri, 17 Mar 2023 16:50:08 +0800
+Message-Id: <20230317085009.15435-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230317085009.15435-1-hsiangkao@linux.alibaba.com>
-References: <20230317085009.15435-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,85 +43,104 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+i_mode should be used instead for some old random fs.
+
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/cache.h | 11 ++++++-----
- lib/inode.c           |  9 +++++----
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ lib/inode.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-index 1461305..d07a3cb 100644
---- a/include/erofs/cache.h
-+++ b/include/erofs/cache.h
-@@ -19,13 +19,14 @@ struct erofs_buffer_head;
- struct erofs_buffer_block;
- 
- #define DATA		0
--#define META		1
-+#define DIRA		1
-+#define META		2
- /* including inline xattrs, extent */
--#define INODE		2
-+#define INODE		3
- /* shared xattrs */
--#define XATTR		3
-+#define XATTR		4
- /* device table */
--#define DEVT		4
-+#define DEVT		5
- 
- struct erofs_bhops {
- 	bool (*preflush)(struct erofs_buffer_head *bh);
-@@ -54,7 +55,7 @@ struct erofs_buffer_block {
- 
- static inline const int get_alignsize(int type, int *type_ret)
- {
--	if (type == DATA)
-+	if (type == DATA || type == DIRA)
- 		return erofs_blksiz();
- 
- 	if (type == INODE) {
 diff --git a/lib/inode.c b/lib/inode.c
-index ff17295..6fb8ecb 100644
+index 0f49f6e..ff17295 100644
 --- a/lib/inode.c
 +++ b/lib/inode.c
-@@ -142,7 +142,8 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
- 
- /* allocate main data for a inode */
- static int __allocate_inode_bh_data(struct erofs_inode *inode,
--				    unsigned long nblocks)
-+				    unsigned long nblocks,
-+				    int type)
+@@ -182,7 +182,7 @@ static int comp_subdir(const void *a, const void *b)
+ int erofs_prepare_dir_file(struct erofs_inode *dir, unsigned int nr_subdirs)
  {
- 	struct erofs_buffer_head *bh;
- 	int ret;
-@@ -305,7 +306,7 @@ static int erofs_write_dir_file(struct erofs_inode *dir)
- 	q = used = blkno = 0;
+ 	struct erofs_dentry *d, *n, **sorted_d;
+-	unsigned int d_size, i_nlink, i;
++	unsigned int d_size, i;
  
- 	/* allocate dir main data */
--	ret = __allocate_inode_bh_data(dir, erofs_blknr(dir->i_size));
-+	ret = __allocate_inode_bh_data(dir, erofs_blknr(dir->i_size), DIRA);
- 	if (ret)
- 		return ret;
+ 	/* dot is pointed to the current dir inode */
+ 	d = erofs_d_alloc(dir, ".");
+@@ -216,26 +216,14 @@ int erofs_prepare_dir_file(struct erofs_inode *dir, unsigned int nr_subdirs)
  
-@@ -353,7 +354,7 @@ static int erofs_write_file_from_buffer(struct erofs_inode *inode, char *buf)
+ 	/* let's calculate dir size and update i_nlink */
+ 	d_size = 0;
+-	i_nlink = 0;
+ 	list_for_each_entry(d, &dir->i_subdirs, d_child) {
+ 		int len = strlen(d->name) + sizeof(struct erofs_dirent);
  
- 	inode->datalayout = EROFS_INODE_FLAT_INLINE;
+ 		if ((d_size & (erofs_blksiz() - 1)) + len > erofs_blksiz())
+ 			d_size = round_up(d_size, erofs_blksiz());
+ 		d_size += len;
+-
+-		i_nlink += (d->type == EROFS_FT_DIR);
+ 	}
+ 	dir->i_size = d_size;
+-	/*
+-	 * if there're too many subdirs as compact form, set nlink=1
+-	 * rather than upgrade to use extented form instead.
+-	 */
+-	if (i_nlink > USHRT_MAX &&
+-	    dir->inode_isize == sizeof(struct erofs_inode_compact))
+-		dir->i_nlink = 1;
+-	else
+-		dir->i_nlink = i_nlink;
  
--	ret = __allocate_inode_bh_data(inode, nblocks);
-+	ret = __allocate_inode_bh_data(inode, nblocks, DATA);
- 	if (ret)
- 		return ret;
+ 	/* no compression for all dirs */
+ 	dir->datalayout = EROFS_INODE_FLAT_INLINE;
+@@ -1039,7 +1027,7 @@ static int erofs_mkfs_build_tree(struct erofs_inode *dir, struct list_head *dirs
+ 	DIR *_dir;
+ 	struct dirent *dp;
+ 	struct erofs_dentry *d;
+-	unsigned int nr_subdirs;
++	unsigned int nr_subdirs, i_nlink;
  
-@@ -386,7 +387,7 @@ static int write_uncompressed_file_from_fd(struct erofs_inode *inode, int fd)
- 	inode->datalayout = EROFS_INODE_FLAT_INLINE;
- 	nblocks = inode->i_size / erofs_blksiz();
+ 	ret = erofs_prepare_xattr_ibody(dir);
+ 	if (ret < 0)
+@@ -1100,10 +1088,6 @@ static int erofs_mkfs_build_tree(struct erofs_inode *dir, struct list_head *dirs
+ 			goto err_closedir;
+ 		}
+ 		nr_subdirs++;
+-
+-		/* to count i_nlink for directories */
+-		d->type = (dp->d_type == DT_DIR ?
+-			EROFS_FT_DIR : EROFS_FT_UNKNOWN);
+ 	}
  
--	ret = __allocate_inode_bh_data(inode, nblocks);
-+	ret = __allocate_inode_bh_data(inode, nblocks, DATA);
- 	if (ret)
- 		return ret;
+ 	if (errno) {
+@@ -1124,6 +1108,7 @@ static int erofs_mkfs_build_tree(struct erofs_inode *dir, struct list_head *dirs
+ 	if (IS_ROOT(dir))
+ 		erofs_fixup_meta_blkaddr(dir);
  
++	i_nlink = 0;
+ 	list_for_each_entry(d, &dir->i_subdirs, d_child) {
+ 		char buf[PATH_MAX];
+ 		unsigned char ftype;
+@@ -1159,12 +1144,21 @@ fail:
+ 			++dir->subdirs_queued;
+ 		}
+ 		ftype = erofs_mode_to_ftype(inode->i_mode);
+-		DBG_BUGON(ftype == EROFS_FT_DIR && d->type != ftype);
++		i_nlink += (ftype == EROFS_FT_DIR);
+ 		d->inode = inode;
+ 		d->type = ftype;
+ 		erofs_info("file %s/%s dumped (type %u)",
+ 			   dir->i_srcpath, d->name, d->type);
+ 	}
++	/*
++	 * if there're too many subdirs as compact form, set nlink=1
++	 * rather than upgrade to use extented form instead.
++	 */
++	if (i_nlink > USHRT_MAX &&
++	    dir->inode_isize == sizeof(struct erofs_inode_compact))
++		dir->i_nlink = 1;
++	else
++		dir->i_nlink = i_nlink;
+ 	return 0;
+ 
+ err_closedir:
 -- 
 2.24.4
 
