@@ -4,61 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0F645C6FD18
-	for <linux-erofs@archiver.kernel.org>; Thu, 30 Mar 2023 02:28:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3EDF3C77B62
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Mar 2023 08:29:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Pn6m71SkRz3f7V
-	for <linux-erofs@archiver.kernel.org>; Thu, 30 Mar 2023 13:28:23 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=mHjjV6LM;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=134.134.136.31; helo=mga06.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=mHjjV6LM;
-	dkim-atps=neutral
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PnGmj3cRPz3f4f
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Mar 2023 19:29:25 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Pn6l75SqFz3cFT
-	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Mar 2023 13:27:31 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680143252; x=1711679252;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=IpRH8+91MR+dhRqf4EN3rZ/1PGFJ24voBaXkrjfSCVw=;
-  b=mHjjV6LMK8Q54Qn/ve6ICK2Naj26C2mlrfsuhU93m8W+/Dy4SPPidUHv
-   MDQ8snSQ1Z9R/lnllWJS1mRc1do9Ln0bc/8QaHelVWAxb0rLnPIaLAhoC
-   EV41J1GWYJH+NrGTJT95eoQY2325Y528o610tjGVOysWsWPVgOGaYilo7
-   6T7b+tSxHb0RGvQSA0cTSKxua2g2sxc25YxKlSseachUVOz41HKlzFzd6
-   BzIhiGjhNci/6GsIUnPqBoWxeYq8D5wkdqa0GmMeajnTLjivz8vFnHUwj
-   DNT7nod51JUIlLORwO3DpPWE86AP2v4XQFxTTx8rmoqW/EYeCfe3SVpAI
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10664"; a="403697649"
-X-IronPort-AV: E=Sophos;i="5.98,301,1673942400"; 
-   d="scan'208";a="403697649"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2023 19:27:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10664"; a="753819395"
-X-IronPort-AV: E=Sophos;i="5.98,301,1673942400"; 
-   d="scan'208";a="753819395"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 29 Mar 2023 19:27:22 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1phi0X-000KBY-1n;
-	Thu, 30 Mar 2023 02:27:21 +0000
-Date: Thu, 30 Mar 2023 10:27:04 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 13ca2171581d15a38dd20ee9f73e22391cf930e2
-Message-ID: <6424f378.03YDYN2tfiKwa1Zi%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PnGmY4zcRz3c7X
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Mar 2023 19:29:16 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VezocA0_1680164951;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VezocA0_1680164951)
+          by smtp.aliyun-inc.com;
+          Thu, 30 Mar 2023 16:29:12 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 1/8] erofs: move several xattr helpers into xattr.c
+Date: Thu, 30 Mar 2023 16:29:03 +0800
+Message-Id: <20230330082910.125374-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230330082910.125374-1-jefflexu@linux.alibaba.com>
+References: <20230330082910.125374-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,218 +44,146 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 13ca2171581d15a38dd20ee9f73e22391cf930e2  erofs: tidy up EROFS on-disk naming
+Move xattrblock_addr() and xattrblock_offset() helpers into xattr.c,
+as they are not used outside of xattr.c.
 
-elapsed time: 732m
+inlinexattr_header_size() has only one caller, and thus make it inlined
+into the caller directly.
 
-configs tested: 195
-configs skipped: 26
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ fs/erofs/xattr.c | 48 +++++++++++++++++++++++++++++-------------------
+ fs/erofs/xattr.h | 23 -----------------------
+ 2 files changed, 29 insertions(+), 42 deletions(-)
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-tested configs:
-alpha                             allnoconfig   gcc  
-alpha                            allyesconfig   gcc  
-alpha                               defconfig   gcc  
-alpha                randconfig-r004-20230329   gcc  
-alpha                randconfig-r006-20230329   gcc  
-alpha                randconfig-r023-20230329   gcc  
-arc                               allnoconfig   gcc  
-arc                              allyesconfig   gcc  
-arc          buildonly-randconfig-r002-20230329   gcc  
-arc          buildonly-randconfig-r005-20230329   gcc  
-arc                                 defconfig   gcc  
-arc                 nsimosci_hs_smp_defconfig   gcc  
-arc                  randconfig-r005-20230329   gcc  
-arc                  randconfig-r013-20230329   gcc  
-arc                  randconfig-r016-20230329   gcc  
-arc                  randconfig-r033-20230329   gcc  
-arc                  randconfig-r043-20230329   gcc  
-arm                              allmodconfig   gcc  
-arm                               allnoconfig   gcc  
-arm                              allyesconfig   gcc  
-arm                         axm55xx_defconfig   gcc  
-arm          buildonly-randconfig-r003-20230329   gcc  
-arm          buildonly-randconfig-r006-20230329   gcc  
-arm                                 defconfig   gcc  
-arm                            hisi_defconfig   gcc  
-arm                         lpc18xx_defconfig   gcc  
-arm                             pxa_defconfig   gcc  
-arm                  randconfig-r025-20230329   gcc  
-arm                  randconfig-r046-20230329   gcc  
-arm64                            allyesconfig   gcc  
-arm64        buildonly-randconfig-r001-20230329   gcc  
-arm64        buildonly-randconfig-r002-20230329   gcc  
-arm64                               defconfig   gcc  
-arm64                randconfig-r013-20230329   clang
-arm64                randconfig-r026-20230329   clang
-arm64                randconfig-r032-20230329   gcc  
-arm64                randconfig-r036-20230329   gcc  
-csky                                defconfig   gcc  
-csky                 randconfig-r003-20230329   gcc  
-csky                 randconfig-r004-20230329   gcc  
-csky                 randconfig-r011-20230329   gcc  
-csky                 randconfig-r026-20230329   gcc  
-hexagon              randconfig-r016-20230329   clang
-hexagon              randconfig-r033-20230329   clang
-hexagon              randconfig-r041-20230329   clang
-hexagon              randconfig-r045-20230329   clang
-i386                              allnoconfig   gcc  
-i386                             allyesconfig   gcc  
-i386                              debian-10.3   gcc  
-i386                                defconfig   gcc  
-i386                          randconfig-a002   clang
-i386                          randconfig-a004   clang
-i386                          randconfig-a006   clang
-i386                          randconfig-a012   gcc  
-i386                          randconfig-a014   gcc  
-i386                          randconfig-a016   gcc  
-i386                          randconfig-c001   gcc  
-ia64                             allmodconfig   gcc  
-ia64         buildonly-randconfig-r005-20230329   gcc  
-ia64                                defconfig   gcc  
-ia64                 randconfig-r004-20230329   gcc  
-ia64                 randconfig-r005-20230329   gcc  
-ia64                 randconfig-r036-20230329   gcc  
-loongarch                        allmodconfig   gcc  
-loongarch                         allnoconfig   gcc  
-loongarch    buildonly-randconfig-r003-20230329   gcc  
-loongarch                           defconfig   gcc  
-loongarch                 loongson3_defconfig   gcc  
-loongarch            randconfig-r002-20230329   gcc  
-loongarch            randconfig-r006-20230329   gcc  
-loongarch            randconfig-r015-20230329   gcc  
-loongarch            randconfig-r022-20230329   gcc  
-loongarch            randconfig-r023-20230329   gcc  
-m68k                             allmodconfig   gcc  
-m68k                          amiga_defconfig   gcc  
-m68k                                defconfig   gcc  
-m68k                 randconfig-r002-20230329   gcc  
-m68k                 randconfig-r004-20230329   gcc  
-m68k                 randconfig-r015-20230329   gcc  
-m68k                 randconfig-r031-20230329   gcc  
-m68k                 randconfig-r035-20230329   gcc  
-microblaze   buildonly-randconfig-r004-20230329   gcc  
-microblaze   buildonly-randconfig-r005-20230329   gcc  
-microblaze   buildonly-randconfig-r006-20230329   gcc  
-microblaze           randconfig-r005-20230329   gcc  
-microblaze           randconfig-r016-20230329   gcc  
-microblaze           randconfig-r021-20230329   gcc  
-microblaze           randconfig-r032-20230329   gcc  
-mips                             allmodconfig   gcc  
-mips                             allyesconfig   gcc  
-mips                      bmips_stb_defconfig   clang
-mips                           ip32_defconfig   gcc  
-mips                      loongson3_defconfig   gcc  
-mips                    maltaup_xpa_defconfig   gcc  
-mips                 randconfig-r001-20230329   clang
-mips                 randconfig-r015-20230329   gcc  
-mips                 randconfig-r025-20230329   gcc  
-nios2        buildonly-randconfig-r005-20230329   gcc  
-nios2                               defconfig   gcc  
-nios2                randconfig-r005-20230329   gcc  
-nios2                randconfig-r006-20230329   gcc  
-nios2                randconfig-r012-20230329   gcc  
-nios2                randconfig-r016-20230329   gcc  
-nios2                randconfig-r024-20230329   gcc  
-nios2                randconfig-r031-20230329   gcc  
-nios2                randconfig-r033-20230329   gcc  
-nios2                randconfig-r035-20230329   gcc  
-openrisc     buildonly-randconfig-r003-20230329   gcc  
-openrisc     buildonly-randconfig-r006-20230329   gcc  
-openrisc             randconfig-r006-20230329   gcc  
-openrisc             randconfig-r021-20230329   gcc  
-openrisc             randconfig-r026-20230329   gcc  
-openrisc             randconfig-r034-20230329   gcc  
-openrisc             randconfig-r036-20230329   gcc  
-parisc       buildonly-randconfig-r005-20230329   gcc  
-parisc       buildonly-randconfig-r006-20230329   gcc  
-parisc                              defconfig   gcc  
-parisc64                            defconfig   gcc  
-powerpc                          allmodconfig   gcc  
-powerpc                           allnoconfig   gcc  
-powerpc                      arches_defconfig   gcc  
-powerpc                      chrp32_defconfig   gcc  
-powerpc                       ebony_defconfig   clang
-powerpc                       holly_defconfig   gcc  
-powerpc                 mpc834x_itx_defconfig   gcc  
-powerpc                     rainier_defconfig   gcc  
-powerpc              randconfig-r003-20230329   gcc  
-powerpc              randconfig-r011-20230329   clang
-powerpc              randconfig-r032-20230329   gcc  
-powerpc              randconfig-r034-20230329   gcc  
-riscv                            allmodconfig   gcc  
-riscv                             allnoconfig   gcc  
-riscv                               defconfig   gcc  
-riscv                randconfig-r022-20230329   clang
-riscv                randconfig-r042-20230329   clang
-riscv                          rv32_defconfig   gcc  
-s390                             allmodconfig   gcc  
-s390                             allyesconfig   gcc  
-s390                          debug_defconfig   gcc  
-s390                                defconfig   gcc  
-s390                 randconfig-r001-20230329   gcc  
-s390                 randconfig-r002-20230329   gcc  
-s390                 randconfig-r003-20230329   gcc  
-s390                 randconfig-r005-20230329   gcc  
-s390                 randconfig-r014-20230329   clang
-s390                 randconfig-r015-20230329   clang
-s390                 randconfig-r023-20230329   clang
-s390                 randconfig-r035-20230329   gcc  
-s390                 randconfig-r044-20230329   clang
-sh                               allmodconfig   gcc  
-sh                        dreamcast_defconfig   gcc  
-sh                         microdev_defconfig   gcc  
-sh                            migor_defconfig   gcc  
-sh                   randconfig-r022-20230329   gcc  
-sh                          rsk7264_defconfig   gcc  
-sparc                             allnoconfig   gcc  
-sparc        buildonly-randconfig-r001-20230329   gcc  
-sparc        buildonly-randconfig-r003-20230329   gcc  
-sparc        buildonly-randconfig-r006-20230329   gcc  
-sparc                               defconfig   gcc  
-sparc                randconfig-r006-20230329   gcc  
-sparc                randconfig-r024-20230329   gcc  
-sparc64      buildonly-randconfig-r003-20230329   gcc  
-sparc64              randconfig-r013-20230329   gcc  
-sparc64              randconfig-r031-20230329   gcc  
-um                             i386_defconfig   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                            allnoconfig   gcc  
-x86_64                           allyesconfig   gcc  
-x86_64                              defconfig   gcc  
-x86_64                                  kexec   gcc  
-x86_64                        randconfig-a001   clang
-x86_64                        randconfig-a002   gcc  
-x86_64                        randconfig-a003   clang
-x86_64                        randconfig-a004   gcc  
-x86_64                        randconfig-a005   clang
-x86_64                        randconfig-a006   gcc  
-x86_64                        randconfig-a011   gcc  
-x86_64                        randconfig-a012   clang
-x86_64                        randconfig-a013   gcc  
-x86_64                        randconfig-a014   clang
-x86_64                        randconfig-a015   gcc  
-x86_64                        randconfig-a016   clang
-x86_64                        randconfig-k001   clang
-x86_64                          rhel-8.3-func   gcc  
-x86_64                    rhel-8.3-kselftests   gcc  
-x86_64                           rhel-8.3-ltp   gcc  
-x86_64                               rhel-8.3   gcc  
-xtensa       buildonly-randconfig-r004-20230329   gcc  
-xtensa               randconfig-r002-20230329   gcc  
-xtensa               randconfig-r003-20230329   gcc  
-xtensa               randconfig-r012-20230329   gcc  
-xtensa               randconfig-r021-20230329   gcc  
-xtensa               randconfig-r024-20230329   gcc  
-xtensa               randconfig-r033-20230329   gcc  
-
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 459caa3cd65d..9ccd57581bc7 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -7,6 +7,19 @@
+ #include <linux/security.h>
+ #include "xattr.h"
+ 
++static inline erofs_blk_t erofs_xattr_blkaddr(struct super_block *sb,
++					      unsigned int xattr_id)
++{
++	return EROFS_SB(sb)->xattr_blkaddr +
++	       erofs_blknr(sb, xattr_id * sizeof(__u32));
++}
++
++static inline unsigned int erofs_xattr_blkoff(struct super_block *sb,
++					      unsigned int xattr_id)
++{
++	return erofs_blkoff(sb, xattr_id * sizeof(__u32));
++}
++
+ struct xattr_iter {
+ 	struct super_block *sb;
+ 	struct erofs_buf buf;
+@@ -157,7 +170,8 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
+ 	struct erofs_inode *const vi = EROFS_I(inode);
+ 	unsigned int xattr_header_sz, inline_xattr_ofs;
+ 
+-	xattr_header_sz = inlinexattr_header_size(inode);
++	xattr_header_sz = sizeof(struct erofs_xattr_ibody_header) +
++			  sizeof(u32) * vi->xattr_shared_count;
+ 	if (xattr_header_sz >= vi->xattr_isize) {
+ 		DBG_BUGON(xattr_header_sz > vi->xattr_isize);
+ 		return -ENOATTR;
+@@ -351,20 +365,18 @@ static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
+ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
+ {
+ 	struct erofs_inode *const vi = EROFS_I(inode);
+-	struct super_block *const sb = inode->i_sb;
+-	unsigned int i;
++	struct super_block *const sb = it->it.sb;
++	unsigned int i, xsid;
+ 	int ret = -ENOATTR;
+ 
+ 	for (i = 0; i < vi->xattr_shared_count; ++i) {
+-		erofs_blk_t blkaddr =
+-			xattrblock_addr(sb, vi->xattr_shared_xattrs[i]);
+-
+-		it->it.ofs = xattrblock_offset(sb, vi->xattr_shared_xattrs[i]);
+-		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb, blkaddr,
+-						  EROFS_KMAP);
++		xsid = vi->xattr_shared_xattrs[i];
++		it->it.blkaddr = erofs_xattr_blkaddr(sb, xsid);
++		it->it.ofs = erofs_xattr_blkoff(sb, xsid);
++		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb,
++						  it->it.blkaddr, EROFS_KMAP);
+ 		if (IS_ERR(it->it.kaddr))
+ 			return PTR_ERR(it->it.kaddr);
+-		it->it.blkaddr = blkaddr;
+ 
+ 		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
+ 		if (ret != -ENOATTR)
+@@ -562,20 +574,18 @@ static int shared_listxattr(struct listxattr_iter *it)
+ {
+ 	struct inode *const inode = d_inode(it->dentry);
+ 	struct erofs_inode *const vi = EROFS_I(inode);
+-	struct super_block *const sb = inode->i_sb;
+-	unsigned int i;
++	struct super_block *const sb = it->it.sb;
++	unsigned int i, xsid;
+ 	int ret = 0;
+ 
+ 	for (i = 0; i < vi->xattr_shared_count; ++i) {
+-		erofs_blk_t blkaddr =
+-			xattrblock_addr(sb, vi->xattr_shared_xattrs[i]);
+-
+-		it->it.ofs = xattrblock_offset(sb, vi->xattr_shared_xattrs[i]);
+-		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb, blkaddr,
+-						  EROFS_KMAP);
++		xsid = vi->xattr_shared_xattrs[i];
++		it->it.blkaddr = erofs_xattr_blkaddr(sb, xsid);
++		it->it.ofs = erofs_xattr_blkoff(sb, xsid);
++		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb,
++						  it->it.blkaddr, EROFS_KMAP);
+ 		if (IS_ERR(it->it.kaddr))
+ 			return PTR_ERR(it->it.kaddr);
+-		it->it.blkaddr = blkaddr;
+ 
+ 		ret = xattr_foreach(&it->it, &list_xattr_handlers, NULL);
+ 		if (ret)
+diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
+index f7a21aaa9755..a65158cba14f 100644
+--- a/fs/erofs/xattr.h
++++ b/fs/erofs/xattr.h
+@@ -13,29 +13,6 @@
+ /* Attribute not found */
+ #define ENOATTR         ENODATA
+ 
+-static inline unsigned int inlinexattr_header_size(struct inode *inode)
+-{
+-	return sizeof(struct erofs_xattr_ibody_header) +
+-		sizeof(u32) * EROFS_I(inode)->xattr_shared_count;
+-}
+-
+-static inline erofs_blk_t xattrblock_addr(struct super_block *sb,
+-					  unsigned int xattr_id)
+-{
+-#ifdef CONFIG_EROFS_FS_XATTR
+-	return EROFS_SB(sb)->xattr_blkaddr +
+-		xattr_id * sizeof(__u32) / sb->s_blocksize;
+-#else
+-	return 0;
+-#endif
+-}
+-
+-static inline unsigned int xattrblock_offset(struct super_block *sb,
+-					     unsigned int xattr_id)
+-{
+-	return (xattr_id * sizeof(__u32)) % sb->s_blocksize;
+-}
+-
+ #ifdef CONFIG_EROFS_FS_XATTR
+ extern const struct xattr_handler erofs_xattr_user_handler;
+ extern const struct xattr_handler erofs_xattr_trusted_handler;
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.19.1.6.gb485710b
+
