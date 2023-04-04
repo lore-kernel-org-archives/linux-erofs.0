@@ -4,77 +4,77 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1AEAEC6FD1D
-	for <linux-erofs@archiver.kernel.org>; Tue,  4 Apr 2023 14:56:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2DC3BC6FD1D
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Apr 2023 14:56:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PrW7M4J6pz3chl
-	for <linux-erofs@archiver.kernel.org>; Wed,  5 Apr 2023 00:56:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PrW7S56Tnz3chn
+	for <linux-erofs@archiver.kernel.org>; Wed,  5 Apr 2023 00:56:52 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JfrvipBi;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JfrvipBi;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iH+nbK5q;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ImDSuhlG;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=aalbersh@redhat.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JfrvipBi;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JfrvipBi;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iH+nbK5q;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ImDSuhlG;
 	dkim-atps=neutral
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PrW6d1BBmz3cdk
-	for <linux-erofs@lists.ozlabs.org>; Wed,  5 Apr 2023 00:56:08 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PrW6f1sxgz3chZ
+	for <linux-erofs@lists.ozlabs.org>; Wed,  5 Apr 2023 00:56:09 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1680620166;
+	s=mimecast20190719; t=1680620162;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=O6TxF2wDPSZ8VkfH+UnP0K94pMIAUpQJ5kpEzKyPwfU=;
-	b=JfrvipBiIFhdSdgZTCgqIzMaLIddv1dx8expUxfLA7mV00/AXfKHfV/xp9pDgXqSRjE+9+
-	xLVQFKFWTc6Z2YbJmCBYTREHowZOtU30dNTMf4ma+R6FXPIKKvx5OjY/evalJDWOKlW5jy
-	2MYQ3nOxZilj2fxp6zeVBo05BnOGhic=
+	bh=EljYz9VZ7nVcMno61oSjo4fgwJueEqLgTdTvZAW6Ojc=;
+	b=iH+nbK5q39E4c9PFJ4QR3Rsu8rNkJQR6KY8YZNwRotCSdqXwU33Itv+BKtjBvLQrPMQqxY
+	t6dtL7rjDqd+1CF7gE7dV/TzWFa0A+Wo4bDcs63AYxTYQLCbKc/fRx5kB+K18C3AcvhUFX
+	lsQDaQIUNJ6irAiIz5EQIy0M8qRJirw=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1680620166;
+	s=mimecast20190719; t=1680620165;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=O6TxF2wDPSZ8VkfH+UnP0K94pMIAUpQJ5kpEzKyPwfU=;
-	b=JfrvipBiIFhdSdgZTCgqIzMaLIddv1dx8expUxfLA7mV00/AXfKHfV/xp9pDgXqSRjE+9+
-	xLVQFKFWTc6Z2YbJmCBYTREHowZOtU30dNTMf4ma+R6FXPIKKvx5OjY/evalJDWOKlW5jy
-	2MYQ3nOxZilj2fxp6zeVBo05BnOGhic=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EljYz9VZ7nVcMno61oSjo4fgwJueEqLgTdTvZAW6Ojc=;
+	b=ImDSuhlG5QewArii4DMyDfC/hYJ7Z09J4+sR3h0UqmfX/yj0LQE6Npb12AZOXMNr7Iyo1L
+	Hztm/9k6qStJIOxP28AIva6zv8YIXyE3rm1BtjbSfj7EP9TtdwAv4jeKGt0FwpAChh+pZA
+	weFaUcAvTbIlVoaaQl3Gsrsll87ThbU=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-519-a-xfzd1jPXCG_71pCQwT8A-1; Tue, 04 Apr 2023 10:56:01 -0400
-X-MC-Unique: a-xfzd1jPXCG_71pCQwT8A-1
-Received: by mail-qt1-f198.google.com with SMTP id v7-20020a05622a188700b003e0e27bbc2eso22247865qtc.8
-        for <linux-erofs@lists.ozlabs.org>; Tue, 04 Apr 2023 07:56:00 -0700 (PDT)
+ us-mta-621-XugoP0cdNxKimCaxdD6kQQ-1; Tue, 04 Apr 2023 10:54:52 -0400
+X-MC-Unique: XugoP0cdNxKimCaxdD6kQQ-1
+Received: by mail-qk1-f199.google.com with SMTP id c186-20020a379ac3000000b007484744a472so14538927qke.22
+        for <linux-erofs@lists.ozlabs.org>; Tue, 04 Apr 2023 07:54:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680620160;
+        d=1e100.net; s=20210112; t=1680620088;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=O6TxF2wDPSZ8VkfH+UnP0K94pMIAUpQJ5kpEzKyPwfU=;
-        b=jBpYhIhVupuBNdiOhSnOpBvkeq1/UGBBPh0J4NXlqy/wbSVZhnKEWFYcIgSvc9gIrf
-         AbfMNiRt52WTY8aLkw3OcyJA6vbYLOeq8uKDWuti8AM8lQNMdER9+RPeKraV6gp1N45u
-         vsfWHLbIaL3f3CP2D9T4V5fKfNbIzqPTRBsyKab6b9pwjBhU085D1nfhXbYiRA32OIzP
-         QvPluEmRuERFHMR3VSWd7VpwiozoFHXvytcTOre6QF8XK9EzAPI2gLJAhyCoOD0gHa6k
-         sFg1WI0wGPChDHkrKR619xtV8IHWHDCxZdvmLTya6HSeANsFWoNZG4M5omiS5G1c/KnB
-         arYQ==
-X-Gm-Message-State: AAQBX9d+/Pjis7pFSe3yWgRzkYAQB5jF4L4AwZgTODyFQT7nXHOdlOYT
-	yw/TLSCGAmYLo0qRO5R7M3q72s9RZQpbhX3NqSy1BFisQ7+5aw3GHuhhwiK4xlsCS2EwHFH+q1/
-	u8ir1uOaYlBuwvbC1cOQM5f8=
-X-Received: by 2002:ac8:5b8f:0:b0:3e3:9502:8dfc with SMTP id a15-20020ac85b8f000000b003e395028dfcmr4467464qta.9.1680620159963;
-        Tue, 04 Apr 2023 07:55:59 -0700 (PDT)
-X-Google-Smtp-Source: AKy350a7eyzBLFAVwLtkZzZp5jojS6UQc2rD1+xfGSjK6d6WcBELJ7jmQgpE+gezZ7mdNPw1AFtdEg==
-X-Received: by 2002:ac8:5b8f:0:b0:3e3:9502:8dfc with SMTP id a15-20020ac85b8f000000b003e395028dfcmr4467424qta.9.1680620159602;
-        Tue, 04 Apr 2023 07:55:59 -0700 (PDT)
+        bh=EljYz9VZ7nVcMno61oSjo4fgwJueEqLgTdTvZAW6Ojc=;
+        b=0mRdr//NSBOTynLAQQLa3cFU5wG+SXcZLNxr1iNyWYA1NehCJRts2dTYTvoIifM/cX
+         4igGAEO86BSmZqD1EB1n91CTEyRp8ZYBTnQl4lxp3IY7iJ0+2urev/j9eeZFPWpzt783
+         nMxW7avBx/yyaaR5vqFUmOG+bNgsf7O1anw70jxrIXSnyamt92Gkf6DIruvJQZ4AUuR+
+         tT7bkDof652h9SLEM7yEqf6QUX1G5HGJpi+pNk/AiubcYam1vqvVeve4Devx5SxLT601
+         d6jUmDyEk2JWvAZ/AvXgUYsnOMuWMjbHCeICLPH2KyUG1UZdsO4gU2XGgOu6XX33HSyP
+         HJNA==
+X-Gm-Message-State: AAQBX9fDYZhTVsJlT8KVX65aCz5Fh4N95QzHdKxjBc/tNZPzcjSLZZzQ
+	T4SEX6tGQmHoVMzUGqhoBHgRvgiolxRfsLsyuz+qBC1t6TjU1zkFuGOXURiYfkZ3FyxNXDqtMll
+	SpkIW01SYqj4TR7EbyM9D0O0=
+X-Received: by 2002:ad4:5be5:0:b0:5df:4d41:954d with SMTP id k5-20020ad45be5000000b005df4d41954dmr4197907qvc.3.1680620087802;
+        Tue, 04 Apr 2023 07:54:47 -0700 (PDT)
+X-Google-Smtp-Source: AKy350awxiwQj29WkT4ggcZAS6daFPDjxiKszMVMUv7HrI39sj994HHwSVJ4OpAB2k+VsVfNFDI7fw==
+X-Received: by 2002:ad4:5be5:0:b0:5df:4d41:954d with SMTP id k5-20020ad45be5000000b005df4d41954dmr4197864qvc.3.1680620087448;
+        Tue, 04 Apr 2023 07:54:47 -0700 (PDT)
 Received: from aalbersh.remote.csb ([109.183.6.197])
-        by smtp.gmail.com with ESMTPSA id j4-20020ac86644000000b003e6387431dcsm3296539qtp.7.2023.04.04.07.55.56
+        by smtp.gmail.com with ESMTPSA id j4-20020ac86644000000b003e6387431dcsm3296539qtp.7.2023.04.04.07.54.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Apr 2023 07:55:59 -0700 (PDT)
+        Tue, 04 Apr 2023 07:54:47 -0700 (PDT)
 From: Andrey Albershteyn <aalbersh@redhat.com>
 To: djwong@kernel.org,
 	dchinner@redhat.com,
@@ -82,9 +82,9 @@ To: djwong@kernel.org,
 	hch@infradead.org,
 	linux-xfs@vger.kernel.org,
 	fsverity@lists.linux.dev
-Subject: [PATCH v2 23/23] xfs: enable ro-compat fs-verity flag
-Date: Tue,  4 Apr 2023 16:53:19 +0200
-Message-Id: <20230404145319.2057051-24-aalbersh@redhat.com>
+Subject: [PATCH v2 02/23] xfs: add parent pointer support to attribute code
+Date: Tue,  4 Apr 2023 16:52:58 +0200
+Message-Id: <20230404145319.2057051-3-aalbersh@redhat.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20230404145319.2057051-1-aalbersh@redhat.com>
 References: <20230404145319.2057051-1-aalbersh@redhat.com>
@@ -104,38 +104,91 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-ext4@vger.kernel.org, agruenba@redhat.com, damien.lemoal@opensource.wdc.com, linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com, rpeterso@redhat.com, jth@kernel.org, linux-erofs@lists.ozlabs.org, Andrey Albershteyn <aalbersh@redhat.com>, linux-btrfs@vger.kernel.org
+Cc: linux-ext4@vger.kernel.org, agruenba@redhat.com, damien.lemoal@opensource.wdc.com, linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com, Allison Henderson <allison.henderson@oracle.com>, rpeterso@redhat.com, jth@kernel.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, Mark Tinguely <tinguely@sgi.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Finalize fs-verity integration in XFS by making kernel fs-verity
-aware with ro-compat flag.
+From: Allison Henderson <allison.henderson@oracle.com>
 
-Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
+Add the new parent attribute type. XFS_ATTR_PARENT is used only for parent pointer
+entries; it uses reserved blocks like XFS_ATTR_ROOT.
+
+Signed-off-by: Mark Tinguely <tinguely@sgi.com>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Allison Henderson <allison.henderson@oracle.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/libxfs/xfs_format.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/xfs/libxfs/xfs_attr.c       | 4 +++-
+ fs/xfs/libxfs/xfs_da_format.h  | 5 ++++-
+ fs/xfs/libxfs/xfs_log_format.h | 1 +
+ fs/xfs/scrub/attr.c            | 2 +-
+ 4 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_format.h b/fs/xfs/libxfs/xfs_format.h
-index ccb2ae5c2c93..a21612319765 100644
---- a/fs/xfs/libxfs/xfs_format.h
-+++ b/fs/xfs/libxfs/xfs_format.h
-@@ -355,10 +355,11 @@ xfs_sb_has_compat_feature(
- #define XFS_SB_FEAT_RO_COMPAT_INOBTCNT (1 << 3)		/* inobt block counts */
- #define XFS_SB_FEAT_RO_COMPAT_VERITY   (1 << 4)		/* fs-verity */
- #define XFS_SB_FEAT_RO_COMPAT_ALL \
--		(XFS_SB_FEAT_RO_COMPAT_FINOBT | \
--		 XFS_SB_FEAT_RO_COMPAT_RMAPBT | \
--		 XFS_SB_FEAT_RO_COMPAT_REFLINK| \
--		 XFS_SB_FEAT_RO_COMPAT_INOBTCNT)
-+		(XFS_SB_FEAT_RO_COMPAT_FINOBT  | \
-+		 XFS_SB_FEAT_RO_COMPAT_RMAPBT  | \
-+		 XFS_SB_FEAT_RO_COMPAT_REFLINK | \
-+		 XFS_SB_FEAT_RO_COMPAT_INOBTCNT| \
-+		 XFS_SB_FEAT_RO_COMPAT_VERITY)
- #define XFS_SB_FEAT_RO_COMPAT_UNKNOWN	~XFS_SB_FEAT_RO_COMPAT_ALL
- static inline bool
- xfs_sb_has_ro_compat_feature(
+diff --git a/fs/xfs/libxfs/xfs_attr.c b/fs/xfs/libxfs/xfs_attr.c
+index b1dbed7655e8..101823772bf9 100644
+--- a/fs/xfs/libxfs/xfs_attr.c
++++ b/fs/xfs/libxfs/xfs_attr.c
+@@ -976,11 +976,13 @@ xfs_attr_set(
+ 	struct xfs_inode	*dp = args->dp;
+ 	struct xfs_mount	*mp = dp->i_mount;
+ 	struct xfs_trans_res	tres;
+-	bool			rsvd = (args->attr_filter & XFS_ATTR_ROOT);
++	bool			rsvd;
+ 	int			error, local;
+ 	int			rmt_blks = 0;
+ 	unsigned int		total;
+ 
++	rsvd = (args->attr_filter & (XFS_ATTR_ROOT | XFS_ATTR_PARENT)) != 0;
++
+ 	if (xfs_is_shutdown(dp->i_mount))
+ 		return -EIO;
+ 
+diff --git a/fs/xfs/libxfs/xfs_da_format.h b/fs/xfs/libxfs/xfs_da_format.h
+index 25e2841084e1..3dc03968bba6 100644
+--- a/fs/xfs/libxfs/xfs_da_format.h
++++ b/fs/xfs/libxfs/xfs_da_format.h
+@@ -688,12 +688,15 @@ struct xfs_attr3_leafblock {
+ #define	XFS_ATTR_LOCAL_BIT	0	/* attr is stored locally */
+ #define	XFS_ATTR_ROOT_BIT	1	/* limit access to trusted attrs */
+ #define	XFS_ATTR_SECURE_BIT	2	/* limit access to secure attrs */
++#define	XFS_ATTR_PARENT_BIT	3	/* parent pointer attrs */
+ #define	XFS_ATTR_INCOMPLETE_BIT	7	/* attr in middle of create/delete */
+ #define XFS_ATTR_LOCAL		(1u << XFS_ATTR_LOCAL_BIT)
+ #define XFS_ATTR_ROOT		(1u << XFS_ATTR_ROOT_BIT)
+ #define XFS_ATTR_SECURE		(1u << XFS_ATTR_SECURE_BIT)
++#define XFS_ATTR_PARENT		(1u << XFS_ATTR_PARENT_BIT)
+ #define XFS_ATTR_INCOMPLETE	(1u << XFS_ATTR_INCOMPLETE_BIT)
+-#define XFS_ATTR_NSP_ONDISK_MASK	(XFS_ATTR_ROOT | XFS_ATTR_SECURE)
++#define XFS_ATTR_NSP_ONDISK_MASK \
++			(XFS_ATTR_ROOT | XFS_ATTR_SECURE | XFS_ATTR_PARENT)
+ 
+ /*
+  * Alignment for namelist and valuelist entries (since they are mixed
+diff --git a/fs/xfs/libxfs/xfs_log_format.h b/fs/xfs/libxfs/xfs_log_format.h
+index ae9c99762a24..727b5a858028 100644
+--- a/fs/xfs/libxfs/xfs_log_format.h
++++ b/fs/xfs/libxfs/xfs_log_format.h
+@@ -967,6 +967,7 @@ struct xfs_icreate_log {
+  */
+ #define XFS_ATTRI_FILTER_MASK		(XFS_ATTR_ROOT | \
+ 					 XFS_ATTR_SECURE | \
++					 XFS_ATTR_PARENT | \
+ 					 XFS_ATTR_INCOMPLETE)
+ 
+ /*
+diff --git a/fs/xfs/scrub/attr.c b/fs/xfs/scrub/attr.c
+index 31529b9bf389..9d2e33743ecd 100644
+--- a/fs/xfs/scrub/attr.c
++++ b/fs/xfs/scrub/attr.c
+@@ -441,7 +441,7 @@ xchk_xattr_rec(
+ 	/* Retrieve the entry and check it. */
+ 	hash = be32_to_cpu(ent->hashval);
+ 	badflags = ~(XFS_ATTR_LOCAL | XFS_ATTR_ROOT | XFS_ATTR_SECURE |
+-			XFS_ATTR_INCOMPLETE);
++			XFS_ATTR_INCOMPLETE | XFS_ATTR_PARENT);
+ 	if ((ent->flags & badflags) != 0)
+ 		xchk_da_set_corrupt(ds, level);
+ 	if (ent->flags & XFS_ATTR_LOCAL) {
 -- 
 2.38.4
 
