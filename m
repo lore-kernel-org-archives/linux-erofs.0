@@ -4,30 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24CF1C77B61
-	for <linux-erofs@archiver.kernel.org>; Fri,  7 Apr 2023 13:38:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82D5AC77B61
+	for <linux-erofs@archiver.kernel.org>; Fri,  7 Apr 2023 14:09:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PtKFc3Qg0z3fXR
-	for <linux-erofs@archiver.kernel.org>; Fri,  7 Apr 2023 23:38:28 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PtKx54Sy4z3fVb
+	for <linux-erofs@archiver.kernel.org>; Sat,  8 Apr 2023 00:09:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PtKFQ4ghWz3fSj
-	for <linux-erofs@lists.ozlabs.org>; Fri,  7 Apr 2023 23:38:17 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VfWxv18_1680874692;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VfWxv18_1680874692)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PtKx058B4z3fDd
+	for <linux-erofs@lists.ozlabs.org>; Sat,  8 Apr 2023 00:09:07 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VfX4eol_1680876543;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VfX4eol_1680876543)
           by smtp.aliyun-inc.com;
-          Fri, 07 Apr 2023 21:38:12 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/3] erofs-utils: xattr: avoid using inode_xattr_node for shared xattrs
-Date: Fri,  7 Apr 2023 21:38:05 +0800
-Message-Id: <20230407133805.60975-3-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230407133805.60975-1-hsiangkao@linux.alibaba.com>
-References: <20230407133805.60975-1-hsiangkao@linux.alibaba.com>
+          Fri, 07 Apr 2023 22:09:03 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 2/3] erofs-utils: introduce on-disk format for long xattr name prefixes
+Date: Fri,  7 Apr 2023 22:09:01 +0800
+Message-Id: <20230407140902.97275-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230407140902.97275-1-jefflexu@linux.alibaba.com>
+References: <20230407140902.97275-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -41,142 +42,91 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Let's introduce next_shared_xattr instead to chain shared xattrs,
-and it will also be used for ranged shared xattrs.
+Besides the predefined xattr name prefixes, introduces long xattr name
+prefixes, which work similarly as the predefined name prefixes, except
+that they are user specified.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+It is especially useful for use cases together with overlayfs like
+Composefs model, which introduces diverse xattr values with only a few
+common xattr names (trusted.overlay.redirect, trusted.overlay.digest,
+and maybe more in the future).  That makes the existing predefined
+prefixes ineffective in both image size and runtime performance.
+
+When a user specified long xattr name prefix is used, only the trailing
+part of the xattr name apart from the long xattr name prefix will be
+stored in erofs_xattr_entry.e_name.  e_name is empty if the xattr name
+matches exactly as the long xattr name prefix.  All long xattr prefixes
+are stored in the packed or meta inode, which depends if fragments
+feature is enabled or not.
+
+For each long xattr name prefix, the on-disk format is kept as the same
+as the unique metadata format: ALIGN({__le16 len, data}, 4), where len
+represents the total size of struct erofs_xattr_long_prefix, followed
+by data of struct erofs_xattr_long_prefix itself.
+
+Each erofs_xattr_long_prefix keeps predefined prefixes (base_index)
+and the remaining prefix string without the trailing '\0'.
+
+Two fields are introduced to the on-disk superblock, where
+xattr_prefix_count represents the total number of the long xattr name
+prefixes recorded, and xattr_prefix_start represents the start offset of
+recorded name prefixes in the packed/meta inode divided by 4.
+
+When referring to a long xattr name prefix, the highest bit (bit 7) of
+erofs_xattr_entry.e_name_index is set, while the lower bits (bit 0-6)
+as a whole represents the index of the referred long name prefix among
+all long xattr name prefixes.
+
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- lib/xattr.c | 43 +++++++++++++++++++------------------------
- 1 file changed, 19 insertions(+), 24 deletions(-)
+ include/erofs_fs.h | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 5f11cbe..6034e7b 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -22,6 +22,7 @@
- #define EA_HASHTABLE_BITS 16
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index 8835a76..48d08a5 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -77,7 +77,9 @@ struct erofs_super_block {
+ 	} __packed u1;
+ 	__le16 extra_devices;	/* # of devices besides the primary device */
+ 	__le16 devt_slotoff;	/* startoff = devt_slotoff * devt_slotsize */
+-	__u8 reserved[6];
++	__u8 reserved;
++	__u8 xattr_prefix_count;	/* # of long xattr name prefixes */
++	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
+ 	__le64 packed_nid;	/* nid of the special packed inode */
+ 	__u8 reserved2[24];
+ };
+@@ -228,6 +230,13 @@ struct erofs_xattr_ibody_header {
+ #define EROFS_XATTR_INDEX_LUSTRE            5
+ #define EROFS_XATTR_INDEX_SECURITY          6
  
- struct xattr_item {
-+	struct xattr_item *next_shared_xattr;
- 	const char *kvbuf;
- 	unsigned int hash[2], len[2], count;
- 	int shared_xattr_id;
-@@ -36,7 +37,7 @@ struct inode_xattr_node {
++/*
++ * bit 7 of e_name_index is set when it refers to a long xattr name prefix,
++ * while the remained lower bits represent the index of the prefix.
++ */
++#define EROFS_XATTR_LONG_PREFIX		0x80
++#define EROFS_XATTR_LONG_PREFIX_MASK	0x7f
++
+ /* xattr entry (for both inline & shared xattrs) */
+ struct erofs_xattr_entry {
+ 	__u8   e_name_len;      /* length of name */
+@@ -237,6 +246,12 @@ struct erofs_xattr_entry {
+ 	char   e_name[0];       /* attribute name */
+ };
  
- static DECLARE_HASHTABLE(ea_hashtable, EA_HASHTABLE_BITS);
- 
--static LIST_HEAD(shared_xattrs_list);
-+static struct xattr_item *shared_xattrs_list;
- static unsigned int shared_xattrs_count;
- 
- static struct xattr_prefix {
-@@ -261,14 +262,8 @@ static int inode_xattr_add(struct list_head *hlist, struct xattr_item *item)
- 
- static int shared_xattr_add(struct xattr_item *item)
++/* long xattr name prefixes */
++struct erofs_xattr_long_prefix {
++	__u8   base_index;	/* short xattr name prefix index */
++	char   infix[];		/* infix apart from short prefix */
++};
++
+ static inline unsigned int erofs_xattr_ibody_size(__le16 i_xattr_icount)
  {
--	struct inode_xattr_node *node = malloc(sizeof(*node));
--
--	if (!node)
--		return -ENOMEM;
--
--	init_list_head(&node->list);
--	node->item = item;
--	list_add(&node->list, &shared_xattrs_list);
-+	item->next_shared_xattr = shared_xattrs_list;
-+	shared_xattrs_list = item;
- 	return ++shared_xattrs_count;
- }
- 
-@@ -542,14 +537,14 @@ static void erofs_cleanxattrs(bool sharedxattrs)
- 	shared_xattrs_count = 0;
- }
- 
--static int comp_xattr_item(const void *a, const void *b)
-+static int comp_shared_xattr_item(const void *a, const void *b)
- {
- 	const struct xattr_item *ia, *ib;
- 	unsigned int la, lb;
- 	int ret;
- 
--	ia = (*((const struct inode_xattr_node **)a))->item;
--	ib = (*((const struct inode_xattr_node **)b))->item;
-+	ia = *((const struct xattr_item **)a);
-+	ib = *((const struct xattr_item **)b);
- 	la = ia->len[0] + ia->len[1];
- 	lb = ib->len[0] + ib->len[1];
- 
-@@ -564,7 +559,7 @@ int erofs_build_shared_xattrs_from_path(const char *path)
- {
- 	int ret;
- 	struct erofs_buffer_head *bh;
--	struct inode_xattr_node *node, *n, **sorted_n;
-+	struct xattr_item *n, **sorted_n;
- 	char *buf;
- 	unsigned int p, i;
- 	erofs_off_t off;
-@@ -587,22 +582,23 @@ int erofs_build_shared_xattrs_from_path(const char *path)
- 	if (!shared_xattrs_count)
- 		goto out;
- 
--	sorted_n = malloc(shared_xattrs_count * sizeof(n));
-+	sorted_n = malloc((shared_xattrs_count + 1) * sizeof(n));
- 	if (!sorted_n)
- 		return -ENOMEM;
- 
- 	i = 0;
--	list_for_each_entry_safe(node, n, &shared_xattrs_list, list) {
--		list_del(&node->list);
--		sorted_n[i++] = node;
-+	while (shared_xattrs_list) {
-+		struct xattr_item *item = shared_xattrs_list;
- 
-+		sorted_n[i++] = item;
-+		shared_xattrs_list = item->next_shared_xattr;
- 		shared_xattrs_size += sizeof(struct erofs_xattr_entry);
- 		shared_xattrs_size = EROFS_XATTR_ALIGN(shared_xattrs_size +
--				node->item->len[0] + node->item->len[1]);
--
-+				item->len[0] + item->len[1]);
- 	}
- 	DBG_BUGON(i != shared_xattrs_count);
--	qsort(sorted_n, shared_xattrs_count, sizeof(n), comp_xattr_item);
-+	sorted_n[i] = NULL;
-+	qsort(sorted_n, shared_xattrs_count, sizeof(n), comp_shared_xattr_item);
- 
- 	buf = calloc(1, shared_xattrs_size);
- 	if (!buf)
-@@ -622,14 +618,14 @@ int erofs_build_shared_xattrs_from_path(const char *path)
- 	off %= erofs_blksiz();
- 	p = 0;
- 	for (i = 0; i < shared_xattrs_count; i++) {
--		struct inode_xattr_node *const tnode = sorted_n[i];
--		struct xattr_item *const item = tnode->item;
-+		struct xattr_item *item = sorted_n[i];
- 		const struct erofs_xattr_entry entry = {
- 			.e_name_index = item->prefix,
- 			.e_name_len = item->len[0],
- 			.e_value_size = cpu_to_le16(item->len[1])
- 		};
- 
-+		item->next_shared_xattr = sorted_n[i + 1];
- 		item->shared_xattr_id = (off + p) /
- 			sizeof(struct erofs_xattr_entry);
- 
-@@ -637,9 +633,8 @@ int erofs_build_shared_xattrs_from_path(const char *path)
- 		p += sizeof(struct erofs_xattr_entry);
- 		memcpy(buf + p, item->kvbuf, item->len[0] + item->len[1]);
- 		p = EROFS_XATTR_ALIGN(p + item->len[0] + item->len[1]);
--		free(tnode);
- 	}
--
-+	shared_xattrs_list = sorted_n[0];
- 	free(sorted_n);
- 	bh->op = &erofs_drop_directly_bhops;
- 	ret = dev_write(buf, erofs_btell(bh, false), shared_xattrs_size);
+ 	if (!i_xattr_icount)
 -- 
-2.24.4
+2.19.1.6.gb485710b
 
