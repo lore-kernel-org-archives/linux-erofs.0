@@ -4,30 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A131C77B61
-	for <linux-erofs@archiver.kernel.org>; Fri,  7 Apr 2023 14:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BFD4C77B61
+	for <linux-erofs@archiver.kernel.org>; Fri,  7 Apr 2023 14:17:31 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PtL6b0LMsz3fWL
-	for <linux-erofs@archiver.kernel.org>; Sat,  8 Apr 2023 00:17:27 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PtL6d75Rwz3fWT
+	for <linux-erofs@archiver.kernel.org>; Sat,  8 Apr 2023 00:17:29 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PtL6Q6FJPz3fSD
-	for <linux-erofs@lists.ozlabs.org>; Sat,  8 Apr 2023 00:17:18 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VfX8evk_1680877033;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VfX8evk_1680877033)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PtL6T26cfz3fVJ
+	for <linux-erofs@lists.ozlabs.org>; Sat,  8 Apr 2023 00:17:21 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VfX7DF5_1680877036;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VfX7DF5_1680877036)
           by smtp.aliyun-inc.com;
-          Fri, 07 Apr 2023 22:17:13 +0800
+          Fri, 07 Apr 2023 22:17:16 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/7] erofs: initialize packed inode after root inode is assigned
-Date: Fri,  7 Apr 2023 22:17:05 +0800
-Message-Id: <20230407141710.113882-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH 5/7] erofs: add helpers to load long xattr name prefixes
+Date: Fri,  7 Apr 2023 22:17:08 +0800
+Message-Id: <20230407141710.113882-6-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230407141710.113882-1-jefflexu@linux.alibaba.com>
 References: <20230407141710.113882-1-jefflexu@linux.alibaba.com>
@@ -48,72 +48,162 @@ Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As commit 8f7acdae2cd4 ("staging: erofs: kill all failure handling in
-fill_super()"), move the initialization of packed inode after root
-inode is assigned, so that the iput() in .put_super() is adequate as
-the failure handling.
-
-Otherwise, iput() is also needed in .kill_sb(), in case of the mounting
-fails halfway.
+Long xattr name prefixes will be scanned upon mounting and the in-memory
+long xattr name prefix array will be initialized accordingly.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/erofs/internal.h |  1 +
- fs/erofs/super.c    | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ fs/erofs/internal.h | 10 ++++++++
+ fs/erofs/super.c    |  6 ++---
+ fs/erofs/xattr.c    | 56 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/erofs/xattr.h    |  4 ++++
+ 4 files changed, 73 insertions(+), 3 deletions(-)
 
 diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 2bcff3194e4a..caea9dc1cd82 100644
+index 8b5168f94dd2..5a9c19654b19 100644
 --- a/fs/erofs/internal.h
 +++ b/fs/erofs/internal.h
-@@ -157,6 +157,7 @@ struct erofs_sb_info {
+@@ -117,6 +117,11 @@ struct erofs_fscache {
+ 	char *name;
+ };
  
- 	/* what we really care is nid, rather than ino.. */
- 	erofs_nid_t root_nid;
-+	erofs_nid_t packed_nid;
- 	/* used for statfs, f_files - f_favail */
- 	u64 inos;
++struct erofs_xattr_prefix_item {
++	struct erofs_xattr_long_prefix *prefix;
++	u8 infix_len;
++};
++
+ struct erofs_sb_info {
+ 	struct erofs_mount_opts opt;	/* options */
+ #ifdef CONFIG_EROFS_FS_ZIP
+@@ -145,6 +150,9 @@ struct erofs_sb_info {
+ 	u32 meta_blkaddr;
+ #ifdef CONFIG_EROFS_FS_XATTR
+ 	u32 xattr_blkaddr;
++	u32 xattr_prefix_start;
++	u8 xattr_prefix_count;
++	struct erofs_xattr_prefix_item *xattr_prefixes;
+ #endif
+ 	u16 device_id_mask;	/* valid bits of device id to be used */
  
+@@ -440,6 +448,8 @@ extern const struct iomap_ops z_erofs_iomap_report_ops;
+ #define EROFS_REG_COOKIE_SHARE		0x0001
+ #define EROFS_REG_COOKIE_NEED_NOEXIST	0x0002
+ 
++void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
++			  erofs_off_t *offset, int *lengthp);
+ void erofs_unmap_metabuf(struct erofs_buf *buf);
+ void erofs_put_metabuf(struct erofs_buf *buf);
+ void *erofs_bread(struct erofs_buf *buf, erofs_blk_t blkaddr,
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 58ffbf410bfb..325602820dc8 100644
+index 8f2f8433db61..bf396e0c243a 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -388,17 +388,7 @@ static int erofs_read_superblock(struct super_block *sb)
- #endif
- 	sbi->islotbits = ilog2(sizeof(struct erofs_inode_compact));
- 	sbi->root_nid = le16_to_cpu(dsb->root_nid);
+@@ -126,10 +126,9 @@ static bool check_layout_compatibility(struct super_block *sb,
+ 	return true;
+ }
+ 
 -#ifdef CONFIG_EROFS_FS_ZIP
--	sbi->packed_inode = NULL;
--	if (erofs_sb_has_fragments(sbi) && dsb->packed_nid) {
--		sbi->packed_inode =
--			erofs_iget(sb, le64_to_cpu(dsb->packed_nid));
--		if (IS_ERR(sbi->packed_inode)) {
--			ret = PTR_ERR(sbi->packed_inode);
--			goto out;
--		}
--	}
--#endif
-+	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
- 	sbi->inos = le64_to_cpu(dsb->inos);
+ /* read variable-sized metadata, offset will be aligned by 4-byte */
+-static void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
+-				 erofs_off_t *offset, int *lengthp)
++void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
++			  erofs_off_t *offset, int *lengthp)
+ {
+ 	u8 *buffer, *ptr;
+ 	int len, i, cnt;
+@@ -162,6 +161,7 @@ static void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
+ 	return buffer;
+ }
  
- 	sbi->build_time = le64_to_cpu(dsb->build_time);
-@@ -820,6 +810,16 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- 	erofs_shrinker_register(sb);
- 	/* sb->s_umount is already locked, SB_ACTIVE and SB_BORN are not set */
 +#ifdef CONFIG_EROFS_FS_ZIP
-+	if (erofs_sb_has_fragments(sbi) && sbi->packed_nid) {
-+		sbi->packed_inode = erofs_iget(sb, sbi->packed_nid);
-+		if (IS_ERR(sbi->packed_inode)) {
-+			err = PTR_ERR(sbi->packed_inode);
-+			sbi->packed_inode = NULL;
-+			return err;
-+		}
+ static int erofs_load_compr_cfgs(struct super_block *sb,
+ 				 struct erofs_super_block *dsb)
+ {
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index d76b74ece2e5..684571e83a2c 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -610,6 +610,62 @@ ssize_t erofs_listxattr(struct dentry *dentry,
+ 	return ret;
+ }
+ 
++void erofs_xattr_prefixes_cleanup(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	int i;
++
++	if (sbi->xattr_prefixes) {
++		for (i = 0; i < sbi->xattr_prefix_count; i++)
++			kfree(sbi->xattr_prefixes[i].prefix);
++		kfree(sbi->xattr_prefixes);
++		sbi->xattr_prefixes = NULL;
 +	}
-+#endif
- 	err = erofs_init_managed_cache(sb);
- 	if (err)
- 		return err;
++}
++
++int erofs_xattr_prefixes_init(struct super_block *sb)
++{
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
++	erofs_off_t pos = (erofs_off_t)sbi->xattr_prefix_start << 2;
++	struct erofs_xattr_prefix_item *pfs;
++	int ret = 0, i, len;
++
++	if (!sbi->xattr_prefix_count)
++		return 0;
++
++	pfs = kzalloc(sbi->xattr_prefix_count * sizeof(*pfs), GFP_KERNEL);
++	if (!pfs)
++		return -ENOMEM;
++
++	if (erofs_sb_has_fragments(sbi))
++		buf.inode = sbi->packed_inode;
++	else
++		erofs_init_metabuf(&buf, sb);
++
++	for (i = 0; i < sbi->xattr_prefix_count; i++) {
++		void *ptr = erofs_read_metadata(sb, &buf, &pos, &len);
++
++		if (IS_ERR(ptr)) {
++			ret = PTR_ERR(ptr);
++			break;
++		} else if (len < sizeof(*pfs->prefix) ||
++			   len > EROFS_NAME_LEN + sizeof(*pfs->prefix)) {
++			kfree(ptr);
++			ret = -EFSCORRUPTED;
++			break;
++		}
++		pfs[i].prefix = ptr;
++		pfs[i].infix_len = len - sizeof(struct erofs_xattr_long_prefix);
++	}
++
++	erofs_put_metabuf(&buf);
++	sbi->xattr_prefixes = pfs;
++	if (ret)
++		erofs_xattr_prefixes_cleanup(sb);
++	return ret;
++}
++
+ #ifdef CONFIG_EROFS_FS_POSIX_ACL
+ struct posix_acl *erofs_get_acl(struct inode *inode, int type, bool rcu)
+ {
+diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
+index a65158cba14f..e1265351aedd 100644
+--- a/fs/erofs/xattr.h
++++ b/fs/erofs/xattr.h
+@@ -40,9 +40,13 @@ static inline const struct xattr_handler *erofs_xattr_handler(unsigned int idx)
+ 
+ extern const struct xattr_handler *erofs_xattr_handlers[];
+ 
++int erofs_xattr_prefixes_init(struct super_block *sb);
++void erofs_xattr_prefixes_cleanup(struct super_block *sb);
+ int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
++static inline int erofs_xattr_prefixes_init(struct super_block *sb) { return 0; }
++static inline void erofs_xattr_prefixes_cleanup(struct super_block *sb) {}
+ static inline int erofs_getxattr(struct inode *inode, int index,
+ 				 const char *name, void *buffer,
+ 				 size_t buffer_size)
 -- 
 2.19.1.6.gb485710b
 
