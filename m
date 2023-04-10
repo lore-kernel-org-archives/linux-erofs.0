@@ -4,37 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8ABE9C76196
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Apr 2023 09:47:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B24F1C77B61
+	for <linux-erofs@archiver.kernel.org>; Mon, 10 Apr 2023 17:37:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Pw4040SCGz3cj5
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Apr 2023 19:47:48 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PwGQH0FNvz3cLx
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Apr 2023 03:37:43 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Pw3zz2H1wz3cKW
-	for <linux-erofs@lists.ozlabs.org>; Mon, 10 Apr 2023 19:47:42 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vfl5d6x_1681120056;
-Received: from 30.97.49.25(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vfl5d6x_1681120056)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4PwGQ75Gmvz3cB1
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Apr 2023 03:37:34 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Vfovcdl_1681148235;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vfovcdl_1681148235)
           by smtp.aliyun-inc.com;
-          Mon, 10 Apr 2023 17:47:38 +0800
-Message-ID: <1142fe0c-4464-8735-1d49-9b21c0774303@linux.alibaba.com>
-Date: Mon, 10 Apr 2023 17:47:36 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
-Subject: Re: [syzbot] [erofs?] BUG: spinlock bad magic in
- erofs_pcpubuf_growsize
-To: syzbot <syzbot+d6a0e4b80bd39f54c2f6@syzkaller.appspotmail.com>,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- syzkaller-bugs@googlegroups.com, xiang@kernel.org
-References: <000000000000de8f6a05f8f834e5@google.com>
+          Tue, 11 Apr 2023 01:37:28 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <000000000000de8f6a05f8f834e5@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs: stop parsing non-compact HEAD index if clusterofs is invalid
+Date: Tue, 11 Apr 2023 01:37:14 +0800
+Message-Id: <20230410173714.104604-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -46,28 +39,60 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>, syzbot+aafb3f37cfeb6534c4ac@syzkaller.appspotmail.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Syzbot generated a crafted image [1] with a non-compact HEAD index of
+clusterofs 33024 while valid numbers should be 0 ~ lclustersize-1,
+which causes the following unexpected behavior as below:
 
+ BUG: unable to handle page fault for address: fffff52101a3fff9
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 23ffed067 P4D 23ffed067 PUD 0
+ Oops: 0000 [#1] PREEMPT SMP KASAN
+ CPU: 1 PID: 4398 Comm: kworker/u5:1 Not tainted 6.3.0-rc6-syzkaller-g09a9639e56c0 #0
+ Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/30/2023
+ Workqueue: erofs_worker z_erofs_decompressqueue_work
+ RIP: 0010:z_erofs_decompress_queue+0xb7e/0x2b40
+ ...
+ Call Trace:
+  <TASK>
+  z_erofs_decompressqueue_work+0x99/0xe0
+  process_one_work+0x8f6/0x1170
+  worker_thread+0xa63/0x1210
+  kthread+0x270/0x300
+  ret_from_fork+0x1f/0x30
 
-On 2023/4/10 17:43, syzbot wrote:
-> Hello,
-> 
-> syzbot has tested the proposed patch and the reproducer did not trigger any issue:
-> 
-> Reported-and-tested-by: syzbot+d6a0e4b80bd39f54c2f6@syzkaller.appspotmail.com
-> 
-> Tested on:
-> 
-> commit:         09a9639e Linux 6.3-rc6
-> git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/ v6.3-rc6
-> console output: https://syzkaller.appspot.com/x/log.txt?x=12cc39abc80000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=c47e989e3f0f1947
-> dashboard link: https://syzkaller.appspot.com/bug?extid=d6a0e4b80bd39f54c2f6
-> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-> 
-> Note: no patches were applied.
-> Note: testing is done by a robot and is best-effort only.
+Note that normal images or images using compact indexes are not
+impacted.  Let's fix this now.
 
-#syz invalid
+[1] https://lore.kernel.org/r/000000000000ec75b005ee97fbaa@google.com
+
+Reported-by: syzbot+aafb3f37cfeb6534c4ac@syzkaller.appspotmail.com
+Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+Fixes: 152a333a5895 ("staging: erofs: add compacted compression indexes support")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/zmap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index cbd3f72c83e9..7ca108c3834c 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -85,6 +85,10 @@ static int legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
+ 		if (advise & Z_EROFS_LI_PARTIAL_REF)
+ 			m->partialref = true;
+ 		m->clusterofs = le16_to_cpu(di->di_clusterofs);
++		if (m->clusterofs >= 1 << vi->z_logical_clusterbits) {
++			DBG_BUGON(1);
++			return -EFSCORRUPTED;
++		}
+ 		m->pblk = le32_to_cpu(di->di_u.blkaddr);
+ 		break;
+ 	default:
+-- 
+2.24.4
+
