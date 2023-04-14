@@ -4,68 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2E71C77B6E
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Apr 2023 15:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5D8CC77B71
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Apr 2023 15:45:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Pyg1k669Cz3fW3
-	for <linux-erofs@archiver.kernel.org>; Sat, 15 Apr 2023 01:13:14 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4PyglD4kprz3fW5
+	for <linux-erofs@archiver.kernel.org>; Sat, 15 Apr 2023 01:45:44 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1681485194;
-	bh=7E15TZKBUj7LhKJ72c7EvYGt3lCtMNYU30GwoWvGVWc=;
+	s=201707; t=1681487144;
+	bh=7gutJ4yAe/JkNa5xIKaFp+nwMYRP6dEdLjl9hZY/uZI=;
 	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=GpPgCww18LmehGaqAanav5XNj1s3SdJbAKyO3zQVLKTyThE+nnpe94gp9Esm/NKP7
-	 29wj8+Si/KnLoS+I/N9J6u2oL+Kipt+903xg/jEtQRdh5Qwm49qdkiCPrBzp01QuuA
-	 Lw4uPgklYPloAjSnvGSIvUK0jmP9UBcn0vXuOj4z5A3hTKt4mdE8EtkHoVZKgGvMrf
-	 ouah6pHHOC91kZQIuDG/A6allNR/lU8caPclIaZJKPdRQOzB7HqyNCiEeLLhmM6d58
-	 L6tWwUmGw+LJ6UQSDhALBO8sryT+K2/kRaHDL8wq/O4THQ0h8xKJ/dOLZCjxgjwBAQ
-	 k7Y6nZ8igNvkw==
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::632; helo=mail-pl1-x632.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
+	b=kCyDqBDw4uw77Zvlb5rZqcHVBBjBmo26gtS9cieS7tkwREFnYKTFiShpvHTplNvlc
+	 uQE3it0sYxNqRU7tuXIpByFyOl4JuTFOkRIYb+0pCJuww3dXKqZO530SkH8+cTNuva
+	 HPlK/Ns76N40TTmsx604jy+f1FLZ+F9IL1OO5ZQiDhInh7OIKeY4kRBFqVL/U0o/Kx
+	 I4QOlZTWqaRRnjMHm8UXPkYV9Nn2Ym29YJqEgM7RhWF74Dc2TeYSnq+wh5uz9ZRcbU
+	 XlGUjq2O44XbdwANOW4BKpSR5FxU8DS3sVXYxP1k1HrrDAfrV5YJlPCGPnjUBzR6CJ
+	 7B6iHqtTWqZRA==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::1033; helo=mail-pj1-x1033.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=SwfEYPmd;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=PvGDFGLr;
 	dkim-atps=neutral
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Pyg1Z047Hz30Qg
-	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Apr 2023 01:13:04 +1000 (AEST)
-Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-1a66888cb89so6090355ad.3
-        for <linux-erofs@lists.ozlabs.org>; Fri, 14 Apr 2023 08:13:04 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Pygl44d3rz3fR3
+	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Apr 2023 01:45:34 +1000 (AEST)
+Received: by mail-pj1-x1033.google.com with SMTP id x8-20020a17090a6b4800b002474c5d3367so889813pjl.2
+        for <linux-erofs@lists.ozlabs.org>; Fri, 14 Apr 2023 08:45:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681485181; x=1684077181;
+        d=1e100.net; s=20221208; t=1681487132; x=1684079132;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=7E15TZKBUj7LhKJ72c7EvYGt3lCtMNYU30GwoWvGVWc=;
-        b=i6OUxSLrOaNLWY7ZgyNCI8qnGEL44qvV/rPZRELOQmdLn4HybEHyrj5nhIVHDeJL11
-         UrvH3wPYQlQIjlEtFvn7GBazacX/Ml5pXLgS4Oci/J3g11PZOfhY2uvEOHB1rj3mP+fq
-         uS+9l5ZJo6/T5UCd9fR2gJ+7vpGMJeE6bOGCa/wlhnvaOPuDSvaQiuWcKZ1S2lHUBA+O
-         VD+YObCrL7Qshr8bhj2aW0NXLuGzc9Set8dpPa2p0U+yKqNab3Taaf3hpV0xeC6cQwac
-         5wjk+B9uuXAuhnhO1/ZHbVr9nUZxvVv+IOLZCqWd7Axlzxd1vvwfdj25RBpITK6/9ltK
-         qw+g==
-X-Gm-Message-State: AAQBX9d+qtEpB6pcon947cyc0eZTE3xzIsW9mwMF1JCKV10QVQ34alzh
-	oO7hGpxEsNlv4um/mVmYmla6UQ==
-X-Google-Smtp-Source: AKy350a/j8gjvHx5XSjNdD1sExInjJAJ7u6ERNSyq4ejXK3n0tHMQ777nwe9LmVp5aHRdXJu3Y85pw==
-X-Received: by 2002:a05:6a00:2e1d:b0:636:ea6c:68d8 with SMTP id fc29-20020a056a002e1d00b00636ea6c68d8mr8600263pfb.27.1681485181079;
-        Fri, 14 Apr 2023 08:13:01 -0700 (PDT)
+        bh=7gutJ4yAe/JkNa5xIKaFp+nwMYRP6dEdLjl9hZY/uZI=;
+        b=SaYyjFt/M6soC+5gAgsQd2vTzFlnEVeOJnWX4EXceAtermiBpeJXsUhXTe2RtLQxKx
+         CRRU04f5AXAnsTHtI5DaSLXa5DFHDyzX+iMzBPR13zFxKAEWX1OEspNd2GVxKLGTi3vZ
+         71adU/ZQk7hQaX6v0pxCMdGI3GuuZecHEmmgbNWCFe6D1PzadtLhxJYDtjvU1IiePiWZ
+         xL50+Nq2gl4lSKwUegUvrlNx1PXdWlPy+ozu/xJdmv4sXacOv02GVgxe+oJwq52ID2dw
+         UavibLAoO356Ecbsbtmd6OyLjJ5Fe4WZx9aZv1/sKVE92sowmK7N/Bz8+ZnjqcDl2Ddt
+         xIyg==
+X-Gm-Message-State: AAQBX9ct+kjqrtAQDND3SN+6YA5xIR2BtPXiaeYHMlTCDFQLwhCF3z34
+	VaUv/A13I03reYdxbsmlbJb1vA==
+X-Google-Smtp-Source: AKy350Y7T+7xKTE2jnOyKS8B+OM1XJANTVOkZ6bFQpjwSG5ySowVYCk/VmCO7z52L/JBVLB93/WFng==
+X-Received: by 2002:a17:902:e801:b0:1a6:4714:5cb2 with SMTP id u1-20020a170902e80100b001a647145cb2mr4074836plg.2.1681487131808;
+        Fri, 14 Apr 2023 08:45:31 -0700 (PDT)
 Received: from [10.255.185.5] ([139.177.225.243])
-        by smtp.gmail.com with ESMTPSA id 5-20020aa79105000000b0063b1bb2e0a7sm3129352pfh.203.2023.04.14.08.12.57
+        by smtp.gmail.com with ESMTPSA id g21-20020a170902869500b001a5260a6e6csm3201794plo.206.2023.04.14.08.45.28
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Apr 2023 08:13:00 -0700 (PDT)
-Message-ID: <65f424ca-d7cd-f53b-cefc-684ec0393bce@bytedance.com>
-Date: Fri, 14 Apr 2023 23:12:55 +0800
+        Fri, 14 Apr 2023 08:45:31 -0700 (PDT)
+Message-ID: <c310a5e7-e410-dbdb-cada-3eca82a9ceb0@bytedance.com>
+Date: Fri, 14 Apr 2023 23:45:26 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.9.1
-Subject: Re: Re: [PATCH V5 5/5] cachefiles: add restore command to recover
- inflight ondemand read requests
+Subject: Re: Re: [PATCH V5 2/5] cachefiles: extract ondemand info field from
+ cachefiles_object
 To: David Howells <dhowells@redhat.com>
-References: <20230329140155.53272-6-zhujia.zj@bytedance.com>
+References: <20230329140155.53272-3-zhujia.zj@bytedance.com>
  <20230329140155.53272-1-zhujia.zj@bytedance.com>
- <1250439.1681480404@warthog.procyon.org.uk>
-In-Reply-To: <1250439.1681480404@warthog.procyon.org.uk>
+ <1250339.1681480291@warthog.procyon.org.uk>
+In-Reply-To: <1250339.1681480291@warthog.procyon.org.uk>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -87,55 +87,35 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 
-在 2023/4/14 21:53, David Howells 写道:
+在 2023/4/14 21:51, David Howells 写道:
 > Jia Zhu <zhujia.zj@bytedance.com> wrote:
 > 
->> +int cachefiles_ondemand_restore(struct cachefiles_cache *cache, char *args)
->> +{
->> +	struct cachefiles_req *req;
->> +
->> +	XA_STATE(xas, &cache->reqs, 0);
->> +
->> +	if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
->> +		return -EOPNOTSUPP;
->> +
->> +	/*
->> +	 * Reset the requests to CACHEFILES_REQ_NEW state, so that the
->> +	 * requests have been processed halfway before the crash of the
->> +	 * user daemon could be reprocessed after the recovery.
->> +	 */
->> +	xas_lock(&xas);
->> +	xas_for_each(&xas, req, ULONG_MAX)
->> +		xas_set_mark(&xas, CACHEFILES_REQ_NEW);
->> +	xas_unlock(&xas);
->> +
->> +	wake_up_all(&cache->daemon_pollwq);
->> +	return 0;
->> +}
+>>   #define CACHEFILES_OBJECT_STATE_FUNCS(_state, _STATE)	\
+>>   static inline bool								\
+>>   cachefiles_ondemand_object_is_##_state(const struct cachefiles_object *object) \
+>>   {												\
+>> -	return object->state == CACHEFILES_ONDEMAND_OBJSTATE_##_STATE; \
+>> +	return object->ondemand->state == CACHEFILES_ONDEMAND_OBJSTATE_##_STATE; \
+>>   }												\
+>>   												\
+>>   static inline void								\
+>>   cachefiles_ondemand_set_object_##_state(struct cachefiles_object *object) \
+>>   {												\
+>> -	object->state = CACHEFILES_ONDEMAND_OBJSTATE_##_STATE; \
+>> +	object->ondemand->state = CACHEFILES_ONDEMAND_OBJSTATE_##_STATE; \
+>>   }
 > 
-> Should there be a check to see if this is needed?
+> I wonder if those need barriers - smp_load_acquire() and smp_store_release().
 > 
 > David
 
-I've considered whether to add a check here, since the user could invoke
-'restore' through ioctl at any time.
+There are three object states: OPEN, CLOSE, REOPENING.
 
-If 'restore' is called without user daemon crashing. Then the req being
-processed by the user daemon will be reset to CACHEFILES_REQ_NEW and
-could be re-read and processed by the user daemon.
+Here is no logic in the code such like: A has to watching and waiting
+for B's status change.
 
-For OPEN req:  The user daemon will ignore this repeated req since the
-related anonymous fd is the same.
-
-For READ req: The user daemon will read the same part of the data again
-and write it to fscache (this will not cause any error)
-
-For CLOSE req: Actually the user daemon will close this anonymous fd,
-but fortunately [PATCH 3/5] could handle this case by reopening it
-automatically.
-
-Thus "restore" could be called at any time without error, checks
-might introduce extra race conditions.
+And so far I haven't constructed a scenario requires barrier pairs. Thus
+I didn't add barriers here.
 
 Jia
 > 
