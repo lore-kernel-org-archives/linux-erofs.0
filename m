@@ -4,72 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32365C77B6E
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Apr 2023 13:53:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72556C77B6E
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Apr 2023 14:13:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4PydFw5HPjz3fXg
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Apr 2023 23:53:40 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Pydj84yQ3z3fSV
+	for <linux-erofs@archiver.kernel.org>; Sat, 15 Apr 2023 00:13:48 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1681481628;
+	bh=0khoLy+eSzRa5gLnIJcGGxbaem/Y8O3pCzVmwyuZdh8=;
+	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=NEMNK8fibfkqjvtnvJXWZzBphvMV6rb6MtkyVEVCvbf4+XvLq73eB8FmP6pSE2D3l
+	 Tk/a6CCwpXfJPvU79twjl03afGYVmB0Gw4aT5OicWJN40NVNUiHTrhKkqJOyiQ0UQ0
+	 COx9QjgtVMBuagmWhvadChhb8za0FDE8TpJyWtEyXErBeI4C7JASjaJHw+hCYsQB0L
+	 oK9MYL90nBGKGzmRiEDOlczyLtYFSSh6NmDGCClMjzglhsbboQExBCFlaEtCIOb0E2
+	 f8qC3p/o7mB8UJcMbYuXRb2kCMjZeaBVAFxNGMHBPmxrkr9thvWixSnSdKgPtABIt0
+	 EZzJ7JI0DveiQ==
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::1034; helo=mail-pj1-x1034.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ao/HRrMg;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JoyZwtMT;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=aIsHBNmg;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ao/HRrMg;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JoyZwtMT;
-	dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4PydFq1Fqpz2yfq
-	for <linux-erofs@lists.ozlabs.org>; Fri, 14 Apr 2023 23:53:34 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1681480411;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=C/e8KjFHs61uEyXVXMB8pUc3YDR+G8woISfuf6Pj1AE=;
-	b=ao/HRrMgS541L3N2O9yI0+PynVuZUNNnl4cIYS0KEYH6KqTXA6ByB+Eau7PiOJCwFwGNzH
-	XPVtN0bo66zt8Ug4maMPqpTiDx6k4j/VuZjTAoB67cEIhVzthbpEXmq8SGkhgx4lTKh6Gt
-	0AaWvPBGwfQeWQXCZSdVocSPl+N0oeo=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1681480412;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=C/e8KjFHs61uEyXVXMB8pUc3YDR+G8woISfuf6Pj1AE=;
-	b=JoyZwtMTA2mfYz5IRXcR4Go+Xr/pwI06pkVMRfDYdBBEs5yCoUzFL79Ydh9YezhPc3mzpK
-	SwJOCFIf4xgc4+nHJmLaaHT4udBnYRukOCZ62UdWxsYFcuKeJ6yChKTtsk5RPSUHVUIKeo
-	VLC3H54On32jHBW3UQv0SE2Wl7VKAdk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-128-2o5ch5vzO-yipSJ1W4Ip1w-1; Fri, 14 Apr 2023 09:53:26 -0400
-X-MC-Unique: 2o5ch5vzO-yipSJ1W4Ip1w-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8AEC018A63EB;
-	Fri, 14 Apr 2023 13:53:25 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.5])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 8F6492027044;
-	Fri, 14 Apr 2023 13:53:24 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20230329140155.53272-6-zhujia.zj@bytedance.com>
-References: <20230329140155.53272-6-zhujia.zj@bytedance.com> <20230329140155.53272-1-zhujia.zj@bytedance.com>
-To: Jia Zhu <zhujia.zj@bytedance.com>
-Subject: Re: [PATCH V5 5/5] cachefiles: add restore command to recover inflight ondemand read requests
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Pydj21WWCz30NN
+	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Apr 2023 00:13:40 +1000 (AEST)
+Received: by mail-pj1-x1034.google.com with SMTP id 98e67ed59e1d1-247399d518dso117021a91.0
+        for <linux-erofs@lists.ozlabs.org>; Fri, 14 Apr 2023 07:13:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681481617; x=1684073617;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=0khoLy+eSzRa5gLnIJcGGxbaem/Y8O3pCzVmwyuZdh8=;
+        b=DjySgpZyA3f/nk6WHOc2Jg7jstrSdfchdcNGfzx4TRLwbiIilxPuH0Esb8SlUP59dT
+         UkC9eurhAJMdEfk7qaxz/iXjx5xh5vhrDHf/zeg9cnl1kE2su/CPa3BCjbR1B2POWhCq
+         T7tpA5rfZZLeltlogd89/cF7pMvdqCqk9NEUa+epK8cqVKBu1o7v4cvxOlch/j5/hmZW
+         Pfsg+XB0LUy+/coOoRjBB3StbxTinY4HmPs8M8ki5PM433i0Fvk8JK4j1fN8KnCzgd97
+         iINfYnQalXMbZiSfeiv4spYzYrAEIc5mNxkd2fXix7P50QZfJkrRks0/7foJrVsSq54y
+         mKTw==
+X-Gm-Message-State: AAQBX9cQ/+wNIbeafIXWY2ganz70+JafsRyZwM2RjhjS4+1pIzqRuKNy
+	GcChS0ee8c9t1L5eo94tJ1DUlA==
+X-Google-Smtp-Source: AKy350aKg9lmYOUaUEQlZgWqZ66lzJFD1dcVcEBuDBWsSx/PM4wkmkAYb4pSZQkjOSGOhInZapBxgA==
+X-Received: by 2002:a05:6a00:178c:b0:63b:4e99:807d with SMTP id s12-20020a056a00178c00b0063b4e99807dmr7746205pfg.8.1681481616918;
+        Fri, 14 Apr 2023 07:13:36 -0700 (PDT)
+Received: from [10.255.185.5] ([139.177.225.243])
+        by smtp.gmail.com with ESMTPSA id s20-20020aa78294000000b005921c46cbadsm3189981pfm.99.2023.04.14.07.13.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 14 Apr 2023 07:13:36 -0700 (PDT)
+Message-ID: <1a9c4365-aae1-b4fe-d31d-dfd9b42afae6@bytedance.com>
+Date: Fri, 14 Apr 2023 22:13:30 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1250438.1681480404.1@warthog.procyon.org.uk>
-Date: Fri, 14 Apr 2023 14:53:24 +0100
-Message-ID: <1250439.1681480404@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.1
+Subject: Re: Re: [PATCH V5 4/5] cachefiles: narrow the scope of triggering
+ EPOLLIN events in ondemand mode
+To: David Howells <dhowells@redhat.com>
+References: <20230329140155.53272-5-zhujia.zj@bytedance.com>
+ <20230329140155.53272-1-zhujia.zj@bytedance.com>
+ <1250225.1681480128@warthog.procyon.org.uk>
+In-Reply-To: <1250225.1681480128@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -81,36 +79,38 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-cachefs@redhat.com, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org
+From: Jia Zhu via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Jia Zhu <zhujia.zj@bytedance.com>
+Cc: linux-kernel@vger.kernel.org, linux-cachefs@redhat.com, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Jia Zhu <zhujia.zj@bytedance.com> wrote:
 
-> +int cachefiles_ondemand_restore(struct cachefiles_cache *cache, char *args)
-> +{
-> +	struct cachefiles_req *req;
-> +
-> +	XA_STATE(xas, &cache->reqs, 0);
-> +
-> +	if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
-> +		return -EOPNOTSUPP;
-> +
-> +	/*
-> +	 * Reset the requests to CACHEFILES_REQ_NEW state, so that the
-> +	 * requests have been processed halfway before the crash of the
-> +	 * user daemon could be reprocessed after the recovery.
-> +	 */
-> +	xas_lock(&xas);
-> +	xas_for_each(&xas, req, ULONG_MAX)
-> +		xas_set_mark(&xas, CACHEFILES_REQ_NEW);
-> +	xas_unlock(&xas);
-> +
-> +	wake_up_all(&cache->daemon_pollwq);
-> +	return 0;
-> +}
 
-Should there be a check to see if this is needed?
+在 2023/4/14 21:48, David Howells 写道:
+> Jia Zhu <zhujia.zj@bytedance.com> wrote:
+> 
+>>   	if (cachefiles_in_ondemand_mode(cache)) {
+>> -		if (!xa_empty(&cache->reqs))
+>> -			mask |= EPOLLIN;
+>> +		if (!xa_empty(xa)) {
+>> +			rcu_read_lock();
+>> +			xa_for_each_marked(xa, index, req, CACHEFILES_REQ_NEW) {
+>> +				if (!cachefiles_ondemand_is_reopening_read(req)) {
+>> +					mask |= EPOLLIN;
+>> +					break;
+>> +				}
+>> +			}
+>> +			rcu_read_unlock();
+> 
+> You should probably use xas_for_each_marked() instead of xa_for_each_marked()
+> as the former should perform better.
+> 
+> David
 
-David
+Hi David,
 
+Thanks for your advice. I'll revise it in next version.
+
+Jia
+> 
