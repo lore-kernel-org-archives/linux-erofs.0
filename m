@@ -4,38 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84402C77B75
-	for <linux-erofs@archiver.kernel.org>; Mon,  8 May 2023 11:04:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2463C77B7F
+	for <linux-erofs@archiver.kernel.org>; Thu, 11 May 2023 14:15:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QFJN50jFFz3ccn
-	for <linux-erofs@archiver.kernel.org>; Mon,  8 May 2023 21:04:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QHDT71mt6z3fY0
+	for <linux-erofs@archiver.kernel.org>; Fri, 12 May 2023 00:15:55 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=axstHXsy;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=axstHXsy;
+	dkim-atps=neutral
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QFJMy19F0z30QQ
-	for <linux-erofs@lists.ozlabs.org>; Mon,  8 May 2023 21:04:44 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vi4YlCm_1683543875;
-Received: from 172.20.4.208(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vi4YlCm_1683543875)
-          by smtp.aliyun-inc.com;
-          Mon, 08 May 2023 19:04:39 +0800
-Message-ID: <ba535bd9-fdd3-b23e-4e9b-73a5d6fb93a2@linux.alibaba.com>
-Date: Mon, 8 May 2023 04:04:35 -0700
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QHDT04cf4z3fJL
+	for <linux-erofs@lists.ozlabs.org>; Fri, 12 May 2023 00:15:48 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id AF09361384;
+	Thu, 11 May 2023 14:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 158CFC433D2;
+	Thu, 11 May 2023 14:15:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1683814545;
+	bh=UBNgC0nJvZWbH9ZV4xw8Vst/6dWrv7d4JnFJkRg2lc0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=axstHXsykGqtDXD1Ubyr0ynkZWZQemCh2hMsW+Naz+cysJhRTPMs63Y+5JdbHSgZ9
+	 OHI3jom/Z0Z8aSpqevwW9b3W7Me01rYiXMKTPBgf+vn8ZRr9AymVlkZFz+E2MRoxjH
+	 I8p2m9nS+SN7nFAPfQJhL7mgwSJxof+m7ZYzjQwsxbCemuEqDdDt08fkKbpF+zXRK3
+	 BlPurT8tvHkLLt3u6V9wXE613viRWtUkDJFKaKK2ifZa83rhUOGpqhmVWNOJSBIR6h
+	 cuU15VStPMFhl00JwemT8yaYiD5uxH9LlSR0AL0nq4+7ITCOLueYEtYDL0ID4DFJPN
+	 6QSjd4NREwFSw==
+From: Gao Xiang <xiang@kernel.org>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: fsck: fix an infinite loop of big pclusters
+Date: Thu, 11 May 2023 22:15:20 +0800
+Message-Id: <20230511141520.32835-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: Merging multiple erofs file systems on the same block device
-To: Daan De Meyer <daan.j.demeyer@gmail.com>
-References: <CAO8sHc=vxhp_+98Om7C83zOyXmdAkAxeoOrnffgwqkPntvO2fw@mail.gmail.com>
- <86f08d9c-ea37-6012-fbb9-c2e2710c00f1@linux.alibaba.com>
- <CAO8sHc=7FHA8vEnHHOySnOCDQ9HvWbCEC3nVqyG6J=OJEfz38Q@mail.gmail.com>
- <3e0474fc-2d24-8c47-9f0f-40b6709d6e74@linux.alibaba.com>
- <CAO8sHcmFF5KrB5GkXvCcueNHzZcyksWsGTJjjxSE=uo+=xRVFg@mail.gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <CAO8sHcmFF5KrB5GkXvCcueNHzZcyksWsGTJjjxSE=uo+=xRVFg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -47,108 +57,37 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Chaoming Yang <lometsj@live.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
+Actually it's outdated code compared with kernel
+commit b86269f43892 ("erofs: support parsing big pcluster compact indexes")
 
-On 2023/5/5 16:19, Daan De Meyer wrote:
->> On 2023/5/2 18:03, Daan De Meyer wrote:
->>>> On 2023/5/1 22:09, Daan De Meyer wrote:
->>>>> Hi,
->>>>>
->>>>> I've been looking into erofs as an initramfs replacement by using
->>>>> root=/dev/ram0 to tell the kernel to load the initramfs as a ramdisk.
->>>>
->>>> Sorry, I'm on vacation now.
->>>>
->>>> May I ask what's your detailed use cases?  Sure, you could use
->>>> /dev/ram0 as a replacement, but currently it still takes double
->>>> memory compared with initramfs since ramdisk doesn't support FSDAX
->>>> for now (by enabling FSDAX, it won't take double memory at all.)
->>>
->>> I'm experimenting with larger initramfses and running into memory
->>> bottlenecks since the entire compressed cpio has to be decompressed
->>> into memory. I was hoping to use erofs as a replacement that could stay
->>> compressed, where only the files that are actually accessed are
->>> decompressed at runtime.
->>
->> Sorry for late reply.
->>
->> Okay, that makes sense, although FSDAX cannot be used as this way since
->> decompressed data is needed for mmapped accesses.
-> 
-> Can you clarify why using a ramdisk would take double the memory if FSDAX
-> is not used?
+This will cause fsck.erofs works endlessly on some crafted images.
 
-You could take a look at
-https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt
+Reported-by: Chaoming Yang <lometsj@live.com>
+Fixes: 418fb683fd96 ("erofs-utils: fsck: fix an infinite loop of big pcluster")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/zmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-and section "ramfs and ramdisk" describes the details, but FSDAX could avoid
-this problem.
+diff --git a/lib/zmap.c b/lib/zmap.c
+index 7b0fd83..6d9b033 100644
+--- a/lib/zmap.c
++++ b/lib/zmap.c
+@@ -322,7 +322,7 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
+ 					nblk += lo & ~Z_EROFS_VLE_DI_D0_CBLKCNT;
+ 					continue;
+ 				}
+-				if (lo == 1) {
++				if (lo <= 1) {
+ 					DBG_BUGON(1);
+ 					/* --i; ++nblk;	continue; */
+ 					return -EFSCORRUPTED;
+-- 
+2.30.2
 
-> 
->>>
->>>> Actually I think ramdisk FSDAX is useful and I might sync up this on
->>>> the following LSF/MM/BPF 2023.
->>>>
->>>>> However, by using a ramdisk instead of the usual compressed cpio, I
->>>>> would lose the feature where the kernel merges multiple individual
->>>>> cpios together into a single tmpfs filesystem. Looking at the
->>>>> documentation for erofs, I noticed that erofs already seems to support
->>>>> merging multiple erofs filesystems on separate block devices using the
->>>>> device= cmdline option. Would it be possible to extend this so that
->>>> Here `device=` is actually used to refer to seperate blobs with the
->>>> merged metadata.  For example, you could have
->>>>
->>>>      device=/dev/ram1 original tar1
->>>>      device=/dev/ram2 original tar2
->>>>      /dev/ram0        merged metadata for tar1 + tar2.
->>>>
->>>> which means, if you'd like to merge multiple EROFS filesystems, you
->>>> might need another step to build a merged metadata in advance in order
->>>> to merges multiple individual tarballs together, which could be built
->>>> when applying images or booting (by using a special bootloader with
->>>> such functionality.)
->>>
->>> Ahh, I misunderstood the device= option then.
->>>
->>>> EROFS doesn't support stacking multiple fses runtimely since it seems
->>>> a duplicated feature of overlayfs (you could consider using overlayfs
->>>> honestly.)
->>>
->>> I would love to use overlayfs, but there's no way to specify to the kernel that
->>> the initrd should be set up as an overlayfs of a set of ram disks. It would be
->>> interesting if I could put multiple filesystems in the initrd and the
->>> kernel would
->>> notice and automatically set up an overlayfs of them.
->>
->> I didn't use overlayfs as this way so I'm not sure as well.  Yet as a wild
->> guess, you could specify a ramdisk with a customized init to stack
->> overlayfs like this in the userspace?  Not sure though...
-> 
-> This approach generally works, but if you want to enforce all mounted
-> filesystems to be dm-verity protected, you now need to add verity data
-> for all these filesystems to the initramfs. That's why we're looking
-> for a solution where the kernel sets up the filesystem mount of the
-> ramdisk which is special cased and doesn't require verity data to be
-> present. Anyway, the overlayfs issue is not something for erofs to
-> solve. If at all desirable, it should probably be filesystem
-> independent where the kernel just looks for multiple filesystems in
-> the initrd buffer and sets up an overlay mount using each found
-> filesystem.
-
-I'm not sure if you could still specify one root filesystem with
-dm-verity and it mounts filesystems of rest layers and then uses
-overlayfs properly with a customized init.
-
-Yes, anyway, you could enhance kernel init code as well.
-
-Thanks,
-Gao Xiang
-
-> 
-> Cheers,
-> 
-> Daan De Meyer
