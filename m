@@ -4,38 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51A2BC77B7F
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 May 2023 18:15:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D928C77B75
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 May 2023 18:39:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QM1Vn4SyGz3f91
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 May 2023 04:15:29 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QM2246WCCz3f87
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 May 2023 04:39:08 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.166.197; helo=mail-il1-f197.google.com; envelope-from=3ih9lzakbab8ntuf5gg9m5kkd8.bjjbg9pn9m7jio9io.7jh@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=<UNKNOWN>)
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QM1Vf6Y2tz3f5w
-	for <linux-erofs@lists.ozlabs.org>; Thu, 18 May 2023 04:15:21 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R761e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VitiUur_1684347313;
-Received: from 30.13.129.94(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VitiUur_1684347313)
-          by smtp.aliyun-inc.com;
-          Thu, 18 May 2023 02:15:16 +0800
-Message-ID: <85c61aae-6716-9936-1533-91624f70eefe@linux.alibaba.com>
-Date: Thu, 18 May 2023 02:15:12 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QM21K4P4Tz3fCY
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 May 2023 04:38:28 +1000 (AEST)
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3382e29ab5bso7118705ab.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 17 May 2023 11:38:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684348706; x=1686940706;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4Vamjh5zaT+/xLZPoxv52up73xCnN6/tfSU9g/y8Wto=;
+        b=TgX6W+iEIinmlrxa1s39L4bSgU6wzxkni0LxTGhIQkHqsqmMRK+tP2amwzod+TqJJa
+         Orz98NPh0DW1OXOkY3wa7YnlNGSzfzFrT+83v7l4ND9FDT5b8sLpOFjsGmWXka0WPXxh
+         z7jHbxAsGRtq5Dghyw57B9VHU1y1g/Jh4a6YRF5kB5ST8e/H5yPk3FRMfltJbmtWQuZY
+         UID/bxG7hsIa+7ppmlP/fxWSz/ijTnp0VfBRhuT5TzaEudjMhi2Cx9ym6DgaGpMY3kaY
+         NmKzLkGxywJusQ5Xk3P4dMRgjQCmxpggjEovLe8lE29Xj/uNe2j5k7jXoTMIrAlA3VjG
+         SSJg==
+X-Gm-Message-State: AC+VfDw1Rs9/53BaRWSBOBr69yjhsX3ldO+eui/6ymW8qPzJs3qEIWaR
+	oj25eaLWV8T8+7Cw/x9aH1gajhwTovu9DvSgwR9fR43LlhdH
+X-Google-Smtp-Source: ACHHUZ6+DaqJKQq5UGHV13ZmtB1Lik9tk/rPaeURCGSY41bL/WLiaZFVIqeSPs8lpve1mrKhkaVJF6OOQSxfZVx2zQoYNtzKfQVI
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
+X-Received: by 2002:a92:d152:0:b0:331:9a82:33f8 with SMTP id
+ t18-20020a92d152000000b003319a8233f8mr1830905ilg.3.1684348706156; Wed, 17 May
+ 2023 11:38:26 -0700 (PDT)
+Date: Wed, 17 May 2023 11:38:26 -0700
+In-Reply-To: <85c61aae-6716-9936-1533-91624f70eefe@linux.alibaba.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000004ef96f05fbe7fe6f@google.com>
 Subject: Re: [syzbot] [erofs?] general protection fault in erofs_bread (2)
-To: syzbot <syzbot+bbb353775d51424087f2@syzkaller.appspotmail.com>,
- chao@kernel.org, huyue2@coolpad.com, jefflexu@linux.alibaba.com,
- linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
- xiang@kernel.org
-References: <000000000000d03b0805fbe71d55@google.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <000000000000d03b0805fbe71d55@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: syzbot <syzbot+bbb353775d51424087f2@syzkaller.appspotmail.com>
+To: chao@kernel.org, hsiangkao@linux.alibaba.com, huyue2@coolpad.com, 
+	jefflexu@linux.alibaba.com, linux-erofs@lists.ozlabs.org, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, xiang@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -50,29 +62,20 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Hello,
 
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-On 2023/5/18 10:35, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    f1fcbaa18b28 Linux 6.4-rc2
-> git tree:       upstream
-> console+strace: https://syzkaller.appspot.com/x/log.txt?x=114aa029280000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=6beb6ffe4f59ef2a
-> dashboard link: https://syzkaller.appspot.com/bug?extid=bbb353775d51424087f2
-> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13dd834e280000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=167ef106280000
-> 
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/4adf207e9d5e/disk-f1fcbaa1.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/9e7cce92f611/vmlinux-f1fcbaa1.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/cfd911b80f89/bzImage-f1fcbaa1.xz
-> mounted in repro: https://storage.googleapis.com/syzbot-assets/a2583fbaaf14/mount_2.gz
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+bbb353775d51424087f2@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+bbb353775d51424087f2@syzkaller.appspotmail.com
 
-#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git fixes
+Tested on:
+
+commit:         ae0bac79 erofs: avoid pcpubuf.c inclusion if CONFIG_ER..
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git fixes
+console output: https://syzkaller.appspot.com/x/log.txt?x=16793226280000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=6beb6ffe4f59ef2a
+dashboard link: https://syzkaller.appspot.com/bug?extid=bbb353775d51424087f2
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
