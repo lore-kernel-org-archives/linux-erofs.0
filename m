@@ -4,72 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 27C1CC77B7A
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 May 2023 08:49:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11CA8C77B7A
+	for <linux-erofs@archiver.kernel.org>; Fri, 19 May 2023 17:35:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QN0rN2ytKz3f40
-	for <linux-erofs@archiver.kernel.org>; Fri, 19 May 2023 18:49:08 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QNDWC4G5Gz3gKc
+	for <linux-erofs@archiver.kernel.org>; Sat, 20 May 2023 03:35:03 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GQOJc/91;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L1COC9mD;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dowl3uz1;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dowl3uz1;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=<UNKNOWN>)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GQOJc/91;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L1COC9mD;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dowl3uz1;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dowl3uz1;
 	dkim-atps=neutral
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QN0rF1ckDz3f40
-	for <linux-erofs@lists.ozlabs.org>; Fri, 19 May 2023 18:48:59 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QNDCb0Ntjz3fNQ
+	for <linux-erofs@lists.ozlabs.org>; Sat, 20 May 2023 03:21:30 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1684486135;
+	s=mimecast20190719; t=1684516887;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NFfz1Qefawb0lyg57CVn7ptvHTdohZyit/vKaHZw8LE=;
-	b=GQOJc/91WIiP2p5sn6uHG6wy0zEY35fAuX26arFBIe5Gn071/G/cbljjV4Xi4LmF9vuEva
-	+zA5PX6S7Y3oyn2B6VqZ5Okk5rNRTTI6/mRire0aq9k1ugi1e3c4X5dOen7noTJFHOaEbV
-	fo+/Di+5Dbvp2BxwZelRxK6isgN8Zqo=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=2KKXfGDHxrX+6XLdqChQuTj9B0h9lQtkKNegqRI3p6E=;
+	b=dowl3uz1qy5reIHD8vdLlRZYl5H488JdhFTSjwZiP1EFmgDu9N0iAumPwLiULCQm5cml5z
+	x1fpjObxSU+ca+0TYEfwnsvA/Wt82uXXAfWpAeHmEkIB4vaZ1sHKo8DPdWuT+nyymjZd3W
+	f8+I8x0q1rtJnPKwzeXJXrtllq7eC8s=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1684486136;
+	s=mimecast20190719; t=1684516887;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NFfz1Qefawb0lyg57CVn7ptvHTdohZyit/vKaHZw8LE=;
-	b=L1COC9mDC5DFcm0UpxucwzslltiIs8rvCD1RZzAm5CW3fDtkQIkQNHchElmXpk4d6F7ucB
-	psVbA20hZ4NpYpvWvFgjsKwh60HCSOEYWJEOLyYri1e1wg+e1DMf76sQRYHojAgUokDIQ0
-	b9ndlG9P4koftDxEurS0LNJn6Y4LNDI=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=2KKXfGDHxrX+6XLdqChQuTj9B0h9lQtkKNegqRI3p6E=;
+	b=dowl3uz1qy5reIHD8vdLlRZYl5H488JdhFTSjwZiP1EFmgDu9N0iAumPwLiULCQm5cml5z
+	x1fpjObxSU+ca+0TYEfwnsvA/Wt82uXXAfWpAeHmEkIB4vaZ1sHKo8DPdWuT+nyymjZd3W
+	f8+I8x0q1rtJnPKwzeXJXrtllq7eC8s=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-176-PtzYX2HQN1GxCR941SWFpg-1; Fri, 19 May 2023 04:48:51 -0400
-X-MC-Unique: PtzYX2HQN1GxCR941SWFpg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+ us-mta-27-OtPTiJeUNUe2Hj4TZRRGtg-1; Fri, 19 May 2023 13:21:21 -0400
+X-MC-Unique: OtPTiJeUNUe2Hj4TZRRGtg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
 	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 485DC80120A;
-	Fri, 19 May 2023 08:48:50 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 712A785A5A8;
+	Fri, 19 May 2023 17:21:21 +0000 (UTC)
 Received: from warthog.procyon.org.uk (unknown [10.42.28.221])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 9E8842026D49;
-	Fri, 19 May 2023 08:48:47 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id BA3C640D1B60;
+	Fri, 19 May 2023 17:21:20 +0000 (UTC)
 Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
 	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
 	Kingdom.
 	Registered in England and Wales under Company Registration No. 3798903
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <ZGcu6GVxOgYfy8x9@infradead.org>
-References: <ZGcu6GVxOgYfy8x9@infradead.org> <20230519074047.1739879-1-dhowells@redhat.com> <20230519074047.1739879-6-dhowells@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v20 05/32] splice: Make splice from a DAX file use direct_splice_read()
+To: linux-cachefs@redhat.com
+Subject: [PATCH] cachefiles: Allow the cache to be non-root
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1742242.1684486127.1@warthog.procyon.org.uk>
-Date: Fri, 19 May 2023 09:48:47 +0100
-Message-ID: <1742243.1684486127@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Content-ID: <1853229.1684516880.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 19 May 2023 18:21:20 +0100
+Message-ID: <1853230.1684516880@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -81,26 +80,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, Hillf Danton <hdanton@sina.com>, Jan Kara <jack@suse.cz>, linux-xfs@vger.kernel.org, David Hildenbrand <david@redhat.com>, linux-erofs@lists.ozlabs.org, Linus Torvalds <torvalds@linux-foundation.org>, Jeff Layton <jlayton@kernel.org>, Christian Brauner <brauner@kernel.org>, Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-mm@kvack.org, Al Viro <viro@zeniv.linux.org.uk>, Jason Gunthorpe <jgg@nvidia.com>, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Christoph Hellwig <hch@lst.de>
+Cc: dhowells@redhat.com, linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Christoph Hellwig <hch@infradead.org> wrote:
+    =
 
-> On Fri, May 19, 2023 at 08:40:20AM +0100, David Howells wrote:
-> > +#ifdef CONFIG_FS_DAX
-> > +	if (IS_DAX(in->f_mapping->host))
-> 
-> No need for the ifdef.  IS_DAX is compile-time false if CONFIG_FS_DAX
-> is not set.
+Set mode 0600 on files in the cache so that cachefilesd can run as an
+unprivileged user rather than leaving the files all with 0.  Directories
+are already set to 0700.
 
-Ah - it's not that IS_DAX() is conditionalised, it's that S_DAX is.  There's a
-bunch of places that use CONFIG_FS_DAX blocks, but I guess that's because they
-include calls to functions that are conditionalised out.
+Userspace then needs to set the uid and gid before issuing the "bind"
+command and the cache must've been chown'd to those IDs.
 
-I wonder if the dax_iomap_rw() declaration in the header can have a non-DAX
-fallback that returns an error and then we can get rid of some of the other
-conditionalisation.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: David Howells <dhowells@redhat.com>
+cc: Jeff Layton <jlayton@kernel.org>
+cc: linux-cachefs@redhat.com
+cc: linux-erofs@lists.ozlabs.org
+cc: linux-fsdevel@vger.kernel.org
+---
+ fs/cachefiles/namei.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-David
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+index 82219a8f6084..66482c193e86 100644
+--- a/fs/cachefiles/namei.c
++++ b/fs/cachefiles/namei.c
+@@ -451,7 +451,8 @@ struct file *cachefiles_create_tmpfile(struct cachefil=
+es_object *object)
+ =
+
+ 	ret =3D cachefiles_inject_write_error();
+ 	if (ret =3D=3D 0) {
+-		file =3D vfs_tmpfile_open(&nop_mnt_idmap, &parentpath, S_IFREG,
++		file =3D vfs_tmpfile_open(&nop_mnt_idmap, &parentpath,
++					S_IFREG | 0600,
+ 					O_RDWR | O_LARGEFILE | O_DIRECT,
+ 					cache->cache_cred);
+ 		ret =3D PTR_ERR_OR_ZERO(file);
 
