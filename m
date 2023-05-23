@@ -4,35 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 193C9C77B7A
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 May 2023 03:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2EEAC7EE23
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 May 2023 06:20:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QQL864QGCz3cgv
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 May 2023 13:55:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QQPLR0ZtQz3cgq
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 May 2023 16:19:59 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RkChh1nR;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RkChh1nR;
+	dkim-atps=neutral
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QQL801q1Hz3bWC
-	for <linux-erofs@lists.ozlabs.org>; Tue, 23 May 2023 13:55:43 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VjIKnwx_1684814136;
-Received: from 30.97.48.222(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VjIKnwx_1684814136)
-          by smtp.aliyun-inc.com;
-          Tue, 23 May 2023 11:55:38 +0800
-Message-ID: <f32ab134-5eba-9e71-a61f-31f1544eaecf@linux.alibaba.com>
-Date: Tue, 23 May 2023 11:55:36 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QQPLJ51WGz3btQ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 23 May 2023 16:19:52 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 7E9AB62571;
+	Tue, 23 May 2023 06:19:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72211C433EF;
+	Tue, 23 May 2023 06:19:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1684822789;
+	bh=KAVEqt/JEohCVjW0sfFZBs2E7jSKgH4ZExSL2rRnJAk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=RkChh1nRR4XlzI5dz24Hqt59N6RTFlEQXytCmNL9YEZsM/KhIgwR1LRC0pQJlUNNs
+	 64ihtB8stMuIt/XiOZNQIB/carbXmWibAIAX/K33ptqF+X2KRx8qDNkuGrgmmQEht9
+	 EHXyyzZ+dGwFQYTmB9UxufWmi5PJYhngfvRBG2z52C9FNRI+yIcYlQmrJiirFDJDUy
+	 Gh9Le41b1nHwcyGIKuHID3in3tYB7BNwEnavhM+Z5PGvVeCgJ6QVCzpxWDb29kNVOc
+	 YJ8tfVvev3Ui7ItwVpze18qSxFXqlQRYlVPo+E4QPKtRDl/gvNvkMXFQTisaaA+foG
+	 KU+0qxcdUmZJg==
+Message-ID: <b183ca8b-7292-7d6c-e267-0e10bd32ba8c@kernel.org>
+Date: Tue, 23 May 2023 14:19:46 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: EROFS Receives Some Useful Improvements With Linux 6.4
-To: Bagas Sanjaya <bagasdotme@gmail.com>,
- Turritopsis Dohrnii Teo En Ming <tdtemccnp@gmail.com>,
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH] erofs: avoid pcpubuf.c inclusion if CONFIG_EROFS_FS_ZIP
+ is off
+Content-Language: en-US
+To: Yue Hu <zbestahu@gmail.com>, xiang@kernel.org,
  linux-erofs@lists.ozlabs.org
-References: <CAD3upLsZ_Y=b4vyWzv4_aX9JOGes=Y-rwqMJ52pDQ+Na+j0xtg@mail.gmail.com>
- <ZGw3a63tT6E+YjS5@debian.me>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <ZGw3a63tT6E+YjS5@debian.me>
+References: <20230515095758.10391-1-zbestahu@gmail.com>
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <20230515095758.10391-1-zbestahu@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -46,32 +64,19 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: ceo@teo-en-ming-corp.com
+Cc: huyue2@coolpad.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/5/23 20:47, Bagas Sanjaya wrote:
-> On Mon, May 01, 2023 at 05:05:06PM +0800, Turritopsis Dohrnii Teo En Ming wrote:
->> Article: EROFS Receives Some Useful Improvements With Linux 6.4
->> Link: https://www.phoronix.com/news/Linux-6.4-EROFS
+On 2023/5/15 17:57, Yue Hu wrote:
+> From: Yue Hu <huyue2@coolpad.com>
 > 
-> Linux 6.4 is on -rc phase (currently v6.4-rc3). Can you try it with
-> erofs enabled and report any issues found?
+> The function of pcpubuf.c is just for low-latency decompression
+> algorithms (e.g. lz4).
 > 
-> Also, again, you've mistaken LKML with personal blog/forum. There are
-> many forums on the Web discussing Linux for this kind of message (for
-> example: Hacker News and linux.org forums). Please DO NOT do spam like
-> this in the future.
+> Signed-off-by: Yue Hu <huyue2@coolpad.com>
+> Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-Yeah, I saw the original post and really had no idea what happened.
-If there could be any issue/suggestion about EROFS, you could report
-so I could seek time to address it.
+Reviewed-by: Chao Yu <chao@kernel.org>
 
 Thanks,
-Gao XIang
-
-> 
-> Bye!
-> 
