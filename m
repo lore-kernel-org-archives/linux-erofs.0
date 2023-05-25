@@ -4,31 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B51DDC7EE39
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 May 2023 08:32:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 054F4C7EE32
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 May 2023 08:32:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QRhBC5n9Cz3fDC
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 May 2023 18:32:19 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QRhBJ3kVBz3fCp
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 May 2023 18:32:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QRhB14xqtz3bqw
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QRhB16Jr9z3f67
 	for <linux-erofs@lists.ozlabs.org>; Thu, 25 May 2023 18:32:08 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VjRZXN9_1685003521;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VjRZXN9_1685003521)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VjRUz-S_1685003523;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VjRUz-S_1685003523)
           by smtp.aliyun-inc.com;
-          Thu, 25 May 2023 16:32:02 +0800
+          Thu, 25 May 2023 16:32:04 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 0/5] erofs-utils: tests: restructure test cases for xattr
-Date: Thu, 25 May 2023 16:31:56 +0800
-Message-Id: <20230525083201.23740-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH 2/5] erofs-utils: tests: add test for xattrs
+Date: Thu, 25 May 2023 16:31:58 +0800
+Message-Id: <20230525083201.23740-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230525083201.23740-1-jefflexu@linux.alibaba.com>
+References: <20230525083201.23740-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,54 +47,103 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This series restructures some existing test cases for xattr.
+From: Huang Jianan <huangjianan@oppo.com>
 
-- patch 1/2: some generic helpers are extracted from erofs/019 [1]
-- patch 3/4: the previous posted test case [2] checking xattrs in
-  different layouts are split into two test cases, i.e. erofs/020 and
-  erofs/021.
-    - erofs/020 checks xattrs in different layouts and is independent on
-      the "-b#" feature of mkfs.erofs
-    - erofs/021 checks xattrs crossing block boundary.  It is dependent
-      on the "-b#" feature of mkfs.erofs and will "notrun" if mkfs.erofs
-      doesn't support this feature yet
-- patch 5: it's the previous posted test case [3] checking long xattr
-  name prefixes, except that it will "notrun" if mkfs.erofs doesn't
-  support "--xattr-prefix" feature yet
+Add basic functional check for xattrs.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/tree/tests/erofs/019?h=experimental-tests
-[2] https://lore.kernel.org/all/20230327123926.92934-1-jefflexu@linux.alibaba.com/
-[3] https://lore.kernel.org/all/20230411103004.104064-1-jefflexu@linux.alibaba.com/
-
-Huang Jianan (1):
-  erofs-utils: tests: add test for xattrs
-
-Jingbo Xu (4):
-  erofs-utils: tests: add generic helper for xattrs
-  erofs-utils: tests: add test for xattrs in different layouts
-  erofs-utils: tests: add test for xattr crossing block boundary
-  erofs-utils: tests: add test for long xattr name prefixes
-
- tests/Makefile.am   | 12 +++++++++
- tests/common/rc     | 44 ++++++++++++++++++++++++++++++
- tests/erofs/019     | 55 ++++++++++++++++++++++++++++++++++++++
+Signed-off-by: Huang Jianan <huangjianan@oppo.com>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ tests/Makefile.am   |  3 +++
+ tests/erofs/019     | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++++
  tests/erofs/019.out |  2 ++
- tests/erofs/020     | 77 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/020.out |  2 ++
- tests/erofs/021     | 60 +++++++++++++++++++++++++++++++++++++++++
- tests/erofs/021.out |  2 ++
- tests/erofs/022     | 77 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/022.out |  2 ++
- 10 files changed, 333 insertions(+)
+ 3 files changed, 60 insertions(+)
  create mode 100755 tests/erofs/019
  create mode 100644 tests/erofs/019.out
- create mode 100755 tests/erofs/020
- create mode 100644 tests/erofs/020.out
- create mode 100755 tests/erofs/021
- create mode 100644 tests/erofs/021.out
- create mode 100755 tests/erofs/022
- create mode 100644 tests/erofs/022.out
 
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 3bd6ad5..b85ae89 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -88,6 +88,9 @@ TESTS += erofs/017
+ # 018 - verify lzma compressed image
+ TESTS += erofs/018
+ 
++# 019 - check extended attribute functionality
++TESTS += erofs/019
++
+ EXTRA_DIST = common/rc erofs
+ 
+ clean-local: clean-local-check
+diff --git a/tests/erofs/019 b/tests/erofs/019
+new file mode 100755
+index 0000000..0b89b77
+--- /dev/null
++++ b/tests/erofs/019
+@@ -0,0 +1,55 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++#
++# 019 - check extended attribute functionality
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++_require_erofs
++_require_xattr
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++if [ -z $SCRATCH_DEV ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++# set random xattrs
++cp -nR ../ $localdir
++dirs=`ls $localdir`
++for d in $dirs; do
++	key=`head -20 /dev/urandom | cksum | cut -f1 -d " "`
++	val="0s"`head -3 /dev/urandom | base64 -w0`
++	setfattr -n user.$key -v $val $localdir/$d
++done
++
++_scratch_mkfs $localdir >> $seqres.full 2>&1 || _fail "failed to mkfs"
++_scratch_mount 2>>$seqres.full
++
++# check xattrs
++_check_xattrs $localdir $SCRATCH_MNT
++
++_scratch_unmount
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/019.out b/tests/erofs/019.out
+new file mode 100644
+index 0000000..163484b
+--- /dev/null
++++ b/tests/erofs/019.out
+@@ -0,0 +1,2 @@
++QA output created by 019
++Silence is golden
 -- 
 1.8.3.1
 
