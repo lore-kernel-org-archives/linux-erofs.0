@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C3D50C77B73
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 May 2023 20:15:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD2FDC77B73
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 May 2023 20:15:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QSbl72mgdz3fFd
-	for <linux-erofs@archiver.kernel.org>; Sat, 27 May 2023 06:15:31 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QSblB3gkPz3fFs
+	for <linux-erofs@archiver.kernel.org>; Sat, 27 May 2023 06:15:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QSbkp5ZLtz3fCq
-	for <linux-erofs@lists.ozlabs.org>; Sat, 27 May 2023 06:15:14 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VjXYN4h_1685132108;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VjXYN4h_1685132108)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QSbkr1wjJz3fCq
+	for <linux-erofs@lists.ozlabs.org>; Sat, 27 May 2023 06:15:16 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VjXYN5q_1685132111;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VjXYN5q_1685132111)
           by smtp.aliyun-inc.com;
-          Sat, 27 May 2023 04:15:09 +0800
+          Sat, 27 May 2023 04:15:12 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/6] erofs: kill hooked chains to avoid loops on deduplicated compressed images
-Date: Sat, 27 May 2023 04:14:56 +0800
-Message-Id: <20230526201459.128169-4-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5/6] erofs: use struct lockref to replace handcrafted approach
+Date: Sat, 27 May 2023 04:14:58 +0800
+Message-Id: <20230526201459.128169-6-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20230526201459.128169-1-hsiangkao@linux.alibaba.com>
 References: <20230526201459.128169-1-hsiangkao@linux.alibaba.com>
@@ -45,214 +45,290 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-After heavily stressing EROFS with several images which include a
-hand-crafted image of repeated patterns for more than 46 days, I found
-two chains could be linked with each other almost simultaneously and
-form a loop so that the entire loop won't be submitted.  As a
-consequence, the corresponding file pages will remain locked forever.
+Let's avoid the current handcrafted lockref although `struct lockref`
+inclusion usually increases extra 4 bytes with an explicit spinlock if
+CONFIG_DEBUG_SPINLOCK is off.
 
-It can be _only_ observed on data-deduplicated compressed images.
-For example, consider two chains with five pclusters in total:
-	Chain 1:  2->3->4->5    -- The tail pcluster is 5;
-        Chain 2:  5->1->2       -- The tail pcluster is 2.
+Apart from the size difference, note that the meaning of refcount is
+also changed to active users. IOWs, it doesn't take an extra refcount
+for XArray tree insertion.
 
-Chain 2 could link to Chain 1 with pcluster 5; and Chain 1 could link
-to Chain 2 at the same time with pcluster 2.
+I don't observe any significant performance difference at least on
+our cloud compute server but the new one indeed simplifies the
+overall codebase a bit.
 
-Since hooked chains are all linked locklessly now, I have no idea how
-to simply avoid the race.  Instead, let's avoid hooked chains completely
-until I could work out a proper way to fix this and end users finally
-tell us that it's needed to add it back.
-
-Actually, this optimization can be found with multi-threaded workloads
-(especially even more often on deduplicated compressed images), yet I'm
-not sure about the overall system impacts of not having this compared
-with implementation complexity.
-
-Fixes: 267f2492c8f7 ("erofs: introduce multi-reference pclusters (fully-referenced)")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/zdata.c | 72 ++++++++----------------------------------------
- 1 file changed, 11 insertions(+), 61 deletions(-)
+ fs/erofs/internal.h | 38 ++------------------
+ fs/erofs/utils.c    | 87 ++++++++++++++++++++++-----------------------
+ fs/erofs/zdata.c    | 15 ++++----
+ 3 files changed, 53 insertions(+), 87 deletions(-)
 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 0b8506c39145..e63f6cd424a0 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -208,46 +208,12 @@ enum {
+ 	EROFS_ZIP_CACHE_READAROUND
+ };
+ 
+-#define EROFS_LOCKED_MAGIC     (INT_MIN | 0xE0F510CCL)
+-
+ /* basic unit of the workstation of a super_block */
+ struct erofs_workgroup {
+-	/* the workgroup index in the workstation */
+ 	pgoff_t index;
+-
+-	/* overall workgroup reference count */
+-	atomic_t refcount;
++	struct lockref lockref;
+ };
+ 
+-static inline bool erofs_workgroup_try_to_freeze(struct erofs_workgroup *grp,
+-						 int val)
+-{
+-	preempt_disable();
+-	if (val != atomic_cmpxchg(&grp->refcount, val, EROFS_LOCKED_MAGIC)) {
+-		preempt_enable();
+-		return false;
+-	}
+-	return true;
+-}
+-
+-static inline void erofs_workgroup_unfreeze(struct erofs_workgroup *grp,
+-					    int orig_val)
+-{
+-	/*
+-	 * other observers should notice all modifications
+-	 * in the freezing period.
+-	 */
+-	smp_mb();
+-	atomic_set(&grp->refcount, orig_val);
+-	preempt_enable();
+-}
+-
+-static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
+-{
+-	return atomic_cond_read_relaxed(&grp->refcount,
+-					VAL != EROFS_LOCKED_MAGIC);
+-}
+-
+ enum erofs_kmap_type {
+ 	EROFS_NO_KMAP,		/* don't map the buffer */
+ 	EROFS_KMAP,		/* use kmap_local_page() to map the buffer */
+@@ -492,7 +458,7 @@ static inline void erofs_pagepool_add(struct page **pagepool, struct page *page)
+ void erofs_release_pages(struct page **pagepool);
+ 
+ #ifdef CONFIG_EROFS_FS_ZIP
+-int erofs_workgroup_put(struct erofs_workgroup *grp);
++void erofs_workgroup_put(struct erofs_workgroup *grp);
+ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+ 					     pgoff_t index);
+ struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
+diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
+index 46627cb69abe..6895680e1372 100644
+--- a/fs/erofs/utils.c
++++ b/fs/erofs/utils.c
+@@ -33,22 +33,21 @@ void erofs_release_pages(struct page **pagepool)
+ /* global shrink count (for all mounted EROFS instances) */
+ static atomic_long_t erofs_global_shrink_cnt;
+ 
+-static int erofs_workgroup_get(struct erofs_workgroup *grp)
++static bool erofs_workgroup_get(struct erofs_workgroup *grp)
+ {
+-	int o;
++	if (lockref_get_not_zero(&grp->lockref))
++		return true;
+ 
+-repeat:
+-	o = erofs_wait_on_workgroup_freezed(grp);
+-	if (o <= 0)
+-		return -1;
+-
+-	if (atomic_cmpxchg(&grp->refcount, o, o + 1) != o)
+-		goto repeat;
++	spin_lock(&grp->lockref.lock);
++	if (__lockref_is_dead(&grp->lockref)) {
++		spin_unlock(&grp->lockref.lock);
++		return false;
++	}
+ 
+-	/* decrease refcount paired by erofs_workgroup_put */
+-	if (o == 1)
++	if (!grp->lockref.count++)
+ 		atomic_long_dec(&erofs_global_shrink_cnt);
+-	return 0;
++	spin_unlock(&grp->lockref.lock);
++	return true;
+ }
+ 
+ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+@@ -61,7 +60,7 @@ struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
+ 	rcu_read_lock();
+ 	grp = xa_load(&sbi->managed_pslots, index);
+ 	if (grp) {
+-		if (erofs_workgroup_get(grp)) {
++		if (!erofs_workgroup_get(grp)) {
+ 			/* prefer to relax rcu read side */
+ 			rcu_read_unlock();
+ 			goto repeat;
+@@ -80,11 +79,10 @@ struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
+ 	struct erofs_workgroup *pre;
+ 
+ 	/*
+-	 * Bump up a reference count before making this visible
+-	 * to others for the XArray in order to avoid potential
+-	 * UAF without serialized by xa_lock.
++	 * Bump up before making this visible to others for the XArray in order
++	 * to avoid potential UAF without serialized by xa_lock.
+ 	 */
+-	atomic_inc(&grp->refcount);
++	lockref_get(&grp->lockref);
+ 
+ repeat:
+ 	xa_lock(&sbi->managed_pslots);
+@@ -93,13 +91,13 @@ struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
+ 	if (pre) {
+ 		if (xa_is_err(pre)) {
+ 			pre = ERR_PTR(xa_err(pre));
+-		} else if (erofs_workgroup_get(pre)) {
++		} else if (!erofs_workgroup_get(pre)) {
+ 			/* try to legitimize the current in-tree one */
+ 			xa_unlock(&sbi->managed_pslots);
+ 			cond_resched();
+ 			goto repeat;
+ 		}
+-		atomic_dec(&grp->refcount);
++		lockref_put_return(&grp->lockref);
+ 		grp = pre;
+ 	}
+ 	xa_unlock(&sbi->managed_pslots);
+@@ -112,38 +110,36 @@ static void  __erofs_workgroup_free(struct erofs_workgroup *grp)
+ 	erofs_workgroup_free_rcu(grp);
+ }
+ 
+-int erofs_workgroup_put(struct erofs_workgroup *grp)
++void erofs_workgroup_put(struct erofs_workgroup *grp)
+ {
+-	int count = atomic_dec_return(&grp->refcount);
++	if (lockref_put_not_zero(&grp->lockref))
++		return;
+ 
+-	if (count == 1)
++	spin_lock(&grp->lockref.lock);
++	DBG_BUGON(__lockref_is_dead(&grp->lockref));
++	if (grp->lockref.count == 1) {
+ 		atomic_long_inc(&erofs_global_shrink_cnt);
+-	else if (!count)
+-		__erofs_workgroup_free(grp);
+-	return count;
++		--grp->lockref.count;
++	}
++	spin_unlock(&grp->lockref.lock);
+ }
+ 
+ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ 					   struct erofs_workgroup *grp)
+ {
+-	/*
+-	 * If managed cache is on, refcount of workgroups
+-	 * themselves could be < 0 (freezed). In other words,
+-	 * there is no guarantee that all refcounts > 0.
+-	 */
+-	if (!erofs_workgroup_try_to_freeze(grp, 1))
+-		return false;
++	int free = false;
++
++	spin_lock(&grp->lockref.lock);
++	if (grp->lockref.count)
++		goto out;
+ 
+ 	/*
+-	 * Note that all cached pages should be unattached
+-	 * before deleted from the XArray. Otherwise some
+-	 * cached pages could be still attached to the orphan
+-	 * old workgroup when the new one is available in the tree.
++	 * Note that all cached pages should be detached before deleted from
++	 * the XArray. Otherwise some cached pages could be still attached to
++	 * the orphan old workgroup when the new one is available in the tree.
+ 	 */
+-	if (erofs_try_to_free_all_cached_pages(sbi, grp)) {
+-		erofs_workgroup_unfreeze(grp, 1);
+-		return false;
+-	}
++	if (erofs_try_to_free_all_cached_pages(sbi, grp))
++		goto out;
+ 
+ 	/*
+ 	 * It's impossible to fail after the workgroup is freezed,
+@@ -152,10 +148,13 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
+ 	 */
+ 	DBG_BUGON(__xa_erase(&sbi->managed_pslots, grp->index) != grp);
+ 
+-	/* last refcount should be connected with its managed pslot.  */
+-	erofs_workgroup_unfreeze(grp, 0);
+-	__erofs_workgroup_free(grp);
+-	return true;
++	lockref_mark_dead(&grp->lockref);
++	free = true;
++out:
++	spin_unlock(&grp->lockref.lock);
++	if (free)
++		__erofs_workgroup_free(grp);
++	return free;
+ }
+ 
+ static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index a67f4ac19c48..76488824f146 100644
+index 15a383899540..2ea8e7f08372 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -93,11 +93,8 @@ struct z_erofs_pcluster {
+@@ -643,7 +643,7 @@ int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
  
- /* let's avoid the valid 32-bit kernel addresses */
- 
--/* the chained workgroup has't submitted io (still open) */
-+/* the end of a chain of pclusters */
- #define Z_EROFS_PCLUSTER_TAIL           ((void *)0x5F0ECAFE)
--/* the chained workgroup has already submitted io */
--#define Z_EROFS_PCLUSTER_TAIL_CLOSED    ((void *)0x5F0EDEAD)
--
- #define Z_EROFS_PCLUSTER_NIL            (NULL)
- 
- struct z_erofs_decompressqueue {
-@@ -506,20 +503,6 @@ int __init z_erofs_init_zip_subsystem(void)
- 
- enum z_erofs_pclustermode {
- 	Z_EROFS_PCLUSTER_INFLIGHT,
--	/*
--	 * The current pclusters was the tail of an exist chain, in addition
--	 * that the previous processed chained pclusters are all decided to
--	 * be hooked up to it.
--	 * A new chain will be created for the remaining pclusters which are
--	 * not processed yet, so different from Z_EROFS_PCLUSTER_FOLLOWED,
--	 * the next pcluster cannot reuse the whole page safely for inplace I/O
--	 * in the following scenario:
--	 *  ________________________________________________________________
--	 * |      tail (partial) page     |       head (partial) page       |
--	 * |   (belongs to the next pcl)  |   (belongs to the current pcl)  |
--	 * |_______PCLUSTER_FOLLOWED______|________PCLUSTER_HOOKED__________|
--	 */
--	Z_EROFS_PCLUSTER_HOOKED,
+ 	DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
  	/*
- 	 * a weak form of Z_EROFS_PCLUSTER_FOLLOWED, the difference is that it
- 	 * could be dispatched into bypass queue later due to uptodated managed
-@@ -537,8 +520,8 @@ enum z_erofs_pclustermode {
- 	 *  ________________________________________________________________
- 	 * |  tail (partial) page |          head (partial) page           |
- 	 * |  (of the current cl) |      (of the previous collection)      |
--	 * | PCLUSTER_FOLLOWED or |                                        |
--	 * |_____PCLUSTER_HOOKED__|___________PCLUSTER_FOLLOWED____________|
-+	 * |                      |                                        |
-+	 * |__PCLUSTER_FOLLOWED___|___________PCLUSTER_FOLLOWED____________|
- 	 *
- 	 * [  (*) the above page can be used as inplace I/O.               ]
+-	 * refcount of workgroup is now freezed as 1,
++	 * refcount of workgroup is now freezed as 0,
+ 	 * therefore no need to worry about available decompression users.
  	 */
-@@ -552,7 +535,7 @@ struct z_erofs_decompress_frontend {
+ 	for (i = 0; i < pcl->pclusterpages; ++i) {
+@@ -676,10 +676,11 @@ static bool z_erofs_cache_release_folio(struct folio *folio, gfp_t gfp)
+ 	if (!folio_test_private(folio))
+ 		return true;
  
- 	struct page *pagepool;
- 	struct page *candidate_bvpage;
--	struct z_erofs_pcluster *pcl, *tailpcl;
-+	struct z_erofs_pcluster *pcl;
- 	z_erofs_next_pcluster_t owned_head;
- 	enum z_erofs_pclustermode mode;
- 
-@@ -757,19 +740,7 @@ static void z_erofs_try_to_claim_pcluster(struct z_erofs_decompress_frontend *f)
- 		return;
- 	}
- 
--	/*
--	 * type 2, link to the end of an existing open chain, be careful
--	 * that its submission is controlled by the original attached chain.
--	 */
--	if (*owned_head != &pcl->next && pcl != f->tailpcl &&
--	    cmpxchg(&pcl->next, Z_EROFS_PCLUSTER_TAIL,
--		    *owned_head) == Z_EROFS_PCLUSTER_TAIL) {
--		*owned_head = Z_EROFS_PCLUSTER_TAIL;
--		f->mode = Z_EROFS_PCLUSTER_HOOKED;
--		f->tailpcl = NULL;
--		return;
--	}
--	/* type 3, it belongs to a chain, but it isn't the end of the chain */
-+	/* type 2, it belongs to an ongoing chain */
- 	f->mode = Z_EROFS_PCLUSTER_INFLIGHT;
- }
- 
-@@ -830,9 +801,6 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
- 			goto err_out;
+-	if (!erofs_workgroup_try_to_freeze(&pcl->obj, 1))
+-		return false;
+-
+ 	ret = false;
++	spin_lock(&pcl->obj.lockref.lock);
++	if (pcl->obj.lockref.count > 0)
++		goto out;
++
+ 	DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
+ 	for (i = 0; i < pcl->pclusterpages; ++i) {
+ 		if (pcl->compressed_bvecs[i].page == &folio->page) {
+@@ -688,10 +689,10 @@ static bool z_erofs_cache_release_folio(struct folio *folio, gfp_t gfp)
+ 			break;
  		}
  	}
--	/* used to check tail merging loop due to corrupted images */
--	if (fe->owned_head == Z_EROFS_PCLUSTER_TAIL)
--		fe->tailpcl = pcl;
- 	fe->owned_head = &pcl->next;
- 	fe->pcl = pcl;
- 	return 0;
-@@ -853,7 +821,6 @@ static int z_erofs_collector_begin(struct z_erofs_decompress_frontend *fe)
- 
- 	/* must be Z_EROFS_PCLUSTER_TAIL or pointed to previous pcluster */
- 	DBG_BUGON(fe->owned_head == Z_EROFS_PCLUSTER_NIL);
--	DBG_BUGON(fe->owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
- 
- 	if (!(map->m_flags & EROFS_MAP_META)) {
- 		grp = erofs_find_workgroup(fe->inode->i_sb,
-@@ -872,10 +839,6 @@ static int z_erofs_collector_begin(struct z_erofs_decompress_frontend *fe)
- 
- 	if (ret == -EEXIST) {
- 		mutex_lock(&fe->pcl->lock);
--		/* used to check tail merging loop due to corrupted images */
--		if (fe->owned_head == Z_EROFS_PCLUSTER_TAIL)
--			fe->tailpcl = fe->pcl;
+-	erofs_workgroup_unfreeze(&pcl->obj, 1);
 -
- 		z_erofs_try_to_claim_pcluster(fe);
- 	} else if (ret) {
- 		return ret;
-@@ -1030,8 +993,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 	 * those chains are handled asynchronously thus the page cannot be used
- 	 * for inplace I/O or bvpage (should be processed in a strict order.)
- 	 */
--	tight &= (fe->mode >= Z_EROFS_PCLUSTER_HOOKED &&
--		  fe->mode != Z_EROFS_PCLUSTER_FOLLOWED_NOINPLACE);
-+	tight &= (fe->mode > Z_EROFS_PCLUSTER_FOLLOWED_NOINPLACE);
- 
- 	cur = end - min_t(unsigned int, offset + end - map->m_la, end);
- 	if (!(map->m_flags & EROFS_MAP_MAPPED)) {
-@@ -1400,10 +1362,7 @@ static void z_erofs_decompress_queue(const struct z_erofs_decompressqueue *io,
- 	};
- 	z_erofs_next_pcluster_t owned = io->head;
- 
--	while (owned != Z_EROFS_PCLUSTER_TAIL_CLOSED) {
--		/* impossible that 'owned' equals Z_EROFS_WORK_TPTR_TAIL */
--		DBG_BUGON(owned == Z_EROFS_PCLUSTER_TAIL);
--		/* impossible that 'owned' equals Z_EROFS_PCLUSTER_NIL */
-+	while (owned != Z_EROFS_PCLUSTER_TAIL) {
- 		DBG_BUGON(owned == Z_EROFS_PCLUSTER_NIL);
- 
- 		be.pcl = container_of(owned, struct z_erofs_pcluster, next);
-@@ -1420,7 +1379,7 @@ static void z_erofs_decompressqueue_work(struct work_struct *work)
- 		container_of(work, struct z_erofs_decompressqueue, u.work);
- 	struct page *pagepool = NULL;
- 
--	DBG_BUGON(bgq->head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
-+	DBG_BUGON(bgq->head == Z_EROFS_PCLUSTER_TAIL);
- 	z_erofs_decompress_queue(bgq, &pagepool);
- 	erofs_release_pages(&pagepool);
- 	kvfree(bgq);
-@@ -1608,7 +1567,7 @@ static struct z_erofs_decompressqueue *jobqueue_init(struct super_block *sb,
- 		q->sync = true;
- 	}
- 	q->sb = sb;
--	q->head = Z_EROFS_PCLUSTER_TAIL_CLOSED;
-+	q->head = Z_EROFS_PCLUSTER_TAIL;
- 	return q;
+ 	if (ret)
+ 		folio_detach_private(folio);
++out:
++	spin_unlock(&pcl->obj.lockref.lock);
+ 	return ret;
  }
  
-@@ -1626,11 +1585,7 @@ static void move_to_bypass_jobqueue(struct z_erofs_pcluster *pcl,
- 	z_erofs_next_pcluster_t *const submit_qtail = qtail[JQ_SUBMIT];
- 	z_erofs_next_pcluster_t *const bypass_qtail = qtail[JQ_BYPASS];
+@@ -807,7 +808,7 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
+ 	if (IS_ERR(pcl))
+ 		return PTR_ERR(pcl);
  
--	DBG_BUGON(owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
--	if (owned_head == Z_EROFS_PCLUSTER_TAIL)
--		owned_head = Z_EROFS_PCLUSTER_TAIL_CLOSED;
--
--	WRITE_ONCE(pcl->next, Z_EROFS_PCLUSTER_TAIL_CLOSED);
-+	WRITE_ONCE(pcl->next, Z_EROFS_PCLUSTER_TAIL);
- 
- 	WRITE_ONCE(*submit_qtail, owned_head);
- 	WRITE_ONCE(*bypass_qtail, &pcl->next);
-@@ -1700,15 +1655,10 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
- 		unsigned int i = 0;
- 		bool bypass = true;
- 
--		/* no possible 'owned_head' equals the following */
--		DBG_BUGON(owned_head == Z_EROFS_PCLUSTER_TAIL_CLOSED);
- 		DBG_BUGON(owned_head == Z_EROFS_PCLUSTER_NIL);
--
- 		pcl = container_of(owned_head, struct z_erofs_pcluster, next);
-+		owned_head = READ_ONCE(pcl->next);
- 
--		/* close the main owned chain at first */
--		owned_head = cmpxchg(&pcl->next, Z_EROFS_PCLUSTER_TAIL,
--				     Z_EROFS_PCLUSTER_TAIL_CLOSED);
- 		if (z_erofs_is_inline_pcluster(pcl)) {
- 			move_to_bypass_jobqueue(pcl, qtail, owned_head);
- 			continue;
+-	atomic_set(&pcl->obj.refcount, 1);
++	spin_lock_init(&pcl->obj.lockref.lock);
+ 	pcl->algorithmformat = map->m_algorithmformat;
+ 	pcl->length = 0;
+ 	pcl->partial = true;
 -- 
 2.24.4
 
