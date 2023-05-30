@@ -4,36 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E2AEC7EE23
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 03:55:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0373BC77B73
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 11:52:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QVdpt1Dkrz3f6c
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 13:55:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QVrNh25sfz3f6Q
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 21:52:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=UdY6eqDd;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=134.134.136.24; helo=mga09.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=UdY6eqDd;
+	dkim-atps=neutral
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QVdpn4Cj6z3bTf
-	for <linux-erofs@lists.ozlabs.org>; Tue, 30 May 2023 13:55:44 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vjrz2SU_1685418938;
-Received: from 30.221.134.6(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vjrz2SU_1685418938)
-          by smtp.aliyun-inc.com;
-          Tue, 30 May 2023 11:55:39 +0800
-Message-ID: <7a466054-2e52-b04c-2490-ea2b509ad350@linux.alibaba.com>
-Date: Tue, 30 May 2023 11:55:37 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH v3 2/5] erofs: unify xattr_iter structures
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- chao@kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
-References: <20230518024551.123990-1-jefflexu@linux.alibaba.com>
- <20230518024551.123990-3-jefflexu@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230518024551.123990-3-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QVrNY4MQjz3bck
+	for <linux-erofs@lists.ozlabs.org>; Tue, 30 May 2023 21:52:06 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1685447533; x=1716983533;
+  h=date:from:to:cc:subject:message-id;
+  bh=fznfj7aniWdXVQg/E6IRJEojmb8mkr3lUnyKqAyxcLA=;
+  b=UdY6eqDdUF4iqx9dcga3y8KMnUJTts9ucMs3M9TY8X6gt62BU5USXQk6
+   T0pAnW33rhuwvtaqx1GbVdg4hAM30SFJgsq6AUVjNp8+hLVbwrTqbdzy8
+   yP4JEBjbu9iwhQB1pcIDzrg6jxTLrYLWDKVqf3+gO0Y8GYHwyvKjomo++
+   d1qY54nEw7TuamW6zMBT8YzeVYmRgT1urs2zch1lsjTJZT0D1MDG6XhmN
+   83zQ115QuGaiwW/6BJmKWDKUTeDD46tCBw/oe8tt27vJcRqyeWEX+GlHq
+   6PVKLDZj6cFbb7QADafliyubzry6IYV8EoemyeSEkxIt0e8SxaU898oRB
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10725"; a="357265795"
+X-IronPort-AV: E=Sophos;i="6.00,204,1681196400"; 
+   d="scan'208";a="357265795"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 May 2023 04:52:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10725"; a="683932766"
+X-IronPort-AV: E=Sophos;i="6.00,204,1681196400"; 
+   d="scan'208";a="683932766"
+Received: from lkp-server01.sh.intel.com (HELO fb1ced2c09fb) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 30 May 2023 04:52:00 -0700
+Received: from kbuild by fb1ced2c09fb with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1q3xtP-0000HS-39;
+	Tue, 30 May 2023 11:51:59 +0000
+Date: Tue, 30 May 2023 19:51:36 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ bb9883487a39755f9ea631c6e4c84b3cca313570
+Message-ID: <20230530115136.VdOUk%lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -45,423 +66,227 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: bb9883487a39755f9ea631c6e4c84b3cca313570  erofs: use poison pointer to replace the hard-coded address
 
+elapsed time: 1194m
 
-On 2023/5/18 10:45, Jingbo Xu wrote:
-> Unify xattr_iter/listxattr_iter/getxattr_iter structures into
-> erofs_xattr_iter structure.
-> 
-> This is in preparation for the following further cleanup.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-> ---
->   fs/erofs/xattr.c | 172 ++++++++++++++++++++---------------------------
->   1 file changed, 72 insertions(+), 100 deletions(-)
-> 
-> diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-> index b79be2a556ba..1e44aa108134 100644
-> --- a/fs/erofs/xattr.c
-> +++ b/fs/erofs/xattr.c
-> @@ -20,16 +20,22 @@ static inline unsigned int erofs_xattr_blkoff(struct super_block *sb,
->   	return erofs_blkoff(sb, xattr_id * sizeof(__u32));
->   }
->   
-> -struct xattr_iter {
-> +struct erofs_xattr_iter {
->   	struct super_block *sb;
->   	struct erofs_buf buf;
->   	void *kaddr;
-> -
->   	erofs_blk_t blkaddr;
->   	unsigned int ofs;
-> +
-> +	char *buffer;
-> +	int buffer_size, buffer_ofs;
-> +
-> +	int index, infix_len;
-> +	struct qstr name;
-> +	struct dentry *dentry;
->   };
->   
-> -static inline int erofs_xattr_iter_fixup(struct xattr_iter *it)
-> +static inline int erofs_xattr_iter_fixup(struct erofs_xattr_iter *it)
->   {
->   	if (it->ofs < it->sb->s_blocksize)
->   		return 0;
-> @@ -42,7 +48,7 @@ static inline int erofs_xattr_iter_fixup(struct xattr_iter *it)
->   	return 0;
->   }
->   
-> -static inline int erofs_xattr_iter_fixup_aligned(struct xattr_iter *it)
-> +static inline int erofs_xattr_iter_fixup_aligned(struct erofs_xattr_iter *it)
->   {
->   	if (it->ofs > it->sb->s_blocksize) {
->   		DBG_BUGON(1);
-> @@ -54,7 +60,7 @@ static inline int erofs_xattr_iter_fixup_aligned(struct xattr_iter *it)
->   static int erofs_init_inode_xattrs(struct inode *inode)
->   {
->   	struct erofs_inode *const vi = EROFS_I(inode);
-> -	struct xattr_iter it;
-> +	struct erofs_xattr_iter it;
->   	unsigned int i;
->   	struct erofs_xattr_ibody_header *ih;
->   	struct super_block *sb = inode->i_sb;
-> @@ -157,15 +163,15 @@ static int erofs_init_inode_xattrs(struct inode *inode)
->    *                            and need to be handled
->    */
->   struct xattr_iter_handlers {
-> -	int (*entry)(struct xattr_iter *_it, struct erofs_xattr_entry *entry);
-> -	int (*name)(struct xattr_iter *_it, unsigned int processed, char *buf,
-> +	int (*entry)(struct erofs_xattr_iter *it, struct erofs_xattr_entry *entry);
-> +	int (*name)(struct erofs_xattr_iter *it, unsigned int processed, char *buf,
->   		    unsigned int len);
-> -	int (*alloc_buffer)(struct xattr_iter *_it, unsigned int value_sz);
-> -	void (*value)(struct xattr_iter *_it, unsigned int processed, char *buf,
-> +	int (*alloc_buffer)(struct erofs_xattr_iter *it, unsigned int value_sz);
-> +	void (*value)(struct erofs_xattr_iter *it, unsigned int processed, char *buf,
->   		      unsigned int len);
->   };
->   
-> -static int inline_xattr_iter_begin(struct xattr_iter *it,
-> +static int inline_xattr_iter_begin(struct erofs_xattr_iter *it,
->   				   struct inode *inode)
->   {
->   	struct erofs_inode *const vi = EROFS_I(inode);
-> @@ -193,7 +199,7 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
->    * Regardless of success or failure, `xattr_foreach' will end up with
->    * `ofs' pointing to the next xattr item rather than an arbitrary position.
->    */
-> -static int xattr_foreach(struct xattr_iter *it,
-> +static int xattr_foreach(struct erofs_xattr_iter *it,
->   			 const struct xattr_iter_handlers *op,
->   			 unsigned int *tlimit)
->   {
-> @@ -284,18 +290,10 @@ static int xattr_foreach(struct xattr_iter *it,
->   	return err < 0 ? err : 0;
->   }
->   
-> -struct getxattr_iter {
-> -	struct xattr_iter it;
-> -
-> -	char *buffer;
-> -	int buffer_size, index, infix_len;
-> -	struct qstr name;
-> -};
-> -
-> -static int erofs_xattr_long_entrymatch(struct getxattr_iter *it,
-> +static int erofs_xattr_long_entrymatch(struct erofs_xattr_iter *it,
->   				       struct erofs_xattr_entry *entry)
->   {
-> -	struct erofs_sb_info *sbi = EROFS_SB(it->it.sb);
-> +	struct erofs_sb_info *sbi = EROFS_SB(it->sb);
->   	struct erofs_xattr_prefix_item *pf = sbi->xattr_prefixes +
->   		(entry->e_name_index & EROFS_XATTR_LONG_PREFIX_MASK);
->   
-> @@ -313,11 +311,9 @@ static int erofs_xattr_long_entrymatch(struct getxattr_iter *it,
->   	return 0;
->   }
->   
-> -static int xattr_entrymatch(struct xattr_iter *_it,
-> +static int xattr_entrymatch(struct erofs_xattr_iter *it,
->   			    struct erofs_xattr_entry *entry)
->   {
-> -	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
-> -
->   	/* should also match the infix for long name prefixes */
->   	if (entry->e_name_index & EROFS_XATTR_LONG_PREFIX)
->   		return erofs_xattr_long_entrymatch(it, entry);
-> @@ -329,32 +325,27 @@ static int xattr_entrymatch(struct xattr_iter *_it,
->   	return 0;
->   }
->   
-> -static int xattr_namematch(struct xattr_iter *_it,
-> +static int xattr_namematch(struct erofs_xattr_iter *it,
->   			   unsigned int processed, char *buf, unsigned int len)
->   {
-> -	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
-> -
->   	if (memcmp(buf, it->name.name + it->infix_len + processed, len))
->   		return -ENOATTR;
->   	return 0;
->   }
->   
-> -static int xattr_checkbuffer(struct xattr_iter *_it,
-> +static int xattr_checkbuffer(struct erofs_xattr_iter *it,
->   			     unsigned int value_sz)
->   {
-> -	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
->   	int err = it->buffer_size < value_sz ? -ERANGE : 0;
->   
->   	it->buffer_size = value_sz;
->   	return !it->buffer ? 1 : err;
->   }
->   
-> -static void xattr_copyvalue(struct xattr_iter *_it,
-> +static void xattr_copyvalue(struct erofs_xattr_iter *it,
->   			    unsigned int processed,
->   			    char *buf, unsigned int len)
->   {
-> -	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
-> -
->   	memcpy(it->buffer + processed, buf, len);
->   }
->   
-> @@ -365,41 +356,40 @@ static const struct xattr_iter_handlers find_xattr_handlers = {
->   	.value = xattr_copyvalue
->   };
->   
-> -static int inline_getxattr(struct inode *inode, struct getxattr_iter *it)
-> +static int inline_getxattr(struct inode *inode, struct erofs_xattr_iter *it)
->   {
->   	int ret;
->   	unsigned int remaining;
->   
-> -	ret = inline_xattr_iter_begin(&it->it, inode);
-> +	ret = inline_xattr_iter_begin(it, inode);
->   	if (ret < 0)
->   		return ret;
->   
->   	remaining = ret;
->   	while (remaining) {
-> -		ret = xattr_foreach(&it->it, &find_xattr_handlers, &remaining);
-> +		ret = xattr_foreach(it, &find_xattr_handlers, &remaining);
->   		if (ret != -ENOATTR)
->   			break;
->   	}
->   	return ret ? ret : it->buffer_size;
->   }
->   
-> -static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
-> +static int shared_getxattr(struct inode *inode, struct erofs_xattr_iter *it)
->   {
->   	struct erofs_inode *const vi = EROFS_I(inode);
-> -	struct super_block *const sb = it->it.sb;
-> +	struct super_block *const sb = it->sb;
->   	unsigned int i, xsid;
->   	int ret = -ENOATTR;
->   
->   	for (i = 0; i < vi->xattr_shared_count; ++i) {
->   		xsid = vi->xattr_shared_xattrs[i];
-> -		it->it.blkaddr = erofs_xattr_blkaddr(sb, xsid);
-> -		it->it.ofs = erofs_xattr_blkoff(sb, xsid);
-> -		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb,
-> -						  it->it.blkaddr, EROFS_KMAP);
-> -		if (IS_ERR(it->it.kaddr))
-> -			return PTR_ERR(it->it.kaddr);
-> -
-> -		ret = xattr_foreach(&it->it, &find_xattr_handlers, NULL);
-> +		it->blkaddr = erofs_xattr_blkaddr(sb, xsid);
-> +		it->ofs = erofs_xattr_blkoff(sb, xsid);
-> +		it->kaddr = erofs_read_metabuf(&it->buf, sb, it->blkaddr, EROFS_KMAP);
-> +		if (IS_ERR(it->kaddr))
-> +			return PTR_ERR(it->kaddr);
-> +
-> +		ret = xattr_foreach(it, &find_xattr_handlers, NULL);
->   		if (ret != -ENOATTR)
->   			break;
->   	}
-> @@ -421,31 +411,30 @@ int erofs_getxattr(struct inode *inode, int index,
->   		   void *buffer, size_t buffer_size)
->   {
->   	int ret;
-> -	struct getxattr_iter it;
-> +	struct erofs_xattr_iter it;
->   
->   	if (!name)
->   		return -EINVAL;
-> +	if (strlen(name) > EROFS_NAME_LEN)
-> +		return -ERANGE;
+configs tested: 204
+configs skipped: 6
 
-duplicated calculation.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
->   
->   	ret = erofs_init_inode_xattrs(inode);
->   	if (ret)
->   		return ret;
->   
-> -	it.index = index;
-> -	it.name.len = strlen(name);
-> -	if (it.name.len > EROFS_NAME_LEN)
-> -		return -ERANGE;
-> -
-> -	it.it.buf = __EROFS_BUF_INITIALIZER;
-> -	it.name.name = name;
-> -
-> -	it.buffer = buffer;
-> -	it.buffer_size = buffer_size;
-> +	it = (struct erofs_xattr_iter) {
-> +		.buf	     = __EROFS_BUF_INITIALIZER,
-> +		.sb	     = inode->i_sb,
-> +		.name	     = QSTR_INIT(name, strlen(name)),
-> +		.index	     = index,
-> +		.buffer	     = buffer,
-> +		.buffer_size = buffer_size,
-> +	};
+tested configs:
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                  randconfig-r034-20230529   gcc  
+arc                  randconfig-r043-20230529   gcc  
+arm                              allmodconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                                 defconfig   gcc  
+arm                  randconfig-r046-20230529   clang
+arm64                            allyesconfig   gcc  
+arm64        buildonly-randconfig-r004-20230529   clang
+arm64                               defconfig   gcc  
+arm64                randconfig-r024-20230529   gcc  
+arm64                randconfig-r026-20230529   gcc  
+csky         buildonly-randconfig-r001-20230529   gcc  
+csky                                defconfig   gcc  
+csky                 randconfig-r001-20230529   gcc  
+hexagon      buildonly-randconfig-r005-20230529   clang
+hexagon      buildonly-randconfig-r006-20230530   clang
+hexagon              randconfig-r041-20230529   clang
+hexagon              randconfig-r045-20230529   clang
+i386                             allyesconfig   gcc  
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                 randconfig-i001-20230529   clang
+i386                 randconfig-i002-20230529   clang
+i386                 randconfig-i003-20230529   clang
+i386                 randconfig-i004-20230529   clang
+i386                 randconfig-i005-20230529   clang
+i386                 randconfig-i006-20230529   clang
+i386                 randconfig-i011-20230529   gcc  
+i386                 randconfig-i011-20230530   gcc  
+i386                 randconfig-i012-20230529   gcc  
+i386                 randconfig-i012-20230530   gcc  
+i386                 randconfig-i013-20230529   gcc  
+i386                 randconfig-i013-20230530   gcc  
+i386                 randconfig-i014-20230529   gcc  
+i386                 randconfig-i014-20230530   gcc  
+i386                 randconfig-i015-20230529   gcc  
+i386                 randconfig-i015-20230530   gcc  
+i386                 randconfig-i016-20230529   gcc  
+i386                 randconfig-i016-20230530   gcc  
+i386                 randconfig-i051-20230529   clang
+i386                 randconfig-i051-20230530   clang
+i386                 randconfig-i052-20230529   clang
+i386                 randconfig-i052-20230530   clang
+i386                 randconfig-i053-20230529   clang
+i386                 randconfig-i053-20230530   clang
+i386                 randconfig-i054-20230529   clang
+i386                 randconfig-i054-20230530   clang
+i386                 randconfig-i055-20230529   clang
+i386                 randconfig-i055-20230530   clang
+i386                 randconfig-i056-20230529   clang
+i386                 randconfig-i056-20230530   clang
+i386                 randconfig-i061-20230529   clang
+i386                 randconfig-i061-20230530   clang
+i386                 randconfig-i062-20230529   clang
+i386                 randconfig-i062-20230530   clang
+i386                 randconfig-i063-20230529   clang
+i386                 randconfig-i063-20230530   clang
+i386                 randconfig-i064-20230529   clang
+i386                 randconfig-i064-20230530   clang
+i386                 randconfig-i065-20230529   clang
+i386                 randconfig-i065-20230530   clang
+i386                 randconfig-i066-20230529   clang
+i386                 randconfig-i066-20230530   clang
+i386                 randconfig-i071-20230529   gcc  
+i386                 randconfig-i072-20230529   gcc  
+i386                 randconfig-i073-20230529   gcc  
+i386                 randconfig-i074-20230529   gcc  
+i386                 randconfig-i075-20230529   gcc  
+i386                 randconfig-i076-20230529   gcc  
+i386                 randconfig-i081-20230529   gcc  
+i386                 randconfig-i082-20230529   gcc  
+i386                 randconfig-i083-20230529   gcc  
+i386                 randconfig-i084-20230529   gcc  
+i386                 randconfig-i085-20230529   gcc  
+i386                 randconfig-i086-20230529   gcc  
+i386                 randconfig-i091-20230529   clang
+i386                 randconfig-i091-20230530   clang
+i386                 randconfig-i092-20230529   clang
+i386                 randconfig-i092-20230530   clang
+i386                 randconfig-i093-20230529   clang
+i386                 randconfig-i093-20230530   clang
+i386                 randconfig-i094-20230529   clang
+i386                 randconfig-i094-20230530   clang
+i386                 randconfig-i095-20230529   clang
+i386                 randconfig-i095-20230530   clang
+i386                 randconfig-i096-20230529   clang
+i386                 randconfig-i096-20230530   clang
+i386                 randconfig-r004-20230529   clang
+i386                 randconfig-r021-20230529   gcc  
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch            randconfig-r014-20230529   gcc  
+loongarch            randconfig-r035-20230529   gcc  
+m68k                             allmodconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                 randconfig-r016-20230529   gcc  
+microblaze           randconfig-r012-20230530   gcc  
+microblaze           randconfig-r033-20230530   gcc  
+mips                             allmodconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                 randconfig-r015-20230529   clang
+nios2                               defconfig   gcc  
+nios2                randconfig-r006-20230529   gcc  
+nios2                randconfig-r011-20230530   gcc  
+nios2                randconfig-r036-20230529   gcc  
+openrisc     buildonly-randconfig-r002-20230529   gcc  
+openrisc     buildonly-randconfig-r003-20230529   gcc  
+openrisc             randconfig-r036-20230530   gcc  
+parisc                              defconfig   gcc  
+parisc               randconfig-r003-20230529   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                randconfig-r002-20230529   clang
+riscv                randconfig-r042-20230529   gcc  
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                 randconfig-r013-20230530   gcc  
+s390                 randconfig-r014-20230530   gcc  
+s390                 randconfig-r044-20230529   gcc  
+sh                               allmodconfig   gcc  
+sh           buildonly-randconfig-r006-20230529   gcc  
+sh                   randconfig-r025-20230529   gcc  
+sh                   randconfig-r035-20230530   gcc  
+sparc                               defconfig   gcc  
+sparc                randconfig-r016-20230530   gcc  
+sparc                randconfig-r032-20230529   gcc  
+sparc64              randconfig-r032-20230530   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                            allnoconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64       buildonly-randconfig-r001-20230530   clang
+x86_64                              defconfig   gcc  
+x86_64                                  kexec   gcc  
+x86_64               randconfig-a001-20230530   clang
+x86_64               randconfig-a002-20230530   clang
+x86_64               randconfig-a003-20230530   clang
+x86_64               randconfig-a004-20230530   clang
+x86_64               randconfig-a005-20230530   clang
+x86_64               randconfig-a006-20230530   clang
+x86_64               randconfig-a011-20230529   gcc  
+x86_64               randconfig-a011-20230530   gcc  
+x86_64               randconfig-a012-20230529   gcc  
+x86_64               randconfig-a012-20230530   gcc  
+x86_64               randconfig-a013-20230529   gcc  
+x86_64               randconfig-a013-20230530   gcc  
+x86_64               randconfig-a014-20230529   gcc  
+x86_64               randconfig-a014-20230530   gcc  
+x86_64               randconfig-a015-20230529   gcc  
+x86_64               randconfig-a015-20230530   gcc  
+x86_64               randconfig-a016-20230529   gcc  
+x86_64               randconfig-a016-20230530   gcc  
+x86_64               randconfig-x051-20230529   gcc  
+x86_64               randconfig-x052-20230529   gcc  
+x86_64               randconfig-x053-20230529   gcc  
+x86_64               randconfig-x054-20230529   gcc  
+x86_64               randconfig-x055-20230529   gcc  
+x86_64               randconfig-x056-20230529   gcc  
+x86_64               randconfig-x061-20230529   gcc  
+x86_64               randconfig-x061-20230530   gcc  
+x86_64               randconfig-x062-20230529   gcc  
+x86_64               randconfig-x062-20230530   gcc  
+x86_64               randconfig-x063-20230529   gcc  
+x86_64               randconfig-x063-20230530   gcc  
+x86_64               randconfig-x064-20230529   gcc  
+x86_64               randconfig-x064-20230530   gcc  
+x86_64               randconfig-x065-20230529   gcc  
+x86_64               randconfig-x065-20230530   gcc  
+x86_64               randconfig-x066-20230529   gcc  
+x86_64               randconfig-x066-20230530   gcc  
+x86_64               randconfig-x071-20230529   clang
+x86_64               randconfig-x072-20230529   clang
+x86_64               randconfig-x073-20230529   clang
+x86_64               randconfig-x074-20230529   clang
+x86_64               randconfig-x075-20230529   clang
+x86_64               randconfig-x076-20230529   clang
+x86_64               randconfig-x081-20230529   clang
+x86_64               randconfig-x082-20230529   clang
+x86_64               randconfig-x083-20230529   clang
+x86_64               randconfig-x084-20230529   clang
+x86_64               randconfig-x085-20230529   clang
+x86_64               randconfig-x086-20230529   clang
+x86_64               randconfig-x091-20230529   gcc  
+x86_64               randconfig-x092-20230529   gcc  
+x86_64               randconfig-x093-20230529   gcc  
+x86_64               randconfig-x094-20230529   gcc  
+x86_64               randconfig-x095-20230529   gcc  
+x86_64               randconfig-x096-20230529   gcc  
+x86_64                               rhel-8.3   gcc  
+xtensa               randconfig-r011-20230529   gcc  
+xtensa               randconfig-r013-20230529   gcc  
+xtensa               randconfig-r022-20230529   gcc  
+xtensa               randconfig-r033-20230529   gcc  
 
-No need to zero out the other fields like this?
-
->   
-> -	it.it.sb = inode->i_sb;
->   	ret = inline_getxattr(inode, &it);
->   	if (ret == -ENOATTR)
->   		ret = shared_getxattr(inode, &it);
-> -	erofs_put_metabuf(&it.it.buf);
-> +	erofs_put_metabuf(&it.buf);
->   	return ret;
->   }
->   
-> @@ -491,25 +480,15 @@ const struct xattr_handler *erofs_xattr_handlers[] = {
->   	NULL,
->   };
->   
-> -struct listxattr_iter {
-> -	struct xattr_iter it;
-> -
-> -	struct dentry *dentry;
-> -	char *buffer;
-> -	int buffer_size, buffer_ofs;
-> -};
-> -
-> -static int xattr_entrylist(struct xattr_iter *_it,
-> +static int xattr_entrylist(struct erofs_xattr_iter *it,
->   			   struct erofs_xattr_entry *entry)
->   {
-> -	struct listxattr_iter *it =
-> -		container_of(_it, struct listxattr_iter, it);
->   	unsigned int base_index = entry->e_name_index;
->   	unsigned int prefix_len, infix_len = 0;
->   	const char *prefix, *infix = NULL;
->   
->   	if (entry->e_name_index & EROFS_XATTR_LONG_PREFIX) {
-> -		struct erofs_sb_info *sbi = EROFS_SB(_it->sb);
-> +		struct erofs_sb_info *sbi = EROFS_SB(it->sb);
->   		struct erofs_xattr_prefix_item *pf = sbi->xattr_prefixes +
->   			(entry->e_name_index & EROFS_XATTR_LONG_PREFIX_MASK);
->   
-> @@ -541,23 +520,17 @@ static int xattr_entrylist(struct xattr_iter *_it,
->   	return 0;
->   }
->   
-> -static int xattr_namelist(struct xattr_iter *_it,
-> +static int xattr_namelist(struct erofs_xattr_iter *it,
->   			  unsigned int processed, char *buf, unsigned int len)
->   {
-> -	struct listxattr_iter *it =
-> -		container_of(_it, struct listxattr_iter, it);
-> -
->   	memcpy(it->buffer + it->buffer_ofs, buf, len);
->   	it->buffer_ofs += len;
->   	return 0;
->   }
->   
-> -static int xattr_skipvalue(struct xattr_iter *_it,
-> +static int xattr_skipvalue(struct erofs_xattr_iter *it,
->   			   unsigned int value_sz)
->   {
-> -	struct listxattr_iter *it =
-> -		container_of(_it, struct listxattr_iter, it);
-> -
->   	it->buffer[it->buffer_ofs++] = '\0';
->   	return 1;
->   }
-> @@ -569,42 +542,41 @@ static const struct xattr_iter_handlers list_xattr_handlers = {
->   	.value = NULL
->   };
->   
-> -static int inline_listxattr(struct listxattr_iter *it)
-> +static int inline_listxattr(struct erofs_xattr_iter *it)
->   {
->   	int ret;
->   	unsigned int remaining;
->   
-> -	ret = inline_xattr_iter_begin(&it->it, d_inode(it->dentry));
-> +	ret = inline_xattr_iter_begin(it, d_inode(it->dentry));
->   	if (ret < 0)
->   		return ret;
->   
->   	remaining = ret;
->   	while (remaining) {
-> -		ret = xattr_foreach(&it->it, &list_xattr_handlers, &remaining);
-> +		ret = xattr_foreach(it, &list_xattr_handlers, &remaining);
->   		if (ret)
->   			break;
->   	}
->   	return ret ? ret : it->buffer_ofs;
->   }
->   
-> -static int shared_listxattr(struct listxattr_iter *it)
-> +static int shared_listxattr(struct erofs_xattr_iter *it)
->   {
->   	struct inode *const inode = d_inode(it->dentry);
->   	struct erofs_inode *const vi = EROFS_I(inode);
-> -	struct super_block *const sb = it->it.sb;
-> +	struct super_block *const sb = it->sb;
->   	unsigned int i, xsid;
->   	int ret = 0;
->   
->   	for (i = 0; i < vi->xattr_shared_count; ++i) {
->   		xsid = vi->xattr_shared_xattrs[i];
-> -		it->it.blkaddr = erofs_xattr_blkaddr(sb, xsid);
-> -		it->it.ofs = erofs_xattr_blkoff(sb, xsid);
-> -		it->it.kaddr = erofs_read_metabuf(&it->it.buf, sb,
-> -						  it->it.blkaddr, EROFS_KMAP);
-> -		if (IS_ERR(it->it.kaddr))
-> -			return PTR_ERR(it->it.kaddr);
-> -
-> -		ret = xattr_foreach(&it->it, &list_xattr_handlers, NULL);
-> +		it->blkaddr = erofs_xattr_blkaddr(sb, xsid);
-> +		it->ofs = erofs_xattr_blkoff(sb, xsid);
-> +		it->kaddr = erofs_read_metabuf(&it->buf, sb, it->blkaddr, EROFS_KMAP);
-> +		if (IS_ERR(it->kaddr))
-> +			return PTR_ERR(it->kaddr);
-> +
-> +		ret = xattr_foreach(it, &list_xattr_handlers, NULL);
->   		if (ret)
->   			break;
->   	}
-> @@ -615,7 +587,7 @@ ssize_t erofs_listxattr(struct dentry *dentry,
->   			char *buffer, size_t buffer_size)
->   {
->   	int ret;
-> -	struct listxattr_iter it;
-> +	struct erofs_xattr_iter it;
->   
->   	ret = erofs_init_inode_xattrs(d_inode(dentry));
->   	if (ret == -ENOATTR)
-> @@ -623,18 +595,18 @@ ssize_t erofs_listxattr(struct dentry *dentry,
->   	if (ret)
->   		return ret;
->   
-> -	it.it.buf = __EROFS_BUF_INITIALIZER;
-> -	it.dentry = dentry;
-> -	it.buffer = buffer;
-> -	it.buffer_size = buffer_size;
-> -	it.buffer_ofs = 0;
-> -
-> -	it.it.sb = dentry->d_sb;
-> +	it = (struct erofs_xattr_iter) {
-> +		.buf	     = __EROFS_BUF_INITIALIZER,
-> +		.sb	     = dentry->d_sb,
-> +		.dentry	     = dentry,
-> +		.buffer	     = buffer,
-> +		.buffer_size = buffer_size,
-> +	};
-
-Same here.
-
-Thanks,
-Gao Xiang
-
->   
->   	ret = inline_listxattr(&it);
->   	if (ret >= 0 || ret == -ENOATTR)
->   		ret = shared_listxattr(&it);
-> -	erofs_put_metabuf(&it.it.buf);
-> +	erofs_put_metabuf(&it.buf);
->   	return ret;
->   }
->   
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
