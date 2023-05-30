@@ -4,39 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2CF6C7EE2C
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 03:47:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C1FEC7EE23
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 03:51:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QVddG6wRBz3f6c
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 13:47:30 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QVdjY6TFqz3cdC
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 May 2023 13:51:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=sMB3GVXI;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::631; helo=mail-pl1-x631.google.com; envelope-from=zbestahu@gmail.com; receiver=<UNKNOWN>)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=sMB3GVXI;
+	dkim-atps=neutral
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QVdd94qKzz2xvF
-	for <linux-erofs@lists.ozlabs.org>; Tue, 30 May 2023 13:47:25 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vjryb0a_1685418440;
-Received: from 30.221.134.6(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vjryb0a_1685418440)
-          by smtp.aliyun-inc.com;
-          Tue, 30 May 2023 11:47:21 +0800
-Message-ID: <77ed16d5-4e75-0d9d-5a11-0d26573f8b9c@linux.alibaba.com>
-Date: Tue, 30 May 2023 11:47:18 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QVdjQ0gScz2xvF
+	for <linux-erofs@lists.ozlabs.org>; Tue, 30 May 2023 13:51:05 +1000 (AEST)
+Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-1b039168ba0so17643155ad.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 29 May 2023 20:51:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685418663; x=1688010663;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DdSfaMnDPST0yDYLJSRYlzRuDvLWC1Vb40RxZnWTJJg=;
+        b=sMB3GVXIvnhuv1DLz+sWWRPtx/uMxhQZ5eOPyTSUzLPgAzS0zrGCZvTZ7ZfZcKSfSL
+         jozrTBPVK8ZdkPEGOTvB1zRJxeuFhaEUPE2h0YyhFRKlf+hqKKMJgn06y5kpNbiNNNP5
+         3kM1aGpXQbgBc7H3S6k3rTK7KOtWM8mPOqyUXF13XQLxOMTigWfVecURObLq//zHuQbN
+         2t+nAVfnlOqEBUTy8vCHE8Y/KkBOif7GxWmhV2awX29pn99ALYaM/RL3Szi2cNug/69G
+         xHn6uz6fXluT7ct80gePDHXtY8OpvFfjbwsSm/hzVPD8I1/elZbvXj4abOqaerlE8rwJ
+         jyVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685418663; x=1688010663;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DdSfaMnDPST0yDYLJSRYlzRuDvLWC1Vb40RxZnWTJJg=;
+        b=DFw/BcXdYzhHcCqVIFB1qoSan3vS8VravXu7ZVqiNfGFCXHndMIeIjNxEvnKaK+3yT
+         +ow3tqrEuOiN5cWpcllkBPBvLIhRdio8NSxBs22UkwTNFGm2gJcCbwTjRDqT+LMmEJNq
+         YjwyYPn/x45XSEKGyfCuNd3yHLvnsUaw8fpXVbFot2ZEi5XBkmYOwogjhTvgnzVJSiAV
+         W2K+EKqC5Pw3SmHcjAC5re2Tr9ie67AcxsjAoEG8uXWX7yZRvctgKSTd2GSwul3xmRzN
+         Iv4JE4qjKJmiRGoiSRqQ6ByRmwv+5fuqHBiKM8hBlOV81XoCz8Q4TgMD8VHqDr9TMQU2
+         SiNA==
+X-Gm-Message-State: AC+VfDxvaGhKa0U9ORakYAI3x3hO9nW1X/UR2YrLaSFoU7CvKqc+QpSU
+	+vYaKDltVgd81yWJgAllVNU=
+X-Google-Smtp-Source: ACHHUZ7XVDki8DqkeubhoJtRERxWaQHLk4SCz22MgopWVgl7R4Ve74BEkesCe8JsM/BfbvDy+s8dew==
+X-Received: by 2002:a17:902:ec8b:b0:1b0:4b65:79db with SMTP id x11-20020a170902ec8b00b001b04b6579dbmr1213007plg.63.1685418662981;
+        Mon, 29 May 2023 20:51:02 -0700 (PDT)
+Received: from localhost ([156.236.96.165])
+        by smtp.gmail.com with ESMTPSA id v2-20020a170902d68200b001b03842ab78sm3825471ply.89.2023.05.29.20.51.01
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 29 May 2023 20:51:02 -0700 (PDT)
+Date: Tue, 30 May 2023 11:59:12 +0800
+From: Yue Hu <zbestahu@gmail.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH v3 5/6] erofs: use struct lockref to replace handcrafted
+ approach
+Message-ID: <20230530115912.0000195a.zbestahu@gmail.com>
+In-Reply-To: <20230529123727.79943-1-hsiangkao@linux.alibaba.com>
+References: <2fa6114d-9de2-9a0d-ae89-c012914bf682@linux.alibaba.com>
+	<20230529123727.79943-1-hsiangkao@linux.alibaba.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-w64-mingw32)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH v3 1/5] erofs: introduce erofs_xattr_iter_fixup_aligned()
- helper
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- chao@kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
-References: <20230518024551.123990-1-jefflexu@linux.alibaba.com>
- <20230518024551.123990-2-jefflexu@linux.alibaba.com>
- <9d928aa7-31cf-e4c1-8694-0aa63e55b382@linux.alibaba.com>
- <6e7b2c58-0bb4-e008-a157-3d83ac33bf81@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <6e7b2c58-0bb4-e008-a157-3d83ac33bf81@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -48,66 +81,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org
+Cc: huyue2@coolpad.com, linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Mon, 29 May 2023 20:37:27 +0800
+Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
 
+> Let's avoid the current handcrafted lockref although `struct lockref`
+> inclusion usually increases extra 4 bytes with an explicit spinlock if
+> CONFIG_DEBUG_SPINLOCK is off.
+> 
+> Apart from the size difference, note that the meaning of refcount is
+> also changed to active users. IOWs, it doesn't take an extra refcount
+> for XArray tree insertion.
+> 
+> I don't observe any significant performance difference at least on
+> our cloud compute server but the new one indeed simplifies the
+> overall codebase a bit.
+> 
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-On 2023/5/30 11:42, Jingbo Xu wrote:
-> 
-> 
-> On 5/29/23 3:41 PM, Gao Xiang wrote:
->> Hi,
->>
->> On 2023/5/18 10:45, Jingbo Xu wrote:
->>> Introduce erofs_xattr_iter_fixup_aligned() helper where
->>> it.ofs <= EROFS_BLKSIZ is mandatory.
->>>
->>> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
->>> ---
->>>    fs/erofs/xattr.c | 79 +++++++++++++++++++++---------------------------
->>>    1 file changed, 35 insertions(+), 44 deletions(-)
->>>
->>> diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
->>> index bbfe7ce170d2..b79be2a556ba 100644
->>> --- a/fs/erofs/xattr.c
->>> +++ b/fs/erofs/xattr.c
->>> @@ -29,6 +29,28 @@ struct xattr_iter {
->>>        unsigned int ofs;
->>>    };
->>>    +static inline int erofs_xattr_iter_fixup(struct xattr_iter *it)
->>> +{
->>> +    if (it->ofs < it->sb->s_blocksize)
->>> +        return 0;
->>> +
->>> +    it->blkaddr += erofs_blknr(it->sb, it->ofs);
->>> +    it->kaddr = erofs_read_metabuf(&it->buf, it->sb, it->blkaddr,
->>> EROFS_KMAP);
->>
->> could we use a new buf interface to init_metabuf at once?
-> 
-> As discussed offline, I think the following unified API is preferred:
-> 
-> ```
-> int erofs_xattr_iter_fixup(struct xattr_iter *it, bool nospan)
-> 
-> {
->      if (it->ofs < it->sb->s_blocksize)
->          return 0;
-> 
->      if (nospan && it->ofs != it->sb->s_blocksize) {
-> 	DBG_BUGON(1);
-> 	return -EFSCORRUPTED;
->      }
-> 
->      ...
-> }
-> ```
-
-Yeah, could you send the next version for this?
-
-Thanks,
-Gao Xiang
-
-> 
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
