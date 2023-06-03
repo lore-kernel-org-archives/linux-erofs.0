@@ -4,30 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E213C77B7A
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Jun 2023 13:31:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6E97C7EE24
+	for <linux-erofs@archiver.kernel.org>; Sat,  3 Jun 2023 13:32:01 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QYLPn3YFQz3dyd
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Jun 2023 23:31:57 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QYLPr1PM0z3f17
+	for <linux-erofs@archiver.kernel.org>; Sat,  3 Jun 2023 23:32:00 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QYLPg0xnKz3cCy
-	for <linux-erofs@lists.ozlabs.org>; Sat,  3 Jun 2023 23:31:50 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VkDiWob_1685799100;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VkDiWob_1685799100)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QYLPg11jRz3drW
+	for <linux-erofs@lists.ozlabs.org>; Sat,  3 Jun 2023 23:31:48 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VkDiWkg_1685799091;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VkDiWkg_1685799091)
           by smtp.aliyun-inc.com;
-          Sat, 03 Jun 2023 21:31:42 +0800
+          Sat, 03 Jun 2023 21:31:40 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/2] erofs-utils: fix EOD behavior when len is too large
-Date: Sat,  3 Jun 2023 21:31:30 +0800
-Message-Id: <20230603133130.34364-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/2] erofs-utils: refuse block sizes larger than EROFS_MAX_BLOCK_SIZE
+Date: Sat,  3 Jun 2023 21:31:29 +0800
+Message-Id: <20230603133130.34364-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230603133130.34364-1-hsiangkao@linux.alibaba.com>
-References: <20230603133130.34364-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,27 +43,37 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Otherwise, read_count could be overflow and causes unexpected
-behaviors.
+The maximum supported block size is EROFS_MAX_BLOCK_SIZE.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/super.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/lib/io.c b/lib/io.c
-index 9e30b7e..9d718ab 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -289,7 +289,7 @@ int dev_read(int device_id, void *buf, u64 offset, size_t len)
- 				erofs_info("Reach EOF of device - %s:[%" PRIu64 ", %zd].",
- 					   erofs_devname, offset, len);
- 				memset(buf, 0, len);
--				read_count = len;
-+				return 0;
- 			} else if (errno != EINTR) {
- 				erofs_err("Failed to read data from device - %s:[%" PRIu64 ", %zd].",
- 					  erofs_devname, offset, len);
+diff --git a/lib/super.c b/lib/super.c
+index 17f849e..5f70686 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -88,15 +88,14 @@ int erofs_read_superblock(void)
+ 	sbi.feature_compat = le32_to_cpu(dsb->feature_compat);
+ 
+ 	sbi.blkszbits = dsb->blkszbits;
+-	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
+-	if (sbi.blkszbits < 9) {
++	if (sbi.blkszbits < 9 ||
++	    (1 << sbi.blkszbits) > EROFS_MAX_BLOCK_SIZE) {
+ 		erofs_err("blksize %d isn't supported on this platform",
+ 			  erofs_blksiz());
+ 		return ret;
+-	}
+-
+-	if (!check_layout_compatibility(&sbi, dsb))
++	} else if (!check_layout_compatibility(&sbi, dsb)) {
+ 		return ret;
++	}
+ 
+ 	sbi.primarydevice_blocks = le32_to_cpu(dsb->blocks);
+ 	sbi.meta_blkaddr = le32_to_cpu(dsb->meta_blkaddr);
 -- 
 2.24.4
 
