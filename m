@@ -4,31 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46DBDC7EE43
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Jun 2023 11:30:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0863FC7EE25
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Jun 2023 11:30:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QcMTZ5XNdz3f14
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Jun 2023 21:30:42 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QcMTd4DJ2z3f06
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Jun 2023 21:30:45 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=<UNKNOWN>)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QcMTK0pG2z3dwp
-	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Jun 2023 21:30:27 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VkeCuqc_1686223820;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VkeCuqc_1686223820)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QcMTK1zFkz3dwq
+	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Jun 2023 21:30:28 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VkeE.J9_1686223823;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VkeE.J9_1686223823)
           by smtp.aliyun-inc.com;
-          Thu, 08 Jun 2023 19:30:21 +0800
+          Thu, 08 Jun 2023 19:30:24 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 0/5] erofs: cleanup of xattr handling
-Date: Thu,  8 Jun 2023 19:30:15 +0800
-Message-Id: <20230608113020.66626-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 3/5] erofs: make the size of read data stored in buffer_ofs
+Date: Thu,  8 Jun 2023 19:30:18 +0800
+Message-Id: <20230608113020.66626-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230608113020.66626-1-jefflexu@linux.alibaba.com>
+References: <20230608113020.66626-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -46,54 +48,49 @@ Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-changes since v5:
-- patch 1: newly added into this series, in preparation for the
-  following cleanup
-- patch 5: rename erofs_xattr_body() to erofs_xattr_handle_string()
+Since now xattr_iter structures have been unified, make the size of the
+read data stored in buffer_ofs.  Don't bother reusing buffer_size for
+this use, which may be confusing.
 
-changes since v4:
-- patch 1: make conversions from erofs_read_metabuf() in xattr.c
-  to "erofs_init_metabuf() + erofs_bread()" a separate patch
-- patch 6: add "bool copy" function parameter to erofs_xattr_body(), and
-  thus make erofs_xattr_namematch() and erofs_xattr_copy() inlined
-  inside erofs_xattr_body()
+This is in preparation for the following further cleanup.
 
-changes since v3:
-- patch 1: make a unified erofs_xattr_iter_fixup() API with newly
-  introduced "bool nospan" argument; call erofs_init_metabuf() and
-  erofs_bread() separately instead of erofs_read_metabuf()
-- patch 2: avoid duplicated strlen() calculation in erofs_getxattr(); no
-  need zeroing other fields when initializing 'struct erofs_xattr_iter'
-- patch 4: don't explode 'struct erofs_xattr_iter' with inode/getxattr
-  fields; instead pass inode/getxattr parameters through function
-  parameters of erofs_iter_[inline|shared]_xattr()
-- patch 5: don't explode 'struct erofs_xattr_iter' with remaining field;
-  instead  calculate and check the remaining inside
-  erofs_iter_inline_xattr()
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/xattr.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-changes since v2:
-- rebase to v6.4-rc2
-- passes xattr tests (erofs/019,020,021) of erofs-utils [1]
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/log/?h=experimental-tests
-
-v5: https://lore.kernel.org/all/20230601024347.108469-1-jefflexu@linux.alibaba.com/
-v4: https://lore.kernel.org/all/20230531031330.3504-1-jefflexu@linux.alibaba.com/
-v3: https://lore.kernel.org/lkml/20230518024551.123990-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230330082910.125374-1-jefflexu@linux.alibaba.com/
-v1: https://lore.kernel.org/all/20230323000949.57608-1-jefflexu@linux.alibaba.com/
-
-
-Jingbo Xu (5):
-  erofs: use absolute position in xattr iterator
-  erofs: unify xattr_iter structures
-  erofs: make the size of read data stored in buffer_ofs
-  erofs: unify inline/share xattr iterators for listxattr/getxattr
-  erofs: use separate xattr parsers for listxattr/getxattr
-
- fs/erofs/xattr.c | 652 +++++++++++++++++------------------------------
- 1 file changed, 227 insertions(+), 425 deletions(-)
-
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index e9bc81846722..4ae9b7cdd3ac 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -315,7 +315,7 @@ static int xattr_checkbuffer(struct erofs_xattr_iter *it,
+ {
+ 	int err = it->buffer_size < value_sz ? -ERANGE : 0;
+ 
+-	it->buffer_size = value_sz;
++	it->buffer_ofs = value_sz;
+ 	return !it->buffer ? 1 : err;
+ }
+ 
+@@ -348,7 +348,7 @@ static int inline_getxattr(struct inode *inode, struct erofs_xattr_iter *it)
+ 		if (ret != -ENOATTR)
+ 			break;
+ 	}
+-	return ret ? ret : it->buffer_size;
++	return ret ? ret : it->buffer_ofs;
+ }
+ 
+ static int shared_getxattr(struct inode *inode, struct erofs_xattr_iter *it)
+@@ -371,7 +371,7 @@ static int shared_getxattr(struct inode *inode, struct erofs_xattr_iter *it)
+ 		if (ret != -ENOATTR)
+ 			break;
+ 	}
+-	return ret ? ret : it->buffer_size;
++	return ret ? ret : it->buffer_ofs;
+ }
+ 
+ static bool erofs_xattr_user_list(struct dentry *dentry)
 -- 
 2.19.1.6.gb485710b
 
