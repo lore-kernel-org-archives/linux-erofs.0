@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9126C88CB4
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Jun 2023 14:15:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4F87C88CB2
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Jun 2023 14:17:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QftyP1B1vz30LW
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Jun 2023 00:15:57 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Qfv0N1Rf5z30LW
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Jun 2023 00:17:40 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QftyG0Tfsz2xqd
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Jun 2023 00:15:48 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vl-Q3HB_1686579340;
-Received: from 192.168.1.5(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vl-Q3HB_1686579340)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qfv0G2GT0z2xqd
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Jun 2023 00:17:33 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vl-Tgs7_1686579446;
+Received: from 192.168.1.5(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vl-Tgs7_1686579446)
           by smtp.aliyun-inc.com;
-          Mon, 12 Jun 2023 22:15:41 +0800
-Message-ID: <0f371bd6-9db9-758a-8495-a1a2b10381f3@linux.alibaba.com>
-Date: Mon, 12 Jun 2023 22:15:40 +0800
+          Mon, 12 Jun 2023 22:17:27 +0800
+Message-ID: <5a9f41c1-3f29-ba35-8a45-634fca6a8bcb@linux.alibaba.com>
+Date: Mon, 12 Jun 2023 22:17:26 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH v7 1/5] erofs: use absolute position in xattr iterator
+Subject: Re: [PATCH v7 4/5] erofs: unify inline/shared xattr iterators for
+ listxattr/getxattr
 To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
  chao@kernel.org, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
 References: <20230612123745.36323-1-jefflexu@linux.alibaba.com>
- <20230612123745.36323-2-jefflexu@linux.alibaba.com>
+ <20230612123745.36323-5-jefflexu@linux.alibaba.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230612123745.36323-2-jefflexu@linux.alibaba.com>
+In-Reply-To: <20230612123745.36323-5-jefflexu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -52,18 +53,12 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 On 2023/6/12 20:37, Jingbo Xu wrote:
-> Replace blkaddr/ofs with pos in 'struct erofs_xattr_iter'.
+> Make inline_{list,get}xattr() as well as inline_xattr_iter_begin()
+> unified as erofs_iter_inline_xattr(), and shared_{list,get}xattr()
+> unified as erofs_iter_shared_xattr().
 > 
-> After erofs_bread() is introduced to replace raw page cache APIs for
-> metadata I/Os handling, xattr_iter_fixup() is no longer needed anymore.
-> 
-> In addition, it is also unnecessary to check if the iterated position is
-> span over the block boundary as absolute offset is used instead of
-> blkaddr + offset pairs.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Could you use erofs_xattr_iter_inline() and erofs_xattr_iter_shared()?
 
 Thanks,
 Gao Xiang
