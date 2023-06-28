@@ -4,118 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 27C36EB64DA
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jun 2023 09:36:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7793AEB64DA
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jun 2023 10:49:12 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=vivo.com header.i=@vivo.com header.a=rsa-sha256 header.s=selector2 header.b=hPgYK3gE;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WYn/AnRw;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WYn/AnRw;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Qrc0V4wstz30dn
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jun 2023 19:36:26 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QrdcQ6hZHz30Xb
+	for <linux-erofs@archiver.kernel.org>; Wed, 28 Jun 2023 20:49:10 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=vivo.com header.i=@vivo.com header.a=rsa-sha256 header.s=selector2 header.b=hPgYK3gE;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WYn/AnRw;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WYn/AnRw;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=vivo.com (client-ip=2a01:111:f400:feab::71e; helo=apc01-sg2-obe.outbound.protection.outlook.com; envelope-from=frank.li@vivo.com; receiver=lists.ozlabs.org)
-Received: from APC01-SG2-obe.outbound.protection.outlook.com (mail-sgaapc01on2071e.outbound.protection.outlook.com [IPv6:2a01:111:f400:feab::71e])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qrbzw2r2vz30fV
-	for <linux-erofs@lists.ozlabs.org>; Wed, 28 Jun 2023 19:35:55 +1000 (AEST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c0y6kFIhIcWYv5KcUiPNVIiaOzk2Nsu/Pf+bnHdlVMnqPFT4GPJGRWxERhpIL7yts7DAApbB96tarUuCZ1dsO19GSe4z5x8pYa2/91ZNtnwywehkaoSEYkTyXd5JPH2w0jtnIRhgLZYGedkrURhYil4nJE+Bkwd33WOilnsAjYMfbPfOBQ4CcdkpFwUgr0tdgLAQ5DWMaRBbg+1fEUH8ivrQndcdl41pjqqNcbYn7AliJUEVn0MQcKVEj1kOLRZaAva5TDrhFtFwOSwzNXyNvp3h4JW9nU/1AxHS5HZ8Y2wuFJ6nwrBWY3g8OI/K7f7hG8xe+h4B/zUoAKNPFSVD3w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DAXnQAczusqQD6IX453zsmGlIdP7yO+3BQ6K7S4HAdk=;
- b=MBYIxaUlti3HkU7NywauTf23JqFqSWMPKmgTW9KBzX1PNEtMjQAmi+ZJf6dE071htUXQlzwEhy9VesOwMWtisg9Jwv5XwUHKwpzsi5JDL2H4ejj1nn8pbM1zJjy0bMKmNRJOdHoJCjiT7BqBEvGHtUp/cWyJiSTqVLBBUU99mMv1itwB1ns5AdwWghHAwtZuubCBfDh1gqb/6MXB+N32V2anOIg4Kq/+DeJFWTLHqrAnJK/IxHbBkXJuHSRFTW/XNMRWN4fIBDVMoYZZwO1RBjysnzBDPKO29VyprVewPISWsDWSOexLFqNxgaYCYKaAbLK7rBGUEgUzHcF9qvLXcg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DAXnQAczusqQD6IX453zsmGlIdP7yO+3BQ6K7S4HAdk=;
- b=hPgYK3gEi72nO5gxKRgqZ5AOn10g6ckS3Sc5S6BCheUsxGD/mMUWlauDz82lXEMBN6aAiGwjj8FLsm9OWdZicRaHI9AXiMnV2FORDqYUqKME6q6M6XnBLhH7Rq4HM4zQ5NQss5yHcfd+50BlvgsVb7Qz6PXDPvC3VSPNxWugfE/OoGhbNxhC+7Qv6QUlcqIVLlB+Dv/y4oUBaKlwZ73zInoyOcs1GeEXJA65hYxillbdVUv3IWs6r1qJ5kTtH7qKsLko83kFTrABQoeM1E+bmKBz5UhvR06J80bamZ67OKSkZUPpcb8luXOjUajJh4L3Ca50A0TliE55yYIKA5kYtQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vivo.com;
-Received: from SEZPR06MB5269.apcprd06.prod.outlook.com (2603:1096:101:78::6)
- by TYZPR06MB6144.apcprd06.prod.outlook.com (2603:1096:400:341::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Wed, 28 Jun
- 2023 09:35:20 +0000
-Received: from SEZPR06MB5269.apcprd06.prod.outlook.com
- ([fe80::fa0e:6c06:7474:285c]) by SEZPR06MB5269.apcprd06.prod.outlook.com
- ([fe80::fa0e:6c06:7474:285c%5]) with mapi id 15.20.6521.023; Wed, 28 Jun 2023
- 09:35:19 +0000
-From: Yangtao Li <frank.li@vivo.com>
-To: axboe@kernel.dk,
-	song@kernel.org,
-	viro@zeniv.linux.org.uk,
-	brauner@kernel.org,
-	xiang@kernel.org,
-	chao@kernel.org,
-	huyue2@coolpad.com,
-	jefflexu@linux.alibaba.com,
-	hch@infradead.org,
-	djwong@kernel.org
-Subject: [PATCH 2/7] block: Convert to bdev_logical_block_mask()
-Date: Wed, 28 Jun 2023 17:34:55 +0800
-Message-Id: <20230628093500.68779-2-frank.li@vivo.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230628093500.68779-1-frank.li@vivo.com>
-References: <20230628093500.68779-1-frank.li@vivo.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SI2PR04CA0004.apcprd04.prod.outlook.com
- (2603:1096:4:197::22) To SEZPR06MB5269.apcprd06.prod.outlook.com
- (2603:1096:101:78::6)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QrdcK3NT2z305R
+	for <linux-erofs@lists.ozlabs.org>; Wed, 28 Jun 2023 20:49:04 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1687949341;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=+QydiwIjN9aTPx/xjudDhfoGuS6UX8G9SMmj+YNOpRA=;
+	b=WYn/AnRwPgELAz6A5BSOTcRS951r/Gjx3TtjzKBK6fTFzgQZTpzkK3O0I58sUIIvmbXdtb
+	ZdRfAlRNIui8SWmBVk+hibAvOTW04v/LBARNHgz8ZYQx95ppKFDwU6E38qZEcAZtrZ8UrV
+	MNE+YfkttTEb875En4E/4dhD20MmXhg=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1687949341;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=+QydiwIjN9aTPx/xjudDhfoGuS6UX8G9SMmj+YNOpRA=;
+	b=WYn/AnRwPgELAz6A5BSOTcRS951r/Gjx3TtjzKBK6fTFzgQZTpzkK3O0I58sUIIvmbXdtb
+	ZdRfAlRNIui8SWmBVk+hibAvOTW04v/LBARNHgz8ZYQx95ppKFDwU6E38qZEcAZtrZ8UrV
+	MNE+YfkttTEb875En4E/4dhD20MmXhg=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-508-vLNGNocHNsqPW492eEhOXw-1; Wed, 28 Jun 2023 06:48:57 -0400
+X-MC-Unique: vLNGNocHNsqPW492eEhOXw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+	(using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C298E3810D42;
+	Wed, 28 Jun 2023 10:48:56 +0000 (UTC)
+Received: from warthog.procyon.org.uk.com (unknown [10.42.28.4])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 25EC6200B677;
+	Wed, 28 Jun 2023 10:48:55 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v7 0/2] mm, netfs, fscache: Stop read optimisation when folio removed from pagecache
+Date: Wed, 28 Jun 2023 11:48:50 +0100
+Message-ID: <20230628104852.3391651-1-dhowells@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB5269:EE_|TYZPR06MB6144:EE_
-X-MS-Office365-Filtering-Correlation-Id: b8ebca12-19e3-4b8c-1727-08db77bafd0c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 	c8JeDrbwj/iD6gZ9uhJicEO/1bI+s5MotfSEub/PXuXSlsF+FVeklD7eIYcdkWz1ETg+0KNzroAyBZM07IKeLoPy46SeDByEIcnRb0kcavsyKPuoQ7Vz9vpMfpUsfm9GW0DIs4t/m6DQ00Tsr4dc2tvQuvnFi4ne28K4J9lbh/dHmq6GBRu9FbWsWMIBA6TlXBSqOerEm2yh7mmCELxHYHK/zc1J1TRBsyGeAxOu4M/n0z5uYG6VBbiQDl6K6BLreoyLRllzz+tWXV8/E5IspjdZm1Xc1EpPCgGfoy6AXFjhFPQKH8H96s4hqlpy0rO22ZUunYbSRr5qpwmnodIpUZEwSDhTZ8a5fSffN7EExo+YOpw9LCMV18sijCz7NNHcmCJsft95Ao88MbWpQuHOG/kTzQOdhWRF8178e74m/IhDgN8WnTlHAzXGZ3ToY1hyP0XNvZTJra76/Up+s5QjQ+EqhGfNDM12y/TGm3gZqk8fvgRUbt47e/x3xDKz9Ug/oM+zrwlfOHs/PtmD/VvaMekYH73OtIpdMIc0ubZuFPk4yECRiGGMsx/SyQysKwzG/FU/m/DzxxHT3q8WydsGsxdLq7YyyChMR9KbW6fRMlHglu5n9mqgKH+z20OPtY4BxY0rQRO8XNk3BlC4KKdHHA==
-X-Forefront-Antispam-Report: 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5269.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(346002)(39850400004)(376002)(366004)(136003)(451199021)(1076003)(6506007)(7416002)(5660300002)(66556008)(316002)(66946007)(36756003)(478600001)(4326008)(66476007)(8676002)(8936002)(86362001)(2906002)(6512007)(26005)(41300700001)(6666004)(6486002)(52116002)(186003)(107886003)(38350700002)(38100700002)(921005)(2616005)(83380400001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 	=?us-ascii?Q?LX0sWQpVDDcvDQ1V+VKVSfRkSpklBxl4Qy9rv1z+InZuf10Koh8Rvz/6pfix?=
- =?us-ascii?Q?R+1/KA90x75LfYU6/1c6ey/A4Y++lXjOkfT2yhOHpNTrBtySGFXY1lNo34d3?=
- =?us-ascii?Q?ZiCUboVWzXNaaoasq+RG+2PFcVllvtFFLYuFVPtEUjv8kLR3paX6DQ/mI7fz?=
- =?us-ascii?Q?ceSZa+r3xZjNcDfa9QiogDaphjgK26rTDMuw2/5SrhDo754+F1QDnWy5q4qB?=
- =?us-ascii?Q?Cs9u9NgD0MfsSkZ9pnWyLSUV14dSEmQuIDPj9XI5Q7app3CHEBelNaBnFGL3?=
- =?us-ascii?Q?0OJKaxrfTnFVLM8t4dSYfvzMEbozITfSPwzTFk4e7VedhM7aWoHCHNZaY58K?=
- =?us-ascii?Q?m2U7rlafL3DzgcK5NUUG636CTUUf1XZasOQHn98jyT6tar/ZNxBUY7e5W4+m?=
- =?us-ascii?Q?xoGgMjWchEXREz+wPZK2F02OGV13xVBwFWWvzsuACoOEtXmWK+vrHYUVjS1j?=
- =?us-ascii?Q?i/x3ul7EauHN45vkKm1j8uMFcMG8QU8tyxrQF2HiW4oCuErXrEkPaMZEQbqe?=
- =?us-ascii?Q?O4cTbfvd/+KaiMYvnu8Tqvrkdc58TJLnkapWpr8z/VN25YwP4s625ztMb43v?=
- =?us-ascii?Q?FijV4/WI9+qWPf3ZDIUvgG0podw1ZtdnAf2MRj4ZzhHtSXd6d9+RCPBOkHMU?=
- =?us-ascii?Q?6Py2OktnYKPLKpphrJPCUObfHEWnrffV4If1AmRWNUjYzrc5eHj443EzzmJ6?=
- =?us-ascii?Q?dRcxWcPiVTwkYek0Ai3+Lph+G3jVqiHSN6CKVlayZf9/a8D61eS/WXmmM+TS?=
- =?us-ascii?Q?jFcVKZkdS+pC5rn5EHPA3eceYre+gbsQTMpIUvpatkpd6rBDm7u8JFU5zPNb?=
- =?us-ascii?Q?sK4DDhMT8ZHNfk729v3rPMnNgfMXfNBGTdysoMApRDmCMIhDW2nv8RBzXb/o?=
- =?us-ascii?Q?vfwtd4Yts+A5qXs2+FASZgKaocpSwn1N9x8TNDROc//sBUt63Kthn+oTSexE?=
- =?us-ascii?Q?PwJtEV+8UURCHXiQXaFzuSdmSwaBGN0i4ZGo0OJmAa//B6/v/1Icel2qlGDe?=
- =?us-ascii?Q?rsCvzV0eaPbSDN8f4Nmdlha1saQwGhL/nQsGjLUCSWu1aVABgtclzYWji47T?=
- =?us-ascii?Q?3Kgs27xIGJ7P1ducKG0Ev4tjN/wmOXM7ZyuPvtvnGSsKAYQcmIlZLn1riBBV?=
- =?us-ascii?Q?1VF0h26+MIKYpLn+yV6DJMJoooOa4ZNxk1o+hvRNQVwYsf1fsmImVhDhiGNg?=
- =?us-ascii?Q?cXVJxMJTiSjKodt9iOGvMN/dm9LDnA26wbftueDfRWj3/H5MbATHBCtMrwV2?=
- =?us-ascii?Q?Og1JzChfkYgYFp491GW3dCQg/oxUQE7VoMz0WnmtB1Tt5cbC23fW9qF1IlUA?=
- =?us-ascii?Q?lxwK6iYAUnJzEX+YT4tQvN6puGKlik1Lkux1WBsWwjLjZPSO6dQcB9+hoP7m?=
- =?us-ascii?Q?eIATPjJjceKhUD+mN+okPpWbW9yuqGVjpibMya9kR06v27Z3f+bioKECV5kt?=
- =?us-ascii?Q?x7UdIVhhAwM81W85HTsdVuskiYF0m1jIqsgbakFp126u3GfkzAf3XrLxpAMH?=
- =?us-ascii?Q?hRI85ZdBprH/gCkW6dQyuH39MJF/tAlo4rALuD0lDtk2Ilvv/ELHeKevjdHP?=
- =?us-ascii?Q?QuYfwUNtIlT8pOPA9GtIMGcI2vustM0qcTMKptLO?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8ebca12-19e3-4b8c-1727-08db77bafd0c
-X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5269.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2023 09:35:19.9035
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: q0O99hSNbjJW7oxyNZLmkbD4JyNKH8VKsKtKgMGnsMCiTAx31woXz6m1NvqIlke/V5neWq2uO5BwFDsPIEuBKw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYZPR06MB6144
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -127,67 +74,89 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-raid@vger.kernel.org, Yangtao Li <frank.li@vivo.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-xfs@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, linux-nfs@vger.kernel.org, linux-cifs@vger.kernel.org, linux-erofs@lists.ozlabs.org, Jeff Layton <jlayton@kernel.org>, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org, v9fs-developer@lists.sourceforge.net, ceph-devel@vger.kernel.org, linux-ext4@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-afs@lists.infradead.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Use bdev_logical_block_mask() to simplify code.
+Hi Andrew,
 
-Signed-off-by: Yangtao Li <frank.li@vivo.com>
----
- block/bio.c   | 2 +-
- block/fops.c  | 4 ++--
- block/ioctl.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+Should this go through the mm tree?
 
-diff --git a/block/bio.c b/block/bio.c
-index 8672179213b9..42ccf5a21696 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1281,7 +1281,7 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 
- 	nr_pages = DIV_ROUND_UP(offset + size, PAGE_SIZE);
- 
--	trim = size & (bdev_logical_block_size(bio->bi_bdev) - 1);
-+	trim = size & bdev_logical_block_mask(bio->bi_bdev);
- 	iov_iter_revert(iter, trim);
- 
- 	size -= trim;
-diff --git a/block/fops.c b/block/fops.c
-index a286bf3325c5..754f7014172a 100644
---- a/block/fops.c
-+++ b/block/fops.c
-@@ -45,7 +45,7 @@ static blk_opf_t dio_bio_write_op(struct kiocb *iocb)
- static bool blkdev_dio_unaligned(struct block_device *bdev, loff_t pos,
- 			      struct iov_iter *iter)
- {
--	return pos & (bdev_logical_block_size(bdev) - 1) ||
-+	return pos & bdev_logical_block_mask(bdev) ||
- 		!bdev_iter_is_aligned(bdev, iter);
- }
- 
-@@ -653,7 +653,7 @@ static long blkdev_fallocate(struct file *file, int mode, loff_t start,
- 	/*
- 	 * Don't allow IO that isn't aligned to logical block size.
- 	 */
--	if ((start | len) & (bdev_logical_block_size(bdev) - 1))
-+	if ((start | len) & bdev_logical_block_mask(bdev))
- 		return -EINVAL;
- 
- 	filemap_invalidate_lock(inode->i_mapping);
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 3be11941fb2d..8544702d6263 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -39,7 +39,7 @@ static int blkpg_do_ioctl(struct block_device *bdev,
- 	switch (op) {
- 	case BLKPG_ADD_PARTITION:
- 		/* check if partition is aligned to blocksize */
--		if (p.start & (bdev_logical_block_size(bdev) - 1))
-+		if (p.start & bdev_logical_block_mask(bdev))
- 			return -EINVAL;
- 		return bdev_add_partition(disk, p.pno, start, length);
- 	case BLKPG_RESIZE_PARTITION:
--- 
-2.39.0
+This fixes an optimisation in fscache whereby we don't read from the cache
+for a particular file until we know that there's data there that we don't
+have in the pagecache.  The problem is that I'm no longer using PG_fscache
+(aka PG_private_2) to indicate that the page is cached and so I don't get a
+notification when a cached page is dropped from the pagecache.
+
+The first patch merges some folio_has_private() and filemap_release_folio()
+pairs and introduces a helper, folio_needs_release(), to indicate if a
+release is required.
+
+The second patch is the actual fix.  Following Willy's suggestions[1], it
+adds an AS_RELEASE_ALWAYS flag to an address_space that will make
+filemap_release_folio() always call ->release_folio(), even if
+PG_private/PG_private_2 aren't set.  folio_needs_release() is altered to
+add a check for this.
+
+David
+
+Changes:
+========
+ver #7)
+ - Make NFS set AS_RELEASE_ALWAYS.
+
+ver #6)
+ - Drop the third patch which removes a duplicate check in vmscan().
+
+ver #5)
+ - Rebased on linus/master.  try_to_release_page() has now been entirely
+   replaced by filemap_release_folio(), barring one comment.
+ - Cleaned up some pairs in ext4.
+
+ver #4)
+ - Split has_private/release call pairs into own patch.
+ - Moved folio_needs_release() to mm/internal.h and removed open-coded
+   version from filemap_release_folio().
+ - Don't need to clear AS_RELEASE_ALWAYS in ->evict_inode().
+ - Added experimental patch to reduce shrink_folio_list().
+
+ver #3)
+ - Fixed mapping_clear_release_always() to use clear_bit() not set_bit().
+ - Moved a '&&' to the correct line.
+
+ver #2)
+ - Rewrote entirely according to Willy's suggestion[1].
+
+Link: https://lore.kernel.org/r/Yk9V/03wgdYi65Lb@casper.infradead.org/ [1]
+Link: https://lore.kernel.org/r/164928630577.457102.8519251179327601178.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/166844174069.1124521.10890506360974169994.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lore.kernel.org/r/166869495238.3720468.4878151409085146764.stgit@warthog.procyon.org.uk/ # v3
+Link: https://lore.kernel.org/r/1459152.1669208550@warthog.procyon.org.uk/ # v3 also
+Link: https://lore.kernel.org/r/166924370539.1772793.13730698360771821317.stgit@warthog.procyon.org.uk/ # v4
+Link: https://lore.kernel.org/r/167172131368.2334525.8569808925687731937.stgit@warthog.procyon.org.uk/ # v5
+Link: https://lore.kernel.org/r/20230216150701.3654894-1-dhowells@redhat.com/ # v6
+
+David Howells (2):
+  mm: Merge folio_has_private()/filemap_release_folio() call pairs
+  mm, netfs, fscache: Stop read optimisation when folio removed from
+    pagecache
+
+ fs/9p/cache.c           |  2 ++
+ fs/afs/internal.h       |  2 ++
+ fs/cachefiles/namei.c   |  2 ++
+ fs/ceph/cache.c         |  2 ++
+ fs/ext4/move_extent.c   | 12 ++++--------
+ fs/nfs/fscache.c        |  3 +++
+ fs/smb/client/fscache.c |  2 ++
+ fs/splice.c             |  3 +--
+ include/linux/pagemap.h | 16 ++++++++++++++++
+ mm/filemap.c            |  2 ++
+ mm/huge_memory.c        |  3 +--
+ mm/internal.h           | 11 +++++++++++
+ mm/khugepaged.c         |  3 +--
+ mm/memory-failure.c     |  8 +++-----
+ mm/migrate.c            |  3 +--
+ mm/truncate.c           |  6 ++----
+ mm/vmscan.c             |  8 ++++----
+ 17 files changed, 59 insertions(+), 29 deletions(-)
 
