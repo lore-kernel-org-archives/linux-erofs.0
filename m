@@ -4,46 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FB80EB64DA
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Jul 2023 03:42:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F46FEB64DD
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Jul 2023 21:59:23 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=MDK5OMbW;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=pyD/ZQNn;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QvWw83pYSz30fs
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Jul 2023 13:42:48 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=mcgrof@infradead.org; receiver=lists.ozlabs.org)
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Qw0FP2wsrz3bZn
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Jul 2023 07:59:21 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=pyD/ZQNn;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::62e; helo=mail-ej1-x62e.google.com; envelope-from=nolange79@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qt8m93JNnz2ygr;
-	Sat,  1 Jul 2023 08:16:06 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=lAGAJ28n1AlcMoZYeCm9uRz7rvcCocSlQtZJp9kS4hM=; b=MDK5OMbWDIQ7k5BUsVfTTCeUKK
-	ykHg2ksytfiKty5DqeoojsJgI19pnpO3bU4G0Nu4GjG2hEs2ZxnYXR7D6/oVlp5Pe2D5JneqmFcdb
-	aqUSSmtLLmtBD1hqWecPq0g6kKIyzG4SS3mQ1IFdkZFT8q1yIbLznGNVCRFkmuvgVZewrQL+j94VD
-	WaM6JFD5ZLKSStA4y0A2mjB/5tQW5fCKp810bYosB6+mCMAVZBJndIY7cGkKy5/JBuK2Tl+F43Ugr
-	599NI5n1vZXoqkj6Re0aIa5xI5fj+j2Mg09LQQtRQAZLHqXoNHWcWfm/2CAipcBnuw9FG3zZ4Gpbp
-	XVBvS0Ww==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-	id 1qFMM7-004egi-0d;
-	Fri, 30 Jun 2023 22:12:43 +0000
-Date: Fri, 30 Jun 2023 15:12:43 -0700
-From: Luis Chamberlain <mcgrof@kernel.org>
-To: Jeff Layton <jlayton@kernel.org>
-Subject: Re: [PATCH 01/79] fs: add ctime accessors infrastructure
-Message-ID: <ZJ9TW9MQmlqmbRU/@bombadil.infradead.org>
-References: <20230621144507.55591-1-jlayton@kernel.org>
- <20230621144507.55591-2-jlayton@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qw0FD6VG3z30fV
+	for <linux-erofs@lists.ozlabs.org>; Tue,  4 Jul 2023 07:59:11 +1000 (AEST)
+Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-992ca792065so505777766b.2
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Jul 2023 14:59:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688421542; x=1691013542;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=NwT4ykH2V05v2M+Ye4qRNdfQXjfQ5dmmXYkSdOVTdgM=;
+        b=pyD/ZQNnfImFBAxzgeupEDQFdwGVAvGDdjUxiNsTJkgcHMvrL1HHf08d6dJokVGna4
+         ZgTNyGeSqA8zGrzUKr0W6jXDxcoSL4QE/clJegJl3KWT0iqoIIgI5goHGP3PSArBomrR
+         tmCnapJqdyrUel7lskCFXjJzVTm8dda8BUrned7q2COFI580vUqOU2Gofwq2Ph/CBsl7
+         t7j3X8m7/K2pmrz8zKoUC6hLH6WTjXaGC9MWsOSRdowt15Tcc3vor+NxX/RGFDHcu0+3
+         nCEnTnNs27cxBKykFl37JJB6br5tKPtkIf9Hgu3sC+sC64ZfuhEkGcGz/g6YKgNyapEV
+         5uvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688421542; x=1691013542;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NwT4ykH2V05v2M+Ye4qRNdfQXjfQ5dmmXYkSdOVTdgM=;
+        b=NKW1MwLK7nGgn5wd7P6dZCFdVzcSMlpO226qk33056jjb93PbkXiKaO5AMyWpUJU6G
+         qzranax1PY6A2RUgdb4fqdP4cj07cqxjnJ3g/evdsEzGnb7q1z1jtU8fhUfvB8nqj3Dt
+         SgnhF2al3ro2zWPXEYKzx1BC6zhU0LewPCaNQrzAgTLTY4OyEpTQdXcBxDn5pArNH3Wj
+         SW2f5u+ISLe8ClxHXDNinY1kNRbnqZfBF2o4M0djJxx3PGGqxE9R7uVnO3na49RWgr13
+         Q0IufoKWbM3LtXobZ6/aKj0v+2yBf2kw3EX2ttwYkIzsPz8EX9KBPNN6uYBRcpqgLta5
+         f3dw==
+X-Gm-Message-State: ABy/qLZVIjuCH3VTKpU0+15u30LYMkBLKY7pkDF/IspL0feMesC5iB3x
+	/WfDkYrzkLcGTW0OSC2JWrgtNjQfE1k=
+X-Google-Smtp-Source: APBJJlGr4EkOiIsMmgXD11bqmvLYy+GyZd7Jj41kjIuz5lRpHKUdJiTGcKHpKr3yJaSx9NE7R7BDZQ==
+X-Received: by 2002:a17:906:29ce:b0:987:6372:c31f with SMTP id y14-20020a17090629ce00b009876372c31fmr8473519eje.37.1688421541499;
+        Mon, 03 Jul 2023 14:59:01 -0700 (PDT)
+Received: from debian-noppl.. (84-113-221-34.cable.dynamic.surfer.at. [84.113.221.34])
+        by smtp.gmail.com with ESMTPSA id h22-20020a170906829600b009931a3adf64sm4123908ejx.17.2023.07.03.14.59.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Jul 2023 14:59:01 -0700 (PDT)
+From: Norbert Lange <nolange79@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2] erofs-utils: Provide identical functionality without libuuid
+Date: Mon,  3 Jul 2023 23:58:03 +0200
+Message-Id: <20230703215803.4476-1-nolange79@gmail.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230621144507.55591-2-jlayton@kernel.org>
-X-Mailman-Approved-At: Mon, 03 Jul 2023 13:42:33 +1000
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,28 +75,369 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, "Rafael J. Wysocki" <rafael@kernel.org>, "Darrick J. Wong" <djwong@kernel.org>, Anders Larsen <al@alarsen.net>, Carlos Llamas <cmllamas@google.com>, Hugh Dickins <hughd@google.com>, John Johansen <john.johansen@canonical.com>, Seth Forshee <sforshee@digitalocean.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christoph Hellwig <hch@lst.de>, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-xfs@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>, Michael Ellerman <mpe@ellerman.id.au>, John Keeping <john@keeping.me.uk>, Zhang Yi <yi.zhang@huawei.com>, James Morris <jmorris@namei.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Tyler Hicks <code@tyhicks.com>, Alan Stern <stern@rowland.harvard.edu>, Christian Borntraeger <borntraeger@linux.ibm.com>, devel@lists.orangefs.org, Shyam Prasad N <sprasad@microsoft.com>, Jan Harkes <jaharkes@cs.cmu.edu>, linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.co
- m>, Alexander Viro <viro@zeniv.linux.org.uk>, Eric Van Hensbergen <ericvh@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Trond Myklebust <trond.myklebust@hammerspace.com>, Anton Altaparmakov <anton@tuxera.com>, Christian Brauner <brauner@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>, Sergey Senozhatsky <senozhatsky@chromium.org>, Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>, Chuck Lever <chuck.lever@oracle.com>, Sven Schnelle <svens@linux.ibm.com>, Jiri Olsa <jolsa@kernel.org>, Jan Kara <jack@suse.com>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-trace-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, Dave Kleikamp <shaggy@kernel.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Mimi Zohar <zohar@linux.ibm.com>, linu
- x-mm@kvack.org, Joel Fernandes <joel@joelfernandes.org>, Eric Dumazet <edumazet@google.com>, Stanislav Fomichev <sdf@google.com>, Andrzej Pietrasiewicz <andrzej.p@collabora.com>, Hangyu Hua <hbh25y@gmail.com>, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, Minghao Chi <chi.minghao@zte.com.cn>, codalist@coda.cs.cmu.edu, selinux@vger.kernel.org, ZhangPeng <zhangpeng362@huawei.com>, Udipto Goswami <quic_ugoswami@quicinc.com>, Yonghong Song <yhs@fb.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>, ecryptfs@vger.kernel.org, Todd Kjos <tkjos@android.com>, Vasily Gorbik <gor@linux.ibm.com>, Yu Zhe <yuzhe@nfschina.com>, linuxppc-dev@lists.ozlabs.org, reiserfs-devel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, Yue Hu <huyue2@coolpad.com>, Jaegeuk Kim <jaegeuk@k
- ernel.org>, Aditya Garg <gargaditya08@live.com>, Martijn Coenen <maco@android.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Hao Luo <haoluo@google.com>, Tony Luck <tony.luck@intel.com>, Theodore Ts'o <tytso@mit.edu>, Nicolas Pitre <nico@fluxnic.net>, linux-ntfs-dev@lists.sourceforge.net, Muchun Song <muchun.song@linux.dev>, Roberto Sassu <roberto.sassu@huawei.com>, linux-f2fs-devel@lists.sourceforge.net, "Guilherme G. Piccoli" <gpiccoli@igalia.com>, Jozef Martiniak <jomajm@gmail.com>, Eric Biederman <ebiederm@xmission.com>, Anna Schumaker <anna@kernel.org>, xu xin <cgel.zte@gmail.com>, Brad Warrum <bwarrum@linux.ibm.com>, Mike Kravetz <mike.kravetz@oracle.com>, Jingyu Wang <jingyuwang_vip@163.com>, linux-efi@vger.kernel.org, Dan Carpenter <error27@gmail.com>, Martin Brandenburg <martin@omnibond.com>, Tom Rix <trix@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Chris Mason <clm@fb.com>, linux-mtd@lists.infradead.org, "Matthew Wilcox \(Oracle\)" <willy@infradead.org>, Marc Di
- onne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Ian Kent <raven@themaw.net>, Naohiro Aota <naohiro.aota@wdc.com>, Daniel Borkmann <daniel@iogearbox.net>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, linux-rdma@vger.kernel.org, Linyu Yuan <quic_linyyuan@quicinc.com>, coda@cs.cmu.edu, Viacheslav Dubeyko <slava@dubeyko.com>, Ilya Dryomov <idryomov@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>, "Serge E. Hallyn" <serge@hallyn.com>, Zhihao Cheng <chengzhihao1@huawei.com>, Jens Axboe <axboe@kernel.dk>, Zeng Jingxiang <linuszeng@tencent.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, autofs@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, Yifei Liu <yifeliu@cs.stonybrook.edu>, Damien Le Moal <dlemoal@kernel.org>, Eric Paris <eparis@parisplace.org>, ceph-devel@vger.kernel.org, Jiangshan Yi <yijiangshan@kylinos.cn>, David Howells <dhowells@redhat.com>, linux-nfs@vger.kernel.org, linux-ext4@vge
- r.kernel.org, Song Liu <song@kernel.org>, samba-technical@lists.samba.org, Steve French <sfrench@samba.org>, Jeremy Kerr <jk@ozlabs.org>, netdev@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, ocfs2-devel@oss.oracle.com, jfs-discussion@lists.sourceforge.net, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, Bob Copeland <me@bobcopeland.com>, KP Singh <kpsingh@kernel.org>, Oleg Kanatov <okanatov@gmail.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, Yuta Hayama <hayama@lineo.co.jp>, Andreas Dilger <adilger.kernel@dilger.ca>, Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>, Zhengchao Shao <shaozhengchao@huawei.com>, Chen Zhongjin <chenzhongjin@huawei.com>, Ard Biesheuvel <ardb@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys
- .com>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Andreas Gruenbacher <agruenba@redhat.com>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Stefan Roesch <shr@devkernel.io>, cluster-devel@redhat.com, Jason Gunthorpe <jgg@ziepe.ca>, Jakub Kicinski <kuba@kernel.org>, Rik van Riel <riel@surriel.com>, Salah Triki <salah.triki@gmail.com>, Evgeniy Dushistov <dushistov@mail.ru>, linux-cifs@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, apparmor@lists.ubuntu.com, Josef Bacik <josef@toxicpanda.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, Tom Talpey <tom@talpey.com>, Hans de Goede <hdegoede@redhat.com>, "Tigran A. Aivazian" <aivazian.tigran@gmail.com>, Dave Chinner <dchinner@redhat.com>, David Sterba <dsterba@suse.com>, Xiubo Li <xiubli@redhat.com>, Ryusuke Konishi <konishi.ryusuke@gmail.com>, Juergen Gross <jgross@suse.com>, Johannes Thumshirn <jth@kernel.org>, Ritu Agarwal <rituagar@linux.ibm.com>, Luis de Bethencourt <luisbg@kernel.org>, 
- Martin KaFai Lau <martin.lau@linux.dev>, v9fs@lists.linux.dev, "Fabio M. De Francesco" <fmdefrancesco@gmail.com>, linux-unionfs@vger.kernel.org, Ruihan Li <lrh2000@pku.edu.cn>, linux-security-module@vger.kernel.org, Erez Zadok <ezk@cs.stonybrook.edu>, "Dr. David Alan Gilbert" <linux@treblig.org>, Johannes Weiner <hannes@cmpxchg.org>, Phillip Lougher <phillip@squashfs.org.uk>, Johannes Berg <johannes@sipsolutions.net>, Sungjong Seo <sj1557.seo@samsung.com>, David Woodhouse <dwmw2@infradead.org>, linux-karma-devel@lists.sourceforge.net, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
+Cc: Norbert Lange <nolange79@gmail.com>, Huang Jianan <huangjianan@oppo.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Jun 21, 2023 at 10:45:06AM -0400, Jeff Layton wrote:
-> struct timespec64 has unused bits in the tv_nsec field that can be used
-> for other purposes. In future patches, we're going to change how the
-> inode->i_ctime is accessed in certain inodes in order to make use of
-> them. In order to do that safely though, we'll need to eradicate raw
-> accesses of the inode->i_ctime field from the kernel.
-> 
-> Add new accessor functions for the ctime that we can use to replace them.
-> 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+The motivation is to have standalone (statically linked) erofs binaries
+for simple initrd images, that are nevertheless able to (re)create
+erofs images with a given UUID.
 
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+For this reason a few of libuuid functions have implementations added
+directly in erofs-utils.
+A header liberofs_uuid.h provides the new functions, which are
+always available. A further sideeffect is that code can be simplified
+which calls into this functionality.
 
-  Luis
+The uuid_unparse function replacement is always a private
+implementation and split into its own file, this further restricts
+the (optional) dependency on libuuid only to the erofs-mkfs tool.
+
+Signed-off-by: Norbert Lange <nolange79@gmail.com>
+---
+/* v2 */
+- Norbert Lange <nolange79@gmail.com>
+  - Change to useing unsigned int
+  - Some small formatting fixes
+  - Remove some now useless "not available" inititalisations of
+    uuid strings
+---
+---
+ dump/Makefile.am    |   2 +-
+ dump/main.c         |  10 ++--
+ fsck/Makefile.am    |   2 +-
+ lib/Makefile.am     |   4 +-
+ lib/liberofs_uuid.h |   9 ++++
+ lib/uuid.c          | 108 ++++++++++++++++++++++++++++++++++++++++++++
+ lib/uuid_unparse.c  |  21 +++++++++
+ mkfs/Makefile.am    |   6 +--
+ mkfs/main.c         |  23 ++--------
+ 9 files changed, 153 insertions(+), 32 deletions(-)
+ create mode 100644 lib/liberofs_uuid.h
+ create mode 100644 lib/uuid.c
+ create mode 100644 lib/uuid_unparse.c
+
+diff --git a/dump/Makefile.am b/dump/Makefile.am
+index c2bef6d..90227a5 100644
+--- a/dump/Makefile.am
++++ b/dump/Makefile.am
+@@ -7,4 +7,4 @@ AM_CPPFLAGS = ${libuuid_CFLAGS}
+ dump_erofs_SOURCES = main.c
+ dump_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ dump_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+-	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS}
++	${liblz4_LIBS} ${liblzma_LIBS}
+diff --git a/dump/main.c b/dump/main.c
+index bc4e028..6ba658c 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -17,10 +17,8 @@
+ #include "erofs/compress.h"
+ #include "erofs/fragments.h"
+ #include "../lib/liberofs_private.h"
++#include "../lib/liberofs_uuid.h"
+ 
+-#ifdef HAVE_LIBUUID
+-#include <uuid.h>
+-#endif
+ 
+ struct erofsdump_cfg {
+ 	unsigned int totalshow;
+@@ -592,7 +590,7 @@ static void erofsdump_print_statistic(void)
+ static void erofsdump_show_superblock(void)
+ {
+ 	time_t time = sbi.build_time;
+-	char uuid_str[37] = "not available";
++	char uuid_str[37];
+ 	int i = 0;
+ 
+ 	fprintf(stdout, "Filesystem magic number:                      0x%04X\n",
+@@ -620,9 +618,7 @@ static void erofsdump_show_superblock(void)
+ 		if (feat & feature_lists[i].flag)
+ 			fprintf(stdout, "%s ", feature_lists[i].name);
+ 	}
+-#ifdef HAVE_LIBUUID
+-	uuid_unparse_lower(sbi.uuid, uuid_str);
+-#endif
++	erofs_uuid_unparse_lower(sbi.uuid, uuid_str);
+ 	fprintf(stdout, "\nFilesystem UUID:                              %s\n",
+ 			uuid_str);
+ }
+diff --git a/fsck/Makefile.am b/fsck/Makefile.am
+index e6a1fb6..4176d86 100644
+--- a/fsck/Makefile.am
++++ b/fsck/Makefile.am
+@@ -7,4 +7,4 @@ AM_CPPFLAGS = ${libuuid_CFLAGS}
+ fsck_erofs_SOURCES = main.c
+ fsck_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ fsck_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+-	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS}
++	${liblz4_LIBS} ${liblzma_LIBS}
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index faa7311..e243c1c 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -29,9 +29,9 @@ noinst_HEADERS += compressor.h
+ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
+ 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
+ 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
+-		      fragments.c rb_tree.c dedupe.c
++		      fragments.c rb_tree.c dedupe.c uuid_unparse.c uuid.c
+ 
+-liberofs_la_CFLAGS = -Wall -I$(top_srcdir)/include
++liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
+ if ENABLE_LZ4
+ liberofs_la_CFLAGS += ${LZ4_CFLAGS}
+ liberofs_la_SOURCES += compressor_lz4.c
+diff --git a/lib/liberofs_uuid.h b/lib/liberofs_uuid.h
+new file mode 100644
+index 0000000..d156699
+--- /dev/null
++++ b/lib/liberofs_uuid.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
++#ifndef __EROFS_LIB_UUID_H
++#define __EROFS_LIB_UUID_H
++
++void erofs_uuid_generate(unsigned char *out);
++void erofs_uuid_unparse_lower(const unsigned char *buf, char *out);
++int erofs_uuid_parse(const char *in, unsigned char *uu);
++
++#endif
+\ No newline at end of file
+diff --git a/lib/uuid.c b/lib/uuid.c
+new file mode 100644
+index 0000000..1d2409c
+--- /dev/null
++++ b/lib/uuid.c
+@@ -0,0 +1,108 @@
++// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
++/*
++ * Copyright (C) 2023 Norbert Lange <nolange79@gmail.com>
++ */
++
++#include <string.h>
++#include <errno.h>
++
++#include "erofs/config.h"
++#include "erofs/defs.h"
++#include "liberofs_uuid.h"
++
++#ifdef HAVE_LIBUUID
++#include <uuid.h>
++#else
++
++#include <stdlib.h>
++#include <sys/random.h>
++
++/* Flags to be used, will be modified if kernel does not support them */
++static unsigned int erofs_grnd_flag = 
++#ifdef GRND_INSECURE
++	GRND_INSECURE;
++#else
++	0x0004;
++#endif
++
++static int s_getrandom(void *out, unsigned size, bool insecure)
++{
++	unsigned int kflags = erofs_grnd_flag;
++	unsigned int flags = insecure ? kflags : 0;
++
++	for (;;)
++	{
++		ssize_t r = getrandom(out, size, flags);
++		int err;
++
++		if (r == size)
++			break;
++		err = errno;
++		if (err != EINTR) {
++			if (err == EINVAL && kflags) {
++				// Kernel likely does not support GRND_INSECURE
++				erofs_grnd_flag = 0;
++				kflags = 0;
++				continue;
++			}
++			return -err;
++		}
++	}
++	return 0;
++}
++#endif
++
++void erofs_uuid_generate(unsigned char *out)
++{
++#ifdef HAVE_LIBUUID
++	uuid_t new_uuid;
++
++	do {
++		uuid_generate(new_uuid);
++	} while (uuid_is_null(new_uuid));
++#else
++	unsigned char new_uuid[16];
++	int res __maybe_unused;
++
++	res = s_getrandom(new_uuid, sizeof(new_uuid), true);
++	BUG_ON(res != 0);
++
++	// UID type + version bits
++	new_uuid[0] = (new_uuid[4 + 2] & 0x0f) | 0x40;
++	new_uuid[1] = (new_uuid[4 + 2 + 2] & 0x3f) | 0x80;
++#endif
++	memcpy(out, new_uuid, sizeof(new_uuid));
++}
++
++int erofs_uuid_parse(const char *in, unsigned char *uu) {
++#ifdef HAVE_LIBUUID
++	return uuid_parse((char *)in, uu);
++#else
++	unsigned char new_uuid[16];
++	unsigned int hypens = ((1U << 3) | (1U << 5) | (1U << 7) | (1U << 9));
++	int i;
++
++	for (i = 0; i < sizeof(new_uuid); hypens >>= 1, i++)
++	{
++		char c[] = { in[0], in[1], '\0' };
++		char* endptr = c;
++		unsigned long val = strtoul(c, &endptr, 16);
++
++		if (endptr - c != 2)
++			return -EINVAL;
++
++		in += 2;
++
++		if ((hypens & 1U) != 0) {
++			if (*in++ != '-')
++				return -EINVAL;
++		}
++		new_uuid[i] = (unsigned char)val;
++	}
++
++	if (*in != '\0')
++		return -EINVAL;
++	memcpy(uu, new_uuid, sizeof(new_uuid));
++	return 0;
++#endif
++}
+\ No newline at end of file
+diff --git a/lib/uuid_unparse.c b/lib/uuid_unparse.c
+new file mode 100644
+index 0000000..3255c4b
+--- /dev/null
++++ b/lib/uuid_unparse.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
++/*
++ * Copyright (C) 2023 Norbert Lange <nolange79@gmail.com>
++ */
++
++#include <stdio.h>
++
++#include "erofs/config.h"
++#include "liberofs_uuid.h"
++
++void erofs_uuid_unparse_lower(const unsigned char *buf, char *out) {
++	sprintf(out, "%04x%04x-%04x-%04x-%04x-%04x%04x%04x",
++			(buf[0] << 8) | buf[1],
++			(buf[2] << 8) | buf[3],
++			(buf[4] << 8) | buf[5],
++			(buf[6] << 8) | buf[7],
++			(buf[8] << 8) | buf[9],
++			(buf[10] << 8) | buf[11],
++			(buf[12] << 8) | buf[13],
++			(buf[14] << 8) | buf[15]);
++}
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 709d9bf..a08dc53 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -2,8 +2,8 @@
+ 
+ AUTOMAKE_OPTIONS = foreign
+ bin_PROGRAMS     = mkfs.erofs
+-AM_CPPFLAGS = ${libuuid_CFLAGS} ${libselinux_CFLAGS}
++AM_CPPFLAGS = ${libselinux_CFLAGS}
+ mkfs_erofs_SOURCES = main.c
+ mkfs_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+-mkfs_erofs_LDADD = ${libuuid_LIBS} $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+-	${liblz4_LIBS} ${liblzma_LIBS}
++mkfs_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
++	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS}
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 94f51df..18aed50 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -26,10 +26,7 @@
+ #include "erofs/blobchunk.h"
+ #include "erofs/fragments.h"
+ #include "../lib/liberofs_private.h"
+-
+-#ifdef HAVE_LIBUUID
+-#include <uuid.h>
+-#endif
++#include "../lib/liberofs_uuid.h"
+ 
+ #define EROFS_SUPER_END (EROFS_SUPER_OFFSET + sizeof(struct erofs_super_block))
+ 
+@@ -90,9 +87,7 @@ static void usage(void)
+ 	      " -EX[,...]             X=extended options\n"
+ 	      " -L volume-label       set the volume label (maximum 16)\n"
+ 	      " -T#                   set a fixed UNIX timestamp # to all files\n"
+-#ifdef HAVE_LIBUUID
+ 	      " -UX                   use a given filesystem UUID\n"
+-#endif
+ 	      " --all-root            make all files owned by root\n"
+ 	      " --blobdev=X           specify an extra device X to store chunked data\n"
+ 	      " --chunksize=#         generate chunk-based files with #-byte chunks\n"
+@@ -328,14 +323,12 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			}
+ 			cfg.c_timeinherit = TIMESTAMP_FIXED;
+ 			break;
+-#ifdef HAVE_LIBUUID
+ 		case 'U':
+-			if (uuid_parse(optarg, sbi.uuid)) {
++			if (erofs_uuid_parse(optarg, sbi.uuid)) {
+ 				erofs_err("invalid UUID %s", optarg);
+ 				return -EINVAL;
+ 			}
+ 			break;
+-#endif
+ 		case 2:
+ 			opt = erofs_parse_exclude_path(optarg, false);
+ 			if (opt) {
+@@ -626,11 +619,7 @@ static void erofs_mkfs_default_options(void)
+ 			     EROFS_FEATURE_COMPAT_MTIME;
+ 
+ 	/* generate a default uuid first */
+-#ifdef HAVE_LIBUUID
+-	do {
+-		uuid_generate(sbi.uuid);
+-	} while (uuid_is_null(sbi.uuid));
+-#endif
++	erofs_uuid_generate(sbi.uuid);
+ }
+ 
+ /* https://reproducible-builds.org/specs/source-date-epoch/ for more details */
+@@ -675,7 +664,7 @@ int main(int argc, char **argv)
+ 	struct stat st;
+ 	erofs_blk_t nblocks;
+ 	struct timeval t;
+-	char uuid_str[37] = "not available";
++	char uuid_str[37];
+ 
+ 	erofs_init_configure();
+ 	erofs_mkfs_default_options();
+@@ -803,9 +792,7 @@ int main(int argc, char **argv)
+ 			  erofs_strerror(err));
+ 		goto exit;
+ 	}
+-#ifdef HAVE_LIBUUID
+-	uuid_unparse_lower(sbi.uuid, uuid_str);
+-#endif
++	erofs_uuid_unparse_lower(sbi.uuid, uuid_str);
+ 	erofs_info("filesystem UUID: %s", uuid_str);
+ 
+ 	erofs_inode_manager_init();
+-- 
+2.39.2
+
