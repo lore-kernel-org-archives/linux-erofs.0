@@ -4,48 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 129FFEB64DA
-	for <linux-erofs@archiver.kernel.org>; Tue,  4 Jul 2023 16:14:55 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=ma0abi+l;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 92840EB64D9
+	for <linux-erofs@archiver.kernel.org>; Wed,  5 Jul 2023 02:10:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QwSYT2TQPz3bVS
-	for <linux-erofs@archiver.kernel.org>; Wed,  5 Jul 2023 02:14:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=ma0abi+l;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=infradead.org (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org; envelope-from=willy@infradead.org; receiver=lists.ozlabs.org)
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QwjnC4yJqz30gc
+	for <linux-erofs@archiver.kernel.org>; Wed,  5 Jul 2023 12:10:55 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QwSYJ6BSCz2xqH
-	for <linux-erofs@lists.ozlabs.org>; Wed,  5 Jul 2023 02:14:44 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=R1W87rnlNGGe3O62ySITe0WV/TkO13M6jrCnVpdBC/M=; b=ma0abi+l8BKnWZyE2Bm6SMUpzA
-	GY/Sg9bKM4QGi5Fi3SxYqWXxJ46oHMzkk2XTYG6szPrdjaFZvCOeUvh2qeA+qFPnGTya2tgZ0Czoo
-	anlh0yET7VOr2nReXBjhvXLbethMJyMQRtOEtJdxTJlnJDQLzVkEFxU1z6LlHa+R1Svpz+R+Zi/2e
-	EbHE+jMBvtLJPxFFKggvC8J4kNKoPgnxYJ08D38bFVgefZT0kn05//LL45wE920g1ut/XHRnJF4Ur
-	2JcraLDAhTPQ+qGFyYF+arcI4MuDDkahpy1OJ1ZV5vzT8Q6c9E3mK76aIjApGP0H0G7MQh7QY3lZI
-	j0pVBAMA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1qGifB-009I83-IW; Tue, 04 Jul 2023 16:14:01 +0000
-Date: Tue, 4 Jul 2023 17:14:01 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: Bart Van Assche <bvanassche@acm.org>
-Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
-Message-ID: <ZKRFSZQglwCba9/i@casper.infradead.org>
-References: <20230629165206.383-1-jack@suse.cz>
- <20230704122224.16257-1-jack@suse.cz>
- <bb91e76b-0bd8-a949-f8b9-868f919ebcb9@acm.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qwjn40jStz3072
+	for <linux-erofs@lists.ozlabs.org>; Wed,  5 Jul 2023 12:10:46 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VmepWMe_1688523040;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VmepWMe_1688523040)
+          by smtp.aliyun-inc.com;
+          Wed, 05 Jul 2023 10:10:41 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: hsiangkao@linux.alibaba.com,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: mkfs: don't clean cached xattr items prematurely
+Date: Wed,  5 Jul 2023 10:10:40 +0800
+Message-Id: <20230705021040.76265-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bb91e76b-0bd8-a949-f8b9-868f919ebcb9@acm.org>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -57,21 +42,123 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, Jan Kara <jack@suse.cz>, "Darrick J. Wong" <djwong@kernel.org>, linux-nvme@lists.infradead.org, Joseph Qi <joseph.qi@linux.alibaba.com>, dm-devel@redhat.com, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, Jack Wang <jinpu.wang@ionos.com>, Alasdair Kergon <agk@redhat.com>, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, Christoph Hellwig <hch@infradead.org>, xen-devel@lists.xenproject.org, Christian Borntraeger <borntraeger@linux.ibm.com>, Kent Overstreet <kent.overstreet@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, linux-pm@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>, Joern Engel <joern@lazybastard.org>, reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, Trond Myklebust
-  <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Ted Tso <tytso@mit.edu>, linux-mm@kvack.org, Song Liu <song@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com, Anna Schumaker <anna@kernel.org>, linux-fsdevel@vger.kernel.org, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Jul 04, 2023 at 07:06:26AM -0700, Bart Van Assche wrote:
-> On 7/4/23 05:21, Jan Kara wrote:
-> > +struct bdev_handle {
-> > +	struct block_device *bdev;
-> > +	void *holder;
-> > +};
-> 
-> Please explain in the patch description why a holder pointer is introduced
-> in struct bdev_handle and how it relates to the bd_holder pointer in struct
-> block_device. Is one of the purposes of this patch series perhaps to add
-> support for multiple holders per block device?
+Extended attributes read from file are cached in a hash table when
+building shared extended attributes.  However the cached xattr items
+for inline xattrs are cleaned up from the hash table when the processing
+for shared extended attributes has finished, while later the hash table
+is reconstructed from scratch when building the inode tree (see
+erofs_mkfs_build_tree_from_path()).
 
-That is all in patch 0/32.  Why repeat it?
+Don't clean up the xattr hash table halfway until mkfs exits.  Also move
+the logic of cleaning long xattr name prefixes into erofs_cleanxattrs().
+
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ include/erofs/xattr.h |  2 +-
+ lib/xattr.c           | 30 ++++++++----------------------
+ mkfs/main.c           |  2 +-
+ 3 files changed, 10 insertions(+), 24 deletions(-)
+
+diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
+index 14fc081..b202f78 100644
+--- a/include/erofs/xattr.h
++++ b/include/erofs/xattr.h
+@@ -75,9 +75,9 @@ static inline unsigned int xattrblock_offset(unsigned int xattr_id)
+ int erofs_prepare_xattr_ibody(struct erofs_inode *inode);
+ char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size);
+ int erofs_build_shared_xattrs_from_path(const char *path);
++void erofs_cleanxattrs(void);
+ 
+ int erofs_xattr_insert_name_prefix(const char *prefix);
+-void erofs_xattr_cleanup_name_prefixes(void);
+ int erofs_xattr_write_name_prefixes(FILE *f);
+ 
+ #ifdef __cplusplus
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 7d7dc54..8d0079f 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -547,24 +547,23 @@ fail:
+ 	return ret;
+ }
+ 
+-static void erofs_cleanxattrs(bool sharedxattrs)
++void erofs_cleanxattrs(void)
+ {
+ 	unsigned int i;
+ 	struct xattr_item *item;
+ 	struct hlist_node *tmp;
++	struct ea_type_node *tnode, *n;
+ 
+ 	hash_for_each_safe(ea_hashtable, i, tmp, item, node) {
+-		if (sharedxattrs && item->shared_xattr_id >= 0)
+-			continue;
+-
+ 		hash_del(&item->node);
+ 		free(item);
+ 	}
+ 
+-	if (sharedxattrs)
+-		return;
+-
+-	shared_xattrs_count = 0;
++	list_for_each_entry_safe(tnode, n, &ea_name_prefixes, list) {
++		list_del(&tnode->list);
++		free((void *)tnode->type.prefix);
++		free(tnode);
++	}
+ }
+ 
+ static int comp_shared_xattr_item(const void *a, const void *b)
+@@ -676,7 +675,7 @@ int erofs_build_shared_xattrs_from_path(const char *path)
+ 		return ret;
+ 
+ 	if (!shared_xattrs_count)
+-		goto out;
++		return 0;
+ 
+ 	sorted_n = malloc((shared_xattrs_count + 1) * sizeof(n));
+ 	if (!sorted_n)
+@@ -735,8 +734,6 @@ int erofs_build_shared_xattrs_from_path(const char *path)
+ 	ret = dev_write(buf, erofs_btell(bh, false), shared_xattrs_size);
+ 	free(buf);
+ 	erofs_bdrop(bh, false);
+-out:
+-	erofs_cleanxattrs(true);
+ 	return ret;
+ }
+ 
+@@ -1340,14 +1337,3 @@ int erofs_xattr_insert_name_prefix(const char *prefix)
+ 	list_add_tail(&tnode->list, &ea_name_prefixes);
+ 	return 0;
+ }
+-
+-void erofs_xattr_cleanup_name_prefixes(void)
+-{
+-	struct ea_type_node *tnode, *n;
+-
+-	list_for_each_entry_safe(tnode, n, &ea_name_prefixes, list) {
+-		list_del(&tnode->list);
+-		free((void *)tnode->type.prefix);
+-		free(tnode);
+-	}
+-}
+diff --git a/mkfs/main.c b/mkfs/main.c
+index ac208e5..390ef17 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -942,7 +942,7 @@ exit:
+ 	if (cfg.c_fragments)
+ 		z_erofs_fragments_exit();
+ 	erofs_packedfile_exit();
+-	erofs_xattr_cleanup_name_prefixes();
++	erofs_cleanxattrs();
+ 	erofs_exit_configure();
+ 
+ 	if (err) {
+-- 
+2.19.1.6.gb485710b
+
