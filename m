@@ -4,35 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C657BC001B0
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jul 2023 15:16:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A56EEB64DC
+	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jul 2023 16:14:49 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=QmpkaGPR;
+	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=BFZ9Tyry;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Qxg9j2Qb8z3bxS
-	for <linux-erofs@archiver.kernel.org>; Fri,  7 Jul 2023 01:16:57 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QxhSR62mgz3by8
+	for <linux-erofs@archiver.kernel.org>; Fri,  7 Jul 2023 02:14:47 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=QmpkaGPR;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=BFZ9Tyry;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=softfail (domain owner discourages use of this host) smtp.mailfrom=suse.cz (client-ip=2001:67c:2178:6::1c; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qxg9Y5mRSz3bsj
-	for <linux-erofs@lists.ozlabs.org>; Fri,  7 Jul 2023 01:16:49 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VmlC6s._1688656603;
-Received: from 192.168.3.2(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VmlC6s._1688656603)
-          by smtp.aliyun-inc.com;
-          Thu, 06 Jul 2023 23:16:45 +0800
-Message-ID: <88a298eb-eb7d-e03b-99b9-ead385894f95@linux.alibaba.com>
-Date: Thu, 6 Jul 2023 23:16:42 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.12.0
-Subject: Re: [PATCH 22/32] erofs: Convert to use blkdev_get_handle_by_path()
-To: Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QxhSH5NyXz3bqx
+	for <linux-erofs@lists.ozlabs.org>; Fri,  7 Jul 2023 02:14:37 +1000 (AEST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 4E502223E8;
+	Thu,  6 Jul 2023 16:14:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1688660074; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U3X2c4DZ7u1WJQoXTnnFA0EIrJReIsvKkxSR5ka0KIA=;
+	b=QmpkaGPRZaoHJzRo2a6TjndqPucrWh7f/FY2L3L/tkSmDEI1eMsM8wrizbEulyyCbALdKF
+	NAhJw22VD9dE7RV9U1X7QxEMrx2wMp7N4RocvtwIIP7j7sOckxmGngjpgD0K7UzZlI8BMj
+	7TaptoZ4hnlDaa+a0YvCourIJS7rkEc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1688660074;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=U3X2c4DZ7u1WJQoXTnnFA0EIrJReIsvKkxSR5ka0KIA=;
+	b=BFZ9TyrydR/g+7ExWBaMGJWuaCnekgsDWt3QOA77tpx+pa0ab3V9kDQ7HgXi8ns77IxFLs
+	krph+7hPTygy6eCw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2ADF1138EE;
+	Thu,  6 Jul 2023 16:14:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id +RN/CmropmTIKwAAMHmgww
+	(envelope-from <jack@suse.cz>); Thu, 06 Jul 2023 16:14:34 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id B00D6A0707; Thu,  6 Jul 2023 18:14:33 +0200 (CEST)
+Date: Thu, 6 Jul 2023 18:14:33 +0200
+From: Jan Kara <jack@suse.cz>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
+Message-ID: <20230706161433.lj4apushiwguzvdd@quack3>
 References: <20230629165206.383-1-jack@suse.cz>
- <20230704122224.16257-22-jack@suse.cz>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230704122224.16257-22-jack@suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <20230704122224.16257-1-jack@suse.cz>
+ <ZKbgAG5OoHVyUKOG@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZKbgAG5OoHVyUKOG@infradead.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -44,110 +81,35 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
+Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, Jan Kara <jack@suse.cz>, "Darrick J. Wong" <djwong@kernel.org>, linux-nvme@lists.infradead.org, Joseph Qi <joseph.qi@linux.alibaba.com>, dm-devel@redhat.com, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, Jack Wang <jinpu.wang@ionos.com>, Alasdair Kergon <agk@redhat.com>, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, xen-devel@lists.xenproject.org, Christian Borntraeger <borntraeger@linux.ibm.com>, Kent Overstreet <kent.overstreet@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, linux-pm@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>, Joern Engel <joern@lazybastard.org>, reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Jen
+ s Axboe <axboe@kernel.dk>, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Ted Tso <tytso@mit.edu>, linux-mm@kvack.org, Song Liu <song@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com, Anna Schumaker <anna@kernel.org>, linux-fsdevel@vger.kernel.org, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/7/4 20:21, Jan Kara wrote:
-> Convert erofs to use blkdev_get_handle_by_path() and pass the handle
-> around.
+On Thu 06-07-23 08:38:40, Christoph Hellwig wrote:
+> On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
+> > Create struct bdev_handle that contains all parameters that need to be
+> > passed to blkdev_put() and provide blkdev_get_handle_* functions that
+> > return this structure instead of plain bdev pointer. This will
+> > eventually allow us to pass one more argument to blkdev_put() without
+> > too much hassle.
 > 
-> CC: Gao Xiang <xiang@kernel.org>
-> CC: Chao Yu <chao@kernel.org>
-> CC: linux-erofs@lists.ozlabs.org
-> Signed-off-by: Jan Kara <jack@suse.cz>
-
-Thanks for this:
-Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Thanks,
-Gao Xiang
-
-> ---
->   fs/erofs/data.c     |  4 ++--
->   fs/erofs/internal.h |  2 +-
->   fs/erofs/super.c    | 20 ++++++++++----------
->   3 files changed, 13 insertions(+), 13 deletions(-)
+> Can we use the opportunity to come up with better names?  blkdev_get_*
+> was always a rather horrible naming convention for something that
+> ends up calling into ->open.
 > 
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index db5e4b7636ec..1fa60cfff267 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -222,7 +222,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
->   			up_read(&devs->rwsem);
->   			return 0;
->   		}
-> -		map->m_bdev = dif->bdev;
-> +		map->m_bdev = dif->bdev_handle->bdev;
->   		map->m_daxdev = dif->dax_dev;
->   		map->m_dax_part_off = dif->dax_part_off;
->   		map->m_fscache = dif->fscache;
-> @@ -240,7 +240,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
->   			if (map->m_pa >= startoff &&
->   			    map->m_pa < startoff + length) {
->   				map->m_pa -= startoff;
-> -				map->m_bdev = dif->bdev;
-> +				map->m_bdev = dif->bdev_handle->bdev;
->   				map->m_daxdev = dif->dax_dev;
->   				map->m_dax_part_off = dif->dax_part_off;
->   				map->m_fscache = dif->fscache;
-> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-> index 36e32fa542f0..fabd3bb0c194 100644
-> --- a/fs/erofs/internal.h
-> +++ b/fs/erofs/internal.h
-> @@ -47,7 +47,7 @@ typedef u32 erofs_blk_t;
->   struct erofs_device_info {
->   	char *path;
->   	struct erofs_fscache *fscache;
-> -	struct block_device *bdev;
-> +	struct bdev_handle *bdev_handle;
->   	struct dax_device *dax_dev;
->   	u64 dax_part_off;
->   
-> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-> index 9d6a3c6158bd..a4742cc05f95 100644
-> --- a/fs/erofs/super.c
-> +++ b/fs/erofs/super.c
-> @@ -230,7 +230,7 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
->   	struct erofs_sb_info *sbi = EROFS_SB(sb);
->   	struct erofs_fscache *fscache;
->   	struct erofs_deviceslot *dis;
-> -	struct block_device *bdev;
-> +	struct bdev_handle *bdev_handle;
->   	void *ptr;
->   
->   	ptr = erofs_read_metabuf(buf, sb, erofs_blknr(sb, *pos), EROFS_KMAP);
-> @@ -254,13 +254,13 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
->   			return PTR_ERR(fscache);
->   		dif->fscache = fscache;
->   	} else if (!sbi->devs->flatdev) {
-> -		bdev = blkdev_get_by_path(dif->path, BLK_OPEN_READ, sb->s_type,
-> -					  NULL);
-> -		if (IS_ERR(bdev))
-> -			return PTR_ERR(bdev);
-> -		dif->bdev = bdev;
-> -		dif->dax_dev = fs_dax_get_by_bdev(bdev, &dif->dax_part_off,
-> -						  NULL, NULL);
-> +		bdev_handle = blkdev_get_handle_by_path(dif->path,
-> +				BLK_OPEN_READ, sb->s_type, NULL);
-> +		if (IS_ERR(bdev_handle))
-> +			return PTR_ERR(bdev_handle);
-> +		dif->bdev_handle = bdev_handle;
-> +		dif->dax_dev = fs_dax_get_by_bdev(bdev_handle->bdev,
-> +				&dif->dax_part_off, NULL, NULL);
->   	}
->   
->   	dif->blocks = le32_to_cpu(dis->blocks);
-> @@ -815,8 +815,8 @@ static int erofs_release_device_info(int id, void *ptr, void *data)
->   	struct erofs_device_info *dif = ptr;
->   
->   	fs_put_dax(dif->dax_dev, NULL);
-> -	if (dif->bdev)
-> -		blkdev_put(dif->bdev, &erofs_fs_type);
-> +	if (dif->bdev_handle)
-> +		blkdev_handle_put(dif->bdev_handle);
->   	erofs_fscache_unregister_cookie(dif->fscache);
->   	dif->fscache = NULL;
->   	kfree(dif->path);
+> What about:
+> 
+> struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *holder,
+> 		const struct blk_holder_ops *hops);
+> struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
+> 		void *holder, const struct blk_holder_ops *hops);
+> void bdev_release(struct bdev_handle *handle);
+
+I'd maybe use bdev_close() instead of bdev_release() but otherwise I like
+the new naming.
+
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
