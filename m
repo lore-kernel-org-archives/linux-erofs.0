@@ -4,72 +4,74 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A56EEB64DC
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jul 2023 16:14:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35B22C001DF
+	for <linux-erofs@archiver.kernel.org>; Fri,  7 Jul 2023 12:24:58 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=QmpkaGPR;
-	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=BFZ9Tyry;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=LqFRs1c1;
+	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=WsVzOxtN;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QxhSR62mgz3by8
-	for <linux-erofs@archiver.kernel.org>; Fri,  7 Jul 2023 02:14:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4QyCJm2Vthz3c13
+	for <linux-erofs@archiver.kernel.org>; Fri,  7 Jul 2023 22:24:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=QmpkaGPR;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=BFZ9Tyry;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=LqFRs1c1;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=WsVzOxtN;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=softfail (domain owner discourages use of this host) smtp.mailfrom=suse.cz (client-ip=2001:67c:2178:6::1c; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+Authentication-Results: lists.ozlabs.org; spf=softfail (domain owner discourages use of this host) smtp.mailfrom=suse.cz (client-ip=2001:67c:2178:6::1d; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QxhSH5NyXz3bqx
-	for <linux-erofs@lists.ozlabs.org>; Fri,  7 Jul 2023 02:14:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4QyCJd1jqCz30P0
+	for <linux-erofs@lists.ozlabs.org>; Fri,  7 Jul 2023 22:24:45 +1000 (AEST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 4E502223E8;
-	Thu,  6 Jul 2023 16:14:34 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id F0C8D1FDB5;
+	Fri,  7 Jul 2023 12:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1688660074; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1688732675; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=U3X2c4DZ7u1WJQoXTnnFA0EIrJReIsvKkxSR5ka0KIA=;
-	b=QmpkaGPRZaoHJzRo2a6TjndqPucrWh7f/FY2L3L/tkSmDEI1eMsM8wrizbEulyyCbALdKF
-	NAhJw22VD9dE7RV9U1X7QxEMrx2wMp7N4RocvtwIIP7j7sOckxmGngjpgD0K7UzZlI8BMj
-	7TaptoZ4hnlDaa+a0YvCourIJS7rkEc=
+	bh=v97Z4h87RrabL7WLNBXHFysNCdL5KIt8mtxxyrwI0lE=;
+	b=LqFRs1c1G67BsNNDLuNq3gTOMo8UAqFT+ZgX0/ce2GYyjoNTkNY3JvymPyQUIIgvdCfdfA
+	wvYabjfbqON86k1PsUxAyhGKf+BANbZ0orxg0fUOS7bjyZ5ddpTiVyICESJEtA4U8iKIIb
+	0Zu9Qq9rWpT0jHo3EjIE5diazY1476M=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1688660074;
+	s=susede2_ed25519; t=1688732675;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=U3X2c4DZ7u1WJQoXTnnFA0EIrJReIsvKkxSR5ka0KIA=;
-	b=BFZ9TyrydR/g+7ExWBaMGJWuaCnekgsDWt3QOA77tpx+pa0ab3V9kDQ7HgXi8ns77IxFLs
-	krph+7hPTygy6eCw==
+	bh=v97Z4h87RrabL7WLNBXHFysNCdL5KIt8mtxxyrwI0lE=;
+	b=WsVzOxtNAjI8cmGR5IMHwFDPJM5ZBawTTSTtFHjjnpb4nomNuwaP8lcoennzww9M9DfIc5
+	k35MoJGFDmLh3vBw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2ADF1138EE;
-	Thu,  6 Jul 2023 16:14:34 +0000 (UTC)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D97F7139E0;
+	Fri,  7 Jul 2023 12:24:34 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
 	by imap2.suse-dmz.suse.de with ESMTPSA
-	id +RN/CmropmTIKwAAMHmgww
-	(envelope-from <jack@suse.cz>); Thu, 06 Jul 2023 16:14:34 +0000
+	id rMQMNQIEqGT9NgAAMHmgww
+	(envelope-from <jack@suse.cz>); Fri, 07 Jul 2023 12:24:34 +0000
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id B00D6A0707; Thu,  6 Jul 2023 18:14:33 +0200 (CEST)
-Date: Thu, 6 Jul 2023 18:14:33 +0200
+	id 6AC15A0717; Fri,  7 Jul 2023 14:24:34 +0200 (CEST)
+Date: Fri, 7 Jul 2023 14:24:34 +0200
 From: Jan Kara <jack@suse.cz>
 To: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
-Message-ID: <20230706161433.lj4apushiwguzvdd@quack3>
+Message-ID: <20230707122434.s46ytxpne42hecni@quack3>
 References: <20230629165206.383-1-jack@suse.cz>
  <20230704122224.16257-1-jack@suse.cz>
  <ZKbgAG5OoHVyUKOG@infradead.org>
+ <20230706161433.lj4apushiwguzvdd@quack3>
+ <ZKf26fYMDHnTCb29@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZKbgAG5OoHVyUKOG@infradead.org>
+In-Reply-To: <ZKf26fYMDHnTCb29@infradead.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -86,30 +88,25 @@ Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, Jan
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu 06-07-23 08:38:40, Christoph Hellwig wrote:
-> On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
-> > Create struct bdev_handle that contains all parameters that need to be
-> > passed to blkdev_put() and provide blkdev_get_handle_* functions that
-> > return this structure instead of plain bdev pointer. This will
-> > eventually allow us to pass one more argument to blkdev_put() without
-> > too much hassle.
+On Fri 07-07-23 04:28:41, Christoph Hellwig wrote:
+> On Thu, Jul 06, 2023 at 06:14:33PM +0200, Jan Kara wrote:
+> > > struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
+> > > 		void *holder, const struct blk_holder_ops *hops);
+> > > void bdev_release(struct bdev_handle *handle);
+> > 
+> > I'd maybe use bdev_close() instead of bdev_release() but otherwise I like
+> > the new naming.
 > 
-> Can we use the opportunity to come up with better names?  blkdev_get_*
-> was always a rather horrible naming convention for something that
-> ends up calling into ->open.
-> 
-> What about:
-> 
-> struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *holder,
-> 		const struct blk_holder_ops *hops);
-> struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
-> 		void *holder, const struct blk_holder_ops *hops);
-> void bdev_release(struct bdev_handle *handle);
+> We're using release everywhese else, but if Jens is fine with that I
+> can live with close.
 
-I'd maybe use bdev_close() instead of bdev_release() but otherwise I like
-the new naming.
+Dunno, to me words pair like open-close, get-put, acquire-release.
+Furthermore e.g. ->release() (and thus blkdev_release()) is called only
+when the last file reference is dropped, not when each reference is
+dropped, so that's why bdev_release() seems a bit confusing to me.
 
 								Honza
+
 -- 
 Jan Kara <jack@suse.com>
 SUSE Labs, CR
