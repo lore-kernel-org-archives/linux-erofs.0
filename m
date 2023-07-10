@@ -4,33 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6BBBEB64DC
-	for <linux-erofs@archiver.kernel.org>; Sun,  9 Jul 2023 18:52:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B20DEB64DC
+	for <linux-erofs@archiver.kernel.org>; Mon, 10 Jul 2023 02:33:15 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FFZTcsof;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4QzbpT2l8Qz3f8k
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Jul 2023 04:52:01 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Qzp2d42ZQz3bpq
+	for <linux-erofs@archiver.kernel.org>; Mon, 10 Jul 2023 12:33:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FFZTcsof;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=ebiggers@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4QzbgB3Pgnz3dWm
-	for <linux-erofs@lists.ozlabs.org>; Mon, 10 Jul 2023 04:45:42 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vmvryh1_1688928336;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vmvryh1_1688928336)
-          by smtp.aliyun-inc.com;
-          Mon, 10 Jul 2023 02:45:38 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 4/4] erofs-utils: mkfs: add DEFLATE algorithm support
-Date: Mon, 10 Jul 2023 02:45:25 +0800
-Message-Id: <20230709184525.120677-2-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230709184525.120677-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Qzp2V3NZXz30Kf
+	for <linux-erofs@lists.ozlabs.org>; Mon, 10 Jul 2023 12:33:06 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id B70CA60C4B;
+	Mon, 10 Jul 2023 02:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19C08C433C8;
+	Mon, 10 Jul 2023 02:33:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1688956382;
+	bh=annqbaXGFikTnORa0aApR2TW+jDM8Y2fEio7p6kR400=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=FFZTcsofkfYhaFuqcVeC9hbXiXpstMGRcj7/WiLB/ZDSa7q3pUQVHnUvaXkqXoT73
+	 taW2gpR6Dmj+l0sTZLvfZDCATRHu5lEfAXaq2Sc0j5uQgdmWlr2FG9V9U7AtflTyKW
+	 /ynrSkejKKaf788dI5bP2OPr9Kk2uZHztabHK7hwJPZrFU7nX0XKGYVZZum9bQuF5P
+	 ZokATGtByrrYGugxwd3r6vEV2AbzGYK9bAZghIA4+lHAZgQJQFZkBf2ZvipeUQPK1i
+	 UngZFupyYO5H+GUI6XGndc2IB+IccYQwxlL3f/VsljC5y/QUx+c3Yt8JWyb/4Brpue
+	 yYoQuhXCUF7Vg==
+Date: Sun, 9 Jul 2023 19:33:00 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH 2/4] erofs-utils: add a built-in DEFLATE compressor
+Message-ID: <20230710023300.GA185469@sol.localdomain>
 References: <20230709182511.96954-1-hsiangkao@linux.alibaba.com>
- <20230709184525.120677-1-hsiangkao@linux.alibaba.com>
+ <20230709182511.96954-3-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230709182511.96954-3-hsiangkao@linux.alibaba.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -42,192 +62,108 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This patch adds DEFLATE compression algorithm support to erofs-utils
-compression framework.
+Hi Gao,
 
-Note that windowbits (which indicates dictionary size) is recorded in
-the on-disk compression configuration.  Since some accelerators (e.g.
-Intel IAA) don't have enough on-chip memory, compressed data generated
-with large windowbits (e.g. > 12 for the IAA accelerator) doesn't seem
-to be worked properly on those.
+On Mon, Jul 10, 2023 at 02:25:09AM +0800, Gao Xiang wrote:
+> 
+> Since there is _no fixed-sized output DEFLATE compression appoach_
+> available in public (fitblk is somewhat ineffective) and the original
+> zlib is quite slowly developping, let's work out one for our use cases.
+> Fortunately, it's only less than 1.5kLOC with lazy matching to match
+> the basic zlib ability.  Besides, near-optimal block splitting (based
+> on price function) doesn't support for now since it's not rush for us.
+> 
+> In the future, there may be more built-in optimizers landed to fulfill
+> our needs even further.  In addition, I'd be quite happy to see more
+> popular encoders to support fixed-sized output compression too.
+> 
+> [1] https://developer.apple.com/documentation/compression/compression_algorithm
+> [2] https://datatracker.ietf.org/doc/html/rfc1951
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> ---
+>  lib/Makefile.am    |    2 +
+>  lib/kite_deflate.c | 1267 ++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 1269 insertions(+)
+>  create mode 100644 lib/kite_deflate.c
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
-v2:
-  improve print message.
+Have you considered simply running any standard compressor multiple times to
+find the maximum input size that compresses to less than or equal to the desired
+output size?  It may sound too slow, but it can be made to do the search in a
+smart way (binary search + heuristics).  Also, it would easily work with every
+compressor, and it would always produce the optimal input size.
 
- lib/Makefile.am          |  2 +-
- lib/compress.c           | 24 +++++++++++++
- lib/compressor.c         |  1 +
- lib/compressor.h         |  1 +
- lib/compressor_deflate.c | 78 ++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 105 insertions(+), 1 deletion(-)
- create mode 100644 lib/compressor_deflate.c
+I wrote a proof-of-concept patch that implements this idea in the benchmark
+program in libdeflate.  It finds the optimal input size in about 8 attempts on
+average for a target output size of 4096, or about 13 for a target output size
+of 65536.  Note, if an optimal solution is not needed, it could be sped up
+slightly by stopping when the output size is at, or just under (if desired), the
+target output size.  Also keep in mind that any compression level can be used.
 
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index fa3b804..553b387 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -44,4 +44,4 @@ liberofs_la_CFLAGS += ${liblzma_CFLAGS}
- liberofs_la_SOURCES += compressor_liblzma.c
- endif
- 
--liberofs_la_SOURCES += kite_deflate.c
-+liberofs_la_SOURCES += kite_deflate.c compressor_deflate.c
-diff --git a/lib/compress.c b/lib/compress.c
-index 14d228f..318b8de 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -1026,6 +1026,8 @@ static int erofs_get_compress_algorithm_id(const char *name)
- 		return Z_EROFS_COMPRESSION_LZ4;
- 	if (!strcmp(name, "lzma"))
- 		return Z_EROFS_COMPRESSION_LZMA;
-+	if (!strcmp(name, "deflate"))
-+		return Z_EROFS_COMPRESSION_DEFLATE;
- 	return -ENOTSUP;
- }
- 
-@@ -1080,6 +1082,28 @@ int z_erofs_build_compr_cfgs(struct erofs_buffer_head *sb_bh)
- 		bh->op = &erofs_drop_directly_bhops;
- 	}
- #endif
-+	if (sbi.available_compr_algs & (1 << Z_EROFS_COMPRESSION_DEFLATE)) {
-+		struct {
-+			__le16 size;
-+			struct z_erofs_deflate_cfgs z;
-+		} __packed zalg = {
-+			.size = cpu_to_le16(sizeof(struct z_erofs_deflate_cfgs)),
-+			.z = {
-+				.windowbits =
-+					cpu_to_le32(ilog2(cfg.c_dict_size)),
-+			}
-+		};
-+
-+		bh = erofs_battach(bh, META, sizeof(zalg));
-+		if (IS_ERR(bh)) {
-+			DBG_BUGON(1);
-+			return PTR_ERR(bh);
-+		}
-+		erofs_mapbh(bh->block);
-+		ret = dev_write(&zalg, erofs_btell(bh, false),
-+				sizeof(zalg));
-+		bh->op = &erofs_drop_directly_bhops;
-+	}
- 	return ret;
- }
- 
-diff --git a/lib/compressor.c b/lib/compressor.c
-index 52eb761..ca4d364 100644
---- a/lib/compressor.c
-+++ b/lib/compressor.c
-@@ -20,6 +20,7 @@ static const struct erofs_compressor *compressors[] = {
- #if HAVE_LIBLZMA
- 		&erofs_compressor_lzma,
- #endif
-+		&erofs_compressor_deflate,
- };
- 
- int erofs_compress_destsize(const struct erofs_compress *c,
-diff --git a/lib/compressor.h b/lib/compressor.h
-index cf063f1..c1eee20 100644
---- a/lib/compressor.h
-+++ b/lib/compressor.h
-@@ -44,6 +44,7 @@ struct erofs_compress {
- extern const struct erofs_compressor erofs_compressor_lz4;
- extern const struct erofs_compressor erofs_compressor_lz4hc;
- extern const struct erofs_compressor erofs_compressor_lzma;
-+extern const struct erofs_compressor erofs_compressor_deflate;
- 
- int erofs_compress_destsize(const struct erofs_compress *c,
- 			    const void *src, unsigned int *srcsize,
-diff --git a/lib/compressor_deflate.c b/lib/compressor_deflate.c
-new file mode 100644
-index 0000000..5a7a657
---- /dev/null
-+++ b/lib/compressor_deflate.c
-@@ -0,0 +1,78 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-+/*
-+ * Copyright (C) 2023, Alibaba Cloud
-+ * Copyright (C) 2023, Gao Xiang <xiang@kernel.org>
-+ */
-+#include "erofs/internal.h"
-+#include "erofs/print.h"
-+#include "erofs/config.h"
-+#include "compressor.h"
-+
-+void *kite_deflate_init(int level, unsigned int dict_size);
-+void kite_deflate_end(void *s);
-+int kite_deflate_destsize(void *s, const u8 *in, u8 *out,
-+			  unsigned int *srcsize, unsigned int target_dstsize);
-+
-+static int deflate_compress_destsize(const struct erofs_compress *c,
-+				     const void *src, unsigned int *srcsize,
-+				     void *dst, unsigned int dstsize)
-+{
-+	int rc = kite_deflate_destsize(c->private_data, src, dst,
-+				       srcsize, dstsize);
-+
-+	if (rc <= 0)
-+		return -EFAULT;
-+	return rc;
-+}
-+
-+static int compressor_deflate_exit(struct erofs_compress *c)
-+{
-+	if (!c->private_data)
-+		return -EINVAL;
-+
-+	kite_deflate_end(c->private_data);
-+	return 0;
-+}
-+
-+static int compressor_deflate_init(struct erofs_compress *c)
-+{
-+	c->alg = &erofs_compressor_deflate;
-+	c->private_data = NULL;
-+
-+	erofs_warn("EXPERIMENTAL DEFLATE algorithm in use. Use at your own risk!");
-+	erofs_warn("*Carefully* check filesystem data correctness to avoid corruption!");
-+	erofs_warn("Please send a report to <linux-erofs@lists.ozlabs.org> if something is wrong.");
-+	return 0;
-+}
-+
-+static int erofs_compressor_deflate_setlevel(struct erofs_compress *c,
-+					     int compression_level)
-+{
-+	void *s;
-+
-+	if (c->private_data) {
-+		kite_deflate_end(c->private_data);
-+		c->private_data = NULL;
-+	}
-+
-+	if (compression_level < 0)
-+		compression_level = erofs_compressor_deflate.default_level;
-+
-+	s = kite_deflate_init(compression_level, cfg.c_dict_size);
-+	if (IS_ERR(s))
-+		return PTR_ERR(s);
-+
-+	c->private_data = s;
-+	c->compression_level = compression_level;
-+	return 0;
-+}
-+
-+const struct erofs_compressor erofs_compressor_deflate = {
-+	.name = "deflate",
-+	.default_level = 1,
-+	.best_level = 9,
-+	.init = compressor_deflate_init,
-+	.exit = compressor_deflate_exit,
-+	.setlevel = erofs_compressor_deflate_setlevel,
-+	.compress_destsize = deflate_compress_destsize,
-+};
--- 
-2.24.4
+The full code I tested is currently at
+https://github.com/ebiggers/libdeflate/tree/fixed-output-size, but below is the
+actual algorithm:
 
+/*
+ * Compresses the largest prefix of 'in', with maximum size 'in_nbytes', whose
+ * compressed output is at most 'target_output_size' bytes.  The compressed size
+ * is returned as the return value, and the uncompressed size is returned in
+ * *actual_in_nbytes_ret.  The output buffer 'out' has size 'out_nbytes_avail',
+ * which should be at least 'target_output_size + 9'.  'tmpbuf' must be a buffer
+ * the same size as 'out'.
+ */
+static size_t
+do_compress_withfixedoutputsize(struct compressor *c,
+				const u8 *in, size_t in_nbytes,
+				u8 *out, size_t out_nbytes_avail,
+				size_t target_output_size,
+				size_t last_uncompressed_size,
+				u8 *tmpbuf,
+				size_t *actual_in_nbytes_ret)
+{
+	size_t l = 0; /* largest input that fits so far */
+	size_t l_csize = 0;
+	size_t r = in_nbytes + 1; /* smallest input that doesn't fit so far */
+	size_t m;
+
+	if (last_uncompressed_size)
+		m = last_uncompressed_size * 15 / 16;
+	else
+		m = target_output_size * 4;
+	for (;;) {
+		size_t csize;
+
+		m = MAX(m, l + 1);
+		m = MIN(m, r - 1);
+
+		csize = do_compress(c, in, m, tmpbuf, out_nbytes_avail);
+		if (csize > 0 && csize <= target_output_size) {
+			/* Fits */
+			memcpy(out, tmpbuf, csize);
+			l = m;
+			l_csize = csize;
+			if (r <= l + 1)
+				break;
+			/*
+			 * Estimate needed input prefix size based on current
+			 * compression ratio.
+			 */
+			m = (target_output_size * m) / csize;
+		} else {
+			/* Doesn't fit */
+			r = m;
+			if (r <= l + 1)
+				break;
+			m = (l + r) / 2;
+		}
+	}
+	*actual_in_nbytes_ret = l;
+	return l_csize;
+}
+
+What do you think?
+
+- Eric
