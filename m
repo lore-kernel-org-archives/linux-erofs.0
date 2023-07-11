@@ -4,31 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7FF3EEB64DD
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 03:56:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04135EB64DC
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 04:03:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1689048183;
+	bh=vuiccM128u3F7GrBFHXqGD2WL83xY5vpUaiVW9iyq3M=;
+	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=VbFk5ORL0C5lxo7ukD+d3S6OGdkzWuGsRbA67N6y2BotSvQME6GTGHfMG9RiWoJOH
+	 0Ui7MGz1A8DO6OF7RZKNRBA1P/kGnUuXbWSDWNLiwXYohQb+s08R8Nn+6OQtLpNqap
+	 9ckDumBAkDMrgDLK51b6Pgs7l6VRIRuQ1wXyUk5m+km4uwecAk706sWUQwVIyi5vW9
+	 OgOATVeSAckI5IrG+8LrUArqUkA/if8EPFGa6PePK/voHQxDRMQanw/5oPtatzBOzx
+	 KUh9Mye7TsqeZm70ECEFhWL4onbfN/YwVSFBxiIyYy8QqfUq20WpDzxeLWZxs8iCKP
+	 +VlfLIW+pkOiQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R0RrD13ycz3byT
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 13:56:28 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R0Rzq25SPz3bhr
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 14:03:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=PjKllEEK;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::32a; helo=mail-ot1-x32a.google.com; envelope-from=yinxin.x@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R0RqS3lGPz3brg
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Jul 2023 13:55:47 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Vn7.eJO_1689047740;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vn7.eJO_1689047740)
-          by smtp.aliyun-inc.com;
-          Tue, 11 Jul 2023 11:55:41 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: hsiangkao@linux.alibaba.com,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R0Rzh3KY2z30fB
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Jul 2023 14:02:55 +1000 (AEST)
+Received: by mail-ot1-x32a.google.com with SMTP id 46e09a7af769-6b708b97418so4690294a34.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 10 Jul 2023 21:02:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689048170; x=1691640170;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vuiccM128u3F7GrBFHXqGD2WL83xY5vpUaiVW9iyq3M=;
+        b=b4hUUf403/zjwyyHwDOpiEtRIA1jdvc07eWHPR2MGshyKKQ4SVUv35gj3JyDOmrPw8
+         KQR+OKVLMyEY6lDgkNBN3VoPaku25Q+4Yj3YBrMCsEgRA4w/o8UULFtWW1SRymb+37PS
+         xwQKNHKRTuyU7F0Wmf/DudqqZGd2ohGTifBrutEIEgGTDIoOguZ1hraK8YYQsAcDkVRv
+         BYn+c7arLGLOpZYNXrXJZSIfBgNTkcZYAjeOUkJArPlqK8fvjQcLPhWL+M70IVsMbfw/
+         pAydnFx4zV+si+1MtI5BZOqmhyJgmmp8Rpl3oHEVjOOr0e4LlqlSLhjFRY0BvUti6lnK
+         q7aQ==
+X-Gm-Message-State: ABy/qLbSBHzGQaM4WOh7ExeJeZ0W6brYvx5Pj0qMjGoD4FMgF/x9YhAh
+	yjcywLsQo9oZ7diIrSLdQzap3A==
+X-Google-Smtp-Source: APBJJlFmsxXmKrIXfjtVssxNfDzzn6shb3RQn/di+ezfmGGNZjbyWDDMUEfMw1AbGPDyYMsN49iITg==
+X-Received: by 2002:a9d:480b:0:b0:6b7:4aa6:77b4 with SMTP id c11-20020a9d480b000000b006b74aa677b4mr14496139otf.4.1689048170194;
+        Mon, 10 Jul 2023 21:02:50 -0700 (PDT)
+Received: from yinxin.bytedance.net ([203.208.189.11])
+        by smtp.gmail.com with ESMTPSA id c8-20020a170902c2c800b001b23eb0b4bbsm684680pla.147.2023.07.10.21.02.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jul 2023 21:02:49 -0700 (PDT)
+To: xiang@kernel.org,
 	chao@kernel.org,
-	huyue2@coolpad.com,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: add ERR_CAST macro
-Date: Tue, 11 Jul 2023 11:55:40 +0800
-Message-Id: <20230711035540.46022-1-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
+	jefflexu@linux.alibaba.com,
+	huyue2@coolpad.com
+Subject: [PATCH] erofs: enable dax for chunk based regular file
+Date: Tue, 11 Jul 2023 12:02:39 +0800
+Message-Id: <20230711040239.7410-1-yinxin.x@bytedance.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -42,33 +74,36 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Xin Yin via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Xin Yin <yinxin.x@bytedance.com>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add ERR_CAST macro.
+DAX can be used to share page cache between VMs, reducing guest memory
+overhead. And chunk based data format is widely used for VM and
+container image. So enable dax support for it, make erofs better used
+for VM scenarios.
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
 ---
- include/erofs/err.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/erofs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/erofs/err.h b/include/erofs/err.h
-index 08b0bdb..2ae9e21 100644
---- a/include/erofs/err.h
-+++ b/include/erofs/err.h
-@@ -33,6 +33,12 @@ static inline long PTR_ERR(const void *ptr)
- 	return (long) ptr;
- }
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index d70b12b81507..e12592727a54 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -183,7 +183,8 @@ static void *erofs_read_inode(struct erofs_buf *buf,
  
-+static inline void * ERR_CAST(const void *ptr)
-+{
-+	/* cast away the const */
-+	return (void *) ptr;
-+}
-+
- #ifdef __cplusplus
- }
- #endif
+ 	inode->i_flags &= ~S_DAX;
+ 	if (test_opt(&sbi->opt, DAX_ALWAYS) && S_ISREG(inode->i_mode) &&
+-	    vi->datalayout == EROFS_INODE_FLAT_PLAIN)
++	    (vi->datalayout == EROFS_INODE_FLAT_PLAIN ||
++	     vi->datalayout == EROFS_INODE_CHUNK_BASED))
+ 		inode->i_flags |= S_DAX;
+ 
+ 	if (!nblks)
 -- 
-2.19.1.6.gb485710b
+2.25.1
 
