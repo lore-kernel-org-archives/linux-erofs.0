@@ -4,34 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4766BEB64DC
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 09:32:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D34FAC001DC
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 13:56:38 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=cvytjGdv;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R0bJP29nBz3bV3
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 19:32:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R0j8j0LBtz3bmb
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Jul 2023 23:56:37 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=cvytjGdv;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R0bJD6M8Nz302F
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Jul 2023 19:32:43 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vn8JXbV_1689067957;
-Received: from 30.97.48.248(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vn8JXbV_1689067957)
-          by smtp.aliyun-inc.com;
-          Tue, 11 Jul 2023 17:32:38 +0800
-Message-ID: <ae0778ff-da50-d498-f217-5ad18931fbe1@linux.alibaba.com>
-Date: Tue, 11 Jul 2023 17:32:36 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R0j8c3KcLz30PL
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Jul 2023 23:56:32 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 6C862614F9;
+	Tue, 11 Jul 2023 13:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58008C433C8;
+	Tue, 11 Jul 2023 13:56:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1689083789;
+	bh=qXZaYifrGUQeoLHM3DrN40jfqkcENYlJOULXTr7bL58=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=cvytjGdvzrWapWKJcPPm6KysqJl/k0pfkT+QBiYVsuAFaYSx/WXQVyHNHwa1Yn8K9
+	 3Fje5S9+D9qILv/6gqEu8AcOxZArpJXIsdYUIuPBIVGhJj/DMQyYR1XKzUjQU88zyb
+	 vDUK2iskiVWVVEPohO5VR0Fzo0LrcSlquH5mjTu0GJOqaMfPkbk0YbJmp2b2qcp2Ac
+	 VnkEdLXDlV4JCrFuRa7xEHV26JDvy30mlCFCR1YvgvFoKk9gRwvAzAs/g5b4USTfay
+	 fY2YxsixmG1n7DvDJOp9zHGzyv+BEnhSfeFpRLWaebPX9qE5TZSfCqYZA92V/LE1lq
+	 PEsbHOaDjsasQ==
+Message-ID: <56c3e00b-d383-105d-29a3-570d94df4801@kernel.org>
+Date: Tue, 11 Jul 2023 21:56:25 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH] erofs: fix fsdax unavailability for chunk-based regular
- files
-To: Xin Yin <yinxin.x@bytedance.com>, xiang@kernel.org, chao@kernel.org,
- jefflexu@linux.alibaba.com, huyue2@coolpad.com
-References: <20230711062130.7860-1-yinxin.x@bytedance.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230711062130.7860-1-yinxin.x@bytedance.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH] erofs: avoid unnecessary loops in
+ z_erofs_pcluster_readmore() when read page beyond EOF
+To: Chunhai Guo <guochunhai@vivo.com>, xiang@kernel.org
+References: <20230710042531.28761-1-guochunhai@vivo.com>
+Content-Language: en-US
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <20230710042531.28761-1-guochunhai@vivo.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,22 +65,20 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: huyue2@coolpad.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/7/11 14:21, Xin Yin wrote:
-> DAX can be used to share page cache between VMs, reducing guest memory
-> overhead. And chunk based data format is widely used for VM and
-> container image. So enable dax support for it, make erofs better used
-> for VM scenarios.
+On 2023/7/10 12:25, Chunhai Guo wrote:
+> z_erofs_pcluster_readmore() may take a long time to loop when the page
+> offset is large enough, which is unnecessary should be prevented.
+> For example, when the following case is encountered, it will loop 4691368
+> times, taking about 27 seconds.
+>      - offset = 19217289215
+>      - inode_size = 1442672
 > 
-> Fixes: c5aa903a59db ("erofs: support reading chunk-based uncompressed files")
-> Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+> Signed-off-by: Chunhai Guo <guochunhai@vivo.com>
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
 
 Thanks,
-Gao Xiang
