@@ -4,35 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43494C0015E
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 12:13:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85638EB64DD
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 13:39:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1689169174;
+	bh=+evqX27DGBiWJkyZnqGeEHQI9QcDiX7JHwbrqFd6EpQ=;
+	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=WEudhm4EIk2uUlBvjIBLUouv8Lnim5k4AN2eP/HcXAcyTG7N/RsPGYmLlk/dqiXSt
+	 LzL4036M2gtU69kqe2GEz6PqCc4n0T1HI+OyNjuyKm250jJoSeLsvKv1+LjUBrhg57
+	 hdpFBGJfdQsKOBHDKzvywQs2dDyh6IwfdGD27qfMc29JdBJ6haR5sZFZZpn/Z8kdtD
+	 kMLv6RVkvIUlhrqjFNohpbRkZ0SJZxuVgNcZ/IHbCJfiegHBeDkc0otpPzlmLNuw0u
+	 ea+F1RdQUWiPzglJLxZjuhbpgk6tVz+/YGKpPjPRkKa3cwlNzWeKXpWR38Z0K7zkwp
+	 KYtcKAdsrYCBg==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R1Gqn5v7cz3c3w
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 22:13:57 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R1JkZ5WpQz3c1t
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 23:39:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=ionos.com header.i=@ionos.com header.a=rsa-sha256 header.s=google header.b=HvU/baPM;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=ionos.com (client-ip=2a00:1450:4864:20::131; helo=mail-lf1-x131.google.com; envelope-from=haris.iqbal@ionos.com; receiver=lists.ozlabs.org)
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1GqW13G1z3bl6
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 22:13:39 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VnD73gC_1689164012;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnD73gC_1689164012)
-          by smtp.aliyun-inc.com;
-          Wed, 12 Jul 2023 20:13:33 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: hsiangkao@linux.alibaba.com,
-	chao@kernel.org,
-	huyue2@coolpad.com,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 1/3] erofs-utils: add xxh32 library
-Date: Wed, 12 Jul 2023 20:13:29 +0800
-Message-Id: <20230712121331.99671-2-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230712121331.99671-1-jefflexu@linux.alibaba.com>
-References: <20230712121331.99671-1-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1JkS72HHz3bsQ
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 23:39:25 +1000 (AEST)
+Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4fafe87c6fbso11257460e87.3
+        for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 06:39:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689169161; x=1691761161;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+evqX27DGBiWJkyZnqGeEHQI9QcDiX7JHwbrqFd6EpQ=;
+        b=Sz3xpCWZpqGhDCY362mTSl+dbreN8065nc//4gQi1Jfxa/2PTzzwG/pMgAB+oAoaEi
+         gwp4XL1yfncnxvBKJKK/3hPOAeS9cvnEreBHliSIUAdBlnX0GefNJE4kbsDqLA6BlGTa
+         PeT6hT0Ja6tac5sSDxq3qh6qyiFXiujBAf9YCXTnC/qnNZZWeShT3an5NAmK862oOLsT
+         PgRo0dC2H8V0h++Yo7YopkKwy8QaSXsREqhXdXNoPVsYhmrGfTqcAlgLnQSvTlHyOLFD
+         FMkn6Hogaki9ykH/9ZX/tni4v+XHPpyTtfMvjtEVJ5PFdyb+g3flo7xbuAEI1/4EXf0O
+         RE9A==
+X-Gm-Message-State: ABy/qLZjeX5wgd8Zv8VV49M3ZTV0pqzskt72WVrx2Mca8/lKFkYKTKoi
+	2nJe2r1/C1NpDQbmK+XnUKYD6u9pcBXjeawpdLnvBg==
+X-Google-Smtp-Source: APBJJlEI1gyVFA9e0vzN1OZw8HqZ9LgUDYjdSVkcc/YNKBWyCbO3ruOl1C16YRvIxaIjAxVOOIhj+dxwF3VF9wwHpIo=
+X-Received: by 2002:a05:6512:34cd:b0:4fb:82ac:9d23 with SMTP id
+ w13-20020a05651234cd00b004fb82ac9d23mr13814794lfr.36.1689169161029; Wed, 12
+ Jul 2023 06:39:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230629165206.383-1-jack@suse.cz> <20230704122224.16257-1-jack@suse.cz>
+ <ZKbgAG5OoHVyUKOG@infradead.org>
+In-Reply-To: <ZKbgAG5OoHVyUKOG@infradead.org>
+Date: Wed, 12 Jul 2023 15:39:09 +0200
+Message-ID: <CAJpMwyhKW23zEfMcsGrBG6Bq0Md40vZ4qj-PgDkR6KWPv8+7PQ@mail.gmail.com>
+Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
+To: Christoph Hellwig <hch@infradead.org>
+Content-Type: multipart/alternative; boundary="000000000000cf1dc906004a5728"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -44,174 +71,91 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: alexl@redhat.com
+From: Haris Iqbal via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Haris Iqbal <haris.iqbal@ionos.com>
+Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, Jan Kara <jack@suse.cz>, "Darrick J. Wong" <djwong@kernel.org>, linux-nvme@lists.infradead.org, Joseph Qi <joseph.qi@linux.alibaba.com>, dm-devel@redhat.com, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, Jack Wang <jinpu.wang@ionos.com>, Alasdair Kergon <agk@redhat.com>, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, xen-devel@lists.xenproject.org, Christian Borntraeger <borntraeger@linux.ibm.com>, Kent Overstreet <kent.overstreet@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, linux-pm@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>, Joern Engel <joern@lazybastard.org>, reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Jen
+ s Axboe <axboe@kernel.dk>, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Ted Tso <tytso@mit.edu>, linux-mm@kvack.org, Song Liu <song@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com, Anna Schumaker <anna@kernel.org>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add xxh32 library which could be used by following xattr bloom filter
-feature.
+--000000000000cf1dc906004a5728
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- include/erofs/xxhash.h | 35 +++++++++++++++++
- lib/Makefile.am        |  3 +-
- lib/xxhash.c           | 85 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 122 insertions(+), 1 deletion(-)
- create mode 100644 include/erofs/xxhash.h
- create mode 100644 lib/xxhash.c
+On Thu, Jul 6, 2023 at 5:38=E2=80=AFPM Christoph Hellwig <hch@infradead.org=
+> wrote:
 
-diff --git a/include/erofs/xxhash.h b/include/erofs/xxhash.h
-new file mode 100644
-index 0000000..fd9384e
---- /dev/null
-+++ b/include/erofs/xxhash.h
-@@ -0,0 +1,35 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __EROFS_XXHASH_H
-+#define __EROFS_XXHASH_H
-+
-+#ifdef __cplusplus
-+extern "C"
-+{
-+#endif
-+
-+#include "defs.h"
-+
-+/*
-+ * Copied from
-+ * 	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-+ * xxHash - Extremely Fast Hash algorithm
-+ */
-+
-+/**
-+ * xxh32() - calculate the 32-bit hash of the input with a given seed.
-+ *
-+ * @input:  The data to hash.
-+ * @length: The length of the data to hash.
-+ * @seed:   The seed can be used to alter the result predictably.
-+ *
-+ * Speed on Core 2 Duo @ 3 GHz (single thread, SMHasher benchmark) : 5.4 GB/s
-+ *
-+ * Return:  The 32-bit hash of the data.
-+ */
-+uint32_t xxh32(const void *input, size_t length, uint32_t seed);
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index faa7311..a049af6 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -23,13 +23,14 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
-       $(top_srcdir)/include/erofs/xattr.h \
-       $(top_srcdir)/include/erofs/compress_hints.h \
-       $(top_srcdir)/include/erofs/fragments.h \
-+      $(top_srcdir)/include/erofs/xxhash.h \
-       $(top_srcdir)/lib/liberofs_private.h
- 
- noinst_HEADERS += compressor.h
- liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
- 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
- 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
--		      fragments.c rb_tree.c dedupe.c
-+		      fragments.c rb_tree.c dedupe.c xxhash.c
- 
- liberofs_la_CFLAGS = -Wall -I$(top_srcdir)/include
- if ENABLE_LZ4
-diff --git a/lib/xxhash.c b/lib/xxhash.c
-new file mode 100644
-index 0000000..e5f511c
---- /dev/null
-+++ b/lib/xxhash.c
-@@ -0,0 +1,85 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copied from
-+ * 	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-+ * xxHash - Extremely Fast Hash algorithm
-+ */
-+#include "erofs/xxhash.h"
-+
-+/*-*************************************
-+ * Macros
-+ **************************************/
-+#define xxh_rotl32(x, r) ((x << r) | (x >> (32 - r)))
-+
-+/*-*************************************
-+ * Constants
-+ **************************************/
-+static const uint32_t PRIME32_1 = 2654435761U;
-+static const uint32_t PRIME32_2 = 2246822519U;
-+static const uint32_t PRIME32_3 = 3266489917U;
-+static const uint32_t PRIME32_4 =  668265263U;
-+static const uint32_t PRIME32_5 =  374761393U;
-+
-+/*-***************************
-+ * Simple Hash Functions
-+ ****************************/
-+static uint32_t xxh32_round(uint32_t seed, const uint32_t input)
-+{
-+	seed += input * PRIME32_2;
-+	seed = xxh_rotl32(seed, 13);
-+	seed *= PRIME32_1;
-+	return seed;
-+}
-+
-+uint32_t xxh32(const void *input, const size_t len, const uint32_t seed)
-+{
-+	const uint8_t *p = (const uint8_t *)input;
-+	const uint8_t *b_end = p + len;
-+	uint32_t h32;
-+
-+	if (len >= 16) {
-+		const uint8_t *const limit = b_end - 16;
-+		uint32_t v1 = seed + PRIME32_1 + PRIME32_2;
-+		uint32_t v2 = seed + PRIME32_2;
-+		uint32_t v3 = seed + 0;
-+		uint32_t v4 = seed - PRIME32_1;
-+
-+		do {
-+			v1 = xxh32_round(v1, get_unaligned_le32(p));
-+			p += 4;
-+			v2 = xxh32_round(v2, get_unaligned_le32(p));
-+			p += 4;
-+			v3 = xxh32_round(v3, get_unaligned_le32(p));
-+			p += 4;
-+			v4 = xxh32_round(v4, get_unaligned_le32(p));
-+			p += 4;
-+		} while (p <= limit);
-+
-+		h32 = xxh_rotl32(v1, 1) + xxh_rotl32(v2, 7) +
-+			xxh_rotl32(v3, 12) + xxh_rotl32(v4, 18);
-+	} else {
-+		h32 = seed + PRIME32_5;
-+	}
-+
-+	h32 += (uint32_t)len;
-+
-+	while (p + 4 <= b_end) {
-+		h32 += get_unaligned_le32(p) * PRIME32_3;
-+		h32 = xxh_rotl32(h32, 17) * PRIME32_4;
-+		p += 4;
-+	}
-+
-+	while (p < b_end) {
-+		h32 += (*p) * PRIME32_5;
-+		h32 = xxh_rotl32(h32, 11) * PRIME32_1;
-+		p++;
-+	}
-+
-+	h32 ^= h32 >> 15;
-+	h32 *= PRIME32_2;
-+	h32 ^= h32 >> 13;
-+	h32 *= PRIME32_3;
-+	h32 ^= h32 >> 16;
-+
-+	return h32;
-+}
--- 
-2.19.1.6.gb485710b
+> On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
+> > Create struct bdev_handle that contains all parameters that need to be
+> > passed to blkdev_put() and provide blkdev_get_handle_* functions that
+> > return this structure instead of plain bdev pointer. This will
+> > eventually allow us to pass one more argument to blkdev_put() without
+> > too much hassle.
+>
+> Can we use the opportunity to come up with better names?  blkdev_get_*
+> was always a rather horrible naming convention for something that
+> ends up calling into ->open.
+>
+> What about:
+>
+> struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void
+> *holder,
+>                 const struct blk_holder_ops *hops);
+> struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
+>                 void *holder, const struct blk_holder_ops *hops);
+> void bdev_release(struct bdev_handle *handle);
+>
 
++1 to this.
+Also, if we are removing "handle" from the function, should the name of the
+structure it returns also change? Would something like bdev_ctx be better?
+
+
+>
+> ?
+>
+
+--000000000000cf1dc906004a5728
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Thu, Jul 6, 2023 at 5:38=E2=80=AFP=
+M Christoph Hellwig &lt;<a href=3D"mailto:hch@infradead.org">hch@infradead.=
+org</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"marg=
+in:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1e=
+x">On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:<br>
+&gt; Create struct bdev_handle that contains all parameters that need to be=
+<br>
+&gt; passed to blkdev_put() and provide blkdev_get_handle_* functions that<=
+br>
+&gt; return this structure instead of plain bdev pointer. This will<br>
+&gt; eventually allow us to pass one more argument to blkdev_put() without<=
+br>
+&gt; too much hassle.<br>
+<br>
+Can we use the opportunity to come up with better names?=C2=A0 blkdev_get_*=
+<br>
+was always a rather horrible naming convention for something that<br>
+ends up calling into -&gt;open.<br>
+<br>
+What about:<br>
+<br>
+struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *hold=
+er,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 const struct blk_ho=
+lder_ops *hops);<br>
+struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 void *holder, const=
+ struct blk_holder_ops *hops);<br>
+void bdev_release(struct bdev_handle *handle);<br></blockquote><div><br></d=
+iv><div>+1 to this.</div><div>Also, if we are removing &quot;handle&quot; f=
+rom the function, should the name of the structure it returns also change? =
+Would something like bdev_ctx be better?<br></div><div>=C2=A0</div><blockqu=
+ote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px=
+ solid rgb(204,204,204);padding-left:1ex">
+<br>
+?<br>
+</blockquote></div></div>
+
+--000000000000cf1dc906004a5728--
