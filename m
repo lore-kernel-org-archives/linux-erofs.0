@@ -4,62 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85638EB64DD
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 13:39:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E83C4EB64DA
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 16:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1689169174;
-	bh=+evqX27DGBiWJkyZnqGeEHQI9QcDiX7JHwbrqFd6EpQ=;
+	s=201707; t=1689178025;
+	bh=8X6ArMXh62A5UxRR3ZN+q1CvObhoeb8ltfmXU1xj+zw=;
 	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=WEudhm4EIk2uUlBvjIBLUouv8Lnim5k4AN2eP/HcXAcyTG7N/RsPGYmLlk/dqiXSt
-	 LzL4036M2gtU69kqe2GEz6PqCc4n0T1HI+OyNjuyKm250jJoSeLsvKv1+LjUBrhg57
-	 hdpFBGJfdQsKOBHDKzvywQs2dDyh6IwfdGD27qfMc29JdBJ6haR5sZFZZpn/Z8kdtD
-	 kMLv6RVkvIUlhrqjFNohpbRkZ0SJZxuVgNcZ/IHbCJfiegHBeDkc0otpPzlmLNuw0u
-	 ea+F1RdQUWiPzglJLxZjuhbpgk6tVz+/YGKpPjPRkKa3cwlNzWeKXpWR38Z0K7zkwp
-	 KYtcKAdsrYCBg==
+	b=ZUAckfl+B7y76gGN6hszMvMtZ8zOhKXH7xyYAgC9qu7yjjsGTDIcRiBKwbCWcukim
+	 i+bvxbYhcwsl98VDoryYbESWbLABTuMHT3RwEII9zQPNA0N90PO6W8ee2ZC6l7svrv
+	 YCGjHKwkTrvRD+shfYSPwKCfcbhebElArG+fLZ6BkBnSWx2/MeKDC7q9n5kdkFTkSj
+	 q7yeqtR1+PWGn95QsPz47qpKcN82PkcEaXXjZOIUgYcLZ6Hr7+dfqaTwdwmUHxMHU/
+	 fNMVaMZPYrxONLujew+KgH058Lo8tCEJtbwYuNAuXJaWttOD7ClY+ydvPZ5s2tPXmH
+	 cqbWbO2te3zbg==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R1JkZ5WpQz3c1t
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 23:39:34 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R1N0n2b0Hz3c2D
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jul 2023 02:07:05 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=ionos.com header.i=@ionos.com header.a=rsa-sha256 header.s=google header.b=HvU/baPM;
+	dkim=pass (2048-bit key; unprotected) header.d=ionos.com header.i=@ionos.com header.a=rsa-sha256 header.s=google header.b=V0Mwyzpf;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=ionos.com (client-ip=2a00:1450:4864:20::131; helo=mail-lf1-x131.google.com; envelope-from=haris.iqbal@ionos.com; receiver=lists.ozlabs.org)
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=ionos.com (client-ip=2a00:1450:4864:20::12c; helo=mail-lf1-x12c.google.com; envelope-from=haris.iqbal@ionos.com; receiver=lists.ozlabs.org)
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1JkS72HHz3bsQ
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 23:39:25 +1000 (AEST)
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4fafe87c6fbso11257460e87.3
-        for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 06:39:25 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1N0d10pRz3bv0
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jul 2023 02:06:54 +1000 (AEST)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-4f4b2bc1565so11508999e87.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 09:06:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689169161; x=1691761161;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+evqX27DGBiWJkyZnqGeEHQI9QcDiX7JHwbrqFd6EpQ=;
-        b=Sz3xpCWZpqGhDCY362mTSl+dbreN8065nc//4gQi1Jfxa/2PTzzwG/pMgAB+oAoaEi
-         gwp4XL1yfncnxvBKJKK/3hPOAeS9cvnEreBHliSIUAdBlnX0GefNJE4kbsDqLA6BlGTa
-         PeT6hT0Ja6tac5sSDxq3qh6qyiFXiujBAf9YCXTnC/qnNZZWeShT3an5NAmK862oOLsT
-         PgRo0dC2H8V0h++Yo7YopkKwy8QaSXsREqhXdXNoPVsYhmrGfTqcAlgLnQSvTlHyOLFD
-         FMkn6Hogaki9ykH/9ZX/tni4v+XHPpyTtfMvjtEVJ5PFdyb+g3flo7xbuAEI1/4EXf0O
-         RE9A==
-X-Gm-Message-State: ABy/qLZjeX5wgd8Zv8VV49M3ZTV0pqzskt72WVrx2Mca8/lKFkYKTKoi
-	2nJe2r1/C1NpDQbmK+XnUKYD6u9pcBXjeawpdLnvBg==
-X-Google-Smtp-Source: APBJJlEI1gyVFA9e0vzN1OZw8HqZ9LgUDYjdSVkcc/YNKBWyCbO3ruOl1C16YRvIxaIjAxVOOIhj+dxwF3VF9wwHpIo=
-X-Received: by 2002:a05:6512:34cd:b0:4fb:82ac:9d23 with SMTP id
- w13-20020a05651234cd00b004fb82ac9d23mr13814794lfr.36.1689169161029; Wed, 12
- Jul 2023 06:39:21 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689178006; x=1691770006;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8X6ArMXh62A5UxRR3ZN+q1CvObhoeb8ltfmXU1xj+zw=;
+        b=Xxd/hMWk4ze4qfHhul6whVHyXC7OkZaxul7ipQv0+pNyGqh6GfFQsJ9zIk6zXVzkoQ
+         eBiH3ICW+Grs6ou0LuHqzI8ADE8Zjoh0YJc/rrIRBEbYnozlF9yaaznTZwB6L/b4xYpg
+         jbHj6Ma8bmOpfOpnHT/HP6GMqCxf9aFnfRq47LEw9o3Y7+vt3cyKd+H22nG+nAFgFNNh
+         EMh0eXMq1yfzlrBUU+BZNdqC2l3WY+JdOhKg+CizlJKRWPAiiCRaK3nBkgnRaslRV0o+
+         0WaD3HiRyj3zkF/QTJeldVCF7q99ccr5Cjj0aY7Y7t62B/9blh0aw6LVUvlPIzKcl0ue
+         yDgA==
+X-Gm-Message-State: ABy/qLYc3y5FZ6C1KLiZC5LdUlUyGsxyibnQP5DgukzQ+L1v149MEHYW
+	GgQhjGENzCSkAwgYg65ZveSYFufClFyElAbibhRZ3g==
+X-Google-Smtp-Source: APBJJlHjPtNIqZNhhKZT3JSG1orBAozCwd3+TwwvFjulJuToD7D5iIrA7grwKZQU8Z67qc0UJ0oDxWof6WbkdfMRi3A=
+X-Received: by 2002:ac2:5b1d:0:b0:4fb:7a90:1abe with SMTP id
+ v29-20020ac25b1d000000b004fb7a901abemr15797051lfn.49.1689178006211; Wed, 12
+ Jul 2023 09:06:46 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230629165206.383-1-jack@suse.cz> <20230704122224.16257-1-jack@suse.cz>
  <ZKbgAG5OoHVyUKOG@infradead.org>
 In-Reply-To: <ZKbgAG5OoHVyUKOG@infradead.org>
-Date: Wed, 12 Jul 2023 15:39:09 +0200
-Message-ID: <CAJpMwyhKW23zEfMcsGrBG6Bq0Md40vZ4qj-PgDkR6KWPv8+7PQ@mail.gmail.com>
+Date: Wed, 12 Jul 2023 18:06:35 +0200
+Message-ID: <CAJpMwyiUcw+mH0sZa8f8UJsaSZ7NSE65s2gZDEia+pASyP_gJQ@mail.gmail.com>
 Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
 To: Christoph Hellwig <hch@infradead.org>
-Content-Type: multipart/alternative; boundary="000000000000cf1dc906004a5728"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -78,13 +79,9 @@ Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, Jan
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
---000000000000cf1dc906004a5728
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
 On Thu, Jul 6, 2023 at 5:38=E2=80=AFPM Christoph Hellwig <hch@infradead.org=
 > wrote:
-
+>
 > On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
 > > Create struct bdev_handle that contains all parameters that need to be
 > > passed to blkdev_put() and provide blkdev_get_handle_* functions that
@@ -98,64 +95,19 @@ On Thu, Jul 6, 2023 at 5:38=E2=80=AFPM Christoph Hellwig <hch@infradead.org=
 >
 > What about:
 >
-> struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void
-> *holder,
+> struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *ho=
+lder,
 >                 const struct blk_holder_ops *hops);
 > struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
 >                 void *holder, const struct blk_holder_ops *hops);
 > void bdev_release(struct bdev_handle *handle);
->
 
 +1 to this.
-Also, if we are removing "handle" from the function, should the name of the
-structure it returns also change? Would something like bdev_ctx be better?
+Also, if we are removing "handle" from the function, should the name
+of the structure it returns also change? Would something like bdev_ctx
+be better?
 
+(Apologies for the previous non-plaintext email)
 
 >
 > ?
->
-
---000000000000cf1dc906004a5728
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
-<div dir=3D"ltr" class=3D"gmail_attr">On Thu, Jul 6, 2023 at 5:38=E2=80=AFP=
-M Christoph Hellwig &lt;<a href=3D"mailto:hch@infradead.org">hch@infradead.=
-org</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"marg=
-in:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1e=
-x">On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:<br>
-&gt; Create struct bdev_handle that contains all parameters that need to be=
-<br>
-&gt; passed to blkdev_put() and provide blkdev_get_handle_* functions that<=
-br>
-&gt; return this structure instead of plain bdev pointer. This will<br>
-&gt; eventually allow us to pass one more argument to blkdev_put() without<=
-br>
-&gt; too much hassle.<br>
-<br>
-Can we use the opportunity to come up with better names?=C2=A0 blkdev_get_*=
-<br>
-was always a rather horrible naming convention for something that<br>
-ends up calling into -&gt;open.<br>
-<br>
-What about:<br>
-<br>
-struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *hold=
-er,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 const struct blk_ho=
-lder_ops *hops);<br>
-struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 void *holder, const=
- struct blk_holder_ops *hops);<br>
-void bdev_release(struct bdev_handle *handle);<br></blockquote><div><br></d=
-iv><div>+1 to this.</div><div>Also, if we are removing &quot;handle&quot; f=
-rom the function, should the name of the structure it returns also change? =
-Would something like bdev_ctx be better?<br></div><div>=C2=A0</div><blockqu=
-ote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px=
- solid rgb(204,204,204);padding-left:1ex">
-<br>
-?<br>
-</blockquote></div></div>
-
---000000000000cf1dc906004a5728--
