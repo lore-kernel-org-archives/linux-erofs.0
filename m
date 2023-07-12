@@ -4,35 +4,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C36B2EB64D9
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 11:51:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F04F0EB64D9
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 11:58:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R1GLJ2YFkz3bwb
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 21:51:52 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R1GTl4R3yz3c1B
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 21:58:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1GL36Twkz30Kf
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 21:51:37 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VnCpXRC_1689162684;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnCpXRC_1689162684)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1GTb6GJpz30Kf
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 21:58:10 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VnCu4op_1689163081;
+Received: from 30.221.148.68(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnCu4op_1689163081)
           by smtp.aliyun-inc.com;
-          Wed, 12 Jul 2023 19:51:25 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: hsiangkao@linux.alibaba.com,
-	chao@kernel.org,
-	huyue2@coolpad.com,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 1/2] erofs: update on-disk format for xattr name filter
-Date: Wed, 12 Jul 2023 19:51:22 +0800
-Message-Id: <20230712115123.33712-2-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230712115123.33712-1-jefflexu@linux.alibaba.com>
-References: <20230712115123.33712-1-jefflexu@linux.alibaba.com>
+          Wed, 12 Jul 2023 19:58:02 +0800
+Message-ID: <a57cb804-0d78-255c-0bba-dab69686b196@linux.alibaba.com>
+Date: Wed, 12 Jul 2023 19:58:00 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH v2 1/3] erofs-utils: add xxh32 library
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, chao@kernel.org,
+ huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
+References: <20230705071017.104130-1-jefflexu@linux.alibaba.com>
+ <20230705071017.104130-2-jefflexu@linux.alibaba.com>
+ <b2f87329-8d2c-5106-e61c-4dffd8be7e8c@linux.alibaba.com>
+Content-Language: en-US
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+In-Reply-To: <b2f87329-8d2c-5106-e61c-4dffd8be7e8c@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -44,155 +47,35 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, alexl@redhat.com
+Cc: alexl@redhat.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The xattr name bloom filter feature is going to be introduced to speed
-up the negative xattr lookup, e.g. system.posix_acl_[access|default]
-lookup when running "ls -lR" workload.
 
-There are some commonly used extended attributes (n) and the total
-number of these is approximately 30.
 
-	trusted.overlay.opaque
-	trusted.overlay.redirect
-	trusted.overlay.origin
-	trusted.overlay.impure
-	trusted.overlay.nlink
-	trusted.overlay.upper
-	trusted.overlay.metacopy
-	trusted.overlay.protattr
-	user.overlay.opaque
-	user.overlay.redirect
-	user.overlay.origin
-	user.overlay.impure
-	user.overlay.nlink
-	user.overlay.upper
-	user.overlay.metacopy
-	user.overlay.protattr
-	security.evm
-	security.ima
-	security.selinux
-	security.SMACK64
-	security.SMACK64IPIN
-	security.SMACK64IPOUT
-	security.SMACK64EXEC
-	security.SMACK64TRANSMUTE
-	security.SMACK64MMAP
-	security.apparmor
-	security.capability
-	system.posix_acl_access
-	system.posix_acl_default
-	user.mime_type
+On 7/5/23 3:29 PM, Gao Xiang wrote:
+> 
+> 
+> On 2023/7/5 15:10, Jingbo Xu wrote:
+>> Add xxh32 library which could be used by following xattr bloom filter
+>> feature.
+>>
+>> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> 
+> I'd suggest using the original xxhash library instead of copying an
+> simplified implementation here since we don't touch the implementation.
+> 
+> https://rpmfind.net/linux/rpm2html/search.php?query=xxhash
 
-Given the number of bits of the bloom filter (m) is 32, the optimal
-value for the number of the hash functions (k) is 1 (ln2 * m/n = 0.74).
+Yeah.  I think xxhash-devel is available in most distributions.  XXH32()
+could be used directly here and configure.ac needs to be updated to
+reflect the package dependency.
 
-The single hash function is implemented as:
+As I'm not quite familiar with autoconf/automake, later in v3 I will
+still attach the self-implemented xxh32() in erofs-utils.  Maybe later
+we could change to use libxxhash directly.
 
-	xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index)
 
-where `index` represents the index of corresponding predefined short name
-prefix, while `name` represents the name string after stripping the above
-predefined name prefix.
-
-The constant magic number EROFS_XATTR_FILTER_SEED, i.e. 0x25BBE08F, is
-used to give a better spread when mapping these 30 extended attributes
-into 32-bit bloom filter as:
-
-	bit  0: security.ima
-	bit  1:
-	bit  2: trusted.overlay.nlink
-	bit  3:
-	bit  4: user.overlay.nlink
-	bit  5: trusted.overlay.upper
-	bit  6: user.overlay.origin
-	bit  7: trusted.overlay.protattr
-	bit  8: security.apparmor
-	bit  9: user.overlay.protattr
-	bit 10: user.overlay.opaque
-	bit 11: security.selinux
-	bit 12: security.SMACK64TRANSMUTE
-	bit 13: security.SMACK64
-	bit 14: security.SMACK64MMAP
-	bit 15: user.overlay.impure
-	bit 16: security.SMACK64IPIN
-	bit 17: trusted.overlay.redirect
-	bit 18: trusted.overlay.origin
-	bit 19: security.SMACK64IPOUT
-	bit 20: trusted.overlay.opaque
-	bit 21: system.posix_acl_default
-	bit 22:
-	bit 23: user.mime_type
-	bit 24: trusted.overlay.impure
-	bit 25: security.SMACK64EXEC
-	bit 26: user.overlay.redirect
-	bit 27: user.overlay.upper
-	bit 28: security.evm
-	bit 29: security.capability
-	bit 30: system.posix_acl_access
-	bit 31: trusted.overlay.metacopy, user.overlay.metacopy
-
-h_name_filter is introduced to the on-disk per-inode xattr header to
-place the corresponding xattr name filter, where bit value 1 indicates
-non-existence for compatibility.
-
-This feature is indicated by EROFS_FEATURE_COMPAT_XATTR_FILTER
-compatible feature bit.
-
-Reserve one byte in on-disk superblock as the on-disk format for xattr
-name filter may change in the future.  With this flag we don't need
-bothering these compatible bits again at that time.
-
-Suggested-by: Alexander Larsson <alexl@redhat.com>
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- fs/erofs/erofs_fs.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 2c7b16e340fe..e2944f4a6ff9 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -13,6 +13,7 @@
- 
- #define EROFS_FEATURE_COMPAT_SB_CHKSUM          0x00000001
- #define EROFS_FEATURE_COMPAT_MTIME              0x00000002
-+#define EROFS_FEATURE_COMPAT_XATTR_FILTER	0x00000004
- 
- /*
-  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
-@@ -81,7 +82,8 @@ struct erofs_super_block {
- 	__u8 xattr_prefix_count;	/* # of long xattr name prefixes */
- 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
- 	__le64 packed_nid;	/* nid of the special packed inode */
--	__u8 reserved2[24];
-+	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
-+	__u8 reserved2[23];
- };
- 
- /*
-@@ -200,7 +202,7 @@ struct erofs_inode_extended {
-  * for read-only fs, no need to introduce h_refcount
-  */
- struct erofs_xattr_ibody_header {
--	__le32 h_reserved;
-+	__le32 h_name_filter;		/* bit value 1 indicates not-present */
- 	__u8   h_shared_count;
- 	__u8   h_reserved2[7];
- 	__le32 h_shared_xattrs[];       /* shared xattr id array */
-@@ -221,6 +223,10 @@ struct erofs_xattr_ibody_header {
- #define EROFS_XATTR_LONG_PREFIX		0x80
- #define EROFS_XATTR_LONG_PREFIX_MASK	0x7f
- 
-+#define EROFS_XATTR_FILTER_BITS		32
-+#define EROFS_XATTR_FILTER_DEFAULT	UINT32_MAX
-+#define EROFS_XATTR_FILTER_SEED		0x25BBE08F
-+
- /* xattr entry (for both inline & shared xattrs) */
- struct erofs_xattr_entry {
- 	__u8   e_name_len;      /* length of name */
 -- 
-2.19.1.6.gb485710b
-
+Thanks,
+Jingbo
