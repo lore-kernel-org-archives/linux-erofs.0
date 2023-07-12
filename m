@@ -4,31 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B541EB64DA
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 11:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9C53C001B0
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 11:51:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R1GLB1rcCz3c1R
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 21:51:46 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R1GLF200Sz3c36
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jul 2023 21:51:49 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1GL33lHKz306t
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 21:51:35 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VnCpXQm_1689162683;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnCpXQm_1689162683)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1GL337xGz2ynD
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Jul 2023 21:51:37 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VnCvYDS_1689162686;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnCvYDS_1689162686)
           by smtp.aliyun-inc.com;
-          Wed, 12 Jul 2023 19:51:24 +0800
+          Wed, 12 Jul 2023 19:51:27 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 0/2] erofs: introduce xattr name bloom filter
-Date: Wed, 12 Jul 2023 19:51:21 +0800
-Message-Id: <20230712115123.33712-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 2/2] erofs: boost negative xattr lookup with bloom filter
+Date: Wed, 12 Jul 2023 19:51:23 +0800
+Message-Id: <20230712115123.33712-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230712115123.33712-1-jefflexu@linux.alibaba.com>
+References: <20230712115123.33712-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -46,206 +48,111 @@ Cc: linux-kernel@vger.kernel.org, alexl@redhat.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-changes since v2:
-- patch 1: polish the commit message; introduce xattr_filter_reserved in
-  on-disk superblock; remove EROFS_XATTR_FILTER_MASK (Gao Xiang)
+Optimise the negative xattr lookup with bloom filter.
 
-changes since RFC:
-- the number of hash functions is 1, and now it's implemented as:
-    xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index),
-  where the constant magic number EROFS_XATTR_FILTER_SEED [*] is used to
-  give a better spread for the mapping. (Alexander Larsson)
-  Refer to patch 1 for more details.
-- fix the value of EROFS_FEATURE_COMPAT_XATTR_BLOOM; rename
-  EROFS_XATTR_BLOOM_* to EROFS_XATTR_FILTER_* (Gao Xiang)
-- pass all tests in erofs-utils (MKFS_OPTIONS="--xattr-filter" make
-  check)
+The bit value for the bloom filter map has a reverse semantics for
+compatibility.  That is, the bit value of 0 indicates existence, while
+the bit value of 1 indicates the absence of corresponding xattr.
 
-[*] https://lore.kernel.org/all/74a8a369-c3b0-b338-fa8f-fdd7c252efaf@linux.alibaba.com/
-RFC: https://lore.kernel.org/all/20230621083209.116024-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230705070427.92579-1-jefflexu@linux.alibaba.com/
+This feature is enabled only when xattr_filter_reserved is non-zero.
+The on-disk format for the filter map may change in the future, in which
+case the reserved flag will be set non-zero and we don't need bothering
+the compatible bits again at that time.  For now disable the optimization
+if this reserved flag is non-zero.
 
-Background
-==========
-Filesystems with ACL enabled generally need to read
-"system.posix_acl_access"/"system.posix_acl_default" xattr to get the
-access and default ACL.  When filesystem is mounted with ACL enabled
-while files in the system have not set access/default ACL, the getattr()
-will run in vain while the round trip can decrease the performance in
-workload like "ls -lR".
-
-For example, there's a 12% performance boost if erofs is mounted with
-"noacl" when running "ls -lR" workload on dataset [1] (given in [2]).
-
-We'd better offer a fastpath to boost the above workload, as well as
-other negative xattr lookup.
-
-
-Proposal
-========
-Introduce a per-inode bloom filter for xattrs to boost the negative
-xattr queries.
-
-As following shows, a 32-bit bloom filter is introduced for each inode,
-describing if a xattr with specific name exists on this inode.
-
-```
- struct erofs_xattr_ibody_header {
--       __le32 h_reserved;
-+       __le32 h_map; /* bloom filter */
-	...
-}
-```
-
-Following are some implementation details for bloom filter.
-
-1. Reverse bit value
---------------------
-The bloom filter structure describes if a given data is inside the set.
-It will map the given data into several bits of the bloom filter map.
-The data must not exist inside the set if any mapped bit is 0, while the
-data may be not inside the set even if all mapped bits is 1.
-
-While in our use case, as erofs_xattr_ibody_header.h_map is previously a
-(all zero) reserved field, the bit value for the bloom filter has a
-reverse semantics in consideration for compatibility.  That is, for a
-given data, the mapped bits will be cleared to 0.  Thus for a previously
-built image without support for bloom filter, the bloom filter is all
-zero and when it's mounted by the new kernel with support for bloom
-filter, it can not determine if the queried xattr exists on the inode and
-thus will fallback to the original routine of iterating all on-disk
-xattrs to determine if the queried xattr exists.
-
-
-2. The number of hash functions
--------------------------------
-The optimal value for the number of the hash functions (k) is (ln2 *
-m/n), where m stands the number of bits of the bloom filter map, while n
-stands the number of all candidates may be inside the set.
-
-In our use case, the number of common used xattr (n) is approximately 8,
-including system.[posix_acl_access|posix_acl_default],
-security.[capability|selinux] and
-security.[SMACK64|SMACK64TRANSMUTE|SMACK64EXEC|SMACK64MMAP].
-
-Given the number of bits of the bloom filter (m) is 32, the optimal value
-for the number of the hash functions (k) is 2 (ln2 * m/n = 2.7).
-
-
-3. The hash function
---------------------
-xxh32() is chosen as the hash function.
-
-Following are some tested statistics of several candidate hash
-functions.  Listed are time (in millionsecond) consumed when these hash
-functions process input data in chunks of 24, 32, 64 and 4096 bytes.
-
-	| 24 B 	| 32 B	| 64 B	| 4 KB
---------+-------+-------+-------+------
-jhash	| 1325	| 2041 	| 4016	|  2294
-jhash2	| 1323	| 2035	| 4011	|  2310
-crc16	| 7918	| 1056	| 2110	| 13784
-crc32	| 1824	| 2436	| 4873	|  3107
-crc32c	| 2120	| 2708	| 5142	|  3109
-xxhash	| 1320	| 1967	| 2131	|   429
-xxh32	| 1458	| 1358	| 1848	|   836
-xxh64	| 1321	| 2081	| 2128	|   429
-
-
-3.1. multiple hash functions with various seeds
------------------------------------------------
-As previously described, the given data will be mapped into several bits
-of the bloom filter map with hash functions.  There could be several
-hash functions (k), with each hash function mapping the given data into
-one bit of the bloom filter map.  Thus given the number of hash
-functions (k), each xattr name will be mapped into k bits of the bloom
-filter map.
-
-Here in our use case, k hash functions are all xxh32() but with
-different seeds.  As following shows, the seed is (index + i), where i
-stands the index of the current hash function among all hash functions.
-In this way, each hash function is distinguishable with others.
-
-```
-for (i = 0; i < k; i++)
-	bit = xxh32(name, strlen(name), index + i);
-```
-
-3.2. input of hash function
--------------------------
-As previously described, each hash function will map the given data into
-one bit of the bloom filter map.  In our use case, xattr name serves as
-the key of hash function.
-
-When .getxattr() gets called, only index (e.g. EROFS_XATTR_INDEX_USER)
-and the remaining name apart from the prefix are handy.  To avoid
-constructing the full xattr name, the above index and name are fed into
-the hash function directly in the following way:
-
-```
-bit = xxh32(name, strlen(name), index + i);
-```
-
-where index serves as part of seed, so that it gets involved in the
-calculation for the hash.
-
-An alternative way is to calculate the hash from the full xattr name by
-feeding the prefix string and the remaining name string separately in
-the following way:
-
-```
-xxh32_reset()
-xxh32_update(prefix string, ...)
-xxh32_update(remaining name, ...)
-xxh32_digest()
-```
-
-But I doubt if it really deserves to call multiple APIs instead of one
-single xxh32().
-
-
-Also be noted that for xattrs with long xattr name prefixes, the
-above "name" is the xattr name after stripping the corresponding short
-predefined xattr name prefix rather than the long xattr name prefix, as
-only the former is handy in the kernel routine.
-
-
-3.3. discussions
-----------------
-I think a wider discussion on the implementation details is needed,
-including the number of the hash functions, and all other implementation
-details mentioned above, as they are also part of the on-disk format.
-
-
-Performance Improvement
-=======================
-The performance statistics are tested with 'ls -lR' workload upon the
-dataset [1].
-			| uncached(ms)  | cached(ms)
-------------------------+---------------+----------
-erofs.share		| 468		| 264
-erofs.share.bloom	| 370		| 254
-erofs.share.noacl	| 412		| 216
-erofs.share.noacl.bloom	| 318		| 206
-
-The tested erofs image is built in shared xattr layout.  It indicates
-~20% performance improvement with bloom filter in uncached scenarios.
-
-
-[1] https://my.owndrive.com/index.php/s/irHJXRpZHtT3a5i
-[2] https://lore.kernel.org/all/071074ad149b189661681aada453995741f75039.camel@redhat.com/
-
-
-Jingbo Xu (2):
-  erofs: update on-disk format for xattr name filter
-  erofs: boost negative xattr lookup with bloom filter
-
- fs/erofs/erofs_fs.h | 10 ++++++++--
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
  fs/erofs/internal.h |  3 +++
  fs/erofs/super.c    |  1 +
  fs/erofs/xattr.c    | 13 +++++++++++++
- 4 files changed, 25 insertions(+), 2 deletions(-)
+ 3 files changed, 17 insertions(+)
 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 36e32fa542f0..ebcad25e3750 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -151,6 +151,7 @@ struct erofs_sb_info {
+ 	u32 xattr_prefix_start;
+ 	u8 xattr_prefix_count;
+ 	struct erofs_xattr_prefix_item *xattr_prefixes;
++	unsigned int xattr_filter_reserved;
+ #endif
+ 	u16 device_id_mask;	/* valid bits of device id to be used */
+ 
+@@ -251,6 +252,7 @@ EROFS_FEATURE_FUNCS(fragments, incompat, INCOMPAT_FRAGMENTS)
+ EROFS_FEATURE_FUNCS(dedupe, incompat, INCOMPAT_DEDUPE)
+ EROFS_FEATURE_FUNCS(xattr_prefixes, incompat, INCOMPAT_XATTR_PREFIXES)
+ EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
++EROFS_FEATURE_FUNCS(xattr_filter, compat, COMPAT_XATTR_FILTER)
+ 
+ /* atomic flag definitions */
+ #define EROFS_I_EA_INITED_BIT	0
+@@ -270,6 +272,7 @@ struct erofs_inode {
+ 	unsigned char inode_isize;
+ 	unsigned int xattr_isize;
+ 
++	unsigned long xattr_name_filter;
+ 	unsigned int xattr_shared_count;
+ 	unsigned int *xattr_shared_xattrs;
+ 
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 9d6a3c6158bd..72122323300e 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -388,6 +388,7 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	sbi->xattr_blkaddr = le32_to_cpu(dsb->xattr_blkaddr);
+ 	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
+ 	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
++	sbi->xattr_filter_reserved = dsb->xattr_filter_reserved;
+ #endif
+ 	sbi->islotbits = ilog2(sizeof(struct erofs_inode_compact));
+ 	sbi->root_nid = le16_to_cpu(dsb->root_nid);
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 40178b6e0688..eb1d1974d4b3 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2021-2022, Alibaba Cloud
+  */
+ #include <linux/security.h>
++#include <linux/xxhash.h>
+ #include "xattr.h"
+ 
+ struct erofs_xattr_iter {
+@@ -87,6 +88,7 @@ static int erofs_init_inode_xattrs(struct inode *inode)
+ 	}
+ 
+ 	ih = it.kaddr + erofs_blkoff(sb, it.pos);
++	vi->xattr_name_filter = le32_to_cpu(ih->h_name_filter);
+ 	vi->xattr_shared_count = ih->h_shared_count;
+ 	vi->xattr_shared_xattrs = kmalloc_array(vi->xattr_shared_count,
+ 						sizeof(uint), GFP_KERNEL);
+@@ -392,7 +394,10 @@ int erofs_getxattr(struct inode *inode, int index, const char *name,
+ 		   void *buffer, size_t buffer_size)
+ {
+ 	int ret;
++	uint32_t bit;
+ 	struct erofs_xattr_iter it;
++	struct erofs_inode *vi = EROFS_I(inode);
++	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 
+ 	if (!name)
+ 		return -EINVAL;
+@@ -401,6 +406,14 @@ int erofs_getxattr(struct inode *inode, int index, const char *name,
+ 	if (ret)
+ 		return ret;
+ 
++	/* the reserved flag is non-zero if hashing algorithm changes */
++	if (erofs_sb_has_xattr_filter(sbi) && !sbi->xattr_filter_reserved) {
++		bit = xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index);
++		bit &= EROFS_XATTR_FILTER_BITS - 1;
++		if (test_bit(bit, &vi->xattr_name_filter))
++			return -ENOATTR;
++	}
++
+ 	it.index = index;
+ 	it.name = (struct qstr)QSTR_INIT(name, strlen(name));
+ 	if (it.name.len > EROFS_NAME_LEN)
 -- 
 2.19.1.6.gb485710b
 
