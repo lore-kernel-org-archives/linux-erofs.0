@@ -4,28 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41087EB64DD
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jul 2023 11:11:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCB6AC0015E
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jul 2023 12:00:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R1sNt5QDZz3c4R
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jul 2023 21:11:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R1tTv1fZXz3c4t
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jul 2023 22:00:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
 Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1sNl2DFDz3c2x
-	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jul 2023 21:11:01 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VnHQ8Cp_1689246646;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VnHQ8Cp_1689246646)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R1tTm0KmBz3bb4
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jul 2023 22:00:23 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R871e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VnHiX-b_1689249615;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnHiX-b_1689249615)
           by smtp.aliyun-inc.com;
-          Thu, 13 Jul 2023 19:10:52 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: add github issue/pull-request templates
-Date: Thu, 13 Jul 2023 19:10:46 +0800
-Message-Id: <20230713111046.62793-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+          Thu, 13 Jul 2023 20:00:16 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: hsiangkao@linux.alibaba.com,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org,
+	xiang@kernel.org
+Subject: [PATCH v2 0/2] erofs-utils: introduce tarerofs
+Date: Thu, 13 Jul 2023 20:00:13 +0800
+Message-Id: <20230713120015.93308-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -39,50 +43,44 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-EROFS Development is currently on the mailing list _only_.
+v2:
+- patch 2
+  - refactor tarerofs_mkdir() and rename to tarerofs_init_default_dir()
+  - check return value of erofs_d_alloc() in tarerofs_get_dentry()
+  - recalculate directory's i_nlink in tarerofs_dump_tree(), otherwise
+    directory's i_nlink is always 2
+  - don't fail in tarerofs_parse_tar() when st_size of symlink file is
+    exactly 4096 (same as PATH_MAX)
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- .github/ISSUE_TEMPLATE.txt        | 9 +++++++++
- .github/PULL_REQUEST_TEMPLATE.txt | 9 +++++++++
- 2 files changed, 18 insertions(+)
- create mode 100644 .github/ISSUE_TEMPLATE.txt
- create mode 100644 .github/PULL_REQUEST_TEMPLATE.txt
 
-diff --git a/.github/ISSUE_TEMPLATE.txt b/.github/ISSUE_TEMPLATE.txt
-new file mode 100644
-index 0000000..0e736fb
---- /dev/null
-+++ b/.github/ISSUE_TEMPLATE.txt
-@@ -0,0 +1,9 @@
-+Please **do not** send pull-requests or open new issues on Github.
-+
-+Besides, the current erofs-utils repo is:
-+git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
-+
-+Github is not _the place_ for EROFS development, and some mirrors
-+are actually unofficial and not frequently monitored.
-+
-+* Send bug reports and/or feedback to: linux-erofs@lists.ozlabs.org
-diff --git a/.github/PULL_REQUEST_TEMPLATE.txt b/.github/PULL_REQUEST_TEMPLATE.txt
-new file mode 100644
-index 0000000..0e736fb
---- /dev/null
-+++ b/.github/PULL_REQUEST_TEMPLATE.txt
-@@ -0,0 +1,9 @@
-+Please **do not** send pull-requests or open new issues on Github.
-+
-+Besides, the current erofs-utils repo is:
-+git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git
-+
-+Github is not _the place_ for EROFS development, and some mirrors
-+are actually unofficial and not frequently monitored.
-+
-+* Send bug reports and/or feedback to: linux-erofs@lists.ozlabs.org
+v1: https://lore.kernel.org/all/20230711061240.23662-1-jefflexu@linux.alibaba.com/
+
+Gao Xiang (1):
+  erofs-utils: introduce tarerofs
+
+Jingbo Xu (1):
+  erofs-utils: add ERR_CAST macro
+
+ configure.ac              |   1 +
+ include/erofs/blobchunk.h |   4 +-
+ include/erofs/err.h       |   6 +
+ include/erofs/inode.h     |  12 +
+ include/erofs/internal.h  |   7 +-
+ include/erofs/tar.h       |  29 ++
+ include/erofs/xattr.h     |   4 +
+ lib/Makefile.am           |   3 +-
+ lib/blobchunk.c           |  47 ++-
+ lib/inode.c               | 194 ++++++++---
+ lib/tar.c                 | 810 ++++++++++++++++++++++++++++++++++++++++++++++
+ lib/xattr.c               |  46 ++-
+ mkfs/main.c               | 134 +++++---
+ 13 files changed, 1191 insertions(+), 106 deletions(-)
+ create mode 100644 include/erofs/tar.h
+ create mode 100644 lib/tar.c
+
 -- 
-2.24.4
+1.8.3.1
 
