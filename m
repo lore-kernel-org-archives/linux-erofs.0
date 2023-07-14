@@ -4,33 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE7A9EB64DD
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jul 2023 02:53:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 97E70C001B0
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jul 2023 03:10:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R2GJh2wwDz3c2B
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jul 2023 12:53:56 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R2GhG1MR7z3c47
+	for <linux-erofs@archiver.kernel.org>; Fri, 14 Jul 2023 13:10:54 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R2GJQ4ntjz3bqw
-	for <linux-erofs@lists.ozlabs.org>; Fri, 14 Jul 2023 12:53:39 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VnJvRs8_1689303211;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnJvRs8_1689303211)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R2Gh52MN4z3brV
+	for <linux-erofs@lists.ozlabs.org>; Fri, 14 Jul 2023 13:10:43 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R571e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VnJxOPX_1689304234;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnJxOPX_1689304234)
           by smtp.aliyun-inc.com;
-          Fri, 14 Jul 2023 10:53:32 +0800
+          Fri, 14 Jul 2023 11:10:35 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4 1/3] erofs-utils: add xxh32 library
-Date: Fri, 14 Jul 2023 10:53:28 +0800
-Message-Id: <20230714025330.42950-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v4 0/2] erofs: introduce xattr name bloom filter
+Date: Fri, 14 Jul 2023 11:10:32 +0800
+Message-Id: <20230714031034.53210-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230714025330.42950-1-jefflexu@linux.alibaba.com>
-References: <20230714025330.42950-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -48,170 +46,41 @@ Cc: linux-kernel@vger.kernel.org, alexl@redhat.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add xxh32 library which could be used by following xattr bloom filter
-feature.
+changes since v3:
+- patch 1: add "Reviewed-by" tag (Gao Xiang)
+- patch 2: make CONFIG_EROFS_FS_XATTR select CONFIG_XXHASH (Gao Xiang)
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- include/erofs/xxhash.h | 35 +++++++++++++++++
- lib/Makefile.am        |  3 +-
- lib/xxhash.c           | 85 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 122 insertions(+), 1 deletion(-)
- create mode 100644 include/erofs/xxhash.h
- create mode 100644 lib/xxhash.c
+changes since v2:
+- patch 1: polish the commit message; introduce xattr_filter_reserved in
+  on-disk superblock; remove EROFS_XATTR_FILTER_MASK (Gao Xiang)
 
-diff --git a/include/erofs/xxhash.h b/include/erofs/xxhash.h
-new file mode 100644
-index 0000000..fd9384e
---- /dev/null
-+++ b/include/erofs/xxhash.h
-@@ -0,0 +1,35 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __EROFS_XXHASH_H
-+#define __EROFS_XXHASH_H
-+
-+#ifdef __cplusplus
-+extern "C"
-+{
-+#endif
-+
-+#include "defs.h"
-+
-+/*
-+ * Copied from
-+ * 	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-+ * xxHash - Extremely Fast Hash algorithm
-+ */
-+
-+/**
-+ * xxh32() - calculate the 32-bit hash of the input with a given seed.
-+ *
-+ * @input:  The data to hash.
-+ * @length: The length of the data to hash.
-+ * @seed:   The seed can be used to alter the result predictably.
-+ *
-+ * Speed on Core 2 Duo @ 3 GHz (single thread, SMHasher benchmark) : 5.4 GB/s
-+ *
-+ * Return:  The 32-bit hash of the data.
-+ */
-+uint32_t xxh32(const void *input, size_t length, uint32_t seed);
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index faa7311..a049af6 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -23,13 +23,14 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
-       $(top_srcdir)/include/erofs/xattr.h \
-       $(top_srcdir)/include/erofs/compress_hints.h \
-       $(top_srcdir)/include/erofs/fragments.h \
-+      $(top_srcdir)/include/erofs/xxhash.h \
-       $(top_srcdir)/lib/liberofs_private.h
- 
- noinst_HEADERS += compressor.h
- liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
- 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
- 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
--		      fragments.c rb_tree.c dedupe.c
-+		      fragments.c rb_tree.c dedupe.c xxhash.c
- 
- liberofs_la_CFLAGS = -Wall -I$(top_srcdir)/include
- if ENABLE_LZ4
-diff --git a/lib/xxhash.c b/lib/xxhash.c
-new file mode 100644
-index 0000000..e5f511c
---- /dev/null
-+++ b/lib/xxhash.c
-@@ -0,0 +1,85 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copied from
-+ * 	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-+ * xxHash - Extremely Fast Hash algorithm
-+ */
-+#include "erofs/xxhash.h"
-+
-+/*-*************************************
-+ * Macros
-+ **************************************/
-+#define xxh_rotl32(x, r) ((x << r) | (x >> (32 - r)))
-+
-+/*-*************************************
-+ * Constants
-+ **************************************/
-+static const uint32_t PRIME32_1 = 2654435761U;
-+static const uint32_t PRIME32_2 = 2246822519U;
-+static const uint32_t PRIME32_3 = 3266489917U;
-+static const uint32_t PRIME32_4 =  668265263U;
-+static const uint32_t PRIME32_5 =  374761393U;
-+
-+/*-***************************
-+ * Simple Hash Functions
-+ ****************************/
-+static uint32_t xxh32_round(uint32_t seed, const uint32_t input)
-+{
-+	seed += input * PRIME32_2;
-+	seed = xxh_rotl32(seed, 13);
-+	seed *= PRIME32_1;
-+	return seed;
-+}
-+
-+uint32_t xxh32(const void *input, const size_t len, const uint32_t seed)
-+{
-+	const uint8_t *p = (const uint8_t *)input;
-+	const uint8_t *b_end = p + len;
-+	uint32_t h32;
-+
-+	if (len >= 16) {
-+		const uint8_t *const limit = b_end - 16;
-+		uint32_t v1 = seed + PRIME32_1 + PRIME32_2;
-+		uint32_t v2 = seed + PRIME32_2;
-+		uint32_t v3 = seed + 0;
-+		uint32_t v4 = seed - PRIME32_1;
-+
-+		do {
-+			v1 = xxh32_round(v1, get_unaligned_le32(p));
-+			p += 4;
-+			v2 = xxh32_round(v2, get_unaligned_le32(p));
-+			p += 4;
-+			v3 = xxh32_round(v3, get_unaligned_le32(p));
-+			p += 4;
-+			v4 = xxh32_round(v4, get_unaligned_le32(p));
-+			p += 4;
-+		} while (p <= limit);
-+
-+		h32 = xxh_rotl32(v1, 1) + xxh_rotl32(v2, 7) +
-+			xxh_rotl32(v3, 12) + xxh_rotl32(v4, 18);
-+	} else {
-+		h32 = seed + PRIME32_5;
-+	}
-+
-+	h32 += (uint32_t)len;
-+
-+	while (p + 4 <= b_end) {
-+		h32 += get_unaligned_le32(p) * PRIME32_3;
-+		h32 = xxh_rotl32(h32, 17) * PRIME32_4;
-+		p += 4;
-+	}
-+
-+	while (p < b_end) {
-+		h32 += (*p) * PRIME32_5;
-+		h32 = xxh_rotl32(h32, 11) * PRIME32_1;
-+		p++;
-+	}
-+
-+	h32 ^= h32 >> 15;
-+	h32 *= PRIME32_2;
-+	h32 ^= h32 >> 13;
-+	h32 *= PRIME32_3;
-+	h32 ^= h32 >> 16;
-+
-+	return h32;
-+}
+changes since RFC:
+- the number of hash functions is 1, and now it's implemented as:
+    xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index),
+  where the constant magic number EROFS_XATTR_FILTER_SEED [*] is used to
+  give a better spread for the mapping. (Alexander Larsson)
+  Refer to patch 1 for more details.
+- fix the value of EROFS_FEATURE_COMPAT_XATTR_BLOOM; rename
+  EROFS_XATTR_BLOOM_* to EROFS_XATTR_FILTER_* (Gao Xiang)
+- pass all tests in erofs-utils (MKFS_OPTIONS="--xattr-filter" make
+  check)
+
+[*] https://lore.kernel.org/all/74a8a369-c3b0-b338-fa8f-fdd7c252efaf@linux.alibaba.com/
+RFC: https://lore.kernel.org/all/20230621083209.116024-1-jefflexu@linux.alibaba.com/
+v2: https://lore.kernel.org/all/20230705070427.92579-1-jefflexu@linux.alibaba.com/
+v3: https://lore.kernel.org/all/20230712115123.33712-1-jefflexu@linux.alibaba.com/
+
+Jingbo Xu (2):
+  erofs: update on-disk format for xattr name filter
+  erofs: boost negative xattr lookup with bloom filter
+
+ fs/erofs/Kconfig    |  1 +
+ fs/erofs/erofs_fs.h | 10 ++++++++--
+ fs/erofs/internal.h |  3 +++
+ fs/erofs/super.c    |  1 +
+ fs/erofs/xattr.c    | 13 +++++++++++++
+ 5 files changed, 26 insertions(+), 2 deletions(-)
+
 -- 
 2.19.1.6.gb485710b
 
