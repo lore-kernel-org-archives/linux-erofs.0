@@ -4,31 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D505EB64DC
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jul 2023 05:21:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 930D9EB64DA
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jul 2023 05:21:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R4nNs726Nz30PH
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jul 2023 15:21:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R4nNx0wVvz30YM
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jul 2023 15:21:21 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R4nNj33Mvz300f
-	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jul 2023 15:21:08 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VngM-7d_1689657661;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VngM-7d_1689657661)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R4nNl2ZXTz303d
+	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jul 2023 15:21:10 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VngOrRQ_1689657663;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VngOrRQ_1689657663)
           by smtp.aliyun-inc.com;
-          Tue, 18 Jul 2023 13:21:02 +0800
+          Tue, 18 Jul 2023 13:21:04 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	chao@kernel.org,
 	huyue2@coolpad.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 0/4] erofs-utils: remove global sbi in library
-Date: Tue, 18 Jul 2023 13:20:57 +0800
-Message-Id: <20230718052101.124039-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH 2/4] erofs-utils: lib: fix recursive erofs_iterate_dir()
+Date: Tue, 18 Jul 2023 13:20:59 +0800
+Message-Id: <20230718052101.124039-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230718052101.124039-1-jefflexu@linux.alibaba.com>
+References: <20230718052101.124039-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,68 +47,53 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Later mkfs is going to be capable of converting multiple erofs images
-into one merged erofs image, in which case there are multiple device
-context and sbi instances.
+ctx->dir may have changed when ctx is reused along erofs_iterate_dir()
+recursion.
 
-In preparation for that, remove global device context and sbi in all
-libraries except buffer block library, as there's still only one output
-erofs image.
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ lib/dir.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-The device context is inlined into sbi.  Each erofs_inode keeps a
-reference to corresponding sbi through vi->sbi.  Global sbi is remained
-but only used by utils directly, e.g. mkfs/dump/fsck.
-
-patch 1-3 are minor fix/cleanup patches preparing for patch 4.
-
-Test cases in "-b experimental-tests" passed with both 'make check' and
-'make check FSTYP=erofsfuse'.
-
-This series is also in reference to [1].
-
-[1] https://lore.kernel.org/linux-erofs/20220909021816.10544-1-jnhuang@linux.alibaba.com/
-
-Jingbo Xu (4):
-  erofs-utils: simplify iloc()
-  erofs-utils: lib: fix recursive erofs_iterate_dir()
-  erofs-utils: inline vle_compressmeta_capacity()
-  erofs-utils: remove global sbi in library
-
- dump/main.c                    |  30 +++---
- fsck/main.c                    |  41 ++++----
- fuse/main.c                    |  24 ++---
- include/erofs/blobchunk.h      |   4 +-
- include/erofs/cache.h          |   6 +-
- include/erofs/compress.h       |   8 +-
- include/erofs/compress_hints.h |   2 +-
- include/erofs/decompress.h     |   1 +
- include/erofs/dir.h            |   3 +-
- include/erofs/internal.h       |  59 ++++++-----
- include/erofs/io.h             |  38 +++----
- include/erofs/tar.h            |   4 +-
- include/erofs/xattr.h          |  16 +--
- lib/blobchunk.c                |  45 ++++-----
- lib/cache.c                    |  42 ++++----
- lib/compress.c                 | 175 +++++++++++++++++----------------
- lib/compress_hints.c           |  10 +-
- lib/compressor.c               |  15 +--
- lib/compressor.h               |   4 +-
- lib/compressor_lz4.c           |   2 +-
- lib/compressor_lz4hc.c         |   2 +-
- lib/data.c                     |  69 +++++++------
- lib/decompress.c               |  29 +++---
- lib/dir.c                      |  26 ++---
- lib/fragments.c                |   2 +-
- lib/inode.c                    | 118 ++++++++++++----------
- lib/io.c                       | 119 +++++++++++-----------
- lib/namei.c                    |  36 ++++---
- lib/super.c                    |  51 +++++-----
- lib/tar.c                      |  36 +++----
- lib/xattr.c                    |  75 +++++++-------
- lib/zmap.c                     |  43 ++++----
- mkfs/main.c                    |  62 ++++++------
- 33 files changed, 632 insertions(+), 565 deletions(-)
-
+diff --git a/lib/dir.c b/lib/dir.c
+index abbf27a..6758b8d 100644
+--- a/lib/dir.c
++++ b/lib/dir.c
+@@ -9,6 +9,7 @@ static int traverse_dirents(struct erofs_dir_context *ctx,
+ 			    unsigned int next_nameoff, unsigned int maxsize,
+ 			    bool fsck)
+ {
++	struct erofs_inode *dir = ctx->dir;
+ 	struct erofs_dirent *de = dentry_blk;
+ 	const struct erofs_dirent *end = dentry_blk + next_nameoff;
+ 	const char *prev_name = NULL;
+@@ -76,7 +77,7 @@ static int traverse_dirents(struct erofs_dir_context *ctx,
+ 					goto out;
+ 				}
+ 				ctx->flags |= EROFS_READDIR_DOTDOT_FOUND;
+-				if (sbi.root_nid == ctx->dir->nid) {
++				if (sbi.root_nid == dir->nid) {
+ 					ctx->pnid = sbi.root_nid;
+ 					ctx->flags |= EROFS_READDIR_VALID_PNID;
+ 				}
+@@ -95,7 +96,7 @@ static int traverse_dirents(struct erofs_dir_context *ctx,
+ 				}
+ 
+ 				ctx->flags |= EROFS_READDIR_DOT_FOUND;
+-				if (fsck && ctx->de_nid != ctx->dir->nid) {
++				if (fsck && ctx->de_nid != dir->nid) {
+ 					errmsg = "corrupted `.' dirent";
+ 					goto out;
+ 				}
+@@ -115,7 +116,7 @@ static int traverse_dirents(struct erofs_dir_context *ctx,
+ out:
+ 	if (ret && !silent)
+ 		erofs_err("%s @ nid %llu, lblk %u, index %lu",
+-			  errmsg, ctx->dir->nid | 0ULL, lblk,
++			  errmsg, dir->nid | 0ULL, lblk,
+ 			  (de - (struct erofs_dirent *)dentry_blk) | 0UL);
+ 	return ret;
+ }
 -- 
 2.19.1.6.gb485710b
 
