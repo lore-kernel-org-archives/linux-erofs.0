@@ -4,70 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DBDC8EB64DC
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jul 2023 01:35:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1689730554;
-	bh=xZssYNKocP7SJAjxckC3wBJ507CzulE9IvrMWjf3P+k=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=eXUSx++ba2SmaS4BXYtfi+7je50zcR9vp8LhHjaZReDAjZs1ZupxSvYIp9Uf6nofP
-	 yWsKp/+xl8cVeo7RkHdIWcmEqTtYWwk3Kj1X+Cb1fba6innur6iMhBo7IgcUiYegxo
-	 3ZSjrwNFRAW5fksgtLQi6D0l5g4b9jWnvB7toOi2hahQ8D13Soy4xjeFLI7XUBGXes
-	 RN0DJ78Q/cHGkDFNRiLvmiNTypYVD52M+0eUDTdWaBJ22CVQOCqX4zWdcmKvsySS/v
-	 dOdZFzwrKUXgqEIUrw/HfjdtNc12IbFkruZ1vkaMPMxkhi7ATZJgFZp2xtq4U9g06a
-	 zPGTmGVa7J92w==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2FEEC001DC
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jul 2023 06:55:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R5JLL0MPSz3bZ4
-	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jul 2023 11:35:54 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=UyEHrifu;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=fromorbit.com (client-ip=2001:4860:4864:20::31; helo=mail-oa1-x31.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org)
-Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R5RQy0ggsz303d
+	for <linux-erofs@archiver.kernel.org>; Wed, 19 Jul 2023 16:55:22 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R5JLB1mPHz2ykT
-	for <linux-erofs@lists.ozlabs.org>; Wed, 19 Jul 2023 11:35:44 +1000 (AEST)
-Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-1bac0e25891so754525fac.2
-        for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jul 2023 18:35:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689730542; x=1692322542;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xZssYNKocP7SJAjxckC3wBJ507CzulE9IvrMWjf3P+k=;
-        b=Vb7NYZnf2Q5Mo3JKrURnhLP8vKPDk5k24Yi09v9xFl40UMg4ppnz/jJ4MHIPJH+PXj
-         h4HfA8ultad98Y+u9oNE8LHRpJeIYAJHojTClJPnT+H1fw6Ow1b2q1ES0VPneHr/GF+X
-         RySvc2mpp4tJ8qKgMth4/otEJ947vimYiEFAt498b4G56kVMfOXaFWdOxr+1+DxuQbhn
-         Nj4ibhXs8wsWa6n5Q9kjInprDXSP+x1jMVMKAlg+9h72Lw/2DqYEnf+vOGXlEMtcB+cJ
-         DjGCfKyIRZUEv5hgCBi6x7gKyBHQjc3hJ+7i8tVq2uELSabm7dMQzXleLAQVTl0jwbUv
-         ViZQ==
-X-Gm-Message-State: ABy/qLbhK/cCRNAUOKgpHK5N6HtsFzqStDzmgy7dTn1HtwyNBO2E/Xhv
-	3jPuxipNf1whV9clQmzS2WpHpg==
-X-Google-Smtp-Source: APBJJlHb4gEwJfD+TL2icCrXL1rPSO1/If2sqk52+FC1gSV2ztjdma15fYoDbEqUpP5c7bsoFPcHEw==
-X-Received: by 2002:a05:6870:96a6:b0:1b3:8d35:c85f with SMTP id o38-20020a05687096a600b001b38d35c85fmr1011777oaq.1.1689730541592;
-        Tue, 18 Jul 2023 18:35:41 -0700 (PDT)
-Received: from dread.disaster.area (pa49-186-119-116.pa.vic.optusnet.com.au. [49.186.119.116])
-        by smtp.gmail.com with ESMTPSA id 201-20020a6301d2000000b005633311c70dsm2343100pgb.32.2023.07.18.18.35.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 18:35:40 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1qLw6L-007mcz-1V;
-	Wed, 19 Jul 2023 11:35:37 +1000
-Date: Wed, 19 Jul 2023 11:35:37 +1000
-To: Jeff Layton <jlayton@kernel.org>
-Subject: Re: [PATCH v5 6/8] xfs: switch to multigrain timestamps
-Message-ID: <ZLc96V2Yo72sthsi@dread.disaster.area>
-References: <20230713-mgctime-v5-0-9eb795d2ae37@kernel.org>
- <20230713-mgctime-v5-6-9eb795d2ae37@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R5RQs2XNVz2yF9
+	for <linux-erofs@lists.ozlabs.org>; Wed, 19 Jul 2023 16:55:15 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Vnkhvgd_1689749700;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vnkhvgd_1689749700)
+          by smtp.aliyun-inc.com;
+          Wed, 19 Jul 2023 14:55:06 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs: fix wrong primary bvec selection on deduplicated extents
+Date: Wed, 19 Jul 2023 14:54:59 +0800
+Message-Id: <20230719065459.60083-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230713-mgctime-v5-6-9eb795d2ae37@kernel.org>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -79,47 +39,63 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Dave Chinner via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Dave Chinner <david@fromorbit.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, linux-xfs@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Tyler Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org, linux-f2fs-devel@lists.sourceforge.
- net, Ilya Dryomov <idryomov@gmail.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Shyam Prasad N <sprasad@microsoft.com>, ecryptfs@vger.kernel.org, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-mtd@lists.infradead.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, Christian Brauner <brauner@kernel.org>, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.dev, ntfs3@lists.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, Ronnie S
- ahlberg <lsahlber@redhat.com>, Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Shijie Sun <sunshijie@xiaomi.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Jul 13, 2023 at 07:00:55PM -0400, Jeff Layton wrote:
-> Enable multigrain timestamps, which should ensure that there is an
-> apparent change to the timestamp whenever it has been written after
-> being actively observed via getattr.
-> 
-> Also, anytime the mtime changes, the ctime must also change, and those
-> are now the only two options for xfs_trans_ichgtime. Have that function
-> unconditionally bump the ctime, and warn if XFS_ICHGTIME_CHG is ever not
-> set.
-> 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  fs/xfs/libxfs/xfs_trans_inode.c | 6 +++---
->  fs/xfs/xfs_iops.c               | 4 ++--
->  fs/xfs/xfs_super.c              | 2 +-
->  3 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/fs/xfs/libxfs/xfs_trans_inode.c b/fs/xfs/libxfs/xfs_trans_inode.c
-> index 0c9df8df6d4a..86f5ffce2d89 100644
-> --- a/fs/xfs/libxfs/xfs_trans_inode.c
-> +++ b/fs/xfs/libxfs/xfs_trans_inode.c
-> @@ -62,12 +62,12 @@ xfs_trans_ichgtime(
->  	ASSERT(tp);
->  	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
->  
-> -	tv = current_time(inode);
-> +	/* If the mtime changes, then ctime must also change */
-> +	WARN_ON_ONCE(!(flags & XFS_ICHGTIME_CHG));
+When handling deduplicated compressed data, there can be multiple
+decompressed extents pointing to the same compressed data in one shot.
 
-Make that an ASSERT(flags & XFS_ICHGTIME_CHG), please. There's no
-need to verify this at runtime on production kernels.
+In such cases, the bvecs which belong to the longest extent will be
+selected as the primary bvecs for real decompressors to decode and the
+other duplicated bvecs will be directly copied from the primary bvecs.
 
--Dave.
+Previously, only relative offsets of the longest extent was checked to
+decompress the primary bvecs.  On rare occasions, it can be incorrect
+if there are several extents with the same start relative offset.
+As a result, some short bvecs could be selected for decompression and
+then cause data corruption.
+
+For example, as Shijie Sun reported off-list, considering the following
+extents of a file:
+ 117:   903345..  915250 |   11905 :     385024..    389120 |    4096
+...
+ 119:   919729..  930323 |   10594 :     385024..    389120 |    4096
+...
+ 124:   968881..  980786 |   11905 :     385024..    389120 |    4096
+
+The start relative offset is the same: 2225, but extent 119 (919729..
+930323) is shorter than the others.
+
+Let's restrict the bvec length in addition to the start offset if bvecs
+are not full.
+
+Reported-by: Shijie Sun <sunshijie@xiaomi.com>
+Fixes: 5c2a64252c5d ("erofs: introduce partial-referenced pclusters")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/zdata.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index b69d89a11dd0..de4f12152b62 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1144,10 +1144,11 @@ static void z_erofs_do_decompressed_bvec(struct z_erofs_decompress_backend *be,
+ 					 struct z_erofs_bvec *bvec)
+ {
+ 	struct z_erofs_bvec_item *item;
++	unsigned int pgnr;
+ 
+-	if (!((bvec->offset + be->pcl->pageofs_out) & ~PAGE_MASK)) {
+-		unsigned int pgnr;
+-
++	if (!((bvec->offset + be->pcl->pageofs_out) & ~PAGE_MASK) &&
++	    (bvec->end == PAGE_SIZE ||
++	     bvec->offset + bvec->end == be->pcl->length)) {
+ 		pgnr = (bvec->offset + be->pcl->pageofs_out) >> PAGE_SHIFT;
+ 		DBG_BUGON(pgnr >= be->nr_pages);
+ 		if (!be->decompressed_pages[pgnr]) {
 -- 
-Dave Chinner
-david@fromorbit.com
+2.24.4
+
