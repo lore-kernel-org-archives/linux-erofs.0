@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DAC07EB64DA
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jul 2023 02:22:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35479EB64DA
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jul 2023 02:23:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R6YHb4CRqz3c05
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jul 2023 12:22:51 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R6YJ86GqYz3bvJ
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jul 2023 12:23:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R6YHX0fNRz30CT
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Jul 2023 12:22:47 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R571e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VnsWkqm_1689906162;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VnsWkqm_1689906162)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R6YJ60x2Wz2yFL
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Jul 2023 12:23:17 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VnsT88R_1689906193;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VnsT88R_1689906193)
           by smtp.aliyun-inc.com;
-          Fri, 21 Jul 2023 10:22:43 +0800
+          Fri, 21 Jul 2023 10:23:13 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: stable@vger.kernel.org
-Subject: [PATCH stable 5.10.y] erofs: fix compact 4B support for 16k block size
-Date: Fri, 21 Jul 2023 10:22:41 +0800
-Message-Id: <20230721022241.23362-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH stable 5.4.y] erofs: fix compact 4B support for 16k block size
+Date: Fri, 21 Jul 2023 10:23:10 +0800
+Message-Id: <20230721022310.24038-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -75,7 +75,7 @@ resolve a trivial conflict.
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index f18194fd8d77..a5537a9f8f36 100644
+index b5ee58fdd82f..6553f58fb289 100644
 --- a/fs/erofs/zmap.c
 +++ b/fs/erofs/zmap.c
 @@ -215,7 +215,7 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
