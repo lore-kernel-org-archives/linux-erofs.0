@@ -4,35 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2BF0EB64DC
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 09:46:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79A2CEB64DA
+	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 15:21:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1690039264;
+	bh=+OoVctKY7ZbH2PDXBPTnxI/tgkhQlzCJ6DEaVVRWMI4=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=FWiiD2Rhh34qc11E4T/uYS9DVYNxfFrN4BwN6h02qu95RqkRnpsR37K3iKq0QnaWT
+	 t9AGPK0M3PUYIuofK4QZ3+JPMJg7Ia/xR+CIUGsF6c4OJFR32L19szS2BO63E7JUQT
+	 pw7gG4Vv62RlcGza8yPcTJ76KBRz9bkIWZK0HGnO8Yhqw6VvbxeNEuB2+bjhOF7HnK
+	 sNkT7ymQddAX08F3/d0V4JFrb7s8aRu4Qhhm+TILc73VQQIQCXcY8r5DA4u0PH7jd2
+	 wopqhYgHt71gmqJQiEUDrtrUAZtN2Tlye2+w4398XAJBflg1rCLo6eqNCoZ60ZCJaQ
+	 /KqUcgHBc00pQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R7M4W3wkvz3cBK
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 19:46:03 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R7VW440ynz3bWr
+	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 01:21:04 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=14.137.139.154; helo=frasgout12.his.huawei.com; envelope-from=guoxuenan@huaweicloud.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 958 seconds by postgrey-1.37 at boromir; Sun, 23 Jul 2023 01:20:55 AEST
+Received: from frasgout12.his.huawei.com (unknown [14.137.139.154])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R7M4D5zmzz30MY
-	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Jul 2023 19:45:47 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VnxO2Hn_1690019140;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VnxO2Hn_1690019140)
-          by smtp.aliyun-inc.com;
-          Sat, 22 Jul 2023 17:45:41 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R7VVv4hhRz2yW5
+	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Jul 2023 01:20:53 +1000 (AEST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+	by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4R7TsF6f4jz9yFhr
+	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Jul 2023 22:51:45 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.104.170])
+	by APP2 (Coremail) with SMTP id BqC_BwCXnVcE8LtkMMq2Cg--.24810S6;
+	Sat, 22 Jul 2023 15:04:49 +0000 (GMT)
 To: hsiangkao@linux.alibaba.com,
-	chao@kernel.org,
-	huyue2@coolpad.com,
+	jefflexu@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 1/2] erofs: update on-disk format for xattr name filter
-Date: Sat, 22 Jul 2023 17:45:37 +0800
-Message-Id: <20230722094538.11754-2-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230722094538.11754-1-jefflexu@linux.alibaba.com>
-References: <20230722094538.11754-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 4/4] erofs-utils: dump: add some superblock fields
+Date: Sat, 22 Jul 2023 23:04:34 +0800
+Message-Id: <20230722150434.2921381-5-guoxuenan@huawei.com>
+X-Mailer: git-send-email 2.34.3
+In-Reply-To: <20230722150434.2921381-1-guoxuenan@huawei.com>
+References: <20230722150434.2921381-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: BqC_BwCXnVcE8LtkMMq2Cg--.24810S6
+X-Coremail-Antispam: 1UD129KBjvJXoWxXF13Zw48KrW5Jr1fur1rJFb_yoW5KFW7p3
+	4YkF1fGryrtF10yFs3KFWIgFWrCrWFk3WDG3y8Zw4rZwn2yrWxJF9ayryvkryUWF98Wa4a
+	g3WF9a4Yg34xX3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
+	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
+	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
+	AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r1j6r4UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2
+	WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkE
+	bVWUJVW8JwACjcxG0xvY0x0EwIxGrwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcV
+	C0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF
+	04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7
+	CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jeT5LUUUUU=
+X-CM-SenderInfo: xjxr53hhqd0q5kxd4v5lfo033gof0z/
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -44,156 +76,103 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: alexl@redhat.com
+From: Guo Xuenan via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Guo Xuenan <guoxuenan@huawei.com>
+Cc: jack.qiu@huawei.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The xattr name bloom filter feature is going to be introduced to speed
-up the negative xattr lookup, e.g. system.posix_acl_[access|default]
-lookup when running "ls -lR" workload.
+dump.erofs show compression algorithms and sb_extslots,
+and update feature information.
 
-There are some commonly used extended attributes (n) and the total
-number of these is approximately 30.
+The proposed super block info is shown as below:
+Filesystem magic number:                      0xE0F5E1E2
+Filesystem blocks:                            4624
+Filesystem inode metadata start block:        0
+Filesystem shared xattr metadata start block: 0
+Filesystem root nid:                          37
+Filesystem compr_algs:                        lz4, lz4hc, lzma
+Filesystem sb_extslots:                       0
+Filesystem inode count:                       6131
+Filesystem created:                           Wed Jun  7 17:15:44 2023
+Filesystem features:                          sb_csum mtime 0padding compr_cfgs big_pcluster
+Filesystem UUID:                              not available
 
-	trusted.overlay.opaque
-	trusted.overlay.redirect
-	trusted.overlay.origin
-	trusted.overlay.impure
-	trusted.overlay.nlink
-	trusted.overlay.upper
-	trusted.overlay.metacopy
-	trusted.overlay.protattr
-	user.overlay.opaque
-	user.overlay.redirect
-	user.overlay.origin
-	user.overlay.impure
-	user.overlay.nlink
-	user.overlay.upper
-	user.overlay.metacopy
-	user.overlay.protattr
-	security.evm
-	security.ima
-	security.selinux
-	security.SMACK64
-	security.SMACK64IPIN
-	security.SMACK64IPOUT
-	security.SMACK64EXEC
-	security.SMACK64TRANSMUTE
-	security.SMACK64MMAP
-	security.apparmor
-	security.capability
-	system.posix_acl_access
-	system.posix_acl_default
-	user.mime_type
-
-Given the number of bits of the bloom filter (m) is 32, the optimal
-value for the number of the hash functions (k) is 1 (ln2 * m/n = 0.74).
-
-The single hash function is implemented as:
-
-	xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index)
-
-where `index` represents the index of corresponding predefined short name
-prefix, while `name` represents the name string after stripping the above
-predefined name prefix.
-
-The constant magic number EROFS_XATTR_FILTER_SEED, i.e. 0x25BBE08F, is
-used to give a better spread when mapping these 30 extended attributes
-into 32-bit bloom filter as:
-
-	bit  0: security.ima
-	bit  1:
-	bit  2: trusted.overlay.nlink
-	bit  3:
-	bit  4: user.overlay.nlink
-	bit  5: trusted.overlay.upper
-	bit  6: user.overlay.origin
-	bit  7: trusted.overlay.protattr
-	bit  8: security.apparmor
-	bit  9: user.overlay.protattr
-	bit 10: user.overlay.opaque
-	bit 11: security.selinux
-	bit 12: security.SMACK64TRANSMUTE
-	bit 13: security.SMACK64
-	bit 14: security.SMACK64MMAP
-	bit 15: user.overlay.impure
-	bit 16: security.SMACK64IPIN
-	bit 17: trusted.overlay.redirect
-	bit 18: trusted.overlay.origin
-	bit 19: security.SMACK64IPOUT
-	bit 20: trusted.overlay.opaque
-	bit 21: system.posix_acl_default
-	bit 22:
-	bit 23: user.mime_type
-	bit 24: trusted.overlay.impure
-	bit 25: security.SMACK64EXEC
-	bit 26: user.overlay.redirect
-	bit 27: user.overlay.upper
-	bit 28: security.evm
-	bit 29: security.capability
-	bit 30: system.posix_acl_access
-	bit 31: trusted.overlay.metacopy, user.overlay.metacopy
-
-h_name_filter is introduced to the on-disk per-inode xattr header to
-place the corresponding xattr name filter, where bit value 1 indicates
-non-existence for compatibility.
-
-This feature is indicated by EROFS_FEATURE_COMPAT_XATTR_FILTER
-compatible feature bit.
-
-Reserve one byte in on-disk superblock as the on-disk format for xattr
-name filter may change in the future.  With this flag we don't need
-bothering these compatible bits again at that time.
-
-Suggested-by: Alexander Larsson <alexl@redhat.com>
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
 ---
- fs/erofs/erofs_fs.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ dump/main.c              | 11 +++++++++++
+ include/erofs/internal.h |  1 +
+ lib/super.c              |  6 +++++-
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 2c7b16e340fe..e2944f4a6ff9 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -13,6 +13,7 @@
- 
- #define EROFS_FEATURE_COMPAT_SB_CHKSUM          0x00000001
- #define EROFS_FEATURE_COMPAT_MTIME              0x00000002
-+#define EROFS_FEATURE_COMPAT_XATTR_FILTER	0x00000004
- 
- /*
-  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
-@@ -81,7 +82,8 @@ struct erofs_super_block {
- 	__u8 xattr_prefix_count;	/* # of long xattr name prefixes */
- 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
- 	__le64 packed_nid;	/* nid of the special packed inode */
--	__u8 reserved2[24];
-+	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
-+	__u8 reserved2[23];
+diff --git a/dump/main.c b/dump/main.c
+index 0bbb57d..c4eefd3 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -92,12 +92,14 @@ static struct erofsdump_feature feature_lists[] = {
+ 	{ true, EROFS_FEATURE_COMPAT_SB_CHKSUM, "sb_csum" },
+ 	{ true, EROFS_FEATURE_COMPAT_MTIME, "mtime" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_ZERO_PADDING, "0padding" },
++	{ false, EROFS_FEATURE_INCOMPAT_COMPR_CFGS, "compr_cfgs" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER, "big_pcluster" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_CHUNKED_FILE, "chunked_file" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_DEVICE_TABLE, "device_table" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_ZTAILPACKING, "ztailpacking" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_FRAGMENTS, "fragments" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_DEDUPE, "dedupe" },
++	{ false, EROFS_FEATURE_INCOMPAT_XATTR_PREFIXES, "xattr_prefixes" },
  };
  
- /*
-@@ -200,7 +202,7 @@ struct erofs_inode_extended {
-  * for read-only fs, no need to introduce h_refcount
-  */
- struct erofs_xattr_ibody_header {
--	__le32 h_reserved;
-+	__le32 h_name_filter;		/* bit value 1 indicates not-present */
- 	__u8   h_shared_count;
- 	__u8   h_reserved2[7];
- 	__le32 h_shared_xattrs[];       /* shared xattr id array */
-@@ -221,6 +223,10 @@ struct erofs_xattr_ibody_header {
- #define EROFS_XATTR_LONG_PREFIX		0x80
- #define EROFS_XATTR_LONG_PREFIX_MASK	0x7f
+ static int erofsdump_readdir(struct erofs_dir_context *ctx);
+@@ -607,6 +609,15 @@ static void erofsdump_show_superblock(void)
+ 	if (erofs_sb_has_fragments(&sbi) && sbi.packed_nid > 0)
+ 		fprintf(stdout, "Filesystem packed nid:                        %llu\n",
+ 			sbi.packed_nid | 0ULL);
++	if (erofs_sb_has_compr_cfgs(&sbi)) {
++		fprintf(stdout, "Filesystem compr_algs:                        ");
++		erofs_print_supported_compressors(stdout, sbi.available_compr_algs);
++	} else {
++		fprintf(stdout, "Filesystem lz4_max_distance:                  %u\n",
++			sbi.lz4_max_distance | 0U);
++	}
++	fprintf(stdout, "Filesystem sb_extslots:                       %u\n",
++			sbi.extslots | 0U);
+ 	fprintf(stdout, "Filesystem inode count:                       %llu\n",
+ 			sbi.inos | 0ULL);
+ 	fprintf(stdout, "Filesystem created:                           %s",
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 04a9a69..a1bf55e 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -73,6 +73,7 @@ struct erofs_sb_info {
+ 	u32 feature_incompat;
+ 	u64 build_time;
+ 	u32 build_time_nsec;
++	u8 extslots;
  
-+#define EROFS_XATTR_FILTER_BITS		32
-+#define EROFS_XATTR_FILTER_DEFAULT	UINT32_MAX
-+#define EROFS_XATTR_FILTER_SEED		0x25BBE08F
-+
- /* xattr entry (for both inline & shared xattrs) */
- struct erofs_xattr_entry {
- 	__u8   e_name_len;      /* length of name */
+ 	unsigned char islotbits;
+ 	unsigned char blkszbits;
+diff --git a/lib/super.c b/lib/super.c
+index 16a1d62..3acf30b 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -106,11 +106,15 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
+ 	sbi->inos = le64_to_cpu(dsb->inos);
+ 	sbi->checksum = le32_to_cpu(dsb->checksum);
+-
++	sbi->extslots = dsb->sb_extslots;
+ 	sbi->build_time = le64_to_cpu(dsb->build_time);
+ 	sbi->build_time_nsec = le32_to_cpu(dsb->build_time_nsec);
+ 
+ 	memcpy(&sbi->uuid, dsb->uuid, sizeof(dsb->uuid));
++	if (erofs_sb_has_compr_cfgs(sbi))
++		sbi->available_compr_algs = le16_to_cpu(dsb->u1.available_compr_algs);
++	else
++		sbi->lz4_max_distance = le16_to_cpu(dsb->u1.lz4_max_distance);
+ 	return erofs_init_devices(sbi, dsb);
+ }
+ 
 -- 
-2.19.1.6.gb485710b
+2.34.3
 
