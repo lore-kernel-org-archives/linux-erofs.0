@@ -4,64 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F264EB64DA
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 15:21:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 569A6EB64DA
+	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 15:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690039312;
-	bh=Dq5oyOWpaFdi/ekkN0QcYybX04D+s+f0ZEOvWiw8YCk=;
+	s=201707; t=1690039426;
+	bh=aRnGXOlXzwHSWakVof75mNAZl3Vt9CQga1aoQPRJJ5E=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=LPB8AMQLKhCcJ+wUp0T0bcSWWlI0yoif5ycACUTg0PoQckDml9X19GdWrBr1GTfMR
-	 o2Mfq3eatp0YFdtfhjZi8R5r102WBF5TP7kEm3G8rw3RlpbFTjmt1m3iP6KR/s1h05
-	 OAFPHg6uRTFmNrpYI2ElUolidSyARlA5pzSWR2e3Hr6hECe86/vF2ycxVdp+bnEybm
-	 kHBPJ216t8cb42Z6QyhIBwURFWF995OKl/+iyixX4yuOdab4tde+8rYGbS7ndL0EUb
-	 4wvQzGFmLT5vGx70uIM9Xkx3SucoQ2TEMqneQTZCcxTk5KgteZuxoN7E1i9WDU+tkX
-	 vX/qE0jsZlp/w==
+	b=DpM8dM8brI8bhyByYF0z/zgTSWhob7QFewlftVrsVUzKEhx9sMpEXrSG6wknydoeU
+	 L6gS5XPX8vB1XNN454UO5ci0h/0b+WeDhzSRgALAoqeH17VzcJlJc9E9rZ9q214tSD
+	 DoU8D7N1qREd2XR+yNnneU7DW40f1wz0L2BaHc8AhxQHjhkAcaavUEmeYmBGmBjVi+
+	 RQ29+mrvmJD+2yxo54V2hL1+G9pvPc+o81IGJ49Fi1He4ArSJEgp1FKsx3D3a/NL7m
+	 jnTqAMDpDXVJtbBTcqtSYiRBrsXWP0JWSszEfko8ND2fOc8QQJykQsNxShV6VkFDrN
+	 aEnVdCSIouWEw==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R7VX02CVtz2yt6
-	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 01:21:52 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=14.137.139.46; helo=frasgout13.his.huawei.com; envelope-from=guoxuenan@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from frasgout13.his.huawei.com (unknown [14.137.139.46])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R7VZB0C4Wz2ynD
+	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 01:23:46 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=14.137.139.23; helo=frasgout11.his.huawei.com; envelope-from=guoxuenan@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from frasgout11.his.huawei.com (ecs-14-137-139-23.compute.hwclouds-dns.com [14.137.139.23])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R7VWs4b5bz2yW5
-	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Jul 2023 01:21:45 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R7VZ222mhz2ynD
+	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Jul 2023 01:23:37 +1000 (AEST)
 Received: from mail02.huawei.com (unknown [172.18.147.229])
-	by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4R7TvN0bw8zB0hnx
-	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Jul 2023 22:53:36 +0800 (CST)
+	by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4R7TvH5BXxz9v7Gt
+	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Jul 2023 22:53:31 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.170])
-	by APP2 (Coremail) with SMTP id BqC_BwCXnVcE8LtkMMq2Cg--.24810S4;
-	Sat, 22 Jul 2023 15:04:45 +0000 (GMT)
+	by APP2 (Coremail) with SMTP id BqC_BwCXnVcE8LtkMMq2Cg--.24810S3;
+	Sat, 22 Jul 2023 15:04:42 +0000 (GMT)
 To: hsiangkao@linux.alibaba.com,
 	jefflexu@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 2/4] erofs-utils: lib: unify all identical compressor print function
-Date: Sat, 22 Jul 2023 23:04:32 +0800
-Message-Id: <20230722150434.2921381-3-guoxuenan@huawei.com>
+Subject: [PATCH v2 1/4] erofs-utils: lib: refactor erofs compressors init
+Date: Sat, 22 Jul 2023 23:04:31 +0800
+Message-Id: <20230722150434.2921381-2-guoxuenan@huawei.com>
 X-Mailer: git-send-email 2.34.3
 In-Reply-To: <20230722150434.2921381-1-guoxuenan@huawei.com>
 References: <20230722150434.2921381-1-guoxuenan@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: BqC_BwCXnVcE8LtkMMq2Cg--.24810S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxJw45AF4UtryrAw15uw4xCrg_yoWrKF4DpF
-	4YkryrGrWxJr15Zws3Jrs5KF43GFW8G3WDKw17G3s3X3Z8XrZ7XFn7tFn3ZFWUGr93Xa1q
-	vwsFvw17Cr4fKF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-	A2048vs2IY020Ec7CjxVAFwI0_JFI_Gr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+X-CM-TRANSID: BqC_BwCXnVcE8LtkMMq2Cg--.24810S3
+X-Coremail-Antispam: 1UD129KBjvJXoWxAF1kGFy7WFy3Kr15Kw4rKrg_yoW5urW5pF
+	1UCryrGry8Wr13uws3JF4rKFy3tF1IyF4xWw1xJ3s3t3Z8Jr97WF1ktr98ZrW5Gr93Xrsa
+	kwsFvw4UCw15tr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Kb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
+	A2048vs2IY020Ec7CjxVAFwI0_Jrv_JF4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
 	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r1j6r4UM28EF7xvwVC2z280aVCY1x0267AKxVW8
-	JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx
-	0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWU
-	JVW8JwACjcxG0xvY0x0EwIxGrwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij2
-	8IcwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
-	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVC0I7
-	IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k2
-	6cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxV
-	AFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07URuWLUUUUU=
+	WUJVW8JwA2z4x0Y4vEx4A2jsIE14v26r1j6r4UM28EF7xvwVC2z280aVCY1x0267AKxVWU
+	JVW8JwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7V
+	C0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j
+	6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082
+	I5MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjx
+	v20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20E
+	Y4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267
+	AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxUF2-eDUUUU
 X-CM-SenderInfo: xjxr53hhqd0q5kxd4v5lfo033gof0z/
 X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -81,163 +81,106 @@ Cc: jack.qiu@huawei.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-{dump,fsck}.erofs use the same compressor print function,
-available compressors means which algothrims are currently
-supported by binary tools.
-supported compressors including all algothrims that are ready
-for your erofs binary tools.
+using struct erofs_compressors_cfg for erofs compressor
+global configuration.
 
 Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
 ---
- fsck/main.c              | 15 +--------------
- include/erofs/compress.h |  3 ++-
- lib/compressor.c         | 41 ++++++++++++++++++++++++++++++++++++----
- mkfs/main.c              | 15 +--------------
- 4 files changed, 41 insertions(+), 33 deletions(-)
+ lib/compressor.c | 61 ++++++++++++++++++++++++++++++++++++++++++++++++
+ lib/compressor.h |  2 ++
+ 2 files changed, 63 insertions(+)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index 39a5534..6e0dcb5 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -59,19 +59,6 @@ struct erofsfsck_hardlink_entry {
- 
- static struct list_head erofsfsck_link_hashtable[NR_HARDLINK_HASHTABLE];
- 
--static void print_available_decompressors(FILE *f, const char *delim)
--{
--	unsigned int i = 0;
--	const char *s;
--
--	while ((s = z_erofs_list_available_compressors(i)) != NULL) {
--		if (i++)
--			fputs(delim, f);
--		fputs(s, f);
--	}
--	fputc('\n', f);
--}
--
- static void usage(void)
- {
- 	fputs("usage: [options] IMAGE\n\n"
-@@ -94,7 +81,7 @@ static void usage(void)
- 	      " --no-preserve-owner    extract as yourself\n"
- 	      " --no-preserve-perms    apply user's umask when extracting permissions\n"
- 	      "\nSupported algorithms are: ", stderr);
--	print_available_decompressors(stderr, ", ");
-+	erofs_print_available_compressors(stderr);
- }
- 
- static void erofsfsck_print_version(void)
-diff --git a/include/erofs/compress.h b/include/erofs/compress.h
-index f1ad84a..67bedf2 100644
---- a/include/erofs/compress.h
-+++ b/include/erofs/compress.h
-@@ -23,7 +23,8 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi,
- 			  struct erofs_buffer_head *bh);
- int z_erofs_compress_exit(void);
- 
--const char *z_erofs_list_available_compressors(unsigned int i);
-+void erofs_print_available_compressors(FILE *f);
-+void erofs_print_supported_compressors(FILE *f, unsigned int mask);
- 
- static inline bool erofs_is_packed_inode(struct erofs_inode *inode)
- {
 diff --git a/lib/compressor.c b/lib/compressor.c
-index 6288297..2cc2464 100644
+index 4333f26..6288297 100644
 --- a/lib/compressor.c
 +++ b/lib/compressor.c
-@@ -60,11 +60,13 @@ static void erofs_init_compressor(struct erofs_sb_info *sbi,
- static void erofs_compressor_register(struct erofs_sb_info *sbi,
- 		const char *name, const struct erofs_compressor *alg)
- {
-+	struct erofs_supported_algorithm *cur;
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(erofs_supported_algorithms); i++) {
--		if (!strcmp(erofs_supported_algorithms[i].name, name)) {
--			erofs_init_compressor(sbi, &erofs_supported_algorithms[i].handle, alg);
-+		cur = &erofs_supported_algorithms[i];
-+		if (!strcmp(cur->name, name)) {
-+			erofs_init_compressor(sbi, &cur->handle, alg);
- 			return;
- 		}
- 	}
-@@ -116,9 +118,40 @@ int erofs_compress_destsize(const struct erofs_compress *c,
- 	return ret;
- }
- 
--const char *z_erofs_list_available_compressors(unsigned int i)
-+void erofs_print_supported_compressors(FILE *f, unsigned int mask)
- {
--	return i >= ARRAY_SIZE(compressors) ? NULL : compressors[i]->name;
-+	unsigned int algnum = ARRAY_SIZE(erofs_supported_algorithms);
-+	unsigned int i = 0;
-+	int comma = false;
-+	const char *s;
-+
-+	while (i < algnum) {
-+		s = erofs_supported_algorithms[i].name;
-+		if (s && (mask & (1 << erofs_supported_algorithms[i++].algtype))) {
-+			if (comma)
-+				fputs(", ", f);
-+			else
-+				comma = true;
-+			fputs(s, f);
-+		}
-+	}
-+	fputc('\n', f);
-+}
-+
-+void erofs_print_available_compressors(FILE *f)
-+{
-+	unsigned int algnum = ARRAY_SIZE(erofs_supported_algorithms);
-+	unsigned int i = 0;
-+	const char *s;
-+
-+	while (i < algnum &&
-+			erofs_supported_algorithms[i].handle.alg &&
-+			(s = erofs_supported_algorithms[i].name)) {
-+		if (i++)
-+			fputs(", ", f);
-+		fputs(s, f);
-+	}
-+	fputc('\n', f);
- }
- 
- int erofs_compressor_setlevel(struct erofs_compress *c, int compression_level)
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 92a07fd..54e7d99 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -66,19 +66,6 @@ static struct option long_options[] = {
- 	{0, 0, 0, 0},
+@@ -26,6 +26,67 @@ static const struct erofs_compressor *compressors[] = {
+ #endif
  };
  
--static void print_available_compressors(FILE *f, const char *delim)
--{
--	unsigned int i = 0;
--	const char *s;
--
--	while ((s = z_erofs_list_available_compressors(i)) != NULL) {
--		if (i++)
--			fputs(delim, f);
--		fputs(s, f);
--	}
--	fputc('\n', f);
--}
--
- static void usage(void)
- {
- 	fputs("usage: [options] FILE DIRECTORY\n\n"
-@@ -126,7 +113,7 @@ static void usage(void)
- 	      " --block-list-file=X   X=block_list file\n"
- #endif
- 	      "\nAvailable compressors are: ", stderr);
--	print_available_compressors(stderr, ", ");
-+	erofs_print_available_compressors(stderr);
- }
++static struct erofs_supported_algorithm {
++	bool enable;
++	unsigned int algtype;
++	const char *name;
++	struct erofs_compress handle;
++} erofs_supported_algorithms[] = {
++	{ .algtype = Z_EROFS_COMPRESSION_LZ4, .name = "lz4" },
++	{ .algtype = Z_EROFS_COMPRESSION_LZ4, .name = "lz4hc" },
++	{ .algtype = Z_EROFS_COMPRESSION_LZMA, .name = "lzma" },
++	{ .algtype = Z_EROFS_COMPRESSION_DEFLATE, .name = "deflate" },
++	{ .algtype = Z_EROFS_COMPRESSION_DEFLATE, .name = "libdeflate" },
++};
++
++static void erofs_init_compressor(struct erofs_sb_info *sbi,
++		struct erofs_compress *handle, const struct erofs_compressor *alg)
++{
++
++	handle->alg = alg;
++
++	/* should be written in "minimum compression ratio * 100" */
++	handle->compress_threshold = 100;
++
++	/* optimize for 4k size page */
++	handle->destsize_alignsize = erofs_blksiz(sbi);
++	handle->destsize_redzone_begin = erofs_blksiz(sbi) - 16;
++	handle->destsize_redzone_end = EROFS_CONFIG_COMPR_DEF_BOUNDARY;
++
++	if (alg && alg->init)
++		alg->init(handle);
++}
++
++static void erofs_compressor_register(struct erofs_sb_info *sbi,
++		const char *name, const struct erofs_compressor *alg)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(erofs_supported_algorithms); i++) {
++		if (!strcmp(erofs_supported_algorithms[i].name, name)) {
++			erofs_init_compressor(sbi, &erofs_supported_algorithms[i].handle, alg);
++			return;
++		}
++	}
++}
++
++void erofs_register_compressors(struct erofs_sb_info *sbi)
++{
++#if LZ4_ENABLED
++	erofs_compressor_register(sbi, "lz4", &erofs_compressor_lz4);
++#if LZ4HC_ENABLED
++	erofs_compressor_register(sbi, "lz4hc", &erofs_compressor_lz4hc);
++#endif
++#endif
++#if HAVE_LIBLZMA
++	erofs_compressor_register(sbi, "lzma", &erofs_compressor_lzma);
++#endif
++	erofs_compressor_register(sbi, "deflate", &erofs_compressor_deflate);
++#if HAVE_LIBDEFLATE
++	erofs_compressor_register(sbi, "libdeflate", &erofs_compressor_libdeflate);
++#endif
++}
++
+ int erofs_compress_destsize(const struct erofs_compress *c,
+ 			    const void *src, unsigned int *srcsize,
+ 			    void *dst, unsigned int dstsize, bool inblocks)
+diff --git a/lib/compressor.h b/lib/compressor.h
+index 08a3988..66ea933 100644
+--- a/lib/compressor.h
++++ b/lib/compressor.h
+@@ -8,6 +8,7 @@
+ #define __EROFS_LIB_COMPRESSOR_H
  
- static unsigned int pclustersize_packed, pclustersize_max;
+ #include "erofs/defs.h"
++#include "erofs/config.h"
+ 
+ struct erofs_compress;
+ 
+@@ -56,5 +57,6 @@ int erofs_compressor_setlevel(struct erofs_compress *c, int compression_level);
+ int erofs_compressor_init(struct erofs_sb_info *sbi,
+ 		struct erofs_compress *c, char *alg_name);
+ int erofs_compressor_exit(struct erofs_compress *c);
++void erofs_register_compressors(struct erofs_sb_info *sbi);
+ 
+ #endif
 -- 
 2.34.3
 
