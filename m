@@ -4,66 +4,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 569A6EB64DA
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Jul 2023 15:23:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690039426;
-	bh=aRnGXOlXzwHSWakVof75mNAZl3Vt9CQga1aoQPRJJ5E=;
-	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=DpM8dM8brI8bhyByYF0z/zgTSWhob7QFewlftVrsVUzKEhx9sMpEXrSG6wknydoeU
-	 L6gS5XPX8vB1XNN454UO5ci0h/0b+WeDhzSRgALAoqeH17VzcJlJc9E9rZ9q214tSD
-	 DoU8D7N1qREd2XR+yNnneU7DW40f1wz0L2BaHc8AhxQHjhkAcaavUEmeYmBGmBjVi+
-	 RQ29+mrvmJD+2yxo54V2hL1+G9pvPc+o81IGJ49Fi1He4ArSJEgp1FKsx3D3a/NL7m
-	 jnTqAMDpDXVJtbBTcqtSYiRBrsXWP0JWSszEfko8ND2fOc8QQJykQsNxShV6VkFDrN
-	 aEnVdCSIouWEw==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 048A7C001B0
+	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 13:28:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R7VZB0C4Wz2ynD
-	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 01:23:46 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=14.137.139.23; helo=frasgout11.his.huawei.com; envelope-from=guoxuenan@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from frasgout11.his.huawei.com (ecs-14-137-139-23.compute.hwclouds-dns.com [14.137.139.23])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R83ym5Jhtz30M1
+	for <linux-erofs@archiver.kernel.org>; Sun, 23 Jul 2023 23:28:32 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R7VZ222mhz2ynD
-	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Jul 2023 01:23:37 +1000 (AEST)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-	by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4R7TvH5BXxz9v7Gt
-	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Jul 2023 22:53:31 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.104.170])
-	by APP2 (Coremail) with SMTP id BqC_BwCXnVcE8LtkMMq2Cg--.24810S3;
-	Sat, 22 Jul 2023 15:04:42 +0000 (GMT)
-To: hsiangkao@linux.alibaba.com,
-	jefflexu@linux.alibaba.com,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/4] erofs-utils: lib: refactor erofs compressors init
-Date: Sat, 22 Jul 2023 23:04:31 +0800
-Message-Id: <20230722150434.2921381-2-guoxuenan@huawei.com>
-X-Mailer: git-send-email 2.34.3
-In-Reply-To: <20230722150434.2921381-1-guoxuenan@huawei.com>
-References: <20230722150434.2921381-1-guoxuenan@huawei.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R83yc5rXZz2xJN
+	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Jul 2023 23:28:23 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vo-PEBH_1690118895;
+Received: from 192.168.3.2(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vo-PEBH_1690118895)
+          by smtp.aliyun-inc.com;
+          Sun, 23 Jul 2023 21:28:18 +0800
+Message-ID: <6aa8bf9c-4feb-7dbe-4ddf-a42d9b19d3cb@linux.alibaba.com>
+Date: Sun, 23 Jul 2023 21:28:14 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: BqC_BwCXnVcE8LtkMMq2Cg--.24810S3
-X-Coremail-Antispam: 1UD129KBjvJXoWxAF1kGFy7WFy3Kr15Kw4rKrg_yoW5urW5pF
-	1UCryrGry8Wr13uws3JF4rKFy3tF1IyF4xWw1xJ3s3t3Z8Jr97WF1ktr98ZrW5Gr93Xrsa
-	kwsFvw4UCw15tr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9Kb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
-	A2048vs2IY020Ec7CjxVAFwI0_Jrv_JF4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	WUJVW8JwA2z4x0Y4vEx4A2jsIE14v26r1j6r4UM28EF7xvwVC2z280aVCY1x0267AKxVWU
-	JVW8JwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7V
-	C0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j
-	6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082
-	I5MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
-	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjx
-	v20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20E
-	Y4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267
-	AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxUF2-eDUUUU
-X-CM-SenderInfo: xjxr53hhqd0q5kxd4v5lfo033gof0z/
-X-CFilter-Loop: Reflected
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.13.0
+Subject: Re: [PATCH v6 2/2] erofs: boost negative xattr lookup with bloom
+ filter
+To: Jingbo Xu <jefflexu@linux.alibaba.com>, chao@kernel.org,
+ huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
+References: <20230722094538.11754-1-jefflexu@linux.alibaba.com>
+ <20230722094538.11754-3-jefflexu@linux.alibaba.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20230722094538.11754-3-jefflexu@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,112 +46,28 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Guo Xuenan via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Guo Xuenan <guoxuenan@huawei.com>
-Cc: jack.qiu@huawei.com
+Cc: alexl@redhat.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-using struct erofs_compressors_cfg for erofs compressor
-global configuration.
 
-Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
----
- lib/compressor.c | 61 ++++++++++++++++++++++++++++++++++++++++++++++++
- lib/compressor.h |  2 ++
- 2 files changed, 63 insertions(+)
 
-diff --git a/lib/compressor.c b/lib/compressor.c
-index 4333f26..6288297 100644
---- a/lib/compressor.c
-+++ b/lib/compressor.c
-@@ -26,6 +26,67 @@ static const struct erofs_compressor *compressors[] = {
- #endif
- };
- 
-+static struct erofs_supported_algorithm {
-+	bool enable;
-+	unsigned int algtype;
-+	const char *name;
-+	struct erofs_compress handle;
-+} erofs_supported_algorithms[] = {
-+	{ .algtype = Z_EROFS_COMPRESSION_LZ4, .name = "lz4" },
-+	{ .algtype = Z_EROFS_COMPRESSION_LZ4, .name = "lz4hc" },
-+	{ .algtype = Z_EROFS_COMPRESSION_LZMA, .name = "lzma" },
-+	{ .algtype = Z_EROFS_COMPRESSION_DEFLATE, .name = "deflate" },
-+	{ .algtype = Z_EROFS_COMPRESSION_DEFLATE, .name = "libdeflate" },
-+};
-+
-+static void erofs_init_compressor(struct erofs_sb_info *sbi,
-+		struct erofs_compress *handle, const struct erofs_compressor *alg)
-+{
-+
-+	handle->alg = alg;
-+
-+	/* should be written in "minimum compression ratio * 100" */
-+	handle->compress_threshold = 100;
-+
-+	/* optimize for 4k size page */
-+	handle->destsize_alignsize = erofs_blksiz(sbi);
-+	handle->destsize_redzone_begin = erofs_blksiz(sbi) - 16;
-+	handle->destsize_redzone_end = EROFS_CONFIG_COMPR_DEF_BOUNDARY;
-+
-+	if (alg && alg->init)
-+		alg->init(handle);
-+}
-+
-+static void erofs_compressor_register(struct erofs_sb_info *sbi,
-+		const char *name, const struct erofs_compressor *alg)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(erofs_supported_algorithms); i++) {
-+		if (!strcmp(erofs_supported_algorithms[i].name, name)) {
-+			erofs_init_compressor(sbi, &erofs_supported_algorithms[i].handle, alg);
-+			return;
-+		}
-+	}
-+}
-+
-+void erofs_register_compressors(struct erofs_sb_info *sbi)
-+{
-+#if LZ4_ENABLED
-+	erofs_compressor_register(sbi, "lz4", &erofs_compressor_lz4);
-+#if LZ4HC_ENABLED
-+	erofs_compressor_register(sbi, "lz4hc", &erofs_compressor_lz4hc);
-+#endif
-+#endif
-+#if HAVE_LIBLZMA
-+	erofs_compressor_register(sbi, "lzma", &erofs_compressor_lzma);
-+#endif
-+	erofs_compressor_register(sbi, "deflate", &erofs_compressor_deflate);
-+#if HAVE_LIBDEFLATE
-+	erofs_compressor_register(sbi, "libdeflate", &erofs_compressor_libdeflate);
-+#endif
-+}
-+
- int erofs_compress_destsize(const struct erofs_compress *c,
- 			    const void *src, unsigned int *srcsize,
- 			    void *dst, unsigned int dstsize, bool inblocks)
-diff --git a/lib/compressor.h b/lib/compressor.h
-index 08a3988..66ea933 100644
---- a/lib/compressor.h
-+++ b/lib/compressor.h
-@@ -8,6 +8,7 @@
- #define __EROFS_LIB_COMPRESSOR_H
- 
- #include "erofs/defs.h"
-+#include "erofs/config.h"
- 
- struct erofs_compress;
- 
-@@ -56,5 +57,6 @@ int erofs_compressor_setlevel(struct erofs_compress *c, int compression_level);
- int erofs_compressor_init(struct erofs_sb_info *sbi,
- 		struct erofs_compress *c, char *alg_name);
- int erofs_compressor_exit(struct erofs_compress *c);
-+void erofs_register_compressors(struct erofs_sb_info *sbi);
- 
- #endif
--- 
-2.34.3
+On 2023/7/22 17:45, Jingbo Xu wrote:
+> Optimise the negative xattr lookup with bloom filter.
+> 
+> The bit value for the bloom filter map has a reverse semantics for
+> compatibility.  That is, the bit value of 0 indicates existence, while
+> the bit value of 1 indicates the absence of corresponding xattr.
+> 
+> The initial version is _only_ enabled when xattr_filter_reserved is
+> zero.  The filter map internals may change in the future, in which case
+> the reserved flag will be set non-zero and we don't need bothering the
+> compatible bits again at that time.  For now disable the optimization if
+> this reserved flag is non-zero.
+> 
+> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+
+Thanks,
+Gao Xiang
