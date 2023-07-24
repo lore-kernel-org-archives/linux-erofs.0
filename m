@@ -4,56 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D06CDC0015E
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Jul 2023 09:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 815C5C001DE
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Jul 2023 09:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690192404;
-	bh=Au95b59SE4lLb756TrNLGg7HOLC+u2MQAxdqgGCdIqg=;
+	s=201707; t=1690192418;
+	bh=tgz3Agis5n4s/WxjwmGNRU8p70ZOSlVCE9Y6IFYv5Fc=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=YRAepo0CvqyAkfMIhkG2utdrnhKbY0jCtihDgjeSTkHgYR011RAIHQ8/+qrVFaxRl
-	 wXG7q0uI+SgM0B3bedBrv9UJCAiu0anyHNkA3WYj0xXLCCb/kDVwgQI/SviaDezANl
-	 mDZEXTyjVMM5FSDE2/+2YE+lfxDToqy2drXWe4knaxIX587npR7giiavB1kW2LLYwL
-	 6QejTZh/cKjyottt27dENrxd8aHfEUJfi9rw3osZPx6wj/Z5RAXPJ0AFBDrk+mc5dC
-	 EEhJj0lh0P03Jhio57rHJcjkmXusS1k9+bDfiHR9Pf6peuOerxWF9E3Gz6naLjRB9t
-	 VXFg7Ak/gdcUg==
+	b=KC1ufAoWuc0OolLp30wtJWR6cDeq1VBQHtKPjm33yTm0rnlxIrDucDSpw/AAdo70t
+	 ba42pwxjh3eK23t+lvHBuq0SAPxdnk257inK41AztqzJOxDMobZQbshxXZNTjh8shT
+	 3TtVzy5QuyMEAqQJhx7VPYdEVHZW8htRLb6oljdNizYTaE2N4T0OLNREdYS+oPbdWi
+	 +UR4rCEYTLEjyA+RCS0/lMx4Lzh1nZFMVGVsEshxx50ftLvD43ZO0UAfmzgn99J+FL
+	 oH7itwDwmvs+wthz7dYsB0E6rfhnlIqPSV5ab/jE3UykwmJDLV4mWZrhMHf4qqZpZM
+	 7Vg/HQpe0/DVw==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R8b843rfLz2yDD
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Jul 2023 19:53:24 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R8b8L1Sp8z2yst
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Jul 2023 19:53:38 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=K/Vgei3K;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=eiUPUGpd;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::62f; helo=mail-pl1-x62f.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::42e; helo=mail-pf1-x42e.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R8b7z33DYz2xVV
-	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 19:53:19 +1000 (AEST)
-Received: by mail-pl1-x62f.google.com with SMTP id d9443c01a7336-1bba9539a23so650605ad.1
-        for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 02:53:19 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R8b8D40YZz2xVV
+	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 19:53:32 +1000 (AEST)
+Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-6864c144897so1023553b3a.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 02:53:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690192397; x=1690797197;
+        d=1e100.net; s=20221208; t=1690192409; x=1690797209;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Au95b59SE4lLb756TrNLGg7HOLC+u2MQAxdqgGCdIqg=;
-        b=UKvemZetAG6PlmP0PL1RfQYeWHY7wP06USk/8qsgpY0hAVp476w6dDvX1mkbqwNTjV
-         xk8E2M97O6NedOYTa1mxdC3RGmxmuslW9/OXb6xo5sem8rypNz7IE74mgx1OWb2LLttC
-         95sbnAK/KQvkmaguFyyoAe3mkMPPGrVaQgEicac/ibBn2wjR8JKv7kwwtVXy/VJu+uhm
-         skAH5xJer37S6POXZ2WwDX21a4bQQoodQ5SlZ9rEGtP/d91odKMH7b+SdVDPo7Fom6iQ
-         6KqXXFj3oV9h7UHcthSUyAxUEEqsPG4DVdEZqJQ7vYUfeqlgtuzNC0dvG8w1SDGZUqRj
-         nQYQ==
-X-Gm-Message-State: ABy/qLZ7YVV0FwC0aXCJYIsXy6CiDXMjK8c1BetIU3ixuhQpOqAbG1fe
-	j2YyTfH3ucSbh0/hsGRWBmC/MQ==
-X-Google-Smtp-Source: APBJJlHskHW5r0IhvtSXxnBFmiqfwZejMZbjxfsN1oQLUQ3K2J0HHv3xxnfIpcyIc5BfLUakmxAnBw==
-X-Received: by 2002:a17:902:e802:b0:1b3:d4bb:3515 with SMTP id u2-20020a170902e80200b001b3d4bb3515mr12393256plg.0.1690192397637;
-        Mon, 24 Jul 2023 02:53:17 -0700 (PDT)
+        bh=tgz3Agis5n4s/WxjwmGNRU8p70ZOSlVCE9Y6IFYv5Fc=;
+        b=J2pTFGpPjr8OoG6Sd3GYGIRTmnGbv8ELiyijFUjB87pSxK1a0FN5LqZr505AY+Pl5u
+         52x9IsO5C1LwoE220nh7J7uXXPvWJjI6xxBrXseMxBq3RGTv4OQQqLScqXhNa15xjZvJ
+         cH7KUpbmIe1D0L64QVjmgVVqjvNN+DrtJ2Xxp4JC+3MqTiI9bv5qtctireb+p83+5H1v
+         xH3pHtDKxgVyCn/4ZP473gMVoigfI0k9CFt/tbDH6BMi6OkRNe2yNTl1d9+9JbTfW2/k
+         f9/M9PbPnPEacUJNn27ggjDtI7XHKPWIV2N8979jJ+WM2DnwZjxmYatim5svk4KX1sVJ
+         NwHQ==
+X-Gm-Message-State: ABy/qLY+HI876+AW/GI04Qgc0perOMqy9U/eJDz1BaW8T0Rv8I3ZMLUT
+	63qRX7dEVEfb6lNqZGqAtIct7A==
+X-Google-Smtp-Source: APBJJlGQECD+YmQyidx3CbYp8mtos2ukz3b+adApuBRwpx+yQP4R50i+1wYRdDRgYwf/0cvAmnpMMg==
+X-Received: by 2002:a17:902:f681:b0:1b8:a469:53d8 with SMTP id l1-20020a170902f68100b001b8a46953d8mr12732513plg.0.1690192409468;
+        Mon, 24 Jul 2023 02:53:29 -0700 (PDT)
 Received: from C02DW0BEMD6R.bytedance.net ([203.208.167.147])
-        by smtp.gmail.com with ESMTPSA id d5-20020a170902c18500b001bb20380bf2sm8467233pld.13.2023.07.24.02.53.06
+        by smtp.gmail.com with ESMTPSA id d5-20020a170902c18500b001bb20380bf2sm8467233pld.13.2023.07.24.02.53.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jul 2023 02:53:17 -0700 (PDT)
+        Mon, 24 Jul 2023 02:53:29 -0700 (PDT)
 To: akpm@linux-foundation.org,
 	david@fromorbit.com,
 	tkhai@ya.ru,
@@ -69,9 +69,9 @@ To: akpm@linux-foundation.org,
 	yujie.liu@intel.com,
 	gregkh@linuxfoundation.org,
 	muchun.song@linux.dev
-Subject: [PATCH v2 41/47] mm: shrinker: remove old APIs
-Date: Mon, 24 Jul 2023 17:43:48 +0800
-Message-Id: <20230724094354.90817-42-zhengqi.arch@bytedance.com>
+Subject: [PATCH v2 42/47] drm/ttm: introduce pool_shrink_rwsem
+Date: Mon, 24 Jul 2023 17:43:49 +0800
+Message-Id: <20230724094354.90817-43-zhengqi.arch@bytedance.com>
 X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 In-Reply-To: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
 References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
@@ -94,186 +94,106 @@ Cc: kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.l
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Now no users are using the old APIs, just remove them.
+Currently, the synchronize_shrinkers() is only used by TTM pool. It only
+requires that no shrinkers run in parallel.
+
+After we use RCU+refcount method to implement the lockless slab shrink,
+we can not use shrinker_rwsem or synchronize_rcu() to guarantee that all
+shrinker invocations have seen an update before freeing memory.
+
+So we introduce a new pool_shrink_rwsem to implement a private
+synchronize_shrinkers(), so as to achieve the same purpose.
 
 Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 ---
- include/linux/shrinker.h |   7 --
- mm/shrinker.c            | 143 ---------------------------------------
- 2 files changed, 150 deletions(-)
+ drivers/gpu/drm/ttm/ttm_pool.c | 15 +++++++++++++++
+ include/linux/shrinker.h       |  2 --
+ mm/shrinker.c                  | 15 ---------------
+ 3 files changed, 15 insertions(+), 17 deletions(-)
 
+diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
+index e1eb73d0b72a..8a35fd48ec46 100644
+--- a/drivers/gpu/drm/ttm/ttm_pool.c
++++ b/drivers/gpu/drm/ttm/ttm_pool.c
+@@ -74,6 +74,7 @@ static struct ttm_pool_type global_dma32_uncached[MAX_ORDER + 1];
+ static spinlock_t shrinker_lock;
+ static struct list_head shrinker_list;
+ static struct shrinker *mm_shrinker;
++static DECLARE_RWSEM(pool_shrink_rwsem);
+ 
+ /* Allocate pages of size 1 << order with the given gfp_flags */
+ static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+@@ -317,6 +318,7 @@ static unsigned int ttm_pool_shrink(void)
+ 	unsigned int num_pages;
+ 	struct page *p;
+ 
++	down_read(&pool_shrink_rwsem);
+ 	spin_lock(&shrinker_lock);
+ 	pt = list_first_entry(&shrinker_list, typeof(*pt), shrinker_list);
+ 	list_move_tail(&pt->shrinker_list, &shrinker_list);
+@@ -329,6 +331,7 @@ static unsigned int ttm_pool_shrink(void)
+ 	} else {
+ 		num_pages = 0;
+ 	}
++	up_read(&pool_shrink_rwsem);
+ 
+ 	return num_pages;
+ }
+@@ -572,6 +575,18 @@ void ttm_pool_init(struct ttm_pool *pool, struct device *dev,
+ }
+ EXPORT_SYMBOL(ttm_pool_init);
+ 
++/**
++ * synchronize_shrinkers - Wait for all running shrinkers to complete.
++ *
++ * This is useful to guarantee that all shrinker invocations have seen an
++ * update, before freeing memory, similar to rcu.
++ */
++static void synchronize_shrinkers(void)
++{
++	down_write(&pool_shrink_rwsem);
++	up_write(&pool_shrink_rwsem);
++}
++
+ /**
+  * ttm_pool_fini - Cleanup a pool
+  *
 diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
-index 296f5e163861..e464b4e9be0e 100644
+index e464b4e9be0e..23ea9360c5d8 100644
 --- a/include/linux/shrinker.h
 +++ b/include/linux/shrinker.h
-@@ -105,13 +105,6 @@ void shrinker_free_non_registered(struct shrinker *shrinker);
+@@ -105,8 +105,6 @@ void shrinker_free_non_registered(struct shrinker *shrinker);
  void shrinker_register(struct shrinker *shrinker);
  void shrinker_unregister(struct shrinker *shrinker);
  
--extern int __printf(2, 3) prealloc_shrinker(struct shrinker *shrinker,
--					    const char *fmt, ...);
--extern void register_shrinker_prepared(struct shrinker *shrinker);
--extern int __printf(2, 3) register_shrinker(struct shrinker *shrinker,
--					    const char *fmt, ...);
--extern void unregister_shrinker(struct shrinker *shrinker);
--extern void free_prealloced_shrinker(struct shrinker *shrinker);
- extern void synchronize_shrinkers(void);
- 
+-extern void synchronize_shrinkers(void);
+-
  #ifdef CONFIG_SHRINKER_DEBUG
+ extern int shrinker_debugfs_add(struct shrinker *shrinker);
+ extern struct dentry *shrinker_debugfs_detach(struct shrinker *shrinker,
 diff --git a/mm/shrinker.c b/mm/shrinker.c
-index d820e4cc5806..2f3635ad1b45 100644
+index 2f3635ad1b45..3c4d3fe2fa17 100644
 --- a/mm/shrinker.c
 +++ b/mm/shrinker.c
-@@ -661,149 +661,6 @@ void shrinker_unregister(struct shrinker *shrinker)
+@@ -660,18 +660,3 @@ void shrinker_unregister(struct shrinker *shrinker)
+ 	kfree(shrinker);
  }
  EXPORT_SYMBOL(shrinker_unregister);
- 
--/*
-- * Add a shrinker callback to be called from the vm.
+-
+-/**
+- * synchronize_shrinkers - Wait for all running shrinkers to complete.
+- *
+- * This is equivalent to calling unregister_shrink() and register_shrinker(),
+- * but atomically and with less overhead. This is useful to guarantee that all
+- * shrinker invocations have seen an update, before freeing memory, similar to
+- * rcu.
 - */
--static int __prealloc_shrinker(struct shrinker *shrinker)
--{
--	unsigned int size;
--	int err;
--
--	if (shrinker->flags & SHRINKER_MEMCG_AWARE) {
--		err = prealloc_memcg_shrinker(shrinker);
--		if (err != -ENOSYS)
--			return err;
--
--		shrinker->flags &= ~SHRINKER_MEMCG_AWARE;
--	}
--
--	size = sizeof(*shrinker->nr_deferred);
--	if (shrinker->flags & SHRINKER_NUMA_AWARE)
--		size *= nr_node_ids;
--
--	shrinker->nr_deferred = kzalloc(size, GFP_KERNEL);
--	if (!shrinker->nr_deferred)
--		return -ENOMEM;
--
--	return 0;
--}
--
--#ifdef CONFIG_SHRINKER_DEBUG
--int prealloc_shrinker(struct shrinker *shrinker, const char *fmt, ...)
--{
--	va_list ap;
--	int err;
--
--	va_start(ap, fmt);
--	shrinker->name = kvasprintf_const(GFP_KERNEL, fmt, ap);
--	va_end(ap);
--	if (!shrinker->name)
--		return -ENOMEM;
--
--	err = __prealloc_shrinker(shrinker);
--	if (err) {
--		kfree_const(shrinker->name);
--		shrinker->name = NULL;
--	}
--
--	return err;
--}
--#else
--int prealloc_shrinker(struct shrinker *shrinker, const char *fmt, ...)
--{
--	return __prealloc_shrinker(shrinker);
--}
--#endif
--
--void free_prealloced_shrinker(struct shrinker *shrinker)
--{
--#ifdef CONFIG_SHRINKER_DEBUG
--	kfree_const(shrinker->name);
--	shrinker->name = NULL;
--#endif
--	if (shrinker->flags & SHRINKER_MEMCG_AWARE) {
--		down_write(&shrinker_rwsem);
--		unregister_memcg_shrinker(shrinker);
--		up_write(&shrinker_rwsem);
--		return;
--	}
--
--	kfree(shrinker->nr_deferred);
--	shrinker->nr_deferred = NULL;
--}
--
--void register_shrinker_prepared(struct shrinker *shrinker)
+-void synchronize_shrinkers(void)
 -{
 -	down_write(&shrinker_rwsem);
--	list_add_tail(&shrinker->list, &shrinker_list);
--	shrinker->flags |= SHRINKER_REGISTERED;
--	shrinker_debugfs_add(shrinker);
 -	up_write(&shrinker_rwsem);
 -}
--
--static int __register_shrinker(struct shrinker *shrinker)
--{
--	int err = __prealloc_shrinker(shrinker);
--
--	if (err)
--		return err;
--	register_shrinker_prepared(shrinker);
--	return 0;
--}
--
--#ifdef CONFIG_SHRINKER_DEBUG
--int register_shrinker(struct shrinker *shrinker, const char *fmt, ...)
--{
--	va_list ap;
--	int err;
--
--	va_start(ap, fmt);
--	shrinker->name = kvasprintf_const(GFP_KERNEL, fmt, ap);
--	va_end(ap);
--	if (!shrinker->name)
--		return -ENOMEM;
--
--	err = __register_shrinker(shrinker);
--	if (err) {
--		kfree_const(shrinker->name);
--		shrinker->name = NULL;
--	}
--	return err;
--}
--#else
--int register_shrinker(struct shrinker *shrinker, const char *fmt, ...)
--{
--	return __register_shrinker(shrinker);
--}
--#endif
--EXPORT_SYMBOL(register_shrinker);
--
--/*
-- * Remove one
-- */
--void unregister_shrinker(struct shrinker *shrinker)
--{
--	struct dentry *debugfs_entry;
--	int debugfs_id;
--
--	if (!(shrinker->flags & SHRINKER_REGISTERED))
--		return;
--
--	down_write(&shrinker_rwsem);
--	list_del(&shrinker->list);
--	shrinker->flags &= ~SHRINKER_REGISTERED;
--	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
--		unregister_memcg_shrinker(shrinker);
--	debugfs_entry = shrinker_debugfs_detach(shrinker, &debugfs_id);
--	up_write(&shrinker_rwsem);
--
--	shrinker_debugfs_remove(debugfs_entry, debugfs_id);
--
--	kfree(shrinker->nr_deferred);
--	shrinker->nr_deferred = NULL;
--}
--EXPORT_SYMBOL(unregister_shrinker);
--
- /**
-  * synchronize_shrinkers - Wait for all running shrinkers to complete.
-  *
+-EXPORT_SYMBOL(synchronize_shrinkers);
 -- 
 2.30.2
 
