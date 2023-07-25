@@ -4,71 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF48CC001B0
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 03:05:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690254332;
-	bh=niSMZqBCvW/Me9jsMaxXz5gtuZ44llk1Ot3soT0LhIs=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=SHXUDrWntTaEsqT7FMRONFmEd+4AD13OZgXdi1lzd8/p4jhzjCnTz+N9y8Nf1j/uh
-	 XrYWGcZLKmheW8Wah3KjP5VC+yfPFeFiDCW4nl0qjMTLhYY1MPEl13LfYCJt62225q
-	 yhzeS82fJHJZAdqCO+kKmqHuX0HrJL8UELPT2DWgneJKHYdmQGW2TfsI9iMV3fgzKN
-	 Bs9bVEH9atcJE+bhcx1fuXA/ZCmi4S8r9U6ePX5eLIWOqfEjRsyCPriXHr4pOwnrAd
-	 z2rTaxtzHV3PlGkdt1LoiSCLrx7dMsy23Ec5O1ykfumd44ISkkF1Hy2jdf6itJHzBK
-	 mJXozTUpoAxiQ==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C514EB64DD
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 06:00:26 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R92303bH4z30Ng
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 13:05:32 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=FniJo6cf;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::102b; helo=mail-pj1-x102b.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R95wn0T9kz3bjV
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 16:00:25 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R922v31Vtz307y
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 13:05:27 +1000 (AEST)
-Received: by mail-pj1-x102b.google.com with SMTP id 98e67ed59e1d1-267f32e89a5so323672a91.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 20:05:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690254325; x=1690859125;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=niSMZqBCvW/Me9jsMaxXz5gtuZ44llk1Ot3soT0LhIs=;
-        b=BPhte1NZsAVKpB/c8NDm/0+ZkCsSHLhkyqik8o6BNzEYO9gWGJp4AN+FCbtmnV1Xsq
-         /casWC1VcDc4iipE3wucQFceYjhqNRm9/hqyo/KynqZt2wgfF1wrEVdPEhiU/I+oZZlC
-         tb39bH52ArDA7uZOLYtrk8fqpmKOJzYxWR7fL3xOepy3AyeJrpgxXI15aHw9zL3MiKsl
-         Z/R5nFRmNDqyYq6p1Ou+RPpBvkPI2U8BvCtZWbHfml+O8mLHHO0zVNwN8jXvTz0nKIaC
-         dwEw0bs25bytKAkFRFy407xgD5Bfz+Qbv3UWwrEJ/2gEX3xYqm3ilh514p206zS5qxBL
-         i9pg==
-X-Gm-Message-State: ABy/qLYQKDrp/O/8tye4u4+h/VyQs6C7ESLpw5T4krkvRn8UZCRlrp+6
-	ZlzzZjxO24hfOXF+k+1aXn7epQ==
-X-Google-Smtp-Source: APBJJlFB/cQTGj3IlIfGF+HAM8hU50IJB+Lr29ujA3cHbbDSAB3N90HdGCOpa8iydTeMw+f8qxyL2Q==
-X-Received: by 2002:a17:90a:1d46:b0:268:abc:83d5 with SMTP id u6-20020a17090a1d4600b002680abc83d5mr6012554pju.4.1690254324674;
-        Mon, 24 Jul 2023 20:05:24 -0700 (PDT)
-Received: from ?IPV6:fdbd:ff1:ce00:1c25:884:3ed:e1db:b610? ([2408:8000:b001:1:1f:58ff:f102:103])
-        by smtp.gmail.com with ESMTPSA id t10-20020a17090aba8a00b002681d44071csm2043968pjr.46.2023.07.24.20.05.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jul 2023 20:05:24 -0700 (PDT)
-Message-ID: <6049aa99-aa47-5137-f66e-350bc4723914@bytedance.com>
-Date: Tue, 25 Jul 2023 11:05:04 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R95wg5ZZwz30fn
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 16:00:18 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VoBevWA_1690264812;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VoBevWA_1690264812)
+          by smtp.aliyun-inc.com;
+          Tue, 25 Jul 2023 14:00:13 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: hsiangkao@linux.alibaba.com,
+	chao@kernel.org,
+	huyue2@coolpad.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH 1/3] erofs-utils: tests: convert test cases to bash
+Date: Tue, 25 Jul 2023 14:00:10 +0800
+Message-Id: <20230725060012.123661-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.12.0
-Subject: Re: [PATCH v2 24/47] drm/panfrost: dynamically allocate the
- drm-panfrost shrinker
-Content-Language: en-US
-To: Steven Price <steven.price@arm.com>
-References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-25-zhengqi.arch@bytedance.com>
- <cdd08c9e-81d3-a85f-5426-5db738aa73ec@arm.com>
-In-Reply-To: <cdd08c9e-81d3-a85f-5426-5db738aa73ec@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,156 +42,258 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Qi Zheng via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org, brauner@kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, tytso@mit.edu, netdev@vger.kernel.org, muchun.song@linux.dev, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, gregkh@linuxfoundation.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Steven,
+Convert to bash script so that some featues e.g. array and string
+substitution could be used.
 
-On 2023/7/24 19:17, Steven Price wrote:
-> On 24/07/2023 10:43, Qi Zheng wrote:
->> In preparation for implementing lockless slab shrink, use new APIs to
->> dynamically allocate the drm-panfrost shrinker, so that it can be freed
->> asynchronously using kfree_rcu(). Then it doesn't need to wait for RCU
->> read-side critical section when releasing the struct panfrost_device.
->>
->> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> 
-> One nit below, but otherwise:
-> 
-> Reviewed-by: Steven Price <steven.price@arm.com>
-> 
->> ---
->>   drivers/gpu/drm/panfrost/panfrost_device.h    |  2 +-
->>   drivers/gpu/drm/panfrost/panfrost_drv.c       |  6 +++-
->>   drivers/gpu/drm/panfrost/panfrost_gem.h       |  2 +-
->>   .../gpu/drm/panfrost/panfrost_gem_shrinker.c  | 32 ++++++++++++-------
->>   4 files changed, 27 insertions(+), 15 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
->> index b0126b9fbadc..e667e5689353 100644
->> --- a/drivers/gpu/drm/panfrost/panfrost_device.h
->> +++ b/drivers/gpu/drm/panfrost/panfrost_device.h
->> @@ -118,7 +118,7 @@ struct panfrost_device {
->>   
->>   	struct mutex shrinker_lock;
->>   	struct list_head shrinker_list;
->> -	struct shrinker shrinker;
->> +	struct shrinker *shrinker;
->>   
->>   	struct panfrost_devfreq pfdevfreq;
->>   };
->> diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
->> index bbada731bbbd..f705bbdea360 100644
->> --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
->> +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
->> @@ -598,10 +598,14 @@ static int panfrost_probe(struct platform_device *pdev)
->>   	if (err < 0)
->>   		goto err_out1;
->>   
->> -	panfrost_gem_shrinker_init(ddev);
->> +	err = panfrost_gem_shrinker_init(ddev);
->> +	if (err)
->> +		goto err_out2;
->>   
->>   	return 0;
->>   
->> +err_out2:
->> +	drm_dev_unregister(ddev);
->>   err_out1:
->>   	pm_runtime_disable(pfdev->dev);
->>   	panfrost_device_fini(pfdev);
->> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
->> index ad2877eeeccd..863d2ec8d4f0 100644
->> --- a/drivers/gpu/drm/panfrost/panfrost_gem.h
->> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
->> @@ -81,7 +81,7 @@ panfrost_gem_mapping_get(struct panfrost_gem_object *bo,
->>   void panfrost_gem_mapping_put(struct panfrost_gem_mapping *mapping);
->>   void panfrost_gem_teardown_mappings_locked(struct panfrost_gem_object *bo);
->>   
->> -void panfrost_gem_shrinker_init(struct drm_device *dev);
->> +int panfrost_gem_shrinker_init(struct drm_device *dev);
->>   void panfrost_gem_shrinker_cleanup(struct drm_device *dev);
->>   
->>   #endif /* __PANFROST_GEM_H__ */
->> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
->> index bf0170782f25..9a90dfb5301f 100644
->> --- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
->> +++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
->> @@ -18,8 +18,7 @@
->>   static unsigned long
->>   panfrost_gem_shrinker_count(struct shrinker *shrinker, struct shrink_control *sc)
->>   {
->> -	struct panfrost_device *pfdev =
->> -		container_of(shrinker, struct panfrost_device, shrinker);
->> +	struct panfrost_device *pfdev = shrinker->private_data;
->>   	struct drm_gem_shmem_object *shmem;
->>   	unsigned long count = 0;
->>   
->> @@ -65,8 +64,7 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
->>   static unsigned long
->>   panfrost_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
->>   {
->> -	struct panfrost_device *pfdev =
->> -		container_of(shrinker, struct panfrost_device, shrinker);
->> +	struct panfrost_device *pfdev = shrinker->private_data;
->>   	struct drm_gem_shmem_object *shmem, *tmp;
->>   	unsigned long freed = 0;
->>   
->> @@ -97,13 +95,24 @@ panfrost_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
->>    *
->>    * This function registers and sets up the panfrost shrinker.
->>    */
->> -void panfrost_gem_shrinker_init(struct drm_device *dev)
->> +int panfrost_gem_shrinker_init(struct drm_device *dev)
->>   {
->>   	struct panfrost_device *pfdev = dev->dev_private;
->> -	pfdev->shrinker.count_objects = panfrost_gem_shrinker_count;
->> -	pfdev->shrinker.scan_objects = panfrost_gem_shrinker_scan;
->> -	pfdev->shrinker.seeks = DEFAULT_SEEKS;
->> -	WARN_ON(register_shrinker(&pfdev->shrinker, "drm-panfrost"));
->> +
->> +	pfdev->shrinker = shrinker_alloc(0, "drm-panfrost");
->> +	if (!pfdev->shrinker) {
->> +		WARN_ON(1);
-> 
-> I don't think this WARN_ON is particularly useful - if there's a failed
-> memory allocation we should see output from the kernel anyway. And we're
-> changing the semantics from "continue just without a shrinker" (which
-> argueably justifies the warning) to "probe fails, device doesn't work"
-> which will be obvious to the user so I don't feel we need the additional
-> warn.
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ tests/common/rc | 2 +-
+ tests/erofs/001 | 2 +-
+ tests/erofs/002 | 2 +-
+ tests/erofs/003 | 2 +-
+ tests/erofs/004 | 2 +-
+ tests/erofs/005 | 2 +-
+ tests/erofs/006 | 2 +-
+ tests/erofs/007 | 2 +-
+ tests/erofs/008 | 2 +-
+ tests/erofs/009 | 2 +-
+ tests/erofs/010 | 2 +-
+ tests/erofs/011 | 2 +-
+ tests/erofs/012 | 2 +-
+ tests/erofs/013 | 2 +-
+ tests/erofs/014 | 2 +-
+ tests/erofs/015 | 2 +-
+ tests/erofs/017 | 2 +-
+ tests/erofs/018 | 2 +-
+ tests/erofs/019 | 2 +-
+ tests/erofs/020 | 2 +-
+ tests/erofs/021 | 2 +-
+ tests/erofs/022 | 2 +-
+ 22 files changed, 22 insertions(+), 22 deletions(-)
 
-Make sense. Will delete this WARN_ON() in the next version.
+diff --git a/tests/common/rc b/tests/common/rc
+index f234fdc..f54b5c1 100644
+--- a/tests/common/rc
++++ b/tests/common/rc
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+ tmp=/tmp/$$
+diff --git a/tests/erofs/001 b/tests/erofs/001
+index 0f8a6d8..8f587fb 100755
+--- a/tests/erofs/001
++++ b/tests/erofs/001
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # test if unknown algorithm is specificed
+diff --git a/tests/erofs/002 b/tests/erofs/002
+index b59c846..0f38bf4 100755
+--- a/tests/erofs/002
++++ b/tests/erofs/002
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # test short symlink (fast symlink)
+diff --git a/tests/erofs/003 b/tests/erofs/003
+index 6ec242d..9c60453 100755
+--- a/tests/erofs/003
++++ b/tests/erofs/003
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # test long symlink (non-fast symlink)
+diff --git a/tests/erofs/004 b/tests/erofs/004
+index 25e22e6..de96d32 100755
+--- a/tests/erofs/004
++++ b/tests/erofs/004
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # test character/block device
+diff --git a/tests/erofs/005 b/tests/erofs/005
+index a003e57..cd7b58b 100755
+--- a/tests/erofs/005
++++ b/tests/erofs/005
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # test pipe files
+diff --git a/tests/erofs/006 b/tests/erofs/006
+index 2ebd1ae..18458b0 100755
+--- a/tests/erofs/006
++++ b/tests/erofs/006
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # verify the uncompressed image
+diff --git a/tests/erofs/007 b/tests/erofs/007
+index 616e093..711759f 100755
+--- a/tests/erofs/007
++++ b/tests/erofs/007
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ seq=`basename $0`
+ seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
+diff --git a/tests/erofs/008 b/tests/erofs/008
+index aa8ba1d..69b8cde 100755
+--- a/tests/erofs/008
++++ b/tests/erofs/008
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # verify lz4 compressed image
+diff --git a/tests/erofs/009 b/tests/erofs/009
+index 2ce0e0a..68f801f 100755
+--- a/tests/erofs/009
++++ b/tests/erofs/009
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # verify lz4hc compressed image
+diff --git a/tests/erofs/010 b/tests/erofs/010
+index a4f4180..befdac2 100755
+--- a/tests/erofs/010
++++ b/tests/erofs/010
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # (legacy image) verify lz4 compressed image
+diff --git a/tests/erofs/011 b/tests/erofs/011
+index 945998b..aa8971f 100755
+--- a/tests/erofs/011
++++ b/tests/erofs/011
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # (legacy image) verify lz4hc compressed image
+diff --git a/tests/erofs/012 b/tests/erofs/012
+index fbc0dac..5e4729c 100755
+--- a/tests/erofs/012
++++ b/tests/erofs/012
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # check the hard-link functionality
+diff --git a/tests/erofs/013 b/tests/erofs/013
+index 9e674b9..4d52422 100755
+--- a/tests/erofs/013
++++ b/tests/erofs/013
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # check if hardlinked directories are allowed
+diff --git a/tests/erofs/014 b/tests/erofs/014
+index 4b8c02f..0fcefb1 100755
+--- a/tests/erofs/014
++++ b/tests/erofs/014
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # check if cross-device submounts are handled properly
+diff --git a/tests/erofs/015 b/tests/erofs/015
+index 71c39b7..e008e98 100755
+--- a/tests/erofs/015
++++ b/tests/erofs/015
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # regression test for battach on full buffer block
+diff --git a/tests/erofs/017 b/tests/erofs/017
+index 0ba391f..65a897a 100755
+--- a/tests/erofs/017
++++ b/tests/erofs/017
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # check the compress-hints functionality
+diff --git a/tests/erofs/018 b/tests/erofs/018
+index 3e4963a..92483d8 100755
+--- a/tests/erofs/018
++++ b/tests/erofs/018
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # verify lzma compressed image
+diff --git a/tests/erofs/019 b/tests/erofs/019
+index 0b89b77..f58eec4 100755
+--- a/tests/erofs/019
++++ b/tests/erofs/019
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # 019 - check extended attribute functionality
+diff --git a/tests/erofs/020 b/tests/erofs/020
+index 5f98be2..265bde4 100755
+--- a/tests/erofs/020
++++ b/tests/erofs/020
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # 020 - check extended attributes in different layouts
+diff --git a/tests/erofs/021 b/tests/erofs/021
+index d36aa56..231066a 100755
+--- a/tests/erofs/021
++++ b/tests/erofs/021
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # 021 - check extended attributes crossing block boundary
+diff --git a/tests/erofs/022 b/tests/erofs/022
+index a773205..7a837cb 100755
+--- a/tests/erofs/022
++++ b/tests/erofs/022
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0+
+ #
+ # 022 - check long extended attribute name prefixes
+-- 
+2.19.1.6.gb485710b
 
-Thanks,
-Qi
-
-> 
->> +		return -ENOMEM;
->> +	}
->> +
->> +	pfdev->shrinker->count_objects = panfrost_gem_shrinker_count;
->> +	pfdev->shrinker->scan_objects = panfrost_gem_shrinker_scan;
->> +	pfdev->shrinker->seeks = DEFAULT_SEEKS;
->> +	pfdev->shrinker->private_data = pfdev;
->> +
->> +	shrinker_register(pfdev->shrinker);
->> +
->> +	return 0;
->>   }
->>   
->>   /**
->> @@ -116,7 +125,6 @@ void panfrost_gem_shrinker_cleanup(struct drm_device *dev)
->>   {
->>   	struct panfrost_device *pfdev = dev->dev_private;
->>   
->> -	if (pfdev->shrinker.nr_deferred) {
->> -		unregister_shrinker(&pfdev->shrinker);
->> -	}
->> +	if (pfdev->shrinker)
->> +		shrinker_unregister(pfdev->shrinker);
->>   }
-> 
