@@ -4,48 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83F60C001DE
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 09:22:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06CA9C41513
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 09:25:18 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xJfsnq4t;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=usOR6hHD;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9BQN19N3z3bhD
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 19:22:52 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9BT84lM9z3bVS
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 19:25:16 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xJfsnq4t;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=usOR6hHD;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=95.215.58.56; helo=out-56.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
-X-Greylist: delayed 24387 seconds by postgrey-1.37 at boromir; Tue, 25 Jul 2023 19:22:44 AEST
-Received: from out-56.mta1.migadu.com (out-56.mta1.migadu.com [95.215.58.56])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::3c; helo=out-60.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-60.mta1.migadu.com (out-60.mta1.migadu.com [IPv6:2001:41d0:203:375::3c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9BQD3jtwz30hb
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 19:22:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9BT4375xz30gD
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 19:25:12 +1000 (AEST)
 Content-Type: text/plain;
 	charset=us-ascii
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1690276959;
+	t=1690277108;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=O0aj+CEvUWLWW/lym+SjHnwm8OSi0vQ8fgtochDa6Vs=;
-	b=xJfsnq4tfri4+FrxQ/wgEMA3zFz0o0z0uW0gHHJCvckela5K3HUZXJd8znm8ohjnxlmbHS
-	uH4lNpUNfMnIh4HG6zSYXwQDD4QbiVOnWxcUq/Ckyge75DILepht+8WUJVUEtTuA6yQWPk
-	2nBkRdUkFluXDihkXSSSRwQEBatV+pk=
+	bh=+8cgQl/NwKjlv95whhBvr3/hIEapF8k47N3p7suJb70=;
+	b=usOR6hHD6eRCxqjCTCcivuGWvHVkYPEcYN1LFGUp7w19ZF5rgZGS7F3BC9qYg1mh2K3CZg
+	P+ggLeAhjwkMLLXjRaq6w6val5oNQN/dZHMaY89bOfIaUuCQCvzNHzHVmmvDvSO+waObUp
+	Ejvejxqj/KUxQq2De9wkuBcRQhJyUA4=
 MIME-Version: 1.0
-Subject: Re: [PATCH v2 07/47] xenbus/backend: dynamically allocate the
- xen-backend shrinker
+Subject: Re: [PATCH v2 08/47] erofs: dynamically allocate the erofs-shrinker
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <20230724094354.90817-8-zhengqi.arch@bytedance.com>
-Date: Tue, 25 Jul 2023 17:22:00 +0800
+In-Reply-To: <20230724094354.90817-9-zhengqi.arch@bytedance.com>
+Date: Tue, 25 Jul 2023 17:24:24 +0800
 Content-Transfer-Encoding: 7bit
-Message-Id: <CD39258F-AAA8-42A7-BBA9-6528A629B315@linux.dev>
+Message-Id: <0C8B4C97-C8DF-401D-83E9-A13AE69E73F0@linux.dev>
 References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-8-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-9-zhengqi.arch@bytedance.com>
 To: Qi Zheng <zhengqi.arch@bytedance.com>
 X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -68,7 +66,7 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 > On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
-> Use new APIs to dynamically allocate the xen-backend shrinker.
+> Use new APIs to dynamically allocate the erofs-shrinker.
 > 
 > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
