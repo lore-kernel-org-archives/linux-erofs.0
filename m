@@ -4,73 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4FC8EB64DD
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 03:28:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690255701;
-	bh=6wY4cILkEhsrpRf+mNddP0nleKOSU9sayj8Z5h0ToXM=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=KcDEU7N9FnO3xvQU/4BOsN22vQSDmINK/8WHz9z/RI/Gkets2aByHgyFmS3x/QAsm
-	 YzcYpV3+WLqfi79HuYK+K0sU5AewtyfcO9kccvG3d0ena/Yr284XsK6dDrof5iaR16
-	 j+4kdjmY9aVQ+FTlPw9uNeqgExpK87orUJbk7vTToBMEhflWtPMtK2Q3JV+UXWSgRJ
-	 lKlKtbPUmZ9G5kutBP6uj/RHmWlwUkWYGk/DKYL00hOgb7E0nrlpM57Ujno7lfT/YQ
-	 LldLWNSchsqQE6rk59/w2tAn78i8LB3EOfeKhani0IdgAweAQ4z6LtNhHeySjbpEfK
-	 HxbWzt2ZV/87Q==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R92YK2RRJz30MD
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 13:28:21 +1000 (AEST)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B785C001DF
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 09:17:33 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=PknHptOa;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=GyQLyI1D;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::429; helo=mail-pf1-x429.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9BJD4V9tz3bhr
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 19:17:32 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=GyQLyI1D;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::2a; helo=out-42.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-42.mta1.migadu.com (out-42.mta1.migadu.com [IPv6:2001:41d0:203:375::2a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R92YB3wNlz300f
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 13:28:13 +1000 (AEST)
-Received: by mail-pf1-x429.google.com with SMTP id d2e1a72fcca58-66d6a9851f3so1183687b3a.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 24 Jul 2023 20:28:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690255690; x=1690860490;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6wY4cILkEhsrpRf+mNddP0nleKOSU9sayj8Z5h0ToXM=;
-        b=PwFE+D/YvWSZYtrztQ3B7m8EcAhMUVigeYj1ovnS0mPGow1fd2sqIcDmk1Lrd6wZOb
-         tb2aOvDURKwg/jqFH3h5OINZaXWRIKp6yDX6Jk9bIOpfkDIdXGGiijGnQIPsvSol7gGC
-         rOoJVjB9wAYgmSww8jLWc2ueyo6XNNTWMhQ4fGEoHZD0GBwg2q8bbUxLHRHhkUbJT+23
-         xC68yLE0IdUqLH+hQ5XwoS79dcKfQGuA9LbsZGR2ePh+gXCCBkx3lEQZEp4Ty6+gumVM
-         NIzgWoQ/9AxaDuOuxv+XoAP3ZPilLV99xFzjo9Sv9YLrokIfmpuUUty4xChc3iOxF+TW
-         1bvA==
-X-Gm-Message-State: ABy/qLbxZ1kg1B9oC0WSfD+obCJ/3zZrIET64RQAYYXVxBL4m9ae9lQo
-	N4MEl8oUbo+r4FXUQ4XeJDHRCw==
-X-Google-Smtp-Source: APBJJlHvnzRChS6v/nee9rDGEWxm9C29UVXVwYKOSH3HP5ue/guAsHAKmcdiSeukVqd30tCkGAz2cw==
-X-Received: by 2002:a05:6a00:cd1:b0:677:bb4c:c321 with SMTP id b17-20020a056a000cd100b00677bb4cc321mr15272930pfv.0.1690255690395;
-        Mon, 24 Jul 2023 20:28:10 -0700 (PDT)
-Received: from ?IPV6:fdbd:ff1:ce00:1c25:884:3ed:e1db:b610? ([240e:694:e21:b::2])
-        by smtp.gmail.com with ESMTPSA id s3-20020aa78283000000b00682a9325ffcsm8407714pfm.5.2023.07.24.20.27.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jul 2023 20:28:10 -0700 (PDT)
-Message-ID: <bbd36d96-b6b8-08c3-1092-e3d0b255134a@bytedance.com>
-Date: Tue, 25 Jul 2023 11:27:55 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9BJ35Drsz2yFB
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 19:17:21 +1000 (AEST)
+Content-Type: text/plain;
+	charset=us-ascii
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1690276634;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LkxORCEddVXylYLMZWxeVj/rzxAJufQsQsoKMX9s7XM=;
+	b=GyQLyI1D1TTXamIiZSPpttowrS97LQ+Cvba3kwh3HO3Mr0wmyVIbpLLBPb98H+kjVW5rA+
+	/zd7C2ydW45ZzgH545IUXQ8vSPh6L3WEGSQz1gl3354IzH/cv4sDH5rzcHYAT/4O8ESTlb
+	D32dfiCpfyNxorLxCJCQE9t24/FgOFc=
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.12.0
-Subject: Re: [PATCH v2 01/47] mm: vmscan: move shrinker-related code into a
- separate file
-Content-Language: en-US
-To: Muchun Song <muchun.song@linux.dev>
-References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-2-zhengqi.arch@bytedance.com>
- <97E80C37-8872-4C5A-A027-A0B35F39152A@linux.dev>
- <d2621ad0-8b99-9154-5ff5-509dec2f32a3@bytedance.com>
- <6FE62F56-1B4E-4E2A-BEA9-0DA6907A2FA9@linux.dev>
-In-Reply-To: <6FE62F56-1B4E-4E2A-BEA9-0DA6907A2FA9@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH v2 04/47] kvm: mmu: dynamically allocate the x86-mmu
+ shrinker
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20230724094354.90817-5-zhengqi.arch@bytedance.com>
+Date: Tue, 25 Jul 2023 17:16:24 +0800
 Content-Transfer-Encoding: 7bit
+Message-Id: <AA25C9A6-B2F4-44B4-AF31-B2A2C2A1F867@linux.dev>
+References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-5-zhengqi.arch@bytedance.com>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -82,8 +58,6 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Qi Zheng via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Qi Zheng <zhengqi.arch@bytedance.com>
 Cc: kvm@vger.kernel.org, djwong@kernel.org, Roman Gushchin <roman.gushchin@linux.dev>, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, Vlastimil Babka <vbabka@suse.cz>, linux-raid@vger.kernel.org, Christian Brauner <brauner@kernel.org>, tytso@mit.edu, Greg KH <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, netdev <netdev@vger.kernel.org>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foun
  dation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
@@ -91,51 +65,13 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 
-On 2023/7/25 11:23, Muchun Song wrote:
+> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
+> Use new APIs to dynamically allocate the x86-mmu shrinker.
 > 
->> On Jul 25, 2023, at 11:09, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
->>
->>
->>
->> On 2023/7/25 10:35, Muchun Song wrote:
->>>> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
->>>>
->>>> The mm/vmscan.c file is too large, so separate the shrinker-related
->>>> code from it into a separate file. No functional changes.
->>>>
->>>> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
->>>> ---
->>>> include/linux/shrinker.h |   3 +
->>>> mm/Makefile              |   4 +-
->>>> mm/shrinker.c            | 707 +++++++++++++++++++++++++++++++++++++++
->>>> mm/vmscan.c              | 701 --------------------------------------
->>>> 4 files changed, 712 insertions(+), 703 deletions(-)
->>>> create mode 100644 mm/shrinker.c
->>>>
->>>> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
->>>> index 224293b2dd06..961cb84e51f5 100644
->>>> --- a/include/linux/shrinker.h
->>>> +++ b/include/linux/shrinker.h
->>>> @@ -96,6 +96,9 @@ struct shrinker {
->>>>   */
->>>> #define SHRINKER_NONSLAB (1 << 3)
->>>>
->>>> +unsigned long shrink_slab(gfp_t gfp_mask, int nid, struct mem_cgroup *memcg,
->>>> +    int priority);
->>> A good cleanup, vmscan.c is so huge.
->>> I'd like to introduce a new header in mm/ directory and contains those
->>> declarations of functions (like this and other debug function in
->>> shrinker_debug.c) since they are used internally across mm.
->>
->> How about putting them in the mm/internal.h file?
-> 
-> Either is fine to me.
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
-OK, will do in the next version.
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 
-> 
->>
->>> Thanks.
-> 
-> 
+Thanks.
+
