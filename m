@@ -4,55 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9C57C001DE
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 10:49:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F257CC0015E
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 02:43:33 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nlKvlRJi;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OouSnERn;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9rJF37Jgz3cGc
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 20:49:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R91Yc3CLqz30f5
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Jul 2023 12:43:32 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nlKvlRJi;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OouSnERn;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::23; helo=out-35.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+X-Greylist: delayed 431 seconds by postgrey-1.37 at boromir; Tue, 25 Jul 2023 12:43:22 AEST
+Received: from out-35.mta1.migadu.com (out-35.mta1.migadu.com [IPv6:2001:41d0:203:375::23])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9rJ76z3dz2yFC
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 20:49:43 +1000 (AEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id B8E6561A6A;
-	Wed, 26 Jul 2023 10:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C146FC433C7;
-	Wed, 26 Jul 2023 10:49:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1690368579;
-	bh=2dfZYSb7SXGkMObcrfK4A6YGYYkg6dqmecGQRsejOiM=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=nlKvlRJi9pgRH+6o2ty2NFubBfldMbVG92auYpu5rLnD7BHetmDU9VKYf6sT5m1Lw
-	 9z8nCOyKDUhe+AxVNHBpmS6G2dD8dJzX+rJji+yaVhGIr54DxEXSQ8Naflc5EqkZXm
-	 oMx3oc62nv59pQtbN4bwMHejWgL7/m3Ho4bpcELYand2g/GOfOpkZzzw8UfdxYWu0D
-	 cRTsM9p1Zy07AvT/CyljCNa9RVmM27z0pUsiEqV9U73RULJVyyi4xsIH17O7pCeT7K
-	 2vuopndVreRhDXzjIQrwQNhfO8nP7E7b/KPlwkbJ15nkxHodGzG9a+hw+kyXBC4p1M
-	 3/8b9w+0ZBn0Q==
-Message-ID: <4d4a9a3c59ed2efe5132c01f08a7719c2ea60f04.camel@kernel.org>
-Subject: Re: [PATCH v6 1/7] fs: pass the request_mask to generic_fillattr
-From: Jeff Layton <jlayton@kernel.org>
-To: Joseph Qi <joseph.qi@linux.alibaba.com>
-Date: Wed, 26 Jul 2023 06:49:36 -0400
-In-Reply-To: <1da81657-2ee1-0ef3-c222-66e00d021c24@linux.alibaba.com>
-References: <20230725-mgctime-v6-0-a794c2b7abca@kernel.org>
-	 <20230725-mgctime-v6-1-a794c2b7abca@kernel.org>
-	 <1da81657-2ee1-0ef3-c222-66e00d021c24@linux.alibaba.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R91YQ6q6Fz2ytF
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 12:43:22 +1000 (AEST)
+Content-Type: text/plain;
+	charset=us-ascii
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1690252555;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0+VnVPZa4UeOCG7Yrfiew8gKr6k3ViuPV5Oe7aKEwA0=;
+	b=OouSnERnVUq8t87+qMJi+ElF1O+pkB5HJ/XjlEV4XPIdaL5qKz/r9JLMMUeUfOnb3ZMOdj
+	khOpzTQ2idnb6S4y6b+9cHD3wy9I4UTOUPXGpsseW4bB+Gm8jsDjdu3ImL8BlNp++kk+K8
+	DDellGRauVWKhKhaf7FrGB51gwHD7wU=
 MIME-Version: 1.0
+Subject: Re: [PATCH v2 01/47] mm: vmscan: move shrinker-related code into a
+ separate file
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20230724094354.90817-2-zhengqi.arch@bytedance.com>
+Date: Tue, 25 Jul 2023 10:35:01 +0800
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <97E80C37-8872-4C5A-A027-A0B35F39152A@linux.dev>
+References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-2-zhengqi.arch@bytedance.com>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,161 +59,45 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dave Chinner <david@fromorbit.com>, linux-mm@kvack.org, linux-mtd@lists.infradead.org, linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org, codalist@coda.cs.cmu.edu, cluster-devel@redhat.com, linux-ext4@vger.kernel.org, devel@lists.orangefs.org, Anthony Iliopoulos <ailiop@suse.com>, ecryptfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: kvm@vger.kernel.org, djwong@kernel.org, Roman Gushchin <roman.gushchin@linux.dev>, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, Vlastimil Babka <vbabka@suse.cz>, linux-raid@vger.kernel.org, Christian Brauner <brauner@kernel.org>, tytso@mit.edu, Greg KH <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, netdev <netdev@vger.kernel.org>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foun
+ dation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, 2023-07-26 at 17:40 +0800, Joseph Qi wrote:
->=20
-> On 7/25/23 10:58 PM, Jeff Layton wrote:
-> > generic_fillattr just fills in the entire stat struct indiscriminately
-> > today, copying data from the inode. There is at least one attribute
-> > (STATX_CHANGE_COOKIE) that can have side effects when it is reported,
-> > and we're looking at adding more with the addition of multigrain
-> > timestamps.
-> >=20
-> > Add a request_mask argument to generic_fillattr and have most callers
-> > just pass in the value that is passed to getattr. Have other callers
-> > (e.g. ksmbd) just pass in STATX_BASIC_STATS. Also move the setting of
-> > STATX_CHANGE_COOKIE into generic_fillattr.
-> >=20
-> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > ---
-> >  fs/9p/vfs_inode.c       |  4 ++--
-> >  fs/9p/vfs_inode_dotl.c  |  4 ++--
-> >  fs/afs/inode.c          |  2 +-
-> >  fs/btrfs/inode.c        |  2 +-
-> >  fs/ceph/inode.c         |  2 +-
-> >  fs/coda/inode.c         |  3 ++-
-> >  fs/ecryptfs/inode.c     |  5 +++--
-> >  fs/erofs/inode.c        |  2 +-
-> >  fs/exfat/file.c         |  2 +-
-> >  fs/ext2/inode.c         |  2 +-
-> >  fs/ext4/inode.c         |  2 +-
-> >  fs/f2fs/file.c          |  2 +-
-> >  fs/fat/file.c           |  2 +-
-> >  fs/fuse/dir.c           |  2 +-
-> >  fs/gfs2/inode.c         |  2 +-
-> >  fs/hfsplus/inode.c      |  2 +-
-> >  fs/kernfs/inode.c       |  2 +-
-> >  fs/libfs.c              |  4 ++--
-> >  fs/minix/inode.c        |  2 +-
-> >  fs/nfs/inode.c          |  2 +-
-> >  fs/nfs/namespace.c      |  3 ++-
-> >  fs/ntfs3/file.c         |  2 +-
-> >  fs/ocfs2/file.c         |  2 +-
-> >  fs/orangefs/inode.c     |  2 +-
-> >  fs/proc/base.c          |  4 ++--
-> >  fs/proc/fd.c            |  2 +-
-> >  fs/proc/generic.c       |  2 +-
-> >  fs/proc/proc_net.c      |  2 +-
-> >  fs/proc/proc_sysctl.c   |  2 +-
-> >  fs/proc/root.c          |  3 ++-
-> >  fs/smb/client/inode.c   |  2 +-
-> >  fs/smb/server/smb2pdu.c | 22 +++++++++++-----------
-> >  fs/smb/server/vfs.c     |  3 ++-
-> >  fs/stat.c               | 18 ++++++++++--------
-> >  fs/sysv/itree.c         |  3 ++-
-> >  fs/ubifs/dir.c          |  2 +-
-> >  fs/udf/symlink.c        |  2 +-
-> >  fs/vboxsf/utils.c       |  2 +-
-> >  include/linux/fs.h      |  2 +-
-> >  mm/shmem.c              |  2 +-
-> >  40 files changed, 70 insertions(+), 62 deletions(-)
-> >=20
->=20
-> ...
->=20
-> > diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-> > index 1b337ebce4df..8184499ae7a5 100644
-> > --- a/fs/ocfs2/file.c
-> > +++ b/fs/ocfs2/file.c
-> > @@ -1319,7 +1319,7 @@ int ocfs2_getattr(struct mnt_idmap *idmap, const =
-struct path *path,
-> >  		goto bail;
-> >  	}
-> > =20
-> > -	generic_fillattr(&nop_mnt_idmap, inode, stat);
-> > +	generic_fillattr(&nop_mnt_idmap, request_mask, inode, stat);
->=20
-> For ocfs2 part, looks fine to me.
->=20
-> Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
->=20
-> >  	/*
-> >  	 * If there is inline data in the inode, the inode will normally not
-> >  	 * have data blocks allocated (it may have an external xattr block).
->=20
-> ...
->=20
-> > diff --git a/fs/stat.c b/fs/stat.c
-> > index 8c2b30af19f5..062f311b5386 100644
-> > --- a/fs/stat.c
-> > +++ b/fs/stat.c
-> > @@ -29,6 +29,7 @@
-> >  /**
-> >   * generic_fillattr - Fill in the basic attributes from the inode stru=
-ct
-> >   * @idmap:	idmap of the mount the inode was found from
-> > + * @req_mask	statx request_mask
->=20
-> s/req_mask/request_mask
->=20
 
-Thanks. Fixed in my tree.
 
-> >   * @inode:	Inode to use as the source
-> >   * @stat:	Where to fill in the attributes
-> >   *
-> > @@ -42,8 +43,8 @@
-> >   * uid and gid filds. On non-idmapped mounts or if permission checking=
- is to be
-> >   * performed on the raw inode simply passs @nop_mnt_idmap.
-> >   */
-> > -void generic_fillattr(struct mnt_idmap *idmap, struct inode *inode,
-> > -		      struct kstat *stat)
-> > +void generic_fillattr(struct mnt_idmap *idmap, u32 request_mask,
-> > +		      struct inode *inode, struct kstat *stat)
-> >  {
-> >  	vfsuid_t vfsuid =3D i_uid_into_vfsuid(idmap, inode);
-> >  	vfsgid_t vfsgid =3D i_gid_into_vfsgid(idmap, inode);
-> > @@ -61,6 +62,12 @@ void generic_fillattr(struct mnt_idmap *idmap, struc=
-t inode *inode,
-> >  	stat->ctime =3D inode_get_ctime(inode);
-> >  	stat->blksize =3D i_blocksize(inode);
-> >  	stat->blocks =3D inode->i_blocks;
-> > +
-> > +	if ((request_mask & STATX_CHANGE_COOKIE) && IS_I_VERSION(inode)) {
-> > +		stat->result_mask |=3D STATX_CHANGE_COOKIE;
-> > +		stat->change_cookie =3D inode_query_iversion(inode);
-> > +	}
-> > +
-> >  }
-> >  EXPORT_SYMBOL(generic_fillattr);
-> > =20
-> > @@ -123,17 +130,12 @@ int vfs_getattr_nosec(const struct path *path, st=
-ruct kstat *stat,
-> >  	stat->attributes_mask |=3D (STATX_ATTR_AUTOMOUNT |
-> >  				  STATX_ATTR_DAX);
-> > =20
-> > -	if ((request_mask & STATX_CHANGE_COOKIE) && IS_I_VERSION(inode)) {
-> > -		stat->result_mask |=3D STATX_CHANGE_COOKIE;
-> > -		stat->change_cookie =3D inode_query_iversion(inode);
-> > -	}
-> > -
-> >  	idmap =3D mnt_idmap(path->mnt);
-> >  	if (inode->i_op->getattr)
-> >  		return inode->i_op->getattr(idmap, path, stat,
-> >  					    request_mask, query_flags);
-> > =20
-> > -	generic_fillattr(idmap, inode, stat);
-> > +	generic_fillattr(idmap, request_mask, inode, stat);
-> >  	return 0;
-> >  }
-> >  EXPORT_SYMBOL(vfs_getattr_nosec);
+> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> =
+wrote:
 >=20
-> ...
+> The mm/vmscan.c file is too large, so separate the shrinker-related
+> code from it into a separate file. No functional changes.
 >=20
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+> ---
+> include/linux/shrinker.h |   3 +
+> mm/Makefile              |   4 +-
+> mm/shrinker.c            | 707 +++++++++++++++++++++++++++++++++++++++
+> mm/vmscan.c              | 701 --------------------------------------
+> 4 files changed, 712 insertions(+), 703 deletions(-)
+> create mode 100644 mm/shrinker.c
+>=20
+> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
+> index 224293b2dd06..961cb84e51f5 100644
+> --- a/include/linux/shrinker.h
+> +++ b/include/linux/shrinker.h
+> @@ -96,6 +96,9 @@ struct shrinker {
+>  */
+> #define SHRINKER_NONSLAB (1 << 3)
+>=20
+> +unsigned long shrink_slab(gfp_t gfp_mask, int nid, struct mem_cgroup =
+*memcg,
+> +			   int priority);
 
---=20
-Jeff Layton <jlayton@kernel.org>
+A good cleanup, vmscan.c is so huge.
+
+I'd like to introduce a new header in mm/ directory and contains those
+declarations of functions (like this and other debug function in
+shrinker_debug.c) since they are used internally across mm.
+
+Thanks.
+
