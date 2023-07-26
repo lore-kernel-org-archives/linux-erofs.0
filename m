@@ -4,47 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C92C1C001E0
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 06:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 520C4C001DE
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 06:58:51 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=JVhERSJe;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h66bJdZf;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9krz2cjBz3c1Q
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 16:44:19 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9l9j4b8bz3cGw
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 16:58:49 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=JVhERSJe;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h66bJdZf;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=91.218.175.21; helo=out-21.mta0.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
-Received: from out-21.mta0.migadu.com (out-21.mta0.migadu.com [91.218.175.21])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::2f; helo=out-47.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-47.mta1.migadu.com (out-47.mta1.migadu.com [IPv6:2001:41d0:203:375::2f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9krn0Gwrz2ygw
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 16:44:06 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9l995bzDz3cHH
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 16:58:20 +1000 (AEST)
 Content-Type: text/plain;
 	charset=us-ascii
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1690353840;
+	t=1690354693;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YDI8U6PdofMAM+26dtva4DhYN8CfrTBJVsyyEyUmUJk=;
-	b=JVhERSJePvENAHBAgsa9OJJHaRlTw1nxE/2vqXO6bAT1NEIguIR4Z7zl+KZu3QxiQoEeNj
-	itt0w/sFcR1t3TE/kHw4vv0c4tice4bs18/XxKOP2DGo15RFxhKVe/K3nETF4Nc/e2R2RE
-	tGZT/88BILp+nV9lPF3v22OFrdOyZPs=
+	bh=vJECzEbg6AvUr2F/gs+Gdm9ozTbMv8VDjSGrHUhWzDY=;
+	b=h66bJdZfshf2g1RLUpKqwxN7lHNgmJn36kolmPZUX2Aqc09HU6VbZ+x+Z0DjP9YGQTMTaE
+	Bmqs9Mr+MJHT0UpOpBW+6O4BcvF6xaU81Xxo7qywI9w5gMUx1fYGe1bTsluzGucfJTYdAa
+	elPkOC38C2T6cXpSojcQr4ueQ4x5eAU=
 MIME-Version: 1.0
-Subject: Re: [PATCH v2 10/47] gfs2: dynamically allocate the gfs2-glock
- shrinker
+Subject: Re: [PATCH v2 13/47] nfs: dynamically allocate the nfs-acl shrinker
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <20230724094354.90817-11-zhengqi.arch@bytedance.com>
-Date: Wed, 26 Jul 2023 14:43:32 +0800
+In-Reply-To: <20230724094354.90817-14-zhengqi.arch@bytedance.com>
+Date: Wed, 26 Jul 2023 14:57:20 +0800
 Content-Transfer-Encoding: 7bit
-Message-Id: <8D4D19B4-C362-42E0-899B-8D802AB6A002@linux.dev>
+Message-Id: <344A2B0E-8A25-494A-A8E1-5C75441B965D@linux.dev>
 References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-11-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-14-zhengqi.arch@bytedance.com>
 To: Qi Zheng <zhengqi.arch@bytedance.com>
 X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -67,11 +66,10 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 > On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
-> Use new APIs to dynamically allocate the gfs2-glock shrinker.
+> Use new APIs to dynamically allocate the nfs-acl shrinker.
 > 
 > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
 Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 
-Thanks.
 
