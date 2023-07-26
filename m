@@ -4,46 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 520C4C001DE
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 06:58:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6948C0015E
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 09:32:07 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h66bJdZf;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=BJaw31GH;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9l9j4b8bz3cGw
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 16:58:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9pZZ1B56z3cD5
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 19:32:06 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h66bJdZf;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=BJaw31GH;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::2f; helo=out-47.mta1.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
-Received: from out-47.mta1.migadu.com (out-47.mta1.migadu.com [IPv6:2001:41d0:203:375::2f])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:1004:224b::f; helo=out-15.mta0.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-15.mta0.migadu.com (out-15.mta0.migadu.com [IPv6:2001:41d0:1004:224b::f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9l995bzDz3cHH
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 16:58:20 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9pZM5yHHz2yV0
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 19:31:53 +1000 (AEST)
 Content-Type: text/plain;
 	charset=us-ascii
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1690354693;
+	t=1690363901;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vJECzEbg6AvUr2F/gs+Gdm9ozTbMv8VDjSGrHUhWzDY=;
-	b=h66bJdZfshf2g1RLUpKqwxN7lHNgmJn36kolmPZUX2Aqc09HU6VbZ+x+Z0DjP9YGQTMTaE
-	Bmqs9Mr+MJHT0UpOpBW+6O4BcvF6xaU81Xxo7qywI9w5gMUx1fYGe1bTsluzGucfJTYdAa
-	elPkOC38C2T6cXpSojcQr4ueQ4x5eAU=
+	bh=C9JATXkXZaN7f0jrXVOoaEMLIPnzZ4EB9BwhBVu88/k=;
+	b=BJaw31GHkPVMB5J3bFLk7nCWUXBih3Evut0vs64rGABml16vhPPP+VTCvSpnvcgPtpNdnt
+	lUE24RniQLpCmG5kFgpHNW+1PDmB/qhB9l9vhPT5YKqpl2p08nrVkD19PS1VqQI3/KFSOu
+	LvMc1Yox7zbU5EqPQ+5oAKbHUZVLA0E=
 MIME-Version: 1.0
-Subject: Re: [PATCH v2 13/47] nfs: dynamically allocate the nfs-acl shrinker
+Subject: Re: [PATCH v2 43/47] mm: shrinker: add a secondary array for
+ shrinker_info::{map, nr_deferred}
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <20230724094354.90817-14-zhengqi.arch@bytedance.com>
-Date: Wed, 26 Jul 2023 14:57:20 +0800
-Content-Transfer-Encoding: 7bit
-Message-Id: <344A2B0E-8A25-494A-A8E1-5C75441B965D@linux.dev>
+In-Reply-To: <20230724094354.90817-44-zhengqi.arch@bytedance.com>
+Date: Wed, 26 Jul 2023 17:30:53 +0800
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <B421DD89-09B5-4488-BEC1-D6F88C6DE75A@linux.dev>
 References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-14-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-44-zhengqi.arch@bytedance.com>
 To: Qi Zheng <zhengqi.arch@bytedance.com>
 X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -64,10 +65,58 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 
-> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
-> 
-> Use new APIs to dynamically allocate the nfs-acl shrinker.
-> 
+> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> =
+wrote:
+>=20
+> Currently, we maintain two linear arrays per node per memcg, which are
+> shrinker_info::map and shrinker_info::nr_deferred. And we need to =
+resize
+> them when the shrinker_nr_max is exceeded, that is, allocate a new =
+array,
+> and then copy the old array to the new array, and finally free the old
+> array by RCU.
+>=20
+> For shrinker_info::map, we do set_bit() under the RCU lock, so we may =
+set
+> the value into the old map which is about to be freed. This may cause =
+the
+> value set to be lost. The current solution is not to copy the old map =
+when
+> resizing, but to set all the corresponding bits in the new map to 1. =
+This
+> solves the data loss problem, but bring the overhead of more pointless
+> loops while doing memcg slab shrink.
+>=20
+> For shrinker_info::nr_deferred, we will only modify it under the read =
+lock
+> of shrinker_rwsem, so it will not run concurrently with the resizing. =
+But
+> after we make memcg slab shrink lockless, there will be the same data =
+loss
+> problem as shrinker_info::map, and we can't work around it like the =
+map.
+>=20
+> For such resizable arrays, the most straightforward idea is to change =
+it
+> to xarray, like we did for list_lru [1]. We need to do xa_store() in =
+the
+> list_lru_add()-->set_shrinker_bit(), but this will cause memory
+> allocation, and the list_lru_add() doesn't accept failure. A possible
+> solution is to pre-allocate, but the location of pre-allocation is not
+> well determined.
+>=20
+> Therefore, this commit chooses to introduce a secondary array for
+> shrinker_info::{map, nr_deferred}, so that we only need to copy this
+> secondary array every time the size is resized. Then even if we get =
+the
+> old secondary array under the RCU lock, the found map and nr_deferred =
+are
+> also true, so no data is lost.
+>=20
+> [1]. =
+https://lore.kernel.org/all/20220228122126.37293-13-songmuchun@bytedance.c=
+om/
+>=20
 > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
 Reviewed-by: Muchun Song <songmuchun@bytedance.com>
