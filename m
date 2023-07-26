@@ -4,65 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BAB7CEB64DD
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 01:39:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690335593;
-	bh=g4+spZWgq0eS9irqfihzysgfAABYfYXXmt6SNBBeIWA=;
-	h=Date:To:Subject:In-Reply-To:References:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=fn8IRdYT/GQFANcOZoa1QQTZVbZsQL0jc3f7zOrdA5rssKhcZZDRpryaetrcz9v/h
-	 ZemGUv4GiJ+lUwQcDr5fW7bP6LcD93U9h2POW8dHDQvE2GQYeHKMgHAC7v44orr01e
-	 KLBJJfrvpQqASCH1lJKUDd76heKpYIauuz6Fm4t6PUg66rCM9e/2emLt74t8+zsoh/
-	 hB0CVCnNoMCzX05uc9NvxDbFaMDL/UmDeb2tIeEIEjazRn2DC57mrfDJMPSjKfC0ZG
-	 s1GtfEOgfqsy0BlCZTePZwcXFmZOOADBVVJUigRoOKGbyVwP6HVBAOyFrpWcaAQyCQ
-	 0YOX5IgelWh2w==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9c5j6PVMz30gJ
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 11:39:53 +1000 (AEST)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C92C1C001E0
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 06:44:20 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20221208 header.b=MZxYT2Md;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=JVhERSJe;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2607:f8b0:4864:20::1132; helo=mail-yw1-x1132.google.com; envelope-from=hughd@google.com; receiver=lists.ozlabs.org)
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9krz2cjBz3c1Q
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 16:44:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=JVhERSJe;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=91.218.175.21; helo=out-21.mta0.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-21.mta0.migadu.com (out-21.mta0.migadu.com [91.218.175.21])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9c5Z4fWtz2yTv
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 11:39:45 +1000 (AEST)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-583b3aa4f41so47257877b3.2
-        for <linux-erofs@lists.ozlabs.org>; Tue, 25 Jul 2023 18:39:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690335578; x=1690940378;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g4+spZWgq0eS9irqfihzysgfAABYfYXXmt6SNBBeIWA=;
-        b=b0YaCBmLdWhDCDBTzZ+qNs84s8sUqLXIwkAxDWro6OhdBb8YZJBkZkNmcfezOogFeV
-         710VMZqmLlkzdUA8Uuk7JUfMg6eAEdPvoVeZjIKKd0RaqtTVGZXVjubZkA0F2AHs6/bd
-         sZWWJ6boQGJth2i2Ua65u1sn33hwUUBQI13NuO6WmkpgxeyRI0y1vrcPxPP3IePoyLht
-         Mtm/1k53tsqsgiiCh5dzE1huVq2uVTuSJQH6Z5kkQj2KiVG8z2D/6VmKTiXr1wNICa5b
-         9GCNOOD2Ug2mTUpvlJcZiCu+2EQACujYS1WFaTrZaA/2CyrJQ94enGyvsra+TueHLIbQ
-         5a0w==
-X-Gm-Message-State: ABy/qLbQl/yZSg4TrCYvcg/vD+7VmaqPRAxNUYyf3U4/SqscGfDnHu8B
-	md7mrBxkcUI5mSa/eOMNQN625A==
-X-Google-Smtp-Source: APBJJlHxqCs0/k9opPHZr1oFjC/IjLn2NWFjtEyuaFY5bDdVyDOg3sTAz2vkUnxY9z5liUX1UEynKA==
-X-Received: by 2002:a81:46c3:0:b0:56d:2189:d87a with SMTP id t186-20020a8146c3000000b0056d2189d87amr821699ywa.15.1690335578030;
-        Tue, 25 Jul 2023 18:39:38 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id s10-20020a5b044a000000b00c654cc439fesm3165326ybp.52.2023.07.25.18.39.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jul 2023 18:39:37 -0700 (PDT)
-Date: Tue, 25 Jul 2023 18:39:25 -0700 (PDT)
-X-X-Sender: hugh@ripple.attlocal.net
-To: Jeff Layton <jlayton@kernel.org>
-Subject: Re: [PATCH v6 3/7] tmpfs: bump the mtime/ctime/iversion when page
- becomes writeable
-In-Reply-To: <20230725-mgctime-v6-3-a794c2b7abca@kernel.org>
-Message-ID: <42c5bbe-a7a4-3546-e898-3f33bd71b062@google.com>
-References: <20230725-mgctime-v6-0-a794c2b7abca@kernel.org> <20230725-mgctime-v6-3-a794c2b7abca@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9krn0Gwrz2ygw
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 16:44:06 +1000 (AEST)
+Content-Type: text/plain;
+	charset=us-ascii
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1690353840;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YDI8U6PdofMAM+26dtva4DhYN8CfrTBJVsyyEyUmUJk=;
+	b=JVhERSJePvENAHBAgsa9OJJHaRlTw1nxE/2vqXO6bAT1NEIguIR4Z7zl+KZu3QxiQoEeNj
+	itt0w/sFcR1t3TE/kHw4vv0c4tice4bs18/XxKOP2DGo15RFxhKVe/K3nETF4Nc/e2R2RE
+	tGZT/88BILp+nV9lPF3v22OFrdOyZPs=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v2 10/47] gfs2: dynamically allocate the gfs2-glock
+ shrinker
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20230724094354.90817-11-zhengqi.arch@bytedance.com>
+Date: Wed, 26 Jul 2023 14:43:32 +0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <8D4D19B4-C362-42E0-899B-8D802AB6A002@linux.dev>
+References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-11-zhengqi.arch@bytedance.com>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,82 +58,20 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Hugh Dickins via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Hugh Dickins <hughd@google.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, linux-xfs@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, Dave Chinner <david@fromorbit.com>, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Tyler Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org,
-  linux-f2fs-devel@lists.sourceforge.net, Ilya Dryomov <idryomov@gmail.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Shyam Prasad N <sprasad@microsoft.com>, ecryptfs@vger.kernel.org, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Anthony Iliopoulos <ailiop@suse.com>, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-mtd@lists.infradead.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, Christian Brauner <brauner@kernel.org>, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.dev, ntfs3@lists.linux.de
- v, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>, Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
+Cc: kvm@vger.kernel.org, djwong@kernel.org, Roman Gushchin <roman.gushchin@linux.dev>, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, Vlastimil Babka <vbabka@suse.cz>, linux-raid@vger.kernel.org, Christian Brauner <brauner@kernel.org>, tytso@mit.edu, Greg KH <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, netdev <netdev@vger.kernel.org>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foun
+ dation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, 25 Jul 2023, Jeff Layton wrote:
 
-> Most filesystems that use the pagecache will update the mtime, ctime,
-> and change attribute when a page becomes writeable. Add a page_mkwrite
-> operation for tmpfs and just use it to bump the mtime, ctime and change
-> attribute.
+
+> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
-> This fixes xfstest generic/080 on tmpfs.
-
-Huh.  I didn't notice when this one crept into the multigrain series.
-
-I'm inclined to NAK this patch: at the very least, it does not belong
-in the series, but should be discussed separately.
-
-Yes, tmpfs does not and never has used page_mkwrite, and gains some
-performance advantage from that.  Nobody has ever asked for this
-change before, or not that I recall.
-
-Please drop it from the series: and if you feel strongly, or know
-strong reasons why tmpfs suddenly needs to use page_mkwrite now,
-please argue them separately.  To pass generic/080 is not enough.
-
-Thanks,
-Hugh
-
+> Use new APIs to dynamically allocate the gfs2-glock shrinker.
 > 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  mm/shmem.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/mm/shmem.c b/mm/shmem.c
-> index b154af49d2df..654d9a585820 100644
-> --- a/mm/shmem.c
-> +++ b/mm/shmem.c
-> @@ -2169,6 +2169,16 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
->  	return ret;
->  }
->  
-> +static vm_fault_t shmem_page_mkwrite(struct vm_fault *vmf)
-> +{
-> +	struct vm_area_struct *vma = vmf->vma;
-> +	struct inode *inode = file_inode(vma->vm_file);
-> +
-> +	file_update_time(vma->vm_file);
-> +	inode_inc_iversion(inode);
-> +	return 0;
-> +}
-> +
->  unsigned long shmem_get_unmapped_area(struct file *file,
->  				      unsigned long uaddr, unsigned long len,
->  				      unsigned long pgoff, unsigned long flags)
-> @@ -4210,6 +4220,7 @@ static const struct super_operations shmem_ops = {
->  
->  static const struct vm_operations_struct shmem_vm_ops = {
->  	.fault		= shmem_fault,
-> +	.page_mkwrite	= shmem_page_mkwrite,
->  	.map_pages	= filemap_map_pages,
->  #ifdef CONFIG_NUMA
->  	.set_policy     = shmem_set_policy,
-> @@ -4219,6 +4230,7 @@ static const struct vm_operations_struct shmem_vm_ops = {
->  
->  static const struct vm_operations_struct shmem_anon_vm_ops = {
->  	.fault		= shmem_fault,
-> +	.page_mkwrite	= shmem_page_mkwrite,
->  	.map_pages	= filemap_map_pages,
->  #ifdef CONFIG_NUMA
->  	.set_policy     = shmem_set_policy,
-> 
-> -- 
-> 2.41.0
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+
+Thanks.
+
