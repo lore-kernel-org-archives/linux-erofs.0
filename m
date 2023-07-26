@@ -4,71 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09F0AC001DC
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 07:26:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690356376;
-	bh=+zeJUC9bLKU1rvuVX6lYw88hUmzqKAeHPtzffozeycY=;
-	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=Ca+N+oJcan3+Vc6Kf/uIsRvYURh6rp3gAtpmYAeei44R2PCEQKG6jDTdIIs7jhERL
-	 NHczgVPsJ2MTRCZjnC27JgcP0EZcbZBVXGE9yaa0gcw6NIwXAG7OUP3XOfZMyPF+qt
-	 d1/vV70Qlf5Z669m2ZDj4InXgi5QyffBS3VxxByHR/lRSva7ogo0iwRZ5RHGpm3IlT
-	 Fmxo1iTEcAprc1U3rAyvGuY6ldH9Eymuatz6FhT286CIq7ahqJuweZwPMK4xy4xVy7
-	 P2JNH0niIYkn5o/wqX6fnGbg9xtrCw4Ds8R2NzSNPzclXIFE4X+n48r/VXPqcsCRSq
-	 rXwuEexOThSZw==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4R9lnN4t6Pz3c1Q
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 17:26:16 +1000 (AEST)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D006C00528
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 07:27:00 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=tq09HWgU;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=UA4cvi/G;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=fromorbit.com (client-ip=2607:f8b0:4864:20::42a; helo=mail-pf1-x42a.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4R9lpC1Zmlz3c1Q
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Jul 2023 17:26:59 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=UA4cvi/G;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:1004:224b::15; helo=out-21.mta0.migadu.com; envelope-from=muchun.song@linux.dev; receiver=lists.ozlabs.org)
+Received: from out-21.mta0.migadu.com (out-21.mta0.migadu.com [IPv6:2001:41d0:1004:224b::15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9lnH16CZz2yVF
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 17:26:10 +1000 (AEST)
-Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-668704a5b5bso5929171b3a.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 00:26:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690356367; x=1690961167;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+zeJUC9bLKU1rvuVX6lYw88hUmzqKAeHPtzffozeycY=;
-        b=eHClbMyE8MKUkFOlj4xQW7bELwaORnm2PJ0Z73tF/08ozgyr0cb2RDvnBxrEDQU7XJ
-         rv6v5SAJ56kg6meFIpR5xY+sriH1o9Bj+Q7VlWoxs8cUtm5H4jB5pGTbuDDiteAgWISI
-         M1EHdABtOsgB+kNlCMFfB8Iw3vFfCXMNah4wXzSpB4AregF5GVTDWejD4MWo2skoOKha
-         iQSxIFuv8AA3cC3f3OTU/c2rgpNX61N7CysRBpft0kMevYjeO7HhplexRxBMeoCknhBW
-         4kyB0T1pHNE3ratIZ+dtxBHwN7M6czvKHo1/DA1NdmX7OLFCCYWMTeEmYNzfCYcEg+bw
-         d0Aw==
-X-Gm-Message-State: ABy/qLYOwnuNp+pkrr3aMun6c1pfTO3cSa8b0YNZ2Ki7xdkWUTUH/FKU
-	lsPpM27lqTLz4lkW05YUcGoSpA==
-X-Google-Smtp-Source: APBJJlH5b0OufxURLtAQUAf05ozn4hmRBD/Qn/v7OHyNHGefhP7kmXIN/eqXKV4z4NaYW1ZZNRUFVA==
-X-Received: by 2002:a05:6a00:a0d:b0:67a:a906:9edb with SMTP id p13-20020a056a000a0d00b0067aa9069edbmr1921084pfh.30.1690356367307;
-        Wed, 26 Jul 2023 00:26:07 -0700 (PDT)
-Received: from dread.disaster.area (pa49-186-119-116.pa.vic.optusnet.com.au. [49.186.119.116])
-        by smtp.gmail.com with ESMTPSA id r5-20020a62e405000000b00666e649ca46sm10751809pfh.101.2023.07.26.00.26.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jul 2023 00:26:06 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1qOYuK-00AfFC-0I;
-	Wed, 26 Jul 2023 17:26:04 +1000
-Date: Wed, 26 Jul 2023 17:26:04 +1000
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: Re: [PATCH v2 03/47] mm: shrinker: add infrastructure for
- dynamically allocating shrinker
-Message-ID: <ZMDKjBCZH6+OP5gW@dread.disaster.area>
-References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-4-zhengqi.arch@bytedance.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4R9lp40Np5z2yVF
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Jul 2023 17:26:52 +1000 (AEST)
+Content-Type: text/plain;
+	charset=us-ascii
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1690356405;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x/YPwJU0rwLy+AuHnuxjdCUhH1EzE6WkopZ0kgAJ1Qo=;
+	b=UA4cvi/GGMdckJQ6g4p3+u38P404cT3MaC3q014wQwvll1a4nrZdfsP6/l2xBOvqxQBZnG
+	/GB100BFGEJn37pYrEcJWPkcPwCehM0mCMv1erArHez8P+wU/wx/xg2YNYRHWyz7GvCoJN
+	LWY2Z8xIEtpCzuJK57wk7wbFhJGlyYE=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230724094354.90817-4-zhengqi.arch@bytedance.com>
+Subject: Re: [PATCH v2 26/47] dm zoned: dynamically allocate the dm-zoned-meta
+ shrinker
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20230724094354.90817-27-zhengqi.arch@bytedance.com>
+Date: Wed, 26 Jul 2023 15:25:47 +0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <BAEA7759-FA46-40A3-B37B-AE657905A25F@linux.dev>
+References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
+ <20230724094354.90817-27-zhengqi.arch@bytedance.com>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,88 +58,22 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Dave Chinner via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Dave Chinner <david@fromorbit.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org, muchun.song@linux.dev, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+Cc: kvm@vger.kernel.org, djwong@kernel.org, Roman Gushchin <roman.gushchin@linux.dev>, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, yujie.liu@intel.com, Vlastimil Babka <vbabka@suse.cz>, linux-raid@vger.kernel.org, Christian Brauner <brauner@kernel.org>, tytso@mit.edu, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@
+ ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Jul 24, 2023 at 05:43:10PM +0800, Qi Zheng wrote:
-> Currently, the shrinker instances can be divided into the following three
-> types:
-> 
-> a) global shrinker instance statically defined in the kernel, such as
->    workingset_shadow_shrinker.
-> 
-> b) global shrinker instance statically defined in the kernel modules, such
->    as mmu_shrinker in x86.
-> 
-> c) shrinker instance embedded in other structures.
-> 
-> For case a, the memory of shrinker instance is never freed. For case b,
-> the memory of shrinker instance will be freed after synchronize_rcu() when
-> the module is unloaded. For case c, the memory of shrinker instance will
-> be freed along with the structure it is embedded in.
-> 
-> In preparation for implementing lockless slab shrink, we need to
-> dynamically allocate those shrinker instances in case c, then the memory
-> can be dynamically freed alone by calling kfree_rcu().
-> 
-> So this commit adds the following new APIs for dynamically allocating
-> shrinker, and add a private_data field to struct shrinker to record and
-> get the original embedded structure.
-> 
-> 1. shrinker_alloc()
-> 
-> Used to allocate shrinker instance itself and related memory, it will
-> return a pointer to the shrinker instance on success and NULL on failure.
-> 
-> 2. shrinker_free_non_registered()
-> 
-> Used to destroy the non-registered shrinker instance.
 
-This is a bit nasty
 
+> On Jul 24, 2023, at 17:43, Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
-> 3. shrinker_register()
+> In preparation for implementing lockless slab shrink, use new APIs to
+> dynamically allocate the dm-zoned-meta shrinker, so that it can be freed
+> asynchronously using kfree_rcu(). Then it doesn't need to wait for RCU
+> read-side critical section when releasing the struct dmz_metadata.
 > 
-> Used to register the shrinker instance, which is same as the current
-> register_shrinker_prepared().
-> 
-> 4. shrinker_unregister()
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
-rename this "shrinker_free()" and key the two different freeing
-cases on the SHRINKER_REGISTERED bit rather than mostly duplicating
-the two.
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 
-void shrinker_free(struct shrinker *shrinker)
-{
-	struct dentry *debugfs_entry = NULL;
-	int debugfs_id;
 
-	if (!shrinker)
-		return;
-
-	down_write(&shrinker_rwsem);
-	if (shrinker->flags & SHRINKER_REGISTERED) {
-		list_del(&shrinker->list);
-		debugfs_entry = shrinker_debugfs_detach(shrinker, &debugfs_id);
-	} else if (IS_ENABLED(CONFIG_SHRINKER_DEBUG)) {
-		kfree_const(shrinker->name);
-	}
-
-	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
-		unregister_memcg_shrinker(shrinker);
-	up_write(&shrinker_rwsem);
-
-	if (debugfs_entry)
-		shrinker_debugfs_remove(debugfs_entry, debugfs_id);
-
-	kfree(shrinker->nr_deferred);
-	kfree(shrinker);
-}
-EXPORT_SYMBOL_GPL(shrinker_free);
-
--- 
-Dave Chinner
-david@fromorbit.com
