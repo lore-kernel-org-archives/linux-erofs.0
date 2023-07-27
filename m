@@ -4,32 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25CDCC04E69
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 08:01:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A5B0C00528
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 08:06:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RBNWQ5GyDz3cFt
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 18:01:22 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sjtu.edu.cn (client-ip=202.120.2.232; helo=smtp232.sjtu.edu.cn; envelope-from=lyy0627@sjtu.edu.cn; receiver=lists.ozlabs.org)
-Received: from smtp232.sjtu.edu.cn (smtp232.sjtu.edu.cn [202.120.2.232])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RBNdQ0Bkwz3dRh
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 18:06:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RBNWJ45BWz3bnP
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 18:01:14 +1000 (AEST)
-Received: from proxy188.sjtu.edu.cn (smtp188.sjtu.edu.cn [202.120.2.188])
-	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 8E19A10081FA9;
-	Thu, 27 Jul 2023 16:01:05 +0800 (CST)
-Received: from lee-WorkStation.ipads-lab.se.sjtu.edu.cn (unknown [202.120.40.82])
-	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id AD3B137C803;
-	Thu, 27 Jul 2023 16:01:02 +0800 (CST)
-From: Li Yiyan <lyy0627@sjtu.edu.cn>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v4] erofs-utils: add support for fuse 2/3 lowlevel API
-Date: Thu, 27 Jul 2023 16:00:55 +0800
-Message-Id: <20230727080055.292556-1-lyy0627@sjtu.edu.cn>
-X-Mailer: git-send-email 2.34.1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RBNbK3z8kz3cVY
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 18:04:44 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VoJl2ZD_1690445076;
+Received: from 30.97.49.7(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VoJl2ZD_1690445076)
+          by smtp.aliyun-inc.com;
+          Thu, 27 Jul 2023 16:04:37 +0800
+Message-ID: <eb4523d0-c4b1-00e6-cca6-81d117b713da@linux.alibaba.com>
+Date: Thu, 27 Jul 2023 16:04:36 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.13.0
+Subject: Re: [PATCH 9/9] erofs-utils: introduce union mode
+To: Jingbo Xu <jefflexu@linux.alibaba.com>, chao@kernel.org,
+ huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
+References: <20230727045712.45226-1-jefflexu@linux.alibaba.com>
+ <20230727045712.45226-9-jefflexu@linux.alibaba.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20230727045712.45226-9-jefflexu@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -41,827 +45,681 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Li Yiyan <lyy0627@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add support for fuse2/3 lowlevel API in erofsfuse, pass the make check
-test in experimental-test branch. Conduct performance evaluation,
-providing higher performance compared to highlevel API. Compatible with
-fuse 2(>=2.6) and 3(>=3.0)
 
-Signed-off-by: Li Yiyan <lyy0627@sjtu.edu.cn>
----
-Changes since v3:
-- remove ll identifier
-- optimize naming
-- remove redundant log
-- add fixme label for confusing xattr_buf
 
-Changes since v2:
-- merge lowlevel.c into main.c
-- fix typo in autoconf
-- optimize naming
-- remove redundant code
-- avoid global sbi dependencies
+subject: support rebuilding EROFS image from multiple images
 
-Changes since v1:
-- remove highlevel fallback path
-- remove redundant code
-- add static for erofsfuse_ll_func
----
- configure.ac     |  23 +-
- fuse/Makefile.am |   4 +-
- fuse/main.c      | 605 +++++++++++++++++++++++++++++++++++++----------
- 3 files changed, 505 insertions(+), 127 deletions(-)
+On 2023/7/27 12:57, Jingbo Xu wrote:
+> Introduce a new "union "mode for mkfs.erofs.
 
-diff --git a/configure.ac b/configure.ac
-index a8cecd0..6d08d96 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -336,15 +336,26 @@ AS_IF([test "x$with_selinux" != "xno"], [
- 
- # Configure fuse
- AS_IF([test "x$enable_fuse" != "xno"], [
--  PKG_CHECK_MODULES([libfuse], [fuse >= 2.6])
-   # Paranoia: don't trust the result reported by pkgconfig before trying out
-   saved_LIBS="$LIBS"
-   saved_CPPFLAGS=${CPPFLAGS}
--  CPPFLAGS="${libfuse_CFLAGS} ${CPPFLAGS}"
--  LIBS="${libfuse_LIBS} $LIBS"
--  AC_CHECK_LIB(fuse, fuse_main, [
--    have_fuse="yes" ], [
--    AC_MSG_ERROR([libfuse (>= 2.6) doesn't work properly])])
-+  PKG_CHECK_MODULES([libfuse3], [fuse3 >= 3.0], [
-+    AC_DEFINE([FUSE_USE_VERSION], [30], [used FUSE API version])
-+    CPPFLAGS="${libfuse3_CFLAGS} ${CPPFLAGS}"
-+    LIBS="${libfuse3_LIBS} $LIBS"
-+    AC_CHECK_LIB(fuse3, fuse_session_new, [], [
-+    AC_MSG_ERROR([libfuse3 (>= 3.0) doesn't work properly for lowlevel api])])
-+    have_fuse="yes"
-+  ], [
-+    PKG_CHECK_MODULES([libfuse2], [fuse >= 2.6], [
-+      AC_DEFINE([FUSE_USE_VERSION], [26], [used FUSE API version])
-+      CPPFLAGS="${libfuse2_CFLAGS} ${CPPFLAGS}"
-+      LIBS="${libfuse2_LIBS} $LIBS"
-+      AC_CHECK_LIB(fuse, fuse_lowlevel_new, [], [
-+        AC_MSG_ERROR([libfuse (>= 2.6) doesn't work properly for lowlevel api])])
-+      have_fuse="yes"
-+    ], [have_fuse="no"])
-+  ])
-   LIBS="${saved_LIBS}"
-   CPPFLAGS="${saved_CPPFLAGS}"], [have_fuse="no"])
- 
-diff --git a/fuse/Makefile.am b/fuse/Makefile.am
-index 50be783..c63efcd 100644
---- a/fuse/Makefile.am
-+++ b/fuse/Makefile.am
-@@ -5,6 +5,6 @@ noinst_HEADERS = $(top_srcdir)/fuse/macosx.h
- bin_PROGRAMS     = erofsfuse
- erofsfuse_SOURCES = main.c
- erofsfuse_CFLAGS = -Wall -I$(top_srcdir)/include
--erofsfuse_CFLAGS += -DFUSE_USE_VERSION=26 ${libfuse_CFLAGS} ${libselinux_CFLAGS}
--erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse_LIBS} ${liblz4_LIBS} \
-+erofsfuse_CFLAGS += ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
-+erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse2_LIBS} ${libfuse3_LIBS} ${liblz4_LIBS} \
- 	${libselinux_LIBS} ${liblzma_LIBS} ${zlib_LIBS} ${libdeflate_LIBS}
-diff --git a/fuse/main.c b/fuse/main.c
-index 821d98c..c598870 100644
---- a/fuse/main.c
-+++ b/fuse/main.c
-@@ -1,13 +1,12 @@
- // SPDX-License-Identifier: GPL-2.0+
- /*
-  * Created by Li Guifu <blucerlee@gmail.com>
-+ * Lowlevel added by Li Yiyan <lyy0627@sjtu.edu.cn>
-  */
- #include <stdlib.h>
- #include <string.h>
- #include <signal.h>
- #include <libgen.h>
--#include <fuse.h>
--#include <fuse_opt.h>
- #include "macosx.h"
- #include "erofs/config.h"
- #include "erofs/print.h"
-@@ -15,177 +14,508 @@
- #include "erofs/dir.h"
- #include "erofs/inode.h"
- 
--struct erofsfuse_dir_context {
-+#include <float.h>
-+#include <fuse.h>
-+#include <fuse_lowlevel.h>
-+
-+/* used in list/getxattr, given buf size is 0 and
-+ * expected return val is xattr size
-+ * FIXME: remove this workaround by new lib interface
-+ */
-+#define EROFSFUSE_XATTR_BUF_SIZE 4096
-+#define EROFSFUSE_TIMEOUT DBL_MAX
-+
-+struct erofsfuse_readdir_context {
- 	struct erofs_dir_context ctx;
--	fuse_fill_dir_t filler;
--	struct fuse_file_info *fi;
-+
-+	fuse_req_t req;
- 	void *buf;
-+	int is_plus;
-+	size_t offset;
-+	size_t buf_size;
-+	size_t start_off;
-+	struct fuse_file_info *fi;
-+};
-+
-+struct erofsfuse_lookupdir_context {
-+	struct erofs_dir_context ctx;
-+
-+	const char *target_name;
-+	struct fuse_entry_param *ent;
- };
- 
--static int erofsfuse_fill_dentries(struct erofs_dir_context *ctx)
-+static int erofsfuse_add_dentry(struct erofs_dir_context *ctx)
- {
--	struct erofsfuse_dir_context *fusectx = (void *)ctx;
--	struct stat st = {0};
-+	size_t r = 0;
-+	struct stat st = { 0 };
- 	char dname[EROFS_NAME_LEN + 1];
-+	struct erofsfuse_readdir_context *readdir_ctx =
-+		(struct erofsfuse_readdir_context *)ctx;
-+
-+	if (readdir_ctx->offset < readdir_ctx->start_off) {
-+		readdir_ctx->offset +=
-+			ctx->de_namelen + sizeof(struct erofs_dirent);
-+		return 0;
-+	}
- 
- 	strncpy(dname, ctx->dname, ctx->de_namelen);
- 	dname[ctx->de_namelen] = '\0';
--	st.st_mode = erofs_ftype_to_dtype(ctx->de_ftype) << 12;
--	fusectx->filler(fusectx->buf, dname, &st, 0);
-+	readdir_ctx->offset += ctx->de_namelen + sizeof(struct erofs_dirent);
-+
-+	if (!readdir_ctx->is_plus) { /* fuse 3 still use non-plus readdir */
-+		st.st_mode = erofs_ftype_to_dtype(ctx->de_ftype);
-+		st.st_ino = ctx->de_nid;
-+
-+		r = fuse_add_direntry(readdir_ctx->req, readdir_ctx->buf,
-+				      readdir_ctx->buf_size, dname, &st,
-+				      readdir_ctx->offset);
-+	} else {
-+#if FUSE_MAJOR_VERSION >= 3
-+		struct fuse_entry_param param;
-+
-+		param.ino = ctx->de_nid;
-+		param.generation = 0;
-+		param.attr.st_ino = ctx->de_nid;
-+		param.attr.st_mode = erofs_ftype_to_dtype(ctx->de_ftype);
-+		param.attr_timeout = param.entry_timeout = EROFSFUSE_TIMEOUT;
-+
-+		r = fuse_add_direntry_plus(readdir_ctx->req, readdir_ctx->buf,
-+					   readdir_ctx->buf_size, dname, &param,
-+					   readdir_ctx->offset);
-+#else
-+		erofs_err("fuse 2 readdirplus is not supported");
-+#endif
-+	}
-+
-+	if (r > readdir_ctx->buf_size) {
-+		readdir_ctx->offset -=
-+			ctx->de_namelen + sizeof(struct erofs_dirent);
-+		return 1;
-+	}
-+	readdir_ctx->buf += r;
-+	readdir_ctx->buf_size -= r;
- 	return 0;
- }
- 
--int erofsfuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
--		      off_t offset, struct fuse_file_info *fi)
-+static void erofsfuse_fill_stat(struct erofs_inode *vi, struct stat *stbuf)
- {
--	int ret;
--	struct erofs_inode dir;
--	struct erofsfuse_dir_context ctx = {
--		.ctx.dir = &dir,
--		.ctx.cb = erofsfuse_fill_dentries,
--		.filler = filler,
--		.fi = fi,
--		.buf = buf,
--	};
--	erofs_dbg("readdir:%s offset=%llu", path, (long long)offset);
--
--	dir.sbi = &sbi;
--	ret = erofs_ilookup(path, &dir);
--	if (ret)
--		return ret;
-+	stbuf->st_mode = vi->i_mode;
-+	stbuf->st_nlink = vi->i_nlink;
- 
--	erofs_dbg("path=%s nid = %llu", path, dir.nid | 0ULL);
--	if (!S_ISDIR(dir.i_mode))
--		return -ENOTDIR;
-+	if (!S_ISDIR(stbuf->st_mode))
-+		stbuf->st_size = vi->i_size;
-+	if (S_ISBLK(vi->i_mode) || S_ISCHR(vi->i_mode))
-+		stbuf->st_rdev = vi->u.i_rdev;
-+
-+	stbuf->st_blocks = roundup(vi->i_size, erofs_blksiz(&sbi)) >> 9;
-+
-+	stbuf->st_uid = vi->i_uid;
-+	stbuf->st_gid = vi->i_gid;
-+
-+	stbuf->st_ctime = vi->i_mtime;
-+	stbuf->st_mtime = stbuf->st_ctime;
-+	stbuf->st_atime = stbuf->st_ctime;
-+}
-+
-+static int erofsfuse_lookup_dentry(struct erofs_dir_context *ctx)
-+{
-+	int r = 0;
-+	struct erofs_inode vi = { .sbi = &sbi };
-+	struct erofsfuse_lookupdir_context *lookup_ctx =
-+		(struct erofsfuse_lookupdir_context *)ctx;
-+
-+	if (lookup_ctx->ent->ino == 0 &&
-+	    strlen(lookup_ctx->target_name) == ctx->de_namelen &&
-+	    !strncmp(lookup_ctx->target_name, ctx->dname, ctx->de_namelen)) {
-+		lookup_ctx->ent->ino = ctx->de_nid;
-+		lookup_ctx->ent->attr.st_ino = ctx->de_nid;
-+		vi.nid = (erofs_nid_t)ctx->de_nid;
-+
-+		r = erofs_read_inode_from_disk(&vi);
-+		if (r < 0)
-+			return r;
-+
-+		erofsfuse_fill_stat(&vi, &(lookup_ctx->ent->attr));
-+	}
-+
-+	return 0;
-+}
-+
-+static inline erofs_nid_t erofsfuse_getnid(fuse_ino_t ino)
-+{
-+	return ino == FUSE_ROOT_ID ? sbi.root_nid : (erofs_nid_t)ino;
-+}
-+
-+static inline void erofsfuse_readdir_general(fuse_req_t req, fuse_ino_t ino,
-+					     size_t size, off_t off,
-+					     struct fuse_file_info *fi,
-+					     int plus)
-+{
-+	int err = 0;
-+	char *buf = malloc(size);
-+	struct erofsfuse_readdir_context ctx;
-+	struct erofs_inode *vi = (struct erofs_inode *)fi->fh;
-+
-+	erofs_dbg("ino: %lu, size: %lu, off: %lu, plus: %d", ino, size, off,
-+		  plus);
-+	if (!buf) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+	ctx.ctx.dir = vi;
-+	ctx.ctx.cb = erofsfuse_add_dentry;
-+
-+	ctx.fi = fi;
-+	ctx.buf = buf;
-+	ctx.buf_size = size;
-+	ctx.req = req;
-+	ctx.offset = 0;
-+	ctx.start_off = off;
-+	ctx.is_plus = plus;
- 
--	if (!dir.i_size)
--		return 0;
- #ifdef NDEBUG
--	return erofs_iterate_dir(&ctx.ctx, false);
-+	err = erofs_iterate_dir(&ctx.ctx, false);
- #else
--	return erofs_iterate_dir(&ctx.ctx, true);
-+	err = erofs_iterate_dir(&ctx.ctx, true);
- #endif
-+
-+	if (err < 0) /* if buffer insufficient, return 1 */
-+		fuse_reply_err(req, EIO);
-+	else
-+		fuse_reply_buf(req, buf, size - ctx.buf_size);
-+
-+	free(buf);
- }
- 
--static void *erofsfuse_init(struct fuse_conn_info *info)
-+static void erofsfuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size,
-+			      off_t off, struct fuse_file_info *fi)
- {
--	erofs_info("Using FUSE protocol %d.%d", info->proto_major, info->proto_minor);
--	return NULL;
-+	erofsfuse_readdir_general(req, ino, size, off, fi, 0);
- }
- 
--static int erofsfuse_open(const char *path, struct fuse_file_info *fi)
-+#if FUSE_MAJOR_VERSION >= 3
-+static void erofsfuse_readdirplus(fuse_req_t req, fuse_ino_t ino, size_t size,
-+				  off_t off, struct fuse_file_info *fi)
- {
--	erofs_dbg("open path=%s", path);
-+	erofsfuse_readdir_general(req, ino, size, off, fi, 1);
-+}
-+#endif
- 
--	if ((fi->flags & O_ACCMODE) != O_RDONLY)
--		return -EACCES;
-+static void erofsfuse_init(void *userdata, struct fuse_conn_info *conn)
-+{
-+	erofs_info("Using FUSE protocol %d.%d", conn->proto_major,
-+		   conn->proto_minor);
-+}
- 
--	return 0;
-+static void erofsfuse_open(fuse_req_t req, fuse_ino_t ino,
-+			   struct fuse_file_info *fi)
-+{
-+	int ret = 0;
-+	struct erofs_inode *vi;
-+
-+	erofs_dbg("ino = %lu", ino);
-+	if (fi->flags & (O_WRONLY | O_RDWR)) {
-+		fuse_reply_err(req, EROFS);
-+		return;
-+	}
-+
-+	if (ino == FUSE_ROOT_ID) {
-+		fuse_reply_err(req, EISDIR);
-+		return;
-+	}
-+
-+	vi = (struct erofs_inode *)malloc(sizeof(struct erofs_inode));
-+	if (!vi) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+
-+	vi->sbi = &sbi;
-+	vi->nid = (erofs_nid_t)ino;
-+	ret = erofs_read_inode_from_disk(vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
-+
-+	if (!S_ISREG(vi->i_mode)) {
-+		fuse_reply_err(req, EISDIR);
-+	} else {
-+		fi->fh = (uint64_t)vi;
-+		fi->keep_cache = 1;
-+		fuse_reply_open(req, fi);
-+		return;
-+	}
-+
-+out:
-+	free(vi);
- }
- 
--static int erofsfuse_getattr(const char *path, struct stat *stbuf)
-+static void erofsfuse_getattr(fuse_req_t req, fuse_ino_t ino,
-+			      struct fuse_file_info *fi)
- {
--	struct erofs_inode vi = { .sbi = &sbi };
- 	int ret;
-+	struct stat stbuf = { 0 };
-+	struct erofs_inode vi = { .sbi = &sbi };
- 
--	erofs_dbg("getattr(%s)", path);
--	ret = erofs_ilookup(path, &vi);
--	if (ret)
--		return -ENOENT;
--
--	stbuf->st_mode  = vi.i_mode;
--	stbuf->st_nlink = vi.i_nlink;
--	stbuf->st_size  = vi.i_size;
--	stbuf->st_blocks = roundup(vi.i_size, erofs_blksiz(vi.sbi)) >> 9;
--	stbuf->st_uid = vi.i_uid;
--	stbuf->st_gid = vi.i_gid;
--	if (S_ISBLK(vi.i_mode) || S_ISCHR(vi.i_mode))
--		stbuf->st_rdev = vi.u.i_rdev;
--	stbuf->st_ctime = vi.i_mtime;
--	stbuf->st_mtime = stbuf->st_ctime;
--	stbuf->st_atime = stbuf->st_ctime;
--	return 0;
-+	erofs_dbg("ino: %lu", ino);
-+	vi.nid = erofsfuse_getnid(ino);
-+	ret = erofs_read_inode_from_disk(&vi);
-+	if (ret < 0)
-+		fuse_reply_err(req, ENOENT);
-+
-+	erofsfuse_fill_stat(&vi, &stbuf);
-+	stbuf.st_ino = ino;
-+
-+	fuse_reply_attr(req, &stbuf, EROFSFUSE_TIMEOUT);
- }
- 
--static int erofsfuse_read(const char *path, char *buffer,
--			  size_t size, off_t offset,
--			  struct fuse_file_info *fi)
-+static void erofsfuse_opendir(fuse_req_t req, fuse_ino_t ino,
-+			      struct fuse_file_info *fi)
- {
- 	int ret;
--	struct erofs_inode vi;
-+	struct erofs_inode *vi;
- 
--	erofs_dbg("path:%s size=%zd offset=%llu", path, size, (long long)offset);
-+	erofs_dbg("ino: %lu", ino);
-+	vi = (struct erofs_inode *)malloc(sizeof(struct erofs_inode));
-+	if (!vi) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
- 
--	vi.sbi = &sbi;
--	ret = erofs_ilookup(path, &vi);
--	if (ret)
--		return ret;
-+	vi->sbi = &sbi;
-+	vi->nid = erofsfuse_getnid(ino);
-+	ret = erofs_read_inode_from_disk(vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
- 
--	ret = erofs_pread(&vi, buffer, size, offset);
--	if (ret)
--		return ret;
--	if (offset >= vi.i_size)
--		return 0;
--	if (offset + size > vi.i_size)
--		return vi.i_size - offset;
--	return size;
-+	if (!S_ISDIR(vi->i_mode)) {
-+		fuse_reply_err(req, ENOTDIR);
-+		goto out;
-+	}
-+
-+	fi->fh = (uint64_t)vi;
-+	fuse_reply_open(req, fi);
-+	return;
-+
-+out:
-+	free(vi);
- }
- 
--static int erofsfuse_readlink(const char *path, char *buffer, size_t size)
-+static void erofsfuse_release(fuse_req_t req, fuse_ino_t ino,
-+			      struct fuse_file_info *fi)
- {
--	int ret = erofsfuse_read(path, buffer, size, 0, NULL);
--
--	if (ret < 0)
--		return ret;
--	DBG_BUGON(ret > size);
--	if (ret == size)
--		buffer[size - 1] = '\0';
--	erofs_dbg("readlink(%s): %s", path, buffer);
--	return 0;
-+	free((struct erofs_inode *)fi->fh);
-+	fi->fh = 0;
-+	fuse_reply_err(req, 0);
- }
- 
--static int erofsfuse_getxattr(const char *path, const char *name, char *value,
--			size_t size
--#ifdef __APPLE__
--			, uint32_t position)
-+static void erofsfuse_lookup(fuse_req_t req, fuse_ino_t parent,
-+			     const char *name)
-+{
-+	int err, ret;
-+	struct erofs_inode *vi;
-+	struct fuse_entry_param fentry;
-+	struct erofsfuse_lookupdir_context ctx;
-+
-+	vi = (struct erofs_inode *)malloc(sizeof(struct erofs_inode));
-+	if (!vi) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+
-+	vi->sbi = &sbi;
-+	vi->nid = erofsfuse_getnid(parent);
-+	ret = erofs_read_inode_from_disk(vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
-+	if (!S_ISDIR(vi->i_mode)) {
-+		fuse_reply_err(req, ENOTDIR);
-+		goto out;
-+	}
-+
-+	memset(&fentry, 0, sizeof(fentry));
-+	fentry.ino = 0;
-+	fentry.attr_timeout = fentry.entry_timeout = EROFSFUSE_TIMEOUT;
-+	ctx.ctx.dir = vi;
-+	ctx.ctx.cb = erofsfuse_lookup_dentry;
-+
-+	ctx.ent = &fentry;
-+	ctx.target_name = name;
-+
-+#ifdef NDEBUG
-+	err = erofs_iterate_dir(&ctx.ctx, false);
- #else
--			)
-+	err = erofs_iterate_dir(&ctx.ctx, true);
- #endif
-+
-+	if (err < 0) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
-+	fuse_reply_entry(req, &fentry);
-+
-+out:
-+	free(vi);
-+}
-+
-+static void erofsfuse_read(fuse_req_t req, fuse_ino_t ino, size_t size,
-+			   off_t off, struct fuse_file_info *fi)
- {
- 	int ret;
--	struct erofs_inode vi;
-+	struct erofs_inode *vi = (struct erofs_inode *)fi->fh;
-+	char *buf;
- 
--	erofs_dbg("getxattr(%s): name=%s size=%llu", path, name, size);
-+	erofs_dbg("ino = %lu, size = %lu, off = %lu", ino, size, off);
-+	if (!S_ISREG(vi->i_mode)) {
-+		fuse_reply_err(req, EIO);
-+		return;
-+	}
- 
--	vi.sbi = &sbi;
--	ret = erofs_ilookup(path, &vi);
--	if (ret)
--		return ret;
-+	buf = malloc(size);
-+	if (!buf) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+
-+	ret = erofs_pread(vi, buf, size, off);
-+	if (ret) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
-+	if (off >= vi->i_size)
-+		ret = 0;
-+	else if (off + size > vi->i_size)
-+		ret = vi->i_size - off;
-+	else
-+		ret = size;
-+
-+	fuse_reply_buf(req, buf, ret);
- 
--	return erofs_getxattr(&vi, name, value, size);
-+out:
-+	free(buf);
- }
- 
--static int erofsfuse_listxattr(const char *path, char *list, size_t size)
-+static void erofsfuse_readlink(fuse_req_t req, fuse_ino_t ino)
- {
- 	int ret;
--	struct erofs_inode vi;
-+	char *dst;
-+	struct erofs_inode vi = { .sbi = &sbi };
-+
-+	erofs_dbg("ino = %lu", ino);
-+	vi.nid = erofsfuse_getnid(ino);
-+	ret = erofs_read_inode_from_disk(&vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		return;
-+	}
- 
--	erofs_dbg("listxattr(%s): size=%llu", path, size);
-+	if (!S_ISLNK(vi.i_mode)) {
-+		fuse_reply_err(req, EINVAL);
-+		return;
-+	}
- 
--	vi.sbi = &sbi;
--	ret = erofs_ilookup(path, &vi);
--	if (ret)
--		return ret;
-+	dst = malloc(vi.i_size + 1);
-+	if (!dst) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
- 
--	return erofs_listxattr(&vi, list, size);
-+	ret = erofs_pread(&vi, dst, vi.i_size, 0);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		goto out;
-+	}
-+
-+	dst[vi.i_size] = '\0';
-+	fuse_reply_readlink(req, dst);
-+
-+out:
-+	free(dst);
-+}
-+
-+static void erofsfuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
-+			       size_t size)
-+{
-+	int ret;
-+	char *buf = NULL;
-+	struct erofs_inode vi = { .sbi = &sbi };
-+	size_t real = size == 0 ? EROFSFUSE_XATTR_BUF_SIZE : size;
-+
-+	erofs_dbg("ino = %lu, name = %s, size = %lu", ino, name, size);
-+	vi.nid = erofsfuse_getnid(ino);
-+	ret = erofs_read_inode_from_disk(&vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		return;
-+	}
-+
-+	buf = malloc(real);
-+	if (!buf) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+
-+	ret = erofs_getxattr(&vi, name, buf, real);
-+	if (ret < 0)
-+		fuse_reply_err(req, -ret);
-+	else if (size == 0)
-+		fuse_reply_xattr(req, ret);
-+	else
-+		fuse_reply_buf(req, buf, ret);
-+
-+	free(buf);
- }
- 
--static struct fuse_operations erofs_ops = {
-+static void erofsfuse_listxattr(fuse_req_t req, fuse_ino_t ino, size_t size)
-+{
-+	int ret;
-+	char *buf = NULL;
-+	struct erofs_inode vi = { .sbi = &sbi };
-+	size_t real = size == 0 ? EROFSFUSE_XATTR_BUF_SIZE : size;
-+
-+	erofs_dbg("ino = %lu, size = %lu", ino, size);
-+	vi.nid = erofsfuse_getnid(ino);
-+	ret = erofs_read_inode_from_disk(&vi);
-+	if (ret < 0) {
-+		fuse_reply_err(req, EIO);
-+		return;
-+	}
-+
-+	buf = malloc(real);
-+	if (!buf) {
-+		fuse_reply_err(req, ENOMEM);
-+		return;
-+	}
-+
-+	ret = erofs_listxattr(&vi, buf, real);
-+	if (ret < 0)
-+		fuse_reply_err(req, -ret);
-+	else if (size == 0)
-+		fuse_reply_xattr(req, ret);
-+	else
-+		fuse_reply_buf(req, buf, ret);
-+
-+	free(buf);
-+}
-+
-+static struct fuse_lowlevel_ops erofsfuse_lops = {
- 	.getxattr = erofsfuse_getxattr,
-+	.opendir = erofsfuse_opendir,
-+	.releasedir = erofsfuse_release,
-+	.release = erofsfuse_release,
-+	.lookup = erofsfuse_lookup,
- 	.listxattr = erofsfuse_listxattr,
- 	.readlink = erofsfuse_readlink,
- 	.getattr = erofsfuse_getattr,
- 	.readdir = erofsfuse_readdir,
-+#if FUSE_MAJOR_VERSION >= 3
-+	.readdirplus = erofsfuse_readdirplus,
-+#endif
- 	.open = erofsfuse_open,
- 	.read = erofsfuse_read,
- 	.init = erofsfuse_init,
-@@ -200,18 +530,20 @@ static struct options {
- 	bool odebug;
- } fusecfg;
- 
--#define OPTION(t, p) { t, offsetof(struct options, p), 1 }
-+#define OPTION(t, p)                              \
-+	{                                         \
-+		t, offsetof(struct options, p), 1 \
-+	}
- static const struct fuse_opt option_spec[] = {
--	OPTION("--offset=%lu", offset),
--	OPTION("--dbglevel=%u", debug_lvl),
--	OPTION("--help", show_help),
--	FUSE_OPT_KEY("--device=", 1),
--	FUSE_OPT_END
-+	OPTION("--offset=%lu", offset), OPTION("--dbglevel=%u", debug_lvl),
-+	OPTION("--help", show_help), FUSE_OPT_KEY("--device=", 1), FUSE_OPT_END
- };
- 
- static void usage(void)
- {
-+#if FUSE_MAJOR_VERSION < 3
- 	struct fuse_args args = FUSE_ARGS_INIT(0, NULL);
-+#endif
- 
- 	fputs("usage: [options] IMAGE MOUNTPOINT\n\n"
- 	      "Options:\n"
-@@ -221,7 +553,8 @@ static void usage(void)
- #if FUSE_MAJOR_VERSION < 3
- 	      "    --help                 display this help and exit\n"
- #endif
--	      "\n", stderr);
-+	      "\n",
-+	      stderr);
- 
- #if FUSE_MAJOR_VERSION >= 3
- 	fuse_cmdline_help();
-@@ -261,8 +594,10 @@ static int optional_opt_func(void *data, const char *arg, int key,
- 			fusecfg.disk = strdup(arg);
- 			return 0;
- 		}
--		if (!fusecfg.mountpoint)
-+		if (!fusecfg.mountpoint) {
- 			fusecfg.mountpoint = strdup(arg);
-+			return 0;
-+		}
- 	case FUSE_OPT_KEY_OPT:
- 		if (!strcmp(arg, "-d"))
- 			fusecfg.odebug = true;
-@@ -301,10 +636,11 @@ static void signal_handle_sigsegv(int signal)
- int main(int argc, char *argv[])
- {
- 	int ret;
-+	struct fuse_session *se;
- 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
- 
- 	erofs_init_configure();
--	printf("%s %s\n", basename(argv[0]), cfg.c_version);
-+	erofs_dbg("%s %s", basename(argv[0]), cfg.c_version);
- 
- #if defined(HAVE_EXECINFO_H) && defined(HAVE_BACKTRACE)
- 	if (signal(SIGSEGV, signal_handle_sigsegv) == SIG_ERR) {
-@@ -341,7 +677,38 @@ int main(int argc, char *argv[])
- 		goto err_dev_close;
- 	}
- 
--	ret = fuse_main(args.argc, args.argv, &erofs_ops, NULL);
-+#if FUSE_MAJOR_VERSION >= 3
-+	se = fuse_session_new(&args, &erofsfuse_lops, sizeof(erofsfuse_lops),
-+			      NULL);
-+	if (se != NULL) {
-+		fuse_set_signal_handlers(se);
-+		fuse_session_mount(se, fusecfg.mountpoint);
-+
-+		ret = fuse_session_loop(se);
-+
-+		fuse_remove_signal_handlers(se);
-+		fuse_session_unmount(se);
-+		fuse_session_destroy(se);
-+	}
-+#else
-+	struct fuse_chan *ch;
-+
-+	ch = fuse_mount(fusecfg.mountpoint, &args);
-+	if (ch != NULL) {
-+		se = fuse_lowlevel_new(&args, &erofsfuse_lops,
-+				       sizeof(erofsfuse_lops), NULL);
-+		if (se != NULL) {
-+			if (fuse_set_signal_handlers(se) != -1) {
-+				fuse_session_add_chan(se, ch);
-+				ret = fuse_session_loop(se);
-+				fuse_remove_signal_handlers(se);
-+				fuse_session_remove_chan(ch);
-+			}
-+			fuse_session_destroy(se);
-+		}
-+		fuse_unmount(fusecfg.mountpoint, ch);
-+	}
-+#endif
- 
- 	erofs_put_super(&sbi);
- err_dev_close:
--- 
-2.34.1
+Add support to rebuild EROFS images.
 
+> 
+> The new mode merges multiple erofs images into a new erofs image.  It
+> can be enabled with [--union] option.
+
+The new mode merges multiple erofs images into a rebuilt EROFS image..
+
+> 
+> Currently it is mainly used to merge images generated from tarerofs
+> mode, with following special handling:
+> 
+> - whiteout and opaque directory (marked with "trusted.overlay.opaque"
+>    xattr) are specially handled to fit the overlayfs model.
+> - data of regular file is handled in fallocate like style, i.e. the
+>    space is allocated in the image for the file data, while the file
+>    content is not written to the image.  In this way the erofs image only
+>    offers metadata and it depends on other container image orchestra to
+>    help derive the corresponding file data somehow.
+> 
+> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> ---
+>   include/erofs/config.h   |   4 +
+>   include/erofs/inode.h    |   1 +
+>   include/erofs/internal.h |  16 +++
+>   include/erofs/union.h    |  20 +++
+>   lib/Makefile.am          |   4 +-
+>   lib/config.c             |  33 +++++
+>   lib/inode.c              |  95 +++++++++++++-
+>   lib/tar.c                |   2 -
+>   lib/union.c              | 266 +++++++++++++++++++++++++++++++++++++++
+>   mkfs/Makefile.am         |   3 +-
+>   mkfs/main.c              |  81 ++++++++----
+>   11 files changed, 496 insertions(+), 29 deletions(-)
+>   create mode 100644 include/erofs/union.h
+>   create mode 100644 lib/union.c
+> 
+> diff --git a/include/erofs/config.h b/include/erofs/config.h
+> index 8f52d2c..bef7085 100644
+> --- a/include/erofs/config.h
+> +++ b/include/erofs/config.h
+> @@ -53,6 +53,7 @@ struct erofs_configure {
+>   	bool c_ignore_mtime;
+>   	bool c_showprogress;
+>   	bool c_extra_ea_name_prefixes;
+> +	bool c_union;
+
+no need adding this, let's use a static variable in
+mkfs/main.c instead.
+
+>   
+>   #ifdef HAVE_LIBSELINUX
+>   	struct selabel_handle *sehnd;
+> @@ -107,6 +108,9 @@ static inline int erofs_selabel_open(const char *file_contexts)
+>   void erofs_update_progressinfo(const char *fmt, ...);
+>   char *erofs_trim_for_progressinfo(const char *str, int placeholder);
+>   
+> +int erofs_insert_img(const char *path);
+> +void erofs_cleanup_imgs(void);
+> +
+>   #ifdef __cplusplus
+>   }
+>   #endif
+> diff --git a/include/erofs/inode.h b/include/erofs/inode.h
+> index aba2a94..00ecf97 100644
+> --- a/include/erofs/inode.h
+> +++ b/include/erofs/inode.h
+> @@ -34,6 +34,7 @@ erofs_nid_t erofs_lookupnid(struct erofs_inode *inode);
+>   struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+>   				   const char *name);
+>   int tarerofs_dump_tree(struct erofs_inode *dir);
+> +int erofs_union_dump_tree(struct erofs_inode *dir);
+>   int erofs_init_empty_dir(struct erofs_inode *dir);
+>   struct erofs_inode *erofs_new_inode(void);
+>   struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path);
+> diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+> index 83a2e22..b690a1e 100644
+> --- a/include/erofs/internal.h
+> +++ b/include/erofs/internal.h
+> @@ -44,6 +44,8 @@ typedef u32 erofs_blk_t;
+>   /* global sbi */
+>   extern struct erofs_sb_info sbi;
+>   
+> +extern struct list_head imgs_list;
+> +
+>   #define erofs_blksiz(sbi)	(1u << (sbi)->blkszbits)
+>   #define erofs_blknr(sbi, addr)  ((addr) >> (sbi)->blkszbits)
+>   #define erofs_blkoff(sbi, addr) ((addr) & (erofs_blksiz(sbi) - 1))
+> @@ -69,6 +71,9 @@ struct erofs_sb_info {
+>   	erofs_blk_t meta_blkaddr;
+>   	erofs_blk_t xattr_blkaddr;
+>   
+> +	erofs_blk_t data_blkaddr;
+> +	unsigned long data_blks;
+> +
+>   	u32 feature_compat;
+>   	u32 feature_incompat;
+>   	u64 build_time;
+> @@ -136,6 +141,8 @@ EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
+>   #define EROFS_I_EA_INITED	(1 << 0)
+>   #define EROFS_I_Z_INITED	(1 << 1)
+>   
+> +#define S_SHIFT                 12
+> +
+>   struct erofs_inode {
+>   	struct list_head i_hash, i_subdirs, i_xattrs;
+>   
+> @@ -183,6 +190,7 @@ struct erofs_inode {
+>   	bool compressed_idata;
+>   	bool lazy_tailblock;
+>   	bool with_tmpfile;
+> +	bool remap_blkaddr;
+>   
+>   	unsigned int xattr_isize;
+>   	unsigned int extent_isize;
+> @@ -415,6 +423,14 @@ static inline u32 erofs_crc32c(u32 crc, const u8 *in, size_t len)
+>   	return crc;
+>   }
+>   
+> +#define EROFS_WHITEOUT_DEV	0
+> +
+> +struct erofs_img {
+
+move into rebuild.c?
+
+> +	struct list_head list;
+> +	char *path;
+> +	struct erofs_sb_info sbi;
+> +};
+> +
+>   #ifdef __cplusplus
+>   }
+>   #endif
+> diff --git a/include/erofs/union.h b/include/erofs/union.h
+> new file mode 100644
+> index 0000000..999a20c
+> --- /dev/null
+> +++ b/include/erofs/union.h
+
+rebuild.h?
+
+> @@ -0,0 +1,20 @@
+> +/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
+> +#ifndef __EROFS_UNION_H
+> +#define __EROFS_UNION_H
+> +
+> +#ifdef __cplusplus
+> +extern "C"
+> +{
+> +#endif
+> +
+> +#include "internal.h"
+> +
+> +struct erofs_inode *erofs_union_load_imgs(void);
+> +int erofs_union_dump_tree(struct erofs_inode *dir);
+
+erofs_rebuild_???
+
+> +int erofs_union_remap(struct erofs_sb_info *sbi);
+> +
+> +#ifdef __cplusplus
+> +}
+> +#endif
+> +
+> +#endif
+> diff --git a/lib/Makefile.am b/lib/Makefile.am
+> index ebe466b..b8af149 100644
+> --- a/lib/Makefile.am
+> +++ b/lib/Makefile.am
+> @@ -24,13 +24,15 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+>         $(top_srcdir)/include/erofs/xattr.h \
+>         $(top_srcdir)/include/erofs/compress_hints.h \
+>         $(top_srcdir)/include/erofs/fragments.h \
+> +      $(top_srcdir)/include/erofs/union.h \
+>         $(top_srcdir)/lib/liberofs_private.h
+>   
+>   noinst_HEADERS += compressor.h
+>   liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
+>   		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
+>   		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
+> -		      fragments.c rb_tree.c dedupe.c uuid_unparse.c uuid.c tar.c
+> +		      fragments.c rb_tree.c dedupe.c uuid_unparse.c uuid.c tar.c \
+> +		      union.c
+>   
+>   liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
+>   if ENABLE_LZ4
+> diff --git a/lib/config.c b/lib/config.c
+> index a3235c8..cc214ae 100644
+> --- a/lib/config.c
+> +++ b/lib/config.c
+> @@ -17,6 +17,8 @@
+>   struct erofs_configure cfg;
+>   struct erofs_sb_info sbi;
+>   
+> +LIST_HEAD(imgs_list);
+
+?
+
+> +
+>   void erofs_init_configure(void)
+>   {
+>   	memset(&cfg, 0, sizeof(cfg));
+> @@ -158,3 +160,34 @@ void erofs_update_progressinfo(const char *fmt, ...)
+>   	__erofs_is_progressmsg = true;
+>   	fflush(stdout);
+>   }
+> +
+> +int erofs_insert_img(const char *path)
+> +{
+> +	struct erofs_img *img;
+> +
+> +	img = malloc(sizeof(*img));
+> +	if (!img)
+> +		return -ENOMEM;
+> +
+> +	img->path = realpath(path, NULL);
+> +	if (!img->path) {
+> +		erofs_err("failed to parse image file (%s): %s",
+> +				path, erofs_strerror(-errno));
+> +		free(img);
+> +		return -ENOENT;
+> +	}
+> +
+> +	list_add_tail(&img->list, &imgs_list);
+> +	return 0;
+> +}
+> +
+> +void erofs_cleanup_imgs(void)
+> +{
+> +	struct erofs_img *img, *n;
+> +
+> +	list_for_each_entry_safe(img, n, &imgs_list, list) {
+> +		list_del(&img->list);
+> +		free(img->path);
+> +		free(img);
+> +	}
+> +}
+> diff --git a/lib/inode.c b/lib/inode.c
+> index d82ea95..0a56f3b 100644
+> --- a/lib/inode.c
+> +++ b/lib/inode.c
+> @@ -26,9 +26,10 @@
+>   #include "erofs/compress_hints.h"
+>   #include "erofs/blobchunk.h"
+>   #include "erofs/fragments.h"
+> +#include "erofs/dir.h"
+> +#include "erofs/tar.h"
+>   #include "liberofs_private.h"
+>   
+> -#define S_SHIFT                 12
+>   static unsigned char erofs_ftype_by_mode[S_IFMT >> S_SHIFT] = {
+>   	[S_IFREG >> S_SHIFT]  = EROFS_FT_REG_FILE,
+>   	[S_IFDIR >> S_SHIFT]  = EROFS_FT_DIR,
+> @@ -508,6 +509,9 @@ static bool erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
+>   	} u = { {0}, };
+>   	int ret;
+>   
+> +	if (inode->remap_blkaddr)
+> +		inode->u.i_blkaddr += inode->sbi->data_blkaddr;
+> +
+>   	switch (inode->inode_isize) {
+>   	case sizeof(struct erofs_inode_compact):
+>   		u.dic.i_format = cpu_to_le16(0 | (inode->datalayout << 1));
+> @@ -1414,3 +1418,92 @@ int tarerofs_dump_tree(struct erofs_inode *dir)
+>   	dir->bh->op = &erofs_write_inode_bhops;
+>   	return 0;
+>   }
+> +
+> +static bool erofs_inode_is_whiteout(struct erofs_inode *inode)
+> +{
+> +	return S_ISCHR(inode->i_mode) && inode->u.i_rdev == EROFS_WHITEOUT_DEV;
+> +}
+> +
+> +int erofs_union_dump_tree(struct erofs_inode *dir)
+> +{
+> +	struct erofs_dentry *d, *n;
+> +	unsigned int nr_subdirs;
+> +	int ret;
+> +
+> +	if (erofs_should_use_inode_extended(dir)) {
+> +		if (cfg.c_force_inodeversion == FORCE_INODE_COMPACT) {
+> +			erofs_err("file %s cannot be in compact form",
+> +				  dir->i_srcpath);
+> +			return -EINVAL;
+> +		}
+> +		dir->inode_isize = sizeof(struct erofs_inode_extended);
+> +	} else {
+> +		dir->inode_isize = sizeof(struct erofs_inode_compact);
+> +	}
+> +
+> +	ret = erofs_prepare_xattr_ibody(dir);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (!S_ISDIR(dir->i_mode)) {
+> +		if (dir->bh)
+> +			return 0;
+> +		if (S_ISLNK(dir->i_mode)) {
+> +			ret = erofs_write_file_from_buffer(dir, dir->i_link);
+> +			if (ret)
+> +				return ret;
+> +			free(dir->i_link);
+> +			dir->i_link = NULL;
+> +		}
+> +		ret = erofs_prepare_inode_buffer(dir);
+> +		if (ret)
+> +			return ret;
+> +		erofs_write_tail_end(dir);
+> +		return 0;
+> +	}
+> +
+> +	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
+> +		if (erofs_inode_is_whiteout(d->inode)) {
+> +			erofs_dbg("file %s: skip whiteout", d->inode->i_srcpath);
+> +			erofs_d_invalidate(d);
+> +			list_del(&d->d_child);
+> +			free(d);
+> +			continue;
+> +		}
+> +	}
+> +
+> +	nr_subdirs = 0;
+> +	list_for_each_entry(d, &dir->i_subdirs, d_child)
+> +		++nr_subdirs;
+> +
+> +	ret = erofs_prepare_dir_layout(dir, nr_subdirs);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = erofs_prepare_inode_buffer(dir);
+> +	if (ret)
+> +		return ret;
+> +	dir->bh->op = &erofs_skip_write_bhops;
+> +
+> +	if (IS_ROOT(dir))
+> +		erofs_fixup_meta_blkaddr(dir);
+> +
+> +	list_for_each_entry(d, &dir->i_subdirs, d_child) {
+> +		struct erofs_inode *inode;
+> +
+> +		if (is_dot_dotdot(d->name))
+> +			continue;
+> +
+> +		inode = erofs_igrab(d->inode);
+> +		ret = erofs_union_dump_tree(inode);
+> +		if (erofs_mode_to_ftype(inode->i_mode) == EROFS_FT_DIR)
+> +			dir->i_nlink++;
+> +		erofs_iput(inode);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +	erofs_write_dir_file(dir);
+> +	erofs_write_tail_end(dir);
+> +	dir->bh->op = &erofs_write_inode_bhops;
+> +	return 0;
+> +}
+> diff --git a/lib/tar.c b/lib/tar.c
+> index 10ae89c..51af638 100644
+> --- a/lib/tar.c
+> +++ b/lib/tar.c
+> @@ -19,8 +19,6 @@
+>   #include "erofs/xattr.h"
+>   #include "erofs/blobchunk.h"
+>   
+> -#define EROFS_WHITEOUT_DEV	0
+> -
+>   static char erofs_libbuf[16384];
+>   
+>   struct tar_header {
+> diff --git a/lib/union.c b/lib/union.c
+> new file mode 100644
+> index 0000000..15c546c
+> --- /dev/null
+> +++ b/lib/union.c
+> @@ -0,0 +1,266 @@
+> +// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
+> +#define _GNU_SOURCE
+> +#include <unistd.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include "erofs/print.h"
+> +#include "erofs/cache.h"
+> +#include "erofs/tar.h"
+> +#include "erofs/inode.h"
+> +#include "erofs/io.h"
+> +#include "erofs/xattr.h"
+> +#include "erofs/dir.h"
+> +#include "erofs/internal.h"
+> +
+> +struct erofs_union_dir_context {
+> +	struct erofs_dir_context ctx;
+> +	struct erofs_inode *root;
+> +};
+> +
+> +static int erofs_union_fill_inode(struct erofs_inode *inode,
+> +				  struct erofs_inode *vi)
+> +{
+> +	int ret = 0;
+> +
+> +	inode->i_srcpath = strdup(vi->i_srcpath);
+> +	inode->i_mode = vi->i_mode;
+> +	inode->i_uid = vi->i_uid;
+> +	inode->i_gid = vi->i_gid;
+> +	inode->i_mtime = vi->i_mtime;
+> +	inode->i_ino[1] = vi->i_ino[0];
+> +	inode->i_nlink = 1;
+> +
+> +	switch (inode->i_mode & S_IFMT) {
+> +	case S_IFCHR:
+> +	case S_IFBLK:
+> +	case S_IFIFO:
+> +	case S_IFSOCK:
+> +		inode->u.i_rdev = erofs_new_encode_dev(vi->u.i_rdev);
+> +		inode->i_size = 0;
+> +		erofs_dbg("\tdev: %d %d", major(vi->u.i_rdev),
+> +			  minor(vi->u.i_rdev));
+> +		break;
+> +	case S_IFDIR:
+> +		inode->i_size = 0;
+> +		ret = erofs_init_empty_dir(inode);
+> +		break;
+> +	case S_IFLNK:
+> +		inode->i_size = vi->i_size;
+> +		inode->i_link = malloc(inode->i_size + 1);
+> +		ret = erofs_pread(vi, inode->i_link, inode->i_size, 0);
+> +		erofs_dbg("\tsymlink: %s -> %s", inode->i_srcpath, inode->i_link);
+> +		break;
+> +	case S_IFREG:
+> +		inode->i_size = vi->i_size;
+> +		if (inode->i_size) {
+> +			inode->u.i_blkaddr = inode->sbi->data_blks;
+> +			inode->sbi->data_blks += BLK_ROUND_UP(inode->sbi,
+> +							      inode->i_size);
+> +			inode->remap_blkaddr = true;
+> +		} else {
+> +			inode->u.i_blkaddr = NULL_ADDR;
+> +		}
+> +		erofs_dbg("\tregfile: i_blkaddr %d, i_size %d",
+> +			  inode->u.i_blkaddr, inode->i_size);
+> +		break;
+> +	default:
+> +		ret = -EINVAL;
+> +		break;
+> +	}
+> +	return ret;
+> +}
+> +
+> +
+> +static int erofs_union_dirent_iter(struct erofs_dir_context *ctx)
+> +{
+> +	struct erofs_union_dir_context *uctx = (void *)ctx;
+> +	struct erofs_inode *dir = ctx->dir;
+> +	struct erofs_sb_info *sbi = dir->sbi;
+> +	struct erofs_inode *inode, vi = {};
+> +	struct erofs_dentry *d;
+> +	char *path;
+> +	int ret;
+> +
+> +	if (ctx->dot_dotdot)
+> +		return 0;
+> +
+> +	vi.nid = ctx->de_nid;
+> +	vi.sbi = sbi;
+> +	ret = erofs_read_inode_from_disk(&vi);
+> +	if (ret) {
+> +		erofs_err("file %s/%.*s: read failed",
+> +			  dir->i_srcpath, ctx->de_namelen, ctx->dname);
+> +		return ret;
+> +	}
+> +
+> +	ret = asprintf(&path, "%s/%.*s", dir->i_srcpath, ctx->de_namelen,
+> +		       ctx->dname);
+> +	if (ret < 0) {
+> +		erofs_err("file %s/%.*s: failed to alloc path",
+> +			  dir->i_srcpath, ctx->de_namelen, ctx->dname);
+> +		return ret;
+> +	}
+> +	vi.i_srcpath = path;
+> +
+> +	d = erofs_get_dentry(uctx->root, path, false, NULL, NULL);
+> +	if (IS_ERR(d)) {
+> +		ret = PTR_ERR(d);
+> +		goto exit;
+> +	}
+> +
+> +	if (d->type != EROFS_FT_UNKNOWN) {
+> +		inode = d->inode;
+> +		DBG_BUGON((inode->i_mode & S_IFMT) != (vi.i_mode & S_IFMT));
+> +		if (!S_ISDIR(inode->i_mode) || inode->opaque) {
+> +			erofs_dbg("file %s: %s (%d) exists",
+> +				  path, inode->i_srcpath,
+> +				  erofs_mode_to_ftype(inode->i_mode));
+> +			free(path);
+> +			return 0;
+> +		}
+> +		erofs_dbg("dir %s: %s merging", path, inode->i_srcpath);
+> +	} else {
+> +		erofs_dbg("loading file: %s (%d) (nid %llu)",
+> +			  path, erofs_mode_to_ftype(vi.i_mode), ctx->de_nid);
+> +		if (S_ISREG(vi.i_mode) && vi.i_nlink > 1 &&
+> +		    (inode = erofs_iget(0, vi.i_ino[0]))) {
+> +			/* hardlink file */
+> +			if (S_ISDIR(inode->i_mode)) {
+> +				erofs_dbg("hardlink directory not supported");
+> +				erofs_iput(inode);
+> +				return -EISDIR;
+> +			}
+> +			inode->i_nlink++;
+> +			erofs_dbg("\thardlink: %s -> %s",
+> +				  vi.i_srcpath, inode->i_srcpath);
+> +		} else {
+> +			inode = erofs_new_inode();
+> +			if (IS_ERR(inode)) {
+> +				ret = PTR_ERR(inode);
+> +				goto exit;
+> +			}
+> +
+> +			inode->i_parent = d->inode;
+> +			ret = erofs_union_fill_inode(inode, &vi);
+> +			if (ret)
+> +				goto exit_inode;
+> +
+> +			ret = erofs_read_xattrs_from_disk(&vi);
+> +			if (ret)
+> +				goto exit_inode;
+> +			list_splice_tail(&vi.i_xattrs, &inode->i_xattrs);
+> +			erofs_inode_tag_opaque(inode);
+> +
+> +			/* build per-image hash table for hardlink querying */
+> +			erofs_insert_ihash(inode, 0, inode->i_ino[1]);
+> +		}
+> +
+> +		d->inode = inode;
+> +		d->type = erofs_mode_to_ftype(inode->i_mode);
+> +	}
+> +
+> +	ret = 0;
+> +	if (S_ISDIR(vi.i_mode)) {
+> +		struct erofs_union_dir_context nctx = {
+> +			.ctx.dir = &vi,
+> +			.ctx.cb = erofs_union_dirent_iter,
+> +			.root = uctx->root,
+> +		};
+> +		ret = erofs_iterate_dir(&nctx.ctx, false);
+> +	}
+> +exit:
+> +	free(path);
+> +	return ret;
+> +exit_inode:
+> +	erofs_iput(inode);
+> +	goto exit;
+> +}
+> +
+> +static int erofs_union_load_img(struct erofs_inode *root, struct erofs_img *img)
+> +{
+> +	struct erofs_inode inode = {};
+> +	struct erofs_sb_info *sbi = &img->sbi;
+> +	struct erofs_union_dir_context ctx;
+> +	int ret;
+> +
+> +	erofs_dbg("Loading image %s...", img->path);
+> +	ret = dev_open_ro(sbi, img->path);
+> +	if (ret) {
+> +		erofs_err("failed to open image %s", img->path);
+> +		return ret;
+> +	}
+> +
+> +	ret = erofs_read_superblock(sbi);
+> +	if (ret) {
+> +		erofs_err("failed to read superblock of image %s", img->path);
+> +		goto exit;
+> +	}
+> +
+> +	inode.nid = sbi->root_nid;
+> +	inode.sbi = sbi;
+> +	ret = erofs_read_inode_from_disk(&inode);
+> +	if (ret) {
+> +		erofs_err("failed to read root inode of image %s", img->path);
+> +		goto exit;
+> +	}
+> +	inode.i_srcpath = strdup("/");
+> +
+> +	ctx = (struct erofs_union_dir_context) {
+> +		.ctx.dir = &inode,
+> +		.ctx.cb = erofs_union_dirent_iter,
+> +		.root = root,
+> +	};
+> +	ret = erofs_iterate_dir(&ctx.ctx, false);
+> +exit:
+> +	erofs_cleanup_ihash();
+> +	dev_close(sbi);
+> +	return ret;
+> +}
+> +
+> +struct erofs_inode *erofs_union_load_imgs(void)
+> +{
+> +	struct erofs_img *img;
+> +	struct erofs_inode *root;
+> +	int ret;
+> +
+> +	sbi.data_blks = 0;
+> +
+> +	root = erofs_new_inode();
+> +	if (IS_ERR(root))
+> +		return root;
+> +	root->i_srcpath = strdup("/");
+> +	root->i_mode = S_IFDIR | 0777;
+> +	root->i_parent = root;
+> +	root->i_mtime = root->sbi->build_time;
+> +	root->i_mtime_nsec = root->sbi->build_time_nsec;
+> +	erofs_init_empty_dir(root);
+> +
+> +	list_for_each_entry(img, &imgs_list, list) {
+> +		ret = erofs_union_load_img(root, img);
+> +		if (ret)
+> +			return ERR_PTR(ret);
+> +	}
+> +	return root;
+> +}
+> +
+> +int erofs_union_remap(struct erofs_sb_info *sbi)
+> +{
+> +	struct erofs_buffer_head *bh;
+> +	int ret;
+> +
+> +	if (!sbi->data_blks)
+> +		return 0;
+> +
+> +	bh = erofs_balloc(DATA, erofs_pos(sbi, sbi->data_blks), 0, 0);
+> +	if (IS_ERR(bh))
+> +		return PTR_ERR(bh);
+> +
+> +	ret = erofs_mapbh(bh->block);
+> +	DBG_BUGON(ret < 0);
+> +
+> +	sbi->data_blkaddr = erofs_blknr(sbi, erofs_btell(bh, false));
+> +	erofs_dbg("data blkaddr %d, blks %d", sbi->data_blkaddr, sbi->data_blks);
+> +	bh->op = &erofs_drop_directly_bhops;
+> +	erofs_bdrop(bh, false);
+> +	return 0;
+> +}
+> diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+> index 603c2f3..dd75485 100644
+> --- a/mkfs/Makefile.am
+> +++ b/mkfs/Makefile.am
+> @@ -6,4 +6,5 @@ AM_CPPFLAGS = ${libselinux_CFLAGS}
+>   mkfs_erofs_SOURCES = main.c
+>   mkfs_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+>   mkfs_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+> -	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${libdeflate_LIBS}
+> +	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} \
+> +	${libdeflate_LIBS}
+> diff --git a/mkfs/main.c b/mkfs/main.c
+> index bc5ed87..4a47b24 100644
+> --- a/mkfs/main.c
+> +++ b/mkfs/main.c
+> @@ -26,6 +26,7 @@
+>   #include "erofs/compress_hints.h"
+>   #include "erofs/blobchunk.h"
+>   #include "erofs/fragments.h"
+> +#include "erofs/union.h"
+>   #include "../lib/liberofs_private.h"
+>   #include "../lib/liberofs_uuid.h"
+
+static bool rebuild_mode. ?
+
+Thanks,
+Gao Xiang
