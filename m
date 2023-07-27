@@ -4,56 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39AA8C07E8A
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 08:11:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8F54C001E0
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 08:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1690445495;
-	bh=ze2BfjPj3zI6XK14aBXxwpj9cG5VKS+QoT9VkWxAsig=;
+	s=201707; t=1690445508;
+	bh=LaFX3BwmrpvhCQ7689MuoFj6fWFWMuerWJZNZNxWVVc=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=keUwjGpXllC/wwz1Sv/X8K1HRCSR6B6d/RNjAQV6KQ/pwAXKifa/vhq0gHgTOvqJA
-	 zzRzcWrisd17139+C6vRTXVawpr6CX+LrzTcmI/CNXKxTvWNftsX463kwq5LCukXTv
-	 dUVSS4gy2R1YEWVeA9FEBzjNHtxacQrlM+3pwvHWdMjIh8ruWFy0k+4dbDrilU7LIq
-	 ZrGcUawXo6fuB3uz5gKfNll4TincZVPM6SI0bRc1qJ1Xi4A+xOagjfrhrB7sto869C
-	 MxjcZJNYxVDT0kIuFRmME0NjdarlIIAnys8X8lKvalJmO/LvXgQsLzrENwneCIJzDt
-	 myL2UnScn54YA==
+	b=jtLdQuzVDSBN+NOpJcMm3PDJbtOTWN7WyCKbzGxUWTFbW4n2RytQSRLh1nkMV8TlN
+	 UWCwilQxuVsQoDqwiUx42vEfmfkUz3uJaatZ6DAFn9igWvlrbjb74iohE1x5loFUAT
+	 zywET9EYvt4m/NIhJHbj1wy7D9VVro+2zLJA/PpeUmfl65FSFkKPVErDXHABWca+e3
+	 eZ8IqKacDV6N8EQjH31i9J+aoCB399lF2GrGEqjW2uR5L26jsChv3BuDEkzymuhzp4
+	 CsCMXHeSFg/q77qcbnugl3vfLLPbUZfL+4wHQvCRo2XWqMzxBUmubs2/N1gfbzOs1k
+	 uKKFkgqukODKA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RBNlC5wtWz3cSJ
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 18:11:35 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RBNlS2C8Bz2yGd
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jul 2023 18:11:48 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=lwOoY+Od;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=SGV84iDT;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::42a; helo=mail-pf1-x42a.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::434; helo=mail-pf1-x434.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RBNl80Gpnz3bfT
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 18:11:31 +1000 (AEST)
-Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-686f6231bdeso113411b3a.1
-        for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 01:11:31 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RBNlN0gSTz2y1b
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 18:11:43 +1000 (AEST)
+Received: by mail-pf1-x434.google.com with SMTP id d2e1a72fcca58-682eef7d752so204500b3a.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jul 2023 01:11:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690445490; x=1691050290;
+        d=1e100.net; s=20221208; t=1690445502; x=1691050302;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ze2BfjPj3zI6XK14aBXxwpj9cG5VKS+QoT9VkWxAsig=;
-        b=ZPTUmiMWUZE42sq5A6Z2d+XaqxeiwENL2p6rDdW5ecwT49Gugtdw/h7P4ZHfy8/xbw
-         J6n2kXdG3ap514G50G5O2ovnPoqqNV1vn087OdIHwE0y+bjlng4CFZVBKTHMzfzH1LDF
-         iFLTjpjHYEOcrsZ4v4tLcimE2JWyWHne6wZoF4Gi6jdkI1pzT2qfsVYsb9bPRjJoyCQr
-         XzPMcTu+RTfeTPvl53w36WnvOPz8UYZ/7enMKT9fToHCvu8GES5kSdY5Km99TcK/EvFO
-         T+/L87D9UG/MX7dC6eefbI2yXDUsdt6QDCdOcGu1Mkpa7GvJWDEQqCXsYszbpFpqWYtM
-         nE+g==
-X-Gm-Message-State: ABy/qLaXMceykEifgG4qYYVNttoU0+IZC0OBLiOV1ebT7ssWtpvELoU6
-	ZdC7UUaEtT2L0qK4KIb++4iMfA==
-X-Google-Smtp-Source: APBJJlFMZtECqV3NWJubuagzux89byKCTiavknA18umD2w/BadGADzl49oXppHX8YppKwxO9L0rdOg==
-X-Received: by 2002:a05:6a00:1586:b0:67f:8ef5:2643 with SMTP id u6-20020a056a00158600b0067f8ef52643mr5208150pfk.2.1690445490190;
-        Thu, 27 Jul 2023 01:11:30 -0700 (PDT)
+        bh=LaFX3BwmrpvhCQ7689MuoFj6fWFWMuerWJZNZNxWVVc=;
+        b=a2mLlyUIPeZfXmLuqctUq/esO5vR2vhVJkHBYG2mYSYoJKhRthnrj2tdJY06LVbZPJ
+         L4exVZ7eU751TD+4zaI2/ILxJFXJnr1gYEXGa46h1Od5R4We8t6OKK9rHP11zQJfRDq8
+         YMdFyc+9O67vYjlE4Yva18jAoz1u1uVAkg9et6UPX2ROLWEAo4QYU4SFJC/7fjdJUS7r
+         0eJno14LPGTpGJVkht/Enck0cznkxIidadQuw1ljEmjwvAEextoSQZr8sU+xg72qa8BJ
+         PFcyOhhaEkiR/aD9KsBaMVTK8xzcqMpCH9d4x6x9jJA6AqCwPGDQiKacvLjmPZ7rx3jA
+         BaLA==
+X-Gm-Message-State: ABy/qLY1Lja1zyd2GOPgo1zIwWXfkQD7dmy4KAvbQLUOABXrBNGutICp
+	dYF8F4vUzEi5evLugVLWF+FzwA==
+X-Google-Smtp-Source: APBJJlE5krPFtX55mdmbm5NUPWWjP9qjtSRaT4qUAQtTa6jtnXVyWfbzlnq9LXdP1SlmgTnMsVycpA==
+X-Received: by 2002:a05:6a21:78a8:b0:137:3eba:b81f with SMTP id bf40-20020a056a2178a800b001373ebab81fmr6016028pzc.3.1690445502183;
+        Thu, 27 Jul 2023 01:11:42 -0700 (PDT)
 Received: from C02DW0BEMD6R.bytedance.net ([203.208.167.147])
-        by smtp.gmail.com with ESMTPSA id j8-20020aa78d08000000b006828e49c04csm885872pfe.75.2023.07.27.01.11.18
+        by smtp.gmail.com with ESMTPSA id j8-20020aa78d08000000b006828e49c04csm885872pfe.75.2023.07.27.01.11.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Jul 2023 01:11:29 -0700 (PDT)
+        Thu, 27 Jul 2023 01:11:41 -0700 (PDT)
 To: akpm@linux-foundation.org,
 	david@fromorbit.com,
 	tkhai@ya.ru,
@@ -69,9 +69,9 @@ To: akpm@linux-foundation.org,
 	yujie.liu@intel.com,
 	gregkh@linuxfoundation.org,
 	muchun.song@linux.dev
-Subject: [PATCH v3 28/49] dm zoned: dynamically allocate the dm-zoned-meta shrinker
-Date: Thu, 27 Jul 2023 16:04:41 +0800
-Message-Id: <20230727080502.77895-29-zhengqi.arch@bytedance.com>
+Subject: [PATCH v3 29/49] md/raid5: dynamically allocate the md-raid5 shrinker
+Date: Thu, 27 Jul 2023 16:04:42 +0800
+Message-Id: <20230727080502.77895-30-zhengqi.arch@bytedance.com>
 X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 In-Reply-To: <20230727080502.77895-1-zhengqi.arch@bytedance.com>
 References: <20230727080502.77895-1-zhengqi.arch@bytedance.com>
@@ -95,88 +95,91 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 In preparation for implementing lockless slab shrink, use new APIs to
-dynamically allocate the dm-zoned-meta shrinker, so that it can be freed
+dynamically allocate the md-raid5 shrinker, so that it can be freed
 asynchronously using kfree_rcu(). Then it doesn't need to wait for RCU
-read-side critical section when releasing the struct dmz_metadata.
+read-side critical section when releasing the struct r5conf.
 
 Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 ---
- drivers/md/dm-zoned-metadata.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/md/raid5.c | 25 ++++++++++++++-----------
+ drivers/md/raid5.h |  2 +-
+ 2 files changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
-index 9d3cca8e3dc9..0bcb26a43578 100644
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -187,7 +187,7 @@ struct dmz_metadata {
- 	struct rb_root		mblk_rbtree;
- 	struct list_head	mblk_lru_list;
- 	struct list_head	mblk_dirty_list;
--	struct shrinker		mblk_shrinker;
-+	struct shrinker		*mblk_shrinker;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 85b3004594e0..fbb4e6f5ff43 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -7414,7 +7414,7 @@ static void free_conf(struct r5conf *conf)
  
- 	/* Zone allocation management */
- 	struct mutex		map_lock;
-@@ -615,7 +615,7 @@ static unsigned long dmz_shrink_mblock_cache(struct dmz_metadata *zmd,
- static unsigned long dmz_mblock_shrinker_count(struct shrinker *shrink,
- 					       struct shrink_control *sc)
+ 	log_exit(conf);
+ 
+-	unregister_shrinker(&conf->shrinker);
++	shrinker_free(conf->shrinker);
+ 	free_thread_groups(conf);
+ 	shrink_stripes(conf);
+ 	raid5_free_percpu(conf);
+@@ -7462,7 +7462,7 @@ static int raid5_alloc_percpu(struct r5conf *conf)
+ static unsigned long raid5_cache_scan(struct shrinker *shrink,
+ 				      struct shrink_control *sc)
  {
--	struct dmz_metadata *zmd = container_of(shrink, struct dmz_metadata, mblk_shrinker);
-+	struct dmz_metadata *zmd = shrink->private_data;
+-	struct r5conf *conf = container_of(shrink, struct r5conf, shrinker);
++	struct r5conf *conf = shrink->private_data;
+ 	unsigned long ret = SHRINK_STOP;
  
- 	return atomic_read(&zmd->nr_mblks);
- }
-@@ -626,7 +626,7 @@ static unsigned long dmz_mblock_shrinker_count(struct shrinker *shrink,
- static unsigned long dmz_mblock_shrinker_scan(struct shrinker *shrink,
- 					      struct shrink_control *sc)
+ 	if (mutex_trylock(&conf->cache_size_mutex)) {
+@@ -7483,7 +7483,7 @@ static unsigned long raid5_cache_scan(struct shrinker *shrink,
+ static unsigned long raid5_cache_count(struct shrinker *shrink,
+ 				       struct shrink_control *sc)
  {
--	struct dmz_metadata *zmd = container_of(shrink, struct dmz_metadata, mblk_shrinker);
-+	struct dmz_metadata *zmd = shrink->private_data;
- 	unsigned long count;
+-	struct r5conf *conf = container_of(shrink, struct r5conf, shrinker);
++	struct r5conf *conf = shrink->private_data;
  
- 	spin_lock(&zmd->mblk_lock);
-@@ -2936,19 +2936,23 @@ int dmz_ctr_metadata(struct dmz_dev *dev, int num_dev,
+ 	if (conf->max_nr_stripes < conf->min_nr_stripes)
+ 		/* unlikely, but not impossible */
+@@ -7718,18 +7718,21 @@ static struct r5conf *setup_conf(struct mddev *mddev)
+ 	 * it reduces the queue depth and so can hurt throughput.
+ 	 * So set it rather large, scaled by number of devices.
  	 */
- 	zmd->min_nr_mblks = 2 + zmd->nr_map_blocks + zmd->zone_nr_bitmap_blocks * 16;
- 	zmd->max_nr_mblks = zmd->min_nr_mblks + 512;
--	zmd->mblk_shrinker.count_objects = dmz_mblock_shrinker_count;
--	zmd->mblk_shrinker.scan_objects = dmz_mblock_shrinker_scan;
--	zmd->mblk_shrinker.seeks = DEFAULT_SEEKS;
- 
- 	/* Metadata cache shrinker */
--	ret = register_shrinker(&zmd->mblk_shrinker, "dm-zoned-meta:(%u:%u)",
--				MAJOR(dev->bdev->bd_dev),
--				MINOR(dev->bdev->bd_dev));
+-	conf->shrinker.seeks = DEFAULT_SEEKS * conf->raid_disks * 4;
+-	conf->shrinker.scan_objects = raid5_cache_scan;
+-	conf->shrinker.count_objects = raid5_cache_count;
+-	conf->shrinker.batch = 128;
+-	conf->shrinker.flags = 0;
+-	ret = register_shrinker(&conf->shrinker, "md-raid5:%s", mdname(mddev));
 -	if (ret) {
--		dmz_zmd_err(zmd, "Register metadata cache shrinker failed");
-+	zmd->mblk_shrinker = shrinker_alloc(0,  "dm-zoned-meta:(%u:%u)",
-+					    MAJOR(dev->bdev->bd_dev),
-+					    MINOR(dev->bdev->bd_dev));
-+	if (!zmd->mblk_shrinker) {
-+		dmz_zmd_err(zmd, "Allocate metadata cache shrinker failed");
- 		goto err;
+-		pr_warn("md/raid:%s: couldn't register shrinker.\n",
++	conf->shrinker = shrinker_alloc(0, "md-raid5:%s", mdname(mddev));
++	if (!conf->shrinker) {
++		pr_warn("md/raid:%s: couldn't allocate shrinker.\n",
+ 			mdname(mddev));
+ 		goto abort;
  	}
  
-+	zmd->mblk_shrinker->count_objects = dmz_mblock_shrinker_count;
-+	zmd->mblk_shrinker->scan_objects = dmz_mblock_shrinker_scan;
-+	zmd->mblk_shrinker->seeks = DEFAULT_SEEKS;
-+	zmd->mblk_shrinker->private_data = zmd;
++	conf->shrinker->seeks = DEFAULT_SEEKS * conf->raid_disks * 4;
++	conf->shrinker->scan_objects = raid5_cache_scan;
++	conf->shrinker->count_objects = raid5_cache_count;
++	conf->shrinker->batch = 128;
++	conf->shrinker->private_data = conf;
 +
-+	shrinker_register(zmd->mblk_shrinker);
++	shrinker_register(conf->shrinker);
 +
- 	dmz_zmd_info(zmd, "DM-Zoned metadata version %d", zmd->sb_version);
- 	for (i = 0; i < zmd->nr_devs; i++)
- 		dmz_print_dev(zmd, i);
-@@ -2995,7 +2999,7 @@ int dmz_ctr_metadata(struct dmz_dev *dev, int num_dev,
-  */
- void dmz_dtr_metadata(struct dmz_metadata *zmd)
- {
--	unregister_shrinker(&zmd->mblk_shrinker);
-+	shrinker_free(zmd->mblk_shrinker);
- 	dmz_cleanup_metadata(zmd);
- 	kfree(zmd);
- }
+ 	sprintf(pers_name, "raid%d", mddev->new_level);
+ 	rcu_assign_pointer(conf->thread,
+ 			   md_register_thread(raid5d, mddev, pers_name));
+diff --git a/drivers/md/raid5.h b/drivers/md/raid5.h
+index 97a795979a35..22bea20eccbd 100644
+--- a/drivers/md/raid5.h
++++ b/drivers/md/raid5.h
+@@ -670,7 +670,7 @@ struct r5conf {
+ 	wait_queue_head_t	wait_for_stripe;
+ 	wait_queue_head_t	wait_for_overlap;
+ 	unsigned long		cache_state;
+-	struct shrinker		shrinker;
++	struct shrinker		*shrinker;
+ 	int			pool_size; /* number of disks in stripeheads in pool */
+ 	spinlock_t		device_lock;
+ 	struct disk_info	*disks;
 -- 
 2.30.2
 
