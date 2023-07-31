@@ -4,36 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C4040C001DC
-	for <linux-erofs@archiver.kernel.org>; Mon, 31 Jul 2023 10:58:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4ED92C001DC
+	for <linux-erofs@archiver.kernel.org>; Mon, 31 Jul 2023 11:16:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RDwG0297vz301T
-	for <linux-erofs@archiver.kernel.org>; Mon, 31 Jul 2023 20:58:32 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RDwfq6YpDz301V
+	for <linux-erofs@archiver.kernel.org>; Mon, 31 Jul 2023 21:16:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RDwFr0z2nz2y1d
-	for <linux-erofs@lists.ozlabs.org>; Mon, 31 Jul 2023 20:58:22 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Voe5MEo_1690801095;
-Received: from 10.120.130.14(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Voe5MEo_1690801095)
-          by smtp.aliyun-inc.com;
-          Mon, 31 Jul 2023 18:58:17 +0800
-Message-ID: <9b57e5f7-62b6-fd65-4dac-a71c9dc08abc@linux.alibaba.com>
-Date: Mon, 31 Jul 2023 18:58:14 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RDwfh4gvCz2yDR
+	for <linux-erofs@lists.ozlabs.org>; Mon, 31 Jul 2023 21:16:27 +1000 (AEST)
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id A42B067373; Mon, 31 Jul 2023 13:16:22 +0200 (CEST)
+Date: Mon, 31 Jul 2023 13:16:22 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Subject: Re: [syzbot] [erofs?] [fat?] WARNING in erofs_kill_sb
-To: Christoph Hellwig <hch@lst.de>,
- syzbot <syzbot+69c477e882e44ce41ad9@syzkaller.appspotmail.com>
-References: <000000000000f43cab0601c3c902@google.com>
- <20230731093744.GA1788@lst.de>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230731093744.GA1788@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20230731111622.GA3511@lst.de>
+References: <000000000000f43cab0601c3c902@google.com> <20230731093744.GA1788@lst.de> <9b57e5f7-62b6-fd65-4dac-a71c9dc08abc@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9b57e5f7-62b6-fd65-4dac-a71c9dc08abc@linux.alibaba.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -45,39 +39,26 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: brauner@kernel.org, jack@suse.cz, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, sj1557.seo@samsung.com, linux-erofs@lists.ozlabs.org, linkinjeon@kernel.org
+Cc: brauner@kernel.org, jack@suse.cz, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, linkinjeon@kernel.org, linux-fsdevel@vger.kernel.org, huyue2@coolpad.com, syzbot <syzbot+69c477e882e44ce41ad9@syzkaller.appspotmail.com>, sj1557.seo@samsung.com, linux-erofs@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Mon, Jul 31, 2023 at 06:58:14PM +0800, Gao Xiang wrote:
+> Previously, deactivate_locked_super() or .kill_sb() will only be
+> called after fill_super is called, and .s_magic will be set at
+> the very beginning of erofs_fc_fill_super().
+>
+> After ("fs: open block device after superblock creation"), such
+> convension is changed now.  Yet at a quick glance,
+>
+> WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
+>
+> in erofs_kill_sb() can be removed since deactivate_locked_super()
+> will also be called if setup_bdev_super() is falled.  I'd suggest
+> that removing this WARN_ON() in the related commit, or as
+> a following commit of the related branch of the pull request if
+> possible.
 
-
-On 2023/7/31 17:37, Christoph Hellwig wrote:
-> On Mon, Jul 31, 2023 at 12:57:58AM -0700, syzbot wrote:
->> Hello,
->>
->> syzbot found the following issue on:
->>
->> HEAD commit:    d7b3af5a77e8 Add linux-next specific files for 20230728
-> 
-> Hmm, the current linux-next tree does not seem to have that commit ID
-> any more, and the line numbers don't match up.  I think it is the
-> WARN_ON for the magic, which could probably be just removed.  I'll
-> try the reproducers when I find a bit more time.
-
-Previously, deactivate_locked_super() or .kill_sb() will only be
-called after fill_super is called, and .s_magic will be set at
-the very beginning of erofs_fc_fill_super().
-
-After ("fs: open block device after superblock creation"), such
-convension is changed now.  Yet at a quick glance,
-
-WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
-
-in erofs_kill_sb() can be removed since deactivate_locked_super()
-will also be called if setup_bdev_super() is falled.  I'd suggest
-that removing this WARN_ON() in the related commit, or as
-a following commit of the related branch of the pull request if
-possible.
-
-Thanks,
-Gao Xiang
+Agreed.  I wonder if we should really call into ->kill_sb before
+calling into fill_super, but I need to carefull look into the
+details.
