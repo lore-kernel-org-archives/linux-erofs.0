@@ -4,28 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F144C0015E
-	for <linux-erofs@archiver.kernel.org>; Tue,  1 Aug 2023 09:35:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21123C001DF
+	for <linux-erofs@archiver.kernel.org>; Tue,  1 Aug 2023 13:28:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RFVM74gg2z3c9y
-	for <linux-erofs@archiver.kernel.org>; Tue,  1 Aug 2023 19:34:59 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RFbXM4GNFz30PJ
+	for <linux-erofs@archiver.kernel.org>; Tue,  1 Aug 2023 23:28:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RFVM148xtz2y1c
-	for <linux-erofs@lists.ozlabs.org>; Tue,  1 Aug 2023 19:34:51 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R931e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VoqGDSm_1690882480;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VoqGDSm_1690882480)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RFbXD1pNzz2ykX
+	for <linux-erofs@lists.ozlabs.org>; Tue,  1 Aug 2023 23:28:10 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VorV-wL_1690896477;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VorV-wL_1690896477)
           by smtp.aliyun-inc.com;
-          Tue, 01 Aug 2023 17:34:44 +0800
+          Tue, 01 Aug 2023 21:28:02 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs-utils: generate preallocated extents for tarerofs
-Date: Tue,  1 Aug 2023 17:34:39 +0800
-Message-Id: <20230801093439.29059-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 RESEND] erofs-utils: generate preallocated extents for tarerofs
+Date: Tue,  1 Aug 2023 21:27:55 +0800
+Message-Id: <20230801132755.23997-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20230801093439.29059-1-hsiangkao@linux.alibaba.com>
+References: <20230801093439.29059-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -51,20 +53,17 @@ Let's generate an additional mapfile for such use cases:
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-changes since v1:
- - free inode->chunkindexes on the error path (Jingbo);
- - fix erofs_blocklist_open for the original block list files (Jingbo);
- - tarerofs_write_chunk_data => tarerofs_write_chunkes. 
+sent out a wrong version.
 
  include/erofs/blobchunk.h  |   7 +-
  include/erofs/block_list.h |   7 +-
  include/erofs/tar.h        |   1 +
  lib/Makefile.am            |   3 +-
- lib/blobchunk.c            | 159 +++++++++++++++++++++++++++++--------
+ lib/blobchunk.c            | 162 +++++++++++++++++++++++++++++--------
  lib/block_list.c           |  23 ++++--
  lib/tar.c                  |  88 +-------------------
  mkfs/main.c                |  41 ++++++----
- 8 files changed, 182 insertions(+), 147 deletions(-)
+ 8 files changed, 185 insertions(+), 147 deletions(-)
 
 diff --git a/include/erofs/blobchunk.h b/include/erofs/blobchunk.h
 index 7c5645e..010aee1 100644
@@ -134,7 +133,7 @@ index ebe466b..7a5dc03 100644
  liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
  if ENABLE_LZ4
 diff --git a/lib/blobchunk.c b/lib/blobchunk.c
-index 4e4295e..f5d2957 100644
+index 4e4295e..cada5bb 100644
 --- a/lib/blobchunk.c
 +++ b/lib/blobchunk.c
 @@ -20,13 +20,17 @@ struct erofs_blobchunk {
@@ -232,7 +231,7 @@ index 4e4295e..f5d2957 100644
  		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
  	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
  		unit = sizeof(struct erofs_inode_chunk_index);
-@@ -320,46 +332,120 @@ err:
+@@ -320,46 +332,123 @@ err:
  	return ret;
  }
  
@@ -281,8 +280,11 @@ index 4e4295e..f5d2957 100644
 +
 +		chunk = erofs_get_unhashed_chunk(device_id, blkaddr,
 +						 data_offset);
-+		if (IS_ERR(chunk))
++		if (IS_ERR(chunk)) {
++			free(inode->chunkindexes);
++			inode->chunkindexes = NULL;
 +			return PTR_ERR(chunk);
++		}
 +
 +		*(void **)idx++ = chunk;
 +		blkaddr += erofs_blknr(sbi, len);
@@ -373,7 +375,7 @@ index 4e4295e..f5d2957 100644
  }
  
  void erofs_blob_exit(void)
-@@ -405,22 +491,25 @@ int erofs_blob_init(const char *blobfile_path)
+@@ -405,22 +494,25 @@ int erofs_blob_init(const char *blobfile_path)
  	return 0;
  }
  
