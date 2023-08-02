@@ -4,33 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1ABBFC001DE
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 09:18:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 606E4C04A94
+	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 18:54:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1691002496;
+	bh=LM5dlnWT81GTwNGuf8M3+0tmWSk26IjSyG3XZJNlGxg=;
+	h=To:Subject:In-Reply-To:References:Date:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=Ma++CT5y2soZxZfrjzVPSwez1fVyl5L3X+pQLWuoPDMoPU1ccZb1k3Edl8jYEaqwh
+	 +76kT4i5mZEfEp3P9bdxYpVoaA9yUo40QsLs2jSriQBdxJ4c/hCDbGE/CCAhueCROj
+	 oX2fMWwYA8dVDFQaYroFiXZVFON/Ti8wHJWeoBxeMO8osvi19rorMy1VaXqfzOQae4
+	 yxXijFjJ2+u9HhbvBHp5JMQxExn8n0F5IzjG5WkcS3rkINiwoW1wybvMiHwAOinb1o
+	 kqpZ+C/yotfbM2Wn0XB0LUIMKS/S839/BRezaHK8fk7sa5WvO74IBoLAyu5LlWovFm
+	 J0vokoqcIYhpA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RG5y15rFRz3cGY
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 19:18:49 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RGLkm4Kb4z2yD4
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Aug 2023 04:54:56 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; secure) header.d=manguebit.com header.i=@manguebit.com header.a=rsa-sha256 header.s=dkim header.b=q+WFWoVw;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=manguebit.com (client-ip=2a01:4f8:1c1e:a2ae::2; helo=mx.manguebit.com; envelope-from=pc@manguebit.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 397 seconds by postgrey-1.37 at boromir; Thu, 03 Aug 2023 04:54:49 AEST
+Received: from mx.manguebit.com (mx.manguebit.com [IPv6:2a01:4f8:1c1e:a2ae::2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RG5xK2cp3z3c9G
-	for <linux-erofs@lists.ozlabs.org>; Wed,  2 Aug 2023 19:18:13 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VouWExn_1690967886;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VouWExn_1690967886)
-          by smtp.aliyun-inc.com;
-          Wed, 02 Aug 2023 17:18:07 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: xiang@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 16/16] erofs-utils: mkfs: introduce rebuild mode
-Date: Wed,  2 Aug 2023 17:17:50 +0800
-Message-Id: <20230802091750.74181-16-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
-References: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RGLkd0L7qz30gF
+	for <linux-erofs@lists.ozlabs.org>; Thu,  3 Aug 2023 04:54:49 +1000 (AEST)
+Message-ID: <471c346601a7daace902428e56b8579b.pc@manguebit.com>
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=manguebit.com;
+	s=dkim; t=1691002083;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LM5dlnWT81GTwNGuf8M3+0tmWSk26IjSyG3XZJNlGxg=;
+	b=AoW9sil2tg15RxkemetVcD0MQH7aqHOPx9s45t6q2mXk4iNoevRltavPuQhHJickRN06JC
+	9twitSFZovdSmN54RsIMwcP9LbHZ1K86aCiRYdAMGoHCsXm0u0QTFFXXd8+eXqppmU9Kp1
+	Q9pg/HXE5fSlbCGR+84Z036/rAjhvge6A7ij00bIpSGub9bNIOdCFcEgHSqmL5WMnIl1Uf
+	VF0itzVid71/SBJv2BhC3GrS7WwIz1UW8ofISSDCmwhyuSGM2Z2MEfKyccU/HDsRsX7g/2
+	qop6kKp78QWclngeoV7X+/F2IIcl/qVTZIg1Eck9BzyGSdE1iSwHxnOAmhWl8g==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=pc@manguebit.com smtp.mailfrom=pc@manguebit.com
+ARC-Seal: i=1; s=dkim; d=manguebit.com; t=1691002083; a=rsa-sha256;
+	cv=none;
+	b=cp3+mC0OMj7F40WMT7qUHuJDwt5m+4Y0ISygYXiZ4GOzzVuy+cXksXQTjexnbnoHqJnkLv
+	A/Xh4iI5m54yLclEpvkUfV+Z5z+yl3bkiSW7DPqp7d3qf2mgApmdG2r6OnrC3HAVdpFkRR
+	FGIzkra0rLP1oeUH2LzXYwCEn0h5f1JOcg5inVxvd5FI0X3iaV9zS9fxN8/uoNWsRSS8bg
+	YveFBiSbZ9Cz5RuNQ9Dpsxd6wNh4r8y+aIu582+NYrL0UgzojRiCHbVTSN7csXMG8yKhXg
+	YDPPznVWXhPSF0A8cu9cmJOJmS32KIv4mwdX1lo6pb8zpon7EJ1dEyaA13ArHw==
+To: Jeff Layton <jlayton@kernel.org>, Eric Van Hensbergen
+ <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>, Dominique
+ Martinet <asmadeus@codewreck.org>, Christian Schoenebeck
+ <linux_oss@crudebyte.com>, David Howells <dhowells@redhat.com>, Marc
+ Dionne <marc.dionne@auristor.com>, Chris Mason <clm@fb.com>, Josef Bacik
+ <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Xiubo Li
+ <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, Jan Harkes
+ <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu, Tyler Hicks <code@tyhicks.com>,
+ Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu
+ <huyue2@coolpad.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Namjae Jeon
+ <linkinjeon@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Jan Kara
+ <jack@suse.com>, Theodore Ts'o <tytso@mit.edu>, Andreas Dilger
+ <adilger.kernel@dilger.ca>, Jaegeuk Kim <jaegeuk@kernel.org>, OGAWA
+ Hirofumi <hirofumi@mail.parknet.co.jp>, Miklos Szeredi
+ <miklos@szeredi.hu>, Bob Peterson <rpeterso@redhat.com>, Andreas
+ Gruenbacher <agruenba@redhat.com>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Tejun Heo <tj@kernel.org>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Trond
+ Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker
+ <anna@kernel.org>, Konstantin Komarov
+ <almaz.alexandrovich@paragon-software.com>, Mark Fasheh <mark@fasheh.com>,
+ Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Mike Marshall <hubcap@omnibond.com>, Martin Brandenburg
+ <martin@omnibond.com>, Luis Chamberlain <mcgrof@kernel.org>, Kees Cook
+ <keescook@chromium.org>, Iurii Zaikin <yzaikin@google.com>, Steve French
+ <sfrench@samba.org>, Ronnie Sahlberg <lsahlber@redhat.com>, Shyam Prasad N
+ <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, Sergey Senozhatsky
+ <senozhatsky@chromium.org>, Richard Weinberger <richard@nod.at>, Hans de
+ Goede <hdegoede@redhat.com>, Hugh Dickins <hughd@google.com>, Andrew
+ Morton <akpm@linux-foundation.org>, "Darrick J. Wong" <djwong@kernel.org>
+Subject: Re: [PATCH v6 1/7] fs: pass the request_mask to generic_fillattr
+In-Reply-To: <20230725-mgctime-v6-1-a794c2b7abca@kernel.org>
+References: <20230725-mgctime-v6-0-a794c2b7abca@kernel.org>
+ <20230725-mgctime-v6-1-a794c2b7abca@kernel.org>
+Date: Wed, 02 Aug 2023 15:47:56 -0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -42,269 +102,82 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Paulo Alcantara via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Paulo Alcantara <pc@manguebit.com>
+Cc: Jeff Layton <jlayton@kernel.org>, Dave Chinner <david@fromorbit.com>, linux-mm@kvack.org, linux-mtd@lists.infradead.org, linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org, codalist@coda.cs.cmu.edu, cluster-devel@redhat.com, linux-ext4@vger.kernel.org, devel@lists.orangefs.org, Anthony Iliopoulos <ailiop@suse.com>, ecryptfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Introduce a new rebuild mode merging multiple erofs images generated
-from tarfs mode.  This can be called like:
+Jeff Layton <jlayton@kernel.org> writes:
 
-	mkfs.erofs IMAGE UPPER_IMAGE LOWER_IMAGE ...
+> generic_fillattr just fills in the entire stat struct indiscriminately
+> today, copying data from the inode. There is at least one attribute
+> (STATX_CHANGE_COOKIE) that can have side effects when it is reported,
+> and we're looking at adding more with the addition of multigrain
+> timestamps.
+>
+> Add a request_mask argument to generic_fillattr and have most callers
+> just pass in the value that is passed to getattr. Have other callers
+> (e.g. ksmbd) just pass in STATX_BASIC_STATS. Also move the setting of
+> STATX_CHANGE_COOKIE into generic_fillattr.
+>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> ---
+>  fs/9p/vfs_inode.c       |  4 ++--
+>  fs/9p/vfs_inode_dotl.c  |  4 ++--
+>  fs/afs/inode.c          |  2 +-
+>  fs/btrfs/inode.c        |  2 +-
+>  fs/ceph/inode.c         |  2 +-
+>  fs/coda/inode.c         |  3 ++-
+>  fs/ecryptfs/inode.c     |  5 +++--
+>  fs/erofs/inode.c        |  2 +-
+>  fs/exfat/file.c         |  2 +-
+>  fs/ext2/inode.c         |  2 +-
+>  fs/ext4/inode.c         |  2 +-
+>  fs/f2fs/file.c          |  2 +-
+>  fs/fat/file.c           |  2 +-
+>  fs/fuse/dir.c           |  2 +-
+>  fs/gfs2/inode.c         |  2 +-
+>  fs/hfsplus/inode.c      |  2 +-
+>  fs/kernfs/inode.c       |  2 +-
+>  fs/libfs.c              |  4 ++--
+>  fs/minix/inode.c        |  2 +-
+>  fs/nfs/inode.c          |  2 +-
+>  fs/nfs/namespace.c      |  3 ++-
+>  fs/ntfs3/file.c         |  2 +-
+>  fs/ocfs2/file.c         |  2 +-
+>  fs/orangefs/inode.c     |  2 +-
+>  fs/proc/base.c          |  4 ++--
+>  fs/proc/fd.c            |  2 +-
+>  fs/proc/generic.c       |  2 +-
+>  fs/proc/proc_net.c      |  2 +-
+>  fs/proc/proc_sysctl.c   |  2 +-
+>  fs/proc/root.c          |  3 ++-
+>  fs/smb/client/inode.c   |  2 +-
+>  fs/smb/server/smb2pdu.c | 22 +++++++++++-----------
+>  fs/smb/server/vfs.c     |  3 ++-
+>  fs/stat.c               | 18 ++++++++++--------
+>  fs/sysv/itree.c         |  3 ++-
+>  fs/ubifs/dir.c          |  2 +-
+>  fs/udf/symlink.c        |  2 +-
+>  fs/vboxsf/utils.c       |  2 +-
+>  include/linux/fs.h      |  2 +-
+>  mm/shmem.c              |  2 +-
+>  40 files changed, 70 insertions(+), 62 deletions(-)
+>
+> [...]
+>
+> diff --git a/fs/smb/client/inode.c b/fs/smb/client/inode.c
+> index 218f03dd3f52..93fe43789d7a 100644
+> --- a/fs/smb/client/inode.c
+> +++ b/fs/smb/client/inode.c
+> @@ -2540,7 +2540,7 @@ int cifs_getattr(struct mnt_idmap *idmap, const struct path *path,
+>  			return rc;
+>  	}
+>  
+> -	generic_fillattr(&nop_mnt_idmap, inode, stat);
+> +	generic_fillattr(&nop_mnt_idmap, request_mask, inode, stat);
+>  	stat->blksize = cifs_sb->ctx->bsize;
+>  	stat->ino = CIFS_I(inode)->uniqueid;
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- include/erofs/rebuild.h |   1 +
- lib/rebuild.c           |  25 ++++++++++
- mkfs/main.c             | 108 +++++++++++++++++++++++++---------------
- 3 files changed, 93 insertions(+), 41 deletions(-)
-
-diff --git a/include/erofs/rebuild.h b/include/erofs/rebuild.h
-index 55cd856..04fcb26 100644
---- a/include/erofs/rebuild.h
-+++ b/include/erofs/rebuild.h
-@@ -23,6 +23,7 @@ void erofs_cleanup_imgs(void);
- 
- int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_img *img,
- 		unsigned long **datablk_map, unsigned long *datablks);
-+struct erofs_inode *erofs_rebuild_load_trees(void);
- 
- struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
- 		char *path, bool aufs, bool *whout, bool *opq);
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index f641c40..d23bbdf 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -417,6 +417,31 @@ exit:
- 	return ret;
- }
- 
-+struct erofs_inode *erofs_rebuild_load_trees(void)
-+{
-+	struct erofs_img *img;
-+	struct erofs_inode *root;
-+	int ret, index = 0;
-+
-+	root = erofs_new_inode();
-+	if (IS_ERR(root))
-+		return root;
-+	root->i_srcpath = strdup("/");
-+	root->i_mode = S_IFDIR | 0777;
-+	root->i_parent = root;
-+	root->i_mtime = root->sbi->build_time;
-+	root->i_mtime_nsec = root->sbi->build_time_nsec;
-+	erofs_init_empty_dir(root);
-+
-+	list_for_each_entry(img, &imgs_list, list) {
-+		ret = erofs_rebuild_load_tree(root, img, NULL, NULL);
-+		if (ret)
-+			return ERR_PTR(ret);
-+		sbi.devs[index++].blocks = img->sbi.devs[0].blocks;
-+	}
-+	return root;
-+}
-+
- struct erofs_img *erofs_get_img(const char *path)
- {
- 	struct erofs_img *img = malloc(sizeof(*img));
-diff --git a/mkfs/main.c b/mkfs/main.c
-index b495a54..3290ec8 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -26,6 +26,7 @@
- #include "erofs/compress_hints.h"
- #include "erofs/blobchunk.h"
- #include "erofs/fragments.h"
-+#include "erofs/rebuild.h"
- #include "../lib/liberofs_private.h"
- #include "../lib/liberofs_uuid.h"
- 
-@@ -132,6 +133,7 @@ static void usage(void)
- static unsigned int pclustersize_packed, pclustersize_max;
- static struct erofs_tarfile erofstar;
- static bool tar_mode;
-+static bool rebuild_mode;
- 
- static int parse_extended_opts(const char *opts)
- {
-@@ -275,7 +277,8 @@ static int mkfs_parse_compress_algs(char *algs)
- static int mkfs_parse_options_cfg(int argc, char *argv[])
- {
- 	char *endptr;
--	int opt, i;
-+	struct stat st;
-+	int opt, i, err;
- 	bool quiet = false;
- 
- 	while ((opt = getopt_long(argc, argv, "C:E:L:T:U:b:d:x:z:",
-@@ -531,7 +534,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 		} else {
- 			erofstar.fd = STDIN_FILENO;
- 		}
--	}else {
-+	} else {
- 		cfg.c_src_path = realpath(argv[optind++], NULL);
- 		if (!cfg.c_src_path) {
- 			erofs_err("failed to parse source directory: %s",
-@@ -539,11 +542,39 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 			return -ENOENT;
- 		}
- 
--		if (optind < argc) {
-+		if (tar_mode) {
-+			erofstar.fd = open(cfg.c_src_path, O_RDONLY);
-+			if (erofstar.fd < 0) {
-+				erofs_err("failed to open file: %s", cfg.c_src_path);
-+				usage();
-+				return -errno;
-+			}
-+		} else {
-+			err = lstat(cfg.c_src_path, &st);
-+			if (err)
-+				return -errno;
-+			if (S_ISDIR(st.st_mode))
-+				erofs_set_fs_root(cfg.c_src_path);
-+			else
-+				rebuild_mode = true;
-+		}
-+
-+		if (rebuild_mode) {
-+			optind--;
-+			while (optind < argc) {
-+				err = erofs_add_img(argv[optind++]);
-+				if (err) {
-+					erofs_err("failed to parse image file");
-+					erofs_cleanup_imgs();
-+					return err;
-+				}
-+			}
-+		} else if (optind < argc) {
- 			erofs_err("unexpected argument: %s\n", argv[optind]);
- 			return -EINVAL;
- 		}
- 	}
-+
- 	if (quiet) {
- 		cfg.c_dbg_lvl = EROFS_ERR;
- 		cfg.c_showprogress = false;
-@@ -734,7 +765,6 @@ int main(int argc, char **argv)
- 	struct erofs_buffer_head *sb_bh;
- 	struct erofs_inode *root_inode, *packed_inode;
- 	erofs_nid_t root_nid, packed_nid;
--	struct stat st;
- 	erofs_blk_t nblocks;
- 	struct timeval t;
- 	char uuid_str[37];
-@@ -757,26 +787,6 @@ int main(int argc, char **argv)
- 		return 1;
- 	}
- 
--	if (!tar_mode) {
--		err = lstat(cfg.c_src_path, &st);
--		if (err)
--			return 1;
--		if (!S_ISDIR(st.st_mode)) {
--			erofs_err("root of the filesystem is not a directory - %s",
--				  cfg.c_src_path);
--			usage();
--			return 1;
--		}
--		erofs_set_fs_root(cfg.c_src_path);
--	} else if (cfg.c_src_path) {
--		erofstar.fd = open(cfg.c_src_path, O_RDONLY);
--		if (erofstar.fd < 0) {
--			erofs_err("failed to open file: %s", cfg.c_src_path);
--			usage();
--			return 1;
--		}
--	}
--
- 	if (cfg.c_unix_timestamp != -1) {
- 		sbi.build_time      = cfg.c_unix_timestamp;
- 		sbi.build_time_nsec = 0;
-@@ -843,6 +853,9 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
-+	if (rebuild_mode)
-+		sbi.blkszbits = 9;
-+
- 	sb_bh = erofs_buffer_init();
- 	if (IS_ERR(sb_bh)) {
- 		err = PTR_ERR(sb_bh);
-@@ -900,6 +913,8 @@ int main(int argc, char **argv)
- 
- 	if ((erofstar.index_mode && !erofstar.mapfile) || cfg.c_blobdev_path)
- 		err = erofs_mkfs_init_devices(&sbi, 1);
-+	else if (rebuild_mode)
-+		err = erofs_mkfs_init_devices(&sbi, imgs_count);
- 	if (err) {
- 		erofs_err("failed to generate device table: %s",
- 			  erofs_strerror(err));
-@@ -913,23 +928,7 @@ int main(int argc, char **argv)
- 	if (cfg.c_extra_ea_name_prefixes)
- 		erofs_xattr_write_name_prefixes(&sbi, packedfile);
- 
--	if (!tar_mode) {
--		err = erofs_build_shared_xattrs_from_path(&sbi, cfg.c_src_path);
--		if (err) {
--			erofs_err("failed to build shared xattrs: %s",
--				  erofs_strerror(err));
--			goto exit;
--		}
--
--		if (cfg.c_extra_ea_name_prefixes)
--			erofs_xattr_write_name_prefixes(&sbi, packedfile);
--
--		root_inode = erofs_mkfs_build_tree_from_path(cfg.c_src_path);
--		if (IS_ERR(root_inode)) {
--			err = PTR_ERR(root_inode);
--			goto exit;
--		}
--	} else {
-+	if (tar_mode) {
- 		root_inode = erofs_new_inode();
- 		if (IS_ERR(root_inode)) {
- 			err = PTR_ERR(root_inode);
-@@ -950,6 +949,32 @@ int main(int argc, char **argv)
- 		err = erofs_rebuild_dump_tree(root_inode, false);
- 		if (err < 0)
- 			goto exit;
-+	} else if (rebuild_mode) {
-+		root_inode = erofs_rebuild_load_trees();
-+		if (IS_ERR(root_inode)) {
-+			err = PTR_ERR(root_inode);
-+			goto exit;
-+		}
-+
-+		err = erofs_rebuild_dump_tree(root_inode, true);
-+		if (err)
-+			goto exit;
-+	} else {
-+		err = erofs_build_shared_xattrs_from_path(&sbi, cfg.c_src_path);
-+		if (err) {
-+			erofs_err("failed to build shared xattrs: %s",
-+				  erofs_strerror(err));
-+			goto exit;
-+		}
-+
-+		if (cfg.c_extra_ea_name_prefixes)
-+			erofs_xattr_write_name_prefixes(&sbi, packedfile);
-+
-+		root_inode = erofs_mkfs_build_tree_from_path(cfg.c_src_path);
-+		if (IS_ERR(root_inode)) {
-+			err = PTR_ERR(root_inode);
-+			goto exit;
-+		}
- 	}
- 	root_nid = erofs_lookupnid(root_inode);
- 	erofs_iput(root_inode);
-@@ -1003,6 +1028,7 @@ exit:
- 		z_erofs_fragments_exit();
- 	erofs_packedfile_exit();
- 	erofs_xattr_cleanup_name_prefixes();
-+	erofs_cleanup_imgs();
- 	erofs_exit_configure();
- 
- 	if (err) {
--- 
-2.19.1.6.gb485710b
-
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
