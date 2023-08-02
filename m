@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8714C001DF
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 09:18:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B585C001DF
+	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 09:18:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RG5x86wsQz30gP
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 19:18:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RG5xG627Wz304b
+	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 19:18:10 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RG5x40PQ8z2xr6
-	for <linux-erofs@lists.ozlabs.org>; Wed,  2 Aug 2023 19:17:57 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VouOMFr_1690967870;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VouOMFr_1690967870)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RG5x42Mt3z2ymM
+	for <linux-erofs@lists.ozlabs.org>; Wed,  2 Aug 2023 19:18:00 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VouSZHf_1690967875;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VouSZHf_1690967875)
           by smtp.aliyun-inc.com;
-          Wed, 02 Aug 2023 17:17:51 +0800
+          Wed, 02 Aug 2023 17:17:55 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 01/16] erofs-utils: fix tar.h
-Date: Wed,  2 Aug 2023 17:17:35 +0800
-Message-Id: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 05/16] erofs-utils: read dis->blocks in erofs_init_devices()
+Date: Wed,  2 Aug 2023 17:17:39 +0800
+Message-Id: <20230802091750.74181-5-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
+References: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,43 +45,45 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Include "internal.h" to fix the dependency on prototypes of `struct
-erofs_inode` and `struct erofs_sb_info`.
+Read dis->blocks in erofs_init_devices().  Also fix the missing
+le32_to_cpu() when reading mapped_blkaddr.
+
+Initialize sbi->extra_devices from on-disk extra_devices.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- include/erofs/tar.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ lib/super.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/include/erofs/tar.h b/include/erofs/tar.h
-index 8d3f8de..b7c2ef8 100644
---- a/include/erofs/tar.h
-+++ b/include/erofs/tar.h
-@@ -2,8 +2,15 @@
- #ifndef __EROFS_TAR_H
- #define __EROFS_TAR_H
+diff --git a/lib/super.c b/lib/super.c
+index 16a1d62..1e4f9f4 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -36,11 +36,7 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
+ 	else
+ 		ondisk_extradevs = le16_to_cpu(dsb->extra_devices);
  
-+#ifdef __cplusplus
-+extern "C"
-+{
-+#endif
-+
- #include <sys/stat.h>
+-	if (ondisk_extradevs != sbi->extra_devices) {
+-		erofs_err("extra devices don't match (ondisk %u, given %u)",
+-			  ondisk_extradevs, sbi->extra_devices);
+-		return -EINVAL;
+-	}
++	sbi->extra_devices = ondisk_extradevs;
+ 	if (!ondisk_extradevs)
+ 		return 0;
  
-+#include "internal.h"
-+
- struct erofs_pax_header {
- 	struct stat st;
- 	bool use_mtime;
-@@ -27,4 +34,8 @@ int tarerofs_parse_tar(struct erofs_inode *root, struct erofs_tarfile *tar);
- int tarerofs_reserve_devtable(struct erofs_sb_info *sbi, unsigned int devices);
- int tarerofs_write_devtable(struct erofs_sb_info *sbi, struct erofs_tarfile *tar);
+@@ -59,8 +55,9 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
+ 			return ret;
+ 		}
  
-+#ifdef __cplusplus
-+}
-+#endif
-+
- #endif
+-		sbi->devs[i].mapped_blkaddr = dis.mapped_blkaddr;
+-		sbi->total_blocks += dis.blocks;
++		sbi->devs[i].mapped_blkaddr = le32_to_cpu(dis.mapped_blkaddr);
++		sbi->devs[i].blocks = le32_to_cpu(dis.blocks);
++		sbi->total_blocks += sbi->devs[i].blocks;
+ 		pos += EROFS_DEVT_SLOT_SIZE;
+ 	}
+ 	return 0;
 -- 
 2.19.1.6.gb485710b
 
