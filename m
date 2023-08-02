@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 240C5C04A94
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 09:18:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B95CC001DF
+	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 09:18:18 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RG5xK6B7cz3brX
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 19:18:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RG5xN6Vcpz3cC7
+	for <linux-erofs@archiver.kernel.org>; Wed,  2 Aug 2023 19:18:16 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RG5x42bQXz2ypx
-	for <linux-erofs@lists.ozlabs.org>; Wed,  2 Aug 2023 19:17:57 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R641e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VouWEry_1690967871;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VouWEry_1690967871)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RG5x4314Wz2ypy
+	for <linux-erofs@lists.ozlabs.org>; Wed,  2 Aug 2023 19:17:59 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VouWeDL_1690967873;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VouWeDL_1690967873)
           by smtp.aliyun-inc.com;
-          Wed, 02 Aug 2023 17:17:52 +0800
+          Wed, 02 Aug 2023 17:17:54 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 02/16] erofs-utils: lib: add list_splice_tail() helper
-Date: Wed,  2 Aug 2023 17:17:36 +0800
-Message-Id: <20230802091750.74181-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 04/16] erofs-utils: read i_ino in erofs_read_inode_from_disk()
+Date: Wed,  2 Aug 2023 17:17:38 +0800
+Message-Id: <20230802091750.74181-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
 References: <20230802091750.74181-1-jefflexu@linux.alibaba.com>
@@ -45,44 +45,33 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add list_splice_tail() helper.
+Read on-disk ino and store it in i_ino[0].
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- include/erofs/list.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ lib/namei.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/erofs/list.h b/include/erofs/list.h
-index 3f5da1a..d7a9fee 100644
---- a/include/erofs/list.h
-+++ b/include/erofs/list.h
-@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
- 	return head->next == head;
- }
+diff --git a/lib/namei.c b/lib/namei.c
+index 1023a9a..2bb1d4c 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -60,6 +60,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		die = (struct erofs_inode_extended *)buf;
+ 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(die->i_mode);
++		vi->i_ino[0] = le32_to_cpu(die->i_ino);
  
-+static inline void __list_splice(struct list_head *list,
-+		struct list_head *prev, struct list_head *next)
-+{
-+	struct list_head *first = list->next;
-+	struct list_head *last = list->prev;
-+
-+	first->prev = prev;
-+	prev->next = first;
-+
-+	last->next = next;
-+	next->prev = last;
-+}
-+
-+static inline void list_splice_tail(struct list_head *list,
-+				    struct list_head *head)
-+{
-+	if (!list_empty(list))
-+		__list_splice(list, head->prev, head);
-+}
-+
- #define list_entry(ptr, type, member) container_of(ptr, type, member)
+ 		switch (vi->i_mode & S_IFMT) {
+ 		case S_IFREG:
+@@ -95,6 +96,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		vi->inode_isize = sizeof(struct erofs_inode_compact);
+ 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(dic->i_mode);
++		vi->i_ino[0] = le32_to_cpu(dic->i_ino);
  
- #define list_first_entry(ptr, type, member)                                    \
+ 		switch (vi->i_mode & S_IFMT) {
+ 		case S_IFREG:
 -- 
 2.19.1.6.gb485710b
 
