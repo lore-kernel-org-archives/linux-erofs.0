@@ -4,56 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74FEAC04A6A
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Aug 2023 11:13:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3EDCFC04FE0
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Aug 2023 11:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1691406785;
-	bh=iXZOOFmuwv6/pQ9jzhgVENlSQpZ5agnqrhquB4Bsoao=;
+	s=201707; t=1691406797;
+	bh=urGrhHBCGKwKuhIkQmOHRuysXuy1mToQA+AaHWoY6PY=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=j58eNldFkku67mIiW2LUJdwnAbNqlIFzOMca5LA4PNAWjpWUNaFix5pc74wMLwpGj
-	 k3wRUugI26llzkcVauKFpT47VldIufgjcRCiGLolKsEPbF1DENDxvfRSAkbWyzNE9k
-	 ecx7EWhzc/5ZTlooGQG3F+nuzq9JW4IJEVQ6b0beQueN1SBdCVstl9l9BaGBY8J8P7
-	 Uqc1D9Pz5Y+Rm/zD3Elr258zl4xoU3HbNow3r7oJtHCdc/fOpAFvLmoZrFWwTKuw8I
-	 8WdU2cWnkKlk52D29RqIT44uZ2F7Jeg8Ie9fbU1nw4/RGfFW/Olo+ef4QmSwXO02Su
-	 TQzBe3R+xXSAQ==
+	b=PV3+zNe2u6Uw30pTNEn5yP/osDqgCw04RYQVZ0LOZF9Z/r4qiMqu2ZB65L1qwiIhQ
+	 Zuu1X09vIRHtOlmsymUXTXuvGudHjV97hE5L0tlb3ziA1XIm48+yG9nLrWu25iJ+8g
+	 G3SOnA0VR0xtSOXPxbzXGvkmLI5VA06pmV2OkSVLWTRY8BByZiC3E1VT953oWnoHaj
+	 retW7BhgLe029q31nMeRw2ZFUMzRG/DvyY0ssAOe88F0yEOgvcypWCPZHnklC24W/u
+	 6qGMgTUuaz1Q0t2TXPqAzTRQ1GsabqspjClykWaiNLJ2bgVQ30bezMBsn68nVw1dUz
+	 97LZB4E7asnkA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RKDFY60B6z2yV5
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Aug 2023 21:13:05 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RKDFn68dGz2yW4
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Aug 2023 21:13:17 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=g3KOL41m;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=gvEcin7S;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::633; helo=mail-pl1-x633.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::534; helo=mail-pg1-x534.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RKDFT1NxLz2yGB
-	for <linux-erofs@lists.ozlabs.org>; Mon,  7 Aug 2023 21:13:01 +1000 (AEST)
-Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1bc4dc65aa7so5891695ad.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 07 Aug 2023 04:13:01 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RKDFh6ZZWz2yV5
+	for <linux-erofs@lists.ozlabs.org>; Mon,  7 Aug 2023 21:13:12 +1000 (AEST)
+Received: by mail-pg1-x534.google.com with SMTP id 41be03b00d2f7-51f64817809so360316a12.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 07 Aug 2023 04:13:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691406778; x=1692011578;
+        d=1e100.net; s=20221208; t=1691406791; x=1692011591;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iXZOOFmuwv6/pQ9jzhgVENlSQpZ5agnqrhquB4Bsoao=;
-        b=TlBYyGnf4IymQUsciBwejwK7YWDV8ZxbHXJ2RW1S3eoxszc31PAshRPoe9rRT7Mk5o
-         YKbYWd8upVLerLMjEX4+rTGSj5e7CqKFNEJZXWVh1/N9xS2VxFppU9Y+yBzFU3P3ByfY
-         YL/O2L6qPkrpdqXqK9DSWs20ABuoztN11fy0Dc6xxCxEpgGlFbN4L24ucukFCzwjnheS
-         1cc/RM7yD8cscwjaxUoTy91JqAlz4hMZG6ZefMH/lFUqqmwNQM2z+8Op1j5GD2OKr+Us
-         WvBANNP7cHD5Iii2YzCefB3IFEcnotqc4f04AU5TFnGUXjCeJ62+JNpghodPcSNrVmfQ
-         3G4w==
-X-Gm-Message-State: ABy/qLbnaGKnX11+SPdsxGoGK2N/xtxBmvqOuKQQAK/mZ2f5KgaDxpZY
-	AhiezTG6eylIe00TMSngvDbFjA==
-X-Google-Smtp-Source: APBJJlFDSvCAq9gTdHkFF7Bzn2YL0W/qaEPzJ7AdGJ/zjCXgG1JFMDLiaFr2l43qqes0mOglkhZu9g==
-X-Received: by 2002:a17:902:f688:b0:1bb:d7d4:e2b with SMTP id l8-20020a170902f68800b001bbd7d40e2bmr33138766plg.0.1691406778592;
-        Mon, 07 Aug 2023 04:12:58 -0700 (PDT)
+        bh=urGrhHBCGKwKuhIkQmOHRuysXuy1mToQA+AaHWoY6PY=;
+        b=Tal0gHtZyVi+1NvmqSTUb1BseZUEIZeMpbrwo0fwg25XSX/DpGschkIOESf+XrbZo4
+         HA6ioUff6j+NIQ8CJVn9P4Mq6IlGdnxkcCaKo426fqW2lvATFxdm5bG/SWv2xd4QrXUO
+         i9km+IPFhTP0WHvzVVLNjy8lvvdEDRISV8DxdgsNERWulQZ0wtlBEFatHltCqTEAJzHS
+         IVQI9ijWbKX1qViFUC0/gbdcDx778iT4IPRr2uwIxphYpDfXSIyTg1vOxm4yLkKInt24
+         UTFHcHxyOd3c9oZlt4q7XfyqV9SWk9SGJ2VeFQjYKFKr/mVeQrNf/D5SYBmUyzjWw2CV
+         JJUw==
+X-Gm-Message-State: ABy/qLbM8nmZ79pC05NXDCZbx15vAecMSURkp/2npivEv1D/lH0GgbeZ
+	R4dilJuTX5li/9QzlpKRGj+HPg==
+X-Google-Smtp-Source: APBJJlGG9fl/KZM7Wu/aB3nA3qPBXzAgCls0ii/X4UboFM2rQSd7zbDq190u8vBbdPOZ8QFUsdy1lw==
+X-Received: by 2002:a17:90a:faf:b0:268:abc:83d5 with SMTP id 44-20020a17090a0faf00b002680abc83d5mr23478200pjz.4.1691406791204;
+        Mon, 07 Aug 2023 04:13:11 -0700 (PDT)
 Received: from C02DW0BEMD6R.bytedance.net ([203.208.167.146])
-        by smtp.gmail.com with ESMTPSA id y13-20020a17090aca8d00b0025be7b69d73sm5861191pjt.12.2023.08.07.04.12.45
+        by smtp.gmail.com with ESMTPSA id y13-20020a17090aca8d00b0025be7b69d73sm5861191pjt.12.2023.08.07.04.12.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Aug 2023 04:12:58 -0700 (PDT)
+        Mon, 07 Aug 2023 04:13:10 -0700 (PDT)
 To: akpm@linux-foundation.org,
 	david@fromorbit.com,
 	tkhai@ya.ru,
@@ -71,9 +71,9 @@ To: akpm@linux-foundation.org,
 	muchun.song@linux.dev,
 	simon.horman@corigine.com,
 	dlemoal@kernel.org
-Subject: [PATCH v4 14/48] nfs: dynamically allocate the nfs-acl shrinker
-Date: Mon,  7 Aug 2023 19:09:02 +0800
-Message-Id: <20230807110936.21819-15-zhengqi.arch@bytedance.com>
+Subject: [PATCH v4 15/48] nfsd: dynamically allocate the nfsd-filecache shrinker
+Date: Mon,  7 Aug 2023 19:09:03 +0800
+Message-Id: <20230807110936.21819-16-zhengqi.arch@bytedance.com>
 X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 In-Reply-To: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
 References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
@@ -96,62 +96,72 @@ Cc: kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.l
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Use new APIs to dynamically allocate the nfs-acl shrinker.
+Use new APIs to dynamically allocate the nfsd-filecache shrinker.
 
 Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 ---
- fs/nfs/super.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ fs/nfsd/filecache.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 2284f749d892..1b5cd0444dda 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -129,11 +129,7 @@ static void nfs_ssc_unregister_ops(void)
+diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
+index ee9c923192e0..9c62b4502539 100644
+--- a/fs/nfsd/filecache.c
++++ b/fs/nfsd/filecache.c
+@@ -521,11 +521,7 @@ nfsd_file_lru_scan(struct shrinker *s, struct shrink_control *sc)
+ 	return ret;
  }
- #endif /* CONFIG_NFS_V4_2 */
  
--static struct shrinker acl_shrinker = {
--	.count_objects	= nfs_access_cache_count,
--	.scan_objects	= nfs_access_cache_scan,
--	.seeks		= DEFAULT_SEEKS,
+-static struct shrinker	nfsd_file_shrinker = {
+-	.scan_objects = nfsd_file_lru_scan,
+-	.count_objects = nfsd_file_lru_count,
+-	.seeks = 1,
 -};
-+static struct shrinker *acl_shrinker;
++static struct shrinker *nfsd_file_shrinker;
  
- /*
-  * Register the NFS filesystems
-@@ -153,9 +149,19 @@ int __init register_nfs_fs(void)
- 	ret = nfs_register_sysctl();
- 	if (ret < 0)
- 		goto error_2;
--	ret = register_shrinker(&acl_shrinker, "nfs-acl");
--	if (ret < 0)
-+
-+	acl_shrinker = shrinker_alloc(0, "nfs-acl");
-+	if (!acl_shrinker) {
+ /**
+  * nfsd_file_cond_queue - conditionally unhash and queue a nfsd_file
+@@ -746,12 +742,19 @@ nfsd_file_cache_init(void)
+ 		goto out_err;
+ 	}
+ 
+-	ret = register_shrinker(&nfsd_file_shrinker, "nfsd-filecache");
+-	if (ret) {
+-		pr_err("nfsd: failed to register nfsd_file_shrinker: %d\n", ret);
++	nfsd_file_shrinker = shrinker_alloc(0, "nfsd-filecache");
++	if (!nfsd_file_shrinker) {
 +		ret = -ENOMEM;
- 		goto error_3;
-+	}
++		pr_err("nfsd: failed to allocate nfsd_file_shrinker\n");
+ 		goto out_lru;
+ 	}
+ 
++	nfsd_file_shrinker->count_objects = nfsd_file_lru_count;
++	nfsd_file_shrinker->scan_objects = nfsd_file_lru_scan;
++	nfsd_file_shrinker->seeks = 1;
 +
-+	acl_shrinker->count_objects = nfs_access_cache_count;
-+	acl_shrinker->scan_objects = nfs_access_cache_scan;
-+	acl_shrinker->seeks = DEFAULT_SEEKS;
++	shrinker_register(nfsd_file_shrinker);
 +
-+	shrinker_register(acl_shrinker);
-+
- #ifdef CONFIG_NFS_V4_2
- 	nfs_ssc_register_ops();
- #endif
-@@ -175,7 +181,7 @@ int __init register_nfs_fs(void)
-  */
- void __exit unregister_nfs_fs(void)
- {
--	unregister_shrinker(&acl_shrinker);
-+	shrinker_free(acl_shrinker);
- 	nfs_unregister_sysctl();
- 	unregister_nfs4_fs();
- #ifdef CONFIG_NFS_V4_2
+ 	ret = lease_register_notifier(&nfsd_file_lease_notifier);
+ 	if (ret) {
+ 		pr_err("nfsd: unable to register lease notifier: %d\n", ret);
+@@ -774,7 +777,7 @@ nfsd_file_cache_init(void)
+ out_notifier:
+ 	lease_unregister_notifier(&nfsd_file_lease_notifier);
+ out_shrinker:
+-	unregister_shrinker(&nfsd_file_shrinker);
++	shrinker_free(nfsd_file_shrinker);
+ out_lru:
+ 	list_lru_destroy(&nfsd_file_lru);
+ out_err:
+@@ -891,7 +894,7 @@ nfsd_file_cache_shutdown(void)
+ 		return;
+ 
+ 	lease_unregister_notifier(&nfsd_file_lease_notifier);
+-	unregister_shrinker(&nfsd_file_shrinker);
++	shrinker_free(nfsd_file_shrinker);
+ 	/*
+ 	 * make sure all callers of nfsd_file_lru_cb are done before
+ 	 * calling nfsd_file_cache_purge
 -- 
 2.30.2
 
