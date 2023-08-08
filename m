@@ -4,55 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 774CCC001E0
-	for <linux-erofs@archiver.kernel.org>; Thu,  3 Aug 2023 07:07:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3D57C001DB
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 09:05:47 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=idRaG8hd;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=ltvgN98j;
+	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NtHl8v8f;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RGg0M6VzCz3c1y
-	for <linux-erofs@archiver.kernel.org>; Thu,  3 Aug 2023 17:07:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RKnNB3t90z3031
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 19:05:46 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=idRaG8hd;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=ltvgN98j;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NtHl8v8f;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=softfail (domain owner discourages use of this host) smtp.mailfrom=suse.cz (client-ip=2001:67c:2178:6::1c; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RGg0F0lfxz2yhL
-	for <linux-erofs@lists.ozlabs.org>; Thu,  3 Aug 2023 17:07:41 +1000 (AEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RKnN20XBPz2yst
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Aug 2023 19:05:37 +1000 (AEST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
 	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id 161ED61C2F;
-	Thu,  3 Aug 2023 07:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11F6C433C8;
-	Thu,  3 Aug 2023 07:07:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1691046458;
-	bh=OeoqI+Oj2qYvPhNh0DFzNOPr7pzFVMjDj3jNrQ8auks=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=idRaG8hdjFUCkTULCrK1dlyrRw8nW6SsI8wPcvzHLRBFJ7RKTCTZlaIU62uYdbg4B
-	 v0RwXTV+e7cpJngYnZGKJtq7ESuBCy9J/C6MoesGkjIOYrOfr0haegZpPN8Sl9AhEd
-	 /n7WAYLHhl7fcuzysrjeSm+K2USNWNIDAZPnKmucJcQSBzrpkTOBZyKIcqcDXFpGYt
-	 Ot014gaLbdp3bPGIltO92l77KW+89JgNgWl/HhyJnpogoXWT3yn30LmoJtXe7q8BgQ
-	 BoF4BFW//BfONhWdG7QTLXlmT0Mq4K+GIYn3JQ7ha2jeWaBCaSeemPXWQz4OJUap49
-	 laskZlFECJL1w==
-Date: Thu, 3 Aug 2023 09:07:20 +0200
-From: Christian Brauner <brauner@kernel.org>
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 95DB722467;
+	Tue,  8 Aug 2023 09:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1691485527; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wcZ0MvDWAvHGz+Tvz5BQspV1+Y90atrQ/21gTPDSJ5A=;
+	b=ltvgN98jUPLfVGzwkX2IMCxL1+gt7mU2eMGWerKExKXl9rFxELcQOOu6LDPvkVgELBTWMM
+	RPR+CvNDbp+v8nhbcYMs5NsoZ+s9OQ/UvQVEgQ88doFw/btLczZrQg2i1eZV1+ZBjvbv6d
+	v//UiKTWiNGL8LuYIfEW5snVicPsNCw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1691485527;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wcZ0MvDWAvHGz+Tvz5BQspV1+Y90atrQ/21gTPDSJ5A=;
+	b=NtHl8v8fs0QRleiCInWaMqHlp3B+YiNNeUD28RUprosc+RMkGA1oFQ5OJqyi3S1c2mho42
+	UGYfjYfTqGY9zJAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 818AE13451;
+	Tue,  8 Aug 2023 09:05:27 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id XtCQH1cF0mRUDgAAMHmgww
+	(envelope-from <jack@suse.cz>); Tue, 08 Aug 2023 09:05:27 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 215FCA0769; Tue,  8 Aug 2023 11:05:27 +0200 (CEST)
+Date: Tue, 8 Aug 2023 11:05:27 +0200
+From: Jan Kara <jack@suse.cz>
 To: Jeff Layton <jlayton@kernel.org>
-Subject: Re: [PATCH v6 2/7] fs: add infrastructure for multigrain timestamps
-Message-ID: <20230803-wellpappe-haargenau-f6cb3e3585d8@brauner>
-References: <20230725-mgctime-v6-0-a794c2b7abca@kernel.org>
- <20230725-mgctime-v6-2-a794c2b7abca@kernel.org>
- <20230802193537.vtuuwuwazocjbatv@quack3>
- <ccc52562305bd1a1affb14e94a1cc08433eb8316.camel@kernel.org>
+Subject: Re: [PATCH v7 01/13] fs: remove silly warning from current_time
+Message-ID: <20230808090527.nvn6vd5wdw4o5b2m@quack3>
+References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
+ <20230807-mgctime-v7-1-d1dec143a704@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ccc52562305bd1a1affb14e94a1cc08433eb8316.camel@kernel.org>
+In-Reply-To: <20230807-mgctime-v7-1-d1dec143a704@kernel.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,235 +80,48 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Jan Kara <jack@suse.cz>, linux-xfs@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, Dave Chinner <david@fromorbit.com>, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Tyler Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu
- .edu, linux-mm@kvack.org, linux-f2fs-devel@lists.sourceforge.net, Ilya Dryomov <idryomov@gmail.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Shyam Prasad N <sprasad@microsoft.com>, ecryptfs@vger.kernel.org, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Anthony Iliopoulos <ailiop@suse.com>, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-mtd@lists.infradead.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.dev, ntfs3@li
- sts.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>, Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
+Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, linux-xfs@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, linux-mtd@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Benjamin Coddington <bcodding@redhat.com>,
+  Tyler Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org, Ilya Dryomov <idryomov@gmail.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Shyam Prasad N <sprasad@microsoft.com>, Amir Goldstein <amir73il@gmail.com>, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Ronnie Sahlberg <ronniesahlberg@gmail.com>, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, Christian Brauner <brauner@kernel.org>, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v
+ 9fs@lists.linux.dev, ntfs3@lists.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Aug 02, 2023 at 04:54:09PM -0400, Jeff Layton wrote:
-> On Wed, 2023-08-02 at 21:35 +0200, Jan Kara wrote:
-> > On Tue 25-07-23 10:58:15, Jeff Layton wrote:
-> > > The VFS always uses coarse-grained timestamps when updating the ctime
-> > > and mtime after a change. This has the benefit of allowing filesystems
-> > > to optimize away a lot metadata updates, down to around 1 per jiffy,
-> > > even when a file is under heavy writes.
-> > > 
-> > > Unfortunately, this has always been an issue when we're exporting via
-> > > NFSv3, which relies on timestamps to validate caches. A lot of changes
-> > > can happen in a jiffy, so timestamps aren't sufficient to help the
-> > > client decide to invalidate the cache. Even with NFSv4, a lot of
-> > > exported filesystems don't properly support a change attribute and are
-> > > subject to the same problems with timestamp granularity. Other
-> > > applications have similar issues with timestamps (e.g backup
-> > > applications).
-> > > 
-> > > If we were to always use fine-grained timestamps, that would improve the
-> > > situation, but that becomes rather expensive, as the underlying
-> > > filesystem would have to log a lot more metadata updates.
-> > > 
-> > > What we need is a way to only use fine-grained timestamps when they are
-> > > being actively queried.
-> > > 
-> > > POSIX generally mandates that when the the mtime changes, the ctime must
-> > > also change. The kernel always stores normalized ctime values, so only
-> > > the first 30 bits of the tv_nsec field are ever used.
-> > > 
-> > > Use the 31st bit of the ctime tv_nsec field to indicate that something
-> > > has queried the inode for the mtime or ctime. When this flag is set,
-> > > on the next mtime or ctime update, the kernel will fetch a fine-grained
-> > > timestamp instead of the usual coarse-grained one.
-> > > 
-> > > Filesytems can opt into this behavior by setting the FS_MGTIME flag in
-> > > the fstype. Filesystems that don't set this flag will continue to use
-> > > coarse-grained timestamps.
-> > > 
-> > > Later patches will convert individual filesystems to use the new
-> > > infrastructure.
-> > > 
-> > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > > ---
-> > >  fs/inode.c         | 98 ++++++++++++++++++++++++++++++++++++++----------------
-> > >  fs/stat.c          | 41 +++++++++++++++++++++--
-> > >  include/linux/fs.h | 45 +++++++++++++++++++++++--
-> > >  3 files changed, 151 insertions(+), 33 deletions(-)
-> > > 
-> > > diff --git a/fs/inode.c b/fs/inode.c
-> > > index d4ab92233062..369621e7faf5 100644
-> > > --- a/fs/inode.c
-> > > +++ b/fs/inode.c
-> > > @@ -1919,6 +1919,21 @@ int inode_update_time(struct inode *inode, struct timespec64 *time, int flags)
-> > >  }
-> > >  EXPORT_SYMBOL(inode_update_time);
-> > >  
-> > > +/**
-> > > + * current_coarse_time - Return FS time
-> > > + * @inode: inode.
-> > > + *
-> > > + * Return the current coarse-grained time truncated to the time
-> > > + * granularity supported by the fs.
-> > > + */
-> > > +static struct timespec64 current_coarse_time(struct inode *inode)
-> > > +{
-> > > +	struct timespec64 now;
-> > > +
-> > > +	ktime_get_coarse_real_ts64(&now);
-> > > +	return timestamp_truncate(now, inode);
-> > > +}
-> > > +
-> > >  /**
-> > >   *	atime_needs_update	-	update the access time
-> > >   *	@path: the &struct path to update
-> > > @@ -1952,7 +1967,7 @@ bool atime_needs_update(const struct path *path, struct inode *inode)
-> > >  	if ((mnt->mnt_flags & MNT_NODIRATIME) && S_ISDIR(inode->i_mode))
-> > >  		return false;
-> > >  
-> > > -	now = current_time(inode);
-> > > +	now = current_coarse_time(inode);
-> > >  
-> > >  	if (!relatime_need_update(mnt, inode, now))
-> > >  		return false;
-> > > @@ -1986,7 +2001,7 @@ void touch_atime(const struct path *path)
-> > >  	 * We may also fail on filesystems that have the ability to make parts
-> > >  	 * of the fs read only, e.g. subvolumes in Btrfs.
-> > >  	 */
-> > > -	now = current_time(inode);
-> > > +	now = current_coarse_time(inode);
-> > >  	inode_update_time(inode, &now, S_ATIME);
-> > >  	__mnt_drop_write(mnt);
-> > >  skip_update:
-> > 
-> > There are also calls in fs/smb/client/file.c:cifs_readpage_worker() and in
-> > fs/ocfs2/file.c:ocfs2_update_inode_atime() that should probably use
-> > current_coarse_time() to avoid needless querying of fine grained
-> > timestamps. But see below...
-> > 
+On Mon 07-08-23 15:38:32, Jeff Layton wrote:
+> An inode with no superblock? Unpossible!
 > 
-> Technically, they already devolve to current_coarse_time anyway, but
-> changing them would allow them to skip the fstype flag check, but I like
-> your idea below better anyway.
-> 
-> > > @@ -2072,6 +2087,56 @@ int file_remove_privs(struct file *file)
-> > >  }
-> > >  EXPORT_SYMBOL(file_remove_privs);
-> > >  
-> > > +/**
-> > > + * current_mgtime - Return FS time (possibly fine-grained)
-> > > + * @inode: inode.
-> > > + *
-> > > + * Return the current time truncated to the time granularity supported by
-> > > + * the fs, as suitable for a ctime/mtime change. If the ctime is flagged
-> > > + * as having been QUERIED, get a fine-grained timestamp.
-> > > + */
-> > > +static struct timespec64 current_mgtime(struct inode *inode)
-> > > +{
-> > > +	struct timespec64 now;
-> > > +	atomic_long_t *pnsec = (atomic_long_t *)&inode->__i_ctime.tv_nsec;
-> > > +	long nsec = atomic_long_read(pnsec);
-> > > +
-> > > +	if (nsec & I_CTIME_QUERIED) {
-> > > +		ktime_get_real_ts64(&now);
-> > > +	} else {
-> > > +		struct timespec64 ctime;
-> > > +
-> > > +		ktime_get_coarse_real_ts64(&now);
-> > > +
-> > > +		/*
-> > > +		 * If we've recently fetched a fine-grained timestamp
-> > > +		 * then the coarse-grained one may still be earlier than the
-> > > +		 * existing one. Just keep the existing ctime if so.
-> > > +		 */
-> > > +		ctime = inode_get_ctime(inode);
-> > > +		if (timespec64_compare(&ctime, &now) > 0)
-> > > +			now = ctime;
-> > > +	}
-> > > +
-> > > +	return timestamp_truncate(now, inode);
-> > > +}
-> > > +
-> > > +/**
-> > > + * current_time - Return timestamp suitable for ctime update
-> > > + * @inode: inode to eventually be updated
-> > > + *
-> > > + * Return the current time, which is usually coarse-grained but may be fine
-> > > + * grained if the filesystem uses multigrain timestamps and the existing
-> > > + * ctime was queried since the last update.
-> > > + */
-> > > +struct timespec64 current_time(struct inode *inode)
-> > > +{
-> > > +	if (is_mgtime(inode))
-> > > +		return current_mgtime(inode);
-> > > +	return current_coarse_time(inode);
-> > > +}
-> > > +EXPORT_SYMBOL(current_time);
-> > > +
-> > 
-> > So if you modify current_time() to handle multigrain timestamps the code
-> > will be still racy. In particular fill_mg_cmtime() can race with
-> > inode_set_ctime_current() like:
-> > 
-> > fill_mg_cmtime()				inode_set_ctime_current()
-> >   stat->mtime = inode->i_mtime;
-> >   stat->ctime.tv_sec = inode->__i_ctime.tv_sec;
-> > 						  now = current_time();
-> > 							/* fetches coarse
-> > 							 * grained timestamp */
-> >   stat->ctime.tv_nsec = atomic_long_fetch_or(I_CTIME_QUERIED, pnsec) &
-> > 				~I_CTIME_QUERIED;
-> > 						  inode_set_ctime(inode, now.tv_sec, now.tv_nsec);
-> > 
-> > and the information about a need for finegrained timestamp update gets
-> > lost. So what I'd propose is to leave current_time() alone (just always
-> > reporting coarse grained timestamps) and put all the magic into
-> > inode_set_ctime_current() only. There we need something like:
-> > 
-> > struct timespec64 inode_set_ctime_current(struct inode *inode)
-> > {
-> > 	... variables ...
-> > 
-> > 	nsec = READ_ONCE(inode->__i_ctime.tv_nsec);
-> >  	if (!(nsec & I_CTIME_QUERIED)) {
-> > 		now = current_time(inode);
-> > 
-> > 		if (!is_gmtime(inode)) {
-> > 			inode_set_ctime_to_ts(inode, now);
-> > 		} else {
-> > 			/*
-> > 			 * If we've recently fetched a fine-grained
-> > 			 * timestamp then the coarse-grained one may still
-> > 			 * be earlier than the existing one. Just keep the
-> > 			 * existing ctime if so.
-> > 			 */
-> > 			ctime = inode_get_ctime(inode);
-> > 			if (timespec64_compare(&ctime, &now) > 0)
-> > 				now = ctime;
-> > 
-> > 			/*
-> > 			 * Ctime updates are generally protected by inode
-> > 			 * lock but we could have raced with setting of
-> > 			 * I_CTIME_QUERIED flag.
-> > 			 */
-> > 			if (cmpxchg(&inode->__i_ctime.tv_nsec, nsec,
-> > 				    now.tv_nsec) != nsec)
-> > 				goto fine_grained;
-> > 			inode->__i_ctime.tv_sec = now.tv_sec;
-> > 		}
-> > 		return now;
-> > 	}
-> > fine_grained:
-> > 	ktime_get_real_ts64(&now);
-> > 	inode_set_ctime_to_ts(inode, now);
-> > 
-> > 	return now;
-> > }
-> > 
-> > 								Honza
-> > 
-> 
-> This is a great idea. I'll rework the series along the lines you
-> suggest. That also answers my earlier question to Christian:
-> 
-> I'll just resend the whole series (it's not very big anyway), and I'll
-> include the fill_mg_cmtime prototype change.
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
 
-Ok, sound good!
+Looks good. Feel free to add:
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
+
+> ---
+>  fs/inode.c | 6 ------
+>  1 file changed, 6 deletions(-)
+> 
+> diff --git a/fs/inode.c b/fs/inode.c
+> index d4ab92233062..3fc251bfaf73 100644
+> --- a/fs/inode.c
+> +++ b/fs/inode.c
+> @@ -2495,12 +2495,6 @@ struct timespec64 current_time(struct inode *inode)
+>  	struct timespec64 now;
+>  
+>  	ktime_get_coarse_real_ts64(&now);
+> -
+> -	if (unlikely(!inode->i_sb)) {
+> -		WARN(1, "current_time() called with uninitialized super_block in the inode");
+> -		return now;
+> -	}
+> -
+>  	return timestamp_truncate(now, inode);
+>  }
+>  EXPORT_SYMBOL(current_time);
+> 
+> -- 
+> 2.41.0
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
