@@ -4,70 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47588C001DE
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 07:50:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1691481040;
-	bh=wpg6aIffbYjICJhycB3Bph3fxU0UaKYZ32RPKTrhmtc=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=Zw+NVJZEKtJBaOuGxsEY2jbX64CZvSOrV/0Le0KazXNGmbgO6JAtZV4jqGAdd6ycR
-	 UKg1gaISA+U9Lb4e4rHw87op52K54w0/cOKLUV4aGCE5jq4Q9qnTBdGmGH0iST32iw
-	 UgEDhGGcaj5U7yAte8K4nveZC4maFR8ZZGUFPzZtA08LjG1WS7RCIWvMrljF6pZG4q
-	 zAz8vKwdYsOSh5yAvoeR9eWDrpQj9oF3uwNyKvVsHHuGUYa3sQ6VQoDjUqBF5QfOmv
-	 YAFDX4JvIl7qwFheTT+wEVHrRlZbrvzaYPZWDIjiiv8vZOY7irCcEr0FHCBeIVfhec
-	 H6Ns7oCZF8OsA==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0323C001DB
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 09:23:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RKljX6Q1vz301T
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 17:50:40 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=FcXFQj7o;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::52e; helo=mail-pg1-x52e.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RKnn74bWqz304b
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Aug 2023 19:23:55 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RKljR6nX2z2x9T
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Aug 2023 17:50:34 +1000 (AEST)
-Received: by mail-pg1-x52e.google.com with SMTP id 41be03b00d2f7-55b78bf0423so522688a12.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 08 Aug 2023 00:50:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691481032; x=1692085832;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wpg6aIffbYjICJhycB3Bph3fxU0UaKYZ32RPKTrhmtc=;
-        b=LcyZ9FGgDB204A9E3XkOQ5+mKP1PUofXMfWSx9Rm8o/R+LrBPZfBp5trFC09fvtBx5
-         619hXwBYHJFZvMD8KYB5oBT16g6SaWC2s7fw/pBpvhZxfhv1cY7Wu+jpQ93f6FYkjC3O
-         4eaTTvx/NJ/1x8by4u+0pB1X4ejQ9rRuf0X9ULK/Rax9ixH4lG29lA4P8WCLBOGTA9EV
-         Nks0o2/RsYEOnU/YxKr8XYqy5XqHdUszJ+xvWkZpJXjGC+EO3P6nf+1WSSBq9AgOiOid
-         Qr+kYP+1h679CGIY+FofPS049HIs0qPPjJjre3pdKFFOUeitXRuxa3FdCfioJhvxLPQG
-         PwTw==
-X-Gm-Message-State: ABy/qLbNd50ue4aV+kigACE7IHODBvWoV+xQSsL+weXSA/aUdlOO0uyb
-	f7YiT53Drn6rGACDSG1WlQBAcQ==
-X-Google-Smtp-Source: APBJJlEd8UgUmVjTGODajLkItGQ9rG+lZy4ypLT00ATvxhzy6MYHUWJPNACQWVHeXI8Weqa+eylbDA==
-X-Received: by 2002:a17:90a:6c97:b0:263:730b:f568 with SMTP id y23-20020a17090a6c9700b00263730bf568mr25207579pjj.3.1691481032358;
-        Tue, 08 Aug 2023 00:50:32 -0700 (PDT)
-Received: from [10.70.252.135] ([203.208.167.146])
-        by smtp.gmail.com with ESMTPSA id u4-20020a17090a410400b00263154aab24sm7244870pjf.57.2023.08.08.00.50.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Aug 2023 00:50:31 -0700 (PDT)
-Message-ID: <5757e341-b261-14de-e052-46606d530460@bytedance.com>
-Date: Tue, 8 Aug 2023 15:50:18 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RKnn11QPcz2xH9
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Aug 2023 19:23:47 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VpKuzLZ_1691486620;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VpKuzLZ_1691486620)
+          by smtp.aliyun-inc.com;
+          Tue, 08 Aug 2023 17:23:41 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 2/2] erofs-utils: dump: print more superblock fields
+Date: Tue,  8 Aug 2023 17:23:35 +0800
+Message-Id: <20230808092335.111834-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20230808092335.111834-1-hsiangkao@linux.alibaba.com>
+References: <20230808092335.111834-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [PATCH v4 46/48] mm: shrinker: make memcg slab shrink lockless
-Content-Language: en-US
-To: Dave Chinner <david@fromorbit.com>
-References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
- <20230807110936.21819-47-zhengqi.arch@bytedance.com>
- <ZNGr+1orhHaBORJG@dread.disaster.area>
-In-Reply-To: <ZNGr+1orhHaBORJG@dread.disaster.area>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -79,208 +41,133 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Qi Zheng via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, simon.horman@corigine.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, dlemoal@kernel.org, yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org, muchun.song@linux.dev, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Dave,
+From: Guo Xuenan <guoxuenan@huawei.com>
 
-On 2023/8/8 10:44, Dave Chinner wrote:
-> On Mon, Aug 07, 2023 at 07:09:34PM +0800, Qi Zheng wrote:
->> Like global slab shrink, this commit also uses refcount+RCU method to make
->> memcg slab shrink lockless.
-> 
-> This patch does random code cleanups amongst the actual RCU changes.
-> Can you please move the cleanups to a spearate patch to reduce the
-> noise in this one?
+Let's print compression algorithms and sb_extslots as well as update
+feature information for dump.erosf
 
-Sure, will do.
+The proposed superblock dump is shown as below:
 
-> 
->> diff --git a/mm/shrinker.c b/mm/shrinker.c
->> index d318f5621862..fee6f62904fb 100644
->> --- a/mm/shrinker.c
->> +++ b/mm/shrinker.c
->> @@ -107,6 +107,12 @@ static struct shrinker_info *shrinker_info_protected(struct mem_cgroup *memcg,
->>   					 lockdep_is_held(&shrinker_rwsem));
->>   }
->>   
->> +static struct shrinker_info *shrinker_info_rcu(struct mem_cgroup *memcg,
->> +					       int nid)
->> +{
->> +	return rcu_dereference(memcg->nodeinfo[nid]->shrinker_info);
->> +}
-> 
-> This helper doesn't add value. It doesn't tell me that
-> rcu_read_lock() needs to be held when it is called, for one....
+Filesystem magic number:                      0xE0F5E1E2
+Filesystem blocks:                            4624
+Filesystem inode metadata start block:        0
+Filesystem shared xattr metadata start block: 0
+Filesystem root nid:                          37
+Filesystem compr_algs:                        lz4, lz4hc, lzma
+Filesystem sb_extslots:                       0
+Filesystem inode count:                       6131
+Filesystem created:                           Wed Jun  7 17:15:44 2023
+Filesystem features:                          sb_csum mtime 0padding compr_cfgs big_pcluster
+Filesystem UUID:                              not available
 
-How about adding a comment or an assertion here?
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+no change.
 
-> 
->>   static int expand_one_shrinker_info(struct mem_cgroup *memcg, int new_size,
->>   				    int old_size, int new_nr_max)
->>   {
->> @@ -198,7 +204,7 @@ void set_shrinker_bit(struct mem_cgroup *memcg, int nid, int shrinker_id)
->>   		struct shrinker_info_unit *unit;
->>   
->>   		rcu_read_lock();
->> -		info = rcu_dereference(memcg->nodeinfo[nid]->shrinker_info);
->> +		info = shrinker_info_rcu(memcg, nid);
-> 
-> ... whilst the original code here was obviously correct.
-> 
->>   		unit = info->unit[shriner_id_to_index(shrinker_id)];
->>   		if (!WARN_ON_ONCE(shrinker_id >= info->map_nr_max)) {
->>   			/* Pairs with smp mb in shrink_slab() */
->> @@ -211,7 +217,7 @@ void set_shrinker_bit(struct mem_cgroup *memcg, int nid, int shrinker_id)
->>   
->>   static DEFINE_IDR(shrinker_idr);
->>   
->> -static int prealloc_memcg_shrinker(struct shrinker *shrinker)
->> +static int shrinker_memcg_alloc(struct shrinker *shrinker)
-> 
-> Cleanups in a separate patch.
+ dump/main.c              | 29 +++++++++++++++++++++++++++++
+ include/erofs/internal.h |  1 +
+ lib/super.c              |  6 ++++++
+ 3 files changed, 36 insertions(+)
 
-OK.
+diff --git a/dump/main.c b/dump/main.c
+index 409c851..7980f78 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -92,12 +92,14 @@ static struct erofsdump_feature feature_lists[] = {
+ 	{ true, EROFS_FEATURE_COMPAT_SB_CHKSUM, "sb_csum" },
+ 	{ true, EROFS_FEATURE_COMPAT_MTIME, "mtime" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_ZERO_PADDING, "0padding" },
++	{ false, EROFS_FEATURE_INCOMPAT_COMPR_CFGS, "compr_cfgs" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_BIG_PCLUSTER, "big_pcluster" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_CHUNKED_FILE, "chunked_file" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_DEVICE_TABLE, "device_table" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_ZTAILPACKING, "ztailpacking" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_FRAGMENTS, "fragments" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_DEDUPE, "dedupe" },
++	{ false, EROFS_FEATURE_INCOMPAT_XATTR_PREFIXES, "xattr_prefixes" },
+ };
+ 
+ static int erofsdump_readdir(struct erofs_dir_context *ctx);
+@@ -588,6 +590,23 @@ static void erofsdump_print_statistic(void)
+ 	erofsdump_filetype_distribution(file_types, OTHERFILETYPE);
+ }
+ 
++static void erofsdump_print_supported_compressors(FILE *f, unsigned int mask)
++{
++	unsigned int i = 0;
++	bool comma = false;
++	const char *s;
++
++	while ((s = z_erofs_list_supported_algorithms(i++, &mask)) != NULL) {
++		if (*s == '\0')
++			continue;
++		if (comma)
++			fputs(", ", f);
++		fputs(s, f);
++		comma = true;
++	}
++	fputc('\n', f);
++}
++
+ static void erofsdump_show_superblock(void)
+ {
+ 	time_t time = sbi.build_time;
+@@ -607,6 +626,16 @@ static void erofsdump_show_superblock(void)
+ 	if (erofs_sb_has_fragments(&sbi) && sbi.packed_nid > 0)
+ 		fprintf(stdout, "Filesystem packed nid:                        %llu\n",
+ 			sbi.packed_nid | 0ULL);
++	if (erofs_sb_has_compr_cfgs(&sbi)) {
++		fprintf(stdout, "Filesystem compr_algs:                        ");
++		erofsdump_print_supported_compressors(stdout,
++			sbi.available_compr_algs);
++	} else {
++		fprintf(stdout, "Filesystem lz4_max_distance:                  %u\n",
++			sbi.lz4_max_distance | 0U);
++	}
++	fprintf(stdout, "Filesystem sb_extslots:                       %u\n",
++			sbi.extslots | 0U);
+ 	fprintf(stdout, "Filesystem inode count:                       %llu\n",
+ 			sbi.inos | 0ULL);
+ 	fprintf(stdout, "Filesystem created:                           %s",
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 04a9a69..a04e6a6 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -74,6 +74,7 @@ struct erofs_sb_info {
+ 	u64 build_time;
+ 	u32 build_time_nsec;
+ 
++	u8  extslots;
+ 	unsigned char islotbits;
+ 	unsigned char blkszbits;
+ 
+diff --git a/lib/super.c b/lib/super.c
+index 16a1d62..e8e84aa 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -106,11 +106,17 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
+ 	sbi->inos = le64_to_cpu(dsb->inos);
+ 	sbi->checksum = le32_to_cpu(dsb->checksum);
++	sbi->extslots = dsb->sb_extslots;
+ 
+ 	sbi->build_time = le64_to_cpu(dsb->build_time);
+ 	sbi->build_time_nsec = le32_to_cpu(dsb->build_time_nsec);
+ 
+ 	memcpy(&sbi->uuid, dsb->uuid, sizeof(dsb->uuid));
++
++	if (erofs_sb_has_compr_cfgs(sbi))
++		sbi->available_compr_algs = le16_to_cpu(dsb->u1.available_compr_algs);
++	else
++		sbi->lz4_max_distance = le16_to_cpu(dsb->u1.lz4_max_distance);
+ 	return erofs_init_devices(sbi, dsb);
+ }
+ 
+-- 
+2.24.4
 
-> 
->> @@ -253,10 +258,15 @@ static long xchg_nr_deferred_memcg(int nid, struct shrinker *shrinker,
->>   {
->>   	struct shrinker_info *info;
->>   	struct shrinker_info_unit *unit;
->> +	long nr_deferred;
->>   
->> -	info = shrinker_info_protected(memcg, nid);
->> +	rcu_read_lock();
->> +	info = shrinker_info_rcu(memcg, nid);
->>   	unit = info->unit[shriner_id_to_index(shrinker->id)];
->> -	return atomic_long_xchg(&unit->nr_deferred[shriner_id_to_offset(shrinker->id)], 0);
->> +	nr_deferred = atomic_long_xchg(&unit->nr_deferred[shriner_id_to_offset(shrinker->id)], 0);
->> +	rcu_read_unlock();
->> +
->> +	return nr_deferred;
->>   }
-> 
-> This adds two rcu_read_lock() sections to every call to
-> do_shrink_slab(). It's not at all clear ifrom any of the other code
-> that do_shrink_slab() now has internal rcu_read_lock() sections....
-
-The xchg_nr_deferred_memcg() will only be called in shrink_slab_memcg(),
-so other code doesn't need to know that information?
-
-> 
->> @@ -464,18 +480,23 @@ static unsigned long shrink_slab_memcg(gfp_t gfp_mask, int nid,
->>   	if (!mem_cgroup_online(memcg))
->>   		return 0;
->>   
->> -	if (!down_read_trylock(&shrinker_rwsem))
->> -		return 0;
->> -
->> -	info = shrinker_info_protected(memcg, nid);
->> +again:
->> +	rcu_read_lock();
->> +	info = shrinker_info_rcu(memcg, nid);
->>   	if (unlikely(!info))
->>   		goto unlock;
->>   
->> -	for (; index < shriner_id_to_index(info->map_nr_max); index++) {
->> +	if (index < shriner_id_to_index(info->map_nr_max)) {
->>   		struct shrinker_info_unit *unit;
->>   
->>   		unit = info->unit[index];
->>   
->> +		/*
->> +		 * The shrinker_info_unit will not be freed, so we can
->> +		 * safely release the RCU lock here.
->> +		 */
->> +		rcu_read_unlock();
-> 
-> Why - what guarantees that the shrinker_info_unit exists at this
-> point? We hold no reference to it, we hold no reference to any
-> shrinker, etc. What provides this existence guarantee?
-
-The shrinker_info_unit is never freed unless the memcg is destroyed.
-Here we hold the refcount of this memcg (mem_cgroup_iter() -->
-css_tryget()), so the shrinker_info_unit will not be freed.
-
-> 
->> +
->>   		for_each_set_bit(offset, unit->map, SHRINKER_UNIT_BITS) {
->>   			struct shrink_control sc = {
->>   				.gfp_mask = gfp_mask,
->> @@ -485,12 +506,14 @@ static unsigned long shrink_slab_memcg(gfp_t gfp_mask, int nid,
->>   			struct shrinker *shrinker;
->>   			int shrinker_id = calc_shrinker_id(index, offset);
->>   
->> +			rcu_read_lock();
->>   			shrinker = idr_find(&shrinker_idr, shrinker_id);
->> -			if (unlikely(!shrinker || !(shrinker->flags & SHRINKER_REGISTERED))) {
->> -				if (!shrinker)
->> -					clear_bit(offset, unit->map);
->> +			if (unlikely(!shrinker || !shrinker_try_get(shrinker))) {
->> +				clear_bit(offset, unit->map);
->> +				rcu_read_unlock();
->>   				continue;
->>   			}
->> +			rcu_read_unlock();
->>   
->>   			/* Call non-slab shrinkers even though kmem is disabled */
->>   			if (!memcg_kmem_online() &&
->> @@ -523,15 +546,20 @@ static unsigned long shrink_slab_memcg(gfp_t gfp_mask, int nid,
->>   					set_shrinker_bit(memcg, nid, shrinker_id);
->>   			}
->>   			freed += ret;
->> -
->> -			if (rwsem_is_contended(&shrinker_rwsem)) {
->> -				freed = freed ? : 1;
->> -				goto unlock;
->> -			}
->> +			shrinker_put(shrinker);
-> 
-> Ok, so why is this safe to call without holding the rcu read lock?
-> The global shrinker has to hold the rcu_read_lock() whilst calling
-> shrinker_put() to guarantee the validity of the list next pointer,
-> but we don't hold off RCU here so what guarantees a racing global
-> shrinker walk doesn't trip over this shrinker_put() call dropping
-> the refcount to zero and freeing occuring in a different context...
-
-This will not be a problem, even if shrinker::refcount is reduced to
-0 here, the racing global shrinker walk already holds the rcu lock.
-
-         shrink_slab            shrink_slab_memcg
-         ===========            =================
-
-         rcu_read_lock()
-         shrinker_put()
-                                shrinker_put()
-
-And in shrink_slab_memcg(), the shrinker is not required to traverse the
-next bit in the shrinker_info_unit::map, so there is no need to hold the
-rcu lock to ensure the existence of this shrinker.
-
-> 
-> 
->> +		/*
->> +		 * We have already exited the read-side of rcu critical section
->> +		 * before calling do_shrink_slab(), the shrinker_info may be
->> +		 * released in expand_one_shrinker_info(), so reacquire the
->> +		 * shrinker_info.
->> +		 */
->> +		index++;
->> +		goto again;
-> 
-> With that, what makes the use of shrinker_info in
-> xchg_nr_deferred_memcg() in do_shrink_slab() coherent and valid?
-
-Holding rcu lock can ensure that the old shrinker_info will not be
-freed, and the shrinker_info_unit::nr_deferred can also be indexed from
-the old shrinker_info::unit[x], so the updated nr_deferred will not be
-lost.
-
-Thanks,
-Qi
-
-> 
-> -Dave.
