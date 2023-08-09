@@ -4,34 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0DC9C0015E
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 06:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DB27C04FE2
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 07:10:20 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ggBjfw6P;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RLL4d0sJsz30Nr
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 16:39:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RLLmV6L6Bz30Nr
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 17:10:18 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ggBjfw6P;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RLL4S1TKnz2yW2
-	for <linux-erofs@lists.ozlabs.org>; Wed,  9 Aug 2023 16:39:02 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VpOrXfS_1691563132;
-Received: from 30.97.49.11(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VpOrXfS_1691563132)
-          by smtp.aliyun-inc.com;
-          Wed, 09 Aug 2023 14:38:55 +0800
-Message-ID: <731f815c-97bc-f546-f883-1071b66138e8@linux.alibaba.com>
-Date: Wed, 9 Aug 2023 14:38:52 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RLLmQ6lllz2xdm
+	for <linux-erofs@lists.ozlabs.org>; Wed,  9 Aug 2023 17:10:14 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id 14B3762FBF;
+	Wed,  9 Aug 2023 07:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 803F7C433C7;
+	Wed,  9 Aug 2023 07:09:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1691565012;
+	bh=+3Y6neJgMvW5vfedbEeRcP7JJepyGcWsyiFSr/HW990=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ggBjfw6PiXZGX2pQ0PAP5cLTD5E0rfqWCYvfni6XgMaAu/qe1HDhVULCR34YpT5YS
+	 BKgPskzZUrQN/q0pADH7E3rJp+efq+TJqLpTcE7dWusL6zUTz83z7W2kEcL4C6I9Pl
+	 ufDj5BPqocIYlc8GG9bv5prUaOSZXY+wJG0igl2mx/MjAwyCvyPRsvUpSYuoG9hC3v
+	 Cpu7fhDWB2xklEWatdaUMtlv7AEsl0+OXnaMFZ2BdukJjZL1AZSUnY8BUua+nFhXag
+	 gAEez8RHLWI4JAU/88U4SJjdJFFBI98gXxi6sXBvp3qvswqNnsMmS0Eecbc3TwTHzz
+	 J9jzLmchFW2kQ==
+From: Christian Brauner <brauner@kernel.org>
+To: Jeff Layton <jlayton@kernel.org>
+Subject: Re: [PATCH v7 00/13] fs: implement multigrain timestamps
+Date: Wed,  9 Aug 2023 09:09:49 +0200
+Message-Id: <20230809-neuigkeit-lahmgelegt-ec0ab744a2be@brauner>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
+References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH] erofs: refine warning messages for data I/Os
-To: Ferry Meng <mengferry@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20230809060637.21311-1-mengferry@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230809060637.21311-1-mengferry@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2693; i=brauner@kernel.org; h=from:subject:message-id; bh=+3Y6neJgMvW5vfedbEeRcP7JJepyGcWsyiFSr/HW990=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaRctt58ofGmdrjT46zKic8e+j/qO6J62PGCzlmNRn/PL+ca DhW87ChlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZiIjiMjw77ybes4w5Z37p3j9lpveq 1v7yzNZOVwx1cX83f9exixeQ8jw5qJVSkpYSKnLt8M6dl09qHqq/xjLU9j3pdUzg+b1x8izQ4A
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,19 +64,63 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Jan Kara <jack@suse.cz>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-mtd@lists.infradead.org, Benjamin Coddington <bcodding@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Steve French <sfrench@samba.org>, Tyler Hicks <code@tyhicks.com>, linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Luis Ch
+ amberlain <mcgrof@kernel.org>, codalist@coda.cs.cmu.edu, cluster-devel@redhat.com, coda@cs.cmu.edu, Iurii Zaikin <yzaikin@google.com>, Ilya Dryomov <idryomov@gmail.com>, linux-ext4@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>, devel@lists.orangefs.org, Bob Peterson <rpeterso@redhat.com>, Shyam Prasad N <sprasad@microsoft.com>, Kees Cook <keescook@chromium.org>, ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, ocfs2-devel@lists.linux.dev, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Ronnie Sahlberg <ronniesahlberg@gmail.com>, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Amir Goldstein <amir73il@gmail.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, Christian Brauner <brauner@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Theodore Ts'o <tytso@mit.edu>, 
+ Chris Mason <clm@fb.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.dev, samba-technical@lists.samba.org, linux-unionfs@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, Tejun Heo <tj@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger.kernel@dilger.ca>, Andrew Morton <akpm@linux-foundation.org>, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/8/9 14:06, Ferry Meng wrote:
-> Don't warn users since -EINTR is returned due to user interruption.
-> Also suppress warning messages of readmore.
+On Mon, 07 Aug 2023 15:38:31 -0400, Jeff Layton wrote:
+> The VFS always uses coarse-grained timestamps when updating the
+> ctime and mtime after a change. This has the benefit of allowing
+> filesystems to optimize away a lot metadata updates, down to around 1
+> per jiffy, even when a file is under heavy writes.
 > 
-> Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
+> Unfortunately, this coarseness has always been an issue when we're
+> exporting via NFSv3, which relies on timestamps to validate caches. A
+> lot of changes can happen in a jiffy, so timestamps aren't sufficient to
+> help the client decide to invalidate the cache.
+> 
+> [...]
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Applied to the vfs.ctime branch of the vfs/vfs.git tree.
+Patches in the vfs.ctime branch should appear in linux-next soon.
 
-Thanks,
-Gao Xiang
+Please report any outstanding bugs that were missed during review in a
+new review to the original patch series allowing us to drop it.
+
+It's encouraged to provide Acked-bys and Reviewed-bys even though the
+patch has now been applied. If possible patch trailers will be updated.
+
+Note that commit hashes shown below are subject to change due to rebase,
+trailer updates or similar. If in doubt, please check the listed branch.
+
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
+branch: vfs.ctime
+
+[01/13] fs: remove silly warning from current_time
+        https://git.kernel.org/vfs/vfs/c/562bcab11bf4
+[02/13] fs: pass the request_mask to generic_fillattr
+        https://git.kernel.org/vfs/vfs/c/3592165f4378
+[03/13] fs: drop the timespec64 arg from generic_update_time
+        https://git.kernel.org/vfs/vfs/c/32586bb50943
+[04/13] btrfs: have it use inode_update_timestamps
+        https://git.kernel.org/vfs/vfs/c/51fc38e7c7d1
+[05/13] fat: make fat_update_time get its own timestamp
+        https://git.kernel.org/vfs/vfs/c/d6e7faae82dc
+[06/13] ubifs: have ubifs_update_time use inode_update_timestamps
+        https://git.kernel.org/vfs/vfs/c/853ff59b434a
+[07/13] xfs: have xfs_vn_update_time gets its own timestamp
+        https://git.kernel.org/vfs/vfs/c/7ad056c2cf36
+[08/13] fs: drop the timespec64 argument from update_time
+        https://git.kernel.org/vfs/vfs/c/3beae086b71f
+[09/13] fs: add infrastructure for multigrain timestamps
+        https://git.kernel.org/vfs/vfs/c/b16956ed812f
+[10/13] tmpfs: add support for multigrain timestamps
+        https://git.kernel.org/vfs/vfs/c/bd21ec574f16
+[11/13] xfs: switch to multigrain timestamps
+        https://git.kernel.org/vfs/vfs/c/fb9812d2c39e
+[12/13] ext4: switch to multigrain timestamps
+        https://git.kernel.org/vfs/vfs/c/7fdf02299f5d
+[13/13] btrfs: convert to multigrain timestamps
+        https://git.kernel.org/vfs/vfs/c/2ebbf04988b9
