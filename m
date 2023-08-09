@@ -4,61 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 639DEC001E0
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 17:59:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C281C001E0
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Aug 2023 18:38:32 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=meGLBjWx;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=omnibond-com.20221208.gappssmtp.com header.i=@omnibond-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=BfdYdGla;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RLd9p5xXkz3bX1
-	for <linux-erofs@archiver.kernel.org>; Thu, 10 Aug 2023 03:59:42 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RLf2Z4Vpmz3bX1
+	for <linux-erofs@archiver.kernel.org>; Thu, 10 Aug 2023 04:38:30 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=meGLBjWx;
+	dkim=pass (2048-bit key; unprotected) header.d=omnibond-com.20221208.gappssmtp.com header.i=@omnibond-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=BfdYdGla;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=omnibond.com (client-ip=2607:f8b0:4864:20::82b; helo=mail-qt1-x82b.google.com; envelope-from=hubcap@omnibond.com; receiver=lists.ozlabs.org)
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RLd9j0KrHz2xW7
-	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Aug 2023 03:59:37 +1000 (AEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id 6A7C864360;
-	Wed,  9 Aug 2023 17:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5192AC433C8;
-	Wed,  9 Aug 2023 17:59:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1691603973;
-	bh=xOe+Vz95v0qUUg0QOdDgphymvgENzflkYZLnMMULJfc=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=meGLBjWxluzaOBNuo8p0RmOQwgxUuFNZjvOIrqHLsT0YVm/rgDHwnHDJAx99/2L/o
-	 bhtobjoD8C6zGB5rdBPrQ785IrHaS3N4jJtTCfHc34NT0geG1/U9IaQFq3S4WuZ+t8
-	 gzoPyUaQOM1ROi1uUYhm2o1c3laLFRiCZK/Lx2Wm4O80TbvA4CQm+kAJim7vyqiQ1H
-	 44XIoEDh201mHVX5XJvZmC/E4Ogx1IKt/t/nyvPCcopm66rc52em9DBbgLmnfaxUsA
-	 shBRwdOI1wQgTtwpw38zZcoHm5c5hE7yNnsry2zyL7HvpHmwfSKALId/x1hyiXL2cb
-	 CwGZoXi1fmKhQ==
-Message-ID: <ccffe6ca3397c8374352b002fe01d55b09d84ef4.camel@kernel.org>
-Subject: Re: [PATCH v7 05/13] fat: make fat_update_time get its own timestamp
-From: Jeff Layton <jlayton@kernel.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 09 Aug 2023 13:59:26 -0400
-In-Reply-To: <87leek6rh1.fsf@mail.parknet.co.jp>
-References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
-	 <20230807-mgctime-v7-5-d1dec143a704@kernel.org>
-	 <87msz08vc7.fsf@mail.parknet.co.jp>
-	 <52bead1d6a33fec89944b96e2ec20d1ea8747a9a.camel@kernel.org>
-	 <878rak8hia.fsf@mail.parknet.co.jp>
-	 <20230809150041.452w7gucjmvjnvbg@quack3>
-	 <87v8do6y8q.fsf@mail.parknet.co.jp>
-	 <2cb998ff14ace352a9dd553e82cfa0aa92ec09ce.camel@kernel.org>
-	 <87leek6rh1.fsf@mail.parknet.co.jp>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RLf2T409vz2ywL
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Aug 2023 04:38:23 +1000 (AEST)
+Received: by mail-qt1-x82b.google.com with SMTP id d75a77b69052e-40feecefa84so256761cf.1
+        for <linux-erofs@lists.ozlabs.org>; Wed, 09 Aug 2023 11:38:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=omnibond-com.20221208.gappssmtp.com; s=20221208; t=1691606298; x=1692211098;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9EcmI8Rpl1R+tuyjPLJAOGmabIt197aKHT+nbD52Q1I=;
+        b=BfdYdGlaV7wDLoLR9yjOQKYaMVK5G+sZo2gR8ietMzxK6/hhzrKBhXntyWFMe+Yo8W
+         pXAEKi27jKY+o1GSIwlWHKByFh7VJx8vdxyzXfnpCla9dyz3P+vZbtPjJCJ8F75v4t++
+         cENDUCMzciHiNczMnx810YrXJp7LJHfpO0BqiOVkILP4ZM1XP/NHiA5CqbEHPLNAnApb
+         4blc5R+dkjgksSq2+K5JK9IBlHetg1olYAUJU7H7u688LciEb+01exSGkI+DT+Of4VXY
+         kkHfq0UcUl8GdzevovO/osm+1AaLFSn4iK2zXa30egAa3a76m/vMuRq9Hke6KAEMMcTX
+         y7cA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691606298; x=1692211098;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9EcmI8Rpl1R+tuyjPLJAOGmabIt197aKHT+nbD52Q1I=;
+        b=Hq84NxWtN/0uXGoc2YvFfW9PHK0t3Muk04G0OnHXY/tB/6BB0MpP0PIR+rjzfhn4ZL
+         P9Ga3EqY4KNN9YFeLjUdM9R8bbbjPD4jeYEGRRiI+SGj/2L0K06GqPWgqM4oTa46Kxtb
+         gJny5M8WXfwj2+gxVgrl5xHYPplb7A6P6D8/tNpCeEx8+/2pVFizczjUnPjmvqtdNQsY
+         FIAaMSCL4PpaQUmN/QYKMk9smu1uwGHrU3IKXugAM9X97wEx1hDuem3j0/rjOmgDgPle
+         pRI+ZEqueZa8ChiU2k7iIWAgjbzqxJyllbsPfsIGJYrA0WYYGEFfwBGHCH9opqJx5jML
+         Vzcg==
+X-Gm-Message-State: AOJu0Yzi/tc06IDb5ClCL0sqLxTUnGJ4fuZtbuzLyovNZwXPocDoZbt4
+	B1tVRYQM+JCxqFxK0jctzwXGQDwp8KTy9lyRebe7Eg==
+X-Google-Smtp-Source: AGHT+IH2sTR1ARtIFCpkS6vqthNwZFelmGu0RmLRp1wcx6mBBfZ3SQAFevZE8DnhGTo57OILWEQYl9skWtT3uKB51ZE=
+X-Received: by 2002:ac8:4e47:0:b0:3f9:c207:3123 with SMTP id
+ e7-20020ac84e47000000b003f9c2073123mr166690qtw.45.1691606297822; Wed, 09 Aug
+ 2023 11:38:17 -0700 (PDT)
 MIME-Version: 1.0
+References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
+ <20230807-mgctime-v7-8-d1dec143a704@kernel.org> <20230809-segeln-pflaumen-460b81bd2d3a@brauner>
+In-Reply-To: <20230809-segeln-pflaumen-460b81bd2d3a@brauner>
+From: Mike Marshall <hubcap@omnibond.com>
+Date: Wed, 9 Aug 2023 14:38:07 -0400
+Message-ID: <CAOg9mST=WFAjEwS9eNi_huoUpBvPy3R3fbFVTLUeFZAv6BJEEQ@mail.gmail.com>
+Subject: Re: [PATCH v7 08/13] fs: drop the timespec64 argument from update_time
+To: Christian Brauner <brauner@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,85 +76,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Jan Kara <jack@suse.cz>, "Darrick
- J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, ecryptfs@vger.kernel.org, Yue Hu <huyue2@gl0jj8bn.sched.sma.tdnsstic1.cn>, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, linux-xfs@vger.kernel.org, linux-afs@lists.infradead.org, linux-mtd@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, linux-unionfs@vger.kernel.org, Hugh Dickins <hughd@google.com>, Benjamin Coddington <bcodding@redhat.com>, Tyler Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org, Ilya Dryomov <idryomov@gmail.com>, 
- Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, codalist@telemann.coda.cs.cmu.edu, Shyam Prasad N <sprasad@microsoft.com>, Amir Goldstein <amir73il@gmail.com>, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Ronnie Sahlberg <ronniesahlberg@gmail.com>, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, Jan Harkes <jaharkes@cs.cmu.edu>, Christian Brauner <brauner@kernel.org>, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.dev, ntfs3@lists.linux.dev, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, Steve French <sfrench@sa
- mba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
+Cc: Latchesar Ionkov <lucho@ionkov.net>, Martin Brandenburg <martin@omnibond.com>, Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, linux-xfs@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, David Howells <dhowells@redhat.com>, Chris Mason <clm@fb.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Hans de Goede <hdegoede@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, samba-technical@lists.samba.org, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, linux-mtd@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Richard Weinberger <richard@nod.at>, Mark Fasheh <mark@fasheh.com>, Hugh Dickins <hughd@google.com>, Benjamin Coddington <bcodding@redhat.com>, Tyl
+ er Hicks <code@tyhicks.com>, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org, Ilya Dryomov <idryomov@gmail.com>, Iurii Zaikin <yzaikin@google.com>, Namjae Jeon <linkinjeon@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Shyam Prasad N <sprasad@microsoft.com>, Amir Goldstein <amir73il@gmail.com>, Kees Cook <keescook@chromium.org>, ocfs2-devel@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>, Tom Talpey <tom@talpey.com>, Tejun Heo <tj@kernel.org>, Yue Hu <huyue2@coolpad.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Ronnie Sahlberg <ronniesahlberg@gmail.com>, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Jan Harkes <jaharkes@cs.cmu.edu>, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, Joseph Qi <joseph.qi@linux.alibaba.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, v9fs@lists.linux.d
+ ev, ntfs3@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, Luis Chamberlain <mcgrof@kernel.org>, devel@lists.orangefs.org, Anna Schumaker <anna@kernel.org>, Jan Kara <jack@suse.com>, Bob Peterson <rpeterso@redhat.com>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, Joel Becker <jlbec@evilplan.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, 2023-08-10 at 02:44 +0900, OGAWA Hirofumi wrote:
-> Jeff Layton <jlayton@kernel.org> writes:
->=20
-> > On Thu, 2023-08-10 at 00:17 +0900, OGAWA Hirofumi wrote:
-> > > Jan Kara <jack@suse.cz> writes:
->=20
-> [...]
->=20
-> > My mistake re: lazytime vs. relatime, but Jan is correct that this
-> > shouldn't break anything there.
->=20
-> Actually breaks ("break" means not corrupt fs, means it breaks lazytime
-> optimization). It is just not always, but it should be always for some
-> userspaces.
->=20
-> > The logic in the revised generic_update_time is different because FAT i=
-s
-> > is a bit strange. fat_update_time does extra truncation on the timestam=
-p
-> > that it is handed beyond what timestamp_truncate() does.
-> > fat_truncate_time is called in many different places too, so I don't
-> > feel comfortable making big changes to how that works.
-> >=20
-> > In the case of generic_update_time, it calls inode_update_timestamps
-> > which returns a mask that shows which timestamps got updated. It then
-> > marks the dirty_flags appropriately for what was actually changed.
-> >=20
-> > generic_update_time is used across many filesystems so we need to ensur=
-e
-> > that it's OK to use even when multigrain timestamps are enabled. Those
-> > haven't been enabled in FAT though, so I didn't bother, and left it to
-> > dirtying the inode in the same way it was before, even though it now
-> > fetches its own timestamps from the clock. Given the way that the mtime
-> > and ctime are smooshed together in FAT, that seemed reasonable.
-> >=20
-> > Is there a particular case or flag combination you're concerned about
-> > here?
->=20
-> Yes. Because FAT has strange timestamps that different granularity on
-> disk . This is why generic time truncation doesn't work for FAT.
->=20
-> Well anyway, my concern is the only following part. In
-> generic_update_time(), S_[CM]TIME are not the cause of I_DIRTY_SYNC if
-> lazytime mode.
->=20
-> -	if ((flags & S_VERSION) && inode_maybe_inc_iversion(inode, false))
-> +	if ((flags & (S_VERSION|S_CTIME|S_MTIME)) && inode_maybe_inc_iversion(i=
-node, false))
-> 		dirty_flags |=3D I_DIRTY_SYNC;
->=20
+I've been following this patch on fsdevel... is there a
+remote I could fetch with a branch that has this in it?
 
-That would be wrong. The problem is that we're changing how update_time
-works:
+-Mike
 
-Previously, update_time was given a timestamp and a set of S_* flags to
-indicate which fields should be updated. Now, update_time is not given a
-timestamp. It needs to fetch it itself, but that subtly changes the
-meaning of the flags field.
-
-It now means "these fields needed to be updated when I last checked".
-The timestamp and i_version may now be different from when the flags
-field was set. This means that if any of S_CTIME/S_MTIME/S_VERSION were
-set that we need to attempt to update all 3 of them. They may now be
-different from the timestamp or version that we ultimately end up with.
-
-The above may look to you like it would always cause I_DIRTY_SYNC to be
-set on any ctime or mtime update, but inode_maybe_inc_iversion only
-returns true if it actually updated i_version, and it only does that if
-someone issued a ->getattr against the file since the last time it was
-updated.
-
-So, this shouldn't generate any more DIRTY_SYNC updates than it did
-before.
---=20
-Jeff Layton <jlayton@kernel.org>
+On Wed, Aug 9, 2023 at 8:32=E2=80=AFAM Christian Brauner <brauner@kernel.or=
+g> wrote:
+>
+> On Mon, Aug 07, 2023 at 03:38:39PM -0400, Jeff Layton wrote:
+> > Now that all of the update_time operations are prepared for it, we can
+> > drop the timespec64 argument from the update_time operation. Do that an=
+d
+> > remove it from some associated functions like inode_update_time and
+> > inode_needs_update_time.
+> >
+> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> > ---
+> >  fs/bad_inode.c           |  3 +--
+> >  fs/btrfs/inode.c         |  3 +--
+> >  fs/btrfs/volumes.c       |  4 +---
+> >  fs/fat/fat.h             |  3 +--
+> >  fs/fat/misc.c            |  2 +-
+> >  fs/gfs2/inode.c          |  3 +--
+> >  fs/inode.c               | 30 +++++++++++++-----------------
+> >  fs/overlayfs/inode.c     |  2 +-
+> >  fs/overlayfs/overlayfs.h |  2 +-
+> >  fs/ubifs/file.c          |  3 +--
+> >  fs/ubifs/ubifs.h         |  2 +-
+> >  fs/xfs/xfs_iops.c        |  1 -
+> >  include/linux/fs.h       |  4 ++--
+>
+> This was missing the conversion of fs/orangefs orangefs_update_time()
+> causing the build to fail. So at some point kbuild will yell here.
+> Fwiw, I've fixed that up in-tree.
