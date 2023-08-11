@@ -4,74 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84C9FC04FE0
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Aug 2023 11:05:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7613EB64DD
+	for <linux-erofs@archiver.kernel.org>; Fri, 11 Aug 2023 17:00:15 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Ul3UwbMR;
-	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HEJTqCpP;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bfdoRRCA;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RMgtr0zNZz3byv
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Aug 2023 21:05:24 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RMqmG0pJVz3cBb
+	for <linux-erofs@archiver.kernel.org>; Sat, 12 Aug 2023 03:00:14 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Ul3UwbMR;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HEJTqCpP;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bfdoRRCA;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=softfail (domain owner discourages use of this host) smtp.mailfrom=suse.cz (client-ip=2001:67c:2178:6::1c; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.55.52.151; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RMgth6FfVz3c3f
-	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Aug 2023 21:05:16 +1000 (AEST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3A1AD21881;
-	Fri, 11 Aug 2023 11:05:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1691751906; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=N7YBdToMFHaAC8IuWKxRPEMdSd9LNGUUtvM7Pk+ghBw=;
-	b=Ul3UwbMRQyZ+lV4S70iZQQbNxGooM3q1zIYUgEcgQEXb9yYN/oeO6AJHPZfYpOvWE3g4WC
-	IiiKdj/nQyQDf74qh6qKXYFhIvQyP49Q6lcMUAQfyNiGYd7n6h8WLpX2UGRevKFsjMpxSu
-	o2WooLKy9weeXK2HrPA5Ivd1+GUY1UM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1691751906;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=N7YBdToMFHaAC8IuWKxRPEMdSd9LNGUUtvM7Pk+ghBw=;
-	b=HEJTqCpPWYHmclzG4mM6Ml/hoXvGA2WyPJ8/kRk+APfgnz/q6t1xstYUL8CA50JFDYyyw3
-	MTFgEotSz6jdseDw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2D3FD139F3;
-	Fri, 11 Aug 2023 11:05:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-	by imap2.suse-dmz.suse.de with ESMTPSA
-	id j1kJC+IV1mRhRQAAMHmgww
-	(envelope-from <jack@suse.cz>); Fri, 11 Aug 2023 11:05:06 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 3B81FA0776; Fri, 11 Aug 2023 13:05:05 +0200 (CEST)
-From: Jan Kara <jack@suse.cz>
-To: <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH 21/29] erofs: Convert to use bdev_open_by_path()
-Date: Fri, 11 Aug 2023 13:04:52 +0200
-Message-Id: <20230811110504.27514-21-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230810171429.31759-1-jack@suse.cz>
-References: <20230810171429.31759-1-jack@suse.cz>
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3347; i=jack@suse.cz; h=from:subject; bh=Glj53ItxKIh4U/O00C8riQd3I+fFSfRNGzqJ+ZAj4Bg=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBk1hXV0FHZIj+A1bkBGTOkfyaWMpGZtuAJLG1/q8fD NO3txLqJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZNYV1QAKCRCcnaoHP2RA2Zl+B/ 0cu4Q1Y3QdlYyLTbX+QhCFkECfAcJYt43AC/5VwiEYcQf9sk5zq+XP0P0KYEz9kgILT+OeVKI7Rx/8 RlyAtYEyD2Y87nZNtLoIqjf2Y63pQGf/JCgcJTV9/oLSb3CeWtJhZsgwICS1C7rWT4UG+HYKdjQo9A R9YIl1l1nppfZUTi4qS4l6x//vYX3XIA97c0wxJ7VFD6nZARshnlZ5LDrekS/71y4ZA6ESyD1ImpNU eF3BX9Rq3Jb2zyFZpN1/sySgpWgRaf0k477y1yBXKzLrQ2ZGo/EYiVeL+7WAoQKtGy1H8RwVgLVVLS cLGpaHfq2Ox9cXpfXVU0hL/eX97N2i
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RMqm56cljz2yD7
+	for <linux-erofs@lists.ozlabs.org>; Sat, 12 Aug 2023 03:00:03 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691773206; x=1723309206;
+  h=date:from:to:cc:subject:message-id;
+  bh=XDxwAkefPyK8G718ZEbp4rkpBhfU6cxgZTT/4uCo8YY=;
+  b=bfdoRRCAFKq/e1IrRFopuOeCzm9m0Yf0ykmpv/qzycS+OALSU/R9L+qW
+   IKebLE4HrNob1jW5SP9u7/kO5569UiRb1Go7aOcRCqgpQctmqY7ZmXu4s
+   rEab8YimRtsRTfuwjpJm7W3GfYZ06dDlC3lVuVPH3BKAor1BAirOHNNF9
+   NAPtEWXMzdqwnyDQbYSbLl3I3HsUqm/r8kahqNeJiuB09jwJyQeKTamQ8
+   ellUTDt/2i90J3PwTKHiDpFUms0e8bJkVyqG4WxO6nthvLyQLRhgsm+w5
+   VhvqraWXUuvD3F8jswDU+iPsRZrXw/chSsbJQ/VvvyVA0AuyT8l2g5RpD
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="352045087"
+X-IronPort-AV: E=Sophos;i="6.01,166,1684825200"; 
+   d="scan'208";a="352045087"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2023 09:59:48 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="856353327"
+X-IronPort-AV: E=Sophos;i="6.01,166,1684825200"; 
+   d="scan'208";a="856353327"
+Received: from lkp-server01.sh.intel.com (HELO d1ccc7e87e8f) ([10.239.97.150])
+  by orsmga004.jf.intel.com with ESMTP; 11 Aug 2023 09:59:46 -0700
+Received: from kbuild by d1ccc7e87e8f with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1qUVUH-0007ta-1H;
+	Fri, 11 Aug 2023 16:59:45 +0000
+Date: Sat, 12 Aug 2023 00:59:15 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ c23df8256b55297179aa7c0d874e8a82e1e443fd
+Message-ID: <202308120013.YkjVPcHJ-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -83,103 +66,141 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Convert erofs to use bdev_open_by_path() and pass the handle around.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: c23df8256b55297179aa7c0d874e8a82e1e443fd  erofs: refine warning messages for zdata I/Os
 
-CC: Gao Xiang <xiang@kernel.org>
-CC: Chao Yu <chao@kernel.org>
-CC: linux-erofs@lists.ozlabs.org
-Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/erofs/data.c     |  4 ++--
- fs/erofs/internal.h |  2 +-
- fs/erofs/super.c    | 20 ++++++++++----------
- 3 files changed, 13 insertions(+), 13 deletions(-)
+elapsed time: 720m
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index db5e4b7636ec..1fa60cfff267 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -222,7 +222,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
- 			up_read(&devs->rwsem);
- 			return 0;
- 		}
--		map->m_bdev = dif->bdev;
-+		map->m_bdev = dif->bdev_handle->bdev;
- 		map->m_daxdev = dif->dax_dev;
- 		map->m_dax_part_off = dif->dax_part_off;
- 		map->m_fscache = dif->fscache;
-@@ -240,7 +240,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
- 			if (map->m_pa >= startoff &&
- 			    map->m_pa < startoff + length) {
- 				map->m_pa -= startoff;
--				map->m_bdev = dif->bdev;
-+				map->m_bdev = dif->bdev_handle->bdev;
- 				map->m_daxdev = dif->dax_dev;
- 				map->m_dax_part_off = dif->dax_part_off;
- 				map->m_fscache = dif->fscache;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 36e32fa542f0..fabd3bb0c194 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -47,7 +47,7 @@ typedef u32 erofs_blk_t;
- struct erofs_device_info {
- 	char *path;
- 	struct erofs_fscache *fscache;
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	struct dax_device *dax_dev;
- 	u64 dax_part_off;
- 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 9d6a3c6158bd..ce163b456d4a 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -230,7 +230,7 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	struct erofs_fscache *fscache;
- 	struct erofs_deviceslot *dis;
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	void *ptr;
- 
- 	ptr = erofs_read_metabuf(buf, sb, erofs_blknr(sb, *pos), EROFS_KMAP);
-@@ -254,13 +254,13 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
- 			return PTR_ERR(fscache);
- 		dif->fscache = fscache;
- 	} else if (!sbi->devs->flatdev) {
--		bdev = blkdev_get_by_path(dif->path, BLK_OPEN_READ, sb->s_type,
--					  NULL);
--		if (IS_ERR(bdev))
--			return PTR_ERR(bdev);
--		dif->bdev = bdev;
--		dif->dax_dev = fs_dax_get_by_bdev(bdev, &dif->dax_part_off,
--						  NULL, NULL);
-+		bdev_handle = bdev_open_by_path(dif->path, BLK_OPEN_READ,
-+						sb->s_type, NULL);
-+		if (IS_ERR(bdev_handle))
-+			return PTR_ERR(bdev_handle);
-+		dif->bdev_handle = bdev_handle;
-+		dif->dax_dev = fs_dax_get_by_bdev(bdev_handle->bdev,
-+				&dif->dax_part_off, NULL, NULL);
- 	}
- 
- 	dif->blocks = le32_to_cpu(dis->blocks);
-@@ -815,8 +815,8 @@ static int erofs_release_device_info(int id, void *ptr, void *data)
- 	struct erofs_device_info *dif = ptr;
- 
- 	fs_put_dax(dif->dax_dev, NULL);
--	if (dif->bdev)
--		blkdev_put(dif->bdev, &erofs_fs_type);
-+	if (dif->bdev_handle)
-+		bdev_release(dif->bdev_handle);
- 	erofs_fscache_unregister_cookie(dif->fscache);
- 	dif->fscache = NULL;
- 	kfree(dif->path);
+configs tested: 118
+configs skipped: 10
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+alpha                randconfig-r003-20230811   gcc  
+alpha                randconfig-r006-20230811   gcc  
+alpha                randconfig-r011-20230811   gcc  
+alpha                randconfig-r015-20230811   gcc  
+alpha                randconfig-r025-20230811   gcc  
+alpha                randconfig-r034-20230811   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                  randconfig-r033-20230811   gcc  
+arc                  randconfig-r043-20230811   gcc  
+arm                              allmodconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                                 defconfig   gcc  
+arm                  randconfig-r026-20230811   clang
+arm                  randconfig-r036-20230811   gcc  
+arm                  randconfig-r046-20230811   clang
+arm64                            allyesconfig   gcc  
+arm64                               defconfig   gcc  
+arm64                randconfig-r031-20230811   clang
+csky                                defconfig   gcc  
+hexagon              randconfig-r013-20230811   clang
+hexagon              randconfig-r041-20230811   clang
+hexagon              randconfig-r045-20230811   clang
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-r006-20230811   clang
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                 randconfig-i002-20230811   clang
+i386                 randconfig-i003-20230811   clang
+i386                 randconfig-i004-20230811   clang
+i386                 randconfig-i005-20230811   clang
+i386                 randconfig-i006-20230811   clang
+i386                 randconfig-i011-20230811   gcc  
+i386                 randconfig-i012-20230811   gcc  
+i386                 randconfig-i013-20230811   gcc  
+i386                 randconfig-i014-20230811   gcc  
+i386                 randconfig-i016-20230811   gcc  
+i386                 randconfig-r031-20230811   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch            randconfig-r016-20230811   gcc  
+m68k                             allmodconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                 randconfig-r024-20230811   gcc  
+m68k                 randconfig-r032-20230811   gcc  
+microblaze           randconfig-r021-20230811   gcc  
+microblaze           randconfig-r026-20230811   gcc  
+mips                             allmodconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                 randconfig-r001-20230811   gcc  
+mips                 randconfig-r005-20230811   gcc  
+mips                 randconfig-r006-20230811   gcc  
+nios2                               defconfig   gcc  
+nios2                randconfig-r023-20230811   gcc  
+nios2                randconfig-r031-20230811   gcc  
+nios2                randconfig-r032-20230811   gcc  
+openrisc             randconfig-r006-20230811   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc               randconfig-r012-20230811   gcc  
+parisc               randconfig-r022-20230811   gcc  
+parisc               randconfig-r035-20230811   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc              randconfig-r005-20230811   clang
+powerpc              randconfig-r022-20230811   gcc  
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                randconfig-r011-20230811   gcc  
+riscv                randconfig-r015-20230811   gcc  
+riscv                randconfig-r042-20230811   gcc  
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                 randconfig-r001-20230811   clang
+s390                 randconfig-r004-20230811   clang
+s390                 randconfig-r014-20230811   gcc  
+s390                 randconfig-r016-20230811   gcc  
+s390                 randconfig-r034-20230811   clang
+s390                 randconfig-r035-20230811   clang
+s390                 randconfig-r036-20230811   clang
+s390                 randconfig-r044-20230811   gcc  
+sh                               allmodconfig   gcc  
+sh                   randconfig-r005-20230811   gcc  
+sh                   randconfig-r021-20230811   gcc  
+sh                   randconfig-r033-20230811   gcc  
+sparc                            allyesconfig   gcc  
+sparc                               defconfig   gcc  
+sparc64              randconfig-r002-20230811   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   clang
+um                                  defconfig   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64                              defconfig   gcc  
+x86_64                                  kexec   gcc  
+x86_64               randconfig-r002-20230811   clang
+x86_64               randconfig-r004-20230811   clang
+x86_64               randconfig-r012-20230811   gcc  
+x86_64               randconfig-x001-20230811   gcc  
+x86_64               randconfig-x003-20230811   gcc  
+x86_64               randconfig-x006-20230811   gcc  
+x86_64               randconfig-x012-20230811   clang
+x86_64               randconfig-x013-20230811   clang
+x86_64               randconfig-x014-20230811   clang
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+xtensa               randconfig-r035-20230811   gcc  
+
 -- 
-2.35.3
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
