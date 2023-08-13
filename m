@@ -4,45 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8724DC001DB
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Aug 2023 12:28:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 27FADC41513
+	for <linux-erofs@archiver.kernel.org>; Sun, 13 Aug 2023 14:27:34 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=Lt8QMt/q;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=OvYEl9eR;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RMjkT0NHCz3c5b
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Aug 2023 22:28:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+10530082ca17b6f7899b+7292+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org)
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RP0H90Kbrz307s
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 00:27:33 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=OvYEl9eR;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:20::134; helo=mail-il1-x134.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org)
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RMjkC6Gk1z3bm2
-	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Aug 2023 22:28:00 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=96Jyxa0hgrG24aZgu2ilDmsPaDJbIFT8CvAcqFGq7ak=; b=Lt8QMt/qiwPklQXJKNxAAayl50
-	ejm5z3TauQQgWXDYeiy6ev7CoxuktCUjLml+tQTXB0FrmwYo9bGjhm2G8bwiVtr2qWkYfM3c8FNl1
-	cPDaz7ayPa6vktH3ev1ZeHUse0hr9sV3dSKzn62142iTuA8TTM4tDaiYAHOFhJAm7nP3aQxRbODoe
-	cl8s2GHmVFeXScu6jrXcZHGDTmN2udO8XZ0pPwfpsd5QoOiRLOiFHXD6KYR9f2MEyvA/KeT9RzHmF
-	DIvDgADu/AxqynsuMYC3hcwdLyXOsBeZQBLnrFNVOoRqDCMnS+8kcWICKZ1ml8I/4TT3bYAOcmKWy
-	N15IsxAA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-	id 1qUREm-00Abyw-17;
-	Fri, 11 Aug 2023 12:27:28 +0000
-Date: Fri, 11 Aug 2023 05:27:28 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
-Message-ID: <ZNYpMPM5o4q1xcIt@infradead.org>
-References: <20230810171429.31759-1-jack@suse.cz>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RP0H269wdz2y1d
+	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 00:27:24 +1000 (AEST)
+Received: by mail-il1-x134.google.com with SMTP id e9e14a558f8ab-3490cce329bso8141185ab.0
+        for <linux-erofs@lists.ozlabs.org>; Sun, 13 Aug 2023 07:27:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1691936839; x=1692541639;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7LTkTYG2V7V+b/XJGrS5FjZaEUNwdXXPW8dIYQ+5i7g=;
+        b=OvYEl9eRsMW34XwD8LzRf6sWxh0Bz+FGRcwLZ7VsyynHiM2YEmXzHqJz/eIoQCntQ6
+         kOToaBlHMmL4jY0YT4G92MbR7hl7jgx/vJzsk8tosDjReYBLX807bbJg5McpAsV3SXWd
+         FK9KxldwSl4hUhsyZw8hnPFnnzwfhier9cr9E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691936839; x=1692541639;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7LTkTYG2V7V+b/XJGrS5FjZaEUNwdXXPW8dIYQ+5i7g=;
+        b=JDD43nOPPbCtkscBcvZyp1gtpMvJBLczpAimnEgLcun8mlMlk2OmpmSko1/gbyE6BB
+         4Eg+VFsZNkBotkPRcgocBowzHeCNMRw2v0fxD6+dQEt+kRS0R3UhOrHzSfqXnbWfNwbO
+         hd0lWpTF9h+TqtsKjlW1Fxt2DJnBGqFj4m7IOKUvbV8+u3x0qBMMdU9THq+zJGn/TOz8
+         xXx6smlIDIlbN/lJiozT0Fk5V6Lv1rrFiWiOvGbpC1INs+/x2MGt9EsGLlIQp+qSsTWq
+         rNuNdv1w3s9h7YLH9CLUXDk1s63dVlN2YrWEh1nsZkDl1x92GC+QiDdeJYSWQHWcet5U
+         bnjw==
+X-Gm-Message-State: AOJu0Yzy+56wmTVJKiHm274ekxT85j4pOOlj659ujQUqsERcNnlPqb3t
+	7Ab1ybopLo0oi7JXp5A8jY+cTg==
+X-Google-Smtp-Source: AGHT+IE2I+zPO+NcmP+2OWQP6eHhowhjF1Wna3VKls0yj7SVnk718cfnowrtu6RoIjrP+2KSyuqHig==
+X-Received: by 2002:a05:6e02:1a82:b0:349:9328:6554 with SMTP id k2-20020a056e021a8200b0034993286554mr11496520ilv.16.1691936839053;
+        Sun, 13 Aug 2023 07:27:19 -0700 (PDT)
+Received: from sjg1.lan (c-73-14-173-85.hsd1.co.comcast.net. [73.14.173.85])
+        by smtp.gmail.com with ESMTPSA id w7-20020a02cf87000000b00430cf006d9bsm2280952jar.30.2023.08.13.07.27.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Aug 2023 07:27:18 -0700 (PDT)
+From: Simon Glass <sjg@chromium.org>
+To: U-Boot Mailing List <u-boot@lists.denx.de>
+Subject: [PATCH 00/24] bootstd: Support ChromiumOS better
+Date: Sun, 13 Aug 2023 08:26:28 -0600
+Message-ID: <20230813142708.361456-1-sjg@chromium.org>
+X-Mailer: git-send-email 2.41.0.640.ga95def55d0-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230810171429.31759-1-jack@suse.cz>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -54,14 +72,78 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, "Darrick J. Wong" <djwong@kernel.org>, linux-nvme@lists.infradead.org, Joseph Qi <joseph.qi@linux.alibaba.com>, dm-devel@redhat.com, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, Jack Wang <jinpu.wang@ionos.com>, Alasdair Kergon <agk@redhat.com>, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, Christoph Hellwig <hch@infradead.org>, xen-devel@lists.xenproject.org, Christian Borntraeger <borntraeger@linux.ibm.com>, Kent Overstreet <kent.overstreet@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, linux-pm@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>, Joern Engel <joern@lazybastard.org>, reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, Trond Myklebust <trond.myklebust@hammers
- pace.com>, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Ted Tso <tytso@mit.edu>, linux-mm@kvack.org, Song Liu <song@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com, Anna Schumaker <anna@kernel.org>, linux-fsdevel@vger.kernel.org, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>, Jose Marinho <jose.marinho@arm.com>, Dzmitry Sankouski <dsankouski@gmail.com>, Heinrich Schuchardt <xypron.glpk@gmx.de>, Simon Glass <sjg@chromium.org>, Alexey Brodkin <Alexey.Brodkin@synopsys.com>, Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>, Joshua Watt <jpewhacker@gmail.com>, Jaehoon Chung <jh80.chung@samsung.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Nikhil M Jain <n-jain1@ti.com>, Bin Meng <bmeng.cn@gmail.com>, linux-erofs@lists.ozlabs.org, Pavel Herrmann <morpheus.ibis@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Except for a mostly cosmetic nitpick this looks good to me:
+This updates the ChromiumOS bootmeth to detect multiple kernel partitions
+on a disk.
 
-Acked-by: Christoph Hellwig <hch@lst.de>
+It also includes minor code improvements to the partition drivers,
+including accessors for the optional fields.
 
-That's not eactly the deep review I'd like to do, but as I'm about to
-head out for vacation that's probably as good as it gets.
+This series also includes some other related tweaks in testing.
+
+It is available at u-boot-dm/methb-working
+
+
+Simon Glass (24):
+  part: Use desc instead of dev_desc
+  part: amiga: Use desc instead of dev_desc
+  part: dos: Use desc instead of dev_desc
+  part: efi: Use desc instead of dev_desc
+  part: iso: Use desc instead of dev_desc
+  part: nac: Use desc instead of dev_desc
+  part: Add comments for static functions
+  part: Add accessors for struct disk_partition uuid
+  part: Add accessors for struct disk_partition type_uuid
+  part: Add an accessor for struct disk_partition sys_ind
+  part: efi: Add debugging for the signature check
+  fs/erofs: Quieten test for filesystem presence
+  dm: core: Correct error handling when event fails
+  uuid: Move function comments to header file
+  sandbox: Add a way to access persistent test files
+  test: Move 1MB.fat32.img and 2MB.ext2.img
+  bootflow: Show an empty filename when there is none
+  bootstd: test: Allow binding and using any mmc device
+  bootstd: Add a test for bootmeth_cros
+  part: Add a fallback for part_get_bootable()
+  bootstd: Support bootmeths which can scan any partition
+  uuid: Add ChromiumOS partition types
+  bootstd: cros: Allow detection of any kernel partition
+  CI: Add ChromiumOS utilities
+
+ arch/sandbox/cpu/os.c      |  24 ++++
+ arch/sandbox/dts/test.dts  |   9 ++
+ boot/Kconfig               |   2 +
+ boot/bootdev-uclass.c      |  24 +++-
+ boot/bootmeth_cros.c       |  48 ++++---
+ cmd/bootflow.c             |   2 +-
+ cmd/gpt.c                  |  10 +-
+ configs/snow_defconfig     |   1 +
+ disk/part.c                | 226 +++++++++++++++--------------
+ disk/part_amiga.c          |  34 ++---
+ disk/part_dos.c            |  78 +++++-----
+ disk/part_efi.c            | 281 +++++++++++++++++++------------------
+ disk/part_iso.c            |  52 +++----
+ disk/part_mac.c            |  59 ++++----
+ doc/develop/bootstd.rst    |  11 +-
+ drivers/core/device.c      |   3 +-
+ fs/erofs/super.c           |   4 +-
+ fs/fat/fat.c               |   4 +-
+ include/bootmeth.h         |   3 +
+ include/os.h               |  10 ++
+ include/part.h             | 215 ++++++++++++++++++----------
+ include/part_efi.h         |  14 ++
+ include/uuid.h             |  94 +++++++++++++
+ lib/uuid.c                 |  93 +-----------
+ test/boot/bootflow.c       |  80 ++++++++---
+ test/dm/host.c             |  44 +++---
+ test/py/tests/fs_helper.py |   6 +-
+ test/py/tests/test_ut.py   | 148 ++++++++++++++++++-
+ tools/docker/Dockerfile    |   3 +
+ 29 files changed, 982 insertions(+), 600 deletions(-)
+
+-- 
+2.41.0.640.ga95def55d0-goog
+
