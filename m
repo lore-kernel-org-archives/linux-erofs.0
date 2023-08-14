@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05D0FC001B0
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 03:43:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EE7B1C001B0
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 03:43:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RPKx140CNz30fS
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 13:43:01 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RPKx43qsQz3bY3
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 13:43:04 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RPKwp0LNTz2yD6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 13:42:48 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpemLy9_1691984559;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpemLy9_1691984559)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RPKwp4YKCz2yps
+	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 13:42:49 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpekUye_1691984563;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpekUye_1691984563)
           by smtp.aliyun-inc.com;
-          Mon, 14 Aug 2023 11:42:40 +0800
+          Mon, 14 Aug 2023 11:42:43 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 00/13] erofs-utils: mkfs: introduce rebuild mode
-Date: Mon, 14 Aug 2023 11:42:26 +0800
-Message-Id: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH 03/13] erofs-utils: lib: read i_ino in erofs_read_inode_from_disk()
+Date: Mon, 14 Aug 2023 11:42:29 +0800
+Message-Id: <20230814034239.54660-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
+References: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,61 +45,38 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Introduce a new rebuild mode merging multiple erofs images generated
-from either tarerfs index mode (--tar=i):
+i_ino[0] is a unique inode serial number in the erofs filesystem where
+the inode resides, and also serves as the on-disk inode number, while
+i_ino[1] is a unique number identifying the source inode in the source
+directory, which is usually derived from st->st_ino.
 
-	mkfs.erofs --tar=i --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=i --aufs layerN.erofs layerN.tar
+Read on-disk ino and store it in i_ino[0] given the above background.
 
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ lib/namei.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-or tarerofs non-index mode (--tar=f):
-
-	mkfs.erofs --tar=f -Enoinline_data --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=f -Enoinline_data --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-The rebuild mode doesn't support flat inline datalayout yet.
-
-Jingbo Xu (13):
-  erofs-utils: fix overriding of i_rdev for special device
-  erofs-utils: lib: add list_splice_tail() helper
-  erofs-utils: lib: read i_ino in erofs_read_inode_from_disk()
-  erofs-utils: lib: fix erofs_init_devices() in multidev mode
-  erofs-utils: lib: keep self maintained devname
-  erofs-utils: lib: make erofs_get_unhashed_chunk() global
-  erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
-  erofs-utils: lib: add erofs_inode_tag_opaque() helper
-  erofs-utils: lib: add erofs_insert_ihash() helper
-  erofs-utils: lib: add erofs_rebuild_dump_tree() helper
-  erofs-utils: lib: add erofs_rebuild_get_dentry() helper
-  erofs-utils: lib: add erofs_rebuild_load_tree() helper
-  erofs-utils: mkfs: introduce rebuild mode
-
- include/erofs/blobchunk.h |   2 +
- include/erofs/inode.h     |   5 +-
- include/erofs/internal.h  |   9 +-
- include/erofs/list.h      |  20 ++
- include/erofs/rebuild.h   |  21 +++
- include/erofs/xattr.h     |  23 +++
- lib/Makefile.am           |   3 +-
- lib/blobchunk.c           |   2 +-
- lib/inode.c               |  33 +++-
- lib/io.c                  |  14 +-
- lib/namei.c               |   2 +
- lib/rebuild.c             | 387 ++++++++++++++++++++++++++++++++++++++
- lib/super.c               |  11 +-
- lib/tar.c                 | 193 +++++--------------
- lib/xattr.c               | 120 ++++++++++++
- mkfs/Makefile.am          |   3 +-
- mkfs/main.c               | 198 ++++++++++++++-----
- 17 files changed, 839 insertions(+), 207 deletions(-)
- create mode 100644 include/erofs/rebuild.h
- create mode 100644 lib/rebuild.c
-
+diff --git a/lib/namei.c b/lib/namei.c
+index 1023a9a..2bb1d4c 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -60,6 +60,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		die = (struct erofs_inode_extended *)buf;
+ 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(die->i_mode);
++		vi->i_ino[0] = le32_to_cpu(die->i_ino);
+ 
+ 		switch (vi->i_mode & S_IFMT) {
+ 		case S_IFREG:
+@@ -95,6 +96,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		vi->inode_isize = sizeof(struct erofs_inode_compact);
+ 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(dic->i_mode);
++		vi->i_ino[0] = le32_to_cpu(dic->i_ino);
+ 
+ 		switch (vi->i_mode & S_IFMT) {
+ 		case S_IFREG:
 -- 
 2.19.1.6.gb485710b
 
