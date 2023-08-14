@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8E7DC001DB
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 06:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85C68C001B0
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 06:40:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RPP3L1GGcz30P3
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 16:03:42 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RPPsC1cMbz30Pn
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 16:39:59 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RPP3F2Fhvz2xwD
-	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 16:03:35 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Vpg8nZB_1691993006;
-Received: from 30.97.49.36(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vpg8nZB_1691993006)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RPPs635Sqz2y1b
+	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 16:39:52 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VphZ.36_1691995183;
+Received: from 30.97.49.36(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VphZ.36_1691995183)
           by smtp.aliyun-inc.com;
-          Mon, 14 Aug 2023 14:03:29 +0800
-Message-ID: <3b8fefc7-3102-5281-bb53-7378f4b0557c@linux.alibaba.com>
-Date: Mon, 14 Aug 2023 14:03:24 +0800
+          Mon, 14 Aug 2023 14:39:46 +0800
+Message-ID: <66491add-a80d-695c-c437-d35993565466@linux.alibaba.com>
+Date: Mon, 14 Aug 2023 14:39:43 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH 03/13] erofs-utils: lib: read i_ino in
- erofs_read_inode_from_disk()
+Subject: Re: [PATCH 04/13] erofs-utils: lib: fix erofs_init_devices() in
+ multidev mode
 To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
  linux-erofs@lists.ozlabs.org
 References: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
- <20230814034239.54660-4-jefflexu@linux.alibaba.com>
+ <20230814034239.54660-5-jefflexu@linux.alibaba.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230814034239.54660-4-jefflexu@linux.alibaba.com>
+In-Reply-To: <20230814034239.54660-5-jefflexu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -52,16 +52,14 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 On 2023/8/14 11:42, Jingbo Xu wrote:
-> i_ino[0] is a unique inode serial number in the erofs filesystem where
-> the inode resides, and also serves as the on-disk inode number, while
-> i_ino[1] is a unique number identifying the source inode in the source
-> directory, which is usually derived from st->st_ino.
+> Fix the missing le32_to_cpu().  Read and cache blocks of each device for
+> later use.
 > 
-> Read on-disk ino and store it in i_ino[0] given the above background.
+> Initialize sbi->extra_devices from on-disk extra_devices.
 > 
 > Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-Fixes: 5e35b75ad499 ("erofs-utils: introduce fuse implementation")
+Fixes: 0ce853a01123 ("erofs-utils: fuse: add multiple device support")
 Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
 Thanks,
