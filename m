@@ -4,64 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC1E6C001B0
-	for <linux-erofs@archiver.kernel.org>; Sun, 13 Aug 2023 14:27:44 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=CNBDVgv3;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C4C3C001B0
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 03:42:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RP0HM4LHGz308W
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 00:27:43 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=CNBDVgv3;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:20::135; helo=mail-il1-x135.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org)
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RPKwv55x5z30Pn
+	for <linux-erofs@archiver.kernel.org>; Mon, 14 Aug 2023 13:42:55 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RP0HG2tq6z2yDY
-	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 00:27:38 +1000 (AEST)
-Received: by mail-il1-x135.google.com with SMTP id e9e14a558f8ab-3492cd048c9so15723745ab.1
-        for <linux-erofs@lists.ozlabs.org>; Sun, 13 Aug 2023 07:27:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1691936855; x=1692541655;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Mw4GG5UZT4ju06xkyXiTq0DXE77GO29yWYaiJZLNCaw=;
-        b=CNBDVgv38BYdCrAM/06+P85CnPqG7zarGVB5SpNdQsJ1Ma5YbLU//L9FOzdo57wmSy
-         Yk8G1cAm80gkdjgP73nL9kCOZa5D1JZtWyShgT2ugacOEHkA7YbKRK46Wr8yi4lblIbZ
-         DCDeM5olmGAgzFgRJbfqHxZNti+VLN5y/K+c8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691936855; x=1692541655;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Mw4GG5UZT4ju06xkyXiTq0DXE77GO29yWYaiJZLNCaw=;
-        b=BQl6yNueMauYUJ3oeL5HQR2yYTxhcKI7jcuuIdADMYsq7Qe5/pPr5luF7aME0id1fc
-         KUDT1loj8fs81lSBvetEhoTwbTyZW3vrsn68SO2mH4iek+OSeiDIoHLMGbguh/0n8hPE
-         30JPeAXfubT+5aPw5Jyst7dqLoI1wU7I/2QjLx8bcf4pyoDCs/OKB/OO9NH0iO4Yr+r2
-         m23EBPP3UW/yVuuiSihu50/DssEtltUs4PzrSK3Fj8j8y2Go5R9QjV4+8SFYV0NNnmfQ
-         PnPQhyTgineyWwvold5fp8THxVpiAjXHG9UtjgqIUMBFahnHd8BTXHgd3nl2yzlSF/KN
-         D4GQ==
-X-Gm-Message-State: AOJu0YwBhLp30+2FAampr+VUnisSvro4lZ+hjTOkkt81LVHqqHN6HqoA
-	BrPgDadr6SSWV/URW1yWvNSK+g==
-X-Google-Smtp-Source: AGHT+IEuYboGs4ZmqPBIRUy3sMFL2kd5ZxAStRQxhojTsSYeawY7BQPJ/Y/4rM1y+LnjMHAwLQfxGQ==
-X-Received: by 2002:a05:6e02:190e:b0:345:6ce1:d259 with SMTP id w14-20020a056e02190e00b003456ce1d259mr14165965ilu.28.1691936855232;
-        Sun, 13 Aug 2023 07:27:35 -0700 (PDT)
-Received: from sjg1.lan (c-73-14-173-85.hsd1.co.comcast.net. [73.14.173.85])
-        by smtp.gmail.com with ESMTPSA id w7-20020a02cf87000000b00430cf006d9bsm2280952jar.30.2023.08.13.07.27.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Aug 2023 07:27:35 -0700 (PDT)
-From: Simon Glass <sjg@chromium.org>
-To: U-Boot Mailing List <u-boot@lists.denx.de>
-Subject: [PATCH 12/24] fs/erofs: Quieten test for filesystem presence
-Date: Sun, 13 Aug 2023 08:26:40 -0600
-Message-ID: <20230813142708.361456-13-sjg@chromium.org>
-X-Mailer: git-send-email 2.41.0.640.ga95def55d0-goog
-In-Reply-To: <20230813142708.361456-1-sjg@chromium.org>
-References: <20230813142708.361456-1-sjg@chromium.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RPKwp0NRCz2yV8
+	for <linux-erofs@lists.ozlabs.org>; Mon, 14 Aug 2023 13:42:47 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpeorL6_1691984561;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpeorL6_1691984561)
+          by smtp.aliyun-inc.com;
+          Mon, 14 Aug 2023 11:42:42 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH 02/13] erofs-utils: lib: add list_splice_tail() helper
+Date: Mon, 14 Aug 2023 11:42:28 +0800
+Message-Id: <20230814034239.54660-3-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
+References: <20230814034239.54660-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -75,49 +42,47 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Simon Glass <sjg@chromium.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-At present listing a partition produces lots of errors about this
-filesystem:
+Add list_splice_tail() helper.
 
-   => part list mmc 4
-   cannot find valid erofs superblock
-   cannot find valid erofs superblock
-   cannot read erofs superblock: -5
-   [9 more similar lines]
-
-Use debugging rather than errors when unable to find a signature, as is
-done with other filesystems.
-
-Signed-off-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
+ include/erofs/list.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
- fs/erofs/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index d33926281b47..d405d488fd27 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -68,14 +68,14 @@ int erofs_read_superblock(void)
+diff --git a/include/erofs/list.h b/include/erofs/list.h
+index 3f5da1a..d7a9fee 100644
+--- a/include/erofs/list.h
++++ b/include/erofs/list.h
+@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
+ 	return head->next == head;
+ }
  
- 	ret = erofs_blk_read(data, 0, erofs_blknr(sizeof(data)));
- 	if (ret < 0) {
--		erofs_err("cannot read erofs superblock: %d", ret);
-+		erofs_dbg("cannot read erofs superblock: %d", ret);
- 		return -EIO;
- 	}
- 	dsb = (struct erofs_super_block *)(data + EROFS_SUPER_OFFSET);
++static inline void __list_splice(struct list_head *list,
++		struct list_head *prev, struct list_head *next)
++{
++	struct list_head *first = list->next;
++	struct list_head *last = list->prev;
++
++	first->prev = prev;
++	prev->next = first;
++
++	last->next = next;
++	next->prev = last;
++}
++
++static inline void list_splice_tail(struct list_head *list,
++				    struct list_head *head)
++{
++	if (!list_empty(list))
++		__list_splice(list, head->prev, head);
++}
++
+ #define list_entry(ptr, type, member) container_of(ptr, type, member)
  
- 	ret = -EINVAL;
- 	if (le32_to_cpu(dsb->magic) != EROFS_SUPER_MAGIC_V1) {
--		erofs_err("cannot find valid erofs superblock");
-+		erofs_dbg("cannot find valid erofs superblock");
- 		return ret;
- 	}
- 
+ #define list_first_entry(ptr, type, member)                                    \
 -- 
-2.41.0.640.ga95def55d0-goog
+2.19.1.6.gb485710b
 
