@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0AD7FC0015E
-	for <linux-erofs@archiver.kernel.org>; Tue, 15 Aug 2023 09:15:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB47FC41513
+	for <linux-erofs@archiver.kernel.org>; Tue, 15 Aug 2023 09:15:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RQ5GK47mMz3cKc
-	for <linux-erofs@archiver.kernel.org>; Tue, 15 Aug 2023 19:15:37 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RQ5GN4Tqxz3cPf
+	for <linux-erofs@archiver.kernel.org>; Tue, 15 Aug 2023 19:15:40 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQ5GB20RMz30NN
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQ5GB21FKz3bdm
 	for <linux-erofs@lists.ozlabs.org>; Tue, 15 Aug 2023 19:15:29 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VprOquP_1692090921;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VprOquP_1692090921)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VprJmkM_1692090922;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VprJmkM_1692090922)
           by smtp.aliyun-inc.com;
-          Tue, 15 Aug 2023 17:15:22 +0800
+          Tue, 15 Aug 2023 17:15:23 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 0/3] erofs-utils: support long xattr name prefixes for erofsfuse
-Date: Tue, 15 Aug 2023 17:15:18 +0800
-Message-Id: <20230815091521.74661-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH 1/3] erofs-utils: lib: fix potential out-of-bound in xattr_entrylist()
+Date: Tue, 15 Aug 2023 17:15:19 +0800
+Message-Id: <20230815091521.74661-2-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230815091521.74661-1-jefflexu@linux.alibaba.com>
+References: <20230815091521.74661-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,27 +45,36 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The first two are preparing for patch 3, which implements the support
-for long xattr name prefixes for erofsfuse.
+Check the index before accessing array to avoid the potential
+out-of-bound access.
 
-Patch 3 is basically synced from kernel commits:
-	erofs: add helpers to load long xattr name prefixes
-	erofs: handle long xattr name prefixes properly
-	erofs: enable long extended attribute name prefixes
+Fixes: c47df5aa2d16 ("erofs-utils: fuse: introduce xattr support")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ lib/xattr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-
-Jingbo Xu (3):
-  erofs-utils: lib: fix potential out-of-bound in xattr_entrylist()
-  erofs-utils: lib: add match_base_prefix() helper
-  erofs-utils: support long xattr name prefixes for erofsfuse
-
- include/erofs/internal.h |   6 ++
- include/erofs/xattr.h    |   2 +
- lib/super.c              |  14 +++-
- lib/xattr.c              | 171 ++++++++++++++++++++++++++++++++++-----
- mkfs/Makefile.am         |   3 +-
- 5 files changed, 173 insertions(+), 23 deletions(-)
-
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 12f580e..2548750 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -1229,11 +1229,14 @@ static int xattr_entrylist(struct xattr_iter *_it,
+ {
+ 	struct listxattr_iter *it =
+ 		container_of(_it, struct listxattr_iter, it);
++	unsigned int base_index = entry->e_name_index;
+ 	unsigned int prefix_len;
+ 	const char *prefix;
+ 
+-	prefix = xattr_types[entry->e_name_index].prefix;
+-	prefix_len = xattr_types[entry->e_name_index].prefix_len;
++	if (base_index >= ARRAY_SIZE(xattr_types))
++		return 1;
++	prefix = xattr_types[base_index].prefix;
++	prefix_len = xattr_types[base_index].prefix_len;
+ 
+ 	if (!it->buffer) {
+ 		it->buffer_ofs += prefix_len + entry->e_name_len + 1;
 -- 
 2.19.1.6.gb485710b
 
