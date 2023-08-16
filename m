@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 31E79C04A6A
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 03:50:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3277C001B0
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 03:50:04 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RQZ084ZHFz3cTx
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 13:50:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RQZ0C4qZpz3cVN
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 13:50:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQYzz5yLjz2yVs
-	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Aug 2023 13:49:49 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpuJ30i_1692157782;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpuJ30i_1692157782)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQZ0003Pbz2yW8
+	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Aug 2023 13:49:50 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpuGnyq_1692157784;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpuGnyq_1692157784)
           by smtp.aliyun-inc.com;
-          Wed, 16 Aug 2023 11:49:43 +0800
+          Wed, 16 Aug 2023 11:49:45 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/4] erofs-utils: lib: fix potential out-of-bound in xattr_entrylist()
-Date: Wed, 16 Aug 2023 11:49:38 +0800
-Message-Id: <20230816034941.126866-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 3/4] erofs-utils: add erofs_read_metadata() helper
+Date: Wed, 16 Aug 2023 11:49:40 +0800
+Message-Id: <20230816034941.126866-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230816034941.126866-1-jefflexu@linux.alibaba.com>
 References: <20230816034941.126866-1-jefflexu@linux.alibaba.com>
@@ -45,37 +45,120 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Check the index before accessing array to avoid the potential
-out-of-bound access.
+Add erofs_read_metadata() helper reading variable-sized metadata from
+inode specified by @nid.  Read from meta inode if @nid is 0.
 
-Fixes: c47df5aa2d16 ("erofs-utils: fuse: introduce xattr support")
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- lib/xattr.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/erofs/internal.h |  2 +
+ lib/data.c               | 84 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 86 insertions(+)
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 12f580e..2548750 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -1229,11 +1229,14 @@ static int xattr_entrylist(struct xattr_iter *_it,
- {
- 	struct listxattr_iter *it =
- 		container_of(_it, struct listxattr_iter, it);
-+	unsigned int base_index = entry->e_name_index;
- 	unsigned int prefix_len;
- 	const char *prefix;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index a04e6a6..3e7319d 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -364,6 +364,8 @@ int erofs_read_one_data(struct erofs_inode *inode, struct erofs_map_blocks *map,
+ int z_erofs_read_one_data(struct erofs_inode *inode,
+ 			struct erofs_map_blocks *map, char *raw, char *buffer,
+ 			erofs_off_t skip, erofs_off_t length, bool trimmed);
++void *erofs_read_metadata(struct erofs_sb_info *sbi, erofs_nid_t nid,
++			  erofs_off_t *offset, int *lengthp);
  
--	prefix = xattr_types[entry->e_name_index].prefix;
--	prefix_len = xattr_types[entry->e_name_index].prefix_len;
-+	if (base_index >= ARRAY_SIZE(xattr_types))
-+		return 1;
-+	prefix = xattr_types[base_index].prefix;
-+	prefix_len = xattr_types[base_index].prefix_len;
- 
- 	if (!it->buffer) {
- 		it->buffer_ofs += prefix_len + entry->e_name_len + 1;
+ static inline int erofs_get_occupied_size(const struct erofs_inode *inode,
+ 					  erofs_off_t *size)
+diff --git a/lib/data.c b/lib/data.c
+index a172bb5..3ec5330 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -372,3 +372,87 @@ int erofs_pread(struct erofs_inode *inode, char *buf,
+ 	}
+ 	return -EINVAL;
+ }
++
++static void *erofs_read_meta(struct erofs_sb_info *sbi, erofs_nid_t nid,
++			     erofs_off_t *offset, int *lengthp)
++{
++	struct erofs_inode vi = { .sbi = sbi, .nid = nid };
++	__le16 __len;
++	int ret, len;
++	char *buffer;
++
++	ret = erofs_read_inode_from_disk(&vi);
++	if (ret)
++		return ERR_PTR(ret);
++
++	*offset = round_up(*offset, 4);
++	ret = erofs_pread(&vi, (void *)&__len, sizeof(__le16), *offset);
++	if (ret)
++		return ERR_PTR(ret);
++
++	len = le16_to_cpu(__len);
++	if (!len)
++		return ERR_PTR(-EFSCORRUPTED);
++
++	buffer = malloc(len);
++	if (!buffer)
++		return ERR_PTR(-ENOMEM);
++	*offset += sizeof(__le16);
++	*lengthp = len;
++
++	ret = erofs_pread(&vi, buffer, len, *offset);
++	if (ret) {
++		free(buffer);
++		return ERR_PTR(ret);
++	}
++	*offset += len;
++	return buffer;
++}
++
++static void *erofs_read_metainode(struct erofs_sb_info *sbi,
++				  erofs_off_t *offset, int *lengthp)
++{
++	int ret, len, i, cnt;
++	void *buffer;
++	u8 data[EROFS_MAX_BLOCK_SIZE];
++
++	*offset = round_up(*offset, 4);
++	ret = blk_read(sbi, 0, data, erofs_blknr(sbi, *offset), 1);
++	if (ret)
++		return ERR_PTR(ret);
++	len = le16_to_cpu(*(__le16 *)&data[erofs_blkoff(sbi, *offset)]);
++	if (!len)
++		return ERR_PTR(-EFSCORRUPTED);
++
++	buffer = malloc(len);
++	if (!buffer)
++		return ERR_PTR(-ENOMEM);
++	*offset += sizeof(__le16);
++	*lengthp = len;
++
++	for (i = 0; i < len; i += cnt) {
++		cnt = min_t(int, erofs_blksiz(sbi) - erofs_blkoff(sbi, *offset),
++			    len - i);
++		ret = blk_read(sbi, 0, data, erofs_blknr(sbi, *offset), 1);
++		if (ret) {
++			free(buffer);
++			return ERR_PTR(ret);
++		}
++		memcpy(buffer + i, data + erofs_blkoff(sbi, *offset), cnt);
++		*offset += cnt;
++	}
++	return buffer;
++}
++
++/*
++ * read variable-sized metadata, offset will be aligned by 4-byte
++ *
++ * @nid is 0 if metadata is in meta inode
++ */
++void *erofs_read_metadata(struct erofs_sb_info *sbi, erofs_nid_t nid,
++			  erofs_off_t *offset, int *lengthp)
++{
++	if (!nid)
++		return erofs_read_metainode(sbi, offset, lengthp);
++	return erofs_read_meta(sbi, nid, offset, lengthp);
++}
 -- 
 2.19.1.6.gb485710b
 
