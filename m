@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E58FCC001B0
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 03:50:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0C47C001B0
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 03:50:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RQZ0G4QHwz3cTs
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 13:50:06 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RQZ0K4pFHz3cVC
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Aug 2023 13:50:09 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQYzz60M5z2yW7
-	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Aug 2023 13:49:49 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpuGnyN_1692157783;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpuGnyN_1692157783)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RQZ000yJvz2yhT
+	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Aug 2023 13:49:51 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VpuKYmc_1692157785;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VpuKYmc_1692157785)
           by smtp.aliyun-inc.com;
-          Wed, 16 Aug 2023 11:49:44 +0800
+          Wed, 16 Aug 2023 11:49:46 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 2/4] erofs-utils: lib: add match_base_prefix() helper
-Date: Wed, 16 Aug 2023 11:49:39 +0800
-Message-Id: <20230816034941.126866-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 4/4] erofs-utils: support long xattr name prefixes for erofsfuse
+Date: Wed, 16 Aug 2023 11:49:41 +0800
+Message-Id: <20230816034941.126866-5-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230816034941.126866-1-jefflexu@linux.alibaba.com>
 References: <20230816034941.126866-1-jefflexu@linux.alibaba.com>
@@ -45,74 +45,286 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Since the introduction of long xattr name prefix, match_prefix() will
-search among the long xattr name prefixes first and return the matched
-prefix, while erofs_getxattr() expects a base prefix even when the
-queried xattr name matches a long prefix.
+Make erofs_listxattr() and erofs_getxattr() routine support long xattr
+name prefixes.
 
-Thus introduce match_base_prefix() helper to do this.
+Although the on-disk format allows long xattr name prefixes to be placed
+in the meta inode or packed inode, currently mkfs.erofs will place them
+in packed inode by default.  Thus let's also read long xattr name prefixes
+from packed inode by default.
+
+Since we need to read the content of the packed inode from disk when
+loading long xattr name prefixes, add dependency on zlib_LIBS for
+mkfs.erofs to resolve the compiling dependency.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- lib/xattr.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ include/erofs/internal.h |   6 ++
+ include/erofs/xattr.h    |   2 +
+ lib/super.c              |  14 ++++-
+ lib/xattr.c              | 115 +++++++++++++++++++++++++++++++++++----
+ mkfs/Makefile.am         |   3 +-
+ 5 files changed, 128 insertions(+), 12 deletions(-)
 
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 3e7319d..db766ca 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -57,6 +57,11 @@ struct erofs_device_info {
+ 	u32 mapped_blkaddr;
+ };
+ 
++struct erofs_xattr_prefix_item {
++	struct erofs_xattr_long_prefix *prefix;
++	u8 infix_len;
++};
++
+ #define EROFS_PACKED_NID_UNALLOCATED	-1
+ 
+ struct erofs_sb_info {
+@@ -99,6 +104,7 @@ struct erofs_sb_info {
+ 
+ 	u32 xattr_prefix_start;
+ 	u8 xattr_prefix_count;
++	struct erofs_xattr_prefix_item *xattr_prefixes;
+ 
+ 	int devfd;
+ 	u64 devsz;
+diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
+index dc27cf6..748442a 100644
+--- a/include/erofs/xattr.h
++++ b/include/erofs/xattr.h
+@@ -82,6 +82,8 @@ int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *p
+ int erofs_xattr_insert_name_prefix(const char *prefix);
+ void erofs_xattr_cleanup_name_prefixes(void);
+ int erofs_xattr_write_name_prefixes(struct erofs_sb_info *sbi, FILE *f);
++void erofs_xattr_prefixes_cleanup(struct erofs_sb_info *sbi);
++int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi);
+ 
+ int erofs_setxattr(struct erofs_inode *inode, char *key,
+ 		   const void *value, size_t size);
+diff --git a/lib/super.c b/lib/super.c
+index e8e84aa..21dc51f 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -6,6 +6,7 @@
+ #include <stdlib.h>
+ #include "erofs/io.h"
+ #include "erofs/print.h"
++#include "erofs/xattr.h"
+ 
+ static bool check_layout_compatibility(struct erofs_sb_info *sbi,
+ 				       struct erofs_super_block *dsb)
+@@ -101,6 +102,8 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 	sbi->primarydevice_blocks = le32_to_cpu(dsb->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(dsb->meta_blkaddr);
+ 	sbi->xattr_blkaddr = le32_to_cpu(dsb->xattr_blkaddr);
++	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
++	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
+ 	sbi->islotbits = EROFS_ISLOTBITS;
+ 	sbi->root_nid = le16_to_cpu(dsb->root_nid);
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
+@@ -117,11 +120,20 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 		sbi->available_compr_algs = le16_to_cpu(dsb->u1.available_compr_algs);
+ 	else
+ 		sbi->lz4_max_distance = le16_to_cpu(dsb->u1.lz4_max_distance);
+-	return erofs_init_devices(sbi, dsb);
++
++	ret = erofs_init_devices(sbi, dsb);
++	if (ret)
++		return ret;
++
++	ret = erofs_xattr_prefixes_init(sbi);
++	if (ret)
++		free(sbi->devs);
++	return ret;
+ }
+ 
+ void erofs_put_super(struct erofs_sb_info *sbi)
+ {
+ 	if (sbi->devs)
+ 		free(sbi->devs);
++	erofs_xattr_prefixes_cleanup(sbi);
+ }
 diff --git a/lib/xattr.c b/lib/xattr.c
-index 2548750..4091fe6 100644
+index 4091fe6..46a301a 100644
 --- a/lib/xattr.c
 +++ b/lib/xattr.c
-@@ -137,27 +137,34 @@ static struct xattr_item *get_xattritem(u8 prefix, char *kvbuf,
- 	return item;
- }
+@@ -1093,19 +1093,47 @@ out:
+ struct getxattr_iter {
+ 	struct xattr_iter it;
  
--static bool match_prefix(const char *key, u8 *index, u16 *len)
-+static bool match_base_prefix(const char *key, u8 *index, u16 *len)
- {
- 	struct xattr_prefix *p;
--	struct ea_type_node *tnode;
+-	int buffer_size, index;
++	int buffer_size, index, infix_len;
+ 	char *buffer;
+ 	const char *name;
+ 	size_t len;
+ };
  
--	list_for_each_entry(tnode, &ea_name_prefixes, list) {
--		p = &tnode->type;
-+	for (p = xattr_types; p < xattr_types + ARRAY_SIZE(xattr_types); ++p) {
- 		if (p->prefix && !strncmp(p->prefix, key, p->prefix_len)) {
- 			*len = p->prefix_len;
--			*index = tnode->index;
-+			*index = p - xattr_types;
- 			return true;
- 		}
- 	}
--	for (p = xattr_types; p < xattr_types + ARRAY_SIZE(xattr_types); ++p) {
-+	return false;
++static int erofs_xattr_long_entrymatch(struct getxattr_iter *it,
++				       struct erofs_xattr_entry *entry)
++{
++	struct erofs_sb_info *sbi = it->it.sbi;
++	struct erofs_xattr_prefix_item *pf = sbi->xattr_prefixes +
++		(entry->e_name_index & EROFS_XATTR_LONG_PREFIX_MASK);
++
++	if (pf >= sbi->xattr_prefixes + sbi->xattr_prefix_count)
++		return -ENOATTR;
++
++	if (it->index != pf->prefix->base_index ||
++	    it->len != entry->e_name_len + pf->infix_len)
++		return -ENOATTR;
++
++	if (memcmp(it->name, pf->prefix->infix, pf->infix_len))
++		return -ENOATTR;
++
++	it->infix_len = pf->infix_len;
++	return 0;
 +}
 +
-+static bool match_prefix(const char *key, u8 *index, u16 *len)
-+{
-+	struct xattr_prefix *p;
-+	struct ea_type_node *tnode;
+ static int xattr_entrymatch(struct xattr_iter *_it,
+ 			    struct erofs_xattr_entry *entry)
+ {
+ 	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
+ 
+-	return (it->index != entry->e_name_index ||
+-		it->len != entry->e_name_len) ? -ENOATTR : 0;
++	/* should also match the infix for long name prefixes */
++	if (entry->e_name_index & EROFS_XATTR_LONG_PREFIX)
++		return erofs_xattr_long_entrymatch(it, entry);
 +
-+	list_for_each_entry(tnode, &ea_name_prefixes, list) {
-+		p = &tnode->type;
- 		if (p->prefix && !strncmp(p->prefix, key, p->prefix_len)) {
- 			*len = p->prefix_len;
--			*index = p - xattr_types;
-+			*index = tnode->index;
- 			return true;
- 		}
- 	}
--	return false;
-+	return match_base_prefix(key, index, len);
++	if (it->index != entry->e_name_index ||
++	    it->len != entry->e_name_len)
++		return -ENOATTR;
++	it->infix_len = 0;
++	return 0;
  }
  
- static struct xattr_item *parse_one_xattr(const char *path, const char *key,
-@@ -1198,7 +1205,7 @@ int erofs_getxattr(struct erofs_inode *vi, const char *name, char *buffer,
- 	if (ret)
- 		return ret;
+ static int xattr_namematch(struct xattr_iter *_it,
+@@ -1113,8 +1141,9 @@ static int xattr_namematch(struct xattr_iter *_it,
+ {
+ 	struct getxattr_iter *it = container_of(_it, struct getxattr_iter, it);
  
--	if (!match_prefix(name, &prefix, &prefixlen))
-+	if (!match_base_prefix(name, &prefix, &prefixlen))
- 		return -ENODATA;
+-
+-	return memcmp(buf, it->name + processed, len) ? -ENOATTR : 0;
++	if (memcmp(buf, it->name + it->infix_len + processed, len))
++		return -ENOATTR;
++	return 0;
+ }
  
- 	it.it.sbi = vi->sbi;
+ static int xattr_checkbuffer(struct xattr_iter *_it,
+@@ -1237,8 +1266,20 @@ static int xattr_entrylist(struct xattr_iter *_it,
+ 	struct listxattr_iter *it =
+ 		container_of(_it, struct listxattr_iter, it);
+ 	unsigned int base_index = entry->e_name_index;
+-	unsigned int prefix_len;
+-	const char *prefix;
++	unsigned int prefix_len, infix_len = 0;
++	const char *prefix, *infix = NULL;
++
++	if (entry->e_name_index & EROFS_XATTR_LONG_PREFIX) {
++		struct erofs_sb_info *sbi = _it->sbi;
++		struct erofs_xattr_prefix_item *pf = sbi->xattr_prefixes +
++			(entry->e_name_index & EROFS_XATTR_LONG_PREFIX_MASK);
++
++		if (pf >= sbi->xattr_prefixes + sbi->xattr_prefix_count)
++			return 1;
++		infix = pf->prefix->infix;
++		infix_len = pf->infix_len;
++		base_index = pf->prefix->base_index;
++	}
+ 
+ 	if (base_index >= ARRAY_SIZE(xattr_types))
+ 		return 1;
+@@ -1246,16 +1287,18 @@ static int xattr_entrylist(struct xattr_iter *_it,
+ 	prefix_len = xattr_types[base_index].prefix_len;
+ 
+ 	if (!it->buffer) {
+-		it->buffer_ofs += prefix_len + entry->e_name_len + 1;
++		it->buffer_ofs += prefix_len + infix_len +
++					entry->e_name_len + 1;
+ 		return 1;
+ 	}
+ 
+-	if (it->buffer_ofs + prefix_len
++	if (it->buffer_ofs + prefix_len + infix_len
+ 		+ entry->e_name_len + 1 > it->buffer_size)
+ 		return -ERANGE;
+ 
+ 	memcpy(it->buffer + it->buffer_ofs, prefix, prefix_len);
+-	it->buffer_ofs += prefix_len;
++	memcpy(it->buffer + it->buffer_ofs + prefix_len, infix, infix_len);
++	it->buffer_ofs += prefix_len + infix_len;
+ 	return 0;
+ }
+ 
+@@ -1404,3 +1447,55 @@ void erofs_xattr_cleanup_name_prefixes(void)
+ 		free(tnode);
+ 	}
+ }
++
++void erofs_xattr_prefixes_cleanup(struct erofs_sb_info *sbi)
++{
++	int i;
++
++	if (sbi->xattr_prefixes) {
++		for (i = 0; i < sbi->xattr_prefix_count; i++)
++			free(sbi->xattr_prefixes[i].prefix);
++		free(sbi->xattr_prefixes);
++		sbi->xattr_prefixes = NULL;
++	}
++}
++
++int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi)
++{
++	erofs_off_t pos = (erofs_off_t)sbi->xattr_prefix_start << 2;
++	struct erofs_xattr_prefix_item *pfs;
++	erofs_nid_t nid = 0;
++	int ret = 0, i, len;
++	void *buf;
++
++	if (!sbi->xattr_prefix_count)
++		return 0;
++
++	if (sbi->packed_nid)
++		nid = sbi->packed_nid;
++
++	pfs = calloc(sbi->xattr_prefix_count, sizeof(*pfs));
++	if (!pfs)
++		return -ENOMEM;
++
++	for (i = 0; i < sbi->xattr_prefix_count; i++) {
++		buf = erofs_read_metadata(sbi, nid, &pos, &len);
++		if (IS_ERR(buf)) {
++			ret = PTR_ERR(buf);
++			goto out;
++		}
++		if (len < sizeof(*pfs->prefix) ||
++		    len > EROFS_NAME_LEN + sizeof(*pfs->prefix)) {
++			free(buf);
++			ret = -EFSCORRUPTED;
++			goto out;
++		}
++		pfs[i].prefix = buf;
++		pfs[i].infix_len = len - sizeof(struct erofs_xattr_long_prefix);
++	}
++out:
++	sbi->xattr_prefixes = pfs;
++	if (ret)
++		erofs_xattr_prefixes_cleanup(sbi);
++	return ret;
++}
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 603c2f3..dd75485 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -6,4 +6,5 @@ AM_CPPFLAGS = ${libselinux_CFLAGS}
+ mkfs_erofs_SOURCES = main.c
+ mkfs_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ mkfs_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+-	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${libdeflate_LIBS}
++	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} \
++	${libdeflate_LIBS}
 -- 
 2.19.1.6.gb485710b
 
