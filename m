@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A4C9EE4993
-	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 09:25:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79BAEEE4996
+	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 09:25:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RVP8W5JyMz3bpp
-	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 19:25:31 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RVP8b12Njz3byW
+	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 19:25:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVP842S87z2y1b
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVP845dFKz2ytJ
 	for <linux-erofs@lists.ozlabs.org>; Tue, 22 Aug 2023 19:25:08 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqLyIg9_1692696303;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqLyIg9_1692696303)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqM63Wi_1692696302;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqM63Wi_1692696302)
           by smtp.aliyun-inc.com;
           Tue, 22 Aug 2023 17:25:03 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 05/11] erofs-utils: lib: make erofs_get_unhashed_chunk() global
-Date: Tue, 22 Aug 2023 17:24:51 +0800
-Message-Id: <20230822092457.114686-6-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 04/11] erofs-utils: lib: add list_splice_tail() helper
+Date: Tue, 22 Aug 2023 17:24:50 +0800
+Message-Id: <20230822092457.114686-5-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
 References: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
@@ -45,40 +45,45 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-... so that it could be called from outside blobchunk.c later.
+Add list_splice_tail() helper.
 
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- include/erofs/blobchunk.h | 2 ++
- lib/blobchunk.c           | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ include/erofs/list.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/include/erofs/blobchunk.h b/include/erofs/blobchunk.h
-index 010aee1..fb85d8e 100644
---- a/include/erofs/blobchunk.h
-+++ b/include/erofs/blobchunk.h
-@@ -14,6 +14,8 @@ extern "C"
+diff --git a/include/erofs/list.h b/include/erofs/list.h
+index 3f5da1a..d7a9fee 100644
+--- a/include/erofs/list.h
++++ b/include/erofs/list.h
+@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
+ 	return head->next == head;
+ }
  
- #include "erofs/internal.h"
++static inline void __list_splice(struct list_head *list,
++		struct list_head *prev, struct list_head *next)
++{
++	struct list_head *first = list->next;
++	struct list_head *last = list->prev;
++
++	first->prev = prev;
++	prev->next = first;
++
++	last->next = next;
++	next->prev = last;
++}
++
++static inline void list_splice_tail(struct list_head *list,
++				    struct list_head *head)
++{
++	if (!list_empty(list))
++		__list_splice(list, head->prev, head);
++}
++
+ #define list_entry(ptr, type, member) container_of(ptr, type, member)
  
-+struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
-+		erofs_blk_t blkaddr, erofs_off_t sourceoffset);
- int erofs_blob_write_chunk_indexes(struct erofs_inode *inode, erofs_off_t off);
- int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd);
- int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset);
-diff --git a/lib/blobchunk.c b/lib/blobchunk.c
-index cada5bb..07f18bd 100644
---- a/lib/blobchunk.c
-+++ b/lib/blobchunk.c
-@@ -38,7 +38,7 @@ struct erofs_blobchunk erofs_holechunk = {
- };
- static LIST_HEAD(unhashed_blobchunks);
- 
--static struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
-+struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
- 		erofs_blk_t blkaddr, erofs_off_t sourceoffset)
- {
- 	struct erofs_blobchunk *chunk;
+ #define list_first_entry(ptr, type, member)                                    \
 -- 
 2.19.1.6.gb485710b
 
