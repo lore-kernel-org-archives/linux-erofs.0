@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5A93EE4993
-	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 09:25:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BDBD2EE4993
+	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 09:25:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RVP8N1wpJz3c0w
-	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 19:25:24 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RVP8S36Phz3bv4
+	for <linux-erofs@archiver.kernel.org>; Tue, 22 Aug 2023 19:25:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVP835pCdz2ysB
-	for <linux-erofs@lists.ozlabs.org>; Tue, 22 Aug 2023 19:25:05 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqM6n3B_1692696297;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqM6n3B_1692696297)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVP840dmSz2ytJ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 22 Aug 2023 19:25:06 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqLxB-o_1692696301;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqLxB-o_1692696301)
           by smtp.aliyun-inc.com;
-          Tue, 22 Aug 2023 17:24:58 +0800
+          Tue, 22 Aug 2023 17:25:01 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 00/11] erofs-utils: mkfs: introduce rebuild mode
-Date: Tue, 22 Aug 2023 17:24:46 +0800
-Message-Id: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v3 03/11] erofs-utils: lib: fix dirent type of whiteout in tarerofs
+Date: Tue, 22 Aug 2023 17:24:49 +0800
+Message-Id: <20230822092457.114686-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
+References: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,72 +45,26 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-v3:
-- the original v2 patch [1] is split into patch 1 and 2
-- patch 3 is new fix
-- patch 6: trusted.overlay.opaque xattr won't be stripped in the mrged
-  view
-- patch 8: whiteout is droped only when the object (file or directory)
-  this whiteout tends to hide indeed appears in a merged view; this is
-  implemented with the help of a newly introduced inode->drop flag
+Set the correct dirent type for whiteout.
 
-[1] https://lore.kernel.org/all/20230816021347.126886-5-jefflexu@linux.alibaba.com/
-[2] https://lore.kernel.org/all/20230816021347.126886-8-jefflexu@linux.alibaba.com/
+Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ lib/tar.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-v1: https://lore.kernel.org/all/20230814034239.54660-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230816021347.126886-1-jefflexu@linux.alibaba.com/
-
--------------------------
-
-Introduce a new rebuild mode merging multiple erofs images generated
-from either tarerfs index mode (--tar=i):
-
-	mkfs.erofs --tar=i --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=i --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-or tarerofs non-index mode (--tar=f):
-
-	mkfs.erofs --tar=f -Enoinline_data --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=f -Enoinline_data --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-
-Jingbo Xu (11):
-  erofs-utils: lib: fix erofs_init_devices
-  erofs-utils: lib: scan devtable if extra_devices is not specified
-  erofs-utils: lib: fix dirent type of whiteout in tarerofs
-  erofs-utils: lib: add list_splice_tail() helper
-  erofs-utils: lib: make erofs_get_unhashed_chunk() global
-  erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
-  erofs-utils: lib: add erofs_insert_ihash() helper
-  erofs-utils: lib: add erofs_rebuild_dump_tree() helper
-  erofs-utils: lib: add erofs_rebuild_get_dentry() helper
-  erofs-utils: lib: add erofs_rebuild_load_tree() helper
-  erofs-utils: mkfs: introduce rebuild mode
-
- include/erofs/blobchunk.h |   2 +
- include/erofs/inode.h     |   5 +-
- include/erofs/internal.h  |   7 +
- include/erofs/list.h      |  20 ++
- include/erofs/rebuild.h   |  21 ++
- include/erofs/xattr.h     |  33 +---
- lib/Makefile.am           |   3 +-
- lib/blobchunk.c           |   2 +-
- lib/inode.c               |  25 ++-
- lib/rebuild.c             | 395 ++++++++++++++++++++++++++++++++++++++
- lib/super.c               |   9 +-
- lib/tar.c                 | 119 +-----------
- lib/xattr.c               | 112 +++++++++++
- mkfs/main.c               | 199 +++++++++++++++----
- 14 files changed, 752 insertions(+), 200 deletions(-)
- create mode 100644 include/erofs/rebuild.h
- create mode 100644 lib/rebuild.c
-
+diff --git a/lib/tar.c b/lib/tar.c
+index 42590d2..328ab98 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -694,6 +694,7 @@ new_inode:
+ 	if (whout) {
+ 		inode->i_mode = (inode->i_mode & ~S_IFMT) | S_IFCHR;
+ 		inode->u.i_rdev = EROFS_WHITEOUT_DEV;
++		d->type = EROFS_FT_CHRDEV;
+ 	} else {
+ 		inode->i_mode = st.st_mode;
+ 		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
 -- 
 2.19.1.6.gb485710b
 
