@@ -4,37 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8AAFEE49A0
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 03:16:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECD1DEE49A0
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 07:15:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RVrvm1VZqz3c1K
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 13:16:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RVyD65BS3z3c3D
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 17:15:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVrvc2h1vz2yD4
-	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 13:15:53 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VqOd2eO_1692760545;
-Received: from 30.97.48.227(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VqOd2eO_1692760545)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVyCy4Xmzz2yhM
+	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 17:15:25 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqPEAPH_1692774918;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqPEAPH_1692774918)
           by smtp.aliyun-inc.com;
-          Wed, 23 Aug 2023 11:15:47 +0800
-Message-ID: <f67475ee-c352-8de6-8638-65f0d2fdb9c5@linux.alibaba.com>
-Date: Wed, 23 Aug 2023 11:15:44 +0800
+          Wed, 23 Aug 2023 15:15:19 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: hsiangkao@linux.alibaba.com,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v4 01/10] erofs-utils: lib: fix dirent type of whiteout in tarerofs
+Date: Wed, 23 Aug 2023 15:15:08 +0800
+Message-Id: <20230823071517.12303-2-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230823071517.12303-1-jefflexu@linux.alibaba.com>
+References: <20230823071517.12303-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH v3 02/11] erofs-utils: lib: scan devtable if extra_devices
- is not specified
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- linux-erofs@lists.ozlabs.org
-References: <20230822092457.114686-1-jefflexu@linux.alibaba.com>
- <20230822092457.114686-3-jefflexu@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230822092457.114686-3-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -49,44 +45,26 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Set the correct dirent type for whiteout.
 
+Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ lib/tar.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 2023/8/22 17:24, Jingbo Xu wrote:
-> Scan the devtable (if any) automatically when reading superblock from
-> disk if sbi->extra_devices is not specified, and initialize
-> sbi->extra_devices with the number of on-disk device slots.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-> ---
->   lib/super.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/lib/super.c b/lib/super.c
-> index 4fe81c3..fc709fc 100644
-> --- a/lib/super.c
-> +++ b/lib/super.c
-> @@ -37,7 +37,8 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
->   	else
->   		ondisk_extradevs = le16_to_cpu(dsb->extra_devices);
->   
-> -	if (ondisk_extradevs != sbi->extra_devices) {
-> +	if (sbi->extra_devices &&
-> +	    ondisk_extradevs != sbi->extra_devices) {
+diff --git a/lib/tar.c b/lib/tar.c
+index 42590d2..328ab98 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -694,6 +694,7 @@ new_inode:
+ 	if (whout) {
+ 		inode->i_mode = (inode->i_mode & ~S_IFMT) | S_IFCHR;
+ 		inode->u.i_rdev = EROFS_WHITEOUT_DEV;
++		d->type = EROFS_FT_CHRDEV;
+ 	} else {
+ 		inode->i_mode = st.st_mode;
+ 		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
+-- 
+2.19.1.6.gb485710b
 
-If you'd like to keep in sync with the kernel
-erofs_scan_devices(), please point it out explicitly in the commit message.
-
-Thanks,
-Gao Xiang
-
->   		erofs_err("extra devices don't match (ondisk %u, given %u)",
->   			  ondisk_extradevs, sbi->extra_devices);
->   		return -EINVAL;
-> @@ -45,6 +46,7 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
->   	if (!ondisk_extradevs)
->   		return 0;
->   
-> +	sbi->extra_devices = ondisk_extradevs;
->   	sbi->device_id_mask = roundup_pow_of_two(ondisk_extradevs + 1) - 1;
->   	sbi->devs = calloc(ondisk_extradevs, sizeof(*sbi->devs));
->   	if (!sbi->devs)
