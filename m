@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B997EE49AE
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 08:05:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8E2BEE49A0
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 08:12:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RVzKx3Wvjz3c1k
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 18:05:41 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RVzTt2hRcz3c1k
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 18:12:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVzKr3l12z2xm4
-	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 18:05:34 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqPbtRD_1692777925;
-Received: from 30.97.48.227(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VqPbtRD_1692777925)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVzTk4Nv7z2y1Y
+	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 18:12:25 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqPTOJ._1692778336;
+Received: from 30.97.48.227(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VqPTOJ._1692778336)
           by smtp.aliyun-inc.com;
-          Wed, 23 Aug 2023 16:05:28 +0800
-Message-ID: <42740f89-df86-f1ff-d3e9-275cfac43850@linux.alibaba.com>
-Date: Wed, 23 Aug 2023 16:05:25 +0800
+          Wed, 23 Aug 2023 16:12:19 +0800
+Message-ID: <85d042cf-5a87-23f3-3058-54dc2adfbfff@linux.alibaba.com>
+Date: Wed, 23 Aug 2023 16:12:15 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH v4 01/10] erofs-utils: lib: fix dirent type of whiteout in
- tarerofs
+Subject: Re: [PATCH v4 02/10] erofs-utils: lib: keep erofs_init_devices in
+ sync with kernel
 To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
 References: <20230823071517.12303-1-jefflexu@linux.alibaba.com>
- <20230823071517.12303-2-jefflexu@linux.alibaba.com>
+ <20230823071517.12303-3-jefflexu@linux.alibaba.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230823071517.12303-2-jefflexu@linux.alibaba.com>
+In-Reply-To: <20230823071517.12303-3-jefflexu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -51,9 +51,15 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 On 2023/8/23 15:15, Jingbo Xu wrote:
-> Set the correct dirent type for whiteout.
+> Keep erofs_init_devices() in sync with kernel erofs_scan_devices()[1],
+> which scans the devtable (if any) automatically if sbi->extra_devices is
+> not explicitly specified.
 > 
-> Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+> Also fix the missing le32_to_cpu() when parsing the device slot.  Read
+> and cache the number of blocks of each device for later use.
+> 
+> Fixes: 0ce853a01123 ("erofs-utils: fuse: add multiple device support")
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ba73eadd23d1c
 > Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
 Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
