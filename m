@@ -4,54 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C87BAC83F12
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Aug 2023 18:07:51 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YxtfCmyF;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FAF4EE49A5
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 03:00:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1692759624;
+	bh=bhgEqLuvf9ApSnTvUwn1L76c2o2W1Ei/QD6yE6yt7Vo=;
+	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=bRdr+4TyeOL51A8BeVXHYN3ZMmvcvsZFTb8oqz6ja01v0U9PGEAARPHJIkxvSGRD/
+	 OMvZpPZQUltOvISD0Q9xYWdTYHAvAte27DlOw+XVQGMAmKAivSFd2qegm/2VblZsLu
+	 k8NDMtixWtUElzmMELqznEYvbbbVVTLdXMqS1lPQSq8Ngd9spg/v+w9vyB0bj62o5w
+	 L5MPOcyxDuB/YFSlmZptS6tqnbCwqnefPmNrlbTVIRXpIKBqbX0SkX4NiO+nlxfDqw
+	 JhSiFCFefRnPSMko9XhQWnGJWKx8kRdGJ54M+bzuHw6tLm8EHX5lA7aKjoEFl0+4AC
+	 IcMpFVB8/ibfQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RZwPy0c2zz3btp
-	for <linux-erofs@archiver.kernel.org>; Wed, 30 Aug 2023 04:07:50 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RVrYh63qdz2yhM
+	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 13:00:24 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YxtfCmyF;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=RzbIwpF/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RZwPr2WBfz2ygT
-	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Aug 2023 04:07:44 +1000 (AEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id 15F5E63CA3;
-	Tue, 29 Aug 2023 18:07:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800F5C433C9;
-	Tue, 29 Aug 2023 18:07:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1693332460;
-	bh=1CDXNyUw4y5DM7LJfAZa2+z3r8AtGNR77PlV9HtaVY4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YxtfCmyFcqxOrS5csGoLeHwtQZZi0BTPHpiieEle6peAvLC34LtDBRtsZbOE5Z2tV
-	 4J6HB2yhwNgWmoXi1CMJv4kKvd0/yR49rTUsQFN0vHTYJUSLNd1MYeksal5779NifC
-	 KEr2rSt2PkX25Mi/4ZXOZdNJ/oU7aUwVO5ETn9pzPMgcpkJsIDDktFWMqHvAobQ5PO
-	 7HpjoU4VXRhSJofe76+R/0CfCQ9kvYlvlPNGRL5xIamzQAG59LnSwzqIqQxSQnKp1E
-	 tTYTnzLpScWVTUqsLNWWI2lrWS0pSeBuTwTwTalbw9b+1AwTGxH1Om05rAROHKldph
-	 zKGVeqs4GroAQ==
-Date: Wed, 30 Aug 2023 02:07:35 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Jingbo Xu <jefflexu@linux.alibaba.com>
-Subject: Re: [PATCH v7 0/3] erofs-utils: introduce xattr name bloom filter
-Message-ID: <ZO4z5/l3bVC6aE+8@debian>
-Mail-Followup-To: Jingbo Xu <jefflexu@linux.alibaba.com>,
-	hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org
-References: <20230829145504.93567-1-jefflexu@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVrY551HTz3by6
+	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 12:59:53 +1000 (AEST)
+Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-1b89b0c73d7so9079305ad.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 22 Aug 2023 19:59:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692759588; x=1693364388;
+        h=content-transfer-encoding:in-reply-to:cc:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=bhgEqLuvf9ApSnTvUwn1L76c2o2W1Ei/QD6yE6yt7Vo=;
+        b=f87LP8x61ipzFv3ZOdhx23EHl1ma1qXfm+f0NnflM96vJKBkXYFmtpa0iJtRRVfw1p
+         5XlGa+eGtX6YRkmepWEOHtLbouVCQcwWfE6RZl8I16pzY180W3Cdki/1bl2Pu8relivB
+         XbO65DuGnJ9h1waGuC07aWMApE/Yro7Qex/3bIzwcr8WewxXhAhnfx7KPimXNAxXkQFY
+         MWD7o6Pn4inN8OlBWoFr1i2GZqTM2DXMozlgP8FITfp4JFGJkcmbGvZQq85aUqScNrio
+         dLhYdObszeroj+2f6iIymQPUsW5u37CV7Wjw0aGBvN1kmyI2FZtsTaVhELLKugd1Pd96
+         QzYg==
+X-Gm-Message-State: AOJu0YwnMW6JTlhzXiuSezGquVwPCgoFSjDs3769egkgx3zkYNat8R1V
+	4aDOK6QG3bx+L/lPW4gRRSexow==
+X-Google-Smtp-Source: AGHT+IEfrTZGJtg+pRH2EfLUkWhGiT4SJbELosEEcEbXeeoUMWHqtsVXqJsCto+j1ri8qfTaL4v/sQ==
+X-Received: by 2002:a17:90a:2f41:b0:26d:4ade:fcf0 with SMTP id s59-20020a17090a2f4100b0026d4adefcf0mr10521410pjd.4.1692759588304;
+        Tue, 22 Aug 2023 19:59:48 -0700 (PDT)
+Received: from ?IPV6:fdbd:ff1:ce00:1c25:884:3ed:e1db:b610? ([2408:8000:b001:1:1f:58ff:f102:103])
+        by smtp.gmail.com with ESMTPSA id z2-20020a17090a1fc200b00262ca945cecsm11045048pjz.54.2023.08.22.19.59.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Aug 2023 19:59:47 -0700 (PDT)
+Message-ID: <63dc1d86-2a15-6b7e-f63a-63fccb25eae2@bytedance.com>
+Date: Wed, 23 Aug 2023 10:59:34 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230829145504.93567-1-jefflexu@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.14.0
+Subject: Re: [PATCH v4 43/48] drm/ttm: introduce pool_shrink_rwsem
+Content-Language: en-US
+To: daniel@ffwll.ch
+References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
+ <20230807110936.21819-44-zhengqi.arch@bytedance.com>
+ <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
+In-Reply-To: <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -63,137 +79,133 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org
+From: Qi Zheng via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, simon.horman@corigine.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, dlemoal@kernel.org, Muchun Song <songmuchun@bytedance.com>, yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org, daniel.vetter@ffwll.ch, muchun.song@linux.dev, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org, linux-erofs@lists.ozlab
+ s.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Tue, Aug 29, 2023 at 10:55:01PM +0800, Jingbo Xu wrote:
-> changes since v6:
-> - patch 1: polish license disclaimer; tweak included headers (Gao Xiang)
-> - patch 2: drop unused `EROFS_XATTR_NAME_LEN_MAX`; polish commit message
->   (Gao Xiang)
-> - patch 3: add warning when failed to calculate hashbit; tweak code of
->   assigning `header->h_name_filter` (Gao Xiang)
->
+Hi Daniel,
 
-Applied with several update by hand, also I tend to append the following
-patch:
+On 2023/8/22 21:56, Daniel Vetter wrote:
+> On Mon, Aug 07, 2023 at 07:09:31PM +0800, Qi Zheng wrote:
+>> Currently, the synchronize_shrinkers() is only used by TTM pool. It only
+>> requires that no shrinkers run in parallel.
+>>
+>> After we use RCU+refcount method to implement the lockless slab shrink,
+>> we can not use shrinker_rwsem or synchronize_rcu() to guarantee that all
+>> shrinker invocations have seen an update before freeing memory.
+>>
+>> So we introduce a new pool_shrink_rwsem to implement a private
+>> synchronize_shrinkers(), so as to achieve the same purpose.
+>>
+>> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+>> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+> 
+> On the 5 drm patches (I counted 2 ttm and 3 drivers) for merging through
+> some other tree (since I'm assuming that's how this will land):
 
-From 3142cab6c82a779096abbd24d8bd1b9b555997ac Mon Sep 17 00:00:00 2001
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-Date: Wed, 30 Aug 2023 01:54:46 +0800
-Subject: [PATCH] erofs-utils: mkfs: enable xattr name filter feature by
- default
+Yeah, there are 5 drm patches: PATCH v4 07/48 23/48 24/48 25/48 43/48.
 
-Turn it on by default since it's a compatible feature.  Instead,
-it can be disabled explicitly with "-E^xattr-name-filter".
+> 
+> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- include/erofs/xattr.h |  2 +-
- lib/inode.c           |  4 ++--
- lib/xattr.c           |  6 +++++-
- mkfs/main.c           | 13 +++++++++++--
- 4 files changed, 19 insertions(+), 6 deletions(-)
+Thanks for your review!
 
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index 748442a..cf02257 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -76,7 +76,7 @@ static inline unsigned int xattrblock_offset(struct erofs_inode *vi,
- 
- int erofs_scan_file_xattrs(struct erofs_inode *inode);
- int erofs_prepare_xattr_ibody(struct erofs_inode *inode);
--char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size);
-+char *erofs_export_xattr_ibody(struct erofs_inode *inode);
- int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *path);
- 
- int erofs_xattr_insert_name_prefix(const char *prefix);
-diff --git a/lib/inode.c b/lib/inode.c
-index d54f84f..85eacab 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -574,8 +574,8 @@ static bool erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
- 	off += inode->inode_isize;
- 
- 	if (inode->xattr_isize) {
--		char *xattrs = erofs_export_xattr_ibody(&inode->i_xattrs,
--							inode->xattr_isize);
-+		char *xattrs = erofs_export_xattr_ibody(inode);
-+
- 		if (IS_ERR(xattrs))
- 			return false;
- 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 65dd9a0..0cab29f 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -843,8 +843,10 @@ static u32 erofs_xattr_filter_map(struct list_head *ixattrs)
- 	return EROFS_XATTR_FILTER_DEFAULT & ~name_filter;
- }
- 
--char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size)
-+char *erofs_export_xattr_ibody(struct erofs_inode *inode)
- {
-+	struct list_head *ixattrs = &inode->i_xattrs;
-+	unsigned int size = inode->xattr_isize;
- 	struct inode_xattr_node *node, *n;
- 	struct erofs_xattr_ibody_header *header;
- 	LIST_HEAD(ilst);
-@@ -860,6 +862,8 @@ char *erofs_export_xattr_ibody(struct list_head *ixattrs, unsigned int size)
- 	if (cfg.c_xattr_name_filter) {
- 		header->h_name_filter =
- 			cpu_to_le32(erofs_xattr_filter_map(ixattrs));
-+		if (header->h_name_filter)
-+			erofs_sb_set_xattr_filter(inode->sbi);
- 	}
- 
- 	p = sizeof(struct erofs_xattr_ibody_header);
-diff --git a/mkfs/main.c b/mkfs/main.c
-index fad80b1..1d136a9 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -145,6 +145,7 @@ static int parse_extended_opts(const char *opts)
- 
- 	value = NULL;
- 	for (token = opts; *token != '\0'; token = next) {
-+		bool clear = false;
- 		const char *p = strchr(token, ',');
- 
- 		next = NULL;
-@@ -168,6 +169,14 @@ static int parse_extended_opts(const char *opts)
- 			vallen = 0;
- 		}
- 
-+		if (token[0] == '^') {
-+			if (keylen < 2)
-+				return -EINVAL;
-+			++token;
-+			--keylen;
-+			clear = true;
-+		}
-+
- 		if (MATCH_EXTENTED_OPT("legacy-compress", token, keylen)) {
- 			if (vallen)
- 				return -EINVAL;
-@@ -249,8 +258,7 @@ handle_fragment:
- 		if (MATCH_EXTENTED_OPT("xattr-name-filter", token, keylen)) {
- 			if (vallen)
- 				return -EINVAL;
--			cfg.c_xattr_name_filter = true;
--			erofs_sb_set_xattr_filter(&sbi);
-+			cfg.c_xattr_name_filter = !clear;
- 		}
- 	}
- 	return 0;
-@@ -695,6 +703,7 @@ static void erofs_mkfs_default_options(void)
- {
- 	cfg.c_showprogress = true;
- 	cfg.c_legacy_compress = false;
-+	cfg.c_xattr_name_filter = true;
- 	sbi.blkszbits = ilog2(EROFS_MAX_BLOCK_SIZE);
- 	sbi.feature_incompat = EROFS_FEATURE_INCOMPAT_ZERO_PADDING;
- 	sbi.feature_compat = EROFS_FEATURE_COMPAT_SB_CHKSUM |
--- 
-2.30.2
+Qi
 
+> 
+>> ---
+>>   drivers/gpu/drm/ttm/ttm_pool.c | 15 +++++++++++++++
+>>   include/linux/shrinker.h       |  2 --
+>>   mm/shrinker.c                  | 15 ---------------
+>>   3 files changed, 15 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
+>> index c9c9618c0dce..38b4c280725c 100644
+>> --- a/drivers/gpu/drm/ttm/ttm_pool.c
+>> +++ b/drivers/gpu/drm/ttm/ttm_pool.c
+>> @@ -74,6 +74,7 @@ static struct ttm_pool_type global_dma32_uncached[MAX_ORDER + 1];
+>>   static spinlock_t shrinker_lock;
+>>   static struct list_head shrinker_list;
+>>   static struct shrinker *mm_shrinker;
+>> +static DECLARE_RWSEM(pool_shrink_rwsem);
+>>   
+>>   /* Allocate pages of size 1 << order with the given gfp_flags */
+>>   static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+>> @@ -317,6 +318,7 @@ static unsigned int ttm_pool_shrink(void)
+>>   	unsigned int num_pages;
+>>   	struct page *p;
+>>   
+>> +	down_read(&pool_shrink_rwsem);
+>>   	spin_lock(&shrinker_lock);
+>>   	pt = list_first_entry(&shrinker_list, typeof(*pt), shrinker_list);
+>>   	list_move_tail(&pt->shrinker_list, &shrinker_list);
+>> @@ -329,6 +331,7 @@ static unsigned int ttm_pool_shrink(void)
+>>   	} else {
+>>   		num_pages = 0;
+>>   	}
+>> +	up_read(&pool_shrink_rwsem);
+>>   
+>>   	return num_pages;
+>>   }
+>> @@ -572,6 +575,18 @@ void ttm_pool_init(struct ttm_pool *pool, struct device *dev,
+>>   }
+>>   EXPORT_SYMBOL(ttm_pool_init);
+>>   
+>> +/**
+>> + * synchronize_shrinkers - Wait for all running shrinkers to complete.
+>> + *
+>> + * This is useful to guarantee that all shrinker invocations have seen an
+>> + * update, before freeing memory, similar to rcu.
+>> + */
+>> +static void synchronize_shrinkers(void)
+>> +{
+>> +	down_write(&pool_shrink_rwsem);
+>> +	up_write(&pool_shrink_rwsem);
+>> +}
+>> +
+>>   /**
+>>    * ttm_pool_fini - Cleanup a pool
+>>    *
+>> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
+>> index c55c07c3f0cb..025c8070dd86 100644
+>> --- a/include/linux/shrinker.h
+>> +++ b/include/linux/shrinker.h
+>> @@ -103,8 +103,6 @@ struct shrinker *shrinker_alloc(unsigned int flags, const char *fmt, ...);
+>>   void shrinker_register(struct shrinker *shrinker);
+>>   void shrinker_free(struct shrinker *shrinker);
+>>   
+>> -extern void synchronize_shrinkers(void);
+>> -
+>>   #ifdef CONFIG_SHRINKER_DEBUG
+>>   extern int __printf(2, 3) shrinker_debugfs_rename(struct shrinker *shrinker,
+>>   						  const char *fmt, ...);
+>> diff --git a/mm/shrinker.c b/mm/shrinker.c
+>> index 3ab301ff122d..a27779ed3798 100644
+>> --- a/mm/shrinker.c
+>> +++ b/mm/shrinker.c
+>> @@ -650,18 +650,3 @@ void shrinker_free(struct shrinker *shrinker)
+>>   	kfree(shrinker);
+>>   }
+>>   EXPORT_SYMBOL_GPL(shrinker_free);
+>> -
+>> -/**
+>> - * synchronize_shrinkers - Wait for all running shrinkers to complete.
+>> - *
+>> - * This is equivalent to calling unregister_shrink() and register_shrinker(),
+>> - * but atomically and with less overhead. This is useful to guarantee that all
+>> - * shrinker invocations have seen an update, before freeing memory, similar to
+>> - * rcu.
+>> - */
+>> -void synchronize_shrinkers(void)
+>> -{
+>> -	down_write(&shrinker_rwsem);
+>> -	up_write(&shrinker_rwsem);
+>> -}
+>> -EXPORT_SYMBOL(synchronize_shrinkers);
+>> -- 
+>> 2.30.2
+>>
+> 
