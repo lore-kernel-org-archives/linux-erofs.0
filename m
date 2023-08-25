@@ -4,70 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FAF4EE49A5
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 03:00:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1692759624;
-	bh=bhgEqLuvf9ApSnTvUwn1L76c2o2W1Ei/QD6yE6yt7Vo=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=bRdr+4TyeOL51A8BeVXHYN3ZMmvcvsZFTb8oqz6ja01v0U9PGEAARPHJIkxvSGRD/
-	 OMvZpPZQUltOvISD0Q9xYWdTYHAvAte27DlOw+XVQGMAmKAivSFd2qegm/2VblZsLu
-	 k8NDMtixWtUElzmMELqznEYvbbbVVTLdXMqS1lPQSq8Ngd9spg/v+w9vyB0bj62o5w
-	 L5MPOcyxDuB/YFSlmZptS6tqnbCwqnefPmNrlbTVIRXpIKBqbX0SkX4NiO+nlxfDqw
-	 JhSiFCFefRnPSMko9XhQWnGJWKx8kRdGJ54M+bzuHw6tLm8EHX5lA7aKjoEFl0+4AC
-	 IcMpFVB8/ibfQ==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RVrYh63qdz2yhM
-	for <linux-erofs@archiver.kernel.org>; Wed, 23 Aug 2023 13:00:24 +1000 (AEST)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 641D3C88CB2
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Aug 2023 01:59:42 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=RzbIwpF/;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=bxxlNJ96;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=zhengqi.arch@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RX36h5sqMz3cCj
+	for <linux-erofs@archiver.kernel.org>; Fri, 25 Aug 2023 11:59:40 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=linux.org.uk header.i=@linux.org.uk header.a=rsa-sha256 header.s=zeniv-20220401 header.b=bxxlNJ96;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=ftp.linux.org.uk (client-ip=2a03:a000:7:0:5054:ff:fe1c:15ff; helo=zeniv.linux.org.uk; envelope-from=viro@ftp.linux.org.uk; receiver=lists.ozlabs.org)
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RVrY551HTz3by6
-	for <linux-erofs@lists.ozlabs.org>; Wed, 23 Aug 2023 12:59:53 +1000 (AEST)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-1b89b0c73d7so9079305ad.1
-        for <linux-erofs@lists.ozlabs.org>; Tue, 22 Aug 2023 19:59:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692759588; x=1693364388;
-        h=content-transfer-encoding:in-reply-to:cc:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bhgEqLuvf9ApSnTvUwn1L76c2o2W1Ei/QD6yE6yt7Vo=;
-        b=f87LP8x61ipzFv3ZOdhx23EHl1ma1qXfm+f0NnflM96vJKBkXYFmtpa0iJtRRVfw1p
-         5XlGa+eGtX6YRkmepWEOHtLbouVCQcwWfE6RZl8I16pzY180W3Cdki/1bl2Pu8relivB
-         XbO65DuGnJ9h1waGuC07aWMApE/Yro7Qex/3bIzwcr8WewxXhAhnfx7KPimXNAxXkQFY
-         MWD7o6Pn4inN8OlBWoFr1i2GZqTM2DXMozlgP8FITfp4JFGJkcmbGvZQq85aUqScNrio
-         dLhYdObszeroj+2f6iIymQPUsW5u37CV7Wjw0aGBvN1kmyI2FZtsTaVhELLKugd1Pd96
-         QzYg==
-X-Gm-Message-State: AOJu0YwnMW6JTlhzXiuSezGquVwPCgoFSjDs3769egkgx3zkYNat8R1V
-	4aDOK6QG3bx+L/lPW4gRRSexow==
-X-Google-Smtp-Source: AGHT+IEfrTZGJtg+pRH2EfLUkWhGiT4SJbELosEEcEbXeeoUMWHqtsVXqJsCto+j1ri8qfTaL4v/sQ==
-X-Received: by 2002:a17:90a:2f41:b0:26d:4ade:fcf0 with SMTP id s59-20020a17090a2f4100b0026d4adefcf0mr10521410pjd.4.1692759588304;
-        Tue, 22 Aug 2023 19:59:48 -0700 (PDT)
-Received: from ?IPV6:fdbd:ff1:ce00:1c25:884:3ed:e1db:b610? ([2408:8000:b001:1:1f:58ff:f102:103])
-        by smtp.gmail.com with ESMTPSA id z2-20020a17090a1fc200b00262ca945cecsm11045048pjz.54.2023.08.22.19.59.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Aug 2023 19:59:47 -0700 (PDT)
-Message-ID: <63dc1d86-2a15-6b7e-f63a-63fccb25eae2@bytedance.com>
-Date: Wed, 23 Aug 2023 10:59:34 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RX36V6h22z2yhL
+	for <linux-erofs@lists.ozlabs.org>; Fri, 25 Aug 2023 11:59:28 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=GqmLor0hgV4H3x7IuvuyaB/m3hDiUm8Yzrd7b9keFg8=; b=bxxlNJ96rsx4L2kKszQ8LF6ai5
+	iNtBNOQ6lzvCMPjrA8d2B5SKpMA8ehWy3QlKX8FPouK+kPzVIEZKx+nUetaQRW5JSdDZgZ40B7sUp
+	hz637OO4Su1eEUgn8Gl/dIA4NQM5w6cHamU5x0h4uc+j+8uZ5OMjiX5dOjWaEByfsbwcty7NjoKFy
+	3XYbSKjy+5wYC+oyCRnyAV7fQupk+8Mu6cgtvaubPBjXdneuinMhpNkKRGbKhUYZMh2pnc+qlSq3t
+	/phSE0e2tky2IO5H3c5MgeU2/J9SsgCPwQOsXy7U4/wxiV2850iLaIsQdHEKmyDTGxCmoecJk/YQG
+	iXEtALAQ==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+	id 1qZM5z-000dvR-0M;
+	Fri, 25 Aug 2023 01:58:43 +0000
+Date: Fri, 25 Aug 2023 02:58:43 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
+Message-ID: <20230825015843.GB95084@ZenIV>
+References: <20230810171429.31759-1-jack@suse.cz>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [PATCH v4 43/48] drm/ttm: introduce pool_shrink_rwsem
-Content-Language: en-US
-To: daniel@ffwll.ch
-References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
- <20230807110936.21819-44-zhengqi.arch@bytedance.com>
- <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
-In-Reply-To: <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230810171429.31759-1-jack@suse.cz>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -79,133 +56,47 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Qi Zheng via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev, david@fromorbit.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com, simon.horman@corigine.com, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org, dlemoal@kernel.org, Muchun Song <songmuchun@bytedance.com>, yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org, daniel.vetter@ffwll.ch, muchun.song@linux.dev, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org, linux-erofs@lists.ozlab
- s.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+Cc: Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net, "Darrick J. Wong" <djwong@kernel.org>, linux-nvme@lists.infradead.org, Joseph Qi <joseph.qi@linux.alibaba.com>, dm-devel@redhat.com, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, Jack Wang <jinpu.wang@ionos.com>, Alasdair Kergon <agk@redhat.com>, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, Sergey Senozhatsky <senozhatsky@chromium.org>, Christoph Hellwig <hch@infradead.org>, xen-devel@lists.xenproject.org, Christian Borntraeger <borntraeger@linux.ibm.com>, Kent Overstreet <kent.overstreet@gmail.com>, Sven Schnelle <svens@linux.ibm.com>, linux-pm@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>, Joern Engel <joern@lazybastard.org>, reiserfs-devel@vger.kernel.org, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, David Sterba <dsterba@suse.com>, Jaegeuk Kim <jaegeuk@kernel.org>, Trond Myklebust <trond.myklebust@hammers
+ pace.com>, linux-raid@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, Ted Tso <tytso@mit.edu>, linux-mm@kvack.org, Song Liu <song@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com, Anna Schumaker <anna@kernel.org>, linux-fsdevel@vger.kernel.org, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Daniel,
-
-On 2023/8/22 21:56, Daniel Vetter wrote:
-> On Mon, Aug 07, 2023 at 07:09:31PM +0800, Qi Zheng wrote:
->> Currently, the synchronize_shrinkers() is only used by TTM pool. It only
->> requires that no shrinkers run in parallel.
->>
->> After we use RCU+refcount method to implement the lockless slab shrink,
->> we can not use shrinker_rwsem or synchronize_rcu() to guarantee that all
->> shrinker invocations have seen an update before freeing memory.
->>
->> So we introduce a new pool_shrink_rwsem to implement a private
->> synchronize_shrinkers(), so as to achieve the same purpose.
->>
->> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
->> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+On Fri, Aug 11, 2023 at 01:04:31PM +0200, Jan Kara wrote:
+> Hello,
 > 
-> On the 5 drm patches (I counted 2 ttm and 3 drivers) for merging through
-> some other tree (since I'm assuming that's how this will land):
-
-Yeah, there are 5 drm patches: PATCH v4 07/48 23/48 24/48 25/48 43/48.
-
+> this is a v2 of the patch series which implements the idea of blkdev_get_by_*()
+> calls returning bdev_handle which is then passed to blkdev_put() [1]. This
+> makes the get and put calls for bdevs more obviously matching and allows us to
+> propagate context from get to put without having to modify all the users
+> (again!).  In particular I need to propagate used open flags to blkdev_put() to
+> be able count writeable opens and add support for blocking writes to mounted
+> block devices. I'll send that series separately.
 > 
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-Thanks for your review!
-
-Qi
-
+> The series is based on Christian's vfs tree as of yesterday as there is quite
+> some overlap. Patches have passed some reasonable testing - I've tested block
+> changes, md, dm, bcache, xfs, btrfs, ext4, swap. This obviously doesn't cover
+> everything so I'd like to ask respective maintainers to review / test their
+> changes. Thanks! I've pushed out the full branch to:
 > 
->> ---
->>   drivers/gpu/drm/ttm/ttm_pool.c | 15 +++++++++++++++
->>   include/linux/shrinker.h       |  2 --
->>   mm/shrinker.c                  | 15 ---------------
->>   3 files changed, 15 insertions(+), 17 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
->> index c9c9618c0dce..38b4c280725c 100644
->> --- a/drivers/gpu/drm/ttm/ttm_pool.c
->> +++ b/drivers/gpu/drm/ttm/ttm_pool.c
->> @@ -74,6 +74,7 @@ static struct ttm_pool_type global_dma32_uncached[MAX_ORDER + 1];
->>   static spinlock_t shrinker_lock;
->>   static struct list_head shrinker_list;
->>   static struct shrinker *mm_shrinker;
->> +static DECLARE_RWSEM(pool_shrink_rwsem);
->>   
->>   /* Allocate pages of size 1 << order with the given gfp_flags */
->>   static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
->> @@ -317,6 +318,7 @@ static unsigned int ttm_pool_shrink(void)
->>   	unsigned int num_pages;
->>   	struct page *p;
->>   
->> +	down_read(&pool_shrink_rwsem);
->>   	spin_lock(&shrinker_lock);
->>   	pt = list_first_entry(&shrinker_list, typeof(*pt), shrinker_list);
->>   	list_move_tail(&pt->shrinker_list, &shrinker_list);
->> @@ -329,6 +331,7 @@ static unsigned int ttm_pool_shrink(void)
->>   	} else {
->>   		num_pages = 0;
->>   	}
->> +	up_read(&pool_shrink_rwsem);
->>   
->>   	return num_pages;
->>   }
->> @@ -572,6 +575,18 @@ void ttm_pool_init(struct ttm_pool *pool, struct device *dev,
->>   }
->>   EXPORT_SYMBOL(ttm_pool_init);
->>   
->> +/**
->> + * synchronize_shrinkers - Wait for all running shrinkers to complete.
->> + *
->> + * This is useful to guarantee that all shrinker invocations have seen an
->> + * update, before freeing memory, similar to rcu.
->> + */
->> +static void synchronize_shrinkers(void)
->> +{
->> +	down_write(&pool_shrink_rwsem);
->> +	up_write(&pool_shrink_rwsem);
->> +}
->> +
->>   /**
->>    * ttm_pool_fini - Cleanup a pool
->>    *
->> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
->> index c55c07c3f0cb..025c8070dd86 100644
->> --- a/include/linux/shrinker.h
->> +++ b/include/linux/shrinker.h
->> @@ -103,8 +103,6 @@ struct shrinker *shrinker_alloc(unsigned int flags, const char *fmt, ...);
->>   void shrinker_register(struct shrinker *shrinker);
->>   void shrinker_free(struct shrinker *shrinker);
->>   
->> -extern void synchronize_shrinkers(void);
->> -
->>   #ifdef CONFIG_SHRINKER_DEBUG
->>   extern int __printf(2, 3) shrinker_debugfs_rename(struct shrinker *shrinker,
->>   						  const char *fmt, ...);
->> diff --git a/mm/shrinker.c b/mm/shrinker.c
->> index 3ab301ff122d..a27779ed3798 100644
->> --- a/mm/shrinker.c
->> +++ b/mm/shrinker.c
->> @@ -650,18 +650,3 @@ void shrinker_free(struct shrinker *shrinker)
->>   	kfree(shrinker);
->>   }
->>   EXPORT_SYMBOL_GPL(shrinker_free);
->> -
->> -/**
->> - * synchronize_shrinkers - Wait for all running shrinkers to complete.
->> - *
->> - * This is equivalent to calling unregister_shrink() and register_shrinker(),
->> - * but atomically and with less overhead. This is useful to guarantee that all
->> - * shrinker invocations have seen an update, before freeing memory, similar to
->> - * rcu.
->> - */
->> -void synchronize_shrinkers(void)
->> -{
->> -	down_write(&shrinker_rwsem);
->> -	up_write(&shrinker_rwsem);
->> -}
->> -EXPORT_SYMBOL(synchronize_shrinkers);
->> -- 
->> 2.30.2
->>
+> git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
 > 
+> to ease review / testing.
+
+Hmm...  Completely Insane Idea(tm): how about turning that thing inside out and
+having your bdev_open_by... return an actual opened struct file?
+
+After all, we do that for sockets and pipes just fine and that's a whole lot
+hotter area.
+
+Suppose we leave blkdev_open()/blkdev_release() as-is.  No need to mess with
+what we have for normal opened files for block devices.  And have block_open_by_dev()
+that would find bdev, etc., same yours does and shove it into anon file.
+
+Paired with plain fput() - no need to bother with new primitives for closing.
+With a helper returning I_BDEV(bdev_file_inode(file)) to get from those to bdev.
+
+NOTE: I'm not suggesting replacing ->s_bdev with struct file * if we do that -
+we want that value cached, obviously.  Just store both...
+
+Not saying it's a good idea, but... might be interesting to look into.
+Comments?
