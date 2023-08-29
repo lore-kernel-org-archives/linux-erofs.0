@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1F49EC71153
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Aug 2023 14:55:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A328C6FA8F
+	for <linux-erofs@archiver.kernel.org>; Tue, 29 Aug 2023 14:55:26 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RZr7s5vC3z3bTt
-	for <linux-erofs@archiver.kernel.org>; Wed, 30 Aug 2023 00:55:21 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RZr7w6WJ9z30gn
+	for <linux-erofs@archiver.kernel.org>; Wed, 30 Aug 2023 00:55:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RZr7j5N3Gz306t
-	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Aug 2023 00:55:11 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqrwcMk_1693320904;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqrwcMk_1693320904)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RZr7j6ck3z30Dm
+	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Aug 2023 00:55:12 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VqrtK88_1693320906;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VqrtK88_1693320906)
           by smtp.aliyun-inc.com;
-          Tue, 29 Aug 2023 22:55:05 +0800
+          Tue, 29 Aug 2023 22:55:07 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v7 0/3] erofs-utils: introduce xattr name bloom filter
-Date: Tue, 29 Aug 2023 22:55:01 +0800
-Message-Id: <20230829145504.93567-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v7 2/3] erofs-utils: update on-disk format for xattr name filter
+Date: Tue, 29 Aug 2023 22:55:03 +0800
+Message-Id: <20230829145504.93567-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230829145504.93567-1-jefflexu@linux.alibaba.com>
+References: <20230829145504.93567-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,76 +45,150 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-changes since v6:
-- patch 1: polish license disclaimer; tweak included headers (Gao Xiang)
-- patch 2: drop unused `EROFS_XATTR_NAME_LEN_MAX`; polish commit message
-  (Gao Xiang)
-- patch 3: add warning when failed to calculate hashbit; tweak code of
-  assigning `header->h_name_filter` (Gao Xiang)
+Let's keep in sync with kernel commit 3f339920175c ("erofs: update
+on-disk format for xattr name filter").
 
-changes since v5:
-- patch 1: update distribution license
-- patch 3: rebase to the latest -dev branch
+There are some commonly used extended attributes (n) and the total
+number of these is approximately 30.
 
-changes since v4:
-- patch 3: the feature is refactored and implemented in a more cohesive
-  way, that is, the hashbit is calculated in erofs_export_xattr_ibody().
-  For xattr_item in the long xattr name prefix style, reconstruct the
-  full xattr name first, then derive the corresponding predefined short
-  name prefix and finally calculate the hashbit.
+	trusted.overlay.opaque
+	trusted.overlay.redirect
+	trusted.overlay.origin
+	trusted.overlay.impure
+	trusted.overlay.nlink
+	trusted.overlay.upper
+	trusted.overlay.metacopy
+	trusted.overlay.protattr
+	user.overlay.opaque
+	user.overlay.redirect
+	user.overlay.origin
+	user.overlay.impure
+	user.overlay.nlink
+	user.overlay.upper
+	user.overlay.metacopy
+	user.overlay.protattr
+	security.evm
+	security.ima
+	security.selinux
+	security.SMACK64
+	security.SMACK64IPIN
+	security.SMACK64IPOUT
+	security.SMACK64EXEC
+	security.SMACK64TRANSMUTE
+	security.SMACK64MMAP
+	security.apparmor
+	security.capability
+	system.posix_acl_access
+	system.posix_acl_default
+	user.mime_type
 
-changes since v3:
-- patch 3: "-Exattr-name-filter" option rather than "--xattr-filter"
-  option is newly introduced to enable this feature (Gao Xiang)
+Given the number of bits of the bloom filter (m) is 32, the optimal
+value for the number of the hash functions (k) is 1 (ln2 * m/n = 0.74).
 
-changes since v2:
-- patch 2: introduce xattr_filter_reserved in on-disk superblock;
-  remove EROFS_XATTR_FILTER_MASK
-- patch 3: xattr_filter_reserved is always initialized to 0 by default
+The single hash function is implemented as:
 
+	xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index)
 
-changes since RFC:
-- the number of hash functions is 1, and now it's implemented as:
-    xxh32(name, strlen(name), EROFS_XATTR_FILTER_SEED + index),
-  where the constant magic number EROFS_XATTR_FILTER_SEED [*] is used to
-  give a better spread for the mapping. (Alexander Larsson)
-- fix the value of EROFS_FEATURE_COMPAT_XATTR_FILTER; rename
-  EROFS_XATTR_BLOOM_* to EROFS_XATTR_FILTER_* (Gao Xiang)
+where `index` represents the index of corresponding predefined short name
+prefix, while `name` represents the name string after stripping the above
+predefined name prefix.
 
+The constant magic number EROFS_XATTR_FILTER_SEED, i.e. 0x25BBE08F, is
+used to give a better spread when mapping these 30 extended attributes
+into 32-bit bloom filter as:
 
-RFC: https://lore.kernel.org/all/20230621083939.128961-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230705071017.104130-1-jefflexu@linux.alibaba.com/
-v3: https://lore.kernel.org/all/20230712121331.99671-1-jefflexu@linux.alibaba.com/
-v4: https://lore.kernel.org/all/20230714025330.42950-1-jefflexu@linux.alibaba.com/
-v5: https://lore.kernel.org/all/20230722042414.126630-1-jefflexu@linux.alibaba.com/
-v6: https://lore.kernel.org/all/20230829124127.36719-1-jefflexu@linux.alibaba.com/
+	bit  0: security.ima
+	bit  1:
+	bit  2: trusted.overlay.nlink
+	bit  3:
+	bit  4: user.overlay.nlink
+	bit  5: trusted.overlay.upper
+	bit  6: user.overlay.origin
+	bit  7: trusted.overlay.protattr
+	bit  8: security.apparmor
+	bit  9: user.overlay.protattr
+	bit 10: user.overlay.opaque
+	bit 11: security.selinux
+	bit 12: security.SMACK64TRANSMUTE
+	bit 13: security.SMACK64
+	bit 14: security.SMACK64MMAP
+	bit 15: user.overlay.impure
+	bit 16: security.SMACK64IPIN
+	bit 17: trusted.overlay.redirect
+	bit 18: trusted.overlay.origin
+	bit 19: security.SMACK64IPOUT
+	bit 20: trusted.overlay.opaque
+	bit 21: system.posix_acl_default
+	bit 22:
+	bit 23: user.mime_type
+	bit 24: trusted.overlay.impure
+	bit 25: security.SMACK64EXEC
+	bit 26: user.overlay.redirect
+	bit 27: user.overlay.upper
+	bit 28: security.evm
+	bit 29: security.capability
+	bit 30: system.posix_acl_access
+	bit 31: trusted.overlay.metacopy, user.overlay.metacopy
 
-The xattr bloom filter feature is used to boost the negative xattr
-lookup.
+h_name_filter is introduced to the on-disk per-inode xattr header to
+place the corresponding xattr name filter, where bit value 1 indicates
+non-existence for compatibility.
 
-Refer to the kernel patch set [*] for more details.
+This feature is indicated by EROFS_FEATURE_COMPAT_XATTR_FILTER
+compatible feature bit.
 
-[*] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fd73a4395d47
+Reserve one byte in on-disk superblock as the on-disk format for xattr
+name filter may change in the future.  With this flag we don't need
+bothering these compatible bits again at that time.
 
+Suggested-by: Alexander Larsson <alexl@redhat.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ include/erofs_fs.h | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-
-Jingbo Xu (3):
-  erofs-utils: add xxh32 library
-  erofs-utils: update on-disk format for xattr name filter
-  erofs-utils: mkfs: enable xattr name filter
-
- include/erofs/config.h   |   1 +
- include/erofs/internal.h |   1 +
- include/erofs/xxhash.h   |  27 +++++++++
- include/erofs_fs.h       |  10 +++-
- lib/Makefile.am          |   3 +-
- lib/xattr.c              |  65 ++++++++++++++++++++
- lib/xxhash.c             | 126 +++++++++++++++++++++++++++++++++++++++
- mkfs/main.c              |   7 +++
- 8 files changed, 237 insertions(+), 3 deletions(-)
- create mode 100644 include/erofs/xxhash.h
- create mode 100644 lib/xxhash.c
-
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index 850438a..bdc946a 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -14,6 +14,7 @@
+ 
+ #define EROFS_FEATURE_COMPAT_SB_CHKSUM          0x00000001
+ #define EROFS_FEATURE_COMPAT_MTIME              0x00000002
++#define EROFS_FEATURE_COMPAT_XATTR_FILTER	0x00000004
+ 
+ /*
+  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
+@@ -82,7 +83,8 @@ struct erofs_super_block {
+ 	__u8 xattr_prefix_count;	/* # of long xattr name prefixes */
+ 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
+ 	__le64 packed_nid;	/* nid of the special packed inode */
+-	__u8 reserved2[24];
++	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
++	__u8 reserved2[23];
+ };
+ 
+ /*
+@@ -201,7 +203,7 @@ struct erofs_inode_extended {
+  * for read-only fs, no need to introduce h_refcount
+  */
+ struct erofs_xattr_ibody_header {
+-	__le32 h_reserved;
++	__le32 h_name_filter;		/* bit value 1 indicates not-present */
+ 	__u8   h_shared_count;
+ 	__u8   h_reserved2[7];
+ 	__le32 h_shared_xattrs[0];      /* shared xattr id array */
+@@ -222,6 +224,10 @@ struct erofs_xattr_ibody_header {
+ #define EROFS_XATTR_LONG_PREFIX		0x80
+ #define EROFS_XATTR_LONG_PREFIX_MASK	0x7f
+ 
++#define EROFS_XATTR_FILTER_BITS		32
++#define EROFS_XATTR_FILTER_DEFAULT	UINT32_MAX
++#define EROFS_XATTR_FILTER_SEED		0x25BBE08F
++
+ /* xattr entry (for both inline & shared xattrs) */
+ struct erofs_xattr_entry {
+ 	__u8   e_name_len;      /* length of name */
 -- 
 2.19.1.6.gb485710b
 
