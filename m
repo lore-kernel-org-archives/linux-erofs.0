@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8A6BFC83F10
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 11:31:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE3ECC83F10
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 11:31:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RbzWW21NHz3c2Z
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 21:31:19 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RbzWc38JFz3c1R
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 21:31:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RbzWG2kpYz30Ng
-	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 21:31:05 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vqy4wgQ_1693481459;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vqy4wgQ_1693481459)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RbzWJ0pbVz30Ng
+	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 21:31:07 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vqy4whR_1693481462;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vqy4whR_1693481462)
           by smtp.aliyun-inc.com;
-          Thu, 31 Aug 2023 19:31:00 +0800
+          Thu, 31 Aug 2023 19:31:03 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: stable@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 6.1.y] erofs: ensure that the post-EOF tails are all zeroed
-Date: Thu, 31 Aug 2023 19:29:55 +0800
-Message-Id: <20230831112959.99884-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5.10.y] erofs: ensure that the post-EOF tails are all zeroed
+Date: Thu, 31 Aug 2023 19:29:57 +0800
+Message-Id: <20230831112959.99884-5-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
 References: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
@@ -75,10 +75,10 @@ Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 361f3c29897e..1b91ac5be961 100644
+index 9cff92738259..da133950d514 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -869,6 +869,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+@@ -632,6 +632,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
  	cur = end - min_t(erofs_off_t, offset + end - map->m_la, end);
  	if (!(map->m_flags & EROFS_MAP_MAPPED)) {
  		zero_user_segment(page, cur, end);
@@ -86,7 +86,7 @@ index 361f3c29897e..1b91ac5be961 100644
 +		tight = false;
  		goto next_part;
  	}
- 	if (map->m_flags & EROFS_MAP_FRAGMENT) {
+ 
 -- 
 2.24.4
 
