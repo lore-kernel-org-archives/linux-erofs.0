@@ -4,26 +4,26 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7FF70C83F01
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 12:48:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8432DC83F01
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 13:15:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rc1DG6k98z3bwJ
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 22:48:14 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rc1qm0FX1z3bwb
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 23:15:32 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sjtu.edu.cn (client-ip=202.120.2.237; helo=smtp237.sjtu.edu.cn; envelope-from=lyy0627@sjtu.edu.cn; receiver=lists.ozlabs.org)
 Received: from smtp237.sjtu.edu.cn (smtp237.sjtu.edu.cn [202.120.2.237])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rc1D85Dc5z307h
-	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 22:48:06 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rc1qh1LX6z30dt
+	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 23:15:25 +1000 (AEST)
 Received: from proxy189.sjtu.edu.cn (smtp189.sjtu.edu.cn [202.120.2.189])
-	by smtp237.sjtu.edu.cn (Postfix) with ESMTPS id 11ABC7FAC7;
-	Thu, 31 Aug 2023 20:48:00 +0800 (CST)
+	by smtp237.sjtu.edu.cn (Postfix) with ESMTPS id E3ABF7FD4D;
+	Thu, 31 Aug 2023 21:15:22 +0800 (CST)
 Received: from [192.168.31.108] (unknown [139.227.253.35])
-	by proxy189.sjtu.edu.cn (Postfix) with ESMTPSA id 9F2513FC424;
-	Thu, 31 Aug 2023 20:47:53 +0800 (CST)
-Message-ID: <a47e744f-19df-46c6-96a9-cb6c7d000441@sjtu.edu.cn>
-Date: Thu, 31 Aug 2023 20:47:43 +0800
+	by proxy189.sjtu.edu.cn (Postfix) with ESMTPSA id 0BFAD3FC424;
+	Thu, 31 Aug 2023 21:15:20 +0800 (CST)
+Message-ID: <a7b1825d-29b9-4b27-a4f3-7a7e1d0a1f23@sjtu.edu.cn>
+Date: Thu, 31 Aug 2023 21:15:19 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v7] erofs-utils: add support for fuse 2/3 lowlevel API
@@ -51,16 +51,11 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Xiang,
+Hi Xiang:
 
-Thank you for your reminder, I will reconsider the reply_err part.
-
-Here is more information about the workaround. It can be considered that
-the return of size=0 is an interface specification that users should follow.
-
-https://github.com/philips/attr/blob/master/getfattr/getfattr.c#L298
-
-I will complete the modification of the lib in V8 and delete the workaround.
+I'm very sorry that I made a mistake. erofs_getxattr can behave
+correctly in various situations. I will remove the workaround in
+the new version.
 
 On 2023/8/31 19:05, Gao Xiang wrote:
 > 
