@@ -4,31 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B136BC83F10
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 11:31:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86F7CC83F12
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 11:31:17 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RbzWM1NwYz3bwJ
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 21:31:11 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RbzWS1hqLz3byL
+	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 21:31:16 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RbzWG1FYSz307h
-	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 21:31:04 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vqy4wfA_1693481458;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vqy4wfA_1693481458)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RbzWG0715z303p
+	for <linux-erofs@lists.ozlabs.org>; Thu, 31 Aug 2023 21:31:03 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0Vqy4wcI_1693481447;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vqy4wcI_1693481447)
           by smtp.aliyun-inc.com;
-          Thu, 31 Aug 2023 19:30:59 +0800
+          Thu, 31 Aug 2023 19:30:58 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: stable@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 6.4.y] erofs: ensure that the post-EOF tails are all zeroed
-Date: Thu, 31 Aug 2023 19:29:54 +0800
-Message-Id: <20230831112959.99884-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 6.5.y] erofs: ensure that the post-EOF tails are all zeroed
+Date: Thu, 31 Aug 2023 19:29:53 +0800
+Message-Id: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
-References: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -75,10 +73,10 @@ Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 470988bb7867..9a7c8bb0590f 100644
+index de4f12152b62..9c9350eb1704 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -993,6 +993,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+@@ -1038,6 +1038,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
  	cur = end - min_t(erofs_off_t, offset + end - map->m_la, end);
  	if (!(map->m_flags & EROFS_MAP_MAPPED)) {
  		zero_user_segment(page, cur, end);
