@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B366CA0FE1
-	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 09:47:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A5D2CA0FE1
+	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 09:47:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RcY9K0kQHz3c54
-	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 19:47:33 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RcY9N0nM0z3c3x
+	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 19:47:36 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RcY8z6Xz0z3bvB
-	for <linux-erofs@lists.ozlabs.org>; Fri,  1 Sep 2023 19:47:13 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vr4rL5W_1693561627;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vr4rL5W_1693561627)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RcY902vrhz3bTt
+	for <linux-erofs@lists.ozlabs.org>; Fri,  1 Sep 2023 19:47:15 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vr5QuAO_1693561631;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vr5QuAO_1693561631)
           by smtp.aliyun-inc.com;
-          Fri, 01 Sep 2023 17:47:07 +0800
+          Fri, 01 Sep 2023 17:47:11 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v5 0/8] erofs-utils: mkfs: introduce rebuild mode
-Date: Fri,  1 Sep 2023 17:46:58 +0800
-Message-Id: <20230901094706.27539-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v5 4/8] erofs-utils: lib: add erofs_insert_ihash() helper
+Date: Fri,  1 Sep 2023 17:47:02 +0800
+Message-Id: <20230901094706.27539-5-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230901094706.27539-1-jefflexu@linux.alibaba.com>
+References: <20230901094706.27539-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,74 +45,59 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-v5:
-- patch 6: reuse the new allocated inode; call
-  erofs_rebuild_get_dentry() first, and then erofs_read_inode_from_disk()
-  is called only when erofs_rebuild_get_dentry() indicates a valid
-  location of this inode (Gao Xiang)
-- patch 7: add new helper erofs_alloc_root_inode()
+Add erofs_insert_ihash() helper inserting inode into inode hash table.
 
+Also add prototypes of erofs_iget() and erofs_iget_by_nid() in the
+header file.
 
-[1] https://lore.kernel.org/all/20230822092457.114686-2-jefflexu@linux.alibaba.com/
-[2] https://lore.kernel.org/all/20230822092457.114686-3-jefflexu@linux.alibaba.com/
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ include/erofs/inode.h |  3 +++
+ lib/inode.c           | 10 +++++++---
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
-v1: https://lore.kernel.org/all/20230814034239.54660-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230816021347.126886-1-jefflexu@linux.alibaba.com/
-v3: https://lore.kernel.org/all/20230822092457.114686-1-jefflexu@linux.alibaba.com/
-v4: https://lore.kernel.org/all/20230823071517.12303-1-jefflexu@linux.alibaba.com/
-
--------------------------
-
-Introduce a new rebuild mode merging multiple erofs images generated
-from either tarerfs index mode (--tar=i):
-
-	mkfs.erofs --tar=i --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=i --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-or tarerofs non-index mode (--tar=f):
-
-	mkfs.erofs --tar=f -Enoinline_data --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=f -Enoinline_data --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-
-
-
-Jingbo Xu (8):
-  erofs-utils: lib: add list_splice_tail() helper
-  erofs-utils: lib: make erofs_get_unhashed_chunk() global
-  erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
-  erofs-utils: lib: add erofs_insert_ihash() helper
-  erofs-utils: lib: add erofs_rebuild_get_dentry() helper
-  erofs-utils: lib: add erofs_rebuild_load_tree() helper
-  erofs-utils: mkfs: introduce rebuild mode
-  erofs-utils: mkfs: add --keep-whiteout option for tarfs and rebuild
-    mode
-
- include/erofs/blobchunk.h |   2 +
- include/erofs/config.h    |   1 +
- include/erofs/inode.h     |   5 +-
- include/erofs/internal.h  |   6 +
- include/erofs/list.h      |  20 ++
- include/erofs/rebuild.h   |  21 ++
- include/erofs/xattr.h     |  33 +---
- lib/Makefile.am           |   3 +-
- lib/blobchunk.c           |   2 +-
- lib/config.c              |   1 +
- lib/inode.c               |  31 ++-
- lib/rebuild.c             | 400 ++++++++++++++++++++++++++++++++++++++
- lib/tar.c                 | 118 +----------
- lib/xattr.c               | 112 +++++++++++
- mkfs/main.c               | 229 +++++++++++++++++-----
- 15 files changed, 781 insertions(+), 203 deletions(-)
- create mode 100644 include/erofs/rebuild.h
- create mode 100644 lib/rebuild.c
-
+diff --git a/include/erofs/inode.h b/include/erofs/inode.h
+index e8a5670..1c602a8 100644
+--- a/include/erofs/inode.h
++++ b/include/erofs/inode.h
+@@ -25,6 +25,9 @@ u32 erofs_new_encode_dev(dev_t dev);
+ unsigned char erofs_mode_to_ftype(umode_t mode);
+ unsigned char erofs_ftype_to_dtype(unsigned int filetype);
+ void erofs_inode_manager_init(void);
++void erofs_insert_ihash(struct erofs_inode *inode, dev_t dev, ino_t ino);
++struct erofs_inode *erofs_iget(dev_t dev, ino_t ino);
++struct erofs_inode *erofs_iget_by_nid(erofs_nid_t nid);
+ unsigned int erofs_iput(struct erofs_inode *inode);
+ erofs_nid_t erofs_lookupnid(struct erofs_inode *inode);
+ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+diff --git a/lib/inode.c b/lib/inode.c
+index 85eacab..cd51fd2 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -75,6 +75,12 @@ void erofs_inode_manager_init(void)
+ 		init_list_head(&inode_hashtable[i]);
+ }
+ 
++void erofs_insert_ihash(struct erofs_inode *inode, dev_t dev, ino_t ino)
++{
++	list_add(&inode->i_hash,
++		 &inode_hashtable[(ino ^ dev) % NR_INODE_HASHTABLE]);
++}
++
+ /* get the inode from the (source) inode # */
+ struct erofs_inode *erofs_iget(dev_t dev, ino_t ino)
+ {
+@@ -976,9 +982,7 @@ static int erofs_fill_inode(struct erofs_inode *inode, struct stat *st,
+ 		inode->inode_isize = sizeof(struct erofs_inode_compact);
+ 	}
+ 
+-	list_add(&inode->i_hash,
+-		 &inode_hashtable[(st->st_ino ^ st->st_dev) %
+-				  NR_INODE_HASHTABLE]);
++	erofs_insert_ihash(inode, st->st_dev, st->st_ino);
+ 	return 0;
+ }
+ 
 -- 
 2.19.1.6.gb485710b
 
