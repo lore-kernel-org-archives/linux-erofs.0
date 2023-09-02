@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DDFC2CA0FF8
-	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 08:28:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4081CA0FF8
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 08:28:48 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=AU9THvX3;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=odcbh3of;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rd7Ms40xbz3bSx
-	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 18:28:41 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rd7Mz2j2cz30XV
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 18:28:47 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=AU9THvX3;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=odcbh3of;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=145.40.68.75; helo=ams.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rd7Mg29N7z2ytJ
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rd7Mg27ZZz2ykV
 	for <linux-erofs@lists.ozlabs.org>; Sat,  2 Sep 2023 18:28:30 +1000 (AEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by ams.source.kernel.org (Postfix) with ESMTPS id 82461B8275F;
-	Sat,  2 Sep 2023 08:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFE5C433C7;
-	Sat,  2 Sep 2023 08:19:40 +0000 (UTC)
+	by ams.source.kernel.org (Postfix) with ESMTPS id AA637B82763;
+	Sat,  2 Sep 2023 08:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DC5C433CB;
+	Sat,  2 Sep 2023 08:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1693642781;
-	bh=Bns7hQF1rsu9l0IwEiNjxGum1uLBLVcuRA+cAIqs7HQ=;
+	s=korg; t=1693642817;
+	bh=Chj98CpmtJrN2V6EJanAIGcAz0EFWdfkfIznXt7K1Lk=;
 	h=Subject:To:Cc:From:Date:In-Reply-To:From;
-	b=AU9THvX3xTeyz5ejLXt4iu8QFhAVkntK718oD76ZIWTni9dhACCWLSQRrnxurECSe
-	 fPUfQke0GLkZcY1Gdry4OjG7qoBuXrQoU4HlgDiEhAtS9WbdFqih+Tdjbihi2C6qBt
-	 1OBjNPUyYfgZLU7AhyZ2ilvxGZn+pgTdKg2fWktk=
-Subject: Patch "erofs: ensure that the post-EOF tails are all zeroed" has been added to the 4.19-stable tree
+	b=odcbh3ofgt6hZ4/P2CK5vQR05F2LIHUQmVXxj8mmoCiTw5RKUa9jLUq3C/sXk97vp
+	 9raBLsgISeKu/cOTosdaWpV5uFXS2diVbFNlNzbl2OvBwiJtbD98JtgX7onpt6tHGd
+	 5wenwQCgQc+Uz6jBmMTmQhefMv5kysTxmOjuu+1Y=
+Subject: Patch "erofs: ensure that the post-EOF tails are all zeroed" has been added to the 5.15-stable tree
 To: 3ad8b469-25db-a297-21f9-75db2d6ad224@linux.alibaba.com,gregkh@linuxfoundation.org,hsiangkao@linux.alibaba.com,keltar.gw@gmail.com,linux-erofs@lists.ozlabs.org
 From: <gregkh@linuxfoundation.org>
-Date: Sat, 02 Sep 2023 10:19:38 +0200
-In-Reply-To: <20230831112959.99884-7-hsiangkao@linux.alibaba.com>
-Message-ID: <2023090238-tattle-demote-9b9f@gregkh>
+Date: Sat, 02 Sep 2023 10:20:06 +0200
+In-Reply-To: <20230831112959.99884-6-hsiangkao@linux.alibaba.com>
+Message-ID: <2023090206-lure-affecting-8532@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,24 +68,24 @@ This is a note to let you know that I've just added the patch titled
 
     erofs: ensure that the post-EOF tails are all zeroed
 
-to the 4.19-stable tree which can be found at:
+to the 5.15-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
-and it can be found in the queue-4.19 subdirectory.
+and it can be found in the queue-5.15 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From hsiangkao@linux.alibaba.com  Sat Sep  2 10:18:30 2023
+From hsiangkao@linux.alibaba.com  Sat Sep  2 09:30:52 2023
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-Date: Thu, 31 Aug 2023 19:29:59 +0800
+Date: Thu, 31 Aug 2023 19:29:58 +0800
 Subject: erofs: ensure that the post-EOF tails are all zeroed
 To: stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <hsiangkao@linux.alibaba.com>, keltargw <keltar.gw@gmail.com>
-Message-ID: <20230831112959.99884-7-hsiangkao@linux.alibaba.com>
+Message-ID: <20230831112959.99884-6-hsiangkao@linux.alibaba.com>
 
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
@@ -115,14 +115,14 @@ Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/erofs/unzip_vle.c |    2 ++
+ fs/erofs/zdata.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -675,6 +675,8 @@ hitted:
- 	cur = end - min_t(unsigned, offset + end - map->m_la, end);
- 	if (unlikely(!(map->m_flags & EROFS_MAP_MAPPED))) {
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -716,6 +716,8 @@ hitted:
+ 	cur = end - min_t(erofs_off_t, offset + end - map->m_la, end);
+ 	if (!(map->m_flags & EROFS_MAP_MAPPED)) {
  		zero_user_segment(page, cur, end);
 +		++spiltted;
 +		tight = false;
@@ -133,4 +133,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from hsiangkao@linux.alibaba.com are
 
-queue-4.19/erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
+queue-5.15/erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
