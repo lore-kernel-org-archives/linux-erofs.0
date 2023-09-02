@@ -4,45 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3646CA0FF8
-	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 08:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7782CCA0FF8
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 08:28:37 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=WKKCsfAG;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=r+KRtImB;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rd7BX3rw7z2ytN
-	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 18:20:36 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rd7Mm092Fz3c3p
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 18:28:36 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=WKKCsfAG;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=r+KRtImB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=145.40.68.75; helo=ams.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 520 seconds by postgrey-1.37 at boromir; Sat, 02 Sep 2023 18:28:31 AEST
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rd7BP3LCwz2ygT
-	for <linux-erofs@lists.ozlabs.org>; Sat,  2 Sep 2023 18:20:29 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rd7Mg1M0qz2yVm
+	for <linux-erofs@lists.ozlabs.org>; Sat,  2 Sep 2023 18:28:30 +1000 (AEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id 81DDA601CF;
-	Sat,  2 Sep 2023 08:20:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9132CC433C8;
-	Sat,  2 Sep 2023 08:20:26 +0000 (UTC)
+	by ams.source.kernel.org (Postfix) with ESMTPS id 72C9AB8275D;
+	Sat,  2 Sep 2023 08:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA4DC433C8;
+	Sat,  2 Sep 2023 08:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1693642826;
-	bh=qaApT3nV4whnMKlEu8Juk/7El0eOokc8KvDNUQT8+eA=;
+	s=korg; t=1693642790;
+	bh=NNQmBXOPdHWwaOZvFRlBegGqFoW3wLmUxgpBnIzC7Tk=;
 	h=Subject:To:Cc:From:Date:In-Reply-To:From;
-	b=WKKCsfAGHjgMMI3sJiDsBEgumyZT8F2jlu6dIcUcogrzzAZFF6wQevfD5evvzYvKN
-	 GzJVcfHuFJGU7tqpXzSgml7h+PTFlVzC7wPtg3oUUjCvDb80beIpCI78koAubbJVsS
-	 0W3YQyPmKVZh/2WUxN6p4PiujrTqTnCMx7+BqA04=
-Subject: Patch "erofs: ensure that the post-EOF tails are all zeroed" has been added to the 6.1-stable tree
+	b=r+KRtImBY+GPToDkuNUpzCuiPkXJqbJtLuNZqMvOcYaLejwgbHqWwJq+34jsW3cKW
+	 t4+64deqTMoR7TnTePZ3oxP56Eicj/3QUTXwmJ309q2qrJHH5qqAL4DiJHo2Fven6I
+	 1n3fs2llkNp4nh7sFtsI/oxj4uevJV4LegZEWAkk=
+Subject: Patch "erofs: ensure that the post-EOF tails are all zeroed" has been added to the 5.4-stable tree
 To: 3ad8b469-25db-a297-21f9-75db2d6ad224@linux.alibaba.com,gregkh@linuxfoundation.org,hsiangkao@linux.alibaba.com,keltar.gw@gmail.com,linux-erofs@lists.ozlabs.org
 From: <gregkh@linuxfoundation.org>
-Date: Sat, 02 Sep 2023 10:20:16 +0200
+Date: Sat, 02 Sep 2023 10:19:47 +0200
 In-Reply-To: <20230831112959.99884-6-hsiangkao@linux.alibaba.com>
-Message-ID: <2023090216-parcel-football-ca74@gregkh>
+Message-ID: <2023090247-favoring-sinister-6456@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,12 +69,12 @@ This is a note to let you know that I've just added the patch titled
 
     erofs: ensure that the post-EOF tails are all zeroed
 
-to the 6.1-stable tree which can be found at:
+to the 5.4-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
-and it can be found in the queue-6.1 subdirectory.
+and it can be found in the queue-5.4 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -120,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -869,6 +869,8 @@ hitted:
+@@ -639,6 +639,8 @@ hitted:
  	cur = end - min_t(erofs_off_t, offset + end - map->m_la, end);
  	if (!(map->m_flags & EROFS_MAP_MAPPED)) {
  		zero_user_segment(page, cur, end);
@@ -128,9 +129,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +		tight = false;
  		goto next_part;
  	}
- 	if (map->m_flags & EROFS_MAP_FRAGMENT) {
+ 
 
 
 Patches currently in stable-queue which might be from hsiangkao@linux.alibaba.com are
 
-queue-6.1/erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
+queue-5.4/erofs-ensure-that-the-post-eof-tails-are-all-zeroed.patch
