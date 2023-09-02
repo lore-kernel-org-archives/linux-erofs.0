@@ -4,34 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05CF9CA0FE4
-	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 16:39:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE2D1CA0FF8
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 08:20:11 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=rkWAQIBx;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RckJl3Rdkz3c3R
-	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 02:39:35 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rd7B167MTz3c3h
+	for <linux-erofs@archiver.kernel.org>; Sat,  2 Sep 2023 18:20:09 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=rkWAQIBx;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RckJd5sKqz2yxX
-	for <linux-erofs@lists.ozlabs.org>; Sat,  2 Sep 2023 02:39:27 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vr6RS8u_1693586358;
-Received: from 30.25.203.111(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vr6RS8u_1693586358)
-          by smtp.aliyun-inc.com;
-          Sat, 02 Sep 2023 00:39:22 +0800
-Message-ID: <af6f73f1-5534-b29e-6643-a6af7e5bb144@linux.alibaba.com>
-Date: Sat, 2 Sep 2023 00:39:18 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rd79r6wyZz2ygT
+	for <linux-erofs@lists.ozlabs.org>; Sat,  2 Sep 2023 18:20:00 +1000 (AEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by dfw.source.kernel.org (Postfix) with ESMTPS id B55A760281;
+	Sat,  2 Sep 2023 08:19:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3E0DC433C7;
+	Sat,  2 Sep 2023 08:19:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1693642798;
+	bh=H0jZqmHxH11HljCzA78hnoFPkjwFhKanZixbXINjobs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=rkWAQIBxh+9EERTp4a5XHaPfTjO6yHFovioiIz4JRZdC5nZbd4AZAWgpnVrOxiPje
+	 HJZHuq6I0x2SAN5cRKt6SNZfiV5RipnFdhuauEJKpsMjn9Hrg17mz4lSMhc/wtryfK
+	 JIrAhbfd7ZCu3Z2GB283X6ctWfFO5ugSAY5dqWX8=
+Date: Sat, 2 Sep 2023 10:19:55 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH 6.5.y] erofs: ensure that the post-EOF tails are all
+ zeroed
+Message-ID: <2023090247-consonant-hangnail-ef8c@gregkh>
+References: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH v8] erofs-utils: add support for fuse 2/3 lowlevel API
-To: Li Yiyan <lyy0627@sjtu.edu.cn>, linux-erofs@lists.ozlabs.org
-References: <20230901160951.697085-1-lyy0627@sjtu.edu.cn>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230901160951.697085-1-lyy0627@sjtu.edu.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230831112959.99884-1-hsiangkao@linux.alibaba.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,101 +59,39 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: linux-erofs@lists.ozlabs.org, stable@vger.kernel.org, keltargw <keltar.gw@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2023/9/2 00:09, Li Yiyan wrote:
-> Add support for the fuse low-level API in erofsfuse, proven correct in> 22 test cases. Lowlevel API offers improved performance compared to the
-> high-level API, while maintaining compatibility with fuse version
-> 2(>=2.6) and 3 (>=3.0).
-
-Support FUSE low-level APIs for erofsfuse.   Lowlevel APIs offer
-improved performance compared to the previous high-level APIs,
-while maintaining compatibility with libfuse version 2(>=2.6)
-and 3 (>=3.0).
-
+On Thu, Aug 31, 2023 at 07:29:53PM +0800, Gao Xiang wrote:
+> commit e4c1cf523d820730a86cae2c6d55924833b6f7ac upstream.
 > 
-> Dataset: linux 5.15
-> Compression algorithm: -z4hc,12
-
-Compression algorithm: lz4hc, 12
-
-
-> Additional options: -T0 -C16384
-> Test options: --warmup 3 -p "echo 3 > /proc/sys/vm/drop_caches; sleep 1"
+> This was accidentally fixed up in commit e4c1cf523d82 but we can't
+> take the full change due to other dependancy issues, so here is just
+> the actual bugfix that is needed.
 > 
-> Evaluation result (highlevel->lowlevel avg time):
-> 	- Sequence metadata: 777.3 ms->180.9 ms
-> 	- Sequence data: 3.282 s->818.1 ms
-> 	- Random metadata: 1.571 s->928.3 ms
-> 	- Random data: 2.461 s->597.8 ms
+> [Background]
 > 
-> Signed-off-by: Li Yiyan <lyy0627@sjtu.edu.cn>
+> keltargw reported an issue [1] that with mmaped I/Os, sometimes the
+> tail of the last page (after file ends) is not filled with zeroes.
+> 
+> The root cause is that such tail page could be wrongly selected for
+> inplace I/Os so the zeroed part will then be filled with compressed
+> data instead of zeroes.
+> 
+> A simple fix is to avoid doing inplace I/Os for such tail parts,
+> actually that was already fixed upstream in commit e4c1cf523d82
+> ("erofs: tidy up z_erofs_do_read_page()") by accident.
+> 
+> [1] https://lore.kernel.org/r/3ad8b469-25db-a297-21f9-75db2d6ad224@linux.alibaba.com
+> 
+> Reported-by: keltargw <keltar.gw@gmail.com>
+> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 > ---
+>  fs/erofs/zdata.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-...
+All now queued up, thanks.
 
-> +
-> +static int erofsfuse_add_dentry(struct erofs_dir_context *ctx)
->   {
-> -	struct erofsfuse_dir_context *fusectx = (void *)ctx;
-> -	struct stat st = {0};
-> +	size_t size = 0;
->   	char dname[EROFS_NAME_LEN + 1];
-> +	struct erofsfuse_readdir_context *readdir_ctx = (void *)ctx;
-> +
-> +	if (readdir_ctx->offset < readdir_ctx->start_off) {
-> +		readdir_ctx->offset +=
-> +			ctx->de_namelen + sizeof(struct erofs_dirent);
-> +		return 0;
-> +	}
->   
->   	strncpy(dname, ctx->dname, ctx->de_namelen);
->   	dname[ctx->de_namelen] = '\0';
-> -	st.st_mode = erofs_ftype_to_dtype(ctx->de_ftype) << 12;
-
-here << 12 means S_SHIFT.
-
-> -	fusectx->filler(fusectx->buf, dname, &st, 0);
-> +	readdir_ctx->offset += ctx->de_namelen + sizeof(struct erofs_dirent);
-> +
-> +	if (!readdir_ctx->is_plus) { /* fuse 3 still use non-plus readdir */
-> +		struct stat st = { 0 };
-> +
-> +		st.st_mode = erofs_ftype_to_dtype(ctx->de_ftype);
-
-I'm afriad that is incorrect.  Maybe we need a erofs_ftype_to_umode()
-helper then.
-
-> +		st.st_ino = ctx->de_nid;
-> +		size = fuse_add_direntry(readdir_ctx->req, readdir_ctx->buf,
-> +					 readdir_ctx->buf_size, dname, &st,
-> +					 readdir_ctx->offset);
-> +	} else {
-> +#if FUSE_MAJOR_VERSION >= 3
-> +		struct fuse_entry_param param;
-
-I think here you could define as
-		struct fuse_entry_param param = {
-			.ino = erofsfuse_to_ino(ctx->de_nid),
-			.attr.st_ino = ctx->de_nid,
-			.attr.st_mode = erofs_ftype_to_umode(ctx->de_ftype),
-		};
-to avoid uninitialized fields.
-
-
-> +
-> +		param.ino = erofsfuse_to_ino(ctx->de_nid);
-> +		param.generation = 0;
-> +		param.attr.st_ino = ctx->de_nid;
-> +		param.attr.st_mode = erofs_ftype_to_dtype(ctx->de_ftype);
-
-ditto.
-
-
-Otherwise it looks good to me generally.
-
-Thanks,
-Gao Xiang
+greg k-h
