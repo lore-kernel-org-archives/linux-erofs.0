@@ -4,56 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 411C8C83F2E
-	for <linux-erofs@archiver.kernel.org>; Thu, 31 Aug 2023 16:38:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E284C83F33
+	for <linux-erofs@archiver.kernel.org>; Mon,  4 Sep 2023 18:20:10 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=R2eMjMGc;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=K3gkbkhJ;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rc6KY61CSz3c2D
-	for <linux-erofs@archiver.kernel.org>; Fri,  1 Sep 2023 02:38:09 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RfcPN4shNz3bjc
+	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 04:20:08 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=R2eMjMGc;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=K3gkbkhJ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=patchwork-bot+f2fs@kernel.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 526 seconds by postgrey-1.37 at boromir; Tue, 05 Sep 2023 04:20:02 AEST
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rb5K275glz2yV5;
-	Wed, 30 Aug 2023 10:49:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RfcPG1wJfz2yVg
+	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Sep 2023 04:20:02 +1000 (AEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by dfw.source.kernel.org (Postfix) with ESMTPS id 727CE61187;
-	Wed, 30 Aug 2023 00:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15649C433C8;
-	Wed, 30 Aug 2023 00:48:49 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTPS id 9BE26CE0F96;
+	Mon,  4 Sep 2023 18:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CC393C433CA;
+	Mon,  4 Sep 2023 18:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1693356547;
-	bh=Y6mimTT4f5bHTNOgMAPJs7UzoDd9JcRrnEgta8s7/7g=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=R2eMjMGcVP6twJXzPd3GjCC/QAkoBXyIXwyF0PetiX1VDQJtkSU/FrVUdLPhlHeJk
-	 dBHqNW4EShjtZaWh7sFQvaiUl3mq77UH9KDN3DI2snJ6o1c+81N9JuEjNxovdv+bSx
-	 sgcIB4JoE+RW7C4bNpHemTP/NmKBpTL7+v/S4iHTHVlduZjb2wd1jti+ZtvOSZrtwV
-	 l+HJJMf2BwuQ5fHlwOGaHAX0BTHl6xVSRaJy3EeRODk9yD0xK9grM4eFB73+9nNR6U
-	 SUPRRhBT9hKA3cHo92ct+4AiPcoeZ/GYLow2fGYu2g/oM5lHg/5skk6mbUINrwlVsy
-	 FRJBQs41w8qcA==
-Message-ID: <d73e7de5056a34578a193185770e46584450d8b7.camel@kernel.org>
-Subject: Re: [PATCH v2 08/92] fs: new helper: simple_rename_timestamp
-From: Jeff Layton <jlayton@kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Date: Tue, 29 Aug 2023 20:48:48 -0400
-In-Reply-To: <20230830001917.GC461907@ZenIV>
-References: <20230705185812.579118-1-jlayton@kernel.org>
-	 <20230705185812.579118-3-jlayton@kernel.org>
-	 <20230830001917.GC461907@ZenIV>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	s=k20201202; t=1693851068;
+	bh=KWuluqFF5yFV+lOCkFnoct0phRXw96Jca/CuZaTU2kY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=K3gkbkhJRwgpsacHeBsq0A7kucjUSGo8OzMP1ouPw/XPyf9sD5QK/Sf142+usc7ZE
+	 C827H7oMTO9xQURopm4EWqGoFioLBjSEY4gmbRDnvHI4L+ywXrxJRVy5ldQmRaAtfj
+	 1pffFi8IArgTV4dPuYUPdlhMXVuT7Hb/6kEuD4lj+4NJdrul8tjUb9OXjEUjpGn+jT
+	 2ndFdt5oPLx5wHtLQ20DiaB9Xl09djxp9OA/4zW9QgSOHR3JDKxABg9kMIgFr5Ox62
+	 wqlEdaiOf1aM8ubxkjKV3yvjnRyA83mc2npN6NfYoiPdtaZLbxGvWm4TgDkfWkglX8
+	 L2qkw/qB1Voxg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A2BE4C04E26;
+	Mon,  4 Sep 2023 18:11:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Mailman-Approved-At: Fri, 01 Sep 2023 02:38:00 +1000
+Content-Transfer-Encoding: 8bit
+Subject: Re: [f2fs-dev] [PATCH v7 00/13] fs: implement multigrain timestamps
+From: patchwork-bot+f2fs@kernel.org
+Message-Id:  <169385106866.19669.14483196627780303129.git-patchwork-notify@kernel.org>
+Date: Mon, 04 Sep 2023 18:11:08 +0000
+References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
+In-Reply-To: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
+To: Jeff Layton <jlayton@kernel.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,39 +65,60 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: lucho@ionkov.net, rafael@kernel.org, djwong@kernel.org, al@alarsen.net, cmllamas@google.com, andrii@kernel.org, hughd@google.com, john.johansen@canonical.com, agordeev@linux.ibm.com, hch@lst.de, hubcap@omnibond.com, pc@manguebit.com, linux-xfs@vger.kernel.org, bvanassche@acm.org, jeffxu@chromium.org, mpe@ellerman.id.au, john@keeping.me.uk, yi.zhang@huawei.com, jmorris@namei.org, christophe.leroy@csgroup.eu, code@tyhicks.com, stern@rowland.harvard.edu, borntraeger@linux.ibm.com, devel@lists.orangefs.org, mirimmad17@gmail.com, sprasad@microsoft.com, jaharkes@cs.cmu.edu, linux-um@lists.infradead.org, npiggin@gmail.com, jlbec@evilplan.org, ericvh@kernel.org, surenb@google.com, trond.myklebust@hammerspace.com, anton@tuxera.com, brauner@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, stephen.smalley.work@gmail.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, lsahlber@redhat.com, senozhatsky@chromium.org, arve@android.com, chuck.lever@oracle.com, s
- vens@linux.ibm.com, jolsa@kernel.org, jack@suse.com, tj@kernel.org, akpm@linux-foundation.org, linux-trace-kernel@vger.kernel.org, xu.xin16@zte.com.cn, shaggy@kernel.org, penguin-kernel@i-love.sakura.ne.jp, zohar@linux.ibm.com, linux-mm@kvack.org, joel@joelfernandes.org, edumazet@google.com, sdf@google.com, jomajm@gmail.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, paul@paul-moore.com, leon@kernel.org, john.fastabend@gmail.com, mcgrof@kernel.org, chi.minghao@zte.com.cn, codalist@coda.cs.cmu.edu, selinux@vger.kernel.org, zhangpeng362@huawei.com, quic_ugoswami@quicinc.com, yhs@fb.com, yzaikin@google.com, linkinjeon@kernel.org, mhiramat@kernel.org, ecryptfs@vger.kernel.org, tkjos@android.com, madkar@cs.stonybrook.edu, gor@linux.ibm.com, yuzhe@nfschina.com, linuxppc-dev@lists.ozlabs.org, reiserfs-devel@vger.kernel.org, miklos@szeredi.hu, huyue2@coolpad.com, jaegeuk@kernel.org, gargaditya08@live.com, maco@android.com, hirofumi@mail.parknet.co.jp, haoluo@google.com, tony.l
- uck@intel.com, tytso@mit.edu, nico@fluxnic.net, linux-ntfs-dev@lists.sourceforge.net, muchun.song@linux.dev, roberto.sassu@huawei.com, linux-f2fs-devel@lists.sourceforge.net, yang.yang29@zte.com.cn, gpiccoli@igalia.com, ebiederm@xmission.com, anna@kernel.org, quic_uaggarwa@quicinc.com, bwarrum@linux.ibm.com, mike.kravetz@oracle.com, jingyuwang_vip@163.com, linux-efi@vger.kernel.org, error27@gmail.com, martin@omnibond.com, trix@redhat.com, ocfs2-devel@lists.linux.dev, ast@kernel.org, sebastian.reichel@collabora.com, clm@fb.com, linux-mtd@lists.infradead.org, willy@infradead.org, marc.dionne@auristor.com, linux-afs@lists.infradead.org, raven@themaw.net, naohiro.aota@wdc.com, daniel@iogearbox.net, dennis.dalessandro@cornelisnetworks.com, linux-rdma@vger.kernel.org, quic_linyyuan@quicinc.com, coda@cs.cmu.edu, slava@dubeyko.com, idryomov@gmail.com, pabeni@redhat.com, adobriyan@gmail.com, serge@hallyn.com, chengzhihao1@huawei.com, axboe@kernel.dk, amir73il@gmail.com, linuszeng@tencent.com
- , keescook@chromium.org, arnd@arndb.de, autofs@vger.kernel.org, rostedt@goodmis.org, yifeliu@cs.stonybrook.edu, dlemoal@kernel.org, eparis@parisplace.org, ceph-devel@vger.kernel.org, yijiangshan@kylinos.cn, dhowells@redhat.com, linux-nfs@vger.kernel.org, linux-ext4@vger.kernel.org, kolga@netapp.com, song@kernel.org, samba-technical@lists.samba.org, sfrench@samba.org, jk@ozlabs.org, netdev@vger.kernel.org, rpeterso@redhat.com, linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, davem@davemloft.net, jfs-discussion@lists.sourceforge.net, princekumarmaurya06@gmail.com, ebiggers@google.com, neilb@suse.de, asmadeus@codewreck.org, linux_oss@crudebyte.com, me@bobcopeland.com, kpsingh@kernel.org, okanatov@gmail.com, almaz.alexandrovich@paragon-software.com, joseph.qi@linux.alibaba.com, hayama@lineo.co.jp, adilger.kernel@dilger.ca, mikulas@artax.karlin.mff.cuni.cz, shaozhengchao@huawei.com, chenzhongjin@huawei.com, ardb@kernel.org, anton.iv
- anov@cambridgegreys.com, agruenba@redhat.com, richard@nod.at, mark@fasheh.com, shr@devkernel.io, Dai.Ngo@oracle.com, cluster-devel@redhat.com, jgg@ziepe.ca, kuba@kernel.org, riel@surriel.com, salah.triki@gmail.com, dushistov@mail.ru, linux-cifs@vger.kernel.org, hca@linux.ibm.com, apparmor@lists.ubuntu.com, josef@toxicpanda.com, Liam.Howlett@oracle.com, tom@talpey.com, hdegoede@redhat.com, linux-hardening@vger.kernel.org, aivazian.tigran@gmail.com, dchinner@redhat.com, dsterba@suse.com, xiubli@redhat.com, konishi.ryusuke@gmail.com, jgross@suse.com, jth@kernel.org, rituagar@linux.ibm.com, luisbg@kernel.org, martin.lau@linux.dev, v9fs@lists.linux.dev, fmdefrancesco@gmail.com, linux-unionfs@vger.kernel.org, lrh2000@pku.edu.cn, linux-security-module@vger.kernel.org, ezk@cs.stonybrook.edu, linux@treblig.org, hannes@cmpxchg.org, phillip@squashfs.org.uk, johannes@sipsolutions.net, sj1557.seo@samsung.com, dwmw2@infradead.org, linux-karma-devel@lists.sourceforge.net, linux-btrfs@vger.kernel.o
- rg
+Cc: lucho@ionkov.net, martin@omnibond.com, almaz.alexandrovich@paragon-software.com, jack@suse.cz, linux-xfs@vger.kernel.org, djwong@kernel.org, asmadeus@codewreck.org, linux_oss@crudebyte.com, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, dhowells@redhat.com, clm@fb.com, adilger.kernel@dilger.ca, hdegoede@redhat.com, marc.dionne@auristor.com, codalist@coda.cs.cmu.edu, linux-afs@lists.infradead.org, hubcap@omnibond.com, pc@manguebit.com, linux-cifs@vger.kernel.org, ericvh@kernel.org, agruenba@redhat.com, miklos@szeredi.hu, richard@nod.at, mark@fasheh.com, hughd@google.com, bcodding@redhat.com, code@tyhicks.com, cluster-devel@redhat.com, coda@cs.cmu.edu, linux-mm@kvack.org, ntfs3@lists.linux.dev, idryomov@gmail.com, yzaikin@google.com, linkinjeon@kernel.org, trond.myklebust@hammerspace.com, sprasad@microsoft.com, amir73il@gmail.com, keescook@chromium.org, ocfs2-devel@lists.linux.dev, josef@toxicpanda.com, tom@talpey.com, tj@kernel.org, huyue2@coolpad.com, viro@zeniv.linux.o
+ rg.uk, ronniesahlberg@gmail.com, dsterba@suse.com, jaegeuk@kernel.org, ceph-devel@vger.kernel.org, xiubli@redhat.com, hirofumi@mail.parknet.co.jp, jaharkes@cs.cmu.edu, brauner@kernel.org, linux-ext4@vger.kernel.org, tytso@mit.edu, joseph.qi@linux.alibaba.com, gregkh@linuxfoundation.org, v9fs@lists.linux.dev, linux-fsdevel@vger.kernel.org, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, sfrench@samba.org, senozhatsky@chromium.org, mcgrof@kernel.org, devel@lists.orangefs.org, anna@kernel.org, jack@suse.com, rpeterso@redhat.com, linux-mtd@lists.infradead.org, akpm@linux-foundation.org, sj1557.seo@samsung.com, linux-erofs@lists.ozlabs.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org, jlbec@evilplan.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, 2023-08-30 at 01:19 +0100, Al Viro wrote:
-> On Wed, Jul 05, 2023 at 02:58:11PM -0400, Jeff Layton wrote:
->=20
-> > + * POSIX mandates that the old and new parent directories have their c=
-time and
-> > + * mtime updated, and that inodes of @old_dentry and @new_dentry (if a=
-ny), have
-> > + * their ctime updated.
->=20
-> APPLICATION USAGE
-> Some implementations mark for update the last file status change timestam=
-p
-> of renamed files and some do not. Applications which make use of the
-> last file status change timestamp may behave differently with respect
-> to renamed files unless they are designed to allow for either behavior.
->
-> So for children POSIX permits rather than mandates.  Doesn't really matte=
-r;
-> Linux behaviour had been to touch ctime on children since way back, if
-> not since the very beginning.
+Hello:
 
-Mea culpa. You're quite correct. I'll plan to roll a small patch to
-update the comment over this function.
+This series was applied to jaegeuk/f2fs.git (dev)
+by Christian Brauner <brauner@kernel.org>:
 
-Thanks!
---=20
-Jeff Layton <jlayton@kernel.org>
+On Mon, 07 Aug 2023 15:38:31 -0400 you wrote:
+> The VFS always uses coarse-grained timestamps when updating the
+> ctime and mtime after a change. This has the benefit of allowing
+> filesystems to optimize away a lot metadata updates, down to around 1
+> per jiffy, even when a file is under heavy writes.
+> 
+> Unfortunately, this coarseness has always been an issue when we're
+> exporting via NFSv3, which relies on timestamps to validate caches. A
+> lot of changes can happen in a jiffy, so timestamps aren't sufficient to
+> help the client decide to invalidate the cache.
+> 
+> [...]
+
+Here is the summary with links:
+  - [f2fs-dev,v7,01/13] fs: remove silly warning from current_time
+    https://git.kernel.org/jaegeuk/f2fs/c/b3030e4f2344
+  - [f2fs-dev,v7,02/13] fs: pass the request_mask to generic_fillattr
+    https://git.kernel.org/jaegeuk/f2fs/c/0d72b92883c6
+  - [f2fs-dev,v7,03/13] fs: drop the timespec64 arg from generic_update_time
+    https://git.kernel.org/jaegeuk/f2fs/c/541d4c798a59
+  - [f2fs-dev,v7,04/13] btrfs: have it use inode_update_timestamps
+    https://git.kernel.org/jaegeuk/f2fs/c/bb7cc0a62e47
+  - [f2fs-dev,v7,05/13] fat: make fat_update_time get its own timestamp
+    (no matching commit)
+  - [f2fs-dev,v7,06/13] ubifs: have ubifs_update_time use inode_update_timestamps
+    (no matching commit)
+  - [f2fs-dev,v7,07/13] xfs: have xfs_vn_update_time gets its own timestamp
+    (no matching commit)
+  - [f2fs-dev,v7,08/13] fs: drop the timespec64 argument from update_time
+    (no matching commit)
+  - [f2fs-dev,v7,09/13] fs: add infrastructure for multigrain timestamps
+    https://git.kernel.org/jaegeuk/f2fs/c/ffb6cf19e063
+  - [f2fs-dev,v7,10/13] tmpfs: add support for multigrain timestamps
+    https://git.kernel.org/jaegeuk/f2fs/c/d48c33972916
+  - [f2fs-dev,v7,11/13] xfs: switch to multigrain timestamps
+    (no matching commit)
+  - [f2fs-dev,v7,12/13] ext4: switch to multigrain timestamps
+    https://git.kernel.org/jaegeuk/f2fs/c/0269b585868e
+  - [f2fs-dev,v7,13/13] btrfs: convert to multigrain timestamps
+    https://git.kernel.org/jaegeuk/f2fs/c/50e9ceef1d4f
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
