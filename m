@@ -4,28 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C3D4C83F2C
-	for <linux-erofs@archiver.kernel.org>; Mon,  4 Sep 2023 09:51:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 15D8AC83F2C
+	for <linux-erofs@archiver.kernel.org>; Mon,  4 Sep 2023 09:53:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RfP6s4Mg3z3bcS
-	for <linux-erofs@archiver.kernel.org>; Mon,  4 Sep 2023 19:51:49 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RfP8j524Zz3bcS
+	for <linux-erofs@archiver.kernel.org>; Mon,  4 Sep 2023 19:53:25 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RfP6j3Slfz2xpd
-	for <linux-erofs@lists.ozlabs.org>; Mon,  4 Sep 2023 19:51:39 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R821e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VrJ6MXZ_1693821088;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VrJ6MXZ_1693821088)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RfP8Z6vS0z2xdg
+	for <linux-erofs@lists.ozlabs.org>; Mon,  4 Sep 2023 19:53:18 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VrJ7uei_1693821192;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VrJ7uei_1693821192)
           by smtp.aliyun-inc.com;
-          Mon, 04 Sep 2023 17:51:32 +0800
+          Mon, 04 Sep 2023 17:53:13 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs-utils: fsck: refuse illegel filename
-Date: Mon,  4 Sep 2023 17:51:27 +0800
-Message-Id: <20230904095127.61351-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 RESEND] erofs-utils: fsck: refuse illegel filename
+Date: Mon,  4 Sep 2023 17:53:11 +0800
+Message-Id: <20230904095311.65096-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20230904095127.61351-1-hsiangkao@linux.alibaba.com>
+References: <20230904095127.61351-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -98,7 +100,7 @@ index fff0bc0..3731f0c 100644
  				break;
  			}
 +		} else if (fsck &&
-+			   erofs_validate_filename(de_name, de_namelen)) {
++			   !erofs_validate_filename(de_name, de_namelen)) {
 +			errmsg = "corrupted dirent with illegal filename";
 +			goto out;
  		}
