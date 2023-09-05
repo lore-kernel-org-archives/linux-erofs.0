@@ -4,29 +4,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40095CA0FF3
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 10:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 329FBC83F33
+	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 10:02:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rg1Jw5FPnz3c1L
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 20:02:40 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rg1K1509tz3c4t
+	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 20:02:45 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rg1Jq6TCSz301V
-	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Sep 2023 20:02:34 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VrPSrQl_1693908147;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VrPSrQl_1693908147)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rg1Jq6jhlz30f9
+	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Sep 2023 20:02:35 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VrPVOt2_1693908149;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VrPVOt2_1693908149)
           by smtp.aliyun-inc.com;
-          Tue, 05 Sep 2023 18:02:28 +0800
+          Tue, 05 Sep 2023 18:02:30 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 00/11] erofs-utils: mkfs: introduce rebuild mode
-Date: Tue,  5 Sep 2023 18:02:16 +0800
-Message-Id: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 02/11] erofs-utils: lib: add list_splice_tail() helper
+Date: Tue,  5 Sep 2023 18:02:18 +0800
+Message-Id: <20230905100227.1072-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
+References: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -43,78 +45,45 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-v6:
-- newly add cleanup patches (patch 1 and 9)
-- patch 8: improve the code of parsing multiple sources with "do {}
-  while" loop
-- patch 10: newly added to work around the potential issue of exposing
-  whiteouts in the overlayfs mount by setting origin xattr on parent
-  directory of whiteouts
-- patch 11: the former "--keep-whiteout" option is renamed to
-  "--overlay-strip" option; apart from whiteouts, origin xattrs will
-  also be stripped when the option is enabled
+Add list_splice_tail() helper.
 
-[1] https://lore.kernel.org/all/20230822092457.114686-2-jefflexu@linux.alibaba.com/
-[2] https://lore.kernel.org/all/20230822092457.114686-3-jefflexu@linux.alibaba.com/
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+---
+ include/erofs/list.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-v1: https://lore.kernel.org/all/20230814034239.54660-1-jefflexu@linux.alibaba.com/
-v2: https://lore.kernel.org/all/20230816021347.126886-1-jefflexu@linux.alibaba.com/
-v3: https://lore.kernel.org/all/20230822092457.114686-1-jefflexu@linux.alibaba.com/
-v4: https://lore.kernel.org/all/20230823071517.12303-1-jefflexu@linux.alibaba.com/
-v5: https://lore.kernel.org/all/20230901094706.27539-1-jefflexu@linux.alibaba.com/
-
--------------------------
-
-Introduce a new rebuild mode merging multiple erofs images generated
-from either tarerfs index mode (--tar=i):
-
-	mkfs.erofs --tar=i --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=i --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-or tarerofs non-index mode (--tar=f):
-
-	mkfs.erofs --tar=f -Enoinline_data --aufs layer0.erofs layer0.tar
-	...
-	mkfs.erofs --tar=f -Enoinline_data --aufs layerN.erofs layerN.tar
-
-	mkfs.erofs merge.erofs layerN.erofs ... layer0.erofs
-
-
-Jingbo Xu (11):
-  erofs-utils: lib: remove unneeded NULL checking for returned item
-  erofs-utils: lib: add list_splice_tail() helper
-  erofs-utils: lib: make erofs_get_unhashed_chunk() global
-  erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
-  erofs-utils: lib: add erofs_insert_ihash() helper
-  erofs-utils: lib: add erofs_rebuild_get_dentry() helper
-  erofs-utils: lib: add erofs_rebuild_load_tree() helper
-  erofs-utils: mkfs: introduce rebuild mode
-  erofs-utils: lib: add erofs_inode_is_whiteout() helper
-  erofs-utils: lib: set origin xattr on parent directory of whiteout
-  erofs-utils: mkfs: add --overlay-strip option for tarfs and rebuild
-    mode
-
- include/erofs/blobchunk.h |   2 +
- include/erofs/config.h    |   1 +
- include/erofs/inode.h     |   5 +-
- include/erofs/internal.h  |  11 +
- include/erofs/list.h      |  20 ++
- include/erofs/rebuild.h   |  21 ++
- include/erofs/xattr.h     |  36 +---
- lib/Makefile.am           |   3 +-
- lib/blobchunk.c           |   2 +-
- lib/inode.c               |  26 ++-
- lib/rebuild.c             | 409 ++++++++++++++++++++++++++++++++++++++
- lib/tar.c                 | 129 ++----------
- lib/xattr.c               | 144 +++++++++++++-
- mkfs/main.c               | 228 ++++++++++++++++-----
- 14 files changed, 827 insertions(+), 210 deletions(-)
- create mode 100644 include/erofs/rebuild.h
- create mode 100644 lib/rebuild.c
-
+diff --git a/include/erofs/list.h b/include/erofs/list.h
+index 3f5da1a..d7a9fee 100644
+--- a/include/erofs/list.h
++++ b/include/erofs/list.h
+@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
+ 	return head->next == head;
+ }
+ 
++static inline void __list_splice(struct list_head *list,
++		struct list_head *prev, struct list_head *next)
++{
++	struct list_head *first = list->next;
++	struct list_head *last = list->prev;
++
++	first->prev = prev;
++	prev->next = first;
++
++	last->next = next;
++	next->prev = last;
++}
++
++static inline void list_splice_tail(struct list_head *list,
++				    struct list_head *head)
++{
++	if (!list_empty(list))
++		__list_splice(list, head->prev, head);
++}
++
+ #define list_entry(ptr, type, member) container_of(ptr, type, member)
+ 
+ #define list_first_entry(ptr, type, member)                                    \
 -- 
 2.19.1.6.gb485710b
 
