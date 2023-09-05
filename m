@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 329FBC83F33
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 10:02:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13E5CC83F33
+	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 10:02:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rg1K1509tz3c4t
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 20:02:45 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rg1K45lphz3bmj
+	for <linux-erofs@archiver.kernel.org>; Tue,  5 Sep 2023 20:02:48 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rg1Jq6jhlz30f9
-	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Sep 2023 20:02:35 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VrPVOt2_1693908149;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VrPVOt2_1693908149)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Rg1Jr1hnCz30hh
+	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Sep 2023 20:02:34 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VrPmnGT_1693908148;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0VrPmnGT_1693908148)
           by smtp.aliyun-inc.com;
-          Tue, 05 Sep 2023 18:02:30 +0800
+          Tue, 05 Sep 2023 18:02:29 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v6 02/11] erofs-utils: lib: add list_splice_tail() helper
-Date: Tue,  5 Sep 2023 18:02:18 +0800
-Message-Id: <20230905100227.1072-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH v6 01/11] erofs-utils: lib: remove unneeded NULL checking for returned item
+Date: Tue,  5 Sep 2023 18:02:17 +0800
+Message-Id: <20230905100227.1072-2-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
 References: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
@@ -45,45 +45,35 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add list_splice_tail() helper.
+get_xattritem() will in no way return NULL.
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- include/erofs/list.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ lib/xattr.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/include/erofs/list.h b/include/erofs/list.h
-index 3f5da1a..d7a9fee 100644
---- a/include/erofs/list.h
-+++ b/include/erofs/list.h
-@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
- 	return head->next == head;
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 0cab29f..5acc1ae 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -437,8 +437,6 @@ int erofs_setxattr(struct erofs_inode *inode, char *key,
+ 	item = get_xattritem(prefix, kvbuf, len);
+ 	if (IS_ERR(item))
+ 		return PTR_ERR(item);
+-	if (!item)
+-		return 0;
+ 
+ 	return erofs_xattr_add(&inode->i_xattrs, item);
  }
+@@ -473,8 +471,6 @@ static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
+ 	item = get_xattritem(EROFS_XATTR_INDEX_SECURITY, kvbuf, len);
+ 	if (IS_ERR(item))
+ 		return PTR_ERR(item);
+-	if (!item)
+-		return 0;
  
-+static inline void __list_splice(struct list_head *list,
-+		struct list_head *prev, struct list_head *next)
-+{
-+	struct list_head *first = list->next;
-+	struct list_head *last = list->prev;
-+
-+	first->prev = prev;
-+	prev->next = first;
-+
-+	last->next = next;
-+	next->prev = last;
-+}
-+
-+static inline void list_splice_tail(struct list_head *list,
-+				    struct list_head *head)
-+{
-+	if (!list_empty(list))
-+		__list_splice(list, head->prev, head);
-+}
-+
- #define list_entry(ptr, type, member) container_of(ptr, type, member)
- 
- #define list_first_entry(ptr, type, member)                                    \
+ 	return erofs_xattr_add(&inode->i_xattrs, item);
+ }
 -- 
 2.19.1.6.gb485710b
 
