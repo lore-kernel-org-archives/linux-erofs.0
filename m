@@ -4,36 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C6C9EE14DC
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Sep 2023 10:02:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 54B45EEB58C
+	for <linux-erofs@archiver.kernel.org>; Sat,  9 Sep 2023 12:37:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RhFCw56Ctz3c1l
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Sep 2023 20:02:36 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RjXYY5FSTz3c3j
+	for <linux-erofs@archiver.kernel.org>; Sat,  9 Sep 2023 22:37:21 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sjtu.edu.cn (client-ip=202.120.2.232; helo=smtp232.sjtu.edu.cn; envelope-from=zhaoyifan@sjtu.edu.cn; receiver=lists.ozlabs.org)
+Received: from smtp232.sjtu.edu.cn (smtp232.sjtu.edu.cn [202.120.2.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RhFCp4gvPz2xZp
-	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Sep 2023 20:02:28 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VrYQxbJ_1694080941;
-Received: from 30.97.49.12(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VrYQxbJ_1694080941)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Sep 2023 18:02:22 +0800
-Message-ID: <99839f61-6c53-8d98-1682-8aed2b7cc298@linux.alibaba.com>
-Date: Thu, 7 Sep 2023 18:02:21 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RjXYQ14VWz2yW0
+	for <linux-erofs@lists.ozlabs.org>; Sat,  9 Sep 2023 22:37:12 +1000 (AEST)
+Received: from proxy188.sjtu.edu.cn (smtp188.sjtu.edu.cn [202.120.2.188])
+	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 530B71008AC1C
+	for <linux-erofs@lists.ozlabs.org>; Sat,  9 Sep 2023 20:36:59 +0800 (CST)
+Received: from zhaoyf.ipads-lab.se.sjtu.edu.cn (unknown [202.120.40.82])
+	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id 6CEF537C922;
+	Sat,  9 Sep 2023 20:36:57 +0800 (CST)
+From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: mkfs: error return if meets an unknown extended option
+Date: Sat,  9 Sep 2023 20:36:50 +0800
+Message-ID: <20230909123650.2184838-1-zhaoyifan@sjtu.edu.cn>
+X-Mailer: git-send-email 2.42.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH v6 06/11] erofs-utils: lib: add erofs_rebuild_get_dentry()
- helper
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20230905100227.1072-1-jefflexu@linux.alibaba.com>
- <20230905100227.1072-7-jefflexu@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20230905100227.1072-7-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -45,136 +41,111 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Currently mkfs would ignore any unknown extended option, which keeps
+silent if a mistyped option is given. Return failure in this case allows
+users to catch their errors more easily.
+---
+ mkfs/main.c | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 607c883..4caf267 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -186,55 +186,55 @@ static int parse_extended_opts(const char *opts)
+ 			cfg.c_legacy_compress = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_inodeversion = FORCE_INODE_COMPACT;
+ 			cfg.c_ignore_mtime = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("force-inode-extended", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("force-inode-extended", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_inodeversion = FORCE_INODE_EXTENDED;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("nosbcrc", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("nosbcrc", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			erofs_sb_clear_sb_chksum(&sbi);
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("noinline_data", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("noinline_data", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_noinline_data = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("force-inode-blockmap", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("force-inode-blockmap", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_chunkformat = FORCE_INODE_BLOCK_MAP;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("force-chunk-indexes", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("force-chunk-indexes", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_chunkformat = FORCE_INODE_CHUNK_INDEXES;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("ztailpacking", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("ztailpacking", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_ztailpacking = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("all-fragments", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("all-fragments", token, keylen)) {
+ 			cfg.c_all_fragments = true;
+ 			goto handle_fragment;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("fragments", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("fragments", token, keylen)) {
+ 			char *endptr;
+ 			u64 i;
+ 
+@@ -251,17 +251,22 @@ handle_fragment:
+ 			}
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("dedupe", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("dedupe", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_dedupe = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("xattr-name-filter", token, keylen)) {
++		else if (MATCH_EXTENTED_OPT("xattr-name-filter", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_xattr_name_filter = !clear;
+ 		}
++
++		else {
++			erofs_err("unknown extended option %s", token);
++			return -EINVAL;
++		}
+ 	}
+ 	return 0;
+ }
+-- 
+2.42.0
 
-On 2023/9/5 18:02, Jingbo Xu wrote:
-> Rename tarerofs_get_dentry() to erofs_rebuild_get_dentry().
-> 
-> Also make `whout` and 'opq' parameter optional when `aufs` is false.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-> ---
->   include/erofs/rebuild.h |  19 +++++++
->   lib/Makefile.am         |   3 +-
->   lib/rebuild.c           | 117 ++++++++++++++++++++++++++++++++++++++++
->   lib/tar.c               | 109 ++-----------------------------------
->   4 files changed, 141 insertions(+), 107 deletions(-)
->   create mode 100644 include/erofs/rebuild.h
->   create mode 100644 lib/rebuild.c
-> 
-> diff --git a/include/erofs/rebuild.h b/include/erofs/rebuild.h
-> new file mode 100644
-> index 0000000..92873c9
-> --- /dev/null
-> +++ b/include/erofs/rebuild.h
-> @@ -0,0 +1,19 @@
-> +/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-> +#ifndef __EROFS_REBUILD_H
-> +#define __EROFS_REBUILD_H
-> +
-> +#ifdef __cplusplus
-> +extern "C"
-> +{
-> +#endif
-> +
-> +#include "internal.h"
-> +
-> +struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
-> +		char *path, bool aufs, bool *whout, bool *opq);
-> +
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
-> +#endif
-> diff --git a/lib/Makefile.am b/lib/Makefile.am
-> index 3e09516..8a45bd6 100644
-> --- a/lib/Makefile.am
-> +++ b/lib/Makefile.am
-> @@ -25,6 +25,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
->         $(top_srcdir)/include/erofs/compress_hints.h \
->         $(top_srcdir)/include/erofs/fragments.h \
->         $(top_srcdir)/include/erofs/xxhash.h \
-> +      $(top_srcdir)/include/erofs/rebuild.h \
->         $(top_srcdir)/lib/liberofs_private.h
->   
->   noinst_HEADERS += compressor.h
-> @@ -32,7 +33,7 @@ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
->   		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
->   		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
->   		      fragments.c rb_tree.c dedupe.c uuid_unparse.c uuid.c tar.c \
-> -		      block_list.c xxhash.c
-> +		      block_list.c xxhash.c rebuild.c
->   
->   liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
->   if ENABLE_LZ4
-> diff --git a/lib/rebuild.c b/lib/rebuild.c
-> new file mode 100644
-> index 0000000..7aaa071
-> --- /dev/null
-> +++ b/lib/rebuild.c
-> @@ -0,0 +1,117 @@
-> +// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-> +#define _GNU_SOURCE
-> +#include <unistd.h>
-> +#include <stdlib.h>
-> +#include <string.h>
-> +#include "erofs/print.h"
-> +#include "erofs/inode.h"
-> +#include "erofs/rebuild.h"
-> +#include "erofs/internal.h"
-> +
-> +#ifdef HAVE_LINUX_AUFS_TYPE_H
-> +#include <linux/aufs_type.h>
-> +#else
-> +#define AUFS_WH_PFX		".wh."
-> +#define AUFS_DIROPQ_NAME	AUFS_WH_PFX ".opq"
-> +#define AUFS_WH_DIROPQ		AUFS_WH_PFX AUFS_DIROPQ_NAME
-> +#endif
-> +
-> +static struct erofs_dentry *erofs_rebuild_mkdir(struct erofs_inode *dir,
-> +						const char *s)
-> +{
-> +	struct erofs_inode *inode;
-> +	struct erofs_dentry *d;
-> +
-> +	inode = erofs_new_inode();
-> +	if (IS_ERR(inode))
-> +		return ERR_CAST(inode);
-> +
-> +	inode->i_mode = S_IFDIR | 0755;
-> +	inode->i_parent = dir;
-> +	inode->i_uid = getuid();
-> +	inode->i_gid = getgid();
-> +	inode->i_mtime = inode->sbi->build_time;
-> +	inode->i_mtime_nsec = inode->sbi->build_time_nsec;
-> +	erofs_init_empty_dir(inode);
-> +
-> +	d = erofs_d_alloc(dir, s);
-> +	if (!IS_ERR(d)) {
-> +		d->type = EROFS_FT_DIR;
-> +		d->inode = inode;
-> +	}
-> +	return d;
-> +}
-> +
-> +struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
-> +		char *path, bool aufs, bool *whout, bool *opq)
-> +{
-> +	struct erofs_dentry *d = NULL;
-> +	unsigned int len = strlen(path);
-> +	char *s = path;
-> +
-> +	if (aufs) {
-> +		*whout = false;
-> +		*opq = false;
-> +	}
-
-I'd suggest adding a boolean dumb instead here, otherwise
-it looks good to me.
-
-Thanks,
-Gao Xiang
