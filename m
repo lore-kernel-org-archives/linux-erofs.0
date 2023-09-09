@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FC0FEE3EC1
-	for <linux-erofs@archiver.kernel.org>; Sat,  9 Sep 2023 16:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A89AEE3EC1
+	for <linux-erofs@archiver.kernel.org>; Sat,  9 Sep 2023 16:33:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rjdnl4w23z3cB1
-	for <linux-erofs@archiver.kernel.org>; Sun, 10 Sep 2023 02:33:15 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rjdnq1Wwyz3cK8
+	for <linux-erofs@archiver.kernel.org>; Sun, 10 Sep 2023 02:33:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RjdnT2ddnz3bw8
-	for <linux-erofs@lists.ozlabs.org>; Sun, 10 Sep 2023 02:33:00 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VrfyqRi_1694277172;
-Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VrfyqRi_1694277172)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RjdnX5xfMz3bWH
+	for <linux-erofs@lists.ozlabs.org>; Sun, 10 Sep 2023 02:33:04 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VrfyqT4_1694277177;
+Received: from e18g06460.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VrfyqT4_1694277177)
           by smtp.aliyun-inc.com;
-          Sun, 10 Sep 2023 00:32:55 +0800
+          Sun, 10 Sep 2023 00:33:00 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v7 04/13] erofs-utils: lib: set OVL_XATTR_ORIGIN for directories with whiteouts
-Date: Sun, 10 Sep 2023 00:32:31 +0800
-Message-Id: <20230909163240.42057-5-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v7 06/13] erofs-utils: lib: add list_splice_tail() helper
+Date: Sun, 10 Sep 2023 00:32:33 +0800
+Message-Id: <20230909163240.42057-7-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20230909163240.42057-1-hsiangkao@linux.alibaba.com>
 References: <20230909163240.42057-1-hsiangkao@linux.alibaba.com>
@@ -47,115 +47,46 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-Whiteouts are exposed in the overlayfs mount if these are from some
-non-merged directory without OVL_XATTR_ORIGIN set on the directory.
+Add list_splice_tail() helper.
 
-To fix this, tag OVL_XATTR_ORIGIN (with empty value) on the parent
-directory of whiteouts.
-
-Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/internal.h |  2 ++
- include/erofs/xattr.h    |  1 +
- lib/inode.c              |  3 +++
- lib/tar.c                |  7 +++++++
- lib/xattr.c              | 11 +++++++++++
- 5 files changed, 24 insertions(+)
+ include/erofs/list.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index ac82336..ba4d6c6 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -192,6 +192,8 @@ struct erofs_inode {
- 	bool compressed_idata;
- 	bool lazy_tailblock;
- 	bool with_tmpfile;
-+	/* OVL: non-merge dir that may contain whiteout entries */
-+	bool whiteouts;
- 
- 	unsigned int xattr_isize;
- 	unsigned int extent_isize;
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index 59515d7..2ecb18e 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -57,6 +57,7 @@ int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi);
- int erofs_setxattr(struct erofs_inode *inode, char *key,
- 		   const void *value, size_t size);
- int erofs_set_opaque_xattr(struct erofs_inode *inode);
-+int erofs_set_origin_xattr(struct erofs_inode *inode);
- 
- #ifdef __cplusplus
- }
-diff --git a/lib/inode.c b/lib/inode.c
-index a3a643f..c976be3 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -1337,6 +1337,9 @@ int tarerofs_dump_tree(struct erofs_inode *dir)
- 		dir->inode_isize = sizeof(struct erofs_inode_compact);
- 	}
- 
-+	if (dir->whiteouts)
-+		erofs_set_origin_xattr(dir);
-+
- 	ret = erofs_prepare_xattr_ibody(dir);
- 	if (ret < 0)
- 		return ret;
-diff --git a/lib/tar.c b/lib/tar.c
-index c5dbef0..b58bfd5 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -843,6 +843,13 @@ new_inode:
- 		inode->i_mode = (inode->i_mode & ~S_IFMT) | S_IFCHR;
- 		inode->u.i_rdev = EROFS_WHITEOUT_DEV;
- 		d->type = EROFS_FT_CHRDEV;
-+
-+		/*
-+		 * Mark the parent directory as copied-up to avoid exposing
-+		 * whiteouts if mounted.  See kernel commit b79e05aaa166
-+		 * ("ovl: no direct iteration for dir with origin xattr")
-+		 */
-+		inode->i_parent->whiteouts = true;
- 	} else {
- 		inode->i_mode = st.st_mode;
- 		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
-diff --git a/lib/xattr.c b/lib/xattr.c
-index bd03831..671ae05 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -57,12 +57,18 @@
- #ifndef OVL_XATTR_OPAQUE_POSTFIX
- #define OVL_XATTR_OPAQUE_POSTFIX "opaque"
- #endif
-+#ifndef OVL_XATTR_ORIGIN_POSTFIX
-+#define OVL_XATTR_ORIGIN_POSTFIX "origin"
-+#endif
- #ifndef OVL_XATTR_TRUSTED_PREFIX
- #define OVL_XATTR_TRUSTED_PREFIX XATTR_TRUSTED_PREFIX OVL_XATTR_NAMESPACE
- #endif
- #ifndef OVL_XATTR_OPAQUE
- #define OVL_XATTR_OPAQUE OVL_XATTR_TRUSTED_PREFIX OVL_XATTR_OPAQUE_POSTFIX
- #endif
-+#ifndef OVL_XATTR_ORIGIN
-+#define OVL_XATTR_ORIGIN OVL_XATTR_TRUSTED_PREFIX OVL_XATTR_ORIGIN_POSTFIX
-+#endif
- 
- #define EA_HASHTABLE_BITS 16
- 
-@@ -490,6 +496,11 @@ int erofs_set_opaque_xattr(struct erofs_inode *inode)
- 	return erofs_setxattr(inode, OVL_XATTR_OPAQUE, "y", 1);
+diff --git a/include/erofs/list.h b/include/erofs/list.h
+index 3f5da1a..d7a9fee 100644
+--- a/include/erofs/list.h
++++ b/include/erofs/list.h
+@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
+ 	return head->next == head;
  }
  
-+int erofs_set_origin_xattr(struct erofs_inode *inode)
++static inline void __list_splice(struct list_head *list,
++		struct list_head *prev, struct list_head *next)
 +{
-+	return erofs_setxattr(inode, OVL_XATTR_ORIGIN, NULL, 0);
++	struct list_head *first = list->next;
++	struct list_head *last = list->prev;
++
++	first->prev = prev;
++	prev->next = first;
++
++	last->next = next;
++	next->prev = last;
 +}
 +
- #ifdef WITH_ANDROID
- static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
- {
++static inline void list_splice_tail(struct list_head *list,
++				    struct list_head *head)
++{
++	if (!list_empty(list))
++		__list_splice(list, head->prev, head);
++}
++
+ #define list_entry(ptr, type, member) container_of(ptr, type, member)
+ 
+ #define list_first_entry(ptr, type, member)                                    \
 -- 
 2.24.4
 
