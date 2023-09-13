@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7D1AEDEC43
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BAC4EDEC4A
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rlzcj1SKdz3c5s
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:33 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rlzcm1S3Xz3cNH
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:36 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcM2Wldz3bT8
-	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:14 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-bQFy_1694606589;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-bQFy_1694606589)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcM6ZYXz2yhL
+	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:15 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-kLe8_1694606587;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-kLe8_1694606587)
           by smtp.aliyun-inc.com;
-          Wed, 13 Sep 2023 20:03:10 +0800
+          Wed, 13 Sep 2023 20:03:08 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v8 4/8] erofs-utils: lib: add erofs_insert_ihash() helper
-Date: Wed, 13 Sep 2023 20:02:59 +0800
-Message-Id: <20230913120304.15741-5-jefflexu@linux.alibaba.com>
+Subject: [PATCH v8 2/8] erofs-utils: lib: make erofs_get_unhashed_chunk() global
+Date: Wed, 13 Sep 2023 20:02:57 +0800
+Message-Id: <20230913120304.15741-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
 References: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
@@ -45,61 +45,41 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add erofs_insert_ihash() helper inserting inode into inode hash table.
-
-Also add prototypes of erofs_iget() and erofs_iget_by_nid() in the
-header file.
+... so that it could be called from outside blobchunk.c later.
 
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/inode.h |  3 +++
- lib/inode.c           | 10 +++++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ include/erofs/blobchunk.h | 2 ++
+ lib/blobchunk.c           | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/erofs/inode.h b/include/erofs/inode.h
-index e8a5670..1c602a8 100644
---- a/include/erofs/inode.h
-+++ b/include/erofs/inode.h
-@@ -25,6 +25,9 @@ u32 erofs_new_encode_dev(dev_t dev);
- unsigned char erofs_mode_to_ftype(umode_t mode);
- unsigned char erofs_ftype_to_dtype(unsigned int filetype);
- void erofs_inode_manager_init(void);
-+void erofs_insert_ihash(struct erofs_inode *inode, dev_t dev, ino_t ino);
-+struct erofs_inode *erofs_iget(dev_t dev, ino_t ino);
-+struct erofs_inode *erofs_iget_by_nid(erofs_nid_t nid);
- unsigned int erofs_iput(struct erofs_inode *inode);
- erofs_nid_t erofs_lookupnid(struct erofs_inode *inode);
- struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
-diff --git a/lib/inode.c b/lib/inode.c
-index 92796c9..79e1795 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -75,6 +75,12 @@ void erofs_inode_manager_init(void)
- 		init_list_head(&inode_hashtable[i]);
- }
+diff --git a/include/erofs/blobchunk.h b/include/erofs/blobchunk.h
+index 010aee1..fb85d8e 100644
+--- a/include/erofs/blobchunk.h
++++ b/include/erofs/blobchunk.h
+@@ -14,6 +14,8 @@ extern "C"
  
-+void erofs_insert_ihash(struct erofs_inode *inode, dev_t dev, ino_t ino)
-+{
-+	list_add(&inode->i_hash,
-+		 &inode_hashtable[(ino ^ dev) % NR_INODE_HASHTABLE]);
-+}
-+
- /* get the inode from the (source) inode # */
- struct erofs_inode *erofs_iget(dev_t dev, ino_t ino)
+ #include "erofs/internal.h"
+ 
++struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
++		erofs_blk_t blkaddr, erofs_off_t sourceoffset);
+ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode, erofs_off_t off);
+ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd);
+ int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset);
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 86b29c1..71fb2ff 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -38,7 +38,7 @@ struct erofs_blobchunk erofs_holechunk = {
+ };
+ static LIST_HEAD(unhashed_blobchunks);
+ 
+-static struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
++struct erofs_blobchunk *erofs_get_unhashed_chunk(unsigned int device_id,
+ 		erofs_blk_t blkaddr, erofs_off_t sourceoffset)
  {
-@@ -976,9 +982,7 @@ static int erofs_fill_inode(struct erofs_inode *inode, struct stat *st,
- 		inode->inode_isize = sizeof(struct erofs_inode_compact);
- 	}
- 
--	list_add(&inode->i_hash,
--		 &inode_hashtable[(st->st_ino ^ st->st_dev) %
--				  NR_INODE_HASHTABLE]);
-+	erofs_insert_ihash(inode, st->st_dev, st->st_ino);
- 	return 0;
- }
- 
+ 	struct erofs_blobchunk *chunk;
 -- 
 2.19.1.6.gb485710b
 
