@@ -4,31 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A2B5EDEC49
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7E391EDEC49
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:31 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Rlzcb1m6Rz3cF7
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:27 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rlzcf1XKJz3cDN
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:30 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcL65Bjz2yhL
-	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:14 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-bQFe_1694606588;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-bQFe_1694606588)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcL5yrKz2yVc
+	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:12 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-kLcv_1694606585;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-kLcv_1694606585)
           by smtp.aliyun-inc.com;
-          Wed, 13 Sep 2023 20:03:09 +0800
+          Wed, 13 Sep 2023 20:03:06 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v8 3/8] erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
-Date: Wed, 13 Sep 2023 20:02:58 +0800
-Message-Id: <20230913120304.15741-4-jefflexu@linux.alibaba.com>
+Subject: [PATCH v8 0/8] erofs-utils: mkfs: introduce rebuild mode
+Date: Wed, 13 Sep 2023 20:02:55 +0800
+Message-Id: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
-References: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -45,121 +43,69 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add erofs_read_xattrs_from_disk() helper to reading extended
-attributes from disk.
+v8:
+- patch 7: fix the missing call for erofs_mkfs_dump_blobs() in rebuild
+  mode by also calling erofs_mkfs_dump_blobs() when sbi->extra_devices
+  is not zero; otherwise the content of the on-disk device slot is all 0
+- patch 8: strip overlay.opaque xattr when --ovlfs-strip=1; update the
+  commit message accordingly
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- include/erofs/internal.h |  1 +
- include/erofs/xattr.h    |  1 +
- lib/xattr.c              | 69 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 71 insertions(+)
+v1: https://lore.kernel.org/all/20230814034239.54660-1-jefflexu@linux.alibaba.com/
+v2: https://lore.kernel.org/all/20230816021347.126886-1-jefflexu@linux.alibaba.com/
+v3: https://lore.kernel.org/all/20230822092457.114686-1-jefflexu@linux.alibaba.com/
+v4: https://lore.kernel.org/all/20230823071517.12303-1-jefflexu@linux.alibaba.com/
+v5: https://lore.kernel.org/all/20230901094706.27539-1-jefflexu@linux.alibaba.com/
+v6: https://lore.kernel.org/all/20230905100227.1072-1-jefflexu@linux.alibaba.com/
+v7: https://lore.kernel.org/all/20230909163240.42057-2-hsiangkao@linux.alibaba.com/
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index c36bb24..3b866c9 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -196,6 +196,7 @@ struct erofs_inode {
- 	bool compressed_idata;
- 	bool lazy_tailblock;
- 	bool with_tmpfile;
-+	bool opaque;
- 	/* OVL: non-merge dir that may contain whiteout entries */
- 	bool whiteouts;
- 
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index 2ecb18e..0364f24 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -58,6 +58,7 @@ int erofs_setxattr(struct erofs_inode *inode, char *key,
- 		   const void *value, size_t size);
- int erofs_set_opaque_xattr(struct erofs_inode *inode);
- int erofs_set_origin_xattr(struct erofs_inode *inode);
-+int erofs_read_xattrs_from_disk(struct erofs_inode *inode);
- 
- #ifdef __cplusplus
- }
-diff --git a/lib/xattr.c b/lib/xattr.c
-index bf63a81..e3a1b44 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -566,6 +566,75 @@ int erofs_scan_file_xattrs(struct erofs_inode *inode)
- 	return erofs_droid_xattr_set_caps(inode);
- }
- 
-+int erofs_read_xattrs_from_disk(struct erofs_inode *inode)
-+{
-+	ssize_t kllen;
-+	char *keylst, *key;
-+	int ret;
-+
-+	init_list_head(&inode->i_xattrs);
-+	kllen = erofs_listxattr(inode, NULL, 0);
-+	if (kllen < 0)
-+		return kllen;
-+	if (kllen <= 1)
-+		return 0;
-+
-+	keylst = malloc(kllen);
-+	if (!keylst)
-+		return -ENOMEM;
-+
-+	ret = erofs_listxattr(inode, keylst, kllen);
-+	if (ret < 0)
-+		goto out;
-+
-+	for (key = keylst; key < keylst + kllen; key += strlen(key) + 1) {
-+		void *value = NULL;
-+		size_t size = 0;
-+
-+		if (!strcmp(key, OVL_XATTR_OPAQUE)) {
-+			if (!S_ISDIR(inode->i_mode)) {
-+				erofs_dbg("file %s: opaque xattr on non-dir",
-+					  inode->i_srcpath);
-+				ret = -EINVAL;
-+				goto out;
-+			}
-+			inode->opaque = true;
-+		}
-+
-+		ret = erofs_getxattr(inode, key, NULL, 0);
-+		if (ret < 0)
-+			goto out;
-+		if (ret) {
-+			size = ret;
-+			value = malloc(size);
-+			if (!value) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+
-+			ret = erofs_getxattr(inode, key, value, size);
-+			if (ret < 0) {
-+				free(value);
-+				goto out;
-+			}
-+			DBG_BUGON(ret != size);
-+		} else if (S_ISDIR(inode->i_mode) &&
-+			   !strcmp(key, OVL_XATTR_ORIGIN)) {
-+			ret = 0;
-+			inode->whiteouts = true;
-+			continue;
-+		}
-+
-+		ret = erofs_setxattr(inode, key, value, size);
-+		free(value);
-+		if (ret)
-+			break;
-+	}
-+out:
-+	free(keylst);
-+	return ret;
-+}
-+
- static inline unsigned int erofs_next_xattr_align(unsigned int pos,
- 						  struct xattr_item *item)
- {
+-------------------------
+
+Introduce a new rebuild mode merging multiple erofs images generated
+from either tarerfs index mode (--tar=i):
+
+	mkfs.erofs --tar=i --aufs layer0.erofs layer0.tar
+	...
+	mkfs.erofs --tar=i --aufs layerN.erofs layerN.tar
+
+	mkfs.erofs merge.erofs layer0.erofs ... layerN.erofs
+
+or tarerofs non-index mode (--tar=f):
+
+	mkfs.erofs --tar=f -Enoinline_data --aufs layer0.erofs layer0.tar
+	...
+	mkfs.erofs --tar=f -Enoinline_data --aufs layerN.erofs layerN.tar
+
+	mkfs.erofs merge.erofs layer0.erofs ... layerN.erofs
+
+
+Jingbo Xu (8):
+  erofs-utils: lib: add list_splice_tail() helper
+  erofs-utils: lib: make erofs_get_unhashed_chunk() global
+  erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
+  erofs-utils: lib: add erofs_insert_ihash() helper
+  erofs-utils: lib: add erofs_rebuild_get_dentry() helper
+  erofs-utils: lib: add erofs_rebuild_load_tree() helper
+  erofs-utils: mkfs: introduce rebuild mode
+  erofs-utils: mkfs: add `--ovlfs-strip` option
+
+ include/erofs/blobchunk.h |   2 +
+ include/erofs/config.h    |   1 +
+ include/erofs/inode.h     |   5 +-
+ include/erofs/internal.h  |   7 +-
+ include/erofs/list.h      |  20 ++
+ include/erofs/rebuild.h   |  21 ++
+ include/erofs/xattr.h     |   2 +
+ lib/Makefile.am           |   3 +-
+ lib/blobchunk.c           |   2 +-
+ lib/inode.c               |  31 ++-
+ lib/rebuild.c             | 404 ++++++++++++++++++++++++++++++++++++++
+ lib/tar.c                 | 109 +---------
+ lib/xattr.c               |  87 ++++++++
+ mkfs/main.c               | 227 ++++++++++++++++-----
+ 14 files changed, 751 insertions(+), 170 deletions(-)
+ create mode 100644 include/erofs/rebuild.h
+ create mode 100644 lib/rebuild.c
+
 -- 
 2.19.1.6.gb485710b
 
