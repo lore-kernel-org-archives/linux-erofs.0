@@ -4,61 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1F753EE0210
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:11:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5764EE0210
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1694643091;
-	bh=ByPRKaBPvwfc9u7y5uG2CcxAtw3rQQ+S7nD3I+xB+zg=;
+	s=201707; t=1694643097;
+	bh=I4lTV01+BesOxGCb5nhocTFd2TUglI5zTUPUEGglgXY=;
 	h=Date:In-Reply-To:References:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=GwbsCM8fKi/LqLgH+Ql3/5KPq++pphQQkB7TfeV2rzfrEtXHUig22+3Hsp43vV9G1
-	 j9GCe0PQ58Q+FUwwuqKHiMYXIvBLwM0cwYL+k3XljYit7stzMjoJya3II+at623Orc
-	 5nxbPErOAIL9fouP8w8OtwQKCRH/5UywaZnAwP4dSihMYzGUc52Utj1KKXvJs7l9Aj
-	 dND15DKaBnTMqFFptdGJB8DDuIXb3McFIb2633GsTbkZ0vFeU2hQzxL1r2SL3tg6xH
-	 8ZlwcTApYOGA1X19WSJQq6PdM4/sCWJL26RSFVP8VCa21JhBBTxqCbpgmYXjDFFRdR
-	 WZouI56WZupSg==
+	b=liuTNjSTMAMkdYIfUuM0oIvydiszo87uKRG3uWouxnlEBQPvwCn2rQuGZGbWLXnj0
+	 +2kVfIbPniqW0rGJoXojYEZlRyRkDoXgVKmw7pEaW3CVMszMCjy9nuakm1xBB+ToOy
+	 i2w7aY4b+B7AajElh2ZcOqf2htiCK/JG3lvnOzXhGfK7Wv5i0Z1jBBmYYgNnDAKhm7
+	 x3duGtGi5GqrXx+Tq/hG0XQj72snTWX2p+IhZmJF614AaPoEkjDdWSg94tlzn91X1P
+	 tK7dbp0eFyurpKsgkj4OX3Ls8+hIj9E830B+tP7mhPC01WrcYRotDPHe+SpJjHNGb8
+	 EJ1m0mDN4YyHQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RmF6C4gkCz3cGK
-	for <linux-erofs@archiver.kernel.org>; Thu, 14 Sep 2023 08:11:31 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RmF6K1gkvz2xdT
+	for <linux-erofs@archiver.kernel.org>; Thu, 14 Sep 2023 08:11:37 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=sBAR0VW8;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=TE1nepdi;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::1149; helo=mail-yw1-x1149.google.com; envelope-from=3hzmczqckcyyfjcxcngiqqing.eqonkpwz-gtqhunkuvu.qbncdu.qti@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::b4a; helo=mail-yb1-xb4a.google.com; envelope-from=3itmczqckcyghlezepiksskpi.gsqpmryb-ivsjwpmwxw.sdpefw.svk@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RmF632Hqvz2xdT
-	for <linux-erofs@lists.ozlabs.org>; Thu, 14 Sep 2023 08:11:23 +1000 (AEST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-59bdb9fe821so4353327b3.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 15:11:22 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RmF645z2fz3c53
+	for <linux-erofs@lists.ozlabs.org>; Thu, 14 Sep 2023 08:11:24 +1000 (AEST)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-d812e4d1256so361810276.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 15:11:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694643079; x=1695247879;
+        d=1e100.net; s=20230601; t=1694643081; x=1695247881;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ByPRKaBPvwfc9u7y5uG2CcxAtw3rQQ+S7nD3I+xB+zg=;
-        b=I+ixRd2ZOx8LQ/UI/dZBKXesw2Gu78rxMGJJONLHKvaSc4GmYDmrtS0ZKZ4+NP65Z5
-         KfijZJ0+JYeDQiCNxGVQeprnJsyn68eKCFGIdciyRHeTY7W5TEYZQCaOmNg3eyC72mzq
-         k5a/CN5F4dhTakO+WZq1VhE6UnbER6ZeHFLEEss/jVQy6A3kU+66dEEv/fXYTtDmnj+R
-         /GVKphe2MdAocpo7FVBDK127j3Ldft7wBgwQWDIT6RC7/o02GNuVKpVf3tlMdB18x9Gy
-         B+GKBRUpk1+OY0eS4/+4qID7bFq2LIppg0/vp2PfmBKPdkoSelF4LV4yW6Xbn+cM3Y1D
-         QIkw==
-X-Gm-Message-State: AOJu0YzGnozU0gijfXiBQaL1Ij320GCMZjbQEhSNcUqVh/zdWDPhUDTU
-	LWsLZ0bsbcFQHv/L1XY277dhWCJG8JesLckpaVsFzYs6jFNEB3Mr8VHewL1I7LVLLFiVp1CAVUz
-	FSg78HWocdeWCnW6P77lamhfxlw2Fv9mMJoycXUFwfGBnyTJ1Z7u+T1GqH5iCXp9oMwFecVL/
-X-Google-Smtp-Source: AGHT+IFWsoGjvuKxjnedNe92FnqHIA1MBdJ4L39SbMfFa2QF9PU9JW/rugLtWskITQ7GORY3GcPXfNf0OFDn
+        bh=I4lTV01+BesOxGCb5nhocTFd2TUglI5zTUPUEGglgXY=;
+        b=HmRkTGvnbnzRs/toUb34K3rteo9Z7UnjJBVufY5iV4VOa8zmh0z75F4w+hBjXdB3b5
+         YGP3cMZw3oL3lox85foyC9uARqIrklbk1Dy/M1Gogo2rjm1nFdpvFT8i4lX65Tj4vOI9
+         ccGiwqiwm+kAVOmJxqPHRycgv3Tmv8TYf2ryRhx0nmAD3jk4AQQxkZZENLmWWcNgRII4
+         EfR3HSl7BXuGQ/JQLktzphMjas1Sa1m3cUW39Zfh6XtOx7RGmzwnK0G3hzhSRInkjHsy
+         v+EFoFCxjtKhdLk21VE1hiZg5FvjKA/0Q75DDkVboK15uzRCTbq1JWpI10hm0RB0Oml6
+         csbA==
+X-Gm-Message-State: AOJu0YzarzN1bktz/q4DUneChPsRIZqNR8Z6MiYxBOxGE2L0qEEi5Kl6
+	wiSd5XYyZPIOcq7H7T9ylBUutuvffYLOXIS05iz88AsjqwCkJvpq1R8UF0mxDt2MmUTzC71yeQE
+	mrTpD9ZgQ0+uOy/+FBL52plIzcx9ydsD8WhXIPRJAOlt5YFv+Rhm2nqodZhJNp/64zc2eH5dv
+X-Google-Smtp-Source: AGHT+IGb7BTLvjKFCt2Sik+bZT5uEy3gW9xtwnB13tcKYfLYMgWMHvbDQJbxJnif13GWVNPmADCadhZ4zi02
 X-Received: from dhavale-ctop.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:5e39])
- (user=dhavale job=sendgmr) by 2002:a05:690c:2c07:b0:59b:ebe0:9fd3 with SMTP
- id eo7-20020a05690c2c0700b0059bebe09fd3mr3220ywb.7.1694643079667; Wed, 13 Sep
- 2023 15:11:19 -0700 (PDT)
-Date: Wed, 13 Sep 2023 15:10:58 -0700
+ (user=dhavale job=sendgmr) by 2002:a25:6882:0:b0:d01:60ec:d0e with SMTP id
+ d124-20020a256882000000b00d0160ec0d0emr91533ybc.9.1694643081476; Wed, 13 Sep
+ 2023 15:11:21 -0700 (PDT)
+Date: Wed, 13 Sep 2023 15:10:59 -0700
 In-Reply-To: <20230913221104.429825-1-dhavale@google.com>
 Mime-Version: 1.0
 References: <20230913221104.429825-1-dhavale@google.com>
 X-Mailer: git-send-email 2.42.0.283.g2d96d420d3-goog
-Message-ID: <20230913221104.429825-2-dhavale@google.com>
-Subject: [PATCH v1 1/7] erofs-utils: fsck: Fix potential memory leak in error path
+Message-ID: <20230913221104.429825-3-dhavale@google.com>
+Subject: [PATCH v1 2/7] erofs-utils: lib: Remove redundant line to get padding
 To: linux-erofs@lists.ozlabs.org, hsiangkao@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -78,29 +78,25 @@ Cc: kernel-team@android.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Free the memory allocated for 'entry' if strdup() fails.
+padding is only used in the next if() block. Remove the redundant call.
 
 Signed-off-by: Sandeep Dhavale <dhavale@google.com>
 ---
- fsck/main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ lib/blobchunk.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index 7f78513..3f86da4 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -585,8 +585,10 @@ static int erofsfsck_hardlink_insert(erofs_nid_t nid, const char *path)
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 86b29c1..fcc71b8 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -91,7 +91,6 @@ static struct erofs_blobchunk *erofs_blob_getchunk(struct erofs_sb_info *sbi,
  
- 	entry->nid = nid;
- 	entry->path = strdup(path);
--	if (!entry->path)
-+	if (!entry->path) {
-+		free(entry);
- 		return -ENOMEM;
-+	}
- 
- 	list_add_tail(&entry->list,
- 		      &erofsfsck_link_hashtable[nid % NR_HARDLINK_HASHTABLE]);
+ 	erofs_dbg("Writing chunk (%u bytes) to %u", chunksize, chunk->blkaddr);
+ 	ret = fwrite(buf, chunksize, 1, blobfile);
+-	padding = erofs_blkoff(sbi, chunksize);
+ 	if (ret == 1) {
+ 		padding = erofs_blkoff(sbi, chunksize);
+ 		if (padding) {
 -- 
 2.42.0.283.g2d96d420d3-goog
 
