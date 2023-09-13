@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9DBBEDEC49
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A2B5EDEC49
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 12:03:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RlzcS5fp4z3c9d
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:20 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Rlzcb1m6Rz3cF7
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Sep 2023 22:03:27 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcL614lz2ygy
-	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:12 +1000 (AEST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R351e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-dzj._1694606586;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-dzj._1694606586)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RlzcL65Bjz2yhL
+	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Sep 2023 22:03:14 +1000 (AEST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vs-bQFe_1694606588;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0Vs-bQFe_1694606588)
           by smtp.aliyun-inc.com;
-          Wed, 13 Sep 2023 20:03:07 +0800
+          Wed, 13 Sep 2023 20:03:09 +0800
 From: Jingbo Xu <jefflexu@linux.alibaba.com>
 To: hsiangkao@linux.alibaba.com,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v8 1/8] erofs-utils: lib: add list_splice_tail() helper
-Date: Wed, 13 Sep 2023 20:02:56 +0800
-Message-Id: <20230913120304.15741-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v8 3/8] erofs-utils: lib: add erofs_read_xattrs_from_disk() helper
+Date: Wed, 13 Sep 2023 20:02:58 +0800
+Message-Id: <20230913120304.15741-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 In-Reply-To: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
 References: <20230913120304.15741-1-jefflexu@linux.alibaba.com>
@@ -45,46 +45,121 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add list_splice_tail() helper.
+Add erofs_read_xattrs_from_disk() helper to reading extended
+attributes from disk.
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/list.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ include/erofs/internal.h |  1 +
+ include/erofs/xattr.h    |  1 +
+ lib/xattr.c              | 69 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 71 insertions(+)
 
-diff --git a/include/erofs/list.h b/include/erofs/list.h
-index 3f5da1a..d7a9fee 100644
---- a/include/erofs/list.h
-+++ b/include/erofs/list.h
-@@ -70,6 +70,26 @@ static inline int list_empty(struct list_head *head)
- 	return head->next == head;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index c36bb24..3b866c9 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -196,6 +196,7 @@ struct erofs_inode {
+ 	bool compressed_idata;
+ 	bool lazy_tailblock;
+ 	bool with_tmpfile;
++	bool opaque;
+ 	/* OVL: non-merge dir that may contain whiteout entries */
+ 	bool whiteouts;
+ 
+diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
+index 2ecb18e..0364f24 100644
+--- a/include/erofs/xattr.h
++++ b/include/erofs/xattr.h
+@@ -58,6 +58,7 @@ int erofs_setxattr(struct erofs_inode *inode, char *key,
+ 		   const void *value, size_t size);
+ int erofs_set_opaque_xattr(struct erofs_inode *inode);
+ int erofs_set_origin_xattr(struct erofs_inode *inode);
++int erofs_read_xattrs_from_disk(struct erofs_inode *inode);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/lib/xattr.c b/lib/xattr.c
+index bf63a81..e3a1b44 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -566,6 +566,75 @@ int erofs_scan_file_xattrs(struct erofs_inode *inode)
+ 	return erofs_droid_xattr_set_caps(inode);
  }
  
-+static inline void __list_splice(struct list_head *list,
-+		struct list_head *prev, struct list_head *next)
++int erofs_read_xattrs_from_disk(struct erofs_inode *inode)
 +{
-+	struct list_head *first = list->next;
-+	struct list_head *last = list->prev;
++	ssize_t kllen;
++	char *keylst, *key;
++	int ret;
 +
-+	first->prev = prev;
-+	prev->next = first;
++	init_list_head(&inode->i_xattrs);
++	kllen = erofs_listxattr(inode, NULL, 0);
++	if (kllen < 0)
++		return kllen;
++	if (kllen <= 1)
++		return 0;
 +
-+	last->next = next;
-+	next->prev = last;
++	keylst = malloc(kllen);
++	if (!keylst)
++		return -ENOMEM;
++
++	ret = erofs_listxattr(inode, keylst, kllen);
++	if (ret < 0)
++		goto out;
++
++	for (key = keylst; key < keylst + kllen; key += strlen(key) + 1) {
++		void *value = NULL;
++		size_t size = 0;
++
++		if (!strcmp(key, OVL_XATTR_OPAQUE)) {
++			if (!S_ISDIR(inode->i_mode)) {
++				erofs_dbg("file %s: opaque xattr on non-dir",
++					  inode->i_srcpath);
++				ret = -EINVAL;
++				goto out;
++			}
++			inode->opaque = true;
++		}
++
++		ret = erofs_getxattr(inode, key, NULL, 0);
++		if (ret < 0)
++			goto out;
++		if (ret) {
++			size = ret;
++			value = malloc(size);
++			if (!value) {
++				ret = -ENOMEM;
++				goto out;
++			}
++
++			ret = erofs_getxattr(inode, key, value, size);
++			if (ret < 0) {
++				free(value);
++				goto out;
++			}
++			DBG_BUGON(ret != size);
++		} else if (S_ISDIR(inode->i_mode) &&
++			   !strcmp(key, OVL_XATTR_ORIGIN)) {
++			ret = 0;
++			inode->whiteouts = true;
++			continue;
++		}
++
++		ret = erofs_setxattr(inode, key, value, size);
++		free(value);
++		if (ret)
++			break;
++	}
++out:
++	free(keylst);
++	return ret;
 +}
 +
-+static inline void list_splice_tail(struct list_head *list,
-+				    struct list_head *head)
-+{
-+	if (!list_empty(list))
-+		__list_splice(list, head->prev, head);
-+}
-+
- #define list_entry(ptr, type, member) container_of(ptr, type, member)
- 
- #define list_first_entry(ptr, type, member)                                    \
+ static inline unsigned int erofs_next_xattr_align(unsigned int pos,
+ 						  struct xattr_item *item)
+ {
 -- 
 2.19.1.6.gb485710b
 
