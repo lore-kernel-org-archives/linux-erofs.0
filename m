@@ -4,78 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3B8DEDE989
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Sep 2023 07:14:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1695107667;
-	bh=T7nfawYenRjk+4ZCMjkKSaoE2W7ZD+Q1umpTZ/cT6R4=;
-	h=Subject:To:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=E0pb4ZLhMTkqtpq0IeeUwuHzz0wSAd4CAceiqTlOonkBZCdNUni8QkzF2yMF7XW6g
-	 2qeK4tXaBP4unnLTEdMf1o7Ns7xCzsvIlLsrkBxMWEOuFj3V6IR2zZXBuSrt31mEo1
-	 11zD9YvTsFU24Q6qil3V+VBFgZVak2JQqp8WKePTKXlfeKbUGhUQ4/vKHyaGaIK41b
-	 AM61FbqkwZp67J6zr7xuNqVqx/hPP9jIZ28KB+x5rnywA/CDBqnVARO++FSd1ipYpC
-	 GQt5tl9wzEH6WWud+M42B43MIobfsblpM4XXcQGbgJZrw2iWwiUq8JaddaQ3cP0sZC
-	 lc6CM+N/D71hQ==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RqXwM1YLQz3bdG
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 Sep 2023 17:14:27 +1000 (AEST)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F16B5CD5BC4
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Sep 2023 14:01:57 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=linuxfromscratch.org header.i=@linuxfromscratch.org header.a=rsa-sha256 header.s=cert4 header.b=aqoK/Ilc;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cn/1ERBd;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfromscratch.org (client-ip=208.118.68.85; helo=rivendell.linuxfromscratch.org; envelope-from=xry111@linuxfromscratch.org; receiver=lists.ozlabs.org)
-X-Greylist: delayed 498 seconds by postgrey-1.37 at boromir; Tue, 19 Sep 2023 17:14:20 AEST
-Received: from rivendell.linuxfromscratch.org (rivendell.linuxfromscratch.org [208.118.68.85])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4RqXwD0XFkz2xpp
-	for <linux-erofs@lists.ozlabs.org>; Tue, 19 Sep 2023 17:14:20 +1000 (AEST)
-Received: from [192.168.3.211] (unknown [36.44.140.33])
-	by rivendell.linuxfromscratch.org (Postfix) with ESMTPSA id 26A431C1DD6;
-	Tue, 19 Sep 2023 07:05:30 +0000 (GMT)
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 1.0.0 at rivendell.linuxfromscratch.org
-Message-ID: <bf0524debb976627693e12ad23690094e4514303.camel@linuxfromscratch.org>
-Subject: Re: [PATCH v7 12/13] ext4: switch to multigrain timestamps
-To: Jeff Layton <jlayton@kernel.org>, Alexander Viro
- <viro@zeniv.linux.org.uk>,  Christian Brauner <brauner@kernel.org>, Eric
- Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>,
- Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck
- <linux_oss@crudebyte.com>, David Howells <dhowells@redhat.com>, Marc Dionne
- <marc.dionne@auristor.com>, Chris Mason <clm@fb.com>, Josef Bacik
- <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Xiubo Li
- <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, Jan Harkes
- <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu, Tyler Hicks <code@tyhicks.com>, Gao
- Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu
- <huyue2@coolpad.com>,  Jeffle Xu <jefflexu@linux.alibaba.com>, Namjae Jeon
- <linkinjeon@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Jan Kara
- <jack@suse.com>, Theodore Ts'o <tytso@mit.edu>,  Andreas Dilger
- <adilger.kernel@dilger.ca>, Jaegeuk Kim <jaegeuk@kernel.org>, OGAWA
- Hirofumi <hirofumi@mail.parknet.co.jp>, Miklos Szeredi <miklos@szeredi.hu>,
- Bob Peterson <rpeterso@redhat.com>, Andreas Gruenbacher
- <agruenba@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Tejun Heo <tj@kernel.org>, Trond Myklebust
- <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, 
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Mark Fasheh
- <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi
- <joseph.qi@linux.alibaba.com>, Mike Marshall <hubcap@omnibond.com>, Martin
- Brandenburg <martin@omnibond.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Kees Cook <keescook@chromium.org>, Iurii Zaikin <yzaikin@google.com>, 
- Steve French <sfrench@samba.org>, Paulo Alcantara <pc@manguebit.com>,
- Ronnie Sahlberg <ronniesahlberg@gmail.com>, Shyam Prasad N
- <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, Sergey Senozhatsky
- <senozhatsky@chromium.org>, Richard Weinberger <richard@nod.at>, Hans de
- Goede <hdegoede@redhat.com>, Hugh Dickins <hughd@google.com>,  Andrew
- Morton <akpm@linux-foundation.org>, Amir Goldstein <amir73il@gmail.com>,
- "Darrick J. Wong" <djwong@kernel.org>, Benjamin Coddington
- <bcodding@redhat.com>
-Date: Tue, 19 Sep 2023 15:05:24 +0800
-In-Reply-To: <20230807-mgctime-v7-12-d1dec143a704@kernel.org>
-References: <20230807-mgctime-v7-0-d1dec143a704@kernel.org>
-	 <20230807-mgctime-v7-12-d1dec143a704@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.0 
-MIME-Version: 1.0
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4RqjyX4258z3byh
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 Sep 2023 00:01:56 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cn/1ERBd;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=134.134.136.100; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4RqjyL3s8Yz2yhP
+	for <linux-erofs@lists.ozlabs.org>; Wed, 20 Sep 2023 00:01:43 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1695132107; x=1726668107;
+  h=date:from:to:cc:subject:message-id;
+  bh=IiPwWA4gXnfCP+gHx6DNgY/B3adOWKRfM0M2fvWji98=;
+  b=cn/1ERBdsbwutIFVIwponnhemdmW56M0iiFWEv75qU/4tdl7EfhdU6T+
+   02EzRiNQ53xiiDcvZBUn6mUmVDVWEnrGnL/hcHIqpS0FGuhLzYeE/l+aQ
+   Ybs1wEchSICvP+Y6tffJAcdlrl/oLQvC/qGzuKEFZKB8//QPvgPRP2u5Q
+   WVUBX7HRBK95daG6tCRwnahG+45ZwJ13qHM/eEQAX/swwKwp7ioXEuJVH
+   Af9qLxUkevTr+5YgX+pqmqupPI/HfasnCBovYaH7xbUD0jtV/ZtEfEbYW
+   4pd4KBtUyZF+CLDD/meZYkJKNhU3u2sr11CuP+0L+lWEh1ZvSvF/V/7fY
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10838"; a="446417716"
+X-IronPort-AV: E=Sophos;i="6.02,159,1688454000"; 
+   d="scan'208";a="446417716"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Sep 2023 07:01:18 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10838"; a="836437749"
+X-IronPort-AV: E=Sophos;i="6.02,159,1688454000"; 
+   d="scan'208";a="836437749"
+Received: from lkp-server02.sh.intel.com (HELO 9ef86b2655e5) ([10.239.97.151])
+  by FMSMGA003.fm.intel.com with ESMTP; 19 Sep 2023 07:01:16 -0700
+Received: from kbuild by 9ef86b2655e5 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1qibHu-0007QO-1u;
+	Tue, 19 Sep 2023 14:01:14 +0000
+Date: Tue, 19 Sep 2023 22:00:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ f939aeea7ab7d96cd321e7ac107f5a070836b66f
+Message-ID: <202309192219.30NCPjHg-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -87,54 +66,159 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Xi Ruoyao via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Xi Ruoyao <xry111@linuxfromscratch.org>
-Cc: Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-mtd@lists.infradead.org, linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org, bug-gnulib@gnu.org, codalist@coda.cs.cmu.edu, cluster-devel@redhat.com, linux-ext4@vger.kernel.org, devel@lists.orangefs.org, ecryptfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, samba-technical@lists.samba.org, linux-unionfs@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, 2023-08-07 at 15:38 -0400, Jeff Layton wrote:
-> Enable multigrain timestamps, which should ensure that there is an
-> apparent change to the timestamp whenever it has been written after
-> being actively observed via getattr.
->=20
-> For ext4, we only need to enable the FS_MGTIME flag.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: f939aeea7ab7d96cd321e7ac107f5a070836b66f  erofs: allow empty device tags in flatdev mode
 
-Hi Jeff,
+elapsed time: 727m
 
-This patch causes a gnulib test failure:
+configs tested: 136
+configs skipped: 2
 
-$ ~/sources/lfs/grep-3.11/gnulib-tests/test-stat-time
-test-stat-time.c:141: assertion 'statinfo[0].st_mtime < statinfo[2].st_mtim=
-e || (statinfo[0].st_mtime =3D=3D statinfo[2].st_mtime && (get_stat_mtime_n=
-s (&statinfo[0]) < get_stat_mtime_ns (&statinfo[2])))' failed
-Aborted (core dumped)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-The source code of the test:
-https://git.savannah.gnu.org/cgit/gnulib.git/tree/tests/test-stat-time.c
+tested configs:
+alpha                             allnoconfig   gcc  
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+arc                              allmodconfig   gcc  
+arc                               allnoconfig   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                   randconfig-001-20230919   gcc  
+arm                              allmodconfig   gcc  
+arm                               allnoconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                                 defconfig   gcc  
+arm                   randconfig-001-20230919   gcc  
+arm64                            allmodconfig   gcc  
+arm64                             allnoconfig   gcc  
+arm64                            allyesconfig   gcc  
+arm64                               defconfig   gcc  
+csky                             allmodconfig   gcc  
+csky                              allnoconfig   gcc  
+csky                             allyesconfig   gcc  
+csky                                defconfig   gcc  
+i386                             allmodconfig   gcc  
+i386                              allnoconfig   gcc  
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-001-20230919   gcc  
+i386         buildonly-randconfig-002-20230919   gcc  
+i386         buildonly-randconfig-003-20230919   gcc  
+i386         buildonly-randconfig-004-20230919   gcc  
+i386         buildonly-randconfig-005-20230919   gcc  
+i386         buildonly-randconfig-006-20230919   gcc  
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                  randconfig-001-20230919   gcc  
+i386                  randconfig-002-20230919   gcc  
+i386                  randconfig-003-20230919   gcc  
+i386                  randconfig-004-20230919   gcc  
+i386                  randconfig-005-20230919   gcc  
+i386                  randconfig-006-20230919   gcc  
+i386                  randconfig-011-20230919   gcc  
+i386                  randconfig-012-20230919   gcc  
+i386                  randconfig-013-20230919   gcc  
+i386                  randconfig-014-20230919   gcc  
+i386                  randconfig-015-20230919   gcc  
+i386                  randconfig-016-20230919   gcc  
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                        allyesconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch             randconfig-001-20230919   gcc  
+m68k                             allmodconfig   gcc  
+m68k                              allnoconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+microblaze                       allmodconfig   gcc  
+microblaze                        allnoconfig   gcc  
+microblaze                       allyesconfig   gcc  
+microblaze                          defconfig   gcc  
+mips                             allmodconfig   gcc  
+mips                              allnoconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                     loongson2k_defconfig   clang
+nios2                            allmodconfig   gcc  
+nios2                             allnoconfig   gcc  
+nios2                            allyesconfig   gcc  
+nios2                               defconfig   gcc  
+openrisc                         allmodconfig   gcc  
+openrisc                          allnoconfig   gcc  
+openrisc                         allyesconfig   gcc  
+openrisc                            defconfig   gcc  
+parisc                           allmodconfig   gcc  
+parisc                            allnoconfig   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc                          allyesconfig   gcc  
+powerpc                       maple_defconfig   gcc  
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                 randconfig-001-20230919   gcc  
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                              allnoconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                  randconfig-001-20230919   gcc  
+sh                               allmodconfig   gcc  
+sh                                allnoconfig   gcc  
+sh                               allyesconfig   gcc  
+sh                                  defconfig   gcc  
+sh                ecovec24-romimage_defconfig   gcc  
+sh                            migor_defconfig   gcc  
+sparc                            allmodconfig   gcc  
+sparc                             allnoconfig   gcc  
+sparc                            allyesconfig   gcc  
+sparc                               defconfig   gcc  
+sparc                 randconfig-001-20230919   gcc  
+sparc64                          allmodconfig   gcc  
+sparc64                          allyesconfig   gcc  
+sparc64                             defconfig   gcc  
+um                               alldefconfig   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   clang
+um                                  defconfig   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                            allnoconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64       buildonly-randconfig-001-20230919   gcc  
+x86_64       buildonly-randconfig-002-20230919   gcc  
+x86_64       buildonly-randconfig-003-20230919   gcc  
+x86_64       buildonly-randconfig-004-20230919   gcc  
+x86_64       buildonly-randconfig-005-20230919   gcc  
+x86_64       buildonly-randconfig-006-20230919   gcc  
+x86_64                              defconfig   gcc  
+x86_64                randconfig-006-20230919   gcc  
+x86_64                randconfig-011-20230919   gcc  
+x86_64                randconfig-012-20230919   gcc  
+x86_64                randconfig-013-20230919   gcc  
+x86_64                randconfig-014-20230919   gcc  
+x86_64                randconfig-015-20230919   gcc  
+x86_64                randconfig-016-20230919   gcc  
+x86_64                randconfig-071-20230919   gcc  
+x86_64                randconfig-072-20230919   gcc  
+x86_64                randconfig-073-20230919   gcc  
+x86_64                randconfig-074-20230919   gcc  
+x86_64                randconfig-075-20230919   gcc  
+x86_64                randconfig-076-20230919   gcc  
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+xtensa                            allnoconfig   gcc  
+xtensa                           allyesconfig   gcc  
 
-Is this an expected change?
-
-> Acked-by: Theodore Ts'o <tytso@mit.edu>
-> Reviewed-by: Jan Kara <jack@suse.cz>
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
-> =C2=A0fs/ext4/super.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-> index b54c70e1a74e..cb1ff47af156 100644
-> --- a/fs/ext4/super.c
-> +++ b/fs/ext4/super.c
-> @@ -7279,7 +7279,7 @@ static struct file_system_type ext4_fs_type =3D {
-> =C2=A0	.init_fs_context	=3D ext4_init_fs_context,
-> =C2=A0	.parameters		=3D ext4_param_specs,
-> =C2=A0	.kill_sb		=3D kill_block_super,
-> -	.fs_flags		=3D FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
-> +	.fs_flags		=3D FS_REQUIRES_DEV | FS_ALLOW_IDMAP |
-> FS_MGTIME,
-> =C2=A0};
-> =C2=A0MODULE_ALIAS_FS("ext4");
-> =C2=A0
->=20
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
