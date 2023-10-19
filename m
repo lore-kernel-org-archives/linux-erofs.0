@@ -4,28 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C972CDB474
-	for <linux-erofs@archiver.kernel.org>; Tue, 17 Oct 2023 14:44:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52FC8C001DF
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Oct 2023 22:44:33 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kLzHuStq;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4S8xZz4RK7z3cFh
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Oct 2023 01:44:43 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SBN7g4wxPz3cnZ
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Oct 2023 09:44:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kLzHuStq;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4S8xZq1ckCz3c7q
-	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Oct 2023 01:44:33 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0VuNtr7l_1697553861;
-Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VuNtr7l_1697553861)
-          by smtp.aliyun-inc.com;
-          Tue, 17 Oct 2023 22:44:27 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SBN7W0f88z30hY
+	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Oct 2023 09:44:23 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id BFA90CE3240
+	for <linux-erofs@lists.ozlabs.org>; Thu, 19 Oct 2023 22:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8DB4C433C7;
+	Thu, 19 Oct 2023 22:44:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1697755460;
+	bh=jwjsjCNs3ACN+OVlb9BQPd4sjLb4O+P90TjsKI2ym+8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=kLzHuStqVWuOZBfFLClJQSlDRNkj+8v6zO71XOH+rbWnODr+lEkx5YDaHF5AnL1JB
+	 hb19nwiKIaU7+/fPJ/adnVhyJFO3e1uUsc1JCtxi/uCy8s23GCqSHxiEZXLHaizU6z
+	 LfyQZaxW8DabxPLa5Sh1z9JfIfHPWjk0igU7esUBPcIhIECbZ1yEcvZapUeDwfaCN7
+	 XPYo9AJRVmDzkLuI6dqchFNfnAiaMvmwhylLVkcgFj2VLvgAWlofkj93VEZWKP+rWn
+	 smFi9TL7zve5LfpJt7DLzwZPBzQxsIU8MEgv7B6trxnJs98DPQWFoFNLgUUfH2X416
+	 kJNpOeCjt2kIg==
+From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: mkfs: fix corrupted directories with hardlinks
-Date: Tue, 17 Oct 2023 22:44:20 +0800
-Message-Id: <20231017144420.289469-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+Subject: [PATCH] erofs-utils: fix reference leak in erofs_mkfs_build_tree_from_path()
+Date: Fri, 20 Oct 2023 06:43:28 +0800
+Message-Id: <20231019224328.26015-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -39,106 +56,45 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-An inode with hard links may belong to several directories. It's
-invalid to update `subdirs_queued` for hard-link inodes since it
-only records one of the parent directories.
+commit 8cbc205185a1 ("erofs-utils: mkfs: fix corrupted directories
+with hardlinks") introduced a reference leak although it has no real
+impact to users.  Fix it now.
 
-References: https://github.com/NixOS/nixpkgs/issues/261394
-Fixes: 21d84349e79a ("erofs-utils: rearrange on-disk metadata")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- include/erofs/internal.h |  5 +++--
- lib/inode.c              | 29 ++++++++++++-----------------
- 2 files changed, 15 insertions(+), 19 deletions(-)
+ lib/inode.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index d859905..c1ff582 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -159,8 +159,9 @@ struct erofs_inode {
- 	union {
- 		/* (erofsfuse) runtime flags */
- 		unsigned int flags;
--		/* (mkfs.erofs) queued sub-directories blocking dump */
--		u32 subdirs_queued;
-+
-+		/* (mkfs.erofs) next pointer for directory dumping */
-+		struct erofs_inode *next_dirwrite;
- 	};
- 	unsigned int i_count;
- 	struct erofs_sb_info *sbi;
 diff --git a/lib/inode.c b/lib/inode.c
-index a91578a..dd242a1 100644
+index 71af396..8409ccd 100644
 --- a/lib/inode.c
 +++ b/lib/inode.c
-@@ -1229,7 +1229,6 @@ fail:
- 			inode->i_parent = dir;
- 			erofs_igrab(inode);
- 			list_add_tail(&inode->i_subdirs, dirs);
--			++dir->subdirs_queued;
+@@ -1271,13 +1271,18 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
+ 		if (S_ISDIR(inode->i_mode)) {
+ 			inode->next_dirwrite = dumpdir;
+ 			dumpdir = inode;
++		} else {
++			erofs_iput(inode);
  		}
- 		ftype = erofs_mode_to_ftype(inode->i_mode);
- 		i_nlink += (ftype == EROFS_FT_DIR);
-@@ -1254,17 +1253,10 @@ err_closedir:
- 	return ret;
- }
- 
--static void erofs_mkfs_dump_directory(struct erofs_inode *dir)
--{
--	erofs_write_dir_file(dir);
--	erofs_write_tail_end(dir);
--	dir->bh->op = &erofs_write_inode_bhops;
--}
--
- struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- {
- 	LIST_HEAD(dirs);
--	struct erofs_inode *inode, *root, *parent;
-+	struct erofs_inode *inode, *root, *dumpdir;
- 
- 	root = erofs_iget_from_path(path, true);
- 	if (IS_ERR(root))
-@@ -1272,9 +1264,9 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- 
- 	(void)erofs_igrab(root);
- 	root->i_parent = root;	/* rootdir mark */
--	root->subdirs_queued = 1;
- 	list_add(&root->i_subdirs, &dirs);
- 
-+	dumpdir = NULL;
- 	do {
- 		int err;
- 		char *trimmed;
-@@ -1294,15 +1286,18 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- 			root = ERR_PTR(err);
- 			break;
- 		}
--		parent = inode->i_parent;
- 
--		DBG_BUGON(!parent->subdirs_queued);
--		if (S_ISDIR(inode->i_mode) && !inode->subdirs_queued)
--			erofs_mkfs_dump_directory(inode);
--		if (!--parent->subdirs_queued)
--			erofs_mkfs_dump_directory(parent);
--		erofs_iput(inode);
-+		if (S_ISDIR(inode->i_mode)) {
-+			inode->next_dirwrite = dumpdir;
-+			dumpdir = inode;
-+		}
  	} while (!list_empty(&dirs));
-+
-+	for (; dumpdir; dumpdir = dumpdir->next_dirwrite) {
-+		erofs_write_dir_file(dumpdir);
-+		erofs_write_tail_end(dumpdir);
-+		dumpdir->bh->op = &erofs_write_inode_bhops;
-+	}
+ 
+-	for (; dumpdir; dumpdir = dumpdir->next_dirwrite) {
+-		erofs_write_dir_file(dumpdir);
+-		erofs_write_tail_end(dumpdir);
+-		dumpdir->bh->op = &erofs_write_inode_bhops;
++	while (dumpdir) {
++		inode = dumpdir;
++		erofs_write_dir_file(inode);
++		erofs_write_tail_end(inode);
++		inode->bh->op = &erofs_write_inode_bhops;
++		dumpdir = inode->next_dirwrite;
++		erofs_iput(inode);
+ 	}
  	return root;
  }
- 
 -- 
-2.39.3
+2.30.2
 
