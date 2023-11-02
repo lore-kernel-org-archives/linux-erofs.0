@@ -4,30 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3BC8EC4332F
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Nov 2023 19:41:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A659C4167B
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Nov 2023 19:41:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SLvQL5V3yz3cnc
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Nov 2023 06:41:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SLvQQ22Stz3d8F
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Nov 2023 06:41:50 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lukeshu.com (client-ip=104.207.138.63; helo=mav.lukeshu.com; envelope-from=lukeshu@lukeshu.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 596 seconds by postgrey-1.37 at boromir; Fri, 03 Nov 2023 06:41:41 AEDT
 Received: from mav.lukeshu.com (mav.lukeshu.com [104.207.138.63])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SLvQF3VBSz3bv3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SLvQF3pWHz3cVq
 	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Nov 2023 06:41:41 +1100 (AEDT)
 Received: from lukeshu-thinkpad-e15 (unknown [IPv6:2601:281:8200:4f:aee0:10ff:fe55:8023])
-	by mav.lukeshu.com (Postfix) with ESMTPSA id B928D80626;
-	Thu,  2 Nov 2023 15:31:44 -0400 (EDT)
+	by mav.lukeshu.com (Postfix) with ESMTPSA id 0D09B80623;
+	Thu,  2 Nov 2023 15:31:41 -0400 (EDT)
 From: "Luke T. Shumaker" <lukeshu@lukeshu.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/3] erofs-utils: fsck: Add -a, -A, and -y flags
-Date: Thu,  2 Nov 2023 13:31:22 -0600
-Message-ID: <20231102193122.140921-4-lukeshu@lukeshu.com>
+Subject: [PATCH 0/3] erofs-utils: Address doc and flag-parsing snags
+Date: Thu,  2 Nov 2023 13:31:19 -0600
+Message-ID: <20231102193122.140921-1-lukeshu@lukeshu.com>
 X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231102193122.140921-1-lukeshu@lukeshu.com>
-References: <20231102193122.140921-1-lukeshu@lukeshu.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -47,84 +44,44 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: "Luke T. Shumaker" <lukeshu@umorpha.io>
 
-Other fsck.${filesystem} commands generally take -a or -p and
-sometimes -A to automatically repair a filesystem, and -y to either
-repair agree to all prompts about repairing.
+Hi all,
 
-For example:
+This patchset addresses snags that I hit while adopting erofs for our
+system images.
 
- - fsck.ext{2,3,4} takes -a or -p to repair, and -y to agree
- - fsck.xfs takes -y to repair; and -a, -A, or -p to silence a warning
-   about repairing
- - fsck.btrfs takes -a, -A, -p, or -y to silence a warning about repairing
+ - The first patch is really just setting a baseline for the next two.
 
-So, like fsck.btrfs, we should accept these flags as no-ops, for
-compatibility with programs that expect to be able to pass these to
-fsck.  In particular, Arch Linux's mkinitcpio (when fsck is enabled)
-unconditionally passes -a to `fsck`.
+ - The second patch is improving the --help text to address the snag
+   that I had to read the source code to understand how to use the
+   mkfs.erofs `-z` flag, and also setting the stage for the third
+   patch.  In doing this I broadly improved the --help text overall,
+   not just for mkfs.erofs.
 
-Naturally, I'd have liked to include '-p' in the list, but it already
-does something different for fsck.erofs.  I'd like to call out the
-fsck.ext4 manual, which says:
+ - The third patch is adding no-op `-a`, `-A`, and `-y` flags to
+   fsck.erofs, to address the snag that I was seeing errors in the
+   boot scroll.
 
-       -a   This option does the same thing as the -p option. It is
-            provided for backwards compatibility only; it is
-            suggested that people use -p option whenever possible.
+I didn't touch erofsfuse in any of these, not because it isn't worthy
+of the changes from the first two patches, just that I decided it
+would have been too much work at the moment.
 
-Signed-off-by: Luke T. Shumaker <lukeshu@umorpha.io>
----
- fsck/main.c      | 8 +++++++-
- man/fsck.erofs.1 | 4 ++++
- 2 files changed, 11 insertions(+), 1 deletion(-)
+Luke T. Shumaker (3):
+  erofs-utils: have each non-fuse command take -h, --help, -V, and
+    --version
+  erofs-utils: improve the usage and version text of non-fuse commands
+  erofs-utils: fsck: Add -a, -A, and -y flags
 
-diff --git a/fsck/main.c b/fsck/main.c
-index aeea892..26cd131 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -98,6 +98,8 @@ static void usage(int argc, char **argv)
- 		" --extract[=X]          check if all files are well encoded, optionally\n"
- 		"                        extract to X\n"
- 		"\n"
-+		" -a, -A, -y             no-op, for compatibility with fsck of other filesystems\n"
-+		"\n"
- 		"Extraction options (--extract=X is required):\n"
- 		" --force                allow extracting to root\n"
- 		" --overwrite            overwrite files that already exist\n"
-@@ -124,7 +126,7 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
- 	int opt, ret;
- 	bool has_opt_preserve = false;
- 
--	while ((opt = getopt_long(argc, argv, "Vd:ph",
-+	while ((opt = getopt_long(argc, argv, "Vd:phaAy",
- 				  long_options, NULL)) != -1) {
- 		switch (opt) {
- 		case 'V':
-@@ -144,6 +146,10 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
- 		case 'h':
- 			usage(argc, argv);
- 			exit(0);
-+		case 'a':
-+		case 'A':
-+		case 'y':
-+			break;
- 		case 2:
- 			fsckcfg.check_decomp = true;
- 			if (optarg) {
-diff --git a/man/fsck.erofs.1 b/man/fsck.erofs.1
-index a226995..c94fff9 100644
---- a/man/fsck.erofs.1
-+++ b/man/fsck.erofs.1
-@@ -34,6 +34,10 @@ so it might take too much time depending on the image.
- .TP
- \fB\-h\fR, \fB\-\-help\fR
- Display help string and exit.
-+.TP
-+\fB\-a\fR, \fB\-A\fR, \fB-y\R
-+These options do nothing at all; they are provided only for compatibility with
-+the fsck programs of other filesystems.
- .SH AUTHOR
- This version of \fBfsck.erofs\fR is written by
- Daeho Jeong <daehojeong@google.com>.
+ dump/main.c              |  47 +++++++------
+ fsck/main.c              |  81 ++++++++++++++--------
+ include/erofs/compress.h |   2 +-
+ lib/compressor.c         |  13 +---
+ lib/compressor.h         |   9 ++-
+ man/dump.erofs.1         |   5 +-
+ man/fsck.erofs.1         |   8 ++-
+ man/mkfs.erofs.1         |  15 ++--
+ mkfs/main.c              | 144 +++++++++++++++++++++++++--------------
+ 9 files changed, 202 insertions(+), 122 deletions(-)
+
 -- 
-2.42.0
-
+Happy hacking,
+~ Luke T. Shumaker
