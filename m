@@ -4,37 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E661C4167B
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 15:42:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB86FC4167D
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 17:27:27 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=korg header.b=P113lzxw;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SR5n91Zgzz3cRF
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Nov 2023 02:42:37 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.15; helo=out199-15.us.a.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out199-15.us.a.mail.aliyun.com (out199-15.us.a.mail.aliyun.com [47.90.199.15])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SR8663kgHz3cRc
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Nov 2023 04:27:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=korg header.b=P113lzxw;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux-foundation.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=akpm@linux-foundation.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SR5n01xMVz3c13
-	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Nov 2023 02:42:23 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Vw1KTVn_1699544525;
-Received: from 30.25.226.176(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vw1KTVn_1699544525)
-          by smtp.aliyun-inc.com;
-          Thu, 09 Nov 2023 23:42:06 +0800
-Message-ID: <872a459d-449d-c057-625e-98c7c8b697ab@linux.alibaba.com>
-Date: Thu, 9 Nov 2023 23:42:03 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: [PATCH -next V2] erofs: code clean up for function
- erofs_read_inode()
-To: Zizhi Wo <wozizhi@huawei.com>, xiang@kernel.org, chao@kernel.org
-References: <20231109194821.1719430-1-wozizhi@huawei.com>
- <4d4202a7-6648-9d2c-3f0b-079a165c2ebf@linux.alibaba.com>
- <89069fa4-7347-4364-8793-1ce705a00b92@huawei.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <89069fa4-7347-4364-8793-1ce705a00b92@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SR85y3cp6z3c01
+	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Nov 2023 04:27:17 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id C189F61921;
+	Thu,  9 Nov 2023 17:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 329DBC433BA;
+	Thu,  9 Nov 2023 17:27:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1699550832;
+	bh=/iXik9FGY/j8fU7q/WT2BYxZ4459aBKtixWI7gW0Gy8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=P113lzxwo814DeFndWkAaSyJ+DLb8VNTEP7P6j/vCWGSSKY2QDBBCpyUJtXKsvZt8
+	 yVSynsnJ8XhLaIqnbxNEa9vIPier0gLp7yXoMzqsfeZ25GvHh45wYNq+pLR/4wNIBl
+	 YqtZ8j7nGGcDw1o6QRhQLfQDovsx9kZS0r7BiWJc=
+Date: Thu, 9 Nov 2023 09:27:11 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Andreas =?ISO-8859-1?Q?Gr=FCnbacher?= <andreas.gruenbacher@gmail.com>
+Subject: Re: [PATCH 1/3] mm: Add folio_zero_tail() and use it in ext4
+Message-Id: <20231109092711.cf73f30a2fa84d4400377839@linux-foundation.org>
+In-Reply-To: <CAHpGcMLU9CeX=P=718Gp=oYNnfbft_Mh1Nhdx45qWXY0DAf6Mg@mail.gmail.com>
+References: <20231107212643.3490372-1-willy@infradead.org>
+	<20231107212643.3490372-2-willy@infradead.org>
+	<20231108150606.2ec3cafb290f757f0e4c92d8@linux-foundation.org>
+	<CAHpGcMLU9CeX=P=718Gp=oYNnfbft_Mh1Nhdx45qWXY0DAf6Mg@mail.gmail.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -46,81 +59,62 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: yangerkun@huawei.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: linux-xfs <linux-xfs@vger.kernel.org>, Theodore Ts'o <tytso@mit.edu>, Andreas Gruenbacher <agruenba@redhat.com>, "Darrick J . Wong" <djwong@kernel.org>, "Matthew Wilcox \(Oracle\)" <willy@infradead.org>, gfs2@lists.linux.dev, Andreas Dilger <adilger.kernel@dilger.ca>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+On Thu, 9 Nov 2023 01:12:15 +0100 Andreas Gr=FCnbacher <andreas.gruenbacher=
+@gmail.com> wrote:
 
+> Andrew,
+>=20
+> Andrew Morton <akpm@linux-foundation.org> schrieb am Do., 9. Nov. 2023, 0=
+0:06:
+> > > +
+> > > +     if (folio_test_highmem(folio)) {
+> > > +             size_t max =3D PAGE_SIZE - offset_in_page(offset);
+> > > +
+> > > +             while (len > max) {
+> >
+> > Shouldn't this be `while (len)'?  AFAICT this code can fail to clear
+> > the final page.
+>=20
+> not sure what you're seeing there, but this looks fine to me.
 
-On 2023/11/9 21:45, Zizhi Wo wrote:
-> 
-> 
-> 在 2023/11/9 21:14, Gao Xiang 写道:
->> Hi,
->>
->> On 2023/11/10 03:48, WoZ1zh1 wrote:
->>> Because variables "die" and "copied" only appear in case
->>> EROFS_INODE_LAYOUT_EXTENDED, move them from the outer space into this
->>> case. Also, call "kfree(copied)" earlier to avoid double free in the
->>> "error_out" branch. Some cleanups, no logic changes.
->>>
->>> Signed-off-by: WoZ1zh1 <wozizhi@huawei.com>
->>
->> Please help use your real name here...
->>
->>> ---
->>>   fs/erofs/inode.c | 6 +++---
->>>   1 file changed, 3 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
->>> index b8ad05b4509d..a388c93eec34 100644
->>> --- a/fs/erofs/inode.c
->>> +++ b/fs/erofs/inode.c
->>> @@ -19,7 +19,6 @@ static void *erofs_read_inode(struct erofs_buf *buf,
->>>       erofs_blk_t blkaddr, nblks = 0;
->>>       void *kaddr;
->>>       struct erofs_inode_compact *dic;
->>> -    struct erofs_inode_extended *die, *copied = NULL;
->>>       unsigned int ifmt;
->>>       int err;
->>> @@ -53,6 +52,8 @@ static void *erofs_read_inode(struct erofs_buf *buf,
->>>       switch (erofs_inode_version(ifmt)) {
->>>       case EROFS_INODE_LAYOUT_EXTENDED:
->>> +        struct erofs_inode_extended *die, *copied = NULL;
->>
->> Thanks for the patch, but in my own opinion:
->>
->> 1) It doesn't simplify the code
-> OK, I'm sorry for the noise(;´༎ຶД༎ຶ`)
->>
->> 2) We'd like to avoid defining variables like this (in the
->>     switch block), and I even don't think this patch can compile.
-> I tested this patch with gcc-12.2.1 locally and it compiled
-> successfully. I'm not sure if this patch will fail in other environment
-> with different compiler...
+I was right!  This code does fail to handle the final page.
 
-For example, it fails as below on gcc 10.2.1:
+: static inline void folio_fill_tail(struct folio *folio, size_t offset,
+: 		const char *from, size_t len)
+: {
+: 	char *to =3D kmap_local_folio(folio, offset);
+:=20
+: 	VM_BUG_ON(offset + len > folio_size(folio));
+:=20
+: 	if (folio_test_highmem(folio)) {
+: 		size_t max =3D PAGE_SIZE - offset_in_page(offset);
+:=20
+: 		while (len > max) {
+: 			memcpy(to, from, max);
+: 			kunmap_local(to);
+: 			len -=3D max;
+: 			from +=3D max;
+: 			offset +=3D max;
+: 			max =3D PAGE_SIZE;
+: 			to =3D kmap_local_folio(folio, offset);
+: 		}
+: 	}
+:=20
+: 	memcpy(to, from, len);
 
-fs/erofs/inode.c: In function 'erofs_read_inode':
-fs/erofs/inode.c:55:3: error: a label can only be part of a statement and a declaration is not a statement
-    55 |   struct erofs_inode_extended *die, *copied = NULL;
-       |   ^~~~~~
+This code down here handles it, doh.
 
-> 
->> 3) The logic itself is also broken...
+: 	to =3D folio_zero_tail(folio, offset, to);
+: 	kunmap_local(to);
+: }
 
-Maybe I was missing something, but this usage makes
-me uneasy...
+Implementation seems less straightforward than it might be?  Oh well.
 
-Thanks,
-Gao Xiang
+Has it been runtime tested?
 
-> 
-> Sorry, but I just don't understand why the logic itself is broken, and
-> can you please explain more?
-> 
-> Thanks,
-> Zizhi Wo
-> 
->> Thanks,
->> Gao Xiang
+Anyway, let's please change the function argument ordering and remember
+to cc linux-mm on v2?
