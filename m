@@ -4,30 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA9F7C4332F
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 11:21:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35492C4167B
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 12:14:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1699532081;
+	bh=cWlERthZkFluDqgzovAJew6EH6I4A0e1oLoOETNAnyU=;
+	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=LHuiqvYS+e2vStLZiqnZIKPq2UXvKN3JP1fqARPxVu9lHZp4vbO4ZPf8QneroNeLG
+	 RAhIl3perXpEAORQN94DKb+nWFbX9qvOdbp8z4wLONn7hcFt+tHvpLR3utZGkc27wm
+	 hD1SxqZZIFBCuuiQO2Ey02AeLHBarM7U+TeBen8Ifva6DBdQsGkAQrzd0IAaGhwutA
+	 XTorj1BW2+PUT1Qp7fItI473IQ7DiNAgRynCjc8ecyOtq0IBnGCbzebbMWwZCFEI3S
+	 nYp3liI0dHlhdsPCbZEYmfgahja5qBQjidABgTdt9PHSaM+eDI+v7eHBe4cIRSDDNz
+	 hv2nwVk62tvcw==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SQzzc3wvFz3cSP
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 22:21:16 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=mengferry@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SR19F4ZNsz3cTS
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Nov 2023 23:14:41 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 1212 seconds by postgrey-1.37 at boromir; Thu, 09 Nov 2023 23:14:32 AEDT
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SQzwb3mg9z3c5P
-	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Nov 2023 22:18:36 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R561e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=mengferry@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Vw0bSqm_1699528704;
-Received: from j66c13357.sqa.eu95.tbsite.net(mailfrom:mengferry@linux.alibaba.com fp:SMTPD_---0Vw0bSqm_1699528704)
-          by smtp.aliyun-inc.com;
-          Thu, 09 Nov 2023 19:18:28 +0800
-From: Ferry Meng <mengferry@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs: simplify erofs_read_inode()
-Date: Thu,  9 Nov 2023 19:18:22 +0800
-Message-Id: <20231109111822.17944-1-mengferry@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SR1943SL1z2yVG
+	for <linux-erofs@lists.ozlabs.org>; Thu,  9 Nov 2023 23:14:28 +1100 (AEDT)
+Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.53])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SR0dK0KNgzmXH1;
+	Thu,  9 Nov 2023 19:50:29 +0800 (CST)
+Received: from localhost.localdomain (10.175.104.67) by
+ dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.31; Thu, 9 Nov 2023 19:53:41 +0800
+To: <xiang@kernel.org>, <chao@kernel.org>
+Subject: [PATCH -next V2] erofs: code clean up for function erofs_read_inode()
+Date: Fri, 10 Nov 2023 03:48:21 +0800
+Message-ID: <20231109194821.1719430-1-wozizhi@huawei.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.175.104.67]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm500020.china.huawei.com (7.185.36.49)
+X-CFilter-Loop: Reflected
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -39,192 +57,67 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Ferry Meng <mengferry@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+From: WoZ1zh1 via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: WoZ1zh1 <wozizhi@huawei.com>
+Cc: yangerkun@huawei.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-After commit 1c7f49a76773 ("erofs: tidy up EROFS on-disk naming"),
-there is a unique `union erofs_inode_i_u` so that we could parse
-the union directly.
+Because variables "die" and "copied" only appear in case
+EROFS_INODE_LAYOUT_EXTENDED, move them from the outer space into this
+case. Also, call "kfree(copied)" earlier to avoid double free in the
+"error_out" branch. Some cleanups, no logic changes.
 
-Besides, it also replaces `inode->i_sb` with `sb` for simplicity.
-
-Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
+Signed-off-by: WoZ1zh1 <wozizhi@huawei.com>
 ---
- fs/erofs/inode.c | 98 +++++++++++++++++-------------------------------
- 1 file changed, 35 insertions(+), 63 deletions(-)
+ fs/erofs/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index edc8ec7581b8..7f63e7c01ffc 100644
+index b8ad05b4509d..a388c93eec34 100644
 --- a/fs/erofs/inode.c
 +++ b/fs/erofs/inode.c
-@@ -15,11 +15,11 @@ static void *erofs_read_inode(struct erofs_buf *buf,
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	struct erofs_inode *vi = EROFS_I(inode);
- 	const erofs_off_t inode_loc = erofs_iloc(inode);
--
+@@ -19,7 +19,6 @@ static void *erofs_read_inode(struct erofs_buf *buf,
  	erofs_blk_t blkaddr, nblks = 0;
  	void *kaddr;
  	struct erofs_inode_compact *dic;
- 	struct erofs_inode_extended *die, *copied = NULL;
-+	union erofs_inode_i_u iu;
+-	struct erofs_inode_extended *die, *copied = NULL;
  	unsigned int ifmt;
  	int err;
  
-@@ -35,9 +35,8 @@ static void *erofs_read_inode(struct erofs_buf *buf,
+@@ -53,6 +52,8 @@ static void *erofs_read_inode(struct erofs_buf *buf,
  
- 	dic = kaddr + *ofs;
- 	ifmt = le16_to_cpu(dic->i_format);
--
- 	if (ifmt & ~EROFS_I_ALL) {
--		erofs_err(inode->i_sb, "unsupported i_format %u of nid %llu",
-+		erofs_err(sb, "unsupported i_format %u of nid %llu",
- 			  ifmt, vi->nid);
- 		err = -EOPNOTSUPP;
- 		goto err_out;
-@@ -45,7 +44,7 @@ static void *erofs_read_inode(struct erofs_buf *buf,
- 
- 	vi->datalayout = erofs_inode_datalayout(ifmt);
- 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
--		erofs_err(inode->i_sb, "unsupported datalayout %u of nid %llu",
-+		erofs_err(sb, "unsupported datalayout %u of nid %llu",
- 			  vi->datalayout, vi->nid);
- 		err = -EOPNOTSUPP;
- 		goto err_out;
-@@ -82,40 +81,15 @@ static void *erofs_read_inode(struct erofs_buf *buf,
- 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
- 
- 		inode->i_mode = le16_to_cpu(die->i_mode);
--		switch (inode->i_mode & S_IFMT) {
--		case S_IFREG:
--		case S_IFDIR:
--		case S_IFLNK:
--			vi->raw_blkaddr = le32_to_cpu(die->i_u.raw_blkaddr);
--			break;
--		case S_IFCHR:
--		case S_IFBLK:
--			inode->i_rdev =
--				new_decode_dev(le32_to_cpu(die->i_u.rdev));
--			break;
--		case S_IFIFO:
--		case S_IFSOCK:
--			inode->i_rdev = 0;
--			break;
--		default:
--			goto bogusimode;
--		}
-+		iu = die->i_u;
- 		i_uid_write(inode, le32_to_cpu(die->i_uid));
- 		i_gid_write(inode, le32_to_cpu(die->i_gid));
- 		set_nlink(inode, le32_to_cpu(die->i_nlink));
--
--		/* extended inode has its own timestamp */
-+		/* each extended inode has its own timestamp */
- 		inode_set_ctime(inode, le64_to_cpu(die->i_mtime),
- 				le32_to_cpu(die->i_mtime_nsec));
- 
- 		inode->i_size = le64_to_cpu(die->i_size);
--
--		/* total blocks for compressed files */
--		if (erofs_inode_is_data_compressed(vi->datalayout))
--			nblks = le32_to_cpu(die->i_u.compressed_blocks);
--		else if (vi->datalayout == EROFS_INODE_CHUNK_BASED)
--			/* fill chunked inode summary info */
--			vi->chunkformat = le16_to_cpu(die->i_u.c.format);
- 		kfree(copied);
- 		copied = NULL;
- 		break;
-@@ -125,49 +99,51 @@ static void *erofs_read_inode(struct erofs_buf *buf,
- 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
- 
- 		inode->i_mode = le16_to_cpu(dic->i_mode);
--		switch (inode->i_mode & S_IFMT) {
--		case S_IFREG:
--		case S_IFDIR:
--		case S_IFLNK:
--			vi->raw_blkaddr = le32_to_cpu(dic->i_u.raw_blkaddr);
--			break;
--		case S_IFCHR:
--		case S_IFBLK:
--			inode->i_rdev =
--				new_decode_dev(le32_to_cpu(dic->i_u.rdev));
--			break;
--		case S_IFIFO:
--		case S_IFSOCK:
--			inode->i_rdev = 0;
--			break;
--		default:
--			goto bogusimode;
--		}
-+		iu = dic->i_u;
- 		i_uid_write(inode, le16_to_cpu(dic->i_uid));
- 		i_gid_write(inode, le16_to_cpu(dic->i_gid));
- 		set_nlink(inode, le16_to_cpu(dic->i_nlink));
--
- 		/* use build time for compact inodes */
- 		inode_set_ctime(inode, sbi->build_time, sbi->build_time_nsec);
- 
- 		inode->i_size = le32_to_cpu(dic->i_size);
--		if (erofs_inode_is_data_compressed(vi->datalayout))
--			nblks = le32_to_cpu(dic->i_u.compressed_blocks);
--		else if (vi->datalayout == EROFS_INODE_CHUNK_BASED)
--			vi->chunkformat = le16_to_cpu(dic->i_u.c.format);
- 		break;
- 	default:
--		erofs_err(inode->i_sb,
--			  "unsupported on-disk inode version %u of nid %llu",
-+		erofs_err(sb, "unsupported on-disk inode version %u of nid %llu",
- 			  erofs_inode_version(ifmt), vi->nid);
- 		err = -EOPNOTSUPP;
- 		goto err_out;
- 	}
- 
--	if (vi->datalayout == EROFS_INODE_CHUNK_BASED) {
-+	switch (inode->i_mode & S_IFMT) {
-+	case S_IFREG:
-+	case S_IFDIR:
-+	case S_IFLNK:
-+		vi->raw_blkaddr = le32_to_cpu(iu.raw_blkaddr);
-+		break;
-+	case S_IFCHR:
-+	case S_IFBLK:
-+		inode->i_rdev = new_decode_dev(le32_to_cpu(iu.rdev));
-+		break;
-+	case S_IFIFO:
-+	case S_IFSOCK:
-+		inode->i_rdev = 0;
-+		break;
-+	default:
-+		erofs_err(sb, "bogus i_mode (%o) @ nid %llu", inode->i_mode,
-+			  vi->nid);
-+		err = -EFSCORRUPTED;
-+		goto err_out;
-+	}
+ 	switch (erofs_inode_version(ifmt)) {
+ 	case EROFS_INODE_LAYOUT_EXTENDED:
++		struct erofs_inode_extended *die, *copied = NULL;
 +
-+	/* total blocks for compressed files */
-+	if (erofs_inode_is_data_compressed(vi->datalayout)) {
-+		nblks = le32_to_cpu(iu.compressed_blocks);
-+	} else if (vi->datalayout == EROFS_INODE_CHUNK_BASED) {
-+		/* fill chunked inode summary info */
-+		vi->chunkformat = le16_to_cpu(iu.c.format);
- 		if (vi->chunkformat & ~EROFS_CHUNK_FORMAT_ALL) {
--			erofs_err(inode->i_sb,
--				  "unsupported chunk format %x of nid %llu",
-+			erofs_err(sb, "unsupported chunk format %x of nid %llu",
- 				  vi->chunkformat, vi->nid);
- 			err = -EOPNOTSUPP;
- 			goto err_out;
-@@ -190,10 +166,6 @@ static void *erofs_read_inode(struct erofs_buf *buf,
- 		inode->i_blocks = nblks << (sb->s_blocksize_bits - 9);
- 	return kaddr;
- 
--bogusimode:
--	erofs_err(inode->i_sb, "bogus i_mode (%o) @ nid %llu",
--		  inode->i_mode, vi->nid);
--	err = -EFSCORRUPTED;
+ 		vi->inode_isize = sizeof(struct erofs_inode_extended);
+ 		/* check if the extended inode acrosses block boundary */
+ 		if (*ofs + vi->inode_isize <= sb->s_blocksize) {
+@@ -98,6 +99,7 @@ static void *erofs_read_inode(struct erofs_buf *buf,
+ 			inode->i_rdev = 0;
+ 			break;
+ 		default:
++			kfree(copied);
+ 			goto bogusimode;
+ 		}
+ 		i_uid_write(inode, le32_to_cpu(die->i_uid));
+@@ -117,7 +119,6 @@ static void *erofs_read_inode(struct erofs_buf *buf,
+ 			/* fill chunked inode summary info */
+ 			vi->chunkformat = le16_to_cpu(die->i_u.c.format);
+ 		kfree(copied);
+-		copied = NULL;
+ 		break;
+ 	case EROFS_INODE_LAYOUT_COMPACT:
+ 		vi->inode_isize = sizeof(struct erofs_inode_compact);
+@@ -197,7 +198,6 @@ static void *erofs_read_inode(struct erofs_buf *buf,
+ 	err = -EFSCORRUPTED;
  err_out:
  	DBG_BUGON(1);
- 	kfree(copied);
+-	kfree(copied);
+ 	erofs_put_metabuf(buf);
+ 	return ERR_PTR(err);
+ }
 -- 
-2.19.1.6.gb485710b
+2.39.2
 
