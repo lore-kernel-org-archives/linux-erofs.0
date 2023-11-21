@@ -4,44 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75AA9C2BB3F
-	for <linux-erofs@archiver.kernel.org>; Mon, 20 Nov 2023 16:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A644EC61D90
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Nov 2023 20:33:55 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=g9cO+tJ8;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SYst816jdz3cSv
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Nov 2023 03:10:24 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=neutral (access neither permitted nor denied) smtp.mailfrom=pobox.com (client-ip=202.82.82.2; helo=ghmg01.great-harvest.local; envelope-from=ahmadramcfacffa3@pobox.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 1323 seconds by postgrey-1.37 at boromir; Tue, 21 Nov 2023 03:10:19 AEDT
-Received: from GHMG01.great-harvest.local (marine.unionapex.com [202.82.82.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SZbgk1MLcz3cnr
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Nov 2023 07:33:54 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=g9cO+tJ8;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SYst32pfNz3bT8
-	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Nov 2023 03:10:18 +1100 (AEDT)
-X-AuditID: c0a80a26-927612400000462b-29-655b7f410418
-Received: from [45.154.98.249] (Unknown_Domain [45.154.98.249])
-	(using TLS with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(Client did not present a certificate)
-	by GHMG01.great-harvest.local (Symantec Messaging Gateway) with SMTP id E4.F0.17963.14F7B556; Mon, 20 Nov 2023 23:46:09 +0800 (HKT)
-Content-Type: text/plain; charset="iso-8859-1"
-Message-ID: <E4.F0.17963.14F7B556@GHMG01.great-harvest.local>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Investment Expression of Interest (IEOI)
-To: linux-erofs@lists.ozlabs.org
-From: "Ramadan Ahmad" <Ahmadramcfacffa3@pobox.com>
-Date: Mon, 20 Nov 2023 16:46:07 +0100
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrDJMWRmVeSWpSXmKPExsWiOyvpp65jfXSqwYRnOhZ79t1kdmD0OD9j
-	IWMAYxSXTUpqTmZZapG+XQJXxteO+SwFh5kr1k/bz9TA+JGpi5GTQ0LAROLchGdANheHkMAq
-	JokHl/tYQBLMAnoSN6ZOYQOxeQVsJS7/2MICYQtKnJz5BKpGW2LZwtfMXYwcQLaaxNeuEpCw
-	sIChxNMjVxlBbBEBBYmJJ84xg9hsAkYS7dPPgrWyCKhKbDl9hxXEFhJQlzg/9QrTBEaeWUg2
-	z0KybRaSbbMQti1gZFnFKOXu4etuYKiXXpSaWKKbkVhUllpcopeTn5yYs4kRGEAHVnCp7WD8
-	OOmj3iFGJg7GQ4wSHMxKIrzfhCJShXhTEiurUovy44tKc1KLDzFKc7AoifMGBEjFCwmkJ5ak
-	ZqemFqQWwWSZODilGphWPuCrLNSSOHnztO3Ke2sbz+ZP5ktLyGMr67PsCZ7cuv/D5677FTyH
-	m5mrw6ZUywgo2Osof0//O6edcSWHUBXfknUT6y6Y9vt/W7e2oqvC7Z3y9V/iods4udh0EzyT
-	1mwMY/yosy7UaGbglP7q1pnP67vu+C/hnHhgPsNBsd2+YT6W6Sdu8Wjt+vZD9/WBA1k6Jmx3
-	OxicdGavL23cYjF7l7GfNvsZuyTJwp0lK54u3n5lq3X/vGfLc8RUis8F3T/psv9RZFXO8+Ur
-	jFbssLxrHX08MkP9hXhxgOKzEG7nKPfPHOwtbo6KNt8384Yd9To4YU98/peri8w1j90x+hp1
-	RHRaTNCTDd5yf9ZLJSixFGckGmoxFxUnAgBSz3OYjwIAAA==
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SZbgc6GbZz3cVS
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 Nov 2023 07:33:48 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 48F41CE1DD8;
+	Tue, 21 Nov 2023 20:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1744EC433C8;
+	Tue, 21 Nov 2023 20:33:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700598824;
+	bh=egAqlVYa/A/HI0HadKIhudt6IzD9eGNLvK0Ri4QfjTw=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=g9cO+tJ8dqXbdCCNyztmmWUOTkV7lv0Wfy3GX6yA4DF7VbpAhk5oHQkhbX14Z8MtJ
+	 T2VCXyWlIby3Q19wppYlQ6ReCkDVbWYTVlDzQ+jnOUY8NSUrxAkrxBWaGW5GHPRsks
+	 RBrGfMAvzEwFR1XgLMpnU1MMxPvlWM+NmelN8mjTNsWJZs4TK27vcTFc3Dp2DBJJZa
+	 H/4WdVkA1E5zQzfVO6wEyMbEMSJTRcGdvmoDpzmBTJpRJhMvqeB1X0CH12gAa7aOTx
+	 G1z1puENxzdUMbV2YlETs/MaeMoOynDkqcan1Gq1APcg/BSZriLoNUY//nUUZazNFV
+	 afV0lf/wx6+5Q==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 045B8EAA95F;
+	Tue, 21 Nov 2023 20:33:44 +0000 (UTC)
+Subject: Re: [GIT PULL] erofs fixes for 6.7-rc3
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <ZVsQBsV2GFTmy+iZ@debian>
+References: <ZVsQBsV2GFTmy+iZ@debian>
+X-PR-Tracked-List-Id: Development of Linux EROFS file system <linux-erofs.lists.ozlabs.org>
+X-PR-Tracked-Message-Id: <ZVsQBsV2GFTmy+iZ@debian>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.7-rc3-fixes
+X-PR-Tracked-Commit-Id: 62b241efff99fc4d88a86f1c67c7516e31f432a3
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 6b65522316489ff0b2be65d00fbcecbc781017c9
+Message-Id: <170059882400.5512.9141675111276341675.pr-tracker-bot@kernel.org>
+Date: Tue, 21 Nov 2023 20:33:44 +0000
+To: Gao Xiang <xiang@kernel.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -53,22 +65,19 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Reply-To: finance@almnadrinvestment.com
+Cc: Linus Torvalds <torvalds@linuxfoundation.org>, Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Attn: linux-erofs@lists.ozlabs.org
-Date: 20-11-2023
-Subject: Investment Expression of Interest (IEOI)
+The pull request you sent on Mon, 20 Nov 2023 15:51:34 +0800:
 
-Dear Sir,
+> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.7-rc3-fixes
 
-Having been referred to your investment by my team, we would be honored to =
-review your available investment projects for onward referral to my princip=
-al investors who can allocate capital for the financing of it.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/6b65522316489ff0b2be65d00fbcecbc781017c9
 
-kindly advise at your convenience
+Thank you!
 
-Best Regards,
-Ramadan Ahmad CFA
-Chartered Finance Investment Analyst
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
