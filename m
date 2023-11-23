@@ -4,56 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A644EC61D90
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Nov 2023 20:33:55 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=g9cO+tJ8;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB209C61D85
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 05:23:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SZbgk1MLcz3cnr
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Nov 2023 07:33:54 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=g9cO+tJ8;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org)
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SbRMz1PdPz3dHL
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 16:23:11 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SZbgc6GbZz3cVS
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 Nov 2023 07:33:48 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 48F41CE1DD8;
-	Tue, 21 Nov 2023 20:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1744EC433C8;
-	Tue, 21 Nov 2023 20:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700598824;
-	bh=egAqlVYa/A/HI0HadKIhudt6IzD9eGNLvK0Ri4QfjTw=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=g9cO+tJ8dqXbdCCNyztmmWUOTkV7lv0Wfy3GX6yA4DF7VbpAhk5oHQkhbX14Z8MtJ
-	 T2VCXyWlIby3Q19wppYlQ6ReCkDVbWYTVlDzQ+jnOUY8NSUrxAkrxBWaGW5GHPRsks
-	 RBrGfMAvzEwFR1XgLMpnU1MMxPvlWM+NmelN8mjTNsWJZs4TK27vcTFc3Dp2DBJJZa
-	 H/4WdVkA1E5zQzfVO6wEyMbEMSJTRcGdvmoDpzmBTJpRJhMvqeB1X0CH12gAa7aOTx
-	 G1z1puENxzdUMbV2YlETs/MaeMoOynDkqcan1Gq1APcg/BSZriLoNUY//nUUZazNFV
-	 afV0lf/wx6+5Q==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 045B8EAA95F;
-	Tue, 21 Nov 2023 20:33:44 +0000 (UTC)
-Subject: Re: [GIT PULL] erofs fixes for 6.7-rc3
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ZVsQBsV2GFTmy+iZ@debian>
-References: <ZVsQBsV2GFTmy+iZ@debian>
-X-PR-Tracked-List-Id: Development of Linux EROFS file system <linux-erofs.lists.ozlabs.org>
-X-PR-Tracked-Message-Id: <ZVsQBsV2GFTmy+iZ@debian>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.7-rc3-fixes
-X-PR-Tracked-Commit-Id: 62b241efff99fc4d88a86f1c67c7516e31f432a3
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 6b65522316489ff0b2be65d00fbcecbc781017c9
-Message-Id: <170059882400.5512.9141675111276341675.pr-tracker-bot@kernel.org>
-Date: Tue, 21 Nov 2023 20:33:44 +0000
-To: Gao Xiang <xiang@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SbRMn55m5z3bT8
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Nov 2023 16:22:59 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R741e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vwxzk0d_1700716971;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vwxzk0d_1700716971)
+          by smtp.aliyun-inc.com;
+          Thu, 23 Nov 2023 13:22:53 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 2/2] erofs-utils: mkfs: support compact indexes for smaller block sizes
+Date: Thu, 23 Nov 2023 13:22:45 +0800
+Message-Id: <20231123052245.868698-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20231123052245.868698-1-hsiangkao@linux.alibaba.com>
+References: <20231123052245.868698-1-hsiangkao@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,19 +41,82 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Linus Torvalds <torvalds@linuxfoundation.org>, Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The pull request you sent on Mon, 20 Nov 2023 15:51:34 +0800:
+This commit also adds mkfs support of compact indexes for smaller
+block sizes (less than 4096).
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-6.7-rc3-fixes
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/compress.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/6b65522316489ff0b2be65d00fbcecbc781017c9
-
-Thank you!
-
+diff --git a/lib/compress.c b/lib/compress.c
+index 47f1c1d..61328ed 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -627,19 +627,20 @@ static void *write_compacted_indexes(u8 *out,
+ 				     struct z_erofs_compressindex_vec *cv,
+ 				     erofs_blk_t *blkaddr_ret,
+ 				     unsigned int destsize,
+-				     unsigned int logical_clusterbits,
++				     unsigned int lclusterbits,
+ 				     bool final, bool *dummy_head,
+ 				     bool update_blkaddr)
+ {
+-	unsigned int vcnt, encodebits, pos, i, cblks;
++	unsigned int vcnt, lobits, encodebits, pos, i, cblks;
+ 	erofs_blk_t blkaddr;
+ 
+ 	if (destsize == 4)
+ 		vcnt = 2;
+-	else if (destsize == 2 && logical_clusterbits == 12)
++	else if (destsize == 2 && lclusterbits <= 12)
+ 		vcnt = 16;
+ 	else
+ 		return ERR_PTR(-EINVAL);
++	lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
+ 	encodebits = (vcnt * destsize * 8 - 32) / vcnt;
+ 	blkaddr = *blkaddr_ret;
+ 
+@@ -656,7 +657,7 @@ static void *write_compacted_indexes(u8 *out,
+ 				*dummy_head = false;
+ 			} else if (i + 1 == vcnt) {
+ 				offset = min_t(u16, cv[i].u.delta[1],
+-						(1 << logical_clusterbits) - 1);
++						(1 << lobits) - 1);
+ 			} else {
+ 				offset = cv[i].u.delta[0];
+ 			}
+@@ -676,7 +677,7 @@ static void *write_compacted_indexes(u8 *out,
+ 				DBG_BUGON(cv[i].u.blkaddr);
+ 			}
+ 		}
+-		v = (cv[i].clustertype << logical_clusterbits) | offset;
++		v = (cv[i].clustertype << lobits) | offset;
+ 		rem = pos & 7;
+ 		ch = out[pos / 8] & ((1 << rem) - 1);
+ 		out[pos / 8] = (v << rem) | ch;
+@@ -711,7 +712,7 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 	bool dummy_head;
+ 	bool big_pcluster = erofs_sb_has_big_pcluster(sbi);
+ 
+-	if (logical_clusterbits < sbi->blkszbits || sbi->blkszbits < 12)
++	if (logical_clusterbits < sbi->blkszbits)
+ 		return -EINVAL;
+ 	if (logical_clusterbits > 14) {
+ 		erofs_err("compact format is unsupported for lcluster size %u",
+@@ -720,7 +721,7 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 	}
+ 
+ 	if (inode->z_advise & Z_EROFS_ADVISE_COMPACTED_2B) {
+-		if (logical_clusterbits != 12) {
++		if (logical_clusterbits > 12) {
+ 			erofs_err("compact 2B is unsupported for lcluster size %u",
+ 				  1 << logical_clusterbits);
+ 			return -EINVAL;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.39.3
+
