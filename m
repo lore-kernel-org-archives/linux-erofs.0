@@ -4,30 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3B6EC61D85
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 05:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80863C61D85
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 09:12:15 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=E+By1CI3;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SbRN23K9Cz3dDP
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 16:23:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SbXSG1QYRz3ckQ
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Nov 2023 20:12:14 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=E+By1CI3;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::629; helo=mail-pl1-x629.google.com; envelope-from=zbestahu@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SbRMq0mqsz3cRc
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Nov 2023 16:22:59 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0Vwxzk.T_1700716966;
-Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Vwxzk.T_1700716966)
-          by smtp.aliyun-inc.com;
-          Thu, 23 Nov 2023 13:22:50 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs-utils: lib: fix up compact indexes for block size < 4096
-Date: Thu, 23 Nov 2023 13:22:44 +0800
-Message-Id: <20231123052245.868698-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SbXS80GZSz2yhT
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Nov 2023 20:12:06 +1100 (AEDT)
+Received: by mail-pl1-x629.google.com with SMTP id d9443c01a7336-1cf8720c6b7so5133555ad.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 23 Nov 2023 01:12:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700730724; x=1701335524; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=a72khHR5jiE9UfAcDPE13ZONUVgJ4dYyONT5/rJIE0A=;
+        b=E+By1CI3S/dAarJKNNpZiLXk2KeN3Ab5eGrrauVXz/TH7xn28q3OvBMiQWwi7fGlbi
+         UhbWBcMFFrIelW62MEZp6M+exKZ4bO2XPWq2rdSIaBlpj7aJx9hd3CjEiQXDapLFj3hZ
+         lf1fWqR8kPwKGdnCT6dF4n+ZAeiIa0I+rRw54EFzhY8H01zeCimDqdCuRnUIwauvo/9l
+         mYg6SPkia/27SOprv+1dpaufeYscKtn6G1ohjDDxOnu7P95jrJJQMYr8DeoGr11bk8xK
+         8PJSMDS2PvY3Hqm+TMP2skKkh2Hh6XBBp5zoCo9VPM6viv1Mb0srRJ24VBysJ3AevtAb
+         IsOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700730724; x=1701335524;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=a72khHR5jiE9UfAcDPE13ZONUVgJ4dYyONT5/rJIE0A=;
+        b=hm40fc0yn+NGdhx88R8DPN9vFwrhnZi/gB9ukAZSXMltAMGYNwbrKhdsoh6i9BKWwl
+         KJv7C6H/tvRkvJ9a/+LmGOxoYKByhsQFHk9EBZxgCVZX+b9UlVTWKFE8waoYxtk5Voe+
+         /rgVA8aapcTNZfShvtNoWNybDqFDaLnnDQiUaANZTkD5KNfEGvkzMmctYUvrhvVZ9MaC
+         FVUY0WZlzUC0Hk99aMJ1Ncw20pMvu2xcJQ+lyD42nQ2kfdnQj/M3Y9x2PBXszQH44c+1
+         ObI6a9tV2S1Qk1ATnrfiKLC1O21X1O/ssiMx5gJH5v7qtffXkl8OmkeO+2XXBAVFiW1J
+         8Nnw==
+X-Gm-Message-State: AOJu0YxPrEuN3O66HLtaMTy6jRKucn5HLaD/B7CI4k44PUlJKtAmETKk
+	H7XFq6tnhLixsJrrqTzBNsC4v7+7s3I=
+X-Google-Smtp-Source: AGHT+IERJ29gQhJ7wKoVGoUDg3TOKoglsDbs+a8oTGyz8QxnM8K1vEPzlMXZwk8xG/JJG96svRbjug==
+X-Received: by 2002:a17:903:44d:b0:1cf:7a4b:9dc6 with SMTP id iw13-20020a170903044d00b001cf7a4b9dc6mr3102587plb.61.1700730723698;
+        Thu, 23 Nov 2023 01:12:03 -0800 (PST)
+Received: from localhost ([156.236.96.172])
+        by smtp.gmail.com with ESMTPSA id a9-20020a170902ee8900b001b7f40a8959sm863694pld.76.2023.11.23.01.12.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Nov 2023 01:12:03 -0800 (PST)
+Date: Thu, 23 Nov 2023 17:11:59 +0800
+From: Yue Hu <zbestahu@gmail.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH 1/2] erofs-utils: lib: fix up compact indexes for block
+ size < 4096
+Message-ID: <20231123171159.00003646.zbestahu@gmail.com>
+In-Reply-To: <20231123052245.868698-1-hsiangkao@linux.alibaba.com>
+References: <20231123052245.868698-1-hsiangkao@linux.alibaba.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-w64-mingw32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -39,141 +80,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Previously, the block size always equaled to PAGE_SIZE in kernel,
-therefore `lclusterbits` couldn't be less than 12.
+On Thu, 23 Nov 2023 13:22:44 +0800
+Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
 
-Since sub-page compressed blocks are now considered, `lobits` for
-a lcluster in each pack of compact indexes cannot always be
-`lclusterbits` as before.  Otherwise, there is no enough room for
-the special value `Z_EROFS_LI_D0_CBLKCNT`.
+> Previously, the block size always equaled to PAGE_SIZE in kernel,
+> therefore `lclusterbits` couldn't be less than 12.
+> 
+> Since sub-page compressed blocks are now considered, `lobits` for
+> a lcluster in each pack of compact indexes cannot always be
+> `lclusterbits` as before.  Otherwise, there is no enough room for
+> the special value `Z_EROFS_LI_D0_CBLKCNT`.
+> 
+> To support smaller block sizes, `lobits` for each compacted lcluster is
+> now calculated as:
+>    lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1)
+> 
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-To support smaller block sizes, `lobits` for each compacted lcluster is
-now calculated as:
-   lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1)
-
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- lib/zmap.c | 32 ++++++++++++++------------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
-
-diff --git a/lib/zmap.c b/lib/zmap.c
-index 81fa22b..12eb426 100644
---- a/lib/zmap.c
-+++ b/lib/zmap.c
-@@ -197,29 +197,26 @@ static int legacy_load_cluster_from_disk(struct z_erofs_maprecorder *m,
- }
- 
- static unsigned int decode_compactedbits(unsigned int lobits,
--					 unsigned int lomask,
- 					 u8 *in, unsigned int pos, u8 *type)
- {
- 	const unsigned int v = get_unaligned_le32(in + pos / 8) >> (pos & 7);
--	const unsigned int lo = v & lomask;
-+	const unsigned int lo = v & ((1 << lobits) - 1);
- 
- 	*type = (v >> lobits) & 3;
- 	return lo;
- }
- 
--static int get_compacted_la_distance(unsigned int lclusterbits,
-+static int get_compacted_la_distance(unsigned int lobits,
- 				     unsigned int encodebits,
- 				     unsigned int vcnt, u8 *in, int i)
- {
--	const unsigned int lomask = (1 << lclusterbits) - 1;
- 	unsigned int lo, d1 = 0;
- 	u8 type;
- 
- 	DBG_BUGON(i >= vcnt);
- 
- 	do {
--		lo = decode_compactedbits(lclusterbits, lomask,
--					  in, encodebits * i, &type);
-+		lo = decode_compactedbits(lobits, in, encodebits * i, &type);
- 
- 		if (type != Z_EROFS_LCLUSTER_TYPE_NONHEAD)
- 			return d1;
-@@ -238,15 +235,14 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- {
- 	struct erofs_inode *const vi = m->inode;
- 	const unsigned int lclusterbits = vi->z_logical_clusterbits;
--	const unsigned int lomask = (1 << lclusterbits) - 1;
--	unsigned int vcnt, base, lo, encodebits, nblk, eofs;
-+	unsigned int vcnt, base, lo, lobits, encodebits, nblk, eofs;
- 	int i;
- 	u8 *in, type;
- 	bool big_pcluster;
- 
- 	if (1 << amortizedshift == 4 && lclusterbits <= 14)
- 		vcnt = 2;
--	else if (1 << amortizedshift == 2 && lclusterbits == 12)
-+	else if (1 << amortizedshift == 2 && lclusterbits <= 12)
- 		vcnt = 16;
- 	else
- 		return -EOPNOTSUPP;
-@@ -255,6 +251,7 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 	m->nextpackoff = round_down(pos, vcnt << amortizedshift) +
- 			 (vcnt << amortizedshift);
- 	big_pcluster = vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1;
-+	lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
- 	encodebits = ((vcnt << amortizedshift) - sizeof(__le32)) * 8 / vcnt;
- 	eofs = erofs_blkoff(vi->sbi, pos);
- 	base = round_down(eofs, vcnt << amortizedshift);
-@@ -262,15 +259,14 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 
- 	i = (eofs - base) >> amortizedshift;
- 
--	lo = decode_compactedbits(lclusterbits, lomask,
--				  in, encodebits * i, &type);
-+	lo = decode_compactedbits(lobits, in, encodebits * i, &type);
- 	m->type = type;
- 	if (type == Z_EROFS_LCLUSTER_TYPE_NONHEAD) {
- 		m->clusterofs = 1 << lclusterbits;
- 
- 		/* figure out lookahead_distance: delta[1] if needed */
- 		if (lookahead)
--			m->delta[1] = get_compacted_la_distance(lclusterbits,
-+			m->delta[1] = get_compacted_la_distance(lobits,
- 						encodebits, vcnt, in, i);
- 		if (lo & Z_EROFS_LI_D0_CBLKCNT) {
- 			if (!big_pcluster) {
-@@ -289,8 +285,8 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 		 * of which lo saves delta[1] rather than delta[0].
- 		 * Hence, get delta[0] by the previous lcluster indirectly.
- 		 */
--		lo = decode_compactedbits(lclusterbits, lomask,
--					  in, encodebits * (i - 1), &type);
-+		lo = decode_compactedbits(lobits, in,
-+					  encodebits * (i - 1), &type);
- 		if (type != Z_EROFS_LCLUSTER_TYPE_NONHEAD)
- 			lo = 0;
- 		else if (lo & Z_EROFS_LI_D0_CBLKCNT)
-@@ -305,8 +301,8 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 		nblk = 1;
- 		while (i > 0) {
- 			--i;
--			lo = decode_compactedbits(lclusterbits, lomask,
--						  in, encodebits * i, &type);
-+			lo = decode_compactedbits(lobits, in,
-+						  encodebits * i, &type);
- 			if (type == Z_EROFS_LCLUSTER_TYPE_NONHEAD)
- 				i -= lo;
- 
-@@ -317,8 +313,8 @@ static int unpack_compacted_index(struct z_erofs_maprecorder *m,
- 		nblk = 0;
- 		while (i > 0) {
- 			--i;
--			lo = decode_compactedbits(lclusterbits, lomask,
--						  in, encodebits * i, &type);
-+			lo = decode_compactedbits(lobits, in,
-+						  encodebits * i, &type);
- 			if (type == Z_EROFS_LCLUSTER_TYPE_NONHEAD) {
- 				if (lo & Z_EROFS_LI_D0_CBLKCNT) {
- 					--i;
--- 
-2.39.3
-
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
