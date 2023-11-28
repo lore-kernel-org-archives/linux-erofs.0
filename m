@@ -4,28 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6942EC4167B
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Nov 2023 17:58:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06E87C4167B
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 Nov 2023 18:04:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Sfqvg0fv6z3ccf
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Nov 2023 04:58:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Sfr2f4YDLz3cfQ
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Nov 2023 05:04:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SfqvW4VL9z3cW2
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Nov 2023 04:58:44 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VxLTYBk_1701194300;
-Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VxLTYBk_1701194300)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Sfr2Y0bcrz3cW2
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Nov 2023 05:04:48 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VxLRJJv_1701194672;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VxLRJJv_1701194672)
           by smtp.aliyun-inc.com;
-          Wed, 29 Nov 2023 01:58:26 +0800
+          Wed, 29 Nov 2023 02:04:33 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs: fix memory leak on short-lived bounced pages
-Date: Wed, 29 Nov 2023 01:58:10 +0800
-Message-Id: <20231128175810.4105671-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2] erofs: fix memory leak on short-lived bounced pages
+Date: Wed, 29 Nov 2023 02:04:31 +0800
+Message-Id: <20231128180431.4116991-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20231128175810.4105671-1-hsiangkao@linux.alibaba.com>
+References: <20231128175810.4105671-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -47,7 +49,7 @@ Both MicroLZMA and DEFLATE algorithms can use short-lived pages on
 demand for overlap inplace I/O decompression.
 
 However, those short-lived pages are actually added to
-`be->decompressed_pages`.  Thus, it should be checked instead of
+`be->compressed_pages`.  Thus, it should be checked instead of
 `pcl->compressed_bvecs`.
 
 The LZ4 algorithm doesn't work like this, so it won't be impacted.
@@ -55,11 +57,14 @@ The LZ4 algorithm doesn't work like this, so it won't be impacted.
 Fixes: 67139e36d970 ("erofs: introduce `z_erofs_parse_in_bvecs'")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
+v2:
+  - should be `be->compressed_pages`.
+
  fs/erofs/zdata.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index a7e6847f6f8f..e5e44f926692 100644
+index a7e6847f6f8f..a33cd6757f98 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
 @@ -1309,12 +1309,11 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
@@ -68,7 +73,7 @@ index a7e6847f6f8f..e5e44f926692 100644
  		for (i = 0; i < pclusterpages; ++i) {
 -			page = pcl->compressed_bvecs[i].page;
 +			/* consider shortlived pages added when decompressing */
-+			page = be->decompressed_pages[i];
++			page = be->compressed_pages[i];
  
  			if (erofs_page_is_managed(sbi, page))
  				continue;
