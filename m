@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1891C4167B
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 Dec 2023 14:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C74FAC10F05
+	for <linux-erofs@archiver.kernel.org>; Mon, 11 Dec 2023 14:07:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Spk8y373rz30hC
-	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 01:07:46 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=yukuai1@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Spk913lBQz3c8Q
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 01:07:49 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=yukuai1@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Spk8c2p5tz30Ql
-	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 01:07:26 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Spk8c52gSz30YR
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 01:07:28 +1100 (AEDT)
 Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4Spk8P4Pzfz4f3khc
-	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:17 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Spk8W4Fl7z4f3kKX
+	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:23 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 0E8EB1A09F2
-	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:20 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id C04211A0A35
+	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:24 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgDn6xGTF3dlDYFxDQ--.28013S5;
-	Mon, 11 Dec 2023 22:07:19 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgDn6xGTF3dlDYFxDQ--.28013S8;
+	Mon, 11 Dec 2023 22:07:24 +0800 (CST)
 From: Yu Kuai <yukuai1@huaweicloud.com>
 To: axboe@kernel.dk,
 	roger.pau@citrix.com,
@@ -58,32 +58,32 @@ To: axboe@kernel.dk,
 	akpm@linux-foundation.org,
 	p.raghav@samsung.com,
 	hare@suse.de
-Subject: [PATCH RFC v2 for-6.8/block 01/18] block: add some bdev apis
-Date: Mon, 11 Dec 2023 22:05:35 +0800
-Message-Id: <20231211140552.973290-2-yukuai1@huaweicloud.com>
+Subject: [PATCH RFC v2 for-6.8/block 04/18] mtd: block2mtd: use bdev apis
+Date: Mon, 11 Dec 2023 22:05:38 +0800
+Message-Id: <20231211140552.973290-5-yukuai1@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231211140552.973290-1-yukuai1@huaweicloud.com>
 References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgDn6xGTF3dlDYFxDQ--.28013S5
-X-Coremail-Antispam: 1UD129KBjvJXoW3Jw4kWFWUAr1DGF1UWF17Wrg_yoW7CryUpF
-	yUGa45JrW5Gw1Igrs2ya13Zryag3W0kF1xZa4xJ34Yk3yktr9agFZ5CwnrArWftrWkAFZr
-	XFya9rWxCr1jkFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUP014x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
-	x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-	Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
-	xKxwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
-	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1UMIIYrx
-	kI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v2
-	6F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr
-	1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUbpuWJUU
-	UUU==
+X-CM-TRANSID: cCh0CgDn6xGTF3dlDYFxDQ--.28013S8
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jw1DtryDWw17CF45XFyrZwb_yoW7Aw18pa
+	y3Ca95Aw4UKrn8urs7Xwn8Zr12g3sFqa1Uuay7C3yakFyfXryIkas7ta45tFyrKry8AFWk
+	XF4DAr4rXF40grJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPa14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
+	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
+	z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F
+	4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq
+	3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
+	IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
+	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
+	kIc2xKxwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1UMI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjfU
+	OBTYUUUUU
 X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -102,156 +102,172 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Yu Kuai <yukuai3@huawei.com>
 
-Those apis will be used for other modules, so that bd_inode won't be
-accessed directly from other modules.
+On the one hand covert to use folio while reading bdev inode, on the
+other hand prevent to access bd_inode directly.
 
 Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 ---
- block/bdev.c           | 70 ++++++++++++++++++++++++++++++++++++++++++
- block/blk.h            |  2 --
- include/linux/blkdev.h | 17 ++++++++++
- 3 files changed, 87 insertions(+), 2 deletions(-)
+ drivers/mtd/devices/block2mtd.c | 81 +++++++++++++++------------------
+ 1 file changed, 36 insertions(+), 45 deletions(-)
 
-diff --git a/block/bdev.c b/block/bdev.c
-index 750aec178b6a..9a469753eb4b 100644
---- a/block/bdev.c
-+++ b/block/bdev.c
-@@ -89,6 +89,13 @@ void invalidate_bdev(struct block_device *bdev)
- }
- EXPORT_SYMBOL(invalidate_bdev);
+diff --git a/drivers/mtd/devices/block2mtd.c b/drivers/mtd/devices/block2mtd.c
+index aa44a23ec045..cf201bf73184 100644
+--- a/drivers/mtd/devices/block2mtd.c
++++ b/drivers/mtd/devices/block2mtd.c
+@@ -46,40 +46,34 @@ struct block2mtd_dev {
+ /* Static info about the MTD, used in cleanup_module */
+ static LIST_HEAD(blkmtd_device_list);
  
-+void invalidate_bdev_range(struct block_device *bdev, pgoff_t start,
-+			   pgoff_t end)
-+{
-+	invalidate_mapping_pages(bdev->bd_inode->i_mapping, start, end);
-+}
-+EXPORT_SYMBOL_GPL(invalidate_bdev_range);
-+
- /*
-  * Drop all buffers & page cache for given bdev range. This function bails
-  * with error if bdev has other exclusive owner (such as filesystem).
-@@ -121,6 +128,7 @@ int truncate_bdev_range(struct block_device *bdev, blk_mode_t mode,
- 					     lstart >> PAGE_SHIFT,
- 					     lend >> PAGE_SHIFT);
- }
-+EXPORT_SYMBOL_GPL(truncate_bdev_range);
- 
- static void set_init_blocksize(struct block_device *bdev)
+-
+-static struct page *page_read(struct address_space *mapping, pgoff_t index)
+-{
+-	return read_mapping_page(mapping, index, NULL);
+-}
+-
+ /* erase a specified part of the device */
+ static int _block2mtd_erase(struct block2mtd_dev *dev, loff_t to, size_t len)
  {
-@@ -1102,3 +1110,65 @@ void bdev_statx_dioalign(struct inode *inode, struct kstat *stat)
+-	struct address_space *mapping =
+-				dev->bdev_handle->bdev->bd_inode->i_mapping;
+-	struct page *page;
++	struct block_device *bdev = dev->bdev_handle->bdev;
++	struct folio *folio;
+ 	pgoff_t index = to >> PAGE_SHIFT;	// page index
+ 	int pages = len >> PAGE_SHIFT;
+ 	u_long *p;
+ 	u_long *max;
  
- 	blkdev_put_no_open(bdev);
- }
-+
-+struct folio *bdev_read_folio(struct block_device *bdev, loff_t pos)
-+{
-+	return mapping_read_folio_gfp(bdev->bd_inode->i_mapping,
-+				      pos >> PAGE_SHIFT, GFP_KERNEL);
-+}
-+EXPORT_SYMBOL_GPL(bdev_read_folio);
-+
-+struct folio *__bdev_get_folio(struct block_device *bdev, loff_t pos,
-+			       fgf_t fgp_flags, gfp_t gfp)
-+{
-+	return __filemap_get_folio(bdev->bd_inode->i_mapping, pos >> PAGE_SHIFT,
-+				   fgp_flags, gfp);
-+}
-+EXPORT_SYMBOL_GPL(__bdev_get_folio);
-+
-+int bdev_wb_err_check(struct block_device *bdev, errseq_t since)
-+{
-+	return errseq_check(&bdev->bd_inode->i_mapping->wb_err, since);
-+}
-+EXPORT_SYMBOL_GPL(bdev_wb_err_check);
-+
-+int bdev_wb_err_check_and_advance(struct block_device *bdev, errseq_t *since)
-+{
-+	return errseq_check_and_advance(&bdev->bd_inode->i_mapping->wb_err,
-+					since);
-+}
-+EXPORT_SYMBOL_GPL(bdev_wb_err_check_and_advance);
-+
-+void bdev_balance_dirty_pages_ratelimited(struct block_device *bdev)
-+{
-+	return balance_dirty_pages_ratelimited(bdev->bd_inode->i_mapping);
-+}
-+EXPORT_SYMBOL_GPL(bdev_balance_dirty_pages_ratelimited);
-+
-+void bdev_sync_readahead(struct block_device *bdev, struct file_ra_state *ra,
-+			 struct file *file, pgoff_t index,
-+			 unsigned long req_count)
-+{
-+	struct file_ra_state tmp_ra = {};
-+
-+	if (!ra) {
-+		ra = &tmp_ra;
-+		file_ra_state_init(ra, bdev->bd_inode->i_mapping);
-+	}
-+	page_cache_sync_readahead(bdev->bd_inode->i_mapping, ra, file, index,
-+				  req_count);
-+}
-+EXPORT_SYMBOL_GPL(bdev_sync_readahead);
-+
-+void bdev_attach_wb(struct block_device *bdev)
-+{
-+	inode_attach_wb(bdev->bd_inode, NULL);
-+}
-+EXPORT_SYMBOL_GPL(bdev_attach_wb);
-+
-+void bdev_associated_mapping(struct block_device *bdev,
-+			     struct address_space *mapping)
-+{
-+	mapping->host = bdev->bd_inode;
-+}
-+EXPORT_SYMBOL_GPL(bdev_associated_mapping);
-diff --git a/block/blk.h b/block/blk.h
-index 08a358bc0919..da4becd4f7e9 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -467,8 +467,6 @@ extern struct device_attribute dev_attr_events_poll_msecs;
- extern struct attribute_group blk_trace_attr_group;
+ 	while (pages) {
+-		page = page_read(mapping, index);
+-		if (IS_ERR(page))
+-			return PTR_ERR(page);
++		folio = bdev_read_folio(bdev, index << PAGE_SHIFT);
++		if (IS_ERR(folio))
++			return PTR_ERR(folio);
  
- blk_mode_t file_to_blk_mode(struct file *file);
--int truncate_bdev_range(struct block_device *bdev, blk_mode_t mode,
--		loff_t lstart, loff_t lend);
- long blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg);
- long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg);
+-		max = page_address(page) + PAGE_SIZE;
+-		for (p=page_address(page); p<max; p++)
++		max = folio_address(folio) + folio_size(folio);
++		for (p = folio_address(folio); p < max; p++)
+ 			if (*p != -1UL) {
+-				lock_page(page);
+-				memset(page_address(page), 0xff, PAGE_SIZE);
+-				set_page_dirty(page);
+-				unlock_page(page);
+-				balance_dirty_pages_ratelimited(mapping);
++				folio_lock(folio);
++				memset(folio_address(folio), 0xff,
++				       folio_size(folio));
++				folio_mark_dirty(folio);
++				folio_unlock(folio);
++				bdev_balance_dirty_pages_ratelimited(bdev);
+ 				break;
+ 			}
  
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 17c0a7d0d319..d2453424a9eb 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -24,6 +24,7 @@
- #include <linux/sbitmap.h>
- #include <linux/uuid.h>
- #include <linux/xarray.h>
-+#include <linux/pagemap.h>
+-		put_page(page);
++		folio_put(folio);
+ 		pages--;
+ 		index++;
+ 	}
+@@ -106,9 +100,7 @@ static int block2mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
+ 		size_t *retlen, u_char *buf)
+ {
+ 	struct block2mtd_dev *dev = mtd->priv;
+-	struct address_space *mapping =
+-				dev->bdev_handle->bdev->bd_inode->i_mapping;
+-	struct page *page;
++	struct folio *folio;
+ 	pgoff_t index = from >> PAGE_SHIFT;
+ 	int offset = from & (PAGE_SIZE-1);
+ 	int cpylen;
+@@ -120,12 +112,13 @@ static int block2mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
+ 			cpylen = len;	// this page
+ 		len = len - cpylen;
  
- struct module;
- struct request_queue;
-@@ -1502,6 +1503,22 @@ struct block_device *blkdev_get_no_open(dev_t dev);
- void blkdev_put_no_open(struct block_device *bdev);
+-		page = page_read(mapping, index);
+-		if (IS_ERR(page))
+-			return PTR_ERR(page);
++		folio = bdev_read_folio(dev->bdev_handle->bdev,
++					index << PAGE_SHIFT);
++		if (IS_ERR(folio))
++			return PTR_ERR(folio);
  
- struct block_device *I_BDEV(struct inode *inode);
-+void invalidate_bdev_range(struct block_device *bdev, pgoff_t start,
-+			   pgoff_t end);
-+int truncate_bdev_range(struct block_device *bdev, blk_mode_t mode,
-+		loff_t lstart, loff_t lend);
-+struct folio *bdev_read_folio(struct block_device *bdev, loff_t pos);
-+struct folio *__bdev_get_folio(struct block_device *bdev, loff_t pos,
-+			       fgf_t fgp_flags, gfp_t gfp);
-+int bdev_wb_err_check(struct block_device *bdev, errseq_t since);
-+int bdev_wb_err_check_and_advance(struct block_device *bdev, errseq_t *since);
-+void bdev_balance_dirty_pages_ratelimited(struct block_device *bdev);
-+void bdev_sync_readahead(struct block_device *bdev, struct file_ra_state *ra,
-+			 struct file *file, pgoff_t index,
-+			 unsigned long req_count);
-+void bdev_attach_wb(struct block_device *bdev);
-+void bdev_associated_mapping(struct block_device *bdev,
-+			     struct address_space *mapping);
+-		memcpy(buf, page_address(page) + offset, cpylen);
+-		put_page(page);
++		memcpy(buf, folio_address(folio) + offset, cpylen);
++		folio_put(folio);
  
- #ifdef CONFIG_BLOCK
- void invalidate_bdev(struct block_device *bdev);
+ 		if (retlen)
+ 			*retlen += cpylen;
+@@ -141,9 +134,8 @@ static int block2mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
+ static int _block2mtd_write(struct block2mtd_dev *dev, const u_char *buf,
+ 		loff_t to, size_t len, size_t *retlen)
+ {
+-	struct page *page;
+-	struct address_space *mapping =
+-				dev->bdev_handle->bdev->bd_inode->i_mapping;
++	struct block_device *bdev = dev->bdev_handle->bdev;
++	struct folio *folio;
+ 	pgoff_t index = to >> PAGE_SHIFT;	// page index
+ 	int offset = to & ~PAGE_MASK;	// page offset
+ 	int cpylen;
+@@ -155,18 +147,18 @@ static int _block2mtd_write(struct block2mtd_dev *dev, const u_char *buf,
+ 			cpylen = len;			// this page
+ 		len = len - cpylen;
+ 
+-		page = page_read(mapping, index);
+-		if (IS_ERR(page))
+-			return PTR_ERR(page);
++		folio = bdev_read_folio(bdev, index << PAGE_SHIFT);
++		if (IS_ERR(folio))
++			return PTR_ERR(folio);
+ 
+-		if (memcmp(page_address(page)+offset, buf, cpylen)) {
+-			lock_page(page);
+-			memcpy(page_address(page) + offset, buf, cpylen);
+-			set_page_dirty(page);
+-			unlock_page(page);
+-			balance_dirty_pages_ratelimited(mapping);
++		if (memcmp(folio_address(folio) + offset, buf, cpylen)) {
++			folio_lock(folio);
++			memcpy(folio_address(folio) + offset, buf, cpylen);
++			folio_mark_dirty(folio);
++			folio_unlock(folio);
++			bdev_balance_dirty_pages_ratelimited(bdev);
+ 		}
+-		put_page(page);
++		folio_put(folio);
+ 
+ 		if (retlen)
+ 			*retlen += cpylen;
+@@ -211,8 +203,7 @@ static void block2mtd_free_device(struct block2mtd_dev *dev)
+ 	kfree(dev->mtd.name);
+ 
+ 	if (dev->bdev_handle) {
+-		invalidate_mapping_pages(
+-			dev->bdev_handle->bdev->bd_inode->i_mapping, 0, -1);
++		invalidate_bdev(dev->bdev_handle->bdev);
+ 		bdev_release(dev->bdev_handle);
+ 	}
+ 
+@@ -295,7 +286,7 @@ static struct block2mtd_dev *add_device(char *devname, int erase_size,
+ 		goto err_free_block2mtd;
+ 	}
+ 
+-	if ((long)bdev->bd_inode->i_size % erase_size) {
++	if (bdev_nr_bytes(bdev) % erase_size) {
+ 		pr_err("erasesize must be a divisor of device size\n");
+ 		goto err_free_block2mtd;
+ 	}
+@@ -313,7 +304,7 @@ static struct block2mtd_dev *add_device(char *devname, int erase_size,
+ 
+ 	dev->mtd.name = name;
+ 
+-	dev->mtd.size = bdev->bd_inode->i_size & PAGE_MASK;
++	dev->mtd.size = bdev_nr_bytes(bdev) & PAGE_MASK;
+ 	dev->mtd.erasesize = erase_size;
+ 	dev->mtd.writesize = 1;
+ 	dev->mtd.writebufsize = PAGE_SIZE;
 -- 
 2.39.2
 
