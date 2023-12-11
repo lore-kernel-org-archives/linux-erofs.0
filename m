@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8F875C46CC5
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 Dec 2023 14:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC238C10F1D
+	for <linux-erofs@archiver.kernel.org>; Mon, 11 Dec 2023 14:07:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Spk8n1tD1z3bYQ
-	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 01:07:37 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=yukuai1@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Spk8r2CL9z3bn0
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 01:07:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=yukuai1@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Spk8c17vXz3020
-	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 01:07:26 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Spk8c15r3z2ywC
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 01:07:27 +1100 (AEDT)
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4Spk8N0qSwz4f3kFg
-	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:16 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 8A4C11A0858
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Spk8Q26wMz4f3lWB
 	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:18 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 3352A1A09D9
+	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 22:07:23 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgDn6xGTF3dlDYFxDQ--.28013S4;
-	Mon, 11 Dec 2023 22:07:17 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgDn6xGTF3dlDYFxDQ--.28013S7;
+	Mon, 11 Dec 2023 22:07:22 +0800 (CST)
 From: Yu Kuai <yukuai1@huaweicloud.com>
 To: axboe@kernel.dk,
 	roger.pau@citrix.com,
@@ -58,29 +58,32 @@ To: axboe@kernel.dk,
 	akpm@linux-foundation.org,
 	p.raghav@samsung.com,
 	hare@suse.de
-Subject: [PATCH RFC v2 for-6.8/block 00/18] block: don't access bd_inode directly from other modules
-Date: Mon, 11 Dec 2023 22:05:34 +0800
-Message-Id: <20231211140552.973290-1-yukuai1@huaweicloud.com>
+Subject: [PATCH RFC v2 for-6.8/block 03/18] bcache: use bdev api in read_super()
+Date: Mon, 11 Dec 2023 22:05:37 +0800
+Message-Id: <20231211140552.973290-4-yukuai1@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20231211140552.973290-1-yukuai1@huaweicloud.com>
+References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgDn6xGTF3dlDYFxDQ--.28013S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxXr48Ww4Utw47JFWDWFW7Arb_yoW5XFWfpr
-	13KF4fGr1UWryxZaya9a17tw1rG3WkGayUWFnIy34rZFW5AryfZrWktF1rJa4kXryxXr4k
-	Xw17JryrKr1jgaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvF14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-	Y2ka0xkIwI1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
-	xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4U
-	JwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
-	0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AK
-	xVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvj
-	fUojjgUUUUU
+X-CM-TRANSID: cCh0CgDn6xGTF3dlDYFxDQ--.28013S7
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ww17Zw4kZr48Xr13XF18Xwb_yoW8Jw4xpF
+	Z7uF9xZr48Gw17u3y8Zr4DZFyrK3srKFWUKa4xCw43ua43Jw1Y9rW5J34UG34rZr18WFs2
+	vF4rJr4xu3WUGFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPF14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
+	x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+	Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
+	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
+	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
+	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
+	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
+	xKxwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1UMIIYrx
+	kI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v2
+	6r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
+	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjfUojjg
+	UUUUU
 X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -99,78 +102,46 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Yu Kuai <yukuai3@huawei.com>
 
-Changes in v2:
- - remove some bdev apis that is not necessary;
- - pass in offset for bdev_read_folio() and __bdev_get_folio();
- - remove bdev_gfp_constraint() and add a new helper in fs/buffer.c to
- prevent access bd_indoe() directly from mapping_gfp_constraint() in
- ext4.(patch 15, 16);
- - remove block_device_ejected() from ext4.
+On the one hand covert to use folio while reading bdev inode, on the
+other hand prevent to access bd_inode directly.
 
-Noted that following is not changed yet since v1:
-- Chirstoph suggested to remove invalidate_inode_pages2() from
-xen_update_blkif_status(), however, this sync_bdev() + invalidate_bdev()
-is used from many modules, and I'll leave this for later if we want to
-kill all of them.
-- Matthew suggested that pass in valid file_ra_state for cramfs,
-however, I don't see an easy way to do this for cramfs_lookup() and
-cramfs_read_super().
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+---
+ drivers/md/bcache/super.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-Patch 1 add some bdev apis, then follow up patches will use these apis
-to avoid access bd_inode directly, and hopefully the field bd_inode can
-be removed eventually(after figure out a way for fs/buffer.c).
-
-Yu Kuai (18):
-  block: add some bdev apis
-  xen/blkback: use bdev api in xen_update_blkif_status()
-  bcache: use bdev api in read_super()
-  mtd: block2mtd: use bdev apis
-  s390/dasd: use bdev api in dasd_format()
-  scsicam: use bdev api in scsi_bios_ptable()
-  bcachefs: remove dead function bdev_sectors()
-  bio: export bio_add_folio_nofail()
-  btrfs: use bdev apis
-  cramfs: use bdev apis in cramfs_blkdev_read()
-  erofs: use bdev api
-  gfs2: use bdev api
-  nilfs2: use bdev api in nilfs_attach_log_writer()
-  jbd2: use bdev apis
-  buffer: add a new helper to read sb block
-  ext4: use new helper to read sb block
-  ext4: remove block_device_ejected()
-  ext4: use bdev apis
-
- block/bdev.c                       | 70 ++++++++++++++++++++++++++
- block/bio.c                        |  1 +
- block/blk.h                        |  2 -
- drivers/block/xen-blkback/xenbus.c |  3 +-
- drivers/md/bcache/super.c          | 11 ++--
- drivers/mtd/devices/block2mtd.c    | 81 +++++++++++++-----------------
- drivers/s390/block/dasd_ioctl.c    |  5 +-
- drivers/scsi/scsicam.c             |  4 +-
- fs/bcachefs/util.h                 |  5 --
- fs/btrfs/disk-io.c                 | 71 ++++++++++++--------------
- fs/btrfs/volumes.c                 | 17 +++----
- fs/btrfs/zoned.c                   | 15 +++---
- fs/buffer.c                        | 68 +++++++++++++++++--------
- fs/cramfs/inode.c                  | 36 +++++--------
- fs/erofs/data.c                    | 18 ++++---
- fs/erofs/internal.h                |  2 +
- fs/ext4/dir.c                      |  6 +--
- fs/ext4/ext4.h                     | 13 -----
- fs/ext4/ext4_jbd2.c                |  6 +--
- fs/ext4/inode.c                    |  8 +--
- fs/ext4/super.c                    | 66 ++++--------------------
- fs/ext4/symlink.c                  |  2 +-
- fs/gfs2/glock.c                    |  2 +-
- fs/gfs2/ops_fstype.c               |  2 +-
- fs/jbd2/journal.c                  |  3 +-
- fs/jbd2/recovery.c                 |  6 +--
- fs/nilfs2/segment.c                |  2 +-
- include/linux/blkdev.h             | 17 +++++++
- include/linux/buffer_head.h        | 18 ++++++-
- 29 files changed, 301 insertions(+), 259 deletions(-)
-
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index bfe1685dbae5..23892b32c582 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -168,14 +168,13 @@ static const char *read_super(struct cache_sb *sb, struct block_device *bdev,
+ {
+ 	const char *err;
+ 	struct cache_sb_disk *s;
+-	struct page *page;
++	struct folio *folio;
+ 	unsigned int i;
+ 
+-	page = read_cache_page_gfp(bdev->bd_inode->i_mapping,
+-				   SB_OFFSET >> PAGE_SHIFT, GFP_KERNEL);
+-	if (IS_ERR(page))
++	folio = bdev_read_folio(bdev, SB_OFFSET);
++	if (IS_ERR(folio))
+ 		return "IO error";
+-	s = page_address(page) + offset_in_page(SB_OFFSET);
++	s = folio_address(folio) + offset_in_folio(folio, SB_OFFSET);
+ 
+ 	sb->offset		= le64_to_cpu(s->offset);
+ 	sb->version		= le64_to_cpu(s->version);
+@@ -272,7 +271,7 @@ static const char *read_super(struct cache_sb *sb, struct block_device *bdev,
+ 	*res = s;
+ 	return NULL;
+ err:
+-	put_page(page);
++	folio_put(folio);
+ 	return err;
+ }
+ 
 -- 
 2.39.2
 
