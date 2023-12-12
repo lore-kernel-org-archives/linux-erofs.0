@@ -4,58 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D20DAC4167B
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 Dec 2023 14:17:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F843C4332F
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 00:51:17 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4SpkNg3tFDz3bTN
-	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 01:17:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=209.85.218.52; helo=mail-ej1-f52.google.com; envelope-from=ngompa13@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Sq0RR4nJBz3brC
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Dec 2023 11:51:15 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4SpkNX174Jz2xKQ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 01:17:46 +1100 (AEDT)
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a1c7d8f89a5so601518066b.2
-        for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 06:17:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702304262; x=1702909062;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+FeyufrOe65ZibAeQSako8BHcEODv5E1MPLsl6l5HtI=;
-        b=jLbvw7KwE2YKjwF/PmhCcXLsb83nS6j4/2i3+FYyKY7Z2ivT9Om1OgrZKz2ypj+BIc
-         4/0O2OZK50QEukFlctyWMROvOaV6DtmVsHzwW6ERQ6NXIE1IrWbQVVeyv0X3FGGe9VAv
-         lMzM/KcRdx7QdKAK+SH+TYd7GKWKUBIYgQvu5U+ieZqZmy0kAWyreH0o7ohK8scuF7wv
-         NhmpIR8lucCItLRWiFZjCuYkGUrFsjIeF7MeWE5TorAK27rueClxOY0hz2HtZdkvP56p
-         eVlrPtjOhhR58j5U0PEOVf9RA8OI9JBHAtH7HI4EHlM/liCOGF55DMU7mnfZx7rdt4Ir
-         eg1A==
-X-Gm-Message-State: AOJu0Yw97q4dmHOfqf/QN4RVxDLfQYm4okfKIFLIbf1tTVe9bGFhX3tU
-	AetQSreQXCCWGP/WSOfGfM2Hj+/0eoK1J6hY
-X-Google-Smtp-Source: AGHT+IHUXVK0isjcCAYXzIcfwXvR+5KHrtKpw9ClzOCPBJBT0t3KuR9dMvSaVWwJTY53ajCkxHmbpA==
-X-Received: by 2002:a17:907:3f08:b0:a1c:b3ce:25fe with SMTP id hq8-20020a1709073f0800b00a1cb3ce25femr2249702ejc.132.1702304261986;
-        Mon, 11 Dec 2023 06:17:41 -0800 (PST)
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com. [209.85.208.52])
-        by smtp.gmail.com with ESMTPSA id tj3-20020a170907c24300b00a1b6cba8d20sm4817013ejc.122.2023.12.11.06.17.41
-        for <linux-erofs@lists.ozlabs.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Dec 2023 06:17:41 -0800 (PST)
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-54cde11d0f4so6328923a12.2
-        for <linux-erofs@lists.ozlabs.org>; Mon, 11 Dec 2023 06:17:41 -0800 (PST)
-X-Received: by 2002:a05:6402:1a59:b0:54c:4837:a659 with SMTP id
- bf25-20020a0564021a5900b0054c4837a659mr2627320edb.70.1702304261586; Mon, 11
- Dec 2023 06:17:41 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Sq0RJ6Xs6z2ywC
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Dec 2023 11:51:06 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VyKKeJX_1702342257;
+Received: from 192.168.71.57(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VyKKeJX_1702342257)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Dec 2023 08:50:59 +0800
+Message-ID: <941aff31-6aa4-4c37-bb94-547c46250304@linux.alibaba.com>
+Date: Tue, 12 Dec 2023 08:50:56 +0800
 MIME-Version: 1.0
-References: <CAOgh=Fwb+JCTQ-iqzjq8st9qbvauxc4gqqafjWG2Xc08MeBabQ@mail.gmail.com>
-In-Reply-To: <CAOgh=Fwb+JCTQ-iqzjq8st9qbvauxc4gqqafjWG2Xc08MeBabQ@mail.gmail.com>
-From: Neal Gompa <neal@gompa.dev>
-Date: Mon, 11 Dec 2023 09:17:04 -0500
-X-Gmail-Original-Message-ID: <CAEg-Je_TFh9wF3K0JU2SPkskHB4A-KBkxVKKQ5yn1=PNSZQRdw@mail.gmail.com>
-Message-ID: <CAEg-Je_TFh9wF3K0JU2SPkskHB4A-KBkxVKKQ5yn1=PNSZQRdw@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [RFC KERNEL] initoverlayfs - a scalable initial filesystem
-To: Eric Curtin <ecurtin@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Eric Curtin <ecurtin@redhat.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-unionfs@vger.kernel.org, linux-erofs@lists.ozlabs.org
+References: <CAOgh=Fwb+JCTQ-iqzjq8st9qbvauxc4gqqafjWG2Xc08MeBabQ@mail.gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <CAOgh=Fwb+JCTQ-iqzjq8st9qbvauxc4gqqafjWG2Xc08MeBabQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -67,21 +44,21 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Colin Walters <walters@redhat.com>, Lokesh Mandvekar <lmandvek@redhat.com>, Stephen Smoogen <ssmoogen@redhat.com>, Yariv Rachmani <yrachman@redhat.com>, Brian Masney <bmasney@redhat.com>, Daniel Walsh <dwalsh@redhat.com>, Daan De Meyer <daan.j.demeyer@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-unionfs@vger.kernel.org, Pavol Brilla <pbrilla@redhat.com>, Eric Chanudet <echanude@redhat.com>, Alexander Larsson <alexl@redhat.com>, Lennart Poettering <lennart@poettering.net>, Btrfs BTRFS <linux-btrfs@vger.kernel.org>, linux-erofs@lists.ozlabs.org, Douglas Landgraf <dlandgra@redhat.com>, Luca Boccassi <bluca@debian.org>, =?UTF-8?B?UGV0ciDFoGFiYXRh?= <psabata@redhat.com>
+Cc: nvdimm@lists.linux.dev, Colin Walters <walters@redhat.com>, Lokesh Mandvekar <lmandvek@redhat.com>, Stephen Smoogen <ssmoogen@redhat.com>, Yariv Rachmani <yrachman@redhat.com>, Brian Masney <bmasney@redhat.com>, Daniel Walsh <dwalsh@redhat.com>, Daan De Meyer <daan.j.demeyer@gmail.com>, Pavol Brilla <pbrilla@redhat.com>, Eric Chanudet <echanude@redhat.com>, Alexander Larsson <alexl@redhat.com>, Lennart Poettering <lennart@poettering.net>, Neal Gompa <neal@gompa.dev>, Douglas Landgraf <dlandgra@redhat.com>, Luca Boccassi <bluca@debian.org>, =?UTF-8?Q?Petr_=C5=A0abata?= <psabata@redhat.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Mon, Dec 11, 2023 at 8:46=E2=80=AFAM Eric Curtin <ecurtin@redhat.com> wr=
-ote:
->
+Hi,
+
+On 2023/12/11 21:45, Eric Curtin wrote:
 > Hi All,
->
+> 
 > We have recently been working on something called initoverlayfs, which
 > we sent an RFC email to the systemd and dracut mailing lists to gather
 > feedback. This is an exploratory email as we are unsure if a solution
 > like this fits in userspace or kernelspace and we would like to gather
 > feedback from the community.
->
+> 
 > To describe this briefly, the idea is to use erofs+overlayfs as an
 > initial filesystem rather than an initramfs. The benefits are, we can
 > start userspace significantly faster as we do not have to unpack,
@@ -90,78 +67,99 @@ ote:
 > greater benefit, is that we can have less fear of initial filesystem
 > bloat, as when you are using transparent decompression you only pay
 > for decompressing the bytes you actually use.
->
+> 
 > We implemented the first version of this, by creating a small
 > initramfs that only contains storage drivers, udev and a couple of 100
 > lines of C code, just enough userspace to mount an erofs with
 > transient overlay. Then we build a second initramfs which has all the
 > contents of a normal everyday initramfs with all the bells and
 > whistles and convert this into an erofs.
->
+> 
 > Then at boot time you basically transition to this erofs+overlayfs in
 > userspace and everything works as normal as it would in a traditional
 > initramfs.
->
+> 
 > The current implementation looks like this:
->
+> 
 > ```
-> From the filesystem perspective (roughly):
->
+>  From the filesystem perspective (roughly):
+> 
 > fw -> bootloader -> kernel -> mini-initramfs -> initoverlayfs -> rootfs
->
-> From the process perspective (roughly):
->
+> 
+>  From the process perspective (roughly):
+> 
 > fw -> bootloader -> kernel -> storage-init   -> init ----------------->
 > ```
->
+> 
 > But we have been asking the question whether we should be implementing
 > this in kernelspace so it looks more like:
->
+> 
 > ```
-> From the filesystem perspective (roughly):
->
+>  From the filesystem perspective (roughly):
+> 
 > fw -> bootloader -> kernel -> initoverlayfs -> rootfs
->
-> From the process perspective (roughly):
->
+> 
+>  From the process perspective (roughly):
+> 
 > fw -> bootloader -> kernel -> init ----------------->
 > ```
->
+> 
 > The kind of questions we are asking are: Would it be possible to
 > implement this in kernelspace so we could just mount the initial
 > filesystem data as an erofs+overlayfs filesystem without unpacking,
 > decompressing, copying the data to a tmpfs, etc.? Could we memmap the
 > initramfs buffer and mount it like an erofs? What other considerations
 > should be taken into account?
->
+
+Since Linux 5.15, EROFS has supported FSDAX feature so that it can
+mount from persistent memory devices with `-o dax`.
+
+That is already used for virtualization cases like VM rootfs and
+container image passthrough with virtio-pmem [1] to share page cache
+memory between host and guest.
+
+For non-virtualization cases, I guess you could try to use `memmap`
+kernel option [2] to specify a memory region by bootloaders which
+contains an EROFS rootfs and a customized init for booting as
+erofs+overlayfs at least for `initoverlayfs`.  The main benefit is
+that the memory region specified by the bootloader can be directly
+used for mounting.  But I never tried if this option actually works.
+
+Furthermore, compared to traditional ramdisks, using direct address
+can avoid page cache totally for uncompressed files like it can
+just use unencoded data as mmaped memory.  For compressed files, it
+still needs page cache to support mmaped access but we could adapt
+more for persistent memory scenarios such as disable cache
+decompression compared to previous block devices.
+
+I'm not sure if it's worth implementing this in kernelspace since
+it's out of scope of an individual filesystem anyway.
+
+[1] https://www.qemu.org/docs/master/system/devices/virtio-pmem.html
+[2] https://docs.pmem.io/persistent-memory/getting-started-guide/creating-development-environments/linux-environments/linux-memmap
+
+Thanks,
+Gao Xiang
+
+> 
 > Echo'ing Lennart we must also "keep in mind from the beginning how
 > authentication of every component of your process shall work" as
 > that's essential to a couple of different Linux distributions today.
->
+> 
 > We kept this email short because we want people to read it and avoid
 > duplicating information from elsewhere. The effort is described from
 > different perspectives in the systemd/dracut RFC email and github
 > README.md if you'd like to learn more, it's worth reading the
 > discussion in the systemd mailing list:
->
-> https://marc.info/?l=3Dsystemd-devel&m=3D170214639006704&w=3D2
->
+> 
+> https://marc.info/?l=systemd-devel&m=170214639006704&w=2
+> 
 > https://github.com/containers/initoverlayfs/blob/main/README.md
->
+> 
 > We also received feedback informally in the community that it would be
 > nice if we could optionally use btrfs as an alternative.
->
+> 
 > Is mise le meas/Regards,
->
+> 
 > Eric Curtin
->
-
-Adding linux-btrfs@ to the discussion, because I think it'd be useful
-to include them for what handling btrfs as an alternative to
-erofs+overlayfs would look like.
-
-
-
---
-=E7=9C=9F=E5=AE=9F=E3=81=AF=E3=81=84=E3=81=A4=E3=82=82=E4=B8=80=E3=81=A4=EF=
-=BC=81/ Always, there's only one truth!
+> 
