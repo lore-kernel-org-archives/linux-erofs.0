@@ -4,50 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60115C47074
-	for <linux-erofs@archiver.kernel.org>; Sun,  7 Jan 2024 16:09:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0357C3DA6E
+	for <linux-erofs@archiver.kernel.org>; Sat, 23 Dec 2023 18:47:47 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Je4QSk1X;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=mLUUfEd7;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4T7Mb52fwvz3btn
-	for <linux-erofs@archiver.kernel.org>; Mon,  8 Jan 2024 03:09:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4SyCpV0dxFz3cSJ
+	for <linux-erofs@archiver.kernel.org>; Sun, 24 Dec 2023 05:47:46 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Je4QSk1X;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=mLUUfEd7;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=horms@kernel.org; receiver=lists.ozlabs.org)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::b7; helo=out-183.mta1.migadu.com; envelope-from=kent.overstreet@linux.dev; receiver=lists.ozlabs.org)
+X-Greylist: delayed 463 seconds by postgrey-1.37 at boromir; Sun, 24 Dec 2023 05:47:37 AEDT
+Received: from out-183.mta1.migadu.com (out-183.mta1.migadu.com [IPv6:2001:41d0:203:375::b7])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4T7MZw513dz2xwH
-	for <linux-erofs@lists.ozlabs.org>; Mon,  8 Jan 2024 03:09:28 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 63A35CE0B6E;
-	Sun,  7 Jan 2024 16:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CDAAC433C8;
-	Sun,  7 Jan 2024 16:09:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704643764;
-	bh=vtEdJ8x0t9Cig7F/OQ58765CvJpN5U3pnuPNn8bEtX0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Je4QSk1Xsi5jvomPOikxCGlVFwk8iqkAbNF6aVYGaBGYI1jkUw+CADMBs0/wZQr36
-	 xy22SDkRZMP5sMid5EvoeH3h/Kwf68Tcbn77GX8EDm+cjFQlFTs6TguY93Et6BFDPv
-	 UlIs+e2Jheeb2/ck0biFbtZrf0Vw9LMCbIX3TaJmqJZgdrEhhfSfxUMIfjU8lZxJF7
-	 Q+aCdvG3kA6VLZkjLHS+Vga8pwGe2Z6VghL3LobYtAq3sM2rUGAW8uNlztGT7uqIEc
-	 x+WdUyce0Wh+SeZcYOdm2MG39rO2B8pkIyqp3viKoDClILrK1BwA1eJJXlvP2hGICM
-	 kq7yyH7rMCZgg==
-Date: Sun, 7 Jan 2024 16:09:16 +0000
-From: Simon Horman <horms@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 1/5] cachefiles: Fix __cachefiles_prepare_write()
-Message-ID: <20240107160916.GA129355@kernel.org>
-References: <20240103145935.384404-1-dhowells@redhat.com>
- <20240103145935.384404-2-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4SyCpK3Ycjz2yhT
+	for <linux-erofs@lists.ozlabs.org>; Sun, 24 Dec 2023 05:47:37 +1100 (AEDT)
+Date: Sat, 23 Dec 2023 13:39:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703356772;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nl8KqWKpD6wWjbvJJznLUba3EPd6rpJb9056eV80EZI=;
+	b=mLUUfEd7gfPYDe3oleQ9tbdyTO5xnWBH1tZ17cgI4qqbATl0NNgyxkk9s86/LqjribMhXF
+	icSGv6krf/Bb8nP/Rk+sLamzbNdocnFQ0i9s/yQOF2bzXjM3YAZVaDOCpBwjSIvilLWEoR
+	/klCC3TPr9UUNblk28yYvK2TJLs04lQ=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Kent Overstreet <kent.overstreet@linux.dev>
+To: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH RFC v3 for-6.8/block 09/17] btrfs: use bdev apis
+Message-ID: <j52xmye4qmjqv4mq524ppvqr7naicobnwn2qfcvftbj4zoowga@t6klttrjtq2d>
+References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
+ <20231221085712.1766333-10-yukuai1@huaweicloud.com>
+ <ZYcZi5YYvt5QHrG9@casper.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240103145935.384404-2-dhowells@redhat.com>
+In-Reply-To: <ZYcZi5YYvt5QHrG9@casper.infradead.org>
+X-Migadu-Flow: FLOW_OUT
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,112 +57,38 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Yiqun Leng <yqleng@linux.alibaba.com>, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
+Cc: hoeppner@linux.ibm.com, vigneshr@ti.com, yi.zhang@huawei.com, clm@fb.com, adilger.kernel@dilger.ca, miquel.raynal@bootlin.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, richard@nod.at, linux-bcachefs@vger.kernel.org, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, Yu Kuai <yukuai1@huaweicloud.com>, jejb@linux.ibm.com, p.raghav@samsung.com, gor@linux.ibm.com, hca@linux.ibm.com, joern@lazybastard.org, josef@toxicpanda.com, colyli@suse.de, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, viro@zeniv.linux.org.uk, yukuai3@huawei.com, dsterba@suse.com, konishi.ryusuke@gmail.com, axboe@kernel.dk, brauner@kernel.org, tytso@mit.edu, martin.petersen@oracle.com, nico@fluxnic.net, yangerkun@huawei.com, linux-kernel@vger.kernel.org, kent.overstreet@gmail.com, hare@suse.de, jack@suse.com, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, akpm@linux-foundation.org, roger.pau@citrix.com, linux-er
+ ofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, sth@linux.ibm.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Jan 03, 2024 at 02:59:25PM +0000, David Howells wrote:
-> Fix __cachefiles_prepare_write() to correctly determine whether the
-> requested write will fit correctly with the DIO alignment.
+On Sat, Dec 23, 2023 at 05:31:55PM +0000, Matthew Wilcox wrote:
+> On Thu, Dec 21, 2023 at 04:57:04PM +0800, Yu Kuai wrote:
+> > @@ -3674,16 +3670,17 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+> >  		 * Drop the page of the primary superblock, so later read will
+> >  		 * always read from the device.
+> >  		 */
+> > -		invalidate_inode_pages2_range(mapping,
+> > -				bytenr >> PAGE_SHIFT,
+> > +		invalidate_bdev_range(bdev, bytenr >> PAGE_SHIFT,
+> >  				(bytenr + BTRFS_SUPER_INFO_SIZE) >> PAGE_SHIFT);
+> >  	}
+> >  
+> > -	page = read_cache_page_gfp(mapping, bytenr >> PAGE_SHIFT, GFP_NOFS);
+> > -	if (IS_ERR(page))
+> > -		return ERR_CAST(page);
+> > +	nofs_flag = memalloc_nofs_save();
+> > +	folio = bdev_read_folio(bdev, bytenr);
+> > +	memalloc_nofs_restore(nofs_flag);
 > 
-> Reported-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> Tested-by: Yiqun Leng <yqleng@linux.alibaba.com>
-> Tested-by: Jia Zhu <zhujia.zj@bytedance.com>
-> cc: Jeff Layton <jlayton@kernel.org>
-> cc: linux-cachefs@redhat.com
-> cc: linux-erofs@lists.ozlabs.org
-> cc: linux-fsdevel@vger.kernel.org
-> cc: linux-mm@kvack.org
-> ---
->  fs/cachefiles/io.c | 28 +++++++++++++++++-----------
->  1 file changed, 17 insertions(+), 11 deletions(-)
-> 
-> diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-> index bffffedce4a9..7529b40bc95a 100644
-> --- a/fs/cachefiles/io.c
-> +++ b/fs/cachefiles/io.c
-> @@ -522,16 +522,22 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
->  			       bool no_space_allocated_yet)
->  {
->  	struct cachefiles_cache *cache = object->volume->cache;
-> -	loff_t start = *_start, pos;
-> -	size_t len = *_len, down;
-> +	unsigned long long start = *_start, pos;
-> +	size_t len = *_len;
->  	int ret;
->  
->  	/* Round to DIO size */
-> -	down = start - round_down(start, PAGE_SIZE);
-> -	*_start = start - down;
-> -	*_len = round_up(down + len, PAGE_SIZE);
-> -	if (down < start || *_len > upper_len)
-> +	start = round_down(*_start, PAGE_SIZE);
-> +	if (start != *_start) {
-> +		kleave(" = -ENOBUFS [down]");
-> +		return -ENOBUFS;
-> +	}
-> +	if (*_len > upper_len) {
-> +		kleave(" = -ENOBUFS [up]");
->  		return -ENOBUFS;
-> +	}
-> +
-> +	*_len = round_up(len, PAGE_SIZE);
->  
->  	/* We need to work out whether there's sufficient disk space to perform
->  	 * the write - but we can skip that check if we have space already
-> @@ -542,7 +548,7 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
->  
->  	pos = cachefiles_inject_read_error();
->  	if (pos == 0)
-> -		pos = vfs_llseek(file, *_start, SEEK_DATA);
-> +		pos = vfs_llseek(file, start, SEEK_DATA);
->  	if (pos < 0 && pos >= (loff_t)-MAX_ERRNO) {
+> This is the wrong way to use memalloc_nofs_save/restore.  They should be
+> used at the point that the filesystem takes/releases whatever lock is
+> also used during reclaim.  I don't know btrfs well enough to suggest
+> what lock is missing these annotations.
 
-Hi David,
-
-I realise these patches have been accepted, but I have a minor nit:
-pos is now unsigned, and so cannot be less than zero.
-
-Flagged by Smatch and Coccinelle.
-
->  		if (pos == -ENXIO)
->  			goto check_space; /* Unallocated tail */
-> @@ -550,7 +556,7 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
->  					  cachefiles_trace_seek_error);
->  		return pos;
->  	}
-> -	if ((u64)pos >= (u64)*_start + *_len)
-> +	if (pos >= start + *_len)
->  		goto check_space; /* Unallocated region */
->  
->  	/* We have a block that's at least partially filled - if we're low on
-> @@ -563,13 +569,13 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
->  
->  	pos = cachefiles_inject_read_error();
->  	if (pos == 0)
-> -		pos = vfs_llseek(file, *_start, SEEK_HOLE);
-> +		pos = vfs_llseek(file, start, SEEK_HOLE);
->  	if (pos < 0 && pos >= (loff_t)-MAX_ERRNO) {
-
-Ditto.
-
->  		trace_cachefiles_io_error(object, file_inode(file), pos,
->  					  cachefiles_trace_seek_error);
->  		return pos;
->  	}
-> -	if ((u64)pos >= (u64)*_start + *_len)
-> +	if (pos >= start + *_len)
->  		return 0; /* Fully allocated */
->  
->  	/* Partially allocated, but insufficient space: cull. */
-> @@ -577,7 +583,7 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
->  	ret = cachefiles_inject_remove_error();
->  	if (ret == 0)
->  		ret = vfs_fallocate(file, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
-> -				    *_start, *_len);
-> +				    start, *_len);
->  	if (ret < 0) {
->  		trace_cachefiles_io_error(object, file_inode(file), ret,
->  					  cachefiles_trace_fallocate_error);
-> 
+Yes, but considering this is a cross-filesystem cleanup I wouldn't want
+to address that in this patchset. And the easier, more incremental
+approach for the conversion would be to first convert every GFP_NOFS
+usage  to memalloc_nofs_save() like this patch does, as small local
+changes, and then let the btrfs people combine them and move them to the
+approproate location in a separate patchstet.
