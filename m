@@ -4,63 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5DC24C3DA6E
-	for <linux-erofs@archiver.kernel.org>; Wed,  3 Jan 2024 19:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C446EC3DA6E
+	for <linux-erofs@archiver.kernel.org>; Wed,  3 Jan 2024 21:16:05 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=VSrUyOj1;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=LWwj+WDn;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4T50gM5TqLz3bmb
-	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 06:50:07 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4T52ZW6C1pz3cNC
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 08:16:03 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=VSrUyOj1;
-	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=LWwj+WDn;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=codewreck.org (client-ip=2001:41d0:1:7a93::1; helo=nautica.notk.org; envelope-from=asmadeus@codewreck.org; receiver=lists.ozlabs.org)
-X-Greylist: delayed 415 seconds by postgrey-1.37 at boromir; Thu, 04 Jan 2024 06:50:02 AEDT
-Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4T50gG2bcWz3bTN
-	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 06:50:02 +1100 (AEDT)
-Received: by nautica.notk.org (Postfix, from userid 108)
-	id 4283DC024; Wed,  3 Jan 2024 20:42:55 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-	t=1704310975; bh=vmsIH42o366lLCEtX1AOBPqwGBCA85i22kuEmfl/pd4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=VSrUyOj1qK/l/eFf/XzNdKkgcBSVhkVUlfm+O8VfUWxl5YGw1O98A0g/8wm0CJiFs
-	 qi6JHNWLaTGaPp14YTfeCaQXkH5+RL6bwNXFjCQsyvFb+cw1VQF1qA3//JvTx8sBZO
-	 s6GviFkWCB2OvJsDDnDGnv64iBDIEyaBPSCGtlXKt2OrlUk54XnleIYyGtaTQwh8dg
-	 ANr3qLQlJnI+UTvy7nPUOA03QkZ+ntbCkZUufI/u591ZPQJhwXuYv9pBxyE3ivykpG
-	 eHaGxGSSdjeNhqzwuKDW0iDIGpwt4kdtqaxn4f4lh6BtlWSBpUxAcAfMG5Epms5Zyu
-	 wNeVtF6txco2Q==
-Received: from gaia (localhost [127.0.0.1])
-	by nautica.notk.org (Postfix) with ESMTPS id C491EC009;
-	Wed,  3 Jan 2024 20:42:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-	t=1704310974; bh=vmsIH42o366lLCEtX1AOBPqwGBCA85i22kuEmfl/pd4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LWwj+WDnHlGIP8EddYD3ijwsipowZRszG5+7mmCFYhPYcMYSgYc5OJWYKs/tWPFHN
-	 rrohSgHE3FDw1Mz8MzqKaodyJNeoI6TPLLL1d9Q1NJ66DkBG1MToMhqviNGVurzibK
-	 1v22R0jso4fpbQJhRwbvPhzlAx+wgUiIT1fhTsxbUlHcy+LZCp5AuuEDVpHZvdvm4Q
-	 tz/qGu7pt38R1ENarIYiaSDSKJWDhbYJ3ITsB+lf+1WGa1O/YU+Zn72WKAxHgI36F7
-	 R0VGRHPjU7EG0v4NoM3+uFtkJeOVM0NL97kSEtIGAUuzOaFEK4U+GXIQ0jdzOpRbY9
-	 awVfqCK9ksGxA==
-Received: from localhost (gaia [local])
-	by gaia (OpenSMTPD) with ESMTPA id bdfe584f;
-	Wed, 3 Jan 2024 19:42:39 +0000 (UTC)
-Date: Thu, 4 Jan 2024 04:42:24 +0900
-From: Dominique Martinet <asmadeus@codewreck.org>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 4/5] 9p: Always update remote_i_size in stat2inode
-Message-ID: <ZZW4oEuzCx-7AYpo@codewreck.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4T52ZP0jnFz2xgp
+	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 08:15:55 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704316552;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Lz9BpuJT9ZqjBzLEQFTtycxe4tbIVPZFPrNygtaFHDI=;
+	b=QwDM5yw+VmJ8YBM7dt5dcbVZuatQF/CCRbqDR+Rz+xbvFT1Ljwn7yXQUnOu/scH2Wt5ffv
+	UCEUK76dhKR++7KEfzL6Cf5W9/zwOR+woc0U4EL1y+Zbxabqj+LHBQ4PCboTdghZtqGN69
+	uf/gdVeb+8T0VX24meMydBOKaytxi5Q=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704316552;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Lz9BpuJT9ZqjBzLEQFTtycxe4tbIVPZFPrNygtaFHDI=;
+	b=QwDM5yw+VmJ8YBM7dt5dcbVZuatQF/CCRbqDR+Rz+xbvFT1Ljwn7yXQUnOu/scH2Wt5ffv
+	UCEUK76dhKR++7KEfzL6Cf5W9/zwOR+woc0U4EL1y+Zbxabqj+LHBQ4PCboTdghZtqGN69
+	uf/gdVeb+8T0VX24meMydBOKaytxi5Q=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-640-1v-GWHbRM9e1RxN52-Av-w-1; Wed,
+ 03 Jan 2024 16:15:48 -0500
+X-MC-Unique: 1v-GWHbRM9e1RxN52-Av-w-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5354F3806710;
+	Wed,  3 Jan 2024 21:15:47 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.68])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 576BF492BC6;
+	Wed,  3 Jan 2024 21:15:44 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+	Kingdom.
+	Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20240103145935.384404-1-dhowells@redhat.com>
 References: <20240103145935.384404-1-dhowells@redhat.com>
- <20240103145935.384404-5-dhowells@redhat.com>
+To: Christian Brauner <christian@brauner.io>,
+    Jeff Layton <jlayton@kernel.org>,
+    Marc Dionne <marc.dionne@auristor.com>
+Subject: [PATCH 7/5] netfs: Fix proc/fs/fscache symlink to point to "netfs" not "../netfs"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240103145935.384404-5-dhowells@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <900276.1704316543.1@warthog.procyon.org.uk>
+Date: Wed, 03 Jan 2024 21:15:43 +0000
+Message-ID: <900277.1704316543@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,40 +84,33 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Latchesar Ionkov <lucho@ionkov.net>, Christian Schoenebeck <linux_oss@crudebyte.com>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
+Cc: Paulo Alcantara <pc@manguebit.com>, Tom Talpey <tom@talpey.com>, Shyam Prasad N <sprasad@microsoft.com>, v9fs@lists.linux.dev, linux-cifs@vger.kernel.org, netdev@vger.kernel.org, Dominique Martinet <asmadeus@codewreck.org>, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, dhowells@redhat.com, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-David Howells wrote on Wed, Jan 03, 2024 at 02:59:28PM +0000:
-> Always update remote_i_size in v9fs_stat2inode*() if the size is available,
-> even if we are asked not to update i_isize
+Fix the proc/fs/fscache symlink to point to "netfs" not "../netfs".
 
-Sorry -- hold on for this patch, let's drop it for now and take it more
-slowly through next cycle.
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jeff Layton <jlayton@kernel.org>
+cc: Christian Brauner <christian@brauner.io>
+cc: linux-fsdevel@vger.kernel.org
+cc: linux-cachefs@redhat.com
+---
+ fs/netfs/fscache_proc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I had mostly forgotten about V9FS_STAT2INODE_KEEP_ISIZE and not paying
-enough attention yesterday evening, but it's not innocent -- I assume
-netfs will do the right thing if we update the *remote* i_size when
-there is cached data, but the inode's i_size cannot be updated as
-easily.
+diff --git a/fs/netfs/fscache_proc.c b/fs/netfs/fscache_proc.c
+index ecd0d1edafaa..874d951bc390 100644
+--- a/fs/netfs/fscache_proc.c
++++ b/fs/netfs/fscache_proc.c
+@@ -16,7 +16,7 @@
+  */
+ int __init fscache_proc_init(void)
+ {
+-	if (!proc_symlink("fs/fscache", NULL, "../netfs"))
++	if (!proc_symlink("fs/fscache", NULL, "netfs"))
+ 		goto error_sym;
+ 
+ 	if (!proc_create_seq("fs/netfs/caches", S_IFREG | 0444, NULL,
 
-It's hard to notice because the comment got split in 5e3cc1ee1405a7
-("9p: use inode->i_lock to protect i_size_write() under 32-bit"), but
-v9fs_refresh_inode* still have it:
-        /*      
-         * We don't want to refresh inode->i_size,
-         * because we may have cached data
-         */
-
-I assume refreshing i_size at a bad time would act like a truncation
-of cached memory.
-
-(To answer the other thread's comment that v9fs_i_size_write is useless;
-it's far from obvious enough but I'm afraid it is needed:
-- include/linux/fs.h has a comment saying i_size_write does need locking
-around it for 32bit to avoid breaking i_size_seqcount; that's still true
-in today's tree.
-- we could use any lock as long as it's coherent within the 9p
-subsystem, but we don't need a whole mutex so i_lock it is.)
--- 
-Dominique Martinet | Asmadeus
