@@ -4,75 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C446EC3DA6E
-	for <linux-erofs@archiver.kernel.org>; Wed,  3 Jan 2024 21:16:05 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28E72C3DA6E
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 00:04:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1704326694;
+	bh=h+aeR0rVATWwFKI57HfwFKde8iyf2tko4lecGzM2U9A=;
+	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=k5cZCd2eBvM+sgi/UE9WT4SmiIJdxn702fC7FqyJZhqueKOjvXxg/I0xHUoY/9lbu
+	 /4BcPJODUYjwwFOwUG2rYc7m2X36zsi/SNHAvGOcWRxHbnBmHWNEWBXywy+66pSAIo
+	 3RTxUTDD55VjH+WcqWq695ARcKlk1LPGK5Km0ESjOyoXj19gfHQHTDhC7uU2e3JQDL
+	 O0sxxsxExAepOGWizmsiJjxxgv4rgcvhR8OlZyCBe2tv7a5httaJJ8bKs2jQV7S+aR
+	 /EP8z34JRN2Z9q0gKlHZ6sQcSk2ZMDqdAjt+3APbdaPTOj32APck/k06lYepIQyv+B
+	 LeBewVMNSe3TA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4T52ZW6C1pz3cNC
-	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 08:16:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QwDM5yw+;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4T56KL3qdwz3bsn
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 11:04:54 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=ukraine.lviv.bakhmut-independently.shop (client-ip=205.185.123.37; helo=mx.ukraine.lviv.bakhmut-independently.shop; envelope-from=smsmailapp01@ukraine.lviv.bakhmut-independently.shop; receiver=lists.ozlabs.org)
+X-Greylist: delayed 510 seconds by postgrey-1.37 at boromir; Thu, 04 Jan 2024 11:04:43 AEDT
+Received: from mx.ukraine.lviv.bakhmut-independently.shop (mx.ukraine.lviv.bakhmut-independently.shop [205.185.123.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4T52ZP0jnFz2xgp
-	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 08:15:55 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704316552;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Lz9BpuJT9ZqjBzLEQFTtycxe4tbIVPZFPrNygtaFHDI=;
-	b=QwDM5yw+VmJ8YBM7dt5dcbVZuatQF/CCRbqDR+Rz+xbvFT1Ljwn7yXQUnOu/scH2Wt5ffv
-	UCEUK76dhKR++7KEfzL6Cf5W9/zwOR+woc0U4EL1y+Zbxabqj+LHBQ4PCboTdghZtqGN69
-	uf/gdVeb+8T0VX24meMydBOKaytxi5Q=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704316552;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Lz9BpuJT9ZqjBzLEQFTtycxe4tbIVPZFPrNygtaFHDI=;
-	b=QwDM5yw+VmJ8YBM7dt5dcbVZuatQF/CCRbqDR+Rz+xbvFT1Ljwn7yXQUnOu/scH2Wt5ffv
-	UCEUK76dhKR++7KEfzL6Cf5W9/zwOR+woc0U4EL1y+Zbxabqj+LHBQ4PCboTdghZtqGN69
-	uf/gdVeb+8T0VX24meMydBOKaytxi5Q=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-640-1v-GWHbRM9e1RxN52-Av-w-1; Wed,
- 03 Jan 2024 16:15:48 -0500
-X-MC-Unique: 1v-GWHbRM9e1RxN52-Av-w-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5354F3806710;
-	Wed,  3 Jan 2024 21:15:47 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.42.28.68])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 576BF492BC6;
-	Wed,  3 Jan 2024 21:15:44 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20240103145935.384404-1-dhowells@redhat.com>
-References: <20240103145935.384404-1-dhowells@redhat.com>
-To: Christian Brauner <christian@brauner.io>,
-    Jeff Layton <jlayton@kernel.org>,
-    Marc Dionne <marc.dionne@auristor.com>
-Subject: [PATCH 7/5] netfs: Fix proc/fs/fscache symlink to point to "netfs" not "../netfs"
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4T56K72pSqz2xSl
+	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 11:04:43 +1100 (AEDT)
+Received: from ukraine.lviv.bakhmut-independently.shop (whcm.berkospecial.com [209.141.48.157])
+	by mx.ukraine.lviv.bakhmut-independently.shop (Postfix) with ESMTPA id 8FCFD2C0A
+	for <linux-erofs@lists.ozlabs.org>; Wed,  3 Jan 2024 23:56:08 +0000 (UTC)
+To: linux-erofs@lists.ozlabs.org
+Subject: Re:Dear Respectable,I awaits for your response to my message!!!
+Date: 03 Jan 2024 15:56:06 -0800
+Message-ID: <20240103155606.ABDA83009A66128B@ukraine.lviv.bakhmut-independently.shop>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <900276.1704316543.1@warthog.procyon.org.uk>
-Date: Wed, 03 Jan 2024 21:15:43 +0000
-Message-ID: <900277.1704316543@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -84,33 +49,32 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Paulo Alcantara <pc@manguebit.com>, Tom Talpey <tom@talpey.com>, Shyam Prasad N <sprasad@microsoft.com>, v9fs@lists.linux.dev, linux-cifs@vger.kernel.org, netdev@vger.kernel.org, Dominique Martinet <asmadeus@codewreck.org>, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, dhowells@redhat.com, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
+From: "E. Petrova via Linux-erofs" <linux-erofs@lists.ozlabs.org>
+Reply-To: evpet@ukraine.bakhmut.wheatexporters.shop
+Cc: "E. Petrova" <smsmailapp01@ukraine.lviv.bakhmut-independently.shop>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Fix the proc/fs/fscache symlink to point to "netfs" not "../netfs".
-
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jeff Layton <jlayton@kernel.org>
-cc: Christian Brauner <christian@brauner.io>
-cc: linux-fsdevel@vger.kernel.org
-cc: linux-cachefs@redhat.com
----
- fs/netfs/fscache_proc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/netfs/fscache_proc.c b/fs/netfs/fscache_proc.c
-index ecd0d1edafaa..874d951bc390 100644
---- a/fs/netfs/fscache_proc.c
-+++ b/fs/netfs/fscache_proc.c
-@@ -16,7 +16,7 @@
-  */
- int __init fscache_proc_init(void)
- {
--	if (!proc_symlink("fs/fscache", NULL, "../netfs"))
-+	if (!proc_symlink("fs/fscache", NULL, "netfs"))
- 		goto error_sym;
- 
- 	if (!proc_create_seq("fs/netfs/caches", S_IFREG | 0444, NULL,
-
+My name is Evan from Ukraine.I have tried to reach you but find=20
+it difficult due to internet scarcity here in this town.
+I am contacting you because I want to flee Ukraine and come over=20
+to you country,I have some funds I plan to invest in your country=20
+because I want to relocate my Late Father business due to ongoing=20
+war in my country Ukraine and visit your country to set up new=20
+investment business you may advice profitable in your area.
+I also have some millions of dollars i want to invest and 995kg=20
+of 24carat gold I want to ship to your country and establish gold=20
+jewelry manufacturing company.
+I will offer you good monetary rewards for your help,due to how=20
+russian drone boambards this town frequently,phone network is=20
+disrupted because of attacks on network installations,please for=20
+fast discussion, you can add me on whats up and let's talk,this=20
+is my whatsapp number below
+whatsapp:+380-97-296-2642
+Thanking you as i wait to hear from you soon so i can tell you=20
+more details.
+God bless you for your care.
+=20
+Regards,
+Evan.
+whatsapp:+380-97-296-2642
