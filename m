@@ -4,63 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1F5EDC3DA6E
-	for <linux-erofs@archiver.kernel.org>; Wed,  3 Jan 2024 19:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5DC24C3DA6E
+	for <linux-erofs@archiver.kernel.org>; Wed,  3 Jan 2024 19:50:09 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=KqCLgCLv;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=cp+ReJMB;
+	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=VSrUyOj1;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=LWwj+WDn;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4T50c23syZz3bs0
-	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 06:47:14 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4T50gM5TqLz3bmb
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Jan 2024 06:50:07 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=KqCLgCLv;
-	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=cp+ReJMB;
+	dkim=pass (2048-bit key; secure) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=VSrUyOj1;
+	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=LWwj+WDn;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=codewreck.org (client-ip=91.121.71.147; helo=nautica.notk.org; envelope-from=asmadeus@codewreck.org; receiver=lists.ozlabs.org)
-Received: from nautica.notk.org (nautica.notk.org [91.121.71.147])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=codewreck.org (client-ip=2001:41d0:1:7a93::1; helo=nautica.notk.org; envelope-from=asmadeus@codewreck.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 415 seconds by postgrey-1.37 at boromir; Thu, 04 Jan 2024 06:50:02 AEDT
+Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4T50bt4qV1z3bTN
-	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 06:47:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4T50gG2bcWz3bTN
+	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Jan 2024 06:50:02 +1100 (AEDT)
 Received: by nautica.notk.org (Postfix, from userid 108)
-	id 8030FC023; Wed,  3 Jan 2024 20:47:04 +0100 (CET)
+	id 4283DC024; Wed,  3 Jan 2024 20:42:55 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-	t=1704311224; bh=rchUNxdMCqpxIcXW8Gd8rSQ5mpefCht1oHNRmrwB1pY=;
+	t=1704310975; bh=vmsIH42o366lLCEtX1AOBPqwGBCA85i22kuEmfl/pd4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=KqCLgCLvNFzqohtP+Q00yasRxvDCYWdLlzzFXvHOWe9rBinElOfDxYU9K7hZf/nb5
-	 yzmsz914DpXIublCq4fenyPl790/cWrEV7Kv4otTyDddP9sHmecTY6qkluQNeTRw7w
-	 GKv1xUqnqtUTL42Y2EPdQ80fY9FfEXuGjGRjLZs9Qr5bzV9qoaM3QhgjSJFjppKcmq
-	 rXQmZLjbTyRKgOPCBhHEQGlvLYtEwr/yOK1sq/ZJvt8pX0twrYja27PDZZqd+TmdMk
-	 WRzeilNoNFYXeYNhQ9F8HKU2gyKS8QlDNkTR7vC3ErTf43wXbMoYLC/aypxu8I24Fw
-	 jrRHmZJW8oL+g==
+	b=VSrUyOj1qK/l/eFf/XzNdKkgcBSVhkVUlfm+O8VfUWxl5YGw1O98A0g/8wm0CJiFs
+	 qi6JHNWLaTGaPp14YTfeCaQXkH5+RL6bwNXFjCQsyvFb+cw1VQF1qA3//JvTx8sBZO
+	 s6GviFkWCB2OvJsDDnDGnv64iBDIEyaBPSCGtlXKt2OrlUk54XnleIYyGtaTQwh8dg
+	 ANr3qLQlJnI+UTvy7nPUOA03QkZ+ntbCkZUufI/u591ZPQJhwXuYv9pBxyE3ivykpG
+	 eHaGxGSSdjeNhqzwuKDW0iDIGpwt4kdtqaxn4f4lh6BtlWSBpUxAcAfMG5Epms5Zyu
+	 wNeVtF6txco2Q==
 Received: from gaia (localhost [127.0.0.1])
-	by nautica.notk.org (Postfix) with ESMTPS id 7F88AC01A;
-	Wed,  3 Jan 2024 20:46:56 +0100 (CET)
+	by nautica.notk.org (Postfix) with ESMTPS id C491EC009;
+	Wed,  3 Jan 2024 20:42:42 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-	t=1704311223; bh=rchUNxdMCqpxIcXW8Gd8rSQ5mpefCht1oHNRmrwB1pY=;
+	t=1704310974; bh=vmsIH42o366lLCEtX1AOBPqwGBCA85i22kuEmfl/pd4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=cp+ReJMBn4/XifVWwL9GKWjgkdtOemo/VHptMfuCAey1eLCbRlXG8C98KiVBZWxQz
-	 akAQ/UbdziobN/oM86x455uM+VDXCfHi0FGn1LyWCSLZ+O0lcIM1epqEAlYR/oI3bW
-	 KDoePmBGHzUHJfEwETut5v+EXyKaJQl3IsJzqKvrTVSxz+zFiA7glGc3YoQxwb3kZG
-	 Dk8V40uXy4lDjOa4efxjrsPampxxMLB0G9RZK+y1M1uBtZ2jO2fVIGlj2hdwqGPJ5b
-	 cnZIsrl4Zu+sK1EsxMTzzmiNyNw1eykicrjIUmzOzbzIkTLPStHaI5hlFt4HU2Gojv
-	 twZElKdDAeHDQ==
+	b=LWwj+WDnHlGIP8EddYD3ijwsipowZRszG5+7mmCFYhPYcMYSgYc5OJWYKs/tWPFHN
+	 rrohSgHE3FDw1Mz8MzqKaodyJNeoI6TPLLL1d9Q1NJ66DkBG1MToMhqviNGVurzibK
+	 1v22R0jso4fpbQJhRwbvPhzlAx+wgUiIT1fhTsxbUlHcy+LZCp5AuuEDVpHZvdvm4Q
+	 tz/qGu7pt38R1ENarIYiaSDSKJWDhbYJ3ITsB+lf+1WGa1O/YU+Zn72WKAxHgI36F7
+	 R0VGRHPjU7EG0v4NoM3+uFtkJeOVM0NL97kSEtIGAUuzOaFEK4U+GXIQ0jdzOpRbY9
+	 awVfqCK9ksGxA==
 Received: from localhost (gaia [local])
-	by gaia (OpenSMTPD) with ESMTPA id 34cd8836;
-	Wed, 3 Jan 2024 19:46:53 +0000 (UTC)
-Date: Thu, 4 Jan 2024 04:46:38 +0900
+	by gaia (OpenSMTPD) with ESMTPA id bdfe584f;
+	Wed, 3 Jan 2024 19:42:39 +0000 (UTC)
+Date: Thu, 4 Jan 2024 04:42:24 +0900
 From: Dominique Martinet <asmadeus@codewreck.org>
 To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 5/5] 9p: Use length of data written to the server in
- preference to error
-Message-ID: <ZZW5nlB5v-SDsT_P@codewreck.org>
+Subject: Re: [PATCH 4/5] 9p: Always update remote_i_size in stat2inode
+Message-ID: <ZZW4oEuzCx-7AYpo@codewreck.org>
 References: <20240103145935.384404-1-dhowells@redhat.com>
- <20240103145935.384404-6-dhowells@redhat.com>
+ <20240103145935.384404-5-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240103145935.384404-6-dhowells@redhat.com>
+In-Reply-To: <20240103145935.384404-5-dhowells@redhat.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -76,26 +76,36 @@ Cc: Latchesar Ionkov <lucho@ionkov.net>, Christian Schoenebeck <linux_oss@crudeb
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-David Howells wrote on Wed, Jan 03, 2024 at 02:59:29PM +0000:
-> In v9fs_upload_to_server(), we pass the error to netfslib to terminate the
-> subreq rather than the amount of data written - even if we did actually
-> write something.
-> 
-> Further, we assume that the write is always entirely done if successful -
-> but it might have been partially complete - as returned by
-> p9_client_write(), but we ignore that.
-> 
-> Fix this by indicating the amount written by preference and only returning
-> the error if we didn't write anything.
-> 
-> (We might want to return both in future if both are available as this
-> might be useful as to whether we retry or not.)
-> 
-> Suggested-by: Dominique Martinet <asmadeus@codewreck.org>
+David Howells wrote on Wed, Jan 03, 2024 at 02:59:28PM +0000:
+> Always update remote_i_size in v9fs_stat2inode*() if the size is available,
+> even if we are asked not to update i_isize
 
-Thanks,
+Sorry -- hold on for this patch, let's drop it for now and take it more
+slowly through next cycle.
 
-Acked-by: Dominique Martinet <asmadeus@codewreck.org>
+I had mostly forgotten about V9FS_STAT2INODE_KEEP_ISIZE and not paying
+enough attention yesterday evening, but it's not innocent -- I assume
+netfs will do the right thing if we update the *remote* i_size when
+there is cached data, but the inode's i_size cannot be updated as
+easily.
 
+It's hard to notice because the comment got split in 5e3cc1ee1405a7
+("9p: use inode->i_lock to protect i_size_write() under 32-bit"), but
+v9fs_refresh_inode* still have it:
+        /*      
+         * We don't want to refresh inode->i_size,
+         * because we may have cached data
+         */
+
+I assume refreshing i_size at a bad time would act like a truncation
+of cached memory.
+
+(To answer the other thread's comment that v9fs_i_size_write is useless;
+it's far from obvious enough but I'm afraid it is needed:
+- include/linux/fs.h has a comment saying i_size_write does need locking
+around it for 32bit to avoid breaking i_size_seqcount; that's still true
+in today's tree.
+- we could use any lock as long as it's coherent within the 9p
+subsystem, but we don't need a whole mutex so i_lock it is.)
 -- 
 Dominique Martinet | Asmadeus
