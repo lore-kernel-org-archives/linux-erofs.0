@@ -4,50 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0CF51C3DA6E
-	for <linux-erofs@archiver.kernel.org>; Fri,  5 Jan 2024 06:10:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 831CCC3DA6E
+	for <linux-erofs@archiver.kernel.org>; Fri,  5 Jan 2024 10:38:36 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VzS7OQo0;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=a0U9IsNP;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4T5tP523zLz3cS3
-	for <linux-erofs@archiver.kernel.org>; Fri,  5 Jan 2024 17:10:49 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4T60L26lkDz3vgh
+	for <linux-erofs@archiver.kernel.org>; Fri,  5 Jan 2024 21:38:34 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=VzS7OQo0;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=a0U9IsNP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+47ea59da63ebb99efca2+7439+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org)
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4T5tNy3GPYz2yq4
-	for <linux-erofs@lists.ozlabs.org>; Fri,  5 Jan 2024 17:10:42 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=dSHA2/+sx7Ginf1zZQjwMoxOOLN3aAKl+o5J049zcoQ=; b=VzS7OQo05vKzjkbMgtDbyoqlq1
-	xMjqJoHMrYZx0z8X2pzLagECzGMwlohl9ymKqBvvmtpDIlsWY6AG4N/f1Z7a0npjBNyE4ZwknljfO
-	Adoqi4XTmVgFGXh4zBStmNMnqV7aBBtXocYkaX6HML2N7/QqnRhhdS2TWAoeezhinIAaanN7Ej7dv
-	hxVnm2Vk5habqISRNzPmh9q8JmfV7hW/bJTp3S/nkUAXM07TMl3K+hndw/tt6Sa2uemEb90WWvc6e
-	e9D7SiAdy2v6KE4fIeq1gb230I0mhq6ROH5a4jotGgz0Zrj+acjX4nO0JO/pnPZhJ1+dxysUg9Aw0
-	JvaSlTvg==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-	id 1rLdPN-00G2Yc-1R;
-	Fri, 05 Jan 2024 06:10:17 +0000
-Date: Thu, 4 Jan 2024 22:10:17 -0800
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH RFC v3 for-6.8/block 04/17] mtd: block2mtd: use bdev apis
-Message-ID: <ZZedSYAedA05Oex2@infradead.org>
-References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
- <20231221085712.1766333-5-yukuai1@huaweicloud.com>
- <20240104112855.uci45hhqaiitmsir@quack3>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4T60Dy0Tw4z3cVJ
+	for <linux-erofs@lists.ozlabs.org>; Fri,  5 Jan 2024 21:34:10 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id DF30561877;
+	Fri,  5 Jan 2024 10:34:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FFAC433C8;
+	Fri,  5 Jan 2024 10:34:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704450846;
+	bh=EsAKavy0GWz3zQK8s9XKK/HXklGdoTstOd7k03h30lA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=a0U9IsNPozZgYWWC8Y3pbxdtD0bUsBDufoSawIQnDL4EB5ojEjF8Jth3vzIS13Ugc
+	 8oDY8Ljk/3UxhiGPHI4WgL28Kq9jwbpzPbHwFXm4b46X8qrKc7emGM8HHEBcWG4/Bo
+	 +RnrQJiWywula2Z1OaxnuocVUH/UEExziaBKPociI2OLHYUz0s+4nRRIn/L0e2Ywhs
+	 LInWrA0njjtH1PnP5nAU8yaKSPpufnb5xjukJ8xApXi7v5fCErk+w3EQxsQlRnz24K
+	 I3eIzBsYCbep9plLJghK6w6UOMSuRxr9SfQtKGughxU3wcO2fpVXi2MLdjjbfJWYfe
+	 mfVRRk6+CS6Pw==
+Date: Fri, 5 Jan 2024 11:33:58 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/5] netfs, cachefiles, 9p: Additional patches
+Message-ID: <20240105-packen-inspektion-71fac65bf899@brauner>
+References: <20240103145935.384404-1-dhowells@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240104112855.uci45hhqaiitmsir@quack3>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <20240103145935.384404-1-dhowells@redhat.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,19 +58,37 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: hoeppner@linux.ibm.com, vigneshr@ti.com, yi.zhang@huawei.com, clm@fb.com, adilger.kernel@dilger.ca, miquel.raynal@bootlin.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, richard@nod.at, willy@infradead.org, linux-bcachefs@vger.kernel.org, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, Yu Kuai <yukuai1@huaweicloud.com>, jejb@linux.ibm.com, p.raghav@samsung.com, gor@linux.ibm.com, hca@linux.ibm.com, joern@lazybastard.org, josef@toxicpanda.com, colyli@suse.de, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, viro@zeniv.linux.org.uk, yukuai3@huawei.com, dsterba@suse.com, konishi.ryusuke@gmail.com, axboe@kernel.dk, brauner@kernel.org, tytso@mit.edu, martin.petersen@oracle.com, nico@fluxnic.net, yangerkun@huawei.com, linux-kernel@vger.kernel.org, kent.overstreet@gmail.com, hare@suse.de, jack@suse.com, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, akpm@linux-foundation.org, roger.pau
- @citrix.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, sth@linux.ibm.com
+Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Jan 04, 2024 at 12:28:55PM +0100, Jan Kara wrote:
-> What do you think? Because when we are working with the folios it is rather
-> natural to use their mapping for dirty balancing?
+On Wed, Jan 03, 2024 at 02:59:24PM +0000, David Howells wrote:
+> Hi Christian, Jeff, Gao, Dominique,
+> 
+> Here are some additional patches for my netfs-lib tree:
+> 
+>  (1) Fix __cachefiles_prepare_write() to correctly validate against the DIO
+>      alignment.
+> 
+>  (2) 9p: Fix initialisation of the netfs_inode so that i_size is set before
+>      netfs_inode_init() is called.
+> 
+>  (3) 9p: Do a couple of cleanups (remove a couple of unused vars and turn a
+>      BUG_ON() into a warning).
+> 
+>  (4) 9p: Always update remote_i_size, even if we're asked not to update
+>      i_size in stat2inode.
+> 
+>  (5) 9p: Return the amount written in preference to an error if we wrote
+>      something.
+> 
+> David
+> 
+> The netfslib postings:
+> Link: https://lore.kernel.org/r/20231013160423.2218093-1-dhowells@redhat.com/ # v1
+> Link: https://lore.kernel.org/r/20231117211544.1740466-1-dhowells@redhat.com/ # v2
+> Link: https://lore.kernel.org/r/20231207212206.1379128-1-dhowells@redhat.com/ # v3
+> Link: https://lore.kernel.org/r/20231213152350.431591-1-dhowells@redhat.com/ # v4
+> Link: https://lore.kernel.org/r/20231221132400.1601991-1-dhowells@redhat.com/ # v5
 
-The real problem is that block2mtd pokes way to deep into block
-internals.
-
-I think the saviour here is Christians series to replace the bdev handle
-with a struct file, which will allow to use the normal file write path
-here and get rid of the entire layering volation.
-
+Pulled this into vfs.netfs. Thanks, David.
