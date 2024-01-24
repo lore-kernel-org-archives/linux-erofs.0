@@ -4,34 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E53CC46CD2
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Jan 2024 04:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0F1C6C47DDF
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Jan 2024 09:16:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TKWky4XTNz3by8
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Jan 2024 15:51:38 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TKdcp3dFKz3c5Y
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Jan 2024 20:16:42 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TKWks711kz30f8
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Jan 2024 15:51:31 +1100 (AEDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W.EnCAx_1706071885;
-Received: from 30.97.48.250(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W.EnCAx_1706071885)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TKdcg578Zz3bYx
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Jan 2024 20:16:33 +1100 (AEDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W.G4gW6_1706087782;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W.G4gW6_1706087782)
           by smtp.aliyun-inc.com;
-          Wed, 24 Jan 2024 12:51:26 +0800
-Message-ID: <658f0470-891f-48bc-a4b9-bdb01f24ebd1@linux.alibaba.com>
-Date: Wed, 24 Jan 2024 12:51:24 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: get rid of unneeded GFP_NOFS
-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
- chao@kernel.org, linux-erofs@lists.ozlabs.org
-References: <20240124031945.130782-1-jefflexu@linux.alibaba.com>
+          Wed, 24 Jan 2024 17:16:26 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20240124031945.130782-1-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: lib: reset hc to avoid 32-bit overflow of kite-deflate
+Date: Wed, 24 Jan 2024 17:16:21 +0800
+Message-Id: <20240124091621.2413606-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,21 +39,58 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: huyue2@coolpad.com, linux-kernel@vger.kernel.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Yifan reported a "segmentation fault (core dumped)" error days ago
+with a large dataset (enwik9 x 5).   Let's fix it.
 
+Reported-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Fixes: 861037f4fc15 ("erofs-utils: add a built-in DEFLATE compressor")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ include/erofs/defs.h |  3 +++
+ lib/kite_deflate.c   | 12 ++++++++++++
+ 2 files changed, 15 insertions(+)
 
-On 2024/1/24 11:19, Jingbo Xu wrote:
-> Clean up some leftovers since there is no way for EROFS to be called
-> again from a reclaim context.
-> 
-> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+diff --git a/include/erofs/defs.h b/include/erofs/defs.h
+index e7384a1..4ea9a55 100644
+--- a/include/erofs/defs.h
++++ b/include/erofs/defs.h
+@@ -343,6 +343,9 @@ unsigned long __roundup_pow_of_two(unsigned long n)
+ #define ST_MTIM_NSEC(stbuf) 0
+ #endif
+ 
++#define likely(x)      __builtin_expect(!!(x), 1)
++#define unlikely(x)    __builtin_expect(!!(x), 0)
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/kite_deflate.c b/lib/kite_deflate.c
+index 8667954..cb81626 100644
+--- a/lib/kite_deflate.c
++++ b/lib/kite_deflate.c
+@@ -859,6 +859,18 @@ static void kite_mf_reset(struct kite_matchfinder *mf,
+ 	 */
+ 	mf->base += mf->offset + kHistorySize32 + 1;
+ 
++	/*
++	 * Unlike other LZ encoders like liblzma [1], we simply reset the hash
++	 * chain instead of normalization.  This avoids extra complexity, as we
++	 * don't consider extreme large input buffers in one go.
++	 *
++	 * [1] https://github.com/tukaani-project/xz/blob/v5.4.0/src/liblzma/lz/lz_encoder_mf.c#L94
++	 */
++	if (unlikely(mf->base > ((typeof(mf->base))-1) >> 1)) {
++		mf->base = kHistorySize32 + 1;
++		memset(mf->hash, 0, 0x10000 * sizeof(mf->hash[0]));
++		memset(mf->chain, 0, sizeof(mf->chain[0]) * mf->wsiz);
++	}
+ 	mf->offset = 0;
+ 	mf->cyclic_pos = 0;
+ 
+-- 
+2.39.3
 
-Looks good to me, will test this later:
-
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Thanks,
-Gao Xiang
