@@ -4,66 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 226EBC47DA9
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 09:50:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C86C5C47DA9
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 09:50:05 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cyp5jKka;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fw6gg3p/;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RisgDQk/;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RisgDQk/;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TNk6t3tPNz3by2
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 20:49:58 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TNk703cg0z3c5W
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 20:50:04 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cyp5jKka;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fw6gg3p/;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RisgDQk/;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RisgDQk/;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TNk6Y18RZz2yN8
-	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jan 2024 20:49:39 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TNk6d4Cdkz2yN8
+	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jan 2024 20:49:45 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706521775;
+	s=mimecast20190719; t=1706521782;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=OCIW9vJhBOYMefsIUqmT/GeymZeEusUcC32sI5mr9No=;
-	b=cyp5jKkat2FykfsccWx2YpP3e0Ci9SYgHnbZIdX+BrjzpGuqgPx8+Anzn528vROXxXxCNk
-	LtRuxaj3oKduhJefpU/j5HkH2tf6p8RMZ9O+Ieqn5/LgpU027227Z3SzoQAnXGnxsp159X
-	Cgt/h76Ij3v9jOBOgGA+9TvlCLZpIoc=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ty0Sx4Ua+2bn5g9HXUfTFpOpeFYCT/PUmNHnpETf4uo=;
+	b=RisgDQk/Kuhb52G294FYLA9YgLqnUrQgXUyduXMW2f8B3XEGCID1CgGgXS5YSNbPAMjXas
+	TPe1B0OP0q/mlZxDsiO2gegWoIOgncTanrWPwXVLYkbvNjvUpVcWApuvso+2ggpfFfQYSF
+	GBMZjpWAj6v9Dj+016oCGtXvhDbuXaM=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706521776;
+	s=mimecast20190719; t=1706521782;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=OCIW9vJhBOYMefsIUqmT/GeymZeEusUcC32sI5mr9No=;
-	b=Fw6gg3p/ZD6TSKG2NMY2jHByNPPWcJOScNGGG4V8J38K5IgIY6vLNJAgM/U44XFpBvAGvd
-	/TO61ftJ1ZCV7QzW77Hsoz06jkLKE9CGAo2vkpszb6QKoSZDYP9we4HlHNmObWAdWCtZjX
-	akKg+RK7SgroCNGGRt36m8lpZI7+w/E=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ty0Sx4Ua+2bn5g9HXUfTFpOpeFYCT/PUmNHnpETf4uo=;
+	b=RisgDQk/Kuhb52G294FYLA9YgLqnUrQgXUyduXMW2f8B3XEGCID1CgGgXS5YSNbPAMjXas
+	TPe1B0OP0q/mlZxDsiO2gegWoIOgncTanrWPwXVLYkbvNjvUpVcWApuvso+2ggpfFfQYSF
+	GBMZjpWAj6v9Dj+016oCGtXvhDbuXaM=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-515-_Qr3tQcfP8S6khmn53WbBQ-1; Mon, 29 Jan 2024 04:49:29 -0500
-X-MC-Unique: _Qr3tQcfP8S6khmn53WbBQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+ us-mta-605-X_1LCiW7OoeQwPj1VhB6fQ-1; Mon, 29 Jan 2024 04:49:35 -0500
+X-MC-Unique: X_1LCiW7OoeQwPj1VhB6fQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AEBED811E81;
-	Mon, 29 Jan 2024 09:49:28 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8808688B7A3;
+	Mon, 29 Jan 2024 09:49:34 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.42.28.245])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 844B91C060AF;
-	Mon, 29 Jan 2024 09:49:26 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 79BAB492BE2;
+	Mon, 29 Jan 2024 09:49:32 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>
-Subject: [PATCH 0/2] netfs: Miscellaneous fixes
-Date: Mon, 29 Jan 2024 09:49:17 +0000
-Message-ID: <20240129094924.1221977-1-dhowells@redhat.com>
+Subject: [PATCH 2/2] netfs: Fix missing zero-length check in unbuffered write
+Date: Mon, 29 Jan 2024 09:49:19 +0000
+Message-ID: <20240129094924.1221977-3-dhowells@redhat.com>
+In-Reply-To: <20240129094924.1221977-1-dhowells@redhat.com>
+References: <20240129094924.1221977-1-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -75,34 +79,80 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Dominique Martinet <asmadeus@codewreck.org>, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
+Cc: linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Dominique Martinet <asmadeus@codewreck.org>, linux_oss@crudebyte.com, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Christian,
+Fix netfs_unbuffered_write_iter() to return immediately if
+generic_write_checks() returns 0, indicating there's nothing to write.
+Note that netfs_file_write_iter() already does this.
 
-Here are a couple of fixes for netfslib:
+Also, whilst we're at it, put in checks for the size being zero before we
+even take the locks.  Note that generic_write_checks() can still reduce the
+size to zero, so we still need that check.
 
- (1) Fix an i_dio_count leak on a DIO read starting beyond EOF.
+Without this, a warning similar to the following is logged to dmesg:
 
- (2) Fix a missing zero-length check in an unbuffered write causing 9p to
-     indicate EIO.
+	netfs: Zero-sized write [R=1b6da]
 
-The patches can also be found here:
+and the syscall fails with EIO, e.g.:
 
-	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=netfs-fixes
+	/sbin/ldconfig.real: Writing of cache extension data failed: Input/output error
 
-Thanks,
-David
+This can be reproduced on 9p by:
 
-David Howells (1):
-  netfs: Fix missing zero-length check in unbuffered write
+	xfs_io -f -c 'pwrite 0 0' /xfstest.test/foo
 
-Marc Dionne (1):
-  netfs: Fix i_dio_count leak on DIO read past i_size
-
+Fixes: 153a9961b551 ("netfs: Implement unbuffered/DIO write support")
+Reported-by: Eric Van Hensbergen <ericvh@kernel.org>
+Link: https://lore.kernel.org/r/ZbQUU6QKmIftKsmo@FV7GG9FTHL/
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Dominique Martinet <asmadeus@codewreck.org>
+cc: Jeff Layton <jlayton@kernel.org>
+cc: v9fs@lists.linux.dev
+cc: linux_oss@crudebyte.com
+cc: netfs@lists.linux.dev
+cc: linux-fsdevel@vger.kernel.org
+---
  fs/netfs/buffered_write.c | 3 +++
  fs/netfs/direct_write.c   | 5 ++++-
- fs/netfs/io.c             | 2 ++
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/fs/netfs/buffered_write.c b/fs/netfs/buffered_write.c
+index a3059b3168fd..9a0d32e4b422 100644
+--- a/fs/netfs/buffered_write.c
++++ b/fs/netfs/buffered_write.c
+@@ -477,6 +477,9 @@ ssize_t netfs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 
+ 	_enter("%llx,%zx,%llx", iocb->ki_pos, iov_iter_count(from), i_size_read(inode));
+ 
++	if (!iov_iter_count(from))
++		return 0;
++
+ 	if ((iocb->ki_flags & IOCB_DIRECT) ||
+ 	    test_bit(NETFS_ICTX_UNBUFFERED, &ictx->flags))
+ 		return netfs_unbuffered_write_iter(iocb, from);
+diff --git a/fs/netfs/direct_write.c b/fs/netfs/direct_write.c
+index 60a40d293c87..bee047e20f5d 100644
+--- a/fs/netfs/direct_write.c
++++ b/fs/netfs/direct_write.c
+@@ -139,6 +139,9 @@ ssize_t netfs_unbuffered_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 
+ 	_enter("%llx,%zx,%llx", iocb->ki_pos, iov_iter_count(from), i_size_read(inode));
+ 
++	if (!iov_iter_count(from))
++		return 0;
++
+ 	trace_netfs_write_iter(iocb, from);
+ 	netfs_stat(&netfs_n_rh_dio_write);
+ 
+@@ -146,7 +149,7 @@ ssize_t netfs_unbuffered_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (ret < 0)
+ 		return ret;
+ 	ret = generic_write_checks(iocb, from);
+-	if (ret < 0)
++	if (ret <= 0)
+ 		goto out;
+ 	ret = file_remove_privs(file);
+ 	if (ret < 0)
 
