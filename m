@@ -4,57 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9088DC47258
-	for <linux-erofs@archiver.kernel.org>; Sun, 28 Jan 2024 17:20:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B74C6C47422
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 09:49:54 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=M/QZOIeE;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtIP4a3K;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtIP4a3K;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TNJ9f4Llgz3c12
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 04:20:54 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TNk6m6C4jz3c1C
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jan 2024 20:49:52 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=M/QZOIeE;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtIP4a3K;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UtIP4a3K;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.14; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 64 seconds by postgrey-1.37 at boromir; Mon, 29 Jan 2024 04:20:46 AEDT
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TNJ9V4w89z3bnv
-	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jan 2024 04:20:46 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706462447; x=1737998447;
-  h=date:from:to:cc:subject:message-id;
-  bh=fKnd6UeMu3Y0T5GgOU/4K9coMMNRdWYtFd0gBhEJeaA=;
-  b=M/QZOIeEpUQI16o0eYcoIakDMA7SdbglUP4FhBJIw3Kxlh52FHmG0T8j
-   /kAz5Xnum4vKN40fy/4HAn59zcLNablhvPELrMKKeSIKIOTzQ05/9+YWW
-   N4NdxeV7wZstXpU0Rb5qgexsN6Ps8o3wzdm9Cwu3KAn9HEaANN4w/42oI
-   ya4gQCWTwTWjFCzPXVySBOALNSg/RWFwjlpfhJfnTKov5PsEQMyQsUqoK
-   8M+4lxI1B543pYRhI80gNix7TLOUAKhAf2bLovkCw8C/6YD2AlYaON/ad
-   MFD/B6CfhzX7bMX2PDuG+bBsW3FPRaGICJWCd/BuOzkzREmrUKn65Nr2Y
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10967"; a="2680963"
-X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
-   d="scan'208";a="2680963"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2024 09:19:37 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
-   d="scan'208";a="3072029"
-Received: from lkp-server01.sh.intel.com (HELO 370188f8dc87) ([10.239.97.150])
-  by orviesa005.jf.intel.com with ESMTP; 28 Jan 2024 09:19:35 -0800
-Received: from kbuild by 370188f8dc87 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rU8oe-0003b8-1z;
-	Sun, 28 Jan 2024 17:19:32 +0000
-Date: Mon, 29 Jan 2024 01:19:11 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- d9281660ff3ffb4a05302b485cc59a87e709aefc
-Message-ID: <202401290108.CvrVxeKw-lkp@intel.com>
-User-Agent: s-nail v14.9.24
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TNk6Y1CWdz3bZ3
+	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jan 2024 20:49:39 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706521776;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pRcl53v/D7LNYmHWLVDHFLzWMRLsRvElPDySPluG9Xk=;
+	b=UtIP4a3K3gl07BS+AJ1VHn1V6u/wMwkpL8Ci+z3nn4lz2XMq1zazaa8bNMzeCqJBg8rQxS
+	bGVVCMZfqvZsu1DZxYvq/6a65DJA5AZhuZ+uGcJpLB7p/dekRQg2NrxFx7cMjAJjqZzH/J
+	W8bEbgfChYSg9W7kkhW2fYZO4KQio7w=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706521776;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pRcl53v/D7LNYmHWLVDHFLzWMRLsRvElPDySPluG9Xk=;
+	b=UtIP4a3K3gl07BS+AJ1VHn1V6u/wMwkpL8Ci+z3nn4lz2XMq1zazaa8bNMzeCqJBg8rQxS
+	bGVVCMZfqvZsu1DZxYvq/6a65DJA5AZhuZ+uGcJpLB7p/dekRQg2NrxFx7cMjAJjqZzH/J
+	W8bEbgfChYSg9W7kkhW2fYZO4KQio7w=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-581-2MqNdY6VNp-CfaPkR9IzXg-1; Mon,
+ 29 Jan 2024 04:49:32 -0500
+X-MC-Unique: 2MqNdY6VNp-CfaPkR9IzXg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C0F563C2B606;
+	Mon, 29 Jan 2024 09:49:31 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.245])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 4EF73492BC7;
+	Mon, 29 Jan 2024 09:49:29 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: Christian Brauner <christian@brauner.io>
+Subject: [PATCH 1/2] netfs: Fix i_dio_count leak on DIO read past i_size
+Date: Mon, 29 Jan 2024 09:49:18 +0000
+Message-ID: <20240129094924.1221977-2-dhowells@redhat.com>
+In-Reply-To: <20240129094924.1221977-1-dhowells@redhat.com>
+References: <20240129094924.1221977-1-dhowells@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -66,81 +79,43 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Dominique Martinet <asmadeus@codewreck.org>, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org, Marc Dionne <marc.dionne@auristor.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: d9281660ff3ffb4a05302b485cc59a87e709aefc  erofs: relaxed temporary buffers allocation on readahead
+From: Marc Dionne <marc.dionne@auristor.com>
 
-elapsed time: 2185m
+If netfs_begin_read gets a NETFS_DIO_READ request that begins
+past i_size, it won't perform any i/o and just return 0.  This
+will leak an increment to i_dio_count that is done at the top
+of the function.
 
-configs tested: 58
-configs skipped: 2
+This can cause subsequent buffered read requests to block
+indefinitely, waiting for a non existing dio operation to complete.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Add a inode_dio_end() for the NETFS_DIO_READ case, before returning.
 
-tested configs:
-alpha                             allnoconfig   gcc  
-alpha                               defconfig   gcc  
-arc                               allnoconfig   gcc  
-arc                                 defconfig   gcc  
-arc                   randconfig-001-20240129   gcc  
-arc                   randconfig-002-20240129   gcc  
-arm                               allnoconfig   gcc  
-arm                                 defconfig   clang
-arm                   randconfig-001-20240129   gcc  
-arm                   randconfig-002-20240129   gcc  
-arm                   randconfig-003-20240129   gcc  
-arm                   randconfig-004-20240129   gcc  
-arm64                             allnoconfig   gcc  
-arm64                               defconfig   gcc  
-arm64                 randconfig-001-20240129   gcc  
-csky                              allnoconfig   gcc  
-csky                                defconfig   gcc  
-i386         buildonly-randconfig-001-20240128   clang
-i386         buildonly-randconfig-002-20240128   clang
-i386         buildonly-randconfig-003-20240128   clang
-i386         buildonly-randconfig-004-20240128   clang
-i386         buildonly-randconfig-005-20240128   clang
-i386         buildonly-randconfig-006-20240128   clang
-i386                  randconfig-001-20240128   clang
-i386                  randconfig-002-20240128   clang
-i386                  randconfig-003-20240128   clang
-i386                  randconfig-004-20240128   clang
-i386                  randconfig-005-20240128   clang
-i386                  randconfig-006-20240128   clang
-i386                  randconfig-011-20240128   gcc  
-i386                  randconfig-012-20240128   gcc  
-i386                  randconfig-013-20240128   gcc  
-i386                  randconfig-014-20240128   gcc  
-i386                  randconfig-015-20240128   gcc  
-i386                  randconfig-016-20240128   gcc  
-openrisc                          allnoconfig   gcc  
-openrisc                            defconfig   gcc  
-parisc                            allnoconfig   gcc  
-parisc                              defconfig   gcc  
-parisc64                            defconfig   gcc  
-powerpc                           allnoconfig   gcc  
-riscv                             allnoconfig   clang
-riscv                               defconfig   gcc  
-s390                              allnoconfig   gcc  
-s390                                defconfig   gcc  
-sh                                allnoconfig   gcc  
-sh                                  defconfig   gcc  
-sparc                             allnoconfig   gcc  
-sparc                               defconfig   gcc  
-sparc64                             defconfig   gcc  
-um                               allmodconfig   clang
-um                                allnoconfig   clang
-um                                  defconfig   gcc  
-um                             i386_defconfig   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                            allnoconfig   gcc  
-x86_64                              defconfig   gcc  
-xtensa                            allnoconfig   gcc  
+Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jeff Layton <jlayton@kernel.org>
+cc: linux-afs@lists.infradead.org
+cc: netfs@lists.linux.dev
+cc: linux-fsdevel@vger.kernel.org
+---
+ fs/netfs/io.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+diff --git a/fs/netfs/io.c b/fs/netfs/io.c
+index e8ff1e61ce79..4261ad6c55b6 100644
+--- a/fs/netfs/io.c
++++ b/fs/netfs/io.c
+@@ -748,6 +748,8 @@ int netfs_begin_read(struct netfs_io_request *rreq, bool sync)
+ 
+ 	if (!rreq->submitted) {
+ 		netfs_put_request(rreq, false, netfs_rreq_trace_put_no_submit);
++		if (rreq->origin == NETFS_DIO_READ)
++			inode_dio_end(rreq->inode);
+ 		ret = 0;
+ 		goto out;
+ 	}
+
