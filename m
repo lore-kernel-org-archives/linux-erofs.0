@@ -4,29 +4,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A594EC48286
-	for <linux-erofs@archiver.kernel.org>; Sun,  4 Feb 2024 10:34:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AED70C4828F
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Feb 2024 10:34:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TSQpz2p5bz3c7s
-	for <linux-erofs@archiver.kernel.org>; Sun,  4 Feb 2024 21:34:03 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TSQqB30ZHz3c7n
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Feb 2024 21:34:14 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sjtu.edu.cn (client-ip=202.120.2.232; helo=smtp232.sjtu.edu.cn; envelope-from=zhaoyifan@sjtu.edu.cn; receiver=lists.ozlabs.org)
 Received: from smtp232.sjtu.edu.cn (smtp232.sjtu.edu.cn [202.120.2.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TSQpv5z9Xz2ydW
-	for <linux-erofs@lists.ozlabs.org>; Sun,  4 Feb 2024 21:33:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TSQq74cNyz2ydW
+	for <linux-erofs@lists.ozlabs.org>; Sun,  4 Feb 2024 21:34:11 +1100 (AEDT)
 Received: from proxy188.sjtu.edu.cn (smtp188.sjtu.edu.cn [202.120.2.188])
-	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 2BCB210082704;
-	Sun,  4 Feb 2024 18:33:51 +0800 (CST)
+	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 017B410082702;
+	Sun,  4 Feb 2024 18:34:10 +0800 (CST)
 Received: from zhaoyf.ipads-lab.se.sjtu.edu.cn (unknown [202.120.40.82])
-	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id 92494381F41;
-	Sun,  4 Feb 2024 18:33:45 +0800 (CST)
+	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id DEF52381F4B;
+	Sun,  4 Feb 2024 18:33:55 +0800 (CST)
 From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/7] erofs-utils: add a helper to get available processors
-Date: Sun,  4 Feb 2024 18:33:44 +0800
-Message-ID: <20240204103344.141381-1-zhaoyifan@sjtu.edu.cn>
+Subject: [PATCH 3/7] erofs-utils: mkfs: add --worker=# parameter
+Date: Sun,  4 Feb 2024 18:33:53 +0800
+Message-ID: <20240204103353.141469-1-zhaoyifan@sjtu.edu.cn>
 X-Mailer: git-send-email 2.43.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -41,72 +41,129 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: hsiangkao@linux.alibaba.com, xin_tong@sjtu.edu.cn
+Cc: hsiangkao@linux.alibaba.com, Yifan Zhao <zhaoyifan@sjtu.edu.cn>, xin_tong@sjtu.edu.cn
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+This patch introduces a --worker=# parameter for the incoming
+multi-threaded compression support. It also introduces a segment size
+used in multi-threaded compression, which has the default value 16MB
+and cannot be modified.
 
-In order to prepare for multi-threaded decompression.
-
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 ---
- configure.ac           |  1 +
- include/erofs/config.h |  1 +
- lib/config.c           | 12 ++++++++++++
- 3 files changed, 14 insertions(+)
+ include/erofs/config.h |  4 ++++
+ lib/config.c           |  4 ++++
+ mkfs/main.c            | 38 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 46 insertions(+)
 
-diff --git a/configure.ac b/configure.ac
-index 53306c3..52b4010 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -264,6 +264,7 @@ AC_CHECK_FUNCS(m4_flatten([
- 	strerror
- 	strrchr
- 	strtoull
-+	sysconf
- 	tmpfile64
- 	utimensat]))
- 
 diff --git a/include/erofs/config.h b/include/erofs/config.h
-index eecf575..73e3ac2 100644
+index 73e3ac2..d19094e 100644
 --- a/include/erofs/config.h
 +++ b/include/erofs/config.h
-@@ -109,6 +109,7 @@ static inline int erofs_selabel_open(const char *file_contexts)
+@@ -75,6 +75,10 @@ struct erofs_configure {
+ 	char c_force_chunkformat;
+ 	/* < 0, xattr disabled and INT_MAX, always use inline xattrs */
+ 	int c_inline_xattr_tolerance;
++#ifdef EROFS_MT_ENABLED
++	u64 c_mt_segment_size;
++	u32 c_mt_worker_num;
++#endif
  
- void erofs_update_progressinfo(const char *fmt, ...);
- char *erofs_trim_for_progressinfo(const char *str, int placeholder);
-+unsigned int erofs_get_available_processors(void);
- 
- #ifdef __cplusplus
- }
+ 	u32 c_pclusterblks_max, c_pclusterblks_def, c_pclusterblks_packed;
+ 	u32 c_max_decompressed_extent_bytes;
 diff --git a/lib/config.c b/lib/config.c
-index 1096cd1..947a183 100644
+index 947a183..8add06d 100644
 --- a/lib/config.c
 +++ b/lib/config.c
-@@ -14,6 +14,9 @@
- #ifdef HAVE_SYS_IOCTL_H
- #include <sys/ioctl.h>
- #endif
-+#ifdef HAVE_UNISTD_H
-+#include <unistd.h>
+@@ -38,6 +38,10 @@ void erofs_init_configure(void)
+ 	cfg.c_pclusterblks_max = 1;
+ 	cfg.c_pclusterblks_def = 1;
+ 	cfg.c_max_decompressed_extent_bytes = -1;
++#ifdef EROFS_MT_ENABLED
++	cfg.c_mt_segment_size = 16ULL * 1024 * 1024;
++	cfg.c_mt_worker_num = 1;
 +#endif
  
- struct erofs_configure cfg;
- struct erofs_sb_info sbi;
-@@ -177,3 +180,12 @@ void erofs_update_progressinfo(const char *fmt, ...)
- 	fputs(msg, stdout);
- 	fputc('\n', stdout);
+ 	erofs_stdout_tty = isatty(STDOUT_FILENO);
  }
-+
-+unsigned int erofs_get_available_processors(void)
-+{
-+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYSCONF)
-+	return sysconf(_SC_NPROCESSORS_ONLN);
-+#else
-+	return 0;
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 7aea64a..3882533 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -73,6 +73,9 @@ static struct option long_options[] = {
+ 	{"gzip", no_argument, NULL, 517},
+ #endif
+ 	{"offset", required_argument, NULL, 518},
++#ifdef EROFS_MT_ENABLED
++	{"worker", required_argument, NULL, 519},
 +#endif
+ 	{0, 0, 0, 0},
+ };
+ 
+@@ -175,6 +178,9 @@ static void usage(int argc, char **argv)
+ 		" --product-out=X       X=product_out directory\n"
+ 		" --fs-config-file=X    X=fs_config file\n"
+ 		" --block-list-file=X   X=block_list file\n"
++#endif
++#ifdef EROFS_MT_ENABLED
++		" --worker=#            set the number of worker threads to # (default=1)\n"
+ #endif
+ 		);
+ }
+@@ -404,6 +410,13 @@ static void erofs_rebuild_cleanup(void)
+ 	rebuild_src_count = 0;
+ }
+ 
++#ifdef EROFS_MT_ENABLED
++static u32 mkfs_max_worker_num() {
++	u32 ncpu = erofs_get_available_processors();
++	return ncpu ? ncpu : 16;
 +}
++#endif
++
+ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ {
+ 	char *endptr;
+@@ -642,6 +655,21 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 				return -EINVAL;
+ 			}
+ 			break;
++#ifdef EROFS_MT_ENABLED
++		case 519:
++			cfg.c_mt_worker_num = strtoul(optarg, &endptr, 0);
++			if (errno || *endptr != '\0') {
++				erofs_err("invalid worker number %s", optarg);
++				return -EINVAL;
++			}
++			if (cfg.c_mt_worker_num > mkfs_max_worker_num()) {
++				erofs_warn(
++					"worker number %s is too large, setting to %ud",
++					optarg, mkfs_max_worker_num());
++				cfg.c_mt_worker_num = mkfs_max_worker_num();
++			}
++			break;
++#endif
+ 		case 'V':
+ 			version();
+ 			exit(0);
+@@ -784,6 +812,16 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 		}
+ 		cfg.c_pclusterblks_packed = pclustersize_packed >> sbi.blkszbits;
+ 	}
++
++#ifdef EROFS_MT_ENABLED
++	if (cfg.c_mt_worker_num > 1 &&
++	    (cfg.c_dedupe || cfg.c_fragments || cfg.c_ztailpacking)) {
++		cfg.c_mt_worker_num = 1;
++		erofs_warn("Please note that dedupe/fragments/ztailpacking"
++			   "is NOT supported in multi-threaded mode now, using worker=1.");
++	}
++#endif
++
+ 	return 0;
+ }
+ 
 -- 
 2.43.0
 
