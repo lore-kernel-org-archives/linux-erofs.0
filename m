@@ -4,33 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ED022C48BC3
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Feb 2024 07:56:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1522BC48BC3
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Feb 2024 07:56:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TfBYW4jpTz3cZL
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Feb 2024 18:56:15 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TfBYm5Zs2z3cZL
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Feb 2024 18:56:28 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sjtu.edu.cn (client-ip=202.120.2.232; helo=smtp232.sjtu.edu.cn; envelope-from=zhaoyifan@sjtu.edu.cn; receiver=lists.ozlabs.org)
 Received: from smtp232.sjtu.edu.cn (smtp232.sjtu.edu.cn [202.120.2.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TfBYS5fY6z3cCx
-	for <linux-erofs@lists.ozlabs.org>; Tue, 20 Feb 2024 18:56:12 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TfBYh6SjGz3bv3
+	for <linux-erofs@lists.ozlabs.org>; Tue, 20 Feb 2024 18:56:24 +1100 (AEDT)
 Received: from proxy188.sjtu.edu.cn (smtp188.sjtu.edu.cn [202.120.2.188])
-	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 1E72910090E01;
+	by smtp232.sjtu.edu.cn (Postfix) with ESMTPS id 292AD10090E03;
 	Tue, 20 Feb 2024 15:55:38 +0800 (CST)
 Received: from zhaoyf.ipads-lab.se.sjtu.edu.cn (unknown [202.120.40.82])
-	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id AA96F37C98F;
-	Tue, 20 Feb 2024 15:55:33 +0800 (CST)
+	by proxy188.sjtu.edu.cn (Postfix) with ESMTPSA id 7B2AA37C98D;
+	Tue, 20 Feb 2024 15:55:30 +0800 (CST)
 From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 To: hsiangkao@linux.alibaba.com
-Subject: [PATCH v2 2/7] erofs-utils: add a helper to get available processors
-Date: Tue, 20 Feb 2024 15:55:20 +0800
-Message-ID: <20240220075525.684205-3-zhaoyifan@sjtu.edu.cn>
+Subject: [PATCH v2 1/7] erofs-utils: introduce multi-threading framework
+Date: Tue, 20 Feb 2024 15:55:19 +0800
+Message-ID: <20240220075525.684205-2-zhaoyifan@sjtu.edu.cn>
 X-Mailer: git-send-email 2.43.2
-In-Reply-To: <20240220075525.684205-2-zhaoyifan@sjtu.edu.cn>
+In-Reply-To: <20240220075525.684205-1-zhaoyifan@sjtu.edu.cn>
 References: <20240220075525.684205-1-zhaoyifan@sjtu.edu.cn>
- <20240220075525.684205-2-zhaoyifan@sjtu.edu.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -48,68 +47,272 @@ Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+Add a workqueue implementation for multi-threading support inspired by
+xfsprogs.
 
-In order to prepare for multi-threaded decompression.
-
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- configure.ac           |  1 +
- include/erofs/config.h |  1 +
- lib/config.c           | 12 ++++++++++++
- 3 files changed, 14 insertions(+)
+ configure.ac              |  16 +++++
+ include/erofs/internal.h  |   3 +
+ include/erofs/workqueue.h |  38 +++++++++++
+ lib/Makefile.am           |   4 ++
+ lib/workqueue.c           | 132 ++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 193 insertions(+)
+ create mode 100644 include/erofs/workqueue.h
+ create mode 100644 lib/workqueue.c
 
 diff --git a/configure.ac b/configure.ac
-index 53306c3..52b4010 100644
+index bf6e99f..53306c3 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -264,6 +264,7 @@ AC_CHECK_FUNCS(m4_flatten([
- 	strerror
- 	strrchr
- 	strtoull
-+	sysconf
- 	tmpfile64
- 	utimensat]))
+@@ -96,6 +96,14 @@ AC_DEFUN([EROFS_UTILS_PARSE_DIRECTORY],
  
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index eecf575..73e3ac2 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -109,6 +109,7 @@ static inline int erofs_selabel_open(const char *file_contexts)
+ AC_ARG_VAR([MAX_BLOCK_SIZE], [The maximum block size which erofs-utils supports])
  
- void erofs_update_progressinfo(const char *fmt, ...);
- char *erofs_trim_for_progressinfo(const char *str, int placeholder);
-+unsigned int erofs_get_available_processors(void);
- 
- #ifdef __cplusplus
- }
-diff --git a/lib/config.c b/lib/config.c
-index 1096cd1..947a183 100644
---- a/lib/config.c
-+++ b/lib/config.c
-@@ -14,6 +14,9 @@
- #ifdef HAVE_SYS_IOCTL_H
- #include <sys/ioctl.h>
- #endif
-+#ifdef HAVE_UNISTD_H
-+#include <unistd.h>
-+#endif
- 
- struct erofs_configure cfg;
- struct erofs_sb_info sbi;
-@@ -177,3 +180,12 @@ void erofs_update_progressinfo(const char *fmt, ...)
- 	fputs(msg, stdout);
- 	fputc('\n', stdout);
- }
++AC_MSG_CHECKING([whether to enable multi-threading support])
++AC_ARG_ENABLE([multithreading],
++    AS_HELP_STRING([--enable-multithreading],
++                   [enable multi-threading support @<:@default=no@:>@]),
++    [enable_multithreading="$enableval"],
++    [enable_multithreading="no"])
++AC_MSG_RESULT([$enable_multithreading])
 +
-+unsigned int erofs_get_available_processors(void)
-+{
-+#if defined(HAVE_UNISTD_H) && defined(HAVE_SYSCONF)
-+	return sysconf(_SC_NPROCESSORS_ONLN);
-+#else
-+	return 0;
+ AC_ARG_ENABLE([debug],
+     [AS_HELP_STRING([--enable-debug],
+                     [enable debugging mode @<:@default=no@:>@])],
+@@ -288,6 +296,13 @@ AS_IF([test "x$MAX_BLOCK_SIZE" = "x"], [
+                              [erofs_cv_max_block_size=4096]))
+ ], [erofs_cv_max_block_size=$MAX_BLOCK_SIZE])
+ 
++# Configure multi-threading support
++AS_IF([test "x$enable_multithreading" != "xno"], [
++    AC_CHECK_HEADERS([pthread.h])
++    AC_CHECK_LIB([pthread], [pthread_mutex_lock], [], AC_MSG_ERROR([libpthread is required for multi-threaded build]))
++    AC_DEFINE(EROFS_MT_ENABLED, 1, [Enable multi-threading support])
++], [])
++
+ # Configure debug mode
+ AS_IF([test "x$enable_debug" != "xno"], [], [
+   dnl Turn off all assert checking.
+@@ -467,6 +482,7 @@ AS_IF([test "x$enable_fuzzing" != "xyes"], [], [
+ AM_CONDITIONAL([ENABLE_FUZZING], [test "x${enable_fuzzing}" = "xyes"])
+ 
+ # Set up needed symbols, conditionals and compiler/linker flags
++AM_CONDITIONAL([ENABLE_EROFS_MT], [test "x${enable_multithreading}" != "xno"])
+ AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_FUSE], [test "x${have_fuse}" = "xyes"])
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 82797e1..954aef4 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -22,6 +22,9 @@ typedef unsigned short umode_t;
+ #include <sys/types.h> /* for off_t definition */
+ #include <sys/stat.h> /* for S_ISCHR definition */
+ #include <stdio.h>
++#ifdef HAVE_PTHREAD_H
++#include <pthread.h>
 +#endif
+ 
+ #ifndef PATH_MAX
+ #define PATH_MAX        4096    /* # chars in a path name including nul */
+diff --git a/include/erofs/workqueue.h b/include/erofs/workqueue.h
+new file mode 100644
+index 0000000..857947b
+--- /dev/null
++++ b/include/erofs/workqueue.h
+@@ -0,0 +1,38 @@
++/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
++#ifndef __EROFS_WORKQUEUE_H
++#define __EROFS_WORKQUEUE_H
++
++#include "internal.h"
++
++struct erofs_work;
++
++typedef void erofs_wq_func_t(struct erofs_work *);
++typedef void erofs_wq_priv_fini_t(void *);
++
++struct erofs_work {
++	void (*func)(struct erofs_work *work);
++	struct erofs_work *next;
++	void *priv;
++};
++
++struct erofs_workqueue {
++	struct erofs_work *head;
++	struct erofs_work *tail;
++	pthread_mutex_t lock;
++	pthread_cond_t cond_empty;
++	pthread_cond_t cond_full;
++	pthread_t *workers;
++	unsigned int nworker;
++	unsigned int max_jobs;
++	unsigned int job_count;
++	bool shutdown;
++	size_t priv_size;
++	erofs_wq_priv_fini_t *priv_fini;
++};
++
++int erofs_workqueue_init(struct erofs_workqueue *wq, unsigned int nworker,
++			 unsigned int max_jobs, size_t priv_size,
++			 erofs_wq_priv_fini_t *priv_fini);
++int erofs_workqueue_add(struct erofs_workqueue *wq, struct erofs_work *work);
++int erofs_workqueue_shutdown(struct erofs_workqueue *wq);
++#endif
+\ No newline at end of file
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 54b9c9c..7307f7b 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -53,3 +53,7 @@ liberofs_la_SOURCES += kite_deflate.c compressor_deflate.c
+ if ENABLE_LIBDEFLATE
+ liberofs_la_SOURCES += compressor_libdeflate.c
+ endif
++if ENABLE_EROFS_MT
++liberofs_la_CFLAGS += -lpthread
++liberofs_la_SOURCES += workqueue.c
++endif
+diff --git a/lib/workqueue.c b/lib/workqueue.c
+new file mode 100644
+index 0000000..3ec6142
+--- /dev/null
++++ b/lib/workqueue.c
+@@ -0,0 +1,132 @@
++// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
++#include <pthread.h>
++#include <stdlib.h>
++#include "erofs/workqueue.h"
++
++static void *worker_thread(void *arg)
++{
++	struct erofs_workqueue *wq = arg;
++	struct erofs_work *work;
++	void *priv = NULL;
++
++	if (wq->priv_size) {
++		priv = calloc(wq->priv_size, 1);
++		assert(priv);
++	}
++
++	while (true) {
++		pthread_mutex_lock(&wq->lock);
++
++		while (wq->job_count == 0 && !wq->shutdown)
++			pthread_cond_wait(&wq->cond_empty, &wq->lock);
++		if (wq->job_count == 0 && wq->shutdown) {
++			pthread_mutex_unlock(&wq->lock);
++			break;
++		}
++
++		work = wq->head;
++		wq->head = work->next;
++		if (!wq->head)
++			wq->tail = NULL;
++		wq->job_count--;
++
++		if (wq->job_count == wq->max_jobs - 1)
++			pthread_cond_broadcast(&wq->cond_full);
++
++		pthread_mutex_unlock(&wq->lock);
++
++		work->priv = priv;
++		work->func(work);
++	}
++
++	if (priv) {
++		assert(wq->priv_fini);
++		(wq->priv_fini)(priv);
++		free(priv);
++	}
++
++	return NULL;
 +}
++
++int erofs_workqueue_init(struct erofs_workqueue *wq, unsigned int nworker,
++			 unsigned int max_jobs, size_t priv_size,
++			 erofs_wq_priv_fini_t *priv_fini)
++{
++	unsigned int i;
++
++	if (!wq || nworker <= 0 || max_jobs <= 0)
++		return -EINVAL;
++
++	wq->head = wq->tail = NULL;
++	wq->nworker = nworker;
++	wq->max_jobs = max_jobs;
++	wq->job_count = 0;
++	wq->shutdown = false;
++	wq->priv_size = priv_size;
++	wq->priv_fini = priv_fini;
++	pthread_mutex_init(&wq->lock, NULL);
++	pthread_cond_init(&wq->cond_empty, NULL);
++	pthread_cond_init(&wq->cond_full, NULL);
++
++	wq->workers = malloc(nworker * sizeof(pthread_t));
++	if (!wq->workers)
++		return -ENOMEM;
++
++	for (i = 0; i < nworker; i++) {
++		if (pthread_create(&wq->workers[i], NULL, worker_thread, wq)) {
++			while (i--)
++				pthread_cancel(wq->workers[i]);
++			free(wq->workers);
++			return -ENOMEM;
++		}
++	}
++
++	return 0;
++}
++
++int erofs_workqueue_add(struct erofs_workqueue *wq, struct erofs_work *work)
++{
++	if (!wq || !work)
++		return -EINVAL;
++
++	pthread_mutex_lock(&wq->lock);
++
++	while (wq->job_count == wq->max_jobs)
++		pthread_cond_wait(&wq->cond_full, &wq->lock);
++
++	work->next = NULL;
++	if (!wq->head)
++		wq->head = work;
++	else
++		wq->tail->next = work;
++	wq->tail = work;
++	wq->job_count++;
++
++	pthread_cond_signal(&wq->cond_empty);
++	pthread_mutex_unlock(&wq->lock);
++
++	return 0;
++}
++
++int erofs_workqueue_shutdown(struct erofs_workqueue *wq)
++{
++	unsigned int i;
++
++	if (!wq)
++		return -EINVAL;
++
++	pthread_mutex_lock(&wq->lock);
++	wq->shutdown = true;
++	pthread_cond_broadcast(&wq->cond_empty);
++	pthread_mutex_unlock(&wq->lock);
++
++	for (i = 0; i < wq->nworker; i++)
++		pthread_join(wq->workers[i], NULL);
++
++	free(wq->workers);
++	pthread_mutex_destroy(&wq->lock);
++	pthread_cond_destroy(&wq->cond_empty);
++	pthread_cond_destroy(&wq->cond_full);
++
++	return 0;
++}
+\ No newline at end of file
 -- 
 2.43.2
 
