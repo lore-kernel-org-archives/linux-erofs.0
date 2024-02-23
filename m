@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44115C54798
-	for <linux-erofs@archiver.kernel.org>; Fri, 23 Feb 2024 18:05:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D258EC54E49
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Feb 2024 18:45:38 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ThHwp6dK8z3vXb
-	for <linux-erofs@archiver.kernel.org>; Sat, 24 Feb 2024 05:05:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=srs0=wkxo=ka=goodmis.org=rostedt@kernel.org; receiver=lists.ozlabs.org)
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ThJqP3xMXz3vd5
+	for <linux-erofs@archiver.kernel.org>; Sat, 24 Feb 2024 05:45:37 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=srs0=wkxo=ka=goodmis.org=rostedt@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ThHwk3wdHz3dVx;
-	Sat, 24 Feb 2024 05:05:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ThJps5jyvz3dwr;
+	Sat, 24 Feb 2024 05:45:09 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id CC73ECE2E24;
-	Fri, 23 Feb 2024 18:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 370BEC433C7;
-	Fri, 23 Feb 2024 18:05:01 +0000 (UTC)
-Date: Fri, 23 Feb 2024 13:06:53 -0500
+	by dfw.source.kernel.org (Postfix) with ESMTP id EF93861654;
+	Fri, 23 Feb 2024 18:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C3ACC433C7;
+	Fri, 23 Feb 2024 18:45:01 +0000 (UTC)
+Date: Fri, 23 Feb 2024 13:46:53 -0500
 From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>, Linux Trace Kernel
- <linux-trace-kernel@vger.kernel.org>
+To: Jeff Johnson <quic_jjohnson@quicinc.com>
 Subject: Re: [FYI][PATCH] tracing/treewide: Remove second parameter of
  __assign_str()
-Message-ID: <20240223130653.2cc317a8@gandalf.local.home>
-In-Reply-To: <20240223125634.2888c973@gandalf.local.home>
+Message-ID: <20240223134653.524a5c9e@gandalf.local.home>
+In-Reply-To: <0aed6cf2-17ae-45aa-b7ff-03da932ea4e0@quicinc.com>
 References: <20240223125634.2888c973@gandalf.local.home>
+	<0aed6cf2-17ae-45aa-b7ff-03da932ea4e0@quicinc.com>
 X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -45,27 +45,52 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, ath10k@lists.infradead.org, Julia Lawall <Julia.Lawall@inria.fr>, linux-s390@vger.kernel.org, dev@openvswitch.org, linux-cifs@vger.kernel.org, linux-bcachefs@vger.kernel.org, linux-rdma@vger.kernel.org, amd-gfx@lists.freedesktop.org, io-uring@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, iommu@lists.linux.dev, ath11k@lists.infradead.org, linux-media@vger.kernel.org, linux-wpan@vger.kernel.org, linux-pm@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-erofs@lists.ozlabs.org, virtualization@lists.linux.dev, linux-sound@vger.kernel.org, linux-block@vger.kernel.org, ocfs2-devel@lists.linux.dev, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-cxl@vger.kernel.org, linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org, linux-edac@vger.kernel.org, linux-hwmon@vger.kernel.org, brcm80211-dev-list.pdl@broadcom.c
- om, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, brcm80211@lists.linux.dev, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, ath12k@lists.infradead.org, tipc-discussion@lists.sourceforge.net, Masami Hiramatsu <mhiramat@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, freedreno@lists.freedesktop.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org
+Cc: linux-hyperv@vger.kernel.org, linux-usb@vger.kernel.org, kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, brcm80211@lists.linux.dev, ath10k@lists.infradead.org, Julia Lawall <Julia.Lawall@inria.fr>, linux-s390@vger.kernel.org, dev@openvswitch.org, linux-cifs@vger.kernel.org, linux-rdma@vger.kernel.org, amd-gfx@lists.freedesktop.org, io-uring@vger.kernel.org, linux-bcachefs@vger.kernel.org, iommu@lists.linux.dev, ath11k@lists.infradead.org, linux-media@vger.kernel.org, linux-wpan@vger.kernel.org, linux-pm@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-erofs@lists.ozlabs.org, virtualization@lists.linux.dev, linux-sound@vger.kernel.org, linux-block@vger.kernel.org, ocfs2-devel@lists.linux.dev, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-cxl@vger.kernel.org, linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org, linux-edac@vger.kernel.org, linux-hwmon@vger.kernel.org, brcm80211-dev-list.pdl@broa
+ dcom.com, Linus Torvalds <torvalds@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, linux-wireless@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, ath12k@lists.infradead.org, tipc-discussion@lists.sourceforge.net, Masami Hiramatsu <mhiramat@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>, freedreno@lists.freedesktop.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Fri, 23 Feb 2024 12:56:34 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
+On Fri, 23 Feb 2024 10:30:45 -0800
+Jeff Johnson <quic_jjohnson@quicinc.com> wrote:
 
-> Note, the same updates will need to be done for:
+> On 2/23/2024 9:56 AM, Steven Rostedt wrote:
+> > From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+> > 
+> > [
+> >    This is a treewide change. I will likely re-create this patch again in
+> >    the second week of the merge window of v6.9 and submit it then. Hoping
+> >    to keep the conflicts that it will cause to a minimum.
+> > ]
+> > 
+> > With the rework of how the __string() handles dynamic strings where it
+> > saves off the source string in field in the helper structure[1], the
+> > assignment of that value to the trace event field is stored in the helper
+> > value and does not need to be passed in again.  
 > 
->   __assign_str_len()
->   __assign_rel_str()
->   __assign_rel_str_len()
+> Just curious if this could be done piecemeal by first changing the
+> macros to be variadic macros which allows you to ignore the extra
+> argument. The callers could then be modified in their separate trees.
+> And then once all the callers have be merged, the macros could be
+> changed to no longer be variadic.
 
-Correction: The below macros do not pass in their source to the entry
-macros, so they will not need to be updated.
+I weighed doing that, but I think ripping off the band-aid is a better
+approach. One thing I found is that leaving unused parameters in the macros
+can cause bugs itself. I found one case doing my clean up, where an unused
+parameter in one of the macros was bogus, and when I made it a used
+parameter, it broke the build.
+
+I think for tree-wide changes, the preferred approach is to do one big
+patch at once. And since this only affects TRACE_EVENT() macros, it
+hopefully would not be too much of a burden (although out of tree users may
+suffer from this, but do we care?)
+
+Now one thing I could do is to not remove the parameter, but just add:
+
+	WARN_ON_ONCE((src) != __data_offsets->item##_ptr_);
+
+in the __assign_str() macro to make sure that it's still the same that is
+assigned. But I'm not sure how useful that is, and still causes burden to
+have it. I never really liked the passing of the string in two places to
+begin with.
 
 -- Steve
-
->   __assign_bitmask()
->   __assign_rel_bitmask()
->   __assign_cpumask()
->   __assign_rel_cpumask()
-
