@@ -4,43 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E288C54798
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Mar 2024 09:15:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 349E7C54798
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Mar 2024 01:36:25 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=VNIEPCTK;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=QKaurnxo;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Tpqfk5LrSz30gn
-	for <linux-erofs@archiver.kernel.org>; Tue,  5 Mar 2024 20:15:42 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TqFQH5ldYz3vX4
+	for <linux-erofs@archiver.kernel.org>; Wed,  6 Mar 2024 12:36:23 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=VNIEPCTK;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=QKaurnxo;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Tpqf05wdYz2xPZ
-	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Mar 2024 20:15:03 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1709630100; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Vme30tGzoG9Q13+YlWKekwuRS+55dVw55EvFDe7Rrgg=;
-	b=VNIEPCTK5qCEHAlZVCfGL/AebXwWHFsP13ZGsj2NGJEsiHFVw0PbLNFlmmuM7GTx+Aa1ENqJgaYj/R+6c4lb0BglaLALKyhaq7KqgrgkCqAUuuVh6/bYRabNF69+kf+21oq7lJjm2PMncC9p1hR3mYi0oQPSGdWjSKGP3OEA0xk=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W1tgGhY_1709630098;
-Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W1tgGhY_1709630098)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Mar 2024 17:14:59 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 6/6] erofs: refine managed cache operations to folios
-Date: Tue,  5 Mar 2024 17:14:48 +0800
-Message-Id: <20240305091448.1384242-6-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240305091448.1384242-1-hsiangkao@linux.alibaba.com>
-References: <20240305091448.1384242-1-hsiangkao@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TqFQ63tvSz30gn
+	for <linux-erofs@lists.ozlabs.org>; Wed,  6 Mar 2024 12:36:11 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1709688975; x=1741224975;
+  h=date:from:to:cc:subject:message-id;
+  bh=iFzrNxCBYAhEk8WGI8flz6ln30tX4eIAY3yHxm5sIjE=;
+  b=QKaurnxoYAoiyakSvWJFBrkPxSwj4Sa+YHjCBbjsPcfpMEoaqbTaYPsb
+   Tbimd1l7tM7BMjk8oGRrk7ZeboPB7MOJUoM/6PC6jVYkHqj65kOExCTsC
+   BfB+oiVwa8soJ7ttCzcAFieuYvYVSUoVa9xif8PwzyGLrZFRf8+aWBuWS
+   cNhM8a/btudWig/JTkPXIrB2AfdP9yEcqZtj0XmwPjmBdP3Oy/pjW0b0z
+   nn77yPL3dDkmHFHFiSfyJLCj38bKn74O6cz+LmgI5p7wFtHE3I32zzSqW
+   RRXze9wGXy6L08epwwwGwpyluPyZRza6/S9j5xtgSr01vgBnN81KJPL48
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11004"; a="21736470"
+X-IronPort-AV: E=Sophos;i="6.06,207,1705392000"; 
+   d="scan'208";a="21736470"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2024 17:36:07 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,207,1705392000"; 
+   d="scan'208";a="9670174"
+Received: from lkp-server01.sh.intel.com (HELO b21307750695) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 05 Mar 2024 17:36:06 -0800
+Received: from kbuild by b21307750695 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rhgCR-0003pD-2b;
+	Wed, 06 Mar 2024 01:36:03 +0000
+Date: Wed, 06 Mar 2024 09:35:31 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 5ff6ddfc717fa30dcdaf3c342725bc58d782d2c8
+Message-ID: <202403060927.DGg13pzI-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -52,225 +65,244 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Convert erofs_try_to_free_all_cached_pages() and
-z_erofs_cache_release_folio().
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 5ff6ddfc717fa30dcdaf3c342725bc58d782d2c8  erofs: fix uninitialized page cache reported by KMSAN
 
-Besides, erofs_page_is_managed() is moved to zdata.c and renamed
-as erofs_folio_is_managed().
+elapsed time: 1357m
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/compress.h             |  7 ----
- fs/erofs/decompressor_deflate.c |  3 --
- fs/erofs/decompressor_lzma.c    |  3 --
- fs/erofs/internal.h             |  4 +--
- fs/erofs/utils.c                |  2 +-
- fs/erofs/zdata.c                | 63 ++++++++++++++++-----------------
- 6 files changed, 34 insertions(+), 48 deletions(-)
+configs tested: 221
+configs skipped: 3
 
-diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
-index 7cc5841577b2..333587ba6183 100644
---- a/fs/erofs/compress.h
-+++ b/fs/erofs/compress.h
-@@ -81,13 +81,6 @@ static inline bool z_erofs_put_shortlivedpage(struct page **pagepool,
- 	return true;
- }
- 
--#define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
--static inline bool erofs_page_is_managed(const struct erofs_sb_info *sbi,
--					 struct page *page)
--{
--	return page->mapping == MNGD_MAPPING(sbi);
--}
--
- int z_erofs_fixup_insize(struct z_erofs_decompress_req *rq, const char *padbuf,
- 			 unsigned int padbufsize);
- extern const struct z_erofs_decompressor erofs_decompressors[];
-diff --git a/fs/erofs/decompressor_deflate.c b/fs/erofs/decompressor_deflate.c
-index b98872058abe..81e65c453ef0 100644
---- a/fs/erofs/decompressor_deflate.c
-+++ b/fs/erofs/decompressor_deflate.c
-@@ -212,9 +212,6 @@ int z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
- 
- 			if (rq->out[no] != rq->in[j])
- 				continue;
--
--			DBG_BUGON(erofs_page_is_managed(EROFS_SB(sb),
--							rq->in[j]));
- 			tmppage = erofs_allocpage(pgpl, rq->gfp);
- 			if (!tmppage) {
- 				err = -ENOMEM;
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index 6ca357d83cfa..4b28dc130c9f 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -258,9 +258,6 @@ int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
- 
- 			if (rq->out[no] != rq->in[j])
- 				continue;
--
--			DBG_BUGON(erofs_page_is_managed(EROFS_SB(rq->sb),
--							rq->in[j]));
- 			tmppage = erofs_allocpage(pgpl, rq->gfp);
- 			if (!tmppage) {
- 				err = -ENOMEM;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index b0409badb017..65db0250f146 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -467,8 +467,8 @@ int __init erofs_init_shrinker(void);
- void erofs_exit_shrinker(void);
- int __init z_erofs_init_zip_subsystem(void);
- void z_erofs_exit_zip_subsystem(void);
--int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
--				       struct erofs_workgroup *egrp);
-+int erofs_try_to_free_all_cached_folios(struct erofs_sb_info *sbi,
-+					struct erofs_workgroup *egrp);
- int z_erofs_map_blocks_iter(struct inode *inode, struct erofs_map_blocks *map,
- 			    int flags);
- void *erofs_get_pcpubuf(unsigned int requiredpages);
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index e146d09151af..518bdd69c823 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -129,7 +129,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- 	 * the XArray. Otherwise some cached pages could be still attached to
- 	 * the orphan old workgroup when the new one is available in the tree.
- 	 */
--	if (erofs_try_to_free_all_cached_pages(sbi, grp))
-+	if (erofs_try_to_free_all_cached_folios(sbi, grp))
- 		goto out;
- 
- 	/*
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 63990c8192f2..c1bd4d8392eb 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -119,6 +119,12 @@ static inline unsigned int z_erofs_pclusterpages(struct z_erofs_pcluster *pcl)
- 	return PAGE_ALIGN(pcl->pclustersize) >> PAGE_SHIFT;
- }
- 
-+#define MNGD_MAPPING(sbi)	((sbi)->managed_cache->i_mapping)
-+static bool erofs_folio_is_managed(struct erofs_sb_info *sbi, struct folio *fo)
-+{
-+	return fo->mapping == MNGD_MAPPING(sbi);
-+}
-+
- /*
-  * bit 30: I/O error occurred on this folio
-  * bit 0 - 29: remaining parts to complete this folio
-@@ -611,9 +617,9 @@ static void z_erofs_bind_cache(struct z_erofs_decompress_frontend *fe)
- 		fe->mode = Z_EROFS_PCLUSTER_FOLLOWED_NOINPLACE;
- }
- 
--/* called by erofs_shrinker to get rid of all compressed_pages */
--int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
--				       struct erofs_workgroup *grp)
-+/* called by erofs_shrinker to get rid of all cached compressed bvecs */
-+int erofs_try_to_free_all_cached_folios(struct erofs_sb_info *sbi,
-+					struct erofs_workgroup *grp)
- {
- 	struct z_erofs_pcluster *const pcl =
- 		container_of(grp, struct z_erofs_pcluster, obj);
-@@ -621,27 +627,22 @@ int erofs_try_to_free_all_cached_pages(struct erofs_sb_info *sbi,
- 	int i;
- 
- 	DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
--	/*
--	 * refcount of workgroup is now freezed as 0,
--	 * therefore no need to worry about available decompression users.
--	 */
-+	/* There is no actice user since the pcluster is now freezed */
- 	for (i = 0; i < pclusterpages; ++i) {
--		struct page *page = pcl->compressed_bvecs[i].page;
-+		struct folio *folio = pcl->compressed_bvecs[i].folio;
- 
--		if (!page)
-+		if (!folio)
- 			continue;
- 
--		/* block other users from reclaiming or migrating the page */
--		if (!trylock_page(page))
-+		/* Avoid reclaiming or migrating this folio */
-+		if (!folio_trylock(folio))
- 			return -EBUSY;
- 
--		if (!erofs_page_is_managed(sbi, page))
-+		if (!erofs_folio_is_managed(sbi, folio))
- 			continue;
--
--		/* barrier is implied in the following 'unlock_page' */
--		WRITE_ONCE(pcl->compressed_bvecs[i].page, NULL);
--		detach_page_private(page);
--		unlock_page(page);
-+		pcl->compressed_bvecs[i].folio = NULL;
-+		folio_detach_private(folio);
-+		folio_unlock(folio);
- 	}
- 	return 0;
- }
-@@ -658,20 +659,17 @@ static bool z_erofs_cache_release_folio(struct folio *folio, gfp_t gfp)
- 
- 	ret = false;
- 	spin_lock(&pcl->obj.lockref.lock);
--	if (pcl->obj.lockref.count > 0)
--		goto out;
--
--	DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
--	for (i = 0; i < pclusterpages; ++i) {
--		if (pcl->compressed_bvecs[i].page == &folio->page) {
--			WRITE_ONCE(pcl->compressed_bvecs[i].page, NULL);
--			ret = true;
--			break;
-+	if (pcl->obj.lockref.count <= 0) {
-+		DBG_BUGON(z_erofs_is_inline_pcluster(pcl));
-+		for (i = 0; i < pclusterpages; ++i) {
-+			if (pcl->compressed_bvecs[i].folio == folio) {
-+				pcl->compressed_bvecs[i].folio = NULL;
-+				folio_detach_private(folio);
-+				ret = true;
-+				break;
-+			}
- 		}
- 	}
--	if (ret)
--		folio_detach_private(folio);
--out:
- 	spin_unlock(&pcl->obj.lockref.lock);
- 	return ret;
- }
-@@ -1201,7 +1199,7 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
- 		be->compressed_pages[i] = page;
- 
- 		if (z_erofs_is_inline_pcluster(pcl) ||
--		    erofs_page_is_managed(EROFS_SB(be->sb), page)) {
-+		    erofs_folio_is_managed(EROFS_SB(be->sb), page_folio(page))) {
- 			if (!PageUptodate(page))
- 				err = -EIO;
- 			continue;
-@@ -1286,7 +1284,8 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
- 			/* consider shortlived pages added when decompressing */
- 			page = be->compressed_pages[i];
- 
--			if (!page || erofs_page_is_managed(sbi, page))
-+			if (!page ||
-+			    erofs_folio_is_managed(sbi, page_folio(page)))
- 				continue;
- 			(void)z_erofs_put_shortlivedpage(be->pagepool, page);
- 			WRITE_ONCE(pcl->compressed_bvecs[i].page, NULL);
-@@ -1573,7 +1572,7 @@ static void z_erofs_submissionqueue_endio(struct bio *bio)
- 
- 		DBG_BUGON(folio_test_uptodate(folio));
- 		DBG_BUGON(z_erofs_page_is_invalidated(&folio->page));
--		if (!erofs_page_is_managed(EROFS_SB(q->sb), &folio->page))
-+		if (!erofs_folio_is_managed(EROFS_SB(q->sb), folio))
- 			continue;
- 
- 		if (!err)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha                             allnoconfig   gcc  
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+arc                              allmodconfig   gcc  
+arc                               allnoconfig   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                            hsdk_defconfig   gcc  
+arc                        nsimosci_defconfig   gcc  
+arc                   randconfig-001-20240305   gcc  
+arc                   randconfig-002-20240305   gcc  
+arc                           tb10x_defconfig   gcc  
+arc                        vdk_hs38_defconfig   gcc  
+arm                              allmodconfig   gcc  
+arm                               allnoconfig   clang
+arm                              allyesconfig   gcc  
+arm                                 defconfig   clang
+arm                           h3600_defconfig   gcc  
+arm                        mvebu_v5_defconfig   gcc  
+arm                       netwinder_defconfig   gcc  
+arm                   randconfig-001-20240305   clang
+arm                   randconfig-002-20240305   gcc  
+arm                   randconfig-003-20240305   clang
+arm                   randconfig-004-20240305   gcc  
+arm                         socfpga_defconfig   gcc  
+arm                           sunxi_defconfig   gcc  
+arm                           tegra_defconfig   gcc  
+arm                         vf610m4_defconfig   gcc  
+arm64                            allmodconfig   clang
+arm64                             allnoconfig   gcc  
+arm64                            allyesconfig   clang
+arm64                               defconfig   gcc  
+arm64                 randconfig-001-20240305   gcc  
+arm64                 randconfig-002-20240305   clang
+arm64                 randconfig-003-20240305   gcc  
+arm64                 randconfig-004-20240305   gcc  
+csky                             allmodconfig   gcc  
+csky                              allnoconfig   gcc  
+csky                             allyesconfig   gcc  
+csky                                defconfig   gcc  
+csky                  randconfig-001-20240305   gcc  
+csky                  randconfig-002-20240305   gcc  
+hexagon                          allmodconfig   clang
+hexagon                           allnoconfig   clang
+hexagon                          allyesconfig   clang
+hexagon                             defconfig   clang
+hexagon               randconfig-001-20240305   clang
+hexagon               randconfig-002-20240305   clang
+i386                             alldefconfig   gcc  
+i386                             allmodconfig   gcc  
+i386                              allnoconfig   gcc  
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-001-20240305   clang
+i386         buildonly-randconfig-001-20240306   clang
+i386         buildonly-randconfig-002-20240305   gcc  
+i386         buildonly-randconfig-002-20240306   clang
+i386         buildonly-randconfig-003-20240305   gcc  
+i386         buildonly-randconfig-004-20240305   clang
+i386         buildonly-randconfig-004-20240306   clang
+i386         buildonly-randconfig-005-20240305   clang
+i386         buildonly-randconfig-005-20240306   clang
+i386         buildonly-randconfig-006-20240305   gcc  
+i386                                defconfig   clang
+i386                  randconfig-001-20240305   clang
+i386                  randconfig-002-20240305   gcc  
+i386                  randconfig-002-20240306   clang
+i386                  randconfig-003-20240305   clang
+i386                  randconfig-003-20240306   clang
+i386                  randconfig-004-20240305   gcc  
+i386                  randconfig-004-20240306   clang
+i386                  randconfig-005-20240305   gcc  
+i386                  randconfig-006-20240305   gcc  
+i386                  randconfig-006-20240306   clang
+i386                  randconfig-011-20240305   gcc  
+i386                  randconfig-011-20240306   clang
+i386                  randconfig-012-20240305   gcc  
+i386                  randconfig-012-20240306   clang
+i386                  randconfig-013-20240305   gcc  
+i386                  randconfig-014-20240305   gcc  
+i386                  randconfig-015-20240305   clang
+i386                  randconfig-015-20240306   clang
+i386                  randconfig-016-20240305   clang
+i386                  randconfig-016-20240306   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch             randconfig-001-20240305   gcc  
+loongarch             randconfig-002-20240305   gcc  
+m68k                             allmodconfig   gcc  
+m68k                              allnoconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                       bvme6000_defconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                       m5275evb_defconfig   gcc  
+m68k                        mvme16x_defconfig   gcc  
+m68k                           sun3_defconfig   gcc  
+microblaze                       allmodconfig   gcc  
+microblaze                        allnoconfig   gcc  
+microblaze                       allyesconfig   gcc  
+microblaze                          defconfig   gcc  
+mips                              allnoconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                       rbtx49xx_defconfig   gcc  
+nios2                            allmodconfig   gcc  
+nios2                             allnoconfig   gcc  
+nios2                            allyesconfig   gcc  
+nios2                               defconfig   gcc  
+nios2                 randconfig-001-20240305   gcc  
+nios2                 randconfig-002-20240305   gcc  
+openrisc                          allnoconfig   gcc  
+openrisc                         allyesconfig   gcc  
+openrisc                            defconfig   gcc  
+openrisc                    or1ksim_defconfig   gcc  
+openrisc                 simple_smp_defconfig   gcc  
+openrisc                       virt_defconfig   gcc  
+parisc                           allmodconfig   gcc  
+parisc                            allnoconfig   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc                generic-64bit_defconfig   gcc  
+parisc                randconfig-001-20240305   gcc  
+parisc                randconfig-002-20240305   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc                          allyesconfig   clang
+powerpc                        fsp2_defconfig   gcc  
+powerpc                          g5_defconfig   gcc  
+powerpc                 mpc832x_rdb_defconfig   gcc  
+powerpc               randconfig-001-20240305   gcc  
+powerpc               randconfig-002-20240305   gcc  
+powerpc               randconfig-003-20240305   gcc  
+powerpc64             randconfig-001-20240305   clang
+powerpc64             randconfig-002-20240305   clang
+powerpc64             randconfig-003-20240305   gcc  
+riscv                            allmodconfig   clang
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   clang
+riscv                               defconfig   clang
+riscv                 randconfig-001-20240305   clang
+riscv                 randconfig-002-20240305   gcc  
+s390                             allmodconfig   clang
+s390                              allnoconfig   clang
+s390                             allyesconfig   gcc  
+s390                          debug_defconfig   gcc  
+s390                                defconfig   clang
+s390                  randconfig-001-20240305   gcc  
+s390                  randconfig-002-20240305   gcc  
+sh                               allmodconfig   gcc  
+sh                                allnoconfig   gcc  
+sh                               allyesconfig   gcc  
+sh                         ap325rxa_defconfig   gcc  
+sh                                  defconfig   gcc  
+sh                        dreamcast_defconfig   gcc  
+sh                        edosk7705_defconfig   gcc  
+sh                          lboxre2_defconfig   gcc  
+sh                    randconfig-001-20240305   gcc  
+sh                    randconfig-002-20240305   gcc  
+sh                          sdk7786_defconfig   gcc  
+sh                           se7724_defconfig   gcc  
+sh                           se7750_defconfig   gcc  
+sh                              ul2_defconfig   gcc  
+sparc                            allmodconfig   gcc  
+sparc                             allnoconfig   gcc  
+sparc                               defconfig   gcc  
+sparc64                          allmodconfig   gcc  
+sparc64                          allyesconfig   gcc  
+sparc64                             defconfig   gcc  
+sparc64               randconfig-001-20240305   gcc  
+sparc64               randconfig-002-20240305   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   gcc  
+um                                  defconfig   clang
+um                             i386_defconfig   gcc  
+um                    randconfig-001-20240305   gcc  
+um                    randconfig-002-20240305   gcc  
+um                           x86_64_defconfig   clang
+x86_64                            allnoconfig   clang
+x86_64                           allyesconfig   clang
+x86_64       buildonly-randconfig-001-20240305   clang
+x86_64       buildonly-randconfig-001-20240306   clang
+x86_64       buildonly-randconfig-002-20240305   clang
+x86_64       buildonly-randconfig-002-20240306   clang
+x86_64       buildonly-randconfig-003-20240305   clang
+x86_64       buildonly-randconfig-003-20240306   clang
+x86_64       buildonly-randconfig-004-20240305   clang
+x86_64       buildonly-randconfig-004-20240306   clang
+x86_64       buildonly-randconfig-005-20240305   clang
+x86_64       buildonly-randconfig-006-20240306   clang
+x86_64                              defconfig   gcc  
+x86_64                randconfig-001-20240305   clang
+x86_64                randconfig-001-20240306   clang
+x86_64                randconfig-002-20240305   clang
+x86_64                randconfig-002-20240306   clang
+x86_64                randconfig-004-20240305   clang
+x86_64                randconfig-005-20240305   clang
+x86_64                randconfig-005-20240306   clang
+x86_64                randconfig-006-20240306   clang
+x86_64                randconfig-011-20240306   clang
+x86_64                randconfig-012-20240306   clang
+x86_64                randconfig-013-20240305   clang
+x86_64                randconfig-013-20240306   clang
+x86_64                randconfig-015-20240305   clang
+x86_64                randconfig-015-20240306   clang
+x86_64                randconfig-016-20240305   clang
+x86_64                randconfig-071-20240306   clang
+x86_64                randconfig-072-20240306   clang
+x86_64                randconfig-073-20240305   clang
+x86_64                randconfig-073-20240306   clang
+x86_64                randconfig-074-20240305   clang
+x86_64                randconfig-074-20240306   clang
+x86_64                randconfig-075-20240306   clang
+x86_64                randconfig-076-20240305   clang
+x86_64                randconfig-076-20240306   clang
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+xtensa                            allnoconfig   gcc  
+xtensa                randconfig-001-20240305   gcc  
+xtensa                randconfig-002-20240305   gcc  
+xtensa                    smp_lx200_defconfig   gcc  
+
 -- 
-2.39.3
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
