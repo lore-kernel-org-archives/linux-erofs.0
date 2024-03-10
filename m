@@ -4,47 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83B4FC54E49
-	for <linux-erofs@archiver.kernel.org>; Sun, 10 Mar 2024 01:03:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3E83C54791
+	for <linux-erofs@archiver.kernel.org>; Sun, 10 Mar 2024 01:04:15 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Wvtv7VMd;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IUvTOJmq;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TshVr514Yz3dKY
-	for <linux-erofs@archiver.kernel.org>; Sun, 10 Mar 2024 12:03:48 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TshWL3Yr7z3dKY
+	for <linux-erofs@archiver.kernel.org>; Sun, 10 Mar 2024 12:04:14 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Wvtv7VMd;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IUvTOJmq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TshVl1lNLz2xFk
-	for <linux-erofs@lists.ozlabs.org>; Sun, 10 Mar 2024 12:03:43 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TshWF1Fnpz2xFk
+	for <linux-erofs@lists.ozlabs.org>; Sun, 10 Mar 2024 12:04:09 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 499A160202;
-	Sun, 10 Mar 2024 01:03:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F221C433C7;
-	Sun, 10 Mar 2024 01:03:37 +0000 (UTC)
+	by dfw.source.kernel.org (Postfix) with ESMTP id 7FAEF60202;
+	Sun, 10 Mar 2024 01:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B728C433F1;
+	Sun, 10 Mar 2024 01:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1710032618;
-	bh=YPzc6cOPeXjd03+yw6nbxe7t5hQzPCC7uNPzmvYO6sw=;
+	s=k20201202; t=1710032646;
+	bh=8cO9/OxY4mMQABE2pDv/6JXKXRCbw1XZOzFtsmShyMs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Wvtv7VMdmCttwWGagwYjcCiYTXvpvZ7aeVbGQpn+ldffvbI+G0lq+eOE8jSMcZqF6
-	 Cn/ko0rATSIpwSICP3zVcOFAvlXAhur7IQEKnmP42m8m40QH90d5D9E4kntZdpqls1
-	 yyAQnUhgjkTUWenwPEh6RWnhPJrOuCFmweR0iL75glH4j1dcjFPLEdtagqYsqPZO2f
-	 mc7DSF6aTdhfjs5HTD5TXaUKzL1nqfTp8ZJi5RosJPgWPJBX8V4Hj4yBMbNd+DV21G
-	 z8oMFacB0lQSU6tGc3Omgw7AhOE0Cb37sjB90+dUtUZEEpJv2o43NgQ97GuDDCPtIn
-	 pwVj76G69LcJQ==
-Message-ID: <cb5d900e-4fc2-40a0-ae28-5e02d6cbcdf6@kernel.org>
-Date: Sun, 10 Mar 2024 09:03:35 +0800
+	b=IUvTOJmqZxkClqupkAAufq/Ho7z4HCbPvLfE0NtXw0hF0SiilGx2iNpi1/mNoaWH6
+	 AEwl4aMmvuBvU4iITAd5XIx972/wGH/p3SdRlAYVw5wHsbcfIjwZB3eaae82IxBBz2
+	 k7UzDAKmlcUOptyf/cr095ADJO3HsOkA3XtdeD4iMUO2ouHMjRHVJLmbQvG4wKmomR
+	 9n0CAn9cBRg82JTibEKZwzQESbFL7V0USB/E5rz9bxKCG2wmVZ6XWTEGUrKT6X8Owa
+	 kSE1wTEaRJtICWJj5GSEVYKKdSsQtPM5oBLlVXe4KHTVX57VmlrxgxlBpacYHzxne/
+	 aNgt36OFbtwqw==
+Message-ID: <1f627768-5654-405c-b042-804fcc58f465@kernel.org>
+Date: Sun, 10 Mar 2024 09:04:07 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/6] erofs: convert z_erofs_onlinepage_.* to folios
+Subject: Re: [PATCH 2/6] erofs: convert z_erofs_do_read_page() to folios
+Content-Language: en-US
 To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
 References: <20240305091448.1384242-1-hsiangkao@linux.alibaba.com>
-Content-Language: en-US
+ <20240305091448.1384242-2-hsiangkao@linux.alibaba.com>
 From: Chao Yu <chao@kernel.org>
 Autocrypt: addr=chao@kernel.org; keydata=
  xsFNBFYs6bUBEADJuxYGZRMvAEySns+DKVtVQRKDYcHlmj+s9is35mtlhrLyjm35FWJY099R
@@ -88,7 +89,7 @@ Autocrypt: addr=chao@kernel.org; keydata=
  92Qh98hAj3cMFKtEVbLKJvrc2AO+mQlS7zl1qWblEhpZnXi05S1AoT0gDW2lwe54VfT3ySon
  8Klpbp5W4eEoY21tLwuNzgUMxmycfM4GaJWNCncKuMT4qGVQO9SPFs0vgUrdBUC5Pn5ZJ46X
  mZA0DUz0S8BJtYGI0DUC/jAKhIgy1vAx39y7sAshwu2VILa71tXJ
-In-Reply-To: <20240305091448.1384242-1-hsiangkao@linux.alibaba.com>
+In-Reply-To: <20240305091448.1384242-2-hsiangkao@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -107,14 +108,8 @@ Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 On 2024/3/5 17:14, Gao Xiang wrote:
-> Online folios are locked file-backed folios which will eventually
-> keep decoded (e.g. decompressed) data of each inode for end users to
-> utilize.  It may belong to a few pclusters and contain other data (e.g.
-> compressed data for inplace I/Os) temporarily in a time-sharing manner
-> to reduce memory footprints for low-ended storage devices with high
-> latencies under heary I/O pressure.
-> 
-> Apart from folio_end_read() usage, it's a straight-forward conversion.
+> It is a straight-forward conversion. Besides, it's renamed as
+> z_erofs_scan_folio().
 > 
 > Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
