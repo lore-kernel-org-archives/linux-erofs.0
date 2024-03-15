@@ -4,39 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58377C54E5D
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 01:10:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 184BAC54E5D
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 01:10:54 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Yhnzcp2w;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bBH2515U;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4TwmQb00Scz3dXX
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 12:10:47 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TwmQh5KBDz3dV6
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 12:10:52 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Yhnzcp2w;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bBH2515U;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4TwmQJ1jBsz3cCt
-	for <linux-erofs@lists.ozlabs.org>; Fri, 15 Mar 2024 12:10:29 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TwmQJ3YpXz3cy9
+	for <linux-erofs@lists.ozlabs.org>; Fri, 15 Mar 2024 12:10:31 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710465026; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=bZB4q11QQQ/KF9dvs8xliozsaJ3pxg1SKVDyaL9uvSA=;
-	b=Yhnzcp2wCvu5l1VjV8GjZxwLtLIUYPEEuCBrSIMUjgb8KaA4f7i2fq4ncga6GOi59Vo+nBQPdFVBvkxtg+/Wrud0NGuAzft34G9C40T3QR1XkVK9XMHLhmBkyE08P4YswYRig4zsH2t9kU8U7E6qJOLbo8Vdg3N9IK+NBL9w0BQ=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W2UFdGW_1710465020;
-Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W2UFdGW_1710465020)
+	t=1710465028; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=E6P8S5NRZgc6A0t3o9zv+uPpG+BdmwqEkXsLRcTrk44=;
+	b=bBH2515UCeJa4Fm9KbsZbv63KJkiv6ZvBBuAKyr5awSaFc985ACPooagjLkHHUWDx+7FFd7zkKxcRS6Gg8zAZJq4oHlCExfhQeV7ZGakespZLTfphMzOqTXEG6u/Ba3yp/tocW4ITaKsCYejAAFRpPrs/0WAOjveOSeuzQMmqxY=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W2UFdIV_1710465026;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W2UFdIV_1710465026)
           by smtp.aliyun-inc.com;
-          Fri, 15 Mar 2024 09:10:24 +0800
+          Fri, 15 Mar 2024 09:10:26 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v7 1/5] erofs-utils: introduce multi-threading framework
-Date: Fri, 15 Mar 2024 09:10:15 +0800
-Message-Id: <20240315011019.610442-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v7 3/5] erofs-utils: mkfs: add --workers=# parameter
+Date: Fri, 15 Mar 2024 09:10:17 +0800
+Message-Id: <20240315011019.610442-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240315011019.610442-1-hsiangkao@linux.alibaba.com>
+References: <20240315011019.610442-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -56,258 +58,99 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 
-Add a workqueue implementation for multi-threading support inspired by
-xfsprogs.
+This patch introduces `--workers=#` parameter for the incoming
+multi-threaded compression support.
+
+It also introduces a concept called `segment size` to split large
+inodes for multi-threaded compression, which has the fixed value
+16MiB and cannot be modified for now.
 
 Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- configure.ac              |  16 +++++
- include/erofs/internal.h  |   3 +
- include/erofs/workqueue.h |  34 +++++++++++
- lib/Makefile.am           |   4 ++
- lib/workqueue.c           | 123 ++++++++++++++++++++++++++++++++++++++
- 5 files changed, 180 insertions(+)
- create mode 100644 include/erofs/workqueue.h
- create mode 100644 lib/workqueue.c
+ include/erofs/config.h |  4 ++++
+ lib/config.c           |  4 ++++
+ mkfs/main.c            | 23 +++++++++++++++++++++++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/configure.ac b/configure.ac
-index 4b59230..3ccd6bb 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -96,6 +96,14 @@ AC_DEFUN([EROFS_UTILS_PARSE_DIRECTORY],
- 
- AC_ARG_VAR([MAX_BLOCK_SIZE], [The maximum block size which erofs-utils supports])
- 
-+AC_MSG_CHECKING([whether to enable multi-threading support])
-+AC_ARG_ENABLE([multithreading],
-+    AS_HELP_STRING([--enable-multithreading],
-+                   [enable multi-threading support @<:@default=no@:>@]),
-+    [enable_multithreading="$enableval"],
-+    [enable_multithreading="no"])
-+AC_MSG_RESULT([$enable_multithreading])
-+
- AC_ARG_ENABLE([debug],
-     [AS_HELP_STRING([--enable-debug],
-                     [enable debugging mode @<:@default=no@:>@])],
-@@ -280,6 +288,13 @@ AS_IF([test "x$MAX_BLOCK_SIZE" = "x"], [
-                              [erofs_cv_max_block_size=4096]))
- ], [erofs_cv_max_block_size=$MAX_BLOCK_SIZE])
- 
-+# Configure multi-threading support
-+AS_IF([test "x$enable_multithreading" != "xno"], [
-+    AC_CHECK_HEADERS([pthread.h])
-+    AC_CHECK_LIB([pthread], [pthread_mutex_lock], [], AC_MSG_ERROR([libpthread is required for multi-threaded build]))
-+    AC_DEFINE(EROFS_MT_ENABLED, 1, [Enable multi-threading support])
-+], [])
-+
- # Configure debug mode
- AS_IF([test "x$enable_debug" != "xno"], [], [
-   dnl Turn off all assert checking.
-@@ -471,6 +486,7 @@ AS_IF([test "x$enable_fuzzing" != "xyes"], [], [
- AM_CONDITIONAL([ENABLE_FUZZING], [test "x${enable_fuzzing}" = "xyes"])
- 
- # Set up needed symbols, conditionals and compiler/linker flags
-+AM_CONDITIONAL([ENABLE_EROFS_MT], [test "x${enable_multithreading}" != "xno"])
- AM_CONDITIONAL([ENABLE_LZ4], [test "x${have_lz4}" = "xyes"])
- AM_CONDITIONAL([ENABLE_LZ4HC], [test "x${have_lz4hc}" = "xyes"])
- AM_CONDITIONAL([ENABLE_FUSE], [test "x${have_fuse}" = "xyes"])
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 5e968d6..4cd2059 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -22,6 +22,9 @@ typedef unsigned short umode_t;
- #include <sys/types.h> /* for off_t definition */
- #include <sys/stat.h> /* for S_ISCHR definition */
- #include <stdio.h>
-+#ifdef HAVE_PTHREAD_H
-+#include <pthread.h>
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 73e3ac2..d2f91ff 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -75,6 +75,10 @@ struct erofs_configure {
+ 	char c_force_chunkformat;
+ 	/* < 0, xattr disabled and INT_MAX, always use inline xattrs */
+ 	int c_inline_xattr_tolerance;
++#ifdef EROFS_MT_ENABLED
++	u64 c_segment_size;
++	u32 c_mt_workers;
 +#endif
  
- #ifndef PATH_MAX
- #define PATH_MAX        4096    /* # chars in a path name including nul */
-diff --git a/include/erofs/workqueue.h b/include/erofs/workqueue.h
-new file mode 100644
-index 0000000..36037c3
---- /dev/null
-+++ b/include/erofs/workqueue.h
-@@ -0,0 +1,34 @@
-+/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-+#ifndef __EROFS_WORKQUEUE_H
-+#define __EROFS_WORKQUEUE_H
-+
-+#include "internal.h"
-+
-+struct erofs_workqueue;
-+
-+typedef void *(*erofs_wq_func_t)(struct erofs_workqueue *, void *);
-+
-+struct erofs_work {
-+	struct erofs_work *next;
-+	void (*fn)(struct erofs_work *work, void *tlsp);
-+};
-+
-+struct erofs_workqueue {
-+	struct erofs_work *head, *tail;
-+	pthread_mutex_t lock;
-+	pthread_cond_t cond_empty;
-+	pthread_cond_t cond_full;
-+	pthread_t *workers;
-+	unsigned int nworker;
-+	unsigned int max_jobs;
-+	unsigned int job_count;
-+	bool shutdown;
-+	erofs_wq_func_t on_start, on_exit;
-+};
-+
-+int erofs_alloc_workqueue(struct erofs_workqueue *wq, unsigned int nworker,
-+			  unsigned int max_jobs, erofs_wq_func_t on_start,
-+			  erofs_wq_func_t on_exit);
-+int erofs_queue_work(struct erofs_workqueue *wq, struct erofs_work *work);
-+int erofs_destroy_workqueue(struct erofs_workqueue *wq);
+ 	u32 c_pclusterblks_max, c_pclusterblks_def, c_pclusterblks_packed;
+ 	u32 c_max_decompressed_extent_bytes;
+diff --git a/lib/config.c b/lib/config.c
+index 947a183..2530274 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -38,6 +38,10 @@ void erofs_init_configure(void)
+ 	cfg.c_pclusterblks_max = 1;
+ 	cfg.c_pclusterblks_def = 1;
+ 	cfg.c_max_decompressed_extent_bytes = -1;
++#ifdef EROFS_MT_ENABLED
++	cfg.c_segment_size = 16ULL * 1024 * 1024;
++	cfg.c_mt_workers = 1;
 +#endif
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 54b9c9c..b3bea74 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -53,3 +53,7 @@ liberofs_la_SOURCES += kite_deflate.c compressor_deflate.c
- if ENABLE_LIBDEFLATE
- liberofs_la_SOURCES += compressor_libdeflate.c
- endif
-+if ENABLE_EROFS_MT
-+liberofs_la_LDFLAGS = -lpthread
-+liberofs_la_SOURCES += workqueue.c
-+endif
-diff --git a/lib/workqueue.c b/lib/workqueue.c
-new file mode 100644
-index 0000000..47cec9b
---- /dev/null
-+++ b/lib/workqueue.c
-@@ -0,0 +1,123 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-+#include <pthread.h>
-+#include <stdlib.h>
-+#include "erofs/workqueue.h"
+ 
+ 	erofs_stdout_tty = isatty(STDOUT_FILENO);
+ }
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 8a68a72..126a049 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -77,6 +77,9 @@ static struct option long_options[] = {
+ #ifdef HAVE_LIBLZMA
+ 	{"unlzma", optional_argument, NULL, 519},
+ 	{"unxz", optional_argument, NULL, 519},
++#endif
++#ifdef EROFS_MT_ENABLED
++	{"workers", required_argument, NULL, 520},
+ #endif
+ 	{0, 0, 0, 0},
+ };
+@@ -178,6 +181,9 @@ static void usage(int argc, char **argv)
+ #ifdef HAVE_LIBLZMA
+ 		" --unxz[=X]            try to filter the tarball stream through xz/lzma/lzip\n"
+ 		"                       (and optionally dump the raw stream to X together)\n"
++#endif
++#ifdef EROFS_MT_ENABLED
++		" --workers=#           set the number of worker threads to # (default=1)\n"
+ #endif
+ 		" --xattr-prefix=X      X=extra xattr name prefix\n"
+ 		" --mount-point=X       X=prefix of target fs path (default: /)\n"
+@@ -660,6 +666,23 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 				erofstar.dumpfile = strdup(optarg);
+ 			tarerofs_decoder = EROFS_IOS_DECODER_GZIP + (opt - 518);
+ 			break;
++#ifdef EROFS_MT_ENABLED
++		case 520: {
++			unsigned int processors;
 +
-+static void *worker_thread(void *arg)
-+{
-+	struct erofs_workqueue *wq = arg;
-+	struct erofs_work *work;
-+	void *tlsp = NULL;
++			cfg.c_mt_workers = strtoul(optarg, &endptr, 0);
++			if (errno || *endptr != '\0') {
++				erofs_err("invalid worker number %s", optarg);
++				return -EINVAL;
++			}
 +
-+	if (wq->on_start)
-+		tlsp = (wq->on_start)(wq, NULL);
-+
-+	while (true) {
-+		pthread_mutex_lock(&wq->lock);
-+
-+		while (wq->job_count == 0 && !wq->shutdown)
-+			pthread_cond_wait(&wq->cond_empty, &wq->lock);
-+		if (wq->job_count == 0 && wq->shutdown) {
-+			pthread_mutex_unlock(&wq->lock);
++			processors = erofs_get_available_processors();
++			if (cfg.c_mt_workers > processors)
++				erofs_warn("the number of workers %d is more than the number of processors %d, performance may be impacted.",
++					   cfg.c_mt_workers, processors);
 +			break;
 +		}
-+
-+		work = wq->head;
-+		wq->head = work->next;
-+		if (!wq->head)
-+			wq->tail = NULL;
-+		wq->job_count--;
-+
-+		if (wq->job_count == wq->max_jobs - 1)
-+			pthread_cond_broadcast(&wq->cond_full);
-+
-+		pthread_mutex_unlock(&wq->lock);
-+		work->fn(work, tlsp);
-+	}
-+
-+	if (wq->on_exit)
-+		(void)(wq->on_exit)(wq, tlsp);
-+	return NULL;
-+}
-+
-+int erofs_alloc_workqueue(struct erofs_workqueue *wq, unsigned int nworker,
-+			  unsigned int max_jobs, erofs_wq_func_t on_start,
-+			  erofs_wq_func_t on_exit)
-+{
-+	unsigned int i;
-+	int ret;
-+
-+	if (!wq || nworker <= 0 || max_jobs <= 0)
-+		return -EINVAL;
-+
-+	wq->head = wq->tail = NULL;
-+	wq->nworker = nworker;
-+	wq->max_jobs = max_jobs;
-+	wq->job_count = 0;
-+	wq->shutdown = false;
-+	wq->on_start = on_start;
-+	wq->on_exit = on_exit;
-+	pthread_mutex_init(&wq->lock, NULL);
-+	pthread_cond_init(&wq->cond_empty, NULL);
-+	pthread_cond_init(&wq->cond_full, NULL);
-+
-+	wq->workers = malloc(nworker * sizeof(pthread_t));
-+	if (!wq->workers)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < nworker; i++) {
-+		ret = pthread_create(&wq->workers[i], NULL, worker_thread, wq);
-+		if (ret) {
-+			while (i)
-+				pthread_cancel(wq->workers[--i]);
-+			free(wq->workers);
-+			return ret;
-+		}
-+	}
-+	return 0;
-+}
-+
-+int erofs_queue_work(struct erofs_workqueue *wq, struct erofs_work *work)
-+{
-+	if (!wq || !work)
-+		return -EINVAL;
-+
-+	pthread_mutex_lock(&wq->lock);
-+
-+	while (wq->job_count == wq->max_jobs)
-+		pthread_cond_wait(&wq->cond_full, &wq->lock);
-+
-+	work->next = NULL;
-+	if (!wq->head)
-+		wq->head = work;
-+	else
-+		wq->tail->next = work;
-+	wq->tail = work;
-+	wq->job_count++;
-+
-+	pthread_cond_signal(&wq->cond_empty);
-+	pthread_mutex_unlock(&wq->lock);
-+	return 0;
-+}
-+
-+int erofs_destroy_workqueue(struct erofs_workqueue *wq)
-+{
-+	unsigned int i;
-+
-+	if (!wq)
-+		return -EINVAL;
-+
-+	pthread_mutex_lock(&wq->lock);
-+	wq->shutdown = true;
-+	pthread_cond_broadcast(&wq->cond_empty);
-+	pthread_mutex_unlock(&wq->lock);
-+
-+	for (i = 0; i < wq->nworker; i++)
-+		pthread_join(wq->workers[i], NULL);
-+
-+	free(wq->workers);
-+	pthread_mutex_destroy(&wq->lock);
-+	pthread_cond_destroy(&wq->cond_empty);
-+	pthread_cond_destroy(&wq->cond_full);
-+	return 0;
-+}
++#endif
+ 		case 'V':
+ 			version();
+ 			exit(0);
 -- 
 2.39.3
 
