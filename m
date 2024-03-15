@@ -4,44 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5CBDC54E60
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 00:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B22F9C54E60
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 01:10:42 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=gmpI15jn;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=OUwLpNOV;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Twl862Cmzz3dVL
-	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 11:13:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4TwmQT24SJz3dWw
+	for <linux-erofs@archiver.kernel.org>; Fri, 15 Mar 2024 12:10:41 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=gmpI15jn;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=OUwLpNOV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Twl7z1kqwz30fm
-	for <linux-erofs@lists.ozlabs.org>; Fri, 15 Mar 2024 11:13:00 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4TwmQJ2nxGz3cFX
+	for <linux-erofs@lists.ozlabs.org>; Fri, 15 Mar 2024 12:10:31 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710461575; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=mzxcmPBrvejvzoRxjiUi2yf+SzWzLw/PHTLUQHWHyr4=;
-	b=gmpI15jnBapKJpGo8Z2kAUxDMGF2enktl05sU1GcY80rG71zy093DozEQeGSSJRZSitlzeIiP1bAh4nQEjzMlT8889b8nO5zS4ZH/Dm96qO+6OfakEvswCo2WtrQUnk02Lub6c54Y7N7y5tZlzDvY0CiWR9bX7iY9apDCKca4PI=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0W2U7MPG_1710461572;
-Received: from 192.168.33.9(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W2U7MPG_1710461572)
+	t=1710465028; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=tL4HppS5y0HvXefW9tb8Qh2TOKwqM7KqH/+j5xUSw28=;
+	b=OUwLpNOVpf5bly+yN1gTgFKQpTk946GLs81XcdKn2T0/XomCOMil8dwYyoV9avibgueHkD/nqLkMxZMhsrDOkRQdqQyXWMNLJJBpoEZrFCoz4DIVqoeMTSiOryDDUxgblbNlJ95dbedNNO5Dye7YDDtg4Lq6e2xcWh9JXcPz1gI=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W2UFdI._1710465024;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W2UFdI._1710465024)
           by smtp.aliyun-inc.com;
-          Fri, 15 Mar 2024 08:12:53 +0800
-Message-ID: <7f2b1110-fb31-4512-a16c-be1b2fd434e4@linux.alibaba.com>
-Date: Fri, 15 Mar 2024 08:12:52 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] MAINTAINERS: erofs: add myself as reviewer
-To: Sandeep Dhavale <dhavale@google.com>
-References: <20240314231407.1000541-1-dhavale@google.com>
+          Fri, 15 Mar 2024 09:10:26 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20240314231407.1000541-1-dhavale@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH v7 2/5] erofs-utils: add a helper to get available processors
+Date: Fri, 15 Mar 2024 09:10:16 +0800
+Message-Id: <20240315011019.610442-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240315011019.610442-1-hsiangkao@linux.alibaba.com>
+References: <20240315011019.610442-1-hsiangkao@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -53,21 +52,71 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: kernel-team@android.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+In order to prepare for multi-threaded decompression.
 
+Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ configure.ac           |  1 +
+ include/erofs/config.h |  1 +
+ lib/config.c           | 12 ++++++++++++
+ 3 files changed, 14 insertions(+)
 
-On 2024/3/15 07:14, Sandeep Dhavale wrote:
-> I have been contributing to erofs for sometime and I would like to help
-> with code reviews as well.
-> 
-> Signed-off-by: Sandeep Dhavale <dhavale@google.com>
+diff --git a/configure.ac b/configure.ac
+index 3ccd6bb..2e69260 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -256,6 +256,7 @@ AC_CHECK_FUNCS(m4_flatten([
+ 	strerror
+ 	strrchr
+ 	strtoull
++	sysconf
+ 	tmpfile64
+ 	utimensat]))
+ 
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index eecf575..73e3ac2 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -109,6 +109,7 @@ static inline int erofs_selabel_open(const char *file_contexts)
+ 
+ void erofs_update_progressinfo(const char *fmt, ...);
+ char *erofs_trim_for_progressinfo(const char *str, int placeholder);
++unsigned int erofs_get_available_processors(void);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/lib/config.c b/lib/config.c
+index 1096cd1..947a183 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -14,6 +14,9 @@
+ #ifdef HAVE_SYS_IOCTL_H
+ #include <sys/ioctl.h>
+ #endif
++#ifdef HAVE_UNISTD_H
++#include <unistd.h>
++#endif
+ 
+ struct erofs_configure cfg;
+ struct erofs_sb_info sbi;
+@@ -177,3 +180,12 @@ void erofs_update_progressinfo(const char *fmt, ...)
+ 	fputs(msg, stdout);
+ 	fputc('\n', stdout);
+ }
++
++unsigned int erofs_get_available_processors(void)
++{
++#if defined(HAVE_UNISTD_H) && defined(HAVE_SYSCONF)
++	return sysconf(_SC_NPROCESSORS_ONLN);
++#else
++	return 0;
++#endif
++}
+-- 
+2.39.3
 
-Looks good to me, and thanks for taking your time on erofs project:
-
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Thanks,
-Gao Xiang
