@@ -4,107 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFF63CD1292
-	for <linux-erofs@archiver.kernel.org>; Mon,  1 Apr 2024 13:45:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1711979152;
-	bh=AkSdKgS21kxbUCeFQnxLfdF+zWIHLKPSA4SRkOBVIW0=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=iyeFznJjWXIhqGG7y845MdzqYN7T0uem9sYsMDy4T11K5HEtFWnjdvw9DmFEpJZOC
-	 WF8hcJ7DQDT0d6BTJcxvL+sw/2chGkqYeZaDOQgpRchHz7rwfVs7svphKyNzuSmpbP
-	 b3L7TkZdIsrJcpSggTM5nhZ+tWtZERoe0Rhnp5ZP90JwqNfk+Xat/mveTCf0ifdUtA
-	 /lvfksM5ZzYNqpCMBTGkZFDonO9VRqHYLPchef1VH1M9SjG1szyyW+6RsiT5jyHEJa
-	 ePW6jKaqpJYuofdXkFskzDc0p4h+pvod/rmpHj9mM3yzZkStMKrhEdPCZNVsESWwEU
-	 hgqZf2X8cFrfg==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4V7XN00VHTz3bmN
-	for <linux-erofs@archiver.kernel.org>; Tue,  2 Apr 2024 00:45:52 +1100 (AEDT)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6D1CCD1292
+	for <linux-erofs@archiver.kernel.org>; Mon,  1 Apr 2024 13:54:13 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=vivo.com header.i=@vivo.com header.a=rsa-sha256 header.s=selector2 header.b=pBcv58pL;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=c29yWJov;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=vivo.com (client-ip=2a01:111:f403:2011::701; helo=apc01-tyz-obe.outbound.protection.outlook.com; envelope-from=guochunhai@vivo.com; receiver=lists.ozlabs.org)
-Received: from APC01-TYZ-obe.outbound.protection.outlook.com (mail-tyzapc01on20701.outbound.protection.outlook.com [IPv6:2a01:111:f403:2011::701])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4V7XYc42WTz3dSn
+	for <linux-erofs@archiver.kernel.org>; Tue,  2 Apr 2024 00:54:12 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=c29yWJov;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=horms@kernel.org; receiver=lists.ozlabs.org)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4V7XMv6Cvqz3bmN
-	for <linux-erofs@lists.ozlabs.org>; Tue,  2 Apr 2024 00:45:46 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Y9GiuToEiATxKOne4OQIoAjoKM7m0ja6y7gFgPDO8ukkbBNydP8pbJn45n0EYIKnnv8IckzwIs2AUu1aa3FGK/svfTMpfeNWnp+N2NYWbGxZkyodpUglPxaHmoJ9AGLD4X4ysHpceE2MfOqehncQ2I4fHSDIAmMDGPg1EsNpijbw6hKYwIRe6OxNu2jdUjLG7OOpAhZGqX9yZl+72C+vQm7X4wJgKLzw7B4igZAzZn/HT2ciAHlhUkVOB79zdMOjXOPHTYzKmPBnJMA1t6VFIl1X1P1ihzSYcy9n5ZkdeSv/Wqy4Nus+jhu/c4lERsInkhKpGc09/St+4nby2pQx0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AkSdKgS21kxbUCeFQnxLfdF+zWIHLKPSA4SRkOBVIW0=;
- b=PKufciYo5Rw06x93IEZJ2DK8QcBAn/nOOPrKx5QvNtaiPhYqQLIShyEuUPM4GDZleFEX/1alyFaJ9d9OzbTM9a9QVC8iRaAwSPUa3alHOBVmO+CGmLYjEZ5vv7NK1Lhw6wLoC9mxGh7ZgDFy0lRyznsBoREz/MDWs2blAYUuS0H55h/5EGVbBUTl/f6lnMDhTlDwzBkErzVMtgQ+g7kdZ1LptX2FYlaolONMwQLeRFI56cdn03BZ8E+WweYSBCIZOhEI3Vq39KeRFZ+3vxtbnu4n6bcN/FxzWLLpLDWwwRs4H8yh/ZeMFynXQIBRZbRTao3pOiot1TQCi6kPY0RAoQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
- dkim=pass header.d=vivo.com; arc=none
-Received: from TYZPR06MB7096.apcprd06.prod.outlook.com (2603:1096:405:b5::13)
- by SI2PR06MB5090.apcprd06.prod.outlook.com (2603:1096:4:1a9::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.45; Mon, 1 Apr
- 2024 13:45:29 +0000
-Received: from TYZPR06MB7096.apcprd06.prod.outlook.com
- ([fe80::9eb4:3582:34e4:a83d]) by TYZPR06MB7096.apcprd06.prod.outlook.com
- ([fe80::9eb4:3582:34e4:a83d%6]) with mapi id 15.20.7409.042; Mon, 1 Apr 2024
- 13:45:29 +0000
-To: xiang@kernel.org
-Subject: [PATCH 2/2] erofs: rename per CPU buffer to global buffer pool and make it configurable
-Date: Mon,  1 Apr 2024 07:56:45 -0600
-Message-Id: <20240401135645.2550203-1-guochunhai@vivo.com>
-X-Mailer: git-send-email 2.25.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TYWP286CA0018.JPNP286.PROD.OUTLOOK.COM
- (2603:1096:400:178::8) To TYZPR06MB7096.apcprd06.prod.outlook.com
- (2603:1096:405:b5::13)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4V7XYR51M4z3bmN
+	for <linux-erofs@lists.ozlabs.org>; Tue,  2 Apr 2024 00:54:03 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 7EE14CE10C2;
+	Mon,  1 Apr 2024 13:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA0CC433C7;
+	Mon,  1 Apr 2024 13:53:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711979638;
+	bh=dmYCendNfZLK2ZYRN4P3XHXSgHmLS9K4qfGr3Ifd3v0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=c29yWJov1MPD3KNJnAc3J10X31RIJx5rJ8pZ9aMASTtRIDHTlXt3YBkMhR/2MmTeW
+	 zKg7sKvzusvvzXvEpqIv8nO9JilxGOlGDD9rpErvCQJiT/+cOIdnykZR54Pb5hp73A
+	 n3db2XvRlrrFuw27hXNlQVFklZF/bwBt1Tvksi8eyn/LaeBo2QoMfURHysv0Ra+tcm
+	 5GNCZFCSDd/aMOWF7fV3ver/b2jE5QU8+WhPmhCzIjV1dmrOHawVXzxIdY9jTI6kkp
+	 3RzhX7bCaKGHmMTJC3G9ZTma+EDhOVW6r/AdWBj3gvJJLSd3U3a0S7GGRMCCfrXnpN
+	 BcEw/0JlvpOew==
+Date: Mon, 1 Apr 2024 14:53:51 +0100
+From: Simon Horman <horms@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 26/26] netfs, afs: Use writeback retry to deal with
+ alternate keys
+Message-ID: <20240401135351.GD26556@kernel.org>
+References: <20240328163424.2781320-1-dhowells@redhat.com>
+ <20240328163424.2781320-27-dhowells@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: TYZPR06MB7096:EE_|SI2PR06MB5090:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 	r8L+sy8zp/pQvgK+gwHjU0ppFN192OvxWCucdLjKM59PFHpH39N54H3s/l6v68Bwy8HLRTCrqBTGWWZrqJluTDKbC8wtXgucKv2oBMNdHoBzhED+OZsUpgsvgb/poeBH0iBEywlVZR/jWKqifJcUdowmo7lGiZkdkyFm7wBnBU9+j4WMbGfasz/maKqQ/iq9cUOmIXJwaEm1pGkp64YxrZNqu/HL/8gxHoDd/G5JTnM7RJa6NewSMVAIBpptHq40jxy5gt3y++CQMakwZ7c6uzLOoWMI9MKpvbACmbBHwI1iuH1My15AJkR8KzNEVMYqLWmoLBZH7X5m25tE3vIPj/sMSZZdGRoyfTFTYojRsXem6yTTH6iNCWhB9MvxlkabVoxBLqcnprs+u6vwu2b+Pzsjq1oIam64EnmQ4cGs36O27Zgx8ezatWNAypcGbEhg5w8cjkGiS3JPc8Dc0UVq639GEu/s9gKycAL5DhE6KX8hPUsuNDuD/XKGtJ+KAFHSscpEkTF6JkuzF5m8rHflIpPh70NImCGXOw+hn5oUOcU71FsPsAZqtJaGSl9x5k1NUSEzh7m7F9EvqFa9nHPEMTDJq61N35fUAhf1c1yXEPv+dVv+txtXcGLcG34tGsmhAEAaqRVwX04jgauVDLLqC5WMQLwvPXkLOlWY9x9a5QULexAHqG2rDCOo2OSRPIsquwVZ+LrxnhwpjreMrAE3HA==
-X-Forefront-Antispam-Report: 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYZPR06MB7096.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(52116005)(376005)(1800799015)(366007)(38350700005);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 	=?us-ascii?Q?51O7RV5N74d8Rl9V8tMXMCYsuzmsmW6bm8yRgyT4aB5+rdttJlVPWw2X4vvG?=
- =?us-ascii?Q?unGLITVEMHCQk1HZceYVIyd4HR0qhsVk6MlUs7PZ7apwgT+vtvbarz3uNwAb?=
- =?us-ascii?Q?oHW6xnP/8w5tREDNS4QOjszGFRV3cxufjdfeZWh1VKT2zhMUiPcErRdMxGL0?=
- =?us-ascii?Q?88KVYxUD/cyH3bHlc+gZtAjQfClkPGk0ldXwB7U81otA0/PX+DL2cpmaCSj5?=
- =?us-ascii?Q?N+MuQJt6kWC2N5qVTLv4W4aKuVwDgVlJ8K4siZJuxon1v86Fk7XEXkUX5/c7?=
- =?us-ascii?Q?pRXfMefNbUKd4D2HoqJ7Jebm5k/NRdKRbwccsllOnoOrEl1K8FEXcPGWpNrg?=
- =?us-ascii?Q?V5/W4KcP+eOAaS2gOUbLC4rmtxcRIomGTK7S+suX73dcpCUH5hsVjzP8xB+H?=
- =?us-ascii?Q?zMY98MeRSOOXq/kcHqGoUVsYG5KLluZDKkqaVWanuw+aXy+R1AOnUGsaG5Gm?=
- =?us-ascii?Q?LTaFwTiQqe+E2R3xe1l76mgRTIu9Bs5IDSs1GWRwq2qwvFYyE1FcPgmPqTTH?=
- =?us-ascii?Q?FQ6O7usNs7Ld/3Bj3lKgSwAL+A1KRBU8kQ9VQi9TWl82cHjwYNcumNB234PW?=
- =?us-ascii?Q?fyCjDJPp36JYaNQKXEF5+Mat/eAes/TWYzNoL36b8TAsuyibDsmfenF1fCGa?=
- =?us-ascii?Q?jB441X/9M2Xja/vWD10hySB7zSzgixeUVyr21e9nYoTeUOKG6IV9CtEtLrxe?=
- =?us-ascii?Q?3Z0NnZjWDCfCR/NqDyOSxo+bB82QS5c9FOSv4NqtFVrVGarsyTwMSVXGdiLL?=
- =?us-ascii?Q?tVVgWQFogUOfoz46zg0t3i9N1+pxLUafAlkqAMfrJP3twGSjG8zZWRVTp6Nv?=
- =?us-ascii?Q?/QtdeEq0zxIif8FQ+FzpygYJeyptLrxXTff0p90qFeyrL3rjGAtQizWQjsEA?=
- =?us-ascii?Q?ykpm1yk2AmiLGHIipsHiuUorOL/KCPnXo+RAx2tdT/fjJ3+NQKQ7J1x6R15l?=
- =?us-ascii?Q?YYUjnKWa37qkL8j1jaUL6mEKhx73CoYSo4AzcP5lfldpjYhcYDCyHwFx5Cxo?=
- =?us-ascii?Q?CXz+vl5cfxvgl9KInA2MZ02qLh9ObOtoXhje77RZwhnXJhhVs6G9RXJ3vlMy?=
- =?us-ascii?Q?9r+VcF7KCEQwmVX1MwHJINfgttdJD4NB5g/fvi+dz8+OWj4KDA518WjX1dTp?=
- =?us-ascii?Q?MTNdk8K90IZVcRVVORsqfX8RoZoTIsfQhzTVmSrmqNWk25XjqvC2RtUOnWCI?=
- =?us-ascii?Q?gzX61S64U7wVpbzOZU5eoBUxwHoB4/QscOv71jdgaN63G+kJ9s6tjgdpjHhq?=
- =?us-ascii?Q?QxA65HBD2/Ywgf/Z48Ym/qlJBlFndKhuriCPNaz41SNjDCOCM0EFC9IbByQ5?=
- =?us-ascii?Q?cIUNOFUbg0Uo3U4LCTYB6mCHJ65diuTKv8pW34D1x/PZKFwP736Otmu9+Icz?=
- =?us-ascii?Q?Vew7JPXiVXhV2/qfsEJwU79YBM44A9ZvuasvWxBPbUlwtF5g/8HEOdKdQtyK?=
- =?us-ascii?Q?Oqd/gEPBcZRp0kcljHbIJPaIRDBO5ow4F4eVT26b1xo4Ws3OPMAQfEG2sPOu?=
- =?us-ascii?Q?EfWCZ4lsv9HSwuyof6foKmkUa/6sOTv5cB0NlxIIeGhQDb4/ZaXbvqJ1gxeG?=
- =?us-ascii?Q?VikSNyx5m0MIA3uXjtpiAsxfETjO9RXe79Sehgw0?=
-X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 75133076-2233-41a6-66ec-08dc5251fe20
-X-MS-Exchange-CrossTenant-AuthSource: TYZPR06MB7096.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Apr 2024 13:45:29.1190
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QvbP0Nas9EgbXMuLAejNBw0Vj0Pel0SC34c9Xoq73pwnHiQLpnwKtw955j1+Cx26/wwLOUTyb+7OjGr9FYTj/Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SI2PR06MB5090
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240328163424.2781320-27-dhowells@redhat.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -116,465 +60,117 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Chunhai Guo via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Chunhai Guo <guochunhai@vivo.com>
-Cc: huyue2@coolpad.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org
+Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-It will cost more time if compressed buffers are allocated on demand for
-low-latency algorithms (like lz4) so EROFS uses per-CPU buffers to keep
-compressed data if in-place decompression is unfulfilled.  While it is kind
-of wasteful of memory for a device with hundreds of CPUs, and only a small
-number of CPUs concurrently decompress most of the time.
+On Thu, Mar 28, 2024 at 04:34:18PM +0000, David Howells wrote:
 
-This patch renames it as 'global buffer pool' and makes it configurable.
-This allows two or more CPUs to share a common buffer to reduce memory
-occupation.
+...
 
-Suggested-by: Gao Xiang <xiang@kernel.org>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Chunhai Guo <guochunhai@vivo.com>
----
- fs/erofs/Makefile       |   2 +-
- fs/erofs/decompressor.c |   6 +-
- fs/erofs/internal.h     |  14 ++--
- fs/erofs/pcpubuf.c      | 148 ----------------------------------------
- fs/erofs/super.c        |   9 ++-
- fs/erofs/zutil.c        | 148 ++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 166 insertions(+), 161 deletions(-)
- delete mode 100644 fs/erofs/pcpubuf.c
+> +void afs_issue_write(struct netfs_io_subrequest *subreq)
+>  {
+> +	struct netfs_io_request *wreq = subreq->rreq;
+>  	struct afs_operation *op;
+> -	struct afs_wb_key *wbk = NULL;
+> -	loff_t size = iov_iter_count(iter);
+> +	struct afs_vnode *vnode = AFS_FS_I(wreq->inode);
+> +	unsigned long long pos = subreq->start + subreq->transferred;
+> +	size_t len = subreq->len - subreq->transferred;
+>  	int ret = -ENOKEY;
+>  
+> -	_enter("%s{%llx:%llu.%u},%llx,%llx",
+> +	_enter("R=%x[%x],%s{%llx:%llu.%u},%llx,%zx",
+> +	       wreq->debug_id, subreq->debug_index,
+>  	       vnode->volume->name,
+>  	       vnode->fid.vid,
+>  	       vnode->fid.vnode,
+>  	       vnode->fid.unique,
+> -	       size, pos);
+> +	       pos, len);
+>  
+> -	ret = afs_get_writeback_key(vnode, &wbk);
+> -	if (ret) {
+> -		_leave(" = %d [no keys]", ret);
+> -		return ret;
+> -	}
+> +#if 0 // Error injection
+> +	if (subreq->debug_index == 3)
+> +		return netfs_write_subrequest_terminated(subreq, -ENOANO, false);
+>  
+> -	op = afs_alloc_operation(wbk->key, vnode->volume);
+> -	if (IS_ERR(op)) {
+> -		afs_put_wb_key(wbk);
+> -		return -ENOMEM;
+> +	if (!test_bit(NETFS_SREQ_RETRYING, &subreq->flags)) {
+> +		set_bit(NETFS_SREQ_NEED_RETRY, &subreq->flags);
+> +		return netfs_write_subrequest_terminated(subreq, -EAGAIN, false);
+>  	}
+> +#endif
+> +
+> +	op = afs_alloc_operation(wreq->netfs_priv, vnode->volume);
+> +	if (IS_ERR(op))
+> +		return netfs_write_subrequest_terminated(subreq, -EAGAIN, false);
+>  
+>  	afs_op_set_vnode(op, 0, vnode);
+> -	op->file[0].dv_delta = 1;
+> +	op->file[0].dv_delta	= 1;
+>  	op->file[0].modification = true;
+> -	op->store.pos = pos;
+> -	op->store.size = size;
+> -	op->flags |= AFS_OPERATION_UNINTR;
+> -	op->ops = &afs_store_data_operation;
+> +	op->store.pos		= pos;
+> +	op->store.size		= len,
 
-diff --git a/fs/erofs/Makefile b/fs/erofs/Makefile
-index 845eafdcee4a..20d1ec422443 100644
---- a/fs/erofs/Makefile
-+++ b/fs/erofs/Makefile
-@@ -3,7 +3,7 @@
- obj-$(CONFIG_EROFS_FS) += erofs.o
- erofs-objs := super.o inode.o data.o namei.o dir.o sysfs.o
- erofs-$(CONFIG_EROFS_FS_XATTR) += xattr.o
--erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o pcpubuf.o zutil.o
-+erofs-$(CONFIG_EROFS_FS_ZIP) += decompressor.o zmap.o zdata.o zutil.o
- erofs-$(CONFIG_EROFS_FS_ZIP_LZMA) += decompressor_lzma.o
- erofs-$(CONFIG_EROFS_FS_ZIP_DEFLATE) += decompressor_deflate.o
- erofs-$(CONFIG_EROFS_FS_ONDEMAND) += fscache.o
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 2ec9b2bb628d..e1239d886984 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -54,7 +54,7 @@ static int z_erofs_load_lz4_config(struct super_block *sb,
- 	sbi->lz4.max_distance_pages = distance ?
- 					DIV_ROUND_UP(distance, PAGE_SIZE) + 1 :
- 					LZ4_MAX_DISTANCE_PAGES;
--	return erofs_pcpubuf_growsize(sbi->lz4.max_pclusterblks);
-+	return z_erofs_gbuf_growsize(sbi->lz4.max_pclusterblks);
- }
- 
- /*
-@@ -159,7 +159,7 @@ static void *z_erofs_lz4_handle_overlap(struct z_erofs_lz4_decompress_ctx *ctx,
- docopy:
- 	/* Or copy compressed data which can be overlapped to per-CPU buffer */
- 	in = rq->in;
--	src = erofs_get_pcpubuf(ctx->inpages);
-+	src = z_erofs_get_gbuf(ctx->inpages);
- 	if (!src) {
- 		DBG_BUGON(1);
- 		kunmap_local(inpage);
-@@ -260,7 +260,7 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
- 	} else if (maptype == 1) {
- 		vm_unmap_ram(src, ctx->inpages);
- 	} else if (maptype == 2) {
--		erofs_put_pcpubuf(src);
-+		z_erofs_put_gbuf(src);
- 	} else if (maptype != 3) {
- 		DBG_BUGON(1);
- 		return -EFAULT;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 39c67119f43b..1caa5d702835 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -470,11 +470,11 @@ int erofs_try_to_free_all_cached_folios(struct erofs_sb_info *sbi,
- 					struct erofs_workgroup *egrp);
- int z_erofs_map_blocks_iter(struct inode *inode, struct erofs_map_blocks *map,
- 			    int flags);
--void *erofs_get_pcpubuf(unsigned int requiredpages);
--void erofs_put_pcpubuf(void *ptr);
--int erofs_pcpubuf_growsize(unsigned int nrpages);
--void __init erofs_pcpubuf_init(void);
--void erofs_pcpubuf_exit(void);
-+void *z_erofs_get_gbuf(unsigned int requiredpages);
-+void z_erofs_put_gbuf(void *ptr);
-+int z_erofs_gbuf_growsize(unsigned int nrpages);
-+int __init z_erofs_gbuf_init(void);
-+void z_erofs_gbuf_exit(void);
- int erofs_init_managed_cache(struct super_block *sb);
- int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb);
- #else
-@@ -484,8 +484,8 @@ static inline int erofs_init_shrinker(void) { return 0; }
- static inline void erofs_exit_shrinker(void) {}
- static inline int z_erofs_init_zip_subsystem(void) { return 0; }
- static inline void z_erofs_exit_zip_subsystem(void) {}
--static inline void erofs_pcpubuf_init(void) {}
--static inline void erofs_pcpubuf_exit(void) {}
-+static inline void z_erofs_gbuf_init(void) {}
-+static inline void z_erofs_gbuf_exit(void) {}
- static inline int erofs_init_managed_cache(struct super_block *sb) { return 0; }
- #endif	/* !CONFIG_EROFS_FS_ZIP */
- 
-diff --git a/fs/erofs/pcpubuf.c b/fs/erofs/pcpubuf.c
-deleted file mode 100644
-index c7a4b1d77069..000000000000
---- a/fs/erofs/pcpubuf.c
-+++ /dev/null
-@@ -1,148 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Copyright (C) Gao Xiang <xiang@kernel.org>
-- *
-- * For low-latency decompression algorithms (e.g. lz4), reserve consecutive
-- * per-CPU virtual memory (in pages) in advance to store such inplace I/O
-- * data if inplace decompression is failed (due to unmet inplace margin for
-- * example).
-- */
--#include "internal.h"
--
--struct erofs_pcpubuf {
--	raw_spinlock_t lock;
--	void *ptr;
--	struct page **pages;
--	unsigned int nrpages;
--};
--
--static DEFINE_PER_CPU(struct erofs_pcpubuf, erofs_pcb);
--
--void *erofs_get_pcpubuf(unsigned int requiredpages)
--	__acquires(pcb->lock)
--{
--	struct erofs_pcpubuf *pcb = &get_cpu_var(erofs_pcb);
--
--	raw_spin_lock(&pcb->lock);
--	/* check if the per-CPU buffer is too small */
--	if (requiredpages > pcb->nrpages) {
--		raw_spin_unlock(&pcb->lock);
--		put_cpu_var(erofs_pcb);
--		/* (for sparse checker) pretend pcb->lock is still taken */
--		__acquire(pcb->lock);
--		return NULL;
--	}
--	return pcb->ptr;
--}
--
--void erofs_put_pcpubuf(void *ptr) __releases(pcb->lock)
--{
--	struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, smp_processor_id());
--
--	DBG_BUGON(pcb->ptr != ptr);
--	raw_spin_unlock(&pcb->lock);
--	put_cpu_var(erofs_pcb);
--}
--
--/* the next step: support per-CPU page buffers hotplug */
--int erofs_pcpubuf_growsize(unsigned int nrpages)
--{
--	static DEFINE_MUTEX(pcb_resize_mutex);
--	static unsigned int pcb_nrpages;
--	struct page *pagepool = NULL;
--	int delta, cpu, ret, i;
--
--	mutex_lock(&pcb_resize_mutex);
--	delta = nrpages - pcb_nrpages;
--	ret = 0;
--	/* avoid shrinking pcpubuf, since no idea how many fses rely on */
--	if (delta <= 0)
--		goto out;
--
--	for_each_possible_cpu(cpu) {
--		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
--		struct page **pages, **oldpages;
--		void *ptr, *old_ptr;
--
--		pages = kmalloc_array(nrpages, sizeof(*pages), GFP_KERNEL);
--		if (!pages) {
--			ret = -ENOMEM;
--			break;
--		}
--
--		for (i = 0; i < nrpages; ++i) {
--			pages[i] = erofs_allocpage(&pagepool, GFP_KERNEL);
--			if (!pages[i]) {
--				ret = -ENOMEM;
--				oldpages = pages;
--				goto free_pagearray;
--			}
--		}
--		ptr = vmap(pages, nrpages, VM_MAP, PAGE_KERNEL);
--		if (!ptr) {
--			ret = -ENOMEM;
--			oldpages = pages;
--			goto free_pagearray;
--		}
--		raw_spin_lock(&pcb->lock);
--		old_ptr = pcb->ptr;
--		pcb->ptr = ptr;
--		oldpages = pcb->pages;
--		pcb->pages = pages;
--		i = pcb->nrpages;
--		pcb->nrpages = nrpages;
--		raw_spin_unlock(&pcb->lock);
--
--		if (!oldpages) {
--			DBG_BUGON(old_ptr);
--			continue;
--		}
--
--		if (old_ptr)
--			vunmap(old_ptr);
--free_pagearray:
--		while (i)
--			erofs_pagepool_add(&pagepool, oldpages[--i]);
--		kfree(oldpages);
--		if (ret)
--			break;
--	}
--	pcb_nrpages = nrpages;
--	erofs_release_pages(&pagepool);
--out:
--	mutex_unlock(&pcb_resize_mutex);
--	return ret;
--}
--
--void __init erofs_pcpubuf_init(void)
--{
--	int cpu;
--
--	for_each_possible_cpu(cpu) {
--		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
--
--		raw_spin_lock_init(&pcb->lock);
--	}
--}
--
--void erofs_pcpubuf_exit(void)
--{
--	int cpu, i;
--
--	for_each_possible_cpu(cpu) {
--		struct erofs_pcpubuf *pcb = &per_cpu(erofs_pcb, cpu);
--
--		if (pcb->ptr) {
--			vunmap(pcb->ptr);
--			pcb->ptr = NULL;
--		}
--		if (!pcb->pages)
--			continue;
--
--		for (i = 0; i < pcb->nrpages; ++i)
--			if (pcb->pages[i])
--				put_page(pcb->pages[i]);
--		kfree(pcb->pages);
--		pcb->pages = NULL;
--	}
--}
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index c0eb139adb07..7d8718420136 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -873,7 +873,10 @@ static int __init erofs_module_init(void)
- 	if (err)
- 		goto deflate_err;
- 
--	erofs_pcpubuf_init();
-+	err = z_erofs_gbuf_init();
-+	if (err)
-+		goto gbuf_err;
-+
- 	err = z_erofs_init_zip_subsystem();
- 	if (err)
- 		goto zip_err;
-@@ -893,6 +896,8 @@ static int __init erofs_module_init(void)
- sysfs_err:
- 	z_erofs_exit_zip_subsystem();
- zip_err:
-+	z_erofs_gbuf_exit();
-+gbuf_err:
- 	z_erofs_deflate_exit();
- deflate_err:
- 	z_erofs_lzma_exit();
-@@ -916,7 +921,7 @@ static void __exit erofs_module_exit(void)
- 	z_erofs_lzma_exit();
- 	erofs_exit_shrinker();
- 	kmem_cache_destroy(erofs_inode_cachep);
--	erofs_pcpubuf_exit();
-+	z_erofs_gbuf_exit();
- }
- 
- static int erofs_statfs(struct dentry *dentry, struct kstatfs *buf)
-diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
-index 8cd30ac2091f..e13806681763 100644
---- a/fs/erofs/zutil.c
-+++ b/fs/erofs/zutil.c
-@@ -5,6 +5,18 @@
-  */
- #include "internal.h"
- 
-+struct z_erofs_gbuf {
-+	spinlock_t lock;
-+	void *ptr;
-+	struct page **pages;
-+	unsigned int nrpages;
-+};
-+
-+static struct z_erofs_gbuf *z_erofs_gbufpool;
-+static unsigned int z_erofs_gbuf_count, z_erofs_gbuf_nrpages;
-+
-+module_param_named(global_buffers, z_erofs_gbuf_count, uint, 0444);
-+
- static atomic_long_t erofs_global_shrink_cnt;	/* for all mounted instances */
- /* protected by 'erofs_sb_list_lock' */
- static unsigned int shrinker_run_no;
-@@ -14,6 +26,142 @@ static DEFINE_SPINLOCK(erofs_sb_list_lock);
- static LIST_HEAD(erofs_sb_list);
- static struct shrinker *erofs_shrinker_info;
- 
-+static unsigned int z_erofs_gbuf_id(void)
-+{
-+	return smp_processor_id() % z_erofs_gbuf_count;
-+}
-+
-+void *z_erofs_get_gbuf(unsigned int requiredpages)
-+	__acquires(gbuf->lock)
-+{
-+	struct z_erofs_gbuf *gbuf;
-+
-+	gbuf = &z_erofs_gbufpool[z_erofs_gbuf_id()];
-+	spin_lock(&gbuf->lock);
-+	/* check if the buffer is too small */
-+	if (requiredpages > gbuf->nrpages) {
-+		spin_unlock(&gbuf->lock);
-+		/* (for sparse checker) pretend gbuf->lock is still taken */
-+		__acquire(gbuf->lock);
-+		return NULL;
-+	}
-+	return gbuf->ptr;
-+}
-+
-+void z_erofs_put_gbuf(void *ptr) __releases(gbuf->lock)
-+{
-+	struct z_erofs_gbuf *gbuf;
-+
-+	gbuf = &z_erofs_gbufpool[z_erofs_gbuf_id()];
-+	DBG_BUGON(gbuf->ptr != ptr);
-+	spin_unlock(&gbuf->lock);
-+}
-+
-+int z_erofs_gbuf_growsize(unsigned int nrpages)
-+{
-+	static DEFINE_MUTEX(gbuf_resize_mutex);
-+	struct page *pagepool = NULL;
-+	int delta, ret, i, j;
-+
-+	mutex_lock(&gbuf_resize_mutex);
-+	delta = nrpages - z_erofs_gbuf_nrpages;
-+	ret = 0;
-+	/* avoid shrinking gbufs, since no idea how many fses rely on */
-+	if (delta <= 0)
-+		goto out;
-+
-+	for (i = 0; i < z_erofs_gbuf_count; ++i) {
-+		struct z_erofs_gbuf *gbuf = &z_erofs_gbufpool[i];
-+		struct page **pages, **tmp_pages;
-+		void *ptr, *old_ptr = NULL;
-+
-+		ret = -ENOMEM;
-+		tmp_pages = kcalloc(nrpages, sizeof(*tmp_pages), GFP_KERNEL);
-+		if (!tmp_pages)
-+			break;
-+		for (j = 0; j < nrpages; ++j) {
-+			tmp_pages[j] = erofs_allocpage(&pagepool, GFP_KERNEL);
-+			if (!tmp_pages[j])
-+				goto free_pagearray;
-+		}
-+		ptr = vmap(tmp_pages, nrpages, VM_MAP, PAGE_KERNEL);
-+		if (!ptr)
-+			goto free_pagearray;
-+
-+		pages = tmp_pages;
-+		spin_lock(&gbuf->lock);
-+		old_ptr = gbuf->ptr;
-+		gbuf->ptr = ptr;
-+		tmp_pages = gbuf->pages;
-+		gbuf->pages = pages;
-+		j = gbuf->nrpages;
-+		gbuf->nrpages = nrpages;
-+		spin_unlock(&gbuf->lock);
-+		ret = 0;
-+		if (!tmp_pages) {
-+			DBG_BUGON(old_ptr);
-+			continue;
-+		}
-+
-+		if (old_ptr)
-+			vunmap(old_ptr);
-+free_pagearray:
-+		while (j)
-+			erofs_pagepool_add(&pagepool, tmp_pages[--j]);
-+		kfree(tmp_pages);
-+		if (ret)
-+			break;
-+	}
-+	z_erofs_gbuf_nrpages = nrpages;
-+	erofs_release_pages(&pagepool);
-+out:
-+	mutex_unlock(&gbuf_resize_mutex);
-+	return ret;
-+}
-+
-+int __init z_erofs_gbuf_init(void)
-+{
-+	unsigned int i = num_possible_cpus();
-+
-+	if (!z_erofs_gbuf_count)
-+		z_erofs_gbuf_count = i;
-+	else
-+		z_erofs_gbuf_count = min(z_erofs_gbuf_count, i);
-+
-+	z_erofs_gbufpool = kcalloc(z_erofs_gbuf_count,
-+			sizeof(*z_erofs_gbufpool), GFP_KERNEL);
-+	if (!z_erofs_gbufpool)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < z_erofs_gbuf_count; ++i)
-+		spin_lock_init(&z_erofs_gbufpool[i].lock);
-+	return 0;
-+}
-+
-+void z_erofs_gbuf_exit(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < z_erofs_gbuf_count; ++i) {
-+		struct z_erofs_gbuf *gbuf = &z_erofs_gbufpool[i];
-+
-+		if (gbuf->ptr) {
-+			vunmap(gbuf->ptr);
-+			gbuf->ptr = NULL;
-+		}
-+
-+		if (!gbuf->pages)
-+			continue;
-+
-+		for (i = 0; i < gbuf->nrpages; ++i)
-+			if (gbuf->pages[i])
-+				put_page(gbuf->pages[i]);
-+		kfree(gbuf->pages);
-+		gbuf->pages = NULL;
-+	}
-+	kfree(z_erofs_gbufpool);
-+}
-+
- struct page *erofs_allocpage(struct page **pagepool, gfp_t gfp)
- {
- 	struct page *page = *pagepool;
--- 
-2.25.1
+nit: this is probably more intuitively written using len;
 
+> +	op->flags		|= AFS_OPERATION_UNINTR;
+> +	op->ops			= &afs_store_data_operation;
+>  
+> -try_next_key:
+>  	afs_begin_vnode_operation(op);
+>  
+> -	op->store.write_iter = iter;
+> -	op->store.i_size = max(pos + size, vnode->netfs.remote_i_size);
+> -	op->mtime = inode_get_mtime(&vnode->netfs.inode);
+> +	op->store.write_iter	= &subreq->io_iter;
+> +	op->store.i_size	= umax(pos + len, vnode->netfs.remote_i_size);
+> +	op->mtime		= inode_get_mtime(&vnode->netfs.inode);
+>  
+>  	afs_wait_for_operation(op);
+> -
+> -	switch (afs_op_error(op)) {
+> +	ret = afs_put_operation(op);
+> +	switch (ret) {
+>  	case -EACCES:
+>  	case -EPERM:
+>  	case -ENOKEY:
+>  	case -EKEYEXPIRED:
+>  	case -EKEYREJECTED:
+>  	case -EKEYREVOKED:
+> -		_debug("next");
+> -
+> -		ret = afs_get_writeback_key(vnode, &wbk);
+> -		if (ret == 0) {
+> -			key_put(op->key);
+> -			op->key = key_get(wbk->key);
+> -			goto try_next_key;
+> -		}
+> +		/* If there are more keys we can try, use the retry algorithm
+> +		 * to rotate the keys.
+> +		 */
+> +		if (wreq->netfs_priv2)
+> +			set_bit(NETFS_SREQ_NEED_RETRY, &subreq->flags);
+>  		break;
+>  	}
+>  
+> -	afs_put_wb_key(wbk);
+> -	_leave(" = %d", afs_op_error(op));
+> -	return afs_put_operation(op);
+> +	netfs_write_subrequest_terminated(subreq, ret < 0 ? ret : subreq->len, false);
+>  }
+>  
+>  /*
+
+...
