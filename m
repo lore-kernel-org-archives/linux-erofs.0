@@ -4,59 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1353ACD1288
-	for <linux-erofs@archiver.kernel.org>; Wed,  3 Apr 2024 23:57:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 318DECD1288
+	for <linux-erofs@archiver.kernel.org>; Wed,  3 Apr 2024 23:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1712188666;
-	bh=+Um4A5cAG7dBv1Bj9P4DMkFBm9NLvt8tKF7Oyu6sBZQ=;
-	h=Date:Subject:To:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=Z0/GHYmOcyI75O3gqm6DDHETeYVCLfD4mc4D5grODitDCWEhDbT5URIeKpVxRdwnZ
-	 GhasQ86LT1BjTx8biQKsO4V557+G068xbR9HeQ9G+I4XmqQnFWGrG5Pmj9wqO6F7QB
-	 Z/XWwJazlgM4VbrA17pPLA9LP7OyD2B7zlUnuStoInuhGjOQRreHYfYbhcm25r0abC
-	 TCF3qoRpOJcyGVwDJQ2DB2SyVmnStpYUPqoPD4e9Je+aMoHMMVvhIr3AC1nXOIMgf9
-	 5W2PpL2emwfygRyGhRdIIvMYD3urDPi1qTIPJq4vwBAMN3OWIhmTf47/qml1t5OUY/
-	 bMwAPK2/XySBw==
+	s=201707; t=1712188672;
+	bh=0mcsDjNylWyuv4Nhacz1I77t7TX/D70Z7uILDGBoM7c=;
+	h=Date:In-Reply-To:References:Subject:To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=cK0l8EuAEVQa41Lt7Zayc+ZmtPrXJs1Hio+hpycN1/DAytlsVTywpyNjRGLcF73/Y
+	 zg9pyWJtyccMgToZFnYUkkW3ZMgRIu4HOFCn+GxzhRCBKEmrEZ9gNBuWV8PqYFf+8S
+	 mUBZXCLXFG/f50oIEOdgk1Ies63hTWhV/dVJhK6gwzfepWPGnxIEKWkm7ILdwld/Uq
+	 pcMy6vL/qDVek4v6Opyyxjbgr83KljrHzGHVbaANBQWtyKRZsP0OEOiX2iz6F2IMzU
+	 ofko3qx8MQ+t5yoc11NolrqQX1060BUyH92btN3OdcXqwvYtdvJoqGU2OR7BvCt0mv
+	 x03xgoV4WY2bA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4V91s65CxFz3dWF
-	for <linux-erofs@archiver.kernel.org>; Thu,  4 Apr 2024 10:57:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4V91sD5qtJz3dng
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Apr 2024 10:57:52 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=FuJI3EN4;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=blURlzo/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::114a; helo=mail-yw1-x114a.google.com; envelope-from=37uwnzgckczcwatotexzhhzex.vhfebgnq-xkhyleblml.hsetul.hkz@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::1149; helo=mail-yw1-x1149.google.com; envelope-from=38uwnzgckczsaexsxibdlldib.zljifkru-bolcpifpqp.lwixyp.lod@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4V91rz4TCXz2yt0
-	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Apr 2024 10:57:38 +1100 (AEDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-61510f72bb3so7784797b3.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 03 Apr 2024 16:57:38 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4V91s10BZwz2yt0
+	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Apr 2024 10:57:40 +1100 (AEDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-61510f72bb3so7785217b3.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 03 Apr 2024 16:57:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712188655; x=1712793455;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=+Um4A5cAG7dBv1Bj9P4DMkFBm9NLvt8tKF7Oyu6sBZQ=;
-        b=NhYIRCBtRF74UpSIqlzamSu2f82AJzVUohfswWOQjixiyCTFVMn+jPXeOEDfpR4tyV
-         YbedQer+wpgvpbs169BQJSwgO09HJGPWTZcfdpS8tkOLBypG2im7oQMDERlqvWHdsfkc
-         yuEf6Re5dJnYTthB1rn8Ui5DL363jbu5vLI9Ip4yw2pxkYYiLLJ3rZJp3uNTxhwvfiwZ
-         8VduquEXK8GRE2ABamor3TLFaB8dw2MJSqNtDbJbtiAfTW1dnulm8u4Nlx0bCJbcGKNw
-         ez+khLH/M0nWwT4VqCbG26s5YHsu+Jpasy2dm9/PmMHPK09PpoW69AU0zKCJl62MFWY9
-         N4sw==
-X-Gm-Message-State: AOJu0YwyScMKki55vaUd6cPmW/qXN0Ci/bZeVU0EPD1Vq9tOaXbLPhTJ
-	xkUz4jaeRBut2MxbZhj+cycPGVBEG9QMhABEc5R49YzI18S+r7i2SOFB5saeIvwyolFKGePofuc
-	v9GD3wvTI/xrIRFHScrSWD77JOyJfSavSNgDCBuXCfHKy94DDVEktn/xW2CT+miJ/hO/EdG58D7
-	BT4oUmCq3y5byUnyPGo4XwF0xGiWuBCsa0kBzHH1Py/6Yb7g==
-X-Google-Smtp-Source: AGHT+IEKbAlMJdvVD23OrfsuWlM28P+g4+iSDamiVG1BJ8iGswXN/PcJNPYidK4o5iAjyuj+rcjGaEkGfcDi
+        d=1e100.net; s=20230601; t=1712188658; x=1712793458;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0mcsDjNylWyuv4Nhacz1I77t7TX/D70Z7uILDGBoM7c=;
+        b=fEcYzVoeWEKGJVZ/50bFAsMFN48UCFkYpQWWq7cbI+qLxEx0qzX9ilq/RxRylECSvy
+         nfXYDi7n2soL0T+AcNZ6PiMOHzLldDpCHbu5Y1oerz7lj4EabGKZNtvFFz7h1FqDeBmm
+         dRQZPZKxyqkvI4FHtW3oWe10tqCeGukWaED2dDkg/5RzEXedzgksIuBMeFlQE41p0Gyu
+         zRTmsppEur7OAyuMBLhecRIJW9JVA1kkHfADYEL9jUHVgBTIN7JXScpTn9FWVIVvSKeM
+         nXzaYnrAMlR/9TtPAZEjJ4G8dhI5OfC5H6RWf1LtyDccb97rPcPb1mQhN2UQcGePBA+e
+         zlgg==
+X-Gm-Message-State: AOJu0YyfyXP0Da7P3DBc/ocOBHUOdlKPVRp5eFZUmsN1UTWM7aRCI5Md
+	lYKROaRYtlECIPEA6FhhvaPO3ok3zkRD2eRgkLHjJITLEoq0Woj01S0aGqfporDpPanUrTh7E+x
+	7guIdCW8iBaB0fblpt7j2WlcG6rILfGgBkKvJr/XzoI516aqGcnHLhra9HHx41/9h77Mukmlnra
+	03iuxCCu+gIYvOjj2z0gOuEEEU6uGo65dTZKp/mEsXqEs5Kw==
+X-Google-Smtp-Source: AGHT+IHfZqaR+beKY8kxOJyI2qezCxSyOCHGIEkd/83hStCq23ZO+XHL7RSRl/AmVrfQJ3bMGbelGJPRkwh2
 X-Received: from dhavale-desktop.mtv.corp.google.com ([2620:15c:211:201:70db:9f14:826f:fa92])
- (user=dhavale job=sendgmr) by 2002:a05:6902:2b83:b0:dc6:dfc6:4207 with SMTP
- id fj3-20020a0569022b8300b00dc6dfc64207mr228920ybb.10.1712188654911; Wed, 03
- Apr 2024 16:57:34 -0700 (PDT)
-Date: Wed,  3 Apr 2024 16:57:23 -0700
+ (user=dhavale job=sendgmr) by 2002:a81:848e:0:b0:611:5ed0:228e with SMTP id
+ u136-20020a81848e000000b006115ed0228emr272157ywf.4.1712188658350; Wed, 03 Apr
+ 2024 16:57:38 -0700 (PDT)
+Date: Wed,  3 Apr 2024 16:57:24 -0700
+In-Reply-To: <20240403235724.1919539-1-dhavale@google.com>
 Mime-Version: 1.0
+References: <20240403235724.1919539-1-dhavale@google.com>
 X-Mailer: git-send-email 2.44.0.478.gd926399ef9-goog
-Message-ID: <20240403235724.1919539-1-dhavale@google.com>
-Subject: [PATCH 0/1] Opportunistically making files sparse
+Message-ID: <20240403235724.1919539-2-dhavale@google.com>
+Subject: [PATCH 1/1] erofs-utils: lib: treat data blocks filled with 0s as a hole
 To: linux-erofs@lists.ozlabs.org
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -76,55 +79,61 @@ Cc: hsiangkao@linux.alibaba.com, kernel-team@android.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi,
-We noticed that in android if you build erofs images with ELFs which
-have higher alignment say 16K or 64K, there was a considerable increase
-in the size of the uncompressed erofs image. The size increase could be
-mitigated with -Ededupe or --chunksize=4096 but that still results in
-lot of redundant disk IOs during file read as all the zero blocks are
-mapped to a single block on disk. Treating data blocks filled with zeros
-as hole will save the diskspace and also will save us lot of disk IOs
-during read.
+Add optimization to treat data blocks filled with 0s as a hole.
+Even though diskspace savings are comparable to chunk based or dedupe,
+having no block assigned saves us redundant disk IOs during read.
 
-Using EROFS tracepoints for the image built without the fix
+This patch detects if the block is filled with zeros and marks
+chunk as erofs_holechunk so there is no physical block assigned.
 
-md5sum-7535    [001] ..... 620668.748558: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 364544 llen 45056 flags RAW
-md5sum-7535    [001] ..... 620668.748559: erofs_map_blocks_exit: dev = (7,0), nid = 60, flags RAW la 364544 pa 40960 llen 4096 plen 4096 mflags M ret 0
-md5sum-7535    [001] ..... 620668.748560: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 368640 llen 40960 flags RAW
-md5sum-7535    [001] ..... 620668.748560: erofs_map_blocks_exit: dev = (7,0), nid = 60, flags RAW la 368640 pa 40960 llen 4096 plen 4096 mflags M ret 0
-md5sum-7535    [001] ..... 620668.748561: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 372736 llen 36864 flags RAW
-md5sum-7535    [001] ..... 620668.748561: erofs_map_blocks_exit: dev = (7,0), nid = 60, flags RAW la 372736 pa 40960 llen 4096 plen 4096 mflags M ret 0
-md5sum-7535    [001] ..... 620668.748562: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 376832 llen 32768 flags RAW
-
-As you can see, all the reads are being redirected to read the same pa 40960.
-Also this causes fragmentation.
-
-Using EROFS tracepoints for the image built with detection of zero blocks
-
-md5sum-7496    [000] ..... 620150.387246: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 0 llen 65536 flags RAW
-md5sum-7496    [000] ..... 620150.387249: erofs_map_blocks_exit: dev = (7,0), nid = 60, flags RAW la 0 pa 0 llen 262144 plen 262144 mflags  ret 0
-md5sum-7496    [000] ..... 620150.387358: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 65536 llen 131072 flags RAW
-md5sum-7496    [000] ..... 620150.387358: erofs_map_blocks_exit: dev = (7,0), nid = 60, flags RAW la 0 pa 0 llen 262144 plen 262144 mflags  ret 0
-md5sum-7496    [000] ..... 620150.387460: erofs_map_blocks_enter: dev = (7,0), nid = 60, la 196608 llen 212992 flags RAW
-
-I think this optimization has wins on diskspace and IO cost so its better to be
-default than enable conditionally with --sparse flag.
-
-Thanks,
-Sandeep.
-
-PS: This patch is based on erofs-utils.git/experimental as it builds on the
-previous fix of minextblks at
-https://lore.kernel.org/all/20240403070700.1716252-1-dhavale@google.com/
-which is not in erofs-utils.git/dev yet.
-
-
-Sandeep Dhavale (1):
-  erofs-utils: lib: treat data blocks filled with 0s as a hole
-
+Signed-off-by: Sandeep Dhavale <dhavale@google.com>
+---
  lib/blobchunk.c | 25 ++++++++++++++++++++++++-
  1 file changed, 24 insertions(+), 1 deletion(-)
 
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 641e3d4..8535058 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -232,6 +232,21 @@ static void erofs_update_minextblks(struct erofs_sb_info *sbi,
+ 		*minextblks = lb;
+ }
+ 
++static bool erofs_is_buf_zeros(void *buf, unsigned long len)
++{
++	int i, words;
++	const unsigned long *words_buf = buf;
++	words = len / sizeof(unsigned long);
++
++	DBG_BUGON(len % sizeof(unsigned long));
++
++	for (i = 0; i < words; i++) {
++		if (words_buf[i])
++			return false;
++	}
++	return true;
++}
++
+ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 				  erofs_off_t startoff)
+ {
+@@ -323,7 +338,15 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 			ret = -EIO;
+ 			goto err;
+ 		}
+-
++		if (len == chunksize && erofs_is_buf_zeros(chunkdata, len)) {
++			/* if data is all zeros, treat this block as hole */
++			*(void **)idx++ = &erofs_holechunk;
++			erofs_update_minextblks(sbi, interval_start, pos,
++						&minextblks);
++			interval_start = pos + len;
++			lastch = NULL;
++			continue;
++		}
+ 		chunk = erofs_blob_getchunk(sbi, chunkdata, len);
+ 		if (IS_ERR(chunk)) {
+ 			ret = PTR_ERR(chunk);
 -- 
 2.44.0.478.gd926399ef9-goog
 
