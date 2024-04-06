@@ -4,56 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0DA2C67861
-	for <linux-erofs@archiver.kernel.org>; Fri,  5 Apr 2024 10:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4238CD1292
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Apr 2024 05:37:41 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=caMJ71mm;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fNbEN92d;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4V9vWv3Szfz3vbM
-	for <linux-erofs@archiver.kernel.org>; Fri,  5 Apr 2024 21:15:55 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VBPJN2T4cz3vZc
+	for <linux-erofs@archiver.kernel.org>; Sat,  6 Apr 2024 16:37:40 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=caMJ71mm;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fNbEN92d;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4V9vWm21bZz3vcS
-	for <linux-erofs@lists.ozlabs.org>; Fri,  5 Apr 2024 21:15:48 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id B88CD618BF;
-	Fri,  5 Apr 2024 10:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F21BC433F1;
-	Fri,  5 Apr 2024 10:15:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712312144;
-	bh=yIHeOwT1Z+4CwFKwe4RcKGCjnk0s2xBp+R1BOpUfFsg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=caMJ71mmy73c69ZyZyNX4wS/2d8Gtly6EtzykUIE0yXHbrAMwv7eMWt2apQEno6io
-	 8Ny3HtFvTnC9Gaz97HDodO14jUPgFC3leggZFXx05N0QdQvMLPMYwokSZFQfHYbZxp
-	 O/nEAmSn8QWyea3nkipZVjXjYGJ9KgFkOeQnWOkMeRzcnwCDzqKGT2YLEgcy1zW6DW
-	 epW118aIRpl+hKttSW1y64jhg1CcH5IhVBH6IsGyDznq/8k7bxLKOAjx7fl1UZW+BT
-	 erfELlSyjrxr9gChb3R7X47yIZZ6/lr6monLIC+TD0k2YntQu2xsEIQ2MH1kiRPpGw
-	 NigJI7ozoCNng==
-Date: Fri, 5 Apr 2024 12:15:34 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 15/26] mm: Export writeback_iter()
-Message-ID: <20240405-kanarienvogel-besuchen-63c433180767@brauner>
-References: <20240403124124.GA19085@lst.de>
- <20240403101422.GA7285@lst.de>
- <20240403085918.GA1178@lst.de>
- <20240328163424.2781320-1-dhowells@redhat.com>
- <20240328163424.2781320-16-dhowells@redhat.com>
- <3235934.1712139047@warthog.procyon.org.uk>
- <3300438.1712141700@warthog.procyon.org.uk>
- <3326107.1712149095@warthog.procyon.org.uk>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VBPJF05HJz2ykC
+	for <linux-erofs@lists.ozlabs.org>; Sat,  6 Apr 2024 16:37:31 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1712381847; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=axPOC3nWf2Oi+ElYOKFzBpP2dfnKvDuX088pV4kOG7Y=;
+	b=fNbEN92d2ky3cANDsM+XNx9OBCyEZ/p1fxvfgJaFx//371U8wdqIweaWmNkF56+jSZyUzjgGvr7iZKhyc/0/4o+L3YrbM+Vb2hGG1CmRByTNndgnXBhfH0UurezvD3Jw3ktggqWbEn9MYD8gDG73zYVS4unTo4ec2Ko1a7Ssw2w=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W3ykLeg_1712381838;
+Received: from e69b19392.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W3ykLeg_1712381838)
+          by smtp.aliyun-inc.com;
+          Sat, 06 Apr 2024 13:37:25 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 1/2] erofs-utils: lib: split out several helpers in inode.c
+Date: Sat,  6 Apr 2024 13:37:16 +0800
+Message-Id: <20240406053717.565119-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <3326107.1712149095@warthog.procyon.org.uk>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,25 +50,178 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@lst.de>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Apr 03, 2024 at 01:58:15PM +0100, David Howells wrote:
-> Christoph Hellwig <hch@lst.de> wrote:
-> 
-> > > So why are we bothering with EXPORT_SYMBOL at all?  Why don't you just
-> > > send a patch replace all of them with EXPORT_SYMBOL_GPL()?
-> > 
-> > No my business.
-> 
-> Clearly it is as you're gradually replacing APIs with stuff that is GPL'd.
-> 
-> > But if you want to side track this let me just put this in here:
-> > 
-> > NAK to the non-GPL EXPORT of writeback_iter().
-> 
-> Very well, I'll switch that export to GPL.  Christian, if you can amend that
-> patch in your tree?
+From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 
-Sorted yesterday night!
+The following new helpers are added to prepare for the upcoming
+multi-threaded inter-file compression:
+ - erofs_mkfs_handle_{non,}directory;
+ - erofs_write_unencoded_file.
+
+Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/inode.c | 106 +++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 60 insertions(+), 46 deletions(-)
+
+diff --git a/lib/inode.c b/lib/inode.c
+index ba0419f..f419f3c 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -477,12 +477,8 @@ static int write_uncompressed_file_from_fd(struct erofs_inode *inode, int fd)
+ 	return 0;
+ }
+ 
+-int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
++int erofs_write_unencoded_file(struct erofs_inode *inode, int fd, u64 fpos)
+ {
+-	int ret;
+-
+-	DBG_BUGON(!inode->i_size);
+-
+ 	if (cfg.c_chunkbits) {
+ 		inode->u.chunkbits = cfg.c_chunkbits;
+ 		/* chunk indexes when explicitly specified */
+@@ -492,7 +488,17 @@ int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		return erofs_blob_write_chunked_file(inode, fd, fpos);
+ 	}
+ 
++	/* fallback to all data uncompressed */
++	return write_uncompressed_file_from_fd(inode, fd);
++}
++
++int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
++{
++	DBG_BUGON(!inode->i_size);
++
+ 	if (cfg.c_compr_opts[0].alg && erofs_file_is_compressible(inode)) {
++		int ret;
++
+ 		ret = erofs_write_compressed_file(inode, fd, fpos);
+ 		if (!ret || ret != -ENOSPC)
+ 			return ret;
+@@ -500,9 +506,8 @@ int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		if (lseek(fd, fpos, SEEK_SET) < 0)
+ 			return -errno;
+ 	}
+-
+ 	/* fallback to all data uncompressed */
+-	return write_uncompressed_file_from_fd(inode, fd);
++	return erofs_write_unencoded_file(inode, fd, fpos);
+ }
+ 
+ static int erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
+@@ -1095,52 +1100,44 @@ static void erofs_fixup_meta_blkaddr(struct erofs_inode *rootdir)
+ 	rootdir->nid = (off - meta_offset) >> EROFS_ISLOTBITS;
+ }
+ 
+-static int erofs_mkfs_build_tree(struct erofs_inode *dir, struct list_head *dirs)
++static int erofs_mkfs_handle_nondirectory(struct erofs_inode *inode)
+ {
+-	int ret;
+-	DIR *_dir;
+-	struct dirent *dp;
+-	struct erofs_dentry *d;
+-	unsigned int nr_subdirs, i_nlink;
++	int ret = 0;
+ 
+-	ret = erofs_scan_file_xattrs(dir);
+-	if (ret < 0)
+-		return ret;
++	if (S_ISLNK(inode->i_mode)) {
++		char *const symlink = malloc(inode->i_size);
+ 
+-	ret = erofs_prepare_xattr_ibody(dir);
+-	if (ret < 0)
+-		return ret;
+-
+-	if (!S_ISDIR(dir->i_mode)) {
+-		if (S_ISLNK(dir->i_mode)) {
+-			char *const symlink = malloc(dir->i_size);
+-
+-			if (!symlink)
+-				return -ENOMEM;
+-			ret = readlink(dir->i_srcpath, symlink, dir->i_size);
+-			if (ret < 0) {
+-				free(symlink);
+-				return -errno;
+-			}
+-			ret = erofs_write_file_from_buffer(dir, symlink);
++		if (!symlink)
++			return -ENOMEM;
++		ret = readlink(inode->i_srcpath, symlink, inode->i_size);
++		if (ret < 0) {
+ 			free(symlink);
+-		} else if (dir->i_size) {
+-			int fd = open(dir->i_srcpath, O_RDONLY | O_BINARY);
+-			if (fd < 0)
+-				return -errno;
+-
+-			ret = erofs_write_file(dir, fd, 0);
+-			close(fd);
+-		} else {
+-			ret = 0;
++			return -errno;
+ 		}
+-		if (ret)
+-			return ret;
++		ret = erofs_write_file_from_buffer(inode, symlink);
++		free(symlink);
++	} else if (inode->i_size) {
++		int fd = open(inode->i_srcpath, O_RDONLY | O_BINARY);
+ 
+-		erofs_prepare_inode_buffer(dir);
+-		erofs_write_tail_end(dir);
+-		return 0;
++		if (fd < 0)
++			return -errno;
++		ret = erofs_write_file(inode, fd, 0);
++		close(fd);
+ 	}
++	if (ret)
++		return ret;
++	erofs_prepare_inode_buffer(inode);
++	erofs_write_tail_end(inode);
++	return 0;
++}
++
++static int erofs_mkfs_handle_directory(struct erofs_inode *dir, struct list_head *dirs)
++{
++	DIR *_dir;
++	struct dirent *dp;
++	struct erofs_dentry *d;
++	unsigned int nr_subdirs, i_nlink;
++	int ret;
+ 
+ 	_dir = opendir(dir->i_srcpath);
+ 	if (!_dir) {
+@@ -1252,6 +1249,23 @@ err_closedir:
+ 	return ret;
+ }
+ 
++static int erofs_mkfs_build_tree(struct erofs_inode *inode, struct list_head *dirs)
++{
++	int ret;
++
++	ret = erofs_scan_file_xattrs(inode);
++	if (ret < 0)
++		return ret;
++
++	ret = erofs_prepare_xattr_ibody(inode);
++	if (ret < 0)
++		return ret;
++
++	if (!S_ISDIR(inode->i_mode))
++		return erofs_mkfs_handle_nondirectory(inode);
++	return erofs_mkfs_handle_directory(inode, dirs);
++}
++
+ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
+ {
+ 	LIST_HEAD(dirs);
+-- 
+2.39.3
+
