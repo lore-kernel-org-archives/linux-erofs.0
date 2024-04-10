@@ -2,51 +2,125 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58DE4C25B74
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 May 2024 13:46:42 +0000 (UTC)
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2524CD1284
+	for <linux-erofs@archiver.kernel.org>; Wed, 10 Apr 2024 22:27:32 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=tLI0cYgv;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Wo/su6ux;
+	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwQ8usD0;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Wo/su6ux;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwQ8usD0;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VnxX36mMzz991K
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 May 2024 23:37:07 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VFHWl4C1cz3dTm
+	for <linux-erofs@archiver.kernel.org>; Thu, 11 Apr 2024 08:27:31 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=tLI0cYgv;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Wo/su6ux;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwQ8usD0;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=Wo/su6ux;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwQ8usD0;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=dsterba@suse.cz; receiver=lists.ozlabs.org)
+X-Greylist: delayed 17463 seconds by postgrey-1.37 at boromir; Thu, 11 Apr 2024 08:27:23 AEST
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VnxRm4hvhz88p6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 27 May 2024 23:33:22 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1716816797; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=QidiVXUMnt6iKGOAcp6fa76mjoIKCzmR0QWL2hdQF5E=;
-	b=tLI0cYgvk1qUW0BwqcLi3UJMlV5UJWz1xddTxAjOd+J4TshD5yU/uHLbSRKcuaLGAEGmcJ/6a9/bcNwvcObtdl00YJIeXftr/JfyscS1WOGkBI7QlF1izsIiIeTNwl8jJ4B8v5TZdUo/SY1TLfrwubIhZVA5OBf8pb0LxIOtyM4=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W7LT3at_1716816793;
-Received: from 192.168.31.58(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W7LT3at_1716816793)
-          by smtp.aliyun-inc.com;
-          Mon, 27 May 2024 21:33:15 +0800
-Message-ID: <0fbf98a5-bcb9-4276-bf41-62cd0401afc6@linux.alibaba.com>
-Date: Mon, 27 May 2024 21:33:11 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VFHWb5Vmhz3bX3
+	for <linux-erofs@lists.ozlabs.org>; Thu, 11 Apr 2024 08:27:22 +1000 (AEST)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3395033A89;
+	Wed, 10 Apr 2024 17:36:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=Wo/su6uxAz3KDCet7sG1IMbLmZNu/s492NxBN+stUG6oo2qYtuABn+4iFfLZA7KwEty81H
+	IdrOqxowTjwdMcGmvVJuVhd3KhUwlHGwlvUKUWet7620GxVeKx3CiehY9/HodlAMarXBGu
+	QKA3ILsUtN07gfz8aoS5W8ffx3zw7mU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=pwQ8usD0NAyGD6U1k6UXV+bVfsviAAMcwHC0rXMTXFxYTDSQht5I5OMD0LYFtofyWnG5ZB
+	JIolcEC5hlnuCvCg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=Wo/su6uxAz3KDCet7sG1IMbLmZNu/s492NxBN+stUG6oo2qYtuABn+4iFfLZA7KwEty81H
+	IdrOqxowTjwdMcGmvVJuVhd3KhUwlHGwlvUKUWet7620GxVeKx3CiehY9/HodlAMarXBGu
+	QKA3ILsUtN07gfz8aoS5W8ffx3zw7mU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1712770567;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ZHHE5aOwQ1Ezn/ab1buAuDtcCLPcpIIchKLIUxoBbM=;
+	b=pwQ8usD0NAyGD6U1k6UXV+bVfsviAAMcwHC0rXMTXFxYTDSQht5I5OMD0LYFtofyWnG5ZB
+	JIolcEC5hlnuCvCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EFAAD13691;
+	Wed, 10 Apr 2024 17:36:06 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 20hgOgbOFmZrWQAAD6G6ig
+	(envelope-from <dsterba@suse.cz>); Wed, 10 Apr 2024 17:36:06 +0000
+Date: Wed, 10 Apr 2024 19:28:37 +0200
+From: David Sterba <dsterba@suse.cz>
+To: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH RFC v3 for-6.8/block 09/17] btrfs: use bdev apis
+Message-ID: <20240410172837.GO3492@suse.cz>
+References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
+ <20231221085712.1766333-10-yukuai1@huaweicloud.com>
+ <ZYcZi5YYvt5QHrG9@casper.infradead.org>
+ <20240104114958.f3cit5q7syp3tn3a@quack3>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 06/12] cachefiles: add consistency check for
- copen/cread
-To: Baokun Li <libaokun@huaweicloud.com>, netfs@lists.linux.dev,
- dhowells@redhat.com, jlayton@kernel.org
-References: <20240522114308.2402121-1-libaokun@huaweicloud.com>
- <20240522114308.2402121-7-libaokun@huaweicloud.com>
- <11f10862-9149-49c7-bac4-f0c1e0601b23@linux.alibaba.com>
- <c2e331a1-8293-0055-3314-738530db3822@huaweicloud.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <c2e331a1-8293-0055-3314-738530db3822@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240104114958.f3cit5q7syp3tn3a@quack3>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spamd-Result: default: False [-2.50 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HAS_REPLYTO(0.30)[dsterba@suse.cz];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[49];
+	TO_DN_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLtpaten8pmzgjg419jubxqoa7)];
+	REPLYTO_ADDR_EQ_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[infradead.org,huaweicloud.com,kernel.dk,citrix.com,suse.de,gmail.com,lazybastard.org,bootlin.com,nod.at,ti.com,linux.ibm.com,oracle.com,fb.com,toxicpanda.com,suse.com,zeniv.linux.org.uk,kernel.org,fluxnic.net,mit.edu,dilger.ca,linux-foundation.org,samsung.com,vger.kernel.org,lists.xenproject.org,lists.infradead.org,lists.ozlabs.org,huawei.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -58,129 +132,50 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, yukuai3@huawei.com
+Reply-To: dsterba@suse.cz
+Cc: hoeppner@linux.ibm.com, vigneshr@ti.com, yi.zhang@huawei.com, clm@fb.com, adilger.kernel@dilger.ca, miquel.raynal@bootlin.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, richard@nod.at, Matthew Wilcox <willy@infradead.org>, linux-bcachefs@vger.kernel.org, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, jejb@linux.ibm.com, p.raghav@samsung.com, gor@linux.ibm.com, hca@linux.ibm.com, joern@lazybastard.org, josef@toxicpanda.com, colyli@suse.de, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, viro@zeniv.linux.org.uk, yukuai3@huawei.com, dsterba@suse.com, konishi.ryusuke@gmail.com, axboe@kernel.dk, brauner@kernel.org, tytso@mit.edu, martin.petersen@oracle.com, Yu Kuai <yukuai1@huaweicloud.com>, yangerkun@huawei.com, nico@fluxnic.net, linux-kernel@vger.kernel.org, kent.overstreet@gmail.com, hare@suse.de, jack@suse.com, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, akpm@linux-foundati
+ on.org, roger.pau@citrix.com, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, sth@linux.ibm.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 5/24/24 10:28 AM, Baokun Li wrote:
-> Hi Jingbo,
+On Thu, Jan 04, 2024 at 12:49:58PM +0100, Jan Kara wrote:
+> On Sat 23-12-23 17:31:55, Matthew Wilcox wrote:
+> > On Thu, Dec 21, 2023 at 04:57:04PM +0800, Yu Kuai wrote:
+> > > @@ -3674,16 +3670,17 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
+> > >  		 * Drop the page of the primary superblock, so later read will
+> > >  		 * always read from the device.
+> > >  		 */
+> > > -		invalidate_inode_pages2_range(mapping,
+> > > -				bytenr >> PAGE_SHIFT,
+> > > +		invalidate_bdev_range(bdev, bytenr >> PAGE_SHIFT,
+> > >  				(bytenr + BTRFS_SUPER_INFO_SIZE) >> PAGE_SHIFT);
+> > >  	}
+> > >  
+> > > -	page = read_cache_page_gfp(mapping, bytenr >> PAGE_SHIFT, GFP_NOFS);
+> > > -	if (IS_ERR(page))
+> > > -		return ERR_CAST(page);
+> > > +	nofs_flag = memalloc_nofs_save();
+> > > +	folio = bdev_read_folio(bdev, bytenr);
+> > > +	memalloc_nofs_restore(nofs_flag);
+> > 
+> > This is the wrong way to use memalloc_nofs_save/restore.  They should be
+> > used at the point that the filesystem takes/releases whatever lock is
+> > also used during reclaim.  I don't know btrfs well enough to suggest
+> > what lock is missing these annotations.
 > 
-> Thanks for the review!
-> 
-> On 2024/5/23 22:28, Jingbo Xu wrote:
->>
->> On 5/22/24 7:43 PM, libaokun@huaweicloud.com wrote:
->>> From: Baokun Li <libaokun1@huawei.com>
->>>
->>> This prevents malicious processes from completing random copen/cread
->>> requests and crashing the system. Added checks are listed below:
->>>
->>>    * Generic, copen can only complete open requests, and cread can only
->>>      complete read requests.
->>>    * For copen, ondemand_id must not be 0, because this indicates
->>> that the
->>>      request has not been read by the daemon.
->>>    * For cread, the object corresponding to fd and req should be the
->>> same.
->>>
->>> Signed-off-by: Baokun Li <libaokun1@huawei.com>
->>> Acked-by: Jeff Layton <jlayton@kernel.org>
->>> ---
->>>   fs/cachefiles/ondemand.c | 27 ++++++++++++++++++++-------
->>>   1 file changed, 20 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
->>> index bb94ef6a6f61..898fab68332b 100644
->>> --- a/fs/cachefiles/ondemand.c
->>> +++ b/fs/cachefiles/ondemand.c
->>> @@ -82,12 +82,12 @@ static loff_t
->>> cachefiles_ondemand_fd_llseek(struct file *filp, loff_t pos,
->>>   }
->>>     static long cachefiles_ondemand_fd_ioctl(struct file *filp,
->>> unsigned int ioctl,
->>> -                     unsigned long arg)
->>> +                     unsigned long id)
->>>   {
->>>       struct cachefiles_object *object = filp->private_data;
->>>       struct cachefiles_cache *cache = object->volume->cache;
->>>       struct cachefiles_req *req;
->>> -    unsigned long id;
->>> +    XA_STATE(xas, &cache->reqs, id);
->>>         if (ioctl != CACHEFILES_IOC_READ_COMPLETE)
->>>           return -EINVAL;
->>> @@ -95,10 +95,15 @@ static long cachefiles_ondemand_fd_ioctl(struct
->>> file *filp, unsigned int ioctl,
->>>       if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
->>>           return -EOPNOTSUPP;
->>>   -    id = arg;
->>> -    req = xa_erase(&cache->reqs, id);
->>> -    if (!req)
->>> +    xa_lock(&cache->reqs);
->>> +    req = xas_load(&xas);
->>> +    if (!req || req->msg.opcode != CACHEFILES_OP_READ ||
->>> +        req->object != object) {
->>> +        xa_unlock(&cache->reqs);
->>>           return -EINVAL;
->>> +    }
->>> +    xas_store(&xas, NULL);
->>> +    xa_unlock(&cache->reqs);
->>>         trace_cachefiles_ondemand_cread(object, id);
->>>       complete(&req->done);
->>> @@ -126,6 +131,7 @@ int cachefiles_ondemand_copen(struct
->>> cachefiles_cache *cache, char *args)
->>>       unsigned long id;
->>>       long size;
->>>       int ret;
->>> +    XA_STATE(xas, &cache->reqs, 0);
->>>         if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
->>>           return -EOPNOTSUPP;
->>> @@ -149,9 +155,16 @@ int cachefiles_ondemand_copen(struct
->>> cachefiles_cache *cache, char *args)
->>>       if (ret)
->>>           return ret;
->>>   -    req = xa_erase(&cache->reqs, id);
->>> -    if (!req)
->>> +    xa_lock(&cache->reqs);
->>> +    xas.xa_index = id;
->>> +    req = xas_load(&xas);
->>> +    if (!req || req->msg.opcode != CACHEFILES_OP_OPEN ||
->>> +        !req->object->ondemand->ondemand_id) {
->> For a valid opened object, I think ondemand_id shall > 0.  When the
->> copen is for the object which is in the reopening state, ondemand_id can
->> be CACHEFILES_ONDEMAND_ID_CLOSED (actually -1)?
-> If ondemand_id is -1, there are two scenarios:
->  * This could be a restore/reopen request that has not yet get_fd;
->  * The request is being processed by the daemon but its anonymous
->     fd has been closed.
-> 
-> In the first case, there is no argument for not allowing copen.
-> In the latter case, however, the closing of an anonymous fd may
-> not be malicious, so if a copen delete request fails, the OPEN
-> request will not be processed until RESTORE lets it be processed
-> by the daemon again. However, RESTORE is not a frequent operation,
-> so if only one anonymous fd is accidentally closed, this may result
-> in a hung.
-> 
-> So in later patches, we ensure that fd is valid (i.e. ondemand_id > 0)
-> when setting the object to OPEN state and do not prevent it
-> from removing the request here.
-> 
-> If ondemand_id is 0, then it can be confirmed that the req has not
-> been initialised, so the copen must be malicious at this point, so it
-> is not allowed to complete the request. This is an instantaneous
-> state, and the request can be processed normally after the daemon
-> has read it properly. So there won't be any side effects here.
-> 
+> In principle I agree with you but in this particular case I agree the ask
+> is just too big. I suspect it is one of btrfs btree locks or maybe
+> chunk_mutex but I doubt even btrfs developers know and maybe it is just a
+> cargo cult. And it is not like this would be the first occurence of this
+> anti-pattern in btrfs - see e.g. device_list_add(), add_missing_dev(),
+> btrfs_destroy_delalloc_inodes() (here the wrapping around
+> invalidate_inode_pages2() looks really weird), and many others...
 
-case 1 is literally illegal, while case 2 is permissible but has no way
-to be distinguished from case 1.  As the patch itself is only
-best-effort, so it LGTM.
-
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-
-
--- 
-Thanks,
-Jingbo
+The pattern is intentional and a temporary solution before we could
+implement the scoped NOFS. Functions calling allocations get converted
+from GFP_NOFS to GFP_KERNEL but in case they're called from a context
+that either holds big locks or can recursively enter the filesystem then
+it's protected by the memalloc calls. This should not be surprising.
+What may not be obvious is which locks or kmalloc calling functions it
+could be, this depends on the analysis of the function call chain and
+usually there's enough evidence why it's needed.
