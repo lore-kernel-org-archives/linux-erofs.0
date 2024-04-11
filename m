@@ -4,45 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08B09CD1284
-	for <linux-erofs@archiver.kernel.org>; Thu, 11 Apr 2024 11:10:27 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=PBGYVFZl;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70DF2C4345F
+	for <linux-erofs@archiver.kernel.org>; Thu, 11 Apr 2024 18:00:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1712858441;
+	bh=+xoq/sXDkK3DSRmnUSU07f6nURlDA/s2BY7gqYG2upo=;
+	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=NzCxR+7h84NxJBInJRqfcz379rhC94YDa3fv5YnrFKhlPcQMSc0OaXzx05XerMPc+
+	 EMsF7P7pJXgllrSl2u8T94X/Nsx2JRRgLCT2i9ct5l+GoHH9Nr6jWwIMcYdLYiR3UX
+	 QfgNIanbKqz1WZgGu3GeHq6GiRp1d48ARyI8bIrf4OBQGownFerOj4+v8iGQ/Ij4+x
+	 4dcZHkTjUhrCmwy6GAjqOsN3yjKBkpimA4rPeUEARZtKoPIWmT6Sfz0LiNKZ6+xP9Y
+	 X/rGN7JW7OpHR95h+2u9yfLss0CK4CN5rHCegaVYhOF4+zYjUQ1R4Z0rGnH/MqHaVg
+	 mOVWMkXJXhpdA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VFcS24Q70z3vX6
-	for <linux-erofs@archiver.kernel.org>; Thu, 11 Apr 2024 21:10:26 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VFnYN6p9qz3vY9
+	for <linux-erofs@archiver.kernel.org>; Fri, 12 Apr 2024 04:00:40 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=PBGYVFZl;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=DIPSqE/i;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::42f; helo=mail-wr1-x42f.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VFcRv0VQZz2yt0
-	for <linux-erofs@lists.ozlabs.org>; Thu, 11 Apr 2024 21:10:16 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712833812; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Xte64WKX4APGVVQukK8ww/shCSJQzIZn0Mf+kxjgVjk=;
-	b=PBGYVFZloVgPeiZgJqehGygfZkzXK22cb3kS4q8gKLzwMTnBte+/auf1XrBCeeuIsjvbS+DN7fICA0xhL1swzfPm0RcJ3+SBQe1niieE3T0kOd4fvbhYL5s+H9TXspsU92cFgC+eylmRbdPjrG6X1pjc1D2l5ZQZiFzkzhXVnbo=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W4L7Llu_1712833810;
-Received: from 30.221.145.233(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0W4L7Llu_1712833810)
-          by smtp.aliyun-inc.com;
-          Thu, 11 Apr 2024 19:10:11 +0800
-Message-ID: <163a094a-d2e7-46c8-a011-87ec80ae34a3@linux.alibaba.com>
-Date: Thu, 11 Apr 2024 19:10:09 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VFnYD2K4Hz3d2c
+	for <linux-erofs@lists.ozlabs.org>; Fri, 12 Apr 2024 04:00:31 +1000 (AEST)
+Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-3455ff1339dso24442f8f.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 11 Apr 2024 11:00:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712858425; x=1713463225;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+xoq/sXDkK3DSRmnUSU07f6nURlDA/s2BY7gqYG2upo=;
+        b=siD1oOOYOfCYHyUavVhah7E7VRVf8XEC7S+9dmp32OeHUuU+12NAy0+97Y+PlyXiy9
+         +Y6p017UeWr1uNNusl7WWB4FXiur7ZCn8PpADXgplob4myxdgzS3fqQ4DPYEKUSyeb4w
+         BAoGd8tLwldXuteRebL4WBRGtcV0ci0nBWGryfey5Q+BQz+tnpINh3FWVk4VJtfhtqmM
+         TzXeJbTgEW9VPZ9G3gSkO+loupERzSoI4ECvJR5SS8bfqp6DZu8ryLgvdqjsejJ46phY
+         i0ID3zMgGuUaoqXbKjbdMAo/xItCc+J8bI4mJPK7h0Z8dcTOJHJZnOPBajK8Uf2C2k6C
+         ABjA==
+X-Gm-Message-State: AOJu0YxH0DdDOPfNeD/3jUKmBHsYYpioXrPahKDdrOBeFnAVyHRkxK37
+	qVeqDJ703I8KPPRzpZB9mdt7mrXK2s2qzwYd+TZkRkncP+6FXX1GDR6yHLVyM/l/LRDB64vLDHj
+	p46RUDVOwDiU0uILEY5pvKJDPc6sJC/E/mc5ZR65pcLnxkS63wQ==
+X-Google-Smtp-Source: AGHT+IGJO7I8CxPoUmprcshcJLp+kZvBlwDNXiTz0/Hr/iCaoSJ/QEJGs7YKWYUmlUoDKof9j181bsemnA5JjqTdIqs=
+X-Received: by 2002:adf:fa8b:0:b0:346:c912:3e97 with SMTP id
+ h11-20020adffa8b000000b00346c9123e97mr215057wrr.44.1712858425093; Thu, 11 Apr
+ 2024 11:00:25 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: lib: fix tarerofs 32-bit overflows
-Content-Language: en-US
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
 References: <20240411100039.197417-1-hsiangkao@linux.alibaba.com>
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
 In-Reply-To: <20240411100039.197417-1-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Apr 2024 11:00:12 -0700
+Message-ID: <CAB=BE-S8JrXQ7e22Ja4P_hZe9dz3Pa0wfd=eA_553LQjDexDhQ@mail.gmail.com>
+Subject: Re: [PATCH] erofs-utils: lib: fix tarerofs 32-bit overflows
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -54,53 +71,15 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Sandeep Dhavale via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Sandeep Dhavale <dhavale@google.com>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Looks good.
 
+Reviewed-by: Sandeep Dhavale <dhavale@google.com>
 
-On 4/11/24 6:00 PM, Gao Xiang wrote:
-> Otherwise, large files won't be imported properly.
-> 
-> Fixes: e3dfe4b8db26 ("erofs-utils: mkfs: support tgz streams for tarerofs")
-> Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-
-LGTM.
-
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-
-> ---
->  lib/tar.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/lib/tar.c b/lib/tar.c
-> index b45657d..8d606f9 100644
-> --- a/lib/tar.c
-> +++ b/lib/tar.c
-> @@ -233,7 +233,7 @@ int erofs_iostream_read(struct erofs_iostream *ios, void **buf, u64 bytes)
->  					  ret, erofs_strerror(-errno));
->  	}
->  	*buf = ios->buffer;
-> -	ret = min_t(int, ios->tail, bytes);
-> +	ret = min_t(int, ios->tail, min_t(u64, bytes, INT_MAX));
->  	ios->head = ret;
->  	return ret;
->  }
-> @@ -605,10 +605,9 @@ void tarerofs_remove_inode(struct erofs_inode *inode)
->  static int tarerofs_write_file_data(struct erofs_inode *inode,
->  				    struct erofs_tarfile *tar)
->  {
-> -	unsigned int j;
->  	void *buf;
->  	int fd, nread;
-> -	u64 off;
-> +	u64 off, j;
->  
->  	if (!inode->i_diskbuf) {
->  		inode->i_diskbuf = calloc(1, sizeof(*inode->i_diskbuf));
-
--- 
 Thanks,
-Jingbo
+Sandeep.
