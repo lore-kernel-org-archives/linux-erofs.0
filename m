@@ -4,69 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 295A2C4345F
-	for <linux-erofs@archiver.kernel.org>; Mon, 15 Apr 2024 22:51:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EFC92C4345F
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 00:57:52 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=bBs9/Wfo;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=MAPfjboq;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VJMqZ4r2Bz3dWr
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 08:51:54 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VJQct6bbXz3dVR
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 10:57:50 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=bBs9/Wfo;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=MAPfjboq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::12a; helo=mail-lf1-x12a.google.com; envelope-from=smfrench@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VJMqS2SGkz3c9y
-	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Apr 2024 08:51:46 +1000 (AEST)
-Received: by mail-lf1-x12a.google.com with SMTP id 2adb3069b0e04-516d0162fa1so4728197e87.3
-        for <linux-erofs@lists.ozlabs.org>; Mon, 15 Apr 2024 15:51:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713221500; x=1713826300; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=63WuSgSRy34JNOa9pVcP0sGLwbzNT5xJkZeCbwGkCUE=;
-        b=bBs9/Wfo15FO90ODSB86St/1Y95KRyzHKVZ7CIxube5+RpHzs10ylbZIQ/bU/5tq8w
-         dHPCNFFP46RjktQUVtUAPn2Al0t9SijfHmEYHtGrmRWjMPqpEpsZItTJ4+nZNbSKPP/d
-         gt+20VrNqKQE8CJsUF/2uESEJDS0jilDPAMPvTt7iVqy1fRV0f+9slN2sW5FFlZvpEQb
-         plDH3AiOrGPIJvemfPf2lSiLgyFVd7Nft2nyQMH0sNAuOfTt5nqFDkBM0a/6DFTPHlne
-         DwFsspMnqogZIs96ArpmKg4rFbRzWu9di6LS9c73+bJ/1FaEKYoH8ePiHyPhz8XDCGiO
-         tlzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713221500; x=1713826300;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=63WuSgSRy34JNOa9pVcP0sGLwbzNT5xJkZeCbwGkCUE=;
-        b=DqN/vegmYRX5IPsxHvwvWB6E87jRKsoAkOYsaV8J3b69/ZHdfugTEJn3e/dFGJVK0Q
-         7ldzb2VQZEleNOxtdvJEGRk6RaUrS/rEPD7pNUuEBJc3Xydc904aBf65TUrUaDMBHWfB
-         YdPXSDQo+k2zwCU2ovtyTqs+wA/KEGYH8VVn/+RDllrXWP5JCCFzJnEvmmMpcHEq9Yfp
-         xsirDH1BUMkf3QRdDfNFGL0AWOZofSYURcawoBjwL5E7grpho2UmbmAQPvxjPVbIH6T3
-         12LHp50xB1NeRHI0y2zHY3gLFkpzxQcfxvTQb884xt0LOcnJR3bpE9DW5scLaI3iXdPm
-         1pMw==
-X-Forwarded-Encrypted: i=1; AJvYcCU8WKmaI2LBgy9JLSwrgY+1KXadsKj50hzg1cxBOs1vHmdh2g5c6kheD4OntgdRyIZnKHJ9tNSY7lrng+rl9GzR+J52MPm8LB9FYum6
-X-Gm-Message-State: AOJu0YysizhJ3ObNgUYujOqdXYHYB69us4GhfgRip8NCwkHk9TI/Ytzp
-	IdoaM5QBHXRE7Mt0cah3uPx6mXzu29Agq+0QqyuUSfvA+peeBzAoA5JpEQxlfa623WLVC9UVDMh
-	ABW8dJ58lClahdbG0xHZib3ls5M4=
-X-Google-Smtp-Source: AGHT+IF8RFFMQuN5vGtuRwBPhuh0oAZccy2g38TQjUdEv5QNHmaH/Tohq78D8IN9/9jH1PsE9dc35dj2/YRmRw43rn8=
-X-Received: by 2002:a19:5f1e:0:b0:516:b07a:5b62 with SMTP id
- t30-20020a195f1e000000b00516b07a5b62mr8309996lfb.54.1713221500147; Mon, 15
- Apr 2024 15:51:40 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VJQck6rxxz3cRd
+	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Apr 2024 10:57:42 +1000 (AEST)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id CE37860EF0;
+	Tue, 16 Apr 2024 00:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4398FC113CC;
+	Tue, 16 Apr 2024 00:57:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713229060;
+	bh=e+mZ8gSzLwQyrTBa4o3G3i7rgdxAvvnf8ZmX93KlrW4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=MAPfjboqItuLZRgArjOyRoVElAn/2mJFMZi1IqSXjmlOVjdECxiubReZqWyREN+oy
+	 MC2KnpMq96rgwh4houoreP/85lJPdcFWxbyQMWKR2NvZruAp11HegcpIPkDKLT9F4A
+	 lIKuvOP5wzhl8sx6zWdEfyZtv8CjfQqUcif9TtwlQH6zvRA3lAJCMqXxYqLhS6x3+S
+	 bAN4tH+t+H6KRiMQbmHOshcr5JKBCFBbSWanTf4q7iS/KDQX/CAE58WUZTW7y1nyPy
+	 CvWNSa6xiZmd2l8SJh0470bR67G4OiGXUEb3hxvaSgOvuYeXsP2adwiO/qpINC4kN5
+	 P1Gq+kWKLykEw==
+Date: Tue, 16 Apr 2024 08:57:38 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Baokun Li <libaokun1@huawei.com>,
+	Christian Brauner <brauner@kernel.org>
+Subject: Re: [PATCH] erofs: set SB_NODEV sb_flags when mounting with fsid
+Message-ID: <Zh3NAgWvNASTZSea@debian>
+Mail-Followup-To: Baokun Li <libaokun1@huawei.com>,
+	Christian Brauner <brauner@kernel.org>,
+	linux-erofs@lists.ozlabs.org, xiang@kernel.org, chao@kernel.org,
+	huyue2@coolpad.com, jefflexu@linux.alibaba.com,
+	viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org,
+	yangerkun@huawei.com, houtao1@huawei.com
+References: <20240415121746.1207242-1-libaokun1@huawei.com>
+ <20240415-betagten-querlatte-feb727ed56c1@brauner>
+ <15ab9875-5123-7bc2-bb25-fc683129ad9e@huawei.com>
 MIME-Version: 1.0
-References: <20240328163424.2781320-1-dhowells@redhat.com> <20240328163424.2781320-2-dhowells@redhat.com>
- <39de1e2ac2ae6a535e23faccd304d7c5459054a2.camel@kernel.org> <2345944.1713186234@warthog.procyon.org.uk>
-In-Reply-To: <2345944.1713186234@warthog.procyon.org.uk>
-From: Steve French <smfrench@gmail.com>
-Date: Mon, 15 Apr 2024 17:51:30 -0500
-Message-ID: <CAH2r5msFoGAE79pS5bEt5T8a60LU82mdjNdpfe0bG4YpvY8t-g@mail.gmail.com>
-Subject: Re: [PATCH 01/26] cifs: Fix duplicate fscache cookie warnings
-To: David Howells <dhowells@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <15ab9875-5123-7bc2-bb25-fc683129ad9e@huawei.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -78,39 +67,71 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <nspmangalore@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, Rohith Surabattula <rohiths.msft@gmail.com>, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Steve French <sfrench@samba.org>, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
+Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, huyue2@coolpad.com, viro@zeniv.linux.org.uk, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Should this be merged independently (and sooner? in rc5?)
+Hi Christian, Baokun,
 
-On Mon, Apr 15, 2024 at 8:04=E2=80=AFAM David Howells <dhowells@redhat.com>=
- wrote:
->
-> Jeff Layton <jlayton@kernel.org> wrote:
->
-> > > +struct cifs_fscache_inode_key {
-> > > +
-> > > +   __le64  uniqueid;       /* server inode number */
-> > > +   __le64  createtime;     /* creation time on server */
-> > > +   u8      type;           /* S_IFMT file type */
-> > > +} __packed;
-> > > +
-> >
-> > Interesting. So the uniqueid of the inode is not unique within the fs?
-> > Or are the clients are mounting shares that span multiple filesystems?
-> > Or, are we looking at a situation where the uniqueid is being quickly
-> > reused for new inodes after the original inode is unlinked?
->
-> The problem is that it's not unique over time.  creat(); unlink(); creat(=
-);
-> may yield a repeat of the uniqueid.  It's like i_ino in that respect.
->
-> David
->
+On Mon, Apr 15, 2024 at 11:23:58PM +0800, Baokun Li wrote:
+> On 2024/4/15 21:38, Christian Brauner wrote:
+> > On Mon, Apr 15, 2024 at 08:17:46PM +0800, Baokun Li wrote:
+> > > When erofs_kill_sb() is called in block dev based mode, s_bdev may not have
+> > > been initialised yet, and if CONFIG_EROFS_FS_ONDEMAND is enabled, it will
+> > > be mistaken for fscache mode, and then attempt to free an anon_dev that has
+> > > never been allocated, triggering the following warning:
+> > > 
+> > > ============================================
+> > > ida_free called for id=0 which is not allocated.
+> > > WARNING: CPU: 14 PID: 926 at lib/idr.c:525 ida_free+0x134/0x140
+> > > Modules linked in:
+> > > CPU: 14 PID: 926 Comm: mount Not tainted 6.9.0-rc3-dirty #630
+> > > RIP: 0010:ida_free+0x134/0x140
+> > > Call Trace:
+> > >   <TASK>
+> > >   erofs_kill_sb+0x81/0x90
+> > >   deactivate_locked_super+0x35/0x80
+> > >   get_tree_bdev+0x136/0x1e0
+> > >   vfs_get_tree+0x2c/0xf0
+> > >   do_new_mount+0x190/0x2f0
+> > >   [...]
+> > > ============================================
+> > > 
+> > > To avoid this problem, add SB_NODEV to fc->sb_flags after successfully
+> > > parsing the fsid, and then the superblock inherits this flag when it is
+> > > allocated, so that the sb_flags can be used to distinguish whether it is
+> > > in block dev based mode when calling erofs_kill_sb().
+> > > 
+> > > Signed-off-by: Baokun Li <libaokun1@huawei.com>
+> > > ---
+> > >   fs/erofs/super.c | 7 +++----
+> > >   1 file changed, 3 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> > > index b21bd8f78dc1..7539ce7d64bc 100644
+> > > --- a/fs/erofs/super.c
+> > > +++ b/fs/erofs/super.c
+> > > @@ -520,6 +520,7 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+> > >   		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
+> > >   		if (!ctx->fsid)
+> > >   			return -ENOMEM;
+> > > +		fc->sb_flags |= SB_NODEV;
+> > Hm, I wouldn't do it this way. That's an abuse of that flag imho.
+> > Record the information in the erofs_fs_context if you need to.
+> The stack diagram that triggers the problem is as follows, the call to
+> erofs_kill_sb() fails before fill_super() has been executed, and we can
+> only use super_block to determine whether it is currently in nodev
+> fscahe mode or block device based mode. So if it is recorded in
+> erofs_fs_context (aka fc->fs_private), we can't access the recorded data
+> unless we pass fc into erofs_kill_sb() as well.
+> 
 
+If I understand correctly, from the discussion above, I think
+there exists a gap between alloc_super() and sb->s_bdev is set.
+But .kill_sb() can be called between them and fc is not passed
+into .kill_sb().
 
---=20
+I'm not sure how to resolve it in EROFS itself, anyway...
+
 Thanks,
-
-Steve
+Gao Xiang
