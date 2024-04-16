@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF7D5C4345F
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 08:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBDE9C4345F
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 08:05:26 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IbKnAX5q;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=V2PBCw8M;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VJc673nLvz3dSM
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 18:05:19 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VJc6F4nBfz3vXD
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Apr 2024 18:05:25 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IbKnAX5q;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=V2PBCw8M;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VJc5S1Bxwz3cGY
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VJc5S1R6kz3dLl
 	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Apr 2024 18:04:44 +1000 (AEST)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id C8D2C6110F;
-	Tue, 16 Apr 2024 08:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E019C32781;
-	Tue, 16 Apr 2024 08:04:43 +0000 (UTC)
+	by dfw.source.kernel.org (Postfix) with ESMTP id 3E85F61113;
+	Tue, 16 Apr 2024 08:04:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2227C32783;
+	Tue, 16 Apr 2024 08:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713254683;
-	bh=zmd9Affl5FsGCC7i+pqhilG2nq9GRJL6rJth3gyYTYA=;
+	s=k20201202; t=1713254682;
+	bh=HoXnhWUuGpeuQdIlvOO0ZPJwY/VYwYPy5rA8BjIHHUc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=IbKnAX5qqBZdJS5W0AsgG8OggFUEIkPZcv/DkNMNsX74FcypsGWbipF2bLeV5nAhw
-	 7gYPWb4lnRRODBAulU+aJolUaa/G2Xrsy3UAVLYLv14X+EmgiM7p8PLjUCle2mN9mS
-	 mnd3qhdS3+Jk98Zbu/Z4xd6i+lb7bT7gyerjVD+fidIQwSYE3z0ExADfpxrwY/koTl
-	 Vb2fJZI/majoRiy5rahcqoddO+iQP5cCciGMvJqm2jKspy9gbICUQjCfsGhvbW9tZi
-	 S9Q1n2EsdqcrmDiRQSylICPbYqeBrTErEt0BCJXysElUrmesljv06oUuVKmZD+uJoQ
-	 3w/4IBPXxRWlA==
+	b=V2PBCw8Mt8t4ijxF8xe5+IzUWvT94zr57m+E8l50dn5espZ7GQ1FZnWiU+9GZ7dom
+	 D08x4bwfB7UZuRApnkVEmtKJ7Akk2L15Dq2Np8hm47qZFlZQ5DkbQbGaUl8Zudw7kh
+	 CLDZW5fgspPLJ0Y0LLR4kuXWbH9pdmLeN3t3t32+nl6FtGcbIxRrjtcRrqnYfKnBCX
+	 hAnQCSnoHm5MIwhH/1v5qLM8tx1cQA2dazZA5oPkp4rhkho4ovt7iYPgmSBr0wxCkL
+	 jxAnYKHVV8mELmEicPRHitdKQzL7xN1f64FcOOpbTDQtJqnifxxXeHAxp7EjXyWU1g
+	 2FrZ53gXo8qgw==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 8/8] erofs-utils: mkfs: enable inter-file multi-threaded compression
-Date: Tue, 16 Apr 2024 16:04:19 +0800
-Message-Id: <20240416080419.32491-8-xiang@kernel.org>
+Subject: [PATCH 6/8] erofs-utils: mkfs: prepare inter-file multi-threaded compression
+Date: Tue, 16 Apr 2024 16:04:17 +0800
+Message-Id: <20240416080419.32491-6-xiang@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20240416080419.32491-1-xiang@kernel.org>
 References: <20240416080419.32491-1-xiang@kernel.org>
@@ -58,215 +58,280 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>, Tong Xin <xin_tong@sjtu.edu.cn>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
 
-Dispatch deferred ops in another per-sb worker thread.  Note that
-deferred ops are strictly FIFOed.
+This patch separate compression process into two parts.
 
+Specifically, erofs_begin_compressed_file() will trigger compression.
+erofs_write_compressed_file() will wait for compression finish and
+write compressed (meta)data.
+
+Signed-off-by: Yifan Zhao <zhaoyifan@sjtu.edu.cn>
+Co-authored-by: Tong Xin <xin_tong@sjtu.edu.cn>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/internal.h |   6 ++
- lib/inode.c              | 121 ++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 124 insertions(+), 3 deletions(-)
+ include/erofs/compress.h |   5 +-
+ lib/compress.c           | 115 ++++++++++++++++++++++++++-------------
+ lib/inode.c              |  17 +++++-
+ 3 files changed, 95 insertions(+), 42 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index f31e548..ecbbdf6 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -71,6 +71,7 @@ struct erofs_xattr_prefix_item {
+diff --git a/include/erofs/compress.h b/include/erofs/compress.h
+index 871db54..c9831a7 100644
+--- a/include/erofs/compress.h
++++ b/include/erofs/compress.h
+@@ -17,8 +17,11 @@ extern "C"
+ #define EROFS_CONFIG_COMPR_MAX_SZ	(4000 * 1024)
+ #define Z_EROFS_COMPR_QUEUE_SZ		(EROFS_CONFIG_COMPR_MAX_SZ * 2)
  
- #define EROFS_PACKED_NID_UNALLOCATED	-1
++struct z_erofs_compress_ictx;
++
+ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode);
+-int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos);
++void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos);
++int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx);
  
-+struct erofs_mkfs_dfops;
- struct erofs_sb_info {
- 	struct erofs_device_info *devs;
- 	char *devname;
-@@ -124,6 +125,11 @@ struct erofs_sb_info {
- 	struct list_head list;
+ int z_erofs_compress_init(struct erofs_sb_info *sbi,
+ 			  struct erofs_buffer_head *bh);
+diff --git a/lib/compress.c b/lib/compress.c
+index 3fd3874..45ff128 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -1359,8 +1359,10 @@ int erofs_mt_write_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 	pthread_mutex_unlock(&ictx->mutex);
  
- 	u64 saved_by_deduplication;
+ 	bh = erofs_balloc(DATA, 0, 0, 0);
+-	if (IS_ERR(bh))
+-		return PTR_ERR(bh);
++	if (IS_ERR(bh)) {
++		ret = PTR_ERR(bh);
++		goto out;
++	}
+ 
+ 	DBG_BUGON(!head);
+ 	blkaddr = erofs_mapbh(bh->block);
+@@ -1384,27 +1386,31 @@ int erofs_mt_write_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 			blkaddr = cur->ctx.blkaddr;
+ 		}
+ 
++		pthread_mutex_lock(&z_erofs_mt_ctrl.mutex);
+ 		cur->next = z_erofs_mt_ctrl.idle;
+ 		z_erofs_mt_ctrl.idle = cur;
+-	} while(head);
++		pthread_mutex_unlock(&z_erofs_mt_ctrl.mutex);
++	} while (head);
+ 
+ 	if (ret)
+-		return ret;
+-
+-	return erofs_commit_compressed_file(ictx, bh,
++		goto out;
++	ret = erofs_commit_compressed_file(ictx, bh,
+ 			blkaddr - compressed_blocks, compressed_blocks);
++
++out:
++	close(ictx->fd);
++	free(ictx);
++	return ret;
+ }
+ #endif
+ 
+-int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
++static struct z_erofs_compress_ictx g_ictx;
++
++void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ {
+-	static u8 g_queue[Z_EROFS_COMPR_QUEUE_SZ];
+-	struct erofs_buffer_head *bh;
+-	static struct z_erofs_compress_ictx ctx;
+-	static struct z_erofs_compress_sctx sctx;
+-	erofs_blk_t blkaddr;
+-	int ret;
+ 	struct erofs_sb_info *sbi = inode->sbi;
++	struct z_erofs_compress_ictx *ictx;
++	int ret;
+ 
+ 	/* initialize per-file compression setting */
+ 	inode->z_advise = 0;
+@@ -1435,45 +1441,79 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		}
+ 	}
+ #endif
+-	ctx.ccfg = &erofs_ccfg[inode->z_algorithmtype[0]];
+-	inode->z_algorithmtype[0] = ctx.ccfg->algorithmtype;
+-	inode->z_algorithmtype[1] = 0;
+-
+ 	inode->idata_size = 0;
+ 	inode->fragment_size = 0;
+ 
++	if (z_erofs_mt_enabled) {
++		ictx = malloc(sizeof(*ictx));
++		if (!ictx)
++			return ERR_PTR(-ENOMEM);
++		ictx->fd = dup(fd);
++	} else {
++		ictx = &g_ictx;
++		ictx->fd = fd;
++	}
++
++	ictx->ccfg = &erofs_ccfg[inode->z_algorithmtype[0]];
++	inode->z_algorithmtype[0] = ictx->ccfg->algorithmtype;
++	inode->z_algorithmtype[1] = 0;
++
+ 	/*
+ 	 * Handle tails in advance to avoid writing duplicated
+ 	 * parts into the packed inode.
+ 	 */
+ 	if (cfg.c_fragments && !erofs_is_packed_inode(inode)) {
+-		ret = z_erofs_fragments_dedupe(inode, fd, &ctx.tof_chksum);
++		ret = z_erofs_fragments_dedupe(inode, fd, &ictx->tof_chksum);
+ 		if (ret < 0)
+-			return ret;
++			goto err_free_ictx;
+ 	}
+ 
+-	ctx.inode = inode;
+-	ctx.fd = fd;
+-	ctx.fpos = fpos;
+-	init_list_head(&ctx.extents);
+-	ctx.fix_dedupedfrag = false;
+-	ctx.fragemitted = false;
++	ictx->inode = inode;
++	ictx->fpos = fpos;
++	init_list_head(&ictx->extents);
++	ictx->fix_dedupedfrag = false;
++	ictx->fragemitted = false;
+ 
+ 	if (cfg.c_all_fragments && !erofs_is_packed_inode(inode) &&
+ 	    !inode->fragment_size) {
+-		ret = z_erofs_pack_file_from_fd(inode, fd, ctx.tof_chksum);
++		ret = z_erofs_pack_file_from_fd(inode, fd, ictx->tof_chksum);
+ 		if (ret)
+ 			goto err_free_idata;
+-	}
+ #ifdef EROFS_MT_ENABLED
+-	if (z_erofs_mt_enabled) {
+-		ret = z_erofs_mt_compress(&ctx);
++	} else if (ictx != &g_ictx) {
++		ret = z_erofs_mt_compress(ictx);
+ 		if (ret)
+ 			goto err_free_idata;
+-		return erofs_mt_write_compressed_file(&ctx);
++#endif
++	}
++	return ictx;
+ 
++err_free_idata:
++	if (inode->idata) {
++		free(inode->idata);
++		inode->idata = NULL;
+ 	}
++err_free_ictx:
++	if (ictx != &g_ictx)
++		free(ictx);
++	return ERR_PTR(ret);
++}
++
++int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx)
++{
++	static u8 g_queue[Z_EROFS_COMPR_QUEUE_SZ];
++	struct erofs_buffer_head *bh;
++	static struct z_erofs_compress_sctx sctx;
++	struct erofs_compress_cfg *ccfg = ictx->ccfg;
++	struct erofs_inode *inode = ictx->inode;
++	erofs_blk_t blkaddr;
++	int ret;
 +
 +#ifdef EROFS_MT_ENABLED
-+	pthread_t dfops_worker;
-+	struct erofs_mkfs_dfops *mkfs_dfops;
-+#endif
- };
++	if (ictx != &g_ictx)
++		return erofs_mt_write_compressed_file(ictx);
+ #endif
++
+ 	/* allocate main data buffer */
+ 	bh = erofs_balloc(DATA, 0, 0, 0);
+ 	if (IS_ERR(bh)) {
+@@ -1482,11 +1522,11 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 	}
+ 	blkaddr = erofs_mapbh(bh->block); /* start_blkaddr */
  
- /* make sure that any user of the erofs headers has atleast 64bit off_t type */
+-	ctx.seg_num = 1;
++	ictx->seg_num = 1;
+ 	sctx = (struct z_erofs_compress_sctx) {
+-		.ictx = &ctx,
++		.ictx = ictx,
+ 		.queue = g_queue,
+-		.chandle = &ctx.ccfg->handle,
++		.chandle = &ccfg->handle,
+ 		.remaining = inode->i_size - inode->fragment_size,
+ 		.seg_idx = 0,
+ 		.pivot = &dummy_pivot,
+@@ -1496,15 +1536,14 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 
+ 	ret = z_erofs_compress_segment(&sctx, -1, blkaddr);
+ 	if (ret)
+-		goto err_bdrop;
+-	list_splice_tail(&sctx.extents, &ctx.extents);
++		goto err_free_idata;
+ 
+-	return erofs_commit_compressed_file(&ctx, bh, blkaddr,
++	list_splice_tail(&sctx.extents, &ictx->extents);
++	return erofs_commit_compressed_file(ictx, bh, blkaddr,
+ 					    sctx.blkaddr - blkaddr);
+ 
+-err_bdrop:
+-	erofs_bdrop(bh, true);	/* revoke buffer */
+ err_free_idata:
++	erofs_bdrop(bh, true);	/* revoke buffer */
+ 	if (inode->idata) {
+ 		free(inode->idata);
+ 		inode->idata = NULL;
 diff --git a/lib/inode.c b/lib/inode.c
-index 681460c..3c952b2 100644
+index 8ef0604..66eacab 100644
 --- a/lib/inode.c
 +++ b/lib/inode.c
-@@ -1165,6 +1165,7 @@ enum erofs_mkfs_jobtype {	/* ordered job types */
- 	EROFS_MKFS_JOB_NDIR,
- 	EROFS_MKFS_JOB_DIR,
- 	EROFS_MKFS_JOB_DIR_BH,
-+	EROFS_MKFS_JOB_MAX
- };
+@@ -499,10 +499,15 @@ int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 	DBG_BUGON(!inode->i_size);
  
- struct erofs_mkfs_jobitem {
-@@ -1203,6 +1204,74 @@ static int erofs_mkfs_jobfn(struct erofs_mkfs_jobitem *item)
- 	return -EINVAL;
- }
+ 	if (cfg.c_compr_opts[0].alg && erofs_file_is_compressible(inode)) {
++		void *ictx;
+ 		int ret;
  
-+#ifdef EROFS_MT_ENABLED
+-		ret = erofs_write_compressed_file(inode, fd, fpos);
+-		if (!ret || ret != -ENOSPC)
++		ictx = erofs_begin_compressed_file(inode, fd, fpos);
++		if (IS_ERR(ictx))
++			return PTR_ERR(ictx);
 +
-+struct erofs_mkfs_dfops {
-+	pthread_t worker;
-+	pthread_mutex_t lock;
-+	pthread_cond_t full, empty;
-+	struct erofs_mkfs_jobitem *queue;
-+	size_t size, elem_size;
-+	size_t head, tail;
-+};
-+
-+#define EROFS_MT_QUEUE_SIZE 256
-+
-+void *erofs_mkfs_pop_jobitem(struct erofs_mkfs_dfops *q)
-+{
-+	struct erofs_mkfs_jobitem *item;
-+
-+	pthread_mutex_lock(&q->lock);
-+	while (q->head == q->tail)
-+		pthread_cond_wait(&q->empty, &q->lock);
-+
-+	item = q->queue + q->head;
-+	q->head = (q->head + 1) % q->size;
-+
-+	pthread_cond_signal(&q->full);
-+	pthread_mutex_unlock(&q->lock);
-+	return item;
-+}
-+
-+void *z_erofs_mt_dfops_worker(void *arg)
-+{
-+	struct erofs_sb_info *sbi = arg;
-+	int ret = 0;
-+
-+	while (1) {
-+		struct erofs_mkfs_jobitem *item;
-+
-+		item = erofs_mkfs_pop_jobitem(sbi->mkfs_dfops);
-+		if (item->type >= EROFS_MKFS_JOB_MAX)
-+			break;
-+		ret = erofs_mkfs_jobfn(item);
-+		if (ret)
-+			break;
-+	}
-+	pthread_exit((void *)(uintptr_t)ret);
-+}
-+
-+int erofs_mkfs_go(struct erofs_sb_info *sbi,
-+		  enum erofs_mkfs_jobtype type, void *elem, int size)
-+{
-+	struct erofs_mkfs_jobitem *item;
-+	struct erofs_mkfs_dfops *q = sbi->mkfs_dfops;
-+
-+	pthread_mutex_lock(&q->lock);
-+
-+	while ((q->tail + 1) % q->size == q->head)
-+		pthread_cond_wait(&q->full, &q->lock);
-+
-+	item = q->queue + q->tail;
-+	item->type = type;
-+	memcpy(&item->u, elem, size);
-+	q->tail = (q->tail + 1) % q->size;
-+
-+	pthread_cond_signal(&q->empty);
-+	pthread_mutex_unlock(&q->lock);
-+	return 0;
-+}
-+#else
- int erofs_mkfs_go(struct erofs_sb_info *sbi,
- 		  enum erofs_mkfs_jobtype type, void *elem, int size)
- {
-@@ -1212,6 +1281,7 @@ int erofs_mkfs_go(struct erofs_sb_info *sbi,
- 	memcpy(&item.u, elem, size);
- 	return erofs_mkfs_jobfn(&item);
- }
-+#endif
++		ret = erofs_write_compressed_file(ictx);
++		if (ret != -ENOSPC)
+ 			return ret;
  
- static int erofs_mkfs_handle_directory(struct erofs_inode *dir)
- {
-@@ -1344,7 +1414,11 @@ static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
- 	return ret;
- }
- 
--struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
-+#ifndef EROFS_MT_ENABLED
-+#define __erofs_mkfs_build_tree_from_path erofs_mkfs_build_tree_from_path
-+#endif
-+
-+struct erofs_inode *__erofs_mkfs_build_tree_from_path(const char *path)
- {
- 	struct erofs_inode *root, *dumpdir;
- 	int err;
-@@ -1361,7 +1435,6 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- 	err = erofs_mkfs_handle_inode(root);
- 	if (err)
- 		return ERR_PTR(err);
--	erofs_fixup_meta_blkaddr(root);
- 
- 	do {
- 		int err;
-@@ -1400,10 +1473,52 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- 		if (err)
- 			return ERR_PTR(err);
- 	} while (dumpdir);
--
- 	return root;
- }
- 
-+#ifdef EROFS_MT_ENABLED
-+struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
-+{
-+	struct erofs_mkfs_dfops *q;
-+	struct erofs_inode *root;
-+	int err;
-+
-+	q = malloc(sizeof(*q));
-+	if (!q)
-+		return ERR_PTR(-ENOMEM);
-+
-+	q->queue = malloc(q->size * sizeof(*q->queue));
-+	if (!q->queue) {
-+		free(q);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	pthread_mutex_init(&q->lock, NULL);
-+	pthread_cond_init(&q->empty, NULL);
-+	pthread_cond_init(&q->full, NULL);
-+
-+	q->size = EROFS_MT_QUEUE_SIZE;
-+	q->head = 0;
-+	q->tail = 0;
-+	sbi.mkfs_dfops = q;
-+	err = pthread_create(&sbi.dfops_worker, NULL,
-+			     z_erofs_mt_dfops_worker, &sbi);
-+	if (err)
-+		goto fail;
-+	root = __erofs_mkfs_build_tree_from_path(path);
-+
-+	erofs_mkfs_go(&sbi, ~0, NULL, 0);
-+	err = pthread_join(sbi.dfops_worker, NULL);
-+
-+fail:
-+	pthread_cond_destroy(&q->empty);
-+	pthread_cond_destroy(&q->full);
-+	pthread_mutex_destroy(&q->lock);
-+	free(q->queue);
-+	free(q);
-+	return err ? ERR_PTR(err) : root;
-+}
-+#endif
-+
- struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
+ 		if (lseek(fd, fpos, SEEK_SET) < 0)
+@@ -1363,6 +1368,7 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
  {
  	struct stat st;
+ 	struct erofs_inode *inode;
++	void *ictx;
+ 	int ret;
+ 
+ 	ret = lseek(fd, 0, SEEK_SET);
+@@ -1393,7 +1399,12 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
+ 		inode->nid = inode->sbi->packed_nid;
+ 	}
+ 
+-	ret = erofs_write_compressed_file(inode, fd, 0);
++	ictx = erofs_begin_compressed_file(inode, fd, 0);
++	if (IS_ERR(ictx))
++		return ERR_CAST(ictx);
++
++	DBG_BUGON(!ictx);
++	ret = erofs_write_compressed_file(ictx);
+ 	if (ret == -ENOSPC) {
+ 		ret = lseek(fd, 0, SEEK_SET);
+ 		if (ret < 0)
 -- 
 2.30.2
 
