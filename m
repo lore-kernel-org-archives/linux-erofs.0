@@ -4,48 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19636C4345F
-	for <linux-erofs@archiver.kernel.org>; Thu, 11 Apr 2024 17:57:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C60AC4345F
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Apr 2024 09:03:22 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=aI/Km0ji;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxubLoYW;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxubLoYW;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VFnTC2j7Sz3vYM
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Apr 2024 03:57:03 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VKFLd0Brmz3dXP
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Apr 2024 19:03:21 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=aI/Km0ji;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxubLoYW;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxubLoYW;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.dev (client-ip=2001:41d0:203:375::b4; helo=out-180.mta1.migadu.com; envelope-from=kent.overstreet@linux.dev; receiver=lists.ozlabs.org)
-X-Greylist: delayed 411 seconds by postgrey-1.37 at boromir; Fri, 12 Apr 2024 03:56:53 AEST
-Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [IPv6:2001:41d0:203:375::b4])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VFnT12FMfz3dX4
-	for <linux-erofs@lists.ozlabs.org>; Fri, 12 Apr 2024 03:56:52 +1000 (AEST)
-Date: Thu, 11 Apr 2024 13:49:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1712857769;
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VKFLR0RFvz3bnv
+	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Apr 2024 19:03:09 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713344585;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=V/TZdE1FK3O4qkESTbUB1nUL6z8CdzrLZmjris90VHw=;
-	b=aI/Km0jiSMVL4A1tCs8hlsrV66vbuWxJKZ+EgkonCW2LmuJAGBaIivtgu4+3HhSKhbSBh3
-	uS3+3l/YqK0GsHToDiJSOy8jQgouByPKNokiyLYxRwngjkex1lryU/nDL4TDH7+GmcHLtc
-	35AcbG0Y+MpEd8VLadpzkGxeP5lZ1Bo=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Kent Overstreet <kent.overstreet@linux.dev>
-To: Yu Kuai <yukuai1@huaweicloud.com>
-Subject: Re: [PATCH RFC v3 for-6.8/block 07/17] bcachefs: remove dead
- function bdev_sectors()
-Message-ID: <2pat6ombemqnq5wjl6eb4lbip2pfgg5tkubmbwqphvcvpdc6cu@poiexziaa2q4>
-References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
- <20231221085712.1766333-8-yukuai1@huaweicloud.com>
+	bh=+cqHolZFVcFPpeLBdV05ZqicpNbJqZRKW17Kvjt/Abs=;
+	b=cxubLoYWIvwowsMd7XhW9razO8JGbTXF9zfuXx4Mrct51SDaOBYY9YKQDkfUi8ydwSFAGi
+	UjYR3jgNGVJt5NK1LGWAOSITEhnNZLVlpNCeFO8Zq9ng7J4Ma1I9W99Nstzts8UjsBVJml
+	DNo+NcwWYEvN2TBXb2kK6HTLufQvAcE=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713344585;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+cqHolZFVcFPpeLBdV05ZqicpNbJqZRKW17Kvjt/Abs=;
+	b=cxubLoYWIvwowsMd7XhW9razO8JGbTXF9zfuXx4Mrct51SDaOBYY9YKQDkfUi8ydwSFAGi
+	UjYR3jgNGVJt5NK1LGWAOSITEhnNZLVlpNCeFO8Zq9ng7J4Ma1I9W99Nstzts8UjsBVJml
+	DNo+NcwWYEvN2TBXb2kK6HTLufQvAcE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-UAKkPT0cNTu8x3FwjUWu1g-1; Wed, 17 Apr 2024 05:03:00 -0400
+X-MC-Unique: UAKkPT0cNTu8x3FwjUWu1g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D56BA10499A0;
+	Wed, 17 Apr 2024 09:02:58 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.200])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 6F32BC13FA2;
+	Wed, 17 Apr 2024 09:02:53 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+	Kingdom.
+	Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <3570373a3db66151033a3667cb8c28bbf8bc505b.camel@kernel.org>
+References: <3570373a3db66151033a3667cb8c28bbf8bc505b.camel@kernel.org> <20240328163424.2781320-1-dhowells@redhat.com> <20240328163424.2781320-10-dhowells@redhat.com>
+To: Jeff Layton <jlayton@kernel.org>
+Subject: Re: [PATCH 09/26] mm: Provide a means of invalidation without using launder_folio
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231221085712.1766333-8-yukuai1@huaweicloud.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <28262.1713344568.1@warthog.procyon.org.uk>
+Date: Wed, 17 Apr 2024 10:02:48 +0100
+Message-ID: <28263.1713344568@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -57,40 +82,22 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: hoeppner@linux.ibm.com, vigneshr@ti.com, yi.zhang@huawei.com, clm@fb.com, adilger.kernel@dilger.ca, miquel.raynal@bootlin.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, richard@nod.at, willy@infradead.org, linux-bcachefs@vger.kernel.org, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, jejb@linux.ibm.com, p.raghav@samsung.com, gor@linux.ibm.com, hca@linux.ibm.com, joern@lazybastard.org, josef@toxicpanda.com, colyli@suse.de, linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, viro@zeniv.linux.org.uk, yukuai3@huawei.com, dsterba@suse.com, konishi.ryusuke@gmail.com, axboe@kernel.dk, brauner@kernel.org, tytso@mit.edu, martin.petersen@oracle.com, nico@fluxnic.net, yangerkun@huawei.com, linux-kernel@vger.kernel.org, kent.overstreet@gmail.com, hare@suse.de, jack@suse.com, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, akpm@linux-foundation.org, roger.pau@citrix.com, linux-erofs@lists.ozla
- bs.org, linux-btrfs@vger.kernel.org, sth@linux.ibm.com
+Cc: Dominique Martinet <asmadeus@codewreck.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@lst.de>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, devel@lists.orangefs.org, Shyam Prasad N <sprasad@microsoft.com>, Christian Brauner <brauner@kernel.org>, Tom Talpey <tom@talpey.com>, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, Andrew Morton <akp
+ m@linux-foundation.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, Dec 21, 2023 at 04:57:02PM +0800, Yu Kuai wrote:
-> From: Yu Kuai <yukuai3@huawei.com>
-> 
-> bdev_sectors() is not used hence remove it.
-> 
-> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Jeff Layton <jlayton@kernel.org> wrote:
 
-Acked-by: Kent Overstreet <kent.overstreet@linux.dev>
+> I'd have liked to have seen the first caller of this function too.
 
-> ---
->  fs/bcachefs/util.h | 5 -----
->  1 file changed, 5 deletions(-)
-> 
-> diff --git a/fs/bcachefs/util.h b/fs/bcachefs/util.h
-> index 2984b57b2958..22a0acc1704f 100644
-> --- a/fs/bcachefs/util.h
-> +++ b/fs/bcachefs/util.h
-> @@ -516,11 +516,6 @@ static inline unsigned fract_exp_two(unsigned x, unsigned fract_bits)
->  void bch2_bio_map(struct bio *bio, void *base, size_t);
->  int bch2_bio_alloc_pages(struct bio *, size_t, gfp_t);
->  
-> -static inline sector_t bdev_sectors(struct block_device *bdev)
-> -{
-> -	return bdev->bd_inode->i_size >> 9;
-> -}
-> -
->  #define closure_bio_submit(bio, cl)					\
->  do {									\
->  	closure_get(cl);						\
-> -- 
-> 2.39.2
-> 
+Looking again at my code, I also need to make netfs_unbuffered_write_iter()
+use this function too.  I missed it before because that wasn't calling
+invalidate_inode_pages2_range() directly, but rather going through
+kiocb_invalidate_pages().
+
+So I'll add those changes into this patch to give you a first caller.  I also
+then need to make filemap_invalidate_inode() take a byte range.
+
+David
+
