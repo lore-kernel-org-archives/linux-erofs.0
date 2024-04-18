@@ -4,71 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1369C4345F
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 05:52:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5134DC4345F
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 05:53:02 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=YGN9ES1E;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=KhOEwPWQ;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VKn4R2csKz3cWp
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 15:52:55 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VKn4X75DFz3cWs
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 15:53:00 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=YGN9ES1E;
+	dkim=pass (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=KhOEwPWQ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=sijam.com (client-ip=2607:f8b0:4864:20::b34; helo=mail-yb1-xb34.google.com; envelope-from=asai@sijam.com; receiver=lists.ozlabs.org)
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=sijam.com (client-ip=2607:f8b0:4864:20::62e; helo=mail-pl1-x62e.google.com; envelope-from=asai@sijam.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VKn4B3j5Yz3cJW
-	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Apr 2024 15:52:42 +1000 (AEST)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-dcd9e34430cso570317276.1
-        for <linux-erofs@lists.ozlabs.org>; Wed, 17 Apr 2024 22:52:42 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VKn4G23nkz3cJW
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Apr 2024 15:52:46 +1000 (AEST)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-1e5b6e8f662so4534385ad.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 17 Apr 2024 22:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sijam-com.20230601.gappssmtp.com; s=20230601; t=1713419559; x=1714024359; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=sijam-com.20230601.gappssmtp.com; s=20230601; t=1713419564; x=1714024364; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=n5rY3bUmj06meXYKfiJ01fMjAXvGnp5cudsSj92o3+Q=;
-        b=YGN9ES1EiP7IQKvEP18kMQD71syqSkraLNM52+yTPrucJ832K9jt4762vi1HBt+jBj
-         TyuayZNmvFLmx3ujK/KOUb8UsYkUkdUhQhfok80tuGlv0UHufl2CX1BMcAhRgwIZxi16
-         CHEB9G0Y8quHIf8DG8yz+s7hgENfAtH9u9gGgPTnXE3fhfFnvab2XxUXlekbeR9vePzT
-         6ctsW3VOSTH/ST6MzupaojD9pDNlbN7eLh9jMn7TQQU81GcmgjPhjIUD3fzEA09KQPu4
-         uo6vP3dsva7kvszBtw5K3QkhRki9sHBo+d40pEkeut2tSRM7NG3T5xtuBBNKG2qvrdCZ
-         XXEA==
+        bh=nNSL+SwpuCMSDUk8cbJ/4zy4sFXbVB0ATSPoAtMnndA=;
+        b=KhOEwPWQBNP7RhY5ypKcf4KKd2r7MxyfWLQ1c7JDFEK+gVWskhRkkxYOaSkT+wXGi2
+         hWtCSaj/39XMB9s+ojyBGjXfmvxROLgQVXUl6I+RTAP4sepY91xaIIYfDlPWWlG7AijC
+         /i7R1KBWlN40b3D99b1vk3ib0Ihjy/pyHsgjb9ZhCA+Ah13TTsWBD/xxOxqY2SoeKV1P
+         lWN2sCG1yxapn3GQptEMHZvSRtu1wouRE3CEOFeBK39KFtFO9HBhEW9fHB9BfFkfZ+Hc
+         RRQNEyUhuBei3io+Sso1eJlquz0uFrNInCdE9aLPmU7nWh4T+coBZfIroHLtSeSBKcbh
+         f5jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713419559; x=1714024359;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1713419564; x=1714024364;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=n5rY3bUmj06meXYKfiJ01fMjAXvGnp5cudsSj92o3+Q=;
-        b=ZNfTxUK47NQGGT5WN38ItTEbd7NsDYu3bKEeCLc78HXkLZnxrCB3Xt5QIjzz8EJui7
-         PWor8Lrid31kee3VSZMxg7/+Vt/+DX9/DH+p467QS7Jnuptxa5GKcUEiIJYG6Gf9bwjS
-         3dghk3GCkubXREIyNgql5jjW9AzN1DqSDjSQPRVkBwy5RsKYfYmnFhX9b89BnjZdBibT
-         YM3c3MF/TcpW1PQCU3jqGxYFKDEN4KIfMiRzJzOGqPT8hMORDpWWqou1X/2pdEPBJtBU
-         3OYxIYgc81umLSKm9SzA2hA5VRMxb5f0TCJnuBISUA2vOpjqiCs7X0U5Ex2yjEqUKwxn
-         GGrA==
-X-Forwarded-Encrypted: i=1; AJvYcCWdHqeWmdP4CfbYeY+4sQGXeCxumpu/+Ujg85RjD/zOamAVGk07h0peStMHNpniMuyf8lZoj2FNJ1DHHgxm6QKoY/o+h+fwe6uWcACQ
-X-Gm-Message-State: AOJu0YwgfnZTlU52J4QvPbKJXAODPms0ykM0iDQc2uYdTQtGtt0AFfuk
-	8jQPZp/zhFwn9AUpVuIl1b+MPP42M1B1jpfVH8vJMwLRttt4WQpsGTHjSK+eMWgTfD2EgXeVX/S
-	M+3jo5FkDtSFPhGKshDl3izBcEsoMp/4EBaUO7g==
-X-Google-Smtp-Source: AGHT+IGyLQKFfJIL+SpLvSs45eVieYf/iwIN01zDeiF0bmRdarIQlYhiENMfD3xTz9/xS99S566INsMwrOMspMdGGRM=
-X-Received: by 2002:a25:2d10:0:b0:de0:f737:95f with SMTP id
- t16-20020a252d10000000b00de0f737095fmr1959445ybt.7.1713419559342; Wed, 17 Apr
- 2024 22:52:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20240417144251.1845355-1-zhaoyifan@sjtu.edu.cn>
- <CAFoAo-KboSBKuna87DWQMjphVPorgnYiMMEAf5PPwEhD4hZv=w@mail.gmail.com> <ZiCoVYoxW7NFHeUr@debian>
-In-Reply-To: <ZiCoVYoxW7NFHeUr@debian>
+        bh=nNSL+SwpuCMSDUk8cbJ/4zy4sFXbVB0ATSPoAtMnndA=;
+        b=obG9O805ULJ8aZZ5xwCAtEKyDMC/csIttr2cGCywzDrM7IB4TzEp6B6z3aAdY5ryIt
+         QuKKZq2clGhAfzYdIZ6wZJLLArT91CoFsWa9kjGMWAv1uMIxQoGKFSA+UmltX8np/H9D
+         VldMlhUB0+2hYgPexm+tVMDX2DR4RbqwSUhaLe1v2rycMZAWbB+IhRO8opPKMuemW1Nq
+         I/q/V+DKEeTwVJOLvDURSI5j5PtIQf0eM0h+UrqZwOOBTnYPc4gfYGk7bd+Ou4AQiFBc
+         Oz9iyy+MWuzcTxyHr5rUmOaMEZ3uPZLXlAJf+9Dc+OjIqw3W2PCw3A76b/6B57kngOev
+         mfRQ==
+X-Gm-Message-State: AOJu0Yxq4WM34TQbAuq6JA2cqLdBVAJcMXDE9JUmkJ5cC2k1ntDyxIjI
+	u28TGzQKnog05f3obtxW0wFBkIE+hF8xXq0E6qT9zzkSHsvbEVEnBR01SsHY0ot1uSoiCNVmtwn
+	N4F4=
+X-Google-Smtp-Source: AGHT+IGrie98Roiv3E0oWALKxMH4KiOEFKOSsaOYv0FMRgGw+KKFg5mLXKIWFsk7q3SuOJoPY+5v/g==
+X-Received: by 2002:a17:902:7295:b0:1e5:2885:2 with SMTP id d21-20020a170902729500b001e528850002mr1509210pll.68.1713419563932;
+        Wed, 17 Apr 2024 22:52:43 -0700 (PDT)
+Received: from elric.localdomain (i121-112-72-48.s41.a027.ap.plala.or.jp. [121.112.72.48])
+        by smtp.gmail.com with ESMTPSA id w6-20020a170902e88600b001e4ea358407sm642991plg.46.2024.04.17.22.52.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Apr 2024 22:52:43 -0700 (PDT)
 From: Noboru Asai <asai@sijam.com>
-Date: Thu, 18 Apr 2024 14:52:28 +0900
-Message-ID: <CAFoAo-KZG8MEbSHaf2LrRdoj1MsjbvWFTcaeaZy5UuNqKNJ-HA@mail.gmail.com>
-Subject: Re: [PATCH] erofs-utils: mkfs: skip the redundant write for
- ztailpacking block
-To: Noboru Asai <asai@sijam.com>, Yifan Zhao <zhaoyifan@sjtu.edu.cn>, 
-	Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: hsiangkao@linux.alibaba.com,
+	zhaoyifan@sjtu.edu.cn
+Subject: [PATCH 2/3] erofs-utils: skip the redundant write for ztailpacking block
+Date: Thu, 18 Apr 2024 14:52:30 +0900
+Message-ID: <20240418055231.146591-2-asai@sijam.com>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20240418055231.146591-1-asai@sijam.com>
+References: <20240418055231.146591-1-asai@sijam.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,37 +80,86 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Gao,
+z_erofs_merge_segment() doesn't consider the ztailpacking block in the
+extent list and unnecessarily writes it back to the disk. This patch
+fixes this issue by changing compressdblks to 0.
 
-I made a patch set and send it. I'm grad that this patch set help your thin=
-king.
+And the value of blkaddr corresponding to the ztailpacking block
+in the extent list is handled in z_erofs_write_extent function.
 
+* legacy:   0 (fragmentoff >> 32)
+* compact: -1 (EROFS_NULL_ADDR)
 
-2024=E5=B9=B44=E6=9C=8818=E6=97=A5(=E6=9C=A8) 13:58 Gao Xiang <xiang@kernel=
-.org>:
->
-> Hi Noboru,
->
-> On Thu, Apr 18, 2024 at 10:09:22AM +0900, Noboru Asai wrote:
-> > In this patch, the value of blkaddr in z_erofs_lcluster_index
-> > corresponding to the ztailpacking block in the extent list
-> > is invalid value. It looks that the linux kernel doesn't refer to this
-> > value, but what value is correct?
-> > 0 or -1 (EROFS_NULL_ADDR) or don't care?
->
-> Thanks for pointing out!
->
-> On the kernel side, it doesn't care this value if it's really
-> _inlined_.
->
-> But on the mkfs side, since we have inline fallback so I don't
-> think an invalid blkaddr is correct.  The next blkaddr should
-> be filled for inline fallback instead.
->
-> Let me think more about it and update the patch.
->
-> Thanks,
-> Gao Xiang
+Signed-off-by: Noboru Asai <asai@sijam.com>
+---
+ lib/compress.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/lib/compress.c b/lib/compress.c
+index dfe59da..d745e5b 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -555,24 +555,19 @@ static int __z_erofs_compress_one(struct z_erofs_compress_sctx *ctx,
+ 		if (may_inline && (erofs_get_lowest_offset(inode) + len < blksz)) {
+ 			ret = z_erofs_fill_inline_data(inode,
+ 					ctx->queue + ctx->head, len, true);
++			e->compressedblks = 0;
+ 		} else {
+ 			may_inline = false;
+ 			may_packing = false;
+ nocompression:
+ 			/* TODO: reset clusterofs to 0 if permitted */
+ 			ret = write_uncompressed_extent(ctx, len, dst);
++			e->compressedblks = 1;
+ 		}
+ 
+ 		if (ret < 0)
+ 			return ret;
+ 		e->length = ret;
+-
+-		/*
+-		 * XXX: For now, we have to leave `ctx->compressedblk = 1'
+-		 * since there is no way to generate compressed indexes after
+-		 * the time that ztailpacking is decided.
+-		 */
+-		e->compressedblks = 1;
+ 		e->raw = true;
+ 	} else if (may_packing && len == e->length &&
+ 		   compressedsize < ctx->pclustersize &&
+@@ -601,7 +596,7 @@ frag_packing:
+ 				compressedsize, false);
+ 		if (ret < 0)
+ 			return ret;
+-		e->compressedblks = 1;
++		e->compressedblks = 0;
+ 		e->raw = false;
+ 	} else {
+ 		unsigned int tailused, padding;
+@@ -1151,6 +1146,9 @@ int z_erofs_merge_segment(struct z_erofs_compress_ictx *ictx,
+ 		if (ei->e.blkaddr != EROFS_NULL_ADDR)	/* deduped extents */
+ 			continue;
+ 
++		if (!ei->e.compressedblks)
++			continue;
++
+ 		ei->e.blkaddr = sctx->blkaddr;
+ 		sctx->blkaddr += ei->e.compressedblks;
+ 
+@@ -1358,10 +1356,6 @@ int erofs_write_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		compressed_blocks = sctx.blkaddr - blkaddr;
+ 	}
+ 
+-	/* fall back to no compression mode */
+-	DBG_BUGON(compressed_blocks < !!inode->idata_size);
+-	compressed_blocks -= !!inode->idata_size;
+-
+ 	/* generate an extent for the deduplicated fragment */
+ 	if (inode->fragment_size && !ctx.fragemitted) {
+ 		struct z_erofs_extent_item *ei;
+-- 
+2.44.0
+
