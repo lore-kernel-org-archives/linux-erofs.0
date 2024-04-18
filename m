@@ -4,59 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2E2BBC4345F
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Apr 2024 23:49:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C378C4345F
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 00:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1713397746;
-	bh=aNhNE2mdpHIuiC75prfGQ6d/xN+71QZ8wEjAAVDxknQ=;
+	s=201707; t=1713398471;
+	bh=VxC5jxhKrCityl/AkBM42Nv0lXHF7RQqmrz5UVWtpE4=;
 	h=Date:Subject:To:List-Id:List-Unsubscribe:List-Archive:List-Post:
 	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=EVHexbIp0qeDtYLTD/uqTUqr23wnVT1Plmnh1jaNSRH5Gerer/peomTo/4Jx/pA4f
-	 E0eprFSBWPZfpixqTR/WmjBzo6Xc6VJbj3AV08PHMaRaad7CLr7B+9Vk2pyR41PF7n
-	 WbxpWXWYG9SjXXT050L92DqXBmOMANjtlqeK9qrHD9p8Dfi/j6+cOWaz+rg/ccG62O
-	 U0NO6oqcdhMH8jhetcLJVUh406hDRFdHEn3jT25ipTIT9rpo58yjeS/tKSe+EY+UxI
-	 bSDWG7JJCqvWvTyO/6Sluc0vE86kucDBvYnAOl4IPlTl0mLD5k47O5w4BI46ns/Y/f
-	 v98bm7ODGZ0xw==
+	b=MLbW5y3OhsqLsIMKKYBRg55e8Jr/NSxr48u/v5u9qa0J9EAqnLDd2VpKEYq5V69Au
+	 XoF4PndScBkb0wJ+bwMXk4BqchQmey9/2PkL0UWaQ03ZOftfT8Nn6n/H4P3pDWTT6z
+	 2aNpO6ssD7kK+HOk16ElGWgMwARlaKDqn0hG6nVgaVb3R3xcNNQWN7Hi9gcfd0mreE
+	 EoanpcTPfNaxITwdKYLYJ6D1Zd6K7zYaGtOxt6VDGyhyZFJpVyMBMe9FMy0l+C6bmU
+	 pbDoKshGUrpp9ItWsTjGg3nHy+3myNVrE0ol0r5Cer9XERd7MliOgWRudIKtnlD3Zs
+	 pOSkaMO6JoNMQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VKd0f5VVhz3cT2
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 09:49:06 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VKdGb4SgFz3cTd
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Apr 2024 10:01:11 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=sW5FfcQj;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=3N+tTi1v;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::1149; helo=mail-yw1-x1149.google.com; envelope-from=34l8gzgckc1s6a3o3e79hh9e7.5hfebgnq-7kh8leblml.hse34l.hk9@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::b4a; helo=mail-yb1-xb4a.google.com; envelope-from=3uwigzgckczgxbupufyaiiafy.wigfchor-ylizmfcmnm.itfuvm.ila@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VKd0R6HcHz2xqq
-	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Apr 2024 09:48:53 +1000 (AEST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-615372710c4so4503877b3.1
-        for <linux-erofs@lists.ozlabs.org>; Wed, 17 Apr 2024 16:48:53 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VKdGQ0yyqz3bs0
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Apr 2024 10:01:00 +1000 (AEST)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-ddaf2f115f2so575580276.3
+        for <linux-erofs@lists.ozlabs.org>; Wed, 17 Apr 2024 17:01:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713397731; x=1714002531;
+        d=1e100.net; s=20230601; t=1713398457; x=1714003257;
         h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=aNhNE2mdpHIuiC75prfGQ6d/xN+71QZ8wEjAAVDxknQ=;
-        b=kdX1l2fKdmaqpBsspEtCNqCU9MuAV+ACMohllMQDAjyFsjkvCRicNSJrfF6M1tISTZ
-         nQWCHbx64R10fUcqEeZCStd7Zf2JM28SS1F6cVszNBjmVOU4mectPTmZZZ9pw9BSScvB
-         3A17QxBLqcYF65VVwHxO3GsErig8JPlQf5vvUBTigW/kY+rv7fl8BIKpV1GIiOzsmAmZ
-         Bu4yg4vFuCBOL++YNTSzkvStqHQUfXz9/HJ1vSoLh1kPnp8zDzpvwQ7YZy7XwqUzRsMS
-         ljCY8zna1ky4isOLegbxO3gl6/yn9Fl29nYOcyc3JVSiKCfUwI/ygemFU+cpxXeUkgTn
-         4a1g==
-X-Gm-Message-State: AOJu0Yz+/7sD6mq0G4+DnZffo081X50obr22lIqqqI0rtW+jnLnvtdiM
-	YFEC/EgL16KmEqJZGEW5vI80UTdxE9ZtCEEai92E5QUNrlqmbEvEFm+b0ZahYRhcF31OXZ/kS87
-	jJuiKNhjm37XGD3Io31ux9NftksFmtYh15MVfKCLfxIkHfMg2L9NZcIbT6djjm9hUChm+xKefDu
-	NDAnVt77ljLjoqpZX80k/f+J1grunUckafqO6DFcUeS3nk7A==
-X-Google-Smtp-Source: AGHT+IH8MwogsaR8bmxFEpkAcnwoOS/UOJMDQhmo1U6Ryjnv9e5ji7saiGEwdVco0fJziIRuhAl1XjmD6JbQ
+        bh=VxC5jxhKrCityl/AkBM42Nv0lXHF7RQqmrz5UVWtpE4=;
+        b=G5ETNCC4Y+SIz+BReXs2YUVivnpt9qoeGLjg2mF1AifTw/PrYINQN/8OhIBvxXrnje
+         2OO906Bv7UFHSAbeTJ1I92+96uEiyU93HXk2RU+uvhXFxQk5WJ30A65cgEvu18SftfVy
+         bJHZoDlZ1Jo/ilJ+kvX5SzgxdBn4FvHVkzxcdFhynN24nnInB1i9pWLUyqtLF43i0OzJ
+         1jURvPpbZvGxxDJak7S7sYR/s32s4tyGuQrQ6zdchI8Gr9Jed35HXxJ1Xqhh3OsNifiM
+         MZYK1Kw34pLyyIOzsZtsSEBWDVAvsDeSTtVPSyDuE0Vn60GYsVnuv4GYYLXV2WPoHfSY
+         VOGw==
+X-Gm-Message-State: AOJu0Yw2sRiXtv+AL8n7rVu6mXrXPGnlJh/xIfbFHyHf1pLBHGanjPCH
+	hMS0FDhMNWHHTG48c2j5DtkmNO7R1WWh4TfQAK24zm830MS5FbWSdVKU88l7WRmkJnC46e07Vqg
+	JjIlBUcSbSNR/Pe4F2J9SgI2/l42eL2lGhec3pJ9PemP8r5k7D5qLqAz3apThmq9KBqZkeQoYKS
+	6zbXn7dwFIr2kuTFnJ7o/2OpgTcrb2jkuUWfP6xC3l9uMVew==
+X-Google-Smtp-Source: AGHT+IHzgxK1Zzpcu3D8uyMwjQqFbVFYiS4SNtW+8RLyVzYX35Ojjo7wPAM61TS48bX/VjEymV+Lf3QjLA5x
 X-Received: from dhavale-desktop.mtv.corp.google.com ([2620:15c:211:201:75ed:d8bf:5101:cbc8])
- (user=dhavale job=sendgmr) by 2002:a05:6902:50a:b0:de3:c617:b89e with SMTP id
- x10-20020a056902050a00b00de3c617b89emr111806ybs.12.1713397730929; Wed, 17 Apr
- 2024 16:48:50 -0700 (PDT)
-Date: Wed, 17 Apr 2024 16:48:44 -0700
+ (user=dhavale job=sendgmr) by 2002:a05:6902:1005:b0:dcb:fb69:eadc with SMTP
+ id w5-20020a056902100500b00dcbfb69eadcmr122680ybt.6.1713398457548; Wed, 17
+ Apr 2024 17:00:57 -0700 (PDT)
+Date: Wed, 17 Apr 2024 17:00:54 -0700
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.44.0.683.g7961c838ac-goog
-Message-ID: <20240417234845.2758882-1-dhavale@google.com>
-Subject: [PATCH v3] erofs-utils: lib: treat data blocks filled with 0s as a hole
+Message-ID: <20240418000054.2769023-1-dhavale@google.com>
+Subject: [PATCH v3] erofs-utils: dump: print filesystem blocksize
 To: linux-erofs@lists.ozlabs.org
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -76,180 +76,48 @@ Cc: hsiangkao@linux.alibaba.com, kernel-team@android.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add optimization to treat data blocks filled with 0s as a hole.
-Even though diskspace savings are comparable to chunk based or dedupe,
-having no block assigned saves us redundant disk IOs during read.
+mkfs.erofs supports creating filesystem images with different
+blocksizes. Add filesystem blocksize in super block dump so
+its easier to inspect the filesystem.
 
-To detect blocks filled with zeros during chunking, we insert block
-filled with zeros (zerochunk) in the hashmap. If we detect a possible
-dedupe, we map it to the hole so there is no physical block assigned.
+The field is added after FS magic, so the output now looks like:
+
+Filesystem magic number:                      0xE0F5E1E2
+Filesystem blocksize:                         65536
+Filesystem blocks:                            21
+Filesystem inode metadata start block:        0
+Filesystem shared xattr metadata start block: 0
+Filesystem root nid:                          36
+Filesystem lz4_max_distance:                  65535
+Filesystem sb_extslots:                       0
+Filesystem inode count:                       10
+Filesystem created:                           Wed Apr 17 16:53:10 2024
+Filesystem features:                          sb_csum mtime 0padding
+Filesystem UUID:                              e66f6dd1-6882-48c3-9770-fee7c4841a93
 
 Signed-off-by: Sandeep Dhavale <dhavale@google.com>
 ---
 Changes since v2:
-	- Fix memory leak for zeros buffer
-	- Add and use helper erofs_blob_can_merge() as suggested by Gao
-	- Return erofs_holechunk directly from erofs_blob_getchunk()
+	- Use %u to print the FS blocksize as we don't expect it to be
+	  very large as suggested by Gao
 Changes since v1:
-	- Instead of checking every block for 0s word by word,
-	  add a zerochunk in blobs during init. So we effectively
-	  detect the zero blocks by comparing the hash.
- include/erofs/blobchunk.h |  2 +-
- lib/blobchunk.c           | 74 +++++++++++++++++++++++++++++++++------
- mkfs/main.c               |  2 +-
- 3 files changed, 65 insertions(+), 13 deletions(-)
+	- Moved the field after FS magic as suggested by Gao
+ dump/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/erofs/blobchunk.h b/include/erofs/blobchunk.h
-index a674640..ebe2efe 100644
---- a/include/erofs/blobchunk.h
-+++ b/include/erofs/blobchunk.h
-@@ -23,7 +23,7 @@ int erofs_write_zero_inode(struct erofs_inode *inode);
- int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset);
- int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi);
- void erofs_blob_exit(void);
--int erofs_blob_init(const char *blobfile_path);
-+int erofs_blob_init(const char *blobfile_path, erofs_off_t chunksize);
- int erofs_mkfs_init_devices(struct erofs_sb_info *sbi, unsigned int devices);
+diff --git a/dump/main.c b/dump/main.c
+index a89fc6b..dd2c620 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -633,6 +633,8 @@ static void erofsdump_show_superblock(void)
  
- #ifdef __cplusplus
-diff --git a/lib/blobchunk.c b/lib/blobchunk.c
-index 641e3d4..5830498 100644
---- a/lib/blobchunk.c
-+++ b/lib/blobchunk.c
-@@ -69,6 +69,10 @@ static struct erofs_blobchunk *erofs_blob_getchunk(struct erofs_sb_info *sbi,
- 	chunk = hashmap_get_from_hash(&blob_hashmap, hash, sha256);
- 	if (chunk) {
- 		DBG_BUGON(chunksize != chunk->chunksize);
-+
-+		if (chunk->blkaddr == erofs_holechunk.blkaddr)
-+			chunk = &erofs_holechunk;
-+
- 		sbi->saved_by_deduplication += chunksize;
- 		erofs_dbg("Found duplicated chunk at %u", chunk->blkaddr);
- 		return chunk;
-@@ -231,7 +235,21 @@ static void erofs_update_minextblks(struct erofs_sb_info *sbi,
- 	if (lb && lb < *minextblks)
- 		*minextblks = lb;
- }
--
-+static bool erofs_blob_can_merge(struct erofs_sb_info *sbi,
-+				 struct erofs_blobchunk *lastch,
-+				 struct erofs_blobchunk *chunk)
-+{
-+	if (!lastch)
-+		return true;
-+	if (lastch == &erofs_holechunk && chunk == &erofs_holechunk)
-+		return true;
-+	if (lastch->device_id == chunk->device_id &&
-+		erofs_pos(sbi, lastch->blkaddr) + lastch->chunksize ==
-+		erofs_pos(sbi, chunk->blkaddr))
-+		return true;
-+
-+	return false;
-+}
- int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
- 				  erofs_off_t startoff)
- {
-@@ -303,16 +321,19 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
- 		}
- 
- 		if (offset > pos) {
--			len = 0;
--			erofs_update_minextblks(sbi, interval_start, pos,
--						&minextblks);
-+			if (!erofs_blob_can_merge(sbi, lastch,
-+							&erofs_holechunk)) {
-+				erofs_update_minextblks(sbi, interval_start,
-+							pos, &minextblks);
-+				interval_start = pos;
-+			}
- 			do {
- 				*(void **)idx++ = &erofs_holechunk;
- 				pos += chunksize;
- 			} while (pos < offset);
- 			DBG_BUGON(pos != offset);
--			lastch = NULL;
--			interval_start = pos;
-+			lastch = &erofs_holechunk;
-+			len = 0;
- 			continue;
- 		}
- #endif
-@@ -330,9 +351,7 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
- 			goto err;
- 		}
- 
--		if (lastch && (lastch->device_id != chunk->device_id ||
--		    erofs_pos(sbi, lastch->blkaddr) + lastch->chunksize !=
--		    erofs_pos(sbi, chunk->blkaddr))) {
-+		if (!erofs_blob_can_merge(sbi, lastch, chunk)) {
- 			erofs_update_minextblks(sbi, interval_start, pos,
- 						&minextblks);
- 			interval_start = pos;
-@@ -540,7 +559,40 @@ void erofs_blob_exit(void)
- 	}
- }
- 
--int erofs_blob_init(const char *blobfile_path)
-+static int erofs_insert_zerochunk(erofs_off_t chunksize)
-+{
-+	u8 *zeros;
-+	struct erofs_blobchunk *chunk;
-+	u8 sha256[32];
-+	unsigned int hash;
-+	int ret = 0;
-+
-+	zeros = calloc(1, chunksize);
-+	if (!zeros)
-+		return -ENOMEM;
-+
-+	erofs_sha256(zeros, chunksize, sha256);
-+	hash = memhash(sha256, sizeof(sha256));
-+	chunk = malloc(sizeof(struct erofs_blobchunk));
-+	if (!chunk) {
-+		ret = -ENOMEM;
-+		goto out_free_zeros;
-+	}
-+
-+	chunk->chunksize = chunksize;
-+	/* treat chunk filled with zeros as hole */
-+	chunk->blkaddr = erofs_holechunk.blkaddr;
-+	memcpy(chunk->sha256, sha256, sizeof(sha256));
-+
-+	hashmap_entry_init(&chunk->ent, hash);
-+	hashmap_add(&blob_hashmap, chunk);
-+
-+out_free_zeros:
-+	free(zeros);
-+	return ret;
-+}
-+
-+int erofs_blob_init(const char *blobfile_path, erofs_off_t chunksize)
- {
- 	if (!blobfile_path) {
- #ifdef HAVE_TMPFILE64
-@@ -557,7 +609,7 @@ int erofs_blob_init(const char *blobfile_path)
- 		return -EACCES;
- 
- 	hashmap_init(&blob_hashmap, erofs_blob_hashmap_cmp, 0);
--	return 0;
-+	return erofs_insert_zerochunk(chunksize);
- }
- 
- int erofs_mkfs_init_devices(struct erofs_sb_info *sbi, unsigned int devices)
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 2fb4a57..d632f74 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1255,7 +1255,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (cfg.c_chunkbits) {
--		err = erofs_blob_init(cfg.c_blobdev_path);
-+		err = erofs_blob_init(cfg.c_blobdev_path, 1 << cfg.c_chunkbits);
- 		if (err)
- 			return 1;
- 	}
+ 	fprintf(stdout, "Filesystem magic number:                      0x%04X\n",
+ 			EROFS_SUPER_MAGIC_V1);
++	fprintf(stdout, "Filesystem blocksize:                         %u\n",
++			erofs_blksiz(&sbi));
+ 	fprintf(stdout, "Filesystem blocks:                            %llu\n",
+ 			sbi.total_blocks | 0ULL);
+ 	fprintf(stdout, "Filesystem inode metadata start block:        %u\n",
 -- 
 2.44.0.683.g7961c838ac-goog
 
