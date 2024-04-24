@@ -4,60 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F66BC07E8E
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 06:24:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47A4BC4345F
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 08:45:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1713948311;
+	bh=VYO5JujBqFYVef45KN1r1Z6DoRGEiTAQ2ROrnpy89Ns=;
+	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=DsWTmfmYg+rY/hFG3Bd2A/KJ1YxktRMR7oAFe9UI2MaUzh9DK+GdxSdv/xjvMYNEM
+	 QaR3EWdf+H7mhdScY5bu5W7qLtBDIcc7dy3wKZHSvCAZj4cOl9t4eclEbLZE1ryEm3
+	 j4UYXHPig7awyTKmTe18H1sBc71d6UEhDLAc8xUpZaYdKphI+Em/TNzNLemiQsoTg8
+	 XsR/UQEf3sIP9pDuNr75yQxLAm7bTTT3kc1gu8WxoDDuwagMYwO8zyY8MGGMyU9kyt
+	 Piw61o+QOCMni0S2dCmmqYdgWyduwEJJ/csSAZ7F7xA8t9kvZcszqd03jsoPaPoJJV
+	 J4nLUrNkNiYiQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VPTTf6Gj6z3cPX
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 16:24:06 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VPXcR5cVqz3cSS
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 18:45:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 139 seconds by postgrey-1.37 at boromir; Wed, 24 Apr 2024 18:45:02 AEST
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPTTV3NRrz2xFk
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 16:23:58 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPTTC42mqz4f3khK
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 14:23:43 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id ABD551A017C
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 14:23:50 +0800 (CST)
-Received: from [10.174.177.174] (unknown [10.174.177.174])
-	by APP1 (Coremail) with SMTP id cCh0CgBnOBFypShm50JCKw--.10266S3;
-	Wed, 24 Apr 2024 14:23:50 +0800 (CST)
-Message-ID: <82ba7a6b-97d1-a0f2-8360-91fbdba610a3@huaweicloud.com>
-Date: Wed, 24 Apr 2024 14:23:46 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPXcG3Dq8z3cDk
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 18:45:02 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4VPXWx2KVVzwSZg;
+	Wed, 24 Apr 2024 16:41:17 +0800 (CST)
+Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
+	by mail.maildlp.com (Postfix) with ESMTPS id 041921800C2;
+	Wed, 24 Apr 2024 16:44:28 +0800 (CST)
+Received: from [10.67.111.104] (10.67.111.104) by
+ dggpeml500022.china.huawei.com (7.185.36.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Wed, 24 Apr 2024 16:44:27 +0800
+Message-ID: <7ae4a071-56b3-410b-9c95-d6677dc46f25@huawei.com>
+Date: Wed, 24 Apr 2024 16:44:27 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-Subject: Re: [PATCH 5/5] cachefiles: add missing lock protection when polling
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH -next] erofs: modify the error message when
+ prepare_ondemand_read failed
 Content-Language: en-US
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, netfs@lists.linux.dev
-References: <20240424033409.2735257-1-libaokun@huaweicloud.com>
- <20240424033409.2735257-6-libaokun@huaweicloud.com>
- <de9d403c-c4ed-46c5-a572-18dc48bbd204@linux.alibaba.com>
-From: Baokun Li <libaokun@huaweicloud.com>
-In-Reply-To: <de9d403c-c4ed-46c5-a572-18dc48bbd204@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, <xiang@kernel.org>,
+	<chao@kernel.org>
+References: <20240424023945.420828-1-lihongbo22@huawei.com>
+ <871467f7-1218-4c13-ae47-13e89bbbe0cc@linux.alibaba.com>
+In-Reply-To: <871467f7-1218-4c13-ae47-13e89bbbe0cc@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBnOBFypShm50JCKw--.10266S3
-X-Coremail-Antispam: 1UD129KBjvJXoWxJF45GFyrJF4xCF4fKFyfWFg_yoW5XrWkpF
-	W0yFyUJry8Cr1kuF1UXF1DXry8J34DJ3WDXr48XF1UXrnrXr1Yqr1Iqr1Ygr1DAr4xJF4U
-	Jr1UGr9xZFWUA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9214x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvEwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka
-	0xkIwI1lc7I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7x
-	kEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E
-	67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
-	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E
-	3s1lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUdHUDUUUUU=
-X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
+X-Originating-IP: [10.67.111.104]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500022.china.huawei.com (7.185.36.66)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,80 +66,47 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: libaokun@huaweicloud.com, Joseph Qi <joseph.qi@linux.alibaba.com>, jlayton@kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, linux-erofs@lists.ozlabs.org
+From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Hongbo Li <lihongbo22@huawei.com>
+Cc: huyue2@coolpad.com, linux-erofs mailing list <linux-erofs@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Xiang,
+ok, thanks!
 
-On 2024/4/24 12:29, Gao Xiang wrote:
-> Hi Baokun,
->
-> On 2024/4/24 11:34, libaokun@huaweicloud.com wrote:
->> From: Jingbo Xu <jefflexu@linux.alibaba.com>
+On 2024/4/24 11:29, Gao Xiang wrote:
+> 
+> (+cc linux-erofs & LKML)
+> 
+> On 2024/4/24 10:39, Hongbo Li wrote:
+>> When prepare_ondemand_read failed, wrong error message is printed.
+>> The prepare_read is also implemented in cachefiles, so we amend it.
 >>
->> Add missing lock protection in poll routine when iterating xarray,
->> otherwise:
->>
->> Even with RCU read lock held, only the slot of the radix tree is
->> ensured to be pinned there, while the data structure (e.g. struct
->> cachefiles_req) stored in the slot has no such guarantee.  The poll
->> routine will iterate the radix tree and dereference cachefiles_req
->> accordingly.  Thus RCU read lock is not adequate in this case and
->> spinlock is needed here.
->>
->> Fixes: b817e22b2e91 ("cachefiles: narrow the scope of triggering 
->> EPOLLIN events in ondemand mode")
->> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
->> Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
->> Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
->
-> I'm not sure why this patch didn't send upstream,
-> https://gitee.com/anolis/cloud-kernel/commit/324ecaaa10fefb0e3d94b547e3170e40b90cda1f 
->
->
-Yes, this issue blocks our tests, so this commit is adapted to upstream 
-here.
-
-> But since we're now working on upstreaming, so let's drop
-> the previous in-house review tags..
->
+>> Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+> 
 > Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
->
+> 
+> Could you resend the patch with proper mailing list cced with my
+> "reviewed-by:" tag?  So I could apply with "b4" tool.
+> 
 > Thanks,
 > Gao Xiang
-
-Ok, thanks for the review!
-
-Cheers,
-Baokun
->
->> Signed-off-by: Baokun Li <libaokun1@huawei.com>
+> 
 >> ---
->>   fs/cachefiles/daemon.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>   fs/erofs/fscache.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
->> index 6465e2574230..73ed2323282a 100644
->> --- a/fs/cachefiles/daemon.c
->> +++ b/fs/cachefiles/daemon.c
->> @@ -365,14 +365,14 @@ static __poll_t cachefiles_daemon_poll(struct 
->> file *file,
->>         if (cachefiles_in_ondemand_mode(cache)) {
->>           if (!xa_empty(&cache->reqs)) {
->> -            rcu_read_lock();
->> +            xas_lock(&xas);
->>               xas_for_each_marked(&xas, req, ULONG_MAX, 
->> CACHEFILES_REQ_NEW) {
->>                   if (!cachefiles_ondemand_is_reopening_read(req)) {
->>                       mask |= EPOLLIN;
->>                       break;
->>                   }
->>               }
->> -            rcu_read_unlock();
->> +            xas_unlock(&xas);
+>> diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+>> index 8aff1a724805..62da538d91cb 100644
+>> --- a/fs/erofs/fscache.c
+>> +++ b/fs/erofs/fscache.c
+>> @@ -151,7 +151,7 @@ static int erofs_fscache_read_io_async(struct 
+>> fscache_cookie *cookie,
+>>           if (WARN_ON(len == 0))
+>>               source = NETFS_INVALID_READ;
+>>           if (source != NETFS_READ_FROM_CACHE) {
+>> -            erofs_err(NULL, "prepare_read failed (source %d)", source);
+>> +            erofs_err(NULL, "prepare_ondemand_read failed (source 
+>> %d)", source);
+>>               return -EIO;
 >>           }
->>       } else {
->>           if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
-
-
