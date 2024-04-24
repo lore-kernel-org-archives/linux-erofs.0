@@ -4,52 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6431C4345F
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9BBAC4345F
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:56:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VPQCb2mrHz3cPS
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:56:43 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VPQCf3J1dz3cT1
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:56:46 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPQCR3C7cz30gK
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPQCR38r6z30N8
 	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:56:34 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VPPmQ5ldLz4f3l1y
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:36:38 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VPPmT19nVz4f3p0d
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:36:41 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 03B661A0C7E
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:36:48 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 5C1251A10C5
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:36:50 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHZQ5Nfihmarc3Kw--.25590S4;
-	Wed, 24 Apr 2024 11:36:47 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHZQ5Nfihmarc3Kw--.25590S9;
+	Wed, 24 Apr 2024 11:36:50 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev
-Subject: [PATCH 0/5] cachefiles: some bugfixes for withdraw and xattr
-Date: Wed, 24 Apr 2024 11:27:27 +0800
-Message-Id: <20240424032732.2711487-1-libaokun@huaweicloud.com>
+Subject: [PATCH 5/5] cachefiles: correct the return value of cachefiles_check_auxdata()
+Date: Wed, 24 Apr 2024 11:27:32 +0800
+Message-Id: <20240424032732.2711487-6-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240424032732.2711487-1-libaokun@huaweicloud.com>
+References: <20240424032732.2711487-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHZQ5Nfihmarc3Kw--.25590S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7uw18JFyfJFWDXrWkWFyfZwb_yoW8Gw45pF
-	WayF43Jry8W3y7Gw1fAr15Jr1rA3s3JF1vg347Wr18Awn5Xr1jqF1Iyr15ZFW5ury7Jws2
-	q3WUKFy7Ww1jy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBY14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0Ew4C26cxK6c8Ij28IcwCF04k20xvY0x0EwI
-	xGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
-	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7
-	IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k2
-	6cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x
-	0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUUtrc3UUUUU==
+X-CM-TRANSID: cCh0CgBHZQ5Nfihmarc3Kw--.25590S9
+X-Coremail-Antispam: 1UD129KBjvdXoW7JFykurWUAF4kCF4DAr4xWFg_yoWfKFX_uF
+	Z7Ar4xXr4fGr4kJwsrA3y2qrWvqr1xAwn8Kr1Fgry2yw1aqFZ8XFWDtr98Ar1UWr4UK3WD
+	trZ7ZF13WF9FgjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbPAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6r1F6r1fM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAVCq3wA2048vs2
+	IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28E
+	F7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr
+	1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0D
+	M2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjx
+	v20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l
+	F7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2
+	IY04v7M4kE6xkIj40Ew7xC0wCY1x0264kExVAvwVAq07x20xyl42xK82IYc2Ij64vIr41l
+	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67
+	AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8I
+	cVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4
+	v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AK
+	xVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUUpVbPUUUUU==
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -68,44 +71,31 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Hello everyone!
+Pass the error code to ret when xlen < 0 to avoid misleading the caller.
 
-Recently we found some bugs while doing tests on cachefiles ondemand mode,
-and this patchset is a fix for some of those issues. The following is a
-brief overview of the patches, see the patches for more details.
+Fixes: 72b957856b0c ("cachefiles: Implement metadata/coherency data storage in xattrs")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/cachefiles/xattr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Patch 1-2: Add fscache_try_get_volume() helper function to avoid
-fscache_volume use-after-free on cache withdrawal.
-
-Patch 3: Fix cachefiles_lookup_cookie() and cachefiles_withdraw_cache()
-concurrency causing cachefiles_volume use-after-free.
-
-Patch 4-5: Propagate error codes returned by vfs_getxattr() to avoid
-endless loops.
-
-Comments and questions are, as always, welcome.
-
-Thanks,
-Baokun
-
-Baokun Li (5):
-  netfs, fscache: export fscache_put_volume() and add
-    fscache_try_get_volume()
-  cachefiles: fix slab-use-after-free in fscache_withdraw_volume()
-  cachefiles: fix slab-use-after-free in cachefiles_withdraw_cookie()
-  cachefiles: correct the return value of
-    cachefiles_check_volume_xattr()
-  cachefiles: correct the return value of cachefiles_check_auxdata()
-
- fs/cachefiles/cache.c          | 45 +++++++++++++++++++++++++++++++++-
- fs/cachefiles/volume.c         |  1 -
- fs/cachefiles/xattr.c          |  5 +++-
- fs/netfs/fscache_volume.c      | 14 +++++++++++
- fs/netfs/internal.h            |  2 --
- include/linux/fscache-cache.h  |  6 +++++
- include/trace/events/fscache.h |  4 +++
- 7 files changed, 72 insertions(+), 5 deletions(-)
-
+diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
+index 20e4a4391090..4dd8a993c60a 100644
+--- a/fs/cachefiles/xattr.c
++++ b/fs/cachefiles/xattr.c
+@@ -110,9 +110,11 @@ int cachefiles_check_auxdata(struct cachefiles_object *object, struct file *file
+ 	if (xlen == 0)
+ 		xlen = vfs_getxattr(&nop_mnt_idmap, dentry, cachefiles_xattr_cache, buf, tlen);
+ 	if (xlen != tlen) {
+-		if (xlen < 0)
++		if (xlen < 0) {
++			ret = xlen;
+ 			trace_cachefiles_vfs_error(object, file_inode(file), xlen,
+ 						   cachefiles_trace_getxattr_error);
++		}
+ 		if (xlen == -EIO)
+ 			cachefiles_io_error_obj(
+ 				object,
 -- 
 2.39.2
 
