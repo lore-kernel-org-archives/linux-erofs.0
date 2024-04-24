@@ -4,52 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B5A7C04FFE
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:48:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25262C4345F
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:48:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VPQ2Y60rpz3dFy
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:48:53 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VPQ2c6RYSz3dHL
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:48:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPQ2D5DMvz3btk
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:48:34 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPQ2D63jXz3bvJ
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:48:36 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPQ1y2Gylz4f3kFJ
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:48:22 +0800 (CST)
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPQ212rNlz4f3jHw
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:48:25 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id D3A311A0175
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:48:29 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id E566A1A0175
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:48:32 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgCXaBELgShmKXE4Kw--.6143S4;
-	Wed, 24 Apr 2024 11:48:29 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgCXaBELgShmKXE4Kw--.6143S10;
+	Wed, 24 Apr 2024 11:48:32 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev
-Subject: [PATCH 00/12] cachefiles: some bugfixes and cleanups for ondemand requests
-Date: Wed, 24 Apr 2024 11:39:04 +0800
-Message-Id: <20240424033916.2748488-1-libaokun@huaweicloud.com>
+Subject: [PATCH 06/12] cachefiles: add consistency check for copen/cread
+Date: Wed, 24 Apr 2024 11:39:10 +0800
+Message-Id: <20240424033916.2748488-7-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240424033916.2748488-1-libaokun@huaweicloud.com>
+References: <20240424033916.2748488-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgCXaBELgShmKXE4Kw--.6143S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7uw18JFyfJFWDXrWDtFW8JFb_yoW8ZFyfpF
-	WSya4akry8Wr42g3s7Ar4rJryrA3yfAF9Fgr12g34UA3s8Xr1YvryIyr15XFy5CrZrGr42
-	qw18uF92q34qv3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBa14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0Ew4C26cxK6c8Ij28IcwCF04k20xvY0x0EwI
-	xGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
-	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7
-	IYx2IY67AKxVW8JVW5JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwCI42IY6xAI
-	w20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aV
-	CY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JU7uc_UUUUU=
+X-CM-TRANSID: cCh0CgCXaBELgShmKXE4Kw--.6143S10
+X-Coremail-Antispam: 1UD129KBjvJXoWxuF1kXrWfCr4xWw4xJFy8uFg_yoW5XrWrpF
+	WayFW3KryxuFs29r97JFyrGa4Fy3s2va9rWr9aqa4rAFnxWryFvr1UtryUZF15Z395JFsr
+	J34rKF9rG34jy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQI14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
+	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
+	z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F
+	4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq
+	3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
+	IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
+	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
+	kIc2xKxwAKzVCY07xG64k0F24lc7CjxVAKzI0EY4vE52x082I5MxAIw28IcxkI7VAKI48J
+	MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv2
+	0xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE42xK8V
+	AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUUNBMtUUUUU==
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -68,53 +71,85 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Hello everyone!
+This prevents malicious processes from completing random copen/cread
+requests and crashing the system. Added checks are listed below:
 
-Recently we found some bugs while doing tests on cachefiles ondemand mode,
-and this patchset is a fix for some of those issues. The following is a
-brief overview of the patches, see the patches for more details.
+  * Generic, copen can only complete open requests, and cread can only
+    complete read requests.
+  * For copen, ondemand_id must not be 0, because this indicates that the
+    request has not been read by the daemon.
+  * For cread, the object corresponding to fd and req should be the same.
 
-Patch 1-5: Holding reference counts of reqs and objects on read requests
-to avoid malicious restore leading to use-after-free.
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/cachefiles/ondemand.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-Patch 6-10: Add some consistency checks to copen/cread/get_fd to avoid
-malicious copen/cread/close fd injections causing use-after-free or hung.
-
-Patch 11: When cache is marked as CACHEFILES_DEAD, flush all requests,
-otherwise the kernel may be hung. since this state is irreversible, the
-daemon can read open requests but cannot copen.
-
-Patch 12: Allow interrupting a read request being processed by killing
-the read process as a way of avoiding hung in some special cases.
-
-Comments and questions are, as always, welcome.
-
-Thanks,
-Baokun
-
-Baokun Li (11):
-  cachefiles: remove request from xarry during flush requests
-  cachefiles: remove err_put_fd tag in cachefiles_ondemand_daemon_read()
-  cachefiles: fix slab-use-after-free in cachefiles_ondemand_get_fd()
-  cachefiles: fix slab-use-after-free in
-    cachefiles_ondemand_daemon_read()
-  cachefiles: add output string to cachefiles_obj_[get|put]_ondemand_fd
-  cachefiles: add consistency check for copen/cread
-  cachefiles: add spin_lock for cachefiles_ondemand_info
-  cachefiles: never get a new anon fd if ondemand_id is valid
-  cachefiles: defer exposing anon_fd until after copy_to_user() succeeds
-  cachefiles: flush all requests after setting CACHEFILES_DEAD
-  cachefiles: make on-demand read killable
-
-Zizhi Wo (1):
-  cachefiles: Set object to close if ondemand_id < 0 in copen
-
- fs/cachefiles/daemon.c            |   3 +-
- fs/cachefiles/internal.h          |   5 +
- fs/cachefiles/ondemand.c          | 199 +++++++++++++++++++++---------
- include/trace/events/cachefiles.h |   8 +-
- 4 files changed, 158 insertions(+), 57 deletions(-)
-
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index bb94ef6a6f61..898fab68332b 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -82,12 +82,12 @@ static loff_t cachefiles_ondemand_fd_llseek(struct file *filp, loff_t pos,
+ }
+ 
+ static long cachefiles_ondemand_fd_ioctl(struct file *filp, unsigned int ioctl,
+-					 unsigned long arg)
++					 unsigned long id)
+ {
+ 	struct cachefiles_object *object = filp->private_data;
+ 	struct cachefiles_cache *cache = object->volume->cache;
+ 	struct cachefiles_req *req;
+-	unsigned long id;
++	XA_STATE(xas, &cache->reqs, id);
+ 
+ 	if (ioctl != CACHEFILES_IOC_READ_COMPLETE)
+ 		return -EINVAL;
+@@ -95,10 +95,15 @@ static long cachefiles_ondemand_fd_ioctl(struct file *filp, unsigned int ioctl,
+ 	if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
+ 		return -EOPNOTSUPP;
+ 
+-	id = arg;
+-	req = xa_erase(&cache->reqs, id);
+-	if (!req)
++	xa_lock(&cache->reqs);
++	req = xas_load(&xas);
++	if (!req || req->msg.opcode != CACHEFILES_OP_READ ||
++	    req->object != object) {
++		xa_unlock(&cache->reqs);
+ 		return -EINVAL;
++	}
++	xas_store(&xas, NULL);
++	xa_unlock(&cache->reqs);
+ 
+ 	trace_cachefiles_ondemand_cread(object, id);
+ 	complete(&req->done);
+@@ -126,6 +131,7 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 	unsigned long id;
+ 	long size;
+ 	int ret;
++	XA_STATE(xas, &cache->reqs, 0);
+ 
+ 	if (!test_bit(CACHEFILES_ONDEMAND_MODE, &cache->flags))
+ 		return -EOPNOTSUPP;
+@@ -149,9 +155,16 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 	if (ret)
+ 		return ret;
+ 
+-	req = xa_erase(&cache->reqs, id);
+-	if (!req)
++	xa_lock(&cache->reqs);
++	xas.xa_index = id;
++	req = xas_load(&xas);
++	if (!req || req->msg.opcode != CACHEFILES_OP_OPEN ||
++	    !req->object->ondemand->ondemand_id) {
++		xa_unlock(&cache->reqs);
+ 		return -EINVAL;
++	}
++	xas_store(&xas, NULL);
++	xa_unlock(&cache->reqs);
+ 
+ 	/* fail OPEN request if copen format is invalid */
+ 	ret = kstrtol(psize, 0, &size);
 -- 
 2.39.2
 
