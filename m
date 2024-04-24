@@ -4,52 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96AFAC10F1A
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3D03C4345F
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:43:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VPPwd2YGRz3d2W
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:43:45 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VPPwh35dTz3cnR
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:43:48 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPPwK2ktZz3btk
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:43:28 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPPw40dCdz4f3kGG
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:16 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPPwL2Cz5z3btk
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:43:30 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VPPw93dfbz4f3l8v
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:21 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 9BB171A0E09
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:23 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 5C1BE1A0175
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:26 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHGBHafyhmuSA4Kw--.57541S4;
-	Wed, 24 Apr 2024 11:43:23 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHGBHafyhmuSA4Kw--.57541S9;
+	Wed, 24 Apr 2024 11:43:26 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev
-Subject: [PATCH 0/5] cachefiles: some bugfixes for clean object/send req/poll
-Date: Wed, 24 Apr 2024 11:34:04 +0800
-Message-Id: <20240424033409.2735257-1-libaokun@huaweicloud.com>
+Subject: [PATCH 5/5] cachefiles: add missing lock protection when polling
+Date: Wed, 24 Apr 2024 11:34:09 +0800
+Message-Id: <20240424033409.2735257-6-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240424033409.2735257-1-libaokun@huaweicloud.com>
+References: <20240424033409.2735257-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHGBHafyhmuSA4Kw--.57541S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7JF48GFW7Xr43Xr1DXrW5KFg_yoW8JF4rpF
-	Wav3W3JFy8Wr12kws3Zw1rJrWrC3s3ZF9rtF47XrykArn8XF1FvrW0yrn8ZFyUCrZ7Gw42
-	gw48WF929wn0v3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUB214x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0Ew4C26cxK6c8Ij28IcwCF04k20xvY0x0EwI
-	xGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
-	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7
-	IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK
-	8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
-	kF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfU0_-PUUUUU
+X-CM-TRANSID: cCh0CgBHGBHafyhmuSA4Kw--.57541S9
+X-Coremail-Antispam: 1UD129KBjvJXoW7tF4rWr4Dtr4furW3uw4rZrb_yoW8Wr17pF
+	WSya4Utry8ur48uF1jva4kJ34SyayDWa4DX3ykXwsFvwnrXr1FqFnak34Ygrn5Jw1kJF42
+	yw1UGF9xAFWUA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQI14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
+	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
+	z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F
+	4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq
+	3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
+	IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
+	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
+	kIc2xKxwAKzVCY07xG64k0F24lc7CjxVAKzI0EY4vE52x082I5MxAIw28IcxkI7VAKI48J
+	MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv2
+	0xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE42xK8V
+	AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUjs2-5UUUUU==
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -62,49 +65,52 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: libaokun@huaweicloud.com, jlayton@kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, linux-erofs@lists.ozlabs.org
+Cc: libaokun@huaweicloud.com, Joseph Qi <joseph.qi@linux.alibaba.com>, jlayton@kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-Hello everyone!
+Add missing lock protection in poll routine when iterating xarray,
+otherwise:
 
-Recently we found some bugs while doing tests on cachefiles ondemand mode,
-and this patchset is a fix for some of those issues. The following is a
-brief overview of the patches, see the patches for more details.
+Even with RCU read lock held, only the slot of the radix tree is
+ensured to be pinned there, while the data structure (e.g. struct
+cachefiles_req) stored in the slot has no such guarantee.  The poll
+routine will iterate the radix tree and dereference cachefiles_req
+accordingly.  Thus RCU read lock is not adequate in this case and
+spinlock is needed here.
 
-Patch 1-3: After an object has been cleaned up, make sure it has no
-outstanding requests and that the corresponding ondemand_object_worker
-has exited, otherwise it may use-after-free.
+Fixes: b817e22b2e91 ("cachefiles: narrow the scope of triggering EPOLLIN events in ondemand mode")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/cachefiles/daemon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Patch 4: Cyclic allocation of msg_id to avoid msg_id reuse misleading
-the daemon to cause hung.
-
-Patch 5: Hold xas_lock during polling to avoid dereferencing reqs causing
-use-after-free.
-
-Comments and questions are, as always, welcome.
-
-Thanks,
-Baokun
-
-Baokun Li (3):
-  cachefiles: stop sending new request when dropping object
-  cachefiles: flush all requests for the object that is being dropped
-  cachefiles: cyclic allocation of msg_id to avoid reuse
-
-Hou Tao (1):
-  cachefiles: flush ondemand_object_worker during clean object
-
-Jingbo Xu (1):
-  cachefiles: add missing lock protection when polling
-
- fs/cachefiles/daemon.c   |   4 +-
- fs/cachefiles/internal.h |   3 +
- fs/cachefiles/ondemand.c | 120 ++++++++++++++++++++++++++-------------
- 3 files changed, 86 insertions(+), 41 deletions(-)
-
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 6465e2574230..73ed2323282a 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -365,14 +365,14 @@ static __poll_t cachefiles_daemon_poll(struct file *file,
+ 
+ 	if (cachefiles_in_ondemand_mode(cache)) {
+ 		if (!xa_empty(&cache->reqs)) {
+-			rcu_read_lock();
++			xas_lock(&xas);
+ 			xas_for_each_marked(&xas, req, ULONG_MAX, CACHEFILES_REQ_NEW) {
+ 				if (!cachefiles_ondemand_is_reopening_read(req)) {
+ 					mask |= EPOLLIN;
+ 					break;
+ 				}
+ 			}
+-			rcu_read_unlock();
++			xas_unlock(&xas);
+ 		}
+ 	} else {
+ 		if (test_bit(CACHEFILES_STATE_CHANGED, &cache->flags))
 -- 
 2.39.2
 
