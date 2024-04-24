@@ -4,55 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BAA29C4345F
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:43:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96AFAC10F1A
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 03:43:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VPPwZ3HX3z3cWm
-	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:43:42 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VPPwd2YGRz3d2W
+	for <linux-erofs@archiver.kernel.org>; Wed, 24 Apr 2024 13:43:45 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPPwK0TPMz3brZ
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VPPwK2ktZz3btk
 	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 13:43:28 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPPw54xPwz4f3knM
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:17 +0800 (CST)
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VPPw40dCdz4f3kGG
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:16 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 3C3D51A0F31
-	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:25 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 9BB171A0E09
+	for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 11:43:23 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHGBHafyhmuSA4Kw--.57541S7;
-	Wed, 24 Apr 2024 11:43:25 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHGBHafyhmuSA4Kw--.57541S4;
+	Wed, 24 Apr 2024 11:43:23 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev
-Subject: [PATCH 3/5] cachefiles: flush ondemand_object_worker during clean object
-Date: Wed, 24 Apr 2024 11:34:07 +0800
-Message-Id: <20240424033409.2735257-4-libaokun@huaweicloud.com>
+Subject: [PATCH 0/5] cachefiles: some bugfixes for clean object/send req/poll
+Date: Wed, 24 Apr 2024 11:34:04 +0800
+Message-Id: <20240424033409.2735257-1-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240424033409.2735257-1-libaokun@huaweicloud.com>
-References: <20240424033409.2735257-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHGBHafyhmuSA4Kw--.57541S7
-X-Coremail-Antispam: 1UD129KBjvJXoW7Ww4kur4fJF1DXFy7Zw1UKFg_yoW8Cw4rpF
-	WakFy7KrWxWF4DCrWkZFs5JryrK3ykuFnFgFyYq398Ar90qr4rZr12y3ZxXF15Jw4SgrZr
-	tr4UCr9xt34qy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUQY14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
-	x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-	Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
-	xKxwAKzVCY07xG64k0F24lc7CjxVAKzI0EY4vE52x082I5MxAIw28IcxkI7VAKI48JMxC2
-	0s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI
-	0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE
-	14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE42xK8VAvwI
-	8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v2
-	6r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUjfHUDUUUUU==
+X-CM-TRANSID: cCh0CgBHGBHafyhmuSA4Kw--.57541S4
+X-Coremail-Antispam: 1UD129KBjvJXoW7JF48GFW7Xr43Xr1DXrW5KFg_yoW8JF4rpF
+	Wav3W3JFy8Wr12kws3Zw1rJrWrC3s3ZF9rtF47XrykArn8XF1FvrW0yrn8ZFyUCrZ7Gw42
+	gw48WF929wn0v3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUB214x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWUWVWUuwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
+	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+	2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
+	Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxkF7I0Ew4C26cxK6c8Ij28IcwCF04k20xvY0x0EwI
+	xGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7
+	IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK
+	8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
+	kF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfU0_-PUUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -69,66 +66,45 @@ Cc: libaokun@huaweicloud.com, jlayton@kernel.org, linux-kernel@vger.kernel.org, 
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Hou Tao <houtao1@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-When queuing ondemand_object_worker() to re-open the object,
-cachefiles_object is not pinned. The cachefiles_object may be freed when
-the pending read request is completed intentionally and the related
-erofs is umounted. If ondemand_object_worker() runs after the object is
-freed, it will incur use-after-free problem as shown below.
+Hello everyone!
 
-process A  processs B  process C  process D
+Recently we found some bugs while doing tests on cachefiles ondemand mode,
+and this patchset is a fix for some of those issues. The following is a
+brief overview of the patches, see the patches for more details.
 
-cachefiles_ondemand_send_req()
-// send a read req X
-// wait for its completion
+Patch 1-3: After an object has been cleaned up, make sure it has no
+outstanding requests and that the corresponding ondemand_object_worker
+has exited, otherwise it may use-after-free.
 
-           // close ondemand fd
-           cachefiles_ondemand_fd_release()
-           // set object as CLOSE
+Patch 4: Cyclic allocation of msg_id to avoid msg_id reuse misleading
+the daemon to cause hung.
 
-                       cachefiles_ondemand_daemon_read()
-                       // set object as REOPENING
-                       queue_work(fscache_wq, &info->ondemand_work)
+Patch 5: Hold xas_lock during polling to avoid dereferencing reqs causing
+use-after-free.
 
-                                // close /dev/cachefiles
-                                cachefiles_daemon_release
-                                cachefiles_flush_reqs
-                                complete(&req->done)
+Comments and questions are, as always, welcome.
 
-// read req X is completed
-// umount the erofs fs
-cachefiles_put_object()
-// object will be freed
-cachefiles_ondemand_deinit_obj_info()
-kmem_cache_free(object)
-                       // both info and object are freed
-                       ondemand_object_worker()
+Thanks,
+Baokun
 
-When dropping an object, it is no longer necessary to reopen the object,
-so use cancel_work_sync() to cancel or wait for ondemand_object_worker()
-to complete.
+Baokun Li (3):
+  cachefiles: stop sending new request when dropping object
+  cachefiles: flush all requests for the object that is being dropped
+  cachefiles: cyclic allocation of msg_id to avoid reuse
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
----
- fs/cachefiles/ondemand.c | 3 +++
- 1 file changed, 3 insertions(+)
+Hou Tao (1):
+  cachefiles: flush ondemand_object_worker during clean object
 
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index d24bff43499b..f6440b3e7368 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -589,6 +589,9 @@ void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
- 		}
- 	}
- 	xa_unlock(&cache->reqs);
-+
-+	/* Wait for ondemand_object_worker() to finish to avoid UAF. */
-+	cancel_work_sync(&object->ondemand->ondemand_work);
- }
- 
- int cachefiles_ondemand_init_obj_info(struct cachefiles_object *object,
+Jingbo Xu (1):
+  cachefiles: add missing lock protection when polling
+
+ fs/cachefiles/daemon.c   |   4 +-
+ fs/cachefiles/internal.h |   3 +
+ fs/cachefiles/ondemand.c | 120 ++++++++++++++++++++++++++-------------
+ 3 files changed, 86 insertions(+), 41 deletions(-)
+
 -- 
 2.39.2
 
