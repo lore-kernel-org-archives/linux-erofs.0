@@ -4,67 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0792BC4345F
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 03:40:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1F58C4345F
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 03:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1714016402;
-	bh=wIhG2on98pfe8bofhlOX/NmELBwk78MljHX0l+Mx/hc=;
+	s=201707; t=1714016563;
+	bh=TFC/YaLZv7yQ0eyRd7w4YHDkBUmQZEf/nvPZ7CB9pC8=;
 	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=bifPbQ0S0VukSxnXch5qA96o+lgD4G4i/8rJz3FK8Cw95PXnWOBIYTOC14tkEMn+g
-	 gEUdfqCaFwj7lDQCblrYrxJUWhjduxzm2VfgbFcZbIo+Ex+niEykQsCQ6A/essErKT
-	 wvx1eCnXR6Tw/RNOf4AzPQ1suoNK46RodmIXJRorjBq72fU8kUJePMI43hYvQR6Qc7
-	 dxAK7f4OD+h0vnCGJpxAhJsEgpOI7YEue7ruj6gd2k6PNB6Sa36w2Z6xWuP7UZfy7L
-	 /DkxJeCcP5EbleWvVr9F1y5SyoMY1iHB8sH8K1SWz9Vo+iiYaaoTvjiz6SZGUhLKe5
-	 vflC9LK3HxC/w==
+	b=GD+pML8iumrX+J2r1BRCvX5pFKBFD/i6sdeXh+/s5vlNCrbNhnIro6utvAxXyqX8j
+	 7/5Ho/V4jaL/kj0MGRSNBbMK5QGLMMG6Sn1o04fkx7ocsXkq9uF+TgHVYJaacF88Mr
+	 QKaus39Q3KGilvdjxWlcN4+4P4MdDq9unneMSQZTrFGlCCF5eloAEv9Xi94zOfKbVl
+	 nClPKlzfNmsttzx0z74Cgdsa6lEu7G7o55xNF+sc/U2LJMkKceGQPl7FGLBNPJqih1
+	 eUWgHQx1KosbXF+h2EJP/1Bc8tJVu7UlDnjlqHCtDqiA/Ug3n/82Vr3Ih4XIfAbKGc
+	 44MN19lCvpL2A==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VQ1nt4fWTz3dL2
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 13:40:02 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VQ1rz2Vlwz3dKp
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 13:42:43 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=bYlfQBat;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=SJpLsgRF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::42f; helo=mail-pf1-x42f.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VQ1nl48r6z3cy8
-	for <linux-erofs@lists.ozlabs.org>; Thu, 25 Apr 2024 13:39:53 +1000 (AEST)
-Received: by mail-pj1-x1032.google.com with SMTP id 98e67ed59e1d1-2ab88634cfaso476227a91.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 20:39:53 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VQ1rr3NwRz3cCb
+	for <linux-erofs@lists.ozlabs.org>; Thu, 25 Apr 2024 13:42:36 +1000 (AEST)
+Received: by mail-pf1-x42f.google.com with SMTP id d2e1a72fcca58-6ecee1f325bso553722b3a.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 20:42:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714016391; x=1714621191;
+        d=1e100.net; s=20230601; t=1714016554; x=1714621354;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=wIhG2on98pfe8bofhlOX/NmELBwk78MljHX0l+Mx/hc=;
-        b=A/B7sq/UlRmZxR50kez12odcAl264DzSX/g90bXtE255F8UH+z56nemy3eXGMewNyC
-         wirN7mxLTvr+018hrFkTk2a1TzOcvA0jAfyYkAYaOao2YHF2FT5EQqQ4mPla74Tzgsf9
-         YnLAWw7O+guMlOM7CEHbD1Fc+q3LDfI8xtIXmkZubF36hU9xGKFSJCU/Xj43cWO5uvbu
-         lIyGAPFLbyNdwG7le3+CmTqVzH0lm1h5HUjhuth/4uJ6GnR2jvfGoR4DaCpPKV9OEhAI
-         It33UPwDVf2ncnbyoreHmDkw8k73xb8XVFpp58WXZNHkITgD7Cf5nbdFlmNoNJsVyAJe
-         R3Fg==
-X-Forwarded-Encrypted: i=1; AJvYcCV/xMwD05KGFHBW7isT7CR9lSX8UqaGHiHMcY2khhcC+fI6RlSZbvIOfDTVPyABnvNbxoehjKunyxJztBToCkU4yxfpJU+DCif88vrv
-X-Gm-Message-State: AOJu0YySwqXByGjdnFEg6+tgFMeT0aC1lJIDrYPfokmhb/1akzJmjIVr
-	IkqYhUbyGqa0RKhzdVVTGhfABQRTnivwuztf7uF1T+VzozgJWqQ5aGUJ6RUQDUQ=
-X-Google-Smtp-Source: AGHT+IEfZDVSTn6CBqe5ZAHgMgoe0qLLYIBYiW7PO1i7p+W13X5lG7GbuYGFsQwdW53QX9r33Uk0OA==
-X-Received: by 2002:a17:90b:1e47:b0:2af:44e6:2bc with SMTP id pi7-20020a17090b1e4700b002af44e602bcmr3771680pjb.8.1714016391029;
-        Wed, 24 Apr 2024 20:39:51 -0700 (PDT)
+        bh=TFC/YaLZv7yQ0eyRd7w4YHDkBUmQZEf/nvPZ7CB9pC8=;
+        b=vIEuHSpWF3enhMBwqy4XwIHmarxqueCNJEL9t/sWfl+iME4WPhdfZCmWtuF1CSuURp
+         u+g9rz4AlQmT2Mn/txz8YXC++ThtoyFmVeXKvUuXgOUZjm8x+AZL/bXqtajobZe96fUv
+         Bw5ciswsbd3qHPianQOnnc6IARm24XdDLyehRS0ymoAmvGk7dsMOxRqABhzbOV+OkU4H
+         BFOBU0/iDOOBy3JBI4STJX/wACPUKO46SOGL0zj0ZWXn9ONTlt0gsPWtYMRjqYGJfWH0
+         xbyp8zIbk+ZgLZJrJjlm4c01UqHfuOz7k8WQSLTNCB2xiqAhsAs3zGrJU06jDN9stjKB
+         7ZqQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU3WXsuFoaB1+yK6uluzbDMF4vg+rE0uGKFvxrNENvBZVv5x/OcPSZJgNc/w8qEdIveuEYv2ITSwb/xiuX2YgCT2B6I2oc5i/UqAcn9
+X-Gm-Message-State: AOJu0YxtsbyAUVGo1iCYLhzjZbblIf/S6RdWaAjlEQToK7BM6iMpyxuX
+	J16nD6InomoW5jOk2umdSnTzKYDz8Yo8rzNimpVzwnCrZXQqYsdOO6aGDQ4aLDE=
+X-Google-Smtp-Source: AGHT+IGDHeAbOWt5xjIMSRHX9LP133pX+NDtWq9rTdN4bteCp1aM+6ZXUcBnQZVGw2+uRdMca/c7UA==
+X-Received: by 2002:a05:6a00:148d:b0:6ea:9252:435 with SMTP id v13-20020a056a00148d00b006ea92520435mr6295917pfu.30.1714016553835;
+        Wed, 24 Apr 2024 20:42:33 -0700 (PDT)
 Received: from [10.3.132.118] ([61.213.176.5])
-        by smtp.gmail.com with ESMTPSA id fu4-20020a17090ad18400b002acfe00c742sm8459264pjb.21.2024.04.24.20.39.47
+        by smtp.gmail.com with ESMTPSA id i28-20020a63585c000000b005d5445349edsm11743801pgm.19.2024.04.24.20.42.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Apr 2024 20:39:50 -0700 (PDT)
-Message-ID: <0affdece-7816-4011-a55a-59a1af4d35dd@bytedance.com>
-Date: Thu, 25 Apr 2024 11:39:44 +0800
+        Wed, 24 Apr 2024 20:42:33 -0700 (PDT)
+Message-ID: <c359d4d3-5aff-4536-983d-87af3198724d@bytedance.com>
+Date: Thu, 25 Apr 2024 11:42:28 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/12] cachefiles: fix slab-use-after-free in
- cachefiles_ondemand_get_fd()
+Subject: Re: [External] [PATCH 04/12] cachefiles: fix slab-use-after-free in
+ cachefiles_ondemand_daemon_read()
 To: libaokun@huaweicloud.com, netfs@lists.linux.dev
 References: <20240424033916.2748488-1-libaokun@huaweicloud.com>
- <20240424033916.2748488-4-libaokun@huaweicloud.com>
-In-Reply-To: <20240424033916.2748488-4-libaokun@huaweicloud.com>
+ <20240424033916.2748488-5-libaokun@huaweicloud.com>
+In-Reply-To: <20240424033916.2748488-5-libaokun@huaweicloud.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -93,34 +93,26 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 > command:
 > 
 > ==================================================================
-> BUG: KASAN: slab-use-after-free in cachefiles_ondemand_daemon_read+0x609/0xab0
-> Write of size 4 at addr ffff888109164a80 by task ondemand-04-dae/4962
+> BUG: KASAN: slab-use-after-free in cachefiles_ondemand_daemon_read+0xb41/0xb60
+> Read of size 8 at addr ffff888122e84088 by task ondemand-04-dae/963
 > 
-> CPU: 11 PID: 4962 Comm: ondemand-04-dae Not tainted 6.8.0-rc7-dirty #542
+> CPU: 13 PID: 963 Comm: ondemand-04-dae Not tainted 6.8.0-dirty #564
 > Call Trace:
->   kasan_report+0x94/0xc0
->   cachefiles_ondemand_daemon_read+0x609/0xab0
+>   kasan_report+0x93/0xc0
+>   cachefiles_ondemand_daemon_read+0xb41/0xb60
 >   vfs_read+0x169/0xb50
 >   ksys_read+0xf5/0x1e0
 > 
-> Allocated by task 626:
->   __kmalloc+0x1df/0x4b0
->   cachefiles_ondemand_send_req+0x24d/0x690
->   cachefiles_create_tmpfile+0x249/0xb30
->   cachefiles_create_file+0x6f/0x140
->   cachefiles_look_up_object+0x29c/0xa60
->   cachefiles_lookup_cookie+0x37d/0xca0
+> Allocated by task 116:
+>   kmem_cache_alloc+0x140/0x3a0
+>   cachefiles_lookup_cookie+0x140/0xcd0
 >   fscache_cookie_state_machine+0x43c/0x1230
 >   [...]
 > 
-> Freed by task 626:
->   kfree+0xf1/0x2c0
->   cachefiles_ondemand_send_req+0x568/0x690
->   cachefiles_create_tmpfile+0x249/0xb30
->   cachefiles_create_file+0x6f/0x140
->   cachefiles_look_up_object+0x29c/0xa60
->   cachefiles_lookup_cookie+0x37d/0xca0
->   fscache_cookie_state_machine+0x43c/0x1230
+> Freed by task 792:
+>   kmem_cache_free+0xfe/0x390
+>   cachefiles_put_object+0x241/0x480
+>   fscache_cookie_state_machine+0x5c8/0x1230
 >   [...]
 > ==================================================================
 > 
@@ -128,7 +120,8 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 > 
 >       mount  |   daemon_thread1    |    daemon_thread2
 > ------------------------------------------------------------
->   cachefiles_ondemand_init_object
+> cachefiles_withdraw_cookie
+>   cachefiles_ondemand_clean_object(object)
 >    cachefiles_ondemand_send_req
 >     REQ_A = kzalloc(sizeof(*req) + data_len)
 >     wait_for_completion(&REQ_A->done)
@@ -136,161 +129,81 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 >              cachefiles_daemon_read
 >               cachefiles_ondemand_daemon_read
 >                REQ_A = cachefiles_ondemand_select_req
->                cachefiles_ondemand_get_fd
->                copy_to_user(_buffer, msg, n)
->              process_open_req(REQ_A)
+>                msg->object_id = req->object->ondemand->ondemand_id
 >                                    ------ restore ------
 >                                    cachefiles_ondemand_restore
 >                                    xas_for_each(&xas, req, ULONG_MAX)
->                                     xas_set_mark(&xas, CACHEFILES_REQ_NEW);
+>                                     xas_set_mark(&xas, CACHEFILES_REQ_NEW)
 > 
 >                                    cachefiles_daemon_read
 >                                     cachefiles_ondemand_daemon_read
 >                                      REQ_A = cachefiles_ondemand_select_req
+>                copy_to_user(_buffer, msg, n)
+>                 xa_erase(&cache->reqs, id)
+>                 complete(&REQ_A->done)
+>                ------ close(fd) ------
+>                cachefiles_ondemand_fd_release
+>                 cachefiles_put_object
+>   cachefiles_put_object
+>    kmem_cache_free(cachefiles_object_jar, object)
+>                                      REQ_A->object->ondemand->ondemand_id
+>                                       // object UAF !!!
 > 
->               write(devfd, ("copen %u,%llu", msg->msg_id, size));
->               cachefiles_ondemand_copen
->                xa_erase(&cache->reqs, id)
->                complete(&REQ_A->done)
->     kfree(REQ_A)
->                                      cachefiles_ondemand_get_fd(REQ_A)
->                                       fd = get_unused_fd_flags
->                                       file = anon_inode_getfile
->                                       fd_install(fd, file)
->                                       load = (void *)REQ_A->msg.data;
->                                       load->fd = fd;
->                                       // load UAF !!!
+> When we see the request within xa_lock, req->object must not have been
+> freed yet, so grab the reference count of object before xa_unlock to
+> avoid the above issue.
 > 
-> This issue is caused by issuing a restore command when the daemon is still
-> alive, which results in a request being processed multiple times thus
-> triggering a UAF. So to avoid this problem, add an additional reference
-> count to cachefiles_req, which is held while waiting and reading, and then
-> released when the waiting and reading is over.
-> 
-> Note that since there is only one reference count for waiting, we need to
-> avoid the same request being completed multiple times, so we can only
-> complete the request if it is successfully removed from the xarray.
-> 
-> Fixes: e73fa11a356c ("cachefiles: add restore command to recover inflight ondemand read requests")
-> Suggested-by: Hou Tao <houtao1@huawei.com>
+> Fixes: 0a7e54c1959c ("cachefiles: resend an open request if the read request's object is closed")
 > Signed-off-by: Baokun Li <libaokun1@huawei.com>
 
 Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 
 > ---
->   fs/cachefiles/internal.h |  1 +
->   fs/cachefiles/ondemand.c | 44 ++++++++++++++++++++++------------------
->   2 files changed, 25 insertions(+), 20 deletions(-)
+>   fs/cachefiles/ondemand.c          | 2 ++
+>   include/trace/events/cachefiles.h | 6 +++++-
+>   2 files changed, 7 insertions(+), 1 deletion(-)
 > 
-> diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-> index d33169f0018b..7745b8abc3aa 100644
-> --- a/fs/cachefiles/internal.h
-> +++ b/fs/cachefiles/internal.h
-> @@ -138,6 +138,7 @@ static inline bool cachefiles_in_ondemand_mode(struct cachefiles_cache *cache)
->   struct cachefiles_req {
->   	struct cachefiles_object *object;
->   	struct completion done;
-> +	refcount_t ref;
->   	int error;
->   	struct cachefiles_msg msg;
->   };
 > diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-> index fd49728d8bae..56d12fe4bf73 100644
+> index 56d12fe4bf73..bb94ef6a6f61 100644
 > --- a/fs/cachefiles/ondemand.c
 > +++ b/fs/cachefiles/ondemand.c
-> @@ -4,6 +4,12 @@
->   #include <linux/uio.h>
->   #include "internal.h"
->   
-> +static inline void cachefiles_req_put(struct cachefiles_req *req)
-> +{
-> +	if (refcount_dec_and_test(&req->ref))
-> +		kfree(req);
-> +}
-> +
->   static int cachefiles_ondemand_fd_release(struct inode *inode,
->   					  struct file *file)
->   {
-> @@ -299,7 +305,6 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
->   {
->   	struct cachefiles_req *req;
->   	struct cachefiles_msg *msg;
-> -	unsigned long id = 0;
->   	size_t n;
->   	int ret = 0;
->   	XA_STATE(xas, &cache->reqs, cache->req_id_next);
-> @@ -330,41 +335,39 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
->   
+> @@ -336,6 +336,7 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
 >   	xas_clear_mark(&xas, CACHEFILES_REQ_NEW);
 >   	cache->req_id_next = xas.xa_index + 1;
-> +	refcount_inc(&req->ref);
+>   	refcount_inc(&req->ref);
+> +	cachefiles_grab_object(req->object, cachefiles_obj_get_read_req);
 >   	xa_unlock(&cache->reqs);
 >   
-> -	id = xas.xa_index;
-> -
 >   	if (msg->opcode == CACHEFILES_OP_OPEN) {
->   		ret = cachefiles_ondemand_get_fd(req);
->   		if (ret) {
->   			cachefiles_ondemand_set_object_close(req->object);
-> -			goto error;
-> +			goto out;
->   		}
->   	}
->   
-> -	msg->msg_id = id;
-> +	msg->msg_id = xas.xa_index;
->   	msg->object_id = req->object->ondemand->ondemand_id;
->   
->   	if (copy_to_user(_buffer, msg, n) != 0) {
->   		ret = -EFAULT;
->   		if (msg->opcode == CACHEFILES_OP_OPEN)
+> @@ -355,6 +356,7 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
 >   			close_fd(((struct cachefiles_open *)msg->data)->fd);
-> -		goto error;
 >   	}
-> -
-> -	/* CLOSE request has no reply */
-> -	if (msg->opcode == CACHEFILES_OP_CLOSE) {
-> -		xa_erase(&cache->reqs, id);
-> -		complete(&req->done);
-> +out:
-> +	/* Remove error request and CLOSE request has no reply */
-> +	if (ret || msg->opcode == CACHEFILES_OP_CLOSE) {
-> +		xas_reset(&xas);
-> +		xas_lock(&xas);
-> +		if (xas_load(&xas) == req) {
-> +			req->error = ret;
-> +			complete(&req->done);
-> +			xas_store(&xas, NULL);
-> +		}
-> +		xas_unlock(&xas);
->   	}
-> -
-> -	return n;
-> -
-> -error:
-> -	xa_erase(&cache->reqs, id);
-> -	req->error = ret;
-> -	complete(&req->done);
-> -	return ret;
-> +	cachefiles_req_put(req);
-> +	return ret ? ret : n;
->   }
->   
->   typedef int (*init_req_fn)(struct cachefiles_req *req, void *private);
-> @@ -394,6 +397,7 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
->   		goto out;
->   	}
->   
-> +	refcount_set(&req->ref, 1);
->   	req->object = object;
->   	init_completion(&req->done);
->   	req->msg.opcode = opcode;
-> @@ -455,7 +459,7 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
->   	wake_up_all(&cache->daemon_pollwq);
->   	wait_for_completion(&req->done);
->   	ret = req->error;
-> -	kfree(req);
-> +	cachefiles_req_put(req);
->   	return ret;
 >   out:
->   	/* Reset the object to close state in error handling path.
+> +	cachefiles_put_object(req->object, cachefiles_obj_put_read_req);
+>   	/* Remove error request and CLOSE request has no reply */
+>   	if (ret || msg->opcode == CACHEFILES_OP_CLOSE) {
+>   		xas_reset(&xas);
+> diff --git a/include/trace/events/cachefiles.h b/include/trace/events/cachefiles.h
+> index cf4b98b9a9ed..119a823fb5a0 100644
+> --- a/include/trace/events/cachefiles.h
+> +++ b/include/trace/events/cachefiles.h
+> @@ -33,6 +33,8 @@ enum cachefiles_obj_ref_trace {
+>   	cachefiles_obj_see_withdrawal,
+>   	cachefiles_obj_get_ondemand_fd,
+>   	cachefiles_obj_put_ondemand_fd,
+> +	cachefiles_obj_get_read_req,
+> +	cachefiles_obj_put_read_req,
+>   };
+>   
+>   enum fscache_why_object_killed {
+> @@ -127,7 +129,9 @@ enum cachefiles_error_trace {
+>   	EM(cachefiles_obj_see_lookup_cookie,	"SEE lookup_cookie")	\
+>   	EM(cachefiles_obj_see_lookup_failed,	"SEE lookup_failed")	\
+>   	EM(cachefiles_obj_see_withdraw_cookie,	"SEE withdraw_cookie")	\
+> -	E_(cachefiles_obj_see_withdrawal,	"SEE withdrawal")
+> +	EM(cachefiles_obj_see_withdrawal,	"SEE withdrawal")	\
+> +	EM(cachefiles_obj_get_read_req,		"GET read_req")		\
+> +	E_(cachefiles_obj_put_read_req,		"PUT read_req")
+>   
+>   #define cachefiles_coherency_traces					\
+>   	EM(cachefiles_coherency_check_aux,	"BAD aux ")		\
