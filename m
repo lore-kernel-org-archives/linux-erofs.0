@@ -4,66 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0FB8C4345F
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 05:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F5D3C4345F
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 05:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1714022155;
-	bh=bNdUFtYR2xbr86vH1UwuLkPY/+I0PhhpA884pNqNeBA=;
+	s=201707; t=1714023698;
+	bh=LiVVv+CXcN+CvM+zB+3igsIJaaE0zH8C5SDY181CcQk=;
 	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=Tvug1UmoyoZMdskIWUMuADvdMAFyeYty1BRUPnmE5imRur77l5wlPZCgPLjATQd18
-	 jqWXJ1ZxhAdTs7fz5rp1fGdN0z4qVrb38BKWdEnvhF+yl+MYcUlp1Z8oRoIrfQLGSg
-	 rqeqN5G8qWxixWxvSAsu4eCoPMc/Ts3FQlmGwtTf3wjo6vo2sfxaznBb6SbSUzcdKi
-	 XnGwU+rl3iA77DgwGZvn2VEGRKxKZcyDxpYZSjjIPm6SzprAsbCxSxVlrw/Szco1MW
-	 FB9GRv+guZzBDiucl0lfi8FY0akAT+yIdFDaoG9avd1G64qj8zRJYOLSSin3sBlryZ
-	 ie8SjlH08TKrw==
+	b=YPzCR2krZ26sdv85UclW2SQ7IPcD/LJ2i4RIDB4PH+xctX8Cby6Q4eMY+vrfOo9fx
+	 UK8R7Wu7Gy70a7H10E0YOPkB6XfkqAOl5GB4+ieHtFiKcGcZN7NIZE4B9tb4/StGZC
+	 okToQ3s3mur/IPuykk6KOAjijiyMTtk2Cq0tchno2ghMjxA7ylDNd+/Mju7uUsXimp
+	 n+yfO9XORHt/c2ATB0Zra5iDPAXYa/0JA3mKqL4XtM4WmTMrzv9IDtxhkyJbw9LWsB
+	 2zaDy8RaLV6mv4s56KAPGQVn7OrFJSUbYEqqsx4jYA6xL/X0zL3C5Do3IiCKy9Cu21
+	 R7KkmhGQAwPWQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VQ3wW2Td7z3dKm
-	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 15:15:55 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VQ4VB65LGz3dK9
+	for <linux-erofs@archiver.kernel.org>; Thu, 25 Apr 2024 15:41:38 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=SM/qxM/w;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=Hvfj/iXq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::62a; helo=mail-pl1-x62a.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=2607:f8b0:4864:20::429; helo=mail-pf1-x429.google.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VQ3wN46wkz3cmg
-	for <linux-erofs@lists.ozlabs.org>; Thu, 25 Apr 2024 15:15:45 +1000 (AEST)
-Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-1eab16dcfd8so2897705ad.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 22:15:45 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VQ4V339cfz3cmg
+	for <linux-erofs@lists.ozlabs.org>; Thu, 25 Apr 2024 15:41:29 +1000 (AEST)
+Received: by mail-pf1-x429.google.com with SMTP id d2e1a72fcca58-6ecf05fd12fso597182b3a.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 24 Apr 2024 22:41:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714022143; x=1714626943;
+        d=1e100.net; s=20230601; t=1714023687; x=1714628487;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=bNdUFtYR2xbr86vH1UwuLkPY/+I0PhhpA884pNqNeBA=;
-        b=MQdYTv5I3ImJ0s1RXufj1sDFqc1jy5qYejnDsPQQI7hoorOmzvPj2eSLke8kkSoINI
-         xTyFOKDv8gCuu3RyCXp1IyFTDdv89IlB2bXEUpI6Fe/l+QVAXEHK7hNk0NbCHf5k+BX+
-         VTX94t0L1eQ9YvPNeHZDf8zsXHgwrqU8GFXxwXNU/kxlzKEq0RE5Mjaael3BY5hjSMag
-         BWbkkvs7ve/8kiNAKm3rNt6mymLvhvsEF+p8/zae4hYAbbKZyQq+VJ1TvohWaDnFwtB4
-         FiCoN5Rmocst63px4CVFLCaxtrP3yWs41JehEIwc1g48ppm/cKKWYIAsJIiI8iW9qBKH
-         t8+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWE7DTrxzONrvij4TUApMg3O/qQ5IB3DxCIPtW7hsXFyQgfbPva2LJR0mNnzHFFoYWiVCm/2WXLPkYRxXWrB7oD25I7WI1dpJNM2/oH
-X-Gm-Message-State: AOJu0Yx1KMDBjsAi8/Z6k0C3LoVtw2bz/B/Ue+cMkIk/rOHDV7His9eC
-	yrJIuvUH+SKEx1HIOf1B6YKRFYG2LfifJj/l7rcahkERvHMQ/lUFb3xIO+jiIXw=
-X-Google-Smtp-Source: AGHT+IEQITLDZGcYmA+FjKYuiztsfCh0wLhqQI6Xcb/IceR3ZPd+qhouMoKXS2ZMMGdGKHN5UKg2Ig==
-X-Received: by 2002:a17:903:41d0:b0:1e4:6243:8543 with SMTP id u16-20020a17090341d000b001e462438543mr5733230ple.5.1714022143006;
-        Wed, 24 Apr 2024 22:15:43 -0700 (PDT)
-Received: from [10.3.132.118] ([61.213.176.5])
-        by smtp.gmail.com with ESMTPSA id f16-20020a170902ce9000b001e78d217fd9sm12826398plg.16.2024.04.24.22.15.39
+        bh=LiVVv+CXcN+CvM+zB+3igsIJaaE0zH8C5SDY181CcQk=;
+        b=gevDIlZ5P3ywHaqCfrngPIq23m+TVIiycNS+2yNI5kjAjqBXmQK8xV0nN2H14S163R
+         sl5AF17Dc4wVpq74Il9P01/1AfaeIdOEMhTDiMaFOoXfc4it+BDRi0Q/EuadR/2NVNMP
+         KBze3+hrYFHsAZZxpiUyheEGjhkk1AARVulvnFvzI4owNzYo+KRWSMyGB6F6VyLrxjN2
+         tVfuzsb03ZJhBpU11C7zVRpvJJQZFuuXyliW23QWiZsuvq79ij6cn1ZbEiH9C0Nl/nSh
+         F7isshrCdsqxvhm2VST518sNVmM24jCaBjly+t4plYCPfuZtcXZyPoy6Y7VIumjcq8i4
+         XSQA==
+X-Forwarded-Encrypted: i=1; AJvYcCXJPXFbwgLO1xiq1lsAWkMAwKbyZ9fDSBQO2lYZ3hIWBy1wGYKw91IxYaSyoYfWx/hlAQG6tLPvYXlj0b1RpN3RR6nGksiwP8vYpOIv
+X-Gm-Message-State: AOJu0YwocLtF/zSbcOig4isR8NEPTTHSuTZq2IRsWQKXa1fmhkvgpem3
+	1EoLapfMbAKfPV1xffUfjIkR24LD/ez6GSXBtVLQlyT2Bid0lo0ebERoE3hUjPg=
+X-Google-Smtp-Source: AGHT+IHNJBsklbaNtuhephdNcHI3SdblGcDt0X5IXkyJ+9Sg3RqlYnd4/Js8ZPm7qlkq9lbveXh7Sg==
+X-Received: by 2002:a05:6a00:1492:b0:6ed:1c7:8c5d with SMTP id v18-20020a056a00149200b006ed01c78c5dmr5655256pfu.12.1714023687307;
+        Wed, 24 Apr 2024 22:41:27 -0700 (PDT)
+Received: from [10.3.132.118] ([61.213.176.14])
+        by smtp.gmail.com with ESMTPSA id a5-20020aa78e85000000b006e554afa254sm12333974pfr.38.2024.04.24.22.41.23
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Apr 2024 22:15:42 -0700 (PDT)
-Message-ID: <e1c97315-de7a-4222-9fd4-788e566b2eaa@bytedance.com>
-Date: Thu, 25 Apr 2024 13:15:37 +0800
+        Wed, 24 Apr 2024 22:41:26 -0700 (PDT)
+Message-ID: <8572a732-ca12-48d7-817c-d8218d536c0c@bytedance.com>
+Date: Thu, 25 Apr 2024 13:41:20 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 12/12] cachefiles: make on-demand read killable
+Subject: Re: [PATCH 3/5] cachefiles: flush ondemand_object_worker during clean
+ object
 To: libaokun@huaweicloud.com, netfs@lists.linux.dev
-References: <20240424033916.2748488-1-libaokun@huaweicloud.com>
- <20240424033916.2748488-13-libaokun@huaweicloud.com>
-In-Reply-To: <20240424033916.2748488-13-libaokun@huaweicloud.com>
+References: <20240424033409.2735257-1-libaokun@huaweicloud.com>
+ <20240424033409.2735257-4-libaokun@huaweicloud.com>
+In-Reply-To: <20240424033409.2735257-4-libaokun@huaweicloud.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -79,65 +80,73 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
 From: Jia Zhu via Linux-erofs <linux-erofs@lists.ozlabs.org>
 Reply-To: Jia Zhu <zhujia.zj@bytedance.com>
-Cc: jlayton@kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org
+Cc: jlayton@kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-在 2024/4/24 11:39, libaokun@huaweicloud.com 写道:
-> From: Baokun Li <libaokun1@huawei.com>
-> 
-> Replacing wait_for_completion() with wait_for_completion_killable() in
-> cachefiles_ondemand_send_req() allows us to kill processes that might
-> trigger a hunk_task if the daemon is abnormal.
-> 
-> But now only CACHEFILES_OP_READ is killable, because OP_CLOSE and OP_OPEN
-> is initiated from kworker context and the signal is prohibited in these
-> kworker.
-> 
-> Note that when the req in xas changes, i.e. xas_load(&xas) != req, it
-> means that a process will complete the current request soon, so wait
-> again for the request to be completed.
-> 
-> Suggested-by: Hou Tao <houtao1@huawei.com>
-> Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Thanks for catching this. How about adding a Fixes tag.
 
 Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 
+
+在 2024/4/24 11:34, libaokun@huaweicloud.com 写道:
+> From: Hou Tao <houtao1@huawei.com>
+> 
+> When queuing ondemand_object_worker() to re-open the object,
+> cachefiles_object is not pinned. The cachefiles_object may be freed when
+> the pending read request is completed intentionally and the related
+> erofs is umounted. If ondemand_object_worker() runs after the object is
+> freed, it will incur use-after-free problem as shown below.
+> 
+> process A  processs B  process C  process D
+> 
+> cachefiles_ondemand_send_req()
+> // send a read req X
+> // wait for its completion
+> 
+>             // close ondemand fd
+>             cachefiles_ondemand_fd_release()
+>             // set object as CLOSE
+> 
+>                         cachefiles_ondemand_daemon_read()
+>                         // set object as REOPENING
+>                         queue_work(fscache_wq, &info->ondemand_work)
+> 
+>                                  // close /dev/cachefiles
+>                                  cachefiles_daemon_release
+>                                  cachefiles_flush_reqs
+>                                  complete(&req->done)
+> 
+> // read req X is completed
+> // umount the erofs fs
+> cachefiles_put_object()
+> // object will be freed
+> cachefiles_ondemand_deinit_obj_info()
+> kmem_cache_free(object)
+>                         // both info and object are freed
+>                         ondemand_object_worker()
+> 
+> When dropping an object, it is no longer necessary to reopen the object,
+> so use cancel_work_sync() to cancel or wait for ondemand_object_worker()
+> to complete.
+> 
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> Signed-off-by: Baokun Li <libaokun1@huawei.com>
 > ---
->   fs/cachefiles/ondemand.c | 21 +++++++++++++++++++--
->   1 file changed, 19 insertions(+), 2 deletions(-)
+>   fs/cachefiles/ondemand.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
 > diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-> index 673e7ad52041..b766430f4abf 100644
+> index d24bff43499b..f6440b3e7368 100644
 > --- a/fs/cachefiles/ondemand.c
 > +++ b/fs/cachefiles/ondemand.c
-> @@ -525,8 +525,25 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
->   		goto out;
->   
->   	wake_up_all(&cache->daemon_pollwq);
-> -	wait_for_completion(&req->done);
-> -	ret = req->error;
-> +wait:
-> +	ret = wait_for_completion_killable(&req->done);
-> +	if (!ret) {
-> +		ret = req->error;
-> +	} else {
-> +		xas_reset(&xas);
-> +		xas_lock(&xas);
-> +		if (xas_load(&xas) == req) {
-> +			xas_store(&xas, NULL);
-> +			ret = -EINTR;
-> +		}
-> +		xas_unlock(&xas);
+> @@ -589,6 +589,9 @@ void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
+>   		}
+>   	}
+>   	xa_unlock(&cache->reqs);
 > +
-> +		/* Someone will complete it soon. */
-> +		if (ret != -EINTR) {
-> +			cpu_relax();
-> +			goto wait;
-> +		}
-> +	}
->   	cachefiles_req_put(req);
->   	return ret;
->   out:
+> +	/* Wait for ondemand_object_worker() to finish to avoid UAF. */
+> +	cancel_work_sync(&object->ondemand->ondemand_work);
+>   }
+>   
+>   int cachefiles_ondemand_init_obj_info(struct cachefiles_object *object,
