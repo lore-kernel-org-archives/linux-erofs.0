@@ -4,43 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3CDD4C4345F
-	for <linux-erofs@archiver.kernel.org>; Sun, 28 Apr 2024 07:10:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57614C4345F
+	for <linux-erofs@archiver.kernel.org>; Sun, 28 Apr 2024 07:17:51 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ECL7Fa1Q;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f0dWapUU;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VRyKX4m7wz3cT3
-	for <linux-erofs@archiver.kernel.org>; Sun, 28 Apr 2024 17:10:40 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VRyTp01xhz3cT8
+	for <linux-erofs@archiver.kernel.org>; Sun, 28 Apr 2024 17:17:50 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ECL7Fa1Q;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f0dWapUU;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VRyKM1QvKz3c3K
-	for <linux-erofs@lists.ozlabs.org>; Sun, 28 Apr 2024 17:10:29 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VRyTd28cBz2xFk
+	for <linux-erofs@lists.ozlabs.org>; Sun, 28 Apr 2024 17:17:39 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1714288225; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Sn2mnwAKlmzl6ZnCC0H7AzHnFBhpM/ri2hKnjQ/BtIU=;
-	b=ECL7Fa1QV3GdGQyDdbUpQTHGOOqA+6JT6U0LNi6kjQLOxp2jli5dwgFcpuoXvwo8VfzsxLTl7ylb2BpXYGF6UrQbdEMa5yepaN1ufxc+FhCi8W2FuYSfBJ4g999VyN3EdIh2zwFnNqViUvipsbwynm1P4ATStFqNoOUQLZ8YGKA=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W5Nfk3K_1714288221;
-Received: from 30.221.129.62(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W5Nfk3K_1714288221)
+	t=1714288656; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=ElM6MfNktHIzrhGINadeKp0SVn1/8qMDX9pmLKgfGNE=;
+	b=f0dWapUUVt2eJuh2weIwbW39Bp2REuC0ZneLDtkNR7YEIpO/QcgtadA/yR5Qk+qxJykl8xWiE0QRHmoe5v+68eMEnckguwe8UX9mrMw6bM2afe0HupRDIfg+CESBvgVei641p/Pu7ojnAHPP86G4qROKI0OJ0pWhVZefDE+iQgY=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W5Nef7l_1714288653;
+Received: from 30.221.129.62(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W5Nef7l_1714288653)
           by smtp.aliyun-inc.com;
-          Sun, 28 Apr 2024 15:10:23 +0800
-Message-ID: <398251ef-6fb1-4c47-a7c7-2035e24fa9a2@linux.alibaba.com>
-Date: Sun, 28 Apr 2024 15:10:21 +0800
+          Sun, 28 Apr 2024 15:17:35 +0800
+Message-ID: <bc0119e6-3f21-4fc2-9deb-51bc2ca8749f@linux.alibaba.com>
+Date: Sun, 28 Apr 2024 15:17:33 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH -next v3 1/2] erofs: get rid of erofs_fs_context
+Subject: Re: [PATCH -next v3 2/2] erofs: reliably distinguish block based and
+ fscache mode
 To: Baokun Li <libaokun1@huawei.com>, linux-erofs@lists.ozlabs.org
 References: <20240419123611.947084-1-libaokun1@huawei.com>
- <20240419123611.947084-2-libaokun1@huawei.com>
+ <20240419123611.947084-3-libaokun1@huawei.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20240419123611.947084-2-libaokun1@huawei.com>
+In-Reply-To: <20240419123611.947084-3-libaokun1@huawei.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -61,12 +62,33 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 
 On 2024/4/19 20:36, Baokun Li wrote:
-> Instead of allocating the erofs_sb_info in fill_super() allocate it during
-> erofs_init_fs_context() and ensure that erofs can always have the info
-> available during erofs_kill_sb(). After this erofs_fs_context is no longer
-> needed, replace ctx with sbi, no functional changes.
+> From: Christian Brauner <brauner@kernel.org>
 > 
-> Suggested-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> When erofs_kill_sb() is called in block dev based mode, s_bdev may not
+> have been initialised yet, and if CONFIG_EROFS_FS_ONDEMAND is enabled,
+> it will be mistaken for fscache mode, and then attempt to free an anon_dev
+> that has never been allocated, triggering the following warning:
+> 
+> ============================================
+> ida_free called for id=0 which is not allocated.
+> WARNING: CPU: 14 PID: 926 at lib/idr.c:525 ida_free+0x134/0x140
+> Modules linked in:
+> CPU: 14 PID: 926 Comm: mount Not tainted 6.9.0-rc3-dirty #630
+> RIP: 0010:ida_free+0x134/0x140
+> Call Trace:
+>   <TASK>
+>   erofs_kill_sb+0x81/0x90
+>   deactivate_locked_super+0x35/0x80
+>   get_tree_bdev+0x136/0x1e0
+>   vfs_get_tree+0x2c/0xf0
+>   do_new_mount+0x190/0x2f0
+>   [...]
+> ============================================
+> 
+> Now when erofs_kill_sb() is called, erofs_sb_info must have been
+> initialised, so use sbi->fsid to distinguish between the two modes.
+> 
+> Signed-off-by: Christian Brauner <brauner@kernel.org>
 > Signed-off-by: Baokun Li <libaokun1@huawei.com>
 
 Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
