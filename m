@@ -4,73 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEFFEC19F53
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 14:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24DD6C4345F
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 14:02:08 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g8r2NNCC;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YEGmTbhh;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iucd1RqM;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iucd1RqM;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VTMMD3QrVz3cRk
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 00:02:00 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VTMML5rfgz3cRh
+	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 00:02:06 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g8r2NNCC;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YEGmTbhh;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iucd1RqM;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iucd1RqM;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VTMLs2YKFz3cV2
-	for <linux-erofs@lists.ozlabs.org>; Wed,  1 May 2024 00:01:41 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VTMM018Hfz3cVL
+	for <linux-erofs@lists.ozlabs.org>; Wed,  1 May 2024 00:01:47 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714485698;
+	s=mimecast20190719; t=1714485705;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SL4EWbx4NBAGR5Ppiq2v7C/YTDepZ3O+7v26rOrM0n0=;
-	b=g8r2NNCCyPXmbW1o6LtSM2q6JCLIzb3YltUUIVZHU4cAIxvp5MDwtw3gOPvNIs17wKuLe8
-	RfJft4gTFskoBr6GcYKMJbZYN3aJMgGpf7koRj50CT7vWVmMwygVjSizUjwGO9kwHBjR7l
-	Zy1yuMDLwFQ4cc4WljNmMKTqTZrzsIY=
+	bh=83auCTKPJvOhAjo7iO96K59ucStUj2OSCQeoe5vc/FY=;
+	b=Iucd1RqM4oTqan0s1F89EDxSIVAufgBFwVATzaRrx6Jer1MxuVvm7hgELjfn34PMxsUSJa
+	a2u/QmsN+wNstWuKdG+tXs+ugstz/xFV14/4oJRrNVqFnWAYHdYwYL08c2Z3FuyM7tSZgJ
+	9eK3GRi3t+nY3LeECMAO+xvmECrPV+Y=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714485699;
+	s=mimecast20190719; t=1714485705;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SL4EWbx4NBAGR5Ppiq2v7C/YTDepZ3O+7v26rOrM0n0=;
-	b=YEGmTbhhEdPlNF2HjY9fbR4jcbLn7mDc/X0/ATAa+VQ7tQzaN4V6cV//5ur8sBO9TPUE8o
-	EOLCIK9aBjtC1DxJgQHzZoM6Gcp0riN2MqVbcNhAeBaXZCCmN6c5QzC8TvqO9R0Mk0ayWi
-	siKCGfCV2MLorrVLnKZrffEWET+Umgc=
+	bh=83auCTKPJvOhAjo7iO96K59ucStUj2OSCQeoe5vc/FY=;
+	b=Iucd1RqM4oTqan0s1F89EDxSIVAufgBFwVATzaRrx6Jer1MxuVvm7hgELjfn34PMxsUSJa
+	a2u/QmsN+wNstWuKdG+tXs+ugstz/xFV14/4oJRrNVqFnWAYHdYwYL08c2Z3FuyM7tSZgJ
+	9eK3GRi3t+nY3LeECMAO+xvmECrPV+Y=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-529--TbzclIPMMi2MXLaTqf-qA-1; Tue,
- 30 Apr 2024 10:01:33 -0400
-X-MC-Unique: -TbzclIPMMi2MXLaTqf-qA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-284-oZEuSy0zPnaGWzXYr0XEnQ-1; Tue,
+ 30 Apr 2024 10:01:39 -0400
+X-MC-Unique: oZEuSy0zPnaGWzXYr0XEnQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A04ED1C4C385;
-	Tue, 30 Apr 2024 14:01:27 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B246C29AC019;
+	Tue, 30 Apr 2024 14:01:36 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.42.28.22])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 9BCF51121313;
-	Tue, 30 Apr 2024 14:01:24 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 01FC340BAA2;
+	Tue, 30 Apr 2024 14:01:32 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>,
 	Jeff Layton <jlayton@kernel.org>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>,
 	Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH v2 06/22] netfs: Use subreq_counter to allocate subreq debug_index values
-Date: Tue, 30 Apr 2024 15:00:37 +0100
-Message-ID: <20240430140056.261997-7-dhowells@redhat.com>
+Subject: [PATCH v2 08/22] 9p: Use alternative invalidation to using launder_folio
+Date: Tue, 30 Apr 2024 15:00:39 +0100
+Message-ID: <20240430140056.261997-9-dhowells@redhat.com>
 In-Reply-To: <20240430140056.261997-1-dhowells@redhat.com>
 References: <20240430140056.261997-1-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -82,84 +82,45 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Paulo Alcantara <pc@manguebit.com>, Tom Talpey <tom@talpey.com>, Shyam Prasad N <sprasad@microsoft.com>, linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org, v9fs@lists.linux.dev, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, linux-mm@kvack.org, netdev@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>, netfs@lists.linux.dev, Ilya Dryomov <idryomov@gmail.com>, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
+Cc: Latchesar Ionkov <lucho@ionkov.net>, Christian Schoenebeck <linux_oss@crudebyte.com>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Use the subreq_counter in netfs_io_request to allocate subrequest
-debug_index values in read ops as well as write ops.
+Use writepages-based flushing invalidation instead of
+invalidate_inode_pages2() and ->launder_folio().  This will allow
+->launder_folio() to be removed eventually.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Eric Van Hensbergen <ericvh@kernel.org>
+cc: Latchesar Ionkov <lucho@ionkov.net>
+cc: Dominique Martinet <asmadeus@codewreck.org>
+cc: Christian Schoenebeck <linux_oss@crudebyte.com>
 cc: Jeff Layton <jlayton@kernel.org>
+cc: v9fs@lists.linux.dev
 cc: netfs@lists.linux.dev
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/netfs/io.c      | 7 ++-----
- fs/netfs/objects.c | 1 +
- fs/netfs/output.c  | 1 -
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ fs/9p/vfs_addr.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/netfs/io.c b/fs/netfs/io.c
-index 2641238aae82..8de581ac0cfb 100644
---- a/fs/netfs/io.c
-+++ b/fs/netfs/io.c
-@@ -501,8 +501,7 @@ netfs_rreq_prepare_read(struct netfs_io_request *rreq,
-  * Slice off a piece of a read request and submit an I/O request for it.
-  */
- static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
--				    struct iov_iter *io_iter,
--				    unsigned int *_debug_index)
-+				    struct iov_iter *io_iter)
- {
- 	struct netfs_io_subrequest *subreq;
- 	enum netfs_io_source source;
-@@ -511,7 +510,6 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
- 	if (!subreq)
- 		return false;
+diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
+index 047855033d32..5a943c122d83 100644
+--- a/fs/9p/vfs_addr.c
++++ b/fs/9p/vfs_addr.c
+@@ -89,7 +89,6 @@ static int v9fs_init_request(struct netfs_io_request *rreq, struct file *file)
+ 	bool writing = (rreq->origin == NETFS_READ_FOR_WRITE ||
+ 			rreq->origin == NETFS_WRITEBACK ||
+ 			rreq->origin == NETFS_WRITETHROUGH ||
+-			rreq->origin == NETFS_LAUNDER_WRITE ||
+ 			rreq->origin == NETFS_UNBUFFERED_WRITE ||
+ 			rreq->origin == NETFS_DIO_WRITE);
  
--	subreq->debug_index	= (*_debug_index)++;
- 	subreq->start		= rreq->start + rreq->submitted;
- 	subreq->len		= io_iter->count;
- 
-@@ -565,7 +563,6 @@ static bool netfs_rreq_submit_slice(struct netfs_io_request *rreq,
- int netfs_begin_read(struct netfs_io_request *rreq, bool sync)
- {
- 	struct iov_iter io_iter;
--	unsigned int debug_index = 0;
- 	int ret;
- 
- 	_enter("R=%x %llx-%llx",
-@@ -596,7 +593,7 @@ int netfs_begin_read(struct netfs_io_request *rreq, bool sync)
- 		if (rreq->origin == NETFS_DIO_READ &&
- 		    rreq->start + rreq->submitted >= rreq->i_size)
- 			break;
--		if (!netfs_rreq_submit_slice(rreq, &io_iter, &debug_index))
-+		if (!netfs_rreq_submit_slice(rreq, &io_iter))
- 			break;
- 		if (test_bit(NETFS_RREQ_BLOCKED, &rreq->flags) &&
- 		    test_bit(NETFS_RREQ_NONBLOCK, &rreq->flags))
-diff --git a/fs/netfs/objects.c b/fs/netfs/objects.c
-index 72b52f070270..8acc03a64059 100644
---- a/fs/netfs/objects.c
-+++ b/fs/netfs/objects.c
-@@ -152,6 +152,7 @@ struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq
- 		INIT_LIST_HEAD(&subreq->rreq_link);
- 		refcount_set(&subreq->ref, 2);
- 		subreq->rreq = rreq;
-+		subreq->debug_index = atomic_inc_return(&rreq->subreq_counter);
- 		netfs_get_request(rreq, netfs_rreq_trace_get_subreq);
- 		netfs_stat(&netfs_n_rh_sreq);
- 	}
-diff --git a/fs/netfs/output.c b/fs/netfs/output.c
-index fbdbb4f78234..e586396d6b72 100644
---- a/fs/netfs/output.c
-+++ b/fs/netfs/output.c
-@@ -37,7 +37,6 @@ struct netfs_io_subrequest *netfs_create_write_request(struct netfs_io_request *
- 		subreq->source	= dest;
- 		subreq->start	= start;
- 		subreq->len	= len;
--		subreq->debug_index = atomic_inc_return(&wreq->subreq_counter);
- 
- 		switch (subreq->source) {
- 		case NETFS_UPLOAD_TO_SERVER:
+@@ -141,7 +140,6 @@ const struct address_space_operations v9fs_addr_operations = {
+ 	.dirty_folio		= netfs_dirty_folio,
+ 	.release_folio		= netfs_release_folio,
+ 	.invalidate_folio	= netfs_invalidate_folio,
+-	.launder_folio		= netfs_launder_folio,
+ 	.direct_IO		= noop_direct_IO,
+ 	.writepages		= netfs_writepages,
+ };
 
