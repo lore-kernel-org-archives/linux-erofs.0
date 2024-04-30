@@ -4,39 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E1FAC4345F
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 06:38:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F0FAC4345F
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 06:38:10 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HzuUVhcc;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=fE7fvmI2;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VT9Vz0G8yz3cTF
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 16:38:03 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VT9W50C5Xz2xPc
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 16:38:09 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HzuUVhcc;
+	dkim=pass (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=fE7fvmI2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=sijam.com (client-ip=2607:f8b0:4864:20::633; helo=mail-pl1-x633.google.com; envelope-from=asai@sijam.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VT9Vf34jMz2xPc
-	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Apr 2024 16:37:43 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VT9Vh3R2vz2xPc
+	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Apr 2024 16:37:47 +1000 (AEST)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1e3f17c6491so43937475ad.2
+        for <linux-erofs@lists.ozlabs.org>; Mon, 29 Apr 2024 23:37:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714459058; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=STnqBQAEjWLAQDO4fETsje9+shxuEsn49Ov2DBt0dpY=;
-	b=HzuUVhccP608AqABaZcP2OtNku3zXGgg+92zhB/JhOv595mUH5d992KsOYkVgrrvdBHqVk+KHzNj3/1c2T1i1pDeusm/LOE53t3cIxS00VHHMdYm9zh+gy2TzvsshHp57Rds1Xk1ajLk6qQEOzhxhX8MVjj++QjBxRd9mxGM5HE=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014016;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W5bHMH1_1714459051;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W5bHMH1_1714459051)
-          by smtp.aliyun-inc.com;
-          Tue, 30 Apr 2024 14:37:36 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs-utils: record pclustersize in bytes instead of blocks
-Date: Tue, 30 Apr 2024 14:37:29 +0800
-Message-Id: <20240430063730.599937-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+        d=sijam-com.20230601.gappssmtp.com; s=20230601; t=1714459064; x=1715063864; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=NYtgXGub8xTUvHs0bxemP67FiG4qUdL0cEfK6+FnaWs=;
+        b=fE7fvmI2knloRunzOimnm/aI+XS8Goed9oNEmKoYquCe9fzdxn4pk06ZpdeSc0/OFW
+         HS29QE8nSzmVf1Vs2rwYXEVnUsalhjuSD/Pnz1+Kln3hoDl6qHsG8Er8vF2/BCo6dOkS
+         Gu9lL0McROLXSWBxFbNJL/qV8kI89fp9f4I3JAlLzr2HHSqvhgX4KIwNmV7jSNKQnS+e
+         te2YEF/ViHhHXNg65kDjwdE+c50r9IyUc+H1bRGLFkEhZEVOGspVYJimRaaV6xl/1qOq
+         79k9vn1p+KVW27kxVCaJs3XdvEpkeY15hvwhDUBEjzWp7MyTg7739PKbU2WA0VY50moB
+         UEFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714459064; x=1715063864;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NYtgXGub8xTUvHs0bxemP67FiG4qUdL0cEfK6+FnaWs=;
+        b=Ehcur2Mv89CAtIX/qrwSfJ5mGZqWiQ9FcbbCKkZcDMUxheeAUug/NfTcZJrvDBfn4i
+         eic4ZtW4EA5FSdraSk5oe1NrVUC8q58RImnWoZt1FOhNNGy9kMb1fCMQMdL1f5XoavLR
+         wIzWL2B9mRSi26El1bYmTw3fZyhSetVOZJFIm8W5F9r2VgC34jXtImy+FeL+p0EOxxvc
+         XmZCVw2Ts623i/mwFZA7OL9/p4wYr+o5v5f4KOzuWxrf8uzJaMLWD+xs5OZ0nGGBb3bA
+         EJ/kk+Pa7WsLT0F2z3d4YD3t/VwFBL7zRRnpS0z6LfRgb8xjoJXJwyLSMmVkjd/rMhTP
+         NS3A==
+X-Gm-Message-State: AOJu0YxWMivBGA6Ak6cdsnEy/BOoOlEPR0oTRa5wULS+MT9Hs/Sx2JzD
+	GBrY+h1R71xHhwBpZ+1nkdBZZlyuQ6c8INUPNJvHNbgjCySxlgEmbZqng/cmjNQ=
+X-Google-Smtp-Source: AGHT+IHaRhTf4Ih2p6sTDvibfVeU0l7Q8KStfihaKearWqBmplHUK5kX4Qvt+sjVBM/UV8JlddB97Q==
+X-Received: by 2002:a17:902:fc4c:b0:1eb:73c2:6b4a with SMTP id me12-20020a170902fc4c00b001eb73c26b4amr9425493plb.8.1714459063621;
+        Mon, 29 Apr 2024 23:37:43 -0700 (PDT)
+Received: from elric.localdomain (i121-112-72-48.s41.a027.ap.plala.or.jp. [121.112.72.48])
+        by smtp.gmail.com with ESMTPSA id f8-20020a170902684800b001e83a70d774sm21889057pln.187.2024.04.29.23.37.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Apr 2024 23:37:43 -0700 (PDT)
+From: Noboru Asai <asai@sijam.com>
+To: hsiangkao@linux.alibaba.com
+Subject: [PATCH] erofs-utils: simplify file handling
+Date: Tue, 30 Apr 2024 15:37:31 +0900
+Message-ID: <20240430063731.1013892-1-asai@sijam.com>
+X-Mailer: git-send-email 2.44.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -50,206 +75,134 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-So that we don't need to handle blocksizes everywhere.
+Opening files again when data compression doesn't save space,
+simplify file handling.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+* remove dup and lseek.
+* call pthread_cond_signal once per file.
+
+I think the probability of the above case occurring is a few percent.
+
+Signed-off-by: Noboru Asai <asai@sijam.com>
 ---
- include/erofs/config.h |  4 +++-
- lib/compress.c         | 30 ++++++++++++++++--------------
- lib/compress_hints.c   | 11 ++++++-----
- lib/config.c           |  2 --
- mkfs/main.c            | 16 +++++++++-------
- 5 files changed, 34 insertions(+), 29 deletions(-)
+ lib/compress.c | 11 ++++++-----
+ lib/inode.c    | 24 ++++++++++++------------
+ 2 files changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 16910ea..3ce8c59 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -79,7 +79,9 @@ struct erofs_configure {
- 	u64 c_mkfs_segment_size;
- 	u32 c_mt_workers;
- #endif
--	u32 c_pclusterblks_max, c_pclusterblks_def, c_pclusterblks_packed;
-+	u32 c_mkfs_pclustersize_max;
-+	u32 c_mkfs_pclustersize_def;
-+	u32 c_mkfs_pclustersize_packed;
- 	u32 c_max_decompressed_extent_bytes;
- 	u64 c_unix_timestamp;
- 	u32 c_uid, c_gid;
 diff --git a/lib/compress.c b/lib/compress.c
-index f918322..20d1568 100644
+index 7fef698..4c7351f 100644
 --- a/lib/compress.c
 +++ b/lib/compress.c
-@@ -416,22 +416,23 @@ static int write_uncompressed_extent(struct z_erofs_compress_sctx *ctx,
- 
- static unsigned int z_erofs_get_max_pclustersize(struct erofs_inode *inode)
- {
--	unsigned int pclusterblks;
-+	unsigned int pclustersize;
- 
- 	if (erofs_is_packed_inode(inode))
--		pclusterblks = cfg.c_pclusterblks_packed;
-+		pclustersize = cfg.c_mkfs_pclustersize_packed;
- #ifndef NDEBUG
- 	else if (cfg.c_random_pclusterblks)
--		pclusterblks = 1 + rand() % cfg.c_pclusterblks_max;
-+		pclustersize = ((1 + rand()) << inode->sbi->blkszbits) %
-+				cfg.c_mkfs_pclustersize_max;
- #endif
- 	else if (cfg.c_compress_hints_file) {
- 		z_erofs_apply_compress_hints(inode);
- 		DBG_BUGON(!inode->z_physical_clusterblks);
--		pclusterblks = inode->z_physical_clusterblks;
-+		pclustersize = inode->z_physical_clusterblks << inode->sbi->blkszbits;
- 	} else {
--		pclusterblks = cfg.c_pclusterblks_def;
-+		pclustersize = cfg.c_mkfs_pclustersize_def;
- 	}
--	return pclusterblks * erofs_blksiz(inode->sbi);
-+	return pclustersize;
- }
- 
- static int z_erofs_fill_inline_data(struct erofs_inode *inode, void *data,
-@@ -1591,7 +1592,8 @@ static int z_erofs_build_compr_cfgs(struct erofs_sb_info *sbi,
- 			.lz4 = {
- 				.max_distance =
- 					cpu_to_le16(sbi->lz4_max_distance),
--				.max_pclusterblks = cfg.c_pclusterblks_max,
-+				.max_pclusterblks =
-+					cfg.c_mkfs_pclustersize_max >> sbi->blkszbits,
- 			}
- 		};
- 
-@@ -1696,17 +1698,17 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi, struct erofs_buffer_head *s
- 	 * if big pcluster is enabled, an extra CBLKCNT lcluster index needs
- 	 * to be loaded in order to get those compressed block counts.
- 	 */
--	if (cfg.c_pclusterblks_max > 1) {
--		if (cfg.c_pclusterblks_max >
--		    Z_EROFS_PCLUSTER_MAX_SIZE / erofs_blksiz(sbi)) {
--			erofs_err("unsupported clusterblks %u (too large)",
--				  cfg.c_pclusterblks_max);
-+	if (cfg.c_mkfs_pclustersize_max > erofs_blksiz(sbi)) {
-+		if (cfg.c_mkfs_pclustersize_max > Z_EROFS_PCLUSTER_MAX_SIZE) {
-+			erofs_err("unsupported pclustersize %u (too large)",
-+				  cfg.c_mkfs_pclustersize_max);
- 			return -EINVAL;
- 		}
- 		erofs_sb_set_big_pcluster(sbi);
- 	}
--	if (cfg.c_pclusterblks_packed > cfg.c_pclusterblks_max) {
--		erofs_err("invalid physical cluster size for the packed file");
-+	if (cfg.c_mkfs_pclustersize_packed > cfg.c_mkfs_pclustersize_max) {
-+		erofs_err("invalid pclustersize for the packed file %u",
-+			  cfg.c_mkfs_pclustersize_packed);
- 		return -EINVAL;
- 	}
- 
-diff --git a/lib/compress_hints.c b/lib/compress_hints.c
-index 8b78f80..e79bd48 100644
---- a/lib/compress_hints.c
-+++ b/lib/compress_hints.c
-@@ -55,7 +55,7 @@ bool z_erofs_apply_compress_hints(struct erofs_inode *inode)
- 		return true;
- 
- 	s = erofs_fspath(inode->i_srcpath);
--	pclusterblks = cfg.c_pclusterblks_def;
-+	pclusterblks = cfg.c_mkfs_pclustersize_def >> inode->sbi->blkszbits;
- 	algorithmtype = 0;
- 
- 	list_for_each_entry(r, &compress_hints_head, list) {
-@@ -136,7 +136,7 @@ int erofs_load_compress_hints(struct erofs_sb_info *sbi)
- 		if (pclustersize % erofs_blksiz(sbi)) {
- 			erofs_warn("invalid physical clustersize %u, "
- 				   "use default pclusterblks %u",
--				   pclustersize, cfg.c_pclusterblks_def);
-+				   pclustersize, cfg.c_mkfs_pclustersize_def);
- 			continue;
- 		}
- 		erofs_insert_compress_hints(pattern,
-@@ -146,9 +146,10 @@ int erofs_load_compress_hints(struct erofs_sb_info *sbi)
- 			max_pclustersize = pclustersize;
- 	}
- 
--	if (cfg.c_pclusterblks_max * erofs_blksiz(sbi) < max_pclustersize) {
--		cfg.c_pclusterblks_max = max_pclustersize / erofs_blksiz(sbi);
--		erofs_warn("update max pclusterblks to %u", cfg.c_pclusterblks_max);
-+	if (cfg.c_mkfs_pclustersize_max < max_pclustersize) {
-+		cfg.c_mkfs_pclustersize_max = max_pclustersize;
-+		erofs_warn("update max pclustersize to %u",
-+			   cfg.c_mkfs_pclustersize_max);
- 	}
+@@ -1261,8 +1261,10 @@ void z_erofs_mt_workfn(struct erofs_work *work, void *tlsp)
  out:
- 	fclose(f);
-diff --git a/lib/config.c b/lib/config.c
-index 98adaef..26f1c35 100644
---- a/lib/config.c
-+++ b/lib/config.c
-@@ -35,8 +35,6 @@ void erofs_init_configure(void)
- 	cfg.c_unix_timestamp = -1;
- 	cfg.c_uid = -1;
- 	cfg.c_gid = -1;
--	cfg.c_pclusterblks_max = 1;
--	cfg.c_pclusterblks_def = 1;
- 	cfg.c_max_decompressed_extent_bytes = -1;
- 	erofs_stdout_tty = isatty(STDOUT_FILENO);
+ 	cwork->errcode = ret;
+ 	pthread_mutex_lock(&ictx->mutex);
+-	++ictx->nfini;
+-	pthread_cond_signal(&ictx->cond);
++	if (++ictx->nfini == ictx->seg_num) {
++		close(ictx->fd);
++		pthread_cond_signal(&ictx->cond);
++	}
+ 	pthread_mutex_unlock(&ictx->mutex);
  }
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 9ad213b..3d19f60 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -820,8 +820,8 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 				  pclustersize_max);
- 			return -EINVAL;
- 		}
--		cfg.c_pclusterblks_max = pclustersize_max >> sbi.blkszbits;
--		cfg.c_pclusterblks_def = cfg.c_pclusterblks_max;
-+		cfg.c_mkfs_pclustersize_max = pclustersize_max;
-+		cfg.c_mkfs_pclustersize_def = cfg.c_mkfs_pclustersize_max;
- 	}
- 	if (cfg.c_chunkbits && cfg.c_chunkbits < sbi.blkszbits) {
- 		erofs_err("chunksize %u must be larger than block size",
-@@ -830,13 +830,13 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 	}
  
- 	if (pclustersize_packed) {
--		if (pclustersize_max < erofs_blksiz(&sbi) ||
--		    pclustersize_max % erofs_blksiz(&sbi)) {
-+		if (pclustersize_packed < erofs_blksiz(&sbi) ||
-+		    pclustersize_packed % erofs_blksiz(&sbi)) {
- 			erofs_err("invalid pcluster size for the packed file %u",
- 				  pclustersize_packed);
- 			return -EINVAL;
- 		}
--		cfg.c_pclusterblks_packed = pclustersize_packed >> sbi.blkszbits;
-+		cfg.c_mkfs_pclustersize_packed = pclustersize_packed;
- 	}
- 	return 0;
+@@ -1406,7 +1408,6 @@ int erofs_mt_write_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 			blkaddr - compressed_blocks, compressed_blocks);
+ 
+ out:
+-	close(ictx->fd);
+ 	free(ictx);
+ 	return ret;
  }
-@@ -948,6 +948,8 @@ static void erofs_mkfs_default_options(void)
- 	cfg.c_legacy_compress = false;
- 	cfg.c_inline_data = true;
- 	cfg.c_xattr_name_filter = true;
-+	cfg.c_mkfs_pclustersize_max = erofs_blksiz(&sbi);
-+	cfg.c_mkfs_pclustersize_def = cfg.c_mkfs_pclustersize_max;
+@@ -1456,7 +1457,6 @@ void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		ictx = malloc(sizeof(*ictx));
+ 		if (!ictx)
+ 			return ERR_PTR(-ENOMEM);
+-		ictx->fd = dup(fd);
+ 	} else {
  #ifdef EROFS_MT_ENABLED
- 	cfg.c_mt_workers = erofs_get_available_processors();
- 	cfg.c_mkfs_segment_size = 16ULL * 1024 * 1024;
-@@ -1153,8 +1155,8 @@ int main(int argc, char **argv)
+ 		pthread_mutex_lock(&g_ictx.mutex);
+@@ -1466,8 +1466,8 @@ void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
+ 		pthread_mutex_unlock(&g_ictx.mutex);
  #endif
- 	erofs_show_config();
- 	if (cfg.c_fragments || cfg.c_extra_ea_name_prefixes) {
--		if (!cfg.c_pclusterblks_packed)
--			cfg.c_pclusterblks_packed = cfg.c_pclusterblks_def;
-+		if (!cfg.c_mkfs_pclustersize_packed)
-+			cfg.c_mkfs_pclustersize_packed = cfg.c_mkfs_pclustersize_def;
+ 		ictx = &g_ictx;
+-		ictx->fd = fd;
+ 	}
++	ictx->fd = fd;
  
- 		packedfile = erofs_packedfile_init();
- 		if (IS_ERR(packedfile)) {
+ 	ictx->ccfg = &erofs_ccfg[inode->z_algorithmtype[0]];
+ 	inode->z_algorithmtype[0] = ictx->ccfg->algorithmtype;
+@@ -1551,6 +1551,7 @@ int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 	init_list_head(&sctx.extents);
+ 
+ 	ret = z_erofs_compress_segment(&sctx, -1, blkaddr);
++	close(ictx->fd);
+ 	if (ret)
+ 		goto err_free_idata;
+ 
+diff --git a/lib/inode.c b/lib/inode.c
+index 44d684f..a30975b 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -1112,27 +1112,27 @@ static void erofs_fixup_meta_blkaddr(struct erofs_inode *rootdir)
+ struct erofs_mkfs_job_ndir_ctx {
+ 	struct erofs_inode *inode;
+ 	void *ictx;
+-	int fd;
+ };
+ 
+ static int erofs_mkfs_job_write_file(struct erofs_mkfs_job_ndir_ctx *ctx)
+ {
+ 	struct erofs_inode *inode = ctx->inode;
++	int fd;
+ 	int ret;
+ 
+ 	if (ctx->ictx) {
+ 		ret = erofs_write_compressed_file(ctx->ictx);
+ 		if (ret != -ENOSPC)
+-			goto out;
+-		if (lseek(ctx->fd, 0, SEEK_SET) < 0) {
+-			ret = -errno;
+-			goto out;
+-		}
++			return ret;
+ 	}
++
+ 	/* fallback to all data uncompressed */
+-	ret = erofs_write_unencoded_file(inode, ctx->fd, 0);
+-out:
+-	close(ctx->fd);
++	fd = open(inode->i_srcpath, O_RDONLY | O_BINARY);
++	if (fd < 0)
++		return -errno;
++	ret = erofs_write_unencoded_file(inode, fd, 0);
++	close(fd);
++
+ 	return ret;
+ }
+ 
+@@ -1393,14 +1393,14 @@ static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
+ 		struct erofs_mkfs_job_ndir_ctx ctx = { .inode = inode };
+ 
+ 		if (!S_ISLNK(inode->i_mode) && inode->i_size) {
+-			ctx.fd = open(inode->i_srcpath, O_RDONLY | O_BINARY);
+-			if (ctx.fd < 0)
++			int fd = open(inode->i_srcpath, O_RDONLY | O_BINARY);
++			if (fd < 0)
+ 				return -errno;
+ 
+ 			if (cfg.c_compr_opts[0].alg &&
+ 			    erofs_file_is_compressible(inode)) {
+ 				ctx.ictx = erofs_begin_compressed_file(inode,
+-								ctx.fd, 0);
++								fd, 0);
+ 				if (IS_ERR(ctx.ictx))
+ 					return PTR_ERR(ctx.ictx);
+ 			}
 -- 
-2.39.3
+2.44.0
 
