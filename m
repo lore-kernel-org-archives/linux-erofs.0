@@ -4,73 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 232FDC4345F
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Apr 2024 14:10:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91D2FC4345F
+	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 02:16:53 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WrpkJBmu;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WrpkJBmu;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=fWeX5qHX;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VTMYP5gMrz3cl9
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 00:10:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VTgg81L19z3cZ0
+	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 12:16:52 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WrpkJBmu;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WrpkJBmu;
+	dkim=pass (2048-bit key; unprotected) header.d=sijam-com.20230601.gappssmtp.com header.i=@sijam-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=fWeX5qHX;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=sijam.com (client-ip=2607:f8b0:4864:20::436; helo=mail-pf1-x436.google.com; envelope-from=asai@sijam.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VTMNg58c7z3cXg
-	for <linux-erofs@lists.ozlabs.org>; Wed,  1 May 2024 00:03:15 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714485793;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=91B27U8z7Iln6XJD9uh+fX/pmahLPw16tVNP6LRoyow=;
-	b=WrpkJBmubsPLQBxBlT3XAfaQ4vBU5ppciCOtB6fAsJ93k9AYmj6feX2FfjKcMTBWm6GrZQ
-	zJLAz7ZVbIt+HvkRB1WE7PWLZDh9qKmMXvtymAv2zrxLtVvtLx5nbl1yPZHic4Xjb7NrjM
-	DTfJUZcAML42sJqmMvpbP1YCTAdJcO0=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714485793;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=91B27U8z7Iln6XJD9uh+fX/pmahLPw16tVNP6LRoyow=;
-	b=WrpkJBmubsPLQBxBlT3XAfaQ4vBU5ppciCOtB6fAsJ93k9AYmj6feX2FfjKcMTBWm6GrZQ
-	zJLAz7ZVbIt+HvkRB1WE7PWLZDh9qKmMXvtymAv2zrxLtVvtLx5nbl1yPZHic4Xjb7NrjM
-	DTfJUZcAML42sJqmMvpbP1YCTAdJcO0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-259-9eohxlC1NuGqMNpSzIOC4g-1; Tue, 30 Apr 2024 10:03:03 -0400
-X-MC-Unique: 9eohxlC1NuGqMNpSzIOC4g-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A778F823F1B;
-	Tue, 30 Apr 2024 14:02:36 +0000 (UTC)
-Received: from warthog.procyon.org.com (unknown [10.42.28.22])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 7904D1C0F133;
-	Tue, 30 Apr 2024 14:02:33 +0000 (UTC)
-From: David Howells <dhowells@redhat.com>
-To: Christian Brauner <christian@brauner.io>,
-	Jeff Layton <jlayton@kernel.org>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH v2 21/22] netfs: Miscellaneous tidy ups
-Date: Tue, 30 Apr 2024 15:00:52 +0100
-Message-ID: <20240430140056.261997-22-dhowells@redhat.com>
-In-Reply-To: <20240430140056.261997-1-dhowells@redhat.com>
-References: <20240430140056.261997-1-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VTgfv5Sk5z2xbC
+	for <linux-erofs@lists.ozlabs.org>; Wed,  1 May 2024 12:16:38 +1000 (AEST)
+Received: by mail-pf1-x436.google.com with SMTP id d2e1a72fcca58-6ee0642f718so351698b3a.0
+        for <linux-erofs@lists.ozlabs.org>; Tue, 30 Apr 2024 19:16:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sijam-com.20230601.gappssmtp.com; s=20230601; t=1714529794; x=1715134594; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5haz21yR4hpgCaVy10GDfzhYcReI5QYdpnKMGaUSa20=;
+        b=fWeX5qHX0YvXqyCHNfsIFcsla8pi640Ib6NSUM4Jg3EpXqHUul44y2QwoDVS5G+ao4
+         QnDrOPPxd6/KCgo06u2pnhVOmelZAWGWc4IlLQVqnqmLf9BdhrBYX4n4+auVovvzRSnU
+         wA+0226/8pMuTDID+48g748+c4qjwQGbczxdG4x4Z/HY0ILDOmkdO+f088njhiuUbVMP
+         M0BhN9ZE+HTPX6Fpp2ACQ9UPaSwOrtNzBMWTiRII6vGDkqIDpPmAKcXKFUtJCO40zA+p
+         5utnvxnw2fwaIb3dD3rY3UBS7cRckEteOgHTluAoIrxTuIf/mPL3eppnPZvaATNN6PD9
+         OKAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714529794; x=1715134594;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5haz21yR4hpgCaVy10GDfzhYcReI5QYdpnKMGaUSa20=;
+        b=GvLKV+CYA5XxoEWfW76S04L5DVwnKCg5u+BiJuRP5gsZA+fXoRbWjyiftCQjdI3rtu
+         2OTNXdA/dp8Tf6cEpbl6u69YcRjelojjHGvOGCAOVykBZMgNMfM/E/xLONgT6Mh84Y9f
+         6bAE1bCRmzJ76iLzUjldMoMYn4kGkSaKfSLE8eIuqU5sJBF4s0K+xTHHEenEZFIqZ8EE
+         oez7KDldRdhdPX3Gd7mXfm/CcrWkvJR74Qn58J9NpulM18TaQIk8GN10NzSoO8e8jwuv
+         WBZ8p8KKJtDdZs/MvqUTojey4SY2G9PV+FQJwzs6scFkYrqirWpEanaovVckFw61UuFw
+         UCSQ==
+X-Gm-Message-State: AOJu0Yx6czIL91NVmUIEOaEV3gctbmN5/wN0fsOZajXMOdTBPKebHAGj
+	Vrv1GcknpOmXFyMI/3nIIa0ajNeylBRsnjh2IAJeaXrjuhmxB7PHQZT0FcKGkPE=
+X-Google-Smtp-Source: AGHT+IG1ESpdbGVW8M5nn/Ac1UoX97jTX/cMbe9l2gINS1rxGiDe6u2nL1RxeR3sAAR94NhFMTlepQ==
+X-Received: by 2002:a05:6a20:da9d:b0:1a8:2cd1:e493 with SMTP id iy29-20020a056a20da9d00b001a82cd1e493mr2019076pzb.29.1714529793791;
+        Tue, 30 Apr 2024 19:16:33 -0700 (PDT)
+Received: from elric.localdomain (i121-112-72-48.s41.a027.ap.plala.or.jp. [121.112.72.48])
+        by smtp.gmail.com with ESMTPSA id b21-20020aa78715000000b006f3f062c4f4sm6382886pfo.136.2024.04.30.19.16.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Apr 2024 19:16:33 -0700 (PDT)
+From: Noboru Asai <asai@sijam.com>
+To: hsiangkao@linux.alibaba.com
+Subject: [PATCH] erofs-utils: optimize pthread_cond_signal calling
+Date: Wed,  1 May 2024 11:16:24 +0900
+Message-ID: <20240501021624.1865253-1-asai@sijam.com>
+X-Mailer: git-send-email 2.44.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -82,62 +75,33 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Paulo Alcantara <pc@manguebit.com>, Tom Talpey <tom@talpey.com>, Shyam Prasad N <sprasad@microsoft.com>, linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org, v9fs@lists.linux.dev, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, linux-mm@kvack.org, netdev@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>, netfs@lists.linux.dev, Ilya Dryomov <idryomov@gmail.com>, Eric Van Hensbergen <ericvh@kernel.org>, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Do a couple of miscellaneous tidy ups:
+Call pthread_cond_signal once per file.
 
- (1) Add a qualifier into a file banner comment.
-
- (2) Put the writeback folio traces back into alphabetical order.
-
- (3) Remove some unused folio traces.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Noboru Asai <asai@sijam.com>
 ---
- fs/netfs/buffered_write.c    | 2 +-
- include/trace/events/netfs.h | 6 +-----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ lib/compress.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/netfs/buffered_write.c b/fs/netfs/buffered_write.c
-index 43d2cbcbe75c..d435f39547ef 100644
---- a/fs/netfs/buffered_write.c
-+++ b/fs/netfs/buffered_write.c
-@@ -1,5 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0-only
--/* Network filesystem high-level write support.
-+/* Network filesystem high-level buffered write support.
-  *
-  * Copyright (C) 2023 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells@redhat.com)
-diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
-index e7700172ae7e..4ba553a6d71b 100644
---- a/include/trace/events/netfs.h
-+++ b/include/trace/events/netfs.h
-@@ -141,12 +141,9 @@
- 	EM(netfs_folio_trace_cancel_copy,	"cancel-copy")	\
- 	EM(netfs_folio_trace_clear,		"clear")	\
- 	EM(netfs_folio_trace_clear_cc,		"clear-cc")	\
--	EM(netfs_folio_trace_clear_s,		"clear-s")	\
- 	EM(netfs_folio_trace_clear_g,		"clear-g")	\
--	EM(netfs_folio_trace_copy,		"copy")		\
--	EM(netfs_folio_trace_copy_plus,		"copy+")	\
-+	EM(netfs_folio_trace_clear_s,		"clear-s")	\
- 	EM(netfs_folio_trace_copy_to_cache,	"mark-copy")	\
--	EM(netfs_folio_trace_end_copy,		"end-copy")	\
- 	EM(netfs_folio_trace_filled_gaps,	"filled-gaps")	\
- 	EM(netfs_folio_trace_kill,		"kill")		\
- 	EM(netfs_folio_trace_kill_cc,		"kill-cc")	\
-@@ -156,7 +153,6 @@
- 	EM(netfs_folio_trace_mkwrite_plus,	"mkwrite+")	\
- 	EM(netfs_folio_trace_not_under_wback,	"!wback")	\
- 	EM(netfs_folio_trace_read_gaps,		"read-gaps")	\
--	EM(netfs_folio_trace_redirty,		"redirty")	\
- 	EM(netfs_folio_trace_redirtied,		"redirtied")	\
- 	EM(netfs_folio_trace_store,		"store")	\
- 	EM(netfs_folio_trace_store_copy,	"store-copy")	\
+diff --git a/lib/compress.c b/lib/compress.c
+index 7fef698..29307a1 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -1261,8 +1261,9 @@ void z_erofs_mt_workfn(struct erofs_work *work, void *tlsp)
+ out:
+ 	cwork->errcode = ret;
+ 	pthread_mutex_lock(&ictx->mutex);
+-	++ictx->nfini;
+-	pthread_cond_signal(&ictx->cond);
++	if (++ictx->nfini == ictx->seg_num) {
++		pthread_cond_signal(&ictx->cond);
++	}
+ 	pthread_mutex_unlock(&ictx->mutex);
+ }
+ 
+-- 
+2.44.0
 
