@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6E81C25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:57:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCDB1C25B75
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:57:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRtY2Smrz3cHN
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:57:09 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRtc3h5Lz3cXb
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:57:12 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt024znz3bqP
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt06TCyz3c2K
 	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:56:40 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfRsn1l1Fz4f3k6m
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:29 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VfRsm3NpWz4f3jJB
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:28 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id C71C51A09EE
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:34 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 2278C1A017F
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:37 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S12;
-	Wed, 15 May 2024 16:56:34 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S16;
+	Wed, 15 May 2024 16:56:36 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v2 08/12] cachefiles: never get a new anonymous fd if ondemand_id is valid
-Date: Wed, 15 May 2024 16:45:57 +0800
-Message-Id: <20240515084601.3240503-9-libaokun@huaweicloud.com>
+Subject: [PATCH v2 12/12] cachefiles: make on-demand read killable
+Date: Wed, 15 May 2024 16:46:01 +0800
+Message-Id: <20240515084601.3240503-13-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 References: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S12
-X-Coremail-Antispam: 1UD129KBjvJXoW3Ar47CrWUZw1xtr4fArW8JFb_yoW7XrWfpF
-	WayFy3KryxWF4xGrZ7AFs5XryrC3ykZFnrWw1aga48Arn8Zr1rZr1Utr1SvFy5A3sagrsr
-	tw4Uuasxt34qk3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S16
+X-Coremail-Antispam: 1UD129KBjvJXoW7uFW7JryDCF4DJr4kXFy7Jrb_yoW8WF45pF
+	Waka45KFykuF4I9r93J3WUX34Sy3ykAFnrWrySqrW3AwsIqrnYvr18t3WYqF43A395WrW3
+	tr95KFyxK3Wjq3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
 	9KBjDU0xBIdaVrnRJUUUmY14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
 	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
 	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
@@ -52,9 +52,9 @@ X-Coremail-Antispam: 1UD129KBjvJXoW3Ar47CrWUZw1xtr4fArW8JFb_yoW7XrWfpF
 	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
 	kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
 	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
-	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0
+	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0
 	I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0x
-	vEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIev
+	vEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIev
 	Ja73UjIFyTuYvjfUYGYpUUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -74,155 +74,57 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Now every time the daemon reads an open request, it gets a new anonymous fd
-and ondemand_id. With the introduction of "restore", it is possible to read
-the same open request more than once, and therefore an object can have more
-than one anonymous fd.
+Replacing wait_for_completion() with wait_for_completion_killable() in
+cachefiles_ondemand_send_req() allows us to kill processes that might
+trigger a hunk_task if the daemon is abnormal.
 
-If the anonymous fd is not unique, the following concurrencies will result
-in an fd leak:
+But now only CACHEFILES_OP_READ is killable, because OP_CLOSE and OP_OPEN
+is initiated from kworker context and the signal is prohibited in these
+kworker.
 
-     t1     |         t2         |          t3
-------------------------------------------------------------
- cachefiles_ondemand_init_object
-  cachefiles_ondemand_send_req
-   REQ_A = kzalloc(sizeof(*req) + data_len)
-   wait_for_completion(&REQ_A->done)
-            cachefiles_daemon_read
-             cachefiles_ondemand_daemon_read
-              REQ_A = cachefiles_ondemand_select_req
-              cachefiles_ondemand_get_fd
-                load->fd = fd0
-                ondemand_id = object_id0
-                                  ------ restore ------
-                                  cachefiles_ondemand_restore
-                                   // restore REQ_A
-                                  cachefiles_daemon_read
-                                   cachefiles_ondemand_daemon_read
-                                    REQ_A = cachefiles_ondemand_select_req
-                                      cachefiles_ondemand_get_fd
-                                        load->fd = fd1
-                                        ondemand_id = object_id1
-             process_open_req(REQ_A)
-             write(devfd, ("copen %u,%llu", msg->msg_id, size))
-             cachefiles_ondemand_copen
-              xa_erase(&cache->reqs, id)
-              complete(&REQ_A->done)
-   kfree(REQ_A)
-                                  process_open_req(REQ_A)
-                                  // copen fails due to no req
-                                  // daemon close(fd1)
-                                  cachefiles_ondemand_fd_release
-                                   // set object closed
- -- umount --
- cachefiles_withdraw_cookie
-  cachefiles_ondemand_clean_object
-   cachefiles_ondemand_init_close_req
-    if (!cachefiles_ondemand_object_is_open(object))
-      return -ENOENT;
-    // The fd0 is not closed until the daemon exits.
+Note that when the req in xas changes, i.e. xas_load(&xas) != req, it
+means that a process will complete the current request soon, so wait
+again for the request to be completed.
 
-However, the anonymous fd holds the reference count of the object and the
-object holds the reference count of the cookie. So even though the cookie
-has been relinquished, it will not be unhashed and freed until the daemon
-exits.
-
-In fscache_hash_cookie(), when the same cookie is found in the hash list,
-if the cookie is set with the FSCACHE_COOKIE_RELINQUISHED bit, then the new
-cookie waits for the old cookie to be unhashed, while the old cookie is
-waiting for the leaked fd to be closed, if the daemon does not exit in time
-it will trigger a hung task.
-
-To avoid this, allocate a new anonymous fd only if no anonymous fd has
-been allocated (ondemand_id == 0) or if the previously allocated anonymous
-fd has been closed (ondemand_id == -1). Moreover, returns an error if
-ondemand_id is valid, letting the daemon know that the current userland
-restore logic is abnormal and needs to be checked.
-
-Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
+Suggested-by: Hou Tao <houtao1@huawei.com>
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 ---
- fs/cachefiles/ondemand.c | 34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ fs/cachefiles/ondemand.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
 diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index d04ddc6576e3..d2d4e27fca6f 100644
+index a511d0a89109..bdc2d6dbadce 100644
 --- a/fs/cachefiles/ondemand.c
 +++ b/fs/cachefiles/ondemand.c
-@@ -14,11 +14,18 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
- 					  struct file *file)
- {
- 	struct cachefiles_object *object = file->private_data;
--	struct cachefiles_cache *cache = object->volume->cache;
--	struct cachefiles_ondemand_info *info = object->ondemand;
-+	struct cachefiles_cache *cache;
-+	struct cachefiles_ondemand_info *info;
- 	int object_id;
- 	struct cachefiles_req *req;
--	XA_STATE(xas, &cache->reqs, 0);
-+	XA_STATE(xas, NULL, 0);
-+
-+	if (!object)
-+		return 0;
-+
-+	info = object->ondemand;
-+	cache = object->volume->cache;
-+	xas.xa = &cache->reqs;
+@@ -544,8 +544,25 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
+ 		goto out;
  
- 	xa_lock(&cache->reqs);
- 	spin_lock(&info->lock);
-@@ -288,22 +295,39 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- 		goto err_put_fd;
- 	}
- 
-+	spin_lock(&object->ondemand->lock);
-+	if (object->ondemand->ondemand_id > 0) {
-+		spin_unlock(&object->ondemand->lock);
-+		/* Pair with check in cachefiles_ondemand_fd_release(). */
-+		file->private_data = NULL;
-+		ret = -EEXIST;
-+		goto err_put_file;
+ 	wake_up_all(&cache->daemon_pollwq);
+-	wait_for_completion(&req->done);
+-	ret = req->error;
++wait:
++	ret = wait_for_completion_killable(&req->done);
++	if (!ret) {
++		ret = req->error;
++	} else {
++		xas_reset(&xas);
++		xas_lock(&xas);
++		if (xas_load(&xas) == req) {
++			xas_store(&xas, NULL);
++			ret = -EINTR;
++		}
++		xas_unlock(&xas);
++
++		/* Someone will complete it soon. */
++		if (ret != -EINTR) {
++			cpu_relax();
++			goto wait;
++		}
 +	}
-+
- 	file->f_mode |= FMODE_PWRITE | FMODE_LSEEK;
- 	fd_install(fd, file);
- 
- 	load = (void *)req->msg.data;
- 	load->fd = fd;
- 	object->ondemand->ondemand_id = object_id;
-+	spin_unlock(&object->ondemand->lock);
- 
- 	cachefiles_get_unbind_pincount(cache);
- 	trace_cachefiles_ondemand_open(object, &req->msg, load);
- 	return 0;
- 
-+err_put_file:
-+	fput(file);
- err_put_fd:
- 	put_unused_fd(fd);
- err_free_id:
- 	xa_erase(&cache->ondemand_ids, object_id);
- err:
-+	spin_lock(&object->ondemand->lock);
-+	/* Avoid marking an opened object as closed. */
-+	if (object->ondemand->ondemand_id <= 0)
-+		cachefiles_ondemand_set_object_close(object);
-+	spin_unlock(&object->ondemand->lock);
- 	cachefiles_put_object(object, cachefiles_obj_put_ondemand_fd);
+ 	cachefiles_req_put(req);
  	return ret;
- }
-@@ -386,10 +410,8 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 
- 	if (msg->opcode == CACHEFILES_OP_OPEN) {
- 		ret = cachefiles_ondemand_get_fd(req);
--		if (ret) {
--			cachefiles_ondemand_set_object_close(req->object);
-+		if (ret)
- 			goto out;
--		}
- 	}
- 
- 	msg->msg_id = xas.xa_index;
+ out:
 -- 
 2.39.2
 
