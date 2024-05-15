@@ -4,59 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D5A38C25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 13:02:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC092C25B78
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 17:23:08 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=XYYQWFbx;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VfYKq3G3Nz3cjX
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 23:02:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vfg6M2Gsgz3cxn
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 May 2024 03:23:07 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=XYYQWFbx;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfYKN4gMBz3cSN
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 23:02:16 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfYK652xGz4f3k6R
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 21:02:02 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 4518C1A017F
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 21:02:08 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgAX6RFLskRmALLwMg--.18738S5;
-	Wed, 15 May 2024 21:02:08 +0800 (CST)
-From: libaokun@huaweicloud.com
-To: netfs@lists.linux.dev,
-	dhowells@redhat.com,
-	jlayton@kernel.org
-Subject: [PATCH v2 1/5] cachefiles: stop sending new request when dropping object
-Date: Wed, 15 May 2024 20:51:32 +0800
-Message-Id: <20240515125136.3714580-2-libaokun@huaweicloud.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240515125136.3714580-1-libaokun@huaweicloud.com>
-References: <20240515125136.3714580-1-libaokun@huaweicloud.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vfg692m3Dz30WV
+	for <linux-erofs@lists.ozlabs.org>; Thu, 16 May 2024 03:22:55 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715793768; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=5BrnBlAnP4HsIckQvEl5xaIc7rj84zmME3Jpg7gzkJE=;
+	b=XYYQWFbxqrRzh4XoiZH1aThhdDwzkr0IBssEy1B0pTf7r+j8xgThJ6OJmHZQg0xHadLf2+MXfAJOq6hwEflDiFQllor6cBOon4Xq7JqHylqpLCrJj0ID9/M5KnG6axhPbf/J5mEy7+NKbhopxOz5V7otptHBIyo+lJmUcoxMdvM=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W6YfSd9_1715793758;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6YfSd9_1715793758)
+          by smtp.aliyun-inc.com;
+          Thu, 16 May 2024 01:22:46 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 1/2] erofs-utils: correct the default number of workers in the usage
+Date: Thu, 16 May 2024 01:22:34 +0800
+Message-Id: <20240515172236.661035-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgAX6RFLskRmALLwMg--.18738S5
-X-Coremail-Antispam: 1UD129KBjvJXoWxAF47Zw1DXw4rurW3Xw17GFg_yoW5Zw1DpF
-	WayFy3Kry8ur17G3ykZa95JrySy3ykZrnrWa4Yq3W5AanIqFWrZr1ktr1DuF1UC3yxXr43
-	tw48CasxJ3y2k3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPC14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
-	x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-	Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
-	xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
-	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
-	v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IY
-	x2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87
-	Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI
-	43ZEXa7VUjU5r7UUUUU==
-X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -68,85 +51,38 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: libaokun@huaweicloud.com, yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, yukuai3@huawei.com
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Baokun Li <libaokun1@huawei.com>
-
-Added CACHEFILES_ONDEMAND_OBJSTATE_DROPPING indicates that the cachefiles
-object is being dropped, and is set after the close request for the dropped
-object completes, and no new requests are allowed to be sent after this
-state.
-
-This prepares for the later addition of cancel_work_sync(). It prevents
-leftover reopen requests from being sent, to avoid processing unnecessary
-requests and to avoid cancel_work_sync() blocking by waiting for daemon to
-complete the reopen requests.
-
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Fixes: 59c36e7a4008 ("erofs-utils: mkfs: use all available processors by default")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/cachefiles/internal.h |  2 ++
- fs/cachefiles/ondemand.c | 10 ++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ mkfs/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index d33169f0018b..8ecd296cc1c4 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -48,6 +48,7 @@ enum cachefiles_object_state {
- 	CACHEFILES_ONDEMAND_OBJSTATE_CLOSE, /* Anonymous fd closed by daemon or initial state */
- 	CACHEFILES_ONDEMAND_OBJSTATE_OPEN, /* Anonymous fd associated with object is available */
- 	CACHEFILES_ONDEMAND_OBJSTATE_REOPENING, /* Object that was closed and is being reopened. */
-+	CACHEFILES_ONDEMAND_OBJSTATE_DROPPING, /* Object is being dropped. */
- };
- 
- struct cachefiles_ondemand_info {
-@@ -332,6 +333,7 @@ cachefiles_ondemand_set_object_##_state(struct cachefiles_object *object) \
- CACHEFILES_OBJECT_STATE_FUNCS(open, OPEN);
- CACHEFILES_OBJECT_STATE_FUNCS(close, CLOSE);
- CACHEFILES_OBJECT_STATE_FUNCS(reopening, REOPENING);
-+CACHEFILES_OBJECT_STATE_FUNCS(dropping, DROPPING);
- 
- static inline bool cachefiles_ondemand_is_reopening_read(struct cachefiles_req *req)
- {
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index 4ba42f1fa3b4..73da4d4eaa9b 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -422,7 +422,8 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
- 		 */
- 		xas_lock(&xas);
- 
--		if (test_bit(CACHEFILES_DEAD, &cache->flags)) {
-+		if (test_bit(CACHEFILES_DEAD, &cache->flags) ||
-+		    cachefiles_ondemand_object_is_dropping(object)) {
- 			xas_unlock(&xas);
- 			ret = -EIO;
- 			goto out;
-@@ -463,7 +464,8 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
- 	 * If error occurs after creating the anonymous fd,
- 	 * cachefiles_ondemand_fd_release() will set object to close.
- 	 */
--	if (opcode == CACHEFILES_OP_OPEN)
-+	if (opcode == CACHEFILES_OP_OPEN &&
-+	    !cachefiles_ondemand_object_is_dropping(object))
- 		cachefiles_ondemand_set_object_close(object);
- 	kfree(req);
- 	return ret;
-@@ -562,8 +564,12 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
- 
- void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
- {
-+	if (!object->ondemand)
-+		return;
-+
- 	cachefiles_ondemand_send_req(object, CACHEFILES_OP_CLOSE, 0,
- 			cachefiles_ondemand_init_close_req, NULL);
-+	cachefiles_ondemand_set_object_dropping(object);
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 4c3620d..455c152 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -187,7 +187,7 @@ static void usage(int argc, char **argv)
+ 		"                       (and optionally dump the raw stream to X together)\n"
+ #endif
+ #ifdef EROFS_MT_ENABLED
+-		" --workers=#           set the number of worker threads to # (default=1)\n"
++		" --workers=#           set the number of worker threads to # (default: %u)\n"
+ #endif
+ 		" --xattr-prefix=X      X=extra xattr name prefix\n"
+ 		" --mount-point=X       X=prefix of target fs path (default: /)\n"
+@@ -198,7 +198,7 @@ static void usage(int argc, char **argv)
+ 		" --fs-config-file=X    X=fs_config file\n"
+ 		" --block-list-file=X   X=block_list file\n"
+ #endif
+-		);
++		, erofs_get_available_processors() /* --workers= */);
  }
  
- int cachefiles_ondemand_init_obj_info(struct cachefiles_object *object,
+ static void version(void)
 -- 
-2.39.2
+2.39.3
 
