@@ -4,42 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2658FC25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:42:23 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=E68sqUrR;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACB67C25B75
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:56:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRYV2zm1z30Wd
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:42:22 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=E68sqUrR;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRt41bS2z30Wn
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:56:44 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRYH54Plz30WW
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:42:09 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715762524; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=oDM6hqRSr+q/uoscxZ5nSTdRu2kTicrUEFIneGEob2Q=;
-	b=E68sqUrRAH9/Q/jh0JfWjp5Im7vyAc0AxYwdxJB3P6myhycL/QB/tBtQeNpESCLi9SvVyqYinMltdEgM9fAjh7Mcqsnqmf1S3//CvEkbksvEUBtZ2SgrHcu2CvwQLoDymcb58FlAWGx7ogtZCtre+2KmLVb2zEtGnJF09/KQhj0=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W6XR5Ll_1715762517;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6XR5Ll_1715762517)
-          by smtp.aliyun-inc.com;
-          Wed, 15 May 2024 16:42:02 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: unify the tree traversal for the rebuild mode
-Date: Wed, 15 May 2024 16:41:56 +0800
-Message-Id: <20240515084156.4191479-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt00lmZz2xTP
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:56:39 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfRsc3fMrz4f3mHh
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:20 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id AEA001A120E
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:30 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.104.67])
+	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S5;
+	Wed, 15 May 2024 16:56:30 +0800 (CST)
+From: libaokun@huaweicloud.com
+To: netfs@lists.linux.dev,
+	dhowells@redhat.com,
+	jlayton@kernel.org
+Subject: [PATCH v2 01/12] cachefiles: remove request from xarry during flush requests
+Date: Wed, 15 May 2024 16:45:50 +0800
+Message-Id: <20240515084601.3240503-2-libaokun@huaweicloud.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240515084601.3240503-1-libaokun@huaweicloud.com>
+References: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S5
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zr1rJr1fKr43CrW8urykKrg_yoW8XFWkpF
+	WSka47KFykWr4qkr1kAFyrJryfJ348XF17XF17Xw1kArn8Zrs5Zr4xt340gry5ArWktFW3
+	Kr1qkF9rX34jy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPG14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
+	x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+	Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
+	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
+	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
+	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
+	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
+	xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
+	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
+	v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IY
+	x2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87
+	Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIF
+	yTuYvjfU8UDGUUUUU
+X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -51,614 +68,56 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: libaokun@huaweicloud.com, yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, yukuai3@huawei.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Let's drop the legacy approach and `tarerofs` will be applied too.
+From: Baokun Li <libaokun1@huawei.com>
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Even with CACHEFILES_DEAD set, we can still read the requests, so in the
+following concurrency the request may be used after it has been freed:
+
+     mount  |   daemon_thread1    |    daemon_thread2
+------------------------------------------------------------
+ cachefiles_ondemand_init_object
+  cachefiles_ondemand_send_req
+   REQ_A = kzalloc(sizeof(*req) + data_len)
+   wait_for_completion(&REQ_A->done)
+            cachefiles_daemon_read
+             cachefiles_ondemand_daemon_read
+                                  // close dev fd
+                                  cachefiles_flush_reqs
+                                   complete(&REQ_A->done)
+   kfree(REQ_A)
+              xa_lock(&cache->reqs);
+              cachefiles_ondemand_select_req
+                req->msg.opcode != CACHEFILES_OP_READ
+                // req use-after-free !!!
+              xa_unlock(&cache->reqs);
+                                   xa_destroy(&cache->reqs)
+
+Hence remove requests from cache->reqs when flushing them to avoid
+accessing freed requests.
+
+Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 ---
- include/erofs/internal.h |   7 +-
- lib/diskbuf.c            |  14 +-
- lib/inode.c              | 384 ++++++++++++++++++++++-----------------
- 3 files changed, 232 insertions(+), 173 deletions(-)
+ fs/cachefiles/daemon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index ecbbdf6..46345e0 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -290,7 +290,12 @@ static inline unsigned int erofs_inode_datalayout(unsigned int value)
- 			      EROFS_I_DATALAYOUT_BITS);
- }
- 
--#define IS_ROOT(x)	((x) == (x)->i_parent)
-+static inline struct erofs_inode *erofs_parent_inode(struct erofs_inode *inode)
-+{
-+	return (void *)((unsigned long)inode->i_parent & ~1UL);
-+}
-+
-+#define IS_ROOT(x)	((x) == erofs_parent_inode(x))
- 
- struct erofs_dentry {
- 	struct list_head d_child;	/* child of parent list */
-diff --git a/lib/diskbuf.c b/lib/diskbuf.c
-index 8205ba5..e5889df 100644
---- a/lib/diskbuf.c
-+++ b/lib/diskbuf.c
-@@ -10,7 +10,7 @@
- 
- /* A simple approach to avoid creating too many temporary files */
- static struct erofs_diskbufstrm {
--	u64 count;
-+	erofs_atomic_t count;
- 	u64 tailoffset, devpos;
- 	int fd;
- 	unsigned int alignsize;
-@@ -25,8 +25,6 @@ int erofs_diskbuf_getfd(struct erofs_diskbuf *db, u64 *fpos)
- 	if (!strm)
- 		return -1;
- 	offset = db->offset + strm->devpos;
--	if (lseek(strm->fd, offset, SEEK_SET) != offset)
--		return -E2BIG;
- 	if (fpos)
- 		*fpos = offset;
- 	return strm->fd;
-@@ -46,7 +44,7 @@ int erofs_diskbuf_reserve(struct erofs_diskbuf *db, int sid, u64 *off)
- 	if (off)
- 		*off = db->offset + strm->devpos;
- 	db->sp = strm;
--	++strm->count;
-+	(void)erofs_atomic_inc_return(&strm->count);
- 	strm->locked = true;	/* TODO: need a real lock for MT */
- 	return strm->fd;
- }
-@@ -66,8 +64,8 @@ void erofs_diskbuf_close(struct erofs_diskbuf *db)
- 	struct erofs_diskbufstrm *strm = db->sp;
- 
- 	DBG_BUGON(!strm);
--	DBG_BUGON(strm->count <= 1);
--	--strm->count;
-+	DBG_BUGON(erofs_atomic_read(&strm->count) <= 1);
-+	(void)erofs_atomic_dec_return(&strm->count);
- 	db->sp = NULL;
- }
- 
-@@ -122,7 +120,7 @@ int erofs_diskbuf_init(unsigned int nstrms)
- 			return -ENOSPC;
- setupone:
- 		strm->tailoffset = 0;
--		strm->count = 1;
-+		erofs_atomic_set(&strm->count, 1);
- 		if (fstat(strm->fd, &st))
- 			return -errno;
- 		strm->alignsize = max_t(u32, st.st_blksize, getpagesize());
-@@ -138,7 +136,7 @@ void erofs_diskbuf_exit(void)
- 		return;
- 
- 	for (strm = dbufstrm; strm->fd >= 0; ++strm) {
--		DBG_BUGON(strm->count != 1);
-+		DBG_BUGON(erofs_atomic_read(&strm->count) != 1);
- 
- 		close(strm->fd);
- 		strm->fd = -1;
-diff --git a/lib/inode.c b/lib/inode.c
-index 44d684f..8ec87e6 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -264,7 +264,7 @@ int erofs_init_empty_dir(struct erofs_inode *dir)
- 	d = erofs_d_alloc(dir, "..");
- 	if (IS_ERR(d))
- 		return PTR_ERR(d);
--	d->inode = erofs_igrab(dir->i_parent);
-+	d->inode = erofs_igrab(erofs_parent_inode(dir));
- 	d->type = EROFS_FT_DIR;
- 
- 	dir->i_nlink = 2;
-@@ -494,29 +494,6 @@ int erofs_write_unencoded_file(struct erofs_inode *inode, int fd, u64 fpos)
- 	return write_uncompressed_file_from_fd(inode, fd);
- }
- 
--int erofs_write_file(struct erofs_inode *inode, int fd, u64 fpos)
--{
--	DBG_BUGON(!inode->i_size);
--
--	if (cfg.c_compr_opts[0].alg && erofs_file_is_compressible(inode)) {
--		void *ictx;
--		int ret;
--
--		ictx = erofs_begin_compressed_file(inode, fd, fpos);
--		if (IS_ERR(ictx))
--			return PTR_ERR(ictx);
--
--		ret = erofs_write_compressed_file(ictx);
--		if (ret != -ENOSPC)
--			return ret;
--
--		if (lseek(fd, fpos, SEEK_SET) < 0)
--			return -errno;
--	}
--	/* fallback to all data uncompressed */
--	return erofs_write_unencoded_file(inode, fd, fpos);
--}
--
- static int erofs_bh_flush_write_inode(struct erofs_buffer_head *bh)
- {
- 	struct erofs_inode *const inode = bh->fsprivate;
-@@ -1113,6 +1090,7 @@ struct erofs_mkfs_job_ndir_ctx {
- 	struct erofs_inode *inode;
- 	void *ictx;
- 	int fd;
-+	u64 fpos;
- };
- 
- static int erofs_mkfs_job_write_file(struct erofs_mkfs_job_ndir_ctx *ctx)
-@@ -1121,18 +1099,31 @@ static int erofs_mkfs_job_write_file(struct erofs_mkfs_job_ndir_ctx *ctx)
- 	int ret;
- 
- 	if (ctx->ictx) {
-+		if (inode->with_diskbuf &&
-+		    lseek(ctx->fd, ctx->fpos, SEEK_SET) < 0) {
-+			ret = -errno;
-+			goto out;
-+		}
-+
- 		ret = erofs_write_compressed_file(ctx->ictx);
- 		if (ret != -ENOSPC)
- 			goto out;
--		if (lseek(ctx->fd, 0, SEEK_SET) < 0) {
-+		if (lseek(ctx->fd, ctx->fpos, SEEK_SET) < 0) {
- 			ret = -errno;
- 			goto out;
- 		}
+diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
+index 6465e2574230..ccb7b707ea4b 100644
+--- a/fs/cachefiles/daemon.c
++++ b/fs/cachefiles/daemon.c
+@@ -159,6 +159,7 @@ static void cachefiles_flush_reqs(struct cachefiles_cache *cache)
+ 	xa_for_each(xa, index, req) {
+ 		req->error = -EIO;
+ 		complete(&req->done);
++		__xa_erase(xa, index);
  	}
- 	/* fallback to all data uncompressed */
--	ret = erofs_write_unencoded_file(inode, ctx->fd, 0);
-+	ret = erofs_write_unencoded_file(inode, ctx->fd, ctx->fpos);
- out:
--	close(ctx->fd);
-+	if (inode->with_diskbuf) {
-+		erofs_diskbuf_close(inode->i_diskbuf);
-+		free(inode->i_diskbuf);
-+		inode->i_diskbuf = NULL;
-+		inode->with_diskbuf = false;
-+	} else {
-+		close(ctx->fd);
-+	}
- 	return ret;
- }
+ 	xa_unlock(xa);
  
-@@ -1142,17 +1133,21 @@ static int erofs_mkfs_handle_nondirectory(struct erofs_mkfs_job_ndir_ctx *ctx)
- 	int ret = 0;
- 
- 	if (S_ISLNK(inode->i_mode)) {
--		char *const symlink = malloc(inode->i_size);
--
--		if (!symlink)
--			return -ENOMEM;
--		ret = readlink(inode->i_srcpath, symlink, inode->i_size);
--		if (ret < 0) {
--			free(symlink);
--			return -errno;
-+		char *symlink = inode->i_link;
-+
-+		if (!symlink) {
-+			symlink = malloc(inode->i_size);
-+			if (!symlink)
-+				return -ENOMEM;
-+			ret = readlink(inode->i_srcpath, symlink, inode->i_size);
-+			if (ret < 0) {
-+				free(symlink);
-+				return -errno;
-+			}
- 		}
- 		ret = erofs_write_file_from_buffer(inode, symlink);
- 		free(symlink);
-+		inode->i_link = NULL;
- 	} else if (inode->i_size) {
- 		ret = erofs_mkfs_job_write_file(ctx);
- 	}
-@@ -1371,6 +1366,43 @@ err_closedir:
- 	return ret;
- }
- 
-+static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
-+{
-+	struct erofs_dentry *d, *n;
-+	unsigned int nr_subdirs, i_nlink;
-+	int ret;
-+
-+	nr_subdirs = 0;
-+	i_nlink = 2;
-+	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
-+		if (cfg.c_ovlfs_strip && erofs_inode_is_whiteout(d->inode)) {
-+			erofs_dbg("remove whiteout %s", d->inode->i_srcpath);
-+			list_del(&d->d_child);
-+			erofs_d_invalidate(d);
-+			free(d);
-+			continue;
-+		}
-+		i_nlink += S_ISDIR(d->inode->i_mode);
-+		++nr_subdirs;
-+	}
-+
-+	ret = erofs_prepare_dir_layout(dir, nr_subdirs);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * if there're too many subdirs as compact form, set nlink=1
-+	 * rather than upgrade to use extented form instead.
-+	 */
-+	if (i_nlink > USHRT_MAX &&
-+	    dir->inode_isize == sizeof(struct erofs_inode_compact))
-+		dir->i_nlink = 1;
-+	else
-+		dir->i_nlink = i_nlink;
-+
-+	return erofs_mkfs_go(dir->sbi, EROFS_MKFS_JOB_DIR, &dir, sizeof(dir));
-+}
-+
- static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
- {
- 	char *trimmed;
-@@ -1415,27 +1447,89 @@ static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
- 	return ret;
- }
- 
--#ifndef EROFS_MT_ENABLED
--#define __erofs_mkfs_build_tree_from_path erofs_mkfs_build_tree_from_path
--#endif
-+static int erofs_rebuild_handle_inode(struct erofs_inode *inode)
-+{
-+	char *trimmed;
-+	int ret;
-+
-+	trimmed = erofs_trim_for_progressinfo(erofs_fspath(inode->i_srcpath),
-+					      sizeof("Processing  ...") - 1);
-+	erofs_update_progressinfo("Processing %s ...", trimmed);
-+	free(trimmed);
-+
-+	if (erofs_should_use_inode_extended(inode)) {
-+		if (cfg.c_force_inodeversion == FORCE_INODE_COMPACT) {
-+			erofs_err("file %s cannot be in compact form",
-+				  inode->i_srcpath);
-+			return -EINVAL;
-+		}
-+		inode->inode_isize = sizeof(struct erofs_inode_extended);
-+	} else {
-+		inode->inode_isize = sizeof(struct erofs_inode_compact);
-+	}
-+
-+	/* strip all unnecessary overlayfs xattrs when ovlfs_strip is enabled */
-+	if (cfg.c_ovlfs_strip)
-+		erofs_clear_opaque_xattr(inode);
-+	else if (inode->whiteouts)
-+		erofs_set_origin_xattr(inode);
-+
-+	ret = erofs_prepare_xattr_ibody(inode);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (!S_ISDIR(inode->i_mode)) {
-+		struct erofs_mkfs_job_ndir_ctx ctx = { .inode = inode };
- 
--struct erofs_inode *__erofs_mkfs_build_tree_from_path(const char *path)
-+		if (!S_ISLNK(inode->i_mode) && inode->i_size) {
-+			DBG_BUGON(!inode->with_diskbuf);
-+			ctx.fd = erofs_diskbuf_getfd(inode->i_diskbuf, &ctx.fpos);
-+			if (ctx.fd < 0)
-+				return ret;
-+
-+			if (cfg.c_compr_opts[0].alg &&
-+			    erofs_file_is_compressible(inode)) {
-+				ctx.ictx = erofs_begin_compressed_file(inode,
-+							ctx.fd, ctx.fpos);
-+				if (IS_ERR(ctx.ictx))
-+					return PTR_ERR(ctx.ictx);
-+			}
-+		}
-+		ret = erofs_mkfs_go(inode->sbi, EROFS_MKFS_JOB_NDIR,
-+				    &ctx, sizeof(ctx));
-+	} else {
-+		ret = erofs_rebuild_handle_directory(inode);
-+	}
-+	erofs_info("file %s dumped (mode %05o)", erofs_fspath(inode->i_srcpath),
-+		   inode->i_mode);
-+	return ret;
-+}
-+
-+static bool erofs_inode_visited(struct erofs_inode *inode)
- {
--	struct erofs_inode *root, *dumpdir;
--	int err;
-+	return (unsigned long)inode->i_parent & 1UL;
-+}
- 
--	root = erofs_iget_from_path(path, true);
--	if (IS_ERR(root))
--		return root;
-+static void erofs_mark_parent_inode(struct erofs_inode *inode,
-+				    struct erofs_inode *dir)
-+{
-+	inode->i_parent = (void *)((unsigned long)dir | 1);
-+}
-+
-+static int erofs_mkfs_dump_tree(struct erofs_inode *root, bool rebuild)
-+{
-+	struct erofs_inode *dumpdir;
-+	int err;
- 
--	root->i_parent = root;	/* rootdir mark */
-+	erofs_mark_parent_inode(root, root);	/* rootdir mark */
- 	root->next_dirwrite = NULL;
- 	(void)erofs_igrab(root);
- 	dumpdir = root;
- 
--	err = erofs_mkfs_handle_inode(root);
-+	err = !rebuild ? erofs_mkfs_handle_inode(root) :
-+			erofs_rebuild_handle_inode(root);
- 	if (err)
--		return ERR_PTR(err);
-+		return err;
- 
- 	do {
- 		int err;
-@@ -1450,21 +1544,25 @@ struct erofs_inode *__erofs_mkfs_build_tree_from_path(const char *path)
- 
- 			if (is_dot_dotdot(d->name))
- 				continue;
--			if (inode->i_parent) {
--				++inode->i_nlink;
--			} else {
--				inode->i_parent = dir;
- 
--				err = erofs_mkfs_handle_inode(inode);
--				if (err) {
--					root = ERR_PTR(err);
-+			if (!erofs_inode_visited(inode)) {
-+				DBG_BUGON(rebuild &&
-+					  erofs_parent_inode(inode) != dir);
-+				erofs_mark_parent_inode(inode, dir);
-+
-+				if (!rebuild)
-+					err = erofs_mkfs_handle_inode(inode);
-+				else
-+					err = erofs_rebuild_handle_inode(inode);
-+				if (err)
- 					break;
--				}
- 				if (S_ISDIR(inode->i_mode)) {
- 					*last = inode;
- 					last = &inode->next_dirwrite;
- 					(void)erofs_igrab(inode);
- 				}
-+			} else if (!rebuild) {
-+				++inode->i_nlink;
- 			}
- 		}
- 		*last = dumpdir;	/* fixup the last (or the only) one */
-@@ -1472,28 +1570,61 @@ struct erofs_inode *__erofs_mkfs_build_tree_from_path(const char *path)
- 		err = erofs_mkfs_go(dir->sbi, EROFS_MKFS_JOB_DIR_BH,
- 				    &dir, sizeof(dir));
- 		if (err)
--			return ERR_PTR(err);
-+			return err;
- 	} while (dumpdir);
- 
--	return root;
-+	return err;
- }
- 
--#ifdef EROFS_MT_ENABLED
--struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
-+struct erofs_mkfs_buildtree_ctx {
-+	union {
-+		const char *path;
-+		struct erofs_inode *root;
-+	} u;
-+	bool from_path;
-+};
-+#ifndef EROFS_MT_ENABLED
-+#define __erofs_mkfs_build_tree erofs_mkfs_build_tree
-+#endif
-+
-+static int __erofs_mkfs_build_tree(struct erofs_mkfs_buildtree_ctx *ctx)
- {
--	struct erofs_mkfs_dfops *q;
- 	struct erofs_inode *root;
- 	int err;
- 
-+	if (ctx->from_path) {
-+		root = erofs_iget_from_path(ctx->u.path, true);
-+		if (IS_ERR(root))
-+			return PTR_ERR(root);
-+	} else {
-+		root = ctx->u.root;
-+	}
-+
-+	err = erofs_mkfs_dump_tree(root, !ctx->from_path);
-+	if (err) {
-+		if (ctx->from_path)
-+			erofs_iput(root);
-+		return err;
-+	}
-+	ctx->u.root = root;
-+	return 0;
-+}
-+
-+#ifdef EROFS_MT_ENABLED
-+static int erofs_mkfs_build_tree(struct erofs_mkfs_buildtree_ctx *ctx)
-+{
-+	struct erofs_mkfs_dfops *q;
-+	int err, err2;
-+
- 	q = malloc(sizeof(*q));
- 	if (!q)
--		return ERR_PTR(-ENOMEM);
-+		return -ENOMEM;
- 
- 	q->entries = EROFS_MT_QUEUE_SIZE;
- 	q->queue = malloc(q->entries * sizeof(*q->queue));
- 	if (!q->queue) {
- 		free(q);
--		return ERR_PTR(-ENOMEM);
-+		return -ENOMEM;
- 	}
- 	pthread_mutex_init(&q->lock, NULL);
- 	pthread_cond_init(&q->empty, NULL);
-@@ -1506,10 +1637,12 @@ struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
- 			     z_erofs_mt_dfops_worker, &sbi);
- 	if (err)
- 		goto fail;
--	root = __erofs_mkfs_build_tree_from_path(path);
- 
-+	err = __erofs_mkfs_build_tree(ctx);
- 	erofs_mkfs_go(&sbi, ~0, NULL, 0);
--	err = pthread_join(sbi.dfops_worker, NULL);
-+	err2 = pthread_join(sbi.dfops_worker, NULL);
-+	if (!err)
-+		err = err2;
- 
- fail:
- 	pthread_cond_destroy(&q->empty);
-@@ -1517,10 +1650,32 @@ fail:
- 	pthread_mutex_destroy(&q->lock);
- 	free(q->queue);
- 	free(q);
--	return err ? ERR_PTR(err) : root;
-+	return err;
- }
- #endif
- 
-+struct erofs_inode *erofs_mkfs_build_tree_from_path(const char *path)
-+{
-+	struct erofs_mkfs_buildtree_ctx ctx = {
-+		.from_path = true,
-+		.u.path = path,
-+	};
-+	int err;
-+
-+	err = erofs_mkfs_build_tree(&ctx);
-+	if (err)
-+		return ERR_PTR(err);
-+	return ctx.u.root;
-+}
-+
-+int erofs_rebuild_dump_tree(struct erofs_inode *root)
-+{
-+	return erofs_mkfs_build_tree(&((struct erofs_mkfs_buildtree_ctx) {
-+		.from_path = false,
-+		.u.root = root,
-+	}));
-+}
-+
- struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
- {
- 	struct stat st;
-@@ -1578,102 +1733,3 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(int fd, const char *name)
- 	erofs_write_tail_end(inode);
- 	return inode;
- }
--
--int erofs_rebuild_dump_tree(struct erofs_inode *dir)
--{
--	struct erofs_dentry *d, *n;
--	unsigned int nr_subdirs;
--	int ret;
--
--	if (erofs_should_use_inode_extended(dir)) {
--		if (cfg.c_force_inodeversion == FORCE_INODE_COMPACT) {
--			erofs_err("file %s cannot be in compact form",
--				  dir->i_srcpath);
--			return -EINVAL;
--		}
--		dir->inode_isize = sizeof(struct erofs_inode_extended);
--	} else {
--		dir->inode_isize = sizeof(struct erofs_inode_compact);
--	}
--
--	/* strip all unnecessary overlayfs xattrs when ovlfs_strip is enabled */
--	if (cfg.c_ovlfs_strip)
--		erofs_clear_opaque_xattr(dir);
--	else if (dir->whiteouts)
--		erofs_set_origin_xattr(dir);
--
--	ret = erofs_prepare_xattr_ibody(dir);
--	if (ret < 0)
--		return ret;
--
--	if (!S_ISDIR(dir->i_mode)) {
--		if (dir->bh)
--			return 0;
--		if (S_ISLNK(dir->i_mode)) {
--			ret = erofs_write_file_from_buffer(dir, dir->i_link);
--			free(dir->i_link);
--			dir->i_link = NULL;
--		} else if (dir->with_diskbuf) {
--			u64 fpos;
--
--			ret = erofs_diskbuf_getfd(dir->i_diskbuf, &fpos);
--			if (ret >= 0)
--				ret = erofs_write_file(dir, ret, fpos);
--			erofs_diskbuf_close(dir->i_diskbuf);
--			free(dir->i_diskbuf);
--			dir->i_diskbuf = NULL;
--			dir->with_diskbuf = false;
--		} else {
--			ret = 0;
--		}
--		if (ret)
--			return ret;
--		ret = erofs_prepare_inode_buffer(dir);
--		if (ret)
--			return ret;
--		erofs_write_tail_end(dir);
--		return 0;
--	}
--
--	nr_subdirs = 0;
--	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
--		if (cfg.c_ovlfs_strip && erofs_inode_is_whiteout(d->inode)) {
--			erofs_dbg("remove whiteout %s", d->inode->i_srcpath);
--			list_del(&d->d_child);
--			erofs_d_invalidate(d);
--			free(d);
--			continue;
--		}
--		++nr_subdirs;
--	}
--
--	ret = erofs_prepare_dir_layout(dir, nr_subdirs);
--	if (ret)
--		return ret;
--
--	ret = erofs_prepare_inode_buffer(dir);
--	if (ret)
--		return ret;
--	dir->bh->op = &erofs_skip_write_bhops;
--
--	if (IS_ROOT(dir))
--		erofs_fixup_meta_blkaddr(dir);
--
--	list_for_each_entry(d, &dir->i_subdirs, d_child) {
--		struct erofs_inode *inode;
--
--		if (is_dot_dotdot(d->name))
--			continue;
--
--		inode = erofs_igrab(d->inode);
--		ret = erofs_rebuild_dump_tree(inode);
--		dir->i_nlink += (erofs_mode_to_ftype(inode->i_mode) == EROFS_FT_DIR);
--		erofs_iput(inode);
--		if (ret)
--			return ret;
--	}
--	erofs_write_dir_file(dir);
--	erofs_write_tail_end(dir);
--	dir->bh->op = &erofs_write_inode_bhops;
--	return 0;
--}
 -- 
-2.39.3
+2.39.2
 
