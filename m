@@ -4,58 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACB67C25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2052C25B75
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:56:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRt41bS2z30Wn
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:56:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRt72sHDz3cF1
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:56:47 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt00lmZz2xTP
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt00ssLz30WW
 	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:56:39 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfRsc3fMrz4f3mHh
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:20 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfRsm4pWxz4f3kJv
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:28 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id AEA001A120E
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:30 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 3BE7D1A09EE
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:34 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S5;
-	Wed, 15 May 2024 16:56:30 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S11;
+	Wed, 15 May 2024 16:56:34 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v2 01/12] cachefiles: remove request from xarry during flush requests
-Date: Wed, 15 May 2024 16:45:50 +0800
-Message-Id: <20240515084601.3240503-2-libaokun@huaweicloud.com>
+Subject: [PATCH v2 07/12] cachefiles: add spin_lock for cachefiles_ondemand_info
+Date: Wed, 15 May 2024 16:45:56 +0800
+Message-Id: <20240515084601.3240503-8-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 References: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S5
-X-Coremail-Antispam: 1UD129KBjvJXoW7Zr1rJr1fKr43CrW8urykKrg_yoW8XFWkpF
-	WSka47KFykWr4qkr1kAFyrJryfJ348XF17XF17Xw1kArn8Zrs5Zr4xt340gry5ArWktFW3
-	Kr1qkF9rX34jy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPG14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
-	x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-	Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-	A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
-	xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
-	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
-	v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IY
-	x2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87
-	Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIF
-	yTuYvjfU8UDGUUUUU
+X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S11
+X-Coremail-Antispam: 1UD129KBjvJXoWxZFy5Zr18tFyxWr48WFyUJrb_yoWruryxpF
+	WayFy3KryxWF1IgrZ7JFs5JrWrA348ZFnFgw1aq34rAr98ZryrZr1UtryxZFy5A34aqrsx
+	tw18Casrt34qy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmY14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
+	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
+	z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F
+	4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq
+	3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
+	IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
+	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
+	kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
+	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
+	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0
+	I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0x
+	vEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIev
+	Ja73UjIFyTuYvjfUYGYpUUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -74,50 +74,128 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Even with CACHEFILES_DEAD set, we can still read the requests, so in the
-following concurrency the request may be used after it has been freed:
+The following concurrency may cause a read request to fail to be completed
+and result in a hung:
 
-     mount  |   daemon_thread1    |    daemon_thread2
-------------------------------------------------------------
- cachefiles_ondemand_init_object
-  cachefiles_ondemand_send_req
-   REQ_A = kzalloc(sizeof(*req) + data_len)
-   wait_for_completion(&REQ_A->done)
-            cachefiles_daemon_read
-             cachefiles_ondemand_daemon_read
-                                  // close dev fd
-                                  cachefiles_flush_reqs
-                                   complete(&REQ_A->done)
-   kfree(REQ_A)
-              xa_lock(&cache->reqs);
-              cachefiles_ondemand_select_req
-                req->msg.opcode != CACHEFILES_OP_READ
-                // req use-after-free !!!
-              xa_unlock(&cache->reqs);
-                                   xa_destroy(&cache->reqs)
+           t1             |             t2
+---------------------------------------------------------
+                            cachefiles_ondemand_copen
+                              req = xa_erase(&cache->reqs, id)
+// Anon fd is maliciously closed.
+cachefiles_ondemand_fd_release
+  xa_lock(&cache->reqs)
+  cachefiles_ondemand_set_object_close(object)
+  xa_unlock(&cache->reqs)
+                              cachefiles_ondemand_set_object_open
+                              // No one will ever close it again.
+cachefiles_ondemand_daemon_read
+  cachefiles_ondemand_select_req
+  // Get a read req but its fd is already closed.
+  // The daemon can't issue a cread ioctl with an closed fd, then hung.
 
-Hence remove requests from cache->reqs when flushing them to avoid
-accessing freed requests.
+So add spin_lock for cachefiles_ondemand_info to protect ondemand_id and
+state, thus we can avoid the above problem in cachefiles_ondemand_copen()
+by using ondemand_id to determine if fd has been closed.
 
 Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 ---
- fs/cachefiles/daemon.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cachefiles/internal.h |  1 +
+ fs/cachefiles/ondemand.c | 35 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 35 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 6465e2574230..ccb7b707ea4b 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -159,6 +159,7 @@ static void cachefiles_flush_reqs(struct cachefiles_cache *cache)
- 	xa_for_each(xa, index, req) {
- 		req->error = -EIO;
- 		complete(&req->done);
-+		__xa_erase(xa, index);
- 	}
- 	xa_unlock(xa);
+diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
+index 7745b8abc3aa..45c8bed60538 100644
+--- a/fs/cachefiles/internal.h
++++ b/fs/cachefiles/internal.h
+@@ -55,6 +55,7 @@ struct cachefiles_ondemand_info {
+ 	int				ondemand_id;
+ 	enum cachefiles_object_state	state;
+ 	struct cachefiles_object	*object;
++	spinlock_t			lock;
+ };
  
+ /*
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 898fab68332b..d04ddc6576e3 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -16,13 +16,16 @@ static int cachefiles_ondemand_fd_release(struct inode *inode,
+ 	struct cachefiles_object *object = file->private_data;
+ 	struct cachefiles_cache *cache = object->volume->cache;
+ 	struct cachefiles_ondemand_info *info = object->ondemand;
+-	int object_id = info->ondemand_id;
++	int object_id;
+ 	struct cachefiles_req *req;
+ 	XA_STATE(xas, &cache->reqs, 0);
+ 
+ 	xa_lock(&cache->reqs);
++	spin_lock(&info->lock);
++	object_id = info->ondemand_id;
+ 	info->ondemand_id = CACHEFILES_ONDEMAND_ID_CLOSED;
+ 	cachefiles_ondemand_set_object_close(object);
++	spin_unlock(&info->lock);
+ 
+ 	/* Only flush CACHEFILES_REQ_NEW marked req to avoid race with daemon_read */
+ 	xas_for_each_marked(&xas, req, ULONG_MAX, CACHEFILES_REQ_NEW) {
+@@ -127,6 +130,7 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ {
+ 	struct cachefiles_req *req;
+ 	struct fscache_cookie *cookie;
++	struct cachefiles_ondemand_info *info;
+ 	char *pid, *psize;
+ 	unsigned long id;
+ 	long size;
+@@ -185,6 +189,33 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 		goto out;
+ 	}
+ 
++	info = req->object->ondemand;
++	spin_lock(&info->lock);
++	/*
++	 * The anonymous fd was closed before copen ? Fail the request.
++	 *
++	 *             t1             |             t2
++	 * ---------------------------------------------------------
++	 *                             cachefiles_ondemand_copen
++	 *                             req = xa_erase(&cache->reqs, id)
++	 * // Anon fd is maliciously closed.
++	 * cachefiles_ondemand_fd_release
++	 * xa_lock(&cache->reqs)
++	 * cachefiles_ondemand_set_object_close(object)
++	 * xa_unlock(&cache->reqs)
++	 *                             cachefiles_ondemand_set_object_open
++	 *                             // No one will ever close it again.
++	 * cachefiles_ondemand_daemon_read
++	 * cachefiles_ondemand_select_req
++	 *
++	 * Get a read req but its fd is already closed. The daemon can't
++	 * issue a cread ioctl with an closed fd, then hung.
++	 */
++	if (info->ondemand_id == CACHEFILES_ONDEMAND_ID_CLOSED) {
++		spin_unlock(&info->lock);
++		req->error = -EBADFD;
++		goto out;
++	}
+ 	cookie = req->object->cookie;
+ 	cookie->object_size = size;
+ 	if (size)
+@@ -194,6 +225,7 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 	trace_cachefiles_ondemand_copen(req->object, id, size);
+ 
+ 	cachefiles_ondemand_set_object_open(req->object);
++	spin_unlock(&info->lock);
+ 	wake_up_all(&cache->daemon_pollwq);
+ 
+ out:
+@@ -596,6 +628,7 @@ int cachefiles_ondemand_init_obj_info(struct cachefiles_object *object,
+ 		return -ENOMEM;
+ 
+ 	object->ondemand->object = object;
++	spin_lock_init(&object->ondemand->lock);
+ 	INIT_WORK(&object->ondemand->ondemand_work, ondemand_object_worker);
+ 	return 0;
+ }
 -- 
 2.39.2
 
