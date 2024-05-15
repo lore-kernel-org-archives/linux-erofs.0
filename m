@@ -4,58 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCDB1C25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0471C25B75
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 08:57:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRtc3h5Lz3cXb
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:57:12 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VfRtg498Gz3bvJ
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 18:57:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt06TCyz3c2K
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:56:40 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VfRt11qzjz30WW
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 18:56:41 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4VfRsm3NpWz4f3jJB
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:28 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VfRsl3Vynz4f3k6R
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:27 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 2278C1A017F
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:37 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 0F1741A0181
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 May 2024 16:56:33 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S16;
-	Wed, 15 May 2024 16:56:36 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgDHlxC7eERm68LgMg--.42328S9;
+	Wed, 15 May 2024 16:56:32 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v2 12/12] cachefiles: make on-demand read killable
-Date: Wed, 15 May 2024 16:46:01 +0800
-Message-Id: <20240515084601.3240503-13-libaokun@huaweicloud.com>
+Subject: [PATCH v2 05/12] cachefiles: add output string to cachefiles_obj_[get|put]_ondemand_fd
+Date: Wed, 15 May 2024 16:45:54 +0800
+Message-Id: <20240515084601.3240503-6-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 References: <20240515084601.3240503-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S16
-X-Coremail-Antispam: 1UD129KBjvJXoW7uFW7JryDCF4DJr4kXFy7Jrb_yoW8WF45pF
-	Waka45KFykuF4I9r93J3WUX34Sy3ykAFnrWrySqrW3AwsIqrnYvr18t3WYqF43A395WrW3
-	tr95KFyxK3Wjq3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUmY14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
-	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
-	z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F
-	4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq
-	3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
-	IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
-	M4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2
-	kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
-	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
-	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0
-	I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0x
-	vEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIev
-	Ja73UjIFyTuYvjfUYGYpUUUUU
+X-CM-TRANSID: cCh0CgDHlxC7eERm68LgMg--.42328S9
+X-Coremail-Antispam: 1UD129KBjvdXoW7Gw4ftFy7Cr1DCryfAw1xAFb_yoWDCwb_ua
+	s7Zw1kXr4Sga1kJ3yxAryUJrW09w18A3Z0grn5tFy7C345J345Jan5JrnFv39rGF1UWa1q
+	qFsava48XrnI9jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbk8FF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6r1S6rWUM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAVCq3wA2048vs2
+	IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28E
+	F7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr
+	1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0D
+	M2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjx
+	v20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l
+	F7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2
+	IY04v7M4kE6xkIj40Ew7xC0wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8
+	JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1V
+	AFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xII
+	jxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I
+	8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73
+	UjIFyTuYvjfUYGYpUUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -74,57 +74,27 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Replacing wait_for_completion() with wait_for_completion_killable() in
-cachefiles_ondemand_send_req() allows us to kill processes that might
-trigger a hunk_task if the daemon is abnormal.
+This lets us see the correct trace output.
 
-But now only CACHEFILES_OP_READ is killable, because OP_CLOSE and OP_OPEN
-is initiated from kworker context and the signal is prohibited in these
-kworker.
-
-Note that when the req in xas changes, i.e. xas_load(&xas) != req, it
-means that a process will complete the current request soon, so wait
-again for the request to be completed.
-
-Suggested-by: Hou Tao <houtao1@huawei.com>
+Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
 ---
- fs/cachefiles/ondemand.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ include/trace/events/cachefiles.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index a511d0a89109..bdc2d6dbadce 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -544,8 +544,25 @@ static int cachefiles_ondemand_send_req(struct cachefiles_object *object,
- 		goto out;
+diff --git a/include/trace/events/cachefiles.h b/include/trace/events/cachefiles.h
+index 119a823fb5a0..bb56e3104b12 100644
+--- a/include/trace/events/cachefiles.h
++++ b/include/trace/events/cachefiles.h
+@@ -130,6 +130,8 @@ enum cachefiles_error_trace {
+ 	EM(cachefiles_obj_see_lookup_failed,	"SEE lookup_failed")	\
+ 	EM(cachefiles_obj_see_withdraw_cookie,	"SEE withdraw_cookie")	\
+ 	EM(cachefiles_obj_see_withdrawal,	"SEE withdrawal")	\
++	EM(cachefiles_obj_get_ondemand_fd,      "GET ondemand_fd")      \
++	EM(cachefiles_obj_put_ondemand_fd,      "PUT ondemand_fd")      \
+ 	EM(cachefiles_obj_get_read_req,		"GET read_req")		\
+ 	E_(cachefiles_obj_put_read_req,		"PUT read_req")
  
- 	wake_up_all(&cache->daemon_pollwq);
--	wait_for_completion(&req->done);
--	ret = req->error;
-+wait:
-+	ret = wait_for_completion_killable(&req->done);
-+	if (!ret) {
-+		ret = req->error;
-+	} else {
-+		xas_reset(&xas);
-+		xas_lock(&xas);
-+		if (xas_load(&xas) == req) {
-+			xas_store(&xas, NULL);
-+			ret = -EINTR;
-+		}
-+		xas_unlock(&xas);
-+
-+		/* Someone will complete it soon. */
-+		if (ret != -EINTR) {
-+			cpu_relax();
-+			goto wait;
-+		}
-+	}
- 	cachefiles_req_put(req);
- 	return ret;
- out:
 -- 
 2.39.2
 
