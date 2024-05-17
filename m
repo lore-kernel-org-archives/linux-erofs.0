@@ -4,42 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1C3DEC25B75
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 May 2024 17:23:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D169C04FFE
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 09:01:15 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mNk+/DlU;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=iVCgkJwX;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Vfg6x4VRbz3cgP
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 May 2024 03:23:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VggtK66zPz30Wb
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 19:01:13 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mNk+/DlU;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=iVCgkJwX;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vfg6q2BK3z30WV
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 May 2024 03:23:30 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vggt81MG2z2ytN
+	for <linux-erofs@lists.ozlabs.org>; Fri, 17 May 2024 19:01:01 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715793807; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=F7Gx2J+AytGH7Ea6tYwXHCMeAV5ZOlJBxyruWF9lOnM=;
-	b=mNk+/DlUBZEgkARDO3zPQwP1jsfYzn4XH7B54qzHilvify+kqCJ8uBHEg4VIGqKKqeI6zc3RrVriDdreAu9X3dJRhWNLu3vienj/bw2+tQRRu04QwHW6Mo6tWkGRa2HO5MkZF3IPEFdPJVEA/kAmdk9Say9gJVnrPUee3AEDPns=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W6YfSm8_1715793799;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6YfSm8_1715793799)
+	t=1715936456; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=CCgg8lZwYU/661MQbGQ/s8m0vOXCNnYuDQ15W1j1j/c=;
+	b=iVCgkJwXQG/aax1vet6LsnzXnva5HXeoo44qD6BJGjHtS9gKBE0iAbrdtkiqc5urf4Ja4QWf85+2ifNuEfeSxavGRtbbl8z95yKyMaWx1wE6SKHlZ6hGxsqDfO9pYv3q+1PF2qiqKhP4ChGyBCIoCAnTVX13rxmoBcj2WAYnxks=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W6e9IVw_1715936449;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6e9IVw_1715936449)
           by smtp.aliyun-inc.com;
-          Thu, 16 May 2024 01:23:25 +0800
+          Fri, 17 May 2024 17:00:54 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/2] erofs-utils: pretty root directory progressinfo
-Date: Thu, 16 May 2024 01:23:13 +0800
-Message-Id: <20240515172313.661530-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs-utils: mkfs: add `--zfeature-bits` option
+Date: Fri, 17 May 2024 17:00:48 +0800
+Message-Id: <20240517090048.3039594-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240515172236.661035-1-hsiangkao@linux.alibaba.com>
-References: <20240515172236.661035-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -57,40 +55,237 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Avoid `Processing  ...` or `file  dumped (mode 40755)`..
+Thus, we could traverse all compression features with a number
+easily in the testcases.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mkfs/main.c | 160 ++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 124 insertions(+), 36 deletions(-)
 
-diff --git a/lib/inode.c b/lib/inode.c
-index 8ec87e6..67a572d 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -1405,10 +1405,11 @@ static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
+diff --git a/mkfs/main.c b/mkfs/main.c
+index c26cb56..12321ed 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -81,6 +81,7 @@ static struct option long_options[] = {
+ #ifdef EROFS_MT_ENABLED
+ 	{"workers", required_argument, NULL, 520},
+ #endif
++	{"zfeature-bits", required_argument, NULL, 521},
+ 	{0, 0, 0, 0},
+ };
  
- static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
+@@ -166,6 +167,7 @@ static void usage(int argc, char **argv)
+ 		" --gid-offset=#        add offset # to all file gids (# = id offset)\n"
+ 		" --ignore-mtime        use build time instead of strict per-file modification time\n"
+ 		" --max-extent-bytes=#  set maximum decompressed extent size # in bytes\n"
++		" --mount-point=X       X=prefix of target fs path (default: /)\n"
+ 		" --preserve-mtime      keep per-file modification time strictly\n"
+ 		" --offset=#            skip # bytes at the beginning of IMAGE.\n"
+ 		" --aufs                replace aufs special files with overlayfs metadata\n"
+@@ -190,7 +192,7 @@ static void usage(int argc, char **argv)
+ 		" --workers=#           set the number of worker threads to # (default: %u)\n"
+ #endif
+ 		" --xattr-prefix=X      X=extra xattr name prefix\n"
+-		" --mount-point=X       X=prefix of target fs path (default: /)\n"
++		" --zfeature-bits       toggle filesystem compression features according to given bits\n"
+ #ifdef WITH_ANDROID
+ 		"\n"
+ 		"Android-specific options:\n"
+@@ -220,10 +222,81 @@ static bool tar_mode, rebuild_mode;
+ static unsigned int rebuild_src_count;
+ static LIST_HEAD(rebuild_src_list);
+ 
++static int erofs_mkfs_feat_set_legacy_compress(bool en, const char *val,
++					       unsigned int vallen)
++{
++	if (vallen)
++		return -EINVAL;
++	/* disable compacted indexes and 0padding */
++	cfg.c_legacy_compress = en;
++	return 0;
++}
++
++static int erofs_mkfs_feat_set_ztailpacking(bool en, const char *val,
++					    unsigned int vallen)
++{
++	if (vallen)
++		return -EINVAL;
++	cfg.c_ztailpacking = en;
++	return 0;
++}
++
++static int erofs_mkfs_feat_set_fragments(bool en, const char *val,
++					 unsigned int vallen)
++{
++	if (!en) {
++		if (vallen)
++			return -EINVAL;
++		cfg.c_fragments = false;
++		return 0;
++	}
++
++	if (vallen) {
++		char *endptr;
++		u64 i = strtoull(val, &endptr, 0);
++
++		if (endptr - val != vallen) {
++			erofs_err("invalid pcluster size %s for the packed file %s", val);
++			return -EINVAL;
++		}
++		pclustersize_packed = i;
++	}
++	cfg.c_fragments = true;
++	return 0;
++}
++
++static int erofs_mkfs_feat_set_all_fragments(bool en, const char *val,
++					     unsigned int vallen)
++{
++	cfg.c_all_fragments = en;
++	return erofs_mkfs_feat_set_fragments(en, val, vallen);
++}
++
++static int erofs_mkfs_feat_set_dedupe(bool en, const char *val,
++				      unsigned int vallen)
++{
++	if (vallen)
++		return -EINVAL;
++	cfg.c_dedupe = en;
++	return 0;
++}
++
++static struct {
++	char *feat;
++	int (*set)(bool en, const char *val, unsigned int len);
++} z_erofs_mkfs_features[] = {
++	{"legacy-compress", erofs_mkfs_feat_set_legacy_compress},
++	{"ztailpacking", erofs_mkfs_feat_set_ztailpacking},
++	{"fragments", erofs_mkfs_feat_set_fragments},
++	{"all-fragments", erofs_mkfs_feat_set_all_fragments},
++	{"dedupe", erofs_mkfs_feat_set_dedupe},
++	{NULL, NULL},
++};
++
+ static int parse_extended_opts(const char *opts)
  {
-+	const char *relpath = erofs_fspath(inode->i_srcpath);
- 	char *trimmed;
- 	int ret;
+ #define MATCH_EXTENTED_OPT(opt, token, keylen) \
+-	(keylen == sizeof(opt) - 1 && !memcmp(token, opt, sizeof(opt) - 1))
++	(keylen == strlen(opt) && !memcmp(token, opt, keylen))
  
--	trimmed = erofs_trim_for_progressinfo(erofs_fspath(inode->i_srcpath),
-+	trimmed = erofs_trim_for_progressinfo(relpath[0] ? relpath : "/",
- 					      sizeof("Processing  ...") - 1);
- 	erofs_update_progressinfo("Processing %s ...", trimmed);
- 	free(trimmed);
-@@ -1442,8 +1443,7 @@ static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
- 	} else {
- 		ret = erofs_mkfs_handle_directory(inode);
+ 	const char *token, *next, *tokenend, *value __maybe_unused;
+ 	unsigned int keylen, vallen;
+@@ -262,12 +335,7 @@ static int parse_extended_opts(const char *opts)
+ 			clear = true;
+ 		}
+ 
+-		if (MATCH_EXTENTED_OPT("legacy-compress", token, keylen)) {
+-			if (vallen)
+-				return -EINVAL;
+-			/* disable compacted indexes and 0padding */
+-			cfg.c_legacy_compress = true;
+-		} else if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
++		if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_inodeversion = FORCE_INODE_COMPACT;
+@@ -296,41 +364,51 @@ static int parse_extended_opts(const char *opts)
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_force_chunkformat = FORCE_INODE_CHUNK_INDEXES;
+-		} else if (MATCH_EXTENTED_OPT("ztailpacking", token, keylen)) {
+-			if (vallen)
+-				return -EINVAL;
+-			cfg.c_ztailpacking = !clear;
+-		} else if (MATCH_EXTENTED_OPT("all-fragments", token, keylen)) {
+-			cfg.c_all_fragments = true;
+-			goto handle_fragment;
+-		} else if (MATCH_EXTENTED_OPT("fragments", token, keylen)) {
+-			char *endptr;
+-			u64 i;
+-
+-handle_fragment:
+-			cfg.c_fragments = true;
+-			if (vallen) {
+-				i = strtoull(value, &endptr, 0);
+-				if (endptr - value != vallen) {
+-					erofs_err("invalid pcluster size for the packed file %s",
+-						  next);
+-					return -EINVAL;
+-				}
+-				pclustersize_packed = i;
+-			}
+-		} else if (MATCH_EXTENTED_OPT("dedupe", token, keylen)) {
+-			if (vallen)
+-				return -EINVAL;
+-			cfg.c_dedupe = !clear;
+ 		} else if (MATCH_EXTENTED_OPT("xattr-name-filter", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+ 			cfg.c_xattr_name_filter = !clear;
+ 		} else {
+-			erofs_err("unknown extended option %.*s",
+-				  p - token, token);
++			int i, err;
++
++			for (i = 0; z_erofs_mkfs_features[i].feat; ++i) {
++				if (!MATCH_EXTENTED_OPT(z_erofs_mkfs_features[i].feat,
++							token, keylen))
++					continue;
++				err = z_erofs_mkfs_features[i].set(!clear, value, vallen);
++				if (err)
++					return err;
++				break;
++			}
++
++			if (!z_erofs_mkfs_features[i].feat) {
++				erofs_err("unknown extended option %.*s",
++					  p - token, token);
++				return -EINVAL;
++			}
++		}
++	}
++	return 0;
++}
++
++static int mkfs_apply_zfeature_bits(uintmax_t bits)
++{
++	int i;
++
++	for (i = 0; bits; ++i) {
++		int err;
++
++		if (!z_erofs_mkfs_features[i].feat) {
++			erofs_err("unsupported zfeature bit %u", i);
+ 			return -EINVAL;
+ 		}
++		err = z_erofs_mkfs_features[i].set(bits & 1, NULL, 0);
++		if (err) {
++			erofs_err("failed to apply zfeature %s",
++				  z_erofs_mkfs_features[i].feat);
++			return err;
++		}
++		bits >>= 1;
  	}
--	erofs_info("file %s dumped (mode %05o)", erofs_fspath(inode->i_srcpath),
--		   inode->i_mode);
-+	erofs_info("file /%s dumped (mode %05o)", relpath, inode->i_mode);
- 	return ret;
+ 	return 0;
  }
- 
+@@ -690,6 +768,16 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			break;
+ 		}
+ #endif
++		case 521:
++			i = strtol(optarg, &endptr, 0);
++			if (errno || *endptr != '\0') {
++				erofs_err("invalid zfeature bits %s", optarg);
++				return -EINVAL;
++			}
++			err = mkfs_apply_zfeature_bits(i);
++			if (err)
++				return err;
++			break;
+ 		case 'V':
+ 			version();
+ 			exit(0);
 -- 
 2.39.3
 
