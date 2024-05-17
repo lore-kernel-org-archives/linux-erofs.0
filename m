@@ -4,42 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D169C04FFE
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 09:01:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D75BCC04FFE
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 09:39:36 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=iVCgkJwX;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Q7nnnXKo;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VggtK66zPz30Wb
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 19:01:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vghkb2dvpz3cJl
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 May 2024 19:39:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=iVCgkJwX;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Q7nnnXKo;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=rafael@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vggt81MG2z2ytN
-	for <linux-erofs@lists.ozlabs.org>; Fri, 17 May 2024 19:01:01 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1715936456; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=CCgg8lZwYU/661MQbGQ/s8m0vOXCNnYuDQ15W1j1j/c=;
-	b=iVCgkJwXQG/aax1vet6LsnzXnva5HXeoo44qD6BJGjHtS9gKBE0iAbrdtkiqc5urf4Ja4QWf85+2ifNuEfeSxavGRtbbl8z95yKyMaWx1wE6SKHlZ6hGxsqDfO9pYv3q+1PF2qiqKhP4ChGyBCIoCAnTVX13rxmoBcj2WAYnxks=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W6e9IVw_1715936449;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6e9IVw_1715936449)
-          by smtp.aliyun-inc.com;
-          Fri, 17 May 2024 17:00:54 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: mkfs: add `--zfeature-bits` option
-Date: Fri, 17 May 2024 17:00:48 +0800
-Message-Id: <20240517090048.3039594-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vghjf4Q5Rz2ysf;
+	Fri, 17 May 2024 19:38:46 +1000 (AEST)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 6388D61888;
+	Fri, 17 May 2024 09:38:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766FBC4AF08;
+	Fri, 17 May 2024 09:38:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715938719;
+	bh=vcW+W1wogmO6WY+GSQu3IAR/P96Rw6SpWddj5psVWwk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=Q7nnnXKoCoZCRE9y8qfd0GjlbgMZcow94ZBAhyo/a3WB7eilpoBw2+BvdmX0v1BZf
+	 e7OVkid9omI+gvcN303kxsn1XDNSTYdJqgftO+q7xqgbBFEfRALDNx6MNApEOaSItp
+	 R/U+wW3wKfdgVg1pSTt+l5Ktt5O2287ep0H8zh6uS0rANv32EVrNlYH0N2LN0Wkz4S
+	 7JyAvYOZKqMfev4RirENIqVjY9S2NBz5t0xMnmDlB0lD8J6a25LhI7NPYbYJS3uooO
+	 gi0eyy/jJtvOQvPPH73HE5rAvo90fxUfGOyoScW2xWZLVtSxLMRh/mH25kBaP3Lv2i
+	 C+gw9xG0H/JCg==
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-5b27c804765so229614eaf.3;
+        Fri, 17 May 2024 02:38:39 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXCb+TyZRvvsdfV0Bjjgf4JVswVOjPmr++2bWG/LQdURBYqj5tXCQb1KMYPeBn/p8GCYVmmoigafWvZWox6fj9NYxZT/LNTo/kka1rliQtAaENyPzr/fia1aadDBxXL624Bmln/zp+fr2Lubw==
+X-Gm-Message-State: AOJu0Yw+e/ZUB6u28qkevuM3YKkpuqTEycIkhHrZT5oL1O88lUqa6u4Q
+	oF5BJhRjxg9pE0frA/oaIC0GPjAEhnsx6vpm9sZxtSGr+WF1PhcR72tpfGYwsKje8P5GciP32ep
+	WljRe5QWXpbMbGBIO5sDD4CZXKr4=
+X-Google-Smtp-Source: AGHT+IGDE99s+s68qJbXMtkzFnMd5s/9OBNB6sR0+sCICB0PpLHU9X3BbBFmCRlDywLZhowLPWB9T1lJ6YvckXBFFDs=
+X-Received: by 2002:a05:6820:2602:b0:5b2:8017:fb68 with SMTP id
+ 006d021491bc7-5b2815cd95fmr22153827eaf.0.1715938718475; Fri, 17 May 2024
+ 02:38:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240516133454.681ba6a0@rorschach.local.home>
+In-Reply-To: <20240516133454.681ba6a0@rorschach.local.home>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Fri, 17 May 2024 11:38:25 +0200
+X-Gmail-Original-Message-ID: <CAJZ5v0hGNNvUq-BNHynaWr-5YVC6ugki81R70SG4uu34Rk-Mew@mail.gmail.com>
+Message-ID: <CAJZ5v0hGNNvUq-BNHynaWr-5YVC6ugki81R70SG4uu34Rk-Mew@mail.gmail.com>
+Subject: Re: [PATCH] tracing/treewide: Remove second parameter of __assign_str()
+To: Steven Rostedt <rostedt@goodmis.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -51,241 +70,65 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: linux-hyperv@vger.kernel.org, linux-usb@vger.kernel.org, kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, brcm80211@lists.linux.dev, ath10k@lists.infradead.org, Julia Lawall <Julia.Lawall@inria.fr>, linux-s390@vger.kernel.org, dev@openvswitch.org, linux-cifs@vger.kernel.org, linux-rdma@vger.kernel.org, amd-gfx@lists.freedesktop.org, io-uring@vger.kernel.org, linux-bcachefs@vger.kernel.org, iommu@lists.linux.dev, ath11k@lists.infradead.org, linux-media@vger.kernel.org, linux-wpan@vger.kernel.org, linux-pm@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-erofs@lists.ozlabs.org, virtualization@lists.linux.dev, linux-sound@vger.kernel.org, linux-block@vger.kernel.org, ocfs2-devel@lists.linux.dev, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-cxl@vger.kernel.org, linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org, linux-edac@vger.kernel.org, linux-hwmon@vger.kernel.org, brcm80211-dev-list.pdl@broa
+ dcom.com, Linus Torvalds <torvalds@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, linux-wireless@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, ath12k@lists.infradead.org, tipc-discussion@lists.sourceforge.net, Masami Hiramatsu <mhiramat@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, Linux trace kernel <linux-trace-kernel@vger.kernel.org>, freedreno@lists.freedesktop.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Thus, we could traverse all compression features with a number
-easily in the testcases.
+On Thu, May 16, 2024 at 7:35=E2=80=AFPM Steven Rostedt <rostedt@goodmis.org=
+> wrote:
+>
+> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+>
+> [
+>    This is a treewide change. I will likely re-create this patch again in
+>    the second week of the merge window of v6.10 and submit it then. Hopin=
+g
+>    to keep the conflicts that it will cause to a minimum.
+> ]
+>
+> With the rework of how the __string() handles dynamic strings where it
+> saves off the source string in field in the helper structure[1], the
+> assignment of that value to the trace event field is stored in the helper
+> value and does not need to be passed in again.
+>
+> This means that with:
+>
+>   __string(field, mystring)
+>
+> Which use to be assigned with __assign_str(field, mystring), no longer
+> needs the second parameter and it is unused. With this, __assign_str()
+> will now only get a single parameter.
+>
+> There's over 700 users of __assign_str() and because coccinelle does not
+> handle the TRACE_EVENT() macro I ended up using the following sed script:
+>
+>   git grep -l __assign_str | while read a ; do
+>       sed -e 's/\(__assign_str([^,]*[^ ,]\) *,[^;]*/\1)/' $a > /tmp/test-=
+file;
+>       mv /tmp/test-file $a;
+>   done
+>
+> I then searched for __assign_str() that did not end with ';' as those
+> were multi line assignments that the sed script above would fail to catch=
+.
+>
+> Note, the same updates will need to be done for:
+>
+>   __assign_str_len()
+>   __assign_rel_str()
+>   __assign_rel_str_len()
+>
+> I tested this with both an allmodconfig and an allyesconfig (build only f=
+or both).
+>
+> [1] https://lore.kernel.org/linux-trace-kernel/20240222211442.634192653@g=
+oodmis.org/
+>
+> Cc: Masami Hiramatsu <mhiramat@kernel.org>
+> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Julia Lawall <Julia.Lawall@inria.fr>
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- mkfs/main.c | 160 ++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 124 insertions(+), 36 deletions(-)
-
-diff --git a/mkfs/main.c b/mkfs/main.c
-index c26cb56..12321ed 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -81,6 +81,7 @@ static struct option long_options[] = {
- #ifdef EROFS_MT_ENABLED
- 	{"workers", required_argument, NULL, 520},
- #endif
-+	{"zfeature-bits", required_argument, NULL, 521},
- 	{0, 0, 0, 0},
- };
- 
-@@ -166,6 +167,7 @@ static void usage(int argc, char **argv)
- 		" --gid-offset=#        add offset # to all file gids (# = id offset)\n"
- 		" --ignore-mtime        use build time instead of strict per-file modification time\n"
- 		" --max-extent-bytes=#  set maximum decompressed extent size # in bytes\n"
-+		" --mount-point=X       X=prefix of target fs path (default: /)\n"
- 		" --preserve-mtime      keep per-file modification time strictly\n"
- 		" --offset=#            skip # bytes at the beginning of IMAGE.\n"
- 		" --aufs                replace aufs special files with overlayfs metadata\n"
-@@ -190,7 +192,7 @@ static void usage(int argc, char **argv)
- 		" --workers=#           set the number of worker threads to # (default: %u)\n"
- #endif
- 		" --xattr-prefix=X      X=extra xattr name prefix\n"
--		" --mount-point=X       X=prefix of target fs path (default: /)\n"
-+		" --zfeature-bits       toggle filesystem compression features according to given bits\n"
- #ifdef WITH_ANDROID
- 		"\n"
- 		"Android-specific options:\n"
-@@ -220,10 +222,81 @@ static bool tar_mode, rebuild_mode;
- static unsigned int rebuild_src_count;
- static LIST_HEAD(rebuild_src_list);
- 
-+static int erofs_mkfs_feat_set_legacy_compress(bool en, const char *val,
-+					       unsigned int vallen)
-+{
-+	if (vallen)
-+		return -EINVAL;
-+	/* disable compacted indexes and 0padding */
-+	cfg.c_legacy_compress = en;
-+	return 0;
-+}
-+
-+static int erofs_mkfs_feat_set_ztailpacking(bool en, const char *val,
-+					    unsigned int vallen)
-+{
-+	if (vallen)
-+		return -EINVAL;
-+	cfg.c_ztailpacking = en;
-+	return 0;
-+}
-+
-+static int erofs_mkfs_feat_set_fragments(bool en, const char *val,
-+					 unsigned int vallen)
-+{
-+	if (!en) {
-+		if (vallen)
-+			return -EINVAL;
-+		cfg.c_fragments = false;
-+		return 0;
-+	}
-+
-+	if (vallen) {
-+		char *endptr;
-+		u64 i = strtoull(val, &endptr, 0);
-+
-+		if (endptr - val != vallen) {
-+			erofs_err("invalid pcluster size %s for the packed file %s", val);
-+			return -EINVAL;
-+		}
-+		pclustersize_packed = i;
-+	}
-+	cfg.c_fragments = true;
-+	return 0;
-+}
-+
-+static int erofs_mkfs_feat_set_all_fragments(bool en, const char *val,
-+					     unsigned int vallen)
-+{
-+	cfg.c_all_fragments = en;
-+	return erofs_mkfs_feat_set_fragments(en, val, vallen);
-+}
-+
-+static int erofs_mkfs_feat_set_dedupe(bool en, const char *val,
-+				      unsigned int vallen)
-+{
-+	if (vallen)
-+		return -EINVAL;
-+	cfg.c_dedupe = en;
-+	return 0;
-+}
-+
-+static struct {
-+	char *feat;
-+	int (*set)(bool en, const char *val, unsigned int len);
-+} z_erofs_mkfs_features[] = {
-+	{"legacy-compress", erofs_mkfs_feat_set_legacy_compress},
-+	{"ztailpacking", erofs_mkfs_feat_set_ztailpacking},
-+	{"fragments", erofs_mkfs_feat_set_fragments},
-+	{"all-fragments", erofs_mkfs_feat_set_all_fragments},
-+	{"dedupe", erofs_mkfs_feat_set_dedupe},
-+	{NULL, NULL},
-+};
-+
- static int parse_extended_opts(const char *opts)
- {
- #define MATCH_EXTENTED_OPT(opt, token, keylen) \
--	(keylen == sizeof(opt) - 1 && !memcmp(token, opt, sizeof(opt) - 1))
-+	(keylen == strlen(opt) && !memcmp(token, opt, keylen))
- 
- 	const char *token, *next, *tokenend, *value __maybe_unused;
- 	unsigned int keylen, vallen;
-@@ -262,12 +335,7 @@ static int parse_extended_opts(const char *opts)
- 			clear = true;
- 		}
- 
--		if (MATCH_EXTENTED_OPT("legacy-compress", token, keylen)) {
--			if (vallen)
--				return -EINVAL;
--			/* disable compacted indexes and 0padding */
--			cfg.c_legacy_compress = true;
--		} else if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
-+		if (MATCH_EXTENTED_OPT("force-inode-compact", token, keylen)) {
- 			if (vallen)
- 				return -EINVAL;
- 			cfg.c_force_inodeversion = FORCE_INODE_COMPACT;
-@@ -296,41 +364,51 @@ static int parse_extended_opts(const char *opts)
- 			if (vallen)
- 				return -EINVAL;
- 			cfg.c_force_chunkformat = FORCE_INODE_CHUNK_INDEXES;
--		} else if (MATCH_EXTENTED_OPT("ztailpacking", token, keylen)) {
--			if (vallen)
--				return -EINVAL;
--			cfg.c_ztailpacking = !clear;
--		} else if (MATCH_EXTENTED_OPT("all-fragments", token, keylen)) {
--			cfg.c_all_fragments = true;
--			goto handle_fragment;
--		} else if (MATCH_EXTENTED_OPT("fragments", token, keylen)) {
--			char *endptr;
--			u64 i;
--
--handle_fragment:
--			cfg.c_fragments = true;
--			if (vallen) {
--				i = strtoull(value, &endptr, 0);
--				if (endptr - value != vallen) {
--					erofs_err("invalid pcluster size for the packed file %s",
--						  next);
--					return -EINVAL;
--				}
--				pclustersize_packed = i;
--			}
--		} else if (MATCH_EXTENTED_OPT("dedupe", token, keylen)) {
--			if (vallen)
--				return -EINVAL;
--			cfg.c_dedupe = !clear;
- 		} else if (MATCH_EXTENTED_OPT("xattr-name-filter", token, keylen)) {
- 			if (vallen)
- 				return -EINVAL;
- 			cfg.c_xattr_name_filter = !clear;
- 		} else {
--			erofs_err("unknown extended option %.*s",
--				  p - token, token);
-+			int i, err;
-+
-+			for (i = 0; z_erofs_mkfs_features[i].feat; ++i) {
-+				if (!MATCH_EXTENTED_OPT(z_erofs_mkfs_features[i].feat,
-+							token, keylen))
-+					continue;
-+				err = z_erofs_mkfs_features[i].set(!clear, value, vallen);
-+				if (err)
-+					return err;
-+				break;
-+			}
-+
-+			if (!z_erofs_mkfs_features[i].feat) {
-+				erofs_err("unknown extended option %.*s",
-+					  p - token, token);
-+				return -EINVAL;
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int mkfs_apply_zfeature_bits(uintmax_t bits)
-+{
-+	int i;
-+
-+	for (i = 0; bits; ++i) {
-+		int err;
-+
-+		if (!z_erofs_mkfs_features[i].feat) {
-+			erofs_err("unsupported zfeature bit %u", i);
- 			return -EINVAL;
- 		}
-+		err = z_erofs_mkfs_features[i].set(bits & 1, NULL, 0);
-+		if (err) {
-+			erofs_err("failed to apply zfeature %s",
-+				  z_erofs_mkfs_features[i].feat);
-+			return err;
-+		}
-+		bits >>= 1;
- 	}
- 	return 0;
- }
-@@ -690,6 +768,16 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 			break;
- 		}
- #endif
-+		case 521:
-+			i = strtol(optarg, &endptr, 0);
-+			if (errno || *endptr != '\0') {
-+				erofs_err("invalid zfeature bits %s", optarg);
-+				return -EINVAL;
-+			}
-+			err = mkfs_apply_zfeature_bits(i);
-+			if (err)
-+				return err;
-+			break;
- 		case 'V':
- 			version();
- 			exit(0);
--- 
-2.39.3
-
+Acked-by: Rafael J. Wysocki <rafael@kernel.org> # for thermal
