@@ -2,43 +2,61 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4AF2C25B74
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 May 2024 06:56:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38B37C25B74
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 May 2024 07:36:36 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MzsEpTug;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YxaeygPH;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Vk4pd62F2z3g3Q
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 May 2024 16:51:21 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vk5h13vLgz3gGt
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 May 2024 17:30:41 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MzsEpTug;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YxaeygPH;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vk4pS1tL6z3g23
-	for <linux-erofs@lists.ozlabs.org>; Tue, 21 May 2024 16:51:11 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1716274268; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=B+UpIk858p7Jg4dTAB8R6w5GVR5vcOnO8YQOEOKCJzo=;
-	b=MzsEpTugMNeeF5u51FfW4uC5SBjCva11O8e+pVqr+8d2pdE0NxOj5q9m41rcQklfIrA5WiP8kEkRKyCbIFR1bdOLtAAd9CRlWuxD0yGkjmXWOo6SWr9yRzPevjCSEOFyJeYrim+4HT0TKtQWmveCsbI3GgvfPozkCtV9+Nxz5Ng=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W6wi3OD_1716274265;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W6wi3OD_1716274265)
-          by smtp.aliyun-inc.com;
-          Tue, 21 May 2024 14:51:07 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: stable@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 6.6.y 1/2] erofs: get rid of erofs_fs_context
-Date: Tue, 21 May 2024 14:50:52 +0800
-Message-Id: <20240521065053.4192636-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vk5gt2NTYz3gG5
+	for <linux-erofs@lists.ozlabs.org>; Tue, 21 May 2024 17:30:32 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1716276635; x=1747812635;
+  h=date:from:to:cc:subject:message-id;
+  bh=l0o/xodVvCp0pfFcWQYJPvEDjV8MSd863I9M1zLFRSE=;
+  b=YxaeygPHoyA0PrB40opos8/apBMEeRKpy8QKKSNuDgDRrrpvRvTdc/Ha
+   nZ5Wf7BJccIP0Kl9OS6ygGztbDATpr9gAxNgk3gUoB5tdobDIzZ8v1trz
+   dgE0eDl4fwhrKcbgru5CBm6xQ2G3xsJPlSXeqNSi708BZ0ZUo0Siij/Av
+   KkL25dgmJSzopIMHUK17N3qgtDeL2K50NR5puwzxK3z6VaIsc7uD08vse
+   XIIIuf55Jon3nwbAMHMEg2paGqalmQS2MflzO6Al66Flu8DpNXwp+Amiw
+   F6b3NdPn8miSknRsPBPCA4GBIV3HG+1t0/6JHUAVH6LbSGxHVv1yYVdf7
+   Q==;
+X-CSE-ConnectionGUID: DjLdqY0OSs6tpekuAIFVcQ==
+X-CSE-MsgGUID: h503qauhQFKByJj/PdAicA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11078"; a="12289448"
+X-IronPort-AV: E=Sophos;i="6.08,177,1712646000"; 
+   d="scan'208";a="12289448"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2024 00:30:25 -0700
+X-CSE-ConnectionGUID: +W4fwJEOTByjTPb+cV1DEg==
+X-CSE-MsgGUID: AATv25cqS6+2LFRxxyvEwA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,177,1712646000"; 
+   d="scan'208";a="32799841"
+Received: from unknown (HELO 108735ec233b) ([10.239.97.151])
+  by fmviesa008.fm.intel.com with ESMTP; 21 May 2024 00:30:24 -0700
+Received: from kbuild by 108735ec233b with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1s9Jwz-00063X-38;
+	Tue, 21 May 2024 07:30:21 +0000
+Date: Tue, 21 May 2024 15:29:50 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 80eb4f62056d6ae709bdd0636ab96ce660f494b2
+Message-ID: <202405211547.q1sDoIzj-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -50,301 +68,162 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Baokun Li <libaokun1@huawei.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 80eb4f62056d6ae709bdd0636ab96ce660f494b2  erofs: avoid allocating DEFLATE streams before mounting
 
-commit 07abe43a28b2c660f726d66f5470f7f114f9643a upstream.
+elapsed time: 734m
 
-Instead of allocating the erofs_sb_info in fill_super() allocate it during
-erofs_init_fs_context() and ensure that erofs can always have the info
-available during erofs_kill_sb(). After this erofs_fs_context is no longer
-needed, replace ctx with sbi, no functional changes.
+configs tested: 139
+configs skipped: 3
 
-Suggested-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20240419123611.947084-2-libaokun1@huawei.com
-[ Gao Xiang: trivial conflict due to a warning message. ]
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/internal.h |   7 ---
- fs/erofs/super.c    | 116 ++++++++++++++++++++------------------------
- 2 files changed, 53 insertions(+), 70 deletions(-)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 1a4fe9f60295..787cc9ff9029 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -82,13 +82,6 @@ struct erofs_dev_context {
- 	bool flatdev;
- };
- 
--struct erofs_fs_context {
--	struct erofs_mount_opts opt;
--	struct erofs_dev_context *devs;
--	char *fsid;
--	char *domain_id;
--};
--
- /* all filesystem-wide lz4 configurations */
- struct erofs_sb_lz4_info {
- 	/* # of pages needed for EROFS lz4 rolling decompression */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index c9f9a43197db..ea9bb0ad2a7c 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -367,18 +367,18 @@ static int erofs_read_superblock(struct super_block *sb)
- 	return ret;
- }
- 
--static void erofs_default_options(struct erofs_fs_context *ctx)
-+static void erofs_default_options(struct erofs_sb_info *sbi)
- {
- #ifdef CONFIG_EROFS_FS_ZIP
--	ctx->opt.cache_strategy = EROFS_ZIP_CACHE_READAROUND;
--	ctx->opt.max_sync_decompress_pages = 3;
--	ctx->opt.sync_decompress = EROFS_SYNC_DECOMPRESS_AUTO;
-+	sbi->opt.cache_strategy = EROFS_ZIP_CACHE_READAROUND;
-+	sbi->opt.max_sync_decompress_pages = 3;
-+	sbi->opt.sync_decompress = EROFS_SYNC_DECOMPRESS_AUTO;
- #endif
- #ifdef CONFIG_EROFS_FS_XATTR
--	set_opt(&ctx->opt, XATTR_USER);
-+	set_opt(&sbi->opt, XATTR_USER);
- #endif
- #ifdef CONFIG_EROFS_FS_POSIX_ACL
--	set_opt(&ctx->opt, POSIX_ACL);
-+	set_opt(&sbi->opt, POSIX_ACL);
- #endif
- }
- 
-@@ -423,17 +423,17 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
- static bool erofs_fc_set_dax_mode(struct fs_context *fc, unsigned int mode)
- {
- #ifdef CONFIG_FS_DAX
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
- 
- 	switch (mode) {
- 	case EROFS_MOUNT_DAX_ALWAYS:
- 		warnfc(fc, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
--		set_opt(&ctx->opt, DAX_ALWAYS);
--		clear_opt(&ctx->opt, DAX_NEVER);
-+		set_opt(&sbi->opt, DAX_ALWAYS);
-+		clear_opt(&sbi->opt, DAX_NEVER);
- 		return true;
- 	case EROFS_MOUNT_DAX_NEVER:
--		set_opt(&ctx->opt, DAX_NEVER);
--		clear_opt(&ctx->opt, DAX_ALWAYS);
-+		set_opt(&sbi->opt, DAX_NEVER);
-+		clear_opt(&sbi->opt, DAX_ALWAYS);
- 		return true;
- 	default:
- 		DBG_BUGON(1);
-@@ -448,7 +448,7 @@ static bool erofs_fc_set_dax_mode(struct fs_context *fc, unsigned int mode)
- static int erofs_fc_parse_param(struct fs_context *fc,
- 				struct fs_parameter *param)
- {
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
- 	struct fs_parse_result result;
- 	struct erofs_device_info *dif;
- 	int opt, ret;
-@@ -461,9 +461,9 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 	case Opt_user_xattr:
- #ifdef CONFIG_EROFS_FS_XATTR
- 		if (result.boolean)
--			set_opt(&ctx->opt, XATTR_USER);
-+			set_opt(&sbi->opt, XATTR_USER);
- 		else
--			clear_opt(&ctx->opt, XATTR_USER);
-+			clear_opt(&sbi->opt, XATTR_USER);
- #else
- 		errorfc(fc, "{,no}user_xattr options not supported");
- #endif
-@@ -471,16 +471,16 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 	case Opt_acl:
- #ifdef CONFIG_EROFS_FS_POSIX_ACL
- 		if (result.boolean)
--			set_opt(&ctx->opt, POSIX_ACL);
-+			set_opt(&sbi->opt, POSIX_ACL);
- 		else
--			clear_opt(&ctx->opt, POSIX_ACL);
-+			clear_opt(&sbi->opt, POSIX_ACL);
- #else
- 		errorfc(fc, "{,no}acl options not supported");
- #endif
- 		break;
- 	case Opt_cache_strategy:
- #ifdef CONFIG_EROFS_FS_ZIP
--		ctx->opt.cache_strategy = result.uint_32;
-+		sbi->opt.cache_strategy = result.uint_32;
- #else
- 		errorfc(fc, "compression not supported, cache_strategy ignored");
- #endif
-@@ -502,27 +502,27 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 			kfree(dif);
- 			return -ENOMEM;
- 		}
--		down_write(&ctx->devs->rwsem);
--		ret = idr_alloc(&ctx->devs->tree, dif, 0, 0, GFP_KERNEL);
--		up_write(&ctx->devs->rwsem);
-+		down_write(&sbi->devs->rwsem);
-+		ret = idr_alloc(&sbi->devs->tree, dif, 0, 0, GFP_KERNEL);
-+		up_write(&sbi->devs->rwsem);
- 		if (ret < 0) {
- 			kfree(dif->path);
- 			kfree(dif);
- 			return ret;
- 		}
--		++ctx->devs->extra_devices;
-+		++sbi->devs->extra_devices;
- 		break;
- #ifdef CONFIG_EROFS_FS_ONDEMAND
- 	case Opt_fsid:
--		kfree(ctx->fsid);
--		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
--		if (!ctx->fsid)
-+		kfree(sbi->fsid);
-+		sbi->fsid = kstrdup(param->string, GFP_KERNEL);
-+		if (!sbi->fsid)
- 			return -ENOMEM;
- 		break;
- 	case Opt_domain_id:
--		kfree(ctx->domain_id);
--		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
--		if (!ctx->domain_id)
-+		kfree(sbi->domain_id);
-+		sbi->domain_id = kstrdup(param->string, GFP_KERNEL);
-+		if (!sbi->domain_id)
- 			return -ENOMEM;
- 		break;
- #else
-@@ -578,8 +578,7 @@ static const struct export_operations erofs_export_ops = {
- static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- {
- 	struct inode *inode;
--	struct erofs_sb_info *sbi;
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	int err;
- 
- 	sb->s_magic = EROFS_SUPER_MAGIC;
-@@ -587,19 +586,6 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 	sb->s_maxbytes = MAX_LFS_FILESIZE;
- 	sb->s_op = &erofs_sops;
- 
--	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
--	if (!sbi)
--		return -ENOMEM;
--
--	sb->s_fs_info = sbi;
--	sbi->opt = ctx->opt;
--	sbi->devs = ctx->devs;
--	ctx->devs = NULL;
--	sbi->fsid = ctx->fsid;
--	ctx->fsid = NULL;
--	sbi->domain_id = ctx->domain_id;
--	ctx->domain_id = NULL;
--
- 	sbi->blkszbits = PAGE_SHIFT;
- 	if (erofs_is_fscache_mode(sb)) {
- 		sb->s_blocksize = PAGE_SIZE;
-@@ -703,9 +689,9 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- static int erofs_fc_get_tree(struct fs_context *fc)
- {
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
- 
--	if (IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) && ctx->fsid)
-+	if (IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) && sbi->fsid)
- 		return get_tree_nodev(fc, erofs_fc_fill_super);
- 
- 	return get_tree_bdev(fc, erofs_fc_fill_super);
-@@ -715,19 +701,19 @@ static int erofs_fc_reconfigure(struct fs_context *fc)
- {
- 	struct super_block *sb = fc->root->d_sb;
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *new_sbi = fc->s_fs_info;
- 
- 	DBG_BUGON(!sb_rdonly(sb));
- 
--	if (ctx->fsid || ctx->domain_id)
-+	if (new_sbi->fsid || new_sbi->domain_id)
- 		erofs_info(sb, "ignoring reconfiguration for fsid|domain_id.");
- 
--	if (test_opt(&ctx->opt, POSIX_ACL))
-+	if (test_opt(&new_sbi->opt, POSIX_ACL))
- 		fc->sb_flags |= SB_POSIXACL;
- 	else
- 		fc->sb_flags &= ~SB_POSIXACL;
- 
--	sbi->opt = ctx->opt;
-+	sbi->opt = new_sbi->opt;
- 
- 	fc->sb_flags |= SB_RDONLY;
- 	return 0;
-@@ -758,12 +744,15 @@ static void erofs_free_dev_context(struct erofs_dev_context *devs)
- 
- static void erofs_fc_free(struct fs_context *fc)
- {
--	struct erofs_fs_context *ctx = fc->fs_private;
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
-+
-+	if (!sbi)
-+		return;
- 
--	erofs_free_dev_context(ctx->devs);
--	kfree(ctx->fsid);
--	kfree(ctx->domain_id);
--	kfree(ctx);
-+	erofs_free_dev_context(sbi->devs);
-+	kfree(sbi->fsid);
-+	kfree(sbi->domain_id);
-+	kfree(sbi);
- }
- 
- static const struct fs_context_operations erofs_context_ops = {
-@@ -775,21 +764,22 @@ static const struct fs_context_operations erofs_context_ops = {
- 
- static int erofs_init_fs_context(struct fs_context *fc)
- {
--	struct erofs_fs_context *ctx;
-+	struct erofs_sb_info *sbi;
- 
--	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
--	if (!ctx)
-+	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
-+	if (!sbi)
- 		return -ENOMEM;
--	ctx->devs = kzalloc(sizeof(struct erofs_dev_context), GFP_KERNEL);
--	if (!ctx->devs) {
--		kfree(ctx);
-+
-+	sbi->devs = kzalloc(sizeof(struct erofs_dev_context), GFP_KERNEL);
-+	if (!sbi->devs) {
-+		kfree(sbi);
- 		return -ENOMEM;
- 	}
--	fc->fs_private = ctx;
-+	fc->s_fs_info = sbi;
- 
--	idr_init(&ctx->devs->tree);
--	init_rwsem(&ctx->devs->rwsem);
--	erofs_default_options(ctx);
-+	idr_init(&sbi->devs->tree);
-+	init_rwsem(&sbi->devs->rwsem);
-+	erofs_default_options(sbi);
- 	fc->ops = &erofs_context_ops;
- 	return 0;
- }
+tested configs:
+alpha                             allnoconfig   gcc  
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+arc                              allmodconfig   gcc  
+arc                               allnoconfig   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                   randconfig-001-20240521   gcc  
+arc                   randconfig-002-20240521   gcc  
+arm                              allmodconfig   gcc  
+arm                               allnoconfig   clang
+arm                              allyesconfig   gcc  
+arm                                 defconfig   clang
+arm                   randconfig-001-20240521   gcc  
+arm                   randconfig-002-20240521   gcc  
+arm                   randconfig-003-20240521   clang
+arm                   randconfig-004-20240521   gcc  
+arm64                            allmodconfig   clang
+arm64                             allnoconfig   gcc  
+arm64                               defconfig   gcc  
+arm64                 randconfig-001-20240521   clang
+arm64                 randconfig-002-20240521   gcc  
+arm64                 randconfig-003-20240521   clang
+arm64                 randconfig-004-20240521   gcc  
+csky                             allmodconfig   gcc  
+csky                              allnoconfig   gcc  
+csky                             allyesconfig   gcc  
+csky                                defconfig   gcc  
+csky                  randconfig-001-20240521   gcc  
+csky                  randconfig-002-20240521   gcc  
+hexagon                          allmodconfig   clang
+hexagon                           allnoconfig   clang
+hexagon                          allyesconfig   clang
+hexagon                             defconfig   clang
+hexagon               randconfig-001-20240521   clang
+hexagon               randconfig-002-20240521   clang
+i386                             allmodconfig   gcc  
+i386                              allnoconfig   gcc  
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-001-20240521   clang
+i386         buildonly-randconfig-002-20240521   clang
+i386         buildonly-randconfig-003-20240521   gcc  
+i386         buildonly-randconfig-004-20240521   clang
+i386         buildonly-randconfig-005-20240521   gcc  
+i386         buildonly-randconfig-006-20240521   gcc  
+i386                                defconfig   clang
+i386                  randconfig-001-20240521   gcc  
+i386                  randconfig-002-20240521   clang
+i386                  randconfig-003-20240521   gcc  
+i386                  randconfig-004-20240521   gcc  
+i386                  randconfig-005-20240521   gcc  
+i386                  randconfig-006-20240521   clang
+i386                  randconfig-011-20240521   gcc  
+i386                  randconfig-012-20240521   clang
+i386                  randconfig-013-20240521   clang
+i386                  randconfig-014-20240521   clang
+i386                  randconfig-015-20240521   clang
+i386                  randconfig-016-20240521   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch             randconfig-001-20240521   gcc  
+loongarch             randconfig-002-20240521   gcc  
+m68k                             allmodconfig   gcc  
+m68k                              allnoconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+microblaze                       allmodconfig   gcc  
+microblaze                        allnoconfig   gcc  
+microblaze                       allyesconfig   gcc  
+microblaze                          defconfig   gcc  
+mips                              allnoconfig   gcc  
+mips                             allyesconfig   gcc  
+nios2                            allmodconfig   gcc  
+nios2                             allnoconfig   gcc  
+nios2                            allyesconfig   gcc  
+nios2                               defconfig   gcc  
+nios2                 randconfig-001-20240521   gcc  
+nios2                 randconfig-002-20240521   gcc  
+openrisc                          allnoconfig   gcc  
+openrisc                         allyesconfig   gcc  
+openrisc                            defconfig   gcc  
+parisc                           allmodconfig   gcc  
+parisc                            allnoconfig   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc                randconfig-001-20240521   gcc  
+parisc                randconfig-002-20240521   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc                          allyesconfig   clang
+powerpc               randconfig-001-20240521   clang
+powerpc               randconfig-002-20240521   gcc  
+powerpc               randconfig-003-20240521   clang
+powerpc64             randconfig-001-20240521   clang
+powerpc64             randconfig-002-20240521   gcc  
+powerpc64             randconfig-003-20240521   gcc  
+riscv                            allmodconfig   clang
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   clang
+riscv                               defconfig   clang
+riscv                 randconfig-001-20240521   clang
+riscv                 randconfig-002-20240521   clang
+s390                             allmodconfig   clang
+s390                              allnoconfig   clang
+s390                             allyesconfig   gcc  
+s390                                defconfig   clang
+s390                  randconfig-001-20240521   clang
+s390                  randconfig-002-20240521   clang
+sh                               allmodconfig   gcc  
+sh                                allnoconfig   gcc  
+sh                               allyesconfig   gcc  
+sh                                  defconfig   gcc  
+sh                    randconfig-001-20240521   gcc  
+sh                    randconfig-002-20240521   gcc  
+sparc                            allmodconfig   gcc  
+sparc                             allnoconfig   gcc  
+sparc                               defconfig   gcc  
+sparc64                          allmodconfig   gcc  
+sparc64                          allyesconfig   gcc  
+sparc64                             defconfig   gcc  
+sparc64               randconfig-001-20240521   gcc  
+sparc64               randconfig-002-20240521   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   gcc  
+um                                  defconfig   clang
+um                             i386_defconfig   gcc  
+um                    randconfig-001-20240521   gcc  
+um                    randconfig-002-20240521   gcc  
+um                           x86_64_defconfig   clang
+x86_64                            allnoconfig   clang
+x86_64                           allyesconfig   clang
+x86_64                              defconfig   gcc  
+x86_64                          rhel-8.3-rust   clang
+xtensa                            allnoconfig   gcc  
+xtensa                randconfig-001-20240521   gcc  
+xtensa                randconfig-002-20240521   gcc  
+
 -- 
-2.39.3
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
