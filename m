@@ -2,58 +2,55 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5724C25B77
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF2C6C25B79
 	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 03:56:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VkclK1by8z3vXm
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 13:50:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vkcl81bnxz3g4v
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 13:50:12 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.56; helo=dggsgout12.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkcky6hhFz3g3b
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkcky61svz3g0q
 	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 13:50:01 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4Vkckf6ntrz4f3jR2
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:46 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4Vkckd6B08z4f3jXt
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:45 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id DDBF61A01D2
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:55 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id C74D11A0906
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:54 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHGBFea01mxlBXNQ--.57627S6;
-	Wed, 22 May 2024 11:49:55 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHGBFea01mxlBXNQ--.57627S4;
+	Wed, 22 May 2024 11:49:52 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v3 02/12] cachefiles: remove requests from xarray during flushing requests
-Date: Wed, 22 May 2024 19:42:58 +0800
-Message-Id: <20240522114308.2402121-3-libaokun@huaweicloud.com>
+Subject: [PATCH v3 00/12] cachefiles: some bugfixes and cleanups for ondemand requests
+Date: Wed, 22 May 2024 19:42:56 +0800
+Message-Id: <20240522114308.2402121-1-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240522114308.2402121-1-libaokun@huaweicloud.com>
-References: <20240522114308.2402121-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHGBFea01mxlBXNQ--.57627S6
-X-Coremail-Antispam: 1UD129KBjvJXoW7Zr1rJr1fKr43CrW8urykKrg_yoW8Ar4xpF
-	WSk3W7KFykWr4jkr1kAFyrJryxJ348XF17XF17Xr1kZrn8Zrn5Zr4Sy340gr98ArWktFW3
-	tr1UCF9rX34Ut3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUQ014x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2jI8I6cxK62vIxIIY0VWUZVW8XwA2048vs2IY02
-	0E87I2jVAFwI0_Jryl82xGYIkIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2
-	F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjx
-	v20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2
-	z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0V
-	AKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1l
-	Ox8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErc
-	IFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vIr41l
-	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67
-	AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8I
-	cVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI
-	8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v2
-	6r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRtb18UUUUU
+X-CM-TRANSID: cCh0CgBHGBFea01mxlBXNQ--.57627S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxGr18JFyUXF47JFy3uw4xCrg_yoW5tw4fpF
+	WSk3Wakr18Wr48C3s7Ar4fJryrG3yxAF9FgrnFq34DZwn8Xr1FvrW0qr1Yqas8CrZ7Gw4a
+	q3WUuas7tw1q93DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUB214x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2jI8I6cxK62vIxIIY0VWUZVW8XwA2ocxC64kIII
+	0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xv
+	wVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4
+	x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG
+	64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r
+	1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAq
+	YI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMxAIw28IcxkI7V
+	AKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
+	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6x
+	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAI
+	w20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
+	kF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRuWlkUUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -72,53 +69,89 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-Even with CACHEFILES_DEAD set, we can still read the requests, so in the
-following concurrency the request may be used after it has been freed:
+Hi all!
 
-     mount  |   daemon_thread1    |    daemon_thread2
-------------------------------------------------------------
- cachefiles_ondemand_init_object
-  cachefiles_ondemand_send_req
-   REQ_A = kzalloc(sizeof(*req) + data_len)
-   wait_for_completion(&REQ_A->done)
-            cachefiles_daemon_read
-             cachefiles_ondemand_daemon_read
-                                  // close dev fd
-                                  cachefiles_flush_reqs
-                                   complete(&REQ_A->done)
-   kfree(REQ_A)
-              xa_lock(&cache->reqs);
-              cachefiles_ondemand_select_req
-                req->msg.opcode != CACHEFILES_OP_READ
-                // req use-after-free !!!
-              xa_unlock(&cache->reqs);
-                                   xa_destroy(&cache->reqs)
+This is the third version of this patch series. The new version has no
+functional changes compared to the previous one, so I've kept the previous
+Acked-by and Reviewed-by, so please let me know if you have any objections.
 
-Hence remove requests from cache->reqs when flushing them to avoid
-accessing freed requests.
+Thank you, Jia Zhu and Jingbo Xu, Jeff Layton, Gao Xiang, for the feedback
+in the previous version.
 
-Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Acked-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- fs/cachefiles/daemon.c | 1 +
- 1 file changed, 1 insertion(+)
+We've been testing ondemand mode for cachefiles since January, and we're
+almost done. We hit a lot of issues during the testing period, and this
+patch set fixes some of the issues related to ondemand requests.
+The patches have passed internal testing without regression.
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 6465e2574230..ccb7b707ea4b 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -159,6 +159,7 @@ static void cachefiles_flush_reqs(struct cachefiles_cache *cache)
- 	xa_for_each(xa, index, req) {
- 		req->error = -EIO;
- 		complete(&req->done);
-+		__xa_erase(xa, index);
- 	}
- 	xa_unlock(xa);
- 
+The following is a brief overview of the patches, see the patches for
+more details.
+
+Patch 1-5: Holding reference counts of reqs and objects on read requests
+to avoid malicious restore leading to use-after-free.
+
+Patch 6-10: Add some consistency checks to copen/cread/get_fd to avoid
+malicious copen/cread/close fd injections causing use-after-free or hung.
+
+Patch 11: When cache is marked as CACHEFILES_DEAD, flush all requests,
+otherwise the kernel may be hung. since this state is irreversible, the
+daemon can read open requests but cannot copen.
+
+Patch 12: Allow interrupting a read request being processed by killing
+the read process as a way of avoiding hung in some special cases.
+
+Comments and questions are, as always, welcome.
+Please let me know what you think.
+
+Thanks,
+Baokun
+
+Changes since v2:
+  * Collect Acked-by from Jeff Layton.(Thanks for your ack!)
+  * Collect RVB from Gao Xiang and Jingbo Xu.(Thanks for your review!)
+  * Pathch 9: Rename anon_file to ondemand_anon_file to avoid possible
+    conflicts with generic code.
+  * Pathch 12: Add cachefiles_ondemand_finish_req() helper function to
+    simplify the code.
+  * Adjust the patch order as suggested to facilitate backporting to
+    the STABLE version.
+    * The current patch 1 is the previous patch 5;
+    * The current patch 5 is the previous patch 2;
+
+Changes since v1:
+  * Collect RVB from Jia Zhu and Jingbo Xu.(Thanks for your review!)
+  * Pathch 1: Add Fixes tag and enrich the commit message.
+  * Pathch 7: Add function graph comments.
+  * Pathch 8: Update commit message and comments.
+  * Pathch 9: Enriched commit msg.
+
+[V1]: https://lore.kernel.org/all/20240424033916.2748488-1-libaokun@huaweicloud.com
+[V2]: https://lore.kernel.org/all/20240515084601.3240503-1-libaokun@huaweicloud.com
+
+
+Baokun Li (11):
+  cachefiles: add output string to cachefiles_obj_[get|put]_ondemand_fd
+  cachefiles: remove requests from xarray during flushing requests
+  cachefiles: fix slab-use-after-free in cachefiles_ondemand_get_fd()
+  cachefiles: fix slab-use-after-free in
+    cachefiles_ondemand_daemon_read()
+  cachefiles: remove err_put_fd label in
+    cachefiles_ondemand_daemon_read()
+  cachefiles: add consistency check for copen/cread
+  cachefiles: add spin_lock for cachefiles_ondemand_info
+  cachefiles: never get a new anonymous fd if ondemand_id is valid
+  cachefiles: defer exposing anon_fd until after copy_to_user() succeeds
+  cachefiles: flush all requests after setting CACHEFILES_DEAD
+  cachefiles: make on-demand read killable
+
+Zizhi Wo (1):
+  cachefiles: Set object to close if ondemand_id < 0 in copen
+
+ fs/cachefiles/daemon.c            |   3 +-
+ fs/cachefiles/internal.h          |   5 +
+ fs/cachefiles/ondemand.c          | 217 ++++++++++++++++++++++--------
+ include/trace/events/cachefiles.h |   8 +-
+ 4 files changed, 176 insertions(+), 57 deletions(-)
+
 -- 
 2.39.2
 
