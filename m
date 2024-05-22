@@ -2,45 +2,45 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA58C25B79
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 03:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 452E1C25B78
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 03:56:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VkclG1Dglz3gLf
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 13:50:18 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vkclc1lTGz3vx0
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 13:50:36 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkcky6S0zz3g2g
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 13:50:02 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Vkckg118sz4f3lgS
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:47 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkcl02CGRz3g0q
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 13:50:04 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Vkckk1YtJz4f3lgS
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:50 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 9AFFD1A01B9
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:57 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id AB8471A0EB9
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:50:00 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHGBFea01mxlBXNQ--.57627S9;
-	Wed, 22 May 2024 11:49:57 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHGBFea01mxlBXNQ--.57627S14;
+	Wed, 22 May 2024 11:50:00 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v3 05/12] cachefiles: remove err_put_fd label in cachefiles_ondemand_daemon_read()
-Date: Wed, 22 May 2024 19:43:01 +0800
-Message-Id: <20240522114308.2402121-6-libaokun@huaweicloud.com>
+Subject: [PATCH v3 10/12] cachefiles: Set object to close if ondemand_id < 0 in copen
+Date: Wed, 22 May 2024 19:43:06 +0800
+Message-Id: <20240522114308.2402121-11-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240522114308.2402121-1-libaokun@huaweicloud.com>
 References: <20240522114308.2402121-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHGBFea01mxlBXNQ--.57627S9
-X-Coremail-Antispam: 1UD129KBjvJXoWxZrW3ArWDtw1kKF18Jr1kKrg_yoW5Wr43pF
-	WSyay7Kry8WF48Crn7A3W5X34rt3y8Z3ZrW3y0qw1fArnIqr15Zr18tF15ZFy5ArWvgrsx
-	tw18CFZrGryjq3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUQI14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+X-CM-TRANSID: cCh0CgBHGBFea01mxlBXNQ--.57627S14
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zry8Wry8Jr4Utr4xtr4UCFg_yoW8ZrWDpF
+	WakFW3Kry8Wr129r97Jw1kA3y8C3ykZFnxWrZIq348Arn8Xrn5Zr1Utr1UZF1UZ3yftr43
+	Jr18Kr9Iga4qy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQS14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
 	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2jI8I6cxK62vIxIIY0VWUZVW8XwA2048vs2IY02
 	0E87I2jVAFwI0_JF0E3s1l82xGYIkIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0
 	rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6x
@@ -51,9 +51,9 @@ X-Coremail-Antispam: 1UD129KBjvJXoWxZrW3ArWDtw1kKF18Jr1kKrg_yoW5Wr43pF
 	IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vI
 	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8Gjc
 	xK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0
-	cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw2
-	0EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x02
-	67AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sREMKZDUUUUU==
+	cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04
+	k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7Cj
+	xVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjTRupB-UUUUU
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -70,98 +70,58 @@ Cc: libaokun@huaweicloud.com, yangerkun@huawei.com, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Zizhi Wo <wozizhi@huawei.com>
 
-The err_put_fd label is only used once, so remove it to make the code
-more readable. In addition, the logic for deleting error request and
-CLOSE request is merged to simplify the code.
+If copen is maliciously called in the user mode, it may delete the request
+corresponding to the random id. And the request may have not been read yet.
 
+Note that when the object is set to reopen, the open request will be done
+with the still reopen state in above case. As a result, the request
+corresponding to this object is always skipped in select_req function, so
+the read request is never completed and blocks other process.
+
+Fix this issue by simply set object to close if its id < 0 in copen.
+
+Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
 Acked-by: Jeff Layton <jlayton@kernel.org>
 Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/cachefiles/ondemand.c | 45 ++++++++++++++--------------------------
- 1 file changed, 16 insertions(+), 29 deletions(-)
+ fs/cachefiles/ondemand.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index 3dd002108a87..bb94ef6a6f61 100644
+index 6f815e7c5086..922cab1a314b 100644
 --- a/fs/cachefiles/ondemand.c
 +++ b/fs/cachefiles/ondemand.c
-@@ -305,7 +305,6 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- {
- 	struct cachefiles_req *req;
- 	struct cachefiles_msg *msg;
--	unsigned long id = 0;
- 	size_t n;
- 	int ret = 0;
- 	XA_STATE(xas, &cache->reqs, cache->req_id_next);
-@@ -340,49 +339,37 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 	cachefiles_grab_object(req->object, cachefiles_obj_get_read_req);
+@@ -182,6 +182,7 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 	xas_store(&xas, NULL);
  	xa_unlock(&cache->reqs);
  
--	id = xas.xa_index;
--
- 	if (msg->opcode == CACHEFILES_OP_OPEN) {
- 		ret = cachefiles_ondemand_get_fd(req);
- 		if (ret) {
- 			cachefiles_ondemand_set_object_close(req->object);
--			goto error;
-+			goto out;
- 		}
++	info = req->object->ondemand;
+ 	/* fail OPEN request if copen format is invalid */
+ 	ret = kstrtol(psize, 0, &size);
+ 	if (ret) {
+@@ -201,7 +202,6 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 		goto out;
  	}
  
--	msg->msg_id = id;
-+	msg->msg_id = xas.xa_index;
- 	msg->object_id = req->object->ondemand->ondemand_id;
+-	info = req->object->ondemand;
+ 	spin_lock(&info->lock);
+ 	/*
+ 	 * The anonymous fd was closed before copen ? Fail the request.
+@@ -241,6 +241,11 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
+ 	wake_up_all(&cache->daemon_pollwq);
  
- 	if (copy_to_user(_buffer, msg, n) != 0) {
- 		ret = -EFAULT;
--		goto err_put_fd;
--	}
--
--	cachefiles_put_object(req->object, cachefiles_obj_put_read_req);
--	/* CLOSE request has no reply */
--	if (msg->opcode == CACHEFILES_OP_CLOSE) {
--		xa_erase(&cache->reqs, id);
--		complete(&req->done);
-+		if (msg->opcode == CACHEFILES_OP_OPEN)
-+			close_fd(((struct cachefiles_open *)msg->data)->fd);
- 	}
--
--	cachefiles_req_put(req);
--	return n;
--
--err_put_fd:
--	if (msg->opcode == CACHEFILES_OP_OPEN)
--		close_fd(((struct cachefiles_open *)msg->data)->fd);
--error:
-+out:
- 	cachefiles_put_object(req->object, cachefiles_obj_put_read_req);
--	xas_reset(&xas);
--	xas_lock(&xas);
--	if (xas_load(&xas) == req) {
--		req->error = ret;
--		complete(&req->done);
--		xas_store(&xas, NULL);
-+	/* Remove error request and CLOSE request has no reply */
-+	if (ret || msg->opcode == CACHEFILES_OP_CLOSE) {
-+		xas_reset(&xas);
-+		xas_lock(&xas);
-+		if (xas_load(&xas) == req) {
-+			req->error = ret;
-+			complete(&req->done);
-+			xas_store(&xas, NULL);
-+		}
-+		xas_unlock(&xas);
- 	}
--	xas_unlock(&xas);
- 	cachefiles_req_put(req);
--	return ret;
-+	return ret ? ret : n;
+ out:
++	spin_lock(&info->lock);
++	/* Need to set object close to avoid reopen status continuing */
++	if (info->ondemand_id == CACHEFILES_ONDEMAND_ID_CLOSED)
++		cachefiles_ondemand_set_object_close(req->object);
++	spin_unlock(&info->lock);
+ 	complete(&req->done);
+ 	return ret;
  }
- 
- typedef int (*init_req_fn)(struct cachefiles_req *req, void *private);
 -- 
 2.39.2
 
