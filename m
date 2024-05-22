@@ -2,58 +2,58 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ADD7C25B78
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 03:56:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81CFEC25B77
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 04:11:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VkclY2111z3vjC
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 13:50:33 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Vkd5s6fthz3vZp
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 May 2024 14:06:25 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkckz45N2z3g0q
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 13:50:03 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vkd5T2z8Tz3g69
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 14:06:02 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Vkckp0pXhz4f3jkY
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:54 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Vkd5836Rmz4f3lg6
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 12:05:48 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id DE1511A0925
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 11:49:59 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id E18E01A06DE
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 May 2024 12:05:58 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgBHGBFea01mxlBXNQ--.57627S13;
-	Wed, 22 May 2024 11:49:59 +0800 (CST)
+	by APP1 (Coremail) with SMTP id cCh0CgBHZQ4ib01ms1VYNQ--.24441S8;
+	Wed, 22 May 2024 12:05:58 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v3 09/12] cachefiles: defer exposing anon_fd until after copy_to_user() succeeds
-Date: Wed, 22 May 2024 19:43:05 +0800
-Message-Id: <20240522114308.2402121-10-libaokun@huaweicloud.com>
+Subject: [PATCH RESEND 4/5] cachefiles: correct the return value of cachefiles_check_volume_xattr()
+Date: Wed, 22 May 2024 19:59:10 +0800
+Message-Id: <20240522115911.2403021-5-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240522114308.2402121-1-libaokun@huaweicloud.com>
-References: <20240522114308.2402121-1-libaokun@huaweicloud.com>
+In-Reply-To: <20240522115911.2403021-1-libaokun@huaweicloud.com>
+References: <20240522115911.2403021-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cCh0CgBHGBFea01mxlBXNQ--.57627S13
-X-Coremail-Antispam: 1UD129KBjvJXoWxGFyfGw1fCF17XFyDCFy7Awb_yoW7JF1UpF
-	WakFy7Kry8WF48ur97Ars8ZryfC34kA3ZrW3s0g34rArnIgr1Fvr1jyr9xuF15Ar97Grsx
-	tr4UuasxKr1jy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUQS14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2jI8I6cxK62vIxIIY0VWUZVW8XwA2048vs2IY02
-	0E87I2jVAFwI0_JF0E3s1l82xGYIkIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0
-	rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6x
-	IIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xv
-	wVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFc
-	xC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_
-	Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2
-	IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY07xG64k0F24l42xK82IYc2Ij64vI
-	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8Gjc
-	xK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0
-	cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04
-	k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7Cj
-	xVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjTRupB-UUUUU
+X-CM-TRANSID: cCh0CgBHZQ4ib01ms1VYNQ--.24441S8
+X-Coremail-Antispam: 1UD129KBjvdXoWrZFyrAFW5Cw4xuw4kZF13urg_yoWkZwc_uF
+	9xAF4UZrs3Gr48JrsrAa42qrWSqr1UCwn8Jr1Yva13tws8KrW5XFWDtr9xAr17Wr4DK3Wq
+	kryxZF13Xr9FgjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbmkFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M280x2IEY4vEnII2IxkI6r1a6r45M28IrcIa0xkI8V
+	A2jI8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJ
+	M28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2I
+	x0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK
+	6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4
+	xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8
+	JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20V
+	AGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7M4kE6xkIj40Ew7xC0wCF04k20xvY0x0EwIxG
+	rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4
+	vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IY
+	x2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8V
+	AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7sREMKZDUUUUU==
 X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -72,154 +72,38 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-After installing the anonymous fd, we can now see it in userland and close
-it. However, at this point we may not have gotten the reference count of
-the cache, but we will put it during colse fd, so this may cause a cache
-UAF.
+In cachefiles_check_volume_xattr(), the error returned by vfs_getxattr is
+not passed to ret, so it ends up returning -ESTALE, which leads to an
+endless loop as follows:
 
-So grab the cache reference count before fd_install(). In addition, by
-kernel convention, fd is taken over by the user land after fd_install(),
-and the kernel should not call close_fd() after that, i.e., it should call
-fd_install() after everything is ready, thus fd_install() is called after
-copy_to_user() succeeds.
+cachefiles_acquire_volume
+retry:
+  cachefiles_check_volume_xattr
+  // return -ESTALE
+  cachefiles_bury_object
+  //  EIO causes rename failure
+  goto retry;
 
-Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
-Suggested-by: Hou Tao <houtao1@huawei.com>
+So pass the error code to ret when xlen < 0 to avoid the above problem.
+
+Fixes: 32e150037dce ("fscache, cachefiles: Store the volume coherency data")
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Acked-by: Jeff Layton <jlayton@kernel.org>
 ---
- fs/cachefiles/ondemand.c | 53 +++++++++++++++++++++++++---------------
- 1 file changed, 33 insertions(+), 20 deletions(-)
+ fs/cachefiles/xattr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index d2d4e27fca6f..6f815e7c5086 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -4,6 +4,11 @@
- #include <linux/uio.h>
- #include "internal.h"
- 
-+struct ondemand_anon_file {
-+	struct file *file;
-+	int fd;
-+};
-+
- static inline void cachefiles_req_put(struct cachefiles_req *req)
- {
- 	if (refcount_dec_and_test(&req->ref))
-@@ -263,14 +268,14 @@ int cachefiles_ondemand_restore(struct cachefiles_cache *cache, char *args)
- 	return 0;
- }
- 
--static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
-+static int cachefiles_ondemand_get_fd(struct cachefiles_req *req,
-+				      struct ondemand_anon_file *anon_file)
- {
- 	struct cachefiles_object *object;
- 	struct cachefiles_cache *cache;
- 	struct cachefiles_open *load;
--	struct file *file;
- 	u32 object_id;
--	int ret, fd;
-+	int ret;
- 
- 	object = cachefiles_grab_object(req->object,
- 			cachefiles_obj_get_ondemand_fd);
-@@ -282,16 +287,16 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- 	if (ret < 0)
- 		goto err;
- 
--	fd = get_unused_fd_flags(O_WRONLY);
--	if (fd < 0) {
--		ret = fd;
-+	anon_file->fd = get_unused_fd_flags(O_WRONLY);
-+	if (anon_file->fd < 0) {
-+		ret = anon_file->fd;
- 		goto err_free_id;
- 	}
- 
--	file = anon_inode_getfile("[cachefiles]", &cachefiles_ondemand_fd_fops,
--				  object, O_WRONLY);
--	if (IS_ERR(file)) {
--		ret = PTR_ERR(file);
-+	anon_file->file = anon_inode_getfile("[cachefiles]",
-+				&cachefiles_ondemand_fd_fops, object, O_WRONLY);
-+	if (IS_ERR(anon_file->file)) {
-+		ret = PTR_ERR(anon_file->file);
- 		goto err_put_fd;
- 	}
- 
-@@ -299,16 +304,15 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- 	if (object->ondemand->ondemand_id > 0) {
- 		spin_unlock(&object->ondemand->lock);
- 		/* Pair with check in cachefiles_ondemand_fd_release(). */
--		file->private_data = NULL;
-+		anon_file->file->private_data = NULL;
- 		ret = -EEXIST;
- 		goto err_put_file;
- 	}
- 
--	file->f_mode |= FMODE_PWRITE | FMODE_LSEEK;
--	fd_install(fd, file);
-+	anon_file->file->f_mode |= FMODE_PWRITE | FMODE_LSEEK;
- 
- 	load = (void *)req->msg.data;
--	load->fd = fd;
-+	load->fd = anon_file->fd;
- 	object->ondemand->ondemand_id = object_id;
- 	spin_unlock(&object->ondemand->lock);
- 
-@@ -317,9 +321,11 @@ static int cachefiles_ondemand_get_fd(struct cachefiles_req *req)
- 	return 0;
- 
- err_put_file:
--	fput(file);
-+	fput(anon_file->file);
-+	anon_file->file = NULL;
- err_put_fd:
--	put_unused_fd(fd);
-+	put_unused_fd(anon_file->fd);
-+	anon_file->fd = ret;
- err_free_id:
- 	xa_erase(&cache->ondemand_ids, object_id);
- err:
-@@ -376,6 +382,7 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 	struct cachefiles_msg *msg;
- 	size_t n;
- 	int ret = 0;
-+	struct ondemand_anon_file anon_file;
- 	XA_STATE(xas, &cache->reqs, cache->req_id_next);
- 
- 	xa_lock(&cache->reqs);
-@@ -409,7 +416,7 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 	xa_unlock(&cache->reqs);
- 
- 	if (msg->opcode == CACHEFILES_OP_OPEN) {
--		ret = cachefiles_ondemand_get_fd(req);
-+		ret = cachefiles_ondemand_get_fd(req, &anon_file);
- 		if (ret)
- 			goto out;
- 	}
-@@ -417,10 +424,16 @@ ssize_t cachefiles_ondemand_daemon_read(struct cachefiles_cache *cache,
- 	msg->msg_id = xas.xa_index;
- 	msg->object_id = req->object->ondemand->ondemand_id;
- 
--	if (copy_to_user(_buffer, msg, n) != 0) {
-+	if (copy_to_user(_buffer, msg, n) != 0)
- 		ret = -EFAULT;
--		if (msg->opcode == CACHEFILES_OP_OPEN)
--			close_fd(((struct cachefiles_open *)msg->data)->fd);
-+
-+	if (msg->opcode == CACHEFILES_OP_OPEN) {
-+		if (ret < 0) {
-+			fput(anon_file.file);
-+			put_unused_fd(anon_file.fd);
-+			goto out;
-+		}
-+		fd_install(anon_file.fd, anon_file.file);
- 	}
- out:
- 	cachefiles_put_object(req->object, cachefiles_obj_put_read_req);
+diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
+index bcb6173943ee..20e4a4391090 100644
+--- a/fs/cachefiles/xattr.c
++++ b/fs/cachefiles/xattr.c
+@@ -252,6 +252,7 @@ int cachefiles_check_volume_xattr(struct cachefiles_volume *volume)
+ 		xlen = vfs_getxattr(&nop_mnt_idmap, dentry, cachefiles_xattr_cache, buf, len);
+ 	if (xlen != len) {
+ 		if (xlen < 0) {
++			ret = xlen;
+ 			trace_cachefiles_vfs_error(NULL, d_inode(dentry), xlen,
+ 						   cachefiles_trace_getxattr_error);
+ 			if (xlen == -EIO)
 -- 
 2.39.2
 
