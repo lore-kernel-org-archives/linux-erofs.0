@@ -2,33 +2,42 @@ Return-Path: <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.o
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB8FCC4345F
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 04:42:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3867FC25B78
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 May 2024 06:51:44 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wxfJobAc;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VTktg32lbz3cSY
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 May 2024 14:42:03 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VpNJX31Q0z3w82
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 May 2024 16:43:40 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wxfJobAc;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VTktW6Jv4z30Np
-	for <linux-erofs@lists.ozlabs.org>; Wed,  1 May 2024 14:41:54 +1000 (AEST)
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 3EEFF67373; Wed,  1 May 2024 06:41:46 +0200 (CEST)
-Date: Wed, 1 May 2024 06:41:45 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH v2 07/22] mm: Provide a means of invalidation without
- using launder_folio
-Message-ID: <20240501044145.GC31252@lst.de>
-References: <20240430140056.261997-1-dhowells@redhat.com> <20240430140056.261997-8-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VpNJL0NNJz3vdT
+	for <linux-erofs@lists.ozlabs.org>; Tue, 28 May 2024 16:43:27 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1716878603; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=uiFfD2L8eN9TbUDxK49YGeft8B5GJ4/wivSAAllewF8=;
+	b=wxfJobAcQogDFglkQJlhsSlZDPa2Ham1HZ+OeBRgB9ZqDUg2Aws+1BiOA3kzQiDgAgy+ebr20SFznUW7qB2BW3C44ryCYKVWHTIzXJDukxrMfsBBamQNPHJHcle9pOhx80nfA6Du3BX+vcWlW9KJLju6O6LUk99+FJBkOiBL7Fk=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W7OoPt._1716878594;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W7OoPt._1716878594)
+          by smtp.aliyun-inc.com;
+          Tue, 28 May 2024 14:43:21 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: fix false-positive errors on gcc 4.8.5
+Date: Tue, 28 May 2024 14:43:13 +0800
+Message-Id: <20240528064313.1352565-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240430140056.261997-8-dhowells@redhat.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -40,16 +49,58 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@lst.de>, Steve French <smfrench@gmail.com>, linux-cachefs@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, devel@lists.orangefs.org, Shyam Prasad N <sprasad@microsoft.com>, Christian Brauner <brauner@kernel.org>, Tom Talpey <tom@talpey.com>, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Trond Myklebust <trond.myklebust@hammerspace.com>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, Andrew Morton <akpm@l
- inux-foundation.org>, linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-> +	unmap_mapping_pages(mapping, first, nr, false);
+Just old compiler bugs.
 
-> +}
-> +EXPORT_SYMBOL(filemap_invalidate_inode);
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/data.c      | 2 +-
+ lib/dedupe.c    | 2 +-
+ lib/fragments.c | 2 ++
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-unmap_mapping_pages is an EXPORT_SYMBOL_GPL, pleas keep that in
-this in thin wrapper.
+diff --git a/lib/data.c b/lib/data.c
+index a87053f..c139e0c 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -420,7 +420,7 @@ static void *erofs_read_metadata_bdi(struct erofs_sb_info *sbi,
+ 	ret = blk_read(sbi, 0, data, erofs_blknr(sbi, *offset), 1);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+-	len = le16_to_cpu(*(__le16 *)&data[erofs_blkoff(sbi, *offset)]);
++	len = le16_to_cpu(*(__le16 *)(data + erofs_blkoff(sbi, *offset)));
+ 	if (!len)
+ 		return ERR_PTR(-EFSCORRUPTED);
+ 
+diff --git a/lib/dedupe.c b/lib/dedupe.c
+index aaaccb5..e475635 100644
+--- a/lib/dedupe.c
++++ b/lib/dedupe.c
+@@ -99,7 +99,7 @@ int z_erofs_dedupe_match(struct z_erofs_dedupe_ctx *ctx)
+ 		struct z_erofs_dedupe_item *e;
+ 
+ 		unsigned int extra = 0;
+-		u64 xxh64_csum;
++		u64 xxh64_csum = 0;
+ 
+ 		if (initial) {
+ 			/* initial try */
+diff --git a/lib/fragments.c b/lib/fragments.c
+index d4f6be1..f4c9bd7 100644
+--- a/lib/fragments.c
++++ b/lib/fragments.c
+@@ -289,6 +289,8 @@ int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd,
+ 	if (memblock)
+ 		rc = z_erofs_fragments_dedupe_insert(memblock,
+ 			inode->fragment_size, inode->fragmentoff, tofcrc);
++	else
++		rc = 0;
+ out:
+ 	if (memblock)
+ 		munmap(memblock, inode->i_size);
+-- 
+2.39.3
 
