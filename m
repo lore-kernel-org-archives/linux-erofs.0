@@ -4,40 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18FD6C25B75
-	for <linux-erofs@archiver.kernel.org>; Fri, 31 May 2024 07:13:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57722C25B7E
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Jun 2024 08:40:39 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ytt5hVCL;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=je1Wbzd0;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VrDqX28nBz30VF
-	for <linux-erofs@archiver.kernel.org>; Fri, 31 May 2024 17:13:28 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VtkZF2Rm2z3cWS
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Jun 2024 18:40:37 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ytt5hVCL;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=je1Wbzd0;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VrDqP5Gk0z30TQ
-	for <linux-erofs@lists.ozlabs.org>; Fri, 31 May 2024 17:13:19 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VtkZ40py0z3cQq
+	for <linux-erofs@lists.ozlabs.org>; Tue,  4 Jun 2024 18:40:26 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1717139595; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=WM3Rg1h0DrawDYVJN1u6ngtwfxcI8REMLabAot8GUQs=;
-	b=ytt5hVCLU0V6b+Zppayo8UFE7ySV76SewTXArCCJme4CceR+FAD4X5caA3uA9j8GVpVDTBn0qGEGIc5gV1vpfysLZ28jBe6iKp25N5xpThbQWWRthrC3Q8yHaRu7vgrCl5DxvFE2Dzye+MMvdB83BvdOnM2q2abkqlX1ntTN1eQ=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W7Z34sw_1717139588;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W7Z34sw_1717139588)
+	t=1717490422; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=+yPopFZWz83+QukWfPp1GUKSTe+xJaO6kxj7hVW64XQ=;
+	b=je1Wbzd0nh/l6xMEwjs/mc3BTrd0xPd2WUXzAONUNdFU2gY/ekOioSWw9o3TvQbysjpNyqno4TbwXxMSljSdvEv7KXB7Jj6aWss6cEVs09y80QRhTQandgFv+3nykOj/0dFLqgtunpJ+x/jOqas8prCZG1O1TD4cIVoMSvBSh7o=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W7qIh05_1717490420;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W7qIh05_1717490420)
           by smtp.aliyun-inc.com;
-          Fri, 31 May 2024 15:13:13 +0800
+          Tue, 04 Jun 2024 16:40:21 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: lib: fix incorrect xattr sharing
-Date: Fri, 31 May 2024 15:13:05 +0800
-Message-Id: <20240531071305.1183728-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/2] erofs-utils: record sb_size instead of sb_extslots
+Date: Tue,  4 Jun 2024 16:40:15 +0800
+Message-Id: <20240604084015.2291157-2-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240604084015.2291157-1-hsiangkao@linux.alibaba.com>
+References: <20240604084015.2291157-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,50 +57,77 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-There are off-by-one issues after refactoring, and the size of kvbuf
-should be calculated by EROFS_XATTR_KVSIZE instead.
+Just follow the kernel implementation.
 
-Fixes: 5df285cf405d ("erofs-utils: lib: refactor extended attribute name prefixes")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/xattr.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ dump/main.c              | 4 ++--
+ include/erofs/internal.h | 7 ++++---
+ lib/super.c              | 7 ++++++-
+ 3 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 427933f..0f6fbe2 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -166,14 +166,6 @@ static unsigned int BKDRHash(char *str, unsigned int len)
- 	return hash;
- }
+diff --git a/dump/main.c b/dump/main.c
+index dd2c620..50f4662 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -654,8 +654,8 @@ static void erofsdump_show_superblock(void)
+ 		fprintf(stdout, "Filesystem lz4_max_distance:                  %u\n",
+ 			sbi.lz4_max_distance | 0U);
+ 	}
+-	fprintf(stdout, "Filesystem sb_extslots:                       %u\n",
+-			sbi.extslots | 0U);
++	fprintf(stdout, "Filesystem sb_size:                           %u\n",
++			sbi.sb_size | 0U);
+ 	fprintf(stdout, "Filesystem inode count:                       %llu\n",
+ 			sbi.inos | 0ULL);
+ 	fprintf(stdout, "Filesystem created:                           %s",
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 46345e0..9fdff71 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -84,13 +84,14 @@ struct erofs_sb_info {
  
--static unsigned int xattr_item_hash(char *buf, unsigned int len[2],
--				    unsigned int hash[2])
--{
--	hash[0] = BKDRHash(buf, len[0]);	/* key */
--	hash[1] = BKDRHash(buf + len[0], len[1]);	/* value */
--	return hash[0] ^ hash[1];
--}
--
- static unsigned int put_xattritem(struct xattr_item *item)
- {
- 	if (item->count > 1)
-@@ -188,11 +180,13 @@ static struct xattr_item *get_xattritem(char *kvbuf, unsigned int len[2])
- 	struct ea_type_node *tnode;
- 	unsigned int hash[2], hkey;
+ 	u32 feature_compat;
+ 	u32 feature_incompat;
+-	u64 build_time;
+-	u32 build_time_nsec;
  
--	hkey = xattr_item_hash(kvbuf, len, hash);
-+	hash[0] = BKDRHash(kvbuf, len[0]);
-+	hash[1] = BKDRHash(kvbuf + EROFS_XATTR_KSIZE(len), len[1]);
-+	hkey = hash[0] ^ hash[1];
- 	hash_for_each_possible(ea_hashtable, item, node, hkey) {
- 		if (item->len[0] == len[0] && item->len[1] == len[1] &&
- 		    item->hash[0] == hash[0] && item->hash[1] == hash[1] &&
--		    !memcmp(kvbuf, item->kvbuf, len[0] + len[1])) {
-+		    !memcmp(kvbuf, item->kvbuf, EROFS_XATTR_KVSIZE(len))) {
- 			free(kvbuf);
- 			++item->count;
- 			return item;
+-	u8  extslots;
+ 	unsigned char islotbits;
+ 	unsigned char blkszbits;
+ 
++	u32 sb_size;			/* total superblock size */
++	u32 build_time_nsec;
++	u64 build_time;
++
+ 	/* what we really care is nid, rather than ino.. */
+ 	erofs_nid_t root_nid;
+ 	/* used for statfs, f_files - f_favail */
+diff --git a/lib/super.c b/lib/super.c
+index f952f7e..4d16d29 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -104,6 +104,12 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 		return ret;
+ 	}
+ 
++	sbi->sb_size = 128 + dsb->sb_extslots * EROFS_SB_EXTSLOT_SIZE;
++	if (sbi->sb_size > (1 << sbi->blkszbits) - EROFS_SUPER_OFFSET) {
++		erofs_err("invalid sb_extslots %u (more than a fs block)",
++			  dsb->sb_extslots);
++		return -EINVAL;
++	}
+ 	sbi->primarydevice_blocks = le32_to_cpu(dsb->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(dsb->meta_blkaddr);
+ 	sbi->xattr_blkaddr = le32_to_cpu(dsb->xattr_blkaddr);
+@@ -114,7 +120,6 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
+ 	sbi->inos = le64_to_cpu(dsb->inos);
+ 	sbi->checksum = le32_to_cpu(dsb->checksum);
+-	sbi->extslots = dsb->sb_extslots;
+ 
+ 	sbi->build_time = le64_to_cpu(dsb->build_time);
+ 	sbi->build_time_nsec = le32_to_cpu(dsb->build_time_nsec);
 -- 
 2.39.3
 
