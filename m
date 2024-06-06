@@ -4,41 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76AD4C25B75
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jun 2024 04:13:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2D313C25B75
+	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jun 2024 04:19:07 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VvrXs2mhgz3cWn
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jun 2024 14:13:17 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VvrgY115xz3cWg
+	for <linux-erofs@archiver.kernel.org>; Thu,  6 Jun 2024 14:19:05 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=deepin.org
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepin.org (client-ip=43.154.197.177; helo=bg5.exmail.qq.com; envelope-from=heyuming@deepin.org; receiver=lists.ozlabs.org)
-X-Greylist: delayed 335 seconds by postgrey-1.37 at boromir; Thu, 06 Jun 2024 14:13:13 AEST
-Received: from bg5.exmail.qq.com (bg5.exmail.qq.com [43.154.197.177])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepin.org (client-ip=13.245.218.24; helo=smtpbg153.qq.com; envelope-from=heyuming@deepin.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 693 seconds by postgrey-1.37 at boromir; Thu, 06 Jun 2024 14:18:59 AEST
+Received: from smtpbg153.qq.com (smtpbg153.qq.com [13.245.218.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VvrXn3dJXz3cCb
-	for <linux-erofs@lists.ozlabs.org>; Thu,  6 Jun 2024 14:13:11 +1000 (AEST)
-X-QQ-mid: bizesmtp91t1717646816t79403eo
-X-QQ-Originating-IP: nr263s3DPqtdKEsBnjS0BiVN13CmTuZTuJp2dB5H+gE=
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VvrgR4k75z3cF1
+	for <linux-erofs@lists.ozlabs.org>; Thu,  6 Jun 2024 14:18:52 +1000 (AEST)
+X-QQ-mid: bizesmtp82t1717647514tr9g0zyv
+X-QQ-Originating-IP: lFpPnIL0gCQP0pAVQb+BnQUTVqt8xwNX5Pk4N6aVUZ8=
 Received: from ComixHe.tail207ab.ts.net ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 06 Jun 2024 12:06:54 +0800 (CST)
-X-QQ-SSF: 01400000000000104000000A0000000
-X-QQ-FEAT: s2jmW7v6iXYEgZzS2yaxpJrc5xzFXe0FoVzb9YKjw3XBMEcL6Ygm6H+SW8jz/
-	jw5aDxCgl7JifGffeq8JslAR6PI9fOVi4DisPj3aUQOP2RiaOi6AvmrcVdV9/6ZwKAS8j/+
-	vqGcG/ZU11vq2tGiA9dF6fjAbd7CcGJfZtyBYduIL0o3ogtn2vdbM68xsr9fUg9N59wNz2x
-	xtSnt49C6O0ZnZVkQRlRu9Kx/aeN8YRkC6zkcnbY6rz+3Khkm6vU8yWZnK+Swx+lekvC+Uc
-	uv7PlP8K3xdK1krYnK5kvq173XW1AV5I95ElS9FzB+urAWtPkHjaA1Su08yXMcrXb7pI+tq
-	O3cogaOPWiDodD+50Pp7zlg6yTHIA==
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 6639847384950339413
+	id ; Thu, 06 Jun 2024 12:18:33 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 10965905757059532299
 From: ComixHe <heyuming@deepin.org>
 To: linux-erofs@lists.ozlabs.org
 Subject: [PATCH] build: support building static library liberofsfuse
-Date: Thu,  6 Jun 2024 12:04:30 +0800
-Message-ID: <7E95D6823EDDF116+20240606040430.46064-1-heyuming@deepin.org>
+Date: Thu,  6 Jun 2024 12:18:26 +0800
+Message-ID: <64B0656069715534+20240606041826.46688-1-heyuming@deepin.org>
 X-Mailer: git-send-email 2.45.2
-In-Reply-To: <7415F0DDF0F65F38+20240523061237.45994-1-heyuming@deepin.org>
-References: <7415F0DDF0F65F38+20240523061237.45994-1-heyuming@deepin.org>
+In-Reply-To: <43DE50371629F5AE+20240523073104.54391-1-heyuming@deepin.org>
+References: <43DE50371629F5AE+20240523073104.54391-1-heyuming@deepin.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
