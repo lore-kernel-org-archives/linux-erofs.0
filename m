@@ -4,42 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76F0EC27C77
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 16:18:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6129C27C7B
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 16:18:57 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YtuXoxiO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UB7TJZYK;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VzrMF1B1Dz3d2d
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 02:18:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VzrMM4lbNz3dWr
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 02:18:55 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YtuXoxiO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UB7TJZYK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VzrM64dm1z3dH4
-	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jun 2024 02:18:40 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VzrM640SDz3d3Q
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jun 2024 02:18:41 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718209117; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=kG7H1KCxNJMcbhqxcEnRGNQOHc6h6LkD+wEhd8pMyUc=;
-	b=YtuXoxiOH6QyYYC/E5KP2aZsavK5QW8K7od9GAWUYZ5RzP7W6ts1GXw1N5CviwCJUz60szoMzdn9ED1POox1xsAp+E53RTNpBQTgNkJ3L62V0IUfW1GMYc1cljM4fJeUbetDS9wX9JRCt4cs/hEPdJYiXLV0YY87f+w5dNb9aZI=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8LOtTz_1718209114;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8LOtTz_1718209114)
+	t=1718209115; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=KfSv4c0xrCIqNMrV0wF+BFyR0swrK/FAsRYao5AXy48=;
+	b=UB7TJZYK+A9a9rYf75m1YIKkchyQ7HQHBLY3wSwV3GA3cd+iZXnooRwV9MhAWBnFB3kqTabf1eedkEW22LRKd6I+Vn+Vskql9nlVsQqbMzhv5D1C6INZn4Im2tLIQyd6fH+k650Ctua88CGoeaIYlUtnY8CUYRGz6GpayHmPaZ4=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8LOtR0_1718209107;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8LOtR0_1718209107)
           by smtp.aliyun-inc.com;
-          Thu, 13 Jun 2024 00:18:36 +0800
+          Thu, 13 Jun 2024 00:18:32 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 3/5] erofs-utils: wrap up superblock reservation for incremental builds
-Date: Thu, 13 Jun 2024 00:18:24 +0800
-Message-Id: <20240612161826.711279-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 1/5] erofs-utils: lib: get rid of erofs_prepare_dir_layout()
+Date: Thu, 13 Jun 2024 00:18:22 +0800
+Message-Id: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
-References: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -57,142 +55,117 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Refactor `erofs_buffer_init()` to wrap up necessary operations for full
-builds.
+Just open-code the previous erofs_prepare_dir_file() and rename
+`erofs_prepare_dir_layout()` to `erofs_prepare_dir_file()`.
 
-Introduce another `erofs_buffer_init()` to specify start block address
-for the upcoming incremental builds.
+No logic changes.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/cache.h    |  2 +-
- include/erofs/internal.h |  1 +
- lib/cache.c              | 11 ++---------
- lib/super.c              | 31 +++++++++++++++++++++++++++++++
- mkfs/main.c              | 17 +----------------
- 5 files changed, 36 insertions(+), 26 deletions(-)
+ lib/inode.c | 70 ++++++++++++++++++++++++-----------------------------
+ 1 file changed, 31 insertions(+), 39 deletions(-)
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-index 350cec6..f30fe9f 100644
---- a/include/erofs/cache.h
-+++ b/include/erofs/cache.h
-@@ -98,7 +98,7 @@ static inline int erofs_bh_flush_generic_end(struct erofs_buffer_head *bh)
+diff --git a/lib/inode.c b/lib/inode.c
+index 7d4ccc4..09bf76b 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -208,8 +208,30 @@ static int comp_subdir(const void *a, const void *b)
+ 	return strcmp(da->name, db->name);
+ }
+ 
+-static int erofs_prepare_dir_layout(struct erofs_inode *dir,
+-				    unsigned int nr_subdirs)
++int erofs_init_empty_dir(struct erofs_inode *dir)
++{
++	struct erofs_dentry *d;
++
++	/* dot is pointed to the current dir inode */
++	d = erofs_d_alloc(dir, ".");
++	if (IS_ERR(d))
++		return PTR_ERR(d);
++	d->inode = erofs_igrab(dir);
++	d->type = EROFS_FT_DIR;
++
++	/* dotdot is pointed to the parent dir */
++	d = erofs_d_alloc(dir, "..");
++	if (IS_ERR(d))
++		return PTR_ERR(d);
++	d->inode = erofs_igrab(erofs_parent_inode(dir));
++	d->type = EROFS_FT_DIR;
++
++	dir->i_nlink = 2;
++	return 0;
++}
++
++static int erofs_prepare_dir_file(struct erofs_inode *dir,
++				  unsigned int nr_subdirs)
+ {
+ 	struct erofs_sb_info *sbi = dir->sbi;
+ 	struct erofs_dentry *d, *n, **sorted_d;
+@@ -248,41 +270,6 @@ static int erofs_prepare_dir_layout(struct erofs_inode *dir,
  	return 0;
  }
  
--struct erofs_buffer_head *erofs_buffer_init(void);
-+void erofs_buffer_init(erofs_blk_t startblk);
- int erofs_bh_balloon(struct erofs_buffer_head *bh, erofs_off_t incr);
- 
- struct erofs_buffer_head *erofs_balloc(int type, erofs_off_t size,
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 277295e..f8a01ce 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -397,6 +397,7 @@ int erofs_read_superblock(struct erofs_sb_info *sbi);
- void erofs_put_super(struct erofs_sb_info *sbi);
- int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
- 		  erofs_blk_t *blocks);
-+struct erofs_buffer_head *erofs_reserve_sb(void);
- 
- /* namei.c */
- int erofs_read_inode_from_disk(struct erofs_inode *vi);
-diff --git a/lib/cache.c b/lib/cache.c
-index 664e598..328ca4a 100644
---- a/lib/cache.c
-+++ b/lib/cache.c
-@@ -38,21 +38,14 @@ const struct erofs_bhops erofs_skip_write_bhops = {
- 	.flush = erofs_bh_flush_skip_write,
- };
- 
--/* return buffer_head of erofs super block (with size 0) */
--struct erofs_buffer_head *erofs_buffer_init(void)
-+void erofs_buffer_init(erofs_blk_t startblk)
+-int erofs_init_empty_dir(struct erofs_inode *dir)
+-{
+-	struct erofs_dentry *d;
+-
+-	/* dot is pointed to the current dir inode */
+-	d = erofs_d_alloc(dir, ".");
+-	if (IS_ERR(d))
+-		return PTR_ERR(d);
+-	d->inode = erofs_igrab(dir);
+-	d->type = EROFS_FT_DIR;
+-
+-	/* dotdot is pointed to the parent dir */
+-	d = erofs_d_alloc(dir, "..");
+-	if (IS_ERR(d))
+-		return PTR_ERR(d);
+-	d->inode = erofs_igrab(erofs_parent_inode(dir));
+-	d->type = EROFS_FT_DIR;
+-
+-	dir->i_nlink = 2;
+-	return 0;
+-}
+-
+-int erofs_prepare_dir_file(struct erofs_inode *dir, unsigned int nr_subdirs)
+-{
+-	int ret;
+-
+-	ret = erofs_init_empty_dir(dir);
+-	if (ret)
+-		return ret;
+-
+-	/* sort subdirs */
+-	nr_subdirs += 2;
+-	return erofs_prepare_dir_layout(dir, nr_subdirs);
+-}
+-
+ static void fill_dirblock(char *buf, unsigned int size, unsigned int q,
+ 			  struct erofs_dentry *head, struct erofs_dentry *end)
  {
- 	int i, j;
--	struct erofs_buffer_head *bh = erofs_balloc(META, 0, 0, 0);
--
--	if (IS_ERR(bh))
--		return bh;
--
--	bh->op = &erofs_skip_write_bhops;
+@@ -1358,7 +1345,11 @@ static int erofs_mkfs_handle_directory(struct erofs_inode *dir)
+ 	}
+ 	closedir(_dir);
  
- 	for (i = 0; i < ARRAY_SIZE(mapped_buckets); i++)
- 		for (j = 0; j < ARRAY_SIZE(mapped_buckets[0]); j++)
- 			init_list_head(&mapped_buckets[i][j]);
--	return bh;
-+	tail_blkaddr = startblk;
- }
+-	ret = erofs_prepare_dir_file(dir, nr_subdirs);
++	ret = erofs_init_empty_dir(dir);
++	if (ret)
++		return ret;
++
++	ret = erofs_prepare_dir_file(dir, nr_subdirs + 2); /* sort subdirs */
+ 	if (ret)
+ 		return ret;
  
- static void erofs_bupdate_mapped(struct erofs_buffer_block *bb)
-diff --git a/lib/super.c b/lib/super.c
-index 33e908a..c8c33b6 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -201,3 +201,34 @@ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
- 		erofs_bdrop(sb_bh, false);
- 	return ret;
- }
-+
-+struct erofs_buffer_head *erofs_reserve_sb(void)
-+{
-+	struct erofs_buffer_head *bh;
-+	int err;
-+
-+	erofs_buffer_init(0);
-+	bh = erofs_balloc(META, 0, 0, 0);
-+	if (IS_ERR(bh)) {
-+		erofs_err("failed to allocate super: %s", PTR_ERR(bh));
-+		return bh;
-+	}
-+	bh->op = &erofs_skip_write_bhops;
-+	err = erofs_bh_balloon(bh, EROFS_SUPER_END);
-+	if (err < 0) {
-+		erofs_err("failed to balloon super: %s", erofs_strerror(err));
-+		goto err_bdrop;
-+	}
-+
-+	/* make sure that the super block should be the very first blocks */
-+	(void)erofs_mapbh(bh->block);
-+	if (erofs_btell(bh, false) != 0) {
-+		erofs_err("failed to pin super block @ 0");
-+		err = -EFAULT;
-+		goto err_bdrop;
-+	}
-+	return bh;
-+err_bdrop:
-+	erofs_bdrop(bh, true);
-+	return ERR_PTR(err);
-+}
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 6577267..1e8ca3c 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1244,24 +1244,9 @@ int main(int argc, char **argv)
- 		sbi.blkszbits = src->blkszbits;
+@@ -1399,7 +1390,8 @@ static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
+ 		++nr_subdirs;
  	}
  
--	sb_bh = erofs_buffer_init();
-+	sb_bh = erofs_reserve_sb();
- 	if (IS_ERR(sb_bh)) {
- 		err = PTR_ERR(sb_bh);
--		erofs_err("failed to initialize buffers: %s",
--			  erofs_strerror(err));
--		goto exit;
--	}
--	err = erofs_bh_balloon(sb_bh, EROFS_SUPER_END);
--	if (err < 0) {
--		erofs_err("failed to balloon erofs_super_block: %s",
--			  erofs_strerror(err));
--		goto exit;
--	}
--
--	/* make sure that the super block should be the very first blocks */
--	(void)erofs_mapbh(sb_bh->block);
--	if (erofs_btell(sb_bh, false) != 0) {
--		erofs_err("failed to reserve erofs_super_block");
- 		goto exit;
- 	}
+-	ret = erofs_prepare_dir_layout(dir, nr_subdirs);
++	DBG_BUGON(nr_subdirs < i_nlink);
++	ret = erofs_prepare_dir_file(dir, nr_subdirs);
+ 	if (ret)
+ 		return ret;
  
 -- 
 2.39.3
