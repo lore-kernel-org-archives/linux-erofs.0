@@ -4,44 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 559CFC27C53
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 16:19:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4505EC27C53
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 21:10:53 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kqeeavzV;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DIXhgPtR;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4VzrMl1jvrz3dTb
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 02:19:15 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VzyrC0HwFz3cR9
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 07:10:51 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kqeeavzV;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=DIXhgPtR;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=djwong@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4VzrM65kcXz3dK1
-	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jun 2024 02:18:41 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1718209115; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=P2GiRpaIhCkFId5QR4OigI0Ro6bAqWQfKy2kN7ULgHc=;
-	b=kqeeavzV09P07/XNXSFNaXMMoZk2VOU51H2UqKDQyZtMvjq45EiOXUIqY0IVo/NC742OwJA1ekBpsbRYSI/eTz7q34UCCcxfvfmgLH0J10HVPqMmwFO0Fk7F2RjSneY8tYbo0tThMV0b/ZCz1QYl8chWaCv9t+ybrJp66sGYKiA=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8LOtT6_1718209112;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8LOtT6_1718209112)
-          by smtp.aliyun-inc.com;
-          Thu, 13 Jun 2024 00:18:34 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/5] erofs-utils: lib: use filesystem UUID if the device name is not specified
-Date: Thu, 13 Jun 2024 00:18:23 +0800
-Message-Id: <20240612161826.711279-2-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
-References: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vzyr440RDz3bqB
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jun 2024 07:10:44 +1000 (AEST)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id AF75461763;
+	Wed, 12 Jun 2024 21:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A2F4C116B1;
+	Wed, 12 Jun 2024 21:10:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718226641;
+	bh=dqLO371b1vPErmMYi4CgWyvSUCQn8of4qGwTdEMzEhk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DIXhgPtR71kSyV6/epJDyqhWKsEQEX5yhhZda5PPHpZ+0ARYCCiAtnRSNR1FnlC7P
+	 nPXkJq/SepET7ym8thpR7yujnnQ7ZHn3iRsMoIfGobXMy1OJxAIzKKtD9ftmAGl8KN
+	 kUltI84OFlF1WwDhedAy43xrdUjP8vTB+P26BCEb3a2HConB/TZUMHytqEARmpH8ln
+	 QCY5BssR28eFz1T409YzepxwR+K2C6Zp7Uo+S9MDDNObxIJC8bTjFUTi06cTVT7OeC
+	 lTnaI5hdCh11uuYSK3xj94QxhxrNjmNwqI7uE46+z3EGyJoGClyLogjejeb9r2ihDk
+	 QMYN4T27nFHOw==
+Date: Wed, 12 Jun 2024 14:10:40 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: John Garry <john.g.garry@oracle.com>
+Subject: Re: [PATCH v4 01/22] fs: Add generic_atomic_write_valid_size()
+Message-ID: <20240612211040.GJ2764752@frogsfrogsfrogs>
+References: <20240607143919.2622319-1-john.g.garry@oracle.com>
+ <20240607143919.2622319-2-john.g.garry@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240607143919.2622319-2-john.g.garry@oracle.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -53,61 +60,49 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: ritesh.list@gmail.com, gfs2@lists.linux.dev, mikulas@artax.karlin.mff.cuni.cz, hch@lst.de, agruenba@redhat.com, miklos@szeredi.hu, linux-ext4@vger.kernel.org, catherine.hoang@oracle.com, linux-block@vger.kernel.org, viro@zeniv.linux.org.uk, dchinner@redhat.com, axboe@kernel.dk, brauner@kernel.org, tytso@mit.edu, martin.petersen@oracle.com, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, mcgrof@kernel.org, jack@suse.com, linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, chandan.babu@oracle.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The device name is not always valid.
+On Fri, Jun 07, 2024 at 02:38:58PM +0000, John Garry wrote:
+> Add a generic helper for FSes to validate that an atomic write is
+> appropriately sized (along with the other checks).
+> 
+> Signed-off-by: John Garry <john.g.garry@oracle.com>
+> ---
+>  include/linux/fs.h | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 069cbab62700..e13d34f8c24e 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -3645,4 +3645,16 @@ bool generic_atomic_write_valid(loff_t pos, struct iov_iter *iter)
+>  	return true;
+>  }
+>  
+> +static inline
+> +bool generic_atomic_write_valid_size(loff_t pos, struct iov_iter *iter,
+> +				unsigned int unit_min, unsigned int unit_max)
+> +{
+> +	size_t len = iov_iter_count(iter);
+> +
+> +	if (len < unit_min || len > unit_max)
+> +		return false;
+> +
+> +	return generic_atomic_write_valid(pos, iter);
+> +}
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- lib/rebuild.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+Now that I look back at "fs: Initial atomic write support" I wonder why
+not pass the iocb and the iov_iter instead of pos and the iov_iter?
+And can these be collapsed into a single generic_atomic_write_checks()
+function?
 
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index 618067a..c25d222 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -15,6 +15,7 @@
- #include "erofs/xattr.h"
- #include "erofs/blobchunk.h"
- #include "erofs/internal.h"
-+#include "liberofs_uuid.h"
- 
- #ifdef HAVE_LINUX_AUFS_TYPE_H
- #include <linux/aufs_type.h>
-@@ -375,16 +376,17 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi)
- {
- 	struct erofs_inode inode = {};
- 	struct erofs_rebuild_dir_context ctx;
-+	char uuid_str[37];
-+	char *fsid = sbi->devname;
- 	int ret;
- 
--	if (!sbi->devname) {
--		erofs_err("failed to find a device for rebuilding");
--		return -EINVAL;
-+	if (!fsid) {
-+		erofs_uuid_unparse_lower(sbi->uuid, uuid_str);
-+		fsid = uuid_str;
- 	}
--
- 	ret = erofs_read_superblock(sbi);
- 	if (ret) {
--		erofs_err("failed to read superblock of %s", sbi->devname);
-+		erofs_err("failed to read superblock of %s", fsid);
- 		return ret;
- 	}
- 
-@@ -392,7 +394,7 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi)
- 	inode.sbi = sbi;
- 	ret = erofs_read_inode_from_disk(&inode);
- 	if (ret) {
--		erofs_err("failed to read root inode of %s", sbi->devname);
-+		erofs_err("failed to read root inode of %s", fsid);
- 		return ret;
- 	}
- 	inode.i_srcpath = strdup("/");
--- 
-2.39.3
+--D
 
+> +
+>  #endif /* _LINUX_FS_H */
+> -- 
+> 2.31.1
+> 
+> 
