@@ -4,54 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0AEABC27C77
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 15:56:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76F0EC27C77
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Jun 2024 16:18:51 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kYWVzenO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YtuXoxiO;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Vzqs96RGPz3dXM
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 01:56:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4VzrMF1B1Dz3d2d
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Jun 2024 02:18:49 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kYWVzenO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YtuXoxiO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:4641:c500::1; helo=dfw.source.kernel.org; envelope-from=patchwork-bot+f2fs@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Vzqs10cqhz3cb7;
-	Thu, 13 Jun 2024 01:56:05 +1000 (AEST)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id ADF7F614E9;
-	Wed, 12 Jun 2024 15:55:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7AEC7C4DDE4;
-	Wed, 12 Jun 2024 15:55:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718207757;
-	bh=OGohKvk0MjWf9+Q8+mvrBX+1BAlKKRyUXLbfH75xyb4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=kYWVzenO6v46dav7m+6VeeBQvWtkfZ2ijSROLzZNF2xhVox8NT4g6D7nEQ7Yr1CvD
-	 QbMqbzoNwKvtHxN4oOUSJGsdzFSOiqxLCA02gKqMCQ7TCsZzzusBONx5M/RWdCVpV3
-	 EiLccKqgRHfAnZUsG10WiKCsIr5ffuOoIqg1qhcsU6IhDG8FGsX5pkowWNVMy10FlC
-	 cn2EJB/8N7UtSBq02dCqRuSQs3PZ1MDiLAg7XtxdpzyjShLg11I47hWenlonizyvmL
-	 MeVPPNyid+I2VhiIZBpPj5WbK56sRWz78MH6UY8PKtaaCMSFrdgOOixPo+5vEX+bSG
-	 8/iqEXeUVgsUQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 61107C43618;
-	Wed, 12 Jun 2024 15:55:57 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4VzrM64dm1z3dH4
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Jun 2024 02:18:40 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718209117; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=kG7H1KCxNJMcbhqxcEnRGNQOHc6h6LkD+wEhd8pMyUc=;
+	b=YtuXoxiOH6QyYYC/E5KP2aZsavK5QW8K7od9GAWUYZ5RzP7W6ts1GXw1N5CviwCJUz60szoMzdn9ED1POox1xsAp+E53RTNpBQTgNkJ3L62V0IUfW1GMYc1cljM4fJeUbetDS9wX9JRCt4cs/hEPdJYiXLV0YY87f+w5dNb9aZI=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8LOtTz_1718209114;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8LOtTz_1718209114)
+          by smtp.aliyun-inc.com;
+          Thu, 13 Jun 2024 00:18:36 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 3/5] erofs-utils: wrap up superblock reservation for incremental builds
+Date: Thu, 13 Jun 2024 00:18:24 +0800
+Message-Id: <20240612161826.711279-3-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
+References: <20240612161826.711279-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [f2fs-dev] [PATCH] tracing/treewide: Remove second parameter of
- __assign_str()
-From: patchwork-bot+f2fs@kernel.org
-Message-Id:  <171820775738.32393.13116890369510221266.git-patchwork-notify@kernel.org>
-Date: Wed, 12 Jun 2024 15:55:57 +0000
-References: <20240516133454.681ba6a0@rorschach.local.home>
-In-Reply-To: <20240516133454.681ba6a0@rorschach.local.home>
-To: Steven Rostedt <rostedt@goodmis.org>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -63,33 +53,147 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-hyperv@vger.kernel.org, linux-usb@vger.kernel.org, kvm@vger.kernel.org, dri-devel@lists.freedesktop.org, brcm80211@lists.linux.dev, ath10k@lists.infradead.org, linux-xfs@vger.kernel.org, dev@openvswitch.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, linux-pm@vger.kernel.org, amd-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, linux-bcachefs@vger.kernel.org, iommu@lists.linux.dev, ath11k@lists.infradead.org, linux-media@vger.kernel.org, freedreno@lists.freedesktop.org, linux-cifs@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-erofs@lists.ozlabs.org, virtualization@lists.linux.dev, linux-sound@vger.kernel.org, linux-block@vger.kernel.org, ocfs2-devel@lists.linux.dev, mathieu.desnoyers@efficios.com, linux-cxl@vger.kernel.org, linux-tegra@vger.kernel.org, io-uring@vger.kernel.org, linux-edac@vger.kernel.org, linux-hwmon@vger.kernel.org, brcm80211-dev-list.pdl@broadcom.com, torvalds@linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, Julia.Lawall@inria.fr, ath12k@lists.infradead.org, tipc-discussion@lists.sourceforge.net, mhiramat@kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-trace-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-nfs@vger.kernel.org, linux-btrfs@vger.kernel.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hello:
+Refactor `erofs_buffer_init()` to wrap up necessary operations for full
+builds.
 
-This patch was applied to jaegeuk/f2fs.git (dev)
-by Steven Rostedt (Google) <rostedt@goodmis.org>:
+Introduce another `erofs_buffer_init()` to specify start block address
+for the upcoming incremental builds.
 
-On Thu, 16 May 2024 13:34:54 -0400 you wrote:
-> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-> 
-> [
->    This is a treewide change. I will likely re-create this patch again in
->    the second week of the merge window of v6.10 and submit it then. Hoping
->    to keep the conflicts that it will cause to a minimum.
-> ]
-> 
-> [...]
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ include/erofs/cache.h    |  2 +-
+ include/erofs/internal.h |  1 +
+ lib/cache.c              | 11 ++---------
+ lib/super.c              | 31 +++++++++++++++++++++++++++++++
+ mkfs/main.c              | 17 +----------------
+ 5 files changed, 36 insertions(+), 26 deletions(-)
 
-Here is the summary with links:
-  - [f2fs-dev] tracing/treewide: Remove second parameter of __assign_str()
-    https://git.kernel.org/jaegeuk/f2fs/c/2c92ca849fcc
-
-You are awesome, thank you!
+diff --git a/include/erofs/cache.h b/include/erofs/cache.h
+index 350cec6..f30fe9f 100644
+--- a/include/erofs/cache.h
++++ b/include/erofs/cache.h
+@@ -98,7 +98,7 @@ static inline int erofs_bh_flush_generic_end(struct erofs_buffer_head *bh)
+ 	return 0;
+ }
+ 
+-struct erofs_buffer_head *erofs_buffer_init(void);
++void erofs_buffer_init(erofs_blk_t startblk);
+ int erofs_bh_balloon(struct erofs_buffer_head *bh, erofs_off_t incr);
+ 
+ struct erofs_buffer_head *erofs_balloc(int type, erofs_off_t size,
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 277295e..f8a01ce 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -397,6 +397,7 @@ int erofs_read_superblock(struct erofs_sb_info *sbi);
+ void erofs_put_super(struct erofs_sb_info *sbi);
+ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
+ 		  erofs_blk_t *blocks);
++struct erofs_buffer_head *erofs_reserve_sb(void);
+ 
+ /* namei.c */
+ int erofs_read_inode_from_disk(struct erofs_inode *vi);
+diff --git a/lib/cache.c b/lib/cache.c
+index 664e598..328ca4a 100644
+--- a/lib/cache.c
++++ b/lib/cache.c
+@@ -38,21 +38,14 @@ const struct erofs_bhops erofs_skip_write_bhops = {
+ 	.flush = erofs_bh_flush_skip_write,
+ };
+ 
+-/* return buffer_head of erofs super block (with size 0) */
+-struct erofs_buffer_head *erofs_buffer_init(void)
++void erofs_buffer_init(erofs_blk_t startblk)
+ {
+ 	int i, j;
+-	struct erofs_buffer_head *bh = erofs_balloc(META, 0, 0, 0);
+-
+-	if (IS_ERR(bh))
+-		return bh;
+-
+-	bh->op = &erofs_skip_write_bhops;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(mapped_buckets); i++)
+ 		for (j = 0; j < ARRAY_SIZE(mapped_buckets[0]); j++)
+ 			init_list_head(&mapped_buckets[i][j]);
+-	return bh;
++	tail_blkaddr = startblk;
+ }
+ 
+ static void erofs_bupdate_mapped(struct erofs_buffer_block *bb)
+diff --git a/lib/super.c b/lib/super.c
+index 33e908a..c8c33b6 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -201,3 +201,34 @@ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
+ 		erofs_bdrop(sb_bh, false);
+ 	return ret;
+ }
++
++struct erofs_buffer_head *erofs_reserve_sb(void)
++{
++	struct erofs_buffer_head *bh;
++	int err;
++
++	erofs_buffer_init(0);
++	bh = erofs_balloc(META, 0, 0, 0);
++	if (IS_ERR(bh)) {
++		erofs_err("failed to allocate super: %s", PTR_ERR(bh));
++		return bh;
++	}
++	bh->op = &erofs_skip_write_bhops;
++	err = erofs_bh_balloon(bh, EROFS_SUPER_END);
++	if (err < 0) {
++		erofs_err("failed to balloon super: %s", erofs_strerror(err));
++		goto err_bdrop;
++	}
++
++	/* make sure that the super block should be the very first blocks */
++	(void)erofs_mapbh(bh->block);
++	if (erofs_btell(bh, false) != 0) {
++		erofs_err("failed to pin super block @ 0");
++		err = -EFAULT;
++		goto err_bdrop;
++	}
++	return bh;
++err_bdrop:
++	erofs_bdrop(bh, true);
++	return ERR_PTR(err);
++}
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 6577267..1e8ca3c 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1244,24 +1244,9 @@ int main(int argc, char **argv)
+ 		sbi.blkszbits = src->blkszbits;
+ 	}
+ 
+-	sb_bh = erofs_buffer_init();
++	sb_bh = erofs_reserve_sb();
+ 	if (IS_ERR(sb_bh)) {
+ 		err = PTR_ERR(sb_bh);
+-		erofs_err("failed to initialize buffers: %s",
+-			  erofs_strerror(err));
+-		goto exit;
+-	}
+-	err = erofs_bh_balloon(sb_bh, EROFS_SUPER_END);
+-	if (err < 0) {
+-		erofs_err("failed to balloon erofs_super_block: %s",
+-			  erofs_strerror(err));
+-		goto exit;
+-	}
+-
+-	/* make sure that the super block should be the very first blocks */
+-	(void)erofs_mapbh(sb_bh->block);
+-	if (erofs_btell(sb_bh, false) != 0) {
+-		erofs_err("failed to reserve erofs_super_block");
+ 		goto exit;
+ 	}
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.39.3
 
