@@ -4,39 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 172B9C27C4F
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 06:49:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AEA37C27C4F
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 06:49:58 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=XzOW22uz;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=GnNt60gz;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4W3HRx6BhDz3cPS
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 16:49:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4W3HS43Nk0z3c4h
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 16:49:56 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=XzOW22uz;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=GnNt60gz;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4W3HRG50YMz3bZ3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4W3HRH2FBHz30Wm
 	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jun 2024 16:49:14 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718693349; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=hkQ1Gf8zwg0b9ZhQiF1JzG0Eva+zHFqpuXwcPVuw+/c=;
-	b=XzOW22uzjcZDZJY2lBJlQJKoHNbfzyqrExS70CieKpT/eyokjy695N2n1rF9MsndGUY1eOLPbND4hQbH4IsUL/azDdZzAar6wu8ybVbqX6lNLcmFSfpblFxrHRXPxC9tjFIbFKTBo1Hc3Oj7AhF+wsz4rEpgOwDUMKtD2lX8Mro=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8jEqzp_1718693347;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8jEqzp_1718693347)
+	t=1718693352; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=y0rnMKcep5wLl+ihADRfm3BcnqZQvkoo9xJ9jiX/izk=;
+	b=GnNt60gzXnxcRv1T4hQBIe3AEKSERoxHIJKcFtEVis7m+JltUU2G2NN3eskuK14y2ca1tpJuZI60e33Iwwjm/s/oW/Ocpsx0z/NCAXji+o+jltY8F9bkVv6SAU80QRSMqKFpYOdNH7kUS6p+NC2TRpWnuDcVxodHunNMnDOcqIU=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8jEr.n_1718693351;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8jEr.n_1718693351)
           by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 14:49:08 +0800
+          Tue, 18 Jun 2024 14:49:12 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 4/9] erofs-utils: introduce incremental builds
-Date: Tue, 18 Jun 2024 14:48:54 +0800
-Message-Id: <20240618064859.4117858-4-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 8/9] erofs-utils: enable incremental builds
+Date: Tue, 18 Jun 2024 14:48:58 +0800
+Message-Id: <20240618064859.4117858-8-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240618064859.4117858-1-hsiangkao@linux.alibaba.com>
 References: <20240618064859.4117858-1-hsiangkao@linux.alibaba.com>
@@ -57,395 +57,382 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This introduces incremental build support for mkfs, where new on-disk
-(meta)data will be appended in a log-structured manner, except for the
-root inode (due to current on-disk limitations), as illustrated below:
+`--incremental=<data|rvsp>` are now supported for tarerofs but
+only `--incremental=rvsp` works for the rebuild mode.
 
- ___________________________________________
-| base | delta 0 | delta 1 | .. | delta n-1 |
-|______|_________|_________|____|___________|
-                                   ---> image/data growth direction
+For example:
+$ mkfs.erofs --tar=f --gzip --aufs --clean=data foo.erofs f0.tgz
+$ mkfs.erofs --tar=f --gzip --aufs --incremental=data foo.erofs f1.tgz
+...
+$ mkfs.erofs --tar=f --gzip --aufs --incremental=data foo.erofs fn-1.tgz
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/inode.h    |  1 +
- include/erofs/internal.h |  6 +--
- lib/inode.c              | 72 +++++++++++++++++++++++++++-----
- lib/rebuild.c            | 89 ++++++++++++++++++++++++++++++++++------
- 4 files changed, 143 insertions(+), 25 deletions(-)
+ include/erofs/io.h  |   2 +
+ include/erofs/tar.h |   3 +-
+ lib/io.c            |  13 +++++
+ lib/tar.c           |  15 ++++-
+ mkfs/main.c         | 137 ++++++++++++++++++++++++++++++++++----------
+ 5 files changed, 135 insertions(+), 35 deletions(-)
 
-diff --git a/include/erofs/inode.h b/include/erofs/inode.h
-index 0fc9b80..2af8e6c 100644
---- a/include/erofs/inode.h
-+++ b/include/erofs/inode.h
-@@ -34,6 +34,7 @@ erofs_nid_t erofs_lookupnid(struct erofs_inode *inode);
- int erofs_iflush(struct erofs_inode *inode);
- struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
- 				   const char *name);
-+bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d);
- int erofs_rebuild_dump_tree(struct erofs_inode *dir, bool incremental);
- int erofs_init_empty_dir(struct erofs_inode *dir);
- int __erofs_fill_inode(struct erofs_inode *inode, struct stat *st,
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index f8a01ce..39cf066 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -303,13 +303,13 @@ static inline struct erofs_inode *erofs_parent_inode(struct erofs_inode *inode)
- 
- struct erofs_dentry {
- 	struct list_head d_child;	/* child of parent list */
--
--	unsigned int type;
--	char name[EROFS_NAME_LEN];
- 	union {
- 		struct erofs_inode *inode;
- 		erofs_nid_t nid;
- 	};
-+	char name[EROFS_NAME_LEN];
-+	u8 type;
-+	bool validnid;
+diff --git a/include/erofs/io.h b/include/erofs/io.h
+index f24a563..d3a487f 100644
+--- a/include/erofs/io.h
++++ b/include/erofs/io.h
+@@ -32,6 +32,7 @@ struct erofs_vfops {
+ 	int (*ftruncate)(struct erofs_vfile *vf, u64 length);
+ 	ssize_t (*read)(struct erofs_vfile *vf, void *buf, size_t len);
+ 	off_t (*lseek)(struct erofs_vfile *vf, u64 offset, int whence);
++	int (*fstat)(struct erofs_vfile *vf, struct stat *buf);
  };
  
- static inline bool is_dot_dotdot_len(const char *name, unsigned int len)
-diff --git a/lib/inode.c b/lib/inode.c
-index a4f61ab..4fdb689 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -330,7 +330,10 @@ static void erofs_d_invalidate(struct erofs_dentry *d)
- {
- 	struct erofs_inode *const inode = d->inode;
+ struct erofs_vfile {
+@@ -40,6 +41,7 @@ struct erofs_vfile {
+ 	int fd;
+ };
  
-+	if (d->validnid)
-+		return;
- 	d->nid = erofs_lookupnid(inode);
-+	d->validnid = true;
- 	erofs_iput(inode);
- }
++int erofs_io_fstat(struct erofs_vfile *vf, struct stat *buf);
+ ssize_t erofs_io_pwrite(struct erofs_vfile *vf, const void *buf, u64 pos, size_t len);
+ int erofs_io_fsync(struct erofs_vfile *vf);
+ ssize_t erofs_io_fallocate(struct erofs_vfile *vf, u64 offset, size_t len, bool pad);
+diff --git a/include/erofs/tar.h b/include/erofs/tar.h
+index e1de0df..403f3a8 100644
+--- a/include/erofs/tar.h
++++ b/include/erofs/tar.h
+@@ -57,9 +57,10 @@ struct erofs_tarfile {
+ 	struct erofs_iostream ios;
+ 	char *mapfile, *dumpfile;
  
-@@ -666,6 +669,9 @@ static int erofs_prepare_inode_buffer(struct erofs_inode *inode)
- 	if (inode->extent_isize)
- 		inodesize = roundup(inodesize, 8) + inode->extent_isize;
++	u32 dev;
+ 	int fd;
+ 	u64 offset;
+-	bool index_mode, headeronly_mode, aufs;
++	bool index_mode, headeronly_mode, rvsp_mode, aufs;
+ };
  
-+	if (inode->datalayout == EROFS_INODE_FLAT_PLAIN)
-+		goto noinline;
-+
- 	/* TODO: tailpacking inline of chunk-based format isn't finalized */
- 	if (inode->datalayout == EROFS_INODE_CHUNK_BASED)
- 		goto noinline;
-@@ -761,6 +767,7 @@ static int erofs_write_tail_end(struct erofs_inode *inode)
- 	if (!inode->idata_size)
- 		goto out;
+ void erofs_iostream_close(struct erofs_iostream *ios);
+diff --git a/lib/io.c b/lib/io.c
+index c523f00..83c145c 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -26,6 +26,19 @@
+ #define EROFS_MODNAME	"erofs_io"
+ #include "erofs/print.h"
  
-+	DBG_BUGON(!inode->idata);
- 	/* have enough room to inline data */
- 	if (inode->bh_inline) {
- 		ibh = inode->bh_inline;
-@@ -1378,23 +1385,49 @@ err_closedir:
- 	return ret;
- }
- 
--static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
-+int erofs_rebuild_load_basedir(struct erofs_inode *dir);
-+
-+bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d)
- {
-+	if (!d->validnid)
-+		return erofs_inode_is_whiteout(d->inode);
-+	if (d->type == EROFS_FT_CHRDEV) {
-+		struct erofs_inode ei = { .sbi = sbi, .nid = d->nid };
-+		int ret;
-+
-+		ret = erofs_read_inode_from_disk(&ei);
-+		if (ret) {
-+			erofs_err("failed to check DT_WHT: %s",
-+				  erofs_strerror(ret));
-+			DBG_BUGON(1);
-+			return false;
-+		}
-+		return erofs_inode_is_whiteout(&ei);
++int erofs_io_fstat(struct erofs_vfile *vf, struct stat *buf)
++{
++	if (unlikely(cfg.c_dry_run)) {
++		buf->st_size = 0;
++		buf->st_mode = S_IFREG | 0777;
++		return 0;
 +	}
-+	return false;
++
++	if (vf->ops)
++		return vf->ops->fstat(vf, buf);
++	return fstat(vf->fd, buf);
 +}
 +
-+static int erofs_rebuild_handle_directory(struct erofs_inode *dir,
-+					  bool incremental)
-+{
-+	struct erofs_sb_info *sbi = dir->sbi;
- 	struct erofs_dentry *d, *n;
- 	unsigned int nr_subdirs, i_nlink;
-+	bool delwht = cfg.c_ovlfs_strip && dir->whiteouts;
- 	int ret;
- 
- 	nr_subdirs = 0;
- 	i_nlink = 0;
-+
- 	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
--		if (cfg.c_ovlfs_strip && erofs_inode_is_whiteout(d->inode)) {
-+		if (delwht && erofs_dentry_is_wht(sbi, d)) {
- 			erofs_dbg("remove whiteout %s", d->inode->i_srcpath);
- 			list_del(&d->d_child);
- 			erofs_d_invalidate(d);
- 			free(d);
- 			continue;
- 		}
--		i_nlink += S_ISDIR(d->inode->i_mode);
-+		i_nlink += (d->type == EROFS_FT_DIR);
- 		++nr_subdirs;
- 	}
- 
-@@ -1404,6 +1437,9 @@ static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
- 	if (ret)
- 		return ret;
- 
-+	if (IS_ROOT(dir) && incremental)
-+		dir->datalayout = EROFS_INODE_FLAT_PLAIN;
-+
- 	/*
- 	 * if there're too many subdirs as compact form, set nlink=1
- 	 * rather than upgrade to use extented form instead.
-@@ -1414,7 +1450,7 @@ static int erofs_rebuild_handle_directory(struct erofs_inode *dir)
- 	else
- 		dir->i_nlink = i_nlink;
- 
--	return erofs_mkfs_go(dir->sbi, EROFS_MKFS_JOB_DIR, &dir, sizeof(dir));
-+	return erofs_mkfs_go(sbi, EROFS_MKFS_JOB_DIR, &dir, sizeof(dir));
- }
- 
- static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
-@@ -1461,7 +1497,8 @@ static int erofs_mkfs_handle_inode(struct erofs_inode *inode)
- 	return ret;
- }
- 
--static int erofs_rebuild_handle_inode(struct erofs_inode *inode)
-+static int erofs_rebuild_handle_inode(struct erofs_inode *inode,
-+				      bool incremental)
+ ssize_t erofs_io_pwrite(struct erofs_vfile *vf, const void *buf,
+ 			u64 pos, size_t len)
  {
- 	char *trimmed;
- 	int ret;
-@@ -1482,6 +1519,13 @@ static int erofs_rebuild_handle_inode(struct erofs_inode *inode)
- 		inode->inode_isize = sizeof(struct erofs_inode_compact);
- 	}
- 
-+	if (incremental && S_ISDIR(inode->i_mode) &&
-+	    inode->dev == inode->sbi->dev && !inode->opaque) {
-+		ret = erofs_rebuild_load_basedir(inode);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	/* strip all unnecessary overlayfs xattrs when ovlfs_strip is enabled */
- 	if (cfg.c_ovlfs_strip)
- 		erofs_clear_opaque_xattr(inode);
-@@ -1513,7 +1557,7 @@ static int erofs_rebuild_handle_inode(struct erofs_inode *inode)
- 		ret = erofs_mkfs_go(inode->sbi, EROFS_MKFS_JOB_NDIR,
- 				    &ctx, sizeof(ctx));
- 	} else {
--		ret = erofs_rebuild_handle_directory(inode);
-+		ret = erofs_rebuild_handle_directory(inode, incremental);
- 	}
- 	erofs_info("file %s dumped (mode %05o)", erofs_fspath(inode->i_srcpath),
- 		   inode->i_mode);
-@@ -1540,9 +1584,16 @@ static int erofs_mkfs_dump_tree(struct erofs_inode *root, bool rebuild,
- 
- 	erofs_mark_parent_inode(root, root);	/* rootdir mark */
- 	root->next_dirwrite = NULL;
-+	/* update dev/i_ino[1] to keep track of the base image */
-+	if (incremental) {
-+		root->dev = root->sbi->dev;
-+		root->i_ino[1] = sbi->root_nid;
-+		list_del(&root->i_hash);
-+		erofs_insert_ihash(root);
-+	}
- 
- 	err = !rebuild ? erofs_mkfs_handle_inode(root) :
--			erofs_rebuild_handle_inode(root);
-+			erofs_rebuild_handle_inode(root, incremental);
- 	if (err)
- 		return err;
- 
-@@ -1564,7 +1615,7 @@ static int erofs_mkfs_dump_tree(struct erofs_inode *root, bool rebuild,
- 		list_for_each_entry(d, &dir->i_subdirs, d_child) {
- 			struct erofs_inode *inode = d->inode;
- 
--			if (is_dot_dotdot(d->name))
-+			if (is_dot_dotdot(d->name) || d->validnid)
- 				continue;
- 
- 			if (!erofs_inode_visited(inode)) {
-@@ -1575,7 +1626,8 @@ static int erofs_mkfs_dump_tree(struct erofs_inode *root, bool rebuild,
- 				if (!rebuild)
- 					err = erofs_mkfs_handle_inode(inode);
- 				else
--					err = erofs_rebuild_handle_inode(inode);
-+					err = erofs_rebuild_handle_inode(inode,
-+								incremental);
- 				if (err)
- 					break;
- 				if (S_ISDIR(inode->i_mode)) {
-@@ -1773,7 +1825,7 @@ int erofs_fixup_root_inode(struct erofs_inode *root)
- 	char *ibuf;
- 	int err;
- 
--	if (sbi->root_nid == root->nid)
-+	if (sbi->root_nid == root->nid)		/* for most mkfs cases */
- 		return 0;
- 
- 	if (root->nid <= 0xffff) {
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index b9bced2..6f2e301 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -235,18 +235,18 @@ static int erofs_rebuild_fill_inode(struct erofs_inode *inode)
- }
- 
- /*
-- * @parent:  parent directory in inode tree
-- * @ctx.dir: parent directory when itering erofs_iterate_dir()
-+ * @mergedir: parent directory in the merged tree
-+ * @ctx.dir:  parent directory when itering erofs_iterate_dir()
-  */
- struct erofs_rebuild_dir_context {
- 	struct erofs_dir_context ctx;
--	struct erofs_inode *parent;
-+	struct erofs_inode *mergedir;
+diff --git a/lib/tar.c b/lib/tar.c
+index 53a1188..8d2caa5 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -942,6 +942,7 @@ new_inode:
+ 			ret = PTR_ERR(inode);
+ 			goto out;
+ 		}
++		inode->dev = tar->dev;
+ 		inode->i_parent = d->inode;
+ 		d->inode = inode;
+ 		d->type = erofs_mode_to_ftype(st.st_mode);
+@@ -981,13 +982,21 @@ new_inode:
+ 			inode->i_link = malloc(inode->i_size + 1);
+ 			memcpy(inode->i_link, eh.link, inode->i_size + 1);
+ 		} else if (inode->i_size) {
+-			if (tar->headeronly_mode)
++			if (tar->headeronly_mode) {
+ 				ret = erofs_write_zero_inode(inode);
+-			else if (tar->index_mode)
++			} else if (tar->rvsp_mode) {
++				inode->datasource = EROFS_INODE_DATA_SOURCE_RESVSP;
++				inode->i_ino[1] = data_offset;
++				if (erofs_iostream_lskip(&tar->ios, inode->i_size))
++					ret = -EIO;
++				else
++					ret = 0;
++			} else if (tar->index_mode) {
+ 				ret = tarerofs_write_file_index(inode, tar,
+ 								data_offset);
+-			else
++			} else {
+ 				ret = tarerofs_write_file_data(inode, tar);
++			}
+ 			if (ret)
+ 				goto out;
+ 		}
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 7fc76f7..d6c1980 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -79,6 +79,8 @@ static struct option long_options[] = {
+ 	{"workers", required_argument, NULL, 520},
+ #endif
+ 	{"zfeature-bits", required_argument, NULL, 521},
++	{"clean", optional_argument, NULL, 522},
++	{"incremental", optional_argument, NULL, 523},
+ 	{0, 0, 0, 0},
  };
  
- static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
- {
- 	struct erofs_rebuild_dir_context *rctx = (void *)ctx;
--	struct erofs_inode *parent = rctx->parent;
-+	struct erofs_inode *mergedir = rctx->mergedir;
- 	struct erofs_inode *dir = ctx->dir;
- 	struct erofs_inode *inode, *candidate;
- 	struct erofs_inode src;
-@@ -258,15 +258,15 @@ static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
- 	if (ctx->dot_dotdot)
- 		return 0;
+@@ -152,6 +154,10 @@ static void usage(int argc, char **argv)
+ 		" --all-root            make all files owned by root\n"
+ 		" --blobdev=X           specify an extra device X to store chunked data\n"
+ 		" --chunksize=#         generate chunk-based files with #-byte chunks\n"
++		" --clean=X             run full clean build (default) or:\n"
++		" --incremental=X       run incremental build\n"
++		"                       (X = data|rvsp; data=complete data, rvsp=space is allocated\n"
++		"                                       and filled with zeroes)\n"
+ 		" --compress-hints=X    specify a file to configure per-file compression strategy\n"
+ 		" --exclude-path=X      avoid including file X (X = exact literal path)\n"
+ 		" --exclude-regex=X     avoid including files that match X (X = regular expression)\n"
+@@ -214,7 +220,14 @@ static unsigned int pclustersize_packed, pclustersize_max;
+ static struct erofs_tarfile erofstar = {
+ 	.global.xattrs = LIST_HEAD_INIT(erofstar.global.xattrs)
+ };
+-static bool tar_mode, rebuild_mode;
++static bool tar_mode, rebuild_mode, incremental_mode;
++
++enum {
++	EROFS_MKFS_DATA_IMPORT_DEFAULT,
++	EROFS_MKFS_DATA_IMPORT_FULLDATA,
++	EROFS_MKFS_DATA_IMPORT_RVSP,
++	EROFS_MKFS_DATA_IMPORT_SPARSE,
++} dataimport_mode;
  
--	ret = asprintf(&path, "%s/%.*s", rctx->parent->i_srcpath,
-+	ret = asprintf(&path, "%s/%.*s", rctx->mergedir->i_srcpath,
- 		       ctx->de_namelen, ctx->dname);
- 	if (ret < 0)
- 		return ret;
- 
- 	erofs_dbg("parsing %s", path);
--	dname = path + strlen(parent->i_srcpath) + 1;
-+	dname = path + strlen(mergedir->i_srcpath) + 1;
- 
--	d = erofs_rebuild_get_dentry(parent, dname, false,
-+	d = erofs_rebuild_get_dentry(mergedir, dname, false,
- 				     &dumb, &dumb, false);
- 	if (IS_ERR(d)) {
- 		ret = PTR_ERR(d);
-@@ -290,12 +290,12 @@ static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
- 		ret = erofs_read_inode_from_disk(&src);
- 		if (ret || !S_ISDIR(src.i_mode))
- 			goto out;
--		parent = d->inode;
-+		mergedir = d->inode;
- 		inode = dir = &src;
- 	} else {
- 		u64 nid;
- 
--		DBG_BUGON(parent != d->inode);
-+		DBG_BUGON(mergedir != d->inode);
- 		inode = erofs_new_inode(dir->sbi);
- 		if (IS_ERR(inode)) {
- 			ret = PTR_ERR(inode);
-@@ -347,7 +347,7 @@ static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
- 			}
- 
- 			erofs_insert_ihash(inode);
--			parent = dir = inode;
-+			mergedir = dir = inode;
- 		}
- 
- 		d->inode = inode;
-@@ -357,7 +357,7 @@ static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
- 	if (S_ISDIR(inode->i_mode)) {
- 		struct erofs_rebuild_dir_context nctx = *rctx;
- 
--		nctx.parent = parent;
-+		nctx.mergedir = mergedir;
- 		nctx.ctx.dir = dir;
- 		ret = erofs_iterate_dir(&nctx.ctx, false);
- 		if (ret)
-@@ -402,9 +402,74 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi)
- 	ctx = (struct erofs_rebuild_dir_context) {
- 		.ctx.dir = &inode,
- 		.ctx.cb = erofs_rebuild_dirent_iter,
--		.parent = root,
-+		.mergedir = root,
- 	};
- 	ret = erofs_iterate_dir(&ctx.ctx, false);
- 	free(inode.i_srcpath);
- 	return ret;
+ static unsigned int rebuild_src_count;
+ static LIST_HEAD(rebuild_src_list);
+@@ -775,6 +788,22 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			if (err)
+ 				return err;
+ 			break;
++		case 522:
++		case 523:
++			if (!optarg || !strcmp(optarg, "data")) {
++				dataimport_mode = EROFS_MKFS_DATA_IMPORT_FULLDATA;
++			} else if (!strcmp(optarg, "rvsp")) {
++				dataimport_mode = EROFS_MKFS_DATA_IMPORT_RVSP;
++			} else {
++				dataimport_mode = strtol(optarg, &endptr, 0);
++				if (errno || *endptr != '\0') {
++					erofs_err("invalid --%s=%s",
++						  opt == 523 ? "incremental" : "clean", optarg);
++					return -EINVAL;
++				}
++			}
++			incremental_mode = (opt == 523);
++			break;
+ 		case 'V':
+ 			version();
+ 			exit(0);
+@@ -998,9 +1027,6 @@ static void erofs_mkfs_default_options(void)
+ 	sbi.feature_incompat = EROFS_FEATURE_INCOMPAT_ZERO_PADDING;
+ 	sbi.feature_compat = EROFS_FEATURE_COMPAT_SB_CHKSUM |
+ 			     EROFS_FEATURE_COMPAT_MTIME;
+-
+-	/* generate a default uuid first */
+-	erofs_uuid_generate(sbi.uuid);
  }
+ 
+ /* https://reproducible-builds.org/specs/source-date-epoch/ for more details */
+@@ -1052,16 +1078,30 @@ static struct erofs_inode *erofs_mkfs_alloc_root(struct erofs_sb_info *sbi)
+ 	return root;
+ }
+ 
+-static int erofs_rebuild_load_trees(struct erofs_inode *root)
++static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
+ {
+ 	struct erofs_sb_info *src;
+ 	unsigned int extra_devices = 0;
+ 	erofs_blk_t nblocks;
+ 	int ret, idx;
++	enum erofs_rebuild_datamode datamode;
 +
-+static int erofs_rebuild_basedir_dirent_iter(struct erofs_dir_context *ctx)
-+{
-+	struct erofs_rebuild_dir_context *rctx = (void *)ctx;
-+	struct erofs_inode *dir = ctx->dir;
-+	struct erofs_inode *mergedir = rctx->mergedir;
-+	struct erofs_dentry *d;
-+	char *dname;
-+	bool dumb;
-+	int ret;
-+
-+	if (ctx->dot_dotdot)
++	switch (dataimport_mode) {
++	case EROFS_MKFS_DATA_IMPORT_DEFAULT:
++		datamode = EROFS_REBUILD_DATA_BLOB_INDEX;
++		break;
++	case EROFS_MKFS_DATA_IMPORT_FULLDATA:
++		datamode = EROFS_REBUILD_DATA_FULL;
++		break;
++	case EROFS_MKFS_DATA_IMPORT_RVSP:
++		datamode = EROFS_REBUILD_DATA_RESVSP;
++		break;
++	default:
++		return -EINVAL;
++	}
+ 
+ 	list_for_each_entry(src, &rebuild_src_list, list) {
+-		ret = erofs_rebuild_load_tree(root, src,
+-					      EROFS_REBUILD_DATA_BLOB_INDEX);
++		ret = erofs_rebuild_load_tree(root, src, datamode);
+ 		if (ret) {
+ 			erofs_err("failed to load %s", src->devname);
+ 			return ret;
+@@ -1074,7 +1114,10 @@ static int erofs_rebuild_load_trees(struct erofs_inode *root)
+ 		extra_devices += src->extra_devices;
+ 	}
+ 
+-	if (extra_devices && extra_devices != rebuild_src_count) {
++	if (datamode != EROFS_REBUILD_DATA_BLOB_INDEX)
 +		return 0;
 +
-+	dname = strndup(ctx->dname, ctx->de_namelen);
-+	if (!dname)
-+		return -ENOMEM;
-+	d = erofs_rebuild_get_dentry(mergedir, dname, false,
-+				     &dumb, &dumb, false);
-+	if (IS_ERR(d)) {
-+		ret = PTR_ERR(d);
-+		goto out;
-+	}
++	if (extra_devices != rebuild_src_count) {
+ 		erofs_err("extra_devices(%u) is mismatched with source images(%u)",
+ 			  extra_devices, rebuild_src_count);
+ 		return -EOPNOTSUPP;
+@@ -1117,6 +1160,7 @@ static int erofs_rebuild_load_trees(struct erofs_inode *root)
+ static void erofs_mkfs_showsummaries(erofs_blk_t nblocks)
+ {
+ 	char uuid_str[37] = {};
++	char *incr = incremental_mode ? "new" : "total";
+ 
+ 	if (!(cfg.c_dbg_lvl > EROFS_ERR && cfg.c_showprogress))
+ 		return;
+@@ -1126,11 +1170,11 @@ static void erofs_mkfs_showsummaries(erofs_blk_t nblocks)
+ 	fprintf(stdout, "------\nFilesystem UUID: %s\n"
+ 		"Filesystem total blocks: %u (of %u-byte blocks)\n"
+ 		"Filesystem total inodes: %llu\n"
+-		"Filesystem total metadata blocks: %u\n"
+-		"Filesystem total deduplicated bytes (of source files): %llu\n",
++		"Filesystem %s metadata blocks: %u\n"
++		"Filesystem %s deduplicated bytes (of source files): %llu\n",
+ 		uuid_str, nblocks, 1U << sbi.blkszbits, sbi.inos | 0ULL,
+-		erofs_total_metablocks(),
+-		sbi.saved_by_deduplication | 0ULL);
++		incr, erofs_total_metablocks(),
++		incr, sbi.saved_by_deduplication | 0ULL);
+ }
+ 
+ int main(int argc, char **argv)
+@@ -1167,20 +1211,13 @@ int main(int argc, char **argv)
+ 		sbi.build_time_nsec = t.tv_usec;
+ 	}
+ 
+-	err = erofs_dev_open(&sbi, cfg.c_img_path, O_RDWR | O_TRUNC);
++	err = erofs_dev_open(&sbi, cfg.c_img_path, O_RDWR |
++				(incremental_mode ? 0 : O_TRUNC));
+ 	if (err) {
+ 		fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+ 		return 1;
+ 	}
+ 
+-	if (tar_mode && !erofstar.index_mode) {
+-		err = erofs_diskbuf_init(1);
+-		if (err) {
+-			erofs_err("failed to initialize diskbuf: %s",
+-				   strerror(-err));
+-			goto exit;
+-		}
+-	}
+ #ifdef WITH_ANDROID
+ 	if (cfg.fs_config_file &&
+ 	    load_canned_fs_config(cfg.fs_config_file) < 0) {
+@@ -1218,16 +1255,21 @@ int main(int argc, char **argv)
+ 	if (cfg.c_random_pclusterblks)
+ 		srand(time(NULL));
+ #endif
+-	if (tar_mode && erofstar.index_mode) {
++	if (tar_mode) {
++		if (dataimport_mode == EROFS_MKFS_DATA_IMPORT_RVSP)
++			erofstar.rvsp_mode = true;
++		erofstar.dev = rebuild_src_count + 1;
 +
-+	if (d->type == EROFS_FT_UNKNOWN) {
-+		d->nid = ctx->de_nid;
-+		d->type = ctx->de_ftype;
-+		d->validnid = true;
-+		if (!mergedir->whiteouts && erofs_dentry_is_wht(dir->sbi, d))
-+			mergedir->whiteouts = true;
+ 		if (erofstar.mapfile) {
+ 			err = erofs_blocklist_open(erofstar.mapfile, true);
+ 			if (err) {
+ 				erofs_err("failed to open %s", erofstar.mapfile);
+ 				goto exit;
+ 			}
+-		} else {
+-			sbi.blkszbits = 9;
+ 		}
++
++		if (erofstar.index_mode)
++			sbi.blkszbits = 9;
+ 	}
+ 
+ 	if (rebuild_mode) {
+@@ -1246,10 +1288,43 @@ int main(int argc, char **argv)
+ 		sbi.blkszbits = src->blkszbits;
+ 	}
+ 
+-	sb_bh = erofs_reserve_sb();
+-	if (IS_ERR(sb_bh)) {
+-		err = PTR_ERR(sb_bh);
+-		goto exit;
++	if (!incremental_mode) {
++		sb_bh = erofs_reserve_sb();
++		if (IS_ERR(sb_bh)) {
++			err = PTR_ERR(sb_bh);
++			goto exit;
++		}
++		/* generate new UUIDs for clean builds */
++		erofs_uuid_generate(sbi.uuid);
 +	} else {
-+		struct erofs_inode *inode = d->inode;
++		union {
++			struct stat st;
++			erofs_blk_t startblk;
++		} u;
 +
-+		list_del(&inode->i_hash);
-+		inode->dev = dir->sbi->dev;
-+		inode->i_ino[1] = ctx->de_nid;
-+		erofs_insert_ihash(inode);
++		erofs_warn("EXPERIMENTAL incremental build in use. Use at your own risk!");
++		err = erofs_read_superblock(&sbi);
++		if (err) {
++			erofs_err("failed to read superblock of %s", sbi.devname);
++			goto exit;
++		}
++
++		err = erofs_io_fstat(&sbi.bdev, &u.st);
++		if (!err && S_ISREG(u.st.st_mode))
++			u.startblk = DIV_ROUND_UP(u.st.st_size, erofs_blksiz(&sbi));
++		else
++			u.startblk = sbi.primarydevice_blocks;
++		erofs_buffer_init(u.startblk);
++		sb_bh = NULL;
 +	}
-+	ret = 0;
-+out:
-+	free(dname);
-+	return ret;
-+}
 +
-+int erofs_rebuild_load_basedir(struct erofs_inode *dir)
-+{
-+	struct erofs_inode fakeinode = {
-+		.sbi = dir->sbi,
-+		.nid = dir->i_ino[1],
-+	};
-+	struct erofs_rebuild_dir_context ctx;
-+	int ret;
-+
-+	ret = erofs_read_inode_from_disk(&fakeinode);
-+	if (ret) {
-+		erofs_err("failed to read inode @ %llu", fakeinode.nid);
-+		return ret;
-+	}
-+	ctx = (struct erofs_rebuild_dir_context) {
-+		.ctx.dir = &fakeinode,
-+		.ctx.cb = erofs_rebuild_basedir_dirent_iter,
-+		.mergedir = dir,
-+	};
-+	return erofs_iterate_dir(&ctx.ctx, false);
-+}
++	if (tar_mode && !erofstar.index_mode) {
++		err = erofs_diskbuf_init(1);
++		if (err) {
++			erofs_err("failed to initialize diskbuf: %s",
++				   strerror(-err));
++			goto exit;
++		}
+ 	}
+ 
+ 	err = erofs_load_compress_hints(&sbi);
+@@ -1310,7 +1385,7 @@ int main(int argc, char **argv)
+ 		if (err < 0)
+ 			goto exit;
+ 
+-		err = erofs_rebuild_dump_tree(root, false);
++		err = erofs_rebuild_dump_tree(root, incremental_mode);
+ 		if (err < 0)
+ 			goto exit;
+ 	} else if (rebuild_mode) {
+@@ -1320,10 +1395,10 @@ int main(int argc, char **argv)
+ 			goto exit;
+ 		}
+ 
+-		err = erofs_rebuild_load_trees(root);
++		err = erofs_mkfs_rebuild_load_trees(root);
+ 		if (err)
+ 			goto exit;
+-		err = erofs_rebuild_dump_tree(root, false);
++		err = erofs_rebuild_dump_tree(root, incremental_mode);
+ 		if (err)
+ 			goto exit;
+ 	} else {
 -- 
 2.39.3
 
