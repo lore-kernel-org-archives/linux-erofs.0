@@ -4,39 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9EF89C2BA15
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 06:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10D8DC27C4F
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 06:50:18 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=A6Lbdt3P;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RfhKBjCK;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4W3HSK2y6hz3cQD
-	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 16:50:09 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4W3HSR63Zmz3cP7
+	for <linux-erofs@archiver.kernel.org>; Tue, 18 Jun 2024 16:50:15 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=A6Lbdt3P;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RfhKBjCK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4W3HRJ0zQGz30Wm
-	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jun 2024 16:49:15 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4W3HRJ2Qrtz3bnt
+	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Jun 2024 16:49:16 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1718693352; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=NsK5PK+jC1n2bL8kQrYYRjaaSP4EmPdmnAwBUZOxAsc=;
-	b=A6Lbdt3Ps1T64LBDSss2UCuN5Vj9UUjVmLC5pucTdpMfIoCm7kG/FNetpLMJBSmOPPNYJ03aGNVqlcUf/TOZsIA9Z1jA7/YV+1qY8znvUzdOZSsCL9ncbBfuBPbLe0+80TNulnTYgZysOskz76JDEbV5izmEPyAXYI7DgYSyV+M=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R971e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8jEr.W_1718693350;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8jEr.W_1718693350)
+	t=1718693353; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=jEq2bDUQciu5TexHCP5XaohFYYdwYBNJt+hjPUyYcb4=;
+	b=RfhKBjCKq02yCaXAchGiEZ2ouWEcBJ1vqJg6eCUsjlXo99qqZSXxrl/8M6s8F8/uv2LC1jNObFrJhsyQb40UeGMKBvNhD/2pDkx2rOg3pN/IUugQM3KV+gH2ouaTuFSnLwCTnQMZ9Epx6UyYJx6weR5Yc0w9Sm6YuV/B3yOrxbY=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0W8jEr0D_1718693352;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8jEr0D_1718693352)
           by smtp.aliyun-inc.com;
-          Tue, 18 Jun 2024 14:49:11 +0800
+          Tue, 18 Jun 2024 14:49:13 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 7/9] erofs-utils: fix incremental builds for tarerofs index mode
-Date: Tue, 18 Jun 2024 14:48:57 +0800
-Message-Id: <20240618064859.4117858-7-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 9/9] erofs-utils: enable mapfile for `--tar=f`
+Date: Tue, 18 Jun 2024 14:48:59 +0800
+Message-Id: <20240618064859.4117858-9-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240618064859.4117858-1-hsiangkao@linux.alibaba.com>
 References: <20240618064859.4117858-1-hsiangkao@linux.alibaba.com>
@@ -57,37 +57,95 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-The blob data area should be considered in the total block number to
-prevent overlap during incremental builds.
+The data offsets in the tar streams can always be looked up now:
+    mkfs.erofs --tar=f,MAPFILE IMAGE TARBALL
 
-Fixes: b6749839e710 ("erofs-utils: generate preallocated extents for tarerofs")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/blobchunk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/tar.c   |  3 ++-
+ mkfs/main.c | 40 ++++++++++++++++++++++++++++------------
+ 2 files changed, 30 insertions(+), 13 deletions(-)
 
-diff --git a/lib/blobchunk.c b/lib/blobchunk.c
-index dc1bf3c..9af223d 100644
---- a/lib/blobchunk.c
-+++ b/lib/blobchunk.c
-@@ -517,7 +517,7 @@ int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi)
- 		return 0;
+diff --git a/lib/tar.c b/lib/tar.c
+index 8d2caa5..532e566 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -858,7 +858,8 @@ restart:
+ 			eh.link = strndup(th->linkname, sizeof(th->linkname));
  	}
  
--	bh = erofs_balloc(DATA, blobfile ? datablob_size : 0, 0, 0);
-+	bh = erofs_balloc(DATA, datablob_size, 0, 0);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
+-	if (tar->index_mode && !tar->mapfile &&
++	/* EROFS metadata index referring to the original tar data */
++	if (tar->index_mode && sbi->extra_devices &&
+ 	    erofs_blkoff(sbi, data_offset)) {
+ 		erofs_err("invalid tar data alignment @ %llu", tar_offset);
+ 		ret = -EIO;
+diff --git a/mkfs/main.c b/mkfs/main.c
+index d6c1980..4a0cd7b 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -423,6 +423,27 @@ static int mkfs_apply_zfeature_bits(uintmax_t bits)
+ 	return 0;
+ }
  
-@@ -532,7 +532,7 @@ int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi)
- 				sbi->bdev.fd, &pos_out, datablob_size);
- 		ret = ret < datablob_size ? -EIO : 0;
- 	} else {
--		ret = 0;
-+		ret = erofs_io_ftruncate(&sbi->bdev, pos_out + datablob_size);
++static void mkfs_parse_tar_cfg(char *cfg)
++{
++	char *p;
++
++	tar_mode = true;
++	if (!cfg)
++		return;
++	p = strchr(cfg, ',');
++	if (p) {
++		*p = '\0';
++		if ((*++p) != '\0')
++			erofstar.mapfile = strdup(p);
++	}
++	if (!strcmp(cfg, "headerball"))
++		erofstar.headeronly_mode = true;
++
++	if (erofstar.headeronly_mode || !strcmp(optarg, "i") ||
++	    !strcmp(optarg, "0"))
++		erofstar.index_mode = true;
++}
++
+ static int mkfs_parse_one_compress_alg(char *alg,
+ 				       struct erofs_compr_opts *copts)
+ {
+@@ -729,15 +750,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			cfg.c_extra_ea_name_prefixes = true;
+ 			break;
+ 		case 20:
+-			if (optarg && (!strcmp(optarg, "i") || (!strcmp(optarg, "headerball") ||
+-				!strcmp(optarg, "0") || !memcmp(optarg, "0,", 2)))) {
+-				erofstar.index_mode = true;
+-				if (!memcmp(optarg, "0,", 2))
+-					erofstar.mapfile = strdup(optarg + 2);
+-				if (!strcmp(optarg, "headerball"))
+-					erofstar.headeronly_mode = true;
+-			}
+-			tar_mode = true;
++			mkfs_parse_tar_cfg(optarg);
+ 			break;
+ 		case 21:
+ 			erofstar.aufs = true;
+@@ -1266,10 +1279,13 @@ int main(int argc, char **argv)
+ 				erofs_err("failed to open %s", erofstar.mapfile);
+ 				goto exit;
+ 			}
+-		}
+-
+-		if (erofstar.index_mode)
++		} else if (erofstar.index_mode) {
++			/*
++			 * If mapfile is unspecified for tarfs index mode, 512-byte
++			 * block size is enforced here.
++			 */
+ 			sbi.blkszbits = 9;
++		}
  	}
- 	bh->op = &erofs_drop_directly_bhops;
- 	erofs_bdrop(bh, false);
+ 
+ 	if (rebuild_mode) {
 -- 
 2.39.3
 
