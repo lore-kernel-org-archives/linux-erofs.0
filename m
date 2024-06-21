@@ -4,51 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0CE35C27C4F
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jun 2024 06:34:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1718951637;
-	bh=xaoPyb93L8PR3FDD4HMCthq+UJVY09NZxiHpIIv3g5M=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=d+LYY1Iu+t3lkI96U7UOQ/rhnB40uC9l49gwt64AEW9/TVtSjqloygUvP2pA088Nu
-	 AoQKYvcSN97zVWgCscYTAIDBY5XMLynxcdconn64y6JTJoYPIZLRnumci+5nVZEpyB
-	 go028y5mFBiWcLVwYQH6OOIx57p7PWoRUra25ji8ljYxz2TlXWMpFxB80ZXU126P+J
-	 Cv1hDWBaSVzpTdzu4kstspF5A+cGd3xq3dBMnT3hExeHBFQtRXc/vgP3n4W3frC9MV
-	 QOGXs+Fc2I1cbTfUBt/TXUFp1uerQ4A3be/B0SueD286DY9ZBcV3CLw6nm66fMQ3ek
-	 q0k5uSCK1VTiQ==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1760C27C4F
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jun 2024 09:14:41 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=KoRHQx9v;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4W56yF3qPpz3cHH
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jun 2024 16:33:57 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4W5BWg2KrGz3bfS
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Jun 2024 19:14:39 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=KoRHQx9v;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4W56y85GSQz30Vb
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Jun 2024 16:33:52 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4W56Rx0GDLzZcGh;
-	Fri, 21 Jun 2024 14:11:09 +0800 (CST)
-Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
-	by mail.maildlp.com (Postfix) with ESMTPS id 7694E18006E;
-	Fri, 21 Jun 2024 14:15:26 +0800 (CST)
-Received: from huawei.com (10.90.53.73) by dggpeml500022.china.huawei.com
- (7.185.36.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Fri, 21 Jun
- 2024 14:15:26 +0800
-To: <xiang@kernel.org>, <chao@kernel.org>, <huyue2@coolpad.com>,
-	<jefflexu@linux.alibaba.com>, <dhavale@google.com>, <dhowells@redhat.com>
-Subject: [PATCH 0/2] support query ondemand feature for erofs and cachefiles
-Date: Fri, 21 Jun 2024 14:18:06 +0800
-Message-ID: <20240621061808.1585253-1-lihongbo22@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4W5BWV3PyKz30Vb
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Jun 2024 19:14:28 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1718961263; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=O9mP/08aAQ9dyg28He1RiA58IjqYB58NI0tJ1WKuAY0=;
+	b=KoRHQx9vyZn1+ENWBJy/x04AJPxAqA0xrdit0N+Vjs1makH1Gtcj0/pNHdmSc+gTatcjY7B9YI3pPZXuCAbXK8RiMnFrJna98yKjzvIKqEjfBNYFpFAbp8GlvM4Rh8IaS5YvV9uNaUCyOAe1Yz0uctGSzAtNaISrOgUxqJTeixI=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R571e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W8vr-NK_1718961260;
+Received: from 192.168.2.4(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W8vr-NK_1718961260)
+          by smtp.aliyun-inc.com;
+          Fri, 21 Jun 2024 17:14:21 +0800
+Message-ID: <c4748d68-b61f-4935-815b-f4d3af77f890@linux.alibaba.com>
+Date: Fri, 21 Jun 2024 17:14:20 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.90.53.73]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500022.china.huawei.com (7.185.36.66)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] cachefiles: support query cachefiles ondemand feature
+To: Hongbo Li <lihongbo22@huawei.com>, xiang@kernel.org, chao@kernel.org,
+ huyue2@coolpad.com, jefflexu@linux.alibaba.com, dhavale@google.com,
+ dhowells@redhat.com
+References: <20240621061808.1585253-1-lihongbo22@huawei.com>
+ <20240621061808.1585253-3-lihongbo22@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20240621061808.1585253-3-lihongbo22@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -60,39 +57,31 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Hongbo Li <lihongbo22@huawei.com>
-Cc: netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org, lihongbo22@huawei.com
+Cc: netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi all!
 
-These two patches is used to support query ondemand feature
-for erofs and cachefiles modules. Since erofs over fscache
-introduces CONFIG_EROFS_FS_ONDEMAND and CONFIG_CACHEFILES_ONDEMAND,
-we cannot know whether the kernel supports this feature or not
-in userspace. So we introduce the sysfs interface for users'
-applications to obtain this.
 
-Comments and questions are, as always, welcome.
-Please let me know what you think.
+On 2024/6/21 14:18, Hongbo Li wrote:
+> Erofs over fscache need CONFIG_CACHEFILES_ONDEMAND in cachefiles
+> module. We cannot know whether it is supported from userspace, so
+> we export this feature to user by sysfs interface.
+> 
+> [Before]
+> $ cat /sys/fs/cachefiles/features/cachefiles_ondemand
+> cat: /sys/fs/cachefiles/features/cachefiles_ondemand: No such file or directory
+> 
+> [After]
+> $ cat /sys/fs/cachefiles/features/cachefiles_ondemand
+> supported
+> 
+> Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+
+I don't think such sysfs is needed, you could just use
+`bind ondemand` to check if it is supported:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/cachefiles/daemon.c?h=v6.9#n780
+
 
 Thanks,
-Hongbo
-
-Hongbo Li (2):
-  erofs: support query erofs ondemand feature by sysfs interface
-  cachefiles: support query cachefiles ondemand feature
-
- fs/cachefiles/Makefile   |   3 +-
- fs/cachefiles/internal.h |   7 +++
- fs/cachefiles/main.c     |   7 +++
- fs/cachefiles/sysfs.c    | 101 +++++++++++++++++++++++++++++++++++++++
- fs/erofs/sysfs.c         |   6 +++
- 5 files changed, 123 insertions(+), 1 deletion(-)
- create mode 100644 fs/cachefiles/sysfs.c
-
--- 
-2.34.1
-
+Gao Xiang
