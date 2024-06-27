@@ -4,42 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 31CA5C27C4F
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jun 2024 03:14:08 +0000 (UTC)
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ONjNwX/0;
-	dkim-atps=neutral
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 487A5C2BD09
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jun 2024 09:10:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1719479449;
+	bh=0OttcRHJP5dyZvcWKtFHqqgYJNDS1+x3U8B+EssAKtU=;
+	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=H8hvPM2OZvzRYke15IpF85+bWdVfwU5mOWqSj86cbtZT5xnQTCX19fEIi5m4n/nTb
+	 Ni/lxT/tSqcchG2hgEPrRsXSsFUtZkejk9RMpnbF74Hm2FnWlim++tv06pSU60D8dU
+	 iZ2t8kYtEql0ujvpMvrIKaj1Pk8eUN52TaKr64I2bahptmQlAXAyEcg5iExUmIdyDU
+	 tcfkBiJmJIKtfycVdeYONl9WMrFfthoXjV0FzY9AhCjqA17w1UXPT2bjGSmQMvCN9S
+	 W4vugvc5zGgLE60vOq7r+XZSwrxm/V3zLuv7sAPh0PV7gAeAuzbcXNQ8aya03M+Gk1
+	 8ROqFcRHeToHg==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4W8kDs3ds9z3d8M
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jun 2024 13:14:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ONjNwX/0;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4W8t8T2W8qz3cZJ
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Jun 2024 19:10:49 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=szxga03-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4W8kDk6vBcz3cXH
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jun 2024 13:13:56 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1719458032; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=KkPaDWoZmD+ORfXLaG1I2n9oL2r5YM/kos0rPUAl7lk=;
-	b=ONjNwX/0TwfmBttjDT/kXQ49gsoeYCptqOGovFi/lM0FqV5jNAb0xGidQgDkLdW3dPlLefV5fmDXxBMkSU2fvX/S/UG8/bgMnURRjsGcCdjfZLy4luhQsn1CmbEqxjWLkOAf8dezUaelnW1OqG0/9FvX1J1gjRufPEoA2I8pGTA=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0W9LHU.z_1719458024;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0W9LHU.z_1719458024)
-          by smtp.aliyun-inc.com;
-          Thu, 27 Jun 2024 11:13:50 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: fix "non-trivial designated initializers not supported"
-Date: Thu, 27 Jun 2024 11:13:43 +0800
-Message-Id: <20240627031343.3424030-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4W8t8G4QRfz3cZ6
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Jun 2024 19:10:33 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4W8t3r0mwLzMrLw;
+	Thu, 27 Jun 2024 17:06:48 +0800 (CST)
+Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
+	by mail.maildlp.com (Postfix) with ESMTPS id 8FBE914037E;
+	Thu, 27 Jun 2024 17:10:29 +0800 (CST)
+Received: from huawei.com (10.90.53.73) by dggpeml500022.china.huawei.com
+ (7.185.36.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Thu, 27 Jun
+ 2024 17:10:29 +0800
+To: <gregkh@linuxfoundation.org>
+Subject: [PATCH v6.6] erofs: fix NULL dereference of dif->bdev_handle in fscache mode
+Date: Thu, 27 Jun 2024 17:13:45 +0800
+Message-ID: <20240627091345.3569167-1-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.90.53.73]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500022.china.huawei.com (7.185.36.66)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -51,61 +59,70 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, Hongzhen Luo <hongzhen@linux.alibaba.com>
+From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Hongbo Li <lihongbo22@huawei.com>
+Cc: brauner@kernel.org, jack@suse.cz, huyue2@coolpad.com, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-This partially reverts commit 79f6e168d94c ("erofs-utils: improve
-compatibility and reduce header conflicts") since some C++ compiler
-will complain:
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-include/erofs_fs.h: In function 'void erofs_check_ondisk_layout_definitions()':
-include/erofs_fs.h:460:2: sorry, unimplemented: non-trivial designated initializers not supported
+Avoid NULL dereference of dif->bdev_handle, as dif->bdev_handle is NULL
+in fscache mode.
 
-Let's just bypass this compile-time check for the C++ language since
-only external programs may be written by C++.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ RIP: 0010:erofs_map_dev+0xbd/0x1c0
+ Call Trace:
+  <TASK>
+  erofs_fscache_data_read_slice+0xa7/0x340
+  erofs_fscache_data_read+0x11/0x30
+  erofs_fscache_readahead+0xd9/0x100
+  read_pages+0x47/0x1f0
+  page_cache_ra_order+0x1e5/0x270
+  filemap_get_pages+0xf2/0x5f0
+  filemap_read+0xb8/0x2e0
+  vfs_read+0x18d/0x2b0
+  ksys_read+0x53/0xd0
+  do_syscall_64+0x42/0xf0
+  entry_SYSCALL_64_after_hwframe+0x6e/0x76
 
-Fixes: 79f6e168d94c ("erofs-utils: improve compatibility and reduce header conflicts")
-Cc: Hongzhen Luo <hongzhen@linux.alibaba.com>
+Reported-by: Yiqun Leng <yqleng@linux.alibaba.com>
+Closes: https://bugzilla.openanolis.cn/show_bug.cgi?id=7245
+Fixes: 49845720080d ("erofs: Convert to use bdev_open_by_path()")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20231114070704.23398-1-jefflexu@linux.alibaba.com
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 ---
- include/erofs_fs.h | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/erofs/data.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/erofs_fs.h b/include/erofs_fs.h
-index 0d603c4..fc21915 100644
---- a/include/erofs_fs.h
-+++ b/include/erofs_fs.h
-@@ -450,14 +450,14 @@ struct z_erofs_lcluster_index {
- /* check the EROFS on-disk layout strictly at compile time */
- static inline void erofs_check_ondisk_layout_definitions(void)
- {
-+#ifndef __cplusplus
- 	const union {
- 		struct z_erofs_map_header h;
- 		__le64 v;
- 	} fmh __maybe_unused = {
--		.h = {
--			.h_clusterbits = 1 <<Z_EROFS_FRAGMENT_INODE_BIT,
--		},
-+		.h.h_clusterbits = 1 << Z_EROFS_FRAGMENT_INODE_BIT,
- 	};
-+#endif
- 
- 	BUILD_BUG_ON(sizeof(struct erofs_super_block) != 128);
- 	BUILD_BUG_ON(sizeof(struct erofs_inode_compact) != 32);
-@@ -476,9 +476,11 @@ static inline void erofs_check_ondisk_layout_definitions(void)
- 
- 	BUILD_BUG_ON(BIT(Z_EROFS_LI_LCLUSTER_TYPE_BITS) <
- 		     Z_EROFS_LCLUSTER_TYPE_MAX - 1);
-+#ifndef __cplusplus
- 	/* exclude old compiler versions like gcc 7.5.0 */
- 	BUILD_BUG_ON(__builtin_constant_p(fmh.v) ?
- 		     fmh.v != cpu_to_le64(1ULL << 63) : 0);
-+#endif
- }
- 
- #endif
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 029c761670bf..c98aeda8abb2 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -220,7 +220,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			up_read(&devs->rwsem);
+ 			return 0;
+ 		}
+-		map->m_bdev = dif->bdev_handle->bdev;
++		map->m_bdev = dif->bdev_handle ? dif->bdev_handle->bdev : NULL;
+ 		map->m_daxdev = dif->dax_dev;
+ 		map->m_dax_part_off = dif->dax_part_off;
+ 		map->m_fscache = dif->fscache;
+@@ -238,7 +238,8 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			if (map->m_pa >= startoff &&
+ 			    map->m_pa < startoff + length) {
+ 				map->m_pa -= startoff;
+-				map->m_bdev = dif->bdev_handle->bdev;
++				map->m_bdev = dif->bdev_handle ?
++					      dif->bdev_handle->bdev : NULL;
+ 				map->m_daxdev = dif->dax_dev;
+ 				map->m_dax_part_off = dif->dax_part_off;
+ 				map->m_fscache = dif->fscache;
 -- 
-2.39.3
+2.34.1
 
