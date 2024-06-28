@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAC8CC30659
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Jun 2024 06:31:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C3BEC3064D
+	for <linux-erofs@archiver.kernel.org>; Fri, 28 Jun 2024 06:31:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4W9QYx2sDmz3cgf
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Jun 2024 16:31:17 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4W9QZ04b3xz3cll
+	for <linux-erofs@archiver.kernel.org>; Fri, 28 Jun 2024 16:31:20 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huaweicloud.com (client-ip=45.249.212.51; helo=dggsgout11.his.huawei.com; envelope-from=libaokun@huaweicloud.com; receiver=lists.ozlabs.org)
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4W9QYk37Pdz3cF6
-	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 16:31:05 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4W9QYk4Dg2z3cV9
+	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 16:31:06 +1000 (AEST)
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4W9QYQ0s4Yz4f3l1s
-	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 14:30:50 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4W9QYR2nTtz4f3l19
+	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 14:30:51 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.75])
-	by mail.maildlp.com (Postfix) with ESMTP id 5D4931A0170
-	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 14:31:02 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 9F0BB1A0189
+	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Jun 2024 14:31:03 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP2 (Coremail) with SMTP id Syh0CgBXwIWfWH5mZZVAAg--.52859S8;
-	Fri, 28 Jun 2024 14:31:02 +0800 (CST)
+	by APP2 (Coremail) with SMTP id Syh0CgBXwIWfWH5mZZVAAg--.52859S10;
+	Fri, 28 Jun 2024 14:31:03 +0800 (CST)
 From: libaokun@huaweicloud.com
 To: netfs@lists.linux.dev,
 	dhowells@redhat.com,
 	jlayton@kernel.org
-Subject: [PATCH v3 4/9] cachefiles: propagate errors from vfs_getxattr() to avoid infinite loop
-Date: Fri, 28 Jun 2024 14:29:25 +0800
-Message-Id: <20240628062930.2467993-5-libaokun@huaweicloud.com>
+Subject: [PATCH v3 6/9] cachefiles: cancel all requests for the object that is being dropped
+Date: Fri, 28 Jun 2024 14:29:27 +0800
+Message-Id: <20240628062930.2467993-7-libaokun@huaweicloud.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240628062930.2467993-1-libaokun@huaweicloud.com>
 References: <20240628062930.2467993-1-libaokun@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: Syh0CgBXwIWfWH5mZZVAAg--.52859S8
-X-Coremail-Antispam: 1UD129KBjvJXoW7tFWrCw4xuryruryfCFykKrg_yoW8ZrWkpF
-	Wa9F18Ary8ur48Gr1kAFs8Jw1F934UJ3Wqvw1UW34Ivw1kX34rXry3tr1YvF1UCrW8twsr
-	ta15CFy3try5A3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPE14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+X-CM-TRANSID: Syh0CgBXwIWfWH5mZZVAAg--.52859S10
+X-Coremail-Antispam: 1UD129KBjvJXoW7ur15uFWrWw1fAFyxXw4UXFb_yoW8Ar4fpF
+	WayFy3Kry8WF47CrZ3XFs5tryFy34kuFnrX3Waqa98ArnxXryrZr1UKw1DZFy5A393Xr4x
+	tw15CF9xKw1qyrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUm014x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
 	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JF0E3s1l82xGYI
 	kIc2x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2
 	z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr1j6r
@@ -52,11 +52,11 @@ X-Coremail-Antispam: 1UD129KBjvJXoW7tFWrCw4xuryruryfCFykKrg_yoW8ZrWkpF
 	F7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2
 	IY04v7M4kE6xkIj40Ew7xC0wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8
 	JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1V
-	AFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xII
-	jxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I
-	8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73
-	UjIFyTuYvjfUYGYpUUUUU
-X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/1tbiAQAIBV1jkH-xJQAAsJ
+	AFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xII
+	jxv20xvEc7CjxVAFwI0_Gr1j6F4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcV
+	C2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVj
+	vjDU0xZFpf9x0JUB89_UUUUU=
+X-CM-SenderInfo: 5olet0hnxqqx5xdzvxpfor3voofrz/1tbiAgAIBV1jkHrzcQAAsZ
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -74,59 +74,55 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 From: Baokun Li <libaokun1@huawei.com>
 
-In cachefiles_check_volume_xattr(), the error returned by vfs_getxattr()
-is not passed to ret, so it ends up returning -ESTALE, which leads to an
-endless loop as follows:
+Because after an object is dropped, requests for that object are useless,
+cancel them to avoid causing other problems.
 
-cachefiles_acquire_volume
-retry:
-  ret = cachefiles_check_volume_xattr
-    ret = -ESTALE
-    xlen = vfs_getxattr // return -EIO
-    // The ret is not updated when xlen < 0, so -ESTALE is returned.
-    return ret
-  // Supposed to jump out of the loop at this judgement.
-  if (ret != -ESTALE)
-      goto error_dir;
-  cachefiles_bury_object
-    //  EIO causes rename failure
-  goto retry;
+This prepares for the later addition of cancel_work_sync(). After the
+reopen requests is generated, cancel it to avoid cancel_work_sync()
+blocking by waiting for daemon to complete the reopen requests.
 
-Hence propagate the error returned by vfs_getxattr() to avoid the above
-issue. Do the same in cachefiles_check_auxdata().
-
-Fixes: 32e150037dce ("fscache, cachefiles: Store the volume coherency data")
-Fixes: 72b957856b0c ("cachefiles: Implement metadata/coherency data storage in xattrs")
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Acked-by: Jeff Layton <jlayton@kernel.org>
 ---
- fs/cachefiles/xattr.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/cachefiles/ondemand.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
-index bcb6173943ee..4dd8a993c60a 100644
---- a/fs/cachefiles/xattr.c
-+++ b/fs/cachefiles/xattr.c
-@@ -110,9 +110,11 @@ int cachefiles_check_auxdata(struct cachefiles_object *object, struct file *file
- 	if (xlen == 0)
- 		xlen = vfs_getxattr(&nop_mnt_idmap, dentry, cachefiles_xattr_cache, buf, tlen);
- 	if (xlen != tlen) {
--		if (xlen < 0)
-+		if (xlen < 0) {
-+			ret = xlen;
- 			trace_cachefiles_vfs_error(object, file_inode(file), xlen,
- 						   cachefiles_trace_getxattr_error);
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 8a3b52c3ebba..36b97ded16b4 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -669,12 +669,31 @@ int cachefiles_ondemand_init_object(struct cachefiles_object *object)
+ 
+ void cachefiles_ondemand_clean_object(struct cachefiles_object *object)
+ {
++	unsigned long index;
++	struct cachefiles_req *req;
++	struct cachefiles_cache *cache;
++
+ 	if (!object->ondemand)
+ 		return;
+ 
+ 	cachefiles_ondemand_send_req(object, CACHEFILES_OP_CLOSE, 0,
+ 			cachefiles_ondemand_init_close_req, NULL);
++
++	if (!object->ondemand->ondemand_id)
++		return;
++
++	/* Cancel all requests for the object that is being dropped. */
++	cache = object->volume->cache;
++	xa_lock(&cache->reqs);
+ 	cachefiles_ondemand_set_object_dropping(object);
++	xa_for_each(&cache->reqs, index, req) {
++		if (req->object == object) {
++			req->error = -EIO;
++			complete(&req->done);
++			__xa_erase(&cache->reqs, index);
 +		}
- 		if (xlen == -EIO)
- 			cachefiles_io_error_obj(
- 				object,
-@@ -252,6 +254,7 @@ int cachefiles_check_volume_xattr(struct cachefiles_volume *volume)
- 		xlen = vfs_getxattr(&nop_mnt_idmap, dentry, cachefiles_xattr_cache, buf, len);
- 	if (xlen != len) {
- 		if (xlen < 0) {
-+			ret = xlen;
- 			trace_cachefiles_vfs_error(NULL, d_inode(dentry), xlen,
- 						   cachefiles_trace_getxattr_error);
- 			if (xlen == -EIO)
++	}
++	xa_unlock(&cache->reqs);
+ }
+ 
+ int cachefiles_ondemand_init_obj_info(struct cachefiles_object *object,
 -- 
 2.39.2
 
