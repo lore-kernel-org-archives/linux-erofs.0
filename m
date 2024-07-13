@@ -4,42 +4,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CCD16C2BD09
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Jul 2024 09:38:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6BC4C2BD09
+	for <linux-erofs@archiver.kernel.org>; Sat, 13 Jul 2024 01:04:37 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=At8SN6z5;
+	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=P3vUCHdQ;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WL63d3l5qz3chL
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Jul 2024 19:38:37 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WLVc40cQSz3cfg
+	for <linux-erofs@archiver.kernel.org>; Sat, 13 Jul 2024 11:04:36 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=At8SN6z5;
+	dkim=pass (2048-bit key; unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=P3vUCHdQ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linaro.org (client-ip=2607:f8b0:4864:20::236; helo=mail-oi1-x236.google.com; envelope-from=dan.carpenter@linaro.org; receiver=lists.ozlabs.org)
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WL63M6fbZz30Wn
-	for <linux-erofs@lists.ozlabs.org>; Fri, 12 Jul 2024 19:38:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WLVbw1yF6z30WW
+	for <linux-erofs@lists.ozlabs.org>; Sat, 13 Jul 2024 11:04:24 +1000 (AEST)
+Received: by mail-oi1-x236.google.com with SMTP id 5614622812f47-3dab2bb288aso163916b6e.3
+        for <linux-erofs@lists.ozlabs.org>; Fri, 12 Jul 2024 18:04:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1720777096; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=/SYIKDo1xUyrKFXwyEHeGF1JOr02lSWrchxLv7jIEdo=;
-	b=At8SN6z5yWXc68NZp/Qeku5ichOSuVcq+iXefHOsyiWNd1pUWzPWCv7OyuXalPgTUTRgUDESk5Ov0EwoMjuOcN3SRP6stJXDsN7qCp5/flppCAK3SXsJODIEz1049EFIS+aZfPyOvz/Qr/vO6ygKVWXNi8BCYxHHfT6ThjMewiQ=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WANvAgj_1720777089;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WANvAgj_1720777089)
-          by smtp.aliyun-inc.com;
-          Fri, 12 Jul 2024 17:38:14 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/2] erofs-utils: fix reproducible builds for multi-threaded libdeflate
-Date: Fri, 12 Jul 2024 17:38:07 +0800
-Message-ID: <20240712093808.2986196-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+        d=linaro.org; s=google; t=1720832659; x=1721437459; darn=lists.ozlabs.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=yH7mUDs9iCLcnupWVzAlTv4cUV/drEJ2d5DV9IL4ZtM=;
+        b=P3vUCHdQyu6J1qmdxolMVCgCXn40nllIjz5iEA6kxSVK+ukqPOoxm2PZYeaZGM8zZT
+         v7p9HZlxzRUexskvFTt4JrO/JY+EUybND7eaibOnVmuLnZKA+9onP5FHx7oSTtd7WoSz
+         LxAEy/6GMIA3PnXPhwkD0tzpzjfDHESXQ2+82fYS2vk+9nmeY5ou+mKIsnQniCQlFFxn
+         yUG5L5UW58Lkcr4NjC+LdnOwbzybKyMLY0Q+UMtsZtiA4UFmVhooUPmYFZKIPYAnNJD/
+         vHP7igg3aaZT+cbkPkxr2sfX2FeVTKvy0AVuU9McnNJlS/NRTIvnmniS3HuxtW05nDkC
+         GHhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720832659; x=1721437459;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yH7mUDs9iCLcnupWVzAlTv4cUV/drEJ2d5DV9IL4ZtM=;
+        b=T415HeaMcI26rbTIoLuioTkZNCbHLVClEeZJUl7/SaTIOMnNSOopcEduf4ddxEKCW7
+         ydr6+8FqOXI/y7PZBiBJSU82QkW7BtgTitEqWfue1+aqFihJjEObHfqSmXEhFV05rFO1
+         B9Z3BkPZmAQRNF9fuMkl1ARfyKGyp3GWG6GqtimweZcnOJmThA8GbmzrhDYpTEXYULy5
+         gRrb2QG+O/mIfwyekY1BVHNgBLQZ7lHQotBpEl1LveEhgW1JqYLfR17SfuBR8JovcIOB
+         M9yT0JEm5gUet3wrWZSXht+YOavGpWi1QNUIT1z0kS6/CX1j8qrOjQ+UxCeCi27VvFTP
+         LkIw==
+X-Forwarded-Encrypted: i=1; AJvYcCWDG9+Ac08UKAF50V1HOxYfPsP8qEpd5a6DBXTuVqKjF/3Cnv0YZo4YfsLCoVWQ2IL7wDf5m6v+o+av6TY8xR7Q3U6RdgM2W1O6tUYu
+X-Gm-Message-State: AOJu0YxE9VQFkNWnlyBJ6Mcd2HvW178xMHp6Ag69Mg+3kWiWIPN4yk6t
+	C3CrJ21h/6d+nax8uxwdB7QbIMyP7LdVaOnXQiB4+hMt9kGUhipaeo9qkR21VqE=
+X-Google-Smtp-Source: AGHT+IGQ/I0WaFhGJFtcL3N/xdoeqsNKfep4fanzD9WvQoCVAUijIIi04JLfIvB+6AR9sfiTtDBmRA==
+X-Received: by 2002:a05:6808:17a5:b0:3d2:23e0:d7aa with SMTP id 5614622812f47-3d93bef8b38mr17705419b6e.13.1720832659290;
+        Fri, 12 Jul 2024 18:04:19 -0700 (PDT)
+Received: from localhost ([2603:8080:b800:f700::1cb1])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-3dab3e1d054sm25642b6e.53.2024.07.12.18.04.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jul 2024 18:04:18 -0700 (PDT)
+Date: Fri, 12 Jul 2024 20:04:16 -0500
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: Gao Xiang <xiang@kernel.org>
+Subject: [PATCH] erofs: silence uninitialized variable warning in
+ z_erofs_scan_folio()
+Message-ID: <f78ab50e-ed6d-4275-8dd4-a4159fa565a2@stanley.mountain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -51,177 +78,39 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-`last_uncompressed_size` should be reset on the basis of segments.
+Smatch complains that:
 
-Fixes: 830b27bc2334 ("erofs-utils: mkfs: introduce inner-file multi-threaded compression")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+    fs/erofs/zdata.c:1047 z_erofs_scan_folio()
+    error: uninitialized symbol 'err'.
+
+The issue is if we hit this (!(map->m_flags & EROFS_MAP_MAPPED)) {
+condition then "err" isn't set.  It's inside a loop so we would have to
+hit that condition on every iteration.  Initialize "err" to zero to
+solve this.
+
+Fixes: 5b9654efb604 ("erofs: teach z_erofs_scan_folios() to handle multi-page folios")
+Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
 ---
- lib/compress.c              |  2 +-
- lib/compressor.c            |  6 +++++
- lib/compressor.h            |  2 ++
- lib/compressor_libdeflate.c | 46 +++++++++++++++++++++++++++----------
- 4 files changed, 43 insertions(+), 13 deletions(-)
+ fs/erofs/zdata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/compress.c b/lib/compress.c
-index b473587..b61907a 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -1245,7 +1245,7 @@ void z_erofs_mt_workfn(struct erofs_work *work, void *tlsp)
- 	sctx->queue = tls->queue;
- 	sctx->destbuf = tls->destbuf;
- 	sctx->chandle = &tls->ccfg[cwork->alg_id].handle;
--
-+	erofs_compressor_reset(sctx->chandle);
- 	sctx->membuf = malloc(round_up(sctx->remaining, erofs_blksiz(sbi)));
- 	if (!sctx->membuf) {
- 		ret = -ENOMEM;
-diff --git a/lib/compressor.c b/lib/compressor.c
-index 24c99ac..41f49ff 100644
---- a/lib/compressor.c
-+++ b/lib/compressor.c
-@@ -155,3 +155,9 @@ int erofs_compressor_exit(struct erofs_compress *c)
- 		return c->alg->c->exit(c);
- 	return 0;
- }
-+
-+void erofs_compressor_reset(struct erofs_compress *c)
-+{
-+	if (c->alg && c->alg->c->reset)
-+		c->alg->c->reset(c);
-+}
-diff --git a/lib/compressor.h b/lib/compressor.h
-index 59d525d..8d322d5 100644
---- a/lib/compressor.h
-+++ b/lib/compressor.h
-@@ -19,6 +19,7 @@ struct erofs_compressor {
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index aff3cdf114ad..ac5ffd4674e4 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -962,7 +962,7 @@ static int z_erofs_scan_folio(struct z_erofs_decompress_frontend *f,
+ 	const unsigned int bs = i_blocksize(inode);
+ 	unsigned int end = folio_size(folio), split = 0, cur, pgs;
+ 	bool tight, excl;
+-	int err;
++	int err = 0;
  
- 	int (*init)(struct erofs_compress *c);
- 	int (*exit)(struct erofs_compress *c);
-+	void (*reset)(struct erofs_compress *c);
- 	int (*setlevel)(struct erofs_compress *c, int compression_level);
- 	int (*setdictsize)(struct erofs_compress *c, u32 dict_size);
- 
-@@ -63,5 +64,6 @@ int erofs_compress_destsize(const struct erofs_compress *c,
- int erofs_compressor_init(struct erofs_sb_info *sbi, struct erofs_compress *c,
- 			  char *alg_name, int compression_level, u32 dict_size);
- int erofs_compressor_exit(struct erofs_compress *c);
-+void erofs_compressor_reset(struct erofs_compress *c);
- 
- #endif
-diff --git a/lib/compressor_libdeflate.c b/lib/compressor_libdeflate.c
-index 14cbce4..32e8ff9 100644
---- a/lib/compressor_libdeflate.c
-+++ b/lib/compressor_libdeflate.c
-@@ -3,22 +3,28 @@
- #include "erofs/print.h"
- #include "erofs/config.h"
- #include <libdeflate.h>
-+#include <stdlib.h>
- #include "compressor.h"
- #include "erofs/atomic.h"
- 
-+struct erofs_libdeflate_context {
-+	struct libdeflate_compressor *strm;
-+	size_t last_uncompressed_size;
-+};
-+
- static int libdeflate_compress_destsize(const struct erofs_compress *c,
- 				        const void *src, unsigned int *srcsize,
- 				        void *dst, unsigned int dstsize)
- {
--	static size_t last_uncompressed_size = 0;
-+	struct erofs_libdeflate_context *ctx = c->private_data;
- 	size_t l = 0; /* largest input that fits so far */
- 	size_t l_csize = 0;
- 	size_t r = *srcsize + 1; /* smallest input that doesn't fit so far */
- 	size_t m;
- 	u8 tmpbuf[dstsize + 9];
- 
--	if (last_uncompressed_size)
--		m = last_uncompressed_size * 15 / 16;
-+	if (ctx->last_uncompressed_size)
-+		m = ctx->last_uncompressed_size * 15 / 16;
- 	else
- 		m = dstsize * 4;
- 	for (;;) {
-@@ -27,7 +33,7 @@ static int libdeflate_compress_destsize(const struct erofs_compress *c,
- 		m = max(m, l + 1);
- 		m = min(m, r - 1);
- 
--		csize = libdeflate_deflate_compress(c->private_data, src, m,
-+		csize = libdeflate_deflate_compress(ctx->strm, src, m,
- 						    tmpbuf, dstsize + 9);
- 		/*printf("Tried %zu => %zu\n", m, csize);*/
- 		if (csize > 0 && csize <= dstsize) {
-@@ -68,33 +74,48 @@ static int libdeflate_compress_destsize(const struct erofs_compress *c,
- 
- 	/*printf("Choosing %zu => %zu\n", l, l_csize);*/
- 	*srcsize = l;
--	last_uncompressed_size = l;
-+	ctx->last_uncompressed_size = l;
- 	return l_csize;
- }
- 
- static int compressor_libdeflate_exit(struct erofs_compress *c)
- {
--	if (!c->private_data)
--		return -EINVAL;
-+	struct erofs_libdeflate_context *ctx = c->private_data;
- 
--	libdeflate_free_compressor(c->private_data);
-+	if (!ctx)
-+		return -EINVAL;
-+	libdeflate_free_compressor(ctx->strm);
-+	free(ctx);
- 	return 0;
- }
- 
- static int compressor_libdeflate_init(struct erofs_compress *c)
- {
- 	static erofs_atomic_bool_t __warnonce;
-+	struct erofs_libdeflate_context *ctx;
- 
--	libdeflate_free_compressor(c->private_data);
--	c->private_data = libdeflate_alloc_compressor(c->compression_level);
--	if (!c->private_data)
-+	DBG_BUGON(c->private_data);
-+	ctx = calloc(1, sizeof(struct erofs_libdeflate_context));
-+	if (!ctx)
- 		return -ENOMEM;
--
-+	ctx->strm = libdeflate_alloc_compressor(c->compression_level);
-+	if (!ctx->strm) {
-+		free(ctx);
-+		return -ENOMEM;
-+	}
-+	c->private_data = ctx;
- 	if (!erofs_atomic_test_and_set(&__warnonce))
- 		erofs_warn("EXPERIMENTAL libdeflate compressor in use. Use at your own risk!");
- 	return 0;
- }
- 
-+static void compressor_libdeflate_reset(struct erofs_compress *c)
-+{
-+	struct erofs_libdeflate_context *ctx = c->private_data;
-+
-+	ctx->last_uncompressed_size = 0;
-+}
-+
- static int erofs_compressor_libdeflate_setlevel(struct erofs_compress *c,
- 						int compression_level)
- {
-@@ -114,6 +135,7 @@ const struct erofs_compressor erofs_compressor_libdeflate = {
- 	.best_level = 12,
- 	.init = compressor_libdeflate_init,
- 	.exit = compressor_libdeflate_exit,
-+	.reset = compressor_libdeflate_reset,
- 	.setlevel = erofs_compressor_libdeflate_setlevel,
- 	.compress_destsize = libdeflate_compress_destsize,
- };
+ 	tight = (bs == PAGE_SIZE);
+ 	z_erofs_onlinefolio_init(folio);
 -- 
-2.43.5
+2.43.0
 
