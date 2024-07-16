@@ -4,51 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FA86C3DA49
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jul 2024 11:26:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1265C3DA59
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jul 2024 12:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1721129214;
-	bh=YnPHcTqXqwT1025fNiBx/OxmlJST3Jab8WaXuDNl3Z8=;
+	s=201707; t=1721133698;
+	bh=JOc2QL0GlG8CTcOQi5uj8bth7V5mZgOnE0ctJCvfx6c=;
 	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
 	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=T1ExyoTx8qXE35TPWx5eVQM8Ts8Us+be9rQdiLjXqovKAo6CqAA1Ifk5fRdTrxkcI
-	 6OCAw2klRcRhFGKlGLhrrrCBc5X+kTk6k0Yg6vdazWTggKjrWrrvh8zsunUe3ADOdt
-	 EdtP5bWuvjSImHCjktsZT1dUuVu9zfDngmyEGaBvsvkras26JN6SDyNJh39dE2913b
-	 gRwYx8nS9OXOmmfMCJ0aNrCPnOVR58srW8lTjskxMJF2ExBYuG8AiK+/C4NgAkRVij
-	 STcwZ8Gxe8t76Y/eJWymF/BFBZQaRAq4V0n/ZmtIkpwq6dLqzUAXhWP7ZPMw5NC7PT
-	 PL/4tYlc5Tz5Q==
+	b=fHOHZDIrx/GmZAWMqE4dMvpdagcok64ZUGd+qMLy7NMDBiqHc92sYtQjJ+MkPOaxj
+	 8MFij5t+UgfoamCzBK5RDFqorOg8xYZ2xcg16+rf5QMBonFi52u7jzKKrHGImrhjTZ
+	 /riGPBp7YeoyorJndNqAiju0HPfz2Ykou5SwnKUWvEH5nJFcwXB4I+5yJlRg99ReUz
+	 uUHcRHjDzsDIxoV9Bgd2ubtIZZpVPe0kKBojuv1APQJvGD7drtRSH5UUigHLt8ZZdK
+	 sWSbpizLpjzF0Vu0GrZ0y8NIXyx9R3fkz2noBk5WaUF926tCAoQx9sf3bzaKPPUS6F
+	 UeI9sHhqN/OsQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WNcGk5vg2z3dRD
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jul 2024 21:26:54 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WNdwy3Z8rz3dK3
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jul 2024 22:41:38 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.191; helo=szxga05-in.huawei.com; envelope-from=huangxiaojia2@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WNcDZ18yvz3dJs
-	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Jul 2024 21:24:58 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WNc9R19X6z1HFJv;
-	Tue, 16 Jul 2024 19:22:19 +0800 (CST)
-Received: from dggpemm500021.china.huawei.com (unknown [7.185.36.109])
-	by mail.maildlp.com (Postfix) with ESMTPS id 90A7E1A016C;
-	Tue, 16 Jul 2024 19:24:51 +0800 (CST)
-Received: from huawei.com (10.90.53.73) by dggpemm500021.china.huawei.com
- (7.185.36.109) with Microsoft SMTP Server (version=TLS1_2,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WNdwr1pRcz3cZF
+	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Jul 2024 22:41:28 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WNdpW0Nc1zxSgK;
+	Tue, 16 Jul 2024 20:36:03 +0800 (CST)
+Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
+	by mail.maildlp.com (Postfix) with ESMTPS id C0ABE14041A;
+	Tue, 16 Jul 2024 20:40:53 +0800 (CST)
+Received: from huawei.com (10.90.53.73) by dggpeml500022.china.huawei.com
+ (7.185.36.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Tue, 16 Jul
- 2024 19:24:51 +0800
+ 2024 20:40:53 +0800
 To: <xiang@kernel.org>, <chao@kernel.org>, <huyue2@coolpad.com>,
-	<jefflexu@linux.alibaba.com>, <dhavale@google.com>, <yuehaibing@huawei.com>
-Subject: [PATCH-next v2] erofs: add support for FS_IOC_GETFSSYSFSPATH
-Date: Tue, 16 Jul 2024 19:29:39 +0800
-Message-ID: <20240716112939.2355999-1-huangxiaojia2@huawei.com>
+	<jefflexu@linux.alibaba.com>, <dhavale@google.com>, <dhowells@redhat.com>
+Subject: [PATCH] erofs: support STATX_DIOALIGN
+Date: Tue, 16 Jul 2024 20:45:34 +0800
+Message-ID: <20240716124534.2358151-1-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-Originating-IP: [10.90.53.73]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm500021.china.huawei.com (7.185.36.109)
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500022.china.huawei.com (7.185.36.66)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -60,58 +60,67 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Huang Xiaojia via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Huang Xiaojia <huangxiaojia2@huawei.com>
-Cc: linux-erofs@lists.ozlabs.org
+From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Hongbo Li <lihongbo22@huawei.com>
+Cc: netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-FS_IOC_GETFSSYSFSPATH ioctl exposes /sys/fs path of a given filesystem,
-potentially standarizing sysfs reporting. This patch add support for
-FS_IOC_GETFSSYSFSPATH for erofs, "erofs/<dev>" will be outpt for bdev
-case, and "erofs/[domain_id,]<fs_id>" will be output for non-bdev case.
+Add support for STATX_DIOALIGN to erofs, so that direct I/O
+alignment restrictions are exposed to userspace in a generic
+way.
 
-Signed-off-by: Huang Xiaojia <huangxiaojia2@huawei.com>
----
-v2: handle non-bdev case.
-v1: https://lore.kernel.org/all/20240624063801.2476116-1-huangxiaojia2@huawei.com/
----
- fs/erofs/super.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+[Before]
+```
+./statx_test /mnt/erofs/testfile
+statx(/mnt/erofs/testfile) = 0
+dio mem align:0
+dio offset align:0
+```
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 1b91d9513013..a24b6907363c 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -576,6 +576,20 @@ static const struct export_operations erofs_export_ops = {
- 	.get_parent = erofs_get_parent,
- };
+[After]
+```
+./statx_test /mnt/erofs/testfile
+statx(/mnt/erofs/testfile) = 0
+dio mem align:512
+dio offset align:512
+```
+
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+---
+ fs/erofs/inode.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 5f6439a63af7..9325a6f0058a 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -342,6 +342,25 @@ int erofs_getattr(struct mnt_idmap *idmap, const struct path *path,
+ 	stat->attributes_mask |= (STATX_ATTR_COMPRESSED |
+ 				  STATX_ATTR_IMMUTABLE);
  
-+static void erofs_set_sysfs_name(struct super_block *sb)
-+{
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
++	/*
++	 * Return the DIO alignment restrictions if requested.
++	 *
++	 * In erofs, STATX_DIOALIGN is not supported in ondemand mode and
++	 * the compressed file, so in these cases we report no DIO support.
++	 */
++	if ((request_mask & STATX_DIOALIGN) && S_ISREG(inode->i_mode)) {
++		stat->result_mask |= STATX_DIOALIGN;
++		if (!erofs_is_fscache_mode(inode->i_sb) &&
++			!erofs_inode_is_data_compressed(EROFS_I(inode)->datalayout)) {
++			struct block_device *bdev = inode->i_sb->s_bdev;
++			unsigned int bsize = (bdev) ? bdev_logical_block_size(bdev) :
++						i_blocksize(inode);
 +
-+	if (erofs_is_fscache_mode(sb)) {
-+		if (sbi->domain_id)
-+			super_set_sysfs_name_generic(sb, "%s,%s", sbi->domain_id, sbi->fsid);
-+		else
-+			super_set_sysfs_name_generic(sb, "%s", sbi->fsid);
-+	} else {
-+		super_set_sysfs_name_id(sb);
++			stat->dio_mem_align = bsize;
++			stat->dio_offset_align = bsize;
++		}
 +	}
-+}
 +
- static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- {
- 	struct inode *inode;
-@@ -643,6 +657,7 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 		sb->s_flags |= SB_POSIXACL;
- 	else
- 		sb->s_flags &= ~SB_POSIXACL;
-+	erofs_set_sysfs_name(sb);
- 
- #ifdef CONFIG_EROFS_FS_ZIP
- 	xa_init(&sbi->managed_pslots);
+ 	generic_fillattr(idmap, request_mask, inode, stat);
+ 	return 0;
+ }
 -- 
 2.34.1
 
