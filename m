@@ -4,57 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8AA72C3DA4B
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Jul 2024 06:35:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 71B19C3DA60
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Jul 2024 20:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1721198117;
-	bh=xzrEBhpceecZZ3mKiO8ySct8kxKG/Lt1GghL1tTf7oQ=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
+	s=201707; t=1721247127;
+	bh=bBRFPq02/1Hq6ldkmB3yGHjVaOEzt65Aq2iwYUwuE6Q=;
+	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=RUH3zM7NH1RSgIUYXM8GyP4BhvVeG6af4xJkXkpbBJjdR5OG1mPANW9RFLpIAVmI5
-	 cuMio62xpVB7EFhr1W1NrCDT7j+3ZUXIkSj7U7+9pgg32irEHNPp5NWos8lEbKxpFd
-	 J5udfCOeG8PVjIa+KydA6POkblF1JR8PWI0xXQDS08BJFag/BfHF/RwivB9d6DH1Y5
-	 WHxgA9ZFa0BwqRHpMjq0AdYKpymmOjCH9P6hZA254ga4lkI/RBJXVEzrVRpjB+enIt
-	 cHDE0DcbGLMgAdijMEN8mF//1VBUI98Q2OE71b+mEVdHXQw95JpKcdPjOwWz6eUli3
-	 piwI5sg/1rRMQ==
+	b=j6I5po8gc9341OXvEo3eBr2l1H9gp8ykH0sxEjrwAAlbpfGwf0rsW1t0pehKo7LQh
+	 Sh1ahspwxzI/Si/8NA9qgiUrKl8wbVUmOiN9+LKuBq5eDb3Si68rK9jcmzq7mB9K4b
+	 oCytdx7S2eXhioUA9G9CO0QNBlxkAgefAgji60M90TToBOLCldG5GSvxzo0DhtP06+
+	 ZMj3nhT0y3oqmJbRLCBeSP2zTSecuB+5FhvvNGNBWXkfQEcseJFXeykL5+xzHcFiiE
+	 e1e0oWXmJ6+W1RwZbJp//Is4E1LXwJ071g1BfTauykHIukZm1J59n3bL0oFkUpCzlW
+	 pGn2aKXuPzbcQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WP5ln5SZSz3dHM
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Jul 2024 16:35:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WPRtH0ys5z3cbL
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Jul 2024 06:12:07 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=eMKKcu/i;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::432; helo=mail-wr1-x432.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WP5lg5CL8z3cFw
-	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jul 2024 16:35:05 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WP5dD5mqfzxT4d;
-	Wed, 17 Jul 2024 14:29:36 +0800 (CST)
-Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
-	by mail.maildlp.com (Postfix) with ESMTPS id 7F1F5180087;
-	Wed, 17 Jul 2024 14:34:28 +0800 (CST)
-Received: from [10.67.111.104] (10.67.111.104) by
- dggpeml500022.china.huawei.com (7.185.36.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Wed, 17 Jul 2024 14:34:28 +0800
-Message-ID: <9e531afd-45e8-471b-8074-8ae5c90aceb0@huawei.com>
-Date: Wed, 17 Jul 2024 14:34:27 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WPRt91Flkz3cFN
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Jul 2024 06:12:00 +1000 (AEST)
+Received: by mail-wr1-x432.google.com with SMTP id ffacd0b85a97d-367a3d1a378so81446f8f.1
+        for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jul 2024 13:12:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721247112; x=1721851912;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bBRFPq02/1Hq6ldkmB3yGHjVaOEzt65Aq2iwYUwuE6Q=;
+        b=muEPUiX/ltefzO8wa6nLNpn1LaVn4i+7qsD1h3RKiDO0/HQUW7WPsWgs+eOzqUWkcA
+         6kIQZm9No0RrxyDdPTEy8AZb7OdE2vwdgzwuA4RuRKqu83+WGYamWCn9Xep1ygZQB5pj
+         wWNl6i14vOOPViQghmCsjhNt2WSxAW3dWjhDuKzzieN9+52UvhLSAxpLwcS3+CbkVVRS
+         UdZLT51T3WdDK92rbE4eLCFwZs9uP8ppLssDow1mPKo5a/wFeXV5sWQ7Pw9ZHwR8MREj
+         jno3Idq5FFeNZKNIiOfqcqJiEwXPq6hPlQ4eFA/9CecW/K/ZzT7q48Jl9kd4A1ADAWDe
+         qgPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWF9ZX6vTHSc9Wyz3B8aAJQFStif3FoWWTusZWIMaT3D7ra6lFCZd5SJktwE218T0TfTHmhhMy+1aqvUoTdpZa0yC8cIFLugy8Mj18t
+X-Gm-Message-State: AOJu0Yx6GtsdI/Uz6IH5DOg9k03oZgB5KBDRg+wvZvydDHAghzFCA1O6
+	tTLB1Jain31HfN4i9M+3JqmDEWuaM+v+lrZ/o6Ls7dJmbuExK9RrYJcYGOZagvEXoaakFVBZ7EV
+	qaYICJYE4+WD16Zi334uBdU56vpLyN0HRDyNM
+X-Google-Smtp-Source: AGHT+IHeghYkNK6hKS+C4EqCKnvBY/ORSUpRsPF/1ZClupIsL84TMa6jYpxdOzGuyk0i6KujR+MpD7AqjNLVu8Jis8A=
+X-Received: by 2002:a5d:5987:0:b0:368:69d:5acf with SMTP id
+ ffacd0b85a97d-3683173029bmr2586465f8f.42.1721247111315; Wed, 17 Jul 2024
+ 13:11:51 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: support STATX_DIOALIGN
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, <xiang@kernel.org>,
-	<chao@kernel.org>, <huyue2@coolpad.com>, <jefflexu@linux.alibaba.com>,
-	<dhavale@google.com>, <dhowells@redhat.com>
-References: <20240716124534.2358151-1-lihongbo22@huawei.com>
- <afe7b51b-b235-4ad5-80a5-16e0e61e149e@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <afe7b51b-b235-4ad5-80a5-16e0e61e149e@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.111.104]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500022.china.huawei.com (7.185.36.66)
+References: <0a71474744854fcf967e99666e8eab38@xiaomi.com> <f630cbad-d653-44e7-8d31-3cbb90899401@linux.alibaba.com>
+In-Reply-To: <f630cbad-d653-44e7-8d31-3cbb90899401@linux.alibaba.com>
+Date: Wed, 17 Jul 2024 13:11:40 -0700
+Message-ID: <CAB=BE-RKg1sV7BdCOQi-q90U-EdepBYVE2JXGurrbQXD+DLgZA@mail.gmail.com>
+Subject: Re: Issue of erofs use zstd
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -66,78 +74,36 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Hongbo Li <lihongbo22@huawei.com>
-Cc: netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
+From: Sandeep Dhavale via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Sandeep Dhavale <dhavale@google.com>
+Cc: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-
-
-On 2024/7/17 10:00, Gao Xiang wrote:
-> Hi,
-> 
-> On 2024/7/16 20:45, Hongbo Li wrote:
->> Add support for STATX_DIOALIGN to erofs, so that direct I/O
->> alignment restrictions are exposed to userspace in a generic
->> way.
->>
->> [Before]
->> ```
->> ./statx_test /mnt/erofs/testfile
->> statx(/mnt/erofs/testfile) = 0
->> dio mem align:0
->> dio offset align:0
->> ```
->>
->> [After]
->> ```
->> ./statx_test /mnt/erofs/testfile
->> statx(/mnt/erofs/testfile) = 0
->> dio mem align:512
->> dio offset align:512
->> ```
->>
->> Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
->> ---
->>   fs/erofs/inode.c | 19 +++++++++++++++++++
->>   1 file changed, 19 insertions(+)
->>
->> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
->> index 5f6439a63af7..9325a6f0058a 100644
->> --- a/fs/erofs/inode.c
->> +++ b/fs/erofs/inode.c
->> @@ -342,6 +342,25 @@ int erofs_getattr(struct mnt_idmap *idmap, const 
->> struct path *path,
->>       stat->attributes_mask |= (STATX_ATTR_COMPRESSED |
->>                     STATX_ATTR_IMMUTABLE);
->> +    /*
->> +     * Return the DIO alignment restrictions if requested.
->> +     *
->> +     * In erofs, STATX_DIOALIGN is not supported in ondemand mode and
->> +     * the compressed file, so in these cases we report no DIO support.
->> +     */
->> +    if ((request_mask & STATX_DIOALIGN) && S_ISREG(inode->i_mode)) {
->> +        stat->result_mask |= STATX_DIOALIGN;
->> +        if (!erofs_is_fscache_mode(inode->i_sb) &&
->> +            
->> !erofs_inode_is_data_compressed(EROFS_I(inode)->datalayout)) {
->> +            struct block_device *bdev = inode->i_sb->s_bdev;
->> +            unsigned int bsize = (bdev) ? 
->> bdev_logical_block_size(bdev) :
->> +                        i_blocksize(inode);
-> 
-> I guess in this way you could always use
->              stat->dio_mem_align = bdev_logical_block_size(bdev);
->              stat->dio_offset_align = stat->dio_mem_align;
-> ? since bdev won't be NULL.
-> 
-Yeah, only the EROFS_FS_ONDEMAND config is on, the s_bdev can be NULL.
-
-Thanks,
-Hongbo
-
-> Otherwise it looks good to me.
-> 
+On Mon, Jul 15, 2024 at 12:43=E2=80=AFAM Gao Xiang <hsiangkao@linux.alibaba=
+.com> wrote:
+>
+>
+>
+> On 2024/7/15 15:33, =E8=82=96=E6=B7=BC=E6=A3=AE via Linux-erofs wrote:
+> > Hi GaoXiang,
+> >
+> >
+> > We just update the last erofs version, and want to test the zstd compre=
+ss feature.
+> >
+> > But it will throw some error when using the mkfs.erofs making the new i=
+mage, could you help to check? thanks!
+>
+> Please fix your own environment issue yourself, thanks.
+>
+> This mailing list is not used for discussing such out-of-topic issue.
+>
 > Thanks,
 > Gao Xiang
+This may be due to having multiple versions of zstd lib available in
+your environment. Please check which one it is linking with and which
+one it is loading.
+
+Thanks,
+Sandeep.
