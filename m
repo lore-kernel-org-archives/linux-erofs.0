@@ -4,40 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6A7CC3DA59
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 07:12:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61FA7C3DA5D
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 07:12:12 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NZ3mjRrE;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hn7z4q5Z;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WSBKw3HcYz3cYG
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 17:12:04 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WSBL30rZVz3cYG
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 17:12:11 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NZ3mjRrE;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hn7z4q5Z;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WSBKd2vq6z3c75
-	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jul 2024 17:11:47 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WSBKf24nKz3cM7
+	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jul 2024 17:11:49 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1721632303; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=LJkfJ4cDKLy+LBQYqj6mWU0wVVBAPAQNTqyxsXIlgLA=;
-	b=NZ3mjRrEg2EtiUFCpCqET+/bxXrXmsGzFBgfAVcaJ5rXCUJYFbZiLLo3PiOAZVK9Em1z/cczOHCi0htavE7/t8gOR3uMcYnrYbgM8nPicSgzhBx9vC2VKzqqH3Dh6OJjUsXMt8EW4noaum3kMyhdzYfDF19VUTINdEQ5bA4zgX8=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hongzhen@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WB-pINd_1721632302;
-Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WB-pINd_1721632302)
+	t=1721632306; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=hHaKb27lHWEbC+x12j8wDscJsHdH6x3lDbJMIdIgzPo=;
+	b=hn7z4q5ZdIRcdy0nOlqSjXZpPYr+H8nr6mHYYL+DVoaaZpz3omd0fmLgm1Nl64lAuy/IKNKbjO4Tu2eBqjhlsLfW5B/EwEIrAN2PH5xJhxSLxLOLwKpmgngYPMTa+sV1qYKG+OmpMeM3BjloNN712CQ/TBjlHawsAGFAhTKKs1c=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hongzhen@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WB-qPQR_1721632304;
+Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WB-qPQR_1721632304)
           by smtp.aliyun-inc.com;
-          Mon, 22 Jul 2024 15:11:43 +0800
+          Mon, 22 Jul 2024 15:11:45 +0800
 From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/3] erofs-utils: lib: add bitops header
-Date: Mon, 22 Jul 2024 15:11:38 +0800
-Message-ID: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
+Subject: [PATCH v2 3/3] erofs-utils: lib: enhance erofs_rebuild_get_dentry with bloom filter
+Date: Mon, 22 Jul 2024 15:11:40 +0800
+Message-ID: <20240722071140.1416782-3-hongzhen@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
+References: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -54,75 +56,275 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Add bitops header for subsequent bloom filter implementation.
-This is borrowed from a part of the previous patch. See:
-https://lore.kernel.org/all/20230802091750.74181-3-jefflexu@linux.alibaba.com/.
+Add a bloom filter to exclude entries that are not in `pwd->i_subdirs`,
+thereby improving the performance of `erofs_rebuild_get_dentry`. Below
+are the results for different # of files in the same directory:
+
++---------+--------------------+
+| # files | time reduction (%) |
++---------+--------------------+
+|   1e4   |         55%        |
++---------+--------------------+
+|   1e5   |         98%        |
++---------+--------------------+
+|   2e5   |         98%        |
++---------+--------------------+
+|   3e5   |         99%        |
++---------+--------------------+
 
 Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
 ---
-v2: Rename the bitops functions.
-v1: https://lore.kernel.org/all/20240718054025.427439-1-hongzhen@linux.alibaba.com/
+v2: Changes since v1:
+	- move erofs_bloom_init() to erofs_super_init()
+	- make the # hash function and bit array size of the bloom filter configurable
+v1: https://lore.kernel.org/all/20240718054025.427439-3-hongzhen@linux.alibaba.com/
 ---
- include/erofs/bitops.h | 37 +++++++++++++++++++++++++++++++++++++
- lib/Makefile.am        |  1 +
- 2 files changed, 38 insertions(+)
- create mode 100644 include/erofs/bitops.h
+ include/erofs/config.h   |  2 ++
+ include/erofs/internal.h |  1 +
+ lib/rebuild.c            | 61 ++++++++++++++++++++++++++++++++++------
+ lib/super.c              | 27 ++++++++++++++++++
+ mkfs/main.c              | 20 +++++++++++++
+ 5 files changed, 103 insertions(+), 8 deletions(-)
 
-diff --git a/include/erofs/bitops.h b/include/erofs/bitops.h
-new file mode 100644
-index 0000000..fa31934
---- /dev/null
-+++ b/include/erofs/bitops.h
-@@ -0,0 +1,37 @@
-+/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-+#ifndef __EROFS_BITOPS_H
-+#define __EROFS_BITOPS_H
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index f8726b5..c322c9a 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -92,6 +92,8 @@ struct erofs_configure {
+ 	char *fs_config_file;
+ 	char *block_list_file;
+ #endif
++	u32 c_bloom_nrfuc;
++	unsigned long c_bloom_bitsize;
+ };
+ 
+ extern struct erofs_configure cfg;
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index d3dd676..ef7dd2d 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -402,6 +402,7 @@ struct erofs_map_dev {
+ };
+ 
+ /* super.c */
++int erofs_super_init(struct erofs_sb_info *sbi);
+ int erofs_read_superblock(struct erofs_sb_info *sbi);
+ void erofs_put_super(struct erofs_sb_info *sbi);
+ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index 9e8bf8f..3fd3ea0 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -15,6 +15,7 @@
+ #include "erofs/xattr.h"
+ #include "erofs/blobchunk.h"
+ #include "erofs/internal.h"
++#include "erofs/bloom_filter.h"
+ #include "liberofs_uuid.h"
+ 
+ #ifdef HAVE_LINUX_AUFS_TYPE_H
+@@ -62,14 +63,48 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+ 		char *path, bool aufs, bool *whout, bool *opq, bool to_head)
+ {
+ 	struct erofs_dentry *d = NULL;
+-	unsigned int len = strlen(path);
+-	char *s = path;
++	unsigned int len, p = 0;
++	char *s;
++	struct erofs_sb_info *sbi = pwd->sbi;
++	char buf[4096];
+ 
+ 	*whout = false;
+ 	*opq = false;
+ 
++	s = pwd->i_srcpath;
++	len = strlen(pwd->i_srcpath);
++	/* normalize the pwd path, e.g., /./../xxx/yyy -> /xxx/yyy */
++	buf[p++] = '/';
++	while (s < pwd->i_srcpath + len) {
++		char *slash = memchr(s, '/', pwd->i_srcpath + len - s);
++		if (slash) {
++			if (s == slash) {
++				while(*++s == '/');
++				continue;;
++			}
++			*slash = '\0';
++		}
++		if (memcmp(s, ".", 2) && memcmp(s, "..", 3)) {
++			memcpy(buf + p, s, strlen(s));
++			p += strlen(s);
++			buf[p++] = '/';
 +
-+#ifdef __cplusplus
-+extern "C"
++		}
++		if (slash) {
++			*slash = '/';
++			s = slash + 1;
++		} else{
++			break;
++		}
++	}
++	if (buf[p - 1] != '/')
++		buf[p++] = '/';
++
++	s = path;
++	len = strlen(path);
+ 	while (s < path + len) {
+ 		char *slash = memchr(s, '/', path + len - s);
++		int bloom, slen;
+ 
+ 		if (slash) {
+ 			if (s == slash) {
+@@ -97,13 +132,19 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+ 				}
+ 			}
+ 
+-			list_for_each_entry(d, &pwd->i_subdirs, d_child) {
+-				if (!strcmp(d->name, s)) {
+-					if (d->type != EROFS_FT_DIR && slash)
+-						return ERR_PTR(-EIO);
+-					inode = d->inode;
+-					break;
++			slen = strlen(s);
++			memcpy(buf + p, s, slen);
++			p += slen;
++			if ((bloom = erofs_bloom_test(sbi, buf, p)) > 0) {
++				list_for_each_entry(d, &pwd->i_subdirs, d_child) {
++					if (!strcmp(d->name, s)) {
++						if (d->type != EROFS_FT_DIR && slash)
++							return ERR_PTR(-EIO);
++						inode = d->inode;
++						break;
++					}
+ 				}
++
+ 			}
+ 
+ 			if (inode) {
+@@ -124,6 +165,10 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+ 					return d;
+ 				pwd = d->inode;
+ 			}
++			if (!bloom && erofs_bloom_add(sbi, buf, p))
++				return ERR_PTR(-EINVAL);
++			if (slash)
++				buf[p++] = '/';
+ 		}
+ 		if (slash) {
+ 			*slash = '/';
+diff --git a/lib/super.c b/lib/super.c
+index 45233c4..39c3bfd 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -4,9 +4,14 @@
+  */
+ #include <string.h>
+ #include <stdlib.h>
++#include <time.h>
+ #include "erofs/print.h"
+ #include "erofs/xattr.h"
+ #include "erofs/cache.h"
++#include "erofs/bloom_filter.h"
++
++#define DEFAULT_BLOOM_NRFUNC	5
++#define DEFAULT_BLOOM_SIZE	1000000
+ 
+ static bool check_layout_compatibility(struct erofs_sb_info *sbi,
+ 				       struct erofs_super_block *dsb)
+@@ -72,6 +77,27 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
+ 	return 0;
+ }
+ 
++int erofs_super_init(struct erofs_sb_info *sbi)
 +{
-+#endif
++	int err;
 +
-+#include "defs.h"
++	srand(time(NULL));
++	if (cfg.c_bloom_nrfuc && cfg.c_bloom_bitsize)
++		err = erofs_bloom_init(sbi, cfg.c_bloom_nrfuc,
++				       cfg.c_bloom_bitsize, rand());
++	else
++		err = erofs_bloom_init(sbi, DEFAULT_BLOOM_NRFUNC,
++				       DEFAULT_BLOOM_SIZE, rand());
++	if (err) {
++		erofs_err("failed to init bloom filter");
++		goto exit;
++	}
 +
-+static inline void __set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+
-+	*p  |= mask;
++	err = 0;
++exit:
++	return err;
 +}
 +
-+static inline void __clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+
-+	*p &= ~mask;
-+}
-+
-+static inline int __test_bit(int nr, const volatile unsigned long *addr)
-+{
-+	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
-+}
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 2cb4cab..6b52470 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -20,6 +20,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
-       $(top_srcdir)/include/erofs/io.h \
-       $(top_srcdir)/include/erofs/list.h \
-       $(top_srcdir)/include/erofs/print.h \
-+      $(top_srcdir)/include/erofs/bitops.h \
-       $(top_srcdir)/include/erofs/tar.h \
-       $(top_srcdir)/include/erofs/trace.h \
-       $(top_srcdir)/include/erofs/xattr.h \
+ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ {
+ 	u8 data[EROFS_MAX_BLOCK_SIZE];
+@@ -153,6 +179,7 @@ void erofs_put_super(struct erofs_sb_info *sbi)
+ 		erofs_buffer_exit(sbi->bmgr);
+ 		sbi->bmgr = NULL;
+ 	}
++	erofs_bloom_exit(sbi);
+ }
+ 
+ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 20f12fc..21003bc 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -31,6 +31,7 @@
+ #include "../lib/liberofs_private.h"
+ #include "../lib/liberofs_uuid.h"
+ #include "../lib/compressor.h"
++#include "erofs/bloom_filter.h"
+ 
+ static struct option long_options[] = {
+ 	{"version", no_argument, 0, 'V'},
+@@ -81,6 +82,7 @@ static struct option long_options[] = {
+ 	{"zfeature-bits", required_argument, NULL, 521},
+ 	{"clean", optional_argument, NULL, 522},
+ 	{"incremental", optional_argument, NULL, 523},
++	{"bloom-filter", optional_argument, NULL, 524},
+ 	{0, 0, 0, 0},
+ };
+ 
+@@ -179,6 +181,9 @@ static void usage(int argc, char **argv)
+ 		"                                            headerball=file data is omited in the source stream)\n"
+ 		" --ovlfs-strip=<0,1>   strip overlayfs metadata in the target image (e.g. whiteouts)\n"
+ 		" --quiet               quiet execution (do not write anything to standard output.)\n"
++		" --bloom-filter=X      boost up images generation with bloom filter\n"
++		"			(X=n,s; n=# of hash functions (default 5),\n"
++		"				s=bit array size (default 1e6))\n"
+ #ifndef NDEBUG
+ 		" --random-pclusterblks randomize pclusterblks for big pcluster (debugging only)\n"
+ 		" --random-algorithms   randomize per-file algorithms (debugging only)\n"
+@@ -820,6 +825,20 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			}
+ 			incremental_mode = (opt == 523);
+ 			break;
++		case 524:
++			cfg.c_bloom_nrfuc = strtol(optarg, &endptr, 0);
++			if (*endptr != ',') {
++				erofs_err("invalid --bloom-filter=%s", optarg);
++				cfg.c_bloom_nrfuc = 0;
++				return -EINVAL;
++			}
++			cfg.c_bloom_bitsize = strtol(endptr + 1, &endptr, 0);
++			if (*endptr != '\0') {
++				erofs_err("invalid --bloom-filter=%s", optarg);
++				cfg.c_bloom_bitsize = 0;
++				return -EINVAL;
++			}
++			break;
+ 		case 'V':
+ 			version();
+ 			exit(0);
+@@ -1344,6 +1363,7 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	erofs_inode_manager_init();
++	erofs_super_init(&g_sbi);
+ 
+ 	if (tar_mode) {
+ 		root = erofs_rebuild_make_root(&g_sbi);
 -- 
 2.43.5
 
