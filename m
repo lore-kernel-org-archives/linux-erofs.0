@@ -4,42 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05D54C3DA59
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 07:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6A7CC3DA59
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 07:12:05 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NinS8HIP;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NZ3mjRrE;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WSBKn4qkVz3cWd
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 17:11:57 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WSBKw3HcYz3cYG
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jul 2024 17:12:04 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NinS8HIP;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NZ3mjRrE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WSBKf0Y0sz3cLj
-	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jul 2024 17:11:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WSBKd2vq6z3c75
+	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jul 2024 17:11:47 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1721632306; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=T666ge3oh449VS7RHkIISA1MbnCHF2aS5Ix8/om3Qb0=;
-	b=NinS8HIPJukZsq1DstQm4msm7IkpoB5RejxtJk2JBUhJBnqhShMl5++TtbO4jemM/y4jklAUreD6Gz1q2q0yHrBmUWx2+25HOTTguD8abNLvrVMSLw+43o48uGBCm+rrEEmpSLsZNn2vUs5lEc2Xmg53T5MlVtZDTjPIpBHgD6I=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hongzhen@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WB-Ssvx_1721632303;
-Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WB-Ssvx_1721632303)
+	t=1721632303; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=LJkfJ4cDKLy+LBQYqj6mWU0wVVBAPAQNTqyxsXIlgLA=;
+	b=NZ3mjRrEg2EtiUFCpCqET+/bxXrXmsGzFBgfAVcaJ5rXCUJYFbZiLLo3PiOAZVK9Em1z/cczOHCi0htavE7/t8gOR3uMcYnrYbgM8nPicSgzhBx9vC2VKzqqH3Dh6OJjUsXMt8EW4noaum3kMyhdzYfDF19VUTINdEQ5bA4zgX8=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014031;MF=hongzhen@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WB-pINd_1721632302;
+Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WB-pINd_1721632302)
           by smtp.aliyun-inc.com;
-          Mon, 22 Jul 2024 15:11:44 +0800
+          Mon, 22 Jul 2024 15:11:43 +0800
 From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 2/3] erofs-utils: lib: add bloom filter
-Date: Mon, 22 Jul 2024 15:11:39 +0800
-Message-ID: <20240722071140.1416782-2-hongzhen@linux.alibaba.com>
+Subject: [PATCH v2 1/3] erofs-utils: lib: add bitops header
+Date: Mon, 22 Jul 2024 15:11:38 +0800
+Message-ID: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
-References: <20240722071140.1416782-1-hongzhen@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -56,195 +54,75 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Introduce following bloom filter helpers:
-
-	erofs_bloom_init
-	erofs_bloom_add
-	erofs_bloom_test
-	erofs_bloom_exit
+Add bitops header for subsequent bloom filter implementation.
+This is borrowed from a part of the previous patch. See:
+https://lore.kernel.org/all/20230802091750.74181-3-jefflexu@linux.alibaba.com/.
 
 Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
 ---
-v2: Fold `struct bitmap` into `struct erofs_bloom_filter` to make it look cleaner.
-v1: https://lore.kernel.org/all/20240718054025.427439-2-hongzhen@linux.alibaba.com/
+v2: Rename the bitops functions.
+v1: https://lore.kernel.org/all/20240718054025.427439-1-hongzhen@linux.alibaba.com/
 ---
- include/erofs/bloom_filter.h | 31 ++++++++++++
- include/erofs/internal.h     |  2 +
- lib/Makefile.am              |  2 +-
- lib/bloom_filter.c           | 93 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 127 insertions(+), 1 deletion(-)
- create mode 100644 include/erofs/bloom_filter.h
- create mode 100644 lib/bloom_filter.c
+ include/erofs/bitops.h | 37 +++++++++++++++++++++++++++++++++++++
+ lib/Makefile.am        |  1 +
+ 2 files changed, 38 insertions(+)
+ create mode 100644 include/erofs/bitops.h
 
-diff --git a/include/erofs/bloom_filter.h b/include/erofs/bloom_filter.h
+diff --git a/include/erofs/bitops.h b/include/erofs/bitops.h
 new file mode 100644
-index 0000000..6f30190
+index 0000000..fa31934
 --- /dev/null
-+++ b/include/erofs/bloom_filter.h
-@@ -0,0 +1,31 @@
++++ b/include/erofs/bitops.h
+@@ -0,0 +1,37 @@
 +/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-+#ifndef __EROFS_BLOOM_FILTER_H
-+#define __EROFS_BLOOM_FILTER_H
++#ifndef __EROFS_BITOPS_H
++#define __EROFS_BITOPS_H
 +
 +#ifdef __cplusplus
 +extern "C"
 +{
 +#endif
 +
-+#include "internal.h"
-+#include "bitops.h"
++#include "defs.h"
 +
-+struct erofs_bloom_filter {
-+        unsigned long size;
-+        unsigned long *map;
-+        unsigned long bitmap_mask;
-+        u32 hash_seed;
-+        u32 nr_funcs;
-+};
++static inline void __set_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 +
-+int erofs_bloom_init(struct erofs_sb_info *sbi, u32 nr_funcs,
-+                     unsigned long entries, u32 seed);
-+long erofs_bloom_add(struct erofs_sb_info *sbi, void *data, size_t length);
-+long erofs_bloom_test(struct erofs_sb_info *sbi, void *data, size_t length);
-+void erofs_bloom_exit(struct erofs_sb_info *sbi);
++	*p  |= mask;
++}
++
++static inline void __clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++
++	*p &= ~mask;
++}
++
++static inline int __test_bit(int nr, const volatile unsigned long *addr)
++{
++	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
++}
 +
 +#ifdef __cplusplus
 +}
 +#endif
 +
 +#endif
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 708e51e..d3dd676 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -74,6 +74,7 @@ struct erofs_xattr_prefix_item {
- #define EROFS_PACKED_NID_UNALLOCATED	-1
- 
- struct erofs_mkfs_dfops;
-+struct erofs_bloom_filter;
- struct erofs_sb_info {
- 	struct erofs_device_info *devs;
- 	char *devname;
-@@ -134,6 +135,7 @@ struct erofs_sb_info {
- #endif
- 	struct erofs_bufmgr *bmgr;
- 	bool useqpl;
-+	struct erofs_bloom_filter *bf;
- };
- 
- #define EROFS_SUPER_END (EROFS_SUPER_OFFSET + sizeof(struct erofs_super_block))
 diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 6b52470..78140e7 100644
+index 2cb4cab..6b52470 100644
 --- a/lib/Makefile.am
 +++ b/lib/Makefile.am
-@@ -35,7 +35,7 @@ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
- 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
- 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
- 		      fragments.c dedupe.c uuid_unparse.c uuid.c tar.c \
--		      block_list.c xxhash.c rebuild.c diskbuf.c
-+		      block_list.c xxhash.c rebuild.c diskbuf.c bloom_filter.c
- 
- liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
- if ENABLE_LZ4
-diff --git a/lib/bloom_filter.c b/lib/bloom_filter.c
-new file mode 100644
-index 0000000..f35735b
---- /dev/null
-+++ b/lib/bloom_filter.c
-@@ -0,0 +1,93 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-+#include "erofs/bloom_filter.h"
-+#include "xxhash.h"
-+#include <stdlib.h>
-+
-+static u32 erofs_bloom_hash(struct erofs_bloom_filter *bf, void *data,
-+                            size_t length, u32 index)
-+{
-+        u32 h;
-+
-+        h = xxh32(data, length, bf->hash_seed + index);
-+        return h & bf->bitmap_mask;
-+}
-+
-+/*
-+ * The optimal bit array size that minimizes the false positive is
-+ * m * k / ln(2) where m is the # of elements inserted into the bloom
-+ * filter and k is the # of hash functions. Here, 1.44 is used to
-+ * approximate 1 / ln(2).
-+ */
-+int erofs_bloom_init(struct erofs_sb_info *sbi, u32 nr_funcs,
-+                     unsigned long entries, u32 seed)
-+{
-+        struct erofs_bloom_filter *bf;
-+
-+        bf = calloc(1, sizeof(struct erofs_bloom_filter));
-+        if (!bf)
-+                return -EINVAL;
-+
-+        bf->nr_funcs = nr_funcs;
-+        bf->hash_seed = seed;
-+        bf->size = roundup_pow_of_two(((long)(entries * nr_funcs * 1.44)));
-+        bf->bitmap_mask = bf->size - 1;
-+        bf->map = calloc(BITS_TO_LONGS(bf->size), sizeof(long));
-+        if (!bf->map) {
-+                free(bf);
-+                return -ENOMEM;
-+        }
-+        sbi->bf = bf;
-+
-+        return 0;
-+}
-+
-+long erofs_bloom_add(struct erofs_sb_info *sbi, void *data, size_t length)
-+{
-+        struct erofs_bloom_filter *bf;
-+        u32 i, h;
-+
-+        bf = sbi->bf;
-+        if (!bf)
-+                return -EINVAL;
-+
-+        for (i = 0; i < bf->nr_funcs; i ++) {
-+                h = erofs_bloom_hash(bf, data, length, i);
-+                __set_bit(h, bf->map);
-+        }
-+
-+        return 0;
-+}
-+
-+/*
-+ * Return negative error code on failure, 0 if the key is not in the bloom filter
-+ * and 1 if the key might be in the bloom filter.
-+ */
-+long erofs_bloom_test(struct erofs_sb_info *sbi, void *data, size_t length)
-+{
-+        u32 i, h;
-+        struct erofs_bloom_filter *bf;
-+
-+        bf = sbi->bf;
-+        if (!bf)
-+                return -EINVAL;
-+
-+        for (i = 0; i < bf->nr_funcs; i ++) {
-+                h = erofs_bloom_hash(bf, data, length, i);
-+                if (!__test_bit(h, bf->map))
-+                        return 0;
-+        }
-+
-+        return 1;
-+}
-+
-+void erofs_bloom_exit(struct erofs_sb_info *sbi)
-+{
-+        if (sbi->bf) {
-+                if (sbi->bf->map) {
-+                        free(sbi->bf->map);
-+                        sbi->bf->map = NULL;
-+                }
-+                free(sbi->bf);
-+                sbi->bf = NULL;
-+        }
-+}
+@@ -20,6 +20,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+       $(top_srcdir)/include/erofs/io.h \
+       $(top_srcdir)/include/erofs/list.h \
+       $(top_srcdir)/include/erofs/print.h \
++      $(top_srcdir)/include/erofs/bitops.h \
+       $(top_srcdir)/include/erofs/tar.h \
+       $(top_srcdir)/include/erofs/trace.h \
+       $(top_srcdir)/include/erofs/xattr.h \
 -- 
 2.43.5
 
