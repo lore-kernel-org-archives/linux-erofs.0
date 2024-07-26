@@ -4,52 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BDC49C3DA7F
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jul 2024 10:00:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A28DDC3DA49
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jul 2024 10:02:59 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YPqvbJDR;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YlM+/qtQ;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WVjst2Ngbz3dDT
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jul 2024 20:00:02 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WVjxG1Rgcz3dK5
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jul 2024 20:02:58 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YPqvbJDR;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=YlM+/qtQ;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WVjsn0L4xz2yvk
-	for <linux-erofs@lists.ozlabs.org>; Fri, 26 Jul 2024 19:59:57 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WVjx90Nd9z30Wd
+	for <linux-erofs@lists.ozlabs.org>; Fri, 26 Jul 2024 20:02:52 +1000 (AEST)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id D5338CE1349;
-	Fri, 26 Jul 2024 09:59:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0718CC32782;
-	Fri, 26 Jul 2024 09:59:52 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTP id 7E79CCE0B11;
+	Fri, 26 Jul 2024 10:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B56C32782;
+	Fri, 26 Jul 2024 10:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1721987995;
-	bh=IL2mDob2D8AP07ZpmBAbnW1muMQg83LKgAZuHdRHSQA=;
+	s=k20201202; t=1721988170;
+	bh=y3T7leRy9u9hWhekWEnrvGtNeI2sgTWgG2gCnKSw2PQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YPqvbJDR8u/xItCvxqxH3MqoQ/XFcNswt9WTmb99d4OwT3SGO08q7/OlwAJp9qQ9h
-	 wdnYw4XUXE7tXYUuvingrqpNHjK2C5x7OdwLIKyn/JyeoD2Od6vjo9m2r1w/XGpgED
-	 VKU3Be4YqYpcUIrbuPq8OR0tZb+oyMVbqRn++nP7O+eyiSTAb4jRSr6FRUceF5i58a
-	 +BadcJ9liT2EWVhHhSZFonca9lfEv5MCHwmbCTE+X8RNIMuUVOJ7eMA1cjwPQZKgNk
-	 KI8IkH4f4snxO8B20xnMZo+s/TQ1khbfwCY8pqc6GSpGeaMOXpk9SzlzWbm8wnI7vV
-	 eEP14XgJvWqNw==
-Message-ID: <beffc700-da06-4584-b234-f5240f09cd5d@kernel.org>
-Date: Fri, 26 Jul 2024 17:59:50 +0800
+	b=YlM+/qtQGfI8YrQqvKEu3N134dL5tNaJ6MPGalYwca1ppGNZIIEv0FfqunTkVDk0G
+	 z5lAB8Zyjd2QkiQ+G+FJgPfv2p52AHah8r+fzXfVmrXYZ/bHZj3xdxFP/hDjV2M/rB
+	 PKtV+IoQMQu1pEU51ncTh3Paqyz6zDDFqMPLIf0iJQPeQQ8CXYaNybb0Z72MqX/S6G
+	 2J12R5RlVZLEhWe2G9z6AX8vMkx/GbxtseDQD75nN8TFF4WaJ0dBJdI2NgtYoiVf+r
+	 Lr4MwF9DfZ105rauj+gKANFn4Cwl+gDw0JEUFKju/T9k7UbIipEJPUU+slOzpcMdIM
+	 YruHPjmyzSW9Q==
+Message-ID: <0b16f00a-71d5-46f7-adc1-1f48f6e68745@kernel.org>
+Date: Fri, 26 Jul 2024 18:02:46 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH -next v3] erofs: add support for FS_IOC_GETFSSYSFSPATH
-To: Huang Xiaojia <huangxiaojia2@huawei.com>, xiang@kernel.org,
- huyue2@coolpad.com, jefflexu@linux.alibaba.com, dhavale@google.com,
- yuehaibing@huawei.com
-References: <20240720082335.441563-1-huangxiaojia2@huawei.com>
+Subject: Re: [PATCH] erofs: convert comma to semicolon
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, Chen Ni <nichen@iscas.ac.cn>,
+ xiang@kernel.org, huyue2@coolpad.com, jefflexu@linux.alibaba.com,
+ dhavale@google.com
+References: <20240724020721.2389738-1-nichen@iscas.ac.cn>
+ <96238616-071e-43f8-9a14-5d4beab64217@linux.alibaba.com>
 Content-Language: en-US
 From: Chao Yu <chao@kernel.org>
-In-Reply-To: <20240720082335.441563-1-huangxiaojia2@huawei.com>
+In-Reply-To: <96238616-071e-43f8-9a14-5d4beab64217@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -63,17 +64,21 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2024/7/20 16:23, Huang Xiaojia wrote:
-> FS_IOC_GETFSSYSFSPATH ioctl exposes /sys/fs path of a given filesystem,
-> potentially standarizing sysfs reporting. This patch add support for
-> FS_IOC_GETFSSYSFSPATH for erofs, "erofs/<dev>" will be outputted for bdev
-> cases, "erofs/[domain_id,]<fs_id>" will be outputted for fscache cases.
+On 2024/7/24 10:45, Gao Xiang wrote:
 > 
-> Signed-off-by: Huang Xiaojia <huangxiaojia2@huawei.com>
+> 
+> On 2024/7/24 10:07, Chen Ni wrote:
+>> Replace a comma between expression statements by a semicolon.
+>>
+>> Fixes: 84a2ceefff99 ("erofs: tidy up stream decompressors")
+> 
+> I think typos are bugfixes, so I will drop this label.
+> 
+>> Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
 
 Reviewed-by: Chao Yu <chao@kernel.org>
 
