@@ -4,62 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB00CC3DA61
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jul 2024 16:58:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 917DDC3DA4A
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Jul 2024 16:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1722272303;
+	s=201707; t=1722272365;
 	bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
 	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=ihVpl8hdtczKD8yb+uT5oVd2TmJYIuAjOuscU75VaYfxNAwOu7jHB+fFgvDQwc2p2
-	 J9Cu1THCKzrvlWHCdwnfjC8g7tOSo3GrSxXnQfOue+Ae11oanOB01b1MfJbZGUOK95
-	 qNpmTDvGwFjklC8s5hIzzhUTp0nO80ecGDwvIGcCN8kJeZx7XRNBhUiftW8Vid9h4m
-	 BBb1CR6ZdnBip6YPcXvCrZbEH9ueYocLzIzVr+t5E61ltHcuk/Cb0QHh0gnxiOFcZk
-	 T0CW9sIe7pI9AM1o5Bf0Mr8V6d7F2ElAm37TqouXviea1Vu/AMOP0QbwLa1WDQ2wue
-	 0tjcnC6fdIuDg==
+	b=XQapAmkZ2MW7yZI741wa+3+2vWzR/JvoksIrGGuPWnuJauqt5/5rUqlArSoKS0SFF
+	 E1pVdcK1WQSqjTsU4aQSlU2ydjWYNTuo7SvIvxHPQD2O52XbR0qDc8OSLbLqqejhLn
+	 9ufQrmjyklWhXZNg5WezPh3BRtMQS8+DAcd9RCR3GC2moZvaWs7UWVoti33Af6UNVp
+	 tRfgJcLNRtq3mJkagwRoNfWzRbUsN4EeUyziL3Q53yM7Bear25j4rJOhiRhOpog9A9
+	 HFjz5ojYwdbf4jQZJcHQ0cLNKhCh+e5E5KXCK3/G4Yz/ccXXsb20ZlKzI0M3fLqxjf
+	 JwKm9uMS/Hd9g==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WXl1C4Nwqz3ccL
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Jul 2024 02:58:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WXl2P2J6Lz3ckQ
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 Jul 2024 02:59:25 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=DyTG9/In;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=dCVZqim2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::42e; helo=mail-wr1-x42e.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::434; helo=mail-wr1-x434.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WXl15140Dz3cYr
-	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Jul 2024 02:58:16 +1000 (AEST)
-Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-3687ea0521cso2004755f8f.1
-        for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jul 2024 09:58:16 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WXl2H5Zqwz3cYr
+	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Jul 2024 02:59:19 +1000 (AEST)
+Received: by mail-wr1-x434.google.com with SMTP id ffacd0b85a97d-368f92df172so1573369f8f.2
+        for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jul 2024 09:59:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722272292; x=1722877092;
+        d=1e100.net; s=20230601; t=1722272356; x=1722877156;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
         bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
-        b=jR0VuecQCbTFGa+kCr5TMqbbyl+YCWS+RgwM04uHBcAbWLlalJmEv5Juz9UTaEit+I
-         jCcBkuStsrh+t+mzhAUwEzyZVA1yW3aeF6lv8STScsKUxF4R9B8tm3qV5iRCItij9f/M
-         etAyo4fb3qYLBR6mzaMIlD/9UDB63CQvkI6cCQE0rxCvUtglleeVDhWe5ek0GaLKut0i
-         I2QYzxXLQ7zo1Nw2Xlc9kkmH8XCM9X6dkxUAbOtqUc23FYEo4FOXptgwyWD0UzYUkeSb
-         bQ30HrO5/eKqKtp/fDp94stMeyCuq9B6fKuDcFJFVqSiL/iH+InOD2OBaruUHj7dATH+
-         mdtg==
-X-Gm-Message-State: AOJu0YxQokwp3r6IQWCfdM7v3noz22p5SrPbKlfyqlAOoXiTS42gSu4J
-	SB0De1g9R2/LjbFiLhfI6kpPZ7eDdu6QWO/mb92InSDHzF1/tQago8a/F1sHPzoo5fQBPhWXcvF
-	5RWtvYV0RMNGhYIFjEjr4sAXnaSBcrvbBWhbebIf26kWgzI9euHWn
-X-Google-Smtp-Source: AGHT+IH64Aa/t1OG2tAIyvdm44Gw4X9glX+ONcc1tTRWnR3s+Wu1ixkCtL6seIL00VgSYiXXMoa9S0Rloxt13eAM0eo=
-X-Received: by 2002:a5d:6a02:0:b0:368:6655:b1e5 with SMTP id
- ffacd0b85a97d-36b5d2e82a9mr5999352f8f.63.1722272291370; Mon, 29 Jul 2024
- 09:58:11 -0700 (PDT)
+        b=hfuSS4nkuYm0wzkaOdAD/5mGoz2vPrPSCCzYHPNBAgdO5JU30wOJccGArJuEwqMfAa
+         wQqLsAcKFGc79gNV3fvOlYyplNEehh/8PTzCrgQ64wW76ybIqbhMkIb9PzHRyD7z/COr
+         WdxQzL43Y72VtdBleqMf3iup5QS95u+/PozGxIToTHMTjWdUUHQ9SVnkJSxrfbvZfl+K
+         PtOztmEhd/SsnunuJtAOWUQR9OVZa9SrHcUPLkaFqz4rRxu35w8YJBpL906tNFDtRMGF
+         iWc1sFce0wnWrbki6VNmMEtRxSGXUGU0ukOiqhh7ks1r2nr4TUNohRP4IvakUAsjOD6f
+         +bqw==
+X-Gm-Message-State: AOJu0YyQn+6EN+4wMBYHsyv+ezHCOHt1OkllFSoupp0b6jnE/JOzIuKL
+	+Ohv9H3Jt+wfw2kq4LNoyr+YzbpkiAy+cfc1FAL6w/nlO/pzsQxDPDRRAOYqW1+gMnXgUqv/15J
+	YEAj0KVqdRujpatjAU5gq7zIskXUo58ZxUdJU4n3JNofFwnNahc9/e0U=
+X-Google-Smtp-Source: AGHT+IGlMhll40m5dkjsfZVSDrtEpSeX2hMVM6VTPFN3zmsPBBwVvo+DIyNLULkwwDn2nrtnVfzYQMfGOlgXsBnWzR4=
+X-Received: by 2002:a5d:6e91:0:b0:367:99a7:42db with SMTP id
+ ffacd0b85a97d-36b5d0c9022mr4566704f8f.51.1722272355417; Mon, 29 Jul 2024
+ 09:59:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20240729112524.930460-1-hsiangkao@linux.alibaba.com>
-In-Reply-To: <20240729112524.930460-1-hsiangkao@linux.alibaba.com>
-Date: Mon, 29 Jul 2024 09:57:59 -0700
-Message-ID: <CAB=BE-RLKGVpoiCDL-ev5AnZzYe7hUFxgJVwJiVR4oB_ZJdD9g@mail.gmail.com>
-Subject: Re: [PATCH] erofs-utils: lib: uuid: fix compilation error if
- __NR_getrandom doesn't exist
+References: <20240729075027.712339-1-hsiangkao@linux.alibaba.com>
+In-Reply-To: <20240729075027.712339-1-hsiangkao@linux.alibaba.com>
+Date: Mon, 29 Jul 2024 09:59:04 -0700
+Message-ID: <CAB=BE-Seda4hPMqVMX1RHENDEg7miC7cgH=0ppHW6ZMghR0ONw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] erofs-utils: lib: allow xattr e_name_index as 0
 To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
