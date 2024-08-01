@@ -4,56 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D3F9C3DA64
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Aug 2024 13:00:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1722517205;
-	bh=mFUGdWsSDpq7kJy9KqnKwrVR7zE2ugLpgGVL9GqTHqE=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:
-	 From;
-	b=E0kfwAh9VPhuIccuUWjRc0FyfuQSSECscuGDHlM4L2y1Efk1E06esT6POqton03KO
-	 ZRgtEa+pAHx5vZyA5nY1A1ULKowmp2L78OxhyDFbS86v/OrCMntgWWddPq1qHRfhLM
-	 S5/JWTWCCWBcIDnBeHUkgBOI+q5hync3jYIzH55iYBIz6/FjehdejFLLDf7sst1y8g
-	 aEjq0zsB5eXZU5ssw23yqOIAiyXGuD3IeCSLleoTa+4tHH0LN32LKErXs55FPhEbhZ
-	 14yL7jGo4hyjSnbMpEp3FXFPnDiJfz2WO1oA2mdjmSMeYyZCIX151ivXIoRWB0Oqle
-	 RXC6NbnsPalxQ==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A38C9C3DA64
+	for <linux-erofs@archiver.kernel.org>; Thu,  1 Aug 2024 13:07:58 +0000 (UTC)
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hzo7sshw;
+	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WZTZs14grz3dL2
-	for <linux-erofs@archiver.kernel.org>; Thu,  1 Aug 2024 23:00:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WZTlx2CSdz3dSk
+	for <linux-erofs@archiver.kernel.org>; Thu,  1 Aug 2024 23:07:57 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hzo7sshw;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WZTZk4ZLZz2yPq
-	for <linux-erofs@lists.ozlabs.org>; Thu,  1 Aug 2024 22:59:58 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WZTSJ0g5GzyNnn
-	for <linux-erofs@lists.ozlabs.org>; Thu,  1 Aug 2024 20:54:24 +0800 (CST)
-Received: from dggpeml500022.china.huawei.com (unknown [7.185.36.66])
-	by mail.maildlp.com (Postfix) with ESMTPS id A154818006C
-	for <linux-erofs@lists.ozlabs.org>; Thu,  1 Aug 2024 20:59:23 +0800 (CST)
-Received: from [10.67.111.104] (10.67.111.104) by
- dggpeml500022.china.huawei.com (7.185.36.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.39; Thu, 1 Aug 2024 20:59:23 +0800
-Message-ID: <216d4c7f-66c0-49e7-89ef-969576b21c13@huawei.com>
-Date: Thu, 1 Aug 2024 20:59:22 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WZTlp4H69z304l
+	for <linux-erofs@lists.ozlabs.org>; Thu,  1 Aug 2024 23:07:48 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1722517664; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=UDdqzqcOpnyvDBGC4wa7H8c+PBL3yZcFFABZ2FxV0is=;
+	b=hzo7sshwBZHdBgZHCkGBRe9aD6NbVXa8/tHjnM6M2yw8DC+AvYnkTf+VSw+gGU9fuDzhKdDoHIIAxxVnDqjrAC2yLTTH6ERZhReE3Br//WrN7qHufnx5T46MA82QyD10H9jAfBhUvevqhGP76FwXUW6HFt4GgwfvYDEyXXj3L40=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WBtoPmc_1722517662;
+Received: from 30.97.48.193(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WBtoPmc_1722517662)
+          by smtp.aliyun-inc.com;
+          Thu, 01 Aug 2024 21:07:43 +0800
+Message-ID: <e1653f52-1a3d-4730-9f4b-e00cecc69188@linux.alibaba.com>
+Date: Thu, 1 Aug 2024 21:07:41 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] erofs: simplify readdir operation
-Content-Language: en-US
-To: <linux-erofs@lists.ozlabs.org>
+To: Hongbo Li <lihongbo22@huawei.com>, linux-erofs@lists.ozlabs.org
 References: <20240801112622.2164029-1-hongzhen@linux.alibaba.com>
  <6c91643e-f55b-4998-b2b2-8eaa3ad747f3@linux.alibaba.com>
  <0f83044e-5024-4c99-a7f8-323cc2b2abe0@linux.alibaba.com>
-In-Reply-To: <0f83044e-5024-4c99-a7f8-323cc2b2abe0@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+ <216d4c7f-66c0-49e7-89ef-969576b21c13@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <216d4c7f-66c0-49e7-89ef-969576b21c13@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.111.104]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500022.china.huawei.com (7.185.36.66)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,144 +57,47 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Hongbo Li <lihongbo22@huawei.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
 
 
-On 2024/8/1 19:35, Hongzhen Luo wrote:
+On 2024/8/1 20:59, Hongbo Li via Linux-erofs wrote:
 > 
-> On 2024/8/1 19:31, Gao Xiang wrote:
+> 
+> On 2024/8/1 19:35, Hongzhen Luo wrote:
 >>
->>
->> On 2024/8/1 19:26, Hongzhen Luo wrote:
->>>   - Use i_size instead of i_size_read() due to immutable fses;
+>> On 2024/8/1 19:31, Gao Xiang wrote:
 >>>
->>>   - Get rid of an unneeded goto since erofs_fill_dentries() also works;
 >>>
->>>   - Remove unnecessary lines.
+>>> On 2024/8/1 19:26, Hongzhen Luo wrote:
+>>>>   - Use i_size instead of i_size_read() due to immutable fses;
+>>>>
+>>>>   - Get rid of an unneeded goto since erofs_fill_dentries() also works;
+>>>>
+>>>>   - Remove unnecessary lines.
+>>>>
+>>>> Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+>>>> ---
 >>>
->>> Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
->>> ---
->>
->> What's the difference from the previous version? why not marking
->> it as v2?
->>
->> Thanks,
->> Gao Xiang
->>
-> The previous version was corrupted and couldn't apply the patch using 
-> `git am`. Sorry, I didn't write a changelog. I will provide a version 
-> with the changelog added...
-May be he also means the subject should be marked [PATCH v..]
+>>> What's the difference from the previous version? why not marking
+>>> it as v2?
+>>>
+>>> Thanks,
+>>> Gao Xiang
+>>>
+>> The previous version was corrupted and couldn't apply the patch using `git am`. Sorry, I didn't write a changelog. I will provide a version with the changelog added...
+> May be he also means the subject should be marked [PATCH v..]
+> 
+
+Yes, I've told him offline.  It seems like spam flooding anyway :(
 
 Thanks,
-Hongbo
+Gao Xiang
 
-> 
 > Thanks,
-> Hongzhen Luo
+> Hongbo
 > 
->>>   fs/erofs/dir.c      | 35 ++++++++++++-----------------------
->>>   fs/erofs/internal.h |  2 +-
->>>   2 files changed, 13 insertions(+), 24 deletions(-)
->>>
->>> diff --git a/fs/erofs/dir.c b/fs/erofs/dir.c
->>> index 2193a6710c8f..c3b90abdee37 100644
->>> --- a/fs/erofs/dir.c
->>> +++ b/fs/erofs/dir.c
->>> @@ -8,19 +8,15 @@
->>>     static int erofs_fill_dentries(struct inode *dir, struct 
->>> dir_context *ctx,
->>>                      void *dentry_blk, struct erofs_dirent *de,
->>> -                   unsigned int nameoff, unsigned int maxsize)
->>> +                   unsigned int nameoff0, unsigned int maxsize)
->>>   {
->>> -    const struct erofs_dirent *end = dentry_blk + nameoff;
->>> +    const struct erofs_dirent *end = dentry_blk + nameoff0;
->>>         while (de < end) {
->>> -        const char *de_name;
->>> +        unsigned char d_type = fs_ftype_to_dtype(de->file_type);
->>> +        unsigned int nameoff = le16_to_cpu(de->nameoff);
->>> +        const char *de_name = (char *)dentry_blk + nameoff;
->>>           unsigned int de_namelen;
->>> -        unsigned char d_type;
->>> -
->>> -        d_type = fs_ftype_to_dtype(de->file_type);
->>> -
->>> -        nameoff = le16_to_cpu(de->nameoff);
->>> -        de_name = (char *)dentry_blk + nameoff;
->>>             /* the last dirent in the block? */
->>>           if (de + 1 >= end)
->>> @@ -52,21 +48,20 @@ static int erofs_readdir(struct file *f, struct 
->>> dir_context *ctx)
->>>       struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
->>>       struct super_block *sb = dir->i_sb;
->>>       unsigned long bsz = sb->s_blocksize;
->>> -    const size_t dirsize = i_size_read(dir);
->>> -    unsigned int i = erofs_blknr(sb, ctx->pos);
->>>       unsigned int ofs = erofs_blkoff(sb, ctx->pos);
->>>       int err = 0;
->>>       bool initial = true;
->>>         buf.mapping = dir->i_mapping;
->>> -    while (ctx->pos < dirsize) {
->>> +    while (ctx->pos < dir->i_size) {
->>> +        erofs_off_t dbstart = ctx->pos - ofs;
->>>           struct erofs_dirent *de;
->>>           unsigned int nameoff, maxsize;
->>>   -        de = erofs_bread(&buf, erofs_pos(sb, i), EROFS_KMAP);
->>> +        de = erofs_bread(&buf, dbstart, EROFS_KMAP);
->>>           if (IS_ERR(de)) {
->>>               erofs_err(sb, "fail to readdir of logical block %u of 
->>> nid %llu",
->>> -                  i, EROFS_I(dir)->nid);
->>> +                  erofs_blknr(sb, dbstart), EROFS_I(dir)->nid);
->>>               err = PTR_ERR(de);
->>>               break;
->>>           }
->>> @@ -79,25 +74,19 @@ static int erofs_readdir(struct file *f, struct 
->>> dir_context *ctx)
->>>               break;
->>>           }
->>>   -        maxsize = min_t(unsigned int, dirsize - ctx->pos + ofs, bsz);
->>> -
->>> +        maxsize = min_t(unsigned int, dir->i_size - dbstart, bsz);
->>>           /* search dirents at the arbitrary position */
->>>           if (initial) {
->>>               initial = false;
->>> -
->>>               ofs = roundup(ofs, sizeof(struct erofs_dirent));
->>> -            ctx->pos = erofs_pos(sb, i) + ofs;
->>> -            if (ofs >= nameoff)
->>> -                goto skip_this;
->>> +            ctx->pos = dbstart + ofs;
->>>           }
->>>             err = erofs_fill_dentries(dir, ctx, de, (void *)de + ofs,
->>>                         nameoff, maxsize);
->>>           if (err)
->>>               break;
->>> -skip_this:
->>> -        ctx->pos = erofs_pos(sb, i) + maxsize;
->>> -        ++i;
->>> +        ctx->pos = dbstart + maxsize;
->>>           ofs = 0;
->>>       }
->>>       erofs_put_metabuf(&buf);
->>> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
->>> index 736607675396..45dc15ebd870 100644
->>> --- a/fs/erofs/internal.h
->>> +++ b/fs/erofs/internal.h
->>> @@ -220,7 +220,7 @@ struct erofs_buf {
->>>   };
->>>   #define __EROFS_BUF_INITIALIZER    ((struct erofs_buf){ .page = 
->>> NULL })
->>>   -#define erofs_blknr(sb, addr)    ((addr) >> (sb)->s_blocksize_bits)
->>> +#define erofs_blknr(sb, addr)    ((erofs_blk_t)((addr) >> 
->>> (sb)->s_blocksize_bits))
->>>   #define erofs_blkoff(sb, addr)    ((addr) & ((sb)->s_blocksize - 1))
->>>   #define erofs_pos(sb, blk)    ((erofs_off_t)(blk) << 
->>> (sb)->s_blocksize_bits)
->>>   #define erofs_iblks(i)    (round_up((i)->i_size, i_blocksize(i)) >> 
->>> (i)->i_blkbits)
+>>
+>> Thanks,
+>> Hongzhen Luo
