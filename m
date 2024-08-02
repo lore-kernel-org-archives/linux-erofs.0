@@ -4,40 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9B63C3DA64
-	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 01:55:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04CDDC3DA64
+	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 01:55:57 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xl0PXqUg;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qgtKSzwE;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WZpnw74Fjz3dWg
-	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 11:55:48 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WZpp34kqYz3dXP
+	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 11:55:55 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xl0PXqUg;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qgtKSzwE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WZpnn032Xz3dGt
-	for <linux-erofs@lists.ozlabs.org>; Fri,  2 Aug 2024 11:55:38 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WZpnm6hrZz3ck2
+	for <linux-erofs@lists.ozlabs.org>; Fri,  2 Aug 2024 11:55:39 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1722563734; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=lK6S7ivxGPqa/RvIpSfQPWa/3h8wWrw57OAeA8rJVOY=;
-	b=xl0PXqUgvz0dNCoL8l95wY5hGJtPedXRleVTTT8CoKDFtsHV/5+I0u6fdULaV/mBrLxCISeKsWCbWHqIi8P8PRIsxI9UFAXfV/r4vyxAeaRJf8L09fS2GhEzesiGaJEvHhAAHWrWSpHc7hqzVS+SckJbHhfZkgzaWT25MrOWG3s=
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045220184;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WBvVr7j_1722563728;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WBvVr7j_1722563728)
+	t=1722563736; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=r6Xia3c95nYmQAMm0vQ+U5YX5eUhHfMQBeyP0G1CWBY=;
+	b=qgtKSzwENzUklw2++hjjnt8o1Vx44mB9fGcN/g7UcZxnuDuUOQOYxku4+FNOMQq80d8wAw9JRO8VdW0jW/vRNZL9u0R3l3mrPVVQIiYTBri/0+7VQf3JYV8oLkPlA4Xcd1oChl6YF9ZZOUP2SV9jaAT7+OqwjxMd2USr5+XPkdI=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WBvVrBH_1722563734;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WBvVrBH_1722563734)
           by smtp.aliyun-inc.com;
-          Fri, 02 Aug 2024 09:55:33 +0800
+          Fri, 02 Aug 2024 09:55:35 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/3] erofs-utils: fsck: fix fd leak on failure in erofs_extract_file()
-Date: Fri,  2 Aug 2024 09:55:25 +0800
-Message-ID: <20240802015527.2113797-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 3/3] erofs-utils: lib: fix fd leak on failure in erofs_dev_open()
+Date: Fri,  2 Aug 2024 09:55:27 +0800
+Message-ID: <20240802015527.2113797-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20240802015527.2113797-1-hsiangkao@linux.alibaba.com>
+References: <20240802015527.2113797-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,31 +57,28 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Ignore the return values as other close()s instead.
-
-Coverity-id: 502331
+Coverity-id: 502356
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fsck/main.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ lib/io.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index fb66967..bbef645 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -702,11 +702,9 @@ again:
+diff --git a/lib/io.c b/lib/io.c
+index 4937db5..6bfae69 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -258,8 +258,10 @@ repeat:
+ #if defined(HAVE_SYS_STATFS_H) && defined(HAVE_FSTATFS)
+ 			struct statfs stfs;
  
- 	/* verify data chunk layout */
- 	ret = erofs_verify_inode_data(inode, fd);
-+	close(fd);
- 	if (ret)
- 		return ret;
--
--	if (close(fd))
--		return -errno;
- 	return ret;
- }
+-			if (again)
++			if (again) {
++				close(fd);
+ 				return -ENOTEMPTY;
++			}
  
+ 			/*
+ 			 * fses like EXT4 and BTRFS will flush dirty blocks
 -- 
 2.43.5
 
