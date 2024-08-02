@@ -4,61 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7488AC3DA4A
-	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 21:20:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84280C3DA4A
+	for <linux-erofs@archiver.kernel.org>; Fri,  2 Aug 2024 21:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1722633615;
+	s=201707; t=1722633680;
 	bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
 	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=f5p8XpbVQpnVKKUV5ogYVQjxPH/SvLJgY+S2qzc+A/N2cG3hlUtTWibkfIndnsMO3
-	 gJeZd/e6UfH5Ls7agNQ4EpLH8aMF8MfrhErFTrjyk65vPK5hpwwWdzqJ5OeB+c+oYT
-	 /tAxqLSuYed/kcpwW144ojuCZ1O+w4YD2M5LGUCBFhTrd33sc2Cc0kgGatMWtNWSV4
-	 xAOUrAzoS/TIf6M9URLvM1hKKFZ6OBQSqYP9PbGYNWu2nSpzTjj5TMleVZ6kKI7u4r
-	 IWJed64T7UpOPtrqXr/ncm7HdHOAD1KXDoCl/N/3xL4tMlfL0q6i1V1LytcT0rx2It
-	 82TodLSR8hIPw==
+	b=b3bossZJ21OWkBRdhKB5irbZCs3wiI9T7sB85eBeQGbaVlSca8r/jPeyBDdjvq6lM
+	 R6Xoip7lYX6GpY3QEI0fOBgFuyFMY3n1lzfleWX5l8D6Kb36YghEvJ2R1lAr+d6IS1
+	 7yKRVCZsiDvLIpcOz4fxWOaSHkel1zR52Z+dliYxZngCgFzVZeq6SBdF6ORPYELGJD
+	 d+04ofdsm5GUlQNdmOPdFQvn9vdBSdFOUG1oOSHcE8mspIdDFO0JmLy4BL3T6vRS4F
+	 tDipL7GeKP8lgyvbMTNtg0+VNfRAjUfWdvTJUQ/T1LUZAJInwWu1q55JINeRRcW3DE
+	 k8BmLLCcoXNzg==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WbJdW0kgnz3fSC
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Aug 2024 07:20:15 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WbJfm5ny1z30fM
+	for <linux-erofs@archiver.kernel.org>; Sat,  3 Aug 2024 07:21:20 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=Vnf60OEE;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=koygeyk5;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::333; helo=mail-wm1-x333.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WbJdN6CSLz3dL8
-	for <linux-erofs@lists.ozlabs.org>; Sat,  3 Aug 2024 07:20:08 +1000 (AEST)
-Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-428243f928cso35438315e9.3
-        for <linux-erofs@lists.ozlabs.org>; Fri, 02 Aug 2024 14:20:08 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WbJfg59Zxz3dL8
+	for <linux-erofs@lists.ozlabs.org>; Sat,  3 Aug 2024 07:21:15 +1000 (AEST)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-368712acb8dso4070014f8f.2
+        for <linux-erofs@lists.ozlabs.org>; Fri, 02 Aug 2024 14:21:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722633605; x=1723238405;
+        d=1e100.net; s=20230601; t=1722633672; x=1723238472;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
         bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
-        b=wLUuwpuVIBY9d1TPuBUl/4IPRtyeG9kgkAPXrDeEcquiUaliwG0FG6VYzvRwYGxxHs
-         494ZBOf3HH0ZU9JmlXWg7gjOYhmb3vAGyh2E6WQhetbs7SXlgeW3n0ExNQVZ3q/8HJdq
-         LDE1jmCCjDHxgFsY1TzIunEHXLDJhT03QxtM/e5QnlQe1C2ivceAseQOF1cHvaYrI2Mh
-         g2r39iytsnGdUB11fTvMsfDUw3nMB7Gr4iTwOhjY61VFPg/0FsZY3n6ytOFqgN4p5vkq
-         KSFpozr4+EZJRTpN+nTLuCY1piBzhaMuR5k2ckvf14HqiXrNSveSYTv8CRNxmGOEVf/z
-         AbpA==
-X-Gm-Message-State: AOJu0YzLA3w2gpJAeldJZHE2nGGJEQWk3AWEHhB0pslKsPiQLTrZD3fK
-	lk79/T46Zcnj0aOj/FI6ioKiPOavz4RbpmLXE4t5hWVUiEIxy00ouP+BYQhzw03OzR00SjTHM3+
-	gIejfrpkzygMtn9QpcQ57F/hKI29bDjMv8jvVkocpOBpvu0rcAD94fj4=
-X-Google-Smtp-Source: AGHT+IHQbkLvycRtUgenI2bFwkadn6u8+Qy7BzgbB2B7r2af2gkO5pIkePAdDU623YARzEK8YnZzU53vLOXtsthk2qs=
-X-Received: by 2002:a05:600c:3547:b0:426:63b8:2cce with SMTP id
- 5b1f17b1804b1-428e6af2fadmr32097575e9.7.1722633604389; Fri, 02 Aug 2024
- 14:20:04 -0700 (PDT)
+        b=Ee7HQVjndXeMx81bn82pcajtiyu1+6wgwRTA7CSircIo23yq4DYmplq1KwowDsTl6m
+         KWvAH/AbhZ5UJ59dEmiW1q8SW0czzTaDGpfYhrYBQuWj0hu77jbe9x1qjSVZ5Dm3zBHb
+         akS2QpJ11Vk2+KboZN+0vjTAtdCwSohcAHGPS9x5N4C3f1Z8F5dQK7PYid4BBptkEc/C
+         NpwRCFJTh1fUHOCHoTmi2oQk7PCTf+MVUW2dL3WEGeXDgXiyRfWixl8OyvmTlF1UMv3B
+         lcEFS3B+MZns950MQyW0wmHO4AZQOaIrq8SC3EQEWA0TGirV+HfimLL8rCZQ5wXADv2Z
+         LsPQ==
+X-Gm-Message-State: AOJu0YyAEx59lHFRdJs4ihdOiXGMXJkL96AL1UOev+KizJboZ9zQPAg0
+	/s6ApFw+4QpRCr1qMOTInC/lUtrP+n4Ocy2yeW4Ggw+Fquy/LSd6L89H+xyNp80kSWv2kwjyzXH
+	+FsZ3eZrAN/jFQDLsU0TnQqCUFPEmXRz637D9
+X-Google-Smtp-Source: AGHT+IGSzzZeALEwhK3OaV1UZVosAiQB0hJEZ2mHKFhtvSWg1ERM6Gs+ZNOIOW6lD0FMvujL9laMcIRjbGA76qEL8NE=
+X-Received: by 2002:a5d:6b10:0:b0:367:8a2e:b550 with SMTP id
+ ffacd0b85a97d-36bbc182304mr2899580f8f.60.1722633671498; Fri, 02 Aug 2024
+ 14:21:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20240802015527.2113797-1-hsiangkao@linux.alibaba.com> <20240802015527.2113797-2-hsiangkao@linux.alibaba.com>
-In-Reply-To: <20240802015527.2113797-2-hsiangkao@linux.alibaba.com>
-Date: Fri, 2 Aug 2024 14:19:53 -0700
-Message-ID: <CAB=BE-Rri4NDL3cVcu=gG_8_yVZgwpKvzGOGWLK9ys5OZc2SEg@mail.gmail.com>
-Subject: Re: [PATCH 2/3] erofs-utils: lib: fix out-of-bounds in erofs_io_xcopy()
+References: <20240802015527.2113797-1-hsiangkao@linux.alibaba.com> <20240802015527.2113797-3-hsiangkao@linux.alibaba.com>
+In-Reply-To: <20240802015527.2113797-3-hsiangkao@linux.alibaba.com>
+Date: Fri, 2 Aug 2024 14:21:00 -0700
+Message-ID: <CAB=BE-Q+r8QrCLaS8GjzAP75XzJsJ4s=8JisLG4aLiqKDA+KeA@mail.gmail.com>
+Subject: Re: [PATCH 3/3] erofs-utils: lib: fix fd leak on failure in erofs_dev_open()
 To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
