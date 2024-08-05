@@ -4,61 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E14AC3DA4A
-	for <linux-erofs@archiver.kernel.org>; Mon,  5 Aug 2024 18:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56541C3DA7F
+	for <linux-erofs@archiver.kernel.org>; Mon,  5 Aug 2024 18:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1722882130;
+	s=201707; t=1722882454;
 	bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
 	h=References:In-Reply-To:Date:Subject:To:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=Nl/DQWgPYIdDNhjGDALo7fSBu8+SJbE7JLaV0GLh71kaT46DfJ93RgN3uF3l5yNOV
-	 AMnwH+ROD6hpd9vnERxMpFvdLZ+4LxdXjRnUG0TZJP0rXSn23rwh13Vr21MT+l1yxT
-	 D97Wf6coxOvyZ1aqGrhYeBkN72xG3BHzSV6jbxTFi1XsMvT7qI6MJh3VxvOEwwCwF+
-	 uaWXjq3CxD1z09C3LyccgqhnOgDPmp7yW+CgWvYbBqCpm6DhwJkxUrHbeM2dU4rPMp
-	 iQRS2KpOszPRB5EbBuOeBEvo55QWsJ8NsF25d9WEnXodd2sujkS8tG6E+wCnFbQTPq
-	 dj15PPoxG46Ew==
+	b=RFLe8RPNji3fBOoPeyQEHYCudvMKUKtIBGJyocgdhiaobZx1+uYe2eZ/GYrRk+AUb
+	 7HFl2e3Fd/Y3zBZ5y/Cp4ulVbxG1ABw2F/G/IHlKmlxynlBmyOzN0SVV/1+T8c0Mnl
+	 5o1ppDRMt45BTtNxuR4jQI+qFkfjUivFknyTNdexE3MmycZfv8fYjBQIvEInTrrlxx
+	 O6V/qpsZBvTK/UJPHEBy+7wldMGEGqO7s00zqt3/5pI1WX7iMHsMJpkwJnur0RgUFo
+	 vE5xC6+D10GjDjNTZU1OkH0k9IxWeVhUbCIs2vTZPfgkZAqH14UJegJ8Cj1A6J8Sa5
+	 nCoeKjKHKVzJA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Wd4Xf174jz3cj7
-	for <linux-erofs@archiver.kernel.org>; Tue,  6 Aug 2024 04:22:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Wd4ft0CdXz3cTl
+	for <linux-erofs@archiver.kernel.org>; Tue,  6 Aug 2024 04:27:34 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=SFRN9a+I;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=jVXPk3hY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::335; helo=mail-wm1-x335.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=google.com (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=dhavale@google.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Wd4XX02G4z3cBP
-	for <linux-erofs@lists.ozlabs.org>; Tue,  6 Aug 2024 04:22:03 +1000 (AEST)
-Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-42809d6e719so75556115e9.3
-        for <linux-erofs@lists.ozlabs.org>; Mon, 05 Aug 2024 11:22:03 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Wd4fm4lDlz3cTl
+	for <linux-erofs@lists.ozlabs.org>; Tue,  6 Aug 2024 04:27:27 +1000 (AEST)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-3687f91af40so6451015f8f.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 05 Aug 2024 11:27:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722882115; x=1723486915;
+        d=1e100.net; s=20230601; t=1722882444; x=1723487244;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
         bh=7342bL6XlId672ZUmqVGLoIQV+uvAdMIHD0PWaxvgpM=;
-        b=VNgsdUHXriZKHvAaATq9HFwEG04vW72wIFEs+C4fO+Rm7IBa96wmz+LbJLjf3vWYgq
-         pcxQKsvdtdE6VuQvReb1YeaU+VsTIhGYha85bf06vpj9gOHdnJBCpBETsiMRwfw28WCQ
-         dXRQ/4tnqayMABZZnqF50HMF3tP0SGzM/0Y9RkoIYjaKQQgjAh3G1cnr/5jRTeYy9sxE
-         twH9pQwa0sAzV0p8ubpgXKdyCMwcKxnSjN9YRtYZ0Fv2l7+LXyRhTDaBbIbKV1Rpl5xS
-         eeW5Ag+YKbZ21Ol0Z9aQ0Hm2gt+MmhykUONNfxWUXg6mo0vQ4bFfgr9fIRr7UP3RIlQL
-         Nkuw==
-X-Gm-Message-State: AOJu0YzwT1YkJhAFWZApqgXdR4lOCsnfxtVW5wLhE5KPK46Ct8fjgMP5
-	OcoMrdbmqk7dA9camdp9Rcixyai9sGXid/8X21D43/tX3iSe/71SKvxzU+vdGUpz8Z52698w4bG
-	Sk6HNQ7vyfz5np4sTvHfrVn2H6s9k/EeNQZ97IXuK5jjmwe1aWB4su+g=
-X-Google-Smtp-Source: AGHT+IEi4R095QzrXRyMSUiD/CyzW5l4RKHDco4NiHoPHpsNObnhOaqat27LvSE977By2Rc9OGt0QV25H5y+AzgWuRU=
-X-Received: by 2002:a05:6000:1e97:b0:368:74c0:6721 with SMTP id
- ffacd0b85a97d-36bbc14a6edmr8146539f8f.38.1722882114834; Mon, 05 Aug 2024
- 11:21:54 -0700 (PDT)
+        b=f2Ies8IiRackOoH0kWDrc35VtzDZhUJmXyx2aQv9rvuIjG7Qfu+/IU0cQ2P1mXdep4
+         JlTtIMzI2vHcQ/AzJ2ktUyvW9HRiC0nhEnp7XrfiGOzXhEonVLwO0ne6++sAPC5wCZpc
+         +6OQWZG8tlhYTDmvSNYsSPPD0XqryjXUQE1zyC5IuzobwK+d5yX4FE4t9Dy79lTniesV
+         Sj3MKPAukzXOaM5YHzElXY7fZe+1Hu1+wd6WFVKJZlKDZVszoROgh7OC+EP6apEeQUqb
+         J9VfVWlWdeqAn5Q/skWOrMQjGoRnFErNf/kac0PL0gvy1W9fKZ1nkylE777HVmD7pigx
+         INAg==
+X-Gm-Message-State: AOJu0Yx8yuD8pcqZPlXHiVixo6EzCoI8En/YKoart48fPPfSC/rUao5I
+	G6GCreBHgeaW6QA2gcIUFZe00peb+1e+lNDFKG3Wu2UyGyKJZ72FwSAxSP14cZswJzOd/vMJRwA
+	O57cdjvt2hCxCaTc+z8y8Dkk3z4GmVUbaJaQA/V0N31RxM2KLQt9uRB0=
+X-Google-Smtp-Source: AGHT+IFqMLrntWNlwDRZ3LZva7yAfOPhkq0ZRTU2rd+nu2hT8ds7YZdF/ePBhdWm753yDUrhxJVb12yNA7g/S7q928Q=
+X-Received: by 2002:adf:f345:0:b0:368:31c7:19dd with SMTP id
+ ffacd0b85a97d-36bbc0ce408mr7531135f8f.5.1722882444024; Mon, 05 Aug 2024
+ 11:27:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20240805022826.2581887-1-hongzhen@linux.alibaba.com>
-In-Reply-To: <20240805022826.2581887-1-hongzhen@linux.alibaba.com>
-Date: Mon, 5 Aug 2024 11:21:43 -0700
-Message-ID: <CAB=BE-TtHqEdeqpkgnV7fBL_K8am=WedpPqSzbQFpumnYE8X0A@mail.gmail.com>
-Subject: Re: [PATCH] erofs-utils: fix extra argument to erofs_err()
+References: <20240805024408.2598464-1-hongzhen@linux.alibaba.com>
+In-Reply-To: <20240805024408.2598464-1-hongzhen@linux.alibaba.com>
+Date: Mon, 5 Aug 2024 11:27:12 -0700
+Message-ID: <CAB=BE-RvceO_6qPaOyk6Cai-4kvc4rAoXp5eqbS+68zco_9-MA@mail.gmail.com>
+Subject: Re: [PATCH] erofs-utils: fix invalid argument type in erofs_err()
 To: Hongzhen Luo <hongzhen@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: linux-erofs@lists.ozlabs.org
