@@ -4,61 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18B01C3DA7F
-	for <linux-erofs@archiver.kernel.org>; Wed,  7 Aug 2024 19:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0639EC52D73
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Aug 2024 05:08:45 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YGfQfbY1;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ETDsLyyi;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WfKKC5Qjdz3dKm
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Aug 2024 05:01:35 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WfZnm1rKQz3cmV
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Aug 2024 15:08:44 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YGfQfbY1;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ETDsLyyi;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WfKK33bsDz3bhD
-	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Aug 2024 05:01:25 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1723057288; x=1754593288;
-  h=date:from:to:cc:subject:message-id;
-  bh=oQqs+o2n+2ctRbXWwtsuRMyBnFSkTmRfGy2BVI/HJso=;
-  b=YGfQfbY1S7Kw9TGr42jk2RJLA8C4/pJZAJkrCFD7HT6YWRZ9t56e0tWz
-   rtrcpzthM8UNteHWMdODG/Y0nSjiViZ/esc0v/lWsGNd5Z2uPt4yRg67M
-   mt6C776X9zzM3SMHHMgPjzbYxyC1koQyJkpUfrf5NeVJkCnbOmKbmc0e0
-   PUDMz/M63SrgYrHr6n8ivb7dQGWNYsJL3SeiykG0nyY51LvSq9TesI+Yb
-   MIb8jGgAJ0KrWq1oZHD+W0iKae/Q6+E6TNk/nlQ7lGRfll/SMOPSwzkkx
-   6RtixcD1E/rbQ21YyGo43fxA1CR6BQIRwUTFCV5J0ucjv0Y5oANEyI+cw
-   g==;
-X-CSE-ConnectionGUID: fRFjwgKzSAOiQ+txK5hQLg==
-X-CSE-MsgGUID: ndG5yPrPQsSW9L8v4fMflg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11157"; a="21031508"
-X-IronPort-AV: E=Sophos;i="6.09,270,1716274800"; 
-   d="scan'208";a="21031508"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2024 12:01:23 -0700
-X-CSE-ConnectionGUID: 0R2B8ZzxS9SonSbJNz4cFw==
-X-CSE-MsgGUID: xQvWs212QlmMmckTQmTzyA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,270,1716274800"; 
-   d="scan'208";a="57655788"
-Received: from unknown (HELO b6bf6c95bbab) ([10.239.97.151])
-  by orviesa008.jf.intel.com with ESMTP; 07 Aug 2024 12:01:22 -0700
-Received: from kbuild by b6bf6c95bbab with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sbluQ-0005dg-2z;
-	Wed, 07 Aug 2024 19:01:18 +0000
-Date: Thu, 08 Aug 2024 03:01:02 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- cb890c4388d3bc02c7e87a706ea11d7b869016b6
-Message-ID: <202408080359.n1aoaXDu-lkp@intel.com>
-User-Agent: s-nail v14.9.24
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WfZnd0Bpzz2xWV
+	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Aug 2024 15:08:34 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1723093709; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=OEH8Uc1CUtUX4e6BkJEPNHDv3uXUJVvRdg4AGU332dw=;
+	b=ETDsLyyiM1JZv6LLURYrQCCEiErEmHKb4Osq7aqxU37B3WSW93jGPrsRpr2SAfqAOjfT6afEjeU7kpsab2bGkN+fWJPgghIoyeVWa08fLkVtOM14k8himUmOmdBkZzfeQdvY9Mqoh/8dFjjebqsW3RNFCZRJGSqMxY+3uyvVJo4=
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0WCLJTtq_1723093699;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WCLJTtq_1723093699)
+          by smtp.aliyun-inc.com;
+          Thu, 08 Aug 2024 13:08:27 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: update README for the upcoming 1.8
+Date: Thu,  8 Aug 2024 13:08:18 +0800
+Message-ID: <20240808050818.1822583-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,191 +51,140 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: cb890c4388d3bc02c7e87a706ea11d7b869016b6  erofs: get rid of check_layout_compatibility()
+Add descriptions to multi-threaded compression and reproducible builds.
 
-elapsed time: 732m
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ README | 94 +++++++++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 67 insertions(+), 27 deletions(-)
 
-configs tested: 168
-configs skipped: 4
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-tested configs:
-alpha                             allnoconfig   gcc-13.3.0
-alpha                            allyesconfig   gcc-13.3.0
-alpha                               defconfig   gcc-13.2.0
-arc                              allmodconfig   gcc-13.2.0
-arc                               allnoconfig   gcc-13.2.0
-arc                              allyesconfig   gcc-13.2.0
-arc                                 defconfig   gcc-13.2.0
-arc                   randconfig-001-20240807   gcc-13.2.0
-arc                   randconfig-002-20240807   gcc-13.2.0
-arm                              allmodconfig   gcc-14.1.0
-arm                               allnoconfig   clang-20
-arm                              allyesconfig   gcc-14.1.0
-arm                                 defconfig   gcc-13.2.0
-arm                   randconfig-001-20240807   clang-20
-arm                   randconfig-002-20240807   gcc-14.1.0
-arm                   randconfig-003-20240807   gcc-14.1.0
-arm                   randconfig-004-20240807   gcc-14.1.0
-arm64                            allmodconfig   clang-20
-arm64                             allnoconfig   gcc-14.1.0
-arm64                               defconfig   gcc-13.2.0
-arm64                 randconfig-001-20240807   gcc-14.1.0
-arm64                 randconfig-002-20240807   clang-17
-arm64                 randconfig-003-20240807   clang-15
-arm64                 randconfig-004-20240807   clang-20
-csky                              allnoconfig   gcc-14.1.0
-csky                                defconfig   gcc-13.2.0
-csky                  randconfig-001-20240807   gcc-14.1.0
-csky                  randconfig-002-20240807   gcc-14.1.0
-hexagon                          allmodconfig   clang-20
-hexagon                           allnoconfig   clang-20
-hexagon                          allyesconfig   clang-20
-hexagon               randconfig-001-20240807   clang-14
-hexagon               randconfig-002-20240807   clang-20
-i386                             allmodconfig   clang-18
-i386                             allmodconfig   gcc-12
-i386                              allnoconfig   clang-18
-i386                              allnoconfig   gcc-12
-i386                             allyesconfig   clang-18
-i386                             allyesconfig   gcc-12
-i386         buildonly-randconfig-001-20240807   clang-18
-i386         buildonly-randconfig-002-20240807   clang-18
-i386         buildonly-randconfig-003-20240807   gcc-12
-i386         buildonly-randconfig-004-20240807   clang-18
-i386         buildonly-randconfig-005-20240807   clang-18
-i386         buildonly-randconfig-006-20240807   gcc-12
-i386                                defconfig   clang-18
-i386                  randconfig-001-20240807   gcc-12
-i386                  randconfig-002-20240807   clang-18
-i386                  randconfig-003-20240807   clang-18
-i386                  randconfig-004-20240807   gcc-12
-i386                  randconfig-005-20240807   gcc-12
-i386                  randconfig-006-20240807   clang-18
-i386                  randconfig-011-20240807   clang-18
-i386                  randconfig-012-20240807   gcc-11
-i386                  randconfig-013-20240807   clang-18
-i386                  randconfig-014-20240807   clang-18
-i386                  randconfig-015-20240807   clang-18
-i386                  randconfig-016-20240807   gcc-12
-loongarch                        allmodconfig   gcc-14.1.0
-loongarch                         allnoconfig   gcc-14.1.0
-loongarch                           defconfig   gcc-13.2.0
-loongarch             randconfig-001-20240807   gcc-14.1.0
-loongarch             randconfig-002-20240807   gcc-14.1.0
-m68k                             allmodconfig   gcc-14.1.0
-m68k                              allnoconfig   gcc-14.1.0
-m68k                             allyesconfig   gcc-14.1.0
-m68k                                defconfig   gcc-13.2.0
-microblaze                       allmodconfig   gcc-14.1.0
-microblaze                        allnoconfig   gcc-14.1.0
-microblaze                       allyesconfig   gcc-14.1.0
-microblaze                          defconfig   gcc-13.2.0
-mips                              allnoconfig   gcc-14.1.0
-nios2                             allnoconfig   gcc-14.1.0
-nios2                               defconfig   gcc-13.2.0
-nios2                 randconfig-001-20240807   gcc-14.1.0
-nios2                 randconfig-002-20240807   gcc-14.1.0
-openrisc                          allnoconfig   gcc-14.1.0
-openrisc                         allyesconfig   gcc-14.1.0
-openrisc                            defconfig   gcc-14.1.0
-parisc                           allmodconfig   gcc-14.1.0
-parisc                            allnoconfig   gcc-14.1.0
-parisc                           allyesconfig   gcc-14.1.0
-parisc                              defconfig   gcc-14.1.0
-parisc                randconfig-001-20240807   gcc-14.1.0
-parisc                randconfig-002-20240807   gcc-14.1.0
-parisc64                            defconfig   gcc-13.2.0
-powerpc                          allmodconfig   gcc-14.1.0
-powerpc                           allnoconfig   gcc-14.1.0
-powerpc                          allyesconfig   clang-20
-powerpc                          allyesconfig   gcc-14.1.0
-powerpc               randconfig-001-20240807   clang-20
-powerpc               randconfig-002-20240807   clang-20
-powerpc               randconfig-003-20240807   gcc-14.1.0
-powerpc64             randconfig-001-20240807   clang-15
-powerpc64             randconfig-002-20240807   gcc-14.1.0
-powerpc64             randconfig-003-20240807   gcc-14.1.0
-riscv                            allmodconfig   clang-20
-riscv                            allmodconfig   gcc-14.1.0
-riscv                             allnoconfig   gcc-14.1.0
-riscv                            allyesconfig   clang-20
-riscv                            allyesconfig   gcc-14.1.0
-riscv                               defconfig   clang-20
-riscv                               defconfig   gcc-14.1.0
-riscv                 randconfig-001-20240807   clang-20
-riscv                 randconfig-002-20240807   clang-20
-s390                             allmodconfig   clang-20
-s390                              allnoconfig   clang-20
-s390                              allnoconfig   gcc-14.1.0
-s390                             allyesconfig   clang-20
-s390                             allyesconfig   gcc-14.1.0
-s390                                defconfig   clang-20
-s390                                defconfig   gcc-14.1.0
-s390                  randconfig-001-20240807   gcc-14.1.0
-s390                  randconfig-002-20240807   gcc-14.1.0
-sh                               allmodconfig   gcc-14.1.0
-sh                                allnoconfig   gcc-14.1.0
-sh                               allyesconfig   gcc-14.1.0
-sh                                  defconfig   gcc-14.1.0
-sh                    randconfig-001-20240807   gcc-14.1.0
-sh                    randconfig-002-20240807   gcc-14.1.0
-sparc                            allmodconfig   gcc-14.1.0
-sparc64                             defconfig   gcc-14.1.0
-sparc64               randconfig-001-20240807   gcc-14.1.0
-sparc64               randconfig-002-20240807   gcc-14.1.0
-um                               allmodconfig   clang-20
-um                                allnoconfig   clang-17
-um                                allnoconfig   gcc-14.1.0
-um                               allyesconfig   gcc-12
-um                                  defconfig   clang-20
-um                                  defconfig   gcc-14.1.0
-um                             i386_defconfig   gcc-12
-um                             i386_defconfig   gcc-14.1.0
-um                    randconfig-001-20240807   gcc-12
-um                    randconfig-002-20240807   clang-20
-um                           x86_64_defconfig   clang-15
-um                           x86_64_defconfig   gcc-14.1.0
-x86_64                            allnoconfig   clang-18
-x86_64                           allyesconfig   clang-18
-x86_64       buildonly-randconfig-001-20240807   clang-18
-x86_64       buildonly-randconfig-002-20240807   clang-18
-x86_64       buildonly-randconfig-003-20240807   clang-18
-x86_64       buildonly-randconfig-004-20240807   clang-18
-x86_64       buildonly-randconfig-005-20240807   clang-18
-x86_64       buildonly-randconfig-006-20240807   clang-18
-x86_64                              defconfig   clang-18
-x86_64                              defconfig   gcc-11
-x86_64                randconfig-001-20240807   clang-18
-x86_64                randconfig-002-20240807   gcc-12
-x86_64                randconfig-003-20240807   clang-18
-x86_64                randconfig-004-20240807   gcc-12
-x86_64                randconfig-005-20240807   gcc-12
-x86_64                randconfig-006-20240807   gcc-12
-x86_64                randconfig-011-20240807   clang-18
-x86_64                randconfig-012-20240807   gcc-12
-x86_64                randconfig-013-20240807   gcc-12
-x86_64                randconfig-014-20240807   gcc-12
-x86_64                randconfig-015-20240807   clang-18
-x86_64                randconfig-016-20240807   clang-18
-x86_64                randconfig-071-20240807   clang-18
-x86_64                randconfig-072-20240807   clang-18
-x86_64                randconfig-073-20240807   gcc-12
-x86_64                randconfig-074-20240807   clang-18
-x86_64                randconfig-075-20240807   gcc-12
-x86_64                randconfig-076-20240807   clang-18
-x86_64                          rhel-8.3-rust   clang-18
-xtensa                            allnoconfig   gcc-14.1.0
-xtensa                randconfig-001-20240807   gcc-14.1.0
-xtensa                randconfig-002-20240807   gcc-14.1.0
-
+diff --git a/README b/README
+index e224b23..077b62b 100644
+--- a/README
++++ b/README
+@@ -54,51 +54,91 @@ mkfs.erofs
+ 
+ Two main kinds of EROFS images can be generated: (un)compressed images.
+ 
+- - For uncompressed images, there will be none of compresssed files in
+-   these images.  However, it can decide whether the tail block of a
+-   file should be inlined or not properly [1].
++ - For uncompressed images, there will be no compressed files in these
++   images.  However, an EROFS image can contain files which consist of
++   various aligned data blocks and then a tail that is stored inline in
++   order to compact images [1].
+ 
+- - For compressed images, it'll try to use the given algorithms first
++ - For compressed images, it will try to use the given algorithms first
+    for each regular file and see if storage space can be saved with
+-   compression. If not, fallback to an uncompressed file.
++   compression. If not, it will fall back to an uncompressed file.
+ 
+-How to generate EROFS images (LZ4 for Linux 5.3+, LZMA for Linux 5.16+)
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Note that EROFS supports per-file compression configuration, proper
++configuration options need to be enabled to parse compressed files by
++the Linux kernel.
+ 
+-Currently lz4(hc) and lzma are available for compression, e.g.
++How to generate EROFS images
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Compression algorithms could be specified with the command-line option
++`-z` to build a compressed EROFS image from a local directory:
+  $ mkfs.erofs -zlz4hc foo.erofs.img foo/
+ 
+-Or leave all files uncompressed as an option:
++Supported algorithms by the Linux kernel:
++ - LZ4 (Linux 5.3+);
++ - LZMA (Linux 5.16+);
++ - DEFLATE (Linux 6.6+);
++ - Zstandard (Linux 6.10+).
++
++Alternatively, generate an uncompressed EROFS from a local directory:
+  $ mkfs.erofs foo.erofs.img foo/
+ 
+-In addition, you could specify a higher compression level to get a
+-(slightly) better compression ratio than the default level, e.g.
++Additionally, you can specify a higher compression level to get a
++(slightly) smaller image than the default level:
+  $ mkfs.erofs -zlz4hc,12 foo.erofs.img foo/
+ 
+-Note that all compressors are still single-threaded for now, thus it
+-could take more time on the multiprocessor platform. Multi-threaded
+-approach is already in our TODO list.
++Multi-threaded support can be explicitly enabled with the ./configure
++option `--enable-multithreading`; otherwise, single-threaded compression
++will be used for now.  It may take more time on multiprocessor platforms
++if multi-threaded support is not enabled.
++
++Currently, both `-Efragments` (not `-Eall-fragments`) and `-Ededupe`
++don't support multi-threading due to time limitations.
++
++Reproducible builds
++~~~~~~~~~~~~~~~~~~~
++
++Reproducible builds are typically used for verification and security,
++ensuring the same binaries/distributions to be reproduced in a
++deterministic way.
++
++Images generated by the same version of `mkfs.erofs` will be identical
++to previous runs if the same input is specified, and the same options
++are used.
++
++Specifically, variable timestamps and filesystem UUIDs can result in
++unreproducible EROFS images.  `-T` and `-U` can be used to fix them.
+ 
+ How to generate EROFS big pcluster images (Linux 5.13+)
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-In order to get much better compression ratios (thus better sequential
+-read performance for common storage devices), big pluster feature has
+-been introduced since linux-5.13, which is not forward-compatible with
+-old kernels.
+-
+-In details, -C is used to specify the maximum size of each big pcluster
+-in bytes, e.g.
++By default, EROFS formatter compresses data into separate one-block
++(e.g. 4KiB) filesystem physical clusters for outstanding random read
++performance.  In other words, each EROFS filesystem block can be
++independently decompressed.  However, other similar filesystems
++typically compress data into "blocks" of 128KiB or more for much smaller
++images.  Users may prefer smaller images for archiving purposes, even if
++random performance is compromised with those configurations, and even
++worse when using 4KiB blocks.
++
++In order to fulfill users' needs, big plusters has been introduced
++since Linux 5.13, in which each physical clusters will be more than one
++blocks.
++
++Specifically, `-C` is used to specify the maximum size of each pcluster
++in bytes:
+  $ mkfs.erofs -zlz4hc -C65536 foo.erofs.img foo/
+ 
+-So in that case, pcluster size can be 64KiB at most.
++Thus, in this case, pcluster sizes can be up to 64KiB.
+ 
+-Note that large pcluster size can cause bad random performance, so
+-please evaluate carefully in advance. Or make your own per-(sub)file
+-compression strategies according to file access patterns if needed.
++Note that large pcluster size can degrade random performance (though it
++may improve sequential read performance for typical storage devices), so
++please evaluate carefully in advance.  Alternatively, you can make
++per-(sub)file compression strategies according to file access patterns
++if needed.
+ 
+-How to generate EROFS images with multiple algorithms (Linux 5.16+)
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++How to generate EROFS images with multiple algorithms
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ It's possible to generate an EROFS image with files in different
+ algorithms due to various purposes.  For example, LZMA for archival
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.43.5
+
