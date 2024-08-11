@@ -4,37 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12914C3DA4A
-	for <linux-erofs@archiver.kernel.org>; Sun, 11 Aug 2024 09:10:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 154FFC3DA4A
+	for <linux-erofs@archiver.kernel.org>; Sun, 11 Aug 2024 09:38:38 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WhX1F5QGyz2yNf
-	for <linux-erofs@archiver.kernel.org>; Sun, 11 Aug 2024 19:10:25 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WhXdn3jYdz2yNH
+	for <linux-erofs@archiver.kernel.org>; Sun, 11 Aug 2024 19:38:37 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=senior1.cz
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=senior1.cz (client-ip=194.8.253.236; helo=whsmtp-ng.best-hosting.cz; envelope-from=support@senior1.cz; receiver=lists.ozlabs.org)
-X-Greylist: delayed 455 seconds by postgrey-1.37 at boromir; Sun, 11 Aug 2024 19:10:20 AEST
 Received: from whsmtp-ng.best-hosting.cz (whsmtp-ng.best-hosting.cz [194.8.253.236])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WhX186DKqz2xXL
-	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Aug 2024 19:10:20 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WhXdj36Dzz2xCp
+	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Aug 2024 19:38:33 +1000 (AEST)
 Received: from wh-srv-008.best-hosting.cz (wh-srv-008.best-hosting.cz [IPv6:2001:67c:24f4:c405::1:8])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by whsmtp-ng.best-hosting.cz (Postfix) with ESMTPS id BE92458EE4
-	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Aug 2024 11:02:11 +0200 (CEST)
+	by whsmtp-ng.best-hosting.cz (Postfix) with ESMTPS id 8F8BE5FA50
+	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Aug 2024 11:37:49 +0200 (CEST)
 Authentication-Results: whsmtp-ng.best-hosting.cz;
 	dkim=none;
 	dmarc=none;
 	spf=pass (whsmtp-ng.best-hosting.cz: domain of support@senior1.cz designates 2001:67c:24f4:c405::1:8 as permitted sender) smtp.mailfrom=support@senior1.cz
 Received: by wh-srv-008.best-hosting.cz (Postfix, from userid 17550)
-	id 4B10261D53; Sun, 11 Aug 2024 11:01:49 +0200 (CEST)
+	id 3734F621C7; Sun, 11 Aug 2024 11:34:22 +0200 (CEST)
 To: linux-erofs@lists.ozlabs.org
-Subject: HELLO
-Date: Sun, 11 Aug 2024 11:01:49 +0200
+Subject: Hello.
+Date: Sun, 11 Aug 2024 11:34:22 +0200
 From: Mark Miller <support@senior1.cz>
-Message-ID: <afdd91f7be4c925e1369d4e5a25f407d@senior1.cz>
+Message-ID: <1dc1d6d28a62318789d34087fc400a4e@senior1.cz>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="b1_afdd91f7be4c925e1369d4e5a25f407d"
+	boundary="b1_1dc1d6d28a62318789d34087fc400a4e"
 Content-Transfer-Encoding: 8bit
 X-Spamd-Bar: ++++++++++++
 X-Spam: Yes
@@ -55,7 +54,7 @@ Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists
 
 This is a multi-part message in MIME format.
 
---b1_afdd91f7be4c925e1369d4e5a25f407d
+--b1_1dc1d6d28a62318789d34087fc400a4e
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
@@ -67,7 +66,7 @@ Sincerely,
 Mark Miller
 
 
---b1_afdd91f7be4c925e1369d4e5a25f407d
+--b1_1dc1d6d28a62318789d34087fc400a4e
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
@@ -80,5 +79,5 @@ Mark Miller
 
 
 
---b1_afdd91f7be4c925e1369d4e5a25f407d--
+--b1_1dc1d6d28a62318789d34087fc400a4e--
 
