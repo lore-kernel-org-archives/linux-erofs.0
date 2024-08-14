@@ -4,64 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B55DEC3DA4A
-	for <linux-erofs@archiver.kernel.org>; Wed, 14 Aug 2024 13:27:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1723642020;
-	bh=kwkiJ1lNi4hls3SmDSCczz9y9QcS5IyD1HENBRZAL6k=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:From;
-	b=UyzS3ayjdguhAdwcRqA4zlZ5L7vt7mi/6gtjmAiLBeAg7blzowipNHUrex2SyHo+C
-	 dD+HizlopxuvrsMSh4l2oX8BeBocBo6JDr/+tuZGo/ScR9rdgIZTIs7JPvvPdhx84M
-	 g9TpNCvuO2bqYMRClT4ceTQChjgH7J8bQW1oeGbkZOyaNxYNdnYhLYNveCkelEk4sO
-	 CAL/yUR3tAwt1SsAJPhHld+GR7jwSjSY9fTxLqSDk9SLV8s5sSeK3jX7bYpnbxB4Yz
-	 Fq4CnE13yFzA7aDN7dz2t2rL7iEmq20UR3PQPTWgjMpibMktzqjQXBQudakodnOKMW
-	 7Jp476cEUQoVw==
-Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WkTYw1Wwrz2yZZ
-	for <linux-erofs@archiver.kernel.org>; Wed, 14 Aug 2024 23:27:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 50603C3DA4A
+	for <linux-erofs@archiver.kernel.org>; Wed, 14 Aug 2024 15:33:30 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=ftkSKIrm;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Iwa431p6;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=qq.com (client-ip=203.205.221.231; helo=out203-205-221-231.mail.qq.com; envelope-from=kyr1ewang@qq.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 3768 seconds by postgrey-1.37 at boromir; Wed, 14 Aug 2024 23:26:47 AEST
-Received: from out203-205-221-231.mail.qq.com (out203-205-221-231.mail.qq.com [203.205.221.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from boromir.ozlabs.org (localhost [IPv6:::1])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WkXMr56cCz2yWy
+	for <linux-erofs@archiver.kernel.org>; Thu, 15 Aug 2024 01:33:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=Iwa431p6;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42f; helo=mail-pf1-x42f.google.com; envelope-from=wata2ki@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with UTF8SMTPS id 4WkTYg6wQhz2yDk
-	for <linux-erofs@lists.ozlabs.org>; Wed, 14 Aug 2024 23:26:30 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1723641984; bh=kwkiJ1lNi4hls3SmDSCczz9y9QcS5IyD1HENBRZAL6k=;
-	h=From:To:Cc:Subject:Date;
-	b=ftkSKIrmrghpyq59tPPQMYgcz33lbYdBplOJ5SimTZ+7xDpx5VCWSVuCOb0d0DhGP
-	 Fpx0ZiQ28G3JCqKsEJZJUk6McGvfCgZDI1K2No/pQE/9Y+aahykxtMfaJxu4aSocq/
-	 sdaLe7m2uq59clYVd22/yrYAx2A+nGChLHTL8ieU=
-Received: from kyrie-virtual-machine.localdomain ([36.7.197.226])
-	by newxmesmtplogicsvrsza29-0.qq.com (NewEsmtp) with SMTP
-	id 5A486A99; Wed, 14 Aug 2024 20:22:36 +0800
-X-QQ-mid: xmsmtpt1723638156t30kvx9vc
-Message-ID: <tencent_4CCC2DAF246C00A80AC80C31CD2603EAFC06@qq.com>
-X-QQ-XMAILINFO: OQhZ3T0tjf0ag/paPV7i3d/r1654CtPmbDdm/pMN/hPUczB1oDWfQDT0YfR0nd
-	 Zb22cRnV7TvIecCUSJZBhA2T66FpQj/KQSvyDx6gZArn+wz4uIyLtkjFoT5unsNmobf8nVIMKFRl
-	 /Jt2WUpPPbB4DvHDXjN/8v17HlVVbm7w8Irw6qOi/S+56I7vBRpqw1/xBUh5ukMK93m030Eo4noQ
-	 HX5WqFLD4LdPXgU+SzpoXktVSwbAWtn3rNaj5TrTSDWuDfQL8okl2ovGkPVpCdJ3X51GPa/lvlwQ
-	 DyqwsY484cBYi1THk5K5aspOMOpJXKDk8aUiOfz+k8WDMU0qnCu7HbfkX/BBrQXwhUvSCm3WQO3n
-	 t34j0Qj7vSinWZGw19oJO3hwtp8vBcL1HTAKRMf/pq049tNour4kvoMRgk6GO9yX52rpz+Z4NmEG
-	 5/lJxWeNWkWYlzGMvmhlUx/qjysGO539g8B1uMWvzfjwPl4d0FBhKAoqvtyvxZKcKA0eW5bswLO+
-	 UmFektp/O+UZZRyb0yqJiLNrCinxBOuEhgawYg1OeQRQFzoBXqanvEDDpaJESuZD/iFLr86scv5E
-	 6hK+Iabmcd4UJBItkwFslz8Fm9Hxxwk2QhPq8Q+TPNKAPS+ssmECUfKwBZYlYFpjBMxkCXpG3xUO
-	 hGD/rRiSfcCSKfFQ3v4LhZj+QaONvekFl6BhvB4dPNMvALmDyrA/9bLEBnPbYqXbxbR9WKobVdIu
-	 0orlEXzAuXVcg7EGK66aMA7t1XbT+Af9c3W/47FX1+2QZF5LtVpL/Vm0S8rKmsCtFWNPwedG9ZyR
-	 UvA6FDliyLmWWsGthOg5MUvLG17Ju4qC7f0XJr/+6l03PnvXfToFAne/x1IwOZV9H5tMxLkrqwwW
-	 Xwz0zeLj2cy355fwaUSfSmDXqvnuJP/hVg+K86xoIPBgf6chRTxsDPvazOEjcAvTboE1hOAztVUo
-	 uMwYTMBO3dZjbdiMnluzjB76mCtPliygDIdENGIRNomgQV+Ce0MA==
-X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WkXMk0vW5z2yQG
+	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Aug 2024 01:33:20 +1000 (AEST)
+Received: by mail-pf1-x42f.google.com with SMTP id d2e1a72fcca58-7106cf5771bso5144182b3a.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 14 Aug 2024 08:33:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723649595; x=1724254395; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8CBbdt04VN9MIN6YiVqw6FZADv51lDxxXMU1yp5uycs=;
+        b=Iwa431p6qs4evmhU8ikx9/v5Yztrm2N6MxQnVJp/GXbOQg1+hnvf+7dMXN9SFfSp3k
+         drG/nUV4dHDET8WdWGZZ0Yeak5IlRsWPTqIFEk6zagepn3k72CgzUoSN9keZrePJSjJs
+         uHK/z49aMKqwkxk5UcmQse6+i02PsnSTwJMs1QcapBUDLtjgrbb3tJjF0cNgJLE54d49
+         gQygF02I0GyigIVrAlYHkn+YQs1aYYGDLJq20GrgRZyz6VxgbythUFWpDKsKOrkp9GqA
+         k7Tgm/1qJCu1aKqJ8pDbWde27Dcd2GoCq278/FB/pNumXQm/j2qBlqeFGxqboyLMuyrJ
+         2ycg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723649595; x=1724254395;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8CBbdt04VN9MIN6YiVqw6FZADv51lDxxXMU1yp5uycs=;
+        b=NaSp4Wqh0vsKVo+UzZ0V6F+SpmJfTc7O4rt2mzE1PhCjfZKiPBHEBZxCcemtZ0VHKj
+         wRb9xX6yZYSBjAM4VQ7MXbQdWaQTqalRlgC9xovefjpwOx9oJl24VOGpLcNWKyFUNzlo
+         2zkNfBg3DyqGQHJnLWtsnl/iZqe5UPKy70hezVR2dmiITwdLjEj90OMfW6HIvlaIWJ9o
+         HFcst7Z6gTDqarCWeCt0+YXO1fQCuoR0s8xrEYTTWfZN2UlnMEf+/AQQn8y+5Fo8jpfq
+         PRK8cp5U4SKb8YoE9gck3e3z52gOwYiH8tlXrkJgLwC/32S7tDxPYYfRIfn64gCZqN4v
+         RxFg==
+X-Gm-Message-State: AOJu0YxY9jETBWhAe7L3RWVmJ+IaIIR/qXo3irTR3cDQ14mAT+i88Ljl
+	WKErGXTib/cb0/fFG50UUfEHoEFbW1y49zSvaEXQG6QEXIIfXnKQrvG7wBrd
+X-Google-Smtp-Source: AGHT+IHmWQwK/5LYG7M1PBU6LchKm5Iw0j3mMqHiC+hG6uuVT1avPGBx3YHQfIZ8iv9eitQlzARJZA==
+X-Received: by 2002:a05:6a00:9284:b0:70d:262e:7279 with SMTP id d2e1a72fcca58-712670f6a54mr3613616b3a.3.1723649595145;
+        Wed, 14 Aug 2024 08:33:15 -0700 (PDT)
+Received: from localhost.localdomain (222-229-106-196.catv.medias.ne.jp. [222.229.106.196])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-710e5a8a5c3sm7715641b3a.176.2024.08.14.08.33.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Aug 2024 08:33:14 -0700 (PDT)
+From: Naoto Yamaguchi <wata2ki@gmail.com>
+X-Google-Original-From: Naoto Yamaguchi <naoto.yamaguchi@aisin.co.jp>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: tests: add compression algorithms check for tests
-Date: Wed, 14 Aug 2024 20:22:32 +0800
-X-OQ-MSGID: <20240814122232.1982499-1-kyr1ewang@qq.com>
-X-Mailer: git-send-email 2.34.1
+Subject: [PATCH] Adjust volume label maximum length to the kernel implementation
+Date: Thu, 15 Aug 2024 00:32:38 +0900
+Message-ID: <20240814153256.18230-1-naoto.yamaguchi@aisin.co.jp>
+X-Mailer: git-send-email 2.43.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -75,144 +77,54 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Jiawei Wang via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Jiawei Wang <kyr1ewang@qq.com>
+Cc: Naoto Yamaguchi <naoto.yamaguchi@aisin.co.jp>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-_require_erofs_compression is added to check whether the compression
-algorithms are supported in the test environment before starting tests.
+The erofs implementation of kernel has limitation of the volume label length.
+The volume label data size of super block is 16 bytes.
+The kernel implementation requires to null terminate inside a that 16 bytes.
 
-Signed-off-by: Jiawei Wang <kyr1ewang@qq.com>
+Logs:
+  $ ./mkfs/mkfs.erofs test16.erofs -L 0123456789abcdef test/
+  $ mount -o loop ./test16.erofs ./mnt/
+  $ dmesg
+  [26477.019283] erofs: (device loop0): erofs_read_superblock: bad volume name without NIL terminator
+
+  $ ./mkfs/mkfs.erofs test15.erofs -L 0123456789abcde test/
+  $ mount -o loop ./test15.erofs ./mnt/
+  $ dmesg
+  [26500.516871] erofs: (device loop0): mounted with root inode @ nid 36.
+
+This patch adjusts volume label maximum length to the kernel implementation.
+
+Signed-off-by: Naoto Yamaguchi <naoto.yamaguchi@aisin.co.jp>
 ---
- tests/common/rc | 16 ++++++++++++++++
- tests/erofs/008 |  2 ++
- tests/erofs/009 |  2 ++
- tests/erofs/010 |  2 ++
- tests/erofs/011 |  2 ++
- tests/erofs/017 |  2 ++
- tests/erofs/018 |  2 ++
- tests/erofs/024 |  2 ++
- 8 files changed, 30 insertions(+)
+ mkfs/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tests/common/rc b/tests/common/rc
-index 0ace9d0..1c3f1d6 100644
---- a/tests/common/rc
-+++ b/tests/common/rc
-@@ -148,6 +148,22 @@ _require_fscache()
- 	[ -x $CACHEFILESD_PROG ] || _notrun "cachefilesd not built"
- }
+diff --git a/mkfs/main.c b/mkfs/main.c
+index b7129eb..ff26c16 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -151,7 +151,7 @@ static void usage(int argc, char **argv)
+ 	printf(
+ 		" -C#                   specify the size of compress physical cluster in bytes\n"
+ 		" -EX[,...]             X=extended options\n"
+-		" -L volume-label       set the volume label (maximum 16)\n"
++		" -L volume-label       set the volume label (maximum 15 character)\n"
+ 		" -T#                   specify a fixed UNIX timestamp # as build time\n"
+ 		"    --all-time         the timestamp is also applied to all files (default)\n"
+ 		"    --mkfs-time        the timestamp is applied as build time only\n"
+@@ -598,7 +598,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
  
-+_require_erofs_compression()
-+{
-+	local opt="$*"
-+	local random_dir="$tmp/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
-+	
-+	mkdir -p $random_dir/test $random_dir/mnt > /dev/null 2>&1
-+	truncate -s 1m $random_dir/test/file > /dev/null 2>&1
-+	
-+	eval "$MKFS_EROFS_PROG $opt $random_dir/tmp.erofs $random_dir/test" >> /dev/null 2>&1
-+	_try_mount $random_dir/tmp.erofs $random_dir/mnt || \
-+		_notrun "fail to mount filesystem in _require_erofs_compression"
-+	_do_unmount $random_dir/mnt
-+    
-+	rm -rf $random_dir
-+}
-+
- # Do the actual mkfs work.
- _do_mkfs()
- {
-diff --git a/tests/erofs/008 b/tests/erofs/008
-index aa8ba1d..cd3929c 100755
---- a/tests/erofs/008
-+++ b/tests/erofs/008
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lz4_on" ] && \
- 	_notrun "lz4 compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlz4"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/009 b/tests/erofs/009
-index 2ce0e0a..b3ad210 100755
---- a/tests/erofs/009
-+++ b/tests/erofs/009
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lz4hc_on" ] && \
- 	_notrun "lz4hc compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlz4hc"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/010 b/tests/erofs/010
-index a4f4180..2782fb6 100755
---- a/tests/erofs/010
-+++ b/tests/erofs/010
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lz4_on" ] && \
- 	_notrun "lz4 compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlz4"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/011 b/tests/erofs/011
-index 945998b..bd5d933 100755
---- a/tests/erofs/011
-+++ b/tests/erofs/011
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lz4hc_on" ] && \
- 	_notrun "lz4hc compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlz4hc"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/017 b/tests/erofs/017
-index 0ba391f..9e7553c 100755
---- a/tests/erofs/017
-+++ b/tests/erofs/017
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lz4_on" ] && \
- 	_notrun "lz4 compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlz4"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/018 b/tests/erofs/018
-index b6de58d..47b8d52 100755
---- a/tests/erofs/018
-+++ b/tests/erofs/018
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$lzma_on" ] && \
- 	_notrun "lzma compression is disabled, skipped."
- 
-+_require_erofs_compression "-zlzma"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
-diff --git a/tests/erofs/024 b/tests/erofs/024
-index e2cbeba..f477c04 100755
---- a/tests/erofs/024
-+++ b/tests/erofs/024
-@@ -27,6 +27,8 @@ echo "QA output created by $seq"
- [ -z "$deflate_on" ] && \
- 	_notrun "deflate compression is disabled, skipped."
- 
-+_require_erofs_compression "-zdeflate,9"
-+
- if [ -z $SCRATCH_DEV ]; then
- 	SCRATCH_DEV=$tmp/erofs_$seq.img
- 	rm -f SCRATCH_DEV
+ 		case 'L':
+ 			if (optarg == NULL ||
+-			    strlen(optarg) > sizeof(g_sbi.volume_name)) {
++			    strlen(optarg) > (sizeof(g_sbi.volume_name) - 1u)) {
+ 				erofs_err("invalid volume label");
+ 				return -EINVAL;
+ 			}
 -- 
-2.34.1
+2.43.0
 
