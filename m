@@ -4,51 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62388C3DA7F
-	for <linux-erofs@archiver.kernel.org>; Thu, 15 Aug 2024 20:23:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 246C3C52D7C
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Aug 2024 01:30:33 +0000 (UTC)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="::1"
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.a=rsa-sha256 header.s=202405 header.b=LI5tQQWt;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=v5nl+Ebo;
 	dkim-atps=neutral
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WlGm86MG2z2ynj
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Aug 2024 06:23:36 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=139.28.40.42
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WlPZJ48PHz2ypk
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Aug 2024 11:30:32 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.a=rsa-sha256 header.s=202405 header.b=LI5tQQWt;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=v5nl+Ebo;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=nabijaczleweli.xyz (client-ip=139.28.40.42; helo=tarta.nabijaczleweli.xyz; envelope-from=nabijaczleweli@nabijaczleweli.xyz; receiver=lists.ozlabs.org)
-X-Greylist: delayed 453 seconds by postgrey-1.37 at boromir; Fri, 16 Aug 2024 06:23:27 AEST
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WlGlz3yNmz2y8k
-	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Aug 2024 06:23:27 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202405; t=1723752945;
-	bh=rlCMvh1yarf8OiDcD/WoZJAX8poPXXwpdq0IILTjtcY=;
-	h=Date:From:Cc:Subject:From;
-	b=LI5tQQWtzdTjy96vntzdFvHLVXTxWTkDOkuSFM+9pZItliiGV+sBQ7UiVZWJ4HMnX
-	 aca1RLLTEgKBbdZHl7UOBYhn3RisXmcgpzI5/icMgBPTelW42D1wX6QP98r3LWTJCn
-	 l3HT8c/H+cgMqQx+T/vy2/dHwEauCQK7q7thgpgEqB1cALONTyuLGx6ZFGteaEPVIZ
-	 2mLiIFYxhswN57+6pVnNkXp1Izllgi4hLlEr82vjUX7+pXTIgx5/qRDYQ03Ak6S4hN
-	 aBHWWW88l9I1LZBtP5P9UXLhRYdYsU6M3H5qiE/KRpTlEOWViXsD1efU3Tf8/uIxKN
-	 Oy/o4BeCCzTHA==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id E4EB4B666
-	for <linux-erofs@lists.ozlabs.org>; Thu, 15 Aug 2024 22:15:44 +0200 (CEST)
-Date: Thu, 15 Aug 2024 22:15:44 +0200
-From: 	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
-Cc: linux-erofs mailing list <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH] erofs-utils: lib: exclude: #include PATH_MAX workaround
-Message-ID: <xs4azw3vs7oryqnpkvzsl6qbmma6p646igoklia2fextt6pdiw@tarta.nabijaczleweli.xyz>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WlPZ665cLz2xfX
+	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Aug 2024 11:30:20 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1723771815; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=geUku74EdEu3CYFkUrb6ytG+GU3NyPQkQ1ipXiHbMhQ=;
+	b=v5nl+EboPaTMn2SLUv4oBio+JjT7jPtNmcnG9GkQU/dYyvEoBvM59eGCAmNyH4+B7V9M1yl0pcPUXBjMNF7mXX5W9LInL1UZYykgYhAql8WmMjAyQe35tNffFBn9FKUPZCkjdM1n/I0soiS3X5Q1oAaKZJxXyV2Gmel3ygyOOGk=
+Received: from 30.221.129.229(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WCy7Up9_1723771813)
+          by smtp.aliyun-inc.com;
+          Fri, 16 Aug 2024 09:30:14 +0800
+Message-ID: <61d8a190-3520-4d5d-8c80-adeb7172a88f@linux.alibaba.com>
+Date: Fri, 16 Aug 2024 09:30:13 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] erofs-utils: adjust volume label maximum length to the
+ kernel implementation
+To: Naoto Yamaguchi <wata2ki@gmail.com>
+References: <20240814153256.18230-1-naoto.yamaguchi@aisin.co.jp>
+ <20240814155353.19076-1-naoto.yamaguchi@aisin.co.jp>
+ <96efe46b-dcce-4490-bba1-a0b00932d1cc@linux.alibaba.com>
+ <CABBJnRYcWVAMg04XsbFOb7zYZWmC17WDx4y_QEj3uVaaSPEG=Q@mail.gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <CABBJnRYcWVAMg04XsbFOb7zYZWmC17WDx4y_QEj3uVaaSPEG=Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -60,27 +59,54 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Naoto Yamaguchi <naoto.yamaguchi@aisin.co.jp>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Fixes build on the hurd.
 
-Signed-off-by: Ahelenia Ziemiańska <nabijaczleweli@nabijaczleweli.xyz>
----
- lib/exclude.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/lib/exclude.c b/lib/exclude.c
-index e3c4ed5..5f6107b 100644
---- a/lib/exclude.c
-+++ b/lib/exclude.c
-@@ -8,6 +8,7 @@
- #include "erofs/list.h"
- #include "erofs/print.h"
- #include "erofs/exclude.h"
-+#include "erofs/internal.h"
- 
- #define EXCLUDE_RULE_EXACT_SIZE	offsetof(struct erofs_exclude_rule, reg)
- #define EXCLUDE_RULE_REGEX_SIZE	sizeof(struct erofs_exclude_rule)
--- 
-2.40.1
+On 2024/8/15 22:02, Naoto Yamaguchi wrote:
+> Hi Gao.
+> 
+>>> ---
+>>>    mkfs/main.c | 4 ++--
+>>>    1 file changed, 2 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/mkfs/main.c b/mkfs/main.c
+>>> index b7129eb..ff26c16 100644
+>>> --- a/mkfs/main.c
+>>> +++ b/mkfs/main.c
+>>> @@ -151,7 +151,7 @@ static void usage(int argc, char **argv)
+>>>        printf(
+>>>                " -C#                   specify the size of compress physical cluster in bytes\n"
+>>>                " -EX[,...]             X=extended options\n"
+>>> -             " -L volume-label       set the volume label (maximum 16)\n"
+>>> +             " -L volume-label       set the volume label (maximum 15 character)\n"
+>>
+>> 15 character might be ambiguous here, since there could be other encodings I guess?
+> 
+> I propose to...
+> Solution 1.
+>   -L volume-label       set the volume label (maximum 15 ASCII character)
+> 
+> Solution 2.
+>   -L volume-label       set the volume label (maximum 15 bytes)
+> 
+> 
+> Solution 3.  similar to tune2fs
+> -L volume-label       set the volume label
+> and
+> erofs_err("Warning: label too long, truncating.");
+> with truncating input string to 15 bytes.
+> 
+> Which is better?  Could you feedback?
+
+I tend to use solution 2 anyway, solution 3 will truncate
+the user input, not quite sure if that's the user's intention.
+
+Thanks,
+Gao Xiang
+
+> 
+> Thanks.
+> Naoto Yamaguchi @ AGL community.
