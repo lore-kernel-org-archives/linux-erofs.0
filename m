@@ -4,74 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25D57C531DC
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2024 21:01:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1724187706;
-	bh=8VEc/HOqkE0fk1j7DVg8hej65QBN4H0HeHsJSBg2DvQ=;
-	h=Date:Subject:To:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=AGr4zrGi9RdI562WeTsOCEzghdZk56mRfzB4UWrbXST8d13f8nYLaTsVbtT48PHRZ
-	 duvT99Qz4XPjpJyxs3EyA2kZdvhwliAvcjB03MjN7AOnT+Gh2zhTMLjWAifKJ9i42a
-	 +3NBFwCEtJMJCscjzbVLNKiL8wttcgHR+l8aQuqz9DL8c8KWCLxpkO0/Nj79J8f870
-	 9riUXSPna7TdVgmT4G4qtGlkuemAzEupnmOVypqxdPgvdxBvwiKHDCdQqrodNgBY6o
-	 zjD4nDCtUEr082TxnBmsGqk29TVyQ4E24qtaO6dv556NPBDlnsxdlvu/34FZN8udTY
-	 qWr/ahw3Bh80A==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF8F8C3DA4A
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Aug 2024 23:21:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WpMMt5k9nz2yZ4
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 07:01:46 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::114a"
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WpQT50f5Mz2yMv
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 09:21:29 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=qEoxMXoB;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V4KPVdg4;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V4KPVdg4;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::114a; helo=mail-yw1-x114a.google.com; envelope-from=3lgtfzgckc4cosl6lwprzzrwp.nzxwty58-p2zq3wt343.zawlm3.z2r@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpMMm5Nh9z2y33
-	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2024 07:01:39 +1000 (AEST)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-6b41e02c255so73369577b3.3
-        for <linux-erofs@lists.ozlabs.org>; Tue, 20 Aug 2024 14:01:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1724187694; x=1724792494; darn=lists.ozlabs.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8VEc/HOqkE0fk1j7DVg8hej65QBN4H0HeHsJSBg2DvQ=;
-        b=qEoxMXoBOAke7W9cmt5txfPsNVqi9UJ/lFt+L0xx3MP2PHB0pue8XBXeCLP3uWRbxS
-         8Cn+q4RHNN2VaDCRppD88hN3F9106RbnFRisiCZJlq4I/LdnzVvPVf/PCCpbpEZ79UD0
-         U2W0tpcQsNuyIgKzMcWibqIyGKwVSAkN548HqmTWLNR9equx4HaMpLGPVEBlSgje/IdX
-         9+rYd8oFzBkBCQrjt7yAzvGxOCos0ZM9oOTPlbyeLbS9Cp0ibFXKRAJqnFAjPCsXHgPS
-         YDkcLcUIfSvyEuxLpGPPFxo84KiDxas+CAH6inFavQ00e51I5/mN7QvrK4VTAWX7QJmI
-         VJyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724187694; x=1724792494;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8VEc/HOqkE0fk1j7DVg8hej65QBN4H0HeHsJSBg2DvQ=;
-        b=SAsVfse1WepYz4S0RWUqWKotjYT2l2opJMC13mokG6eCUUEOhAqVryUrb1SVNw0UcJ
-         qNvJ7mm5rpg05eQywXzfkpXik+EKBBdoR6cMiRFBHlk5LeTF/uhqiHjq9z409w0Z7wSr
-         4/U+BVvLyjEREhqAbcQcRefFhaYuAIxr4pYarl/Nc5bQhVzYP+9Pl0cmWP9ZV/dGmtP3
-         fajVKBVbl4w5gF1EvDJ2EcdrBHMur0fn3fSzQJQ5jHJqPKkkFxOvgxrr3W1Fqmhz5St4
-         9YZiAaAEEhh6D+K34sBl0eu0QR97/x8JnYd7IIhYQ22zhuWpYBgNxaaZ6X9MDha8nr/E
-         /vvQ==
-X-Gm-Message-State: AOJu0Yy/8L+uSavFMUcnEgYpa6x5vXR0QPWMrYlztlwWiWk2Qy1GO6aM
-	rgrzAkTAcJxne+UR/xohyJDj59e87XKyfqlwrZVlouAeqbABfTQjDQ1MgOKQlSDF48e8zjd+o7o
-	J/WbT2TjfFOggTPmyOwePF1sdeHPKAsC3VdV1msWg8fPGC8ZdsairwI7SqhvnCKinse3zg5nuEx
-	r3HeEp2Cy2W+GY9MNapX1Oigqcwpv1n702nCURDK/QjurHCQ==
-X-Google-Smtp-Source: AGHT+IHvYAc+hV3rDC7Mpwx31wOQb+AftRlX2Qs1RLY2ClSL6ZhsybzxhEbrWhCh4Zfac45Ie8ke6JLLr3ie
-X-Received: from dhavale-desktop.mtv.corp.google.com ([2620:15c:211:201:d58e:af88:2a92:d1b3])
- (user=dhavale job=sendgmr) by 2002:a05:6902:3c7:b0:e0b:f684:e972 with SMTP id
- 3f1490d57ef6-e16657b65b4mr7514276.12.1724187694284; Tue, 20 Aug 2024 14:01:34
- -0700 (PDT)
-Date: Tue, 20 Aug 2024 14:01:22 -0700
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.46.0.184.g6999bdac58-goog
-Message-ID: <20240820210123.2684886-1-dhavale@google.com>
-Subject: [PATCH 0/1] Improve handling of unidentified xattrs
-To: linux-erofs@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpQT16pj0z2y89
+	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2024 09:21:24 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724196080;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=fCjK9t7HkWPXdjZnzcV3YJhj3lK29P+RVZIMnJ9iM+Q=;
+	b=V4KPVdg400KgZ49bZRQ3gGLVjr1rtyweqobR7cPPwoSu8M0SdOPgcgKU+kAjwNO2gAsziv
+	ghXPUFy3Ni2NSlEqw/lDigfwj2s5bgYCbHVzjJMtk8ORr9WSJlSd5bPhBfpoBU42POv+05
+	/9MyEplP1VAD2xlcgeDkeH9aVQPUAUA=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724196080;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=fCjK9t7HkWPXdjZnzcV3YJhj3lK29P+RVZIMnJ9iM+Q=;
+	b=V4KPVdg400KgZ49bZRQ3gGLVjr1rtyweqobR7cPPwoSu8M0SdOPgcgKU+kAjwNO2gAsziv
+	ghXPUFy3Ni2NSlEqw/lDigfwj2s5bgYCbHVzjJMtk8ORr9WSJlSd5bPhBfpoBU42POv+05
+	/9MyEplP1VAD2xlcgeDkeH9aVQPUAUA=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-617-IHAldsebOD2s3EiBWC1CDA-1; Tue,
+ 20 Aug 2024 19:21:16 -0400
+X-MC-Unique: IHAldsebOD2s3EiBWC1CDA-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 259D41955F40;
+	Tue, 20 Aug 2024 23:21:13 +0000 (UTC)
+Received: from warthog.procyon.org.uk.com (unknown [10.42.28.30])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C53DE19560AA;
+	Tue, 20 Aug 2024 23:21:07 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: Christian Brauner <christian@brauner.io>
+Subject: [PATCH 0/4] mm, netfs, afs: Truncation fixes
+Date: Wed, 21 Aug 2024 00:20:54 +0100
+Message-ID: <20240820232105.3792638-1-dhowells@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -83,53 +74,42 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Sandeep Dhavale via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Sandeep Dhavale <dhavale@google.com>
-Cc: hsiangkao@linux.alibaba.com, kernel-team@android.com
+Cc: Pankaj Raghav <p.raghav@samsung.com>, linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi,
-I had a report that when erofs is built from the btrfs filesystem with
-compression enabled, it would fail to build seemingly with error
-"failed to build shared xattrs". We tried to fix this by returning 0 
-(null) instead of error in parse_one_xattr(). However we need to
-actually skip it else we get a null pointer dereference in 
-erofs_xattr_add() trying to process the same.
+Hi Christian,
+
+Here are some fixes for truncation, netfslib and afs that I discovered whilst
+trying Pankaj Raghav's minimum folio order patchset:
+
+ (1) Fix truncate to make it honour AS_RELEASE_ALWAYS in a couple of places
+     that got missed.
+
+ (2) Fix duplicated editing of a partially invalidated folio in afs's
+     post-setattr edit phase.
+
+ (3) Fix netfs_release_folio() to indicate that the folio is busy if the
+     folio is dirty (as does iomap).
+
+ (4) Fix the trimming of a folio that contain streaming-write data when
+     truncation occurs into or past that folio
+
+The patches can also be found here:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=netfs-fixes
 
 Thanks,
-Sandeep.
+David
 
-Tested with btrfs with compression enabled.
-$ lsattr mtpt/
---------c------------- mtpt/sample.txt
+David Howells (4):
+  mm: Fix missing folio invalidation calls during truncation
+  afs: Fix post-setattr file edit to do truncation correctly
+  netfs: Fix netfs_release_folio() to say no if folio dirty
+  netfs: Fix trimming of streaming-write folios in netfs_inval_folio()
 
-Before:
-mkfs.erofs -z lz4hc,9 erofs.img mtpt/
-mkfs.erofs 1.8.1-dirty
-<W> erofs: parse_one_xattr() Line[285] skipped unidentified xattr: btrfs.compression
-Segmentation fault
-
-After:
-mkfs.erofs -z lz4hc,9 erofs.img mtpt/
-mkfs.erofs 1.8.1-dirty
-<W> erofs: parse_one_xattr() Line[285] skipped unidentified xattr: btrfs.compression
-Processing sample.txt ...
-<W> erofs: parse_one_xattr() Line[285] skipped unidentified xattr: btrfs.compression
-Build completed.
-------
-Filesystem UUID: 9a1bb5a3-077a-40bc-972f-ed141059e7c8
-Filesystem total blocks: 5 (of 4096-byte blocks)
-Filesystem total inodes: 2
-Filesystem total metadata blocks: 1
-Filesystem total deduplicated bytes (of source files): 0 
-
-Sandeep Dhavale (1):
-  erofs-utils: lib: actually skip the unidentified xattrs
-
- lib/xattr.c | 3 +++
- 1 file changed, 3 insertions(+)
-
--- 
-2.46.0.184.g6999bdac58-goog
+ fs/afs/inode.c  | 11 +++++++---
+ fs/netfs/misc.c | 53 +++++++++++++++++++++++++++++++++++--------------
+ mm/truncate.c   |  4 ++--
+ 3 files changed, 48 insertions(+), 20 deletions(-)
 
