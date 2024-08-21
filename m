@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C838CC3DA4A
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 03:05:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 205D4C5320E
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 03:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1724209511;
-	bh=blnw4ylkTNfyHFHK5/EcWXbV3h9pSuyj9WFoj+HUYV8=;
+	s=201707; t=1724209512;
+	bh=x6idxY8T4x0Slp9B696BFSJmiipbwQTl7kDG0kBwmBw=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=SqRxNbnAuAIE9EDxFdEcfht2uuuk8aesOJgQqFOoLvajkEp/YFv+EE9QWMyslAfnX
-	 LGXdoyWiqH3GL9Gin7wXnnXPvcDRQMFlNUUEck+IAWY2qhDipIY3MBM3lOq8cnZmJj
-	 DnPdMvye7qLajkuUH8b2tReXHNqlX+kzMS6zQaxWMq88NEvg0R+5YfvfKCSu8URFw2
-	 CeY2+R5j2QqG3U7xPlEAdpOxeNfN/MtgobbB8jYUFgL8/hfzW0NhebVP/VfVhSGnYU
-	 aL0WzYcv4WokNtGebs+3V0N8DKzvxhuFO5Hir/ucy93+zHtTvuQzwA0G3mw0T8Oz8a
-	 Ztum8Fpc19KTQ==
+	b=EwqDIG9ag3HweYoX5QD/06Bojgwngig/gOWmSth8XkBNhEzAfv6suceGETnA3g8RH
+	 fWxJJ790ZUACCTGiWCMvzoqf6r6DJKzt9UdeewJeF5I0uqnSltEQ9zQKRlLX3Dpxss
+	 TtKg0D+3mHrmnwSZQOUgxkz3hWkTZ9e155CUylmS0TvZ8ipBYK+hg5ckgR7ZMul3OD
+	 tXWIeGuf5nfJtkT3p+mbbUBn7R5JaRCTpZYgAKWTqBrAtaPfsgKpuOT7+gN1AFTr7/
+	 yOux3D5mFUfbX/7m58kbXbP8Ejr50DFLPgvro58YYlQahyJxzEge5sQ+0VvLCD2ut9
+	 66aMnGozm++mw==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WpWRC5YhNz2yjR
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 13:05:11 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WpWRD2D0jz2yvy
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 13:05:12 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.190
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.190; helo=szxga04-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.35
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.35; helo=szxga07-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpWR81swgz2xJF
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpWR838Tgz2xHP
 	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2024 13:05:08 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4WpW2z226tz2CmxZ;
-	Wed, 21 Aug 2024 10:47:39 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.88.214])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4WpW345j9Cz1S8Nd;
+	Wed, 21 Aug 2024 10:47:44 +0800 (CST)
 Received: from kwepemf100017.china.huawei.com (unknown [7.202.181.16])
-	by mail.maildlp.com (Postfix) with ESMTPS id 285F31A0188;
-	Wed, 21 Aug 2024 10:47:41 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 4132F1A016C;
+	Wed, 21 Aug 2024 10:47:47 +0800 (CST)
 Received: from localhost.localdomain (10.175.104.67) by
  kwepemf100017.china.huawei.com (7.202.181.16) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 21 Aug 2024 10:47:39 +0800
+ 15.2.1544.11; Wed, 21 Aug 2024 10:47:46 +0800
 To: <netfs@lists.linux.dev>, <dhowells@redhat.com>, <jlayton@kernel.org>
-Subject: [PATCH 2/8] cachefiles: Fix incorrect length return value in cachefiles_ondemand_fd_write_iter()
-Date: Wed, 21 Aug 2024 10:42:55 +0800
-Message-ID: <20240821024301.1058918-3-wozizhi@huawei.com>
+Subject: [PATCH 8/8] netfs/fscache: Add a memory barrier for FSCACHE_VOLUME_CREATING
+Date: Wed, 21 Aug 2024 10:43:01 +0800
+Message-ID: <20240821024301.1058918-9-wozizhi@huawei.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240821024301.1058918-1-wozizhi@huawei.com>
 References: <20240821024301.1058918-1-wozizhi@huawei.com>
@@ -69,54 +69,57 @@ Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kerne
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In the current on-demand loading mode, cachefiles_ondemand_fd_write_iter()
-function first aligns "pos" and "len" to block boundaries. When calling
-__cachefiles_write(), the aligned "pos" is passed in, but "len" is the
-original unaligned value(iter->count). Additionally, the returned length of
-the write operation is the modified "len" aligned by block size, which is
-unreasonable.
+In fscache_create_volume(), there is a missing memory barrier between the
+bit-clearing operation and the wake-up operation. This may cause a
+situation where, after a wake-up, the bit-clearing operation hasn't been
+detected yet, leading to an indefinite wait. The triggering process is as
+follows:
 
-The alignment of "pos" and "len" is intended only to check whether the
-cache has enough space in erofs ondemand mode. But the modified len should
-not be used as the return value of cachefiles_ondemand_fd_write_iter().
-Doing so would result in a mismatch in the data written on-demand. For
-example, if the length of the user state passed in is not aligned to the
-block size (the preread scene / DIO writes only need 512 alignment), the
-length of the write will differ from the actual length of the return.
+  [cookie1]                [cookie2]                  [volume_work]
+fscache_perform_lookup
+  fscache_create_volume
+                        fscache_perform_lookup
+                          fscache_create_volume
+			                        fscache_create_volume_work
+                                                  cachefiles_acquire_volume
+                                                  clear_and_wake_up_bit
+    test_and_set_bit
+                            test_and_set_bit
+                              goto maybe_wait
+      goto no_wait
 
-To solve this issue, since the __cachefiles_prepare_write() modifies the
-size of "len", we pass "aligned_len" to __cachefiles_prepare_write() to
-calculate the free blocks and use the original "len" as the return value of
-cachefiles_ondemand_fd_write_iter().
+In the above process, cookie1 and cookie2 has the same volume. When cookie1
+enters the -no_wait- process, it will clear the bit and wake up the waiting
+process. If a barrier is missing, it may cause cookie2 to remain in the
+-wait- process indefinitely.
 
-Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
+In commit 3288666c7256 ("fscache: Use clear_and_wake_up_bit() in
+fscache_create_volume_work()"), barriers were added to similar operations
+in fscache_create_volume_work(), but fscache_create_volume() was missed.
+
+By combining the clear and wake operations into clear_and_wake_up_bit() to
+fix this issue.
+
+Fixes: bfa22da3ed65 ("fscache: Provide and use cache methods to lookup/create/free a volume")
 Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
 ---
- fs/cachefiles/ondemand.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/netfs/fscache_volume.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index 470c96658385..bdd321017f1c 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -61,7 +61,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
- 	struct cachefiles_object *object = kiocb->ki_filp->private_data;
- 	struct cachefiles_cache *cache = object->volume->cache;
- 	struct file *file = object->file;
--	size_t len = iter->count;
-+	size_t len = iter->count, aligned_len = len;
- 	loff_t pos = kiocb->ki_pos;
- 	const struct cred *saved_cred;
- 	int ret;
-@@ -70,7 +70,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
- 		return -ENOBUFS;
+diff --git a/fs/netfs/fscache_volume.c b/fs/netfs/fscache_volume.c
+index cb75c07b5281..ced14ac78cc1 100644
+--- a/fs/netfs/fscache_volume.c
++++ b/fs/netfs/fscache_volume.c
+@@ -322,8 +322,7 @@ void fscache_create_volume(struct fscache_volume *volume, bool wait)
+ 	}
+ 	return;
+ no_wait:
+-	clear_bit_unlock(FSCACHE_VOLUME_CREATING, &volume->flags);
+-	wake_up_bit(&volume->flags, FSCACHE_VOLUME_CREATING);
++	clear_and_wake_up_bit(FSCACHE_VOLUME_CREATING, &volume->flags);
+ }
  
- 	cachefiles_begin_secure(cache, &saved_cred);
--	ret = __cachefiles_prepare_write(object, file, &pos, &len, len, true);
-+	ret = __cachefiles_prepare_write(object, file, &pos, &aligned_len, len, true);
- 	cachefiles_end_secure(cache, saved_cred);
- 	if (ret < 0)
- 		return ret;
+ /*
 -- 
 2.39.2
 
