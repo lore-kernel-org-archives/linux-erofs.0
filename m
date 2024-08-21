@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D41CDC531DF
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 03:05:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C838CC3DA4A
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 03:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1724209510;
-	bh=Pmkb7vCZe0X1h0iLptZUdKDBTMHVqer7/zRyZMmPCBg=;
+	s=201707; t=1724209511;
+	bh=blnw4ylkTNfyHFHK5/EcWXbV3h9pSuyj9WFoj+HUYV8=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=FAv3ap0p6dswTDq6bVZWPCixxwVxpvdvSMSWH21BJb7CepgP7DpCysQQv87BUvVlM
-	 lVUSlJQdrFqp9BG1mSYetTRbqeSKcLRI4ZBfZs91+QcEVnTQ8ctDxNC44cV8YRwaRW
-	 afxH+HZo1w6oBF3BeHlnmz67Nl2iTXZPYrLXA11Ef5ZwTUbAG5FVRVOORKDokrXLAv
-	 3R4IXSKqkc0A+zzQBcxi4PYzuS3mux1pjuBrm/L1Fpmy/NSdKhvsigyqiLMyZbO2zv
-	 ojTEt05QSTCyrZQ5BZj90YyEo+g0LWNmhpusyqqRS4qxNBl2OO8VAf6T7Ylwc+TpI/
-	 /7vXIDTZkIMIA==
+	b=SqRxNbnAuAIE9EDxFdEcfht2uuuk8aesOJgQqFOoLvajkEp/YFv+EE9QWMyslAfnX
+	 LGXdoyWiqH3GL9Gin7wXnnXPvcDRQMFlNUUEck+IAWY2qhDipIY3MBM3lOq8cnZmJj
+	 DnPdMvye7qLajkuUH8b2tReXHNqlX+kzMS6zQaxWMq88NEvg0R+5YfvfKCSu8URFw2
+	 CeY2+R5j2QqG3U7xPlEAdpOxeNfN/MtgobbB8jYUFgL8/hfzW0NhebVP/VfVhSGnYU
+	 aL0WzYcv4WokNtGebs+3V0N8DKzvxhuFO5Hir/ucy93+zHtTvuQzwA0G3mw0T8Oz8a
+	 Ztum8Fpc19KTQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4WpWRB4CHWz2yXf
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 13:05:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4WpWRC5YhNz2yjR
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Aug 2024 13:05:11 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.191
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.191; helo=szxga05-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.190
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.190; helo=szxga04-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpWR80Hjxz2xHl
-	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2024 13:05:07 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.88.163])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WpW333xTCz1j6hF;
-	Wed, 21 Aug 2024 10:47:43 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4WpWR81swgz2xJF
+	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Aug 2024 13:05:08 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4WpW2z226tz2CmxZ;
+	Wed, 21 Aug 2024 10:47:39 +0800 (CST)
 Received: from kwepemf100017.china.huawei.com (unknown [7.202.181.16])
-	by mail.maildlp.com (Postfix) with ESMTPS id 3B80C180019;
-	Wed, 21 Aug 2024 10:47:45 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 285F31A0188;
+	Wed, 21 Aug 2024 10:47:41 +0800 (CST)
 Received: from localhost.localdomain (10.175.104.67) by
  kwepemf100017.china.huawei.com (7.202.181.16) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 21 Aug 2024 10:47:44 +0800
+ 15.2.1544.11; Wed, 21 Aug 2024 10:47:39 +0800
 To: <netfs@lists.linux.dev>, <dhowells@redhat.com>, <jlayton@kernel.org>
-Subject: [PATCH 6/8] cachefiles: Modify inappropriate error return value in cachefiles_daemon_secctx()
-Date: Wed, 21 Aug 2024 10:42:59 +0800
-Message-ID: <20240821024301.1058918-7-wozizhi@huawei.com>
+Subject: [PATCH 2/8] cachefiles: Fix incorrect length return value in cachefiles_ondemand_fd_write_iter()
+Date: Wed, 21 Aug 2024 10:42:55 +0800
+Message-ID: <20240821024301.1058918-3-wozizhi@huawei.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240821024301.1058918-1-wozizhi@huawei.com>
 References: <20240821024301.1058918-1-wozizhi@huawei.com>
@@ -69,32 +69,54 @@ Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kerne
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In cachefiles_daemon_secctx(), if it is detected that secctx has been
-written to the cache, the error code returned is -EINVAL, which is
-inappropriate and does not distinguish the situation well.
+In the current on-demand loading mode, cachefiles_ondemand_fd_write_iter()
+function first aligns "pos" and "len" to block boundaries. When calling
+__cachefiles_write(), the aligned "pos" is passed in, but "len" is the
+original unaligned value(iter->count). Additionally, the returned length of
+the write operation is the modified "len" aligned by block size, which is
+unreasonable.
 
-Like cachefiles_daemon_dir(), fix this issue by return -EEXIST to the user
-if it has already been defined once.
+The alignment of "pos" and "len" is intended only to check whether the
+cache has enough space in erofs ondemand mode. But the modified len should
+not be used as the return value of cachefiles_ondemand_fd_write_iter().
+Doing so would result in a mismatch in the data written on-demand. For
+example, if the length of the user state passed in is not aligned to the
+block size (the preread scene / DIO writes only need 512 alignment), the
+length of the write will differ from the actual length of the return.
 
-Fixes: 8667d434b2a9 ("cachefiles: Register a miscdev and parse commands over it")
+To solve this issue, since the __cachefiles_prepare_write() modifies the
+size of "len", we pass "aligned_len" to __cachefiles_prepare_write() to
+calculate the free blocks and use the original "len" as the return value of
+cachefiles_ondemand_fd_write_iter().
+
+Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
 Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
 ---
- fs/cachefiles/daemon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cachefiles/ondemand.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/daemon.c b/fs/cachefiles/daemon.c
-index 89b11336a836..59e576951c68 100644
---- a/fs/cachefiles/daemon.c
-+++ b/fs/cachefiles/daemon.c
-@@ -587,7 +587,7 @@ static int cachefiles_daemon_secctx(struct cachefiles_cache *cache, char *args)
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 470c96658385..bdd321017f1c 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -61,7 +61,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
+ 	struct cachefiles_object *object = kiocb->ki_filp->private_data;
+ 	struct cachefiles_cache *cache = object->volume->cache;
+ 	struct file *file = object->file;
+-	size_t len = iter->count;
++	size_t len = iter->count, aligned_len = len;
+ 	loff_t pos = kiocb->ki_pos;
+ 	const struct cred *saved_cred;
+ 	int ret;
+@@ -70,7 +70,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
+ 		return -ENOBUFS;
  
- 	if (cache->secctx) {
- 		pr_err("Second security context specified\n");
--		return -EINVAL;
-+		return -EEXIST;
- 	}
- 
- 	secctx = kstrdup(args, GFP_KERNEL);
+ 	cachefiles_begin_secure(cache, &saved_cred);
+-	ret = __cachefiles_prepare_write(object, file, &pos, &len, len, true);
++	ret = __cachefiles_prepare_write(object, file, &pos, &aligned_len, len, true);
+ 	cachefiles_end_secure(cache, saved_cred);
+ 	if (ret < 0)
+ 		return ret;
 -- 
 2.39.2
 
