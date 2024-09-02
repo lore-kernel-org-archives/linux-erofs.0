@@ -4,46 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A301D1627F
-	for <linux-erofs@archiver.kernel.org>; Mon, 14 Oct 2024 15:04:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4896ACD13CF
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2024 08:30:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1725265834;
+	bh=qrCNvicodlSdNtI3m0rhOX/zs3Y0RyZj7feiE8HzeJE=;
+	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
+	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
+	b=XeeSLiCiNUlspNbPbWPuB+t8iWRYfShu4lDSctc57RPbzhbJRofumuI5QkyfEAbU1
+	 aetxhybQ9fjvEJELnvpF1HylnCMopoINwxLxo9ziyfM1Hvpw8qWZxpGdRkQOXufy2j
+	 GULPShOrNnEmM1gmkUbynQk3IzmbFy2RtmA3v5ObOuz/7cPkqGfNZSe8zwx5x5uehb
+	 OU3QznCIuuWzNuoL9qqRcR/JjqaMwTfW8HsDE7t/iSwIbjqxIaYivwl5fqvj4B5oWw
+	 VJgXQJkhR5yI+0pKw6z8uOKEW0Mpc+2aBe5dg26TxwGxhZko/7U1hJwgvIdKz2RbyY
+	 +k5LbaCvUfkzw==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XS0r667x3z3cDf
-	for <linux-erofs@archiver.kernel.org>; Tue, 15 Oct 2024 02:04:22 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728918261;
-	cv=none; b=MGuil2TAXcO83S+dl2bzQdLhRMjQn20GsH+3g374mXpgtrnSFf9X6b7eBdjOWE4VD+l5XZGBcwFd9/m25Gj7Pk1eDJRyogKKjkMJ8MA9GsK13Um8QAUv8gbQRRHBFMlGAJOdN+4v85AD8AIRlWI9rKaqjgGTJcGCnp0LS+gKUgMPQHIRWxOtxyjfZgxWD4iilv55GJ1m7mhJG8UfA5cu+tiFHoVbymP74LiYUb5bHWtB4QKX1abhvC9c0o4SsqP8QWLsoVY8T4UhqBxLasbh8UBjlh6IwGAatiBjSaqmERQ3zabV6vYLtgr9+LYb0CFB74SA5PwZokarlPVg/8idgw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Wy2564jWFz2yR3
+	for <linux-erofs@archiver.kernel.org>; Mon,  2 Sep 2024 18:30:34 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=148.135.17.20
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1725265832;
+	cv=none; b=JTz1THueKNwD/VSSq0CbnuSxsxId4phToX6KvQAKWnqX/OuEF4/7OWzIEQyOipf6ub9C7eIp7WaYKc/wuZ40f6URjNzUNwhvONsch4J5XY0nN17bVtZxCs0q1f7npv3SGaMLg72kHkK+JKAhkVdOAtp1Rtp30hm6t5OJ3xRLuLm2r9h3zknT8dOKEHdzgGfSdaX+jDQdfMM/UX6qewlqpKmXCav096MK7BCkNYG25JZFj6eXc82npMIzMoSqLCuvAYcb9M+Y5nbBXJHIkODjKD35pxwwIRNhTXlQwTnVO2RdDlBQRq1RfGlkuPpJy/SZyAQH/TQYalM5uwZvJZT2nA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1728918261; c=relaxed/relaxed;
-	bh=f3vlUIcFK2AOdRKdV6A8m43KT7kiKOBOhbpDp5seMp8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VNH/gQqFI4OqhdZU0SdSsjV+vtRR3G7oxvFa6DlDvfiTnv12No8SDcWac+WQhbGj/waM7UmSJfLiLNWyFgcIrldQ7Dwb/wK9+g8Ch9xZx1MOqATfPveomBQHwwsVj4zYHknzHwoZ61xth2PqXK+fzZoZxLa8dSPe9IlzveK3Jrv+nFJSMmfTy1bxU8SKj6Qf/YWNbm4zm5sqLJyMDvLLqGFKhju02N5hxeLggbW/AGFGcGxwBHhXlArb2o93FcTaXipcfTWGyyB8ISrj5ULkt7xMtp0dprT8DRVNaZFOC+gXXNVeiQIxo4bQ+QUDtrMiHbJ7r1ujvt0HDmifrKHKcw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DO+YF+xJ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1725265832; c=relaxed/relaxed;
+	bh=qrCNvicodlSdNtI3m0rhOX/zs3Y0RyZj7feiE8HzeJE=;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Last-TLS-Session-Version; b=E/xIta1vNoetRPc1shXlfSql5ZH/gu847lKgKRW5RKpkMHNhu0eTXsS29MfIIwxCjn3H57oB4OKF3eGcKOBOlejohlU/P2nDwCzqJPJ/b25J4R7r+MwQzL0su8Fu3UAA/g/IAfD5AdN13aJJc4qEhMILU6I9VqyrXhY/BuLqcpl8vQlctpEny16aoGRGdB9fcN3OdCIQQrqmunt7t27cYbzhbSZ1aokDvRO+bBbwjmryFGpAPILb6wn78TVVGAEyHTfRhqfRk3XTXCJohpUEEDXBnMyaq9Qa7MT6WqyZknYgeFvdKzGxjV/zRO5rZQXq1VFPcOWMNoc9uazZ4+C2UA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=tlmp.cc; dkim=pass (2048-bit key; secure) header.d=tlmp.cc header.i=@tlmp.cc header.a=rsa-sha256 header.s=dkim header.b=olDWk6XD; dkim-atps=neutral; spf=pass (client-ip=148.135.17.20; helo=mail.tlmp.cc; envelope-from=toolmanp@tlmp.cc; receiver=lists.ozlabs.org) smtp.mailfrom=tlmp.cc
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=tlmp.cc
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DO+YF+xJ;
+	dkim=pass (2048-bit key; secure) header.d=tlmp.cc header.i=@tlmp.cc header.a=rsa-sha256 header.s=dkim header.b=olDWk6XD;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=tlmp.cc (client-ip=148.135.17.20; helo=mail.tlmp.cc; envelope-from=toolmanp@tlmp.cc; receiver=lists.ozlabs.org)
+Received: from mail.tlmp.cc (unknown [148.135.17.20])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XS0qv6ZDjz2x9W
-	for <linux-erofs@lists.ozlabs.org>; Tue, 15 Oct 2024 02:04:07 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728918243; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=f3vlUIcFK2AOdRKdV6A8m43KT7kiKOBOhbpDp5seMp8=;
-	b=DO+YF+xJlRivTzSwo+/LA+sZFtxk+Kd6SBgd6k9v0AC+9t+biQg/r9gehQT9qPF+r51caW4cRXWGEFuijo1v7aIuVLe6sIUz8NFcgp9H+4CegVjBODhi3HJo7vB9CFGGw/1Xvs1nCd/5jkoumX8ebERk8UtTwW7IBCL5WmPJINY=
-Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WH9vE2x_1728918241 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 14 Oct 2024 23:04:02 +0800
-From: Hongzhen Luo <hongzhen@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: tests: add test for file-backed mount
-Date: Mon, 14 Oct 2024 23:03:59 +0800
-Message-ID: <20241014150359.2185347-1-hongzhen@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Wy2542lBqz2xb9
+	for <linux-erofs@lists.ozlabs.org>; Mon,  2 Sep 2024 18:30:32 +1000 (AEST)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8A3E269799;
+	Mon,  2 Sep 2024 04:30:26 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tlmp.cc; s=dkim;
+	t=1725265829; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=qrCNvicodlSdNtI3m0rhOX/zs3Y0RyZj7feiE8HzeJE=;
+	b=olDWk6XDyTNXfPWufG3Oj3xdoICOCgnTNEpWGXoGNj9lvYiyMUG4Vy/w3dUrbOr0DJb626
+	dknvMR9yVlLpHk0w0lHrTySRjvjgfglsw60sA6Uko8Az2wvmKpKnOdMWGsBOqn+YpziFSX
+	vkb1Pq3SaUpasfuzmDxblGOTq9lpVute9aHjlA6TM4eO64wHt6H7oYlkVFWXfYwDrQN8Oi
+	kehSPDV+dXIKckWkQi4sMsmIx07RBlVndUP8gC+9GkZHJSP6dlTgcB23yW6M8qXrVNmIVe
+	sqqxlJ3jUgiqaOzubNJpl15CGA+GHo1thg04qeqHDp9UHgq00UjQUdw+101ZVg==
+To: hsiangkao@linux.alibaba.com
+Subject: 
+Date: Mon,  2 Sep 2024 16:30:22 +0800
+Message-ID: <20240902083024.448367-1-toolmanp@tlmp.cc>
+X-Mailer: git-send-email 2.46.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,102 +70,39 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+From: Yiyang Wu via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Yiyang Wu <toolmanp@tlmp.cc>
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Test for the file-backed mount feature.
+Subject: [PATCH V4 0/2] erofs: refactor fast_symlink and read_inode
 
-Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
----
- tests/Makefile.am   |  3 +++
- tests/erofs/026     | 54 +++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/026.out |  2 ++
- 3 files changed, 59 insertions(+)
- create mode 100755 tests/erofs/026
- create mode 100644 tests/erofs/026.out
+This patchset is response to the original suggestions posted here[1].
+Since my later work is somehow related to this issue, i think it's
+better to deal with it first.
 
-diff --git a/tests/Makefile.am b/tests/Makefile.am
-index 93016e5..70044a3 100644
---- a/tests/Makefile.am
-+++ b/tests/Makefile.am
-@@ -110,6 +110,9 @@ TESTS += erofs/024
- # 025 - regression test for corrupted directories with hardlinks
- TESTS += erofs/025
- 
-+# 026 - test for file-backed mount
-+TESTS += erofs/026
-+
- EXTRA_DIST = common/rc erofs
- 
- clean-local: clean-local-check
-diff --git a/tests/erofs/026 b/tests/erofs/026
-new file mode 100755
-index 0000000..2228f4b
---- /dev/null
-+++ b/tests/erofs/026
-@@ -0,0 +1,54 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0+
-+#
-+# Test for file-backed moount
-+#
-+seq=`basename $0`
-+seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
-+
-+# get standard environment, filters and checks
-+. "${srcdir}/common/rc"
-+
-+cleanup()
-+{
-+	cd /
-+	rm -rf $tmp.*
-+}
-+
-+_require_root
-+_require_erofs
-+_require_fssum
-+
-+# remove previous $seqres.full before test
-+rm -f $seqres.full
-+
-+# real QA test starts here
-+echo "QA output created by $seq"
-+
-+if [ -z $SCRATCH_DEV ]; then
-+	SCRATCH_DEV=$tmp/erofs_$seq.img
-+	rm -f SCRATCH_DEV
-+fi
-+
-+input_dir="../lib/"
-+FSSUM_OPTS="-MAC"
-+sum_std=`$FSSUM_PROG $FSSUM_OPTS "$input_dir"`
-+
-+# test uncompressed files
-+_scratch_mkfs "$input_dir" >> $seqres.full 2>&1 || _fail "failed to mkfs (uncompressed)"
-+_do_mount "-t $FSTYP $SCRATCH_DEV $SCRATCH_MNT" 2>>$seqres.full
-+sum_uncompressed=`$FSSUM_PROG $FSSUM_OPTS $SCRATCH_MNT`
-+[ "x$sum_std" = "x$sum_uncompressed" ] || _fail "-->test uncompressed files FAILED"
-+_scratch_unmount
-+
-+_require_erofs_compression "-zdeflate,9"
-+MKFS_OPTIONS=" -zdeflate,9"
-+_scratch_mkfs "$input_dir" >> $seqres.full 2>&1 || _fail "failed to mkfs (compressed)"
-+_do_mount "-t $FSTYP $SCRATCH_DEV $SCRATCH_MNT" 2>>$seqres.full
-+sum_compressed=`$FSSUM_PROG $FSSUM_OPTS $SCRATCH_MNT`
-+[ "x$sum_std" = "x$sum_compressed" ] || _fail "-->test compressed files FAILED"
-+_scratch_unmount
-+
-+echo Silence is golden
-+status=0
-+exit 0
-diff --git a/tests/erofs/026.out b/tests/erofs/026.out
-new file mode 100644
-index 0000000..e45c6a3
---- /dev/null
-+++ b/tests/erofs/026.out
-@@ -0,0 +1,2 @@
-+QA output created by 026
-+Silence is golden
+Changes in V2:
+  1. Lift the erofs_fill_symlink patch to 1/2
+  2. Fix code styles problems in read_inode patch.
+  3. Fix the formatting problems caused by clang-format.
+
+Changes in V3:
+  1. Remove some redundant variables and statements in both patches.
+
+Changes in V4:
+  1. Remove out_unlock in erofs_fill_inode and use early returns.
+  2. Fix missing initializer for erofs_buf in erofs_read_inode.
+
+[1]: https://lore.kernel.org/all/20240425222847.GN2118490@ZenIV/
+
+Yiyang Wu (2):
+  erofs: use kmemdup_nul in erofs_fill_symlink
+  erofs: refactor read_inode calling convention
+
+ fs/erofs/inode.c | 133 ++++++++++++++++++++++-------------------------
+ 1 file changed, 61 insertions(+), 72 deletions(-)
+
 -- 
-2.43.5
+2.46.0
 
