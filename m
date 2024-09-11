@@ -4,60 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8873FEE01FA
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 02:27:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49274EE01F3
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 05:32:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4X3PcX4wm7z2ysX
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 12:27:56 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1726021672;
-	cv=none; b=aJvvSvnvbGBzxS16ngGaUgdBx+ZjOA04vl2m0JomW1h7jjIUpsORZOvZSFa1uJ54OuCZuBkbiO+2JoerA5G5/B1py5gYoD2g/GEoDxc7EpsFinu5XJewd8+WM0H5kDZ9fxmTaM1EYcYIid3x+1dSSsihqiJIWz4EzNNv3jAlTh7J7KnLKddAYjL6wjr/W6JFDTNTKTGK4zJN1/JPYvIapgnW8s9qFhYtfUlxoPYeJh1rUpQKppqGfqF/W9zK6iDNkVKqZwtWmYKrBmpN5I0QDXe6zgAsOfjPNzAcqTZ4pdnf3xe2OATkYpp7yYZ0yqPm8yanl2ERyZ1lKwZyn0vyJg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4X3Tjl2H2lz2ysZ
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 15:32:43 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.19
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1726032760;
+	cv=none; b=lsfh/yzOstYHiCPV1iY7bXGZbi3iPlTRZTjqeDGnfULvJeQ2yDh2/w6jr5HEaL54BjQwxOsh8kn35x61fQePmDY55toLgtKRnlCkYkKAFBD1sqOI/E2d66NgJlE1MeusIcRdGcvkN0HvmZdDzdL3Xf7xoGQ3zJ2mHfm2O58ExXjjk05FNzRixi6tqy9qQna7BVbS+cWx/1lKZwEDwZ2Eb3o27t/Dd+qXzYCqRzJ82NV59TsyupSwP5d0fM372RsNFNhhvQyab4MMXMvYsavWJ31O1xEA9mScqV8SmvS9eRk/+uesaaHdpIXSXkaNdncBJSFnfo2hSnNxK293ZJhTgg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1726021672; c=relaxed/relaxed;
-	bh=UWMjma3Rts0LkXJu8WbmRMT3XVCO6b3DjN7/mIcP4eo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gjxd8zqEe94otFoQ36pofVE/X2CbYNNrCV+DbbL5Sy1lyXB5GG6CSD74RilfW5qiGbIQB6GkB0MKXkxOg3JprdFdmwDaX3BKOqL/W8IbIspI2LbfyCNQUIAfSFgfEt/Duyda0RIF59qQfxH8/qJp2cmyKWccNQJTEhUlrPLjey0KhQCkVMO1kmkt06hQfTupFOziSzOVdKIpZHb7/iQS17AQan4neX2XVgdim7n9s+KUiixe0i8gcViKwdePRDSc+8qvKjaUcPKegHk8flOE9RKdHzIZwdQ7rF8KRw9g70hvh6Gj/OkYgPPWLZ/iX1ZT2bCzJ+hSx57dT7uG27lhOw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f9u9/hv+; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1726032760; c=relaxed/relaxed;
+	bh=CxHokIu0R04vdnUdFDVnX46SOIi9ZvSpDo6MUVUxDLg=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=kb/9BdpO/roq/snMQJpEQp1lqFWjl9zQd2+pnvQbzhlqsy2npHagrDiRPaMXGqNRAu3jArjJxHGLgUBnBg1oTLATQjE8n/nbF6YxLcKUo3zYRp+SWBmXsYcaZ6GwvowSe5jxtCLM9OvtXggMlX6AoFiGuacMD0UKbrfRzv5fOuHLKQVAm5XdrqlX/JE/VUdaqk8IwngJ1pDXnDwJhJ2dfi2tZ5C2nyuklxoZ73EvK2VF+FSVdQVwvGJRkIfTTwN6pRGdThJwvP7HvGPPKIGN2T/o63ePBpRgrMC6yxB9XF01v44CE2rB3Ls2StLyIX9WFIE5GAMb8B3fu+1+MbzwBQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BX4MMSzG; dkim-atps=neutral; spf=pass (client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f9u9/hv+;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BX4MMSzG;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4X3PcR6PXWz2y8n
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Sep 2024 12:27:49 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1726021663; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=UWMjma3Rts0LkXJu8WbmRMT3XVCO6b3DjN7/mIcP4eo=;
-	b=f9u9/hv+G7a0U+t5ckFvuwqaUl+YyIkCp7LJYZ+wSL1bHCMaL1kbv2gGO1ISU7KmqrD9NBhz/4zCqReMdI3qqYsbIf3d90/1syKKcCw5ePjbe+bk+RYZHIg9SGGPAVxM9AJDoHuaLYfPvQFaRHf8lwqBzF/BlObVnJNWV8nWqbI=
-Received: from 30.221.130.129(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WEm00X8_1726021661)
-          by smtp.aliyun-inc.com;
-          Wed, 11 Sep 2024 10:27:42 +0800
-Message-ID: <0e3b056a-a5f8-4203-8524-16b5fecb2ca1@linux.alibaba.com>
-Date: Wed, 11 Sep 2024 10:27:40 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs: fix incorrect symlink detection in fast symlink
-To: Colin Walters <walters@verbum.org>, linux-erofs@lists.ozlabs.org
-References: <20240909022811.1105052-1-hsiangkao@linux.alibaba.com>
- <20240909031911.1174718-1-hsiangkao@linux.alibaba.com>
- <bb2dd430-7de0-47da-ae5b-82ab2dd4d945@app.fastmail.com>
- <25f0356d-d949-483c-8e59-ddc9cace61f6@linux.alibaba.com>
- <21ddadb7-407d-48b6-9c1b-845ead2eefb4@app.fastmail.com>
- <df09821e-d7ca-4bfb-8f57-2046c072af62@linux.alibaba.com>
- <91310d4c-98d5-4a8b-b3db-2043d4a3d533@app.fastmail.com>
- <f8a965ed-e962-40a8-8287-943e872d238c@linux.alibaba.com>
- <7bbda10d-cf22-4a5f-be2d-6c100cf0c5ae@app.fastmail.com>
- <e137404e-16cd-4d81-9047-2973afb4690b@linux.alibaba.com>
- <ba83ef6e-d4cc-4ade-9dd0-e3fdfa8fde70@app.fastmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <ba83ef6e-d4cc-4ade-9dd0-e3fdfa8fde70@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4X3Tjg01kvz2xqp
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Sep 2024 15:32:35 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1726032759; x=1757568759;
+  h=date:from:to:cc:subject:message-id;
+  bh=uIgXEXWr0cdv/1P5gy93eJ7DzTfQ59rE7C+HT53T7ok=;
+  b=BX4MMSzGHVio1scs/N34fsmjOcQFcRaYvXtXEGVbGgcyRUme2SyZZnGr
+   2e54jEIuTJLkf4DqsoiOaLtn7Peab2fOJs60iZ6FhPKqQvspHeV/A7Iqv
+   r4Dbuvha7bxhZplC/vAkgsd0ij7oUrrTJodAi6nO1vybS5HNobMQzHPwf
+   E0HRl2av7WSfltlNbeFgwOF6T+jAzmwvKtVHNQSfeDnGf73FHlABMoDoi
+   XjP4S2SKEIs4jvDwan0uU8mBtoIB9T0JPX+8z974WtausZFKV121bCbp6
+   Bc27In85gMcuo2KOjwuqFKCUAA8xrb6O3o14gcNnrcAFhK6PMdCUpQl/v
+   w==;
+X-CSE-ConnectionGUID: 7NNG1VOfTvWB40i8AZ236g==
+X-CSE-MsgGUID: VUrQ6cTMSI+rYLphZKYCRA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11191"; a="24680635"
+X-IronPort-AV: E=Sophos;i="6.10,219,1719903600"; 
+   d="scan'208";a="24680635"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2024 22:32:33 -0700
+X-CSE-ConnectionGUID: LTiTB60YReW7xlbqxop1iQ==
+X-CSE-MsgGUID: LxdNqsJuQwS9+hAXEd6/cg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,219,1719903600"; 
+   d="scan'208";a="67758347"
+Received: from lkp-server01.sh.intel.com (HELO 53e96f405c61) ([10.239.97.150])
+  by orviesa007.jf.intel.com with ESMTP; 10 Sep 2024 22:32:32 -0700
+Received: from kbuild by 53e96f405c61 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1soFxt-000352-1R;
+	Wed, 11 Sep 2024 05:32:29 +0000
+Date: Wed, 11 Sep 2024 13:32:01 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ a71f78705a875400b47ebf28131c7ac85192a751
+Message-ID: <202409111359.6TlKkmFb-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -69,74 +75,181 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: a71f78705a875400b47ebf28131c7ac85192a751  erofs: allocate more short-lived pages from reserved pool first
 
+elapsed time: 1286m
 
-On 2024/9/11 04:51, Colin Walters wrote:
-> 
-> 
-> On Mon, Sep 9, 2024, at 10:18 PM, Gao Xiang wrote:
-> 
->> I know you ask for an explicit check on symlink i_size, but
->> I've explained the current kernel behavior:
->>     - For symlink i_size < PAGE_SIZE (always >= 4096 on Linux),
->>       it behaves normally for EROFS Linux implementation;
->>
->>     - For symlink i_size >= PAGE_SIZE, EROFS Linux
->>       implementation will mark '\0' at PAGE_SIZE - 1 in
->>       page_get_link() -> nd_terminate_link() so the behavior is also
->>       deterministic and not harmful to the system stability and security;
-> 
-> Got it, OK.
-> 
->> In other words, currently i_size >= PAGE_SIZE is an undefined behavior
->> but Linux just truncates the link path.
-> 
-> I think where we had a miscommunication is that when I see "undefined behavior" I thought you were using the formal term: https://en.wikipedia.org/wiki/Undefined_behavior
-> 
-> The term for what you're talking about in my experience is usually "unspecified behavior" or "implementation defined behavior" which (assuming a reasonable implementor) would include silent truncation or an explicit error, but *not* walking off the end of a buffer and writing to arbitrary other kernel memory etc.
+configs tested: 158
+configs skipped: 5
 
-Yeah, agreed. "implementation defined behavior" sounds a better term.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Sorry about my limited English corpus, because the environment I'm
-living mostly is used to professional terms translated in Chinese..
+tested configs:
+alpha                             allnoconfig   gcc-13.3.0
+alpha                            allyesconfig   gcc-13.3.0
+alpha                               defconfig   gcc-13.3.0
+arc                              allmodconfig   gcc-13.2.0
+arc                               allnoconfig   gcc-13.2.0
+arc                              allyesconfig   gcc-13.2.0
+arc                          axs101_defconfig   gcc-13.2.0
+arc                                 defconfig   gcc-13.2.0
+arc                   randconfig-001-20240911   gcc-13.2.0
+arc                   randconfig-002-20240911   gcc-13.2.0
+arm                              allmodconfig   gcc-14.1.0
+arm                               allnoconfig   clang-20
+arm                              allyesconfig   gcc-14.1.0
+arm                     davinci_all_defconfig   clang-20
+arm                                 defconfig   clang-14
+arm                            mps2_defconfig   clang-20
+arm                   randconfig-001-20240911   clang-20
+arm                   randconfig-002-20240911   clang-20
+arm                   randconfig-003-20240911   clang-20
+arm                   randconfig-004-20240911   gcc-14.1.0
+arm64                            allmodconfig   clang-20
+arm64                             allnoconfig   gcc-14.1.0
+arm64                               defconfig   gcc-14.1.0
+arm64                 randconfig-001-20240911   clang-20
+arm64                 randconfig-002-20240911   clang-15
+arm64                 randconfig-003-20240911   clang-20
+arm64                 randconfig-004-20240911   clang-15
+csky                              allnoconfig   gcc-14.1.0
+csky                                defconfig   gcc-14.1.0
+csky                  randconfig-001-20240911   gcc-14.1.0
+csky                  randconfig-002-20240911   gcc-14.1.0
+hexagon                          allmodconfig   clang-20
+hexagon                           allnoconfig   clang-20
+hexagon                          allyesconfig   clang-20
+hexagon                             defconfig   clang-20
+hexagon               randconfig-001-20240911   clang-20
+hexagon               randconfig-002-20240911   clang-20
+i386                             allmodconfig   gcc-12
+i386                              allnoconfig   gcc-12
+i386                             allyesconfig   gcc-12
+i386         buildonly-randconfig-001-20240911   clang-18
+i386         buildonly-randconfig-002-20240911   gcc-12
+i386         buildonly-randconfig-003-20240911   clang-18
+i386         buildonly-randconfig-004-20240911   gcc-12
+i386         buildonly-randconfig-005-20240911   gcc-12
+i386         buildonly-randconfig-006-20240911   gcc-12
+i386                                defconfig   clang-18
+i386                  randconfig-001-20240911   gcc-12
+i386                  randconfig-002-20240911   clang-18
+i386                  randconfig-003-20240911   clang-18
+i386                  randconfig-004-20240911   gcc-12
+i386                  randconfig-005-20240911   gcc-12
+i386                  randconfig-006-20240911   clang-18
+i386                  randconfig-011-20240911   gcc-12
+i386                  randconfig-012-20240911   gcc-12
+i386                  randconfig-013-20240911   clang-18
+i386                  randconfig-014-20240911   clang-18
+i386                  randconfig-015-20240911   gcc-12
+i386                  randconfig-016-20240911   clang-18
+loongarch                        allmodconfig   gcc-14.1.0
+loongarch                         allnoconfig   gcc-14.1.0
+loongarch                           defconfig   gcc-14.1.0
+loongarch             randconfig-001-20240911   gcc-14.1.0
+loongarch             randconfig-002-20240911   gcc-14.1.0
+m68k                             allmodconfig   gcc-14.1.0
+m68k                              allnoconfig   gcc-14.1.0
+m68k                             allyesconfig   gcc-14.1.0
+m68k                                defconfig   gcc-14.1.0
+microblaze                       alldefconfig   gcc-14.1.0
+microblaze                       allmodconfig   gcc-14.1.0
+microblaze                        allnoconfig   gcc-14.1.0
+microblaze                       allyesconfig   gcc-14.1.0
+microblaze                          defconfig   gcc-14.1.0
+mips                              allnoconfig   gcc-14.1.0
+nios2                             allnoconfig   gcc-14.1.0
+nios2                               defconfig   gcc-14.1.0
+nios2                 randconfig-001-20240911   gcc-14.1.0
+nios2                 randconfig-002-20240911   gcc-14.1.0
+openrisc                          allnoconfig   gcc-14.1.0
+openrisc                         allyesconfig   gcc-14.1.0
+openrisc                            defconfig   gcc-14.1.0
+parisc                           allmodconfig   gcc-14.1.0
+parisc                            allnoconfig   gcc-14.1.0
+parisc                           allyesconfig   gcc-14.1.0
+parisc                              defconfig   gcc-14.1.0
+parisc                randconfig-001-20240911   gcc-14.1.0
+parisc                randconfig-002-20240911   gcc-14.1.0
+parisc64                            defconfig   gcc-14.1.0
+powerpc                          allmodconfig   gcc-14.1.0
+powerpc                           allnoconfig   gcc-14.1.0
+powerpc                          allyesconfig   clang-20
+powerpc               randconfig-001-20240911   clang-20
+powerpc               randconfig-002-20240911   gcc-14.1.0
+powerpc               randconfig-003-20240911   gcc-14.1.0
+powerpc64             randconfig-001-20240911   clang-17
+powerpc64             randconfig-002-20240911   clang-15
+powerpc64             randconfig-003-20240911   gcc-14.1.0
+riscv                            allmodconfig   clang-20
+riscv                             allnoconfig   gcc-14.1.0
+riscv                            allyesconfig   clang-20
+riscv                               defconfig   clang-20
+riscv                 randconfig-001-20240911   gcc-14.1.0
+riscv                 randconfig-002-20240911   gcc-14.1.0
+s390                             allmodconfig   clang-20
+s390                              allnoconfig   clang-20
+s390                             allyesconfig   gcc-14.1.0
+s390                                defconfig   clang-20
+s390                  randconfig-001-20240911   gcc-14.1.0
+s390                  randconfig-002-20240911   clang-20
+sh                               allmodconfig   gcc-14.1.0
+sh                                allnoconfig   gcc-14.1.0
+sh                               allyesconfig   gcc-14.1.0
+sh                                  defconfig   gcc-14.1.0
+sh                    randconfig-001-20240911   gcc-14.1.0
+sh                    randconfig-002-20240911   gcc-14.1.0
+sparc                            allmodconfig   gcc-14.1.0
+sparc64                             defconfig   gcc-14.1.0
+sparc64               randconfig-001-20240911   gcc-14.1.0
+sparc64               randconfig-002-20240911   gcc-14.1.0
+um                               allmodconfig   clang-20
+um                                allnoconfig   clang-17
+um                               allyesconfig   gcc-12
+um                                  defconfig   clang-20
+um                             i386_defconfig   gcc-12
+um                    randconfig-001-20240911   clang-15
+um                    randconfig-002-20240911   clang-20
+um                           x86_64_defconfig   clang-15
+x86_64                            allnoconfig   clang-18
+x86_64                           allyesconfig   clang-18
+x86_64       buildonly-randconfig-001-20240911   clang-18
+x86_64       buildonly-randconfig-002-20240911   clang-18
+x86_64       buildonly-randconfig-003-20240911   gcc-12
+x86_64       buildonly-randconfig-004-20240911   gcc-12
+x86_64       buildonly-randconfig-005-20240911   gcc-12
+x86_64       buildonly-randconfig-006-20240911   clang-18
+x86_64                              defconfig   gcc-11
+x86_64                randconfig-001-20240911   gcc-12
+x86_64                randconfig-002-20240911   gcc-12
+x86_64                randconfig-003-20240911   clang-18
+x86_64                randconfig-004-20240911   clang-18
+x86_64                randconfig-005-20240911   clang-18
+x86_64                randconfig-006-20240911   gcc-12
+x86_64                randconfig-011-20240911   clang-18
+x86_64                randconfig-012-20240911   clang-18
+x86_64                randconfig-013-20240911   gcc-12
+x86_64                randconfig-014-20240911   clang-18
+x86_64                randconfig-015-20240911   gcc-12
+x86_64                randconfig-016-20240911   clang-18
+x86_64                randconfig-071-20240911   clang-18
+x86_64                randconfig-072-20240911   gcc-11
+x86_64                randconfig-073-20240911   clang-18
+x86_64                randconfig-074-20240911   clang-18
+x86_64                randconfig-075-20240911   gcc-12
+x86_64                randconfig-076-20240911   clang-18
+x86_64                          rhel-8.3-rust   clang-18
+xtensa                            allnoconfig   gcc-14.1.0
+xtensa                randconfig-001-20240911   gcc-14.1.0
+xtensa                randconfig-002-20240911   gcc-14.1.0
 
-> 
-> (Hmm really given the widespread use of nd_terminate_link I guess this is kind of more of a "Linux convention" than just an EROFS one, with XFS as a notable exception?)
-
-I'm not sure if other kernel fses have their own internal issues
-(so they need to check i_size > PAGE_SIZE to cover up their own
-format design in advance), but I think (and tested with crafted
-images) EROFS with pure only Linux VFS nd_terminate_link()
-implementation (since 2.6.x era)
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ebd09abbd9699f328165aee50a070403fbf55a37
-
-is already safe on i_size > PAGE_SIZE since EROFS symlink on-disk
-format is just like its regular inode format.
-
-As for XFS, I think it's a history on-disk behavior (1024-byte
-hard limitation) so they have to follow until now, see the related
-commit message:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6eb0b8df9f74f33d1a69100117630a7a87a9cc96
-
-> 
->> For this case, to be clear I'm totally fine with the limitation,
->> but I need to decide whether I should make "EROFS_SYMLINK_MAXLEN"
->> as 4095 or "EROFS_SYMLINK_MAXLEN" as 4096 but also accepts
->> `link[4095] == '\0'`.
-> 
-> Mmmm...I think PATH_MAX is conventionally taken to include the NUL; yeah see
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/namei.c?id=b40c8e7a033ff2cafd33adbe50e2a516f88fa223#n123
-
-Agreed, but honestly I have some concern if some OS or tar format
-or other popular archive formats support large symlinks but EROFS
-have no way to keep them due to on-disk limitation.
-
-If you don't have some strong opinion on this, I do hope let's
-hold off our decision about this to ensure compatibility.
-
-Thanks,
-Gao Xiang
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
