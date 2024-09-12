@@ -4,52 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA5A7EE021F
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 09:10:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C34FEE645A
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Sep 2024 07:42:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4X3ZXk1CYXz2ysv
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Sep 2024 19:10:14 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1726045812;
-	cv=none; b=AKr/1OibICiACAKP+800/3eMG2tOQ4Iji8ptD6xCq6vJfTWcynm8mNKVjQVWwPIJmlkuNpRZQqQUsB4aO4wvUjDeTB94ziVXz0h2M1NgRhiTf3oNJpq5Dm+tDxfy7lySJX75UQDaZeb+DXLKqp1HcwkoYM4BKp1cY5dhQwZzzLYdtW3LWWvmEgLGx2u6ICoTAD+0vY1tifkeMCMKcAmlD6VXvX8xMbUgiWH9bD0++6JZ1xahIIxIKY7KY78qUqWXcxBQCOHokehDPvJedi+lj7YsvKpaK7/Q25ZejyYxk1vfRqb7TVY0X/zfWSmULNJccBNcdUqKmPXU6nEKOhfodQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4X48Xj2pHyz2yfj
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Sep 2024 17:42:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1726126930;
+	cv=none; b=Urr9Fho/Ued0KpTs4QfjgOuxyFAzedUG3J70IFXcwSIQa7q9DHx04CiV83R1YYzGFFzjuHquTEhWBea62m0yoskivJaQgcYTuhDcv+FzBXSmhxHX83ZizYLSH5Ha25X5EIFwxICjBLdgcTc8EhxwCWCukhRnwJ3tolhKXScHbbYpPez7x+7b7WTNuQhqNRrSLW7lPJo+WHDKK8qy6WT8kLwHqMhrHrRCroVx1BZn/JNecY24mxClTZ0UcxfptWcrjw0a5nCWuTqt/kXMG2k8Ve8H8jPxoknTVWh+1MZK5oxCgIih5UgiGWZxphLk4xQl7G//UIEEa+sJFB7NoE1vCA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1726045812; c=relaxed/relaxed;
-	bh=6GBalTn99XOki/SPNwAXzWOmyQ01BL3VEvDM3bVtpKU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=obbrE07GnTGKy8eV2CUieVw7Y5t0PifeiiG6AD3xGRJfX+njOD7heUF2pd/ZpdH3ClQoN5MC2S05HVzCr2fTO86QVRRPlVdAenQaXth19D+tYH7awcouEjp8Fo6XPErbPcHtj3Lu2aXV+DwrgUITkqAGdXAHkRLHapQqiXsKbMFuDNffxH5hf3Xe64zUDxs+V6p2tEF9k8zBONi3Lj29Gjef7I3Qli00Ct6DnlIANjizIH0bbq5vW8al4+9aVdrsJvyWNnbSDiZtGZdf2vwZsIAkGJDlvoJz2j5diiNlJ2MuuhJe6cxphwTu9fFtL2qmKBpp+O8gNsRoQpT9lmzaSw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=dC/pQjh6; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1726126930; c=relaxed/relaxed;
+	bh=U3zpUFdb+C2ZY/A+Fe1YciE/MRfJO397mZ/cfuh02Kk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o3SIazYpu4s1yaIpSSQWFnVJO1v/Gz04D2cC024AKIK1Yonkdz8VR/KM+aRq36BeKE2e3nhJ3tE1Yo/7dSWuWS3pa7P66+uVu84d+Hp6PokcBBnJ3YoJvMprZRSz5nJt0AGU2/rlpu97v8vFqbcHsB+isXseAErHDjL0AEpVExCyORZVqitSC6R6uGA91GkWh2j8deRDvlXOcsBZ6ckiBm/AE6Gvh5j9PC9R3zeb4EHjb1b9UAua9Fo1tP7n7fs1BveYkSKm6uCL1Y1H59wkGIXIphdUzBvyC3gBYt10JSHvtDUiWaLMIjZsrA9L0dgr71ZNEIAEi7oLs5db/UAAGA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=eoOyul7a; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=dC/pQjh6;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=eoOyul7a;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4X3ZXg3vH3z2xQD
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Sep 2024 19:10:10 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4X48Xd0vRzz2yKD
+	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Sep 2024 17:42:06 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1726045807; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=6GBalTn99XOki/SPNwAXzWOmyQ01BL3VEvDM3bVtpKU=;
-	b=dC/pQjh6UjDNSOFzbtiMsFU6Y5HzJvVDuHttnnk8He2sXOtrB+qfZ96k0Hsd0Avm/i+O8v7Dk/OMBG8ZScbG/rvdSJ73RIgD2auJp+x8P1Ig/zpjelyfFKQZXAglZw5ftxDzsFkvvj4TcklMvutTxTFfA5TYD7EbnmeOYdw310w=
-Received: from 30.221.132.109(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WEnSqa._1726045805)
+	t=1726126922; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=U3zpUFdb+C2ZY/A+Fe1YciE/MRfJO397mZ/cfuh02Kk=;
+	b=eoOyul7aY7n6TW/BZrnQtpF2RnvluJVA43VVhICbJScNvPUPrzjhRmUD0nc5lLIMY7rwPT+2IxaNNF7WglN716XwF7QXaN3KJsiTN+tEghIDJHyU3sfS2a2FNEx0SQjhpAV9mC5vkcnlc2icQMAki2fPMoYCF1EZy0cs+mDNc1A=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WEqd5Ck_1726126917)
           by smtp.aliyun-inc.com;
-          Wed, 11 Sep 2024 17:10:06 +0800
-Message-ID: <db1bbf20-83b5-4b66-a771-ea08d28117a6@linux.alibaba.com>
-Date: Wed, 11 Sep 2024 17:10:05 +0800
+          Thu, 12 Sep 2024 15:42:01 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs: restrict pcluster size limitations
+Date: Thu, 12 Sep 2024 15:41:56 +0800
+Message-ID: <20240912074156.2925394-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] erofs-utils: lib: fix incorrect nblocks in block list
- for chunked inodes
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20240911085531.2133723-1-hongzhen@linux.alibaba.com>
- <b5f151d1-d29a-44f2-8601-5943e717cd07@linux.alibaba.com>
-From: Hongzhen Luo <hongzhen@linux.alibaba.com>
-In-Reply-To: <b5f151d1-d29a-44f2-8601-5943e717cd07@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,34 +55,99 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Error out if {en,de}encoded size of a pcluster is unsupported:
+  Maximum supported encoded size (of a pcluster):  1 MiB
+  Maximum supported decoded size (of a pcluster): 12 MiB
 
-On 2024/9/11 17:04, Gao Xiang wrote:
->
->
-> On 2024/9/11 16:55, Hongzhen Luo wrote:
->> Currently, the number of physical blocks (nblocks) for the last chunk
->> written to the block list file is incorrectly recorded as the inode
->> chunksize.
->>
->> This patch writes the actual number of physical blocks for the inode in
->> the last chunk to the block list file.
->
-> You should attach "Fixes:" tags here as I previously suggested.
-> I will manually add for this time.
->
-Sure, I will do it this way in the future.
+Users can still choose to use supported large configurations (e.g.,
+for archival purposes), but there may be performance penalties in
+low-memory scenarios compared to smaller pclusters.
 
-Thanks,
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/erofs_fs.h |  5 ++++-
+ fs/erofs/zmap.c     | 42 ++++++++++++++++++++----------------------
+ 2 files changed, 24 insertions(+), 23 deletions(-)
 
-Hongzhen Luo
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index 6c0c270c42e1..c8f2ae845bd2 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -288,9 +288,12 @@ struct erofs_dirent {
+ 
+ #define EROFS_NAME_LEN      255
+ 
+-/* maximum supported size of a physical compression cluster */
++/* maximum supported encoded size of a physical compressed cluster */
+ #define Z_EROFS_PCLUSTER_MAX_SIZE	(1024 * 1024)
+ 
++/* maximum supported decoded size of a physical compressed cluster */
++#define Z_EROFS_PCLUSTER_MAX_DSIZE	(12 * 1024 * 1024)
++
+ /* available compression algorithm types (for h_algorithmtype) */
+ enum {
+ 	Z_EROFS_COMPRESSION_LZ4		= 0,
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 403af6e31d5b..e980e29873a5 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -687,32 +687,30 @@ int z_erofs_map_blocks_iter(struct inode *inode, struct erofs_map_blocks *map,
+ 	int err = 0;
+ 
+ 	trace_erofs_map_blocks_enter(inode, map, flags);
+-
+-	/* when trying to read beyond EOF, leave it unmapped */
+-	if (map->m_la >= inode->i_size) {
++	if (map->m_la >= inode->i_size) {	/* post-EOF unmapped extent */
+ 		map->m_llen = map->m_la + 1 - inode->i_size;
+ 		map->m_la = inode->i_size;
+ 		map->m_flags = 0;
+-		goto out;
+-	}
+-
+-	err = z_erofs_fill_inode_lazy(inode);
+-	if (err)
+-		goto out;
+-
+-	if ((vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER) &&
+-	    !vi->z_tailextent_headlcn) {
+-		map->m_la = 0;
+-		map->m_llen = inode->i_size;
+-		map->m_flags = EROFS_MAP_MAPPED | EROFS_MAP_FULL_MAPPED |
+-				EROFS_MAP_FRAGMENT;
+-		goto out;
++	} else {
++		err = z_erofs_fill_inode_lazy(inode);
++		if (!err) {
++			if ((vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER) &&
++			    !vi->z_tailextent_headlcn) {
++				map->m_la = 0;
++				map->m_llen = inode->i_size;
++				map->m_flags = EROFS_MAP_MAPPED |
++					EROFS_MAP_FULL_MAPPED | EROFS_MAP_FRAGMENT;
++			} else {
++				err = z_erofs_do_map_blocks(inode, map, flags);
++			}
++		}
++		if (!err && (map->m_flags & EROFS_MAP_ENCODED) &&
++		    unlikely(map->m_plen > Z_EROFS_PCLUSTER_MAX_SIZE ||
++			     map->m_llen > Z_EROFS_PCLUSTER_MAX_DSIZE))
++			err = -EOPNOTSUPP;
++		if (err)
++			map->m_llen = 0;
+ 	}
+-
+-	err = z_erofs_do_map_blocks(inode, map, flags);
+-out:
+-	if (err)
+-		map->m_llen = 0;
+ 	trace_erofs_map_blocks_exit(inode, map, flags, err);
+ 	return err;
+ }
+-- 
+2.43.5
 
->>
->> Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
->
-> Otherwise it looks good to me.
->
-> Thanks,
-> Gao Xiang
