@@ -4,79 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A63AECF9C72
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Sep 2024 15:08:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12544CF9C6F
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Sep 2024 15:08:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XC5wv2LT7z2yZd
-	for <linux-erofs@archiver.kernel.org>; Tue, 24 Sep 2024 01:08:47 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1727104124;
-	cv=none; b=jyZP/xi/9PsWlGmjPJRV78DIg/GncRs/fnH7XkVfpxB8spXJsBkhEevfECmoS77VN5/ydzCI7iV8g5rlW0LifOsVh5dNcspHXRolJSTl3rbAP6aj0EtsT0CM2rgisfL34wmq7rExmBDLzU2e+z0hukXLQVtqeFfiBa+6446B3il3btjAOigqZffJ3FEIGpTY6ZjA34yiFmBAMdsCsJXDqJOkvzEyOjDWW0a1ZC78E62eZnE+I4+1YT3i3Ta0rs4EX9lOxceGajwS3jPzcQdOnRE0AXAWivIw5RGBooWjgwPMfk+3UFAYetDDGjCq8tT6mzPgK+qTxUFpkWIPv4LR5A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XC5wz5WRfz2yhG
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Sep 2024 01:08:51 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1727104129;
+	cv=none; b=hHoDDK4AkW5Gux3hdwfgwwd4qL0ZE+TQmhflInoP6IAN+whTNbNZcz4zhzaubWfMH877aCuJ5vJhmA9RPiXDxgIuQcIcgDTBf2lbnaxgYFyLxYiJYqZyvLslb+vcX5K7IbsO3dcKC+UZ9jEyOBkKDePSTZJ56p8DMlV9uQWqcvXRI5KAacsJIUaPKEyBSqB4TNUyOKnZybdd5dl5Vx5+6M7OQp2NnS1A94TfTcLW88U62x3gkKqa7QvGiO8GdFuJQIijplE4cAjfeZ3rb5v8mcQX7TK3iFqtk4fpp+EB/HEk/Y5pPJK2T03rQS887YJnv37fzY5HfFnMiHA3dScnUQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1727104124; c=relaxed/relaxed;
-	bh=7sJs50CQB1rXW7Czy4aIaKRpcUNrb/d4a0miNhatVWk=;
+	t=1727104129; c=relaxed/relaxed;
+	bh=3lKiHWTaBx3zx8IjGF1i+IbwHetAMo/Hx9i4LC4nBI4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IrbXGCajy/N6WBgssKJGSnBkVuzsU/gQCo5FQAmjPw6p8zcn+PSqrZvEJ48pWyawitge7gHSfJ99rjbEW7zAjv0yvfgCRR92LoDC8W4QtBCEAk3HvfZNoyrvXz7fbpfbvAbvjc1RkQrWXUHESQntIYYORt8blGlVJaGEzZvjXRzpgee2jLcKvfZxcY/fKmMZfZNOuNLyjhv+u7qS6GVW5wOj32YnENCjxGAUd7jGw9TQFYi+qgxDsUimz9/sqPTP2HyfttGkrghT//Z8AqujNtgwjrUeLjzir7tBIrRIXeOSjd3fB2gyms6K4lTHoBJGLzAK8vd63dl7YOX19asQ5Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LQ8fZjP9; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LQ8fZjP9; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version; b=j1kCh6FQaZzLoCV+rIavtU0vJVd3ttCatlHMK8R5+TLyuUnPZyp8olTy+d6T/9uqW74B2CiD7JdJfNwOx8j7ymyVTE1wrcwGgmMGbDjlgUjB6gOS534F+j7CX1xpug7qaZmwTX5rUFus1XJThWY045zkOS9PVnadMMWQsECoRcdmagbPXl5XySLzxvUuZadShtKIzRzHSuk6ZsCeVs/pDRc+rcxpterPer0RZUlxZpuxgYFfzpMHhBvOg6EUz/ltvW7Bvl8/AkspFUXvb7Lm0OC1himPB56L+WyYkihqw7E3C9bGY1INHWCrIhemj/deCFb2ARne9x2ypNEJpR0Wog==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fsf5hCz+; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fsf5hCz+; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LQ8fZjP9;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LQ8fZjP9;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fsf5hCz+;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fsf5hCz+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XC5wr39JHz2xg3
-	for <linux-erofs@lists.ozlabs.org>; Tue, 24 Sep 2024 01:08:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XC5ww5TYcz2yPq
+	for <linux-erofs@lists.ozlabs.org>; Tue, 24 Sep 2024 01:08:48 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727104121;
+	s=mimecast20190719; t=1727104126;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7sJs50CQB1rXW7Czy4aIaKRpcUNrb/d4a0miNhatVWk=;
-	b=LQ8fZjP9fU0DElz2zVVzmbY+3+Ii4Fk2gnE2pkFu6OU/FY1RIH35R78tgMiZmngWeVYpU+
-	EAviQP1q2lU3oM7nwFmoZIkRxjMvEvOioYxeDNpiY5Ltv1uM+/OnIBV1b4VBFsDrotEdxE
-	tZVH4SBzax4ABFZpwCaSpt3tHvBoJy0=
+	bh=3lKiHWTaBx3zx8IjGF1i+IbwHetAMo/Hx9i4LC4nBI4=;
+	b=fsf5hCz+3BHRr1WVXiOxEM6jVTMKARH7mxTfClSdyAQHMWwLkd/rpJTd9RBISWfqaWeRVU
+	qyiiMhWyz7BI/er1iinIZMH9o/g48qnv5crucZK2EutdTzNgNcMazHwdUXsOCKKtzZ6gDI
+	9xqYXwSDK1jeMU/ZF1ulKuO4WJeEVWQ=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1727104121;
+	s=mimecast20190719; t=1727104126;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7sJs50CQB1rXW7Czy4aIaKRpcUNrb/d4a0miNhatVWk=;
-	b=LQ8fZjP9fU0DElz2zVVzmbY+3+Ii4Fk2gnE2pkFu6OU/FY1RIH35R78tgMiZmngWeVYpU+
-	EAviQP1q2lU3oM7nwFmoZIkRxjMvEvOioYxeDNpiY5Ltv1uM+/OnIBV1b4VBFsDrotEdxE
-	tZVH4SBzax4ABFZpwCaSpt3tHvBoJy0=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+	bh=3lKiHWTaBx3zx8IjGF1i+IbwHetAMo/Hx9i4LC4nBI4=;
+	b=fsf5hCz+3BHRr1WVXiOxEM6jVTMKARH7mxTfClSdyAQHMWwLkd/rpJTd9RBISWfqaWeRVU
+	qyiiMhWyz7BI/er1iinIZMH9o/g48qnv5crucZK2EutdTzNgNcMazHwdUXsOCKKtzZ6gDI
+	9xqYXwSDK1jeMU/ZF1ulKuO4WJeEVWQ=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-74-MvVAiCEgPwSeBw7yfVwWvA-1; Mon,
- 23 Sep 2024 11:08:39 -0400
-X-MC-Unique: MvVAiCEgPwSeBw7yfVwWvA-1
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (unknown [10.30.177.12])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-633-Odl9lH7FPeeRz2-0q0JfvA-1; Mon,
+ 23 Sep 2024 11:08:42 -0400
+X-MC-Unique: Odl9lH7FPeeRz2-0q0JfvA-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (unknown [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E4E23195FE03;
-	Mon, 23 Sep 2024 15:08:36 +0000 (UTC)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 059CD18BC605;
+	Mon, 23 Sep 2024 15:08:40 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.42.28.145])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C252F1954190;
-	Mon, 23 Sep 2024 15:08:18 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 51FD51977026;
+	Mon, 23 Sep 2024 15:08:31 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>,
 	Steve French <sfrench@samba.org>,
 	Marc Dionne <marc.dionne@auristor.com>
-Subject: [PATCH 3/8] afs: Fix missing wire-up of afs_retry_request()
-Date: Mon, 23 Sep 2024 16:07:47 +0100
-Message-ID: <20240923150756.902363-4-dhowells@redhat.com>
+Subject: [PATCH 5/8] afs: Fix possible infinite loop with unresponsive servers
+Date: Mon, 23 Sep 2024 16:07:49 +0100
+Message-ID: <20240923150756.902363-6-dhowells@redhat.com>
 In-Reply-To: <20240923150756.902363-1-dhowells@redhat.com>
 References: <20240923150756.902363-1-dhowells@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -88,39 +88,80 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, "Dr. David Alan Gilbert" <linux@treblig.org>, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org
+Cc: Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, ceph-devel@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-afs@lists.infradead.org, Markus Suvanto <markus.suvanto@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-afs_retry_request() is supposed to be pointed to by the afs_req_ops netfs
-operations table, but the pointer got lost somewhere.  The function is used
-during writeback to rotate through the authentication keys that were in
-force when the file was modified locally.
+From: Marc Dionne <marc.dionne@auristor.com>
 
-Fix this by adding the pointer to the function.
+A return code of 0 from afs_wait_for_one_fs_probe is an indication
+that the endpoint state attached to the operation is stale and has
+been superseded.  In that case the iteration needs to be restarted
+so that the newer probe result state gets used.
 
-Fixes: 1ecb146f7cd8 ("netfs, afs: Use writeback retry to deal with alternate keys")
-Reported-by: "Dr. David Alan Gilbert" <linux@treblig.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: Jeff Layton <jlayton@kernel.org>
+Failure to do so can result in an tight infinite loop around the
+iterate_address label, where all addresses are thought to be responsive
+and have been tried, with nothing to refresh the endpoint state.
+
+Fixes: 495f2ae9e355 ("afs: Fix fileserver rotation")
+Reported-by: Markus Suvanto <markus.suvanto@gmail.com>
+Link: https://lists.infradead.org/pipermail/linux-afs/2024-July/008628.html
 cc: linux-afs@lists.infradead.org
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/r/20240906134019.131553-1-marc.dionne@auristor.com/
 ---
- fs/afs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/fs_probe.c |  4 ++--
+ fs/afs/rotate.c   | 11 ++++++++---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/fs/afs/file.c b/fs/afs/file.c
-index 1d30924cec5b..f717168da4ab 100644
---- a/fs/afs/file.c
-+++ b/fs/afs/file.c
-@@ -425,6 +425,7 @@ const struct netfs_request_ops afs_req_ops = {
- 	.begin_writeback	= afs_begin_writeback,
- 	.prepare_write		= afs_prepare_write,
- 	.issue_write		= afs_issue_write,
-+	.retry_request		= afs_retry_request,
- };
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index 580de4adaaf6..b516d05b0fef 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -506,10 +506,10 @@ int afs_wait_for_one_fs_probe(struct afs_server *server, struct afs_endpoint_sta
+ 	finish_wait(&server->probe_wq, &wait);
  
- static void afs_add_open_mmap(struct afs_vnode *vnode)
+ dont_wait:
+-	if (estate->responsive_set & ~exclude)
+-		return 1;
+ 	if (test_bit(AFS_ESTATE_SUPERSEDED, &estate->flags))
+ 		return 0;
++	if (estate->responsive_set & ~exclude)
++		return 1;
+ 	if (is_intr && signal_pending(current))
+ 		return -ERESTARTSYS;
+ 	if (timo == 0)
+diff --git a/fs/afs/rotate.c b/fs/afs/rotate.c
+index ed09d4d4c211..d612983d6f38 100644
+--- a/fs/afs/rotate.c
++++ b/fs/afs/rotate.c
+@@ -632,8 +632,10 @@ bool afs_select_fileserver(struct afs_operation *op)
+ wait_for_more_probe_results:
+ 	error = afs_wait_for_one_fs_probe(op->server, op->estate, op->addr_tried,
+ 					  !(op->flags & AFS_OPERATION_UNINTR));
+-	if (!error)
++	if (error == 1)
+ 		goto iterate_address;
++	if (!error)
++		goto restart_from_beginning;
+ 
+ 	/* We've now had a failure to respond on all of a server's addresses -
+ 	 * immediately probe them again and consider retrying the server.
+@@ -644,10 +646,13 @@ bool afs_select_fileserver(struct afs_operation *op)
+ 		error = afs_wait_for_one_fs_probe(op->server, op->estate, op->addr_tried,
+ 						  !(op->flags & AFS_OPERATION_UNINTR));
+ 		switch (error) {
+-		case 0:
++		case 1:
+ 			op->flags &= ~AFS_OPERATION_RETRY_SERVER;
+-			trace_afs_rotate(op, afs_rotate_trace_retry_server, 0);
++			trace_afs_rotate(op, afs_rotate_trace_retry_server, 1);
+ 			goto retry_server;
++		case 0:
++			trace_afs_rotate(op, afs_rotate_trace_retry_server, 0);
++			goto restart_from_beginning;
+ 		case -ERESTARTSYS:
+ 			afs_op_set_error(op, error);
+ 			goto failed;
 
