@@ -4,54 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F175CED27E
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 08:48:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A265ACEF14A
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 09:56:31 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XN8n94W8sz2yZS
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 19:48:29 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728377308;
-	cv=none; b=gOGPuj9AVYAunjXZJJFim5UiteZB5itwdiFHFbMTGQQPF1WYoabZ1bSxFKJbZfkcCaiBwiQn+TTQaBH5/tZcngFTOu986tzwLX4RULL5Dl6virx0r2v435J5FDPfArmM7HaU5Ahh9fCmU6Vh0gIPPrGzQtHFryuqvmWnZQIgX32B9kYS6fkD7dY5P4i0g65aCyNBzy++slVoQdrE65atZre0c+yenwJl5QLhlEVSSuDpkzf5P2bO9NxdIA+a4BixJAVLdANlohEsgCAIkx4RPzQ9LDgY0auq9Cj2yTLxD93oFKfKSnNJ76uqAh4hEJhW2+vcc9cPLz93VH76Fvev5w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XNBHd4VnPz2yx7
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 20:56:29 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728381388;
+	cv=none; b=AxSlq5ONTiPVxhKrvlKatpzQskYyJJqUJnuGH6m5+sB51mreqwfu9alwrVni26L9AF7iJJTJBNB3UwyXkMF+OqexLyQhWhs8rOjAqOU6ZJirUf2l6Vnbol9evL65P7YBK0+3oXVB+hWSqFtxf+zCRJIDmjwN21NgK1XtHkmb2rZsqbQ2Is0DFTruhsh4mP02XgZztaMnSIi+w9czDLRhsYV8xKZVWNW8JSTXNPfPIPLsult3bxLEcPWUIx0jugKmpsCXwW2ITJKmVcz6xauEbyoXWVrH0OlyGcg0d0IMh2Ydg3LcI1TVjFTrkQrdlHXcPveWQMFjdwjGj71BT/LViA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1728377308; c=relaxed/relaxed;
-	bh=0NyW6bEkcTAV3r2ZXDGCX9ZEqYnZHArarZL+caGXqFU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ipQlTVJttTWWMwR0BTgb58v0lpya138eyHNVyIDLZ1Vco0ZdgnHh9YPzFgEPRUep1jXMAQujXg2mdTNBU3z5Js3U96Ik+1UXDK5wNmZ9REOW4G5HvtJxnpX9a//5UbQxycJs1XqkfLOUrbBdXd88pgnjWDysqvWib945cpH3YKsSQ3rKRZbADl7FrcdpgXqCky+gspdDwRZ0E0ZcuYjSjgvmdF4zpO5nw4qRDF1ofMydrKkt6pYYk6QC3R3JYYlvLwbROljCWqcI2uaXLb2Pz12UM+RihYm5cOQGA92i2uXtbyLYh5jYnzxAJDJVDkEdp+Pxvw8iCl+F+Ex0elO1Iw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=a5qbs/CR; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1728381388; c=relaxed/relaxed;
+	bh=1k0liHka3S7LfAa+7MLacRLt1xutM2cYpmE1M22Izy0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dl+U+b3K7MwHfje5mhIE8m6M7wxGnzquXi/0TQAbU2cXEPOUH88AzYnfNGjMX7UHuqNTwcWAzzWAFkQpJF/vSiDmwdW8yiBDPWutFp+Xn4NpT82GjXtaXTtqI07ejbIac5mmnJ1IBDlBvEVDfIv6BtV8ND3Lhcb5WR8Ot9NChgcipFxzH9qSxWD/yo5okKqL9ik9mx1W5EAhlRV7TjkLE8bdMJH2eUqKsss2tTAyLhToAtjI8/zEvxbnR2Pe2v+cYTJ1+tgbp8kEIUP9ENkHp1tpM5NSGMVJGNvm59/2cU7Uwjv0zI4apoihtuPpGiUfJT26rJReBwbBWNNm7xqMEg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RlcsT7O1; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=a5qbs/CR;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RlcsT7O1;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XN8n45DLQz2xHb
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 19:48:22 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XNBHW6vFrz2yN2
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 20:56:20 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1728377298; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=0NyW6bEkcTAV3r2ZXDGCX9ZEqYnZHArarZL+caGXqFU=;
-	b=a5qbs/CRAr3rNVQKucnvpNty32K8tnZ/FnauzqKFgwFTrXslRwb8dbhX2wi6KOTruvApD/o7RAmxoFSTRcDERIbnvhPOepj9JSVzL5CKGmu0tbtiD3m3B+UE1heVQSPkNMP8QCFl+YKV2TStZDEbJ4WticoBAL90cxQy0Lohv9o=
-Received: from 30.221.129.198(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WGcMdA8_1728377295)
+	t=1728381377; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=1k0liHka3S7LfAa+7MLacRLt1xutM2cYpmE1M22Izy0=;
+	b=RlcsT7O1zmVccjYCUsN3JNjcPewAtcPmzkjBNcm/yCVbIin3H9AjV8ErszPGGfGWw21ViWAWjXOS2Ets10XvJW2FIlhijz0xWIOxac2IC/9DqXYdgKewKLoh4Tkxsi6FmWCzCVOiIpY//neidTE+9hjuIGmJBmhlGG7bjAdm/V0=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WGdZ8t5_1728381374)
           by smtp.aliyun-inc.com;
-          Tue, 08 Oct 2024 16:48:16 +0800
-Message-ID: <e164898b-0094-4e66-a462-4302d56a8f71@linux.alibaba.com>
-Date: Tue, 8 Oct 2024 16:48:15 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Incorrect error message from erofs "backed by file" in 6.12-rc
-To: Christian Brauner <brauner@kernel.org>
-References: <CAOYeF9VQ8jKVmpy5Zy9DNhO6xmWSKMB-DO8yvBB0XvBE7=3Ugg@mail.gmail.com>
- <bb781cf6-1baf-4a98-94a5-f261a556d492@linux.alibaba.com>
- <20241007-zwietracht-flehen-1eeed6fac1a5@brauner>
- <b9565874-7018-46ef-b123-b524a1dffb21@linux.alibaba.com>
- <20241008-blicken-ziehharmonika-de395b6dd566@brauner>
+          Tue, 08 Oct 2024 17:56:15 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20241008-blicken-ziehharmonika-de395b6dd566@brauner>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Christian Brauner <brauner@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Jan Kara <jack@suse.cz>
+Subject: [PATCH 2/2] erofs: use get_tree_bdev_by_dev() to avoid misleading messages
+Date: Tue,  8 Oct 2024 17:56:06 +0800
+Message-ID: <20241008095606.990466-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20241008095606.990466-1-hsiangkao@linux.alibaba.com>
+References: <20241008095606.990466-1-hsiangkao@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -63,77 +60,47 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, Allison Karlitskaya <allison.karlitskaya@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org, Allison Karlitskaya <allison.karlitskaya@redhat.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Users can pass in an arbitrary source path for the proper type of
+a mount then without "Can't lookup blockdev" error message.
 
+Reported-by: Allison Karlitskaya <allison.karlitskaya@redhat.com>
+Closes: https://lore.kernel.org/r/CAOYeF9VQ8jKVmpy5Zy9DNhO6xmWSKMB-DO8yvBB0XvBE7=3Ugg@mail.gmail.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/super.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-On 2024/10/8 16:46, Christian Brauner wrote:
-> On Tue, Oct 08, 2024 at 10:13:31AM GMT, Gao Xiang wrote:
->> Hi Christian,
->>
->> On 2024/10/7 19:35, Christian Brauner wrote:
->>> On Sat, Oct 05, 2024 at 10:41:10PM GMT, Gao Xiang wrote:
->>
->> ...
->>
->>>>
->>>> Hi Christian, if possible, could you give some other
->>>> idea to handle this case better? Many thanks!
->>
->> Thanks for the reply!
->>
->>>
->>> (1) Require that the path be qualified like:
->>>
->>>       fsconfig(<fd>, FSCONFIG_SET_STRING, "source", "file:/home/lis/src/mountcfs/cfs", 0)
->>>
->>>       and match on it in either erofs_*_get_tree() or by adding a custom
->>>       function for the Opt_source/"source" parameter.
->>
->> IMHO, Users could create names with the prefix `file:`,
->> it's somewhat strange to define a fixed prefix by the
->> definition of source path fc->source.
->>
->> Although there could be some escape character likewise
->> way, but I'm not sure if it's worthwhile to work out
->> this in kernel.
->>
->>>
->>> (2) Add a erofs specific "source-file" mount option. IOW, check that
->>>       either "source-file" or "source" was specified but not both. You
->>>       could even set fc->source to "source-file" value and fail if
->>>       fc->source is already set. You get the idea.
->>
->> I once thought to add a new mount option too, yet from
->> the user perpertive, I think users may not care about
->> the source type of an arbitary path, and the kernel also
->> can parse the type of the source path directly... so..
->>
->>
->> So.. I wonder if it's possible to add a new VFS interface
->> like get_tree_bdev_by_dev() for filesystems to specify a
->> device number rather than hardcoded hard-coded source path
->> way, e.g. I could see the potential benefits other than
->> the EROFS use case:
->>
->>   - Filesystems can have other ways to get a bdev-based sb
->>     in addition to the current hard-coded source path way;
->>
->>   - Some pseudo fs can use this way to generate a fs from a
->>     bdev.
->>
->>   - Just like get_tree_nodev(), it doesn't strictly tie to
->>     fc->source too.
->>
->> Also EROFS could lookup_bdev() (this kAPI is already
->> exported) itself to check if it uses get_tree_bdev_by_dev()
->> or get_tree_nodev()... Does it sounds good?  Many thanks!
-> 
-> Sounds fair to me.
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 666873f745da..04a5873c1594 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -700,16 +700,19 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ static int erofs_fc_get_tree(struct fs_context *fc)
+ {
+ 	struct erofs_sb_info *sbi = fc->s_fs_info;
++	dev_t dev;
+ 	int ret;
+ 
+ 	if (IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) && sbi->fsid)
+ 		return get_tree_nodev(fc, erofs_fc_fill_super);
+ 
+-	ret = get_tree_bdev(fc, erofs_fc_fill_super);
++	if (!fc->source)
++		return invalf(fc, "No source specified");
++	ret = lookup_bdev(fc->source, &dev);
++	if (!ret)
++		return get_tree_bdev_by_dev(fc, erofs_fc_fill_super, dev);
+ #ifdef CONFIG_EROFS_FS_BACKED_BY_FILE
+ 	if (ret == -ENOTBLK) {
+-		if (!fc->source)
+-			return invalf(fc, "No source specified");
+ 		sbi->fdev = filp_open(fc->source, O_RDONLY | O_LARGEFILE, 0);
+ 		if (IS_ERR(sbi->fdev))
+ 			return PTR_ERR(sbi->fdev);
+-- 
+2.43.5
 
-Okay, thanks! Let me submit patches for this.
-
-Thanks,
-Gao Xiang
