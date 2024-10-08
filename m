@@ -4,50 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EDF1ACED270
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 06:57:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DBB97CED27C
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 08:46:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1728377194;
+	bh=SsZzWNQUxssvBsScCHPgJH6ImP4FZEXYjAOzDpmlIKQ=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=SFG1D6pE5rvPwxqb0lDic5wBwpjc53KpIW5wSz5IIv/DLQgTmxR7O7HYWN7FZnZDo
+	 +m79jfRug710PkR+1h5XG9YWtHfMaMQCR5kPkNxaYkwzDGai5qYB0DGJVXDBulds+E
+	 1+c9bwIJbLc7NSrM0/wOULISuECLjEbQog8HfV2G1KIH0N0KnA7PAhuoL/THpO9k7p
+	 lyqRZrcId1UTnr53OeaYyskCyyn4Zj8jU1vOo7qyE1ztVXoxUUJDTdv4+AUr/BF+17
+	 vSu248YpHzBTfuMcKXZYi+hHyBgT1sCWYWQc/+LIpnQx8KAWmyXyg7IZbcsiAIBZoQ
+	 Saexv9iMBZPFQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XN6KN0Bl8z3c1C
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 17:57:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.111
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728370660;
-	cv=none; b=neWimZB/IwLJ69YbPtgjBYIpZ6ztV5NwHJmzIkEBaYOFmDxl1Pjvo6vs2LSpOPCYtmbAnR4CFl2hO0hzOn8F7RYw+vcnRaDxjGmWuHGvKJ599GS1cXUlYs4glTcsm0Y57OBQmCwjRVpd8vy22yA8W+RDzQXO+cSSompchiUvIGuWNttWvg6dmnFD4n3gaSHQyY1kZz7qsaVv9nhzX3WieMvh0mRWJCqJYWzDCJgap80EgEdfqneKlo5HDpEgm9IuwBSXpj+gJ++geRYOuakJClRp2roOXZY2XT7epE0F2ycDRv6m9unN/fd5spIQhg2ILj/Ydwu81WMm5esWoj2R5g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XN8ky0DjZz2yZN
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 19:46:34 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=139.178.84.217
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728377192;
+	cv=none; b=PJ6fzeXcdg0tN9Zw5A9hdjmt6/xRCvBZSmQ2ULZYPWatkno8gwA9jiXaLw6goFHzg9g1O8veNVEvRM+U2CxiknyUxP7i1zXTKThmveW22UzsjS9pl+2ICAY30o7cVo8EQbI4nS5bc6hJ2Avgi7+68iSgYvptFA7eJBJRIuDgaz3IwUE9Sv6Nmd5dY3F4jNvsk67XAmYL4kTVbpiJ0GC5eVDxJICVIZH+gKK8rP7ETwHqv0HigpmZz8KZPkpr3/M3if6DtvAgu1/16p4p9PxupD0pt+D/jLV/r5xTBY8iS9msZIsX1BcfeUpCjPhChlQyI+0/JNp/G2udRBPXU+1qVA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1728370660; c=relaxed/relaxed;
-	bh=i5KG4rJ1jhzr82GcPr3e6w3lcm6mcM15cZ85KlWdwyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Jhs09dfsfpUYcBW+mvcDG+IwYR9zSswlaVr7WoxhMLi0xuw/hpRDbQiT9zx6dffScIAGMG0B/EINrpGY8nHa/K3aMWpHJTctyeW7psbclzLv4CKtSjp/69Xnx9TSmnILHPYu33oQgxDRxUzYUVEU23J0s1Lb9nRX+NX1VHzDT4nEThrobfTeP8G8FTGknvTz2kwnbbopHr5kltHTwFN5ZB878TTyd2NYiXh+bgysK7/DNAZQe0kyWhdZs2a1PZabvDNEaCDRlZ6G4uFyq+FFZuIOG4GqI3yXSj/g53SRxLw4+FarvU5faPLSqAHbaZx9e3szmL41MKB5Ta1V2raMwg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xNKWuC3N; dkim-atps=neutral; spf=pass (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1728377192; c=relaxed/relaxed;
+	bh=SsZzWNQUxssvBsScCHPgJH6ImP4FZEXYjAOzDpmlIKQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lAW8Xt7E/dwwYOg4Bdpdq9KvqtK0zEColEE+ZiBWM06Uo5UuwM72YIpy4Zo2rdsVN/sE7fRPmSn8Ni1JbMVxRIAaOLMmCVSyicitcm4zqvWduwkRUyX1mVuszeKZghaL45ctTlr2SzOaDACwbk2bgGDGSxiP9dTnroeJIx2GrB90zyXygqxNxVfzOwIhpNS+n3aF6Mq6F2WQbCLNvlVcJW1Q3ulZ7abY+M/def5M3XIY5F2uxFB/RPbar/Y2fiQ7xz8oOalCvph+FE3gU6g4eRMHNPX9p9qv5nPWRbc9ha0uue0TpNb6ofLnU5P0LV215oWs8jnYuZPrU4c3fg5V4w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kDY9HX/c; dkim-atps=neutral; spf=pass (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xNKWuC3N;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kDY9HX/c;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XN6KG0RT5z2xjP
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 17:57:37 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728370649; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=i5KG4rJ1jhzr82GcPr3e6w3lcm6mcM15cZ85KlWdwyQ=;
-	b=xNKWuC3Nnv0e3XhukRH2vWGeyR3FEzado+FAM0CEYzvRx76zHKjnuOghHTs6JrtES++v6P604JJhgjPe0k9ht1lTIh6ifOlXrXBcNv/4EIlNTRMsEh2cs2doo6GmRq9iRRdTeHJrvn7HrmFby+mV+xUf/w3TwB6YTvpR6zOOEfw=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WGbLQgl_1728370646)
-          by smtp.aliyun-inc.com;
-          Tue, 08 Oct 2024 14:57:28 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: stable@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 6.1.y 4/5] erofs: set block size to the on-disk block size
-Date: Tue,  8 Oct 2024 14:57:07 +0800
-Message-ID: <20241008065708.727659-4-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20241008065708.727659-1-hsiangkao@linux.alibaba.com>
-References: <20241008065708.727659-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XN8kv5WCRz2xHb
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 19:46:31 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 2223F5C59B9;
+	Tue,  8 Oct 2024 08:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A2CCC4CEC7;
+	Tue,  8 Oct 2024 08:46:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1728377188;
+	bh=8szYLqKKyxTax3jide3X0jKr5gWhHG0hju86NR+iJ9o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kDY9HX/c9secNidyfMA6UUWTyk1YRhsTY4tF4/rW3Emgk4ahbRIZzmkEciBHUEUmd
+	 BzCSPfSLlYo4uz0eKmmMQInE67o16lG2e8gXTZFbAXRc3WikZ4SOojcQYMlQW1akBR
+	 Blk1uvZ7FmRiV1b7F/+6ZIfGqN7el/OHtwpAS5VxwSCquRP5xw20SSpbkM6JwpMAb5
+	 1OF8/HiEWNu64LK0lIs56RQHkBMBjsEQjhwRVMWw4Gu0hk/uIgqJcaQ9eW1kNhgZuf
+	 R70fQnWA8v2QMnYp/kKXxqf01D3EpQOu1P4JRiSOM8jlbObZsqyum/5Wd+Ezt4wzfY
+	 +yOjkftl/pznQ==
+Date: Tue, 8 Oct 2024 10:46:24 +0200
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: Incorrect error message from erofs "backed by file" in 6.12-rc
+Message-ID: <20241008-blicken-ziehharmonika-de395b6dd566@brauner>
+References: <CAOYeF9VQ8jKVmpy5Zy9DNhO6xmWSKMB-DO8yvBB0XvBE7=3Ugg@mail.gmail.com>
+ <bb781cf6-1baf-4a98-94a5-f261a556d492@linux.alibaba.com>
+ <20241007-zwietracht-flehen-1eeed6fac1a5@brauner>
+ <b9565874-7018-46ef-b123-b524a1dffb21@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <b9565874-7018-46ef-b123-b524a1dffb21@linux.alibaba.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,215 +79,71 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
+From: Christian Brauner via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org, Allison Karlitskaya <allison.karlitskaya@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
+On Tue, Oct 08, 2024 at 10:13:31AM GMT, Gao Xiang wrote:
+> Hi Christian,
+> 
+> On 2024/10/7 19:35, Christian Brauner wrote:
+> > On Sat, Oct 05, 2024 at 10:41:10PM GMT, Gao Xiang wrote:
+> 
+> ...
+> 
+> > > 
+> > > Hi Christian, if possible, could you give some other
+> > > idea to handle this case better? Many thanks!
+> 
+> Thanks for the reply!
+> 
+> > 
+> > (1) Require that the path be qualified like:
+> > 
+> >      fsconfig(<fd>, FSCONFIG_SET_STRING, "source", "file:/home/lis/src/mountcfs/cfs", 0)
+> > 
+> >      and match on it in either erofs_*_get_tree() or by adding a custom
+> >      function for the Opt_source/"source" parameter.
+> 
+> IMHO, Users could create names with the prefix `file:`,
+> it's somewhat strange to define a fixed prefix by the
+> definition of source path fc->source.
+> 
+> Although there could be some escape character likewise
+> way, but I'm not sure if it's worthwhile to work out
+> this in kernel.
+> 
+> > 
+> > (2) Add a erofs specific "source-file" mount option. IOW, check that
+> >      either "source-file" or "source" was specified but not both. You
+> >      could even set fc->source to "source-file" value and fail if
+> >      fc->source is already set. You get the idea.
+> 
+> I once thought to add a new mount option too, yet from
+> the user perpertive, I think users may not care about
+> the source type of an arbitary path, and the kernel also
+> can parse the type of the source path directly... so..
+> 
+> 
+> So.. I wonder if it's possible to add a new VFS interface
+> like get_tree_bdev_by_dev() for filesystems to specify a
+> device number rather than hardcoded hard-coded source path
+> way, e.g. I could see the potential benefits other than
+> the EROFS use case:
+> 
+>  - Filesystems can have other ways to get a bdev-based sb
+>    in addition to the current hard-coded source path way;
+> 
+>  - Some pseudo fs can use this way to generate a fs from a
+>    bdev.
+> 
+>  - Just like get_tree_nodev(), it doesn't strictly tie to
+>    fc->source too.
+> 
+> Also EROFS could lookup_bdev() (this kAPI is already
+> exported) itself to check if it uses get_tree_bdev_by_dev()
+> or get_tree_nodev()... Does it sounds good?  Many thanks!
 
-commit d3c4bdcc756e60b95365c66ff58844ce75d1c8f8 upstream.
-
-Set the block size to that specified in on-disk superblock.
-
-Also remove the hard constraint of PAGE_SIZE block size for the
-uncompressed device backend.  This constraint is temporarily remained
-for compressed device and fscache backend, as there is more work needed
-to handle the condition where the block size is not equal to PAGE_SIZE.
-
-It is worth noting that the on-disk block size is read prior to
-erofs_superblock_csum_verify(), as the read block size is needed in the
-latter.
-
-Besides, later we are going to make erofs refer to tar data blobs (which
-is 512-byte aligned) for OCI containers, where the block size is 512
-bytes.  In this case, the 512-byte block size may not be adequate for a
-directory to contain enough dirents.  To fix this, we are also going to
-introduce directory block size independent on the block size.
-
-Due to we have already supported block size smaller than PAGE_SIZE now,
-disable all these images with such separated directory block size until
-we supported this feature later.
-
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20230313135309.75269-3-jefflexu@linux.alibaba.com
-Stable-dep-of: 9ed50b8231e3 ("erofs: fix incorrect symlink detection in fast symlink")
-[ Gao Xiang: apply this to 6.6.y to avoid further backport twists
-             due to obsoleted EROFS_BLKSIZ. ]
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/erofs_fs.h |  5 +++--
- fs/erofs/inode.c    |  3 ++-
- fs/erofs/internal.h | 10 +---------
- fs/erofs/super.c    | 45 +++++++++++++++++++++++++++++----------------
- 4 files changed, 35 insertions(+), 28 deletions(-)
-
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index dbcd24371002..44876a97cabd 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -53,7 +53,7 @@ struct erofs_super_block {
- 	__le32 magic;           /* file system magic number */
- 	__le32 checksum;        /* crc32c(super_block) */
- 	__le32 feature_compat;
--	__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
-+	__u8 blkszbits;         /* filesystem block size in bit shift */
- 	__u8 sb_extslots;	/* superblock size = 128 + sb_extslots * 16 */
- 
- 	__le16 root_nid;	/* nid of root directory */
-@@ -75,7 +75,8 @@ struct erofs_super_block {
- 	} __packed u1;
- 	__le16 extra_devices;	/* # of devices besides the primary device */
- 	__le16 devt_slotoff;	/* startoff = devt_slotoff * devt_slotsize */
--	__u8 reserved[6];
-+	__u8 dirblkbits;	/* directory block size in bit shift */
-+	__u8 reserved[5];
- 	__le64 packed_nid;	/* nid of the special packed inode */
- 	__u8 reserved2[24];
- };
-diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index efbaa4ef63cb..8fc41fd1620c 100644
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -291,7 +291,8 @@ static int erofs_fill_inode(struct inode *inode)
- 	}
- 
- 	if (erofs_inode_is_data_compressed(vi->datalayout)) {
--		if (!erofs_is_fscache_mode(inode->i_sb))
-+		if (!erofs_is_fscache_mode(inode->i_sb) &&
-+		    inode->i_sb->s_blocksize_bits == PAGE_SHIFT)
- 			err = z_erofs_fill_inode(inode);
- 		else
- 			err = -EOPNOTSUPP;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 2b3d9e9665fa..d7cd1e619d46 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -146,7 +146,7 @@ struct erofs_sb_info {
- 	u16 device_id_mask;	/* valid bits of device id to be used */
- 
- 	unsigned char islotbits;	/* inode slot unit size in bit shift */
--	unsigned char blkszbits;
-+	unsigned char blkszbits;	/* filesystem block size in bit shift */
- 
- 	u32 sb_size;			/* total superblock size */
- 	u32 build_time_nsec;
-@@ -239,14 +239,6 @@ static inline int erofs_wait_on_workgroup_freezed(struct erofs_workgroup *grp)
- 					VAL != EROFS_LOCKED_MAGIC);
- }
- 
--/* we strictly follow PAGE_SIZE and no buffer head yet */
--#define LOG_BLOCK_SIZE		PAGE_SHIFT
--#define EROFS_BLKSIZ		(1 << LOG_BLOCK_SIZE)
--
--#if (EROFS_BLKSIZ % 4096 || !EROFS_BLKSIZ)
--#error erofs cannot be used in this platform
--#endif
--
- enum erofs_kmap_type {
- 	EROFS_NO_KMAP,		/* don't map the buffer */
- 	EROFS_KMAP,		/* use kmap() to map the buffer */
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 446b9b7e712e..25cd66e487e8 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -285,7 +285,6 @@ static int erofs_read_superblock(struct super_block *sb)
- 	struct erofs_sb_info *sbi;
- 	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
- 	struct erofs_super_block *dsb;
--	unsigned int blkszbits;
- 	void *data;
- 	int ret;
- 
-@@ -304,6 +303,16 @@ static int erofs_read_superblock(struct super_block *sb)
- 		goto out;
- 	}
- 
-+	sbi->blkszbits  = dsb->blkszbits;
-+	if (sbi->blkszbits < 9 || sbi->blkszbits > PAGE_SHIFT) {
-+		erofs_err(sb, "blkszbits %u isn't supported", sbi->blkszbits);
-+		goto out;
-+	}
-+	if (dsb->dirblkbits) {
-+		erofs_err(sb, "dirblkbits %u isn't supported", dsb->dirblkbits);
-+		goto out;
-+	}
-+
- 	sbi->feature_compat = le32_to_cpu(dsb->feature_compat);
- 	if (erofs_sb_has_sb_chksum(sbi)) {
- 		ret = erofs_superblock_csum_verify(sb, data);
-@@ -312,19 +321,11 @@ static int erofs_read_superblock(struct super_block *sb)
- 	}
- 
- 	ret = -EINVAL;
--	blkszbits = dsb->blkszbits;
--	/* 9(512 bytes) + LOG_SECTORS_PER_BLOCK == LOG_BLOCK_SIZE */
--	if (blkszbits != LOG_BLOCK_SIZE) {
--		erofs_err(sb, "blkszbits %u isn't supported on this platform",
--			  blkszbits);
--		goto out;
--	}
--
- 	if (!check_layout_compatibility(sb, dsb))
- 		goto out;
- 
- 	sbi->sb_size = 128 + dsb->sb_extslots * EROFS_SB_EXTSLOT_SIZE;
--	if (sbi->sb_size > EROFS_BLKSIZ) {
-+	if (sbi->sb_size > PAGE_SIZE - EROFS_SUPER_OFFSET) {
- 		erofs_err(sb, "invalid sb_extslots %u (more than a fs block)",
- 			  sbi->sb_size);
- 		goto out;
-@@ -678,8 +679,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- 	sbi->blkszbits = PAGE_SHIFT;
- 	if (erofs_is_fscache_mode(sb)) {
--		sb->s_blocksize = EROFS_BLKSIZ;
--		sb->s_blocksize_bits = LOG_BLOCK_SIZE;
-+		sb->s_blocksize = PAGE_SIZE;
-+		sb->s_blocksize_bits = PAGE_SHIFT;
- 
- 		err = erofs_fscache_register_fs(sb);
- 		if (err)
-@@ -689,8 +690,8 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 		if (err)
- 			return err;
- 	} else {
--		if (!sb_set_blocksize(sb, EROFS_BLKSIZ)) {
--			erofs_err(sb, "failed to set erofs blksize");
-+		if (!sb_set_blocksize(sb, PAGE_SIZE)) {
-+			errorfc(fc, "failed to set initial blksize");
- 			return -EINVAL;
- 		}
- 
-@@ -703,12 +704,24 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 	if (err)
- 		return err;
- 
--	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
--		BUILD_BUG_ON(EROFS_BLKSIZ != PAGE_SIZE);
-+	if (sb->s_blocksize_bits != sbi->blkszbits) {
-+		if (erofs_is_fscache_mode(sb)) {
-+			errorfc(fc, "unsupported blksize for fscache mode");
-+			return -EINVAL;
-+		}
-+		if (!sb_set_blocksize(sb, 1 << sbi->blkszbits)) {
-+			errorfc(fc, "failed to set erofs blksize");
-+			return -EINVAL;
-+		}
-+	}
- 
-+	if (test_opt(&sbi->opt, DAX_ALWAYS)) {
- 		if (!sbi->dax_dev) {
- 			errorfc(fc, "DAX unsupported by block device. Turning off DAX.");
- 			clear_opt(&sbi->opt, DAX_ALWAYS);
-+		} else if (sbi->blkszbits != PAGE_SHIFT) {
-+			errorfc(fc, "unsupported blocksize for DAX");
-+			clear_opt(&sbi->opt, DAX_ALWAYS);
- 		}
- 	}
- 
--- 
-2.43.5
-
+Sounds fair to me.
