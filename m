@@ -4,48 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3D5ACEF14B
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 09:56:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29F26CEF148
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 10:26:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XNBHd6lxZz3bjM
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 20:56:29 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728381388;
-	cv=none; b=iZekpb/28pBPRkW/LkZVdHl9rmqdE2CD3mtFXtZkD4YDvVuEgU4DFYJIfueXJRmFEkUBmr3gn71rWtHAv09CQwFl5w24r8xf8A08Syw/p57Kf9MEpLnGU8R9AdjXErXEZUoVbPoKIn3cHGpOe4qikxiIA9HxThVHSgsL0csV92J+gM6h2gLCYfytUcWM/0PHshkyTgdN1SZR46jOyEBr6UGLkbNWJ7KazcQJautBPMQ+EDLBr33DRsPTy9/hZWb/sElVCB3UVWqoR8jQCRomehxRo6qpTS0lCJhxKCsA/OVzGF5LkUJGVN7vAeL89KuxEls6V0nGsbHDSeLxbN+rrw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XNByh46Tfz2yx7
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Oct 2024 21:26:52 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=139.178.84.217
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1728383211;
+	cv=none; b=Dz4109fMMj913163a7/awavavOY4MKDCCUiajNVuSLNE1NYlnqoCmbo/hmqKp+us2Pd39qoZIIpH1ta4WImTu925pb/gD/oYah5edON+YHq60z9J/FsRwMZgpTxatve0EFdNn+iMp7wLwoG8K8oUO8xy4AjhGjr7nYo8PPl/wF7nxQ+Z/9b256YWi5BCf2B65ja1BxRijyPxR69Nxgf1d/lW++kljm2gkbsitYbeDX0ZynMocCcjqFdDWub4BuQl6HMgDt7Mx0/gS0V7/4CpUW6qU9AlsTCYh3B7NEKV70gJUWdwbtoIuqmBhMskyxVRs2YhQzefTPjRFSzrdWzxyA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1728381388; c=relaxed/relaxed;
-	bh=R40RoxvI5Y2ML/F8sE+GUL5WsI1GRLpUALW+tN6AodQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D1NVkNUUf41yrdIdadbsZZsbiwFR2MXCei6SltI16UQz+VxFEB85tYZYF3xbUwfVycKRoGoSr4GVsz/8wYs9dJFGaim25Zsu2wT6llDjiZOEswCGzNzjSbbhmWiOmcMZ3UftxpfCMte3NYYGnUo/u1lJcNzuAkc7GETXLDlEmC6nveyS+A0FtL6n77K0+yKp3A2iCQ/JpDG/YYw/L/J9NjrlQi+x44jG51owg9wsRNFIjRFBtheJdxHLeGj5nmJReNoA7RYlct08hyhBZracABDxNyBgDlPrvPvMT7mK6zVTK4NOoUDIKbw09ciaoiYfyKrvPGRmTxVVgofUE2Zdtw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fxhacmP0; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1728383211; c=relaxed/relaxed;
+	bh=JNQ5Xey4ZzdlAyNVmXPrbhxTwRKcup9Ucw5iVIHN1D4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JRC3Dxxhgcu7FAbMqgLCO15gE4IbyVQoIhgjWpIQhH5FBBjPy1fCbivlg8O6A7GESMCk9psfB03MT6ju3CYxGuHABDxCDnDCZd+xv/ZlqSwo6sy+u/+tZhBPw8W+8w9vqnMlUoGMde9upP3vm4m8omzyaguZiXBA9EvOhkmYH/KoyoGdiUusUrpV0N1j13IfGufjnqukZbU1Hv320zlu8E+bCR43lJwUHbYwfl9bnrsmE9BpK8skWQqMec+dici7wn6mUilm/lDiX5dtPm2vIKMO2lh//jojmJHZJdW+EClt0F7fCCkyzypmD2XaQu9Rz0mxg7nj7626GZfJVPLuoQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=KyMYLYbW; dkim-atps=neutral; spf=pass (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linuxfoundation.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fxhacmP0;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=KyMYLYbW;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XNBHX2x3Xz2yN3
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 20:56:20 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1728381375; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=R40RoxvI5Y2ML/F8sE+GUL5WsI1GRLpUALW+tN6AodQ=;
-	b=fxhacmP0XCsR3VU2xJxNlOJPOtusKKbeSdFCAw/bKo0YxryfVmyeX06IYvmxjsGp0usOwO8Vky1/91kpS5mHov20rAtBtO+0x1nLgVTMAbUWn24oFD6MoxUTIPxh5RA5VjhKLkJ+e4jeiGzKDlBiM6ULAQEKDBXZcoLIwTeXEVg=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WGdZ8q3_1728381368)
-          by smtp.aliyun-inc.com;
-          Tue, 08 Oct 2024 17:56:14 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Christian Brauner <brauner@kernel.org>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Jan Kara <jack@suse.cz>
-Subject: [PATCH 1/2] fs/super.c: introduce get_tree_bdev_by_dev()
-Date: Tue,  8 Oct 2024 17:56:05 +0800
-Message-ID: <20241008095606.990466-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XNByf1rqcz2xxr
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Oct 2024 21:26:49 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id B56145C5436;
+	Tue,  8 Oct 2024 10:26:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FED8C4CEC7;
+	Tue,  8 Oct 2024 10:26:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1728383206;
+	bh=VOWj/ElEg+xJ7SgTIJkX2eslYN+7n8APMcouViACqhs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=KyMYLYbWGKxKrms3/FiRt+LplHUgSgYyuPZZRrElIgWhfnpiei8oTiGItxR37Awdm
+	 k502SHHPaH4/AHsYLM+jjjYWcwWYjCaZx0e4lcSqIOZo5jGVti/Kgtw0y4Onc+c7CN
+	 YZkqyvHB47BSdNuyDnRQiLhg4qYHhDbXbBN+pleY=
+Date: Tue, 8 Oct 2024 12:26:43 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH 6.1.y 1/5] erofs: get rid of erofs_inode_datablocks()
+Message-ID: <2024100829-unplowed-vending-675b@gregkh>
+References: <20241008065708.727659-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241008065708.727659-1-hsiangkao@linux.alibaba.com>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -57,116 +62,32 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org, Allison Karlitskaya <allison.karlitskaya@redhat.com>
+Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-As Allison reported [1], currently get_tree_bdev() will store
-"Can't lookup blockdev" error message.  Although it makes sense for
-pure bdev-based fses, this message may mislead users who try to use
-EROFS file-backed mounts since get_tree_nodev() is used as a fallback
-then.
+On Tue, Oct 08, 2024 at 02:57:04PM +0800, Gao Xiang wrote:
+> commit 4efdec36dc9907628e590a68193d6d8e5e74d032 upstream.
+> 
+> erofs_inode_datablocks() has the only one caller, let's just get
+> rid of it entirely.  No logic changes.
+> 
+> Reviewed-by: Yue Hu <huyue2@coolpad.com>
+> Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> Reviewed-by: Chao Yu <chao@kernel.org>
+> Stable-dep-of: 9ed50b8231e3 ("erofs: fix incorrect symlink detection in fast symlink")
+> Link: https://lore.kernel.org/r/20230204093040.97967-1-hsiangkao@linux.alibaba.com
+> [ Gao Xiang: apply this to 6.6.y to avoid further backport twists
+>              due to obsoleted EROFS_BLKSIZ. ]
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> ---
+> Obsoleted EROFS_BLKSIZ impedes efforts to backport
+>  9ed50b8231e3 ("erofs: fix incorrect symlink detection in fast symlink")
+>  9e2f9d34dd12 ("erofs: handle overlapped pclusters out of crafted images properly")
+> 
+> To avoid further bugfix conflicts due to random EROFS_BLKSIZs
+> around the whole codebase, just backport the dependencies for 6.1.y.
 
-Add get_tree_bdev_by_dev() to specify a device number explicitly
-instead of the hardcoded fc->source as mentioned in [2], there are
-other benefits like:
-  - Filesystems can have other ways to get a bdev-based sb
-    in addition to the current hard-coded source path;
+all now queued up, thanks.
 
-  - Pseudo-filesystems can utilize this method to generate a
-    filesystem from given device numbers too.
-
-  - Like get_tree_nodev(), it doesn't strictly tie to fc->source
-    either.
-
-[1] https://lore.kernel.org/r/CAOYeF9VQ8jKVmpy5Zy9DNhO6xmWSKMB-DO8yvBB0XvBE7=3Ugg@mail.gmail.com
-[2] https://lore.kernel.org/r/b9565874-7018-46ef-b123-b524a1dffb21@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/super.c                 | 41 ++++++++++++++++++++++++++------------
- include/linux/fs_context.h |  3 +++
- 2 files changed, 31 insertions(+), 13 deletions(-)
-
-diff --git a/fs/super.c b/fs/super.c
-index 1db230432960..8cc8350b9ba6 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1596,26 +1596,17 @@ int setup_bdev_super(struct super_block *sb, int sb_flags,
- EXPORT_SYMBOL_GPL(setup_bdev_super);
- 
- /**
-- * get_tree_bdev - Get a superblock based on a single block device
-+ * get_tree_bdev_by_dev - Get a bdev-based superblock with a given device number
-  * @fc: The filesystem context holding the parameters
-  * @fill_super: Helper to initialise a new superblock
-+ * @dev: The device number indicating the target block device
-  */
--int get_tree_bdev(struct fs_context *fc,
-+int get_tree_bdev_by_dev(struct fs_context *fc,
- 		int (*fill_super)(struct super_block *,
--				  struct fs_context *))
-+				  struct fs_context *), dev_t dev)
- {
- 	struct super_block *s;
- 	int error = 0;
--	dev_t dev;
--
--	if (!fc->source)
--		return invalf(fc, "No source specified");
--
--	error = lookup_bdev(fc->source, &dev);
--	if (error) {
--		errorf(fc, "%s: Can't lookup blockdev", fc->source);
--		return error;
--	}
- 
- 	fc->sb_flags |= SB_NOSEC;
- 	s = sget_dev(fc, dev);
-@@ -1644,6 +1635,30 @@ int get_tree_bdev(struct fs_context *fc,
- 	fc->root = dget(s->s_root);
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(get_tree_bdev_by_dev);
-+
-+/**
-+ * get_tree_bdev - Get a superblock based on a single block device
-+ * @fc: The filesystem context holding the parameters
-+ * @fill_super: Helper to initialise a new superblock
-+ */
-+int get_tree_bdev(struct fs_context *fc,
-+		int (*fill_super)(struct super_block *,
-+				  struct fs_context *))
-+{
-+	int error;
-+	dev_t dev;
-+
-+	if (!fc->source)
-+		return invalf(fc, "No source specified");
-+
-+	error = lookup_bdev(fc->source, &dev);
-+	if (error) {
-+		errorf(fc, "%s: Can't lookup blockdev", fc->source);
-+		return error;
-+	}
-+	return get_tree_bdev_by_dev(fc, fill_super, dev);
-+}
- EXPORT_SYMBOL(get_tree_bdev);
- 
- static int test_bdev_super(struct super_block *s, void *data)
-diff --git a/include/linux/fs_context.h b/include/linux/fs_context.h
-index c13e99cbbf81..54f23589ad5b 100644
---- a/include/linux/fs_context.h
-+++ b/include/linux/fs_context.h
-@@ -160,6 +160,9 @@ extern int get_tree_keyed(struct fs_context *fc,
- 
- int setup_bdev_super(struct super_block *sb, int sb_flags,
- 		struct fs_context *fc);
-+int get_tree_bdev_by_dev(struct fs_context *fc,
-+			 int (*fill_super)(struct super_block *sb,
-+					   struct fs_context *fc), dev_t dev);
- extern int get_tree_bdev(struct fs_context *fc,
- 			       int (*fill_super)(struct super_block *sb,
- 						 struct fs_context *fc));
--- 
-2.43.5
-
+greg k-h
