@@ -4,46 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A84C3D206AC
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Oct 2024 07:49:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6DABD2A529
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Oct 2024 15:25:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XT3546Jl1z3bcX
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Oct 2024 18:49:12 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1729064951;
-	cv=none; b=njCN9uaxhAwhTrhjCsPRthHf7pBUhLldDMEXh8xIDIlmNjpUauzf57OS2oNFvILBxumRSlNPr/+bJTcqLFvO0zKYocY79/zzQkyStEuMtK89sViBHWxZL8nC+LF9U4P2CtAToNgahx/zh7TlNzCM+tO2u0/HQqbBCuBFPnRwwczl4g1IDIaQEiJdAMd4IphanNdbWmu5VULgI1Z+Aym4FlwU5zYYH2UZGp8n4t70LlfL5stZYf0tD5I2yUpUBHGGcZaMU3njd/L636AUZVap3kZfGWx8H4II2huBWSQqETf8PKvrumemlowK65EXJevYQh4wxF7VtkyNYEWKn9vinw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XTFCx04rZz3bjq
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Oct 2024 02:25:49 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=43.155.80.173
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1729092346;
+	cv=none; b=eH4/+cqr0BUXXgI++5CX0gXKO0+ygyREZUF9vtQR4LaEH1LqDf3MXzQEr+Rvgs68+GgFWqPqV/YA0pSCfFNHyEYKrQyMuL/hxA+og8VYCTYHYocJdfFhg5fV7NK/DTY6DKKXt6IxU6fBScV9PAlAiPVV+HqZCkpj4a6er4uN6DKFvZKiiuuXT/yqCycGjga5He36kXnILh5Mm9U0CvUKmZeV+474eqr643rqSwxJPQwP64bL6xay/48Wpd2V1BxS5VHV++vA/0LKWxdZiICDJ6CvLuSoThFbMBL64RqBI0izvywuiPSS2seKyywytt7goorGq4gaS8A6x9Of8+vmFQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1729064951; c=relaxed/relaxed;
-	bh=9ibaNb09EgrjwollziJ1TM1n67BixQySMDktzo7al30=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oASNPSBioB55K2livMXPfcZ15fnOhGTV/0yVgyo2Gg6NZ6XwGgYrQJImR++lMeSwJtFef9Mld/nX2eSf+nRgBEEgJns+daABJPVoJ60PXbkJKKKg9EzbsWNiB30U8NnB3KJikrhQYF2YVxdE3Hct2J4vKMu5/Hm+jHxdqkXD48FsB88N/1z72XTG+hktgIDyWaMWC7fqyhU8o+RIvUzqUNDfDA9jt7SxGaEAnGxG8TJ8a0t6wdLB6Fz+k1iJrEULIIy4pxIuypKk3998TlKq21pvV6zNu1WwvXAz1Y8fAznhnWlHqvSIz+ESPAJJLACPT2LTI0tliq5mbN2KWVVL7g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WjRaCzY4; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1729092346; c=relaxed/relaxed;
+	bh=vB1hUB3M9LhQsGZAEMAIo3fk/xV7YVlDQIbsTTEu5No=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=GPCNbWd6OSRLr6j4IfsnF6i7kFPRWPI/xcrOhgqhp6oEGORi2wOEoALWS189WdbFn3+nk8lXocIef329Shp/HeZGzpeUMbohrTuo5nJTGwVDPTHgA3O5DjgQ5oU0uA+ouUWwTVZE7rdW80BbdzzZ2iqxV6FoE2nwjewNpRUW1Y7RRU5BrfFLCnVWyYSzOfu2uCvcaU0Zu8eBxRjSOzSe40cUFwQTwYZnZ2W+vL0h7CDP88iPtRGKzxIThblpCWSLAjcSmK65dgg3aPQ62BjwJVK5c75KEIAjyO92ZcIKhXCwv+ZVnI5BXa+dLPZ10+J17amz/yABSvCP1s/HxaEcCg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; dkim=pass (1024-bit key; unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=KIFF3QeQ; dkim-atps=neutral; spf=pass (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=gouhao@uniontech.com; receiver=lists.ozlabs.org) smtp.mailfrom=uniontech.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WjRaCzY4;
+	dkim=pass (1024-bit key; unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=KIFF3QeQ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=uniontech.com (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=gouhao@uniontech.com; receiver=lists.ozlabs.org)
+Received: from bg5.exmail.qq.com (bg5.exmail.qq.com [43.155.80.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XT34x4rWwz2xjd
-	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Oct 2024 18:49:02 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1729064937; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=9ibaNb09EgrjwollziJ1TM1n67BixQySMDktzo7al30=;
-	b=WjRaCzY4h59zqpq6bb4ng/0SDQ4nDj1/LBIQuDtpc143Em2UTTR8bYwS8x5yXQj3EcsjAvKTwZ06lbEqlm+UQ8OrN4G0v0Motqa9iaLZPH6DVxoh/0QUyEvFhPDVOgXXoodT8nJLW4shC6PuUFVJqU8l/EC7ykGUNdYAnF8gVus=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WHGX2VC_1729064930 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 16 Oct 2024 15:48:56 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: mkfs: fix unexpected errors for chunk-based images
-Date: Wed, 16 Oct 2024 15:48:49 +0800
-Message-ID: <20241016074849.2862282-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XTFCr4mgLz2xjv
+	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Oct 2024 02:25:44 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1729092281;
+	bh=vB1hUB3M9LhQsGZAEMAIo3fk/xV7YVlDQIbsTTEu5No=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version;
+	b=KIFF3QeQHL5UIMFrwynrmzlmd4OlsCI1vfYURgMCW1LJc6S13XvLNdEnoPoDoARdQ
+	 oZkQPV5dtgyt0L+/+jXEwCPJR6KbAgIH4ySqM0d1/lMfY6xQ/8eP5ZySvQB2YSCgRF
+	 YvYBt7NouT655kEmRi9qVnGIVipEMnYLTsfEm0o8=
+X-QQ-mid: bizesmtpsz6t1729092276t1b4xap
+X-QQ-Originating-IP: GS+3cUN34jLeckU9KaN79l4tFlKPU7EVSqyZ6w9JNtw=
+Received: from localhost.localdomain ( [125.76.217.162])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 16 Oct 2024 23:24:35 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 1428879770323960825
+From: Gou Hao <gouhao@uniontech.com>
+To: xiang@kernel.org,
+	chao@kernel.org
+Subject: [PATCH 2/2] erofs: simplify declaration of the log functions
+Date: Wed, 16 Oct 2024 23:24:30 +0800
+Message-Id: <20241016152430.3456-2-gouhao@uniontech.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20241016152430.3456-1-gouhao@uniontech.com>
+References: <20241016152430.3456-1-gouhao@uniontech.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtpsz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz7a-0
+X-QQ-XMAILINFO: NamDlXnbz6wMX8l/4JNXYU+tFd8+3B8JtCWbKOmRaN4IQgugLpHG1G9j
+	NdtVFbdI0zkpm96PWKWjeVkNexqiFV69jGEU8uSlW+Tqy1+Oh1HMVnBC/PLQt1vqmTfRHZB
+	dPN4GhROl5fWvf619QWHFAq3W5HT2D0wCNo4QHLMbE7XA6heO3MSi+ds8JIQHDwxrXEZg39
+	9UBJQGeLOYMTKEUAYowyyIPRpkHPXG0KBicMJL8YrvcY2KX3wBD6PxZVAub3dFq+pzWjkzW
+	lC8aaa2tm3ZfTqkWd49K1b4Fnvs8CZwovnFkdJbNiP2AzatFI5QEtp2xOKQAXjNm+Wq9rsG
+	JDUBtWEkoWzUbIW6NYi49OM+F/Oq7tsQpbSoiEegpfiNmMQHbDCnwOgd0zaq+xHRVwJD1lI
+	hh7ElDCunWoLCArVpXTsSkABXePq/f6md4e1ipCmFqRhVwBRNOokm9gN1GHuTExXSZGy3ow
+	fUaS2WNwJMzSpjtJbynNEROghk+zfUitOhVOhGkzBjgtJImFB/oA0r3Jq0PxQpXo6/3i3zJ
+	wpNVUEQ8EplSRH8FuMqe7KSXoUuFY4mU4Yv8p1qvgKevONse/ggIxm5ya0ds9+PtRJqV7Bh
+	vZ7SJgdheZaZYHYoSsXLojQH0uenbMlIFUmwCUtwAeZEM6Pc4rKKsxrHwQKXMNadzSq6Q1+
+	lvKnVJuk2j9cz7bKQvZZNXQ7lD/kLj3MdFdmhNmTEpng9/0ks6WQqmVSAnYI7mAnCkz2Npv
+	I/Dne7c1znn5J/2ZZ+daw2H68xYMlbrdsW0xw1Pr6jnMo4okBbwpY44/FOX0kHgd+33X+bH
+	8keK1reX7qWPNmYYekGAjisjxsh1i1HAlGh5hbcM+2tYmDMNHclBcIzCZmCwM2nSWdSFAzV
+	XhwU1NvHrGuw1Chl3QL3ClwRzJKZH62b0BWhOi6y3EkLp4UJAm89Spbwp8l4GYrw6yzrGpH
+	ECXhAs9JxbOF5dsCxNuzR9996nG1gk5R+VQZfcPpbOajJBgURy5ObD7EQQCJ79d0InLmH3P
+	6WUiOJP/1DhXnL0qVH0BcK5NHSpzo=
+X-QQ-XMRINFO: OD9hHCdaPRBwq3WW+NvGbIU=
+X-QQ-RECHKSPAM: 0
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,59 +85,76 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: gouhaojake@163.com, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-mkfs.erofs may fail because copy_file_range() returns the number of
-bytes which could be less than the length originally requested.
+remove the macro of the log declarations.
 
-Fixes: 03cbf7b8f7f7 ("erofs-utils: mkfs: support chunk-based uncompressed files")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Gou Hao <gouhao@uniontech.com>
 ---
- lib/blobchunk.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ fs/erofs/internal.h | 13 +++++--------
+ fs/erofs/super.c    | 12 ++++++------
+ 2 files changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/lib/blobchunk.c b/lib/blobchunk.c
-index 6c2ea0e..9e85721 100644
---- a/lib/blobchunk.c
-+++ b/lib/blobchunk.c
-@@ -480,9 +480,8 @@ int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset)
- int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi)
- {
- 	struct erofs_buffer_head *bh;
--	ssize_t length;
-+	ssize_t length, ret;
- 	u64 pos_in, pos_out;
--	ssize_t ret;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 4efd578d7c62..0c3d6b9f85b5 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -24,14 +24,11 @@
+ #undef pr_fmt
+ #define pr_fmt(fmt) "erofs: " fmt
  
- 	if (blobfile) {
- 		fflush(blobfile);
-@@ -532,9 +531,21 @@ int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi)
- 	pos_out += sbi->bdev.offset;
- 	if (blobfile) {
- 		pos_in = 0;
--		ret = erofs_copy_file_range(fileno(blobfile), &pos_in,
--				sbi->bdev.fd, &pos_out, datablob_size);
--		ret = ret < datablob_size ? -EIO : 0;
-+		do {
-+			length = min_t(erofs_off_t, datablob_size,  SSIZE_MAX);
-+			ret = erofs_copy_file_range(fileno(blobfile), &pos_in,
-+					sbi->bdev.fd, &pos_out, length);
-+		} while (ret > 0 && (datablob_size -= ret));
+-__printf(3, 4) void _erofs_err(struct super_block *sb,
+-			       const char *function, const char *fmt, ...);
+-#define erofs_err(sb, fmt, ...)	\
+-	_erofs_err(sb, __func__, fmt "\n", ##__VA_ARGS__)
+-__printf(3, 4) void _erofs_info(struct super_block *sb,
+-			       const char *function, const char *fmt, ...);
+-#define erofs_info(sb, fmt, ...) \
+-	_erofs_info(sb, __func__, fmt "\n", ##__VA_ARGS__)
++#define erofs_log_declare(name) \
++	__printf(2, 3) void erofs_##name(struct super_block *sb, const char *fmt, ...)
++erofs_log_declare(err);
++erofs_log_declare(info);
 +
-+		if (ret >= 0) {
-+			if (datablob_size) {
-+				erofs_err("failed to append the remaining %llu-byte chunk data",
-+					  datablob_size);
-+				ret = -EIO;
-+			} else {
-+				ret = 0;
-+			}
-+		}
- 	} else {
- 		ret = erofs_io_ftruncate(&sbi->bdev, pos_out + datablob_size);
+ #ifdef CONFIG_EROFS_FS_DEBUG
+ #define DBG_BUGON               BUG_ON
+ #else
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index b04f888c8123..587a56e390ff 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -18,8 +18,8 @@
+ 
+ static struct kmem_cache *erofs_inode_cachep __read_mostly;
+ 
+-#define _erofs_log_def(name) \
+-	void _erofs_##name(struct super_block *sb, const char *func, const char *fmt, ...) \
++#define erofs_log_def(name) \
++	__printf(2, 3) void erofs_##name(struct super_block *sb, const char *fmt, ...) \
+ 	{ \
+ 		struct va_format vaf; \
+ 		va_list args; \
+@@ -30,14 +30,14 @@ static struct kmem_cache *erofs_inode_cachep __read_mostly;
+ 		vaf.va = &args; \
+ 		\
+ 		if ((sb)) \
+-			pr_##name("(device %s): %s: %pV", (sb)->s_id, (func), &vaf); \
++			pr_##name("(device %s): %s: %pV\n", (sb)->s_id, __func__, &vaf); \
+ 		else \
+-			pr_##name("%s: %pV", (func), &vaf); \
++			pr_##name("%s: %pV\n", __func__, &vaf); \
+ 		va_end(args); \
  	}
+ 
+-_erofs_log_def(err);
+-_erofs_log_def(info);
++erofs_log_def(err);
++erofs_log_def(info);
+ 
+ static int erofs_superblock_csum_verify(struct super_block *sb, void *sbdata)
+ {
 -- 
-2.43.5
+2.20.1
 
