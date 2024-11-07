@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CC1AD43341
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 11:10:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A82D6D4334A
+	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 11:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1730977839;
-	bh=OPiBW7tsuV/HWsQckJMpfJU73ndvD2L1jlRNof7keEw=;
+	s=201707; t=1730977840;
+	bh=cfFUhCU6iT3cgZsc06sT4HLAEKB/2LFKVMj0Gx6+Byg=;
 	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
 	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
 	 From;
-	b=cYrjl2Mowjgxqc1gvtaUeFQ5M4e4i6JSO0bbw5OZxTex9FCuPoNIKQUqrmBxTtC5n
-	 NzXCskTPRKRnpAYUTv/PLvBxwkbUO8BRL18QItL+rbsgar9vNB5Q0qW6/dtFqCNPLN
-	 4lG4N6RWs4jnu7QJw6b4j9s/o33BDlVYmL68MmGcJ4Mzv+AcWM+wJxcFpoRr0bpmaX
-	 OW0Eg7+zSSiMy71Cn3HGzPA7z4oeg7Riq5/gCqFpdojpC7xcID1ERres+3WByRZGgz
-	 mYVSzXTX0Er4i9TyBvMPiQb8WyFZ99QytwCzit6kKK0hPAChHsuJi1RD/bp14LPi2p
-	 xLoVJQknQCNoA==
+	b=fXy5QlM/aHVrq4aO93CVAc0gUYLcnUxF1amirp8ntpPVc90/VbAJo6dEV7jZ/OBIa
+	 fHR4TWAqZOirzhIWg0RMpLqmxRubCizqkss4vEn/8/cojbYo7C2WYlw2i3351IEK1C
+	 esWN/dHcDVbC8KngcycDkuF2ZuAcObUm2Kprv7PCpkJFmL3AAb6lq5ylcDmK464hBG
+	 2fkLlQaAyyufI2ALO+PpVMi6vTE3VhQfqJoItbrXWi2PEO5LtK03KJJ9liX82Ix8Kd
+	 4RmWhAY6DZTWv3KZfrIAc1U8A6k1ApqOmCHNMpY30IcvBOPJUtPUxhzMzDKY2qN4MX
+	 +9r+Irt6YJ6gQ==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XkfWM3c50z3bwX
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 22:10:39 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.189
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XkfWN2kmlz3c3v
+	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 22:10:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.32
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1730977836;
-	cv=none; b=YNBTQ2g80FA6IYsuVwvC6Sy+5MQc4XU5oCFUhX02DGZC5inYQNF3MkNpTLxoMSvouGEG7bR4PAM/CHQQaiWpX7YMkITkzxhLZvUttNQnlSm0uY3WjJbpzPPMhGzoPZSwRLeJSkHZa1cI5YwN2B54SBo0SAdIBVyHWls4A5qvac0xikkeccgi8Ff273rO+43AEcTRu3S1/MrpqJDy4VlGxX+XVOzZp6hakcrWMHEohds+Zzj8Ylue5UCqMpgMlxKFkgtCLkFq5AsoRWCc5/RgIkGOvjkCLADtqad0BjKXSkKRj+niCdZiRhVdEujOZJbhSMVEriigiljkzyDPSLP17A==
+	cv=none; b=GjNv/TR9yrn/0yFMD7RYiTCmRAYrAR6CsG/F8iaMjVzlGH2y5qh9RMDhl3yJLM8brNbmZ1vJeJ6Z7DEdotNPyyNnQ7xOq27I2UmujW/YeRzgB1TrIL4HxXn3DJ+GKmsQksoOwWkWWdQHWLzo0gZEVrbWibQ8sbSN1oxioXjf/GwcUdu8vfbm5mkCOu3XhtvUM53N318VPpJ+xAAyHMJLURUaybxmUrOVuqP3yXbnOFa9HRFATvcv9qQS9T0XB40E7isVsQ8OskuDKLgpU8eJsmJpm0TcOZsQzlgpIcunkhWIiSz0Mz6bMQ9Eqw+ikUqUK7A29fdGRa/k9k8Q3graaQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1730977836; c=relaxed/relaxed;
-	bh=OPiBW7tsuV/HWsQckJMpfJU73ndvD2L1jlRNof7keEw=;
+	bh=cfFUhCU6iT3cgZsc06sT4HLAEKB/2LFKVMj0Gx6+Byg=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EcYBb94f8Dh57YDfbqvSY9msH95ikh0SpISHzXopEna76HDrJmFOWO8VJP2ct/1vKntmUjkCYuub+e+MzukG+vcj3cUa9JK/qqeXPtE9RtcnsbI298mXMiL/Jj1GqoezVwy57uRwXDGdepK+F7NTffSw6X1KgucvzK3VwtJYAV7zS+s/8iXqm1DBCM4OkxFQes7yCQBUdkdkld62Gd3V8K2Vy4c95XHytbU8DeM7OIARgiWPA/XVE6yfk0pe7Q7pr7Cph48XLtnSqwLy+++ND8MeZ3aw6if1eM6XX0JNdcJD4HXg3Gur0WpDuZsMfVL+jUwDXjR+G0YJNXkKLKmCnw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.189; helo=szxga03-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=c+bP11ZvDWbaf0gXG3kD6fy2ERl28vPwdWLWAM4O+kcxThSfBo9tyTuulCZ7b8DFghWkWVcv7BfoHLAirbcVmfhf4uymTne3thhwy/bRqjKD3MiJhuUH69NSbaJx9wVt4/9qejUHxsy/JjsHLo8BmxSHdo1YE6aFK7FxVZbyM83p7+ttI720xf55z2tmqalhk0CAQRu6jMCjFPoZl9kWDrZMlzTvjebFmBCbRTiSDCK0wehILukfb/ubKU0BG0aYNnn5JoStLErF+ytYBUb6N620igO6ZGX1jwwxksPVZwAMFgBEp/FoScklFgjVjWFpZQMRnGtDwgBkc+x7+Gh6+w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.32; helo=szxga06-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=szxga03-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.32; helo=szxga06-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XkfWF4Rhsz3bld
-	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Nov 2024 22:10:32 +1100 (AEDT)
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4XkfTm39pBzQsf2;
-	Thu,  7 Nov 2024 19:09:16 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XkfWG0m0lz3blk
+	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Nov 2024 22:10:33 +1100 (AEDT)
+Received: from mail.maildlp.com (unknown [172.19.88.214])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4XkfWD6Ng5z2gL16;
+	Thu,  7 Nov 2024 19:10:32 +0800 (CST)
 Received: from kwepemf100017.china.huawei.com (unknown [7.202.181.16])
-	by mail.maildlp.com (Postfix) with ESMTPS id AA6D9180105;
-	Thu,  7 Nov 2024 19:10:24 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 8E6621A016C;
+	Thu,  7 Nov 2024 19:10:22 +0800 (CST)
 Received: from huawei.com (10.175.104.67) by kwepemf100017.china.huawei.com
  (7.202.181.16) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 7 Nov
- 2024 19:10:23 +0800
+ 2024 19:10:21 +0800
 To: <netfs@lists.linux.dev>, <dhowells@redhat.com>, <jlayton@kernel.org>,
 	<brauner@kernel.org>
-Subject: [PATCH v2 3/5] cachefiles: Clean up in cachefiles_commit_tmpfile()
-Date: Thu, 7 Nov 2024 19:06:47 +0800
-Message-ID: <20241107110649.3980193-4-wozizhi@huawei.com>
+Subject: [PATCH v2 1/5] cachefiles: Fix incorrect length return value in cachefiles_ondemand_fd_write_iter()
+Date: Thu, 7 Nov 2024 19:06:45 +0800
+Message-ID: <20241107110649.3980193-2-wozizhi@huawei.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20241107110649.3980193-1-wozizhi@huawei.com>
 References: <20241107110649.3980193-1-wozizhi@huawei.com>
@@ -78,39 +78,54 @@ Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kerne
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Currently, cachefiles_commit_tmpfile() will only be called if object->flags
-is set to CACHEFILES_OBJECT_USING_TMPFILE. Only cachefiles_create_file()
-and cachefiles_invalidate_cookie() set this flag. Both of these functions
-replace object->file with the new tmpfile, and both are called by
-fscache_cookie_state_machine(), so there are no concurrency issues.
+cachefiles_ondemand_fd_write_iter() function first aligns "pos" and "len"
+to block boundaries. When calling __cachefiles_write(), the aligned "pos"
+is passed in, but "len" is the original unaligned value(iter->count).
+Additionally, the returned length of the write operation is the modified
+"len" aligned by block size, which is unreasonable.
 
-So the equation "d_backing_inode(dentry) == file_inode(object->file)" in
-cachefiles_commit_tmpfile() will never hold true according to the above
-conditions. This patch removes this part of the redundant code and does not
-involve any other logical changes.
+The alignment of "pos" and "len" is intended only to check whether the
+cache has enough space. But the modified len should not be used as the
+return value of cachefiles_ondemand_fd_write_iter() because the length we
+passed to __cachefiles_write() is the previous "len". Doing so would result
+in a mismatch in the data written on-demand. For example, if the length of
+the user state passed in is not aligned to the block size (the preread
+scene/DIO writes only need 512 alignment/Fault injection), the length of
+the write will differ from the actual length of the return.
 
+To solve this issue, since the __cachefiles_prepare_write() modifies the
+size of "len", we pass "aligned_len" to __cachefiles_prepare_write() to
+calculate the free blocks and use the original "len" as the return value of
+cachefiles_ondemand_fd_write_iter().
+
+Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
 Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
-Acked-by: David Howells <dhowells@redhat.com>
 ---
- fs/cachefiles/namei.c | 5 -----
- 1 file changed, 5 deletions(-)
+ fs/cachefiles/ondemand.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
-index 2b3f9935dbb4..7cf59713f0f7 100644
---- a/fs/cachefiles/namei.c
-+++ b/fs/cachefiles/namei.c
-@@ -691,11 +691,6 @@ bool cachefiles_commit_tmpfile(struct cachefiles_cache *cache,
- 	}
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 470c96658385..bdd321017f1c 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -61,7 +61,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
+ 	struct cachefiles_object *object = kiocb->ki_filp->private_data;
+ 	struct cachefiles_cache *cache = object->volume->cache;
+ 	struct file *file = object->file;
+-	size_t len = iter->count;
++	size_t len = iter->count, aligned_len = len;
+ 	loff_t pos = kiocb->ki_pos;
+ 	const struct cred *saved_cred;
+ 	int ret;
+@@ -70,7 +70,7 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
+ 		return -ENOBUFS;
  
- 	if (!d_is_negative(dentry)) {
--		if (d_backing_inode(dentry) == file_inode(object->file)) {
--			success = true;
--			goto out_dput;
--		}
--
- 		ret = cachefiles_unlink(volume->cache, object, fan, dentry,
- 					FSCACHE_OBJECT_IS_STALE);
- 		if (ret < 0)
+ 	cachefiles_begin_secure(cache, &saved_cred);
+-	ret = __cachefiles_prepare_write(object, file, &pos, &len, len, true);
++	ret = __cachefiles_prepare_write(object, file, &pos, &aligned_len, len, true);
+ 	cachefiles_end_secure(cache, saved_cred);
+ 	if (ret < 0)
+ 		return ret;
 -- 
 2.39.2
 
