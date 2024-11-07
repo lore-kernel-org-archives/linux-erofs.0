@@ -4,53 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0B50D43349
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 11:10:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CC1AD43341
+	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 11:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1730977837;
-	bh=5gNPxAj4Vh1uSG/vA7lwLvCZS+6wWpqjntmjQw8WOe8=;
-	h=To:Subject:Date:List-Id:List-Unsubscribe:List-Archive:List-Post:
-	 List-Help:List-Subscribe:From:Reply-To:Cc:From;
-	b=mOjukugbDCEtQHqTqZJThjinT8M93qfpo0I2cTdGJGycsE+NyGcrjv56U+aCbOqTK
-	 FlUafPl/xJ5CRJybeDY3Mw1UP+O1uJVWGKxZqUFBFBi4xx8L65Y4ePTlLqu5+TZyws
-	 qLUaB6IjmyU7DsRdtz+YTNgf2mWvzcN3czIYdmZehO5IaW7tWYIwbb5r3jI95ZXJZv
-	 HTCDvrE3DoxYZG3Fa9fq926NFiS6i4uENyyqjHcY6BNqsctC2Hvt76deatSMDVilLl
-	 lEtYKRvuO7AOIDqrUcOdcXbtk8mSZcxPGxjgDaD9K07/3nF65K2wXs2xVEKdkbLz+Z
-	 7+kqbb8sl3lnA==
+	s=201707; t=1730977839;
+	bh=OPiBW7tsuV/HWsQckJMpfJU73ndvD2L1jlRNof7keEw=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=cYrjl2Mowjgxqc1gvtaUeFQ5M4e4i6JSO0bbw5OZxTex9FCuPoNIKQUqrmBxTtC5n
+	 NzXCskTPRKRnpAYUTv/PLvBxwkbUO8BRL18QItL+rbsgar9vNB5Q0qW6/dtFqCNPLN
+	 4lG4N6RWs4jnu7QJw6b4j9s/o33BDlVYmL68MmGcJ4Mzv+AcWM+wJxcFpoRr0bpmaX
+	 OW0Eg7+zSSiMy71Cn3HGzPA7z4oeg7Riq5/gCqFpdojpC7xcID1ERres+3WByRZGgz
+	 mYVSzXTX0Er4i9TyBvMPiQb8WyFZ99QytwCzit6kKK0hPAChHsuJi1RD/bp14LPi2p
+	 xLoVJQknQCNoA==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XkfWK6VfZz3bqM
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 22:10:37 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.190
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1730977835;
-	cv=none; b=dDZSJKmafPBDclK/cW3J+hOdmx7egO0w8H1hCqmaTE3UYIl7i8wa1pUnNleyDYYj3HGGxPCueiX2myW1SHCrE755fmHoOddzYQWP7YTPryVg96vrPpsvDBAOM3ahSUtkTAr//SxBY/hBa32mLjmIGkQv6Ta91vr+DHTxl2BdJhNknC4PYIDNXN5MvCbHz6FVb805yqN8vhzlgOSPOLUTnGorQGAbgn0oPJUN8Bq61dbyaesieTKVP9SnRfZDaubMPkI/duDWEiQXjJZhqY9jXPoIr8yR2UacPW+ppHVAVw04O/KdKKJL1+bjUC+DHYJsx7kAj8OypfSUWeTuid03Qw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XkfWM3c50z3bwX
+	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 22:10:39 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.189
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1730977836;
+	cv=none; b=YNBTQ2g80FA6IYsuVwvC6Sy+5MQc4XU5oCFUhX02DGZC5inYQNF3MkNpTLxoMSvouGEG7bR4PAM/CHQQaiWpX7YMkITkzxhLZvUttNQnlSm0uY3WjJbpzPPMhGzoPZSwRLeJSkHZa1cI5YwN2B54SBo0SAdIBVyHWls4A5qvac0xikkeccgi8Ff273rO+43AEcTRu3S1/MrpqJDy4VlGxX+XVOzZp6hakcrWMHEohds+Zzj8Ylue5UCqMpgMlxKFkgtCLkFq5AsoRWCc5/RgIkGOvjkCLADtqad0BjKXSkKRj+niCdZiRhVdEujOZJbhSMVEriigiljkzyDPSLP17A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1730977835; c=relaxed/relaxed;
-	bh=5gNPxAj4Vh1uSG/vA7lwLvCZS+6wWpqjntmjQw8WOe8=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Yxah5OdAE1RMxQeTPDlFVhVOmJv4qbTxuvQVKXkQ1Oq9urNGq077gWGsd8/LAVBTF32V2dTmRM6qfmaw/xAHQ8nHK23r5p+bW+BYfXnXtEzRzWYAJu7STXJqd3Dumq7m8QWg7MLtZ8jNTVUwad5D5BRNmik2qwqlKexPIubDfxOHoEu3kgTFOuPDPLjkuj69RsafKd6LknvRnP4tLfWJu/sFjawlcmpsrIuagzDdzLu0GF14iXh652MMq42SSasE8yyu/CExP5Y17maE2AjKpJySdNo0OjtG91ZsBTSWc93tThJca7yo72dkISCli6ePba0PzjyjISYNvn8DwndG1Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.190; helo=szxga04-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	t=1730977836; c=relaxed/relaxed;
+	bh=OPiBW7tsuV/HWsQckJMpfJU73ndvD2L1jlRNof7keEw=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EcYBb94f8Dh57YDfbqvSY9msH95ikh0SpISHzXopEna76HDrJmFOWO8VJP2ct/1vKntmUjkCYuub+e+MzukG+vcj3cUa9JK/qqeXPtE9RtcnsbI298mXMiL/Jj1GqoezVwy57uRwXDGdepK+F7NTffSw6X1KgucvzK3VwtJYAV7zS+s/8iXqm1DBCM4OkxFQes7yCQBUdkdkld62Gd3V8K2Vy4c95XHytbU8DeM7OIARgiWPA/XVE6yfk0pe7Q7pr7Cph48XLtnSqwLy+++ND8MeZ3aw6if1eM6XX0JNdcJD4HXg3Gur0WpDuZsMfVL+jUwDXjR+G0YJNXkKLKmCnw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.189; helo=szxga03-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.190; helo=szxga04-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.189; helo=szxga03-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XkfWF4Npnz3blC
-	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Nov 2024 22:10:30 +1100 (AEDT)
-Received: from mail.maildlp.com (unknown [172.19.163.44])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4XkfT31B71z2Fbqn;
-	Thu,  7 Nov 2024 19:08:39 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XkfWF4Rhsz3bld
+	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Nov 2024 22:10:32 +1100 (AEDT)
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4XkfTm39pBzQsf2;
+	Thu,  7 Nov 2024 19:09:16 +0800 (CST)
 Received: from kwepemf100017.china.huawei.com (unknown [7.202.181.16])
-	by mail.maildlp.com (Postfix) with ESMTPS id 8379B1401E9;
-	Thu,  7 Nov 2024 19:10:21 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id AA6D9180105;
+	Thu,  7 Nov 2024 19:10:24 +0800 (CST)
 Received: from huawei.com (10.175.104.67) by kwepemf100017.china.huawei.com
  (7.202.181.16) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 7 Nov
- 2024 19:10:20 +0800
+ 2024 19:10:23 +0800
 To: <netfs@lists.linux.dev>, <dhowells@redhat.com>, <jlayton@kernel.org>,
 	<brauner@kernel.org>
-Subject: [PATCH v2 0/5] fscache/cachefiles: Some bugfixes
-Date: Thu, 7 Nov 2024 19:06:44 +0800
-Message-ID: <20241107110649.3980193-1-wozizhi@huawei.com>
+Subject: [PATCH v2 3/5] cachefiles: Clean up in cachefiles_commit_tmpfile()
+Date: Thu, 7 Nov 2024 19:06:47 +0800
+Message-ID: <20241107110649.3980193-4-wozizhi@huawei.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20241107110649.3980193-1-wozizhi@huawei.com>
+References: <20241107110649.3980193-1-wozizhi@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -74,37 +78,39 @@ Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kerne
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Changes since V1[1]:
- - Removed some incorrect patches.
- - Modified the description of the first patch.
- - Modified the fourth patch to move fput out of lock execution.
+Currently, cachefiles_commit_tmpfile() will only be called if object->flags
+is set to CACHEFILES_OBJECT_USING_TMPFILE. Only cachefiles_create_file()
+and cachefiles_invalidate_cookie() set this flag. Both of these functions
+replace object->file with the new tmpfile, and both are called by
+fscache_cookie_state_machine(), so there are no concurrency issues.
 
-Recently, I sent the first version of the patch series. After some
-discussions, I made modifications to a few patches and have now officially
-sent this second version.
+So the equation "d_backing_inode(dentry) == file_inode(object->file)" in
+cachefiles_commit_tmpfile() will never hold true according to the above
+conditions. This patch removes this part of the redundant code and does not
+involve any other logical changes.
 
-This patchset mainly includes 5 fix patches about fscache/cachefiles.
-Additionally, patches 2, 3, and 5 have already been ACKed. The first patch
-fixes an issue with the incorrect return length, and the fourth patch
-addresses a null pointer dereference issue with file.
+Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
+Acked-by: David Howells <dhowells@redhat.com>
+---
+ fs/cachefiles/namei.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-[1] https://lore.kernel.org/all/20240821024301.1058918-1-wozizhi@huawei.com/
-
-Zizhi Wo (5):
-  cachefiles: Fix incorrect length return value in
-    cachefiles_ondemand_fd_write_iter()
-  cachefiles: Fix missing pos updates in
-    cachefiles_ondemand_fd_write_iter()
-  cachefiles: Clean up in cachefiles_commit_tmpfile()
-  cachefiles: Fix NULL pointer dereference in object->file
-  netfs/fscache: Add a memory barrier for FSCACHE_VOLUME_CREATING
-
- fs/cachefiles/interface.c | 14 ++++++++++----
- fs/cachefiles/namei.c     |  5 -----
- fs/cachefiles/ondemand.c  | 38 +++++++++++++++++++++++++++++---------
- fs/netfs/fscache_volume.c |  3 +--
- 4 files changed, 40 insertions(+), 20 deletions(-)
-
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+index 2b3f9935dbb4..7cf59713f0f7 100644
+--- a/fs/cachefiles/namei.c
++++ b/fs/cachefiles/namei.c
+@@ -691,11 +691,6 @@ bool cachefiles_commit_tmpfile(struct cachefiles_cache *cache,
+ 	}
+ 
+ 	if (!d_is_negative(dentry)) {
+-		if (d_backing_inode(dentry) == file_inode(object->file)) {
+-			success = true;
+-			goto out_dput;
+-		}
+-
+ 		ret = cachefiles_unlink(volume->cache, object, fan, dentry,
+ 					FSCACHE_OBJECT_IS_STALE);
+ 		if (ret < 0)
 -- 
 2.39.2
 
