@@ -4,63 +4,74 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2215BD43341
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 11:11:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1730977869;
-	bh=TyKChjgjx8z3Q5K+gIWVLrspDaXNa6gELS0JGdLPVdo=;
-	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=eyApW/xDlgeoOdTJ1WmtRKPMwKL0LEN1VlJvXgVxuhma8IQiID0IqTFpaL+ECaLEW
-	 pN0vkoelHjuN1jtFQxC8zxWEc3e3Ficfy9N8lGfOLgn5eXtzi0eV1M6dVLC58N1ZU4
-	 X5wb7x0b+NFI+vcMGMI0DtTArei7rVV9iGG1bMckCvWUG82HBUP5ngVxFuWJHin8I4
-	 dQGoF1uG3YeVO6xenYJxDJU/W0oHQRd2u0x+cERRewlGskaJkFKYPPMtRCaKKAuR0H
-	 3FwP7SyVdFmDbmddbfXGgJQ04RcO/t2KuuzL6lJIJHBMzNXbMBwEU2/m7sgaSGADX0
-	 SXJdkOrDJfZEQ==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A06AD64063
+	for <linux-erofs@archiver.kernel.org>; Fri,  8 Nov 2024 16:37:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XkfWx5mhTz3bqB
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Nov 2024 22:11:09 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.187
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1730977867;
-	cv=none; b=R4/5MUaqWV7n0Ym4QhLI6MBC28k8PV6Kqg6HAcxsDCSApqppNlgo+9DRI3gNQRdW2GkWpDG8/zTU3u7NKQ+n4BtjTKZIDSMbd5Z6zCL4Tj/3Pp+aPyHhVC65u3J9EKQAo0yE7gmoikZleiqA5uQBduqDPZ7bb/nvJGLRIuI3GWJNvgl8HHkodk/mjVZ9tE2Ok6z9f2v1LZge6Sahu6IlTxDp49zSu1cBre9c6VFLmVUhbXhPgDP3H02uWmMmDZgCl5R5sCWCTYZheAeNdZgcGJNP4IxOaA55ur88yUt88BXVTB4y7750YBVQoRjaCKraBwXIDyOYHrr3yMZcq3sZKw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XlPkM3LScz3c3H
+	for <linux-erofs@archiver.kernel.org>; Sat,  9 Nov 2024 03:37:47 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1030"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731083866;
+	cv=none; b=KseB6C69Gy/KjOsjiCHPnGMdHYAkHo0rL2eENtXqaMN5dJlV3pvifFs+NBwgqS0lWoTgHCr0qdp7Yv7whEoFZuoTTCxY48pRh8vJaDJPbTQJpd+319RWUo3fCCpfGLr/0QBpWBxUTv2d50YAUasgSpRqSYyZdBjyrPAe1wOI3sjXQ/avol1CDKwHhWeHNJ2GLCRPfjstZT4wdR1Fd8ppYwHuk3fPu9wCjHKdS8g+7k4cJDSYcfl1KGYoW5YSYMVpg/I27Mir8HLIoE7hcFL8XNr2LOaPxrRMZM0HnYqnm+qhURZv+ic/qWDjXo0uKj8e+QTA7ygpwBuPfS9gbj3hZA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1730977867; c=relaxed/relaxed;
-	bh=TyKChjgjx8z3Q5K+gIWVLrspDaXNa6gELS0JGdLPVdo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BDJ4PlimbYbMx5AeX0pIrn27yoAn6qsT2KXo3fXbplu1dz1y/huCh6UW0LtSEBzcbQ/brfYwFT6DYxisf++LANlf9N2g/QJoVeklV6wCvYrXolJIILSHs29I1Qn/lmgm2SQr2nf8joQCDtpQu/oAJODHoCeEWq7U352TQ/hhbSDKZJFTNmRA598K8suIn78nw2aYncTrKyisBHbsBrG6akvaDf7GJ4xva6v2kgtpJJkLyeMGHcmmtuIV09c90Sv4B2SrHQ2hCa9rKH0gcUiBlfnDFbvtqy8vPUfv7hW22z8kWt5rVhY5Vdq8hlFfPC+WFukJJLvjJhKVR4s8473jhw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=wozizhi@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	t=1731083866; c=relaxed/relaxed;
+	bh=IVlyNzICBgbV/3WvXD/iX77w7FzbfcmribMsYtHhU/M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VF7irKGaezpfTNW6F55X3gdrfadxLDUH/8wgQwIvW/ZGD6AwP8TGn3i4HTOhU2LTMJ97Yar4iin3KtVYVm9zUd8h0TWdydE5ZX6m7yFST0U5NwhDM8q/amcsJ3yoBvnbQEf8V0Fe4FEZtR49On24hbm4WNm+rSc8Li0tlW79fJRJYWc7n/7tRAzNRg6W5nIpxmuhEcdZTPqvcylIC7ag17Nu/Uewol04qZlga7IYy3o+4Urn4uQKo3C/GlQZKUFrUri2KGnjEh8oQ+/x28T8xQ64jDyB37YnMAJiLfMrDWoLKQRYDtlF3Olzd3OblNlP71Yxoo0/VXTR2WDZTF1K0Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mbaynton.com; dkim=pass (2048-bit key; unprotected) header.d=mbaynton-com.20230601.gappssmtp.com header.i=@mbaynton-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=bhLzHFIy; dkim-atps=neutral; spf=none (client-ip=2607:f8b0:4864:20::1030; helo=mail-pj1-x1030.google.com; envelope-from=mike@mbaynton.com; receiver=lists.ozlabs.org) smtp.mailfrom=mbaynton.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mbaynton.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=mbaynton-com.20230601.gappssmtp.com header.i=@mbaynton-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=bhLzHFIy;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=mbaynton.com (client-ip=2607:f8b0:4864:20::1030; helo=mail-pj1-x1030.google.com; envelope-from=mike@mbaynton.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XkfWt5sbmz3bps
-	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Nov 2024 22:11:06 +1100 (AEDT)
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4XkfSL0W0fz10QlX;
-	Thu,  7 Nov 2024 19:08:02 +0800 (CST)
-Received: from kwepemf100017.china.huawei.com (unknown [7.202.181.16])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9D8A41400DC;
-	Thu,  7 Nov 2024 19:10:23 +0800 (CST)
-Received: from huawei.com (10.175.104.67) by kwepemf100017.china.huawei.com
- (7.202.181.16) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 7 Nov
- 2024 19:10:22 +0800
-To: <netfs@lists.linux.dev>, <dhowells@redhat.com>, <jlayton@kernel.org>,
-	<brauner@kernel.org>
-Subject: [PATCH v2 2/5] cachefiles: Fix missing pos updates in cachefiles_ondemand_fd_write_iter()
-Date: Thu, 7 Nov 2024 19:06:46 +0800
-Message-ID: <20241107110649.3980193-3-wozizhi@huawei.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20241107110649.3980193-1-wozizhi@huawei.com>
-References: <20241107110649.3980193-1-wozizhi@huawei.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XlPkJ3FhNz3bxR
+	for <linux-erofs@lists.ozlabs.org>; Sat,  9 Nov 2024 03:37:43 +1100 (AEDT)
+Received: by mail-pj1-x1030.google.com with SMTP id 98e67ed59e1d1-2e2e6a1042dso1890901a91.2
+        for <linux-erofs@lists.ozlabs.org>; Fri, 08 Nov 2024 08:37:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mbaynton-com.20230601.gappssmtp.com; s=20230601; t=1731083859; x=1731688659; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IVlyNzICBgbV/3WvXD/iX77w7FzbfcmribMsYtHhU/M=;
+        b=bhLzHFIykBOmdtK1VFxIo0CPYRzPyweaKJgaZF6nu+wmj3npBmnS8Imb0J6YVJrrZ6
+         LWj2Sdw3x1DCa/XvnStm/G/0UdBAiNNNOddZdYDEP5T+B/Vzw2Llo4bSJc0ZcVUrH4Pa
+         5fbJtuqhs7k6hIhK3GmzjC0rqZ8whuXzjYsT/PmCYVVE9brWhaWpQb6zRbftlVj2Q0+5
+         +pyOqAblUDAQEvOoKFAs+2ZPFpWk6Gl/ubjwIFFgDdD2olABZPybWpbD07k3vXTei0EF
+         ir2BfyplCSIBUXuN1iVHwzd3fg1Q7wv+QMBe2zISNYEdg+W9YIypk3SfD614OCtvoKEx
+         gLiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731083859; x=1731688659;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IVlyNzICBgbV/3WvXD/iX77w7FzbfcmribMsYtHhU/M=;
+        b=YeYIG2ZhxUN/zBSiOcOWzGZTmD0Lk4I+7H/5O6S5y5LYRIQcwNj7KWj2UiJmXVqqYG
+         5W/hSp/6G7dotQcU8o5707ziM91xzYK98ChECzy90R5FpQcWc8VMDyUZXw2gLBFOFG+y
+         ccSpJx8IshN0eXrfzqCx430p1M9UE0QIQFeIAzhxFGvsxzaUtN1oYu8XJrvRNzE1rbjW
+         yaagtYzdu9ldkmD7Ueoa9j+TiDfurLDZ+L5KAESEywVSn/cuvnwCqygsfkThaH0eOrvt
+         FfufEcdyWXRfDDcsQfWKGgT/G9X/QruHBl570K7+ziGYypKBwNthrZbdBEDAudsqejYk
+         8YBQ==
+X-Gm-Message-State: AOJu0YxujQ2/jn4gGsVOzvVztfpb/n7eh0RzgpHXmVMsrv8GJhg1eEGW
+	ZEXh4sIlcMNM7BI1aU+/mApP2o3+S9kleNS4B1L4KppNEEJVhC5YxcAMsdJ5vwu0IFyVHkQook4
+	3CtIop+JoF/5obZvM+ErMfhSgMEJ2GvKDrMc3zQ==
+X-Google-Smtp-Source: AGHT+IGkqDxiKZQ9Ed8v10wAlcTM26gp/hWOwoCR8dFZfEy0Av49BHE+SWLNsP146+wjqEu6fFQ5qDHSzsrwUe8Vi8c=
+X-Received: by 2002:a17:90b:1f8b:b0:2e2:ef25:ed35 with SMTP id
+ 98e67ed59e1d1-2e9b14d565fmr4381834a91.0.1731083859361; Fri, 08 Nov 2024
+ 08:37:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.175.104.67]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemf100017.china.huawei.com (7.202.181.16)
+References: <20241024195801.1546336-1-mike@mbaynton.com> <bfbf180e-21d6-45de-b4c9-43089dcef333@linux.alibaba.com>
+In-Reply-To: <bfbf180e-21d6-45de-b4c9-43089dcef333@linux.alibaba.com>
+From: Mike Baynton <mike@mbaynton.com>
+Date: Fri, 8 Nov 2024 10:37:28 -0600
+Message-ID: <CAM56kJTuwXoOtQ+V7YHygHhHb--9qUmvkbADOuG=-4zwHvfkzQ@mail.gmail.com>
+Subject: Re: [PATCH] mkfs: Fix input offset counting in headerball mode
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -72,47 +83,44 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Zizhi Wo via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Zizhi Wo <wozizhi@huawei.com>
-Cc: yangerkun@huawei.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, yukuai3@huawei.com
+Cc: sam@posit.co, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In the erofs on-demand loading scenario, read and write operations are
-usually delivered through "off" and "len" contained in read req in user
-mode. Naturally, pwrite is used to specify a specific offset to complete
-write operations.
+Thanks for the update, Gao! Appreciate your review.
 
-However, if the write(not pwrite) syscall is called multiple times in the
-read-ahead scenario, we need to manually update ki_pos after each write
-operation to update file->f_pos.
+Mike
 
-This step is currently missing from the cachefiles_ondemand_fd_write_iter
-function, added to address this issue.
-
-Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
-Signed-off-by: Zizhi Wo <wozizhi@huawei.com>
-Acked-by: David Howells <dhowells@redhat.com>
----
- fs/cachefiles/ondemand.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
-index bdd321017f1c..38ca6dce8ef2 100644
---- a/fs/cachefiles/ondemand.c
-+++ b/fs/cachefiles/ondemand.c
-@@ -77,8 +77,10 @@ static ssize_t cachefiles_ondemand_fd_write_iter(struct kiocb *kiocb,
- 
- 	trace_cachefiles_ondemand_fd_write(object, file_inode(file), pos, len);
- 	ret = __cachefiles_write(object, file, pos, iter, NULL, NULL);
--	if (!ret)
-+	if (!ret) {
- 		ret = len;
-+		kiocb->ki_pos += ret;
-+	}
- 
- 	return ret;
- }
--- 
-2.39.2
-
+On Fri, Oct 25, 2024 at 8:36=E2=80=AFPM Gao Xiang <hsiangkao@linux.alibaba.=
+com> wrote:
+>
+> Hi Mike,
+>
+> On 2024/10/25 03:58, Mike Baynton wrote:
+> > When using --tar=3Dheaderball, most files included in the headerball ar=
+e
+> > not included in the EROFS image. mkfs.erofs typically exits prematurely=
+,
+> > having processed non-USTAR blocks as USTAR and believing they are
+> > end-of-archive markers. (Other failure modes are probably also possible
+> > if the input stream doesn't look like end-of-archive markers at the
+> > locations that are being read.)
+> >
+> > This is because we lost correct count of bytes that are read from the
+> > input stream when in headerball (or ddtaridx) modes. We were assuming t=
+hat
+> > in these modes no data would be read following the ustar block, but in
+> > case of things like PAX headers, lots more data may be read without
+> > incrementing tar->offset.
+> >
+> > This corrects by always incrementing the offset counter, and then
+> > decrementing it again in the one case where headerballs differ -
+> > regular file data blocks are not present.
+> >
+> > Signed-off-by: Mike Baynton <mike@mbaynton.com>
+>
+> Sorry for late reply, I'm busy in personal stuffs now.
+> I will look into these cases and reply again later.
+>
+> Thanks,
+> Gao Xiang
