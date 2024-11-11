@@ -4,69 +4,78 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39825D2E9DD
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 Nov 2024 11:33:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1731324837;
-	bh=s86QEGAEX1dofGFkqEA3dULySjEYCNQcJa+BdzDV/Sk=;
-	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=nvRI4j/29m+mfmh7bnREXSl0lloflK/t1P8kB9mxJtrr5EatUIe+eh+sSwJLxynpm
-	 g3JjoA3UCoVEL8P+UOadkQwMLCLl+GCMYSg/5B6mFVEb3Vr/qpxN1/+9vqyNq2jcRd
-	 C3QKZvuCtnQFhjfjiuAMWy6tYii+T8/AzQUWsidHwC+hTsjRoClO2GVmVJGWdLxwxd
-	 LgR2OAe3mMx97SlJGcaISdi4imbR8u1WJj9mR9+P2T8xci2m3IJoEEms2ADU5cLGrU
-	 qniYuvWsLyU4NVZxVw4nAJmTcdftWbz2MBmnfRH0woLsQri262NwH4EQX2hO3EI32g
-	 e5bgf03WIj9bg==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C18FDD3ABD0
+	for <linux-erofs@archiver.kernel.org>; Mon, 11 Nov 2024 16:48:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Xn6rP3mcjz2ykX
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 Nov 2024 22:33:57 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2604:1380:45d1:ec00::3"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731324835;
-	cv=none; b=HPa8p2fkLh00IAyn2dZ45Ew24DhEzGyt+vBjTIaspQyvQ2Yz1fW0HtojX+Si0DUTFzZIhTleG4G4a43f4FYdAulaTNVUwE0accEf9X/zEaPykSUjsizXVcCmu6hr2TrF106ir6twA6Eh+6Uud0l3vtDwjAH2rNp629catK74k7ruuKL2bkmbq3s+ZXbyT+Y3sStItaP6lEe2HgeL/uoESGH7IReH2esKaI3Xd3VpknrnAOaNSS0zfzTfEkEicZvV9kn5mAFx+Nu4ovRyAEj6W/vcX4Ay7O1Aok6Z/2InqSRgFYKIiHpoaAsjKX51fNLiDT3Ee52lFFnSjZuG/NJmtg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XnFqm1Dkwz2yjN
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Nov 2024 03:48:52 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::134"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731343729;
+	cv=none; b=oQ+RMUbIn9KAcyiQjPv23L+PUBLcvu7GuT4LZANHxg3pXgBmAw3VuIE3VDbLaxzKFIoivWm7AqeLtrNecgH2wMLLOgSf3F0NS9TUXOwsLU3RjhfdUh0Ia8XHO/XBzGAQk/+fr1oUPpS4Ki6r7ZIDTfKkUbONLRSh7swCz3uOdoKDG2079m/skzlNt3qfJFUtHAuX9dBYFW9plStA197Wi6sNpY+4gh0SVmmxaO6NU+VZmRsJI1KzJo0e66N/KFgCHusEoddsGaFwcdNSBxJS5ccSItMknmiW1hcuciW75++Xnfnb8XvC1qp1j9IFJS9v7wNs91/oEzOfg6POFHlWgg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1731324835; c=relaxed/relaxed;
-	bh=s86QEGAEX1dofGFkqEA3dULySjEYCNQcJa+BdzDV/Sk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FpCo0PF2fmotOI9OFpMSWc7YLHdxSA5b/5mCCLz3rBPy/FX2vzyfugQRrOD0rhZWsSG/FmvPLTKxejbhPDb7bEv/Y5PfIE6vLa0JZl64baqBOROp38rvIdHkpnlUoU1GnhbzIAZmU5Gxo54gDR4Zagcv87J/iZgqUkU4htrViPtEdavp4njd/9+3eZkgXMPIoQ0Vin4+JuZMBLc9Q7c9rqGTBU62YM25EQZP1VXq0yCO+K4KHGVL/zKWIjeVgas29pDb3JfOkkHWRldcgKjKqcFRQO9u4TJ2wZ2xmgK+cRMrrqOIh1CB1zOmSdF8KA0yt3j43Ges9RM+cToli/QOHQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=iKZG7oTq; dkim-atps=neutral; spf=pass (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1731343729; c=relaxed/relaxed;
+	bh=gg7crtMaAfxWkGbymepkORPPMe8iMJQ98rnaLnpLBmI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=FynGYpWCLGEUN/bM7EleZWtQMt9l6IJYafcGf2KEvi/FNZHF36zXkpbC4pI7Zs1SUvJXHoMOMSzuougKPmwq4srDlKbikR/VsiffJ8qUzILzVgh+PYhyiHGw3G17v+DZRFi2LoNbQx/Zabi5Hwe8IB2K1Cqq1kjKRhKk9u909Rb0U9pNuvQNrLILAIkG6zbSRdMz3ZcvLcfE4Z7nqDF8WEfnqBQW6x6HBP75VYkav0/+a8Ne2a3dxIyPnMxeiVWOY0iYr1B8Z9PNZgHoWNpr2bmEmcj7aouvG1/5/pvQeTTjQdEuRsIh/Nis6U/qJIko3MVNUnG5eL/QLvYOaxHw4w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mbaynton.com; dkim=pass (2048-bit key; unprotected) header.d=mbaynton-com.20230601.gappssmtp.com header.i=@mbaynton-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=rAGjaQOF; dkim-atps=neutral; spf=none (client-ip=2607:f8b0:4864:20::134; helo=mail-il1-x134.google.com; envelope-from=mike@mbaynton.com; receiver=lists.ozlabs.org) smtp.mailfrom=mbaynton.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mbaynton.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=iKZG7oTq;
+	dkim=pass (2048-bit key; unprotected) header.d=mbaynton-com.20230601.gappssmtp.com header.i=@mbaynton-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=rAGjaQOF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from nyc.source.kernel.org (nyc.source.kernel.org [IPv6:2604:1380:45d1:ec00::3])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=mbaynton.com (client-ip=2607:f8b0:4864:20::134; helo=mail-il1-x134.google.com; envelope-from=mike@mbaynton.com; receiver=lists.ozlabs.org)
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Xn6rL5lxHz2xrb
-	for <linux-erofs@lists.ozlabs.org>; Mon, 11 Nov 2024 22:33:54 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by nyc.source.kernel.org (Postfix) with ESMTP id C96B5A41507;
-	Mon, 11 Nov 2024 11:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE50C4CECF;
-	Mon, 11 Nov 2024 11:33:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731324830;
-	bh=ykZQH5VbdujAJrOFHP+G49/xP/6A09GupDXNuDZK4fc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=iKZG7oTqQCLuJh+FMFDBetvW8vOirsihp5x4ZVOdurOzqy5XwChse15QgEXeaQzJx
-	 r/GnRycfiyEVQCkcIASg2vebK5zFt1KsF3d5vbpu7e5SF45SYYXpW0lR/4vB1ieqCx
-	 Z0hdi+Av5K3X2p9lUYWQf+3RNd7v41n4tNm/4Z1yBMtDS6QXajFmSYmc3YtHAzduGS
-	 1Esabn8cn9B6Br+RurBiDACQoWsFX0SI4OCROBfv5p0kH9ZHydLc20CGVSBevSgV6S
-	 7mlqnj/DnNSTk2qEwvMoblG78qasp5s1wHlpZFgq18qp0QiJWzJ6Tnk1M1gean+4vB
-	 LchdL864Tbh0A==
-To: Zizhi Wo <wozizhi@huawei.com>
-Subject: Re: [PATCH v2 0/5] fscache/cachefiles: Some bugfixes
-Date: Mon, 11 Nov 2024 12:33:36 +0100
-Message-ID: <20241111-helft-lachs-9d6ff31e2549@brauner>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241107110649.3980193-1-wozizhi@huawei.com>
-References: <20241107110649.3980193-1-wozizhi@huawei.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XnFqd5z9rz2xGj
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 Nov 2024 03:48:44 +1100 (AEDT)
+Received: by mail-il1-x134.google.com with SMTP id e9e14a558f8ab-3a6bd37f424so18649685ab.2
+        for <linux-erofs@lists.ozlabs.org>; Mon, 11 Nov 2024 08:48:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mbaynton-com.20230601.gappssmtp.com; s=20230601; t=1731343721; x=1731948521; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gg7crtMaAfxWkGbymepkORPPMe8iMJQ98rnaLnpLBmI=;
+        b=rAGjaQOFUMzVYkV20lZjr6gcOswi1kh260L3j/ze7l/nOD3ST10uBSZVwssHSgX2Re
+         aXVOucHTGl+lZhe2avNQb/cFM12HNhnpdSrE71lWAFPSACdZnKPimcaKaFm752W0GDjR
+         xIQ6b/CZEZ4Urh4w19QdFNPBoyjeTbccjWvJPjIKgmUTAzGUqmm+2dnqT2llqb9PukP9
+         udCE+HHxptiomd6vWPswJukiew9xfD4ZRWr02WcPluiz7ZjiF/qrHN4edeUTYfbIQdKK
+         NPHEhTF2EUGwHFkj9dXw/m5WAhBR+UUXcjmxffq23A+WU5ppS1Wrrho69XmHrUNeAQrp
+         K+Xw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731343721; x=1731948521;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gg7crtMaAfxWkGbymepkORPPMe8iMJQ98rnaLnpLBmI=;
+        b=VzanCn7m7UtaXtLnUu3Xy2xtVzCXbUxsScQn7YbX5c3zYwOAQbml5E5U6v1jiHoYph
+         AGrDT9qkVebU0Q+ZuEhOAwPMlvLpT29EnoGcCG6ulCbXwwOQG9Iun+C89IYio7M5rWdk
+         0eWPI7Bpa287I/rCJeorLkdmHwcaFqdO0GX8DKkmplyX5zOc2CjNWrw04sl5ihBRLFh+
+         h/p5N4X4Y1wIsALVJxywbkjLTXFIpl0xDa7TozN7v5P/r370m7Hu8hcvJuAy7PGXfXsq
+         LoGmAx36i8YDd3mk+TSsIVAx79NUbxX/C1QdTILoFkOkUWd5xrQju/mQkZYC36CQyvdN
+         ljUw==
+X-Gm-Message-State: AOJu0YzCdUYwOCB/hxLx8p5Q3klY/VagIULg0psnEdSnZ3UZxpFm9Jot
+	ZAFCtvWJsGDKVTg+GXA0jPmaIhkWRpJvrNcOBnj+tMaznm8+EtX32zzGPcDlIfcudqaf7AkTcOZ
+	s
+X-Google-Smtp-Source: AGHT+IGkIT5ZAM1MSlPbDzwHsjr+jcCWKIkJO4/vetMggv0NKIndGlV3pQLLsRqX7PIGoFBCaQGasQ==
+X-Received: by 2002:a05:6e02:1a82:b0:3a3:4175:79da with SMTP id e9e14a558f8ab-3a6f19c686emr113535935ab.13.1731343721116;
+        Mon, 11 Nov 2024 08:48:41 -0800 (PST)
+Received: from mike-laptop.. (c-66-41-251-251.hsd1.mn.comcast.net. [66.41.251.251])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3a6f9837458sm15559515ab.22.2024.11.11.08.48.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Nov 2024 08:48:40 -0800 (PST)
+From: Mike Baynton <mike@mbaynton.com>
+To: linux-erofs@lists.ozlabs.org,
+	hsiangkao@linux.alibaba.com,
+	sam@posit.co
+Subject: [PATCH v2] mkfs: Fix input offset counting in headerball mode
+Date: Mon, 11 Nov 2024 10:48:19 -0600
+Message-Id: <20241111164819.560567-1-mike@mbaynton.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <02a3a22d-782b-434b-b3e6-5138f77ee251@linux.alibaba.com>
+References: <02a3a22d-782b-434b-b3e6-5138f77ee251@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1715; i=brauner@kernel.org; h=from:subject:message-id; bh=ykZQH5VbdujAJrOFHP+G49/xP/6A09GupDXNuDZK4fc=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaQbvp6+tOSEbuPnvSLHst6msK/KXXFCkbdgf8h3bf8I0 Y4s2WkHOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACbS9oGR4ZHwI+Hse9nPvOf+ vyf7XiR/CU87w9n5+SZaq2cmNVYX32L4w1F+f8XNsx5Pbz1O8LSx+36wQTdeoO6UW1WAZuf2sLW rmAE=
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
@@ -79,46 +88,57 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Christian Brauner via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Christian Brauner <brauner@kernel.org>
-Cc: Christian Brauner <brauner@kernel.org>, yangerkun@huawei.com, jlayton@kernel.org, linux-kernel@vger.kernel.org, netfs@lists.linux.dev, dhowells@redhat.com, linux-fsdevel@vger.kernel.org, yukuai3@huawei.com, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Thu, 07 Nov 2024 19:06:44 +0800, Zizhi Wo wrote:
-> Changes since V1[1]:
->  - Removed some incorrect patches.
->  - Modified the description of the first patch.
->  - Modified the fourth patch to move fput out of lock execution.
-> 
-> Recently, I sent the first version of the patch series. After some
-> discussions, I made modifications to a few patches and have now officially
-> sent this second version.
-> 
-> [...]
+When using --tar=headerball, most files included in the headerball are
+not included in the EROFS image. mkfs.erofs typically exits prematurely,
+having processed non-USTAR blocks as USTAR and believing they are
+end-of-archive markers. (Other failure modes are probably also possible
+if the input stream doesn't look like end-of-archive markers at the
+locations that are being read.)
 
-Applied to the vfs.netfs branch of the vfs/vfs.git tree.
-Patches in the vfs.netfs branch should appear in linux-next soon.
+This is because we lost correct count of bytes that are read from the
+input stream when in headerball (or ddtaridx) modes. We were assuming that
+in these modes no data would be read following the ustar block, but in
+case of things like PAX headers, lots more data may be read without
+incrementing tar->offset.
 
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
+This corrects by always incrementing the offset counter, and then
+decrementing it again in the one case where headerballs differ -
+regular file data blocks are not present.
 
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
+Signed-off-by: Mike Baynton <mike@mbaynton.com>
+---
 
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. If in doubt, please check the listed branch.
+Thanks Gao for the suggestion, looks good to me and tests ok on my
+sample headerball inputs. Let me know if you want me to resubmit this
+with Co-developed-by / Signed-off-by you.
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs.netfs
+ lib/tar.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-[1/5] cachefiles: Fix incorrect length return value in cachefiles_ondemand_fd_write_iter()
-      https://git.kernel.org/vfs/vfs/c/544e429e5bc6
-[2/5] cachefiles: Fix missing pos updates in cachefiles_ondemand_fd_write_iter()
-      https://git.kernel.org/vfs/vfs/c/a89ef3809efd
-[3/5] cachefiles: Clean up in cachefiles_commit_tmpfile()
-      https://git.kernel.org/vfs/vfs/c/d76293bc8658
-[4/5] cachefiles: Fix NULL pointer dereference in object->file
-      https://git.kernel.org/vfs/vfs/c/53260e5cb920
-[5/5] netfs/fscache: Add a memory barrier for FSCACHE_VOLUME_CREATING
-      https://git.kernel.org/vfs/vfs/c/37e1f64cbc1b
+diff --git a/lib/tar.c b/lib/tar.c
+index b32abd4..990c6cb 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -808,13 +808,14 @@ out_eot:
+ 	}
+ 
+ 	dataoff = tar->offset;
+-	if (!(tar->headeronly_mode || tar->ddtaridx_mode))
+-		tar->offset += st.st_size;
++	tar->offset += st.st_size;
+ 	switch(th->typeflag) {
+ 	case '0':
+ 	case '7':
+ 	case '1':
+ 		st.st_mode |= S_IFREG;
++		if (tar->headeronly_mode || tar->ddtaridx_mode)
++			tar->offset -= st.st_size;
+ 		break;
+ 	case '2':
+ 		st.st_mode |= S_IFLNK;
+-- 
+2.34.1
+
