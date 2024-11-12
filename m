@@ -4,68 +4,67 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A36FD42B85
-	for <linux-erofs@archiver.kernel.org>; Tue, 12 Nov 2024 14:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 210B8D42BB0
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 Nov 2024 16:58:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XnqDF09BRz2ynL
-	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2024 01:53:33 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.11
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731423211;
-	cv=none; b=anx+gw9xDsp78X5qwFkSB/fUX+y9VBPgVMM840xw6AwmQIYhaH0VFBDfTdoVFA9GA8tGRudQjS4EG8QU0My4bjUknWxUjLwqwn8BxFHYfQcqmi7FpMYUy4d1tLF2+HO/LyabMxga22GwMywQrJFUbe/JkP621Xh89I0nG39bKsfWo7ta+UIsX/WUnT7c2XZrSsZwMVgKVx8SYRUXqcbnuUxsRBd1EHi+sqBmRqwceidymOEKamMxJO+p0JwtWLkihxvgraOedm1up+5pGydPAkAA+icWYIZWR+N1joH4SC5H0HFUXkEsjZSj5uwjc8wMcz/RExSNLh52Nurv2E4kqw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Xnt0r0lftz2yn4
+	for <linux-erofs@archiver.kernel.org>; Wed, 13 Nov 2024 03:58:52 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.9
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731430730;
+	cv=none; b=hJGzWwGZQhP/UW1bGKSCE6cPCM11lHWSabffLY3ACtbk7KKjpgvcMP06pdz6RFz7kbaBdyJLXdF99Pn2ev7g2ewtFCrmwSB2pyy40UTvwlkM3YH4ArFm1Ps/W7hCOwPOW0foIywgL/c0lIAVH/n3wfgBn2kfCWNn4R2whT38607o/9rjpghXejLQFa2smclNHBWlWvOcl6TKVU7shcFaRKjwCZjumYUixJa6p12iXQUAusFo16wqL/pVn74/98/8VQ23Cyq47U58f2GgWh0iyC/SZtywAOJNSa4DEquPuBgd5VvF9fBOy5Tb4hzdSFKVJwo4jJvF2iZSexgzFNmsfg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1731423211; c=relaxed/relaxed;
-	bh=RDQ44PN9j8AtWPN/uzGEubxnaiX4Hqp6rmZ20fygDtk=;
+	t=1731430730; c=relaxed/relaxed;
+	bh=w2ozDLMfUbk+kRfL9cKHAuEADVKlLAi1pFkFQoIMgfk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZXR7s7Vlo1/Hteoi7O2jokowUld2QwyGBnaviCFSPjY8kbna0jlmTkDxStXJHaT5BjqUQ3pOXlfQlaTj0OL4TsMIzpUkB6KeTv20wvLfZpDJD3rVdjqv3Vs1czCWMTB2FUihF47WLTQyRIFDCKeDCBxCKoyLCfrjMCVMwUZNQIAZK2VuggRENIgMcxl/BTAJbxwSs0aPMxNVacoQBWVQZOnBjUyHzyf+UurAykc6SEhTTzWVOrCd+hb7E4esJp3yscKH7rKLmuypeJGwglpJG+Dj9995ziWNzU4P6IO+6EpME+62e3dBVStvJiTI1DK2gOZ3JUV7trYd1OlyavzK/w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lF+AQgjc; dkim-atps=neutral; spf=pass (client-ip=192.198.163.11; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZDu8khAI1OVcEhiANff8bm0RSRCNNPigEb+x3PQ+adytqp5s6Xm9favydBE2GdFvsYS+bdEvDPA6eGI97kgZyHlE7IUZZSNGMoxf5D9yC0d0aSxFdmARMCAyt6fpH9WPA3znNRPS7nPhx0FFakclX8fx1V71cUj9Csz4GsekJ3NgSwekuFjYdnNVOXiZUyeYZamLNmdPCrMwxnLiCkg7CPa+HnmAoKGtT0WyDTtXRlpxVgazU8ypc1iMRIdrjQfmxPvsxMrw0JItSUC1/ZBarvZMHOfdzfzMw5D4dsHmvW/9Enjw6evdav4sKFNrLup2drtqWbOlSALlS3E+BiPG1g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TR7qMkMx; dkim-atps=neutral; spf=pass (client-ip=192.198.163.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lF+AQgjc;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TR7qMkMx;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.11; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 64 seconds by postgrey-1.37 at boromir; Wed, 13 Nov 2024 01:53:29 AEDT
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XnqD90RgNz2xDl
-	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Nov 2024 01:53:28 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Xnt0l0JPjz2yVZ
+	for <linux-erofs@lists.ozlabs.org>; Wed, 13 Nov 2024 03:58:44 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1731423209; x=1762959209;
+  t=1731430727; x=1762966727;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=XxmjXbd3NELFVsWVdW6o2Zxqx8IqBr4HxPuGWI6cATE=;
-  b=lF+AQgjctldTL/b/JWy9DS5WS8PerE5wPI6tSOhr14Kh+INUt9NG7wNt
-   Y2z8yPIohRZddYJWIgDL4Nyg1yoU1swFyE0DXExfkh5NhtZFS4tU8+qGv
-   +3kxyfStTqFzmIbv262SAlYU5ooQz1tby9+jhxF8NxiUdqF60R5abGand
-   kZVcO/etO7O1Asa7j45Nl0ySnsOiYbekTYCxCeWFO6VoLfCXhorD3bqP9
-   pJzXld62RrvVWMvwX19S4Ambmdm+dfr40ViGTLShCO1tZGf/G++GTKmCx
-   Jgn+4Zb5hAQPaptlEe0I7LB05UXwY7tQ4JfubaxYbrhpA27Wdehu/xFGp
+  bh=aeoydx0HLFHSStAdMKkZnSfEwsDzUEWxHMeOyr5IZs4=;
+  b=TR7qMkMxxs3fSmKC/5KQtoX/iET8BwyY333JbI6h4yPS6OFSIIFJF+wB
+   Rn0A3T8cxxK/NWlr7AwHJ2r/8bxDegvj+7ho9/TC7VYEPMmIr2MTVIDpj
+   zsvaWc2RpZZPBdk3OLuDx5Dt7UP3pc++9g3MEFShxKHRPj32C8ua8P11A
+   SB84poVeSu6nJlu6zriAv3+thsleLV6Bew2Pdyxn9+hJq/W0oqJZn/5tn
+   VJ8QbKIyMVAMY5efeb8M+Jz8NScWjQ/reYW0i97Ip7UP7x1qhZ7h8EtYt
+   VQdgyEb+whVNUSjwqQX3HOHuKKTvQpNlqz0b8jl9/J4on6Gc2aPQ44iLG
    Q==;
-X-CSE-ConnectionGUID: E6GwO3TzTZOgQXzldWSCdQ==
-X-CSE-MsgGUID: Jo4N5KA7RUO/l08OPGeEyQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11254"; a="41885684"
+X-CSE-ConnectionGUID: ZjMx4pjJR2e8xzlwL3s8Ww==
+X-CSE-MsgGUID: 4S71/fzDQ1u+PxJRm6XLug==
+X-IronPort-AV: E=McAfee;i="6700,10204,11254"; a="41888161"
 X-IronPort-AV: E=Sophos;i="6.12,148,1728975600"; 
-   d="scan'208";a="41885684"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2024 06:52:20 -0800
-X-CSE-ConnectionGUID: ckdD5CfLSzipX2yz0R4Ubw==
-X-CSE-MsgGUID: f3iIhOODQomMGy2XCI5DuQ==
+   d="scan'208";a="41888161"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2024 08:58:40 -0800
+X-CSE-ConnectionGUID: TTsunEUaTSiwLWuDYqCwdA==
+X-CSE-MsgGUID: FpX1XzS+RM+WhOuJGDmlnQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.12,148,1728975600"; 
-   d="scan'208";a="87259015"
+   d="scan'208";a="91597022"
 Received: from lkp-server01.sh.intel.com (HELO bcfed0da017c) ([10.239.97.150])
-  by fmviesa007.fm.intel.com with ESMTP; 12 Nov 2024 06:52:17 -0800
+  by fmviesa003.fm.intel.com with ESMTP; 12 Nov 2024 08:58:38 -0800
 Received: from kbuild by bcfed0da017c with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1tAsFb-0001RK-2e;
-	Tue, 12 Nov 2024 14:52:15 +0000
-Date: Tue, 12 Nov 2024 22:51:40 +0800
+	id 1tAuDr-0001YD-1w;
+	Tue, 12 Nov 2024 16:58:35 +0000
+Date: Wed, 13 Nov 2024 00:57:44 +0800
 From: kernel test robot <lkp@intel.com>
 To: Chunhai Guo <guochunhai@vivo.com>, xiang@kernel.org
 Subject: Re: [PATCH] erofs: add sysfs node to drop all compression-related
  caches
-Message-ID: <202411122209.OQ3CcFg1-lkp@intel.com>
+Message-ID: <202411130033.ZP2Akhk8-lkp@intel.com>
 References: <20241112091403.586545-1-guochunhai@vivo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -82,7 +81,7 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-kernel@vger.kernel.org, huyue2@coolpad.com, oe-kbuild-all@lists.linux.dev, linux-erofs@lists.ozlabs.org
+Cc: llvm@lists.linux.dev, linux-kernel@vger.kernel.org, huyue2@coolpad.com, oe-kbuild-all@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
@@ -100,22 +99,28 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Chunhai-Guo/erofs-add-sys
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
 patch link:    https://lore.kernel.org/r/20241112091403.586545-1-guochunhai%40vivo.com
 patch subject: [PATCH] erofs: add sysfs node to drop all compression-related caches
-config: x86_64-randconfig-161-20241112 (https://download.01.org/0day-ci/archive/20241112/202411122209.OQ3CcFg1-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241112/202411122209.OQ3CcFg1-lkp@intel.com/reproduce)
+config: i386-randconfig-003-20241112 (https://download.01.org/0day-ci/archive/20241113/202411130033.ZP2Akhk8-lkp@intel.com/config)
+compiler: clang version 19.1.3 (https://github.com/llvm/llvm-project ab51eccf88f5321e7c60591c5546b254b6afab99)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241113/202411130033.ZP2Akhk8-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202411122209.OQ3CcFg1-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202411130033.ZP2Akhk8-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
-   fs/erofs/sysfs.c: In function 'erofs_attr_store':
->> fs/erofs/sysfs.c:175:17: error: implicit declaration of function 'z_erofs_shrink_scan' [-Werror=implicit-function-declaration]
+   In file included from fs/erofs/sysfs.c:9:
+   In file included from fs/erofs/internal.h:11:
+   In file included from include/linux/dax.h:6:
+   In file included from include/linux/mm.h:2213:
+   include/linux/vmstat.h:518:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
+     518 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
+         |                               ~~~~~~~~~~~ ^ ~~~
+>> fs/erofs/sysfs.c:175:3: error: call to undeclared function 'z_erofs_shrink_scan'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
      175 |                 z_erofs_shrink_scan(sbi, ~0UL);
-         |                 ^~~~~~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
+         |                 ^
+   1 warning and 1 error generated.
 
 
 vim +/z_erofs_shrink_scan +175 fs/erofs/sysfs.c
