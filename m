@@ -4,71 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A003D49208
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Nov 2024 10:08:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1731924524;
-	bh=SBGXcRO+8FEFM3k4xRoXCbbIG55nPObO6VpdHCFdPu8=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=kafTaxrK5xJmlQXR+7T0N1aeminHLaq/iONDYLIgfcIR9/duviqsbq8UyylhflMb6
-	 TULxFdGwY/q0BWijf3BjX8JvZDveoJEM3A0JozmKu0yMYHP9kwis7FmDMvpRecVZS0
-	 WldZ0EuWyDxHE77gvBRGrJGWZItK2Ggbnl+ird4ybqmi6wW4DbIRvoECxlm54pWBPR
-	 rGqG0XCAIUGX/jHwqwZFTxo6SoNkOKef4XZNBUx5jjo5WDTghW58mz+2rdTkkW2qH7
-	 m2lzI2gl/9Y3lLHMdG9UWqIv11A7VKiyoJpT9BWYOw4ABixepK7LjeRKORjDsSpfub
-	 mjPjh1++GAivA==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C61ED591A5
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 Nov 2024 16:35:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XsNcr3hw6z3bZR
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 Nov 2024 21:08:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2604:1380:45d1:ec00::3"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731924519;
-	cv=none; b=Y9T+D6oQCMQL8uSnftYwbfEwtixJ2ARZwLGnyUi12EFZwNVXgFFz4ut/WFhFlZc5fpJL/LARL9krSnI04lw1z7uD6DF2d4LSCavyR2bQtjm77B2www86pgMEsGAXS4BiFS8bgZfPPYjkore8RCP1tgv7Y0gZrEYH2SmNVsmkKJyH3xJswnvSx898PrnQsWEhJNi0CKvhPk2U3JXfghFx6R0wrRG5iVNlSm1MbLfCeuBHFlySP/LBqubOuJ0jUsk7lRjmYbAEkspY9MH9bDnk7mdcy3mOIRphuSdPfEJpBxrZtXLZhH6WX11oF1pkfPyYX/m/zyfcdjqCZRIARpRHPg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XsYCT3y5zz3bjM
+	for <linux-erofs@archiver.kernel.org>; Tue, 19 Nov 2024 03:35:49 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1731947747;
+	cv=none; b=RZ57ikWSBe3kUtGTg/506hAtRNEK2cZOz/T/Y6WaY37UuQJsWu08fXktNQkPpjqvI88pcUss1PncW5yy+WP5eOr+bjnBgdDJa64PTvTmnVEWFYs0T2YsugHSzg63LkMRn/iftO9f0zFiwZCXP9tFlNjVnnAiIqgf/Z8Zugyzo83+jx2pfHUhPqMH30/dcaO75Bv8EW1ymHwyQjPsI73sYQy8vYW4vblE7nKTm8bP3cGfVNYvz3j0rpo/ItOAp2PBpK6mQ1+0ozdsJNoImP5u858DgM33oNNaK6I7iprumZra+6V+IPVqWNkZnzFKEmVVh6DUyIzSDTMvAQW1kJrZrQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1731924519; c=relaxed/relaxed;
-	bh=SBGXcRO+8FEFM3k4xRoXCbbIG55nPObO6VpdHCFdPu8=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=P8OMAvvZ/3q2iV0zO2GL+fC3cNNZKGKVY5EHcEoNZN6OJ2+LeVA7jVvMO9iRd+4GvCLusV69SiW10wH+2qs0G7PNgSWbCIFBLIWy2mXJpeWVvxdKcALJTr7oN1rosdxIwWxN3g1JzvEKhgmMwZ2kmDH2KlI8K9m+Fv3/gCkBg7wroi8q9pB9Dc5VQSnjz46AWXVzpX70IQWNDrMVNmxK85ab2ndbf6xu6njVUm0U/2fuScyq2vk2DCOfPSWUU0pZR1rWlBKqjbXuh3LkD4HJClhFR8vpH9eMLfjn+0hdgRoDLT1/Ml40ZTX4p8lWkVt3bXnfnvCESy110cychg5xrg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=hsLECLzJ; dkim-atps=neutral; spf=pass (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1731947747; c=relaxed/relaxed;
+	bh=F48vEQ6V/tDlXaOtinAU3DdgDvVmHs2S/fGlg/NOvdQ=;
+	h=From:In-Reply-To:References:To:Cc:Subject:MIME-Version:
+	 Content-Type:Date:Message-ID; b=V0wpM0wLDqZ/wxVe2RBLLHTd05BO0y91U3i7sT5US9S92Sd9yxyEmo2u8GfcF2mpiRwFHJ14aYhnfyETiY8EtoQfPKCD7Pj8gFYIshZvljHai1h4AB25cI5gN6QfiyEBitVp0Xz1hG7XbzXpsKMkGIjq1zRr7A3tONqvx3Z703YVdezJkPqv9+4l6hY5NzuTbnGn9x3yeXU+6PwYOTEm23oO8qhq+5dpyEk5M6nMp6IgMmjS7LY4HHgJPLRrg82Twuc7QrjprwKZM2ys7zc2oVqnyiAdLoznLqzqHo3+fC9DSTTV6BbZiATnPqEi0Um3318Q98mgmeUBGfbHItDn4w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C+ZgNer4; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C+ZgNer4; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=hsLECLzJ;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C+ZgNer4;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C+ZgNer4;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from nyc.source.kernel.org (nyc.source.kernel.org [IPv6:2604:1380:45d1:ec00::3])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XsNcf03Kpz2xjw
-	for <linux-erofs@lists.ozlabs.org>; Mon, 18 Nov 2024 21:08:33 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by nyc.source.kernel.org (Postfix) with ESMTP id 4B233A4160B;
-	Mon, 18 Nov 2024 10:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 731D2C4CED6;
-	Mon, 18 Nov 2024 10:08:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731924509;
-	bh=ElbV7+y46xOwExqz+QF3XktAt+Sx1IHP9XxevAPamFU=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=hsLECLzJWeIvPpsAAHBOOIrZ/skFjRU9YqYuQPERDT9sVHEH4Uz28A+QOOn8R10t5
-	 btkC9J4Op652G/F6H3Gz9T2g6OcSwA1YyxhSQ7kVVNrq5OMN+Bm+Lkd4psL4eKMCT8
-	 jp3PjFpzVUu84uOdbJDicysdDAU33IY9hpsZUp6Y9SscWS6UWEZS9cRTCB/V7TNnri
-	 AO7pH4eztBpR6Brw9opORCgv2sGBdsySleTmctnZQub2hNh23g/gdEOY3Io8129SZg
-	 UVtU7JeXwMfMBmM6O4FaRylTQ92z277I0GkDRRnAJsSQ20HgaX7NzzTljvRPnBuozp
-	 +8MNrkTuC/yrQ==
-Message-ID: <4dfbb8ba-f141-42d4-aedb-c6d98e8c930a@kernel.org>
-Date: Mon, 18 Nov 2024 18:08:26 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XsYCQ0cfNz2yWr
+	for <linux-erofs@lists.ozlabs.org>; Tue, 19 Nov 2024 03:35:43 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731947738;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=F48vEQ6V/tDlXaOtinAU3DdgDvVmHs2S/fGlg/NOvdQ=;
+	b=C+ZgNer4hKOeHdJEBG/l6jXUewb3GN736uG8q4K4/NF8RzEYX/ixS5TCkMfD/cdt+Xct8Y
+	MKVk2ifwKjV6qHboJL65bnLN0aow7LdWt8Hs/+sDR6naIxDDZlqlrLNacPsmA5TLIqJT62
+	F0F0Cu3nbjXKcvtoR6R9kiGO9Jinitc=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731947738;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=F48vEQ6V/tDlXaOtinAU3DdgDvVmHs2S/fGlg/NOvdQ=;
+	b=C+ZgNer4hKOeHdJEBG/l6jXUewb3GN736uG8q4K4/NF8RzEYX/ixS5TCkMfD/cdt+Xct8Y
+	MKVk2ifwKjV6qHboJL65bnLN0aow7LdWt8Hs/+sDR6naIxDDZlqlrLNacPsmA5TLIqJT62
+	F0F0Cu3nbjXKcvtoR6R9kiGO9Jinitc=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-351-HpCdFzANNgKaFZmQE0YgOw-1; Mon,
+ 18 Nov 2024 11:35:33 -0500
+X-MC-Unique: HpCdFzANNgKaFZmQE0YgOw-1
+X-Mimecast-MFC-AGG-ID: HpCdFzANNgKaFZmQE0YgOw
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D5300197731B;
+	Mon, 18 Nov 2024 16:35:28 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.207])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 710421956054;
+	Mon, 18 Nov 2024 16:35:20 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+	Kingdom.
+	Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <17eb79fc-ccd9-4c85-bd23-e08380825c41@ijzerbout.nl>
+References: <17eb79fc-ccd9-4c85-bd23-e08380825c41@ijzerbout.nl> <20241108173236.1382366-1-dhowells@redhat.com> <20241108173236.1382366-24-dhowells@redhat.com>
+To: Kees Bakker <kees@ijzerbout.nl>
+Subject: Re: [PATCH v4 23/33] afs: Use netfslib for directories
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/3] erofs: get rid of erofs_{find,insert}_workgroup
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20241021035323.3280682-1-hsiangkao@linux.alibaba.com>
- <36d1653d-249a-47b0-a87c-1216ed5bf1ca@kernel.org>
- <bda19625-e43e-4ebe-82f5-dad860782e6d@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <bda19625-e43e-4ebe-82f5-dad860782e6d@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <941498.1731947719.1@warthog.procyon.org.uk>
+Date: Mon, 18 Nov 2024 16:35:19 +0000
+Message-ID: <941499.1731947719@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -80,109 +90,21 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Chao Yu via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Chao Yu <chao@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Dominique Martinet <asmadeus@codewreck.org>, dhowells@redhat.com, linux-mm@kvack.org, Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org, Paulo Alcantara <pc@manguebit.com>, linux-cifs@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Steve French <smfrench@gmail.com>, Gao Xiang <hsiangkao@linux.alibaba.com>, Ilya Dryomov <idryomov@gmail.com>, Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, ceph-devel@vger.kernel.org, Eric Van Hensbergen <ericvh@kernel.org>, Christian Brauner <christian@brauner.io>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, v9fs@lists.linux.dev, Jeff Layton <jlayton@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 2024/11/11 10:12, Gao Xiang wrote:
-> Hi Chao,
-> 
-> On 2024/11/7 11:09, Chao Yu wrote:
->> On 2024/10/21 11:53, Gao Xiang wrote:
->>> Just fold them into the only two callers since
->>> they are simple enough.
->>>
->>> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
->>> ---
->>> v1: https://lore.kernel.org/r/20241017115705.877515-1-hsiangkao@linux.alibaba.com
->>> change since v1:
->>>   - !grp case should be handled properly mentioned by Chunhai;
->>>
->>>   fs/erofs/internal.h |  5 +----
->>>   fs/erofs/zdata.c    | 38 +++++++++++++++++++++++++---------
->>>   fs/erofs/zutil.c    | 50 +--------------------------------------------
->>>   3 files changed, 30 insertions(+), 63 deletions(-)
->>>
->>> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
->>> index 4efd578d7c62..8081ee43cd83 100644
->>> --- a/fs/erofs/internal.h
->>> +++ b/fs/erofs/internal.h
->>> @@ -457,10 +457,7 @@ void erofs_release_pages(struct page **pagepool);
->>>   #ifdef CONFIG_EROFS_FS_ZIP
->>>   void erofs_workgroup_put(struct erofs_workgroup *grp);
->>> -struct erofs_workgroup *erofs_find_workgroup(struct super_block *sb,
->>> -                         pgoff_t index);
->>> -struct erofs_workgroup *erofs_insert_workgroup(struct super_block *sb,
->>> -                           struct erofs_workgroup *grp);
->>> +bool erofs_workgroup_get(struct erofs_workgroup *grp);
->>>   void erofs_workgroup_free_rcu(struct erofs_workgroup *grp);
->>>   void erofs_shrinker_register(struct super_block *sb);
->>>   void erofs_shrinker_unregister(struct super_block *sb);
->>> diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
->>> index a569ff9dfd04..bb1b73d99d07 100644
->>> --- a/fs/erofs/zdata.c
->>> +++ b/fs/erofs/zdata.c
->>> @@ -714,9 +714,10 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
->>>   {
->>>       struct erofs_map_blocks *map = &fe->map;
->>>       struct super_block *sb = fe->inode->i_sb;
->>> +    struct erofs_sb_info *sbi = EROFS_SB(sb);
->>>       bool ztailpacking = map->m_flags & EROFS_MAP_META;
->>>       struct z_erofs_pcluster *pcl;
->>> -    struct erofs_workgroup *grp;
->>> +    struct erofs_workgroup *grp, *pre;
->>>       int err;
->>>       if (!(map->m_flags & EROFS_MAP_ENCODED) ||
->>> @@ -752,15 +753,23 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
->>>           pcl->obj.index = 0;    /* which indicates ztailpacking */
->>>       } else {
->>>           pcl->obj.index = erofs_blknr(sb, map->m_pa);
->>> -
->>> -        grp = erofs_insert_workgroup(fe->inode->i_sb, &pcl->obj);
->>> -        if (IS_ERR(grp)) {
->>> -            err = PTR_ERR(grp);
->>> -            goto err_out;
->>> +        while (1) {
->>> +            xa_lock(&sbi->managed_pslots);
->>> +            pre = __xa_cmpxchg(&sbi->managed_pslots, grp->index,
->>> +                       NULL, grp, GFP_KERNEL);
->>> +            if (!pre || xa_is_err(pre) || erofs_workgroup_get(pre)) {
->>> +                xa_unlock(&sbi->managed_pslots);
->>> +                break;
->>> +            }
->>> +            /* try to legitimize the current in-tree one */
->>> +            xa_unlock(&sbi->managed_pslots);
->>> +            cond_resched();
->>>           }
->>> -
->>> -        if (grp != &pcl->obj) {
->>
->> Do we need to keep this logic?
-> 
-> Thanks for the review.  I think
-> 
->          if (grp != &pcl->obj)
-> 
-> equals to (pre && erofs_workgroup_get(pre)) here, so
-> 
->          } else if (pre) {
->              fe->pcl = container_of(pre,
->                  struct z_erofs_pcluster, obj);
->              err = -EEXIST;
->              goto err_out;
->          }
-> 
-> Handles this case.
+Kees Bakker <kees@ijzerbout.nl> wrote:
 
-Xiang, thanks for your explanation.
+> > +	iterate_folioq(&iter, iov_iter_count(&iter), dvnode, ctx,
+> > +		       afs_dir_iterate_step);
+> > +
+> > +	if (ret == -ESTALE)
+> This is dead code because `ret` is set to 0 and never changed.
+> > +		afs_invalidate_dir(dvnode, afs_dir_invalid_iter_stale);
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+Yeah.  I posted a modification for this in response to someone else.  ESTALE
+needs to be set if iterate_folioq() returns 0.
 
-Thanks,
-
-> 
-> Thanks,
-> Gao Xiang
+David
 
