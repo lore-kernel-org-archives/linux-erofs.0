@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D7B69D609C0
-	for <linux-erofs@archiver.kernel.org>; Wed, 27 Nov 2024 09:37:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB6C4D609CE
+	for <linux-erofs@archiver.kernel.org>; Wed, 27 Nov 2024 10:40:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4XyvW00t86z301T
-	for <linux-erofs@archiver.kernel.org>; Wed, 27 Nov 2024 20:37:48 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1732700266;
-	cv=none; b=odhzCfVrSnYJnzj57B0v8AK3bMFXFBAYeAZW77pjnhxIIYuTnP4Bow16BlMLvYyxIHk94uuur8cS2YNfBfB13tWkl8x02r1hxaXSkCo2TbnOru70Dl8glorv2lQNJTxMaUyXtq1KD8m2XnxvIKRSvm6PGd+T2P7kv8yIjeXrGusaIxNsqeEvugE/HnrPgy5MnzhNRKXyz6g4ptsZaVc5bMWyZ0/eMrUSH7hnutQpb0Ota0gVP06lzffZiOoUyglu9MVMUy1tT54d9r+ToBTVH8/HLCOZXU1Zp+XCq0+unp9foo05zoLCRpdRUPQwfhjc8+g099u0T1voXhOkmJHw+g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4XywvX0jWQz3011
+	for <linux-erofs@archiver.kernel.org>; Wed, 27 Nov 2024 21:40:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1732704038;
+	cv=none; b=BWjipodR80k0/AdQhohimw/pU32su29UtTeLwvZfovQ7tTDObrPrA23EvqgQmBXQOwsMZgqXwBTYN6hMg/wXt8jUsk0dsSv7ZShPsgVcSWTz4NxjDVGh2q2aPtfYx8z+7c7/K0w6NrLQwtxnT6WGJUfEMjjkZ4EazYcVwwlmv+evVI/RxM1ciYuEUqXUnFe8mmQMlzsArMFsyJVzJLUUmPuv+DCHGfbkRh4bkRlEQeTbaHaUnCQiLwk4OgTpZKFl0vuqmyjOYaWUfnuqrhxiJSnNBU7T1DSduKMKVg33xXYDu4aMaBIRCO8PwepSSSmQ+e16uWI7Bn9JgA4b155sBg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1732700266; c=relaxed/relaxed;
-	bh=nG4fzIQ5T3scukB+pCFL6C1E6SQa80CooWxsJZK9Ojs=;
+	t=1732704038; c=relaxed/relaxed;
+	bh=i5BiNMK74td7if6lWEE5+oFCJfXk/XHhiT7RbOhyobg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=TZeqp4XbstZgsz2t6jPKSNuI5x+RClEoMQ94n+1GqHXdpKI31Hi1CkWIcNx6+RL7bt+a9HUSV6pTVbSXql4FOeAlsm05UOJ/kfv1MPU3Xhocb/4c18/zRXif4ABzueNHX1w6vLFpQ0RA6IZoOJDTKD0ZpopKLGd2GWrBKDs2erDzXZfdR4qT9RfriFXiBDIe/GA1/+ldgLAk5My2DBIvx60D/ePBgP4lsJ10aq2WhVnR25eWaKBNWM/lO4/x9F+1jYmrvVUSEsR9qYuzO+8RHiQ/bxsXpGaRgcNuV0dhYKLG0CKuGwFOq4X6vrzbBYPJQhNwYxkfWsa/2r4kqcYwIw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YjpER5yu; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=U0JtBEbmHVWf4WwKNtc0dynZS7WZsEr0Q7wzt/BR1EPJzgoBIqzFC9PrhHOX19lIKIxfRBZjUElm3V4c5t2wouaBAhvWRQuGcjkxREbdczgrOzpjNo02KhS9PcVMVT0n1S4SH84fKiZkd4PP91gWYO+4Z0Yo9EOO/ME/bynQq0wB9aQThTTL7rtNoJxqG1e0eZFr+L+Zm93HVZO0xd3voC2Ls4oH0oATsYETcKSmIY+4pxi09E6hF9J7DWgAH36UK5IB0L9d+OMsCq8kKmUPKfIrgOW78BlYBQxckWRMa8qgjguPmmsk8YkfPAjD7AV18//VIQO1WRHPgfLr2/7BhQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=N6nkJVbT; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YjpER5yu;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=N6nkJVbT;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4XyvVs6gDRz2xt7
-	for <linux-erofs@lists.ozlabs.org>; Wed, 27 Nov 2024 20:37:38 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4XywvM72V1z2xvh
+	for <linux-erofs@lists.ozlabs.org>; Wed, 27 Nov 2024 21:40:28 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1732700254; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=nG4fzIQ5T3scukB+pCFL6C1E6SQa80CooWxsJZK9Ojs=;
-	b=YjpER5yuvqTxPK3eBC93UIvj+x+tWIyla0WzJMoXn0/Gp5hf1DviyY8b2U3PRfsZfgjnqTxlmtF0NJ098eQlOO6SSJS47N+ok4GE0JWttbVa0GgMgLo0zeQCXzaZgcuyrcDn9K8bHuvunHL2xxPwEvgpYb9GJWwmPYX8+KIElk8=
-Received: from 30.221.131.189(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WKM1fI5_1732700243 cluster:ay36)
+	t=1732704024; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=i5BiNMK74td7if6lWEE5+oFCJfXk/XHhiT7RbOhyobg=;
+	b=N6nkJVbTusfQ6IOFjcvMhsZyRNqDNnG/V7NFKzLpm/stgW2NPPhxp0+S52XlusRlhNKRBwj08X45kc55QzxQnGYhtIoPc7ZjHMKIB11hUOF5eX4KVJNkSnC/ORhrOCV0WhGxxzUkLTZMnyW80nS4FEAAlcmyKYtR0OU5Onn5zAw=
+Received: from 30.221.131.189(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WKMMIGs_1732704021 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 27 Nov 2024 17:37:33 +0800
-Message-ID: <a4e268ef-c97e-4644-922a-111e06cda681@linux.alibaba.com>
-Date: Wed, 27 Nov 2024 17:37:23 +0800
+          Wed, 27 Nov 2024 18:40:22 +0800
+Message-ID: <47e03789-e162-4cc6-8c38-4daa6e7e0a46@linux.alibaba.com>
+Date: Wed, 27 Nov 2024 18:40:20 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 2/2] erofs-utils: rebuild: set the appropriate `dev` field
@@ -139,12 +139,12 @@ On 2024/11/27 17:31, Gao Xiang wrote:
 > Thanks,
 > Gao Xiang
 
-Yes, I didn't see that; this makes it much simpler. I'll give it a try 
-and send another version of the patch later.
+Just use `inode->dev = dir->dev` to set the `dev` field during the parse 
+tar phase seems don't work because the `dev` filed of the root is 0. Did 
+I misunderstand something?
 
 ---
 
 Thanks,
-
 Hongzhen Luo
 
