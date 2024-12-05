@@ -4,46 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1829E7716D
-	for <linux-erofs@archiver.kernel.org>; Thu,  5 Dec 2024 03:09:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC435E77170
+	for <linux-erofs@archiver.kernel.org>; Thu,  5 Dec 2024 19:46:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Y3fVq5Lh6z30Sx
-	for <linux-erofs@archiver.kernel.org>; Thu,  5 Dec 2024 14:09:07 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1733368146;
-	cv=none; b=Rk+x4rOk12rc9h6jgcBaQvf5YPuNb45BpjANFHAu+m6pp7W5Q6lY7wSW3r3dFF+sQp9/5o7LAmEr1JJTUHy8ehEnMR+1Jz9TzAx+7s/9HZ1Ud5ZlSfcGxwVlrtQycK/CYWNLAFgxr51EuYE9HPpPJpAi4UeLEULMsZik/siQjrOIEfKMcHP+bOfWrU6wKKQZgWqDmUFRgt+E4+LNI5Mq7Bl0OTOTQGhHx4Q9kQUv/wjLDUxQ61EwIfeNwaJtLMFTeFzcOiUJ/f8tU7Ue/6+0RG7VVp3ksiaJql2ldqPArXyXjnqpS+a6lwmyjyU/OL6c7QKLls0wrMbacY3xbzUMDQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Y44dg5Kr2z30fg
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Dec 2024 06:46:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=116.67.46.92
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1733427990;
+	cv=none; b=AIOY+Wx1EFlb4gRjvvPVpJQQtbvpYiIhr4lgKD734SXILXRbCByeWKMyKuFfYl3k9Zk473DLNbEAxrN//oraRRxutQ9to0cC57jmT63YDRLRHQMDa21cNZUuUSL+JbQ3F51EoMnrWzL4sB16vmZko3en07J4Nl1sEp3j744/9TR2I8FaQEvVwNSWpc5H7CGVjHpM5TyGAIWEAQm4GLXgNN+IAjHjhFkNEiv2Tk8ZlzVuWTwb5MRklW2NtbZx4Cw5Z79xY78lYUFx82tQylbPqwUyU2WhXcbRXFKkklV24bhFRvN87A3S9ztC2qBpLDhKCYyGRawTkAhc0AVYb3c3/A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1733368146; c=relaxed/relaxed;
-	bh=6kpqnhj8Hbll+qFTPtoWQD6Qv8WTwSGRX7gpKzzxyy8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cQVCHAIucqeZ21/FyJu6F+mFAH4Ft9ZrvgZXgrMwKg+S+YG1LvydKv1nw5Hd2i5HufvXvTNyTKXnAtZrl50sSGcisFZb7BIvVEVixGhLQ1igBqOi2r9gbEDibwMCc5PXDYMCuU5GBRbM4UvCNeR3GImwGL8cJi71ThggGFAKARc41RKImT4xuNl19t3uH3ndNs/2p7x9ixi5Mlkcol5ao18WTs9gMqLvr8DiHRGO8U1r3f6YUutRskuPrLru6Hj8miBegJ+pbDPuf4KDwHzxIJciOxxcvtU2YND03JcGhOF5yM1EQHHc9/zVq3A1JtdZrNg9ylxDG7YAROm7bOtxPg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HsPhHJL5; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HsPhHJL5;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	t=1733427990; c=relaxed/relaxed;
+	bh=/wxMPYA6T20AxEz9Uh22ZTVn/1aTGPtwLIV1VseQIek=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=cwqW9dhtjbDCbDgHARNXUMSeMhYXv1ocRdZTvaS0iTryIFrxy/Pq55c9cVW91k3gyPBSjzssIqmO73BVAaw8Nwmoynl4qJkqomurHb1hc1oV8BYntVG4d/kuaSO00Qize8c7oyu/6Ew5QGRgxR3nQB7mRiQMi75sbtAs7FM0KQg8WIw0p6+pQjmZ0oY5XVSuDjo8cRloXp6P4bxdgOQkB4w4kuBTybafN8N9bHZ/NuHL/wHzYTJGFSY5pwu+qUov2m+KzZ2CkqVkvS+CxQstq3/pVq35ge4DhbyNrCpOx5N4TEOX0ephrHcjxSjkbuK29R/3n1Nbknxuzin3m6pLhg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=bizinfo.go.kr; spf=pass (client-ip=116.67.46.92; helo=bizinfo.go.kr; envelope-from=donations@bizinfo.go.kr; receiver=lists.ozlabs.org) smtp.mailfrom=bizinfo.go.kr
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=bizinfo.go.kr
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bizinfo.go.kr (client-ip=116.67.46.92; helo=bizinfo.go.kr; envelope-from=donations@bizinfo.go.kr; receiver=lists.ozlabs.org)
+X-Greylist: delayed 6128 seconds by postgrey-1.37 at boromir; Fri, 06 Dec 2024 06:46:28 AEDT
+Received: from bizinfo.go.kr (ems.bizinfo.go.kr [116.67.46.92])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y3fVk1Kn3z2y8p
-	for <linux-erofs@lists.ozlabs.org>; Thu,  5 Dec 2024 14:08:58 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733368134; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=6kpqnhj8Hbll+qFTPtoWQD6Qv8WTwSGRX7gpKzzxyy8=;
-	b=HsPhHJL5Q1unISQur72PRHVQbHfKJ/y9H9Tzf5Ss7po/EL0BhHfCmm58bXRGiJDkqZer1Io+POWR1Dt9P/mEc2DOAdn4ImlUg1D9iaYpRiKQ3Si4uBM4orgtFMioqCEF8RmJmAx4oBH/Hc2r2kU/5nWN25Z9Imc3wJHYYQXqRjY=
-Received: from localhost.localdomain(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WKrYqkO_1733368127 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 05 Dec 2024 11:08:53 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y44dc65mgz30Sx
+	for <linux-erofs@lists.ozlabs.org>; Fri,  6 Dec 2024 06:46:28 +1100 (AEDT)
+Received: from bizinfo.go.kr ([67.205.153.114])
+	by bizinfo.go.kr (8.14.4/8.14.4) with ESMTP id 4B5Jjo4i013190
+	for <linux-erofs@lists.ozlabs.org>; Fri, 6 Dec 2024 04:45:52 +0900
+From: Lee Shau-Kee<donations@bizinfo.go.kr>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: use pkg-config for lz4 configuration
-Date: Thu,  5 Dec 2024 11:08:46 +0800
-Message-Id: <20241205030846.70656-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.39.3 (Apple Git-146)
+Subject: Lee Shau-Kee Charity Donation
+Date: 05 Dec 2024 11:45:48 -0800
+Message-ID: <20241205114548.4E1BEC29715A5BFB@bizinfo.go.kr>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,155 +48,17 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reply-To: lee@asb-risk.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Also obsolete those `LZ4_HC_STATIC_LINKING_ONLY` versions since it's
-too complicated to be maintained.
+Greetings linux-erofs@lists.ozlabs.org,
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- configure.ac           | 71 +++++++++++++++---------------------------
- lib/Makefile.am        |  2 +-
- lib/compressor_lz4hc.c |  1 -
- 3 files changed, 26 insertions(+), 48 deletions(-)
+I am Lee Shau-kee, a prominent Hong Kong business tycoon,=20
+investor, and philanthropist. I have allocated a donation of=20
+4,000,000.00 USD for you. Please get in touch via email at (=20
+lee@asb-risk.com ) for further information.
 
-diff --git a/configure.ac b/configure.ac
-index 9c1657b..45a7d33 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -123,8 +123,8 @@ AC_ARG_ENABLE([fuzzing],
-     [enable_fuzzing="no"])
- 
- AC_ARG_ENABLE(lz4,
--   [AS_HELP_STRING([--disable-lz4], [disable LZ4 compression support @<:@default=enabled@:>@])],
--   [enable_lz4="$enableval"], [enable_lz4="yes"])
-+   [AS_HELP_STRING([--disable-lz4], [disable LZ4 compression support @<:@default=auto@:>@])],
-+   [enable_lz4="$enableval"])
- 
- AC_ARG_ENABLE(lzma,
-    [AS_HELP_STRING([--disable-lzma], [disable LZMA compression support @<:@default=auto@:>@])],
-@@ -172,17 +172,6 @@ AC_ARG_WITH(selinux,
-     esac], [with_selinux=no])
- 
- # Checks for libraries.
--# Use customized LZ4 library path when specified.
--AC_ARG_WITH(lz4-incdir,
--   [AS_HELP_STRING([--with-lz4-incdir=DIR], [LZ4 include directory])], [
--   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
--
--AC_ARG_WITH(lz4-libdir,
--   [AS_HELP_STRING([--with-lz4-libdir=DIR], [LZ4 lib directory])], [
--   EROFS_UTILS_PARSE_DIRECTORY(["$withval"],[withval])])
--
--AC_ARG_VAR([LZ4_CFLAGS], [C compiler flags for lz4])
--AC_ARG_VAR([LZ4_LIBS], [linker flags for lz4])
- 
- # Checks for header files.
- AC_CHECK_HEADERS(m4_flatten([
-@@ -396,36 +385,35 @@ AS_IF([test "x$enable_fuse" != "xno"], [
-   CPPFLAGS="${saved_CPPFLAGS}"], [have_fuse="no"])
- 
- # Configure lz4
--test -z $LZ4_LIBS && LZ4_LIBS='-llz4'
--
--if test "x$enable_lz4" = "xyes"; then
--  test -z "${with_lz4_incdir}" || LZ4_CFLAGS="-I$with_lz4_incdir $LZ4_CFLAGS"
--
-+AS_IF([test "x$enable_lz4" != "xno"], [
-   saved_CPPFLAGS=${CPPFLAGS}
--  CPPFLAGS="${LZ4_CFLAGS} ${CPPFLAGS}"
--
--  AC_CHECK_HEADERS([lz4.h],[have_lz4h="yes"], [])
--
--  if test "x${have_lz4h}" = "xyes" ; then
-+  PKG_CHECK_MODULES([liblz4], [liblz4], [
-+    # Paranoia: don't trust the result reported by pkgconfig before trying out
-     saved_LIBS="$LIBS"
--    saved_LDFLAGS=${LDFLAGS}
--    test -z "${with_lz4_libdir}" || LDFLAGS="-L$with_lz4_libdir ${LDFLAGS}"
--    AC_CHECK_LIB(lz4, LZ4_compress_destSize, [
--      have_lz4="yes"
--      have_lz4hc="yes"
--      AC_CHECK_LIB(lz4, LZ4_compress_HC_destSize, [], [
--        AC_CHECK_DECL(LZ4_compress_HC_destSize, [lz4_force_static="yes"],
--          [have_lz4hc="no"], [[
--#define LZ4_HC_STATIC_LINKING_ONLY (1)
-+    saved_CPPFLAGS=${CPPFLAGS}
-+    CPPFLAGS="${liblz4_CFLAGS} ${CPPFLAGS}"
-+    LIBS="${liblz4_LIBS} $LIBS"
-+    AC_CHECK_HEADERS([lz4.h],[
-+      AC_CHECK_LIB(lz4, LZ4_compress_destSize, [
-+        AC_CHECK_DECL(LZ4_compress_destSize, [have_lz4="yes"],
-+          [], [[
-+#include <lz4.h>
-+        ]])
-+      ])
-+      AC_CHECK_LIB(lz4, LZ4_compress_HC_destSize, [
-+        AC_CHECK_DECL(LZ4_compress_HC_destSize, [have_lz4hc="yes"],
-+          [], [[
- #include <lz4hc.h>
-         ]])
-       ])
--    ], [AC_MSG_ERROR([Cannot find proper lz4 version (>= 1.8.0)])])
--    LDFLAGS=${saved_LDFLAGS}
-+    ])
-     LIBS="${saved_LIBS}"
--  fi
--  CPPFLAGS=${saved_CPPFLAGS}
--fi
-+    CPPFLAGS="${saved_CPPFLAGS}"
-+  ], [[]])
-+  AS_IF([test "x$enable_lz4" = "xyes" -a "x$have_lz4" != "xyes"], [
-+    AC_MSG_ERROR([Cannot find a proper liblz4 version])
-+  ])
-+])
- 
- # Configure liblzma
- have_liblzma="no"
-@@ -581,16 +569,7 @@ if test "x${have_lz4}" = "xyes"; then
-   if test "x${have_lz4hc}" = "xyes"; then
-     AC_DEFINE([LZ4HC_ENABLED], [1], [Define to 1 if lz4hc is enabled.])
-   fi
--
--  if test "x${lz4_force_static}" = "xyes"; then
--    LZ4_LIBS="-Wl,-Bstatic -Wl,-whole-archive -Xlinker ${LZ4_LIBS} -Wl,-no-whole-archive -Wl,-Bdynamic"
--    test -z "${with_lz4_libdir}" || LZ4_LIBS="-L${with_lz4_libdir} $LZ4_LIBS"
--  else
--    test -z "${with_lz4_libdir}" || LZ4_LIBS="-L${with_lz4_libdir} -R${with_lz4_libdir} $LZ4_LIBS"
--  fi
--  liblz4_LIBS="${LZ4_LIBS}"
- fi
--AC_SUBST([liblz4_LIBS])
- 
- if test "x${have_liblzma}" = "xyes"; then
-   AC_DEFINE([HAVE_LIBLZMA], [1], [Define to 1 if liblzma is enabled.])
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index 758363e..9c0604d 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -38,7 +38,7 @@ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
- 
- liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
- if ENABLE_LZ4
--liberofs_la_CFLAGS += ${LZ4_CFLAGS}
-+liberofs_la_CFLAGS += ${liblz4_CFLAGS}
- liberofs_la_SOURCES += compressor_lz4.c
- if ENABLE_LZ4HC
- liberofs_la_SOURCES += compressor_lz4hc.c
-diff --git a/lib/compressor_lz4hc.c b/lib/compressor_lz4hc.c
-index 1e1ccc7..9955c0d 100644
---- a/lib/compressor_lz4hc.c
-+++ b/lib/compressor_lz4hc.c
-@@ -4,7 +4,6 @@
-  *             http://www.huawei.com/
-  * Created by Gao Xiang <xiang@kernel.org>
-  */
--#define LZ4_HC_STATIC_LINKING_ONLY (1)
- #include <lz4hc.h>
- #include "erofs/internal.h"
- #include "erofs/print.h"
--- 
-2.39.3 (Apple Git-146)
+Sincerely,
 
+Lee Shau-Kee
