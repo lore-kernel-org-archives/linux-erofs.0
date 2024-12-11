@@ -4,44 +4,74 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BD1FBE7717D
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Dec 2024 09:27:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9ABEE77182
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Dec 2024 15:08:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Y7Vcc5Kbkz30Tk
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Dec 2024 20:27:28 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1733909246;
-	cv=none; b=C2xNJ5bDHrM/F/22teXUhrc/FhuJyyUJN6pxXVreyIqLrNE/VaHEtDftpNIMu0LMjjjzZM8vFTyH87ZUco3B+C0DHZYWFA1t3UHhcBJSsUapWRXetGJ4XmUJGlU0gOovQ43/YPXnFTY0Q7zJlEjZVd5XevQaXvMVpJ7+GwSzZJ6+q4uJpfX9YCr7hSZzdRcbVWJ3pMvZgI9UJE7yu/ivs05uaEe109UvhYA89ljcjR/05e9SlhuPw6u/S4WaCEMlsaxBGULutybeBPSiGv8vSwNxVhUlVPF0jbulM2gCKgOoG3VlE20NkX5rR62YU5Hw9ItITgM0O1CpuJiIrLZOew==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Y7f9h4C8Bz30TN
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Dec 2024 02:08:08 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::331"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1733929686;
+	cv=none; b=E3isNXVSo9wS6NSv4xrJYVGza20a92Imqaue59zeb5DrFtbfLx3mr9ju0lEKk9WHb8QAfr0xw+0m+l5ixXxCgr+EeUmu5CRKXkfkTMBdFjxzHw+5fa1tyrLMA0uJSk01e21pBSsUg0vhmYWupz7YyXjYcUI8bpu70tTUFBUuTsw2I0P+Zt/pQwGUAk7e0zmzrCTbZsxnf99vOnreH8mvQDRmbIj47vi27ib074+D0KIsy97NWKdvovntN/eUgUKrVsM+H/fQ2ZcAUrpBEfBvOh4Qlhin8QAFi0tD9cIV2CZe9Z5owAUbGwMugLNprxoIX0SUQnRFIFpP6JLraqgPIw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1733909246; c=relaxed/relaxed;
-	bh=N2RbVpnB8vIe4TImxXWeaggFf2DtrOlUggoajhlh7ds=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y/3UWMy7SRtRtl46EmwewJX1swLFhSDX0T2HvcFcmqbtZMYn009I7KI7zoseBzZTjJyHk8N9H8A0Q7sM9s69bDmfPOWY0RnsOpZkusgpuN1mSOQOFaWjYGMkTtWVgM9MndfOKEEGWLrkjkY2jOUrVvhS7fY/jkz2EmcYy2lECk+76Zjxnh6Ek6rpDQ6R9g6Xv+BQmOwXM+M7Vdt0X/oca80ITpJUtZfRWSnEL1vZajZ5wCA9UvNmiiCcYxdghsEymiasm6/FcJWctHCU3rtf3Xj1X2ylffD5lxcp6gAZ/0+F1DGBlRin7BP6ODDaICpUEl1tkmhlv5UHvdoXcNivSg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xUsT10jQ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1733929686; c=relaxed/relaxed;
+	bh=uDLyuf94rwGpIVeGHgONreq7GaPj4bZQYkGW93MVCoE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M/Kvr4H08uu6HNxcUmTBIlTI+/uofu7ACgHlcFHujh4PrpRKS1YpAGApIneHR7FqM66TxRX+vO3hjpmZfvoWnw1HxeZeAQetlMqQ+BxLGJ2zgUNigWd1Bh7SXHPPUy64pbCF1cFiOCx4xCYAJquscEi6tIoDDFfPugl36SKmjRrzKnmPmLVvdnpO8Rg8/aFrplr3WUGR4Y8osl+oq2BwILvRqzgFm9OKGx1cXVZzEcrZpAc51hstRU4NMiNiH5oWuPXyVubZ2b2dk21G/S4I2Jjf6ByVLzhvMuSqoAckIUOmvrBY3YV+0dd4Fo4em5I9o9EalKbO1Oxssm4fqAN9ug==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=OjLQUHkS; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=katexochen0@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xUsT10jQ;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=OjLQUHkS;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=katexochen0@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y7VcV4ds2z2yRc
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Dec 2024 20:27:16 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y7f9c251nz2xjM
+	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Dec 2024 02:08:03 +1100 (AEDT)
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-434a852bb6eso65468675e9.3
+        for <linux-erofs@lists.ozlabs.org>; Wed, 11 Dec 2024 07:08:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1733909231; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=N2RbVpnB8vIe4TImxXWeaggFf2DtrOlUggoajhlh7ds=;
-	b=xUsT10jQDKMY6LBBzZ70zQsh+BD58jaeCV8D40E/J96Mj4HRqNbnKR+VR5qS0/XYX3EV3i9SbyzElq3R4AVP/u1GFeLuzhRZwIHHnMW58kgHh7kXrpEIEsLDlwn8rCJ2ufwVTvkhcgAXtmzm6kvBVtAgcin3WdCWmh0r+jF9R/k=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLHwkYQ_1733909225 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 11 Dec 2024 17:27:09 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+        d=gmail.com; s=20230601; t=1733929676; x=1734534476; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=uDLyuf94rwGpIVeGHgONreq7GaPj4bZQYkGW93MVCoE=;
+        b=OjLQUHkSLRKgJkTpfLYqX0HWK9MZujtoYax6+MQmjh8mXmYjIy6V7uZuh9Ail2V1sh
+         lc5jjQKBVk5nLemrv57otEq4KSuBIrwmRYyHq5+n8whPglnmy76E4by+bSrOafD/icJx
+         7y7LwDJI7GqDZTuapITVPlcHpziqWd+XvvX8ihmp7r5/Y6lPfXVOaYxUuGEN7p7SxewD
+         81TRaqmO6KwELEtodQk0C78+zaZd/JxDnlJgplO/+jhdrY0DB2eKlM1ABzvC+XnHkepB
+         q3FIIkOL+1eCLz6RvDvaRmMJWQ2yqYYrSnERiAmPtPvBrx3suwyX0NBpIJ1+n0ozucZf
+         ug5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733929676; x=1734534476;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uDLyuf94rwGpIVeGHgONreq7GaPj4bZQYkGW93MVCoE=;
+        b=TOXIAqtu6PTLtk5RWJx7Sztvu/MqoBObmpj3tpQx7bTxQ6r0HKHHvrn+BuySQAmE/n
+         QxZ2suxwl/bJbGBILGnuKEel1uXdP1OK6G1uBaAIEvYvIAb7/DV2AaJwkU/VFmSO3aZf
+         2e1Fb26fyKIfLK6BPy7v51GfHVSb2erAsnLCYHJvbFFY6wgPk6vIDcz41TOHssluzluO
+         j8v9HnCwCweiYXAP/YkmEgG21LNtyjzfwRp6OnlnBdqQ4E9mB0zqy1Yu2oRYiPXUUcZU
+         Sc5OGZ2IPP/2wAoUupjfw98Q7i7X7yyeQCkh+T4A7YyKmvzPrRQ9sHWloADXH+5Tgeyn
+         3dVA==
+X-Gm-Message-State: AOJu0Yz6XgMU/N4HGsB3ywPcqirZcvQnzHlxPQZmB6LFGrnWMslCLbdj
+	HeuOudBdnfCHgY9vXKc7kndLa60OtjmC3qATkX3B5OTigwDR5JFEGkIzgCha
+X-Gm-Gg: ASbGncvGzosBFXCBPBYnEoNS51+XwTKAGjoFltFA6m+nfmifuoX4dkS8bJgZeEkiKND
+	J62uzAre5Rtw4206quFaJattef5NFvYExZiYyZ7FeDPqA8tSOVdDFsE4IMTPWUgeDPwHGr7CKIJ
+	lhI7OQTOb//LigV0417XgW0BSRTgQtQMm0hhNtE7mALLh2NlWod0wmporddY5GqyC/t28pQg3md
+	12VxTcBLId26HSY8wqrxg5uSDUOBejNux5gry734G+q3d8nf6NNLLYdA6ANXT83nw==
+X-Google-Smtp-Source: AGHT+IHG/6OH/jHA/7z/iTfobxnVwDaB6N6EkCblvsht0tKpu/OdpwOiRG5uX6Vvg5tBBppDj9zq8w==
+X-Received: by 2002:a05:600c:3b94:b0:434:a94f:f8a9 with SMTP id 5b1f17b1804b1-4361c41972amr20082965e9.28.1733929676123;
+        Wed, 11 Dec 2024 07:07:56 -0800 (PST)
+Received: from np14s.fritz.box ([2a01:41e3:29b6:6000:f342:90f2:2782:5a95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4361968eed5sm41517925e9.42.2024.12.11.07.07.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2024 07:07:55 -0800 (PST)
+From: Paul Meyer <katexochen0@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: mkfs: add `-U <clear|random>` support
-Date: Wed, 11 Dec 2024 17:27:04 +0800
-Message-ID: <20241211092704.4008111-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+Subject: [PATCH] erofs-utils: add --hardlink-dereference option
+Date: Wed, 11 Dec 2024 16:07:34 +0100
+Message-ID: <20241211150734.97830-1-katexochen0@gmail.com>
+X-Mailer: git-send-email 2.47.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,58 +85,71 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Paul Meyer <katexochen0@gmail.com>, Leonard Cohnen <leonard.cohnen@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-To match `mke2fs`.
+Add option --hardlink-dereference to dereference hardlinks when
+creating an image. Instead of reusing the inode, hardlinks are added
+as separate inodes. This is useful for reproducible builds, when the
+rootfs is space-optimized using hardlinks on some machines, but not on
+others.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Co-authored-by: Leonard Cohnen <leonard.cohnen@gmail.com>
+Signed-off-by: Paul Meyer <katexochen0@gmail.com>
 ---
- man/mkfs.erofs.1 | 11 +++++++++++
- mkfs/main.c      |  7 ++++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ include/erofs/config.h | 1 +
+ lib/inode.c            | 2 +-
+ mkfs/main.c            | 4 ++++
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
-index e7da588..ee84163 100644
---- a/man/mkfs.erofs.1
-+++ b/man/mkfs.erofs.1
-@@ -110,6 +110,17 @@ Set the universally unique identifier (UUID) of the filesystem to
- .IR UUID .
- The format of the UUID is a series of hex digits separated by hyphens,
- like this: "c1b9d5a2-f162-11cf-9ece-0020afc76f16".
-+The
-+.I UUID
-+parameter may also be one of the following:
-+.RS 1.2i
-+.TP
-+.I clear
-+clear the file system UUID
-+.TP
-+.I random
-+generate a new randomly-generated UUID
-+.RE
- .TP
- .B \-\-all-root
- Make all files owned by root.
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index cff4cea..8399afb 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -58,6 +58,7 @@ struct erofs_configure {
+ 	bool c_extra_ea_name_prefixes;
+ 	bool c_xattr_name_filter;
+ 	bool c_ovlfs_strip;
++	bool c_hardlink_dereference;
+ 
+ #ifdef HAVE_LIBSELINUX
+ 	struct selabel_handle *sehnd;
+diff --git a/lib/inode.c b/lib/inode.c
+index 7e5c581..5d181b3 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -1141,7 +1141,7 @@ static struct erofs_inode *erofs_iget_from_srcpath(struct erofs_sb_info *sbi,
+ 	 * hard-link, just return it. Also don't lookup for directories
+ 	 * since hard-link directory isn't allowed.
+ 	 */
+-	if (!S_ISDIR(st.st_mode)) {
++	if (!S_ISDIR(st.st_mode) && (!cfg.c_hardlink_dereference)) {
+ 		inode = erofs_iget(st.st_dev, st.st_ino);
+ 		if (inode)
+ 			return inode;
 diff --git a/mkfs/main.c b/mkfs/main.c
-index c92f408..6a5dc66 100644
+index d422787..09e39f5 100644
 --- a/mkfs/main.c
 +++ b/mkfs/main.c
-@@ -620,7 +620,12 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 			has_timestamp = true;
+@@ -85,6 +85,7 @@ static struct option long_options[] = {
+ 	{"mkfs-time", no_argument, NULL, 525},
+ 	{"all-time", no_argument, NULL, 526},
+ 	{"sort", required_argument, NULL, 527},
++	{"hardlink-dereference", no_argument, NULL, 528},
+ 	{0, 0, 0, 0},
+ };
+ 
+@@ -846,6 +847,9 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 			if (!strcmp(optarg, "none"))
+ 				erofstar.try_no_reorder = true;
  			break;
- 		case 'U':
--			if (erofs_uuid_parse(optarg, fixeduuid)) {
-+			if (!strcmp(optarg, "clear")) {
-+				memset(fixeduuid, 0, 16);
-+			} else if (!strcmp(optarg, "random")) {
-+				valid_fixeduuid = false;
-+				break;
-+			} else if (erofs_uuid_parse(optarg, fixeduuid)) {
- 				erofs_err("invalid UUID %s", optarg);
- 				return -EINVAL;
- 			}
++		case 528:
++			cfg.c_hardlink_dereference = true;
++			break;
+ 		case 'V':
+ 			version();
+ 			exit(0);
 -- 
-2.43.5
+2.47.0
 
