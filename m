@@ -4,52 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC318E77182
-	for <linux-erofs@archiver.kernel.org>; Thu, 12 Dec 2024 09:55:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECA2AE7717F
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Dec 2024 13:35:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Y87B71L9Kz30fg
-	for <linux-erofs@archiver.kernel.org>; Thu, 12 Dec 2024 20:55:11 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1733997309;
-	cv=none; b=IfB2zFuTJ1iAPkfgL6UziKYXNvUepyNEGYm9YnKXy+uVSUZtl3cnX2m4JhPCe+2vX61Q+7bmUhpmO5WGffyX6ByVvZeQyd8NRcwrsVZC0Q+aYBwB6GOtbOb6rdiMabYyRA9IxoI/yFUgyQ9BfjnpugOJZn04dt1NOK4SLFmiIIjWeMpiqE+Wah8zcnz4QMBwcREMNIDnoZJ2sB9U+IemkqOsVMXukPdXFb3w3WY1M6Zro6LSdPpbvynI+eos83bYlujUtZWe28dpP7+vd6FfNL63rSks9wxw0r85G8a/QmpcougOrspmV6emUCuNQzKQ4Vf8/BmepVr9u8M4sNNrRQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Y8D4B4cWGz30gd
+	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 00:35:22 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734010520;
+	cv=none; b=Jd6OcqqGKwV3X5quT7/6cvB2DOSznt5EClI/YkOM2PKITzBvjv55+XYh4ChMMA4WD2DhHHOyIWvq5IxZLIJJo8gOQTstfMxLIs1Hw8B1dLni98vicwbsUHjnPohgapcZLNIfKn56sCeFzdm2J+JN50FnnpodcDxgRJgXTZCXP2lfEMR5YBPFmDVObbHqVrm5+pGKZtIDJ593J0PJ+bfomphCz0wkLu93zhWV/bznSbEb1TzhcqqS/nbO6d2uXlvUlLgvTfRF6UBwuw5RXeYR3u0jGmCd4XTC4NIIYDX1xYwU1Eb/T1aMQAZqzf1woi6ukV4sK1iJNcOHpNECFju2Kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1733997309; c=relaxed/relaxed;
-	bh=MhPxaohRtcVFCgu+6pO9PV+V21/fUNm3wSUdV7+Tv70=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=myjhYv6bT6bKcYNvHontDnCRi6i1y9CguPrwr1vcfpYJY1p23hGFy85NyKU14coJsXEqsx3Ey3h3EApCzKt0+sN9HLQJLLuSGym2wEpX1aJOMceHOdQS+5Fbj8r1tUPcaUd7fJ8GfBq0xmRL90+F42+cxk0kDY5R0wP0WxboSy7tE+gfLdUravpOskxT+XpasRDD4SBsJRaKE4MbugUrHN6NcPcbY0Td5lqoFwkVqmpho+rvK90JOtpdwxvBq7uyo27NchEPjOqPxUPCnhOjSz5x95t6UWhwSTMpi8rtR5+CFF3xFFhxUZM94kA6UZoGYc/rfVVhtuQTXA2fnxurig==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ZaYjHNwh; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1734010520; c=relaxed/relaxed;
+	bh=EA5SowTZmmM8Pbs3enBjnTmgnEvA/lWTg2GbvxtnxWs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BXGRol7bhYLpBDil/tpKjUhoGqSVF9WKC0WTxmnD052om5KHxdjj3604lRACw2TLmXinM3+RWiXZ5SRmu/ZOP+CZ0u2c+kd7wXijTuVhFsHfVlI0j3EE935LQGgr1XFbdcQILmyRmno297MKgFz/VjjmnGQXP7ltwgWx/UqVhwVuDWIdcp3IKQYCxcV+ZYhkVEg0iLfy+JshRWN0tQx2Bud5tRauV9eso2IEn8ijqkXvE/FkbbGph7wLjjr8QVOd90oI516BNwWZ24bdFs9DSNJi/17hal+Br8jN3Y+FpdRl245gn/pcybBtU+vVstK+l8pYqJRSnHQL0LKv8/n0mw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=nXQkWbeS; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ZaYjHNwh;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=nXQkWbeS;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y87B30SMrz2yFP
-	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Dec 2024 20:55:04 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y8D466xSFz30WB
+	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 00:35:17 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1733997299; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=MhPxaohRtcVFCgu+6pO9PV+V21/fUNm3wSUdV7+Tv70=;
-	b=ZaYjHNwh9poNsKnwIENBlRjYh4mRY+kFjOLS7Kf5wh44FHyZ/AaSt+KKe+5Qk/VwkGCT/uU1bAkXqd1pBJd8NZIOQoMkN0vUE7uAIWJSz/ojTz/FOWtK+EAF9sgtJOZ24mmAz1dOGogUYaZK+0taDqbk6ob9z2F9LefvvL3dGzE=
-Received: from 30.221.129.7(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLLIZU1_1733997297 cluster:ay36)
+	t=1734010514; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=EA5SowTZmmM8Pbs3enBjnTmgnEvA/lWTg2GbvxtnxWs=;
+	b=nXQkWbeSfXSX/7urwvy+ZhLvVnrgT1RcpMDAQX83ArNzKcmaHo/8sFOHE6HbGfHLaVnJl+72VYUukrq+cvr0zTX7D80axyJwcxCLOae2XW0PRZljXaChJqBE+eNWgWmN1l/YGvfYfrKFATLWiraTeKxx3l549vPXdrc1Ck1oBsY=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLLvJq1_1734010511 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 12 Dec 2024 17:54:58 +0800
-Message-ID: <05bd2d2b-1008-4310-8e20-7e44399356d0@linux.alibaba.com>
-Date: Thu, 12 Dec 2024 17:54:57 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: add --hardlink-dereference option
-To: Paul M <katexochen0@gmail.com>
-References: <20241211150734.97830-1-katexochen0@gmail.com>
- <41009b11-08e2-4e48-99be-3d59666593ad@linux.alibaba.com>
- <CAGTe2AE9er2TXc0C2hBgincWXqPEmJzq8_nCzSyLTJkscYqg6w@mail.gmail.com>
+          Thu, 12 Dec 2024 21:35:12 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <CAGTe2AE9er2TXc0C2hBgincWXqPEmJzq8_nCzSyLTJkscYqg6w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 3/4] erofs: reference `struct erofs_device_info` for erofs_map_dev
+Date: Thu, 12 Dec 2024 21:35:03 +0800
+Message-ID: <20241212133504.2047178-3-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20241212133504.2047178-1-hsiangkao@linux.alibaba.com>
+References: <20241212133504.2047178-1-hsiangkao@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,121 +58,128 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org, Leonard Cohnen <leonard.cohnen@gmail.com>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Record `m_sb` and `m_dif` to replace `m_fscache`, `m_daxdev`, `m_fp`
+and `m_dax_part_off` in order to simplify the codebase.
 
+Note that `m_bdev` is still left since it can be assigned from
+`sb->s_bdev` directly.
 
-On 2024/12/12 17:40, Paul M wrote:
-> Hi Gao,
-> 
-> On 2024/12/11 17:11, Gao Xiang wrote:
->>
->> Hi Paul,
->>
->> On 2024/12/11 23:07, Paul Meyer wrote:
->>> Add option --hardlink-dereference to dereference hardlinks when
->>> creating an image. Instead of reusing the inode, hardlinks are added
->>> as separate inodes. This is useful for reproducible builds, when the
->>> rootfs is space-optimized using hardlinks on some machines, but not on
->>> others.
->>
->> Thanks for the patch!
->>
->> Yet I fail to parse the feature, why this feature is useful
->> for reproducible builds? IOWs, without this feature (or
->> hardlinks are used), what's the exact impact that you don't
->> want to?
-> 
-> Sure, here is our full use case: We are building an erofs image with Nix.
-> Nix stores the rootfs in the nix store (/nix/store). Now there is an option
-> in nix to enable store optimization via hardlinks. In case optimization is
-> enabled, files with identical content are turned into hardlinks to save space,
-> as nix store paths are read-only anyway. If I create a rootfs with
-> two identical files, those will be hardlinked on systems with optimization
-> enabled, but have different inodes on systems where optimization is disabled.
-> When building an erofs, the resulting image will have one inode less on
-> the system where files are hardlinked.
-> The goal is to make the image bit-by-bit reproducible on both systems.
-> By dereferencing hardlinks, we get the exact same image no matter whether
-> the system uses hardlink optimizations or not.
-> 
-> There is a comparable tar option with the same name.
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/data.c     | 26 ++++++++++----------------
+ fs/erofs/fileio.c   |  2 +-
+ fs/erofs/internal.h |  6 ++----
+ 3 files changed, 13 insertions(+), 21 deletions(-)
 
-Ok, thanks for letting me know.
-That sounds more meaningful to me, but
-could you update the option as `--hard-dereference` (although
-I don't verify the tar behavior) and usage() too?
-
-Otherwise it looks good to me.
-
-Thanks,
-Gao Xiang
-
-> 
-> Thanks,
-> Paul
-> 
->>
->> Thanks,
->> Gao Xiang
->>
->>>
->>> Co-authored-by: Leonard Cohnen <leonard.cohnen@gmail.com>
->>> Signed-off-by: Paul Meyer <katexochen0@gmail.com>
->>> ---
->>>    include/erofs/config.h | 1 +
->>>    lib/inode.c            | 2 +-
->>>    mkfs/main.c            | 4 ++++
->>>    3 files changed, 6 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/include/erofs/config.h b/include/erofs/config.h
->>> index cff4cea..8399afb 100644
->>> --- a/include/erofs/config.h
->>> +++ b/include/erofs/config.h
->>> @@ -58,6 +58,7 @@ struct erofs_configure {
->>>        bool c_extra_ea_name_prefixes;
->>>        bool c_xattr_name_filter;
->>>        bool c_ovlfs_strip;
->>> +     bool c_hardlink_dereference;
->>>
->>>    #ifdef HAVE_LIBSELINUX
->>>        struct selabel_handle *sehnd;
->>> diff --git a/lib/inode.c b/lib/inode.c
->>> index 7e5c581..5d181b3 100644
->>> --- a/lib/inode.c
->>> +++ b/lib/inode.c
->>> @@ -1141,7 +1141,7 @@ static struct erofs_inode *erofs_iget_from_srcpath(struct erofs_sb_info *sbi,
->>>         * hard-link, just return it. Also don't lookup for directories
->>>         * since hard-link directory isn't allowed.
->>>         */
->>> -     if (!S_ISDIR(st.st_mode)) {
->>> +     if (!S_ISDIR(st.st_mode) && (!cfg.c_hardlink_dereference)) {
->>>                inode = erofs_iget(st.st_dev, st.st_ino);
->>>                if (inode)
->>>                        return inode;
->>> diff --git a/mkfs/main.c b/mkfs/main.c
->>> index d422787..09e39f5 100644
->>> --- a/mkfs/main.c
->>> +++ b/mkfs/main.c
->>> @@ -85,6 +85,7 @@ static struct option long_options[] = {
->>>        {"mkfs-time", no_argument, NULL, 525},
->>>        {"all-time", no_argument, NULL, 526},
->>>        {"sort", required_argument, NULL, 527},
->>> +     {"hardlink-dereference", no_argument, NULL, 528},
->>>        {0, 0, 0, 0},
->>>    };
->>>
->>> @@ -846,6 +847,9 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
->>>                        if (!strcmp(optarg, "none"))
->>>                                erofstar.try_no_reorder = true;
->>>                        break;
->>> +             case 528:
->>> +                     cfg.c_hardlink_dereference = true;
->>> +                     break;
->>>                case 'V':
->>>                        version();
->>>                        exit(0);
->>
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 0b0385fa3025..63840971976c 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -179,19 +179,13 @@ int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map)
+ }
+ 
+ static void erofs_fill_from_devinfo(struct erofs_map_dev *map,
+-				    struct erofs_device_info *dif)
++		struct super_block *sb, struct erofs_device_info *dif)
+ {
++	map->m_sb = sb;
++	map->m_dif = dif;
+ 	map->m_bdev = NULL;
+-	map->m_fp = NULL;
+-	if (dif->file) {
+-		if (S_ISBLK(file_inode(dif->file)->i_mode))
+-			map->m_bdev = file_bdev(dif->file);
+-		else
+-			map->m_fp = dif->file;
+-	}
+-	map->m_daxdev = dif->dax_dev;
+-	map->m_dax_part_off = dif->dax_part_off;
+-	map->m_fscache = dif->fscache;
++	if (dif->file && S_ISBLK(file_inode(dif->file)->i_mode))
++		map->m_bdev = file_bdev(dif->file);
+ }
+ 
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+@@ -201,7 +195,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 	erofs_off_t startoff, length;
+ 	int id;
+ 
+-	erofs_fill_from_devinfo(map, &EROFS_SB(sb)->dif0);
++	erofs_fill_from_devinfo(map, sb, &EROFS_SB(sb)->dif0);
+ 	map->m_bdev = sb->s_bdev;	/* use s_bdev for the primary device */
+ 	if (map->m_deviceid) {
+ 		down_read(&devs->rwsem);
+@@ -215,7 +209,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			up_read(&devs->rwsem);
+ 			return 0;
+ 		}
+-		erofs_fill_from_devinfo(map, dif);
++		erofs_fill_from_devinfo(map, sb, dif);
+ 		up_read(&devs->rwsem);
+ 	} else if (devs->extra_devices && !devs->flatdev) {
+ 		down_read(&devs->rwsem);
+@@ -228,7 +222,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			if (map->m_pa >= startoff &&
+ 			    map->m_pa < startoff + length) {
+ 				map->m_pa -= startoff;
+-				erofs_fill_from_devinfo(map, dif);
++				erofs_fill_from_devinfo(map, sb, dif);
+ 				break;
+ 			}
+ 		}
+@@ -298,7 +292,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 
+ 	iomap->offset = map.m_la;
+ 	if (flags & IOMAP_DAX)
+-		iomap->dax_dev = mdev.m_daxdev;
++		iomap->dax_dev = mdev.m_dif->dax_dev;
+ 	else
+ 		iomap->bdev = mdev.m_bdev;
+ 	iomap->length = map.m_llen;
+@@ -327,7 +321,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 		iomap->type = IOMAP_MAPPED;
+ 		iomap->addr = mdev.m_pa;
+ 		if (flags & IOMAP_DAX)
+-			iomap->addr += mdev.m_dax_part_off;
++			iomap->addr += mdev.m_dif->dax_part_off;
+ 	}
+ 	return 0;
+ }
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index 3af96b1e2c2a..a61b8faec651 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -67,7 +67,7 @@ static struct erofs_fileio_rq *erofs_fileio_rq_alloc(struct erofs_map_dev *mdev)
+ 					     GFP_KERNEL | __GFP_NOFAIL);
+ 
+ 	bio_init(&rq->bio, NULL, rq->bvecs, BIO_MAX_VECS, REQ_OP_READ);
+-	rq->iocb.ki_filp = mdev->m_fp;
++	rq->iocb.ki_filp = mdev->m_dif->file;
+ 	return rq;
+ }
+ 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 6e91fcdeba94..59e7739b7c3b 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -354,11 +354,9 @@ enum {
+ };
+ 
+ struct erofs_map_dev {
+-	struct erofs_fscache *m_fscache;
++	struct super_block *m_sb;
++	struct erofs_device_info *m_dif;
+ 	struct block_device *m_bdev;
+-	struct dax_device *m_daxdev;
+-	struct file *m_fp;
+-	u64 m_dax_part_off;
+ 
+ 	erofs_off_t m_pa;
+ 	unsigned int m_deviceid;
+-- 
+2.43.5
 
