@@ -4,50 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9EFACE7717D
-	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 06:39:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF3D6E7717D
+	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 06:48:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Y8fp56N5yz3bSr
-	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 17:39:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734071980;
-	cv=none; b=m5M/WKZVZQbYudzpo95EdUOwskvfrW4cnIgZ6EGTH7u+j8va3Y0obyb75Qb1E5SbszIemhB0Rt14itnHnm709aIkYOPjMPnE5p3qCnsPTo7ZeZkUJlmegVbv9MCF52AecNh+ZwUAFIqEx4x0nW01YCr0Xo62l/Qip5jZnvopOhT3gAUAN15Se9E2z/1ZBjhnfqK7JCGSjgFYWLVmPrfnwVW3LUDIFGT1vBDYT4Kdxwm/CDCiGpafacjqu0wJZLV34SeKGRpqGVYNgV/T74rdeASEJDuZjJtLt1IOGOjSCcpFsPiVjKjto6DcEdC+wnyvLZGxdJ3I/UMyrcIJO/u2Cw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Y8g0J0D2Kz3bSx
+	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 17:48:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=200.136.52.33
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734072510;
+	cv=none; b=eL8uNzoOH/pELxXcFEjI3VaQxUpsCeRo2pjkiF970AdPWrLXV4Inh2enSjrigznKzqOVi6F39ukrNzerJMT96+0fb709uQhnk3SakPa8omoVBnYpu1F/VOBFvBfVkI0ICK4WNV6KbpN3xfCAhRaB7LNGsYQbgYYXVYu8p+FBM4TLGqDCeLscBU+2AsR87mk1qvhLIggUKL7RLPLp2/+na0eaBg63wEK5jaR6BnBkCqJVb8A6oSnGcKyQY4bHX60fZFBwJ1znl9UCzu9RkYDqAzu2TX7rC8s7UTOF/4R1mjXJIOsHM4/KierXJjZOK9M2LuT7MGCoRwd4Wbqize85/g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1734071980; c=relaxed/relaxed;
-	bh=d+/ojMztkQ0TdS5Qa608puNUzRgOV21b7U/xGq06BDs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b0EhOf3DpqsC51P0hmgDJVSBrVJQwrbn9a4PhFRmYLGP/2gQok7I7v9sgY30maWSMZ8dJkeJplEsxPEqb5gBg4jRb/x9MZbgWWhUhpCxECaErB98/aWPCyNya7A/Q3rOeR0tQm3GuH7w5nuvQJjbzhet1lE+lwQgeZqKb5XijijuFDEjU2N6ope2xWI2rUqajwD+PFoFPnoluB7BMgA8QE/rlhs73b0w/QpHD7P8tPlRoVH9JR9qBB9l4yQq/Zxb+sA+ymOypfOiXAEK8pwONi3JTwlB+c9lhON1a9fzoSuEJ2kxpzhoubdSafcGjjQCYI04r4nomJXPzgkuY94ytA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=A0T3lRYW; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=A0T3lRYW;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	t=1734072510; c=relaxed/relaxed;
+	bh=Cgr97JBiSX1QIcd2ZZZsKVChGTY1ZlWJ/4AhaVFA7Wc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WqfDWcK1VApFXAv17YwElZqg+eFNn6uu9YWy+KdZJr0bzSdM7JvNJHI06ZMHRkQN31bIKxtxSrfE+4oqUi5Jfc07c46y0qLdBgvac/vrPTOOy0UxaW/WUuW6chrAI9Of15IG/Qtrhq2fCPGhYhyRc0PpyWP+r4PBbl5MG5smgKBgeUhhBC0bL0nxA/Ph11+/NRR59HRJJPh18v2Bq2z3sPaH4PiRnebjd9wl/OEInb9RadDdeqR6kQbi14Jm6uY6tqHCvEjDvY8a5pdZLn78jGcc1JNzZYkqA/A2HSK/6QhRkdThV9T4CyONgfLHdgjYX8ZSY/tTZOvGh7AL7I3Pjw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=ipen.br; spf=pass (client-ip=200.136.52.33; helo=arara2.ipen.br; envelope-from=btv1==0775a20b9c2==tcwm179185@ipen.br; receiver=lists.ozlabs.org) smtp.mailfrom=ipen.br
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=ipen.br
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=ipen.br (client-ip=200.136.52.33; helo=arara2.ipen.br; envelope-from=btv1==0775a20b9c2==tcwm179185@ipen.br; receiver=lists.ozlabs.org)
+X-Greylist: delayed 1141 seconds by postgrey-1.37 at boromir; Fri, 13 Dec 2024 17:48:29 AEDT
+Received: from arara2.ipen.br (arara2.ipen.br [200.136.52.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y8fnz2xbCz2yhM
-	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 17:39:33 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1734071967; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=d+/ojMztkQ0TdS5Qa608puNUzRgOV21b7U/xGq06BDs=;
-	b=A0T3lRYW5D74IfuH6o1Kqi+tqnW6tiGpKYmkg5GWSVOTLUSPijh+JYuqOKCe8653F+SJ2exfMfsb3DdKNOwW+rAo0Bot7UIbor2RVrkInVTV5PkVDvifVUVXP2IuJ66RSrlLf5nyTCRr+h3KplGT5WGO5Fu3PJFP0jHnp0QH1qQ=
-Received: from 30.221.130.36(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLO8fYi_1734071965 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Dec 2024 14:39:26 +0800
-Message-ID: <c70d771a-ad46-404c-80c0-4285e0f3ca72@linux.alibaba.com>
-Date: Fri, 13 Dec 2024 14:39:25 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y8g0F3pkQz2yL0
+	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 17:48:29 +1100 (AEDT)
+X-ASG-Debug-ID: 1734071344-055fc729ec148a480002-dl881O
+Received: from arara.ipen.br (webmail.ip.ipen.br [10.0.10.11]) by arara2.ipen.br with ESMTP id nm1sGEo0UjsYuMXF for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 03:29:08 -0300 (BRT)
+X-Barracuda-Envelope-From: TCWM179185@ipen.br
+X-Barracuda-RBL-Trusted-Forwarder: 10.0.10.11
+Received: from ipen.br (unknown [102.129.145.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by arara.ipen.br (Postfix) with ESMTPSA id B6F8CFBE54C
+	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 01:25:17 -0300 (-03)
+X-Barracuda-Effective-Source-IP: UNKNOWN[102.129.145.191]
+X-Barracuda-Apparent-Source-IP: 102.129.145.191
+X-Barracuda-RBL-IP: 102.129.145.191
+From: <TCWM179185@ipen.br>
+To: linux-erofs@lists.ozlabs.org
+Subject: I urge you to understand my viewpoint accurately.
+Date: 13 Dec 2024 12:25:17 +0800
+X-ASG-Orig-Subj: I urge you to understand my viewpoint accurately.
+Message-ID: <20241213122517.67DC087D7B8503BA@ipen.br>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: lib: correct erofsfuse build script
-To: ComixHe <heyuming@deepin.org>
-References: <8725A28257A20420+20241213063250.314786-1-heyuming@deepin.org>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <8725A28257A20420+20241213063250.314786-1-heyuming@deepin.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Barracuda-Connect: webmail.ip.ipen.br[10.0.10.11]
+X-Barracuda-Start-Time: 1734071348
+X-Barracuda-URL: https://10.40.40.18:443/cgi-mod/mark.cgi
+X-Barracuda-Scan-Msg-Size: 512
+X-Barracuda-BRTS-Status: 1
+X-Barracuda-BRTS-Evidence: 34fbb5788938ad5710ad28835fd12206-499-txt
+X-Virus-Scanned: by bsmtpd at ipen.br
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=1000.0 tests=NO_REAL_NAME
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.45577
+	Rule breakdown below
+	 pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.00 NO_REAL_NAME           From: does not include a real name
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,50 +72,20 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org
+Reply-To: t.mazowieckie@mazowieckie.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Comix,
+I am Tomasz Chmielewski, a Portfolio Manager and Chartered=20
+Financial Analyst affiliated with Iwoca Poland Sp. Z OO in=20
+Poland. I have the privilege of working with distinguished=20
+investors who are eager to support your company's current=20
+initiatives, thereby broadening their investment portfolios. If=20
+this proposal aligns with your interests, I invite you to=20
+respond, and I will gladly share more information to assist you.
 
-On 2024/12/13 14:32, ComixHe wrote:
-> Some of the symbols required by erofsfuse are provided by liberofs.
-> When option 'enable-static-fuse' is set, all these object file should be
-> exported to liberofsfuse.a
-
-Could you give more hints why `lib_LIBRARIES` doesn't work?
-
-I fail to get the point why `lib_LTLIBRARIES` is needed for
-static libraries...
-
-https://www.gnu.org/software/automake/manual/1.7.2/html_node/A-Library.html
-
-Thanks,
-Gao Xiang
-
-> 
-> Signed-off-by: ComixHe <heyuming@deepin.org>
-> ---
->   fuse/Makefile.am | 10 +++++-----
->   1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fuse/Makefile.am b/fuse/Makefile.am
-> index 1062b73..50186da 100644
-> --- a/fuse/Makefile.am
-> +++ b/fuse/Makefile.am
-> @@ -11,9 +11,9 @@ erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse2_LIBS} ${libfuse3_LI
->   	${libqpl_LIBS}
->   
->   if ENABLE_STATIC_FUSE
-> -lib_LIBRARIES = liberofsfuse.a
-> -liberofsfuse_a_SOURCES = main.c
-> -liberofsfuse_a_CFLAGS  = -Wall -I$(top_srcdir)/include
-> -liberofsfuse_a_CFLAGS += -Dmain=erofsfuse_main ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
-> -liberofsfuse_a_LIBADD  = $(top_builddir)/lib/liberofs.la
-> +lib_LTLIBRARIES = liberofsfuse.la
-> +liberofsfuse_la_SOURCES = main.c
-> +liberofsfuse_la_CFLAGS  = -Wall -I$(top_srcdir)/include
-> +liberofsfuse_la_CFLAGS += -Dmain=erofsfuse_main ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
-> +liberofsfuse_la_LIBADD  = $(top_builddir)/lib/liberofs.la
->   endif
-
+=20
+Yours sincerely,=20
+Tomasz Chmielewski Warsaw, Mazowieckie,
+=20
+Poland.
