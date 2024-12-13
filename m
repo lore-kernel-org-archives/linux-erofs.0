@@ -4,50 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D08CCE7717F
-	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 00:50:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9B44E7717F
+	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 06:33:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Y8W2y0kxPz3bPR
-	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 11:50:18 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734051016;
-	cv=none; b=K80rPykvBGBQA1N6lIhS+61fbBqV40f4zxKSkhxIwUjihibf4BgMmRsg5h2+DHPRmiu60rvOLu/0ceTW9VtN1NJCzHgciCHFNmBYrJX17fVI41cFFfe6b6X+PGIMLsRWbnm9TZ3s0pZRYAEcdh2JHrJ35hCgVfE6yU7EXyLw8sm7nrTIbcLgKuv5E/OyP0paHigTa/zE0xjPuqJxdSedSpc6S13J08jVbqkxoO14peHsvrzdegtTRY9svONL4h4EnNJR17W/eZRlc0unILflnfZjYo4sHnu2JDQlJsw4RY/fZdO6saiUHBmcQv8b3iKceI54Ac5O6KswnCVMrzTM/Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Y8fgG1HQGz3bSr
+	for <linux-erofs@archiver.kernel.org>; Fri, 13 Dec 2024 17:33:46 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=43.155.80.173
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734071624;
+	cv=none; b=ncmJJxcMA0qGJ62/yf7ZZFaA/xNl2xO4Xa4QF9myeOH2vqjH90YBj+jj4zeovnGGfTY14vJtcrA0ab0rewYkpcr5MtA4KOxwMhlE+FGFUjrHuRzvqAOeVL38drxJXQj+aCuLG+gzYerIB7dVp6nng5k35q983yV+Y0tJmsSdeO9QD2BhHoIQOfNzHFFy4SczIPOMp211RvyIB5G/ercAqoLl57+0/ioAzPtZC5Zo0H2JChqrjl0Mgy6hDryCrguFf6nXI6T+BOx6q60bxKzYS6XnYlN06W8SifrLRj6F1EFVPXJXwxFMeDqliSalbc1xwaWmC9aUvUTyULlVHLWifQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1734051016; c=relaxed/relaxed;
-	bh=Ty8EZNmVKAJdhiCOUndN34Bs9JOCI73WRxvTNPMY5hs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lPz8XLIPwldD4MaI8OSDNH6TP5u7QQJ+8LInrXS72ohqD81QDnxFXhWsEbJYmwS2IjRzQI0MVgkAsvt5rtNGz857X1Rav7zT0OGWmrZX6WJF4y1tqLnrCDFn0h65f4XgmWX+RrvR+2hbbfFTh2CW7zHWchCAgs3eBhyvgE/YeLSzdjEzEzMy/L6bATBCK++mVxLysBF4B08dMdi//KZatPHtSyPyWNea42kjfu7SYjk1NuZdyhrRA5wDLYesW0OEuz7NdACJZl8yScqCpqsGtkVAqivEGZMIIXcdyopuAHsfsKfGoEOBqz+tH+f3hfge6v46TquuHg9A00TDnQpamA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=OZsLpUaE; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1734071624; c=relaxed/relaxed;
+	bh=rgkmKvltYJABjccgvOwrI8jK6v7c367g8gECsvvgdKA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aluirkRbgI8qQnChuspQGXBbdrHV8NmsdbyoR8VxWgmvfTLOL1u+DDVDPYCkKFR6Qd0DdWQ7LnzW3VWEAXmXaplCFM1lroMbe/YTb06TSpZL6BH2tfElGorJPJUaYU4Bw0ZVqRPT/x4louR6iJ3qHDML1KLuIBzO4yuoORVWlwjZwf7iYgNHBsP7oFFe1w0fbuWJQ6yX1T0o+hKycXLHNKgAKh5zg1z6wwWNZy5yeUGZ3OVAPYQG6CxThBYm/BnyxXPD07zL8NDgZ9/LukZMzoEzmv1HzqZ6Gv9UhvbcCTu/Qrzq8/dFMJxXBXWhpP+2RG63zKrUocP9GPTNZHnU3g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=deepin.org; dkim=pass (1024-bit key; unprotected) header.d=deepin.org header.i=@deepin.org header.a=rsa-sha256 header.s=ukjg2408 header.b=k6ugc5d2; dkim-atps=neutral; spf=pass (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=heyuming@deepin.org; receiver=lists.ozlabs.org) smtp.mailfrom=deepin.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=deepin.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=OZsLpUaE;
+	dkim=pass (1024-bit key; unprotected) header.d=deepin.org header.i=@deepin.org header.a=rsa-sha256 header.s=ukjg2408 header.b=k6ugc5d2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepin.org (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=heyuming@deepin.org; receiver=lists.ozlabs.org)
+Received: from bg5.exmail.qq.com (bg5.exmail.qq.com [43.155.80.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y8W2s5CYJz30Wp
-	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 11:50:10 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1734051006; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Ty8EZNmVKAJdhiCOUndN34Bs9JOCI73WRxvTNPMY5hs=;
-	b=OZsLpUaEbHXf+bb/+A89Nykpu3EK4BiFCmV+YNJFKG0aY+PYxawaloxEqP341iVBi98uGuZsGEgK9b42q2SyRfmB5ZXsLprX6RV35+sEmPsfOMtvD1K1PgToA1lpFoReuT6ihFUaoOhetSVcWt3EVDkvMox9oVpyowpNMGeytTQ=
-Received: from 30.170.86.122(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLN-3t0_1734050999 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Dec 2024 08:50:04 +0800
-Message-ID: <d7155d5b-3259-4cab-97b0-95ed267d7468@linux.alibaba.com>
-Date: Fri, 13 Dec 2024 08:49:57 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Y8fg96jJ3z2yhM
+	for <linux-erofs@lists.ozlabs.org>; Fri, 13 Dec 2024 17:33:41 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=deepin.org;
+	s=ukjg2408; t=1734071577;
+	bh=rgkmKvltYJABjccgvOwrI8jK6v7c367g8gECsvvgdKA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=k6ugc5d2KRnCp8Q7oqNdXoHBVuHhRINaoNCE3ovglLRjXNUFIMh+giHAH0GW49j/f
+	 En8qZFzgixxaczzkNKVTFoIBZPHnQ2Hf2tbVPWrg49iTWg3t3FCEnFw4c7J6R5mtGc
+	 wcKunI04vE8BEWNLxgRC1ydKSXXMgufVS4pZ4TO0=
+X-QQ-mid: bizesmtp85t1734071574tz4ggok3
+X-QQ-Originating-IP: lh5gcq4ISix5bu6PpG9nvXtuij1jl28rxAZuoyf7KuQ=
+Received: from ComixHe.tail207ab.ts.net ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Fri, 13 Dec 2024 14:32:53 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 9534306071855275332
+From: ComixHe <heyuming@deepin.org>
+To: hsiangkao@linux.alibaba.com
+Subject: [PATCH] erofs-utils: lib: correct erofsfuse build script
+Date: Fri, 13 Dec 2024 14:32:50 +0800
+Message-ID: <8725A28257A20420+20241213063250.314786-1-heyuming@deepin.org>
+X-Mailer: git-send-email 2.47.1
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] erofs-utils: add --hard-dereference option
-To: Paul Meyer <katexochen0@gmail.com>, linux-erofs@lists.ozlabs.org
-References: <20241212165550.58756-1-katexochen0@gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20241212165550.58756-1-katexochen0@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:deepin.org:qybglogicsvrgz:qybglogicsvrgz8a-0
+X-QQ-XMAILINFO: MACXe2l6e7j9vsyjk6G9u6wToeghqP7beuyn4FD85DklItZa9eDmHBxd
+	tyJa+1ZxJkfnbjdd9+IGThLU5wn+3x/iT5s+O6IwdZEGqLl0O4sNIq0ltzTfiygeKh4djxF
+	ytpAszLsIMKa71NlHEfqwuGp3CUEHrJeglj08xAqBcq6drmT/R0dP/2KrA9DSCjcGYnV/T4
+	9koL1BX7flRc2dmW6M8RVKVJSMgdL4yB60ggbQhSlYlA66Oa1QZREvjpd9IZE4cDg8UPLc5
+	3zIAsPupYOn88aXVG0UBvazMbouPfO37hsRaWRaLU6Eo2b5K+7coYD+GfOCt7+tCGfiRW18
+	pZdzvoaChJnb3U3KMyrcidQyS6HDw65CFYh9D3uXRdguO8o3SrEgKGXRF6UsmdAg2US+rsU
+	Iu4QHH1SQjM2rEmb4GbJy+s/xmDr6jFahjBfUKWwy2a5Ls3DynFpPG7UucBxmYWOz5jYSZn
+	U2YLC2fwieQenBSKQ1r+wq+M4Py/TInaCSM9J7zlhvrx47aC0RG9RwfYRLLiadZOdYFu9I7
+	4/ZmaMdttXjRNhvPGBoe38YBd5NRk3MHqBQOY6kTkXSsqCnzxO7I8FPZGOGYFqEhyt+N72w
+	FjcMtfkNrAG5jsj3Hzew5WjiHGzhdCPzAf+pimhOC7MKDAm2dcBOxUyHuq64OpqImR9aGaB
+	9Zjhic3Cad/VqIHqGrbhA8Xo7p9xrTCZpKvA0VmYByRsx/7AF1vUBx0kV1/aCzfWqaI/VdH
+	yLzaV64+NAEhtPc0WCKPNW6HMI0duXJm7nHVr1IAH0DoqKLY2C/8ex/mabpPzvQTRJXfS2k
+	pjJJn5APGpjVSJZXUmiD+X3dEM458mN9G3HpKg0ynEXLTMNF4FY44xQYv9GYgYdryvg8F2W
+	7X7LECylpwuxO62CvTTqxFizDkhIJJ8uv91Rl2nN1H0=
+X-QQ-XMRINFO: MPJ6Tf5t3I/ycC2BItcBVIA=
+X-QQ-RECHKSPAM: 0
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -59,23 +79,38 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Leonard Cohnen <leonard.cohnen@gmail.com>
+Cc: ComixHe <heyuming@deepin.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Some of the symbols required by erofsfuse are provided by liberofs.
+When option 'enable-static-fuse' is set, all these object file should be
+exported to liberofsfuse.a
 
+Signed-off-by: ComixHe <heyuming@deepin.org>
+---
+ fuse/Makefile.am | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-On 2024/12/13 00:48, Paul Meyer wrote:
-> Add option --hard-dereference to dereference hardlinks when
-> creating an image. Instead of reusing the inode, hardlinks are added
-> as separate inodes. This is useful for reproducible builds, when the
-> rootfs is space-optimized using hardlinks on some machines, but not on
-> others.
-> 
-> Co-authored-by: Leonard Cohnen <leonard.cohnen@gmail.com>
-> Signed-off-by: Paul Meyer <katexochen0@gmail.com>
+diff --git a/fuse/Makefile.am b/fuse/Makefile.am
+index 1062b73..50186da 100644
+--- a/fuse/Makefile.am
++++ b/fuse/Makefile.am
+@@ -11,9 +11,9 @@ erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse2_LIBS} ${libfuse3_LI
+ 	${libqpl_LIBS}
+ 
+ if ENABLE_STATIC_FUSE
+-lib_LIBRARIES = liberofsfuse.a
+-liberofsfuse_a_SOURCES = main.c
+-liberofsfuse_a_CFLAGS  = -Wall -I$(top_srcdir)/include
+-liberofsfuse_a_CFLAGS += -Dmain=erofsfuse_main ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
+-liberofsfuse_a_LIBADD  = $(top_builddir)/lib/liberofs.la
++lib_LTLIBRARIES = liberofsfuse.la
++liberofsfuse_la_SOURCES = main.c
++liberofsfuse_la_CFLAGS  = -Wall -I$(top_srcdir)/include
++liberofsfuse_la_CFLAGS += -Dmain=erofsfuse_main ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
++liberofsfuse_la_LIBADD  = $(top_builddir)/lib/liberofs.la
+ endif
+-- 
+2.47.1
 
-Thanks, applied.
-
-Thanks,
-Gao Xiang
