@@ -4,44 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8477E7717F
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Dec 2024 12:53:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1BB7E77183
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Dec 2024 12:53:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YBfy20kfpz30DV
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YBfy23MlNz3bSZ
 	for <linux-erofs@archiver.kernel.org>; Mon, 16 Dec 2024 23:53:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734353607;
-	cv=none; b=ICgvMrqeNoLQuokk8qeNzxiEIh2BQ8sVUdctEUtGeZINHkTlNqBQfL2kQOZ+Ap+D0srhZskfVJz8rKMy0ZiRAJBHv0Av4zuHWU6/heSU2y56L7MwL/RRwp0KHv4UY6DG8fDgC/7zRuBL7MCzlq+gh86UBMnO56DBlZ5oMq5rf2FdGJHgW0xOBzoDXCGEZsH18edVWPdibF0KFzyfR5L1aBhTnRe+xS3NEPYnXdPVITLRBrGFGqf0bhme4lOOfhg0e37kidbtBQ5o8l+wEcXMYT0y4R3pqFdY2azHRQTbaEFXhKPP/S6aiK3nmuGFxCZayo6Lqx74ryQHhKq6RXpsEA==
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734353608;
+	cv=none; b=W8zklIOqdoKElYSO+/slMSz8DLRm9bledQ3L4Fu9ferVN80Nw0yohdBH+hOqYQZqKItgHIOG19x2Qx36VUOHEckdRuFOhhthaRUKLs6a6UWtRkV7cIZ5Xm9WGYu6KtIXKMgSAy3KLRwpGJp0xxm/iYTFM2cgbizNsoZ5PBhI9Uij2cSiXhrQGhR5x1uvcnmmSDzQuYr5rRpe2wTnDCjM9ASSK1iBgDo1GqwKy5254oAvd8KX46dA51Hkr5nxz7lwU5jbIXtBV3Jpm6AQJuXfwIfdj/gbY/XY4SpVrJCFobubJflDZ29HTys63PrID2Erl4WE/cHIhgiLaudedYaXHg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1734353607; c=relaxed/relaxed;
-	bh=igS+vMvKO7ShxBR7rp8ORXO+whr6YQCKn1xoR3jaKug=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ob9aoJDRI7B5d0JbEsm1Ji1qJQqzDGltIzxCsnvAm7Qzi2soJ3ygWbT7NDvg2XutEWHFhRcgZU9FCoFpCj8s8bl8Uww0uwh5UH9+d4q1RGgzDhOrdkuU9eV6pAyrpESCjXzb5VyCqxDF82KbTjvv4MzdVLDoiGXQcu7LsFkPZMRXRRfQEF8G9j8OcJWchHC60kavj/154U/h5dY9YA4U88U4SubrmDeIJJdlvcM2z8knh+Bleg+ci+cnWYH8HY9ADQ3k0yydJ/kTNZ0pMQFDhQ1H2x5BfA47AsgxYkYioo2FPOGCVwnE2dv9kWKHB+/7WOe+YNYF7CEMqp4FFJSykA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=vT2OitTD; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1734353608; c=relaxed/relaxed;
+	bh=XV56vdeR8lvwiEIUdzTrXuvsQtQGzUpa0TMXen5H4is=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iwGJb08mfyt/VoOcY6xUQ32WwuwYx0cc99TJC0VPKXNSBzcla81TugECGzWE09ZiPP23gICIswNIoYmwZ4aF5vCZJg38G+7f7Bz8Ow49+IsNRT+gBnsN7++mtOrTKN5cfhp/2Yx4XJaxSSHgsiF20ztD3imLs+65sPMiTugtTMG0H13AzOnm7Q03xKuyInvqQ1TvnR95FKcsKi5alOhUEkMTwouaQLjKJH7kq+ecXmYcoF2G2jEDeNkUHCzCkbMi8kioCjyL80453gsbdGcFdkmeBF+MCaUVpt9i6nUmJZT9jHVJ923vVClnKnGWpVOh4HEvnG/1Ak4VFOG1owd7dQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=h2LMOlNt; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=vT2OitTD;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=h2LMOlNt;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YBfxx6Q3Zz2yys
-	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Dec 2024 23:53:23 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YBfxx4sq1z2yyR
+	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Dec 2024 23:53:24 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1734353598; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=igS+vMvKO7ShxBR7rp8ORXO+whr6YQCKn1xoR3jaKug=;
-	b=vT2OitTDEUV3Hq0lirZbWg4so7nuZCfJMDX32v6nVDLFathXnMYSJsWBqdbc1rCYICgQop6Ta9gps0Pa7xXdHCYFpmerncInJ8y79zQlLnBHhrzha8BtvDjC0pGG+sSKcDLT+r24tPLgkqX8OjLFsaaXigCgGt/pRFQWmqIOcdw=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLcksKQ_1734353592 cluster:ay36)
+	t=1734353600; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=XV56vdeR8lvwiEIUdzTrXuvsQtQGzUpa0TMXen5H4is=;
+	b=h2LMOlNtC1fDX5YD64SOzyt0FRG3MJXs0MNXp7n0u6m0YhIqqsFTiapsvsXKWkDx6vBBdZoE/RmRkv3n2b6/kiU2f2FCzxtPl4hvkBb++6b37jxvuHsmaJMz+eX7vAb+yX7B3y/hjfZOO+dX6W8BEYHMMxn2cxNw0DDYM7PCFTM=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLcksM8_1734353598 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 16 Dec 2024 20:53:17 +0800
+          Mon, 16 Dec 2024 20:53:19 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v3 1/4] erofs: add erofs_sb_free() helper
-Date: Mon, 16 Dec 2024 20:53:07 +0800
-Message-ID: <20241216125310.930933-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v3 3/4] erofs: reference `struct erofs_device_info` for erofs_map_dev
+Date: Mon, 16 Dec 2024 20:53:09 +0800
+Message-ID: <20241216125310.930933-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20241216125310.930933-1-hsiangkao@linux.alibaba.com>
+References: <20241216125310.930933-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -59,93 +62,148 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Unify the common parts of erofs_fc_free() and erofs_kill_sb() as
-erofs_sb_free().
+Record `m_sb` and `m_dif` to replace `m_fscache`, `m_daxdev`, `m_fp`
+and `m_dax_part_off` in order to simplify the codebase.
 
-Thus, fput() in erofs_fc_get_tree() is no longer needed, too.
+Note that `m_bdev` is still left since it can be assigned from
+`sb->s_bdev` directly.
 
 Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/super.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ fs/erofs/data.c     | 26 ++++++++++----------------
+ fs/erofs/fileio.c   |  2 +-
+ fs/erofs/fscache.c  |  4 ++--
+ fs/erofs/internal.h |  6 ++----
+ 4 files changed, 15 insertions(+), 23 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index c235a8e4315e..de8e3ecc6381 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -703,16 +703,19 @@ static int erofs_fc_get_tree(struct fs_context *fc)
- 			GET_TREE_BDEV_QUIET_LOOKUP : 0);
- #ifdef CONFIG_EROFS_FS_BACKED_BY_FILE
- 	if (ret == -ENOTBLK) {
-+		struct file *file;
-+
- 		if (!fc->source)
- 			return invalf(fc, "No source specified");
--		sbi->fdev = filp_open(fc->source, O_RDONLY | O_LARGEFILE, 0);
--		if (IS_ERR(sbi->fdev))
--			return PTR_ERR(sbi->fdev);
-+
-+		file = filp_open(fc->source, O_RDONLY | O_LARGEFILE, 0);
-+		if (IS_ERR(file))
-+			return PTR_ERR(file);
-+		sbi->fdev = file;
- 
- 		if (S_ISREG(file_inode(sbi->fdev)->i_mode) &&
- 		    sbi->fdev->f_mapping->a_ops->read_folio)
- 			return get_tree_nodev(fc, erofs_fc_fill_super);
--		fput(sbi->fdev);
- 	}
- #endif
- 	return ret;
-@@ -763,19 +766,24 @@ static void erofs_free_dev_context(struct erofs_dev_context *devs)
- 	kfree(devs);
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 622017c65958..0cd6b5c4df98 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -179,19 +179,13 @@ int erofs_map_blocks(struct inode *inode, struct erofs_map_blocks *map)
  }
  
--static void erofs_fc_free(struct fs_context *fc)
-+static void erofs_sb_free(struct erofs_sb_info *sbi)
+ static void erofs_fill_from_devinfo(struct erofs_map_dev *map,
+-				    struct erofs_device_info *dif)
++		struct super_block *sb, struct erofs_device_info *dif)
  {
--	struct erofs_sb_info *sbi = fc->s_fs_info;
--
--	if (!sbi)
--		return;
--
- 	erofs_free_dev_context(sbi->devs);
- 	kfree(sbi->fsid);
- 	kfree(sbi->domain_id);
-+	if (sbi->fdev)
-+		fput(sbi->fdev);
- 	kfree(sbi);
++	map->m_sb = sb;
++	map->m_dif = dif;
+ 	map->m_bdev = NULL;
+-	map->m_fp = NULL;
+-	if (dif->file) {
+-		if (S_ISBLK(file_inode(dif->file)->i_mode))
+-			map->m_bdev = file_bdev(dif->file);
+-		else
+-			map->m_fp = dif->file;
+-	}
+-	map->m_daxdev = dif->dax_dev;
+-	map->m_dax_part_off = dif->dax_part_off;
+-	map->m_fscache = dif->fscache;
++	if (dif->file && S_ISBLK(file_inode(dif->file)->i_mode))
++		map->m_bdev = file_bdev(dif->file);
  }
  
-+static void erofs_fc_free(struct fs_context *fc)
-+{
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
-+
-+	if (sbi) /* free here if an error occurs before transferring to sb */
-+		erofs_sb_free(sbi);
-+}
-+
- static const struct fs_context_operations erofs_context_ops = {
- 	.parse_param	= erofs_fc_parse_param,
- 	.get_tree       = erofs_fc_get_tree,
-@@ -813,15 +821,9 @@ static void erofs_kill_sb(struct super_block *sb)
- 		kill_anon_super(sb);
+ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+@@ -201,7 +195,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 	erofs_off_t startoff, length;
+ 	int id;
+ 
+-	erofs_fill_from_devinfo(map, &EROFS_SB(sb)->dif0);
++	erofs_fill_from_devinfo(map, sb, &EROFS_SB(sb)->dif0);
+ 	map->m_bdev = sb->s_bdev;	/* use s_bdev for the primary device */
+ 	if (map->m_deviceid) {
+ 		down_read(&devs->rwsem);
+@@ -215,7 +209,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			up_read(&devs->rwsem);
+ 			return 0;
+ 		}
+-		erofs_fill_from_devinfo(map, dif);
++		erofs_fill_from_devinfo(map, sb, dif);
+ 		up_read(&devs->rwsem);
+ 	} else if (devs->extra_devices && !devs->flatdev) {
+ 		down_read(&devs->rwsem);
+@@ -228,7 +222,7 @@ int erofs_map_dev(struct super_block *sb, struct erofs_map_dev *map)
+ 			if (map->m_pa >= startoff &&
+ 			    map->m_pa < startoff + length) {
+ 				map->m_pa -= startoff;
+-				erofs_fill_from_devinfo(map, dif);
++				erofs_fill_from_devinfo(map, sb, dif);
+ 				break;
+ 			}
+ 		}
+@@ -298,7 +292,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 
+ 	iomap->offset = map.m_la;
+ 	if (flags & IOMAP_DAX)
+-		iomap->dax_dev = mdev.m_daxdev;
++		iomap->dax_dev = mdev.m_dif->dax_dev;
  	else
- 		kill_block_super(sb);
--
--	erofs_free_dev_context(sbi->devs);
- 	fs_put_dax(sbi->dax_dev, NULL);
- 	erofs_fscache_unregister_fs(sb);
--	kfree(sbi->fsid);
--	kfree(sbi->domain_id);
--	if (sbi->fdev)
--		fput(sbi->fdev);
--	kfree(sbi);
-+	erofs_sb_free(sbi);
- 	sb->s_fs_info = NULL;
+ 		iomap->bdev = mdev.m_bdev;
+ 	iomap->length = map.m_llen;
+@@ -327,7 +321,7 @@ static int erofs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 		iomap->type = IOMAP_MAPPED;
+ 		iomap->addr = mdev.m_pa;
+ 		if (flags & IOMAP_DAX)
+-			iomap->addr += mdev.m_dax_part_off;
++			iomap->addr += mdev.m_dif->dax_part_off;
+ 	}
+ 	return 0;
+ }
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index 3af96b1e2c2a..a61b8faec651 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -67,7 +67,7 @@ static struct erofs_fileio_rq *erofs_fileio_rq_alloc(struct erofs_map_dev *mdev)
+ 					     GFP_KERNEL | __GFP_NOFAIL);
+ 
+ 	bio_init(&rq->bio, NULL, rq->bvecs, BIO_MAX_VECS, REQ_OP_READ);
+-	rq->iocb.ki_filp = mdev->m_fp;
++	rq->iocb.ki_filp = mdev->m_dif->file;
+ 	return rq;
  }
  
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index ce7e38c82719..ce3d8737df85 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -198,7 +198,7 @@ struct bio *erofs_fscache_bio_alloc(struct erofs_map_dev *mdev)
+ 
+ 	io = kmalloc(sizeof(*io), GFP_KERNEL | __GFP_NOFAIL);
+ 	bio_init(&io->bio, NULL, io->bvecs, BIO_MAX_VECS, REQ_OP_READ);
+-	io->io.private = mdev->m_fscache->cookie;
++	io->io.private = mdev->m_dif->fscache->cookie;
+ 	io->io.end_io = erofs_fscache_bio_endio;
+ 	refcount_set(&io->io.ref, 1);
+ 	return &io->bio;
+@@ -316,7 +316,7 @@ static int erofs_fscache_data_read_slice(struct erofs_fscache_rq *req)
+ 	if (!io)
+ 		return -ENOMEM;
+ 	iov_iter_xarray(&io->iter, ITER_DEST, &mapping->i_pages, pos, count);
+-	ret = erofs_fscache_read_io_async(mdev.m_fscache->cookie,
++	ret = erofs_fscache_read_io_async(mdev.m_dif->fscache->cookie,
+ 			mdev.m_pa + (pos - map.m_la), io);
+ 	erofs_fscache_req_io_put(io);
+ 
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 3e8d71d516f4..7cc8e1be04e8 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -353,11 +353,9 @@ enum {
+ };
+ 
+ struct erofs_map_dev {
+-	struct erofs_fscache *m_fscache;
++	struct super_block *m_sb;
++	struct erofs_device_info *m_dif;
+ 	struct block_device *m_bdev;
+-	struct dax_device *m_daxdev;
+-	struct file *m_fp;
+-	u64 m_dax_part_off;
+ 
+ 	erofs_off_t m_pa;
+ 	unsigned int m_deviceid;
 -- 
 2.43.5
 
