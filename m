@@ -4,47 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12E49E7718D
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Dec 2024 06:43:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1648BE77188
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Dec 2024 06:53:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YDLc95gTZz3cFf
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Dec 2024 17:43:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YDyn803Kyz30fW
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Dec 2024 17:53:48 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734590631;
-	cv=none; b=H6DKC4nnzQVy3VOo4eLXWLQV6fG4lHCOP9rONErruxpW8EfCwPGuwirc1UFWMH/YajM/WVTcOl3qiIAxq4c43OQNHnTvkYbX1KaC7Gb2lq7VT2m7/h0wIZRB00PpnEaslKhthxX3gj9y1pW1ZYSw2jQs5x1uAYvYi6WY5I6fy95Yj6PNgSLxngya33WYGoYjfBWVkk34GfM5oyduFoTqBCHAQ5l7XoavnoaMd5eCyI0iESB2JcDmETQPIFeOGXmhzqK1udGQzKaB6Q+35UrY1xptYPhEroBCIfcFzwGoQ2VQcXZ3vuX4GVd1SgsNRjKrO38D7Bsprliyhhtoam6bIQ==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1734677626;
+	cv=none; b=iaY0NZ+bSyTaU2Fc1sFmszVN80Aq5NXSAdSIAc8wi0yqjZEez2ck0EuLovkp5s/3qiXuSUbRppDDYON3utb6A5z6WoOLkf12n9p7vDhudTBfTZMVRVIE3rvkFca/y2TgSIPK0nVJpFx8UxRvu1qu1rXAYWpvWEz6RcwZ4TuZU6UG/ulLvXO05nNTZriepWpZLY9z7Ry4t7KZtjDfYJ/s1M/6+d3Np2l7517B1EUJHdv6L2K0U9GfwQIRgZZ/AznoBXeQlHobRAbnsr26QiE7IWmLSGBAaaXO6FXIxG/6ftv/KGbfh4BZ5rNQiDT6AmG212zKbKh/uMxTLOrgoKkYHw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1734590631; c=relaxed/relaxed;
-	bh=rDALtUbt4fFVTRdA6qJno9OXV3pPIhD7DaNhTSUB0S4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Mz+Ja+x5otsNz4BHf33LUgG5R02B9+boNy2U3uxl/nWYydfuya+dTZaENooFFwJcZUrzWXwdXx6kf6kcidRgoZWjYKKxAyx/c9cfuaiNiB2UqChu0o+/QKTHaaopuYMxCSR1em853FvkphDCisQqO74o1gOKaOz8BXo3TY2tG6lNPi8bzABUu21nvUAkAK1TdoOClba4FAkT1SWDc2bw8okBoouUMpO4wlcYP+kpabYzaNAlXtVGPWjUPQsMYOLqDn/wJP7wsAIRLTboQyND4XEMi17tCJ/q+3ZarI+L7NfLV7J85whp4UH+9nP88roQEduvWw1pWwuoWRRleot8Bg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Myj76a8H; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1734677626; c=relaxed/relaxed;
+	bh=bytKXxNJSllZH07VaUFSDzdWJc65AqtdroAgiJDykuo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aHuux4IVIdZfD8AVadTb+n4bol/DdyjS7lvSOxBrx73QAf5zQ0KCcKnwtyzgSSnWXSL/3Yh/DjAU8tOftfa/7J5zRinm/xqVp7PocZvZ0ScL5J1lBddGByOa26Jpo1sUXgalEYXXBAcOogDr02AJEcK4oDbKySjD3fcd4H3FLLKYop+fmyWzKqd6opKwKUSejCCbQow6bPzfcVDnSJ/41UuTTUmxp+93SctII2YXu10vGmN+WogQe99Y6WtTtFM2FcaRVdqBz1871VBzj4BYBiJE0lSKWJ8euXT25+GWcor0m2ZWTdWYWx92cNMgXFnneo6+sojX3GS3asR1cpeMQA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fIu+qMix; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Myj76a8H;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fIu+qMix;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
 Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YDLc41LGZz2yRP
-	for <linux-erofs@lists.ozlabs.org>; Thu, 19 Dec 2024 17:43:47 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YDyn31z0Sz2yJ5
+	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Dec 2024 17:53:40 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1734590623; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=rDALtUbt4fFVTRdA6qJno9OXV3pPIhD7DaNhTSUB0S4=;
-	b=Myj76a8HFylKp1quWfV9jfsdzNqvewmzAIrzSTfN+teMhKGWsHMdVuBU5ILCWqqgU32O69UtOYaw7rcjH30XsX3GhnYGTWvOsWRbIFu5jFQziE5kSQ78i2eoXnx3Ggl9mBp+KNGwCHSs29D28p8DrojVIUqKBGt4w3QeZKyEcKU=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLpMVKa_1734590621 cluster:ay36)
+	t=1734677615; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=bytKXxNJSllZH07VaUFSDzdWJc65AqtdroAgiJDykuo=;
+	b=fIu+qMixCoxwp59i3hPnZVxltOxLfM+PU0gYiNPHu6B+Wz+6obmrxH3MGvO6VNjF+FznNvH3XPI+78F56SpB63QV02+N9vBq52l7nwYoTyivRyRtQG6jote2fYGVpsl0sX8YOhYUR47cERQDoWJfNBOKLpwvt6aQeA5qTBA65Ys=
+Received: from localhost.localdomain(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WLspa86_1734677613 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 19 Dec 2024 14:43:41 +0800
+          Fri, 20 Dec 2024 14:53:34 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 3/4] erofs: support buffer block reservation
-Date: Thu, 19 Dec 2024 14:43:30 +0800
-Message-ID: <20241219064331.2223001-3-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20241219064331.2223001-1-hsiangkao@linux.alibaba.com>
-References: <20241219064331.2223001-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs-utils: use external xxhash library if possible
+Date: Fri, 20 Dec 2024 14:53:31 +0800
+Message-Id: <20241220065331.70205-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -62,167 +59,251 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-In order to support data alignment, add support for recording multiple
-block reservations.
+It's expected to be faster than the internal one.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/cache.h | 11 +++++++----
- lib/cache.c           | 32 ++++++++++++++++----------------
- 2 files changed, 23 insertions(+), 20 deletions(-)
+ configure.ac                        | 34 +++++++++++++++++++++++++++++
+ dump/Makefile.am                    |  2 +-
+ fsck/Makefile.am                    |  4 ++--
+ fuse/Makefile.am                    |  2 +-
+ lib/Makefile.am                     |  9 ++++++--
+ lib/dedupe.c                        |  2 +-
+ lib/{xxhash.h => liberofs_xxhash.h} | 15 +++++++++++++
+ lib/xattr.c                         |  2 +-
+ lib/xxhash.c                        |  2 +-
+ mkfs/Makefile.am                    |  2 +-
+ 10 files changed, 64 insertions(+), 10 deletions(-)
+ rename lib/{xxhash.h => liberofs_xxhash.h} (74%)
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-index 646d6de..d8559a8 100644
---- a/include/erofs/cache.h
-+++ b/include/erofs/cache.h
-@@ -35,11 +35,14 @@ struct erofs_bhops {
+diff --git a/configure.ac b/configure.ac
+index 45a7d33..70b5363 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -148,6 +148,10 @@ AC_ARG_WITH(qpl,
+       [Enable and build with Intel QPL support @<:@default=disabled@:>@])], [],
+       [with_qpl="no"])
  
- struct erofs_buffer_head {
- 	struct list_head list;
--	struct erofs_buffer_block *block;
--
-+	union {
-+		struct {
-+			struct erofs_buffer_block *block;
-+			const struct erofs_bhops *op;
-+		};
-+		erofs_blk_t nblocks;
-+	};
- 	erofs_off_t off;
--	const struct erofs_bhops *op;
--
- 	void *fsprivate;
- };
++AC_ARG_WITH(xxhash,
++   [AS_HELP_STRING([--with-xxhash],
++      [Enable and build with libxxhash support @<:@default=auto@:>@])])
++
+ AC_ARG_ENABLE(fuse,
+    [AS_HELP_STRING([--enable-fuse], [enable erofsfuse @<:@default=no@:>@])],
+    [enable_fuse="$enableval"], [enable_fuse="no"])
+@@ -531,6 +535,31 @@ AS_IF([test "x$with_qpl" != "xno"], [
+   ])
+ ])
  
-diff --git a/lib/cache.c b/lib/cache.c
-index 1cc5007..cb05466 100644
---- a/lib/cache.c
-+++ b/lib/cache.c
-@@ -74,8 +74,7 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
- {
- 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
- 	struct erofs_sb_info *sbi = bmgr->sbi;
--	const unsigned int blksiz = erofs_blksiz(sbi);
--	const unsigned int blkmask = blksiz - 1;
-+	const unsigned int blkmask = erofs_blksiz(sbi) - 1;
- 	erofs_off_t boff = bb->buffers.off;
- 	const erofs_off_t alignedoffset = roundup(boff, alignsize);
- 	bool tailupdate = false;
-@@ -87,7 +86,8 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
- 			+ inline_ext > blkmask)
- 		return -ENOSPC;
++# Configure Intel QPL
++have_xxhash="no"
++AS_IF([test "x$with_xxhash" != "xno"], [
++  PKG_CHECK_MODULES([libxxhash], [libxxhash], [
++    # Paranoia: don't trust the result reported by pkgconfig before trying out
++    saved_LIBS="$LIBS"
++    saved_CPPFLAGS=${CPPFLAGS}
++    CPPFLAGS="${libxxhash_CFLAGS} ${CPPFLAGS}"
++    LIBS="${libxxhash_LIBS} $LIBS"
++    AC_CHECK_HEADERS([xxhash.h],[
++      AC_CHECK_LIB(xxhash, XXH32, [], [
++        AC_MSG_ERROR([libxxhash doesn't work properly])])
++      AC_CHECK_DECL(XXH32, [have_xxhash="yes"],
++        [AC_MSG_ERROR([libxxhash doesn't work properly])], [[
++#include <xxhash.h>
++      ]])
++    ])
++    LIBS="${saved_LIBS}"
++    CPPFLAGS="${saved_CPPFLAGS}"], [
++    AS_IF([test "x$with_xxhash" = "xyes"], [
++      AC_MSG_ERROR([Cannot find proper libxxhash])
++    ])
++  ])
++])
++
+ # Enable 64-bit off_t
+ CFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
  
--	oob = cmpsgn((alignedoffset & blkmask) + incr + inline_ext, blksiz);
-+	oob = cmpsgn(roundup(boff, alignsize) + incr + inline_ext,
-+		     bb->buffers.nblocks << sbi->blkszbits);
- 	if (oob >= 0) {
- 		/* the next buffer block should be NULL_ADDR all the time */
- 		if (oob && list_next_entry(bb, list)->blkaddr != NULL_ADDR)
-@@ -96,7 +96,7 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
- 		blkaddr = bb->blkaddr;
- 		if (blkaddr != NULL_ADDR) {
- 			tailupdate = (bmgr->tail_blkaddr == blkaddr +
--				      BLK_ROUND_UP(sbi, boff));
-+				      bb->buffers.nblocks);
- 			if (oob && !tailupdate)
- 				return -EINVAL;
- 		}
-@@ -110,10 +110,11 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
- 		}
- 		boff = alignedoffset + incr;
- 		bb->buffers.off = boff;
-+		bb->buffers.nblocks = max_t(erofs_blk_t, bb->buffers.nblocks,
-+					    BLK_ROUND_UP(sbi, boff));
- 		/* need to update the tail_blkaddr */
- 		if (tailupdate)
--			bmgr->tail_blkaddr = blkaddr +
--						BLK_ROUND_UP(sbi, boff);
-+			bmgr->tail_blkaddr = blkaddr + bb->buffers.nblocks;
- 		erofs_bupdate_mapped(bb);
- 	}
- 	return ((alignedoffset + incr + blkmask) & blkmask) + 1;
-@@ -266,6 +267,7 @@ struct erofs_buffer_head *erofs_balloc(struct erofs_bufmgr *bmgr,
- 		bb->type = type;
- 		bb->blkaddr = NULL_ADDR;
- 		bb->buffers.off = 0;
-+		bb->buffers.nblocks = 0;
- 		bb->buffers.fsprivate = bmgr;
- 		init_list_head(&bb->buffers.list);
- 		if (type == DATA)
-@@ -319,7 +321,7 @@ struct erofs_buffer_head *erofs_battach(struct erofs_buffer_head *bh,
- 	return nbh;
+@@ -553,6 +582,7 @@ AM_CONDITIONAL([ENABLE_LIBLZMA], [test "x${have_liblzma}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_LIBDEFLATE], [test "x${have_libdeflate}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_LIBZSTD], [test "x${have_libzstd}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_QPL], [test "x${have_qpl}" = "xyes"])
++AM_CONDITIONAL([ENABLE_XXHASH], [test "x${have_xxhash}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_STATIC_FUSE], [test "x${enable_static_fuse}" = "xyes"])
+ 
+ if test "x$have_uuid" = "xyes"; then
+@@ -600,6 +630,10 @@ if test "x$have_qpl" = "xyes"; then
+   AC_SUBST([libqpl_CFLAGS])
+ fi
+ 
++if test "x$have_xxhash" = "xyes"; then
++  AC_DEFINE([HAVE_XXHASH], 1, [Define to 1 if xxhash is found])
++fi
++
+ # Dump maximum block size
+ AS_IF([test "x$erofs_cv_max_block_size" = "x"],
+       [$erofs_cv_max_block_size = 4096], [])
+diff --git a/dump/Makefile.am b/dump/Makefile.am
+index 2a4f67a..2cf7fe8 100644
+--- a/dump/Makefile.am
++++ b/dump/Makefile.am
+@@ -8,4 +8,4 @@ dump_erofs_SOURCES = main.c
+ dump_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ dump_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+ 	${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} ${libdeflate_LIBS} \
+-	${libzstd_LIBS} ${libqpl_LIBS}
++	${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS}
+diff --git a/fsck/Makefile.am b/fsck/Makefile.am
+index 5bdee4d..3b7b591 100644
+--- a/fsck/Makefile.am
++++ b/fsck/Makefile.am
+@@ -8,7 +8,7 @@ fsck_erofs_SOURCES = main.c
+ fsck_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ fsck_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+ 	${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} ${libdeflate_LIBS} \
+-	${libzstd_LIBS} ${libqpl_LIBS}
++	${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS}
+ 
+ if ENABLE_FUZZING
+ noinst_PROGRAMS   = fuzz_erofsfsck
+@@ -17,5 +17,5 @@ fuzz_erofsfsck_CFLAGS = -Wall -I$(top_srcdir)/include -DFUZZING
+ fuzz_erofsfsck_LDFLAGS = -fsanitize=address,fuzzer
+ fuzz_erofsfsck_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+ 	${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} ${libdeflate_LIBS} \
+-	${libzstd_LIBS} ${libqpl_LIBS}
++	${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS}
+ endif
+diff --git a/fuse/Makefile.am b/fuse/Makefile.am
+index 50186da..55fb61f 100644
+--- a/fuse/Makefile.am
++++ b/fuse/Makefile.am
+@@ -8,7 +8,7 @@ erofsfuse_CFLAGS = -Wall -I$(top_srcdir)/include
+ erofsfuse_CFLAGS += ${libfuse2_CFLAGS} ${libfuse3_CFLAGS} ${libselinux_CFLAGS}
+ erofsfuse_LDADD = $(top_builddir)/lib/liberofs.la ${libfuse2_LIBS} ${libfuse3_LIBS} ${liblz4_LIBS} \
+ 	${libselinux_LIBS} ${liblzma_LIBS} ${zlib_LIBS} ${libdeflate_LIBS} ${libzstd_LIBS} \
+-	${libqpl_LIBS}
++	${libqpl_LIBS} ${libxxhash_LIBS}
+ 
+ if ENABLE_STATIC_FUSE
+ lib_LTLIBRARIES = liberofsfuse.la
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 9c0604d..ef98377 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -27,14 +27,14 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+       $(top_srcdir)/include/erofs/fragments.h \
+       $(top_srcdir)/include/erofs/rebuild.h \
+       $(top_srcdir)/lib/liberofs_private.h \
+-      $(top_srcdir)/lib/xxhash.h
++      $(top_srcdir)/lib/liberofs_xxhash.h
+ 
+ noinst_HEADERS += compressor.h
+ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
+ 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
+ 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
+ 		      fragments.c dedupe.c uuid_unparse.c uuid.c tar.c \
+-		      block_list.c xxhash.c rebuild.c diskbuf.c
++		      block_list.c rebuild.c diskbuf.c
+ 
+ liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
+ if ENABLE_LZ4
+@@ -58,6 +58,11 @@ if ENABLE_LIBZSTD
+ liberofs_la_CFLAGS += ${libzstd_CFLAGS}
+ liberofs_la_SOURCES += compressor_libzstd.c
+ endif
++if ENABLE_XXHASH
++liberofs_la_CFLAGS += ${libxxhash_CFLAGS}
++else
++liberofs_la_SOURCES += xxhash.c
++endif
+ if ENABLE_EROFS_MT
+ liberofs_la_LDFLAGS = -lpthread
+ liberofs_la_SOURCES += workqueue.c
+diff --git a/lib/dedupe.c b/lib/dedupe.c
+index e475635..bc62841 100644
+--- a/lib/dedupe.c
++++ b/lib/dedupe.c
+@@ -6,7 +6,7 @@
+ #include "erofs/dedupe.h"
+ #include "erofs/print.h"
+ #include "rolling_hash.h"
+-#include "xxhash.h"
++#include "liberofs_xxhash.h"
+ #include "sha256.h"
+ 
+ unsigned long erofs_memcmp2(const u8 *s1, const u8 *s2,
+diff --git a/lib/xxhash.h b/lib/liberofs_xxhash.h
+similarity index 74%
+rename from lib/xxhash.h
+rename to lib/liberofs_xxhash.h
+index 723c3a5..a0f8367 100644
+--- a/lib/xxhash.h
++++ b/lib/liberofs_xxhash.h
+@@ -8,7 +8,21 @@ extern "C"
+ #endif
+ 
+ #include <stdint.h>
++#ifdef HAVE_XXHASH_H
++#include <xxhash.h>
++#endif
++
++#ifdef HAVE_XXHASH
++static inline uint32_t xxh32(const void *input, size_t length, uint32_t seed)
++{
++	return XXH32(input, length, seed);
++}
+ 
++static inline uint64_t xxh64(const void *input, const size_t len, const uint64_t seed)
++{
++	return XXH64(input, len, seed);
++}
++#else
+ /*
+  * xxh32() - calculate the 32-bit hash of the input with a given seed.
+  *
+@@ -32,6 +46,7 @@ uint32_t xxh32(const void *input, size_t length, uint32_t seed);
+  * Return:  The 64-bit hash of the data.
+  */
+ uint64_t xxh64(const void *input, const size_t len, const uint64_t seed);
++#endif
+ 
+ #ifdef __cplusplus
  }
+diff --git a/lib/xattr.c b/lib/xattr.c
+index c95928e..c20c9a2 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -17,7 +17,7 @@
+ #include "erofs/xattr.h"
+ #include "erofs/cache.h"
+ #include "erofs/fragments.h"
+-#include "xxhash.h"
++#include "liberofs_xxhash.h"
+ #include "liberofs_private.h"
  
--static erofs_blk_t __erofs_mapbh(struct erofs_buffer_block *bb)
-+static void __erofs_mapbh(struct erofs_buffer_block *bb)
- {
- 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
- 	erofs_blk_t blkaddr;
-@@ -330,10 +332,9 @@ static erofs_blk_t __erofs_mapbh(struct erofs_buffer_block *bb)
- 		erofs_bupdate_mapped(bb);
- 	}
+ #ifndef XATTR_SYSTEM_PREFIX
+diff --git a/lib/xxhash.c b/lib/xxhash.c
+index 2768375..ee78ebf 100644
+--- a/lib/xxhash.c
++++ b/lib/xxhash.c
+@@ -44,7 +44,7 @@
+  * - xxHash source repository: https://github.com/Cyan4973/xxHash
+  */
+ #include "erofs/defs.h"
+-#include "xxhash.h"
++#include "liberofs_xxhash.h"
  
--	blkaddr = bb->blkaddr + BLK_ROUND_UP(bmgr->sbi, bb->buffers.off);
-+	blkaddr = bb->blkaddr + bb->buffers.nblocks;
- 	if (blkaddr > bmgr->tail_blkaddr)
- 		bmgr->tail_blkaddr = blkaddr;
--	return blkaddr;
- }
- 
- erofs_blk_t erofs_mapbh(struct erofs_bufmgr *bmgr,
-@@ -353,7 +354,7 @@ erofs_blk_t erofs_mapbh(struct erofs_bufmgr *bmgr,
- 			break;
- 
- 		DBG_BUGON(t->blkaddr != NULL_ADDR);
--		(void)__erofs_mapbh(t);
-+		__erofs_mapbh(t);
- 	} while (t != bb);
- 	return bmgr->tail_blkaddr;
- }
-@@ -389,7 +390,8 @@ int erofs_bflush(struct erofs_bufmgr *bmgr,
- 		if (p == bb)
- 			break;
- 
--		blkaddr = __erofs_mapbh(p);
-+		__erofs_mapbh(p);
-+		blkaddr = p->blkaddr + BLK_ROUND_UP(sbi, p->buffers.off);
- 
- 		list_for_each_entry_safe(bh, nbh, &p->buffers.list, list) {
- 			if (bh->op == &erofs_skip_write_bhops) {
-@@ -412,8 +414,7 @@ int erofs_bflush(struct erofs_bufmgr *bmgr,
- 					   padding, true);
- 
- 		if (p->type != DATA)
--			bmgr->metablkcnt +=
--				BLK_ROUND_UP(sbi, p->buffers.off);
-+			bmgr->metablkcnt += p->buffers.nblocks;
- 		erofs_dbg("block %u to %u flushed", p->blkaddr, blkaddr - 1);
- 		erofs_bfree(p);
- 	}
-@@ -424,13 +425,12 @@ void erofs_bdrop(struct erofs_buffer_head *bh, bool tryrevoke)
- {
- 	struct erofs_buffer_block *const bb = bh->block;
- 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
--	struct erofs_sb_info *sbi = bmgr->sbi;
- 	const erofs_blk_t blkaddr = bh->block->blkaddr;
- 	bool rollback = false;
- 
- 	/* tail_blkaddr could be rolled back after revoking all bhs */
- 	if (tryrevoke && blkaddr != NULL_ADDR &&
--	    bmgr->tail_blkaddr == blkaddr + BLK_ROUND_UP(sbi, bb->buffers.off))
-+	    bmgr->tail_blkaddr == blkaddr + bb->buffers.nblocks)
- 		rollback = true;
- 
- 	bh->op = &erofs_drop_directly_bhops;
-@@ -440,7 +440,7 @@ void erofs_bdrop(struct erofs_buffer_head *bh, bool tryrevoke)
- 		return;
- 
- 	if (!rollback && bb->type != DATA)
--		bmgr->metablkcnt += BLK_ROUND_UP(sbi, bb->buffers.off);
-+		bmgr->metablkcnt += bb->buffers.nblocks;
- 	erofs_bfree(bb);
- 	if (rollback)
- 		bmgr->tail_blkaddr = blkaddr;
+ /*-*************************************
+  * Macros
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 6354712..2499242 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -7,4 +7,4 @@ mkfs_erofs_SOURCES = main.c
+ mkfs_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ mkfs_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+ 	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} \
+-	${libdeflate_LIBS} ${libzstd_LIBS} ${libqpl_LIBS}
++	${libdeflate_LIBS} ${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS}
 -- 
-2.43.5
+2.39.5
 
