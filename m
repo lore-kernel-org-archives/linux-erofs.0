@@ -4,44 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C952BE7718D
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Dec 2024 04:58:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3CCC7E7718E
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Dec 2024 04:58:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YJbxF12ldz30Yb
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Dec 2024 15:58:25 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735189102;
-	cv=none; b=Z9g8IFQGOCjy6Lc49GE9M+uXpEmWvvZ+/WYFq7LHvC0I4mGzxOeQYtdufPqaBfI7KkQwzOfq4Oap6S9YTfGUC+d1wuAw6Dvalsunme/pgR7PPLZYscvbhRttIqDPyf2P9rswnM4MGmii4+P6M8HmxrqsXLYRX3tBy/rcyO4jPGH4OZI+yM6agLSix90XKT7hpZeZWfm1U05cxEXqXweX3sOxhaBZKn4rqfm02BIxK7l0ZtY39iKMamOk6WmhaCBB/MXzIG3ArB/0WBDOByFqsI7M3d95iL26BIXpNeF2iXShZgFC94q0m4Z4za/4HTkOMSS7h6ZdCSes7jrojFCozw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YJbxG3rrKz3bV2
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Dec 2024 15:58:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735189103;
+	cv=none; b=XF4e/LuDyuVeNw3wSM09pYoUAZH09IImORrWhu1pcqF1cjGB9Uq0j4jXCkHVwOfraJ/mb/hrj2i47reSRKDfZv0K64p5Hx0scsdfLWh/b/EJsKazdmtpsUVTgydb59YVx+A87+Tz0qz2J2gBMN4aw59MdN87ZEKm38IId5SRF7cN2V6upwtAQwWcpiMh1xU0Knng7i2dYDhghNnrivmU67DPikI/WhWXP9fofbYjWkJl8SOdXimr0aalzU7/EELv3Vh5duu8ZPidaFNpxXFobpt9tNsn8STkd5sza1VVHhOOoTYQA3JAiH8fm0+CNkijYDvB7Zy23lSnB4y4PpSXeg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1735189102; c=relaxed/relaxed;
-	bh=G3fs7SUDv8MG7QnslAHPPZ6F538gPWi8xg0PWMB+iws=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Ne6vzAMVcYL1CRgZaeVQ8G1xeraCIXC2IL7cIoZp9+LbRhLUf6yHy0wtEoHN8sqUFFXDis0yMBM/Q6QUeTP7oSVUonMUNf8HthLcEkyFH9sMOcSLSGc30rP9aZ+UhbrsYfCDI1b+vUklvFq0JCqyrtt+1E5BtmvaBk2FGRkTwPzNKk6MXjPvHIHIugHYqgv044TO1brgoof9RDEsTZzyWvh5TZ97GpwYjKR9HvPBtqTIQmV6jzyr7HVG5Zt4FvK25qFbmWZ+/zEJKkohjPdGfNwSTatgAZlDmSD9t1EYLm2hSUdmwIFStP94Sh6Z7TKnuxmmqI5lqkQmYXzzXrJATg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CJ0Yfq0W; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1735189103; c=relaxed/relaxed;
+	bh=t6wStyV3t9PJnQEyjgfzlexPCpmvC8qsRCzaVUJjTiI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=KgGGH7EqS0+G98lEsx7avYQv8mOYWQYEyPV0JnnmQ/atntA22x9IbZnD36Eid2IfrZui3/lHh5rWpFyrBJbxtAKTIOMoYR5j4VCpgvZWTZq5+Ky+B7jplUQH0PkORe59tfJCzTCnt4JCmD+BuTXIGGD4r5q5oj7PFRaEwk+3FLjpcn/siJCj+NdYrk31wwUOd0Ze097+/EXvQ5CikEBQ/vB4E9xoiddPs26+ik7d9kY4/sqcvC5mQZl6fUolgScTd9mIfWbzRd0XhbvBhMgIV3qRUV0Flg1uwm13D852tK2N+GM64ApIHN2KvULdA4lKPWLyIQT/xkfZ/VwQiF6rsg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wDeWy5qW; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CJ0Yfq0W;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wDeWy5qW;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YJbx80PWJz2y66
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Dec 2024 15:58:17 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YJbx952nRz2yb9
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Dec 2024 15:58:21 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1735189092; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=G3fs7SUDv8MG7QnslAHPPZ6F538gPWi8xg0PWMB+iws=;
-	b=CJ0Yfq0WsKmmoyAv6m+uoT/KkqlMLxXO2+Jy+Ag0COqvDLENqbJhO5BXOz2EQL7bzABNOpyEU7TMfVRxyRsHB/oEqPoAP1HGeVpgobPxKylE0EVvvK1y8o5GzFo50i8O3911Fb6xYTD6s7tTWz7YwWxX25ZH7HYXp7s0xqS6Iwo=
-Received: from localhost.localdomain(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMH.Xv-_1735189090 cluster:ay36)
+	t=1735189097; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=t6wStyV3t9PJnQEyjgfzlexPCpmvC8qsRCzaVUJjTiI=;
+	b=wDeWy5qWN86M/7ctumHei9MFEpGxvMQypRpqDPlTIKx6bvzKISWt6uscrHWGk7ECO5hBTKMaTEF2to1xwJzo6pFEc3+gg71bb3plj1QUAF3nKxHE2KiJAP6ZiG8GNP6RNwrWQrIloCaoNqiXo9gQPNFhT+B2v0+KViWjZ+/hm44=
+Received: from localhost.localdomain(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMH.Xvn_1735189092 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 26 Dec 2024 12:58:11 +0800
+          Thu, 26 Dec 2024 12:58:16 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 1/3] erofs-utils: lib: tar: ignore useless fields of PAX extended headers
-Date: Thu, 26 Dec 2024 12:58:06 +0800
-Message-Id: <20241226045808.95101-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 3/3] erofs-utils: lib: fix LIBARCHIVE.xattr URL-encoded keys
+Date: Thu, 26 Dec 2024 12:58:08 +0800
+Message-Id: <20241226045808.95101-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.39.3 (Apple Git-146)
+In-Reply-To: <20241226045808.95101-1-hsiangkao@linux.alibaba.com>
+References: <20241226045808.95101-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -59,150 +62,119 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Since some unknown writer just leaves zero-filled mtime, e.g.
-registry.k8s.io/pause:3.6  --platform windows
+As tar(5) [1] mentioned: `The key value is URL-encoded: All non-ASCII
+characters and the two special characters "=" and "%" are encoded as
+"%" followed by two uppercase hexadecimal digits.`
 
-Layer sha256: bc8517709e9cfff223cb034ff5be8fcbfa5409de286cdac9ae1b8878ebea6b84
+Fix it now.
 
-Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+[1] https://man.freebsd.org/cgi/man.cgi?tar(5)
+Fixes: c0063a73b01b ("erofs-utils: lib: support importing xattrs from tarerofs")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/tar.c | 78 ++++++++++++++++++++++++++++++-------------------------
- 1 file changed, 42 insertions(+), 36 deletions(-)
+ lib/tar.c | 59 ++++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 52 insertions(+), 7 deletions(-)
 
 diff --git a/lib/tar.c b/lib/tar.c
-index 0dd990e..12bf595 100644
+index 9642e2e..2ea3858 100644
 --- a/lib/tar.c
 +++ b/lib/tar.c
-@@ -659,6 +659,7 @@ int tarerofs_parse_tar(struct erofs_inode *root, struct erofs_tarfile *tar)
- 	struct erofs_sb_info *sbi = root->sbi;
- 	bool whout, opq, e = false;
- 	struct stat st;
-+	mode_t mode;
- 	erofs_off_t tar_offset, dataoff;
+@@ -438,6 +438,47 @@ static int base64_decode(const char *src, int len, u8 *dst)
+ 	return cp - dst;
+ }
  
- 	struct tar_header *th;
-@@ -751,26 +752,6 @@ out_eot:
++static int tohex(int c)
++{
++	if (c >= '0' && c <= '9')
++		return c - '0';
++	else if (c >= 'A' && c <= 'F')
++		return c - 'A' + 10;
++	else if (c >= 'a' && c <= 'f')
++		return c - 'a' + 10;
++	return -1;
++}
++
++static unsigned int url_decode(char *str, unsigned int len)
++{
++	const char *s = str;
++	char *d = str;
++	int d1, d2;
++
++	for (; len && *s != '\0' && *s != '%'; ++d, ++s, --len);
++	if (!len || *s == '\0')
++		return d - str;
++
++	while (len && *s != '\0') {
++		if (*s == '%' && len > 2) {
++			/* Try to convert % escape */
++			d1 = tohex(s[1]), d2 = tohex(s[2]);
++
++			/* Look good, consume three chars */
++			if (d1 >= 0 && d2 >= 0) {
++				s += 3;
++				len -= 3;
++				*d++ = (d1 << 4) | d2;
++				continue;
++			}
++			/* Otherwise, treat '%' as normal char */
++		}
++		*d++ = *s++;
++		--len;
++	}
++	return d - str;
++}
++
+ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+ 			      struct erofs_pax_header *eh, u32 size)
+ {
+@@ -454,7 +495,7 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
  		goto out;
- 	}
  
--	st.st_mode = tarerofs_otoi(th->mode, sizeof(th->mode));
--	if (errno)
--		goto invalid_tar;
+ 	while (p < buf + size) {
+-		char *kv, *value;
++		char *kv, *key, *value;
+ 		int len, n;
+ 		/* extended records are of the format: "LEN NAME=VALUE\n" */
+ 		ret = sscanf(p, "%d %n", &len, &n);
+@@ -537,8 +578,7 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+ 				eh->use_gid = true;
+ 			} else if (!strncmp(kv, "SCHILY.xattr.",
+ 				   sizeof("SCHILY.xattr.") - 1)) {
+-				char *key = kv + sizeof("SCHILY.xattr.") - 1;
 -
--	if (eh.use_uid) {
--		st.st_uid = eh.st.st_uid;
--	} else {
--		st.st_uid = tarerofs_parsenum(th->uid, sizeof(th->uid));
--		if (errno)
--			goto invalid_tar;
--	}
--
--	if (eh.use_gid) {
--		st.st_gid = eh.st.st_gid;
--	} else {
--		st.st_gid = tarerofs_parsenum(th->gid, sizeof(th->gid));
--		if (errno)
--			goto invalid_tar;
--	}
--
- 	if (eh.use_size) {
- 		st.st_size = eh.st.st_size;
- 	} else {
-@@ -779,16 +760,6 @@ out_eot:
- 			goto invalid_tar;
- 	}
++				key = kv + sizeof("SCHILY.xattr.") - 1;
+ 				--len; /* p[-1] == '\0' */
+ 				ret = tarerofs_insert_xattr(&eh->xattrs, key,
+ 						value - key - 1,
+@@ -547,9 +587,10 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+ 					goto out;
+ 			} else if (!strncmp(kv, "LIBARCHIVE.xattr.",
+ 				   sizeof("LIBARCHIVE.xattr.") - 1)) {
+-				char *key;
+-				key = kv + sizeof("LIBARCHIVE.xattr.") - 1;
++				int namelen;
  
--	if (eh.use_mtime) {
--		st.st_mtime = eh.st.st_mtime;
--		ST_MTIM_NSEC_SET(&st, ST_MTIM_NSEC(&eh.st));
--	} else {
--		st.st_mtime = tarerofs_parsenum(th->mtime, sizeof(th->mtime));
--		if (errno)
--			goto invalid_tar;
--		ST_MTIM_NSEC_SET(&st, 0);
--	}
--
- 	if (th->typeflag <= '7' && !eh.path) {
- 		eh.path = path;
- 		j = 0;
-@@ -810,28 +781,29 @@ out_eot:
++				key = kv + sizeof("LIBARCHIVE.xattr.") - 1;
++				namelen = url_decode(key, value - key - 1);
+ 				--len; /* p[-1] == '\0' */
+ 				ret = base64_decode(value, len - (value - kv),
+ 						    (u8 *)value);
+@@ -558,9 +599,13 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+ 					goto out;
+ 				}
  
- 	dataoff = tar->offset;
- 	tar->offset += st.st_size;
-+	st.st_mode = 0;
- 	switch(th->typeflag) {
- 	case '0':
- 	case '7':
- 	case '1':
--		st.st_mode |= S_IFREG;
-+		st.st_mode = S_IFREG;
- 		if (tar->headeronly_mode || tar->ddtaridx_mode)
- 			tar->offset -= st.st_size;
- 		break;
- 	case '2':
--		st.st_mode |= S_IFLNK;
-+		st.st_mode = S_IFLNK;
- 		break;
- 	case '3':
--		st.st_mode |= S_IFCHR;
-+		st.st_mode = S_IFCHR;
- 		break;
- 	case '4':
--		st.st_mode |= S_IFBLK;
-+		st.st_mode = S_IFBLK;
- 		break;
- 	case '5':
--		st.st_mode |= S_IFDIR;
-+		st.st_mode = S_IFDIR;
- 		break;
- 	case '6':
--		st.st_mode |= S_IFIFO;
-+		st.st_mode = S_IFIFO;
- 		break;
- 	case 'g':
- 		ret = tarerofs_parse_pax_header(&tar->ios, &tar->global,
-@@ -876,6 +848,40 @@ out_eot:
- 		goto out;
- 	}
- 
-+	mode = tarerofs_otoi(th->mode, sizeof(th->mode));
-+	if (errno)
-+		goto invalid_tar;
-+	if (__erofs_unlikely(mode & S_IFMT) &&
-+	    (mode & S_IFMT) != (st.st_mode & S_IFMT))
-+		erofs_warn("invalid ustar mode %05o @ %llu", mode, tar_offset);
-+	st.st_mode |= mode & ~S_IFMT;
-+
-+	if (eh.use_uid) {
-+		st.st_uid = eh.st.st_uid;
-+	} else {
-+		st.st_uid = tarerofs_parsenum(th->uid, sizeof(th->uid));
-+		if (errno)
-+			goto invalid_tar;
-+	}
-+
-+	if (eh.use_gid) {
-+		st.st_gid = eh.st.st_gid;
-+	} else {
-+		st.st_gid = tarerofs_parsenum(th->gid, sizeof(th->gid));
-+		if (errno)
-+			goto invalid_tar;
-+	}
-+
-+	if (eh.use_mtime) {
-+		st.st_mtime = eh.st.st_mtime;
-+		ST_MTIM_NSEC_SET(&st, ST_MTIM_NSEC(&eh.st));
-+	} else {
-+		st.st_mtime = tarerofs_parsenum(th->mtime, sizeof(th->mtime));
-+		if (errno)
-+			goto invalid_tar;
-+		ST_MTIM_NSEC_SET(&st, 0);
-+	}
-+
- 	st.st_rdev = 0;
- 	if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
- 		int major, minor;
++				if (namelen != value - key - 1) {
++					key[namelen] = '=';
++					memmove(key + namelen + 1, value, ret);
++					value = key + namelen + 1;
++				}
+ 				ret = tarerofs_insert_xattr(&eh->xattrs, key,
+-						value - key - 1,
+-						value - key + ret, false);
++						namelen, namelen + 1 + ret, false);
+ 				if (ret)
+ 					goto out;
+ 			} else {
 -- 
 2.39.3 (Apple Git-146)
 
