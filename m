@@ -4,47 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD97DE7718B
-	for <linux-erofs@archiver.kernel.org>; Wed,  1 Jan 2025 19:45:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD2E6E7718B
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Jan 2025 02:42:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YNgKs5QjPz30ML
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Jan 2025 06:45:21 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=164.70.68.28
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735760719;
-	cv=none; b=ivgGuaqAfNpBSJTg04wOst0KmSagikBEz7+KWQCwf+RAFKH+MZl8Bn2ikO+X8dkU/Y1m/UXQo14rHc0ePWqpJD0QFvJeG8Xp+xKb8jKu/MkRRtn9ZMzOZnQhWxqxmdRtQw95Tyrqd2WSs4EgGexLVvhq64ZbUyvmSKhXZzBUETqANKClTybk4fIGAGbNdw0SQSjBHk+ozeXDSdoGp9A+uA5W6xaVxnv/mSJ8QsIrLJDHJedFEotPLN2+bThnWbN5zdhmjTVkBogYn+Ate8Jdiuba9G5qH5iXL4+pUeL5//4FcISEJ9iYoHHfsXT8kORA2Ib+wBTI1Ac/ODnPHa9tow==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YNrbR6Xzwz30DV
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Jan 2025 13:42:43 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735785761;
+	cv=none; b=b/AtDoIkRn/GZPvLECwCcKWi7Y5jK80959rC1aXtqZBMdcrwgKDGyUCMVi3VhfaXDILo21fhzTXGMF9butGyQwQQwQ/tOeSZldnVYDeHp0GdH2pq/ocGZx0k7O5gmd4MohiJ9gRb9MKYZzCVkWfFojsL1iDYQvqI8TIJV2mL/oRu/ytp3h2Wlu2OjeDr1zpps0dboXVxcNNy0Hrp4ke+wdRNRm+aH0QLAUrdkVCyn+KxDDGyTAFZDBBgIn9ROG5tgL9klQwpJQSUitUM9u7kPq3K+AOyzoZgG1rmu+NRCGv079aW7lUpnbXESsk1PUlZXI6IHy1GVLHwI4stgTPhXA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1735760719; c=relaxed/relaxed;
-	bh=VNgCS4Zy5ARSyDV5VAgrJwL+qbByKGvMUsWMxz+V0BA=;
-	h=Message-ID:From:To:Subject:Date:MIME-Version:Content-Type; b=jjWhfDOJ6hIBdunm14DEkohIUy1FBMzSn1ORf3q3S5NIhaqD9gI+kHEE1W158dFC8p1wpuqciVtPmB7KeTXW40bHuikK2yZelah38VPAcE5AvkuXepFPoQrzMOPmFlFpjW4p4a9dlhXvpWClHufuS8zbnBJ3jWyoFk89pWNtQD5EB4H2olB6fCtWmWFLsQ+i9uckbJd4+5ap4IkzljcCbAz7I3P8pjheg1jI0Vvkbz5cW3ewbsTSuMtNRtnGKaUKQPoRJdSmCudIYEGPIYxWoQMtTB0pSq2JH1VkFNKZmiA6pzxEYJnwuv9J7XUkzE5Hw/jEPNPf2LgeGGvbEnmqTA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=goldpoint.co.jp; dkim=pass (1024-bit key; unprotected) header.d=pl0478.com header.i=sendonly@pl0478.com header.a=rsa-sha256 header.s=default header.b=kcXoyZIh; dkim-atps=neutral; spf=pass (client-ip=164.70.68.28; helo=mail0.pl0478.com; envelope-from=sendonly@pl0478.com; receiver=lists.ozlabs.org) smtp.mailfrom=pl0478.com
-Authentication-Results: lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=goldpoint.co.jp
+	t=1735785761; c=relaxed/relaxed;
+	bh=xZA/ayt4zIAaaI57f7Yuq0dsDLz6SdXdmJNoxeMf580=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MUwfTyykQOH5c1Me0KHaiBYridGjk8iAoO9sBF18Lm1v6OSznwGk1e5mzIRhnkbH+/5OhkBLIVpEn9eP97EsgOQl6s3nINQUYFVP6Zn8o6vwiQ2pQm23gUu5G0fgqNJJF+Ki04/snJgNIptu7CwZGB+ljiG+2hxKav+18N0qDs5PwjvfdUtI2jbRjnNhvGG62pgQPGyj+YVO/yCHH4N4Msy2yTKS/b/Ww8Ai9nUl3PYsRj6X6/JrC+2VL+IwJQbtvMvQVV2SQ/k1Cqo4J0S8hbT7hrpBfCQniOd48QhzZfBe/wxzxGH4+jrWQGulF1cpito4/w8PiH++SUydjm8qbg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ic5fJpPh; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=pl0478.com header.i=sendonly@pl0478.com header.a=rsa-sha256 header.s=default header.b=kcXoyZIh;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ic5fJpPh;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=pl0478.com (client-ip=164.70.68.28; helo=mail0.pl0478.com; envelope-from=sendonly@pl0478.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 602 seconds by postgrey-1.37 at boromir; Thu, 02 Jan 2025 06:45:16 AEDT
-Received: from mail0.pl0478.com (unknown [164.70.68.28])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YNgKm4bQ7z2xgp
-	for <linux-erofs@lists.ozlabs.org>; Thu,  2 Jan 2025 06:45:15 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=default; d=pl0478.com;
- h=Message-ID:Sender:From:To:Subject:Date:MIME-Version:Content-Type:
- Content-Transfer-Encoding; i=sendonly@pl0478.com;
- bh=VNgCS4Zy5ARSyDV5VAgrJwL+qbByKGvMUsWMxz+V0BA=;
- b=kcXoyZIhRlUkQJTgeDRSEP5hKEak1350Q2EL66YG6WToTIKrJQYLQcGKT3h6mXJxyd/eW8zVWN6l
-   AwOJuG6h15sqw74qwsk+p7r6zb2IBEoKyTbNLORy73lKH9pRK25r7fCw8r+h5QvGbqaaknkmY0SK
-   2aVEQeKSKEFpNEplINU=
-Message-ID: <4c439813127741a42640ff9524517b02@goldpoint.co.jp>
-From: =?utf-8?B?SkHjg43jg4Pjg4jjg5Djg7Pjgq8=?= <members@goldpoint.co.jp>
-To: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
-Subject: =?utf-8?B?44CQ44GK5Y+W5byV55uu55qE562J44Gu44GU56K66KqN44Gu?=
-	=?utf-8?B?44GK6aGY44GE44CR?=
-Date: Wed, 01 Jan 2025 19:35:07 +0000
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YNrbM2qbGz2xYr
+	for <linux-erofs@lists.ozlabs.org>; Thu,  2 Jan 2025 13:42:36 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1735785751; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=xZA/ayt4zIAaaI57f7Yuq0dsDLz6SdXdmJNoxeMf580=;
+	b=ic5fJpPhr8wL7pPhRIWd/FnpGwdkph7bWE6Kb3KbV7GHg7tJE9nPLJlPKozDztJeI97kmaQ6ZuM8pT7qCF5MzZqcxvkKXdPvGpzX2PqKbWP231WE6ECNow8/x0zs4vphqQMJi/144PFxC3A6G1HLQchjg8OL6Of8nQiY37B2oZA=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMi6QJj_1735785746 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 02 Jan 2025 10:42:30 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: mkfs: fix `-Eall-fragments` for multi-threaded compression
+Date: Thu,  2 Jan 2025 10:42:25 +0800
+Message-ID: <20250102024225.2433419-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -56,36 +55,37 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-平素より、ＪＡネットバンクをご利用いただきありがとうございます。
+may_packing in __z_erofs_compress_one() is still bypassed when multi-threaded
+compression is enabled, which is unexpected.
 
-ＪＡネットバンクでは2019年6月より金融庁の 「 マネー・ローンダリング及びテロ資金供与対策に関するガイドライン 」 
-に基づき、お客さま情報やお取引の目的等を定期的に確認させていただいております。お客さまにはお手数をおかけいたしますが、何卒ご理解とご協力をお願い申しあげ
-ます。
+Furthermore, multi-threaded -Eall-fragments,ztailpacking can sometimes corrupt
+images. Let's fix it.
 
-※なお、確認させていただく時期はお客さまごとに異なります。
-※2025年1月2日までに 「 お取引目的等の確認 」 より、お取引の目的等のご確認をお願いいたします。
+Fixes: 882ad1c3157f ("erofs-utils: mkfs: fix `-Eall-fragments` for multi-threaded compression")
+Fixes: 10c1590c0920 ("erofs-utils: enable multi-threaded support for `-Eall-fragments`")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/compress.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
- ▼お取引目的等の確認
-https://txnmyjr.com/obeson.html
-
-※回答が完了しますと、通常どおりログイン後のお手続きが可能になります。
-※一定期間ご確認いただけない場合、口座取引を制限させていただきます。
-
-お客さま情報等の定期的なご確認にご協力ください
-
-【ご注意】
-・お客さま個別の事由で口座のお取引が制限されている場合、本件のお手続きを完了しても制限は解除されません。
-・その他重要なお手続きのご案内が表示される場合があります。ご案内を確認後、回答画面が表示されます。
-
-お客さまにはお手数をおかけいたしますが、何とぞご理解、ご協力のほどお願いいたします。
-━━━━━━━━━━━━━━━━━
-お問い合わせは下記まで
-フリーダイヤル： 0120-058-098
-※月曜日〜金曜日9時00分〜21時00分
-※土・日曜日、祝日・振替休日9時00分〜17時00分
-━━━━━━━━━━━━━━━━━
-【発行・編集】ＪＡネットバンク
+diff --git a/lib/compress.c b/lib/compress.c
+index 6ac9c75..fd4c241 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -565,8 +565,7 @@ static int __z_erofs_compress_one(struct z_erofs_compress_sctx *ctx,
+ 	unsigned int len = ctx->tail - ctx->head;
+ 	bool is_packed_inode = erofs_is_packed_inode(inode);
+ 	bool tsg = (ctx->seg_idx + 1 >= ictx->seg_num), final = !ctx->remaining;
+-	bool may_packing = (cfg.c_fragments && tsg && final &&
+-			    !is_packed_inode && !z_erofs_mt_enabled);
++	bool may_packing = (cfg.c_fragments && tsg && final && !is_packed_inode);
+ 	bool may_inline = (cfg.c_ztailpacking && tsg && final && !may_packing);
+ 	unsigned int compressedsize;
+ 	int ret;
+-- 
+2.43.5
 
