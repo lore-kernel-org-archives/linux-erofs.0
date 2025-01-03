@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 48BD4E7718F
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Jan 2025 09:04:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53EA2E77188
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Jan 2025 09:04:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YPd0y5BBDz30TF
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Jan 2025 20:04:02 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.111
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735895039;
-	cv=none; b=Vsn79SMeyao3iVsZbRh5FMkmiKIKU0pvXJB5ayVvCo8kcgp5KlFIsWyFaK0Ji/MuPk4BZKG9xCgTl3yA9WmBtX/bsKedmO8z+te7y8wOezuDZlR1K/QGgy+utK8FNukpeG/pqC0aEwf1sTadXMcBs5fldqb3dpuopwksd4676B3EN9+AdeWGHDDKO3Qvh9dPA5PpQPmqQTKZ34WrJ20+qL1VfCvyQM0k+pU1ePGFRjcmMQfvnM9Cw94LGyfBNY57QuuY8qLrKWUyuMNXKEAgn10iQgypLRQV8btRMIkjcOiutlY28IuHHSLho2lwcZj5wgMa62+K27fqKD9TEWjM7Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YPd0z0Kvsz3bWd
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Jan 2025 20:04:03 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1735895040;
+	cv=none; b=Q/m1mN3+G6DbJ3+vN8iig05OmDbKUk2VHVhV0LgcDxtCKJRtTPNSXlzVTUJ7Nq+rmbbUP4vBMz3t1xQIby9oqBTCVINILWBvusr0Wnx4/Sk4RPs7a1N343lNVK8imtmnJpgqXgu8ckSrn3rxzMw6Te8pBCXwcQWMz1eOE6wjXMbD2tcky3QVhXxDhclAU+cyNgjUwwsB9qbmvhDKCFULkU4c7OqgCyDnC+8myoJfQEhWyEfT1yao5pWRlFCartJrhZbBX8V7s/sBmx7ZXOzAIqz9FY5Kkx7I5duhfw3seGSMmx/87sVnNiNb/iH0MLyTNhUMrCUMCRlfL7fqIElvcg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1735895039; c=relaxed/relaxed;
-	bh=vFkKxZvE2v+e34/3bryoh5zbDD4oXQ2CSHNV/fLC0Hw=;
+	t=1735895040; c=relaxed/relaxed;
+	bh=y4elyIMO5XxLRy2QFZZvgMyyHBGZ8fIk0G8YQ4N2+5s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XlqLma1zg4QLhS5cHnGeHeAvgu89ib76XQe74fM8KIVvO6+q0Q7ITS/FIEGZKmNiQpCEvhvCngK+teXsjPA4JzL2P92evJlTxEnbfm0fDEDirLDMxljIJVn1xwfEP6xi5oUb5qZ8uVV+DzWj4b8GfPwfuOX5ZIQsEhF5EqVTKZaS4sHeJuCFFr6T2mXDJE6fDnTiWF2WqKVRI7o3hRNft7edgRgDHBWXYpTxVyFRoLFCePRjmYTh9EEWXNhqukmotL+iDkTRaxa/KTb1iSaBtOo7n+og9mpVS1gB7GJMLLuEFtZ/2uxMFQHJE3Ug2r+0MMnOzXLkQGkHYyUGwWrQUg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=QYQKk0kP; dkim-atps=neutral; spf=pass (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=VSzMak83akg9lKbXnPdMoIzyOFn55F1C3GDdciJvXS4Vf0gkSwml7sbAz8x+XAKDNbZGreBWrunjJ8mvOWaAe5HfYynBUYnEAdthvKdb67rb/5DjI/ahEtIYJUmInPTDGBXyj3S5h9whkqhzoTRvzWOZIfIbFA9X0RXp3MqaAYthZgXBsUYMtn3nB+K0PfNXBmTgwyXjYtujj8D1s/V3BFhPjH5w4fvj6ixzeiY6i5cHWRW/8WiENYpYOi6YpTz0jy5rCBX1CsMNwVu4z++osvPhrCPWgL5+Y3ICbufnsNAZHzecPzPJ6awfyG2X+RUBP9etzpoZF1IbeIEFOwEg0w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hv/n5eGP; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=QYQKk0kP;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hv/n5eGP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YPd0q6Qq5z30RS
-	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Jan 2025 20:03:53 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YPd0q5FXpz2yFD
+	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Jan 2025 20:03:54 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1735895028; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=vFkKxZvE2v+e34/3bryoh5zbDD4oXQ2CSHNV/fLC0Hw=;
-	b=QYQKk0kPDsbpK2SjeNQ6fu1ap9mABG01puM95t20cgPCkFjD+wgyJqq4jonH9N0zyqzu3ceSmZwSWG/EYaRwx4QVAMWsONj855kaSFYn3FOW6zt1AMwcZRWhTdj57PS3GaeZgdWM/WLhggxJ0uV8JEmrwilvSYb78JkhPbRPpm0=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMsl6QW_1735895026 cluster:ay36)
+	t=1735895030; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=y4elyIMO5XxLRy2QFZZvgMyyHBGZ8fIk0G8YQ4N2+5s=;
+	b=hv/n5eGPk4t/xHYa0M1DtCdr2jDVEjy02KMWxoPLe3JljiSFX5FBeM5eFMkjw2Edq8QV+gSR4Bjz72/8UB+Ylb/Pr2UUVY2mWFFm/93dAWTHaCuGam8TeDhu9kH//RzbW1SurMlsn291/DzcL/nEin4eb5k2G6hIc74OdW1U2yg=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMsl6Rl_1735895028 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Fri, 03 Jan 2025 17:03:46 +0800
+          Fri, 03 Jan 2025 17:03:49 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/5] erofs-utils: lib: add some bit operations
-Date: Fri,  3 Jan 2025 17:03:35 +0800
-Message-ID: <20250103090338.740593-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5/5] erofs-utils: lib: use bitmaps to accelerate bucket selection
+Date: Fri,  3 Jan 2025 17:03:38 +0800
+Message-ID: <20250103090338.740593-5-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250103090338.740593-1-hsiangkao@linux.alibaba.com>
 References: <20250103090338.740593-1-hsiangkao@linux.alibaba.com>
@@ -62,146 +62,228 @@ Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Hongzhen Luo <hongzhen@linux.alibaba.com>
+Instead of looping over bucket lists directly, maintain bitmaps
+for more efficient greedy selection.
 
-Introduce following bitmap helpers:
-	erofs_test_bit
-	__erofs_set_bit
-	__erofs_clear_bit
-	erofs_find_next_bit
+ILSVRC2012_img_train.tar (1,281,168 inodes) [1]
+  uncompressed EROFS (vanilla):       147,059,949,568B  36m29.529s
+  uncompressed EROFS (patched):       147,059,511,296B  1m14.920s
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com> [1]
-[1] https://lore.kernel.org/r/20230802091750.74181-3-jefflexu@linux.alibaba.com
-Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+ILSVRC2012_img_val.tar (50,001 inodes)  6,744,924,160B [2]
+  uncompressed EROFS (vanilla):         6,713,278,464B  29.998s
+  uncompressed EROFS (patched):         6,713,188,352B  23.753s
+
+[1] https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar
+    $ tar -xvf ILSVRC2012_img_train.tar; rm -f ILSVRC2012_img_train.tar
+    $ find . -name "*.tar" | while read NAME ; do tar -xvf "${NAME}"; rm -f "${NAME}"; done
+
+[2] https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_vol.tar
+    $ mkfs.erofs --tar=f --sort none foo.erofs ILSVRC2012_img_vol.tar
+
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/bitops.h | 40 ++++++++++++++++++++++++++++++++++++++++
- include/erofs/defs.h   |  5 +++++
- lib/Makefile.am        |  3 ++-
- lib/bitops.c           | 30 ++++++++++++++++++++++++++++++
- 4 files changed, 77 insertions(+), 1 deletion(-)
- create mode 100644 include/erofs/bitops.h
- create mode 100644 lib/bitops.c
+ include/erofs/cache.h |   1 +
+ lib/cache.c           | 119 +++++++++++++++++++++++++++++++++---------
+ 2 files changed, 94 insertions(+), 26 deletions(-)
 
-diff --git a/include/erofs/bitops.h b/include/erofs/bitops.h
-new file mode 100644
-index 0000000..058642f
---- /dev/null
-+++ b/include/erofs/bitops.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-+#ifndef __EROFS_BITOPS_H
-+#define __EROFS_BITOPS_H
-+
-+#ifdef __cplusplus
-+extern "C"
-+{
-+#endif
-+
-+#include "defs.h"
-+
-+static inline void __erofs_set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+
-+	*p  |= mask;
-+}
-+
-+static inline void __erofs_clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+
-+	*p &= ~mask;
-+}
-+
-+static inline int __erofs_test_bit(int nr, const volatile unsigned long *addr)
-+{
-+	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
-+}
-+
-+unsigned long erofs_find_next_bit(const unsigned long *addr,
-+				  unsigned long nbits, unsigned long start);
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
-diff --git a/include/erofs/defs.h b/include/erofs/defs.h
-index e462338..051a270 100644
---- a/include/erofs/defs.h
-+++ b/include/erofs/defs.h
-@@ -286,6 +286,11 @@ static inline u32 get_unaligned_le64(const void *p)
- 	(n) & (1ULL <<  1) ?  1 : 0	\
- )
+diff --git a/include/erofs/cache.h b/include/erofs/cache.h
+index 76c5671..87d743a 100644
+--- a/include/erofs/cache.h
++++ b/include/erofs/cache.h
+@@ -61,6 +61,7 @@ struct erofs_bufmgr {
  
-+static inline unsigned int ffs_long(unsigned long s)
-+{
-+	return __builtin_ctzl(s);
-+}
-+
- static inline unsigned int fls_long(unsigned long x)
- {
- 	return x ? sizeof(x) * 8 - __builtin_clzl(x) : 0;
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index ef98377..9cddc92 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -20,6 +20,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
-       $(top_srcdir)/include/erofs/io.h \
-       $(top_srcdir)/include/erofs/list.h \
-       $(top_srcdir)/include/erofs/print.h \
-+      $(top_srcdir)/include/erofs/bitops.h \
-       $(top_srcdir)/include/erofs/tar.h \
-       $(top_srcdir)/include/erofs/trace.h \
-       $(top_srcdir)/include/erofs/xattr.h \
-@@ -34,7 +35,7 @@ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
- 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
- 		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
- 		      fragments.c dedupe.c uuid_unparse.c uuid.c tar.c \
--		      block_list.c rebuild.c diskbuf.c
-+		      block_list.c rebuild.c diskbuf.c bitops.c
+ 	/* buckets for all buffer blocks to boost up allocation */
+ 	struct list_head watermeter[META + 1][2][EROFS_MAX_BLOCK_SIZE];
++	unsigned long bktmap[META + 1][2][EROFS_MAX_BLOCK_SIZE / BITS_PER_LONG];
  
- liberofs_la_CFLAGS = -Wall ${libuuid_CFLAGS} -I$(top_srcdir)/include
- if ENABLE_LZ4
-diff --git a/lib/bitops.c b/lib/bitops.c
-new file mode 100644
-index 0000000..bb0c9ee
---- /dev/null
-+++ b/lib/bitops.c
-@@ -0,0 +1,30 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-+/*
-+ * erofs-utils/lib/bitops.c
-+ *
-+ * Copyright (C) 2025, Alibaba Cloud
-+ */
+ 	struct erofs_buffer_block blkh;
+ 	erofs_blk_t tail_blkaddr, metablkcnt;
+diff --git a/lib/cache.c b/lib/cache.c
+index 2e758ba..ca1061b 100644
+--- a/lib/cache.c
++++ b/lib/cache.c
+@@ -7,6 +7,7 @@
+  */
+ #include <stdlib.h>
+ #include <erofs/cache.h>
 +#include <erofs/bitops.h>
-+
-+unsigned long erofs_find_next_bit(const unsigned long *addr,
-+				  unsigned long nbits, unsigned long start)
-+{
-+	unsigned long tmp;
-+
-+	if (__erofs_unlikely(start >= nbits))
-+		return nbits;
-+
-+	tmp = addr[start / BITS_PER_LONG];
-+
-+	tmp &= ~0UL << ((start) & (BITS_PER_LONG - 1));
-+	start = round_down(start, BITS_PER_LONG);
-+
-+	while (!tmp) {
-+		start += BITS_PER_LONG;
-+		if (start >= nbits)
-+			return nbits;
-+
-+		tmp = addr[start / BITS_PER_LONG];
+ #include "erofs/print.h"
+ 
+ static int erofs_bh_flush_drop_directly(struct erofs_buffer_head *bh)
+@@ -30,36 +31,72 @@ const struct erofs_bhops erofs_skip_write_bhops = {
+ struct erofs_bufmgr *erofs_buffer_init(struct erofs_sb_info *sbi,
+ 				       erofs_blk_t startblk)
+ {
+-	struct erofs_bufmgr *bufmgr;
++	unsigned int blksiz = erofs_blksiz(sbi);
++	struct erofs_bufmgr *bmgr;
+ 	int i, j, k;
+ 
+-	bufmgr = malloc(sizeof(struct erofs_bufmgr));
+-	if (!bufmgr)
++	bmgr = malloc(sizeof(struct erofs_bufmgr));
++	if (!bmgr)
+ 		return NULL;
+ 
+-	init_list_head(&bufmgr->blkh.list);
+-	bufmgr->blkh.blkaddr = NULL_ADDR;
+-	bufmgr->last_mapped_block = &bufmgr->blkh;
+-
+-	for (i = 0; i < ARRAY_SIZE(bufmgr->watermeter); i++)
+-		for (j = 0; j < ARRAY_SIZE(bufmgr->watermeter[0]); j++)
+-			for (k = 0; k < (1 << sbi->blkszbits); k++)
+-				init_list_head(&bufmgr->watermeter[i][j][k]);
+-	bufmgr->tail_blkaddr = startblk;
+-	bufmgr->sbi = sbi;
+-	return bufmgr;
++	bmgr->sbi = sbi;
++	for (i = 0; i < ARRAY_SIZE(bmgr->watermeter); i++) {
++		for (j = 0; j < ARRAY_SIZE(bmgr->watermeter[0]); j++) {
++			for (k = 0; k < blksiz; k++)
++				init_list_head(&bmgr->watermeter[i][j][k]);
++			memset(bmgr->bktmap[i][j], 0, blksiz / BITS_PER_LONG);
++		}
 +	}
-+	return min(start + ffs_long(tmp), nbits);
++	init_list_head(&bmgr->blkh.list);
++	bmgr->blkh.blkaddr = NULL_ADDR;
++	bmgr->tail_blkaddr = startblk;
++	bmgr->last_mapped_block = &bmgr->blkh;
++	return bmgr;
 +}
++
++static void erofs_clear_bbktmap(struct erofs_bufmgr *bmgr, int type,
++				bool mapped, int nr)
++{
++	int bit = erofs_blksiz(bmgr->sbi) - (nr + 1);
++
++	DBG_BUGON(bit < 0);
++	__erofs_clear_bit(bit, bmgr->bktmap[type][mapped]);
+ }
+ 
+-static void erofs_update_bwatermeter(struct erofs_buffer_block *bb)
++static void erofs_set_bbktmap(struct erofs_bufmgr *bmgr, int type,
++			      bool mapped, int nr)
++{
++	int bit = erofs_blksiz(bmgr->sbi) - (nr + 1);
++
++	DBG_BUGON(bit < 0);
++	__erofs_set_bit(bit, bmgr->bktmap[type][mapped]);
++}
++
++static void erofs_update_bwatermeter(struct erofs_buffer_block *bb, bool free)
+ {
+ 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
+ 	struct erofs_sb_info *sbi = bmgr->sbi;
+-	struct list_head *bkt;
+-
+-	bkt = bmgr->watermeter[bb->type][bb->blkaddr != NULL_ADDR] +
+-		(bb->buffers.off & (erofs_blksiz(sbi) - 1));
++	unsigned int blksiz = erofs_blksiz(sbi);
++	bool mapped = bb->blkaddr != NULL_ADDR;
++	struct list_head *h = bmgr->watermeter[bb->type][mapped];
++	unsigned int nr;
++
++	if (bb->sibling.next == bb->sibling.prev) {
++		if ((uintptr_t)(bb->sibling.next - h) < blksiz) {
++			nr = bb->sibling.next - h;
++			erofs_clear_bbktmap(bmgr, bb->type, mapped, nr);
++		} else if (bb->sibling.next != &bb->sibling) {
++			nr = bb->sibling.next -
++				bmgr->watermeter[bb->type][!mapped];
++			erofs_clear_bbktmap(bmgr, bb->type, !mapped, nr);
++		}
++	}
+ 	list_del(&bb->sibling);
+-	list_add_tail(&bb->sibling, bkt);
++	if (free)
++		return;
++	nr = bb->buffers.off & (blksiz - 1);
++	list_add_tail(&bb->sibling, h + nr);
++	erofs_set_bbktmap(bmgr, bb->type, mapped, nr);
+ }
+ 
+ /* return occupied bytes in specific buffer block if succeed */
+@@ -114,7 +151,7 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
+ 		/* need to update the tail_blkaddr */
+ 		if (tailupdate)
+ 			bmgr->tail_blkaddr = blkaddr + bb->buffers.nblocks;
+-		erofs_update_bwatermeter(bb);
++		erofs_update_bwatermeter(bb, false);
+ 	}
+ 	return ((alignedoffset + incr + blkmask) & blkmask) + 1;
+ }
+@@ -130,6 +167,36 @@ int erofs_bh_balloon(struct erofs_buffer_head *bh, erofs_off_t incr)
+ 	return __erofs_battach(bb, NULL, incr, 1, 0, false);
+ }
+ 
++static bool __find_next_bucket(struct erofs_bufmgr *bmgr, int type, bool mapped,
++			       unsigned int *index, unsigned int end)
++{
++	const unsigned int blksiz = erofs_blksiz(bmgr->sbi);
++	const unsigned int blkmask = blksiz - 1;
++	unsigned int l = *index, r;
++
++	if (l <= end) {
++		DBG_BUGON(l < end);
++		return false;
++	}
++
++	l = blkmask - (l & blkmask);
++	r = blkmask - (end & blkmask);
++	if (l >= r) {
++		l = erofs_find_next_bit(bmgr->bktmap[type][mapped], blksiz, l);
++		if (l < blksiz) {
++			*index = round_down(*index, blksiz) + blkmask - l;
++			return true;
++		}
++		l = 0;
++		*index -= blksiz;
++	}
++	l = erofs_find_next_bit(bmgr->bktmap[type][mapped], r, l);
++	if (l >= r)
++		return false;
++	*index = round_down(*index, blksiz) + blkmask - l;
++	return true;
++}
++
+ static int erofs_bfind_for_attach(struct erofs_bufmgr *bmgr,
+ 				  int type, erofs_off_t size,
+ 				  unsigned int inline_ext,
+@@ -163,13 +230,13 @@ static int erofs_bfind_for_attach(struct erofs_bufmgr *bmgr,
+ 
+ 	while (mapped) {
+ 		--mapped;
+-		for (; index > end; --index) {
++		for (; __find_next_bucket(bmgr, type, mapped, &index, end);
++		     --index) {
+ 			struct list_head *bt;
+ 
+ 			used = index & blkmask;
+ 			bt = bmgr->watermeter[type][mapped] + used;
+-			if (list_empty(bt))
+-				continue;
++			DBG_BUGON(list_empty(bt));
+ 			cur = list_first_entry(bt, struct erofs_buffer_block,
+ 					       sibling);
+ 
+@@ -332,7 +399,7 @@ static void __erofs_mapbh(struct erofs_buffer_block *bb)
+ 			}
+ 		}
+ 		bmgr->last_mapped_block = bb;
+-		erofs_update_bwatermeter(bb);
++		erofs_update_bwatermeter(bb, false);
+ 	}
+ 
+ 	blkaddr = bb->blkaddr + bb->buffers.nblocks;
+@@ -371,7 +438,7 @@ static void erofs_bfree(struct erofs_buffer_block *bb)
+ 	if (bb == bmgr->last_mapped_block)
+ 		bmgr->last_mapped_block = list_prev_entry(bb, list);
+ 
+-	list_del(&bb->sibling);
++	erofs_update_bwatermeter(bb, true);
+ 	list_del(&bb->list);
+ 	free(bb);
+ }
 -- 
 2.43.5
 
