@@ -4,49 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B288FE77197
-	for <linux-erofs@archiver.kernel.org>; Sun,  5 Jan 2025 15:12:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6770AE77197
+	for <linux-erofs@archiver.kernel.org>; Mon,  6 Jan 2025 02:15:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YR15B5jwYz3cW5
-	for <linux-erofs@archiver.kernel.org>; Mon,  6 Jan 2025 02:12:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.97
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736089944;
-	cv=none; b=fPxFLoQ5LFWxpKVfxO6I+GT8ch39kXPq2Jwgo8t9zcT8tG1BgzABhLtTAAy9yAbzMLn3uhEHI0wfGNKZF5VO8JSrIslLXEqX8D+ttymJ6BGaZWHvFjmBh0r5JMQcFWv1EUPD1ry8qKOCAt0WgLXaXR+Z4pDvJCVeqP9bppk1f5Ttb4zegLKp4OLi521yTuDM9AYU7NoaUUPOv7+ZtI8GzVQ0tX8boIU5iXN0aA6ZbzwjDLLO3Qxd+ISV5Dmt+o+QXF/V5Ug/SDtgHk8B9GwI61aOdNsRUzQjAkSfqcUEBDHbhgZF8pxI/k8lFLZctRa1HHoKuPmF36ShLM52BwGmqA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YRHpD3gypz30Vd
+	for <linux-erofs@archiver.kernel.org>; Mon,  6 Jan 2025 13:15:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736129730;
+	cv=none; b=h/7r9AytDtEvT/QC+71HqhNmo3AS7KaH/32ZCGEd/7fTchAoW/ybXiuuleD5112Rh7l51Od2ECuH/eMtYVsM+8INRSuat9fYOTwfnoiKwTVadP4g51jpN5Og5RxMnxKaS1j/7u0hvNPsMfawlvSw/Iv2J6hOlwumwvBPUYdlzYaCOgu2S+++1D8mKXa9Gs6djCI6BsOAP62oyEYofO68sifOLaPcYoyvcxhy8orXvqXufTFxD8nDUlkYkm1O6syKA/rErkKt7IaZ7P0IIND/xZxmqnhtkDBxN3EQ9QiZHO5gnN6KJuDGuqLEi2rh2gk/Z+e7UkK7x2pdo36V/8lKVA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1736089944; c=relaxed/relaxed;
-	bh=7JzKr/Q1YXpJrtDxijOF4+BJ1RBdmdJhpP2voDpJsTU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ydep9L+DL7cyuC93tQFXJSNgRg9Vs1jwfTmEmBboB2s2FVQR2POF3/wOwBHl0x/IGJZW/WSn7hjit9xk9BJt8sIK6DWOmLyVfIFks1P8Bc7PkbCcqXhXkCVnIIScL3bwjmZ1Nx1rVQXDTciskOb9B82mWNCFQVuNsVVUIxfUOGjqT8gl0pHyMC1ZV7BWjqEmRkn0mp1IjpY+ueH9eRoYB1yifMIP3m5WGu9B/eg0ndXtcVqkbHfN8BosTteTwZjMTmkN1+FY+A8k0bw5fpQ7Rw4sopIglxKxGxhh36nfFnU1CmLa7K9G2eiHNQO7InXSsrByyh/oogB4BI0KXmNJyw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ICi9CAdV; dkim-atps=neutral; spf=pass (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1736129730; c=relaxed/relaxed;
+	bh=1Scjx0e8WJu8kptreuXG60CMeDXRLZbo67QLe/C3F0g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KYXsMVQJbWLRN1cCnuyP/T3PqM1tBZCg2ODyNzJad6kScry3n00ge1RD74jB961G8EKQByaqwLhDVOeiMMUwmA882U46c5NAsfBjzmqmcZn4Hhh21Cg6QpMIXPiaX3IBHs9JwYZB+W8ByD7sM1k7TQn3y9cO5VYgdWglYV++lP2oucy6XzpwX/3kzuymJ9xggo/nUACU3KLz6acK260sQU5Z6VjjC2ofgUaijjilbL8HWLTTaUEhARq/rs325AMi3r+HSVfgPbTTm+ILN9w1ZiKZ6s1XSwBT8OOAlcthxHhlH0ItrODfSgqlnKdVLR9T1XYyN5yjqmCMgazuwFGpdA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ptww/RaE; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ICi9CAdV;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ptww/RaE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YR1503QRfz2yNP
-	for <linux-erofs@lists.ozlabs.org>; Mon,  6 Jan 2025 02:12:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YRHp82JX6z2xrJ
+	for <linux-erofs@lists.ozlabs.org>; Mon,  6 Jan 2025 13:15:25 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1736089934; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=7JzKr/Q1YXpJrtDxijOF4+BJ1RBdmdJhpP2voDpJsTU=;
-	b=ICi9CAdV6OuDnW07GHmJWpC9uxl0m6NdDRrPHnXmhZH6vDsi9DwzPiKXTzQkP13r8no+yDB0IMwWqGywkQcfAnF79ZBX/evECHEIHRiq+wJcOit9bKETvIXkGD2qVghWHcGTY/F9KS/I2+cLnrxSfMO3GmvnRwpk4MCMJ3qmJ9Q=
-Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WMyob0G_1736089930 cluster:ay36)
+	t=1736129720; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=1Scjx0e8WJu8kptreuXG60CMeDXRLZbo67QLe/C3F0g=;
+	b=ptww/RaE9vwdFm0G4NBnNeWzZlUWQ+Gi/b/w6IpeXxP77BQpwqb3x530wkISeHRALKcgxMHM/Act3IlES5tsJR6F2scXwyEJd72gq/fhhMEp869LVTPG1RNdAdMjHqh50fy6JIaDCaj8rbZ9hHOUVoRArNcYdmV36j2+GJCQszI=
+Received: from 30.221.128.186(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WMzsuzC_1736129718 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Sun, 05 Jan 2025 23:12:11 +0800
-From: Hongzhen Luo <hongzhen@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [RFC PATCH v5 1/4] erofs: move `struct erofs_anon_fs_type` to super.c
-Date: Sun,  5 Jan 2025 23:12:05 +0800
-Message-ID: <20250105151208.3797385-2-hongzhen@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250105151208.3797385-1-hongzhen@linux.alibaba.com>
-References: <20250105151208.3797385-1-hongzhen@linux.alibaba.com>
+          Mon, 06 Jan 2025 10:15:18 +0800
+Message-ID: <19cfa3ca-ee9e-4017-b34b-11073064dea5@linux.alibaba.com>
+Date: Mon, 6 Jan 2025 10:15:15 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v5 3/4] erofs: apply the page cache share feature
+To: Hongzhen Luo <hongzhen@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+References: <20250105151208.3797385-1-hongzhen@linux.alibaba.com>
+ <20250105151208.3797385-4-hongzhen@linux.alibaba.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20250105151208.3797385-4-hongzhen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -62,92 +64,153 @@ Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Move the `struct erofs_anon_fs_type` to the super.c and
-expose it in preparation for the upcoming page cache share
-feature.
 
-Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
----
- fs/erofs/fscache.c  | 13 -------------
- fs/erofs/internal.h |  2 ++
- fs/erofs/super.c    | 13 +++++++++++++
- 3 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index ce3d8737df85..ae7bd9ebff38 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -3,7 +3,6 @@
-  * Copyright (C) 2022, Alibaba Cloud
-  * Copyright (C) 2022, Bytedance Inc. All rights reserved.
-  */
--#include <linux/pseudo_fs.h>
- #include <linux/fscache.h>
- #include "internal.h"
- 
-@@ -13,18 +12,6 @@ static LIST_HEAD(erofs_domain_list);
- static LIST_HEAD(erofs_domain_cookies_list);
- static struct vfsmount *erofs_pseudo_mnt;
- 
--static int erofs_anon_init_fs_context(struct fs_context *fc)
--{
--	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
--}
--
--static struct file_system_type erofs_anon_fs_type = {
--	.owner		= THIS_MODULE,
--	.name           = "pseudo_erofs",
--	.init_fs_context = erofs_anon_init_fs_context,
--	.kill_sb        = kill_anon_super,
--};
--
- struct erofs_fscache_io {
- 	struct netfs_cache_resources cres;
- 	struct iov_iter		iter;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 686d835eb533..47004eb89838 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -379,6 +379,8 @@ extern const struct file_operations erofs_dir_fops;
- 
- extern const struct iomap_ops z_erofs_iomap_report_ops;
- 
-+extern struct file_system_type erofs_anon_fs_type;
-+
- /* flags for erofs_fscache_register_cookie() */
- #define EROFS_REG_COOKIE_SHARE		0x0001
- #define EROFS_REG_COOKIE_NEED_NOEXIST	0x0002
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 1fc5623c3a4d..25d2c2b44d0a 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -11,6 +11,7 @@
- #include <linux/fs_parser.h>
- #include <linux/exportfs.h>
- #include <linux/backing-dev.h>
-+#include <linux/pseudo_fs.h>
- #include "xattr.h"
- 
- #define CREATE_TRACE_POINTS
-@@ -852,6 +853,18 @@ static struct file_system_type erofs_fs_type = {
- };
- MODULE_ALIAS_FS("erofs");
- 
-+static int erofs_anon_init_fs_context(struct fs_context *fc)
-+{
-+	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
-+}
-+
-+struct file_system_type erofs_anon_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name           = "pseudo_erofs",
-+	.init_fs_context = erofs_anon_init_fs_context,
-+	.kill_sb        = kill_anon_super,
-+};
-+
- static int __init erofs_module_init(void)
- {
- 	int err;
--- 
-2.43.5
+On 2025/1/5 23:12, Hongzhen Luo wrote:
 
+...
+
+> 
+> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+> index 0cd6b5c4df98..fb08acbeaab6 100644
+> --- a/fs/erofs/data.c
+> +++ b/fs/erofs/data.c
+> @@ -5,6 +5,7 @@
+>    * Copyright (C) 2021, Alibaba Cloud
+>    */
+>   #include "internal.h"
+> +#include "pagecache_share.h"
+>   #include <linux/sched/mm.h>
+>   #include <trace/events/erofs.h>
+>   
+> @@ -370,12 +371,21 @@ int erofs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+>    */
+>   static int erofs_read_folio(struct file *file, struct folio *folio)
+>   {
+> -	return iomap_read_folio(folio, &erofs_iomap_ops);
+> +	int ret, pcshr;
+> +
+> +	pcshr = erofs_pcshr_read_begin(file, folio);
+> +	ret = iomap_read_folio(folio, &erofs_iomap_ops);
+> +	erofs_pcshr_read_end(file, folio, pcshr);
+> +	return ret;
+>   }
+>   
+>   static void erofs_readahead(struct readahead_control *rac)
+>   {
+> -	return iomap_readahead(rac, &erofs_iomap_ops);
+> +	int pcshr;
+> +
+> +	pcshr = erofs_pcshr_readahead_begin(rac);
+> +	iomap_readahead(rac, &erofs_iomap_ops);
+> +	erofs_pcshr_readahead_end(rac, pcshr);
+>   }
+>   
+>   static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
+> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+> index d4b89407822a..0b070f4b46b8 100644
+> --- a/fs/erofs/inode.c
+> +++ b/fs/erofs/inode.c
+> @@ -5,6 +5,7 @@
+>    * Copyright (C) 2021, Alibaba Cloud
+>    */
+>   #include "xattr.h"
+> +#include "pagecache_share.h"
+>   #include <trace/events/erofs.h>
+>   
+>   static int erofs_fill_symlink(struct inode *inode, void *kaddr,
+> @@ -212,7 +213,9 @@ static int erofs_fill_inode(struct inode *inode)
+>   	switch (inode->i_mode & S_IFMT) {
+>   	case S_IFREG:
+>   		inode->i_op = &erofs_generic_iops;
+> -		if (erofs_inode_is_data_compressed(vi->datalayout))
+> +		if (erofs_pcshr_fill_inode(inode) == 0)
+> +			inode->i_fop = &erofs_pcshr_fops;
+> +		else if (erofs_inode_is_data_compressed(vi->datalayout))
+>   			inode->i_fop = &generic_ro_fops;
+>   		else
+>   			inode->i_fop = &erofs_file_fops;
+> diff --git a/fs/erofs/pagecache_share.c b/fs/erofs/pagecache_share.c
+> index 703fd17c002c..22172b5e21c7 100644
+> --- a/fs/erofs/pagecache_share.c
+> +++ b/fs/erofs/pagecache_share.c
+> @@ -22,6 +22,7 @@ struct erofs_pcshr_counter {
+>   
+>   struct erofs_pcshr_private {
+>   	char fprt[PCSHR_FPRT_MAXLEN];
+> +	struct mutex mutex;
+>   };
+>   
+>   static struct erofs_pcshr_counter mnt_counter = {
+> @@ -84,6 +85,7 @@ static int erofs_fprt_set(struct inode *inode, void *data)
+>   	if (!ano_private)
+>   		return -ENOMEM;
+>   	memcpy(ano_private, data, sizeof(size_t) + *(size_t *)data);
+> +	mutex_init(&ano_private->mutex);
+>   	inode->i_private = ano_private;
+>   	return 0;
+>   }
+> @@ -226,3 +228,64 @@ const struct file_operations erofs_pcshr_fops = {
+>   	.get_unmapped_area = thp_get_unmapped_area,
+>   	.splice_read	= filemap_splice_read,
+>   };
+> +
+> +int erofs_pcshr_read_begin(struct file *file, struct folio *folio)
+> +{
+> +	struct erofs_inode *vi;
+> +	struct erofs_pcshr_private *ano_private;
+> +
+> +	if (!(file && file->private_data))
+> +		return 0;
+> +
+> +	vi = file->private_data;
+> +	if (vi->ano_inode != file_inode(file))
+> +		return 0;
+> +
+> +	ano_private = vi->ano_inode->i_private;
+> +	mutex_lock(&ano_private->mutex);
+> +	folio->mapping->host = &vi->vfs_inode;
+
+you shouldn't change `folio->mapping->host` directly.
+
+> +	return 1;
+> +}
+> +
+> +void erofs_pcshr_read_end(struct file *file, struct folio *folio, int pcshr)
+> +{
+> +	struct erofs_pcshr_private *ano_private;
+> +
+> +	if (pcshr == 0)
+> +		return;
+> +
+> +	ano_private = file_inode(file)->i_private;
+> +	folio->mapping->host = file_inode(file);
+
+
+you shouldn't change `folio->mapping->host` directly
+and then switch back.  It's too hacky.
+
+> +	mutex_unlock(&ano_private->mutex);
+> +}
+> +
+> +int erofs_pcshr_readahead_begin(struct readahead_control *rac)
+> +{
+> +	struct erofs_inode *vi;
+> +	struct file *file = rac->file;
+> +	struct erofs_pcshr_private *ano_private;
+> +
+> +	if (!(file && file->private_data))
+> +		return 0;
+> +
+> +	vi = file->private_data;
+> +	if (vi->ano_inode != file_inode(file))
+> +		return 0;
+> +
+> +	ano_private = file_inode(file)->i_private;
+> +	mutex_lock(&ano_private->mutex);
+> +	rac->mapping->host = &vi->vfs_inode;
+
+Same here.
+
+Thanks,
+Gao Xiang
