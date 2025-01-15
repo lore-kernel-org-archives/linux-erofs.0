@@ -4,47 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 700DFE77188
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Jan 2025 13:05:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86606E77188
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 02:27:39 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YXTrF2mNgz30Tr
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 00:05:17 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736859915;
-	cv=none; b=NxtFLg3c08pycWnNCWfYhPDb+T1nue0GnnyP1z2BQO4Q6YtVH1QRlb0LKOsMYMgxJtzuXf4LjU/3XaD0OVhZTLUEZHZJf3A/8HtOIkOKci11qMVuhG0o+seLnxtY/8WJqAaDPHiWjXOe+WdNn46n2PQaBRtZbhEpf98x16xPoFHlUrzzPZ/RaZ4hawjJdu19Yl1EXSvz9CeydXNu4dlxvuypd9KmPwoAV0wF6rhp3R91/O2kYrfz5gxd5PYDcYAHkACqs5fn01msAtcEEP403jD0elDa0bKW4SVNqh9SlN8bM24LDYhjuq0obCldLMh1YrjTe+zGrTLNgPbA3nEELg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YXqf14b5rz3bYN
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 13:27:37 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736908055;
+	cv=none; b=SpHOYlqU7xVMDdzi0DegntFVcWy/OdbXF5szG0GD2hhdBVtiXzeEUZxOwsouEhXjOMLJX4VmHr3NBIJv0UQ+hKd4ZbA0Hqj56WCgsUCuojQNIzNZcZY+Ph1d5JFhhoolSTCowQqqiEOpUnBjud9EikFSvbIqExDBsjStIEo38GlN1yLm9AnZDjKlhps1FEoPoM6njaegSJ/3T+fJk2F9rWyPQYtfu4VVp6HUPTNv52pfcgtRDOZ0kawh9DUZ2yetrXlkuD6wPXG77LktSvHONdfb3UjRpingEdctffR7AhZz7jK5VAhpuzwgtTh75gRTqcxu+47Kka7CS9c4fgccxg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1736859915; c=relaxed/relaxed;
-	bh=MOQLw24UbhJ0+yCuKw+FR0D5mCkV3IXTCzxyOWOJ5yQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ibQht0A0rIZdyJMXGpyuEQw8pGTSAru69RV+rs4s+fgW+PsDXaBp2X8gOvAs2nGyRnZQ0PMUlSEAtF/HPtgEmySMFqhNPPjAea+f5b1uhles1K97dtD9t607IKu24hgfWzode8CryXtyvuickbGbcL/I/maxpkxEZfdR/gsWEabhNAJKEUXfCW+Q5rWypmVtPDRNidKhFqz5YzKJG4E6OWtth0uUczT7AA5hNgnH1YzlZTY2PTiNtl5YneEOwdVyzI0vYN7X0DWgmA68wLz31NSarMD17DaB11Ge5c1xwLasv3yADv14p1aZdCpmtAVl+vryebZrANnkbSzlmt9EMg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kCBTfTfu; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1736908055; c=relaxed/relaxed;
+	bh=zlRBeGxU2+xtabwzkd8VwuKTRbdKkI377B64UDXBTus=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bGB1ihcNHcRCfbBQKlEOZ4/DIwCDeZXMbUqCiYfLVCzkfty9+JC7q2Kn1LflslpF2nB7LKEVOs5VdRJQX1C830OCgEi/2cZKfwRSKyocxUKowP8aWYb7+Veck2J3GRVzRPGmWj/yFtHFg4+EjaH/FoRrOkwbe/GueGqaCGo/ZpAmvyMMJewFMRDDydaZJzvlKAMBN5h0OoSCVz8BQdDGMwvdibdm0V6h2464METcyfU2F0Jk82wETiZoyGaQPc37px7ky1kuPmAKGdk/iZsZuk+yh9ViiUDlui2A6M1YANxnvzQPb3RKLjgtTpOdr04jSU5e8mBR15huCxISh4P0Cg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=rZFPL1wo; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kCBTfTfu;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=rZFPL1wo;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YXTr71YfNz30Lt
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 00:05:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YXqdx3qNZz30NF
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 13:27:32 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1736859903; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=MOQLw24UbhJ0+yCuKw+FR0D5mCkV3IXTCzxyOWOJ5yQ=;
-	b=kCBTfTfuG+hJ4qrej1Kzs6UPMUpKWbQZ1I3wPUbKOMNN9p2MsYuljeldp3snC4sag8k9QqZSCmF+N8oJv472CW4T4xJuOEXHllKeVSUt5Cjv4xrWXOnHm3bxt94kkSb6vXWESFUopJHzwQnFIC0F86eHn3rtL6flcPkInxwGdjo=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WNfNthE_1736859896 cluster:ay36)
+	t=1736908048; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=zlRBeGxU2+xtabwzkd8VwuKTRbdKkI377B64UDXBTus=;
+	b=rZFPL1woblZ+yXDmNsyvSqvI2kVh4Yr6QUL6M1L1bRG0lecvozMy4dcXeDa9rBAYjlV5kae/0BwOGaGX+cTg1XFkh/tYIawd9AptWSLPjAS+K2QDm6/ppjdrJuvbQNLfqvwdvAQH+Yv3uvd7myO5gejfrgAQb0eUZJIqhgxLoR4=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WNguUym_1736908041 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 14 Jan 2025 21:05:01 +0800
+          Wed, 15 Jan 2025 10:27:26 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2] include/linux/lz4.h: add some missing macros
-Date: Tue, 14 Jan 2025 21:04:54 +0800
-Message-ID: <20250114130454.1191150-1-hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: lib: dynamically sized `struct erofs_dentry`
+Date: Wed, 15 Jan 2025 10:27:20 +0800
+Message-ID: <20250115022720.2204033-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250114082807.827690-1-hsiangkao@linux.alibaba.com>
-References: <20250114082807.827690-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -58,128 +55,118 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Yann Collet <yann.collet.73@gmail.com>, Gao Xiang <hsiangkao@linux.alibaba.com>, Nick Terrell <terrelln@fb.com>, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Currently, LZ4_DISTANCE_MAX and LZ4_DECOMPRESS_INPLACE_MARGIN are
-defined in the erofs subsystem for LZ4 in-place decompression, which is
-somewhat unsuitable since they should belong to the LZ4 itself and
-may change with future LZ4 codebase updates.
+ - Reduced memory footprints;
+ - Optimize dname sorting and strlen(dname).
 
-Move them to include/linux/lz4.h to match the upstream LZ4 library [1].
-No logic changes.
-
-[1] https://github.com/lz4/lz4/blob/v1.10.0/lib/lz4.h#L670
-
-Cc: Yann Collet <yann.collet.73@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-change since v1:
- - should be `#define MAX_DISTANCE LZ4_DISTANCE_MAX` reported in
-   https://lore.kernel.org/r/202501142005.DqdNQGKc-lkp@intel.com
+ include/erofs/internal.h |  4 +++-
+ lib/inode.c              | 29 +++++++++++++++++++++--------
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
- fs/erofs/decompressor.c  | 7 -------
- include/linux/lz4.h      | 6 ++++++
- lib/lz4/lz4_compress.c   | 1 -
- lib/lz4/lz4_decompress.c | 1 -
- lib/lz4/lz4defs.h        | 4 ++--
- lib/lz4/lz4hc_compress.c | 1 -
- 6 files changed, 8 insertions(+), 12 deletions(-)
-
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index eb318c7ddd80..2b123b070a42 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -7,14 +7,7 @@
- #include "compress.h"
- #include <linux/lz4.h>
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 2edc1b4..596e363 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -314,15 +314,17 @@ static inline struct erofs_inode *erofs_parent_inode(struct erofs_inode *inode)
  
--#ifndef LZ4_DISTANCE_MAX	/* history window size */
--#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
--#endif
--
- #define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
--#ifndef LZ4_DECOMPRESS_INPLACE_MARGIN
--#define LZ4_DECOMPRESS_INPLACE_MARGIN(srcsize)  (((srcsize) >> 8) + 32)
--#endif
+ #define IS_ROOT(x)	((x) == erofs_parent_inode(x))
  
- struct z_erofs_lz4_decompress_ctx {
- 	struct z_erofs_decompress_req *rq;
-diff --git a/include/linux/lz4.h b/include/linux/lz4.h
-index b16e15b9587a..ad6042a718b5 100644
---- a/include/linux/lz4.h
-+++ b/include/linux/lz4.h
-@@ -645,4 +645,10 @@ int LZ4_decompress_safe_usingDict(const char *source, char *dest,
- int LZ4_decompress_fast_usingDict(const char *source, char *dest,
- 	int originalSize, const char *dictStart, int dictSize);
++#define EROFS_DENTRY_NAME_ALIGNMENT	4
+ struct erofs_dentry {
+ 	struct list_head d_child;	/* child of parent list */
+ 	union {
+ 		struct erofs_inode *inode;
+ 		erofs_nid_t nid;
+ 	};
+-	char name[EROFS_NAME_LEN];
++	unsigned char namelen;
+ 	u8 type;
+ 	bool validnid;
++	char name[];
+ };
  
-+#define LZ4_DECOMPRESS_INPLACE_MARGIN(compressedSize)          (((compressedSize) >> 8) + 32)
-+
-+#ifndef LZ4_DISTANCE_MAX	/* history window size; can be user-defined at compile time */
-+#define LZ4_DISTANCE_MAX 65535	/* set to maximum value by default */
-+#endif
-+
- #endif
-diff --git a/lib/lz4/lz4_compress.c b/lib/lz4/lz4_compress.c
-index b0bbeeb74b9e..2a397bb2c661 100644
---- a/lib/lz4/lz4_compress.c
-+++ b/lib/lz4/lz4_compress.c
-@@ -33,7 +33,6 @@
- /*-************************************
-  *	Dependencies
-  **************************************/
--#include <linux/lz4.h>
- #include "lz4defs.h"
- #include <linux/module.h>
- #include <linux/kernel.h>
-diff --git a/lib/lz4/lz4_decompress.c b/lib/lz4/lz4_decompress.c
-index 0e31e6da5ce7..3a2cd9acada4 100644
---- a/lib/lz4/lz4_decompress.c
-+++ b/lib/lz4/lz4_decompress.c
-@@ -33,7 +33,6 @@
- /*-************************************
-  *	Dependencies
-  **************************************/
--#include <linux/lz4.h>
- #include "lz4defs.h"
- #include <linux/init.h>
- #include <linux/module.h>
-diff --git a/lib/lz4/lz4defs.h b/lib/lz4/lz4defs.h
-index cb358d6bde5a..17277ec16919 100644
---- a/lib/lz4/lz4defs.h
-+++ b/lib/lz4/lz4defs.h
-@@ -39,6 +39,7 @@
+ static inline bool is_dot_dotdot_len(const char *name, unsigned int len)
+diff --git a/lib/inode.c b/lib/inode.c
+index 7ee5d78..e51c0fc 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -160,14 +160,22 @@ unsigned int erofs_iput(struct erofs_inode *inode)
+ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+ 				   const char *name)
+ {
+-	struct erofs_dentry *d = malloc(sizeof(*d));
++	unsigned int namelen = strlen(name);
++	unsigned int fsz = round_up(namelen + 1, EROFS_DENTRY_NAME_ALIGNMENT);
++	struct erofs_dentry *d;
  
- #include <linux/bitops.h>
- #include <linux/string.h>	 /* memset, memcpy */
-+#include <linux/lz4.h>
++	if (namelen > EROFS_NAME_LEN) {
++		DBG_BUGON(1);
++		return ERR_PTR(-ENAMETOOLONG);
++	}
++	d = malloc(sizeof(*d) + fsz);
+ 	if (!d)
+ 		return ERR_PTR(-ENOMEM);
  
- #define FORCE_INLINE __always_inline
+-	strncpy(d->name, name, EROFS_NAME_LEN - 1);
+-	d->name[EROFS_NAME_LEN - 1] = '\0';
++	memcpy(d->name, name, namelen);
++	memset(d->name + namelen, 0, fsz - namelen);
+ 	d->inode = NULL;
++	d->namelen = namelen;
+ 	d->type = EROFS_FT_UNKNOWN;
+ 	d->validnid = false;
+ 	list_add_tail(&d->d_child, &parent->i_subdirs);
+@@ -208,10 +216,16 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks)
+ static int comp_subdir(const void *a, const void *b)
+ {
+ 	const struct erofs_dentry *da, *db;
++	int commonlen, sign;
  
-@@ -92,8 +93,7 @@ typedef uintptr_t uptrval;
- #define MB (1 << 20)
- #define GB (1U << 30)
+ 	da = *((const struct erofs_dentry **)a);
+ 	db = *((const struct erofs_dentry **)b);
+-	return strcmp(da->name, db->name);
++	commonlen = min(round_up(da->namelen, EROFS_DENTRY_NAME_ALIGNMENT),
++			round_up(db->namelen, EROFS_DENTRY_NAME_ALIGNMENT));
++	sign = memcmp(da->name, db->name, commonlen);
++	if (sign)
++		return sign;
++	return cmpsgn(da->namelen, db->namelen);
+ }
  
--#define MAXD_LOG 16
--#define MAX_DISTANCE ((1 << MAXD_LOG) - 1)
-+#define MAX_DISTANCE LZ4_DISTANCE_MAX
- #define STEPSIZE sizeof(size_t)
+ int erofs_init_empty_dir(struct erofs_inode *dir)
+@@ -260,7 +274,7 @@ static int erofs_prepare_dir_file(struct erofs_inode *dir,
  
- #define ML_BITS	4
-diff --git a/lib/lz4/lz4hc_compress.c b/lib/lz4/lz4hc_compress.c
-index bc45594ad2a8..91936dc3d14b 100644
---- a/lib/lz4/lz4hc_compress.c
-+++ b/lib/lz4/lz4hc_compress.c
-@@ -34,7 +34,6 @@
- /*-************************************
-  *	Dependencies
-  **************************************/
--#include <linux/lz4.h>
- #include "lz4defs.h"
- #include <linux/module.h>
- #include <linux/kernel.h>
+ 	/* let's calculate dir size */
+ 	list_for_each_entry(d, &dir->i_subdirs, d_child) {
+-		int len = strlen(d->name) + sizeof(struct erofs_dirent);
++		int len = d->namelen + sizeof(struct erofs_dirent);
+ 
+ 		if (erofs_blkoff(sbi, d_size) + len > erofs_blksiz(sbi))
+ 			d_size = round_up(d_size, erofs_blksiz(sbi));
+@@ -283,7 +297,7 @@ static void fill_dirblock(char *buf, unsigned int size, unsigned int q,
+ 
+ 	/* write out all erofs_dirents + filenames */
+ 	while (head != end) {
+-		const unsigned int namelen = strlen(head->name);
++		const unsigned int namelen = head->namelen;
+ 		struct erofs_dirent d = {
+ 			.nid = cpu_to_le64(head->nid),
+ 			.nameoff = cpu_to_le16(q),
+@@ -438,8 +452,7 @@ static int erofs_write_dir_file(struct erofs_inode *dir)
+ 		return ret;
+ 
+ 	list_for_each_entry(d, &dir->i_subdirs, d_child) {
+-		const unsigned int len = strlen(d->name) +
+-			sizeof(struct erofs_dirent);
++		unsigned int len = d->namelen + sizeof(struct erofs_dirent);
+ 
+ 		/* XXX: a bit hacky, but to avoid another traversal */
+ 		if (d->validnid && d->type == EROFS_FT_DIR) {
 -- 
 2.43.5
 
