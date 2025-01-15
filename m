@@ -4,18 +4,19 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E892C02180
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 09:47:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F02B0C02183
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 09:47:26 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YY1PN6gShz3brd
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 20:47:20 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YY1PP1t2kz3c8Y
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 20:47:21 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:7c80:54:3::133"
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736934439;
-	cv=none; b=fclQKkLsxUYOixDMSeI2XNYs3vbFzB1ZJOI9gyiZBbpEQkYIqMVho+CIrX2hs+EJ7cKbo9tFISL7x3fQAuzIPIwe3SK383orYEkLHBnfMleuafMIVOsFcfXB8Y3BVG5lw6LmXJgghSB/E5htFJP4vAKkFS5pIHcEXQaArsr1wKLxm2HBxnWhZM36+kK9dPO5HdgtNjCC8CdLBC2M4LPRBWCItuFVWgpjRgNTLHJlh4Ahm09hdy0iUs2MmrnYkkvFSJ1HSo0a8EvcCTml/YsoD5RiT6TLDU5LJPch+zhklRvguCX4FqWCOQUsce+1pvnO3my1E8jWKgUuaVktboF14Q==
+	cv=none; b=l4WtAvM5PQVrPvnNE4TEVXXXT+1a94JJVk+pbvVcPUm7FN2D9l2M3/x3mRBsZBzRVgvvTEvRyf6xUgd7QuhMmsbW8D0IXWFnV+4Wlp28o+TgzHU7DftmO9Py4jLtPAULOLTCUFSjrPD5EMHfw0K7qHK1lMvXnFjoFGhvvUpBaKbYVuTec4sqwic6Z41kNciHkoVLKYyNTDacyPOCt52nDEg8e5x+Ju1/4FxwdJ2BBb35yIjKJRApC9seHqGYIscZMxkDYRCV8cuwSRq4P1W3+cuhQJCxnWLcFCI/4tvnKgDG2raDJvrKYeSUCtOFTWu71jFLyPQpYLnIrLgVgPNG6A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1736934439; c=relaxed/relaxed;
-	bh=jLQVkcSbqBBJ/uTGQd84Plp3t7x5dzC33gGhCpomRHo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CvVPYGFfJKqxUmy0pnGRAxGjMc9B+EsAi8p5KxvC+zv3l+mRXdxYcRPYM+ZfGhsG6D0B9uhGkr5WMIwc/onKh3qU6Kwtutxb2o9KENiCKDCoM9maF4gwMZHIFwlkb/X6Qg6mznWwQLPaqneoza2LfUEgHl8vSGWSjwskbr2qC1piqs+N2GQlvUVP2mbZdrZYKiKKK+l0vnzcqGUtEgTRmdkFyu73PhjQcaRMGa7X+lvxg3ztmcRpf7x5yWfu4LzfesyJALSaDvKbteasRmc5LnQZJm/Rl+/huVFn4gG5/fFeIWtdLDfJ2V3jKO58hzJbp7mJyCrljyx9RtlqWPY6DA==
+	bh=JLpZrvaMc6GV46XbuHZJmt3meVmUGd1vvv0MgNmLkC4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iyD81uXHL5L1VC4yg7dFrBj5GZhCAN2pIskilv1IyjGzTvIXFoQ8XQNdIj060U9aX9vhf29txx0egEEt1jIXmBF0PDQm1nMerCmzp2fEynZJ0VNZY0wPYy6bTeSo5Rk3dRx0WOqTUZ3MO3fVu5FjESEqObIeJSWMznQRD7WVsYHzIaCK4xkdkgKQBe64VvFDECqtrRVa7Ya0i0iD3Ood8OCtiHKsOmQMlrR7tG6HVr9tYIAeEDPTPrgFIqgDz6ksgfPkcITNLdRUMrV/vtyjhWebv+kgjmezL8Ax6LpFcTD/IZt8fA0Yj3Ja7NTyHfO8Ag8Y9MXD+oknSOwFvlSbtg==
 ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+33aec566f0caf243ce7d+7815+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+33aec566f0caf243ce7d+7815+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org)
@@ -23,28 +24,30 @@ Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YY1PD1H1hz30Wc
-	for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 20:47:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YY1PF6Wb2z30fM
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 20:47:13 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=jLQVkcSbqBBJ/uTGQd84Plp3t7x5dzC33gGhCpomRHo=; b=CL29udPt1/lIP4m0NjByfsQWZd
-	bU3ta/e6R7VHcbH1UhF/H/q46vy2HYnBQxYDONpIrA3Lo8eLZ2Z2rTZW7gZBFjjmdFTl9Eu+T4J0a
-	EtUh4FOKP9mw5+pIrIHRHOgnBN7H/wIiQcEKdSKEeoD9zqlkpwXAnDwAJhpHAswn9zI+sRValfnUQ
-	AwWirdaHv3WEZsl0avZ4FWUWcY8OrvhgRHxMeeE50SVKpC6wW+8LmCjo0oCzFwxqQxGureXp04hww
-	XCx7SOzY8vn989mxolOM7qh0utfkM6LjpEUneJ0OBgS0r4N3IcHroytPpvz7mth8c97BIMteQXsJx
-	ln0GX48Q==;
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=JLpZrvaMc6GV46XbuHZJmt3meVmUGd1vvv0MgNmLkC4=; b=vnWbtQWrrFbO8X0TgMRPAb3tVY
+	2brCcEi1EjC/IEN5Xsm0cmRxzMpRg0Me95z04VjUJTfhoGUxgkc6rtgyCkdSRg+3U0O0D1uCWlZx4
+	2noVjW6ZSw1ew2Fd0Buq0vq6B/oKRzzZOeSWtkb2zJBcY+c/7pZkPksFZ6ah8B2Fq2Jr1G5VflSJO
+	77OftBY7nev+P89M32xt+VzoLXQxKgjhiJC7+JqZ/H1Oqs8NmDecshwkBsCcM/kNQqhBfVvUmLJbE
+	hh2hDAz9CNKsT+1PBSp9p9CuEWRUs6zihfOmiTLkm+CIEW9h9Ch7qHw5l775qXw2QsqrNhHWW4Etx
+	loKVmrIQ==;
 Received: from 2a02-8389-2341-5b80-7ef2-fcbf-2bb2-bbdf.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:7ef2:fcbf:2bb2:bbdf] helo=localhost)
 	by bombadil.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1tXzzN-0000000BOZp-30xr;
-	Wed, 15 Jan 2025 09:47:06 +0000
+	id 1tXzzS-0000000BOdo-3nru;
+	Wed, 15 Jan 2025 09:47:11 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@linux-foundation.org>
-Subject: lockref cleanups
-Date: Wed, 15 Jan 2025 10:46:36 +0100
-Message-ID: <20250115094702.504610-1-hch@lst.de>
+Subject: [PATCH 2/8] lockref: improve the lockref_get_not_zero description
+Date: Wed, 15 Jan 2025 10:46:38 +0100
+Message-ID: <20250115094702.504610-3-hch@lst.de>
 X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20250115094702.504610-1-hch@lst.de>
+References: <20250115094702.504610-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -63,15 +66,27 @@ Cc: Christian Brauner <brauner@kernel.org>, Andreas Gruenbacher <agruenba@redhat
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi all,
+lockref_put_return returns exactly -1 and not "an error" when the lockref
+is dead or locked.
 
-this series has a bunch of cosmetic cleanups for the lockref code I came up
-with when reading the code in preparation of adding a new user of it.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ lib/lockref.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Diffstat:
- fs/dcache.c             |    3 --
- fs/erofs/zdata.c        |    3 --
- fs/gfs2/quota.c         |    3 --
- include/linux/lockref.h |   26 ++++++++++++++------
- lib/lockref.c           |   60 ++++++++++++------------------------------------
- 5 files changed, 36 insertions(+), 59 deletions(-)
+diff --git a/lib/lockref.c b/lib/lockref.c
+index a68192c979b3..b1b042a9a6c8 100644
+--- a/lib/lockref.c
++++ b/lib/lockref.c
+@@ -86,7 +86,7 @@ EXPORT_SYMBOL(lockref_get_not_zero);
+  * @lockref: pointer to lockref structure
+  *
+  * Decrement the reference count and return the new value.
+- * If the lockref was dead or locked, return an error.
++ * If the lockref was dead or locked, return -1.
+  */
+ int lockref_put_return(struct lockref *lockref)
+ {
+-- 
+2.45.2
+
