@@ -4,99 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C4072C02183
-	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 13:35:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C41DC02180
+	for <linux-erofs@archiver.kernel.org>; Wed, 15 Jan 2025 20:13:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1736972012;
+	bh=10HfpUL4vbzTE8z3sE1cNiKFmGmMremYjdqrg8+vicQ=;
+	h=Date:To:Subject:References:In-Reply-To:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=gve8nVR146KfXu4Y4QgcRsK4lXb82Qey7Nldb2Sm/t42aaKQidTQRtNJJeDMz/b+i
+	 G+/Eh3/E1KTJ3TVRk+IZyJidXwruGB2NbL59DylkiNoEkO/gd3tbpMYnrg6B7Ww+DY
+	 Fp2BwM+Havpaq3LWmUkayNpZXH1mbaJWdZJT4D2bA48GoRAcrK2Tra1dgcM9aZ7+Os
+	 Hn/CKycJ8fnRvcKTFeSf7joGWCcViq2zQY6RJPmQ8hiKfDDOj/6uATS3Dq/SLgOvTV
+	 /2wDLVJh+EaIOuGKQJzfh5vTUMkKLHAcG4fpmUMNZNw2yqVh7+ll9W6uN27NeXkf2V
+	 NF7VZKyC9Fm6w==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YY6Sb0lx2z3bkc
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 00:35:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736948125;
-	cv=none; b=Si5lYpii+DHFtkN5CxMsMco7vWclPjne1JAlUUlqtE1UHEkCa5R+Pwn9CmBoDzs2v39gRCmaa9UGHe/AekX4w2mEt0Bly/k/fiMC/LjJYVcDwjoT8PGb/EUwkw8c5zIoXCHDSNFT4m9/P3DgOBlsI7J5aX/ya+v+F2poHt3MLjRP49ZNOTEqfmpbwNTVmgfWgpGDwxCbVpKh5ZFoY4ynBuY7viLSQKhaQcltWO1VOxU4be52ZssDVY4pIPodhxtDWbkjKfvHR6j/4NBSo/+wFJqtdUp6YFIAzl8a19b7cuEJ6ICGY4hI2ZWPQoMiinqeQVuncGRt/6FQVvCcfFOoWw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YYHHw4YvFz3blp
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 07:13:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::62f"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1736972010;
+	cv=none; b=aiHp+gBjoq/VaLmwO3U2/CnpR9aqpKfkmD27sY0ooJWf0X0EIPeFRsAhJVoKCcozH1psofm5zkX4z+LWs6yuZi0lB81n2jDMdY1uWYh3IJ0huh5/HIf5sOKQq8561ou/ywltN/4XtwAtAwtGPBI06C6htnP8rF43p2C5wmYGQZTjSH/iRl/UPWKCs4uqFs8wlDK2IbxO3YMxny+selrZhogmJTpBdD8jMOHxHM4q4/mT7uZDqSkhOGVi5OQ2ySrP2aUUtwHmsC2i/xU4hgdVoLQkuSugCAJHh1ztRUDcKunu5ab1sH/Qz5PRwYdZ19hJUBCpusXtc1wFEm6vQPMrCw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1736948125; c=relaxed/relaxed;
-	bh=EHMPieLiEBxInJQ6B0H0UcMOipXZzYAKvCo+eqZFwfU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AsLkb4b0pgAnubYDjkupr08oiNDqyZe5TA8SIUjM+SMyJmE/3NCT5xOVI05Ro+sX5XCAAdJbHycQ4QkhrxSPPdmCOeq4EMKKQ6M7bqbdDuK+DA6036NmBF1XEnuyIgt8XOM6zFqMHUXDESmwVyam1FdvSHpucBkKBDijPfiTKSnSkWvVo/s4zeYiALVE0gUS5dc7sY8j9buinCF82DZdz8P8EVKZ9XHiSRBNdYU6dw0eaSW4Gyeqp8FgSTUTJYp5C+JnyVtqTLatL2bb3n39Ho3xjseWpiZ2yFrI2E3qaeY2FAcw9fDYKwQeqAWxkX7aXPXTzsRxPdO2J17STl7TTQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=I9puDrdS; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGIW7+4N; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=agruenba@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+	t=1736972010; c=relaxed/relaxed;
+	bh=10HfpUL4vbzTE8z3sE1cNiKFmGmMremYjdqrg8+vicQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ap/hUi5dkQAwHWV2LUY0RsDXUBcpJzFI1n56khp6GzpP+satEC5HPpMYnNbS0q63eMKCLtTWkND/PklxqxncxxXDn59tqYC0rXxb4riaHuRvq5VWSTZH0AfZ1OHWXTyTutudpY/DXQbWZO/GRoVtefrzoNTGEn+Ax0Y1UydFQLayvt64asQFh4n16ty3xtlgktyt6680GZ8/Adw8MrJkSWu/W8SzzXrG68douMgbT8YP6XkGuyFIY0uN/T2+58Lzf4yH2Vf/DDDo+mS9xNLfxSXkMC4DHXKIjT+tIVKFiIGeHyv61DOykV5LHluleRIK+BrvrsTq05JDHb0KAlQCcw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=h2UC/ylN; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::62f; helo=mail-pl1-x62f.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org) smtp.mailfrom=fromorbit.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=I9puDrdS;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hGIW7+4N;
+	dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=h2UC/ylN;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=agruenba@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=fromorbit.com (client-ip=2607:f8b0:4864:20::62f; helo=mail-pl1-x62f.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YY6SX6PFRz305Y
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 00:35:23 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736948119;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EHMPieLiEBxInJQ6B0H0UcMOipXZzYAKvCo+eqZFwfU=;
-	b=I9puDrdSrxgg/fyFpPxfIVE21nzbPiysmdSSCSZdnSNpZhS5tFfI6avb74lCckMFDGfJ1G
-	f3whTMHMysRdOdRdhp2v3Y3+k6BncCGZZEpz86I1CueZVoYwLOKs3OeSYKj8Z0AXAMXr8u
-	pbqQIBARnbiHiY3RMofohR8rDK2tyXc=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736948120;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EHMPieLiEBxInJQ6B0H0UcMOipXZzYAKvCo+eqZFwfU=;
-	b=hGIW7+4NdA/7bz4IUSBBZYmrLQcmcYgReuTfj2ilzjCf5u4RE44OUogxNS4MFxQAXAx/AM
-	LcJ+B/+5DZFENbSuP5fF3V3HHtT4fgt7jcgWST5AfShxSkQGjc5u2LoQHDFiQVc4UGVEbp
-	5cZvR7ZHSoj+UVbTzs/JiU2F+X9y5Yg=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-301-Lvia7cxAO8-uzZEGMitnag-1; Wed, 15 Jan 2025 08:35:16 -0500
-X-MC-Unique: Lvia7cxAO8-uzZEGMitnag-1
-X-Mimecast-MFC-AGG-ID: Lvia7cxAO8-uzZEGMitnag
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-216430a88b0so133035555ad.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 05:35:16 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYHHs1p6Mz30NF
+	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 07:13:28 +1100 (AEDT)
+Received: by mail-pl1-x62f.google.com with SMTP id d9443c01a7336-2163b0c09afso1785415ad.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 15 Jan 2025 12:13:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1736972007; x=1737576807; darn=lists.ozlabs.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=10HfpUL4vbzTE8z3sE1cNiKFmGmMremYjdqrg8+vicQ=;
+        b=h2UC/ylNarm3M5XFTzSV2QwNdsm452oIw0zr9Cj54Qjw+dglDclrIbyl0qRGw5zLdu
+         M11WSI+FoOxd2ThSOWtLkTiVcdE34s6bPZ7zxqi9++3E9zXf5Q3rvJYPAd/Zq8N+PePt
+         WpYZhpEpaYWmGkxa2lMjlhHPMjTJJEOfc4YHRHdXs0YfyX09xskm0OJ1usi+tzRO2qJ3
+         2GV4BZyDSMzSSEXh7rsEs0tGrNH4JPRBnndsLVVZ0+ZZuXA5i8kF2avlG9Hxn38gMh7t
+         jMXpQ/Nd1XwLVjlbRaCEPyhJkSTmNsknvaHfNdlnGkp8TZrZ2TddP62PfPUapauqNQUn
+         DLwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736948115; x=1737552915;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EHMPieLiEBxInJQ6B0H0UcMOipXZzYAKvCo+eqZFwfU=;
-        b=DPJKwZgZN52FHiyl5xfC1oQ9cgJ0CvC/Tr7Gi1gW7brCGlE4RrUb8OYGNvxI67ji6u
-         QuxRVLkgNCXSF0+WjD7NRIar/9NMQ9QR4zsIQ2F71FeS1OTzuiogN4yNuGJNNqdOD31a
-         2kJR2PK4vpqn4BJTx10H/WJNSfKNpsSVMJBUueAwu+qZIAvEiNAqMVv1l1GRsYyoP/fE
-         ufY6mS8xkxlPhoYMY65QsI+DCOC9aUHiPkyiLmlDemmhd4AWPIdlv6KPuDlFjBMBTwjH
-         aFaMwR32gl4+nh8e9FylUQ7Vqvxnm5UsKg7Od5Oc6dNQw3IW+ozz2stROMgoq0TFdk0i
-         D8Xw==
-X-Forwarded-Encrypted: i=1; AJvYcCUmN/wKJbAJJMeLBkp0p061Q/P1+X5bG+Bo6iMuU706LoDrNxVZJ39qvXbUBoCBTnrb8E1LtLDTnh1HIA==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yzup90btF8aHj1D+Gea3ZbyRLHQT9viSfKQkNQFyvPmfySoo3sQ
-	EvzIe3w84RB2ni2HHLrvqqKtX4SP/fqIz4EVgaZ8eqcWh+RKV62504KGdw9PAqJOgjhczX2Uruc
-	3sQCzFiPxq53YBwEAJzyhJLh3Tb/6U1Njb7hT+U1NRlkVD2HzkhMrnorZC7EFIy4SAoy1Fu1dpv
-	3LA5L5BeJA6v7pNeeQMZTa98QsOnz91n9EA3Tx
-X-Gm-Gg: ASbGncutTB3GQnlqETU3pBqPxkc4jG08FfKRCo5q+39vXidkvwJVJmrbdlTqx3zcJKm
-	sZDyVzIzQUq/FMBsO9RjsuN2vEM9DHBWcfMSY
-X-Received: by 2002:a17:902:e548:b0:216:30f9:93d4 with SMTP id d9443c01a7336-21a83f3706amr390737015ad.8.1736948115383;
-        Wed, 15 Jan 2025 05:35:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE4uFvmvU7kjxrhOu/tKhko5zsquSsHGxstfr2wyI0IDTeSXaYwdT9BokTtob0w3UYMJQDUxkbCE6bgd9fA2Go=
-X-Received: by 2002:a17:902:e548:b0:216:30f9:93d4 with SMTP id
- d9443c01a7336-21a83f3706amr390736605ad.8.1736948115070; Wed, 15 Jan 2025
- 05:35:15 -0800 (PST)
-MIME-Version: 1.0
-References: <20250115094702.504610-1-hch@lst.de> <20250115094702.504610-9-hch@lst.de>
-In-Reply-To: <20250115094702.504610-9-hch@lst.de>
-From: Andreas Gruenbacher <agruenba@redhat.com>
-Date: Wed, 15 Jan 2025 14:35:03 +0100
-X-Gm-Features: AbW1kvauTrK99eaFRcWITgoY8moGa8lcIr8CyUarTCKymnr2mM79lYdYrNNq1Dk
-Message-ID: <CAHc6FU58eBO0i8er5+gK--eAMVHULCzHPnJ9H5oN12fr=AAnbg@mail.gmail.com>
-Subject: Re: [PATCH 8/8] gfs2: use lockref_init for qd_lockref
+        d=1e100.net; s=20230601; t=1736972007; x=1737576807;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=10HfpUL4vbzTE8z3sE1cNiKFmGmMremYjdqrg8+vicQ=;
+        b=AXHffRSvDWyjlmShuicjZiUif9459H3iwmdKZiDPhFJtpxzSr/cadcpRJn6y0FfUod
+         yb5Qw6nakLdJSiFEm9QTLnk7s46fUdQ2Ol9078GMm8S0DrEsvd5ccVR3FJOVBqVikLXV
+         ObdMSSAViLyPhBKMqQutb7/ttxySEoSm59X0DYNLfAtL5drTReLcutRaKBLijZhxkkc+
+         VyhSAHxdQAoxOnv7/5IGhB3cLdnfLvpbhR4d3l1kNSQh/jMXBbMVKUNFLXv1fptWa9H/
+         4pCoaMZDMKwD4cRrKBAZqF4AWx4d6/HbSJWaxdOHzP1N76KsveuSKy0O0RnMZ6fXBhj+
+         Q6wg==
+X-Forwarded-Encrypted: i=1; AJvYcCVdAAAfjI4TT0apuHF57pj+uZmiPhjSoKYdjbV482qC9iexph9HjP2smAykmYhXmCRIrz8FeIDznMVd0A==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yy+G7I/T3Bq3fZnkXt0NQJdvyzbmP7plegeBBcNYumvC3nBxatM
+	Z/nfPgn5Slnd/ONSzP8zfoDAsrG/If95i78YiFo55Kk5NN8tNtTQy/hxrQKp5hE=
+X-Gm-Gg: ASbGncuBnd4elSOQ25kch2HSbG1LcsyavycxKb0sOMwsh0TyhxJDZpKBGxWqcMG3KJ6
+	mr2inh5vU1tyFt/yT23gAV/rnVbumoe9r0d6mhm0RFLVC4hzuWdPZqwx/Kv6GeVvWK+5yNJKLpD
+	gG55doSkvujS2eOfLcF163zHCW112wuomY9T2FZVo67DX2odVWZjakoQ42xTU93jL00LCv/SXMR
+	6KOQmarBnwzbR4WveQ9ypOWPwfY+6JONRos3JvSWYV1qv3VmagFVzXgHp4aCkDZo/CD5LwSk8KY
+	9MmP6a/udHxRzlRrUdr5tqk8MpGZYe65
+X-Google-Smtp-Source: AGHT+IHnPTYH1M0KygFma+wZwcgjOIPDIchY7x9E9r6aOBRHS7OOYUKAFanmi2DmZuTGwBHC8Eg84w==
+X-Received: by 2002:a17:903:32ce:b0:215:b8c6:338a with SMTP id d9443c01a7336-21a83f338a5mr470115445ad.4.1736972006983;
+        Wed, 15 Jan 2025 12:13:26 -0800 (PST)
+Received: from dread.disaster.area (pa49-186-89-135.pa.vic.optusnet.com.au. [49.186.89.135])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a9f219f0dsm86031465ad.139.2025.01.15.12.13.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jan 2025 12:13:26 -0800 (PST)
+Received: from dave by dread.disaster.area with local (Exim 4.98)
+	(envelope-from <david@fromorbit.com>)
+	id 1tY9lT-00000006JFt-3Jp5;
+	Thu, 16 Jan 2025 07:13:23 +1100
+Date: Thu, 16 Jan 2025 07:13:23 +1100
 To: Christoph Hellwig <hch@lst.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xmDvWVnxKpTMCIkq1bwI9xWl397H9Dl6QEoiDYCyXIo_1736948115
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 6/8] dcache: use lockref_init for d_lockref
+Message-ID: <Z4gW4wFx__n6fu0e@dread.disaster.area>
+References: <20250115094702.504610-1-hch@lst.de>
+ <20250115094702.504610-7-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250115094702.504610-7-hch@lst.de>
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -108,40 +106,44 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org, gfs2@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org
+From: Dave Chinner via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Dave Chinner <david@fromorbit.com>
+Cc: Christian Brauner <brauner@kernel.org>, Andreas Gruenbacher <agruenba@redhat.com>, linux-kernel@vger.kernel.org, gfs2@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On Wed, Jan 15, 2025 at 10:56=E2=80=AFAM Christoph Hellwig <hch@lst.de> wro=
-te:
+On Wed, Jan 15, 2025 at 10:46:42AM +0100, Christoph Hellwig wrote:
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->  fs/gfs2/quota.c | 3 +--
+>  fs/dcache.c | 3 +--
 >  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
-> index 72b48f6f5561..58bc5013ca49 100644
-> --- a/fs/gfs2/quota.c
-> +++ b/fs/gfs2/quota.c
-> @@ -236,8 +236,7 @@ static struct gfs2_quota_data *qd_alloc(unsigned hash=
-, struct gfs2_sbd *sdp, str
->                 return NULL;
->
->         qd->qd_sbd =3D sdp;
-> -       qd->qd_lockref.count =3D 0;
-> -       spin_lock_init(&qd->qd_lockref.lock);
-> +       lockref_init(&qd->qd_lockref, 0);
+> 
+> diff --git a/fs/dcache.c b/fs/dcache.c
+> index b4d5e9e1e43d..1a01d7a6a7a9 100644
+> --- a/fs/dcache.c
+> +++ b/fs/dcache.c
+> @@ -1681,9 +1681,8 @@ static struct dentry *__d_alloc(struct super_block *sb, const struct qstr *name)
+>  	/* Make sure we always see the terminating NUL character */
+>  	smp_store_release(&dentry->d_name.name, dname); /* ^^^ */
+>  
+> -	dentry->d_lockref.count = 1;
+>  	dentry->d_flags = 0;
+> -	spin_lock_init(&dentry->d_lock);
 
-Hmm, initializing count to 0 seems to be the odd case and it's fairly
-simple to change gfs2 to work with an initial value of 1. I wonder if
-lockref_init() should really have a count argument.
+Looks wrong -  dentry->d_lock is not part of dentry->d_lockref...
 
->         qd->qd_id =3D qid;
->         qd->qd_slot =3D -1;
->         INIT_LIST_HEAD(&qd->qd_lru);
-> --
+-Dave.
+
+> +	lockref_init(&dentry->d_lockref, 1);
+>  	seqcount_spinlock_init(&dentry->d_seq, &dentry->d_lock);
+>  	dentry->d_inode = NULL;
+>  	dentry->d_parent = dentry;
+> -- 
 > 2.45.2
+> 
+> 
+> 
 
-Thanks,
-Andreas
-
+-- 
+Dave Chinner
+david@fromorbit.com
