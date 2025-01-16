@@ -4,76 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39DF3C02180
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 08:37:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95714C02183
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 08:45:39 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YYbpD6gDTz3cdM
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 19:37:24 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=43.155.80.173
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737016643;
-	cv=none; b=Txk9hVq8gxPB9wkP+/UCiECxXwyP4F0MYnuuJ/lLpgIIgguM1c2jL2WBP1BcWmG0LaQSJsOpTvS3VdomxTWumetca1JL2SY+LaFgucaIK2WFWsQa5XvTBxSgJboDTVJ1gXWxnjCWvddyQ+xKqpVNTnSZttcON5uNisy1kP2mBooQVVWFW5p9Z+mBufECoDqdiJLTVHVaKbROrEJJmIxvoc8FGTCm+z6tM5kyM9Wl1SScUeVW5a7cAK+LRwgGvvJYYCtKkCnywwjx/rshZhgprozQ5UgmtdWsUTM9zNYii58pfe9KhIFODJbN5FdbUj1SD7Cw56XPotIB5gS9LkpA8A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YYbzj6LWLz3cdZ
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 19:45:37 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737017137;
+	cv=none; b=B33MaGsFi8Hlbf+NYqQHOvZI7q7280/JGNE3+D/w2no52wjOk2QQJAIe9DxcxNHYarpWu+sLi78M4tR1P5/9bvnumKvTuFh04fiqlQHp7SWVa2Y+/ubcNfLq0K1G7uot6M32d+QAn9bwHX3208HNUHzeuE1kBQOoF740v7k0t6iE7tm4ghhAZKErPw5o3sVJTO6Hq41sPfJNLx9UK+cmZLCD01uBMvPZY6D6pz3jpDEmWhZIWctgpf5JvkMmuGowTLq7K8HBZTENM3Zq+eb1T4b9aYxbVXUTMr2isdYyRcki1tOaDhlpx4P4kC+3J83NprOaMbwcgI4CoGfvVecC8Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1737016643; c=relaxed/relaxed;
-	bh=otpLROXolPbT7ec9YcvlHuENAhnyCwUjJEVlWqwt4N4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B995OgZs1TgFMsZ7vfOY6aZ3oCSaMTCtnqaD1FaBJrnpiilRncN0qrtyS8P7EKrICz8EPbfcjdue98TvY2OPGsUdu8mbOyD4SGhilyotMc5i2ViVlAttM1tO0j5JDc6ZRjO9OyVYKn2OBLiGvAJuxyQv8HH7EgJzJ2rPqTnQ63vpVeT2Nlg7YY1qTjYWAF3XOZpXI9x0pvhExeU5+P+Z7ctG8+z+4FTKgtwPzzSxbpHt+5ufMhaSbr31ftfVsfStKLEdusw5fn11AHKlXcT7E2gDRB3OHdg7/G4YyDk9umd8M8supwu9gd9F62hXjEk5L22rrAtFwN5kVMISnux9FA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; dkim=pass (1024-bit key; unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=bM34JS1l; dkim-atps=neutral; spf=pass (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=chenlinxuan@uniontech.com; receiver=lists.ozlabs.org) smtp.mailfrom=uniontech.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+	t=1737017137; c=relaxed/relaxed;
+	bh=txoQMmxDklJHnn+SIH4XcL8PyI5x6vLX56gDkuBtPIw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bNoCDCVE+EvfmL6GuIYzjLyB0TMDygyd6i8LlND0ZFkGiUdbfMeMKj5ZelHwKnw/ldNP6ILsc7GVOVA2lPbWgROr7pWTMyr8AYRyYnP8x5cmWi3kbkW/vPj7EeUCFV9j4DgKqSwvSHVNlHi+iJ+ZBCLGrzI8uW6VOP9NlH/beOaBJs8zeAxqFEqPOP430C5HHT4XoaJOnj8H0cnn9RgKlN3lbYBUCmgLV2vi45lKjTEeH8gMN9ZLu9GFLRT5qE+njFGEXa8R7P08vHLO0cMZ3f8rWxAkPIRf85hASNGNtVb6jVWwTwYYq+YdpFoM4ZHlg7vJaw8IWzoe0E0AifjN7g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=g72KqJC7; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=bM34JS1l;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=g72KqJC7;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=uniontech.com (client-ip=43.155.80.173; helo=bg5.exmail.qq.com; envelope-from=chenlinxuan@uniontech.com; receiver=lists.ozlabs.org)
-Received: from bg5.exmail.qq.com (bg5.exmail.qq.com [43.155.80.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYbp933Ncz2yvs
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 19:37:20 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1737016581;
-	bh=otpLROXolPbT7ec9YcvlHuENAhnyCwUjJEVlWqwt4N4=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=bM34JS1lLXuARpjOE3ZKTyXHzxy4TBe/R4V0IRfsFAEC+dQM6f+BJjT+lEhrXB7f5
-	 CKbx9MlkzxJjoYGJcPD9w6YOskQmnsuDiBW6bwyTVDwOhRsBPyVprFg9V7OIToW3Bn
-	 sFNuwTRLyeRMMm8k0fpqP3t1K1hQu0BlBDImF4OI=
-X-QQ-mid: bizesmtp77t1737016563tkodmhws
-X-QQ-Originating-IP: R22WAXSZ8O0Y1UIQD9n02oQYDOsIlwAmFRJoliXHzBA=
-Received: from localhost.localdomain ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 16 Jan 2025 16:36:01 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 7777656777610264926
-From: Chen Linxuan <chenlinxuan@uniontech.com>
-To: Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>
-Subject: [PATCH v2] erofs(shrinker): return SHRINK_EMPTY if no objects to free
-Date: Thu, 16 Jan 2025 16:33:02 +0800
-Message-ID: <149E6E64B5B6B5E8+20250116083303.199817-1-chenlinxuan@uniontech.com>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYbzf6Qsbz2yJ5
+	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 19:45:32 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737017127; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=txoQMmxDklJHnn+SIH4XcL8PyI5x6vLX56gDkuBtPIw=;
+	b=g72KqJC7ZSmYGXKqS2mtKwpQGohD9t2UP/v61GcvLGsfniEHQpIHBSU9UnGQIF91zc2eTTBVp0N4E3ozDS3xCncKOo56tmWBmSyWdWeAZ0pdbx9t6NGBasFtqPvi92ysag2sRlXLj07t9XyRO7icmLrWgeGRpa+HNI0Hz+tTwPM=
+Received: from 30.221.130.221(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WNl2-1y_1737017125 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Jan 2025 16:45:26 +0800
+Message-ID: <d1e4c851-b399-4d6b-9e0b-4124ef7bbf64@linux.alibaba.com>
+Date: Thu, 16 Jan 2025 16:45:25 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybglogicsvrgz:qybglogicsvrgz5a-1
-X-QQ-XMAILINFO: N+gRuBp2eEM11ecl6HkjBu8gTd/Q2IREtOHMw/14si4jhpmV8i4GtKwE
-	axxVj8ANAxQWBSwNr35pT5FrxuF001cIKGWvS+qQsvKbLO0kmMb151fcMkQJmfFyUULl19A
-	xnD1OCK93WPSY5Jb+pLwLx8cuSH3DGUddVwNwFaJkJ8+NWfHqwbU0n+d4xEmhSikYHjue2U
-	KUnxHqTHv6rY53L9ACNlD0md+riFHb3ZjyV6Bu1FeLi6UYTD3vKixP3S9WZ15dUN+2qdGOG
-	b1FsQh/pMijcn0X2UquHFHrWwvNfDMI9CWvxfZclN4PaS41SeQ7BbTg9xr/t7BXeg/pbCKx
-	uhk/8wzHPLpgCK7l4GS0z9q98/MCBNjwKtuSjMQpyfFl3HOisXyWj4B4p4mH/Y7u5hCwT97
-	0tqnGKYxMJMfP6o00tqWBbT3NvDnrXcDWbMpUw15o7lHIxfl5fjb2UspuidR9cO/EzV8OLW
-	yG5URj52wqJE5cwTlz+f/oyLyXsktnXNf/w+gBlkYDFvx8Zs2bWDfV3gHgyLL3/FtQ8uA8P
-	RRSY+lEohfDfa8gOdfhePLMyqP6eNeC3Lgj+oWxuWgY0CAGrx/wiFI7wiCJFOuX69dVzW/F
-	m/X2LwrjZG2E/l+VpvfOeWsXyozEvFgi3VsJZMt2ZNmUbNBfHH3JYkRFFy1zjO56xkDbpAb
-	aEwu6SVKSw5mfhkZsGxTYv/XsCrhEB0RvO8ZC/xfQwrbgfEJ0EZJUoj8C7m69eotA8w2wML
-	CkpYFudghoS7kgQKQH5EgbTEmFdczDmO5F9EdSl0b61sq7ibVz01gDrYQnW0dEgLpJ4/F4l
-	BiEy7w8zjuBRzyN/I19FLJMYReoqOspPO8xc3LZuunGfM9Ehdku+n5FsGTQYYLO799hOZI+
-	o5pMKEFpQMT2OZPt6QJ3Xcx6Wq8eo2jjv8W5Uae9l6JONfFrYtinmRElxoa7WE398KutreI
-	xEC1t0X2R8j//t3ZTkmCUtsfhLSMae8IxFG6LaIhGU9IBvjD8egoDCjNDH0LN2BtUg2aV37
-	BzrOIQEg==
-X-QQ-XMRINFO: MPJ6Tf5t3I/ycC2BItcBVIA=
-X-QQ-RECHKSPAM: 0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs(shrinker): return SHRINK_EMPTY if no objects to
+ free
+To: Chen Linxuan <chenlinxuan@uniontech.com>, Gao Xiang <xiang@kernel.org>,
+ Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>
+References: <433DB98624BCDF95+20250116072042.189710-1-chenlinxuan@uniontech.com>
+ <b33944b1-18fa-4a27-858f-5922ea1e1003@linux.alibaba.com>
+ <AC9D4F55C39C7580+c01e5ccb2bf8f14644d02a84ccc834ad49f86fbb.camel@uniontech.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <AC9D4F55C39C7580+c01e5ccb2bf8f14644d02a84ccc834ad49f86fbb.camel@uniontech.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -85,37 +64,40 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: linux-erofs@lists.ozlabs.org, Chen Linxuan <chenlinxuan@uniontech.com>, linux-kernel@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Comments in file include/linux/shrinker.h says that
-`count_objects` of `struct shrinker` should return SHRINK_EMPTY
-when there are no objects to free.
 
-> If there are no objects to free, it should return SHRINK_EMPTY,
-> while 0 is returned in cases of the number of freeable items cannot
-> be determined or shrinker should skip this cache for this time
-> (e.g., their number is below shrinkable limit).
 
-Signed-off-by: Chen Linxuan <chenlinxuan@uniontech.com>
----
- fs/erofs/zutil.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 2025/1/16 16:24, Chen Linxuan wrote:
+> On Thu, 2025-01-16 at 15:51 +0800, Gao Xiang wrote:
+>> Hi Linxuan,
+>>
+>> On 2025/1/16 15:20, Chen Linxuan wrote:
+>>> Comments in file include/linux/shrinker.h says that
+>>> `count_objects` of `struct shrinker` should return SHRINK_EMPTY
+>>> when there are no objects to free.
+>>>
+>>>> If there are no objects to free, it should return SHRINK_EMPTY,
+>>>> while 0 is returned in cases of the number of freeable items cannot
+>>>> be determined or shrinker should skip this cache for this time
+>>>> (e.g., their number is below shrinkable limit).
+>>
+>> Thanks for the patch!
+>>
+>> Yeah, it seems that is the case.  Yet it'd better to document
+>> what the impact if 0 is returned here if you know more..
+> 
+> Sorry, I have no idea about that.
 
-diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
-index 0dd65cefce33..83fbcab70a92 100644
---- a/fs/erofs/zutil.c
-+++ b/fs/erofs/zutil.c
-@@ -243,7 +243,7 @@ void erofs_shrinker_unregister(struct super_block *sb)
- static unsigned long erofs_shrink_count(struct shrinker *shrink,
- 					struct shrink_control *sc)
- {
--	return atomic_long_read(&erofs_global_shrink_cnt);
-+	return atomic_long_read(&erofs_global_shrink_cnt) ?: SHRINK_EMPTY;
- }
- 
- static unsigned long erofs_shrink_scan(struct shrinker *shrink,
--- 
-2.43.0
+I guess it has no difference if the shrinker is not memcg-aware,
+see:
+https://lore.kernel.org/r/153063070859.1818.11870882950920963480.stgit@localhost.localdomain
 
+But I'm fine to use SHRINK_EMPTY since it's clearly documented.
+
+So could you resend a patch to address my suggestion?
+
+Thanks,
+Gao Xiang
