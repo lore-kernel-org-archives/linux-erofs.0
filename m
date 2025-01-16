@@ -4,68 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95631C02180
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 08:32:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1737016323;
-	bh=rN0J1+seu0kQL0TljnKp9L4eqo2t0IggsjyZGXWUoVU=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=TpRcY+FSbTbYJvKuJLJnK8+3r0DaQgQ72aaR2bOq2u0JF5kkJISENGCOg/FP9LYI8
-	 8a0HjXyO1+6eqYgULl6PD8Yu07snWgIUftlDnUDrQp91lf+Lh/vUwHVwm6qHyBS3yq
-	 pEK8UQymZ/UfGYcNoFhcA//20VC0WtxwDuJNu14cS5c4euDxi6t/hpZCXhbBFXQEER
-	 V2BY2NQkYS2KXJGyOnazoWRhTDikBsnGfz+/qXDLJr9phezAV/bS+LENvSsrtKP4ca
-	 ZLiT7Ch3iTET+8H7U/Cfs3GNAOEmARhptubNC8BJVbh9hvjbYkU6GsAKnkYPbGNUp0
-	 7MRTuPHwVVrUg==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CDF8EC02180
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 08:33:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YYbh36PfTz3cds
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 19:32:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2604:1380:45d1:ec00::3"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737016321;
-	cv=none; b=T4cVEZ+cv8gJNi+Y3yZ3vMv0EVnkT/QZ8sRUuxdqF/uD8Hc7lEU49rQJ1hi/DFO4yNkNRLowz4b26xFYymk2cYxt3afwQWDLk9QX24WL15V7Pe/skMWAcRJ4aJWNPbYRBKyJus6oKueLUr9mTns7C/+vhAORTyy+qLtb5nGnzTIu7Zz+Wti2oqW1BWneyzF78EyCYDzttmJpDbeCFRU+TGWnrd2Z3IGicMo+bd0Vl5t8qNBnjIIg0AbNpoc6IMcLS/axn54kkkQ+VgkIWI73ixBWfA94HMIcrJGN8iTKbqfwsGONFOSpjUMyJiFAWqC9R+9GmBPBQ97V53TarEr4yw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YYbjq3vqBz3cds
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 19:33:35 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737016413;
+	cv=none; b=mJJgd6fCNkTznaupqoZYvybvtLj50Bo0sY4/Gk4wM5V/b91Esd2MlJ9k84APST/asn3IT5HHR1U5XjjpsbGrLVKYqEXthsS7nHREg6h1Wx9wTd77BtxK7DWO+HoGxIR6RNXHriIuXmN6+6aoiKaNI07hC4Y3Us6WGPbgnbSQc0rL/MsdX8rSdIEPX5SHftxXOlgmlPgbI63vpa4LQWLSbLQrYsJJhspK81RT8MFIGodBKmCGdI/f0orYdg8V62RvbhUdpkPtqFR4QWGFfWX7qbSdaQzSwvtJhOCdF4tGQG0FsBMMdGXZ4ygYSvdhIVhb5nOp5uEOLM120/vL3Q5f9A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1737016321; c=relaxed/relaxed;
-	bh=rN0J1+seu0kQL0TljnKp9L4eqo2t0IggsjyZGXWUoVU=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=WzkH3gb5Y6AqwjXRQ4JLfGuqVvCtcpd+ELpqKQvGMiXv0fnELN1+E1LBWxUU1TvTCEQUU4ZdGaQXnNfS68iitoq85I3nixUq+/TnY4gKwTzkCR0GHH4NKQaj2t8biuW8vTIC7wOW/PhBTajS1wQcYjvWzZz0yOjxQtY4hRvbapVUOXe3sK/MZGG3YP55Pa5ej51iaKIREbryUuItAqE46wQoRQsD+rDSJJo+7bd1jiXbUSbqn9qhbesmSm1Q8jgjWgWYvHavj+wfTHZcFE98k96nI8ByOzuB3ZELPhHEYbBhT4H5P4yZV7rZ2+TRc75c2MxKEmeGeifCiL+gRPca4Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Q98Qk1Sa; dkim-atps=neutral; spf=pass (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1737016413; c=relaxed/relaxed;
+	bh=PHfQkkB55ebGdxpOI6zf43XLyTVnn+B5ouE5AZYqxj8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gDzUhyxICuXAB8asF0+BxxoFUSVkF1jLiOrS41b7TjKXeY8w+Ca45YDnzTiD2DkRc94jtrlh4E0LQwCgeK6RAvIUCw0w2i6aYIK0KnK9ZjCeo6YckzY9FBtxMFC4aOC0MsgIqgwUHy6HrhfmHILTn4NNJXzBOY1gJ7wtHnTBx0A2ucqcZ6Cj3pHTIh7oOnq4lGKHFKX3iaXl86M+TfzyxikYwg0JVNeQGYrGXnsPnxaOEw4yk4xJS6kytPqlZMjXGFHhT371JgWoyGEVe3zC69Z8JGcC8FBF+flSftJPNyoB6BAq4wI/WkUBTCBK0c9srUOWqFFUqt7DPRwYNPW5mQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=pFjlOeJ2; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Q98Qk1Sa;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=pFjlOeJ2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2604:1380:45d1:ec00::3; helo=nyc.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from nyc.source.kernel.org (nyc.source.kernel.org [IPv6:2604:1380:45d1:ec00::3])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYbh12hVvz2ysc
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 19:32:01 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by nyc.source.kernel.org (Postfix) with ESMTP id 48A45A4116E;
-	Thu, 16 Jan 2025 08:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A5FC4CED6;
-	Thu, 16 Jan 2025 08:31:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737016318;
-	bh=nM3Q7CZXxvDLM64A/7/nEQ//gngY5Eok3yDCRO4vquQ=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=Q98Qk1SaKAQ+0j09MuNoD375OlLzgR4MHhRxHC/4pqc31xV1KDn7ySLBXNSxkCvdV
-	 2nSSizY1xDC2qFUgPn9qQUgJ1jPTCmSnOwo76U+ULs6iMvgOXVc+XyapuiHNHn76ru
-	 2DVsgntk/L2Evs04b18UU7Jr6HIfuvYuuGidc0Xx+wLTSDGH18pPhIjPhrKHgvq7Ro
-	 /jk07ITsY+2SzIKduYSZtrsztUJxyq7ejIkFDzKQ5cLir4OpJrQIaJV7rJmal6yZ/3
-	 Tu5ckx3iXFXKaMnNgiqqwOMkk458+pMvNgcKbzUcvDfmR3ZDNKVQjUnngLy11Niaeo
-	 cHy+f8Ub50/JA==
-Message-ID: <11ffcd03-c3ce-4d2b-8360-1968092f72c1@kernel.org>
-Date: Thu, 16 Jan 2025 16:31:56 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYbjm40kXz2ysc
+	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 19:33:31 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737016407; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=PHfQkkB55ebGdxpOI6zf43XLyTVnn+B5ouE5AZYqxj8=;
+	b=pFjlOeJ2wQuowjPEunvaIRbe5T/UHvFjYo7Q5q1dScKzS7MUCmxzvLBoWY4Vs0UR6/94M3omQjbOOmuHo1w9heTGC+e8eEdj3Da17C64vdu4o3dVpiMkIA0ouJgUn0l8olE94XQR5lU1IBKOFpEbOPrBq27iaQPpXXcXMc1/WZA=
+Received: from 30.221.130.221(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WNl7TR5_1737016405 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Jan 2025 16:33:26 +0800
+Message-ID: <c9dc9da7-0085-43af-9d2a-130dec379dfd@linux.alibaba.com>
+Date: Thu, 16 Jan 2025 16:33:25 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] erofs: fix potential return value overflow of
  z_erofs_shrink_scan()
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+To: Chao Yu <chao@kernel.org>, linux-erofs@lists.ozlabs.org
 References: <20250114040058.459981-1-hsiangkao@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <20250114040058.459981-1-hsiangkao@linux.alibaba.com>
+ <11ffcd03-c3ce-4d2b-8360-1968092f72c1@kernel.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <11ffcd03-c3ce-4d2b-8360-1968092f72c1@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -79,24 +61,22 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Chao Yu via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Chao Yu <chao@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 1/14/25 12:00, Gao Xiang wrote:
-> z_erofs_shrink_scan() could return small numbers due to the mistyped
-> `freed`.
+
+
+On 2025/1/16 16:31, Chao Yu wrote:
+> On 1/14/25 12:00, Gao Xiang wrote:
+>> z_erofs_shrink_scan() could return small numbers due to the mistyped
+>> `freed`.
+>>
+>> Although I don't think it has any visible impact.
 > 
-> Although I don't think it has any visible impact.
+> Agreed, it's an extreme case...
 
-Agreed, it's an extreme case...
-
-> 
-> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Reviewed-by: Chao Yu <chao@kernel.org>
+Yeah... also thanks for the review.
 
 Thanks,
+Gao Xiang
