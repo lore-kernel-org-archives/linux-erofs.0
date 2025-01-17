@@ -4,70 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B0E6AC02180
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 10:45:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1737024344;
-	bh=2FHczhcfJyHeHKOL0+MEckhTAVymHDRLseA6KgXd/pA=;
-	h=Date:Subject:To:References:In-Reply-To:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=NMXXoo1AJAV193XSwrpJu83Y6ClY3cjNVUEAOmionX3wDerfiurtpbtuMohQdOvnI
-	 zUbeRa/AaNKgZum1KrIDBMyMicEbvdaOhogmFKs3wvE/w4uQKy+KWsh9ynWNfhx0j5
-	 1QRfxR52tDAKod0dLfNHlDNDRU+eywnlTvBbdEJnQwbdyCkMi8wxJ7qCl8ZhsQD5RA
-	 209ax3KmvRhmsFkWzIwhCAgOn9suUY4OvXOJzCEQJdOKPKhhgKvblUgyMfCBGIF+we
-	 qekReP1U+E76NZbOLBYdJ3wzDMLTwTJ83XxrUApyZc/uUuOhye6z2QJDMNKaF2iKuF
-	 5ZaNTt8mRNhGA==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C3B0FC02183
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Jan 2025 07:46:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YYffJ2v3hz3ck2
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jan 2025 21:45:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=139.178.84.217
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737024342;
-	cv=none; b=eTk9TuQHhziTbxIl+eXGJ9wjj80D9VQuAT7CLKrHip4UkPYzExfHHX0LSq+2tftBQa4qJXkGjyJPKMXI3SGl/NyoZ3fkkrVy88+7H1Wph2BCUbMBQH9zfJa9jIC1PGjrq7ORexXROB/x/3JsvgoiHKha4OEz11r4Z2rU5CkPLY+mp9chrtBDhqplW8F8R2bamljvtG1vP9P3S01YamzttFwWVMXJCuzN34J3DhjhX7yWzSz4MUTztjpYj8DRWndvhQg0XRut7usLl+tk8gY+hWIe6PapO4plgBXUU9CXREOOkGV8gp4v3FEk0VK9QI3rThT8ANL0Z10tO+Ly5qi3XA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YZBcp61kTz3cy9
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Jan 2025 18:46:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737099977;
+	cv=none; b=jjX26UaoY/Q055OwucQ2gHFE2hnSvDiTlKfjKiuESBSDKXsuyrHlmkHwOjK6NdVqf6L/MiDSTdNfkk19UXGjzFLtALYQWdVdcwMCiZuptMqjrT+kOY4lHfZ4ucHfPYBgnJBz6GRxdQpCI7fXvR/zjbuL7kNRCmDgPOJhMo02uFqOmUnNQGCm+m36vpv+PdlqIU3mkzXJ3htPE3rv1Eb47W8f3kF3fH25mJBzrYxtPUtxUBZWeAZ/O2ZP86YBs1lHHn5Ff+CyQb9HJBtSlDouRfjVbsK9YuRA0T06QpKmSpIQLuibuWVOsx/tlPKYETThBcWvccGLZyYf/XGZu51nUQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1737024342; c=relaxed/relaxed;
-	bh=2FHczhcfJyHeHKOL0+MEckhTAVymHDRLseA6KgXd/pA=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Q3ETMomwQQmnn4wpF/i4PNx8i/OSUqZXMC4yW/VUgt5JHjCbqjo7+oijDc2WUv52Ls07yLcklfzWvyrCthJ5xUnW8Gq+M9otYHLJbRkJ/TUVUaIfuBFopn2ugoQi39KHSL8aaAVUFJjp7hahw3GgmdqYIV7o//en64DZXEjBOttPNgmKMWwTG2LJqlWjBCMKqKaB9+ZwFvEzI7Lvf1t6qeExNKXVb212sA9bHY5Y0+nhh+WCCri1mzNwst2mDBI/IuW7HSlQ7Zap2/wtdOdq295BNo5dG72j5VDcVQkoEn//BEfSSaEUkidsfYoAlnRGX4ye9K7XP0dXaf4uIZyRUw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=oi1KiKEd; dkim-atps=neutral; spf=pass (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1737099977; c=relaxed/relaxed;
+	bh=nU8UGsI+C7nhXTkToAzqIL5sI02OfYwOv/L05bAuf2c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eIdYSgurhFrJXVmazQ+48IZc5y/6fZ1RdB3ifhvuN8t5eS8dy3bSAulr0nwhBFQuWlMpc2Gba8l2kqE0fFhjNYwsjTgqqKPz13j/DrBxB3PQPRQ+Onto8uIMkAA3geKeSQjGRVi29jJRQN3V6uBS96807NlJPiDbUI3imfX2CpbTgiJ8LHhhQsABaXtgqyLMYLA/VlPIUSaPFjYE41KKz+WMc/mhiAfp8ZmzLXBJtMUMcCESYqO1Skc0e9wD51j43RGmwA9megkG7lSNTgA2FP+QWhQjCgrx3LYwFwjl6egF6WE01UVS9BAzHVEvPwI1x6sCW3wJgfuCWVTi4E/+Qw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=oGKEwAjW; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=oi1KiKEd;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=oGKEwAjW;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YYffG244Wz3bhc
-	for <linux-erofs@lists.ozlabs.org>; Thu, 16 Jan 2025 21:45:42 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id CDF7B5C5D20;
-	Thu, 16 Jan 2025 10:44:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55940C4CED6;
-	Thu, 16 Jan 2025 10:45:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737024340;
-	bh=knSBG7QOnfDWU6DPlN7eCld/mB5fwLV7Zb/ydbeGBFg=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=oi1KiKEdG+6VBEMjrNgWBa0JZV23WbYz8NDN1ltBYegyNp8+arH0FBK46dbUYYkUR
-	 gGq8vwHwBt+BZS+j7OPzPbb/Gb3pcPFFHGdzd+edMAXZlEGTODBQzpfcdzR/TdytQX
-	 gX6U2J2vNQhP0aXpq7I9y8IanjErHHCGErhXwaVg+cdHiL++8IaOrXH6pJeHCAxSFD
-	 mAHPrDmvilhyuerkOzHml9JiLQMaeze7U24t5PWdT4TBB7oR824UEunmu+DjgUKzWL
-	 PaWG7nKnc5N9tiDarTrGlRVaQxHPUhflHJUPeaqxRCFZPdbAPGZ9SSdZB9U5rPTlfU
-	 EusDxNezyZp/A==
-Message-ID: <8a85c2a3-7fa7-44db-9717-bc3effd4e381@kernel.org>
-Date: Thu, 16 Jan 2025 18:45:37 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YZBcl3LZ2z30VX
+	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Jan 2025 18:46:13 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737099970; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=nU8UGsI+C7nhXTkToAzqIL5sI02OfYwOv/L05bAuf2c=;
+	b=oGKEwAjW17lJ/KgoDwS3UO+YQEhIJ9DOnSxRE+qxKBNqRE/CT8h2JF+YQUjdwOlPYKDz1dc1vw62C6XT868EsjFxKOTncqWkU5MiOd677G+G/iZBbU2740lmwvMmSYpzjVYKNFp0ye1d9qcxXT/D9Oxy+PhA+L7sPAiHMuSLPSs=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WNo5San_1737099963 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 17 Jan 2025 15:46:08 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 1/3] erofs-utils: lib: use erofs_map_blocks() for all datalayouts
+Date: Fri, 17 Jan 2025 15:46:00 +0800
+Message-ID: <20250117074602.2223094-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/4] erofs: convert z_erofs_bind_cache() to folios
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20250114034429.431408-1-hsiangkao@linux.alibaba.com>
- <20250114034429.431408-4-hsiangkao@linux.alibaba.com>
-Content-Language: en-US
-In-Reply-To: <20250114034429.431408-4-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -79,23 +55,116 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Chao Yu via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Chao Yu <chao@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-On 1/14/25 11:44, Gao Xiang wrote:
-> The managed cache uses a pseudo inode to keep (necessary) compressed
-> data.
-> 
-> Currently, it still uses zero-order folios, so this is just a trivial
-> conversion, except that the use of the pagepool is temporarily dropped.
-> 
-> Drop some obsoleted comments too.
-> 
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+It simplifies the codebase a bit.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ dump/main.c | 11 +----------
+ fsck/main.c | 23 ++---------------------
+ lib/data.c  | 12 ++++++++++--
+ 3 files changed, 13 insertions(+), 33 deletions(-)
 
-Thanks,
+diff --git a/dump/main.c b/dump/main.c
+index 860ee5a..44f65da 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -359,14 +359,6 @@ static int erofsdump_readdir(struct erofs_dir_context *ctx)
+ 	return 0;
+ }
+ 
+-static int erofsdump_map_blocks(struct erofs_inode *inode,
+-		struct erofs_map_blocks *map, int flags)
+-{
+-	if (erofs_inode_is_data_compressed(inode->datalayout))
+-		return z_erofs_map_blocks_iter(inode, map, flags);
+-	return erofs_map_blocks(inode, map, flags);
+-}
+-
+ static void erofsdump_show_fileinfo(bool show_extent)
+ {
+ 	const char *ext_fmt[] = {
+@@ -461,8 +453,7 @@ static void erofsdump_show_fileinfo(bool show_extent)
+ 	while (map.m_la < inode.i_size) {
+ 		struct erofs_map_dev mdev;
+ 
+-		err = erofsdump_map_blocks(&inode, &map,
+-				EROFS_GET_BLOCKS_FIEMAP);
++		err = erofs_map_blocks(&inode, &map, EROFS_GET_BLOCKS_FIEMAP);
+ 		if (err) {
+ 			erofs_err("failed to get file blocks range");
+ 			return;
+diff --git a/fsck/main.c b/fsck/main.c
+index f20b767..f56a812 100644
+--- a/fsck/main.c
++++ b/fsck/main.c
+@@ -527,31 +527,12 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
+ 	erofs_dbg("verify data chunk of nid(%llu): type(%d)",
+ 		  inode->nid | 0ULL, inode->datalayout);
+ 
+-	switch (inode->datalayout) {
+-	case EROFS_INODE_FLAT_PLAIN:
+-	case EROFS_INODE_FLAT_INLINE:
+-	case EROFS_INODE_CHUNK_BASED:
+-		compressed = false;
+-		break;
+-	case EROFS_INODE_COMPRESSED_FULL:
+-	case EROFS_INODE_COMPRESSED_COMPACT:
+-		compressed = true;
+-		break;
+-	default:
+-		erofs_err("unknown datalayout");
+-		return -EINVAL;
+-	}
+-
++	compressed = erofs_inode_is_data_compressed(inode->datalayout);
+ 	while (pos < inode->i_size) {
+ 		unsigned int alloc_rawsize;
+ 
+ 		map.m_la = pos;
+-		if (compressed)
+-			ret = z_erofs_map_blocks_iter(inode, &map,
+-					EROFS_GET_BLOCKS_FIEMAP);
+-		else
+-			ret = erofs_map_blocks(inode, &map,
+-					EROFS_GET_BLOCKS_FIEMAP);
++		ret = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_FIEMAP);
+ 		if (ret)
+ 			goto out;
+ 
+diff --git a/lib/data.c b/lib/data.c
+index f37f8f0..8033208 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -62,8 +62,8 @@ err_out:
+ 	return err;
+ }
+ 
+-int erofs_map_blocks(struct erofs_inode *inode,
+-		struct erofs_map_blocks *map, int flags)
++int __erofs_map_blocks(struct erofs_inode *inode,
++		       struct erofs_map_blocks *map, int flags)
+ {
+ 	struct erofs_inode *vi = inode;
+ 	struct erofs_sb_info *sbi = inode->sbi;
+@@ -132,6 +132,14 @@ out:
+ 	return err;
+ }
+ 
++int erofs_map_blocks(struct erofs_inode *inode,
++		     struct erofs_map_blocks *map, int flags)
++{
++	if (erofs_inode_is_data_compressed(inode->datalayout))
++		return z_erofs_map_blocks_iter(inode, map, flags);
++	return __erofs_map_blocks(inode, map, flags);
++}
++
+ int erofs_map_dev(struct erofs_sb_info *sbi, struct erofs_map_dev *map)
+ {
+ 	struct erofs_device_info *dif;
+-- 
+2.43.5
+
