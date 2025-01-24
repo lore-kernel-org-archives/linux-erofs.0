@@ -4,46 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C079C02182
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2025 09:01:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37674C02182
+	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 02:01:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Ydw0k2vWcz308M
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jan 2025 20:01:26 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737622884;
-	cv=none; b=cbiQQs1qgQ1xruAnH8PEVjA4stsYFyBu0ic7Zss65aHsfGZSB8s38ir01uGMCZVbU4SzyXuaaGVIhW2xv2etJ5vLvt+9rHL8n0ovHitCnOCo6yF2xQ1GGH9URjF+oHqQIKVRR59edhdcxU7Jjf7F7cipYM11IrdF544Mdvp2Ie/Vov7LebjUiUOT4NbFD90FhiZcokqhvzvy+vj7tIdEJfJcfnkOXMI5r7U4e4U4fArw4H/cAPwczXMumd1niiQTuuKpuwrAG2LvUDKb+HdyN02Lp4XWhSVkFlo9ZbwmUl7SX3VLj3ANt03YYFeiTndLofdDKji9hOKGA+x5jwUdFQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YfLdd2VXkz30TP
+	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 13:01:25 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=38.43.111.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737684083;
+	cv=none; b=LEEQYQIackGkxXwXQ4uh4ozLoJMSPuiJpBSWC0M83E1XnDPzHqqU0vQOUkK4TQLpAktczOjFoKeVZ+sv2wLIK4+N0Ixy3PV+edngrsapInkK9n8jxBbyjgAbjZ0/TheRIx6zdxUWdJWmVG8paBi4hcxqej6abDPOXLpx27Xxw+3xKZGX0SdSu2HLFElxqbFj1Lry2q6NAnn/2UBlrrxQujxdVUY9yPgBWaagIDjGNpGxpIAUk6SppN1Cs7Whs6VFEW9gcwENdYYusWSvkEureYZr8/WujbCg1pvAgtipejLVKE+27hKWjpyESM8bWQSzPHyV4gEdDFN0izLsas52ag==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1737622884; c=relaxed/relaxed;
-	bh=PpA2IB08pHCZzk9POa/pWBkRxPW6FVtTAzux8QczCPc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ing/VjkyFUfDQwaa5zYMOc26g1d4a7+xjSV7RKCGaAd7+33YphFm9xjb0dzKR48pX60MSvGX0UtVQSXzcMpNJ5PcYybVIOnK3+9aHVVJPIv1GYwVW9oJmZUSMwBBc9JBqz3/1C02lWFRlSZWI18PZmXnVBMGMpa4iDkshI30iPqduR3j6Bt9z+0I1ZeJKgBuSC38XQR6XU+sVCu5bhajGr9rnnkEZLkVLALjwUWPou0KLGMdu/gqaQFzC5V0Qh4EACbwmG86aEdPLSyu67/4XtmLogN6FEDWOIeIi0OFYvoQGrMsSwQq6QwsVNHwAfZyIeQ/vmO6aKe2SECJq7deiA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F2OiD4BZ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F2OiD4BZ;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	t=1737684083; c=relaxed/relaxed;
+	bh=jTXMQLYLnzzl4tMhcmVu4eyUgjcdCEZafbd/djhgyDc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Z0duWVSoFrjhnOtdJvYi/2qx5MSxywbC61Hli377eiV0aNd0iNdYN2qU+iDu1I/QZiy8/ELijrdssaZGihUhTkGSVlkrb3OUKAncmQfLeHA/wheCVXI222jdRSVXVSEVENccwjQs33GkzM2lvOFWkvuNvS/bhnKgD9pliVSNJEr//OmN8Iq7MCJ5xXL0jgFEucCv7RD6kFnSg4s5AL/apsmoHglCuwX2E4Jw4szJq2Dbmck1Ncw+Fs5bzckXZGpLmvKkHiliitM3wNGcwjFOPrEy0dRIr166qQ2Zuld6OdSe7uUR79ofpnRXtjpJpDhT+rBUxAB/b4Fg/porA2+ZGw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=gosfordukfinanceltd.com; spf=permerror (client-ip=38.43.111.254; helo=mail.grupoarka.pe; envelope-from=simon@gosfordukfinanceltd.com; receiver=lists.ozlabs.org) smtp.mailfrom=gosfordukfinanceltd.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=gosfordukfinanceltd.com
+Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Too many DNS lookups) smtp.mailfrom=gosfordukfinanceltd.com (client-ip=38.43.111.254; helo=mail.grupoarka.pe; envelope-from=simon@gosfordukfinanceltd.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 7661 seconds by postgrey-1.37 at boromir; Fri, 24 Jan 2025 13:01:22 AEDT
+Received: from mail.grupoarka.pe (unknown [38.43.111.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ydw0g2TBnz2yyx
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 20:01:21 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1737622876; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=PpA2IB08pHCZzk9POa/pWBkRxPW6FVtTAzux8QczCPc=;
-	b=F2OiD4BZ1uw4jSJcYdkQy+1mHz8seJtTuKVnycSgYrjYAlgOU6XzgBg5scbh7++XI9NmgrGb2QcIAA7DG+tPdnHI2FPp5yN/CX80yEYCR625y6+RvE/daUUxhe5GBPjxhimH+frncWtQW2bqTFtxsnDgJGYiojxEzg+y88N0fjs=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WOBAKEy_1737622870 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 23 Jan 2025 17:01:15 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YfLdZ3ddTz2xmk
+	for <linux-erofs@lists.ozlabs.org>; Fri, 24 Jan 2025 13:01:20 +1100 (AEDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.grupoarka.pe (Postfix) with ESMTP id BFA161081DE4A
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 18:36:06 -0500 (-05)
+Received: from mail.grupoarka.pe ([127.0.0.1])
+ by localhost (mail.grupoarka.pe [127.0.0.1]) (amavis, port 10032) with ESMTP
+ id D8Ppb1QFpobl for <linux-erofs@lists.ozlabs.org>;
+ Thu, 23 Jan 2025 18:36:06 -0500 (-05)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.grupoarka.pe (Postfix) with ESMTP id 6815010A0BCA9
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 18:12:31 -0500 (-05)
+X-Virus-Scanned: amavis at grupoarka.pe
+Received: from mail.grupoarka.pe ([127.0.0.1])
+ by localhost (mail.grupoarka.pe [127.0.0.1]) (amavis, port 10026) with ESMTP
+ id mfuxerx6xtba for <linux-erofs@lists.ozlabs.org>;
+ Thu, 23 Jan 2025 18:12:31 -0500 (-05)
+Received: from gosfordukfinanceltd.com (gateway [172.27.225.126])
+	by mail.grupoarka.pe (Postfix) with ESMTP id 2DEA410A1337C
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 17:55:48 -0500 (-05)
+From: Mr Simon <simon@gosfordukfinanceltd.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs: refine z_erofs_get_extent_compressedlen()
-Date: Thu, 23 Jan 2025 17:01:09 +0800
-Message-ID: <20250123090109.973463-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+Subject: RE: RE: NEW BUSINESS PLAN
+Date: 23 Jan 2025 23:53:02 -0800
+Message-ID: <20250123235301.926FD7924ED38D9F@gosfordukfinanceltd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,92 +64,25 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+Reply-To: ritchie@gosfordukfinance.com
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
- - Set `compressedblks = 1` directly for non-bigpcluster cases.  This
-   simplifies the logic a bit since lcluster sizes larger than one block
-   are unsupported and the details remain unclear.
+Greetings,
 
- - For Z_EROFS_LCLUSTER_TYPE_PLAIN pclusters, avoid assuming
-   `compressedblks = 1` by default.  Instead, check if
-   Z_EROFS_ADVISE_BIG_PCLUSTER_2 is set.
+The GOSFORD FINANCE & LOANS LTD (UK) invites you to partner with=20
+us and benefit from our new Loan and Project funding program. We
+offer loans and funding for various good projects. This is=20
+however in the form of a partnership.
 
-It basically has no impact to existing valid images, but it's useful to
-find the gap to prepare for large PLAIN pclusters.
+Do you have projects and businesses that require funding? We are=20
+ready to give out Loans (big or small), at just 2% per annum for
+15 years. If you're interested in any of our proposals, then send=20
+me your mobile phone number so that I can write to you or give
+you a call for more details on our Loan Investment Funding Plan.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/zmap.c | 36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+I look forward to your response
 
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index b9e35089c9b8..689437e99a5a 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -294,27 +294,23 @@ static int z_erofs_extent_lookback(struct z_erofs_maprecorder *m,
- static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
- 					    unsigned int initial_lcn)
- {
--	struct super_block *sb = m->inode->i_sb;
--	struct erofs_inode *const vi = EROFS_I(m->inode);
--	struct erofs_map_blocks *const map = m->map;
--	const unsigned int lclusterbits = vi->z_logical_clusterbits;
--	unsigned long lcn;
-+	struct inode *inode = m->inode;
-+	struct super_block *sb = inode->i_sb;
-+	struct erofs_inode *vi = EROFS_I(inode);
-+	bool bigpcl1 = vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1;
-+	bool bigpcl2 = vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2;
-+	unsigned long lcn = m->lcn + 1;
- 	int err;
- 
--	DBG_BUGON(m->type != Z_EROFS_LCLUSTER_TYPE_PLAIN &&
--		  m->type != Z_EROFS_LCLUSTER_TYPE_HEAD1 &&
--		  m->type != Z_EROFS_LCLUSTER_TYPE_HEAD2);
-+	DBG_BUGON(m->type == Z_EROFS_LCLUSTER_TYPE_NONHEAD);
- 	DBG_BUGON(m->type != m->headtype);
- 
--	if (m->headtype == Z_EROFS_LCLUSTER_TYPE_PLAIN ||
--	    ((m->headtype == Z_EROFS_LCLUSTER_TYPE_HEAD1) &&
--	     !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1)) ||
--	    ((m->headtype == Z_EROFS_LCLUSTER_TYPE_HEAD2) &&
--	     !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2))) {
--		map->m_plen = 1ULL << lclusterbits;
--		return 0;
--	}
--	lcn = m->lcn + 1;
-+	if ((m->headtype == Z_EROFS_LCLUSTER_TYPE_HEAD1 && !bigpcl1) ||
-+	    ((m->headtype == Z_EROFS_LCLUSTER_TYPE_PLAIN ||
-+	      m->headtype == Z_EROFS_LCLUSTER_TYPE_HEAD2) && !bigpcl2) ||
-+	    (lcn << vi->z_logical_clusterbits) >= inode->i_size)
-+		m->compressedblks = 1;
-+
- 	if (m->compressedblks)
- 		goto out;
- 
-@@ -339,9 +335,9 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
- 	case Z_EROFS_LCLUSTER_TYPE_HEAD2:
- 		/*
- 		 * if the 1st NONHEAD lcluster is actually PLAIN or HEAD type
--		 * rather than CBLKCNT, it's a 1 lcluster-sized pcluster.
-+		 * rather than CBLKCNT, it's a 1 block-sized pcluster.
- 		 */
--		m->compressedblks = 1 << (lclusterbits - sb->s_blocksize_bits);
-+		m->compressedblks = 1;
- 		break;
- 	case Z_EROFS_LCLUSTER_TYPE_NONHEAD:
- 		if (m->delta[0] != 1)
-@@ -356,7 +352,7 @@ static int z_erofs_get_extent_compressedlen(struct z_erofs_maprecorder *m,
- 		return -EFSCORRUPTED;
- 	}
- out:
--	map->m_plen = erofs_pos(sb, m->compressedblks);
-+	m->map->m_plen = erofs_pos(sb, m->compressedblks);
- 	return 0;
- err_bonus_cblkcnt:
- 	erofs_err(sb, "bogus CBLKCNT @ lcn %lu of nid %llu", lcn, vi->nid);
--- 
-2.43.5
-
+Mr Simon
+GOSFORD FINANCE &
+LOANS LTD
