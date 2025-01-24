@@ -4,55 +4,46 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37674C02182
-	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 02:01:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC07BC02182
+	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 02:47:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YfLdd2VXkz30TP
-	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 13:01:25 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=38.43.111.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737684083;
-	cv=none; b=LEEQYQIackGkxXwXQ4uh4ozLoJMSPuiJpBSWC0M83E1XnDPzHqqU0vQOUkK4TQLpAktczOjFoKeVZ+sv2wLIK4+N0Ixy3PV+edngrsapInkK9n8jxBbyjgAbjZ0/TheRIx6zdxUWdJWmVG8paBi4hcxqej6abDPOXLpx27Xxw+3xKZGX0SdSu2HLFElxqbFj1Lry2q6NAnn/2UBlrrxQujxdVUY9yPgBWaagIDjGNpGxpIAUk6SppN1Cs7Whs6VFEW9gcwENdYYusWSvkEureYZr8/WujbCg1pvAgtipejLVKE+27hKWjpyESM8bWQSzPHyV4gEdDFN0izLsas52ag==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YfMfl1MH3z30TY
+	for <linux-erofs@archiver.kernel.org>; Fri, 24 Jan 2025 13:47:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1737686845;
+	cv=none; b=moBWoYsQeJ0lqbvhtEWtj10S6qhw/5+vl5LRXlQlzyRar9obYWXDM5q9Uc13yVeaWKJg5CZ8cn0Rn4VNDXII1JWvuMzERCRDZL8ARxI+y/zryclRAafbqcWelmuxrs+LNRTcJ/6gzSvJGQJlP9xRvHiGmvscTnhZzqUpjmou1ZhxSpHm+Nphp/TXn90qyPOSrwAmoAo3f627qYIwMYTJpEzyFZQ7KJcgUNxMmRrPHPmNFRGbNroFJ1nOL2PtdCBIyhYbsHU4/eiGgF3Lmkbr78lAmKrXF5YvrvjqS3Y7K/snolvXFtodqJ270xL1AaRQrxp/yQk8ZUJjkAwd9aGYag==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1737684083; c=relaxed/relaxed;
-	bh=jTXMQLYLnzzl4tMhcmVu4eyUgjcdCEZafbd/djhgyDc=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Z0duWVSoFrjhnOtdJvYi/2qx5MSxywbC61Hli377eiV0aNd0iNdYN2qU+iDu1I/QZiy8/ELijrdssaZGihUhTkGSVlkrb3OUKAncmQfLeHA/wheCVXI222jdRSVXVSEVENccwjQs33GkzM2lvOFWkvuNvS/bhnKgD9pliVSNJEr//OmN8Iq7MCJ5xXL0jgFEucCv7RD6kFnSg4s5AL/apsmoHglCuwX2E4Jw4szJq2Dbmck1Ncw+Fs5bzckXZGpLmvKkHiliitM3wNGcwjFOPrEy0dRIr166qQ2Zuld6OdSe7uUR79ofpnRXtjpJpDhT+rBUxAB/b4Fg/porA2+ZGw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=gosfordukfinanceltd.com; spf=permerror (client-ip=38.43.111.254; helo=mail.grupoarka.pe; envelope-from=simon@gosfordukfinanceltd.com; receiver=lists.ozlabs.org) smtp.mailfrom=gosfordukfinanceltd.com
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=gosfordukfinanceltd.com
-Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Too many DNS lookups) smtp.mailfrom=gosfordukfinanceltd.com (client-ip=38.43.111.254; helo=mail.grupoarka.pe; envelope-from=simon@gosfordukfinanceltd.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 7661 seconds by postgrey-1.37 at boromir; Fri, 24 Jan 2025 13:01:22 AEDT
-Received: from mail.grupoarka.pe (unknown [38.43.111.254])
+	t=1737686845; c=relaxed/relaxed;
+	bh=omVyYtcfGHSsIbFE2TsLXX+Zn6woRsryFWRi+UlB2T0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M30B3JVXOhFkTGN5EDlD9FKq5cKhfuD1iZbKZznBvyCES3fVqDIiAbXHYYJw4Gn6C8ikCqgTm8I8s+uAQ06dBPvupAdfVeA/zqC4EYYUWw4FBKlJ9jtYnz9url70Pw5+OFwJszpLamZ+VCFCS0Cr6jKuOBznquPzfeDefvZUI31twG0YoYOeSgYa3ZcmMbum0U6nfXVabSxzuhHVnL5JxEQhZY4E/EHLh8vynyp6fozsyjGzQztws670kLHmJHwSfiqBmJ1CSBkEMsFDqtMsnvIb2/EmOHzPpcrvwHo377qy1XpM4vTI1vq8R93O+JcYltFG6TjJv4a0G+BaZaiLMg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kpM+z0kv; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kpM+z0kv;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YfLdZ3ddTz2xmk
-	for <linux-erofs@lists.ozlabs.org>; Fri, 24 Jan 2025 13:01:20 +1100 (AEDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.grupoarka.pe (Postfix) with ESMTP id BFA161081DE4A
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 18:36:06 -0500 (-05)
-Received: from mail.grupoarka.pe ([127.0.0.1])
- by localhost (mail.grupoarka.pe [127.0.0.1]) (amavis, port 10032) with ESMTP
- id D8Ppb1QFpobl for <linux-erofs@lists.ozlabs.org>;
- Thu, 23 Jan 2025 18:36:06 -0500 (-05)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.grupoarka.pe (Postfix) with ESMTP id 6815010A0BCA9
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 18:12:31 -0500 (-05)
-X-Virus-Scanned: amavis at grupoarka.pe
-Received: from mail.grupoarka.pe ([127.0.0.1])
- by localhost (mail.grupoarka.pe [127.0.0.1]) (amavis, port 10026) with ESMTP
- id mfuxerx6xtba for <linux-erofs@lists.ozlabs.org>;
- Thu, 23 Jan 2025 18:12:31 -0500 (-05)
-Received: from gosfordukfinanceltd.com (gateway [172.27.225.126])
-	by mail.grupoarka.pe (Postfix) with ESMTP id 2DEA410A1337C
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jan 2025 17:55:48 -0500 (-05)
-From: Mr Simon <simon@gosfordukfinanceltd.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YfMfh0jyhz2yMF
+	for <linux-erofs@lists.ozlabs.org>; Fri, 24 Jan 2025 13:47:22 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737686837; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=omVyYtcfGHSsIbFE2TsLXX+Zn6woRsryFWRi+UlB2T0=;
+	b=kpM+z0kvi8ZyKurrfcserJs642kZcz8uqtXW4CQEmCuG/3mLog0GGV7f24qZPrR+lTWe2lq1U/woEpENH7TW5K5AtsrAX3bgJ4YI6gPneuwgPEGFaXyEFKkk84+8pr+62rcCzZT+jJXQ6I1Vb70TqTcsPnPYiGgJYzpImzh7iwA=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WOD30dn_1737686832 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 24 Jan 2025 10:47:16 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: RE: RE: NEW BUSINESS PLAN
-Date: 23 Jan 2025 23:53:02 -0800
-Message-ID: <20250123235301.926FD7924ED38D9F@gosfordukfinanceltd.com>
+Subject: [PATCH] erofs-utils: manpages: update new option of mkfs.erofs
+Date: Fri, 24 Jan 2025 10:47:11 +0800
+Message-ID: <20250124024711.2320620-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -64,25 +55,85 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Reply-To: ritchie@gosfordukfinance.com
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Greetings,
+Add `-E fragdedupe` and revise some descriptions.
 
-The GOSFORD FINANCE & LOANS LTD (UK) invites you to partner with=20
-us and benefit from our new Loan and Project funding program. We
-offer loans and funding for various good projects. This is=20
-however in the form of a partnership.
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ man/mkfs.erofs.1 | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
-Do you have projects and businesses that require funding? We are=20
-ready to give out Loans (big or small), at just 2% per annum for
-15 years. If you're interested in any of our proposals, then send=20
-me your mobile phone number so that I can write to you or give
-you a call for more details on our Loan Investment Funding Plan.
+diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
+index 0093839..698ed5b 100644
+--- a/man/mkfs.erofs.1
++++ b/man/mkfs.erofs.1
+@@ -45,9 +45,10 @@ warning messages.
+ Limit how many xattrs will be inlined. The default is 2.
+ Disables storing xattrs if < 0.
+ .TP
+-.BI "\-E " extended-option \fR[\fP, ... \fR]\fP
++.BI "\-E " [^]extended-option \fR[\fP, ... \fR]\fP
+ Set extended options for the filesystem. Extended options are comma separated,
+-and may take an extra argument using the equals ('=') sign.
++and may take an extra argument using the equals ('=') sign.  To disable a
++feature, usually prefix the extended option name with a caret ('^') character.
+ The following extended options are supported:
+ .RS 1.2i
+ .TP
+@@ -74,20 +75,36 @@ Force generation of inode chunk format as a 4-byte block address array.
+ .BI force-chunk-indexes
+ Forcely generate inode chunk format as an 8-byte chunk index (with device ID).
+ .TP
++.BI [^]fragdedupe\fR[\fP= <inode|full> \fR]\fP
++Set the mode for fragment data deduplication.  It's effective only when
++\fI-E(all)-fragments\fR is used together.  If a caret ('^') character is set,
++fragment data deduplication is disabled.
++.RS 1.2i
++.TP
++.I inode
++Deduplicate fragment data only when the inode data is identical.  This option
++will result in faster image generation with the current codebase
++.TP
++.I full
++Always deduplicate fragment data if possible
++.RE
++.TP
+ .BI fragments\fR[\fP= size \fR]\fP
+ Pack the tail part (pcluster) of compressed files, or entire files, into a
+ special inode for smaller image sizes, and it may take an argument as the
+ pcluster size of the packed inode in bytes. (Linux v6.1+)
+ .TP
++.BI ^inline_data
++Don't inline regular files.  It's typically useful to enable FSDAX (Linux 5.15+)
++for those images, however, there could be other use cases too.
++.TP
+ .BI legacy-compress
+ Disable "inplace decompression" and "compacted indexes",
+ for compatibility with Linux pre-v5.4.
+ .TP
+-.BI noinline_data
+-Don't inline regular files to enable FSDAX for these files (Linux v5.15+).
+-.TP
+-.B ^xattr-name-filter
+-Turn off/on xattr name filter to optimize negative xattr lookups (Linux v6.6+).
++.B xattr-name-filter
++Enable a name filter for extended attributes to optimize negative lookups.
++(Linux v6.6+).
+ .TP
+ .BI ztailpacking
+ Pack the tail part (pcluster) of compressed files into its metadata to save
+@@ -97,7 +114,7 @@ more space and the tail part I/O. (Linux v5.17+)
+ .BI "\-L " volume-label
+ Set the volume label for the filesystem to
+ .IR volume-label .
+-The maximum length of the volume label is 16 bytes.
++The maximum length of the volume label is 15 bytes.
+ .TP
+ .BI "\-T " #
+ Specify a UNIX timestamp for image creation time for reproducible builds.
+-- 
+2.43.5
 
-I look forward to your response
-
-Mr Simon
-GOSFORD FINANCE &
-LOANS LTD
