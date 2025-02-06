@@ -4,44 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8489C02198
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Feb 2025 03:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17924C02194
+	for <linux-erofs@archiver.kernel.org>; Thu,  6 Feb 2025 12:50:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YpNbp5NY1z30LS
-	for <linux-erofs@archiver.kernel.org>; Thu,  6 Feb 2025 14:57:42 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1738814260;
-	cv=none; b=QE7LlmKfCMnWtqjklPJ+pPIvebzPV01qkforU2f3l6Ekn6y9gDQn4DElvjVJN5xLqr2JuxJDpQVnhyvkZ7djEtiFMzEIWHvjERi/0XayMVFxytStS+6zl17uGemGw+DCpufTvWrxlU4h0pjOtN0MZWQeXmYxqWyi8bCnvXgQFQA3yRZl1i7jaceXcbljrb9s/DqSVyN/+zhBGAtyOzSm6wyNJvgoDmnL0fWplqY6lg1XCfXKJS4KnpLAe829cOSvPqmri/VtJB9cqO9+QNhUgyHu6LvyK7XpTWkSpVV7d6+njWSNm16hW716Lgdz9Fg42sCEW8BQsVxft3nn2mmOXQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YpcR22nKLz30TK
+	for <linux-erofs@archiver.kernel.org>; Thu,  6 Feb 2025 23:50:54 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1738846251;
+	cv=none; b=XMcEmLPD4Upz1tA5nD5pD1BgTJpTEuFu5GE3AA+QC8l7Bj9Z53gZ/Gm7Fgcs+GleH4EMlOOjdmGix48bg3and6JsKy/Cdm9mLfHV8CHxpyYuVlGCCKstl1jjrAOJKNB/yzKlO0kbURihm3scX8nKnUg3VdZ5nGFFiLXEzcSJCLJX1XUGVaf5/fvLvsZgh5oEbY38Ol7JsQakpUOJrWyK+z5m+7s2jnUbGcIET7hCSGbsxe/FbRqYqWiM0ZI6/XCkc1J4cb4tS3RwQZ9aQbTK5kbC2wsC4eFxKbzO+0kc+FGoZDBpghikBR9ztvh5568iauB9qzKTEBH4YsgRcK44rA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1738814260; c=relaxed/relaxed;
-	bh=6tE60E8Zw9Mlr6VV4wOis2vVdFekpRTmAnbVAjFXlgo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G4XfDp/2rv84ZWydwwQoakBYLrfvcdwHPVrcqTpHfqo/GTJKxLPp5r/TuueFMcufetmIUBdHZjVFZkSBVI8mcr9vDVKSHmbfcdM+YdC77aNlBtrWgX4nD1+HTnPeIBQz4BaZ1z8IUjHnQIJCt4orj/sJe376woxvXB71BmCSDFI48weEt2F8vUzBWVGvFFpR16AHGco20kkPaiWaMkrNMfF8jfmQ14NVnjchnqzlszjcLMEGEA2rakDm2BOM1Fwcf0Kc4vp9ZGxsJHcgHQIqJorbaOiDJq8vxmVzfOTkjocpvK8VcHqy5/6vm1/GYxcX2WEDVjP2wQjppqSiWSrhgg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M6XE50Ek; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1738846251; c=relaxed/relaxed;
+	bh=NIfRX+yueKvU5weC79ObXAMTFAuFRey/MknqUTKpng0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HZZTvv2dCf+W53WOHizK68vxCbPUso3GuZB8eA6t/xjiL0+n9ygHLV85l/yL2LIW3AYdWF3uD2IVZW1sq+TjL+mC7ptDMepq/y1Upok6Ps19NtCWVK6qFM1iQymo36n/z3H3jeNgjVI9JN6rq6wb4w8lpcwaNWbCP7/y6a1kAqxKqfMDXGBfrTQ12PQmtw7TA96VZa2NKja8Ov4/seqGhsljVwiNh0PQSeV2Yq4SPdZ9j5tsLCUNLaXJJqkbJ8atyk+Furbo4CLze1TNWMJNuK8VgSFfB+YCs22axSsSV9hCplBq9dZSgia/grH5BtHwxOrEQFJjgbqBTwwFsCfZbw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UI0HDuDn; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M6XE50Ek;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UI0HDuDn;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YpNbk0KPVz2y33
-	for <linux-erofs@lists.ozlabs.org>; Thu,  6 Feb 2025 14:57:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YpcQy1lVqz30DD
+	for <linux-erofs@lists.ozlabs.org>; Thu,  6 Feb 2025 23:50:49 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1738814252; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=6tE60E8Zw9Mlr6VV4wOis2vVdFekpRTmAnbVAjFXlgo=;
-	b=M6XE50EkDcYu1xlmM/w6f5TcFKbnFx+gyZ95B6PNYCPfu3zfky5guatoAtwsaWKtD+G/sb/6ncbsQ7guhly/quv2FFXSn/NMuFYiL4cLZ0jQzeXuISr3UqDWuHShHsdcfFYD2SHoPUheZl0KkjGbhrqU/HYjc2FA9doTo5kz0XA=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WOuQHQg_1738814244 cluster:ay36)
+	t=1738846246; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=NIfRX+yueKvU5weC79ObXAMTFAuFRey/MknqUTKpng0=;
+	b=UI0HDuDnQd9PNgjOm9iA2819zZ1FMbQUqMvtXTlHO0bzQjHvuDvqjqiWekjCb5lGPMFkpJA3Mo1g952s2SUcTAcbjmIAcp4jQu2n7G11y+wqMCdkVvMhWhdFSbYeYqwtvGtNRAiPIlVkStKtypszdU11TFlKWFBc8r0KoNL0qho=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WOwMl46_1738846243 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 06 Feb 2025 11:57:30 +0800
+          Thu, 06 Feb 2025 20:50:44 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs-utils: contrib: add stress test
-Date: Thu,  6 Feb 2025 11:57:22 +0800
-Message-ID: <20250206035722.716849-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/9] erofs-utils: lib: get rid of z_erofs_do_map_blocks() forward declaration
+Date: Thu,  6 Feb 2025 20:50:27 +0800
+Message-ID: <20250206125034.1462966-2-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250206125034.1462966-1-hsiangkao@linux.alibaba.com>
+References: <20250206125034.1462966-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
@@ -55,865 +58,199 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-From: Gao Xiang <xiang@kernel.org>
-
-Just import it as an in-tree component for tests.
-
-Signed-off-by: Gao Xiang <xiang@kernel.org>
+Source kernel commit: 999f2f9a63f475192d837a2b8595eb0962984d21
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-changes since v1:
- - Limit to the linux platform for now.
+ lib/zmap.c | 158 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 77 insertions(+), 81 deletions(-)
 
- Makefile.am         |   1 +
- configure.ac        |  15 +-
- contrib/Makefile.am |  11 +
- contrib/stress.c    | 776 ++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 802 insertions(+), 1 deletion(-)
- create mode 100644 contrib/Makefile.am
- create mode 100644 contrib/stress.c
-
-diff --git a/Makefile.am b/Makefile.am
-index fc464e8..f8a967f 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -6,3 +6,4 @@ SUBDIRS = man lib mkfs dump fsck
- if ENABLE_FUSE
- SUBDIRS += fuse
- endif
-+SUBDIRS += contrib
-diff --git a/configure.ac b/configure.ac
-index 0a069c5..c922f73 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -20,6 +20,18 @@ AC_PROG_INSTALL
+diff --git a/lib/zmap.c b/lib/zmap.c
+index f1cdc66..74c0033 100644
+--- a/lib/zmap.c
++++ b/lib/zmap.c
+@@ -10,10 +10,6 @@
+ #include "erofs/internal.h"
+ #include "erofs/print.h"
  
- LT_INIT
+-static int z_erofs_do_map_blocks(struct erofs_inode *vi,
+-				 struct erofs_map_blocks *map,
+-				 int flags);
+-
+ int z_erofs_fill_inode(struct erofs_inode *vi)
+ {
+ 	struct erofs_sb_info *sbi = vi->sbi;
+@@ -31,83 +27,6 @@ int z_erofs_fill_inode(struct erofs_inode *vi)
+ 	return 0;
+ }
  
-+AC_CANONICAL_TARGET
-+
-+build_linux=no
-+case "${target_os}" in
-+  linux*)
-+    build_linux=yes
-+    ;;
-+esac
-+
-+# OS-specific treatment
-+AM_CONDITIONAL([OS_LINUX], [test "$build_linux" = "yes"])
-+
- # Test presence of pkg-config
- AC_MSG_CHECKING([pkg-config m4 macros])
- if test m4_ifdef([PKG_CHECK_MODULES], [yes], [no]) = "yes"; then
-@@ -647,5 +659,6 @@ AC_CONFIG_FILES([Makefile
- 		 mkfs/Makefile
- 		 dump/Makefile
- 		 fuse/Makefile
--		 fsck/Makefile])
-+		 fsck/Makefile
-+		 contrib/Makefile])
- AC_OUTPUT
-diff --git a/contrib/Makefile.am b/contrib/Makefile.am
-new file mode 100644
-index 0000000..4eb7abe
---- /dev/null
-+++ b/contrib/Makefile.am
-@@ -0,0 +1,11 @@
-+# SPDX-License-Identifier: GPL-2.0+
-+# Makefile.am
-+
-+AUTOMAKE_OPTIONS	= foreign
-+
-+if OS_LINUX
-+noinst_PROGRAMS		= stress
-+
-+stress_CFLAGS = -Wall -I$(top_srcdir)/include
-+stress_SOURCES = stress.c
-+endif
-diff --git a/contrib/stress.c b/contrib/stress.c
-new file mode 100644
-index 0000000..eedd9b9
---- /dev/null
-+++ b/contrib/stress.c
-@@ -0,0 +1,776 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * stress test for EROFS filesystem
-+ *
-+ * Copyright (C) 2019-2025 Gao Xiang <xiang@kernel.org>
-+ */
-+#define _GNU_SOURCE
-+#include "erofs/defs.h"
-+#include <errno.h>
-+#include <sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <dirent.h>
-+#include <sys/stat.h>
-+#include <sys/wait.h>
-+#include <time.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+
-+#define MAX_CHUNKSIZE		(2 * 1024 * 1024)
-+#define MAX_SCAN_CHUNKSIZE	(256 * 1024)
-+
-+bool superuser;
-+unsigned int nprocs = 1, loops = 1, r_seed;
-+unsigned int procid;
-+volatile sig_atomic_t should_stop;
-+
-+enum {
-+	DROP_PAGE_CACHE,
-+	DROP_SLAB_CACHE,
-+	COMPACT_MEMORY,
-+};
-+
-+enum {
-+	OP_GETDENTS,
-+	OP_READLINK,
-+	OP_SEQREAD_ALIGNED,
-+	OP_SEQREAD_UNALIGNED,
-+	OP_READ,
-+	OP_FADVISE,
-+	OP_DROP_CACHES,
-+};
-+
-+struct opdesc {
-+	char	*name;
-+	int	(*func)(int op, unsigned int sn);
-+	int	freq;
-+	bool	requireroot;
-+};
-+
-+extern struct opdesc ops[];
-+
-+static int drop_caches_f(int op, unsigned int sn)
+-static int z_erofs_fill_inode_lazy(struct erofs_inode *vi)
+-{
+-	int ret;
+-	erofs_off_t pos;
+-	struct z_erofs_map_header *h;
+-	char buf[sizeof(struct z_erofs_map_header)];
+-	struct erofs_sb_info *sbi = vi->sbi;
+-
+-	if (vi->flags & EROFS_I_Z_INITED)
+-		return 0;
+-
+-	pos = round_up(erofs_iloc(vi) + vi->inode_isize + vi->xattr_isize, 8);
+-	ret = erofs_dev_read(sbi, 0, buf, pos, sizeof(buf));
+-	if (ret < 0)
+-		return -EIO;
+-
+-	h = (struct z_erofs_map_header *)buf;
+-	/*
+-	 * if the highest bit of the 8-byte map header is set, the whole file
+-	 * is stored in the packed inode. The rest bits keeps z_fragmentoff.
+-	 */
+-	if (h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT) {
+-		vi->z_advise = Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
+-		vi->fragmentoff = le64_to_cpu(*(__le64 *)h) ^ (1ULL << 63);
+-		vi->z_tailextent_headlcn = 0;
+-		goto out;
+-	}
+-
+-	vi->z_advise = le16_to_cpu(h->h_advise);
+-	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
+-	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
+-
+-	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX) {
+-		erofs_err("unknown compression format %u for nid %llu",
+-			  vi->z_algorithmtype[0], (unsigned long long)vi->nid);
+-		return -EOPNOTSUPP;
+-	}
+-
+-	vi->z_logical_clusterbits = sbi->blkszbits + (h->h_clusterbits & 7);
+-	if (vi->datalayout == EROFS_INODE_COMPRESSED_COMPACT &&
+-	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1) ^
+-	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2)) {
+-		erofs_err("big pcluster head1/2 of compact indexes should be consistent for nid %llu",
+-			  vi->nid * 1ULL);
+-		return -EFSCORRUPTED;
+-	}
+-
+-	if (vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER) {
+-		struct erofs_map_blocks map = { .index = UINT_MAX };
+-
+-		vi->idata_size = le16_to_cpu(h->h_idata_size);
+-		ret = z_erofs_do_map_blocks(vi, &map,
+-					    EROFS_GET_BLOCKS_FINDTAIL);
+-		if (!map.m_plen ||
+-		    erofs_blkoff(sbi, map.m_pa) + map.m_plen > erofs_blksiz(sbi)) {
+-			erofs_err("invalid tail-packing pclustersize %llu",
+-				  map.m_plen | 0ULL);
+-			return -EFSCORRUPTED;
+-		}
+-		if (ret < 0)
+-			return ret;
+-	}
+-	if (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER &&
+-	    !(h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT)) {
+-		struct erofs_map_blocks map = { .index = UINT_MAX };
+-
+-		vi->fragmentoff = le32_to_cpu(h->h_fragmentoff);
+-		ret = z_erofs_do_map_blocks(vi, &map,
+-					    EROFS_GET_BLOCKS_FINDTAIL);
+-		if (ret < 0)
+-			return ret;
+-	}
+-out:
+-	vi->flags |= EROFS_I_Z_INITED;
+-	return 0;
+-}
+-
+ struct z_erofs_maprecorder {
+ 	struct erofs_inode *inode;
+ 	struct erofs_map_blocks *map;
+@@ -668,6 +587,83 @@ out:
+ 	return err;
+ }
+ 
++static int z_erofs_fill_inode_lazy(struct erofs_inode *vi)
 +{
-+	static const char *procfile[] = {
-+		[DROP_PAGE_CACHE] = "/proc/sys/vm/drop_caches",
-+		[DROP_SLAB_CACHE] = "/proc/sys/vm/drop_caches",
-+		[COMPACT_MEMORY] = "/proc/sys/vm/compact_memory",
-+	};
-+	static const char *val[] = {
-+		[DROP_PAGE_CACHE] = "1\n",
-+		[DROP_SLAB_CACHE] = "2\n",
-+		[COMPACT_MEMORY] = "1\n",
-+	};
-+	int mode = random() % ARRAY_SIZE(val);
-+	FILE *f;
-+	clock_t start;
++	int ret;
++	erofs_off_t pos;
++	struct z_erofs_map_header *h;
++	char buf[sizeof(struct z_erofs_map_header)];
++	struct erofs_sb_info *sbi = vi->sbi;
 +
-+	if (!procfile[mode])
-+		return -EINVAL;
++	if (vi->flags & EROFS_I_Z_INITED)
++		return 0;
 +
-+	printf("%d[%u]/%u %s: %s=%s", getpid(), procid, sn, __func__,
-+	       procfile[mode], val[mode]);
++	pos = round_up(erofs_iloc(vi) + vi->inode_isize + vi->xattr_isize, 8);
++	ret = erofs_dev_read(sbi, 0, buf, pos, sizeof(buf));
++	if (ret < 0)
++		return -EIO;
 +
-+	f = fopen(procfile[mode], "w");
-+	if (!f)
-+		return -errno;
-+
-+	start = clock();
-+	while (clock() < start + CLOCKS_PER_SEC) {
-+		fputs(val[mode], f);
-+		(void)sched_yield();
-+	}
-+	fclose(f);
-+	return 0;
-+}
-+
-+struct fent {
-+	char *subpath;
-+	int  fd, chkfd;
-+};
-+
-+#define FT_DIR	0
-+#define FT_DIRm	(1 << FT_DIR)
-+#define FT_REG	1
-+#define FT_REGm	(1 << FT_REG)
-+#define FT_SYM	2
-+#define FT_SYMm	(1 << FT_SYM)
-+#define FT_DEV	3
-+#define FT_DEVm	(1 << FT_DEV)
-+#define FT_nft	4
-+#define FT_ANYm	((1 << FT_nft) - 1)
-+
-+#define	FLIST_SLOT_INCR	16
-+
-+struct flist {
-+	int nfiles, nslots;
-+	struct fent *fents;
-+} flists[FT_nft];
-+
-+static struct fent *add_to_flist(int type, char *subpath)
-+{
-+	struct fent *fep;
-+	struct flist *ftp;
-+
-+	ftp = &flists[type];
-+	if (ftp->nfiles >= ftp->nslots) {
-+		ftp->nslots += FLIST_SLOT_INCR;
-+		ftp->fents = realloc(ftp->fents,
-+				     ftp->nslots * sizeof(struct fent));
-+		if (!ftp->fents)
-+			return NULL;
-+	}
-+	fep = &ftp->fents[ftp->nfiles++];
-+	fep->subpath = strdup(subpath);
-+	fep->fd = -1;
-+	fep->chkfd = -1;
-+	return fep;
-+}
-+
-+static inline bool is_dot_dotdot(const char *name)
-+{
-+	if (name[0] != '.')
-+		return false;
-+
-+	return name[1] == '\0' || (name[1] == '.' && name[2] == '\0');
-+}
-+
-+static int walkdir(struct fent *ent)
-+{
-+	const char *dirpath = ent->subpath;
-+	int ret = 0;
-+	struct dirent *dp;
-+	DIR *_dir;
-+
-+	_dir = opendir(dirpath);
-+	if (!_dir) {
-+		fprintf(stderr, "failed to opendir at %s: %s\n",
-+			dirpath, strerror(errno));
-+		return -errno;
-+	}
-+
-+	while (1) {
-+		char subpath[PATH_MAX];
-+		struct stat st;
-+
-+		/*
-+		 * set errno to 0 before calling readdir() in order to
-+		 * distinguish end of stream and from an error.
-+		 */
-+		errno = 0;
-+		dp = readdir(_dir);
-+		if (!dp)
-+			break;
-+
-+		if (is_dot_dotdot(dp->d_name))
-+			continue;
-+
-+		sprintf(subpath, "%s/%s", dirpath, dp->d_name);
-+
-+		if (lstat(subpath, &st))
-+			continue;
-+
-+		switch (st.st_mode & S_IFMT) {
-+		case S_IFDIR:
-+			ent = add_to_flist(FT_DIR, subpath);
-+			if (ent == NULL) {
-+				ret = -ENOMEM;
-+				goto err_closedir;
-+			}
-+			ret = walkdir(ent);
-+			if (ret)
-+				goto err_closedir;
-+			break;
-+		case S_IFREG:
-+			ent = add_to_flist(FT_REG, subpath);
-+			if (ent == NULL) {
-+				ret = -ENOMEM;
-+				goto err_closedir;
-+			}
-+			break;
-+		case S_IFLNK:
-+			ent = add_to_flist(FT_SYM, subpath);
-+			if (ent == NULL) {
-+				ret = -ENOMEM;
-+				goto err_closedir;
-+			}
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+	if (errno)
-+		ret = -errno;
-+err_closedir:
-+	closedir(_dir);
-+	return ret;
-+}
-+
-+static int init_filetable(int testdir_fd)
-+{
-+	struct fent *fent;
-+
-+	fent = add_to_flist(FT_DIR, ".");
-+	if (!fent)
-+		return -ENOMEM;
-+	if (fchdir(testdir_fd) < 0) {
-+		perror("failed to fchdir");
-+		return -errno;
-+	}
-+	return walkdir(fent);
-+}
-+
-+static struct fent *getfent(int which, int r)
-+{
-+	int		totalsum = 0; /* total number of matching files */
-+	int		partialsum = 0; /* partial sum of matching files */
-+	struct flist	*flp;
-+	int		i, x;
-+
-+	totalsum = 0;
-+	for (i = 0, flp = flists; i < FT_nft; ++i, ++flp)
-+		if (which & (1 << i))
-+			totalsum += flp->nfiles;
-+
-+	if (!totalsum)
-+		return NULL;
-+
++	h = (struct z_erofs_map_header *)buf;
 +	/*
-+	 * Now we have possible matches between 0..totalsum-1.
-+	 * And we use r to help us choose which one we want,
-+	 * which when bounded by totalsum becomes x.
++	 * if the highest bit of the 8-byte map header is set, the whole file
++	 * is stored in the packed inode. The rest bits keeps z_fragmentoff.
 +	 */
-+	x = (int)(r % totalsum);
++	if (h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT) {
++		vi->z_advise = Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
++		vi->fragmentoff = le64_to_cpu(*(__le64 *)h) ^ (1ULL << 63);
++		vi->z_tailextent_headlcn = 0;
++		goto out;
++	}
 +
-+	for (i = 0, flp = flists; i < FT_nft; i++, flp++) {
-+		if (which & (1 << i)) {
-+			if (x < partialsum + flp->nfiles)
-+				return &flp->fents[x - partialsum];
-+			partialsum += flp->nfiles;
++	vi->z_advise = le16_to_cpu(h->h_advise);
++	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
++	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
++
++	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX) {
++		erofs_err("unknown compression format %u for nid %llu",
++			  vi->z_algorithmtype[0], (unsigned long long)vi->nid);
++		return -EOPNOTSUPP;
++	}
++
++	vi->z_logical_clusterbits = sbi->blkszbits + (h->h_clusterbits & 7);
++	if (vi->datalayout == EROFS_INODE_COMPRESSED_COMPACT &&
++	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_1) ^
++	    !(vi->z_advise & Z_EROFS_ADVISE_BIG_PCLUSTER_2)) {
++		erofs_err("big pcluster head1/2 of compact indexes should be consistent for nid %llu",
++			  vi->nid * 1ULL);
++		return -EFSCORRUPTED;
++	}
++
++	if (vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER) {
++		struct erofs_map_blocks map = { .index = UINT_MAX };
++
++		vi->idata_size = le16_to_cpu(h->h_idata_size);
++		ret = z_erofs_do_map_blocks(vi, &map,
++					    EROFS_GET_BLOCKS_FINDTAIL);
++		if (!map.m_plen ||
++		    erofs_blkoff(sbi, map.m_pa) + map.m_plen > erofs_blksiz(sbi)) {
++			erofs_err("invalid tail-packing pclustersize %llu",
++				  map.m_plen | 0ULL);
++			return -EFSCORRUPTED;
 +		}
++		if (ret < 0)
++			return ret;
 +	}
-+	fprintf(stderr, "%s failure\n", __func__);
-+	return NULL;
-+}
++	if (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER &&
++	    !(h->h_clusterbits >> Z_EROFS_FRAGMENT_INODE_BIT)) {
++		struct erofs_map_blocks map = { .index = UINT_MAX };
 +
-+static int testdir_fd = -1, chkdir_fd = -1;
-+
-+static int __getdents_f(unsigned int sn, struct fent *fe)
-+{
-+	int dfd;
-+	DIR *dir;
-+
-+	dfd = openat(testdir_fd, fe->subpath, O_DIRECTORY);
-+	if (dfd < 0) {
-+		fprintf(stderr, "%d[%u]/%u getdents_f: failed to open directory %s",
-+			getpid(), procid, sn, fe->subpath);
-+		return -errno;
++		vi->fragmentoff = le32_to_cpu(h->h_fragmentoff);
++		ret = z_erofs_do_map_blocks(vi, &map,
++					    EROFS_GET_BLOCKS_FINDTAIL);
++		if (ret < 0)
++			return ret;
 +	}
-+
-+	dir = fdopendir(dfd);
-+	while (readdir64(dir) != NULL)
-+		continue;
-+	closedir(dir);
++out:
++	vi->flags |= EROFS_I_Z_INITED;
 +	return 0;
 +}
 +
-+static int getdents_f(int op, unsigned int sn)
-+{
-+	struct fent *fe;
-+
-+	fe = getfent(FT_DIRm, random());
-+	if (!fe)
-+		return 0;
-+	printf("%d[%u]/%u %s: %s\n", getpid(), procid, sn, __func__,
-+	       fe->subpath);
-+	return __getdents_f(sn, fe);
-+}
-+
-+static int readlink_f(int op, unsigned int sn)
-+{
-+	char buf1[PATH_MAX], buf2[PATH_MAX];
-+	struct fent *fe;
-+	ssize_t sz;
-+
-+	fe = getfent(FT_SYMm, random());
-+	if (!fe)
-+		return 0;
-+
-+	printf("%d[%u]/%u %s: %s\n", getpid(), procid, sn, __func__,
-+	       fe->subpath);
-+	sz = readlinkat(testdir_fd, fe->subpath, buf1, PATH_MAX - 1);
-+	if (sz < 0) {
-+		fprintf(stderr, "%d[%u]/%u %s: failed to readlinkat %s: %d",
-+			getpid(), procid, sn, __func__, fe->subpath, errno);
-+		return -errno;
-+	}
-+
-+	if (chkdir_fd >= 0) {
-+		if (sz != readlinkat(testdir_fd, fe->subpath, buf2,
-+				     PATH_MAX - 1)) {
-+			fprintf(stderr, "%d[%u]/%u %s: symlink length mismatch @%s\n",
-+				getpid(), procid, sn, __func__, fe->subpath);
-+			return -E2BIG;
-+		}
-+		if (memcmp(buf1, buf2, sz)) {
-+			fprintf(stderr, "%d[%u]/%u %s: symlink mismatch @%s\n",
-+				getpid(), procid, sn, __func__, fe->subpath);
-+			return -EBADMSG;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int tryopen(unsigned int sn, const char *op, struct fent *fe)
-+{
-+	if (fe->fd < 0) {
-+		fe->fd = openat(testdir_fd, fe->subpath, O_RDONLY);
-+		if (fe->fd < 0) {
-+			fprintf(stderr, "%d[%u]/%u %s: failed to open %s: %d",
-+				getpid(), procid, sn, op, fe->subpath, errno);
-+			return -errno;
-+		}
-+		/* use force_page_cache_readahead for every read request */
-+		posix_fadvise(fe->fd, 0, 0, POSIX_FADV_RANDOM);
-+	}
-+
-+	if (chkdir_fd >= 0 && fe->chkfd < 0)
-+		fe->chkfd = openat(chkdir_fd, fe->subpath, O_RDONLY);
-+	return 0;
-+}
-+
-+static int fadvise_f(int op, unsigned int sn)
-+{
-+	struct fent *fe;
-+	int ret;
-+
-+	fe = getfent(FT_REGm, random());
-+	if (!fe)
-+		return 0;
-+	ret = tryopen(sn, __func__, fe);
-+	if (ret)
-+		return ret;
-+
-+	printf("%d[%u]/%u %s: %s\n", getpid(), procid, sn,
-+	       __func__, fe->subpath);
-+	ret = posix_fadvise(fe->fd, 0, 0, POSIX_FADV_DONTNEED);
-+	if (!ret)
-+		return 0;
-+	fprintf(stderr, "%d(%u)/%u %s: posix_fadvise %s failed %d\n",
-+		getpid(), procid, sn, __func__, fe->subpath, errno);
-+	return -errno;
-+}
-+
-+static int __read_f(unsigned int sn, struct fent *fe, uint64_t filesize)
-+{
-+	static char buf[MAX_CHUNKSIZE], chkbuf[MAX_CHUNKSIZE];
-+	uint64_t lr, off, len, trimmed;
-+	size_t nread, nread2;
-+
-+	lr = ((uint64_t) random() << 32) + random();
-+	off = lr % filesize;
-+	len = (random() % MAX_CHUNKSIZE) + 1;
-+	trimmed = len;
-+
-+	if (off + len > filesize) {
-+		uint64_t a = filesize - off + 16 * getpagesize();
-+
-+		if (len > a)
-+			len %= a;
-+		trimmed = len <= filesize - off ? len : filesize - off;
-+	}
-+
-+	printf("%d[%u]/%u read_f: %llu bytes @ %llu\n", getpid(), procid, sn,
-+	       len | 0ULL, off | 0ULL);
-+	nread = pread64(fe->fd, buf, len, off);
-+	if (nread != trimmed) {
-+		fprintf(stderr, "%d[%u]/%u read_f: failed to read %llu bytes @ %llu of %s\n",
-+			getpid(), procid, sn, len | 0ULL, off | 0ULL,
-+			fe->subpath);
-+		return -errno;
-+	}
-+
-+	if (fe->chkfd < 0)
-+		return 0;
-+
-+	nread2 = pread64(fe->chkfd, chkbuf, len, off);
-+	if (nread2 <= 0) {
-+		fprintf(stderr, "%d[%u]/%u read_f: failed to check %llu bytes @ %llu of %s\n",
-+			getpid(), procid, sn, len | 0ULL, off | 0ULL,
-+			fe->subpath);
-+		return -errno;
-+	}
-+
-+	if (nread != nread2) {
-+		fprintf(stderr, "%d[%u]/%u read_f: size mismatch %llu bytes @ %llu of %s\n",
-+			getpid(), procid, sn, len | 0ULL, off | 0ULL,
-+			fe->subpath);
-+		return -EFBIG;
-+	}
-+
-+	if (memcmp(buf, chkbuf, nread)) {
-+		fprintf(stderr, "%d[%u]/%u read_f: data mismatch %llu bytes @ %llu of %s\n",
-+			getpid(), procid, sn, len | 0ULL, off | 0ULL,
-+			fe->subpath);
-+		return -EBADMSG;
-+	}
-+	return 0;
-+}
-+
-+static int read_f(int op, unsigned int sn)
-+{
-+	struct fent *fe;
-+	ssize_t fsz;
-+	int ret;
-+
-+	fe = getfent(FT_REGm, random());
-+	if (!fe)
-+		return 0;
-+	ret = tryopen(sn, __func__, fe);
-+	if (ret)
-+		return ret;
-+
-+	fsz = lseek64(fe->fd, 0, SEEK_END);
-+	if (fsz <= 0) {
-+		if (!fsz) {
-+			printf("%d[%u]/%u %s: zero size @ %s\n",
-+			       getpid(), procid, sn, __func__, fe->subpath);
-+			return 0;
-+		}
-+		fprintf(stderr, "%d[%u]/%u %s: lseek64 %s failed %d\n",
-+			getpid(), procid, sn, __func__, fe->subpath, errno);
-+		return -errno;
-+	}
-+	return __read_f(sn, fe, fsz);
-+}
-+
-+static int __doscan_f(unsigned int sn, const char *op, struct fent *fe,
-+		      uint64_t filesize, uint64_t chunksize)
-+{
-+	static char buf[MAX_SCAN_CHUNKSIZE], chkbuf[MAX_SCAN_CHUNKSIZE];
-+	uint64_t pos;
-+
-+	printf("%d[%u]/%u %s: filesize %llu, chunksize %llu @ %s\n",
-+	       getpid(), procid, sn, op, (unsigned long long)filesize,
-+	       (unsigned long long)chunksize, fe->subpath);
-+
-+	for (pos = 0; pos < filesize; pos += chunksize) {
-+		ssize_t nread, nread2;
-+
-+		nread = pread64(fe->fd, buf, chunksize, pos);
-+
-+		if (nread <= 0)
-+			return -errno;
-+
-+		if (nread < chunksize && nread != filesize - pos)
-+			return -ERANGE;
-+
-+		if (fe->chkfd < 0)
-+			continue;
-+
-+		nread2 = pread64(fe->chkfd, chkbuf, chunksize, pos);
-+		if (nread2 <= 0)
-+			return -errno;
-+
-+		if (nread != nread2)
-+			return -EFBIG;
-+
-+		if (memcmp(buf, chkbuf, nread)) {
-+			fprintf(stderr, "%d[%u]/%u %s: %llu bytes mismatch @ %llu of %s\n",
-+				getpid(), procid, sn, op, chunksize | 0ULL,
-+				pos | 0ULL, fe->subpath);
-+			return -EBADMSG;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int doscan_f(int op, unsigned int sn)
-+{
-+	struct fent *fe;
-+	uint64_t chunksize;
-+	ssize_t fsz;
-+	int ret;
-+
-+	fe = getfent(FT_REGm, random());
-+	if (!fe)
-+		return 0;
-+	ret = tryopen(sn, __func__, fe);
-+	if (ret)
-+		return ret;
-+
-+	fsz = lseek64(fe->fd, 0, SEEK_END);
-+	if (fsz <= 0) {
-+		if (!fsz) {
-+			printf("%d[%u]/%u %s: zero size @ %s\n",
-+			       getpid(), procid, sn, __func__, fe->subpath);
-+			return 0;
-+		}
-+		fprintf(stderr, "%d[%u]/%u %s: lseek64 %s failed %d\n",
-+			getpid(), procid, sn, __func__, fe->subpath, errno);
-+		return -errno;
-+	}
-+	chunksize = ((uint64_t)random() * random() % MAX_SCAN_CHUNKSIZE) + 1;
-+	return __doscan_f(sn, __func__, fe, fsz, chunksize);
-+}
-+
-+static int doscan_aligned_f(int op, unsigned int sn)
-+{
-+	const int psz = getpagesize();
-+	struct fent *fe;
-+	uint64_t chunksize, maxchunksize;
-+	ssize_t fsz;
-+	int ret;
-+
-+	fe = getfent(FT_REGm, random());
-+	if (!fe)
-+		return 0;
-+	ret = tryopen(sn, __func__, fe);
-+	if (ret)
-+		return ret;
-+	fsz = lseek64(fe->fd, 0, SEEK_END);
-+	if (fsz <= psz) {
-+		if (fsz >= 0) {
-+			printf("%d[%u]/%u %s: size too small %lld @ %s\n",
-+			       getpid(), procid, sn, __func__, fsz | 0LL,
-+			       fe->subpath);
-+			return 0;
-+		}
-+		fprintf(stderr, "%d[%u]/%u %s: lseek64 %s failed %d\n",
-+			getpid(), procid, sn, __func__, fe->subpath, errno);
-+		return -errno;
-+	}
-+
-+	maxchunksize = (fsz - psz > MAX_SCAN_CHUNKSIZE ?
-+			MAX_SCAN_CHUNKSIZE : fsz - psz);
-+	chunksize = random() * random() % maxchunksize;
-+	chunksize = (((chunksize - 1) / psz) + 1) * psz;
-+	if (!chunksize)
-+		chunksize = psz;
-+	return __doscan_f(sn, __func__, fe, fsz, chunksize);
-+}
-+
-+void randomdelay(void)
-+{
-+	uint64_t lr = ((uint64_t) random() << 32) + random();
-+	clock_t start;
-+	clock_t length = (lr % CLOCKS_PER_SEC) >> 1;
-+
-+	start = clock();
-+	while (clock() < start + length)
-+		(void)sched_yield();
-+}
-+
-+void sg_handler(int signum)
-+{
-+	switch (signum) {
-+	case SIGTERM:
-+		should_stop = 1;
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+struct opdesc ops[] = {
-+	[OP_GETDENTS]		= { "getdents", getdents_f, 5, false },
-+	[OP_READLINK]		= { "readlink", readlink_f, 5, false },
-+	[OP_SEQREAD_ALIGNED]	= { "readscan_aligned", doscan_aligned_f, 10, false },
-+	[OP_SEQREAD_UNALIGNED]	= { "readscan_unaligned", doscan_f, 10, false },
-+	[OP_READ]		= { "read", read_f, 30, false},
-+	[OP_FADVISE]		= { "fadvise", fadvise_f, 3, false},
-+	[OP_DROP_CACHES]	= { "drop_caches", drop_caches_f, 1, true},
-+};
-+
-+static int parse_options(int argc, char *argv[])
-+{
-+	char *testdir, *chkdir;
-+	int opt;
-+
-+	while ((opt = getopt(argc, argv, "l:p:s:")) != -1) {
-+		switch (opt) {
-+		case 'l':
-+			loops = atoi(optarg);
-+			if (loops < 0) {
-+				fprintf(stderr, "invalid loops %d\n", loops);
-+				return -EINVAL;
-+			}
-+			break;
-+		case 'p':
-+			nprocs = atoi(optarg);
-+			if (nprocs < 0) {
-+				fprintf(stderr, "invalid workers %d\n",
-+					nprocs);
-+				return -EINVAL;
-+			}
-+			break;
-+		case 's':
-+			r_seed = atoi(optarg);
-+			if (r_seed < 0) {
-+				fprintf(stderr, "invalid random seed %d\n",
-+					r_seed);
-+				return -EINVAL;
-+			}
-+			break;
-+		default: /* '?' */
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (optind >= argc)
-+		return -EINVAL;
-+
-+	testdir = argv[optind++];
-+	if (testdir) {
-+		testdir_fd = open(testdir, O_PATH);
-+		if (testdir_fd < 0) {
-+			fprintf(stderr, "cannot open testdir fd @ %s: %s\n",
-+				testdir, strerror(errno));
-+			return 1;
-+		}
-+	}
-+
-+	if (argc > optind) {
-+		chkdir = argv[optind++];
-+
-+		chkdir_fd = open(chkdir, O_PATH);
-+		if (chkdir_fd < 0) {
-+			fprintf(stderr, "cannot open checkdir fd @ %s: %s\n",
-+				chkdir, strerror(errno));
-+			return 1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static void usage(void)
-+{
-+	fputs("usage: [options] TESTDIR [COMPRDIR]\n\n"
-+	      "Stress test for EROFS filesystem, where TESTDIR is the directory to test and\n"
-+	      "COMPRDIR (optional) serves as a directory for data comparison.\n"
-+	      " -l#     Number of times each worker should loop (0 for infinite, default: 1)\n"
-+	      " -p#     Number of parallel worker processes (default: 1)\n"
-+	      " -s#     Seed for random generator (default: random)\n",
-+	      stderr);
-+}
-+
-+unsigned int *freq_table;
-+int freq_table_size;
-+
-+static void doproc(void)
-+{
-+	unsigned int sn;
-+
-+	srandom(r_seed + procid);
-+	for (sn = 0; !should_stop && (!loops || sn < loops); ++sn) {
-+		int op, err;
-+
-+		op = freq_table[random() % freq_table_size];
-+		if (op >= ARRAY_SIZE(ops)) {
-+			fprintf(stderr, "%d[%u]/%u %s: internal error\n",
-+				getpid(), procid, sn, __func__);
-+			abort();
-+		}
-+
-+		if (sn && op != OP_DROP_CACHES)
-+			randomdelay();
-+		err = ops[op].func(op, sn);
-+		if (err) {
-+			fprintf(stderr, "%d[%u]/%u test failed (%d): %s\n",
-+				getpid(), procid, sn, err, strerror(-err));
-+			exit(1);
-+		}
-+	}
-+}
-+
-+static void make_freq_table(void)
-+{
-+	int f, i;
-+	struct opdesc *p;
-+
-+	for (p = ops, f = 0; p < ops + ARRAY_SIZE(ops); p++) {
-+		if (!superuser && p->requireroot)
-+			continue;
-+		f += p->freq;
-+	}
-+	freq_table = malloc(f * sizeof(*freq_table));
-+	freq_table_size = f;
-+	for (p = ops, i = 0; p < ops + ARRAY_SIZE(ops); p++) {
-+		if (!superuser && p->requireroot)
-+			continue;
-+		for (f = 0; f < p->freq; f++, i++)
-+			freq_table[i] = p - ops;
-+	}
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	unsigned int i;
-+	int err, stat;
-+	struct sigaction action;
-+
-+	err = parse_options(argc, argv);
-+	if (err) {
-+		if (err == -EINVAL)
-+			usage();
-+		return 1;
-+	}
-+
-+	err = init_filetable(testdir_fd);
-+	if (err) {
-+		fprintf(stderr, "cannot initialize file table: %s\n",
-+			strerror(errno));
-+		return 1;
-+	}
-+
-+	superuser = (geteuid() == 0);
-+	setpgid(0, 0);
-+	action.sa_handler = sg_handler;
-+	action.sa_flags = 0;
-+
-+	if (sigaction(SIGTERM, &action, 0)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	if (!r_seed)
-+		r_seed = (time(NULL) ? : 1);
-+	make_freq_table();
-+
-+	/* spawn nprocs processes */
-+	for (i = 0; i < nprocs; ++i) {
-+		if (fork() == 0) {
-+			action.sa_handler = SIG_DFL;
-+			sigemptyset(&action.sa_mask);
-+			if (sigaction(SIGTERM, &action, 0)) {
-+				perror("sigaction failed");
-+				exit(1);
-+			}
-+			procid = i;
-+			doproc();
-+			return 0;
-+		}
-+	}
-+
-+	err = 0;
-+	while (wait(&stat) > 0 && !should_stop) {
-+		if (!WIFEXITED(stat)) {
-+			err = 1;
-+			break;
-+		}
-+
-+		if (WEXITSTATUS(stat)) {
-+			err = WEXITSTATUS(stat);
-+			break;
-+		}
-+	}
-+	action.sa_flags = SA_RESTART;
-+	sigaction(SIGTERM, &action, 0);
-+	kill(-getpid(), SIGTERM);
-+	/* wait until all children exit */
-+	while (wait(&stat) > 0)
-+		continue;
-+	return err;
-+}
+ int z_erofs_map_blocks_iter(struct erofs_inode *vi,
+ 			    struct erofs_map_blocks *map,
+ 			    int flags)
 -- 
 2.43.5
 
