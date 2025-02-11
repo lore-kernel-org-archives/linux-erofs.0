@@ -4,56 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D631DC021A1
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2025 03:51:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F3C0C0219B
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2025 13:54:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
+	s=201707; t=1739282066;
+	bh=aDo82in/U0UpoTuoJgujYWiAbI8aNNOmQ0+3zUIpggM=;
+	h=To:Subject:Date:In-Reply-To:References:List-Id:List-Unsubscribe:
+	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
+	 From;
+	b=JJSLvAZFaTlUNaIuJZ7Hu4VUBd74s9jq2AcW3R6C6KKfu/V/XDYVthdNXu8fePaXx
+	 hTwrJyGhRjjbek0IujitVMHE+BEM/h/4IA4YC83nYQ5O7uYW67a0jEUiXfx0rdbgL8
+	 NJmCSBCWgXumQ2GJtuglTKtuh7Lko4Lkv4NUTHNvU+UF4yEZsTj6CE80JNARYGEBU5
+	 TorgsETap6tMXM6Ip2qesCZsfntau2LqkbqKCxvWlHOQUjVTJmR6H1uBr4qXUHbJ9J
+	 GV6Ri2gdjE1kFwhU2wuy8eT9NIB40vt15a95j2ZA7nC1bb7QYSH8NS326yz3csbmw5
+	 v3aYYZWCm/8fg==
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YsSDW1kghz3blp
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Feb 2025 14:51:39 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739245897;
-	cv=none; b=mwaV9JS907Vke4IyIWaJ/Kdvml8HQlGYfWiQibwdiD4S3xqUtzcPeZmOtmrbPXcNZ4se2huy4wlSsAxHSuX50xFCvejDChKGflKchdLfgpimoVlrr2PZNaCVjBKtsSQJzx7WmCTA5QFZXtN84eL7sPoQR7uuV6y2mnwDOGINRUGCm2FSRonMTJZpmCxM880NLn9OxTYjFKip5fGn3aI+PxiKpkS1pPVXAwMbJ7+0rl9O8G+O4hsz5GoO9IVs7WCyM1RB7kKvjmMWPhTpYlpb6Hy1kMIUkIy+DBPHCoqN+QUBPG/Qd2AJQqplUVLGVhmyLqW70tTgmCE2ulDHftRJlA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Ysjc20BPvz3bkP
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Feb 2025 00:54:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.255
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739282063;
+	cv=none; b=PWXZbN34lg6jR/z/Aa/Uy/GVsnzSWS6236y3/7jBNIWmFSncEUMDTbI1d6iO40WAyQ15XI79IrW/eg8mYYg/oQZw5Fg5sbev8Joq+FOr4j/IFpYtFgyrleiYqs/XSTMo/fdRn+d4YmDouPGOYqiLdh4fkfuQAh89PDvpTugDypN0XQ2WOPNmxmiZ3eVKsxfH8lZkUy+6Jn6qLfu2DkDobB+OkacdKg5/0xwgWQPxSxrV8Q7kKNFKsfjfU58jR0+VN7J9OicERs0kHZYwJCVRlsusHpkgEIX0WRvYGxzksvXBeZVKhiw6xHjIpjbFkZ8G8aFcuNuvOeJz/A3V6AOa/g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1739245897; c=relaxed/relaxed;
-	bh=CTd6Vl7o8+ZAzWgQBfavyB4d/FR4e36IxwODWJTzF0s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CjDaqlIrEIUfx/2nuzEu00fZMf41mIUdxktrxxTh2fHGBtPw6cfAWEYGCb4zVAaGvw+Bcfd6YSCBl/Y0OAvI6MkEHq8dd17S2Xr6miA++a/KLog7PXDn7CqOGJpmrh/eCaJ4zXwDDW+tdOXKxGO8XaVO81WOiSy06IxgRle7jn75/Ca2gSieCAu8dxshCMnZvLkze2cSV78ag4szdShAT+tTVQoYC4R/NagkZkw7mOr5/IpYIU+qrHC3nYaiZYfed9y49MgdDsUl1oktTMXFIcc4clJy5e0UTPLDEizQc6uXlKMMRx87RcflF/VZ/O5taCG1vr3Pr6ogeFvPf2pacw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DEGCHIKi; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DEGCHIKi;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	t=1739282063; c=relaxed/relaxed;
+	bh=aDo82in/U0UpoTuoJgujYWiAbI8aNNOmQ0+3zUIpggM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EM4bhEcalDfn+pX4z4c0jvaV1EuYtBkSYsspuRj6srG513QFWuQPmi3oL2kHFvs61sZLl6J5XQJ3gscgifJuPgLhBl0tf2NNdyx5lGAMfzulgESfxJglp8o+i7D5+FkvFExa0nGg0H389lZHo2B0Ip/LS0fkykzVLPWp/Uv6A8pHfA1IHbvp1IiUjJOSEO3JRt5y2xYBy4s/QyZnlZb8boZMSfyRuQ7WlELGcOz0vxdXFcE2b7j014wOsMJhgz8FCDxQ7F+Kue875rLCqZi6c1CBHX321/zjqPSSRqwPJWivgS0p8ReycSRLctTFfLDW1crmOxOEx8c89hoqqSn3ig==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.255; helo=szxga08-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.255; helo=szxga08-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YsSDR6sDqz2ydQ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Feb 2025 14:51:34 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1739245889; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=CTd6Vl7o8+ZAzWgQBfavyB4d/FR4e36IxwODWJTzF0s=;
-	b=DEGCHIKiyYmhuImei/HppVdbDi1j2Kqr1SLzfU7nSJQQ6p6gtjmE7xep0SiTczz2J6RsKu7YdK5Tuv53KFflnK/+96/jsOvBdBpTbqDxLrlxZcbTsDPmYpQKFDCGIN8B+ghLdX2d/1iAJ4Fc226Q1p3U7T/7tqORIdqWd/3EF+g=
-Received: from 30.74.128.255(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WPFRzq._1739245887 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 11 Feb 2025 11:51:28 +0800
-Message-ID: <7e9d99b5-59c9-47ed-a5c9-c4449e3068c0@linux.alibaba.com>
-Date: Tue, 11 Feb 2025 11:51:26 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Ysjby33Wrz305G
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Feb 2025 00:54:20 +1100 (AEDT)
+Received: from mail.maildlp.com (unknown [172.19.88.194])
+	by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4YsjVj3jsBz1W5Zn;
+	Tue, 11 Feb 2025 21:49:49 +0800 (CST)
+Received: from kwepemo500009.china.huawei.com (unknown [7.202.194.199])
+	by mail.maildlp.com (Postfix) with ESMTPS id 609B51402C3;
+	Tue, 11 Feb 2025 21:54:15 +0800 (CST)
+Received: from huawei.com (10.90.53.73) by kwepemo500009.china.huawei.com
+ (7.202.194.199) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 11 Feb
+ 2025 21:54:14 +0800
+To: <xiang@kernel.org>, <chao@kernel.org>
+Subject: [PATCH v2 3/4] erofs: add erofs_fileio_direct_io helper to handle direct io
+Date: Tue, 11 Feb 2025 21:53:30 +0800
+Message-ID: <20250211135331.933681-4-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250211135331.933681-1-lihongbo22@huawei.com>
+References: <20250211135331.933681-1-lihongbo22@huawei.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Security vulnerabilities report to Das-U-Boot
-To: Tom Rini <trini@konsulko.com>, Jonathan Bar Or <jonathanbaror@gmail.com>,
- Huang Jianan <jnhuang95@gmail.com>, Joao Marcos Costa
- <jmcosta944@gmail.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>
-References: <CABMsoEGyEgWGHYMoL9kH2Os_=krqSTwdLaMu+XSOJd+micYpGQ@mail.gmail.com>
- <20250207155048.GX1233568@bill-the-cat>
- <CABMsoEGLaMGch7gEuGGcyPy5REj4RDAFmX=AGnOmMnnbuSmhWA@mail.gmail.com>
- <20250210164151.GN1233568@bill-the-cat>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20250210164151.GN1233568@bill-the-cat>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.90.53.73]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ kwepemo500009.china.huawei.com (7.202.194.199)
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -65,83 +71,143 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: u-boot@lists.denx.de, linux-erofs@lists.ozlabs.org
+From: Hongbo Li via Linux-erofs <linux-erofs@lists.ozlabs.org>
+Reply-To: Hongbo Li <lihongbo22@huawei.com>
+Cc: linux-kernel@vger.kernel.org, linux-erofs@lists.ozlabs.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hi Tom,
+erofs has add file-backed mount support. In this scenario, only buffer
+io is allowed. So we enhance the io mode by implementing the direct
+io. Also, this can make the iov_iter (user buffer) interact with the
+backed file's page cache directly.
 
-On 2025/2/11 00:41, Tom Rini wrote:
-> On Fri, Feb 07, 2025 at 09:53:01AM -0800, Jonathan Bar Or wrote:
-> 
->> Thank you.
->>
->> So, I'm attaching my findings in a md file - see attachment.
->> All of those could be avoided by using safe math, such as
->> __builtin_mul_overflow and __builtin_add_overflow, which are used in some
->> modules in Das-U-Boot.
->> There are many cases where seemingly unsafe addition and multiplication can
->> cause integer overflows, but not all are exploitable - I believe the ones I
->> report here are.
->>
->> Let me know your thoughts.
-> 
-> Adding in the eorfs and squashfs maintainers..
-> 
->>
->> Best regards,
->>              Jonathan
->>
->> On Fri, Feb 7, 2025 at 7:50 AM Tom Rini <trini@konsulko.com> wrote:
->>
->>> On Thu, Feb 06, 2025 at 07:47:54PM -0800, Jonathan Bar Or wrote:
->>>
->>>> Dear U-boot maintainers,
->>>>
->>>> What is the best way of reporting security vulnerabilities (memory
->>>> corruption issues) to Das-U-Boot? Is there a PGP key I should be using?
->>>> I have 4 issues that I think are worth fixing (with very easy fixes).
->>>>
->>>> Best regards,
->>>>              Jonathan
->>>
->>> Hey. As per https://docs.u-boot.org/en/latest/develop/security.html
->>> please post them to the list in public. If you have possible solutions
->>> for them as well that's even better. Thanks!
->>>
->>> --
->>> Tom
->>>
-> 
->> Filesystem-based Das-U-Boot issues.
->>
->> == erofs
->>
->> === Integer overflow leading to buffer overflow in symlink resolution
->> In file `fs.c`, when resolving symlinks, the function `erofs_off_t` gets an `erofs_inode` argument and performs a lookup on the symlink.
->> The function blindly trusts the `i_size` member of the input as such:
->>
->> ```c
->>      size_t len = vi->i_size;
->> 	char *target;
->> 	int err;
->>
->> 	target = malloc(len + 1);
->> 	if (!target)
->> 		return -ENOMEM;
->> 	target[len] = '\0';
->>
->> 	err = erofs_pread(vi, target, len, 0);
->> 	if (err)
->> 		goto err_out;
->> ```
->>
->> The `erofs_inode` structure's `i_size` member is defined with the type `erofs_off_t` (which is a 64-bit unsigned integer).
->> Thereofre, if supplied as 0xFFFFFFFFFFFFFFFF, the `len + 1` input to `malloc` would overflow to 0, allocating a chunk with 0.
->> That chunk (saved in `target`) is later written with `erofs_pread`, overriding the chunk with partial data controlled by an attacker.
->> Therefore, we will have a heap buffer overflow due to an integer overflow in `len` calculation.
+To be mentioned, the direct io is atomic, if the part of the iov_iter
+of direct io failed, the whole direct io also fails.
 
-Yeah, it's a corner case, I will try to address it later.
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+---
+ fs/erofs/fileio.c | 71 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
 
-Thanks,
-Gao Xiang
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index cdd432ec266c..b652e3df050c 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -12,6 +12,7 @@ struct erofs_fileio_rq {
+ 	struct kiocb iocb;
+ 	struct super_block *sb;
+ 	ssize_t ret;
++	void *private;
+ };
+ 
+ typedef void (fileio_rq_split_t)(void *data);
+@@ -24,6 +25,11 @@ struct erofs_fileio {
+ 	fileio_rq_split_t *split;
+ 	void *private;
+ 	bio_end_io_t *end;
++	/* the following members control the sync call */
++	struct completion ctr;
++	refcount_t ref;
++	size_t total;
++	size_t done;
+ };
+ 
+ static void erofs_fileio_ki_complete(struct kiocb *iocb, long ret)
+@@ -50,6 +56,13 @@ static void erofs_folio_split(void *data)
+ 	erofs_onlinefolio_split((struct folio *)data);
+ }
+ 
++static void erofs_iter_split(void *data)
++{
++	struct erofs_fileio *io = (struct erofs_fileio *)data;
++
++	refcount_inc(&io->ref);
++}
++
+ static void erofs_fileio_end_folio(struct bio *bio)
+ {
+ 	struct erofs_fileio_rq *rq =
+@@ -62,6 +75,25 @@ static void erofs_fileio_end_folio(struct bio *bio)
+ 	}
+ }
+ 
++static void erofs_fileio_iter_complete(struct erofs_fileio *io)
++{
++	if (!refcount_dec_and_test(&io->ref))
++		return;
++	complete(&io->ctr);
++}
++
++static void erofs_fileio_end_iter(struct bio *bio)
++{
++	struct erofs_fileio_rq *rq =
++			container_of(bio, struct erofs_fileio_rq, bio);
++	struct erofs_fileio *io = (struct erofs_fileio *)rq->private;
++
++	if (rq->ret > 0)
++		io->done += rq->ret;
++
++	erofs_fileio_iter_complete(io);
++}
++
+ static void erofs_fileio_rq_submit(struct erofs_fileio_rq *rq)
+ {
+ 	struct iov_iter iter;
+@@ -158,6 +190,7 @@ static int erofs_fileio_scan(struct erofs_fileio *io,
+ 				if (err)
+ 					break;
+ 				io->rq = erofs_fileio_rq_alloc(&io->dev);
++				io->rq->private = io;
+ 				io->rq->bio.bi_iter.bi_sector = io->dev.m_pa >> 9;
+ 				io->rq->bio.bi_end_io = io->end;
+ 				attached = 0;
+@@ -230,7 +263,45 @@ static void erofs_fileio_readahead(struct readahead_control *rac)
+ 	erofs_fileio_rq_submit(io.rq);
+ }
+ 
++static ssize_t erofs_fileio_direct_io(struct kiocb *iocb, struct iov_iter *iter)
++{
++	struct file *file = iocb->ki_filp;
++	struct inode *inode = file_inode(file);
++	size_t i_size = i_size_read(inode);
++	struct erofs_fileio io = {};
++	int err;
++
++	if (unlikely(iocb->ki_pos >= i_size))
++		return 0;
++
++	iter->count = min_t(size_t, iter->count,
++			    max_t(size_t, 0, i_size - iocb->ki_pos));
++	io.total = iter->count;
++	if (!io.total)
++		return 0;
++
++	io.inode = inode;
++	io.done = 0;
++	io.split = erofs_iter_split;
++	io.private = &io;
++	io.end = erofs_fileio_end_iter;
++	init_completion(&io.ctr);
++	refcount_set(&io.ref, 1);
++	err = erofs_fileio_scan(&io, iocb->ki_pos, iter);
++	erofs_fileio_rq_submit(io.rq);
++
++	erofs_fileio_iter_complete(&io);
++	wait_for_completion(&io.ctr);
++	if (io.total != io.done) {
++		iov_iter_revert(iter, io.done);
++		return err ?: -EIO;
++	}
++
++	return io.done;
++}
++
+ const struct address_space_operations erofs_fileio_aops = {
+ 	.read_folio = erofs_fileio_read_folio,
+ 	.readahead = erofs_fileio_readahead,
++	.direct_IO = erofs_fileio_direct_io,
+ };
+-- 
+2.34.1
+
