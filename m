@@ -4,83 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D28D5C02198
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Feb 2025 08:38:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lists.ozlabs.org;
-	s=201707; t=1739349507;
-	bh=/oK2sPv4LMCXJy8yVS147MvhejzIS3HvMFZ7xWU0RsY=;
-	h=To:Subject:In-Reply-To:References:Date:List-Id:List-Unsubscribe:
-	 List-Archive:List-Post:List-Help:List-Subscribe:From:Reply-To:Cc:
-	 From;
-	b=bsXlfJ/+vX7sJsAc1E0dpq2ftlzsDqvAARBicc2Zh2S6E8P15AlhCeRVt7NFLnv91
-	 W3QmiyvgNDT/2CHRtN6LezIJ7UAxmoVI8aeb2iREjvBe1kWrA8EWvidJNAJBLcf+Gs
-	 d/3uipZ1FJBPbU6XoxWOKi0JrZmldV8RuWB0d1i4o2h3d/cGdWpkTs+LUU7+em9jRC
-	 d8jIBaHzsdfijKSdLKaPC0arc2NRkPRz7YSMVOEXOLeMXQEqhiw2EeagY6R8CdyuPB
-	 xIVHaTDQnBv+IQXY7C/EQ5Rd4B+NMgw8x3qXPJSGWTy8pW91rBdV8knduvbEqmpyZX
-	 7v4vEcvjj+m8Q==
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39608C021A1
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Feb 2025 09:31:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YtBXz01d5z3bmY
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Feb 2025 19:38:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:4b98:dc4:8:216:3eff:fe9d:e7b4"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739349504;
-	cv=none; b=a9KLbOVm+AsH8HjoAbIUErxxysuUKHjHmoJj6NigMkZVhZHs4MhIcU8RJrWoZmJom9kJzB8DWptLix2wde/8bgWxj5CCW7ZFhdeEcGu0KPKVi9AdEW4Ga4M/oVX9mJaSESz4yyojPSXDRsYy/K9CAZ4IOQAKSMSBie8bognxybTS0YAD/A9FbfVv3vW5F0YUH71zYBRveU0ORa2g8+b1PWc7nrSlgI6OAxIEWO9EJ4+KoZZ2xQU86mzMOuGGKg52SRKm344CJeg+oP6kP5nkbtqxGXRkDwJ9ltID30t+fkQyV0o6IBrNoGxmBKlJqhY/DUBFk7bDtlk6+hkWExBvxA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4YtCjt31qTz3bmc
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Feb 2025 20:31:14 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739352673;
+	cv=none; b=ZHr3H+/tVuB2z9gR26q82sTg8umvAfOeWiEGmRD1+sZ1CahB/OX3ZfGuMjpO5XbJPEYn+eSN5p7I+ndLY+R0ei1ywkIKyqe51ksax8cLzusTR41HnM2nprqI5Pqnaah4946raMcgK4XJfNvNXd1+EQ6H0APhjoMv8Ya3J7PXhVabh1nWQpTYMM4+UoVQ5FiRvifU3WYm1eFRO95jD1D1xCP5sEwn1K6OjBYxIcN5iI2aQUWFmTFyKnCXJS/z69RXoLc3UgCyhy39KKEeDu8vyB7P+DOSZ/vcN/MTE89u2T52Xy6PwEJxJQaWRa8ldpKfjLda6eep5Kk9+INQGHA3WQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1739349504; c=relaxed/relaxed;
-	bh=/oK2sPv4LMCXJy8yVS147MvhejzIS3HvMFZ7xWU0RsY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=G+cvtWjB05xXvHK9vO4k7/y1yW/VDV+BRH2npY7VgdBFS+IyDHLWnNoqGbYUvLS2HGr196zz7TMGU7ygHM51hDwQzqD+RcDAmspGS8JQzfiANeftdwntXEQYqKr5t0+/UaI6JuxKKvYzhDMjt+eyc1CsOH3bbOpcI0HcMKDTgUmwf7gLd5VmgJPDbhnSZ25I7iXV5PzviL0KnqAINXp5/nHGlIZMNOySpf+g1LfFMGE1PuN8Dg9h1QdROHH8WIdCRQniPMzx/BLk6uE7PJ1H5xroqDijaufeX2MB5Hay8rG7I/oydjQsLxdwVrYkqQSq59U6JFSPPGz/qgKL14AFfg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; dkim=pass (2048-bit key; unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=gm1 header.b=bz5oivyu; dkim-atps=neutral; spf=pass (client-ip=2001:4b98:dc4:8:216:3eff:fe9d:e7b4; helo=mslow3.mail.gandi.net; envelope-from=miquel.raynal@bootlin.com; receiver=lists.ozlabs.org) smtp.mailfrom=bootlin.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+	t=1739352673; c=relaxed/relaxed;
+	bh=E8WMrc8CQSyxiS+r52TioZQT/liBI0SbkCd2WU6UocE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DXb/nHz2sm7FEOyOGuv3U7q85vIKHCWdJWrKumY5nHCvOuIoqc7IaKZKM5FWkNn5q4MNnUzAU1G0T95mE8b49FQz5Ezy9C33tbqJ36BQeuU9Jyfwb1lC5PDIjYsaNDjui8tAnzQRBd1CtVybY4r5tqPpJ4EEuuQAtq0oyTG68zGV0+3OVt6OhiaMGIImJsiFEjEfBkJrTq46WKpxZwZJDjogmUbS23+nvXdPdzqFRztFCgi4Dpi3S1ylWYgSTr+dc1/t87hkYK7wSTl+/RMGUCiNoa9WdDtTaAQSoBJjpZxvaoeeSu5aNC2uBSiREi+kPyham/SXJ8cww8arlkY0dQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bBtKQYAy; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=gm1 header.b=bz5oivyu;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bBtKQYAy;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bootlin.com (client-ip=2001:4b98:dc4:8:216:3eff:fe9d:e7b4; helo=mslow3.mail.gandi.net; envelope-from=miquel.raynal@bootlin.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 835 seconds by postgrey-1.37 at boromir; Wed, 12 Feb 2025 19:38:22 AEDT
-Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [IPv6:2001:4b98:dc4:8:216:3eff:fe9d:e7b4])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YtBXt4JMdz2ypD
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Feb 2025 19:38:22 +1100 (AEDT)
-Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::229])
-	by mslow3.mail.gandi.net (Postfix) with ESMTP id 7393D58195B
-	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Feb 2025 08:24:31 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 47D6E4328B;
-	Wed, 12 Feb 2025 08:24:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1739348660;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/oK2sPv4LMCXJy8yVS147MvhejzIS3HvMFZ7xWU0RsY=;
-	b=bz5oivyuGG/36TQyTZOE5sUeuBIKSQJBW/yljLrkLTdZjG+Cs6bh2k6+82N7tC9enu90Z4
-	VJbRY87FDapshatpYC1N07NfLXoTXJT6jPqyB04C7jHt2Q5Fv7eN+KUkIorip3hkP4hcYj
-	6+UoxTH1wSVRlYNTp9itD0SMkZKzwDtyCwdo5ThOp2uhjLR3eKQp9XARWBmohWSz0d6KMr
-	PsgJx7xzM6kZ15MoybZm46VArk45P9IkiQmck7C3nH4F7fe6o4EB0W68RZlCZszGdb3eHf
-	NwNGkyI1pgcZuYe2m8JkeLYiWV1G4zIl8DWoTSsjhQOWGOx/NdP4yU7ntHe0Ug==
-To: Tom Rini <trini@konsulko.com>
-Subject: Re: Security vulnerabilities report to Das-U-Boot
-In-Reply-To: <20250211212909.GI1233568@bill-the-cat> (Tom Rini's message of
-	"Tue, 11 Feb 2025 15:29:09 -0600")
-References: <CABMsoEGyEgWGHYMoL9kH2Os_=krqSTwdLaMu+XSOJd+micYpGQ@mail.gmail.com>
-	<20250207155048.GX1233568@bill-the-cat>
-	<CABMsoEGLaMGch7gEuGGcyPy5REj4RDAFmX=AGnOmMnnbuSmhWA@mail.gmail.com>
-	<20250210164151.GN1233568@bill-the-cat>
-	<7e9d99b5-59c9-47ed-a5c9-c4449e3068c0@linux.alibaba.com>
-	<CABMsoEGMq0b71ZbukBz5kbiHQhWHdG_dBzbk6eH+6My7MVGEsQ@mail.gmail.com>
-	<20250211212909.GI1233568@bill-the-cat>
-User-Agent: mu4e 1.12.7; emacs 29.4
-Date: Wed, 12 Feb 2025 09:24:18 +0100
-Message-ID: <8734gjsh8t.fsf@bootlin.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4YtCjn66LCz2x9M
+	for <linux-erofs@lists.ozlabs.org>; Wed, 12 Feb 2025 20:31:08 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1739352664; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=E8WMrc8CQSyxiS+r52TioZQT/liBI0SbkCd2WU6UocE=;
+	b=bBtKQYAy0XnMiZEUTWVJTmITSWXjw6Ss2tF+QLrFxALSAbVwryHu+/Bj4J39aUTyK2xD/B8z5fw+V0QpU361ncdkwX0jurjAC8N2y5VeLnqoH8LqWxeJiT8NH97I3s1c4CXqnR0NBepsPDwiWeUo64eq69NPXLXklBtM/olh8AI=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WPJidS-_1739352658 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 12 Feb 2025 17:31:02 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: u-boot@lists.denx.de,
+	Tom Rini <trini@konsulko.com>
+Subject: [PATCH] fs/erofs: fix an integer overflow in symlink resolution
+Date: Wed, 12 Feb 2025 17:30:57 +0800
+Message-ID: <20250212093057.3975104-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegfeeflecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefujghffgffkfggtgfgsehtqhertddtreejnecuhfhrohhmpefoihhquhgvlhcutfgrhihnrghluceomhhiqhhuvghlrdhrrgihnhgrlhessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepffeghfejtdefieeguddukedujeektdeihfelleeuieeuveehkedvleduheeivdefnecukfhppeeltddrkeelrdduieefrdduvdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepledtrdekledrudeifedruddvjedphhgvlhhopehlohgtrghlhhhoshhtpdhmrghilhhfrhhomhepmhhiqhhuvghlrdhrrgihnhgrlhessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepkedprhgtphhtthhopehtrhhinhhisehkohhnshhulhhkohdrtghomhdprhgtphhtthhopehjohhnrghthhgrnhgsrghrohhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohephhhsihgrnhhgkhgroheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopehjnhhhuhgrnhhgleehsehgmhgrihhlrdgtohhmpdhrtghpthhtohepjhhmtghoshhtrgelgeegsehgmhgrihhlrdgtohhmpdhrtghpt
- hhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepuhdqsghoohhtsehlihhsthhsrdguvghngidruggvpdhrtghpthhtoheplhhinhhugidqvghrohhfsheslhhishhtshdrohiilhgrsghsrdhorhhg
-X-GND-Sasl: miquel.raynal@bootlin.com
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -92,32 +56,36 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-From: Miquel Raynal via Linux-erofs <linux-erofs@lists.ozlabs.org>
-Reply-To: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: u-boot@lists.denx.de, Joao Marcos Costa <jmcosta944@gmail.com>, Jonathan Bar Or <jonathanbaror@gmail.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org, Jonathan Bar Or <jonathanbaror@gmail.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Hello Tom,
+See the original report [1], otherwise len + 1 will be overflowed.
 
-On 11/02/2025 at 15:29:09 -06, Tom Rini <trini@konsulko.com> wrote:
+Note that EROFS archive can record arbitary symlink sizes in principle,
+so we don't assume a short number like 4096.
 
-> On Tue, Feb 11, 2025 at 08:26:37AM -0800, Jonathan Bar Or wrote:
->> Hi Tom and the rest of the team,
->>=20
->> Please let me know about fix time, whether this is acknowledged and
->> whether you're going to request CVE IDs for those or if I should do
->> it.
->> The reason is that I found similar issues in other bootloaders, so I'm
->> trying to synchronize all of them. For what it's worth, Barebox has
->> similar issues and are currently fixing.
->
-> Yes, these seem valid. We don't have a CVE requesting authority so if
-> you want them, go ahead and request them. You saw Gao Xiang's response
-> for erofs, and I'm hoping one of the squashfs maintainers will chime
-> in.
+[1] https://lore.kernel.org/r/20250210164151.GN1233568@bill-the-cat
+Fixes: 830613f8f5bb ("fs/erofs: add erofs filesystem support")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/fs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Either Jo=C3=A3o or me, we will have a look.
+diff --git a/fs/erofs/fs.c b/fs/erofs/fs.c
+index 7bd2e8fcfc..64a6c8cad8 100644
+--- a/fs/erofs/fs.c
++++ b/fs/erofs/fs.c
+@@ -63,6 +63,9 @@ static int erofs_readlink(struct erofs_inode *vi)
+ 	char *target;
+ 	int err;
+ 
++	if (len >= SIZE_MAX)
++		return -EFSCORRUPTED;
++
+ 	target = malloc(len + 1);
+ 	if (!target)
+ 		return -ENOMEM;
+-- 
+2.43.5
 
-Thanks,
-Miqu=C3=A8l
