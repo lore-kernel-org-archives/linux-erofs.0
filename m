@@ -4,83 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 021F0C021A4
-	for <linux-erofs@archiver.kernel.org>; Sat, 15 Feb 2025 03:24:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 389C9C021A4
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2025 02:49:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4YvvRZ2Vt4z3bqP
-	for <linux-erofs@archiver.kernel.org>; Sat, 15 Feb 2025 14:24:42 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::92e"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739589880;
-	cv=none; b=l4exb62DqrWuCg7T9APF20pMtTQVBXIbtz1yTbePJy1Lr5jDJ1eF8kLFr0y3FVDspMbwxiS59D1iJRXeiSe9r6pJTAGq+PLnzyvNp14OhjT3K0cNk2MJNCpW64BSnk96BOyF6rF6+xkAPeBFOfs8Stg+xKb/41ghCXAS8e5+4pnz5UZPRn+bcpRic2oSOLtCpCiwr0NZH4lJd3W/GLJpM/0yXbQrSbvVr24GF/qg1qJCMyl2pWluJXfyrT7wJL7LJdl+Wf0O4z7BXy6gi/qWd7WTQU1T+LQDTgxxyLtNko9jsoZ+/2GyKxTHrid9J84x1q3bFYyN4FlFtUrR84gUUA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Yx6ZH2Jzdz3bmS
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Feb 2025 13:49:43 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.101
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1739760581;
+	cv=none; b=bYOLW2v9mrOVaY+htZO9pNT1gbAeWwQ1qC3INptWFBe4uia4PIoEYPKpQXquz5ITCY8Y4CXR4xFO8qWXBndCagDLPtTouzzOjYqhMCP8Dl73uxm7Qnx9DL/vJcCMlpv9g5FjeXEMXiTUAiWA7Q+e4pdN8UBqojs/67D/HjsC9ptRsVU7tUuPg8DEfK4OHbS6UHS6/2WfwceOhikzTea6SrmCs9LIwN2C3CWowq45w4Edke8jQVcT3nLX43czQ1EwKAkfft7T9qgPFcmGt6ht5ngDnCi8wJo5OUq7O9KNp02BeaNcfWbgSaWsVrEhCLRLeA1xe9dXvN2yLXb1BHROHw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1739589880; c=relaxed/relaxed;
-	bh=cRVyUPsMSzLuveyUCfRMYI1870pmgWGGv9ydJBObdy0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HVZDlBErFFJ3+Zbh5DTcH7vAPHk4urizWvQV/kn5X9GxQfbIZqfXgmC4cuGtxKPswhgh8gt4zNJhIbpiaiZ/pzGXvggJ/6y4ORJ3sBH+CdMLbwNkyA1SWCxpGBg8co38kg2dwgBzKyZh9P6BCFbsVr+lFKFfdPBaxEDGpv3ufeNayKGH4Niz5YniDmIW3Vnb/ruGgDgV15ikA45w7FawGBvVrIpfN+Ya3VEVsw09SnwZ04sykjjTyUp0ZJpzKTBIeALc4ndwDhLuV/Y18UoQPn6WzfOLiTlj2yfdMZu6jRWFpeCW3RbsUuX6rH/t+Om+9nyOlVF+cdMDqDbGmkp0qw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=YOGInGmj; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::92e; helo=mail-ua1-x92e.google.com; envelope-from=jonathanbaror@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1739760581; c=relaxed/relaxed;
+	bh=yK1p+MPtXk6NdJPjvE5qSOu8qV+oDQkPdAup7COA7FA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iqlnl4Q6SzSAHXwRMi4AlOlWboPe/4LSu91kRfTsDxkbSbuaLaXjm50kENDYQIz2BdIaUtI4sWxNqpG3VmFe3hoeUCbNxalmX0b3nD83AY/UR6zhCrUhBdEK7wxBMbuBT08CEKbnys0lBWCYzy449ADA0X4Hk60Fb8f9Uv5JvswgdWQ7bYmHE74C7hhtlorXY0Uokt0boMaiAVWN9cHDgNMziCFNAFv1ChS6yNd8T49r15hiNugB/k+GWk8zwGPU6XzUW4pD/Y0bTzi6ot62XJNf6mON412ODbr/PV7iE/zpeCSB/3AqLhQLlls+UD5mQ7ujg3dgbxcZU8Qpv+tdeQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Eq9inJZv; dkim-atps=neutral; spf=pass (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=YOGInGmj;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Eq9inJZv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::92e; helo=mail-ua1-x92e.google.com; envelope-from=jonathanbaror@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4YvvRW42Dgz2yZN
-	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Feb 2025 14:24:38 +1100 (AEDT)
-Received: by mail-ua1-x92e.google.com with SMTP id a1e0cc1a2514c-86715793b1fso727946241.0
-        for <linux-erofs@lists.ozlabs.org>; Fri, 14 Feb 2025 19:24:38 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Yx6ZF07DGz2yyC
+	for <linux-erofs@lists.ozlabs.org>; Mon, 17 Feb 2025 13:49:40 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739589877; x=1740194677; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cRVyUPsMSzLuveyUCfRMYI1870pmgWGGv9ydJBObdy0=;
-        b=YOGInGmjugzBKSbNRnNLz0hK0Ad4QsmpzAgyryr6U8UV+jzCW4NoMEZHLM92o1mYzc
-         a52OMgaJZYw1jsuEWKUTvpVBG/EkKkM/E8dInhHIvooajY2PGABd7WqLy547aPpfcgee
-         LIuJKc6P9A0A8V2kshS7HxhUTGjOdiFnanw5BZW0b9t39/lbd51ykpBfeqrI6rpBm9gg
-         OUM0OetNy2yTMaQFYi66PT3yDmrJ+GKaLmnOdkXENkY+cn1USDVDDlkNkgFcxxCgL7Im
-         VYyuMKDqA2+E1/ywEnFepN12bBPGnj1AcUmR+3CaSzUCx52pXkD0SyHfysL/71M28M9j
-         kOiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739589877; x=1740194677;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cRVyUPsMSzLuveyUCfRMYI1870pmgWGGv9ydJBObdy0=;
-        b=Xd3XLeMvaErKVI8HfSfVrJCc8BzdSVRwuP23qD9nV9JPnBtZNstU3UQwtjGraRC0FH
-         QfCLM6tMuTZZpLv8v8K9RtnEyNLP4UKfuJJBIhIzCkFSvi4qdq1+3SasiUyO2bjNjhJV
-         0eNYGAtWVgZx/hXqE8e/2yv3DZKZ0bgDwVNQeqYHzPB6RWV46z7tfqCQvGzoJhk+HYI7
-         HftjIPn33mIXGh8vhFjuvsT4M9hTDIOvww2XVLuCOhLo+KlFS53bJMiT430/Z29GR4LW
-         TLwlJy8GlZuvYstGXvYKwx625tGS4MpiXy2fK4dQY5bmMmHXS9wG5nF2fDPyKjohbTGI
-         F2pQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW9q/jZeKJzm2XdaQBmjxFDmkndyA1z92f1+ApM1yAQX3iUyAWDNfdcbamRlSDC3dPYs5Znds078NCEcw==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YyT7GEgQoxbqxk+bMYvyP52jxRqwiLQldjzY4d60D8BTrrk4uNp
-	cqFxeM6gu2ohc2unskhJOV+unDzDh5gTS5cnEp9oy3Z04G0p9iCYfIRHpc7UPZxD7xpka0LoHzf
-	nNdo6u1BFFK7wFrlKjBhvNnSibgnV88zE/18=
-X-Gm-Gg: ASbGncs/y14oND3TktySQx5nEF6VWybzWrXy3JIi0IBRAhe+CQqqWQ9EToVD4NjqOPE
-	xihrqyh994BhkvM0Rqbwe0AEAIN3pVjy+gtZ55UVgiO+AKP6YfA3gOnqtFgQSGruHvJ8pF9HrKN
-	bzBbV9WyMbHc81+M8LpQ0pyje0jhzY
-X-Google-Smtp-Source: AGHT+IFypluWmnDkKtvIGGiWpbhspJdBkel7BnLRu7j0NgHXyR65z6XQxMfIsFfuxkTxqkTO3P2YcjOBTAtixQ/laRg=
-X-Received: by 2002:a05:6122:29ce:b0:520:3914:e6bb with SMTP id
- 71dfb90a1353d-5209dc22be3mr1040957e0c.7.1739589876941; Fri, 14 Feb 2025
- 19:24:36 -0800 (PST)
+	d=linux.alibaba.com; s=default;
+	t=1739760576; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=yK1p+MPtXk6NdJPjvE5qSOu8qV+oDQkPdAup7COA7FA=;
+	b=Eq9inJZvnbzorIxVWGvvB+4QbRwd5KAsEnj+e1uwZO82qI9v4khfMCjU4DsHjwTdhs4Uv2XdiW8qM8iMNn1Ki30OWsGcr7NtLmyR8TkQOFoe6BgySYZfQbW+XtAi10hJQxj3gx1VCz/gLR6nysUZb57VkNFFKkPDeO4OgyxAYt0=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WPYAOPi_1739760574 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 17 Feb 2025 10:49:35 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH 2/2] erofs-utils: lib: fix an API usage error
+Date: Mon, 17 Feb 2025 10:49:29 +0800
+Message-ID: <20250217024929.66658-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250217024929.66658-1-hsiangkao@linux.alibaba.com>
+References: <20250217024929.66658-1-hsiangkao@linux.alibaba.com>
 MIME-Version: 1.0
-References: <CABMsoEGyEgWGHYMoL9kH2Os_=krqSTwdLaMu+XSOJd+micYpGQ@mail.gmail.com>
- <20250207155048.GX1233568@bill-the-cat> <CABMsoEGLaMGch7gEuGGcyPy5REj4RDAFmX=AGnOmMnnbuSmhWA@mail.gmail.com>
- <20250210164151.GN1233568@bill-the-cat> <7e9d99b5-59c9-47ed-a5c9-c4449e3068c0@linux.alibaba.com>
- <CABMsoEGMq0b71ZbukBz5kbiHQhWHdG_dBzbk6eH+6My7MVGEsQ@mail.gmail.com>
- <20250211212909.GI1233568@bill-the-cat> <8734gjsh8t.fsf@bootlin.com> <CABMsoEGq+s2qudAHVwydpwXw_ROVfgw90yU7+VKYO6x27AWdew@mail.gmail.com>
-In-Reply-To: <CABMsoEGq+s2qudAHVwydpwXw_ROVfgw90yU7+VKYO6x27AWdew@mail.gmail.com>
-From: Jonathan Bar Or <jonathanbaror@gmail.com>
-Date: Fri, 14 Feb 2025 19:24:26 -0800
-X-Gm-Features: AWEUYZnajkda29ArdJ9WH2JXzTaGyLRTusvUnSP1A4A5xHenQgeEim-Q_Q41rJs
-Message-ID: <CABMsoEFcL-D2OzJWQM685TfLq20L+d2gNmy4XD7yW6aDwpKb4w@mail.gmail.com>
-Subject: Re: Security vulnerabilities report to Das-U-Boot
-To: Miquel Raynal <miquel.raynal@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -92,62 +58,32 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Tom Rini <trini@konsulko.com>, u-boot@lists.denx.de, Joao Marcos Costa <jmcosta944@gmail.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Please disregard the previous message, those are the actual CVE numbers:
+  CID 541574:  API usage errors  (PRINTF_ARGS)
+  Argument "rc" to format specifier "%d" was expected to have type "int" but has type "long".
 
-- CVE-2025-26726 :SquashFS directory table parsing buffer overflow
-- CVE-2025-26727: SquashFS inode parsing buffer overflow.
-- CVE-2025-26728: SquashFS nested file reading buffer overflow.
-- CVE-2025-26729: EroFS symlink resolution buffer overflow.
+Coverity-id: 541574
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ lib/fragments.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Best regards,
-           Jonathan
+diff --git a/lib/fragments.c b/lib/fragments.c
+index e22b773..2f5fbf9 100644
+--- a/lib/fragments.c
++++ b/lib/fragments.c
+@@ -271,7 +271,7 @@ out:
+ 	if (rc)
+ 		erofs_err("Failed to record %llu-byte fragment data @ %llu for nid %llu: %d",
+ 			  inode->fragment_size | 0ULL,
+-			  inode->fragmentoff | 0ULL, inode->nid | 0ULL, rc);
++			  inode->fragmentoff | 0ULL, inode->nid | 0ULL, (int)rc);
+ 	if (memblock)
+ 		munmap(memblock, inode->i_size);
+ 	return rc;
+-- 
+2.43.5
 
-
-On Fri, Feb 14, 2025 at 7:17=E2=80=AFPM Jonathan Bar Or <jonathanbaror@gmai=
-l.com> wrote:
->
-> Hi folks.
->
-> Here are the CVEs assigned by MITRE:
-> - CVE-2025-26721: buffer overflow in the persistent storage for file crea=
-tion
-> - CVE-2025-26722: buffer overflow in SquashFS symlink resolution
-> - CVE-2025-26723: buffer overflow in EXT4 symlink resolution
-> - CVE-2025-26724: buffer overflow in CramFS symlink resolution
-> - CVE-2025-26724: buffer overflow in JFFS2 dirent parsing
->
-> Best regards,
->            Jonathan
->
-> On Wed, Feb 12, 2025 at 12:24=E2=80=AFAM Miquel Raynal
-> <miquel.raynal@bootlin.com> wrote:
-> >
-> > Hello Tom,
-> >
-> > On 11/02/2025 at 15:29:09 -06, Tom Rini <trini@konsulko.com> wrote:
-> >
-> > > On Tue, Feb 11, 2025 at 08:26:37AM -0800, Jonathan Bar Or wrote:
-> > >> Hi Tom and the rest of the team,
-> > >>
-> > >> Please let me know about fix time, whether this is acknowledged and
-> > >> whether you're going to request CVE IDs for those or if I should do
-> > >> it.
-> > >> The reason is that I found similar issues in other bootloaders, so I=
-'m
-> > >> trying to synchronize all of them. For what it's worth, Barebox has
-> > >> similar issues and are currently fixing.
-> > >
-> > > Yes, these seem valid. We don't have a CVE requesting authority so if
-> > > you want them, go ahead and request them. You saw Gao Xiang's respons=
-e
-> > > for erofs, and I'm hoping one of the squashfs maintainers will chime
-> > > in.
-> >
-> > Either Jo=C3=A3o or me, we will have a look.
-> >
-> > Thanks,
-> > Miqu=C3=A8l
