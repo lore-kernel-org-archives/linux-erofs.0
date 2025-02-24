@@ -4,46 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21720C021A6
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Feb 2025 12:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1452C021A6
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Feb 2025 12:41:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Z1gHw6Sc9z30WS
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Feb 2025 23:38:04 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740400682;
-	cv=none; b=ZXQxmU06zuV6GLBV4qUeUUndjeCHIKV8hReL11yrakUY+kdinHPmFEdkQqM2XsRn6BgCjE0Tfj0c7Vz7C9DvBewE6FlkoXT6lGBktsZvvzRXXl41dwGr+yUBeH4zJiFx7dprKvRoAQKAaWTMzQVVlZmMgSImJtOSg7YY3tWacBVxcqO3Rp+SmWVtaQu6DhhzO3l2OmuQq5rRBp75U/NdPU8H9QhAnu0lkdGYzFyeONpkm9bCpkhTTcLg5c+0RUW/lNSRLAzTUU+A8sWQPSvRqqzOJYDh+SJ0dTWdBqn66j/221lz+Ul6hMqGcOQ5M8JfsBJ/2pNukLF1T1Du/vgqVQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Z1gMK4pCqz30Gm
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Feb 2025 23:41:01 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740400859;
+	cv=none; b=MeNzQ9x+GbCLMfW0Xu3x3l31eavUwiFB69R6R1KfyNryJsATYFLN4XIFvNCzNmaJJymNzWCA+ZkWDtu0tzv9aKZLavgqeYZXJHRRW8395BoM+5F0vE8bsJToygIO0v+YEJQxOykOwZwiz40/0FCkgf2aJQWZLfCsuvsLoYng8EJ+wFtj2OhQ9BFdtgghBI/myjodoytjtFCkQy6XVVeO50Cche5P7xKLdftfkc15tLApGeDU54ykJfiXf6EjbuWUBqZK6FkXXUhmdcCIurieglvtbnit8+JLtApD1b9YnR5KvsQ0S3YCnkwwfm/kwuDlhXz+ejlheVkKq8ly9rnR8A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1740400682; c=relaxed/relaxed;
-	bh=kmX+/KBPQc3cQhROjOMmtM1SZ96Zp/Yb5gAWSXOJdx8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nawt/Dkv4ZyUESRIGHlrQuzC73iE+wq2C4iw2YbtnAHLLDBOS6RR9PeD/eWzkRvxX1dmNcnzESaw1t21HOUe1RhYchlFen3tjzZiy6VqDy5loXr5vJp29t957Ckhp6biq74ClZzksQn6NVYSkN0oowi+LxiyXx7SjiDCS77egL1XU/gFzjhAkHkgeXhRU1G3lk1LwDPCuKSyNSSoqMMibx5X1Mje0aSNdno7T4XUmeq+MCAZ/DP4JQyWY1reOpn7Sxg0EQpYC76/TyzyHzgHA5By5dwprgcHZayWhJtV0dkKFcSe+Ws7EdIf92Bx5/eVGBzedTP5cAkdYoOOIjWe8Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jz6NvqAW; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1740400859; c=relaxed/relaxed;
+	bh=JdoIXR/PyO0tsr8CSMm0YjmkZsBotehPGDdTTTCKsR0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CCJ9u5FheI+kaFDAlVcB6ejVsUxqZJz/DeIlmaWUZ7q3rK9Ob9IvvVBAsrxfVCSHkEa6S46Ylh0MXURIgFG6TCrvVRcqhe25Gk+N2vqw8Qe7rr00030Ey1yswUAjByuU+u0EBKczdEdpNgMOehMZh385Pi24SAh3uqKFZ5iP1hVI3kS1/HEABTikCDUC9Ac3wLQm48/3Xech0kK3hjxI1+cWWpi0cIiD/NVj2qfu4wJEM4tWge7Yu5olmcdpHj9ReMJkOFRkSlf/h0xrcg+8USoDg969C9QOj7STRi2noW24V5FuEb1ma+xCH8gDkQa4US+Xbvlv2THLmdW7DRS+Gg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=J8zzRuUm; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jz6NvqAW;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=J8zzRuUm;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z1gHr1NNpz2yRM
-	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Feb 2025 23:37:58 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z1gMH06rMz3029
+	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Feb 2025 23:40:58 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1740400674; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=kmX+/KBPQc3cQhROjOMmtM1SZ96Zp/Yb5gAWSXOJdx8=;
-	b=jz6NvqAWqbuN2Xh8q2z70EcRF7xQ+jzXXphOUymKMqEPUuMc2vlfNl3b24Nz5Z0JdUYr24hd+tuTzYes5sNF+zATBP+VNbI5LsZRSh9f3zTWJqBEkNUK1QqjBOuRQSam7RZ8NAW/N+PXL6VmpfjtYEXLtZ5Vr9iPnBIu9v6GFNo=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WQ7ms9G_1740400668 cluster:ay36)
+	t=1740400855; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=JdoIXR/PyO0tsr8CSMm0YjmkZsBotehPGDdTTTCKsR0=;
+	b=J8zzRuUmBDsVYfaNb7eZl2Ffs7t7caNa3sjyntrQ/Mn258To+yajugx2gpdwA3YtU4b1eHYICprbkc0TFMRlOI5moe41Xm9Rxe9MGRUcB5GdJTfXAVcpS/Any1GCDncjF1hAXnrhyesRumbrD2kbltKBrSt6j0R2/4W8tXFNhNE=
+Received: from 30.74.129.221(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WQ7w-07_1740400853 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 24 Feb 2025 20:37:52 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/2] erofs: simplify tail inline pcluster handling
-Date: Mon, 24 Feb 2025 20:37:46 +0800
-Message-ID: <20250224123747.1387122-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+          Mon, 24 Feb 2025 20:40:53 +0800
+Message-ID: <26db55bd-31a1-4fb8-8ac1-add64c971841@linux.alibaba.com>
+Date: Mon, 24 Feb 2025 20:40:52 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] erofs: simplify tail inline pcluster handling
+To: linux-erofs@lists.ozlabs.org
+References: <20250224123747.1387122-1-hsiangkao@linux.alibaba.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20250224123747.1387122-1-hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -55,112 +59,27 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Commit ab92184ff8f1 ("erofs: add on-disk compressed tail-packing inline
-support") introduced the flag `Z_EROFS_ADVISE_INLINE_PCLUSTER`, which is
-redundant because `h_idata_size != 0` serves the same purpose.
 
-Additionally, merge `z_idataoff` and `z_fragmentoff` since these two
-features are mutually exclusive for a given inode.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
-new patch.
+On 2025/2/24 20:37, Gao Xiang wrote:
+> Commit ab92184ff8f1 ("erofs: add on-disk compressed tail-packing inline
+> support") introduced the flag `Z_EROFS_ADVISE_INLINE_PCLUSTER`, which is
+> redundant because `h_idata_size != 0` serves the same purpose.
+> 
+> Additionally, merge `z_idataoff` and `z_fragmentoff` since these two
+> features are mutually exclusive for a given inode.
+> 
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> ---
+> new patch.
 
- fs/erofs/internal.h |  9 ++-------
- fs/erofs/zmap.c     | 19 ++++++++++---------
- 2 files changed, 12 insertions(+), 16 deletions(-)
+Note that `Z_EROFS_ADVISE_INLINE_PCLUSTER` now is left for
+the compatibility purposes, only `mkfs.erofs` uses it in
+the future.
 
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index f955793146f4..afce4b03f586 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -265,13 +265,8 @@ struct erofs_inode {
- 			unsigned char  z_algorithmtype[2];
- 			unsigned char  z_logical_clusterbits;
- 			unsigned long  z_tailextent_headlcn;
--			union {
--				struct {
--					erofs_off_t    z_idataoff;
--					unsigned short z_idata_size;
--				};
--				erofs_off_t z_fragmentoff;
--			};
-+			erofs_off_t    z_fragmentoff;
-+			unsigned short z_idata_size;
- 		};
- #endif	/* CONFIG_EROFS_FS_ZIP */
- 	};
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index a0c1c6450a55..9518d341cd82 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -395,8 +395,8 @@ static int z_erofs_do_map_blocks(struct inode *inode,
- 				 struct erofs_map_blocks *map, int flags)
- {
- 	struct erofs_inode *const vi = EROFS_I(inode);
--	bool ztailpacking = vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER;
- 	bool fragment = vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
-+	bool ztailpacking = vi->z_idata_size;
- 	struct z_erofs_maprecorder m = {
- 		.inode = inode,
- 		.map = map,
-@@ -415,9 +415,8 @@ static int z_erofs_do_map_blocks(struct inode *inode,
- 	if (err)
- 		goto unmap_out;
- 
--	if (ztailpacking && (flags & EROFS_GET_BLOCKS_FINDTAIL))
--		vi->z_idataoff = m.nextpackoff;
--
-+	if ((flags & EROFS_GET_BLOCKS_FINDTAIL) && ztailpacking)
-+		vi->z_fragmentoff = m.nextpackoff;
- 	map->m_flags = EROFS_MAP_MAPPED | EROFS_MAP_ENCODED;
- 	end = (m.lcn + 1ULL) << lclusterbits;
- 
-@@ -472,7 +471,7 @@ static int z_erofs_do_map_blocks(struct inode *inode,
- 	}
- 	if (ztailpacking && m.lcn == vi->z_tailextent_headlcn) {
- 		map->m_flags |= EROFS_MAP_META;
--		map->m_pa = vi->z_idataoff;
-+		map->m_pa = vi->z_fragmentoff;
- 		map->m_plen = vi->z_idata_size;
- 	} else if (fragment && m.lcn == vi->z_tailextent_headlcn) {
- 		map->m_flags |= EROFS_MAP_FRAGMENT;
-@@ -565,6 +564,10 @@ static int z_erofs_fill_inode_lazy(struct inode *inode)
- 	vi->z_advise = le16_to_cpu(h->h_advise);
- 	vi->z_algorithmtype[0] = h->h_algorithmtype & 15;
- 	vi->z_algorithmtype[1] = h->h_algorithmtype >> 4;
-+	if (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER)
-+		vi->z_fragmentoff = le32_to_cpu(h->h_fragmentoff);
-+	else
-+		vi->z_idata_size = le16_to_cpu(h->h_idata_size);
- 
- 	headnr = 0;
- 	if (vi->z_algorithmtype[0] >= Z_EROFS_COMPRESSION_MAX ||
-@@ -593,18 +596,16 @@ static int z_erofs_fill_inode_lazy(struct inode *inode)
- 		goto out_put_metabuf;
- 	}
- 
--	if (vi->z_advise & Z_EROFS_ADVISE_INLINE_PCLUSTER) {
-+	if (vi->z_idata_size) {
- 		struct erofs_map_blocks map = {
- 			.buf = __EROFS_BUF_INITIALIZER
- 		};
- 
--		vi->z_idata_size = le16_to_cpu(h->h_idata_size);
- 		err = z_erofs_do_map_blocks(inode, &map,
- 					    EROFS_GET_BLOCKS_FINDTAIL);
- 		erofs_put_metabuf(&map.buf);
- 
--		if (!map.m_plen ||
--		    erofs_blkoff(sb, map.m_pa) + map.m_plen > sb->s_blocksize) {
-+		if (erofs_blkoff(sb, map.m_pa) + map.m_plen > sb->s_blocksize) {
- 			erofs_err(sb, "invalid tail-packing pclustersize %llu",
- 				  map.m_plen);
- 			err = -EFSCORRUPTED;
--- 
-2.43.5
-
+Thanks,
+Gao Xiang
