@@ -4,53 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B94C8C282D0
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Feb 2025 16:57:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 731D7C282D1
+	for <linux-erofs@archiver.kernel.org>; Fri, 28 Feb 2025 17:01:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Z4DsL650Dz3c7F
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Mar 2025 03:57:26 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.16.41.108
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740761844;
-	cv=none; b=gup5XYoyh8hAAam0Kg1BsexM4UrboqpOBTTIZQ7ZvOVBnidUnh7Nb29/jLVrWOS/44VrjBjpU/TNT074K0HGLca6L5BZWaHusENV2MCL9+KHSgjynE1srj6G9Z+kL21ScPYcMAvqmPEGhN7fELpyHdFN7pSfigJ+GLP2nN/v82TplcAbKckWR3X4fcLnuMN/FAuS3HgoIBZs9Kd/mmJ5sH6fexwSj4jCf/yPLJnwiK7GeQ1F5KVtL0zuYe880znvMb+5UIzB7yYzyznZH1UcOz3ioCxThUdyhMmuQ6m9jYSiuVrIRZuPpPvsJJUqdHE8ZknWYZwcC86LH+HSkYxZdg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Z4DyR06YQz3c7S
+	for <linux-erofs@archiver.kernel.org>; Sat,  1 Mar 2025 04:01:51 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=37.230.196.243
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740762108;
+	cv=none; b=jogqufYjpZi3Z3osOeYoW473PMVjiN9ZHmD7VjaxmHVd6poNDK5bNwUBQL+vOWRInCCWG9I3xlCXFNPGDw0PCfWVkBI36uvFMlvy9jjZ1rXUEI/nsaHLxQs9FKdwMs26Fd0CJkr7F9/c/+Z7ivzFE6Z5NiBI62AJNgZ1U6Uvg5jcx9dshAtBRrE4NAHLB1iuYoAa0kJlqDQ13ljn6Xsc7ze29jlt1aN4mEfA3diWR8Idbc75n91UGglwpuwdOldg3wKE8aL8BnWxzlomuELypu+ZvPJviZ9bNX6apLELlmjBHS0zJPFd+YMGZg/e1swMS3dff87Val+a95C/Z6j9pA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1740761844; c=relaxed/relaxed;
-	bh=kRQ70sVXyqLeMUokAjV42mjATF1YB0UFdNJz6A64LDw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=GUoy9XPtM3M2HxhbpDut7ngLwrDFCXPGHT2tVO+5IMdsVFynBolv6WenAc6Vl31xfhxrhhS32eoEjPThtuGbauIiI+/F3qSPeAGJNx4XmnmtpMj7gVgjd8XILul6Sipsyz5IwI6nYHFhcRnkMfiXZregTQo9yaO+BooAw+4Y1OjOk5KfyYY5SOZGbUaV9ZFR4iHORvHWOcJn8OSYFCWbQ9ABiuxSlaD9rbjGraXr0O+M0pKstHdUzdqRZs+qJd/7LUx3VPG3oKJj8RHr6Fy32CY9rXP1UcMHAQxQVdRLIhAHN5KnpT09O0vsC9MzZCr13mpuAJxFLfVDzaVk/1O2hg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=astralinux.ru; spf=pass (client-ip=195.16.41.108; helo=mail-gw02.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org) smtp.mailfrom=astralinux.ru
+	t=1740762108; c=relaxed/relaxed;
+	bh=GBi7kVOERajG15ZmNxA3pI9RIZT9xcj7HjiluG1H8m8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=K6ogrUawSYHiW/ZLw4hdXSou5EuBGKFNTfozGv14zn3xmvJUx4ceQDpHqJe8EuzndfMmtiDT8sv68kkUWvdADd/VUdhKqbP/RiLrJ89jNBXL8YUI8KCkkbgLxgcRm9t1vVK+2Ckuatb7t5MsovZqvojEWRYrn7k0ZuJf1QExTPgyC0fWWf7NUDRKp5XDGy5/zVsGBnPhT5fh+9hAyPBw94vvH9QEb2UeSXJPN73HwhUnPeXoeCOBdPS0eMuLkIiuQJZDGUSIoXEAM4p362C0hx9pWdptL3TjAXYHPq2VRZc+gFj77AVDA8QQowjLHZi+EpggLPpmkv7KQ6eZwZQ8kg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=astralinux.ru; spf=pass (client-ip=37.230.196.243; helo=mail-gw01.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org) smtp.mailfrom=astralinux.ru
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=astralinux.ru
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=astralinux.ru (client-ip=195.16.41.108; helo=mail-gw02.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org)
-X-Greylist: delayed 330 seconds by postgrey-1.37 at boromir; Sat, 01 Mar 2025 03:57:22 AEDT
-Received: from mail-gw02.astralinux.ru (mail-gw02.astralinux.ru [195.16.41.108])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=astralinux.ru (client-ip=37.230.196.243; helo=mail-gw01.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org)
+X-Greylist: delayed 591 seconds by postgrey-1.37 at boromir; Sat, 01 Mar 2025 04:01:47 AEDT
+Received: from mail-gw01.astralinux.ru (mail-gw01.astralinux.ru [37.230.196.243])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z4DsG6YCGz3bnx
-	for <linux-erofs@lists.ozlabs.org>; Sat,  1 Mar 2025 03:57:22 +1100 (AEDT)
-Received: from gca-msk-a-srv-ksmg01.astralinux.ru (localhost [127.0.0.1])
-	by mail-gw02.astralinux.ru (Postfix) with ESMTP id ED45A1F9D3;
-	Fri, 28 Feb 2025 19:51:41 +0300 (MSK)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z4DyM3YLqz3bnx
+	for <linux-erofs@lists.ozlabs.org>; Sat,  1 Mar 2025 04:01:47 +1100 (AEDT)
+Received: from gca-sc-a-srv-ksmg01.astralinux.ru (localhost [127.0.0.1])
+	by mail-gw01.astralinux.ru (Postfix) with ESMTP id 8E90324C21;
+	Fri, 28 Feb 2025 19:51:55 +0300 (MSK)
 Received: from new-mail.astralinux.ru (gca-yc-ruca-srv-mail03.astralinux.ru [10.177.185.108])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mail-gw02.astralinux.ru (Postfix) with ESMTPS;
-	Fri, 28 Feb 2025 19:51:38 +0300 (MSK)
+	by mail-gw01.astralinux.ru (Postfix) with ESMTPS;
+	Fri, 28 Feb 2025 19:51:55 +0300 (MSK)
 Received: from rbta-msk-lt-156703.astralinux.ru (unknown [10.177.20.117])
-	by new-mail.astralinux.ru (Postfix) with ESMTPA id 4Z4Dkd0wkWz1h0PW;
-	Fri, 28 Feb 2025 19:51:37 +0300 (MSK)
+	by new-mail.astralinux.ru (Postfix) with ESMTPA id 4Z4Dky5Jb6z1h0PW;
+	Fri, 28 Feb 2025 19:51:54 +0300 (MSK)
 From: Alexey Panov <apanov@astralinux.ru>
 To: stable@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 6.1 0/2] erofs: handle overlapped pclusters out of crafted images properly
-Date: Fri, 28 Feb 2025 19:51:01 +0300
-Message-Id: <20250228165103.26775-1-apanov@astralinux.ru>
+Subject: [PATCH 6.1 2/2] erofs: fix PSI memstall accounting
+Date: Fri, 28 Feb 2025 19:51:03 +0300
+Message-Id: <20250228165103.26775-3-apanov@astralinux.ru>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20250228165103.26775-1-apanov@astralinux.ru>
+References: <20250228165103.26775-1-apanov@astralinux.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-KSMG-AntiPhishing: NotDetected, bases: 2025/02/28 15:31:00
 X-KSMG-AntiSpam-Auth: dkim=none
 X-KSMG-AntiSpam-Envelope-From: apanov@astralinux.ru
-X-KSMG-AntiSpam-Info: LuaCore: 51 0.3.51 68896fb0083a027476849bf400a331a2d5d94398, {Tracking_uf_ne_domains}, {Tracking_internal2}, {Tracking_from_domain_doesnt_match_to}, d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;lore.kernel.org:7.1.1;astralinux.ru:7.1.1;new-mail.astralinux.ru:7.1.1;127.0.0.199:7.1.2;nvd.nist.gov:7.1.1, FromAlignment: s
+X-KSMG-AntiSpam-Info: LuaCore: 51 0.3.51 68896fb0083a027476849bf400a331a2d5d94398, {Tracking_uf_ne_domains}, {Tracking_internal2}, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;astralinux.ru:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;new-mail.astralinux.ru:7.1.1;lore.kernel.org:7.1.1, FromAlignment: s
 X-KSMG-AntiSpam-Interceptor-Info: scan successful
 X-KSMG-AntiSpam-Lua-Profiles: 191391 [Feb 28 2025]
 X-KSMG-AntiSpam-Method: none
@@ -77,21 +80,47 @@ Cc: Max Kellermann <max.kellermann@ionos.com>, lvc-project@linuxtesting.org, Cha
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
-Commit 9e2f9d34dd12 ("erofs: handle overlapped pclusters out of crafted
-images properly") fixes CVE-2024-47736 [1] but brings another problem [2].
-So commit 1a2180f6859c ("erofs: fix PSI memstall accounting") should be
-backported too.
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[1] https://nvd.nist.gov/vuln/detail/CVE-2024-47736
-[2] https://lore.kernel.org/all/CAKPOu+8tvSowiJADW2RuKyofL_CSkm_SuyZA7ME5vMLWmL6pqw@mail.gmail.com/
+commit 1a2180f6859c73c674809f9f82e36c94084682ba upstream.
 
-Gao Xiang (2):
-  erofs: handle overlapped pclusters out of crafted images properly
-  erofs: fix PSI memstall accounting
+Max Kellermann recently reported psi_group_cpu.tasks[NR_MEMSTALL] is
+incorrect in the 6.11.9 kernel.
 
- fs/erofs/zdata.c | 66 +++++++++++++++++++++++++-----------------------
- 1 file changed, 34 insertions(+), 32 deletions(-)
+The root cause appears to be that, since the problematic commit, bio
+can be NULL, causing psi_memstall_leave() to be skipped in
+z_erofs_submit_queue().
 
+Reported-by: Max Kellermann <max.kellermann@ionos.com>
+Closes: https://lore.kernel.org/r/CAKPOu+8tvSowiJADW2RuKyofL_CSkm_SuyZA7ME5vMLWmL6pqw@mail.gmail.com
+Fixes: 9e2f9d34dd12 ("erofs: handle overlapped pclusters out of crafted images properly")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20241127085236.3538334-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Alexey Panov <apanov@astralinux.ru>
+---
+ fs/erofs/zdata.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index ac01c0ede7f7..d175b5d0a2f5 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1589,11 +1589,10 @@ static void z_erofs_submit_queue(struct z_erofs_decompress_frontend *f,
+ 			move_to_bypass_jobqueue(pcl, qtail, owned_head);
+ 	} while (owned_head != Z_EROFS_PCLUSTER_TAIL);
+ 
+-	if (bio) {
++	if (bio)
+ 		submit_bio(bio);
+-		if (memstall)
+-			psi_memstall_leave(&pflags);
+-	}
++	if (memstall)
++		psi_memstall_leave(&pflags);
+ 
+ 	/*
+ 	 * although background is preferred, no one is pending for submission.
 -- 
 2.39.5
 
