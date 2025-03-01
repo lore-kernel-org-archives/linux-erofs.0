@@ -4,52 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81B9AC282C5
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Mar 2025 02:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CB2CC282C6
+	for <linux-erofs@archiver.kernel.org>; Sat,  1 Mar 2025 14:50:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [IPv6:::1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Z4V4D2MQ0z3c97
-	for <linux-erofs@archiver.kernel.org>; Sat,  1 Mar 2025 13:52:44 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740797561;
-	cv=none; b=FLilBq8pneTEXe/y/qQGIIJRGi2Rev+5IOgK9SH1JjZJUPGQoN/COwvJhbJ1UfKO8CeNjsl+V+u4gwkDqYkgpOPqOCqgn6I83tOlZtBvQdQsNMxJu1/0Uo9UGstFppTVpYKsbHLpnqRn3Z20787xel3Mi8Ul5zcv8OdzgWh70uG7zNX4xFoOXkg96jMPeyZKijVq+eJCEMOxI12bK8R2GouyH/1KfBfBLYqriCLt4DR5Mr75YWZJD0JpEl9JZHO42nUQ60lXvBNYOtlf90OkI351Yzf8QMZinl8cM3v+14Hv4okLXtlDAdU8v8Fzao8Ce0gtFDCUP5CbvCt0/cEpNQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Z4p0M5T0cz2ypV
+	for <linux-erofs@archiver.kernel.org>; Sun,  2 Mar 2025 01:50:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.97
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1740840623;
+	cv=none; b=VWsaell1gRlqTpSlMNGf0YQ7A04qkXRsFoAse4xfvs7ntb3zN/eqzQxWJLrcN+Yc4BrMjdgTuGk+hyGLaVxFVx0tbQdADthWCEuUGqIU3Mw448AX0DhRqPvnNXFEifDDjcUbN5hTB/rpuEI3zV7W9hGL10+PBo+2FtA3JycG9d/VpCBIWIQjkeeQqElhLo7uISbRcC8jRvHgl8Eh6NvoZFl3TGjjrvPr3s/wj32RghG4Ftse+l9Z0/fFtr36fzrdgXh0T9wNw0vQrRtoMF2/EhnIdv1agk7w0/JtzBHOI7sDTVEdRsY0bQDDF6o7drpQPhoJHmFH5OoqK7NgROz4xQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1740797561; c=relaxed/relaxed;
-	bh=yBJ/YWZwYMtRqOfTkO0z7TIkn5oTZoJWOZUWl97CPZw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jXjivWqubqFb/3NZALjeqwe6+sh9rrcxKtEYxoVxyx6oISR/wNZg18rI+m869AgBvO9HXl3maw0DN6BHx/DgUkcxyj8gCNWZQUAEgj7JA2KgKiidmcSusMgKit3eeJzbhoo7mc+7sdiOPnHM0ncR90IOldu+DV313+R/A+278dwlWtXQ3jp6S2yPWtS9G1fnKi3YguoyfqvBU4UdLYGWGlcs5hkDdchWezlotTe3d1UEqkEM7LoiViMKc+7CZ3NYzhkShxXU+VByaNF0SJItATiN6ANfrOTKvSMMg9E0FKDlmXHniiALSjJd5E2OozYLOmieIMpVRxHS/B8e1uQt9A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=S4/AzKnQ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1740840623; c=relaxed/relaxed;
+	bh=F1wkNOLPVE+3E35nVrJ+MFirrarMWBSrgK7jQArB6mY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VWz9OfFzeZO6ThtRuoMiIXiZbmGQvJEeNOPmvZXydKcse9/S8l7V1etb7GDIMYEv5UkJ62FzM7PxJdrOw13PkrHWTr3Ei7ghNZGUFUbwF1/ognGYb2HuHJZuomWEwLNMhHBu7rOlscMpas1EIhR9pWVGLIg50aF+V1I/cDmqWDirRe/PU7vnBLI95hz1KcHXjhMVVoQf+Z7x6uFE2qHAOnh3LMjOhk0ygylGOWYJuBiBfz4dCyDTZ+KbsTXH1SIDI4VJfQvKffRgNVjDx0epiHA8sQc9M2itV6ftkeadFnIjrPO+4MxWc0kQIkRAiqBJNKovSJmbWiwhaSxJBJ8dCw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HAMupgG2; dkim-atps=neutral; spf=pass (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=S4/AzKnQ;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=HAMupgG2;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hongzhen@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z4V482SGGz3029
-	for <linux-erofs@lists.ozlabs.org>; Sat,  1 Mar 2025 13:52:38 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z4p0F0NJMz2x9g
+	for <linux-erofs@lists.ozlabs.org>; Sun,  2 Mar 2025 01:50:19 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1740797554; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=yBJ/YWZwYMtRqOfTkO0z7TIkn5oTZoJWOZUWl97CPZw=;
-	b=S4/AzKnQg3Ylu9RRF7zkl78J7xSzuhJE0j9Vj9J4Zn3igoG3mJ08TnMppIWbPIqiR84P/hi/K1/uALtgPYZ5WJBuEwFXJeCSLKqczPwwTHUpDb1NPOUP1OQyxFA+LNgMw8Ms0LRuQZDaqEaLPsftROaBGcBNYwG/OBb6Vk4N3ak=
-Received: from 30.134.66.95(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WQRC.Xs_1740797551 cluster:ay36)
+	t=1740840615; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=F1wkNOLPVE+3E35nVrJ+MFirrarMWBSrgK7jQArB6mY=;
+	b=HAMupgG2DSi9EBQBTEnbZP8RBizkISQP5BN7kWsed6wJBH7x/DTSDMZbj2MuqiC4jChE8lCz5Ejv8EUCcYT2PE5xqlNk0EMdt/LUaBbTovk4wq2oK3YIbOm0Bb+25dxY2rIgXtbQYtcaAnu8nz+Gr8xH72xkft5bar+By8H/rSg=
+Received: from localhost(mailfrom:hongzhen@linux.alibaba.com fp:SMTPD_---0WQSfpXs_1740840613 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Sat, 01 Mar 2025 10:52:32 +0800
-Message-ID: <c9cf602f-de40-4917-9f8a-d6b88e57482d@linux.alibaba.com>
-Date: Sat, 1 Mar 2025 10:52:30 +0800
+          Sat, 01 Mar 2025 22:50:13 +0800
+From: Hongzhen Luo <hongzhen@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Subject: [RFC PATCH v6 1/7] erofs: move `struct erofs_anon_fs_type` to super.c
+Date: Sat,  1 Mar 2025 22:49:38 +0800
+Message-ID: <20250301145002.2420830-2-hongzhen@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250301145002.2420830-1-hongzhen@linux.alibaba.com>
+References: <20250301145002.2420830-1-hongzhen@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6.1 0/2] erofs: handle overlapped pclusters out of crafted
- images properly
-To: Alexey Panov <apanov@astralinux.ru>, stable@vger.kernel.org,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20250228165103.26775-1-apanov@astralinux.ru>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20250228165103.26775-1-apanov@astralinux.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-BeenThere: linux-erofs@lists.ozlabs.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -61,23 +58,96 @@ List-Post: <mailto:linux-erofs@lists.ozlabs.org>
 List-Help: <mailto:linux-erofs-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linux-erofs>,
  <mailto:linux-erofs-request@lists.ozlabs.org?subject=subscribe>
-Cc: Max Kellermann <max.kellermann@ionos.com>, lvc-project@linuxtesting.org, Chao Yu <chao@kernel.org>, linux-kernel@vger.kernel.org, Yue Hu <huyue2@coolpad.com>, linux-erofs@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
 Errors-To: linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org
 Sender: "Linux-erofs" <linux-erofs-bounces+linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 
+Move the `struct erofs_anon_fs_type` to the super.c and
+expose it in preparation for the upcoming page cache share
+feature.
 
+Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+---
+ fs/erofs/fscache.c  | 13 -------------
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/super.c    | 13 +++++++++++++
+ 3 files changed, 15 insertions(+), 13 deletions(-)
 
-On 2025/3/1 00:51, Alexey Panov wrote:
-> Commit 9e2f9d34dd12 ("erofs: handle overlapped pclusters out of crafted
-> images properly") fixes CVE-2024-47736 [1] but brings another problem [2].
-> So commit 1a2180f6859c ("erofs: fix PSI memstall accounting") should be
-> backported too.
-> 
-> [1] https://nvd.nist.gov/vuln/detail/CVE-2024-47736
-> [2] https://lore.kernel.org/all/CAKPOu+8tvSowiJADW2RuKyofL_CSkm_SuyZA7ME5vMLWmL6pqw@mail.gmail.com/
-> 
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index ce3d8737df85..ae7bd9ebff38 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -3,7 +3,6 @@
+  * Copyright (C) 2022, Alibaba Cloud
+  * Copyright (C) 2022, Bytedance Inc. All rights reserved.
+  */
+-#include <linux/pseudo_fs.h>
+ #include <linux/fscache.h>
+ #include "internal.h"
+ 
+@@ -13,18 +12,6 @@ static LIST_HEAD(erofs_domain_list);
+ static LIST_HEAD(erofs_domain_cookies_list);
+ static struct vfsmount *erofs_pseudo_mnt;
+ 
+-static int erofs_anon_init_fs_context(struct fs_context *fc)
+-{
+-	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
+-}
+-
+-static struct file_system_type erofs_anon_fs_type = {
+-	.owner		= THIS_MODULE,
+-	.name           = "pseudo_erofs",
+-	.init_fs_context = erofs_anon_init_fs_context,
+-	.kill_sb        = kill_anon_super,
+-};
+-
+ struct erofs_fscache_io {
+ 	struct netfs_cache_resources cres;
+ 	struct iov_iter		iter;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 686d835eb533..47004eb89838 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -379,6 +379,8 @@ extern const struct file_operations erofs_dir_fops;
+ 
+ extern const struct iomap_ops z_erofs_iomap_report_ops;
+ 
++extern struct file_system_type erofs_anon_fs_type;
++
+ /* flags for erofs_fscache_register_cookie() */
+ #define EROFS_REG_COOKIE_SHARE		0x0001
+ #define EROFS_REG_COOKIE_NEED_NOEXIST	0x0002
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 827b62665649..eb052a770088 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -11,6 +11,7 @@
+ #include <linux/fs_parser.h>
+ #include <linux/exportfs.h>
+ #include <linux/backing-dev.h>
++#include <linux/pseudo_fs.h>
+ #include "xattr.h"
+ 
+ #define CREATE_TRACE_POINTS
+@@ -850,6 +851,18 @@ static struct file_system_type erofs_fs_type = {
+ };
+ MODULE_ALIAS_FS("erofs");
+ 
++static int erofs_anon_init_fs_context(struct fs_context *fc)
++{
++	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
++}
++
++struct file_system_type erofs_anon_fs_type = {
++	.owner		= THIS_MODULE,
++	.name           = "pseudo_erofs",
++	.init_fs_context = erofs_anon_init_fs_context,
++	.kill_sb        = kill_anon_super,
++};
++
+ static int __init erofs_module_init(void)
+ {
+ 	int err;
+-- 
+2.43.5
 
-Thanks for your effort! Patches look good to me.
-
-Thanks,
-Gao Xiang
