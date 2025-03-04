@@ -1,59 +1,116 @@
-Return-Path: <linux-erofs+bounces-4-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-5-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24829C021B8
-	for <linux-erofs@archiver.kernel.org>; Tue,  4 Mar 2025 11:12:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D98E0C021B8
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Mar 2025 11:16:17 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Z6Y1p5lDNz3bld;
-	Tue,  4 Mar 2025 22:12:46 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.16.41.108
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1741086390;
-	cv=none; b=bNZLppLi9jhO9SwEkw5DU/+WIOrCVOYSia8jn1KF0g7o5TPdkW9151+72LKZv7QxOEt5HV4WIB9z+YCM8L06Y29chpUCznkQmNRJ4U//YRzG+qqoGlSoyIkxKmm0QVlpPpAf03FWhQ2M0rJYXMdqsFFhw2IgzG9T47Awbzsg1BKqIs794u0agz1D707cwlnuDCtYfCY8eZdEmwmeogi5Gz91H5l9asy1T2MhxZ4AUOqtxgqScFdvbCmRCqb7Q4VPo7/APmFMvj5p2103fFoIs6bTuXHorYYOZguu9SDPtsr59wTPsqFeyO4BycvHZj2g72JDO0dUpGqjhnCx4WP3oQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Z6Y5r1llZz3blR;
+	Tue,  4 Mar 2025 22:16:16 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1036"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1741076321;
+	cv=none; b=IgXdvUKXHZP7IuA9Db2DZds1OROYajnN4I/zW0pbJRZ1hpYUs4BF/olPB5F0Gq09Hs4/ohS/SXl5zU/299kKW1IgWrdx+yPT0yC4n6fUCuXH3/94CR8ZX7ug1dP5ICl9DRLBmdXcXki+0+kbLGAjRrIBfoKTiCLheSKAiwszqoK9bZ8bp8/wQ3Onz7pmS0MtQkFDqtt+scijPkjmSVvE+NWp65EqTm5KnCenivjS356RLUV9Zqvvtg2oxfdmKo15i9VDK0RuVBvYzJ8wZpC5cELRmWSaZz6keBgMu38n+5LgjQjKx5J34PxwMskqHWr1POwgR8X+B4hmQqfPq4rfIw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1741086390; c=relaxed/relaxed;
-	bh=aidFCCwoyLLJB8y70ZLRHcH/5O3h84FAjWtPCnyu0PE=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Xw09LboeZ2z6RpYlL3mvhp0Oxw8Jwk645FROsZGOPET2jwRyn0OyqjutMfgOkkMwVJ2V85f+GBHRc3Trrin9XRX3vLcKu3YZRZ8KnLuVHiZugv2OvH4BCxfNthuh3UeYX6EAWWy2bj+t7nbVUx86txdehlSRg/6bKFVh0znDYHM82M6pqF4+LwwPX/I3k+Or8G1KK7ExtrnXqqtjp56rHFntDG8JC56gbSz17EldMbj3LcjhGzFYdQ61hm+XlE1ECvqlqmFR8IXQuVheOZdGve1YMU6oh7cOfDhUa+NCsjO08QBavvSadUfFogJFu8O8uzMsjk3dijuj1MYq4bNpSw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=astralinux.ru; spf=pass (client-ip=195.16.41.108; helo=mail-gw02.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org) smtp.mailfrom=astralinux.ru
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=astralinux.ru
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=astralinux.ru (client-ip=195.16.41.108; helo=mail-gw02.astralinux.ru; envelope-from=apanov@astralinux.ru; receiver=lists.ozlabs.org)
-Received: from mail-gw02.astralinux.ru (mail-gw02.astralinux.ru [195.16.41.108])
+	t=1741076321; c=relaxed/relaxed;
+	bh=Gc0xsYnTUQhvWodmw2ejFo3Ab0lc47BeE7G2ofWx65Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AZI0Exp2LCa5+0bSTKopxojkO1Eba3OTlKfdDw8soFdwj4N6M+Y7dPXxqsFSEIq473D5/GO3y+Mwpl98pPfr3mUqKuLF2MRJtkuCXew2rm+07SnxoSPTeoQ9fxZ+fw8E8w6x754R2C7eY15zkYPTJVUdA229tJXeiK93XOhjzZqXO8SNwsfFofbdmaRMvHw/Z1r21AAH3n2lXOl6jKd4o0lXU1NkVNtTsfc1RJ6bMPUkWxwDXOXmdRgJj0XmRSt964ifHOkg5R+LpH/tZMU80wCl7FSEMOUr6gWE8+OY4UZl9uakTA+BiYWcunmeCnTccOVDoU1ZR9ISyxZV48UXAg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=wB/vzZ+g; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org) smtp.mailfrom=fromorbit.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=wB/vzZ+g;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=fromorbit.com (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=david@fromorbit.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z6XtY0ZDdz2yVV
-	for <linux-erofs@lists.ozlabs.org>; Tue,  4 Mar 2025 22:06:26 +1100 (AEDT)
-Received: from gca-msk-a-srv-ksmg01.astralinux.ru (localhost [127.0.0.1])
-	by mail-gw02.astralinux.ru (Postfix) with ESMTP id A26821F9EE;
-	Tue,  4 Mar 2025 14:06:20 +0300 (MSK)
-Received: from new-mail.astralinux.ru (gca-yc-ruca-srv-mail04.astralinux.ru [10.177.185.109])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail-gw02.astralinux.ru (Postfix) with ESMTPS;
-	Tue,  4 Mar 2025 14:06:17 +0300 (MSK)
-Received: from rbta-msk-lt-156703.astralinux.ru (unknown [10.177.20.114])
-	by new-mail.astralinux.ru (Postfix) with ESMTPA id 4Z6XtH1zdrzkX0x;
-	Tue,  4 Mar 2025 14:06:14 +0300 (MSK)
-From: Alexey Panov <apanov@astralinux.ru>
-To: stable@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexey Panov <apanov@astralinux.ru>,
-	Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	Yue Hu <huyue2@coolpad.com>,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z6T8w4NRrz2xKh
+	for <linux-erofs@lists.ozlabs.org>; Tue,  4 Mar 2025 19:18:39 +1100 (AEDT)
+Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-2feae68f835so7557099a91.2
+        for <linux-erofs@lists.ozlabs.org>; Tue, 04 Mar 2025 00:18:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1741076317; x=1741681117; darn=lists.ozlabs.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Gc0xsYnTUQhvWodmw2ejFo3Ab0lc47BeE7G2ofWx65Q=;
+        b=wB/vzZ+gpvTk0DFpv6tHtIL/yLTa+xRb9WL4fYBAIlIUsYa1btsHgzWo1L9N57aesO
+         3n1USPD/c6Hf5lapjTe7z24xiK4t2ePxs3Qo460+r+rJR6CgcMemyg8qVBgYdFGLCNt+
+         nmILNdcXxWZq+bqE3jeUCK0G+vE5KeYIZkdUYonq9SRtC85ujAVxR8v0M90bVPBvDJtF
+         +6Dr1c33bjOn39B/EJAZsAIo9HCBQCs0dxngmc/o/ipyHQDY8cOYgAaEB+tkLWT1thYm
+         vGhqFT1Vq9cWLggCZl4KI2uznyh08gmns+YcTvbAZCaby5ZkrdHqsLmzNibukQfp/CEd
+         Pomg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741076317; x=1741681117;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Gc0xsYnTUQhvWodmw2ejFo3Ab0lc47BeE7G2ofWx65Q=;
+        b=QNkNmZOe/xzRvCeL0IargpzqS9b0AEkvaLbOPn0EAHly4CAyzY/ARmKFzy2jfkBjDF
+         rNuOu+bIZEuy4ZYbxK2vKJE4hcZ+BxTBtBIURfNoHc+oGfyR3//UNTOuEv/8U0nb9OVH
+         xYvnm+dSNEx6Av6S1KVpXOl9U7wTzpAGgOJyI9NO96GWRoAo5O6qEVwjSkyy9Dn9djQT
+         xfkIIJF4FRCV+i5iN9uYa9ANeE5+uCF+2Axal/2fFNr/pHTpCAtpjv754srkeV9/NvqE
+         EaK05w0riLMeebWeSgmlxISqznMSuf9dFJxnr3jvNliPH/BlQjnN0Wc89fOsUw0npPbt
+         xTqg==
+X-Forwarded-Encrypted: i=1; AJvYcCWr0mDVDdjJpGiU79b7DmVjJbegRSIAwuu9JUpI2u6+WRdO/uDH/rD3VBCWpHgDSq8teh5fAza+nbV2ng==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YxFidj8LVxhoelnOrFdttwvvxgJAy07mrKE3+s5v7YK4oEXepqr
+	IGZyMOQxhImlMvKSA6yF0hRZXy7nTmSCf22W02nVnU60AE+j0UgfoVm5T0LmB4E=
+X-Gm-Gg: ASbGncuRMuzK+n46JvDN0SB2KHdy6zaziyMF6lIT3pfLbNX6aJ0xzj5CZL1eNnRlw9s
+	lRD09sGaMC8vWKGjxaZZjcC69//W17dv7czwPjsY2GaVglNWRJrVzLTTw14bVwf1FRIlKaa9TmQ
+	mt+N/TZWzEVunHGlGxdXbubBr/5RmAra10UjczmvUyjmMDMWpfxCvycH76sI+tGzCM4BnWT1UkM
+	xGVe+tzM2Ao3RycDVqJByj3Hh0yxSwjkMt66P07gocScCUH8/G6+1U+A/uZ3QoAeYyYcRnjCpWi
+	aYSqgKUhyOW6R+BuJrjTh48W0CAruLecftmXnt/jy24RmjPhX8oGTovFD1CcgShZqBoanZDLrAR
+	r42Tq/yDhus9iUDlEwins
+X-Google-Smtp-Source: AGHT+IFtDzCgImtuz8L9+GYRCY4LVCLrXbK0Bo8kgf88DL3yFokQ0qmw0lddBixblhsY0xBrKZj7tQ==
+X-Received: by 2002:a05:6a20:734a:b0:1ee:c390:58ad with SMTP id adf61e73a8af0-1f2f4e014f9mr29817034637.34.1741076317276;
+        Tue, 04 Mar 2025 00:18:37 -0800 (PST)
+Received: from dread.disaster.area (pa49-186-89-135.pa.vic.optusnet.com.au. [49.186.89.135])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-aee7de19d3fsm9497416a12.18.2025.03.04.00.18.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Mar 2025 00:18:36 -0800 (PST)
+Received: from dave by dread.disaster.area with local (Exim 4.98)
+	(envelope-from <david@fromorbit.com>)
+	id 1tpNU1-00000008fSI-4AHP;
+	Tue, 04 Mar 2025 19:18:34 +1100
+Date: Tue, 4 Mar 2025 19:18:33 +1100
+From: Dave Chinner <david@fromorbit.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+	David Sterba <dsterba@suse.com>, Gao Xiang <xiang@kernel.org>,
+	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
 	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Max Kellermann <max.kellermann@ionos.com>
-Subject: [PATCH v2 6.1 0/2] erofs: handle overlapped pclusters out of crafted images properly
-Date: Tue,  4 Mar 2025 14:05:56 +0300
-Message-Id: <20250304110558.8315-1-apanov@astralinux.ru>
-X-Mailer: git-send-email 2.30.2
+	Sandeep Dhavale <dhavale@google.com>,
+	Carlos Maiolino <cem@kernel.org>,
+	"Darrick J. Wong" <djwong@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <okorniev@redhat.com>,
+	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+	Luiz Capitulino <luizcap@redhat.com>,
+	Mel Gorman <mgorman@techsingularity.net>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-xfs@vger.kernel.org, linux-mm@kvack.org,
+	netdev@vger.kernel.org, linux-nfs@vger.kernel.org
+Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
+ only NULL elements
+Message-ID: <Z8a3WSOrlY4n5_37@dread.disaster.area>
+References: <20250228094424.757465-1-linyunsheng@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -64,47 +121,106 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-KSMG-AntiPhishing: NotDetected, bases: 2025/03/04 09:15:00
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Envelope-From: apanov@astralinux.ru
-X-KSMG-AntiSpam-Info: LuaCore: 51 0.3.51 68896fb0083a027476849bf400a331a2d5d94398, {Tracking_uf_ne_domains}, {Tracking_internal2}, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;astralinux.ru:7.1.1;new-mail.astralinux.ru:7.1.1;lore.kernel.org:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;nvd.nist.gov:7.1.1, FromAlignment: s
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiSpam-Lua-Profiles: 191452 [Mar 04 2025]
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Version: 6.1.1.11
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.1.0.7854, bases: 2025/03/04 09:41:00 #27591543
-X-KSMG-AntiVirus-Status: NotDetected, skipped
-X-KSMG-LinksScanning: NotDetected, bases: 2025/03/04 09:15:00
-X-KSMG-Message-Action: skipped
-X-KSMG-Rule-ID: 1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250228094424.757465-1-linyunsheng@huawei.com>
 
-Commit 9e2f9d34dd12 ("erofs: handle overlapped pclusters out of crafted
-images properly") fixes CVE-2024-47736 [1] but brings another problem [2].
-So commit 1a2180f6859c ("erofs: fix PSI memstall accounting") should be
-backported too.
+On Fri, Feb 28, 2025 at 05:44:20PM +0800, Yunsheng Lin wrote:
+> As mentioned in [1], it seems odd to check NULL elements in
+> the middle of page bulk allocating, and it seems caller can
+> do a better job of bulk allocating pages into a whole array
+> sequentially without checking NULL elements first before
+> doing the page bulk allocation for most of existing users.
+> 
+> Through analyzing of bulk allocation API used in fs, it
+> seems that the callers are depending on the assumption of
+> populating only NULL elements in fs/btrfs/extent_io.c and
+> net/sunrpc/svc_xprt.c while erofs and btrfs don't, see:
+> commit 91d6ac1d62c3 ("btrfs: allocate page arrays using bulk page allocator")
+> commit d6db47e571dc ("erofs: do not use pagepool in z_erofs_gbuf_growsize()")
+> commit c9fa563072e1 ("xfs: use alloc_pages_bulk_array() for buffers")
+> commit f6e70aab9dfe ("SUNRPC: refresh rq_pages using a bulk page allocator")
+> 
+> Change SUNRPC and btrfs to not depend on the assumption.
+> Other existing callers seems to be passing all NULL elements
+> via memset, kzalloc, etc.
+> 
+> Remove assumption of populating only NULL elements and treat
+> page_array as output parameter like kmem_cache_alloc_bulk().
+> Remove the above assumption also enable the caller to not
+> zero the array before calling the page bulk allocating API,
+> which has about 1~2 ns performance improvement for the test
+> case of time_bench_page_pool03_slow() for page_pool in a
+> x86 vm system, this reduces some performance impact of
+> fixing the DMA API misuse problem in [2], performance
+> improves from 87.886 ns to 86.429 ns.
 
-The backport follows linux 6.6.y conflict resolution changes of
-struct folio -> struct page from 1bf7e414cac3 ("erofs: handle overlapped
-pclusters out of crafted images properly").
+How much slower did you make btrfs and sunrpc by adding all the
+defragmenting code there?
 
----
-v2: Corrected patch comment about a minor fix. I mistakenly assessed
-the significance of the changes relative to the backport from 6.6.y.
+> 
+> 1. https://lore.kernel.org/all/bd8c2f5c-464d-44ab-b607-390a87ea4cd5@huawei.com/
+> 2. https://lore.kernel.org/all/20250212092552.1779679-1-linyunsheng@huawei.com/
+> CC: Jesper Dangaard Brouer <hawk@kernel.org>
+> CC: Luiz Capitulino <luizcap@redhat.com>
+> CC: Mel Gorman <mgorman@techsingularity.net>
+> CC: Dave Chinner <david@fromorbit.com>
+> CC: Chuck Lever <chuck.lever@oracle.com>
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+> Acked-by: Jeff Layton <jlayton@kernel.org>
+> ---
+> V2:
+> 1. Drop RFC tag and rebased on latest linux-next.
+> 2. Fix a compile error for xfs.
 
-[1] https://nvd.nist.gov/vuln/detail/CVE-2024-47736
-[2] https://lore.kernel.org/all/CAKPOu+8tvSowiJADW2RuKyofL_CSkm_SuyZA7ME5vMLWmL6pqw@mail.gmail.com/
+And you still haven't tested the code changes to XFS, because
+this patch is also broken.
 
-Gao Xiang (2):
-  erofs: handle overlapped pclusters out of crafted images properly
-  erofs: fix PSI memstall accounting
+> diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+> index 5d560e9073f4..b4e95b2dd0f0 100644
+> --- a/fs/xfs/xfs_buf.c
+> +++ b/fs/xfs/xfs_buf.c
+> @@ -319,16 +319,17 @@ xfs_buf_alloc_pages(
+>  	 * least one extra page.
+>  	 */
+>  	for (;;) {
+> -		long	last = filled;
+> +		long	alloc;
+>  
+> -		filled = alloc_pages_bulk(gfp_mask, bp->b_page_count,
+> -					  bp->b_pages);
+> +		alloc = alloc_pages_bulk(gfp_mask, bp->b_page_count - filled,
+> +					 bp->b_pages + filled);
+> +		filled += alloc;
+>  		if (filled == bp->b_page_count) {
+>  			XFS_STATS_INC(bp->b_mount, xb_page_found);
+>  			break;
+>  		}
+>  
+> -		if (filled != last)
+> +		if (alloc)
+>  			continue;
 
- fs/erofs/zdata.c | 66 +++++++++++++++++++++++++-----------------------
- 1 file changed, 34 insertions(+), 32 deletions(-)
+alloc_pages_bulk() now returns the number of pages allocated in the
+array. So if we ask for 4 pages, then get 2, filled is now 2. Then
+we loop, ask for another 2 pages, get those two pages and it returns
+4. Now filled is 6, and we continue.
 
+Now we ask alloc_pages_bulk() for -2 pages, which returns 4 pages...
+
+Worse behaviour: second time around, no page allocation succeeds
+so it returns 2 pages. Filled is now 4, which is the number of pages
+we need, so we break out of the loop with only 2 pages allocated.
+There's about to be kernel crashes occur.....
+
+Once is a mistake, twice is compeltely unacceptable.  When XFS stops
+using alloc_pages_bulk (probably 6.15) I won't care anymore. But
+until then, please stop trying to change this code.
+
+NACK.
+
+-Dave.
 -- 
-2.39.5
-
+Dave Chinner
+david@fromorbit.com
 
