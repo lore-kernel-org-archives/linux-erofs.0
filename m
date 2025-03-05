@@ -1,78 +1,49 @@
-Return-Path: <linux-erofs+bounces-7-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-8-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0710CC021B8
-	for <linux-erofs@archiver.kernel.org>; Tue,  4 Mar 2025 11:22:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D8726C19F32
+	for <linux-erofs@archiver.kernel.org>; Wed,  5 Mar 2025 12:47:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4Z6YDx4hgbz3blH;
-	Tue,  4 Mar 2025 22:22:25 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::52d"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1741079874;
-	cv=none; b=NdG/0IsVE01yvrbfnXOwlJ6dW6IMOP2VmYc1coMxWz7UyH5cKzlM0ZNs/7+OUYtY/GPgdH9h25i7IOaF6UDnrImMLSoUHZIj53j5DsO468frQlFgrCUpkgGIhs1kvhg7Xmhp4xllrCo9es5VlH+qTItG4H0wSqUTckdx4Qu6/i/plTTen1MdfCSEV4haGIxw9LobhGV8bdhyTNR1BKCSqwUNBVRBejQoULINkuxLzWcOBXbdBrTkdl3OwLh8KZg+Wg5FvOkEiDStjsAcowVDt8YHymUEsX9AK/aluH8CCq1E5OIMAFhZW2inU88iByiM18fj5efT6oEuikLJSeoRoQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4Z7C502l2yz3bxL;
+	Wed,  5 Mar 2025 23:47:48 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.101
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1741178423;
+	cv=none; b=Xy/rLOmew30Ie7Ua3GYHnZAIqUOnMkQGisA2k3mS8rLF8UsPbW0D+hQOnxii1x5Wx4pe239S/YOZ4lu1gOtOTo37zCR0EHzZ4Eyl8ZstXYJqv74idolLBy6k7o1u6F6/cDLBjKO9dm9Rx3v83c3Hrn3bnqQYcBLd9F8XhI5Oq3GI2m1/CtV68n5mwJbCQBtBiDM4RrrxKqBHZ1pGNOZPFQzrP82WtjkqYrgKBHUlEV8Q/mJY0lB3lMMleQCPjQXdwfJ9ch6+6u8J3MXiTiVQdenflHwLJlHRv3pMLqof4f1kNqHtAuoALPR+aJWXCvl6dK7r2W7ic/ogNFD73aVQrA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1741079874; c=relaxed/relaxed;
-	bh=U7nVbwpLU0+lp6Hc0ee6jvbH0Pu/dJ0Otg1V1qw972I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZD7bK6fqzlud1Mc3W/K4idsnRZT5Cr901hcjWvDVMfyJiLK9uLe/bK1hQAQvkZ9P8uosQLCJDhLEZWZ264u5ScB9OiRCNH96XPgWu4jkX2GcU0kLq1pSfrheTNqx473sP/FtnJn490bIKFjS272PvkF7LTbETqjUB+PD36oBwNaZCDLbd1bX3uTuM76TrynDuPgkBm1Wsf5N39EoIdRc2KvxGh22DvlwlR+7j+RyW+bHsdNf/rvmtiwB8tq/Tlni/3OqzNNy0KY+omTOO8zILyoeKIc0ni1zEFh6Qj9xOB7SkGfb3YAaYvYcekTq1eV7JGhjDbzB9nvIvzlWI8fdCw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; dkim=pass (2048-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=gHepfu0T; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::52d; helo=mail-ed1-x52d.google.com; envelope-from=wqu@suse.com; receiver=lists.ozlabs.org) smtp.mailfrom=suse.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+	t=1741178423; c=relaxed/relaxed;
+	bh=cVfb0T8HwHzTaiLekCt8v37S7VbF2szx4FWIxEZYak0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oLv5gxSwLbPMut5U9H5WeC0zaMWf8Y/DAmqiNSapRkhHvHNO9SqBIAttftromp3qw7DDnkRqHRb1X+JM2nkrJkDafzI0uLnqiztCp1Z6uD2G7bNsJ+oSyAdGii5maVjbON6MqDFQGlnLZnv4RWWqzZdWFgtBLaSg8mG4uPLqwXNN0NQ06TzGbMdWVVbl3vXYlQVribvbDGJLzU2QC5+lKG4ACzs5z9EhuUC1TqmMp3Yde8S4Tpw/61YmcOAvloXedklalB183wpnlOZ6zVZX4tOOxmIksd6spFxzD0nu23GSdkK4grLd7J7/XIhmTrhmHZkyrt/ObfEtgZyUl0E4eg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wLzqcrsh; dkim-atps=neutral; spf=pass (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=gHepfu0T;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wLzqcrsh;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=2a00:1450:4864:20::52d; helo=mail-ed1-x52d.google.com; envelope-from=wqu@suse.com; receiver=lists.ozlabs.org)
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z6VTF1rYCz30WQ
-	for <linux-erofs@lists.ozlabs.org>; Tue,  4 Mar 2025 20:17:52 +1100 (AEDT)
-Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-5e5491eb37dso3459047a12.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 04 Mar 2025 01:17:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1741079869; x=1741684669; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=U7nVbwpLU0+lp6Hc0ee6jvbH0Pu/dJ0Otg1V1qw972I=;
-        b=gHepfu0TCdB3j2E8JRXb1oe3FVwfpYWlXzCfOcpJrJNT8bVDxw0QkCpym1sKkGQVGI
-         h45O2FLJ+jKH1OYqhfW6YBCx3LldIpqbF/yPO+GehIk9kRjfelXVzLOV6OQUpvCR/hva
-         gsmb3NJPeVwNJJtOe4m0OJN0aXW8redWxmNcIxwG+m1ZMK/WL8N1rxKOfaUhEUu5Ecod
-         7J/77Dj3dp2zlnLvlE4nxGhubR6JBQYf77/Jmi6VAFEaTG4VykOHBCng/VEO1Lk3HWB/
-         fskGWA0FS2jfx/880OXdLyduLMTH7UaoKJp1R7vV8X4JXf+yLGHbgckpOaO/YdlniM9z
-         Z4Lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741079869; x=1741684669;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=U7nVbwpLU0+lp6Hc0ee6jvbH0Pu/dJ0Otg1V1qw972I=;
-        b=u/PGl6FvVXu8TFmRrAbcxG6kuZc4fgakd/WSDcPlSV/lzFZH1+fkcCPSaoToyf2Tdf
-         RCQQPf9uxlsWec0XRgZMXoHOuOEmaeR99LtjoGcUfTxVcA3zUJyzixOoP3mogh+5zfVp
-         ZWTzqFPfPscGsQaIlJmk/kDyZ3lHt35x1w9i/sBZEz9hP0RX8FPoWpgbRX1IprwhyyFL
-         wV9vxC9uAN3Qr/b3qGGKj2E1DjI0HhRNH9f3Cek8YCDWlGuN4i1EvZv+dtqPzal1PF4/
-         SSSc2+SjzIf15392PFkTDGA7XafhY4vD2UMRRIOLFbgopirZRkNnP7ejTmfOdB2tGZsv
-         skag==
-X-Forwarded-Encrypted: i=1; AJvYcCWMfZOr/Kxi/DPqKXBxpCqDsf4yEGSziGaAagqpUNTxCBi4V8zb5o7dH+QZG3Ut2rTE3wAGnc2FxC72KA==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yw9fBiDDZx18kaQkH1dHrJmeqNXduwx2G4561c3942jBYVlbjTK
-	MxZeqZO7hLMIAMJ6azZAmFNFvoTGIIhsjF+uHjMGcuuh1dL+tyUYYmVpCU2tqhg=
-X-Gm-Gg: ASbGnctKE6C6Adt4XuHr31ylqBlc32F+E90qmbCkXuxaxhmecQtZ/4mo19ZdtEeWqvG
-	jW5WD0hcbrcvhrMiC6lBR4mufHMm36GMzdoPwf9/yhSEN2Cvk0DKx1/jxlDsXmdjZJcMVZYCXfo
-	ssnet1xOhXLBjfoC7NK+rby1Wah9Umc+XPJzmj3ewwafXRWyOaERCAbSf9/gQ734Hn3L8sa/hdF
-	LjSUFmrzhMwepg8lxAnp0vbatFQOYncYJZszISiYZLTMfOBZEcBWafbPA8qGZKnBs3mucmYWPJG
-	HjDsLUu0KE06OEuKZX/NxAlEeQPpxgndWmmUMD4jFqAR0g14UsQayDdX1d/Nfonxlj7Ep1IP
-X-Google-Smtp-Source: AGHT+IFEBbxQyaP0/2DWYOKB8ElC0B8gdpp7QbNW8c37nqwtwNfKPMEljUeKpMeGoOykV8PZYEcmVQ==
-X-Received: by 2002:a05:6402:2789:b0:5e0:52df:d569 with SMTP id 4fb4d7f45d1cf-5e4d6b852d0mr16127811a12.28.1741079868692;
-        Tue, 04 Mar 2025 01:17:48 -0800 (PST)
-Received: from ?IPV6:2403:580d:fda1::299? (2403-580d-fda1--299.ip6.aussiebb.net. [2403:580d:fda1::299])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-223501f9dd8sm90968655ad.57.2025.03.04.01.17.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Mar 2025 01:17:48 -0800 (PST)
-Message-ID: <6f4017dc-2b3d-4b1a-b819-423acb42d999@suse.com>
-Date: Tue, 4 Mar 2025 19:47:34 +1030
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4Z7BwN2V2Yz3btc
+	for <linux-erofs@lists.ozlabs.org>; Wed,  5 Mar 2025 23:40:18 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1741178414; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=cVfb0T8HwHzTaiLekCt8v37S7VbF2szx4FWIxEZYak0=;
+	b=wLzqcrshSDMZA1KahFYU29vBGzXs2DZYv9nq0VomP336+DYsKBH9OpVE+X1Bp1huQdPB3amwJeALOdvsR6+KVSB4FgjrU2uKnQeJETqzIymVDG/z+w3IV0iz9LY2sxUivWiqWnX6zxyjjXt2wZJ7ot17CdnlMGj/6uTZxEiKyUg=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WQlT3Jv_1741178409 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 05 Mar 2025 20:40:13 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs: move {in,out}pages into struct z_erofs_decompress_req
+Date: Wed,  5 Mar 2025 20:40:07 +0800
+Message-ID: <20250305124007.1810731-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -83,142 +54,338 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] mm: alloc_pages_bulk: remove assumption of populating
- only NULL elements
-To: Yunsheng Lin <linyunsheng@huawei.com>, Yishai Hadas <yishaih@nvidia.com>,
- Jason Gunthorpe <jgg@ziepe.ca>,
- Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
- Kevin Tian <kevin.tian@intel.com>,
- Alex Williamson <alex.williamson@redhat.com>, Chris Mason <clm@fb.com>,
- Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>,
- Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Carlos Maiolino <cem@kernel.org>,
- "Darrick J. Wong" <djwong@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Trond Myklebust <trondmy@kernel.org>,
- Anna Schumaker <anna@kernel.org>, Chuck Lever <chuck.lever@oracle.com>,
- Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
- Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>,
- Tom Talpey <tom@talpey.com>
-Cc: Luiz Capitulino <luizcap@redhat.com>,
- Mel Gorman <mgorman@techsingularity.net>, Dave Chinner
- <david@fromorbit.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-xfs@vger.kernel.org, linux-mm@kvack.org,
- netdev@vger.kernel.org, linux-nfs@vger.kernel.org
-References: <20250228094424.757465-1-linyunsheng@huawei.com>
-Content-Language: en-US
-From: Qu Wenruo <wqu@suse.com>
-Autocrypt: addr=wqu@suse.com; keydata=
- xsBNBFnVga8BCACyhFP3ExcTIuB73jDIBA/vSoYcTyysFQzPvez64TUSCv1SgXEByR7fju3o
- 8RfaWuHCnkkea5luuTZMqfgTXrun2dqNVYDNOV6RIVrc4YuG20yhC1epnV55fJCThqij0MRL
- 1NxPKXIlEdHvN0Kov3CtWA+R1iNN0RCeVun7rmOrrjBK573aWC5sgP7YsBOLK79H3tmUtz6b
- 9Imuj0ZyEsa76Xg9PX9Hn2myKj1hfWGS+5og9Va4hrwQC8ipjXik6NKR5GDV+hOZkktU81G5
- gkQtGB9jOAYRs86QG/b7PtIlbd3+pppT0gaS+wvwMs8cuNG+Pu6KO1oC4jgdseFLu7NpABEB
- AAHNGFF1IFdlbnJ1byA8d3F1QHN1c2UuY29tPsLAlAQTAQgAPgIbAwULCQgHAgYVCAkKCwIE
- FgIDAQIeAQIXgBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXVgBQkQ/lqxAAoJEMI9kfOh
- Jf6o+jIH/2KhFmyOw4XWAYbnnijuYqb/obGae8HhcJO2KIGcxbsinK+KQFTSZnkFxnbsQ+VY
- fvtWBHGt8WfHcNmfjdejmy9si2jyy8smQV2jiB60a8iqQXGmsrkuR+AM2V360oEbMF3gVvim
- 2VSX2IiW9KERuhifjseNV1HLk0SHw5NnXiWh1THTqtvFFY+CwnLN2GqiMaSLF6gATW05/sEd
- V17MdI1z4+WSk7D57FlLjp50F3ow2WJtXwG8yG8d6S40dytZpH9iFuk12Sbg7lrtQxPPOIEU
- rpmZLfCNJJoZj603613w/M8EiZw6MohzikTWcFc55RLYJPBWQ+9puZtx1DopW2jOwE0EWdWB
- rwEIAKpT62HgSzL9zwGe+WIUCMB+nOEjXAfvoUPUwk+YCEDcOdfkkM5FyBoJs8TCEuPXGXBO
- Cl5P5B8OYYnkHkGWutAVlUTV8KESOIm/KJIA7jJA+Ss9VhMjtePfgWexw+P8itFRSRrrwyUf
- E+0WcAevblUi45LjWWZgpg3A80tHP0iToOZ5MbdYk7YFBE29cDSleskfV80ZKxFv6koQocq0
- vXzTfHvXNDELAuH7Ms/WJcdUzmPyBf3Oq6mKBBH8J6XZc9LjjNZwNbyvsHSrV5bgmu/THX2n
- g/3be+iqf6OggCiy3I1NSMJ5KtR0q2H2Nx2Vqb1fYPOID8McMV9Ll6rh8S8AEQEAAcLAfAQY
- AQgAJgIbDBYhBC3fcuWlpVuonapC4cI9kfOhJf6oBQJnEXWBBQkQ/lrSAAoJEMI9kfOhJf6o
- cakH+QHwDszsoYvmrNq36MFGgvAHRjdlrHRBa4A1V1kzd4kOUokongcrOOgHY9yfglcvZqlJ
- qfa4l+1oxs1BvCi29psteQTtw+memmcGruKi+YHD7793zNCMtAtYidDmQ2pWaLfqSaryjlzR
- /3tBWMyvIeWZKURnZbBzWRREB7iWxEbZ014B3gICqZPDRwwitHpH8Om3eZr7ygZck6bBa4MU
- o1XgbZcspyCGqu1xF/bMAY2iCDcq6ULKQceuKkbeQ8qxvt9hVxJC2W3lHq8dlK1pkHPDg9wO
- JoAXek8MF37R8gpLoGWl41FIUb3hFiu3zhDDvslYM4BmzI18QgQTQnotJH8=
-In-Reply-To: <20250228094424.757465-1-linyunsheng@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+It seems that all compressors need those two values, so just move
+them into the common structure.
 
+`struct z_erofs_lz4_decompress_ctx` can be dropped too.
 
-在 2025/2/28 20:14, Yunsheng Lin 写道:
-> As mentioned in [1], it seems odd to check NULL elements in
-> the middle of page bulk allocating, and it seems caller can
-> do a better job of bulk allocating pages into a whole array
-> sequentially without checking NULL elements first before
-> doing the page bulk allocation for most of existing users.
-> 
-> Through analyzing of bulk allocation API used in fs, it
-> seems that the callers are depending on the assumption of
-> populating only NULL elements in fs/btrfs/extent_io.c and
-> net/sunrpc/svc_xprt.c while erofs and btrfs don't, see:
-> commit 91d6ac1d62c3 ("btrfs: allocate page arrays using bulk page allocator")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/compress.h             |  2 +-
+ fs/erofs/decompressor.c         | 93 +++++++++++++--------------------
+ fs/erofs/decompressor_deflate.c |  8 +--
+ fs/erofs/decompressor_lzma.c    |  8 +--
+ fs/erofs/decompressor_zstd.c    |  8 +--
+ fs/erofs/zdata.c                |  2 +
+ 6 files changed, 41 insertions(+), 80 deletions(-)
 
-If you want to change the btrfs part, please run full fstests with 
-SCRATCH_DEV_POOL populated at least.
-
-[...]
-> diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-> index f0a1da40d641..ef52cedd9873 100644
-> --- a/fs/btrfs/extent_io.c
-> +++ b/fs/btrfs/extent_io.c
-> @@ -623,13 +623,26 @@ int btrfs_alloc_page_array(unsigned int nr_pages, struct page **page_array,
->   			   bool nofail)
->   {
->   	const gfp_t gfp = nofail ? (GFP_NOFS | __GFP_NOFAIL) : GFP_NOFS;
-> -	unsigned int allocated;
-> +	unsigned int allocated, ret;
->   
-> -	for (allocated = 0; allocated < nr_pages;) {
-> -		unsigned int last = allocated;
-> +	/* Defragment page_array so pages can be bulk allocated into remaining
-> +	 * NULL elements sequentially.
-> +	 */
-> +	for (allocated = 0, ret = 0; ret < nr_pages; ret++) {
-> +		if (page_array[ret]) {
-
-You just prove how bad the design is.
-
-All the callers have their page array members to initialized to NULL, or 
-do not care and just want alloc_pages_bulk() to overwrite the 
-uninitialized values.
-
-The best example here is btrfs_encoded_read_regular().
-Now your code will just crash encoded read.
-
-Read the context before doing stupid things.
-
-I find it unacceptable that you just change the code, without any 
-testing, nor even just check all the involved callers.
-
-> +			page_array[allocated] = page_array[ret];
-> +			if (ret != allocated)
-> +				page_array[ret] = NULL;
-> +
-> +			allocated++;
-> +		}
-> +	}
->   
-> -		allocated = alloc_pages_bulk(gfp, nr_pages, page_array);
-> -		if (unlikely(allocated == last)) {
-> +	while (allocated < nr_pages) {
-> +		ret = alloc_pages_bulk(gfp, nr_pages - allocated,
-> +				       page_array + allocated);
-
-I see the new interface way worse than the existing one.
-
-All btrfs usage only wants a simple retry-until-all-fulfilled behavior.
-
-NACK for btrfs part, and I find you very unresponsible not even bother 
-running any testsuit and just submit such a mess.
-
-Just stop this, no one will ever take you serious anymore.
-
-Thanks,
-Qu
+diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
+index 65ff39401020..2704d7a592a5 100644
+--- a/fs/erofs/compress.h
++++ b/fs/erofs/compress.h
+@@ -11,6 +11,7 @@
+ struct z_erofs_decompress_req {
+ 	struct super_block *sb;
+ 	struct page **in, **out;
++	unsigned int inpages, outpages;
+ 	unsigned short pageofs_in, pageofs_out;
+ 	unsigned int inputsize, outputsize;
+ 
+@@ -59,7 +60,6 @@ extern const struct z_erofs_decompressor *z_erofs_decomp[];
+ 
+ struct z_erofs_stream_dctx {
+ 	struct z_erofs_decompress_req *rq;
+-	unsigned int inpages, outpages;	/* # of {en,de}coded pages */
+ 	int no, ni;			/* the current {en,de}coded page # */
+ 
+ 	unsigned int avail_out;		/* remaining bytes in the decoded buffer */
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 2b123b070a42..50e350b10f89 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -9,14 +9,6 @@
+ 
+ #define LZ4_MAX_DISTANCE_PAGES	(DIV_ROUND_UP(LZ4_DISTANCE_MAX, PAGE_SIZE) + 1)
+ 
+-struct z_erofs_lz4_decompress_ctx {
+-	struct z_erofs_decompress_req *rq;
+-	/* # of encoded, decoded pages */
+-	unsigned int inpages, outpages;
+-	/* decoded block total length (used for in-place decompression) */
+-	unsigned int oend;
+-};
+-
+ static int z_erofs_load_lz4_config(struct super_block *sb,
+ 			    struct erofs_super_block *dsb, void *data, int size)
+ {
+@@ -55,10 +47,9 @@ static int z_erofs_load_lz4_config(struct super_block *sb,
+  * Fill all gaps with bounce pages if it's a sparse page list. Also check if
+  * all physical pages are consecutive, which can be seen for moderate CR.
+  */
+-static int z_erofs_lz4_prepare_dstpages(struct z_erofs_lz4_decompress_ctx *ctx,
++static int z_erofs_lz4_prepare_dstpages(struct z_erofs_decompress_req *rq,
+ 					struct page **pagepool)
+ {
+-	struct z_erofs_decompress_req *rq = ctx->rq;
+ 	struct page *availables[LZ4_MAX_DISTANCE_PAGES] = { NULL };
+ 	unsigned long bounced[DIV_ROUND_UP(LZ4_MAX_DISTANCE_PAGES,
+ 					   BITS_PER_LONG)] = { 0 };
+@@ -68,7 +59,7 @@ static int z_erofs_lz4_prepare_dstpages(struct z_erofs_lz4_decompress_ctx *ctx,
+ 	unsigned int i, j, top;
+ 
+ 	top = 0;
+-	for (i = j = 0; i < ctx->outpages; ++i, ++j) {
++	for (i = j = 0; i < rq->outpages; ++i, ++j) {
+ 		struct page *const page = rq->out[i];
+ 		struct page *victim;
+ 
+@@ -114,36 +105,36 @@ static int z_erofs_lz4_prepare_dstpages(struct z_erofs_lz4_decompress_ctx *ctx,
+ 	return kaddr ? 1 : 0;
+ }
+ 
+-static void *z_erofs_lz4_handle_overlap(struct z_erofs_lz4_decompress_ctx *ctx,
++static void *z_erofs_lz4_handle_overlap(struct z_erofs_decompress_req *rq,
+ 			void *inpage, void *out, unsigned int *inputmargin,
+ 			int *maptype, bool may_inplace)
+ {
+-	struct z_erofs_decompress_req *rq = ctx->rq;
+-	unsigned int omargin, total, i;
++	unsigned int oend, omargin, total, i;
+ 	struct page **in;
+ 	void *src, *tmp;
+ 
+ 	if (rq->inplace_io) {
+-		omargin = PAGE_ALIGN(ctx->oend) - ctx->oend;
++		oend = rq->pageofs_out + rq->outputsize;
++		omargin = PAGE_ALIGN(oend) - oend;
+ 		if (rq->partial_decoding || !may_inplace ||
+ 		    omargin < LZ4_DECOMPRESS_INPLACE_MARGIN(rq->inputsize))
+ 			goto docopy;
+ 
+-		for (i = 0; i < ctx->inpages; ++i)
+-			if (rq->out[ctx->outpages - ctx->inpages + i] !=
++		for (i = 0; i < rq->inpages; ++i)
++			if (rq->out[rq->outpages - rq->inpages + i] !=
+ 			    rq->in[i])
+ 				goto docopy;
+ 		kunmap_local(inpage);
+ 		*maptype = 3;
+-		return out + ((ctx->outpages - ctx->inpages) << PAGE_SHIFT);
++		return out + ((rq->outpages - rq->inpages) << PAGE_SHIFT);
+ 	}
+ 
+-	if (ctx->inpages <= 1) {
++	if (rq->inpages <= 1) {
+ 		*maptype = 0;
+ 		return inpage;
+ 	}
+ 	kunmap_local(inpage);
+-	src = erofs_vm_map_ram(rq->in, ctx->inpages);
++	src = erofs_vm_map_ram(rq->in, rq->inpages);
+ 	if (!src)
+ 		return ERR_PTR(-ENOMEM);
+ 	*maptype = 1;
+@@ -152,7 +143,7 @@ static void *z_erofs_lz4_handle_overlap(struct z_erofs_lz4_decompress_ctx *ctx,
+ docopy:
+ 	/* Or copy compressed data which can be overlapped to per-CPU buffer */
+ 	in = rq->in;
+-	src = z_erofs_get_gbuf(ctx->inpages);
++	src = z_erofs_get_gbuf(rq->inpages);
+ 	if (!src) {
+ 		DBG_BUGON(1);
+ 		kunmap_local(inpage);
+@@ -197,10 +188,8 @@ int z_erofs_fixup_insize(struct z_erofs_decompress_req *rq, const char *padbuf,
+ 	return 0;
+ }
+ 
+-static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
+-				      u8 *dst)
++static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq, u8 *dst)
+ {
+-	struct z_erofs_decompress_req *rq = ctx->rq;
+ 	bool support_0padding = false, may_inplace = false;
+ 	unsigned int inputmargin;
+ 	u8 *out, *headpage, *src;
+@@ -224,7 +213,7 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
+ 	}
+ 
+ 	inputmargin = rq->pageofs_in;
+-	src = z_erofs_lz4_handle_overlap(ctx, headpage, dst, &inputmargin,
++	src = z_erofs_lz4_handle_overlap(rq, headpage, dst, &inputmargin,
+ 					 &maptype, may_inplace);
+ 	if (IS_ERR(src))
+ 		return PTR_ERR(src);
+@@ -251,7 +240,7 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
+ 	if (maptype == 0) {
+ 		kunmap_local(headpage);
+ 	} else if (maptype == 1) {
+-		vm_unmap_ram(src, ctx->inpages);
++		vm_unmap_ram(src, rq->inpages);
+ 	} else if (maptype == 2) {
+ 		z_erofs_put_gbuf(src);
+ 	} else if (maptype != 3) {
+@@ -264,54 +253,42 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_lz4_decompress_ctx *ctx,
+ static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq,
+ 				  struct page **pagepool)
+ {
+-	struct z_erofs_lz4_decompress_ctx ctx;
+ 	unsigned int dst_maptype;
+ 	void *dst;
+ 	int ret;
+ 
+-	ctx.rq = rq;
+-	ctx.oend = rq->pageofs_out + rq->outputsize;
+-	ctx.outpages = PAGE_ALIGN(ctx.oend) >> PAGE_SHIFT;
+-	ctx.inpages = PAGE_ALIGN(rq->inputsize) >> PAGE_SHIFT;
+-
+ 	/* one optimized fast path only for non bigpcluster cases yet */
+-	if (ctx.inpages == 1 && ctx.outpages == 1 && !rq->inplace_io) {
++	if (rq->inpages == 1 && rq->outpages == 1 && !rq->inplace_io) {
+ 		DBG_BUGON(!*rq->out);
+ 		dst = kmap_local_page(*rq->out);
+ 		dst_maptype = 0;
+-		goto dstmap_out;
+-	}
+-
+-	/* general decoding path which can be used for all cases */
+-	ret = z_erofs_lz4_prepare_dstpages(&ctx, pagepool);
+-	if (ret < 0) {
+-		return ret;
+-	} else if (ret > 0) {
+-		dst = page_address(*rq->out);
+-		dst_maptype = 1;
+ 	} else {
+-		dst = erofs_vm_map_ram(rq->out, ctx.outpages);
+-		if (!dst)
+-			return -ENOMEM;
+-		dst_maptype = 2;
++		/* general decoding path which can be used for all cases */
++		ret = z_erofs_lz4_prepare_dstpages(rq, pagepool);
++		if (ret < 0)
++			return ret;
++		if (ret > 0) {
++			dst = page_address(*rq->out);
++			dst_maptype = 1;
++		} else {
++			dst = erofs_vm_map_ram(rq->out, rq->outpages);
++			if (!dst)
++				return -ENOMEM;
++			dst_maptype = 2;
++		}
+ 	}
+-
+-dstmap_out:
+-	ret = z_erofs_lz4_decompress_mem(&ctx, dst);
++	ret = z_erofs_lz4_decompress_mem(rq, dst);
+ 	if (!dst_maptype)
+ 		kunmap_local(dst);
+ 	else if (dst_maptype == 2)
+-		vm_unmap_ram(dst, ctx.outpages);
++		vm_unmap_ram(dst, rq->outpages);
+ 	return ret;
+ }
+ 
+ static int z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
+ 				   struct page **pagepool)
+ {
+-	const unsigned int nrpages_in =
+-		PAGE_ALIGN(rq->pageofs_in + rq->inputsize) >> PAGE_SHIFT;
+-	const unsigned int nrpages_out =
+-		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
++	const unsigned int nrpages_in = rq->inpages, nrpages_out = rq->outpages;
+ 	const unsigned int bs = rq->sb->s_blocksize;
+ 	unsigned int cur = 0, ni = 0, no, pi, po, insz, cnt;
+ 	u8 *kin;
+@@ -373,7 +350,7 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
+ 	unsigned int j;
+ 
+ 	if (!dctx->avail_out) {
+-		if (++dctx->no >= dctx->outpages || !rq->outputsize) {
++		if (++dctx->no >= rq->outpages || !rq->outputsize) {
+ 			erofs_err(sb, "insufficient space for decompressed data");
+ 			return -EFSCORRUPTED;
+ 		}
+@@ -401,7 +378,7 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
+ 	}
+ 
+ 	if (dctx->inbuf_pos == dctx->inbuf_sz && rq->inputsize) {
+-		if (++dctx->ni >= dctx->inpages) {
++		if (++dctx->ni >= rq->inpages) {
+ 			erofs_err(sb, "invalid compressed data");
+ 			return -EFSCORRUPTED;
+ 		}
+@@ -434,7 +411,7 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
+ 		dctx->bounced = true;
+ 	}
+ 
+-	for (j = dctx->ni + 1; j < dctx->inpages; ++j) {
++	for (j = dctx->ni + 1; j < rq->inpages; ++j) {
+ 		if (rq->out[dctx->no] != rq->in[j])
+ 			continue;
+ 		tmppage = erofs_allocpage(pgpl, rq->gfp);
+diff --git a/fs/erofs/decompressor_deflate.c b/fs/erofs/decompressor_deflate.c
+index 5070d2fcc737..c6908a487054 100644
+--- a/fs/erofs/decompressor_deflate.c
++++ b/fs/erofs/decompressor_deflate.c
+@@ -101,13 +101,7 @@ static int z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
+ 				      struct page **pgpl)
+ {
+ 	struct super_block *sb = rq->sb;
+-	struct z_erofs_stream_dctx dctx = {
+-		.rq = rq,
+-		.inpages = PAGE_ALIGN(rq->inputsize) >> PAGE_SHIFT,
+-		.outpages = PAGE_ALIGN(rq->pageofs_out + rq->outputsize)
+-				>> PAGE_SHIFT,
+-		.no = -1, .ni = 0,
+-	};
++	struct z_erofs_stream_dctx dctx = { .rq = rq, .no = -1, .ni = 0 };
+ 	struct z_erofs_deflate *strm;
+ 	int zerr, err;
+ 
+diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
+index 40666815046f..832cffb83a66 100644
+--- a/fs/erofs/decompressor_lzma.c
++++ b/fs/erofs/decompressor_lzma.c
+@@ -150,13 +150,7 @@ static int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
+ 				   struct page **pgpl)
+ {
+ 	struct super_block *sb = rq->sb;
+-	struct z_erofs_stream_dctx dctx = {
+-		.rq = rq,
+-		.inpages = PAGE_ALIGN(rq->inputsize) >> PAGE_SHIFT,
+-		.outpages = PAGE_ALIGN(rq->pageofs_out + rq->outputsize)
+-				>> PAGE_SHIFT,
+-		.no = -1, .ni = 0,
+-	};
++	struct z_erofs_stream_dctx dctx = { .rq = rq, .no = -1, .ni = 0 };
+ 	struct xz_buf buf = {};
+ 	struct z_erofs_lzma *strm;
+ 	enum xz_ret xz_err;
+diff --git a/fs/erofs/decompressor_zstd.c b/fs/erofs/decompressor_zstd.c
+index 7e177304967e..b4bfe14229f9 100644
+--- a/fs/erofs/decompressor_zstd.c
++++ b/fs/erofs/decompressor_zstd.c
+@@ -139,13 +139,7 @@ static int z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
+ 				   struct page **pgpl)
+ {
+ 	struct super_block *sb = rq->sb;
+-	struct z_erofs_stream_dctx dctx = {
+-		.rq = rq,
+-		.inpages = PAGE_ALIGN(rq->inputsize) >> PAGE_SHIFT,
+-		.outpages = PAGE_ALIGN(rq->pageofs_out + rq->outputsize)
+-				>> PAGE_SHIFT,
+-		.no = -1, .ni = 0,
+-	};
++	struct z_erofs_stream_dctx dctx = { .rq = rq, .no = -1, .ni = 0 };
+ 	zstd_in_buffer in_buf = { NULL, 0, 0 };
+ 	zstd_out_buffer out_buf = { NULL, 0, 0 };
+ 	struct z_erofs_zstd *strm;
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index ad674eee400a..5e4b65070b86 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1284,6 +1284,8 @@ static int z_erofs_decompress_pcluster(struct z_erofs_backend *be, int err)
+ 					.sb = be->sb,
+ 					.in = be->compressed_pages,
+ 					.out = be->decompressed_pages,
++					.inpages = pclusterpages,
++					.outpages = be->nr_pages,
+ 					.pageofs_in = pcl->pageofs_in,
+ 					.pageofs_out = pcl->pageofs_out,
+ 					.inputsize = pcl->pclustersize,
+-- 
+2.43.5
 
 
