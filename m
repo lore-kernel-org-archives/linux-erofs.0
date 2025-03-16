@@ -1,51 +1,48 @@
-Return-Path: <linux-erofs+bounces-72-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-73-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2C14C28B28
-	for <linux-erofs@archiver.kernel.org>; Sun, 16 Mar 2025 03:37:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75A3CC282DE
+	for <linux-erofs@archiver.kernel.org>; Sun, 16 Mar 2025 08:45:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZFkLX27h9z2yf0;
-	Sun, 16 Mar 2025 14:37:08 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=47.90.199.6
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742096228;
-	cv=none; b=TZkcqa9um/r6hybkPVeHPtQanMCOX4FeVwLIxfqlKP3WAAdjlvbV2g5cor6sXvBSFX0eqe9Psg2FCA05P/ZCGHjYwhEqiXo/ISiYo4jC2cWfpi+hsQyMGzW2bGbIYojJPAZyQNqeODID//O6hGdzN2a1jmB+aocpjE48FHiFmfWejgyoanE4vmNkYzqLOyEMforLWOWwPVkQjsBCswCMGkNZGq1zQNRmro+ToLOpC4hqlkJcodkJ/2BX6AVqzPd+qns9d2XKT/ItE3HAdybsjY0YnzMR5CSxv0Eya+9ndLsCncjLAWrFCiG4es3uVEaHC9Uz8JkTwPnds/nDXHq1/Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZFsBg4G4Xz2yMh;
+	Sun, 16 Mar 2025 19:45:47 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742114747;
+	cv=none; b=LMLzNbG5e+y7SmCL04UwhXP84dKJNrMpHWlmfjI23fbGebxBMejq7AdIMlPAZ6ILbcLBiRB/evPt/9hc5IyqjsX4GchsgLUD9awRIvE1kuMoSqc5ATYmvEWTD2IBL+SOoVZBIGFsMeUzB38H76FzC22aF9C+/3YjZbWhTne+MBXi6DWRu/WxNuG3GfLfwj6fYzge99Qa3fEIBXLRokdKRkOF95D0HBTcdDNC8B3cxkpKjodqjZB3VfN0rNwJGIDBt/IzE3BaheQmdnUteO2YStCuZSeXptPwswBTorDFfJ5H4ZaC3HKZPf7CVR/c/FWrLi0T80iGkZ2+9l8tnMkV4Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1742096228; c=relaxed/relaxed;
-	bh=3y/s4UD/eBTW3Jv8eTRnucvtEN8WYDRIAhJYzThWpes=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YNz/Wr13/ELJGwUmDVisoIM0176FWqtycYAZKiLRrOUGLfl+3FHvlaTyFU+bFsTTmPV3zuoErxD1xCXZ96x/IllDlyv9/QXiCKcUYfA9lFhLzzWpfRr9GIUObSxxx0YmkVB7+v6f/CYBnDhrUJp3py9HnUPcAXgz34C+jeU8sNQJj0l4oxi2+y0jP4yQ8FbuZHAfp4eJutTIhIOuPz1n00Wx3cweCq6JA/JHoZyvP8lwd0aG1gbgTbuBan9Fvd7ZcTr819PcPR3LxxDVOVqn/fytMyzaX4uk/pR85lqlFbQuqywEfYXhkrShAvbbKHQrTtZBefJGq9DyRoPq6DiQSg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RVx87+xc; dkim-atps=neutral; spf=pass (client-ip=47.90.199.6; helo=out199-6.us.a.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1742114747; c=relaxed/relaxed;
+	bh=8c/oFrBwpsKv3i/7iAxLSIuNfJ6Q6hnw99sRJIvftao=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hlw2gO+bBDTZPbNngwrUy8yTqFabesgdv1Cpz7deNTxNSKAzTSGTJ6pyfgYeL3i+A+4fOdN5SefjjmLdknk2s7wMgYNk2hbShS4DwIiaKvhbujlVGYN/cVoLZ70DTtMlUgWD1TDkuQMFRqUvIy9EO+iMw4CxZ4rtNRDDF6qsVHiZtL1epfYaXEx34DY6q1MoPGMnm/aEoWGL6y/Z8Hqptmgsr+jQZHTd/ex9fCrg5uTwjxzCOoKUVCDCIYsAUG9O1liZk30EVaSRpZ2CN+qxPp2C8hyMjAT9vCFrOaoo380AeYF72G/AMZBf4tAEKJRcDwkJg753EnDxJbhwt+DTWg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=eNpDngHi; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=RVx87+xc;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=eNpDngHi;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=47.90.199.6; helo=out199-6.us.a.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out199-6.us.a.mail.aliyun.com (out199-6.us.a.mail.aliyun.com [47.90.199.6])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZFkLW05Mrz2ySZ
-	for <linux-erofs@lists.ozlabs.org>; Sun, 16 Mar 2025 14:37:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZFsBd4rz6z2yFQ
+	for <linux-erofs@lists.ozlabs.org>; Sun, 16 Mar 2025 19:45:44 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1742096210; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=3y/s4UD/eBTW3Jv8eTRnucvtEN8WYDRIAhJYzThWpes=;
-	b=RVx87+xcYVAhotisFMPbZ+G4oUV+xEMTSofeonDnJA/QRe2C6PSKiz5U1kNEZxDTAP8OdVVEI/Y0tIQYcZRYWi/Nb6z62l0OQ6BayaJhfQtPuuJ1OzWtG4tNYJ1DXAmB2dZu1mZkW1z1hzl057bM7aWu/JviK4fNeMTs6yN19FM=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WRSkS66_1742096208 cluster:ay36)
+	t=1742114739; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=8c/oFrBwpsKv3i/7iAxLSIuNfJ6Q6hnw99sRJIvftao=;
+	b=eNpDngHiBxq19SQACcXWcA6pABvap6pscdSHTxm36E4nbuXBJzPGg6raOQOASresRnbDHX4sGJriijQ/2Z/S8clZwT/v54b/wcDbdVBwaFKTa4ElfNOrYrU1sRUZ93yUW1BG7czF2Thz76XWYXsJ6GXHWElMkA7gHpJYLeAdR5Q=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WRTtS4j_1742114734 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Sun, 16 Mar 2025 11:36:49 +0800
+          Sun, 16 Mar 2025 16:45:38 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v2 6/8] erofs-utils: support dot-omitted directories
-Date: Sun, 16 Mar 2025 11:36:37 +0800
-Message-ID: <20250316033639.1050759-6-hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs-utils: stress: add support for dumping inconsistent data
+Date: Sun, 16 Mar 2025 16:45:33 +0800
+Message-ID: <20250316084533.1446186-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250316033639.1050759-1-hsiangkao@linux.alibaba.com>
-References: <20250316033639.1050759-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -58,195 +55,145 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Omit the `dot` dirent by default if 48bit layout is set.
+... dump inconsistent data for further analysis during stress tests.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-no change.
+ contrib/stress.c | 65 +++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 59 insertions(+), 6 deletions(-)
 
- include/erofs/config.h   |  1 +
- include/erofs/internal.h |  1 +
- lib/dir.c                |  2 ++
- lib/inode.c              | 35 +++++++++++++++++++++++++----------
- lib/namei.c              |  3 ++-
- mkfs/main.c              | 14 ++++++++++++++
- 6 files changed, 45 insertions(+), 11 deletions(-)
-
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 92c1467..eb5cad8 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -66,6 +66,7 @@ struct erofs_configure {
- 	bool c_xattr_name_filter;
- 	bool c_ovlfs_strip;
- 	bool c_hard_dereference;
-+	bool c_dot_omitted;
- 
- #ifdef HAVE_LIBSELINUX
- 	struct selabel_handle *sehnd;
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index fd8d43d..227e830 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -236,6 +236,7 @@ struct erofs_inode {
- 	bool opaque;
- 	/* OVL: non-merge dir that may contain whiteout entries */
- 	bool whiteouts;
-+	bool dot_omitted;
- 
- 	unsigned int xattr_isize;
- 	unsigned int extent_isize;
-diff --git a/lib/dir.c b/lib/dir.c
-index d786a5b..3405844 100644
---- a/lib/dir.c
-+++ b/lib/dir.c
-@@ -150,6 +150,8 @@ int erofs_iterate_dir(struct erofs_dir_context *ctx, bool fsck)
- 		return -ENOTDIR;
- 
- 	ctx->flags &= ~EROFS_READDIR_ALL_SPECIAL_FOUND;
-+	if (dir->dot_omitted)
-+		ctx->flags |= EROFS_READDIR_DOT_FOUND;
- 	pos = 0;
- 	while (pos < dir->i_size) {
- 		erofs_blk_t lblk = erofs_blknr(sbi, pos);
-diff --git a/lib/inode.c b/lib/inode.c
-index cf3bcee..df1f699 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -253,21 +253,29 @@ static int erofs_prepare_dir_file(struct erofs_inode *dir,
- {
- 	struct erofs_sb_info *sbi = dir->sbi;
- 	struct erofs_dentry *d, *n, **sorted_d;
-+	bool dot_omitted = cfg.c_dot_omitted;
- 	unsigned int i;
- 	unsigned int d_size = 0;
- 
- 	sorted_d = malloc(nr_subdirs * sizeof(d));
- 	if (!sorted_d)
- 		return -ENOMEM;
-+
-+	dir->dot_omitted = dot_omitted;
- 	i = 0;
- 	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
- 		list_del(&d->d_child);
-+		if (dot_omitted && !strcmp(d->name, ".")) {
-+			erofs_iput(d->inode);
-+			free(d);
-+			continue;
-+		}
- 		sorted_d[i++] = d;
- 	}
--	DBG_BUGON(i != nr_subdirs);
--	qsort(sorted_d, nr_subdirs, sizeof(d), comp_subdir);
--	for (i = 0; i < nr_subdirs; i++)
--		list_add_tail(&sorted_d[i]->d_child, &dir->i_subdirs);
-+	DBG_BUGON(i + dot_omitted != nr_subdirs);
-+	qsort(sorted_d, i, sizeof(d), comp_subdir);
-+	while (i)
-+		list_add(&sorted_d[--i]->d_child, &dir->i_subdirs);
- 	free(sorted_d);
- 
- 	/* let's calculate dir size */
-@@ -641,10 +649,12 @@ int erofs_iflush(struct erofs_inode *inode)
- 		nlink_1 = false;
- 		nb = (union erofs_inode_i_nb){};
- 	}
-+	fmt = S_ISDIR(inode->i_mode) && inode->dot_omitted ?
-+		1 << EROFS_I_DOT_OMITTED_BIT : 0;
- 
- 	switch (inode->inode_isize) {
- 	case sizeof(struct erofs_inode_compact):
--		fmt = 0 | (inode->datalayout << 1);
-+		fmt |= 0 | (inode->datalayout << 1);
- 		u.dic.i_xattr_icount = cpu_to_le16(icount);
- 		u.dic.i_mode = cpu_to_le16(inode->i_mode);
- 		u.dic.i_nb.nlink = cpu_to_le16(inode->i_nlink);
-@@ -669,7 +679,8 @@ int erofs_iflush(struct erofs_inode *inode)
- 		u.dic.i_format = cpu_to_le16(fmt);
- 		break;
- 	case sizeof(struct erofs_inode_extended):
--		u.die.i_format = cpu_to_le16(1 | (inode->datalayout << 1));
-+		fmt |= 1 | (inode->datalayout << 1);
-+		u.die.i_format = cpu_to_le16(fmt);
- 		u.die.i_xattr_icount = cpu_to_le16(icount);
- 		u.die.i_mode = cpu_to_le16(inode->i_mode);
- 		u.die.i_nlink = cpu_to_le32(inode->i_nlink);
-@@ -1543,13 +1554,17 @@ static int erofs_mkfs_handle_directory(struct erofs_inode *dir)
- 
- 	/*
- 	 * if there're too many subdirs as compact form, set nlink=1
--	 * rather than upgrade to use extented form instead.
-+	 * rather than upgrade to use extented form instead if possible.
- 	 */
- 	if (i_nlink > USHRT_MAX &&
--	    dir->inode_isize == sizeof(struct erofs_inode_compact))
--		dir->i_nlink = 1;
--	else
-+	    dir->inode_isize == sizeof(struct erofs_inode_compact)) {
-+		if (dir->dot_omitted)
-+			dir->inode_isize = sizeof(struct erofs_inode_extended);
-+		else
-+			dir->i_nlink = 1;
-+	} else {
- 		dir->i_nlink = i_nlink;
-+	}
- 
- 	return erofs_mkfs_go(sbi, EROFS_MKFS_JOB_DIR, &dir, sizeof(dir));
- 
-diff --git a/lib/namei.c b/lib/namei.c
-index dec544c..5da8ed9 100644
---- a/lib/namei.c
-+++ b/lib/namei.c
-@@ -100,8 +100,9 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
- 	}
- 
- 	switch (vi->i_mode & S_IFMT) {
--	case S_IFREG:
- 	case S_IFDIR:
-+		vi->dot_omitted = (ifmt >> EROFS_I_DOT_OMITTED_BIT) & 1;
-+	case S_IFREG:
- 	case S_IFLNK:
- 		vi->u.i_blkaddr = le32_to_cpu(copied.i_u.startblk_lo) |
- 			((u64)le16_to_cpu(copied.i_nb.startblk_hi) << 32);
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 2defa92..49a9eff 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -334,6 +334,16 @@ static int erofs_mkfs_feat_set_48bit(bool en, const char *val,
- 	return 0;
+diff --git a/contrib/stress.c b/contrib/stress.c
+index eedd9b9..27d5133 100644
+--- a/contrib/stress.c
++++ b/contrib/stress.c
+@@ -256,6 +256,7 @@ static struct fent *getfent(int which, int r)
  }
  
-+static int erofs_mkfs_feat_set_dot_omitted(bool en, const char *val,
-+					   unsigned int vallen)
+ static int testdir_fd = -1, chkdir_fd = -1;
++static char *dumpfile;
+ 
+ static int __getdents_f(unsigned int sn, struct fent *fe)
+ {
+@@ -288,6 +289,47 @@ static int getdents_f(int op, unsigned int sn)
+ 	return __getdents_f(sn, fe);
+ }
+ 
++static void baddump(unsigned int sn, char *buf1, char *buf2, unsigned int sz)
 +{
-+	if (vallen)
-+		return -EINVAL;
++	int fd, err, i;
++	char *fn = dumpfile;
 +
-+	cfg.c_dot_omitted = en;
-+	return 0;
++	if (!fn)
++		return;
++	for (i = 0;;) {
++		fd = open(fn, O_CREAT | O_EXCL | O_WRONLY, 0644);
++		if (fd >= 0) {
++			printf("%d[%u]/%u: dump inconsistent data to \"%s\"\n",
++			       getpid(), procid, sn, fn);
++			if (fn != dumpfile)
++				free(fn);
++			break;
++		}
++		if (fd < 0 && errno != EEXIST) {
++			fprintf(stderr, "%d[%u]/%u: failed to create dumpfile %s\n",
++				getpid(), procid, sn, fn);
++			if (fn != dumpfile)
++				free(fn);
++			return;
++		}
++		if (fn != dumpfile)
++			free(fn);
++		err = asprintf(&fn, "%s.%d", dumpfile, ++i);
++		if (err < 0) {
++			fprintf(stderr, "%d[%u]/%u: failed to allocate filename\n",
++				getpid(), procid, sn);
++			return;
++		}
++	}
++	if (write(fd, buf1, sz) != sz)
++		fprintf(stderr, "%d[%u]/%u: failed to write buffer1 @ %u",
++			getpid(), procid, sn, sz);
++	if (write(fd, buf2, sz) != sz)
++		fprintf(stderr, "%d[%u]/%u: failed to write buffer2 @ %u",
++			getpid(), procid, sn, sz);
++	close(fd);
 +}
 +
- static struct {
- 	char *feat;
- 	int (*set)(bool en, const char *val, unsigned int len);
-@@ -345,6 +355,7 @@ static struct {
- 	{"dedupe", erofs_mkfs_feat_set_dedupe},
- 	{"fragdedupe", erofs_mkfs_feat_set_fragdedupe},
- 	{"48bit", erofs_mkfs_feat_set_48bit},
-+	{"dot-omitted", erofs_mkfs_feat_set_dot_omitted},
- 	{NULL, NULL},
- };
- 
-@@ -1247,6 +1258,9 @@ int main(int argc, char **argv)
- 		g_sbi.epoch = mkfs_time;
+ static int readlink_f(int op, unsigned int sn)
+ {
+ 	char buf1[PATH_MAX], buf2[PATH_MAX];
+@@ -317,6 +359,7 @@ static int readlink_f(int op, unsigned int sn)
+ 		if (memcmp(buf1, buf2, sz)) {
+ 			fprintf(stderr, "%d[%u]/%u %s: symlink mismatch @%s\n",
+ 				getpid(), procid, sn, __func__, fe->subpath);
++			baddump(sn, buf1, buf2, sz);
+ 			return -EBADMSG;
+ 		}
+ 	}
+@@ -382,8 +425,8 @@ static int __read_f(unsigned int sn, struct fent *fe, uint64_t filesize)
+ 		trimmed = len <= filesize - off ? len : filesize - off;
  	}
  
-+	if (cfg.c_dot_omitted)
-+		erofs_sb_set_48bit(&g_sbi);
-+
- 	err = erofs_dev_open(&g_sbi, cfg.c_img_path, O_RDWR |
- 				(incremental_mode ? 0 : O_TRUNC));
- 	if (err) {
+-	printf("%d[%u]/%u read_f: %llu bytes @ %llu\n", getpid(), procid, sn,
+-	       len | 0ULL, off | 0ULL);
++	printf("%d[%u]/%u read_f: %llu bytes @ %llu of %s\n", getpid(), procid,
++	       sn, len | 0ULL, off | 0ULL, fe->subpath);
+ 	nread = pread64(fe->fd, buf, len, off);
+ 	if (nread != trimmed) {
+ 		fprintf(stderr, "%d[%u]/%u read_f: failed to read %llu bytes @ %llu of %s\n",
+@@ -414,6 +457,7 @@ static int __read_f(unsigned int sn, struct fent *fe, uint64_t filesize)
+ 		fprintf(stderr, "%d[%u]/%u read_f: data mismatch %llu bytes @ %llu of %s\n",
+ 			getpid(), procid, sn, len | 0ULL, off | 0ULL,
+ 			fe->subpath);
++		baddump(sn, buf, chkbuf, nread);
+ 		return -EBADMSG;
+ 	}
+ 	return 0;
+@@ -481,6 +525,7 @@ static int __doscan_f(unsigned int sn, const char *op, struct fent *fe,
+ 			fprintf(stderr, "%d[%u]/%u %s: %llu bytes mismatch @ %llu of %s\n",
+ 				getpid(), procid, sn, op, chunksize | 0ULL,
+ 				pos | 0ULL, fe->subpath);
++			baddump(sn, buf, chkbuf, nread);
+ 			return -EBADMSG;
+ 		}
+ 	}
+@@ -589,7 +634,7 @@ static int parse_options(int argc, char *argv[])
+ 	char *testdir, *chkdir;
+ 	int opt;
+ 
+-	while ((opt = getopt(argc, argv, "l:p:s:")) != -1) {
++	while ((opt = getopt(argc, argv, "d:l:p:s:")) != -1) {
+ 		switch (opt) {
+ 		case 'l':
+ 			loops = atoi(optarg);
+@@ -614,6 +659,13 @@ static int parse_options(int argc, char *argv[])
+ 				return -EINVAL;
+ 			}
+ 			break;
++		case 'd':
++			if (!*optarg) {
++				fprintf(stderr, "invalid dump file\n");
++				return -EINVAL;
++			}
++			dumpfile = optarg;
++			break;
+ 		default: /* '?' */
+ 			return -EINVAL;
+ 		}
+@@ -650,9 +702,10 @@ static void usage(void)
+ 	fputs("usage: [options] TESTDIR [COMPRDIR]\n\n"
+ 	      "Stress test for EROFS filesystem, where TESTDIR is the directory to test and\n"
+ 	      "COMPRDIR (optional) serves as a directory for data comparison.\n"
+-	      " -l#     Number of times each worker should loop (0 for infinite, default: 1)\n"
+-	      " -p#     Number of parallel worker processes (default: 1)\n"
+-	      " -s#     Seed for random generator (default: random)\n",
++	      " -l#             Number of times each worker should loop (0 for infinite, default: 1)\n"
++	      " -p#             Number of parallel worker processes (default: 1)\n"
++	      " -s#             Seed for random generator (default: random)\n"
++	      " -d<file>        Specify a dumpfile for the inconsistent data\n",
+ 	      stderr);
+ }
+ 
 -- 
 2.43.5
 
