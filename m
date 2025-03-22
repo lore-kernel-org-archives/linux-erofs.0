@@ -1,55 +1,78 @@
-Return-Path: <linux-erofs+bounces-114-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-115-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83193C3600B
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Mar 2025 20:44:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD057C35FFC
+	for <linux-erofs@archiver.kernel.org>; Sat, 22 Mar 2025 23:27:19 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZKrrb0FHRz2yd7;
-	Sun, 23 Mar 2025 07:43:59 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742676238;
-	cv=none; b=j50Wk8Yk2pU4JukMHMmn1KHzCDi+3YpyQxNGlvBHOoedNcrUV4u6fjA4URwQ7jqXkWgoylKCnf1WG4pped+jDykjQWjTBO6KUKoS6ERfIdmwquU5OnQHFr10pK635Ruy86fWDFQ78fP5e6kcFZugsDnMQkXyq//ejbhvtYTU1NIfKbU+zTmt1xgXR2PZlU1uuJd1+odGp7GstXEVDaSUciIKc83lacTFXZo388rd5HNr/uO6iKv0DjLYBFnd+NjeRNuyJDGwUUxiu6HQ5ohemaGgofQXKipKrc+um86N/22yO4uZupLzhYzygLpJEN5t1PSX7uuF7+oA5fu7CRf4ZQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZKwT14PRLz2ygn;
+	Sun, 23 Mar 2025 10:27:17 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.9
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742686037;
+	cv=none; b=P5mPFMBlDbY1dwVzORTDmUuudrHeLCMYPrgbU2C3QOrdfH+fEasmPS/OpKgoNI1cf6iT0+VZoWe7Pw6CZa3isCyDiaNENJkjqfCyu09D/hlmIMhp83Lx2dR3t0oM9i/0kp05bBDNmJr8XlqXPQ4OEewMfxqzqhw4zbjKFoIl+yoWnDjoyhy1m9ilnpAGmDlixJy36JXZ48C+PZDCaEQkutCfQYYaJWEkhlBKv5KJu07Ry9YFK6UaIVOhEMp8JZsOKu/u9LXSl/M9em2ztHiX8ZxQVOdEJ4aFgJApAcZslzGZq/nGelc6MuJ0UJFLzXIaOefRFfhi1qgvnfeLNUYC2A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1742676238; c=relaxed/relaxed;
-	bh=wRynNQpOron2dOwaxm8ZBzRWJhfAvYCDYWPd0viM9X8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fyuGFSPDMyekLXOb3hVPCDKuwtJ/mEWUTyEGIwjiY2SXiSMPAEPR4bzeHeA6NXGsI4ICa5b9QqvkRtBWwXfZkWW4BifeV7zMonje4Io53fL1sERK0OS2I7T4fsn7sGSR4iVsRmysYSq+/s9ikQ++vc4clN8tGfjPk0E1xkY7kF7QrD9WOBfvidPGedZE7n838Es/+qhhrhNGQduJZxcoBJ881dxwaNjU0C6cZIdQAw8L9CeETTSaw3v7iw3wm31T9hGx1joaaeUe2XuTaPHso02/XEhRy4ofHXLdUZnUxkh2eCrHFH0NWB9zcP0dOwX7fR91YYzRG+tHKLmMhHVGNA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=R/wc4fVk; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1742686037; c=relaxed/relaxed;
+	bh=ALunj1wzCAeabKBmtHZF5jTJsQY2D9a+SSImSY1QJ+Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=icd3gr246X3QepITnl9jWmqaKWQ75aW4wl4L0eZZ6r7QoEB8VpE4SW6X+8Ji/MNjeomY0w5ztSwXWLv4xVz6m6pKYOT/61nO0b9CgeNgVRTBDW6100kbgE8U+ZC/eXLz4xqkm4xP2fgkZLrMWIEplWPMKQ4JnNyR86l6aCF7DOXrShXYYHjZeXkgRJWJCFcfjnxRp/wOEQkgA/ZLBqoUhqNzhrZtLk79FXYQphGY8vSrEFO7AcMaE4dOwM9XxJP7yS7LVFejNCuNx0vO4ZnbXtfM6vdDxFwF62inqr9OyiIktIiFMgQDPtkWZx1nbBOxQu6XBiLyVZRzADdfjGIpDg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GaMHlwrG; dkim-atps=neutral; spf=pass (client-ip=198.175.65.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=R/wc4fVk;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GaMHlwrG;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZKrrX6hHCz2ydQ
-	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Mar 2025 07:43:56 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id AAB1A44030;
-	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7E4A6C4CEFF;
-	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742675715;
-	bh=CGLJl1zEmiCISwzcev9qeEVvn+4xnW6/oap/uXff3ko=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=R/wc4fVkDIP+pjdeKOjGNRZlhkfRErVXjcoSVJkAhNbpwZ7QyIZbx7sZkeWvbAKai
-	 qNNZJNjqbFbJwBxL17trCKvX4uSpPJ7FY4XcWNwa5Bt69/64flpcJJii0vwObyEGUO
-	 hXiat1wm3Xg47MSjjy81dVhNZFqjdoyqVnPhgS8fJ9nvnQogvvoV685Y+VEgaH7F85
-	 Xc3nguWyTFepgiPs+xAypo+L1hJNwOdh4iEA/AnGdbvegrCmOlUGQBappo7Nv0Js4w
-	 W5pJHoaxRrkwp23ExdBNbxOAUxhSWDL5PjCsne5KyKh97YafvB2z5LqqEh8+w3b81e
-	 wXKu7gJ3DSVAw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7241DC35FFC;
-	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
-From: Julian Stecklina via B4 Relay <devnull+julian.stecklina.cyberus-technology.de@kernel.org>
-Date: Sat, 22 Mar 2025 21:34:19 +0100
-Subject: [PATCH v2 7/9] fs: squashfs: register an initrd fs detector
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZKwSz1pHdz2ygk
+	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Mar 2025 10:27:12 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1742686035; x=1774222035;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=HtOa37cx/H9hJIAL1yKGAH93P+7CkYj34IpV2IECwOg=;
+  b=GaMHlwrGFcm9qYPRSMo/hC/nhpHyCsQTOSkvDVe6qZFjzey/ZFdrQcZ3
+   y6Wyv9WLRZVss7SehA7qONqXaD0l/QpTxygyL7eS3wjunNY6Z5s+6uKGR
+   qsKdXiuJJJo821HKQ55sfEB2E6pCp88ZDyQnDr8YzLn3cg9gDUW5zbcSv
+   15xlm9pZw9NnhWwEk/XhGBvcscgc2gEEVKfHkmsW+iGO5hUfOvBmQ+PVm
+   vCR62tY5M/eFH3M6Vt9zI+FGjcCNIQetfT0kq31bqBCNzoOs45Rcj26N+
+   5jDIhxU+wYm/JB/GC9um1jQvMsCpb3R+XBzUfGJ2BzLy4/hy7ssaxetmE
+   A==;
+X-CSE-ConnectionGUID: s+AAOk/7SDOt08z7JEPP0Q==
+X-CSE-MsgGUID: NHouIPDWQUijGqltRI3MwA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11381"; a="66385235"
+X-IronPort-AV: E=Sophos;i="6.14,268,1736841600"; 
+   d="scan'208";a="66385235"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2025 16:27:10 -0700
+X-CSE-ConnectionGUID: yJNrLWFySMWgkFMoXETkXQ==
+X-CSE-MsgGUID: Q/4tgiyyTT2XVEND3y7xFQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.14,268,1736841600"; 
+   d="scan'208";a="127854080"
+Received: from lkp-server02.sh.intel.com (HELO e98e3655d6d2) ([10.239.97.151])
+  by fmviesa003.fm.intel.com with ESMTP; 22 Mar 2025 16:27:07 -0700
+Received: from kbuild by e98e3655d6d2 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tw8F6-0002S0-1x;
+	Sat, 22 Mar 2025 23:27:04 +0000
+Date: Sun, 23 Mar 2025 07:26:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: Julian Stecklina via B4 Relay <devnull+julian.stecklina.cyberus-technology.de@kernel.org>,
+	Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Gao Xiang <xiang@kernel.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	Julian Stecklina <julian.stecklina@cyberus-technology.de>
+Subject: Re: [PATCH v2 6/9] fs: romfs: register an initrd fs detector
+Message-ID: <202503230701.JV9cV28A-lkp@intel.com>
+References: <20250322-initrd-erofs-v2-6-d66ee4a2c756@cyberus-technology.de>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,143 +83,73 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250322-initrd-erofs-v2-7-d66ee4a2c756@cyberus-technology.de>
-References: <20250322-initrd-erofs-v2-0-d66ee4a2c756@cyberus-technology.de>
-In-Reply-To: <20250322-initrd-erofs-v2-0-d66ee4a2c756@cyberus-technology.de>
-To: Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, 
- Christian Brauner <brauner@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, Gao Xiang <xiang@kernel.org>, 
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-erofs@lists.ozlabs.org, 
- Julian Stecklina <julian.stecklina@cyberus-technology.de>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1742675713; l=3201;
- i=julian.stecklina@cyberus-technology.de; s=20250320;
- h=from:subject:message-id;
- bh=zysxuXEy456UHMgFgfSEAGox0ynSn0NVemXDz0PKiSU=;
- b=nZrNbSLcFivZ71KUl0X/nNQRHCoVKonroEdGfu+uTmwQBjJeOyVqHGkumj6SPGTNn0sy1YrD3
- ejVMVfXX5AHAbW52Bbp6N3qM1+EdspO5bbB9w5pauYrKxkHm/r0zGG2
-X-Developer-Key: i=julian.stecklina@cyberus-technology.de; a=ed25519;
- pk=m051/8gQfs5AmkACfykwRcD6CUr2T7DQ9OA5eBgyy7c=
-X-Endpoint-Received: by B4 Relay for
- julian.stecklina@cyberus-technology.de/20250320 with auth_id=363
-X-Original-From: Julian Stecklina <julian.stecklina@cyberus-technology.de>
-Reply-To: julian.stecklina@cyberus-technology.de
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250322-initrd-erofs-v2-6-d66ee4a2c756@cyberus-technology.de>
 
-From: Julian Stecklina <julian.stecklina@cyberus-technology.de>
+Hi Julian,
 
-Port squashfs from to the new initrd_fs_detect API. There are no
-functional changes.
+kernel test robot noticed the following build errors:
 
-Signed-off-by: Julian Stecklina <julian.stecklina@cyberus-technology.de>
----
- fs/squashfs/Makefile |  5 +++++
- fs/squashfs/initrd.c | 23 +++++++++++++++++++++++
- init/do_mounts_rd.c  | 14 --------------
- 3 files changed, 28 insertions(+), 14 deletions(-)
+[auto build test ERROR on 88d324e69ea9f3ae1c1905ea75d717c08bdb8e15]
 
-diff --git a/fs/squashfs/Makefile b/fs/squashfs/Makefile
-index 477c89a519ee8825e4dfc88f76e09fd733e90625..fa64f0b9a45e52e9b3e78bd16446474c0b3dc158 100644
---- a/fs/squashfs/Makefile
-+++ b/fs/squashfs/Makefile
-@@ -17,3 +17,8 @@ squashfs-$(CONFIG_SQUASHFS_LZO) += lzo_wrapper.o
- squashfs-$(CONFIG_SQUASHFS_XZ) += xz_wrapper.o
- squashfs-$(CONFIG_SQUASHFS_ZLIB) += zlib_wrapper.o
- squashfs-$(CONFIG_SQUASHFS_ZSTD) += zstd_wrapper.o
-+
-+# If we are built-in, we provide support for squashfs on initrds.
-+ifeq ($(CONFIG_SQUASHFS),y)
-+squashfs-y += initrd.o
-+endif
-diff --git a/fs/squashfs/initrd.c b/fs/squashfs/initrd.c
-new file mode 100644
-index 0000000000000000000000000000000000000000..bb99fc40083c6c5fdf47b2e28bcdc525d36520b4
---- /dev/null
-+++ b/fs/squashfs/initrd.c
-@@ -0,0 +1,23 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+#include <linux/initrd.h>
-+#include <linux/fs.h>
-+#include <linux/magic.h>
-+
-+#include "squashfs_fs.h"
-+
-+static size_t __init detect_squashfs(void *block_data)
-+{
-+	struct squashfs_super_block *squashfsb
-+		= (struct squashfs_super_block *)block_data;
-+	BUILD_BUG_ON(sizeof(*squashfsb) > BLOCK_SIZE);
-+
-+		/* squashfs is at block zero too */
-+	if (le32_to_cpu(squashfsb->s_magic) != SQUASHFS_MAGIC)
-+		return 0;
-+
-+
-+	return le64_to_cpu(squashfsb->bytes_used);
-+}
-+
-+initrd_fs_detect(detect_squashfs, 0);
-diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-index 9f9a04cce505e532d444e2aef77037bc2b01da08..2a6cb08d0b4872ef8e861a813ef89dc1e9a150af 100644
---- a/init/do_mounts_rd.c
-+++ b/init/do_mounts_rd.c
-@@ -8,7 +8,6 @@
- #include <linux/slab.h>
- 
- #include "do_mounts.h"
--#include "../fs/squashfs/squashfs_fs.h"
- 
- #include <linux/decompress/generic.h>
- 
-@@ -41,7 +40,6 @@ static int __init crd_load(decompress_fn deco);
-  *
-  * We currently check for the following magic numbers:
-  *	ext2
-- *	squashfs
-  *	gzip
-  *	bzip2
-  *	lzma
-@@ -55,7 +53,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
- {
- 	const int size = BLOCK_SIZE;
- 
--	struct squashfs_super_block *squashfsb;
- 	int nblocks = -1;
- 	unsigned char *buf;
- 	const char *compress_name;
-@@ -67,7 +64,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
- 	if (!buf)
- 		return -ENOMEM;
- 
--	squashfsb = (struct squashfs_super_block *) buf;
- 	memset(buf, 0xe5, size);
- 
- 	/*
-@@ -88,16 +84,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
- 		goto done;
- 	}
- 
--	/* squashfs is at block zero too */
--	if (le32_to_cpu(squashfsb->s_magic) == SQUASHFS_MAGIC) {
--		printk(KERN_NOTICE
--		       "RAMDISK: squashfs filesystem found at block %d\n",
--		       start_block);
--		nblocks = (le64_to_cpu(squashfsb->bytes_used) + BLOCK_SIZE - 1)
--			 >> BLOCK_SIZE_BITS;
--		goto done;
--	}
--
- 	/*
- 	 * Read block 1 to test for ext2 superblock
- 	 */
+url:    https://github.com/intel-lab-lkp/linux/commits/Julian-Stecklina-via-B4-Relay/initrd-remove-ASCII-spinner/20250323-043649
+base:   88d324e69ea9f3ae1c1905ea75d717c08bdb8e15
+patch link:    https://lore.kernel.org/r/20250322-initrd-erofs-v2-6-d66ee4a2c756%40cyberus-technology.de
+patch subject: [PATCH v2 6/9] fs: romfs: register an initrd fs detector
+config: i386-buildonly-randconfig-002-20250323 (https://download.01.org/0day-ci/archive/20250323/202503230701.JV9cV28A-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250323/202503230701.JV9cV28A-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202503230701.JV9cV28A-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+>> fs/romfs/initrd.c:22:33: error: macro "initrd_fs_detect" passed 2 arguments, but takes just 1
+      22 | initrd_fs_detect(detect_romfs, 0);
+         |                                 ^
+   In file included from fs/romfs/initrd.c:4:
+   include/linux/initrd.h:63: note: macro "initrd_fs_detect" defined here
+      63 | #define initrd_fs_detect(detectfn)
+         | 
+>> fs/romfs/initrd.c:22:1: warning: data definition has no type or storage class
+      22 | initrd_fs_detect(detect_romfs, 0);
+         | ^~~~~~~~~~~~~~~~
+>> fs/romfs/initrd.c:22:1: error: type defaults to 'int' in declaration of 'initrd_fs_detect' [-Werror=implicit-int]
+>> fs/romfs/initrd.c:8:22: warning: 'detect_romfs' defined but not used [-Wunused-function]
+       8 | static size_t __init detect_romfs(void *block_data)
+         |                      ^~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+
+vim +/initrd_fs_detect +22 fs/romfs/initrd.c
+
+     2	
+     3	#include <linux/fs.h>
+   > 4	#include <linux/initrd.h>
+     5	#include <linux/magic.h>
+     6	#include <linux/romfs_fs.h>
+     7	
+   > 8	static size_t __init detect_romfs(void *block_data)
+     9	{
+    10		struct romfs_super_block *romfsb
+    11			= (struct romfs_super_block *)block_data;
+    12		BUILD_BUG_ON(sizeof(*romfsb) > BLOCK_SIZE);
+    13	
+    14		/* The definitions of ROMSB_WORD* already handle endianness. */
+    15		if (romfsb->word0 != ROMSB_WORD0 ||
+    16		    romfsb->word1 != ROMSB_WORD1)
+    17			return 0;
+    18	
+    19		return be32_to_cpu(romfsb->size);
+    20	}
+    21	
+  > 22	initrd_fs_detect(detect_romfs, 0);
 
 -- 
-2.47.0
-
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
