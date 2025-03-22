@@ -1,55 +1,56 @@
-Return-Path: <linux-erofs+bounces-111-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-112-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D5114C3600B
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Mar 2025 20:44:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40D48C36008
+	for <linux-erofs@archiver.kernel.org>; Sat, 22 Mar 2025 20:44:01 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZKrrZ07KNz2yf2;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZKrrZ5W0Tz2ySl;
 	Sun, 23 Mar 2025 07:43:58 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742676237;
-	cv=none; b=jlz786nGd4AzV0hBeCCftv/4XDlNHHiIitIOmcVuwU9uxRXzcgXTiDaY8pAna1FVVBzsLBFH0Bz8oBWUEgUvDLiM+k2DiiHpZD7yzYnQWLVCzU9do/LyokO7uUWHepWFa6H+1VN55y2Ob31KZAlFxFWCx+IntAykRd/jbrwpEo3rSEGI++WR29tcZ3lon/aHM2RcufiOJFdUbQ+AWz/spBdvwDVF02GDRT4qvn5ko6mkPiTZfjDp+Uviah8S6Q4m4KjKah/CL9BEPuhzvRg39eDwC51285BwJKoQ45aanW2DXtOoc+0eggMoPDyaRguAZkr9DPvSjryxswmbAKPWSA==
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742676238;
+	cv=none; b=lwiFaR0BKi3viAf84IfxqsPgzboMJdj9DS8mM6L1i2DTw/jJTDxMWG+/9rSlxdJfSinN9PCP1dwFmd65FbQ7lf2cma10NA5tetAcJERYOqOaBDpLxuoZw9zuLnkAduK2q9k3RFQ9WX8Rdnx2AK2zmc76bG25VoQdIoUzzYDKzUiaZFDwKqXRMzhrJ2P0RWDL76SQ86bzdKfYdr9R2W2E74H4e9C5djn1aJqvpzVHypoxO0q4ygjFVCXpHzaGCYFHF9swO6fLK1XP0EcDkQmOgl5YtaABF7FaRJ6vVIF8scZbM8kSGfp0mkf8suZ7jXkTI0BuccWnsDXAS9IEHoT1Kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1742676237; c=relaxed/relaxed;
-	bh=01xMZmealRdOVpW4Jb7tEm0EE050LAY1kgXYByErcQs=;
+	t=1742676238; c=relaxed/relaxed;
+	bh=8UP0ZLU/+R+1uLPLB7x2N1pkVLWfZ5ygOssdp7xrBJ4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=age8gLrXLd2xrcH1hjOzBAq+8QEJVnz2gurIJ/BapP8y1ZhujoBpE0rfzsyjxXCH1OlttHyj2gtqoA9eNP5GUfq41Om3n+WXgmGPZnWTWkU1lIci3TyYmrG2b8u95Sw/2FwCIV5N2s6/j5A89epEbCjykZj20NNv5P9C6Z9AOHEI3ntJYdiHfcibpPwqK7Ofy121B3yPl3K046S8jAhHINopG8PPiY8hEMfiV4TYjdfPejAorvFJddUq6sW2mz3HGcpMmyoMjasQ4tLGI+gDMYz9Z7LnTLOtXOCKMD5uGBCQqtN3MCRau2AIIJZEkNX2TdJsVckivqH+ExcriJT0tA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=PkiUbIiy; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=GCLQESE6YMQlTs21GoDAZ3CCZvMDr1a7K3oMQ7j1yTCWdyX04YWN+A506F7agqfOMqKJTXx56u26vkcBRWycJe8g8IwzYzJJEENuYcd1aEZTPKcN9Dj6Uj9O84rk41/2ZcaUOl/hG1aq39RVKSFDO5npoOWiyD8CP2Evg/3sw2qrnlnO5+WvjQe98ZFM+LYUVGrc0YFj8S8wAGHYTMZy1oxdPzOZL0ahIcX1IL9KaJzOwLlyJ5qyBPfrznTuqzsCYYf340+ZsjCz9lyPZK3SzqiZ4qeJegCSv6YHbcIJ1VrQMJeI61x1jZ6TRz6ja7z1E8J0dLez+qcDCAd4rosSIA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=oXfCiNhP; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=PkiUbIiy;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=oXfCiNhP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+julian.stecklina.cyberus-technology.de@kernel.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 518 seconds by postgrey-1.37 at boromir; Sun, 23 Mar 2025 07:43:56 AEDT
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZKrrX587pz2yTP
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZKrrX5dBnz2yd7
 	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Mar 2025 07:43:56 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 979FC4401A;
+	by sea.source.kernel.org (Postfix) with ESMTP id 9CC0A44021;
 	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3FF10C4CEF6;
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B947C4CEFD;
 	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1742675715;
-	bh=b7JI85xRpP1bLGtHtYPbhcaoaNVuyWClE1wqc+y12dg=;
+	bh=WxuPWwzWQb6OHqAvqAIEXUyCRmvLthXZsVF3HZREUFs=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=PkiUbIiy1F2jWy+vsjaTli7aXJSmRUSTgsE/+oz0WOxvw1B9SJ0HJ0aGgf8Vklwok
-	 Y2bgLnUq0VjBg1xW4Ev0ft7/b2kmMn01iYcJ0t3XSbdyFE417lRSKSAZQSm+fx+k83
-	 jzx5kztieVfWl0Vt+I/Rl1DdW/EfLQhUc4dtr+iEl17fHmXQh8TBFxE65bwIvemvuS
-	 ayaDlnkjPZvzUQMNIEK62OfLhNdMZhoJAlgir1qbhZAeMbp9+XgTnr235+BHtOc7GZ
-	 Klzpfv1rBY7w5ASRpLOgtJdi1KnzdSFu6KaH0WS3m0NRdTyigI+faaitaRPIJZyio1
-	 jadKyrHtHRzWg==
+	b=oXfCiNhP3/PFBFCePwmcQkQjbUbkzbCpLxSUtIZB/l2qkM/BghyAMKt00hsqBJRPl
+	 NZGX9ezmHU04ao2mu8uowtv/4s1bFGoR2pJ1r+6hWhX4++T7MYf2Rr4ASycPod+YaQ
+	 jTwJ5GVQjGmxTl8/dwFns9bRFOW3A8CHDB3BQ79z25cDnSMZKTvdkZnJS3PmkD4yMc
+	 9R4jBBl/ZMBMD0BDypQSa+itA7eG01zPjwIpSN7N+cf84bY4Qeen+wtJZMdpbYg1f+
+	 rVJop+DdLD8jgFB2y/3USfjraPlGpG88pLV4/MP0LODoOfxYBmDH2ZZU9xrKVjh+x7
+	 N7l7rQycJBXqg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3321AC3600A;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61DFFC3600B;
 	Sat, 22 Mar 2025 20:35:15 +0000 (UTC)
 From: Julian Stecklina via B4 Relay <devnull+julian.stecklina.cyberus-technology.de@kernel.org>
-Date: Sat, 22 Mar 2025 21:34:16 +0100
-Subject: [PATCH v2 4/9] fs: minix: register an initrd fs detector
+Date: Sat, 22 Mar 2025 21:34:18 +0100
+Subject: [PATCH v2 6/9] fs: romfs: register an initrd fs detector
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,7 +63,7 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250322-initrd-erofs-v2-4-d66ee4a2c756@cyberus-technology.de>
+Message-Id: <20250322-initrd-erofs-v2-6-d66ee4a2c756@cyberus-technology.de>
 References: <20250322-initrd-erofs-v2-0-d66ee4a2c756@cyberus-technology.de>
 In-Reply-To: <20250322-initrd-erofs-v2-0-d66ee4a2c756@cyberus-technology.de>
 To: Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, 
@@ -74,12 +75,12 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  linux-erofs@lists.ozlabs.org, 
  Julian Stecklina <julian.stecklina@cyberus-technology.de>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1742675713; l=3689;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1742675713; l=3189;
  i=julian.stecklina@cyberus-technology.de; s=20250320;
  h=from:subject:message-id;
- bh=3zpODlrg8j0+m1aMvTBZ6a+FkLj5kE2s9qVHm6gavTI=;
- b=RK7CpwXGolb7amFsuhped3Wg2O4qk4HHkEiGLZYmGhlRWSGT/c3+VOQSXeOamqt73w1pTHf3Y
- GLNFj/9f0xZBXTeTlTZiA+v9cdaZ2Z+AAbSKnSXLqW7gkN2jrLUNoqM
+ bh=DjTVlMjJ9fly1JjbbQ1cABQpspedV4SfXIZDQ9hYyJw=;
+ b=bYQM009Se+/99LClCNXj1HPpoPjNjrjKzdTybPVuJsdmCzDLeuSC5fNA+iESxAR+1ZgnWKYDX
+ Ev6I3qHnmlqAj9w8p+pdBCatDMx3r8QKy5KB7shQWM2fafgd9gjbT/5
 X-Developer-Key: i=julian.stecklina@cyberus-technology.de; a=ed25519;
  pk=m051/8gQfs5AmkACfykwRcD6CUr2T7DQ9OA5eBgyy7c=
 X-Endpoint-Received: by B4 Relay for
@@ -89,121 +90,109 @@ Reply-To: julian.stecklina@cyberus-technology.de
 
 From: Julian Stecklina <julian.stecklina@cyberus-technology.de>
 
-Port minix to the new initrd_fs_detect API. There are no functional
-changes.
-
-This code only supports the minix filesystem v1. This means 64 MiB
-filesystem size limit. This would be a good candidate to drop support
-for.
+Port romfs from to the new initrd_fs_detect API. There are no
+functional changes.
 
 Signed-off-by: Julian Stecklina <julian.stecklina@cyberus-technology.de>
 ---
- fs/minix/Makefile   |  5 +++++
- fs/minix/initrd.c   | 23 +++++++++++++++++++++++
- init/do_mounts_rd.c | 16 +---------------
- 3 files changed, 29 insertions(+), 15 deletions(-)
+ fs/romfs/Makefile   |  4 ++++
+ fs/romfs/initrd.c   | 22 ++++++++++++++++++++++
+ init/do_mounts_rd.c | 14 --------------
+ 3 files changed, 26 insertions(+), 14 deletions(-)
 
-diff --git a/fs/minix/Makefile b/fs/minix/Makefile
-index a2d3ab58d1873eeada679a33a65b6cd0c421b3ad..cdd6a1a5b57a0205a1946faa676994c367380c97 100644
---- a/fs/minix/Makefile
-+++ b/fs/minix/Makefile
-@@ -6,3 +6,8 @@
- obj-$(CONFIG_MINIX_FS) += minix.o
+diff --git a/fs/romfs/Makefile b/fs/romfs/Makefile
+index 844928f1571160abed9d5aff54152b5508eaf7be..eb15dc3a78721d7f650560a404a92706260e9b63 100644
+--- a/fs/romfs/Makefile
++++ b/fs/romfs/Makefile
+@@ -11,3 +11,7 @@ ifneq ($(CONFIG_MMU),y)
+ romfs-$(CONFIG_ROMFS_ON_MTD) += mmap-nommu.o
+ endif
  
- minix-objs := bitmap.o itree_v1.o itree_v2.o namei.o inode.o file.o dir.o
-+
-+# If we are built-in, we provide support for minix filesystem on initrds.
-+ifeq ($(CONFIG_MINIX_FS),y)
-+minix-objs += initrd.o
++# If we are built-in, we provide support for romfs on initrds.
++ifeq ($(CONFIG_ROMFS_FS),y)
++romfs-y += initrd.o
 +endif
-diff --git a/fs/minix/initrd.c b/fs/minix/initrd.c
+diff --git a/fs/romfs/initrd.c b/fs/romfs/initrd.c
 new file mode 100644
-index 0000000000000000000000000000000000000000..18b39b9afe9994ec3dd9770eb516f9c25c183140
+index 0000000000000000000000000000000000000000..0ec7b4c9d1f79fac892b7fb1d8e17122092008a8
 --- /dev/null
-+++ b/fs/minix/initrd.c
-@@ -0,0 +1,23 @@
++++ b/fs/romfs/initrd.c
+@@ -0,0 +1,22 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +#include <linux/fs.h>
 +#include <linux/initrd.h>
 +#include <linux/magic.h>
-+#include <linux/minix_fs.h>
++#include <linux/romfs_fs.h>
 +
-+static size_t __init detect_minixfs(void *block_data)
++static size_t __init detect_romfs(void *block_data)
 +{
-+	struct minix_super_block *minixsb =
-+		(struct minix_super_block *)block_data;
-+	BUILD_BUG_ON(sizeof(*minixsb) > BLOCK_SIZE);
++	struct romfs_super_block *romfsb
++		= (struct romfs_super_block *)block_data;
++	BUILD_BUG_ON(sizeof(*romfsb) > BLOCK_SIZE);
 +
-+	if (minixsb->s_magic != MINIX_SUPER_MAGIC &&
-+	    minixsb->s_magic != MINIX_SUPER_MAGIC2)
++	/* The definitions of ROMSB_WORD* already handle endianness. */
++	if (romfsb->word0 != ROMSB_WORD0 ||
++	    romfsb->word1 != ROMSB_WORD1)
 +		return 0;
 +
-+
-+	return minixsb->s_nzones
-+		<< (minixsb->s_log_zone_size + BLOCK_SIZE_BITS);
++	return be32_to_cpu(romfsb->size);
 +}
 +
-+initrd_fs_detect(detect_minixfs, BLOCK_SIZE);
++initrd_fs_detect(detect_romfs, 0);
 diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-index 56c1fa935c7ee780870142923046a3d2fd2d6d96..f7e5d4ccf029b2707bc8524ecdbe200c8b305b00 100644
+index cdc39baaf3a1a65daad5fe6571a82faf3fc95b62..9f9a04cce505e532d444e2aef77037bc2b01da08 100644
 --- a/init/do_mounts_rd.c
 +++ b/init/do_mounts_rd.c
-@@ -1,7 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
+@@ -2,7 +2,6 @@
  #include <linux/kernel.h>
  #include <linux/fs.h>
--#include <linux/minix_fs.h>
  #include <linux/ext2_fs.h>
- #include <linux/romfs_fs.h>
- #include <uapi/linux/cramfs_fs.h>
+-#include <linux/romfs_fs.h>
+ 
+ #include <linux/initrd.h>
+ #include <linux/string.h>
 @@ -42,7 +41,6 @@ static int __init crd_load(decompress_fn deco);
-  * numbers could not be found.
   *
   * We currently check for the following magic numbers:
-- *	minix
   *	ext2
-  *	romfs
-  *	cramfs
-@@ -59,7 +57,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
+- *	romfs
+  *	squashfs
+  *	gzip
+  *	bzip2
+@@ -56,7 +54,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
  		decompress_fn *decompressor)
  {
  	const int size = BLOCK_SIZE;
--	struct minix_super_block *minixsb;
- 	struct romfs_super_block *romfsb;
- 	struct cramfs_super *cramfsb;
+-	struct romfs_super_block *romfsb;
+ 
  	struct squashfs_super_block *squashfsb;
-@@ -74,7 +71,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
+ 	int nblocks = -1;
+@@ -70,7 +67,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
  	if (!buf)
  		return -ENOMEM;
  
--	minixsb = (struct minix_super_block *) buf;
- 	romfsb = (struct romfs_super_block *) buf;
- 	cramfsb = (struct cramfs_super *) buf;
+-	romfsb = (struct romfs_super_block *) buf;
  	squashfsb = (struct squashfs_super_block *) buf;
-@@ -141,21 +137,11 @@ identify_ramdisk_image(struct file *file, loff_t pos,
+ 	memset(buf, 0xe5, size);
+ 
+@@ -92,16 +88,6 @@ identify_ramdisk_image(struct file *file, loff_t pos,
+ 		goto done;
  	}
  
- 	/*
--	 * Read block 1 to test for minix and ext2 superblock
-+	 * Read block 1 to test for ext2 superblock
- 	 */
- 	pos = (start_block + 1) * BLOCK_SIZE;
- 	kernel_read(file, buf, size, &pos);
- 
--	/* Try minix */
--	if (minixsb->s_magic == MINIX_SUPER_MAGIC ||
--	    minixsb->s_magic == MINIX_SUPER_MAGIC2) {
+-	/* romfs is at block zero too */
+-	if (romfsb->word0 == ROMSB_WORD0 &&
+-	    romfsb->word1 == ROMSB_WORD1) {
 -		printk(KERN_NOTICE
--		       "RAMDISK: Minix filesystem found at block %d\n",
+-		       "RAMDISK: romfs filesystem found at block %d\n",
 -		       start_block);
--		nblocks = minixsb->s_nzones << minixsb->s_log_zone_size;
+-		nblocks = (ntohl(romfsb->size)+BLOCK_SIZE-1)>>BLOCK_SIZE_BITS;
 -		goto done;
 -	}
 -
- 	/* Try ext2 */
- 	n = ext2_image_size(buf);
- 	if (n) {
+ 	/* squashfs is at block zero too */
+ 	if (le32_to_cpu(squashfsb->s_magic) == SQUASHFS_MAGIC) {
+ 		printk(KERN_NOTICE
 
 -- 
 2.47.0
