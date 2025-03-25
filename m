@@ -1,170 +1,44 @@
-Return-Path: <linux-erofs+bounces-122-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-124-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8162C36008
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Mar 2025 09:35:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 14E2BC36002
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Mar 2025 01:37:52 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZLnwP2pCSz2yf7;
-	Mon, 24 Mar 2025 20:35:33 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a01:111:f403:c20c::4" arc.chain=microsoft.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742808933;
-	cv=pass; b=Uw7AIAA/ChNdgMAFqAY0bX0OSiptTW9vmJo8ZNLh44ZrIo5pgQbJqJel04fAjNv52Lt0FrUI7jFdOyRQLfsAFlYbyPHjQ9w8CPGVgO/4qtPKZUaHCc5NqflCP9RwgIH1iybR4BevDy/qUpZqgklBAlQUm8DocNl3zXwqK0fEm5YgnaSEmoJEiwkPdbEh5znDdC+CI0yRphluOozW/bVKo2kA4bRcyhRHApz1B95g4muRHd12qAlg3YgkcmXIxuINKTNo5OCYfrheV41x6Knj5geJqRyrFrFhIMFmGvsR+bE2/9dN6XMKIxVhiG62JyeE/jOGPNonIA+3fY/v3iq4hg==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1742808933; c=relaxed/relaxed;
-	bh=H7r0G3YVWeCgAyWLjwvcajIP1gZyDd+RxEz94lL1Ttw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=UC0Ap0vOBfizy+dm4TiL8N4okabO1ZbCEn/xKm2WleHZ6pj+kAKx4KNn+8vBofW3D08WmIl1qBaf7X7Dxw2FfAL5cOD8eJqMBLswkzMKnFQhK44bOGIFINiTsrErlV3brCUP7FKa7k4RY2aTly8nrqnAqrbn3OzE3STj4g68E2R4aXisk0I9WbCN1HYXOwzdW8SE61s9uMkLd3VNkMgURPirSQYUt6ZHoOM/NXc44bbk+5LXAinTsxaPMtmHw/kQeWLxYTwqUfflx1ohD3YbxErWgod+hMVyCpmcPMikFG+hmx33C+Xvy2K6zezpBdrnqIpXKnp8hvS6+x6mpGwSDg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=cyberus-technology.de; dkim=pass (2048-bit key; unprotected) header.d=cyberus-technology.de header.i=@cyberus-technology.de header.a=rsa-sha256 header.s=selector2 header.b=RjpGOSpE; dkim-atps=neutral; spf=pass (client-ip=2a01:111:f403:c20c::4; helo=fr4p281cu032.outbound.protection.outlook.com; envelope-from=julian.stecklina@cyberus-technology.de; receiver=lists.ozlabs.org) smtp.mailfrom=cyberus-technology.de
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=cyberus-technology.de
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZMCGl2CZPz2yLJ;
+	Tue, 25 Mar 2025 12:37:51 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.97
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1742866671;
+	cv=none; b=Te3MXEBwYmA+GOwSoz1gvlSxE+eD8ga1M4QAFSeZE/d0zCf7+grsY1VPe0xtap0kL/YAMAGmGI057VpJOvsskGlVaOIJUIBjn3BH+ASNMLFmGq5169e7ptUKb4K1cOGZHcI3045XE4IbEsVtm+0+N5oQWWXuER6KAQceokIKhgdqEDYeJN4CIye9d2q5SuoBdJUSt1BQy0XTNPvBAGeX4pEhG6Eibc4SD0boQZ3kdW80cSOgjmSrXei7g50n2ISqq8Hck/6lZlpjbz20L5Kj1A3dWZ8SJbWM6320CIG7NQJQcl+oc/2XYuoGcPvyRkyBuLGeu6x6zyXqHs8N0WZS5w==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1742866671; c=relaxed/relaxed;
+	bh=7aZMCkZ+HE4An/i1C0+Ohtb/3lMZesSY8n0GYQcLRTo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Y9NkQe/krV96Yy7/5gnSc2py0f849LhWZjZEyEFpjBM5VogFkSyt7kKmngs0agps0E83rfKH7pj7m1HvLs4NXHs34khvUYTLBhpVz7op8NH2xHUG+jTUhJ+kJTyLt9n3YHAdR68F4ZnzYOuwjK4wpnovF/KCYOGtoviEOooZs0bWKSv9gyPmrtwss2pOyIqGfvgUySx/Al62d8VLuSQVUoFHAzej3BvLaaojM8Rp98xjXk6ar1jMgsregBKMXkmAEOrWwmMq/ZOcXr8u/5/Rr6UaDxSzQfSsAN10e+roDtdWoY2Q313JYwcuS6IbsD2gt41W9jBN5CCbAjNPHWoxyA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Rab0Un59; dkim-atps=neutral; spf=pass (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=cyberus-technology.de header.i=@cyberus-technology.de header.a=rsa-sha256 header.s=selector2 header.b=RjpGOSpE;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Rab0Un59;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyberus-technology.de (client-ip=2a01:111:f403:c20c::4; helo=fr4p281cu032.outbound.protection.outlook.com; envelope-from=julian.stecklina@cyberus-technology.de; receiver=lists.ozlabs.org)
-Received: from FR4P281CU032.outbound.protection.outlook.com (mail-germanywestcentralazlp170120004.outbound.protection.outlook.com [IPv6:2a01:111:f403:c20c::4])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.97; helo=out30-97.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZLnwK3QPjz2xpn
-	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Mar 2025 20:35:28 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MfX0hxNwwtvrxRqsHO2c9QKkeI6lGF88ESwRHocG4YwM3h6h33X7ajxYI5LBDT2OWPfBsa9DT3sBtquC/Vmqd4m+lOVnhL8FFUXA/1UDXpbcVnFm4U3sx2XJPoKfD6QKkPUm81ilp3FWOZEBaBbFlB5WhbnKP4jb9OccNfFiOS9NP9UETRuJPBTvrctl0raSRgWPPdvUg+3SdsQDE24cVbyrzg5EBYc5UMNkJNgCCB3Aa/ctWePTvfRDa8RTnxpEILhoN1zxqs6IDvlECUhr40JTB9Zb8+bXN3Yr5lP1b5rNXCSIBE8SU9+NymmaydQKJPV5Go/h3utzTI1tKhdG/w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=H7r0G3YVWeCgAyWLjwvcajIP1gZyDd+RxEz94lL1Ttw=;
- b=C5Ko7CFdVBWhga64bllI50pRhAGrhX5zVqfCXC/sqfwS6U/NP+EMcyvRgnKwR3qcKXHRcHAUJrP3sVRHxvsy4JlfSDAge0pic7B6bOA8Pjg28vUKgDXwh8DsFfkxDlRRxGiv2t0AYG8DmFHsDW8YJE8rSS/f4lyPAx5ksPSntKG0KI+MnbrGr3nwNk2HCwghyfZKddFFbLXrXlrphEAtzOg98db0GAxKQO2kP5VHQsi7Q+J9S2DAuptqdzkJKTO9EWOuCEsFeFH4fufJ7suNnufXHHqAKna2KcztnYJElOV/GxPO9ika156fucOgCX2hHh1pVSrBoBBsonnSigYXiw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cyberus-technology.de; dmarc=pass action=none
- header.from=cyberus-technology.de; dkim=pass header.d=cyberus-technology.de;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberus-technology.de;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=H7r0G3YVWeCgAyWLjwvcajIP1gZyDd+RxEz94lL1Ttw=;
- b=RjpGOSpEGao9PRi9o6K8mdL830zlGK5ZNzwX1t2yLcffp2HKIIICfE3Jaw5WLlLiPRGPoM4VqQ66miRNfJu/C9NBWw/KBSMPpqBKjAlTjfD73YeK7PSd8idLT6WCKSa+Wi2ES6+MfKf3WJAe4UhpOKWEbPsiSKTy6AG0mjQeH5bl9wV7QwoLEgSB+29xEQUmJgAInalO4JWwNqU1VM5IRU05GA/JCcI+tZoVvYFuUUso3vB3yqFF7uVaccBwPcjbRNpLarYAYx+hPvPdE+CQ9wwXmKqg6p4s2Ids8LSo/EQRe/I5swIXy9EbkEB2bchvUAjwBY3DphMH81GpheNnkw==
-Received: from FR2P281MB2329.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:38::7) by
- BEZP281MB2213.DEUP281.PROD.OUTLOOK.COM (2603:10a6:b10:52::8) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8534.42; Mon, 24 Mar 2025 09:35:02 +0000
-Received: from FR2P281MB2329.DEUP281.PROD.OUTLOOK.COM
- ([fe80::bf0d:16fc:a18c:c423]) by FR2P281MB2329.DEUP281.PROD.OUTLOOK.COM
- ([fe80::bf0d:16fc:a18c:c423%3]) with mapi id 15.20.8534.040; Mon, 24 Mar 2025
- 09:35:02 +0000
-From: Julian Stecklina <julian.stecklina@cyberus-technology.de>
-To: "hch@lst.de" <hch@lst.de>, "brauner@kernel.org" <brauner@kernel.org>,
-	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
-CC: "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-	"gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-	"rafael@kernel.org" <rafael@kernel.org>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "xiang@kernel.org" <xiang@kernel.org>,
-	"linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
-Subject: Re: [PATCH v2 3/9] initrd: add a generic mechanism to add fs
- detectors
-Thread-Topic: [PATCH v2 3/9] initrd: add a generic mechanism to add fs
- detectors
-Thread-Index: AQHbm2nuwHQK7VElCUaqOnFT7msA17OCCTOA
-Date: Mon, 24 Mar 2025 09:35:02 +0000
-Message-ID:
- <15428e7e4dd2c548a3d4b6d8503a2d01070d3583.camel@cyberus-technology.de>
-References: <20250322-initrd-erofs-v2-0-d66ee4a2c756@cyberus-technology.de>
-	 <20250322-initrd-erofs-v2-3-d66ee4a2c756@cyberus-technology.de>
-In-Reply-To: <20250322-initrd-erofs-v2-3-d66ee4a2c756@cyberus-technology.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=cyberus-technology.de;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: FR2P281MB2329:EE_|BEZP281MB2213:EE_
-x-ms-office365-filtering-correlation-id: 23856438-eb24-479a-15e5-08dd6ab7270d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|1800799024|7416014|376014|38070700018;
-x-microsoft-antispam-message-info:
- =?utf-8?B?WTc3WEl2YVE3WEFSdW5RYTNIbk9LV0dRMGlCcXV3T2NQM1plenM0aVJKa1hU?=
- =?utf-8?B?cU1Td3o5eEhBOGNJZk5FQ3JEZjN3d2lWbkV0U1FoRHRSbW1mQTRsNzhuWlBl?=
- =?utf-8?B?Und0R2FsTENnNmM0MTRhUXNvaWpYT3FUR1c0cmJyZjR5bmJxejkvYXg2aEh5?=
- =?utf-8?B?eExOeDRDcVVtL1VhbkJZM3pZNncxd1hZUXRyZ09xUmJ1bHRoU0JocWtiSEpq?=
- =?utf-8?B?d3FKRkh1V2VMRE1jYml5NjdSVFBIS0xaaFd2TS9PNnhIQllwM3hxempiUTcw?=
- =?utf-8?B?TEEySmttNmVMSWVDL2o0aFVNZWVwZVhPUWFCNXpHYlZVNTY1RmkrMGpTRnFP?=
- =?utf-8?B?Y1JTUEFRWnAxNElhRCtMNXBWUGFyZHVmOHlZSkhWOHJZLy94Q1ROMnU2c05m?=
- =?utf-8?B?b0pqUWlIS3ZKREtMdXRoMHd5MzFvalpSNlJ1MU9JNDN1Zk14V2s4bm1GOEwv?=
- =?utf-8?B?WEdBYnJwTE5vVTBNZGp0Tjdlb3Vqb2VFUjd6dVl6RElaNWJQNUhZb3lEd2J2?=
- =?utf-8?B?VElaY2VvZVlZQWQyMExma1FBbmVQZVdNMkZ3alk1ZGFxY1RFVUJFSGZvUnI5?=
- =?utf-8?B?dEJPUldzK0xHZ2wwS1ZvbmdER2pkenVUWDBrU1hHS1dDbXJOMzd3ZVNSNXE5?=
- =?utf-8?B?MWZEY1RlNTNlaDlaUTl4c1BUOEVOR01GMDkvTnVvZlVOTkNUMFlFN0N1NjdP?=
- =?utf-8?B?N0ttSi9Bd2YvdWhFbnpJdzByMCt1RXp1OG1PazA0MDdPSTBETW05WW9kMFZo?=
- =?utf-8?B?OGhrbkNiaGlrRVVUcFp5a0R1Ty9FeWRtcWliN3lTeExxOGU1VWFnUUlVUWtr?=
- =?utf-8?B?YlpXRFVibUFhdElaRm1rd1JMN1ZBUCtSVHZ2SHhyaVlNTzBQRXdXNzFPS2Jj?=
- =?utf-8?B?dmR0REF6MzMrL0IxV1A2L2gyTngxL3NhRWN4SUltNytWNkFnM2pzVHdJQU90?=
- =?utf-8?B?ZitjR21oZVlVS2dhQjJLRW5WeDFGd0NpemRyVVJtOVcySzBHNjVTZGw3MkNM?=
- =?utf-8?B?SzVER01xS2hhY05CR0ZhQm9oNW9DTEVSMFNWYVBPcEhqUldMVFpHNWEyb1pY?=
- =?utf-8?B?MHdEajl5UFRKN0lFcGVVTUI4NlA4K0o0bWlIM2R5U3M2MVppUWR4WXhudzZh?=
- =?utf-8?B?Z01KakpRcVpUM1Ava1l3YnZRNW9FdXF5SGxSaGlGUDJnL1BTK1N0OHJCUzFM?=
- =?utf-8?B?M3ZQUTZJa0pXYWVhUTJWbzBCdWk2WURDMFpCNFR5aHN1U0QwcFlLS2lTc1ZL?=
- =?utf-8?B?VUl0cjBldHpxTzFHYTQ5MTIyeUp6Y2hhSmR5cWNqY2VQaHo5Slg3ZTNxQ2wx?=
- =?utf-8?B?TWN3bVJMcWZJeUJyMnN0eEZ4OURiSFc4bFE0MkQ4RmlTVXA4OVFIcVl5cXNZ?=
- =?utf-8?B?b1hGa0tSVTgvaThOV2dnZmlDOXlEVjBQazBnZlEvVUdlK0Qza1FHZWh6R1Vw?=
- =?utf-8?B?TW9DaE9TM3AxS0FqL01MYVQxMFhia2lSMmlkaDRad0dFcDB2L0ZrUnJZUVZO?=
- =?utf-8?B?MkNEUm1xekUraHBLQUtEKzFiS2JaaGFjbm5qelZsUG1UYWY5SHZ2MDdLcDg4?=
- =?utf-8?B?c3NSKzQvTHZjc2R2ZE44NkJrSjhZaHlJWnFvOUVFc3hiUVVQTFRTd05YRWhs?=
- =?utf-8?B?L01qallOaENIWHFqVXZyNmloRXJGU3g0d0l3d0xldUg4cEpmM2ptdHZPY2Fz?=
- =?utf-8?B?UUN2dEJkaWdBb2wzY3NBL1pXWE1LM2ZuUE5rSG56bHEzSTdUb0xSdWNzYmJa?=
- =?utf-8?B?VXd6M2NyUGRvVGVzWWlmV1oxZDFHZkgraHRTYm5Vdk80a0lsRkNIUlJrZGVj?=
- =?utf-8?B?cEFOdEQ1TVJFL2tvVnJLR2g2Sk9zZ2dOelZEeEtYVHpHd2dwS0U3VUdxbHZz?=
- =?utf-8?B?ZWJaWG9HRFovZHVzNzZuWUlGOTR6T1BtK1RuUFJIY3o1T2NLQzN4SUp3RUM4?=
- =?utf-8?B?UTR0K3hYZXMzamlPRDZIYlFoamJhS0U1dEd0YXl6blFXVXVITUpHRkN2bGZO?=
- =?utf-8?B?WXN6Q3ovVWRRPT0=?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:FR2P281MB2329.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(38070700018);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?UEVCWjQwZDc5d1BEWnA3bGgrbmFvSmFFOGRVNmNqbDJNUDhERTRHZVBtK0di?=
- =?utf-8?B?ejR3b2NDOE1IUElGVUlZMTEyWXQ1VUJ6RVhHTkZtWlc0czJvWFA5eTZ0cktF?=
- =?utf-8?B?TTcxTDJtaWdPSkVGK0tjQUxaMXRlMU9QbmNzejVqMWIwUjMwNDlFV3pwbzRF?=
- =?utf-8?B?MTlVVTdnWWpLK3M5eUhsVjA2OUt2dFg0R0FneVFOQVJERDRBOGsrUkVURVRn?=
- =?utf-8?B?Y0RpY2NUWk9XKys4L3k1NGt1cXFoOEF6VGRTdmJVSnFwWmtkQnhTclU5Si8y?=
- =?utf-8?B?ZEVqcytENnBQek5JSC9xdDBkOEQ3T3BzL0twZ2EveHZQbVR0UkdtMTJsOXVm?=
- =?utf-8?B?N3ZpSm5xbmNVYUJmWmtnd0N3ZWsvNXRINDhmOXU2UU5rTC8rZmFqMGRnTkJy?=
- =?utf-8?B?NmF4STc4amRCTHM1RU9HNmxoK3poeHRCSGkrQ1doSmluZHdYUW5vRXRDSG9M?=
- =?utf-8?B?YUMxVEJMTnRWVGF3d3J1RzhrYlJUbktPR1RyandVNHduUkhGZm8yWjFKMWM2?=
- =?utf-8?B?T1VvZFFJM0s2dXlnYTNCMTBGWWdWOEUyVS9ZUXpRMzc1MHd0SytqZkcxdkFP?=
- =?utf-8?B?UHI3MnNVYzdVR0Vmd3NMVmsweldVWmI3a1dTKzVUQnBvT09HY3QwaFhOUUIy?=
- =?utf-8?B?d0crdlpXNkdzb0IrYW82S3ZXdmdHQnNtdmlnbU1mTUUrMENocDY1bDZmZWxM?=
- =?utf-8?B?REdDK2NBbnZQQ1BaVk1OZnRvNVhKdENlSU1PMEJTL3Y0cEFxN2RLbVVMRzFk?=
- =?utf-8?B?VzZNK3lCRzdkamNsWFJLZzlnejlZcWY3T2dMUjAycTlJK093emx2T3BvUlMz?=
- =?utf-8?B?YW8yc1lmSFhES2VZbEh3T09BOU9IZVlqMmpnRGRZVk4yQnEyMXc4RmRMYlFG?=
- =?utf-8?B?SzZPUkY4ZGtyWEVaUHdIU1hMRTl1NzhHL0pFOURjL0pZT1A1VFFsQzArM1Nl?=
- =?utf-8?B?K2phV2I2R2orTmV3OFVDc1N3TFhsVFpuSnI4MXF0Q2UyMVFwaWlhN09nNnJQ?=
- =?utf-8?B?aFlQNlFsZitHTXQwVUVKYVhzNkcxNnR6R2JJRE9VWlFlZ0ZiUjcxWmRyYzE1?=
- =?utf-8?B?U1Rud0trcmpNYUlZSkJTUFQ2bTVQVndINUdhR0ZKcitBMkE1RFk2bDAzeFNy?=
- =?utf-8?B?NWpyTFNTNXRCRXJYYXVqQW5ueGVqcElrb0NhTEN0WDZkZ0lVU01rY0lZbElZ?=
- =?utf-8?B?eDVNZkdMRGhDclhCdnhOUVExZEVUNzYyMHhsQkRMYVV3SkdEMW9oY0xQUHJw?=
- =?utf-8?B?Tk9Oa0NVazNhTHVvSzc5YnlISUlPdjNwOW5RYStNVVVjRnl0ZmIxY1QxcE9J?=
- =?utf-8?B?TEI2WWhVbnNFYVM2emNLcnRTakZsZlo0UHpVK1MxS2I0UHNaMjJIRFdCMDI4?=
- =?utf-8?B?NUwrbEREL0dtQWdwN3RtUTJLTHpueWNYUXVYVUVMVTVrdU5lMHZNMU9mUkJV?=
- =?utf-8?B?c1FBWWxtSFZ0YjN6aG42LzJlVjRFQ0lDeGQ2OVYvdkxMV1JUQkVFNlpKK3Vw?=
- =?utf-8?B?LzlMZURSc0MxNnZLbkQ5OEcxdldVZnNRT1d0M2kvZUpTVXZXL2FBRjdTSnBw?=
- =?utf-8?B?emFaUU1EMjFpclJFV0ZzT1JoMWlPNktKVmp1T285MThjTU5vZWJzbU05cEZx?=
- =?utf-8?B?eHgrUVVkbTBLSWs5SmE2N0owajdHNnFSUHJPN2ZoZ01pNFhyYkhDQzlFekRY?=
- =?utf-8?B?OG9kK3RrMEY3eTJleTBMNlJ3S0t2MnBQZStrM0UyeEtLVm9OeE51aks1OXJo?=
- =?utf-8?B?U3oyaTJXamIrVnl4WmZtR1NwRDdVNXZhSnlaNFNkc1MrYThmYlVIZWUzRzN0?=
- =?utf-8?B?ZFE3N015QTRORG5FcjBUSXpEVHRaUmQzUUxZbFExbUNyd21WYVJMRUEyZGtQ?=
- =?utf-8?B?ZWgwVjdOcXF2S2JNOHI4YlM0UXZMTWsydDJMN0VlcjVJWkswU2tMVkt2b3Y0?=
- =?utf-8?B?amh0NG5GZFNFVTNRc3lLbHlHMWRreFNsRVlFZ0pIVEpYRnhzUWtOL2FTQXE1?=
- =?utf-8?B?V0FHeGdySmJJcEtMSUZ3RGwrTnZWUDkyK21SMHhUbWRiS3RWZUZCVTQwQWgx?=
- =?utf-8?B?UzNZTDhoRVdsRjdSMVo5WmJBN1d4Umd4UjdKNk1YckFVcEdjdzJSQmE2UHZX?=
- =?utf-8?B?Vkk2N2g5ejZoU0hkd3UvSXQ0TzlUdGxzdVFiQ2dpQ1FqWEJxOXVadlA0Ylgr?=
- =?utf-8?Q?3ZeWLO6OMLNkLqL82h3Rvc1GGtckmIDe9NKVsLk3V1xJ?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <01A73AFEE0B83F4CBD6F318703F858AD@DEUP281.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZMCGh2ZcNz2xmk
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Mar 2025 12:37:46 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1742866662; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=7aZMCkZ+HE4An/i1C0+Ohtb/3lMZesSY8n0GYQcLRTo=;
+	b=Rab0Un59i+bnsPLqf6Flk11JlWxq3YABX4gVtVBpPjJo0ViUxm8W9e//49bY2BXdfWmmBGcx8dT25+4rdyvgzCpAXOr3SOk6vnEf29n5vX4ICa6fKPkDU7cVxA+OEu93KtgfmidXWQ7g3jpDE2ECNBq5Q5H3NqMEr2ONz/yMuxM=
+Received: from 30.74.129.51(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WStBDvD_1742866660 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 25 Mar 2025 09:37:40 +0800
+Message-ID: <1b0ce59a-30a7-46e3-9c63-72c3f8d44b77@linux.alibaba.com>
+Date: Tue, 25 Mar 2025 09:37:39 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -175,42 +49,108 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-X-OriginatorOrg: cyberus-technology.de
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: FR2P281MB2329.DEUP281.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 23856438-eb24-479a-15e5-08dd6ab7270d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Mar 2025 09:35:02.2945
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: f4e0f4e0-9d68-4bd6-a95b-0cba36dbac2e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: KOlCdh/ncyZBs74PEPPoFdsTe0ohwhudL1knOI301VKiCilgD+GXYn2hSW82C6OPrjPGkVOHNij3WCi8lilXOqFMwtv+quncgwNjLAO9VhDMuTMvFS+4J/NXb8V3rSyQ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BEZP281MB2213
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] erofs: add start offset for file-backed mount
+To: Sheng Yong <shengyong2021@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Sheng Yong <shengyong1@xiaomi.com>,
+ Wang Shuai <wangshuai12@xiaomi.com>, Gao Xiang <xiang@kernel.org>,
+ Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
+ <dhavale@google.com>, linux-erofs mailing list <linux-erofs@lists.ozlabs.org>
+References: <20250324022849.2715578-1-shengyong1@xiaomi.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20250324022849.2715578-1-shengyong1@xiaomi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-T24gU2F0LCAyMDI1LTAzLTIyIGF0IDIxOjM0ICswMTAwLCBKdWxpYW4gU3RlY2tsaW5hIHZpYSBC
-NCBSZWxheSB3cm90ZToNCj4gDQo+IMKgI2lmZGVmIENPTkZJR19CTEtfREVWX0lOSVRSRA0KPiDC
-oGV4dGVybiB2b2lkIF9faW5pdCByZXNlcnZlX2luaXRyZF9tZW0odm9pZCk7DQo+IMKgZXh0ZXJu
-IHZvaWQgd2FpdF9mb3JfaW5pdHJhbWZzKHZvaWQpOw0KPiArDQo+ICsvKg0KPiArICogRGV0ZWN0
-IGEgZmlsZXN5c3RlbSBvbiB0aGUgaW5pdHJkLiBZb3UgZ2V0IDEgS2lCIChCTE9DS19TSVpFKSBv
-Zg0KPiArICogZGF0YSB0byB3b3JrIHdpdGguIFRoZSBvZmZzZXQgb2YgdGhlIGJsb2NrIGlzIHNw
-ZWNpZmllZCBpbg0KPiArICogaW5pdHJkX2ZzX2RldGVjdCgpLg0KPiArICoNCj4gKyAqIEBibG9j
-a19kYXRhOiBBIHBvaW50ZXIgdG8gQkxPQ0tfU0laRSBvZiBkYXRhDQo+ICsgKg0KPiArICogUmV0
-dXJucyB0aGUgc2l6ZSBvZiB0aGUgZmlsZXN5c3RlbSBpbiBieXRlcyBvciAwLCBpZiB0aGUgZmls
-ZXN5c3RlbQ0KPiArICogd2FzIG5vdCBkZXRlY3RlZC4NCj4gKyAqLw0KPiArdHlwZWRlZiBzaXpl
-X3QgaW5pdHJkX2ZzX2RldGVjdF9mbih2b2lkICogY29uc3QgYmxvY2tfZGF0YSk7DQo+ICsNCj4g
-K3N0cnVjdCBpbml0cmRfZGV0ZWN0X2ZzIHsNCj4gKyBpbml0cmRfZnNfZGV0ZWN0X2ZuICpkZXRl
-Y3RfZm47DQo+ICsgbG9mZl90IGRldGVjdF9ieXRlX29mZnNldDsNCj4gK307DQo+ICsNCj4gK2V4
-dGVybiBzdHJ1Y3QgaW5pdHJkX2RldGVjdF9mcyBfX3N0YXJ0X2luaXRyZF9mc19kZXRlY3RbXTsN
-Cj4gK2V4dGVybiBzdHJ1Y3QgaW5pdHJkX2RldGVjdF9mcyBfX3N0b3BfaW5pdHJkX2ZzX2RldGVj
-dFtdOw0KPiArDQo+ICsvKg0KPiArICogQWRkIGEgZmlsZXN5c3RlbSBkZXRlY3RvciBmb3IgaW5p
-dHJkcy4gU2VlIHRoZSBkb2N1bWVudGF0aW9uIG9mDQo+ICsgKiBpbml0cmRfZnNfZGV0ZWN0X2Zu
-IGFib3ZlLg0KPiArICovDQo+ICsjZGVmaW5lIGluaXRyZF9mc19kZXRlY3QoZm4sIGJ5dGVfb2Zm
-c2V0KSBcDQo+ICsgc3RhdGljIGNvbnN0IHN0cnVjdCBpbml0cmRfZGV0ZWN0X2ZzIF9faW5pdHJk
-X2ZzX2RldGVjdF8gIyMgZm4gXA0KPiArIF9fdXNlZCBfX3NlY3Rpb24oIl9pbml0cmRfZnNfZGV0
-ZWN0IikgPSBcDQo+ICsgeyAuZGV0ZWN0X2ZuID0gZm4sIC5kZXRlY3RfYnl0ZV9vZmZzZXQgPSBi
-eXRlX29mZnNldH0NCj4gKw0KPiDCoCNlbHNlDQo+IMKgc3RhdGljIGlubGluZSB2b2lkIF9faW5p
-dCByZXNlcnZlX2luaXRyZF9tZW0odm9pZCkge30NCj4gwqBzdGF0aWMgaW5saW5lIHZvaWQgd2Fp
-dF9mb3JfaW5pdHJhbWZzKHZvaWQpIHt9DQo+ICsNCj4gKyNkZWZpbmUgaW5pdHJkX2ZzX2RldGVj
-dChkZXRlY3RmbikNCg0KVGhlICFDT05GSUdfQkxLX0RFVl9JTklUUkQgcGF0aCBpcyBicm9rZW4u
-IFdpbGwgZml4IGluIHYzIGFuZCBhZGQgaXQgdG8gbXkgdGVzdA0KcGxhbi4NCg0KSnVsaWFuDQo=
+Hi Yong!
+
+On 2025/3/24 10:28, Sheng Yong wrote:
+> From: Sheng Yong <shengyong1@xiaomi.com>
+> 
+> When attempting to use an archive file, such as APEX on android,
+> as a file-backed mount source, it fails because EROFS image within
+> the archive file does not start at offset 0. As a result, a loop
+> device is still needed to attach the image file at an appropriate
+> offset first.
+> 
+> To address this issue, this patch parses the `source' parameter in
+> EROFS to accept a start offset for the file-backed mount. The format
+> is `/path/to/archive_file:offs', where `offs' represents the start
+> offset. EROFS will add this offset before performing read requests.
+> 
+> Signed-off-by: Sheng Yong <shengyong1@xiaomi.com>
+> Signed-off-by: Wang Shuai <wangshuai12@xiaomi.com>
+
+Sorry for late reply. Yeah, that is a great feature.
+
+> ---
+
+...
+
+> @@ -411,6 +412,31 @@ static bool erofs_fc_set_dax_mode(struct fs_context *fc, unsigned int mode)
+>   #endif
+>   }
+>   
+> +static loff_t erofs_fc_parse_source(struct fs_context *fc,
+> +				    struct fs_parameter *param)
+> +{
+> +	const char *devname = param->string;
+> +	const char *fofs_start __maybe_unused;
+> +	loff_t fofs = 0;
+> +
+> +	if (!devname || !*devname)
+> +		return invalfc(fc, "Empty source");
+> +
+> +#ifdef CONFIG_EROFS_FS_BACKED_BY_FILE
+> +	fofs_start = strchr(devname, ':');
+> +	if (!fofs_start)
+> +		goto out;
+> +	if (kstrtoll(fofs_start + 1, 0, &fofs) < 0)
+> +		return invalfc(fc, "Invalid filebacked offset %s", fofs_start);
+> +	fc->source = kstrndup(devname, fofs_start - devname, GFP_KERNEL);
+> +	return fofs;
+> +out:
+> +#endif
+> +	fc->source = devname;
+> +	param->string = NULL;
+> +	return fofs;
+> +}
+
+Could we just add a new mount option for this, and apply this feature
+for both file-backed mounts and bdev-based mounts?
+
+Twist source option is not quite clean on my side.
+
+
+
+> +
+>   static int erofs_fc_parse_param(struct fs_context *fc,
+>   				struct fs_parameter *param)
+>   {
+> @@ -507,6 +533,11 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+>   		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
+>   #endif
+>   		break;
+> +	case Opt_source:
+> +		sbi->dif0.fofs = erofs_fc_parse_source(fc, param);
+> +		if (sbi->dif0.fofs < 0)
+> +			return -EINVAL;
+> +		break;
+>   	}
+>   	return 0;
+>   }
+> @@ -697,6 +728,10 @@ static int erofs_fc_get_tree(struct fs_context *fc)
+>   		file = filp_open(fc->source, O_RDONLY | O_LARGEFILE, 0);
+>   		if (IS_ERR(file))
+>   			return PTR_ERR(file);
+> +		if (sbi->dif0.fofs + PAGE_SIZE >= i_size_read(file_inode(file))) {
+> +			fput(file);
+> +			return invalf(fc, "Start offset too large");
+> +		}
+
+I guess we need to verify the offset is block-aligned too.
+
+Thanks,
+Gao Xiang
 
