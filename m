@@ -1,67 +1,51 @@
-Return-Path: <linux-erofs+bounces-139-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-140-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 676E8C36018
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Apr 2025 20:27:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3692C3600C
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Apr 2025 08:14:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZSbyf316dz2yHj;
-	Thu,  3 Apr 2025 07:27:38 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::549"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1743625658;
-	cv=none; b=g6CsdZqMB0iU/vZ+MR8LZdSUECMMTkRzJz8ctjBQuNBmLPx8eVH2EL2kox8Eq8kasWtR5c+NVWXWxgYzVDcEidb9I/0CkpVTGK2DrgB/FtS3R/usiHSCou5ClAJyw9mEizonn27CaGNyqfs5ogeIvLc4z5wJmcJ982jHR+eH84omkKO65gmXCBgwTj3uNisotrmRC90KTwbzlzDGmMZ9aFRFowzYD7BAPcR9srgq3O+n63OdnPzeQaz+Rzav5dZhleCVcwIoiTBPghX00bXE2aTgCLZMoGKDtdqzu88RhmlYyqSChFBzAPgB7C7Gh5FxJMn45mCm7OE/lC1+4c136w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZSvf3027mz305D;
+	Thu,  3 Apr 2025 19:14:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1743668058;
+	cv=none; b=lBipt0h/jCOygCQi582ZQDSpkhobTFddazFiEP9bSvt799jNVj2D2ovg9xJ1q1zKXBmjOa+IZtH1PetYNDvIzBhkfdrXAxqXHlmzXIf6aoGciBT+G6Xn1WUA/qWCAMdI8fJhRs/Bb6FED4nzZ/PqdAQKHpoM/AjttVYZrukva50Ac0gM4fRfPSYrYD34cTHDphfAyoCQg/ern94Dri1REx3GRUw9zEPWyNXHdzhd8NQApcKu/RK4PlUF7jTep5nM2mKHMFasnupVDhbzc+7xFrGL3ikE28+rbTtvmT1SkKEF6VvDCm07vzG/h+XJy9Lfj35EP5WPSfiwvifFDWUkIA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1743625658; c=relaxed/relaxed;
-	bh=AgkA3Y29OmmQYCAZrMmGPHeXSG+tG3DycR1OgdCrTAE=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=Twbta1dB9H6jiakPkf9DUEP0Kj7vhItWObom+wET3BhSKmKyQPS6BGJvqCCcE4oY24tQKp3vplU9xdRHD1RnuGE6gAbN8x6+y7hXBVDKKyBaYQ0SILfXXqO+mEQWoX0RGiijKr7cBQ75XAFDdpAvSHa1gGCSIW235fpvL3Is6ER0AONM0McnwlBZbuUzfsDsxrki3IYfPqedNbKZD/XBEiPj7ni+/gjviUfj0W1LTGPZuf8n0uyscCuB4HwAV8lFH4ikOXUR30JRKb8u59IfCjyAPpPvXFoBxOanWcLFqPk+Jd4trU2R6ntdAdS+a/CHSS+0Td72B9nnwuZqSs9oHQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com; dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=iaY3quWn; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::549; helo=mail-pg1-x549.google.com; envelope-from=3tj3tzwckc-squninyrtbbtyr.pbzyvahk-rebsfyvfgf.bmynof.bet@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=flex--dhavale.bounces.google.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
+	t=1743668058; c=relaxed/relaxed;
+	bh=13guzda1ND+EFhsRAOXgn6zlq3GU2NBgioC9uYcZ9GE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=S74Z9uTeMkUftQt/8tgV4La1WNCYboCZ3X7pWaRhcZIdK1P8CH21ddZLcC9p16H/i+0hrifJl6UI5qJxlzJerOxpAcTJOJLz/27g7Sr8JkG3gGqCj8GXHciluF70+2w5hpgfwthrTyRzwArDKbPPspu7vxRXpIIPJQdBnVRRmcSDFjlQ0RVOKeIksQfzsNoVcp/lmSdn9R64dTCUfkyBmpzHORcnBJA/W5tI5IvBk/UWDK9YsixjYEYgh3dxdHTxYakELqXZWjni3pqkCTrglimOe61THFZTQYioGYNNFv9UnynQ85d1YLlrbPRrWcmtmrJ6rFbWu+sRxMtwOvX8ag==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=B7L+r5Yv; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=iaY3quWn;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=B7L+r5Yv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--dhavale.bounces.google.com (client-ip=2607:f8b0:4864:20::549; helo=mail-pg1-x549.google.com; envelope-from=3tj3tzwckc-squninyrtbbtyr.pbzyvahk-rebsfyvfgf.bmynof.bet@flex--dhavale.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZSbyc3pRNz2yDk
-	for <linux-erofs@lists.ozlabs.org>; Thu,  3 Apr 2025 07:27:35 +1100 (AEDT)
-Received: by mail-pg1-x549.google.com with SMTP id 41be03b00d2f7-af5310c1ac1so120861a12.2
-        for <linux-erofs@lists.ozlabs.org>; Wed, 02 Apr 2025 13:27:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1743625652; x=1744230452; darn=lists.ozlabs.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=AgkA3Y29OmmQYCAZrMmGPHeXSG+tG3DycR1OgdCrTAE=;
-        b=iaY3quWn0VY6Cb8mFpyrd03dvlHA5VV/IIuJqPmJHg+A77BDSrmlcf/IIMCThvw8rX
-         NKtIhpLu4FuoUwV9Cwz6rqbvN5VKXlqzZNPMKrFuhtTG320e3IPGVG8DlxtMYMz6+KuS
-         vJa/GD5visaFiuuOza9kmYdnazVb1g7Auy6J9x3ERdtfQoHB2Hgc2THTWaDbuSFeVjik
-         ImQm0u9dMfxB9gsyZq5El+gwT/3RLEDiHCLCGs7yUByLih5zmm+lU6VHzUK0Byq+FPLR
-         HYhD1nt8KMR9CCFESHa8KaXUAPTMWiGI5oQ/Q0q/79He4xLDl8dAVZqavYJq4YB7GbZO
-         xQxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743625652; x=1744230452;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=AgkA3Y29OmmQYCAZrMmGPHeXSG+tG3DycR1OgdCrTAE=;
-        b=SSLsVl55t9f6sypCZwNdMaHZYhNN3Qg3ouLHhPWWOeHCjbfn4lef5pQ+DUGMe6Wq3h
-         2UK/BDjORZPI708jAL+XkeAb1Taify0ICOdthrhUYQSTUJAnp/qx+1DfgItRp+hryzJY
-         p55+8dozk3OgAaQlVBZcTEMOc+FcavyBtSuKtxym8a/FO5Dbxn2IySRItcQsaN6PkDXv
-         iqpprHMzm0KlgonwEa9yHGpBw/S7a9sYunh38CzAI0gna+EYBgpeAL+UIJ6kSXkstoh8
-         EFmnfwd9v6KjldjX9euRgdOASjS0v7uVctT7Xrk2ugo9OK2aQG4wpwuVGlHUxBtG22hV
-         3Pcw==
-X-Gm-Message-State: AOJu0Yw391/VE5laX4y7oGeUN4YKj5PqivEhdlSltpya4q9amJHOezdn
-	ggfAEZ9Vu2/W4MlJoCEUauckJ4hXFpmLo2RzeSLKYrGEg5HOHJwFWvyPXgfXbw8cHBaA8KYgaPz
-	/Q8LFEDJsH9FFyEatoumnRoIeRtadz8Gag0Q8oRsz5fvN8qzByHVWKkbP8Sky/GVRvuOihRa/+I
-	CFZPJsfEI8IGqLFqWcaeYR6gyziG+s2q3LI1UJuZBFAw3G1A==
-X-Google-Smtp-Source: AGHT+IFUCBZtSd1jZaMyOQlfeHsrVKzPZUbE0VX+8I/AuOG8PteyiNItlgbzNisHH17oq/SzIZQITbASOFLm
-X-Received: from plbko16.prod.google.com ([2002:a17:903:7d0:b0:220:ca3c:96bc])
- (user=dhavale job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:e88f:b0:221:78a1:27fb
- with SMTP id d9443c01a7336-2295be31744mr117782815ad.11.1743625652512; Wed, 02
- Apr 2025 13:27:32 -0700 (PDT)
-Date: Wed,  2 Apr 2025 13:27:25 -0700
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZSvf03zDDz2ySP
+	for <linux-erofs@lists.ozlabs.org>; Thu,  3 Apr 2025 19:14:14 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1743668051; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=13guzda1ND+EFhsRAOXgn6zlq3GU2NBgioC9uYcZ9GE=;
+	b=B7L+r5Yv8cFqyhStmyVYXWGrXR2hHy9Trzen5ZKjBKKegNYSn+avYPXc2AkS9w0fAkGyfS6xtOsGOrXoqS7XR60kY8Jr5mDTnqgA6AMK3WnGXvoTTHSB5E2bB2j2sGr/knRNg9t6PAdlWG0qn/UG6D1ONKnWFtLUlDtDtwb2mZ4=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WUcFcNq_1743668048 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 03 Apr 2025 16:14:10 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/3] erofs-utils: lib: move buffer allocation into z_erofs_write_indexes()
+Date: Thu,  3 Apr 2025 16:14:02 +0800
+Message-ID: <20250403081403.2671077-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250403081403.2671077-1-hsiangkao@linux.alibaba.com>
+References: <20250403081403.2671077-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,159 +55,119 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-digest@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.49.0.472.ge94155a9ec-goog
-Message-ID: <20250402202728.2157627-1-dhavale@google.com>
-Subject: [PATCH v2] erofs: lazily initialize per-CPU workers and CPU hotplug hooks
-From: Sandeep Dhavale <dhavale@google.com>
-To: linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>, 
-	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>, 
-	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>
-Cc: hsiangkao@linux.alibaba.com, kernel-team@android.com, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Currently, when EROFS is built with per-CPU workers, the workers are
-started and CPU hotplug hooks are registered during module initialization.
-This leads to unnecessary worker start/stop cycles during CPU hotplug
-events, particularly on Android devices that frequently suspend and resume.
+Just used to prepare for extent-based metadata.  No logic changes.
 
-This change defers the initialization of per-CPU workers and the
-registration of CPU hotplug hooks until the first EROFS mount. This
-ensures that these resources are only allocated and managed when EROFS is
-actually in use.
-
-The tear down of per-CPU workers and unregistration of CPU hotplug hooks
-still occurs during z_erofs_exit_subsystem(), but only if they were
-initialized.
-
-Signed-off-by: Sandeep Dhavale <dhavale@google.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-v1: https://lore.kernel.org/linux-erofs/20250331022011.645533-2-dhavale@google.com/
-Changes since v1:
-- Get rid of erofs_mount_count based init and tear down of resources
-- Initialize resource in z_erofs_init_super() as suggested by Gao
-- Introduce z_erofs_init_workers_once() and track it using atomic bool
-- Improve commit message
+ lib/compress.c | 52 ++++++++++++++++++++++++++++----------------------
+ 1 file changed, 29 insertions(+), 23 deletions(-)
 
- fs/erofs/internal.h |  2 ++
- fs/erofs/zdata.c    | 57 ++++++++++++++++++++++++++++++++++-----------
- 2 files changed, 46 insertions(+), 13 deletions(-)
-
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 4ac188d5d894..bbc92ee41846 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -450,6 +450,7 @@ int z_erofs_gbuf_growsize(unsigned int nrpages);
- int __init z_erofs_gbuf_init(void);
- void z_erofs_gbuf_exit(void);
- int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb);
-+int z_erofs_init_workers_once(void);
- #else
- static inline void erofs_shrinker_register(struct super_block *sb) {}
- static inline void erofs_shrinker_unregister(struct super_block *sb) {}
-@@ -458,6 +459,7 @@ static inline void erofs_exit_shrinker(void) {}
- static inline int z_erofs_init_subsystem(void) { return 0; }
- static inline void z_erofs_exit_subsystem(void) {}
- static inline int z_erofs_init_super(struct super_block *sb) { return 0; }
-+static inline int z_erofs_init_workers_once(void) { return 0; };
- #endif	/* !CONFIG_EROFS_FS_ZIP */
+diff --git a/lib/compress.c b/lib/compress.c
+index eaca4d3..50d155e 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -121,7 +121,7 @@ static bool z_erofs_mt_enabled;
  
- #ifdef CONFIG_EROFS_FS_BACKED_BY_FILE
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 0671184d9cf1..75f0adcff97b 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -11,6 +11,7 @@
+ #define Z_EROFS_LEGACY_MAP_HEADER_SIZE	Z_EROFS_FULL_INDEX_ALIGN(0)
  
- #define Z_EROFS_PCLUSTER_MAX_PAGES	(Z_EROFS_PCLUSTER_MAX_SIZE / PAGE_SIZE)
- #define Z_EROFS_INLINE_BVECS		2
-+static atomic_t erofs_percpu_workers_initialized = ATOMIC_INIT(0);
- 
- struct z_erofs_bvec {
- 	struct page *page;
-@@ -403,10 +404,44 @@ static inline int erofs_cpu_hotplug_init(void) { return 0; }
- static inline void erofs_cpu_hotplug_destroy(void) {}
- #endif
- 
--void z_erofs_exit_subsystem(void)
-+static int z_erofs_init_workers(void)
+-static void z_erofs_write_indexes_final(struct z_erofs_compress_ictx *ctx)
++static void z_erofs_fini_full_indexes(struct z_erofs_compress_ictx *ctx)
  {
--	erofs_cpu_hotplug_destroy();
-+	int err;
-+
-+	err = erofs_init_percpu_workers();
-+	if (err)
-+		goto err_init_percpu_workers;
-+
-+	err = erofs_cpu_hotplug_init();
-+	if (err < 0)
-+		goto err_cpuhp_init;
-+	return err;
-+
-+err_cpuhp_init:
- 	erofs_destroy_percpu_workers();
-+err_init_percpu_workers:
-+	atomic_set(&erofs_percpu_workers_initialized, 0);
-+	return err;
-+}
-+
-+int z_erofs_init_workers_once(void)
-+{
-+	if (atomic_xchg(&erofs_percpu_workers_initialized, 1))
-+		return 0;
-+	return z_erofs_init_workers();
-+}
-+
-+static void z_erofs_destroy_workers(void)
-+{
-+	if (atomic_xchg(&erofs_percpu_workers_initialized, 0)) {
-+		erofs_cpu_hotplug_destroy();
-+		erofs_destroy_percpu_workers();
-+	}
-+}
-+
-+void z_erofs_exit_subsystem(void)
-+{
-+	z_erofs_destroy_workers();
- 	destroy_workqueue(z_erofs_workqueue);
- 	z_erofs_destroy_pcluster_pool();
- 	z_erofs_exit_decompressor();
-@@ -430,19 +465,8 @@ int __init z_erofs_init_subsystem(void)
- 		goto err_workqueue_init;
- 	}
+ 	const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
+ 	struct z_erofs_lcluster_index di;
+@@ -137,8 +137,8 @@ static void z_erofs_write_indexes_final(struct z_erofs_compress_ictx *ctx)
+ 	ctx->metacur += sizeof(di);
+ }
  
--	err = erofs_init_percpu_workers();
--	if (err)
--		goto err_pcpu_worker;
+-static void z_erofs_write_extent(struct z_erofs_compress_ictx *ctx,
+-				 struct z_erofs_inmem_extent *e)
++static void z_erofs_write_full_indexes(struct z_erofs_compress_ictx *ctx,
++				       struct z_erofs_inmem_extent *e)
+ {
+ 	struct erofs_inode *inode = ctx->inode;
+ 	struct erofs_sb_info *sbi = inode->sbi;
+@@ -236,20 +236,6 @@ static void z_erofs_write_extent(struct z_erofs_compress_ictx *ctx,
+ 	ctx->clusterofs = clusterofs + count;
+ }
+ 
+-static void z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
+-{
+-	struct z_erofs_extent_item *ei, *n;
 -
--	err = erofs_cpu_hotplug_init();
--	if (err < 0)
--		goto err_cpuhp_init;
- 	return err;
- 
--err_cpuhp_init:
--	erofs_destroy_percpu_workers();
--err_pcpu_worker:
--	destroy_workqueue(z_erofs_workqueue);
- err_workqueue_init:
- 	z_erofs_destroy_pcluster_pool();
- err_pcluster_pool:
-@@ -645,6 +669,13 @@ static const struct address_space_operations z_erofs_cache_aops = {
- int z_erofs_init_super(struct super_block *sb)
+-	ctx->clusterofs = 0;
+-	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
+-		z_erofs_write_extent(ctx, &ei->e);
+-
+-		list_del(&ei->list);
+-		free(ei);
+-	}
+-	z_erofs_write_indexes_final(ctx);
+-}
+-
+ static bool z_erofs_need_refill(struct z_erofs_compress_sctx *ctx)
  {
- 	struct inode *const inode = new_inode(sb);
-+	int err;
-+
-+	err = z_erofs_init_workers_once();
-+	if (err) {
-+		iput(inode);
-+		return err;
-+	}
+ 	const bool final = !ctx->remaining;
+@@ -1012,6 +998,31 @@ static void z_erofs_write_mapheader(struct erofs_inode *inode,
+ 	memcpy(compressmeta, &h, sizeof(struct z_erofs_map_header));
+ }
  
- 	if (!inode)
- 		return -ENOMEM;
++static void *z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
++{
++	struct erofs_inode *inode = ctx->inode;
++	struct z_erofs_extent_item *ei, *n;
++	void *metabuf;
++
++	metabuf = malloc(BLK_ROUND_UP(inode->sbi, inode->i_size) *
++			 sizeof(struct z_erofs_lcluster_index) +
++			 Z_EROFS_LEGACY_MAP_HEADER_SIZE);
++	if (!metabuf)
++		return ERR_PTR(-ENOMEM);
++
++	ctx->metacur = metabuf + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
++	ctx->clusterofs = 0;
++	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
++		z_erofs_write_full_indexes(ctx, &ei->e);
++
++		list_del(&ei->list);
++		free(ei);
++	}
++	z_erofs_fini_full_indexes(ctx);
++	z_erofs_write_mapheader(inode, metabuf);
++	return metabuf;
++}
++
+ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+ {
+ 	struct erofs_sb_info *sbi = inode->sbi;
+@@ -1145,15 +1156,11 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 	DBG_BUGON(pstart < (!!inode->idata_size) << bbits);
+ 	ptotal -= (!!inode->idata_size) << bbits;
+ 
+-	compressmeta = malloc(BLK_ROUND_UP(sbi, inode->i_size) *
+-			      sizeof(struct z_erofs_lcluster_index) +
+-			      Z_EROFS_LEGACY_MAP_HEADER_SIZE);
++	compressmeta = z_erofs_write_indexes(ictx);
+ 	if (!compressmeta) {
+ 		ret = -ENOMEM;
+ 		goto err_free_idata;
+ 	}
+-	ictx->metacur = compressmeta + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
+-	z_erofs_write_indexes(ictx);
+ 
+ 	legacymetasize = ictx->metacur - compressmeta;
+ 	/* estimate if data compression saves space or not */
+@@ -1164,7 +1171,6 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 		goto err_free_meta;
+ 	}
+ 	z_erofs_dedupe_commit(false);
+-	z_erofs_write_mapheader(inode, compressmeta);
+ 
+ 	if (!ictx->fragemitted)
+ 		sbi->saved_by_deduplication += inode->fragment_size;
 -- 
-2.49.0.472.ge94155a9ec-goog
+2.43.5
 
 
