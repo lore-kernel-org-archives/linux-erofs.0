@@ -1,50 +1,89 @@
-Return-Path: <linux-erofs+bounces-161-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-162-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C3B5C3600C
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Apr 2025 11:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65487C3600C
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Apr 2025 12:24:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZX4501GKfz305v;
-	Tue,  8 Apr 2025 21:45:08 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.101
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744112708;
-	cv=none; b=DV6KNu8bruYcou2AB8z4vkrJHaxSXwqsyj4979mQIsevJO4Bib5qE87kA46pA46MdIUEP/pERsjCG/49cUQPMZe1jUExJOZ+wNmZdr8qF5+/FLz4nPg63E85dG/46sP/jXnqlrzmsNy0Y6l3nvTmsnYMS6wq2WkIuM0Qht0Eug4/A94fywXkyjsx5Nl/Usy1ATZsJ3Z4Bv6XYYZGBMifv1fbD75pNSNMQ6raRcu0cJVWKPuxuuZSsNYUo6CcbM13dQYOwakWzqvEdDeFOidynjo+BKLjxMEGg6zsnTdH3v5PzkWMRpnTQzBlNi1UMcNa8SOllCFlvNlekAYZ0KcWbA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZX4yj3prDz306l;
+	Tue,  8 Apr 2025 22:24:45 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::429"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744115085;
+	cv=none; b=KEixsnw6bIpw8d9pxdeSTMae+S7SM2qSULtAjP6+j8vKlsH5VSAIeIWEkonr2W7eYFvytuUxXd3JBAwwVfPXPrlemZGZqHeI3d6t/0ju6LjUJtTQtlDbF3ZQKrxMSep0ESaXznAD9WbQxF6/MEn3ojv2c1u4IhziO9fHQ0Z0OcHaXgXA7smVUtiLs03nIZ062Wz36UDQFbb/P0Lz62BPZsqQhtf9Khs1VlZLue5ySL2B9O0M8EPzRevDIv2kZaK1uMG6M9UAAq94Q7q5ZaBfor2NsOC+bPxdU6T5WvdLTe3ZrXxwDjCYvVZ2zF+IuyVfuqrjO1liXn948FYBYbRppg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1744112708; c=relaxed/relaxed;
-	bh=BqZWTIZ7e6ej2vIjCy7sCUZGfP06XjXg1jXPbyRYLgU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hy67oN1WbHeG2Mc0TZW/hgacCWl4ZjcXEsyM10nj4lyrz3jz4BHXqI7A1+WtRPFgz+3E0FqESbVNsXLgEUFhW1OoG91pqUZ/LsYocfeYCsp6FB52p4sCjhQoq4T/C16pSejALeNCWIG7r95lqrStVFcuRmtNtpp0Vy86r5xz3Ou5mTRuTjp9HpESHKcJ9GX2n7skBvZynuVANpLz1w5ELP2m4vyBArRxB/rQweZfE9kpYIPSG1NNtG4hPkkefZyl8p9OfPpqzJJG+e7+mBvmKp1RczSU3Tyq9ac90epmNLQpB4Hz1YL3WvWSnb4WoRZUGi6mLS8L8CJEGBtrt8sqmw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=h9RYuhNj; dkim-atps=neutral; spf=pass (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1744115085; c=relaxed/relaxed;
+	bh=ZOptbtbOKUdHNzNg9ygqhPthLmzyP2uo7jPEq6N+YNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ERSCI61Ata1h4fHLDwxlSHQGGGDxq65fG6LNT6aNGU654Sfn0d9AAZxO6SJQpiAbPFfLqXhByARuARGTEo7hyz1iJqiKa6vqRfaOn93kLoO27cUoGvWZ5/0TdyfRrTHDqJxtpDdK1mWvH5WXPy8/wo22WE2rjj43RuqtOljd7zUIdVZX+1oavejsv4/HpxhP0FvrxM0FYAJAT6WsgBzcmsIZl+kjQcqNjFFetdhWXaryI350PCUb8NgXJs571WbyBv+VE/yGbS2fgyzDUahjOHW/eePjpFnVYcMUS5c5fX5kelqm4JwRrRqDpaPHENpQ5gOsrPBHFjQLKJUmLL/7lw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=eVb3FRio; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::429; helo=mail-pf1-x429.google.com; envelope-from=shengyong2021@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=h9RYuhNj;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=eVb3FRio;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::429; helo=mail-pf1-x429.google.com; envelope-from=shengyong2021@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZX44w0LNpz306S
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Apr 2025 21:45:01 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1744112696; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=BqZWTIZ7e6ej2vIjCy7sCUZGfP06XjXg1jXPbyRYLgU=;
-	b=h9RYuhNjlQeVhZZvPdHzga0dq9UrUT3fqX0cqDMJle+l9HTLNKMSeAQJl/Y1SL3Mu9/sg+F6DVoDXdSQZbVA70MxIp+LEfTb8yas+uvaMjx+M1QNF6a62SobX37P1EwU2gzhGnicWYEdxXEOOCQSbafkuQZJjJ6qfc2+08oZ79o=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWFISUC_1744112689 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 08 Apr 2025 19:44:54 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	kernel test robot <lkp@intel.com>
-Subject: [PATCH 1/2] erofs: add __packed annotation to union(__le16..)
-Date: Tue,  8 Apr 2025 19:44:47 +0800
-Message-ID: <20250408114448.4040220-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZX4yh1LbBz301v
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Apr 2025 22:24:43 +1000 (AEST)
+Received: by mail-pf1-x429.google.com with SMTP id d2e1a72fcca58-7398d65476eso4225093b3a.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 08 Apr 2025 05:24:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744115081; x=1744719881; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZOptbtbOKUdHNzNg9ygqhPthLmzyP2uo7jPEq6N+YNQ=;
+        b=eVb3FRiokSfQLff46PA5HAm0QUF6H4CJubIZV9WYIIR7/x40ULx9KE5Z9P3fkmGZEK
+         O9VfOesN1OvJbbdQDgQ27QjVUcr1KTYBIKT7yN6BtVoRP6CoMPGPJD5HRFjjiK1zxRZB
+         9SXVDHDg4GaEoC4QZcckaTsLfGKH5UhG/1EaaaeLjeXI0cBplHIXMuqOa9diupOKNV77
+         w7J9AKZoxjOG7mJ8//aHhjfQURiG8/Pap1PZCxatHOYOvt/2ksL2UsBqIyWvOX8UcErG
+         tH8fKPR89NizFyXICl16IphuDwXRXhqCwZ8OOOs5GA/ZMkZ4FaiiZEvxMeiT7f4dIACt
+         gNqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744115081; x=1744719881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZOptbtbOKUdHNzNg9ygqhPthLmzyP2uo7jPEq6N+YNQ=;
+        b=AzDuHQ4b6Hjv5iPK0I9tJv7yfUjHDbrxgw/RbcXIV1EOz65WtWwwcfV19MTDKJ5z+d
+         Mmb53ddc+9tofsNEn6s95CfYOnTREGhEbfHhZqBsQEoUmI1qkYcejvdoeIUyK3TsMC59
+         jm3SxR2AZXgqgT20Pxu3sRE2w/4uXNHO0gI1cvawxfQKCCvCuNsI0UXcKS1cLFdXo/Np
+         nHkPCL9e6OcV+x3FFaHp34i5dfM2LGyc/R57KbA7n7q7maSCGO4xPGGzVxSu+LxM0LUd
+         fpxg2lZRb1nHPg9of5VPRCs7QXTt9z+UVl89gKe7YkLDd33KSQojYpXNYSfh13b5EvPm
+         ppnA==
+X-Gm-Message-State: AOJu0YxblfXkDNTtyx7UU32HrHuV6x/wVLGFvH/3LDh32E0Y1NrB7aHY
+	ybuzSOMZH7OLMsY71AYR8+8EySoMnxxvyG4O0wk40RBCaqogxYaZ
+X-Gm-Gg: ASbGnctOglCeVhmaIhOrSjsUES2wHEJwkXZbgyqCY1dOV9kj/5EcNfHYSWTEn5vHjZT
+	VEFhWlW/Q169DNiT2bhiG+fffufEqPN7BVCbLORqYIjg17NWG2LnTlgjsTXswUaOlmCH/kjMOwb
+	FQTts84E2Z/4GW6RDcB/e6uusb5/yCewFvCYIoBHWSDW+2eRuwYFCqB+APBrZYo4xJEigqmUE19
+	/fBu3pgGKZW40LQlJhKV1Wgn6vhoG6QB9Fw+FZRbnrHVOk+CGmgoL5MhXeb/AsxTo81ZvxJyyRN
+	uwkHFHe/ew9NcYXIDU8ZkxASuLFa/dnJYjlPU/ml05VeUaaqWsI=
+X-Google-Smtp-Source: AGHT+IEHpcmo7Xhh/kVuzYomYKxOSWeOPsROUGdAglsdVSxwiKJVQSvQkVzHe2m4jPEycQAEtJwafA==
+X-Received: by 2002:a05:6a00:114f:b0:736:491b:5370 with SMTP id d2e1a72fcca58-73b9d39ee5fmr4601812b3a.10.1744115080611;
+        Tue, 08 Apr 2025 05:24:40 -0700 (PDT)
+Received: from PC.mioffice.cn ([43.224.245.227])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-739da0b41d4sm10638709b3a.132.2025.04.08.05.24.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Apr 2025 05:24:40 -0700 (PDT)
+From: Sheng Yong <shengyong2021@gmail.com>
+X-Google-Original-From: Sheng Yong <shengyong1@xiaomi.com>
+To: xiang@kernel.org,
+	hsiangkao@linux.alibaba.com,
+	chao@kernel.org,
+	zbestahu@gmail.com,
+	jefflexu@linux.alibaba.com,
+	dhavale@google.com,
+	kzak@redhat.com
+Cc: linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	wangshuai12@xiaomi.com,
+	Sheng Yong <shengyong1@xiaomi.com>
+Subject: [PATCH v4 1/2] erofs: set error to bio if file-backed IO fails
+Date: Tue,  8 Apr 2025 20:23:50 +0800
+Message-ID: <20250408122351.2104507-1-shengyong1@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,52 +96,34 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-I'm unsure why they aren't 2 bytes in size only in arm-linux-gnueabi.
+From: Sheng Yong <shengyong1@xiaomi.com>
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/r/202504051202.DS7QIknJ-lkp@intel.com
-Fixes: 61ba89b57905 ("erofs: add 48-bit block addressing on-disk support")
-Fixes: efb2aef569b3 ("erofs: add encoded extent on-disk definition")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+If a file-backed IO fails before submitting the bio to the lower
+filesystem, an error is returned, but the bio->bi_status is not
+marked as an error. However, the error information should be passed
+to the end_io handler. Otherwise, the IO request will be treated as
+successful.
+
+Signed-off-by: Sheng Yong <shengyong1@xiaomi.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/erofs_fs.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/erofs/fileio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index 61a5ee11f187..94bf636776b0 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -56,7 +56,7 @@ struct erofs_super_block {
- 	union {
- 		__le16 rootnid_2b;	/* nid of root directory */
- 		__le16 blocks_hi;	/* (48BIT on) blocks count MSB */
--	} rb;
-+	} __packed rb;
- 	__le64 inos;            /* total valid ino # (== f_files - f_favail) */
- 	__le64 epoch;		/* base seconds used for compact inodes */
- 	__le32 fixed_nsec;	/* fixed nanoseconds for compact inodes */
-@@ -148,7 +148,7 @@ union erofs_inode_i_nb {
- 	__le16 nlink;		/* if EROFS_I_NLINK_1_BIT is unset */
- 	__le16 blocks_hi;	/* total blocks count MSB */
- 	__le16 startblk_hi;	/* starting block number MSB */
--};
-+} __packed;
- 
- /* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_compact {
-@@ -369,9 +369,9 @@ struct z_erofs_map_header {
- 			 * bit 7   : pack the whole file into packed inode
- 			 */
- 			__u8	h_clusterbits;
--		};
-+		} __packed;
- 		__le16 h_extents_hi;	/* extent count MSB */
--	};
-+	} __packed;
- };
- 
- enum {
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index bec4b56b3826..4fa0a0121288 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -32,6 +32,8 @@ static void erofs_fileio_ki_complete(struct kiocb *iocb, long ret)
+ 		ret = 0;
+ 	}
+ 	if (rq->bio.bi_end_io) {
++		if (ret < 0 && !rq->bio.bi_status)
++			rq->bio.bi_status = errno_to_blk_status(ret);
+ 		rq->bio.bi_end_io(&rq->bio);
+ 	} else {
+ 		bio_for_each_folio_all(fi, &rq->bio) {
 -- 
-2.43.5
+2.43.0
 
 
