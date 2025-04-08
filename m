@@ -1,44 +1,52 @@
-Return-Path: <linux-erofs+bounces-159-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-160-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DFCF8C3600C
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Apr 2025 09:11:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 269BDC36010
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Apr 2025 11:45:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZX0gd3Ks8z300B;
-	Tue,  8 Apr 2025 19:11:25 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744103485;
-	cv=none; b=MOsdsyY8XkvUgrwCewqF3lEG5Qc2VnpFEwl5gD3CfI8GTZQVRlE7k5qndvqHdEGi8Z8Ex2bhRw0ZKDdmUodxiht3WeW+lKpDr9iRXjOWB0uTIuyrGFXXWsYt8uMHkSjxyJkc/A+2kGQDAFC9q/auZ7b4D3c3v4BnsuZXPO3Pqo3FGxSWPBEqEvL0h7oDjkSk3H2zOrH70mIVmo6VlHYk4+HExzVL191XGetnGlHxp1L+lvHL73+T4aBc+YistipHK4wruyRRM/NYsm2nXvCvCmoDOTqaWz1UqLvOE6ezTLw4tuKcC+6hPKEJy9RMmYd62LpaxRrWXtZZ1TwaU0vhNg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZX44z4jP9z309v;
+	Tue,  8 Apr 2025 21:45:07 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744112707;
+	cv=none; b=lRevpbGkL6BN7xrxWjZQK+SuFPkXkgNFTA+TxNoZHs35snqn28vyz+GsPsPB+apeWe2ifzsmWT+gmbvb+NKTYB1jNSIJA9fcyUFlRnEiTMFN4pbTcTOdEylgik9Qz+fHyO7ybNrZLVLPrpey6JTX+iLg2gCnONsrMS/S1tSKeXktMb9EaU2jU2bx8bp3yHCpsVd3O5lpTblHwZcGEgJpa2VotE0IBPdXFpI1A5FlVmuGG7gQWz8XUIfhhJw4aGYDMFadyA7I0K69TRHblPK/EzMZ3MYJdldt7jOAo6MzUa1Z0FgAVvPtGLnKhFQVbCgs0V7SPc+06IIB7eV6Gwt5/g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1744103485; c=relaxed/relaxed;
-	bh=luGcT9UL4O/HTTEZuavQB4JaVAyjvuyVqOeWlRcydM8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nCBy9Jo6LCeyzJfmZJPC3NJVoWdt4Hpx4Uf6c04QKZbpgPpBIp/uz2GxpF0jKDGndES9LDu0hAalOxarKTM5M5O6D9YGwXNrY8Yc407e92uTjCze3LKZffk5ge8qFhCx2y+i34H9JoxBzZ7VkuyrEIixWM6J90nsMOJcj+5KLCwzHF0kaESNh+hIxtxrW9p4604nNjGDKMRTW9Jj7k7HnLx42DEOuYX47YRHEsfbOhGZkLC151ndTGEVjWceiY+73cRH8fbGilyleIRMsFWKmFqEOCwHPxzUyrCO69WwG5YJj9ph/CXYSFSWCXvbv9d/9ZEsU8f5UKY9e1LISr0zKA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LiCkNx5y; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1744112707; c=relaxed/relaxed;
+	bh=2go647+k6sJue3+Dqabd8fg47Qz+7QMamqrKoll0NkY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HbvRxn/Hsv/9iG8I4Fg7M3h4CV5lRaYEx43e6u2ufM/DwbEayQvkY3jocdutKeuPb/f1wurrNOOuB8SU1BVHcpIae9rtSK4oGilYXDfgHKzwhZMCeVhE6lo7yGd3HURvNXxXKI0ql6IoKQGLEEdgVqBPWw21RijxxJ9d41MvAZvhsBXk7f+MYOjOSGn1GGSfQREoF9B5YtyVbdkgTv8oQefYLah7ocKmxLShhLZdI9h5NmUIQtDhEi2CB5NBNdMPnOmpmBRWhzsX6TGTKnjaDfQKThJxK1eODPb6lvw1ssiOxyt+1J3JL0nDgRbtKur4x7yeVLDUnN20OWz4+velvQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AIBNJgPM; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LiCkNx5y;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AIBNJgPM;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZX0gb3KdBz2yys
-	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Apr 2025 19:11:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZX44v738Vz305v
+	for <linux-erofs@lists.ozlabs.org>; Tue,  8 Apr 2025 21:45:02 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1744103477; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=luGcT9UL4O/HTTEZuavQB4JaVAyjvuyVqOeWlRcydM8=;
-	b=LiCkNx5ytv2eXJ1CMTbWuYAXJo3rMcZelmNWx/YQV4G5zRXcoZY6nK/Yd4kuixvdDykIVbiph3abywKnfIP28j6nNy8rHyu4CtvHjpmArTvM8hFS9I8MHxVN/D95hnvIpZpvU2xnpcQzt150QZAxVGFeFgkrzAvpA9K+HsLd9kY=
-Received: from 30.74.129.179(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWEd0mn_1744103474 cluster:ay36)
+	t=1744112698; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=2go647+k6sJue3+Dqabd8fg47Qz+7QMamqrKoll0NkY=;
+	b=AIBNJgPMaJRZ93itmRqBhd7ohVDpWKpRTKelP9OlftbBFY0Ge39SKlXSCw1nWr3yDmRUcwvWUwWPO9PZHBaTeFi/dRjxSl/VbKRC2cOpLQAddNIdtg9ydB9/KNvGxHcf+XDjwq55VlcqefdImPtLIpDT/Fq5eN6OD6Ve8fKvzeU=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWFISVn_1744112694 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 08 Apr 2025 17:11:15 +0800
-Message-ID: <98585dd8-d0b6-4000-b46d-a08c64eae44d@linux.alibaba.com>
-Date: Tue, 8 Apr 2025 17:11:14 +0800
+          Tue, 08 Apr 2025 19:44:56 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/2] erofs: fix encoded extents handling
+Date: Tue,  8 Apr 2025 19:44:48 +0800
+Message-ID: <20250408114448.4040220-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250408114448.4040220-1-hsiangkao@linux.alibaba.com>
+References: <20250408114448.4040220-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -49,46 +57,44 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] erofs: add 'offset' mount option for file-backed &
- bdev-based mounts
-To: Karel Zak <kzak@redhat.com>
-Cc: Sheng Yong <shengyong2021@gmail.com>, xiang@kernel.org, chao@kernel.org,
- zbestahu@gmail.com, jefflexu@linux.alibaba.com, dhavale@google.com,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- Sheng Yong <shengyong1@xiaomi.com>, Wang Shuai <wangshuai12@xiaomi.com>
-References: <20250407110551.1538457-1-shengyong1@xiaomi.com>
- <20250407110551.1538457-2-shengyong1@xiaomi.com>
- <7nupludayogog6jylmwnxwel4zlvfxeozzcg5qkf5g5a5fpt7g@3bgvpbqfuxxa>
- <d4eae031-8fbb-45e2-bdf4-f3a8a034b8ad@linux.alibaba.com>
- <gk7jzl7pktrdpznqp2hiuflx56xyttw4v4z3epia2ziw4oz547@cft7fyeoirfr>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <gk7jzl7pktrdpznqp2hiuflx56xyttw4v4z3epia2ziw4oz547@cft7fyeoirfr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+ - The MSB 32 bits of `z_fragmentoff` are available only in extent
+records of size >= 8B.
 
+ - Use round_down() to calculate `lstart` as well as increase `pos`
+   correspondingly for extent records of size == 8B.
 
-On 2025/4/8 16:46, Karel Zak wrote:
-> On Mon, Apr 07, 2025 at 11:49:31PM +0800, Gao Xiang wrote:
->> On 2025/4/7 19:40, Karel Zak wrote:
->>> We can improve it in libmount and add any if-erofs hack there, but my
->>> suggestion is to select a better name for the mount option. For
->>> example, erofsoff=, erostart=, fsoffset=, start=, or similar.
->>
->> Thanks for your suggestion!
->>
->> it's somewhat weird to use erofsprefix here, I think fsoffset
->> may be fine.
-> 
-> Yes, fsoffset sounds good. I anticipate more filesystems will support
-> file-backed mounts in the future, making this option reusable.
+Fixes: 1d191b4ca51d ("erofs: implement encoded extent metadata")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/zmap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
- From my own kernel perspective, it's not possible for the majority
-of read-write fses especially have nested transaction (like
-`current->journal_info`) in addition to many deadlock factors
-without extra workqueue contexts.  But for erofs it's safe.
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 8de50df05dfe..14ea47f954f5 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -559,7 +559,8 @@ static int z_erofs_map_blocks_ext(struct inode *inode,
+ 			pos += sizeof(__le64);
+ 			lstart = 0;
+ 		} else {
+-			lstart = map->m_la >> vi->z_lclusterbits;
++			lstart = round_down(map->m_la, 1 << vi->z_lclusterbits);
++			pos += (lstart >> vi->z_lclusterbits) * recsz;
+ 			pa = EROFS_NULL_ADDR;
+ 		}
+ 
+@@ -614,7 +615,7 @@ static int z_erofs_map_blocks_ext(struct inode *inode,
+ 		if (last && (vi->z_advise & Z_EROFS_ADVISE_FRAGMENT_PCLUSTER)) {
+ 			map->m_flags |= EROFS_MAP_MAPPED | EROFS_MAP_FRAGMENT;
+ 			vi->z_fragmentoff = map->m_plen;
+-			if (recsz >= offsetof(struct z_erofs_extent, pstart_lo))
++			if (recsz > offsetof(struct z_erofs_extent, pstart_lo))
+ 				vi->z_fragmentoff |= map->m_pa << 32;
+ 		} else if (map->m_plen) {
+ 			map->m_flags |= EROFS_MAP_MAPPED |
+-- 
+2.43.5
 
-Thanks,
-Gao Xiang
 
