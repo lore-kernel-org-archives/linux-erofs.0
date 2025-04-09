@@ -1,48 +1,48 @@
-Return-Path: <linux-erofs+bounces-173-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-174-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B236C369A6
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Apr 2025 16:33:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24C7BC36002
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Apr 2025 16:33:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZXpR24674z30Vr;
-	Thu, 10 Apr 2025 02:33:18 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744216398;
-	cv=none; b=KFF2eV5ig//SeU1zh1TIpZaOx+VbvWYHVBgEvkeX9Mlknm24325fxqfNUQL+ri/sI0R8xQ+TVRRmXMKPYJ5IW7bwiMHOUrQsoclGFE+zsNggwx15sD6Fr7kTM8en490FthYdebhgjSuzxpatrKlNkr5m3mxop5MpjegiccH5rpibrryHuzj/rfVuZUL2TAwDqAjit0+oOAWI936K0pfWTAUJdr7hJe787ukF7egs6jUD4TxOAwSpQdYR2pvEZ04EGqcQ01QEf6IRL239QNwWH7QPCB1ctYVkmKDvHKV7bUf+Mvwx3Zu7k6JaiCvZYeo1wQT2vUt/eOj1k3UgFTlYMA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZXpR33zgDz30Vm;
+	Thu, 10 Apr 2025 02:33:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744216399;
+	cv=none; b=UCxOlgkUI+awi6JmH6lsD3TSL+XFN8ff5PUZZiB+oeBF5Hi8P5tWDVNHq12cyKQStS0Z6uDzDFmxRHA0jGabX1lLLcWGh/VNkfGum3xhbN8ejq+U6vCFeASI0+LidCTFsoFlwYnsMJOkCYf/Mf3RKcMHBylRNBqHYCJLwkN1BkYkHnv43mx5+6wEM/qjZD7JiWFD1+vutImJVUod+EOeWWOQiQLC2wVlBSbGP6F3QvRx/IwiBIch7FSpUhVlcSAvNjFG44YxF7i0kBtNh1rbPQrr9G/8CDH5CGwGoPS1S4/SM/XZd4N6wu4A4hX3hGTkgFPoe4PRtx/X2kE5sWpL+A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1744216398; c=relaxed/relaxed;
-	bh=xYm5ZZU/Q8a2mBL/bFfUOZbUeIES0lpV2nwEmCpyHGQ=;
+	t=1744216399; c=relaxed/relaxed;
+	bh=1Cf1x5eMxeSDPtwjpTvkvCawXMNjvIPE/IPhOKCzN8M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oz+UevUTlyIrEZA4V26diaKAr90UvfN3gWucFq5WPvX+CjWrILgxoV+zoJoiYv6fzXXiIopDDy6zjIWSW+ROMYR1U60nNrTKuXaNg/Dr+QWnvWHLLsoScJdYrEtIVjN5VixUmQLHpla2XC1kRKxOh5NVlzzFk9phfIEgE2l1SFSL0OY4sZAaCb+oL1/CQlFohJp+FlTSseUwfqVLgUjCgSLcTEWyKggmaRAJAH9HiD4hn4zDEbLcbbjyjAERcXwMfU5bmM7EE4HHcpfFPiAJn+EoGwYnrc0ZdhWN5OywgKu+KTmhWCiAzbajAYd6DJLJd+8uH9vroFBL0Cl5Iun2Hg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ldBdH728; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=ikLJU9Vad69r5qmtU5gtTAPjDBCm5rtV/i99judtBiOz5lzoXOX0nH61iYnqp+M8Qdv6TinTU6BYFop0sLQ2nTqLez5onDs5X8HFteZXls6ns+NWwoHFwNXp7jUp5OHYwum5ab4HOJKTppoObjRV8lF2MQQxUwJ3uVPfxQO2gNfF4/zLu37S3yYpi5lXPJc0R1SXtacTXhyHWH5CHYZPkVeIho9sicF0Zmn04PYddr4OH8w4UQU3sTv51/OK0oymN1nnQGLTWw+w2Rrddly723higiiY71WltSXUHJ+eoHRhzRdrzJSx3EqKOH+5N9IVvDBW1Y3sZ0qpnNREcbJatw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=gPRlFcor; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ldBdH728;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=gPRlFcor;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZXpR04rJKz30Vm
-	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Apr 2025 02:33:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZXpQz5qnrz30VV
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Apr 2025 02:33:15 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1744216392; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=xYm5ZZU/Q8a2mBL/bFfUOZbUeIES0lpV2nwEmCpyHGQ=;
-	b=ldBdH728GhVBqxc0apUOUONHwoZ/8BXLjrV5NELbi+7KtKHIzCuBSuiyiSIjDfZ5jrb7mF9SmJe1XPYHxjn9i6bB1368t4nyUF8/+dzdJIYgaqy7aGlWAn9woOsYtZFbInjV2E9VyHALXvNW+JY3yBTkUbPESLHQh4yf7GFNgxw=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWKsZVh_1744216391 cluster:ay36)
+	t=1744216391; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=1Cf1x5eMxeSDPtwjpTvkvCawXMNjvIPE/IPhOKCzN8M=;
+	b=gPRlFcorlrp8z8LmTx50q120OwCugKcpVr/erhYRx2ZiDU7Q9/sTT6FBHYqZhijzEcCwEIgEbZwI73dX7T8D+D5yPPnrJryN1X6GdLvjHu1zx+bbrRk3mO3lumfbt4RyZzuObylELIdJUe+HKMvS4lNQURK8SGXOAX57zzbFkY8=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWKsZUe_1744216389 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 10 Apr 2025 00:33:11 +0800
+          Thu, 10 Apr 2025 00:33:10 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v2 08/10] erofs-utils: support dot-omitted directories
-Date: Thu, 10 Apr 2025 00:32:57 +0800
-Message-ID: <20250409163259.2077865-8-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 06/10] erofs-utils: implement 48-bit block addressing for unencoded inodes
+Date: Thu, 10 Apr 2025 00:32:55 +0800
+Message-ID: <20250409163259.2077865-6-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250409163259.2077865-1-hsiangkao@linux.alibaba.com>
 References: <20250409163259.2077865-1-hsiangkao@linux.alibaba.com>
@@ -58,193 +58,505 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Omit the `dot` dirent by default if 48bit layout is set.
+.. Also port the same kernel logic to erofsfuse and dump.erofs.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/config.h   |  1 +
- include/erofs/internal.h |  1 +
- lib/dir.c                |  2 ++
- lib/inode.c              | 35 +++++++++++++++++++++++++----------
- lib/namei.c              |  3 ++-
- mkfs/main.c              | 14 ++++++++++++++
- 6 files changed, 45 insertions(+), 11 deletions(-)
+ dump/main.c              |   1 +
+ include/erofs/internal.h |  21 +++---
+ include/erofs_fs.h       |   2 +-
+ lib/blobchunk.c          |   2 +-
+ lib/block_list.c         |   8 +--
+ lib/data.c               | 143 +++++++++++++++------------------------
+ lib/inode.c              |   6 +-
+ lib/namei.c              |  35 +++++++---
+ lib/super.c              |  14 +++-
+ mkfs/main.c              |  12 ++--
+ 10 files changed, 117 insertions(+), 127 deletions(-)
 
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 92c1467..eb5cad8 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -66,6 +66,7 @@ struct erofs_configure {
- 	bool c_xattr_name_filter;
- 	bool c_ovlfs_strip;
- 	bool c_hard_dereference;
-+	bool c_dot_omitted;
- 
- #ifdef HAVE_LIBSELINUX
- 	struct selabel_handle *sehnd;
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 83fd86c..94bca2d 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -239,6 +239,7 @@ struct erofs_inode {
- 	bool opaque;
- 	/* OVL: non-merge dir that may contain whiteout entries */
- 	bool whiteouts;
-+	bool dot_omitted;
- 
- 	unsigned int xattr_isize;
- 	unsigned int extent_isize;
-diff --git a/lib/dir.c b/lib/dir.c
-index d786a5b..3405844 100644
---- a/lib/dir.c
-+++ b/lib/dir.c
-@@ -150,6 +150,8 @@ int erofs_iterate_dir(struct erofs_dir_context *ctx, bool fsck)
- 		return -ENOTDIR;
- 
- 	ctx->flags &= ~EROFS_READDIR_ALL_SPECIAL_FOUND;
-+	if (dir->dot_omitted)
-+		ctx->flags |= EROFS_READDIR_DOT_FOUND;
- 	pos = 0;
- 	while (pos < dir->i_size) {
- 		erofs_blk_t lblk = erofs_blknr(sbi, pos);
-diff --git a/lib/inode.c b/lib/inode.c
-index 23a4fc1..7f589e7 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -253,21 +253,29 @@ static int erofs_prepare_dir_file(struct erofs_inode *dir,
- {
- 	struct erofs_sb_info *sbi = dir->sbi;
- 	struct erofs_dentry *d, *n, **sorted_d;
-+	bool dot_omitted = cfg.c_dot_omitted;
- 	unsigned int i;
- 	unsigned int d_size = 0;
- 
- 	sorted_d = malloc(nr_subdirs * sizeof(d));
- 	if (!sorted_d)
- 		return -ENOMEM;
-+
-+	dir->dot_omitted = dot_omitted;
- 	i = 0;
- 	list_for_each_entry_safe(d, n, &dir->i_subdirs, d_child) {
- 		list_del(&d->d_child);
-+		if (dot_omitted && !strcmp(d->name, ".")) {
-+			erofs_iput(d->inode);
-+			free(d);
-+			continue;
-+		}
- 		sorted_d[i++] = d;
- 	}
--	DBG_BUGON(i != nr_subdirs);
--	qsort(sorted_d, nr_subdirs, sizeof(d), comp_subdir);
--	for (i = 0; i < nr_subdirs; i++)
--		list_add_tail(&sorted_d[i]->d_child, &dir->i_subdirs);
-+	DBG_BUGON(i + dot_omitted != nr_subdirs);
-+	qsort(sorted_d, i, sizeof(d), comp_subdir);
-+	while (i)
-+		list_add(&sorted_d[--i]->d_child, &dir->i_subdirs);
- 	free(sorted_d);
- 
- 	/* let's calculate dir size */
-@@ -640,10 +648,12 @@ int erofs_iflush(struct erofs_inode *inode)
- 		nlink_1 = false;
- 		nb = (union erofs_inode_i_nb){};
- 	}
-+	fmt = S_ISDIR(inode->i_mode) && inode->dot_omitted ?
-+		1 << EROFS_I_DOT_OMITTED_BIT : 0;
- 
- 	switch (inode->inode_isize) {
- 	case sizeof(struct erofs_inode_compact):
--		fmt = 0 | (inode->datalayout << 1);
-+		fmt |= 0 | (inode->datalayout << 1);
- 		u.dic.i_xattr_icount = cpu_to_le16(icount);
- 		u.dic.i_mode = cpu_to_le16(inode->i_mode);
- 		u.dic.i_nb.nlink = cpu_to_le16(inode->i_nlink);
-@@ -668,7 +678,8 @@ int erofs_iflush(struct erofs_inode *inode)
- 		u.dic.i_format = cpu_to_le16(fmt);
- 		break;
- 	case sizeof(struct erofs_inode_extended):
--		u.die.i_format = cpu_to_le16(1 | (inode->datalayout << 1));
-+		fmt |= 1 | (inode->datalayout << 1);
-+		u.die.i_format = cpu_to_le16(fmt);
- 		u.die.i_xattr_icount = cpu_to_le16(icount);
- 		u.die.i_mode = cpu_to_le16(inode->i_mode);
- 		u.die.i_nlink = cpu_to_le32(inode->i_nlink);
-@@ -1538,13 +1549,17 @@ static int erofs_mkfs_handle_directory(struct erofs_inode *dir)
- 
- 	/*
- 	 * if there're too many subdirs as compact form, set nlink=1
--	 * rather than upgrade to use extented form instead.
-+	 * rather than upgrade to use extented form instead if possible.
- 	 */
- 	if (i_nlink > USHRT_MAX &&
--	    dir->inode_isize == sizeof(struct erofs_inode_compact))
--		dir->i_nlink = 1;
--	else
-+	    dir->inode_isize == sizeof(struct erofs_inode_compact)) {
-+		if (dir->dot_omitted)
-+			dir->inode_isize = sizeof(struct erofs_inode_extended);
-+		else
-+			dir->i_nlink = 1;
-+	} else {
- 		dir->i_nlink = i_nlink;
-+	}
- 
- 	return erofs_mkfs_go(sbi, EROFS_MKFS_JOB_DIR, &dir, sizeof(dir));
- 
-diff --git a/lib/namei.c b/lib/namei.c
-index dec544c..5da8ed9 100644
---- a/lib/namei.c
-+++ b/lib/namei.c
-@@ -100,8 +100,9 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
- 	}
- 
- 	switch (vi->i_mode & S_IFMT) {
--	case S_IFREG:
- 	case S_IFDIR:
-+		vi->dot_omitted = (ifmt >> EROFS_I_DOT_OMITTED_BIT) & 1;
-+	case S_IFREG:
- 	case S_IFLNK:
- 		vi->u.i_blkaddr = le32_to_cpu(copied.i_u.startblk_lo) |
- 			((u64)le16_to_cpu(copied.i_nb.startblk_hi) << 32);
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 336c351..80e31c4 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -332,6 +332,16 @@ static int erofs_mkfs_feat_set_48bit(bool en, const char *val,
- 	return 0;
- }
- 
-+static int erofs_mkfs_feat_set_dot_omitted(bool en, const char *val,
-+					   unsigned int vallen)
-+{
-+	if (vallen)
-+		return -EINVAL;
-+
-+	cfg.c_dot_omitted = en;
-+	return 0;
-+}
-+
- static struct {
- 	char *feat;
- 	int (*set)(bool en, const char *val, unsigned int len);
-@@ -343,6 +353,7 @@ static struct {
- 	{"dedupe", erofs_mkfs_feat_set_dedupe},
- 	{"fragdedupe", erofs_mkfs_feat_set_fragdedupe},
- 	{"48bit", erofs_mkfs_feat_set_48bit},
-+	{"dot-omitted", erofs_mkfs_feat_set_dot_omitted},
- 	{NULL, NULL},
+diff --git a/dump/main.c b/dump/main.c
+index 44f65da..f7d7ed2 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -104,6 +104,7 @@ static struct erofsdump_feature feature_lists[] = {
+ 	{ false, EROFS_FEATURE_INCOMPAT_FRAGMENTS, "fragments" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_DEDUPE, "dedupe" },
+ 	{ false, EROFS_FEATURE_INCOMPAT_XATTR_PREFIXES, "xattr_prefixes" },
++	{ false, EROFS_FEATURE_INCOMPAT_48BIT, "48bit" },
  };
  
-@@ -1242,6 +1253,9 @@ int main(int argc, char **argv)
- 		g_sbi.epoch = mkfs_time;
+ static int erofsdump_readdir(struct erofs_dir_context *ctx);
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 8c6de13..83fd86c 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -41,15 +41,14 @@ typedef unsigned short umode_t;
+ 
+ typedef u64 erofs_off_t;
+ typedef u64 erofs_nid_t;
+-/* data type for filesystem-wide blocks number */
+-typedef u32 erofs_blk_t;
++typedef u64 erofs_blk_t;
+ 
+ /* global sbi */
+ extern struct erofs_sb_info g_sbi;
+ 
+ #define erofs_blksiz(sbi)	(1u << (sbi)->blkszbits)
+-#define erofs_blknr(sbi, addr)  ((addr) >> (sbi)->blkszbits)
+-#define erofs_blkoff(sbi, addr) ((addr) & (erofs_blksiz(sbi) - 1))
++#define erofs_blknr(sbi, pos)	((pos) >> (sbi)->blkszbits)
++#define erofs_blkoff(sbi, pos)	((pos) & (erofs_blksiz(sbi) - 1))
+ #define erofs_pos(sbi, nr)      ((erofs_off_t)(nr) << (sbi)->blkszbits)
+ #define BLK_ROUND_UP(sbi, addr)	\
+ 	(roundup(addr, erofs_blksiz(sbi)) >> (sbi)->blkszbits)
+@@ -88,8 +87,8 @@ struct erofs_sb_info {
+ 	u64 total_blocks;
+ 	u64 primarydevice_blocks;
+ 
+-	erofs_blk_t meta_blkaddr;
+-	erofs_blk_t xattr_blkaddr;
++	u32 meta_blkaddr;
++	u32 xattr_blkaddr;
+ 
+ 	u32 feature_compat;
+ 	u32 feature_incompat;
+@@ -98,8 +97,9 @@ struct erofs_sb_info {
+ 	unsigned char blkszbits;
+ 
+ 	u32 sb_size;			/* total superblock size */
+-	u32 build_time_nsec;
+-	u64 build_time;
++	u32 build_time;
++	u32 fixed_nsec;
++	u64 epoch;
+ 
+ 	/* what we really care is nid, rather than ino.. */
+ 	erofs_nid_t root_nid;
+@@ -170,6 +170,7 @@ EROFS_FEATURE_FUNCS(ztailpacking, incompat, INCOMPAT_ZTAILPACKING)
+ EROFS_FEATURE_FUNCS(fragments, incompat, INCOMPAT_FRAGMENTS)
+ EROFS_FEATURE_FUNCS(dedupe, incompat, INCOMPAT_DEDUPE)
+ EROFS_FEATURE_FUNCS(xattr_prefixes, incompat, INCOMPAT_XATTR_PREFIXES)
++EROFS_FEATURE_FUNCS(48bit, incompat, INCOMPAT_48BIT)
+ EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
+ EROFS_FEATURE_FUNCS(xattr_filter, compat, COMPAT_XATTR_FILTER)
+ 
+@@ -214,8 +215,8 @@ struct erofs_inode {
+ 	u32 i_nlink;
+ 
+ 	union {
+-		u32 i_blkaddr;
+-		u32 i_blocks;
++		erofs_blk_t i_blkaddr;
++		erofs_blk_t i_blocks;
+ 		u32 i_rdev;
+ 		struct {
+ 			unsigned short	chunkformat;
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index ce319d7..41a398c 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -256,7 +256,7 @@ static inline unsigned int erofs_xattr_entry_size(struct erofs_xattr_entry *e)
+ }
+ 
+ /* represent a zeroed chunk (hole) */
+-#define EROFS_NULL_ADDR			-1
++#define EROFS_NULL_ADDR			-1ULL
+ 
+ /* 4-byte block address array */
+ #define EROFS_BLOCK_MAP_ENTRY_SIZE	sizeof(__le32)
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 0b7d8a9..42db034 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -159,7 +159,7 @@ int erofs_blob_write_chunk_indexes(struct erofs_inode *inode,
+ 		chunk = *(void **)(inode->chunkindexes + src);
+ 
+ 		if (chunk->blkaddr == EROFS_NULL_ADDR) {
+-			idx.startblk_lo = EROFS_NULL_ADDR;
++			idx.startblk_lo = (u32)EROFS_NULL_ADDR;
+ 		} else if (chunk->device_id) {
+ 			DBG_BUGON(!(inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES));
+ 			idx.startblk_lo = chunk->blkaddr;
+diff --git a/lib/block_list.c b/lib/block_list.c
+index 4a6466d..f8dc913 100644
+--- a/lib/block_list.c
++++ b/lib/block_list.c
+@@ -38,9 +38,9 @@ void tarerofs_blocklist_write(erofs_blk_t blkaddr, erofs_blk_t nblocks,
+ 		return;
+ 
+ 	if (zeroedlen)
+-		fprintf(block_list_fp, "%08x %8x %08" PRIx64 " %08u\n",
+-			blkaddr, nblocks, srcoff, zeroedlen);
++		fprintf(block_list_fp, "%08llx %8llx %08" PRIx64 " %08u\n",
++			blkaddr | 0ULL, nblocks | 0ULL, srcoff, zeroedlen);
+ 	else
+-		fprintf(block_list_fp, "%08x %8x %08" PRIx64 "\n",
+-			blkaddr, nblocks, srcoff);
++		fprintf(block_list_fp, "%08llx %8llx %08" PRIx64 "\n",
++			blkaddr | 0ULL, nblocks | 0ULL, srcoff);
+ }
+diff --git a/lib/data.c b/lib/data.c
+index 6f6db6d..dd33d9e 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -10,81 +10,46 @@
+ #include "erofs/decompress.h"
+ #include "erofs/fragments.h"
+ 
+-static int erofs_map_blocks_flatmode(struct erofs_inode *inode,
+-				     struct erofs_map_blocks *map,
+-				     int flags)
+-{
+-	int err = 0;
+-	erofs_blk_t nblocks, lastblk;
+-	u64 offset = map->m_la;
+-	struct erofs_inode *vi = inode;
+-	struct erofs_sb_info *sbi = inode->sbi;
+-	bool tailendpacking = (vi->datalayout == EROFS_INODE_FLAT_INLINE);
+-
+-	trace_erofs_map_blocks_flatmode_enter(inode, map, flags);
+-
+-	nblocks = BLK_ROUND_UP(sbi, inode->i_size);
+-	lastblk = nblocks - tailendpacking;
+-
+-	/* there is no hole in flatmode */
+-	map->m_flags = EROFS_MAP_MAPPED;
+-
+-	if (offset < erofs_pos(sbi, lastblk)) {
+-		map->m_pa = erofs_pos(sbi, vi->u.i_blkaddr) + map->m_la;
+-		map->m_plen = erofs_pos(sbi, lastblk) - offset;
+-	} else if (tailendpacking) {
+-		/* 2 - inode inline B: inode, [xattrs], inline last blk... */
+-		map->m_pa = erofs_iloc(vi) + vi->inode_isize +
+-			vi->xattr_isize + erofs_blkoff(sbi, map->m_la);
+-		map->m_plen = inode->i_size - offset;
+-
+-		/* inline data should be located in the same meta block */
+-		if (erofs_blkoff(sbi, map->m_pa) + map->m_plen >
+-							erofs_blksiz(sbi)) {
+-			erofs_err("inline data cross block boundary @ nid %" PRIu64,
+-				  vi->nid);
+-			DBG_BUGON(1);
+-			err = -EFSCORRUPTED;
+-			goto err_out;
+-		}
+-
+-		map->m_flags |= EROFS_MAP_META;
+-	} else {
+-		erofs_err("internal error @ nid: %" PRIu64 " (size %llu), m_la 0x%" PRIx64,
+-			  vi->nid, (unsigned long long)inode->i_size, map->m_la);
+-		DBG_BUGON(1);
+-		err = -EIO;
+-		goto err_out;
+-	}
+-
+-	map->m_llen = map->m_plen;
+-err_out:
+-	trace_erofs_map_blocks_flatmode_exit(inode, map, flags, 0);
+-	return err;
+-}
+-
+ int __erofs_map_blocks(struct erofs_inode *inode,
+ 		       struct erofs_map_blocks *map, int flags)
+ {
+ 	struct erofs_inode *vi = inode;
+ 	struct erofs_sb_info *sbi = inode->sbi;
++	unsigned int unit, blksz = 1 << sbi->blkszbits;
+ 	struct erofs_inode_chunk_index *idx;
+ 	u8 buf[EROFS_MAX_BLOCK_SIZE];
+-	u64 chunknr;
+-	unsigned int unit;
++	erofs_blk_t startblk, addrmask, nblocks;
++	bool tailpacking;
+ 	erofs_off_t pos;
++	u64 chunknr;
+ 	int err = 0;
+ 
+ 	map->m_deviceid = 0;
+-	if (map->m_la >= inode->i_size) {
+-		/* leave out-of-bound access unmapped */
+-		map->m_flags = 0;
+-		map->m_plen = 0;
++	map->m_flags = 0;
++	if (map->m_la >= inode->i_size)
+ 		goto out;
+-	}
+ 
+-	if (vi->datalayout != EROFS_INODE_CHUNK_BASED)
+-		return erofs_map_blocks_flatmode(inode, map, flags);
++	if (vi->datalayout != EROFS_INODE_CHUNK_BASED) {
++		tailpacking = (vi->datalayout == EROFS_INODE_FLAT_INLINE);
++		if (!tailpacking && vi->u.i_blkaddr == EROFS_NULL_ADDR) {
++			map->m_llen = inode->i_size - map->m_la;
++			goto out;
++		}
++		nblocks = BLK_ROUND_UP(sbi, inode->i_size);
++		pos = erofs_pos(sbi, nblocks - tailpacking);
++
++		map->m_flags = EROFS_MAP_MAPPED;
++		if (map->m_la < pos) {
++			map->m_pa = erofs_pos(sbi, vi->u.i_blkaddr) + map->m_la;
++			map->m_llen = pos - map->m_la;
++		} else {
++			map->m_pa = erofs_iloc(inode) + vi->inode_isize +
++				vi->xattr_isize + erofs_blkoff(sbi, map->m_la);
++			map->m_llen = inode->i_size - map->m_la;
++			map->m_flags |= EROFS_MAP_META;
++		}
++		goto out;
++	}
+ 
+ 	if (vi->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+ 		unit = sizeof(*idx);			/* chunk index */
+@@ -99,37 +64,39 @@ int __erofs_map_blocks(struct erofs_inode *inode,
+ 	if (err < 0)
+ 		return -EIO;
+ 
++	idx = (void *)buf + erofs_blkoff(sbi, pos);
+ 	map->m_la = chunknr << vi->u.chunkbits;
+-	map->m_plen = min_t(erofs_off_t, 1UL << vi->u.chunkbits,
+-			roundup(inode->i_size - map->m_la, erofs_blksiz(sbi)));
+-
+-	/* handle block map */
+-	if (!(vi->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)) {
+-		__le32 *blkaddr = (void *)buf + erofs_blkoff(sbi, pos);
+-
+-		if (le32_to_cpu(*blkaddr) == EROFS_NULL_ADDR) {
+-			map->m_flags = 0;
+-		} else {
+-			map->m_pa = erofs_pos(sbi, le32_to_cpu(*blkaddr));
++	map->m_llen = min_t(erofs_off_t, 1UL << vi->u.chunkbits,
++			    round_up(inode->i_size - map->m_la, blksz));
++	if (vi->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES) {
++		addrmask = (vi->u.chunkformat & EROFS_CHUNK_FORMAT_48BIT) ?
++			BIT_ULL(48) - 1 : BIT_ULL(32) - 1;
++		startblk = (((u64)le16_to_cpu(idx->startblk_hi) << 32) |
++			le32_to_cpu(idx->startblk_lo)) & addrmask;
++		if ((startblk ^ EROFS_NULL_ADDR) & addrmask) {
++			map->m_deviceid = le16_to_cpu(idx->device_id) &
++				sbi->device_id_mask;
++			map->m_pa = erofs_pos(sbi, startblk);
++			map->m_flags = EROFS_MAP_MAPPED;
++		}
++	} else {
++		startblk = le32_to_cpu(*(__le32 *)idx);
++		if (startblk != EROFS_NULL_ADDR) {
++			map->m_pa = erofs_pos(sbi, startblk);
+ 			map->m_flags = EROFS_MAP_MAPPED;
+ 		}
+-		goto out;
+-	}
+-	/* parse chunk indexes */
+-	idx = (void *)buf + erofs_blkoff(sbi, pos);
+-	switch (le32_to_cpu(idx->startblk_lo)) {
+-	case EROFS_NULL_ADDR:
+-		map->m_flags = 0;
+-		break;
+-	default:
+-		map->m_deviceid = le16_to_cpu(idx->device_id) &
+-			sbi->device_id_mask;
+-		map->m_pa = erofs_pos(sbi, le32_to_cpu(idx->startblk_lo));
+-		map->m_flags = EROFS_MAP_MAPPED;
+-		break;
+ 	}
+ out:
+-	map->m_llen = map->m_plen;
++	if (!err) {
++		map->m_plen = map->m_llen;
++		/* inline data should be located in the same meta block */
++		if ((map->m_flags & EROFS_MAP_META) &&
++		    erofs_blkoff(sbi, map->m_pa) + map->m_plen > blksz) {
++			erofs_err("inline data across blocks @ nid %llu", vi->nid);
++			DBG_BUGON(1);
++			return -EFSCORRUPTED;
++		}
++	}
+ 	return err;
+ }
+ 
+diff --git a/lib/inode.c b/lib/inode.c
+index 15391ec..7bd71e6 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -925,7 +925,7 @@ static bool erofs_should_use_inode_extended(struct erofs_inode *inode)
+ 	if (inode->i_nlink > USHRT_MAX)
+ 		return true;
+ 	if ((inode->i_mtime != inode->sbi->build_time ||
+-	     inode->i_mtime_nsec != inode->sbi->build_time_nsec) &&
++	     inode->i_mtime_nsec != inode->sbi->fixed_nsec) &&
+ 	    !cfg.c_ignore_mtime)
+ 		return true;
+ 	return false;
+@@ -1025,7 +1025,7 @@ int __erofs_fill_inode(struct erofs_inode *inode, struct stat *st,
+ 			break;
+ 	case TIMESTAMP_FIXED:
+ 		inode->i_mtime = sbi->build_time;
+-		inode->i_mtime_nsec = sbi->build_time_nsec;
++		inode->i_mtime_nsec = sbi->fixed_nsec;
+ 	default:
+ 		break;
+ 	}
+@@ -1993,7 +1993,7 @@ struct erofs_inode *erofs_rebuild_make_root(struct erofs_sb_info *sbi)
+ 	root->i_mode = S_IFDIR | 0777;
+ 	root->i_parent = root;
+ 	root->i_mtime = root->sbi->build_time;
+-	root->i_mtime_nsec = root->sbi->build_time_nsec;
++	root->i_mtime_nsec = root->sbi->fixed_nsec;
+ 	erofs_init_empty_dir(root);
+ 	return root;
+ }
+diff --git a/lib/namei.c b/lib/namei.c
+index 66b8eef..dec544c 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -28,9 +28,9 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 	char buf[sizeof(struct erofs_inode_extended)];
+ 	erofs_off_t inode_loc = erofs_iloc(vi);
+ 	struct erofs_sb_info *sbi = vi->sbi;
++	erofs_blk_t addrmask = BIT_ULL(48) - 1;
++	struct erofs_inode_extended *die, copied;
+ 	struct erofs_inode_compact *dic;
+-	struct erofs_inode_extended *die;
+-	union erofs_inode_i_u iu;
+ 
+ 	DBG_BUGON(!sbi);
+ 	ret = erofs_dev_read(sbi, 0, buf, inode_loc, sizeof(*dic));
+@@ -60,7 +60,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(die->i_mode);
+ 		vi->i_ino[0] = le32_to_cpu(die->i_ino);
+-		iu = die->i_u;
++		copied.i_u = die->i_u;
++		copied.i_nb = die->i_nb;
+ 		vi->i_uid = le32_to_cpu(die->i_uid);
+ 		vi->i_gid = le32_to_cpu(die->i_gid);
+ 		vi->i_nlink = le32_to_cpu(die->i_nlink);
+@@ -74,13 +75,21 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(dic->i_mode);
+ 		vi->i_ino[0] = le32_to_cpu(dic->i_ino);
+-		iu = dic->i_u;
++		copied.i_u = dic->i_u;
++		copied.i_nb = dic->i_nb;
+ 		vi->i_uid = le16_to_cpu(dic->i_uid);
+ 		vi->i_gid = le16_to_cpu(dic->i_gid);
+-		vi->i_nlink = le16_to_cpu(dic->i_nb.nlink);
+-
+-		vi->i_mtime = sbi->build_time;
+-		vi->i_mtime_nsec = sbi->build_time_nsec;
++		if (!S_ISDIR(vi->i_mode) &&
++		    ((ifmt >> EROFS_I_NLINK_1_BIT) & 1)) {
++			vi->i_nlink = 1;
++			copied.i_nb = dic->i_nb;
++		} else {
++			vi->i_nlink = le16_to_cpu(dic->i_nb.nlink);
++			copied.i_nb.startblk_hi = 0;
++			addrmask = BIT_ULL(32) - 1;
++		}
++		vi->i_mtime = sbi->epoch + le32_to_cpu(dic->i_mtime);
++		vi->i_mtime_nsec = sbi->fixed_nsec;
+ 
+ 		vi->i_size = le32_to_cpu(dic->i_size);
+ 		break;
+@@ -94,11 +103,15 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 	case S_IFREG:
+ 	case S_IFDIR:
+ 	case S_IFLNK:
+-		vi->u.i_blkaddr = le32_to_cpu(iu.startblk_lo);
++		vi->u.i_blkaddr = le32_to_cpu(copied.i_u.startblk_lo) |
++			((u64)le16_to_cpu(copied.i_nb.startblk_hi) << 32);
++		if (vi->datalayout == EROFS_INODE_FLAT_PLAIN &&
++		    !((vi->u.i_blkaddr ^ EROFS_NULL_ADDR) & addrmask))
++			vi->u.i_blkaddr = EROFS_NULL_ADDR;
+ 		break;
+ 	case S_IFCHR:
+ 	case S_IFBLK:
+-		vi->u.i_rdev = erofs_new_decode_dev(le32_to_cpu(iu.rdev));
++		vi->u.i_rdev = erofs_new_decode_dev(le32_to_cpu(copied.i_u.rdev));
+ 		break;
+ 	case S_IFIFO:
+ 	case S_IFSOCK:
+@@ -113,7 +126,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 	vi->flags = 0;
+ 	if (vi->datalayout == EROFS_INODE_CHUNK_BASED) {
+ 		/* fill chunked inode summary info */
+-		vi->u.chunkformat = le16_to_cpu(iu.c.format);
++		vi->u.chunkformat = le16_to_cpu(copied.i_u.c.format);
+ 		if (vi->u.chunkformat & ~EROFS_CHUNK_FORMAT_ALL) {
+ 			erofs_err("unsupported chunk format %x of nid %llu",
+ 				  vi->u.chunkformat, vi->nid | 0ULL);
+diff --git a/lib/super.c b/lib/super.c
+index 00a1683..e44f918 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -116,13 +116,20 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
+ 	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
+ 	sbi->islotbits = EROFS_ISLOTBITS;
+-	sbi->root_nid = le16_to_cpu(dsb->rb.rootnid_2b);
++	if (erofs_sb_has_48bit(sbi) && dsb->rootnid_8b) {
++		sbi->root_nid = le64_to_cpu(dsb->rootnid_8b);
++		sbi->primarydevice_blocks = (sbi->primarydevice_blocks << 32) |
++				le16_to_cpu(dsb->rb.blocks_hi);
++	} else {
++		sbi->root_nid = le16_to_cpu(dsb->rb.rootnid_2b);
++	}
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
+ 	sbi->inos = le64_to_cpu(dsb->inos);
+ 	sbi->checksum = le32_to_cpu(dsb->checksum);
+ 
++	sbi->epoch = (s64)le64_to_cpu(dsb->epoch);
++	sbi->fixed_nsec = le32_to_cpu(dsb->fixed_nsec);
+ 	sbi->build_time = le64_to_cpu(dsb->build_time);
+-	sbi->build_time_nsec = le32_to_cpu(dsb->fixed_nsec);
+ 
+ 	memcpy(&sbi->uuid, dsb->uuid, sizeof(dsb->uuid));
+ 
+@@ -163,8 +170,9 @@ int erofs_writesb(struct erofs_sb_info *sbi, struct erofs_buffer_head *sb_bh,
+ 		.blkszbits = sbi->blkszbits,
+ 		.rb.rootnid_2b  = cpu_to_le16(sbi->root_nid),
+ 		.inos      = cpu_to_le64(sbi->inos),
++		.epoch     = cpu_to_le64(sbi->epoch),
+ 		.build_time = cpu_to_le64(sbi->build_time),
+-		.fixed_nsec = cpu_to_le32(sbi->build_time_nsec),
++		.fixed_nsec = cpu_to_le32(sbi->fixed_nsec),
+ 		.meta_blkaddr  = cpu_to_le32(sbi->meta_blkaddr),
+ 		.xattr_blkaddr = cpu_to_le32(sbi->xattr_blkaddr),
+ 		.xattr_prefix_count = sbi->xattr_prefix_count,
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 2907789..219fc35 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1179,12 +1179,12 @@ static void erofs_mkfs_showsummaries(erofs_blk_t nblocks)
+ 	erofs_uuid_unparse_lower(g_sbi.uuid, uuid_str);
+ 
+ 	fprintf(stdout, "------\nFilesystem UUID: %s\n"
+-		"Filesystem total blocks: %u (of %u-byte blocks)\n"
++		"Filesystem total blocks: %llu (of %u-byte blocks)\n"
+ 		"Filesystem total inodes: %llu\n"
+-		"Filesystem %s metadata blocks: %u\n"
++		"Filesystem %s metadata blocks: %llu\n"
+ 		"Filesystem %s deduplicated bytes (of source files): %llu\n",
+-		uuid_str, nblocks, 1U << g_sbi.blkszbits, g_sbi.inos | 0ULL,
+-		incr, erofs_total_metablocks(g_sbi.bmgr),
++		uuid_str, nblocks | 0ULL, 1U << g_sbi.blkszbits, g_sbi.inos | 0ULL,
++		incr, erofs_total_metablocks(g_sbi.bmgr) | 0ULL,
+ 		incr, g_sbi.saved_by_deduplication | 0ULL);
+ }
+ 
+@@ -1217,10 +1217,10 @@ int main(int argc, char **argv)
+ 
+ 	if (cfg.c_unix_timestamp != -1) {
+ 		g_sbi.build_time      = cfg.c_unix_timestamp;
+-		g_sbi.build_time_nsec = 0;
++		g_sbi.fixed_nsec      = 0;
+ 	} else if (!gettimeofday(&t, NULL)) {
+ 		g_sbi.build_time      = t.tv_sec;
+-		g_sbi.build_time_nsec = t.tv_usec;
++		g_sbi.fixed_nsec      = t.tv_usec;
  	}
  
-+	if (cfg.c_dot_omitted)
-+		erofs_sb_set_48bit(&g_sbi);
-+
  	err = erofs_dev_open(&g_sbi, cfg.c_img_path, O_RDWR |
- 				(incremental_mode ? 0 : O_TRUNC));
- 	if (err) {
 -- 
 2.43.5
 
