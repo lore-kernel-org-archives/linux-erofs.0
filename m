@@ -1,51 +1,88 @@
-Return-Path: <linux-erofs+bounces-177-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-178-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1D74C369A6
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Apr 2025 16:33:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0413C36002
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Apr 2025 17:01:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZXpR5326wz30VZ;
-	Thu, 10 Apr 2025 02:33:21 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744216401;
-	cv=none; b=Fi5apPp6rigsxgLoX9uOksBk8BiXaihaml8erBJ89Pxnwqh51abWlDhHyP6cyydVUzccpdFozTo5RxQgorBNULUnYizM8w3Gqoy93osp6cY53yKdPHdWz9KpOKUFh8lzI/Grk1VE/Kg2kLIWe2ycYp4aNQYvwDQdXKov2nXuyxQRg0uXgKHXdovVeC/cKCj9tz+llTJG4wrj1sGWD9u63FSQnyeGE23+VRecJTnENdzBKYPJoKblMZYTTYog3m4nOrphHeLT2E0pXsRvwnSs7CoDjGRmHJYQt7m3W3zKZqBx+9i856FNVe/VL2qs46g47EAdsbkXUXzzz6aEoKsRmA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZXq3F1drNz30W5;
+	Thu, 10 Apr 2025 03:01:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=202.12.124.157
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1744218073;
+	cv=none; b=LmrfwqEIAJN4xqhug+wk9bByzWZ6rIGENZeCqXpay86FDo5TGOfoIjwpqPzJWZBA2Zyb6ACLX2swDC5jcDqqs8KdX/y1nfP9k/7H3WodL6PEULuf7oK/wRup/AjdXsgA6QNaJrLEF3jUD4E2CVkcFq+UEoBuJSBg5i7Q6GIRjXSc+juZz9iM0b3PgJpFzaYjqOIe1zdLTe/WyPYv+oDU+oeQZ6NMgCA0k++3PK+jZ7qgaOYHEoBjMG/bD47pUDsfJ4m25rRLqpmZVr5R5BFDLn6rnAW7iGbPacd1kSsfpvxNtzuqXZV/6HV53QfUkUaPllpzocglW9MEyBA/6I+zdw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1744216401; c=relaxed/relaxed;
-	bh=mWAnMiLloL/KJKZ/sarxxeeIRfhGJfQpMkqbjn3Pa/g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gJQOm4M45VojJtcEQzYcdrXKvkRp8OMEAw9B5oth3Ink+4d3pxI7KskvnevQVSS0H4jVjxsgqpcSuwAU2bl0E0uY9oW3ap0pQGMlD/2zNNgU/MDkJJQoITLcqOoxPTnDFr6ErqoeE6GcyZ104zM0widYQ0zCXl+wNkGE/iPTvHvuUTSFrzVdMhFC9If4Z4EkMa2tPOK9CW6Pe1PmHO+L/uaRTRTJwnE47EE0bTQinvk568MoM9R3eMhQQUX+h6uO4fuv5hpmE68NUNuUZbjJlizU1BD0nrt8/FGBO4JTTWwX6HUQ+2onfXMr68Bh0Y8VHpDUC6PbpD5fgUpB2S1jVQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FloRszcm; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1744218073; c=relaxed/relaxed;
+	bh=CL4ye0q+ZgR9oyb0q5UVNLnXHxRvzPk9CRl1I4YNH+A=;
+	h=MIME-Version:Date:From:To:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=gYoeF3UqH2DnEBmLuNs7YNAI3gSeTbGv2QhD6i25V8np+wThEzX++KMug/xoOYjERYsj5uMiy6RjvWtU8YmEDnIXNTOSdkWf3dg7bCEssRBQ3Zh55swCzD6IK1i1Dn9rDPDwT2swocsBpvCYSq85uR+dsOPqOKTsFB43qGf7UaK15vQRSHupFx/i10fnX+FYMLIEGbg1P/JMr/Zy3I7aKWivzV0RB+oYB1waJIEKEHvht76Xk3IAk068E0iy8F1I0GXIcBIXyB3rFF7WMra4fkk64ePqAM+KPtwDrU+kQcAdUp5yiuBzIO30ppUthfUY6kpig79NDQ78f7z7E1pUkQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=verbum.org; dkim=pass (2048-bit key; unprotected) header.d=verbum.org header.i=@verbum.org header.a=rsa-sha256 header.s=fm2 header.b=HuL8J/jh; dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=Fb/ks+7B; dkim-atps=neutral; spf=pass (client-ip=202.12.124.157; helo=fhigh-b6-smtp.messagingengine.com; envelope-from=walters@verbum.org; receiver=lists.ozlabs.org) smtp.mailfrom=verbum.org
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=verbum.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FloRszcm;
+	dkim=pass (2048-bit key; unprotected) header.d=verbum.org header.i=@verbum.org header.a=rsa-sha256 header.s=fm2 header.b=HuL8J/jh;
+	dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=Fb/ks+7B;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=verbum.org (client-ip=202.12.124.157; helo=fhigh-b6-smtp.messagingengine.com; envelope-from=walters@verbum.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 545 seconds by postgrey-1.37 at boromir; Thu, 10 Apr 2025 03:01:09 AEST
+Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZXpR247sXz30Vj
-	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Apr 2025 02:33:18 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1744216389; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=mWAnMiLloL/KJKZ/sarxxeeIRfhGJfQpMkqbjn3Pa/g=;
-	b=FloRszcmLTZ1S8qSNYyCqXbYb0immifNAEASDAGYZpOsDrx8wgWPgFLnTdg9wHWZvdXQPi7AgHeE38ipKAR1TWxvgitkOpp7yfij5kTuW9LDWRYfRJQ+AdOPvMNRX4Ur4LEt50tapND1O4yHZ1ZPMnJFZMltRntcQ9RlJ7D1W+c=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WWKsZTe_1744216387 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 10 Apr 2025 00:33:08 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v2 04/10] erofs-utils: get rid of NULL_ADDR{,_UL}
-Date: Thu, 10 Apr 2025 00:32:53 +0800
-Message-ID: <20250409163259.2077865-4-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250409163259.2077865-1-hsiangkao@linux.alibaba.com>
-References: <20250409163259.2077865-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZXq3941Crz30VJ
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Apr 2025 03:01:09 +1000 (AEST)
+Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 537D725400B8;
+	Wed,  9 Apr 2025 12:52:01 -0400 (EDT)
+Received: from phl-imap-06 ([10.202.2.83])
+  by phl-compute-10.internal (MEProxy); Wed, 09 Apr 2025 12:52:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=verbum.org; h=cc
+	:content-transfer-encoding:content-type:content-type:date:date
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1744217521;
+	 x=1744303921; bh=CL4ye0q+ZgR9oyb0q5UVNLnXHxRvzPk9CRl1I4YNH+A=; b=
+	HuL8J/jhrt6JxphJS+byIZOFq0OeTG5LHkGGKDLBYZeyaiX4nYCKMXyf6RBEGuvM
+	4/wLSEGk8R3Vk3NDlkkUg7ZnxEMKVrM5p0RM2C1zVP7EreYTCC/hBOWNcLuHbIUF
+	3NZxS2NyqU2XOHFxHc1C+zb5Dk/QzolGylH2enaW6aFFgRkmGXNuvzIwaFVTzwR0
+	L5BcMjgOSxKG891nv+stlPxMkOzrAwruu+4H2l+H+tjWhBofEoa0sISktTtqseYj
+	Edb4kSf4wfU8+cb4yR+MaDPoaOCGFQXKBWVlO5RkUJ4E0C/tXaeJvSI8kQnbSKkN
+	qVqn98ITxKgeP3Cw9URSJg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:content-transfer-encoding:content-type
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
+	:x-me-sender:x-sasl-enc; s=fm2; t=1744217521; x=1744303921; bh=C
+	L4ye0q+ZgR9oyb0q5UVNLnXHxRvzPk9CRl1I4YNH+A=; b=Fb/ks+7BOX/aPMGlf
+	Y1DIY3V+OcAW222L6P5x4IQNkQ1dBaq4Ur4d+CO+wRsUfcP3SzIQAlp+nzcONcop
+	QhyVJddaS2XrFw9B2dsGBDtnHNp/SiRw8ldu4u1arnu5hVUYBd2kexhGMbOhYNSv
+	6vVD+oL7HsJWbY/gvv56Bl+LOrJaRnqBRyh9IP+fGeg5vXplGn1+2SP+I1J3umlZ
+	Z2eXOzUXPFFATqVlpR2EoqpgUmp6xJcHoINCbcW17OOZbXIkL+AJq6LgcMehHJM1
+	fnmKbtJc51dg7NFPF7FiRkYqKQ/oGIN/QeRrK2dL98WAyrtC/nnXjbG0QbC3zIsh
+	BdOqw==
+X-ME-Sender: <xms:sKX2ZyLBCWlMTeoo5VC4wxp196rKN8HJYviju7DRKDKxzR8nkGPlKw>
+    <xme:sKX2Z6Lj-Utk3IEwprK0C6N4xVwQYW9AxjT9VStqyWQzTGljydR3RzcId7ShtcrtG
+    pCM9xqlXvKPZnXG>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdeiheefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucenucfjughrpefogg
+    ffhffvkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedfveholhhinhcuhggrlhht
+    vghrshdfuceofigrlhhtvghrshesvhgvrhgsuhhmrdhorhhgqeenucggtffrrghtthgvrh
+    hnpeetffdvudegfeefgfejleevgfdujedtgeefkeetteelvdfgleehteefveduteevveen
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpeifrghlth
+    gvrhhssehvvghrsghumhdrohhrghdpnhgspghrtghpthhtohepvddpmhhouggvpehsmhht
+    phhouhhtpdhrtghpthhtohephhhsihgrnhhgkhgroheslhhinhhugidrrghlihgsrggsrg
+    drtghomhdprhgtphhtthhopehlihhnuhigqdgvrhhofhhssehlihhsthhsrdhoiihlrggs
+    shdrohhrgh
+X-ME-Proxy: <xmx:sKX2ZyvQoSh0Qxu-ZK7wYOweQaVAdq9WYyIaK_eOwd5EXCPSGX5UXQ>
+    <xmx:sKX2Z3awcyRVyRnT8iQVMk00eeXOAyOLAFVe30tYbi_-yD2ocOs47g>
+    <xmx:sKX2Z5bq17JoJBp0WYuXXIzV2aQcDlGJek_sugE9aay51_5OUk_n3Q>
+    <xmx:sKX2ZzBC4Pl6JP5YLkNNJNv1hz1s6A8TMPzi0Yq9NeNel9B-2zx-wA>
+    <xmx:saX2Z3w1q3ULZPhQiteSeIST3fZ12o4CsrNsmBBHCHrQR0Nfq7OQrIjQ>
+Feedback-ID: ibe7c40e9:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 6E8ED29C0072; Wed,  9 Apr 2025 12:52:00 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -56,175 +93,35 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: T558f9dd975fc88e3
+Date: Wed, 09 Apr 2025 12:51:40 -0400
+From: "Colin Walters" <walters@verbum.org>
+To: "Gao Xiang" <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
+Message-Id: <0f9fea0f-22b1-4407-98e6-c8df41293b81@app.fastmail.com>
+In-Reply-To: <20250409061731.1267689-1-hsiangkao@linux.alibaba.com>
+References: <3bc4c375-9a5b-41cc-a91c-a15fb4b073ba@app.fastmail.com>
+ <20250409061731.1267689-1-hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH] erofs-utils: lib: fix `1UL << vi->u.chunkbits` on 32-bit platforms
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-.. And replace them with EROFS_NULL_ADDR.
+Patch looks sane to me.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- include/erofs/cache.h    |  4 ++--
- include/erofs/internal.h |  3 ---
- lib/cache.c              | 24 ++++++++++++------------
- lib/inode.c              |  2 +-
- lib/rebuild.c            |  2 +-
- 5 files changed, 16 insertions(+), 19 deletions(-)
+On Wed, Apr 9, 2025, at 2:17 AM, Gao Xiang wrote:
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-index 87d743a..0c665e8 100644
---- a/include/erofs/cache.h
-+++ b/include/erofs/cache.h
-@@ -107,8 +107,8 @@ static inline erofs_off_t erofs_btell(struct erofs_buffer_head *bh, bool end)
- 	struct erofs_bufmgr *bmgr =
- 			(struct erofs_bufmgr *)bb->buffers.fsprivate;
- 
--	if (bb->blkaddr == NULL_ADDR)
--		return NULL_ADDR_UL;
-+	if (bb->blkaddr == EROFS_NULL_ADDR)
-+		return EROFS_NULL_ADDR;
- 
- 	return erofs_pos(bmgr->sbi, bb->blkaddr) +
- 		(end ? list_next_entry(bh, list)->off : bh->off);
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 36df13a..244aa82 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -44,9 +44,6 @@ typedef u64 erofs_nid_t;
- /* data type for filesystem-wide blocks number */
- typedef u32 erofs_blk_t;
- 
--#define NULL_ADDR	((unsigned int)-1)
--#define NULL_ADDR_UL	((unsigned long)-1)
--
- /* global sbi */
- extern struct erofs_sb_info g_sbi;
- 
-diff --git a/lib/cache.c b/lib/cache.c
-index eddf21f..b91a288 100644
---- a/lib/cache.c
-+++ b/lib/cache.c
-@@ -49,7 +49,7 @@ struct erofs_bufmgr *erofs_buffer_init(struct erofs_sb_info *sbi,
- 		}
- 	}
- 	init_list_head(&bmgr->blkh.list);
--	bmgr->blkh.blkaddr = NULL_ADDR;
-+	bmgr->blkh.blkaddr = EROFS_NULL_ADDR;
- 	bmgr->tail_blkaddr = startblk;
- 	bmgr->last_mapped_block = &bmgr->blkh;
- 	bmgr->dsunit = 0;
-@@ -79,7 +79,7 @@ static void erofs_update_bwatermeter(struct erofs_buffer_block *bb, bool free)
- 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
- 	struct erofs_sb_info *sbi = bmgr->sbi;
- 	unsigned int blksiz = erofs_blksiz(sbi);
--	bool mapped = bb->blkaddr != NULL_ADDR;
-+	bool mapped = bb->blkaddr != EROFS_NULL_ADDR;
- 	struct list_head *h = bmgr->watermeter[bb->type][mapped];
- 	unsigned int nr;
- 
-@@ -127,12 +127,12 @@ static int __erofs_battach(struct erofs_buffer_block *bb,
- 	oob = cmpsgn(alignedoffset + incr + inline_ext,
- 		     bb->buffers.nblocks << sbi->blkszbits);
- 	if (oob >= 0) {
--		/* the next buffer block should be NULL_ADDR all the time */
--		if (oob && list_next_entry(bb, list)->blkaddr != NULL_ADDR)
-+		/* the next buffer block should be EROFS_NULL_ADDR all the time */
-+		if (oob && list_next_entry(bb, list)->blkaddr != EROFS_NULL_ADDR)
- 			return -EINVAL;
- 
- 		blkaddr = bb->blkaddr;
--		if (blkaddr != NULL_ADDR) {
-+		if (blkaddr != EROFS_NULL_ADDR) {
- 			tailupdate = (bmgr->tail_blkaddr == blkaddr +
- 				      bb->buffers.nblocks);
- 			if (oob && !tailupdate)
-@@ -244,7 +244,7 @@ static int erofs_bfind_for_attach(struct erofs_bufmgr *bmgr,
- 
- 			/* skip the last mapped block */
- 			if (mapped &&
--			    list_next_entry(cur, list)->blkaddr == NULL_ADDR) {
-+			    list_next_entry(cur, list)->blkaddr == EROFS_NULL_ADDR) {
- 				DBG_BUGON(cur != bmgr->last_mapped_block);
- 				cur = list_next_entry(cur, sibling);
- 				if (&cur->sibling == bt)
-@@ -252,7 +252,7 @@ static int erofs_bfind_for_attach(struct erofs_bufmgr *bmgr,
- 			}
- 
- 			DBG_BUGON(cur->type != type);
--			DBG_BUGON((cur->blkaddr != NULL_ADDR) ^ mapped);
-+			DBG_BUGON((cur->blkaddr != EROFS_NULL_ADDR) ^ mapped);
- 			DBG_BUGON(used != (cur->buffers.off & blkmask));
- 
- 			ret = __erofs_battach(cur, NULL, size, alignsize,
-@@ -327,7 +327,7 @@ struct erofs_buffer_head *erofs_balloc(struct erofs_bufmgr *bmgr,
- 			return ERR_PTR(-ENOMEM);
- 
- 		bb->type = type;
--		bb->blkaddr = NULL_ADDR;
-+		bb->blkaddr = EROFS_NULL_ADDR;
- 		bb->buffers.off = 0;
- 		bb->buffers.nblocks = 0;
- 		bb->buffers.fsprivate = bmgr;
-@@ -388,7 +388,7 @@ static void __erofs_mapbh(struct erofs_buffer_block *bb)
- 	struct erofs_bufmgr *bmgr = bb->buffers.fsprivate;
- 	erofs_blk_t blkaddr = bmgr->tail_blkaddr;
- 
--	if (bb->blkaddr == NULL_ADDR) {
-+	if (bb->blkaddr == EROFS_NULL_ADDR) {
- 		bb->blkaddr = blkaddr;
- 		if (__erofs_unlikely(bmgr->dsunit > 1) && bb->type == DATA) {
- 			struct erofs_buffer_block *pb = list_prev_entry(bb, list);
-@@ -418,14 +418,14 @@ erofs_blk_t erofs_mapbh(struct erofs_bufmgr *bmgr,
- 		bmgr = bb->buffers.fsprivate;
- 	t = bmgr->last_mapped_block;
- 
--	if (bb && bb->blkaddr != NULL_ADDR)
-+	if (bb && bb->blkaddr != EROFS_NULL_ADDR)
- 		return bb->blkaddr;
- 	do {
- 		t = list_next_entry(t, list);
- 		if (t == &bmgr->blkh)
- 			break;
- 
--		DBG_BUGON(t->blkaddr != NULL_ADDR);
-+		DBG_BUGON(t->blkaddr != EROFS_NULL_ADDR);
- 		__erofs_mapbh(t);
- 	} while (t != bb);
- 	return bmgr->tail_blkaddr;
-@@ -501,7 +501,7 @@ void erofs_bdrop(struct erofs_buffer_head *bh, bool tryrevoke)
- 	bool rollback = false;
- 
- 	/* tail_blkaddr could be rolled back after revoking all bhs */
--	if (tryrevoke && blkaddr != NULL_ADDR &&
-+	if (tryrevoke && blkaddr != EROFS_NULL_ADDR &&
- 	    bmgr->tail_blkaddr == blkaddr + bb->buffers.nblocks)
- 		rollback = true;
- 
-diff --git a/lib/inode.c b/lib/inode.c
-index 7a10624..f99cbb0 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -189,7 +189,7 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks)
- 
- 	if (!nblocks) {
- 		/* it has only tail-end data */
--		inode->u.i_blkaddr = NULL_ADDR;
-+		inode->u.i_blkaddr = EROFS_NULL_ADDR;
- 		return 0;
- 	}
- 
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index 5787bb3..8892d11 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -249,7 +249,7 @@ static int erofs_rebuild_update_inode(struct erofs_sb_info *dst_sb,
- 		break;
- 	case S_IFREG:
- 		if (!inode->i_size) {
--			inode->u.i_blkaddr = NULL_ADDR;
-+			inode->u.i_blkaddr = EROFS_NULL_ADDR;
- 			break;
- 		}
- 		if (datamode == EROFS_REBUILD_DATA_BLOB_INDEX)
--- 
-2.43.5
+> I think it should be fixed on the kernel side too, yet I rarely look
+> after 32-bit platforms due to lack of test environments. =20
 
+It is relatively easy to run 32 bit containers on a 64bit host, that=E2=80=
+=99s what the Debian CI environment that hit this is doing.
+
+I think the bigger question here is fuzzing on 32 bit right? That likely=
+ would have caught this quickly.
+
+I don=E2=80=99t know=E2=80=A6roughly though it feels to me as long as th=
+e Linux kernel supports 32 bit we are going to keep getting pulled to do=
+ so too. Especially there=E2=80=99s a long tail of 32 bit ARM out there =
+as I understand it.
+
+>
 
