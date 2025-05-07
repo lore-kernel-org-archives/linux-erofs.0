@@ -1,44 +1,44 @@
-Return-Path: <linux-erofs+bounces-295-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-296-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3AC2C3ABC0
-	for <linux-erofs@archiver.kernel.org>; Wed,  7 May 2025 09:55:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F196C3ABBF
+	for <linux-erofs@archiver.kernel.org>; Wed,  7 May 2025 09:57:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ZsrHY2McNz2xQD;
-	Wed,  7 May 2025 19:55:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1746611753;
-	cv=none; b=GKTryuwflX5byjQSl9oA5eTJfJ4gxxma30fZdHhSuPhef4bm6ckSlBCgHIas7WX31Iy7E4CT6aHfxdQI6KnNQmKl6yCo6gvudpqxEjDl20FaxzMu/cI5h85VoiuAe1GohpIyMJWfXLf7h+3q7ZDLwIVLlAYNONiCSvJksNgDfFopFkviHqUDrfLVLyP4e7PAJxS5NbRLv7V4AFCXgFjUn46Mue3RqI6qsAaURmR9GtXeHOJNAEO9C2/3uBcqvOGgmdcwZj4jZtg6PluYx/AHSXQxKX+QoZgYFFmLxWbxu5q81p4VFjuRPC/yVL6Eu2qXtV+jUhGSs18TnzhgBmcJ1Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ZsrJw5hh8z2xQD;
+	Wed,  7 May 2025 19:57:04 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1746611824;
+	cv=none; b=I+ecEXcbnfjS31yXpAtxoW7RIguFXChM8GYtmL90JcxIll19yVkXVZjTxrZ40b8l7sCf/AjEh8/vhdrdZQSXjvhwr/pYQIjQmeurBy+rN0sM81TSwQ2dY/wa09XsMGlVleVe1tqvtRwDkcJ5bE3hRQjLOXDZDh6PyV0uaFoe5bPSHXMxBnQasD33WwN5CoiVC/OWyS752egUJcCgB6Z02F+XdBA3hpR3z/d051CnLdChfa1sGM5y44ADL3+jhXbvvotKb8FgSd/dgu1XkJdAwfimL9ARAjyjOw5CmH59RpFs2hPmgdcs88+gjMc3Vpnn3nPAt2riPUQ0ry/xsIu3iQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1746611753; c=relaxed/relaxed;
-	bh=Us+o0j2TIpVQay1WydJANAD1//k1xEtf+KZBu87dYZQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=d/uZg4NhRGc7Et8SrL3zynAFGjWKh67/Rel09HzrNQTvIfOzR7vW1FlJvlnQ5TLAGAQm8V9p5zkGErvy8bZC5uwwzi2G3bKKHAwxArd4bXb62FdxYE5EGi/hAomNMSxXUgJ0K7g1q2pokwylz8zk77oZs9hdgkKqCZrKjtBkQzGMO2HyqPOhUxLfGL2SDh6ODZ0QTdMeSXaT1oGWDNH7F32/g1HpQXU3UnOnym4OE1fQIh0A+PGv8jKussLrG99etUL+Ji5woYIGtkUf9lx6jAAOhPTRstq0Qh59DBMraNtRI0Y9NdvED9Fm/JuNDx/9mlD3n+w098bFk359aBeKDA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=g3fTtN3r; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1746611824; c=relaxed/relaxed;
+	bh=vc9h5zCx8Tq7zNg1xC02laTprCNdx7HKwnVno6gZ9NE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QWsAKjz7Da4T4oAi35RIeOj8zay5HcFOW+hZaxZj/t6OWP/UWajaovdlshff2UdCKliDyfIXouYCOHZR1e71ICRXPpIt/ttXLLC0jdG2jp9PdgfnOCsM3s3MFOrqr9be5BJ4476E2SUgPx84s8cF08RypRAKvb1/aeKvlI9Kogx3AUawhPsNnOK1x4ZsTz0/qhEfCeav7B0lBiokYLZZh3wplhhStPv/osQxKJgoVfoHtGY4fnKip8kqTXPEAYtq3d4iN6n0YEY23ZQ6zEY4a107TOYTa8xPTRVWvJm+I5UPm6cCXrZqEqgJ+THGAAhR5nO6ZrYR2NWn5tmTPpiW9A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bDMfvJS/; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=g3fTtN3r;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bDMfvJS/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZsrHW4GhLz2xQ5
-	for <linux-erofs@lists.ozlabs.org>; Wed,  7 May 2025 19:55:49 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ZsrJv5Kn0z2xQ5
+	for <linux-erofs@lists.ozlabs.org>; Wed,  7 May 2025 19:57:03 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1746611745; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Us+o0j2TIpVQay1WydJANAD1//k1xEtf+KZBu87dYZQ=;
-	b=g3fTtN3r/RNjHRuhNgv+feZoHGNWChKS8DbrtHDxriZYst0n8yc9d38YxOoTjSdsKbLIYPhv5KswYhphscNSgQKoLjzeZiSISYWUj2/8VAyihY7VhNiEzZiJEolpdUe9zpcjAewUfWjTkVogRObanMQ2QTUIYNDLH6ocfpgDU+k=
-Received: from 30.221.131.179(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WZpIKqw_1746611742 cluster:ay36)
+	t=1746611819; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=vc9h5zCx8Tq7zNg1xC02laTprCNdx7HKwnVno6gZ9NE=;
+	b=bDMfvJS/1ch2mQXE2/UpIkZ7rwdrImSTrIEiqrNn5Aw5Pq5M2qTiVVi31Th5QGJHH2mYExqmpZSo29M7eRJx3QOtkMnQM6wmMBWhJg420AUahVAa1n5ZCjWz+l2nMjzsUUxKOU4G86FrhdHPwwx+Fvi/dDYtaSbrvjELRCEjMzw=
+Received: from 30.221.131.179(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WZpED0u_1746611817 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 07 May 2025 17:55:43 +0800
-Message-ID: <556cdf04-f083-4ee7-a6ef-61e0e8957a58@linux.alibaba.com>
-Date: Wed, 7 May 2025 17:55:42 +0800
+          Wed, 07 May 2025 17:56:58 +0800
+Message-ID: <56196c13-954f-4185-a17b-d52e337cb4f8@linux.alibaba.com>
+Date: Wed, 7 May 2025 17:56:57 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,51 +51,44 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: fix `z_erofs_fixup_insize` defined but not
- used
-To: Hongbo Li <lihongbo22@huawei.com>, linux-erofs@lists.ozlabs.org
-References: <20250507085236.1947828-1-hsiangkao@linux.alibaba.com>
- <965ef294-6137-4a16-9fc9-d29f75da6852@huawei.com>
+Subject: Re: [PATCH v4] erofs: fix file handle encoding for 64-bit NIDs
+To: Hongbo Li <lihongbo22@huawei.com>, xiang@kernel.org, chao@kernel.org,
+ huyue2@coolpad.com, jefflexu@linux.alibaba.com
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20250507094015.14007-1-lihongbo22@huawei.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <965ef294-6137-4a16-9fc9-d29f75da6852@huawei.com>
+In-Reply-To: <20250507094015.14007-1-lihongbo22@huawei.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
 
 
-On 2025/5/7 17:53, Hongbo Li wrote:
+On 2025/5/7 17:40, Hongbo Li wrote:
+> EROFS uses NID to indicate the on-disk inode offset, which can
+> exceed 32 bits. However, the default encode_fh uses the ino32,
+> thus it doesn't work if the image is larger than 128GiB.
 > 
+> Let's introduce our own helpers to encode file handles.
 > 
-> On 2025/5/7 16:52, Gao Xiang wrote:
->> Fixes: b08e804b1dd1 ("erofs-utils: lib: wrap up zeropadding calculation")
->> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
->> ---
->>   lib/decompress.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/lib/decompress.c b/lib/decompress.c
->> index 3f553a8..1f9daea 100644
->> --- a/lib/decompress.c
->> +++ b/lib/decompress.c
->> @@ -9,9 +9,9 @@
->>   #include "erofs/err.h"
->>   #include "erofs/print.h"
->> -static unsigned int z_erofs_fixup_insize(const u8 *padbuf, unsigned int padbufsize)
->> +static inline u32 z_erofs_fixup_insize(const u8 *padbuf, u32 padbufsize)
->>   {
-> How about using macro to constrain it? Like I send in [1].
+> It's easy to reproduce:
+>    1. prepare an erofs image with nid bigger than U32_MAX
+>    2. mount -t erofs foo.img /mnt/erofs
+>    3. set exportfs with configuration: /mnt/erofs *(rw,sync,
+>       no_root_squash)
+>    4. mount -t nfs $IP:/mnt/erofs /mnt/nfs
+>    5. md5sum /mnt/nfs/foo # foo is the file which nid bigger
+>       than U32_MAX.  # you will get ESTALE error.
+> 
+> In the case of overlayfs, the underlying filesystem's file
+> handle is encoded in ovl_fb.fid, which is similar to NFS's
+> case. If the NID of file is larger than U32_MAX, the overlay
+> will get -ESTALE error when calls exportfs_decode_fh.
+> 
+> Fixes: 3e917cc305c6 ("erofs: make filesystem exportable")
+> Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 
-There are too many macros related to this, you could check..
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-> 
-> [1] https://lore.kernel.org/all/20250422123612.261764-5-lihongbo22@huawei.com/
-> 
-> Thanks,
-> Hongbo
-> 
->> -    unsigned int inputmargin;
->> +    u32 inputmargin;
->>       for (inputmargin = 0; inputmargin < padbufsize &&
->>            !padbuf[inputmargin]; ++inputmargin);
-
+Thanks,
+Gao Xiang
 
