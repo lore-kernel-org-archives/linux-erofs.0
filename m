@@ -1,42 +1,42 @@
-Return-Path: <linux-erofs+bounces-357-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-358-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BD87C54756
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 May 2025 08:39:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 471E5C54756
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 May 2025 08:47:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4b31tc5CjTz3c3w;
-	Thu, 22 May 2025 18:39:36 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4b323Y60YRz3c3w;
+	Thu, 22 May 2025 18:47:21 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.51.26.146
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1747903176;
-	cv=none; b=mosZYfVR2/YBEw5y4mp4xcf3odtQrYrZOOcU0XXsx56XsPqkSEn9UAZcMqNa6ih3d2nd6FQymxZTnZDVemO7UFfjn1UnRei7IyT+fpYzytZftjkUMKly6drGQEelVO64nypqL9zUMFwWSLPgEmdgM8Kt+3ieMakmGunKGGHU2NGpF9/3YCdQxG6s9gINvlEhfHK9uyjRjJSeraF7HXVmBBCxE+X5+3/TTIo8Edwdzc91TWTgEzL0fXkpBFKCJeoMG361b3D45YDkY7NvJqE7MbJUuwESPUOfTlSbMwOi4rFpOoqJ3XmNw8mzTQZmkwJIicIFOW/IDVDc25npQpSCXA==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1747903641;
+	cv=none; b=KuhhJOp+6OzZMQwWvWZvUfQXSY9b0nKuCDyBuUUwdiU22Z3fHuIhn8mAyPylf6UCFjYHnQhDhmmizUeRKY2AQAJg+UHCZOwH/kyfDgLMYF8Bt8AQ0ZEmAIgut5Ip/v77tzLCIEPpc6j5q4kL1Fz354KwPtW7mtebo1PnXc/EAm4vIi0L7P5zaoO2061EzkEdRjXHx/HV9l80EnT8dPZl6RW1sRENxaQX7zCiPTKgF2PCrBVf8syccqZNti7pOycktkOgok5Xx53sCoI0Dfp47w2JeAFYJRTTwJIvP01+hltQvw+BbKe7YQOkk1RoxpU3ImdqALJXtaVTIyUNe0IdBg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1747903176; c=relaxed/relaxed;
-	bh=vWw+XFkCM8ApDPtWW7CR2u2Y1W+khLQIsCxvZeqVAEU=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=A8yhSConSJEeaWL8gsgs20Q3M6G5QC18UU/YBKFJ0js8XAVQFSA22Sot9WGM4nzG6XZIIaWMcoX1zl4B/gIYF/CyIyN79BuavpA7w0rDklD5dtQynBSt8h3Idin74q581bTzNK9YqpgVDPzYo8dAe3gh0f/kc+TzPwQ8CzT9DWlEfAK9DFwuOmEPYa6/QJ0nAWA6GJqIV6aAvevdlpC0FLGhEaaUNuO20swHA6N82k1ZvqR5GJfSRjlmEfkR+A9Rk0/ujzAWbeOymFlVQAMkaIDHW7wyz9jufx0CjUhOcVTquFOmSdcIWtaGoqPl7eS0K94ejFF5CWXfY9I24dg3ag==
+	t=1747903641; c=relaxed/relaxed;
+	bh=wnNhOkDaP9fi2GXyD5hzCH/AvbdHv7J7RuIHhE7lJgU=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QSgfx5CxoBYwijdxMhA8HoqlXklM8VOVLZ0prx3AtqlQ1zPqGVWa3r3TfgCgvpawYq0ELzA4p4slKcC79opB4Il8AVPbGmGHTsLsV04LxbfAZWyujuzbnjBRvcyTldnOa7DIOUtuU8zBG2p7h9FOwwW4Fq5T2xBdx9b/OH7RExTmd0vO25kI4tr2r+lBgrhSTJGjs4j2nmxQY4ugHPgDuY+diPLNTy0n5LN8wxYCYtQJxHAnJ4z3AMWvI3WeKdRjUlQuvpFz23rsel1YzBD3RlkJORsu9FKTndcBjBIVOg0NnIr7NF+TmGEer8yiHdC+/vGXrwLaPmJXT9bPl/QhjA==
 ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com; spf=pass (client-ip=210.51.26.146; helo=unicom146.biz-email.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org) smtp.mailfrom=inspur.com
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=inspur.com (client-ip=210.51.26.146; helo=unicom146.biz-email.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org)
 Received: from unicom146.biz-email.net (unicom146.biz-email.net [210.51.26.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4b31tb2rlWz3c3D
-	for <linux-erofs@lists.ozlabs.org>; Thu, 22 May 2025 18:39:35 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4b323X2nfvz3c3D
+	for <linux-erofs@lists.ozlabs.org>; Thu, 22 May 2025 18:47:18 +1000 (AEST)
 Received: from jtjnmail201608.home.langchao.com
-        by unicom146.biz-email.net ((D)) with ASMTP (SSL) id 202505221639283288;
-        Thu, 22 May 2025 16:39:28 +0800
+        by unicom146.biz-email.net ((D)) with ASMTP (SSL) id 202505221647055215;
+        Thu, 22 May 2025 16:47:05 +0800
 Received: from localhost.localdomain (10.94.19.116) by
  jtjnmail201608.home.langchao.com (10.100.2.8) with Microsoft SMTP Server id
- 15.1.2507.39; Thu, 22 May 2025 16:39:29 +0800
+ 15.1.2507.39; Thu, 22 May 2025 16:47:05 +0800
 From: Bo Liu <liubo03@inspur.com>
 To: <xiang@kernel.org>, <chao@kernel.org>
 CC: <linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>, Bo Liu
 	<liubo03@inspur.com>
-Subject: [PATCH v7] erofs: support deflate decompress by using Intel QAT
-Date: Thu, 22 May 2025 04:39:20 -0400
-Message-ID: <20250522083920.19855-1-liubo03@inspur.com>
+Subject: [PATCH v8] erofs: support deflate decompress by using Intel QAT
+Date: Thu, 22 May 2025 04:47:00 -0400
+Message-ID: <20250522084700.21354-1-liubo03@inspur.com>
 X-Mailer: git-send-email 2.18.2
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -51,7 +51,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.94.19.116]
-tUid: 202552216392848a677c210fdf2f1bb577e2644e93859
+tUid: 2025522164705a22477d0eeeec0e24bcef39a22f878e3
 X-Abuse-Reports-To: service@corp-email.com
 Abuse-Reports-To: service@corp-email.com
 X-Complaints-To: service@corp-email.com
@@ -98,7 +98,8 @@ v3: https://lore.kernel.org/linux-erofs/20250516082634.3801-1-liubo03@inspur.com
 v4: https://lore.kernel.org/linux-erofs/20250521100326.2867828-1-hsiangkao@linux.alibaba.com/
 v5: https://lore.kernel.org/linux-erofs/f245b9edfc1b4205804c415cc0608558@inspur.com/T/#t
 v6: https://lore.kernel.org/linux-erofs/20250522081433.16812-1-liubo03@inspur.com/T/#u
-change since v6:
+v7: https://lore.kernel.org/linux-erofs/20250522083920.19855-1-liubo03@inspur.com/T/#u
+change since v7:
  - update code style.
 
  Documentation/ABI/testing/sysfs-fs-erofs |   9 ++
@@ -208,7 +209,7 @@ index 000000000000..f4891d335792
 +	headpage = kmap_local_page(*rq->in);
 +	ret = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
 +						min_t(unsigned int, rq->inputsize,
-+							 rq->sb->s_blocksize - rq->pageofs_in));
++							  rq->sb->s_blocksize - rq->pageofs_in));
 +	kunmap_local(headpage);
 +	if (ret)
 +		return ret;
