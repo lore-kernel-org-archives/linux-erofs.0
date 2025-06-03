@@ -1,48 +1,51 @@
-Return-Path: <linux-erofs+bounces-384-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-385-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFE8FC5AD49
-	for <linux-erofs@archiver.kernel.org>; Tue,  3 Jun 2025 03:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D3F4EC5AE59
+	for <linux-erofs@archiver.kernel.org>; Tue,  3 Jun 2025 03:57:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bBH3B1zmhz2yPS;
-	Tue,  3 Jun 2025 13:57:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1748923030;
-	cv=none; b=deMmE6I3DFx7t74ONUdNmxFIYgOUvTyyJkcw3FixOrVXpv/ZztRN2ms9nP1aFGowrUFjVI/vDVWSkqkdyX33kqRCc0RMrl3KMCsmLKO9XhL3jHkRp8nxDNvY/Qux1LzufZ3elfmqfdUCL/XMPlyrkvgUEUaJ4xJHkA2mw6R6nzdlA35lbQeHUCbXiJ4Th5+nQAzu8IuVRJ3T5aeIm7c1fW3IQT6ypYSc7lCUM3XwvrtH19mGRHm8yuXabE+4yT1w8uCe+SIZVaNI/POfxYOG6fBOuH1hPzVbv77QvOwoARlEiC0l7vP5J260sjQQ67C0G9FLJ0QEqrcR9OSoiutm3w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bBH3C4VnWz2yGM;
+	Tue,  3 Jun 2025 13:57:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1748923031;
+	cv=none; b=H+V3LCW9Po1Uu8d+n08+GQ4FFFmdmkP75rjgtPK8e9QrbKEIIQNtsCCMtP60zjqxcR6Dbztm1k69qpSDCYY0GFKmMjb93LHjkiaq8ISLCX0VbRtUVyjz7ggRFZusEG8NdJ48ef+YgQIJMiEEe5iQzEP7PDxrg/R5ZFCzQDf6iLVzUQkOVZZusZuyptYVRm+CLKdVGcpMrrw25qxdWbUje9/BA/JDeBPEcmDDwj9yF59fMRc3MFNZumRn3Td6ojDCUTmAl+mSBYtMkibV3KLTs/JlLEuIi+Ak4gx1OSI4mGBLoi60JGdZIsK6P2T0AKNx+cODL3CFnUoOMnlZlUhdPw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1748923030; c=relaxed/relaxed;
-	bh=rNjdyABfEqUiTVgFwrWdcRftwzjjXTYjTK8URqaKB+Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kyt9a51Mez4TvQniAobUsS+/uzn68oY26nbLOz4BJK9TMghO/S/NC7jsLOcG91efFt6dyeIa97Wk6cSBVPXRfEkoXm38dzRPzu8RnluTF3BmaR3h/hhAIQlaXPH7LHMFy4F4xHpVDsKf3qcih7ZJ85LOnU2gIxLVcLDRjCqFVbAGpYarGDE8/1vx2qdYVafoKnI8L9zTSijv/WjcJD4kLjhg4bj8EwbIbAu9uHXUM+tTgMqw5OfdjZYFr75otSCuLy2YEbJmGxJRaWZFNZD9JBSffISpDe2NI74kCRlNEi2KCUmh8B89vZ2iPhI3b2F6PJlhTJSsu50J2A1Bzt1qxA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hms/d+cU; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1748923031; c=relaxed/relaxed;
+	bh=P9r+QEqRE9kJEIsXPiILyrBDIApYEKFI2NzBEGkpEcY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HX+19PoRCDgoviUXRi5/ItFtEbxAlbrHnJrRZwiFGu0h3PKjBcBunFxIGAbOVavlPbwqU/+M2HP1IfuhIVSNrXjDnaJOGghdyI7RIZdHhmgzgfvfVjCry+3aeKjrgUsHUH/In69gk2IKvpTSlJ591jQ4sjqi358SkBe8D9bHNlh+oBiXXQHEMHzRsIU25KFRqWwFnfC96dnt43WtoH/TwDAIhPRD2HoI9z7rJTkO3o+ufDS2UR3Vne+EN7ueGPT/9az2NaNAHjzCwyA6jUFvJ5pSG/Nr3Vo1BFKmVAsR9z4rF4hsx8+ZHdgdfCzvV3GNdasIMvssH9Cy5+VH7DreYg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FuHZksQ4; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hms/d+cU;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FuHZksQ4;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bBH3774dqz2yGM
-	for <linux-erofs@lists.ozlabs.org>; Tue,  3 Jun 2025 13:57:07 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bBH3B3C22z2xDD
+	for <linux-erofs@lists.ozlabs.org>; Tue,  3 Jun 2025 13:57:09 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1748923023; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=rNjdyABfEqUiTVgFwrWdcRftwzjjXTYjTK8URqaKB+Y=;
-	b=hms/d+cUN0iffyr7l+H6K6Sq3mcDx3rFwrwZn+kPHuMA0E1OWQ9+f9pCENBZGJXke9q+lp6DsDLoV8+SbLw8Vtc32Iks2DemtDGpNJnamoNuWQiSVgBUN3Vit7lT/w6dtPdhQVqKHZollSvgZ2hC++RzY7oLCg0KNEzk+QRqdbI=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WchYNGK_1748923017 cluster:ay36)
+	t=1748923026; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=P9r+QEqRE9kJEIsXPiILyrBDIApYEKFI2NzBEGkpEcY=;
+	b=FuHZksQ4oCFksix5VrZCj4KbTl8KI0G3gkAdudWd26SF2wd7VGUvPiubU3IcYPqvHeIYd2GMJdF9yrBmTNaZCFtPwe2rETl0kBZULL77EwYpQ0/TIUQ2LDfUkQWKkVQAYmJ27HZEiOXYnm6+BcCEoYG0tDEq3LV2KqAcQfy91ds=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WchYNJm_1748923025 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 03 Jun 2025 11:57:02 +0800
+          Tue, 03 Jun 2025 11:57:05 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/5] erofs-utils: lib: introduce z_erofs_fragments_tofh()
-Date: Tue,  3 Jun 2025 11:56:53 +0800
-Message-ID: <20250603035657.2092012-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5/5] erofs-utils: change EROFS_TOF_HASHLEN to 64
+Date: Tue,  3 Jun 2025 11:56:57 +0800
+Message-ID: <20250603035657.2092012-5-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250603035657.2092012-1-hsiangkao@linux.alibaba.com>
+References: <20250603035657.2092012-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -56,251 +59,40 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce a separate z_erofs_fragments_tofh() to get the tail hash in
-order to prepare for the upcoming multi-threaded fragment improvement.
+The image build time of `-Efragments` will be greatly reduced.
+
+Processors:   Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz (96 cores)
+Memory:       384 GiB
+Mkfs options: -zlzma,6 -Efragments -C1048576
+ __________________________________________________________________________________
+|______ Testset _____|________|_______ Vanilla _________|_________ After __________|
+|  CoreOS            |  Size  |__ 660484096 (630 MiB) __|___ 660475904 (630 MiB) __|
+|____________________|_ Time _|_______ 4m12.249s _______|_______ 1m49.828s ________|
+|  Fedora KIWI       |  Size  |_ 2554892288 (2437 MiB) _|__ 2554793984 (2436 MiB) _|
+|____________________|_ Time _|_______ 19m8.141s _______|_______ 6m22.378s ________|
+
+It is now preferred to use `-Efragments` over `-Eall-fragments`, since
+placing all data in the packed inode (`-Eall-fragments`) could introduce
+some performance penalty.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/fragments.h |  3 +-
- lib/compress.c            | 38 ++++++++++----------
- lib/fragments.c           | 75 ++++++++++++++++++---------------------
- 3 files changed, 57 insertions(+), 59 deletions(-)
+ lib/fragments.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/erofs/fragments.h b/include/erofs/fragments.h
-index a57b63c..75f1055 100644
---- a/include/erofs/fragments.h
-+++ b/include/erofs/fragments.h
-@@ -15,7 +15,8 @@ extern "C"
- extern const char *erofs_frags_packedname;
- #define EROFS_PACKED_INODE	erofs_frags_packedname
- 
--int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *tofcrc);
-+u32 z_erofs_fragments_tofh(struct erofs_inode *inode, int fd, erofs_off_t fpos);
-+int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 tofh);
- 
- int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd, u32 tofcrc);
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
-diff --git a/lib/compress.c b/lib/compress.c
-index d046112..a260dc4 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -46,7 +46,7 @@ struct z_erofs_compress_ictx {		/* inode context */
- 	int fd;
- 	u64 fpos;
- 
--	u32 tof_chksum;
-+	u32 tofh;
- 	bool fix_dedupedfrag;
- 	bool fragemitted;
- 	bool dedupe;
-@@ -626,7 +626,7 @@ nocompression:
- 		   (!inode->fragment_size || ictx->fix_dedupedfrag)) {
- frag_packing:
- 		ret = z_erofs_pack_fragments(inode, ctx->queue + ctx->head,
--					     len, ictx->tof_chksum);
-+					     len, ictx->tofh);
- 		if (ret < 0)
- 			return ret;
- 		e->plen = 0;	/* indicate a fragment */
-@@ -1103,7 +1103,7 @@ int z_erofs_compress_segment(struct z_erofs_compress_sctx *ctx,
- 	DBG_BUGON(offset != -1 && frag && inode->fragment_size);
- 	if (offset != -1 && frag && !inode->fragment_size &&
- 	    cfg.c_fragdedupe != FRAGDEDUPE_OFF) {
--		ret = z_erofs_fragments_dedupe(inode, fd, &ictx->tof_chksum);
-+		ret = z_erofs_fragments_dedupe(inode, fd, ictx->tofh);
- 		if (ret < 0)
- 			return ret;
- 		if (inode->fragment_size > ctx->remaining)
-@@ -1622,21 +1622,23 @@ void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
- 	inode->z_algorithmtype[0] = ictx->ccfg->algorithmtype;
- 	inode->z_algorithmtype[1] = 0;
- 
--	/*
--	 * Handle tails in advance to avoid writing duplicated
--	 * parts into the packed inode.
--	 */
--	if (cfg.c_fragments && !erofs_is_packed_inode(inode) &&
--	    ictx == &g_ictx && cfg.c_fragdedupe != FRAGDEDUPE_OFF) {
--		ret = z_erofs_fragments_dedupe(inode, fd, &ictx->tof_chksum);
--		if (ret < 0)
--			goto err_free_ictx;
-+	if (cfg.c_fragments && !erofs_is_packed_inode(inode)) {
-+		ictx->tofh = z_erofs_fragments_tofh(inode, fd, fpos);
-+		if (ictx == &g_ictx && cfg.c_fragdedupe != FRAGDEDUPE_OFF) {
-+			/*
-+			 * Handle tails in advance to avoid writing duplicated
-+			 * parts into the packed inode.
-+			 */
-+			ret = z_erofs_fragments_dedupe(inode, fd, ictx->tofh);
-+			if (ret < 0)
-+				goto err_free_ictx;
- 
--		if (cfg.c_fragdedupe == FRAGDEDUPE_INODE &&
--		    inode->fragment_size < inode->i_size) {
--			erofs_dbg("Discard the sub-inode tail fragment of %s",
--				  inode->i_srcpath);
--			inode->fragment_size = 0;
-+			if (cfg.c_fragdedupe == FRAGDEDUPE_INODE &&
-+			    inode->fragment_size < inode->i_size) {
-+				erofs_dbg("Discard the sub-inode tail fragment of %s",
-+					  inode->i_srcpath);
-+				inode->fragment_size = 0;
-+			}
- 		}
- 	}
- 	ictx->inode = inode;
-@@ -1647,7 +1649,7 @@ void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos)
- 	ictx->dedupe = false;
- 
- 	if (all_fragments && !inode->fragment_size) {
--		ret = z_erofs_pack_file_from_fd(inode, fd, ictx->tof_chksum);
-+		ret = z_erofs_pack_file_from_fd(inode, fd, ictx->tofh);
- 		if (ret)
- 			goto err_free_idata;
- 	}
 diff --git a/lib/fragments.c b/lib/fragments.c
-index 9dfe0e3..9f5f1f9 100644
+index ce079af..1f24f70 100644
 --- a/lib/fragments.c
 +++ b/lib/fragments.c
-@@ -3,9 +3,6 @@
-  * Copyright (C), 2022, Coolpad Group Limited.
-  * Created by Yue Hu <huyue2@coolpad.com>
-  */
--#ifndef _LARGEFILE64_SOURCE
--#define _LARGEFILE64_SOURCE
--#endif
- #ifndef _FILE_OFFSET_BITS
- #define _FILE_OFFSET_BITS 64
- #endif
-@@ -49,23 +46,39 @@ struct erofs_packed_inode {
+@@ -31,7 +31,7 @@ struct erofs_fragmentitem {
+ };
  
- const char *erofs_frags_packedname = "packed_file";
+ #define EROFS_FRAGMENT_INMEM_SZ_MAX	(256 * 1024)
+-#define EROFS_TOF_HASHLEN		16
++#define EROFS_TOF_HASHLEN		64
  
--#ifndef HAVE_LSEEK64
--#define erofs_lseek64 lseek
--#else
--#define erofs_lseek64 lseek64
--#endif
-+u32 z_erofs_fragments_tofh(struct erofs_inode *inode, int fd, erofs_off_t fpos)
-+{
-+	u8 data_to_hash[EROFS_TOF_HASHLEN];
-+	u32 hash;
-+	int ret;
-+
-+	if (inode->i_size <= EROFS_TOF_HASHLEN)
-+		return ~0U;
-+
-+	ret = pread(fd, data_to_hash, EROFS_TOF_HASHLEN,
-+		    fpos + inode->i_size - EROFS_TOF_HASHLEN);
-+	if (ret < 0)
-+		return -errno;
-+	if (ret != EROFS_TOF_HASHLEN) {
-+		DBG_BUGON(1);
-+		return -EIO;
-+	}
-+	hash = erofs_crc32c(~0, data_to_hash, EROFS_TOF_HASHLEN);
-+	return hash != ~0U ? hash : 0;
-+}
- 
--static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
--					 u32 crc)
-+int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 tofh)
- {
- 	struct erofs_packed_inode *epi = inode->sbi->packedinode;
- 	struct erofs_fragment_dedupe_item *cur, *di = NULL;
--	struct list_head *head = &epi->hash[FRAGMENT_HASH(crc)];
-+	struct list_head *head = &epi->hash[FRAGMENT_HASH(tofh)];
- 	unsigned int s1, e1;
- 	erofs_off_t deduped;
- 	u8 *data;
- 	int ret;
- 
-+	if (inode->i_size <= EROFS_TOF_HASHLEN)
-+		return 0;
- 	if (list_empty(head))
- 		return 0;
- 
-@@ -138,27 +151,13 @@ static int z_erofs_fragments_dedupe_find(struct erofs_inode *inode, int fd,
- 	return 0;
- }
- 
--int z_erofs_fragments_dedupe(struct erofs_inode *inode, int fd, u32 *tofcrc)
--{
--	u8 data_to_hash[EROFS_TOF_HASHLEN];
--	int ret;
--
--	if (inode->i_size <= EROFS_TOF_HASHLEN)
--		return 0;
--
--	ret = pread(fd, data_to_hash, EROFS_TOF_HASHLEN,
--		    inode->i_size - EROFS_TOF_HASHLEN);
--	if (ret != EROFS_TOF_HASHLEN)
--		return -errno;
--
--	*tofcrc = erofs_crc32c(~0, data_to_hash, EROFS_TOF_HASHLEN);
--	return z_erofs_fragments_dedupe_find(inode, fd, *tofcrc);
--}
--
--static int z_erofs_fragments_dedupe_insert(struct list_head *hash, void *data,
--					   unsigned int len, erofs_off_t pos)
-+static int z_erofs_fragments_dedupe_insert(struct erofs_inode *inode,
-+					   void *data, u32 tofh)
- {
-+	struct erofs_packed_inode *epi = inode->sbi->packedinode;
- 	struct erofs_fragment_dedupe_item *di;
-+	erofs_off_t len = inode->fragment_size;
-+	erofs_off_t pos = inode->fragmentoff;
- 
- 	if (len <= EROFS_TOF_HASHLEN)
- 		return 0;
-@@ -172,14 +171,13 @@ static int z_erofs_fragments_dedupe_insert(struct list_head *hash, void *data,
- 		return -ENOMEM;
- 
- 	memcpy(di->data, data, len);
--	di->length = len;
- 	di->pos = pos;
--
--	list_add_tail(&di->list, hash);
-+	di->length = len;
-+	list_add_tail(&di->list, &epi->hash[FRAGMENT_HASH(tofh)]);
- 	return 0;
- }
- 
--int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd, u32 tofcrc)
-+int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd, u32 tofh)
- {
- 	struct erofs_packed_inode *epi = inode->sbi->packedinode;
- 	s64 offset, rc;
-@@ -240,9 +238,7 @@ int z_erofs_pack_file_from_fd(struct erofs_inode *inode, int fd, u32 tofcrc)
- 		  inode->i_srcpath);
- 
- 	if (memblock)
--		rc = z_erofs_fragments_dedupe_insert(
--			&epi->hash[FRAGMENT_HASH(tofcrc)], memblock,
--			inode->fragment_size, inode->fragmentoff);
-+		rc = z_erofs_fragments_dedupe_insert(inode, memblock, tofh);
- 	else
- 		rc = 0;
- out:
-@@ -256,7 +252,7 @@ out:
- }
- 
- int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
--			   unsigned int len, u32 tofcrc)
-+			   unsigned int len, u32 tofh)
- {
- 	struct erofs_packed_inode *epi = inode->sbi->packedinode;
- 	s64 offset = lseek(epi->fd, 0, SEEK_CUR);
-@@ -279,8 +275,7 @@ int z_erofs_pack_fragments(struct erofs_inode *inode, void *data,
- 		  inode->fragment_size | 0ULL, inode->fragmentoff | 0ULL,
- 		  inode->i_srcpath);
- 
--	ret = z_erofs_fragments_dedupe_insert(&epi->hash[FRAGMENT_HASH(tofcrc)],
--					      data, len, inode->fragmentoff);
-+	ret = z_erofs_fragments_dedupe_insert(inode, data, tofh);
- 	if (ret)
- 		return ret;
- 	return len;
+ #define FRAGMENT_HASHSIZE		65536
+ #define FRAGMENT_HASH(c)		((c) & (FRAGMENT_HASHSIZE - 1))
 -- 
 2.43.5
 
