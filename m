@@ -1,51 +1,49 @@
-Return-Path: <linux-erofs+bounces-405-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-406-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A984AC71135
-	for <linux-erofs@archiver.kernel.org>; Sat, 14 Jun 2025 02:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6336C71141
+	for <linux-erofs@archiver.kernel.org>; Sat, 14 Jun 2025 09:46:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bK0gG68N0z2xS2;
-	Sat, 14 Jun 2025 12:33:14 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1749868394;
-	cv=none; b=k+bkq9xs3wcmsW+g29v6LggyXL8xRF54dj+LB7nSV1BX7g2frptE7z1dRKal34rc+9EoHQY9VdIIYudbQ/RJ2YxCVHewOt03eFFh0Xv4S8vz/WTbhW57kHHSqWoC8uJJS44bldk0A3pvyKC5lRF9TARMbD2z4I5Zmdg/4c6xvM8l030+LLEamyPb96FcT3Bv4Uq3YBLCNJElLKod9hZ1+ZHi6q+mni/lY0gNv8KDk8kV671RfNQkehcD5nLj2cG0brVTGf3S5wQ6x4093mK5wJPV0bnh8HiSKIu0A7N14Q9djufnuQHBn60o7ud2niyyQw/RWWWlMhVjLMzVASXqbw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bKBGp2HmTz2xd3;
+	Sat, 14 Jun 2025 19:46:10 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.166.198
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1749894370;
+	cv=none; b=WstrLx/7B4QgW0lCuh4DtIF1l6VLE8R4WWqZqlKuL5GTBxnXB3OVVqA639eAgR+GBlrvDTXYziVwLditOl5w9yMrR1WmB1vRQDSpeprLW/ZJNWfrgpdcfFYr2LLQvJISor922/zGDJKQvY5zy2pl43kKPh28P5ZsZeZ5Q9XOEOc/IPcRtyqeHZMbn3Lmq/XBR4gRGmc7xJrWE3/zfpUZbffnrhlQ6t+Bt+wk5zU+Ps5Ammdu1e9Gqjn4YjrKCihidm8HBLyE0b4lpfUvkdFZwTDZPMbqG/uS+PpnVdvVpgqDVT/Q/WcdwT7ebgayoFw1qtvqUmipcyCegT7BH8lztg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1749868394; c=relaxed/relaxed;
-	bh=+Zp/Oyp/ryc4XKaaks5lqJQuMClnsY3iUPW4KRUKIrI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KXNPDxoVdjecy4fG+cvyzM7P2wABSKfXqhnTNQmHxals9uUa+yC0PAOV7dpUDRyrwMLy8WljblcI1f1wI2EYoZ2w2uwbB1kKpth100Fb7ewC7m1d/NFwFX21OAtVZ0ryHcckpw63rF6zw/Z9u7WtHSOkAXY2L//hExtG2fOnqeyDjBTzxyEKAD3fD3apyJDNGUpvyDrTK+jj9/AIGmeYRlHT7GFKfHuwOM5frbWCwIwGGhnzboJ7LP57cZpBCxcsaGS4ttvTpHK9qptGhKRhV8+No0AEhKVpEpkYmAJkrSsbWQod7h322uqD0+/5btkVi6YjoxRdPce/nTqvC/c37g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WcArZsRG; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WcArZsRG;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	t=1749894370; c=relaxed/relaxed;
+	bh=OOullEj6fbTIFAODytKrgDERNVpRSjN594Q2Nd4pVdg=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=WBZsVjr5oXFWMd3pJHBDd6YGVVeaE2vaPnpIVFQSOjha6sxI9pmh1HzHj9C5cmA2eoxJtmalZzsphyMEhgdz964db+wKkHmp2VnYXIlxfnnlR+VFCp4udkkipaNVL9VxPqxIuiOk+/MsgPgSkF+DOe8td2sIU3JPffMCyms3YAejqcGO7HBNzP/njeAsMOF5m1LletU2BgaIL44pCjkV+7TvKy7YMnIYsOTnrHiJ4/2viyrDq6Qt/cqse7ZCxrJVjHRxFt9R3AcYcvtQIR06CLw3cINEUx5JHO0+1k3nVPEgtC4fnUzxKCexB79DI8Vp6h9RiblXiguBi9mLev5Ipg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass (client-ip=209.85.166.198; helo=mail-il1-f198.google.com; envelope-from=32krnaakbaoevbcndoohudsslg.jrrjohxvhufrqwhqw.frp@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
+Authentication-Results: lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.166.198; helo=mail-il1-f198.google.com; envelope-from=32krnaakbaoevbcndoohudsslg.jrrjohxvhufrqwhqw.frp@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bK0gC4Zx8z2xKh
-	for <linux-erofs@lists.ozlabs.org>; Sat, 14 Jun 2025 12:33:10 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1749868386; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=+Zp/Oyp/ryc4XKaaks5lqJQuMClnsY3iUPW4KRUKIrI=;
-	b=WcArZsRGzzUr2Xj8E8303/bVY1Eyegc+AhlUoO0ZmObEeR8z282bmvnCs/GUvfHm64cSgukFtrMENyQx0LNyEIfUbuHXs0N05pGxatogtkTEMHvdQnnfzN74iVE8lXuxiFYSH/EHcl7oV2cNmv4OoOXSy6JpBJLbBB/7LO7qKz8=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wdm5aFX_1749868384 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sat, 14 Jun 2025 10:33:05 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 2/3] erofs-utils: mkfs: limit the default asynchronous queue size
-Date: Sat, 14 Jun 2025 10:32:58 +0800
-Message-ID: <20250614023259.1688845-2-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20250614023259.1688845-1-hsiangkao@linux.alibaba.com>
-References: <20250614023259.1688845-1-hsiangkao@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bKBGj710Wz2xHZ
+	for <linux-erofs@lists.ozlabs.org>; Sat, 14 Jun 2025 19:46:05 +1000 (AEST)
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3ddc5137992so32895195ab.2
+        for <linux-erofs@lists.ozlabs.org>; Sat, 14 Jun 2025 02:46:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749894362; x=1750499162;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=OOullEj6fbTIFAODytKrgDERNVpRSjN594Q2Nd4pVdg=;
+        b=wgtSItWSJx6/m4rNxR9sWhMQdt7YSxxK2C23cTF6ePshTZXVJsvrhx67KCGPP2n/GO
+         nJjCL+j9dk0oV45Uv0+AnJiaC6WPFGxPSAhUcivmK6HQcamvihhTNDFiT/HgfUOTAo1K
+         FUxkdLLqtxJBkZ9USRzT0jukkyaOF8Sn5fhtq6EZJICFED0bGuaWkVXj0B+UIPjl5Y7z
+         02BborOeJb8c+mIEJ3IG7P+oD60V93ll7UaurfJ9kfS/VX5T9JX+cWuuFZI7FuIEd+rw
+         MjAD7CQPDYn5sfiMEgTCMMvRlyW7hRY2f/NVAB6SROkrlxg3MbPsrY1mv3NixpgFONE3
+         +56w==
+X-Forwarded-Encrypted: i=1; AJvYcCWRZ0JoUPdb0TbGYozuM873q74zHmIr68Cr2DqCmkKCodRWGwg7xlSpnyHIcaCauovVJrZ8mqH/ZdQMUQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YzFtXbOIxgCT1We5o0pgielmtm77JJ9ZgwxZONGPA7PkdiZRyVT
+	N5EvLLzBUtWVDEk48PseDmYbBPCpIlWS4R2ptHheGKeh5oUsvEkenhJio9Ch/1keppNWnvMvFkL
+	8KqGXnTHrh5Kc40ku6XPA/wmrqiMikATYCrEDvL6boKahGMKHvKZTfmmU7MU=
+X-Google-Smtp-Source: AGHT+IEVUfA3mPXS3hA0DJoSSRV+Ghh9W3bYlbB4sUQ+RiorkpWaQkzcHee8EanONeMMSXpA5+N9R0E0c+PhDvzwN0h/7WUL0Klg
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,94 +55,42 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6e02:170b:b0:3dd:bfbc:2e84 with SMTP id
+ e9e14a558f8ab-3de07cd17c6mr26890655ab.19.1749894362680; Sat, 14 Jun 2025
+ 02:46:02 -0700 (PDT)
+Date: Sat, 14 Jun 2025 02:46:02 -0700
+In-Reply-To: <684cb499.a00a0220.c6bd7.0010.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <684d44da.050a0220.be214.02b2.GAE@google.com>
+Subject: Re: [syzbot] [iomap?] [erofs?] WARNING in iomap_iter (5)
+From: syzbot <syzbot+d8f000c609f05f52d9b5@syzkaller.appspotmail.com>
+To: brauner@kernel.org, chao@kernel.org, djwong@kernel.org, eadavis@qq.com, 
+	hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, syzkaller-bugs@googlegroups.com, xiang@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Limit the default asynchronous queue size based on the maximum file
-descriptor limit.
+syzbot has bisected this issue to:
 
-Otherwise, exceeding the FD limit will result in EMFILE errors.
+commit 1d191b4ca51d73699cb127386b95ac152af2b930
+Author: Gao Xiang <hsiangkao@linux.alibaba.com>
+Date:   Mon Mar 10 09:54:58 2025 +0000
 
-Note that EROFS reuses the file page cache instead of duplicating all
-file contents into process memory, though this is constrained by the
-maximum FD limit.
+    erofs: implement encoded extent metadata
 
-Fixes: 9bd592bfed10 ("erofs-utils: mkfs: increase the maximum size of the asynchronous queue")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- configure.ac |  2 ++
- lib/inode.c  | 31 ++++++++++++++++++++++++++++++-
- 2 files changed, 32 insertions(+), 1 deletion(-)
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1352dd70580000
+start commit:   02adc1490e6d Merge tag 'spi-fix-v6.16-rc1' of git://git.ke..
+git tree:       upstream
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=10d2dd70580000
+console output: https://syzkaller.appspot.com/x/log.txt?x=1752dd70580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=162faeb2d1eaefb4
+dashboard link: https://syzkaller.appspot.com/bug?extid=d8f000c609f05f52d9b5
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=115f9e0c580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1688b10c580000
 
-diff --git a/configure.ac b/configure.ac
-index a73a9ba..5c2737c 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -211,6 +211,7 @@ AC_CHECK_HEADERS(m4_flatten([
- 	sys/ioctl.h
- 	sys/mman.h
- 	sys/random.h
-+	sys/resource.h
- 	sys/sendfile.h
- 	sys/stat.h
- 	sys/statfs.h
-@@ -265,6 +266,7 @@ AC_CHECK_FUNCS(m4_flatten([
- 	backtrace
- 	copy_file_range
- 	fallocate
-+	getrlimit
- 	gettimeofday
- 	lgetxattr
- 	llistxattr
-diff --git a/lib/inode.c b/lib/inode.c
-index 7bd1047..39ffebc 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -1888,6 +1888,28 @@ static int __erofs_mkfs_build_tree(struct erofs_mkfs_buildtree_ctx *ctx)
- }
- 
- #ifdef EROFS_MT_ENABLED
-+
-+#ifdef HAVE_SYS_RESOURCE_H
-+#include <sys/resource.h>
-+#endif
-+
-+static int erofs_get_fdlimit(void)
-+{
-+#if defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRLIMIT)
-+	struct rlimit rlim;
-+	int err;
-+
-+	err = getrlimit(RLIMIT_NOFILE, &rlim);
-+	if (err < 0)
-+		return _POSIX_OPEN_MAX;
-+	if (rlim.rlim_cur == RLIM_INFINITY)
-+		return 0;
-+	return rlim.rlim_cur;
-+#else
-+	return _POSIX_OPEN_MAX;
-+#endif
-+}
-+
- static int erofs_mkfs_build_tree(struct erofs_mkfs_buildtree_ctx *ctx)
- {
- 	struct erofs_mkfs_dfops *q;
-@@ -1898,7 +1920,14 @@ static int erofs_mkfs_build_tree(struct erofs_mkfs_buildtree_ctx *ctx)
- 	if (!q)
- 		return -ENOMEM;
- 
--	q->entries = cfg.c_mt_async_queue_limit ?: 32768;
-+	if (cfg.c_mt_async_queue_limit) {
-+		q->entries = cfg.c_mt_async_queue_limit;
-+	} else {
-+		err = roundup_pow_of_two(erofs_get_fdlimit()) >> 1;
-+		q->entries = err && err < 32768 ? err : 32768;
-+	}
-+	erofs_dbg("Set the asynchronous queue size to %u", q->entries);
-+
- 	q->queue = malloc(q->entries * sizeof(*q->queue));
- 	if (!q->queue) {
- 		free(q);
--- 
-2.43.5
+Reported-by: syzbot+d8f000c609f05f52d9b5@syzkaller.appspotmail.com
+Fixes: 1d191b4ca51d ("erofs: implement encoded extent metadata")
 
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
 
