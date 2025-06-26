@@ -1,47 +1,49 @@
-Return-Path: <linux-erofs+bounces-492-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-493-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BF90C7EE30
-	for <linux-erofs@archiver.kernel.org>; Wed, 25 Jun 2025 11:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12A09C77B7C
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Jun 2025 00:32:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bS0PH6Jmwz307K;
-	Wed, 25 Jun 2025 21:45:23 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.101
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1750851923;
-	cv=none; b=Ggrt1oW0LjvAL/GBStipwP0dAYhgHlSVhglnY4O3XUjV5Wa9dv0znJbA8skgEAcvQu+TX8K9zsCu96getQYPFqzV5F9HT1F2ZAgLrC2IwVOkEarr+TwGha2tm3ArRgxsSINN0Pu9X5nCMDbR0mhqSF0XRA4tnO4Q8qrHLkYF2XOOl/nwc80wJrIpPM9xKHdBcKCBoMfhL0ObKUk3GuecB4OMzZp/S9jviBOzRwQXj9INWrODcaTljly1bhwbf3DpnxLyKF9nJAR6yaxLY4u8lBkiRRbMsNincgEeobDdTiqO82WPx36M4uueMlyRUM7TnEiQPtnHruf0Xw+ROpFtaA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bSKQT4WFFz2xWc;
+	Thu, 26 Jun 2025 10:32:33 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1750897953;
+	cv=none; b=FdF21lhne19G9QNxr++4ZN+A4qvkh9CLUbcDg7vqLu+ZPlVyPkqNSCNZZKhbrVlhLGgFEZLUbNs7gbmH+jLlZnb+2mgChCDjffleBAnAxeHouhYwTGKMHzj/jQZandtRvEm8QjXifZGPUcYFNOOYp7r68GRRgEWiloX9zyMAQ9pTy62J+H1BU6YnDqUfsm1/DFn6Pe3hwUb7AXe+CgoOxepklsl5eaGlcjO8izTxhZ/hSk1Gq7NaWitOFa1L46JiW+EN7a2JckX6R37mMwte1RiJ3ib7pNARvgpmhLyBVTty/Hti2fY6/RICebOEwsyxAGfE9QzqyAG6bEag8B2QyQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1750851923; c=relaxed/relaxed;
-	bh=8fHddFzOdlUvnZn2LML8d9njcV7H81ywUTBk6/7WSuk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kcm9Kc8f5zy7zLz7Jk9xT/AGrQH+9/e07viyy2qS326jcyz7f6GC0vWznwrZ18+F0CzGqgRmB7neuncBgwiAb9Ra0xr/O1kJ1mZptb4EMz/LGekv25GOT5mqN67n1YV9F0Wan6atOcvATcD2xOAtvZpJAzqhaCVUgOfK/e8yMTKK+aZwMbb5ryZuzYFqgwfu/ANzSt4v8McD7QfQCq6RiKfVGuks2GxCQbzL+0fh5ijRfrq0EcGIPQ3OEtFgn5szB+tWD8KSvurN8M/b3PunF0yp0Ud0i6RSB80IkuT6zvLIoQDgKv+k3fhngvvHkuaPMcZrB7ClA6377k819VKIvA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Mb1gXlRO; dkim-atps=neutral; spf=pass (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1750897953; c=relaxed/relaxed;
+	bh=SxEMG9ZQgsp1ztTxz8FYey2AAb6wu+XT/1m7q4W62AA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Reyfh4htTbdz2pSCFPIsYDncmNdTB2vTPXrYMJzPYRAdKN1F3GC52Zoka8kSNOjhaOGIvZMO+K10UWntSTXk/l/LjPcrd/dkaaC9zOhslZFxl39Rerf3DY1hJitRBNP49i8NpG7M/7Vgj+ihwdTQ29rqtVn63oQUYIwEkwzNNh4Zlg05RejK3/GK30Vg/DFtfDZHrcAukiBUHhjhDGlgNI0/h8PVtIr3nZ/dJuq9Xm9CZ1fbcU3wx7I69WNG0GGZwO3WfTxy2dhgmHTEn5T3h2bzG2XRNOjmk/91vyZ9ZyYOp8iwbx5aup14pvWKcXQinSAjqAr4kMWVjxpIMj2I/Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FOSe1ctM; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Mb1gXlRO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FOSe1ctM;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bS0PG1dPxz2xHZ
-	for <linux-erofs@lists.ozlabs.org>; Wed, 25 Jun 2025 21:45:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bSKQR1xWwz2xRt
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Jun 2025 10:32:29 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1750851917; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=8fHddFzOdlUvnZn2LML8d9njcV7H81ywUTBk6/7WSuk=;
-	b=Mb1gXlRO8xbEjHKkO4cqRXLSTGyLQjQ6MZbio0aNtOcHHTNFQ15Nu1FCEshCWVD9WsqCZ5efHbDCOrYYEOyWBgzbPmwpGYkqmXvOnBI8f9DkLTp9e8qq8ZICFCdiPZcatahdcj2S2mW7CFxer09lcuvJFKJRv5TSoqvuKDKx1Cc=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WexvaRN_1750851910 cluster:ay36)
+	t=1750897945; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=SxEMG9ZQgsp1ztTxz8FYey2AAb6wu+XT/1m7q4W62AA=;
+	b=FOSe1ctMa7nhqgKEi/35rhBQUQbLm02CBLRtvuviqXvcgPTm/xNopELjJ3VAM2zfVPTeqC/4FS4BxonXeR4ojd+tjbg4mcEcwyS4UF00B7V4G3uOYh3LhMF8cRxQDm84vkuCqT1c3rAHBwnRciMy7eppSxtos2MPKBlnWBlDRRk=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wf4NyOD_1750897940 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 25 Jun 2025 19:45:15 +0800
+          Thu, 26 Jun 2025 08:32:24 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH] erofs-utils: tar: handle negative GNU mtime properly
-Date: Wed, 25 Jun 2025 19:45:09 +0800
-Message-ID: <20250625114509.2205795-1-hsiangkao@linux.alibaba.com>
+Cc: David Michael <fedora.dm0@gmail.com>,
+	Neal Gompa <ngompa13@gmail.com>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs-utils: lib: fix small fragments again
+Date: Thu, 26 Jun 2025 08:32:19 +0800
+Message-ID: <20250626003219.3866538-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -56,48 +58,32 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-EROFS natively supports pre-1970 timestamps for file data archiving,
-and this was already handled when building from directories.
+`inode->fragment = NULL;` overrides `inode->fragmentoff`, which is
+unintended.
 
-Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+In fact, the latest stress test [1] had already failed, but I didn't
+notice it. Fedora openQA tests [2] also reported the issue.
+
+Fixes: 9fa1a5838a2a ("erofs-utils: mkfs: fix memory leak from small fragments")
+[1] https://github.com/erofs/erofsstress/actions/runs/15881657361
+[2] https://bodhi.fedoraproject.org/updates/FEDORA-2025-e6256ddcc4
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/tar.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ lib/fragments.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/lib/tar.c b/lib/tar.c
-index 941fad2..72c12ed 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -283,7 +283,7 @@ static long long tarerofs_otoi(const char *ptr, int len)
- 	inp[len] = '\0';
- 
- 	errno = 0;
--	val = strtol(inp, &endp, 8);
-+	val = strtoll(inp, &endp, 8);
- 	if ((*endp == '\0' && endp == inp) |
- 	    (*endp != '\0' && *endp != ' '))
- 		errno = EINVAL;
-@@ -292,16 +292,17 @@ static long long tarerofs_otoi(const char *ptr, int len)
- 
- static long long tarerofs_parsenum(const char *ptr, int len)
- {
-+	errno = 0;
- 	/*
- 	 * For fields containing numbers or timestamps that are out of range
- 	 * for the basic format, the GNU format uses a base-256 representation
- 	 * instead of an ASCII octal number.
- 	 */
--	if (*(char *)ptr == '\200') {
-+	if (*(char *)ptr == '\200' || *(char *)ptr == '\377') {
- 		long long res = 0;
- 
- 		while (--len)
--			res = (res << 8) + (u8)*(++ptr);
-+			res = (res << 8) | (u8)*(++ptr);
- 		return res;
+diff --git a/lib/fragments.c b/lib/fragments.c
+index 6111631..3278f47 100644
+--- a/lib/fragments.c
++++ b/lib/fragments.c
+@@ -365,7 +365,6 @@ int erofs_fragment_commit(struct erofs_inode *inode, u32 tofh)
+ 		return 0;
  	}
- 	return tarerofs_otoi(ptr, len);
+ 	inode->fragmentoff = (erofs_off_t)offset - len;
+-	inode->fragment = NULL;
+ 	free(fi->data);
+ 	free(fi);
+ 	return 0;
 -- 
 2.43.5
 
