@@ -1,47 +1,48 @@
-Return-Path: <linux-erofs+bounces-638-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-639-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01405C83F22
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Jul 2025 16:25:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34BE1C83F1B
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Jul 2025 17:33:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bj1cD0MdTz2ySY;
-	Thu, 17 Jul 2025 02:25:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752683099;
-	cv=none; b=H93nnLG19iZXFj4FQ+ZhfzuRVX6YqgAyvb1ZAnGQHY4GPiPM/AJ0CP/Wo6jPRtkRlGvTZbxVTrmfciNVQssznAYJO1d1SbJ29IrF4frg+N7Gh58cqn8ZLj7Ai4fuKYfOyRwph52xL0eSQWNzeZscap2C45vZST9a5V8quNa3TnXQoxrSFe7LVVNUbmWCDJaFCp68iz0mOJLr1wNG33TTasJlh5PJr9zkdV+ISKvtcbL2c/+Ng+utVT4ptl4+IRczXvsV89bl3ZLlxN6X0QaZQE+wgH3EvbWClt16aEDUF8QtTQi/KUjr1h+aMMUQ0ScFoOiDDz6IqggS888N1TaRmg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bj37D4nbcz30Vn;
+	Thu, 17 Jul 2025 03:33:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752687208;
+	cv=none; b=DHoZjh0uQ50VcYCw5DGekRSrOibkJV6hqVYVLmOXaDvr1QRdV9TFjoSbSX5BockiB2a4Wv9MRA5fzEZ0YhnCIWgcsycfb6jL+wFLkf3Xx3vRtNfeFXMzYo4E2+U9tJpkxJheAaGcAD81shY23lzUmqIe+f/Fhd8FnkJpf2bXSm4Mxs65n/xxTi67KWb7TP4EPsFHcd3apg/cLOvhLkSFkSxPLJWO0jW1SnlDM+Bp4nGuu47sCZ8mXNTTDBxxqrJLtWsL8jgUHUpfs3qDw2I08eL8Ruj60YOMYtjk/HIManzgwVfB3hEun+Bjcc+grRSFcPU+l0Gb6FsK1Gct3/kuaQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1752683099; c=relaxed/relaxed;
-	bh=hUrvBhpLJeo5e2F+FxUovDoRKL1vlAGdqOeC7hnz8Fs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VfQ1nh9r+yKiJXfRG32w/mvJ6JaINPo1+ZZF5f6mf6JwXLT0eeRGOaI1XvB8ccR7FtYYFbt0wl7IT2VmlOPQYR7pt+8KoLOZPAn7UQD+dltBVsfa6MC+HLYq192jwCE1Id1LgjFlaivDP1DT0Fz3l+mh6/+v30GS0EOFj25JgXaL6qb9dhgET3mYdAOW674nsOvNnoHzZ6mEsYhDVRW3wE9S7QzqVxVbpVaLfNWdrvPpmmc0P8wy9f3JSZVk2MW6dqF6nowZ6yHgj2F0EFFNB2uY4zGCNu5llJ0d9Zbu4S7/g1jxWKhc103F/ei4eR9QRZ2ZfzBspR+OGNjAkBMt0w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MKv+AWyp; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1752687208; c=relaxed/relaxed;
+	bh=zDJCiGHS3GPm13IZWsw1313r2MueLUxvlBMMubXIbYw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WMPRMFmp/pmiFw3TrwLTchQKTj7WfR9q9scet1PMHjA99BZmZ6qPSujIdw06n6+Vv196vcbreNmHo2AEsA2Yirp0h6BMBhSF0ibNpMqarkn+Dm3A3KLsN/F5iL5jHbGztsvMAH8IURWh7Q8HMv1s4u6g9fPBwyyLwhO7sank/Qqm9YWKN6jPPSr+MRFomTQFsSzOPnUlVRP2KGW4E7xFjORen5vf2lTqKPPopEeugpjd+3c5f6nKhPwtA4pwkvbJs9UYlp3bWkI8AqNQsXKrvKraaj1mJ7ifpBhzHv1tyNIT3k94ysEwHkm4ga9JlrvSMk/uqUkOnhTcXX/Xnrgegw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=EnB2R+Su; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MKv+AWyp;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=EnB2R+Su;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bj1c772Fxz30VZ
-	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 02:24:54 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bj37C0M4rz3069
+	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 03:33:25 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1752683089; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=hUrvBhpLJeo5e2F+FxUovDoRKL1vlAGdqOeC7hnz8Fs=;
-	b=MKv+AWyprCytdTIYbQevY6YNUWt0JdowRJaPBpchRXNgW5ZEh0HPsfqqDlpoZCJ8+zxPcfWu7d9ODYGac41udrokB3MHxmLn7i5f+5NJech6luUdbor/ZGjaE+MSZQbq5dWr+dHWgL+dXfruUTPVU8QKU3/+G73uo/TWrhRud6M=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wj5JWtY_1752683083 cluster:ay36)
+	t=1752687201; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=zDJCiGHS3GPm13IZWsw1313r2MueLUxvlBMMubXIbYw=;
+	b=EnB2R+Suk30bkTwztGuJu/+Y2z+W+EA3s/Rx12XpCh9RyDxCEttFzmUbkoAkHchjF2p09MvQ1g6vWPsv2Fi/1ilr6DRgh1svJKkcy+TWo+kH/st+PYY4+bdqj+y5+rRFdrTaCLNyICw1/wt2Pt5Kcc2h0I5xjk8GPHkdra6eGJU=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wj5Vb3w_1752687195 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 17 Jul 2025 00:24:47 +0800
+          Thu, 17 Jul 2025 01:33:19 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/3] erofs-utils: mkfs: don't generate encoded extents for ztailpacking
-Date: Thu, 17 Jul 2025 00:24:39 +0800
-Message-ID: <20250716162441.209783-1-hsiangkao@linux.alibaba.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH v3 0/2] erofs: support metadata compression
+Date: Thu, 17 Jul 2025 01:33:12 +0800
+Message-ID: <20250716173314.308744-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -56,37 +57,56 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-.. Need more library work for ztailpacking.
+Hi,
 
-Fixes: f978245e9da8 ("erofs-utils: support encoded extents")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- lib/compress.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+This patchset implements metadata compression since many users are
+interested in smaller image sizes (even at the cost of some I/O
+latency).
 
-diff --git a/lib/compress.c b/lib/compress.c
-index a57bb6a3..22fb5d6d 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -1142,7 +1142,8 @@ static void *z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
- 	struct z_erofs_extent_item *ei, *n;
- 	void *metabuf;
- 
--	if (erofs_sb_has_48bit(sbi)) {
-+	/* TODO: support writing encoded extents for ztailpacking later. */
-+	if (erofs_sb_has_48bit(sbi) && !inode->idata_size) {
- 		metabuf = z_erofs_write_extents(ctx);
- 		if (metabuf != ERR_PTR(-EAGAIN)) {
- 			if (IS_ERR(metabuf))
-@@ -1181,6 +1182,8 @@ static void *z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
- 	ctx->metacur = metabuf + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
- 	ctx->clusterofs = 0;
- 	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
-+		DBG_BUGON(ei->list.next != &ctx->extents &&
-+			  ctx->clusterofs + ei->e.length < erofs_blksiz(sbi));
- 		z_erofs_write_full_indexes(ctx, &ei->e);
- 
- 		list_del(&ei->list);
+In short, it uses a special "metabox" inode to gather all inode
+metadata and then compresses it.  Since EROFS supports multiple
+algorithms, you can select a faster algorithm (e.g., LZ4) from
+the one used for data compression (e.g., LZMA).
+
+Also see the detailed commit messages for more details.
+
+Here are some preliminary numbers:
+
+Command line: -zlzma,6 -Efragments,ztailpacking -C1048576
+
+  ______________________________________________________________
+ |         |_______ Vanilla _______|___ 2554769408 (2437MiB) ___|
+ | Fedora  |_______ `-m4096` ______|___ 2524504064 (2408MiB) ___|
+ |_________|_ `-m4096` (lz4hc,12) _|___ 2527326208 (2411MiB) ___|
+ |         |_______ Vanilla _______|___  378634240 ( 362MiB) ___|
+ |  AOSP   |_______ `-m4096` ______|___  377856000 ( 361MiB) ___|
+ |_________|_ `-m4096` (lz4hc,12) _|___  377942016 ( 361MiB) ___|
+
+Thanks,
+Gao Xiang
+
+v2: https://lore.kernel.org/r/20250711094004.2488-1-liubo03@inspur.com
+Changes since v2:
+ - refine the ondisk format and implementation.
+
+Bo Liu (1):
+  erofs: implement metadata compression
+
+Gao Xiang (1):
+  erofs: add on-disk definition for metadata compression
+
+ fs/erofs/data.c         | 59 +++++++++++++++++++++++++----------------
+ fs/erofs/decompressor.c |  2 +-
+ fs/erofs/erofs_fs.h     | 15 ++++++++---
+ fs/erofs/fileio.c       |  2 +-
+ fs/erofs/inode.c        |  5 ++--
+ fs/erofs/internal.h     | 19 ++++++++++---
+ fs/erofs/super.c        | 22 +++++++++++++--
+ fs/erofs/xattr.c        | 20 +++++++++-----
+ fs/erofs/zdata.c        |  5 +++-
+ fs/erofs/zmap.c         | 16 ++++++-----
+ 10 files changed, 115 insertions(+), 50 deletions(-)
+
 -- 
 2.43.5
 
