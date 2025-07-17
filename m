@@ -1,72 +1,44 @@
-Return-Path: <linux-erofs+bounces-649-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-650-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0863C83F1B
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jul 2025 01:54:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 164C7C83F22
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jul 2025 01:59:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bjGF14HD5z2yF1;
-	Thu, 17 Jul 2025 11:54:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=117.135.210.6
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752717253;
-	cv=none; b=iCEGstT6itG69W/172GMTPmNbhB9dCAx2xNIKyUCUgMM+23lF+Z4ov0a/Gp+1dOa6ohfA/1I/nt8kiP22S9gt/zSTv6RAPEveUbEUZjk2blQHVYleW3Cm/VJi6UZKHe/cgai2E5+hO0eiejGCT3Zr0vNkWZgL5mDq6KcEOba/RljQeDKGN4hqN5K24CBQDoTdHg68VMhFbIgH6U5h/aaNlo+MwTpg+A2pQtmyG/MWjfEeQOTVaL2Xa3/NRFQVYiVZW9ANk7JzeE4fORrse846BeHZslMjO0Bkjvy9C3FM/A6bxHyClHvW9bZj16doEupOaHjmSjP2XB62UKQDPK5kw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bjGLg4z1tz2yF1;
+	Thu, 17 Jul 2025 11:59:07 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.51.61.247
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752717547;
+	cv=none; b=Gtw7mgHPLRYhe2f2WTV+EXu7A7SYxUwKFjhEHqeF98ocaaFodMnhdVXi/6y0SYdbn+R35a36ysQ8LpaDbsbKVa4ZgfG8+l2OnOEEJ4GE1hwe+CSCoVHZIUeGIwiznbzpYZcoDExtmCYpSldXrZTyt02kHojXX52OcnjPghR67nA6RireXXyvgxEInSESSHPcpeMcQA4/p9zjoLF5pGVy8zr2pFUOXZhHNvZdEkFD5Zh/w0xHjgLaCDwfcPgJxoRYoy6chV113XY0Uh2vc+3NMGDrCbE6x/C2bTd1cnZ+dsfhdR6/HKKtZ6nGudfCpjGpNfhECWrEMxd4N/2vp2fNGA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1752717253; c=relaxed/relaxed;
-	bh=EIJgRbo2yBEeYOe56FQ8t29uLldSsA6Cw8nKiYtCDc8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OT8AnUkHGLeggVsHPzYAxo1cc2gN/Nkg+0LOIzS1if/23oQLAUoiYo0xqb/qQUGhNLIuIxRvN5+jutCUk/L1K4xYRzoIT2THCgmLRj1eNP73/iMAR/oI23YLdnSepCzbfGPB4l9Nff6V6zvXldpyS49ibaMezoh+Theja84okC6aTturTBWZ7f04itenJzqGY56gGiLaOXFI1W3AtuOeiEHFRxekQ0spD9DrfSj5PfCEsZiEDOSMTS3z3+OmjfD13acm7T0fKbQEDsiT62WXNllbhityjgx0OZO98yzAyXdJ57ZaYoPBRyP8uBHI9mTrz1lmceazhHabhV6QCMpqUQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=126.com; dkim=pass (1024-bit key; unprotected) header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b=jz6XkYHH; dkim-atps=neutral; spf=pass (client-ip=117.135.210.6; helo=m16.mail.126.com; envelope-from=nzzhao@126.com; receiver=lists.ozlabs.org) smtp.mailfrom=126.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=126.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b=jz6XkYHH;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=126.com (client-ip=117.135.210.6; helo=m16.mail.126.com; envelope-from=nzzhao@126.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 2899 seconds by postgrey-1.37 at boromir; Thu, 17 Jul 2025 11:54:10 AEST
-Received: from m16.mail.126.com (m16.mail.126.com [117.135.210.6])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bjGDy4Wc3z2yDk
-	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 11:54:07 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=EI
-	JgRbo2yBEeYOe56FQ8t29uLldSsA6Cw8nKiYtCDc8=; b=jz6XkYHHjOmUNGKAG8
-	7zHJBqjQXWUhQMLTDbg8FNOvmse7PPf0qd3RKFzMwx+JQAzX7qb7lfhMl1oceFhG
-	mZ7e/kTlAWcimrvizDTPt+1IpmD3mXC2jrhIei67mlLI9wrFG/fO1X7lbE1DqhuP
-	M5O7aAVyT0SiYT1bn6IUAqBD0=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDnL_QZTHhoBW1MAQ--.5971S2;
-	Thu, 17 Jul 2025 09:04:39 +0800 (CST)
-From: Nanzhe Zhao <nzzhao@126.com>
-To: nzzhao.sigma@gmail.com
-Cc: almaz.alexandrovich@paragon-software.com,
-	clm@fb.com,
-	dhowells@redhat.com,
-	dsterba@suse.com,
-	dwmw2@infradead.org,
-	jack@suse.cz,
-	jaegeuk@kernel.org,
-	josef@toxicpanda.com,
-	linux-btrfs@vger.kernel.org,
-	linux-cifs@vger.kernel.org,
-	linux-erofs@lists.ozlabs.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-fsdevel@vger.kernel.org,
-	linux-mtd@lists.infradead.org,
-	netfs@lists.linux.dev,
-	nico@fluxnic.net,
-	ntfs3@lists.linux.dev,
-	pc@manguebit.org,
-	phillip@squashfs.org.uk,
-	richard@nod.at,
-	sfrench@samba.org,
-	willy@infradead.org,
-	xiang@kernel.org
-Subject: Re: [f2fs-dev] Compressed files & the page cache
-Date: Thu, 17 Jul 2025 09:04:14 +0800
-Message-ID: <20250717010414.1595-1-nzzhao@126.com>
-X-Mailer: git-send-email 2.42.0.windows.2
-In-Reply-To: <CAMLCH1HCPByhWGQjix6040fZuZhjkj19k=4pqmNzPDtGeZ0Q6A@mail.gmail.com>
-References: <CAMLCH1HCPByhWGQjix6040fZuZhjkj19k=4pqmNzPDtGeZ0Q6A@mail.gmail.com>
+	t=1752717547; c=relaxed/relaxed;
+	bh=N8M3/dOOczfrUoDujFmC0xvnF/Lg8Z70JkSj4q+LSGw=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iB+2de2xXRfQVC3fyTNLE+hT65H8Bq9XHzTgZPT+tGG/jg4e6yW2oLRwaiicPq/qw46nr4Hq3VK7EIYp5Kv/UHa44rnWgTiLlu7v7rwLJrr41VA8zqbvXyaZxd01LMjXQiOB/tTONBWX28HkCXGy/o8mxJiXa9YT51B8OJBxla5qviSTTeVslSjffsY2Gac2iNneg4kNPwyqfoJcBnNbwX1kYfR9fYF5QYbibE1EXufXn2Pr2O+rYPHbwRm0GetkR6WKSUS8iFT0MhSd0HN0fW+mfY5GrX3rq49wsiVRa4BYI79xmiO+HSWSokpV74zDNg9f5GyVPmCL6E+2diSSrQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com; spf=pass (client-ip=210.51.61.247; helo=ssh247.corpemail.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org) smtp.mailfrom=inspur.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=inspur.com (client-ip=210.51.61.247; helo=ssh247.corpemail.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org)
+Received: from ssh247.corpemail.net (ssh247.corpemail.net [210.51.61.247])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bjGLf23KXz2yDk
+	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 11:59:03 +1000 (AEST)
+Received: from jtjnmail201622.home.langchao.com
+        by ssh247.corpemail.net ((D)) with ASMTP (SSL) id 202507170958577543;
+        Thu, 17 Jul 2025 09:58:57 +0800
+Received: from localhost.localdomain (10.94.15.194) by
+ jtjnmail201622.home.langchao.com (10.100.2.22) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.57; Thu, 17 Jul 2025 09:58:57 +0800
+From: Bo Liu <liubo03@inspur.com>
+To: <xiang@kernel.org>, <chao@kernel.org>
+CC: <linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>, Bo Liu
+	<liubo03@inspur.com>
+Subject: [PATCH v2] erofs: fix build error with CONFIG_EROFS_FS_ZIP_ACCEL=y
+Date: Wed, 16 Jul 2025 21:58:48 -0400
+Message-ID: <20250717015848.4804-1-liubo03@inspur.com>
+X-Mailer: git-send-email 2.18.2
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -78,63 +50,57 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnL_QZTHhoBW1MAQ--.5971S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxCrykZr1DGr4rXrWxurWxJFb_yoW5XFWkpF
-	W5KF1rKr4kXr4xAw47Aa12gFyF93s5JF47J34fKFWqy3W5J3sa9r1Dtas0vFWDGr93Xa1q
-	vr4q934093s0vFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UpwZcUUUUU=
-X-Originating-IP: [34.216.57.139]
-X-CM-SenderInfo: xq22xtbr6rjloofrz/1tbiZBKNz2h4PiLMHQAAsp
+Content-Type: text/plain
+X-Originating-IP: [10.94.15.194]
+X-ClientProxiedBy: Jtjnmail201615.home.langchao.com (10.100.2.15) To
+ jtjnmail201622.home.langchao.com (10.100.2.22)
+tUid: 20257170958579e39912c5d14bf5a236e6e429856e73f
+X-Abuse-Reports-To: service@corp-email.com
+Abuse-Reports-To: service@corp-email.com
+X-Complaints-To: service@corp-email.com
+X-Report-Abuse-To: service@corp-email.com
 
-Dear Mr.Matthew and other fs developers:
-I'm very sorry.My gmail maybe be blocked for reasons I don't know.I have to change
-my email domain.
-> So, my proposal is that filesystems tell the page cache that their minimu=
-m
-> folio size is the compression block size.  That seems to be around 64k,
-> so not an unreasonable minimum allocation size.
-Excuse me,but could you please clarify the meaning of "compression block si=
-ze"?
-If you mean the minimum buffer window size that a filesystem requires
-to perform one whole compress write/decompress read io(also we can
-call it the granularity),which,in f2fs context we can interpret as the
-cluster size.Then that means for compress files,we could not fallback
-to 0 order folio in memory pressure case when setting folio's minmium
-order to "compression block size"?
+fix build err:
+ ld.lld: error: undefined symbol: crypto_req_done
+   referenced by decompressor_crypto.c
+       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
+   referenced by decompressor_crypto.c
+       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
 
-If that is the case,then when f2fs' cluster size was configured,the
-minium order was determined(and may beyond 64KiB.Depending on how we
-set the cluster size).If the cluster size was set to a large number,we
-will encounter much more risk when in memory pressure case.
+ ld.lld: error: undefined symbol: crypto_acomp_decompress
+   referenced by decompressor_crypto.c
+       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
 
-Well,as for the 64Kib minimum granularity,because Android now switchs
-page size to 16Kib so for current f2fs compress implementation the
-minimum possible granularity indeed just exactly equals 64Kib.But I do
-hold a opinion that may not be a very good point for f2fs. Because
-just as I know,there are lots of small random write on Android.So
-instead of having a minimum granularity in 64Kib,I appreciate future
-f2fs's compression's implementation should support smaller cluster
-size for compression. As far as I know,storage engineers from vivo is
-experimenting a dynamic cluster compression implementation.It can
-adjust the cluster size within a file adaptively.(Maybe larger in some
-part and smaller in other part)
-They didn't publish the code now.But this design maybe more suitable
-for cooperating with folios for its vary-order feature.
+ ld.lld: error: undefined symbol: crypto_alloc_acomp
+   referenced by decompressor_crypto.c
+       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_enable_engine) in archive vmlinux.a
 
->  It means we don't attempt to track dirtiness at a sub-folio granularity
->
-> (there's no point, we have to write back the entire compressed bock
-> at once).
-That DO has point for f2fs.Because we cannot control the order of
-folio that readahead gave us if we don't set maximum order.A large folio can cross 
-multi clusters in f2fs as I have mentioned.
-Since f2fs has no buffered head or a concept of subpage as we have discussed previously,
-It must rely on iomap_folio_state or a similar per folio struct to distinguish which
-cluster range of this folio is dirty.
-And it must distinguish a partialy dirted cluster to avoid compress write.
-Besides,l do think larger folio can cross multi compressed extent in
-btrfs too if I didn't misunderstand.May I ask how do btrfs deal with
-the possible write amplification?
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202507161032.QholMPtn-lkp@intel.com/
+Fixes: b4a29efc5146 ("erofs: support DEFLATE decompression by using Intel QAT")
+Signed-off-by: Bo Liu <liubo03@inspur.com>
+
+v1: https://lore.kernel.org/linux-erofs/7a1dbee70a604583bae5a29f690f4231@inspur.com/T/#t
+
+change since v1:
+- add Fixes commits
+---
+ fs/erofs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index 6beeb7063871..60510a041bf1 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -147,6 +147,7 @@ config EROFS_FS_ZIP_ZSTD
+ config EROFS_FS_ZIP_ACCEL
+ 	bool "EROFS hardware decompression support"
+ 	depends on EROFS_FS_ZIP
++	select CRYPTO
+ 	help
+ 	  Saying Y here includes hardware accelerator support for reading
+ 	  EROFS file systems containing compressed data.  It gives better
+-- 
+2.31.1
 
 
