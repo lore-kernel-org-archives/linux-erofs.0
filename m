@@ -1,61 +1,72 @@
-Return-Path: <linux-erofs+bounces-648-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-649-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 99186C83F22
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jul 2025 01:43:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0863C83F1B
+	for <linux-erofs@archiver.kernel.org>; Thu, 17 Jul 2025 01:54:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bjG0t6xTyz2yF1;
-	Thu, 17 Jul 2025 11:43:42 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.51.26.146
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752716622;
-	cv=none; b=CKRXt4MTZdyeqNSr4qiFsLz8dYNQ+jlAZTv+GdXDuU14F8D5dt6EpVh2xSMKxfL7ckdVyPKclhGgy/w2oQIKLBFqtDw1qsJl8o8SPckox5V9S8gg1OYKqiPx7eNKHGZ8dn1MLfftiHG0Tg+xtmu14afR79c9ptUqtjzFn+0Pnk4rJeg29sSmU+cHC2H5MLqhsx0/rK3sRZIS3EZBwWjpLRAQQorQQ22sU2/rbTpRhLr7AjGmyXdRvI6Jv/pnKuDumbd3KQi4/V+Yx4fhpOnL1L5VkmA/yW3IRDWt5cRHVW+dR5PWaJZThbg2oGciC5g9dHEvvhm9UefRzrmJDbjuuA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bjGF14HD5z2yF1;
+	Thu, 17 Jul 2025 11:54:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=117.135.210.6
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752717253;
+	cv=none; b=iCEGstT6itG69W/172GMTPmNbhB9dCAx2xNIKyUCUgMM+23lF+Z4ov0a/Gp+1dOa6ohfA/1I/nt8kiP22S9gt/zSTv6RAPEveUbEUZjk2blQHVYleW3Cm/VJi6UZKHe/cgai2E5+hO0eiejGCT3Zr0vNkWZgL5mDq6KcEOba/RljQeDKGN4hqN5K24CBQDoTdHg68VMhFbIgH6U5h/aaNlo+MwTpg+A2pQtmyG/MWjfEeQOTVaL2Xa3/NRFQVYiVZW9ANk7JzeE4fORrse846BeHZslMjO0Bkjvy9C3FM/A6bxHyClHvW9bZj16doEupOaHjmSjP2XB62UKQDPK5kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1752716622; c=relaxed/relaxed;
-	bh=Tt7KWLYn0h3gYz1s9gkyMKHpT2lVwqQlpQSkOOz6/Y4=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=LqehPanDXlZCP1JYWhpTbJDp0JMPs1Zq0h4hPYm4D5oY3mUW3Nr0A2IYQIdw3gDgcbxI9qd+Enqt+7OouQEhvDpOZQQRtGHA4GhlUrS3NTnD+sZQaF5bRVRH/NrNxW7E6Ba3fzEHRPQqQbVPFDdiTORmSmGbCOcKiq5C40y5yo1mwTFfvyaR4jEHGKOLyJXZAwZOsG4L5W9XlcrvhOWtsdoRwVj+A0iUbtw7giUkImxxTp8W15Skx5rSnjLyQUZRFN6CenSFX55FLhUTqgyOyI0dBkudnFrNadZ9k93pswmk2xlZr/itGLBRSkr0HtwRR5aTytnNyb5cTqOTdJKCcA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com; spf=pass (client-ip=210.51.26.146; helo=unicom146.biz-email.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org) smtp.mailfrom=inspur.com
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=inspur.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=inspur.com (client-ip=210.51.26.146; helo=unicom146.biz-email.net; envelope-from=liubo03@inspur.com; receiver=lists.ozlabs.org)
-Received: from unicom146.biz-email.net (unicom146.biz-email.net [210.51.26.146])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bjG0s5bsCz2yDk
-	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 11:43:39 +1000 (AEST)
-Received: from jtjnmail201619.home.langchao.com
-        by unicom146.biz-email.net ((D)) with ASMTP (SSL) id 202507170943338503;
-        Thu, 17 Jul 2025 09:43:33 +0800
-Received: from jtjnmail201622.home.langchao.com (10.100.2.22) by
- jtjnmail201619.home.langchao.com (10.100.2.19) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.57; Thu, 17 Jul 2025 09:43:33 +0800
-Received: from jtjnmail201622.home.langchao.com ([fe80::15c3:8d74:3aa6:25f6])
- by jtjnmail201622.home.langchao.com ([fe80::15c3:8d74:3aa6:25f6%7]) with mapi
- id 15.01.2507.057; Thu, 17 Jul 2025 09:43:33 +0800
-From: =?utf-8?B?Qm8gTGl1ICjliJjms6IpLea1qua9ruS/oeaBrw==?=
-	<liubo03@inspur.com>
-To: "hsiangkao@linux.alibaba.com" <hsiangkao@linux.alibaba.com>,
-	"xiang@kernel.org" <xiang@kernel.org>, "chao@kernel.org" <chao@kernel.org>
-CC: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] erofs: fix build error with CONFIG_EROFS_FS_ZIP_ACCEL=y
-Thread-Topic: [PATCH] erofs: fix build error with CONFIG_EROFS_FS_ZIP_ACCEL=y
-Thread-Index: AQHb9rs+z1tDqdTop0ya67w6HSZeFbQ1A9AAgACGdvA=
-Date: Thu, 17 Jul 2025 01:43:33 +0000
-Message-ID: <7a1dbee70a604583bae5a29f690f4231@inspur.com>
-References: <b628d0517cde6f8914e65e1d7365d22217-7-25linux.alibaba.com@g.corp-email.com>
- <7d4b5f45-a8c1-47d6-8404-9cad88a297c1@linux.alibaba.com>
-In-Reply-To: <7d4b5f45-a8c1-47d6-8404-9cad88a297c1@linux.alibaba.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator:
-x-originating-ip: [182.45.253.56]
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
-	micalg=SHA1; boundary="----=_NextPart_000_0009_01DBF6FF.3AF80DF0"
+	t=1752717253; c=relaxed/relaxed;
+	bh=EIJgRbo2yBEeYOe56FQ8t29uLldSsA6Cw8nKiYtCDc8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OT8AnUkHGLeggVsHPzYAxo1cc2gN/Nkg+0LOIzS1if/23oQLAUoiYo0xqb/qQUGhNLIuIxRvN5+jutCUk/L1K4xYRzoIT2THCgmLRj1eNP73/iMAR/oI23YLdnSepCzbfGPB4l9Nff6V6zvXldpyS49ibaMezoh+Theja84okC6aTturTBWZ7f04itenJzqGY56gGiLaOXFI1W3AtuOeiEHFRxekQ0spD9DrfSj5PfCEsZiEDOSMTS3z3+OmjfD13acm7T0fKbQEDsiT62WXNllbhityjgx0OZO98yzAyXdJ57ZaYoPBRyP8uBHI9mTrz1lmceazhHabhV6QCMpqUQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=126.com; dkim=pass (1024-bit key; unprotected) header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b=jz6XkYHH; dkim-atps=neutral; spf=pass (client-ip=117.135.210.6; helo=m16.mail.126.com; envelope-from=nzzhao@126.com; receiver=lists.ozlabs.org) smtp.mailfrom=126.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=126.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b=jz6XkYHH;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=126.com (client-ip=117.135.210.6; helo=m16.mail.126.com; envelope-from=nzzhao@126.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 2899 seconds by postgrey-1.37 at boromir; Thu, 17 Jul 2025 11:54:10 AEST
+Received: from m16.mail.126.com (m16.mail.126.com [117.135.210.6])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bjGDy4Wc3z2yDk
+	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Jul 2025 11:54:07 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=EI
+	JgRbo2yBEeYOe56FQ8t29uLldSsA6Cw8nKiYtCDc8=; b=jz6XkYHHjOmUNGKAG8
+	7zHJBqjQXWUhQMLTDbg8FNOvmse7PPf0qd3RKFzMwx+JQAzX7qb7lfhMl1oceFhG
+	mZ7e/kTlAWcimrvizDTPt+1IpmD3mXC2jrhIei67mlLI9wrFG/fO1X7lbE1DqhuP
+	M5O7aAVyT0SiYT1bn6IUAqBD0=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDnL_QZTHhoBW1MAQ--.5971S2;
+	Thu, 17 Jul 2025 09:04:39 +0800 (CST)
+From: Nanzhe Zhao <nzzhao@126.com>
+To: nzzhao.sigma@gmail.com
+Cc: almaz.alexandrovich@paragon-software.com,
+	clm@fb.com,
+	dhowells@redhat.com,
+	dsterba@suse.com,
+	dwmw2@infradead.org,
+	jack@suse.cz,
+	jaegeuk@kernel.org,
+	josef@toxicpanda.com,
+	linux-btrfs@vger.kernel.org,
+	linux-cifs@vger.kernel.org,
+	linux-erofs@lists.ozlabs.org,
+	linux-f2fs-devel@lists.sourceforge.net,
+	linux-fsdevel@vger.kernel.org,
+	linux-mtd@lists.infradead.org,
+	netfs@lists.linux.dev,
+	nico@fluxnic.net,
+	ntfs3@lists.linux.dev,
+	pc@manguebit.org,
+	phillip@squashfs.org.uk,
+	richard@nod.at,
+	sfrench@samba.org,
+	willy@infradead.org,
+	xiang@kernel.org
+Subject: Re: [f2fs-dev] Compressed files & the page cache
+Date: Thu, 17 Jul 2025 09:04:14 +0800
+Message-ID: <20250717010414.1595-1-nzzhao@126.com>
+X-Mailer: git-send-email 2.42.0.windows.2
+In-Reply-To: <CAMLCH1HCPByhWGQjix6040fZuZhjkj19k=4pqmNzPDtGeZ0Q6A@mail.gmail.com>
+References: <CAMLCH1HCPByhWGQjix6040fZuZhjkj19k=4pqmNzPDtGeZ0Q6A@mail.gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -67,151 +78,63 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-tUid: 20257170943332caa2229f388bf2fd194f9f14c2e5d33
-X-Abuse-Reports-To: service@corp-email.com
-Abuse-Reports-To: service@corp-email.com
-X-Complaints-To: service@corp-email.com
-X-Report-Abuse-To: service@corp-email.com
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDnL_QZTHhoBW1MAQ--.5971S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxCrykZr1DGr4rXrWxurWxJFb_yoW5XFWkpF
+	W5KF1rKr4kXr4xAw47Aa12gFyF93s5JF47J34fKFWqy3W5J3sa9r1Dtas0vFWDGr93Xa1q
+	vr4q934093s0vFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UpwZcUUUUU=
+X-Originating-IP: [34.216.57.139]
+X-CM-SenderInfo: xq22xtbr6rjloofrz/1tbiZBKNz2h4PiLMHQAAsp
 
-------=_NextPart_000_0009_01DBF6FF.3AF80DF0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Dear Mr.Matthew and other fs developers:
+I'm very sorry.My gmail maybe be blocked for reasons I don't know.I have to change
+my email domain.
+> So, my proposal is that filesystems tell the page cache that their minimu=
+m
+> folio size is the compression block size.  That seems to be around 64k,
+> so not an unreasonable minimum allocation size.
+Excuse me,but could you please clarify the meaning of "compression block si=
+ze"?
+If you mean the minimum buffer window size that a filesystem requires
+to perform one whole compress write/decompress read io(also we can
+call it the granularity),which,in f2fs context we can interpret as the
+cluster size.Then that means for compress files,we could not fallback
+to 0 order folio in memory pressure case when setting folio's minmium
+order to "compression block size"?
 
->On 2025/7/17 09:34, Bo Liu wrote:
->> fix build err:
->>   ld.lld: error: undefined symbol: crypto_req_done
->>     referenced by decompressor_crypto.c
->>         fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in
->archive vmlinux.a
->>     referenced by decompressor_crypto.c
->>         fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in
->archive vmlinux.a
->>
->>   ld.lld: error: undefined symbol: crypto_acomp_decompress
->>     referenced by decompressor_crypto.c
->>         fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in
->archive vmlinux.a
->>
->>   ld.lld: error: undefined symbol: crypto_alloc_acomp
->>     referenced by decompressor_crypto.c
->>         fs/erofs/decompressor_crypto.o:(z_erofs_crypto_enable_engine) in
->archive vmlinux.a
+If that is the case,then when f2fs' cluster size was configured,the
+minium order was determined(and may beyond 64KiB.Depending on how we
+set the cluster size).If the cluster size was set to a large number,we
+will encounter much more risk when in memory pressure case.
+
+Well,as for the 64Kib minimum granularity,because Android now switchs
+page size to 16Kib so for current f2fs compress implementation the
+minimum possible granularity indeed just exactly equals 64Kib.But I do
+hold a opinion that may not be a very good point for f2fs. Because
+just as I know,there are lots of small random write on Android.So
+instead of having a minimum granularity in 64Kib,I appreciate future
+f2fs's compression's implementation should support smaller cluster
+size for compression. As far as I know,storage engineers from vivo is
+experimenting a dynamic cluster compression implementation.It can
+adjust the cluster size within a file adaptively.(Maybe larger in some
+part and smaller in other part)
+They didn't publish the code now.But this design maybe more suitable
+for cooperating with folios for its vary-order feature.
+
+>  It means we don't attempt to track dirtiness at a sub-folio granularity
 >
->Could you add a `Fixes` tag for this?
->
-I will add this.
+> (there's no point, we have to write back the entire compressed bock
+> at once).
+That DO has point for f2fs.Because we cannot control the order of
+folio that readahead gave us if we don't set maximum order.A large folio can cross 
+multi clusters in f2fs as I have mentioned.
+Since f2fs has no buffered head or a concept of subpage as we have discussed previously,
+It must rely on iomap_folio_state or a similar per folio struct to distinguish which
+cluster range of this folio is dirty.
+And it must distinguish a partialy dirted cluster to avoid compress write.
+Besides,l do think larger folio can cross multi compressed extent in
+btrfs too if I didn't misunderstand.May I ask how do btrfs deal with
+the possible write amplification?
 
-Thanks
-Bo Liu
-
-------=_NextPart_000_0009_01DBF6FF.3AF80DF0
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-
-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
-MAwGCisGAQQBgjcKAwQwRAYJKoZIhvcNAQkPBDcwNTAOBggqhkiG9w0DAgICAIAwDgYIKoZIhvcN
-AwQCAgCAMAcGBSsOAwIHMAoGCCqGSIb3DQMHMB0GA1UdDgQWBBTkHdp/y3+DuDJ13Q1YzgU9iV7N
-dzAfBgNVHSMEGDAWgBReWQOmtExYYJFO9h61pTmmMsE1ajCCAQ8GA1UdHwSCAQYwggECMIH/oIH8
-oIH5hoG6bGRhcDovLy9DTj1JTlNQVVItQ0EsQ049SlRDQTIwMTIsQ049Q0RQLENOPVB1YmxpYyUy
-MEtleSUyMFNlcnZpY2VzLENOPVNlcnZpY2VzLENOPUNvbmZpZ3VyYXRpb24sREM9aG9tZSxEQz1s
-YW5nY2hhbyxEQz1jb20/Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD9iYXNlP29iamVjdENsYXNz
-PWNSTERpc3RyaWJ1dGlvblBvaW50hjpodHRwOi8vSlRDQTIwMTIuaG9tZS5sYW5nY2hhby5jb20v
-Q2VydEVucm9sbC9JTlNQVVItQ0EuY3JsMIIBKQYIKwYBBQUHAQEEggEbMIIBFzCBsQYIKwYBBQUH
-MAKGgaRsZGFwOi8vL0NOPUlOU1BVUi1DQSxDTj1BSUEsQ049UHVibGljJTIwS2V5JTIwU2Vydmlj
-ZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1ob21lLERDPWxhbmdjaGFvLERDPWNv
-bT9jQUNlcnRpZmljYXRlP2Jhc2U/b2JqZWN0Q2xhc3M9Y2VydGlmaWNhdGlvbkF1dGhvcml0eTBh
-BggrBgEFBQcwAoZVaHR0cDovL0pUQ0EyMDEyLmhvbWUubGFuZ2NoYW8uY29tL0NlcnRFbnJvbGwv
-SlRDQTIwMTIuaG9tZS5sYW5nY2hhby5jb21fSU5TUFVSLUNBLmNydDBBBgNVHREEOjA4oCIGCisG
-AQQBgjcUAgOgFAwSbGl1Ym8wM0BpbnNwdXIuY29tgRJsaXVibzAzQGluc3B1ci5jb20wDQYJKoZI
-hvcNAQELBQADggEBAA+BaY3B3qXmvZq7g7tZLzq2VQjU//XHTmyl58GLDWdVHsuX3lrAGwEfLVnU
-odpvthjtb7T7xEUzJh4F62zLFSm8HOBPH1B+6SFQKChHZeM0pauvXr1krRtVv82RgLsU26XrXFUP
-N+NcPwt7vOw1zHOiDic4anL3A9gsuDljAi2l+CA5RY05yL+8orasEAhOYL6+ks9aB8QiCxbZzShk
-DTMkrh0N1DjoBLaibtnlI/fxOUYM6vgdiI+FC02G41B364ZAc1mabSFvGIP6cIdr/olprPQOj9cq
-6zMi05qUBUj22hDvhcY0TlT4fEJSrvblp/LG6qTtVI3ilUAxhe8i9cIwggezMIIGm6ADAgECAhN+
-AAOO5TIDxOWswVHsAAEAA47lMA0GCSqGSIb3DQEBCwUAMFkxEzARBgoJkiaJk/IsZAEZFgNjb20x
-GDAWBgoJkiaJk/IsZAEZFghsYW5nY2hhbzEUMBIGCgmSJomT8ixkARkWBGhvbWUxEjAQBgNVBAMT
-CUlOU1BVUi1DQTAeFw0yNTA3MTcwMTIxMDVaFw0zMDA3MTYwMTIxMDVaMIG3MRMwEQYKCZImiZPy
-LGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbGFuZ2NoYW8xFDASBgoJkiaJk/IsZAEZFgRob21l
-MTMwMQYDVQQLDCrmtarmva7nlLXlrZDkv6Hmga/kuqfkuJrogqHku73mnInpmZDlhazlj7gxGDAW
-BgNVBAMMD+WImOazoihsaXVibzAzKTEhMB8GCSqGSIb3DQEJARYSbGl1Ym8wM0BpbnNwdXIuY29t
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmt17k1i6xhukLYDgv4PB5YV9rNmuVKH5
-WO2ehZYIJn186Qt0EkhhoA7T2xt4AVZWaon2N27/bGKOp4xz8BYIPWpODowfg2FtrABqvJxsGQxf
-VakiH5YBpPG4fUO+Y0D8vqKw4bAJ5I5quixu2t8OZenYCvvlLMXyP2KSshCJWVDw9rMEQhemcDot
-PJfH9vFM085tUCvhPpjyMGq6/moGO8JQZ262X3XsFKnE0Zs9KMjtP6G4lJcmWfgwu3rAH3hMKRK6
-bTsLPO+bY3TRz8avw8S1UmjJLTb2HDFLkzXzpOhDdKjO2Fk9V7JNmpjk7YQ7P8LLA1hVInOUjFv6
-GR61vQIDAQABo4IEEzCCBA8wCwYDVR0PBAQDAgWgMD0GCSsGAQQBgjcVBwQwMC4GJisGAQQBgjcV
-CILyqR+Egdd6hqmRPYaA9xWD2I9cgUr9iyaBlKdNAgFkAgFhMEQGCSqGSIb3DQEJDwQ3MDUwDgYI
-KoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBzAdBgNVHQ4E
-FgQUsmXTjDrO/nhxGDpnz5cAr1neWI8wHwYDVR0jBBgwFoAUXlkDprRMWGCRTvYetaU5pjLBNWow
-ggEPBgNVHR8EggEGMIIBAjCB/6CB/KCB+YaBumxkYXA6Ly8vQ049SU5TUFVSLUNBLENOPUpUQ0Ey
-MDEyLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25m
-aWd1cmF0aW9uLERDPWhvbWUsREM9bGFuZ2NoYW8sREM9Y29tP2NlcnRpZmljYXRlUmV2b2NhdGlv
-bkxpc3Q/YmFzZT9vYmplY3RDbGFzcz1jUkxEaXN0cmlidXRpb25Qb2ludIY6aHR0cDovL0pUQ0Ey
-MDEyLmhvbWUubGFuZ2NoYW8uY29tL0NlcnRFbnJvbGwvSU5TUFVSLUNBLmNybDCCASwGCCsGAQUF
-BwEBBIIBHjCCARowgbEGCCsGAQUFBzAChoGkbGRhcDovLy9DTj1JTlNQVVItQ0EsQ049QUlBLENO
-PVB1YmxpYyUyMEtleSUyMFNlcnZpY2VzLENOPVNlcnZpY2VzLENOPUNvbmZpZ3VyYXRpb24sREM9
-aG9tZSxEQz1sYW5nY2hhbyxEQz1jb20/Y0FDZXJ0aWZpY2F0ZT9iYXNlP29iamVjdENsYXNzPWNl
-cnRpZmljYXRpb25BdXRob3JpdHkwZAYIKwYBBQUHMAKGWGh0dHA6Ly9KVENBMjAxMi5ob21lLmxh
-bmdjaGFvLmNvbS9DZXJ0RW5yb2xsL0pUQ0EyMDEyLmhvbWUubGFuZ2NoYW8uY29tX0lOU1BVUi1D
-QSgxKS5jcnQwKQYDVR0lBCIwIAYIKwYBBQUHAwIGCCsGAQUFBwMEBgorBgEEAYI3CgMEMDUGCSsG
-AQQBgjcVCgQoMCYwCgYIKwYBBQUHAwIwCgYIKwYBBQUHAwQwDAYKKwYBBAGCNwoDBDBBBgNVHREE
-OjA4oCIGCisGAQQBgjcUAgOgFAwSbGl1Ym8wM0BpbnNwdXIuY29tgRJsaXVibzAzQGluc3B1ci5j
-b20wUwYJKwYBBAGCNxkCBEYwRKBCBgorBgEEAYI3GQIBoDQEMlMtMS01LTIxLTE2MDY5ODA4NDgt
-NzA2Njk5ODI2LTE4MDE2NzQ1MzEtMjU4ODUyMzQ4MA0GCSqGSIb3DQEBCwUAA4IBAQAucjq5s0Qq
-1UtBIL8Und9mnrfn3azil+rXBoZf/N+DNuZYml+Ct4SDC0tng7F5kSt/2zU4vShrkviUh8kjCstC
-rPyqkxQodvm7reuGuBKZLy9PLZR0oB3S7vD9gUdMCw7UianFwY+mgbG/33dY43zujZIY8DMm6od3
-GMZlIueeqB6VyEESU4+ll2VFPyLXPzUMBK7DLAEnOiPbJSUvR7738lSkDPXxdujcFhL9wxTvh/3g
-hYuY0OCwf+HM7TFBSSFxa1wdkfO8aA9Bl6tY5awZ6bbsr+3+FRf/h1jWZQOCCnEGixEPN0irb1Zj
-dI2O4u1TlTwZAYXdLVRqmr2vi1KHMYIDkzCCA48CAQEwcDBZMRMwEQYKCZImiZPyLGQBGRYDY29t
-MRgwFgYKCZImiZPyLGQBGRYIbGFuZ2NoYW8xFDASBgoJkiaJk/IsZAEZFgRob21lMRIwEAYDVQQD
-EwlJTlNQVVItQ0ECE34AANHR1UxsCE9f8IsAAAAA0dEwCQYFKw4DAhoFAKCCAfgwGAYJKoZIhvcN
-AQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjUwNzE3MDE0MzIwWjAjBgkqhkiG9w0B
-CQQxFgQUa9SKy+5VREpQVRwh+K9KHFefhHgwfwYJKwYBBAGCNxAEMXIwcDBZMRMwEQYKCZImiZPy
-LGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbGFuZ2NoYW8xFDASBgoJkiaJk/IsZAEZFgRob21l
-MRIwEAYDVQQDEwlJTlNQVVItQ0ECE34AA47lMgPE5azBUewAAQADjuUwgYEGCyqGSIb3DQEJEAIL
-MXKgcDBZMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbGFuZ2NoYW8xFDAS
-BgoJkiaJk/IsZAEZFgRob21lMRIwEAYDVQQDEwlJTlNQVVItQ0ECE34AA47lMgPE5azBUewAAQAD
-juUwgZMGCSqGSIb3DQEJDzGBhTCBgjAKBggqhkiG9w0DBzALBglghkgBZQMEASowCwYJYIZIAWUD
-BAEWMAsGCWCGSAFlAwQBAjAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAhow
-CwYJYIZIAWUDBAIDMAsGCWCGSAFlAwQCAjALBglghkgBZQMEAgEwDQYJKoZIhvcNAQEBBQAEggEA
-TRKO7WvzJ9SjqvoT+IhLVH3WDsoB1qw3VlX/4Vyfafl82YrRvbmeeRx4EtWr0uIwsjOC3pnQjsZp
-lyZ/Pq5gSlbD7xPJsoHXtPzwMdswpKOSvRugfcQmr+nefSeOI20UsfpxjhpjtzN3P22FXLHodTGd
-h8n9g/7BuKW7rNChCO1Jdd0QqFsrpEGbQ/ptT958fO0vk4Wc94BPT9Omusrm9HdMe28nsgw9/tep
-Ef9AMAgcvss79w3BYxDYy3oOSh6o5kGc1ZhrOk+b6ZgBq84RRlluMFqWxpEIX8pa4jhaH/scQjBI
-PIZq7Vhgh0x0r0r/8i+nrcPAy7P4qqE9L8ZqqgAAAAAAAA==
-
-------=_NextPart_000_0009_01DBF6FF.3AF80DF0--
 
