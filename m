@@ -1,48 +1,48 @@
-Return-Path: <linux-erofs+bounces-668-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-669-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E27F6C83F17
-	for <linux-erofs@archiver.kernel.org>; Fri, 18 Jul 2025 06:54:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 97B98C83F17
+	for <linux-erofs@archiver.kernel.org>; Fri, 18 Jul 2025 06:54:42 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bk0s64Yygz30WS;
-	Fri, 18 Jul 2025 16:54:34 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752821674;
-	cv=none; b=DVCmRkLA6x3S8f1vLr2ZsjNVg96gs/WUdLGrp3LZ6MVrWt7I/7MQKs/Amigs8Gx7F6N0bJiFT0C5+a5siXT5f6rUsn74wnr/2fx7nGyaZLxHva35cfWvlLweY93cBzfFfHE23sF37gaTMGtzX+xk3QOjA1Zpx9CT7SoxuvD5WvP3p0n68hdeUg1Qb95GVnIcw2qgfIadyKn0/qRdqH4ng4eMCpsBtTUIZtPVFORG6qSP095exdu//3/OUtUksbeWC20C0VMsc/xVrlOLdnwd5EYhOPcedkysaNmic5yohAAa8sDijMTyq+0pzRMs3WAn58Qby1YXonwaLBCu9NM0nw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bk0s70fJMz3blF;
+	Fri, 18 Jul 2025 16:54:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1752821675;
+	cv=none; b=ZltWwzQf8CUqGXwd2K0sJQrUIj2j86Juac8GxJPbsxee3ELXpJZIF1OwYWUhu/ETM+BPz6coWCxBe+o/OEy7c+rzozAX3Zc496jcVdgE4j1sHJMo26lVj/UdMqxz/5OFq2VFr04tNbGiWBxMScZuUk9JVrBPT5lJMxa8cbFs+WxEniRII0taPaPYTVPP1VMgCHFb73rUDmPXW+PqY/cd3PVScCoOX2DZfyb9eRduRLLB1d8XAXLxLPJENfsAsGYXqLYIWJ8eBYm/n+bJU/pdc+xhbJVx79/wboQTcBFMjmMsdQJxU7wWmbNgvsi5wnrWnhtHoFe1hsnD+XV+DdeETA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1752821674; c=relaxed/relaxed;
-	bh=VXvpuroeXhDb+0RQM8/1WDWjuB+F6dEllY8amoAq6Ng=;
+	t=1752821675; c=relaxed/relaxed;
+	bh=ywlHn9ukO+LWo18EMhDiU661Cu+jmCMqX73Ndgjp2sU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CnahFxjagYxgfD9LZtz9rGOPB5yeMpJ0dh6fjUd4ukLht0rCkX1KL/wHGsxwnLC7iT8avbUWt3Ir1X/L6kcU0GsjQpCiE2Y4bD4pGrKJy4iv0EuGWDG+BBLbvM2RbkAH6lHa+Z06frXw2758yIWHliobJx+joV2SNO1quh/gwSF7W0np3X5XEQM7rKT3NCPKxlekaYV4DYZqVCQ60RZ1zMctTtkMVzL9sDIYWnZ6r1r7+q7UbAniex2ItwIxjBI8ldyhU1sHvhSXV764DsEz13NC0a08iR89mOtD4ZrC3/3OF9zPoMs/9xc+grbx3sRaucwVAhiEhsYklyWsZCdS3Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=dJurfKJS; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=LIEkSEbpYodL/MPsiKX3w8bOJKlbah5dB8y9vx+mc6MLPxv89kp6QNO1vNfk7gXb3RHi+pevDocbsnHw/MbOrcwW3Q4GE4DtOJRJ74b3oBHk6hvdSQyWvLKN/4lRi2alRDA2KAqDxBi4HsToBo6vHnq2frPdducfHFejAzt+o5eRKRSc0PdxeqbXnA2zVBNjVkH7iDHYY08DvpRsNZlrs0Gi/tATV6Lzv8YlYpDTJlLyJnMY34Q8P2sHnaYudwD2QNlPM2/qYLYzR5PO1q2jLEvFS2TIpNppHOEY6T2CNGr+x+ehQjqETTjs7nza9A+TqC81ItJwwDeE4ZyQLBXa6A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Na6bsJGf; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=dJurfKJS;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Na6bsJGf;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bk0s348Smz30RK
-	for <linux-erofs@lists.ozlabs.org>; Fri, 18 Jul 2025 16:54:31 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bk0s51XtHz30WT
+	for <linux-erofs@lists.ozlabs.org>; Fri, 18 Jul 2025 16:54:32 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1752821667; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=VXvpuroeXhDb+0RQM8/1WDWjuB+F6dEllY8amoAq6Ng=;
-	b=dJurfKJSyNgzE0PEX4EbPtqXuKtrk2tRUoQGMZ8lBQRlaY2m6XWjsnA+1bSDwAcz3guVBAjGMwpZdoERMIZ2N8FV3+uzbLIfmjg0UMoF3GJogo1ChAu9kXoZOfjJ8yevy9dw3DJm2rcENWYi4Y5PY+kiWA0+5DkwQu3RKBI8caY=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WjBMlR3_1752821665 cluster:ay36)
+	t=1752821669; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=ywlHn9ukO+LWo18EMhDiU661Cu+jmCMqX73Ndgjp2sU=;
+	b=Na6bsJGfyqdvewKiCW6QJacVzY+vu/e9tSaiIAKGyHT+WWyYLQ7E2UNpUFT81aEPk4Hp8QCuyXrv6o0IVop/V+P0/GzbSisRaUMbv5JRFEe14u3bzuTRNb8F1SxGaltlt04bzrkJiou36Kn94EPutaMOLOgeX65zguxNsfHBFms=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WjBMlSR_1752821668 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Fri, 18 Jul 2025 14:54:26 +0800
+          Fri, 18 Jul 2025 14:54:28 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 03/11] erofs-utils: use virtual file interface for the buffer manager
-Date: Fri, 18 Jul 2025 14:54:11 +0800
-Message-ID: <20250718065419.3338307-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 06/11] erofs-utils: lib: use meta buffers for inode operations
+Date: Fri, 18 Jul 2025 14:54:14 +0800
+Message-ID: <20250718065419.3338307-6-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250718065419.3338307-1-hsiangkao@linux.alibaba.com>
 References: <20250718065419.3338307-1-hsiangkao@linux.alibaba.com>
@@ -59,168 +59,149 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In order to prepare for the upcoming metadata compression.
+Source kernel commit: c521e3ad6cc980df6f3bdd2616808ecb973af880
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/cache.h    |  9 +++++----
- include/erofs/internal.h |  6 ------
- include/erofs/io.h       |  2 +-
- lib/cache.c              | 12 +++++++++---
- lib/io.c                 |  6 +++---
- mkfs/main.c              |  4 ++--
- 6 files changed, 20 insertions(+), 19 deletions(-)
+ lib/namei.c | 78 ++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 56 insertions(+), 22 deletions(-)
 
-diff --git a/include/erofs/cache.h b/include/erofs/cache.h
-index 0c665e8f..d5618c00 100644
---- a/include/erofs/cache.h
-+++ b/include/erofs/cache.h
-@@ -57,18 +57,18 @@ struct erofs_buffer_block {
- };
+diff --git a/lib/namei.c b/lib/namei.c
+index d6013e5c..c3ddd590 100644
+--- a/lib/namei.c
++++ b/lib/namei.c
+@@ -24,39 +24,67 @@ static dev_t erofs_new_decode_dev(u32 dev)
  
- struct erofs_bufmgr {
--	struct erofs_sb_info *sbi;
--
- 	/* buckets for all buffer blocks to boost up allocation */
- 	struct list_head watermeter[META + 1][2][EROFS_MAX_BLOCK_SIZE];
- 	unsigned long bktmap[META + 1][2][EROFS_MAX_BLOCK_SIZE / BITS_PER_LONG];
- 
- 	struct erofs_buffer_block blkh;
--	erofs_blk_t tail_blkaddr, metablkcnt;
-+	struct erofs_sb_info *sbi;
-+	struct erofs_vfile *vf;
- 
- 	/* last mapped buffer block to accelerate erofs_mapbh() */
- 	struct erofs_buffer_block *last_mapped_block;
- 
-+	erofs_blk_t tail_blkaddr, metablkcnt;
- 	/* align data block addresses to multiples of `dsunit` */
- 	unsigned int dsunit;
- };
-@@ -122,7 +122,8 @@ static inline int erofs_bh_flush_generic_end(struct erofs_buffer_head *bh)
- }
- 
- struct erofs_bufmgr *erofs_buffer_init(struct erofs_sb_info *sbi,
--				       erofs_blk_t startblk);
-+				       erofs_blk_t startblk,
-+				       struct erofs_vfile *vf);
- int erofs_bh_balloon(struct erofs_buffer_head *bh, erofs_off_t incr);
- 
- struct erofs_buffer_head *erofs_balloc(struct erofs_bufmgr *bmgr,
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 65d40840..1431c16d 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -487,12 +487,6 @@ static inline int erofs_dev_write(struct erofs_sb_info *sbi, const void *buf,
- 	return 0;
- }
- 
--static inline int erofs_dev_fillzero(struct erofs_sb_info *sbi, u64 offset,
--				     size_t len, bool pad)
--{
--	return erofs_io_fallocate(&sbi->bdev, offset, len, pad);
--}
--
- static inline int erofs_dev_resize(struct erofs_sb_info *sbi,
- 				   erofs_blk_t blocks)
+ int erofs_read_inode_from_disk(struct erofs_inode *vi)
  {
-diff --git a/include/erofs/io.h b/include/erofs/io.h
-index 101a5ba4..14d6e45f 100644
---- a/include/erofs/io.h
-+++ b/include/erofs/io.h
-@@ -59,7 +59,7 @@ ssize_t erofs_io_pwrite(struct erofs_vfile *vf, const void *buf, u64 pos, size_t
- ssize_t erofs_io_pwritev(struct erofs_vfile *vf, const struct iovec *iov,
- 			 int iovcnt, u64 pos);
- int erofs_io_fsync(struct erofs_vfile *vf);
--ssize_t erofs_io_fallocate(struct erofs_vfile *vf, u64 offset, size_t len, bool pad);
-+int erofs_io_fallocate(struct erofs_vfile *vf, u64 offset, size_t len, bool pad);
- int erofs_io_ftruncate(struct erofs_vfile *vf, u64 length);
- ssize_t erofs_io_pread(struct erofs_vfile *vf, void *buf, u64 offset, size_t len);
- ssize_t erofs_io_read(struct erofs_vfile *vf, void *buf, size_t len);
-diff --git a/lib/cache.c b/lib/cache.c
-index b3cf1c48..079465ed 100644
---- a/lib/cache.c
-+++ b/lib/cache.c
-@@ -29,7 +29,8 @@ const struct erofs_bhops erofs_skip_write_bhops = {
- };
+-	int ret, ifmt;
+-	char buf[sizeof(struct erofs_inode_extended)];
+-	erofs_off_t inode_loc = erofs_iloc(vi);
+ 	struct erofs_sb_info *sbi = vi->sbi;
++	erofs_blk_t blkaddr = erofs_blknr(sbi, erofs_iloc(vi));
++	unsigned int ofs = erofs_blkoff(sbi, erofs_iloc(vi));
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	erofs_blk_t addrmask = BIT_ULL(48) - 1;
+ 	struct erofs_inode_extended *die, copied;
+ 	struct erofs_inode_compact *dic;
++	unsigned int ifmt;
++	void *ptr;
++	int err = 0;
++
++	ptr = erofs_read_metabuf(&buf, sbi, erofs_pos(sbi, blkaddr));
++	if (IS_ERR(ptr)) {
++		err = PTR_ERR(ptr);
++		erofs_err("failed to get inode (nid: %llu) page, err %d",
++			  vi->nid, err);
++		goto err_out;
++	}
  
- struct erofs_bufmgr *erofs_buffer_init(struct erofs_sb_info *sbi,
--				       erofs_blk_t startblk)
-+				       erofs_blk_t startblk,
-+				       struct erofs_vfile *vf)
- {
- 	unsigned int blksiz = erofs_blksiz(sbi);
- 	struct erofs_bufmgr *bmgr;
-@@ -54,6 +55,7 @@ struct erofs_bufmgr *erofs_buffer_init(struct erofs_sb_info *sbi,
- 	bmgr->last_mapped_block = &bmgr->blkh;
- 	bmgr->metablkcnt = 0;
- 	bmgr->dsunit = 0;
-+	bmgr->vf = vf ?: &sbi->bdev;
- 	return bmgr;
- }
+-	DBG_BUGON(!sbi);
+-	ret = erofs_dev_read(sbi, 0, buf, inode_loc, sizeof(*dic));
+-	if (ret < 0)
+-		return -EIO;
+-
+-	dic = (struct erofs_inode_compact *)buf;
++	dic = ptr + ofs;
+ 	ifmt = le16_to_cpu(dic->i_format);
++	if (ifmt & ~EROFS_I_ALL) {
++		erofs_err("unsupported i_format %u of nid %llu",
++			  ifmt, vi->nid);
++		err = -EOPNOTSUPP;
++		goto err_out;
++	}
  
-@@ -482,9 +484,13 @@ int erofs_bflush(struct erofs_bufmgr *bmgr,
- 			continue;
- 
- 		padding = blksiz - (p->buffers.off & (blksiz - 1));
--		if (padding != blksiz)
--			erofs_dev_fillzero(sbi, erofs_pos(sbi, blkaddr) - padding,
-+		if (padding != blksiz) {
-+			ret = erofs_io_fallocate(bmgr->vf,
-+					   erofs_pos(sbi, blkaddr) - padding,
- 					   padding, true);
-+			if (ret < 0)
-+				return ret;
+ 	vi->datalayout = erofs_inode_datalayout(ifmt);
+ 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
+ 		erofs_err("unsupported datalayout %u of nid %llu",
+ 			  vi->datalayout, vi->nid | 0ULL);
+-		return -EOPNOTSUPP;
++		err = -EOPNOTSUPP;
++		goto err_out;
+ 	}
++
+ 	switch (erofs_inode_version(ifmt)) {
+ 	case EROFS_INODE_LAYOUT_EXTENDED:
+ 		vi->inode_isize = sizeof(struct erofs_inode_extended);
+-
+-		ret = erofs_dev_read(sbi, 0, buf + sizeof(*dic),
+-			       inode_loc + sizeof(*dic),
+-			       sizeof(*die) - sizeof(*dic));
+-		if (ret < 0)
+-			return -EIO;
+-
+-		die = (struct erofs_inode_extended *)buf;
++		/* check if the extended inode acrosses block boundary */
++		if (ofs + vi->inode_isize <= erofs_blksiz(sbi)) {
++			ofs += vi->inode_isize;
++			die = (struct erofs_inode_extended *)dic;
++			copied.i_u = die->i_u;
++			copied.i_nb = die->i_nb;
++		} else {
++			const unsigned int gotten = erofs_blksiz(sbi) - ofs;
++
++			memcpy(&copied, dic, gotten);
++			ptr = erofs_read_metabuf(&buf, sbi,
++					erofs_pos(sbi, blkaddr + 1));
++			if (IS_ERR(ptr)) {
++				err = PTR_ERR(ptr);
++				erofs_err("failed to get inode payload block (nid: %llu), err %d",
++					  vi->nid, err);
++				goto err_out;
++			}
++			ofs = vi->inode_isize - gotten;
++			memcpy((u8 *)&copied + gotten, ptr, ofs);
++			die = &copied;
 +		}
+ 		vi->xattr_isize = erofs_xattr_ibody_size(die->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(die->i_mode);
+ 		vi->i_ino[0] = le32_to_cpu(die->i_ino);
+@@ -72,6 +100,7 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		break;
+ 	case EROFS_INODE_LAYOUT_COMPACT:
+ 		vi->inode_isize = sizeof(struct erofs_inode_compact);
++		ofs += vi->inode_isize;
+ 		vi->xattr_isize = erofs_xattr_ibody_size(dic->i_xattr_icount);
+ 		vi->i_mode = le16_to_cpu(dic->i_mode);
+ 		vi->i_ino[0] = le32_to_cpu(dic->i_ino);
+@@ -96,7 +125,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 	default:
+ 		erofs_err("unsupported on-disk inode version %u of nid %llu",
+ 			  erofs_inode_version(ifmt), vi->nid | 0ULL);
+-		return -EOPNOTSUPP;
++		err = -EOPNOTSUPP;
++		goto err_out;
+ 	}
  
- 		if (p->type != DATA)
- 			bmgr->metablkcnt += p->buffers.nblocks;
-diff --git a/lib/io.c b/lib/io.c
-index aa043cae..983d9bf9 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -147,8 +147,8 @@ int erofs_io_fsync(struct erofs_vfile *vf)
- 	return 0;
+ 	switch (vi->i_mode & S_IFMT) {
+@@ -122,7 +152,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 	default:
+ 		erofs_err("bogus i_mode (%o) @ nid %llu", vi->i_mode,
+ 			  vi->nid | 0ULL);
+-		return -EFSCORRUPTED;
++		err = -EFSCORRUPTED;
++		goto err_out;
+ 	}
+ 
+ 	vi->flags = 0;
+@@ -132,12 +163,15 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
+ 		if (vi->u.chunkformat & ~EROFS_CHUNK_FORMAT_ALL) {
+ 			erofs_err("unsupported chunk format %x of nid %llu",
+ 				  vi->u.chunkformat, vi->nid | 0ULL);
+-			return -EOPNOTSUPP;
++			err = -EOPNOTSUPP;
++			goto err_out;
+ 		}
+ 		vi->u.chunkbits = sbi->blkszbits +
+ 			(vi->u.chunkformat & EROFS_CHUNK_FORMAT_BLKBITS_MASK);
+ 	}
+-	return 0;
++err_out:
++	erofs_put_metabuf(&buf);
++	return err;
  }
  
--ssize_t erofs_io_fallocate(struct erofs_vfile *vf, u64 offset,
--			   size_t len, bool zeroout)
-+int erofs_io_fallocate(struct erofs_vfile *vf, u64 offset,
-+		       size_t len, bool zeroout)
- {
- 	static const char zero[EROFS_MAX_BLOCK_SIZE] = {0};
- 	ssize_t ret;
-@@ -167,7 +167,7 @@ ssize_t erofs_io_fallocate(struct erofs_vfile *vf, u64 offset,
- 	while (len > EROFS_MAX_BLOCK_SIZE) {
- 		ret = erofs_io_pwrite(vf, zero, offset, EROFS_MAX_BLOCK_SIZE);
- 		if (ret < 0)
--			return ret;
-+			return (int)ret;
- 		len -= ret;
- 		offset += ret;
- 	}
-diff --git a/mkfs/main.c b/mkfs/main.c
-index fce26336..30804d10 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1377,7 +1377,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (!incremental_mode) {
--		g_sbi.bmgr = erofs_buffer_init(&g_sbi, 0);
-+		g_sbi.bmgr = erofs_buffer_init(&g_sbi, 0, NULL);
- 		if (!g_sbi.bmgr) {
- 			err = -ENOMEM;
- 			goto exit;
-@@ -1405,7 +1405,7 @@ int main(int argc, char **argv)
- 			u.startblk = DIV_ROUND_UP(u.st.st_size, erofs_blksiz(&g_sbi));
- 		else
- 			u.startblk = g_sbi.primarydevice_blocks;
--		g_sbi.bmgr = erofs_buffer_init(&g_sbi, u.startblk);
-+		g_sbi.bmgr = erofs_buffer_init(&g_sbi, u.startblk, NULL);
- 		if (!g_sbi.bmgr) {
- 			err = -ENOMEM;
- 			goto exit;
+ struct erofs_dirent *find_target_dirent(erofs_nid_t pnid,
 -- 
 2.43.5
 
