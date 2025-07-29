@@ -1,49 +1,52 @@
-Return-Path: <linux-erofs+bounces-718-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-717-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 48B78C87FCA
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Jul 2025 11:25:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EFED6C87FC9
+	for <linux-erofs@archiver.kernel.org>; Tue, 29 Jul 2025 11:25:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4brtLJ57fqz30W9;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4brtLJ4p9dz30W1;
 	Tue, 29 Jul 2025 21:25:12 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.187
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1753788312;
-	cv=none; b=P9OLkfmxThoBiBO/2u1M1GooykZekRZCzwYdAESizafNueqaMh3rG9CrDTNTSOJ25RhhdcTZBiJ4TPEtqEuTtS2iljLjQrG/KPgTE6YgXBjuG+Z+e6SUS+p9qx1VkAzBxXEtZU2vAYLIi+rYIDjlK+XAQbCaOgbILPswI//8QFO3V2D8q9Jv5ufwhEgNX+Sa34EqAjXmjncLhQYhiNy8xMLIb9N6T25WocXV0GXVg3EkTC3UU6Tp+B3rsQtoIe5/a1Sg7SKeHFLnL5rMWS19vgZ+BkkzdGZ3MNZwp7tgwgSLXRwx+Zu3iD6Ay16Lk3aS86b9yUSjpURToK6HCIeasQ==
+	cv=none; b=Mj5MFiE/W5znnOtC7O5Q0N+YvDGk7HU4CwkddKJ5nSWYZCJOYS+B88axhkuXLYpnEMCBV2uhgbEAJZm4qOI/mduIPEEcPt/gy+aZ+EVbc2YlqqLSn0r0vVl6Kx6otms0O+89gtk3jQsOrxr7DM3pNbQDmbdSXzbrWg+biYuha34QMH4sC1+5BMEK83BBIClPG9XSK8kpoxVGUIsL8es8ZsCd2z7nyZhOm4xMZshzLocHWlGtuf32HeycxufDOC5wRF7WFqNQc4POtcmQrpUwCp1Y+wcohfOStOLEdoTDNJ04w+YUMTxmYec3srGySBRaFbDltxikD3hVl6X8IWnOTg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1753788312; c=relaxed/relaxed;
-	bh=cZo04MNm80tqS0AYIxvaujX74yDlvf8vXW2cJvSXlf4=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mBO4uZDXSdary34DMe7G1rUnSiFmI1wWgvpQDzgnwMmc179eZV4uPaEhkRHu/o3yXTO3cjHrAHXWqZYJrMj9/Hz/7RQM1RlvHVLnfvftZY2UyvSsW9oaINQhmu0c2zfpIwuuH1jCi/hVkGFwTbOkGn8dLb1yxz+a1KukCVXDlzEcnOw2F8RobMt8LpK5byWlzuSmCqPMbHyXPQvDktg5NmaOZ7FwDTiFywD50qy60DsaS6ej9l7SRy313NjEFTq/eUqHuKvh6IXWK6w7RphIFLSsOYgLTGV6WLQOtW100Ro7wPRTUdXhTWQ2hh+79h1jAAIEyH7303pbW6jAyGDMiw==
+	bh=9YI9cj39gGUnDD2ey48n6xeDXxBZQZAGgh/yFeMDaQM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=K/GbU9p8qiCK1nNn7Y4TsgYvQbpPJjAbUloI49p4k3Tycl5fXlUfWqWEuPZCixD0yBQ/pDJOjMcLRvWFRlBfguGL8Hoi+AQK5ZMBIismcmzkgl7JRsIy1ZBzAYLojmXSd76LucVpOTTP5oY8m0zEDleNpcaXZhLzciWiOZMXqEYML8lfkhVQXPwt+dikg1iBNVMI4/n3bbdtUYrRdQ7qVUf2dkiZmDHo1EBHxG4opUBsEIzvnOcXz/chiLRlKbhdt39LGSAjUL9I1u5KnZS0xlKC2hzwZjhct/XUhcjt8VH/ZXiH83IYY77LHRG4Keas9nbXxRBwIehypbiJ+GMCDA==
 ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4brtLH4b27z30P3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4brtLH3Tv3z2y82
 	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Jul 2025 21:25:11 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4brssw5x7Cz13Mkj
-	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Jul 2025 19:04:04 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4brstB0YQMz13MdN
+	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Jul 2025 19:04:18 +0800 (CST)
 Received: from kwepemp500007.china.huawei.com (unknown [7.202.195.151])
-	by mail.maildlp.com (Postfix) with ESMTPS id A70BA140156
-	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Jul 2025 19:07:09 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id E1E41140203
+	for <linux-erofs@lists.ozlabs.org>; Tue, 29 Jul 2025 19:07:22 +0800 (CST)
 Received: from localhost.localdomain (10.175.124.27) by
  kwepemp500007.china.huawei.com (7.202.195.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 29 Jul 2025 19:07:08 +0800
+ 15.2.1544.11; Tue, 29 Jul 2025 19:07:22 +0800
 From: Yifan Zhao <zhaoyifan28@huawei.com>
 To: <linux-erofs@lists.ozlabs.org>
 CC: <jingrui@huawei.com>, <wayne.ma@huawei.com>, <zhurui10@huawei.com>,
 	<songgongzheng@huawei.com>, <lihongbo22@huawei.com>, <qinbinjuan@huawei.com>,
 	<caihaomin@huawei.com>, <caihe@huawei.com>, zhaoyifan
 	<zhaoyifan28@huawei.com>
-Subject: [RFC 0/4] Introduce experimental support for image generation from S3
-Date: Tue, 29 Jul 2025 19:06:06 +0800
-Message-ID: <20250729110610.3438246-1-zhaoyifan28@huawei.com>
+Subject: [RFC 3/4] erofs-utils: mkfs: introduce `--s3=...` option
+Date: Tue, 29 Jul 2025 19:06:09 +0800
+Message-ID: <20250729110610.3438246-4-zhaoyifan28@huawei.com>
 X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20250729110610.3438246-1-zhaoyifan28@huawei.com>
+References: <20250729110610.3438246-1-zhaoyifan28@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,34 +66,355 @@ X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
 
 From: zhaoyifan <zhaoyifan28@huawei.com>
 
-This patch set allows mkfs.erofs to build images from a new data backend:
-S3 (or other S3 API compatible object storage services).
-Currently, the support is limited, including:
-1. Only supports building index-only images.
-2. Only object key and size is respected during building.
-3. Only supports AWS Signature Version 2 authentication.
+This patch introduces configuration options for the upcoming experimental S3
+support, including configuration parsing and passwd_file reading logic.
 
-The current feature support meets our team's business needs. I hope to work
-with the community in my spare time to polish this patch set, making the
-support fully featured.
+User could specify the following options:
+- S3 service endpoint (Compulsory)
+- S3 credentials file, in the format of "$ak:%sk" (Optional)
+- S3 API calling style (Optional)
+- S3 API signature version, only sigV2 supported yet (Optional)
 
-zhaoyifan (4):
-  erofs-utils: mkfs: introduce source_mode enumeration
-  erofs-utils: introduce build support for libcurl, openssl and libxml2
-    library
-  erofs-utils: mkfs: introduce `--s3=...` option
-  erofs-utils: mkfs: support EROFS index-only image generation from S3
+Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+---
+ include/erofs/s3.h |  30 +++++++
+ mkfs/main.c        | 220 +++++++++++++++++++++++++++++++++++++++------
+ 2 files changed, 221 insertions(+), 29 deletions(-)
 
- configure.ac       |  41 +++
- include/erofs/s3.h |  42 ++++
- lib/Makefile.am    |   5 +
- lib/s3.c           | 612 +++++++++++++++++++++++++++++++++++++++++++++
- mkfs/Makefile.am   |   3 +-
- mkfs/main.c        | 296 +++++++++++++++++-----
- 6 files changed, 937 insertions(+), 62 deletions(-)
- create mode 100644 include/erofs/s3.h
- create mode 100644 lib/s3.c
-
+diff --git a/include/erofs/s3.h b/include/erofs/s3.h
+index e29bde2..16a06c9 100644
+--- a/include/erofs/s3.h
++++ b/include/erofs/s3.h
+@@ -7,4 +7,34 @@
+ #ifndef __EROFS_S3_H
+ #define __EROFS_S3_H
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++enum s3erofs_url_style {
++    S3EROFS_URL_STYLE_PATH,          // Path style: https://s3.amazonaws.com/bucket/object
++    S3EROFS_URL_STYLE_VIRTUAL_HOST,  // Virtual host style: https://bucket.s3.amazonaws.com/object
++};
++
++enum s3erofs_signature_version {
++	S3EROFS_SIGNATURE_VERSION_2,
++	S3EROFS_SIGNATURE_VERSION_4,
++};
++
++#define S3_ACCESS_KEY_LEN 256
++#define S3_SECRET_KEY_LEN 256
++
++struct erofs_s3 {
++	const char *endpoint, *bucket;
++	char access_key[S3_ACCESS_KEY_LEN + 1];
++	char secret_key[S3_SECRET_KEY_LEN + 1];
++
++	enum s3erofs_url_style url_style;
++	enum s3erofs_signature_version sig;
++};
++
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+\ No newline at end of file
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 3aa1421..22a8c6a 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -19,6 +19,7 @@
+ #include "erofs/diskbuf.h"
+ #include "erofs/inode.h"
+ #include "erofs/tar.h"
++#include "erofs/s3.h"
+ #include "erofs/compress.h"
+ #include "erofs/dedupe.h"
+ #include "erofs/xattr.h"
+@@ -59,6 +60,9 @@ static struct option long_options[] = {
+ 	{"gid-offset", required_argument, NULL, 17},
+ 	{"tar", optional_argument, NULL, 20},
+ 	{"aufs", no_argument, NULL, 21},
++#ifdef HAVE_S3
++	{"s3", required_argument, NULL, 22},
++#endif
+ 	{"mount-point", required_argument, NULL, 512},
+ 	{"xattr-prefix", required_argument, NULL, 19},
+ #ifdef WITH_ANDROID
+@@ -197,6 +201,12 @@ static void usage(int argc, char **argv)
+ 		" --root-xattr-isize=#  ensure the inline xattr size of the root directory is # bytes at least\n"
+ 		" --aufs                replace aufs special files with overlayfs metadata\n"
+ 		" --sort=<path,none>    data sorting order for tarballs as input (default: path)\n"
++#ifdef HAVE_S3
++		" --s3=X                generate an index-only image from s3-compatible object store backend\n"
++		"   [,passwd_file=Y]    X=endpoint, Y=s3 credentials file\n"
++		"   [,style=Z]          S3 API calling style (Z = vhost|path) (default: vhost)\n"
++		"   [,sig=<2,4>]        S3 API signature version (default: 2)\n"
++#endif
+ 		" --tar=X               generate a full or index-only image from a tarball(-ish) source\n"
+ 		"                       (X = f|i|headerball; f=full mode, i=index mode,\n"
+ 		"                                            headerball=file data is omited in the source stream)\n"
+@@ -247,6 +257,10 @@ static struct erofs_tarfile erofstar = {
+ static bool incremental_mode;
+ static u8 metabox_algorithmid;
+ 
++#ifdef HAVE_S3
++static struct erofs_s3 s3cfg;
++#endif
++
+ enum {
+ 	EROFS_MKFS_DATA_IMPORT_DEFAULT,
+ 	EROFS_MKFS_DATA_IMPORT_FULLDATA,
+@@ -257,6 +271,9 @@ enum {
+ enum {
+ 	EROFS_MKFS_SOURCE_DEFAULT,
+ 	EROFS_MKFS_SOURCE_TAR,
++#ifdef HAVE_S3
++	EROFS_MKFS_SOURCE_S3,
++#endif
+ 	EROFS_MKFS_SOURCE_REBUILD,
+ } source_mode;
+ 
+@@ -522,6 +539,139 @@ static void mkfs_parse_tar_cfg(char *cfg)
+ 		erofstar.index_mode = true;
+ }
+ 
++#ifdef HAVE_S3
++static int mkfs_parse_s3_cfg_passwd(const char *filepath, char *ak, char *sk)
++{
++	struct stat file_stat;
++	int fd, n, ret = 0;
++	char buf[S3_ACCESS_KEY_LEN + S3_SECRET_KEY_LEN + 3];
++	char *colon;
++
++	fd = open(filepath, O_RDONLY);
++	if (fd < 0) {
++		erofs_err("failed to open passwd_file %s", filepath);
++		return -errno;
++	}
++
++	if (fstat(fd, &file_stat) != 0) {
++		ret = -errno;
++		goto err;
++	}
++
++	if (!S_ISREG(file_stat.st_mode)) {
++		erofs_err("%s is not a regular file", filepath);
++		ret = -EINVAL;
++		goto err;
++	}
++
++	if ((file_stat.st_mode & (S_IXUSR | S_IROTH | S_IWOTH | S_IXOTH | S_IRGRP |
++				  S_IWGRP | S_IXGRP)) != 0) {
++		erofs_err("%s should not have others/group permission", filepath);
++		ret = -EPERM;
++		goto err;
++	}
++
++	if (file_stat.st_size > S3_ACCESS_KEY_LEN + S3_SECRET_KEY_LEN + 3) {
++		erofs_err("passwd_file %s with size %lu is too big", filepath,
++			  file_stat.st_size);
++		ret = -EINVAL;
++		goto err;
++	}
++
++	n = read(fd, buf, file_stat.st_size);
++	if (n < 0) {
++		ret = -errno;
++		goto err;
++	}
++	buf[n] = '\0';
++
++	while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r'))
++		buf[--n] = '\0';
++
++	colon = strchr(buf, ':');
++	if (!colon) {
++		ret = -EINVAL;
++		goto err;
++	}
++	*colon = '\0';
++
++	strcpy(ak, buf);
++	strcpy(sk, colon + 1);
++
++err:
++	close(fd);
++	return ret;
++}
++
++static int mkfs_parse_s3_cfg(char *cfg_str)
++{
++	char *p, *q, *opt;
++	int ret = 0;
++
++	if (source_mode != EROFS_MKFS_SOURCE_DEFAULT) {
++		erofs_warn("generation image from s3 conflicting with other "
++			   "options, ignoring it");
++		return 0;
++	}
++	source_mode = EROFS_MKFS_SOURCE_S3;
++
++	if (!cfg_str) {
++		erofs_err("s3: missing parameter");
++		return -EINVAL;
++	}
++
++	s3cfg.url_style = S3EROFS_URL_STYLE_VIRTUAL_HOST;
++	s3cfg.sig = S3EROFS_SIGNATURE_VERSION_2;
++
++	p = strchr(cfg_str, ',');
++	if (p) {
++		s3cfg.endpoint = strndup(cfg_str, p - cfg_str);
++	} else {
++		s3cfg.endpoint = strdup(cfg_str);
++		return 0;
++	}
++
++	opt = p + 1;
++	while (opt) {
++		q = strchr(opt, ',');
++		if (q)
++			*q = '\0';
++
++		if ((p = strstr(opt, "passwd_file="))) {
++			p += strlen("passwd_file=");
++			ret = mkfs_parse_s3_cfg_passwd(p, s3cfg.access_key,
++						       s3cfg.secret_key);
++			if (ret)
++				return ret;
++		} else if ((p = strstr(opt, "style="))) {
++			p += strlen("style=");
++			if (strncmp(p, "vhost", 5) == 0) {
++				s3cfg.url_style = S3EROFS_URL_STYLE_VIRTUAL_HOST;
++			} else if (strncmp(p, "path", 4) == 0) {
++				s3cfg.url_style = S3EROFS_URL_STYLE_PATH;
++			} else {
++				erofs_err("invalid s3 style %s", p);
++				return -EINVAL;
++			}
++		} else if ((p = strstr(opt, "sig="))) {
++			p += strlen("sig=");
++			if (strncmp(p, "4", 1) == 0) {
++				erofs_warn("AWS Signature Version 4 is not supported yet, using Version 2");
++			} else if (strncmp(p, "2", 1) == 0) {
++				s3cfg.sig = S3EROFS_SIGNATURE_VERSION_2;
++			} else {
++				erofs_err("invalid s3 sig %s", p);
++				return -EINVAL;
++			}
++		}
++
++		opt = q ? q + 1 : NULL;
++	}
++
++	return 0;
++}
++#endif
++
+ static int mkfs_parse_one_compress_alg(char *alg,
+ 				       struct erofs_compr_opts *copts)
+ {
+@@ -670,6 +820,13 @@ static int mkfs_parse_sources(int argc, char *argv[], int optind)
+ 			erofstar.ios.dumpfd = fd;
+ 		}
+ 		break;
++#ifdef HAVE_S3
++	case EROFS_MKFS_SOURCE_S3:
++		s3cfg.bucket = strdup(argv[optind++]);
++		if (!s3cfg.bucket)
++			return -ENOMEM;
++		break;
++#endif
+ 	case EROFS_MKFS_SOURCE_REBUILD:
+ 	default:
+ 		erofs_err("unexpected source_mode: %d", source_mode);
+@@ -944,6 +1101,13 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 		case 21:
+ 			erofstar.aufs = true;
+ 			break;
++#ifdef HAVE_S3
++		case 22:
++			err = mkfs_parse_s3_cfg(optarg);
++			if (err)
++				return err;
++			break;
++#endif
+ 		case 516:
+ 			if (!optarg || !strcmp(optarg, "1"))
+ 				cfg.c_ovlfs_strip = true;
+@@ -1539,35 +1703,7 @@ int main(int argc, char **argv)
+ 
+ 	erofs_inode_manager_init();
+ 
+-	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
+-		root = erofs_rebuild_make_root(&g_sbi);
+-		if (IS_ERR(root)) {
+-			err = PTR_ERR(root);
+-			goto exit;
+-		}
+-
+-		while (!(err = tarerofs_parse_tar(root, &erofstar)));
+-
+-		if (err < 0)
+-			goto exit;
+-
+-		err = erofs_rebuild_dump_tree(root, incremental_mode);
+-		if (err < 0)
+-			goto exit;
+-	} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
+-		root = erofs_rebuild_make_root(&g_sbi);
+-		if (IS_ERR(root)) {
+-			err = PTR_ERR(root);
+-			goto exit;
+-		}
+-
+-		err = erofs_mkfs_rebuild_load_trees(root);
+-		if (err)
+-			goto exit;
+-		err = erofs_rebuild_dump_tree(root, incremental_mode);
+-		if (err)
+-			goto exit;
+-	} else {
++	if (source_mode == EROFS_MKFS_SOURCE_DEFAULT) {
+ 		err = erofs_build_shared_xattrs_from_path(&g_sbi, cfg.c_src_path);
+ 		if (err) {
+ 			erofs_err("failed to build shared xattrs: %s",
+@@ -1584,6 +1720,32 @@ int main(int argc, char **argv)
+ 			root = NULL;
+ 			goto exit;
+ 		}
++	} else {
++		root = erofs_rebuild_make_root(&g_sbi);
++		if (IS_ERR(root)) {
++			err = PTR_ERR(root);
++			goto exit;
++		}
++
++		if (source_mode == EROFS_MKFS_SOURCE_TAR) {
++			while (!(err = tarerofs_parse_tar(root, &erofstar)))
++				;
++			if (err < 0)
++				goto exit;
++		} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
++			err = erofs_mkfs_rebuild_load_trees(root);
++			if (err)
++				goto exit;
++#ifdef HAVE_S3
++		} else if (source_mode == EROFS_MKFS_SOURCE_S3) {
++			err = -EOPNOTSUPP;
++			goto exit;
++#endif
++		}
++
++		err = erofs_rebuild_dump_tree(root, incremental_mode);
++		if (err)
++			goto exit;
+ 	}
+ 
+ 	if (tar_index_512b) {
 -- 
 2.46.0
 
