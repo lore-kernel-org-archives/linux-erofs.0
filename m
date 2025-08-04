@@ -1,47 +1,47 @@
-Return-Path: <linux-erofs+bounces-759-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-760-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87142C87FCF
-	for <linux-erofs@archiver.kernel.org>; Mon,  4 Aug 2025 15:29:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91D58C87FCB
+	for <linux-erofs@archiver.kernel.org>; Mon,  4 Aug 2025 15:29:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4bwgT15jM3z3bnq;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4bwgT16Scvz3bwd;
 	Tue,  5 Aug 2025 01:29:09 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.187
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.191
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1754321349;
-	cv=none; b=Maw9IpSVY30Nfe1qR+6cuUTscg0GJvsH5oy1rgir8kkSthzvLWw5HpmKiXPeWHsL3vZlW/ge5pCud0ZnXyZpxCSXUToT/fSu+TRynodaozp3ESbzB/e4fHCuH7S1rz2F5PjPnM9U5ZrDiMl7p1XUk/O3pcVbxpqjgc13TR70W8hHwx0azIbIK0wOj2RqAalZFXsPUG/Ou1A6JnEjTB3N3RPMoEUjSHnIKouytAUYdnNfDMxdZtr4lAVAQ35mmPHlREQoyWeN7M2y+XiosgbZ+vZQU8CcDUzJDpEUJATFizBtLNYIjQQO3JWf2HmZUfvs06LK+hqmQR1qgEpkjl/pfA==
+	cv=none; b=FAFNbW3N6i+k1CyqtD7bM+miSIF5L6Z48KSZqUKr0vN4ERqslwvXjZkcu2nWF/srHfAoBipr8z3DngELXfVETGLEsSy0RCIc2yU4FvLkFMrzmypeHKe3VFnhAD7Ecs7qN2Cju2FK0D4Brb5l0XjKXzMWZQYqnUdHh7c4JTDtIjK6rpuM99ET52ir+8QJHvY84zoisfyCPgD+JQuAE1suoooFE3J50xg00Cq5/Z0MLf2E8ftCL59KC9uMiVEb5wgAqJNdVmV0WzJ7BVTf6b8/G3SccHhxHunvPoKAcu95of4MICyQ/q53QfBlv/+PamMHxUwex6AzXwHrcw123vY3tw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1754321349; c=relaxed/relaxed;
-	bh=GVwjyunHfca5ow2YMoXIPdaupgc17iZKq0BPbruZegs=;
+	bh=oPQAvA/wxp0ARYk6fsGmyOoBL2aiA9g+MvgAvefyoUc=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lvVGouZqG3REk/fLYcWW/kv38Xi5yrA+sYjUPFKLavYicqwJIPpsqrUgUC6FxO7L+PW99mkGZANZXPIrzTrCKA++22pbEGMCh4ekPzIpbrLjanmC19X3DU3Cq1RgvEWGQPgcm5/huFTckjl3Qzz1gT/Qgh4zDhNHTrSZOl4zTRS49kSZPwdH1QywvpTAvh8wL06LcPgOfq8meNN82B3DVG03XeTxm69r1vuDHlbYmFAMtEinXQ6Q/MEWTkdaAfHwYRjUCIkvrDUnQcgY2V0HGUOycuB9bDaGhKEEFd7OmILuSWlKpe9BLh5MTOD1i8PBdhRdMqz5Zjj66lC5Qc8P1A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=JCmgM+GX90kw7ZgmFCqQGOvyWj30kfYACIuB2nO72n2Zfh1Ifb5RokLkyr/wCCpeto4hZft5kPVytudFZeAUKSIpQp727GdFMYBC7UgHeDtMkFyip33dVpJIHSH1CNMJRfJC1hvjVoss9mkcg9Oc3XJgTso27NIKoCd7NEphltTSIqKr8XwFfOpAvi0pReUHOYjzxR48B5UbMdN9DOCDzZJd06umxw7Hqp0Txryk16bAdR+RPBlfYKStWbI5+JqFNrpyLpmJyHHasqGQpUQpeiQ70Vs26TEtUMZkj21tPlDA7znGoac/P1o19UGFdk2JVrPAiQ9Zz2X2oC6p/VSYSw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=45.249.212.191; helo=szxga05-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.191; helo=szxga05-in.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4bwgSz6s2lz3brH
-	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Aug 2025 01:29:07 +1000 (AEST)
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4bwgPC42JLz13N1k;
-	Mon,  4 Aug 2025 23:25:51 +0800 (CST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4bwgSy5sH9z30Yb
+	for <linux-erofs@lists.ozlabs.org>; Tue,  5 Aug 2025 01:29:05 +1000 (AEST)
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4bwgPg2pK2z1R8ry;
+	Mon,  4 Aug 2025 23:26:15 +0800 (CST)
 Received: from kwepemp500007.china.huawei.com (unknown [7.202.195.151])
-	by mail.maildlp.com (Postfix) with ESMTPS id 67CBB180B60;
-	Mon,  4 Aug 2025 23:29:04 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 61AA91800B2;
+	Mon,  4 Aug 2025 23:29:01 +0800 (CST)
 Received: from localhost.localdomain (10.175.124.27) by
  kwepemp500007.china.huawei.com (7.202.195.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 4 Aug 2025 23:29:03 +0800
+ 15.2.1544.11; Mon, 4 Aug 2025 23:29:00 +0800
 From: Yifan Zhao <zhaoyifan28@huawei.com>
 To: <linux-erofs@lists.ozlabs.org>
 CC: <hsiangkao@linux.alibaba.com>, <jingrui@huawei.com>,
 	<lihongbo22@huawei.com>, zhaoyifan <zhaoyifan28@huawei.com>
-Subject: [PATCH v3 4/4] erofs-utils: mkfs: support EROFS index-only image generation from S3
-Date: Mon, 4 Aug 2025 23:28:25 +0800
-Message-ID: <20250804152825.428197-4-zhaoyifan28@huawei.com>
+Subject: [PATCH v3 2/4] erofs-utils: introduce extra build dependencies for S3 support
+Date: Mon, 4 Aug 2025 23:28:23 +0800
+Message-ID: <20250804152825.428197-2-zhaoyifan28@huawei.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20250804152825.428197-1-zhaoyifan28@huawei.com>
 References: <20250804152825.428197-1-zhaoyifan28@huawei.com>
@@ -64,680 +64,245 @@ X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
 
 From: zhaoyifan <zhaoyifan28@huawei.com>
 
-This patch introduces experimental S3 support for mkfs.erofs, allowing
-EROFS images to be generated from AWS S3 (and other S3 API compatible
-services).
+This patch adds additional dependencies on libcurl, openssl and libxml2
+library for the upcoming S3 data source support, with libcurl to
+interact with S3 API, openssl to generate S3 auth signature and libxml2
+to parse response body.
 
-Currently the functionality is limited:
-- only index-only EROFS image generation are supported
-- only AWS Signature Version 2 is supported
-- only S3 object name and size are respected during image generation
+The newly introduced dependencies are optional, controlled by the
+`--with-{libcurl,openssl,libxml2}` configure option. A new option
+`--enable-s3` is also introduced to control whether S3 support is
+enabled, and will report an error if any of the three dependencies
+above is not satisfied.
 
-Co-Developed-by: Hongbo Li <lihongbo22@huawei.com>
-Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
 ---
 changes since v2:
-- add mtime support
-- fix nlink on regular file
-- disable ssl in default
-- some code format and error handling
+- introduce `--with-{libcurl,openssl,libxml2}`
+- `--enable-s3` would fail if any dependency is missing
+- rename: HAVE_S3 -> S3_ENABLED
 
- lib/liberofs_s3.h |   2 +
- lib/remotes/s3.c  | 612 ++++++++++++++++++++++++++++++++++++++++++++++
- mkfs/main.c       |   5 +-
- 3 files changed, 617 insertions(+), 2 deletions(-)
+ configure.ac     | 129 ++++++++++++++++++++++++++++++++++++++++++++++-
+ lib/Makefile.am  |  12 +++++
+ lib/remotes/s3.c |   6 +++
+ mkfs/Makefile.am |   3 +-
+ 4 files changed, 148 insertions(+), 2 deletions(-)
+ create mode 100644 lib/remotes/s3.c
 
-diff --git a/lib/liberofs_s3.h b/lib/liberofs_s3.h
-index fbf2f80..fbcb8a6 100644
---- a/lib/liberofs_s3.h
-+++ b/lib/liberofs_s3.h
-@@ -33,6 +33,8 @@ struct erofs_s3 {
- 	enum s3erofs_signature_version sig;
- };
+diff --git a/configure.ac b/configure.ac
+index 2d42b1f..b735f92 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,7 +24,7 @@ esac
+ # OS-specific treatment
+ AM_CONDITIONAL([OS_LINUX], [test "$build_linux" = "yes"])
  
-+int s3erofs_build_trees(struct erofs_inode *root, struct erofs_s3 *s3cfg);
+-AM_INIT_AUTOMAKE([foreign -Wall])
++AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
+ 
+ # Checks for programs.
+ AM_PROG_AR
+@@ -165,6 +165,22 @@ AC_ARG_WITH(xxhash,
+    [AS_HELP_STRING([--with-xxhash],
+       [Enable and build with libxxhash support @<:@default=auto@:>@])])
+ 
++AC_ARG_WITH(libcurl,
++   [AS_HELP_STRING([--with-libcurl],
++      [Enable and build with libcurl support @<:@default=auto@:>@])])
 +
- #ifdef __cplusplus
- }
- #endif
-diff --git a/lib/remotes/s3.c b/lib/remotes/s3.c
-index 6b83949..5638057 100644
---- a/lib/remotes/s3.c
-+++ b/lib/remotes/s3.c
-@@ -4,4 +4,616 @@
-  *             http://www.huawei.com/
-  * Created by Yifan Zhao <zhaoyifan28@huawei.com>
-  */
-+#include <stdlib.h>
-+#include <time.h>
++AC_ARG_WITH(openssl,
++   [AS_HELP_STRING([--with-openssl],
++      [Enable and build with openssl support @<:@default=auto@:>@])])
++
++AC_ARG_WITH(libxml2,
++   [AS_HELP_STRING([--with-libxml2],
++      [Enable and build with libxml2 support @<:@default=auto@:>@])])
++
++AC_ARG_ENABLE(s3,
++   [AS_HELP_STRING([--enable-s3], [enable s3 image generation support @<:@default=no@:>@])],
++   [enable_s3="$enableval"], [enable_s3="no"])
++
+ AC_ARG_ENABLE(fuse,
+    [AS_HELP_STRING([--enable-fuse], [enable erofsfuse @<:@default=no@:>@])],
+    [enable_fuse="$enableval"], [enable_fuse="no"])
+@@ -578,6 +594,91 @@ AS_IF([test "x$with_xxhash" != "xno"], [
+   ])
+ ])
+ 
++# Configure libcurl
++have_libcurl="no"
++AS_IF([test "x$with_libcurl" != "xno"], [
++  PKG_CHECK_MODULES([libcurl], [libcurl], [
++    # Paranoia: don't trust the result reported by pkgconfig before trying out
++    saved_LIBS="$LIBS"
++    saved_CPPFLAGS=${CPPFLAGS}
++    CPPFLAGS="${libcurl_CFLAGS} ${CPPFLAGS}"
++    LIBS="${libcurl_LIBS} $LIBS"
++    AC_CHECK_HEADERS([curl/curl.h],[
++      AC_CHECK_LIB(curl, curl_easy_perform, [], [
++        AC_MSG_ERROR([libcurl doesn't work properly])])
++      AC_CHECK_DECL(curl_easy_perform, [have_libcurl="yes"],
++        [AC_MSG_ERROR([libcurl doesn't work properly])], [[
 +#include <curl/curl.h>
-+#include <libxml/parser.h>
++      ]])
++    ])
++    LIBS="${saved_LIBS}"
++    CPPFLAGS="${saved_CPPFLAGS}"], [
++    AS_IF([test "x$with_libcurl" = "xyes"], [
++      AC_MSG_ERROR([Cannot find proper libcurl])
++    ])
++  ])
++])
++
++# Configure openssl
++have_openssl="no"
++AS_IF([test "x$with_openssl" != "xno"], [
++  PKG_CHECK_MODULES([openssl], [openssl], [
++    # Paranoia: don't trust the result reported by pkgconfig before trying out
++    saved_LIBS="$LIBS"
++    saved_CPPFLAGS=${CPPFLAGS}
++    CPPFLAGS="${openssl_CFLAGS} ${CPPFLAGS}"
++    LIBS="${openssl_LIBS} $LIBS"
++    AC_CHECK_HEADERS([openssl/hmac.h],[
++      AC_CHECK_LIB(ssl, EVP_sha1, [], [
++        AC_MSG_ERROR([openssl doesn't work properly])])
++      AC_CHECK_DECL(EVP_sha1, [have_openssl="yes"],
++        [AC_MSG_ERROR([openssl doesn't work properly])], [[
 +#include <openssl/hmac.h>
-+#include "erofs/internal.h"
-+#include "erofs/print.h"
-+#include "erofs/inode.h"
-+#include "erofs/blobchunk.h"
-+#include "erofs/rebuild.h"
- #include "liberofs_s3.h"
-+
-+#define S3EROFS_MAX_QUERY_PARAMS    16
-+#define S3EROFS_URL_LEN		    8192
-+#define S3EROFS_CANONICAL_QUERY_LEN 2048
-+
-+#define BASE64_ENCODE_LEN(len) (((len + 2) / 3) * 4)
-+
-+static CURL *easy_curl;
-+
-+struct s3erofs_query_params {
-+	int num;
-+	const char *key[S3EROFS_MAX_QUERY_PARAMS];
-+	const char *value[S3EROFS_MAX_QUERY_PARAMS];
-+};
-+
-+static void s3erofs_prepare_url(const char *endpoint, const char *bucket, const char *object,
-+				struct s3erofs_query_params *params, char *url,
-+				enum s3erofs_url_style url_style)
-+{
-+	const char *schema = NULL;
-+	const char *host = NULL;
-+	size_t pos = 0;
-+	int i;
-+
-+	if (!endpoint || !bucket || !url) {
-+		return;
-+	}
-+
-+	if (strncmp(endpoint, "https://", 8) == 0) {
-+		schema = "https://";
-+		host = endpoint + 8;
-+	} else if (strncmp(endpoint, "http://", 7) == 0) {
-+		schema = "http://";
-+		host = endpoint + 7;
-+	} else {
-+		schema = "http://";
-+		host = endpoint;
-+	}
-+
-+	if (url_style == S3EROFS_URL_STYLE_VIRTUAL_HOST) {
-+		pos += snprintf(url, S3EROFS_URL_LEN, "%s%s.%s", schema, bucket, host);
-+	} else {
-+		pos += snprintf(url, S3EROFS_URL_LEN, "%s%s/%s", schema, host, bucket);
-+	}
-+
-+	if (object) {
-+		pos += snprintf(url + pos, S3EROFS_URL_LEN - pos, "/%s", object);
-+	}
-+
-+	for (i = 0; i < params->num; i++) {
-+		pos += snprintf(url + pos, S3EROFS_URL_LEN - pos, "%c%s=%s", (i == 0 ? '?' : '&'),
-+				params->key[i], params->value[i]);
-+	}
-+}
-+
-+static char *get_canonical_headers(const struct curl_slist *list) { return ""; }
-+
-+static char *s3erofs_sigv2_header(const struct curl_slist *headers, const char *method,
-+				  const char *content_md5, const char *content_type,
-+				  const char *date, const char *canonical_query, const char *ak,
-+				  const char *sk)
-+{
-+	char *str, *output = NULL;
-+	u8 *hmac_signature;
-+	unsigned int len = 0, pos = 0, output_len;
-+	const char *canonical_headers = get_canonical_headers(headers);
-+	const char *prefix = "Authorization: AWS ";
-+
-+	if (!method || !date || !ak || !sk) {
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (!content_md5)
-+		content_md5 = "";
-+	if (!content_type)
-+		content_type = "";
-+	if (!canonical_query)
-+		canonical_query = "/";
-+
-+	len += strlen(method) + 1;
-+	len += strlen(content_md5) + 1;
-+	len += strlen(content_type) + 1;
-+	len += strlen(date) + 1;
-+	len += strlen(canonical_headers);
-+	len += strlen(canonical_query);
-+
-+	str = (char *)malloc(++len);
-+	if (!str)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pos += snprintf(str + pos, len - pos, "%s\n", method);
-+	pos += snprintf(str + pos, len - pos, "%s\n", content_md5);
-+	pos += snprintf(str + pos, len - pos, "%s\n", content_type);
-+	pos += snprintf(str + pos, len - pos, "%s\n", date);
-+	pos += snprintf(str + pos, len - pos, "%s", canonical_headers);
-+	pos += snprintf(str + pos, len - pos, "%s", canonical_query);
-+
-+	hmac_signature = (u8 *)malloc(EVP_MAX_MD_SIZE);
-+	if (!hmac_signature)
-+		goto free_string;
-+
-+	if (!HMAC(EVP_sha1(), sk, strlen(sk), (u8 *)str, strlen(str), hmac_signature, &len))
-+		goto free_hmac;
-+
-+	output_len = BASE64_ENCODE_LEN(len);
-+	output_len += strlen(prefix);
-+	output_len += strlen(ak);
-+	/* for ':' between ak and signature*/
-+	output_len += 1;
-+
-+	output = (char *)malloc(output_len);
-+	if (!output)
-+		goto free_hmac;
-+
-+	memcpy(output, prefix, strlen(prefix));
-+	memcpy(output + strlen(prefix), ak, strlen(ak));
-+	output[strlen(prefix) + strlen(ak)] = ':';
-+
-+	EVP_EncodeBlock((unsigned char *)output + strlen(prefix) + strlen(ak) + 1, hmac_signature,
-+			len);
-+
-+free_hmac:
-+	free(hmac_signature);
-+free_string:
-+	free(str);
-+	return output ?: ERR_PTR(-ENOMEM);
-+}
-+
-+static void s3erofs_now_rfc1123(char *buf, size_t maxlen)
-+{
-+	time_t now = time(NULL);
-+	struct tm *ptm = gmtime(&now);
-+	strftime(buf, maxlen, "%a, %d %b %Y %H:%M:%S GMT", ptm);
-+}
-+
-+struct s3erofs_curl_request {
-+	const char *method;
-+	char url[S3EROFS_URL_LEN];
-+	char canonical_query[S3EROFS_CANONICAL_QUERY_LEN];
-+};
-+
-+struct s3erofs_curl_response {
-+	char *data;
-+	size_t size;
-+};
-+
-+static size_t s3erofs_request_write_memory_cb(void *contents, size_t size, size_t nmemb,
-+					      void *userp)
-+{
-+	size_t realsize = size * nmemb;
-+	struct s3erofs_curl_response *response = (struct s3erofs_curl_response *)userp;
-+	void *tmp;
-+
-+	tmp = realloc(response->data, response->size + realsize + 1);
-+	if (tmp == NULL)
-+		return 0;
-+
-+	response->data = tmp;
-+
-+	memcpy(response->data + response->size, contents, realsize);
-+	response->size += realsize;
-+	response->data[response->size] = '\0';
-+
-+	return realsize;
-+}
-+
-+static int s3erofs_request_insert_auth(struct curl_slist **request_headers, const char *method,
-+				       const char *canonical_query, const char *ak, const char *sk)
-+{
-+	char date_header[40];
-+	const char *date_prefix = "Date: ";
-+	size_t date_prefix_len = strlen(date_prefix);
-+	char *sigv2_header;
-+
-+	memcpy(date_header, date_prefix, date_prefix_len);
-+	s3erofs_now_rfc1123(date_header + date_prefix_len, sizeof(date_header) - date_prefix_len);
-+
-+	sigv2_header = s3erofs_sigv2_header(*request_headers, method, NULL, NULL,
-+					    date_header + date_prefix_len, canonical_query, ak, sk);
-+	if (IS_ERR(sigv2_header))
-+		return PTR_ERR(sigv2_header);
-+
-+	*request_headers = curl_slist_append(*request_headers, date_header);
-+	*request_headers = curl_slist_append(*request_headers, sigv2_header);
-+
-+	free(sigv2_header);
-+	return 0;
-+}
-+
-+static int s3erofs_request_perform(struct erofs_s3 *s3cfg, struct s3erofs_curl_request *req,
-+				   struct s3erofs_curl_response *resp)
-+{
-+	struct curl_slist *request_headers = NULL;
-+	long http_code = 0;
-+	int ret;
-+
-+	ret = s3erofs_request_insert_auth(&request_headers, req->method, req->canonical_query,
-+					  s3cfg->access_key, s3cfg->secret_key);
-+	if (ret < 0) {
-+		erofs_err("failed to insert auth headers\n");
-+		return ret;
-+	}
-+
-+	curl_easy_setopt(easy_curl, CURLOPT_URL, req->url);
-+	curl_easy_setopt(easy_curl, CURLOPT_WRITEDATA, resp);
-+	curl_easy_setopt(easy_curl, CURLOPT_HTTPHEADER, request_headers);
-+
-+	ret = curl_easy_perform(easy_curl);
-+	if (ret != CURLE_OK) {
-+		erofs_err("curl_easy_perform() failed: %s\n", curl_easy_strerror(ret));
-+		ret = -EIO;
-+		goto err_header;
-+	}
-+
-+	ret = curl_easy_getinfo(easy_curl, CURLINFO_RESPONSE_CODE, &http_code);
-+	if (ret != CURLE_OK) {
-+		erofs_err("curl_easy_getinfo() failed: %s\n", curl_easy_strerror(ret));
-+		ret = -EIO;
-+		goto err_header;
-+	}
-+
-+	if (!(http_code >= 200 && http_code < 300)) {
-+		erofs_err("request failed with HTTP code %ld\n", http_code);
-+		ret = -EIO;
-+	}
-+
-+err_header:
-+	curl_slist_free_all(request_headers);
-+	return ret;
-+}
-+
-+struct s3erofs_object_info {
-+	char *key;
-+	u64 size;
-+	time_t mtime;
-+};
-+
-+struct s3erofs_object_iterator {
-+	struct s3erofs_object_info *objects;
-+	int cur, total;
-+
-+	struct erofs_s3 *s3cfg;
-+	const char *prefix, *delimiter;
-+
-+	char *next_marker;
-+	bool is_truncated;
-+};
-+
-+static int s3erofs_parse_list_objects_one(xmlNodePtr node, struct s3erofs_object_info *info)
-+{
-+	xmlNodePtr child;
-+	xmlChar *str;
-+
-+	for (child = node->children; child; child = child->next) {
-+		if (child->type == XML_ELEMENT_NODE) {
-+			str = xmlNodeGetContent(child);
-+			if (!str) {
-+				return -ENOMEM;
-+			}
-+
-+			if (xmlStrEqual(child->name, (const xmlChar *)"LastModified")) {
-+				struct tm tm = {0};
-+				if (sscanf((char *)str, "%d-%d-%dT%d:%d:%d",
-+					&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
-+					&tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
-+					xmlFree(str);
-+					return -EIO;
-+				}
-+				tm.tm_year -= 1900;
-+				tm.tm_mon -= 1;
-+				info->mtime = mktime(&tm);
-+			}
-+			if (xmlStrEqual(child->name, (const xmlChar *)"Key")) {
-+				info->key = strdup((char *)str);
-+			} else if (xmlStrEqual(child->name, (const xmlChar *)"Size")) {
-+				info->size = atoll((char *)str);
-+			}
-+
-+			xmlFree(str);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int s3erofs_parse_list_objects_result(const char *data, int len,
-+					     struct s3erofs_object_iterator *it)
-+{
-+	xmlDocPtr doc = NULL;
-+	xmlNodePtr root = NULL, node;
-+	xmlChar *str;
-+	xmlNodePtr contents_nodes[1000];
-+	int contents_count = 0;
-+	int i = 0;
-+	int ret = 0;
-+	void *tmp;
-+
-+	doc = xmlReadMemory(data, len, NULL, NULL, 0);
-+	if (!doc) {
-+		erofs_err("failed to parse XML data\n");
-+		return -EINVAL;
-+	}
-+
-+	root = xmlDocGetRootElement(doc);
-+	if (!root) {
-+		erofs_err("failed to get root element\n");
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (!xmlStrEqual(root->name, (const xmlChar *)"ListBucketResult")) {
-+		erofs_err("invalid root element: expected ListBucketResult, got %s", root->name);
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	for (node = root->children; node; node = node->next) {
-+		if (node->type == XML_ELEMENT_NODE) {
-+			if (xmlStrEqual(node->name, (const xmlChar *)"Contents")) {
-+				if (contents_count < 1000)
-+					contents_nodes[contents_count++] = node;
-+			} else if (xmlStrEqual(node->name, (const xmlChar *)"IsTruncated")) {
-+				str = xmlNodeGetContent(node);
-+				if (str) {
-+					it->is_truncated =
-+					    xmlStrEqual(str, (const xmlChar *)"true") ? true
-+										      : false;
-+					xmlFree(str);
-+				}
-+			} else if (xmlStrEqual(node->name, (const xmlChar *)"NextMarker")) {
-+				str = xmlNodeGetContent(node);
-+				if (str) {
-+					if (it->next_marker)
-+						free(it->next_marker);
-+					it->next_marker = strdup((char *)str);
-+					if (!it->next_marker) {
-+						xmlFree(str);
-+						ret = -ENOMEM;
-+						goto out;
-+					}
-+					xmlFree(str);
-+				}
-+			}
-+		}
-+	}
-+
-+	if (contents_count == 0)
-+		goto out;
-+
-+	tmp = realloc(it->objects, contents_count * sizeof(struct s3erofs_object_info));
-+	if (!tmp) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	memset(tmp, 0, contents_count * sizeof(struct s3erofs_object_info));
-+	it->objects = tmp;
-+
-+	for (i = 0; i < contents_count; i++) {
-+		ret = s3erofs_parse_list_objects_one(contents_nodes[i], &it->objects[i]);
-+		if (ret < 0) {
-+			erofs_err("failed to parse contents node #%d, ret:%d", i, ret);
-+			while (--i >= 0)
-+				free(it->objects[i].key);
-+			free(it->objects);
-+			goto out;
-+		}
-+	}
-+
-+	it->total = contents_count;
-+
-+out:
-+	xmlFreeDoc(doc);
-+	return ret;
-+}
-+
-+static int s3erofs_list_objects(struct s3erofs_object_iterator *it)
-+{
-+	struct s3erofs_curl_request req = {0};
-+	struct s3erofs_curl_response resp = {0};
-+	struct s3erofs_query_params params = {0};
-+	int ret = 0;
-+
-+	struct erofs_s3 *s3cfg = it->s3cfg;
-+
-+	if (it->prefix && strlen(it->prefix) > 1024) {
-+		erofs_err("prefix is too long");
-+		return -EINVAL;
-+	}
-+
-+	if (it->delimiter && strlen(it->delimiter) > 1024) {
-+		erofs_err("delimiter is too long");
-+		return -EINVAL;
-+	}
-+
-+	if (it->prefix) {
-+		params.key[params.num] = "prefix";
-+		params.value[params.num] = it->prefix;
-+		++params.num;
-+	}
-+
-+	if (it->delimiter) {
-+		params.key[params.num] = "delimiter";
-+		params.value[params.num] = it->delimiter;
-+		++params.num;
-+	}
-+
-+	if (it->next_marker) {
-+		params.key[params.num] = "marker";
-+		params.value[params.num] = it->next_marker;
-+		++params.num;
-+	}
-+
-+	params.key[params.num] = "max-keys";
-+	params.value[params.num] = "1000";
-+	++params.num;
-+
-+	req.method = "GET";
-+	s3erofs_prepare_url(s3cfg->endpoint, s3cfg->bucket, NULL, &params,
-+			    req.url, s3cfg->url_style);
-+	snprintf(req.canonical_query, S3EROFS_CANONICAL_QUERY_LEN, "/%s", s3cfg->bucket);
-+
-+	ret = s3erofs_request_perform(s3cfg, &req, &resp);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = s3erofs_parse_list_objects_result(resp.data, resp.size, it);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static struct s3erofs_object_iterator *
-+s3erofs_create_object_iterator(struct erofs_s3 *s3cfg, const char *prefix,
-+			       const char *delimiter)
-+{
-+	struct s3erofs_object_iterator *iter;
-+
-+	iter = calloc(1, sizeof(struct s3erofs_object_iterator));
-+	if (!iter)
-+		return ERR_PTR(-ENOMEM);
-+	iter->s3cfg = s3cfg;
-+	iter->prefix = prefix;
-+	iter->delimiter = delimiter;
-+	iter->is_truncated = true;
-+	return iter;
-+}
-+
-+static void s3erofs_destroy_object_iterator(struct s3erofs_object_iterator *it)
-+{
-+	int i;
-+
-+	if (it->next_marker)
-+		free(it->next_marker);
-+	if (it->objects) {
-+		for (i = 0; i < it->total; i++)
-+			free(it->objects[i].key);
-+		free(it->objects);
-+	}
-+
-+	free(it);
-+}
-+
-+static struct s3erofs_object_info *
-+s3erofs_get_next_object(struct s3erofs_object_iterator *it)
-+{
-+	int ret = 0;
-+
-+	if (it->cur < it->total)
-+		return &it->objects[it->cur++];
-+
-+	if (it->is_truncated) {
-+		ret = s3erofs_list_objects(it);
-+		if (ret < 0)
-+			return ERR_PTR(ret);
-+
-+		it->cur = 0;
-+		return &it->objects[it->cur++];
-+	}
-+
-+	return NULL;
-+}
-+
-+static int s3erofs_global_init(void)
-+{
-+	int ret;
-+
-+	ret = curl_global_init(CURL_GLOBAL_DEFAULT);
-+	if (ret != CURLE_OK)
-+		return -EIO;
-+
-+	easy_curl = curl_easy_init();
-+	if (!easy_curl) {
-+		curl_global_cleanup();
-+		return -EIO;
-+	}
-+
-+	curl_easy_setopt(easy_curl, CURLOPT_WRITEFUNCTION, s3erofs_request_write_memory_cb);
-+	curl_easy_setopt(easy_curl, CURLOPT_FOLLOWLOCATION, 1L);
-+	curl_easy_setopt(easy_curl, CURLOPT_TIMEOUT, 30L);
-+	curl_easy_setopt(easy_curl, CURLOPT_SSL_VERIFYPEER, 0);
-+
-+	xmlInitParser();
-+
-+	return ret;
-+}
-+
-+static void s3erofs_global_exit(void)
-+{
-+	if (!easy_curl)
-+		return;
-+
-+	xmlCleanupParser();
-+
-+	curl_easy_cleanup(easy_curl);
-+	easy_curl = NULL;
-+
-+	curl_global_cleanup();
-+}
-+
-+int s3erofs_build_trees(struct erofs_inode *root, struct erofs_s3 *s3cfg)
-+{
-+	struct erofs_sb_info *sbi = root->sbi;
-+	struct s3erofs_object_iterator *iter;
-+	struct s3erofs_object_info *obj;
-+	struct erofs_dentry *d;
-+	struct erofs_inode *inode;
-+	struct stat st;
-+	bool dumb;
-+	int ret = 0;
-+
-+	st.st_uid = getuid();
-+	st.st_gid = getgid();
-+
-+	ret = s3erofs_global_init();
-+	if (ret) {
-+		erofs_err("failed to initialize s3erofs: %s", erofs_strerror(ret));
-+		return ret;
-+	}
-+
-+	iter = s3erofs_create_object_iterator(s3cfg, NULL, NULL);
-+	if (IS_ERR(iter)) {
-+		erofs_err("failed to create object iterator");
-+		ret = PTR_ERR(iter);
-+		goto err_global;
-+	}
-+
-+	while (1) {
-+		obj = s3erofs_get_next_object(iter);
-+		if (!obj) {
-+			break;
-+		} else if (IS_ERR(obj)) {
-+			erofs_err("failed to get next object");
-+			ret = PTR_ERR(obj);
-+			goto err_iter;
-+		}
-+
-+		d = erofs_rebuild_get_dentry(root, obj->key, false, &dumb, &dumb, false);
-+		if (IS_ERR(d)) {
-+			ret = PTR_ERR(d);
-+			goto err_iter;
-+		}
-+		if (d->type == EROFS_FT_DIR) {
-+			inode = d->inode;
-+			inode->i_mode = S_IFDIR | 0755;
-+		} else {
-+			inode = erofs_new_inode(sbi);
-+			if (IS_ERR(inode)) {
-+				ret = PTR_ERR(inode);
-+				goto err_iter;
-+			}
-+
-+			inode->i_mode = S_IFREG | 0644;
-+			inode->i_parent = d->inode;
-+			inode->i_nlink = 1;
-+
-+			d->inode = inode;
-+			d->type = EROFS_FT_REG_FILE;
-+		}
-+		inode->i_srcpath = strdup(obj->key);
-+		if (!inode->i_srcpath) {
-+			ret = -ENOMEM;
-+			goto err_iter;
-+		}
-+		st.st_mtime = obj->mtime;
-+		ret = __erofs_fill_inode(inode, &st, obj->key);
-+		if (ret)
-+			goto err_iter;
-+		inode->i_size = obj->size;
-+		if (S_ISREG(inode->i_mode)) {
-+			ret = erofs_write_zero_inode(inode);
-+			if (ret)
-+				goto err_iter;
-+		}
-+	}
-+
-+err_iter:
-+	s3erofs_destroy_object_iterator(iter);
-+err_global:
-+	s3erofs_global_exit();
-+	return ret;
-+}
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 2671834..6874c09 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1738,8 +1738,9 @@ int main(int argc, char **argv)
- 				goto exit;
- #ifdef S3_ENABLED
- 		} else if (source_mode == EROFS_MKFS_SOURCE_S3) {
--			err = -EOPNOTSUPP;
--			goto exit;
-+			err = s3erofs_build_trees(root, &s3cfg);
-+			if (err)
-+				goto exit;
- #endif
- 		}
++      ]])
++    ])
++    LIBS="${saved_LIBS}"
++    CPPFLAGS="${saved_CPPFLAGS}"], [
++    AS_IF([test "x$with_openssl" = "xyes"], [
++      AC_MSG_ERROR([Cannot find proper openssl])
++    ])
++  ])
++])
++
++# Configure libxml2
++have_libxml2="no"
++AS_IF([test "x$with_libxml2" != "xno"], [
++  PKG_CHECK_MODULES([libxml2], [libxml-2.0], [
++    # Paranoia: don't trust the result reported by pkgconfig before trying out
++    saved_LIBS="$LIBS"
++    saved_CPPFLAGS=${CPPFLAGS}
++    CPPFLAGS="${libxml2_CFLAGS} ${CPPFLAGS}"
++    LIBS="${libxml2_LIBS} $LIBS"
++    AC_CHECK_HEADERS([libxml/parser.h],[
++      AC_CHECK_LIB(xml2, xmlReadMemory, [], [
++        AC_MSG_ERROR([libxml2 doesn't work properly])])
++      AC_CHECK_DECL(xmlReadMemory, [have_libxml2="yes"],
++        [AC_MSG_ERROR([libxml2 doesn't work properly])], [[
++#include <libxml/parser.h>
++      ]])
++    ])
++    LIBS="${saved_LIBS}"
++    CPPFLAGS="${saved_CPPFLAGS}"], [
++    AS_IF([test "x$with_libxml2" = "xyes"], [
++      AC_MSG_ERROR([Cannot find proper libxml2])
++    ])
++  ])
++])
++
++AS_IF([test "x$enable_s3" != "xno"], [
++  AS_IF(
++    [test "x$have_libcurl" = "xyes" && \
++     test "x$have_openssl" = "xyes" && \
++     test "x$have_libxml2" = "xyes"],
++    [have_s3="yes"],
++    [have_s3="no"
++     AC_MSG_ERROR([S3 disabled: missing libcurl, openssl, or libxml2])])
++  ], [have_s3="no"])
++
+ # Enable 64-bit off_t
+ CFLAGS+=" -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
  
+@@ -601,6 +702,10 @@ AM_CONDITIONAL([ENABLE_LIBDEFLATE], [test "x${have_libdeflate}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_LIBZSTD], [test "x${have_libzstd}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_QPL], [test "x${have_qpl}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_XXHASH], [test "x${have_xxhash}" = "xyes"])
++AM_CONDITIONAL([ENABLE_LIBCURL], [test "x${have_libcurl}" = "xyes"])
++AM_CONDITIONAL([ENABLE_OPENSSL], [test "x${have_openssl}" = "xyes"])
++AM_CONDITIONAL([ENABLE_LIBXML2], [test "x${have_libxml2}" = "xyes"])
++AM_CONDITIONAL([ENABLE_S3], [test "x${have_s3}" = "xyes"])
+ AM_CONDITIONAL([ENABLE_STATIC_FUSE], [test "x${enable_static_fuse}" = "xyes"])
+ 
+ if test "x$have_uuid" = "xyes"; then
+@@ -652,6 +757,28 @@ if test "x$have_xxhash" = "xyes"; then
+   AC_DEFINE([HAVE_XXHASH], 1, [Define to 1 if xxhash is found])
+ fi
+ 
++if test "x$have_libcurl" = "xyes"; then
++  AC_DEFINE([HAVE_LIBCURL], 1, [Define to 1 if libcurl is found])
++  AC_SUBST([libcurl_LIBS])
++  AC_SUBST([libcurl_CFLAGS])
++fi
++
++if test "x$have_openssl" = "xyes"; then
++  AC_DEFINE([HAVE_OPENSSL], 1, [Define to 1 if openssl is found])
++  AC_SUBST([openssl_LIBS])
++  AC_SUBST([openssl_CFLAGS])
++fi
++
++if test "x$have_libxml2" = "xyes"; then
++  AC_DEFINE([HAVE_LIBXML2], 1, [Define to 1 if libxml2 is found])
++  AC_SUBST([libxml2_LIBS])
++  AC_SUBST([libxml2_CFLAGS])
++fi
++
++if test "x$have_s3" = "xyes"; then
++  AC_DEFINE([S3_ENABLED], 1, [Define to 1 if s3 is enabled])
++fi
++
+ # Dump maximum block size
+ AS_IF([test "x$erofs_cv_max_block_size" = "x"],
+       [$erofs_cv_max_block_size = 4096], [])
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 0db81df..72b03ba 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -66,6 +66,18 @@ liberofs_la_CFLAGS += ${libxxhash_CFLAGS}
+ else
+ liberofs_la_SOURCES += xxhash.c
+ endif
++if ENABLE_LIBCURL
++liberofs_la_CFLAGS += ${libcurl_CFLAGS}
++endif
++if ENABLE_OPENSSL
++liberofs_la_CFLAGS += ${openssl_CFLAGS}
++endif
++if ENABLE_LIBXML2
++liberofs_la_CFLAGS += ${libxml2_CFLAGS}
++endif
++if ENABLE_S3
++liberofs_la_SOURCES += remotes/s3.c
++endif
+ if ENABLE_EROFS_MT
+ liberofs_la_LDFLAGS = -lpthread
+ liberofs_la_SOURCES += workqueue.c
+diff --git a/lib/remotes/s3.c b/lib/remotes/s3.c
+new file mode 100644
+index 0000000..35e3fd5
+--- /dev/null
++++ b/lib/remotes/s3.c
+@@ -0,0 +1,6 @@
++/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
++/*
++ * Copyright (C) 2025 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Yifan Zhao <zhaoyifan28@huawei.com>
++ */
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index 2499242..b84b4c1 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -7,4 +7,5 @@ mkfs_erofs_SOURCES = main.c
+ mkfs_erofs_CFLAGS = -Wall -I$(top_srcdir)/include
+ mkfs_erofs_LDADD = $(top_builddir)/lib/liberofs.la ${libselinux_LIBS} \
+ 	${libuuid_LIBS} ${liblz4_LIBS} ${liblzma_LIBS} ${zlib_LIBS} \
+-	${libdeflate_LIBS} ${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS}
++	${libdeflate_LIBS} ${libzstd_LIBS} ${libqpl_LIBS} ${libxxhash_LIBS} \
++	${libcurl_LIBS} ${openssl_LIBS} ${libxml2_LIBS}
 -- 
 2.46.0
 
