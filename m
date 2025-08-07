@@ -1,50 +1,53 @@
-Return-Path: <linux-erofs+bounces-780-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-781-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2148CC87FD3
-	for <linux-erofs@archiver.kernel.org>; Thu,  7 Aug 2025 03:08:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF4E3C87FCB
+	for <linux-erofs@archiver.kernel.org>; Thu,  7 Aug 2025 03:08:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4byBvQ3rJ2z3bnB;
-	Thu,  7 Aug 2025 13:08:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1754536130;
-	cv=none; b=baRKm8ngG9cUF6Z8paaw326STmlQpaEycFGmDawIYbaYanIkJFGtFospB6nfI5Qrsh57skoqmMgCRieckmix0bn1kVbRNBTwzbx0YQVfBilolhTCIH0yk+NYo6qxdhwZgWVvRqGR44FLe0AoRTlWSpAU9zL2uJxUTVvyodEz6br1oJiWcUMy9dLI5JnhJ2YPF+ehSKTHwoWJSFSqKPyWoiWwxaySh4kPsTm2/aj5ccGiHMJVBd7d34QJjEZkisiIz3B2bSRxsimboI91xGOxowsgSdEpeQH6UxXFPnd47K6qRggbx8FHJRoRck7iIELPvMTwD8YdTpMwMYk6uyXc9Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4byBvR27B5z2xQ4;
+	Thu,  7 Aug 2025 13:08:51 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1754536131;
+	cv=none; b=eY+f9D0DdYCWJXutLzSV27EACBnoapnR+NpBzwVhS32tXWqyoC/scH1jMmhtd2CNynaHExxl9/QmSqrODa6EJqkYVY2PJSSjl6N7nuneDLtRzPjFCujXSg//lr+JutaG5znh3mQCZipKN4hpEcQwLHnFh7r3l+kGpPZCmQzOkJFbYiUhlO8FP3Z3WBoMrgwsCmFt8Xzd50lSaiIX6ypu5ERVFim4GA+oPgha77tvuVO0vB/6GuRP5uULc67FuV0+4GQqMWXNkmqGhBsldtcL9yxBSGqqzlGj/dMjb8yRdnBfVgZu4NeDD2daTIzagCIrW5ZrHpLNerHx8R+91n21OQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1754536130; c=relaxed/relaxed;
-	bh=spsPfxmkFwiAA3DrBwjMbBcj6jb0q2vilrQ/3ZB7C5g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=coF45nV5Cs0idv1HchdCzg85hPABZPKnEbUXniw4zTibSaeEFclQwrsIzBCyumjpbgTa8UhmUUMAxm98BOCSyLVvK3FFTXINyNFL3uoOgIlQfNIF4AyRDtw/RA/KspXA4PzwJa9bNUAMtIHPm8Zdw7KY90wKOou8CxS4UEjc2/4VYBHEWSoSaNGfm56enANRTvrxPEi1/yPXkMgFfW/neLZ+z2PofcRCHDd1Ua7zoGgHT8HaWqw4DvtaDXaNe3BaN2CIl78u7qOK/YzlVlkwhjOr9J5vcaLsmJiZpadOMQpX5D/qkxVlXopL5GkPE/AyMLz+xU+I49zjVXTPLAFtAw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=i9dYNYoQ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1754536131; c=relaxed/relaxed;
+	bh=zlFhZxXBVjT4uPmqLNsdMtdUpNDgMNF4ygAvGo10EQI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dHUWbYI12Sov+LEg5EbSpzSrrgE9bqULnccHrPc2Twku3HIKzlVOxb8gRi3iF7irx9lgc4/5KET3JxiJmwEy84rpuyXYTcZFykGg6PbefY+my3cauXem27lGGbktrNRYZUwgerlYz9NqDt5chhsgVcjdR03kIn77pmxheoJdsmvwqbvcSQ07xj3q5PY04p2josrdAADz9liQR57lHOAL4Ssbq2xEM9bTZ5lCe2c6CgoLGmpWM10mStsMCigrXgLcc96MHOLwkJOZkrPntLsYLU+jiy43o4ulLlVa+mNXWqv3XzT3+CnqIhTie7PksQ83xu+7ECQHJbSAirU3AwFtgQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M1p1Ksct; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=i9dYNYoQ;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M1p1Ksct;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4byBvN1wzQz2xQ4
-	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Aug 2025 13:08:46 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4byBvN3HH2z30VV
+	for <linux-erofs@lists.ozlabs.org>; Thu,  7 Aug 2025 13:08:48 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1754536122; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=spsPfxmkFwiAA3DrBwjMbBcj6jb0q2vilrQ/3ZB7C5g=;
-	b=i9dYNYoQ+GTXG1/VRRRD7vlpoXKyd6UgfcJuKtu9exTG+K3/AmLDRRfTjPQDZ2EjGjl/qC4vSEyFoCEQgDCxYmM0VRmZPKL6j2lINpJkE3+lD0lDktnWuZKQDloZlm4pDJMdh17OIXjiH3WnW7x2IYo4L20rn90TaHpp7toQiVk=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WlCf7yl_1754536115 cluster:ay36)
+	t=1754536124; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=zlFhZxXBVjT4uPmqLNsdMtdUpNDgMNF4ygAvGo10EQI=;
+	b=M1p1Ksct+5u5X4yBlgLC/K5UXRIUIsHXXvbr1/Wfd4nAHA7RrE8m8WodEQdiONzu/u+unHyqYVNuXPVwCb2xr3XY2cykLYRgaEzghmQ+Io0hlrVem/KiT8A1hnMMoswBPUDmoSI+saKMt/6wbfBmDA9pCebA0D/7XQhmKZk9A3Q=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WlCf8-K_1754536122 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 07 Aug 2025 11:08:41 +0800
+          Thu, 07 Aug 2025 11:08:42 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Yifan Zhao <zhaoyifan28@huawei.com>,
 	Hongbo Li <lihongbo22@huawei.com>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v6 1/4] erofs-utils: mkfs: introduce source_mode enumeration
-Date: Thu,  7 Aug 2025 11:08:31 +0800
-Message-ID: <20250807030835.2671337-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v6 3/4] erofs-utils: mkfs: introduce --s3=... option
+Date: Thu,  7 Aug 2025 11:08:33 +0800
+Message-ID: <20250807030835.2671337-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250807030835.2671337-1-hsiangkao@linux.alibaba.com>
+References: <20250807030835.2671337-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,187 +63,386 @@ Content-Transfer-Encoding: 8bit
 
 From: Yifan Zhao <zhaoyifan28@huawei.com>
 
-Currently, mkfs controls different image build execution flows through
-the global variables `tar_mode` and `rebuild_mode`, while these two
-modes together with localdir mode are mutually exclusive.
-
-Let's replace them with a new variable `source_mode` to simplify the
+It introduces configuration options for the upcoming experimental S3
+support, including configuration parsing and `passwd_file` reading
 logic.
+
+Users can specify the following options:
+ - S3 service endpoint (required);
+ - S3 credentials file in the format $ak:%sk (optional);
+ - S3 API calling style (optional);
+ - S3 API signature version (optional, only V2 is currently supported).
 
 Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- mkfs/main.c | 78 ++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 44 insertions(+), 34 deletions(-)
+ lib/liberofs_s3.h |  40 ++++++++
+ mkfs/main.c       | 226 +++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 234 insertions(+), 32 deletions(-)
+ create mode 100644 lib/liberofs_s3.h
 
+diff --git a/lib/liberofs_s3.h b/lib/liberofs_s3.h
+new file mode 100644
+index 0000000..fbf2f80
+--- /dev/null
++++ b/lib/liberofs_s3.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
++/*
++ * Copyright (C) 2025 HUAWEI, Inc.
++ *             http://www.huawei.com/
++ * Created by Yifan Zhao <zhaoyifan28@huawei.com>
++ */
++#ifndef __EROFS_S3_H
++#define __EROFS_S3_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++enum s3erofs_url_style {
++    S3EROFS_URL_STYLE_PATH,          // Path style: https://s3.amazonaws.com/bucket/object
++    S3EROFS_URL_STYLE_VIRTUAL_HOST,  // Virtual host style: https://bucket.s3.amazonaws.com/object
++};
++
++enum s3erofs_signature_version {
++	S3EROFS_SIGNATURE_VERSION_2,
++	S3EROFS_SIGNATURE_VERSION_4,
++};
++
++#define S3_ACCESS_KEY_LEN 256
++#define S3_SECRET_KEY_LEN 256
++
++struct erofs_s3 {
++	const char *endpoint, *bucket;
++	char access_key[S3_ACCESS_KEY_LEN + 1];
++	char secret_key[S3_SECRET_KEY_LEN + 1];
++
++	enum s3erofs_url_style url_style;
++	enum s3erofs_signature_version sig;
++};
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
 diff --git a/mkfs/main.c b/mkfs/main.c
-index dc2df06..ab27b77 100644
+index ab27b77..36cbbcc 100644
 --- a/mkfs/main.c
 +++ b/mkfs/main.c
-@@ -244,7 +244,7 @@ static int pclustersize_metabox = -1;
- static struct erofs_tarfile erofstar = {
- 	.global.xattrs = LIST_HEAD_INIT(erofstar.global.xattrs)
+@@ -31,6 +31,7 @@
+ #include "../lib/liberofs_private.h"
+ #include "../lib/liberofs_uuid.h"
+ #include "../lib/liberofs_metabox.h"
++#include "../lib/liberofs_s3.h"
+ #include "../lib/compressor.h"
+ 
+ static struct option long_options[] = {
+@@ -92,6 +93,9 @@ static struct option long_options[] = {
+ #endif
+ 	{"fsalignblks", required_argument, NULL, 531},
+ 	{"vmdk-desc", required_argument, NULL, 532},
++#ifdef S3EROFS_ENABLED
++	{"s3", required_argument, NULL, 533},
++#endif
+ 	{0, 0, 0, 0},
  };
--static bool tar_mode, rebuild_mode, incremental_mode;
-+static bool incremental_mode;
+ 
+@@ -174,8 +178,8 @@ static void usage(int argc, char **argv)
+ 		" --chunksize=#         generate chunk-based files with #-byte chunks\n"
+ 		" --clean=X             run full clean build (default) or:\n"
+ 		" --incremental=X       run incremental build\n"
+-		"                       (X = data|rvsp; data=full data, rvsp=space is allocated\n"
+-		"                                       and filled with zeroes)\n"
++		"                       X = data|rvsp|0 (data: full data, rvsp: space fallocated\n"
++		"                                        0: inodes zeroed)\n"
+ 		" --compress-hints=X    specify a file to configure per-file compression strategy\n"
+ 		" --dsunit=#            align all data block addresses to multiples of #\n"
+ 		" --exclude-path=X      avoid including file X (X = exact literal path)\n"
+@@ -197,6 +201,12 @@ static void usage(int argc, char **argv)
+ 		" --root-xattr-isize=#  ensure the inline xattr size of the root directory is # bytes at least\n"
+ 		" --aufs                replace aufs special files with overlayfs metadata\n"
+ 		" --sort=<path,none>    data sorting order for tarballs as input (default: path)\n"
++#ifdef S3EROFS_ENABLED
++		" --s3=X                generate an image from S3-compatible object store\n"
++		"   [,passwd_file=Y]    X=endpoint, Y=s3fs-compatible password file\n"
++		"   [,urlstyle=Z]       S3 API calling style (Z = vhost|path) (default: vhost)\n"
++		"   [,sig=<2,4>]        S3 API signature version (default: 2)\n"
++#endif
+ 		" --tar=X               generate a full or index-only image from a tarball(-ish) source\n"
+ 		"                       (X = f|i|headerball; f=full mode, i=index mode,\n"
+ 		"                                            headerball=file data is omited in the source stream)\n"
+@@ -247,16 +257,23 @@ static struct erofs_tarfile erofstar = {
+ static bool incremental_mode;
  static u8 metabox_algorithmid;
  
++#ifdef S3EROFS_ENABLED
++static struct erofs_s3 s3cfg;
++#endif
++
  enum {
-@@ -254,6 +254,12 @@ enum {
- 	EROFS_MKFS_DATA_IMPORT_SPARSE,
+ 	EROFS_MKFS_DATA_IMPORT_DEFAULT,
+ 	EROFS_MKFS_DATA_IMPORT_FULLDATA,
+ 	EROFS_MKFS_DATA_IMPORT_RVSP,
+-	EROFS_MKFS_DATA_IMPORT_SPARSE,
++	EROFS_MKFS_DATA_IMPORT_ZEROFILL,
  } dataimport_mode;
  
-+static enum {
-+	EROFS_MKFS_SOURCE_LOCALDIR,
-+	EROFS_MKFS_SOURCE_TAR,
-+	EROFS_MKFS_SOURCE_REBUILD,
-+} source_mode;
+ static enum {
+ 	EROFS_MKFS_SOURCE_LOCALDIR,
+ 	EROFS_MKFS_SOURCE_TAR,
++#ifdef S3EROFS_ENABLED
++	EROFS_MKFS_SOURCE_S3,
++#endif
+ 	EROFS_MKFS_SOURCE_REBUILD,
+ } source_mode;
+ 
+@@ -522,6 +539,137 @@ static void mkfs_parse_tar_cfg(char *cfg)
+ 		erofstar.index_mode = true;
+ }
+ 
++#ifdef S3EROFS_ENABLED
++static int mkfs_parse_s3_cfg_passwd(const char *filepath, char *ak, char *sk)
++{
++	struct stat st;
++	int fd, n, ret;
++	char buf[S3_ACCESS_KEY_LEN + S3_SECRET_KEY_LEN + 3];
++	char *colon;
 +
- static unsigned int rebuild_src_count, total_ccfgs;
- static LIST_HEAD(rebuild_src_list);
- static u8 fixeduuid[16];
-@@ -499,7 +505,7 @@ static void mkfs_parse_tar_cfg(char *cfg)
- {
- 	char *p;
- 
--	tar_mode = true;
-+	source_mode = EROFS_MKFS_SOURCE_TAR;
- 	if (!cfg)
- 		return;
- 	p = strchr(cfg, ',');
-@@ -616,7 +622,30 @@ static int mkfs_parse_sources(int argc, char *argv[], int optind)
- 	int err, fd;
- 	char *s;
- 
--	if (tar_mode) {
-+	switch (source_mode) {
-+	case EROFS_MKFS_SOURCE_LOCALDIR:
-+		err = lstat((s = argv[optind++]), &st);
-+		if (err) {
-+			erofs_err("failed to stat %s: %s", s,
-+				  erofs_strerror(-errno));
-+			return -ENOENT;
-+		}
-+		if (S_ISDIR(st.st_mode)) {
-+			cfg.c_src_path = realpath(s, NULL);
-+			if (!cfg.c_src_path) {
-+				erofs_err("failed to parse source directory: %s",
-+					  erofs_strerror(-errno));
-+				return -ENOENT;
++	fd = open(filepath, O_RDONLY);
++	if (fd < 0) {
++		erofs_err("failed to open passwd_file %s", filepath);
++		return -errno;
++	}
++
++	ret = fstat(fd, &st);
++	if (ret) {
++		ret = -errno;
++		goto err;
++	}
++
++	if (!S_ISREG(st.st_mode)) {
++		erofs_err("%s is not a regular file", filepath);
++		ret = -EINVAL;
++		goto err;
++	}
++
++	if ((st.st_mode & 077) != 0)
++		erofs_warn("passwd_file %s should not be accessible by group or others",
++			   filepath);
++
++	if (st.st_size > S3_ACCESS_KEY_LEN + S3_SECRET_KEY_LEN + 3) {
++		erofs_err("passwd_file %s is too large (size: %llu)", filepath,
++			  st.st_size | 0ULL);
++		ret = -EINVAL;
++		goto err;
++	}
++
++	n = read(fd, buf, st.st_size);
++	if (n < 0) {
++		ret = -errno;
++		goto err;
++	}
++	buf[n] = '\0';
++
++	while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r'))
++		buf[--n] = '\0';
++
++	colon = strchr(buf, ':');
++	if (!colon) {
++		ret = -EINVAL;
++		goto err;
++	}
++	*colon = '\0';
++
++	strcpy(ak, buf);
++	strcpy(sk, colon + 1);
++
++err:
++	close(fd);
++	return ret;
++}
++
++static int mkfs_parse_s3_cfg(char *cfg_str)
++{
++	char *p, *q, *opt;
++	int ret = 0;
++
++	if (source_mode != EROFS_MKFS_SOURCE_LOCALDIR)
++		return -EINVAL;
++	source_mode = EROFS_MKFS_SOURCE_S3;
++
++	if (!cfg_str) {
++		erofs_err("s3: missing parameter");
++		return -EINVAL;
++	}
++
++	s3cfg.url_style = S3EROFS_URL_STYLE_VIRTUAL_HOST;
++	s3cfg.sig = S3EROFS_SIGNATURE_VERSION_2;
++
++	p = strchr(cfg_str, ',');
++	if (p) {
++		s3cfg.endpoint = strndup(cfg_str, p - cfg_str);
++	} else {
++		s3cfg.endpoint = strdup(cfg_str);
++		return 0;
++	}
++
++	opt = p + 1;
++	while (opt) {
++		q = strchr(opt, ',');
++		if (q)
++			*q = '\0';
++
++		if ((p = strstr(opt, "passwd_file="))) {
++			p += sizeof("passwd_file=") - 1;
++			ret = mkfs_parse_s3_cfg_passwd(p, s3cfg.access_key,
++						       s3cfg.secret_key);
++			if (ret)
++				return ret;
++		} else if ((p = strstr(opt, "urlstyle="))) {
++			p += sizeof("urlstyle=") - 1;
++			if (strncmp(p, "vhost", 5) == 0) {
++				s3cfg.url_style = S3EROFS_URL_STYLE_VIRTUAL_HOST;
++			} else if (strncmp(p, "path", 4) == 0) {
++				s3cfg.url_style = S3EROFS_URL_STYLE_PATH;
++			} else {
++				erofs_err("invalid S3 addressing style %s", p);
++				return -EINVAL;
 +			}
-+			erofs_set_fs_root(cfg.c_src_path);
++		} else if ((p = strstr(opt, "sig="))) {
++			p += strlen("sig=");
++			if (strncmp(p, "4", 1) == 0) {
++				erofs_warn("AWS Signature Version 4 is not supported yet, using Version 2");
++			} else if (strncmp(p, "2", 1) == 0) {
++				s3cfg.sig = S3EROFS_SIGNATURE_VERSION_2;
++			} else {
++				erofs_err("Invalid AWS Signature Version %s", p);
++				return -EINVAL;
++			}
 +		} else {
-+			cfg.c_src_path = strdup(s);
-+			if (!cfg.c_src_path)
-+				return -ENOMEM;
-+			source_mode = EROFS_MKFS_SOURCE_REBUILD;
++			erofs_err("invalid --s3 option %s", opt);
++			return -EINVAL;
 +		}
-+		break;
-+	case EROFS_MKFS_SOURCE_TAR:
- 		cfg.c_src_path = strdup(argv[optind++]);
- 		if (!cfg.c_src_path)
- 			return -ENOMEM;
-@@ -640,30 +669,13 @@ static int mkfs_parse_sources(int argc, char *argv[], int optind)
- 			}
++
++		opt = q ? q + 1 : NULL;
++	}
++
++	return 0;
++}
++#endif
++
+ static int mkfs_parse_one_compress_alg(char *alg,
+ 				       struct erofs_compr_opts *copts)
+ {
+@@ -670,6 +818,13 @@ static int mkfs_parse_sources(int argc, char *argv[], int optind)
  			erofstar.ios.dumpfd = fd;
  		}
--	} else {
--		err = lstat((s = argv[optind++]), &st);
--		if (err) {
--			erofs_err("failed to stat %s: %s", s,
--				  erofs_strerror(-errno));
--			return -ENOENT;
--		}
--		if (S_ISDIR(st.st_mode)) {
--			cfg.c_src_path = realpath(s, NULL);
--			if (!cfg.c_src_path) {
--				erofs_err("failed to parse source directory: %s",
--					  erofs_strerror(-errno));
--				return -ENOENT;
--			}
--			erofs_set_fs_root(cfg.c_src_path);
--		} else {
--			cfg.c_src_path = strdup(s);
--			if (!cfg.c_src_path)
--				return -ENOMEM;
--			rebuild_mode = true;
--		}
+ 		break;
++#ifdef S3EROFS_ENABLED
++	case EROFS_MKFS_SOURCE_S3:
++		s3cfg.bucket = strdup(argv[optind++]);
++		if (!s3cfg.bucket)
++			return -ENOMEM;
 +		break;
-+	default:
-+		erofs_err("unexpected source_mode: %d", source_mode);
-+		return -EINVAL;
- 	}
- 
--	if (rebuild_mode) {
-+	if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
- 		char *srcpath = cfg.c_src_path;
- 		struct erofs_sb_info *src;
- 
-@@ -1083,7 +1095,7 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
- 		err = mkfs_parse_sources(argc, argv, optind);
- 		if (err)
- 			return err;
--	} else if (!tar_mode) {
-+	} else if (source_mode != EROFS_MKFS_SOURCE_TAR) {
- 		erofs_err("missing argument: SOURCE(s)");
++#endif
+ 	default:
+ 		erofs_err("unexpected source_mode: %d", source_mode);
  		return -EINVAL;
- 	} else {
-@@ -1383,7 +1395,7 @@ int main(int argc, char **argv)
- 	if (cfg.c_random_pclusterblks)
- 		srand(time(NULL));
- #endif
--	if (tar_mode) {
-+	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
- 		if (dataimport_mode == EROFS_MKFS_DATA_IMPORT_RVSP)
- 			erofstar.rvsp_mode = true;
- 		erofstar.dev = rebuild_src_count + 1;
-@@ -1403,9 +1415,7 @@ int main(int argc, char **argv)
- 			g_sbi.blkszbits = 9;
- 			tar_index_512b = true;
- 		}
--	}
--
--	if (rebuild_mode) {
-+	} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
- 		struct erofs_sb_info *src;
- 
- 		erofs_warn("EXPERIMENTAL rebuild mode in use. Use at your own risk!");
-@@ -1465,7 +1475,7 @@ int main(int argc, char **argv)
- 	else if (!incremental_mode)
- 		erofs_uuid_generate(g_sbi.uuid);
- 
--	if (tar_mode && !erofstar.index_mode) {
-+	if (source_mode == EROFS_MKFS_SOURCE_TAR && !erofstar.index_mode) {
- 		err = erofs_diskbuf_init(1);
- 		if (err) {
- 			erofs_err("failed to initialize diskbuf: %s",
-@@ -1528,7 +1538,7 @@ int main(int argc, char **argv)
+@@ -997,6 +1152,8 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 				dataimport_mode = EROFS_MKFS_DATA_IMPORT_FULLDATA;
+ 			} else if (!strcmp(optarg, "rvsp")) {
+ 				dataimport_mode = EROFS_MKFS_DATA_IMPORT_RVSP;
++			} else if (!strcmp(optarg, "0")) {
++				dataimport_mode = EROFS_MKFS_DATA_IMPORT_ZEROFILL;
+ 			} else {
+ 				errno = 0;
+ 				dataimport_mode = strtol(optarg, &endptr, 0);
+@@ -1058,6 +1215,13 @@ static int mkfs_parse_options_cfg(int argc, char *argv[])
+ 				return -EINVAL;
+ 			}
+ 			break;
++#ifdef S3EROFS_ENABLED
++		case 533:
++			err = mkfs_parse_s3_cfg(optarg);
++			if (err)
++				return err;
++			break;
++#endif
+ 		case 'V':
+ 			version();
+ 			exit(0);
+@@ -1538,35 +1702,7 @@ int main(int argc, char **argv)
  
  	erofs_inode_manager_init();
  
--	if (tar_mode) {
-+	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
- 		root = erofs_rebuild_make_root(&g_sbi);
- 		if (IS_ERR(root)) {
- 			err = PTR_ERR(root);
-@@ -1543,7 +1553,7 @@ int main(int argc, char **argv)
- 		err = erofs_rebuild_dump_tree(root, incremental_mode);
- 		if (err < 0)
+-	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
+-		root = erofs_rebuild_make_root(&g_sbi);
+-		if (IS_ERR(root)) {
+-			err = PTR_ERR(root);
+-			goto exit;
+-		}
+-
+-		while (!(err = tarerofs_parse_tar(root, &erofstar)));
+-
+-		if (err < 0)
+-			goto exit;
+-
+-		err = erofs_rebuild_dump_tree(root, incremental_mode);
+-		if (err < 0)
+-			goto exit;
+-	} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
+-		root = erofs_rebuild_make_root(&g_sbi);
+-		if (IS_ERR(root)) {
+-			err = PTR_ERR(root);
+-			goto exit;
+-		}
+-
+-		err = erofs_mkfs_rebuild_load_trees(root);
+-		if (err)
+-			goto exit;
+-		err = erofs_rebuild_dump_tree(root, incremental_mode);
+-		if (err)
+-			goto exit;
+-	} else {
++	if (source_mode == EROFS_MKFS_SOURCE_LOCALDIR) {
+ 		err = erofs_build_shared_xattrs_from_path(&g_sbi, cfg.c_src_path);
+ 		if (err) {
+ 			erofs_err("failed to build shared xattrs: %s",
+@@ -1583,6 +1719,32 @@ int main(int argc, char **argv)
+ 			root = NULL;
  			goto exit;
--	} else if (rebuild_mode) {
-+	} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
- 		root = erofs_rebuild_make_root(&g_sbi);
- 		if (IS_ERR(root)) {
- 			err = PTR_ERR(root);
-@@ -1663,7 +1673,7 @@ exit:
- 	erofs_rebuild_cleanup();
- 	erofs_diskbuf_exit();
- 	erofs_exit_configure();
--	if (tar_mode) {
-+	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
- 		erofs_iostream_close(&erofstar.ios);
- 		if (erofstar.ios.dumpfd >= 0)
- 			close(erofstar.ios.dumpfd);
+ 		}
++	} else {
++		root = erofs_rebuild_make_root(&g_sbi);
++		if (IS_ERR(root)) {
++			err = PTR_ERR(root);
++			goto exit;
++		}
++
++		if (source_mode == EROFS_MKFS_SOURCE_TAR) {
++			while (!(err = tarerofs_parse_tar(root, &erofstar)))
++				;
++			if (err < 0)
++				goto exit;
++		} else if (source_mode == EROFS_MKFS_SOURCE_REBUILD) {
++			err = erofs_mkfs_rebuild_load_trees(root);
++			if (err)
++				goto exit;
++#ifdef S3EROFS_ENABLED
++		} else if (source_mode == EROFS_MKFS_SOURCE_S3) {
++			err = -EOPNOTSUPP;
++			goto exit;
++#endif
++		}
++
++		err = erofs_rebuild_dump_tree(root, incremental_mode);
++		if (err)
++			goto exit;
+ 	}
+ 
+ 	if (tar_index_512b) {
 -- 
 2.43.5
 
