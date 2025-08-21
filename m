@@ -1,54 +1,44 @@
-Return-Path: <linux-erofs+bounces-860-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-861-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65C0FCA0EF8
-	for <linux-erofs@archiver.kernel.org>; Thu, 21 Aug 2025 09:48:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53D96CA0EF8
+	for <linux-erofs@archiver.kernel.org>; Thu, 21 Aug 2025 10:03:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4c6z5d2LhQz2ydj;
-	Thu, 21 Aug 2025 19:48:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1755769685;
-	cv=none; b=atjXBYGV+XLtXaT1qHUJ/zUDZYVsvGXWdR7KkfOrlU254t6MPt4dHeHZQC4xjb96e9TBYmTfKKkUCcNFpJxqcd4KU4pQXpUyASzUA0AdtOiQRTwC2/2LxKT8A8w0gsBAFMA/GQECB5eefiZKSZTgUBDfmnUupI8E5ilqnUHy7e6nyvxAuSv6pupPBSRJTTpUKiWLuNObbQwO/SlUORwMj4ko3BDOTU2hq32V25t0eXZmbYRdVWlwXhxKFAN/YeFPf5sQJZSX+EIVOtJliPNE5XMJ5atwjOmH3oF6+dTwyf+x/R1mPDBd1rCqBbMeBMoYhQWQiiG6gOpvkb00ZGtP+w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4c6zRx03NZz2yhD;
+	Thu, 21 Aug 2025 20:03:57 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1755770636;
+	cv=none; b=ou2uKx/XG++vQf1ND5eNBcarQ5i9XZWe1Corst2tC+RknIk2Fpy5LXl+mZKVxLy82UT4ekR8TYSm4e+T15BAJF81eKBjcL9qrIw9Xa20mtr9zM+SwVanUqaoM4sp63zg7nS1QZQbMD5GmRO2XQJUsxQ6TVx6BvYKJJR/lHD4WgqQNYISmdSdOSdZdqxPpEqkQQ20GppQaSKI17cDeNjDj/nXW3ZI6DeUYdH8kwBTVDPLm/shMX2QXrypfASx0rMXah8la7oZbjZY0uqXG6z9E5rpfjfJBXjsNDzb8WUDqeonMj3UyxBtVvLucvKwHgDTi8L8Uq0ONLyOgCbP1lvsBQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1755769685; c=relaxed/relaxed;
-	bh=WRpVITYQACcouR/Yb5lAqmjELogbdfbIz8t5ESfurWM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nryf2Oxk3IwCr5ItSUNcaKAC5mHPnR5Ai021oNUp+z+7OByl6yy2k9rrIFPB4ZF+lgo2s+KE/AVi7V7vGftJ/5KKc1VGkCMMl3iSKfGCyfUXOac7UKMjarre9hfO5BDkTWu3f5wqiGGaXiwzFX3n2ip9Upl2s271zg1sQGQr17dh2crrUmiUSARijCFl3NO9MB69VjrS4Pnvn4g8OJ27oae9pe1gRLYuMuIGDCeZWnDld+HueiI0e+zv1F5xkTa1nZjVXkwrA1e5YyilhiRIoxf+FgrCHrTTPDANi5hW0eqCqQESWK2uQNF75AuaavFOqq2bg1Uy6oZb52508718rQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=B94f2qAO; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1755770636; c=relaxed/relaxed;
+	bh=xE85KV3cOyexsLm5KqA0EI4+WxvjaO7fjSL4Z5UhMU0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oqF76vTuVhG8FuU8u2pmlNepp5IjaMmX/LCxnjM1DpWDUah/xy8UUpiLC1GJF4DKA5MZ0SFdhkwFe+YsLkYXHkmv4Wp4SXyAdZagPYwX1Yvp66kF+s0Zy8UqXNM93AcCYcbhA8wU+AaeqbpVs5R4tbupN3bz1J5gBv7QhoNe/Vi1bR3sJ18idLE7Z8Ip1itNzwaE5HgH9IkIM+5lEqm646YJXNimr5mFCjXCE6DFL93ntaretF3/GOfdt72lYS2PiWDpA1Xi+fjhAb45TVJdVpFyCkD4gqUeHTjbt4jj0733oQkMX/xjiTQHzONCuvB2lo/5HMhsgbhsFwDKGWRTFw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bQvA4YdX; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=B94f2qAO;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=bQvA4YdX;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4c6z5b1Q5Wz2yhD
-	for <linux-erofs@lists.ozlabs.org>; Thu, 21 Aug 2025 19:48:01 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4c6zRv1mg5z2yCL
+	for <linux-erofs@lists.ozlabs.org>; Thu, 21 Aug 2025 20:03:53 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1755769677; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=WRpVITYQACcouR/Yb5lAqmjELogbdfbIz8t5ESfurWM=;
-	b=B94f2qAO0lETMV1VT84eS8ut5JmrnN3m+pcC4jQQBUyPQPw5M+Ua+d3wVtqES5yrgtrjiD97DqIUL5ZPHuuiiee2fBtCdV6hNVRJb+KSANpCRBpLNHSKPfvffYvv2+GwjuwMjyqdtbdtaoszTpDNQXL7FlTaiutNG9ogmuD3OZU=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WmFdvuj_1755769670 cluster:ay36)
+	t=1755770630; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=xE85KV3cOyexsLm5KqA0EI4+WxvjaO7fjSL4Z5UhMU0=;
+	b=bQvA4YdXEwquUrHJTAqVGVQkWwAXf0pXBWigflOQ008xNbJBAOw210S/N+h63T6t8tgqRzdwS0oTPbZCMcVl4Vrio4eHghqygKknBh5O91f0vFBdilM+Z5V/lXuqLqlojf7RX63TxCq2zHQ+5FkPIACs+vIE2ZuITmCzqWCA/YA=
+Received: from 30.221.130.165(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WmFo5rE_1755770628 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 21 Aug 2025 17:47:54 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: stable <stable@vger.kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	linux-erofs@lists.ozlabs.org,
-	"Bo Liu (OpenAnolis)" <liubo03@inspur.com>,
-	kernel test robot <lkp@intel.com>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 6.16.y 1/2] erofs: fix build error with CONFIG_EROFS_FS_ZIP_ACCEL=y
-Date: Thu, 21 Aug 2025 17:47:48 +0800
-Message-ID: <20250821094749.3665395-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+          Thu, 21 Aug 2025 18:03:49 +0800
+Message-ID: <753b7f16-71ce-499d-8e1c-dac1503929b3@linux.alibaba.com>
+Date: Thu, 21 Aug 2025 18:03:48 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,55 +50,69 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] erofs-utils: mkfs: Implement 'dsunit' alignment on
+ blobdev
+To: "Friendy.Su@sony.com" <Friendy.Su@sony.com>,
+ "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
+Cc: "Yuezhang.Mo@sony.com" <Yuezhang.Mo@sony.com>,
+ "Daniel.Palmer@sony.com" <Daniel.Palmer@sony.com>
+References: <20250820072352.4151620-1-friendy.su@sony.com>
+ <39f81655-8bef-428c-843b-b57c9e50c90d@linux.alibaba.com>
+ <TY0PR04MB61910F716A77A3E6F0F8FE43FD33A@TY0PR04MB6191.apcprd04.prod.outlook.com>
+ <5be2a340-acbc-4ce9-8bb6-1bfb91562944@linux.alibaba.com>
+ <TY0PR04MB61914EA9FEB78ACA041F59CBFD33A@TY0PR04MB6191.apcprd04.prod.outlook.com>
+ <96d466e7-eb96-48b7-bd89-b67381737b4b@linux.alibaba.com>
+ <TY0PR04MB61911E8A1B8975C7B69651D9FD32A@TY0PR04MB6191.apcprd04.prod.outlook.com>
+ <6b611a64-6a63-4588-acbf-dd853d3bc624@linux.alibaba.com>
+ <97d6c19f-1faf-423f-83e7-0996fff2ca26@linux.alibaba.com>
+ <TY0PR04MB6191740A411A08FFABE272EFFD32A@TY0PR04MB6191.apcprd04.prod.outlook.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <TY0PR04MB6191740A411A08FFABE272EFFD32A@TY0PR04MB6191.apcprd04.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: "Bo Liu (OpenAnolis)" <liubo03@inspur.com>
 
-commit 5e0bf36fd156b8d9b09f8481ee6daa6cdba1b064 upstream.
 
-fix build err:
- ld.lld: error: undefined symbol: crypto_req_done
-   referenced by decompressor_crypto.c
-       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
-   referenced by decompressor_crypto.c
-       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
+On 2025/8/21 17:36, Friendy.Su@sony.com wrote:
+> Hi, Gao,
+> 
+>> But if there is some deduplciated chunks in the logical dsunit
+>> boundary, don't align it at all since there is no real benefit.
+>> Although I'm still not sure what's the default behavior of `dsunit`
+>> for chunks.
+> 
+> Exactly, if `--chunksize=4096 --dsunit=512`, any 4K deduplicated will cause PMD map failure.  Can we consider the following countermeasure as default behavior:
+> 
+> 1. In man page, describe 'chunksize' and 'dsunit' should be collaborated to achieve the best performance.
 
- ld.lld: error: undefined symbol: crypto_acomp_decompress
-   referenced by decompressor_crypto.c
-       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_decompress) in archive vmlinux.a
+Agreed, we should mention that in the manpage:
 
- ld.lld: error: undefined symbol: crypto_alloc_acomp
-   referenced by decompressor_crypto.c
-       fs/erofs/decompressor_crypto.o:(z_erofs_crypto_enable_engine) in archive vmlinux.a
+> 
+> 2. At runtime, if chunksize < dsunit,
+>    prompt alert message, tell user it is better set chunksize=dsunit. But still format with user set options.
+>    The benefit is user can still set as desired. Current, for the use cases we can imagine, chunksize=dsunit is best. But maybe users have their own use cases, it is better let users do what they really wanted.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202507161032.QholMPtn-lkp@intel.com/
-Fixes: b4a29efc5146 ("erofs: support DEFLATE decompression by using Intel QAT")
-Signed-off-by: Bo Liu (OpenAnolis) <liubo03@inspur.com>
-Link: https://lore.kernel.org/r/20250718033039.3609-1-liubo03@inspur.com
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
-Also backport commit 74da24f0ac9b to address:
- https://lore.kernel.org/r/ca432b9e-e016-4d2d-b137-79def0aaca85@kernel.org
+But could we just apply your patch only to the dsunit>=chunksize
+case to fulfill your exist use case? I mean we still ignore
+`dsunit` if dsunit!=chunksize and warn out users explicitly (
+`dsunit` doesn't work due to dsunit!=chunksize).
 
- fs/erofs/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+I really need to think about chunksize != dsunit cases, but
+since you don't have such urgent need, let's keep the old `ignore`
+behavior for now...
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 6beeb7063871..7b26efc271ee 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -147,6 +147,8 @@ config EROFS_FS_ZIP_ZSTD
- config EROFS_FS_ZIP_ACCEL
- 	bool "EROFS hardware decompression support"
- 	depends on EROFS_FS_ZIP
-+	select CRYPTO
-+	select CRYPTO_DEFLATE
- 	help
- 	  Saying Y here includes hardware accelerator support for reading
- 	  EROFS file systems containing compressed data.  It gives better
--- 
-2.43.5
+Thanks,
+Gao XIang
 
+> 
+> 
+> If mkfs.erofs force to align every 2M, even there is only 4K not deduplicated in 2M, the 4K actually still occupies 2M.
+> 0, 2M(only 4K data new, others all deduplicated), 4M........
+> Space usage efficiency is same as chunksize=dsunit=2M.
+> 
+> 
+> Best Regards
+> Friendy
+> 
 
