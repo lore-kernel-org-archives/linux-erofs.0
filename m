@@ -1,44 +1,46 @@
-Return-Path: <linux-erofs+bounces-959-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-960-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 50BCACA0FF2
-	for <linux-erofs@archiver.kernel.org>; Wed,  3 Sep 2025 08:47:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC92BCA1015
+	for <linux-erofs@archiver.kernel.org>; Thu,  4 Sep 2025 05:33:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cGx7l6FZqz2yr4;
-	Wed,  3 Sep 2025 18:47:31 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.99
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1756889251;
-	cv=none; b=S180e2vhNLIfH8n+rkW+Uh3cil4gVV9Hok3tuBrLpa9zcguOKRnP6e0GCrdt2eyfzRuGU1GUmc/tH/3CbP4zTsvj1yRa91Ubf+p1WLejx79p/hjDO9M3GMpeQyld6j8ZQuBMhar/61COfXDRcRMMMwruE3zC1deUpkdVYzo7/K+ZR3RVycsCMg+OT2tNrIFN2zTHtZ1bj7k/cAcLOo8+UTQfUDwSC7nKFpfmiedZwl+CG1DFoLXsqi+XpbK5GNwWxSwsMBVTOX7/NAEeZSnbARDZYariaT+MKPQpcaILwu/u0u5uxckThiB/FCuabEaFLbQY7O7oLV3abKfKKnK1Mw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cHSnM3HZLz2yrZ;
+	Thu,  4 Sep 2025 15:33:27 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.86
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1756964007;
+	cv=none; b=SXYJedYKGQQBHz8UmG1jqDW/5Icn2de0fVvVJq1ekmTGjBqUGuAcgCnevliQjX8zDXGzS1kGjdfB286nVzpbIv2+oEr9Sm/10g24HQpOBrBssHgWtjRNHbf36+efQrD4zjJBpXiVEp/eesS0YX12YrDcHUxyy4ao+Vpm7cdkaOWLiUS1Xz1mlw2nuYGp7YwGht6Vd2lg4AxvqpApsmNSiUscHogyEH4KziSvnhJKEc7Ux7/Or0H8EgNaVwEZS4KuhJ2gPEIKJbZ6hc/8Jteb0BhbsHlSeMO+VjGrudMR/tp30YnuG/EwITInsBBQIOCl61JHbQ/Yaua3U0WkuN559w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1756889251; c=relaxed/relaxed;
-	bh=tMqDvpZnuJKmPjaDdUgF7RaEeDHWSCEYZm4wqSao270=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gAWNEhaM8KiLErg8pwE+ur4NzlPlIyDoe509rBKoNroGMQRJJO3odCm3wU5vydEAfg0rSWEWhQnmfiwhGDynYIPDktJNvc5BwgOS+U0tT+gQSsXGyL51d3nH5yoI9i7A+43mcimNe3J2FV8xdVPmxd1/y8RRF4l+74IjV1KVxLh6i8I16aiKIy/JmmRId3GjbpK+P83A9P8VG5vkKghD/v0RqLl5IT3V3AkaDJPqxGkyzKcz4ybjZYJLvw92pbBSyJv+tgOBEFcgWM5fZTdAIaT8+G6yI7WAvf2HSh5XrvqKI2n2EnwHHMXmi4rc0ggYOaLWrlHd2c7Gwv4+FmETrg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FSZS+qRa; dkim-atps=neutral; spf=pass (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=FSZS+qRa;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.99; helo=out30-99.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	t=1756964007; c=relaxed/relaxed;
+	bh=ONTSPPVpGtr70bWophCimuS7O8tn6D2WsOXMizf3gV0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QlFYx3aWT0Adfp1KqqSH5xZ67UuyvR4u6chSnFYkXaDF1QtVB086YyuE4XVngXXvnOQP8l9pg+buTqcC3nVzwjqeNuAFYeLkOJ6ykAgNhMIwF5nhb7vH+FcsmB3fJSU7VP/kt/Y9T7wmC96ck1pV8ZfCz4uB8ZSHHenDVnM4lAgH1zVWVpwiWLvf6vFipE7n4qVGqQW3m5RoCjm+A6O3Jc+wuPF8BCEaP1Hv0YYR01a42T9r/MFjGyqdF1tzT9So7pYqm0U7493mIuCBhHH+nL3vNufnWXEEDXaLpA8F0eAECHDLUBA6m0DztuJRT2DWx7A2OaM4JaI0H96lxCOdsA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.86; helo=out28-86.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.86; helo=out28-86.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
+Received: from out28-86.mail.aliyun.com (out28-86.mail.aliyun.com [115.124.28.86])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cGx7j46VSz2yFJ
-	for <linux-erofs@lists.ozlabs.org>; Wed,  3 Sep 2025 18:47:28 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1756889244; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=tMqDvpZnuJKmPjaDdUgF7RaEeDHWSCEYZm4wqSao270=;
-	b=FSZS+qRaPEzMA6dP6O63iVMkFjQgpeRaly072KgWxmoNMUlllDqwHusTzU3c2h6BSX1kgVaRY2x7WbN7eoVhk1zM/KS3aSVLz2MJNrrsxsnFzUXSWaGQZw43OphPVooM6c+4d6i1BspMfzwLsbYff7Kjm3TojHaEWcQm6dNG8+g=
-Received: from 30.221.131.35(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WnBCxiv_1756889242 cluster:ay36)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cHSnL0X6Fz2xnM
+	for <linux-erofs@lists.ozlabs.org>; Thu,  4 Sep 2025 15:33:24 +1000 (AEST)
+Received: from HUDSONZHU-MC1.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.eX6SVAe_1756963997 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Wed, 03 Sep 2025 16:47:23 +0800
-Message-ID: <2b7f2c20-f68e-4d1d-b015-4a403fcc9dae@linux.alibaba.com>
-Date: Wed, 3 Sep 2025 16:47:22 +0800
+          Thu, 04 Sep 2025 13:33:20 +0800
+From: ChengyuZhu6 <hudson@cyzhu.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: xiang@kernel.org,
+	hsiangkao@linux.alibaba.com,
+	Chengyu Zhu <hudsonzhu@tencent.com>
+Subject: [PATCH v4 1/3] erofs-utils:mkfs: move parse_oci_ref to lib
+Date: Thu,  4 Sep 2025 13:33:12 +0800
+Message-ID: <20250904053314.65700-2-hudson@cyzhu.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20250904053314.65700-1-hudson@cyzhu.com>
+References: <20250901051042.10905-1-hudson@cyzhu.com>
+ <20250904053314.65700-1-hudson@cyzhu.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,253 +52,314 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] erofs-utils: refactor OCI code for better
- modularity
-To: ChengyuZhu6 <hudson@cyzhu.com>, linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org, Chengyu Zhu <hudsonzhu@tencent.com>
-References: <20250901051042.10905-1-hudson@cyzhu.com>
- <20250903082906.83826-1-hudson@cyzhu.com>
- <20250903082906.83826-2-hudson@cyzhu.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20250903082906.83826-2-hudson@cyzhu.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+From: Chengyu Zhu <hudsonzhu@tencent.com>
 
+move parse_oci_ref to oci.c.
 
-On 2025/9/3 16:29, ChengyuZhu6 wrote:
-> From: Chengyu Zhu <hudsonzhu@tencent.com>
-> 
-> Refactor OCI code to improve code organization and maintainability:
-> 
-> Key changes:
-> - Add `ocierofs_get_api_registry()` and unify API endpoint selection.
-> - Implement Bearer token discovery with Basic fallback; cache auth header.
-> - Parse layer metadata (digest, mediaType, size) and add a proper free helper.
-> - Split blob download from tar processing; process tar via a temp fd.
-> - Rework init/teardown into `ocierofs_init()` and `ocierofs_ctx_cleanup()`.
-> - Update mkfs to use `struct ocierofs_config` and new `--oci` parsing.
-> 
-> Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
-> ---
->   lib/liberofs_oci.h |  84 ++---
->   lib/remotes/oci.c  | 885 ++++++++++++++++++++++++++-------------------
->   mkfs/main.c        | 192 ++--------
->   3 files changed, 566 insertions(+), 595 deletions(-)
-> 
-> diff --git a/lib/liberofs_oci.h b/lib/liberofs_oci.h
-> index 3a8108b..d119a2b 100644
-> --- a/lib/liberofs_oci.h
-> +++ b/lib/liberofs_oci.h
-> @@ -8,85 +8,65 @@
->   
->   #include <stdbool.h>
->   
-> -#define DOCKER_REGISTRY "docker.io"
-> -#define DOCKER_API_REGISTRY "registry-1.docker.io"
-> -
->   #ifdef __cplusplus
->   extern "C" {
->   #endif
->   
-> -struct erofs_inode;
-> -struct CURL;
->   struct erofs_importer;
->   
-> -/**
-> - * struct erofs_oci_params - OCI configuration parameters
-> - * @registry: registry hostname (e.g., "registry-1.docker.io")
-> - * @repository: image repository (e.g., "library/ubuntu")
-> - * @tag: image tag or digest (e.g., "latest" or sha256:...)
-> +/*
-> + * struct ocierofs_config - OCI configuration structure
-> + * @image_ref: OCI image reference (e.g., "ubuntu:latest", "myregistry.com/app:v1.0")
->    * @platform: target platform in "os/arch" format (e.g., "linux/amd64")
->    * @username: username for authentication (optional)
->    * @password: password for authentication (optional)
->    * @layer_index: specific layer to extract (-1 for all layers)
->    *
-> - * Configuration structure for OCI image parameters including registry
-> - * location, image identification, platform specification, and authentication
-> - * credentials.
->    */
-> -struct erofs_oci_params {
-> -	char *registry;
-> -	char *repository;
-> -	char *tag;
-> +struct ocierofs_config {
-> +	char *image_ref;
->   	char *platform;
->   	char *username;
->   	char *password;
->   	int layer_index;
->   };
->   
-> -/**
-> - * struct erofs_oci - Combined OCI client structure
-> - * @curl: CURL handle for HTTP requests
-> - * @params: OCI configuration parameters
-> - *
-> - * Main OCI client structure combining CURL HTTP client with
-> - * OCI-specific configuration parameters.
-> - */
-> -struct erofs_oci {
-> -	struct CURL *curl;
-> -	struct erofs_oci_params params;
-> +struct ocierofs_layer_info {
-> +	char *digest;
-> +	char *media_type;
-> +	u64 size;
->   };
->   
-> -/*
-> - * ocierofs_init - Initialize OCI client with default parameters
-> - * @oci: OCI client structure to initialize
-> - *
-> - * Return: 0 on success, negative errno on failure
-> - */
-> -int ocierofs_init(struct erofs_oci *oci);
-> +struct ocierofs_ctx {
-> +	struct {
-> +		struct CURL *curl;
-> +		char *auth_header;
-> +		bool using_basic;
-> +	} net;
+Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
+---
+ lib/liberofs_oci.h |  12 +++--
+ lib/remotes/oci.c  | 110 +++++++++++++++++++++++++++++++++++++++++
+ mkfs/main.c        | 121 +--------------------------------------------
+ 3 files changed, 120 insertions(+), 123 deletions(-)
 
-Is it necessary to use two anonymous structures here?
+diff --git a/lib/liberofs_oci.h b/lib/liberofs_oci.h
+index 3a8108b..bce63ef 100644
+--- a/lib/liberofs_oci.h
++++ b/lib/liberofs_oci.h
+@@ -8,9 +8,6 @@
+ 
+ #include <stdbool.h>
+ 
+-#define DOCKER_REGISTRY "docker.io"
+-#define DOCKER_API_REGISTRY "registry-1.docker.io"
+-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -79,6 +76,15 @@ void ocierofs_cleanup(struct erofs_oci *oci);
+  */
+ int erofs_oci_params_set_string(char **field, const char *value);
+ 
++/*
++ * ocierofs_parse_ref - Parse OCI image reference string
++ * @oci: OCI client structure
++ * @ref_str: OCI image reference string
++ *
++ * Return: 0 on success, negative errno on failure
++ */
++int ocierofs_parse_ref(struct erofs_oci *oci, const char *ref_str);
++
+ /*
+  * ocierofs_build_trees - Build file trees from OCI container image layers
+  * @root:     root inode to build the file tree under
+diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
+index 0fb8c1f..e6f0c23 100644
+--- a/lib/remotes/oci.c
++++ b/lib/remotes/oci.c
+@@ -21,6 +21,9 @@
+ #include "liberofs_oci.h"
+ #include "liberofs_private.h"
+ 
++#define DOCKER_REGISTRY "docker.io"
++#define DOCKER_API_REGISTRY "registry-1.docker.io"
++
+ #define DOCKER_MEDIATYPE_MANIFEST_V2 \
+ 	"application/vnd.docker.distribution.manifest.v2+json"
+ #define DOCKER_MEDIATYPE_MANIFEST_V1 \
+@@ -1066,3 +1069,110 @@ int erofs_oci_params_set_string(char **field, const char *value)
+ 	*field = new_value;
+ 	return 0;
+ }
++
++int ocierofs_parse_ref(struct erofs_oci *oci, const char *ref_str)
++{
++	char *slash, *colon, *dot;
++	const char *repo_part;
++	size_t len;
++
++	slash = strchr(ref_str, '/');
++	if (slash) {
++		dot = strchr(ref_str, '.');
++		if (dot && dot < slash) {
++			char *registry_str;
++
++			len = slash - ref_str;
++			registry_str = strndup(ref_str, len);
++
++			if (!registry_str) {
++				erofs_err("failed to allocate memory for registry");
++				return -ENOMEM;
++			}
++			if (erofs_oci_params_set_string(&oci->params.registry,
++							registry_str)) {
++				free(registry_str);
++				erofs_err("failed to set registry");
++				return -ENOMEM;
++			}
++			free(registry_str);
++			repo_part = slash + 1;
++		} else {
++			repo_part = ref_str;
++		}
++	} else {
++		repo_part = ref_str;
++	}
++
++	colon = strchr(repo_part, ':');
++	if (colon) {
++		char *repo_str;
++
++		len = colon - repo_part;
++		repo_str = strndup(repo_part, len);
++
++		if (!repo_str) {
++			erofs_err("failed to allocate memory for repository");
++			return -ENOMEM;
++		}
++
++		if (!strchr(repo_str, '/') &&
++		    (!strcmp(oci->params.registry, DOCKER_API_REGISTRY) ||
++		     !strcmp(oci->params.registry, DOCKER_REGISTRY))) {
++			char *full_repo;
++
++			if (asprintf(&full_repo, "library/%s", repo_str) == -1) {
++				free(repo_str);
++				erofs_err("failed to allocate memory for full repository name");
++				return -ENOMEM;
++			}
++			free(repo_str);
++			repo_str = full_repo;
++		}
++
++		if (erofs_oci_params_set_string(&oci->params.repository,
++						repo_str)) {
++			free(repo_str);
++			erofs_err("failed to set repository");
++			return -ENOMEM;
++		}
++		free(repo_str);
++
++		if (erofs_oci_params_set_string(&oci->params.tag,
++						colon + 1)) {
++			erofs_err("failed to set tag");
++			return -ENOMEM;
++		}
++	} else {
++		char *repo_str = strdup(repo_part);
++
++		if (!repo_str) {
++			erofs_err("failed to allocate memory for repository");
++			return -ENOMEM;
++		}
++
++		if (!strchr(repo_str, '/') &&
++		    (!strcmp(oci->params.registry, DOCKER_API_REGISTRY) ||
++		     !strcmp(oci->params.registry, DOCKER_REGISTRY))) {
++			char *full_repo;
++
++			if (asprintf(&full_repo, "library/%s", repo_str) == -1) {
++				free(repo_str);
++				erofs_err("failed to allocate memory for full repository name");
++				return -ENOMEM;
++			}
++			free(repo_str);
++			repo_str = full_repo;
++		}
++
++		if (erofs_oci_params_set_string(&oci->params.repository,
++						repo_str)) {
++			free(repo_str);
++			erofs_err("failed to set repository");
++			return -ENOMEM;
++		}
++		free(repo_str);
++	}
++
++	return 0;
++}
+diff --git a/mkfs/main.c b/mkfs/main.c
+index bc895f1..064392d 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -763,125 +763,6 @@ static int mkfs_parse_oci_options(char *options_str)
+ 
+ 	return 0;
+ }
+-
+-/**
+- * mkfs_parse_oci_ref - Parse OCI image reference string
+- * @ref_str: OCI image reference in various formats
+- *
+- * Parse OCI image reference which can be in formats:
+- * - registry.example.com/namespace/repo:tag
+- * - namespace/repo:tag (uses default registry)
+- * - repo:tag (adds library/ prefix for Docker Hub)
+- * - repo (uses default tag "latest")
+- *
+- * Return: 0 on success, negative errno on failure
+- */
+-static int mkfs_parse_oci_ref(const char *ref_str)
+-{
+-	char *slash, *colon, *dot;
+-	const char *repo_part;
+-	size_t len;
+-
+-	slash = strchr(ref_str, '/');
+-	if (slash) {
+-		dot = strchr(ref_str, '.');
+-		if (dot && dot < slash) {
+-			char *registry_str;
+-
+-			len = slash - ref_str;
+-			registry_str = strndup(ref_str, len);
+-
+-			if (!registry_str) {
+-				erofs_err("failed to allocate memory for registry");
+-				return -ENOMEM;
+-			}
+-			if (erofs_oci_params_set_string(&ocicfg.params.registry,
+-							registry_str)) {
+-				free(registry_str);
+-				erofs_err("failed to set registry");
+-				return -ENOMEM;
+-			}
+-			free(registry_str);
+-			repo_part = slash + 1;
+-		} else {
+-			repo_part = ref_str;
+-		}
+-	} else {
+-		repo_part = ref_str;
+-	}
+-
+-	colon = strchr(repo_part, ':');
+-	if (colon) {
+-		char *repo_str;
+-
+-		len = colon - repo_part;
+-		repo_str = strndup(repo_part, len);
+-
+-		if (!repo_str) {
+-			erofs_err("failed to allocate memory for repository");
+-			return -ENOMEM;
+-		}
+-
+-		if (!strchr(repo_str, '/') &&
+-		    (!strcmp(ocicfg.params.registry, DOCKER_API_REGISTRY) ||
+-		     !strcmp(ocicfg.params.registry, DOCKER_REGISTRY))) {
+-			char *full_repo;
+-
+-			if (asprintf(&full_repo, "library/%s", repo_str) == -1) {
+-				free(repo_str);
+-				erofs_err("failed to allocate memory for full repository name");
+-				return -ENOMEM;
+-			}
+-			free(repo_str);
+-			repo_str = full_repo;
+-		}
+-
+-		if (erofs_oci_params_set_string(&ocicfg.params.repository,
+-						repo_str)) {
+-			free(repo_str);
+-			erofs_err("failed to set repository");
+-			return -ENOMEM;
+-		}
+-		free(repo_str);
+-
+-		if (erofs_oci_params_set_string(&ocicfg.params.tag,
+-						colon + 1)) {
+-			erofs_err("failed to set tag");
+-			return -ENOMEM;
+-		}
+-	} else {
+-		char *repo_str = strdup(repo_part);
+-
+-		if (!repo_str) {
+-			erofs_err("failed to allocate memory for repository");
+-			return -ENOMEM;
+-		}
+-
+-		if (!strchr(repo_str, '/') &&
+-		    (!strcmp(ocicfg.params.registry, DOCKER_API_REGISTRY) ||
+-		     !strcmp(ocicfg.params.registry, DOCKER_REGISTRY))) {
+-			char *full_repo;
+-
+-			if (asprintf(&full_repo, "library/%s", repo_str) == -1) {
+-				free(repo_str);
+-				erofs_err("failed to allocate memory for full repository name");
+-				return -ENOMEM;
+-			}
+-			free(repo_str);
+-			repo_str = full_repo;
+-		}
+-
+-		if (erofs_oci_params_set_string(&ocicfg.params.repository,
+-						repo_str)) {
+-			free(repo_str);
+-			erofs_err("failed to set repository");
+-			return -ENOMEM;
+-		}
+-		free(repo_str);
+-	}
+-
+-	return 0;
+-}
+ #endif
+ 
+ static int mkfs_parse_one_compress_alg(char *alg,
+@@ -1958,7 +1839,7 @@ int main(int argc, char **argv)
+ 			err = mkfs_parse_oci_options(mkfs_oci_options);
+ 			if (err)
+ 				goto exit;
+-			err = mkfs_parse_oci_ref(cfg.c_src_path);
++			err = ocierofs_parse_ref(&ocicfg, cfg.c_src_path);
+ 			if (err)
+ 				goto exit;
+ 
+-- 
+2.51.0
 
-Could we just unfold those fields?
-
-...
-
-> diff --git a/mkfs/main.c b/mkfs/main.c
-> index bc895f1..5e8da7a 100644
-> --- a/mkfs/main.c
-> +++ b/mkfs/main.c
-> @@ -150,18 +150,18 @@ static void usage(int argc, char **argv)
->   				 * "0-9,100-109" instead of a continuous "0-109", and to
->   				 * state what those two subranges respectively mean.  */
->   				printf("%s  [,level=<0-9,100-109>]\t0-9=normal, 100-109=extreme (default=%i)\n",
-> -				       spaces, s->c->default_level);
-> +			       spaces, s->c->default_level);
->   			else
->   				printf("%s  [,level=<0-%i>]\t\t(default=%i)\n",
-> -				       spaces, s->c->best_level, s->c->default_level);
-> +			       spaces, s->c->best_level, s->c->default_level);
->   		}
->   		if (s->c->setdictsize) {
->   			if (s->c->default_dictsize)
->   				printf("%s  [,dictsize=<dictsize>]\t(default=%u, max=%u)\n",
-> -				       spaces, s->c->default_dictsize, s->c->max_dictsize);
-> +			       spaces, s->c->default_dictsize, s->c->max_dictsize);
->   			else
->   				printf("%s  [,dictsize=<dictsize>]\t(default=<auto>, max=%u)\n",
-> -				       spaces, s->c->max_dictsize);
-> +			       spaces, s->c->max_dictsize);
-
-Are those changes unnecessary?
-
->   		}
->   	}
->   	printf(
-> @@ -272,7 +272,7 @@ static struct erofs_s3 s3cfg;
->   #endif
->   
->   #ifdef OCIEROFS_ENABLED
-> -static struct erofs_oci ocicfg;
-> +static struct ocierofs_config ocicfg;
->   static char *mkfs_oci_options;
->   #endif
->   
-> @@ -689,21 +689,14 @@ static int mkfs_parse_s3_cfg(char *cfg_str)
->   #endif
->   
->   #ifdef OCIEROFS_ENABLED
-> -
-> -
-> -/**
-> - * mkfs_parse_oci_options - Parse comma-separated OCI options string
-> +/*
-> + * mkfs_parse_oci_options - Parse OCI options for mkfs tool
-> + * @cfg: OCI configuration structure to update
->    * @options_str: comma-separated options string
-> - *
-> - * Parse OCI options string containing comma-separated key=value pairs.
-> - * Supported options include platform, layer, username, and password.
-> - *
-> - * Return: 0 on success, negative errno on failure
->    */
-> -static int mkfs_parse_oci_options(char *options_str)
-> +static int mkfs_parse_oci_options(struct ocierofs_config *oci_cfg, char *options_str)
->   {
->   	char *opt, *q, *p;
-> -	int ret;
->   
->   	if (!options_str)
->   		return 0;
-> @@ -717,41 +710,38 @@ static int mkfs_parse_oci_options(char *options_str)
->   		p = strstr(opt, "platform=");
->   		if (p) {
->   			p += strlen("platform=");
-> -			ret = erofs_oci_params_set_string(&ocicfg.params.platform, p);
-> -			if (ret) {
-> -				erofs_err("failed to set platform");
-> -				return ret;
-> -			}
-> +			free(oci_cfg->platform);
-> +			oci_cfg->platform = strdup(p);
-> +			if (!oci_cfg->platform)
-> +				return -ENOMEM;
->   		} else {
->   			p = strstr(opt, "layer=");
->   			if (p) {
->   				p += strlen("layer=");
-> -				ocicfg.params.layer_index = atoi(p);
-> -				if (ocicfg.params.layer_index < 0) {
-> +				oci_cfg->layer_index = atoi(p);
-> +				if (oci_cfg->layer_index < 0) {
-
-Could you just use `strtoul` since it can check invalid
-arguments better?
-
->   					erofs_err("invalid layer index %d",
-> -						  ocicfg.params.layer_index);
-> +					  oci_cfg->layer_index);
->   					return -EINVAL;
->   				}
->   			} else {
->   				p = strstr(opt, "username=");
->   				if (p) {
->   					p += strlen("username=");
-> -					ret = erofs_oci_params_set_string(&ocicfg.params.username, p);
-> -					if (ret) {
-> -						erofs_err("failed to set username");
-> -						return ret;
-> -					}
-> +					free(oci_cfg->username);
-> +					oci_cfg->username = strdup(p);
-> +					if (!oci_cfg->username)
-> +						return -ENOMEM;
->   				} else {
->   					p = strstr(opt, "password=");
->   					if (p) {
->   						p += strlen("password=");
-> -						ret = erofs_oci_params_set_string(&ocicfg.params.password, p);
-> -						if (ret) {
-> -							erofs_err("failed to set password");
-> -							return ret;
-> -						}
-> +											free(oci_cfg->password);
-> +					oci_cfg->password = strdup(p);
-> +					if (!oci_cfg->password)
-> +						return -ENOMEM;
->   					} else {
-> -						erofs_err("invalid --oci value %s", opt);
-> +						erofs_err("mkfs: invalid --oci value %s", opt);
-
-`mkfs:` prefix is unneeded.
-
-Thanks,
-Gao Xiang
 
