@@ -1,44 +1,51 @@
-Return-Path: <linux-erofs+bounces-991-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-992-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1145CAC589
-	for <linux-erofs@archiver.kernel.org>; Tue,  9 Sep 2025 08:46:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64679CAC587
+	for <linux-erofs@archiver.kernel.org>; Tue,  9 Sep 2025 09:40:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cLcql2sm0z30Vl;
-	Tue,  9 Sep 2025 18:46:27 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1757407587;
-	cv=none; b=dMY5X4KlkJgeGsliPNuWWmpqDUJKKiU/NmIyQhTpyoSCam3J+ddjlaSNV8nHnxfMWGcKB9nt/DlDuaP6VVL52oAw2Zu684SmrTjnOw+OGyK1Axz3e9UhoqTTIQCduINReTsdBcBVtSqeJL1l4AiH7g78GynPdCdEfhicgEKAdO/eAO/Csfoer2CgnLcOdwLfjbXt4ufqryIHLpr80GU6BhHTsHaxkaCEdX1fKfXIgXb8Hfsm5ZxuJ3vj70RBpheeKF32RNCzOzI2B1C72jj3ZtWOl7COfCH/hCh5E4aoz9pz3rtikWonYnx+ATqlQPIhOySxHjX599tcmgbDboInlQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cLf240YLTz3cYx;
+	Tue,  9 Sep 2025 19:40:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1757410827;
+	cv=none; b=LkXQePSAjR7FCLOB++Kf5p+nFNISFyAvpTDzcFL+/AkRzllV++FGQe5il6dlGViwPUVlJYhU0Lgffo9CWmdfV9ZWYPWuwH3fWKwOnqkQb3Y7IXodHpLGjsItY2QZh4iF5NUnVj82vAX16UMuBrZnUxBsbXtNo/CV/+ZELWYsTeXXEU75rBBctfXnxDMVSXvkmZ3ErhHtKz4gyoJgec229TgO2ep/219PvHhNvoC/UMMZayIrRusKUQWBTR9jzmGKnD53fUc7ZW05PHG4SX80rL2F8U6zga5/3pcKQpW28uvruUss5ZC1yeT3sdP3TUMZHd45T4cRnmThU2fRDgFH1g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1757407587; c=relaxed/relaxed;
-	bh=fQbvoo8e8rHF1FTS8zMauPgGPWKRksB3jZq/0jGyh2A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Da/J08MME6TvwO0kbvMGRJERWOU+2lkcHUjF7uEbyGIZU9cfFHEuMVwDprnu6gwtfd9nWWaSItYekL5KWgKdQyAQCHEHwfjKTcmKZgpcDg6EfeET5wbFydGhQckMfNhCZyobt5dROy8ps3WVtgKHR9y1i7ZGn6E5UacBpk7I6VRLuWmf9tRzyN1ZaTVMvC+WSQO1BkY8I7MLQpa4B7HEpAd3hfYOH7s5v5o7F3oqq7ttKb8xL0wIOeCO/K/aafNpXNbRk8qwvlJ2JhRUjG2dRnbyjfhpvlR1Hvl7f7Pdgb7khZEfkIaFW/PjdK1SmmOq66RAoi80Gf5+lt5EOtj8uA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jBgJQf7L; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1757410827; c=relaxed/relaxed;
+	bh=ZNfEDEpbZjrhKSXaAMHJxzrNbYPRB5zhRbWsjv79Hl0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=PkTEDz/S4y6XERHODvzvWPEPmvBX3YdrayN6RQcZBFyO8yx/vJaUb8ghTYSSsV93dg+EtJZ6vKjpxQzJFUqHsgQEt5lF7SYFKK85oQfIc61QnVi2gbORFTCaz+fyh6SN3EMMvodnf/+X/oJ2vab4z6RAV+eqUefzHEc1IJ7xpIFYdckNRZUcgUfO1pHJUZ6RiSieeax/PoAOJfk/IqEkXPtFFFLoCg966Iu/8Jqmh8EJWiHmOKk3OcdtEMwDZZ8JvqTCTXtIVVwq9O4CYlgBfysYYy/IK6QCHL1oTAn7D884n6Ibi7k1OtlLWgYZNSKe++qS/ABw0SwGCFfUwncJxw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NS/zePXn; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jBgJQf7L;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NS/zePXn;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cLcqh4Ywmz30V1
-	for <linux-erofs@lists.ozlabs.org>; Tue,  9 Sep 2025 18:46:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cLf2175Fqz3cYR
+	for <linux-erofs@lists.ozlabs.org>; Tue,  9 Sep 2025 19:40:24 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1757407579; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=fQbvoo8e8rHF1FTS8zMauPgGPWKRksB3jZq/0jGyh2A=;
-	b=jBgJQf7L8yekdFI7HKnN+cg5XPxMaZuf2dFt9OwBw+Sngr/oukimbrEyj8w9PStCvGAE6bwnqC0YAkESLl1NdweLsDcA3yShhaupGoJr5sWYZyHYawnrGdw27gxo8XbhUO3lw5Tdy1mx9MPQgEM+4WyqaDVRnIvoqm9JCv/crNU=
-Received: from 30.221.131.27(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WndCykf_1757407576 cluster:ay36)
+	t=1757410821; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=ZNfEDEpbZjrhKSXaAMHJxzrNbYPRB5zhRbWsjv79Hl0=;
+	b=NS/zePXnpzV/IZobrFjfKrJ4m9QXICb8I+MzKEsyMhvZ7WAzrKC+g67TjzfvfSEq1J8jRdqIWM1wNJTFa/GmNF5BdTp+YEPSY6CMk+/PzNcexW9MdkvE2T7pyrWGBJiSF9FTs4dkT5Kz/8mAREMJbg5U5qZLuR7hSOjettcg3/I=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WndX0hl_1757410818 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 09 Sep 2025 16:46:17 +0800
-Message-ID: <822ebea6-f7de-41f2-aab0-ef3d6a781efe@linux.alibaba.com>
-Date: Tue, 9 Sep 2025 16:46:16 +0800
+          Tue, 09 Sep 2025 17:40:19 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/2] erofs-utils: lib: migrate `c_ignore_mtime`
+Date: Tue,  9 Sep 2025 17:40:13 +0800
+Message-ID: <20250909094014.875652-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250909094014.875652-1-hsiangkao@linux.alibaba.com>
+References: <20250909094014.875652-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,169 +57,131 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] erofs-utils:mount: add OCI recovery support for NBD
- reattach
-To: ChengyuZhu6 <hudson@cyzhu.com>, linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org, Chengyu Zhu <hudsonzhu@tencent.com>
-References: <20250909070909.83921-1-hudson@cyzhu.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20250909070909.83921-1-hudson@cyzhu.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ include/erofs/config.h   |  1 -
+ include/erofs/importer.h |  1 +
+ lib/config.c             |  1 -
+ lib/inode.c              | 18 +++++++++++-------
+ mkfs/main.c              |  6 +++---
+ 5 files changed, 15 insertions(+), 12 deletions(-)
 
+diff --git a/include/erofs/config.h b/include/erofs/config.h
+index 6554ad2..67f5aa3 100644
+--- a/include/erofs/config.h
++++ b/include/erofs/config.h
+@@ -53,7 +53,6 @@ struct erofs_configure {
+ 	bool c_all_fragments;
+ 	bool c_dedupe;
+ 	char c_fragdedupe;
+-	bool c_ignore_mtime;
+ 	bool c_showprogress;
+ 	bool c_extra_ea_name_prefixes;
+ 	bool c_xattr_name_filter;
+diff --git a/include/erofs/importer.h b/include/erofs/importer.h
+index 85e3a50..a5a4c8c 100644
+--- a/include/erofs/importer.h
++++ b/include/erofs/importer.h
+@@ -26,6 +26,7 @@ struct erofs_importer_params {
+ 	u32 gid_offset;
+ 	u32 fsalignblks;
+ 	char force_inodeversion;
++	bool ignore_mtime;
+ 	bool no_datainline;
+ 	bool hard_dereference;
+ 	bool ovlfs_strip;
+diff --git a/lib/config.c b/lib/config.c
+index 28bfc2f..b1d076d 100644
+--- a/lib/config.c
++++ b/lib/config.c
+@@ -29,7 +29,6 @@ void erofs_init_configure(void)
+ 	cfg.c_dbg_lvl  = EROFS_WARN;
+ 	cfg.c_version  = PACKAGE_VERSION;
+ 	cfg.c_dry_run  = false;
+-	cfg.c_ignore_mtime = false;
+ 	cfg.c_inline_xattr_tolerance = 2;
+ 	cfg.c_unix_timestamp = -1;
+ 	cfg.c_max_decompressed_extent_bytes = -1;
+diff --git a/lib/inode.c b/lib/inode.c
+index 0bb82f8..75a0b4d 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -717,7 +717,7 @@ int erofs_iflush(struct erofs_inode *inode)
+ 	    inode->u.i_blocks > UINT32_MAX) {
+ 		nb.blocks_hi = cpu_to_le16(inode->u.i_blocks >> 32);
+ 	} else if (inode->datalayout != EROFS_INODE_CHUNK_BASED &&
+-		 inode->u.i_blkaddr > UINT32_MAX) {
++		   inode->u.i_blkaddr > UINT32_MAX) {
+ 		nb.startblk_hi = cpu_to_le16(inode->u.i_blkaddr >> 32);
+ 		if (inode->u.i_blkaddr == EROFS_NULL_ADDR) {
+ 			nlink_1 = false;
+@@ -744,8 +744,7 @@ int erofs_iflush(struct erofs_inode *inode)
+ 
+ 		u.dic.i_uid = cpu_to_le16((u16)inode->i_uid);
+ 		u.dic.i_gid = cpu_to_le16((u16)inode->i_gid);
+-		if (!cfg.c_ignore_mtime)
+-			u.dic.i_mtime = cpu_to_le64(inode->i_mtime - sbi->epoch);
++		u.dic.i_mtime = cpu_to_le64(inode->i_mtime - sbi->epoch);
+ 		u.dic.i_u = u1;
+ 
+ 		if (nlink_1) {
+@@ -1076,7 +1075,9 @@ out:
+ static bool erofs_should_use_inode_extended(struct erofs_importer *im,
+ 				struct erofs_inode *inode, const char *path)
+ {
+-	if (im->params->force_inodeversion == EROFS_FORCE_INODE_EXTENDED)
++	const struct erofs_importer_params *params = im->params;
++
++	if (params->force_inodeversion == EROFS_FORCE_INODE_EXTENDED)
+ 		return true;
+ 	if (inode->i_size > UINT_MAX)
+ 		return true;
+@@ -1088,10 +1089,13 @@ static bool erofs_should_use_inode_extended(struct erofs_importer *im,
+ 		return true;
+ 	if (inode->i_nlink > USHRT_MAX)
+ 		return true;
+-	if (!erofs_is_special_identifier(path) && !cfg.c_ignore_mtime &&
++	if (!erofs_is_special_identifier(path) &&
+ 	    !erofs_sb_has_48bit(inode->sbi) &&
+-	    inode->i_mtime != inode->sbi->epoch)
+-		return true;
++	    inode->i_mtime != inode->sbi->epoch) {
++		if (!params->ignore_mtime)
++			return true;
++		inode->i_mtime = inode->sbi->epoch;
++	}
+ 	return false;
+ }
+ 
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 4f52656..1b5cb2b 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -463,7 +463,7 @@ static int parse_extended_opts(struct erofs_importer_params *params,
+ 			if (vallen)
+ 				return -EINVAL;
+ 			params->force_inodeversion = EROFS_FORCE_INODE_COMPACT;
+-			cfg.c_ignore_mtime = true;
++			params->ignore_mtime = true;
+ 		} else if (MATCH_EXTENTED_OPT("force-inode-extended", token, keylen)) {
+ 			if (vallen)
+ 				return -EINVAL;
+@@ -1170,10 +1170,10 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
+ 			cfg.c_blobdev_path = optarg;
+ 			break;
+ 		case 14:
+-			cfg.c_ignore_mtime = true;
++			params->ignore_mtime = true;
+ 			break;
+ 		case 15:
+-			cfg.c_ignore_mtime = false;
++			params->ignore_mtime = false;
+ 			break;
+ 		case 16:
+ 			errno = 0;
+-- 
+2.43.5
 
-On 2025/9/9 15:09, ChengyuZhu6 wrote:
-> From: Chengyu Zhu <hudsonzhu@tencent.com>
-> 
-> This commit implements recovery support for OCI-based NBD mounts,
-> allowing the system to properly reattach NBD devices after
-> NBD disconnection.
-> 
-> Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
-> ---
->   mount/main.c | 100 ++++++++++++++++++++++++++++++++++++++-------------
->   1 file changed, 75 insertions(+), 25 deletions(-)
-> 
-> diff --git a/mount/main.c b/mount/main.c
-> index c52ac3b..37e9f6d 100644
-> --- a/mount/main.c
-> +++ b/mount/main.c
-> @@ -401,12 +401,14 @@ out_closefd:
->   	return err;
->   }
->   
-> -static char *erofsmount_write_recovery_info(const char *source)
-> +static char *erofsmount_write_recovery_info(struct erofs_nbd_source *source)
->   {
->   	char recp[] = "/var/run/erofs/mountnbd_XXXXXX";
->   	char *realp;
->   	int fd, err;
->   	FILE *f;
-> +	char *content = NULL;
-> +	int ret;
->   
->   	fd = mkstemp(recp);
->   	if (fd < 0 && errno == ENOENT) {
-> @@ -424,15 +426,32 @@ static char *erofsmount_write_recovery_info(const char *source)
->   		return ERR_PTR(-errno);
->   	}
->   
-> -	realp = realpath(source, NULL);
-> -	if (!realp) {
-> -		fclose(f);
-> -		return ERR_PTR(-errno);
-> +	if (source->type == EROFSNBD_SOURCE_OCI) {
-
-Could we just split this block into:
-	erofsmount_write_recovery_oci(f, source);
-
-> +		ret = asprintf(&content, "%s %s %s %s %d",
-> +			       source->ocicfg.image_ref ?: "",
-> +			       source->ocicfg.platform ?: "",
-> +			       source->ocicfg.username ?: "",
-> +			       source->ocicfg.password ?: "",
-
-Could we just encode username:password into base64?
-
-> +			       source->ocicfg.layer_index);
-> +		if (ret < 0) {
-> +			fclose(f);
-> +			return ERR_PTR(-ENOMEM);
-> +		}
-> +		err = fprintf(f, "OCI_LAYER %s\n", content) < 0;
-> +		free(content);
-> +	} else {
-
-and this into:
-	erofsmount_write_recovery_local(f, source);
-
-> +		realp = realpath(source->device_path, NULL);
-> +		if (!realp) {
-> +			fclose(f);
-> +			return ERR_PTR(-errno);
-> +		}
-> +
-> +		/* TYPE<LOCAL> <SOURCE PATH>\n(more..) */
-> +		err = fprintf(f, "LOCAL %s\n", realp) < 0;
-> +		free(realp);
->   	}
-> -	/* TYPE<LOCAL> <SOURCE PATH>\n(more..) */
-> -	err = fprintf(f, "LOCAL %s\n", realp) < 0;
-> +
->   	fclose(f);
-> -	free(realp);
->   	if (err)
->   		return ERR_PTR(-ENOMEM);
->   	return strdup(recp) ?: ERR_PTR(-ENOMEM);
-> @@ -491,15 +510,10 @@ static int erofsmount_startnbd_nl(pid_t *pid, struct erofs_nbd_source *source)
->   				exit(EXIT_FAILURE);
->   			ctx.vd.fd = err;
->   		}
-> -
-> -		if (source->type == EROFSNBD_SOURCE_LOCAL) {
-> -			recp = erofsmount_write_recovery_info(source->device_path);
-> -			if (IS_ERR(recp)) {
-> -				erofs_io_close(&ctx.vd);
-> -				exit(EXIT_FAILURE);
-> -			}
-> -		} else {
-> -			recp = NULL;
-> +		recp = erofsmount_write_recovery_info(source);
-> +		if (IS_ERR(recp)) {
-> +			erofs_io_close(&ctx.vd);
-> +			exit(EXIT_FAILURE);
->   		}
->   
->   		num = -1;
-> @@ -595,19 +609,55 @@ static int erofsmount_reattach(const char *target)
->   		*(source++) = '\0';
->   	}
->   
-> -	if (strcmp(line, "LOCAL")) {
-> +	if (!strcmp(line, "LOCAL")) {
-> +		err = open(source, O_RDONLY);
-> +		if (err < 0) {
-> +			err = -errno;
-> +			goto err_line;
-> +		}
-> +		ctx.vd.fd = err;
-> +	} else if (!strcmp(line, "OCI_LAYER")) {
-> +		struct ocierofs_config oci_cfg = {};
-> +		char *platform, *username, *password, *layer_str;
-> +		int layer_index;
-> +
-> +		platform = strchr(source, ' ');
-> +		if (platform) {
-> +			*platform++ = '\0';
-> +			oci_cfg.image_ref = source;
-> +			oci_cfg.platform = platform;
-> +		} else {
-> +			oci_cfg.image_ref = source;
-> +		}
-> +
-> +		username = strchr(platform ?: source, ' ');
-> +		if (username) {
-> +			*username++ = '\0';
-> +			oci_cfg.username = username;
-> +		}
-> +
-> +		password = strchr(username ?: (platform ?: source), ' ');
-> +		if (password) {
-> +			*password++ = '\0';
-> +			oci_cfg.password = password;
-> +		}
-> +
-> +		layer_str = strchr(password ?: (username ?: (platform ?: source)), ' ');
-> +		if (layer_str) {
-> +			*layer_str++ = '\0';
-> +			layer_index = atoi(layer_str);
-> +			oci_cfg.layer_index = layer_index;
-> +		}
-
-Move those into erofsmount_parse_recovery_ocilayer(&oci_cfg, source)?
-
-Thanks,
-Gao Xiang
 
