@@ -1,49 +1,70 @@
-Return-Path: <linux-erofs+bounces-1041-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1042-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC4C8CA0EE8
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Sep 2025 08:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47CF3CAC59A
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Sep 2025 17:07:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cRWpG4DDTz3cQx;
-	Wed, 17 Sep 2025 18:17:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1758097030;
-	cv=none; b=c7Kj6r33G6BlukesRulDBuB8hs7sAIYq9kIM1USqOadcKFtIEIWzeD4vrHAjBPR8gAFmtnpfT83k5fIlYptAuTwMFhxL2yeY3tr1DcYdh1DCxAfWKwIyTKgt3K9D9a4pYJ1Ek/EVVWvQAQk4wElS5FqbGV+YG4VKQGLMDjJkG1mciVG2pr+MxYhpIWNzFNWAOojDBZ+Tgj0jFsg9xLUY7GXsC8YXT3C3D+81fwXF5RsbsF4rVsmn3NbCkijHhD8LqaT29SL5a+mQdTZdtkF/r6ZsIq7qcOVzgaWSnyzSLqzDGYQMdzMsmaV/nA66/Q6HHMhB/KpZcEAP4BvRyVz/1A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cRlYd32Tjz2yhD;
+	Thu, 18 Sep 2025 03:07:01 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.17
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1758128821;
+	cv=none; b=FaYTd6keR9wCJXTM+PEIVerj6T+VVU7So3/+S6c83MMfGB9xVUwFy2njflTEJAqVxkUh+vLw+ii4A/ghsey3quw9bfv8EFph4MVLPw3LmDkQnYiexdcPUpBy3CvQAvPL9rfU+h8DCtiM6S66JoTPbz6ER9rQTFHtR747x9iureS+AIrnZ//NQM1VTriUKQg/gdu242fWj8PUg6OZrd0Wr1n/HfD7GiR6k/PXlbu0gr1MUwbmeIDjtzGpBCnZSda9ub7CmnR31kfjycYTrS0sLmRrgcv92KRsbJvZ4BtpaHfXBosuQt01l7mU9Z1VFELnj8StXIQG6diNVLZiwQ9ZJA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1758097030; c=relaxed/relaxed;
-	bh=4Ati7d+esreYnKq2jdfy9MHBOfk5mfVL70wJHzUfJck=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ohOGvXXcpeXZruW0qEr5JXZwXnR4ctMTh8TDsow4PExhF3AMtpfoK/uw0EwuFIlojap3UgZm7sKTL1wXIpn6uRK+qDDMGrcqD0zErPFDtqC1pot2T9HJQeL7FaIhNcGfiZ9kuy2dejjFRu2ozjXdr1OExH4tb8dEbJE1d8b4wkG/hcVODAJjJ8TntSt/8JkNQ0xPyk8pLQcKx/Zo+FUSOIOLK6hSRHAlLFKYcbaDBvU1PXRGUb0kC8UB2SVlYzuTqDE96wNNDwmWqTMO4nC+EmnFmeX/tHx8qJhf7FtiSsR6kem/MufEN08ffjIS5H4slG/Cdorc/ojEiQozp4c0aQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=llsYWMHn; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1758128821; c=relaxed/relaxed;
+	bh=DVRoi//cn2QZJHFuDUWrnJ2qthxJxEI4gY536Zg5wDA=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=dKXwjWRrkOueTfedxa21m+NAy5+jIYPXtCgNiOsHvGH0jzKeHwBoCnPEQHqtfXnZqHIUbiEj5YDkjIsJhkf8E7ymkw+f5Qek3L/IQjjCalkwf6VLRuNjtP/GzjoWX61adQ65MWg/hEcpKaL4bdYHFqfgsKP7dEnL8nVsjvIAg6ftqDwRSLD3ps6h1u487btFkDoZ3h6CNkPl6ADD9NhWVcTPfPV+FjtSwMlkMXFqAL2QwP5WePaejm8CW+lIGUNgDhLlCQgokFotkzdkVCHFm/Q/WnBswf3uRXsdVUK6rpACuLULigxXx/wQi5WjJQ9jirsWvP8ThkjB5oblNqytpQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MjkGHK9n; dkim-atps=neutral; spf=pass (client-ip=192.198.163.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=llsYWMHn;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MjkGHK9n;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cRWpC5C2Vz3bjb
-	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Sep 2025 18:17:06 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1758097021; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=4Ati7d+esreYnKq2jdfy9MHBOfk5mfVL70wJHzUfJck=;
-	b=llsYWMHnZpEKwSVzDGTRS+6tCS02HBQPO0iyvt5Ifbh752BloxBDPl+jVHE8amYjuLUa9CgGlVP9JKWRtMk1KrNjgiHLriwOsB2QFpHFpRvdUSg/JfJQpONaGxf+eAAqgGBntURiEVWOUYr1xhuXsKbCMMuujyyW0iJqXBU1SxQ=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WoBqWKE_1758097015 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 17 Sep 2025 16:17:00 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: hudson@cyzhu.com,
-	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/2] erofs-utils: tar: support gzip index generation
-Date: Wed, 17 Sep 2025 16:16:52 +0800
-Message-ID: <20250917081654.3603244-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cRlYb08Jwz2yPd
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Sep 2025 03:06:56 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1758128819; x=1789664819;
+  h=date:from:to:cc:subject:message-id;
+  bh=QTV1FCnfORdMBmZOR9A2B6EFYMKt0MQF7fLgiOmINF4=;
+  b=MjkGHK9nP9FHYZQWzABU9VQVxat3pHSrwf60bqR+tiDIEbmJezGeYA+Q
+   jgNIF/fqYbXoXo/fuF2yxeJ9r+PB17SUIzQdrfYdc0UAIcgVlLzSnzXdQ
+   BtTHxFw/V9Wq8rSG4bu+NfiwMY3czNlaluaLgEkLsjVVQTbVb2tX2DT4x
+   CAg+yFV6w3UrJUAyMBSfiZG19gfiLkujicCgWcge601qT04BtMDqYZ5OA
+   j4fuGqyl0szIU0AdKoT9Se9WPYot5ndr1FHFSr+xvT4y3sV0RcIv++LKq
+   4Axrz/UnRFH5bOfSyfDytS+u1C+zKLZikANhe7f/n8+FgULoZQLpBHp+n
+   Q==;
+X-CSE-ConnectionGUID: xuJVzqIeQGK+V0SaBNni5w==
+X-CSE-MsgGUID: DGADCvghSemdoaoNGU9aKg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11556"; a="60373593"
+X-IronPort-AV: E=Sophos;i="6.18,272,1751266800"; 
+   d="scan'208";a="60373593"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Sep 2025 10:06:53 -0700
+X-CSE-ConnectionGUID: o+IQ5dzdQISKDkP9ur4u4Q==
+X-CSE-MsgGUID: OlYNrWZ1RcKbn+qhraxriw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,272,1751266800"; 
+   d="scan'208";a="174867953"
+Received: from lkp-server01.sh.intel.com (HELO 84a20bd60769) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 17 Sep 2025 10:06:52 -0700
+Received: from kbuild by 84a20bd60769 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uyvcH-0002FS-0i;
+	Wed, 17 Sep 2025 17:06:49 +0000
+Date: Thu, 18 Sep 2025 01:06:20 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ 7d5edf02769702ea33851030a156e98315a460e8
+Message-ID: <202509180113.MftRFzeP-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -54,440 +75,267 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Let's support AWS SOCI-compatible zinfo version v2 generation.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: 7d5edf02769702ea33851030a156e98315a460e8  erofs: avoid reading more for fragment maps
 
-Since an OCI image layer cannot be randomly accessed, the new gzip
-index can be used for OCI gzip random access.
+elapsed time: 1450m
 
-Example:
- $ mkfs.erofs --tar=i --gzinfo=foo.zinfo foo.tarmeta.erofs foo.tgz
+configs tested: 246
+configs skipped: 8
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- include/erofs/tar.h  |   7 +-
- lib/Makefile.am      |   2 +
- lib/gzran.c          | 216 +++++++++++++++++++++++++++++++++++++++++++
- lib/liberofs_gzran.h |  21 +++++
- lib/tar.c            |  20 ++++
- mkfs/main.c          |  23 +++++
- 6 files changed, 288 insertions(+), 1 deletion(-)
- create mode 100644 lib/gzran.c
- create mode 100644 lib/liberofs_gzran.h
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-diff --git a/include/erofs/tar.h b/include/erofs/tar.h
-index 3bd4b15..cdaef31 100644
---- a/include/erofs/tar.h
-+++ b/include/erofs/tar.h
-@@ -24,12 +24,17 @@ struct erofs_pax_header {
- #define EROFS_IOS_DECODER_NONE		0
- #define EROFS_IOS_DECODER_GZIP		1
- #define EROFS_IOS_DECODER_LIBLZMA	2
-+#define EROFS_IOS_DECODER_GZRAN		3
- 
- struct erofs_iostream_liblzma;
-+struct erofs_gzran_builder;
- 
- struct erofs_iostream {
- 	union {
--		struct erofs_vfile vf;
-+		struct {
-+			struct erofs_vfile vf;
-+			struct erofs_gzran_builder *gb;
-+		};
- 		void *handler;
- #ifdef HAVE_LIBLZMA
- 		struct erofs_iostream_liblzma *lzma;
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index daf937c..72aa0e8 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -31,6 +31,7 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
-       $(top_srcdir)/lib/liberofs_cache.h \
-       $(top_srcdir)/lib/liberofs_private.h \
-       $(top_srcdir)/lib/liberofs_xxhash.h \
-+      $(top_srcdir)/lib/liberofs_gzran.h \
-       $(top_srcdir)/lib/liberofs_metabox.h \
-       $(top_srcdir)/lib/liberofs_nbd.h \
-       $(top_srcdir)/lib/liberofs_s3.h
-@@ -86,3 +87,4 @@ endif
- liberofs_la_SOURCES += remotes/oci.c
- liberofs_la_CFLAGS += ${libcurl_CFLAGS} ${json_c_CFLAGS}
- liberofs_la_LDFLAGS += ${libcurl_LIBS} ${json_c_LIBS}
-+liberofs_la_SOURCES += gzran.c
-diff --git a/lib/gzran.c b/lib/gzran.c
-new file mode 100644
-index 0000000..ce2759b
---- /dev/null
-+++ b/lib/gzran.c
-@@ -0,0 +1,216 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
-+/*
-+ * Copyright (C) 2025 Alibaba Cloud
-+ */
-+#include "erofs/list.h"
-+#include "erofs/err.h"
-+#include "liberofs_gzran.h"
-+#include <stdlib.h>
-+#include <zlib.h>
-+
-+#ifdef HAVE_ZLIB
-+struct erofs_gzran_cutpoint {
-+	u8	window[EROFS_GZRAN_WINSIZE];	/* preceding 32K of uncompressed data */
-+	u64	outpos;			/* corresponding offset in uncompressed data */
-+	u64	in_bitpos;		/* bit offset in input file of first full byte */
-+};
-+
-+struct erofs_gzran_cutpoint_item {
-+	struct erofs_gzran_cutpoint	cp;
-+	struct list_head		list;
-+};
-+
-+struct erofs_gzran_builder {
-+	struct list_head items;
-+	struct erofs_vfile *vf;
-+	z_stream strm;
-+	u64 totout, totin;
-+	u32 entries;
-+	u32 span_size;
-+	u8 window[EROFS_GZRAN_WINSIZE];
-+	u8 src[1 << 14];
-+};
-+
-+struct erofs_gzran_builder *erofs_gzran_builder_init(struct erofs_vfile *vf,
-+						     u32 span_size)
-+{
-+	struct erofs_gzran_builder *gb;
-+	z_stream *strm;
-+	int ret;
-+
-+	gb = malloc(sizeof(*gb));
-+	if (!gb)
-+		return ERR_PTR(-ENOMEM);
-+	strm = &gb->strm;
-+	/* initialize inflate */
-+	strm->zalloc = Z_NULL;
-+	strm->zfree = Z_NULL;
-+	strm->opaque = Z_NULL;
-+	strm->avail_in = 0;
-+	strm->next_in = Z_NULL;
-+	ret = inflateInit2(strm, 47);	/* automatic zlib or gzip decoding */
-+	if (ret != Z_OK)
-+		return ERR_PTR(-EFAULT);
-+	gb->vf = vf;
-+	gb->span_size = span_size;
-+	gb->totout = gb->totin = 0;
-+	gb->entries = 0;
-+	init_list_head(&gb->items);
-+	return gb;
-+}
-+
-+/* return up to 32K of data at once */
-+int erofs_gzran_builder_read(struct erofs_gzran_builder *gb, char *window)
-+{
-+	struct erofs_gzran_cutpoint_item *ci;
-+	struct erofs_gzran_cutpoint *cp;
-+	z_stream *strm = &gb->strm;
-+	struct erofs_vfile *vf = gb->vf;
-+	int read, ret;
-+	u64 last;
-+
-+	strm->avail_out = sizeof(gb->window);
-+	strm->next_out = gb->window;
-+	do {
-+
-+		if (!strm->avail_in) {
-+			read = erofs_io_read(vf, gb->src, sizeof(gb->src));
-+			if (read <= 0)
-+				return read;
-+			strm->avail_in = read;
-+			strm->next_in = gb->src;
-+		}
-+		gb->totin += strm->avail_in;
-+		gb->totout += strm->avail_out;
-+
-+		ret = inflate(strm, Z_BLOCK);	/* return at end of block */
-+		gb->totin -= strm->avail_in;
-+		gb->totout -= strm->avail_out;
-+
-+		if (ret == Z_NEED_DICT)
-+			ret = Z_DATA_ERROR;
-+		if (ret == Z_MEM_ERROR || ret == Z_DATA_ERROR)
-+			return -EIO;
-+		if (ret == Z_STREAM_END)
-+			break;
-+
-+		ci = list_empty(&gb->items) ? NULL :
-+			list_last_entry(&gb->items,
-+					struct erofs_gzran_cutpoint_item,
-+					list);
-+		last = ci ? ci->cp.outpos : 0;
-+		if ((strm->data_type & 128) && !(strm->data_type & 64) &&
-+		    (gb->totout == 0 || gb->totout - last > gb->span_size)) {
-+			ci = malloc(sizeof(*ci));
-+			if (!ci)
-+				return -ENOMEM;
-+			init_list_head(&ci->list);
-+			cp = &ci->cp;
-+
-+			cp->in_bitpos = (gb->totin << 3) | (strm->data_type & 7);
-+			cp->outpos = gb->totout;
-+			read = sizeof(gb->window) - strm->avail_out;
-+			if (strm->avail_out)
-+				memcpy(cp->window, gb->window + read, strm->avail_out);
-+			if (read)
-+				memcpy(cp->window + strm->avail_out, gb->window, read);
-+			list_add_tail(&ci->list, &gb->items);
-+			gb->entries++;
-+		}
-+	} while (strm->avail_out);
-+
-+	read = sizeof(gb->window) - strm->avail_out;
-+	memcpy(window, gb->window, read);
-+	return read;
-+}
-+
-+struct aws_soci_zinfo_header {
-+	__le32 have;
-+	__le64 span_size;
-+} __packed;
-+
-+struct aws_soci_zinfo_ckpt {
-+	__le64 in;
-+	__le64 out;
-+	__u8 bits;
-+	u8 window[EROFS_GZRAN_WINSIZE];
-+} __packed;
-+
-+/* Generate AWS SOCI-compatible on-disk zinfo version 2 */
-+int erofs_gzran_builder_export_zinfo(struct erofs_gzran_builder *gb,
-+				     struct erofs_vfile *zinfo_vf)
-+{
-+	union {
-+		struct aws_soci_zinfo_header h;
-+		struct aws_soci_zinfo_ckpt c;
-+	} u;
-+	struct erofs_gzran_cutpoint_item *ci;
-+	u64 pos;
-+	int ret;
-+
-+	BUILD_BUG_ON(sizeof(u.h) != 12);
-+	u.h = (struct aws_soci_zinfo_header) {
-+		.have = cpu_to_le32(gb->entries),
-+		.span_size = cpu_to_le64(gb->span_size),
-+	};
-+	ret = erofs_io_pwrite(zinfo_vf, &u.h, 0, sizeof(u.h));
-+	if (ret < 0)
-+		return ret;
-+	if (ret != sizeof(u.h))
-+		return -EIO;
-+
-+	pos = sizeof(u.h);
-+	list_for_each_entry(ci, &gb->items, list) {
-+		BUILD_BUG_ON(sizeof(u.c) != 17 + EROFS_GZRAN_WINSIZE);
-+		u.c.in = cpu_to_le64(ci->cp.in_bitpos >> 3);
-+		u.c.out = cpu_to_le64(ci->cp.outpos);
-+		u.c.bits = cpu_to_le64(ci->cp.in_bitpos & 7);
-+		memcpy(u.c.window, ci->cp.window, EROFS_GZRAN_WINSIZE);
-+
-+		ret = erofs_io_pwrite(zinfo_vf, &u.c, pos, sizeof(u.c));
-+		if (ret < 0)
-+			return ret;
-+		if (ret != sizeof(u.c))
-+			return -EIO;
-+		pos += sizeof(u.c);
-+	}
-+	return 0;
-+}
-+
-+int erofs_gzran_builder_final(struct erofs_gzran_builder *gb)
-+{
-+	struct erofs_gzran_cutpoint_item *ci, *n;
-+	int ret;
-+
-+	ret = inflateEnd(&gb->strm);
-+	if (ret != Z_OK)
-+		return -EFAULT;
-+	list_for_each_entry_safe(ci, n, &gb->items, list) {
-+		list_del(&ci->list);
-+		free(ci);
-+		--gb->entries;
-+	}
-+	DBG_BUGON(gb->entries);
-+	free(gb);
-+	return 0;
-+}
-+#else
-+struct erofs_gzran_builder *erofs_gzran_builder_init(struct erofs_vfile *vf,
-+						     u32 span_size)
-+{
-+	return ERR_PTR(-EOPNOTSUPP);
-+}
-+int erofs_gzran_builder_read(struct erofs_gzran_builder *gb, char *window)
-+{
-+	return 0;
-+}
-+int erofs_gzran_builder_export_zinfo(struct erofs_gzran_builder *gb,
-+				     struct erofs_vfile *zinfo_vf)
-+{
-+	return -EOPNOTSUPP;
-+}
-+int erofs_gzran_builder_final(struct erofs_gzran_builder *gb)
-+{
-+	return 0;
-+}
-+#endif
-diff --git a/lib/liberofs_gzran.h b/lib/liberofs_gzran.h
-new file mode 100644
-index 0000000..4764506
---- /dev/null
-+++ b/lib/liberofs_gzran.h
-@@ -0,0 +1,21 @@
-+/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
-+/*
-+ * Copyright (C) 2025 Alibaba Cloud
-+ */
-+#ifndef __EROFS_LIB_LIBEROFS_GZRAN_H
-+#define __EROFS_LIB_LIBEROFS_GZRAN_H
-+
-+#include "erofs/io.h"
-+
-+#define EROFS_GZRAN_WINSIZE	32768
-+
-+struct erofs_gzran_builder;
-+
-+struct erofs_gzran_builder *erofs_gzran_builder_init(struct erofs_vfile *vf,
-+						     u32 span_size);
-+int erofs_gzran_builder_read(struct erofs_gzran_builder *gb, char *window);
-+int erofs_gzran_builder_export_zinfo(struct erofs_gzran_builder *gb,
-+				     struct erofs_vfile *zinfo_vf);
-+int erofs_gzran_builder_final(struct erofs_gzran_builder *gb);
-+
-+#endif
-diff --git a/lib/tar.c b/lib/tar.c
-index 687da6c..8d068cb 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -17,6 +17,7 @@
- #endif
- #include "liberofs_base64.h"
- #include "liberofs_cache.h"
-+#include "liberofs_gzran.h"
- 
- /* This file is a tape/volume header.  Ignore it on extraction.  */
- #define GNUTYPE_VOLHDR 'V'
-@@ -65,6 +66,9 @@ void erofs_iostream_close(struct erofs_iostream *ios)
- 		free(ios->lzma);
- #endif
- 		return;
-+	} else if (ios->decoder == EROFS_IOS_DECODER_GZRAN) {
-+		erofs_gzran_builder_final(ios->gb);
-+		return;
- 	}
- 	erofs_io_close(&ios->vf);
- }
-@@ -105,6 +109,14 @@ int erofs_iostream_open(struct erofs_iostream *ios, int fd, int decoder)
- #else
- 		return -EOPNOTSUPP;
- #endif
-+	} else if (decoder == EROFS_IOS_DECODER_GZRAN) {
-+		ios->vf.fd = fd;
-+		ios->feof = false;
-+		ios->sz = 0;
-+		ios->bufsize = EROFS_GZRAN_WINSIZE * 2;
-+		ios->gb = erofs_gzran_builder_init(&ios->vf, 4194304);
-+		if (IS_ERR(ios->gb))
-+			return PTR_ERR(ios->gb);
- 	} else {
- 		ios->vf.fd = fd;
- 		fsz = lseek(fd, 0, SEEK_END);
-@@ -204,6 +216,14 @@ int erofs_iostream_read(struct erofs_iostream *ios, void **buf, u64 bytes)
- #else
- 			return -EOPNOTSUPP;
- #endif
-+		} else if (ios->decoder == EROFS_IOS_DECODER_GZRAN) {
-+			ret = erofs_gzran_builder_read(ios->gb, ios->buffer + rabytes);
-+			if (ret < 0)
-+				return ret;
-+			ios->tail += ret;
-+			DBG_BUGON(ios->tail > ios->bufsize);
-+			if (!ret)
-+				ios->feof = true;
- 		} else {
- 			ret = erofs_io_read(&ios->vf, ios->buffer + rabytes,
- 					    ios->bufsize - rabytes);
-diff --git a/mkfs/main.c b/mkfs/main.c
-index a8208d4..3cf30c6 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -33,6 +33,7 @@
- #include "../lib/liberofs_metabox.h"
- #include "../lib/liberofs_s3.h"
- #include "../lib/liberofs_oci.h"
-+#include "../lib/liberofs_gzran.h"
- #include "../lib/compressor.h"
- 
- static struct option long_options[] = {
-@@ -72,6 +73,7 @@ static struct option long_options[] = {
- #ifdef HAVE_ZLIB
- 	{"gzip", no_argument, NULL, 518},
- 	{"ungzip", optional_argument, NULL, 518},
-+	{"gzinfo", optional_argument, NULL, 535},
- #endif
- #ifdef HAVE_LIBLZMA
- 	{"unlzma", optional_argument, NULL, 519},
-@@ -233,6 +235,9 @@ static void usage(int argc, char **argv)
- #ifdef HAVE_LIBLZMA
- 		" --unxz[=X]            try to filter the tarball stream through xz/lzma/lzip\n"
- 		"                       (and optionally dump the raw stream to X together)\n"
-+#endif
-+#ifdef HAVE_ZLIB
-+		" --gzinfo[=X]          generate AWS SOCI-compatible zinfo in order to support random gzip access\n"
- #endif
- 		" --vmdk-desc=X         generate a VMDK descriptor file to merge sub-filesystems\n"
- #ifdef EROFS_MT_ENABLED
-@@ -298,6 +303,7 @@ static bool valid_fixeduuid;
- static unsigned int dsunit;
- static int tarerofs_decoder;
- static FILE *vmdk_dcf;
-+static char *mkfs_aws_zinfo_file;
- 
- static int erofs_mkfs_feat_set_legacy_compress(bool en, const char *val,
- 					       unsigned int vallen)
-@@ -1338,6 +1344,11 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
- 			source_mode = EROFS_MKFS_SOURCE_OCI;
- 			break;
- #endif
-+		case 535:
-+			if (optarg)
-+				mkfs_aws_zinfo_file = strdup(optarg);
-+			tarerofs_decoder = EROFS_IOS_DECODER_GZRAN;
-+			break;
- 		case 'V':
- 			version();
- 			exit(0);
-@@ -1920,6 +1931,18 @@ exit:
- 	erofs_rebuild_cleanup();
- 	erofs_diskbuf_exit();
- 	if (source_mode == EROFS_MKFS_SOURCE_TAR) {
-+		if (mkfs_aws_zinfo_file) {
-+			struct erofs_vfile vf;
-+			int fd;
-+
-+			fd = open(mkfs_aws_zinfo_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-+			if (fd < 0) {
-+				err = -errno;
-+			} else {
-+				vf = (struct erofs_vfile){ .fd = fd };
-+				err = erofs_gzran_builder_export_zinfo(erofstar.ios.gb, &vf);
-+			}
-+		}
- 		erofs_iostream_close(&erofstar.ios);
- 		if (erofstar.ios.dumpfd >= 0)
- 			close(erofstar.ios.dumpfd);
--- 
-2.43.5
+tested configs:
+alpha                             allnoconfig    clang-22
+alpha                             allnoconfig    gcc-15.1.0
+alpha                            allyesconfig    clang-19
+alpha                            allyesconfig    gcc-15.1.0
+alpha                               defconfig    clang-19
+arc                              allmodconfig    clang-19
+arc                               allnoconfig    clang-22
+arc                               allnoconfig    gcc-15.1.0
+arc                              allyesconfig    clang-19
+arc                                 defconfig    clang-19
+arc                 nsimosci_hs_smp_defconfig    gcc-15.1.0
+arc                   randconfig-001-20250917    clang-22
+arc                   randconfig-001-20250917    gcc-8.5.0
+arc                   randconfig-002-20250917    clang-22
+arc                   randconfig-002-20250917    gcc-15.1.0
+arm                              allmodconfig    clang-19
+arm                               allnoconfig    clang-22
+arm                              allyesconfig    clang-19
+arm                                 defconfig    clang-19
+arm                             mxs_defconfig    clang-22
+arm                        neponset_defconfig    gcc-15.1.0
+arm                   randconfig-001-20250917    clang-22
+arm                   randconfig-002-20250917    clang-22
+arm                   randconfig-002-20250917    gcc-12.5.0
+arm                   randconfig-003-20250917    clang-22
+arm                   randconfig-003-20250917    gcc-10.5.0
+arm                   randconfig-004-20250917    clang-22
+arm64                            allmodconfig    clang-19
+arm64                             allnoconfig    clang-22
+arm64                             allnoconfig    gcc-15.1.0
+arm64                               defconfig    clang-19
+arm64                 randconfig-001-20250917    clang-22
+arm64                 randconfig-002-20250917    clang-19
+arm64                 randconfig-002-20250917    clang-22
+arm64                 randconfig-003-20250917    clang-22
+arm64                 randconfig-003-20250917    gcc-10.5.0
+arm64                 randconfig-004-20250917    clang-22
+csky                              allnoconfig    clang-22
+csky                              allnoconfig    gcc-15.1.0
+csky                                defconfig    clang-19
+csky                  randconfig-001-20250917    clang-22
+csky                  randconfig-001-20250917    gcc-12.5.0
+csky                  randconfig-002-20250917    clang-22
+csky                  randconfig-002-20250917    gcc-9.5.0
+hexagon                          allmodconfig    clang-17
+hexagon                          allmodconfig    clang-19
+hexagon                           allnoconfig    clang-22
+hexagon                          allyesconfig    clang-19
+hexagon                          allyesconfig    clang-22
+hexagon                             defconfig    clang-19
+hexagon               randconfig-001-20250917    clang-22
+hexagon               randconfig-002-20250917    clang-22
+i386                             allmodconfig    clang-20
+i386                             allmodconfig    gcc-14
+i386                              allnoconfig    clang-20
+i386                              allnoconfig    gcc-14
+i386                             allyesconfig    clang-20
+i386                             allyesconfig    gcc-14
+i386        buildonly-randconfig-001-20250917    gcc-14
+i386        buildonly-randconfig-002-20250917    clang-20
+i386        buildonly-randconfig-002-20250917    gcc-14
+i386        buildonly-randconfig-003-20250917    gcc-14
+i386        buildonly-randconfig-004-20250917    gcc-14
+i386        buildonly-randconfig-005-20250917    gcc-14
+i386        buildonly-randconfig-006-20250917    clang-20
+i386        buildonly-randconfig-006-20250917    gcc-14
+i386                                defconfig    clang-20
+i386                  randconfig-001-20250917    gcc-14
+i386                  randconfig-002-20250917    gcc-14
+i386                  randconfig-003-20250917    gcc-14
+i386                  randconfig-004-20250917    gcc-14
+i386                  randconfig-005-20250917    gcc-14
+i386                  randconfig-006-20250917    gcc-14
+i386                  randconfig-007-20250917    gcc-14
+i386                  randconfig-011-20250917    gcc-14
+i386                  randconfig-012-20250917    gcc-14
+i386                  randconfig-013-20250917    gcc-14
+i386                  randconfig-014-20250917    gcc-14
+i386                  randconfig-015-20250917    gcc-14
+i386                  randconfig-016-20250917    gcc-14
+i386                  randconfig-017-20250917    gcc-14
+loongarch                        allmodconfig    clang-19
+loongarch                         allnoconfig    clang-22
+loongarch                           defconfig    clang-19
+loongarch             randconfig-001-20250917    clang-22
+loongarch             randconfig-001-20250917    gcc-15.1.0
+loongarch             randconfig-002-20250917    clang-22
+loongarch             randconfig-002-20250917    gcc-15.1.0
+m68k                             allmodconfig    clang-19
+m68k                             allmodconfig    gcc-15.1.0
+m68k                              allnoconfig    gcc-15.1.0
+m68k                             allyesconfig    clang-19
+m68k                             allyesconfig    gcc-15.1.0
+m68k                                defconfig    clang-19
+m68k                       m5475evb_defconfig    gcc-15.1.0
+microblaze                       allmodconfig    clang-19
+microblaze                       allmodconfig    gcc-15.1.0
+microblaze                        allnoconfig    gcc-15.1.0
+microblaze                       allyesconfig    clang-19
+microblaze                       allyesconfig    gcc-15.1.0
+microblaze                          defconfig    gcc-15.1.0
+mips                              allnoconfig    gcc-15.1.0
+nios2                             allnoconfig    gcc-15.1.0
+nios2                               defconfig    gcc-11.5.0
+nios2                               defconfig    gcc-15.1.0
+nios2                 randconfig-001-20250917    clang-22
+nios2                 randconfig-001-20250917    gcc-11.5.0
+nios2                 randconfig-002-20250917    clang-22
+nios2                 randconfig-002-20250917    gcc-8.5.0
+openrisc                          allnoconfig    clang-22
+openrisc                          allnoconfig    gcc-15.1.0
+openrisc                         allyesconfig    gcc-15.1.0
+openrisc                            defconfig    gcc-14
+openrisc                            defconfig    gcc-15.1.0
+parisc                           allmodconfig    gcc-15.1.0
+parisc                            allnoconfig    clang-22
+parisc                            allnoconfig    gcc-15.1.0
+parisc                           allyesconfig    gcc-15.1.0
+parisc                              defconfig    gcc-15.1.0
+parisc                randconfig-001-20250917    clang-22
+parisc                randconfig-001-20250917    gcc-14.3.0
+parisc                randconfig-002-20250917    clang-22
+parisc                randconfig-002-20250917    gcc-14.3.0
+parisc64                            defconfig    gcc-15.1.0
+powerpc                          allmodconfig    gcc-15.1.0
+powerpc                           allnoconfig    clang-22
+powerpc                           allnoconfig    gcc-15.1.0
+powerpc                          allyesconfig    clang-22
+powerpc                          allyesconfig    gcc-15.1.0
+powerpc                        fsp2_defconfig    gcc-15.1.0
+powerpc                  iss476-smp_defconfig    gcc-15.1.0
+powerpc                      pasemi_defconfig    gcc-15.1.0
+powerpc                      ppc6xx_defconfig    gcc-15.1.0
+powerpc               randconfig-001-20250917    clang-18
+powerpc               randconfig-001-20250917    clang-22
+powerpc               randconfig-002-20250917    clang-22
+powerpc               randconfig-003-20250917    clang-22
+powerpc               randconfig-003-20250917    gcc-9.5.0
+powerpc                     tqm8541_defconfig    clang-22
+powerpc64             randconfig-001-20250917    clang-19
+powerpc64             randconfig-001-20250917    clang-22
+powerpc64             randconfig-002-20250917    clang-22
+powerpc64             randconfig-002-20250917    gcc-8.5.0
+powerpc64             randconfig-003-20250917    gcc-10.5.0
+riscv                            allmodconfig    clang-22
+riscv                            allmodconfig    gcc-15.1.0
+riscv                             allnoconfig    clang-22
+riscv                             allnoconfig    gcc-15.1.0
+riscv                            allyesconfig    clang-16
+riscv                            allyesconfig    gcc-15.1.0
+riscv                               defconfig    clang-22
+riscv                               defconfig    gcc-14
+riscv                 randconfig-001-20250917    gcc-14.3.0
+riscv                 randconfig-001-20250917    gcc-15.1.0
+riscv                 randconfig-002-20250917    clang-22
+riscv                 randconfig-002-20250917    gcc-15.1.0
+s390                             allmodconfig    clang-18
+s390                             allmodconfig    gcc-15.1.0
+s390                              allnoconfig    clang-22
+s390                             allyesconfig    gcc-15.1.0
+s390                                defconfig    clang-22
+s390                                defconfig    gcc-14
+s390                  randconfig-001-20250917    clang-22
+s390                  randconfig-001-20250917    gcc-15.1.0
+s390                  randconfig-002-20250917    gcc-15.1.0
+s390                  randconfig-002-20250917    gcc-8.5.0
+sh                               allmodconfig    gcc-15.1.0
+sh                                allnoconfig    gcc-15.1.0
+sh                               allyesconfig    gcc-15.1.0
+sh                         ap325rxa_defconfig    gcc-15.1.0
+sh                                  defconfig    gcc-14
+sh                                  defconfig    gcc-15.1.0
+sh                        edosk7760_defconfig    gcc-15.1.0
+sh                          kfr2r09_defconfig    gcc-15.1.0
+sh                    randconfig-001-20250917    gcc-14.3.0
+sh                    randconfig-001-20250917    gcc-15.1.0
+sh                    randconfig-002-20250917    gcc-15.1.0
+sh                           se7721_defconfig    gcc-15.1.0
+sh                        sh7763rdp_defconfig    gcc-15.1.0
+sparc                            allmodconfig    gcc-15.1.0
+sparc                             allnoconfig    gcc-15.1.0
+sparc                               defconfig    gcc-15.1.0
+sparc                 randconfig-001-20250917    gcc-15.1.0
+sparc                 randconfig-001-20250917    gcc-8.5.0
+sparc                 randconfig-002-20250917    gcc-14.3.0
+sparc                 randconfig-002-20250917    gcc-15.1.0
+sparc64                             defconfig    clang-20
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20250917    gcc-11.5.0
+sparc64               randconfig-001-20250917    gcc-15.1.0
+sparc64               randconfig-002-20250917    gcc-15.1.0
+sparc64               randconfig-002-20250917    gcc-8.5.0
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-22
+um                               allyesconfig    clang-19
+um                               allyesconfig    gcc-14
+um                                  defconfig    clang-22
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20250917    gcc-14
+um                    randconfig-001-20250917    gcc-15.1.0
+um                    randconfig-002-20250917    gcc-14
+um                    randconfig-002-20250917    gcc-15.1.0
+um                           x86_64_defconfig    clang-22
+um                           x86_64_defconfig    gcc-14
+x86_64                            allnoconfig    clang-20
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20250917    clang-20
+x86_64      buildonly-randconfig-001-20250917    gcc-14
+x86_64      buildonly-randconfig-002-20250917    clang-20
+x86_64      buildonly-randconfig-003-20250917    clang-20
+x86_64      buildonly-randconfig-004-20250917    clang-20
+x86_64      buildonly-randconfig-005-20250917    clang-20
+x86_64      buildonly-randconfig-006-20250917    clang-20
+x86_64      buildonly-randconfig-006-20250917    gcc-12
+x86_64                              defconfig    clang-20
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-20
+x86_64                randconfig-001-20250917    clang-20
+x86_64                randconfig-002-20250917    clang-20
+x86_64                randconfig-003-20250917    clang-20
+x86_64                randconfig-004-20250917    clang-20
+x86_64                randconfig-005-20250917    clang-20
+x86_64                randconfig-006-20250917    clang-20
+x86_64                randconfig-007-20250917    clang-20
+x86_64                randconfig-008-20250917    clang-20
+x86_64                randconfig-071-20250917    clang-20
+x86_64                randconfig-072-20250917    clang-20
+x86_64                randconfig-073-20250917    clang-20
+x86_64                randconfig-074-20250917    clang-20
+x86_64                randconfig-075-20250917    clang-20
+x86_64                randconfig-076-20250917    clang-20
+x86_64                randconfig-077-20250917    clang-20
+x86_64                randconfig-078-20250917    clang-20
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    gcc-15.1.0
+xtensa                randconfig-001-20250917    gcc-15.1.0
+xtensa                randconfig-001-20250917    gcc-8.5.0
+xtensa                randconfig-002-20250917    gcc-11.5.0
+xtensa                randconfig-002-20250917    gcc-15.1.0
 
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
