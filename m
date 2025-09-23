@@ -1,45 +1,51 @@
-Return-Path: <linux-erofs+bounces-1075-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1076-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1842CAC5AA
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Sep 2025 03:43:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49C3DCAC5A7
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Sep 2025 06:29:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cW5S64ZTvz3cYP;
-	Tue, 23 Sep 2025 13:43:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.57
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1758599030;
-	cv=none; b=eGTEmXj02SQNAeQcYmHctCAjjetBEirFOx4pDw/rNaxOYiDaUk4ZAE6wlCvmuhRot2WLw+RkQTP+7mAPKD9L25xvTi/DeQr5e16bLb59hQ/dyR1ye2yqtjwYP4yxgvIKkuGb/SDDr3Kt7XFB8Csl5idP4IDJZaS5juXdQTkhvzmLxXE5yds0d4WpTtjF3uDuuK4mM1R1zZ2fk5UTH5kmNw8zy8nE/4fgcJAXUdCbiY5KirkXvWpXTVh6ly067PRKHzAMcAvwn+MJDhiX57juq/9PCuvMxzhFIpnGNjZvvIhfW7fP1OHMuEc7grW+TVVn4SjZpKDsBMveHzqWzhT+yQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cW96m2dr0z3cYg;
+	Tue, 23 Sep 2025 16:29:04 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1758608944;
+	cv=none; b=oCgT4g7Cj4ppnWaQNIeErABJJzvkTHt3xNx6eHYfl6ontfpuXUck7KVIJSm4V+w5W6FR2M/mQa7ydnGO9GAQOjskxR4z2N3YkbOqB56coQtTLdzlFsaWzw4G9zgfA3TrzHgdbbDcb4AyU9UpSs9ngX1WgzEyiT0rv3OkvKpGmTrAJE3Vy3ZRfdzvUR8E7EDgpQB/k3GQna8SPd0OZ/Faj+9mQYKHtw78tiNaGUmmC2NVzMKzi59rYSSIbQ1rBQOxyRI288BYDdPmOHfsFDezO7RPvZC/V6693Vcnme2AhB1JQWiPQca2bICdmIfxTfkcQWo5XZmF8qo8iiuQVLT/Zw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1758599030; c=relaxed/relaxed;
-	bh=13pMCjCxJOD9ZMicEB6Kr5iX72rUu0/0iH5Kyq1kWWI=;
+	t=1758608944; c=relaxed/relaxed;
+	bh=TtRy/2L//J4ZPAVE/5vuVJ3iRIrbVU1knD/nEVzZSOI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bb+zP9k0U4OKAo8WVPAub7sa3mx/xyi/xaAkbsPjixyw8G4gM9zxuu9Wh5mL+PAJOWodyGlL0jaJFP2t0KaPAUIab3EtRNrGxLWkdk/JWXlxvu3aPFfjIvSESQ1JLwAzYCbiPwOdOR0L6DxSTPUxUSruGAzATqYvPC2OEMpTOJQZvAOeBzRUgDOZWXsoxWfJxVajFgCFuj0x2/DeTXuol7/y/SHW+T0mDzuLRiBFoy5C0LhMgrA5E59wwyYPQlfmQa9NQ1tGOw2/nvvG8dfZ3q9L2kRSjHht7WvBaPKdbgXdFAQvPs9lRszoPQfp4TVrUgLuhcWTedD9fNUrrPcrYA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.57; helo=out28-57.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.57; helo=out28-57.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
-Received: from out28-57.mail.aliyun.com (out28-57.mail.aliyun.com [115.124.28.57])
+	 MIME-Version; b=Thsiwohu3WB7SPYFdDXLWt0L+dqgDHKocmce1QgR2b/bPKFQIdcdrJ1PWJ7Wj0otks9FM7QNFcx/9vgkgmGBJwEHlycau45aeUsTbz8dsgmdgBLQKWVMoP2T45su5ZL+fjQ4REOMjikzQrtoeGIFXXdlrVX5XPKDn4nOkpIxsLABWRuc6aV5EiMQPREMHxVIGHfiUx2lUkZFv8L0s/KayAZhyf70QhRAdm8qOHnLizjIi3iO5IHqMtDK3d0Jjfh+O0FizaRm3Hgwypui1B4q95s6KiBVQU/D/QUBBDWuRGyA210kooyfzm1+mnduxVLRaTAch+tbDWPa9plRGti/xg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WEAxAJyY; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WEAxAJyY;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cW5S500Tzz2yr9
-	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Sep 2025 13:43:48 +1000 (AEST)
-Received: from HUDSONZHU-MC1.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.elBkR3._1758599022 cluster:ay29)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cW96k2WDJz2yqq
+	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Sep 2025 16:29:01 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1758608937; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=TtRy/2L//J4ZPAVE/5vuVJ3iRIrbVU1knD/nEVzZSOI=;
+	b=WEAxAJyYS/LPTYRVGiZ4Yn0J5R9FnmumQqQdcnmR0uJ22cLqpxuIbwgHfBqmip2NSEqW8eNUF3GVbmkNQuFj4s2uHGWCgs0o3UPd4IDrt0efWnpIxWbHy8sM3KPjDoako2UqQ11i+GVRdttFt87kakRI5fJYQu4erKwV1Y++vHI=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wodx0Od_1758608935 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 23 Sep 2025 11:43:43 +0800
-From: ChengyuZhu6 <hudson@cyzhu.com>
+          Tue, 23 Sep 2025 14:28:56 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	hsiangkao@linux.alibaba.com,
-	Chengyu Zhu <hudsonzhu@tencent.com>
-Subject: [PATCH v5-changed] erofs-utils: oci: add support for indexing by layer digest
-Date: Tue, 23 Sep 2025 11:43:42 +0800
-Message-ID: <20250923034342.89531-1-hudson@cyzhu.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250916153415.93839-1-hudson@cyzhu.com>
-References: <20250916153415.93839-1-hudson@cyzhu.com>
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/4] erofs-utils: lib: unexport z_erofs_compress_{init,exit}
+Date: Tue, 23 Sep 2025 14:28:46 +0800
+Message-ID: <20250923062848.1712858-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20250923062848.1712858-1-hsiangkao@linux.alibaba.com>
+References: <20250923062848.1712858-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -53,578 +59,368 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Chengyu Zhu <hudsonzhu@tencent.com>
+Users should use new importer APIs instead.
 
-Add support for indexing by layer_digest string for more precise
-and reliable OCI layer identification. This change affects both mkfs.erofs
-and mount.erofs tools.
-
-Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/liberofs_oci.h |   6 +-
- lib/remotes/oci.c  |  87 +++++++++++++++++++-------
- mkfs/main.c        |  76 +++++++++++++---------
- mount/main.c       | 153 ++++++++++++++++++++++++++++++++-------------
- 4 files changed, 227 insertions(+), 95 deletions(-)
+ include/erofs/internal.h |  3 ++
+ lib/compress.c           | 97 ++++++++++++++++++++++------------------
+ lib/global.c             |  2 +
+ lib/importer.c           |  6 +++
+ lib/liberofs_compress.h  |  7 ++-
+ lib/super.c              |  3 +-
+ mkfs/main.c              |  9 ----
+ 7 files changed, 70 insertions(+), 57 deletions(-)
 
-diff --git a/lib/liberofs_oci.h b/lib/liberofs_oci.h
-index aa41141..71c8879 100644
---- a/lib/liberofs_oci.h
-+++ b/lib/liberofs_oci.h
-@@ -21,7 +21,8 @@ struct erofs_importer;
-  * @platform: target platform in "os/arch" format (e.g., "linux/amd64")
-  * @username: username for authentication (optional)
-  * @password: password for authentication (optional)
-- * @layer_index: specific layer to extract (-1 for all layers)
-+ * @blob_digest: specific blob digest to extract (NULL for all layers)
-+ * @layer_index: specific layer index to extract (negative for all layers)
-  *
-  * Configuration structure for OCI image parameters including registry
-  * location, image identification, platform specification, and authentication
-@@ -32,6 +33,7 @@ struct ocierofs_config {
- 	char *platform;
- 	char *username;
- 	char *password;
-+	char *blob_digest;
- 	int layer_index;
- };
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index cea6420..f022a0c 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -488,6 +488,9 @@ int erofs_listxattr(struct erofs_inode *vi, char *buffer, size_t buffer_size);
+ int z_erofs_map_blocks_iter(struct erofs_inode *vi,
+ 			    struct erofs_map_blocks *map, int flags);
  
-@@ -51,7 +53,7 @@ struct ocierofs_ctx {
- 	char *tag;
- 	char *manifest_digest;
- 	struct ocierofs_layer_info **layers;
--	int layer_index;
-+	char *blob_digest;
- 	int layer_count;
- };
- 
-diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
-index 26aec27..b2f1f59 100644
---- a/lib/remotes/oci.c
-+++ b/lib/remotes/oci.c
-@@ -898,6 +898,20 @@ static int ocierofs_prepare_auth(struct ocierofs_ctx *ctx,
- 	return 0;
- }
- 
-+static int ocierofs_find_layer_by_digest(struct ocierofs_ctx *ctx, const char *digest)
-+{
-+	int i;
++const char *z_erofs_list_supported_algorithms(int i, unsigned int *mask);
++const struct erofs_algorithm *z_erofs_list_available_compressors(int *i);
 +
-+	for (i = 0; i < ctx->layer_count; i++) {
-+		DBG_BUGON(!ctx->layers[i]);
-+		DBG_BUGON(!ctx->layers[i]->digest);
+ /* io.c */
+ int erofs_dev_open(struct erofs_sb_info *sbi, const char *dev, int flags);
+ void erofs_dev_close(struct erofs_sb_info *sbi);
+diff --git a/lib/compress.c b/lib/compress.c
+index 8266c56..6820042 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -111,7 +111,6 @@ static struct {
+ 	struct erofs_workqueue wq;
+ 	struct erofs_compress_work *idle;
+ 	pthread_mutex_t mutex;
+-	bool hasfwq;
+ } z_erofs_mt_ctrl;
+ 
+ struct z_erofs_compress_fslot {
+@@ -1647,11 +1646,12 @@ int z_erofs_mt_compress(struct z_erofs_compress_ictx *ictx)
+ 		cur->errcode = 1;	/* mark as "in progress" */
+ 
+ 		if (i >= nsegs - 1) {
++			struct z_erofs_mgr *zmgr = inode->sbi->zmgr;
 +
-+		if (!strcmp(ctx->layers[i]->digest, digest))
-+			return i;
-+	}
-+	return -1;
-+}
-+
- static int ocierofs_prepare_layers(struct ocierofs_ctx *ctx,
- 				   const struct ocierofs_config *config)
- {
-@@ -925,16 +939,34 @@ static int ocierofs_prepare_layers(struct ocierofs_ctx *ctx,
- 		goto out_manifest;
- 	}
+ 			cur->ctx.remaining = inode->i_size -
+ 					inode->fragment_size - (u64)i * segsz;
  
--	if (ctx->layer_index >= ctx->layer_count) {
--		erofs_err("layer index %d exceeds available layers (%d)",
--			  ctx->layer_index, ctx->layer_count);
--		ret = -EINVAL;
--		goto out_layers;
-+	if (!ctx->blob_digest && config->layer_index >= 0) {
-+		if (config->layer_index >= ctx->layer_count) {
-+			erofs_err("layer index %d out of range (0..%d)",
-+				  config->layer_index, ctx->layer_count - 1);
-+			ret = -EINVAL;
-+			goto out_layers;
-+		}
-+		DBG_BUGON(!ctx->layers[config->layer_index]);
-+		DBG_BUGON(!ctx->layers[config->layer_index]->digest);
-+		ctx->blob_digest = strdup(ctx->layers[config->layer_index]->digest);
-+		if (!ctx->blob_digest) {
-+			ret = -ENOMEM;
-+			goto out_layers;
-+		}
-+	}
-+
-+	if (ctx->blob_digest) {
-+		if (ocierofs_find_layer_by_digest(ctx, ctx->blob_digest) < 0) {
-+			erofs_err("layer digest %s not found in image layers",
-+				  ctx->blob_digest);
-+			ret = -ENOENT;
-+			goto out_layers;
-+		}
- 	}
- 	return 0;
+-			if (z_erofs_mt_ctrl.hasfwq && ictx->tofh != ~0U) {
+-				struct z_erofs_mgr *zmgr = inode->sbi->zmgr;
++			if (zmgr->fslot[0].pending.next && ictx->tofh != ~0U) {
+ 				struct z_erofs_compress_fslot *fs =
+ 					&zmgr->fslot[ictx->tofh & 1023];
  
- out_layers:
--	free(ctx->layers);
-+	ocierofs_free_layers_info(ctx->layers, ctx->layer_count);
- 	ctx->layers = NULL;
- out_manifest:
- 	free(ctx->manifest_digest);
-@@ -1054,10 +1086,10 @@ static int ocierofs_init(struct ocierofs_ctx *ctx, const struct ocierofs_config
- 	if (ocierofs_curl_setup_common_options(ctx->curl))
- 		return -EIO;
- 
--	if (config->layer_index >= 0)
--		ctx->layer_index = config->layer_index;
-+	if (config->blob_digest)
-+		ctx->blob_digest = strdup(config->blob_digest);
- 	else
--		ctx->layer_index = -1;
-+		ctx->blob_digest = NULL;
- 	ctx->registry = strdup("registry-1.docker.io");
- 	ctx->tag = strdup("latest");
- 	if (config->platform)
-@@ -1190,6 +1222,7 @@ static void ocierofs_ctx_cleanup(struct ocierofs_ctx *ctx)
- 	free(ctx->tag);
- 	free(ctx->platform);
- 	free(ctx->manifest_digest);
-+	free(ctx->blob_digest);
- }
- 
- int ocierofs_build_trees(struct erofs_importer *importer,
-@@ -1204,8 +1237,13 @@ int ocierofs_build_trees(struct erofs_importer *importer,
- 		return ret;
- 	}
- 
--	if (ctx.layer_index >= 0) {
--		i = ctx.layer_index;
-+	if (ctx.blob_digest) {
-+		i = ocierofs_find_layer_by_digest(&ctx, ctx.blob_digest);
-+		if (i < 0) {
-+			erofs_err("layer digest %s not found", ctx.blob_digest);
-+			ret = -ENOENT;
-+			goto out;
-+		}
- 		end = i + 1;
- 	} else {
- 		i = 0;
-@@ -1215,25 +1253,26 @@ int ocierofs_build_trees(struct erofs_importer *importer,
- 	while (i < end) {
- 		char *trimmed = erofs_trim_for_progressinfo(ctx.layers[i]->digest,
- 				sizeof("Extracting layer  ...") - 1);
--		erofs_update_progressinfo("Extracting layer %d: %s ...", i,
--				  trimmed);
-+		erofs_update_progressinfo("Extracting layer %s ...", trimmed);
- 		free(trimmed);
- 		fd = ocierofs_extract_layer(&ctx, ctx.layers[i]->digest,
- 					    ctx.auth_header);
- 		if (fd < 0) {
--			erofs_err("failed to extract layer %d: %s", i,
--				  erofs_strerror(fd));
-+			erofs_err("failed to extract layer %s: %s",
-+				  ctx.layers[i]->digest, erofs_strerror(fd));
-+			ret = fd;
- 			break;
- 		}
- 		ret = ocierofs_process_tar_stream(importer, fd);
- 		close(fd);
- 		if (ret) {
--			erofs_err("failed to process tar stream for layer %d: %s", i,
--				  erofs_strerror(ret));
-+			erofs_err("failed to process tar stream for layer %s: %s",
-+				  ctx.layers[i]->digest, erofs_strerror(ret));
- 			break;
- 		}
- 		i++;
- 	}
-+out:
- 	ocierofs_ctx_cleanup(&ctx);
+@@ -1732,34 +1732,63 @@ out:
  	return ret;
  }
-@@ -1246,12 +1285,18 @@ static int ocierofs_download_blob_range(struct ocierofs_ctx *ctx, off_t offset,
- 	const char *api_registry;
- 	char rangehdr[64];
- 	long http_code = 0;
--	int ret;
--	int index = ctx->layer_index;
--	u64 blob_size = ctx->layers[index]->size;
-+	int ret, index;
-+	const char *digest;
-+	u64 blob_size;
- 	size_t available;
- 	size_t copy_size;
  
-+	index = ocierofs_find_layer_by_digest(ctx, ctx->blob_digest);
-+	if (index < 0)
-+		return -ENOENT;
-+	digest = ctx->blob_digest;
-+	blob_size = ctx->layers[index]->size;
-+
- 	if (offset < 0)
- 		return -EINVAL;
- 
-@@ -1265,7 +1310,7 @@ static int ocierofs_download_blob_range(struct ocierofs_ctx *ctx, off_t offset,
- 
- 	api_registry = ocierofs_get_api_registry(ctx->registry);
- 	if (asprintf(&req.url, "https://%s/v2/%s/blobs/%s",
--	     api_registry, ctx->repository, ctx->layers[index]->digest) == -1)
-+	     api_registry, ctx->repository, digest) == -1)
- 		return -ENOMEM;
- 
- 	if (length)
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 50e2bdb..c8e0049 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -216,8 +216,9 @@ static void usage(int argc, char **argv)
- #ifdef OCIEROFS_ENABLED
- 		" --oci[=platform=X]    X=platform (default: linux/amd64)\n"
- 		"   [,layer=Y]          Y=layer index to extract (0-based; omit to extract all layers)\n"
--		"   [,username=Z]       Z=username for authentication (optional)\n"
--		"   [,password=W]       W=password for authentication (optional)\n"
-+		"   [,blob=Z]           Z=blob digest to extract (omit to extract all layers)\n"
-+		"   [,username=W]       W=username for authentication (optional)\n"
-+		"   [,password=V]       V=password for authentication (optional)\n"
- #endif
- 		" --tar=X               generate a full or index-only image from a tarball(-ish) source\n"
- 		"                       (X = f|i|headerball; f=full mode, i=index mode,\n"
-@@ -707,13 +708,14 @@ static int mkfs_parse_s3_cfg(char *cfg_str)
-  * @options_str: comma-separated options string
-  *
-  * Parse OCI options string containing comma-separated key=value pairs.
-- * Supported options include platform, layer, username, and password.
-+ * Supported options include platform, blob, layer, username, and password.
-  *
-  * Return: 0 on success, negative errno on failure
-  */
- static int mkfs_parse_oci_options(struct ocierofs_config *oci_cfg, char *options_str)
+-static int z_erofs_mt_init(void)
++static int z_erofs_mt_global_init(void)
  {
- 	char *opt, *q, *p;
-+	long idx;
++	static erofs_atomic_bool_t __initonce;
+ 	unsigned int workers = cfg.c_mt_workers;
+ 	int ret;
  
- 	if (!options_str)
++	if (erofs_atomic_test_and_set(&__initonce))
++		return 0;
++
++	z_erofs_mt_enabled = false;
+ 	if (workers < 1)
  		return 0;
-@@ -732,40 +734,57 @@ static int mkfs_parse_oci_options(struct ocierofs_config *oci_cfg, char *options
- 			if (!oci_cfg->platform)
- 				return -ENOMEM;
- 		} else {
--			p = strstr(opt, "layer=");
-+			p = strstr(opt, "blob=");
- 			if (p) {
--				p += strlen("layer=");
--				{
--					char *endptr;
--					unsigned long v = strtoul(p, &endptr, 10);
--
--					if (endptr == p || *endptr != '\0') {
--						erofs_err("invalid layer index %s",
--						  p);
--						return -EINVAL;
--					}
--					oci_cfg->layer_index = (int)v;
-+				p += strlen("blob=");
-+				free(oci_cfg->blob_digest);
-+
-+				if (oci_cfg->layer_index >= 0) {
-+					erofs_err("invalid --oci: blob and layer cannot be set together");
-+					return -EINVAL;
-+				}
-+
-+				if (strncmp(p, "sha256:", 7) != 0) {
-+					if (asprintf(&oci_cfg->blob_digest, "sha256:%s", p) < 0)
-+						return -ENOMEM;
-+				} else {
-+					oci_cfg->blob_digest = strdup(p);
-+					if (!oci_cfg->blob_digest)
-+						return -ENOMEM;
- 				}
- 			} else {
--				p = strstr(opt, "username=");
-+				p = strstr(opt, "layer=");
- 				if (p) {
--					p += strlen("username=");
--					free(oci_cfg->username);
--					oci_cfg->username = strdup(p);
--					if (!oci_cfg->username)
--						return -ENOMEM;
-+					p += strlen("layer=");
-+					if (oci_cfg->blob_digest) {
-+						erofs_err("invalid --oci: layer and blob cannot be set together");
-+						return -EINVAL;
-+					}
-+					idx = strtol(p, NULL, 10);
-+					if (idx < 0)
-+						return -EINVAL;
-+					oci_cfg->layer_index = (int)idx;
- 				} else {
-+					p = strstr(opt, "username=");
-+					if (p) {
-+						p += strlen("username=");
-+						free(oci_cfg->username);
-+						oci_cfg->username = strdup(p);
-+						if (!oci_cfg->username)
-+							return -ENOMEM;
-+					}
-+
- 					p = strstr(opt, "password=");
- 					if (p) {
- 						p += strlen("password=");
--					free(oci_cfg->password);
--					oci_cfg->password = strdup(p);
--					if (!oci_cfg->password)
--						return -ENOMEM;
--					} else {
--						erofs_err("mkfs: invalid --oci value %s", opt);
--						return -EINVAL;
-+						free(oci_cfg->password);
-+						oci_cfg->password = strdup(p);
-+						if (!oci_cfg->password)
-+							return -ENOMEM;
- 					}
-+
-+					erofs_err("mkfs: invalid --oci value %s", opt);
-+					return -EINVAL;
- 				}
- 			}
- 		}
-@@ -1850,6 +1869,7 @@ int main(int argc, char **argv)
- #endif
- #ifdef OCIEROFS_ENABLED
- 		} else if (source_mode == EROFS_MKFS_SOURCE_OCI) {
-+			ocicfg.blob_digest = NULL;
- 			ocicfg.layer_index = -1;
- 
- 			err = mkfs_parse_oci_options(&ocicfg, mkfs_oci_options);
-diff --git a/mount/main.c b/mount/main.c
-index f368746..0989545 100644
---- a/mount/main.c
-+++ b/mount/main.c
-@@ -81,51 +81,76 @@ static int erofsmount_parse_oci_option(const char *option)
- {
- 	struct ocierofs_config *oci_cfg = &nbdsrc.ocicfg;
- 	char *p;
-+	long idx;
- 
--	p = strstr(option, "oci.layer=");
-+	if (oci_cfg->layer_index == 0 && !oci_cfg->blob_digest &&
-+	    !oci_cfg->platform && !oci_cfg->username && !oci_cfg->password)
-+		oci_cfg->layer_index = -1;
-+
-+	p = strstr(option, "oci.blob=");
- 	if (p != NULL) {
--		p += strlen("oci.layer=");
--		{
--			char *endptr;
--			unsigned long v = strtoul(p, &endptr, 10);
-+		p += strlen("oci.blob=");
-+		free(oci_cfg->blob_digest);
- 
--			if (endptr == p || *endptr != '\0')
--				return -EINVAL;
--			oci_cfg->layer_index = (int)v;
-+		if (oci_cfg->layer_index >= 0) {
-+			erofs_err("invalid options: oci.blob and oci.layer cannot be set together");
-+			return -EINVAL;
-+		}
-+
-+		if (strncmp(p, "sha256:", 7) != 0) {
-+			if (asprintf(&oci_cfg->blob_digest, "sha256:%s", p) < 0)
-+				return -ENOMEM;
-+		} else {
-+			oci_cfg->blob_digest = strdup(p);
-+			if (!oci_cfg->blob_digest)
-+				return -ENOMEM;
- 		}
+ 	if (workers >= 1 && cfg.c_dedupe) {
+ 		erofs_warn("multi-threaded dedupe is NOT implemented for now");
+ 		cfg.c_mt_workers = 0;
  	} else {
--		p = strstr(option, "oci.platform=");
-+		p = strstr(option, "oci.layer=");
- 		if (p != NULL) {
--			p += strlen("oci.platform=");
--			free(oci_cfg->platform);
--			oci_cfg->platform = strdup(p);
--			if (!oci_cfg->platform)
--				return -ENOMEM;
-+			p += strlen("oci.layer=");
-+			if (oci_cfg->blob_digest) {
-+				erofs_err("invalid options: oci.layer and oci.blob cannot be set together");
-+				return -EINVAL;
-+			}
-+			idx = strtol(p, NULL, 10);
-+			if (idx < 0)
-+				return -EINVAL;
-+			oci_cfg->layer_index = (int)idx;
- 		} else {
--			p = strstr(option, "oci.username=");
-+			p = strstr(option, "oci.platform=");
- 			if (p != NULL) {
--				p += strlen("oci.username=");
--				free(oci_cfg->username);
--				oci_cfg->username = strdup(p);
--				if (!oci_cfg->username)
-+				p += strlen("oci.platform=");
-+				free(oci_cfg->platform);
-+				oci_cfg->platform = strdup(p);
-+				if (!oci_cfg->platform)
- 					return -ENOMEM;
- 			} else {
--				p = strstr(option, "oci.password=");
-+				p = strstr(option, "oci.username=");
- 				if (p != NULL) {
--					p += strlen("oci.password=");
--					free(oci_cfg->password);
--					oci_cfg->password = strdup(p);
--					if (!oci_cfg->password)
-+					p += strlen("oci.username=");
-+					free(oci_cfg->username);
-+					oci_cfg->username = strdup(p);
-+					if (!oci_cfg->username)
- 						return -ENOMEM;
- 				} else {
--					return -EINVAL;
-+					p = strstr(option, "oci.password=");
-+					if (p != NULL) {
-+						p += strlen("oci.password=");
-+						free(oci_cfg->password);
-+						oci_cfg->password = strdup(p);
-+						if (!oci_cfg->password)
-+							return -ENOMEM;
-+					} else {
-+						return -EINVAL;
-+					}
- 				}
- 			}
- 		}
+-		if (cfg.c_fragments && workers > 1)
+-			z_erofs_mt_ctrl.hasfwq = true;
+-
+ 		ret = erofs_alloc_workqueue(&z_erofs_mt_ctrl.wq, workers,
+ 					    workers << 2,
+ 					    z_erofs_mt_wq_tls_alloc,
+ 					    z_erofs_mt_wq_tls_free);
+-		if (ret)
++		if (ret) {
++			erofs_atomic_set(&__initonce, 0);
+ 			return ret;
++		}
+ 		z_erofs_mt_enabled = true;
  	}
- 
- 	if (oci_cfg->platform || oci_cfg->username || oci_cfg->password ||
--	    oci_cfg->layer_index)
-+	    oci_cfg->blob_digest || oci_cfg->layer_index >= 0)
- 		nbdsrc.type = EROFSNBD_SOURCE_OCI;
+ 	pthread_mutex_init(&g_ictx.mutex, NULL);
+ 	pthread_cond_init(&g_ictx.cond, NULL);
  	return 0;
  }
-@@ -215,15 +240,21 @@ static int erofsmount_parse_options(int argc, char **argv)
- 	char *dot;
- 	int opt;
- 
-+	nbdsrc.ocicfg.layer_index = -1;
 +
- 	while ((opt = getopt_long(argc, argv, "Nfno:st:uv",
- 				  long_options, NULL)) != -1) {
- 		switch (opt) {
--		case 'o':
-+		case 'o': {
-+			long r;
- 			mountcfg.full_options = optarg;
--			mountcfg.flags =
--				erofsmount_parse_flagopts(optarg, mountcfg.flags,
--							  &mountcfg.options);
-+			r = erofsmount_parse_flagopts(optarg, mountcfg.flags,
-+						      &mountcfg.options);
-+			if (r < 0)
-+				return (int)r;
-+			mountcfg.flags = r;
- 			break;
++int z_erofs_mt_global_exit(void)
++{
++	struct erofs_compress_work *n;
++	int ret;
++
++	if (z_erofs_mt_enabled) {
++		ret = erofs_destroy_workqueue(&z_erofs_mt_ctrl.wq);
++		if (ret)
++			return ret;
++		while (z_erofs_mt_ctrl.idle) {
++			n = z_erofs_mt_ctrl.idle->next;
++			free(z_erofs_mt_ctrl.idle);
++			z_erofs_mt_ctrl.idle = n;
 +		}
- 		case 't':
- 			dot = strchr(optarg, '.');
- 			if (dot) {
-@@ -413,13 +444,29 @@ static int erofsmount_write_recovery_oci(FILE *f, struct erofs_nbd_source *sourc
- 		if (IS_ERR(b64cred))
- 			return PTR_ERR(b64cred);
- 	}
--	ret = fprintf(f, "OCI_LAYER %s %s %d %s\n",
--		       source->ocicfg.image_ref ?: "",
--		       source->ocicfg.platform ?: "",
--		       source->ocicfg.layer_index,
--		       b64cred ?: "");
-+
-+	if (source->ocicfg.blob_digest && *source->ocicfg.blob_digest) {
-+		ret = fprintf(f, "OCI_NATIVE_BLOB %s %s %s %s\n",
-+			      source->ocicfg.image_ref ?: "",
-+			      source->ocicfg.platform ?: "",
-+			      source->ocicfg.blob_digest,
-+			      b64cred ?: "");
-+		free(b64cred);
-+		return ret < 0 ? -ENOMEM : 0;
++		z_erofs_mt_enabled = false;
 +	}
-+
-+	if (source->ocicfg.layer_index >= 0) {
-+		ret = fprintf(f, "OCI_LAYER %s %s %d %s\n",
-+			      source->ocicfg.image_ref ?: "",
-+			      source->ocicfg.platform ?: "",
-+			      source->ocicfg.layer_index,
-+			      b64cred ?: "");
-+		free(b64cred);
-+		return ret < 0 ? -ENOMEM : 0;
-+	}
-+
- 	free(b64cred);
--	return ret < 0 ? -ENOMEM : 0;
-+	return -EINVAL;
- }
++	return 0;
++}
  #else
- static int erofsmount_write_recovery_oci(FILE *f, struct erofs_nbd_source *source)
-@@ -477,7 +524,11 @@ static char *erofsmount_write_recovery_info(struct erofs_nbd_source *source)
+-static int z_erofs_mt_init(void)
++static int z_erofs_mt_global_init(void)
++{
++	z_erofs_mt_enabled = false;
++	return 0;
++}
++
++int z_erofs_mt_global_exit(void)
+ {
+ 	return 0;
+ }
+@@ -2035,17 +2064,19 @@ static int z_erofs_build_compr_cfgs(struct erofs_sb_info *sbi,
+ 	return ret;
  }
  
- #ifdef OCIEROFS_ENABLED
--/* Parse input string in format: "image_ref platform layer [b64cred]" */
-+/* Parse input string in format: "image_ref platform layer [b64cred]"
-+ * Supports two formats:
-+ * - OCI_LAYER: layer is a number (layer_index)
-+ * - OCI_NATIVE_BLOB: layer is a digest string (blob_digest)
-+ */
- static int erofsmount_parse_recovery_ocilayer(struct ocierofs_config *oci_cfg,
- 					      char *source)
+-int z_erofs_compress_init(struct erofs_sb_info *sbi)
++int z_erofs_compress_init(struct erofs_importer *im)
  {
-@@ -485,8 +536,8 @@ static int erofsmount_parse_recovery_ocilayer(struct ocierofs_config *oci_cfg,
- 	int token_count = 0;
- 	char *p = source;
- 	int err;
-+	long idx;
- 	char *endptr;
--	unsigned long v;
+-	struct erofs_buffer_head *sb_bh = sbi->bh_sb;
++	struct erofs_sb_info *sbi = im->sbi;
+ 	u32 max_dict_size[Z_EROFS_COMPRESSION_MAX] = {};
+ 	u32 available_compr_algs = 0;
++	bool newzmgr = false;
+ 	int i, ret, id;
  
- 	while (token_count < 4 && (p = strchr(p, ' ')) != NULL) {
- 		*p++ = '\0';
-@@ -503,14 +554,28 @@ static int erofsmount_parse_recovery_ocilayer(struct ocierofs_config *oci_cfg,
- 	oci_cfg->image_ref = source;
- 	oci_cfg->platform = tokens[0];
- 
--	v = strtoul(tokens[1], &endptr, 10);
--	if (endptr == tokens[1] || *endptr != '\0')
--		return -EINVAL;
--	oci_cfg->layer_index = (int)v;
-+	if (tokens[1] && strlen(tokens[1]) > 0) {
-+		idx = strtol(tokens[1], &endptr, 10);
-+
-+		if (*endptr == '\0' && idx >= 0) {
-+			oci_cfg->layer_index = (int)idx;
-+			free(oci_cfg->blob_digest);
-+			oci_cfg->blob_digest = NULL;
-+		} else {
-+			free(oci_cfg->blob_digest);
-+			oci_cfg->blob_digest = strdup(tokens[1]);
-+			if (!oci_cfg->blob_digest)
-+				return -ENOMEM;
-+			oci_cfg->layer_index = -1;
-+		}
-+	} else {
-+		oci_cfg->blob_digest = NULL;
-+		oci_cfg->layer_index = -1;
-+	}
- 
- 	if (token_count > 2) {
- 		err = ocierofs_decode_userpass(tokens[2], &oci_cfg->username,
--					       &oci_cfg->password);
-+				       &oci_cfg->password);
- 		if (err)
- 			return err;
+ 	if (!sbi->zmgr) {
+ 		sbi->zmgr = calloc(1, sizeof(*sbi->zmgr));
+ 		if (!sbi->zmgr)
+ 			return -ENOMEM;
++		newzmgr = true;
  	}
-@@ -694,7 +759,7 @@ static int erofsmount_reattach(const char *target)
- 			goto err_line;
+ 
+ 	for (i = 0; cfg.c_compr_opts[i].alg; ++i) {
+@@ -2067,19 +2098,10 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi)
+ 		if (c->dict_size > max_dict_size[id])
+ 			max_dict_size[id] = c->dict_size;
+ 	}
+-
+-	/*
+-	 * if primary algorithm is empty (e.g. compression off),
+-	 * clear 0PADDING feature for old kernel compatibility.
+-	 */
+-	if (!available_compr_algs ||
+-	    (cfg.c_legacy_compress && available_compr_algs == 1))
+-		erofs_sb_clear_lz4_0padding(sbi);
+-
+ 	if (!available_compr_algs)
+ 		return 0;
+ 
+-	if (!sb_bh) {
++	if (sbi->available_compr_algs) {
+ 		u32 dalg = available_compr_algs & (~sbi->available_compr_algs);
+ 
+ 		if (dalg) {
+@@ -2087,8 +2109,8 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi)
+ 				  dalg);
+ 			return -EOPNOTSUPP;
  		}
- 		ctx.vd.fd = err;
--	} else if (!strcmp(line, "OCI_LAYER")) {
-+	} else if (!strcmp(line, "OCI_LAYER") || !strcmp(line, "OCI_NATIVE_BLOB")) {
- 		err = erofsmount_reattach_ocilayer(&ctx.vd, source);
- 		if (err)
- 			goto err_line;
+-		if (available_compr_algs & (1 << Z_EROFS_COMPRESSION_LZ4) &&
+-		    sbi->lz4.max_pclusterblks << sbi->blkszbits <
++		if ((available_compr_algs & BIT(Z_EROFS_COMPRESSION_LZ4)) &&
++		    (sbi->lz4.max_pclusterblks << sbi->blkszbits) <
+ 			cfg.c_mkfs_pclustersize_max) {
+ 			erofs_err("pclustersize %u is too large on incremental builds",
+ 				  cfg.c_mkfs_pclustersize_max);
+@@ -2096,6 +2118,11 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi)
+ 		}
+ 	} else {
+ 		sbi->available_compr_algs = available_compr_algs;
++
++		if (!cfg.c_legacy_compress)
++			erofs_sb_set_lz4_0padding(sbi);
++		if (available_compr_algs & ~(1 << Z_EROFS_COMPRESSION_LZ4))
++			erofs_sb_set_compr_cfgs(sbi);
+ 	}
+ 
+ 	/*
+@@ -2122,19 +2149,18 @@ int z_erofs_compress_init(struct erofs_sb_info *sbi)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (sb_bh && erofs_sb_has_compr_cfgs(sbi)) {
+-		ret = z_erofs_build_compr_cfgs(sbi, sb_bh, max_dict_size);
++	if (sbi->bh_sb && erofs_sb_has_compr_cfgs(sbi)) {
++		ret = z_erofs_build_compr_cfgs(sbi, sbi->bh_sb, max_dict_size);
+ 		if (ret)
+ 			return ret;
+ 	}
+ 
+-	z_erofs_mt_enabled = false;
+-	ret = z_erofs_mt_init();
++	ret = z_erofs_mt_global_init();
+ 	if (ret)
+ 		return ret;
+ 
+ #ifdef EROFS_MT_ENABLED
+-	if (z_erofs_mt_ctrl.hasfwq) {
++	if (cfg.c_fragments && cfg.c_mt_workers > 1 && newzmgr) {
+ 		for (i = 0; i < ARRAY_SIZE(sbi->zmgr->fslot); ++i) {
+ 			init_list_head(&sbi->zmgr->fslot[i].pending);
+ 			pthread_mutex_init(&sbi->zmgr->fslot[i].lock, NULL);
+@@ -2157,21 +2183,6 @@ int z_erofs_compress_exit(struct erofs_sb_info *sbi)
+ 		if (ret)
+ 			return ret;
+ 	}
+-
+-	if (z_erofs_mt_enabled) {
+-#ifdef EROFS_MT_ENABLED
+-		ret = erofs_destroy_workqueue(&z_erofs_mt_ctrl.wq);
+-		if (ret)
+-			return ret;
+-		while (z_erofs_mt_ctrl.idle) {
+-			struct erofs_compress_work *tmp =
+-				z_erofs_mt_ctrl.idle->next;
+-			free(z_erofs_mt_ctrl.idle);
+-			z_erofs_mt_ctrl.idle = tmp;
+-		}
+-#endif
+-	}
+-
+ 	free(sbi->zmgr);
+ 	return 0;
+ }
+diff --git a/lib/global.c b/lib/global.c
+index b1a6d76..c3d8aec 100644
+--- a/lib/global.c
++++ b/lib/global.c
+@@ -11,6 +11,7 @@
+ #endif
+ #include "erofs/err.h"
+ #include "erofs/config.h"
++#include "liberofs_compress.h"
+ 
+ static EROFS_DEFINE_MUTEX(erofs_global_mutex);
+ #ifdef HAVE_LIBCURL
+@@ -43,6 +44,7 @@ out_unlock:
+ void liberofs_global_exit(void)
+ {
+ 	erofs_mutex_lock(&erofs_global_mutex);
++	z_erofs_mt_global_exit();
+ #ifdef HAVE_LIBCURL
+ 	if (erofs_global_curl_initialized) {
+ 		curl_global_cleanup();
+diff --git a/lib/importer.c b/lib/importer.c
+index bb29bd0..7c3d147 100644
+--- a/lib/importer.c
++++ b/lib/importer.c
+@@ -10,6 +10,7 @@
+ #include "erofs/print.h"
+ #include "erofs/lock.h"
+ #include "liberofs_cache.h"
++#include "liberofs_compress.h"
+ #include "liberofs_metabox.h"
+ 
+ static EROFS_DEFINE_MUTEX(erofs_importer_global_mutex);
+@@ -45,6 +46,11 @@ int erofs_importer_init(struct erofs_importer *im)
+ 
+ 	erofs_importer_global_init();
+ 
++	subsys = "compression";
++	err = z_erofs_compress_init(im);
++	if (err)
++		goto out_err;
++
+ 	if (cfg.c_fragments || cfg.c_extra_ea_name_prefixes) {
+ 		subsys = "packedfile";
+ 		if (!cfg.c_mkfs_pclustersize_packed)
+diff --git a/lib/liberofs_compress.h b/lib/liberofs_compress.h
+index 907c6d4..7f49e5d 100644
+--- a/lib/liberofs_compress.h
++++ b/lib/liberofs_compress.h
+@@ -7,7 +7,7 @@
+ #ifndef __EROFS_LIB_LIBEROFS_COMPRESS_H
+ #define __EROFS_LIB_LIBEROFS_COMPRESS_H
+ 
+-#include "erofs/internal.h"
++#include "erofs/importer.h"
+ 
+ #define EROFS_CONFIG_COMPR_MAX_SZ	(4000 * 1024)
+ #define Z_EROFS_COMPR_QUEUE_SZ		(EROFS_CONFIG_COMPR_MAX_SZ * 2)
+@@ -18,10 +18,9 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode);
+ void *erofs_begin_compressed_file(struct erofs_inode *inode, int fd, u64 fpos);
+ int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx);
+ 
+-int z_erofs_compress_init(struct erofs_sb_info *sbi);
++int z_erofs_compress_init(struct erofs_importer *im);
+ int z_erofs_compress_exit(struct erofs_sb_info *sbi);
+ 
+-const char *z_erofs_list_supported_algorithms(int i, unsigned int *mask);
+-const struct erofs_algorithm *z_erofs_list_available_compressors(int *i);
++int z_erofs_mt_global_exit(void);
+ 
+ #endif
+diff --git a/lib/super.c b/lib/super.c
+index 2d2783b..0540b15 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -7,6 +7,7 @@
+ #include "erofs/print.h"
+ #include "erofs/xattr.h"
+ #include "liberofs_cache.h"
++#include "liberofs_compress.h"
+ 
+ static bool check_layout_compatibility(struct erofs_sb_info *sbi,
+ 				       struct erofs_super_block *dsb)
+@@ -175,7 +176,7 @@ void erofs_put_super(struct erofs_sb_info *sbi)
+ 		erofs_buffer_exit(sbi->bmgr);
+ 		sbi->bmgr = NULL;
+ 	}
+-
++	z_erofs_compress_exit(sbi);
+ 	sbi->sb_valid = false;
+ }
+ 
+diff --git a/mkfs/main.c b/mkfs/main.c
+index 9703d8c..13c4761 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -28,7 +28,6 @@
+ #include "erofs/fragments.h"
+ #include "erofs/rebuild.h"
+ #include "../lib/compressor.h"
+-#include "../lib/liberofs_compress.h"
+ #include "../lib/liberofs_gzran.h"
+ #include "../lib/liberofs_metabox.h"
+ #include "../lib/liberofs_oci.h"
+@@ -1753,13 +1752,6 @@ int main(int argc, char **argv)
+ 		goto exit;
+ 	}
+ 
+-	err = z_erofs_compress_init(&g_sbi);
+-	if (err) {
+-		erofs_err("failed to initialize compressor: %s",
+-			  erofs_strerror(err));
+-		goto exit;
+-	}
+-
+ 	importer_params.source = cfg.c_src_path;
+ 	importer_params.no_datainline = mkfs_no_datainline;
+ 	importer_params.dot_omitted = mkfs_dot_omitted;
+@@ -1918,7 +1910,6 @@ int main(int argc, char **argv)
+ exit:
+ 	if (root)
+ 		erofs_iput(root);
+-	z_erofs_compress_exit(&g_sbi);
+ 	z_erofs_dedupe_exit();
+ 	blklst = erofs_blocklist_close();
+ 	if (blklst)
 -- 
-2.51.0
+2.43.5
 
 
