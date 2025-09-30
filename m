@@ -1,48 +1,48 @@
-Return-Path: <linux-erofs+bounces-1139-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1140-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 368B8CAC5B9
-	for <linux-erofs@archiver.kernel.org>; Tue, 30 Sep 2025 06:39:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4F268CAC5B8
+	for <linux-erofs@archiver.kernel.org>; Tue, 30 Sep 2025 06:39:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cbT142T63z3cZR;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cbT143sHTz3cZd;
 	Tue, 30 Sep 2025 16:39:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1759214344;
-	cv=none; b=IyhGRGAHDpksau0c3yuJ3hahLnBAZnIoQgcRrmyO7FPEO4TmV4LZu6o4435JhRMTVCALDyMdM6V1KaV3YC3CDFKg+AST7EaKhV30TrtCZjskbexCm4EBek42/tI14qVoeIBm0e+iz/p85cqLvuQ9UFOuDNSl3UYqIJHj3puZ/XS6r0dKp2v4Cioz/M9gVcHppRjyibwZr2xDy9OtW320jWkp3nNQ1BwEdosvWR/yY/U2jGULdOP2kixDBpqdRzAr4uah5CterQ7E/luVjGHd1vfQCskbBbtThkLTMP34UKA9Hi3X0lcF5r9H+Ij872tayIbxuP8RDsPxeZqGhki7sg==
+	cv=none; b=grpYOln+FutG92fmb0f4QZXVXWXynPDigfwmoiMo8n4jB93HYfGcsr8ShuOIA9LUNxEj9QIfk4OlJMFVb6xDrOklttZTAeBjCP9bASF6458R4p/FyQAtfQWkEV6pV+QfHQyCaBtHmdapbWy2Dqws+SwgdzcwrDtZoheRzUkKb6cjnULPibnnYG1Egox2R2GMVIpzq7+YRC33LhL2VVFUtzeU3lDmkHp7FTh5C6MurtyCAzeugiHUJ0qG1VfLzrWU1xe5dLytJ1H27vSaaF6nRRRM0RNUhTn5nYahphCaGctwPNyaLleUzgIcOGHhrhY6vI8B5hxAtHKRlC97vYb1aA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1759214344; c=relaxed/relaxed;
-	bh=vI+SzmJ4vPRB0PbDbEqEFnI+hVtn6dacPgy4wbruS/o=;
+	bh=DdH4HBSCUv/yeUEYwJzq9uzu2y8iUQeaRHlMPi+9l6k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=f0RJAMeqzV5GaQGE4Ut2o0R2NaN2vG40ywO0PWsy+fxoY3b8KBjPvJBNycm1kclEOi3+hob1Tg+Pkm1ZGubYhP32KwVBb1YqnU9lak4C+kYod7t5RSv8/rrGSS4KJLNsN5eRIJEP+S5heIzED4OsFp+cDfKc/SVrh5dbrDVT7jOHFk3HSR/DeIQ5AtZzYnAwT0E8S1S2zXdpDL6eG1ZxWsL6BplDdX3A3LGjs1zpkglTWLx01r3KPJ7ThlBwDMc21oG63xZp64AlKnJ8Gc3aDePQBmn5rZP/wV/0349qWR2VjEOxpDWhCJmIdcCt8dXtWo7PK4aKeRld9uIpepNzhQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jHG8sc0z; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=G0oiTgN0trmbof4V4fmHlCGQHHAb9LlSk2Ugqvn2FHvJLt7ceFbUjw3e12cUvgoKHOkU9nX74ha5Fo1HjujbgAEqzPIzY71pLgKndWNSS87WdiJKxD9oeXUnhnieVPxmtLevN3MnwDRty44BcnvXwHHiuMFVLSn4VA0nzCVYvpHR80lkCFSbSG9dlN5jm6JeE9ScoW9VxYPQdhlwbZKrfoTHSvqYs9d/fRVK8Fxqw6tgbeQI0v8+8oTWFWV1lY49Ev3ZJVUnAByjSLYwv8IeirmYSpXfhSXfyyNyVZaC3OJ7tY20AkjFxP2+KE+q0SP45rWW4p3yDrwAmtLHF8tRUA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M0nppuN+; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jHG8sc0z;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=M0nppuN+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cbT1031rgz3cZd
-	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Sep 2025 16:38:59 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cbT112JNwz3cZt
+	for <linux-erofs@lists.ozlabs.org>; Tue, 30 Sep 2025 16:39:00 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1759214335; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=vI+SzmJ4vPRB0PbDbEqEFnI+hVtn6dacPgy4wbruS/o=;
-	b=jHG8sc0zXgsoqdGKKSzKEyN52TMW9S+h2kRSZ647mXEa5GIEoIeKVBcdtw2YxYIyUtM+xivuOJ5OqzFHPnR6gdrczZhnmLz2tZtZd84f+LiugyWuFBdwknboKMkHf08sQ2BrgBrgSrsNVGTbZklvEvvm8hjqmsmgaGLrN8e7e2A=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WpARbkw_1759214333 cluster:ay36)
+	t=1759214337; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=DdH4HBSCUv/yeUEYwJzq9uzu2y8iUQeaRHlMPi+9l6k=;
+	b=M0nppuN+zfazmDWDRfd9bvPEHgrxW9hi8hPVFqU92zmDqpCfoVKZqamHAOpLAQ6DZXepVObrot+yKoEXCoUig2Mw/RzMnbe05R8Cruv50fzeX3ws25wbBbusRS7Xtn5dPFiku+eKOJtyMEewjb6bz6249vl+vbzHjlqJp4//a8A=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WpARblo_1759214335 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 30 Sep 2025 14:38:54 +0800
+          Tue, 30 Sep 2025 14:38:56 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 3/5] erofs-utils: lib: switch to per-sb `struct erofs_xattrmgr`
-Date: Tue, 30 Sep 2025 14:38:45 +0800
-Message-ID: <20250930063847.2143732-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 5/5] erofs-utils: lib: remove `erofs/hashtable.h`
+Date: Tue, 30 Sep 2025 14:38:47 +0800
+Message-ID: <20250930063847.2143732-5-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20250930063847.2143732-1-hsiangkao@linux.alibaba.com>
 References: <20250930063847.2143732-1-hsiangkao@linux.alibaba.com>
@@ -59,463 +59,425 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It allows the xattr generator to be used for multiple instances.
+There is no in-tree user anymore.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/internal.h |   2 +
- include/erofs/xattr.h    |   4 +-
- lib/importer.c           |   4 +-
- lib/super.c              |   2 +-
- lib/xattr.c              | 123 ++++++++++++++++++++++++---------------
- 5 files changed, 85 insertions(+), 50 deletions(-)
+ include/erofs/hashtable.h | 392 --------------------------------------
+ lib/Makefile.am           |   1 -
+ 2 files changed, 393 deletions(-)
+ delete mode 100644 include/erofs/hashtable.h
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index f022a0c..e8d8667 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -85,6 +85,7 @@ struct erofs_xattr_prefix_item {
- 
- struct erofs_mkfs_dfops;
- struct erofs_packed_inode;
-+struct erofs_xattrmgr;
- struct z_erofs_mgr;
- struct erofs_metaboxmgr;
- 
-@@ -147,6 +148,7 @@ struct erofs_sb_info {
- 	struct erofs_mkfs_dfops *mkfs_dfops;
- #endif
- 	struct erofs_bufmgr *bmgr;
-+	struct erofs_xattrmgr *xamgr;
- 	struct z_erofs_mgr *zmgr;
- 	struct erofs_metaboxmgr *m2gr;
- 	struct erofs_packed_inode *packedinode;
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index dc1e3ed..67f6199 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -45,7 +45,7 @@ static inline unsigned int xattrblock_offset(struct erofs_inode *vi,
- 
- struct erofs_importer;
- 
--void erofs_xattr_init(struct erofs_sb_info *sbi);
-+int erofs_xattr_init(struct erofs_sb_info *sbi);
- int erofs_scan_file_xattrs(struct erofs_inode *inode);
- int erofs_prepare_xattr_ibody(struct erofs_inode *inode, bool noroom);
- char *erofs_export_xattr_ibody(struct erofs_inode *inode);
-@@ -54,7 +54,6 @@ int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *p
- int erofs_xattr_insert_name_prefix(const char *prefix);
- void erofs_xattr_cleanup_name_prefixes(void);
- int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain);
--void erofs_xattr_prefixes_cleanup(struct erofs_sb_info *sbi);
- int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi);
- 
- int erofs_setxattr(struct erofs_inode *inode, char *key,
-@@ -66,6 +65,7 @@ int erofs_read_xattrs_from_disk(struct erofs_inode *inode);
- 
- bool erofs_xattr_prefix_matches(const char *key, unsigned int *index,
- 				unsigned int *len);
-+void erofs_xattr_exit(struct erofs_sb_info *sbi);
- 
- #ifdef __cplusplus
- }
-diff --git a/lib/importer.c b/lib/importer.c
-index 48d6640..fed7bab 100644
---- a/lib/importer.c
-+++ b/lib/importer.c
-@@ -48,7 +48,9 @@ int erofs_importer_init(struct erofs_importer *im)
- 	erofs_importer_global_init();
- 
- 	subsys = "xattr";
--	erofs_xattr_init(sbi);
-+	err = erofs_xattr_init(sbi);
-+	if (err)
-+		goto out_err;
- 
- 	subsys = "compression";
- 	err = z_erofs_compress_init(im);
-diff --git a/lib/super.c b/lib/super.c
-index 0540b15..9760265 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -171,12 +171,12 @@ void erofs_put_super(struct erofs_sb_info *sbi)
- 		free(sbi->devs);
- 		sbi->devs = NULL;
- 	}
--	erofs_xattr_prefixes_cleanup(sbi);
- 	if (sbi->bmgr) {
- 		erofs_buffer_exit(sbi->bmgr);
- 		sbi->bmgr = NULL;
- 	}
- 	z_erofs_compress_exit(sbi);
-+	erofs_xattr_exit(sbi);
- 	sbi->sb_valid = false;
- }
- 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index ec3eb5e..6e1958b 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -124,20 +124,28 @@ struct erofs_inode_xattr_node {
- 	struct erofs_xattritem *item;
- };
- 
--static struct erofs_xattrmgr {
-+struct erofs_xattrmgr {
- 	struct list_head hash[1 << 14];
- 	struct erofs_xattritem *shared_xattrs;
- 	unsigned int sharedxattr_count;
--} g_xattrmgr;
-+};
- 
--void erofs_xattr_init(struct erofs_sb_info *sbi)
-+int erofs_xattr_init(struct erofs_sb_info *sbi)
- {
-+	struct erofs_xattrmgr *xamgr = sbi->xamgr;
- 	unsigned int i;
- 
--	if (g_xattrmgr.hash[0].next)
--		return;
--	for (i = 0; i < ARRAY_SIZE(g_xattrmgr.hash); ++i)
--		init_list_head(&g_xattrmgr.hash[i]);
-+	if (xamgr)
-+		return 0;
-+
-+	xamgr = malloc(sizeof(struct erofs_xattrmgr));
-+	if (!xamgr)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < ARRAY_SIZE(xamgr->hash); ++i)
-+		init_list_head(&xamgr->hash[i]);
-+	sbi->xamgr = xamgr;
-+	return 0;
- }
- 
- static struct erofs_xattr_prefix {
-@@ -210,8 +218,10 @@ static unsigned int put_xattritem(struct erofs_xattritem *item)
- 	return 0;
- }
- 
--static struct erofs_xattritem *get_xattritem(char *kvbuf, unsigned int len[2])
-+static struct erofs_xattritem *get_xattritem(struct erofs_sb_info *sbi,
-+					     char *kvbuf, unsigned int len[2])
- {
-+	struct erofs_xattrmgr *xamgr = sbi->xamgr;
- 	struct erofs_xattritem *item;
- 	struct ea_type_node *tnode;
- 	struct list_head *head;
-@@ -219,8 +229,8 @@ static struct erofs_xattritem *get_xattritem(char *kvbuf, unsigned int len[2])
- 
- 	hash[0] = BKDRHash(kvbuf, len[0]);
- 	hash[1] = BKDRHash(kvbuf + EROFS_XATTR_KSIZE(len), len[1]);
--	hkey = (hash[0] ^ hash[1]) & (ARRAY_SIZE(g_xattrmgr.hash) - 1);
--	head = g_xattrmgr.hash + hkey;
-+	hkey = (hash[0] ^ hash[1]) & (ARRAY_SIZE(xamgr->hash) - 1);
-+	head = xamgr->hash + hkey;
- 	list_for_each_entry(item, head, node) {
- 		if (item->len[0] == len[0] && item->len[1] == len[1] &&
- 		    item->hash[0] == hash[0] && item->hash[1] == hash[1] &&
-@@ -261,7 +271,8 @@ static struct erofs_xattritem *get_xattritem(char *kvbuf, unsigned int len[2])
- 	return item;
- }
- 
--static struct erofs_xattritem *parse_one_xattr(const char *path, const char *key,
-+static struct erofs_xattritem *parse_one_xattr(struct erofs_sb_info *sbi,
-+					       const char *path, const char *key,
- 					       unsigned int keylen)
- {
- 	ssize_t ret;
-@@ -301,7 +312,7 @@ static struct erofs_xattritem *parse_one_xattr(const char *path, const char *key
- 		}
- 	}
- 
--	item = get_xattritem(kvbuf, len);
-+	item = get_xattritem(sbi, kvbuf, len);
- 	if (!IS_ERR(item))
- 		return item;
- 	ret = PTR_ERR(item);
-@@ -310,7 +321,8 @@ out:
- 	return ERR_PTR(ret);
- }
- 
--static struct erofs_xattritem *erofs_get_selabel_xattr(const char *srcpath,
-+static struct erofs_xattritem *erofs_get_selabel_xattr(struct erofs_sb_info *sbi,
-+						       const char *srcpath,
- 						       mode_t mode)
- {
- #ifdef HAVE_LIBSELINUX
-@@ -353,7 +365,7 @@ static struct erofs_xattritem *erofs_get_selabel_xattr(const char *srcpath,
- 		sprintf(kvbuf, "%s", XATTR_NAME_SECURITY_SELINUX);
- 		memcpy(kvbuf + EROFS_XATTR_KSIZE(len), secontext, len[1]);
- 		freecon(secontext);
--		item = get_xattritem(kvbuf, len);
-+		item = get_xattritem(sbi, kvbuf, len);
- 		if (IS_ERR(item))
- 			free(kvbuf);
- 		return item;
-@@ -374,15 +386,18 @@ static int inode_xattr_add(struct list_head *hlist, struct erofs_xattritem *item
- 	return 0;
- }
- 
--static int erofs_xattr_add(struct list_head *ixattrs, struct erofs_xattritem *item)
-+static int erofs_xattr_add(struct erofs_sb_info *sbi, struct list_head *ixattrs,
-+			   struct erofs_xattritem *item)
- {
-+	struct erofs_xattrmgr *xamgr = sbi->xamgr;
-+
- 	if (ixattrs)
- 		return inode_xattr_add(ixattrs, item);
- 
- 	if (item->count == cfg.c_inline_xattr_tolerance + 1) {
--		item->next_shared_xattr = g_xattrmgr.shared_xattrs;
--		g_xattrmgr.shared_xattrs = item;
--		++g_xattrmgr.sharedxattr_count;
-+		item->next_shared_xattr = xamgr->shared_xattrs;
-+		xamgr->shared_xattrs = item;
-+		++xamgr->sharedxattr_count;
- 	}
- 	return 0;
- }
-@@ -397,8 +412,8 @@ static bool erofs_is_skipped_xattr(const char *key)
- 	return false;
- }
- 
--static int read_xattrs_from_file(const char *path, mode_t mode,
--				 struct list_head *ixattrs)
-+static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
-+				 mode_t mode, struct list_head *ixattrs)
- {
- 	ssize_t kllen = erofs_sys_llistxattr(path, NULL, 0);
- 	char *keylst, *key, *klend;
-@@ -441,7 +456,7 @@ static int read_xattrs_from_file(const char *path, mode_t mode,
- 		if (erofs_is_skipped_xattr(key))
- 			continue;
- 
--		item = parse_one_xattr(path, key, keylen);
-+		item = parse_one_xattr(sbi, path, key, keylen);
- 		/* skip inaccessible xattrs */
- 		if (item == ERR_PTR(-ENODATA) || !item) {
- 			erofs_warn("skipped inaccessible xattr %s in %s",
-@@ -453,7 +468,7 @@ static int read_xattrs_from_file(const char *path, mode_t mode,
- 			goto err;
- 		}
- 
--		ret = erofs_xattr_add(ixattrs, item);
-+		ret = erofs_xattr_add(sbi, ixattrs, item);
- 		if (ret < 0)
- 			goto err;
- 	}
-@@ -461,11 +476,11 @@ static int read_xattrs_from_file(const char *path, mode_t mode,
- 
- out:
- 	/* if some selabel is avilable, need to add right now */
--	item = erofs_get_selabel_xattr(path, mode);
-+	item = erofs_get_selabel_xattr(sbi, path, mode);
- 	if (IS_ERR(item))
- 		return PTR_ERR(item);
- 	if (item)
--		ret = erofs_xattr_add(ixattrs, item);
-+		ret = erofs_xattr_add(sbi, ixattrs, item);
- 	return ret;
- 
- err:
-@@ -476,6 +491,7 @@ err:
- int erofs_setxattr(struct erofs_inode *inode, char *key,
- 		   const void *value, size_t size)
- {
-+	struct erofs_sb_info *sbi = inode->sbi;
- 	char *kvbuf;
- 	unsigned int len[2];
- 	struct erofs_xattritem *item;
-@@ -490,14 +506,14 @@ int erofs_setxattr(struct erofs_inode *inode, char *key,
- 	memcpy(kvbuf, key, EROFS_XATTR_KSIZE(len));
- 	memcpy(kvbuf + EROFS_XATTR_KSIZE(len), value, size);
- 
--	item = get_xattritem(kvbuf, len);
-+	item = get_xattritem(sbi, kvbuf, len);
- 	if (IS_ERR(item)) {
- 		free(kvbuf);
- 		return PTR_ERR(item);
- 	}
- 	DBG_BUGON(!item);
- 
--	return erofs_xattr_add(&inode->i_xattrs, item);
-+	return erofs_xattr_add(sbi, &inode->i_xattrs, item);
- }
- 
- static void erofs_removexattr(struct erofs_inode *inode, const char *key)
-@@ -531,6 +547,7 @@ int erofs_set_origin_xattr(struct erofs_inode *inode)
- #ifdef WITH_ANDROID
- static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
- {
-+	struct erofs_sb_info *sbi = inode->sbi;
- 	const u64 capabilities = inode->capabilities;
- 	char *kvbuf;
- 	unsigned int len[2];
-@@ -555,14 +572,14 @@ static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
- 	caps.data[1].inheritable = 0;
- 	memcpy(kvbuf + EROFS_XATTR_KSIZE(len), &caps, len[1]);
- 
--	item = get_xattritem(kvbuf, len);
-+	item = get_xattritem(sbi, kvbuf, len);
- 	if (IS_ERR(item)) {
- 		free(kvbuf);
- 		return PTR_ERR(item);
- 	}
- 	DBG_BUGON(!item);
- 
--	return erofs_xattr_add(&inode->i_xattrs, item);
-+	return erofs_xattr_add(sbi, &inode->i_xattrs, item);
- }
- #else
- static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
-@@ -580,7 +597,8 @@ int erofs_scan_file_xattrs(struct erofs_inode *inode)
- 	if (cfg.c_inline_xattr_tolerance < 0)
- 		return 0;
- 
--	ret = read_xattrs_from_file(inode->i_srcpath, inode->i_mode, ixattrs);
-+	ret = read_xattrs_from_file(inode->sbi, inode->i_srcpath,
-+				    inode->i_mode, ixattrs);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -705,7 +723,8 @@ out:
- 	return ret;
- }
- 
--static int erofs_count_all_xattrs_from_path(const char *path)
-+static int erofs_count_all_xattrs_from_path(struct erofs_sb_info *sbi,
-+					    const char *path)
- {
- 	int ret;
- 	DIR *_dir;
-@@ -732,8 +751,7 @@ static int erofs_count_all_xattrs_from_path(const char *path)
- 		if (!dp)
- 			break;
- 
--		if (is_dot_dotdot(dp->d_name) ||
--		    !strncmp(dp->d_name, "lost+found", strlen("lost+found")))
-+		if (is_dot_dotdot(dp->d_name))
- 			continue;
- 
- 		ret = snprintf(buf, PATH_MAX, "%s/%s", path, dp->d_name);
-@@ -750,14 +768,14 @@ static int erofs_count_all_xattrs_from_path(const char *path)
- 			goto fail;
- 		}
- 
--		ret = read_xattrs_from_file(buf, st.st_mode, NULL);
-+		ret = read_xattrs_from_file(sbi, buf, st.st_mode, NULL);
- 		if (ret)
- 			goto fail;
- 
- 		if (!S_ISDIR(st.st_mode))
- 			continue;
- 
--		ret = erofs_count_all_xattrs_from_path(buf);
-+		ret = erofs_count_all_xattrs_from_path(sbi, buf);
- 		if (ret)
- 			goto fail;
- 	}
-@@ -770,13 +788,13 @@ fail:
- 	return ret;
- }
- 
--static void erofs_cleanxattrs(bool sharedxattrs)
-+static void erofs_cleanxattrs(struct erofs_xattrmgr *xamgr, bool sharedxattrs)
- {
- 	struct erofs_xattritem *item, *n;
- 	unsigned int i;
- 
--	for (i = 0; i < ARRAY_SIZE(g_xattrmgr.hash); ++i) {
--		list_for_each_entry_safe(item, n, g_xattrmgr.hash + i, node) {
-+	for (i = 0; i < ARRAY_SIZE(xamgr->hash); ++i) {
-+		list_for_each_entry_safe(item, n, xamgr->hash + i, node) {
- 			if (sharedxattrs && item->shared_xattr_id >= 0)
- 				continue;
- 			list_del(&item->node);
-@@ -787,7 +805,7 @@ static void erofs_cleanxattrs(bool sharedxattrs)
- 
- 	if (sharedxattrs)
- 		return;
--	g_xattrmgr.sharedxattr_count = 0;
-+	xamgr->sharedxattr_count = 0;
- }
- 
- static int comp_shared_xattritem(const void *a, const void *b)
-@@ -921,6 +939,7 @@ static void erofs_write_xattr_entry(char *buf, struct erofs_xattritem *item)
- 
- int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *path)
- {
-+	struct erofs_xattrmgr *xamgr = sbi->xamgr;
- 	struct erofs_xattritem *item, *n, **sorted_n;
- 	unsigned int sharedxattr_count, p, i;
- 	struct erofs_buffer_head *bh;
-@@ -934,15 +953,15 @@ int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *p
- 	    cfg.c_inline_xattr_tolerance == INT_MAX)
- 		return 0;
- 
--	if (g_xattrmgr.sharedxattr_count) {
-+	if (xamgr->sharedxattr_count) {
- 		DBG_BUGON(1);
- 		return -EINVAL;
- 	}
- 
--	ret = erofs_count_all_xattrs_from_path(path);
-+	ret = erofs_count_all_xattrs_from_path(sbi, path);
- 	if (ret)
- 		return ret;
--	sharedxattr_count = g_xattrmgr.sharedxattr_count;
-+	sharedxattr_count = xamgr->sharedxattr_count;
- 	if (!sharedxattr_count)
- 		goto out;
- 
-@@ -951,10 +970,10 @@ int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *p
- 		return -ENOMEM;
- 
- 	i = 0;
--	while (g_xattrmgr.shared_xattrs) {
--		item = g_xattrmgr.shared_xattrs;
-+	while (xamgr->shared_xattrs) {
-+		item = xamgr->shared_xattrs;
- 		sorted_n[i++] = item;
--		g_xattrmgr.shared_xattrs = item->next_shared_xattr;
-+		xamgr->shared_xattrs = item->next_shared_xattr;
- 		shared_xattrs_size = erofs_next_xattr_align(shared_xattrs_size,
- 							    item);
- 	}
-@@ -989,14 +1008,14 @@ int erofs_build_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *p
- 		item->shared_xattr_id = (off + p) / sizeof(__le32);
- 		p = erofs_next_xattr_align(p, item);
- 	}
--	g_xattrmgr.shared_xattrs = sorted_n[0];
-+	xamgr->shared_xattrs = sorted_n[0];
- 	free(sorted_n);
- 	bh->op = &erofs_drop_directly_bhops;
- 	ret = erofs_dev_write(sbi, buf, erofs_btell(bh, false), shared_xattrs_size);
- 	free(buf);
- 	erofs_bdrop(bh, false);
- out:
--	erofs_cleanxattrs(true);
-+	erofs_cleanxattrs(xamgr, true);
- 	return ret;
- }
- 
-@@ -1726,3 +1745,15 @@ out:
- 		erofs_xattr_prefixes_cleanup(sbi);
- 	return ret;
- }
-+
-+void erofs_xattr_exit(struct erofs_sb_info *sbi)
-+{
-+	struct erofs_xattrmgr *xamgr = sbi->xamgr;
-+
-+	erofs_xattr_prefixes_cleanup(sbi);
-+	if (!xamgr)
-+		return;
-+	erofs_cleanxattrs(xamgr, false);
-+	sbi->xamgr = NULL;
-+	free(xamgr);
-+}
+diff --git a/include/erofs/hashtable.h b/include/erofs/hashtable.h
+deleted file mode 100644
+index f4eca8d..0000000
+--- a/include/erofs/hashtable.h
++++ /dev/null
+@@ -1,392 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- * Original code taken from 'linux/include/linux/hash{,table}.h'
+- */
+-#ifndef __EROFS_HASHTABLE_H
+-#define __EROFS_HASHTABLE_H
+-
+-#ifdef __cplusplus
+-extern "C"
+-{
+-#endif
+-
+-/*
+- * Fast hashing routine for ints,  longs and pointers.
+- * (C) 2002 Nadia Yvette Chambers, IBM
+- */
+-
+-/*
+- * Statically sized hash table implementation
+- * (C) 2012  Sasha Levin <levinsasha928@gmail.com>
+- */
+-
+-#include "defs.h"
+-
+-/*
+- * The "GOLDEN_RATIO_PRIME" is used in ifs/btrfs/brtfs_inode.h and
+- * fs/inode.c.  It's not actually prime any more (the previous primes
+- * were actively bad for hashing), but the name remains.
+- */
+-#if BITS_PER_LONG == 32
+-#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_32
+-#define hash_long(val, bits) hash_32(val, bits)
+-#elif BITS_PER_LONG == 64
+-#define hash_long(val, bits) hash_64(val, bits)
+-#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_64
+-#else
+-#error Wordsize not 32 or 64
+-#endif
+-
+-/*
+- * This hash multiplies the input by a large odd number and takes the
+- * high bits.  Since multiplication propagates changes to the most
+- * significant end only, it is essential that the high bits of the
+- * product be used for the hash value.
+- *
+- * Chuck Lever verified the effectiveness of this technique:
+- * http://www.citi.umich.edu/techreports/reports/citi-tr-00-1.pdf
+- *
+- * Although a random odd number will do, it turns out that the golden
+- * ratio phi = (sqrt(5)-1)/2, or its negative, has particularly nice
+- * properties.  (See Knuth vol 3, section 6.4, exercise 9.)
+- *
+- * These are the negative, (1 - phi) = phi**2 = (3 - sqrt(5))/2,
+- * which is very slightly easier to multiply by and makes no
+- * difference to the hash distribution.
+- */
+-#define GOLDEN_RATIO_32 0x61C88647
+-#define GOLDEN_RATIO_64 0x61C8864680B583EBull
+-
+-struct hlist_head {
+-	struct hlist_node *first;
+-};
+-
+-struct hlist_node {
+-	struct hlist_node *next, **pprev;
+-};
+-
+-/*
+- * Architectures might want to move the poison pointer offset
+- * into some well-recognized area such as 0xdead000000000000,
+- * that is also not mappable by user-space exploits:
+- */
+-#ifdef CONFIG_ILLEGAL_POINTER_VALUE
+-# define POISON_POINTER_DELTA _AC(CONFIG_ILLEGAL_POINTER_VALUE, UL)
+-#else
+-# define POISON_POINTER_DELTA 0
+-#endif
+-
+-/*
+- * These are non-NULL pointers that will result in page faults
+- * under normal circumstances, used to verify that nobody uses
+- * non-initialized list entries.
+- */
+-#define LIST_POISON1 ((void *) 0x00100100 + POISON_POINTER_DELTA)
+-#define LIST_POISON2 ((void *) 0x00200200 + POISON_POINTER_DELTA)
+-
+-/*
+- * Double linked lists with a single pointer list head.
+- * Mostly useful for hash tables where the two pointer list head is
+- * too wasteful.
+- * You lose the ability to access the tail in O(1).
+- */
+-
+-#define HLIST_HEAD_INIT { .first = NULL }
+-#define HLIST_HEAD(name) struct hlist_head name = { .first = NULL }
+-#define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL)
+-static inline void INIT_HLIST_NODE(struct hlist_node *h)
+-{
+-	h->next = NULL;
+-	h->pprev = NULL;
+-}
+-
+-static inline int hlist_unhashed(const struct hlist_node *h)
+-{
+-	return !h->pprev;
+-}
+-
+-static inline int hlist_empty(const struct hlist_head *h)
+-{
+-	return !h->first;
+-}
+-
+-static inline void __hlist_del(struct hlist_node *n)
+-{
+-	struct hlist_node *next = n->next;
+-	struct hlist_node **pprev = n->pprev;
+-
+-	*pprev = next;
+-	if (next)
+-		next->pprev = pprev;
+-}
+-
+-static inline void hlist_del(struct hlist_node *n)
+-{
+-	__hlist_del(n);
+-	n->next = LIST_POISON1;
+-	n->pprev = LIST_POISON2;
+-}
+-
+-static inline void hlist_del_init(struct hlist_node *n)
+-{
+-	if (!hlist_unhashed(n)) {
+-		__hlist_del(n);
+-		INIT_HLIST_NODE(n);
+-	}
+-}
+-
+-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
+-{
+-	struct hlist_node *first = h->first;
+-
+-	n->next = first;
+-	if (first)
+-		first->pprev = &n->next;
+-	h->first = n;
+-	n->pprev = &h->first;
+-}
+-
+-/* next must be != NULL */
+-static inline void hlist_add_before(struct hlist_node *n,
+-					struct hlist_node *next)
+-{
+-	n->pprev = next->pprev;
+-	n->next = next;
+-	next->pprev = &n->next;
+-	*(n->pprev) = n;
+-}
+-
+-static inline void hlist_add_behind(struct hlist_node *n,
+-				    struct hlist_node *prev)
+-{
+-	n->next = prev->next;
+-	prev->next = n;
+-	n->pprev = &prev->next;
+-
+-	if (n->next)
+-		n->next->pprev  = &n->next;
+-}
+-
+-/* after that we'll appear to be on some hlist and hlist_del will work */
+-static inline void hlist_add_fake(struct hlist_node *n)
+-{
+-	n->pprev = &n->next;
+-}
+-
+-/*
+- * Move a list from one list head to another. Fixup the pprev
+- * reference of the first entry if it exists.
+- */
+-static inline void hlist_move_list(struct hlist_head *old,
+-				   struct hlist_head *new)
+-{
+-	new->first = old->first;
+-	if (new->first)
+-		new->first->pprev = &new->first;
+-	old->first = NULL;
+-}
+-
+-#define hlist_entry(ptr, type, member) container_of(ptr, type, member)
+-
+-#define hlist_for_each(pos, head) \
+-	for (pos = (head)->first; pos; pos = pos->next)
+-
+-#define hlist_for_each_safe(pos, n, head) \
+-	for (pos = (head)->first; pos && ({ n = pos->next; 1; }); \
+-	     pos = n)
+-
+-#define hlist_entry_safe(ptr, type, member) \
+-	({ typeof(ptr) ____ptr = (ptr); \
+-	   ____ptr ? hlist_entry(____ptr, type, member) : NULL; \
+-	})
+-
+-/**
+- * hlist_for_each_entry	- iterate over list of given type
+- * @pos:the type * to use as a loop cursor.
+- * @head:the head for your list.
+- * @member:the name of the hlist_node within the struct.
+- */
+-#define hlist_for_each_entry(pos, head, member)				\
+-	for (pos = hlist_entry_safe((head)->first, typeof(*(pos)), member);\
+-	     pos;							\
+-	     pos = hlist_entry_safe((pos)->member.next, typeof(*(pos)), member))
+-
+-/**
+- * hlist_for_each_entry_continue
+- * iterate over a hlist continuing after current point
+- * @pos:the type * to use as a loop cursor.
+- * @member:the name of the hlist_node within the struct.
+- */
+-#define hlist_for_each_entry_continue(pos, member)			\
+-	for (pos = hlist_entry_safe((pos)->member.next, typeof(*(pos)), member);\
+-	     pos;							\
+-	     pos = hlist_entry_safe((pos)->member.next, typeof(*(pos)), member))
+-
+-/**
+- * hlist_for_each_entry_from
+- * iterate over a hlist continuing from current point
+- * @pos:	the type * to use as a loop cursor.
+- * @member:	the name of the hlist_node within the struct.
+- */
+-#define hlist_for_each_entry_from(pos, member)				\
+-	for (; pos;							\
+-	     pos = hlist_entry_safe((pos)->member.next, typeof(*(pos)), member))
+-
+-/**
+- * hlist_for_each_entry_safe
+- * iterate over list of given type safe against removal of list entry
+- * @pos:the type * to use as a loop cursor.
+- * @n:another &struct hlist_node to use as temporary storage
+- * @head:the head for your list.
+- * @member:the name of the hlist_node within the struct.
+- */
+-#define hlist_for_each_entry_safe(pos, n, head, member)			\
+-	for (pos = hlist_entry_safe((head)->first, typeof(*pos), member);\
+-		pos && ({ n = pos->member.next; 1; });			\
+-		pos = hlist_entry_safe(n, typeof(*pos), member))
+-
+-static inline u32 __hash_32(u32 val)
+-{
+-	return val * GOLDEN_RATIO_32;
+-}
+-
+-static inline u32 hash_32(u32 val, unsigned int bits)
+-{
+-	/* High bits are more random, so use them. */
+-	return __hash_32(val) >> (32 - bits);
+-}
+-
+-static inline u32 hash_64(u64 val, unsigned int bits)
+-{
+-#if BITS_PER_LONG == 64
+-	/* 64x64-bit multiply is efficient on all 64-bit processors */
+-	return val * GOLDEN_RATIO_64 >> (64 - bits);
+-#else
+-	/* Hash 64 bits using only 32x32-bit multiply. */
+-	return hash_32((u32)val ^ __hash_32(val >> 32), bits);
+-#endif
+-}
+-
+-#define DEFINE_HASHTABLE(name, bits)					\
+-	struct hlist_head name[1 << (bits)] =				\
+-			{ [0 ... ((1 << (bits)) - 1)] = HLIST_HEAD_INIT }
+-
+-#define DECLARE_HASHTABLE(name, bits)					\
+-	struct hlist_head name[1 << (bits)]
+-
+-#define HASH_SIZE(name) (ARRAY_SIZE(name))
+-#define HASH_BITS(name) ilog2(HASH_SIZE(name))
+-
+-/* Use hash_32 when possible to allow for fast 32bit hashing in 64bit kernels*/
+-#define hash_min(val, bits)						\
+-	(sizeof(val) <= 4 ? hash_32(val, bits) : hash_long(val, bits))
+-
+-static inline void __hash_init(struct hlist_head *ht, unsigned int sz)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < sz; i++)
+-		INIT_HLIST_HEAD(&ht[i]);
+-}
+-
+-/**
+- * hash_init - initialize a hash table
+- * @hashtable: hashtable to be initialized
+- *
+- * Calculates the size of the hashtable from the given parameter, otherwise
+- * same as hash_init_size.
+- *
+- * This has to be a macro since HASH_BITS() will not work on pointers since
+- * it calculates the size during preprocessing.
+- */
+-#define hash_init(hashtable) __hash_init(hashtable, HASH_SIZE(hashtable))
+-
+-/**
+- * hash_add - add an object to a hashtable
+- * @hashtable: hashtable to add to
+- * @node: the &struct hlist_node of the object to be added
+- * @key: the key of the object to be added
+- */
+-#define hash_add(hashtable, node, key)					\
+-	hlist_add_head(node, &hashtable[hash_min(key, HASH_BITS(hashtable))])
+-
+-/**
+- * hash_hashed - check whether an object is in any hashtable
+- * @node: the &struct hlist_node of the object to be checked
+- */
+-static inline bool hash_hashed(struct hlist_node *node)
+-{
+-	return !hlist_unhashed(node);
+-}
+-
+-static inline bool __hash_empty(struct hlist_head *ht, unsigned int sz)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < sz; i++)
+-		if (!hlist_empty(&ht[i]))
+-			return false;
+-
+-	return true;
+-}
+-
+-/**
+- * hash_empty - check whether a hashtable is empty
+- * @hashtable: hashtable to check
+- *
+- * This has to be a macro since HASH_BITS() will not work on pointers since
+- * it calculates the size during preprocessing.
+- */
+-#define hash_empty(hashtable) __hash_empty(hashtable, HASH_SIZE(hashtable))
+-
+-/**
+- * hash_del - remove an object from a hashtable
+- * @node: &struct hlist_node of the object to remove
+- */
+-static inline void hash_del(struct hlist_node *node)
+-{
+-	hlist_del_init(node);
+-}
+-
+-/**
+- * hash_for_each - iterate over a hashtable
+- * @name: hashtable to iterate
+- * @bkt: integer to use as bucket loop cursor
+- * @obj: the type * to use as a loop cursor for each entry
+- * @member: the name of the hlist_node within the struct
+- */
+-#define hash_for_each(name, bkt, obj, member)				\
+-	for ((bkt) = 0, obj = NULL; obj == NULL && (bkt) < HASH_SIZE(name);\
+-			(bkt)++)\
+-		hlist_for_each_entry(obj, &name[bkt], member)
+-
+-/**
+- * hash_for_each_safe - iterate over a hashtable safe against removal of
+- * hash entry
+- * @name: hashtable to iterate
+- * @bkt: integer to use as bucket loop cursor
+- * @tmp: a &struct used for temporary storage
+- * @obj: the type * to use as a loop cursor for each entry
+- * @member: the name of the hlist_node within the struct
+- */
+-#define hash_for_each_safe(name, bkt, tmp, obj, member)			\
+-	for ((bkt) = 0, obj = NULL; obj == NULL && (bkt) < HASH_SIZE(name);\
+-			(bkt)++)\
+-		hlist_for_each_entry_safe(obj, tmp, &name[bkt], member)
+-
+-/**
+- * hash_for_each_possible - iterate over all possible objects hashing to the
+- * same bucket
+- * @name: hashtable to iterate
+- * @obj: the type * to use as a loop cursor for each entry
+- * @member: the name of the hlist_node within the struct
+- * @key: the key of the objects to iterate over
+- */
+-#define hash_for_each_possible(name, obj, member, key)			\
+-	hlist_for_each_entry(obj, &name[hash_min(key, HASH_BITS(name))], member)
+-
+-#ifdef __cplusplus
+-}
+-#endif
+-
+-#endif
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 4c73012..9991119 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -12,7 +12,6 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+       $(top_srcdir)/include/erofs/exclude.h \
+       $(top_srcdir)/include/erofs/flex-array.h \
+       $(top_srcdir)/include/erofs/hashmap.h \
+-      $(top_srcdir)/include/erofs/hashtable.h \
+       $(top_srcdir)/include/erofs/inode.h \
+       $(top_srcdir)/include/erofs/internal.h \
+       $(top_srcdir)/include/erofs/io.h \
 -- 
 2.43.5
 
