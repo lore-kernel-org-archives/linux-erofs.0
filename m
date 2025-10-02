@@ -1,44 +1,99 @@
-Return-Path: <linux-erofs+bounces-1155-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1156-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ABF7CCCA470
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Oct 2025 00:39:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 636FFCAC5B0
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Oct 2025 08:13:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ccXxd2cP2z2ywC;
-	Thu,  2 Oct 2025 10:39:49 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1759365589;
-	cv=none; b=kxvA9la/cBxUu/ty+6aAr9OkxI/vClohqY4fl7x2BnA20dz3nM8kn4OWfT95mTAb9GdZL79J19bGH8572BHUcwEBqgBbqBDZB9n8uhamvL98H8ZAHR6bJ5yO0xiC6WqChwy4nrPWevkqy1OBV1EtgJF6KVttTDGo5uA5XZydBz2+s9lUHiIC5DPNw+7rFKI4y3hfT9cEfitax0WKHBPfdBzoxOIap19a34e6IaTvSDquTOcgxYaT+i6+8t6ZY9OfAUxSXHuE8DFuk0d+6cuEWxpI8V/som2XXACFzKC63T1o9Y33Sp/hG0ENPVRrd9Dj5kSobGgpZbRniTV0rIk/Jg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ccl1M1vvKz30NF;
+	Thu,  2 Oct 2025 18:13:43 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a07:de40:b251:101:10:150:64:2"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1759392823;
+	cv=none; b=Xi3O33J5iwiLpc5FbXeo0lc2oBEmaM9JoU8ydaZ2yB0SCp4ZpzkBLjPSpn30hQAF5Dlvw+EhSKxeNbKq2ExOnclEXh6PEgaZWM53pNMhG7sG2YhRPe0Y+a9cEVyhHgPWfdHr2E8p3uQBb40CP4hTbmwJty293lSROJRND2OlzCKKAITr/wt5gEV+TVYRj1cp1GmsVpJBVyshaJylp5kwpzCVO9qKmKHfgNk0YZNGPJwpCFiWWlSDenYXFnWR0DLsO3WMr2VkPtwPVeZ02rQ0fSNy1x25yDhfH8tVKTOF3thSpH5o9XOG3nssmfyk7Ykg0M+mPwPXgbUVaOtfHssu8w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1759365589; c=relaxed/relaxed;
-	bh=rwjQ6AHGDtdnF/SeDdxY2mPwwPYfL2et6/jHGy7XH00=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E1vMica4wX8AEwD7VN/vyvSri4OvKdbkuxm4zXQ6ADDOvBYWtnyXbcf8pufCGHcUo2NE3LezGeVinKJojKsnwPDzqO1jzj+HlrHs/LAbrWmCVbdo9my8E2vzmTM4EmdEy5bQW89aOQvaseoX6W9uqFRGwj971qm4CSTlgPwp5GMHRkjEBfSAkhmXwRZPBd3FR96NLKqDQan8VZ3ydTSzD3n5UwXhQ0US1roxlI/Y/VM6+BxD9Hd4omzZUAGBSjkuMCpd40OeDe+Ne032/7w8py+KmTlABTMDPBuOEuDe+JQibrB+YE7ColQJqIhZbWk/fPuEzwAff98GQOp5sjWXSA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hJ5drEWR; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1759392823; c=relaxed/relaxed;
+	bh=ruoQlOdDmzp5MY4S54nO3umGAxEqdmJBP4WXf9I5T3Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C3PVSYkFr0gshxm7vLZknrVDZgb+7CGZYTEpkyraU0eXKUIepnJ2Qw9T+ZBA3lMdgqUDj2OFyziB0/o/jEdx5J32mdKF/Xb8+4+OTWzts0fGYcLI2ue4E4gpNXY6N+yunD9LcZvlG4LXjx8DCfCGD8bzYNtW5PUdhHQbXwVvZu2w57uY+/jJ99or/m9foWUAfPdm6BS+kKufz+OvJXAwYogDQNkFBZ/VNAVdx+SrIvzzhe6rGK/F8G/8uv0I5Ni5pF/t4Oy3vG1smceKVWxFaoF2XcQxHUXSD/t+eUljQOHV6EDxY5paKxP5TE7kfYXeK8pTdlHZ58LeAX3iJ5JW9Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz; dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=C9PS/Xqp; dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=wb635R2e; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=C9PS/Xqp; dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=wb635R2e; dkim-atps=neutral; spf=pass (client-ip=2a07:de40:b251:101:10:150:64:2; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org) smtp.mailfrom=suse.cz
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=hJ5drEWR;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=C9PS/Xqp;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=wb635R2e;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=C9PS/Xqp;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=wb635R2e;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=2a07:de40:b251:101:10:150:64:2; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+X-Greylist: delayed 337 seconds by postgrey-1.37 at boromir; Thu, 02 Oct 2025 18:13:41 AEST
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2a07:de40:b251:101:10:150:64:2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ccXxc1HXnz2yr9
-	for <linux-erofs@lists.ozlabs.org>; Thu,  2 Oct 2025 10:39:47 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1759365584; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=rwjQ6AHGDtdnF/SeDdxY2mPwwPYfL2et6/jHGy7XH00=;
-	b=hJ5drEWRAlN7Ybg98Qt6+5VSBK9czW9TvulhLulbSL8O2nMF4zPw2hAl4SJgw8y1Td5/69jzembNGILGhLO2fGqqjxt+LRWizBw9bBjdp3OUJIi86onUyVwyKlePixvj3q8Yv7HFpM5fDuq7n2lBBgeQOX6VSQIsQy+NdoRkw18=
-Received: from 30.180.0.242(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WpGDhDr_1759365582 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 02 Oct 2025 08:39:42 +0800
-Message-ID: <e7bc9ed6-a097-4cde-85bd-e2b6c12d618a@linux.alibaba.com>
-Date: Thu, 2 Oct 2025 08:39:41 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ccl1K4cHFz3069
+	for <linux-erofs@lists.ozlabs.org>; Thu,  2 Oct 2025 18:13:40 +1000 (AEST)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id BC67B1FB58;
+	Thu,  2 Oct 2025 08:13:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1759392817; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=ruoQlOdDmzp5MY4S54nO3umGAxEqdmJBP4WXf9I5T3Q=;
+	b=C9PS/XqpRwB0UxviuEwDxPbrPJJwJ4LCFEIURbjaA+NpgyqTtGz+hwws4INrZOffGztQLo
+	RkOxRbE8eXXsfP6k95iAXuDJ/jcYphscDhGoO4ln9Pxd2hNG6b2w6x4sOZtqjHhzzZ4yWa
+	QJPDA21AAPTieOG4oNDxUAwF5mgXlRY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1759392817;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=ruoQlOdDmzp5MY4S54nO3umGAxEqdmJBP4WXf9I5T3Q=;
+	b=wb635R2ev6hLEuRvM3mt31zFl9Ysi0h8ox5XgXI+7PDNC7XS+Z+T3UKqB700P93cyUKPEI
+	82NFCC28TIfDXIDQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b="C9PS/Xqp";
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=wb635R2e
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1759392817; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=ruoQlOdDmzp5MY4S54nO3umGAxEqdmJBP4WXf9I5T3Q=;
+	b=C9PS/XqpRwB0UxviuEwDxPbrPJJwJ4LCFEIURbjaA+NpgyqTtGz+hwws4INrZOffGztQLo
+	RkOxRbE8eXXsfP6k95iAXuDJ/jcYphscDhGoO4ln9Pxd2hNG6b2w6x4sOZtqjHhzzZ4yWa
+	QJPDA21AAPTieOG4oNDxUAwF5mgXlRY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1759392817;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=ruoQlOdDmzp5MY4S54nO3umGAxEqdmJBP4WXf9I5T3Q=;
+	b=wb635R2ev6hLEuRvM3mt31zFl9Ysi0h8ox5XgXI+7PDNC7XS+Z+T3UKqB700P93cyUKPEI
+	82NFCC28TIfDXIDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B2CB21395B;
+	Thu,  2 Oct 2025 08:13:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id C2OkKzE03mhoUQAAD6G6ig
+	(envelope-from <jack@suse.cz>); Thu, 02 Oct 2025 08:13:37 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 6C2DBA0A56; Thu,  2 Oct 2025 10:13:37 +0200 (CEST)
+From: Jan Kara <jack@suse.cz>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>,
+	<linux-fsdevel@vger.kernel.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	chao@kernel.org,
+	linux-erofs@lists.ozlabs.org,
+	Jan Kara <jack@suse.cz>,
+	syzbot+47680984f2d4969027ea@syzkaller.appspotmail.com
+Subject: [PATCH] dax: fix assertion in dax_iomap_rw()
+Date: Thu,  2 Oct 2025 10:13:12 +0200
+Message-ID: <20251002081311.10488-2-jack@suse.cz>
+X-Mailer: git-send-email 2.51.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,61 +105,68 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs-utils: tar: support archives without
- end-of-archive entry
-To: Ivan Mikheykin <ivan.mikheykin@flant.com>, Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org
-References: <20250929133222.38815-1-ivan.mikheykin@flant.com>
- <20251001171341.87845-1-ivan.mikheykin@flant.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20251001171341.87845-1-ivan.mikheykin@flant.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Developer-Signature: v=1; a=openpgp-sha256; l=912; i=jack@suse.cz; h=from:subject; bh=UsMqyOIhr8WHIm6v1/phOHfCF4/wORmA8WhPGDaHvQU=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBo3jQXQ9++U/Immj1t7Q2t9La2rvw9BDT7qKvX4 aakZ8ucOJGJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCaN40FwAKCRCcnaoHP2RA 2Z6yCADWOVDY5abLZ6s85kA8oXAY0ON0EFcqsNzUAOxR5+syzjr3MERold2c80b5sRUH/4g7CBV yWqyD8/D+Raml1imo1K7wJcQp94t2xlCRCutADrHW6vmo8Kk7sDNg79sBomyqZvo3FazOzpesvR 5TUe6esMFh2DCYomiSV9UuYL0rEl+q8HyxZ5yar89IpQd89e5btjoC4XZJQJ2vz4mnH3+hX/7R7 XNbs5czy365hJPGwBnr25CN87vcdz5A4ua5c8jhoXwpywav0rpSLGaMryatmtxFlBa8UxoKtzPf Z7YUk6NeBPEmr9VR7U4kMcImAMs7bj9/lPbQtQo7deOOxTLl
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-1.51 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_COUNT_THREE(0.00)[3];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DWL_DNSWL_BLOCKED(0.00)[suse.cz:dkim];
+	RCVD_TLS_LAST(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TAGGED_RCPT(0.00)[47680984f2d4969027ea];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Queue-Id: BC67B1FB58
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 
+dax_iomap_rw() asserts that inode lock is held when reading from it. The
+assert triggers on erofs as it indeed doesn't hold any locks in this
+case - naturally because there's nothing to race against when the
+filesystem is read-only. Check the locking only if the filesystem is
+actually writeable.
 
+Reported-by: syzbot+47680984f2d4969027ea@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/dax.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 2025/10/2 01:13, Ivan Mikheykin wrote:
-> Tar standard https://www.gnu.org/software/tar/manual/html_node/Standard.html
-> says that archive "terminated by an end-of-archive entry,
-> which consists of two 512 blocks of zero bytes".
-> 
-> Is also says:
-> 
-> "A reasonable system should write such end-of-file marker at the end
-> of an archive, but must not assume that such a block exists when
-> reading an archive. In particular, GNU tar does not treat missing
-> end-of-file marker as an error and silently ignores the fact."
-> 
-> It is rare for erofs to encounter such problem, as images are mostly
-> built with docker or buildah. But if you create image using tar library
-> in Golang directly uploading layers to registry, you'll get tar layers
-> without end-of-archive block. Running containers with such images will
-> trigger this error during extraction:
-> 
-> mkfs.erofs --tar=f --aufs --quiet -Enoinline_data test.erofs test-no-end.tar
-> <E> erofs: failed to read header block @ 42496
-> <E> erofs: 	Could not format the device : [Error 5] Input/output error
-> 
-> This patch fixes the problem by assuming that eof is equal to the end-of-archive.
-> 
-> Reproducible tar without end-of-archive (base64-encoded gzipped blob):
-> H4sICKVi2mgAA3Rlc3QtMTAtMi1ibG9ja3MudGFyAAtzDQr29PdjoCUwAAIzExMwbW5mCqYN
-> jQzANBgYGTEYmhqYmpqamRoaGTMYGBqaGJkyKBjQ1FVQUFpcklikoMCQkpmYll9ahFNdYkpu
-> Zh49HERfYKhnoWdowGVkYGSqa2Cua2jKNdAuGgX0BADwFwqsAAQAAA==
-> 
-> Also, add warning about non-conformant tar layers:
-> 
-> mkfs.erofs --tar=f --aufs -Enoinline_data test.erofs test-no-end.tar
-> mkfs.erofs 1.8.10-g0a2bc574-dirty
-> <W> erofs: unexpected end of file @ 1024 (may be non-standard tar without end of archive zeros)
-> Build completed.
-> ...
-> 
-> Signed-off-by: Ivan Mikheykin <ivan.mikheykin@flant.com>
+diff --git a/fs/dax.c b/fs/dax.c
+index 20ecf652c129..187f8c325744 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -1752,7 +1752,7 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
+ 	if (iov_iter_rw(iter) == WRITE) {
+ 		lockdep_assert_held_write(&iomi.inode->i_rwsem);
+ 		iomi.flags |= IOMAP_WRITE;
+-	} else {
++	} else if (!IS_RDONLY(iomi.inode)) {
+ 		lockdep_assert_held(&iomi.inode->i_rwsem);
+ 	}
+ 
+-- 
+2.51.0
 
-Thanks, will apply.
-
-Thanks,
-Gao Xiang
 
