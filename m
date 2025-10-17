@@ -1,57 +1,57 @@
-Return-Path: <linux-erofs+bounces-1242-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1243-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06E41CCD195
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Oct 2025 13:49:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5503ECCD19F
+	for <linux-erofs@archiver.kernel.org>; Fri, 17 Oct 2025 13:49:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cp5lb4HCmz3cfg;
-	Sat, 18 Oct 2025 00:49:15 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cp5lg65xtz3cgB;
+	Sat, 18 Oct 2025 00:49:19 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1760708955;
-	cv=none; b=AYEVZt9YwlO379oTvoZQfEDkoYwk2C7oMwuQZCX+fGjjySiMUXsTf1AwdD9PGyLrqzZxpBvj4u4UyCij4CT7R5sNGDK6x90w/vsdU8PvYE9b9T4B1v2t4LIQUf3xQiIMdurNgz2pkG/P/ePWGr1tip8wtudWj9NBpE+wdeR6sSV46GmREwz2kECNzJNdqZhPfgURFjn5lXRAGnEduJWg74icdwlSsvKGhxwxmGruZgImqde1OD+PBVxxTyIDJdLk7T+h6fxbZup5i+bbj4HtligA+kXy5eDUhQDuVpv4hPC8jGqpiy7l4No192kK8t6hO+7uk9t7UkJTol5+5bN2Fg==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1760708959;
+	cv=none; b=UUwZmH/qWJgRIbwafyRKTSTf8cYp6BChckHCKe/kbRmLOTUq0Wx9L9GltlcXgaoUpwLt2tbotNzB+l61+0rOrMrGt1OsdzkDA+ge15YGOIAkqis0HjmFrtO6/qhmfp6iIsmS0Q6sUlLHSce35SpiktdU9eeDlYZVza+8g8tEqVbb8T0Ik5Z6xeovZnMtoh74axg66+QrFbGpx0X05CWu5S9hXxQo4S9piY8ym/L2IGiptZTWQCN7oC6fvPqWXKhpetVXz/yZk/bOIQpoL+WhP8dYZUZIbS49CMyMtuJuCJWUjojYsMyCH3TtNcPHjfMWuShdxcgp7gitQYuI0HIL2g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1760708955; c=relaxed/relaxed;
-	bh=xVQVKYUXJGhPBhUnGNwR5axfL//onxkclLjb9YP+0rQ=;
+	t=1760708959; c=relaxed/relaxed;
+	bh=hkRQvs+tjcaMr/Brm/MFRXAK5Oqsqkw9vFrK+/9N43M=;
 	h=Subject:To:Cc:From:Date:In-Reply-To:Message-ID:MIME-Version:
-	 Content-Type; b=geh3naRAvQL/F+b/Kr07LkXfIE7wrstexgYxwgxyK801xDZj7KmJP+ShzHwdxeoxKe3y9Wu+vUX+JASYQp4ZPOZUsm3iWTRgqJzKnmMHhWQccQjP6zEK7XOP6Zc/lHusWGJ0gSEZBvLALURJkapBYb0N7LK+u8paNE/RMBQeeclZO/GaMZnEqhbNN4QL8YUK9bM5LBGuBmxFWZ5zWcklmX3r0+ln/WW3zI4Fia0grVGi/AraBDfonijoq94sVTGlymYmFrERe7tAjmMsLi54fZntw38TT3y6EOG1WqplvQjAGjoPFFwQ9dMlHvgN4AgUgrTs3gmDEubrdasySc9wCQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; dkim=fail (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=ltfarP+2 reason="signature verification failed"; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linuxfoundation.org
+	 Content-Type; b=eT4XjXogZIcck9cb8IR7uP4S8cA2ylTXoX43Yi3oWwRFUs9pnOXpMUU+0gavT/p9sPKkdNPJzneW6ZKAgUHKMm7p9D46eDPVmBSDbvVHAsQISfdQbqSbpQZ2zOP9D3unbwFvZfh88zRVNfILECvX0X9m0afMA2IVg5VO751MDU2Ef1wCE2A04M5ZaB5A0vtYNN9XCm6pPVjXrCqr5OERrB6KgupLb2fY8VXe8ZeqHQHJUVrAs3A5GH3dDSi8gJmB9qZrsN5o7uZVzo8VifZyB8Mkh122QHF95K5cpD+vfgSNXVXbk3cwT+GNnOYWNN8DgRC8YNi1kprp/sKZYCkMwQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; dkim=fail (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=Z4Tv667f reason="signature verification failed"; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=ltfarP+2;
+	dkim=fail reason="signature verification failed" (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=Z4Tv667f;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
 Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cp5lZ6WH2z3cfH
-	for <linux-erofs@lists.ozlabs.org>; Sat, 18 Oct 2025 00:49:14 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cp5lg1DGZz3cfx
+	for <linux-erofs@lists.ozlabs.org>; Sat, 18 Oct 2025 00:49:19 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 52B1C44028;
-	Fri, 17 Oct 2025 13:49:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D256BC4CEE7;
-	Fri, 17 Oct 2025 13:49:11 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 83C8F448C2;
+	Fri, 17 Oct 2025 13:49:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C146DC116B1;
+	Fri, 17 Oct 2025 13:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1760708953;
-	bh=/SFhsPPhi3DTw2DVlHMYbfvarQ68KRPlJ5dKQf2wo5Y=;
+	s=korg; t=1760708957;
+	bh=Ua7vCzS3o009KwoPLTQB4DGIeRIPg7Y50HxDIYzrkHY=;
 	h=Subject:To:Cc:From:Date:In-Reply-To:From;
-	b=ltfarP+2rXkk3f6zchK6vHPHoVrFh+Uip+PhTMq7KYU5Zm4iLOYROfs8sh+rWdOOy
-	 cHgQoWBZmxirMehC+6J2KHCgfo+Vo1kXnI0RQ4SJ75n7xjFFmvU+9NeN53sPVxMv+9
-	 T2ZerlqQFpL1VsSO+GPm+TX9MgnEu2m9guBl7hR0=
-Subject: Patch "minmax: improve macro expansion and type checking" has been added to the 5.10-stable tree
-To: David.Laight@ACULAB.COM, David.Laight@aculab.com,
-	Jason@zx2c4.com, adilger.kernel@dilger.ca, agk@redhat.com,
-	airlied@linux.ie, akpm@linux-foundation.org,
-	alexander.deucher@amd.com, alexandre.torgue@st.com,
-	amd-gfx@lists.freedesktop.org, andriy.shevchenko@linux.intel.com,
-	anton.ivanov@cambridgegreys.com, arnd@kernel.org,
-	artur.paszkiewicz@intel.com, bp@alien8.de, brian.starkey@arm.com,
+	b=Z4Tv667f5UNsoyLfrw8kT7YN68oXeKQt6imFGs/Kn9Gn+qDiFqGAGFVqsG0aPf1EL
+	 9T/5lD4QTM19vxB9s6LQp6/mpKzrJcj4f8NKn+85bbDL2Kmx2L73KEzP8pFO9JUsFU
+	 GiujvVza0TVDfwa22jt1Ague8WXkgNrILyzqRHzM=
+Subject: Patch "minmax: Introduce {min,max}_array()" has been added to the 5.10-stable tree
+To: David.Laight@ACULAB.COM, Jason@zx2c4.com,
+	adilger.kernel@dilger.ca, agk@redhat.com, airlied@linux.ie,
+	akpm@linux-foundation.org, alexander.deucher@amd.com,
+	alexandre.torgue@st.com, amd-gfx@lists.freedesktop.org,
+	andriy.shevchenko@linux.intel.com, andy.shevchenko@gmail.com,
+	anton.ivanov@cambridgegreys.com, artur.paszkiewicz@intel.com,
+	bp@alien8.de, brian.starkey@arm.com, broonie@kernel.org,
 	bvanassche@acm.org, chao@kernel.org, christian.koenig@amd.com,
-	clm@fb.com, coreteam@netfilter.org, daniel@ffwll.ch,
-	dave.hansen@linux.intel.com, davem@davemloft.net,
+	christophe.leroy@csgroup.eu, clm@fb.com, coreteam@netfilter.org,
+	daniel@ffwll.ch, dave.hansen@linux.intel.com, davem@davemloft.net,
 	dm-devel@redhat.com, dmitry.torokhov@gmail.com,
 	dri-devel@lists.freedesktop.org, dsterba@suse.com, dushistov@mail.ru,
 	evan.quan@amd.com, farbere@amazon.com, fery@cypress.com,
@@ -59,8 +59,8 @@ To: David.Laight@ACULAB.COM, David.Laight@aculab.com,
 	gregkh@linuxfoundation.org, harry.wentland@amd.com,
 	hdegoede@redhat.com, herve.codina@bootlin.com, hpa@zytor.com,
 	intel-linux-scu@intel.com, jack@suse.com, james.morse@arm.com,
-	james.qian.wang@arm.com, jdelvare@suse.com, jdike@addtoit.com,
-	jejb@linux.ibm.com, jmal@lists.ozlabs.org, oy@redhat.com,
+	james.qian.wang@arm.com, jdelvare@suse.com, jdike@ad,
+	dtoit.com@lists.ozlabs.org, jejb@linux.ibm.com, jmaloy@redhat.com,
 	joabreu@synopsys.com, josef@toxicpanda.com, kadlec@netfilter.org,
 	kbusch@kernel.org, keescook@chromium.org, kuba@kernel.org,
 	kuznet@ms2.inr.ac.ru, linux-arm-kernel@lists.infradead.org,
@@ -69,9 +69,9 @@ To: David.Laight@ACULAB.COM, David.Laight@aculab.com,
 	linux-stm32@st-md-mailman.stormreply.com,
 	linux-um@lists.infradead.org, linux@armlinux.org.uk,
 	linux@rasmusvillemoes.dk, linux@roeck-us.net, liviu.dudau@arm.com,
-	lorenzo.stoakes@oracle.com, luc.vanoostenryck@gmail.com,
-	luto@kernel.org, maarten.lankhorst@linux.intel.com,
-	malattia@linux.it, martin.petersen@oracle.com, mchehab@kernel.org,
+	luc.vanoostenryck@gmail.com, luto@kernel.org,
+	maarten.lankhorst@linux.intel.com, malattia@linux.it,
+	martin.petersen@oracle.com, mchehab@kernel.org,
 	mcoquelin.stm32@gmail.com, mgross@linux.intel.com,
 	mihail.atanassov@arm.com, minchan@kernel.org, mingo@redhat.com,
 	mripard@kernel.org, nathan@kernel.org, ndesaulniers@google.com,
@@ -79,18 +79,17 @@ To: David.Laight@ACULAB.COM, David.Laight@aculab.com,
 	peterz@infradead.org, pmladek@suse.com, qiuxu.zhuo@intel.com,
 	rajur@chelsio.com, richard@nod.at, robdclark@gmail.com,
 	rostedt@goodmis.org, rric@kernel.org, ruanjinjie@huawei.com,
-	s@lists.ozlabs.org, akari.ailus@linux.intel.com, sashal@kernel.org,
-	sean@poorly.run, sergey.senozhatsky@gmail.com, snitzer@redhat.com,
-	sunpeng.li@amd.com, tglx@linutronix.de,
-	tipc-discussion@lists.sourceforge.net, tony.luck@intel.com,
-	torvalds@linux-foundation.org, tytso@mit.edu, tzimmermann@suse.de,
+	sakari.ailus@linux.intel.com, sashal@kernel.org, sean@poorly.run,
+	sergey.senozhatsky@gmail.com, snitzer@redhat.com, sunpeng.li@amd.com,
+	tglx@linutronix.de, tipc-discussion@lists.sourceforge.net,
+	tony.luck@intel.com, tytso@mit.edu, tzimmermann@suse.de,
 	willy@infradead.org, x86@kernel.org, xiang@kernel.org,
 	ying.xue@windriver.com, yoshfuji@linux-ipv6.org
 Cc: <stable-commits@vger.kernel.org>
 From: <gregkh@linuxfoundation.org>
 Date: Fri, 17 Oct 2025 15:48:30 +0200
-In-Reply-To: <20251017090519.46992-20-farbere@amazon.com>
-Message-ID: <2025101730-passing-upcountry-57a7@gregkh>
+In-Reply-To: <20251017090519.46992-7-farbere@amazon.com>
+Message-ID: <2025101730-mumps-protozoan-aca4@gregkh>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -110,224 +109,121 @@ X-Patchwork-Hint: ignore
 
 This is a note to let you know that I've just added the patch titled
 
-    minmax: improve macro expansion and type checking
+    minmax: Introduce {min,max}_array()
 
 to the 5.10-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     minmax-improve-macro-expansion-and-type-checking.patch
+     minmax-introduce-min-max-_array.patch
 and it can be found in the queue-5.10 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From prvs=378230090=farbere@amazon.com Fri Oct 17 11:11:40 2025
+From prvs=378230090=farbere@amazon.com Fri Oct 17 11:07:34 2025
 From: Eliav Farber <farbere@amazon.com>
-Date: Fri, 17 Oct 2025 09:05:11 +0000
-Subject: minmax: improve macro expansion and type checking
+Date: Fri, 17 Oct 2025 09:04:58 +0000
+Subject: minmax: Introduce {min,max}_array()
 To: <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>, <linux@armlinux.org.uk>, <jdike@addtoit.com>, <richard@nod.at>, <anton.ivanov@cambridgegreys.com>, <dave.hansen@linux.intel.com>, <luto@kernel.org>, <peterz@infradead.org>, <tglx@linutronix.de>, <mingo@redhat.com>, <bp@alien8.de>, <x86@kernel.org>, <hpa@zytor.com>, <tony.luck@intel.com>, <qiuxu.zhuo@intel.com>, <mchehab@kernel.org>, <james.morse@arm.com>, <rric@kernel.org>, <harry.wentland@amd.com>, <sunpeng.li@amd.com>, <alexander.deucher@amd.com>, <christian.koenig@amd.com>, <airlied@linux.ie>, <daniel@ffwll.ch>, <evan.quan@amd.com>, <james.qian.wang@arm.com>, <liviu.dudau@arm.com>, <mihail.atanassov@arm.com>, <brian.starkey@arm.com>, <maarten.lankhorst@linux.intel.com>, <mripard@kernel.org>, <tzimmermann@suse.de>, <robdclark@gmail.com>, <sean@poorly.run>, <jdelvare@suse.com>, <linux@roeck-us.net>, <fery@cypress.com>, <dmitry.torokhov@gmail.com>, <agk@redhat.com>, <snitzer@redhat.com>, <dm-devel@redhat.com>, <rajur@chelsio
  .com>, <davem@davemloft.net>, <kuba@kernel.org>, <peppe.cavallaro@st.com>, <alexandre.torgue@st.com>, <joabreu@synopsys.com>, <mcoquelin.stm32@gmail.com>, <malattia@linux.it>, <hdegoede@redhat.com>, <mgross@linux.intel.com>, <intel-linux-scu@intel.com>, <artur.paszkiewicz@intel.com>, <jejb@linux.ibm.com>, <martin.petersen@oracle.com>, <sakari.ailus@linux.intel.com>, <clm@fb.com>, <josef@toxicpanda.com>, <dsterba@suse.com>, <xiang@kernel.org>, <chao@kernel.org>, <jack@suse.com>, <tytso@mit.edu>, <adilger.kernel@dilger.ca>, <dushistov@mail.ru>, <luc.vanoostenryck@gmail.com>, <rostedt@goodmis.org>, <pmladek@suse.com>, <sergey.senozhatsky@gmail.com>, <andriy.shevchenko@linux.intel.com>, <linux@rasmusvillemoes.dk>, <minchan@kernel.org>, <ngupta@vflare.org>, <akpm@linux-foundation.org>, <kuznet@ms2.inr.ac.ru>, <yoshfuji@linux-ipv6.org>, <pablo@netfilter.org>, <kadlec@netfilter.org>, <fw@strlen.de>, <jmaloy@redhat.com>, <ying.xue@windriver.com>, <willy@infradead.org>, <farbere@amazon.com>,
   <sashal@kernel.org>, <ruanjinjie@huawei.com>, <David.Laight@ACULAB.COM>, <herve.codina@bootlin.com>, <Jason@zx2c4.com>, <keescook@chromium.org>, <kbusch@kernel.org>, <nathan@kernel.org>, <bvanassche@acm.org>, <ndesaulniers@google.com>, <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>, <linux-um@lists.infradead.org>, <linux-edac@vger.kernel.org>, <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>, <linux-arm-msm@vger.kernel.org>, <freedreno@lists.freedesktop.org>, <linux-hwmon@vger.kernel.org>, <linux-input@vger.kernel.org>, <linux-media@vger.kernel.org>, <netdev@vger.kernel.org>, <linux-stm32@st-md-mailman.stormreply.com>, <platform-driver-x86@vger.kernel.org>, <linux-scsi@vger.kernel.org>, <linux-staging@lists.linux.dev>, <linux-btrfs@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>, <linux-ext4@vger.kernel.org>, <linux-sparse@vger.kernel.org>, <linux-mm@kvack.org>, <netfilter-devel@vger.kernel.org>, <coreteam@netfilter.org>, <tipc-discussion@
  lists.sourceforge.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Arnd Bergmann <arnd@kernel.org>, David Laight <David.Laight@aculab.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Message-ID: <20251017090519.46992-20-farbere@amazon.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <20251017090519.46992-7-farbere@amazon.com>
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Herve Codina <herve.codina@bootlin.com>
 
-[ Upstream commit 22f5468731491e53356ba7c028f0fdea20b18e2c ]
+[ Upstream commit c952c748c7a983a8bda9112984e6f2c1f6e441a5 ]
 
-This clarifies the rules for min()/max()/clamp() type checking and makes
-them a much more efficient macro expansion.
+Introduce min_array() (resp max_array()) in order to get the
+minimal (resp maximum) of values present in an array.
 
-In particular, we now look at the type and range of the inputs to see
-whether they work together, generating a mask of acceptable comparisons,
-and then just verifying that the inputs have a shared case:
-
- - an expression with a signed type can be used for
-    (1) signed comparisons
-    (2) unsigned comparisons if it is statically known to have a
-        non-negative value
-
- - an expression with an unsigned type can be used for
-    (3) unsigned comparison
-    (4) signed comparisons if the type is smaller than 'int' and thus
-        the C integer promotion rules will make it signed anyway
-
-Here rule (1) and (3) are obvious, and rule (2) is important in order to
-allow obvious trivial constants to be used together with unsigned
-values.
-
-Rule (4) is not necessarily a good idea, but matches what we used to do,
-and we have extant cases of this situation in the kernel.  Notably with
-bcachefs having an expression like
-
-	min(bch2_bucket_sectors_dirty(a), ca->mi.bucket_size)
-
-where bch2_bucket_sectors_dirty() returns an 's64', and
-'ca->mi.bucket_size' is of type 'u16'.
-
-Technically that bcachefs comparison is clearly sensible on a C type
-level, because the 'u16' will go through the normal C integer promotion,
-and become 'int', and then we're comparing two signed values and
-everything looks sane.
-
-However, it's not entirely clear that a 'min(s64,u16)' operation makes a
-lot of conceptual sense, and it's possible that we will remove rule (4).
-After all, the _reason_ we have these complicated type checks is exactly
-that the C type promotion rules are not very intuitive.
-
-But at least for now the rule is in place for backwards compatibility.
-
-Also note that rule (2) existed before, but is hugely relaxed by this
-commit.  It used to be true only for the simplest compile-time
-non-negative integer constants.  The new macro model will allow cases
-where the compiler can trivially see that an expression is non-negative
-even if it isn't necessarily a constant.
-
-For example, the amdgpu driver does
-
-	min_t(size_t, sizeof(fru_info->serial), pia[addr] & 0x3F));
-
-because our old 'min()' macro would see that 'pia[addr] & 0x3F' is of
-type 'int' and clearly not a C constant expression, so doing a 'min()'
-with a 'size_t' is a signedness violation.
-
-Our new 'min()' macro still sees that 'pia[addr] & 0x3F' is of type
-'int', but is smart enough to also see that it is clearly non-negative,
-and thus would allow that case without any complaints.
-
-Cc: Arnd Bergmann <arnd@kernel.org>
-Cc: David Laight <David.Laight@aculab.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/20230623085830.749991-8-herve.codina@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Eliav Farber <farbere@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/compiler.h |    9 +++++
- include/linux/minmax.h   |   78 ++++++++++++++++++++++++++++++++++++-----------
- 2 files changed, 70 insertions(+), 17 deletions(-)
+ include/linux/minmax.h |   64 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -252,6 +252,15 @@ static inline void *offset_to_ptr(const
- #define is_signed_type(type) (((type)(-1)) < (__force type)1)
- 
- /*
-+ * Useful shorthand for "is this condition known at compile-time?"
-+ *
-+ * Note that the condition may involve non-constant values,
-+ * but the compiler may know enough about the details of the
-+ * values to determine that the condition is statically true.
-+ */
-+#define statically_true(x) (__builtin_constant_p(x) && (x))
-+
-+/*
-  * This is needed in functions which generate the stack canary, see
-  * arch/x86/kernel/smpboot.c::start_secondary() for an example.
-  */
 --- a/include/linux/minmax.h
 +++ b/include/linux/minmax.h
-@@ -26,19 +26,63 @@
- #define __typecheck(x, y) \
- 	(!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
+@@ -151,6 +151,70 @@
+  */
+ #define max_t(type, x, y)	__careful_cmp((type)(x), (type)(y), >)
  
--/* is_signed_type() isn't a constexpr for pointer types */
--#define __is_signed(x) 								\
--	__builtin_choose_expr(__is_constexpr(is_signed_type(typeof(x))),	\
--		is_signed_type(typeof(x)), 0)
--
--/* True for a non-negative signed int constant */
--#define __is_noneg_int(x)	\
--	(__builtin_choose_expr(__is_constexpr(x) && __is_signed(x), x, -1) >= 0)
--
--#define __types_ok(x, y, ux, uy) 				\
--	(__is_signed(ux) == __is_signed(uy) ||			\
--	 __is_signed((ux) + 0) == __is_signed((uy) + 0) ||	\
--	 __is_noneg_int(x) || __is_noneg_int(y))
 +/*
-+ * __sign_use for integer expressions:
-+ *   bit #0 set if ok for unsigned comparisons
-+ *   bit #1 set if ok for signed comparisons
-+ *
-+ * In particular, statically non-negative signed integer
-+ * expressions are ok for both.
-+ *
-+ * NOTE! Unsigned types smaller than 'int' are implicitly
-+ * converted to 'int' in expressions, and are accepted for
-+ * signed conversions for now. This is debatable.
-+ *
-+ * Note that 'x' is the original expression, and 'ux' is
-+ * the unique variable that contains the value.
-+ *
-+ * We use 'ux' for pure type checking, and 'x' for when
-+ * we need to look at the value (but without evaluating
-+ * it for side effects! Careful to only ever evaluate it
-+ * with sizeof() or __builtin_constant_p() etc).
-+ *
-+ * Pointers end up being checked by the normal C type
-+ * rules at the actual comparison, and these expressions
-+ * only need to be careful to not cause warnings for
-+ * pointer use.
++ * Remove a const qualifier from integer types
++ * _Generic(foo, type-name: association, ..., default: association) performs a
++ * comparison against the foo type (not the qualified type).
++ * Do not use the const keyword in the type-name as it will not match the
++ * unqualified type of foo.
 + */
-+#define __signed_type_use(x,ux) (2+__is_nonneg(x,ux))
-+#define __unsigned_type_use(x,ux) (1+2*(sizeof(ux)<4))
-+#define __sign_use(x,ux) (is_signed_type(typeof(ux))? \
-+	__signed_type_use(x,ux):__unsigned_type_use(x,ux))
++#define __unconst_integer_type_cases(type)	\
++	unsigned type:  (unsigned type)0,	\
++	signed type:    (signed type)0
++
++#define __unconst_integer_typeof(x) typeof(			\
++	_Generic((x),						\
++		char: (char)0,					\
++		__unconst_integer_type_cases(char),		\
++		__unconst_integer_type_cases(short),		\
++		__unconst_integer_type_cases(int),		\
++		__unconst_integer_type_cases(long),		\
++		__unconst_integer_type_cases(long long),	\
++		default: (x)))
 +
 +/*
-+ * To avoid warnings about casting pointers to integers
-+ * of different sizes, we need that special sign type.
++ * Do not check the array parameter using __must_be_array().
++ * In the following legit use-case where the "array" passed is a simple pointer,
++ * __must_be_array() will return a failure.
++ * --- 8< ---
++ * int *buff
++ * ...
++ * min = min_array(buff, nb_items);
++ * --- 8< ---
 + *
-+ * On 64-bit we can just always use 'long', since any
-+ * integer or pointer type can just be cast to that.
++ * The first typeof(&(array)[0]) is needed in order to support arrays of both
++ * 'int *buff' and 'int buff[N]' types.
 + *
-+ * This does not work for 128-bit signed integers since
-+ * the cast would truncate them, but we do not use s128
-+ * types in the kernel (we do use 'u128', but they will
-+ * be handled by the !is_signed_type() case).
-+ *
-+ * NOTE! The cast is there only to avoid any warnings
-+ * from when values that aren't signed integer types.
++ * The array can be an array of const items.
++ * typeof() keeps the const qualifier. Use __unconst_integer_typeof() in order
++ * to discard the const qualifier for the __element variable.
 + */
-+#ifdef CONFIG_64BIT
-+  #define __signed_type(ux) long
-+#else
-+  #define __signed_type(ux) typeof(__builtin_choose_expr(sizeof(ux)>4,1LL,1L))
-+#endif
-+#define __is_nonneg(x,ux) statically_true((__signed_type(ux))(x)>=0)
++#define __minmax_array(op, array, len) ({				\
++	typeof(&(array)[0]) __array = (array);				\
++	typeof(len) __len = (len);					\
++	__unconst_integer_typeof(__array[0]) __element = __array[--__len]; \
++	while (__len--)							\
++		__element = op(__element, __array[__len]);		\
++	__element; })
 +
-+#define __types_ok(x,y,ux,uy) \
-+	(__sign_use(x,ux) & __sign_use(y,uy))
++/**
++ * min_array - return minimum of values present in an array
++ * @array: array
++ * @len: array length
++ *
++ * Note that @len must not be zero (empty array).
++ */
++#define min_array(array, len) __minmax_array(min, array, len)
 +
-+#define __types_ok3(x,y,z,ux,uy,uz) \
-+	(__sign_use(x,ux) & __sign_use(y,uy) & __sign_use(z,uz))
- 
- #define __cmp_op_min <
- #define __cmp_op_max >
-@@ -53,8 +97,8 @@
- 
- #define __careful_cmp_once(op, x, y, ux, uy) ({		\
- 	__auto_type ux = (x); __auto_type uy = (y);	\
--	static_assert(__types_ok(x, y, ux, uy),		\
--		#op "(" #x ", " #y ") signedness error, fix types or consider u" #op "() before " #op "_t()"); \
-+	BUILD_BUG_ON_MSG(!__types_ok(x,y,ux,uy),	\
-+		#op"("#x", "#y") signedness error");	\
- 	__cmp(op, ux, uy); })
- 
- #define __careful_cmp(op, x, y) \
-@@ -70,8 +114,8 @@
- 	static_assert(__builtin_choose_expr(__is_constexpr((lo) > (hi)), 	\
- 			(lo) <= (hi), true),					\
- 		"clamp() low limit " #lo " greater than high limit " #hi);	\
--	static_assert(__types_ok(uval, lo, uval, ulo), "clamp() 'lo' signedness error");	\
--	static_assert(__types_ok(uval, hi, uval, uhi), "clamp() 'hi' signedness error");	\
-+	BUILD_BUG_ON_MSG(!__types_ok3(val,lo,hi,uval,ulo,uhi),			\
-+		"clamp("#val", "#lo", "#hi") signedness error");		\
- 	__clamp(uval, ulo, uhi); })
- 
- #define __careful_clamp(val, lo, hi) \
++/**
++ * max_array - return maximum of values present in an array
++ * @array: array
++ * @len: array length
++ *
++ * Note that @len must not be zero (empty array).
++ */
++#define max_array(array, len) __minmax_array(max, array, len)
++
+ /**
+  * clamp_t - return a value clamped to a given range using a given type
+  * @type: the type of variable to use
 
 
 Patches currently in stable-queue which might be from farbere@amazon.com are
