@@ -1,63 +1,70 @@
-Return-Path: <linux-erofs+bounces-1298-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1300-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F067BCCD1BF
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Oct 2025 12:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC9E6CCD1BF
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Oct 2025 00:26:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4cwqtG2YJ2z3dWF;
-	Tue, 28 Oct 2025 23:48:22 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1761655702;
-	cv=none; b=jv1eMXTvYADaWUIIvmBhJoalR55h9uDGKiH6eWzE263plJFjNQKEGV40nE0RoIJpXmsw+68UnTQX19WO8ts+8+9rIOY6QjdylbKLveJ408LZ4yfxXisFFxzMMJ6YzGudH0PSW5HTE9wDfM/uZ6Ch5q/4vEyCrY9eVc7eXAGTrHOkqK6m7iCLTZyYAY2AdCHtfDjLNG8/Yq+cXWHrhe7TWz7Be7e4lJCqdTnxqLm891IPXNtSzjajg7TtnkI5U/KUxY3ZxGoFwrWQLygl1SO3WoRsIw2vvCKAM4r3n0ysc/7+ma0/eq5EdXYOYIZQCWT2dB1VZYuYYZU9ZCU0BHBTuw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4cx7N52cHrz2yyx;
+	Wed, 29 Oct 2025 11:26:45 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.14
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1761697605;
+	cv=none; b=CgbAQ0uWawH9ID/n6tZ2Q/OT6vMqw6wKxherlcQwaZTD+6+Vnb8RW3CVH8hyoEhO0RYWIl/gG88z7PvEYuX6GRRFrvCUNznwakXD54JqNe+QTT5ThMG4PKVk8QFizyNkIL8Bye4MQTXRSCNwQAC/xyOZfxjUoN5si7gOTuCjNKogRMpArkQO+f6oNyjPXssJSYA7PSpCXSO9dlhMngPguRj+1X1011Ea6Ct0Kk7vGYWmCcKGlRA90GFdp8OafdF/C4tgvUluWFS4OxLK3Ev8v+T9UhrclXcUbsWa1uzOCJFVkjgDilmQbE7VLw4V7n2rB5DvQKxWZTBVAOT4OOyP0Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1761655702; c=relaxed/relaxed;
-	bh=IbWl0FLLqNYn7w8cvibcgE8ralQvOzdNAZm+KmqCPto=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=l/Q58m+okf4CmtNXspMC3XgW+Cm8EP7HbCQBPAvYUrQKCZmbDLnyf4GgbyEk+/YMkfcyGY80ou9Ihb4ljEtLyuowO/F96YSJOsMnbTQemAgzyRGLZBrs00/K0amZnB6TnVv/EsDmXBub4XYIv4O6bUszn3A9J8mnQybATlD+hnei/9AjHaFOSZ9cUUpH0nvSsM0hiApdLKqrUrQyIjwAqU9L8Zt+S6x4tvO0JvYgqfz7awRSCO7F5qtbS9mlJWkUwRwZvG/Ohn8m1TWjGPn6FAsoePvItUXPRVpU35P0RtFkyIU6Z5vPCM1Bq7vKCVEjR6/Wdc6mPETC3xslZ7drxQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=sXvWC6YC; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=sashal@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1761697605; c=relaxed/relaxed;
+	bh=HOzKwnKmyg1HMPlwN2QXaVBltp7oxmMeZxNcYgHQfuI=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=BMCK8U3tRpvFnf8VquksJtzkFAbJBRay+EyVirUffcjrdl8lOL3PbDgkeo1X2KE4hg7wTQ10f6Y+pwOf2JUsb4JHEaPV2z1cKh/WMJ7X44kgfTzCF3IQWCD5fW5dxQ70rG0XAc+hKfQjDZSnU2zO9YGVwfbv9VX7hzCxWegrTX/r7P7q/Iwv6WQZEDqy85To5VWZ82yuo49nGbDaCQ692ACbzV8G0mFK6oG8FNq4YPIImonERJHkQH5htls8n99yo9GfPTW+PdeK5USCZ0enWHrSoTpNMaE0Tbu6eWMB4mIbt/Qsafj4KtYFjhNXj9FZBO5XzuNxnl6CM7CF4Zlrag==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dT6DQX05; dkim-atps=neutral; spf=pass (client-ip=192.198.163.14; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=sXvWC6YC;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dT6DQX05;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=sashal@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.14; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4cwqtF2slsz3dWD
-	for <linux-erofs@lists.ozlabs.org>; Tue, 28 Oct 2025 23:48:21 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id F304244BD7;
-	Tue, 28 Oct 2025 12:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D135C4CEFD;
-	Tue, 28 Oct 2025 12:48:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761655698;
-	bh=8l3k7nzIzD5IAzRMsVP1ElNUo3/BBc1y6iqkR5WulOo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=sXvWC6YChUnkvDLzrJ2/xJTOg38Cgnrq9z+7qL5fvQQkDzPSStYub4q12W/XSRseP
-	 DM3TnI1TZnhJ9TdVx7d0ozwxtC61eMofAmfIuZJVjhhhVzawiB+L6vVs2iis5/90KB
-	 Rzmo3sBXZ48LzfOy66O8XyJMB3kUdw/rd3VuuNbT7O2CoKtUmX6WxKSd8m7BMmUl6h
-	 zkWfxZ0eaEfChUiRZFaARnzFaYBbMqKH+WyKbd/SC5ZVeaiuAyvsb5gsMMCQpy5HpK
-	 3M1VIfACvHuioQCWul+O4dU5jY53PM7AZlzvBllRycN5Uf6JJWQw8cwmDttrGp2W0i
-	 o397EjSJzkhnw==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Sasha Levin <sashal@kernel.org>,
-	xiang@kernel.org,
-	chao@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.17] erofs: consolidate z_erofs_extent_lookback()
-Date: Tue, 28 Oct 2025 08:48:02 -0400
-Message-ID: <20251028124815.1058740-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251028124815.1058740-1-sashal@kernel.org>
-References: <20251028124815.1058740-1-sashal@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4cx7N236rwz2xsq
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Oct 2025 11:26:40 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1761697602; x=1793233602;
+  h=date:from:to:cc:subject:message-id;
+  bh=oZtMU+F34cA0Fmr0B8Ss6kufBarcBjfQmuKMdkJf+Dk=;
+  b=dT6DQX0538rcicSukwAVc3+0abSZfu49qEsdDWaEaT+roHqDb+LxDK9a
+   LCOm6XBZn8neg6v11SuG4CXagP2Usbf+HII5MkWaskVtVTKwIJGy1cgGA
+   AClEVHbndUIWe3Ci/nyI9j6wmN6n1XEawjpMecrj6RFe06SPxcDjnYI4o
+   cQXpGQbwf9tTJxsM1VdMcwYdNwf2frZvaktRDXX/3/KiR7iXEglZG5RT7
+   E56BGwLIHqhm9SedQmXGZWDoP3B/ymXuIL1MvaNiPhPL5ND1s9ICmIfvB
+   fqxGyEWOQqjGrQySECXxKFh507LVbca+ssa34YC6P+rz2fIqSREwLYfKh
+   A==;
+X-CSE-ConnectionGUID: oeeKmB7GT0u1AZ8iUt8qIQ==
+X-CSE-MsgGUID: jb9qAhFOSVqzwSSykid0MQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="63846701"
+X-IronPort-AV: E=Sophos;i="6.19,262,1754982000"; 
+   d="scan'208";a="63846701"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2025 17:26:38 -0700
+X-CSE-ConnectionGUID: 5We7Z8woT+6kAyUcuII+XQ==
+X-CSE-MsgGUID: utx1sBNrQjyJg9Kcozy/Qg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,262,1754982000"; 
+   d="scan'208";a="185964622"
+Received: from lkp-server02.sh.intel.com (HELO 66d7546c76b2) ([10.239.97.151])
+  by fmviesa009.fm.intel.com with ESMTP; 28 Oct 2025 17:26:36 -0700
+Received: from kbuild by 66d7546c76b2 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1vDu1K-000Jvo-1X;
+	Wed, 29 Oct 2025 00:26:34 +0000
+Date: Wed, 29 Oct 2025 08:26:27 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ fa9bb305791513e7763fd557ba4344e1d1c1d59c
+Message-ID: <202510290821.FOcQY416-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -68,229 +75,193 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.17.5
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: fa9bb305791513e7763fd557ba4344e1d1c1d59c  MAINTAINERS: erofs: add myself as reviewer
 
-[ Upstream commit 2a13fc417f493e28bdd368785320dd4c2b3d732e ]
+elapsed time: 1178m
 
-The initial m.delta[0] also needs to be checked against zero.
+configs tested: 172
+configs skipped: 3
 
-In addition, also drop the redundant logic that errors out for
-lcn == 0 / m.delta[0] == 1 case.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+tested configs:
+alpha                             allnoconfig    gcc-15.1.0
+alpha                            allyesconfig    clang-19
+alpha                            allyesconfig    gcc-15.1.0
+alpha                               defconfig    gcc-15.1.0
+arc                              allmodconfig    clang-19
+arc                               allnoconfig    gcc-15.1.0
+arc                              allyesconfig    clang-19
+arc                                 defconfig    gcc-15.1.0
+arc                        nsimosci_defconfig    clang-22
+arc                   randconfig-001-20251028    gcc-8.5.0
+arc                   randconfig-002-20251028    gcc-13.4.0
+arc                   randconfig-002-20251028    gcc-8.5.0
+arm                              allmodconfig    clang-19
+arm                               allnoconfig    clang-22
+arm                              allyesconfig    clang-19
+arm                                 defconfig    gcc-15.1.0
+arm                   randconfig-001-20251028    clang-22
+arm                   randconfig-001-20251028    gcc-8.5.0
+arm                   randconfig-002-20251028    clang-22
+arm                   randconfig-002-20251028    gcc-8.5.0
+arm                   randconfig-003-20251028    clang-22
+arm                   randconfig-003-20251028    gcc-8.5.0
+arm                   randconfig-004-20251028    gcc-8.5.0
+arm64                            allmodconfig    clang-19
+arm64                             allnoconfig    gcc-15.1.0
+arm64                            allyesconfig    gcc-15.1.0
+arm64                               defconfig    gcc-15.1.0
+csky                             allmodconfig    gcc-15.1.0
+csky                              allnoconfig    gcc-15.1.0
+csky                             allyesconfig    gcc-15.1.0
+csky                                defconfig    gcc-15.1.0
+hexagon                          allmodconfig    clang-17
+hexagon                          allmodconfig    clang-19
+hexagon                           allnoconfig    clang-22
+hexagon                          allyesconfig    clang-19
+hexagon                          allyesconfig    clang-22
+hexagon                             defconfig    gcc-15.1.0
+i386                             allmodconfig    clang-20
+i386                              allnoconfig    gcc-14
+i386                             allyesconfig    clang-20
+i386        buildonly-randconfig-001-20251028    gcc-14
+i386        buildonly-randconfig-002-20251028    gcc-14
+i386        buildonly-randconfig-003-20251028    gcc-14
+i386        buildonly-randconfig-004-20251028    gcc-14
+i386        buildonly-randconfig-005-20251028    gcc-14
+i386        buildonly-randconfig-006-20251028    gcc-14
+i386                                defconfig    gcc-15.1.0
+i386                  randconfig-011-20251028    gcc-14
+i386                  randconfig-012-20251028    clang-20
+i386                  randconfig-012-20251028    gcc-14
+i386                  randconfig-013-20251028    clang-20
+i386                  randconfig-013-20251028    gcc-14
+i386                  randconfig-014-20251028    clang-20
+i386                  randconfig-014-20251028    gcc-14
+i386                  randconfig-015-20251028    clang-20
+i386                  randconfig-015-20251028    gcc-14
+i386                  randconfig-016-20251028    gcc-14
+i386                  randconfig-017-20251028    gcc-14
+loongarch                        allmodconfig    clang-19
+loongarch                         allnoconfig    clang-22
+loongarch                        allyesconfig    gcc-15.1.0
+m68k                             allmodconfig    gcc-15.1.0
+m68k                              allnoconfig    gcc-15.1.0
+m68k                             allyesconfig    gcc-15.1.0
+m68k                           sun3_defconfig    clang-22
+microblaze                       allmodconfig    gcc-15.1.0
+microblaze                        allnoconfig    gcc-15.1.0
+microblaze                       allyesconfig    gcc-15.1.0
+mips                             allmodconfig    gcc-15.1.0
+mips                              allnoconfig    gcc-15.1.0
+mips                             allyesconfig    gcc-15.1.0
+mips                      maltaaprp_defconfig    clang-22
+nios2                            allmodconfig    clang-22
+nios2                             allnoconfig    gcc-11.5.0
+nios2                            allyesconfig    clang-22
+openrisc                         allmodconfig    clang-22
+openrisc                          allnoconfig    clang-22
+openrisc                          allnoconfig    gcc-15.1.0
+openrisc                         allyesconfig    gcc-15.1.0
+openrisc                            defconfig    gcc-15.1.0
+parisc                           allmodconfig    gcc-15.1.0
+parisc                            allnoconfig    clang-22
+parisc                            allnoconfig    gcc-15.1.0
+parisc                           allyesconfig    gcc-15.1.0
+parisc                              defconfig    gcc-15.1.0
+powerpc                          allmodconfig    gcc-15.1.0
+powerpc                           allnoconfig    clang-22
+powerpc                           allnoconfig    gcc-15.1.0
+powerpc                          allyesconfig    gcc-15.1.0
+powerpc                 mpc8313_rdb_defconfig    clang-22
+powerpc                    socrates_defconfig    clang-22
+powerpc                     tqm8541_defconfig    clang-22
+riscv                            allmodconfig    clang-22
+riscv                            allmodconfig    gcc-15.1.0
+riscv                             allnoconfig    clang-22
+riscv                             allnoconfig    gcc-15.1.0
+riscv                            allyesconfig    clang-16
+riscv                            allyesconfig    gcc-15.1.0
+riscv                               defconfig    gcc-15.1.0
+s390                             allmodconfig    clang-18
+s390                             allmodconfig    gcc-15.1.0
+s390                              allnoconfig    clang-22
+s390                             allyesconfig    gcc-15.1.0
+s390                                defconfig    gcc-15.1.0
+sh                               allmodconfig    gcc-15.1.0
+sh                                allnoconfig    gcc-15.1.0
+sh                               allyesconfig    gcc-15.1.0
+sh                                  defconfig    gcc-14
+sh                          r7785rp_defconfig    clang-22
+sparc                            alldefconfig    clang-22
+sparc                            allmodconfig    gcc-15.1.0
+sparc                             allnoconfig    gcc-15.1.0
+sparc                            allyesconfig    clang-22
+sparc                               defconfig    gcc-15.1.0
+sparc                 randconfig-001-20251028    gcc-9.5.0
+sparc                 randconfig-002-20251028    gcc-9.5.0
+sparc64                          allmodconfig    clang-22
+sparc64                          allyesconfig    clang-22
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20251028    gcc-9.5.0
+sparc64               randconfig-002-20251028    gcc-9.5.0
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-22
+um                               allyesconfig    clang-19
+um                               allyesconfig    gcc-14
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20251028    gcc-9.5.0
+um                    randconfig-002-20251028    gcc-9.5.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-20
+x86_64                            allnoconfig    clang-20
+x86_64                            allnoconfig    clang-22
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20251028    clang-20
+x86_64      buildonly-randconfig-002-20251028    clang-20
+x86_64      buildonly-randconfig-003-20251028    clang-20
+x86_64      buildonly-randconfig-004-20251028    clang-20
+x86_64      buildonly-randconfig-005-20251028    clang-20
+x86_64      buildonly-randconfig-006-20251028    clang-20
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-20
+x86_64                randconfig-001-20251028    clang-20
+x86_64                randconfig-002-20251028    clang-20
+x86_64                randconfig-003-20251028    clang-20
+x86_64                randconfig-004-20251028    clang-20
+x86_64                randconfig-005-20251028    clang-20
+x86_64                randconfig-006-20251028    clang-20
+x86_64                randconfig-011-20251028    clang-20
+x86_64                randconfig-012-20251028    clang-20
+x86_64                randconfig-013-20251028    clang-20
+x86_64                randconfig-014-20251028    clang-20
+x86_64                randconfig-015-20251028    clang-20
+x86_64                randconfig-016-20251028    clang-20
+x86_64                randconfig-071-20251028    clang-20
+x86_64                randconfig-072-20251028    clang-20
+x86_64                randconfig-073-20251028    clang-20
+x86_64                randconfig-074-20251028    clang-20
+x86_64                randconfig-075-20251028    clang-20
+x86_64                randconfig-076-20251028    clang-20
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    clang-22
+xtensa                            allnoconfig    gcc-15.1.0
+xtensa                           allyesconfig    clang-22
+xtensa                randconfig-001-20251028    gcc-9.5.0
+xtensa                randconfig-002-20251028    gcc-9.5.0
 
-LLM Generated explanations, may be completely bogus:
-
-## BACKPORT RECOMMENDATION: **YES**
-
-## EXTENSIVE ANALYSIS
-
-### 1. Code Changes Analysis
-
-The commit makes two specific changes to `fs/erofs/zmap.c`:
-
-**Change 1 - In `z_erofs_extent_lookback()` function
-(fs/erofs/zmap.c:272):**
-- **BEFORE**: The check `if (!lookback_distance)` occurred AFTER calling
-  `z_erofs_load_lcluster_from_disk()` and only within the
-  `Z_EROFS_LCLUSTER_TYPE_NONHEAD` branch
-- **AFTER**: The check `if (!lookback_distance)` is moved to the
-  beginning of the while loop, BEFORE calling
-  `z_erofs_load_lcluster_from_disk()`
-- **Impact**: This prevents unnecessary disk I/O when
-  `lookback_distance` is 0, and ensures the initial `m.delta[0]` value
-  is validated before use
-
-**Change 2 - In `z_erofs_map_blocks_fo()` function
-(fs/erofs/zmap.c:435-440):**
-- **BEFORE**: Code rejected `lcn == 0` as corrupted filesystem with
-  `EFSCORRUPTED` error
-- **AFTER**: This check is completely removed
-- **Impact**: Allows valid `lcn == 0` cases to proceed instead of
-  incorrectly treating them as corruption
-
-### 2. Semantic Analysis Tools Used
-
-I used the following tools to analyze the commit:
-
-- **git log/show**: To examine commit history, related fixes, and code
-  changes
-- **Read tool**: To examine the current state of `fs/erofs/zmap.c`
-  (lines 260-290, 400-450)
-- **Grep tool**: To find all callers of `z_erofs_extent_lookback` and
-  `z_erofs_map_blocks_fo`
-- **Bash**: To examine commit context, tags, and related fixes
-
-### 3. Key Findings from Analysis
-
-**Caller Analysis:**
-- `z_erofs_extent_lookback()` is called from `z_erofs_map_blocks_fo()`
-  at line 446
-- `z_erofs_map_blocks_fo()` is called from:
-  - `z_erofs_map_blocks_iter()` at lines 699 and 756
-  - `z_erofs_map_blocks_iter()` is the main entry point for EROFS block
-    mapping
-  - Called from `z_erofs_iomap_begin_report()` (fiemap operations) and
-    `zdata.c` (read operations)
-
-**Impact Scope:**
-- Affects ALL compressed file reads in EROFS filesystems
-- EROFS is widely used in Android and embedded systems
-- The bug path is user-triggerable through normal file read operations
-
-**Related Context:**
-I discovered that this commit came immediately after TWO critical bug
-fixes by the same author:
-
-1. **e13d315ae077b** (2025-10-17): "erofs: avoid infinite loops due to
-   corrupted subpage compact indexes"
-   - Has `Fixes:` tags, `Reported-by: Robert Morris`, bug report link
-   - Fixes infinite loops from crafted images
-   - **Already backported to stable** as commit a3a04e4d968b0
-
-2. **a429b76114aac** (2025-10-12): "erofs: fix crafted invalid cases for
-   encoded extents"
-   - Has `Fixes:` tags, `Reported-by: Robert Morris`, bug report links
-   - Fixes system crashes from crafted images
-   - **Being backported to stable**
-
-### 4. Bug Severity Assessment
-
-**Bug #1: Missing initial lookback_distance check**
-- **Severity**: Medium (Correctness + Performance)
-- **Symptom**: If initial `m.delta[0]` is 0, code performs unnecessary
-  disk I/O
-- **Consequence**: Performance degradation, potential confusion in error
-  paths
-- **Exploitability**: Low - requires specific filesystem state
-
-**Bug #2: False positive corruption error**
-- **Severity**: Medium (Functionality)
-- **Symptom**: Valid filesystems with `lcn == 0` are rejected as
-  corrupted
-- **Consequence**: Unable to read certain valid compressed files
-- **User Impact**: File read failures with `EFSCORRUPTED` errors
-
-### 5. Backport Justification
-
-**Arguments FOR backporting:**
-
-1. **Fixes real bugs**: This is not just a cleanup - it fixes two actual
-   bugs:
-   - Unnecessary disk I/O (performance regression)
-   - False positive corruption errors (functionality regression)
-
-2. **Related to critical fixes**: Comes in a series with two other
-   critical bug fixes that ARE being backported. Having partial fixes
-   backported creates inconsistency.
-
-3. **Low risk**:
-   - Small, focused change (6 insertions, 14 deletions)
-   - Simplifies code (removes unnecessary branches)
-   - No new features or architectural changes
-
-4. **Production impact**: EROFS is actively used in Android and embedded
-   systems. Users could encounter:
-   - Performance issues from unnecessary I/O
-   - Mount/read failures from false positive errors
-
-5. **Author expertise**: Gao Xiang is the EROFS maintainer and clearly
-   understands the correct behavior. The removed check was indeed
-   "redundant logic" as stated.
-
-**Arguments AGAINST backporting:**
-
-1. **No explicit stable marking**: Author didn't add `Cc:
-   stable@vger.kernel.org` or `Fixes:` tag
-
-2. **No reported issues**: Unlike the surrounding commits, no bug
-   reports or CVEs mentioned
-
-3. **Title suggests cleanup**: "consolidate" could imply refactoring
-   rather than bug fixing
-
-### 6. Final Recommendation Reasoning
-
-Despite the lack of explicit stable marking, I recommend **YES for
-backporting** because:
-
-- The commit message explicitly states a bug: "The initial m.delta[0]
-  also needs to be checked against zero"
-- It fixes user-visible issues (false corruption errors)
-- It's part of a series addressing EROFS robustness with
-  crafted/corrupted filesystems
-- The surrounding critical fixes ARE being backported
-- Small size and low regression risk
-- Improves correctness and performance with no downsides
-
-The commit follows the stable kernel rules:
-- ✅ Fixes important bugs (performance + false positives)
-- ✅ Small and contained change
-- ✅ No new features
-- ✅ Low regression risk
-- ✅ Affects production systems (Android/embedded)
-
-**Recommendation: Backport to all stable trees that contain the affected
-code (likely 6.15+ where encoded extents were introduced).**
-
- fs/erofs/zmap.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
-
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index 798223e6da9ce..7a14902af5d38 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -268,20 +268,19 @@ static int z_erofs_extent_lookback(struct z_erofs_maprecorder *m,
- 		unsigned long lcn = m->lcn - lookback_distance;
- 		int err;
- 
-+		if (!lookback_distance)
-+			break;
-+
- 		err = z_erofs_load_lcluster_from_disk(m, lcn, false);
- 		if (err)
- 			return err;
--
- 		if (m->type == Z_EROFS_LCLUSTER_TYPE_NONHEAD) {
- 			lookback_distance = m->delta[0];
--			if (!lookback_distance)
--				break;
- 			continue;
--		} else {
--			m->headtype = m->type;
--			m->map->m_la = (lcn << lclusterbits) | m->clusterofs;
--			return 0;
- 		}
-+		m->headtype = m->type;
-+		m->map->m_la = (lcn << lclusterbits) | m->clusterofs;
-+		return 0;
- 	}
- 	erofs_err(sb, "bogus lookback distance %u @ lcn %lu of nid %llu",
- 		  lookback_distance, m->lcn, vi->nid);
-@@ -431,13 +430,6 @@ static int z_erofs_map_blocks_fo(struct inode *inode,
- 			end = inode->i_size;
- 	} else {
- 		if (m.type != Z_EROFS_LCLUSTER_TYPE_NONHEAD) {
--			/* m.lcn should be >= 1 if endoff < m.clusterofs */
--			if (!m.lcn) {
--				erofs_err(sb, "invalid logical cluster 0 at nid %llu",
--					  vi->nid);
--				err = -EFSCORRUPTED;
--				goto unmap_out;
--			}
- 			end = (m.lcn << lclusterbits) | m.clusterofs;
- 			map->m_flags |= EROFS_MAP_FULL_MAPPED;
- 			m.delta[0] = 1;
--- 
-2.51.0
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
