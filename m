@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-1399-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1400-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4EFD7CEBF91
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Nov 2025 13:37:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20715CEACEF
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Nov 2025 13:37:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4d981k1lSFz300F;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4d981k2z5tz304h;
 	Tue, 18 Nov 2025 00:37:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.220
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.221
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1763386650;
-	cv=none; b=NuUK6u5KkfNcEUbNGlbGRJDxIQG/Y+IVs6KQf+wU5z4Xko2hrp4OZ8WsJ2QxzuymZb3pg4JsTEY6HqWAO14xKGxSPwS76LOG7ypooOU1ZSWu/dQa+GdSa1U7GzbTXS2ladTx98M5gjqGEZ+YGknpngFJniley4K2q2NDGQIBD+NPkJwfvkHUxkJIfCAU4PqtjiKgO5cKhXGZR2vkEHIGfp7mI3e9x7d41vNUNKVAlIB4GbvwhI0D3iY6kj9ddmd9sILglm5hVpbqgco9//JEtjA6w1sn6wDL1e/OzOUpZjsNo03ibbc9bIglX+cIPlCT+VtP97VS7cvFTO7r2BKy7Q==
+	cv=none; b=ikmicKyx2oO0qWJ1rMIkxwHc93i7DuQyG2k//BCW2nfykziS5Jo4Ytn5kgw4vsG9Cv5oMSSnjEsSstaIkg8qOgdjUBiRlKnva7QfvdzRUzaMKUVtxsUJAj4oCsnP2a2HfHdII+dgUuZ8uxI4tB4SMMw5S8x+CF6gE62NQllMiBXYGFXLD6ARCiYcx5gK6HSO2BZsLSReqs/GNlnDrdxE/1P9HP74swKd2nUCTcWF5Ilw9zhwbMx1KLq1oeO7AlhV9Upyd/68V4C5M3ZmcXLOcwv6s/ae366+Fm88yE5c7/T8KmO7U/QzuT/Oxl9RMbpSbL+Hg3rEdU1wHQUyb3bmDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1763386650; c=relaxed/relaxed;
-	bh=p0umYnge/9FjlLkpy4PvS2wcFW3FASjdMXzdFE5g+6g=;
+	bh=VE0DQ7pctvI8MKUuVLQSMq+RxdHSNjkD65i/wt7FY9k=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=A3/hR/W468Pi+YzYNcLpJXPaKo9ydlxt3wHzS/xGPupxw0G5AE+s/JnbSRnjfiX3IHjh7c6wgnfievDXJGq0yySDcAo+Fn3kn1B9NAbB/U5F0Sv/qr8SBFlHl2mRuOQwiyZOkKj35DBqeeVmi78dbQUv88KUT37QPzu/XEOV6RtKplQZiN8YdnPKMvG4J9DR93S+I1UEqvtCk/xnasAxjfevilhzSwvkGvrKzY4S9Djfn/TLuvy6KqDswFmbjUn2JeXujmT0Eql7BglbkdCdR2K+8ptt1KMR2oTB2W/rFeD+VU85sYu+Usw7DI0zyLJeqAdmrIYRTaQ7BBuuHQjGWw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ykDEiun6; dkim-atps=neutral; spf=pass (client-ip=113.46.200.220; helo=canpmsgout05.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=ceKoCH5+EPCGCy748XmazLiL1dt6B9mP06yq3m/Pf5GjBX/NURaFb55mj7ug61j2K9ci9O3UCwSXszeJPhWMET6xP0p2MpUcolUNf8ztIkuvdGWquIA5vrgE7WgIq4ZuvNefyku/REgEViq5U5rDnOT5L8APs3SPQr33yxcsd78LOmdWh5+8/q6Ey5kLlbar6dZeOp2qq2LE2kxOmXJH/xTMWmQChECTz3zHJvaNvvWF6qX8jWjYdGbTrKv+DlB0NQ2WQExPLrMR+/sa3DiZT7tQiUL9pWm2XpuS4vHDZKtqhf9Z+GmwXx0xd8UYC6eCMe9AgEUo6qLhDVvxOQ/eAg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=U0mzbbkr; dkim-atps=neutral; spf=pass (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ykDEiun6;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=U0mzbbkr;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.220; helo=canpmsgout05.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4d981d4Yrdz308g
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4d981d6JC1z30TL
 	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Nov 2025 00:37:25 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=p0umYnge/9FjlLkpy4PvS2wcFW3FASjdMXzdFE5g+6g=;
-	b=ykDEiun6uQV0x6mT1Z3+CS6s2um2ALZmoXqzXZGY9B7fYbgrrdPioYXkHBidFDyRjPXiFpoX5
-	tfyRDEhEfpPqwNAu49HkEEPW+idu9Q908Jdp9+RqzZdOZ8pM6dvRNpwCDF+rAULgwyGFT/BDItI
-	i9tinlXEg7iqM4Ht/Uxq20Y=
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4d97zq2zltz12Lfd;
-	Mon, 17 Nov 2025 21:35:51 +0800 (CST)
+	bh=VE0DQ7pctvI8MKUuVLQSMq+RxdHSNjkD65i/wt7FY9k=;
+	b=U0mzbbkr6XqSBexR9vLPrW62ltoceXM76eb1thCUd7R4PI93f3zOeio1BUh/Y+FBEfGQAzWN5
+	xHjBu8EECQ9XlCFtNCx2BdnQyM5Uu/epg1dcdYDUMj9D0roOOPABrkwiRIfvdGRK0BFth5hcxDm
+	ujhGwQ2xuWSnAQ60VG2gOXM=
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4d97zW113BzRhrk;
+	Mon, 17 Nov 2025 21:35:35 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id 043B1180471;
-	Mon, 17 Nov 2025 21:37:20 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 60D1D140202;
+	Mon, 17 Nov 2025 21:37:17 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 17 Nov
- 2025 21:37:19 +0800
+ 2025 21:37:16 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>,
 	<djwong@kernel.org>, <amir73il@gmail.com>, <joannelkoong@gmail.com>
 CC: <lihongbo22@huawei.com>, <linux-fsdevel@vger.kernel.org>,
 	<linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v9 10/10] erofs: implement .fadvise for page cache share
-Date: Mon, 17 Nov 2025 13:25:37 +0000
-Message-ID: <20251117132537.227116-11-lihongbo22@huawei.com>
+Subject: [PATCH v9 04/10] erofs: move `struct erofs_anon_fs_type` to super.c
+Date: Mon, 17 Nov 2025 13:25:31 +0000
+Message-ID: <20251117132537.227116-5-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20251117132537.227116-1-lihongbo22@huawei.com>
 References: <20251117132537.227116-1-lihongbo22@huawei.com>
@@ -76,46 +76,95 @@ X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
 
 From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 
-This patch implements the .fadvise interface for page cache share.
-Similar to overlayfs, it drops those clean, unused pages through
-vfs_fadvise().
+Move the `struct erofs_anon_fs_type` to the super.c and
+expose it in preparation for the upcoming page cache share
+feature.
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
 Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 ---
- fs/erofs/ishare.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/erofs/fscache.c  | 13 -------------
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/super.c    | 15 +++++++++++++++
+ 3 files changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-index da735d69f21f..d8bff0cdf702 100644
---- a/fs/erofs/ishare.c
-+++ b/fs/erofs/ishare.c
-@@ -230,6 +230,16 @@ static int erofs_ishare_mmap(struct file *file, struct vm_area_struct *vma)
- 	return generic_file_readonly_mmap(file, vma);
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 362acf828279..2d1683479fc0 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -3,7 +3,6 @@
+  * Copyright (C) 2022, Alibaba Cloud
+  * Copyright (C) 2022, Bytedance Inc. All rights reserved.
+  */
+-#include <linux/pseudo_fs.h>
+ #include <linux/fscache.h>
+ #include "internal.h"
+ 
+@@ -13,18 +12,6 @@ static LIST_HEAD(erofs_domain_list);
+ static LIST_HEAD(erofs_domain_cookies_list);
+ static struct vfsmount *erofs_pseudo_mnt;
+ 
+-static int erofs_anon_init_fs_context(struct fs_context *fc)
+-{
+-	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
+-}
+-
+-static struct file_system_type erofs_anon_fs_type = {
+-	.owner		= THIS_MODULE,
+-	.name           = "pseudo_erofs",
+-	.init_fs_context = erofs_anon_init_fs_context,
+-	.kill_sb        = kill_anon_super,
+-};
+-
+ struct erofs_fscache_io {
+ 	struct netfs_cache_resources cres;
+ 	struct iov_iter		iter;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index f7f622836198..98fe652aea33 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -188,6 +188,8 @@ static inline bool erofs_is_fileio_mode(struct erofs_sb_info *sbi)
+ 	return IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) && sbi->dif0.file;
  }
  
-+static int erofs_ishare_fadvise(struct file *file, loff_t offset,
-+				      loff_t len, int advice)
-+{
-+	struct file *realfile = file->private_data;
++extern struct file_system_type erofs_anon_fs_type;
 +
-+	if (!realfile)
-+		return -EINVAL;
-+	return vfs_fadvise(realfile, offset, len, advice);
+ static inline bool erofs_is_fscache_mode(struct super_block *sb)
+ {
+ 	return IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) &&
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index f3f8d8c066e4..0d88c04684b9 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -11,6 +11,7 @@
+ #include <linux/fs_parser.h>
+ #include <linux/exportfs.h>
+ #include <linux/backing-dev.h>
++#include <linux/pseudo_fs.h>
+ #include "xattr.h"
+ 
+ #define CREATE_TRACE_POINTS
+@@ -920,6 +921,20 @@ static struct file_system_type erofs_fs_type = {
+ };
+ MODULE_ALIAS_FS("erofs");
+ 
++#if defined(CONFIG_EROFS_FS_ONDEMAND)
++static int erofs_anon_init_fs_context(struct fs_context *fc)
++{
++	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
 +}
 +
- const struct file_operations erofs_ishare_fops = {
- 	.open		= erofs_ishare_file_open,
- 	.llseek		= generic_file_llseek,
-@@ -238,6 +248,7 @@ const struct file_operations erofs_ishare_fops = {
- 	.release	= erofs_ishare_file_release,
- 	.get_unmapped_area = thp_get_unmapped_area,
- 	.splice_read	= filemap_splice_read,
-+	.fadvise	= erofs_ishare_fadvise,
- };
- 
- /*
++struct file_system_type erofs_anon_fs_type = {
++	.owner		= THIS_MODULE,
++	.name           = "pseudo_erofs",
++	.init_fs_context = erofs_anon_init_fs_context,
++	.kill_sb        = kill_anon_super,
++};
++#endif
++
+ static int __init erofs_module_init(void)
+ {
+ 	int err;
 -- 
 2.22.0
 
