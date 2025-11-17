@@ -1,55 +1,62 @@
-Return-Path: <linux-erofs+bounces-1390-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1391-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D8D07CE8D6B
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Nov 2025 11:57:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BBBF8CEACEF
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Nov 2025 13:37:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4d95pl22yrz2yvM;
-	Mon, 17 Nov 2025 22:57:51 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1763380671;
-	cv=none; b=dCZwH47LTmQwvtINxvch0nBRV0miV6w99WVJ4l/p0N6I+E8Bhz6tiF90Xul9vtMzBLArlAThcbAMqYsmKWfH49xZvi89hJPEGXe68qQltQRtjYSWDMo1XGgCZJzY6iRbIx7wvG8bZESYyzIlGCmqxy36Ylh1fXu+G4nLSt2IHKcx/dcqy0YefQwcMl6O/mQBZqwQQhE6TW+hbwdRJgjk4N63mOciAcUScPZhMpuWNWZ2EYPWAMdjtf8rixktEKE/ASUPnwPsdjKHzere9z7SNYKTL/FBjxUMQcUkDfyn9N5gomG1ie4evPNt2/qAXYxNhAM9xtcBdagNI9DCQ3fukA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4d981f1fb7z30TM;
+	Tue, 18 Nov 2025 00:37:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.227
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1763386646;
+	cv=none; b=Lsc0KtkOY8gvN/V1J/RpmXe4q7KXnPfGqgrgHpcVjR044DbZurklKolMHT8UXqob4SKuyLMn0LMFVW39/CQKsmGRRLSuLNURYBmb1UeOBz9i5t92bxMwgnDoOfZkijwfELCEAj864DxI4ASor02MFIYsh9V22EBQlfvEScAb69F0Q1FkXBEmUO9lXjQQ6/vwEvWoasCIAolrrws3XvR02z284Gvm6rQBFts7xyzWfEWZBxXQkPY04rkxzVpI1Vvm06d43XO2zHo1SL++uB08H6AmdOGMsPsaCdErsouYbz4JHrOM5/vG0k9AnOPdD+yXLwOsdOGNJkL62xOLhagcHQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1763380671; c=relaxed/relaxed;
-	bh=v0wEwbBITgaXOrGzJ60sclrLTHa0QY/zRQTEJSVjsA4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FprY2xHZ89V6vljiGBldxlbaSBZX0zRJf5g68Cn9OoyH339RcLkwiiIcX2NxsbEWJ9asx+H4gzuxFgmNslz4Dl2owOI4es+f0PM9sCZ7qjtbn0zDNjSzrn91vbmUeimYvCRh0DoK+1FQQPPfc5QRkQqIAinsfPivi/9gUKgjCXQX/4XarPeTgUwzmVtHhZ6b4DOOcXto5QNDFKGs34mLqfRxwDt4lTOTQFkyyX8UTzT+Cd8qZvlj5iyS/5GEKgcPmsulZK9kcVR7R0loPEwJNtgb5277D0a6SVCRcWNy5zGfKTH14r6R5GeY4kxgyatMz6f/vxngTOqvHNcmcLD85w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=in2FvwQQ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1763386646; c=relaxed/relaxed;
+	bh=FbVkas6xVh0EDYbcJEaJK0b7cxUQjdGPdQbtHmbK7b4=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nvWDQFauyUUDErMcrQpiU+tlLBMi1sN4kZkSrmeDfL0f+En7cvm492ewifr45N2zpanji9cQluTuxtRj8zh7TOjsZEgubROGViOyphbN+B4YjrK1NlHal/gA66piKLwUHIkD7lnSVLRQmpnDoeKM6qRGoU9dCkNh3V+8S9pPwj1o1abA/EkCwkMxsZnj3vy4rpTgemShomHdc47Po1V9OVFVO75dW7+7RDtMsyyeMybMjf0DOzwfOV1FVnE/xCcQtU0kTCfI73Ut311baql91fSLjJj9RMnlS8I3relsGUZSYDGeho53GFknBBcx8Nowuesf8lhijgFs7Zlcjgm7ew==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=WvVM8WAY; dkim-atps=neutral; spf=pass (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=in2FvwQQ;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=WvVM8WAY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout12.his.huawei.com (canpmsgout12.his.huawei.com [113.46.200.227])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4d95ph4gPPz2yv6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 17 Nov 2025 22:57:45 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1763380658; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=v0wEwbBITgaXOrGzJ60sclrLTHa0QY/zRQTEJSVjsA4=;
-	b=in2FvwQQuiTcamyDW6RxOlBbEgtZ2e9ABJ0zaDLTgmFxi3qJNoJLtJhUyEG2G1pxxqehjIfSYvNeKPOc+9J1yNWIDmrkNHCjS/slgqgF0BtyTOBHY8RK/W/22XI1RFZBn+Qhxhit4JzqdWV5kYAGt5uQcuIVojPb5WYuMuD2frQ=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WsZmeTQ_1763380651 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 17 Nov 2025 19:57:35 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com,
-	Yuezhang Mo <Yuezhang.Mo@sony.com>
-Subject: [PATCH] erofs: correct FSDAX detection
-Date: Mon, 17 Nov 2025 19:57:29 +0800
-Message-ID: <20251117115729.626525-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
-In-Reply-To: <691af9f6.a70a0220.3124cb.0097.GAE@google.com>
-References: <691af9f6.a70a0220.3124cb.0097.GAE@google.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4d981b56lhz2yxl
+	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Nov 2025 00:37:23 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=FbVkas6xVh0EDYbcJEaJK0b7cxUQjdGPdQbtHmbK7b4=;
+	b=WvVM8WAYbcCPfvxIdH80g3SFtK4G6jWtv6xeMl0W4ZnksajU36D/yxNVcxFylE5k57bFBZGP2
+	NoNThwtMbhT9AzGRahB3aI+S7QK7cpok4MncykLqMEnp2g0W3wRbb2dnzefbv4XFS9w4z6cuUxa
+	nw57G2pty4rDrYfsgXLVf8k=
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by canpmsgout12.his.huawei.com (SkyGuard) with ESMTPS id 4d97zm3GCnznTW3;
+	Mon, 17 Nov 2025 21:35:48 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id EEC4D140276;
+	Mon, 17 Nov 2025 21:37:16 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 17 Nov
+ 2025 21:37:16 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>,
+	<djwong@kernel.org>, <amir73il@gmail.com>, <joannelkoong@gmail.com>
+CC: <lihongbo22@huawei.com>, <linux-fsdevel@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v9 03/10] fs: Export alloc_empty_backing_file
+Date: Mon, 17 Nov 2025 13:25:30 +0000
+Message-ID: <20251117132537.227116-4-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20251117132537.227116-1-lihongbo22@huawei.com>
+References: <20251117132537.227116-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,67 +69,38 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-The detection of the primary device is skipped incorrectly
-if the multiple or flattened feature is enabled.
+There is no need to open nonexistent real files if backing files
+couldn't be backed by real files (e.g., EROFS page cache sharing
+doesn't need typical real files to open again).
 
-It also fixes the FSDAX misdetection for non-block extra blobs.
+Therefore, we export the alloc_empty_backing_file() helper, allowing
+filesystems to dynamically set the backing file without real file
+open. This is particularly useful for obtaining the correct @path
+and @inode when calling file_user_path() and file_user_inode().
 
-Fixes: c6993c4cb918 ("erofs: Fallback to normal access if DAX is not supported on extra device")
-Reported-by: syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/r/691af9f6.a70a0220.3124cb.0097.GAE@google.com
-Cc: Yuezhang Mo <Yuezhang.Mo@sony.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 ---
- fs/erofs/super.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ fs/file_table.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index f3f8d8c066e4..cd8ff98c2938 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -174,15 +174,15 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
- 		if (!erofs_is_fileio_mode(sbi)) {
- 			dif->dax_dev = fs_dax_get_by_bdev(file_bdev(file),
- 					&dif->dax_part_off, NULL, NULL);
--			if (!dif->dax_dev && test_opt(&sbi->opt, DAX_ALWAYS)) {
--				erofs_info(sb, "DAX unsupported by %s. Turning off DAX.",
--					   dif->path);
--				clear_opt(&sbi->opt, DAX_ALWAYS);
--			}
- 		} else if (!S_ISREG(file_inode(file)->i_mode)) {
- 			fput(file);
- 			return -EINVAL;
- 		}
-+		if (!dif->dax_dev && test_opt(&sbi->opt, DAX_ALWAYS)) {
-+			erofs_info(sb, "DAX unsupported by %s. Turning off DAX.",
-+				   dif->path);
-+			clear_opt(&sbi->opt, DAX_ALWAYS);
-+		}
- 		dif->file = file;
- 	}
+diff --git a/fs/file_table.c b/fs/file_table.c
+index b223d873e48b..7508f69a1839 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -308,6 +308,7 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+ 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
+ 	return &ff->file;
+ }
++EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
  
-@@ -215,13 +215,13 @@ static int erofs_scan_devices(struct super_block *sb,
- 			  ondisk_extradevs, sbi->devs->extra_devices);
- 		return -EINVAL;
- 	}
--	if (!ondisk_extradevs) {
--		if (test_opt(&sbi->opt, DAX_ALWAYS) && !sbi->dif0.dax_dev) {
--			erofs_info(sb, "DAX unsupported by block device. Turning off DAX.");
--			clear_opt(&sbi->opt, DAX_ALWAYS);
--		}
--		return 0;
-+
-+	if (test_opt(&sbi->opt, DAX_ALWAYS) && !sbi->dif0.dax_dev) {
-+		erofs_info(sb, "DAX unsupported by block device. Turning off DAX.");
-+		clear_opt(&sbi->opt, DAX_ALWAYS);
- 	}
-+	if (!ondisk_extradevs)
-+		return 0;
- 
- 	if (!sbi->devs->extra_devices && !erofs_is_fscache_mode(sb))
- 		sbi->devs->flatdev = true;
+ /**
+  * file_init_path - initialize a 'struct file' based on path
 -- 
-2.43.5
+2.22.0
 
 
