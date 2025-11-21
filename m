@@ -1,49 +1,44 @@
-Return-Path: <linux-erofs+bounces-1417-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1418-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A61BCFA466
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Nov 2025 02:06:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB9B0CFA46C
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Nov 2025 04:29:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dCJVD5wl4z2yFq;
-	Fri, 21 Nov 2025 13:06:12 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.166.197
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1763690772;
-	cv=none; b=WvDqw99IF23ijMgW1F56+DEQbznDnYZldzwzLd8gE31i4t/tcig/ankLENkgW/g+QByonHjDEH3Ix6soTrf5VGXazvNmTuaItWy6oCApCJSqE8d1EqrwYo1kRFnHqOl3HhPOK4yOZooBPYxJtiNFDF5Hq7pi0liddHbDaddfWFls8Dqua3uvvo+wfBZjLaysT0SmjwIS8CV2r5KGEj2eXv3Fs4pogYvGfJK2D5/hfKDjwhb6ciqnmSwGHn5bBv3T16CXjvbjs63iEDa9VBXC67G5OdjdWjAF6y4tZ9Y3kOgtMC6qz97dsmqPJMYoLCgCFZVrqADh7Ii7v2q25KqO+g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dCMh561B7z2ySb;
+	Fri, 21 Nov 2025 15:29:57 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1763699397;
+	cv=none; b=ITyA6c0o57KcreEBZuYE8nCvS+4z4GXPN3fQB18pXYnBVXMJXx2LN0G37coNMjyvLdP6swSUtnnUNoTuCLu0lHaNdPxXQTH/toN/9fBGYc7SqgowIazTDRJejn/jtQ08408BA55vj3gXbPMGM19hYkh9/tdIFjT3MnadkQMjYQ0PFPbrhAWQWlgERxeuIyIqyP33EBggtFxkpafhKQs7nJk/9AckLmantFK5Sz3K7En0RNS2PcJ7tTRXZwDRBp2a6WTtmNUqRJnGjCpD1mApZRCux4dDAcWPiNI0opB67sRSxt/Bir7N/hU64eO5TtFqtacb9l86a0OlRk5WUS1W7w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1763690772; c=relaxed/relaxed;
-	bh=7OCdpbCt3wNjnRexiXCbilmmMxUr0JfnovhkDRuiHMw=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=MDjnQJrkXf7EKD1Tnfc8QUyNgoV1IpKR4bU0hzCxOrPBpKYqdlvc1DAWASUR6VhJlLL683iopSJ23fuys7Lnm5JMdGM3046t6W+wyhe0YxsypE5W/OhkmiTPPEEF2vJVhwtrgcLeYdfHqqiPOu+D9YFTHOPM3z+5Nnh7qRbuQM6jcII/GgZQmnQJifaVTh2+PIDvzzV2gidB9qC1EZ1RnlGN/I2dq88bvC8POpDB5cFOZXiGq5cVtQ6CKn0ZsBQTKjxOk1ju9sqLDXtzHiUJTx6d6hrgWDe/jH8KYy2WEMTI/bWbEnYjlyA9930hDLBHN8C42k4V9Mi3HlpX5t6fsw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass (client-ip=209.85.166.197; helo=mail-il1-f197.google.com; envelope-from=3c8kfaqkbagwcijukvvobkzzsn.qyyqvoecobmyxdoxd.myw@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
-Authentication-Results: lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.166.197; helo=mail-il1-f197.google.com; envelope-from=3c8kfaqkbagwcijukvvobkzzsn.qyyqvoecobmyxdoxd.myw@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+	t=1763699397; c=relaxed/relaxed;
+	bh=lUkaoYS9MtxtwNYtPqlY1z+Phvth7Wxy9T76yQ4yfsE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JBChO77tks9qVQY2ve4EdRA9IS+jgEKtLIW/dJ0J0Gr2D6xPtUaOGs4MxSA+6Zj0iz1KvgSq+RMW7Wcbba95o8K09u7rqVMRNMZZDNOvIcl+gAVd8phT/3S/xg8qbk4kOgshcGDjalkC/Th6fx4qX2KKawyCuRrd+yxVd9Nw6oN20Epm3DcpEGuPvEQwyknNqd7t5fWWjgkBRlYjkTp5uTsfCyWDK9O31uYMwsXuO10XBwio8A2w3LhognBb+FICAh9qBro2K8Ipr1i1ie6tIBmiZbRE7Xkw+RUVSAXe9TRqLKEjZ5yG/LGc6pSwgYfS5no/f8OU9SU8OEjD82wQRw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=G1Fp46T/; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=G1Fp46T/;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dCJV75C5Zz2yD5
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Nov 2025 13:06:07 +1100 (AEDT)
-Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-43329b607e0so13695375ab.2
-        for <linux-erofs@lists.ozlabs.org>; Thu, 20 Nov 2025 18:06:06 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763690763; x=1764295563;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7OCdpbCt3wNjnRexiXCbilmmMxUr0JfnovhkDRuiHMw=;
-        b=K0e5QHBUDUAXqg9ynX+fRKQyxJAzoPFIxEJstiPtYB200vBC8rmBhivTSQz7XySF84
-         wPS0ympPPylfG395+U8ToGLoqnyO0Rw9gdvYqgNKBPvePBk/DclGTaqJPNa/IXARABb9
-         NO8KpiWVTy2DlCXuEwsT2ajM2Rr71gr6q51WC6PmJiQ4GfMSUTTpSMKb3l7gg/JCXmaN
-         3n8s+JitOoXBqhDmpsH2M5qBebTWyVplJi/faCyPwGmAIzW0pp7kavKulqx+9IkQQh9/
-         7dK7N6ilYgq04gNVoyjcxTCIEmUtePEIW5wDi0LYa2TJHnJpRn0QPRW4PiK6vw3FTn8H
-         jpJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXw4n+fTAPJ59IBBOYY7VBm6EJBl4wr6ih8FZVFjN/o/Sqd8y+OEySZ0/cyujldcP1+5O8D4kmmMttg2Q==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yx4LWAP/n7CFVDLCrL+PkJF4N3+vfve5+P3hYFB18VVLZOyYiap
-	ym/0uXHO++iDJr2Flst23Pj1CgOkeyX4VjC6MUHDxgo8Dsp6yYvPcRH90XpKKsWlK8KHbg/abln
-	cbzGWHnMSlfp+HEfeWjdEkfS1149Hp9X2p11HlwfDCyQs90J4fZiMtFD7WnA=
-X-Google-Smtp-Source: AGHT+IERcIc1Yb4CzJivjqJVbeE9z0kQcPZljxjvjHd8lnfDE2lKDDAofdZeFq+S7IKH5Uleere/h9iRDE6DhenRM1S2gF2TBV8M
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dCMh16lLtz2yG5
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Nov 2025 15:29:51 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1763699385; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=lUkaoYS9MtxtwNYtPqlY1z+Phvth7Wxy9T76yQ4yfsE=;
+	b=G1Fp46T/Vois7CKh7wpaY4HKBqW6TO5F5EokZt53aiSic13vX2x80wo76ArGHhNJ7y0eVc1grKR4eD2P1PfnW6CRaUQ1Is2arPSIpcMMUAIfROm3kfhTxqQuQb9tq+tZll2X2lm28HcLpYmveZ6byKZ6OgaWGeoRpzM20wTQT/Q=
+Received: from 30.221.131.79(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WszYFdT_1763699383 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 21 Nov 2025 12:29:43 +0800
+Message-ID: <86b0ce55-60f5-4bf4-84a8-6d612478baa3@linux.alibaba.com>
+Date: Fri, 21 Nov 2025 12:29:42 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -55,37 +50,111 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:23c3:b0:434:767d:8a4a with SMTP id
- e9e14a558f8ab-435b8c43cecmr7815205ab.18.1763690763609; Thu, 20 Nov 2025
- 18:06:03 -0800 (PST)
-Date: Thu, 20 Nov 2025 18:06:03 -0800
-In-Reply-To: <1939a99d-c1d2-4b98-93c3-1951db367b3f@linux.alibaba.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <691fc90b.a70a0220.d98e3.003a.GAE@google.com>
-Subject: Re: [syzbot] [erofs?] WARNING in get_next_unlocked_entry
-From: syzbot <syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com>
-To: hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	nvdimm@lists.linux.dev, syzkaller-bugs@googlegroups.com, xiang@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs: correct FSDAX detection
+To: "Yuezhang.Mo@sony.com" <Yuezhang.Mo@sony.com>,
+ "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ "syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com"
+ <syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com>
+References: <691af9f6.a70a0220.3124cb.0097.GAE@google.com>
+ <20251117115729.626525-1-hsiangkao@linux.alibaba.com>
+ <PUZPR04MB6316EBBEFB9F1878D1691E2481D5A@PUZPR04MB6316.apcprd04.prod.outlook.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <PUZPR04MB6316EBBEFB9F1878D1691E2481D5A@PUZPR04MB6316.apcprd04.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello,
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-Reported-by: syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com
-Tested-by: syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com
+On 2025/11/21 12:12, Yuezhang.Mo@sony.com wrote:
+> On November 17, 2025 19:57 Gao Xiang wrote:
+>> The detection of the primary device is skipped incorrectly
+>> if the multiple or flattened feature is enabled.
+>>
+>> It also fixes the FSDAX misdetection for non-block extra blobs.
+>>
+>> Fixes: c6993c4cb918 ("erofs: Fallback to normal access if DAX is not supported on extra device")
+>> Reported-by: syzbot+31b8fb02cb8a25bd5e78@syzkaller.appspotmail.com
+>> Closes: https://lore.kernel.org/r/691af9f6.a70a0220.3124cb.0097.GAE@google.com
+>> Cc: Yuezhang Mo <Yuezhang.Mo@sony.com>
+>> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+>> ---
+>>   fs/erofs/super.c | 22 +++++++++++-----------
+>>   1 file changed, 11 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+>> index f3f8d8c066e4..cd8ff98c2938 100644
+>> --- a/fs/erofs/super.c
+>> +++ b/fs/erofs/super.c
+>> @@ -174,15 +174,15 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
+>>                  if (!erofs_is_fileio_mode(sbi)) {
+>>                          dif->dax_dev = fs_dax_get_by_bdev(file_bdev(file),
+>>                                          &dif->dax_part_off, NULL, NULL);
+>> -                       if (!dif->dax_dev && test_opt(&sbi->opt, DAX_ALWAYS)) {
+>> -                               erofs_info(sb, "DAX unsupported by %s. Turning off DAX.",
+>> -                                          dif->path);
+>> -                               clear_opt(&sbi->opt, DAX_ALWAYS);
+>> -                       }
+>>                  } else if (!S_ISREG(file_inode(file)->i_mode)) {
+>>                          fput(file);
+>>                          return -EINVAL;
+>>                  }
+>> +               if (!dif->dax_dev && test_opt(&sbi->opt, DAX_ALWAYS)) {
+>> +                       erofs_info(sb, "DAX unsupported by %s. Turning off DAX.",
+>> +                                  dif->path);
+>> +                       clear_opt(&sbi->opt, DAX_ALWAYS);
+>> +               }
+>>                  dif->file = file;
+>>          }
+>>
+>> @@ -215,13 +215,13 @@ static int erofs_scan_devices(struct super_block *sb,
+>>                            ondisk_extradevs, sbi->devs->extra_devices);
+>>                  return -EINVAL;
+>>          }
+>> -       if (!ondisk_extradevs) {
+>> -               if (test_opt(&sbi->opt, DAX_ALWAYS) && !sbi->dif0.dax_dev) {
+>> -                       erofs_info(sb, "DAX unsupported by block device. Turning off DAX.");
+>> -                       clear_opt(&sbi->opt, DAX_ALWAYS);
+>> -               }
+>> -               return 0;
+>> +
+>> +       if (test_opt(&sbi->opt, DAX_ALWAYS) && !sbi->dif0.dax_dev) {
+>> +               erofs_info(sb, "DAX unsupported by block device. Turning off DAX.");
+>> +               clear_opt(&sbi->opt, DAX_ALWAYS);
+>>          }
+>> +       if (!ondisk_extradevs)
+>> +               return 0;
+> 
+> Hi Gao Xiang,
+> 
+> If using multiple devices, is there still file data on the primary device?
+> If the primary device only contains metadata, the primary device does not need
+> to support DAX.
 
-Tested on:
+Hi Yuezhang,
 
-commit:         3027b141 erofs: correct FSDAX detection
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-console output: https://syzkaller.appspot.com/x/log.txt?x=16e2597c580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a1db0fea040c2a9f
-dashboard link: https://syzkaller.appspot.com/bug?extid=31b8fb02cb8a25bd5e78
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
+Currently we don't have a per-device/file fsdax selection
+design/implementation.
 
-Note: no patches were applied.
-Note: testing is done by a robot and is best-effort only.
+If fsdax is on, for example, directory data arranged in the primary
+device will go through fsdax path (but your case above is that the
+primary device does not need to support fsdax.)
+
+Anyway, in principle, we could make them work, but per-device FSDAX
+needs a detailed design, I think we should restrict them on the
+per-filesystem basis now.
+
+Thanks,
+Gao Xiang
+
+> 
+>>
+>>          if (!sbi->devs->extra_devices && !erofs_is_fscache_mode(sb))
+>>                  sbi->devs->flatdev = true;
+>> --
+>> 2.43.5
+
+
 
