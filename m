@@ -1,52 +1,52 @@
-Return-Path: <linux-erofs+bounces-1439-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1440-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 734BED11183
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Nov 2025 07:31:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FF5DD11183
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Nov 2025 08:02:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dH7R15Q1yz2yx7;
-	Thu, 27 Nov 2025 18:31:41 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.111
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1764228701;
-	cv=none; b=LZR7Y75vhsQ7K0651M+TsLCWgO/mD4N/MVfWd1cU4LNQKnFhFLmNODjNSH1O0empkhWuZr8ODZ2sIb0MQ/+vfyD0LoflUEAzqpG7d+ZSYbuW5d3ZTJNlRojxQSgbjb5Gnka1t+iopOV1VfcWBlf3qSytxtrJUsS5PqG9wndo7SloTb/uJn0SphiOwFzPRPSHcT6NJwt1nYpNdGFzMt4ADfqC1TrcmKlj39K/0NgCWzjso8kKIYyyZnf1p23J9Wkvu3wtcAP5fqQpwbDCsj6M3YntYOIy314H1FpWW/xJrJcq064xwcGzSnVfJVhpXGENqocJ3IRZXu2HEEl/JztUEA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dH86z4n16z2yvW;
+	Thu, 27 Nov 2025 19:02:51 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1764230571;
+	cv=none; b=cD8r9fQJw5H0tH0meXdsgsoFLz/9q3tXW3ZmAvaKjW1KOxm/00Zk68OPWKhubmRwhs/elu/J6DwhLE8FrstAGdoz9xXQBBZWUm57ts4/Vnj+s2LigV1to+VfgnbqFcBCGk4oJ5ThuzNzlQA09fXMrDRPU5pjVKaYbXl6PsuRjbHyWpzvmTOtwkEsy87XaAkNK6KDNHqBZEYhoqaUEmn5gQpCkuUQupUQxjn4+yauGrO460ZAFrO7cTvY8+1aJkG/DFKihQ8ElBlPGHJJyj8pvokYt5H5J1FgLKIVEaepPxrWfLti29OpiNI1iKk2/MiS05yN74mTM4RvsgbwYmu0yQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1764228701; c=relaxed/relaxed;
-	bh=mnm/SyF5+AnakOhGEYOeFuZGqAHAdF95wHRRpNISF90=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Yd9T5rKQBefW05TAZpWgKsNOOG34tsmDtKQGgNTfNP9pvX2ueRT6LsPryAX4mbNo2a3xZF4HQyxkO3cMaTteiuYoOdWVjh7afiiOe8Qx+I2nvtLqWlwaHV4LrtqsBaFbtoU2r/XHdVhRsfqvWva/qOcSu5g5KSQCGwU0v9E8HBTQB6J+hv79Q1gHONooFybHGuEc+SNjV8UIZT0Qrm6+IdJFzpVAsuO+k1oSFzuGIaygEletFLCyxjJLabcYnvUjbRe4iSzmQzFoAt9/wgUtEsO6D+M25lANoFrjdEyWNsgqDWxTTZWN5nDZvtSVa5OUFaaKaTBcH6NmE2vXuKWZrg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wgA2mzvI; dkim-atps=neutral; spf=pass (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1764230571; c=relaxed/relaxed;
+	bh=Qc9KRM73OWEhqOEmQa0INwKZygqVyMGwG+ycFVJCLGs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fzM0Ubw9oyVyP/eTwbPSy2U168ZBuZ8R9sT/sZjqKne1A1N7AOKxAuCwGIFW9xK5TSbUO9+oaQq4uW+4eLXjbPp6wxKdG17BZAxivyCf1kVbqJMAb9nkwiTFo0ErPzeBD8YbNAdD6zwGx9IpcV4oMu8+kKBmd88EcqFcbw6Sp2xKJQFUumMGlfs5FqYVg88zMT0NGK6ONZGQLUrPzLbKCaSgxgNbAH6lgNcpL7t0v95hV2CijkWC96wCcfuFUWnksmpWsw5XQggTmhlcPWe6571mptP3PgngYBW/PLcyEtkgi8oYPYYcuMGeClgHc77ElOPnR6CQfgewhQ8MnsBztA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=r7GvtDgq; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wgA2mzvI;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=r7GvtDgq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dH7Qy0JWlz2yx8
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Nov 2025 18:31:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dH86x3TJwz2yl2
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Nov 2025 19:02:47 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1764228691; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=mnm/SyF5+AnakOhGEYOeFuZGqAHAdF95wHRRpNISF90=;
-	b=wgA2mzvIu9Yc+jA0iESThdURVfL4onWSEBv+lETjAGFlizSAS2UmpzHAG5luZPyXMseS7v7BBBLXymTtixvpfWBeZbNUg4256cHTEZjwntlCtn8eflBlk+vmkig5Nw6uXb6uxMefQ6fAJOXPp3kHQax1925cUnMDePgY0o9N+Es=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WtWGgGK_1764228689 cluster:ay36)
+	t=1764230563; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=Qc9KRM73OWEhqOEmQa0INwKZygqVyMGwG+ycFVJCLGs=;
+	b=r7GvtDgqV81u+VGqftQU2kn6JARDKjm7ZpPY2NjYtPKQj5RV65veefFvRJYhCyBj5sB9KDvLeWgf8b2yR06h8U2gLNmHVBlz4nbm0hCTl2kNDBSczgt5xQzl/2IZjAfPrhQczEI2aQbv2+PXvsmvqMPQvKStnhuVDhZACUvO5N0=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WtWMPOR_1764230557 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 27 Nov 2025 15:31:29 +0800
+          Thu, 27 Nov 2025 16:02:42 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: LKML <linux-kernel@vger.kernel.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Ming Lei <ming.lei@redhat.com>,
+	Stephen Zhang <starzhangzsd@gmail.com>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 3/4] erofs: enable error reporting for z_erofs_stream_switch_bufs()
-Date: Thu, 27 Nov 2025 15:31:21 +0800
-Message-ID: <20251127073122.2542542-3-hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs: get rid of raw bi_end_io() usage
+Date: Thu, 27 Nov 2025 16:02:37 +0800
+Message-ID: <20251127080237.2589998-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20251127073122.2542542-1-hsiangkao@linux.alibaba.com>
-References: <20251127073122.2542542-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,147 +60,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Enable propagation of detailed errors to callers.
+These BIOs are actually harmless in practice, as they are all pseudo
+BIOs and do not use advanced features like chaining.  Using the BIO
+interface is a more friendly and unified approach for both bdev and
+and file-backed I/Os.
+
+Let's use bio_endio() instead.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/compress.h             |  4 ++--
- fs/erofs/decompressor.c         | 23 +++++++++--------------
- fs/erofs/decompressor_deflate.c |  4 ++--
- fs/erofs/decompressor_lzma.c    |  6 +++---
- fs/erofs/decompressor_zstd.c    |  4 ++--
- 5 files changed, 18 insertions(+), 23 deletions(-)
+ fs/erofs/fileio.c  | 2 +-
+ fs/erofs/fscache.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
-index 1ee4ad934c1f..91dbc8bb5ddf 100644
---- a/fs/erofs/compress.h
-+++ b/fs/erofs/compress.h
-@@ -70,8 +70,8 @@ struct z_erofs_stream_dctx {
- 	bool bounced;			/* is the bounce buffer used now? */
- };
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index b7b3432a9882..a65f86dc79b6 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -34,7 +34,7 @@ static void erofs_fileio_ki_complete(struct kiocb *iocb, long ret)
+ 	if (rq->bio.bi_end_io) {
+ 		if (ret < 0 && !rq->bio.bi_status)
+ 			rq->bio.bi_status = errno_to_blk_status(ret);
+-		rq->bio.bi_end_io(&rq->bio);
++		bio_endio(&rq->bio);
+ 	} else {
+ 		bio_for_each_folio_all(fi, &rq->bio) {
+ 			DBG_BUGON(folio_test_uptodate(fi.folio));
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 362acf828279..7a346e20f7b7 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -185,7 +185,7 @@ static void erofs_fscache_bio_endio(void *priv, ssize_t transferred_or_error)
  
--int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
--			       void **src, struct page **pgpl);
-+const char *z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx,
-+				void **dst, void **src, struct page **pgpl);
- int z_erofs_fixup_insize(struct z_erofs_decompress_req *rq, const char *padbuf,
- 			 unsigned int padbufsize);
- int __init z_erofs_init_decompressor(void);
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index f9d29f43666f..638b5f87bd0c 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -342,19 +342,16 @@ static const char *z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
- 	return NULL;
+ 	if (IS_ERR_VALUE(transferred_or_error))
+ 		io->bio.bi_status = errno_to_blk_status(transferred_or_error);
+-	io->bio.bi_end_io(&io->bio);
++	bio_endio(&io->bio);
+ 	BUILD_BUG_ON(offsetof(struct erofs_fscache_bio, io) != 0);
+ 	erofs_fscache_io_put(&io->io);
+ }
+@@ -216,7 +216,7 @@ void erofs_fscache_submit_bio(struct bio *bio)
+ 	if (!ret)
+ 		return;
+ 	bio->bi_status = errno_to_blk_status(ret);
+-	bio->bi_end_io(bio);
++	bio_endio(bio);
  }
  
--int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
--			       void **src, struct page **pgpl)
-+const char *z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx,
-+				void **dst, void **src, struct page **pgpl)
- {
- 	struct z_erofs_decompress_req *rq = dctx->rq;
--	struct super_block *sb = rq->sb;
- 	struct page **pgo, *tmppage;
- 	unsigned int j;
- 
- 	if (!dctx->avail_out) {
--		if (++dctx->no >= rq->outpages || !rq->outputsize) {
--			erofs_err(sb, "insufficient space for decompressed data");
--			return -EFSCORRUPTED;
--		}
-+		if (++dctx->no >= rq->outpages || !rq->outputsize)
-+			return "insufficient space for decompressed data";
- 
- 		if (dctx->kout)
- 			kunmap_local(dctx->kout);
-@@ -365,7 +362,7 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
- 			*pgo = erofs_allocpage(pgpl, rq->gfp);
- 			if (!*pgo) {
- 				dctx->kout = NULL;
--				return -ENOMEM;
-+				return ERR_PTR(-ENOMEM);
- 			}
- 			set_page_private(*pgo, Z_EROFS_SHORTLIVED_PAGE);
- 		}
-@@ -379,10 +376,8 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
- 	}
- 
- 	if (dctx->inbuf_pos == dctx->inbuf_sz && rq->inputsize) {
--		if (++dctx->ni >= rq->inpages) {
--			erofs_err(sb, "invalid compressed data");
--			return -EFSCORRUPTED;
--		}
-+		if (++dctx->ni >= rq->inpages)
-+			return "invalid compressed data";
- 		if (dctx->kout) /* unlike kmap(), take care of the orders */
- 			kunmap_local(dctx->kout);
- 		kunmap_local(dctx->kin);
-@@ -417,12 +412,12 @@ int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
- 			continue;
- 		tmppage = erofs_allocpage(pgpl, rq->gfp);
- 		if (!tmppage)
--			return -ENOMEM;
-+			return ERR_PTR(-ENOMEM);
- 		set_page_private(tmppage, Z_EROFS_SHORTLIVED_PAGE);
- 		copy_highpage(tmppage, rq->in[j]);
- 		rq->in[j] = tmppage;
- 	}
--	return 0;
-+	return NULL;
- }
- 
- const struct z_erofs_decompressor *z_erofs_decomp[] = {
-diff --git a/fs/erofs/decompressor_deflate.c b/fs/erofs/decompressor_deflate.c
-index 46cc1fd19bce..afc73abd8db5 100644
---- a/fs/erofs/decompressor_deflate.c
-+++ b/fs/erofs/decompressor_deflate.c
-@@ -144,10 +144,10 @@ static const char *__z_erofs_deflate_decompress(struct z_erofs_decompress_req *r
- 	while (1) {
- 		dctx.avail_out = strm->z.avail_out;
- 		dctx.inbuf_sz = strm->z.avail_in;
--		err = z_erofs_stream_switch_bufs(&dctx,
-+		reason = z_erofs_stream_switch_bufs(&dctx,
- 					(void **)&strm->z.next_out,
- 					(void **)&strm->z.next_in, pgpl);
--		if (err)
-+		if (reason)
- 			break;
- 		strm->z.avail_out = dctx.avail_out;
- 		strm->z.avail_in = dctx.inbuf_sz;
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index 98a8c22cdbde..0161f3375efd 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -189,9 +189,9 @@ static const char *z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
- 		dctx.avail_out = buf.out_size - buf.out_pos;
- 		dctx.inbuf_sz = buf.in_size;
- 		dctx.inbuf_pos = buf.in_pos;
--		err = z_erofs_stream_switch_bufs(&dctx, (void **)&buf.out,
--						 (void **)&buf.in, pgpl);
--		if (err)
-+		reason = z_erofs_stream_switch_bufs(&dctx, (void **)&buf.out,
-+						    (void **)&buf.in, pgpl);
-+		if (reason)
- 			break;
- 
- 		if (buf.out_size == buf.out_pos) {
-diff --git a/fs/erofs/decompressor_zstd.c b/fs/erofs/decompressor_zstd.c
-index aff6825cacde..ae51faeb504d 100644
---- a/fs/erofs/decompressor_zstd.c
-+++ b/fs/erofs/decompressor_zstd.c
-@@ -175,9 +175,9 @@ static const char *z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
- 	do {
- 		dctx.inbuf_sz = in_buf.size;
- 		dctx.inbuf_pos = in_buf.pos;
--		err = z_erofs_stream_switch_bufs(&dctx, &out_buf.dst,
-+		reason = z_erofs_stream_switch_bufs(&dctx, &out_buf.dst,
- 						 (void **)&in_buf.src, pgpl);
--		if (err)
-+		if (reason)
- 			break;
- 
- 		if (out_buf.size == out_buf.pos) {
+ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
 -- 
 2.43.5
 
