@@ -1,49 +1,52 @@
-Return-Path: <linux-erofs+bounces-1436-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1437-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7E37CD11183
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Nov 2025 07:31:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5D0C7D116F3
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Nov 2025 07:31:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dH7R04k0pz302V;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dH7R05tTzz2yvZ;
 	Thu, 27 Nov 2025 18:31:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1764228700;
-	cv=none; b=O8yVYvRo5HKJiUNdH3CrIrL/cHDBNkowAWM4v0IVhME+fs62Sa9FImMmSUi+DlyvQ1iObzGUJ0o8EfW6yVihcOjGirHoE1GtHqqBo+UzF05r9NRRt4WRWaQYMC7ORo+rjUDfrKuomgcSFe55fxAXjXzoNf/WCqX9KXgdq9WD0+dacYrTu/UDmsnhkQnMWlpse6pU1ClRcWNldOrkNGHf+Mpf7YhBsEPy4orNmOkHz+oZ05EHR6N7qmntqLNWV3//9cQItuLCqDAGPMdDthfjR6r4b1ng2OMZTtB4yiQkhVi/XOWLVJGksPRey3WZ9+TMrHdMnUbdHRS1FS81VqrBjg==
+	cv=none; b=MWShSRRjgNLZC809pP+M69MWo9VTFlZAE5zATDcoLAZBliDA3rZvzTM3YQDws7Vg4hlDUR6NLw2+U9HRlWM9H99n8msCZsVV7ivw5R2LV3uKuJp6rp+NNO4m13NJtFsCx2TPCQyFRlFWYFk3iAi7LLn5S0vIWarXoGgphqtM4IDYCIR/QGkQp32UKHMIQGHuFkgWeaswik/1ayUoXzXl2PubaJFGHmsXTf4GmpZ2tz/Iwg1SLFSHq2eV8kzUQMxUCtNdkZKhrwTiVmh1TnB0JTEo2PpvkxuxpUF0biPhrG7XZPv2PwaARQ1SINV16NLll+NjifvYd0iDLWEV2LIpJQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1764228700; c=relaxed/relaxed;
-	bh=JU+ZuoMMBdU8Gtj0MTJWgkFuagf7KhgmVgnm1XSAkXo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Zvb78rTQl46ZhTSI70bkxIil8bSUNPoCFkDCNpoOkuHEeaEUBFu3/H/NvXtX9GcFVC6//7i+dRzuVKqoAjIPLrYxs1LkWTREz+J+SembTurNF6MyVhHkyFyVxdevZSKJC/9sd4MUNWSV4Rw/AM2rRKNRghg+C/zSQYjZpUaJaWhlo75lcO6AyOVHxGon/NvXEcMjzIyqoT2URezfAlXaSuGwyt/M0+DWUZ9GDv3rCu5+itPzhzDHGuaRl/jzj7j+N6UW3R/DJaMM/kw+Oqxap8r2f/XZNwET/PC2dr0YsX994n0nmKfqYlnA1JMtxEa6NGMpwT7Ws3ZrAQaC2H5f+A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f5lT1FHb; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	bh=eYP4A0tNr6M86hgR5CuLY8WGPXlEqWoCSWZffEWbsOo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=a5KSkly9D11b7T0hcJnO7uyccKuKTEmLr3KdJvEbc/HNYA0RJrjtTaNJVFPTeZ1pv//v/giSfDD+Fkulyf6gUy/6qcB25Kkty7WGC01WCwZki5/Uuu8ntatqe+n8P5U4/5DwYQc4QUwmsWd7NdN3bOWIzviJabCr4RwBMEufd6f/EuAdWCWbb5L4F47QvlOGSDdNjlk8wrLDltTm20IdZWHivWIOQv72o0SeVUDdXnHSlobTEffdVi8j2x2HpLjLQ6Sof29lFKTD4EG5DgW5/V8CcZ1F2fvgd8XUES9bbcNDtnicfYiFc3HIJGQotIKagmKP3va/yJHRkOrOhdEtdg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=o5W1sjMa; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=f5lT1FHb;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=o5W1sjMa;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dH7Qx6TYTz2yvZ
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dH7Qy0LCKz2yxk
 	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Nov 2025 18:31:36 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
 	t=1764228691; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=JU+ZuoMMBdU8Gtj0MTJWgkFuagf7KhgmVgnm1XSAkXo=;
-	b=f5lT1FHbjPHQzseQz10aE4iw02xuHgcGMSP48RYg6X0cUPHNFxLw0Ep3AnkGkS+UsFPRoyRxNwqNfz1hDSVRxzHAMYrgwCHsJi3Ltf2LnO9kTSBgqSwGwCoht8huGJBu6L44fu8cdokTC2Hf4eSU2izF6KhnfpSs9l/IlevfP0E=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WtWGgCX_1764228683 cluster:ay36)
+	bh=eYP4A0tNr6M86hgR5CuLY8WGPXlEqWoCSWZffEWbsOo=;
+	b=o5W1sjMaGb6USuO0OKttkEwaAgLQUGTKPL653/9PxaoAnEKk0sbq7VgikJetj2NDRdkPRh8jwNMrdjZedxzTrawbgqu4hd7shHooPWC1wDRxZYX4N9wWK5hKOoLlyrWeJq5EGcKbVtaIRkhdYU5inPCbUWUjZhkVfQCilUJu9fY=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WtWGgH4_1764228690 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 27 Nov 2025 15:31:28 +0800
+          Thu, 27 Nov 2025 15:31:30 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/4] erofs: improve decompression error reporting
-Date: Thu, 27 Nov 2025 15:31:19 +0800
-Message-ID: <20251127073122.2542542-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 4/4] erofs: enable error reporting for z_erofs_fixup_insize()
+Date: Thu, 27 Nov 2025 15:31:22 +0800
+Message-ID: <20251127073122.2542542-4-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20251127073122.2542542-1-hsiangkao@linux.alibaba.com>
+References: <20251127073122.2542542-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,290 +60,249 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Change the return type of decompress() from `int` to `const char *` to
-provide more informative error diagnostics:
-
- - A NULL return indicates successful decompression;
-
- - If IS_ERR(ptr) is true, the return value encodes a standard negative
-   errno (e.g., -ENOMEM, -EOPNOTSUPP) identifying the specific error;
-
- - Otherwise, a non-NULL return points to a human-readable error string,
-   and the corresponding error code should be treated as -EFSCORRUPTED.
+Enable propagation of detailed errors to callers.
 
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
  fs/erofs/compress.h             |  4 ++--
- fs/erofs/decompressor.c         | 20 +++++++++-----------
- fs/erofs/decompressor_deflate.c | 10 ++++------
- fs/erofs/decompressor_lzma.c    | 10 ++++------
- fs/erofs/decompressor_zstd.c    | 12 ++++--------
- fs/erofs/zdata.c                | 21 +++++++++++++++++----
- 6 files changed, 40 insertions(+), 37 deletions(-)
+ fs/erofs/decompressor.c         | 19 ++++++++++---------
+ fs/erofs/decompressor_crypto.c  |  7 ++++---
+ fs/erofs/decompressor_deflate.c | 19 +++++++++----------
+ fs/erofs/decompressor_lzma.c    | 11 +++++------
+ fs/erofs/decompressor_zstd.c    | 14 +++++++-------
+ 6 files changed, 37 insertions(+), 37 deletions(-)
 
 diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
-index 510e922c5193..1ee4ad934c1f 100644
+index 91dbc8bb5ddf..84c8e52581f4 100644
 --- a/fs/erofs/compress.h
 +++ b/fs/erofs/compress.h
-@@ -23,8 +23,8 @@ struct z_erofs_decompress_req {
- struct z_erofs_decompressor {
- 	int (*config)(struct super_block *sb, struct erofs_super_block *dsb,
- 		      void *data, int size);
--	int (*decompress)(struct z_erofs_decompress_req *rq,
--			  struct page **pagepool);
-+	const char *(*decompress)(struct z_erofs_decompress_req *rq,
-+				  struct page **pagepool);
- 	int (*init)(void);
- 	void (*exit)(void);
- 	char *name;
+@@ -72,8 +72,8 @@ struct z_erofs_stream_dctx {
+ 
+ const char *z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx,
+ 				void **dst, void **src, struct page **pgpl);
+-int z_erofs_fixup_insize(struct z_erofs_decompress_req *rq, const char *padbuf,
+-			 unsigned int padbufsize);
++const char *z_erofs_fixup_insize(struct z_erofs_decompress_req *rq,
++				 const char *padbuf, unsigned int padbufsize);
+ int __init z_erofs_init_decompressor(void);
+ void z_erofs_exit_decompressor(void);
+ int z_erofs_crypto_decompress(struct z_erofs_decompress_req *rq,
 diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 2f4cef67cf64..f9d29f43666f 100644
+index 638b5f87bd0c..eb20b4a30430 100644
 --- a/fs/erofs/decompressor.c
 +++ b/fs/erofs/decompressor.c
-@@ -235,8 +235,6 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq, u8 *dst
- 					  rq->inputsize, rq->outputsize);
- 
- 	if (ret != rq->outputsize) {
--		erofs_err(rq->sb, "failed to decompress %d in[%u, %u] out[%u]",
--			  ret, rq->inputsize, inputmargin, rq->outputsize);
- 		if (ret >= 0)
- 			memset(out + ret, 0, rq->outputsize - ret);
- 		ret = -EFSCORRUPTED;
-@@ -257,8 +255,8 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq, u8 *dst
- 	return ret;
+@@ -178,18 +178,18 @@ static void *z_erofs_lz4_handle_overlap(const struct z_erofs_decompress_req *rq,
  }
  
--static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq,
--				  struct page **pagepool)
-+static const char *z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq,
-+					  struct page **pagepool)
+ /*
+- * Get the exact inputsize with zero_padding feature.
+- *  - For LZ4, it should work if zero_padding feature is on (5.3+);
+- *  - For MicroLZMA, it'd be enabled all the time.
++ * Get the exact on-disk size of the compressed data:
++ *  - For LZ4, it should apply if the zero_padding feature is on (5.3+);
++ *  - For others, zero_padding is enabled all the time.
+  */
+-int z_erofs_fixup_insize(struct z_erofs_decompress_req *rq, const char *padbuf,
+-			 unsigned int padbufsize)
++const char *z_erofs_fixup_insize(struct z_erofs_decompress_req *rq,
++				 const char *padbuf, unsigned int padbufsize)
  {
- 	unsigned int dst_maptype;
- 	void *dst;
-@@ -273,14 +271,14 @@ static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq,
- 		/* general decoding path which can be used for all cases */
- 		ret = z_erofs_lz4_prepare_dstpages(rq, pagepool);
- 		if (ret < 0)
+ 	const char *padend;
+ 
+ 	padend = memchr_inv(padbuf, 0, padbufsize);
+ 	if (!padend)
+-		return -EFSCORRUPTED;
++		return "compressed data start not found";
+ 	rq->inputsize -= padend - padbuf;
+ 	rq->pageofs_in += padend - padbuf;
+ 	return 0;
+@@ -200,6 +200,7 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq, u8 *dst
+ 	bool support_0padding = false, may_inplace = false;
+ 	unsigned int inputmargin;
+ 	u8 *out, *headpage, *src;
++	const char *reason;
+ 	int ret, maptype;
+ 
+ 	DBG_BUGON(*rq->in == NULL);
+@@ -208,12 +209,12 @@ static int z_erofs_lz4_decompress_mem(struct z_erofs_decompress_req *rq, u8 *dst
+ 	/* LZ4 decompression inplace is only safe if zero_padding is enabled */
+ 	if (erofs_sb_has_zero_padding(EROFS_SB(rq->sb))) {
+ 		support_0padding = true;
+-		ret = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
++		reason = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
+ 				min_t(unsigned int, rq->inputsize,
+ 				      rq->sb->s_blocksize - rq->pageofs_in));
+-		if (ret) {
++		if (reason) {
+ 			kunmap_local(headpage);
 -			return ret;
-+			return ERR_PTR(ret);
- 		if (ret > 0) {
- 			dst = page_address(*rq->out);
- 			dst_maptype = 1;
- 		} else {
- 			dst = erofs_vm_map_ram(rq->out, rq->outpages);
- 			if (!dst)
--				return -ENOMEM;
-+				return ERR_PTR(-ENOMEM);
- 			dst_maptype = 2;
++			return IS_ERR(reason) ? PTR_ERR(reason) : -EFSCORRUPTED;
  		}
- 	}
-@@ -289,11 +287,11 @@ static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq,
- 		kunmap_local(dst);
- 	else if (dst_maptype == 2)
- 		vm_unmap_ram(dst, rq->outpages);
--	return ret;
-+	return ERR_PTR(ret);
- }
+ 		may_inplace = !((rq->pageofs_in + rq->inputsize) &
+ 				(rq->sb->s_blocksize - 1));
+diff --git a/fs/erofs/decompressor_crypto.c b/fs/erofs/decompressor_crypto.c
+index 97b77ab64432..5ef6f71d3b7f 100644
+--- a/fs/erofs/decompressor_crypto.c
++++ b/fs/erofs/decompressor_crypto.c
+@@ -9,16 +9,17 @@ static int __z_erofs_crypto_decompress(struct z_erofs_decompress_req *rq,
+ 	struct sg_table st_src, st_dst;
+ 	struct acomp_req *req;
+ 	struct crypto_wait wait;
++	const char *reason;
+ 	u8 *headpage;
+ 	int ret;
  
--static int z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
--				   struct page **pagepool)
-+static const char *z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
-+					   struct page **pagepool)
- {
- 	const unsigned int nrpages_in = rq->inpages, nrpages_out = rq->outpages;
- 	const unsigned int bs = rq->sb->s_blocksize;
-@@ -301,7 +299,7 @@ static int z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
- 	u8 *kin;
+ 	headpage = kmap_local_page(*rq->in);
+-	ret = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
++	reason = z_erofs_fixup_insize(rq, headpage + rq->pageofs_in,
+ 				min_t(unsigned int, rq->inputsize,
+ 				      rq->sb->s_blocksize - rq->pageofs_in));
+ 	kunmap_local(headpage);
+-	if (ret)
+-		return ret;
++	if (reason)
++		return IS_ERR(reason) ? PTR_ERR(reason) : -EFSCORRUPTED;
  
- 	if (rq->outputsize > rq->inputsize)
--		return -EOPNOTSUPP;
-+		return ERR_PTR(-EOPNOTSUPP);
- 	if (rq->alg == Z_EROFS_COMPRESSION_INTERLACED) {
- 		cur = bs - (rq->pageofs_out & (bs - 1));
- 		pi = (rq->pageofs_in + rq->inputsize - cur) & ~PAGE_MASK;
-@@ -341,7 +339,7 @@ static int z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
- 		kunmap_local(kin);
- 	}
- 	DBG_BUGON(ni > nrpages_in);
--	return 0;
-+	return NULL;
- }
- 
- int z_erofs_stream_switch_bufs(struct z_erofs_stream_dctx *dctx, void **dst,
+ 	req = acomp_request_alloc(tfm);
+ 	if (!req)
 diff --git a/fs/erofs/decompressor_deflate.c b/fs/erofs/decompressor_deflate.c
-index 6909b2d529c7..e9c4b740ef89 100644
+index afc73abd8db5..3fb73000ed27 100644
 --- a/fs/erofs/decompressor_deflate.c
 +++ b/fs/erofs/decompressor_deflate.c
-@@ -157,8 +157,6 @@ static int __z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
- 				break;
- 			if (zerr == Z_STREAM_END && !rq->outputsize)
- 				break;
--			erofs_err(sb, "failed to decompress %d in[%u] out[%u]",
--				  zerr, rq->inputsize, rq->outputsize);
- 			err = -EFSCORRUPTED;
- 			break;
- 		}
-@@ -178,8 +176,8 @@ static int __z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
- 	return err;
- }
- 
--static int z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
--				      struct page **pgpl)
-+static const char *z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
-+					      struct page **pgpl)
- {
- #ifdef CONFIG_EROFS_FS_ZIP_ACCEL
- 	int err;
-@@ -187,11 +185,11 @@ static int z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
- 	if (!rq->partial_decoding) {
- 		err = z_erofs_crypto_decompress(rq, pgpl);
- 		if (err != -EOPNOTSUPP)
--			return err;
-+			return ERR_PTR(err);
- 
- 	}
- #endif
--	return __z_erofs_deflate_decompress(rq, pgpl);
-+	return ERR_PTR(__z_erofs_deflate_decompress(rq, pgpl));
- }
- 
- const struct z_erofs_decompressor z_erofs_deflate_decomp = {
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index 832cffb83a66..7784ced90145 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -146,8 +146,8 @@ static int z_erofs_load_lzma_config(struct super_block *sb,
- 	return err;
- }
- 
--static int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
--				   struct page **pgpl)
-+static const char *z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
-+					   struct page **pgpl)
- {
+@@ -103,16 +103,16 @@ static const char *__z_erofs_deflate_decompress(struct z_erofs_decompress_req *r
  	struct super_block *sb = rq->sb;
  	struct z_erofs_stream_dctx dctx = { .rq = rq, .no = -1, .ni = 0 };
-@@ -162,7 +162,7 @@ static int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
+ 	struct z_erofs_deflate *strm;
+-	const char *reason = NULL;
+-	int zerr, err;
++	const char *reason;
++	int zerr;
+ 
+ 	/* 1. get the exact DEFLATE compressed size */
+ 	dctx.kin = kmap_local_page(*rq->in);
+-	err = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
++	reason = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
  			min(rq->inputsize, sb->s_blocksize - rq->pageofs_in));
- 	if (err) {
+-	if (err) {
++	if (reason) {
  		kunmap_local(dctx.kin);
--		return err;
-+		return ERR_PTR(err);
+-		return ERR_PTR(err);
++		return reason;
+ 	}
+ 
+ 	/* 2. get an available DEFLATE context */
+@@ -130,7 +130,7 @@ static const char *__z_erofs_deflate_decompress(struct z_erofs_decompress_req *r
+ 	/* 3. multi-call decompress */
+ 	zerr = zlib_inflateInit2(&strm->z, -MAX_WBITS);
+ 	if (zerr != Z_OK) {
+-		err = -EINVAL;
++		reason = ERR_PTR(-EINVAL);
+ 		goto failed_zinit;
+ 	}
+ 
+@@ -161,12 +161,11 @@ static const char *__z_erofs_deflate_decompress(struct z_erofs_decompress_req *r
+ 			reason = (zerr == Z_DATA_ERROR ?
+ 				"corrupted compressed data" :
+ 				"unexpected end of stream");
+-			err = -EFSCORRUPTED;
+ 			break;
+ 		}
+ 	}
+-	if (zlib_inflateEnd(&strm->z) != Z_OK && !err)
+-		err = -EIO;
++	if (zlib_inflateEnd(&strm->z) != Z_OK && !reason)
++		reason = ERR_PTR(-EIO);
+ 	if (dctx.kout)
+ 		kunmap_local(dctx.kout);
+ failed_zinit:
+@@ -177,7 +176,7 @@ static const char *__z_erofs_deflate_decompress(struct z_erofs_decompress_req *r
+ 	z_erofs_deflate_head = strm;
+ 	spin_unlock(&z_erofs_deflate_lock);
+ 	wake_up(&z_erofs_deflate_wq);
+-	return reason ?: ERR_PTR(err);
++	return reason;
+ }
+ 
+ static const char *z_erofs_deflate_decompress(struct z_erofs_decompress_req *rq,
+diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
+index 0161f3375efd..b4ea6978faae 100644
+--- a/fs/erofs/decompressor_lzma.c
++++ b/fs/erofs/decompressor_lzma.c
+@@ -154,16 +154,15 @@ static const char *z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
+ 	struct xz_buf buf = {};
+ 	struct z_erofs_lzma *strm;
+ 	enum xz_ret xz_err;
+-	const char *reason = NULL;
+-	int err;
++	const char *reason;
+ 
+ 	/* 1. get the exact LZMA compressed size */
+ 	dctx.kin = kmap_local_page(*rq->in);
+-	err = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
++	reason = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
+ 			min(rq->inputsize, sb->s_blocksize - rq->pageofs_in));
+-	if (err) {
++	if (reason) {
+ 		kunmap_local(dctx.kin);
+-		return ERR_PTR(err);
++		return reason;
  	}
  
  	/* 2. get an available lzma context */
-@@ -207,8 +207,6 @@ static int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
- 		if (xz_err != XZ_OK) {
- 			if (xz_err == XZ_STREAM_END && !rq->outputsize)
- 				break;
--			erofs_err(sb, "failed to decompress %d in[%u] out[%u]",
--				  xz_err, rq->inputsize, rq->outputsize);
- 			err = -EFSCORRUPTED;
- 			break;
- 		}
-@@ -223,7 +221,7 @@ static int z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
+@@ -224,7 +223,7 @@ static const char *z_erofs_lzma_decompress(struct z_erofs_decompress_req *rq,
  	z_erofs_lzma_head = strm;
  	spin_unlock(&z_erofs_lzma_lock);
  	wake_up(&z_erofs_lzma_wq);
--	return err;
-+	return ERR_PTR(err);
+-	return reason ?: ERR_PTR(err);
++	return reason;
  }
  
  const struct z_erofs_decompressor z_erofs_lzma_decomp = {
 diff --git a/fs/erofs/decompressor_zstd.c b/fs/erofs/decompressor_zstd.c
-index e38d93bb2104..50fadff89cbc 100644
+index ae51faeb504d..beae49165c69 100644
 --- a/fs/erofs/decompressor_zstd.c
 +++ b/fs/erofs/decompressor_zstd.c
-@@ -135,8 +135,8 @@ static int z_erofs_load_zstd_config(struct super_block *sb,
- 	return strm ? -ENOMEM : 0;
- }
+@@ -143,17 +143,17 @@ static const char *z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
+ 	zstd_in_buffer in_buf = { NULL, 0, 0 };
+ 	zstd_out_buffer out_buf = { NULL, 0, 0 };
+ 	struct z_erofs_zstd *strm;
+-	const char *reason = NULL;
+ 	zstd_dstream *stream;
+-	int zerr, err;
++	const char *reason;
++	int zerr;
  
--static int z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
--				   struct page **pgpl)
-+static const char *z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
-+					   struct page **pgpl)
- {
- 	struct super_block *sb = rq->sb;
- 	struct z_erofs_stream_dctx dctx = { .rq = rq, .no = -1, .ni = 0 };
-@@ -152,7 +152,7 @@ static int z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
+ 	/* 1. get the exact compressed size */
+ 	dctx.kin = kmap_local_page(*rq->in);
+-	err = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
++	reason = z_erofs_fixup_insize(rq, dctx.kin + rq->pageofs_in,
  			min(rq->inputsize, sb->s_blocksize - rq->pageofs_in));
- 	if (err) {
+-	if (err) {
++	if (reason) {
  		kunmap_local(dctx.kin);
--		return err;
-+		return ERR_PTR(err);
+-		return ERR_PTR(err);
++		return reason;
  	}
  
  	/* 2. get an available ZSTD context */
-@@ -191,10 +191,6 @@ static int z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
- 		if (zstd_is_error(zerr) ||
- 		    ((rq->outputsize + dctx.avail_out) && (!zerr || (zerr > 0 &&
- 				!(rq->inputsize + in_buf.size - in_buf.pos))))) {
--			erofs_err(sb, "failed to decompress in[%u] out[%u]: %s",
--				  rq->inputsize, rq->outputsize,
--				  zstd_is_error(zerr) ? zstd_get_error_name(zerr) :
--					"unexpected end of stream");
- 			err = -EFSCORRUPTED;
- 			break;
- 		}
-@@ -210,7 +206,7 @@ static int z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
+@@ -162,7 +162,7 @@ static const char *z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
+ 	/* 3. multi-call decompress */
+ 	stream = zstd_init_dstream(z_erofs_zstd_max_dictsize, strm->wksp, strm->wkspsz);
+ 	if (!stream) {
+-		err = -ENOMEM;
++		reason = ERR_PTR(-ENOMEM);
+ 		goto failed_zinit;
+ 	}
+ 
+@@ -208,7 +208,7 @@ static const char *z_erofs_zstd_decompress(struct z_erofs_decompress_req *rq,
  	z_erofs_zstd_head = strm;
  	spin_unlock(&z_erofs_zstd_lock);
  	wake_up(&z_erofs_zstd_wq);
--	return err;
-+	return ERR_PTR(err);
+-	return reason ?: ERR_PTR(err);
++	return reason;
  }
  
  const struct z_erofs_decompressor z_erofs_zstd_decomp = {
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index bc80cfe482f7..461a929e0825 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1267,12 +1267,13 @@ static int z_erofs_decompress_pcluster(struct z_erofs_backend *be, int err)
- 	struct erofs_sb_info *const sbi = EROFS_SB(be->sb);
- 	struct z_erofs_pcluster *pcl = be->pcl;
- 	unsigned int pclusterpages = z_erofs_pclusterpages(pcl);
--	const struct z_erofs_decompressor *decomp =
-+	const struct z_erofs_decompressor *alg =
- 				z_erofs_decomp[pcl->algorithmformat];
-+	bool try_free = true;
- 	int i, j, jtop, err2;
- 	struct page *page;
- 	bool overlapped;
--	bool try_free = true;
-+	const char *reason;
- 
- 	mutex_lock(&pcl->lock);
- 	be->nr_pages = PAGE_ALIGN(pcl->length + pcl->pageofs_out) >> PAGE_SHIFT;
-@@ -1304,8 +1305,8 @@ static int z_erofs_decompress_pcluster(struct z_erofs_backend *be, int err)
- 	err2 = z_erofs_parse_in_bvecs(be, &overlapped);
- 	if (err2)
- 		err = err2;
--	if (!err)
--		err = decomp->decompress(&(struct z_erofs_decompress_req) {
-+	if (!err) {
-+		reason = alg->decompress(&(struct z_erofs_decompress_req) {
- 					.sb = be->sb,
- 					.in = be->compressed_pages,
- 					.out = be->decompressed_pages,
-@@ -1322,6 +1323,18 @@ static int z_erofs_decompress_pcluster(struct z_erofs_backend *be, int err)
- 					.gfp = pcl->besteffort ? GFP_KERNEL :
- 						GFP_NOWAIT | __GFP_NORETRY
- 				 }, be->pagepool);
-+		if (IS_ERR(reason)) {
-+			erofs_err(be->sb, "failed to decompress (%s) %ld @ pa %llu size %u => %u",
-+				  alg->name, PTR_ERR(reason), pcl->pos,
-+				  pcl->pclustersize, pcl->length);
-+			err = PTR_ERR(reason);
-+		} else if (unlikely(reason)) {
-+			erofs_err(be->sb, "failed to decompress (%s) %s @ pa %llu size %u => %u",
-+				  alg->name, reason, pcl->pos,
-+				  pcl->pclustersize, pcl->length);
-+			err = -EFSCORRUPTED;
-+		}
-+	}
- 
- 	/* must handle all compressed pages before actual file pages */
- 	if (pcl->from_meta) {
 -- 
 2.43.5
 
