@@ -1,55 +1,44 @@
-Return-Path: <linux-erofs+bounces-1492-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1493-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86CF9D44161
-	for <linux-erofs@archiver.kernel.org>; Fri, 12 Dec 2025 10:19:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0810CD5B154
+	for <linux-erofs@archiver.kernel.org>; Sat, 13 Dec 2025 14:46:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dSQR92TQWz2xqD;
-	Fri, 12 Dec 2025 21:19:01 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.224
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1765534741;
-	cv=none; b=mQOyiiBvptLrLgkIWQtoVByu7Hi606KQotp8CARbk2i87IgmJ9e3nl1uCfHsILdEPshcgyvuiNFDEu2FhJJZJaSox/oFJ59Gw/6AVR09BKm7iGkE8COf4cFsLhnqN/Lon+7bjlJlDIGtcqGB0Th7ORguID/pDYdWLRMwwMdCmXhYdFspHWsQxN6FQaYqs4XNjazpgcLSleVY6SFzfzVIt7hqPtJzDJL4k348J99Hi9RAUHLoSS8WQ2BtLhkg2+kGSntBz8+KtlkaKg+X0MLBtqoMqad3rMKMadPvyG22J9XZEOfwjhI5s97eDqkH26lDLm12RX5WadmwBZAIAtCFfA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dT8KD0xvYz2xZK;
+	Sun, 14 Dec 2025 01:46:24 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1765637184;
+	cv=none; b=XQkt4ghWSwCltSFYT7yjSfWIkQkHdBDY8I6UI7QTf3SsNfRV2/QiXaW7np67KQ+rWIOpSdM7CFDfdX+b8rSFF4fCHTKxvjjwCuaRZKA/FQKdwkC+wefkjsBeeVjzyf3EY4eS2tEzMLEKOm7C1DSyixdNePrNNgFyUW7CEWOA+tx9AWlao4NIPydJm0uzucIN3RA98Ag4T/rrmaPZ93RwBlJH3IhVUHgZSVnPt+FtfP43u3MOH+OlimGc+6cALMcrG5OJTJdCPfqEahsaUZseej29CIdfSrurWshuutl3cO9jm784Rx/L0RfV+p+XmSFGwPjN19qYn0GlCy+VYXFTiA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1765534741; c=relaxed/relaxed;
-	bh=BryqT1BVKlr/MICMYJA5KmwE22QR5Cb44fTTv2bCidA=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VWU23+EoUlZJy9QoujhupG3MBlwVDzXDpvA56Mi1AkL5jnKx71bKiLjELXLVmdzxuLwED6wwNim7VDRmAQi/7LGJpuzapTuGc7dko7CpwcuvQG1SZKj6KdH+mQpt1fQCYD0JtQTsqoSkq/ZrvdaiRfIWd6IYyqDb9brVY70GFTMOMU/7rSFwFgQrHPsLSmL24EftJyEMOJ1+0sf7WzSg3j7rkGkxAXoQroTDvlNU/PTN+gc5U7UT6HFHp4CVbTplP6iQFVKFeLf5Qqu8uvzvRGMJMlYzyOB83Nul4m67aO7jc4UL789fcN1/xxKwxBtj5QZ5QeF1upHMtOir2g0B6Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
+	t=1765637184; c=relaxed/relaxed;
+	bh=zozyig2HmzbP81g97IRy+3rgIgQqbpbsMbFeTmU9Nqo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H2Uf42IO/lnBxn+yoWhwEbzT9fqvxRHatYwPaU7vnpitt9j+vxQEFNlS0KGbwf1vulXs+C+g51hM4CuaZRBaUIDZkSJlyFoGYt6FjxeZFUCtmUXQ6Nt4D8rHa36PjrnIbMkgLDIEme8ci2ltZZgewAVT7KDZaW5IlkfXAgxNxSPFS/+eWbszd7pB1ea4lTQM45vABVLMo01myfJz9SiIhnuplDe32qEwN5VZwnVV/XowXbBU0DZu83FhcysS+Ig8l5EC6HeCosgP6GcQxbj9Pfaqb6NKtbuflxYhHKlAFwDE6YSb5G4/qzxLK/nkqcDbMWONu/pc6t6X/wSjkePNjA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=cM8QqDQn; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=cM8QqDQn;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dSQR72nHCz2xNk
-	for <linux-erofs@lists.ozlabs.org>; Fri, 12 Dec 2025 21:18:56 +1100 (AEDT)
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=BryqT1BVKlr/MICMYJA5KmwE22QR5Cb44fTTv2bCidA=;
-	b=ShVctinupd+CPTtI9S2xADgHIBisVkwZx8S2Ifmq7d2nmjNTeh4ipDGFGh6AJHqslbm+dpasB
-	5ZSz+vy1uYaNCFtjZLmYO0bGngqtlnxV1F9epcQCDw+AgS1sUJ02vNZJB+77UwspZK7WmAg4zIc
-	ZBVFITVOpB2L7CHYZC4f7K8=
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4dSQNY5KDRz1cyPb;
-	Fri, 12 Dec 2025 18:16:45 +0800 (CST)
-Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
-	by mail.maildlp.com (Postfix) with ESMTPS id B8B831401E9;
-	Fri, 12 Dec 2025 18:18:43 +0800 (CST)
-Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
- (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Fri, 12 Dec
- 2025 18:18:43 +0800
-From: Yifan Zhao <zhaoyifan28@huawei.com>
-To: <linux-erofs@lists.ozlabs.org>
-CC: <hsiangkao@linux.alibaba.com>, <hudson@cyzhu.com>, <jingrui@huawei.com>,
-	<wayne.ma@huawei.com>, <zhaoyifan28@huawei.com>
-Subject: [PATCH 1/2] erofs-utils: mount: Check the status of subprocess to avoid infinite loop
-Date: Fri, 12 Dec 2025 18:17:32 +0800
-Message-ID: <20251212101733.590089-1-zhaoyifan28@huawei.com>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dT8K91dGGz2x9W
+	for <linux-erofs@lists.ozlabs.org>; Sun, 14 Dec 2025 01:46:19 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1765637168; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=zozyig2HmzbP81g97IRy+3rgIgQqbpbsMbFeTmU9Nqo=;
+	b=cM8QqDQn+eq8x+hJcy/OSiX6Jq+MB8FJE/BXOIOPc461hP2seAUJLlEn2bDGmv/k0ri09ixW9d+cQd83JvW4X3Y4oKTMwcxYbgU9dA1qNUh936BYve9IvuFk5pALQduXzBJ3Xhb6r8futo2hHA9ufEsxA8mWEPCsRy63mkyDjSQ=
+Received: from 30.69.38.206(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wuhk5JA_1765637160 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sat, 13 Dec 2025 22:46:06 +0800
+Message-ID: <2319527e-6e4e-4a42-9ad4-bfd395d25f39@linux.alibaba.com>
+Date: Sat, 13 Dec 2025 23:45:59 +0900
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,53 +50,33 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.50.159.234]
-X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
- kwepemr100010.china.huawei.com (7.202.195.125)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] erofs-utils: mount: Check the status of subprocess to
+ avoid infinite loop
+To: Yifan Zhao <zhaoyifan28@huawei.com>, linux-erofs@lists.ozlabs.org
+Cc: hudson@cyzhu.com, jingrui@huawei.com, wayne.ma@huawei.com
+References: <20251212101733.590089-1-zhaoyifan28@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20251212101733.590089-1-zhaoyifan28@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-In `erofsmount_nbd()`, if the child process forked therein exits
-erroneously within `erofsmount_startnbd()`, the NBD device will never
-become operational. Since the parent process does not check the child's
-status, it will stuck in an infinite loop polling the NBD device state.
 
-This patch ensures the parent process correctly detects this failure and
-returns an error accordingly.
 
-Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
----
- mount/main.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+On 2025/12/12 19:17, Yifan Zhao wrote:
+> In `erofsmount_nbd()`, if the child process forked therein exits
+> erroneously within `erofsmount_startnbd()`, the NBD device will never
+> become operational. Since the parent process does not check the child's
+> status, it will stuck in an infinite loop polling the NBD device state.
+> 
+> This patch ensures the parent process correctly detects this failure and
+> returns an error accordingly.
+> 
+> Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
 
-diff --git a/mount/main.c b/mount/main.c
-index b28b8ba..758e8f8 100644
---- a/mount/main.c
-+++ b/mount/main.c
-@@ -8,6 +8,7 @@
- #include <signal.h>
- #include <sys/mount.h>
- #include <sys/types.h>
-+#include <sys/wait.h>
- #include <pthread.h>
- #include <unistd.h>
- #include "erofs/config.h"
-@@ -1173,6 +1174,14 @@ static int erofsmount_nbd(struct erofs_nbd_source *source,
- 	while (1) {
- 		err = erofs_nbd_in_service(num);
- 		if (err == -ENOENT || err == -ENOTCONN) {
-+			int status;
-+
-+			err = waitpid(pid, &status, WNOHANG);
-+			if (err < 0)
-+				return -errno;
-+			else if (err > 0)
-+				return status ? -EIO : 0;
-+
- 			usleep(50000);
- 			continue;
- 		}
--- 
-2.43.0
+Both patches applied, thanks!
+
+Thanks,
+Gao Xiang
 
 
