@@ -1,44 +1,53 @@
-Return-Path: <linux-erofs+bounces-1500-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1501-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AEBC8D5C0D9
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Dec 2025 08:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E3ADD5C0D6
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Dec 2025 08:31:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dVqkl2BPrz2xqj;
-	Tue, 16 Dec 2025 19:25:51 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1765873551;
-	cv=none; b=EwMmfSNusRX93K5TZaHGG0ihvEVRGQ+y8B76C6+p22ocsxO/ejB/V+GL5XfD3LuVVQzOsDIYNQrjgYS4lc/gZZCyW9i0L/M9lCd5bfop7DYPhSVursAOvqdmmzycZ6kx+sojQW+GYjD8LxM4LbXCJbBqPIfNEZGUhIksxXYXfDUBYbrlxYSRASeXCtdarQGnYWM64+oCpdTnbtzRBWG2L+Rx2QJjQyPAkAgtWFboqsFRCkF4oDe19kkjxAvexdqPZwa9p1Tp6F5Gh3ekk8gsC0l/VrYyC/E/5+yb7h9778BsOV4crv5QSSlh3t8gaPWuwd9N5oCHngh9Ybb9wSX17w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dVqs40zW1z2xqj;
+	Tue, 16 Dec 2025 19:31:20 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.219
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1765873880;
+	cv=none; b=n1rLKT/Ttc1DJ6y7BS8BOzQ/06BZAhQS6j0hmjFo71/HO/gm1n8KarxPcF02dDnyXa0MZ0UEIaHJi/x3JPPg+mlPyF9RaaQmS7otI5dVAXFTJWCq3Y7OXGrRp760Z+rVVmjcMszIMzLJlR844mfnrTS5ev3vAfVbM5vrrjIjDM4wON2Sk0gL7dwL297Q8titj+Pa5DYdUon/B7xJ7wY351/mf3VdCFjwGEzHDpNQ7V7Q6gXP5fs98rQMxBr4NGER5q6K/FDUbwxtxv6sqGi2DbESA1V8vYPZc15NmrdWuubABlPdca+20z3ltMKSY90HkChPHVxg33xWOYDk94eODg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1765873551; c=relaxed/relaxed;
-	bh=9nYk5mXuNcuSwtL9JEiVNlZJ1bTeJxuxZrxzZLeGZxs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Vr8o9lJMRSrNwiHeiPLwcjuaEzwHDHpacwJrhS4ziH9NJaLjJxFKa2Dxjovyx/VN6DE500gaaSFmJSIJ6TnoJqqNt23sIxCycC/GUTntRVZu1gl8c+gIZ+M8MxzuyrwhY50A525LbSpHdd+8OgV3XFNz4/vC+XsNfF5vC5M1ONF7WZ7C3m1L/uZE1qSmmf0UQB9zV2rtmCkh3JuRzFOa05MNZHdbjn4CDqb6iEZkkk2wugb0/wxLgbv6d7QebZucql/IXsI2gQnNy3R8oSwh1vowLmwBTPd4s0qTosaqYQ67Cxu+qzQhyvTbgHgI18P5HmNtOKqllelPpksMVOGscA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wLDQWFOt; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1765873880; c=relaxed/relaxed;
+	bh=jxOjlXVXNyftFL8feMtFEmzMHSy/HETN2LNFtZeYH2I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=j6EpFempZYM35YZwSF0ZKQzu/Z1xMSJojpUUdlxHH5I2Eo6j52vinexFGP7twgwNQ4lprOfNnEr/sss1xOGLNhkS7kGsnBiqduGtN9HJKGemcFT3EWKj1jYVmg0hxqdsdG4qY7bKtDF3e+f8q3Ch3j3/aFMjoBHPCQsK97wdpppZ+k2AfSAL0OXueST1yy4lCRHMG+5f7+hGUVwWOdQQzbiebHWgJmnoGDhu/knoj5ASUyU0LZw7iC1eeThLKZfLj+XdvD8iwFjL2doMd3pkJ7Ho9H62eoeLu2gu9DnV+tQKc4dzXcRWOuWwM7rHwfBfp3SVOM/UtOCx6iSvOjbeTw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xD/Qbwuk; dkim-atps=neutral; spf=pass (client-ip=113.46.200.219; helo=canpmsgout04.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=wLDQWFOt;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xD/Qbwuk;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.219; helo=canpmsgout04.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dVqkj4B2Fz2xqf
-	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Dec 2025 19:25:49 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1765873544; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=9nYk5mXuNcuSwtL9JEiVNlZJ1bTeJxuxZrxzZLeGZxs=;
-	b=wLDQWFOt1stKWebuFwPipvvygNt08AvTeM9cZsPlJfOsgq3jarDduU60U+7fqs0mbVjtoyQ0W0tqIuv2mCn1leLTXnlqtBe6ghZklqNpvC79IynvRT/8ffy4syx+Q4gJ0b06HMWDhpiy4Z7pL/mo4Xeke470wKH2Q16QkfEtSfM=
-Received: from 30.221.132.163(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WuyVcWH_1765873541 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 16 Dec 2025 16:25:42 +0800
-Message-ID: <c599e70c-9c6f-4a98-a826-9fb56af5fa50@linux.alibaba.com>
-Date: Tue, 16 Dec 2025 16:25:41 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dVqs201DYz2xqf
+	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Dec 2025 19:31:17 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=jxOjlXVXNyftFL8feMtFEmzMHSy/HETN2LNFtZeYH2I=;
+	b=xD/QbwukMqpJGsSru1PfHBEDFV/m0J2fW11ird3bASCx3ufoKD4LrOceFUBSia2u3qMVbfcst
+	Bskjlkq1YKVjtg9ye8wzX9uuncpDE7eON1+faZWC+DMAkr/HCbWjtMiMfIj/yi7HLf/QspvbIUV
+	0q4tLmONlTnGWxD2sCa6Lls=
+Received: from mail.maildlp.com (unknown [172.19.163.48])
+	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4dVqpb6DTWz1prLS;
+	Tue, 16 Dec 2025 16:29:11 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id 437DF180478;
+	Tue, 16 Dec 2025 16:31:13 +0800 (CST)
+Received: from [100.103.109.96] (100.103.109.96) by
+ kwepemr100010.china.huawei.com (7.202.195.125) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.36; Tue, 16 Dec 2025 16:31:12 +0800
+Message-ID: <5d1f109a-7613-4b5f-a5d8-305b0f3ade3a@huawei.com>
+Date: Tue, 16 Dec 2025 16:31:12 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,27 +60,77 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: make z_erofs_crypto[] static
-To: Ferry Meng <mengferry@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <20251216082141.108624-1-mengferry@linux.alibaba.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20251216082141.108624-1-mengferry@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 2/2] erofs-utils: lib: oci: restrict `ocierofs_io_open()`
+ to single-layer images
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, <linux-erofs@lists.ozlabs.org>
+CC: <hudson@cyzhu.com>, <jingrui@huawei.com>, <wayne.ma@huawei.com>
+References: <20251216070557.743122-1-zhaoyifan28@huawei.com>
+ <20251216070557.743122-2-zhaoyifan28@huawei.com>
+ <31adc60f-fc76-471f-aea9-18304b9f01b8@linux.alibaba.com>
+From: "zhaoyifan (H)" <zhaoyifan28@huawei.com>
+In-Reply-To: <31adc60f-fc76-471f-aea9-18304b9f01b8@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [100.103.109.96]
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
+
+On 2025/12/16 15:23, Gao Xiang wrote:
 
 
+>
+>
+> On 2025/12/16 16:05, Yifan Zhao wrote:
+>> When mounting an OCI image with `mount.erofs -t erofs.nbd` without
+>> specifying either `oci.layer=` or `oci.blob=`, a segfault occurs in the
+>> `ocierofs_download_blob_range() → ocierofs_find_layer_by_digest()` call
+>> path due to an empty `ctx->blob_digest`.
+>>
+>> As mounting multi-layer OCI images is not yet supported, let's exit
+>> early in `ocierofs_io_open()` with an error in this case.
+>>
+>> Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+>> ---
+>>   lib/remotes/oci.c | 19 +++++++++++++------
+>>   1 file changed, 13 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
+>> index d5afd6a..ce7a1a5 100644
+>> --- a/lib/remotes/oci.c
+>> +++ b/lib/remotes/oci.c
+>> @@ -1479,16 +1479,18 @@ int ocierofs_io_open(struct erofs_vfile 
+>> *vfile, const struct ocierofs_config *cf
+>>           return -ENOMEM;
+>>         err = ocierofs_init(ctx, cfg);
+>> -    if (err) {
+>> -        free(ctx);
+>> -        return err;
+>> +    if (err)
+>> +        goto out;
+>> +
+>> +    if (!ctx->blob_digest) {
+>> +        err = -EINVAL;
+>
+> Is it possible to add a dedicated error message for this case?
 
-On 2025/12/16 17:21, Ferry Meng wrote:
-> Reduce the scope of 'z_erofs_crypto[]' that is not used outside of
-> 'decompressor_crypto.c'.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202512102025.4mWeBSsf-lkp@intel.com/
-> Signed-off-by: Ferry Meng <mengferry@linux.alibaba.com>
+Note: Apologies — this was originally sent directly to the maintainer by 
+mistake and is now being resent to the list for visibility and review.
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+
+Hi Xiang,
+
+Acknowledged. However, when netlink is unavailable, this logic runs in 
+both `erofsmount_startnbd` and `erofsmount_startnbd_nl`,
+
+causing duplicate error output. A refactor may be warranted later, but 
+for now, let's just add the error print.
+
 
 Thanks,
-Gao Xiang
+
+Yifan Zhao
+
+>
+> Thanks,
+> Gao Xiang
 
