@@ -1,44 +1,44 @@
-Return-Path: <linux-erofs+bounces-1509-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1510-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61092D68BD0
-	for <linux-erofs@archiver.kernel.org>; Thu, 18 Dec 2025 03:03:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6A56D68BD1
+	for <linux-erofs@archiver.kernel.org>; Thu, 18 Dec 2025 03:26:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dWwTV6LL8z2xpg;
-	Thu, 18 Dec 2025 14:03:10 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766026990;
-	cv=none; b=RKJGmk2WClTyUlLxG7EOv2Rl1G60lSIPHOGfzNFcp87J/IVhtlAYLgy6+KeYgrFPNnMHAUnFLvv2hQwFmDe8IkI1eCKvWuxoI+QtdPmReU9bZeiR/HPClN8wV1JIXT5D1urQMYilJubboJWjW5VLpaLKMwuK1bhOMkBFZUVBADkK0NsViOM+LtSzQB4KKA54FJOtdaUx/mwHvAFKbdy90XgQBNoqSfWAby5/YOaCSyOZNTMImlI1Ysd+Hvdd1znQv2mxzyvoFkQjEHW6FTtcJkKUUFD0rcSpAAsfnh2T96hr4VFlD6INwNH+8kTx+7xVtsVKVykw3l1hs6P5iTa/5w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dWwzp6LKZz2xpg;
+	Thu, 18 Dec 2025 14:25:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766028358;
+	cv=none; b=PTaiL4s4kTuaKSnrQUDIRMzpxyVMAcStTVYwMQmcJIOEWkhyKTJwI23mIW6oY0/7hRlN5xzlKNS1sVrxjwpLMufmPjpxxzewei8bK3R44GxiNIq2T40cWrWUUBwl5jWFCp8su2BXHtjdLhmGXlohjx3toLxFcKjR8KTYemxlCw3PGlUhXCjJoYSiXq4nOnkK1KriOvlzpBzldEQfNWk1coATTAiAtbds14KMZWlPVNFL4iamiENtloh/Er0VtulMAPV77pC6QTofnpnmc0HPwVxOGRfXSyPEij0j95yFMXDbmjmpjgESchjTZ39kJjLUK271jrxgW+XuJIFB7VpxSw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1766026990; c=relaxed/relaxed;
-	bh=/p9v/7P8G2nkpG33YfeBu+GqgEjXSnj2Lz7Bm8EiiFs=;
+	t=1766028358; c=relaxed/relaxed;
+	bh=O2r5K3ClHRUcn8V5Kxk4ANKDK0yNYHHVTlS6HFPGZOM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XJVlhFcEdYO6CY9J5LX8Hh5zzDXwh6bvvI8tTIccXvXRWsqO1FEXh5PeTGaFfFX5x3lAuxstFkFyBp0kMcmajf3gIDtz5En8BipZFHJ686f8KQ8e+wT6Qqd7B3tWpTpSer533FWHULs1eZPssMiK+5SL72PcdCLf5aDIZ7++6fht7YyD1diHwbWUiaYH1oiv3+Es6z6CdCoaXjyGAnA0qUw0t9ORQ1X2iD4HPR0LB7ieBYCUneI42JDc3lrgYcYJl0iRQ10aj0JBQM5G8Q3l8NGX7uLMyFwq9fGxD+ebrWMzrOCz2tfprGSG+iPPjpUq3BfT9A7onzSQ5HTNHSbH7A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=aqf1iPxe; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=UFeMXp8untWjvrhyiogrUE0Vz7tAOVOFG2TmjTP9lBXpXGKXjNa09FlzpW1+SGOR8D0RRc7OgXd8CnC6P5tsYHZskwbk6CpvrmUxP80r0XWXKH5GNqmj1BDPOY2mcPPPH5Vp9EipvkQU8Y0BJlPrVCXJZdaLnNsiiBt8ZjiSdnNEZ0yW9wVN+rTvPhlSn3hheGYnWYrjM6vVC0xM0ezM/g4gdRfjjDBnsWB3F9vyPuTh3Dhv272X4yrmyTdbprWD0lpB9kwu36zRhT5cvirV7zidLzMOhMj8G6dOswpG9Ou6ovv77yjWIzGIC9410x6MGVhrmyXQnxweT91eDbWTeA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UiJamXC0; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=aqf1iPxe;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UiJamXC0;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dWwTS3J3Yz2xDD
-	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Dec 2025 14:03:07 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dWwzm1TQlz2xDD
+	for <linux-erofs@lists.ozlabs.org>; Thu, 18 Dec 2025 14:25:54 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1766026976; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=/p9v/7P8G2nkpG33YfeBu+GqgEjXSnj2Lz7Bm8EiiFs=;
-	b=aqf1iPxeX1lF/o3ToPOllklwB46ihPtoRY2jH4jiyEo3Jxd0Cjw1c3b+IT7At1A8wnNKor6LkZ5MntZdBgU5Wz0xwwga2lFRqaCDSgJ57uNtk/h8UXjd4nIxnIEXDnIUBlnuMRqNfGsE2rrGqY4HHjQsttLlt03OaO7o8Vz8I0M=
-Received: from 30.221.132.6(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wv6Uryb_1766026972 cluster:ay36)
+	t=1766028347; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=O2r5K3ClHRUcn8V5Kxk4ANKDK0yNYHHVTlS6HFPGZOM=;
+	b=UiJamXC00dCoy8BAAVn824/UqEHn8661spi+mF7pJpm7npKkbqLrkw3po+1p2pannqFwlp0ib2nGgesOBHoH8dANtE25dI+6ZV51Tf8Ot0/EUxmhlRxC2PBuVkFInV3GSep/9eRSs3gjtIjw+hKjv7dR6sE3YIKICXfxjtXl400=
+Received: from 30.221.132.6(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wv6mXj5_1766028346 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Thu, 18 Dec 2025 11:02:53 +0800
-Message-ID: <d4a41ddd-726c-4dee-a563-12b2b83d071c@linux.alibaba.com>
-Date: Thu, 18 Dec 2025 11:02:52 +0800
+          Thu, 18 Dec 2025 11:25:46 +0800
+Message-ID: <ac302644-023e-46e1-ad8f-075410db0d6a@linux.alibaba.com>
+Date: Thu, 18 Dec 2025 11:25:45 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,57 +51,84 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs: simplify the code using for_each_set_bit
+Subject: Re: [PATCH] erofs: print the names of unsupported compression
+ algorithms
 To: Yuwen Chen <ywen.chen@foxmail.com>, xiang@kernel.org
 Cc: chao@kernel.org, huyue2@coolpad.com, jefflexu@linux.alibaba.com,
  linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
-References: <tencent_9E5D8E4520DCDEE3CBAE5BE70D79F95FFD08@qq.com>
+References: <tencent_D4F8982BC9797B5EE01759574F512CF7E506@qq.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <tencent_9E5D8E4520DCDEE3CBAE5BE70D79F95FFD08@qq.com>
+In-Reply-To: <tencent_D4F8982BC9797B5EE01759574F512CF7E506@qq.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 2025/12/18 10:57, Yuwen Chen wrote:
-> When mounting the EROFS file system, it is necessary to check the
-> available compression algorithms. At this time, the for_each_set_bit
-> function can be used to simplify the code logic.
+On 2025/12/18 11:18, Yuwen Chen wrote:
+> After simplifying the implementation of z_erofs_parse_cfgs, the
+> names of unsupported algorithms can now be directly output.
+> Moreover, some unnecessary additional judgments can be removed.
 > 
 > Signed-off-by: Yuwen Chen <ywen.chen@foxmail.com>
-> ---
-> 
-> v1 -> v2:
->      - revert the modifications to the fs/erofs/internal.h
-> 
->   fs/erofs/decompressor.c | 11 ++++-------
->   1 file changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-> index 2ec9b2bb628d6..be1e19b620523 100644
-> --- a/fs/erofs/decompressor.c
-> +++ b/fs/erofs/decompressor.c
-> @@ -405,7 +405,7 @@ int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb)
->   {
->   	struct erofs_sb_info *sbi = EROFS_SB(sb);
->   	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
-> -	unsigned int algs, alg;
-> +	unsigned long algs, alg;
->   	erofs_off_t offset;
->   	int size, ret = 0;
->   
-> @@ -423,13 +423,10 @@ int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb)
->   
->   	erofs_init_metabuf(&buf, sb);
->   	offset = EROFS_SUPER_OFFSET + sbi->sb_size;
-> -	alg = 0;
-> -	for (algs = sbi->available_compr_algs; algs; algs >>= 1, ++alg) {
-> +	algs = sbi->available_compr_algs;
 
-Can you update as what I suggested?
+It seems that you're working on outdated codebase.
 
-Assign `algs` first, and then assign sbi->available_compr_algs.
+There is no erofs_decompressors at all.
 
 Thanks,
 Gao Xiang
+
+> ---
+>   fs/erofs/decompressor.c | 16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+> index be1e19b620523..866bd9158615b 100644
+> --- a/fs/erofs/decompressor.c
+> +++ b/fs/erofs/decompressor.c
+> @@ -385,21 +385,22 @@ const struct z_erofs_decompressor erofs_decompressors[] = {
+>   		.decompress = z_erofs_lz4_decompress,
+>   		.name = "lz4"
+>   	},
+> -#ifdef CONFIG_EROFS_FS_ZIP_LZMA
+>   	[Z_EROFS_COMPRESSION_LZMA] = {
+> +#ifdef CONFIG_EROFS_FS_ZIP_LZMA
+>   		.config = z_erofs_load_lzma_config,
+>   		.decompress = z_erofs_lzma_decompress,
+> +#endif
+>   		.name = "lzma"
+>   	},
+> -#endif
+> -#ifdef CONFIG_EROFS_FS_ZIP_DEFLATE
+>   	[Z_EROFS_COMPRESSION_DEFLATE] = {
+> +#ifdef CONFIG_EROFS_FS_ZIP_DEFLATE
+>   		.config = z_erofs_load_deflate_config,
+>   		.decompress = z_erofs_deflate_decompress,
+> +#endif
+>   		.name = "deflate"
+>   	},
+> -#endif
+>   };
+> +static_assert(Z_EROFS_COMPRESSION_RUNTIME_MAX == ARRAY_SIZE(erofs_decompressors));
+>   
+>   int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb)
+>   {
+> @@ -433,10 +434,9 @@ int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb)
+>   			break;
+>   		}
+>   
+> -		if (alg >= ARRAY_SIZE(erofs_decompressors) ||
+> -		    !erofs_decompressors[alg].config) {
+> -			erofs_err(sb, "algorithm %ld isn't enabled on this kernel",
+> -				  alg);
+> +		if (!erofs_decompressors[alg].config) {
+> +			erofs_err(sb, "algorithm %s isn't enabled on this kernel",
+> +				  erofs_decompressors[alg].name);
+>   			ret = -EOPNOTSUPP;
+
+
+
+>   		} else {
+>   			ret = erofs_decompressors[alg].config(sb,
+
 
