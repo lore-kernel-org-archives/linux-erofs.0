@@ -1,58 +1,44 @@
-Return-Path: <linux-erofs+bounces-1531-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1532-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8A88ED711D5
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Dec 2025 07:55:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A654DD711D5
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Dec 2025 08:08:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dZVmv1dBGz2xpm;
-	Mon, 22 Dec 2025 18:55:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.221
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766390127;
-	cv=none; b=k1zUOmKXK2tljYH8cSAt1nOWKzVB5Mzhjgn7iPBhpNGMQmOLoPRXjDj5/LcN2Ta3dJon6ivCliHIlGr7ljoFHGvF2ke6nhuINIXwY35TL1BlIv1gQ86uNp6mnkX48UwYSomHOuWR1DOwV32rYRj4Kfet3TsI6PPnE5+NcOt5u4xDJ6IMsBDUBU0nsZ79D9a7w8QkxdNunMlLaCbNQ8vhd2DjHctSHP8Z3BGgiEqIXoE++643MlveUTzJlUYkYDx74GpHiDqoZRzXHxAWPRBSenhNFkIlGAwrlAkRLal09cBs1I2A2gI7qqWtD4gKsY7HZo4H6HHtmo/Xmavke2fALw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dZW3Q17pVz2xpm;
+	Mon, 22 Dec 2025 19:08:02 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766390882;
+	cv=none; b=ZO6sbz1EUJh+Xy0sSsvOxraGWKmjuuvoWYor+pkpW+ZF5zLOLy2c1s3KWYuJkrTWlOOzcJx5CaBzPQ0dy+rxVEWRQzTEdqT1nOPJlk8Kzdi08xn0IQcUZcGoePfkf7AAt6TbQyUYpd0IVtOFfamIR03KHv9Jc3dSdEEBXFwRr4kKfVuBoIPddglhqCubXPoPyajnjT9YpiyG31U62OxO8iIb/w7pvB9OdbwUJfpK2jYi6xbsnNrY2fGPKS9MmOYCszea0oPhnf+kuwvgbANWGkthGZe9w0IuqXkyDi6a5DasXAQ8notDVHLHWmzVeXLvLq65vqtbAdhMENMPWIhSEg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1766390127; c=relaxed/relaxed;
-	bh=44bxGW6dS2vZLLTyKlY9Pnbuw6GoVR34QeyINzfiBuo=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YbMi7SA3geqeiK95eG4J2dfCdxNwEbzkkeuTHN38DodHIVibi3XLhpheqZJXwTTd50wu6ImwEXMDTKPspcYpQzTNJHwY2280sHbryZq9rHDXk1EMfILq79/XFk07jrpLTEzmApB+ACb9+ydqNdl4RaDj5ZsIjD1Izg3tbX2/UEaacFCm25PtYjLxyVT+c8GTfn5RWBxhKBhb3mZwc1LztIfO+ggIt2e3BntOGf8816xvL+ufKwI9Q9dGZMxQLCt4v9sYFPR/MZ58GdypcXNiLRc7Ysdt5JS2UnuvY149CrvDadEYOu0JYggqkuaXtZ28vqOcbzan41ahNtOekJdgOg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=HgOzAMnX; dkim-atps=neutral; spf=pass (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+	t=1766390882; c=relaxed/relaxed;
+	bh=GvtwB6ReeFxy4zC4Zh2GgWPosIkK2X0542oITEQsNRY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VTVN//9YuNPv8HACbN5u1ZkkOXDIpjg3kpEGdb3DkfIOXiokkjIsE8YFb2ogfr1w2Q1tviPJ1lwmhMd3JLUPiRbKckez1wnP1I9ICsSYiAEbxNHiZNIxonWBs1+DulGSUuHo2LGFVcBB5G3B1DAWOHHdAaOh5BUHmoVriykJsH5d51DT4l6+lLKI5/KX0F4PIbWOM9FV85jHdv7iqCAaY7zdDC6uCKSbm6xZmV3Mf65sqvGVZQq17/schc9Ave2Z1reZ7xJwn2EWAhuM8Tq+nTnSKzpK6/B3yqECmnRnFidF9WQXe/zyww+MBADguQdUHdsYgTcW7Ud0omZT7AgGXw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=w+4jhWmz; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=HgOzAMnX;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=w+4jhWmz;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dZVmr2RSzz2xFn
-	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Dec 2025 18:55:23 +1100 (AEDT)
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=44bxGW6dS2vZLLTyKlY9Pnbuw6GoVR34QeyINzfiBuo=;
-	b=HgOzAMnXODteD/lglAWUrIhRJOY8KJ/tEEXw42mNhV+UnyACUY4HTM69im4mhoU4vug5brA5d
-	QIOqNaSZIhYZIzjK80ZtBZybDvmjA/1+Fuq0aR6tkos8LhJSNxGgx2jj2RA+WFB9LqqWX1gGGZ3
-	+A0DZj+h/nKh1lOjlFFzKkA=
-Received: from mail.maildlp.com (unknown [172.19.162.197])
-	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4dZVj84jcXzRhS6;
-	Mon, 22 Dec 2025 15:52:12 +0800 (CST)
-Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
-	by mail.maildlp.com (Postfix) with ESMTPS id AD7E54056C;
-	Mon, 22 Dec 2025 15:55:18 +0800 (CST)
-Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
- (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 22 Dec
- 2025 15:55:18 +0800
-From: Yifan Zhao <zhaoyifan28@huawei.com>
-To: <linux-erofs@lists.ozlabs.org>
-CC: <hsiangkao@linux.alibaba.com>, <hudson@cyzhu.com>, <jingrui@huawei.com>,
-	<wayne.ma@huawei.com>, <zhaoyifan28@huawei.com>
-Subject: [PATCH] erofs-utils: mount: add manpage and usage info for oci.insecure option
-Date: Mon, 22 Dec 2025 15:54:21 +0800
-Message-ID: <20251222075421.171161-1-zhaoyifan28@huawei.com>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dZW3M4v1wz2xSZ
+	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Dec 2025 19:07:57 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1766390873; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=GvtwB6ReeFxy4zC4Zh2GgWPosIkK2X0542oITEQsNRY=;
+	b=w+4jhWmz+COyWbF3ZivIrcDHpX1crBZ+jtVxjYYoZYUzHtaAjQljvRqB4aFt7nrNjyzFWZM78sTrSEOBJE8zQJk7nHsXsgd0ScfVo8CSfCFEtG/3v4wE+ANIOTEHyh/Ewkw7kx/1m4Ww4B/S6GjrhCHeMuAlrv/CArEY88Ai/yk=
+Received: from 30.221.132.255(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WvNY7fE_1766390870 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 22 Dec 2025 16:07:50 +0800
+Message-ID: <56b44498-a1d2-419c-9655-887976cc4d3d@linux.alibaba.com>
+Date: Mon, 22 Dec 2025 16:07:50 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -64,57 +50,57 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.50.159.234]
-X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
- kwepemr100010.china.huawei.com (7.202.195.125)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs-utils: mount: add manpage and usage info for
+ oci.insecure option
+To: Yifan Zhao <zhaoyifan28@huawei.com>, linux-erofs@lists.ozlabs.org
+Cc: hudson@cyzhu.com, jingrui@huawei.com, wayne.ma@huawei.com
+References: <20251222075421.171161-1-zhaoyifan28@huawei.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20251222075421.171161-1-zhaoyifan28@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add manpage and cmdline usage help for the newly introduced
-`oci.insecure` option in mount.erofs. Also fix an indent error.
 
-Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
----
- man/mount.erofs.8 | 3 +++
- mount/main.c      | 3 ++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/man/mount.erofs.8 b/man/mount.erofs.8
-index 6b3a32b..856e07f 100644
---- a/man/mount.erofs.8
-+++ b/man/mount.erofs.8
-@@ -117,6 +117,9 @@ Path to a tarball index file for hybrid tar+OCI mode.
- .TP
- .BI "oci.zinfo=" path
- Path to a gzip zinfo file for random access to gzip-compressed tar layers.
-+.TP
-+.BI "oci.insecure"
-+Use HTTP instead of HTTPS to access the image registry.
- .SH NOTES
- .IP \(bu 2
- EROFS filesystems are read-only by nature. The \fBrw\fR option will be ignored.
-diff --git a/mount/main.c b/mount/main.c
-index ed6bcdc..1463dee 100644
---- a/mount/main.c
-+++ b/mount/main.c
-@@ -94,7 +94,7 @@ static void usage(int argc, char **argv)
- 		" -t type[.subtype]	filesystem type (and optional subtype)\n"
- 		" 			subtypes: fuse, local, nbd\n"
- 		" -u 			unmount the filesystem\n"
--		"    --reattach		reattach to an existing NBD device\n"
-+		" --reattach		reattach to an existing NBD device\n"
- #ifdef OCIEROFS_ENABLED
- 		"\n"
- 		"OCI-specific options (with -o):\n"
-@@ -105,6 +105,7 @@ static void usage(int argc, char **argv)
- 		"   oci.password=<pass> password for authentication (optional)\n"
- 		"   oci.tarindex=<path> path to tarball index file (optional)\n"
- 		"   oci.zinfo=<path>    path to gzip zinfo file (optional)\n"
-+		"   oci.insecure        use HTTP instead of HTTPS (optional)\n"
- #endif
- 		, argv[0]);
- }
--- 
-2.43.0
+On 2025/12/22 15:54, Yifan Zhao wrote:
+> Add manpage and cmdline usage help for the newly introduced
+> `oci.insecure` option in mount.erofs. Also fix an indent error.
+> 
+> Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+> ---
+>   man/mount.erofs.8 | 3 +++
+>   mount/main.c      | 3 ++-
+>   2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/man/mount.erofs.8 b/man/mount.erofs.8
+> index 6b3a32b..856e07f 100644
+> --- a/man/mount.erofs.8
+> +++ b/man/mount.erofs.8
+> @@ -117,6 +117,9 @@ Path to a tarball index file for hybrid tar+OCI mode.
+>   .TP
+>   .BI "oci.zinfo=" path
+>   Path to a gzip zinfo file for random access to gzip-compressed tar layers.
+> +.TP
+> +.BI "oci.insecure"
+> +Use HTTP instead of HTTPS to access the image registry.
+>   .SH NOTES
+>   .IP \(bu 2
+>   EROFS filesystems are read-only by nature. The \fBrw\fR option will be ignored.
+> diff --git a/mount/main.c b/mount/main.c
+> index ed6bcdc..1463dee 100644
+> --- a/mount/main.c
+> +++ b/mount/main.c
+> @@ -94,7 +94,7 @@ static void usage(int argc, char **argv)
+>   		" -t type[.subtype]	filesystem type (and optional subtype)\n"
+>   		" 			subtypes: fuse, local, nbd\n"
+>   		" -u 			unmount the filesystem\n"
+> -		"    --reattach		reattach to an existing NBD device\n"
+> +		" --reattach		reattach to an existing NBD device\n"
 
+Not quite sure if we will switch to this style, so
+don't touch this line for now?
+
+Thanks,
+Gao Xiang
 
