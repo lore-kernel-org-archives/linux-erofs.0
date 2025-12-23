@@ -1,53 +1,62 @@
-Return-Path: <linux-erofs+bounces-1536-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1537-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC726E6B26B
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Dec 2025 01:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 380B5E6B26D
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Dec 2025 02:09:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dZyFz2G65z2xdY;
-	Tue, 23 Dec 2025 12:33:43 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dZz2g6ldwz2yFW;
+	Tue, 23 Dec 2025 13:08:59 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.226
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766453623;
-	cv=none; b=T23xnbpKEHCc2QCATU/UiDE1UMq68c9TH7HFUBBQAQ98OKUOZex0N0eIhlKnVOmRwuiBaOq52h4yMB6mIj8dZotxbkbFXOruRf0AVc5LBKazY37Gyjh0HfUgQ2tttBJj7dwUveaAxZD3Ug/5LO2po6xTEtNsKNX132953MQCmhhHTixupKmLRTidRJW6oihhgI7qMgj47LRBVeXMMDmF/tX+bJBSURkgPlO1xclG6bUrEE+LTEr3ASGQMDukQbUeUOFQlzV4EZRaoVoYWR12Y/7vnm3lT1/X7eZQK107Cmd2+5BKmiZMk2B31N3PfE3sffnPVH7y9K4ay52BuChzmQ==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766455739;
+	cv=none; b=RWN8/PZ8V5BWRh1sMnplCbGDXTH1YM0jw2xkbhyFTW6/PK/hX96f4a8FLHu6wg6wtjUOJ2YFL7qnDWKaMaqVr61FJ1UOXn5MnJYx+et3FLTii+RRbZKhIORWJa9jhd0siY09vupx6lQw9Rx46lgrDvd8CwGNGFtXBc0Rrjc9tciWQvgHB8gIxt28zDIM6YyAGW9xmedWcaHoLrPIVT0j5+RJy5WFsZsHywYKl0RuTo2n2o5Qz8dfdQrIPpilG4Vjf9ZJVO7x3zFX+3sh0nKSbDb9wowewfFw6tx1vIUsMzaN8VR1W4w9km1++ITJXEM7MQVgWrP9R7fgqba1EhAzEg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1766453623; c=relaxed/relaxed;
-	bh=LQm9covx3GTV+Z5lbScFnu7smbApECi0DeHgk1lrvDc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=I622cDzyJM32Q7WdMcPGILW8xPugRT2ng2YG5+utMzZcL251o6RljMaFMT4U9yFw+L7KoeSQ3URfJ6fOUzGvu8v6dguH5BivIU3sTDpRNrtUrgHE93Y2JorHDCNWMeC2aKRAwwcGHajGC86FIXh80CYaxOlTWcO+/J1yeIz3+NZYPI/KsBbNR2fN/kAlMkaPn/Xyee9nLEYOJhiSC4ph4j2UyZ7P20sROe/YVG/UbIAMiJ0/XyxTj0ikIPv96FIe7OkRNrEKR7EUsmEb2BpQIJIN1UzZyj889VeqlsKhfSuiJVcQEEmf7M9F3rRNk1V+0ceRka9bsHTpoYQkNuXp6A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=0a3cO1kk; dkim-atps=neutral; spf=pass (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	t=1766455739; c=relaxed/relaxed;
+	bh=p2PKDgkJQIEgxRGETyAjQ3sbTCuZuHWHL+n4YmBZzHo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=b4EtnekrTXHQT5xDaprPxe6jvQvkEH0qr/CQpB9ezftQuGIj6H1p61zZr4JiMX82VvSJs8QF/Sn9EOqdmLAlq7kETaOBKJ8uXx8jcgW5fdxur/+/shpeJrKlXpz0/04kQMROKBITZyMTd1uDuOqinyChkhXstDMzS79+XWPLaqydUaoLgROj7R08O+27Hy6P3o51WQfnJP7w1aasRQjpbWDaQg72gVTRMsbNiAVMOesevD6zH/oYkPUvQyncXU1XawzHsg1vcdUqggHwL/MociBD8dRIoaPkY0/sTWVWhe+mSBe3s3hWzGM4LD6KYDst/3WkySAY0YUitiNX+o25TA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=326suT3+; dkim-atps=neutral; spf=pass (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=0a3cO1kk;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=326suT3+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
 Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dZyFv390Bz2x99
-	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Dec 2025 12:33:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dZz2d3hy1z2xlP
+	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Dec 2025 13:08:56 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=LQm9covx3GTV+Z5lbScFnu7smbApECi0DeHgk1lrvDc=;
-	b=0a3cO1kkIy0JK5zsqSrGrw2Zb4zT0P78O5hynLEaDMQBKjcxYb2ljvusndADtlWntSMnx9a8v
-	08psX7FYL6Vo1UA0xkg20pKXZl+fyF+eGVmvfo+z2XlJR07ROE0vhrHnKKgIPVkP2HkaUdMOco2
-	Decs3q9Wc42qm36N59lYv+E=
-Received: from mail.maildlp.com (unknown [172.19.163.127])
-	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4dZyB85dmZzKm5B;
-	Tue, 23 Dec 2025 09:30:24 +0800 (CST)
-Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9408B4056B;
-	Tue, 23 Dec 2025 09:33:31 +0800 (CST)
-Received: from [100.103.109.96] (100.103.109.96) by
- kwepemr100010.china.huawei.com (7.202.195.125) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.36; Tue, 23 Dec 2025 09:33:31 +0800
-Message-ID: <f524ed72-e13b-4346-b169-1f9cda96fdb7@huawei.com>
-Date: Tue, 23 Dec 2025 09:33:30 +0800
+	bh=p2PKDgkJQIEgxRGETyAjQ3sbTCuZuHWHL+n4YmBZzHo=;
+	b=326suT3+br41/A9g+87bPgtTPQLDC/N9ehuHDhGEee+yYKSBlB7kQ9EaKkliS9jR+xKPpvlkj
+	/hJdU/PUGuk+qFBlnPV8Wepz1vLKXWy5aqu8pfPOYBZHh6XcSaxrpLyk0eLbrlnkh9LLm7DYDPP
+	DM9dsVeO23AmanRWv/kA2t8=
+Received: from mail.maildlp.com (unknown [172.19.163.214])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4dZyyx2m2FzKmgb;
+	Tue, 23 Dec 2025 10:05:45 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id 32CD44056C;
+	Tue, 23 Dec 2025 10:08:52 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 23 Dec
+ 2025 10:08:51 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>,
+	<djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>
+CC: <linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
+Subject: [PATCH v10 01/10] iomap: stash iomap read ctx in the private field of iomap_iter
+Date: Tue, 23 Dec 2025 01:56:10 +0000
+Message-ID: <20251223015618.485626-2-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20251223015618.485626-1-lihongbo22@huawei.com>
+References: <20251223015618.485626-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,143 +68,127 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] erofs-utils: mount: add `--disconnect` command
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, <linux-erofs@lists.ozlabs.org>
-References: <20251222074652.1947729-1-hsiangkao@linux.alibaba.com>
- <20251222074652.1947729-2-hsiangkao@linux.alibaba.com>
-From: "zhaoyifan (H)" <zhaoyifan28@huawei.com>
-In-Reply-To: <20251222074652.1947729-2-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [100.103.109.96]
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
- kwepemr100010.china.huawei.com (7.202.195.125)
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
+It's useful to get filesystem-specific information using the
+existing private field in the @iomap_iter passed to iomap_{begin,end}
+for advanced usage for iomap buffered reads, which is much like the
+current iomap DIO.
 
-On 2025/12/22 15:46, Gao Xiang wrote:
-> Users can use the new `--disconnect` option to forcibly disconnect or
-> abort NBD block devices.
->
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+For example, EROFS needs it to:
 
-Hi Xiang,
+ - implement an efficient page cache sharing feature, since iomap
+   needs to apply to anon inode page cache but we'd like to get the
+   backing inode/fs instead, so filesystem-specific private data is
+   needed to keep such information;
 
-It seems
+ - pass in both struct page * and void * for inline data to avoid
+   kmap_to_page() usage (which is bogus).
 
-     mount.erofs -u /dev/nbdX
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+---
+ fs/fuse/file.c         | 4 ++--
+ fs/iomap/buffered-io.c | 6 ++++--
+ include/linux/iomap.h  | 8 ++++----
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
-serving the same purpose of --disconnect? Why do we need a separate 
---disconnect subcommand?
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 01bc894e9c2b..f5d8887c1922 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -979,7 +979,7 @@ static int fuse_read_folio(struct file *file, struct folio *folio)
+ 		return -EIO;
+ 	}
+ 
+-	iomap_read_folio(&fuse_iomap_ops, &ctx);
++	iomap_read_folio(&fuse_iomap_ops, &ctx, NULL);
+ 	fuse_invalidate_atime(inode);
+ 	return 0;
+ }
+@@ -1081,7 +1081,7 @@ static void fuse_readahead(struct readahead_control *rac)
+ 	if (fuse_is_bad(inode))
+ 		return;
+ 
+-	iomap_readahead(&fuse_iomap_ops, &ctx);
++	iomap_readahead(&fuse_iomap_ops, &ctx, NULL);
+ }
+ 
+ static ssize_t fuse_cache_read_iter(struct kiocb *iocb, struct iov_iter *to)
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index e5c1ca440d93..5f7dcbabbda3 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -555,13 +555,14 @@ static int iomap_read_folio_iter(struct iomap_iter *iter,
+ }
+ 
+ void iomap_read_folio(const struct iomap_ops *ops,
+-		struct iomap_read_folio_ctx *ctx)
++		struct iomap_read_folio_ctx *ctx, void *private)
+ {
+ 	struct folio *folio = ctx->cur_folio;
+ 	struct iomap_iter iter = {
+ 		.inode		= folio->mapping->host,
+ 		.pos		= folio_pos(folio),
+ 		.len		= folio_size(folio),
++		.private	= private,
+ 	};
+ 	size_t bytes_submitted = 0;
+ 	int ret;
+@@ -620,13 +621,14 @@ static int iomap_readahead_iter(struct iomap_iter *iter,
+  * the filesystem to be reentered.
+  */
+ void iomap_readahead(const struct iomap_ops *ops,
+-		struct iomap_read_folio_ctx *ctx)
++		struct iomap_read_folio_ctx *ctx, void *private)
+ {
+ 	struct readahead_control *rac = ctx->rac;
+ 	struct iomap_iter iter = {
+ 		.inode	= rac->mapping->host,
+ 		.pos	= readahead_pos(rac),
+ 		.len	= readahead_length(rac),
++		.private = private,
+ 	};
+ 	size_t cur_bytes_submitted;
+ 
+diff --git a/include/linux/iomap.h b/include/linux/iomap.h
+index 520e967cb501..441d614e9fdf 100644
+--- a/include/linux/iomap.h
++++ b/include/linux/iomap.h
+@@ -341,9 +341,9 @@ ssize_t iomap_file_buffered_write(struct kiocb *iocb, struct iov_iter *from,
+ 		const struct iomap_ops *ops,
+ 		const struct iomap_write_ops *write_ops, void *private);
+ void iomap_read_folio(const struct iomap_ops *ops,
+-		struct iomap_read_folio_ctx *ctx);
++		struct iomap_read_folio_ctx *ctx, void *private);
+ void iomap_readahead(const struct iomap_ops *ops,
+-		struct iomap_read_folio_ctx *ctx);
++		struct iomap_read_folio_ctx *ctx, void *private);
+ bool iomap_is_partially_uptodate(struct folio *, size_t from, size_t count);
+ struct folio *iomap_get_folio(struct iomap_iter *iter, loff_t pos, size_t len);
+ bool iomap_release_folio(struct folio *folio, gfp_t gfp_flags);
+@@ -595,7 +595,7 @@ static inline void iomap_bio_read_folio(struct folio *folio,
+ 		.cur_folio	= folio,
+ 	};
+ 
+-	iomap_read_folio(ops, &ctx);
++	iomap_read_folio(ops, &ctx, NULL);
+ }
+ 
+ static inline void iomap_bio_readahead(struct readahead_control *rac,
+@@ -606,7 +606,7 @@ static inline void iomap_bio_readahead(struct readahead_control *rac,
+ 		.rac		= rac,
+ 	};
+ 
+-	iomap_readahead(ops, &ctx);
++	iomap_readahead(ops, &ctx, NULL);
+ }
+ #endif /* CONFIG_BLOCK */
+ 
+-- 
+2.22.0
 
-
-Thanks,
-
-Yifan
-
-> ---
->   mount/main.c | 55 +++++++++++++++++++++++++++++++++++++++++++++-------
->   1 file changed, 48 insertions(+), 7 deletions(-)
->
-> diff --git a/mount/main.c b/mount/main.c
-> index b3b2e0fc33e0..693dba2dc78d 100644
-> --- a/mount/main.c
-> +++ b/mount/main.c
-> @@ -51,6 +51,7 @@ enum erofs_backend_drv {
->   enum erofsmount_mode {
->   	EROFSMOUNT_MODE_MOUNT,
->   	EROFSMOUNT_MODE_UMOUNT,
-> +	EROFSMOUNT_MODE_DISCONNECT,
->   	EROFSMOUNT_MODE_REATTACH,
->   };
->   
-> @@ -88,13 +89,14 @@ static void usage(int argc, char **argv)
->   		"Manage EROFS filesystem.\n"
->   		"\n"
->   		"General options:\n"
-> -		" -V, --version		print the version number of mount.erofs and exit\n"
-> -		" -h, --help		display this help and exit\n"
-> -		" -o options		comma-separated list of mount options\n"
-> -		" -t type[.subtype]	filesystem type (and optional subtype)\n"
-> -		" 			subtypes: fuse, local, nbd\n"
-> -		" -u 			unmount the filesystem\n"
-> -		"    --reattach		reattach to an existing NBD device\n"
-> +		" -V, --version         print the version number of mount.erofs and exit\n"
-> +		" -h, --help            display this help and exit\n"
-> +		" -o options            comma-separated list of mount options\n"
-> +		" -t type[.subtype]     filesystem type (and optional subtype)\n"
-> +		"                       subtypes: fuse, local, nbd\n"
-> +		" -u                    unmount the filesystem\n"
-> +		"    --disconnect       abort an existing NBD device forcibly\n"
-> +		"    --reattach         reattach to an existing NBD device\n"
->   #ifdef OCIEROFS_ENABLED
->   		"\n"
->   		"OCI-specific options (with -o):\n"
-> @@ -271,6 +273,7 @@ static int erofsmount_parse_options(int argc, char **argv)
->   		{"help", no_argument, 0, 'h'},
->   		{"version", no_argument, 0, 'V'},
->   		{"reattach", no_argument, 0, 512},
-> +		{"disconnect", no_argument, 0, 513},
->   		{0, 0, 0, 0},
->   	};
->   	char *dot;
-> @@ -316,6 +319,9 @@ static int erofsmount_parse_options(int argc, char **argv)
->   		case 512:
->   			mountcfg.mountmode = EROFSMOUNT_MODE_REATTACH;
->   			break;
-> +		case 513:
-> +			mountcfg.mountmode = EROFSMOUNT_MODE_DISCONNECT;
-> +			break;
->   		default:
->   			return -EINVAL;
->   		}
-> @@ -1415,6 +1421,33 @@ err_out:
->   	return err < 0 ? err : 0;
->   }
->   
-> +static int erofsmount_disconnect(const char *target)
-> +{
-> +	int nbdnum, err, fd;
-> +	struct stat st;
-> +
-> +	err = lstat(target, &st);
-> +	if (err < 0)
-> +		return -errno;
-> +
-> +	if (!S_ISBLK(st.st_mode) || major(st.st_rdev) != EROFS_NBD_MAJOR)
-> +		return -ENOTBLK;
-> +
-> +	nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
-> +	err = erofs_nbd_nl_disconnect(nbdnum);
-> +	if (err == -EOPNOTSUPP) {
-> +		fd = open(target, O_RDWR);
-> +		if (fd < 0) {
-> +			err = -errno;
-> +			goto err_out;
-> +		}
-> +		err = erofs_nbd_disconnect(fd);
-> +		close(fd);
-> +	}
-> +err_out:
-> +	return err < 0 ? err : 0;
-> +}
-> +
->   int main(int argc, char *argv[])
->   {
->   	int err;
-> @@ -1443,6 +1476,14 @@ int main(int argc, char *argv[])
->   		return err ? EXIT_FAILURE : EXIT_SUCCESS;
->   	}
->   
-> +	if (mountcfg.mountmode == EROFSMOUNT_MODE_DISCONNECT) {
-> +		err = erofsmount_disconnect(mountcfg.target);
-> +		if (err < 0)
-> +			fprintf(stderr, "Failed to disconnect %s: %s\n",
-> +				mountcfg.target, erofs_strerror(err));
-> +		return err ? EXIT_FAILURE : EXIT_SUCCESS;
-> +	}
-> +
->   	if (mountcfg.backend == EROFSFUSE) {
->   		err = erofsmount_fuse(mountcfg.device, mountcfg.target,
->   				      mountcfg.fstype, mountcfg.full_options);
 
