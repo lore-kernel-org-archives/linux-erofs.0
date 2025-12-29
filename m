@@ -1,52 +1,52 @@
-Return-Path: <linux-erofs+bounces-1629-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1630-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47FF9E8FDBE
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Dec 2025 07:50:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21740E9272A
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Dec 2025 09:30:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dfpKh5rm7z2x9M;
-	Mon, 29 Dec 2025 18:50:16 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1766994616;
-	cv=none; b=O7bBJIsjuBZxQ/KUhOXsOcawdcqIvUjHfW88fPyx4nWh2T8ogy4a7Sy+h8Yl1djx/HJ4bS48R6tyTWW5mOoYuvTqqSZPOZsOHC8mQVl70mxU10z7qbMWGOH9cMeQW3wO8Vf5EKaTBA3hz4e5TuyvHRLnfDGdeu7ex0rAbQdPrIWBPk5kYtTV54P2HdxKpaJA+YQpgvNpznPRap6nO32VEywgDE+f+0eP0PgHnq4zR7u91W9F75bOhzxJTiaNmWIRZmpJOPXTnWPn/vW+ZBLeYZtppoRNIOIOZ3Jfwu7mFs3SaMaF3P19E7fwYMlKz4bgOqhxgchWWnFCL3AxTBAsag==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dfrXr2XNqz2xrC;
+	Mon, 29 Dec 2025 20:30:04 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767000604;
+	cv=none; b=oejMXTiU1hDEGpaAg6ya8/3i3mOxLv2pChZBq/7cMEwcKTydX8pnVfBmjjNVDrXdWczr+WjOFe0fIW/03BkStR5Se10LbCPo2k4hihuwEU5k2CSUDZ/Fm1a4AFewjOmmupx9QjJk8jhQYbFGIsOFdLV4JNw/TQOJEczs9ThaIuhXdfVy6LEcUWaRTKLELsCpAnEn2lWG6DMa1+BeBiDOiQJ4gXZhGNYBBkBbGVrUDrdTPzd+yNZMw/BcQt5wlIc315GoqizQUJ3fovvEdFwWIxJVhHKeah1Vd43+pJNztm9pdS731SOv4hDsF1yep++CMRGqxtabYRs+w3IXj14a9Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1766994616; c=relaxed/relaxed;
-	bh=J5gBySRlWKy81TNNS+iT42GDgR3fLiHzjzid2mHNoLc=;
+	t=1767000604; c=relaxed/relaxed;
+	bh=JCzITJuRjeKFtm3K6ox8VTBVlLhqGgUOp9rwEBGomNU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=V9h8cqymKk/gdrOnrF7svCxVwk1ZN9CBC98dnEiMKeDxKqyRDOIZ9XYlaUJB0Cio/P/W5FnUAEGGppFQFHOO5YAmSoK+b8HaYy9vhsnwARgEOvMyzCjpB+q0V+0xjoR3sbx4Jyc40KLpomO+J8dJIwlHrZtJ8ob4KsgW49kApc441MWkUC5r2+QWken6/DGo9szH56iZ6n/aA3NfjcOShs6toUUMQK5oXAOSF3bwZ/hiw91WzejdX2YeEGPdU5brZqNhucp0pU3rL/wqo67Vub7kYa2K6hMOg1O0u6WYcqbkrtjv5xRK/FJBtaP+XT4+BZQ6OZDHs97aNDTQrPWGzA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YrOR3LhG; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=GcHBug1NDzJbPmRxiGjjOa2Ed83/AArcAieKBdcOc86ZNXs6krR8u3G+tgXBkH1EHUTskuWZnnJRFmLNgf1ZUcDouDb1DjQmlDe6bteX9Cg4nERwzI9zU+1O7TscrIA8xfpnlx3imbymeaE6pgvpHrGW+RGs7qcBZLfzNfeoXSNpyfMC76f7lvNSoNru/6DCOvBOkvyBF5DHMvi/LqAQ6D1sLhM4W3Dcl1cD9Fwr8Xq+0iZkF/gRv2BuTdIZtjR1GlT8reTbAL41b9vprJz3GwE54KOkHOiJpX/53tmxAmdeuDTAcAWDbXXV9zZEiw2vEMoaRUpkqU3knqXE2LcbsQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=I/ltyjvI; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YrOR3LhG;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=I/ltyjvI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dfpKg2Vdpz2xdV
-	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Dec 2025 18:50:14 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dfrXn52nFz2x9M
+	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Dec 2025 20:30:00 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1766994607; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=J5gBySRlWKy81TNNS+iT42GDgR3fLiHzjzid2mHNoLc=;
-	b=YrOR3LhGfVrwyLt/RmnWrtnoX4SW+4obxMryDLuFX9SkygXxFwy/DhIspSOBCVclo9yM/fmKKZUrwMqByyn6fWEHSe0FQh5BnVLMlCTencD+ASF4QCBUn0iH45mtmOaw4E6UP/6bf3XZ5/RtFHKk9gcuYEHhS9tN7R1NH/J0x/c=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wvpylte_1766994604 cluster:ay36)
+	t=1767000596; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=JCzITJuRjeKFtm3K6ox8VTBVlLhqGgUOp9rwEBGomNU=;
+	b=I/ltyjvISz9vAbmwaTso0VQtRACF5JLjxrlIe601Bm7uArQgKAlp+hvraomNQYqv8HkQ7vEE3hBwyTGriJR+o701dCI4tlWcdBXcEI/SSW3MsY4oeMIsSIO8WxkVscnOMomvJJNTbHT6AaQZHKtal8eY5/DUm3Chcx3Jlpb3XSY=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wvqzdsy_1767000594 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 29 Dec 2025 15:50:04 +0800
+          Mon, 29 Dec 2025 17:29:55 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Hongbo Li <lihongbo22@huawei.com>,
+Cc: LKML <linux-kernel@vger.kernel.org>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 2/2] erofs-utils: mkfs: add `--inode-digest-xattr` option
-Date: Mon, 29 Dec 2025 15:49:59 +0800
-Message-ID: <20251229074959.2147985-2-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 3/4] erofs: unexport erofs_getxattr()
+Date: Mon, 29 Dec 2025 17:29:48 +0800
+Message-ID: <20251229092949.2316075-3-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20251229074959.2147985-1-hsiangkao@linux.alibaba.com>
-References: <20251229074959.2147985-1-hsiangkao@linux.alibaba.com>
+In-Reply-To: <20251229092949.2316075-1-hsiangkao@linux.alibaba.com>
+References: <20251229092949.2316075-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,289 +60,169 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Based on the original Hongbo's version [1], it enables storing the
-SHA-256 digest of each inode as an extended attribute, in preparation
-for the upcoming page cache sharing feature.
+No external users other than those in xattr.c.
 
-Example usage:
- $ mkfs.erofs --inode-digest-xattr=trusted.erofs.fingerprint [-zlz4hc] foo.erofs foo/
-
-Co-developed-by: Hongbo Li <lihongbo22@huawei.com>
-[1] https://lore.kernel.org/r/20251118015849.228939-1-lihongbo22@huawei.com
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/internal.h |  2 ++
- include/erofs/xattr.h    |  2 ++
- include/erofs_fs.h       |  4 +++-
- lib/inode.c              | 44 ++++++++++++++++++++++++++++++++++++++--
- lib/super.c              | 13 ++++++++++--
- lib/xattr.c              | 14 ++++++++++++-
- mkfs/main.c              | 27 ++++++++++++++++++++----
- 7 files changed, 96 insertions(+), 10 deletions(-)
+ fs/erofs/xattr.c | 108 +++++++++++++++++++++++------------------------
+ fs/erofs/xattr.h |   7 ---
+ 2 files changed, 54 insertions(+), 61 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 62594b877151..5798f10e89c2 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -130,6 +130,7 @@ struct erofs_sb_info {
- 
- 	u32 xattr_prefix_start;
- 	u8 xattr_prefix_count;
-+	u8 ishare_xattr_prefix_id;
- 	struct erofs_xattr_prefix_item *xattr_prefixes;
- 
- 	struct erofs_vfile bdev;
-@@ -189,6 +190,7 @@ EROFS_FEATURE_FUNCS(metabox, incompat, INCOMPAT_METABOX)
- EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
- EROFS_FEATURE_FUNCS(xattr_filter, compat, COMPAT_XATTR_FILTER)
- EROFS_FEATURE_FUNCS(plain_xattr_pfx, compat, COMPAT_PLAIN_XATTR_PFX)
-+EROFS_FEATURE_FUNCS(ishare_xattrs, compat, COMPAT_ISHARE_XATTRS)
- 
- #define EROFS_I_EA_INITED_BIT	0
- #define EROFS_I_Z_INITED_BIT	1
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index 941bed778956..96546364f316 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -33,6 +33,8 @@ char *erofs_export_xattr_ibody(struct erofs_inode *inode);
- int erofs_load_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *path,
- 				       long inlinexattr_tolerance);
- int erofs_xattr_insert_name_prefix(const char *prefix);
-+int erofs_xattr_set_ishare_prefix(struct erofs_sb_info *sbi,
-+				  const char *prefix);
- void erofs_xattr_cleanup_name_prefixes(void);
- int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain);
- int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi);
-diff --git a/include/erofs_fs.h b/include/erofs_fs.h
-index 887f37faba59..8b0d155f8c4c 100644
---- a/include/erofs_fs.h
-+++ b/include/erofs_fs.h
-@@ -17,6 +17,7 @@
- #define EROFS_FEATURE_COMPAT_MTIME              0x00000002
- #define EROFS_FEATURE_COMPAT_XATTR_FILTER	0x00000004
- #define EROFS_FEATURE_COMPAT_PLAIN_XATTR_PFX	0x00000010
-+#define EROFS_FEATURE_COMPAT_ISHARE_XATTRS	0x00000020
- 
- /*
-  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
-@@ -82,7 +83,8 @@ struct erofs_super_block {
- 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
- 	__le64 packed_nid;	/* nid of the special packed inode */
- 	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
--	__u8 reserved[3];
-+	__u8 ishare_xattr_prefix_id;
-+	__u8 reserved[2];
- 	__le32 build_time;	/* seconds added to epoch for mkfs time */
- 	__le64 rootnid_8b;	/* (48BIT on) nid of root directory */
- 	__le64 reserved2;
-diff --git a/lib/inode.c b/lib/inode.c
-index 1d08e39317c0..c6085a52281a 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -31,6 +31,7 @@
- #include "liberofs_metabox.h"
- #include "liberofs_private.h"
- #include "liberofs_rebuild.h"
-+#include "sha256.h"
- 
- static inline bool erofs_is_special_identifier(const char *path)
- {
-@@ -1879,6 +1880,37 @@ static int erofs_prepare_dir_inode(struct erofs_importer *im,
- 	return 0;
- }
- 
-+static int erofs_set_inode_fingerprint(struct erofs_inode *inode, int fd,
-+				       erofs_off_t pos)
-+{
-+	u8 ishare_xattr_prefix_id = inode->sbi->ishare_xattr_prefix_id;
-+	erofs_off_t remaining = inode->i_size;
-+	struct erofs_vfile vf = { .fd = fd };
-+	struct sha256_state md;
-+	u8 out[32 + sizeof("sha256:") - 1];
-+	int ret;
-+
-+	if (!ishare_xattr_prefix_id)
-+		return 0;
-+	erofs_sha256_init(&md);
-+	do {
-+		u8 buf[32768];
-+
-+		ret = erofs_io_pread(&vf, buf,
-+				     min_t(u64, remaining, sizeof(buf)), pos);
-+		if (ret < 0)
-+			return ret;
-+		if (ret > 0)
-+			erofs_sha256_process(&md, buf, ret);
-+		remaining -= ret;
-+		pos += ret;
-+	} while (remaining);
-+	erofs_sha256_done(&md, out + sizeof("sha256:") - 1);
-+	memcpy(out, "sha256:", sizeof("sha256:") - 1);
-+	return erofs_setxattr(inode, ishare_xattr_prefix_id, "",
-+			      out, sizeof(out));
-+}
-+
- static int erofs_mkfs_begin_nondirectory(struct erofs_importer *im,
- 					 struct erofs_inode *inode)
- {
-@@ -1899,9 +1931,16 @@ static int erofs_mkfs_begin_nondirectory(struct erofs_importer *im,
- 				return -errno;
- 			__erofs_fallthrough;
- 		default:
--			break;
-+			goto out;
-+		}
-+
-+		if (S_ISREG(inode->i_mode) && inode->i_size) {
-+			ret = erofs_set_inode_fingerprint(inode, ctx.fd, ctx.fpos);
-+			if (ret < 0)
-+				return ret;
- 		}
--		if (ctx.fd >= 0 && cfg.c_compr_opts[0].alg &&
-+
-+		if (cfg.c_compr_opts[0].alg &&
- 		    erofs_file_is_compressible(im, inode)) {
- 			ctx.ictx = erofs_prepare_compressed_file(im, inode);
- 			if (IS_ERR(ctx.ictx))
-@@ -1913,6 +1952,7 @@ static int erofs_mkfs_begin_nondirectory(struct erofs_importer *im,
- 				return ret;
- 		}
- 	}
-+out:
- 	return erofs_mkfs_go(im, EROFS_MKFS_JOB_NDIR, &ctx, sizeof(ctx));
- }
- 
-diff --git a/lib/super.c b/lib/super.c
-index e54aff2d4ab7..a4837e5702ed 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -146,7 +146,15 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
- 	sbi->build_time = le32_to_cpu(dsb->build_time);
- 
- 	memcpy(&sbi->uuid, dsb->uuid, sizeof(dsb->uuid));
--
-+	if (erofs_sb_has_ishare_xattrs(sbi)) {
-+		if (dsb->ishare_xattr_prefix_id >= sbi->xattr_prefix_count) {
-+			erofs_err("invalid ishare xattr prefix id %d",
-+				  dsb->ishare_xattr_prefix_id);
-+			return -EFSCORRUPTED;
-+		}
-+		sbi->ishare_xattr_prefix_id =
-+			dsb->ishare_xattr_prefix_id | EROFS_XATTR_LONG_PREFIX;
-+	}
- 	ret = z_erofs_parse_cfgs(sbi, dsb);
- 	if (ret)
- 		return ret;
-@@ -160,7 +168,6 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
- 		free(sbi->devs);
- 		sbi->devs = NULL;
- 	}
--
- 	sbi->sb_valid = !ret;
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 396536d9a862..972941ecb71c 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -125,58 +125,6 @@ static int erofs_init_inode_xattrs(struct inode *inode)
  	return ret;
  }
-@@ -206,6 +213,8 @@ int erofs_writesb(struct erofs_sb_info *sbi)
- 		.extra_devices = cpu_to_le16(sbi->extra_devices),
- 		.devt_slotoff = cpu_to_le16(sbi->devt_slotoff),
- 		.packed_nid = cpu_to_le64(sbi->packed_nid),
-+		.ishare_xattr_prefix_id = sbi->ishare_xattr_prefix_id &
-+			EROFS_XATTR_LONG_PREFIX_MASK,
- 	};
- 	char *buf;
- 	int ret;
-diff --git a/lib/xattr.c b/lib/xattr.c
-index b6b1a5e600fb..764aee3be3c3 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -1495,9 +1495,21 @@ int erofs_xattr_insert_name_prefix(const char *prefix)
- 	}
  
- 	tnode->index = EROFS_XATTR_LONG_PREFIX | ea_prefix_count;
--	ea_prefix_count++;
- 	init_list_head(&tnode->list);
- 	list_add_tail(&tnode->list, &ea_name_prefixes);
-+	return ea_prefix_count++;
-+}
-+
-+int erofs_xattr_set_ishare_prefix(struct erofs_sb_info *sbi,
-+				  const char *prefix)
-+{
-+	int err;
-+
-+	err = erofs_xattr_insert_name_prefix(prefix);
-+	if (err < 0)
-+		return err;
-+	sbi->ishare_xattr_prefix_id = EROFS_XATTR_LONG_PREFIX | err;
-+	erofs_sb_set_ishare_xattrs(sbi);
- 	return 0;
+-static bool erofs_xattr_user_list(struct dentry *dentry)
+-{
+-	return test_opt(&EROFS_SB(dentry->d_sb)->opt, XATTR_USER);
+-}
+-
+-static bool erofs_xattr_trusted_list(struct dentry *dentry)
+-{
+-	return capable(CAP_SYS_ADMIN);
+-}
+-
+-static int erofs_xattr_generic_get(const struct xattr_handler *handler,
+-				   struct dentry *unused, struct inode *inode,
+-				   const char *name, void *buffer, size_t size)
+-{
+-	if (handler->flags == EROFS_XATTR_INDEX_USER &&
+-	    !test_opt(&EROFS_I_SB(inode)->opt, XATTR_USER))
+-		return -EOPNOTSUPP;
+-
+-	return erofs_getxattr(inode, handler->flags, name, buffer, size);
+-}
+-
+-const struct xattr_handler erofs_xattr_user_handler = {
+-	.prefix	= XATTR_USER_PREFIX,
+-	.flags	= EROFS_XATTR_INDEX_USER,
+-	.list	= erofs_xattr_user_list,
+-	.get	= erofs_xattr_generic_get,
+-};
+-
+-const struct xattr_handler erofs_xattr_trusted_handler = {
+-	.prefix	= XATTR_TRUSTED_PREFIX,
+-	.flags	= EROFS_XATTR_INDEX_TRUSTED,
+-	.list	= erofs_xattr_trusted_list,
+-	.get	= erofs_xattr_generic_get,
+-};
+-
+-#ifdef CONFIG_EROFS_FS_SECURITY
+-const struct xattr_handler __maybe_unused erofs_xattr_security_handler = {
+-	.prefix	= XATTR_SECURITY_PREFIX,
+-	.flags	= EROFS_XATTR_INDEX_SECURITY,
+-	.get	= erofs_xattr_generic_get,
+-};
+-#endif
+-
+-const struct xattr_handler * const erofs_xattr_handlers[] = {
+-	&erofs_xattr_user_handler,
+-	&erofs_xattr_trusted_handler,
+-#ifdef CONFIG_EROFS_FS_SECURITY
+-	&erofs_xattr_security_handler,
+-#endif
+-	NULL,
+-};
+-
+ static int erofs_xattr_copy_to_buffer(struct erofs_xattr_iter *it,
+ 				      unsigned int len)
+ {
+@@ -391,8 +339,8 @@ static int erofs_xattr_iter_shared(struct erofs_xattr_iter *it,
+ 	return i ? ret : -ENODATA;
  }
  
-diff --git a/mkfs/main.c b/mkfs/main.c
-index aaa0300bca1b..7fd6e8419d44 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -102,6 +102,7 @@ static struct option long_options[] = {
- #endif
- 	{"zD", optional_argument, NULL, 536},
- 	{"ZI", optional_argument, NULL, 537},
-+	{"inode-digest-xattr", required_argument, NULL, 538},
- 	{0, 0, 0, 0},
- };
+-int erofs_getxattr(struct inode *inode, int index, const char *name,
+-		   void *buffer, size_t buffer_size)
++static int erofs_getxattr(struct inode *inode, int index, const char *name,
++			  void *buffer, size_t buffer_size)
+ {
+ 	int ret;
+ 	unsigned int hashbit;
+@@ -462,6 +410,58 @@ ssize_t erofs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
+ 	return ret ? ret : it.buffer_ofs;
+ }
  
-@@ -1262,7 +1263,7 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
- 		case 19:
- 			errno = 0;
- 			opt = erofs_xattr_insert_name_prefix(optarg);
--			if (opt) {
-+			if (opt < 0) {
- 				erofs_err("failed to parse xattr name prefix: %s",
- 					  erofs_strerror(opt));
- 				return opt;
-@@ -1424,6 +1425,14 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
- 			else
- 				mkfscfg.inode_metazone = false;
- 			break;
-+		case 538:
-+			err = erofs_xattr_set_ishare_prefix(&g_sbi, optarg);
-+			if (err < 0) {
-+				erofs_err("failed to parse ishare name: %s",
-+					  erofs_strerror(err));
-+				return err;
-+			}
-+			break;
- 		case 'V':
- 			version();
- 			exit(0);
-@@ -1878,9 +1887,12 @@ int main(int argc, char **argv)
- 			goto exit;
- 		}
- 
--		if (cfg.c_extra_ea_name_prefixes)
--			erofs_xattr_flush_name_prefixes(&importer,
--							mkfs_plain_xattr_pfx);
-+		err = erofs_xattr_flush_name_prefixes(&importer,
-+						      mkfs_plain_xattr_pfx);
-+		if (err) {
-+			erofs_err("failed to flush long xattr prefixes: %s",
-+				  erofs_strerror(err));
-+		}
- 
- 		root = erofs_new_inode(&g_sbi);
- 		if (IS_ERR(root)) {
-@@ -1888,6 +1900,13 @@ int main(int argc, char **argv)
- 			goto exit;
- 		}
- 	} else {
-+		err = erofs_xattr_flush_name_prefixes(&importer,
-+						      mkfs_plain_xattr_pfx);
-+		if (err) {
-+			erofs_err("failed to flush long xattr prefixes: %s",
-+				  erofs_strerror(err));
-+		}
++static bool erofs_xattr_user_list(struct dentry *dentry)
++{
++	return test_opt(&EROFS_SB(dentry->d_sb)->opt, XATTR_USER);
++}
 +
- 		root = erofs_rebuild_make_root(&g_sbi);
- 		if (IS_ERR(root)) {
- 			err = PTR_ERR(root);
++static bool erofs_xattr_trusted_list(struct dentry *dentry)
++{
++	return capable(CAP_SYS_ADMIN);
++}
++
++static int erofs_xattr_generic_get(const struct xattr_handler *handler,
++				   struct dentry *unused, struct inode *inode,
++				   const char *name, void *buffer, size_t size)
++{
++	if (handler->flags == EROFS_XATTR_INDEX_USER &&
++	    !test_opt(&EROFS_I_SB(inode)->opt, XATTR_USER))
++		return -EOPNOTSUPP;
++
++	return erofs_getxattr(inode, handler->flags, name, buffer, size);
++}
++
++const struct xattr_handler erofs_xattr_user_handler = {
++	.prefix	= XATTR_USER_PREFIX,
++	.flags	= EROFS_XATTR_INDEX_USER,
++	.list	= erofs_xattr_user_list,
++	.get	= erofs_xattr_generic_get,
++};
++
++const struct xattr_handler erofs_xattr_trusted_handler = {
++	.prefix	= XATTR_TRUSTED_PREFIX,
++	.flags	= EROFS_XATTR_INDEX_TRUSTED,
++	.list	= erofs_xattr_trusted_list,
++	.get	= erofs_xattr_generic_get,
++};
++
++#ifdef CONFIG_EROFS_FS_SECURITY
++const struct xattr_handler __maybe_unused erofs_xattr_security_handler = {
++	.prefix	= XATTR_SECURITY_PREFIX,
++	.flags	= EROFS_XATTR_INDEX_SECURITY,
++	.get	= erofs_xattr_generic_get,
++};
++#endif
++
++const struct xattr_handler * const erofs_xattr_handlers[] = {
++	&erofs_xattr_user_handler,
++	&erofs_xattr_trusted_handler,
++#ifdef CONFIG_EROFS_FS_SECURITY
++	&erofs_xattr_security_handler,
++#endif
++	NULL,
++};
++
+ void erofs_xattr_prefixes_cleanup(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
+index 6317caa8413e..ee1d8c310d97 100644
+--- a/fs/erofs/xattr.h
++++ b/fs/erofs/xattr.h
+@@ -45,17 +45,10 @@ extern const struct xattr_handler * const erofs_xattr_handlers[];
+ 
+ int erofs_xattr_prefixes_init(struct super_block *sb);
+ void erofs_xattr_prefixes_cleanup(struct super_block *sb);
+-int erofs_getxattr(struct inode *, int, const char *, void *, size_t);
+ ssize_t erofs_listxattr(struct dentry *, char *, size_t);
+ #else
+ static inline int erofs_xattr_prefixes_init(struct super_block *sb) { return 0; }
+ static inline void erofs_xattr_prefixes_cleanup(struct super_block *sb) {}
+-static inline int erofs_getxattr(struct inode *inode, int index,
+-				 const char *name, void *buffer,
+-				 size_t buffer_size)
+-{
+-	return -EOPNOTSUPP;
+-}
+ 
+ #define erofs_listxattr (NULL)
+ #define erofs_xattr_handlers (NULL)
 -- 
 2.43.5
 
