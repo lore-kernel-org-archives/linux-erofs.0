@@ -1,49 +1,52 @@
-Return-Path: <linux-erofs+bounces-1632-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1633-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9BAEE8FDB1
-	for <linux-erofs@archiver.kernel.org>; Mon, 29 Dec 2025 09:30:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70532D3B7E5
+	for <linux-erofs@archiver.kernel.org>; Mon, 29 Dec 2025 09:30:11 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dfrXs0KP2z2x9M;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dfrXs2xPzz2xdV;
 	Mon, 29 Dec 2025 20:30:05 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767000605;
-	cv=none; b=fiwvPIaK1G8relMH6t+wTeZ/nrTnga/OlwoitT/Es9UntdBJeDDNdLxTaERt+7bvaU3isSWA0gMfgIxW0IyD+aGgzb7+BOt2lUsjuSQRoQ1TBGQJLNKs572XFBKt+93P864iwu0s8bCZa/IFUI8Ixf9S6BBQByV24kuFydbf6O9MSzGKSgUZjliKvOyQ99S3B/N7gvpbu3NNoCT9adlFjH1XTj63WckAZQIe4/LeinYb2y/rtqmbdTxL2uJ1Ujg8BcHFq8ioRwDoH1OZD5gJGj8cNDC5PfoL0ccFtFq+LA3AWBsish4Tb402FU6GfambBBuI5Iyhny+i/kuxitCfZQ==
+	cv=none; b=OZ4Ieg4/uBtTWZvnL1T3j6gNxs9eSOj5p7rWDQ+L9oWteY8NHeXFbajzcIk/UFJFl6poifZzLXh0QYexVeX6dlvVwxnnnNTeBeJExLfYpk3j9hAcAbUbpoUFSyUavJm/xUcpLO1Wu1eIrGguq6vgoZnAugSVPekenrJ7DclfLj2CeXZM5BKR0Z4uvDR8GVYhfdN00le3ZU4KKaLZy6jvEPqVfuQqCMJ+jDNAt1G0dORU9e/tB2ZbwT2QPKvYKZrNob0ElKIroNEXVgvaykSUl8phyk09V/2UAPiePMUEolKgk1lvgzUcyCwC5dK4yHsrK1wYai5vptgIKi0D/dqO9Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1767000605; c=relaxed/relaxed;
-	bh=DTcDrCKHuE1wXLhx8R4H8p8WcGuOFBc484to9LdCtVU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jl+aR4hZ7MC6eIEbkYluv7WCejrg/HXpnXHUM0glxWtocGX11hDvuLAwaHKVqFQIF7xJ/5ekHuWj67zzt14Q60KjGv8K82KVAMsgkH13rDcD2iwFZgr0frXUhPQ6SQmV7VXKE1hG5cJHM0OBtrK2+AexxucV9hYZGpPNfCCp0Z6NPnhuTRpo60XlTORw+QEQn0gIYKm7vmbS4wbDMxAMASfo1T7ljXca8t+Dne1En0piyYroDlqVnFNq41v+9N03snxxiJbIq2RewhFdrHRjjXoOWHQ84lvEI/yKri0NDImIWmG7ZvCdeMCJO7BzTebnv60ZcQ7bUFRhph9xkARHIQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LPetRUs2; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	bh=zzU0fFMiBI6Btba2fQszSuRuhXNAVv5WzkyTFe9Hlhs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QDKqSPfyPX2HKJ47bB0l+GoNkaJDlMH3m7YuBaSYxY6bPIl7dIw/H2VH0dYG2owPJMqiEQScLWbFPKVj2eN7wxs39IG1VveG6ZVV8nBi+7bEny/exi6H5kC0BNwDQxfCI2JXSHQQ9FppFC+w5AooUFVMMykgW4YJxKdaUOima+opMFb5CxNFD76sEHDKeUZ06FhYTEpY9Wi2jQWwHs8y0IZlhrH1azMyy0Insdz6eJ5+68X57VrOEVRVGQPHTPcWBytt6a5h26cmuHNOOUN2M/8vFQRXWbec7B9n7KOwvgtkpXTuxTdl05GMZMsrgX51Sd+o8wFTMfw69ywcHgoZzw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ozHQNYAw; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LPetRUs2;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ozHQNYAw;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dfrXn5ln6z2xdV
-	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Dec 2025 20:29:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dfrXp2vzpz2xqj
+	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Dec 2025 20:30:01 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1767000595; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=DTcDrCKHuE1wXLhx8R4H8p8WcGuOFBc484to9LdCtVU=;
-	b=LPetRUs220O9lq4Z6qd+sMZTYH7DubkBLt5UnKUira1CvTkCYW+mnsTVixrpDyh0PYbXjfFaJhVUaRYbYKgjZY8dS7MdfRax7K8b1viCr1vxc+BAZ5NkmgiKg2yt5PjRSteCDyV1+DPJ8rVAGkAqhsxcF8ToFO6BFMMAsY92UbY=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wvqzdqv_1767000589 cluster:ay36)
+	t=1767000597; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=zzU0fFMiBI6Btba2fQszSuRuhXNAVv5WzkyTFe9Hlhs=;
+	b=ozHQNYAwOSikn5IZlj1YFCPDApGhkpw2njzeLATpd6HSGlRsj2btXZJgyLYeHjAGpvC46l3S7ePg4SccaOa1XQeWLfDaQALcpTpjuAI50QFl37DqFfEqHaY6AGGjPkvX6gvLda+gW8NJ/9rNiBsA0DRHJ15vTZ8/sTEPrXY275k=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WvqzdtL_1767000595 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 29 Dec 2025 17:29:53 +0800
+          Mon, 29 Dec 2025 17:29:56 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/4] erofs: fix incorrect early exits for invalid metabox-enabled images
-Date: Mon, 29 Dec 2025 17:29:46 +0800
-Message-ID: <20251229092949.2316075-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH 4/4] erofs: unexport erofs_xattr_prefix()
+Date: Mon, 29 Dec 2025 17:29:49 +0800
+Message-ID: <20251229092949.2316075-4-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20251229092949.2316075-1-hsiangkao@linux.alibaba.com>
+References: <20251229092949.2316075-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,37 +60,100 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Crafted EROFS images with metadata compression enabled can trigger
-incorrect early returns, leading to folio reference leaks.
+It can be simply in xattr.c due to no external users.
 
-However, this does not cause system crashes or other severe issues.
-
-Fixes: 414091322c63 ("erofs: implement metadata compression")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/super.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/erofs/xattr.c | 27 +++++++++++++++++++++++++++
+ fs/erofs/xattr.h | 30 ------------------------------
+ 2 files changed, 27 insertions(+), 30 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 937a215f626c..2e4d0ea2ffa1 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -330,12 +330,13 @@ static int erofs_read_superblock(struct super_block *sb)
- 	}
- 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
- 	if (erofs_sb_has_metabox(sbi)) {
-+		ret = -EFSCORRUPTED;
- 		if (sbi->sb_size <= offsetof(struct erofs_super_block,
- 					     metabox_nid))
--			return -EFSCORRUPTED;
-+			goto out;
- 		sbi->metabox_nid = le64_to_cpu(dsb->metabox_nid);
- 		if (sbi->metabox_nid & BIT_ULL(EROFS_DIRENT_NID_METABOX_BIT))
--			return -EFSCORRUPTED;	/* self-loop detection */
-+			goto out;		/* self-loop detection */
- 	}
- 	sbi->inos = le64_to_cpu(dsb->inos);
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 972941ecb71c..d25c1cc1940c 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -25,6 +25,8 @@ struct erofs_xattr_iter {
+ 	struct dentry *dentry;
+ };
  
++static const char *erofs_xattr_prefix(unsigned int idx, struct dentry *dentry);
++
+ static int erofs_init_inode_xattrs(struct inode *inode)
+ {
+ 	struct erofs_inode *const vi = EROFS_I(inode);
+@@ -462,6 +464,31 @@ const struct xattr_handler * const erofs_xattr_handlers[] = {
+ 	NULL,
+ };
+ 
++static const char *erofs_xattr_prefix(unsigned int idx, struct dentry *dentry)
++{
++	const struct xattr_handler *handler = NULL;
++
++	static const struct xattr_handler * const xattr_handler_map[] = {
++		[EROFS_XATTR_INDEX_USER] = &erofs_xattr_user_handler,
++#ifdef CONFIG_EROFS_FS_POSIX_ACL
++		[EROFS_XATTR_INDEX_POSIX_ACL_ACCESS] = &nop_posix_acl_access,
++		[EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT] = &nop_posix_acl_default,
++#endif
++		[EROFS_XATTR_INDEX_TRUSTED] = &erofs_xattr_trusted_handler,
++#ifdef CONFIG_EROFS_FS_SECURITY
++		[EROFS_XATTR_INDEX_SECURITY] = &erofs_xattr_security_handler,
++#endif
++	};
++
++	if (idx && idx < ARRAY_SIZE(xattr_handler_map))
++		handler = xattr_handler_map[idx];
++
++	if (!xattr_handler_can_list(handler, dentry))
++		return NULL;
++
++	return xattr_prefix(handler);
++}
++
+ void erofs_xattr_prefixes_cleanup(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+diff --git a/fs/erofs/xattr.h b/fs/erofs/xattr.h
+index ee1d8c310d97..36f2667afc2d 100644
+--- a/fs/erofs/xattr.h
++++ b/fs/erofs/xattr.h
+@@ -11,36 +11,6 @@
+ #include <linux/xattr.h>
+ 
+ #ifdef CONFIG_EROFS_FS_XATTR
+-extern const struct xattr_handler erofs_xattr_user_handler;
+-extern const struct xattr_handler erofs_xattr_trusted_handler;
+-extern const struct xattr_handler erofs_xattr_security_handler;
+-
+-static inline const char *erofs_xattr_prefix(unsigned int idx,
+-					     struct dentry *dentry)
+-{
+-	const struct xattr_handler *handler = NULL;
+-
+-	static const struct xattr_handler * const xattr_handler_map[] = {
+-		[EROFS_XATTR_INDEX_USER] = &erofs_xattr_user_handler,
+-#ifdef CONFIG_EROFS_FS_POSIX_ACL
+-		[EROFS_XATTR_INDEX_POSIX_ACL_ACCESS] = &nop_posix_acl_access,
+-		[EROFS_XATTR_INDEX_POSIX_ACL_DEFAULT] = &nop_posix_acl_default,
+-#endif
+-		[EROFS_XATTR_INDEX_TRUSTED] = &erofs_xattr_trusted_handler,
+-#ifdef CONFIG_EROFS_FS_SECURITY
+-		[EROFS_XATTR_INDEX_SECURITY] = &erofs_xattr_security_handler,
+-#endif
+-	};
+-
+-	if (idx && idx < ARRAY_SIZE(xattr_handler_map))
+-		handler = xattr_handler_map[idx];
+-
+-	if (!xattr_handler_can_list(handler, dentry))
+-		return NULL;
+-
+-	return xattr_prefix(handler);
+-}
+-
+ extern const struct xattr_handler * const erofs_xattr_handlers[];
+ 
+ int erofs_xattr_prefixes_init(struct super_block *sb);
 -- 
 2.43.5
 
