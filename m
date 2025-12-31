@@ -1,72 +1,62 @@
-Return-Path: <linux-erofs+bounces-1658-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1659-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8EBB7EE57EC
-	for <linux-erofs@archiver.kernel.org>; Wed, 31 Dec 2025 09:03:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D3ADEE57F5
+	for <linux-erofs@archiver.kernel.org>; Wed, 31 Dec 2025 09:14:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dh3sS05Vbz2yMJ;
-	Wed, 31 Dec 2025 20:03:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.11
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767171819;
-	cv=none; b=h6O9WTuLwyv9kgcA4AOCS/+dCMa1vED/tiTnwqc6FE+fIkp5O6eRa7EctnpuoWab0Y1Im7tfS6QfFJRF0NSnQhMypBhUZ7BNn2bCqi3BZB1gktEMLp0THEcWaRlgueTWUXzxfDyu4gF51XDmhB1q4BxXIfSirnY75PFV+BiTX6bQpBQWLKhJ3w3U913k3d4x8/mB6bEyjCrVPjTO7/xg6f0jYHWVmmrawPE20vYpIp1pcvygLINZPJ7KrWofHkbYB1MP2mksuNYTiQVARfsdjceRFUbDg37xOd7MtddMWtk8yw8TNIQgknn+IcZGDBwoXxw9BbAe9/TLxJAuYBK+EQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dh45W56mSz2yS0;
+	Wed, 31 Dec 2025 20:14:07 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.224
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767172447;
+	cv=none; b=muMA9BkiU1FNl2ddr41jokI3mGjWXkr1KilWTgYZ66AZzxQ4DGWTBTaF3mb5oVm9SlI2EtdWSd1blWpSGv+wiDlZ1QbWuHToEwp3AonM+eGTAO0YMEwjaE53Ck+/NMF4GrGR9L7azhFzR/lX3FzuXn+Ciu4yUxa/xXyMOiskLQFZbcoouFqEjvGEXsbAVl7hXkaH9ZOfG03vQ4NunnQrmw15QVJ7QDYSsUEScTfuRm3cY8Id3xQMm40eXvQuWriCUmaOdStDRQ3kmA8uRJUqyqL1+pD/qiKWSdjM+iOGiqP13QgpeWN4p88ruHmqJ1tTCT5GZbx5O1+wR19W6yC1pg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1767171819; c=relaxed/relaxed;
-	bh=gt9+exgtTKQk8Vqaw7Kx+bVjLJyqkmr1GwLxM+Kt9TY=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=PmusiUd+U7lrF5mYgEwbFLMUeq6DcHfy7LwYk+yte7ZGhl3v19qKVsneuxpc3z2nzGKrMQvThrBqITxXLh6/2YPMEDu/hIWYaQGEBNq5CKyFapau1PqIRM0u96ErNLXm8jE62L68uBHHfeQNBHmRMK9X9GTyknMAPPkb+IRW+g15GgOluNZnrwHAN1XcMxZ1LKmNNRKoFCwHGCPQOj7/WJvVZaPizOes+l2MAZvlzmP117OkR0xUzqJYOCJUYRtP7iGSpDjrvXFn7y9174awKtjk6c6lfoIrQ+hdKQ6MN93Q1XnFkRlS5RAKlHk77pJpk05j32HxJQMaS/y0PscT9Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SN8Nf9sD; dkim-atps=neutral; spf=pass (client-ip=192.198.163.11; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	t=1767172447; c=relaxed/relaxed;
+	bh=Ii4OAViqYCm/sgHCVWzYCGvcDaSOgZiGOYibBrZpOYU=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UYiClCKQjadhggOxY+VkheZCGVPXs/jgQc186mCwIhEvy5s2Mr4PD7pKfbdtVAJoNqyOyCOZUGygutjTBW/6dhWuZsxW2yxAOUp13o7mFUqXQ3jhCi8h3iP/uGPtZII3JaOcuUsc0H6rsIxruiFqdRfC7ci3aAEtC9f50EPc3Z5qmAs/mBX3qPkrD+HpUFFoO0QgNyKU5kV1EekwwpIxGQ1WmjNj3W2YI/kYMfxxRhufB5ViOcabAuKs7f+ZBT3HGbxHJQ1QBYEQpCU3E+CfimEVQu4uqe1LhJfN4hCnKCIip7o07LAYRhSkMDZls5iVY6xIRmkpNuMNd/pRJKrlAg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=6vbCpnyS; dkim-atps=neutral; spf=pass (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SN8Nf9sD;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=6vbCpnyS;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.11; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dh3sP0vzMz2yKr
-	for <linux-erofs@lists.ozlabs.org>; Wed, 31 Dec 2025 20:03:35 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1767171818; x=1798707818;
-  h=date:from:to:cc:subject:message-id;
-  bh=eyC+EaIJcFLoGtVsvy0LMRUhjmrMkTRf1e+PAR7E5GU=;
-  b=SN8Nf9sDQDe9+C8WkNFRz9YQEtVR09Ip+mIHCOep/b0VRftSNyKiFXKr
-   12Gkf8yuN9XQu31q2IX64aozvfbzinmG9waa5JemftNhne9xVtMFY5Eqq
-   zF5Dl6G7Qcn4zuCEmCUE0XkJXW1waHI2uOXJpw+uwi4uwbbEAYEPLGlcl
-   NuiUFE5Zqp0JKopOv/MbBEtIhq33tTH9TjUNoPx1UqPg+ee2AgisI2N0v
-   58PsBjb99i9h9RtYiM8x45yPdM12DxLRCS9Yeh6lEfRhbh39qdcAVl6K0
-   cNZ7CO/1KPleAyLHZnNgtgjRftTfWB3pVP/d0NefteptpaywZAzPTseNx
-   w==;
-X-CSE-ConnectionGUID: Ez+JyWuhTS6w8siW4oOH9A==
-X-CSE-MsgGUID: hPImKjDGRiyemUEvWXMYdg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11657"; a="79375800"
-X-IronPort-AV: E=Sophos;i="6.21,191,1763452800"; 
-   d="scan'208";a="79375800"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Dec 2025 01:03:30 -0800
-X-CSE-ConnectionGUID: xHANxmJDSx6eY9SDlJaE6A==
-X-CSE-MsgGUID: ganwjXm5SkerrEadfxtP1g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,191,1763452800"; 
-   d="scan'208";a="201408726"
-Received: from lkp-server01.sh.intel.com (HELO c9aa31daaa89) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 31 Dec 2025 01:03:28 -0800
-Received: from kbuild by c9aa31daaa89 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vas73-0000000014K-44e5;
-	Wed, 31 Dec 2025 09:03:25 +0000
-Date: Wed, 31 Dec 2025 17:02:48 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: oe-kbuild-all@lists.linux.dev, Xiang Gao <xiang@kernel.org>,
- linux-erofs@lists.ozlabs.org, Hongbo Li <lihongbo22@huawei.com>
-Subject: [xiang-erofs:dev-test 9/10] fs/erofs/xattr.c:436:28: sparse:
- sparse: symbol 'erofs_xattr_user_handler' was not declared. Should it be
- static?
-Message-ID: <202512311706.lMHnw10m-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dh45T3lXcz2yKr
+	for <linux-erofs@lists.ozlabs.org>; Wed, 31 Dec 2025 20:14:04 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=Ii4OAViqYCm/sgHCVWzYCGvcDaSOgZiGOYibBrZpOYU=;
+	b=6vbCpnySXkmEqQBj+K55ndCgfd4lrG6flgNfy05ERumm6g/PuPxdBMSEG46fc1SwIvzqG7gg+
+	1+WQ3JCBdt0XUhX2EChxqn0BVx0dlMHswwEPUz0SaTu0tPTlwDgXoNAw249+FBw+UlUxb7wWNZW
+	cBSMB8miZLhswOMENMspOgk=
+Received: from mail.maildlp.com (unknown [172.19.163.200])
+	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4dh41k2Vbsz1cyP2;
+	Wed, 31 Dec 2025 17:10:50 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id 04FFD4069C;
+	Wed, 31 Dec 2025 17:14:01 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 31 Dec
+ 2025 17:14:00 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
+CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
+	<lihongbo22@huawei.com>, <linux-fsdevel@vger.kernel.org>,
+	<linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v12 06/10] erofs: support domain-specific page cache share
+Date: Wed, 31 Dec 2025 09:01:14 +0000
+Message-ID: <20251231090118.541061-7-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20251231090118.541061-1-lihongbo22@huawei.com>
+References: <20251231090118.541061-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -77,48 +67,62 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-head:   e84fd1bdbe05e6b3ebe5766b98b7e4902203e8e1
-commit: cb6528654a7fb2a3ffd55889fc877f61ca72edda [9/10] erofs: unexport erofs_xattr_prefix()
-config: sh-randconfig-r134-20251231 (https://download.01.org/0day-ci/archive/20251231/202512311706.lMHnw10m-lkp@intel.com/config)
-compiler: sh4-linux-gcc (GCC) 9.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251231/202512311706.lMHnw10m-lkp@intel.com/reproduce)
+From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202512311706.lMHnw10m-lkp@intel.com/
+Only files in the same domain will share the page cache. Also modify
+the sysfs related content in preparation for the upcoming page cache
+share feature.
 
-sparse warnings: (new ones prefixed by >>)
->> fs/erofs/xattr.c:436:28: sparse: sparse: symbol 'erofs_xattr_user_handler' was not declared. Should it be static?
->> fs/erofs/xattr.c:443:28: sparse: sparse: symbol 'erofs_xattr_trusted_handler' was not declared. Should it be static?
+Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-vim +/erofs_xattr_user_handler +436 fs/erofs/xattr.c
-
-89d80680577805 Gao Xiang 2025-12-29  435  
-89d80680577805 Gao Xiang 2025-12-29 @436  const struct xattr_handler erofs_xattr_user_handler = {
-89d80680577805 Gao Xiang 2025-12-29  437  	.prefix	= XATTR_USER_PREFIX,
-89d80680577805 Gao Xiang 2025-12-29  438  	.flags	= EROFS_XATTR_INDEX_USER,
-89d80680577805 Gao Xiang 2025-12-29  439  	.list	= erofs_xattr_user_list,
-89d80680577805 Gao Xiang 2025-12-29  440  	.get	= erofs_xattr_generic_get,
-89d80680577805 Gao Xiang 2025-12-29  441  };
-89d80680577805 Gao Xiang 2025-12-29  442  
-89d80680577805 Gao Xiang 2025-12-29 @443  const struct xattr_handler erofs_xattr_trusted_handler = {
-89d80680577805 Gao Xiang 2025-12-29  444  	.prefix	= XATTR_TRUSTED_PREFIX,
-89d80680577805 Gao Xiang 2025-12-29  445  	.flags	= EROFS_XATTR_INDEX_TRUSTED,
-89d80680577805 Gao Xiang 2025-12-29  446  	.list	= erofs_xattr_trusted_list,
-89d80680577805 Gao Xiang 2025-12-29  447  	.get	= erofs_xattr_generic_get,
-89d80680577805 Gao Xiang 2025-12-29  448  };
-89d80680577805 Gao Xiang 2025-12-29  449  
-
-:::::: The code at line 436 was first introduced by commit
-:::::: 89d8068057780531fab06b928a80599b9762e461 erofs: unexport erofs_getxattr()
-
-:::::: TO: Gao Xiang <hsiangkao@linux.alibaba.com>
-:::::: CC: Gao Xiang <hsiangkao@linux.alibaba.com>
-
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index dca1445f6c92..960da62636ad 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -524,6 +524,8 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+ 		if (!sbi->fsid)
+ 			return -ENOMEM;
+ 		break;
++#endif
++#if defined(CONFIG_EROFS_FS_ONDEMAND) || defined(CONFIG_EROFS_FS_PAGE_CACHE_SHARE)
+ 	case Opt_domain_id:
+ 		kfree(sbi->domain_id);
+ 		sbi->domain_id = kstrdup(param->string, GFP_KERNEL);
+@@ -624,7 +626,7 @@ static void erofs_set_sysfs_name(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 
+-	if (sbi->domain_id)
++	if (sbi->domain_id && !erofs_sb_has_ishare_xattrs(sbi))
+ 		super_set_sysfs_name_generic(sb, "%s,%s", sbi->domain_id,
+ 					     sbi->fsid);
+ 	else if (sbi->fsid)
+@@ -1054,12 +1056,10 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 		seq_puts(seq, ",dax=never");
+ 	if (erofs_is_fileio_mode(sbi) && test_opt(opt, DIRECT_IO))
+ 		seq_puts(seq, ",directio");
+-#ifdef CONFIG_EROFS_FS_ONDEMAND
+ 	if (sbi->fsid)
+ 		seq_printf(seq, ",fsid=%s", sbi->fsid);
+ 	if (sbi->domain_id)
+ 		seq_printf(seq, ",domain_id=%s", sbi->domain_id);
+-#endif
+ 	if (sbi->dif0.fsoff)
+ 		seq_printf(seq, ",fsoffset=%llu", sbi->dif0.fsoff);
+ 	return 0;
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.22.0
+
 
