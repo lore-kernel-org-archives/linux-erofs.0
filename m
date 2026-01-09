@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-1792-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1793-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1ADE7D16806
-	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jan 2026 10:42:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17F44D16804
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jan 2026 10:42:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dndcd1d1Pz2xSN;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dndcd3zhKz2xm5;
 	Fri, 09 Jan 2026 21:41:53 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.217
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.216
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767955313;
-	cv=none; b=i+4HwCVCK1IZogJCHmfIWzulAIu8ZtpmVRpFlyMmh0z2dQ4vu2Shad8Q9qcWa3IkE1KJcT++MSCou8t8dv12MzrFMQwlw3064uvlm9njZABa95O3Q+4oEwlucmzgYDCVBqWpV2B3+ilo1BP8RmJ11P2OB88El97shbm+13+IsknkXpSkFtF8Tf1CF1JqoJS32koUTMN0vvHgZGByff0MYlT/7Ia+s6V/pV7RdaEfEMc6lXn5RItNOgRe9jpOQ1dakRbzMJ2m4RJxpEh65KKUI1lWdnidS1oQr+fTOiK3DMC6Q1F9EakrTfa6ddQdra7iqYmRmZ32knHdawQwFDNGow==
+	cv=none; b=bTf2DbgRCYjocw+9N/ZhQOnDJtRaT1pIIscDJUAYKThOKY3NoR6895xx6fc1SAmsGI4CYb27q2Q/UUvroFMp2lkiwm4yFc92en2z0MNlQ/gt+qTndMO1wagz4SBxpogyXpV/ZOMySscHH+oTOBeRPFkcm50HF1RWry5scyFAo+HqIfm+RNYZVknGQ2UhgFi1g0Cj0yQlYEaW2GwgtoTDu60HYQ0yCD92UEiqKFMriBgyPCxsbpghXHb4QaXld8Hc0YAFjHeO9Dnx12h0Qv3E3KxeC92LvojqmTKxkwXMyEwE0QqNFr1oR7/eBdg1cS2U2qqeyWMT/G1zgpj08BX3FA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1767955313; c=relaxed/relaxed;
-	bh=otZzmT6rxktVNDVECk5mC06H07hAnwXYZ9UJTBeZ2EE=;
+	bh=Ii4OAViqYCm/sgHCVWzYCGvcDaSOgZiGOYibBrZpOYU=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZdTvIC2iECpYaFeUZ6Bs1JPqcM7oPmR/HOnHOX2PIOUshzasPITsZRsb5Uuzcmok9+QHebyIJhpqBTwAM6+22l/r92NHTc0Oci8tcc8vVKXsL3ONlqv/Vk8Lp0TkTh20a3pjsmYEC7U6NKivVptvbUGDCcqIfMwuMiw8dFGBThwm0giGCm5xgjrs5ZXGKYMVAfeFRuULH6Mfh+Op3/GuwAqG6cQdpdoLMWNnFbLyvEnT/FSrHnzACXh6ROyVJMnOkC4+hBS/o2MomhYcGIriVyk3c1cLqzTX3oodlGBp/sTV8LPfm3tqgtHLlCKca4TeH6NDnKTgLC2KrDklL6aHyQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=oJbF4d0t; dkim-atps=neutral; spf=pass (client-ip=113.46.200.217; helo=canpmsgout02.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=VYTSdfqFolKi1d+iUxG5iRvrAvXhIlYzDKTuXbeVXYSMKx65lyNVf/sNB7t67HAMcdB8Mhkv8AOUlg+M2wirEsFnKwW2WjlavSl0KrV36rFcSDEjIyrKtzR6vORwpMWsOhjZy+sOb+bVXid9wiUQ1oaSedBUa7M2BcAXjHHPqS4fYLztU0ZnB6e99kfvQePmYLuQcgnvqR4RK2gofYj4276O7fqWRGkwfig6yyahlXCmQLXA+ILIsy3cJtCCQvKmK9AMWq+9v+u9o3dtSEMibJJEm9vf5lNHBzj4KtepJ3J0VP8ZpnUDVTqYnqjCurWqQ2k6v9jCOk0qZnuALQJfNQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=6vbCpnyS; dkim-atps=neutral; spf=pass (client-ip=113.46.200.216; helo=canpmsgout01.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=oJbF4d0t;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=6vbCpnyS;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.217; helo=canpmsgout02.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.216; helo=canpmsgout01.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout01.his.huawei.com (canpmsgout01.his.huawei.com [113.46.200.216])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dndcV67m1z2xm5
-	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Jan 2026 21:41:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dndcW70DXz2yFs
+	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Jan 2026 21:41:47 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=otZzmT6rxktVNDVECk5mC06H07hAnwXYZ9UJTBeZ2EE=;
-	b=oJbF4d0t5wRl+Q3D2MEG1XxQ46Sws4p95wCVOUDW01xFXaHTtZLIuDaU1CGP+FYnhHWI9gyc+
-	vl1DpAL3wOTCohN8rpHMh58gcD4/VUG36UAoqVqtLr4Wg1E8jI9n820W4N+o3Weae21OVDrRQCJ
-	RiDve7yi5NEMgQAYQ4IAnOc=
-Received: from mail.maildlp.com (unknown [172.19.163.0])
-	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4dndXG2TDhzcZyH;
-	Fri,  9 Jan 2026 18:38:06 +0800 (CST)
+	bh=Ii4OAViqYCm/sgHCVWzYCGvcDaSOgZiGOYibBrZpOYU=;
+	b=6vbCpnySXkmEqQBj+K55ndCgfd4lrG6flgNfy05ERumm6g/PuPxdBMSEG46fc1SwIvzqG7gg+
+	1+WQ3JCBdt0XUhX2EChxqn0BVx0dlMHswwEPUz0SaTu0tPTlwDgXoNAw249+FBw+UlUxb7wWNZW
+	cBSMB8miZLhswOMENMspOgk=
+Received: from mail.maildlp.com (unknown [172.19.163.104])
+	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4dndX46GdDz1T4Fd;
+	Fri,  9 Jan 2026 18:37:56 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id E1A924056B;
-	Fri,  9 Jan 2026 18:41:41 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id BF8F24056A;
+	Fri,  9 Jan 2026 18:41:42 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 9 Jan
- 2026 18:41:41 +0800
+ 2026 18:41:42 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
 CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
 	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
 	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
-Subject: [PATCH v14 04/10] erofs: decouple `struct erofs_anon_fs_type`
-Date: Fri, 9 Jan 2026 10:28:50 +0000
-Message-ID: <20260109102856.598531-5-lihongbo22@huawei.com>
+Subject: [PATCH v14 06/10] erofs: support domain-specific page cache share
+Date: Fri, 9 Jan 2026 10:28:52 +0000
+Message-ID: <20260109102856.598531-7-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20260109102856.598531-1-lihongbo22@huawei.com>
 References: <20260109102856.598531-1-lihongbo22@huawei.com>
@@ -74,99 +74,54 @@ X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
  kwepemr500015.china.huawei.com (7.202.195.162)
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 
-  - Move the `struct erofs_anon_fs_type` to super.c and expose it
-    in preparation for the upcoming page cache share feature;
+Only files in the same domain will share the page cache. Also modify
+the sysfs related content in preparation for the upcoming page cache
+share feature.
 
-  - Remove the `.owner` field, as they are all internal mounts and
-    fully managed by EROFS.  Retaining `.owner` would unnecessarily
-    increment module reference counts, preventing the EROFS kernel
-    module from being unloaded.
-
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/fscache.c  | 13 -------------
- fs/erofs/internal.h |  2 ++
- fs/erofs/super.c    | 14 ++++++++++++++
- 3 files changed, 16 insertions(+), 13 deletions(-)
+ fs/erofs/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 7a346e20f7b7..f4937b025038 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -3,7 +3,6 @@
-  * Copyright (C) 2022, Alibaba Cloud
-  * Copyright (C) 2022, Bytedance Inc. All rights reserved.
-  */
--#include <linux/pseudo_fs.h>
- #include <linux/fscache.h>
- #include "internal.h"
- 
-@@ -13,18 +12,6 @@ static LIST_HEAD(erofs_domain_list);
- static LIST_HEAD(erofs_domain_cookies_list);
- static struct vfsmount *erofs_pseudo_mnt;
- 
--static int erofs_anon_init_fs_context(struct fs_context *fc)
--{
--	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
--}
--
--static struct file_system_type erofs_anon_fs_type = {
--	.owner		= THIS_MODULE,
--	.name           = "pseudo_erofs",
--	.init_fs_context = erofs_anon_init_fs_context,
--	.kill_sb        = kill_anon_super,
--};
--
- struct erofs_fscache_io {
- 	struct netfs_cache_resources cres;
- 	struct iov_iter		iter;
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index f7f622836198..98fe652aea33 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -188,6 +188,8 @@ static inline bool erofs_is_fileio_mode(struct erofs_sb_info *sbi)
- 	return IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) && sbi->dif0.file;
- }
- 
-+extern struct file_system_type erofs_anon_fs_type;
-+
- static inline bool erofs_is_fscache_mode(struct super_block *sb)
- {
- 	return IS_ENABLED(CONFIG_EROFS_FS_ONDEMAND) &&
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 937a215f626c..f18f43b78fca 100644
+index dca1445f6c92..960da62636ad 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -11,6 +11,7 @@
- #include <linux/fs_parser.h>
- #include <linux/exportfs.h>
- #include <linux/backing-dev.h>
-+#include <linux/pseudo_fs.h>
- #include "xattr.h"
- 
- #define CREATE_TRACE_POINTS
-@@ -936,6 +937,19 @@ static struct file_system_type erofs_fs_type = {
- };
- MODULE_ALIAS_FS("erofs");
- 
-+#if defined(CONFIG_EROFS_FS_ONDEMAND)
-+static int erofs_anon_init_fs_context(struct fs_context *fc)
-+{
-+	return init_pseudo(fc, EROFS_SUPER_MAGIC) ? 0 : -ENOMEM;
-+}
-+
-+struct file_system_type erofs_anon_fs_type = {
-+	.name           = "pseudo_erofs",
-+	.init_fs_context = erofs_anon_init_fs_context,
-+	.kill_sb        = kill_anon_super,
-+};
+@@ -524,6 +524,8 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+ 		if (!sbi->fsid)
+ 			return -ENOMEM;
+ 		break;
 +#endif
-+
- static int __init erofs_module_init(void)
++#if defined(CONFIG_EROFS_FS_ONDEMAND) || defined(CONFIG_EROFS_FS_PAGE_CACHE_SHARE)
+ 	case Opt_domain_id:
+ 		kfree(sbi->domain_id);
+ 		sbi->domain_id = kstrdup(param->string, GFP_KERNEL);
+@@ -624,7 +626,7 @@ static void erofs_set_sysfs_name(struct super_block *sb)
  {
- 	int err;
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 
+-	if (sbi->domain_id)
++	if (sbi->domain_id && !erofs_sb_has_ishare_xattrs(sbi))
+ 		super_set_sysfs_name_generic(sb, "%s,%s", sbi->domain_id,
+ 					     sbi->fsid);
+ 	else if (sbi->fsid)
+@@ -1054,12 +1056,10 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+ 		seq_puts(seq, ",dax=never");
+ 	if (erofs_is_fileio_mode(sbi) && test_opt(opt, DIRECT_IO))
+ 		seq_puts(seq, ",directio");
+-#ifdef CONFIG_EROFS_FS_ONDEMAND
+ 	if (sbi->fsid)
+ 		seq_printf(seq, ",fsid=%s", sbi->fsid);
+ 	if (sbi->domain_id)
+ 		seq_printf(seq, ",domain_id=%s", sbi->domain_id);
+-#endif
+ 	if (sbi->dif0.fsoff)
+ 		seq_printf(seq, ",fsoffset=%llu", sbi->dif0.fsoff);
+ 	return 0;
 -- 
 2.22.0
 
