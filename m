@@ -1,59 +1,62 @@
-Return-Path: <linux-erofs+bounces-1761-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1762-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0DD0D232C2
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Jan 2026 22:47:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 537E4D232D2
+	for <linux-erofs@archiver.kernel.org>; Fri,  9 Jan 2026 03:15:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dnKmJ21w7z2yFd;
-	Fri, 09 Jan 2026 09:47:28 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767912448;
-	cv=none; b=nk67vrQPlPcfAVKU/MhM1E/wZE/0uD8uCbHPubpRXzaHFkXptEeklufgcGpHyBoeblkwkVFQl8Iq0r7tggnkq0vC3BmIUF8sxJdRdCzMejS++1mKDRVNloXpceSQO4ClXSOZvDmfQ8IOceYA9XKuaO3P6DG5HTPcacwsnlfZit1Z8+o7qyRPvYXJ/WK70M5urdn7/4WdbOHbeCPxUB82HdGh/+pMNLFjmwVGBalh2CWRelrdpDAdPtclbLPM3/NlPy2cz9daQP0xCE3RPo6M0urqe+BNSf9ePkJkxjqRYLD8r9eiJniz4eMsrTQnK+CViv7xuWezNCDs7nGt6CJzjQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dnRj13KtSz2yG0;
+	Fri, 09 Jan 2026 14:15:01 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.222
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1767928501;
+	cv=none; b=k+2Gh3372qCRVblXrxmrusOtvAXjgs2vPE+TRTDla9RjbJ7Q9SICFPgAND9F9qTjTKkIzdAUb/Jrx8bi95CKQfLC5x7rCokr+2RxrWvdOKPQl7oqKzqnczjg9+TIVDos65xcn/jrZqLMyejP7DyRDZF0KFy8Ugh0fNIYzlrXy9CFnwgUUKeYpgicGlwdMbum7wdxr6k6VB3jf6iihyS7zPnPsz/4NZbHMtgVfUi5nOc2fAgSshMv0dpCyq/28IYpkP56zKii7dhcgW15hdSaHexUtMJun/zusScmyfLNi1Wp1k1aDl9k584zwDKvB58R4qcpQi3rRU9AaUcYwOWPrg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1767912448; c=relaxed/relaxed;
-	bh=o8ABr/DNoRVjWLpEG3gYzt78FrDlsrlJ7hUxCqSBKIw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KkJTZ+Bvu7bDVr3PCsRzL+0FiezpLdpdCbbAW2cS7xuyLdjf2IRalSjciz1COwOkMMW+jCwdA4YFeuqS358i6fXsXh97iirFYeo6mCdXxlYYADvCgixe9bOzL9lraSgwVxEb8NTjzz1ueklga4/AQszz6Ff3bb5XgrElXCEWohK6BO8yV8w+1Vg1269M3v0fXM5UhSG9fPfVVwqAEdCuRoLWWxah7R7JpKptXJhf+rpr0F/WVxUdfFnf/01aiTe3biv8vBYAzfc58r8G0lv3kWqnvbkrV+MFIRBj5bPKspA7nMt20wvXFRNFA6ABVh/uUWC74eEGKz3d/rfNfIa69A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kNZ/y6ld; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=linkinjeon@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1767928501; c=relaxed/relaxed;
+	bh=R7ApHnfNiBchhGXf8a8E/bOiMkaOH3q7V/YSP7S/uow=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=W/tFOpbZ3LQqDmMbZwRblj9PWAk8zg4mkYPhkfs5aEtZgh0exmzs6dB0LceJ7bP6+tLkpZ3AjkDh3isxFvUjvpUcfMxESP6oIsQb/N/JU4Kzp3GPg4Ezm/Jg5NTe6vtQ6ofRIGP825zY4yEKxULjoT07EUvtfq103mviYOkJZFTJOm+Urg2coDgnhwIuWPhXy7DQmBPhZMwMi9nuNYNZ+6fGApG8jPUGz9uiZ4OnlY0Ykq0gsaWK3XgDEUkp9j2C7Ijv/cSCn2KvW7To1nwjzlDI09ihoGAjORQWdxVWq8F1AUrqsDBjGNoV8uTXtyx0m8Ygq8WvhhAM4n0SfPjeCQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=VpLGGUGK; dkim-atps=neutral; spf=pass (client-ip=113.46.200.222; helo=canpmsgout07.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kNZ/y6ld;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=VpLGGUGK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=linkinjeon@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.222; helo=canpmsgout07.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout07.his.huawei.com (canpmsgout07.his.huawei.com [113.46.200.222])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dnKmH13wkz2xPL
-	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Jan 2026 09:47:27 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id AE3C460163
-	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Jan 2026 22:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801C9C2BCB0
-	for <linux-erofs@lists.ozlabs.org>; Thu,  8 Jan 2026 22:47:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767912444;
-	bh=bpLucB2OVlqnpdSgR5fVsT/9lEifzVxq4+Kg3z371KE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=kNZ/y6ld9T/Ac6XqHUpuWQ8PCKoHqDZK4KRIN0fR0qhZUAZgmdbhls/DOYhiAGX7z
-	 lKJXMbj5kAIa3yPHcJzWdDqHLZWZUws36K4s8WUtTHBy0kZ1G+0Jbjoh7BgoGMTVB0
-	 EHN+7t2qxXK5Wg9JwteHTuHVEx86cGwPSYmACkxAaR6cPMp9ZisNCP6MINj41SffBs
-	 rGpQYrIDRH61Pi646aQVZ+ZmxyNbNF5rChS8TKq0svn+ns7GoUEV1FIGJpWNhiL7jz
-	 wNVHZ83G97Pf5PZFUJN8TAkCmyWsi/CmvHe4Mf70Y4ziokGk5SSSZrPhqGGZMeQCS4
-	 YWE8KQUzoe6Nw==
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b8010b8f078so592893266b.0
-        for <linux-erofs@lists.ozlabs.org>; Thu, 08 Jan 2026 14:47:24 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVcaKa4zzD+sKvw3JSwa0IF69zBUbWMoeG589Y2R5ofJpeOQLKztjcbsekhSbZV5SbJXQHwsT4e0SVcYQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YwXlj8vzFvsMBoeStSN/VdywRyb/W+vfqpvHLu7JAfwVq03W1Pn
-	Z12yYNWBwhaj/Xla0TMeqyc/JoYQF2SJ/DHpcYQrE/F2l94OXSW8Ka0qfjGVTZZcCkO5O3VoPlQ
-	kQMA9EDWHhJc85pzp0XRlFzf310Torpc=
-X-Google-Smtp-Source: AGHT+IHRRvrZk+LJHsAd5/mP4TyTtkU5XrZgqXx3MfUuP0vWFtvlehE6tE5BFAh0/XFz8o1ILqvfmo203M6g5zkxlKk=
-X-Received: by 2002:a17:907:c1e:b0:b72:c261:3ad2 with SMTP id
- a640c23a62f3a-b84451dab67mr854015966b.50.1767912442100; Thu, 08 Jan 2026
- 14:47:22 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dnRhy5Z9Gz2yFm
+	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Jan 2026 14:14:57 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=R7ApHnfNiBchhGXf8a8E/bOiMkaOH3q7V/YSP7S/uow=;
+	b=VpLGGUGK+sRa0H7ow0v8gH347fWJZpEHkyBZ3bykf3XfoVbM3NPW+A+CBiyS787GwG0uZeAsy
+	ruololEhaWwkPw29RrTxowpDFgVzkkLk4xJ2sTZwI9Q4ua+/fGcOQsKa6W7kUNaxDZdizCESOW3
+	zJu9mBU9EfwJBzx/UWj/eLE=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout07.his.huawei.com (SkyGuard) with ESMTPS id 4dnRd61LL3zLlV4;
+	Fri,  9 Jan 2026 11:11:38 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id EC58A40570;
+	Fri,  9 Jan 2026 11:14:53 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 9 Jan
+ 2026 11:14:53 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
+CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
+	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
+Subject: [PATCH v13 05/10] erofs: support user-defined fingerprint name
+Date: Fri, 9 Jan 2026 03:01:35 +0000
+Message-ID: <20260109030140.594936-6-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20260109030140.594936-1-lihongbo22@huawei.com>
+References: <20260109030140.594936-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -65,65 +68,133 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260108-setlease-6-20-v1-0-ea4dec9b67fa@kernel.org> <20260108-setlease-6-20-v1-7-ea4dec9b67fa@kernel.org>
-In-Reply-To: <20260108-setlease-6-20-v1-7-ea4dec9b67fa@kernel.org>
-From: Namjae Jeon <linkinjeon@kernel.org>
-Date: Fri, 9 Jan 2026 07:47:09 +0900
-X-Gmail-Original-Message-ID: <CAKYAXd-JTE+233AwpvrXTsbfrbY+U_pvyUTQQSwz0mXh43jt=A@mail.gmail.com>
-X-Gm-Features: AQt7F2q41Fu16p_9dWtEjvrFao8uwKCSAe9mKCbLxMeS3Ih2bsPKkzatUTosKic
-Message-ID: <CAKYAXd-JTE+233AwpvrXTsbfrbY+U_pvyUTQQSwz0mXh43jt=A@mail.gmail.com>
-Subject: Re: [PATCH 07/24] exfat: add setlease file operation
-To: Jeff Layton <jlayton@kernel.org>
-Cc: Luis de Bethencourt <luisbg@kernel.org>, Salah Triki <salah.triki@gmail.com>, 
-	Nicolas Pitre <nico@fluxnic.net>, Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>, 
-	Anders Larsen <al@alarsen.net>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>, 
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>, 
-	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
-	Hongbo Li <lihongbo22@huawei.com>, Chunhai Guo <guochunhai@vivo.com>, Jan Kara <jack@suse.com>, 
-	"Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>, 
-	Jaegeuk Kim <jaegeuk@kernel.org>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, 
-	David Woodhouse <dwmw2@infradead.org>, Richard Weinberger <richard@nod.at>, Dave Kleikamp <shaggy@kernel.org>, 
-	Ryusuke Konishi <konishi.ryusuke@gmail.com>, Viacheslav Dubeyko <slava@dubeyko.com>, 
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Mark Fasheh <mark@fasheh.com>, 
-	Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>, 
-	Mike Marshall <hubcap@omnibond.com>, Martin Brandenburg <martin@omnibond.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, 
-	Phillip Lougher <phillip@squashfs.org.uk>, Carlos Maiolino <cem@kernel.org>, 
-	Hugh Dickins <hughd@google.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Sungjong Seo <sj1557.seo@samsung.com>, 
-	Yuezhang Mo <yuezhang.mo@sony.com>, Chuck Lever <chuck.lever@oracle.com>, 
-	Alexander Aring <alex.aring@gmail.com>, Andreas Gruenbacher <agruenba@redhat.com>, 
-	Jonathan Corbet <corbet@lwn.net>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Eric Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>, 
-	Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, 
-	Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>, 
-	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Steve French <sfrench@samba.org>, 
-	Paulo Alcantara <pc@manguebit.org>, Ronnie Sahlberg <ronniesahlberg@gmail.com>, 
-	Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>, 
-	Bharath SM <bharathsm@microsoft.com>, Hans de Goede <hansg@kernel.org>, linux-kernel@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-btrfs@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-f2fs-devel@lists.sourceforge.net, linux-mtd@lists.infradead.org, 
-	jfs-discussion@lists.sourceforge.net, linux-nilfs@vger.kernel.org, 
-	ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev, devel@lists.orangefs.org, 
-	linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, linux-mm@kvack.org, 
-	gfs2@lists.linux.dev, linux-doc@vger.kernel.org, v9fs@lists.linux.dev, 
-	ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-On Fri, Jan 9, 2026 at 2:14=E2=80=AFAM Jeff Layton <jlayton@kernel.org> wro=
-te:
->
-> Add the setlease file_operation to exfat_file_operations and
-> exfat_dir_operations, pointing to generic_setlease.  A future patch
-> will change the default behavior to reject lease attempts with -EINVAL
-> when there is no setlease file operation defined. Add generic_setlease
-> to retain the ability to set leases on this filesystem.
->
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Thanks!
+From: Hongzhen Luo <hongzhen@linux.alibaba.com>
+
+When creating the EROFS image, users can specify the fingerprint name.
+This is to prepare for the upcoming inode page cache share.
+
+Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/Kconfig    |  9 +++++++++
+ fs/erofs/erofs_fs.h |  5 +++--
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/super.c    |  9 +++++++++
+ fs/erofs/xattr.c    | 13 +++++++++++++
+ 5 files changed, 36 insertions(+), 2 deletions(-)
+
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index d81f3318417d..b71f2a8074fe 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -194,3 +194,12 @@ config EROFS_FS_PCPU_KTHREAD_HIPRI
+ 	  at higher priority.
+ 
+ 	  If unsure, say N.
++
++config EROFS_FS_PAGE_CACHE_SHARE
++	bool "EROFS page cache share support (experimental)"
++	depends on EROFS_FS && EROFS_FS_XATTR && !EROFS_FS_ONDEMAND
++	help
++	  This enables page cache sharing among inodes with identical
++	  content fingerprints on the same machine.
++
++	  If unsure, say N.
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index e24268acdd62..b30a74d307c5 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -17,7 +17,7 @@
+ #define EROFS_FEATURE_COMPAT_XATTR_FILTER		0x00000004
+ #define EROFS_FEATURE_COMPAT_SHARED_EA_IN_METABOX	0x00000008
+ #define EROFS_FEATURE_COMPAT_PLAIN_XATTR_PFX		0x00000010
+-
++#define EROFS_FEATURE_COMPAT_ISHARE_XATTRS		0x00000020
+ 
+ /*
+  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
+@@ -83,7 +83,8 @@ struct erofs_super_block {
+ 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
+ 	__le64 packed_nid;	/* nid of the special packed inode */
+ 	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
+-	__u8 reserved[3];
++	__u8 ishare_xattr_prefix_id;
++	__u8 reserved[2];
+ 	__le32 build_time;	/* seconds added to epoch for mkfs time */
+ 	__le64 rootnid_8b;	/* (48BIT on) nid of root directory */
+ 	__le64 reserved2;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 98fe652aea33..ec79e8b44d3b 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -134,6 +134,7 @@ struct erofs_sb_info {
+ 	u32 xattr_blkaddr;
+ 	u32 xattr_prefix_start;
+ 	u8 xattr_prefix_count;
++	u8 ishare_xattr_prefix_id;
+ 	struct erofs_xattr_prefix_item *xattr_prefixes;
+ 	unsigned int xattr_filter_reserved;
+ #endif
+@@ -238,6 +239,7 @@ EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
+ EROFS_FEATURE_FUNCS(xattr_filter, compat, COMPAT_XATTR_FILTER)
+ EROFS_FEATURE_FUNCS(shared_ea_in_metabox, compat, COMPAT_SHARED_EA_IN_METABOX)
+ EROFS_FEATURE_FUNCS(plain_xattr_pfx, compat, COMPAT_PLAIN_XATTR_PFX)
++EROFS_FEATURE_FUNCS(ishare_xattrs, compat, COMPAT_ISHARE_XATTRS)
+ 
+ static inline u64 erofs_nid_to_ino64(struct erofs_sb_info *sbi, erofs_nid_t nid)
+ {
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index f18f43b78fca..dca1445f6c92 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -320,6 +320,15 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
+ 	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
+ 	sbi->xattr_filter_reserved = dsb->xattr_filter_reserved;
++	if (erofs_sb_has_ishare_xattrs(sbi)) {
++		if (dsb->ishare_xattr_prefix_id >= sbi->xattr_prefix_count) {
++			erofs_err(sb, "invalid ishare xattr prefix id %u",
++				  dsb->ishare_xattr_prefix_id);
++			ret = -EFSCORRUPTED;
++			goto out;
++		}
++		sbi->ishare_xattr_prefix_id = dsb->ishare_xattr_prefix_id;
++	}
+ #endif
+ 	sbi->islotbits = ilog2(sizeof(struct erofs_inode_compact));
+ 	if (erofs_sb_has_48bit(sbi) && dsb->rootnid_8b) {
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 396536d9a862..ae61f20cb861 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -519,6 +519,19 @@ int erofs_xattr_prefixes_init(struct super_block *sb)
+ 	}
+ 
+ 	erofs_put_metabuf(&buf);
++	if (!ret && erofs_sb_has_ishare_xattrs(sbi)) {
++		struct erofs_xattr_prefix_item *pf = pfs + sbi->ishare_xattr_prefix_id;
++		struct erofs_xattr_long_prefix *newpfx;
++
++		newpfx = krealloc(pf->prefix,
++			sizeof(*newpfx) + pf->infix_len + 1, GFP_KERNEL);
++		if (newpfx) {
++			newpfx->infix[pf->infix_len] = '\0';
++			pf->prefix = newpfx;
++		} else {
++			ret = -ENOMEM;
++		}
++	}
+ 	sbi->xattr_prefixes = pfs;
+ 	if (ret)
+ 		erofs_xattr_prefixes_cleanup(sb);
+-- 
+2.22.0
+
 
