@@ -1,42 +1,44 @@
-Return-Path: <linux-erofs+bounces-1964-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1965-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F312AC982D3
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 15:47:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61D59C982D7
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 16:21:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dt43Y4S39z309H;
-	Sat, 17 Jan 2026 02:47:05 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=213.95.11.211
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768578425;
-	cv=none; b=ExKi/NlULm3QXmF2kIjE9c9zimu4PWQPtp99bJDg74lSG8LytTWvYBTnhIFZV7ST1EgSkRplDcj6PZVAkr3+MPQo7g8lIg7oM99ohsGrDfy0BOixz2TiaIzIUJ27qsXpW4yQs4Gd/krcWfrmto+Ah6j+0OfmBXbLCldQ8wtzfgpxp4NnIp42LneJ9MPRy5y6886MehPp8nzZ+jj7EgMIiA8gHYzSjmxxdbZ8jLwvO0w+hf69UKf+V2AqksHweSo/wHVC0+tZQwVagCZ1wxOxIxc3sceLwMsWeYnP98f9ZC9JJphxb75dZ5mMtdYnsPdFdNAewJxNWhKZMUnQ+x4quw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dt4qD6vxzz2xm3;
+	Sat, 17 Jan 2026 03:21:28 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768580488;
+	cv=none; b=M0lw49o45iOt7KH9RPYEWKZeLWdC4r2MbTM9K7kQtb14IcdabtRy7REiO7yz/uP6RAwun/TeqKe5m4BNlFZqdq/N+LlKNpsIXpnD8iyovb6d4Z9eygP2As/0kVyTcUlX7s4onBrpylWKib3bPAMSdy7WH6fd01JR2RxUvFNjwkBRSePOyH9wnBr+q3MJffhQBhFGsGCJQwuoQWRNvnvwNGqw3Ov/JbkOnuGZNaSOkmIdbVv43s5wUEoaqwRX/KEOQWsmEU4FzSFMWZyiEg6inEVMd0A6E1eE6chSVN7aw5xA+NHj835H0SsRa0jisViduXpohnmJnMHat3dZr99tIQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1768578425; c=relaxed/relaxed;
-	bh=pQGBkeV4VK/iWbgiLSNGQhHAQ0vfVDsAsAyuJT8T0OY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C/DlB4muozRkoFlK9hf8dXci9TmkNJpct4r1ewVYZVLeXaFsRrkTVEpCCYC/ftVd8ux/tIPIczSd+pFc1DKsILtEosTSXZbE41okO7eb9sHg+qppEkL6eE4ePmkC4CYulyVB8TCyydeMxRbk2rLMrxYAgLIgX7LQlYEIRR7O9JJIwceUS6eUi4SF+AzNm6yi2rb3V/AumkxkHhIHm8zQ8Xx7lh6r3hyfbkOOixuxqmpQ2q9M3Rx9xw8VrNmftaLOw36W/x+1Cdw3IS5nlOlGrk+Zc5NXy7Bi4TwL6/WGT7MaXvihfv1AZhSLYk9ge1PUw5vsG7g5FRkkIYwxuphbtw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org) smtp.mailfrom=lst.de
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	t=1768580488; c=relaxed/relaxed;
+	bh=ZpOJQ6ooa0mcia/fcatFm9psF59FZgaxBeQaFIs6dr4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=n0PHdf+RXbvQo78qQVMVKuiRkPY+LshRQQXEKjOmNk/8SxeF/jvbkaM2WylBU8gPfZvdgz6zNZqppFasE1cWbXid72mQ3C0PpQQa/2CoKiui0IPW+lPIyrqbWYVsuDzYsobrQPB36/GjsQZImdkBoBIqXf74V/U9oM0Sd4SISccPXdUoN4Ultl9Yh7c30tzqe+rrd5dTg4iF8SdmJIfYv+Daz5DHUqLvMqV2G9oRn066Z79pCfFcTx+qf76ZWjkPNdSwX6/xEOw33DaZZzCHaInsU4tKSwh3bfv8RD7UrvZrrcGGu3tt6eUJkOMQdE/PCWc91ry3fzDgDi/iecqm5A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qEKSsN8n; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qEKSsN8n;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dt43Y0VZSz2xnj
-	for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jan 2026 02:47:05 +1100 (AEDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 48E97227AB2; Fri, 16 Jan 2026 16:36:57 +0100 (CET)
-Date: Fri, 16 Jan 2026 16:36:56 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Hongbo Li <lihongbo22@huawei.com>
-Cc: hsiangkao@linux.alibaba.com, chao@kernel.org, brauner@kernel.org,
-	djwong@kernel.org, amir73il@gmail.com, hch@lst.de,
-	linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v15 0/9] erofs: Introduce page cache sharing feature
-Message-ID: <20260116153656.GA21174@lst.de>
-References: <20260116095550.627082-1-lihongbo22@huawei.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dt4qB5ZsXz2xS2
+	for <linux-erofs@lists.ozlabs.org>; Sat, 17 Jan 2026 03:21:24 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1768580480; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=ZpOJQ6ooa0mcia/fcatFm9psF59FZgaxBeQaFIs6dr4=;
+	b=qEKSsN8nDp1yADGak5kO6yyg9yDWuURu98vb7fK+Ovy6++XNqjw+5njgkqpaWl2OMRwNuS3mLvocL13tibTWcreovoh9YxPdywbZeCYw6NY3+/1IwezO4V8mxHFWqjKN8qvH9Td9FLV2aOKdcTNK1ckm8CGMP2Ubke09g89JZXY=
+Received: from 30.180.182.138(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WxAgkQR_1768580476 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sat, 17 Jan 2026 00:21:17 +0800
+Message-ID: <af1f3ff6-a163-4515-92bf-44c9cf6c92f3@linux.alibaba.com>
+Date: Sat, 17 Jan 2026 00:21:16 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -48,45 +50,63 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260116095550.627082-1-lihongbo22@huawei.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v15 5/9] erofs: introduce the page cache share feature
+To: Christoph Hellwig <hch@lst.de>, Hongbo Li <lihongbo22@huawei.com>
+Cc: chao@kernel.org, brauner@kernel.org, djwong@kernel.org,
+ amir73il@gmail.com, linux-fsdevel@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20260116095550.627082-1-lihongbo22@huawei.com>
+ <20260116095550.627082-6-lihongbo22@huawei.com>
+ <20260116154623.GC21174@lst.de>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20260116154623.GC21174@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sorry, just getting to this from my overful inbox by now.
+Hi Christoph,
 
-On Fri, Jan 16, 2026 at 09:55:41AM +0000, Hongbo Li wrote:
-> 2.1. file open & close
-> ----------------------
-> When the file is opened, the ->private_data field of file A or file B is
-> set to point to an internal deduplicated file. When the actual read
-> occurs, the page cache of this deduplicated file will be accessed.
+On 2026/1/16 23:46, Christoph Hellwig wrote:
+> I don't really understand the fingerprint idea.  Files with the
+> same content will point to the same physical disk blocks, so that
+> should be a much better indicator than a finger print?  Also how does
 
-So the first opener wins and others point to it?  That would lead to
-some really annoying life time rules.  Or you allocate a hidden backing
-file and have everyone point to it (the backing_file related subject
-kinda hints at that), which would be much more sensible, but then the
-above descriptions would not be correct.
+Page cache sharing should apply to different EROFS
+filesystem images on the same machine too, so the
+physical disk block number idea cannot be applied
+to this.
+
+> the fingerprint guarantee uniqueness?  Is it a cryptographically
+> secure hash?  In here it just seems like an opaque blob.
+
+Yes, typically it can be a secure hash like sha256,
+but it really depends on the users how to use it.
+
+This feature is enabled _only_ when a dedicated mount
+option is used, and should be enabled by the priviledged
+mounters, and it's up to the priviledged mounters to
+guarantee the fingerprint is correct (usually guaranteed
+by signatures by image builders since images will be
+signed).
+
+Also different signatures also can be isolated by domain
+ids, so that different domain ids cannot be shared.
 
 > 
-> When the file is opened, if the corresponding erofs inode is newly
-> created, then perform the following actions:
-> 1. add the erofs inode to the backing list of the deduplicated inode;
-> 2. increase the reference count of the deduplicated inode.
+>> +static inline int erofs_inode_set_aops(struct inode *inode,
+>> +				       struct inode *realinode, bool no_fscache)
+> 
+> Factoring this out first would be a nice little prep patch.
+> Also it would probably be much cleaner using IS_ENABLED.
+> 
+>> +static int erofs_ishare_file_open(struct inode *inode, struct file *file)
+>> +{
+>> +	struct inode *sharedinode = EROFS_I(inode)->sharedinode;
+> 
+> Ok, it looks like this allocates a separate backing file and inode.
 
-This on the other hand suggests the fist opener is used approach again?
+Yes.
 
-> Assuming the deduplication inode's page cache is PGCache_dedup, there
-
-What is PGCache_dedup?
-
-> Iomap and the layers below will involve disk I/O operations. As
-> described in 2.1, the deduplicated inode itself is not bound to a
-> specific device. The deduplicated inode will select an erofs inode from
-> the backing list (by default, the first one) to complete the
-> corresponding iomap operation.
-
-What happens for mmap I/O where folio->mapping is kinda important?
-
-Also do you have a git tree for the whole feature?
+Thanks,
+Gao Xiang
 
