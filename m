@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-1943-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1944-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3F09D47CD1
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 10:08:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB314D47CCD
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 10:08:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dswYF2TQbz2xSN;
-	Fri, 16 Jan 2026 21:08:49 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.219
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768558129;
-	cv=none; b=FmNNcstg0RLUA6tJDKKSGMbiXUU/F1pj+sR1NR1Hi7iMa7OhvH9238LfiJaD9xdnTA93hf0VWJu+V3hds+8OdYA51vGYJ6BVVaZVGXSZOC61g2P3kGz2bNQws5R7g4fQ2zJNY+UeWDcHgXQ26nZ3NJUjAEwxd/1D98CXLGRBYmQ6TEK90xlrC5XZVdoHdSXwFBjJkouNQ2TaxZLOqQFXH7NRhYI3jK+GC1ml2DWX5SPa8LlGCafh4a8XD/6tGQPx5prjCf6CtblTBYZbxvW2thsv9IXgCxryeR3nef2FR9+6BmrCgz86WLpeP6DRGxmJv8T73KX5rWbZxezSLlPoLQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dswYG2Ntmz30Lw;
+	Fri, 16 Jan 2026 21:08:50 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.224
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768558130;
+	cv=none; b=X6dgz9ry4VlqJc97mMKk7wtTOYc5BJ/7WwGJDnQln6IgwkdO0jE3Xp3SPJJUGZV/Qf62+ehhLdaQlV2IrAX/a7PqAT7r5npgHkipRG+qmQlSeXuxlwV7A2Umk/CIIpYyiq6HxTPTgjNWOOXU8lb+zz0yArgTnDaHMjGzfUK3dYWPyEaPN+MUshYlVweNncYfV3tKT/bvDoBdstR0XrSaX/l/Sa6eGuXtO+Ewk5jkqb2I1xFGDNxjZHz23NTaLfSckHe73+jFuOtwjDRPocXAxNCdO4ER3YApARdmqE0oJq/tOZ4g5FvLXVQP/WXTuchwzcmKwOZbqIyhzTs46scCxQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1768558129; c=relaxed/relaxed;
-	bh=XzmAs2VpZLSxoIrsGbEfPR013qwffyPmOWZWIOJmd7w=;
+	t=1768558130; c=relaxed/relaxed;
+	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K1UPbmT+vOn+Ve+0xmwCq7R/HqV9b+TQsut3sA4/sKhz5jWO/7IDy4wsfq2xRMogm2VsISJXZ4NchC0rn0mQO0ENZoBbxmdT6a61DUxOLNZq5gmhpn5jWKwPRaX3xWxO31WcO257znWgq2REDAN38M5x9l8cwm8yZ0xTt+f7hkBBn520VKQnd93KUuL00+SYdKw3PozS4iT3oZJIGOLgec+Tc+tVsx+Y0w98fL7FkVbKqptlJ2lnzoMn3a3ksaxexcnjxfhFhrOJih6JaGSzZWQge1HTdN3WVq1R88mEDxXi2VNIKC9qQ76PJN2HOe8AbyNKPDuHwa2XYZV7bYTIWg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ET4nQgDE; dkim-atps=neutral; spf=pass (client-ip=113.46.200.219; helo=canpmsgout04.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=Nj9NNljTl3dngKGTeeK5p9Ii9MfZrr7l9+fkayOC1aEtiyvCUBaLHAJ6jC7sPeyMy19VVlu/A/WTS7gxy/FG77wFfaQPYpXF175KBc/BN6qVNUWMDQebRPcqOBfNl3lpmA+3rxY2tQC5jXC9/TZ9EoKConjmIWPtZ3dmaPcU070LrZzKQmAU2tZm3T16aac73ILL/MwAYXmt6678FUWnQz0zaXsVCECk9Vm7Lz2uun6VJW1ifJr+y1bvABoGr2nLIXrIO949iftOFq/CyaLB5veHNhJMfTT9lt0rWKf2PEbT7JgbzqQ+23ez69osyrtap4fcHcDhOw6PU90soWLRpA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb; dkim-atps=neutral; spf=pass (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ET4nQgDE;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.219; helo=canpmsgout04.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.224; helo=canpmsgout09.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dswYC33wnz30Lw
-	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 21:08:47 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dswYB1kTvz2xrC
+	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 21:08:44 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=XzmAs2VpZLSxoIrsGbEfPR013qwffyPmOWZWIOJmd7w=;
-	b=ET4nQgDEN5fYb3hoQ8vIAzZBtp6wiXUMv1NRArCFLuT2+7LbB0ZtiaUJbe4KeP8OBrpaOTNYo
-	IOgLN5fMC0HizzauOwIRsnpx/LjDgNUINCiH08vX29OH1T+GnUoIzDWysuevgBd0crGEm8GAn+k
-	KCC9YTjfCMoJWlJMien4q0A=
-Received: from mail.maildlp.com (unknown [172.19.162.144])
-	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4dswTF1c2Cz1prKt;
-	Fri, 16 Jan 2026 18:05:21 +0800 (CST)
+	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
+	b=aViTVgKbU3p9F6fvfb/DRZ9GIhljQ3rKlHQMPA1II5YccTLm1l79Wl8RBcmkkhYNwMzHKxXz0
+	9YV1Y0ow6kq2fONT0jz7uycW8blnvYaMxZYGGACdFOLs9cXkvJ3tWcEIwXSiiP4I/798eIXtO+j
+	kCdEQvGGYPkM65v8oi6/oqU=
+Received: from mail.maildlp.com (unknown [172.19.163.15])
+	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4dswTC5Tc3z1cyq4;
+	Fri, 16 Jan 2026 18:05:19 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id EEEB240538;
-	Fri, 16 Jan 2026 18:08:43 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 1137740539;
+	Fri, 16 Jan 2026 18:08:40 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 16 Jan
- 2026 18:08:43 +0800
+ 2026 18:08:39 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
 CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
 	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
 	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
-Subject: [PATCH v15 9/9] erofs: implement .fadvise for page cache share
-Date: Fri, 16 Jan 2026 09:55:50 +0000
-Message-ID: <20260116095550.627082-10-lihongbo22@huawei.com>
+Subject: [PATCH v15 1/9] fs: Export alloc_empty_backing_file
+Date: Fri, 16 Jan 2026 09:55:42 +0000
+Message-ID: <20260116095550.627082-2-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20260116095550.627082-1-lihongbo22@huawei.com>
 References: <20260116095550.627082-1-lihongbo22@huawei.com>
@@ -74,45 +74,34 @@ X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
  kwepemr500015.china.huawei.com (7.202.195.162)
 
-From: Hongzhen Luo <hongzhen@linux.alibaba.com>
+There is no need to open nonexistent real files if backing files
+couldn't be backed by real files (e.g., EROFS page cache sharing
+doesn't need typical real files to open again).
 
-This patch implements the .fadvise interface for page cache share.
-Similar to overlayfs, it drops those clean, unused pages through
-vfs_fadvise().
+Therefore, we export the alloc_empty_backing_file() helper, allowing
+filesystems to dynamically set the backing file without real file
+open. This is particularly useful for obtaining the correct @path
+and @inode when calling file_user_path() and file_user_inode().
 
-Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
 Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Acked-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/erofs/ishare.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/file_table.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-index 96679286da95..78242f9d8dde 100644
---- a/fs/erofs/ishare.c
-+++ b/fs/erofs/ishare.c
-@@ -145,6 +145,13 @@ static int erofs_ishare_mmap(struct file *file, struct vm_area_struct *vma)
- 	return generic_file_readonly_mmap(file, vma);
+diff --git a/fs/file_table.c b/fs/file_table.c
+index cd4a3db4659a..476edfe7d8f5 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -308,6 +308,7 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+ 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
+ 	return &ff->file;
  }
++EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
  
-+static int erofs_ishare_fadvise(struct file *file, loff_t offset,
-+				      loff_t len, int advice)
-+{
-+	return vfs_fadvise((struct file *)file->private_data,
-+			   offset, len, advice);
-+}
-+
- const struct file_operations erofs_ishare_fops = {
- 	.open		= erofs_ishare_file_open,
- 	.llseek		= generic_file_llseek,
-@@ -153,6 +160,7 @@ const struct file_operations erofs_ishare_fops = {
- 	.release	= erofs_ishare_file_release,
- 	.get_unmapped_area = thp_get_unmapped_area,
- 	.splice_read	= filemap_splice_read,
-+	.fadvise	= erofs_ishare_fadvise,
- };
- 
- struct inode *erofs_real_inode(struct inode *inode, bool *need_iput)
+ /**
+  * file_init_path - initialize a 'struct file' based on path
 -- 
 2.22.0
 
