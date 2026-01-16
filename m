@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-1941-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1942-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BE58D47CC3
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 10:08:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60A54D47CCD
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 10:08:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dswYD1sbmz30M0;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dswYD3CQJz309H;
 	Fri, 16 Jan 2026 21:08:48 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.227
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.223
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768558128;
-	cv=none; b=IvWEVO8ch8b1O2+iOfz1yH5aGZUR/mSgFjF0ed6GqoIaX2WuiVALhOlHMExfcbU/WLIkBA4iAnU6nXPqcBeTsBNcYncu85VrHMANPAwO690u4iHSYdEbq0rVzfgHeRtZ228JbRsBWbNvj8KdJ5stUvm2umhkMy0ySGNs7Tv7sDVPn+LdWN0T97PtDuaWEAGPHM8uAz0rQqZmaTiJVlylnzXJ8v8AsjMk7EYaiwpvDrHAPCjbmF4UhGhzFVuCsqkh0nLzfNaQz4JQ8werEm/n6pxr1vzuvBPot07HU6sTUSuGDOT0lbpJx8zywKm3zrLJHJe1kQvOKw+jyTUsZml7sQ==
+	cv=none; b=iQXYR9rRCca4ZDTMhARUFSumWtCEntHyrWpsSqCHS64P1Mr7yOiEFiI9u6NIAJv1pl25a93VKjsNX7BSjZFAp4liFNHBhtxkVit0tQAz6AmEd7+NkI6hxf191XCkKbNNlw1t83kdAynqNbIKXCw1ahMerpWThG3H2/H6r2z+nY1fV6EHJcvC8ozIZQ1UAHsYe2GRiuK1SEpMKHFFkxjGC6jXUn5PSYa0TR2gQQ3GWp1Vx+kx86rRTwONjzvSdMy7t8wJyasVx822fxaVegB3WBEsVaLcE9cNEkw3qkE6itqwz05FpIogeHrpff+XPcg/l9u6OuYgpFGT+0+OiT+trg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1768558128; c=relaxed/relaxed;
-	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
+	bh=R7ApHnfNiBchhGXf8a8E/bOiMkaOH3q7V/YSP7S/uow=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=e7O6oyflUT09frmvM6/hmVKiBxq68mAstxNIiyK6BATjA7TLz8TZ+C7LhsJScZqOhuYPcPObdNTDjhnGEw2Oyfr1Tt56wOnpwXyWQndUEQl5Ji/I6mGS3PEbw4uJ8EKP2PtMLLoBrh6tPiE3Ctf21qlEid4G9ls/7EAyIevttm+16cvMcYII3xKrlp8Ia/awJvtiL8VpepNQecxdWvnOkyQ9uCnhLCvJa1o8DFPcDOjF0RkzsaYVGSZq0Lv6PABacPeZ+wbYUDu6u9TUCQA4OTWo6+yo08Xfbtdn0eaVqvuMC1NAt/JuytChasN/phmyG6GNHeHOYquSt8JZKSm+rQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+; dkim-atps=neutral; spf=pass (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=Yg/EXyVmUf+XEAmmf7NVvMOGg13O8RUP89NAm/RIZjGitUyj8BCfpMYtE5JJAXno+seGctoIW6JyJjJ4rnso8ETvVTc03YAgt+Zd5oWuj8bhEbLW5VN8m+G+DC2HiqdI0dr0ilzOssEXyDqsK673+pLDzeZZs55OYO5Oe72eSwr4DX+0WyylCiG7c1Ejq/zSNYrZ6JbjhyzPgwyeDL5iM+uABo/9147iC6SegpWXOY1QwUgks7dCjHxlJU4SU039g1xzNI4LrC5QMyRHYFeX5GrHnlFNwwULDkGPX5C1TnSkfiVYHkvEVhdGb51Xdzl/UWD7r7AuyzpAsU0w1S67Jg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=VpLGGUGK; dkim-atps=neutral; spf=pass (client-ip=113.46.200.223; helo=canpmsgout08.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=VpLGGUGK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout12.his.huawei.com (canpmsgout12.his.huawei.com [113.46.200.227])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.223; helo=canpmsgout08.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout08.his.huawei.com (canpmsgout08.his.huawei.com [113.46.200.223])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dswYB2B7wz309H
-	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 21:08:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dswY96hmKz2xSN
+	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 21:08:44 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
-	b=KapezA4+MCeSj48QqqVvPW7LPUYp4jPdBukSP5ooqAFz01Ftxgpi75y/Zhe5UGZ/VSty9Vagc
-	P0a9tkuDKZJeisET9D/JJZV1MFx4eK5Kb5sOW9B9yIcyw9K/myBKx1XOMqor0+DmFtqp3b+2oCt
-	XyCYJDNR1AaQnDQRFg8QCe4=
-Received: from mail.maildlp.com (unknown [172.19.163.15])
-	by canpmsgout12.his.huawei.com (SkyGuard) with ESMTPS id 4dswTg3ShKznTVZ;
-	Fri, 16 Jan 2026 18:05:43 +0800 (CST)
+	bh=R7ApHnfNiBchhGXf8a8E/bOiMkaOH3q7V/YSP7S/uow=;
+	b=VpLGGUGK+sRa0H7ow0v8gH347fWJZpEHkyBZ3bykf3XfoVbM3NPW+A+CBiyS787GwG0uZeAsy
+	ruololEhaWwkPw29RrTxowpDFgVzkkLk4xJ2sTZwI9Q4ua+/fGcOQsKa6W7kUNaxDZdizCESOW3
+	zJu9mBU9EfwJBzx/UWj/eLE=
+Received: from mail.maildlp.com (unknown [172.19.163.163])
+	by canpmsgout08.his.huawei.com (SkyGuard) with ESMTPS id 4dswTC3zv9zmV8H;
+	Fri, 16 Jan 2026 18:05:19 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id 822D540539;
-	Fri, 16 Jan 2026 18:08:42 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id F366840538;
+	Fri, 16 Jan 2026 18:08:40 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 16 Jan
- 2026 18:08:41 +0800
+ 2026 18:08:40 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
 CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
 	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
 	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
-Subject: [PATCH v15 6/9] erofs: pass inode to trace_erofs_read_folio
-Date: Fri, 16 Jan 2026 09:55:47 +0000
-Message-ID: <20260116095550.627082-7-lihongbo22@huawei.com>
+Subject: [PATCH v15 3/9] erofs: support user-defined fingerprint name
+Date: Fri, 16 Jan 2026 09:55:44 +0000
+Message-ID: <20260116095550.627082-4-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20260116095550.627082-1-lihongbo22@huawei.com>
 References: <20260116095550.627082-1-lihongbo22@huawei.com>
@@ -74,99 +74,126 @@ X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
  kwepemr500015.china.huawei.com (7.202.195.162)
 
-The trace_erofs_read_folio accesses inode information through folio,
-but this method fails if the real inode is not associated with the
-folio(such as for the uncomping page cache sharing case). Therefore,
-we pass the real inode to it so that the inode information can be
-printed out in that case.
+From: Hongzhen Luo <hongzhen@linux.alibaba.com>
 
+When creating the EROFS image, users can specify the fingerprint name.
+This is to prepare for the upcoming inode page cache share.
+
+Signed-off-by: Hongzhen Luo <hongzhen@linux.alibaba.com>
 Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- fs/erofs/data.c              |  6 ++----
- fs/erofs/fileio.c            |  2 +-
- fs/erofs/zdata.c             |  2 +-
- include/trace/events/erofs.h | 10 +++++-----
- 4 files changed, 9 insertions(+), 11 deletions(-)
+ fs/erofs/Kconfig    |  9 +++++++++
+ fs/erofs/erofs_fs.h |  5 +++--
+ fs/erofs/internal.h |  2 ++
+ fs/erofs/super.c    |  9 +++++++++
+ fs/erofs/xattr.c    | 13 +++++++++++++
+ 5 files changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 71e23d91123d..ea198defb531 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -385,8 +385,7 @@ static int erofs_read_folio(struct file *file, struct folio *folio)
- 	};
- 	struct erofs_iomap_iter_ctx iter_ctx = {};
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index d81f3318417d..b71f2a8074fe 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -194,3 +194,12 @@ config EROFS_FS_PCPU_KTHREAD_HIPRI
+ 	  at higher priority.
  
--	trace_erofs_read_folio(folio, true);
+ 	  If unsure, say N.
++
++config EROFS_FS_PAGE_CACHE_SHARE
++	bool "EROFS page cache share support (experimental)"
++	depends on EROFS_FS && EROFS_FS_XATTR && !EROFS_FS_ONDEMAND
++	help
++	  This enables page cache sharing among inodes with identical
++	  content fingerprints on the same machine.
++
++	  If unsure, say N.
+diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
+index e24268acdd62..b30a74d307c5 100644
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -17,7 +17,7 @@
+ #define EROFS_FEATURE_COMPAT_XATTR_FILTER		0x00000004
+ #define EROFS_FEATURE_COMPAT_SHARED_EA_IN_METABOX	0x00000008
+ #define EROFS_FEATURE_COMPAT_PLAIN_XATTR_PFX		0x00000010
 -
-+	trace_erofs_read_folio(folio_inode(folio), folio, true);
- 	iomap_read_folio(&erofs_iomap_ops, &read_ctx, &iter_ctx);
- 	return 0;
- }
-@@ -400,8 +399,7 @@ static void erofs_readahead(struct readahead_control *rac)
- 	struct erofs_iomap_iter_ctx iter_ctx = {};
++#define EROFS_FEATURE_COMPAT_ISHARE_XATTRS		0x00000020
  
- 	trace_erofs_readahead(rac->mapping->host, readahead_index(rac),
--					readahead_count(rac), true);
--
-+			      readahead_count(rac), true);
- 	iomap_readahead(&erofs_iomap_ops, &read_ctx, &iter_ctx);
- }
+ /*
+  * Any bits that aren't in EROFS_ALL_FEATURE_INCOMPAT should
+@@ -83,7 +83,8 @@ struct erofs_super_block {
+ 	__le32 xattr_prefix_start;	/* start of long xattr prefixes */
+ 	__le64 packed_nid;	/* nid of the special packed inode */
+ 	__u8 xattr_filter_reserved; /* reserved for xattr name filter */
+-	__u8 reserved[3];
++	__u8 ishare_xattr_prefix_id;
++	__u8 reserved[2];
+ 	__le32 build_time;	/* seconds added to epoch for mkfs time */
+ 	__le64 rootnid_8b;	/* (48BIT on) nid of root directory */
+ 	__le64 reserved2;
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 98fe652aea33..ec79e8b44d3b 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -134,6 +134,7 @@ struct erofs_sb_info {
+ 	u32 xattr_blkaddr;
+ 	u32 xattr_prefix_start;
+ 	u8 xattr_prefix_count;
++	u8 ishare_xattr_prefix_id;
+ 	struct erofs_xattr_prefix_item *xattr_prefixes;
+ 	unsigned int xattr_filter_reserved;
+ #endif
+@@ -238,6 +239,7 @@ EROFS_FEATURE_FUNCS(sb_chksum, compat, COMPAT_SB_CHKSUM)
+ EROFS_FEATURE_FUNCS(xattr_filter, compat, COMPAT_XATTR_FILTER)
+ EROFS_FEATURE_FUNCS(shared_ea_in_metabox, compat, COMPAT_SHARED_EA_IN_METABOX)
+ EROFS_FEATURE_FUNCS(plain_xattr_pfx, compat, COMPAT_PLAIN_XATTR_PFX)
++EROFS_FEATURE_FUNCS(ishare_xattrs, compat, COMPAT_ISHARE_XATTRS)
  
-diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
-index 932e8b353ba1..d07dc248d264 100644
---- a/fs/erofs/fileio.c
-+++ b/fs/erofs/fileio.c
-@@ -161,7 +161,7 @@ static int erofs_fileio_read_folio(struct file *file, struct folio *folio)
- 	struct erofs_fileio io = {};
- 	int err;
+ static inline u64 erofs_nid_to_ino64(struct erofs_sb_info *sbi, erofs_nid_t nid)
+ {
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index f18f43b78fca..dca1445f6c92 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -320,6 +320,15 @@ static int erofs_read_superblock(struct super_block *sb)
+ 	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
+ 	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
+ 	sbi->xattr_filter_reserved = dsb->xattr_filter_reserved;
++	if (erofs_sb_has_ishare_xattrs(sbi)) {
++		if (dsb->ishare_xattr_prefix_id >= sbi->xattr_prefix_count) {
++			erofs_err(sb, "invalid ishare xattr prefix id %u",
++				  dsb->ishare_xattr_prefix_id);
++			ret = -EFSCORRUPTED;
++			goto out;
++		}
++		sbi->ishare_xattr_prefix_id = dsb->ishare_xattr_prefix_id;
++	}
+ #endif
+ 	sbi->islotbits = ilog2(sizeof(struct erofs_inode_compact));
+ 	if (erofs_sb_has_48bit(sbi) && dsb->rootnid_8b) {
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index 396536d9a862..ae61f20cb861 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -519,6 +519,19 @@ int erofs_xattr_prefixes_init(struct super_block *sb)
+ 	}
  
--	trace_erofs_read_folio(folio, true);
-+	trace_erofs_read_folio(folio_inode(folio), folio, true);
- 	err = erofs_fileio_scan_folio(&io, folio);
- 	erofs_fileio_rq_submit(io.rq);
- 	return err;
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 3d31f7840ca0..93ab6a481b64 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1887,7 +1887,7 @@ static int z_erofs_read_folio(struct file *file, struct folio *folio)
- 	Z_EROFS_DEFINE_FRONTEND(f, inode, folio_pos(folio));
- 	int err;
- 
--	trace_erofs_read_folio(folio, false);
-+	trace_erofs_read_folio(inode, folio, false);
- 	z_erofs_pcluster_readmore(&f, NULL, true);
- 	err = z_erofs_scan_folio(&f, folio, false);
- 	z_erofs_pcluster_readmore(&f, NULL, false);
-diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
-index dad7360f42f9..def20d06507b 100644
---- a/include/trace/events/erofs.h
-+++ b/include/trace/events/erofs.h
-@@ -82,9 +82,9 @@ TRACE_EVENT(erofs_fill_inode,
- 
- TRACE_EVENT(erofs_read_folio,
- 
--	TP_PROTO(struct folio *folio, bool raw),
-+	TP_PROTO(struct inode *inode, struct folio *folio, bool raw),
- 
--	TP_ARGS(folio, raw),
-+	TP_ARGS(inode, folio, raw),
- 
- 	TP_STRUCT__entry(
- 		__field(dev_t,		dev	)
-@@ -96,9 +96,9 @@ TRACE_EVENT(erofs_read_folio,
- 	),
- 
- 	TP_fast_assign(
--		__entry->dev	= folio->mapping->host->i_sb->s_dev;
--		__entry->nid	= EROFS_I(folio->mapping->host)->nid;
--		__entry->dir	= S_ISDIR(folio->mapping->host->i_mode);
-+		__entry->dev	= inode->i_sb->s_dev;
-+		__entry->nid	= EROFS_I(inode)->nid;
-+		__entry->dir	= S_ISDIR(inode->i_mode);
- 		__entry->index	= folio->index;
- 		__entry->uptodate = folio_test_uptodate(folio);
- 		__entry->raw = raw;
+ 	erofs_put_metabuf(&buf);
++	if (!ret && erofs_sb_has_ishare_xattrs(sbi)) {
++		struct erofs_xattr_prefix_item *pf = pfs + sbi->ishare_xattr_prefix_id;
++		struct erofs_xattr_long_prefix *newpfx;
++
++		newpfx = krealloc(pf->prefix,
++			sizeof(*newpfx) + pf->infix_len + 1, GFP_KERNEL);
++		if (newpfx) {
++			newpfx->infix[pf->infix_len] = '\0';
++			pf->prefix = newpfx;
++		} else {
++			ret = -ENOMEM;
++		}
++	}
+ 	sbi->xattr_prefixes = pfs;
+ 	if (ret)
+ 		erofs_xattr_prefixes_cleanup(sb);
 -- 
 2.22.0
 
