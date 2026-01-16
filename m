@@ -1,49 +1,62 @@
-Return-Path: <linux-erofs+bounces-1940-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-1941-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BDF63D3CCAB
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 09:45:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BE58D47CC3
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Jan 2026 10:08:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dsw2R1mPDz2xSN;
-	Fri, 16 Jan 2026 20:45:35 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.101
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768556735;
-	cv=none; b=VG8XDxA5Uc3X6ANKma9o3VqNMD4a5b+vrznGyR9iStUcBbzNoiRpTFjav82x1V+MGUNFvX5YzXz1crF2gqWpIdDXk2qKwG4d0YRqnxasOfMliEmb05iYe063I7f5aKHdlLnkAaO1TYBZakEyCdJZEQ2hzWBi7R0bZoQhBze/eZzFlHOiy7fXs7oS4o0BQSTixtyAjS/8yRS6nuwvWRaBGYtKsJUub09GbCfMZiLXEgXyUXPgeObHlqBLDo/DJVBF+Tklk3WdpWlZ6ZAWIuwyQCLvadRbCY9bfpcXHrVwJtVQYHXgU5kFZgYb8sx8DoI9RQzi3PrgXL1us0e/MHnh2Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dswYD1sbmz30M0;
+	Fri, 16 Jan 2026 21:08:48 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.227
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768558128;
+	cv=none; b=IvWEVO8ch8b1O2+iOfz1yH5aGZUR/mSgFjF0ed6GqoIaX2WuiVALhOlHMExfcbU/WLIkBA4iAnU6nXPqcBeTsBNcYncu85VrHMANPAwO690u4iHSYdEbq0rVzfgHeRtZ228JbRsBWbNvj8KdJ5stUvm2umhkMy0ySGNs7Tv7sDVPn+LdWN0T97PtDuaWEAGPHM8uAz0rQqZmaTiJVlylnzXJ8v8AsjMk7EYaiwpvDrHAPCjbmF4UhGhzFVuCsqkh0nLzfNaQz4JQ8werEm/n6pxr1vzuvBPot07HU6sTUSuGDOT0lbpJx8zywKm3zrLJHJe1kQvOKw+jyTUsZml7sQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1768556735; c=relaxed/relaxed;
-	bh=uQez8e0HWURCymRD+8hVZhhwFHalwNsjs7DWrIVsauA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nabdFKJaMrcmvFqtB65QtD3giwvJVb6VSiXgkC10lw+aTx/6AZixMuI0n52G/XKuxuvcFQaVPaeCU27W57aX8kN2uiGxTkjoqs8rJlvwLWsPboEIkeRdQFuTUbtlBX2nwS59xAAzhB0Ae2wkpeyFqSCnFNZutUyF9QlDEOHkI4p7TH/vX57CqOk4OZGhZP1ags0DyUzIu9ejOmzg7Nv+3YbHM2coiFKLvFiBurHTivx5+CQGuGNiWUAO3HeHO2cb3c1T+/Q5AgQKjOSY/5idQf96pFxmu/c62wmg8yn8LV6gknwaVsvhiCpnE4CPO8Z0oRZiyiPg9iYhMKRwWH2X8w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Ll3SSOt9; dkim-atps=neutral; spf=pass (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1768558128; c=relaxed/relaxed;
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=e7O6oyflUT09frmvM6/hmVKiBxq68mAstxNIiyK6BATjA7TLz8TZ+C7LhsJScZqOhuYPcPObdNTDjhnGEw2Oyfr1Tt56wOnpwXyWQndUEQl5Ji/I6mGS3PEbw4uJ8EKP2PtMLLoBrh6tPiE3Ctf21qlEid4G9ls/7EAyIevttm+16cvMcYII3xKrlp8Ia/awJvtiL8VpepNQecxdWvnOkyQ9uCnhLCvJa1o8DFPcDOjF0RkzsaYVGSZq0Lv6PABacPeZ+wbYUDu6u9TUCQA4OTWo6+yo08Xfbtdn0eaVqvuMC1NAt/JuytChasN/phmyG6GNHeHOYquSt8JZKSm+rQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+; dkim-atps=neutral; spf=pass (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Ll3SSOt9;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.101; helo=out30-101.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.227; helo=canpmsgout12.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout12.his.huawei.com (canpmsgout12.his.huawei.com [113.46.200.227])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dsw2K6B05z2xPL
-	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 20:45:27 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1768556721; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=uQez8e0HWURCymRD+8hVZhhwFHalwNsjs7DWrIVsauA=;
-	b=Ll3SSOt9d1cDsytfansrlUwhfTlU87tkTPPtCrJtmaU9pBrInvRq/ywB+JA1oJIgBQIIJQ+dzfQqmvpharZsn0x9xDLqsSCmoMVXcthGAT6Ao1kqRINghRyaAYYWkzLXhRw5rFVO3IqNI5mjUM06aCAqZnN4lrayR7VC9e81FA0=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wx9oOUM_1768556716 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 16 Jan 2026 17:45:20 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: oliver.yang@linux.alibaba.com,
-	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH] erofs-utils: mkfs: enable directory data in the metadata zone
-Date: Fri, 16 Jan 2026 17:45:13 +0800
-Message-ID: <20260116094513.1784083-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dswYB2B7wz309H
+	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Jan 2026 21:08:46 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
+	b=KapezA4+MCeSj48QqqVvPW7LPUYp4jPdBukSP5ooqAFz01Ftxgpi75y/Zhe5UGZ/VSty9Vagc
+	P0a9tkuDKZJeisET9D/JJZV1MFx4eK5Kb5sOW9B9yIcyw9K/myBKx1XOMqor0+DmFtqp3b+2oCt
+	XyCYJDNR1AaQnDQRFg8QCe4=
+Received: from mail.maildlp.com (unknown [172.19.163.15])
+	by canpmsgout12.his.huawei.com (SkyGuard) with ESMTPS id 4dswTg3ShKznTVZ;
+	Fri, 16 Jan 2026 18:05:43 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id 822D540539;
+	Fri, 16 Jan 2026 18:08:42 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 16 Jan
+ 2026 18:08:41 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
+CC: <djwong@kernel.org>, <amir73il@gmail.com>, <hch@lst.de>,
+	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
+Subject: [PATCH v15 6/9] erofs: pass inode to trace_erofs_read_folio
+Date: Fri, 16 Jan 2026 09:55:47 +0000
+Message-ID: <20260116095550.627082-7-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20260116095550.627082-1-lihongbo22@huawei.com>
+References: <20260116095550.627082-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -56,490 +69,105 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-It allows directory data and inode metadata to be kept as close
-as possible, significantly improving metadata performance for
-long-latency remote image use cases.
+The trace_erofs_read_folio accesses inode information through folio,
+but this method fails if the real inode is not associated with the
+folio(such as for the uncomping page cache sharing case). Therefore,
+we pass the real inode to it so that the inode information can be
+printed out in that case.
 
-Usage:
- $ mkfs.erofs --MZ foo.erofs foo/
-
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 ---
- include/erofs/importer.h |  1 +
- include/erofs/inode.h    |  3 +-
- include/erofs/internal.h |  8 ++++
- lib/cache.c              |  4 ++
- lib/inode.c              | 98 ++++++++++++++++++++++++++++------------
- lib/io.c                 |  5 +-
- lib/metabox.c            | 22 +++++----
- lib/remotes/s3.c         |  3 +-
- lib/super.c              |  4 +-
- lib/tar.c                |  2 +-
- mkfs/main.c              | 27 +++++++++--
- 11 files changed, 129 insertions(+), 48 deletions(-)
+ fs/erofs/data.c              |  6 ++----
+ fs/erofs/fileio.c            |  2 +-
+ fs/erofs/zdata.c             |  2 +-
+ include/trace/events/erofs.h | 10 +++++-----
+ 4 files changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/include/erofs/importer.h b/include/erofs/importer.h
-index a525b474f1d5..60160d6bea05 100644
---- a/include/erofs/importer.h
-+++ b/include/erofs/importer.h
-@@ -46,6 +46,7 @@ struct erofs_importer_params {
- 	bool no_datainline;
- 	/* Issue directory data (except inline data) separately from regular inodes */
- 	bool grouped_dirdata;
-+	bool dirdata_in_metazone;
- 	bool hard_dereference;
- 	bool ovlfs_strip;
- 	bool dot_omitted;
-diff --git a/include/erofs/inode.h b/include/erofs/inode.h
-index 89bd16aecc06..ba62ece9a7cc 100644
---- a/include/erofs/inode.h
-+++ b/include/erofs/inode.h
-@@ -38,7 +38,8 @@ erofs_nid_t erofs_lookupnid(struct erofs_inode *inode);
- int erofs_iflush(struct erofs_inode *inode);
- struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
- 				   const char *name);
--int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks);
-+int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks,
-+				 bool in_metazone);
- bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d);
- int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
- 		       struct stat *st, const char *path);
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 5798f10e89c2..2fe4514b3d23 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -157,6 +157,7 @@ struct erofs_sb_info {
- 	struct erofs_buffer_head *bh_devt;
- 	bool useqpl;
- 	bool sb_valid;
-+	u32 metazone_startblk;
- };
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 71e23d91123d..ea198defb531 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -385,8 +385,7 @@ static int erofs_read_folio(struct file *file, struct folio *folio)
+ 	};
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
  
- /* make sure that any user of the erofs headers has atleast 64bit off_t type */
-@@ -205,6 +206,8 @@ struct erofs_diskbuf;
- #define EROFS_INODE_DATA_SOURCE_DISKBUF		2
- #define EROFS_INODE_DATA_SOURCE_RESVSP		3
- 
-+#define EROFS_I_BLKADDR_DEV_ID_BIT		48
-+
- struct erofs_inode {
- 	struct list_head i_hash, i_subdirs, i_xattrs;
- 
-@@ -308,6 +311,11 @@ static inline bool erofs_inode_in_metabox(struct erofs_inode *inode)
- 	return inode->nid >> EROFS_DIRENT_NID_METABOX_BIT;
- }
- 
-+static inline erofs_blk_t erofs_inode_dev_baddr(struct erofs_inode *inode)
-+{
-+	return inode->u.i_blkaddr & (BIT(EROFS_I_BLKADDR_DEV_ID_BIT) - 1);
-+}
-+
- static inline erofs_off_t erofs_iloc(struct erofs_inode *inode)
- {
- 	struct erofs_sb_info *sbi = inode->sbi;
-diff --git a/lib/cache.c b/lib/cache.c
-index a87575ad74d1..f23dbb06264a 100644
---- a/lib/cache.c
-+++ b/lib/cache.c
-@@ -479,6 +479,10 @@ static int __erofs_bflush(struct erofs_bufmgr *bmgr,
- 
- 			/* flush and remove bh */
- 			ret = bh->op->flush(bh);
-+			if (__erofs_unlikely(ret == -EBUSY && !forget)) {
-+				skip = true;
-+				continue;
-+			}
- 			if (ret < 0)
- 				return ret;
- 		}
-diff --git a/lib/inode.c b/lib/inode.c
-index e44e03cf460f..88dc41b19e5b 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -194,9 +194,12 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
- }
- 
- /* allocate main data for an inode */
--int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks)
-+int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks,
-+				 bool in_metazone)
- {
--	struct erofs_bufmgr *bmgr = inode->sbi->bmgr;
-+	struct erofs_sb_info *sbi = inode->sbi;
-+	struct erofs_bufmgr *bmgr = in_metazone ?
-+		erofs_metadata_bmgr(sbi, false) : sbi->bmgr;
- 	struct erofs_buffer_head *bh;
- 	int ret, type;
- 
-@@ -206,9 +209,15 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks)
- 		return 0;
- 	}
- 
-+	if (in_metazone && !bmgr) {
-+		erofs_err("cannot allocate data in the metazone when unavailable for %s",
-+			  inode->i_srcpath);
-+		return -EINVAL;
-+	}
-+
- 	/* allocate main data buffer */
- 	type = S_ISDIR(inode->i_mode) ? DIRA : DATA;
--	bh = erofs_balloc(bmgr, type, erofs_pos(inode->sbi, nblocks), 0);
-+	bh = erofs_balloc(bmgr, type, erofs_pos(sbi, nblocks), 0);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
- 
-@@ -220,7 +229,8 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks)
- 	DBG_BUGON(ret < 0);
- 
- 	/* write blocks except for the tail-end block */
--	inode->u.i_blkaddr = bh->block->blkaddr;
-+	inode->u.i_blkaddr = bh->block->blkaddr | (in_metazone ?
-+		(sbi->extra_devices + 1ULL) << EROFS_I_BLKADDR_DEV_ID_BIT : 0);
+-	trace_erofs_read_folio(folio, true);
+-
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	iomap_read_folio(&erofs_iomap_ops, &read_ctx, &iter_ctx);
  	return 0;
  }
+@@ -400,8 +399,7 @@ static void erofs_readahead(struct readahead_control *rac)
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
  
-@@ -591,7 +601,7 @@ int erofs_write_file_from_buffer(struct erofs_inode *inode, char *buf)
- 
- 	inode->datalayout = EROFS_INODE_FLAT_INLINE;
- 
--	ret = erofs_allocate_inode_bh_data(inode, nblocks);
-+	ret = erofs_allocate_inode_bh_data(inode, nblocks, false);
- 	if (ret)
- 		return ret;
- 
-@@ -622,16 +632,17 @@ static bool erofs_file_is_compressible(struct erofs_importer *im,
- 
- static int erofs_write_unencoded_data(struct erofs_inode *inode,
- 				      struct erofs_vfile *vf, erofs_off_t fpos,
--				      bool noseek)
-+				      bool noseek, bool in_metazone)
- {
- 	struct erofs_sb_info *sbi = inode->sbi;
--	erofs_blk_t nblocks, i;
-+	struct erofs_bufmgr *bmgr;
-+	erofs_off_t remaining, pos;
- 	unsigned int len;
- 	int ret;
- 
- 	if (!noseek && erofs_sb_has_48bit(sbi)) {
--		if (erofs_io_lseek(vf, fpos, SEEK_DATA) < 0 && errno == ENXIO) {
--			ret = erofs_allocate_inode_bh_data(inode, 0);
-+		if (erofs_io_lseek(vf, fpos, SEEK_DATA) == -ENXIO) {
-+			ret = erofs_allocate_inode_bh_data(inode, 0, false);
- 			if (ret)
- 				return ret;
- 			inode->datalayout = EROFS_INODE_FLAT_PLAIN;
-@@ -640,27 +651,31 @@ static int erofs_write_unencoded_data(struct erofs_inode *inode,
- 		ret = erofs_io_lseek(vf, fpos, SEEK_SET);
- 		if (ret < 0)
- 			return ret;
--		else if (ret != fpos)
-+		if (ret != fpos)
- 			return -EIO;
- 	}
- 
--	nblocks = inode->i_size >> sbi->blkszbits;
--	ret = erofs_allocate_inode_bh_data(inode, nblocks);
-+	inode->idata_size = inode->i_size % erofs_blksiz(sbi);
-+	remaining = inode->i_size - inode->idata_size;
-+
-+	ret = erofs_allocate_inode_bh_data(inode, remaining >> sbi->blkszbits,
-+					   in_metazone);
- 	if (ret)
- 		return ret;
- 
--	for (i = 0; i < nblocks; i += (len >> sbi->blkszbits)) {
-+	bmgr = in_metazone ? erofs_metadata_bmgr(sbi, false) : sbi->bmgr;
-+	pos = erofs_pos(sbi, erofs_inode_dev_baddr(inode));
-+	while (remaining) {
- 		len = min_t(u64, round_down(UINT_MAX, 1U << sbi->blkszbits),
--			    erofs_pos(sbi, nblocks - i));
--		ret = erofs_io_xcopy(&sbi->bdev,
--				     erofs_pos(sbi, inode->u.i_blkaddr + i),
--				     vf, len, noseek);
-+			    remaining);
-+		ret = erofs_io_xcopy(bmgr->vf, pos, vf, len, noseek);
- 		if (ret)
- 			return ret;
-+		pos += len;
-+		remaining -= len;
- 	}
- 
- 	/* read the tail-end data */
--	inode->idata_size = inode->i_size % erofs_blksiz(sbi);
- 	if (inode->idata_size) {
- 		inode->idata = malloc(inode->idata_size);
- 		if (!inode->idata)
-@@ -691,10 +706,11 @@ int erofs_write_unencoded_file(struct erofs_inode *inode, int fd, u64 fpos)
- 	/* fallback to all data uncompressed */
- 	return erofs_write_unencoded_data(inode,
- 			&(struct erofs_vfile){ .fd = fd }, fpos,
--			inode->datasource == EROFS_INODE_DATA_SOURCE_DISKBUF);
-+			inode->datasource == EROFS_INODE_DATA_SOURCE_DISKBUF, false);
- }
- 
--static int erofs_write_dir_file(struct erofs_inode *dir)
-+static int erofs_write_dir_file(const struct erofs_importer *im,
-+				struct erofs_inode *dir)
- {
- 	unsigned int bsz = erofs_blksiz(dir->sbi);
- 	struct erofs_vfile *vf;
-@@ -708,7 +724,8 @@ static int erofs_write_dir_file(struct erofs_inode *dir)
- 		err = erofs_write_compress_dir(dir, vf);
- 	} else {
- 		DBG_BUGON(dir->idata_size != (dir->i_size & (bsz - 1)));
--		err = erofs_write_unencoded_data(dir, vf, 0, true);
-+		err = erofs_write_unencoded_data(dir, vf, 0, true,
-+					im->params->dirdata_in_metazone);
- 	}
- 	erofs_io_close(vf);
- 	return err;
-@@ -732,19 +749,39 @@ int erofs_iflush(struct erofs_inode *inode)
- 	struct iovec iov[2];
- 	char *xattrs = NULL;
- 	bool nlink_1 = true;
--	int ret, fmt;
-+	int ret, fmt, dev_id;
- 
- 	DBG_BUGON(bh && erofs_btell(bh, false) != off);
+ 	trace_erofs_readahead(rac->mapping->host, readahead_index(rac),
+-					readahead_count(rac), true);
 -
- 	if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode) ||
--	    S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode))
-+	    S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
- 		u1.rdev = cpu_to_le32(inode->u.i_rdev);
--	else if (is_inode_layout_compression(inode))
-+	} else if (is_inode_layout_compression(inode)) {
- 		u1.blocks_lo = cpu_to_le32(inode->u.i_blocks);
--	else if (inode->datalayout == EROFS_INODE_CHUNK_BASED)
-+	} else if (inode->datalayout == EROFS_INODE_CHUNK_BASED) {
- 		u1.c.format = cpu_to_le16(inode->u.chunkformat);
--	else
-+	} else {
-+		if (inode->u.i_blkaddr != EROFS_NULL_ADDR) {
-+			dev_id = inode->u.i_blkaddr >> EROFS_I_BLKADDR_DEV_ID_BIT;
-+
-+			if (dev_id) {
-+				if (dev_id <= sbi->extra_devices) {
-+					if (!sbi->devs[dev_id - 1].uniaddr) {
-+						DBG_BUGON(1);	/* impossible now */
-+						return -EBUSY;
-+					}
-+					inode->u.i_blkaddr += sbi->devs[dev_id - 1].uniaddr;
-+				} else {
-+					if (sbi->metazone_startblk == EROFS_META_NEW_ADDR) {
-+						DBG_BUGON(1);	/* impossible now */
-+						return -EBUSY;
-+					}
-+					DBG_BUGON(dev_id != sbi->extra_devices + 1);
-+					inode->u.i_blkaddr += sbi->metazone_startblk;
-+				}
-+			}
-+		}
- 		u1.startblk_lo = cpu_to_le32(inode->u.i_blkaddr);
-+	}
- 
- 	if (is_inode_layout_compression(inode) &&
- 	    inode->u.i_blocks > UINT32_MAX) {
-@@ -894,7 +931,7 @@ static bool erofs_inode_need_48bit(struct erofs_inode *inode)
- 			return true;
- 	} else if (!is_inode_layout_compression(inode)) {
- 		if (inode->u.i_blkaddr != EROFS_NULL_ADDR &&
--		    inode->u.i_blkaddr > UINT32_MAX)
-+		    erofs_inode_dev_baddr(inode) > UINT32_MAX)
- 			return true;
- 	}
- 	return false;
-@@ -1564,7 +1601,7 @@ static int erofs_mkfs_jobfn(const struct erofs_mkfs_btctx *ctx,
- 		return erofs_mkfs_create_directory(ctx, inode);
- 
- 	if (item->type == EROFS_MKFS_JOB_DIR_BH) {
--		ret = erofs_write_dir_file(inode);
-+		ret = erofs_write_dir_file(ctx->im, inode);
- 		if (ret)
- 			return ret;
- 		erofs_write_tail_end(inode);
-@@ -2313,7 +2350,8 @@ struct erofs_inode *erofs_mkfs_build_special_from_fd(struct erofs_importer *im,
- 	inode->datalayout = EROFS_INODE_FLAT_INLINE;
- 	ret = erofs_write_unencoded_data(inode,
- 			&(struct erofs_vfile){ .fd = fd }, 0,
--			inode->datasource == EROFS_INODE_DATA_SOURCE_DISKBUF);
-+			inode->datasource == EROFS_INODE_DATA_SOURCE_DISKBUF,
-+			false);
- 	if (ret)
- 		return ERR_PTR(ret);
- out:
-diff --git a/lib/io.c b/lib/io.c
-index 37a74f63c45e..0c5eb2c29989 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -571,10 +571,13 @@ ssize_t erofs_io_write(struct erofs_vfile *vf, void *buf, size_t len)
- 
- off_t erofs_io_lseek(struct erofs_vfile *vf, u64 offset, int whence)
- {
-+	off_t ret;
-+
- 	if (vf->ops)
- 		return vf->ops->lseek(vf, offset, whence);
- 
--	return lseek(vf->fd, offset, whence);
-+	ret = lseek(vf->fd, offset, whence);
-+	return ret < 0 ? -errno : ret;
++			      readahead_count(rac), true);
+ 	iomap_readahead(&erofs_iomap_ops, &read_ctx, &iter_ctx);
  }
  
- ssize_t erofs_io_sendfile(struct erofs_vfile *vout, struct erofs_vfile *vin,
-diff --git a/lib/metabox.c b/lib/metabox.c
-index 37267ddb73cf..d6abd5123cc8 100644
---- a/lib/metabox.c
-+++ b/lib/metabox.c
-@@ -54,7 +54,7 @@ int erofs_metadata_init(struct erofs_sb_info *sbi)
- 	struct erofs_metamgr *m2gr;
- 	int ret;
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index 932e8b353ba1..d07dc248d264 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -161,7 +161,7 @@ static int erofs_fileio_read_folio(struct file *file, struct folio *folio)
+ 	struct erofs_fileio io = {};
+ 	int err;
  
--	if (!sbi->m2gr && sbi->meta_blkaddr == EROFS_META_NEW_ADDR) {
-+	if (!sbi->m2gr && sbi->metazone_startblk == EROFS_META_NEW_ADDR) {
- 		m2gr = malloc(sizeof(*m2gr));
- 		if (!m2gr)
- 			return -ENOMEM;
-@@ -62,6 +62,8 @@ int erofs_metadata_init(struct erofs_sb_info *sbi)
- 		if (ret)
- 			goto err_free;
- 		sbi->m2gr = m2gr;
-+		/* FIXME: sbi->meta_blkaddr should be 0 for 48-bit layouts */
-+		sbi->meta_blkaddr = EROFS_META_NEW_ADDR;
- 	}
+-	trace_erofs_read_folio(folio, true);
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	err = erofs_fileio_scan_folio(&io, folio);
+ 	erofs_fileio_rq_submit(io.rq);
+ 	return err;
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 3d31f7840ca0..93ab6a481b64 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1887,7 +1887,7 @@ static int z_erofs_read_folio(struct file *file, struct folio *folio)
+ 	Z_EROFS_DEFINE_FRONTEND(f, inode, folio_pos(folio));
+ 	int err;
  
- 	if (!sbi->mxgr && erofs_sb_has_metabox(sbi)) {
-@@ -124,20 +126,24 @@ int erofs_metazone_flush(struct erofs_sb_info *sbi)
+-	trace_erofs_read_folio(folio, false);
++	trace_erofs_read_folio(inode, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, true);
+ 	err = z_erofs_scan_folio(&f, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, false);
+diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
+index dad7360f42f9..def20d06507b 100644
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -82,9 +82,9 @@ TRACE_EVENT(erofs_fill_inode,
  
- 	if (!m2gr)
- 		return 0;
--	m2bgr = m2gr->bmgr;
-+	bh = erofs_balloc(sbi->bmgr, DATA, 0, 0);
-+	if (!bh)
-+		return PTR_ERR(bh);
-+	erofs_mapbh(NULL, bh->block);
-+	pos_out = erofs_btell(bh, false);
-+	meta_blkaddr = pos_out >> sbi->blkszbits;
-+	sbi->metazone_startblk = meta_blkaddr;
+ TRACE_EVENT(erofs_read_folio,
  
-+	m2bgr = m2gr->bmgr;
- 	ret = erofs_bflush(m2bgr, NULL);
- 	if (ret)
- 		return ret;
+-	TP_PROTO(struct folio *folio, bool raw),
++	TP_PROTO(struct inode *inode, struct folio *folio, bool raw),
  
- 	length = erofs_mapbh(m2bgr, NULL) << sbi->blkszbits;
--	bh = erofs_balloc(sbi->bmgr, DATA, length, 0);
--	if (!bh)
--		return PTR_ERR(bh);
-+	ret = erofs_bh_balloon(bh, length);
-+	if (ret < 0)
-+		return ret;
+-	TP_ARGS(folio, raw),
++	TP_ARGS(inode, folio, raw),
  
--	erofs_mapbh(NULL, bh->block);
--	pos_out = erofs_btell(bh, false);
--	meta_blkaddr = pos_out >> sbi->blkszbits;
- 	do {
- 		count = min_t(erofs_off_t, length, INT_MAX);
- 		ret = erofs_io_xcopy(sbi->bmgr->vf, pos_out,
-diff --git a/lib/remotes/s3.c b/lib/remotes/s3.c
-index 223c3e89d6fd..b0ca84b51afc 100644
---- a/lib/remotes/s3.c
-+++ b/lib/remotes/s3.c
-@@ -1032,7 +1032,8 @@ static int s3erofs_remote_getobject(struct erofs_importer *im,
- 		inode->datalayout = EROFS_INODE_FLAT_PLAIN;
- 		inode->idata_size = 0;
- 		ret = erofs_allocate_inode_bh_data(inode,
--				DIV_ROUND_UP(inode->i_size, 1U << sbi->blkszbits));
-+				DIV_ROUND_UP(inode->i_size, 1U << sbi->blkszbits),
-+				false);
- 		if (ret)
- 			return ret;
- 		resp.vf = &sbi->bdev;
-diff --git a/lib/super.c b/lib/super.c
-index a4837e5702ed..0180087e184e 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -445,9 +445,9 @@ int erofs_mkfs_format_fs(struct erofs_sb_info *sbi, unsigned int blkszbits,
- 	sbi->bmgr = bmgr;
- 	bmgr->dsunit = dsunit;
- 	if (metazone)
--		sbi->meta_blkaddr = EROFS_META_NEW_ADDR;
-+		sbi->metazone_startblk = EROFS_META_NEW_ADDR;
- 	else
--		sbi->meta_blkaddr = 0;
-+		sbi->metazone_startblk = 0;
- 	bh = erofs_reserve_sb(bmgr);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
-diff --git a/lib/tar.c b/lib/tar.c
-index d5095169f9ba..1f3092566bd9 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -632,7 +632,7 @@ static int tarerofs_write_uncompressed_file(struct erofs_inode *inode,
- 	inode->datalayout = EROFS_INODE_FLAT_PLAIN;
- 	nblocks = DIV_ROUND_UP(inode->i_size, 1U << sbi->blkszbits);
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+@@ -96,9 +96,9 @@ TRACE_EVENT(erofs_read_folio,
+ 	),
  
--	ret = erofs_allocate_inode_bh_data(inode, nblocks);
-+	ret = erofs_allocate_inode_bh_data(inode, nblocks, false);
- 	if (ret)
- 		return ret;
- 
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 620b1ed2b0c3..ffcb8cf75225 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -100,7 +100,7 @@ static struct option long_options[] = {
- 	{"oci", optional_argument, NULL, 534},
- #endif
- 	{"zD", optional_argument, NULL, 536},
--	{"ZI", optional_argument, NULL, 537},
-+	{"MZ", optional_argument, NULL, 537},
- 	{"xattr-prefix", required_argument, NULL, 538},
- 	{"xattr-inode-digest", required_argument, NULL, 539},
- 	{0, 0, 0, 0},
-@@ -178,7 +178,8 @@ static void usage(int argc, char **argv)
- 		"    --mkfs-time         the timestamp is applied as build time only\n"
- 		" -UX                    use a given filesystem UUID\n"
- 		" --zD[=<0|1>]           specify directory compression: 0=disable [default], 1=enable\n"
--		" --ZI[=<0|1>]           specify the separate inode metadata zone availability: 0=disable [default], 1=enable\n"
-+		" --MZ[=<0|[id]>]        put inode metadata ('i') and/or directory data ('d') into the separate metadata zone.\n"
-+		"                        No argument enables both.  0=disable [default].\n"
- 		" --all-root             make all files owned by root\n"
- #ifdef EROFS_MT_ENABLED
- 		" --async-queue-limit=#  specify the maximum number of entries in the multi-threaded job queue\n"
-@@ -1411,10 +1412,28 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
- 			}
- 			break;
- 		case 537:
--			if (!optarg || strcmp(optarg, "1"))
-+			if (!optarg) {
- 				mkfscfg.inode_metazone = true;
--			else
-+				params->dirdata_in_metazone = true;
-+			} else if (!strcmp(optarg, "0")) {
- 				mkfscfg.inode_metazone = false;
-+				params->dirdata_in_metazone = false;
-+			} else {
-+				for (i = 0; optarg[i]; ++i) {
-+					if (optarg[i] == 'i') {
-+						mkfscfg.inode_metazone = true;
-+					} else if (optarg[i] == 'd') {
-+						params->dirdata_in_metazone = true;
-+					} else {
-+						erofs_err("invalid metazone flags `%s`", optarg);
-+						return -EINVAL;
-+					}
-+				}
-+				if (params->dirdata_in_metazone && !mkfscfg.inode_metazone) {
-+					erofs_err("inode metadata must be in the metadata zone if directory data is stored there");
-+					return -EINVAL;
-+				}
-+			}
- 			break;
- 		case 538:
- 			errno = 0;
+ 	TP_fast_assign(
+-		__entry->dev	= folio->mapping->host->i_sb->s_dev;
+-		__entry->nid	= EROFS_I(folio->mapping->host)->nid;
+-		__entry->dir	= S_ISDIR(folio->mapping->host->i_mode);
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_I(inode)->nid;
++		__entry->dir	= S_ISDIR(inode->i_mode);
+ 		__entry->index	= folio->index;
+ 		__entry->uptodate = folio_test_uptodate(folio);
+ 		__entry->raw = raw;
 -- 
-2.43.5
+2.22.0
 
 
