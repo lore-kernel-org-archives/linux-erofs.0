@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-2087-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2088-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADD81D2ED0F
-	for <linux-erofs@archiver.kernel.org>; Tue, 20 Jan 2026 13:20:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 651B6D2ECF7
+	for <linux-erofs@archiver.kernel.org>; Tue, 20 Jan 2026 13:21:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dwScM0n9vz3bmR;
-	Wed, 21 Jan 2026 00:20:19 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dwSfC6gpmz3bt9;
+	Wed, 21 Jan 2026 00:21:55 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768915219;
-	cv=none; b=QLSMk8G2h/REDzMfW301PNIHiFvRmK39cRL19tmsxbnMSJQojpDCldOp+oyuDquWtWr1i1SvJowgSAfvL9IQKCnpE/M4jN6FmKwLUnwXrZ0Frif2WxykWppQYJtVFqQh4BXI7cOw7/mz4TTvteCR8jUpHBMXF7zvlN8LGJr2oLBx0DSlr0eG+GDTx9Gj2ybIHg2ouEd5lC6DzT+mZ3jSmn6Y+DbhG8IM3+CPwHYqx1nc/zYARSUt627XZbeJmZ1uCwpwpDhuQfYLuhTlabWGIV1NKrlFEjGbHDT01lHHIHMnAcCM19W11qVmw7rzYVFByme5WanLrO9ldtfd80QuBw==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768915315;
+	cv=none; b=k5Y5UpLEb6ZdUVWljtBzPfVSnEKad1WuiIchkmKOH/eBMML4Rg+dpxPD3G+v546WpKy5Az9ZhwI6qQ1GUOv0izwFs7t5SoG35OFeQCZ3l02t8PhvpUR+rOlrBqaqTDht1QABChnEYaS6E6H2WwHFnu87VDIWtb7WeS/i6B8UJH/ZkrrVUm54UaVZaK7XxTYaJozs+vvoIwA/bgyK1DIxkqgM7+KXZLjrlJUJcbD9ULaGuDLPiZTJCc07pQMehBhxEdrwHEyMafMKVAChjip6J+wHFsrzNPOMRvVh0NXCT9HfUaK4ooL2O2qi49qK+S5ofxteGdwFtUlldJU5q42e7g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1768915219; c=relaxed/relaxed;
-	bh=i8M3unCvvvCXXWqYVTWs6YOmSdeAHHZ28NvKcawP/Mc=;
+	t=1768915315; c=relaxed/relaxed;
+	bh=ibUPede0USBPjxkDuhY4QOK6BHW2ig1Fvu6koEcKyLk=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Fq9TriF6m1/jR6cYfmGiSTsI6D2iX96dKkind/MWohLEm/nCdIo3sDdp5R2MVC+Ll+ToCwi+OKQ4/38QvUqA07xHLvKJlLUpPkmQoIXVoksxM2CfLXFUvtu25lFSubIz9l0coDVMVnDeRLBYo0EUsKaTf1qlu0jiW9ZJHUQBW0hZjs1Y8AEmbUYcWsT032+g5IZ/etI93zl3Tw7eB7t/URYhKwql2xWyqwUryJPxMXAUNTDo1ZSKngkq5Ld5ZjzprLbNfLiBAToeZA+6P207xeNQAPPSKLt9e7ygpG+qQERKkG7fbE3b9fM2T8LeiN7+yJ/LVeCxk6IM8/Z9Reg74Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=BtzWd0dX; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:MIME-Version; b=cut7HMytdsCV50yJh9jWwJPhtc6Ta3tWJAYPAfN1ujOyYOzhv1H+fsMWCbHUXC0n6nJgL19OhmNDzauGKoaX8Cfr3ilsq4CxtybBjWhy+sSsJyMOireY6SuvGpXtGOpXOJOMc//Sa90B7NUia7Iv/ABObfa/M7PLYdH1Hdm4AjThUVTdgCqS8Q0QFDt8hDOu3X4uuo4lPLQJllvIJZyBvr0aDArMIBAVnv0Sn3e3+OpEU4pxdFQ/A2PahDc03+WU07cBD6xYcIL2GoUeUc+jCVka7lPhxEvFgyulA7aEoo7BwKjheUGfIBUm0nP5HDl5qovUAKGdotr/OrIicizECA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=HArzV8jG; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=BtzWd0dX;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=HArzV8jG;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=jlayton@kernel.org; receiver=lists.ozlabs.org)
 Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dwScK15Gbz3bmM
-	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Jan 2026 00:20:17 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dwSfC1K4yz3bmM
+	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Jan 2026 00:21:55 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id 962E660153;
-	Tue, 20 Jan 2026 13:20:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 672F2C16AAE;
-	Tue, 20 Jan 2026 13:20:07 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 393B060131;
+	Tue, 20 Jan 2026 13:21:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB2EC16AAE;
+	Tue, 20 Jan 2026 13:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768915214;
-	bh=2q4hi60bazvcilbJNiRaJ1JXOg/rrf7FitaJTcVDTb8=;
+	s=k20201202; t=1768915312;
+	bh=f2qFmDHnAGeH2DQsfDbKX6ov0cXKUQc3FlYWkzQ0G+o=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=BtzWd0dX8xBjfl+Rd+agDtCA43l7AAkFA/UsKIDl9a7o4TBkTAytTBAuUr0Qyuh75
-	 2N7fm3ZAHeK0SWNrzZRWqfSRMDMMqT3mpkwnv7lmITCL2CwjeO/xepTD7gyE7YHLl2
-	 gM+m3vW5GHY1o82g5ze5dgIN3bLPNkibscKkg0isZRuq/GGlvGiuzt3eWvg3a5Pl2D
-	 7Xay7ZOUmajqckfhjbuheztwcouRty0bEYtF4WcXwaAwtOWOwNnr8WWChOTQqMKgHX
-	 B428QQ2/IOEF+hZbWNjI/5dC68aGe6BBGOTCHedvnLkRZD6kmneMW0MiewKug88TR0
-	 XdKyqpB0lgjYQ==
-Message-ID: <9b64bed72e43d0bf24e9b1e3bc770c4a87082762.camel@kernel.org>
-Subject: Re: [PATCH v2 01/31] Documentation: document EXPORT_OP_NOLOCKS
+	b=HArzV8jGiJF9EjuBcuhlJs4TShV4NxERmXFPUT+J8+gfAJ4DE490qIALJ076bILOb
+	 e408+yivjAyOomjEdqgF7pCaN/qMG9T58VsCZ+YqBNrLJMz+X7GC3/EKUmI1086fJz
+	 MjiZ9qewu5a5y2wbA741RboftmNGOHR283JnbrHlWH2I1F6Ud3GfwTl2MLTVOi85M3
+	 vu6PPer10vwGTgfXrjWnVB6g2DP0q2XLjum5hcNA35pe4SEs/CtQqpZE1o1MPwISke
+	 0OB6jpokJJJ+B9F86zTx8EgeG2ymAYs0Cvj1uS+q0lVb6LwtO5ZRJTXF9J9DnnB/xd
+	 V7CI25VZpkgCg==
+Message-ID: <a4c6b9cb5617fdea92739e85ff1a29da1ac14f30.camel@kernel.org>
+Subject: Re: [PATCH v2 02/31] exportfs: add new EXPORT_OP_STABLE_HANDLES flag
 From: Jeff Layton <jlayton@kernel.org>
 To: Christoph Hellwig <hch@infradead.org>
 Cc: Christian Brauner <brauner@kernel.org>, Alexander Viro	
@@ -89,11 +89,11 @@ Cc: Christian Brauner <brauner@kernel.org>, Alexander Viro
 	jfs-discussion@lists.sourceforge.net, linux-mtd@lists.infradead.org, 
 	gfs2@lists.linux.dev, linux-f2fs-devel@lists.sourceforge.net, 
 	linux-doc@vger.kernel.org
-Date: Tue, 20 Jan 2026 08:20:06 -0500
-In-Reply-To: <aW8yV6v8ZDiynOUm@infradead.org>
+Date: Tue, 20 Jan 2026 08:21:45 -0500
+In-Reply-To: <aW8ztQ-RbhxwzMk7@infradead.org>
 References: <20260119-exportfs-nfsd-v2-0-d93368f903bd@kernel.org>
-	 <20260119-exportfs-nfsd-v2-1-d93368f903bd@kernel.org>
-	 <aW8yV6v8ZDiynOUm@infradead.org>
+	 <20260119-exportfs-nfsd-v2-2-d93368f903bd@kernel.org>
+	 <aW8ztQ-RbhxwzMk7@infradead.org>
 Autocrypt: addr=jlayton@kernel.org; prefer-encrypt=mutual;
  keydata=mQINBE6V0TwBEADXhJg7s8wFDwBMEvn0qyhAnzFLTOCHooMZyx7XO7dAiIhDSi7G1NPxw
  n8jdFUQMCR/GlpozMFlSFiZXiObE7sef9rTtM68ukUyZM4pJ9l0KjQNgDJ6Fr342Htkjxu/kFV1Wv
@@ -183,22 +183,44 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 
-On Mon, 2026-01-19 at 23:44 -0800, Christoph Hellwig wrote:
-> On Mon, Jan 19, 2026 at 11:26:18AM -0500, Jeff Layton wrote:
-> > +  EXPORT_OP_NOLOCKS - Disable file locking on this filesystem. Some
-> > +    filesystems cannot properly support file locking as implemented by
-> > +    nfsd. A case in point is reexport of NFS itself, which can't be do=
-ne
-> > +    safely without coordinating the grace period handling. Other clust=
-ered
-> > +    and networked filesystems can be problematic here as well.
+On Mon, 2026-01-19 at 23:50 -0800, Christoph Hellwig wrote:
+> On Mon, Jan 19, 2026 at 11:26:19AM -0500, Jeff Layton wrote:
+> > +  EXPORT_OP_STABLE_HANDLES - This filesystem provides filehandles that=
+ are
+> > +    stable across the lifetime of a file. This is a hard requirement f=
+or export
+> > +    via nfsd. Any filesystem that is eligible to be exported via nfsd =
+must
+> > +    indicate this guarantee by setting this flag. Most disk-based file=
+systems
+> > +    can do this naturally. Pseudofilesystems that are for local report=
+ing and
+> > +    control (e.g. kernfs, pidfs, nsfs) usually can't support this.
 >=20
-> I'm not sure this is very useful.  It really needs to document what
-> locking semantics nfs expects, because otherwise no reader will know
-> if they set this or not.
+> Suggested rewording, taking some of the ideas from Dave Chinners earlier
+> comments into account:
+>=20
+>   EXPORT_OP_STABLE_HANDLES - This filesystem provides filehandles that ar=
+e
+>     stable across the lifetime of a file.  A file in this context is an
+>     instantiated inode reachable by one or more file names, or still open=
+ after
+>     the last name has been unlinked.  Reuses of the same on-disk inode st=
+ructure
+>     are considered new files and must provide different file handles from=
+ the
+>     previous incarnation.  Most file systems designed to store user data
+>     naturally provide this capability.  Pseudofilesystems that are for lo=
+cal
+>     reporting and control (e.g. kernfs, pidfs, nsfs) usually can't suppor=
+t this.
+>=20
+>     This flags is a hard requirement for export via nfsd. Any filesystem =
+that
+>     is eligible to be exported via nfsd must indicate this guarantee by
+>     setting this flag.
 
-Fair point. I'll see if I can draft something better. Suggestions
-welcome.
+Thanks Christoph! I'll plan to adopt this for v3.
 --=20
 Jeff Layton <jlayton@kernel.org>
 
