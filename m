@@ -1,48 +1,48 @@
-Return-Path: <linux-erofs+bounces-2117-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2118-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91BECC44501
-	for <linux-erofs@archiver.kernel.org>; Wed, 21 Jan 2026 10:00:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29B09C44501
+	for <linux-erofs@archiver.kernel.org>; Wed, 21 Jan 2026 10:01:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dx07S28q9z309C;
-	Wed, 21 Jan 2026 21:00:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dx08k51Vcz309S;
+	Wed, 21 Jan 2026 21:01:42 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:7c80:54:3::133"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768989636;
-	cv=none; b=elTeO0a8ycGis0qCysQrhrY1ty18ykxbHhQK/tsT01zgsc7aNYC6B/dIz6yFVXOYrgvUi6tp3x8aJFogqEhNX+azKGstNMFPzWZN+KprmxSsTvapqLQr4lhRjAWt6ZZsHu2anefSjYo/P4xUhCOcVzJf10iXB3qroe5bVtZnGiT8HWhENKL6uhjIBXP2e1roYqlu4wGaiJJeQNtLOKMk/xjU1YynJXHiKOw5gobRGpT+3ln0CnxyUpwaZzLWbk5jqWSfmqYAn6bX8kipLGWRi62tv8whMtD+6ydkRmY4GKr/K+dae3MwmDAiEbGkW4kj3tSWGX1kqbT20z+A6eE9IQ==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1768989702;
+	cv=none; b=Tl599lM+UndC49E86+Dg4DJBZJdqnAxfSGKwBhwpxuJlCZL/G4A6Hb6vy/6xNa+AsIlntMN3zX4lXuHR9s4pbqShXcWDxCHaINW1sim2Xax2hO09T5i7xYmncGjlF0vYw4qqpTKU3+QE5/TvRh57mQNzjmraIbc0LJvZQpxdIGNTN2zbNd68bLtDnbnB6XZ0L9yaTyVp7c/4BLAqWIzRvZYVZ2/ZUDPuIUveiVenZGzXwwXYTq7qfOyBr8NLqzUKIziC0LpFBHjCliBIcCVlgLgnnlsu7zOt+H0GtxqzaLXUO8FGrAwP7A+yNUIqjAg+WL5tbp9ZbKpuQrzstWezIQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1768989636; c=relaxed/relaxed;
-	bh=wMbWURXBKlERnmrf5QHs0kPUbIXlx/juA5w6FY/x4Mo=;
+	t=1768989702; c=relaxed/relaxed;
+	bh=GioNW15OomQxHDkrEn0KiwooaQGMLNQRkXTreUFMIec=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cNb2JEDFpwGGSEiY9KgDYYbbAvdXuq14owN/coCGbrbUgnFLKJAj6aXkj1LYFYjJSe+Plkjj4HXG9JPGFmg5dBvAU9/E9dk//zexhtw7w+v2FkyotVBXFRRjTBJifrZye49g9mHZm55XV55usbZqJ6C3Gb5AR3/tvs6yaZBhJOXyjPFgXQxcV4bJwRVQpreyjGfghP/eGHWryl4dFTtAYsJPrFFdzQSPUQQ9y8istN/k4Gg3g1idCsVZDIVBAajtJoIDtwTbpuRF22KqcIbPvJq5Qi6YUoZjXvesZfTO+FDj5gPpimjbZspDyFYh+vmDCevlU/mjJ4mBipbghq69ZQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org; dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=pQX0zA99; dkim-atps=neutral; spf=none (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+bcc91a9d4ebb8e7eb2a7+8186+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=bombadil.srs.infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=JGhHlm7OOL4BvmjSvy/S6L6FwW3i7lSUNbsp6kLpDlkGqJkZGX2X2V1V4x/H8ie6Rf0Q3ZWS5omW+hAtSwjc51dVIUhkO6EdtO3TFhmmOPZ6AAV29B3gDiEwmT1k22SjcP2rAXEAm7tArnwP8SmIa9dHowG/RaIfD/vjJwUu4lReL3flLBS4q4+DI6GL3dMhvA63nTbBrDG1W32m/7NQuMpFQ1Ay1O8MlZKIrLxhaqLGihDO3d6rsxoRRoHBraHgSuBJ86wWuEYa6gehJCiARLGj1bT7shGwPPzDRo6IrMjj2IQvMIbLxAMHTynWL9dSCCdAf1ZRD8EvT0JbsPzQMA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org; dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=EaSvsuv1; dkim-atps=neutral; spf=none (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+bcc91a9d4ebb8e7eb2a7+8186+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=pQX0zA99;
+	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=EaSvsuv1;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+bcc91a9d4ebb8e7eb2a7+8186+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org)
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dx07R5FQxz2xm5
-	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Jan 2026 21:00:35 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dx08k11V0z309H
+	for <linux-erofs@lists.ozlabs.org>; Wed, 21 Jan 2026 21:01:42 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
 	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=wMbWURXBKlERnmrf5QHs0kPUbIXlx/juA5w6FY/x4Mo=; b=pQX0zA99VzZEIlAcpAlPuQefUS
-	jy9CjjLBfeNNN1FNJitVD8JqerILO8jjC2fZiCCKiOnZ+AFbjn1TYpqjbQaKf+C8/KRnnpzD3SGrm
-	1PWJ9D0VnaLF05hqis2S5I41XDL1jyEKDnD+EFR38vRrwM8QPEg3EqDl695fgD/6Ar8xKBHcmKyax
-	7put0Wn3gyLR7YcoxmrK+vm9eU0JdOvfRB2prGJ/Am84hKoGOlEzX9X79ne8Tfk9prDNrEldtzRiA
-	ijbo3W0+o5oEyQQ0Ds62PvFNcq+zxEq6evP7CKwgfSi+8rKZW1NE7FntT3VSj7fEic6gmCvCHtw/f
-	BXWot+KA==;
+	bh=GioNW15OomQxHDkrEn0KiwooaQGMLNQRkXTreUFMIec=; b=EaSvsuv1TZU2mN64SuI/yRVvS1
+	3Rh/o5w7ffYW9KHMX3qJFZZJY4Zzl1PqNJPpWxGM180BKBkt1SVZFGf8QKJcPb0NWjtvv122nEg1H
+	OzFKwZ0gcBbQvObpgoOE/2S+Akn4EjCCUUrNtIIKyHvXpH4dzmYWnUtYA/DxyVwWVYhx9ZlF2yvok
+	Jrg9DRyKF5qf1NZ8Tm6yVvdUHQyxI2EoJTmHc6/BHt1VYfHI5t8QgU5fVVRxuVw0cApsiz1v6k8h0
+	KfPlNLRNbSqHEjiliAGF0iIZ/4UIT4AbAx2DF6R6e2q5SykjxB6n79Ri9aRji9M3oB2bi2qkRcfmf
+	m1yhErTQ==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1viV0b-00000005EMZ-1e4Z;
-	Wed, 21 Jan 2026 10:00:17 +0000
-Date: Wed, 21 Jan 2026 02:00:17 -0800
+	id 1viV1i-00000005ETt-0UQN;
+	Wed, 21 Jan 2026 10:01:26 +0000
+Date: Wed, 21 Jan 2026 02:01:26 -0800
 From: Christoph Hellwig <hch@infradead.org>
 To: Jeff Layton <jlayton@kernel.org>
 Cc: Christian Brauner <brauner@kernel.org>, NeilBrown <neil@brown.name>,
@@ -99,7 +99,7 @@ Cc: Christian Brauner <brauner@kernel.org>, NeilBrown <neil@brown.name>,
 	gfs2@lists.linux.dev, linux-f2fs-devel@lists.sourceforge.net
 Subject: Re: [PATCH 00/29] fs: require filesystems to explicitly opt-in to
  nfsd export support
-Message-ID: <aXCjsTBnHGuqTJdb@infradead.org>
+Message-ID: <aXCj9ooYaqsL9oyP@infradead.org>
 References: <9c99197dde2eafa55a1b55dce2f0d4d02c77340a.camel@kernel.org>
  <176877859306.16766.15009835437490907207@noble.neil.brown.name>
  <aW3SAKIr_QsnEE5Q@infradead.org>
@@ -127,23 +127,14 @@ In-Reply-To: <a35ac736d9ebc6c92a6e7d61aeb5198234102442.camel@kernel.org>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
 On Tue, Jan 20, 2026 at 07:50:32AM -0500, Jeff Layton wrote:
-> > > and it DOES provide stable filehandles.
-> > 
-> 
-> Across reboot? Not really.
-> 
-> It's quite possible that we may end up with the same "id" numbers in
-> cgroupfs on a new incarnation of the filesystem after a reboot. The
-> files in there are not the same ones as the ones before, but their
-> filehandles may match because kernfs doesn't factor in an i_generation
-> number.
-> 
-> Could we fix it by adding a random i_generation value or something?
-> Possibly, but there really isn't a good use-case that I can see for
-> allowing cgroupfs to be exported via nfsd. Best to disallow it until
-> someone comes up with one.
+> At this point, maybe we should just go with Neil's 
+> EXPORT_OP_SUPPORTS_NFS_EXPORT or something. It's much more arbitrary,
+> than trying to base this on criteria about filehandle stability, but it
+> would give us the effect we want.
 
-Yeah.  And I'm pretty sure everyone here will push back hard on any
-such use case.
+We'll still need a stable handles flag, and expose it to userspace
+to avoid applications being tricked into using broken non-stable
+file handles.  We should have caught that when they were added, but
+didn't unfortunately.
 
 
