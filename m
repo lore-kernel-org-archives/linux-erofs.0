@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-2165-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2166-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD903D3EE89
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jan 2026 15:47:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4469BD3EE86
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jan 2026 15:47:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dxlmy6mK1z2yFm;
-	Fri, 23 Jan 2026 02:47:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.223
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769096834;
-	cv=none; b=d21mMBC6hdopIavAezfkOkeXdz1MPKM9yqkKobd3qTMLcu1p+hMipkarq7oaw+aNqBMRyo2v2sTNa1iXmVu+iYp7ZtFL15h9JAIvgOy2RRMYFYSdqbjVFHv4dByFbpVd4+UXzAYHAGnZ5wpvYXLaC4R5SmpvmFDtQL2vDJy5nHxGK+75+IbarP0nQPyJU6KFq6YQ1VM1fKn7dTUONNgHzaLqI37Kh8QY1nLJ/fS++EwA8d5XL9eMCarL+EbNq/Bmv6fv62SmRRXTZGfXwYmLD0IUv6I1x8j//peZ4h0KbnN91nXIs4CniBYyDarLhhuXI7nUpnG+6K7gtWb1UaNjAA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dxlmz745sz2yql;
+	Fri, 23 Jan 2026 02:47:15 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.221
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769096835;
+	cv=none; b=SCksqu79SSoRuA9GomX2RYro88uaFlW5ZAXMDAWl/QPMGaKrd7tDFIrsxoAl4KhRS0QcDVoc/50fsxNCpr5S7ZQbT43uCSa6qmfajmI/41ZHCWHtT6thZ4FR+8a3OtyoF9khNO6xeZ7bWufFbjn8UQQ8E76YrbLoXwoFHpw9OYyT95ADjBh2jXQ+/GSwHCV35VvaynGL/HEPo7rVjf8BVh9Aseb8+HJ0fChL3N+/KD4+mhyhINRmrp25omiGU2SjFX01CJsyHrTQEnF7+ttIn2KHLhLehF5HWyeLE1L3dey5RBoHWjLZsLBvXAlB2xim17aOy3bbnnzjV4i4Ji5YZA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1769096834; c=relaxed/relaxed;
-	bh=QqSfxPfujpN7eymI2ZrcsWZPzRbFHZJFWOBUz2J8E8c=;
+	t=1769096835; c=relaxed/relaxed;
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=g3v6HbsBeCjDGEyk560M7/pG/sGpkPqeP6dXwJVcJpnFfHTQSLLPYcNbxsCn3ciuUubnuPJpnlFkBui9S/rBEjmR8iQNvx8ZYu2XfHElX40acvB9olCVZPFWpQhU2ryZ7XfOFMeGVwgok2X0ejh4l/EIH2tnaE5Qv+XmSIgRauNLYtfO+6Xu6IRKlef9h8xLnjPr0az9jav6Kikt0Rb3C3BZB8c0ujr+8W0YYfhkc5SRdspGpavBEPa3ExyZtbwiUcjKJCZ553fTaVrH15sxWKIoSXCaNo1VQchMAS/uayvbzSgrwmedP7xKONPXHcq10hTgcZKqNdqSxYBwL2wHUw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=wkB/k3UG; dkim-atps=neutral; spf=pass (client-ip=113.46.200.223; helo=canpmsgout08.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=KIZLJpaeuMPB3LPUJsuvJzsiVxkWFU5I8tFght+vb+Bku5Znt3rRuLQ/3W1eJ7Js88xRY123Ia8xkmPV2skrn6APLAK+4uJ0JoE0BKcSVpJFAm0/NEIGajt00EjuTQKVRioV4HH3m0geoBmTylHR5hdi6eB0hT9A2hz1Z99SNlqSVNeIqj0clYt4mZWTO/IG1WTxa4UvK+l2DppJyLBjXIVVnVGsxCrJFBZrdDA+X15I9QELdYmKbPK5mX9zXthUJbWGXQvuod4mBeEnlKgGuUZJVCT8jiuxHGgRHExbg2fng4EdQBONUifcEghHromo8GFsOBQvaUsBUmgEnvYthw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+; dkim-atps=neutral; spf=pass (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=wkB/k3UG;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.223; helo=canpmsgout08.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout08.his.huawei.com (canpmsgout08.his.huawei.com [113.46.200.223])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dxlms5c0mz2yql
-	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 02:47:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dxlmw37GDz308l
+	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 02:47:12 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=QqSfxPfujpN7eymI2ZrcsWZPzRbFHZJFWOBUz2J8E8c=;
-	b=wkB/k3UG20e+95A8eSbEb5xUp0/zduIobFj4GU0J5jk8Q3varvFOUf3FP9m2Nd/sthsnFWZqy
-	YH35fYzD+MQV8oYmQSVuTvWBgyX1JkdcKwNRx5Mg/Ft0jeLoUgeHClcxurVjFtpKSxKfWqfFsT6
-	Zhd4BoYeGvOZ2ldyRXULCI4=
-Received: from mail.maildlp.com (unknown [172.19.163.127])
-	by canpmsgout08.his.huawei.com (SkyGuard) with ESMTPS id 4dxlhq3MHlzmV8f;
-	Thu, 22 Jan 2026 23:43:39 +0800 (CST)
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
+	b=KapezA4+MCeSj48QqqVvPW7LPUYp4jPdBukSP5ooqAFz01Ftxgpi75y/Zhe5UGZ/VSty9Vagc
+	P0a9tkuDKZJeisET9D/JJZV1MFx4eK5Kb5sOW9B9yIcyw9K/myBKx1XOMqor0+DmFtqp3b+2oCt
+	XyCYJDNR1AaQnDQRFg8QCe4=
+Received: from mail.maildlp.com (unknown [172.19.162.140])
+	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4dxlhr5CstzRhR4;
+	Thu, 22 Jan 2026 23:43:40 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9A9C3402AB;
-	Thu, 22 Jan 2026 23:47:04 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 7DEA22016A;
+	Thu, 22 Jan 2026 23:47:05 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 22 Jan
- 2026 23:47:03 +0800
+ 2026 23:47:04 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
 CC: <hch@lst.de>, <djwong@kernel.org>, <amir73il@gmail.com>,
 	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
 	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
-Subject: [PATCH v17 05/10] erofs: using domain_id in the safer way
-Date: Thu, 22 Jan 2026 15:34:01 +0000
-Message-ID: <20260122153406.660073-6-lihongbo22@huawei.com>
+Subject: [PATCH v17 07/10] erofs: pass inode to trace_erofs_read_folio
+Date: Thu, 22 Jan 2026 15:34:03 +0000
+Message-ID: <20260122153406.660073-8-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20260122153406.660073-1-lihongbo22@huawei.com>
 References: <20260122153406.660073-1-lihongbo22@huawei.com>
@@ -74,98 +74,99 @@ X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
  kwepemr500015.china.huawei.com (7.202.195.162)
 
-Either the existing fscache usecase or the upcoming page
-cache sharing case, the `domain_id` should be protected as
-sensitive information, so we use the safer helpers to allocate,
-free and display domain_id.
+The trace_erofs_read_folio accesses inode information through folio,
+but this method fails if the real inode is not associated with the
+folio(such as for the uncomping page cache sharing case). Therefore,
+we pass the real inode to it so that the inode information can be
+printed out in that case.
 
 Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
 ---
- Documentation/filesystems/erofs.rst | 5 +++--
- fs/erofs/fscache.c                  | 6 +++---
- fs/erofs/super.c                    | 8 ++++----
- 3 files changed, 10 insertions(+), 9 deletions(-)
+ fs/erofs/data.c              |  6 ++----
+ fs/erofs/fileio.c            |  2 +-
+ fs/erofs/zdata.c             |  2 +-
+ include/trace/events/erofs.h | 10 +++++-----
+ 4 files changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
-index 08194f194b94..40dbf3b6a35f 100644
---- a/Documentation/filesystems/erofs.rst
-+++ b/Documentation/filesystems/erofs.rst
-@@ -126,8 +126,9 @@ dax={always,never}     Use direct access (no page cache).  See
- dax                    A legacy option which is an alias for ``dax=always``.
- device=%s              Specify a path to an extra device to be used together.
- fsid=%s                Specify a filesystem image ID for Fscache back-end.
--domain_id=%s           Specify a domain ID in fscache mode so that different images
--                       with the same blobs under a given domain ID can share storage.
-+domain_id=%s           Specify a trusted domain ID for fscache mode so that
-+                       different images with the same blobs, identified by blob IDs,
-+                       can share storage within the same trusted domain.
- fsoffset=%llu          Specify block-aligned filesystem offset for the primary device.
- ===================    =========================================================
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 71e23d91123d..ea198defb531 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -385,8 +385,7 @@ static int erofs_read_folio(struct file *file, struct folio *folio)
+ 	};
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
  
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index f4937b025038..cd7847fd2670 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -379,7 +379,7 @@ static void erofs_fscache_domain_put(struct erofs_domain *domain)
- 		}
- 		fscache_relinquish_volume(domain->volume, NULL, false);
- 		mutex_unlock(&erofs_domain_list_lock);
--		kfree(domain->domain_id);
-+		kfree_sensitive(domain->domain_id);
- 		kfree(domain);
- 		return;
- 	}
-@@ -407,7 +407,7 @@ static int erofs_fscache_register_volume(struct super_block *sb)
- 	}
- 
- 	sbi->volume = volume;
--	kfree(name);
-+	domain_id ? kfree_sensitive(name) : kfree(name);
- 	return ret;
- }
- 
-@@ -446,7 +446,7 @@ static int erofs_fscache_init_domain(struct super_block *sb)
- 	sbi->domain = domain;
+-	trace_erofs_read_folio(folio, true);
+-
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	iomap_read_folio(&erofs_iomap_ops, &read_ctx, &iter_ctx);
  	return 0;
- out:
--	kfree(domain->domain_id);
-+	kfree_sensitive(domain->domain_id);
- 	kfree(domain);
- 	return err;
  }
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index dca1445f6c92..6fbe9220303a 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -525,8 +525,8 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 			return -ENOMEM;
- 		break;
- 	case Opt_domain_id:
--		kfree(sbi->domain_id);
--		sbi->domain_id = kstrdup(param->string, GFP_KERNEL);
-+		kfree_sensitive(sbi->domain_id);
-+		sbi->domain_id = no_free_ptr(param->string);
- 		if (!sbi->domain_id)
- 			return -ENOMEM;
- 		break;
-@@ -624,7 +624,7 @@ static void erofs_set_sysfs_name(struct super_block *sb)
- {
- 	struct erofs_sb_info *sbi = EROFS_SB(sb);
+@@ -400,8 +399,7 @@ static void erofs_readahead(struct readahead_control *rac)
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
  
--	if (sbi->domain_id)
-+	if (sbi->domain_id && sbi->fsid)
- 		super_set_sysfs_name_generic(sb, "%s,%s", sbi->domain_id,
- 					     sbi->fsid);
- 	else if (sbi->fsid)
-@@ -852,7 +852,7 @@ static void erofs_sb_free(struct erofs_sb_info *sbi)
- {
- 	erofs_free_dev_context(sbi->devs);
- 	kfree(sbi->fsid);
--	kfree(sbi->domain_id);
-+	kfree_sensitive(sbi->domain_id);
- 	if (sbi->dif0.file)
- 		fput(sbi->dif0.file);
- 	kfree(sbi->volume_name);
+ 	trace_erofs_readahead(rac->mapping->host, readahead_index(rac),
+-					readahead_count(rac), true);
+-
++			      readahead_count(rac), true);
+ 	iomap_readahead(&erofs_iomap_ops, &read_ctx, &iter_ctx);
+ }
+ 
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index 932e8b353ba1..d07dc248d264 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -161,7 +161,7 @@ static int erofs_fileio_read_folio(struct file *file, struct folio *folio)
+ 	struct erofs_fileio io = {};
+ 	int err;
+ 
+-	trace_erofs_read_folio(folio, true);
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	err = erofs_fileio_scan_folio(&io, folio);
+ 	erofs_fileio_rq_submit(io.rq);
+ 	return err;
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 3d31f7840ca0..93ab6a481b64 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1887,7 +1887,7 @@ static int z_erofs_read_folio(struct file *file, struct folio *folio)
+ 	Z_EROFS_DEFINE_FRONTEND(f, inode, folio_pos(folio));
+ 	int err;
+ 
+-	trace_erofs_read_folio(folio, false);
++	trace_erofs_read_folio(inode, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, true);
+ 	err = z_erofs_scan_folio(&f, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, false);
+diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
+index dad7360f42f9..def20d06507b 100644
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -82,9 +82,9 @@ TRACE_EVENT(erofs_fill_inode,
+ 
+ TRACE_EVENT(erofs_read_folio,
+ 
+-	TP_PROTO(struct folio *folio, bool raw),
++	TP_PROTO(struct inode *inode, struct folio *folio, bool raw),
+ 
+-	TP_ARGS(folio, raw),
++	TP_ARGS(inode, folio, raw),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+@@ -96,9 +96,9 @@ TRACE_EVENT(erofs_read_folio,
+ 	),
+ 
+ 	TP_fast_assign(
+-		__entry->dev	= folio->mapping->host->i_sb->s_dev;
+-		__entry->nid	= EROFS_I(folio->mapping->host)->nid;
+-		__entry->dir	= S_ISDIR(folio->mapping->host->i_mode);
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_I(inode)->nid;
++		__entry->dir	= S_ISDIR(inode->i_mode);
+ 		__entry->index	= folio->index;
+ 		__entry->uptodate = folio_test_uptodate(folio);
+ 		__entry->raw = raw;
 -- 
 2.22.0
 
