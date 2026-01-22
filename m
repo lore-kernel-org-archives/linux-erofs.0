@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-2145-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2146-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80478D3EE6A
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jan 2026 13:50:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 801B7D3EE68
+	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jan 2026 13:50:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dxjBC3fNdz30M6;
-	Fri, 23 Jan 2026 00:50:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.221
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769089827;
-	cv=none; b=kOPPLkz+s164RcMQ7HCS1g78YR9HmBPeDOVCmEFkWzlMjP5ApDxyRaVvSZTwRdiODcZ+qL0O8Kee63RjnYFeghV+AFmxKXibdQ6tJzakoyCuo9XS3TsCqCRdRtw+uAqCM3KMqzLV2ABgKqanUSKCGpC0BgqM7PldNc2BFKdmWtuCu8sseIQmS4mdOXiHW8RR7xqlQmbtLjMWyS4mvQ7Jd4/aNlgN7jucnh58jcskN7Hleie+E0LiucwVMXrRHPadmrwS9KQsl73BDFZjpo5p5gzKD3GgHow3v795J/NpFMZyCwMppkbDtKoYiXdrPXgJLyX4AkGQqzn5rVCy8aJOow==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dxjBD2Wpjz309N;
+	Fri, 23 Jan 2026 00:50:28 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.220
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769089828;
+	cv=none; b=hFenMQ7DQnnH08Lvy93Z9o6GBuoFi/qlwwYhXFYylv+bzJ3T6Kt1ZtCpV08Td7WZp3xsjBafQMGCZuV46WU98xo7nsslROY9dnhjMrMpSd3CmTGdU130RkBBN7s4MVJ6RJ5I2prY/MgyZwcQYB8K7lcxvrTUQesV3CItvxsmDNtV/vYKPlyqi8FAPVsnBJRiLcHnWwGmzwWiW9ZX8V1M6LezQdNyiAB1+NEpFvUWTf+zmi795K4FLKf/zj6xICi6XzSjvsW7DVq1r5hv0Witazps11D9N9zkKcHtjKFLO5B74rua+SdtiZF63Ij4qTdu7t6RhQmFO4CeXYSIB2ICeQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1769089827; c=relaxed/relaxed;
-	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
+	t=1769089828; c=relaxed/relaxed;
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=n8rmG1opKD0ptBJN0D4KehnJtGRqrPiDx2zBpCJqzlxqLyx9mJNd+ydZ1Ylrc6n5ROLgUReWrerkdDpm/sx93OM1C2Iy2wkVuiTJRmWAzXn6BIf5iVua/4VNesaVF3uGM4LMeZprQaiTuUqAEfLyWOJZwqwPyCUrMfAP+2UvPWn+16jm9b+Or/xS0OLVBoNbwPryLXl+CXZwEBCjeJIdcqmBpjYX9cgYHnO4nDBCj2fTQNxalAXsOPx4VcqDZ1hAKGb5BHRbFy9Ua7d9qvoJjPD4jsA7ViDcPuViOTNc19ORYQbGcpONUCoCNMRvnuTAnnGGwezu5RCKsAkgjmFYJg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb; dkim-atps=neutral; spf=pass (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	 MIME-Version:Content-Type; b=e8fnTEqPO3p5Pjnz5yuOsLsQfb+OaK0AOHN4zHeBTGfAWYKUaNIiGbVydPQQCNdv8xOohopr6TZtivUAKcM5pGkZp/NZEjlRQAfgK6dYpZ3fF544jAGs52pR/vM6VQckhgI9JwCdrx70kiohb/nSre8A7Ob9iQg9A1Q5zUhjrt95JFDnyVnZA8hIyWklm+TwBv6camtfllLxGZUi9C2Bofc6W/EOwDojOpNbQf0TSl/GLDbMYzXhBnhXKtXyVh0tP0/C9WRszt1hhhhWAyrFd1bosiQEwGveOdQ8oP0XVig2q7T9LTyFajNrVvJxrxpbz5zcFZ9SRc9t17MLe/qBtg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+; dkim-atps=neutral; spf=pass (client-ip=113.46.200.220; helo=canpmsgout05.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=KapezA4+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.220; helo=canpmsgout05.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dxjB80Yxdz309N
-	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 00:50:23 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dxjB86VHYz308l
+	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 00:50:24 +1100 (AEDT)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
-	b=aViTVgKbU3p9F6fvfb/DRZ9GIhljQ3rKlHQMPA1II5YccTLm1l79Wl8RBcmkkhYNwMzHKxXz0
-	9YV1Y0ow6kq2fONT0jz7uycW8blnvYaMxZYGGACdFOLs9cXkvJ3tWcEIwXSiiP4I/798eIXtO+j
-	kCdEQvGGYPkM65v8oi6/oqU=
-Received: from mail.maildlp.com (unknown [172.19.163.104])
-	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4dxj640M5tzRhR4;
-	Thu, 22 Jan 2026 21:46:52 +0800 (CST)
+	bh=8/z4J+w1iCPMn7FID9xjzFXXRGhz3sBJzrnlY03colw=;
+	b=KapezA4+MCeSj48QqqVvPW7LPUYp4jPdBukSP5ooqAFz01Ftxgpi75y/Zhe5UGZ/VSty9Vagc
+	P0a9tkuDKZJeisET9D/JJZV1MFx4eK5Kb5sOW9B9yIcyw9K/myBKx1XOMqor0+DmFtqp3b+2oCt
+	XyCYJDNR1AaQnDQRFg8QCe4=
+Received: from mail.maildlp.com (unknown [172.19.163.0])
+	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4dxj5V1SQwz12LDC;
+	Thu, 22 Jan 2026 21:46:22 +0800 (CST)
 Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id C1DB64056A;
-	Thu, 22 Jan 2026 21:50:16 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id D30574056B;
+	Thu, 22 Jan 2026 21:50:19 +0800 (CST)
 Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
  (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 22 Jan
- 2026 21:50:16 +0800
+ 2026 21:50:19 +0800
 From: Hongbo Li <lihongbo22@huawei.com>
 To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
 CC: <hch@lst.de>, <djwong@kernel.org>, <amir73il@gmail.com>,
 	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
 	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
-Subject: [PATCH v16 01/10] fs: Export alloc_empty_backing_file
-Date: Thu, 22 Jan 2026 13:37:09 +0000
-Message-ID: <20260122133718.658056-2-lihongbo22@huawei.com>
+Subject: [PATCH v16 07/10] erofs: pass inode to trace_erofs_read_folio
+Date: Thu, 22 Jan 2026 13:37:15 +0000
+Message-ID: <20260122133718.658056-8-lihongbo22@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20260122133718.658056-1-lihongbo22@huawei.com>
 References: <20260122133718.658056-1-lihongbo22@huawei.com>
@@ -74,34 +74,99 @@ X-Originating-IP: [10.67.174.162]
 X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
  kwepemr500015.china.huawei.com (7.202.195.162)
 
-There is no need to open nonexistent real files if backing files
-couldn't be backed by real files (e.g., EROFS page cache sharing
-doesn't need typical real files to open again).
-
-Therefore, we export the alloc_empty_backing_file() helper, allowing
-filesystems to dynamically set the backing file without real file
-open. This is particularly useful for obtaining the correct @path
-and @inode when calling file_user_path() and file_user_inode().
+The trace_erofs_read_folio accesses inode information through folio,
+but this method fails if the real inode is not associated with the
+folio(such as for the uncomping page cache sharing case). Therefore,
+we pass the real inode to it so that the inode information can be
+printed out in that case.
 
 Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Acked-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/file_table.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/erofs/data.c              |  6 ++----
+ fs/erofs/fileio.c            |  2 +-
+ fs/erofs/zdata.c             |  2 +-
+ include/trace/events/erofs.h | 10 +++++-----
+ 4 files changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/fs/file_table.c b/fs/file_table.c
-index cd4a3db4659a..476edfe7d8f5 100644
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -308,6 +308,7 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
- 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
- 	return &ff->file;
- }
-+EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
+diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+index 71e23d91123d..ea198defb531 100644
+--- a/fs/erofs/data.c
++++ b/fs/erofs/data.c
+@@ -385,8 +385,7 @@ static int erofs_read_folio(struct file *file, struct folio *folio)
+ 	};
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
  
- /**
-  * file_init_path - initialize a 'struct file' based on path
+-	trace_erofs_read_folio(folio, true);
+-
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	iomap_read_folio(&erofs_iomap_ops, &read_ctx, &iter_ctx);
+ 	return 0;
+ }
+@@ -400,8 +399,7 @@ static void erofs_readahead(struct readahead_control *rac)
+ 	struct erofs_iomap_iter_ctx iter_ctx = {};
+ 
+ 	trace_erofs_readahead(rac->mapping->host, readahead_index(rac),
+-					readahead_count(rac), true);
+-
++			      readahead_count(rac), true);
+ 	iomap_readahead(&erofs_iomap_ops, &read_ctx, &iter_ctx);
+ }
+ 
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index 932e8b353ba1..d07dc248d264 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -161,7 +161,7 @@ static int erofs_fileio_read_folio(struct file *file, struct folio *folio)
+ 	struct erofs_fileio io = {};
+ 	int err;
+ 
+-	trace_erofs_read_folio(folio, true);
++	trace_erofs_read_folio(folio_inode(folio), folio, true);
+ 	err = erofs_fileio_scan_folio(&io, folio);
+ 	erofs_fileio_rq_submit(io.rq);
+ 	return err;
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 3d31f7840ca0..93ab6a481b64 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1887,7 +1887,7 @@ static int z_erofs_read_folio(struct file *file, struct folio *folio)
+ 	Z_EROFS_DEFINE_FRONTEND(f, inode, folio_pos(folio));
+ 	int err;
+ 
+-	trace_erofs_read_folio(folio, false);
++	trace_erofs_read_folio(inode, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, true);
+ 	err = z_erofs_scan_folio(&f, folio, false);
+ 	z_erofs_pcluster_readmore(&f, NULL, false);
+diff --git a/include/trace/events/erofs.h b/include/trace/events/erofs.h
+index dad7360f42f9..def20d06507b 100644
+--- a/include/trace/events/erofs.h
++++ b/include/trace/events/erofs.h
+@@ -82,9 +82,9 @@ TRACE_EVENT(erofs_fill_inode,
+ 
+ TRACE_EVENT(erofs_read_folio,
+ 
+-	TP_PROTO(struct folio *folio, bool raw),
++	TP_PROTO(struct inode *inode, struct folio *folio, bool raw),
+ 
+-	TP_ARGS(folio, raw),
++	TP_ARGS(inode, folio, raw),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,		dev	)
+@@ -96,9 +96,9 @@ TRACE_EVENT(erofs_read_folio,
+ 	),
+ 
+ 	TP_fast_assign(
+-		__entry->dev	= folio->mapping->host->i_sb->s_dev;
+-		__entry->nid	= EROFS_I(folio->mapping->host)->nid;
+-		__entry->dir	= S_ISDIR(folio->mapping->host->i_mode);
++		__entry->dev	= inode->i_sb->s_dev;
++		__entry->nid	= EROFS_I(inode)->nid;
++		__entry->dir	= S_ISDIR(inode->i_mode);
+ 		__entry->index	= folio->index;
+ 		__entry->uptodate = folio_test_uptodate(folio);
+ 		__entry->raw = raw;
 -- 
 2.22.0
 
