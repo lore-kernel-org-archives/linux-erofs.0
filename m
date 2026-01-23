@@ -1,117 +1,62 @@
-Return-Path: <linux-erofs+bounces-2192-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2193-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC664D3EE84
-	for <linux-erofs@archiver.kernel.org>; Thu, 22 Jan 2026 17:04:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A21A8D6CFAE
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Jan 2026 01:45:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4dxnV331Q7z2yFm;
-	Fri, 23 Jan 2026 04:04:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769101467;
-	cv=none; b=G3+apcVYMhL0cbOKvol3NAX2DLiLuvjQNoHU/lLr4+4JFbQbKNCBqYzZi4dm+vo/AW/RL4Ps2xVfpGuujAV9TogkOkgGmRE6qkcFiRfR56Q6yyi5qOV7+Y7cDkCkbgfQxo/xEpIuc0gfoaHuyWty3R0UkW5IPr0b2llcTgFqvaWQpi3LS7zZX92VuvgYeDfrjujZHlQBQK3t5UQdQJxJR/z/6z+NZAzeozdXGtDCjs5jYGvZ+mKf7SSylHhN1U0zNlEdkMSsLawpNlgMri+Po6u3Fj9rr+EatVsIWbduN3dLcJmmsQDgCJ3aRX6qWYzWa0mnKIPrARdZQrO8q6jteA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4dy13D54L9z2yFh;
+	Fri, 23 Jan 2026 12:45:28 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.216
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1769132728;
+	cv=none; b=i868rIxJR5oW7Uug+EH+SmGLoMvFS3hEI14SjD5yfAUV4IcBBBsc5wK5amMf0pKniQqsS/83VS+p/WFK6bh+akqrWqJNxGKYLKYvDCvtguagpPvfilNcFDBZkEnHSDqHNFqQOkVdLyC2gei6z1TollSfdYUEbHPjPnqCE4aPIg/oHhUDOeb2alcguywrnOc8KDQMjOwTvrQhzoklsddkzG3UQFG2pliDaZFdM+wiwj3tC0AEP2xec952a50zbRa/LmFOvwQRkEstFEKfkwzcJIiarXA3GQZYsgnUp5pmBpWSCQEkfPnfeW8qBkDxnyxMRvxaEEgTeeUg2C0yUO+akQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1769101467; c=relaxed/relaxed;
-	bh=qs+XaS+FGKy5XGjHxsh2yZR3UAuTtojhMQnjtTVwQfA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i4ZV5E9nG67Uw+6Qk1cCDZ+856o3E0uGT0MYWypb5CDhpCk83arVDALlVJBsGQVkiivXVtr1BEXi2fdiVIi2sZb/vQG7OQhHcyQu+Gusrdq3M0+ynx3rsac7TlKZU4VkaO3CFQr1O95v1bIKx8LDAgcYdtsurBJDISa4wv3ocmHINtvnlAmVzFn3NnobAkTL0T2zUQfjlKa806neFlDfWjsWG3PAme5E5a8R6ZABK2V8ruAgZRVM50ezYkuInx1+WB8Ry2vuNPCSLRD+Rkb5JuOTNDHPVIT5fELdSC6QwOt7pjKcCuHJCPd9CErBt+Wn/96l1zUrelnqI5q+PWQ4Aw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ueyMX6oh; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=djwong@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1769132728; c=relaxed/relaxed;
+	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hRm41VpVUqb+tKWf1CANYox1qIoZEdDs0X0+YI3HaqCPUXVCBscRS52OCmVb0JZlQAbeuc7NsNk9/Kllty9TTi/u/ryQFQmW3Gi0fKUiu2X4DJKovenmGzUpeYCk0vbgf0PMdYkHe9f/nTnL1nN/OP4QK+9luY+pC9ROB97xOIDV8n8eIopSyGo08JvrBgPj+yNSVaQilYVPv4F0ktWGGW2TNK/DqbIL6bsLwM7UC+smockiWAnn0Okpv21EX2+SG83neVCkbuGm+Ay9x/GH8KQ3+6KCAt5ZJ45LVFx80nzfW+hBrhogtQl7/m1KvgEHo0cKsKtnXDShtlhUmLg9ew==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb; dkim-atps=neutral; spf=pass (client-ip=113.46.200.216; helo=canpmsgout01.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ueyMX6oh;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=aViTVgKb;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=djwong@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.216; helo=canpmsgout01.his.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout01.his.huawei.com (canpmsgout01.his.huawei.com [113.46.200.216])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4dxnV24Hstz2xl0
-	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 04:04:26 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 528AE4099B;
-	Thu, 22 Jan 2026 17:04:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156DAC116C6;
-	Thu, 22 Jan 2026 17:04:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769101464;
-	bh=xwFz5Oidq8APQpCp7THEtDpXn9O+NGssd7GC7NPkIXE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ueyMX6ohlT+V7E4FTnwyr+bckr2XgM0otlsgh+U8+RB7dufNou2jXtRF8/4HiLX1h
-	 aiyHG+xAbRXlOpSKYNl+YW1B6es8lJGWyDpCT3G89X8Bn++QSMPHsovt5BRyWj7Z84
-	 MiFPflUjkr2UeHtVIt004pQ2LHYESJ6jR9ib6bF3tKB5BvchCfBJcHtl2H7eGV6Hj+
-	 XeQh59i2mPbJ0Z07CURTocG8MzgcrhLB0YpqMQ2BX+Q2rUwcSwiRIRCTHIiyBghAen
-	 fRki137MnL3p5j+2P7Cc4giyKdLsB0k8xoBASjwbPFk1rE23p0Kg5qRxi8CJQxSLFn
-	 VC/vMBqCcUNNQ==
-Date: Thu, 22 Jan 2026 09:04:23 -0800
-From: "Darrick J. Wong" <djwong@kernel.org>
-To: Jeff Layton <jlayton@kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>, NeilBrown <neil@brown.name>,
-	Christian Brauner <brauner@kernel.org>,
-	Amir Goldstein <amir73il@gmail.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Olga Kornievskaia <okorniev@redhat.com>,
-	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
-	Hugh Dickins <hughd@google.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara <jack@suse.com>,
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <lihongbo22@huawei.com>,
-	Chunhai Guo <guochunhai@vivo.com>, Carlos Maiolino <cem@kernel.org>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	Alex Markuze <amarkuze@redhat.com>,
-	Viacheslav Dubeyko <slava@dubeyko.com>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>,
-	Luis de Bethencourt <luisbg@kernel.org>,
-	Salah Triki <salah.triki@gmail.com>,
-	Phillip Lougher <phillip@squashfs.org.uk>,
-	Steve French <sfrench@samba.org>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
-	Shyam Prasad N <sprasad@microsoft.com>,
-	Bharath SM <bharathsm@microsoft.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Mike Marshall <hubcap@omnibond.com>,
-	Martin Brandenburg <martin@omnibond.com>,
-	Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
-	Joseph Qi <joseph.qi@linux.alibaba.com>,
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-	Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>, Dave Kleikamp <shaggy@kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Richard Weinberger <richard@nod.at>, Jan Kara <jack@suse.cz>,
-	Andreas Gruenbacher <agruenba@redhat.com>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Jaegeuk Kim <jaegeuk@kernel.org>, linux-nfs@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org, linux-ext4@vger.kernel.org,
-	linux-erofs@lists.ozlabs.org, linux-xfs@vger.kernel.org,
-	ceph-devel@vger.kernel.org, linux-btrfs@vger.kernel.org,
-	linux-cifs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-	devel@lists.orangefs.org, ocfs2-devel@lists.linux.dev,
-	ntfs3@lists.linux.dev, linux-nilfs@vger.kernel.org,
-	jfs-discussion@lists.sourceforge.net, linux-mtd@lists.infradead.org,
-	gfs2@lists.linux.dev, linux-f2fs-devel@lists.sourceforge.net
-Subject: Re: [PATCH 00/29] fs: require filesystems to explicitly opt-in to
- nfsd export support
-Message-ID: <20260122170423.GU5945@frogsfrogsfrogs>
-References: <176885553525.16766.291581709413217562@noble.neil.brown.name>
- <aW8w2SRyFnmA2uqk@infradead.org>
- <176890126683.16766.5241619788613840985@noble.neil.brown.name>
- <aXCg-MqXH0E6IuwS@infradead.org>
- <176899164457.16766.16099772451425825775@noble.neil.brown.name>
- <364d2fd98af52a2e2c32ca286decbdc1fe1c80d3.camel@kernel.org>
- <aXDm8FPPOHs04w9m@infradead.org>
- <3210d04fa2c0b1f4312d10506cac30586cb49a3c.camel@kernel.org>
- <aXHFlF1tef68i2HU@infradead.org>
- <b491335d12e976e1ea1c07b9c14164ac69d22aea.camel@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4dy1396Dbpz2yF1
+	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Jan 2026 12:45:24 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=IJqOVDMyH2cU6HZaQ6KGaq7L7r7sGB/NU+oSMo68sYk=;
+	b=aViTVgKbU3p9F6fvfb/DRZ9GIhljQ3rKlHQMPA1II5YccTLm1l79Wl8RBcmkkhYNwMzHKxXz0
+	9YV1Y0ow6kq2fONT0jz7uycW8blnvYaMxZYGGACdFOLs9cXkvJ3tWcEIwXSiiP4I/798eIXtO+j
+	kCdEQvGGYPkM65v8oi6/oqU=
+Received: from mail.maildlp.com (unknown [172.19.162.144])
+	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4dy0yJ3SK4z1T4HP;
+	Fri, 23 Jan 2026 09:41:12 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id 8077140567;
+	Fri, 23 Jan 2026 09:45:17 +0800 (CST)
+Received: from huawei.com (10.67.174.162) by kwepemr500015.china.huawei.com
+ (7.202.195.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 23 Jan
+ 2026 09:45:16 +0800
+From: Hongbo Li <lihongbo22@huawei.com>
+To: <hsiangkao@linux.alibaba.com>, <chao@kernel.org>, <brauner@kernel.org>
+CC: <hch@lst.de>, <djwong@kernel.org>, <amir73il@gmail.com>,
+	<linux-fsdevel@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <lihongbo22@huawei.com>
+Subject: [PATCH v18 01/10] fs: Export alloc_empty_backing_file
+Date: Fri, 23 Jan 2026 01:31:23 +0000
+Message-ID: <20260123013132.662393-2-lihongbo22@huawei.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20260123013132.662393-1-lihongbo22@huawei.com>
+References: <20260123013132.662393-1-lihongbo22@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -123,72 +68,41 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b491335d12e976e1ea1c07b9c14164ac69d22aea.camel@kernel.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.162]
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-On Thu, Jan 22, 2026 at 07:12:36AM -0500, Jeff Layton wrote:
-> On Wed, 2026-01-21 at 22:37 -0800, Christoph Hellwig wrote:
-> > On Wed, Jan 21, 2026 at 10:18:00AM -0500, Jeff Layton wrote:
-> > > > fat seems to be an exception as far as the 'real' file systems go.
-> > > > And it did sound to me like some of the synthetic ones had similar
-> > > > issues.
-> > > > 
-> > > 
-> > > Not sure what we can do about FAT without changing the filehandle
-> > > format in some fashion. The export ops just use
-> > > generic_encode_ino32_fh, and FAT doesn't have stable inode numbers.
-> > > The "nostale" ops seem sane enough but it looks like they only work
-> > > with the fs in r/o mode.
-> > 
-> > Yeah.  I guess we need to ignore this because of <history>
-> > 
-> 
-> Yep. This is a case where the handles are not PERSISTENT but I don't
-> think we can get away with making FAT unexportable. We're probably
-> stuck with it.
-> 
-> > > > I think Amirs patch would take care of that.  Although userland nfs
-> > > > servers or other storage applications using the handle syscalls would
-> > > > still see them.  Then again fixing the problem that some handles
-> > > > did not fulfill the long standing (but not documented well enough)
-> > > > semantics probably is a good fix on it's own.
-> > > 
-> > > Agreed. We should try to ensure uniqueness and persistence in all
-> > > filehandles both for nfsd and userland applications.
-> > 
-> > Sounds good to me.
-> 
-> 
-> Unfortunately, there are already exceptions. Apparently pidfs and
-> cgroupfs handles (at least) can't be extended because of userspace
-> expectations:
-> 
-> https://lore.kernel.org/linux-nfs/20260120-irrelevant-zeilen-b3c40a8e6c30@brauner/
+There is no need to open nonexistent real files if backing files
+couldn't be backed by real files (e.g., EROFS page cache sharing
+doesn't need typical real files to open again).
 
-systemd cracking file handles??  Yeesh, I thought userspace was supposed
-to treat a file handle as an opaque N-byte blob and nothing more, and
-only certain "special" tools (e.g. xfsprogs on XFS) could do more than
-that.
+Therefore, we export the alloc_empty_backing_file() helper, allowing
+filesystems to dynamically set the backing file without real file
+open. This is particularly useful for obtaining the correct @path
+and @inode when calling file_user_path() and file_user_inode().
 
---D
+Signed-off-by: Hongbo Li <lihongbo22@huawei.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Acked-by: Amir Goldstein <amir73il@gmail.com>
+---
+ fs/file_table.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> My personal take is that we should try to make handle uniqueness a goal
-> for most existing filesystems, but we're going to have some that can't
-> achieve that. For them we probably want to be able to flag them so they
-> can be id'ed by userland.
-> 
-> So, we will need an export_operations flag of some sort
-> (EXPORT_OP_UNIQUE_HANDLES?). At that point, we'll have to decide
-> whether to deny nfsd export based on that flag:
-> 
-> We could deny export of any fs that doesn't set the flag, but NFSv4
-> actually allows the server to advertise that it can't guarantee handle
-> uniqueness. There isn't much guidance for the client on how to handle
-> that though and the attribute seems to have the scope of the entire NFS
-> server.
-> 
-> -- 
-> Jeff Layton <jlayton@kernel.org>
-> 
+diff --git a/fs/file_table.c b/fs/file_table.c
+index cd4a3db4659a..476edfe7d8f5 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -308,6 +308,7 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+ 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
+ 	return &ff->file;
+ }
++EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
+ 
+ /**
+  * file_init_path - initialize a 'struct file' based on path
+-- 
+2.22.0
+
 
