@@ -1,44 +1,48 @@
-Return-Path: <linux-erofs+bounces-2259-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2260-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF070EA7951
-	for <linux-erofs@archiver.kernel.org>; Thu,  5 Feb 2026 02:02:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60218EA7945
+	for <linux-erofs@archiver.kernel.org>; Thu,  5 Feb 2026 02:27:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4f60pk6qY7z2xrk;
-	Thu, 05 Feb 2026 13:02:22 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1770256942;
-	cv=none; b=Rhdc/n3fQru/WW3EsDMjPuJiqSYgAZShteulgT7dzELLFHieLy5iXVle96c/IZbfdDnftePs0SKl02IMzsvrbiRhB5T516P7WvWSOIUlsklD3yCPxyMEseUe/f+pfhjBF0iYz9p8i2PkekcL2tTMKCP9uxtefJV5NPoQtuN2i6nrX7pES3blgt8TuI1XvqwrhoiToLORCmFmL4m4MIwgdqgLIfK9dF5AAnt1mLMIyqbOJkBB2SRexKEWBFRBZrkUgXyKEV5AZQYT+JI62svvCCWWLVHNm2PDlBp31b8MQKR6i9agUF66dRq5CdLbHCiA8hyr7O0398NLaZ7S5z3FJA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4f61MG6tkqz2xrk;
+	Thu, 05 Feb 2026 13:27:06 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.160.69
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1770258426;
+	cv=none; b=JZ81F1+9SKqesZPRe/43JAnibGwGwmISSaCUzRxNk5LCXIVrh+PcE0FL12m+zbpb9Xg8GmOC41sxdRRKbXXPB57FmOLd3E5nxY0QY6kkwTN6mUVEf7n31L0DTbZ5muQ79sAwBDgYAqVM8+jobb6cOqHe6w+E9OPq9WT7VcBaTxwXP9w7BjvEGcj0zsm0cvIXVoWgnaBQrR+FmWbS4PtqGoOYDj0/o0hBvzE16vLmi3MNkF8aAi5tJa+6EBws0j25B5QbalFaK7KeiK/FkWqyIYZOOLxRVdhsnTzrsKnoY7jjrpIrFbhtsV5YDYW/xTB/LvrXm3KnY9dMWpP/b/kq1Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1770256942; c=relaxed/relaxed;
-	bh=ydOvMSYGLBPG/Sw3HqmtS98YZtsA/FvEeL+izFPO4Ak=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=EfSZtDGTTgK4MzNTRCVyB8yxu5OndNG2XQGS8KxJVPq5E1REv12NHOzTLueKFSokEGJgXUsenMwA1xCwoMssE8PDcN1GAvw90EQNG7YIbLLI1ORVVSuXcEw0BlALCYA7kn0Xa1qrQ4q2dQgLW0k2xLuUj/PlTvyo0wyREZprj9Ph9b0Ib9GrcmJyASpY/Nuyqz4RFn1TLZx7emFHG6h9GtZ3qYesAl5xmLNi9uk8Gi/LOEnK+5bzMpJ7ZnxONQQeVxByxagPT2h0m3dlPKVNj1/j5n3CYsPIagIyUquc3pD4N1IDkn99uq/+jJOmnctgp0Ewxer3t4vTFBZPksNvmw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NRYRTvR9; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=NRYRTvR9;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	t=1770258426; c=relaxed/relaxed;
+	bh=ZXVVX2BF9RqFV/GB/UkW/X0bu5jgkWZjfaVZ1n5Rlaw=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=kx6qTCDKx+b9YBHgXu43w1caVCj17J4n0PaAXrnK1c8IVzxL8ruBOU1YXtJQk5hetTAJrevtpHs64HWD3ABfyK57hdbiE2mi8EfTxoBN+1XyO5cIPHrvbTazfsC0UPhyW83yhazih/jQhJWlyZIbR7cjFLwJvJ75+0NLs+Gj/LKOPlyutUxhpYuxAp/PoI2B/8l4pXOH0DzAj5DRWLjMwf2dckMjCVqnDQpqygbZPMXb1JdbJY7ApUkBX6Sxp9QSRsdjaAfS37b3u2JM1zCx1tkpz3kavGs4ehOO0FtUAPNC0qtmoz7ZtdDbnk9jRk1c8eTIs7G5A0vw62RTiC0tNw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass (client-ip=209.85.160.69; helo=mail-oa1-f69.google.com; envelope-from=39f-daqkbafgiopa0bb4h0ff83.6ee6b4ki4h2edj4dj.2ec@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
+Authentication-Results: lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.160.69; helo=mail-oa1-f69.google.com; envelope-from=39f-daqkbafgiopa0bb4h0ff83.6ee6b4ki4h2edj4dj.2ec@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com [209.85.160.69])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4f60pg73DXz2xHt
-	for <linux-erofs@lists.ozlabs.org>; Thu, 05 Feb 2026 13:02:17 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1770256932; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=ydOvMSYGLBPG/Sw3HqmtS98YZtsA/FvEeL+izFPO4Ak=;
-	b=NRYRTvR949uT3M1XsNcdzNDojWfI86Lw8U+HxRXmIUjbMzeLOnc+QRASGbIlp3LcV9fAc8FlrY/QP52eIkTi2fY1ju3C6TXpdgJxxlnmkW4kI7F/dhLkz551Y+cvcMeM8e8Pp1LcUmme2+rfQDyYDG+cXOuV3yr8r3lJVKsOLt0=
-Received: from 30.221.130.135(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WyZ2z75_1770256929 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 05 Feb 2026 10:02:10 +0800
-Message-ID: <a2f8472e-99c9-4f51-b105-76df6fb4078e@linux.alibaba.com>
-Date: Thu, 5 Feb 2026 10:02:09 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4f61MF3Pwhz2xHt
+	for <linux-erofs@lists.ozlabs.org>; Thu, 05 Feb 2026 13:27:04 +1100 (AEDT)
+Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-409496a48c3so922607fac.2
+        for <linux-erofs@lists.ozlabs.org>; Wed, 04 Feb 2026 18:27:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770258421; x=1770863221;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZXVVX2BF9RqFV/GB/UkW/X0bu5jgkWZjfaVZ1n5Rlaw=;
+        b=pBgtjoAecfkNte+VQp/zxVcyr8EHrAiqjDZEPRhzvLNebZsr/k3hZk0dOGZRYup9Mr
+         hCO35vTRE2ZCNd6BiifwlDJ1N6bOEVCHfbUdW4meqartjAzatGK4VuDRkDIC/Uz5i/yC
+         rd8yWd4wecKcrrVhwzEIodyYGZPOn1OEYBgBCXKXQnhAtjVcL/MnpvDZDiI/Teu8M2T7
+         F4pmGavD3Z9KC22WrTVhjl2JKDAzHQFYubijXsU+dHZz9Teexjqi+9w8R+/UefBIq6GS
+         j9kOrM6q6R7rckRFjko3zL/ukP7VocZHJ0eB6X2Ne9xrysKQtu1RAMZC1PBQBiTntZfx
+         88ZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU8mYYTLaUhFHv5WO1nNCHaeWdfwzS216W6irLPgxbY3vniuxE2Lltc8P9FCbAjHoWjw9BrSK7lrQ7HCg==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YzZUwZP5HMRksIVp6lRgeCXrGMLg2WhHzI0gJcmkT0PrweZjc7Q
+	eLmLNG/giSfjDlaJLFMsi70H9Q6m8B1Y1MHWvGYxZAX26CemWaMRvFsp+yQSHp1yTwsos6yygh/
+	b+Os98pfQWXIpIFP4C0WhPgdofNoLOYpNKN7tvYfUUl77W3bQxq3Fs5HdSck=
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,16 +54,36 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+X-Received: by 2002:a05:6820:2291:b0:664:86ce:df6d with SMTP id
+ 006d021491bc7-66a20c6bee8mr2666266eaf.18.1770258421667; Wed, 04 Feb 2026
+ 18:27:01 -0800 (PST)
+Date: Wed, 04 Feb 2026 18:27:01 -0800
+In-Reply-To: <a2f8472e-99c9-4f51-b105-76df6fb4078e@linux.alibaba.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6983fff5.a00a0220.37c87e.0024.GAE@google.com>
 Subject: Re: [syzbot] [erofs?] WARNING in erofs_iget (2)
-To: syzbot <syzbot+c2dd47dc153320cc4692@syzkaller.appspotmail.com>,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- syzkaller-bugs@googlegroups.com
-References: <6980e768.050a0220.16b13.00a7.GAE@google.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <6980e768.050a0220.16b13.00a7.GAE@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: syzbot <syzbot+c2dd47dc153320cc4692@syzkaller.appspotmail.com>
+To: hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+Hello,
+
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+
+Reported-by: syzbot+c2dd47dc153320cc4692@syzkaller.appspotmail.com
+Tested-by: syzbot+c2dd47dc153320cc4692@syzkaller.appspotmail.com
+
+Tested on:
+
+commit:         1ec50c08 erofs: update compression algorithm status
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+console output: https://syzkaller.appspot.com/x/log.txt?x=119f5a5a580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=2168d83cc33f9cb6
+dashboard link: https://syzkaller.appspot.com/bug?extid=c2dd47dc153320cc4692
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
 
