@@ -1,49 +1,41 @@
-Return-Path: <linux-erofs+bounces-2299-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2300-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ABB94EB26F5
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Feb 2026 18:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11F62EB595D
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Feb 2026 03:26:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4f9VSn0GBWz2xRq;
-	Wed, 11 Feb 2026 05:28:57 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1770748136;
-	cv=none; b=ejM38zTysyX40eTV8gdy1W1yggj9WcjNM0VHy1eqMKjFN/wCHQxhJ2qQmCgC6QC4I+AOmsfijATctHWCha2Te6i3ENVnFdYJVS7KVdcajFbZpFuUzJTvq7pKq9j8MP/I+fxJgJ6DKO18guZ5+0gz9gPcI9Lar9q3woyLDo4seiFrtA4fFI5erOSONi6ZvTb08Pan4pcXHrDx9/bd1GzxYtYsdAeXWaZCcxAQw8wlt+lHcQkhUDYOIusOR4RAqFk4h74qhMwih8O24rMMCi7S3u8SetmrmFOa3xEWBAEOBEFLQQnXrQINZEHlYQmrOV7bHEaC2KUMaFqryFMFXguiYA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4f9kPZ0qV4z2xlj;
+	Wed, 11 Feb 2026 14:26:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.63
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1770780418;
+	cv=none; b=kKbIsouxq9JL0Ap7PuT96HB0mE5OZPFvz2h2W9ArEgBg8lTMwDVNSbSgTumBa6HTeOAVffwvdY5OqWso9Tz0c3bLbcVML4DccDpTE55cdmFy3W/IDw4uCOytntQu4o1qHccs84UQwZdXnTYuOhKUr06RcGeSnyBpoBYe8jw5oTyldkQfljqGEWum9j1GvvGS1sHKGon0JZUmpnW532FRhCvoUyZkw2L9zvGjsbsoAU6ZatCTAjH4ntB+01L/UPaBf3zDNLKjkjad2D35XpHwgHdSaKa3FVUYz3/Th0Pch+WEWJBfTsRnjf3XbZTydWSBsqgwa93+t7VYZ7Q500z5kQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1770748136; c=relaxed/relaxed;
-	bh=MbKRMTXK/WFGV+Sw+lCGD3rVt5jJsFHbgFlcOxAWjTQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z0N1fRifXveowQtGs248CUStR3ycF8gjf9MwpzE5W8ZVejyVVULzrTOO3pF6sf5Qe4oUWaAa3pAEO2FOOgpYYKZgYgGmq6DkI9jGJEMTD7hIRvqmP0Y61oSKiC2faFTgfKcR82LQBSIHLlFmEJWZBmW8xSQVdgGQ9hC7IKN6UOrnmg+yR5rzliAi5WXFwRML8s5Sp45Z2OoxKRJV6QKMSbB30/jTkn6De/6P6M3PDgLZaA8uD++Azrph9yJg4mWEu2mjgt4/u+6NYae5HX7I6sKxNhKXxQRvz6F9Y8p+RYnoUFrhiIOWzsHhKHvxRPPGn98Qi2emHlCC1/Iy7O63XA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=j1cEIRb/; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=j1cEIRb/;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	t=1770780418; c=relaxed/relaxed;
+	bh=y/6LrWPB07bqEJq1geE8c8qguXlle7WUErK4+p0H7gg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KHhUUeF+XAABM6BjRfNx2GRyo3++X01OQttNvqG0E8jplCy+Q+yOHfK3yx0kMjmQHSzNYUueB99W/4qP9mfsDlldo7GsEWZ+jsW9dyOpNIvWu0fcM4KT/DFcFweKoUbGWxNsiOreWUknCzIzTOhngFl0lzr8fS2cxv6qdWBiCLrg5+zGewxDicAyNnIrJiPonhLypWY0SlR8dSEr80qYnYQY3r0OvyN0TUY8qfN/IHllq+R1GKi+Ljt72KKFY7Lcqi2CLKqC4Z7N2pqzOET9uN2J8UTEmUKA1qMe2RnMGkyfx4g2gHsz04qKklxpYyQ40IlNmH+2udzbf5QOcSeTsw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.63; helo=out28-63.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.63; helo=out28-63.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
+Received: from out28-63.mail.aliyun.com (out28-63.mail.aliyun.com [115.124.28.63])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4f9VSk4Lx5z2xQ1
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Feb 2026 05:28:52 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1770748127; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=MbKRMTXK/WFGV+Sw+lCGD3rVt5jJsFHbgFlcOxAWjTQ=;
-	b=j1cEIRb/rUM3m4dO4Kj5np3F38VT4QBI63Fv7k+g0XrCKyZOMg5lBkQOCi5Q4K18WmtdiiRhDSxKaoAVCV2417v7r32O3famHQ9Mf2BLFhwW7kzo5k2tz3SyAtYUft3pj+GVcsTRVnQ+GIqo5y/1DQ8KDLMBAjuyeedFT1cw9nI=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Wz-5er5_1770748121 cluster:ay36)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4f9kPW4MSvz2xd6
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Feb 2026 14:26:52 +1100 (AEDT)
+Received: from HUDSONZHU-MB0.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.gUV-ct7_1770780405 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Wed, 11 Feb 2026 02:28:45 +0800
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+          Wed, 11 Feb 2026 11:26:46 +0800
+From: ChengyuZhu6 <hudson@cyzhu.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Benjamin Drung <bdrung@posteo.de>
-Subject: [PATCH] erofs-utils: manpage: document missing --quiet option for mkfs.erofs
-Date: Wed, 11 Feb 2026 02:28:40 +0800
-Message-ID: <20260210182840.2108213-1-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.43.5
+Cc: hsiangkao@linux.alibaba.com,
+	Chengyu Zhu <hudsonzhu@tencent.com>
+Subject: [PATCH v1] erofs-utils: mount: mark OCI as experimental
+Date: Wed, 11 Feb 2026 11:26:45 +0800
+Message-ID: <20260211032645.20962-1-hudson@cyzhu.com>
+X-Mailer: git-send-email 2.47.1
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,28 +49,38 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Reported-by: Benjamin Drung <bdrung@posteo.de>
-Closes: https://github.com/erofs/erofs-utils/issues/36
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- man/mkfs.erofs.1 | 3 +++
- 1 file changed, 3 insertions(+)
+From: Chengyu Zhu <hudsonzhu@tencent.com>
 
-diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
-index cc5a3109ac7f..4316214ff1e2 100644
---- a/man/mkfs.erofs.1
-+++ b/man/mkfs.erofs.1
-@@ -240,6 +240,9 @@ Use extended inodes instead of compact inodes if the file modification time
- would overflow compact inodes. This is the default. Overrides
- .BR --ignore-mtime .
- .TP
-+.B "\-\-quiet"
-+Quiet execution (do not write anything to standard output.)
-+.TP
- .BI "\-\-sort=" MODE
- Inode data sorting order for tarballs as input.
- 
+mark the OCI backend as EXPERIMENTAL in
+both the help message and runtime warning.
+
+Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
+---
+ mount/main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/mount/main.c b/mount/main.c
+index a596c36..5a3dc54 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -100,7 +100,7 @@ static void usage(int argc, char **argv)
+ 		"    --reattach         reattach to an existing NBD device\n"
+ #ifdef OCIEROFS_ENABLED
+ 		"\n"
+-		"OCI-specific options (with -o):\n"
++		"OCI-specific options (EXPERIMENTAL, with -o):\n"
+ 		"   oci.blob=<digest>   specify OCI blob digest (sha256:...)\n"
+ 		"   oci.layer=<index>   specify OCI layer index\n"
+ 		"   oci.platform=<name> specify platform (default: linux/amd64)\n"
+@@ -228,6 +228,7 @@ static long erofsmount_parse_flagopts(char *s, long flags, char **more)
+ 		if (strncmp(s, "oci", 3) == 0) {
+ 			/* Initialize ocicfg here iff != EROFSNBD_SOURCE_OCI */
+ 			if (nbdsrc.type != EROFSNBD_SOURCE_OCI) {
++				erofs_warn("OCI support is EXPERIMENTAL, use at your own risk.");
+ 				nbdsrc.type = EROFSNBD_SOURCE_OCI;
+ 				nbdsrc.ocicfg.layer_index = -1;
+ 			}
 -- 
-2.43.5
+2.47.1
 
 
