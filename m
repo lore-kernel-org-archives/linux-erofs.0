@@ -1,48 +1,48 @@
-Return-Path: <linux-erofs+bounces-2332-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2333-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 372F1E9A03B
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Feb 2026 10:58:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90F3AE9A03B
+	for <linux-erofs@archiver.kernel.org>; Wed, 18 Feb 2026 12:13:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fGD5r3CNTz2xlq;
-	Wed, 18 Feb 2026 21:58:56 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771412336;
-	cv=none; b=g9PtfDl18HJaOEmIRKwxbUiR7TUeqXg8oA66ziz9dITgxNpVFpVelZbSk3hyEHDElTcZXW616JILGNihcC/BajuYDfgaQc5y/km9J3HXjNTswo8f6vuVPcm98sAK5H2hEjcJembVdHmfcfDmE1QBz+lmw5QxVOttXX9mmCS/H9QwrJIPBIFOfm6E5Br1edq9b2lVUDhSWqJVk8gnoUox0mnhnYdoGJRc0FBYoN2Avg8d5cLLK4kMpUBe17Iws3NiHvBzdekmuwyd4LKL5OdUB9UQhpV7PO6N+QMdUXFxR/LcgWJMFVEBVBFnpZkjDui71oV3J3TMOQyElPaEiMAypQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fGFmN056Fz2xlq;
+	Wed, 18 Feb 2026 23:13:56 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771416835;
+	cv=none; b=dipEgjyy7uv9XLzKg55lakAUYLrNblSutN5ydH13Z/HIJ3Hlu+cf0CtpWibjlj6dyYybsLX/IyavVcCDfww3kZzYiHEZEfP4IJGUGzo79zvUoZL4K2h1vvACkrJ9QNhgHR6T1iPtohnmJYLNKBZS4GxNKA7GLD4Zvqys+SL+HmC7/6Fl6Fy1qP9+IDOwRMj9wcPjz2Y9odwV3DTca/bbrfs5OjDW0ge58AoBUaOSYlN6VsLSgwcw1qSmr58MyIiofZ9kJrNLlARwxnWogcBZ7arlhDCpdJbW6rS/TL9NzX936vsOjkE7qvtpVmZ5q1DpggDo7B10wjvmZZ7pd1IWpw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1771412336; c=relaxed/relaxed;
-	bh=6FSbbUmT0kW9FrFKAQgMm0DpM0xB9BuAVHu/pEXcjQc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IJskhV9POH9Xz0RHJJR1yqv6vLxEKREgaXSwQfcTOeUHoWFRexLkQBSPUBnBqUZWiyO97fBIUANJ2Srj+2rq8sw2Hcd7kbNfKbPflMtpVr49qQDTa9mzsi6B++dzLQue2FOqLTB16z2oGHgw8qghefyAyaBC2IU9PH8dychXow5aAEyn7JJSQ0yxGCKdlf7Ii8s+cQk52IYYPlEJN7flqV96fJ759sU4ftjU0VIrFZREqhgODSGx7jFpES6V5ldvhu81iBwszNZYYqI/QgE+6GDKRBu4cFRthERR8zwCCGuZrNazwEYrANjPLeqYtr0ktkQBNotNxf1rC7tUpYiA0w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MmFgL2Oy; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1771416835; c=relaxed/relaxed;
+	bh=IwndmcRaO/FGUSe6ZKUnn+9nkg6OLFaotqdh8XFufow=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h30m/bZD6LJMrNcWzs+xntKkG7Bxf3pZxH16Ag3hE4TO/2BLAPdW3bJhbWFnhV4W1RsRtKtIT1eBmzjY9ttxlbMmqg1ChwRnVJySnjpTZ04n3EXYx6nf9Tow/t+qpWOaO+Bb2sd3bZ64aiDwt6ImfsTdDh24Z3+sPZvCEanxXX2j13gBozAWM8/LvB9XRHnHYTSBhwSiCB/EzEV33TbRnab1rdURjtrm59swkA+SLqYtCZTspaAhZcnJQJhRs9zLeCGbfTRtVitYCueZyb0s11eZ6o343Nbo3jSZxhdWacfJKf3F9Jta6rzGk0S/PrRb3dfbZc3kuwUOJE34Mef2xQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=GnX2ylOB; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MmFgL2Oy;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=GnX2ylOB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fGD5p27dhz2x99
-	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Feb 2026 21:58:52 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fGFmK0WjGz2x99
+	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Feb 2026 23:13:51 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1771412327; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=6FSbbUmT0kW9FrFKAQgMm0DpM0xB9BuAVHu/pEXcjQc=;
-	b=MmFgL2OyoOAzIGMMQy9soeX3E6aoqLbhyNK/vFeBlu9Yfy0Sl+83Dt9pX9BM0r8U74qxCa11d845lRX2THsPHtfkUajJh5w8sW07sZ8XfZaAcxfiV08IdhsIEnpfvndL4m6VLghBjVNyFyqzktniwBD0Ah2wVrCdDJMD8F2wi6I=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzSQDEH_1771412322 cluster:ay36)
+	t=1771416825; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=IwndmcRaO/FGUSe6ZKUnn+9nkg6OLFaotqdh8XFufow=;
+	b=GnX2ylOB/BXUrn+q2BVriwHxu10wjriW7dBzHcR+dgt1hD6AlL6puirzgVO9/bv4Rf/gKHUSB61LOSMppMv1EfDH6raitj8mhTOpckH5xxPBTlkyy+/9YTCDKJNUeUKm+ODQib8szlFraOWv5m4YjryT/Y5k3ie80bVQbzDZf6I=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzSY5V9_1771416820 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 18 Feb 2026 18:58:46 +0800
+          Wed, 18 Feb 2026 20:13:44 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: oliver.yang@linux.alibaba.com,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH] erofs-utils: lib: set `bh->op` immediately for compressed buffers
-Date: Wed, 18 Feb 2026 18:58:41 +0800
-Message-ID: <20260218105841.100916-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs-utils: mkfs: fix `-Efragments` performance regression
+Date: Wed, 18 Feb 2026 20:13:39 +0800
+Message-ID: <20260218121339.273715-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -57,56 +57,43 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This fixes the following SIGSEGV that occurs when compression fails:
-
-in __erofs_bflush (bmgr=0x7ffff695c010, bb=0x0, abort=true) at cache.c:482
-482                             ret = bh->op->flush(bh, abort);
- 0  0x0000000000413860 in __erofs_bflush (bmgr=0x7ffff695c010, bb=0x0, abort=true) at cache.c:482
- 1  0x0000000000413cbe in erofs_buffer_exit (bmgr=0x7ffff695c010) at cache.c:549
- 2  0x0000000000414f72 in erofs_put_super (sbi=0x493270 <g_sbi>) at super.c:193
- 3  0x000000000040718d in main (argc=6, argv=0x7fffffffd628) at main.c:2165
-
+Fixes: c75cfaf6956d ("erofs-utils: mkfs: Turn off deduplication under chunk mode with '-E^dedupe'")
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- lib/compress.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ lib/compress.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/lib/compress.c b/lib/compress.c
-index 995bc602b145..7e8142a48ae5 100644
+index 995bc602b145..4a0d890ae87d 100644
 --- a/lib/compress.c
 +++ b/lib/compress.c
-@@ -1388,12 +1388,10 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+@@ -634,7 +634,7 @@ retry_aligned:
+ 			may_packing = false;
+ 			e->length = min_t(u32, e->length, ctx->pclustersize);
+ nocompression:
+-			if (params->dedupe != EROFS_DEDUPE_FORCE_OFF)
++			if (params->dedupe == EROFS_DEDUPE_FORCE_ON)
+ 				ret = write_uncompressed_block(ctx, len, dst);
+ 			else
+ 				ret = write_uncompressed_extents(ctx, len,
+@@ -1382,7 +1382,7 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 
+ 	if (ptotal)
+ 		(void)erofs_bh_balloon(bh, ptotal);
+-	else if (!params->fragments && params->dedupe == EROFS_DEDUPE_FORCE_OFF)
++	else if (!params->fragments && params->dedupe != EROFS_DEDUPE_FORCE_ON)
+ 		DBG_BUGON(!inode->idata_size);
+ 
  	erofs_info("compressed %s (%llu bytes) into %llu bytes",
- 		   inode->i_srcpath, inode->i_size | 0ULL, ptotal | 0ULL);
- 
--	if (inode->idata_size) {
--		bh->op = &erofs_skip_write_bhops;
-+	if (inode->idata_size)
- 		inode->bh_data = bh;
--	} else {
-+	else
- 		erofs_bdrop(bh, false);
--	}
- 
- 	inode->u.i_blocks = BLK_ROUND_UP(sbi, ptotal);
- 
-@@ -1690,7 +1688,7 @@ int erofs_mt_write_compressed_file(struct z_erofs_compress_ictx *ictx)
- 		ret = PTR_ERR(bh);
- 		goto out;
+@@ -1887,7 +1887,7 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 			params->max_compressed_extent_size;
+ 		ictx->data_unaligned = false;
  	}
--
-+	bh->op = &erofs_skip_write_bhops;
- 	DBG_BUGON(!head);
- 	pstart = erofs_pos(sbi, erofs_mapbh(NULL, bh->block));
+-	if (params->fragments && params->dedupe == EROFS_DEDUPE_FORCE_OFF &&
++	if (params->fragments && params->dedupe != EROFS_DEDUPE_FORCE_ON &&
+ 	    !ictx->data_unaligned)
+ 		inode->z_advise |= Z_EROFS_ADVISE_INTERLACED_PCLUSTER;
  
-@@ -1985,6 +1983,7 @@ int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx)
- 		ret = PTR_ERR(bh);
- 		goto err_free_idata;
- 	}
-+	bh->op = &erofs_skip_write_bhops;
- 	pstart = erofs_pos(sbi, erofs_mapbh(NULL, bh->block));
- 
- 	ictx->seg_num = 1;
 -- 
 2.43.5
 
