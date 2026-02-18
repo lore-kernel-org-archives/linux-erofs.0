@@ -1,49 +1,52 @@
-Return-Path: <linux-erofs+bounces-2327-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2328-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C431E9A03B
-	for <linux-erofs@archiver.kernel.org>; Wed, 18 Feb 2026 04:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C4AEE9A03B
+	for <linux-erofs@archiver.kernel.org>; Wed, 18 Feb 2026 05:01:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fG41F2ZJ9z2yFc;
-	Wed, 18 Feb 2026 15:54:25 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771390465;
-	cv=none; b=ZC+BIjb3ATuwxYvm1JTlt4wTZs0bVTIY4kZfDB56eoXXwZHDCv4m51y8Y0j73fp9hSXMSLR78NTTxikMQb5mydXH7TFPTP9aah+xTcCQAqpbVHQ955sH+Y6ELk1NYAgJ+u3C0RTafTiba/UAhBh2G4Wx75Zt37UQhv76aT6Z0ToyBkLfhlhg5P/incT57NYq2qgpYH7ZPqRTonrD1f0R5CR09BJsJp/UVUL6ykVT/576WbeOgnpTRWogJQXh1Oqm2GheTHLKzL9Oqum6hctWZBakNBefmq7Pj+j2Y9PoLh4vf/7+GKGcaHdUTpDdRxaQrNx+hwR4JZYCZLOOT/C7/w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fG4971DPMz2yr6;
+	Wed, 18 Feb 2026 16:01:15 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771390875;
+	cv=none; b=ZE8aPo3+UXKmpV3apGQA3+mSPjNbG69TPUghsvb7AE72EOEfskl1dfoKcTjbLGOdPh9qT7WMuQ7qosGuVRxKNfv9t2PAxv/PUyz1imRFUqVE6z74X9pBah8rh+aRhmwC8rz5sF7zCyga42oeYA8eYO1k0Xprq9ZO3n6Lx10eUVIKdMfEyTMcctzEsAgl4o5TOq72T2EqNBlR/4EU0csJ7AUhLO58id7uS0PaGEjRuVE3nnzRnz4tiFxE8PhyGqSvbHj0AAsbwjj1hAHqMbkvdtTHtxgJbYnlDrqweFUW66oO4W0s2tRNddz6rjNGx64Ucy7HrwcKyXL1GJ0XQQuJXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1771390465; c=relaxed/relaxed;
-	bh=V9FLepweUBxr80zkVLkEUYIGus/UU10Tvw27EihL1eM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=av7icCigvDFnT/j79l4jqHQg3MfKd3J+/XVJGhHIeoXYOb8Z8lYQJBfAJRDNy9Dhkg0Bh87ZO38pNobk8zS5RAOKDvzfxt/AZkqLyCMzNEV8ZakI65B9jEL2qQ2jrAS+zD9McJBkIpeGffUN0O/r6kDGG/r26oJcdZcAkw8S0Ea4+drgMYHEVSiBb2nJBjTsBhYzWsmd/gDZ2EcSEGVW7Ub9DzA31C3KOxcuqnge5I28OKKeaOA5E0omo4vS1TRnVNbW2e+TXJz9OwKPFZIQAimZL1fjlH7GORy+6wRjUu1mWnSYrWgvJ8l145QsiN3n6zphyUdKxyZ0bDJcIQKyIg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AM67X4KZ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1771390875; c=relaxed/relaxed;
+	bh=MlqbCgBVsjXCrWfG0k7wDgBaLUQCc7YudU4Q0qzBc9Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LvLju6ewy6VYgm+sxiqFy0CUhqDR6br14H0N+WECgawEFyCbDJ14BH+J895VDgyca/+2G/sxI4VtNUd28D/OnAoVPjMbvyVNyQe8H5w45/n6Q39UyVNenVgxStWUyIqtlKDWsfO3HlhYAHBRmOXlEYJ633IoiloOPse7ja6rSnAcs+I5RzlGDMJTrETdRp1UpaFhcWZhCZtSZ9B8P5cdXtBWU6j+ryD7Kd9tmomZ6KuN6PaWpuCZW0ZBQafbVnqMeWXgimq+ij2//Ru/ALRYsb1XDUD5aDqE54B23d2HuixloB7ByXUYCC3WLO9aJ+Pa1tG5y7/sunLKwwkH4VeMFw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=cwlmKbT4; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AM67X4KZ;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=cwlmKbT4;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fG418722cz2xSG
-	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Feb 2026 15:54:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fG4953X5wz2xSG
+	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Feb 2026 16:01:12 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1771390453; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=V9FLepweUBxr80zkVLkEUYIGus/UU10Tvw27EihL1eM=;
-	b=AM67X4KZ02EXFZ8K0gUSwAfl/g2uwb+mF02uyUzJb2eqfU8GJDwjXHY/WKD0Qssq2ag+HWPSlNUtBp4tQVKfI57IdHoMJcvQox1rOSc1ZRz5lJpOs4YR5pdzYWz/CSz7O1iTliW30j5yWTaMKOqqGSs+GRAjQaJASQ/oNe/MLI8=
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzRkwJm_1771390448 cluster:ay36)
+	t=1771390867; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=MlqbCgBVsjXCrWfG0k7wDgBaLUQCc7YudU4Q0qzBc9Q=;
+	b=cwlmKbT4MukKa53/a86+RIruRpVRlfS3RQZ034W2dfci7O4Oqv5HPqb5O9FlQ27qjyeqe169W2m2ihcrPaRM0f/SBaeeoqKs23+XL1znNRz+Vc9DWfP/SGWPte1CktvuHxXMXLvhr7vxP6lSRbaodDuOIYMq4sqDPmD2XkNecrU=
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzRl-28_1771390865 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 18 Feb 2026 12:54:12 +0800
+          Wed, 18 Feb 2026 13:01:06 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: oliver.yang@linux.alibaba.com,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 1/2] erofs-utils: lib: migrate `c_max_decompressed_extent_bytes`
-Date: Wed, 18 Feb 2026 12:54:06 +0800
-Message-ID: <20260218045407.3783915-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v2 2/2] erofs-utils: mkfs: allow multiplier suffixes ('K', 'M', 'G')
+Date: Wed, 18 Feb 2026 13:01:04 +0800
+Message-ID: <20260218050104.3796451-1-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20260218045407.3783915-2-hsiangkao@linux.alibaba.com>
+References: <20260218045407.3783915-2-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,166 +60,209 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
+Apply to common arguments such as `-b`, `-C` and `-m`.
+
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/config.h   |  1 -
- include/erofs/importer.h |  3 +++
- lib/compress.c           | 45 ++++++++++++++++++++++++++++++++++++----
- lib/config.c             |  1 -
- lib/importer.c           |  2 ++
- mkfs/main.c              |  8 +++----
- 6 files changed, 50 insertions(+), 10 deletions(-)
+v2:
+ - also convert erofs_mkfs_feat_set_fragments().
 
-diff --git a/include/erofs/config.h b/include/erofs/config.h
-index 3758cc7c198e..bb303c48a0db 100644
---- a/include/erofs/config.h
-+++ b/include/erofs/config.h
-@@ -50,7 +50,6 @@ struct erofs_configure {
- 	char *c_compress_hints_file;
- 	char c_force_chunkformat;
- 	u8 c_mkfs_metabox_algid;
--	u32 c_max_decompressed_extent_bytes;
- 	const char *mount_point;
- 	u32 c_root_xattr_isize;
- #ifdef EROFS_MT_ENABLED
-diff --git a/include/erofs/importer.h b/include/erofs/importer.h
-index a7a540d4d182..920488453c34 100644
---- a/include/erofs/importer.h
-+++ b/include/erofs/importer.h
-@@ -29,6 +29,8 @@ enum {
- 	EROFS_FRAGDEDUPE_OFF,
- };
- 
-+#define EROFS_COMPRESSED_EXTENT_UNSPECIFIED	0
-+
- struct erofs_importer_params {
- 	struct z_erofs_paramset *z_paramsets;
- 	char *source;
-@@ -42,6 +44,7 @@ struct erofs_importer_params {
- 	u32 pclusterblks_def;
- 	u32 pclusterblks_packed;
- 	s32 pclusterblks_metabox;
-+	s32 max_compressed_extent_size;
- 	s64 build_time;
- 	char force_inodeversion;
- 	bool ignore_mtime;
-diff --git a/lib/compress.c b/lib/compress.c
-index bbbf0e43d3fb..995bc602b145 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -53,6 +53,7 @@ struct z_erofs_compress_ictx {		/* inode context */
- 	struct list_head extents;
- 	u16 clusterofs;
- 	int seg_num;
-+	u32 max_compressed_extent_size;
- 
- #if EROFS_MT_ENABLED
- 	pthread_mutex_t mutex;
-@@ -595,7 +596,7 @@ static int __z_erofs_compress_one(struct z_erofs_compress_sctx *ctx,
- 			goto nocompression;
- 	}
- 
--	e->length = min(len, cfg.c_max_decompressed_extent_bytes);
-+	e->length = min(len, ictx->max_compressed_extent_size);
- 	if (data_unaligned) {
- 		ret = erofs_compress(h, ctx->queue + ctx->head, e->length,
- 				     dst, ctx->pclustersize);
-@@ -1847,9 +1848,45 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
- 		ictx->ccfg = &sbi->zmgr->ccfg[inode->z_algorithmtype[0]];
- 	inode->z_algorithmtype[0] = ictx->ccfg->algorithmtype;
- 	inode->z_algorithmtype[1] = 0;
--	ictx->data_unaligned = erofs_sb_has_48bit(sbi) &&
--		cfg.c_max_decompressed_extent_bytes <=
--			z_erofs_get_pclustersize(ictx);
-+
-+	if (params->max_compressed_extent_size ==
-+	    EROFS_COMPRESSED_EXTENT_UNSPECIFIED) {
-+		if (erofs_sb_has_48bit(sbi) && ictx->ccfg->handle.alg->c->compress) {
-+			ictx->max_compressed_extent_size =
-+				z_erofs_get_pclustersize(ictx);
-+			ictx->data_unaligned = true;
-+		} else {
-+			ictx->max_compressed_extent_size = UINT32_MAX;
-+			ictx->data_unaligned = false;
-+		}
-+	} else if (params->max_compressed_extent_size <=
-+		   (s32)z_erofs_get_pclustersize(ictx)) {
-+		if (params->max_compressed_extent_size < 0) {
-+			ictx->max_compressed_extent_size =
-+				-params->max_compressed_extent_size;
-+			if (!erofs_sb_has_48bit(sbi)) {
-+				erofs_err("Unaligned compressed extents must be used with the 48bit encoded extent layout",
-+					  ictx->max_compressed_extent_size);
-+				free(ictx);
-+				return ERR_PTR(-EINVAL);
-+			}
-+			ictx->data_unaligned = true;
-+		} else {
-+			ictx->max_compressed_extent_size =
-+				params->max_compressed_extent_size;
-+			if (erofs_sb_has_48bit(sbi))
-+				ictx->data_unaligned = true;
-+		}
-+		if (ictx->max_compressed_extent_size < erofs_blksiz(sbi)) {
-+			erofs_err("Maximum compressed extent size (%u) must be at least the block size (%u)",
-+				  ictx->max_compressed_extent_size, erofs_blksiz(sbi));
-+			return ERR_PTR(-EINVAL);
-+		}
-+	} else {
-+		ictx->max_compressed_extent_size =
-+			params->max_compressed_extent_size;
-+		ictx->data_unaligned = false;
-+	}
- 	if (params->fragments && params->dedupe == EROFS_DEDUPE_FORCE_OFF &&
- 	    !ictx->data_unaligned)
- 		inode->z_advise |= Z_EROFS_ADVISE_INTERLACED_PCLUSTER;
-diff --git a/lib/config.c b/lib/config.c
-index 3398ded56ac1..ab7eb01e1914 100644
---- a/lib/config.c
-+++ b/lib/config.c
-@@ -29,7 +29,6 @@ void erofs_init_configure(void)
- 	cfg.c_dbg_lvl  = EROFS_WARN;
- 	cfg.c_version  = PACKAGE_VERSION;
- 	cfg.c_dry_run  = false;
--	cfg.c_max_decompressed_extent_bytes = -1;
- 	erofs_stdout_tty = isatty(STDOUT_FILENO);
- }
- 
-diff --git a/lib/importer.c b/lib/importer.c
-index d686c519676b..26c86a0b0098 100644
---- a/lib/importer.c
-+++ b/lib/importer.c
-@@ -24,6 +24,8 @@ void erofs_importer_preset(struct erofs_importer_params *params)
- 		.fixed_gid = -1,
- 		.fsalignblks = 1,
- 		.build_time = -1,
-+		.max_compressed_extent_size =
-+			EROFS_COMPRESSED_EXTENT_UNSPECIFIED,
- 	};
- }
- 
+ mkfs/main.c | 117 ++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 100 insertions(+), 17 deletions(-)
+
 diff --git a/mkfs/main.c b/mkfs/main.c
-index ee23944f3ebd..fb51cf87ef48 100644
+index fb51cf87ef48..7333f1f03146 100644
 --- a/mkfs/main.c
 +++ b/mkfs/main.c
-@@ -1179,13 +1179,13 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
+@@ -354,6 +354,29 @@ static int erofs_mkfs_feat_set_ztailpacking(struct erofs_importer_params *params
+ 	return 0;
+ }
+ 
++static int erofs_mkfs_strtoull(const char *nptr, char **endptr,
++			       unsigned long long *res, int base)
++{
++	char *end;
++	unsigned long long number;
++
++	errno = 0;
++	number = strtoull(nptr, &end, base);
++	if (errno)
++		return -errno;
++
++	if (*end == 'k' || *end == 'K')
++		number <<= 10, ++end;
++	else if (*end == 'm' || *end == 'M')
++		number <<= 20, ++end;
++	else if (*end == 'g' || *end == 'G')
++		number <<= 30, ++end;
++	*res = number;
++	if (endptr)
++		*endptr = end;
++	return 0;
++}
++
+ static int erofs_mkfs_feat_set_fragments(struct erofs_importer_params *params,
+ 					 bool en, const char *val,
+ 					 unsigned int vallen)
+@@ -366,10 +389,12 @@ static int erofs_mkfs_feat_set_fragments(struct erofs_importer_params *params,
+ 	}
+ 
+ 	if (vallen) {
++		unsigned long long i;
+ 		char *endptr;
+-		u64 i = strtoull(val, &endptr, 0);
++		int err;
+ 
+-		if (endptr - val != vallen) {
++		err = erofs_mkfs_strtoull(val, &endptr, &i, 0);
++		if (err || endptr - val != vallen) {
+ 			erofs_err("invalid pcluster size %s for the packed file", val);
+ 			return -EINVAL;
+ 		}
+@@ -748,6 +773,59 @@ static int mkfs_parse_s3_cfg(char *cfg_str)
+ }
+ #endif
+ 
++static int erofs_mkfs_strtoll(const char *nptr, char **endptr,
++			      long long *res, int base)
++{
++	char *end;
++	long long number;
++
++	errno = 0;
++	number = strtoll(nptr, &end, base);
++	if (errno)
++		return -errno;
++
++	if (*end == 'k' || *end == 'K')
++		number *= 1024, ++end;
++	else if (*end == 'm' || *end == 'M')
++		number *= 1048576, ++end;
++	else if (*end == 'g' || *end == 'G')
++		number *= 1073741824, ++end;
++	*res = number;
++	if (endptr)
++		*endptr = end;
++	return 0;
++}
++
++static int erofs_mkfs_strtol(const char *nptr, char **endptr,
++			     long *res, int base)
++{
++	long long res_ll;
++	int ret;
++
++	ret = erofs_mkfs_strtoll(nptr, endptr, &res_ll, base);
++	if (ret)
++		return ret;
++	if (res_ll > LONG_MAX || res_ll < LONG_MIN)
++		return -ERANGE;
++	*res = res_ll;
++	return 0;
++}
++
++static int erofs_mkfs_strtou32(const char *nptr, char **endptr,
++			       u32 *res, int base)
++{
++	unsigned long long res_ull;
++	int ret;
++
++	ret = erofs_mkfs_strtoull(nptr, endptr, &res_ull, base);
++	if (ret)
++		return ret;
++	if (res_ull > UINT32_MAX)
++		return -ERANGE;
++	*res = res_ull;
++	return 0;
++}
++
+ #ifdef OCIEROFS_ENABLED
+ /*
+  * mkfs_parse_oci_options - Parse comma-separated OCI options string
+@@ -765,6 +843,7 @@ static int mkfs_parse_oci_options(struct ocierofs_config *oci_cfg, char *options
+ {
+ 	char *opt, *q, *p;
+ 	long idx;
++	int ret;
+ 
+ 	if (!options_str)
+ 		return 0;
+@@ -815,8 +894,8 @@ static int mkfs_parse_oci_options(struct ocierofs_config *oci_cfg, char *options
+ 				erofs_err("invalid --oci: layer and blob cannot be set together");
+ 				return -EINVAL;
+ 			}
+-			idx = strtol(p, NULL, 10);
+-			if (idx < 0)
++			ret = erofs_mkfs_strtol(p, NULL, &idx, 10);
++			if (ret || idx < 0)
+ 				return -EINVAL;
+ 			oci_cfg->layer_index = (int)idx;
+ 		} else if ((p = strstr(opt, "username="))) {
+@@ -890,12 +969,8 @@ static int mkfs_parse_one_compress_alg(char *alg)
+ 					}
+ 				} else if ((p = strstr(opt, "dictsize="))) {
+ 					p += strlen("dictsize=");
+-					zset->dict_size = strtoul(p, &endptr, 10);
+-					if (*endptr == 'k' || *endptr == 'K')
+-						zset->dict_size <<= 10;
+-					else if (*endptr == 'm' || *endptr == 'M')
+-						zset->dict_size <<= 20;
+-					else if ((endptr == p) || (*endptr && *endptr != ',')) {
++					j = erofs_mkfs_strtou32(p, &endptr, &zset->dict_size, 0);
++					if (j < 0 || (*endptr != '\0' && endptr != q)) {
+ 						erofs_err("invalid compression dictsize %s", p);
+ 						return -EINVAL;
+ 					}
+@@ -1069,8 +1144,9 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
+ 			break;
+ 
+ 		case 'b':
+-			i = atoi(optarg);
+-			if (i < 512 || i > EROFS_MAX_BLOCK_SIZE) {
++			err = erofs_mkfs_strtol(optarg, &endptr, &i, 0);
++			if (err || *endptr != '\0' || i < 512 ||
++			    i > EROFS_MAX_BLOCK_SIZE) {
+ 				erofs_err("invalid block size %s", optarg);
+ 				return -EINVAL;
+ 			}
+@@ -1179,8 +1255,9 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
  			break;
  #endif
  		case 9:
--			cfg.c_max_decompressed_extent_bytes =
--				strtoul(optarg, &endptr, 0);
--			if (*endptr != '\0') {
--				erofs_err("invalid maximum uncompressed extent size %s",
-+			i = strtol(optarg, &endptr, 0);
-+			if (*endptr != '\0' || i > INT32_MAX || i < INT32_MIN) {
-+				erofs_err("invalid maximum compressed extent size %s",
+-			i = strtol(optarg, &endptr, 0);
+-			if (*endptr != '\0' || i > INT32_MAX || i < INT32_MIN) {
++			err = erofs_mkfs_strtol(optarg, &endptr, &i, 0);
++			if (err || *endptr != '\0' ||
++			    i > INT32_MAX || i < INT32_MIN) {
+ 				erofs_err("invalid maximum compressed extent size %s",
  					  optarg);
  				return -EINVAL;
- 			}
-+			params->max_compressed_extent_size = i;
+@@ -1206,8 +1283,8 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
  			break;
- 		case 10:
- 			cfg.c_compress_hints_file = optarg;
+ #endif
+ 		case 'C':
+-			i = strtoull(optarg, &endptr, 0);
+-			if (*endptr != '\0') {
++			err = erofs_mkfs_strtol(optarg, &endptr, &i, 0);
++			if (err < 0 || *endptr != '\0' || i <= 0) {
+ 				erofs_err("invalid physical clustersize %s",
+ 					  optarg);
+ 				return -EINVAL;
+@@ -1228,7 +1305,13 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
+ 					metabox_algorithmid = err;
+ 				}
+ 			}
+-			pclustersize_metabox = atoi(optarg);
++			err = erofs_mkfs_strtol(optarg, &endptr, &i, 0);
++			if (err < 0 || (*endptr != '\0' && algid != endptr) ||
++			    i <= 0) {
++				erofs_err("invalid metabox option %s", optarg);
++				return -EINVAL;
++			}
++			pclustersize_metabox = i;
+ 			break;
+ 		}
+ 
 -- 
 2.43.5
 
