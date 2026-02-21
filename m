@@ -1,44 +1,92 @@
-Return-Path: <linux-erofs+bounces-2341-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2342-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4412CC61DE1
-	for <linux-erofs@archiver.kernel.org>; Sat, 21 Feb 2026 10:16:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 266FAC61DE7
+	for <linux-erofs@archiver.kernel.org>; Sat, 21 Feb 2026 14:45:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fJ31Z3J5Tz2yrn;
-	Sat, 21 Feb 2026 21:16:34 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771668994;
-	cv=none; b=ENa8JY+/rbuFVn/4RAud03c/n9AgReRLNA53mASf2Q0ZO5sdcH/2Km++xb4dE+kGf3PHPZSkd5gQ0I1cD0RxDl3UBhgZlZKPEWKRblfA4JNOlJv8N5aN8G6z3H6HuwilxZRqPTS3AOGPUmFoBM9vtWj2DUrA+6fBafxp5LOT2/rP93USmhTmh1oCHQaaY7LR66Rhdr1uAxrPv/NU+kcJZ84DLq/aNtCnIrjCWRPy8Tb7MyorVj3XQt5naftETt2a031eRu9GVodazjVfPcDNZesZgQtDJpwxdW8Kg9KHQCzm5ySkoYF+MetXagw8ZBdLDsQAhaSVZ4nqAyXlGmYl1g==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1771668994; c=relaxed/relaxed;
-	bh=yjjGZaVeU8H2iQuhAl0NXBgR5+geLqoyotWslXE9UF8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Hac5CIZKvQ5PKHcvmAag0aY2+z4brhbI0iDUMHlSWIdsfELX6NZLkrJKFyUOAEu2bljUPlCwhbvkQkpq2zgB8oaRf7BdL47G2q2ON8jUAmqitD9y8yxjnc12xyoYEHro3kniUQ5obgm/KH4bT8Dfv7QoV4ldI+BodPPE8A99v25X7Kglado/OCvO9Vw/BaBkl0fPyvIoQBCUbjj6XW3XPBnF+wDSaCBONyrer6oFu8lBtpzMDLALt3gmdFNlw+zzJjvdmRJ/CNE3rXQrpK65Yfkkc+4ez/U90H4Ru3dINcmJNaRjbVgg06dV1r8oxK1gy8A+6mFQcKS4fpWP54aB9A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fQaJDft1; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fJ8zR4WKTz2yrn;
+	Sun, 22 Feb 2026 01:45:07 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::102a" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771685107;
+	cv=pass; b=TXEnpCPbI0U8g/mClVti5TfCaarfd8lLiD3VC3AVHRpFG1mTP4i5eb2twxvY8aL82MxBW4LR0zDVDHePGWyB9fOJOoDZ7AAzhh6Hg72pwA/ZcZsRPHjhQ99BktMR89X+EdoBK10+FmXcWCrFS+m4YL7G7asD1it0yaX3CSLykKFz58ER+OTiVwf//6dUvx4q3WcRyGPwaiJsxyvt3MFvCcPsrM6g8G9Iobdg3v5WW7ICc2A+OBhVCXUXO/kSbdhyqhaCYJpI5qZt1e5OcQSjPbGGyuTwwpEcLtWrHITX/xaolChisojfhE56J24RW2/qr7GQK+YZ2/kMrv4AkvPGOA==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1771685107; c=relaxed/relaxed;
+	bh=0hcc3UIJWlRGIkw1audMXnwENwCTty4kBzpeXZoXMfY=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=KZKHzoOqDVdcGI2FyXus81LGwofJWWo+pu0qfq/LfXWndnqjeUgjAGjnoFadKNGz3PnlbvlQntBarjpMm+8ehnOehJRraNFxvN0iXRctYO1u5U1xvWp3pFqcgH+vQXO6uemC9fRa5/X6wkWUUy29+GQvTEEnRroPmcfyKY1/NYOe6jjkLM0lXzV1UE+rnFjjmBy12S1BCfPHMtTYxwgY6TJHg+I2PY1DCOR/50EKIlo5KFC5CuO/OeCdpw913BTeSAApCSYZz/miSfKmIKzRFyOatK+vGs34nXyGhGvBX26I1i8LJb0Dr05iZ45bPp2O3nkOZ3rg14UOqOMc8aNKdg==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=NQktMWF8; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::102a; helo=mail-pj1-x102a.google.com; envelope-from=canyu3411@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fQaJDft1;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=NQktMWF8;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::102a; helo=mail-pj1-x102a.google.com; envelope-from=canyu3411@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fJ31W6HPhz2yY0
-	for <linux-erofs@lists.ozlabs.org>; Sat, 21 Feb 2026 21:16:29 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1771668979; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=yjjGZaVeU8H2iQuhAl0NXBgR5+geLqoyotWslXE9UF8=;
-	b=fQaJDft1RsKeZzJTlTXxgfddX/lU9zfCkcMpydpY5K+TQCuuPH0ducO48suJzpCbjAthVjuDUTQNUDuFaYzrukH2DnfTqmIXWLZVTxYOUGKLzC5kCFB2gfhrSA3GMGuVS/76/xhOPXKEoJAWjeT3WO+Ej37QivEIXyHlrlhWx3U=
-Received: from 30.42.59.174(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzZO6qp_1771668977 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sat, 21 Feb 2026 18:16:18 +0800
-Message-ID: <f3b30443-3e33-4f29-9859-c092e3021ab8@linux.alibaba.com>
-Date: Sat, 21 Feb 2026 18:16:17 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fJ8zP2C9lz2xm5
+	for <linux-erofs@lists.ozlabs.org>; Sun, 22 Feb 2026 01:45:04 +1100 (AEDT)
+Received: by mail-pj1-x102a.google.com with SMTP id 98e67ed59e1d1-354a2d107bfso1228528a91.0
+        for <linux-erofs@lists.ozlabs.org>; Sat, 21 Feb 2026 06:45:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771685101; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Ntio9IeeqyFcCpwSXcV2EueUAQmiXwsysx202zXjqMOeQBpyvZvikpPXqsuHILk6aq
+         Fyuq/UVgYVldf4KYPPQrQdqRJdAxI9teUkqB+CqHWZ4dOnqRiuWF17T4esfyVHxlDttS
+         B5GBkSRyE/sHBmQvEWb9KBc0pKlOQo33VGu9tuoLPxCDCru9bFJaahHlhygU07y8KTDA
+         gIN5I7Bh1H3dCQRDsAuC5R35Fri2mCmkGKPUd1yvzA2pytBxzQEVsHVtznbrkK/C6GPc
+         EecGScQdgW3bfLQW+flMUhG7D4FH3J/1ZgwQka53Mr5dCfX0juLpWaVeRffWV4ZRJuAC
+         Bgwg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:sender:mime-version:dkim-signature;
+        bh=0hcc3UIJWlRGIkw1audMXnwENwCTty4kBzpeXZoXMfY=;
+        fh=wOhGMmq2KH+KOElLlPuS8ws9o9ArjDb4wH58JVHh4Vg=;
+        b=UctkZ+YvQYtsAnsyEY7tiiUhudISgxPRYZgVR8Rn4cG0a4JyqnYRR95qhoskB2OrEM
+         N2aaWvDkbZFRhVFQqGBJTtEvcxfSXvmRMy59DvX5hq4oIN/2/10EK0nqllCvSI/WuhnC
+         UVoLUnX0+irJYtoLK04w9c/fJpUWPLHw5rSfWQGdDtICHb0tN1x2pt54ZNSjGWN5yMLW
+         U2qfyke9p//XVqY0Nkl0gWgkVcoFTwJxIi02oeqyfWfChjUbpIR/4GGzGGbMhsW6J9lp
+         V30WW0qnotKKUODyxEPoJwFmDbPzu7rEby+HPZjIqPj0cyQ1w6dV6tryvsh1gZg0KgSU
+         qjMg==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771685101; x=1772289901; darn=lists.ozlabs.org;
+        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0hcc3UIJWlRGIkw1audMXnwENwCTty4kBzpeXZoXMfY=;
+        b=NQktMWF89SJscOkORSKri6rawp5iQKE22ckVD0EbAe564763hq8uY1kdtfNvFzWUgJ
+         OPY90hTt/DLeuXwUfhKDuVYaBWRYgJ+GI9lvt1Sp0cqEPT78MYAzEVCC/kd6pfFi11Og
+         0asV0CR0r0bgkcOknkWUDRBHQrULhrTvfUj4DHOeLfIpasjHhbJwvJ37sps1s2nFtlyl
+         B4ywTAtzo52zKr586zQ4wcdok+YgKLEgxc+SGBgnsrui9gUlm3g3j8euvYW21grGOeJn
+         8yHwAFZCk0o3SM+27+0imvEXPaEWaXs0Xr4PsNESdaKXAIqaBTHXiih+3FQvJncUHbIx
+         8Uvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771685101; x=1772289901;
+        h=to:subject:message-id:date:from:sender:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0hcc3UIJWlRGIkw1audMXnwENwCTty4kBzpeXZoXMfY=;
+        b=BuScg1LgBgnltQyvAa7Aew6kb3PArCAkzZnzaoTd4c3P940iM52rG+s4f1tM8bFj3E
+         zUjKuzBZMG48SykYqr72Gvw0y3HhFDSKJ+Da39OMKQV/E7vvTls+rpJyFfYIxiRJW3z/
+         B0kKSozxz5ODswwrgheqy/BO9jMz973H1p/UMVQKteULjVa6B2QZsCIRN2P1gHLRG658
+         h9yvVzwebaIiE8oyaMARJYuj6x/HFcvN2c0pp2XQVLKxKjs98C0Nm9dQ3EYZlhcEiqQd
+         NpETCyCKB22wMJUMtWd5KpmyV+M1knOdb+UA9oZZUrhFKR4ZGrM9ZwpXSQbu4zrn7Wyp
+         /d2g==
+X-Gm-Message-State: AOJu0YyyaebGSQSMIDtfnUjDe3lHtfahXWwl5Rx3zLCanHZLbHSD+asW
+	CuZguj4NIiajUva1ISHFO/OqdRaDLPn8/iAXd1mODssouYgplMUPa/Uco+Rf02iC0ahZuR7vJC9
+	rHxMQt3tm5j7l5IEE/1lyLQYlxA8Y5QgtPrRL3F5rxx6U
+X-Gm-Gg: AZuq6aIc8EiLtWi8eIFvbgaO0waIlAR4K4VkOJsStHMJ5XhvMgQLzP6ZjKXSHHnfmf+
+	rTiBG1f8V8wUHQo+WP2gYTJILOb384YMFvcCKbdm8idpDhl3SWWMxpi3WwgZn3p0KZvH4eHlHkR
+	Hfa502ITVe6Qmv2ELaVKql0j2CfdM+0hhcbzv9yxT5dm6W0eXgy004BXo0S2Zvb6Hkknp/j9yf5
+	RupS4e2Gat9Otgwm080tdJf7kTItXDJxRYdlz51S2H3Ub4Mf3tYJwdDmR7h4D5l0Ke92etw1uae
+	0Mom5j36na+1RKheRQ==
+X-Received: by 2002:a17:90b:4a03:b0:354:bfb7:db1a with SMTP id
+ 98e67ed59e1d1-358ae8eb3c1mr2564007a91.31.1771685100738; Sat, 21 Feb 2026
+ 06:45:00 -0800 (PST)
+Received: from 1062442478371 named unknown by gmailapi.google.com with
+ HTTPREST; Sat, 21 Feb 2026 08:45:00 -0600
+Received: from 1062442478371 named unknown by gmailapi.google.com with
+ HTTPREST; Sat, 21 Feb 2026 08:45:00 -0600
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,26 +98,79 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: fix installing erofsfuse.1 manpage
-To: mail@duncano.de, linux-erofs@lists.ozlabs.org
-References: <20260220183110.2633838-2-mail@duncano.de>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260220183110.2633838-2-mail@duncano.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Sender: canyu3411@gmail.com
+From: canyu3411@gmail.com
+Date: Sat, 21 Feb 2026 08:45:00 -0600
+X-Google-Sender-Auth: d7CV-vbHmNVSjEcEly_VM0V0iZ8
+X-Gm-Features: AaiRm53nuSA3d4JuwjSHuL8yU2lkx3386R7_SEAa3y_UFh2PFfoOPb5O8NXlBAw
+Message-ID: <CAFCWvpVztzjWOwOkfGELw64R+rH1AGhNj+H5ySsz+Xp4aKuaWA@mail.gmail.com>
+Subject: How do I become exceptional?
+To: linux-erofs@lists.ozlabs.org
+Content-Type: multipart/alternative; boundary="000000000000155fd1064b56957b"
 
-Hi Duncan,
+--000000000000155fd1064b56957b
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026/2/21 02:31, mail@duncano.de wrote:
-> From: Duncan Overbruck <mail@duncano.de>
+Dear EROFS community,
 
-A fix was already in -dev branch yesterday
-https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=dev&id=bb4d440337258ea8a047779c9ca4875c73806ee7
+I want to know before I start contributing, how do I go above and beyond
+your provided guide to truly get accepted this year for GSoC? Could you
+share how previous applicants or current contributors are extraordinary in
+the community?
 
-but I'd like to wait for more time to release
-the next minor version.
+My name is Can (face to a name <https://www.linkedin.com/in/icancode/>), a
+CS and Business student in Ireland. I=E2=80=99ve done internships
+<https://drive.google.com/file/d/10fbajdcn8WGks-2zmQ_mvwqCSNh_dR84/view?usp=
+=3Dsharing>
+, research
+<https://drive.google.com/file/d/13fLgwVvdrDvJpiEscEYTm7gtIkfrt6Nu/view?usp=
+=3Dsharing>
+, DSA programming <https://leetcode.com/u/canyu3411/> and I=E2=80=99m ready=
+ for my
+next endeavour.
 
-Thanks,
-Gao Xiang
+That being said, I want to start off at the right foot. That=E2=80=99s why =
+I wanted
+to reach out before starting; to understand how to be well regarded in the
+community, provide true value *beyond the guide*, and to become familiar
+with the people, starting from you.
+
+If you think I=E2=80=99m someone who you can see here, I will take your adv=
+ice to
+heart and start making contributions immediately. Thank you for your time.
+
+Gratefully,
+
+Can Atasever.
+
+--000000000000155fd1064b56957b
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><span style=3D"color:rgb(0,0,0)">Dear EROFS community=
+,</span><br></div><div><p style=3D"color:rgb(0,0,0)">I want to know before =
+I start contributing, how do I go above and beyond your provided guide to t=
+ruly get accepted this year for GSoC? Could you share how previous applican=
+ts or current contributors are extraordinary in the community?</p><p style=
+=3D"color:rgb(0,0,0)">My name is Can (<a href=3D"https://www.linkedin.com/i=
+n/icancode/">face to a name</a>), a CS and Business student in Ireland. I=
+=E2=80=99ve done<span class=3D"gmail-Apple-converted-space">=C2=A0</span><a=
+ href=3D"https://drive.google.com/file/d/10fbajdcn8WGks-2zmQ_mvwqCSNh_dR84/=
+view?usp=3Dsharing">internships</a>,<span class=3D"gmail-Apple-converted-sp=
+ace">=C2=A0</span><a href=3D"https://drive.google.com/file/d/13fLgwVvdrDvJp=
+iEscEYTm7gtIkfrt6Nu/view?usp=3Dsharing">research</a>,<span class=3D"gmail-A=
+pple-converted-space">=C2=A0</span><a href=3D"https://leetcode.com/u/canyu3=
+411/">DSA programming</a><span class=3D"gmail-Apple-converted-space">=C2=A0=
+</span>and I=E2=80=99m ready for my next endeavour.=C2=A0</p><p style=3D"co=
+lor:rgb(0,0,0)">That being said, I want to start off at the right foot. Tha=
+t=E2=80=99s why I wanted to reach out before starting; to understand how to=
+ be well regarded in the community, provide true value <u>beyond the guide<=
+/u>, and to become familiar with the people, starting from you.</p><p style=
+=3D"color:rgb(0,0,0)">If you think I=E2=80=99m someone who you can see here=
+, I will take your advice to heart and start making contributions immediate=
+ly. Thank you for your time.<br></p><p style=3D"color:rgb(0,0,0)">Gratefull=
+y,</p><p style=3D"color:rgb(0,0,0)">Can Atasever.</p></div></div>
+
+--000000000000155fd1064b56957b--
 
