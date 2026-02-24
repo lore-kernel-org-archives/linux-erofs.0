@@ -1,51 +1,81 @@
-Return-Path: <linux-erofs+bounces-2371-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2372-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE3C7EA4FD7
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Feb 2026 15:27:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5934EFB7FD
+	for <linux-erofs@archiver.kernel.org>; Tue, 24 Feb 2026 05:57:24 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fKPqX0vrZz2yFc;
-	Tue, 24 Feb 2026 02:27:36 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771860456;
-	cv=none; b=a2RihZORdWV2LnEMBy0dgHcr5IvIco7uBSLINhAzL9w62GsAyLHuYEdHlXDZfta2Q/H5OJdnzy58H7pzdmm/OpPu1e8zJmHo+oNW8Kh7pu1gJcScqMlzIDd4G+CBeDlafe3aYU15EkuJ0Kkne8UhIr+WLupVZTxQbwJWjy996OJ8WtAdC2ldyV7mWUx0a58LjUrr6PZONisdJGugGM2i6NnmPvXRFDr8EKVdUwVwaa0k0CWFScBYDGG66DzZWyam0wPaPjG08+hj/f2jXbDLxBDnOeBN83znuzs9zc4csjSaHlL3tFCmwrqs9rq+xDqTv+abtEH182qFHUBjSRJ+LA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fKn770cxFz3cDr;
+	Tue, 24 Feb 2026 16:57:23 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::52b"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1771912643;
+	cv=none; b=MmF/mCUGzQFnabVVnXC2j8Y7FlwMMFhD//2bcRosMAsZkIY4Cccs4D4p6t6ZQSCfr8HqqB7KEewTk8jNkgdd2xiGhz0yHoY/wjpaaUwwHt3CDpcNiuImpKJeH2DW1j7QUP7iktg7VpW5q+xJuoqfF+Qy2I4Lda3NeN5mL6XQdnVR6rQsJQHgSLwUSf5QDNTvedFKZJFm4fZFuS80PtCb3PZ8ffnZf1Sf2i21JTj5f7yR8gCB3wwEzGrj6DP6aznEJEiyWXvsOb5XQnU3uYI+XdOuju4mZnPdRPBGYi15DhApdQ+mB80xnn0E6QAjqJAQ4Y52PT3LlkbKRosn0c0/8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1771860456; c=relaxed/relaxed;
-	bh=6QAWYQ8UpQenLZ0aHy8uXkQiFgVTozlWWowgolKIqhg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hmOpKmh5voSsZaNzRF6cPLL9+bQckceux1LERaEaHMnqxRBMWFdQPen9JoRyueE/Th4D6S1L5ozPKiUGeThmxPQp5OrJE9Iy2+wgTFTyFeqrrwIDD6IX9oD9WYdffm36eAhhRcAmouypZG2e2zkhVMLEdzfXxFyYL0qAuP4i0NkvNdEmwSPzXv4RYn0TajJ97KeP6S1WshugckE0Mxy35Q7Bu6/SUzfWId52OTFRsCOl4Lm7ZxBC146VjKnEzZLCaEJ1ShKNld8afZo1cx0Z0Z5fv0jF2cQjuU/C7Nt25yOznaWACb2dOBB+uQluQzrw+b/vaAwO1SiIbLbXZmmwmw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RhxvaE8n; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1771912643; c=relaxed/relaxed;
+	bh=EYBICnAxckwfVseZT2u2BRpPM7tahyIeCUHh/Ctktik=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OGTQmEvZAn5+ranHmtYZGQbOWGiM9E88ogi1xdR1UtyW3pxnLBVMLvz8A1oivLcZENSh/cB/+XBtxa5a3Bv6wKv3SYoPOPgrhzMV6lNAD6yWf7PxGQ1ByFEq+SuxfOo+FGbJco0P7xlmc0AxuT27huW6GJIC/DJLkeeOQk8h2kmSjBBz9p72mhgUkvtJryV6h8TKCBYM2saPHsa0O3z3DAVLMDaWPKefxmXJg0NGwL1EMeebiwC5DeMdRCWuKLQOSkg67C+JGb0A2jN45sFUr6hYpPrJsSywfZJGcGUDz9OnaazemLT8IJJs1g3haarG0jbzicaqAwlFcHpJPW+OfQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=cT2tMRaX; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::52b; helo=mail-pg1-x52b.google.com; envelope-from=myakampuneeth@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=RhxvaE8n;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=cT2tMRaX;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::52b; helo=mail-pg1-x52b.google.com; envelope-from=myakampuneeth@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fKPqW2PZ9z2xSG
-	for <linux-erofs@lists.ozlabs.org>; Tue, 24 Feb 2026 02:27:35 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id D9D2E60051;
-	Mon, 23 Feb 2026 15:27:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5437C116C6;
-	Mon, 23 Feb 2026 15:27:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771860451;
-	bh=sNIFAxdhsfczXp0u6khA1iIW4G427nJP4aj8xANK8vo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=RhxvaE8nn/UMV0eGCQCN6bn3AFU1O7cE1NrNBD8N6is7e063xjThYwogLjKdFJpZD
-	 ebgIqwodFIJ+4KeMFIny2fwDvixKBYpFJsgYAQDliELDxoz9p+fhiwfUDbNhkB8waw
-	 p8eG9KFgN95UWQsqVzDMKndJgRm5J1xgUKy1IlwS6q1YzHNZb9KJTOSc0uYgJPYNsI
-	 8aW0w51Zw0KGVuipNQgBzopbnZuKVbxGgLCSsqb5fNQkktOVlsRD77I4/XyzyzEss/
-	 qQr0MqF/zzAN2DuA2QWeqREmuBOhDFiqADJhUZua6bZDN5d1kKCZ6XX5SVA4N1gOTO
-	 qYsSQ7b5JSZFg==
-Message-ID: <61e2acbc-d3c7-424a-80da-3c34a593c9ad@kernel.org>
-Date: Mon, 23 Feb 2026 16:27:09 +0100
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fKn761JrMz3cDg
+	for <linux-erofs@lists.ozlabs.org>; Tue, 24 Feb 2026 16:57:21 +1100 (AEDT)
+Received: by mail-pg1-x52b.google.com with SMTP id 41be03b00d2f7-c6dcdc955a1so1808860a12.2
+        for <linux-erofs@lists.ozlabs.org>; Mon, 23 Feb 2026 21:57:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771912639; x=1772517439; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=EYBICnAxckwfVseZT2u2BRpPM7tahyIeCUHh/Ctktik=;
+        b=cT2tMRaXMBkYCYDblVkfF7Pc731hgY/taPXN26kTnIx2wCPM0i0WoVWLe3p45gZD75
+         +dTkO30wLMQEp7JaCBTG6JgLwEz1DciDmB//gOmsn109Cmg0nScG0KrSb4aKIVULz5JH
+         /Dt6iZ8Xyrb7UmXJ+cB7VAfAb8BmV4Q11PW6hmHHk9TawmzEe/jV8aoyfy19JkUnIleI
+         sJMuHq40BY3dJJ/0ZGjopLd5L8j8Fvxuni0D0y+eH6TGZ8Cre7is4H9zJ58qrsRXSf6a
+         zxHg0RKCCS7tBesJf5z4vEO7riUUTug63Y9BCzD14Z/6omBiX9OscZEUJCqhY6LBUsQr
+         2UtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771912639; x=1772517439;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EYBICnAxckwfVseZT2u2BRpPM7tahyIeCUHh/Ctktik=;
+        b=vtC4GR/XEgYu0cmP1cJFcAI/+QzhqXzcIOuwaJb1qHI4/PZi3uCRZNygoAnaDzfm/E
+         uHRsaHmxirFPFPtUP0lzmgAI8XUYz8Rseyip36jpPV6ZVV89hT9LhG9QMqrVLzg9KpB9
+         VkprtcJSBEGkQo5erxLJDAPzEsvWtzB90KnPc2XM89cDNvn39FP1bTv0pxt7Kd9nDU+F
+         hbXhfmc6Mp1GbdNlN9uSMVPYtT7st6xu5n/O4YUujNYGc1Xq/gr7cvl7EbBPZ84YqFCU
+         BRlTP/k9BMs3C3oQNbJ4YWUW63F2vOepJUGZSb3Ivvx3Ywo9rP/mFsJUS44KI+awHB5+
+         7Kyw==
+X-Gm-Message-State: AOJu0Yxzf2pST0htKTvMLI6WBeicpOBEi7n3Uh2qKfUTNb4VxBOP9PDt
+	U3mTTpeT87mk5NptwzHjiSkRhF2I6nEGF2V1G2wp95lbkp4v8vgGQWWTQm/SCQ==
+X-Gm-Gg: ATEYQzxztbQJpgIGNI+Ocfn0gpCcoYTK0kxWrg+UzWeNpIUu6iz9tE0Zs0NcS6Ql/Vs
+	gm4pD/pUmXlVqgsiqWyK/htLWErqLBJs6UxjG4zithUHKQtc25Qkg8IGZtZqlyAMZUDjepY+qZX
+	oOeQ87lsrWOGLGY0TxRLDjf0CbilxxJLjzQIayRPjMnHvSzIHLYEjl6Ev6TE8VubEgCgRa4qGxT
+	yu8JJfz6QQ5GQYZasnAzaBMNbBAgS4/13vaCWEgJ0jf4HZLBer6/v5iA0yKj7exdJN8sOENM715
+	p2PGpoQxdGPxMAjLKj3oXIY+vpZ5GRA71qCOpLkaSPgP/YOxYwC79/swufbeOqLcprWBBi9/Hg5
+	q7POVp32s7TguRPDIhIEUkXGtbuiP1xmLP0ux8L2HtPgOK61Bk8HINB8+LF4gZKzn/+Ylbg6p1F
+	+JoJuMLUDmbgnWRzPFBOLae5lzBjxv5qTGE/6WSHqcb8y5sMFoRbUcIA==
+X-Received: by 2002:a17:902:d54c:b0:2a0:e80e:b118 with SMTP id d9443c01a7336-2ad74418adfmr108054625ad.7.1771912638976;
+        Mon, 23 Feb 2026 21:57:18 -0800 (PST)
+Received: from localhost.localdomain ([203.92.58.30])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ad75027641sm113242155ad.64.2026.02.23.21.57.16
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 23 Feb 2026 21:57:18 -0800 (PST)
+From: puneeth_aditya_5656 <myakampuneeth@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: hsiangkao@linux.alibaba.com,
+	puneeth_aditya_5656 <myakampuneeth@gmail.com>
+Subject: [PATCH] blobchunk: fix 48-bit format detection to use final remapped block addresses
+Date: Tue, 24 Feb 2026 11:27:12 +0530
+Message-ID: <20260224055712.14110-1-myakampuneeth@gmail.com>
+X-Mailer: git-send-email 2.52.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,129 +87,48 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 00/11] Zero page->private when freeing pages
-To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Christoph Hellwig <hch@infradead.org>, Zi Yan <ziy@nvidia.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- linux-erofs@lists.ozlabs.org, linux-block@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Nico Pache <npache@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Jason Xing <kernelxing@tencent.com>, Yushan Zhou <katrinzhou@tencent.com>,
- "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
- Vlastimil Babka <vbabka@kernel.org>, Christoph Lameter <cl@gentwo.org>,
- David Rientjes <rientjes@google.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
- Huang Rui <ray.huang@amd.com>, Matthew Auld <matthew.auld@intel.com>,
- Matthew Brost <matthew.brost@intel.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Jens Axboe <axboe@kernel.dk>, Christian Brauner <brauner@kernel.org>,
- K Prateek Nayak <kprateek.nayak@amd.com>, Davidlohr Bueso
- <dave@stgolabs.net>, Eric Sandeen <sandeen@redhat.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- =?UTF-8?Q?Arve_Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
- Todd Kjos <tkjos@android.com>, Carlos Llamas <cmllamas@google.com>,
- Alice Ryhl <aliceryhl@google.com>, Damien Le Moal <dlemoal@kernel.org>,
- Johannes Thumshirn <johannes.thumshirn@wdc.com>,
- Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
- Gao Xiang <xiang@kernel.org>, Yue Hu <zbestahu@gmail.com>,
- Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
- <dhavale@google.com>, Hongbo Li <lihongbo22@huawei.com>,
- Chunhai Guo <guochunhai@vivo.com>
-References: <20260223032641.1859381-1-ziy@nvidia.com>
- <aZxaIEFZr2NvO2eQ@infradead.org>
- <cb8d6ee2-fd1d-436a-b934-aff87adf5dcb@amd.com>
- <5105764a-8313-45bd-8b91-8c0ea8cdf077@kernel.org>
- <da2f5f7c-0252-4085-a490-a505d0169bc4@amd.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <da2f5f7c-0252-4085-a490-a505d0169bc4@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 2/23/26 16:22, Christian König wrote:
-> On 2/23/26 15:14, David Hildenbrand (Arm) wrote:
->> On 2/23/26 15:06, Christian König wrote:
->>>
->>> Completely agree. This is just asking for trouble.
->>>
->>> The cache line(s) backing this struct page are most likely accessed anyway on free/alloc. So I don't see much extra overhead.
->>
->> I think the question is more around handling non-head pages when freeing larger orders. But maybe the overhead of zeroing page->private it there as well in __free_pages_prepare() is tolerable.
-> 
-> Good point, sounds like that is a bit more than I thought it would be.
+---
+ lib/blobchunk.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-Right. We already iterate over all "tail" pages in 
-__free_pages_prepare() to clear page flags
-
-	(page + i)->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
-
-Maybe zeroing page->private there is not too bad.
-
-> 
->> I'll note, though, that we already require page->mapping and page->memcg_data of pages to be zeroed by the caller, so it's not completely crazy. (see page_expected_state)
-> 
-> Well that's not defensive at all, basically everybody which forgets to do that can cause hard to debug trouble. Maybe that practice should be reconsidered.
-
-Right, we do have check_pages= to activate the page_expected_state() 
-checks, where we will detect such problems.
-
-(including the mapcount being -1 etc.)
-
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index a051904..9b8112b 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -154,6 +154,19 @@ int erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
+ 		unit = EROFS_BLOCK_MAP_ENTRY_SIZE;
+ 
+ 	chunkblks = 1ULL << (inode->u.chunkformat & EROFS_CHUNK_FORMAT_BLKBITS_MASK);
++
++	/* check if any chunk lands above 32-bit range once remapped_base is applied */
++	for (src = 0; src < inode->extent_isize / unit * sizeof(void *);
++	     src += sizeof(void *)) {
++		struct erofs_blobchunk *chunk = *(void **)(inode->chunkindexes + src);
++
++		if (chunk->blkaddr != EROFS_NULL_ADDR && !chunk->device_id &&
++		    remapped_base + chunk->blkaddr > UINT32_MAX) {
++			inode->u.chunkformat |= EROFS_CHUNK_FORMAT_48BIT;
++			break;
++		}
++	}
++
+ 	_48bit = inode->u.chunkformat & EROFS_CHUNK_FORMAT_48BIT;
+ 	for (dst = src = 0; dst < inode->extent_isize;
+ 	     src += sizeof(void *), dst += unit) {
+@@ -380,10 +393,6 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 			goto err;
+ 		}
+ 
+-		/* FIXME! `chunk->blkaddr` is not the final blkaddr here */
+-		if (chunk->blkaddr != EROFS_NULL_ADDR &&
+-		    chunk->blkaddr >= UINT32_MAX)
+-			inode->u.chunkformat |= EROFS_CHUNK_FORMAT_48BIT;
+ 		if (!erofs_blob_can_merge(sbi, lastch, chunk)) {
+ 			erofs_update_minextblks(sbi, interval_start, pos,
+ 						&minextblks);
 -- 
-Cheers,
+2.52.0
 
-David
 
