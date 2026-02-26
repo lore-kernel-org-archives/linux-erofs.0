@@ -1,44 +1,58 @@
-Return-Path: <linux-erofs+bounces-2418-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2419-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF2CFFD4609
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Feb 2026 01:51:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64C14FD4606
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Feb 2026 02:00:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fLvZ10XxHz30BR;
-	Thu, 26 Feb 2026 12:51:05 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1772070665;
-	cv=none; b=dJCVGc8RsbHQkz5dJwhnHxg1oy1yhZqkogXDpTV02Majzfr/3i3TAvK0hgeQnHFS9Krd/IP8GegHhrBHQume/EZIYvJ7SJgV8h4CplCOFZO+Gi3ZfcS2T1UQ89mKbkIH0jSxFg49x+gHPH2H2dOzhw1/3KNO+8HIRVyJF5dRNgBtmFzMAY3NVrZVO89w2h59iobqW9PK5a3JgdIiY3k8WH2nimh6qKnLNCnTB/1M5OQ80EAMbh1V6UXjbVjjBl3Fs4KKTqM9vAD45CfgUIX/wdCknWXlhRw3R4av2NA0LwridEfUSfHf4k99wAU1cBCKYHSEUSNkHs+pE9o+T8TS4w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fLvnM3h1Fz30BR;
+	Thu, 26 Feb 2026 13:00:55 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.221
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1772071255;
+	cv=none; b=WBKTAnwQ7ssG9IF19llJcSH7zGyiF9zsj5ZlM8aZR8FIjsp5Eq+x4EKX2JIUs+PxSTwUx9J+GSQuABarSZ4ThjpAwTZ/ukG7y5kXIM/GSvI0mLhaLXh2eRC8lamMV2EVXrYuGZGBC5QZdQePYeew0unH10DYjsEwkrShYL1/OwaoB/jfv3gVssZQD+eQOIPzUJ66UwvLnQG0UnH6PgdRY7LbvHcOkRGPou+AzJ7Ft/4MsVb67Nz9Qd6OCFg1K0gq9XeQoXLcVJ6WQo9ae114BCvKiHI4tvWJfuCzGr5OnbTYcvEqD59gl1wryUzgL46CEWBVptaN3qPB7bMofmZAJw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1772070665; c=relaxed/relaxed;
-	bh=ADQg/zheR+Yojk6P5DeKu80dYsxGlHmSbCVJo1b0tuA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=kc8jGRfzoIzNo9RRxAVT5yl5e7jQhOIU/0stdzLi4tMqsvn5b+ssV9d5XXqcIi8/iFTEbzxCG3Jx5zV9PsMl81zlSzMDIZnr7Czojn47mY9QmjMmg1T/b7ok1unMHycQzHYLbBPZiw8kaJzBq6iH+SiCmiu3FP/146rhgCzGuavXGjGv9gVzYcSaZmf5hKsZbctOnZCoFrn4aDsvIfG90xVLNKIaf/jPGFeh9Un77vRMbKMxTJVnxLgVmza2zdn6dYFSyMSTem7vh1/naE6kumHekABrsG7uK8tJk0h6iAykGAG6PdCSwKHRp+VQkbmctirnO08Djdzao+JCZ58Ccw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qwYeoDXc; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1772071255; c=relaxed/relaxed;
+	bh=0mEGH4gebqaJuiEPzxWLC1UOmFMYOI08W5KQCpjo0+g=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bsubHAJrLfcjMBTWmTof1dwOyL7GeQJHqCN1otJfo+OsjuuOLELB/Gcw/azVabt+yiUzbQhhtyvi5ABBTpRUGLRd5eeZJqmMGMGQ1kz4Lvbt3Ca+UbovI/NApvm3XHOSDbnemnxlEKDyWR38KQZ1MIdUITQYv8yp8OXCsLF16RnAIyHGWFErEkPJrECO/tBb3/boVR8BI+iJx+jPuiYpysT6ORd396mLDvboSyrBOPSzfojsdlQKlZx3yr0JHo+HjSky/IWhf6Vk2mqLDXeKKdLhOoOyVufY4Ju1Rc2FZ89JFIeB0VtPhHTKcqtjmrYCu6kygpRmmqOAWLlq1QlT5g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=1DAm+eUl; dkim-atps=neutral; spf=pass (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qwYeoDXc;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=1DAm+eUl;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.221; helo=canpmsgout06.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fLvYy5r21z309y
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Feb 2026 12:51:01 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1772070656; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=ADQg/zheR+Yojk6P5DeKu80dYsxGlHmSbCVJo1b0tuA=;
-	b=qwYeoDXcPWb86WunRb4/0wPCs4hz21tEaMzUcsOX0flcGbUsLmoWBAYuQzKmz3/zaxvMvjm85WDHOFsHwVMLhye6S+wRpuyCFprD4AWsRS/9GXoDKCIEuYKT2iTyadnevF1YsYlZCtlBxTVv8UtAeqnxHY8o6OdAgckbjw2m9c0=
-Received: from 30.221.131.221(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0WzpTjXV_1772070653 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 26 Feb 2026 09:50:54 +0800
-Message-ID: <de02ce86-c2dd-491d-b418-087ddde5b31c@linux.alibaba.com>
-Date: Thu, 26 Feb 2026 09:50:53 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fLvnJ4Ql3z309y
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Feb 2026 13:00:52 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=0mEGH4gebqaJuiEPzxWLC1UOmFMYOI08W5KQCpjo0+g=;
+	b=1DAm+eUlJUdF69rGsr1wsJ9hZvbfkh0drXZx/srsIQooZmpxFv49xAelt/3H43NIXfHTZDexr
+	egLOhdR9m7zvrYUtIMa3lhBXYI5YxYo2EQqYftlw96FZ/miMQ1lOnX8QeSlACv65idwpUP8e+K7
+	RRTJIYEw8ux8rSNdlbcbwSk=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4fLvgh4c2czRhRZ;
+	Thu, 26 Feb 2026 09:56:00 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id 383AC40363;
+	Thu, 26 Feb 2026 10:00:47 +0800 (CST)
+Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
+ (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Thu, 26 Feb
+ 2026 10:00:46 +0800
+From: Yifan Zhao <zhaoyifan28@huawei.com>
+To: <linux-erofs@lists.ozlabs.org>
+CC: <hsiangkao@linux.alibaba.com>, <jingrui@huawei.com>,
+	<wayne.ma@huawei.com>, <zhukeqian1@huawei.com>, <zhaoyifan28@huawei.com>
+Subject: [PATCH] erofs-utils: lib: fix several compile warnings under glibc-2.43
+Date: Thu, 26 Feb 2026 10:00:49 +0800
+Message-ID: <20260226020049.691505-1-zhaoyifan28@huawei.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,153 +64,77 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: fsck: support extracting subtrees
-To: Inseob Kim <inseob@google.com>, linux-erofs@lists.ozlabs.org
-References: <20260226005913.3703242-1-inseob@google.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260226005913.3703242-1-inseob@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.50.159.234]
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-Hi Inseob,
+Since glibc-2.43 and ISO C23 [1]:
+- For ISO C23, the functions bsearch, memchr, strchr, strpbrk, strrchr,
+  strstr, wcschr, wcspbrk, wcsrchr, wcsstr and wmemchr that return
+  pointers into their input arrays now have definitions as macros that
+  return a pointer to a const-qualified type when the input argument is
+  a pointer to a const-qualified type.
 
-On 2026/2/26 08:59, Inseob Kim wrote:
-> Add --nid and --path options to fsck.erofs to allow users to check
-> or extract specific sub-directories or files instead of the entire
-> filesystem.
-> 
-> This is useful for targeted data recovery or verifying specific
-> image components without the overhead of a full traversal.
+Add missing 'const' qualifiers to pointer variables that are assigned
+from functions returning 'const char *' (e.g. strchr, strstr), which
+caused -Wdiscarded-qualifiers warnings under glibc-2.43:
 
-Thanks for the patch!
+remotes/oci.c: In function 'ocierofs_parse_ref':
+remotes/oci.c:1058:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1058 |         slash = strchr(ref_str, '/');
+      |               ^
 
-> 
-> Signed-off-by: Inseob Kim <inseob@google.com>
-> ---
->   fsck/main.c | 50 ++++++++++++++++++++++++++++++++++++++++----------
->   1 file changed, 40 insertions(+), 10 deletions(-)
-> 
-> diff --git a/fsck/main.c b/fsck/main.c
-> index ab697be..a7d9f46 100644
-> --- a/fsck/main.c
-> +++ b/fsck/main.c
-> @@ -39,6 +39,8 @@ struct erofsfsck_cfg {
->   	bool preserve_owner;
->   	bool preserve_perms;
->   	bool dump_xattrs;
-> +	erofs_nid_t nid;
-> +	const char *inode_path;
->   	bool nosbcrc;
->   };
->   static struct erofsfsck_cfg fsckcfg;
-> @@ -59,6 +61,8 @@ static struct option long_options[] = {
->   	{"offset", required_argument, 0, 12},
->   	{"xattrs", no_argument, 0, 13},
->   	{"no-xattrs", no_argument, 0, 14},
-> +	{"nid", required_argument, 0, 15},
-> +	{"path", required_argument, 0, 16},
->   	{"no-sbcrc", no_argument, 0, 512},
->   	{0, 0, 0, 0},
->   };
-> @@ -110,6 +114,8 @@ static void usage(int argc, char **argv)
->   		" --extract[=X]          check if all files are well encoded, optionally\n"
->   		"                        extract to X\n"
->   		" --offset=#             skip # bytes at the beginning of IMAGE\n"
-> +		" --nid=#                check or extract from the target inode of nid #\n"
-> +		" --path=X               check or extract from the target inode of path X\n"
->   		" --no-sbcrc             bypass the superblock checksum verification\n"
->   		" --[no-]xattrs          whether to dump extended attributes (default off)\n"
->   		"\n"
-> @@ -245,6 +251,12 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
->   		case 14:
->   			fsckcfg.dump_xattrs = false;
->   			break;
-> +		case 15:
-> +			fsckcfg.nid = (erofs_nid_t)atoll(optarg);
-> +			break;
-> +		case 16:
-> +			fsckcfg.inode_path = optarg;
-> +			break;
->   		case 512:
->   			fsckcfg.nosbcrc = true;
->   			break;
-> @@ -981,7 +993,8 @@ static int erofsfsck_check_inode(erofs_nid_t pnid, erofs_nid_t nid)
->   
->   	if (S_ISDIR(inode.i_mode)) {
->   		struct erofs_dir_context ctx = {
-> -			.flags = EROFS_READDIR_VALID_PNID,
-> +			.flags = (pnid == nid && nid != g_sbi.root_nid) ?
+[1] https://lists.gnu.org/archive/html/info-gnu/2026-01/msg00005.html
 
-Does it relax the validatation check?
+Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+---
+ lib/remotes/oci.c | 2 +-
+ lib/remotes/s3.c  | 2 +-
+ mount/main.c      | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-and does (nid == pnid && nid == fsckcfg.nid) work?
-
-> +				0 : EROFS_READDIR_VALID_PNID,
->   			.pnid = pnid,
->   			.dir = &inode,
->   			.cb = erofsfsck_dirent_iter,
-> @@ -1033,6 +1046,8 @@ int main(int argc, char *argv[])
->   	fsckcfg.preserve_owner = fsckcfg.superuser;
->   	fsckcfg.preserve_perms = fsckcfg.superuser;
->   	fsckcfg.dump_xattrs = false;
-> +	fsckcfg.nid = 0;
-> +	fsckcfg.inode_path = NULL;
->   
->   	err = erofsfsck_parse_options_cfg(argc, argv);
->   	if (err) {
-> @@ -1068,22 +1083,37 @@ int main(int argc, char *argv[])
->   	if (fsckcfg.extract_path)
->   		erofsfsck_hardlink_init();
->   
-> -	if (erofs_sb_has_fragments(&g_sbi) && g_sbi.packed_nid > 0) {
-> -		err = erofs_packedfile_init(&g_sbi, false);
-> +	if (fsckcfg.inode_path) {
-> +		struct erofs_inode inode = { .sbi = &g_sbi };
-> +
-> +		err = erofs_ilookup(fsckcfg.inode_path, &inode);
->   		if (err) {
-> -			erofs_err("failed to initialize packedfile: %s",
-> -				  erofs_strerror(err));
-> +			erofs_err("failed to lookup %s", fsckcfg.inode_path);
->   			goto exit_hardlink;
->   		}
-
-It would be better to check if it's a directory.
-
-Thanks,
-Gao Xiang
-
-> +		fsckcfg.nid = inode.nid;
-> +	} else if (!fsckcfg.nid) {
-> +		fsckcfg.nid = g_sbi.root_nid;
-> +	}
->   
-> -		err = erofsfsck_check_inode(g_sbi.packed_nid, g_sbi.packed_nid);
-> -		if (err) {
-> -			erofs_err("failed to verify packed file");
-> -			goto exit_packedinode;
-> +	if (!fsckcfg.inode_path && fsckcfg.nid == g_sbi.root_nid) {
-> +		if (erofs_sb_has_fragments(&g_sbi) && g_sbi.packed_nid > 0) {
-> +			err = erofs_packedfile_init(&g_sbi, false);
-> +			if (err) {
-> +				erofs_err("failed to initialize packedfile: %s",
-> +					  erofs_strerror(err));
-> +				goto exit_hardlink;
-> +			}
-> +
-> +			err = erofsfsck_check_inode(g_sbi.packed_nid, g_sbi.packed_nid);
-> +			if (err) {
-> +				erofs_err("failed to verify packed file");
-> +				goto exit_packedinode;
-> +			}
->   		}
->   	}
->   
-> -	err = erofsfsck_check_inode(g_sbi.root_nid, g_sbi.root_nid);
-> +	err = erofsfsck_check_inode(fsckcfg.nid, fsckcfg.nid);
->   	if (fsckcfg.corrupted) {
->   		if (!fsckcfg.extract_path)
->   			erofs_err("Found some filesystem corruption");
+diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
+index 193464b..e5b2f7c 100644
+--- a/lib/remotes/oci.c
++++ b/lib/remotes/oci.c
+@@ -1047,7 +1047,7 @@ out_auth:
+  */
+ static int ocierofs_parse_ref(struct ocierofs_ctx *ctx, const char *ref_str)
+ {
+-	char *slash, *colon, *dot;
++	const char *slash, *colon, *dot;
+ 	const char *repo_part;
+ 	size_t len;
+ 	char *tmp;
+diff --git a/lib/remotes/s3.c b/lib/remotes/s3.c
+index 5e4e9d3..768232a 100644
+--- a/lib/remotes/s3.c
++++ b/lib/remotes/s3.c
+@@ -897,7 +897,7 @@ s3erofs_create_object_iterator(struct erofs_s3 *s3, const char *path,
+ 			       const char *delimiter)
+ {
+ 	struct s3erofs_object_iterator *iter;
+-	char *prefix;
++	const char *prefix;
+ 
+ 	iter = calloc(1, sizeof(struct s3erofs_object_iterator));
+ 	if (!iter)
+diff --git a/mount/main.c b/mount/main.c
+index 5fdda81..3530b2c 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -122,7 +122,7 @@ static void version(void)
+ static int erofsmount_parse_oci_option(const char *option)
+ {
+ 	struct ocierofs_config *oci_cfg = &nbdsrc.ocicfg;
+-	char *p;
++	const char *p;
+ 	long idx;
+ 
+ 	if ((p = strstr(option, "oci.blob=")) != NULL) {
+-- 
+2.47.3
 
 
