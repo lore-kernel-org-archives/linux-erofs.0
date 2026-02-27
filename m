@@ -1,92 +1,62 @@
-Return-Path: <linux-erofs+bounces-2437-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2438-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF438FD9E1E
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Feb 2026 23:37:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B38CFD9E30
+	for <linux-erofs@archiver.kernel.org>; Fri, 27 Feb 2026 02:32:59 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fMSYN0P2zz3bf2;
-	Fri, 27 Feb 2026 10:37:28 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::332" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1772149047;
-	cv=pass; b=dPz5EnZBz3/rtkxJAwI7LBw028LcTDnZMmfQOgXsn3dtQfzeIkQ2IF2xAkV6ygSv1DJEohkRm7kjP8mGDdqPC+lsEZnsyXyJFZRLFcg/gI3H/ePSvQSq5Chkd3zxCdN2yDmp0NbZDxFLnrjHm5xUJQiDX9NCVbs4yvlqZ1D9Dj1SmSKqPpVm6wPlNEEUQL9VexP+Oq13rygv75gE8g3JL28d0qX35B4x5HFfvXyUdq6WMK9ZSEPRcFASEnwvFLHRCdYVV2qQ1ubTFtJcGaUACPP+DGjWPyp8sXkYtXsDpDfhunQWpkvTtaVB/7FQ+25gAFcaPb6/g+mfhwu17hr3ow==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1772149047; c=relaxed/relaxed;
-	bh=KEMFGMuDeUZB2kl5lM5hDNuIRnQG+Wt/6kYxLRPB0zw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bppLqjJiaXDutX2WmwbweUOfzTqcYXQv42sCoUZtKXBdphGHx0HJUxISZ05m+wNhlfHtNfgvoxHRVgqbSBpaVfK/uj49zDppQFvhoABLL/zGQo4S7in+NaeAc7n9bAYhAp8d8SwZ7lD/4HrwhOeDjec4iffkcep47+i/c6Qo/DmMVk5lcWYqEfetmxAqXKo/IOkE2mYvvxlQ4snfTr27PCrO7JQdM1SKEHn2957Lv1uK/WIYVmdFfdzo70xLLug3xdb0LixnK3Mxz0Vm9f/3Js3QmHkSE81NAmMtwRklbvSOiYPE5H2psJ06tG4MgLQ3zJBpVbHVOVPJOcFwQ239OQ==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=YDeSnNJI; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::332; helo=mail-wm1-x332.google.com; envelope-from=yester1324@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fMXRs26K1z2yFQ;
+	Fri, 27 Feb 2026 13:32:57 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=202.108.3.166
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1772159577;
+	cv=none; b=dE83AZlRYb0kxjOAfwwwW4CopFnB0SHhBCVBybYkhH+hJQJyabYMdv5hbn6UB81ieksclqvTRFH7Cb8jlNXgWQCLbH1Kmd4hJ4SvJ3PCI1ZXeXhum0HeVbryqJm+PaRmqkyA0lHVUXi47PUNLmUaPAQeF6hY5kMf8s3iXtFltIC+SRex+F/zDT5NlVb2Dzqh5M7Kn9E67tNuQSvg3A9ZsndlmAU/OFSCauSuxwa4M49pQRXkeAjDOzHFTSav1Uk+giUvbrFrthahrrkAoJhrA1ugQ2Q3FZqHhS3j1REuMpZY0T/jLmjpe8ZRy1Rg1Zr/3EBuZyan6ZEtQX+MLo51ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1772159577; c=relaxed/relaxed;
+	bh=Ex9qM+2XuVg2r2DvaSUmdorI2HFF8ZSJSdl1UB3maXw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fIk6fmJL0UwRBkoS+JX6gcEuHWoVvl1zbzzSYXgM670BrFH+B407i3D78WsKdRUZlm6gsHich+DZlu3ZQ220NClQWir/erX5iILnhsRVHJ5nsahkC8U+CG/1f0PiGWITJSGwrkJvK/EokNFDGFMs7jsQlQZaYvc9GvajSU1d59752QBRqOIVV70D4lJvyndhRi+KLTvvi7f2RrUJ9VzMqBKKzjCaT/SWE7mLhS7rj/3+/XCJhBPM1Ao6O2sigL3wk7vsvxhACDzPtVM/qViz5FFhLNVi6U4WxpiszxKIEjz8wN+F74kLKkh4bKs1U3uHfEsOr45KbRyH7KiBUEDK3w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sina.com; dkim=pass (1024-bit key; unprotected) header.d=sina.com header.i=@sina.com header.a=rsa-sha256 header.s=201208 header.b=Sn1OLtKI; dkim-atps=neutral; spf=pass (client-ip=202.108.3.166; helo=mail3-166.sinamail.sina.com.cn; envelope-from=shengyong2026@sina.com; receiver=lists.ozlabs.org) smtp.mailfrom=sina.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sina.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=YDeSnNJI;
+	dkim=pass (1024-bit key; unprotected) header.d=sina.com header.i=@sina.com header.a=rsa-sha256 header.s=201208 header.b=Sn1OLtKI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::332; helo=mail-wm1-x332.google.com; envelope-from=yester1324@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sina.com (client-ip=202.108.3.166; helo=mail3-166.sinamail.sina.com.cn; envelope-from=shengyong2026@sina.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 132 seconds by postgrey-1.37 at boromir; Fri, 27 Feb 2026 13:32:53 AEDT
+Received: from mail3-166.sinamail.sina.com.cn (mail3-166.sinamail.sina.com.cn [202.108.3.166])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fMSYL1l5wz3bcf
-	for <linux-erofs@lists.ozlabs.org>; Fri, 27 Feb 2026 10:37:25 +1100 (AEDT)
-Received: by mail-wm1-x332.google.com with SMTP id 5b1f17b1804b1-4806f3fc50bso15324775e9.0
-        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Feb 2026 15:37:25 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772149037; cv=none;
-        d=google.com; s=arc-20240605;
-        b=E/YiPbu9gnaJ7z1mDRJsffheClSCIQ0tSTeFyv8hGQGc+Okd6jDDUfAyv27D4t3+4e
-         DWpDE70NcUj/PXPO0ySkm+KrhMOCZG1mUH8fm11Kzr5UdHkUFYak1hedkBAD+yMWdxEP
-         YOrooLUEHnyIJtqZincHO1aNn6CSmN2baXzv5LOwEwAeGGJ1UHz8tEtfWLbZ2tc+Rib4
-         Vvr4Muxb6zIxWiry48xoD1CqA8D4X4vI3Iula2nH6G3503wvdrnuFcJlgYbTTbYbDdYn
-         A3kM1JCsHlBgtu4t4Jg7t257jSxNYI7yippLz3VkHhmPcIzFynfQ5OCgIVCotaQxAlVl
-         Z/Ig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=KEMFGMuDeUZB2kl5lM5hDNuIRnQG+Wt/6kYxLRPB0zw=;
-        fh=1B1+PHblCUVa3z3dinz/uYIOXx9+4nNLqhrHc2P0nN0=;
-        b=E6YC6+IEnsFeP/LnKCRtefXauRxx4Xw4CM/lWqvyfJcCI+7iUPZFLvHBxHV0I7GB+y
-         10UlwJXLwwg70YD41JHMnn0pfQ++o9CykDo65CLNfHCHn+xrn0aRW5gJx+3RJ/eBUdZv
-         aDDwSI2xT2RVL2cYBaHiEVu2fiufVEHh457P5VDSjeZm8ELmuiFuSbJMlCqn6VJ/ynQR
-         oeJkyOoNm7N0me9F4/Wt2sDZLvyZ9sKwjRRviugD9k41MuI7kE/grF9TXxn4G0xdmAyp
-         CQkTND2A0iYS0oNyhCEPvJEjgTYhw/QTdrz8oV01kzTu3F4ohdqAcWo+/y5GPT02QChI
-         8rzw==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772149037; x=1772753837; darn=lists.ozlabs.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=KEMFGMuDeUZB2kl5lM5hDNuIRnQG+Wt/6kYxLRPB0zw=;
-        b=YDeSnNJIjNicxfRHU6qEKcegNwmVjRXWiJYKajOI6XsD0d9MR0EolmOHBP4t5fZFPq
-         Xi2amDYSuRFwQv+EFUqJaQdkMWj0XGCJC+WCA4kjK6T5tTwko4nwhueEq7yqp6jAlPCU
-         7Nmleo1W543KpB246VVP6oEP1z5Gup2QjbAdSFWPwUcBGrR56d1WAhQPebmpt057x8nS
-         vsja3LjwXoyEUxYkEp5y+S9pbv4OrwszSZfP//H5WHJm2RZ3KGiCbtQUMDZ9fYPhCPhz
-         +scbeeuGuQYItKXyRXH1dDxryiSqQY9rWJ2p2qVAXn1q6WnjM+ZyqYHUWG2Obj7F1UT5
-         Vxnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772149037; x=1772753837;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KEMFGMuDeUZB2kl5lM5hDNuIRnQG+Wt/6kYxLRPB0zw=;
-        b=LtA8dP4DjIB//vUd6U+1KeDlFQCQpg6GKrKlBoaOhIuSk/JfZohRyWAp1yFcuMC9n2
-         U95L+/CgsXuGyk6k0Jg9DxHUHWhiDK/X5yx4IcO7eUbPDtkVWwRLxi02Wu9N2nVU/csc
-         770s69KjB86OwZz01GXyac141V0/6+xi+fK2YVWKXg4Tk1GOD54JHTnmYcnNe9Wwq2co
-         v2vHG8nG+PAy8EVKauoJ8u/vpjsYZ6GjWHXyPiu+VlgaFXfPfGEF/Fx0t+KLc4z+Bdw/
-         rUHJLhXrdEZcMrkD0LOKI1Gy6M/ITbw3DOwFU+F44swlwLuyt6Dyp3ruwx5zINW7ckPq
-         xFSg==
-X-Forwarded-Encrypted: i=1; AJvYcCUbls2FaxwR5eOiZuinpw4lZ8vSysxWg6VHz6uVNsyf8BfA2k/PgZBvO/O10bkdj1uuJQWJi5xv/t1r7A==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YzU8oXMqe1ZOx1ORQOuNoZzeEv7tme4B/T06HESGi3R9BhygjwK
-	jwu4s2kWpc7b5n2mGgDZKVEuVulus3wC6/dnzP44M0FDDT2CfjlvLwDYHowvJ5KsZylOO9BwFHl
-	Z7+mnEvV0h6fp+FJbdl/o02dNGyGmjyk=
-X-Gm-Gg: ATEYQzxpcl9CepN2LLDtnZ+/H2/pjOWyIz6QinTPi6eezPZPjI7eCu1tOVI75MOf5hr
-	RwduwC+fnHoHRdlnebK3newi1l3769f1iklgbTxZtgJAuWkd1LpsIqqzO4tvc6Ot2CeFFuzkiUC
-	mW92Pu5oDW7acWDVKtiDvLLnQdIW5qBN5I/sLXiQErpjNdn2aY4ZmlBxNWnxxGiQiHYmBB1+B8P
-	sIt7Od4+7vwyJ4bu0LKuVw9EbC0E72Ju7DnWtIerxHYnygCIbvTI1gxZ9LkDCWX8LW2sP2eBMf1
-	+0fCpA1CoUXu8rvyLQ==
-X-Received: by 2002:a5d:5c89:0:b0:439:87ce:27f1 with SMTP id
- ffacd0b85a97d-4399de1c4d0mr1082642f8f.37.1772149036848; Thu, 26 Feb 2026
- 15:37:16 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fMXRn31NTz2xMt
+	for <linux-erofs@lists.ozlabs.org>; Fri, 27 Feb 2026 13:32:51 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1772159574;
+	bh=Ex9qM+2XuVg2r2DvaSUmdorI2HFF8ZSJSdl1UB3maXw=;
+	h=From:Subject:Date:Message-ID;
+	b=Sn1OLtKI5so7pkre3FCAUSUFOFeWXBfwJdoSxyU5o7lP3R//9dJMTbFj3mvYKG4oN
+	 eqQqt90TPQmn+acMTlEJWEMOtY+iVlTCW/St7dsiYKW2cvcDJ64poV8PSHJ5Ut6AqA
+	 Z0TFh/Nfw2fhiY1wW8J2Pc4enQ66YVuN00ebSeak=
+X-SMAIL-HELO: PC.mioffice.cn
+Received: from unknown (HELO PC.mioffice.cn)([114.247.175.198])
+	by sina.com (10.54.253.31) with ESMTP
+	id 69A101BD000067A8; Fri, 27 Feb 2026 10:30:23 +0800 (CST)
+X-Sender: shengyong2026@sina.com
+X-Auth-ID: shengyong2026@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=shengyong2026@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=shengyong2026@sina.com
+X-SMAIL-MID: 5900266816028
+X-SMAIL-UIID: 2A7E148782974AE49E6D5F2827846A8B-20260227-103023-1
+From: Sheng Yong <shengyong2026@sina.com>
+To: xiang@kernel.org
+Cc: linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	Sheng Yong <shengyong1@xiaomi.com>,
+	chenguanyou <chenguanyou@xiaomi.com>,
+	Yunlei He <heyunlei@xiaomi.com>
+Subject: [PATCH v2] erofs: set fileio bio failed in short read case
+Date: Fri, 27 Feb 2026 10:30:08 +0800
+Message-ID: <20260227023008.147813-1-shengyong2026@sina.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -98,49 +68,55 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260225173036.194311-1-yester1324@gmail.com> <tencent_E8B3BD7F4663756DD9915EF539DC95AB1805@qq.com>
- <555e6fbb-79f9-422f-9b43-bc655a106229@linux.alibaba.com>
-In-Reply-To: <555e6fbb-79f9-422f-9b43-bc655a106229@linux.alibaba.com>
-From: Ashley Lee <yester1324@gmail.com>
-Date: Thu, 26 Feb 2026 15:37:05 -0800
-X-Gm-Features: AaiRm53_3eC7WQo-2jrrhuSw34M8cxOL9iPU1S33iPcnzuvdJ12oRI9r43qZboY
-Message-ID: <CAJvxkqdnEMMBOBnXoVz7Ox6crwjWZVMm_Ve9bN7gGzFRHY-vwQ@mail.gmail.com>
-Subject: Re: [PATCH v2] erofs-utils: lib: converted division to shift in z_erofs_load_compact_lcluster
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Yifan Zhao <yifan.yfzhao@foxmail.com>, linux-erofs@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Wed, 25 Feb 2026 at 18:40, Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
->
->
->
-> On 2026/2/26 10:32, Yifan Zhao wrote:
-> >
-> > A quick search shows that x86 kernel implementation also use `div` instruction
-> >
-> > under Linux v6.19 and GCC 15.2.1, add GCC correctly generate shift instruction
->
-> Could we try more GCC versions and find the impacts?
->
-> Does it a recent GCC regression?
->
->
-> >
-> > in my arm64 machine with GCC 14.2.0.
-> >
-> > Could you also consider evaluate this optimization in kernel?
->
-> Yes, but I wonder if `div` is already used for these years on x86,
-> could you check this?
+From: Sheng Yong <shengyong1@xiaomi.com>
 
-Hello all,
+For file-backed mount, IO requests are handled by vfs_iocb_iter_read().
+However, it can be interrupted by SIGKILL, returning the number of
+bytes actually copied. Unused folios in bio are unexpectedly marked
+as uptodate.
 
-I'll attempt to perform benchmarks on as many architectures and
-compiler variants as I can. I was looking into lkp-tests to perform
-this however I was facing trouble running on my OS. Is there a
-simple way to do this?
+  vfs_read
+    filemap_read
+      filemap_get_pages
+        filemap_readahead
+          erofs_fileio_readahead
+            erofs_fileio_rq_submit
+              vfs_iocb_iter_read
+                filemap_read
+                  filemap_get_pages  <= detect signal
+              erofs_fileio_ki_complete  <= set all folios uptodate
 
-Thank you,
+This patch addresses this by setting short read bio with an error
+directly.
 
-Ashley
+Fixes: bc804a8d7e86 ("erofs: handle end of filesystem properly for file-backed mounts")
+Reported-by: chenguanyou <chenguanyou@xiaomi.com>
+Signed-off-by: Yunlei He <heyunlei@xiaomi.com>
+Signed-off-by: Sheng Yong <shengyong1@xiaomi.com>
+---
+ fs/erofs/fileio.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index abe873f01297..98cdaa1cd1a7 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -25,10 +25,8 @@ static void erofs_fileio_ki_complete(struct kiocb *iocb, long ret)
+ 			container_of(iocb, struct erofs_fileio_rq, iocb);
+ 	struct folio_iter fi;
+ 
+-	if (ret >= 0 && ret != rq->bio.bi_iter.bi_size) {
+-		bio_advance(&rq->bio, ret);
+-		zero_fill_bio(&rq->bio);
+-	}
++	if (ret >= 0 && ret != rq->bio.bi_iter.bi_size)
++		ret = -EIO;
+ 	if (!rq->bio.bi_end_io) {
+ 		bio_for_each_folio_all(fi, &rq->bio) {
+ 			DBG_BUGON(folio_test_uptodate(fi.folio));
+-- 
+2.43.0
+
 
