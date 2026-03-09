@@ -1,44 +1,53 @@
-Return-Path: <linux-erofs+bounces-2536-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2537-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D214EA8542
-	for <linux-erofs@archiver.kernel.org>; Mon,  9 Mar 2026 03:04:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8EA0DEFCD9A
+	for <linux-erofs@archiver.kernel.org>; Mon,  9 Mar 2026 11:38:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fThg75tv8z3bnm;
-	Mon, 09 Mar 2026 14:04:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.98
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773025443;
-	cv=none; b=ixfMMeGqWOP7kqDRWTZwFTdzRlRJtO44NPy3CXnJoGIipGJVm4JOTDCQXecgvfHIjtGoW586sL+aNDM1ToO7/Otqs1zZAo7q7SSvX2IYLN1cQaduJh3ZO5Cx1M4yUz+3EhpmsjiY3V6heTQsHntxdUlbOUptgZ8Mk602JTlf1VcYjE2h78XMykmKJpy7Ax3YFidHbz0u+zZl2zy7C7PaixmJ53j+tl7QWdcfTiG50eNumZ0m+FHGprnu9h0jyX6sjM0AJfKsTR6qIYswZ+HS2LYL/IdNKSuoACKrArrhg5CgTvVLCvML6msQEat+yQWodMeZ+kUXdSe4szEa2GaGKQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fTw4f4lDjz309P;
+	Mon, 09 Mar 2026 22:38:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.222
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773056306;
+	cv=none; b=jC82Jnf2Pi5XDNUav81BQoYlXt7W83TWBzGgqh3mjHj4azjALvArBdwpclfAvBySg3W7C+FJBYsQJkZYbmIg/NQmnio0aqYXpWHUvYle8kJ7F+WqSyRQCKDokYA3qvkfXsCzi9klHZafGu9S0BPRrAUpgU/rXMAUv+IrTUEhQDUsTJEt6DVHp3wWcwgpse0jdotiMhCI5W6jBgUtJ3lu/DMhHIRtLg0K6LMMMA2giNuHXwcfDE/vsRF6D61W6Bt9pbjizVqu7PaSwQMQODwWrA3mqH2Jrr/pPfvgAQ52hXVRdWFwh4Um1eALx8MTr28zu4l1A46CnQcGpnPVthclUA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773025443; c=relaxed/relaxed;
-	bh=wXruS7sYNNs5AqEinrpNUsbJNbVP+SAbifLRwxw2WSM=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=IITEy7yf9/esPadkI+pUEYRYiaH6Q21ozvBaVZEp8WbtPx/q1CmZfnsET5DfcOsetcPfonP4UyUAiEhR7Kke+ujMvoZs875MnCRF+eDWUomfgPiL5z9TnsVeAUxd//kMrYrHYoxYkj3EV96txFwW3ppCjKx6ByH5QtdIQlYGe1FFUDQxd9uK0URosoFLGvILZ5JV7lnociy76FNicW6ofFB9hREM7dC2iJWWVCy7aVtxOocfpbd/v2z/6hH9GI5ojttbr+l7HrCWpga/rcOUEIQw9gp3wCrromuYe5LBlhsMd6939n1A2+zksHCnfaRbSC60LDGlxDWpNhNiaGH0Gg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=R8Aovsa2; dkim-atps=neutral; spf=pass (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1773056306; c=relaxed/relaxed;
+	bh=E4k5hWwO5F0znN2YZSrPMRj1nTW+LX6/K45ocP45WOU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=jEAZOrIVUGEwnq/AJqWW8zSVK3HEF/Zx+Ejg1Q8BNJ2dS3r02+dYVvAieadSxvJgwWKs/68VX2kgUOZxzrnNxSEwzlWwx0WNCjr3ypHE6ektVxkbwuNvAhcNRj/VSHjsVE5vz6bU46hHVedi30/ZWG1HUqEDM1LSxA3Ey/6YZgh91QmDTJ3kQppn6pnYdI/VRwDALcA8r3gWdbvP5dL5MHL0p6nYBPhJSvVPBdsmI4WQ2Ko1mJRob6tMd3l2r8a3P91OY+jiEsH8+YDE5vfozXPkgX9yfIvzgtr5H/dxNLQ1dUkMNetkOp9E2xuo5cequIUVtFpnamKz/XMJEAqMpg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ght/DhTP; dkim-atps=neutral; spf=pass (client-ip=113.46.200.222; helo=canpmsgout07.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=R8Aovsa2;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ght/DhTP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.98; helo=out30-98.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.222; helo=canpmsgout07.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout07.his.huawei.com (canpmsgout07.his.huawei.com [113.46.200.222])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fThfw5Lkhz2xdL
-	for <linux-erofs@lists.ozlabs.org>; Mon, 09 Mar 2026 14:03:50 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773025426; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
-	bh=wXruS7sYNNs5AqEinrpNUsbJNbVP+SAbifLRwxw2WSM=;
-	b=R8Aovsa2nqjv3kcnuAKsSnv9nART6aGXLCv5pxA1jIdtPdrGbEmU5YRmSYw3MzfrLpl0PujwjiNoxzsismhA+Vvv9GEa6UmbQAv5fbgzujtjJVgH8Xs2WSboUn+4e34GgSGQWFmA38N0IkQEgYcZTxiO5IB/ptHG4MnbejTIwvs=
-Received: from 30.170.14.2(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X-TT8RS_1773025423 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 09 Mar 2026 11:03:44 +0800
-Message-ID: <02925ac8-64a6-4cd6-bbd4-c37d838f862a@linux.alibaba.com>
-Date: Mon, 9 Mar 2026 11:03:43 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fTw4b4hj6z2yFY
+	for <linux-erofs@lists.ozlabs.org>; Mon, 09 Mar 2026 22:38:20 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=E4k5hWwO5F0znN2YZSrPMRj1nTW+LX6/K45ocP45WOU=;
+	b=ght/DhTPkvgxi/dZZXfmdlaVLnOn90foIZlcLaPpUxX4PI7kX87xCP2hpPrVZDx7eES5Fj5Xu
+	aJkWVQYRuGlmgVZXME3nowxC2Osi1GhUgjj2mosC6DKUXVcpdAQRQLxDgf1M3MrjRacvchdIWpx
+	xOG8HWE61C/6T4lV7PorkZo=
+Received: from mail.maildlp.com (unknown [172.19.163.214])
+	by canpmsgout07.his.huawei.com (SkyGuard) with ESMTPS id 4fTvym1KRqzLlSV;
+	Mon,  9 Mar 2026 19:33:20 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id 3CC5540561;
+	Mon,  9 Mar 2026 19:38:14 +0800 (CST)
+Received: from [100.103.109.96] (100.103.109.96) by
+ kwepemr100010.china.huawei.com (7.202.195.125) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.36; Mon, 9 Mar 2026 19:38:13 +0800
+Message-ID: <b9387ac5-e717-4e9c-910f-5b218d177e64@huawei.com>
+Date: Mon, 9 Mar 2026 19:38:13 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,146 +60,142 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: Re: [PATCH] erofs: introduce nolargefolio mount option
-To: Chao Yu <chao@kernel.org>, xiang@kernel.org
-Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Chunhai Guo <guochunhai@vivo.com>,
- Hongbo Li <lihongbo22@huawei.com>,
- linux-erofs mailing list <linux-erofs@lists.ozlabs.org>,
- Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-References: <20260309023053.1685839-1-chao@kernel.org>
-In-Reply-To: <20260309023053.1685839-1-chao@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH] mkfs: support block map for blob devices
+To: Nithurshen <nithurshen.dev@gmail.com>, <linux-erofs@lists.ozlabs.org>
+CC: <xiang@kernel.org>, <hsiangkao@linux.alibaba.com>
+References: <20260307062810.19862-1-nithurshen.dev@gmail.com>
+From: "zhaoyifan (H)" <zhaoyifan28@huawei.com>
+In-Reply-To: <20260307062810.19862-1-nithurshen.dev@gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [100.103.109.96]
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-Hi Chao,
 
-(+cc -fsdevel, willy, Jan kara)
+On 2026/3/7 14:28, Nithurshen wrote:
+> Currently, using --blobdev to specify an extra device is restricted from working with the block map chunk format. This was previously noted as a task that could be implemented by mapping the device blocks using a global address.
+>
+> This patch implements this support by allowing the block map to reference chunks residing on extra devices. This is achieved by:
+> 	1) Removing the -EINVAL check in mkfs/main.c that blocked this combination of flags.
+> 	2) Calculating the global startblk address for the block map by summing the blocks of the primary device and any preceding extra devices.
+> 	3) Ensuring that EROFS_CHUNK_FORMAT_INDEXES is only set if the user has not forced the block map format, and adjusting the index unit size to EROFS_BLOCK_MAP_ENTRY_SIZE accordingly.
+> 	4) Updating erofs_inode_fixup_chunkformat to correctly identify when 48-bit addressing is required for a block-mapped file on an extra device.
 
-On 2026/3/9 10:30, Chao Yu wrote:
-> This patch introduces a new mount option 'nolargefolio' for EROFS.
-> When this option is specified, large folio will be disabled by
-> default for all inodes, this option can be used for environments
-> where large folio resources are limited, it's necessary to only
-> let specified user to allocate large folios on demand.
+Hi Nithurshen,
 
-For this kind of options, I think more real backgrounds
-about avoiding high-order allocations are needed in the
-commit message (at least for later reference) also like
-what I observed in:
-https://android-review.googlesource.com/c/kernel/common/+/3877981
+Each line of the commit message must not exceed 72 characters.
 
-because the entire community tends to enable large folios
-unconditionally if possible.  Without enough clarification,
-even I merge this, there will be endless questions again
-and again about this.
+> Signed-off-by: Nithurshen <nithurshen.dev@gmail.com>
+> ---
+>   lib/blobchunk.c | 34 ++++++++++++++++++++++++++++------
+>   mkfs/main.c     |  7 -------
+>   2 files changed, 28 insertions(+), 13 deletions(-)
+>
+> diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+> index 96c161b..2ef7462 100644
+> --- a/lib/blobchunk.c
+> +++ b/lib/blobchunk.c
+> @@ -159,7 +159,17 @@ void erofs_inode_fixup_chunkformat(struct erofs_inode *inode)
+>   		if (chunk->blkaddr == EROFS_NULL_ADDR)
+>   			continue;
+>   		if (chunk->device_id) {
+> -			if (chunk->blkaddr > UINT32_MAX) {
+> +			if (!(inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)) {
+> +				erofs_blk_t mapped_blkaddr = inode->sbi->primarydevice_blocks;
+> +				unsigned int i;
+> +
+> +				for (i = 0; i < chunk->device_id - 1; i++)
+> +					mapped_blkaddr += inode->sbi->devs[i].blocks;
+> +				if (mapped_blkaddr + chunk->blkaddr > UINT32_MAX) {
+> +					_48bit = true;
 
-And Jan once raised up if it should be a user interface
-or auto-tuning one:
-https://lore.kernel.org/r/z2ule3ilnnpoevo5mvt3intvjtuyud7vg3pbfauon47fhr4owa@giaehpbie4a5
+It's impossible for 32-bit block map entries to support 48bit mode.
 
-My question is that if the needs are real, I wonder if
-it should be a vfs generic decision instead (because
-it's not due to the filesystem restriction but due to
-real system memory pressure or heavy workload for
-example).  However, if the answer is that others don't
-really care about this, I'm fine to leave it as an
-erofs-specific option as long as the actual case is
-clear in the commit message.
+I think we should err out instead of enabling 48bit here.
+
+
+BTW, it seems the erofs-utils codebase could not read a chunk-based 
+EROFS image
+
+with block map and extra devices (but in-kernel implementation could), 
+as erofs_map_dev() does
+
+not reset m_deviceid. Could you help also fix this? If you are 
+interested please also add related
+
+testcases in erofs/erofsnightly repo.
+
 
 Thanks,
-Gao Xiang
 
+Yifan Zhao
 
-> 
-> Signed-off-by: Chao Yu <chao@kernel.org>
-> ---
->   Documentation/filesystems/erofs.rst | 1 +
->   fs/erofs/inode.c                    | 3 ++-
->   fs/erofs/internal.h                 | 1 +
->   fs/erofs/super.c                    | 8 +++++++-
->   4 files changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
-> index fe06308e546c..d692a1d9f32c 100644
-> --- a/Documentation/filesystems/erofs.rst
-> +++ b/Documentation/filesystems/erofs.rst
-> @@ -137,6 +137,7 @@ fsoffset=%llu          Specify block-aligned filesystem offset for the primary d
->   inode_share            Enable inode page sharing for this filesystem.  Inodes with
->                          identical content within the same domain ID can share the
->                          page cache.
-> +nolargefolio           Disable large folio support for all files.
->   ===================    =========================================================
+> +					break;
+> +				}
+> +			} else if (chunk->blkaddr > UINT32_MAX) {
+>   				_48bit = true;
+>   				break;
+>   			}
+> @@ -201,8 +211,16 @@ int erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
+>   		if (chunk->blkaddr == EROFS_NULL_ADDR) {
+>   			startblk = EROFS_NULL_ADDR;
+>   		} else if (chunk->device_id) {
+> -			DBG_BUGON(!(inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES));
+> -			startblk = chunk->blkaddr;
+> +			if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES) {
+> +				startblk = chunk->blkaddr;
+> +			} else {
+> +				unsigned int i;
+> +
+> +				startblk = sbi->primarydevice_blocks;
+> +				for (i = 0; i < chunk->device_id - 1; i++)
+> +					startblk += sbi->devs[i].blocks;
+> +				startblk += chunk->blkaddr;
+> +			}
+>   			extent_start = EROFS_NULL_ADDR;
+>   		} else {
+>   			startblk = remapped_base + chunk->blkaddr;
+> @@ -324,7 +342,7 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+>   	chunksize = 1ULL << chunkbits;
+>   	count = DIV_ROUND_UP(inode->i_size, chunksize);
 >   
->   Sysfs Entries
-> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-> index 4b3d21402e10..26361e86a354 100644
-> --- a/fs/erofs/inode.c
-> +++ b/fs/erofs/inode.c
-> @@ -254,7 +254,8 @@ static int erofs_fill_inode(struct inode *inode)
->   		return 0;
+> -	if (sbi->extra_devices)
+> +	if (sbi->extra_devices && cfg.c_force_chunkformat != FORCE_INODE_BLOCK_MAP)
+>   		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
+>   	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+>   		unit = sizeof(struct erofs_inode_chunk_index);
+> @@ -494,8 +512,12 @@ int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset)
+>   	inode->u.chunkformat |= chunkbits - sbi->blkszbits;
+>   	if (sbi->extra_devices) {
+>   		device_id = 1;
+> -		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
+> -		unit = sizeof(struct erofs_inode_chunk_index);
+> +		if (cfg.c_force_chunkformat != FORCE_INODE_BLOCK_MAP)
+> +			inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
+> +		if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+> +			unit = sizeof(struct erofs_inode_chunk_index);
+> +		else
+> +			unit = EROFS_BLOCK_MAP_ENTRY_SIZE;
+>   		DBG_BUGON(erofs_blkoff(sbi, data_offset));
+>   		blkaddr = erofs_blknr(sbi, data_offset);
+>   	} else {
+> diff --git a/mkfs/main.c b/mkfs/main.c
+> index 58c18f9..07ef086 100644
+> --- a/mkfs/main.c
+> +++ b/mkfs/main.c
+> @@ -1565,13 +1565,6 @@ static int mkfs_parse_options_cfg(struct erofs_importer_params *params,
+>   		return -EINVAL;
 >   	}
 >   
-> -	mapping_set_large_folios(inode->i_mapping);
-> +	if (!test_opt(&EROFS_SB(inode->i_sb)->opt, NO_LARGE_FOLIO))
-> +		mapping_set_large_folios(inode->i_mapping);
->   	aops = erofs_get_aops(inode, false);
->   	if (IS_ERR(aops))
->   		return PTR_ERR(aops);
-> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-> index a4f0a42cf8c3..b5d98410c699 100644
-> --- a/fs/erofs/internal.h
-> +++ b/fs/erofs/internal.h
-> @@ -177,6 +177,7 @@ struct erofs_sb_info {
->   #define EROFS_MOUNT_DAX_NEVER		0x00000080
->   #define EROFS_MOUNT_DIRECT_IO		0x00000100
->   #define EROFS_MOUNT_INODE_SHARE		0x00000200
-> +#define EROFS_MOUNT_NO_LARGE_FOLIO	0x00000400
->   
->   #define clear_opt(opt, option)	((opt)->mount_opt &= ~EROFS_MOUNT_##option)
->   #define set_opt(opt, option)	((opt)->mount_opt |= EROFS_MOUNT_##option)
-> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-> index 972a0c82198d..a353369d4db8 100644
-> --- a/fs/erofs/super.c
-> +++ b/fs/erofs/super.c
-> @@ -390,7 +390,7 @@ static void erofs_default_options(struct erofs_sb_info *sbi)
->   enum {
->   	Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
->   	Opt_device, Opt_fsid, Opt_domain_id, Opt_directio, Opt_fsoffset,
-> -	Opt_inode_share,
-> +	Opt_inode_share, Opt_nolargefolio,
->   };
->   
->   static const struct constant_table erofs_param_cache_strategy[] = {
-> @@ -419,6 +419,7 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
->   	fsparam_flag_no("directio",	Opt_directio),
->   	fsparam_u64("fsoffset",		Opt_fsoffset),
->   	fsparam_flag("inode_share",	Opt_inode_share),
-> +	fsparam_flag("nolargefolio",	Opt_nolargefolio),
->   	{}
->   };
->   
-> @@ -541,6 +542,9 @@ static int erofs_fc_parse_param(struct fs_context *fc,
->   		else
->   			set_opt(&sbi->opt, INODE_SHARE);
->   		break;
-> +	case Opt_nolargefolio:
-> +		set_opt(&sbi->opt, NO_LARGE_FOLIO);
-> +		break;
->   	}
->   	return 0;
->   }
-> @@ -1105,6 +1109,8 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
->   		seq_printf(seq, ",fsoffset=%llu", sbi->dif0.fsoff);
->   	if (test_opt(opt, INODE_SHARE))
->   		seq_puts(seq, ",inode_share");
-> +	if (test_opt(opt, NO_LARGE_FOLIO))
-> +		seq_puts(seq, ",nolargefolio");
->   	return 0;
->   }
->   
-
+> -	/* TODO: can be implemented with (deviceslot) mapped_blkaddr */
+> -	if (cfg.c_blobdev_path &&
+> -	    cfg.c_force_chunkformat == FORCE_INODE_BLOCK_MAP) {
+> -		erofs_err("--blobdev cannot work with block map currently");
+> -		return -EINVAL;
+> -	}
+> -
+>   	if (optind >= argc) {
+>   		erofs_err("missing argument: FILE");
+>   		return -EINVAL;
 
