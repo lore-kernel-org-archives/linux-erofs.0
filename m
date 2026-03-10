@@ -1,51 +1,52 @@
-Return-Path: <linux-erofs+bounces-2573-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2574-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25F21FD2D62
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 876ECFD2D63
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXh00q6z3cC6;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXh6mLxz3cDh;
 	Tue, 10 Mar 2026 23:01:24 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::94"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144083;
-	cv=none; b=j7+D8cmU7ZorqHgBJN6MV/U35AejPIKW/41/WbIYHMdjGuG5bYxTcBkChg/2Rr/YxdVvNQ8IfdEMxrZVA4TO44giVs+RQLrYOgY+pF4suramHb4mlMKVB888fewYpr3G5nMk6Vws0BG5Eldelf5JzOhRMOLXKg3Kj4IStqdSr5VMFBNSmPsu8Q1FDa5ETX54QkMN7oDVEkI7+OYhS0Q2cwErnwnYAg1xToaZ6UHFms4IF6yVavZLszye0rS7glEewq/CdHdMsWDsozs9pjQ3wnbplzBdhnxdHUgTsL18im3pViVmubKQ1MW5hOZe+raxUe1qgbEWhrO2PERtNG6q7w==
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.119
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144084;
+	cv=none; b=e0JRNpCSlG+K6/LzBY2eufVb7iqHgp7lU/XZj19kMiKTYV336I8tyHcuuVnrlouSm1d5zdl+ImTWztDrtfCgb3pWmrh6XHM12K/qR8a7UG1cqvZfU+ULSLY8hD3nQjCAkexMwhU8Do7V6PtMQ0+CGsudMmOjvQXG2C8YOuSVLQ6PU0pt0CDY38Y6ImpEy+M4yKOCHp6IF6uCpsKEyv01tFZV2SMjXXE5ZR0Bf2bRQ5aLYHLhVfwgHBqvLdwrXhjssnipoIN2dhHztIyb9PFdS9ppEGdpMdbnVpERRnjCC6ZcBx3nadi7QvNX0xKz+whyvEKOlnS7Y/BYjW5DI3nHgQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773144083; c=relaxed/relaxed;
-	bh=Ph1uUWr1L/iF1ZEQmadj650OhaHNRF4I0z9qkCXYfg8=;
+	t=1773144084; c=relaxed/relaxed;
+	bh=fjJobOr1hAQHKATPAuWIHrWpFe9f0JfxfPXIwwWzS6A=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=aqHbOJ1+5Lw4kfrmBtWsIDSBgK8O+7p9pAWa6TEVeUi5QVlGdkrgwXAl9stxDRhtLkHLCBoYYI3Y+JQNpb1Gq6y7njFTui0Fey2Gue5kBBigOmap3liAPX6zEwz9oiKKTpp7CTI02ko0swhuePOyJCAD98G0pzb3V1Wciz3GrfIy1zGErLCiY31tYxFQzkoe1JIEfKv4Jf0sPH95BG2j3ExC13DoXn9N1Ch8eI4XcvpYWoZ2+honK670SyXOnfQXiChXqHfTzxBwnybUBYzboulSdzqcwuGcuGK27EO1sx8iNJDBSw1KdOQZv7WUBCNVdhPKySNRmEeHie8ig9EpDA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Hzc3GuxH; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=dC3usZ7QS+7kjC7rKmnP/Godc6VSrMS0CwUmDIPIa6EorXEUqR4p9wFHZDind0sOBCXY5a0LsEyyndAIF9FSVNhc7zhyS8+krxwe2tVvzUI8rg/tGzS5KPZEqzE7BtUYX9hWE4ONDW13bfuUaShrq0k+lscEyVdmz7M2I9estwPy7wstuRung6ghn8f19kLFHUjjSgAifqvbF17BPE72nBsHLIBjq7Lp/CktPhGfV3EO3CcAGiE63tlZuXgATH5GmppxRMJBmJecJ0OTiVcCooO9YxbQTEwtp3WGA4/w0bjiCB+eWTGu9jduYNq0FJgioHPJ3ZRUGBL4EDlGQtNmhg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=xkT1xwtn; dkim-atps=neutral; spf=pass (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Hzc3GuxH;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=xkT1xwtn;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::94])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [212.42.244.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXd32nsz3cCh
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:21 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXf2B89z3cBW
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:22 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143727; bh=KQiEoi/5KK1uW5/WekNTwCqBkzEqSA1SWtsVPdM2q90=;
+	t=1773143727; bh=7QEjQvc53kHdYvJikGIe0XIqNo63J0gbffxhQyvvDmc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Hzc3GuxHf6WKr4EWmy7suWfFtUIN+cSSog0xcKAdq1K62+58VIbGObMn11FXUjfnw
-	 XSgX37V9MsgZIzaqlzkHaWhxgePi5JwVjORgVIpVxik46tgfvcV/Ti0iljkdkzgEMz
-	 GP23Vofxf0i5EbReeE876OiemRlixpOKPI/O3H3w=
+	b=xkT1xwtnaKnF5zwky80U90tVBtgjXUcX+GeykmrAvdmpppC5+8VK/cr2uIrG8dU1M
+	 7wm2m1OyU4JV6u1islMHTFtIiUXXXY5n/w/md+c+5C+f1bhtmzGNVLxiuCLq3+FykP
+	 yZ+BZpZfQ6y4Yx2gZPgoiPOharwFnkzMOEjjrW34=
 Received: from [212.42.244.71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ae-e21d-7f0000032729-7f000001da34-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:26 +0100
+	id 69b006af-2367-7f0000032729-7f000001c9aa-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:27 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:26 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:27 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:49:04 +0100
-Subject: [PATCH 38/61] net: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:07 +0100
+Subject: [PATCH 41/61] pinctrl: Prefer IS_ERR_OR_NULL over manual NULL
+ check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +60,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-41-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,36 +90,21 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Igor Russkikh <irusskikh@marvell.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Pavan Chebbi <pavan.chebbi@broadcom.com>, Michael Chan <mchan@broadcom.com>, 
- Potnuri Bharat Teja <bharat@chelsio.com>, 
- Tony Nguyen <anthony.l.nguyen@intel.com>, 
- Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
- Taras Chornyi <taras.chornyi@plvision.eu>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Iyappan Subramanian <iyappan@os.amperecomputing.com>, 
- Keyur Chudgar <keyur@os.amperecomputing.com>, 
- Quan Nguyen <quan@os.amperecomputing.com>, 
- Heiner Kallweit <hkallweit1@gmail.com>, 
- Russell King <linux@armlinux.org.uk>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6679; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=KQiEoi/5KK1uW5/WekNTwCqBkzEqSA1SWtsVPdM2q90=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZXMdz3AdJ9BDXSNnmAtbN1zmhCLGlM5aT0i
- DUnFwIG7QKJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGVwAKCRA0LQZT0ays
- 20CyB/4lggnkY4K4Lo4sONwYMpv2ax2osa3aOBaZeOsk7IrX5OefQhdbIn4njQGFhSRkoN1OS74
- RFM1P8Zj2ox5AT2OTTsGgJszYrviPiI6f3OB4fORCX0D5Uy+q+MJ9QaHAVOTki7YRDRPqPU8eot
- qXUXo3MWBintiQb+VUgj0c7V53AbuvEdsGiANz4ngxrRyeRv0LQno6AOBMWbXRBogpDl1L0S2i4
- UZBntAPoWZbboJc05+3p5MczuG3QperMntaj9Tb4wrxw8nvaoynlDjGr2dg61cj+UKtCoiisS82
- re/u1kbEtkI5dJs+aKf1mABBLdny1Poccch6DjzUum6aDXBE
+Cc: Linus Walleij <linusw@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=974; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=7QEjQvc53kHdYvJikGIe0XIqNo63J0gbffxhQyvvDmc=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZht0v/gzetsO7BqEut/SimpAgjLSUxejqDN
+ jYPITjd+qeJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGYQAKCRA0LQZT0ays
+ 2w/2B/4pX609pdZXvqHfb+Vqmmi/TuKtxSLe3zgXgKoCJW/gh17vsp/T22wIBqf6SXS4OIznDwc
+ CqIbsgeOEAAlNDyBRYAY6KPNdElI/rv3fa2ORfx9RdjhIHa4x5wKb3P01gEbIVxJDT7L+eaQBY5
+ W5yNdsizunhdj+FuJcUWkiWweG/sakXiGLIkqX5NlLESVIppvEGGOaxwjbsMisZ9PSaDKihHXQV
+ LTJsTcuZgnx6Ly3LMJ0SQkiMEfMsx1Sbu6dG9rRM3ckN2uFTC5HrsnBNmmT4sZqY9FpULICBCkq
+ q7sHGVDOpWpuw1oJ3VO2Y9YZsG2cD9KHQpB9olXNSESNKBcu
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143726-95E77E6F-9B3D9DCE/0/0
+X-purgate-ID: 149429::1773143727-86C91E1F-25F0153A/0/0
 X-purgate-type: clean
-X-purgate-size: 6681
+X-purgate-size: 976
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -128,148 +114,27 @@ check.
 
 Change generated with coccinelle.
 
-To: Igor Russkikh <irusskikh@marvell.com>
-To: Andrew Lunn <andrew+netdev@lunn.ch>
-To: "David S. Miller" <davem@davemloft.net>
-To: Eric Dumazet <edumazet@google.com>
-To: Jakub Kicinski <kuba@kernel.org>
-To: Paolo Abeni <pabeni@redhat.com>
-To: Pavan Chebbi <pavan.chebbi@broadcom.com>
-To: Michael Chan <mchan@broadcom.com>
-To: Potnuri Bharat Teja <bharat@chelsio.com>
-To: Tony Nguyen <anthony.l.nguyen@intel.com>
-To: Przemek Kitszel <przemyslaw.kitszel@intel.com>
-To: Taras Chornyi <taras.chornyi@plvision.eu>
-To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-To: Alexandre Torgue <alexandre.torgue@foss.st.com>
-To: Iyappan Subramanian <iyappan@os.amperecomputing.com>
-To: Keyur Chudgar <keyur@os.amperecomputing.com>
-To: Quan Nguyen <quan@os.amperecomputing.com>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-To: Russell King <linux@armlinux.org.uk>
-Cc: netdev@vger.kernel.org
+To: Linus Walleij <linusw@kernel.org>
+Cc: linux-gpio@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Cc: intel-wired-lan@lists.osuosl.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-usb@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c        | 2 +-
- drivers/net/ethernet/broadcom/tg3.c                     | 2 +-
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c    | 3 +--
- drivers/net/ethernet/intel/ice/devlink/devlink.c        | 2 +-
- drivers/net/ethernet/marvell/prestera/prestera_router.c | 2 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c       | 2 +-
- drivers/net/mdio/mdio-xgene.c                           | 2 +-
- drivers/net/usb/r8152.c                                 | 2 +-
- 8 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/pinctrl/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index e270327e47fd804cc8ee5cfd53ed1b993c955c41..43edef35c4b1ff606b2f1519a07fad4c9a990ad4 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -810,7 +810,7 @@ static int __aq_ring_xdp_clean(struct aq_ring_s *rx_ring,
- 		}
+diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+index b5e97689589fbf1b6750620fc193bc820012be2b..97a80989601abbe969d4b64cb0f3926fd4f291f5 100644
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -1991,7 +1991,7 @@ static void pinctrl_init_device_debugfs(struct pinctrl_dev *pctldev)
+ 	device_root = debugfs_create_dir(debugfs_name, debugfs_root);
+ 	pctldev->device_root = device_root;
  
- 		skb = aq_xdp_run_prog(aq_nic, &xdp, rx_ring, buff);
--		if (IS_ERR(skb) || !skb)
-+		if (IS_ERR_OR_NULL(skb))
- 			continue;
- 
- 		if (ptp_hwtstamp_len > 0)
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 2328fce336447eb4a796f9300ccc0ab536ff0a35..8ed79f34f03d81184dcc12e6eaff009cb8f7756e 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -7943,7 +7943,7 @@ static int tg3_tso_bug(struct tg3 *tp, struct tg3_napi *tnapi,
- 
- 	segs = skb_gso_segment(skb, tp->dev->features &
- 				    ~(NETIF_F_TSO | NETIF_F_TSO6));
--	if (IS_ERR(segs) || !segs) {
-+	if (IS_ERR_OR_NULL(segs)) {
- 		tnapi->tx_dropped++;
- 		goto tg3_tso_bug_end;
- 	}
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-index 3307e50426819087ad985178c4a5383f16b8e7b4..1c8a6445d4b2e3535d8f1b7908dd02d8dd2f23fa 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-@@ -1032,8 +1032,7 @@ static void ch_flower_stats_handler(struct work_struct *work)
- 	do {
- 		rhashtable_walk_start(&iter);
- 
--		while ((flower_entry = rhashtable_walk_next(&iter)) &&
--		       !IS_ERR(flower_entry)) {
-+		while (!IS_ERR_OR_NULL((flower_entry = rhashtable_walk_next(&iter)))) {
- 			ret = cxgb4_get_filter_counters(adap->port[0],
- 							flower_entry->filter_id,
- 							&packets, &bytes,
-diff --git a/drivers/net/ethernet/intel/ice/devlink/devlink.c b/drivers/net/ethernet/intel/ice/devlink/devlink.c
-index 6c72bd15db6d75a1d4fa04ef8fefbd26fb6e84bd..3d08b9187fd76ca3198af28111b6f1c1765ea01e 100644
---- a/drivers/net/ethernet/intel/ice/devlink/devlink.c
-+++ b/drivers/net/ethernet/intel/ice/devlink/devlink.c
-@@ -791,7 +791,7 @@ static void ice_traverse_tx_tree(struct devlink *devlink, struct ice_sched_node
- 						  node->parent->rate_node);
- 	}
- 
--	if (rate_node && !IS_ERR(rate_node))
-+	if (!IS_ERR_OR_NULL(rate_node))
- 		node->rate_node = rate_node;
- 
- traverse_children:
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_router.c b/drivers/net/ethernet/marvell/prestera/prestera_router.c
-index b036b173a308b5f994ad8538eb010fa27196988c..4492938e8a3da91d32efe8d45ccbe2eb437c0e49 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_router.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_router.c
-@@ -1061,7 +1061,7 @@ static void __prestera_k_arb_hw_state_upd(struct prestera_switch *sw,
- 		n = NULL;
- 	}
- 
--	if (!IS_ERR(n) && n) {
-+	if (!IS_ERR_OR_NULL(n)) {
- 		neigh_event_send(n, NULL);
- 		neigh_release(n);
- 	} else {
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 6827c99bde8c22db42b363d2d36ad6f26075ed50..356a4e9ce04b1fcf8786d7274d31ace404be2cf6 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1275,7 +1275,7 @@ static int stmmac_init_phy(struct net_device *dev)
- 	/* Some DT bindings do not set-up the PHY handle. Let's try to
- 	 * manually parse it
- 	 */
--	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
-+	if (IS_ERR_OR_NULL(phy_fwnode)) {
- 		int addr = priv->plat->phy_addr;
- 		struct phy_device *phydev;
- 
-diff --git a/drivers/net/mdio/mdio-xgene.c b/drivers/net/mdio/mdio-xgene.c
-index a8f91a4b7fed0927ee14e408000cd3a2bfb9b09a..09b30b563295c6085dc1358ac361301e5cf6b2a8 100644
---- a/drivers/net/mdio/mdio-xgene.c
-+++ b/drivers/net/mdio/mdio-xgene.c
-@@ -265,7 +265,7 @@ struct phy_device *xgene_enet_phy_register(struct mii_bus *bus, int phy_addr)
- 	struct phy_device *phy_dev;
- 
- 	phy_dev = get_phy_device(bus, phy_addr, false);
--	if (!phy_dev || IS_ERR(phy_dev))
-+	if (IS_ERR_OR_NULL(phy_dev))
- 		return NULL;
- 
- 	if (phy_device_register(phy_dev))
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 0c83bbbea2e7c322ee6339893e281237663bd3ae..73f17ebd7d40007eec5004f887a46249defd28ab 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -2218,7 +2218,7 @@ static void r8152_csum_workaround(struct r8152 *tp, struct sk_buff *skb,
- 
- 		features &= ~(NETIF_F_SG | NETIF_F_IPV6_CSUM | NETIF_F_TSO6);
- 		segs = skb_gso_segment(skb, features);
--		if (IS_ERR(segs) || !segs)
-+		if (IS_ERR_OR_NULL(segs))
- 			goto drop;
- 
- 		__skb_queue_head_init(&seg_list);
+-	if (IS_ERR(device_root) || !device_root) {
++	if (IS_ERR_OR_NULL(device_root)) {
+ 		pr_warn("failed to create debugfs directory for %s\n",
+ 			dev_name(pctldev->dev));
+ 		return;
 
 -- 
 2.43.0
