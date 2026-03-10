@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-2616-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2617-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 54118FD2D64
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:05:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E07D1FD2D63
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:05:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXdC3PtNz2xlh;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXdC44tnz3cJF;
 	Tue, 10 Mar 2026 23:05:19 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::120"
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144319;
-	cv=none; b=cbFvjy82DMH98KRZIPXSU2CBCTzJao9SSrRTM/PQi8mRgjotDPRyyadIT86NHaIQ3NqkTNKqKLprv9eQe2eu6RGw3cG99BN2JVFRiS2R0QDOBsQVmDax4A2kYx+1Iy79Y9WFT0Q7LAFZx0LD6O9g5ZCSdXQzzNdYA40W+e25PiovdiOxMV3F3AS2Zdn0E74VHqCoSOk9ovBrADKaW4D754Rb4+fDOC/VgQ3MtMOyl4Ou4hgdQwMj4FNWxoH+2bZyY/jE9L4bzsFXXl7aYf7HgV7k5YEuxyyTeR4o/hcGxlUjVgqXerGyekuZ7oSLDFW0UVE293CTzPISZXYN9a3eYQ==
+	cv=none; b=dG1NqE9d8U/sABI4g+q/EuGHiEtyX13dF0G4piubmJPNKYalZ3SmsBb3Avruc6ajjv0N+TcUMkdxzKF/K0l46AHZWGq7E62tUDsoFbNWL0FdRQqtGAed3O8Yqu9OBzIcjn6BZbG4W2MQLWyFdLL7dTUAPYN6K8f+7BDm9FqkD5qv3vleElRHukihviIL41mhKwC4bf9BFY+eUJ7gRgzzNodP3y84ec7jMa+xl6Oik31Glguyq+UjAVKstikK386axvAIO8RSnEEmT2VR9rBqjJ2plkU41d2g6QuXCryyUwH9JJp7aeHPorzh8Gl9h67gaL6Sp1O9VkuqR+8lXD8f0w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144319; c=relaxed/relaxed;
-	bh=Uooxw3fX5Xhzv20YqKtHhWsi9m/p0oZKhCK7hiSR9So=;
+	bh=C+GdyesCqjDCe4PZkQJNYjcFFIcNfAxTkK/W4yWnbYU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ExWLdRqfEs2DtXw9o/O37f6rFw02XuQOQailPTC7mYv6XCAIkRUEmbtwJGIE0iNu/VbEVmDYQnyANC8rjh1NaST1m44ftVL8Qndi+ZMUw1GTP5kICoHoXgcxu9mx4SqW97PIECf4lU71nUMezV6OMovs2HrRH6BtVtD1dQ5u0plG2LfjB4gKgJorVdZ6UhRnwjfF45X0+iKrvVcOTaxcSA3LndYhvbHGQIJwJXsqs5PRA8ARz8wuY2AtWQ5sBYKpJzJD7OX8wd43w1SCEU8mgNB4iFJeGcBspbf5Y6i+2Lxn7YYgI/jhoWczfAo24EIjDlRdMFk0FEKQs1dVJAw6bg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=f0/sH3vW; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=UuRXwz2qa5ts87YczwL/77H8nJwCUsgKbj2TFVbQWkJ9QhOcZjp/AMG2ShdOM0E7xDsJk3Xh5Xgs6lYwR+NueaHlDiMY+RH4fajEqlHMO/OsYCiuWpR7EUe5rCjgXfP8KFEMR485+mmZME7m3EqOqgtLUwlKjP8pGOarQDHXoNjvgbzX1agAbhDIAWP8skhb5pveO6Xg8uwBTeBebB57gCqIA1oiyiOAJ7lDB/fB58Ooe4BG1A0wHo7xgisnualv8znvSUgDtG/sXbApasp2NjidKqZeLRiaEWhfHtMSZM42F+GXJvSmc5wyAH4WQYsfqQyGdT4UtMqSgYix37E5PA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=i31l4ZLC; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=f0/sH3vW;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=i31l4ZLC;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
 Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::120])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXdB5kDcz3cHx
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXdB5yXgz3cJ0
 	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:05:18 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143725; bh=N8ytNu1U36GmBgTPXVAE5/A4s2PfdogY1tJY/l2pxcM=;
+	t=1773143727; bh=gXi6ivSyh7ZdNYhxQJgA68gjpGeiYyVoxWZ9PHNV1mk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=f0/sH3vWUtSFTcrY68KbpDRxIZCYT2hIiwDi3Dik93BJCASdZICq9tTWJ3wgjDVyu
-	 Jxt6MZXNePDtV4TX0U7P53CBk1XHgvUArUuxPPUnS5hIbTeOVph/0B/h50wymqYtj1
-	 3T7/WTJwdzfusP5uEpNMFoKuQUCnMWZUuDcbxKoU=
+	b=i31l4ZLCMLhpXpaK7/Y2yOfuiAhnSJr8fMnqxjs25j5opOPrdqJNTkpsIEDFkqgSp
+	 sZnvLSPj8tGgU4HRU29DH4iPyKhf4v+uoWFgpTspJJOsv7N1zoPc8cizNZidyZ8Q0X
+	 jUywybPonMt30TuRnw66+h5bxhBLfRmMmaXnPfrQ=
 Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-b734-7f0000032729-7f000001bfc8-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006af-b734-7f0000032729-7f0000019c20-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:27 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:27 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:38 +0100
-Subject: [PATCH 12/61] quota: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:17 +0100
+Subject: [PATCH 51/61] leds: Prefer IS_ERR_OR_NULL over manual NULL check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +59,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-12-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-51-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,21 +89,21 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Jan Kara <jack@suse.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=763; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=N8ytNu1U36GmBgTPXVAE5/A4s2PfdogY1tJY/l2pxcM=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAX+MICb9QGDh9sr8xrXC0GI/+3a26bt3TCKL
- Vjl33LfQY+JATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAF/gAKCRA0LQZT0ays
- 26n6B/wNFZznKdxnE0qMd12a2eIuA9+krGiImi7olxEd9wOJhsBf8sKwI0E3QgvpW0h7L8AJ/V7
- YwWi88O6oeBiZ3QDKSUmLS/9VlykYZ97N4eOIEzkOMJxki98cx4PncgKAN9Jy63O/7GoZyteCZ7
- +9i83brafUHJWnhfe2dyfef6pp7LRzaCEfdld6TPIgAENhsi0/zr3Pv5hQfjJiyWTNInkfN/Wc9
- eBcVMsl2Zb6jE1xGE/aNpGFG8dNw74geAiaLniVxheZHeJfqzhWkArPaHQ0SYGtCtwd5smdDDAA
- 6BFeqEcljgo2LkEM+gZQjogP088dQYDyFGUkwYA0hLFDBEaT
+Cc: Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=923; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=gXi6ivSyh7ZdNYhxQJgA68gjpGeiYyVoxWZ9PHNV1mk=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAaDRzpibZr08PkdSw8N3Wy2DsiAYuwbT7jaR
+ Q+T5qeGz2qJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGgwAKCRA0LQZT0ays
+ 2y8ACACMKWU5TdDg1OYJ2RnR6HQxJ+2JBIhOyDk8x3FmHidd0wyjcAKA49FqYhtFEhdjGJpgNO3
+ wlcNr4zJ0vDoKzMmVWNj4Kco49QymIlKxd4ko1v9jLom22gL6FIw+i0pd7JG7Dw9K0M9qv/g65X
+ psKPmTQlkBRnjyq+gEp1UF+Z+aW8svU4fmV048TA2bEb7zgfrp0dmnA9hbj2JEYjWrt/pHjBWtC
+ 27oF1sxBbFSjPkNzuaBpb0y9RWyLO/07lImA1AItNHZGlvNpydtzvqp/I3qxgt9sXKt1PHRt8iZ
+ u4zVb/lltaBI2wPScPn/3+nmKc5y9QbdtT1oK6vzRsjkH2h6
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-435C7A3D-F151BDE4/0/0
+X-purgate-ID: 149429::1773143727-CD5F3A3D-F6F9F436/0/0
 X-purgate-type: clean
-X-purgate-size: 765
+X-purgate-size: 925
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -113,26 +113,28 @@ check.
 
 Change generated with coccinelle.
 
-To: Jan Kara <jack@suse.com>
+To: Lee Jones <lee@kernel.org>
+To: Pavel Machek <pavel@kernel.org>
+Cc: linux-leds@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- fs/quota/quota.c | 2 +-
+ drivers/leds/trigger/ledtrig-tty.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/quota/quota.c b/fs/quota/quota.c
-index 33bacd70758007129e0375bab44d7431195ec441..2e09fc247d0cf45b9e83a4f8a0be7ea694c8c2a1 100644
---- a/fs/quota/quota.c
-+++ b/fs/quota/quota.c
-@@ -965,7 +965,7 @@ SYSCALL_DEFINE4(quotactl, unsigned int, cmd, const char __user *, special,
- 	else
- 		drop_super_exclusive(sb);
- out:
--	if (pathp && !IS_ERR(pathp))
-+	if (!IS_ERR_OR_NULL(pathp))
- 		path_put(pathp);
- 	return ret;
- }
+diff --git a/drivers/leds/trigger/ledtrig-tty.c b/drivers/leds/trigger/ledtrig-tty.c
+index 8eb6286b33ac3cdcbb72ed9ad5ad7105e15d20b6..3725571144d910b225ca9605771fc0f0c8355efd 100644
+--- a/drivers/leds/trigger/ledtrig-tty.c
++++ b/drivers/leds/trigger/ledtrig-tty.c
+@@ -220,7 +220,7 @@ static void ledtrig_tty_work(struct work_struct *work)
+ 			goto out;
+ 
+ 		tty = tty_kopen_shared(devno);
+-		if (IS_ERR(tty) || !tty)
++		if (IS_ERR_OR_NULL(tty))
+ 			/* What to do? retry or abort */
+ 			goto out;
+ 
 
 -- 
 2.43.0
