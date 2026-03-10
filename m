@@ -1,42 +1,51 @@
-Return-Path: <linux-erofs+bounces-2599-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2600-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60DF2FD2D63
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:02:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1729FD2D62
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:05:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXt2G2Xz3cG6;
-	Tue, 10 Mar 2026 23:01:34 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.94
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144094;
-	cv=none; b=O0/nChpPoN74WgkjIdI+txg2vWW8fecatijRRveEmurObFHno64f8HhnJhZx2YXPllMiuodpRsb+CFa4h6qPd0RF1UdOpZGOstvVSrPGFISHipUesP6ZqN97LHYWNzHnbr0Nf45ZZAoSwP8oi9h8pMHgpDVwEjIuCfAUtxQDsohkb7g4atLay/70l6BKzh3koGWzgH2MkhdT/dHBMKsHxhofFenhljZdENR0jnIClAVAWjWJfRbkMaIZt4mj4AGEG6YMTS2iB9EDP+NiwmcN0BXtLRI78owhlIqd5H7IkBYbCFMzrlcfvxsE4lL93+mpJGJjTowxE1LLq+b6cfc8yQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXcy50LVz3cGg;
+	Tue, 10 Mar 2026 23:05:06 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.120
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144306;
+	cv=none; b=VM4nc/pXSuulXiw91o86nlMdalJ7UwmlCc30TA18LXNSGPE7aiCz48EeU+YGbsom22tQh1vjZqASOMwEMKFnSdilXV/nruHTM5fcmfphZQH5iJ/sb07hrsY266nK4itstnY8evLI0XY//aUgQir0Mu1FAXsUpttZZX9XulnVNnQo9dY0vitbTiaVjSIAjDuiCRQb2eXTsrtZxPOoibOm5bZ4TE5vzz4AhZI88KpF3GoYVZt8roTzKwa6bVfrtAhiNSe/DeJMJ7ugvvNoS7/bmrj00gRGpuDAYloNCZWNFEg/Ek064i6yvJhDrsY+3AXrMjqkoF0yZFNYX8v8KTA9dg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773144094; c=relaxed/relaxed;
-	bh=wXP6inC1ot/jec8Yz2mJDj/4GFF4TcysvA1pHXvsm5c=;
+	t=1773144306; c=relaxed/relaxed;
+	bh=FfSzQd7kv4UrwUhbLdoRlPs9cYP9/YWD1INFReBo/3M=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cNj0s4A/UYA2tWXR6g8saaHGwDslIfA9OTJx1QlGUST4N66Dd1d4hfdKJUEqJCi0gr+dYpDtNixEPf2y1vsVNFe4QlWi4J2/bQrpPYcvMByCJqgpvKpFfzOWuNSeDetorrlSDm+Prl0RhsuPBY0Of8w8mUWyiQUREZJQyEQ0a9HBVYirQHod6b+Fnz9JroD9tYMmj8YBc9IUGUUL4jSm5TnYoxGv/ifSg51jQQM60VSIHR0N484547XJ3qN02raGJI0LkB17Pu4EcmSdX/JX7DjCiOr02FvpF3GbVSmEiAunhLEzP6OxVxtc7P3h/5v4nlXxil8/wLcV+sJQgKpvFQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=nsYAu9o2Mq/l4PfI+rJHTiqvhQHGqhXoP64lXoJwRcuVP1hhHrqUkZC7pNRs+1BlocnsL0pRypA0ov41yQ9FXxo7QtcO3ztEULckl4sg4nk+yw348Kbanr2ljG3snpzCB5+TC3j4j9e4SXexv0JoytKecN/jZCc+AcSB4yv6xOEl9cuF3xGC5iRpuY8aj/on6mviHAVQMeLuhw7VQ5N5XYWKuAy6ZTE7PBgHcvh6cMoWpfwt4XVsD7o0Icrqzfih6AmYsOLVDoG9huwhaYQGfL2vPd9qtQ0sGJVzsthzx26bYPcwvCi6MBqbYZOCdoeA4Owil52Rye66j9Hcb8RECg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=nh38mtwH; dkim-atps=neutral; spf=pass (client-ip=212.42.244.120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [212.42.244.94])
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=nh38mtwH;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [212.42.244.120])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXs4VzVz3cG9
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXcx64Lqz3bmM
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:05:05 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+	t=1773143726; bh=7kdqP+tYIFKXEbW/CcutoIH+BaTJGO9lG8xGd+KBKlA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=nh38mtwHyUV9SKw+BNpXSRFMzfO8/FcrsieQzDWw9oji2O+z7Psbni6v7KAffehjx
+	 qmid8HatIGHMRnktoTMo9XRdUV6Ztkx3lRZel+NdFrmuz3TY6gos5gVQP+DoaQPsNi
+	 ndWgzemtoyfAka1Tah5hiKpjxy0BL5dDr2HvKeZc=
 Received: from [212.42.244.71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-e21d-7f0000032729-7f000001d976-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006ae-b734-7f0000032729-7f000001c0a2-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:26 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:26 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:29 +0100
-Subject: [PATCH 03/61] ceph: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:09 +0100
+Subject: [PATCH 43/61] s390: Prefer IS_ERR_OR_NULL over manual NULL check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,7 +59,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-3-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-43-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -80,22 +89,24 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Alex Markuze <amarkuze@redhat.com>, 
- Viacheslav Dubeyko <slava@dubeyko.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1465; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=FEizU4OZfQ9wQ3wvLqHfhAD95k5qump7I9MIi0BZQKk=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAXdroDlhymGqsGkbn1SZv53cw4YuzOIIwtui
- bzXW6sBBQWJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAF3QAKCRA0LQZT0ays
- 2/1wB/sGTAYBPIahrXD3EXFQ9FcpHqqnw1r9sZLiba/u035gmw5LoaZhwTxHDBskl2iaWkVnIXz
- Iy7Anuu/HF1GBhMkP4ZE553CQedkoQLkwUxzFneqcFtg8dEj/bcSSJoqNhuTbcFTeYPFZ2FuuJR
- mi6wxSHOtk1jHNn9K4y3/ujXKX8zNKkMQCDkESe1H1kZKzWifi4aoEVftzahJtLslDJIa2qDL4i
- OSDOnojL7uRKrSwdvp+XJGBIrrn9XWylS2+dg5zaohBqwfc9ulGK+fMI3nM/n2Gqrv2OPrXEBM6
- 17i7pbPmqS6afMN4bPYcsNPNwynB+aJ8jBm/4wPpjycn86fZ
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1168; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=7kdqP+tYIFKXEbW/CcutoIH+BaTJGO9lG8xGd+KBKlA=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZn1sZXeMLIPVJuPMvtIFyA6+Lb/ZSleHAPf
+ T0qLrc6EciJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGZwAKCRA0LQZT0ays
+ 20K6B/45z034OMVnc7IW5eSlZRm22idjp9lRSYx7bSAgasz9Q69aq8L0v4zLmsPUTUANCklIZV3
+ Ky9LpL/JQ27BKEBlPFUkZv7HOQgdozWfUf51X/x0BdMhEpEPDFIJUTovRoUphEHN8rw1r9KUQDQ
+ dRKeWS5ua07ZtP69du+2qOW1Bjj55fWBu+uxvI7fohNlQeSwssQzt0rpy3r+7xRxxg0LdKDF+Eo
+ Y+QuFzLHRhLpEtgPju+jKGgQPeWyFuaSnteU1ZzTdDhjn5fvjXBJ7IuXzcVk6epAYwi3YolC11O
+ rwheclTeEca9nqJY9eYYhG9OXtZeHQ7d173Po939eVnoDlQn
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-7B60AF2F-D466ABAE/0/0
+X-purgate-ID: 149429::1773143726-E3DCEA3D-4F569189/0/0
 X-purgate-type: clean
-X-purgate-size: 1467
+X-purgate-size: 1170
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -105,43 +116,31 @@ check.
 
 Change generated with coccinelle.
 
-To: Ilya Dryomov <idryomov@gmail.com>
-To: Alex Markuze <amarkuze@redhat.com>
-To: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: ceph-devel@vger.kernel.org
+To: Heiko Carstens <hca@linux.ibm.com>
+To: Vasily Gorbik <gor@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- fs/ceph/dir.c  | 2 +-
- fs/ceph/snap.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/tape_class.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
-index 86d7aa594ea99335af3e91a95c0a418fdc1b8a8a..934250748ae4fd4c148fd27bdf91175047c2877d 100644
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -889,7 +889,7 @@ int ceph_handle_notrace_create(struct inode *dir, struct dentry *dentry)
- {
- 	struct dentry *result = ceph_lookup(dir, dentry, 0);
+diff --git a/drivers/s390/char/tape_class.c b/drivers/s390/char/tape_class.c
+index b69430220a813e764ec1514c27ad486ac9e95575..aad4fff1faea69ae055b517910ec6467b14cb6e8 100644
+--- a/drivers/s390/char/tape_class.c
++++ b/drivers/s390/char/tape_class.c
+@@ -100,7 +100,7 @@ EXPORT_SYMBOL(register_tape_dev);
  
--	if (result && !IS_ERR(result)) {
-+	if (!IS_ERR_OR_NULL(result)) {
- 		/*
- 		 * We created the item, then did a lookup, and found
- 		 * it was already linked to another inode we already
-diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
-index 52b4c2684f922bfed39550311e793bfe3622cd26..528ad581be160713f91416115659e2dc6f259576 100644
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -902,7 +902,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
- bad:
- 	err = -EIO;
- fail:
--	if (realm && !IS_ERR(realm))
-+	if (!IS_ERR_OR_NULL(realm))
- 		ceph_put_snap_realm(mdsc, realm);
- 	if (first_realm)
- 		ceph_put_snap_realm(mdsc, first_realm);
+ void unregister_tape_dev(struct device *device, struct tape_class_device *tcd)
+ {
+-	if (tcd != NULL && !IS_ERR(tcd)) {
++	if (!IS_ERR_OR_NULL(tcd)) {
+ 		sysfs_remove_link(&device->kobj, tcd->mode_name);
+ 		device_destroy(&tape_class, tcd->char_device->dev);
+ 		cdev_del(tcd->char_device);
 
 -- 
 2.43.0
