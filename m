@@ -1,62 +1,54 @@
-Return-Path: <linux-erofs+bounces-2629-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2630-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64BA1FD2D9A
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 13:58:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 71783EB1058
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 14:14:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVb7V6Rc3z3bmM;
-	Wed, 11 Mar 2026 00:58:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=5.189.157.229
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773151094;
-	cv=none; b=ErazXr9ptsjj66UKNci2ARE8Jb1RpZHUDJfzTFumQ8ffwsCIo+3KR54gWA1yKp5A8QpQIaTPHQCbXZ124TYIx6Oiw91oPh5uqaImPvlqOJ7/7OYP5AsN4HbrBSxgzkJKlT9onZnb8pb/Ke/1CLFJ8nTmJsktRUyxd7BYnoYOXZP/crtkNDKFMCoq4L6sCx/uXE+Ho3yNkBpzGf02DXD7siyNX79veKYoUkLBiYWL+w28CsgCKa8a9g76L1griWcjhEpCDBUfeR9P0SY/XKXO5CPrl2aCwrSeD7Lsd/bjhDsPxTbHZcWLgZZ7sj4kjCCkuZXy7JuVcVYXbj3kbfQ9rw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVbTv5ZY0z3bjb;
+	Wed, 11 Mar 2026 01:14:11 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=216.40.44.15
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773152051;
+	cv=none; b=lfkU0wL9KfVLx2J0p0DsS/xj3jWTZsmYN4rAGux9ZcZBN64Qb1bZ80jPoDzgt4s7vSes7wwr07HqxQi8S+P5BfCPwbhB2NBFknypeu2OszdUEmAchY++keuoAir42SMcn+vYJqBLcQkDeOlZxOBqq2zmTS+r9+SDDq2nt/LjnsEjR7gSD2/zn/K0IV8y7XjH9XUTNFcg60pog0i/rRQads1x2ITFMwf6K8VWXLp2jA6J/uA6FMVLc4fPTUkwoRnJoVctNSG6LyDtrMgui8KwkV+qizJsDlxZ+DCJVCiZVDY1mE++F+JDs1iTFHN+BXPx/om+MYspDsSkVve2zrES+Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773151094; c=relaxed/relaxed;
-	bh=tqNoaL94Dj4pObM+6pGSr4RMsIJmELh6Cj7p3cxJGxE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XTDtAExgLViX+jItjwJY11Au2UzQLrsJdQYK4Lu9ojRUa6ohpVEY7V3V7vsOcl4jdwmoZSCVwehDZoN8+EEuR6PjGEuGXNhRF+Jej6mS5lWfEmMD7szda6BX9xQLUO/EoeObx3RWZk0QLPojNITeC9C4BxQrjYx/EYZy+cWDq9rPqvKXooc7An3h0mWyrI9Nny2AN91Im64aXCesA3ojl0wbAxhcv1Dss4c2Q9h3YVwbuN291DEg/E5isSccLbw/xU8VytE+7ADw+VzytB4+0A3pB+n0jwnCH9x8q0ut6+C+usOxAGSPAlTgazL4KvI+HXBMjzW5mNKcJIglQVfnPA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=crudebyte.com; dkim=pass (4096-bit key; unprotected) header.d=crudebyte.com header.i=@crudebyte.com header.a=rsa-sha256 header.s=kylie header.b=BSv+5VTS; dkim-atps=neutral; spf=pass (client-ip=5.189.157.229; helo=kylie.crudebyte.com; envelope-from=linux_oss@crudebyte.com; receiver=lists.ozlabs.org) smtp.mailfrom=crudebyte.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=crudebyte.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (4096-bit key; unprotected) header.d=crudebyte.com header.i=@crudebyte.com header.a=rsa-sha256 header.s=kylie header.b=BSv+5VTS;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=crudebyte.com (client-ip=5.189.157.229; helo=kylie.crudebyte.com; envelope-from=linux_oss@crudebyte.com; receiver=lists.ozlabs.org)
-Received: from kylie.crudebyte.com (kylie.crudebyte.com [5.189.157.229])
+	t=1773152051; c=relaxed/relaxed;
+	bh=HPL66xu6ufWwmWtPeO/cE7zqEYWvLRdiXRFNaq8HLM4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=n1f1Mf/duiNUjLozMhCLpS88ekadJmzwz4Ig38dqRD1Tb4Pd/QpequRh95ljPc41nBAXDpsZaMxrGtx5aEGvm1RKJ5WZOOnXpm6PhuS8dZggkqxC7HdnxRgp1Y0tD9/3jwMsW89MLmo+56WMf0gooI4Ccmn3dk+DDOu8p5pAEL6RM3UHyAjyjbV76xyVNr13dHcbwmK0VM5NqP9bOCjSm1WECZKcvOBfsCaP6w1kUhKrxqlipE/23RHsx6TEcWszxwuKVw3cMqL7Jok+nAFXv6e1CUzBofWD3pjwJbCR8wcOUt8P2mX5XG9hC1Ki9AdCJcU8qYCEVUs8DKUemwrjdQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass (client-ip=216.40.44.15; helo=relay.hostedemail.com; envelope-from=rostedt@goodmis.org; receiver=lists.ozlabs.org) smtp.mailfrom=goodmis.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=goodmis.org (client-ip=216.40.44.15; helo=relay.hostedemail.com; envelope-from=rostedt@goodmis.org; receiver=lists.ozlabs.org)
+X-Greylist: delayed 355 seconds by postgrey-1.37 at boromir; Wed, 11 Mar 2026 01:14:10 AEDT
+Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVb7V0h7bz30Lw
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 00:58:14 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=crudebyte.com; s=kylie; h=Content-Type:Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
-	Content-ID:Content-Description;
-	bh=tqNoaL94Dj4pObM+6pGSr4RMsIJmELh6Cj7p3cxJGxE=; b=BSv+5VTSyPyrhpKWnMZVCjZEvG
-	yrk6LWxlGwnUUZjquKMol+ljVUIUp9jBraubgLqBi4cKz4hniKCf9rIQTsThme1FexxEN+zxKvsgC
-	uvMYbDhkYi+shFX+PLCD/IMwmjSpYMDJbZGsateoQvss1ByMiB7n5CokueqpdePTp7697ajozqLcL
-	QNNNvSzTIj5kMR2wUJSupi5THJtiu7VhPmFy8ePRrdnRpYFSOebiyO3IlTbeTGO/MmRM5PEIBBHLD
-	zejwvm6ItsldfqTIXTc6O0Z/soDk0el6lSZ+MrXBoszSWB5pdQE71J71rNLjrXAAIRkB6hWfEOV6d
-	5s2EICAGfy5rFvZnPzPqZQFNMJmMF1OtxV9pY8V9U1rZXYRb0+cWjl6X1xLcFCZOiZcoHLob301cc
-	kRokX7oWqU/2ExVyAy+qxf6eKje0uvqaOqv9hMGZ5ryaSKPC2aKAIJfnAVSBvJS/v1i4KIjPZc3rm
-	OWRlN9QVYisM4o3VWUWhQE9QLOSHJzH7XsIe7kcAxjAHPZYtil03PpuGESYai0z/ycOzdMPXNnK8s
-	RUYQ5R4xdnnK/uIBRJ5tLN+fwlf+9zGkqtXzZ7Db2ibQTV2JC6OBFoQ9ds8aqQ/KGsNN9Qx1u7AAn
-	wqTFHtO0j/nTwkXDvMBIt3or3MQXIgQCujiNGxQ00=;
-From: Christian Schoenebeck <linux_oss@crudebyte.com>
-To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVbTt4P9Zz30Lw
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 01:14:09 +1100 (AEDT)
+Received: from omf14.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay01.hostedemail.com (Postfix) with ESMTP id 0CEFF1C171;
+	Tue, 10 Mar 2026 14:08:05 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf14.hostedemail.com (Postfix) with ESMTPA id 847E92D;
+	Tue, 10 Mar 2026 14:07:40 +0000 (UTC)
+Date: Tue, 10 Mar 2026 10:07:50 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
  dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
  gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
- intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
  linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
  linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
@@ -68,18 +60,16 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
  ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
- Philipp Hahn <phahn-oss@avm.de>, Philipp Hahn <phahn-oss@avm.de>
-Cc: Eric Van Hensbergen <ericvh@kernel.org>,
- Latchesar Ionkov <lucho@ionkov.net>,
- Dominique Martinet <asmadeus@codewreck.org>
-Subject: Re: [PATCH 06/61] 9p: Prefer IS_ERR_OR_NULL over manual NULL check
-Date: Tue, 10 Mar 2026 14:45:07 +0100
-Message-ID: <2401874.ElGaqSPkdT@weasel>
-In-Reply-To: <20260310-b4-is_err_or_null-v1-6-bd63b656022d@avm.de>
-References:
- <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
- <20260310-b4-is_err_or_null-v1-6-bd63b656022d@avm.de>
+ tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, Masami
+ Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>
+Subject: Re: [PATCH 15/61] trace: Prefer IS_ERR_OR_NULL over manual NULL
+ check
+Message-ID: <20260310100750.303af303@gandalf.local.home>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-15-bd63b656022d@avm.de>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	<20260310-b4-is_err_or_null-v1-15-bd63b656022d@avm.de>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -91,46 +81,85 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Server: rspamout05
+X-Rspamd-Queue-Id: 847E92D
+X-Stat-Signature: 7qtdkkf3por5hcs9du9pir5nqq8uht35
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX19Z3Tx1sMlUDFHS8YYPfSOpiqPw8cg/LfU=
+X-HE-Tag: 1773151660-993833
+X-HE-Meta: U2FsdGVkX1+JWrMXdInzvBx9l2WUqahyoYUezPLaF3HICGuHpiLcos2NJHmqwFPLfM8ZBXZ6/fmTg/vlHLcqcaFGukyEZOsOE3kBaCKhhIkGksjLucUHfFRW8KX39dTkHeOQhZTWX/A0f9Y+1fWRMEQzHGhaJF2wpPshgb4yUxNCAKdeI6QYyukTSlQGbTY7Uxizi79ndrJuznFkrJ0f1Gh3JC2I5gazyCY5QhqLMJ9a9ShPFpKdZ7NDaPeyx31oXfa0p+bWWHR1R5JbGDYWhbllAgJDuEbxQsOff6UlFUV0L3hTo0f3pFVAKw4ZSe/3wUeKTGah6IcaIcnei7ziR9eK5k/ow6hfmOBOZGq2CLBxHUplOJMJzaQEF/IeU48U6bUZ8WiPpl/JDxwK03ucqBa/7oG+YB+etWyAxh+TKdi7NbCLCb6PbeExJ2cO76n2AdjJCB03SaDGNN90kGsLmA==
 
-On Tuesday, 10 March 2026 12:48:32 CET Philipp Hahn wrote:
+On Tue, 10 Mar 2026 12:48:41 +0100
+Philipp Hahn <phahn-oss@avm.de> wrote:
+
 > Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
 > check.
+
+Why?
+
 > 
 > Change generated with coccinelle.
 > 
-> To: Eric Van Hensbergen <ericvh@kernel.org>
-> To: Latchesar Ionkov <lucho@ionkov.net>
-> To: Dominique Martinet <asmadeus@codewreck.org>
-> To: Christian Schoenebeck <linux_oss@crudebyte.com>
-> Cc: v9fs@lists.linux.dev
+> To: Steven Rostedt <rostedt@goodmis.org>
+> To: Masami Hiramatsu <mhiramat@kernel.org>
+> To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 > Cc: linux-kernel@vger.kernel.org
+> Cc: linux-trace-kernel@vger.kernel.org
 > Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 > ---
->  fs/9p/fid.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-"fs/9p" in the subject on this one, please, not just "9p".
-
-Except of that:
-
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-
-> diff --git a/fs/9p/fid.h b/fs/9p/fid.h
-> index
-> 0d6138bee2a3d1ab565ab2d210c0a3f3bf97e4e3..3bb7ef4380e972a2d9ab67eb4aab6cc5b
-> fe2eea7 100644 --- a/fs/9p/fid.h
-> +++ b/fs/9p/fid.h
-> @@ -27,7 +27,7 @@ static inline struct p9_fid *v9fs_fid_clone(struct dentry
-> *dentry) struct p9_fid *fid, *nfid;
+>  kernel/trace/fprobe.c                | 2 +-
+>  kernel/trace/kprobe_event_gen_test.c | 2 +-
+>  kernel/trace/trace_events_hist.c     | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 > 
->  	fid = v9fs_fid_lookup(dentry);
-> -	if (!fid || IS_ERR(fid))
-> +	if (IS_ERR_OR_NULL(fid))
->  		return fid;
-> 
->  	nfid = clone_fid(fid);
+> diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
+> index dcadf1d23b8a31f571392d0c49cbd22df1716b4f..a94ce810d83b90f55d1178a9bd29c78fd068df4c 100644
+> --- a/kernel/trace/fprobe.c
+> +++ b/kernel/trace/fprobe.c
+> @@ -607,7 +607,7 @@ static int fprobe_module_callback(struct notifier_block *nb,
+>  	do {
+>  		rhashtable_walk_start(&iter);
+>  
+> -		while ((node = rhashtable_walk_next(&iter)) && !IS_ERR(node))
+> +		while (!IS_ERR_OR_NULL((node = rhashtable_walk_next(&iter))))
 
+Ug, No!
+
+That looks so much worse than the original.
+
+-- Steve
+
+>  			fprobe_remove_node_in_module(mod, node, &alist);
+>  
+>  		rhashtable_walk_stop(&iter);
+> diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
+> index 5a4b722b50451bfdee42769a6d3be39c055690d1..a1735ca273f0b756aa1fcfcdab30ddad9bc51c5f 100644
+> --- a/kernel/trace/kprobe_event_gen_test.c
+> +++ b/kernel/trace/kprobe_event_gen_test.c
+> @@ -75,7 +75,7 @@ static struct trace_event_file *gen_kretprobe_test;
+>  
+>  static bool trace_event_file_is_valid(struct trace_event_file *input)
+>  {
+> -	return input && !IS_ERR(input);
+> +	return !IS_ERR_OR_NULL(input);
+>  }
+>  
+>  /*
+> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+> index 73ea180cad555898693e92ee397a1c9493c7c167..59df215e1dfd9349eca1c0823ed709ec7285f766 100644
+> --- a/kernel/trace/trace_events_hist.c
+> +++ b/kernel/trace/trace_events_hist.c
+> @@ -3973,7 +3973,7 @@ trace_action_create_field_var(struct hist_trigger_data *hist_data,
+>  	 */
+>  	field_var = create_target_field_var(hist_data, system, event, var);
+>  
+> -	if (field_var && !IS_ERR(field_var)) {
+> +	if (!IS_ERR_OR_NULL(field_var)) {
+>  		save_field_var(hist_data, field_var);
+>  		hist_field = field_var->var;
+>  	} else {
+> 
 
 
