@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-2572-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2573-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7028BFD2D64
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25F21FD2D62
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXg4khCz3cCn;
-	Tue, 10 Mar 2026 23:01:23 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.94
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXh00q6z3cC6;
+	Tue, 10 Mar 2026 23:01:24 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::94"
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144083;
-	cv=none; b=LZ7Qee+RZB+7VHTvjI7QojFObaIbM3/d70SndJsbToTfm2X2rvaJUHnlTD7EoTQlxJjKPwkjZLeWFc+LtaMpYlDbBS9ppF8bis8eH3GVuw3zXttG7gRWxvPDTY6DHUnvpIb7IguCBNiC4c52u5/fNmabM1FiKy04Vq9axcBXbFqPxV0+UFy3SjCJ2alQmVuT/RYfvbZCotjG1b/XG4odx8DFkchrGwP2zF1yEqA+QiduzuZiDWzMJw9TL5Ly2etyJsFwN8cpOCw6sMBjWe1FK7iEgSsGqaZU0Nvb37FtANI5oVisnlBZ1ZKcxOrBvw1Zi1QU8qd51N3EC536d2cVHA==
+	cv=none; b=j7+D8cmU7ZorqHgBJN6MV/U35AejPIKW/41/WbIYHMdjGuG5bYxTcBkChg/2Rr/YxdVvNQ8IfdEMxrZVA4TO44giVs+RQLrYOgY+pF4suramHb4mlMKVB888fewYpr3G5nMk6Vws0BG5Eldelf5JzOhRMOLXKg3Kj4IStqdSr5VMFBNSmPsu8Q1FDa5ETX54QkMN7oDVEkI7+OYhS0Q2cwErnwnYAg1xToaZ6UHFms4IF6yVavZLszye0rS7glEewq/CdHdMsWDsozs9pjQ3wnbplzBdhnxdHUgTsL18im3pViVmubKQ1MW5hOZe+raxUe1qgbEWhrO2PERtNG6q7w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144083; c=relaxed/relaxed;
-	bh=v9QVCffpCG3XK0BPU9sg9EjWtze/5MDgO50jcyU8Kb4=;
+	bh=Ph1uUWr1L/iF1ZEQmadj650OhaHNRF4I0z9qkCXYfg8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=STyxiMU8z1thMVPVcyCfvlgZ6Gz3M+PyPE5jYV4uiAsY7XuV4x8PBEogvkKonWhJdDXZmGRWgvUU2bsqXDXLLjVzRlyCkqUB1G/rf26yxluCiZKJucTWTAMK1wq8YS6h9442EInhGJvOvx5vGYV6wM14yfJQDm/20CSUco4AWQVUvW/OqY/sVEdmvUY1vA9gWVexh9/C0K6Epj7llIf2pmmfnZ+0WCXygxr+KiDmu0e/nF2wlUD5SENxeDtPdgzoFK7VP8FJFCGNoq70rSwPQjmXC6hvdTM40kJXfYCCer1mRAwTnZHpoZjGuuAM4yZakAFWHRGqvOxrR9esAA18sg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Pw5J/ZKa; dkim-atps=neutral; spf=pass (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=aqHbOJ1+5Lw4kfrmBtWsIDSBgK8O+7p9pAWa6TEVeUi5QVlGdkrgwXAl9stxDRhtLkHLCBoYYI3Y+JQNpb1Gq6y7njFTui0Fey2Gue5kBBigOmap3liAPX6zEwz9oiKKTpp7CTI02ko0swhuePOyJCAD98G0pzb3V1Wciz3GrfIy1zGErLCiY31tYxFQzkoe1JIEfKv4Jf0sPH95BG2j3ExC13DoXn9N1Ch8eI4XcvpYWoZ2+honK670SyXOnfQXiChXqHfTzxBwnybUBYzboulSdzqcwuGcuGK27EO1sx8iNJDBSw1KdOQZv7WUBCNVdhPKySNRmEeHie8ig9EpDA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Hzc3GuxH; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Pw5J/ZKa;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=Hzc3GuxH;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [212.42.244.94])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::94])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXZ6hHhz3cC6
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:18 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXd32nsz3cCh
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:21 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143728; bh=P8RHvB1pDU6Ba6KZR0cIN2NAbDWAknWQIRz8JMX8gns=;
+	t=1773143727; bh=KQiEoi/5KK1uW5/WekNTwCqBkzEqSA1SWtsVPdM2q90=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Pw5J/ZKa7qdOD/KHliFHGAPgoeYPtxmoMsaCQF/FKai+LG5vkmyJowXsEzkD3cPot
-	 34kvrGSUxg1JnjFKHY6NsLgrOVug3M9Be4rVveawRMrk6MR1C1BR6jP8hIlA4X3hU4
-	 jr1s0kl9i2R1ifgZ0ZoS8j1AZYiWtKMhO7fCyfSs=
-Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
+	b=Hzc3GuxHf6WKr4EWmy7suWfFtUIN+cSSog0xcKAdq1K62+58VIbGObMn11FXUjfnw
+	 XSgX37V9MsgZIzaqlzkHaWhxgePi5JwVjORgVIpVxik46tgfvcV/Ti0iljkdkzgEMz
+	 GP23Vofxf0i5EbReeE876OiemRlixpOKPI/O3H3w=
+Received: from [212.42.244.71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006af-e21d-7f0000032729-7f000001bab8-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:28 +0100
-Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
+	id 69b006ae-e21d-7f0000032729-7f000001da34-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:26 +0100
+Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:27 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:26 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:49:14 +0100
-Subject: [PATCH 48/61] mtd: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:04 +0100
+Subject: [PATCH 38/61] net: Prefer IS_ERR_OR_NULL over manual NULL check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +59,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-48-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,22 +89,36 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1817; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=P8RHvB1pDU6Ba6KZR0cIN2NAbDWAknWQIRz8JMX8gns=;
- b=kA0DAAoBNC0GU9GsrNsByyZiAGmwBnnIluZqwXeZ26oYYynjfBoy02QQTmlYcSsBV5M99kkBR
- okBMwQAAQoAHRYhBDls8G2tYNRwNAKmmDQtBlPRrKzbBQJpsAZ5AAoJEDQtBlPRrKzbhhQIALOH
- 7GGUb7lDbOgP/8xq1PNX4SyEuog4C5Kqug0EL27yDZ5DTcHtYtEWvTOVFh3DoBIg9oWZIhltbqf
- zQqvypi0p020OQBz5OD/FKYzR1JLtT/NpVkDjTnrh0FIsLPISsJn9k8DorrTpQE5Fk5zPEGhmlk
- HlvpEuSvvQD0MQibzxJjUYSjgq+Ll386Twc/QQfm3hFYZT/c4I4Yb80f4z0CM2WhT7S3udW5nGM
- BjGFdYImnQ9uAgWz45BEBVAwZb3P7349MoFLUJ9ZHvqc+4UOIWn+5d35lrOEZcvkJpfol2G0RFZ
- WFsYepS2AbdMtsza99K9TLlncKCIQLIaXnPIWJM=
+Cc: Igor Russkikh <irusskikh@marvell.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Pavan Chebbi <pavan.chebbi@broadcom.com>, Michael Chan <mchan@broadcom.com>, 
+ Potnuri Bharat Teja <bharat@chelsio.com>, 
+ Tony Nguyen <anthony.l.nguyen@intel.com>, 
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+ Taras Chornyi <taras.chornyi@plvision.eu>, 
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+ Iyappan Subramanian <iyappan@os.amperecomputing.com>, 
+ Keyur Chudgar <keyur@os.amperecomputing.com>, 
+ Quan Nguyen <quan@os.amperecomputing.com>, 
+ Heiner Kallweit <hkallweit1@gmail.com>, 
+ Russell King <linux@armlinux.org.uk>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6679; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=KQiEoi/5KK1uW5/WekNTwCqBkzEqSA1SWtsVPdM2q90=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZXMdz3AdJ9BDXSNnmAtbN1zmhCLGlM5aT0i
+ DUnFwIG7QKJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGVwAKCRA0LQZT0ays
+ 20CyB/4lggnkY4K4Lo4sONwYMpv2ax2osa3aOBaZeOsk7IrX5OefQhdbIn4njQGFhSRkoN1OS74
+ RFM1P8Zj2ox5AT2OTTsGgJszYrviPiI6f3OB4fORCX0D5Uy+q+MJ9QaHAVOTki7YRDRPqPU8eot
+ qXUXo3MWBintiQb+VUgj0c7V53AbuvEdsGiANz4ngxrRyeRv0LQno6AOBMWbXRBogpDl1L0S2i4
+ UZBntAPoWZbboJc05+3p5MczuG3QperMntaj9Tb4wrxw8nvaoynlDjGr2dg61cj+UKtCoiisS82
+ re/u1kbEtkI5dJs+aKf1mABBLdny1Poccch6DjzUum6aDXBE
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143728-90660F2F-3D7E05AD/0/0
+X-purgate-ID: 149429::1773143726-95E77E6F-9B3D9DCE/0/0
 X-purgate-type: clean
-X-purgate-size: 1819
+X-purgate-size: 6681
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -114,54 +128,148 @@ check.
 
 Change generated with coccinelle.
 
-To: Miquel Raynal <miquel.raynal@bootlin.com>
-To: Richard Weinberger <richard@nod.at>
-To: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: linux-mtd@lists.infradead.org
+To: Igor Russkikh <irusskikh@marvell.com>
+To: Andrew Lunn <andrew+netdev@lunn.ch>
+To: "David S. Miller" <davem@davemloft.net>
+To: Eric Dumazet <edumazet@google.com>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+To: Pavan Chebbi <pavan.chebbi@broadcom.com>
+To: Michael Chan <mchan@broadcom.com>
+To: Potnuri Bharat Teja <bharat@chelsio.com>
+To: Tony Nguyen <anthony.l.nguyen@intel.com>
+To: Przemek Kitszel <przemyslaw.kitszel@intel.com>
+To: Taras Chornyi <taras.chornyi@plvision.eu>
+To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+To: Alexandre Torgue <alexandre.torgue@foss.st.com>
+To: Iyappan Subramanian <iyappan@os.amperecomputing.com>
+To: Keyur Chudgar <keyur@os.amperecomputing.com>
+To: Quan Nguyen <quan@os.amperecomputing.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+To: Russell King <linux@armlinux.org.uk>
+Cc: netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
+Cc: intel-wired-lan@lists.osuosl.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-usb@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- drivers/mtd/nand/raw/gpio.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c        | 2 +-
+ drivers/net/ethernet/broadcom/tg3.c                     | 2 +-
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c    | 3 +--
+ drivers/net/ethernet/intel/ice/devlink/devlink.c        | 2 +-
+ drivers/net/ethernet/marvell/prestera/prestera_router.c | 2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c       | 2 +-
+ drivers/net/mdio/mdio-xgene.c                           | 2 +-
+ drivers/net/usb/r8152.c                                 | 2 +-
+ 8 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/gpio.c b/drivers/mtd/nand/raw/gpio.c
-index 69e5e43532a448aa6273f3df79f53145784ccc05..86a8b62fb9e8510d36f925b8b468ec17c77e26d8 100644
---- a/drivers/mtd/nand/raw/gpio.c
-+++ b/drivers/mtd/nand/raw/gpio.c
-@@ -276,9 +276,9 @@ static void gpio_nand_remove(struct platform_device *pdev)
- 	nand_cleanup(chip);
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index e270327e47fd804cc8ee5cfd53ed1b993c955c41..43edef35c4b1ff606b2f1519a07fad4c9a990ad4 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -810,7 +810,7 @@ static int __aq_ring_xdp_clean(struct aq_ring_s *rx_ring,
+ 		}
  
- 	/* Enable write protection and disable the chip */
--	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
-+	if (!IS_ERR_OR_NULL(gpiomtd->nwp))
- 		gpiod_set_value(gpiomtd->nwp, 0);
--	if (gpiomtd->nce && !IS_ERR(gpiomtd->nce))
-+	if (!IS_ERR_OR_NULL(gpiomtd->nce))
- 		gpiod_set_value(gpiomtd->nce, 0);
- }
+ 		skb = aq_xdp_run_prog(aq_nic, &xdp, rx_ring, buff);
+-		if (IS_ERR(skb) || !skb)
++		if (IS_ERR_OR_NULL(skb))
+ 			continue;
  
-@@ -358,7 +358,7 @@ static int gpio_nand_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, gpiomtd);
+ 		if (ptp_hwtstamp_len > 0)
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index 2328fce336447eb4a796f9300ccc0ab536ff0a35..8ed79f34f03d81184dcc12e6eaff009cb8f7756e 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -7943,7 +7943,7 @@ static int tg3_tso_bug(struct tg3 *tp, struct tg3_napi *tnapi,
  
- 	/* Disable write protection, if wired up */
--	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
-+	if (!IS_ERR_OR_NULL(gpiomtd->nwp))
- 		gpiod_direction_output(gpiomtd->nwp, 1);
+ 	segs = skb_gso_segment(skb, tp->dev->features &
+ 				    ~(NETIF_F_TSO | NETIF_F_TSO6));
+-	if (IS_ERR(segs) || !segs) {
++	if (IS_ERR_OR_NULL(segs)) {
+ 		tnapi->tx_dropped++;
+ 		goto tg3_tso_bug_end;
+ 	}
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+index 3307e50426819087ad985178c4a5383f16b8e7b4..1c8a6445d4b2e3535d8f1b7908dd02d8dd2f23fa 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+@@ -1032,8 +1032,7 @@ static void ch_flower_stats_handler(struct work_struct *work)
+ 	do {
+ 		rhashtable_walk_start(&iter);
  
- 	/*
-@@ -381,10 +381,10 @@ static int gpio_nand_probe(struct platform_device *pdev)
- 		return 0;
+-		while ((flower_entry = rhashtable_walk_next(&iter)) &&
+-		       !IS_ERR(flower_entry)) {
++		while (!IS_ERR_OR_NULL((flower_entry = rhashtable_walk_next(&iter)))) {
+ 			ret = cxgb4_get_filter_counters(adap->port[0],
+ 							flower_entry->filter_id,
+ 							&packets, &bytes,
+diff --git a/drivers/net/ethernet/intel/ice/devlink/devlink.c b/drivers/net/ethernet/intel/ice/devlink/devlink.c
+index 6c72bd15db6d75a1d4fa04ef8fefbd26fb6e84bd..3d08b9187fd76ca3198af28111b6f1c1765ea01e 100644
+--- a/drivers/net/ethernet/intel/ice/devlink/devlink.c
++++ b/drivers/net/ethernet/intel/ice/devlink/devlink.c
+@@ -791,7 +791,7 @@ static void ice_traverse_tx_tree(struct devlink *devlink, struct ice_sched_node
+ 						  node->parent->rate_node);
+ 	}
  
- err_wp:
--	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
-+	if (!IS_ERR_OR_NULL(gpiomtd->nwp))
- 		gpiod_set_value(gpiomtd->nwp, 0);
- out_ce:
--	if (gpiomtd->nce && !IS_ERR(gpiomtd->nce))
-+	if (!IS_ERR_OR_NULL(gpiomtd->nce))
- 		gpiod_set_value(gpiomtd->nce, 0);
+-	if (rate_node && !IS_ERR(rate_node))
++	if (!IS_ERR_OR_NULL(rate_node))
+ 		node->rate_node = rate_node;
  
- 	return ret;
+ traverse_children:
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_router.c b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+index b036b173a308b5f994ad8538eb010fa27196988c..4492938e8a3da91d32efe8d45ccbe2eb437c0e49 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_router.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+@@ -1061,7 +1061,7 @@ static void __prestera_k_arb_hw_state_upd(struct prestera_switch *sw,
+ 		n = NULL;
+ 	}
+ 
+-	if (!IS_ERR(n) && n) {
++	if (!IS_ERR_OR_NULL(n)) {
+ 		neigh_event_send(n, NULL);
+ 		neigh_release(n);
+ 	} else {
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 6827c99bde8c22db42b363d2d36ad6f26075ed50..356a4e9ce04b1fcf8786d7274d31ace404be2cf6 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1275,7 +1275,7 @@ static int stmmac_init_phy(struct net_device *dev)
+ 	/* Some DT bindings do not set-up the PHY handle. Let's try to
+ 	 * manually parse it
+ 	 */
+-	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
++	if (IS_ERR_OR_NULL(phy_fwnode)) {
+ 		int addr = priv->plat->phy_addr;
+ 		struct phy_device *phydev;
+ 
+diff --git a/drivers/net/mdio/mdio-xgene.c b/drivers/net/mdio/mdio-xgene.c
+index a8f91a4b7fed0927ee14e408000cd3a2bfb9b09a..09b30b563295c6085dc1358ac361301e5cf6b2a8 100644
+--- a/drivers/net/mdio/mdio-xgene.c
++++ b/drivers/net/mdio/mdio-xgene.c
+@@ -265,7 +265,7 @@ struct phy_device *xgene_enet_phy_register(struct mii_bus *bus, int phy_addr)
+ 	struct phy_device *phy_dev;
+ 
+ 	phy_dev = get_phy_device(bus, phy_addr, false);
+-	if (!phy_dev || IS_ERR(phy_dev))
++	if (IS_ERR_OR_NULL(phy_dev))
+ 		return NULL;
+ 
+ 	if (phy_device_register(phy_dev))
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 0c83bbbea2e7c322ee6339893e281237663bd3ae..73f17ebd7d40007eec5004f887a46249defd28ab 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -2218,7 +2218,7 @@ static void r8152_csum_workaround(struct r8152 *tp, struct sk_buff *skb,
+ 
+ 		features &= ~(NETIF_F_SG | NETIF_F_IPV6_CSUM | NETIF_F_TSO6);
+ 		segs = skb_gso_segment(skb, features);
+-		if (IS_ERR(segs) || !segs)
++		if (IS_ERR_OR_NULL(segs))
+ 			goto drop;
+ 
+ 		__skb_queue_head_init(&seg_list);
 
 -- 
 2.43.0
