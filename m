@@ -1,75 +1,51 @@
-Return-Path: <linux-erofs+bounces-2551-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2552-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3457F4180E
-	for <linux-erofs@archiver.kernel.org>; Mon,  9 Mar 2026 16:39:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9A6AFCC9CF
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 06:43:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fV2m873Gxz3cBd;
-	Tue, 10 Mar 2026 03:39:36 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a01:111:f403:c107::3" arc.chain=microsoft.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773074376;
-	cv=pass; b=PZTsjcrs7gV+O9WXfytMZ4ZkJGQELspcpcEg0KFT6hPfQ6bx0Jiz1LdtbZUO7mixo5WxkPw3U9t+kdSAN9czaqRCh6tu2RGJEjkpzxmL9JJjjF9pfNkHPsMwYArO9MvUheU2+huLMwxbhwAWr5C2geHaQOujAG106CbXDgp82aTe1c7JTWvcOK5SOo2gZQa1n0YAOhVS2OD6fkA4Db2XQOIZB254qGxzVWyNJz+JvwFsIgQuQoTNbHd9HzpgnZ/7dO17oDXaYWuhs57Ehwusv2kRFcsiUMngcuOFmZW3gCSE/Pnf8uuUmogrq93UIh5kC6YHFHVMxV+tQgcBJIMNaA==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773074376; c=relaxed/relaxed;
-	bh=9YURd6O0VaUkOMjb/TxJV6ss3E3JYPexRBej3llZfkM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=GBbZnM8fyb5WmOoAfNbhAuuEecAid84x4K0fHdVX1wtlkln54wT8IL5hDLCIlx96fYpXQBwkhTsiFIHmvZHWizzhzM3+dsEJOF5k3ske59ouIIyCWzTBz2z8ZoGZvYcDdzOCOoymV8PQevWAYXnabEydiOE1h/VvrH4H17yLBDziekZXhyxhgfbEno93NmAUzfs5N+p6WPxcbu+N4a1T9E3cYegB7tN/NnXaWx/xAEC63Hs697+/oIzEwY742qvqi36G5XFKWVzfPFMpmINhpFtFm4iayTmbdf1lG87yyydizVS2S1F3j/2tlur51bjHl/qgizFGnrheBVo7GnuIlg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=H9gMmfAB; dkim-atps=neutral; spf=pass (client-ip=2a01:111:f403:c107::3; helo=ph0pr06cu001.outbound.protection.outlook.com; envelope-from=lkarpinski@nvidia.com; receiver=lists.ozlabs.org) smtp.mailfrom=nvidia.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVPTy6ggzz3bjb;
+	Tue, 10 Mar 2026 17:43:34 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773125014;
+	cv=none; b=b9NiaS6JyvBnepEPmRccBcFycq2v7yXBa+910NO0AJqWQdX86MDKsDSzBESWZbc8BC6HOp3FleP0IOh38p6KIUkkXgDesP6ozVl7JqIM6PGLF8tUHbJF762i+FR0QQnMVwEtX9hc3GJA+ZdLm5pj+CeEg2fTkeSfeNqi4RFXFMsbuM75y1bNstqOeC5nFp/dVbpUa3Glwbh5xFRvhfm6ctK41X1OH+uie1DnxrKs9FkbZkoDZaDILQOVxnL93PKTnX0btZ2l93guQhEzLN+0XQ9ExhoA9OmeUDDbADaLjorqd2Xm3gSj/z5qkk6mc3ZRcaLFzN/zV4a8A5RiUOvI2Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1773125014; c=relaxed/relaxed;
+	bh=z+NWuR6D28V3FwcjD4wRFykiU5WsJ5XGd59owvJkdWU=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=UIL3MQm/CnP7980D6q9xeaC9STiDAzbh5Z4WCYitdMZbpq8/MzRm9AePGMsomGdbU9Fc9o1FdxPAhX3X0yvsAALMQSERBDnOnt3gyDDvywwaBXTYdtGAfESSC6JR3LlWLCCFgsjnw+zmIvQKodIFxoo3/k/VrbEIYzHkDje2xkV0nirunM+0vpBLWvendZb4/gkMQ58lKK6xSBX7N/CLCGqmLYO8efPrEbJ5K5hf8hlozcbxOHZRcke33XqnKQVzO247ZYDdrunhlKGS8oPoEkSClsb+PK2MrkUJmQy9ezhk4fhgjzsHbfeElAyygaX2ZyqUN4vBNG6wsrJPYZ3haw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=fR5D1qin; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=H9gMmfAB;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=fR5D1qin;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=nvidia.com (client-ip=2a01:111:f403:c107::3; helo=ph0pr06cu001.outbound.protection.outlook.com; envelope-from=lkarpinski@nvidia.com; receiver=lists.ozlabs.org)
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azlp170110003.outbound.protection.outlook.com [IPv6:2a01:111:f403:c107::3])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange secp256r1 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fV2m82qR4z3cBb
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 03:39:36 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=gXbZ5Yk8T3rQkTGzP/j6E4ssIPSQp6nl8l6VS8c39+DQ4jPu16W/sQdkslWeVLCdNNJ0ytbEEi0FrORL6YBqwK4U0cQoXKHDgRwfoA1ec9vj2xHl3UybPWoqiZJtNO7T3+0vl/m3l59+MKXqRInrtfRbSrhulP6svttkYpxL0HkfqJLvE/fMa6rfd9crDWObVg1bnVGr7ucwRsKECBLKG9eaNZa20yZfpwUOig3u01lAa5Iswf0vXzYeytqB04twjAT0mzshn9JwRlKEh/g2p71znvsp3yKz9nvlFAEJwwIJOV9LRIExZ3f+hxECwYoqNHGwALeA75fPuLejAuXD0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9YURd6O0VaUkOMjb/TxJV6ss3E3JYPexRBej3llZfkM=;
- b=t2p14n4LoeLu+S9mo10zw9eLDuXDMdv5SLsuspKweQKJ3Yx3sdzrDqF8xUPHdIZ0UeZzzcvFTZ0KQPcmRg8pJS2YRCabULtoAg/Rf97Cr5orQHbkx7N1PotnHWzXHqILVirYqMwLMQ//WOJeEz3jJDU+weBSL48rsdws9wDfWYxUvqzoZfAGMR/OzMTvNbAs7vJ7PDpuVtj3+FypDZ1q5HSeuBUbm1bPF6xDk8oHjns+i7xdKFKQ8rQX/oGGdykP+bGhbY1Ywx/pWOD8wjRNP8TQvTzMxG5RkBWeY5rpCxhg8EwIg2pLt9aOGXcs3cYc52yRwY3zrrcUPDTOUOQKnQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9YURd6O0VaUkOMjb/TxJV6ss3E3JYPexRBej3llZfkM=;
- b=H9gMmfABusJdyBok9U9hok4sj3Kq8aFL3SxBCTmAbk9Z494OzHmylgy5ToVm8mVEoIJWKUCLBShr57IPlQ2+xMaT9byY+NkgluAru5yP1x2LQYkDuIxl3UvVE0oKbIN2pzjscBLFDEi51GkjhMpboNbsZAKMWiKYo3lTWuFUjCJhtVYZT+4flcucJRzAEoTJxV/4ukecU5o12DM/PhHgbw+U5xP/OW5AYTXI4wDjVUvXA1639OUFdStnYYyb+bErm9HtEY94k+hgJUG/K0M0IVNYqt5TiwOnT3yhZfcO58SbX0s6r9n/MZR/MnqUq5n9FykVy1Nl8uwPWZSN9eR0uQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB8502.namprd12.prod.outlook.com (2603:10b6:8:15b::16)
- by LV8PR12MB9417.namprd12.prod.outlook.com (2603:10b6:408:204::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.11; Mon, 9 Mar
- 2026 16:38:49 +0000
-Received: from DS0PR12MB8502.namprd12.prod.outlook.com
- ([fe80::3533:c307:cf11:3d1a]) by DS0PR12MB8502.namprd12.prod.outlook.com
- ([fe80::3533:c307:cf11:3d1a%5]) with mapi id 15.20.9700.010; Mon, 9 Mar 2026
- 16:38:49 +0000
-From: Lucas Karpinski <lkarpinski@nvidia.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: jcalmels@nvidia.com,
-	Lucas Karpinski <lkarpinski@nvidia.com>
-Subject: [PATCH v2 1/5] erofs-utils: lib: pass uniaddr_offset to erofs_rebuild_load_tree
-Date: Mon,  9 Mar 2026 12:38:17 -0400
-Message-ID: <20260309-merge-fs-v2-1-2dd0ef53db4d@nvidia.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260309-merge-fs-v2-0-2dd0ef53db4d@nvidia.com>
-References: <20260309-merge-fs-v2-0-2dd0ef53db4d@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BL1P221CA0024.NAMP221.PROD.OUTLOOK.COM
- (2603:10b6:208:2c5::31) To DS0PR12MB8502.namprd12.prod.outlook.com
- (2603:10b6:8:15b::16)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVPTx5ghQz2yFY
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 17:43:33 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sea.source.kernel.org (Postfix) with ESMTP id 4004C44197;
+	Tue, 10 Mar 2026 06:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F08C19423;
+	Tue, 10 Mar 2026 06:43:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773125011;
+	bh=kmAHE66Z62sPt/kCRQBOfYRaj9T5VBqB56d8tCGRNZI=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
+	b=fR5D1qine57olTg3hpBxhT4rnXpUN3Iap9wCSI0VnbNOyCEq9lpGEvrskCnHMMQK4
+	 V9b+vd1GS4PsA+MAybnBaFNHU1O2uo5yeHqmYwn/axv23Mv+t0Ixy51UiWg9ZDET1u
+	 HVpVP+XxhJSNErHa3Oyp3/yVsWVUylI/o2YW4LQ0+x6GBZCrvevN1BjBNgGK7ySmKZ
+	 JOLmyXVUWX/FBEEs9geZ4l7QRz55JDndv5dF8heZfjFXflwjsAwf9VB08WsV64Pzbm
+	 v0o/tBWT6Q7XGVrjEG3eOvocGvJlVTha8PscHGoz4neqsAeU5nwP33JrLilQ2IQp/4
+	 sqVSbquXfUmoA==
+Message-ID: <dc645bd1-2881-4472-8918-0eada3786ab3@kernel.org>
+Date: Tue, 10 Mar 2026 14:43:25 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -81,138 +57,158 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB8502:EE_|LV8PR12MB9417:EE_
-X-MS-Office365-Filtering-Correlation-Id: 882be820-d554-40a8-63dd-08de7dfa542f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024|7142099003;
-X-Microsoft-Antispam-Message-Info:
-	zY8Zcvxss2msHLxFtkNrea8++w273GSLcN69nz8MDyxoz/y51+CMPp1tRt8vunUqJrlJJEctxFpoFas8wksV5376pTt5GlgLdo3fiLpb4gyo67t/o1CE0jeVBureamr9y2MaRvVdz+3mOEKDOlxJWqqP5mmQuocUU6aI/7mGVK4P8D9neLvDGSYHzmAsQzweJK/GZHjkhdE01R4aGEUAQ+r5fQ034cUJBkzuL82DeYHvjf0TPlgp22ZMThBY5xGx6sbd3PNF0X7MrA8cXt5x+n5A1n94XnwD4z/IAlydIcHl1xnwD0MGIFf46Rzo+uAair/fLGHa2/TPIj8FPqQI5oQSQcfbgzLwToRF+TwmX4LAUZUEdTcJz2IUIj6du/YzXO8ZbJweqRL6zSIfjbHpOjc3bDbsFJrAmzHohSjhmfh2ReEoYuHeQjWcg9Wc3K+pi/Kf/+Bu/bZz+NcXeO9KPoKR0m9HTua033vY6dNbeMTgbGaJT9Sljoq8XRZXrdL+8Li9Ka2qpWkuqbcix4T3XA833rWProhafQZa9HFrNsWidJbTaVlwZR4nDDzmr4nsgAdJkwjaSOi+UrXcmN6lZlFwEd9s/3U1FlK/qcKbvSr1QsHssFujQjeOWVB2vs1C5o4mriAHLoFaNv8ChWxYk/lv3VoC0+plujra0Eqq7Hl2/w25VIera9nH5RJYI9NZoXhoMe7NnEEsQQ3pmU1j+h9oInVZPvpig9B6+/bD/Aw=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB8502.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(7142099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?U3VkaFcrVFFiUzM0bXFLSHFZbmo1U0x2Q1lUNFh4eFpRTnVPNXFTSWIxMCtv?=
- =?utf-8?B?dEIrcytQZjB3aVRjdjhMWjUvYnZwR1BBekhZbDArcDN5NmtlL1JxWkpLcE96?=
- =?utf-8?B?WnNQbWNBRDRrR0ZwTnVSUEsvYkNHS2cxenpXOWszWFFjOWJES0FnRndnV1gv?=
- =?utf-8?B?MFVEMHZ6M1lSL242VXBmc2F0dXU3YmQ2cVFYNkRSS1dsOUI3Y0VxUTFHOERz?=
- =?utf-8?B?cFlZSmVqdVpzOE9XSDRKaVNaWXlYbHBLa3hERXM5ZitxSExscDVKalNHRDEr?=
- =?utf-8?B?YXRZWWVQenJyaWtMYVRienNSVFZBVEZCSHNLVHhreUhtNGhWbEMySkdDWWJl?=
- =?utf-8?B?dXp1MSthUVFKVlpkaXQ3UkYzNk9Pdmd1WUN1SU92WDIrYkZaTS90bmtiVHFP?=
- =?utf-8?B?Tkc0N3VpUWUzSDE5MU80eXpzTjFTaUM2YU9GRlBXQkhWT0NrMTZGdUNEVWdW?=
- =?utf-8?B?d0h3ZXdxWEpXdGd2eXRRbkVDNjNyWnU4VVFzaWIvVi9JYXNaNFJOTlkrVGFR?=
- =?utf-8?B?R3YwdmhDN2xTODh4aXdTQVBFNm1aNE9lRVVLOVFlSE9kOCtURWdYR0Y5YXA4?=
- =?utf-8?B?QVlBUU5IZFFVMnRIQmpPWlp0L0N0Q1JOVlBuRVNQZkQvYW5xb2FNRFFMK2Yv?=
- =?utf-8?B?aEV4ekh0VElWdnFGNGswbC9uMUJDWHlkcm02YXQ5RW5hZXdsMklkSlpBRVow?=
- =?utf-8?B?eWVpb0RrUDN3WWhmWFdibU1PMEZ2RGV5MHBXTUwySkZTcXhxUVlLMnR5NUR3?=
- =?utf-8?B?aHFrbENncUc3ekE1dGR4YWtwaWxJSTExZ28wTmx2VVZOekgvN2VSaU95amdK?=
- =?utf-8?B?YXJ5dzRhc3JJT01vY09lSUY4RWZqUjc3a0FoQUFaaVhvT2FxSkNoZldVTnVi?=
- =?utf-8?B?aGtVVDF0OHEzazYxTkoxbWJaNkxPWWp4dEltL0hoUkJqUTVlNUhYYlJRUXNE?=
- =?utf-8?B?Mzdnc3dZWGJLWnNrM2dhT0o5c3lLZCtGQU1wcVBuV3prWnl3NFdOb2VuNDlw?=
- =?utf-8?B?NjB6cXYzaWY4cnR0Ri9SWHI0WldmMEwxb0ZVa1NQR1B4MVJjNER4b2dRcUxm?=
- =?utf-8?B?MFFtM3NwcDBtY3pqWTROSVc3WndHZWx3MmV5SjlEdzI2RnVnTTVYRksrYVpC?=
- =?utf-8?B?dUJJVzdzbTQwRTloNmdCRzVIcnFrRFBDS0hRclhYRnBjTFA1ZVpsVUpLc3NH?=
- =?utf-8?B?QkZiMmtSd2NQN2NjdGMvdm1nK2E4WkZHR2VIRlBNdnNmbENJTi9BOHowV1NT?=
- =?utf-8?B?dWJUME5OT1cvVWpHdy9aTFJXbXF1djVTK0s4aXEwMmxIai9uaE0wa0lCbkVr?=
- =?utf-8?B?eEYxaEYyYThTOVB2QStGN21CdXpzd050dDlVU0NTK0ZlbXR4ZU9iWkFVSHR6?=
- =?utf-8?B?VlpnRVhVdWhvZmZIcXhiVStYdDNJMDEwZjJhdnFpUlc4NmNvYkFvOCsvNlQ2?=
- =?utf-8?B?RHFLbDRRUFJyVlBoc0FjTGFwaXZ4d1Jja1JXQnVrcGxwb3dmc1E3RzN4aFkw?=
- =?utf-8?B?SCtLeVYwQUlFbTNvYldSN2hEaXQrVjBEZDAxclNQcjYwcFAvYVdJSUJrL2Y3?=
- =?utf-8?B?UU92cWNrQWxMWGhKN3NNd2lnZHpnMTliVWZ3eUdqZEZoNCtjNTFOSkFxQmNN?=
- =?utf-8?B?RU4yck9QUlZtbzRGeFk5akJCWjdIYlZsTktHdFhpMWhhOWwzdFBYaDZHK3Iz?=
- =?utf-8?B?WmtaS3FNQklDajJUd1dIWVl3SXhYem9USkQ5aDF3UlVkb1RBZVRpdDNybjZL?=
- =?utf-8?B?UUk3MnNvZU5POXduSXFNZHQ2VG00MTBVckhzdnhtbHY0ZnBnbUx1ZFZhY2lD?=
- =?utf-8?B?R2luNCtrSkVYTTJxZmtDbFBRSjNWWXNqVW8xMHZNR3dyeUc5YUhSY2VUZGg3?=
- =?utf-8?B?cDBrR1FLaDljRHR6eUxudFdWaTZ2QzZSMUl6ZjN2YnArV204dVU2OVQxMnJm?=
- =?utf-8?B?bFQwMm5UQ2M1K0hqa25ZRS9zRHpCYkIvYWNBTnRjU0E4dU9lV2xwMzc2OVpY?=
- =?utf-8?B?UXFsMXhPUGMxdlZwS3dUVExkZGRQQVl6Mnl3NVMxTE5OYUdFZW9mdGJtVDZ0?=
- =?utf-8?B?b1Z2ZU15ZzVwT3cxREJjTTl2NTliWkg0UnZzaEgrN1Bja3IrSk5QdW9ONHpw?=
- =?utf-8?B?OFdZZ3B1cnBsa0V5SlFEcXRxdkxJNDNPUStFUkZ1V1ZCeGpEMFB4UzVJMStj?=
- =?utf-8?B?d3pKWStOa2JCVTRFUVpZaCtSQThKZnAzbzFYekgvWkpwQmJ0ai9WMjVFekh1?=
- =?utf-8?B?Y0wxdWpPcUZJSmxYanhyMTJicmVmRkgvTE9tZjJkblZPYS9BeVFjOUJpUGJp?=
- =?utf-8?B?Nnhzam5vc2RuengrcWJsd2piVmpPSy82dFNmL1lXV0dHS1NTRm04dz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 882be820-d554-40a8-63dd-08de7dfa542f
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB8502.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2026 16:38:44.3180
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +DlIdVQsGorIkpRPH/uKApB8L4VhdPSBE++5Ps0Sz948H4Hnhml8xQEqMQSu3fGhRQGSTBMoNERR9VmD3aaJWA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9417
+User-Agent: Mozilla Thunderbird
+Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, Yue Hu <zbestahu@gmail.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
+ <dhavale@google.com>, Chunhai Guo <guochunhai@vivo.com>,
+ Hongbo Li <lihongbo22@huawei.com>, Matthew Wilcox <willy@infradead.org>,
+ Jan Kara <jack@suse.cz>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH] erofs: introduce nolargefolio mount option
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, xiang@kernel.org
+References: <20260309023053.1685839-1-chao@kernel.org>
+ <02925ac8-64a6-4cd6-bbd4-c37d838f862a@linux.alibaba.com>
+Content-Language: en-US
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <02925ac8-64a6-4cd6-bbd4-c37d838f862a@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-uniaddr_offset will be needed for rebuild fulldata mode. Add a parameter
-to erofs_rebuild_load_tree and include it in the erofs_rebuild_dir_context
-struct as well.
+Xiang,
 
-Signed-off-by: Lucas Karpinski <lkarpinski@nvidia.com>
----
- lib/liberofs_rebuild.h | 3 ++-
- lib/rebuild.c          | 5 ++++-
- mkfs/main.c            | 2 +-
- 3 files changed, 7 insertions(+), 3 deletions(-)
+On 3/9/26 11:03, Gao Xiang wrote:
+> Hi Chao,
+> 
+> (+cc -fsdevel, willy, Jan kara)
+> 
+> On 2026/3/9 10:30, Chao Yu wrote:
+>> This patch introduces a new mount option 'nolargefolio' for EROFS.
+>> When this option is specified, large folio will be disabled by
+>> default for all inodes, this option can be used for environments
+>> where large folio resources are limited, it's necessary to only
+>> let specified user to allocate large folios on demand.
+> 
+> For this kind of options, I think more real backgrounds
+> about avoiding high-order allocations are needed in the
+> commit message (at least for later reference) also like
+> what I observed in:
+> https://android-review.googlesource.com/c/kernel/common/+/3877981
 
-diff --git a/lib/liberofs_rebuild.h b/lib/liberofs_rebuild.h
-index 69802fb..d8c4c8a 100644
---- a/lib/liberofs_rebuild.h
-+++ b/lib/liberofs_rebuild.h
-@@ -14,7 +14,8 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
- 		char *path, bool aufs, bool *whout, bool *opq, bool to_head);
- 
- int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
--			    enum erofs_rebuild_datamode mode);
-+			    enum erofs_rebuild_datamode mode,
-+			    erofs_blk_t uniaddr_offset);
- 
- int erofs_rebuild_load_basedir(struct erofs_inode *dir, u64 *nr_subdirs,
- 			       unsigned int *i_nlink);
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index f89a17c..7e62bc9 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -286,6 +286,7 @@ struct erofs_rebuild_dir_context {
- 			unsigned int *i_nlink;
- 		};
- 	};
-+	erofs_blk_t uniaddr_offset;	/* unified addressing offset for FULL mode */
- };
- 
- static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
-@@ -419,7 +420,8 @@ out:
- }
- 
- int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
--			    enum erofs_rebuild_datamode mode)
-+			     enum erofs_rebuild_datamode mode,
-+			     erofs_blk_t uniaddr_offset)
- {
- 	struct erofs_inode inode = {};
- 	struct erofs_rebuild_dir_context ctx;
-@@ -452,6 +454,7 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
- 		.ctx.cb = erofs_rebuild_dirent_iter,
- 		.mergedir = root,
- 		.datamode = mode,
-+		.uniaddr_offset = uniaddr_offset,
- 	};
- 	ret = erofs_iterate_dir(&ctx.ctx, false);
- 	free(inode.i_srcpath);
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 58c18f9..c2c0a1d 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1736,7 +1736,7 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
- 
- 	list_for_each_entry(src, &rebuild_src_list, list) {
- 		src->xamgr = g_sbi.xamgr;
--		ret = erofs_rebuild_load_tree(root, src, datamode);
-+		ret = erofs_rebuild_load_tree(root, src, datamode, 0);
- 		src->xamgr = NULL;
- 		if (ret) {
- 			erofs_err("failed to load %s", src->devname);
+Basically, the background is about contention scenario on large folio allocation,
+it's among multiple users including EROFS in Android-system, as it's related to
+internal scene of product, so I can not provide more details now, I'm sorry
+about that, but I'm glad to discuss based on the background and pain point once
+if I can share more, let's see. :)
 
--- 
-Git-155)
+> 
+> because the entire community tends to enable large folios
+> unconditionally if possible.  Without enough clarification,
+> even I merge this, there will be endless questions again
+> and again about this.
+> 
+> And Jan once raised up if it should be a user interface
+> or auto-tuning one:
+> https://lore.kernel.org/r/z2ule3ilnnpoevo5mvt3intvjtuyud7vg3pbfauon47fhr4owa@giaehpbie4a5
+
+Thanks for sharing this anyway, I didn't notice this previously...
+
+Thanks,
+
+> > My question is that if the needs are real, I wonder if
+> it should be a vfs generic decision instead (because
+> it's not due to the filesystem restriction but due to
+> real system memory pressure or heavy workload for
+> example).  However, if the answer is that others don't
+> really care about this, I'm fine to leave it as an
+> erofs-specific option as long as the actual case is
+> clear in the commit message.
+> > Thanks,
+> Gao Xiang
+> 
+> 
+>>
+>> Signed-off-by: Chao Yu <chao@kernel.org>
+>> ---
+>>   Documentation/filesystems/erofs.rst | 1 +
+>>   fs/erofs/inode.c                    | 3 ++-
+>>   fs/erofs/internal.h                 | 1 +
+>>   fs/erofs/super.c                    | 8 +++++++-
+>>   4 files changed, 11 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
+>> index fe06308e546c..d692a1d9f32c 100644
+>> --- a/Documentation/filesystems/erofs.rst
+>> +++ b/Documentation/filesystems/erofs.rst
+>> @@ -137,6 +137,7 @@ fsoffset=%llu          Specify block-aligned filesystem offset for the primary d
+>>   inode_share            Enable inode page sharing for this filesystem.  Inodes with
+>>                          identical content within the same domain ID can share the
+>>                          page cache.
+>> +nolargefolio           Disable large folio support for all files.
+>>   ===================    =========================================================
+>>     Sysfs Entries
+>> diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+>> index 4b3d21402e10..26361e86a354 100644
+>> --- a/fs/erofs/inode.c
+>> +++ b/fs/erofs/inode.c
+>> @@ -254,7 +254,8 @@ static int erofs_fill_inode(struct inode *inode)
+>>           return 0;
+>>       }
+>>   -    mapping_set_large_folios(inode->i_mapping);
+>> +    if (!test_opt(&EROFS_SB(inode->i_sb)->opt, NO_LARGE_FOLIO))
+>> +        mapping_set_large_folios(inode->i_mapping);
+>>       aops = erofs_get_aops(inode, false);
+>>       if (IS_ERR(aops))
+>>           return PTR_ERR(aops);
+>> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+>> index a4f0a42cf8c3..b5d98410c699 100644
+>> --- a/fs/erofs/internal.h
+>> +++ b/fs/erofs/internal.h
+>> @@ -177,6 +177,7 @@ struct erofs_sb_info {
+>>   #define EROFS_MOUNT_DAX_NEVER        0x00000080
+>>   #define EROFS_MOUNT_DIRECT_IO        0x00000100
+>>   #define EROFS_MOUNT_INODE_SHARE        0x00000200
+>> +#define EROFS_MOUNT_NO_LARGE_FOLIO    0x00000400
+>>     #define clear_opt(opt, option)    ((opt)->mount_opt &= ~EROFS_MOUNT_##option)
+>>   #define set_opt(opt, option)    ((opt)->mount_opt |= EROFS_MOUNT_##option)
+>> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+>> index 972a0c82198d..a353369d4db8 100644
+>> --- a/fs/erofs/super.c
+>> +++ b/fs/erofs/super.c
+>> @@ -390,7 +390,7 @@ static void erofs_default_options(struct erofs_sb_info *sbi)
+>>   enum {
+>>       Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
+>>       Opt_device, Opt_fsid, Opt_domain_id, Opt_directio, Opt_fsoffset,
+>> -    Opt_inode_share,
+>> +    Opt_inode_share, Opt_nolargefolio,
+>>   };
+>>     static const struct constant_table erofs_param_cache_strategy[] = {
+>> @@ -419,6 +419,7 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
+>>       fsparam_flag_no("directio",    Opt_directio),
+>>       fsparam_u64("fsoffset",        Opt_fsoffset),
+>>       fsparam_flag("inode_share",    Opt_inode_share),
+>> +    fsparam_flag("nolargefolio",    Opt_nolargefolio),
+>>       {}
+>>   };
+>>   @@ -541,6 +542,9 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+>>           else
+>>               set_opt(&sbi->opt, INODE_SHARE);
+>>           break;
+>> +    case Opt_nolargefolio:
+>> +        set_opt(&sbi->opt, NO_LARGE_FOLIO);
+>> +        break;
+>>       }
+>>       return 0;
+>>   }
+>> @@ -1105,6 +1109,8 @@ static int erofs_show_options(struct seq_file *seq, struct dentry *root)
+>>           seq_printf(seq, ",fsoffset=%llu", sbi->dif0.fsoff);
+>>       if (test_opt(opt, INODE_SHARE))
+>>           seq_puts(seq, ",inode_share");
+>> +    if (test_opt(opt, NO_LARGE_FOLIO))
+>> +        seq_puts(seq, ",nolargefolio");
+>>       return 0;
+>>   }
+>>   
+> 
+
 
