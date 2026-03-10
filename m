@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-2587-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2588-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAB80FD2D63
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7147FD2D62
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:02:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXm2gKWz3cFN;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXm58s1z3cDy;
 	Tue, 10 Mar 2026 23:01:28 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::119"
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.94
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144088;
-	cv=none; b=O6FMd0uC226eF6ln+Mi3mTqRhej9QFo/OTGgtOEBwNjaKNA2+3XoO4qRalqSsn8lvoqk6kpmWwJ3KK+8hc+nEEDQ8vnet7aA5lhoPjI0XLktPb7pAnzRIHVBml+z/LImU5djZ0eDtMygNvxt2ADOAHzgBfOWfZ7jU4p69xyixIg8ivQ8geSn1n2Jl8oE+bjnmFXNngP+hJ7VYeuztIkJTctaS4J71UsNaTphnnzM8lz9DFTHPHuJHcU55/c6987uMOopIamxiA/z9vdBl6CN20UB1BJzUvYgxNWDyj+pY5wCYYcdbkRkKlgQtHNhZaF32VaTTU3TGZLQzF0qb300RA==
+	cv=none; b=aIB+1dE4Cg6kPfDWxHkflMg3a1gLIcVhgWQZ4WmX6+3eYUdMf2ptvvefsfoZPvmMqN2gPZbOn+Wy2D0/kfQ4sTYgje+0cySyLQH6hcsQArvUAsXWCNngMYBpGN8Ic2jH/rTrYZtZIAE5aDZnBhW7/qpvegOKRNGDrtrzK+S7wjCkr9AnyUM7UEmY7AqlQnI+bjKi7cqE7VYCaswNOoFqQFPwjMHUuoGrs9rS14fb/8AfR63CophESQ7WRmWDV6h3zxAa8ThtmeRHwMCP895gdvKKw9djCZ0woPwGB/jlcmCC9qiPK8B0pfxC5Iw6Ka2AVWxE+i/OrNehiBnx36oi8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144088; c=relaxed/relaxed;
-	bh=0/roifme+WLdPTziKMwbNdr5N/yzFbOWcvPcd+8xFnU=;
+	bh=SsDTIIufDBFhlyEIKSZoh0ke1dsx9IoMTvg8hAIVw3s=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=RWj+CNNU+JGZP2o4VblJlZ8hK5SYoELHd4YSy6TciYSo+OSXx2XyW9oh2+/C9XtYVni013oIMnZQ6Oyf1yX/NroyuNac/Zhh2nCNjdYisqWmaGdClp9w9pHpX5XOILe7aBJ/N00wL+u1S0lmazD/Zp7UdmOvcqlK8xj3I0Fz8ozJ9okM3uaWtemnJF3cd5Uoty20nsOomA92iHWlcO+DN7A2rAb0I5O3dG4Gcs0rL9EewatrNz4x6G8Mzp5zvGhTARg2SNF2Xho5W4NJVDuF/FL8X02gLpqDlkfi/4ALCHjaExqmkjDISuNQVQIEr7Q+f3IMVbYrnS7ZVjwCUvUSFw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=lEAp/s1F; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=OEy0u+BTHEXtMLu3gBp5pTjKBx90iNnLFmLCzoKcUqpL3iKUPJS5FTsywhSKILIu/tqJRAxml+5IT0QJHkRKM5zOO5LUL+72R6LFedT5Np0n+lgWlSih5p9eDPjzKHfytQ14ANlhTDaz9sJPH7/BqeSRQQt68+re/plbUQ907blwxYrit9iXlSbGoKLozshS1ZtJam9V+N1v7GPG/GfjW/lcP7ftmfM/Tipv7JIKBvglwFRzVe0VMTyHRDGZwENHO7wso2kwl+4oYmga4/0YI89LGVW/mMlaJrWuEQ323OQv9WkjcD1oYWmAVI5y5xVBCMEVEujEZIyOAxjw3Tf1vg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=xKnBkg56; dkim-atps=neutral; spf=pass (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=lEAp/s1F;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=xKnBkg56;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [212.42.244.94])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXj13Hlz3cBW
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:25 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXk0m20z3cF4
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:26 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143723; bh=wq/KSwJcA3hqLetMFo3dTHFYxjONcw4I7Ih9VV1gllk=;
+	t=1773143728; bh=sIEabNGpfTtaNmN5jdtpnoUYPpUdFMe596BbQNmq6Ew=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=lEAp/s1FGs3gh/G3BwLm92E1HCxjGWlqxsQSbz/j1CB+Vlb/y59DpH7suq9qWHqSS
-	 sYNh9xzFzAwYyP3SKrKt2sCrYh94W00YkOJHULlnCDrzYXE+bJd6oNQ88ujEwWl/IW
-	 WDyVvJrtHTQ4L2Ennx46mVzCXGqAvMhY+uWIILEA=
+	b=xKnBkg5622xaCaFlGwFQ3bswFSgdcTVbCDHB3k8l65KFt6Ule9kyi3QR8HfOXuW5L
+	 MKbugm+H1wq/E04UmM1cfkP9mUjiEZ3Ws7yzlEjYYTJHZ64lqewOtbO15JI10WApm1
+	 CoPFx+DZxYAYXylALiT4nuOog37Am7eL2zh2ct4Q=
 Received: from [212.42.244.71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-2367-7f0000032729-7f0000019cd2-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006b0-e21d-7f0000032729-7f000001bae4-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:28 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:28 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:30 +0100
-Subject: [PATCH 04/61] ext4: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:19 +0100
+Subject: [PATCH 53/61] hyperv: Prefer IS_ERR_OR_NULL over manual NULL check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +59,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-4-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-53-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,22 +89,23 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Theodore Ts'o <tytso@mit.edu>, 
- Andreas Dilger <adilger.kernel@dilger.ca>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2748; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=wq/KSwJcA3hqLetMFo3dTHFYxjONcw4I7Ih9VV1gllk=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAXjBVZQh0oHFoS6hdf46zx6cg9yKqCoM11bV
- 3iWUec0h4iJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAF4wAKCRA0LQZT0ays
- 29vPB/9f5lFIt+0FtFBJpiKbUGS7UgY9T4E/E6CJ5zu/RqCe6vd531NLZdsmBEosrdFBBXDX57H
- sd8LCXF/sp89Zga6l1XIWkSIeHW4dDtT/UJNpkUGlvpmR4wd6cIocUQ2SKJZm2I5Ny799jzRqsU
- 77XwGSzBy8rHgewt3q+d77K7620aLC+ceQfquSvw5IkT7R5aPt+VaJGvb/4d0wK060SD2e3AbrD
- KG5aPg5rty9abqBDIFiMe9sH7jc7Ssmy8RQOhQUuB/vX9zXXRZULMf0v4sI8el0Gl3lDI9uBnpn
- 7EXyqizDRxBWqqlsbAFrtlRuPcNXRB2sNpMKxVhp0my3RZH1
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1146; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=sIEabNGpfTtaNmN5jdtpnoUYPpUdFMe596BbQNmq6Ew=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAaKQPK6RykE0QE2RJD5htL1ZvRNh+zI6jTmu
+ VOYpL5CXyeJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGigAKCRA0LQZT0ays
+ 29fzB/oCGLAMazrUNiEmwKr9nq0MNT5XdhZH3wkJWE4yJ+UKMd35Xi9PPSb65qZMk+N4uMiZj2H
+ T6Td1MreYgfIRLT7kTJk/n1BuSWWFP55nfvFZFjjhY5aoonvuH6RpMC7x9+9tNKQtJ7ne+y8JUp
+ qmDL3C1GxXXFNKbwYmtZySONDO5gXmgMnGjDdckVFucnIkQYwHywWpIrPTZv3zUS9k6qS6F4HLs
+ npSrcLjQ++9xnCfmtppGIezlVuCbkGtNbWVtJ6RuDAqRXXu4e1NER6f7pIlU/5AgYfpLOxyecDo
+ JLi+d7tyzKhXU/h5ql9oJc0IZPZktOy6eLbVlaElpfc4YFhD
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-7D482E1F-03DD7EA2/0/0
+X-purgate-ID: 149429::1773143728-95676F2F-E8C255A2/0/0
 X-purgate-type: clean
-X-purgate-size: 2750
+X-purgate-size: 1148
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -114,70 +115,35 @@ check.
 
 Change generated with coccinelle.
 
-To: "Theodore Ts'o" <tytso@mit.edu>
-To: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: linux-ext4@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+To: Haiyang Zhang <haiyangz@microsoft.com>
+To: Wei Liu <wei.liu@kernel.org>
+To: Dexuan Cui <decui@microsoft.com>
+To: Long Li <longli@microsoft.com>
+Cc: linux-hyperv@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- fs/ext4/fast_commit.c | 2 +-
- fs/ext4/mballoc.c     | 2 +-
- fs/ext4/namei.c       | 2 +-
- fs/ext4/symlink.c     | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/hv/mshv_eventfd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
-index f575751f1cae430eead31afa4f7d03ade1099d4a..bc69ac1195acb823465e735572b8a21255d485f5 100644
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -320,7 +320,7 @@ void ext4_fc_mark_ineligible(struct super_block *sb, int reason, handle_t *handl
- 	if (ext4_fc_disabled(sb))
- 		return;
+diff --git a/drivers/hv/mshv_eventfd.c b/drivers/hv/mshv_eventfd.c
+index d8471546e6a0c7e6eca933c640459f1d02152cb2..24dff7a498ac9c3edd31f4c9bc2f23729ba2a6ce 100644
+--- a/drivers/hv/mshv_eventfd.c
++++ b/drivers/hv/mshv_eventfd.c
+@@ -516,10 +516,10 @@ static int mshv_irqfd_assign(struct mshv_partition *pt,
+ 	if (irqfd->irqfd_resampler)
+ 		mshv_irqfd_resampler_shutdown(irqfd);
  
--	if (handle && !IS_ERR(handle))
-+	if (!IS_ERR_OR_NULL(handle))
- 		tid = handle->h_transaction->t_tid;
- 	else {
- 		read_lock(&sbi->s_journal->j_state_lock);
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 20e9fdaf4301b61c9d54401ed95067db6b6b8173..d7f004817c1ff758e4e25f84b2c27238b7420f84 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2870,7 +2870,7 @@ ext4_group_t ext4_mb_prefetch(struct super_block *sb, ext4_group_t group,
- 		    EXT4_MB_GRP_NEED_INIT(grp) &&
- 		    ext4_free_group_clusters(sb, gdp) > 0 ) {
- 			bh = ext4_read_block_bitmap_nowait(sb, group, true);
--			if (bh && !IS_ERR(bh)) {
-+			if (!IS_ERR_OR_NULL(bh)) {
- 				if (!buffer_uptodate(bh) && cnt)
- 					(*cnt)++;
- 				brelse(bh);
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index c4b5e252af0efbfcbaf83688a32d445327a74a02..4fdfc81f79028a588b3c1f912bff5e8a52cd9f13 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -723,7 +723,7 @@ struct stats dx_show_entries(struct dx_hash_info *hinfo, struct inode *dir,
- 		struct stats stats;
- 		printk("%s%3u:%03u hash %8x/%8x ",levels?"":"   ", i, block, hash, range);
- 		bh = ext4_bread(NULL,dir, block, 0);
--		if (!bh || IS_ERR(bh))
-+		if (IS_ERR_OR_NULL(bh))
- 			continue;
- 		stats = levels?
- 		   dx_show_entries(hinfo, dir, ((struct dx_node *) bh->b_data)->entries, levels - 1):
-diff --git a/fs/ext4/symlink.c b/fs/ext4/symlink.c
-index 645240cc0229fe4a2eda4499ae4a834fe3bd3a66..b612262719ede35d2612c5834d2bef7f18215516 100644
---- a/fs/ext4/symlink.c
-+++ b/fs/ext4/symlink.c
-@@ -92,7 +92,7 @@ static const char *ext4_get_link(struct dentry *dentry, struct inode *inode,
+-	if (resamplefd && !IS_ERR(resamplefd))
++	if (!IS_ERR_OR_NULL(resamplefd))
+ 		eventfd_ctx_put(resamplefd);
  
- 	if (!dentry) {
- 		bh = ext4_getblk(NULL, inode, 0, EXT4_GET_BLOCKS_CACHED_NOWAIT);
--		if (IS_ERR(bh) || !bh)
-+		if (IS_ERR_OR_NULL(bh))
- 			return ERR_PTR(-ECHILD);
- 		if (!ext4_buffer_uptodate(bh)) {
- 			brelse(bh);
+-	if (eventfd && !IS_ERR(eventfd))
++	if (!IS_ERR_OR_NULL(eventfd))
+ 		eventfd_ctx_put(eventfd);
+ 
+ out:
 
 -- 
 2.43.0
