@@ -1,51 +1,43 @@
-Return-Path: <linux-erofs+bounces-2578-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2579-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E7F5FD2D62
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 259F7FD2D64
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXk2pw9z3cD1;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXk3F0gz3cF6;
 	Tue, 10 Mar 2026 23:01:26 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.119
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.94
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144086;
-	cv=none; b=Mq8JBg2YJOyP+PqZw8xA+wt/nvV4gDXDS1pJp87/U+kryb/gWM/U9lRP4oclZed/hMiFLqBRWyefsR7xA1AtVpr6aZHIqWrBH6edZ08oP9Zwf5Wxz2mok1q4mYb7AKVQqVA/sAJtKNWIv5xLKnLKpgF3ePK89oPDNIEoeKoTYodeihPwNfs6OiBXpaarWvNQ8StHDopq9XebAIq22iUD/0ErBrQjK9YS/ANb7ch8Wj5ZbEEJrZHWFblem3DO0T9dfGUao/ep2tYBkXGFzCZISsSh5Nz4LyN/Mv0isA1NT9DIf5S4jPVYv5qOu0n5WuoTVvxr7tCmZanhTdd910xMOA==
+	cv=none; b=JJGMxd10c/4v1SQNucoIcszoio6pwyC4m86sA9Pv0959d7CBXKTlD0BjosY8R38kKlkYi2sdU4SS4rR9O31OGUGosfB2PxiJ94Mg/mTKTzfx6TsI+6ZX9YTfS3YGiNNaQGawaBMqeoALJV6uzuW3Y2DIYOq5ymapfI3lQI4aX+jaDWaeUKqCLT2jlCQTRoPHeP4nkqdvjR7uWg47otoEU7uyXvohlwHV1peRkqb+fpjHB5sDOGTs/VaLVwbNGz7BSzP+X/joYMNhcl1DDL1lfqXFaPZODCVfnbYToMvhfi1n9Dz0aD3eDaTymaS2dtIB8q/Y3AZprHUBmANUEjK5Zg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144086; c=relaxed/relaxed;
-	bh=JuC1mSy0wWf/HA7nrfH8vcHZny+hdINtD1gY837dpg0=;
+	bh=1RQt94wsCFG7IJEQyvVRUl8nd2Z953/wokMRXtIM6bI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=e1MVN4FoJQx6m9I/neTa5nbFaiPzpMcfi9uMNW4tB8wYRCTqYRuxY6PN7nMSWOOisgsv+twF6dAWKwW9bVxSE3wC2ZWGizgmCrURD/R84IETowgCVLcnOGDtw+MUWPmFweZhKxp4xEn9Em9g3ZJ0qUBLmDdd+YTMAcKJjlXF6OiGdAbzGKnGVZvI7ISHXZNPl3LQTbPRGV3hUZmCCS+AkjIDBJGoPlAC0MZoMhLNhWCDksb5p5jPFgy+YGImX0GIBygfpDd6seSQW8CVuvJ69I+Xdfibqs7XoRiFavEjSDlSdtVRV4kRU5QvqwIN3900HCqIOn6wC9ogjlgIIRw0og==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=rc8Hq89F; dkim-atps=neutral; spf=pass (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=IIAIXrkGSIwQkGneNCdMId4RhUpR/JW1Zq5b0alQMMJ+GHXUoq5FRXUjZaQoK+SLzw/8WPYKcHyMtPyljZiqGg7wD37dv7Max1j1e9evaKh2cjRBADAkJ2dL/Uht3EYDpDn2yvQFpNUxh3yI9UX7tctZdi5dQukw5N56ivTsfMXosux36bYh1VGRm/GqLUzT/cMMdArLB35+eX4ufky33eKr+UAb6jhJOjcGETGE3p8ypRW9rKMhcw39nr0SDiQm+CnHiEcL6/w9f+CSmR3Khk81LFWJ9UpT+0EY8/BeYPmuQsmzY0CZo0WQwxfJmwYIkFLK6VXc+1KD9t0J3FbYnw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=rc8Hq89F;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [212.42.244.119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [212.42.244.94])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXg5hn7z3cD7
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXh1QDmz3cDT
 	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:23 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143723; bh=DGbCaZBy1FpfvXwgzKpSCwa07WA8CY/Qb4IJHso0Te4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=rc8Hq89Fb5fz3t9XGAV9DEbHVf5dfp7yp00Gf9MYpCbFElXUliv8K0TJ88EegoebM
-	 lMHRZL83a9AqjbASsPk3qVgNFrp4VheSaUprtXI9vxtui90WS9FjZFrbxSMEBA+AFT
-	 xc3KncdB3VgIsSI2EjPb3pbBX8z4jE0V+gxrfv0k=
 Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-2367-7f0000032729-7f0000019cc4-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006ad-e21d-7f0000032729-7f000001d9e2-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:25 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:25 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:28 +0100
-Subject: [PATCH 02/61] btrfs: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:48:47 +0100
+Subject: [PATCH 21/61] lib/test: Prefer IS_ERR_OR_NULL over manual NULL
+ check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +51,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-2-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-21-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,21 +81,24 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3017; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=DGbCaZBy1FpfvXwgzKpSCwa07WA8CY/Qb4IJHso0Te4=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAXVP8rQiO4oClcWoVpEQy4tTT6UufgJ8AjmW
- meFZ085mAaJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAF1QAKCRA0LQZT0ays
- 26ZTCACM3Mi9LEMEAWgAR6v8SxUVk3um+/46scAm+wvRfrMWEFwlnMkQBbCGIGZUNkKB1Pk7uvR
- q9d3fZ689cKMySmmjPCYjQ/WgGDVLcywEn6In35Jwnklhlj4dYJLSL6WxXsza+vlAV93TQDvaTs
- OFlLEsZ2j+XY+f2mrUOcVwOk+301k/goYUacbLoVSw0YZnroo7kAB2acRVGhOGAOOiJoiVAdHNU
- Yf8QURa2qrPqHMwGd4SQRV57t+Grw+zEItF3L0eYw7mf41TaJcLeP7Vo+0nFp2D9QdrMND4nUec
- WhX0remRDcBywCJPWh7SmqRiZyiXDaIfp9JkUkUr5yx6Wacb
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+ Luis Chamberlain <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, 
+ Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
+ Aaron Tomlin <atomlin@atomlin.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2236; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=dZgGx+TJ86HynJEVGMrEA5pIsLW37DebkwtATXmSHOI=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAYdDyn9P9EqiNuLjohkPV9X7iASajPgIoE/Y
+ Nuv6AjHInyJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGHQAKCRA0LQZT0ays
+ 2wT8B/9ExWKAo/Sn9Hy5RU9mMJnGJZfEhSDSh3BrEyzAo8askVVJ9+5gjVv5zubvVRZSl0xsWYD
+ ONcBymLUypUnGPDyKoUOhx2btlwnIrxM+A/znjwtFfejlhgahBH8clBf9ppwmWxz+aomfSi8dH0
+ gI3DmyyOVIa4OSRnV4I+RdKzJvI1/m5sEwA+61ywfL4pM19NmtFK9XOne0dvmugbwth+SSxAJRb
+ vUziX2Dy0AcV+RxD3aCuKKv6tZLzJkBbkKbaQ16k0qyAZb3zbS92hAPdw+yFsGOJMaFjGgEs6OE
+ FCCv3wHl+aKzbAwbrH/eK6sw740pLs96xx8NapXtmcrko8Wn
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-80C85E1F-0AA4A985/0/0
+X-purgate-ID: 149429::1773143725-98670F2F-CE18AF23/0/0
 X-purgate-type: clean
-X-purgate-size: 3019
+X-purgate-size: 2238
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -111,78 +106,57 @@ X-purgate: clean
 Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
 check.
 
-IS_ERR_OR_NULL() already uses likely(!ptr) internally. checkpatch does
-not like nesting it:
-> WARNING: nested (un)?likely() calls, IS_ERR_OR_NULL already uses
-> unlikely() internally
-Remove the explicit use of likely().
-
 Change generated with coccinelle.
 
-To: Chris Mason <clm@fb.com>
-To: David Sterba <dsterba@suse.com>
-Cc: linux-btrfs@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+To: Luis Chamberlain <mcgrof@kernel.org>
+To: Petr Pavlu <petr.pavlu@suse.com>
+To: Daniel Gomez <da.gomez@kernel.org>
+To: Sami Tolvanen <samitolvanen@google.com>
+To: Aaron Tomlin <atomlin@atomlin.com>
 Cc: linux-kernel@vger.kernel.org
+Cc: linux-modules@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- fs/btrfs/inode.c       | 2 +-
- fs/btrfs/transaction.c | 2 +-
- fs/btrfs/tree-log.c    | 2 +-
- fs/btrfs/uuid-tree.c   | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ lib/test_firmware.c | 2 +-
+ lib/test_kmod.c     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a11fcc9e9f502c559148cf33679014fb83b0d3b0..7c26a0bf56bf7309e2ce8256854d760b2d64b16a 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4683,7 +4683,7 @@ static noinline int may_destroy_subvol(struct btrfs_root *root)
- 	dir_id = btrfs_super_root_dir(fs_info->super_copy);
- 	di = btrfs_lookup_dir_item(NULL, fs_info->tree_root, path,
- 				   dir_id, &name, 0);
--	if (di && !IS_ERR(di)) {
-+	if (!IS_ERR_OR_NULL(di)) {
- 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &key);
- 		if (key.objectid == btrfs_root_id(root)) {
- 			ret = -EPERM;
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 7ef8c9b7dfc17a5133b6d2dc134e288975ed98d1..40b83037725033d3178dc3fc2c1e347ad2c597f7 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1737,7 +1737,7 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
- 	dir_item = btrfs_lookup_dir_item(NULL, parent_root, path,
- 					 btrfs_ino(parent_inode),
- 					 &fname.disk_name, 0);
--	if (unlikely(dir_item != NULL && !IS_ERR(dir_item))) {
-+	if (!IS_ERR_OR_NULL(dir_item)) {
- 		pending->error = -EEXIST;
- 		goto dir_item_existed;
- 	} else if (IS_ERR(dir_item)) {
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 780a06d592409b05fb42dc8079b019d23fe0cdfa..2e07ae393cf9d16f562047dd4cbfd7b4b9f2952e 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5750,7 +5750,7 @@ static int btrfs_check_ref_name_override(struct extent_buffer *eb,
- 		name_str.len = this_name_len;
- 		di = btrfs_lookup_dir_item(NULL, inode->root, search_path,
- 				parent, &name_str, 0);
--		if (di && !IS_ERR(di)) {
-+		if (!IS_ERR_OR_NULL(di)) {
- 			struct btrfs_key di_key;
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index b471d720879a70c0db82e605960abe69de28ab4b..fc3177927a02e2d7849915309048529395ece0f8 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -955,7 +955,7 @@ static ssize_t trigger_batched_requests_store(struct device *dev,
+ 		init_completion(&req->completion);
+ 		req->task = kthread_run(test_fw_run_batch_request, req,
+ 					     "%s-%u", KBUILD_MODNAME, req->idx);
+-		if (!req->task || IS_ERR(req->task)) {
++		if (IS_ERR_OR_NULL(req->task)) {
+ 			pr_err("Setting up thread %u failed\n", req->idx);
+ 			req->task = NULL;
+ 			rc = -ENOMEM;
+diff --git a/lib/test_kmod.c b/lib/test_kmod.c
+index f0dd092860ea6f9c69a71e10cb1c8b071b1cd1b7..f44a181f6f1ab53cf95a0a0b598b88cb5f8f369d 100644
+--- a/lib/test_kmod.c
++++ b/lib/test_kmod.c
+@@ -327,7 +327,7 @@ static int try_one_request(struct kmod_test_device *test_dev, unsigned int idx)
+ 	info->task_sync = kthread_run(run_request, info, "%s-%u",
+ 				      KBUILD_MODNAME, idx);
  
- 			btrfs_dir_item_key_to_cpu(search_path->nodes[0],
-diff --git a/fs/btrfs/uuid-tree.c b/fs/btrfs/uuid-tree.c
-index f24c14b9bb2fd7420b06263a5a0c4b889a859bc6..c497b287f3418933e532903b326b969416ae22cb 100644
---- a/fs/btrfs/uuid-tree.c
-+++ b/fs/btrfs/uuid-tree.c
-@@ -478,7 +478,7 @@ int btrfs_uuid_scan_kthread(void *data)
+-	if (!info->task_sync || IS_ERR(info->task_sync)) {
++	if (IS_ERR_OR_NULL(info->task_sync)) {
+ 		test_dev->test_is_oom = true;
+ 		dev_err(test_dev->dev, "Setting up thread %u failed\n", idx);
+ 		info->task_sync = NULL;
+@@ -358,7 +358,7 @@ static void test_dev_kmod_stop_tests(struct kmod_test_device *test_dev)
  
- out:
- 	btrfs_free_path(path);
--	if (trans && !IS_ERR(trans))
-+	if (!IS_ERR_OR_NULL(trans))
- 		btrfs_end_transaction(trans);
- 	if (ret)
- 		btrfs_warn(fs_info, "btrfs_uuid_scan_kthread failed %d", ret);
+ 	for (i=0; i < config->num_threads; i++) {
+ 		info = &test_dev->info[i];
+-		if (info->task_sync && !IS_ERR(info->task_sync)) {
++		if (!IS_ERR_OR_NULL(info->task_sync)) {
+ 			dev_info(test_dev->dev,
+ 				 "Stopping still-running thread %i\n", i);
+ 			kthread_stop(info->task_sync);
 
 -- 
 2.43.0
