@@ -1,51 +1,52 @@
-Return-Path: <linux-erofs+bounces-2612-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2613-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3D160FD2D63
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:05:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BCCB0FD2D62
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:05:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXd511PFz3cHb;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXd56mScz3cHf;
 	Tue, 10 Mar 2026 23:05:13 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.120
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144313;
-	cv=none; b=b+ClJVVTDXMAfU2Prr030B7vFCEuUIFC1EvYC03ghVvdDwGP9e9iN57tAiUuMnQsZPbe07zUsxxAdKKLIseKO06Sf9wF21Fv5SQmdziiJgLa37HUZCB+FaTOBN3ZCLHTCH/8HfDMS3jdjBm4jBTXDUn9GcWQWfFEPJTsE7PO/xSjuWkugwahzVIKTu0gEx1sogDBwddrG4SzzS8MnFkiL8MWk02geGTBX4iflJ8lzvREZmV3kvxivELFDeDPiatVs/PvJOuV3ye1WceQZ/GLxW88J8VrjYtiHUHLx9FQ/7brg2DRbHqKIK1WVSoxVQGlRa54ypcdR0eFKCbXEhq0Cg==
+	cv=none; b=ds99uj+kGikHzG+y20nG+mW7QVPmA3yPuh7dQAqOkt1w0sStk/eM/0luyLKp+q9/xFsRvHhq3AsWZJPdUnt7PbAffPlkEtbwH2Yi+n3caRnZH5hyMra5RP/hSUa6Em8R5Qd8kL0cl92k0c9OuG4BWAe9hOGwcwYVFIkpJ/FYsIFsPQzFdKGGPu/WHK7mhIaoY2b0K3oPQpqOsPnNeBkGdn6ocrzy/bBnd9jUpRHJKNQybL4UrgatI2NwnisCnpv7pKGTgPTxbye5N6Gb49H2I+rY8TRYmsV9+a76izDAfKNcpLlwyWa07aIdjt87YlEWTo4MIUd8dFCOKY53OG24RQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144313; c=relaxed/relaxed;
-	bh=n8Jm3vj7u3QNjr1p8t4oOjObln75+m5CO9VCo8tfBlU=;
+	bh=CMAEotzjl80q/k3AHUpFdsqecrdK0X6tjqiBMW6zbGo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=g6kDqvBgCMXVaXkKkbeIEkBkpt2dYByHn8Xg3ylG/FatLXiedAOENCk5d48BwgPT7vJ8SrDLzKnWX8TPs2sdgOmdzuQtrfHwyk1XYIwW+iGfqij4qxAgq8OpLsIYT4UyaRj/WlpiwV/kow32uEhh2zB3CzdhGMJkxKuxbvJGClCNlE7ITP3p0MpOWXWT309gYYoDrSrCb4kei96qRdY6v/BsS4nJhtmBMM/6Nni08xyedsp3V8Z4pbx3icZtwEUWe8FZHUv/+9eDqMKnGbp8SAHqT6yvQBAodZ9wmVhseEz7J7p5v/TKlQjeDJECz6q+k2E0wMVYfD0g9n1TD+xMwQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=CWhZH8pY; dkim-atps=neutral; spf=pass (client-ip=212.42.244.120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=mMTfwW9ph2TYpAL+UCro82Oh+ZxYpGj5zVO3QRiv59c5VjTdHdDGzlBJTCSa94G9YmT0g46/ocbmpsM1uLZzEtBt+h9RFuQ3ReIT6taBCdJAY4Y7M8pO1b8slwKP4/FvY/NUFu+34sHaYjpXnPYhupiKZdi6JR82gqEj38SrvZEsoZcP65gJKOh3ZXESWjlVzQQgYzn8vVwIdDKwSwrSh6Oi81wTQyoJBps1P9jt2rOC8lLdQbOkDzjDHYnAsVWQSyCW333ZwfVVAUhk9/i2MGatBPKyf4/XdYnviagtDXZt/A+mP81FKW0JKl/h3j959h8PH0WKkmIKYY6Uk0ZIuQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=rRX3stPQ; dkim-atps=neutral; spf=pass (client-ip=212.42.244.120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=CWhZH8pY;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=rRX3stPQ;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.120; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
 Received: from mail.avm.de (mail.avm.de [212.42.244.120])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXd43GBqz3cHS
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:05:12 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXd52zqVz3cHS
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:05:13 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143724; bh=TePjCBJ2mRHkUlSzKz9AEyXwCeNO/T4sJeJlLVRUEek=;
+	t=1773143726; bh=g4FFdRUzUDur+rKeacaiCQZ+hQh7tI9Z6NjRyFnQc8w=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=CWhZH8pYoPHXJ9GodRv8bZf7CTCXPR5biEc/ESvLjFSG7M9EoK4FQxeOy1o2q/xFG
-	 adtTUhZFnjWgEtd3EnUld9xRhtBPP2LCXHOMBXjK/IfTv5IvUPb5jOISEusb1eiq65
-	 jalyJvpG8KfbWsOaQK+eTSDIbq4VvwVTL38wqr+Y=
+	b=rRX3stPQMInmxRJPEzximgG0zMf53EmXskDxqUtsKeYEkVQ/dYQttdiJ1RwUnbcpz
+	 vUIyMp9GJewHbVUEmLcfea/7Tczz6UnxZqIBZpZCQjil3jUyfWJvjrL+lRSOeW+TzV
+	 m1ne+0b2SGo4W3cNeV9kwvYwa/se7AsaBn9ffb+U=
 Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-b734-7f0000032729-7f000001c000-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006ad-b734-7f0000032729-7f000001c092-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:25 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:25 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:44 +0100
-Subject: [PATCH 18/61] sound: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:05 +0100
+Subject: [PATCH 39/61] irqchip: Prefer IS_ERR_OR_NULL over manual NULL
+ check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +60,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-18-bd63b656022d@avm.de>
+Message-Id: <20260310-b4-is_err_or_null-v1-39-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,24 +90,23 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>, 
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
- Max Filippov <jcmvbkbc@gmail.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2160; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=TePjCBJ2mRHkUlSzKz9AEyXwCeNO/T4sJeJlLVRUEek=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAYTbY49pcWmI+zPeufRNN/9dH/gm0tUhIW5M
- sSE0KnGvN+JATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGEwAKCRA0LQZT0ays
- 20TjCACXYevOdzzWZ8zg+QT0mj5XNSQgsj+29ztKUJ+NhTXTaWid39EhUMP397Ax0ta31zsGPRm
- 0odiGii9nvcNMTK3z0LbXHwAyd2Q0fNqi4zFsqaNgSljw41n6QLzk50RIIvlMAtwUsismcvcfkc
- GlGmvCqi0YMh5Ps6ZKTVJuHiANRfJwasfti849ayN0tL2bNpZjcStJrsD6oocum/i0yO/DOehLD
- OGOf2TSq2UVG28aLw7N49gUvv1bUDwk6CT215ovMEtUyRG0UE7FpDGWKSdiW4/MWJSzpOO7eARa
- NIfS+Ckmg34HqAiCowU5EbKs98L8LUAVBFgmoB7oAUhpavOc
+Cc: Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1797; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=g4FFdRUzUDur+rKeacaiCQZ+hQh7tI9Z6NjRyFnQc8w=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZajgCYubaE210ybXd9Qufza8n+eFtBCfTFO
+ oQVV6kxanqJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGWgAKCRA0LQZT0ays
+ 28ISB/9piM+RbVSziEng1t7dun6orhPWKQV9naYfNjFW3SarwsnzmnBDz0nuaGgkwHFCge92/YT
+ C6PE2tX58vKdugSVIB0D9NRq5gq4thjVq3D0H2GAQlza/oKxurc4wdXC5dXInbYl5OUB2w09WQy
+ fMKAkwG0m3WFPKRgizEtCKM6l/9q3B4q2rnnpcRKQx0iNvhf+dUkY5BUPSwCcfQvJK7+4PoC/ZE
+ ddAoJcpror4/MCI0j47/BVNaHIB5K9WykFVMhov3BZvNavqXT9C64hKXxD2btf1UcwShvWKloSd
+ PxNXkra2HopfIdMjPOY9w4hG57NjkAcqg0vkRHvvtwjYvgsZ
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-26DC0A3D-7CFC2EAB/0/0
+X-purgate-ID: 149429::1773143725-DB5DFA3D-FD67F9DA/0/0
 X-purgate-type: clean
-X-purgate-size: 2162
+X-purgate-size: 1799
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -116,55 +116,45 @@ check.
 
 Change generated with coccinelle.
 
-To: Sylwester Nawrocki <s.nawrocki@samsung.com>
-To: Liam Girdwood <lgirdwood@gmail.com>
-To: Mark Brown <broonie@kernel.org>
-To: Jaroslav Kysela <perex@perex.cz>
-To: Takashi Iwai <tiwai@suse.com>
-To: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-sound@vger.kernel.org
+To: Marc Zyngier <maz@kernel.org>
+To: Thomas Gleixner <tglx@kernel.org>
+To: Andrew Lunn <andrew@lunn.ch>
+To: Gregory Clement <gregory.clement@bootlin.com>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- sound/soc/samsung/i2s.c       | 4 ++--
- sound/soc/xtensa/xtfpga-i2s.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-gic-v3.c     | 2 +-
+ drivers/irqchip/irq-mvebu-odmi.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/samsung/i2s.c b/sound/soc/samsung/i2s.c
-index e9964f0e010aee549cced75d8fe2023e8271d443..6e86f3a0a52dd3f8fc728d634594eb81f9945c57 100644
---- a/sound/soc/samsung/i2s.c
-+++ b/sound/soc/samsung/i2s.c
-@@ -559,7 +559,7 @@ static int i2s_set_sysclk(struct snd_soc_dai *dai, int clk_id, unsigned int rfs,
- 			clk_id = 1;
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 20f13b686ab22faf722dd2b24faf96af636a4bbd..6dc9827357a21ae05dd838fb717871c73f3c7562 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -2252,7 +2252,7 @@ static int __init gic_of_init(struct device_node *node, struct device_node *pare
  
- 		if (!any_active(i2s)) {
--			if (priv->op_clk && !IS_ERR(priv->op_clk)) {
-+			if (!IS_ERR_OR_NULL(priv->op_clk)) {
- 				if ((clk_id && !(mod & rsrc_mask)) ||
- 					(!clk_id && (mod & rsrc_mask))) {
- 					clk_disable_unprepare(priv->op_clk);
-@@ -812,7 +812,7 @@ static int i2s_hw_params(struct snd_pcm_substream *substream,
- 	i2s->frmclk = params_rate(params);
+ out_unmap_rdist:
+ 	for (i = 0; i < nr_redist_regions; i++)
+-		if (rdist_regs[i].redist_base && !IS_ERR(rdist_regs[i].redist_base))
++		if (!IS_ERR_OR_NULL(rdist_regs[i].redist_base))
+ 			iounmap(rdist_regs[i].redist_base);
+ 	kfree(rdist_regs);
+ out_unmap_dist:
+diff --git a/drivers/irqchip/irq-mvebu-odmi.c b/drivers/irqchip/irq-mvebu-odmi.c
+index b99ab9dcc14b3ba982876cf5525499d02bc1c997..94e7eda46e81833cfe0479b6fabba715bf4ef6b8 100644
+--- a/drivers/irqchip/irq-mvebu-odmi.c
++++ b/drivers/irqchip/irq-mvebu-odmi.c
+@@ -217,7 +217,7 @@ static int __init mvebu_odmi_init(struct device_node *node,
+ 	for (i = 0; i < odmis_count; i++) {
+ 		struct odmi_data *odmi = &odmis[i];
  
- 	rclksrc = priv->clk_table[CLK_I2S_RCLK_SRC];
--	if (rclksrc && !IS_ERR(rclksrc))
-+	if (!IS_ERR_OR_NULL(rclksrc))
- 		priv->rclk_srcrate = clk_get_rate(rclksrc);
- 
- 	return 0;
-diff --git a/sound/soc/xtensa/xtfpga-i2s.c b/sound/soc/xtensa/xtfpga-i2s.c
-index 678ded059b959d475b6be3766867c8a78bdd4e54..698905257b690457a5d3d315e77d99d487d91f77 100644
---- a/sound/soc/xtensa/xtfpga-i2s.c
-+++ b/sound/soc/xtensa/xtfpga-i2s.c
-@@ -609,7 +609,7 @@ static void xtfpga_i2s_remove(struct platform_device *pdev)
- {
- 	struct xtfpga_i2s *i2s = dev_get_drvdata(&pdev->dev);
- 
--	if (i2s->regmap && !IS_ERR(i2s->regmap)) {
-+	if (!IS_ERR_OR_NULL(i2s->regmap)) {
- 		regmap_write(i2s->regmap, XTFPGA_I2S_CONFIG, 0);
- 		regmap_write(i2s->regmap, XTFPGA_I2S_INT_MASK, 0);
- 		regmap_write(i2s->regmap, XTFPGA_I2S_INT_STATUS,
+-		if (odmi->base && !IS_ERR(odmi->base))
++		if (!IS_ERR_OR_NULL(odmi->base))
+ 			iounmap(odmis[i].base);
+ 	}
+ 	bitmap_free(odmis_bm);
 
 -- 
 2.43.0
