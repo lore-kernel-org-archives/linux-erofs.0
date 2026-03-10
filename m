@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-2597-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2598-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BC75FD2D63
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:02:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCC6DFD2D62
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:02:19 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXs3ljwz3cG5;
-	Tue, 10 Mar 2026 23:01:33 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.119
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144093;
-	cv=none; b=TZ/26Cpkka81gHvnG4v7sTVQZXI+vmdzYwVzhA5zCNj2N2Wl8JD9vcBl+vlsmg7zWfml7sXs8QlNRTvap/kGCYObSVso0r2hpNetf75i65O6AAG5l2kJ3zidw3nMektHmfOA5t2hFyo6KJ62BgAkshlEJ99SW52sVY81KS8t9To8oPPoXinMYOZqssEeqm+un/EWyVXX3WBfNR0V8ochKtCdGJKVP1YT35s+jwVqGhZc1GdbHOYmQ6UirW60AUoqD5I4gUxAn+JghiE6o0dfd4H5JSIhenLBWV3RgreY0Y5NV7Quwn0ASF1TCryBGHLERuSde4p7/VcVlRmUNA3FBg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXt1FlXz3cF8;
+	Tue, 10 Mar 2026 23:01:34 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::94"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144094;
+	cv=none; b=WJaRjgDplRlQIY6cnFMfe7BID1vTB4JGZpors06DGNJs6WA2fy6NVT4hrvyv/XkQHifKcPhLUo3Llgqrx4hTcBIrwS+Y1jn4smYwMoCnhKtxwZ/rsi5go21shB3SklDbEOo1cXziWJI+xaTQwnrE5vxxUXr1kmmdJaBtzjNzML0ADF27a5fP7yQg30ZFfmWjaW8XK4RnLSBWpbZxJ2AFWOGMpuVZUPNzpVNO7txKY3wEusmRxQXV26m5agN4h2um7L13FdGV9DZIKX23g0KFFzlJ7ASsiYdFoqiU+17y3WocX3oX3B0ViBmRWXI6lvAnOXcubjVtVA9+5k8+4VwvvA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773144093; c=relaxed/relaxed;
-	bh=fFGvRlKzm+7M1qonE6vgNo7ccQBlVkvo/OM+PnyhH+0=;
+	t=1773144094; c=relaxed/relaxed;
+	bh=bwwsNpEuSxMWe0JpfJUzg0wYN6Lh2+T0V7r+oLFgaoc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hb+4VebLWhLmqRlm35+htkBN2DrIctVAkaMEtfLNtDUL/7UWEj5VgBH44qi8qu+NlHVnoKzcmC+GeFeDKXyf1EQBA7IXM8QtELHFqSxMzYL1oKBexrgLdOjmDqRo5oWX/KOE/HhbvIQY2e+GDbiMSquL/eq0ZSqGLFS5e6QZYzCRzsjUH2BtfnSOc9zPpGN7cVoWvTF+SKJH9tpjuO+Zvw03578qF2nu6v+nj/wcSJpmTjQMfJQtTcX3xKQX37oZdeT7Mvt7bmRX595xxJgYXHRCyAJRWWFwUtIv7lfoXtOnFRvFjxUiDR386YDUXO9D+Qm8ebeyc0Uro8FQFnFbXw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=ZioiLNZ6; dkim-atps=neutral; spf=pass (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=gVPr6tBOoULpPjCpJ9PiafzHHbuWkc4WpoY4JZ0e//Xf+qOOxdWSCmSnfupYrfJ8AZt/tHtpwmT9Tz2Lr/fYRBbaENdPw/6jnqPh1xe7hXdzJ74SNblu++A2zkRbgOxxE6mJpkuCcf1vRUoNF7fNsrLbDW+LybTLEKMKPCuCkYpW9Qh+Ok8g9t8YeS5izTIoBcSNBh9xFlgZsdFZVhN+bdM/1jU7cRnfpjHSnfKP5n5MLkBoaZsoJdk+ASLcBPPD0+eJczHiKjTGr9L6+e9nXdTVWxqdZrNvaOrybOSK0TA+jqcLrsLIud3pkYCcXFUkNPbNmlMeLYM0uUtrPULOAw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=vpe0akhP; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=ZioiLNZ6;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=vpe0akhP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [212.42.244.119])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::94])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXr69Bhz3cF8
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:32 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXs46Ntz3cG6
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:33 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143723; bh=KX6X+DDiGt9UXTjcCHLPV6DtScldl/2cIRjPuvT9tTY=;
+	t=1773143729; bh=xxm4pfrA8vpE+55Nunaq1/3InG5TW5+yUEKOnNPaCHE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=ZioiLNZ6EfhKGMrW73+pjGIuwzOuvOKiSTcZ7wPJiCwebXNzeEOuXWZ+A1nFHvhW4
-	 kJcOoKZ0VhxgqpRswcks1O+/9tUDVhOk4k88nkZD85ItDoYcz2HVcAjttfrO5CwuLe
-	 NFoc05VLkE1QM4ORDb0Hi3i8FcBzsZqAPnJdPzxQ=
+	b=vpe0akhPijy+fdFGsJlWa9KadgjO2UW3S7CfTGj2Nb6xgJuadPCv9jJW3GCcgmmDp
+	 NsscICFVG30n95MZjrlzYTppWlcYdN0G1O633y0snTb7dDyj/NfP2miiuKsPdNfmP+
+	 vAwjLimypqw9PSgx5KgoEmL24wgMu4NPRFNkUtuM=
 Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ab-2367-7f0000032729-7f0000019d06-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:23 +0100
+	id 69b006b1-e21d-7f0000032729-7f000001bb0c-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:29 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:23 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:29 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:48:32 +0100
-Subject: [PATCH 06/61] 9p: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:49:26 +0100
+Subject: [PATCH 60/61] Input alps: Drop unlikely() around IS_ERR_OR_NULL()
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-b4-is_err_or_null-v1-6-bd63b656022d@avm.de>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260310-b4-is_err_or_null-v1-60-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,57 +89,56 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Eric Van Hensbergen <ericvh@kernel.org>, 
- Latchesar Ionkov <lucho@ionkov.net>, 
- Dominique Martinet <asmadeus@codewreck.org>, 
- Christian Schoenebeck <linux_oss@crudebyte.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=932; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=KX6X+DDiGt9UXTjcCHLPV6DtScldl/2cIRjPuvT9tTY=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAXqJp0CDUjw9jEvsvX+a/KbvAdXeFk7KScmA
- k1gbpU+8P+JATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAF6gAKCRA0LQZT0ays
- 29mrCACj+Vud6UtbAeAOyyVoHbFLvMA1jaglqqRGws0fgYsgwpzXFXvy2i2CmaAOIcTuq4UVTOl
- 2Cp9O2MO0VDKHA4864zJOud8em6WQkYpTs1edDKjyZ8gpLnrkl+uUALuLIZHLcn32/PFl6USje2
- 0rlhbB9Ue5RZDoT7EFzcp3mX899jCdSGzalbeWr5SPDgRQW0S9l7PbTpDgAvlvTr4+JT6Q76sJ+
- Xum3jXXZ29Rm368akWgnu/SoCzltjqdTHnSYloTAliMoi8hFFj6gbktEQSHRbMEzLVXTgNcHq2l
- 4mfiDZbzmkqs8S8e3yaP+Mk/R/tjrHLygop2cIGzqTfhnlfW
+Cc: =?utf-8?q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1263; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=xxm4pfrA8vpE+55Nunaq1/3InG5TW5+yUEKOnNPaCHE=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAai8jb0hbCBoPmYA/prWl4PUOkbFdhFm9gPO
+ hWtVu2rtPaJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGogAKCRA0LQZT0ays
+ 28GYB/9rclpgBQgsqGF0yAXWM/97auTunqqLKOGDeyV/S4nC7HDn1d4UqQoeaSmUw2DOYO4u7t3
+ FPnU9VUXE2nXM5FAQLfpjYhH7CG3jEkW4klm33iXRLo1nkpvx8klWZbYR7PMwPnVZTnxKNJmzgZ
+ kL0ECVGQ0EahRXa5TL96qA0Z3YR0RjsX+MNWafES7VGwl+HS5Artyl+8jg+/p0RFHayhxpHi2hi
+ Ftz0Ut7BpqlmrXUo0TzIlFmAGFe7tZCdcMDr5ii9ECIA4sGLz4jBK2uiDVL8YFZ25Y3k7DF6RQV
+ m+hUB3KTG86705bO5a0t2DamRuiInU805Ah5rzh9tCueh4HO
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143723-77CF7E1F-303E842C/0/0
+X-purgate-ID: 149429::1773143729-373CFF2F-EC21F89B/0/0
 X-purgate-type: clean
-X-purgate-size: 934
+X-purgate-size: 1265
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
 
-Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-check.
+IS_ERR_OR_NULL() already uses likely(!ptr) internally. checkpatch does
+not like nesting it:
+> WARNING: nested (un)?likely() calls, IS_ERR_OR_NULL already uses
+> unlikely() internally
+Remove the explicit use of unlikely().
 
 Change generated with coccinelle.
 
-To: Eric Van Hensbergen <ericvh@kernel.org>
-To: Latchesar Ionkov <lucho@ionkov.net>
-To: Dominique Martinet <asmadeus@codewreck.org>
-To: Christian Schoenebeck <linux_oss@crudebyte.com>
-Cc: v9fs@lists.linux.dev
+To: "Pali Rohár" <pali@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- fs/9p/fid.h | 2 +-
+ drivers/input/mouse/alps.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/9p/fid.h b/fs/9p/fid.h
-index 0d6138bee2a3d1ab565ab2d210c0a3f3bf97e4e3..3bb7ef4380e972a2d9ab67eb4aab6cc5bfe2eea7 100644
---- a/fs/9p/fid.h
-+++ b/fs/9p/fid.h
-@@ -27,7 +27,7 @@ static inline struct p9_fid *v9fs_fid_clone(struct dentry *dentry)
- 	struct p9_fid *fid, *nfid;
- 
- 	fid = v9fs_fid_lookup(dentry);
--	if (!fid || IS_ERR(fid))
-+	if (IS_ERR_OR_NULL(fid))
- 		return fid;
- 
- 	nfid = clone_fid(fid);
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index f3d3b6b4e02d798e75a90333ace72a367befdbac..82e11efad7f7f02b4aaefde340f9b71fa792cf6b 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1482,7 +1482,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 		/* On V2 devices the DualPoint Stick reports bare packets */
+ 		dev = priv->dev2;
+ 		dev2 = psmouse->dev;
+-	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
++	} else if (IS_ERR_OR_NULL(priv->dev3)) {
+ 		/* Register dev3 mouse if we received PS/2 packet first time */
+ 		if (!IS_ERR(priv->dev3))
+ 			psmouse_queue_work(psmouse, &priv->dev3_register_work,
 
 -- 
 2.43.0
