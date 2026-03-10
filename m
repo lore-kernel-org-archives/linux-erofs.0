@@ -1,51 +1,52 @@
-Return-Path: <linux-erofs+bounces-2581-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2582-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F650FD2D63
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2FECAFD2D65
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 12:01:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXl0Gmwz3cFG;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVXXl1yB7z3cDS;
 	Tue, 10 Mar 2026 23:01:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=212.42.244.94
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:bf0:244:244::119"
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773144087;
-	cv=none; b=Chla29Fu3J5kBv69svY9bi7IKAil8ztPaFLqOxLaM/747qBauNvWpuo0wuS6zu3+IYOdweY9TVMqHUQTgu4kU3L6EyNFUKI/5bZy24pd0CTg+pNqfIVXoM3HGOLmH1f+tQdQUTX8n6m0PYAEcTxNnOnjUcsL0Hg0oUc7QEQ6XuT3HNAXXj26wQMNnlHhx9rfZynDsPx2ihGZtwJ1T28yXcTTVrcBVajk5HRXnTxxFCumURJcV4lVjJmP7KmuvHyplKomnXFQRQnTBjLOgaLZUB0avkY2dMSGFWYSevZUfOPNKYlyTo6lh8bNDJtU2PY9gZ80esc0aW1G7ZTFU4ogfw==
+	cv=none; b=Q5Fo+L0soqZBDYplVGDie8JG6pBuUXkab5wrAn1d+HABSdpH5P2P3X21fIg/VwnhWdqRrtnd5linpGuLINXwjZ23KYV4VxJ+NYuaoQYEVDdz8wmYFzd2bymKf8b8o9Rhcgiko7mopNBI4XIIK7V8MgeM0rvSyp2q46jrWw+8GRGORvHVDquQ0rAZO9SEa9c3NRGQgf3BOlSe++IVFQ21iVDi1cwte5vbu2X/qnixZC3s2B+7OC4K5DR5Fi/9teGyFoUqkJmGdJ68ZtjlX6uEvUnavjI33kVahCYo+LSUgKdnelzOGQW5lguVVaq3rMv8XQfPURkuAHitPiwJWNK+yw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1773144087; c=relaxed/relaxed;
-	bh=wVT0uA+kucQG0i/QTB2svHNIMILb8xbLFt0mWLocNwU=;
+	bh=iY5b+S6DY49d8oUcqDtGLxUKyWGyNfNq5dhmPPuwVI4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ExVx/l7QLafHAoiBuxflUK7vFBZro/3yiZya0j6AbiKgHYYxuTS0ReStB1sJmmN9l9UEMgEAuoU61K1ZJpHrqEpKqaCC2F6X5B3cuDSJ8eeckuVklWAIsuFEYt8e6mYqD5Oo53kYn2nuWkIWcY+vyuRzMC22WEcI+qFmrdHiwOjTwRwYCILAWXqH8lOpCBLeXPt4oLQFpUH3EWa5WfBN1uq4UELIeueRkYzT1TZci8vv0ia1ohnBxsaOESuYly/7TQeQdFUMej3ObIYTpCvQIYpOY1cLzSF/d5MwUIhE1yHgCZyoj3c3JPlCX1bGolNnFcfYHGIk3cg9w915YP3iVA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=OlBoHHpV; dkim-atps=neutral; spf=pass (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
+	 In-Reply-To:To:Cc; b=MO6tMBVXRtNJRytrvXnPOTjEZwNFelK46d4S7kDXKy+ySlu8MaUck2pECln1ZWa8IwQSoldN9mLO5abkOMWbyT6RL/zWXoQ1ci/J83+k4+/7X9ngPqV9hR85T3jthJHLvjR5IJpt7rWWB77JvhoG8yQz5kgteOnJ9YePDRdyUczVoYusH68K0qzrR1ckrKuuPm7NPGgJ4JZTYAulHx1VIR6cEBmkCAriSEvG/ai4iSMo0YY73XFdZvU4LNOdvZ+wDU4+FeuaZ1IGoDhIrVDfRu1/jazZsut5Z/0sdreca2HDai3AlPv8G0uF93kzChk2PkAj5BOlRkPKnN/8p+pwGg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=EmfqFdXE; dkim-atps=neutral; spf=pass (client-ip=2001:bf0:244:244::119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org) smtp.mailfrom=avm.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=OlBoHHpV;
+	dkim=pass (1024-bit key; unprotected) header.d=avm.de header.i=@avm.de header.a=rsa-sha256 header.s=mail header.b=EmfqFdXE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=212.42.244.94; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
-Received: from mail.avm.de (mail.avm.de [212.42.244.94])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=avm.de (client-ip=2001:bf0:244:244::119; helo=mail.avm.de; envelope-from=phahn-oss@avm.de; receiver=lists.ozlabs.org)
+Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXh1mS8z3cDV
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:23 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVXXh5hWZz3cDf
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 23:01:24 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1773143726; bh=6EuXq65aclW87MvbjKpAiGhSvzG4CQReYSdgtvzfvbQ=;
+	t=1773143725; bh=uPgyjK+s+NGMdE+cG5MPshRhc7ZZgUWwr7PoRjCZSpk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=OlBoHHpVof4NyozqV3vxjKcjvk/y17oYz+NX0GgTt5nMsrjzgfoQZCcD5nyMeqLWk
-	 htiyUI/wWJswuTU+8y83flTCS0RnzHoiIrK06LfnovJyy/ccZ/NhBYSEivcOaZTGCa
-	 Ux8J7cHyncVvErf5jzV1qMqauD0EUnF5+GejdCq4=
+	b=EmfqFdXEdiCWqgoXgX8BLevw6sTpNgfg8llLMS9eEaTKVg51Kp8K29SjBZVEdIV/s
+	 M7bvI3BPyHpPb6vMRi2BheqpUIfCWQ/6jm+gYuX79PpwCNDjLncHrcFsaokOkzLrgm
+	 dBKJjX9bdtP/6DkQEVr2DPx5QPmWYl9+WXcAxUUE=
 Received: from [2001:bf0:244:244::71] (helo=mail.avm.de)
 	by mail.avm.de with ESMTP (eXpurgate 4.55.2)
 	(envelope-from <phahn-oss@avm.de>)
-	id 69b006ae-e21d-7f0000032729-7f000001da2a-1
-	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:26 +0100
+	id 69b006ad-2367-7f0000032729-7f0000019d9a-1
+	for <multiple-recipients>; Tue, 10 Mar 2026 12:55:25 +0100
 Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [IPv6:2001:bf0:244:244::71])
 	by mail.avm.de (Postfix) with ESMTPS;
-	Tue, 10 Mar 2026 12:55:26 +0100 (CET)
+	Tue, 10 Mar 2026 12:55:25 +0100 (CET)
 From: Philipp Hahn <phahn-oss@avm.de>
-Date: Tue, 10 Mar 2026 12:49:03 +0100
-Subject: [PATCH 37/61] drm: Prefer IS_ERR_OR_NULL over manual NULL check
+Date: Tue, 10 Mar 2026 12:48:55 +0100
+Subject: [PATCH 29/61] net/sctp: Prefer IS_ERR_OR_NULL over manual NULL
+ check
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -58,8 +59,8 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260310-b4-is_err_or_null-v1-37-bd63b656022d@avm.de>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260310-b4-is_err_or_null-v1-29-bd63b656022d@avm.de>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
@@ -89,37 +90,24 @@ To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
  sched-ext@lists.linux.dev, target-devel@vger.kernel.org, 
  tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, 
  Philipp Hahn <phahn-oss@avm.de>
-Cc: Andrzej Hajda <andrzej.hajda@intel.com>, 
- Neil Armstrong <neil.armstrong@linaro.org>, Robert Foss <rfoss@kernel.org>, 
- Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, 
- Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Zhenyu Wang <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>, 
- Jani Nikula <jani.nikula@linux.intel.com>, 
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
- Rodrigo Vivi <rodrigo.vivi@intel.com>, 
- Tvrtko Ursulin <tursulin@ursulin.net>, 
- Alex Deucher <alexander.deucher@amd.com>, 
- =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
- Sandy Huang <hjc@rock-chips.com>, 
- =?utf-8?q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, 
- Andy Yan <andy.yan@rock-chips.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4819; i=phahn-oss@avm.de;
- h=from:subject:message-id; bh=6EuXq65aclW87MvbjKpAiGhSvzG4CQReYSdgtvzfvbQ=;
- b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAZT+7AKzVVh94OZwGC1ojred94HRoubB3Jj7
- iZaELcQHomJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGUwAKCRA0LQZT0ays
- 26wAB/9TBiS4XQT7vnGKfXiPWlqEeJl/SwNfE8gRd+LVLd2GPoXI77JKlqZA5KJHsuEaYytwRHj
- 0co7/mL9JXJHOUE/UPYXt3qFrwRsleM7nnJK7ysqo/nuMkL1zXCK+fpnqQpoBiKUkPJFjSSQWWs
- A0qg0NaHPa2ThCoMkZDNEnWBS7X/+ME4OgDoWVp7r1X953fdXqxWSX8/++3IUoA8zLfZZvBTN8Z
- lQp574N8BAAfdqG0oi1OBRhOByM9d1hpEYg4qXmJvNDZzHG8su81gcwwO+KaBKEy6Skfpo/fDOj
- n85UVFKj8iDz3Ls4+zhkzod+J74YBwXEvBpocAWj1P06D/Zf
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
+ Xin Long <lucien.xin@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1169; i=phahn-oss@avm.de;
+ h=from:subject:message-id; bh=uPgyjK+s+NGMdE+cG5MPshRhc7ZZgUWwr7PoRjCZSpk=;
+ b=owEBbQGS/pANAwAKATQtBlPRrKzbAcsmYgBpsAY4baP8me9X19X7pKru5bhCt+OcLVsbTz9gw
+ 3EXL2x+9HiJATMEAAEKAB0WIQQ5bPBtrWDUcDQCppg0LQZT0ays2wUCabAGOAAKCRA0LQZT0ays
+ 20eCB/9R10a8QtWnOE8FDIK68et8w+x4vBIl7DAH3ljWsVvEsJtllIM7WoriXoMKcy69weBfdTt
+ udsIaDDf3FpSbi6d23LNVWvY7/j8StHi4Mb7YRTkDtjVuH7qFkxhMIEkO0P72RZbdjNmUsWZOT+
+ 4yfdZZ4sqiFeE73LKQ05t8sm9/1XHgZKcnk5I6ebEYNeQeVfoiugFSvaTmWSBPUItBis/2y3N1h
+ 19AfztgUerK/fadW7Y/vZ3pDRpIi5ZAslPLWaCgGa6B5OoDoVAvOz5XPc/Ut45LGyZkJYA2qiTr
+ TmaKunQohnKINyK0THlxz9DBNJM47y+p9em5r+zCNMTJFQSn
 X-Developer-Key: i=phahn-oss@avm.de; a=openpgp;
  fpr=58AF7C2E007CDBE62C59E078F50EFDCF8AD04B1A
-X-purgate-ID: 149429::1773143726-88610E6F-62997727/0/0
+X-purgate-ID: 149429::1773143725-73CEFE1F-39E0F1CD/0/0
 X-purgate-type: clean
-X-purgate-size: 4821
+X-purgate-size: 1171
 X-purgate-Ad: Categorized by eleven eXpurgate (R) https://www.eleven.de
 X-purgate: This mail is considered clean (visit https://www.eleven.de for further information)
 X-purgate: clean
@@ -129,112 +117,34 @@ check.
 
 Change generated with coccinelle.
 
-To: Andrzej Hajda <andrzej.hajda@intel.com>
-To: Neil Armstrong <neil.armstrong@linaro.org>
-To: Robert Foss <rfoss@kernel.org>
-To: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-To: Jonas Karlman <jonas@kwiboo.se>
-To: Jernej Skrabec <jernej.skrabec@gmail.com>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-To: Maxime Ripard <mripard@kernel.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-To: David Airlie <airlied@gmail.com>
-To: Simona Vetter <simona@ffwll.ch>
-To: Zhenyu Wang <zhenyuw.linux@gmail.com>
-To: Zhi Wang <zhi.wang.linux@gmail.com>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-To: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-To: Rodrigo Vivi <rodrigo.vivi@intel.com>
-To: Tvrtko Ursulin <tursulin@ursulin.net>
-To: Alex Deucher <alexander.deucher@amd.com>
-To: "Christian König" <christian.koenig@amd.com>
-To: Sandy Huang <hjc@rock-chips.com>
-To: "Heiko Stübner" <heiko@sntech.de>
-To: Andy Yan <andy.yan@rock-chips.com>
-Cc: dri-devel@lists.freedesktop.org
+To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+To: Xin Long <lucien.xin@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+To: Eric Dumazet <edumazet@google.com>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+To: Simon Horman <horms@kernel.org>
+Cc: linux-sctp@vger.kernel.org
+Cc: netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Cc: intel-gfx@lists.freedesktop.org
-Cc: amd-gfx@lists.freedesktop.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-rockchip@lists.infradead.org
 Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c       | 2 +-
- drivers/gpu/drm/drm_sysfs.c                     | 2 +-
- drivers/gpu/drm/i915/gvt/scheduler.c            | 4 ++--
- drivers/gpu/drm/radeon/radeon_test.c            | 2 +-
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ net/sctp/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index ee88c0e793b0416d20105a43448cb4037402e64b..64fa2bc8d28197147ee22b4f74134cc27dd9b32d 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -3608,7 +3608,7 @@ void dw_hdmi_remove(struct dw_hdmi *hdmi)
- {
- 	drm_bridge_remove(&hdmi->bridge);
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index 05fb00c9c33576d1e18ee31c34974d8b76efa768..a0596c94be4ad6afae6be13adb3bce17140264e9 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -5349,7 +5349,7 @@ struct sctp_transport *sctp_transport_get_idx(struct net *net,
+ 	if (!pos)
+ 		return SEQ_START_TOKEN;
  
--	if (hdmi->audio && !IS_ERR(hdmi->audio))
-+	if (!IS_ERR_OR_NULL(hdmi->audio))
- 		platform_device_unregister(hdmi->audio);
- 	if (!IS_ERR(hdmi->cec))
- 		platform_device_unregister(hdmi->cec);
-diff --git a/drivers/gpu/drm/drm_sysfs.c b/drivers/gpu/drm/drm_sysfs.c
-index ef4e923a872843339743d21e4877225855da921e..6748acb4163e8f5658c9201a0412b38862c7baab 100644
---- a/drivers/gpu/drm/drm_sysfs.c
-+++ b/drivers/gpu/drm/drm_sysfs.c
-@@ -600,7 +600,7 @@ struct device *drm_sysfs_minor_alloc(struct drm_minor *minor)
-  */
- int drm_class_device_register(struct device *dev)
- {
--	if (!drm_class || IS_ERR(drm_class))
-+	if (IS_ERR_OR_NULL(drm_class))
- 		return -ENOENT;
- 
- 	dev->class = drm_class;
-diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
-index 15fdd514ca836e84f4de95e3207ab45bb9243426..933ec5ffa1f1ebafd687996f167b982490702211 100644
---- a/drivers/gpu/drm/i915/gvt/scheduler.c
-+++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-@@ -675,10 +675,10 @@ static void release_shadow_batch_buffer(struct intel_vgpu_workload *workload)
- 	list_for_each_entry_safe(bb, pos, &workload->shadow_bb, list) {
- 		if (bb->obj) {
- 			i915_gem_object_lock(bb->obj, NULL);
--			if (bb->va && !IS_ERR(bb->va))
-+			if (!IS_ERR_OR_NULL(bb->va))
- 				i915_gem_object_unpin_map(bb->obj);
- 
--			if (bb->vma && !IS_ERR(bb->vma))
-+			if (!IS_ERR_OR_NULL(bb->vma))
- 				i915_vma_unpin(bb->vma);
- 
- 			i915_gem_object_unlock(bb->obj);
-diff --git a/drivers/gpu/drm/radeon/radeon_test.c b/drivers/gpu/drm/radeon/radeon_test.c
-index 0b459f7df23bae3eef7e36f4b5f35638fb6f4985..573284c4af60f12d7edec889260fc8a2e2b70420 100644
---- a/drivers/gpu/drm/radeon/radeon_test.c
-+++ b/drivers/gpu/drm/radeon/radeon_test.c
-@@ -234,7 +234,7 @@ static void radeon_do_test_moves(struct radeon_device *rdev, int flag)
- 			radeon_bo_unreserve(gtt_obj[i]);
- 			radeon_bo_unref(&gtt_obj[i]);
- 		}
--		if (fence && !IS_ERR(fence))
-+		if (!IS_ERR_OR_NULL(fence))
- 			radeon_fence_unref(&fence);
- 		break;
- 	}
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-index 3547d91b25d317c6cad690da7d97a7e5436c0236..8a267de85da9c76c2e29b2ababf1218e400282c2 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -1095,7 +1095,7 @@ static int dw_mipi_dsi_rockchip_host_detach(void *priv_data,
- 	struct device *second;
- 
- 	second = dw_mipi_dsi_rockchip_find_second(dsi);
--	if (second && !IS_ERR(second))
-+	if (!IS_ERR_OR_NULL(second))
- 		component_del(second, &dw_mipi_dsi_rockchip_ops);
- 
- 	component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
+-	while ((t = sctp_transport_get_next(net, iter)) && !IS_ERR(t)) {
++	while (!IS_ERR_OR_NULL((t = sctp_transport_get_next(net, iter)))) {
+ 		if (!--pos)
+ 			break;
+ 		sctp_transport_put(t);
 
 -- 
 2.43.0
