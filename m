@@ -1,252 +1,90 @@
-Return-Path: <linux-erofs+bounces-2640-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2641-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2DDC4FD88D7
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Mar 2026 00:20:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6731FD88D6
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Mar 2026 02:07:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVrwt4Dxxz2yFY;
-	Wed, 11 Mar 2026 11:19:58 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:4d48:ad52:32c8:5054:ff:fe00:142"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773188398;
-	cv=none; b=LtIdUllfgfkG6whcdS4PrzphK2KGbVs3VSzOC73COiiY2b1XAzWu6NNl/a1bqIU7peMcR9xZXeEz53U+HopEWKT6t4H9mK07bifcjAdjPlG33FBJKfW/GqqWlP458Hq3z7knIsloJlokv9V6CjSPe4yT2bs2txtb4qITE2JIfYz765iB8g7VuzgRqtqLQkJvVYficG9FOQeAq9mmzeGyOUgmEMrKAMiQx49bv7x83jXOEuA5a6GS3JquiARZWah+yMkGKQeAH9X4ukA9kHHfTrCNFM69q0dVraY7XWgqQsgOZRCze+/kh6mX+PADyUaIWKiGZF/MyhK+RnNb3besvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773188398; c=relaxed/relaxed;
-	bh=7hV5LSkoaULvfWpcA92IONFe2jiU8FtnTFTGMKYHxiU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ckTSU0affOZqOH9U9xP3st82ebDA3aN9zDbLD02yA3GkC8IROqXFmMWxsXPMMRLrsz2GaKqaLAPvimPEtXOO6Wsr7FIVPMSCS9TFVcWE7aSmVazLvipdaZA9e9Fgx4y70bA6hoE8I2TRe3wwA0GDuWWeqCw8d3hmBs9zHVTzX7QIwg5s90TUsrVwaCCCY8yqqWdatrQBJfO8k1tnXfTFO0SjKy6YXl8yzB+paly64avNlr3SF9Lr0B1OAFslC8iaKp6IpTJ4RdMkVbi6Wkvw8R4Kl7whJIaFHUa7Dcn2fhuBF6dE6juc8QhkUsRWHEn/I0x/BJ/7vCVoVdQY1ZEoBA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; dkim=pass (2048-bit key; secure) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.a=rsa-sha256 header.s=pandora-2019 header.b=rsZWNNzp; dkim-atps=neutral; spf=none (client-ip=2001:4d48:ad52:32c8:5054:ff:fe00:142; helo=pandora.armlinux.org.uk; envelope-from=linux+linux-erofs=lists.ozlabs.org@armlinux.org.uk; receiver=lists.ozlabs.org) smtp.mailfrom=armlinux.org.uk
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVvK70W57z3bTf;
+	Wed, 11 Mar 2026 13:07:39 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::130" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773194859;
+	cv=pass; b=htTOAOh+IC5RikyKWMjXd8Le9APybAdHaVRNqLFf56P7+EHddiw3fPHXpxOLi4gtpXuHmDP8bM2NjO5uovn5qMsDiF438dD+F0j8Im9yY6Ao/EwqvWufKCREwwicFbjcQUysU6mZX/Z4O4dYomvv0/a5SBTi8P1Af74DJdAM1F6l/IDKk4iMFVA23DyKIFNbTRmxBR7CgTHs8edjvMvas7A68WI5ttxzQZ69oPqn5h8qqh7rb7pilKEFHZhaTFi7wJNqq+3dX7/dlRkuJLd4HvsEub98Ad6v+2ZTEjE99fdp0ktM/2esLLZbIhZDXWg2kg+hqsu3MeaJjvHyGw1Gew==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1773194859; c=relaxed/relaxed;
+	bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DjSDFyac7DQq6EaGrgZzwhltE7MPhD77THlZ0xXQtOKueNEBpIweBQNjDLGoCMsjOM+oXVyt86IzN41H52HYDf92bjtNRa7UbSg7M0xsn5qaT7nYkX1/u1kVsISdjzsayhiFkhVnG6Q8t0zR+84Yn6+m4yeFldB4YJCpI6gIFLFzDk7oeY7C7cQ3FVqGPoYZ6TlZrmvIaAp/d+VwoKUvG9O1Rl0KMh+Cik3za1jSqjxzMXOngC6t1T3f/xhdRh0kQ6kIkeHQz06Se4lawgDo13T9EygMsLB5Dp7ToRWI9rKyBO0lw9LpY4An+fysh7FlfH187PmkVYtfECQFb3a8AQ==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=P4JOtzEu; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::130; helo=mail-lf1-x130.google.com; envelope-from=wenst@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.a=rsa-sha256 header.s=pandora-2019 header.b=rsZWNNzp;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=P4JOtzEu;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=armlinux.org.uk (client-ip=2001:4d48:ad52:32c8:5054:ff:fe00:142; helo=pandora.armlinux.org.uk; envelope-from=linux+linux-erofs=lists.ozlabs.org@armlinux.org.uk; receiver=lists.ozlabs.org)
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2a00:1450:4864:20::130; helo=mail-lf1-x130.google.com; envelope-from=wenst@chromium.org; receiver=lists.ozlabs.org)
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVrws4pXnz2x99
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 11:19:57 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=7hV5LSkoaULvfWpcA92IONFe2jiU8FtnTFTGMKYHxiU=; b=rsZWNNzpN6nJksHTEkajq/n1Fi
-	36oPDej5oPfE2xw7j/8liweJ40O8Y0rBYAawwkQr0/sJRg1ts8hN1ZWdPPuu/S+9wTI5BZjFWFDn/
-	6VM0HaPK6l/WG/KwNwIc0bS6+oKrv1v0dTQCkIL4TyM4C1voCXZuHAyDW2/Bgql9xoNiDgpnuxFbm
-	Bc71fMVSzRm+pq3372pS1Xq8Ouufm8Njzwja33Sc4G+rmZ9dNuCAJtMq0TJedL4OAoV/4ImwmK35b
-	TUHQq3VDfaWDfmQ6l7uWAqtoP6Cr7hJRMUWJfb9Rs80koZ5DcRmLK8FvDMNhR9mVwMAz/6MWBcbRm
-	dCGRuMnQ==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:57602)
-	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <linux@armlinux.org.uk>)
-	id 1w079p-000000005ZQ-1adR;
-	Wed, 11 Mar 2026 00:10:37 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.98.2)
-	(envelope-from <linux@shell.armlinux.org.uk>)
-	id 1w079B-000000005hV-0rNO;
-	Wed, 11 Mar 2026 00:09:57 +0000
-Date: Wed, 11 Mar 2026 00:09:57 +0000
-From: "Russell King (Oracle)" <linux@armlinux.org.uk>
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
-	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
-	Julia Lawall <Julia.Lawall@inria.fr>,
-	Nicolas Palix <nicolas.palix@imag.fr>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Ilya Dryomov <idryomov@gmail.com>,
-	Alex Markuze <amarkuze@redhat.com>,
-	Viacheslav Dubeyko <slava@dubeyko.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Andreas Dilger <adilger.kernel@dilger.ca>,
-	Steve French <sfrench@samba.org>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
-	Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>,
-	Bharath SM <bharathsm@microsoft.com>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Latchesar Ionkov <lucho@ionkov.net>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Christian Schoenebeck <linux_oss@crudebyte.com>,
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <lihongbo22@huawei.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-	Andreas Gruenbacher <agruenba@redhat.com>,
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Jan Kara <jack@suse.com>, Phillip Lougher <phillip@squashfs.org.uk>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Tejun Heo <tj@kernel.org>, David Vernet <void@manifault.com>,
-	Andrea Righi <arighi@nvidia.com>,
-	Changwoo Min <changwoo@igalia.com>, Ingo Molnar <mingo@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Petr Pavlu <petr.pavlu@suse.com>,
-	Daniel Gomez <da.gomez@kernel.org>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Aaron Tomlin <atomlin@atomlin.com>,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>,
-	Benjamin Marzinski <bmarzins@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	David Ahern <dsahern@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Johan Hedberg <johan.hedberg@gmail.com>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>,
-	Olga Kornievskaia <okorniev@redhat.com>,
-	Dai Ngo <Dai.Ngo@oracle.com>, Jon Maloy <jmaloy@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	John Crispin <john@phrozen.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Andrzej Hajda <andrzej.hajda@intel.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-	Jonas Karlman <jonas@kwiboo.se>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	Sandy Huang <hjc@rock-chips.com>,
-	Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
-	Andy Yan <andy.yan@rock-chips.com>,
-	Igor Russkikh <irusskikh@marvell.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Pavan Chebbi <pavan.chebbi@broadcom.com>,
-	Michael Chan <mchan@broadcom.com>,
-	Potnuri Bharat Teja <bharat@chelsio.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Taras Chornyi <taras.chornyi@plvision.eu>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Iyappan Subramanian <iyappan@os.amperecomputing.com>,
-	Keyur Chudgar <keyur@os.amperecomputing.com>,
-	Quan Nguyen <quan@os.amperecomputing.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Vinod Koul <vkoul@kernel.org>, Linus Walleij <linusw@kernel.org>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Eduardo Valentin <edubezval@gmail.com>, Keerthy <j-keerthy@ti.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Mark Greer <mgreer@animalcreek.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Kieran Bingham <kieran.bingham@ideasonboard.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>, Justin Sanders <justin@coraid.com>,
-	Jens Axboe <axboe@kernel.dk>, Georgi Djakov <djakov@kernel.org>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
- check - refactor
-Message-ID: <abCy1Xs9yQx0Sjbn@shell.armlinux.org.uk>
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVvK521GHz30hq
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 13:07:36 +1100 (AEDT)
+Received: by mail-lf1-x130.google.com with SMTP id 2adb3069b0e04-5a0fc5e2c59so9992858e87.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 19:07:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773194852; cv=none;
+        d=google.com; s=arc-20240605;
+        b=eIEf4XD3wZ/wdAlr62TjqUrLqzEIQd7sf4pLkq3WpAfPoRk/hIYqhuuHfjP++loE/o
+         4bsTPeqIx+gtryNEhyAM2NYYGgM12XOWSg5eJ8PQsBB2AJO2tkllFkxWfGJ+2OziAmW8
+         3YZi8IBHZX42KFZDBEJ0kQJ8dLmUtHKhAHBH2CEdc+ZZ4w5IjceNhHNeTReJ5oqFfUJ9
+         sCarWLvWMNaV0N+whc6CUw28DMk8uxFdKJ+Xl+Gq6xAUlIKRJQKWO3YWrKQ2095vY1ek
+         65XakXhzHuac4yY2OqV7fLDWwyEB9ECnl61TYy7bKe7oQooXaaiCQW5pUz/EOasfVirK
+         dNzA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
+        fh=hMHx9oA+wOIfwcSUNzoEsZdZ+XIsr6X7OyLtzkNk3No=;
+        b=aF8RDkHpXEAvmz5MWAeSn8tra3sodsCJGQthcZzFD95V6i2Oy9L2VhYWQQliGP3mIM
+         mSRDHFVAStqNgKZZQ5ohJV3e2chEiW/BqOWJCz/MK+sT0MzMHoWqm6c/zynUKwYeqkkR
+         yBmyfHYDL2mLqJHH+/gT34ZK+QZGs0oNCCuOx/uR+z8dbs5tUrIlFhok0ni2iH2gmOMp
+         sUNgf/fl36DXTHg1lmgno9HLxUjC0enfVAfwTJ085kcT8RLt1Wl85oQMwJ4y6jnnzqTI
+         ZAYpvJrtg/7tKh7tU+ZVhmBseYueG6FTgMiMjh9d0ovG3nrtTlQhvOWdrBArxlPNTKiQ
+         3E7A==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1773194852; x=1773799652; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
+        b=P4JOtzEuVMwHeM2Ecz2it7WI4Ahg8lb4D9SS3m5WUEcSD1ZzDUJmAiqko5N7o11Ipb
+         vQbzg+L/cxO3JQFsll7HPVKZq2XEFBkwmUJnd+vPTlP88vEuRtmAkvobqSTIQy8gTKtP
+         hQ3xk/+B9IPyPMeeJcg6ZCVcYITi+5grSd95c=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773194852; x=1773799652;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
+        b=Ebss47RTobs2y3udbYkMrYsyBdrYgPRDMIUuXZnHyK3UqP5g9S7zrjXXii7U0WHqt6
+         vK7w7kRmDc8WHoikR/eGFtCXbipSunrpt9LltRw+mQBU3JzCn5Y7WIZpygP6KG/8WpYg
+         52OMyfy7wFXqwZEDUkBg9LAcRbiCS+X8fNZkDveRH9Wjz+B+Np2EcGxrac0BIvigv08u
+         qjCKa+ZcdDxFabDC0cMQX655d3BNAGAdFPZoA0rzBu2IetQecSA+Tuw6+iLOBIeN5Q+t
+         fOyZkXzYyXWephvZMmI95dT48RHiXV5aQ1/cWNS0iAyqu9fcMs0hLtJh/TyNImMfVO9G
+         Ys3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXTj+wYZPPrcC0ptybBcWVl24Djz4vfKczIFxFUT/xO5UNFpd1SEZLCD9dFv4GWc7rCer9h6Lnux6uFdA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YxmCM5pCVWFRWSSfDboYVy4/aIl/1NCIe6g8JMvogD/HfUv3jUv
+	GjDc2kkS9fJ3tG2ZUBipNKPoN0WCdfjUFRqSZNsyjipf4bsBiOw9+Bd+Pr71mK7WsI8vIbL0J0H
+	0KwOQfJErlvOh3UpLNsieF93rrbDy/L/0ptlTt9gl
+X-Gm-Gg: ATEYQzx7Ynr+scvuDdhOGsVX0E2Uo8ovBVOyCMNWfyPZ4g0/UR8LIQoR/9GO07OXTxz
+	5kuNcZhkj0NmcQohQlVqtdKIjV69WUhvYJ+cvyof5Lct0jufoc0I8xSfZnBzV+v01qBZS6fpZXH
+	obAc/FTqOE7GSkXQCSPKUWLJCLZWzL9QeROw0fmyawfmYUrP5JsDGpyVm4XDHAizpauVx/yDxmc
+	H5Yg7r1zd07Ub90JD8uqnTeiQh8tYSEwDI1p59SzXM+xfjWMNGkPHwrUBJHvCzPEYiESL7odzda
+	lTA1ESGoZg==
+X-Received: by 2002:ac2:4427:0:b0:5a1:3134:9bac with SMTP id
+ 2adb3069b0e04-5a156cbd1bbmr169453e87.28.1773194852284; Tue, 10 Mar 2026
+ 19:07:32 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -258,29 +96,121 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de> <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Wed, 11 Mar 2026 11:07:21 +0900
+X-Gm-Features: AaiRm5028PWt8n-JnveiRgn8oYMksdR_-_nk4JOkvxMfplWs-GDr7RRk-OxICyw
+Message-ID: <CAGXv+5FQAVaJjqhv+Xq-ysOc4SHQn2mCNTgCAp8XocmWBWGGoA@mail.gmail.com>
+Subject: Re: [PATCH 56/61] clk: Prefer IS_ERR_OR_NULL over manual NULL check
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr, 
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
+	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
+	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
+	v9fs@lists.linux.dev, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 10, 2026 at 12:48:26PM +0100, Philipp Hahn wrote:
-> While doing some static code analysis I stumbled over a common pattern,
-> where IS_ERR() is combined with a NULL check. For that there is
-> IS_ERR_OR_NULL().
+On Tue, Mar 10, 2026 at 9:57=E2=80=AFPM Philipp Hahn <phahn-oss@avm.de> wro=
+te:
+>
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+>
+> Semantich change: Previously the code only printed the warning on error,
+> but not when the pointer was NULL. Now the warning is printed in both
+> cases!
+>
+> Change found with coccinelle.
+>
+> To: Michael Turquette <mturquette@baylibre.com>
+> To: Stephen Boyd <sboyd@kernel.org>
+> To: Daniel Lezcano <daniel.lezcano@kernel.org>
+> To: Thomas Gleixner <tglx@kernel.org>
+> Cc: linux-clk@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+> ---
+>  drivers/clk/clk.c               | 4 ++--
+>  drivers/clocksource/timer-pxa.c | 2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+> index 47093cda9df32223c1120c3710261296027c4cd3..35146e3869a7dd93741d10b72=
+23d4488a9216ed1 100644
+> --- a/drivers/clk/clk.c
+> +++ b/drivers/clk/clk.c
+> @@ -4558,7 +4558,7 @@ void clk_unregister(struct clk *clk)
+>         unsigned long flags;
+>         const struct clk_ops *ops;
+>
+> -       if (!clk || WARN_ON_ONCE(IS_ERR(clk)))
+> +       if (WARN_ON_ONCE(IS_ERR_OR_NULL(clk)))
+>                 return;
+>
+>         clk_debug_unregister(clk->core);
+> @@ -4744,7 +4744,7 @@ void __clk_put(struct clk *clk)
+>  {
+>         struct module *owner;
+>
+> -       if (!clk || WARN_ON_ONCE(IS_ERR(clk)))
+> +       if (WARN_ON_ONCE(IS_ERR_OR_NULL(clk)))
 
-One thing you need to check for each of these cases is whether the tests
-are actually correct.
+clk_get_optional() returns NULL if the clk isn't present.
 
-There are certainly cases amongst those that you have identified where
-the check for NULL is redundant.
+Drivers would just pass this to clk_put(). Your change here would cause
+this pattern to emit a very big warning.
 
-For example, get_phy_device() never returns NULL, yet in your netdev
-patch, you have at least one instance where the return value of
-get_phy_device() is checked for NULL and IS_ERR() which you then
-turn into IS_ERR_OR_NULL(). Instead, the NULL check should be dropped
-(as a separate patch.)
+I don't think this change should be landed.
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+
+ChenYu
+
+>                 return;
+>
+>         clk_prepare_lock();
+> diff --git a/drivers/clocksource/timer-pxa.c b/drivers/clocksource/timer-=
+pxa.c
+> index 7ad0e5adb2ffac4125c34710fc67f4b45f30331d..f65fb0b7fc318b766227e5e7a=
+4c0fb08ba11c8f9 100644
+> --- a/drivers/clocksource/timer-pxa.c
+> +++ b/drivers/clocksource/timer-pxa.c
+> @@ -218,7 +218,7 @@ void __init pxa_timer_nodt_init(int irq, void __iomem=
+ *base)
+>
+>         timer_base =3D base;
+>         clk =3D clk_get(NULL, "OSTIMER0");
+> -       if (clk && !IS_ERR(clk)) {
+> +       if (!IS_ERR_OR_NULL(clk)) {
+>                 clk_prepare_enable(clk);
+>                 pxa_timer_common_init(irq, clk_get_rate(clk));
+>         } else {
+>
+> --
+> 2.43.0
+>
+>
 
