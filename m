@@ -1,77 +1,59 @@
-Return-Path: <linux-erofs+bounces-2638-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2639-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4346FD4F1F
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Mar 2026 18:40:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2AF7EFD88D5
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Mar 2026 00:16:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fVjPg5GrMz3bmM;
-	Wed, 11 Mar 2026 05:40:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::62b"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773168055;
-	cv=none; b=ls+F9JMJQYFWZQzMzOKv3jFtP3fZ7qTNx927KMfXyPTwemfk+4zvTT9Vss9y5FYi8t2iycMILQPjQkFRE6/eFFTfgPVCi4mT9LkxX1FepNQSUYxYmRICwMFsXFfkzwbc2Ivkz9IbLSOJq8rI0xtocFNHeq4573nqc/awhdNJHvhfr/M1jBYHKxd0eq6tlv5gw0p6JVzExjYbFi8FPylA0JEEBUYbEcTrIfZG1E8Y8fDVJzwvUjL6FCiXLts0ldTeyZVHT+5ZnrJt6BxMywxpKH1hjWO/SZqdjhopP/cRT4uOZf+F6T2O0DpDV1GvdHB2Mtx1RiLlFhr1s8X9G4uvOg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fVrrw1RMvz2xZK;
+	Wed, 11 Mar 2026 11:16:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:4d48:ad52:32c8:5054:ff:fe00:142"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773188192;
+	cv=none; b=aLCoIev5HJgqu9WI1A4UZMkYvEHNcmQLf8GcL7sDdhAVzY+C8VlZLXL+ncP+ndt53Q4GWJ43tzp+9ouSVyoVJB+i/uMQsNLOJEwtLfnXsGX1lCRk+dpppAnqwjsGyfbZqgOk2Uthjozm2AVCT+B9qv5QcoPennvhFPpUM/NORzwsG/J9Pe5z2eCoOaJqNSGlvJVrPzRACu3PjwgvEsIQz0i8l1n074aXoWNgRnmhcvvQ0QMaIfnLHfZO2blF1r4Dz/91nSROYHk89bNJVXL6SCiYTzXKKKbpMJv+zVDAqZMU+8m6dybtvcgHsHXRy+ewts6KeIYwyKNlAkFrqiTdRA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773168055; c=relaxed/relaxed;
-	bh=bjFZ9oZWWc3RZ4UdO5rq+AZbr7uPDX73K58gh1+yuH0=;
+	t=1773188192; c=relaxed/relaxed;
+	bh=G+5qjaihAOE3Wva2YLY8jATPGvyCa7CiJLk7V/SbO+c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kS+qcR0lcd/vUSI428xRhW7YU/PaX09Lvmnw3JTcAy8VxP6vWuoSkOJxDR7uywwFDq3xkmp8/sOf1jrcl1uKG9vwlisqacxLqoMKTnQC22/TQTin1VdSfMeuA5O9OucnPCRUsDtjB8SmoeScYYYr377LRr4t5cxDKO+ScEM7Bd9nK0HvYS2nEdPBpfsTRs5YVaZ7E/J1PFHRT5y+O+gSgH1TXy+1LZIbBYTnsHrwm3YTqnnH1uyEe+3RBxF3BrlTW7+OL4+bWWAleUnhuEn1mr4O+zFbC5gs/qKQ/c5x475ZNwk85vWntxZsQt2qCQg2WVTl1CbZqY6yyl0CNRd13g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=M8twsTFz; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=visitorckw@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=jnMcYQuANifUg5fytectRrrxsAmcQjmJMQTPh6v7IoJwfLOMCrHQtBE25nHx49FlavTjP65jj2x6T6x0aPUi6Ucs8BLhl3llycdqnl9eaFelYoYl6oBemStEJYylWYLtJ3tt1S9Q+NTijaGv0PstJwVMnCzxKjR8ePjhg8LhyYF5z1xEa/CKHNshxbhUm8qCWDmuMo381omnTht95u8kRyKkZ9g4/CZtWgYlrWdh02Bttu5YRpFhAuomFQIXVruLbgT5iC7H5EDULzkh9vcQfZ+ZJ7WM4L1jgkkHq1+EIrBBBSwbEthZAfnxXkJEdd+WxfgmzhIQTkoBmRxB9KmMuw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; dkim=pass (2048-bit key; secure) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.a=rsa-sha256 header.s=pandora-2019 header.b=v5WQ+aGF; dkim-atps=neutral; spf=none (client-ip=2001:4d48:ad52:32c8:5054:ff:fe00:142; helo=pandora.armlinux.org.uk; envelope-from=linux+linux-erofs=lists.ozlabs.org@armlinux.org.uk; receiver=lists.ozlabs.org) smtp.mailfrom=armlinux.org.uk
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=M8twsTFz;
+	dkim=pass (2048-bit key; secure) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.a=rsa-sha256 header.s=pandora-2019 header.b=v5WQ+aGF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=visitorckw@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=armlinux.org.uk (client-ip=2001:4d48:ad52:32c8:5054:ff:fe00:142; helo=pandora.armlinux.org.uk; envelope-from=linux+linux-erofs=lists.ozlabs.org@armlinux.org.uk; receiver=lists.ozlabs.org)
+X-Greylist: delayed 287 seconds by postgrey-1.37 at boromir; Wed, 11 Mar 2026 11:16:29 AEDT
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVjPf2MN2z3bjb
-	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 05:40:53 +1100 (AEDT)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2ae88e16485so25594585ad.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 10 Mar 2026 11:40:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773168050; x=1773772850; darn=lists.ozlabs.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bjFZ9oZWWc3RZ4UdO5rq+AZbr7uPDX73K58gh1+yuH0=;
-        b=M8twsTFzrqMgm9XPQWXgCjVFWbTrBjUS3aXGVea6sJz19MjfWpUoUqmdxIf84Myxmm
-         pOFxN1gqpqcUrVgJPFnU8kC7QTjuROy6/KaR3J0Ti4+jZuW2G48imbYfj482BSQXJ76J
-         OHbLj2WYXEyz4EDJhaIkeCeSPSHSyBnuXubJsV1XzHHDNwDEJgDjLWuJ1ep6CN3Aa/dB
-         DSlAuIHGEbzgY+uKI6FbKQCJH44DnULYdE+MebFLKWJKaQVb7KrE27XsNPjJvQeVOTIo
-         WgE4LDp9yoiR4aS40J6zmGlxe2pRi45JasXNpuMvciZdyVBKGjQJDbxsNDjywYpXJ5eF
-         E8Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773168050; x=1773772850;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bjFZ9oZWWc3RZ4UdO5rq+AZbr7uPDX73K58gh1+yuH0=;
-        b=BOW9i9DMdDm584gwHwNab9DQE8cQvWz0H3ZQOqTHHHSmJv8rt3w6HrxW8JsVUs6iRT
-         nogS6gLsl2+yp1+rPL6Po4OQN7H35T+HTT2VZroYb5pCGlOlpZQjlLOKBCmDUMuBHcT/
-         m//Kz+V0pRxRtkFUvMcow2SD+3nrcSaUONpmfofGzGKd+GBcJPUuF0V+fuwxMys01r7b
-         1uC11ZUdJzWb5Cj3gKwy/Vt/gUuTcEIARG8O+mDZj3MXUZiDzILQpyy157IGjMhYZsMX
-         3X6ODSBIWqTJamdhYmTSLhcvZzbu5oPk5Qmfv2+FOFUzq6uDA1lo3QL5KbXrYri3nikm
-         3jmA==
-X-Forwarded-Encrypted: i=1; AJvYcCU1tkdGW98Ls/DYf8YVjvarI9Zd8oVGQpfb/IwwMMdPnxecvaP64XBkONQyWV0DWlQwPpsICyLewLNfpA==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YwV0Jb0HsuIxUbahbFQHwaOKy6mPWfS2v0ZbOPTP8OM6YUHbMw/
-	azX0Y5Q35B8fyRfu+E2CrC1WURcvwBft3iYFvz+gL9dxHfnTCb1U+PqI
-X-Gm-Gg: ATEYQzynRY4cb7cfiQtlFuPcHFSOE7Bl2GGuTcx6snWVAm97QK2I9lAIUxgMtH0+wCt
-	vdKF1yk0MTY58/8njHfTKy8zEzEpcMvf3Z90kQNrE1VaO8F6CkG9fzIUJkTIhji35q9Lf8by40r
-	I8qzqqyHioi4pIJDqpxRMFf9k4f/36r6FMK+h1LQMsx115iCRc3YZxUAPt/jf3IRJoWNsOsiZP/
-	JFois+Xe7DAZj4V15KkdEi9Dt9Yc0F1COZm1F5Jzx9PxROrqWE94BLn91II1QQoVhYS0aOk0v1P
-	rF7KK0L8ggYKb61Vz79kvT0yRFzKEsQSmf+CW1gr+rOYbCOfgTw4Pv0QttYpwSiTeWlidVI19N3
-	kEm0qEVqYqsD09bDKOh1SC4xxubkNa9BSxnERcoohuQSyTCPRAgvleIJeQQflTqzVpBIWYgxZm3
-	mmIVTvCUo91yhrx7+rwTyE892D3Yi/VGtE6zOwF31+IytTqA==
-X-Received: by 2002:a17:903:28c8:b0:2ae:5671:7071 with SMTP id d9443c01a7336-2ae8252cf0fmr96662285ad.43.1773168050081;
-        Tue, 10 Mar 2026 11:40:50 -0700 (PDT)
-Received: from google.com ([2402:7500:a44:85b:2953:97d3:b283:95c3])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae83e58592sm220535625ad.14.2026.03.10.11.40.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 11:40:49 -0700 (PDT)
-Date: Wed, 11 Mar 2026 02:40:36 +0800
-From: Kuan-Wei Chiu <visitorckw@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fVrrs2nv4z2x99
+	for <linux-erofs@lists.ozlabs.org>; Wed, 11 Mar 2026 11:16:29 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=G+5qjaihAOE3Wva2YLY8jATPGvyCa7CiJLk7V/SbO+c=; b=v5WQ+aGF0sps0WNhC7Zp3i4qfq
+	0Hb0SCVWpSXvSr7WdAe2bPHF4KfJ/Ed1eiaiCb8D0oCv1z5xwK7JuLf0tC0l8hY2t6eWn1tcNZSpg
+	QYrAEXTacs2n4b4dGxTmR/QZFsu7Xre8GI0M2CDH+d6uoN0gFUU9MJ/Uqp3GyqqaO1XmybhsS5lVz
+	KPXBqq6BLZCCQzpQ8jMEzm8MnKJZE/MMCDQxbCe0qlHGv5pHIS812K52VRhLCysEP1IhQjrayukQi
+	lGpFnxogge7mHLP+wP8QrSVC+xUyVfKJNzw96REdhpsHijJHvcSndISQsei/F/gJP6wWuF34GUcce
+	0I/0wllQ==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55974)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1w07FF-000000005dP-41aF;
+	Wed, 11 Mar 2026 00:16:14 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.98.2)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1w07FB-000000005hj-1vhz;
+	Wed, 11 Mar 2026 00:16:09 +0000
+Date: Wed, 11 Mar 2026 00:16:09 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
 To: Philipp Hahn <phahn-oss@avm.de>
 Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
 	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
@@ -99,11 +81,28 @@ Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
 	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
 	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
 	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev
-Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
- check - refactor
-Message-ID: <abBlpGKO842B3yl9@google.com>
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
+	Igor Russkikh <irusskikh@marvell.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Pavan Chebbi <pavan.chebbi@broadcom.com>,
+	Michael Chan <mchan@broadcom.com>,
+	Potnuri Bharat Teja <bharat@chelsio.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Taras Chornyi <taras.chornyi@plvision.eu>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Iyappan Subramanian <iyappan@os.amperecomputing.com>,
+	Keyur Chudgar <keyur@os.amperecomputing.com>,
+	Quan Nguyen <quan@os.amperecomputing.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH 38/61] net: Prefer IS_ERR_OR_NULL over manual NULL check
+Message-ID: <abC0Se_cstwTWp9r@shell.armlinux.org.uk>
 References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -117,42 +116,26 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-38-bd63b656022d@avm.de>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-Hi Philipp,
+On Tue, Mar 10, 2026 at 12:49:04PM +0100, Philipp Hahn wrote:
+> diff --git a/drivers/net/mdio/mdio-xgene.c b/drivers/net/mdio/mdio-xgene.c
+> index a8f91a4b7fed0927ee14e408000cd3a2bfb9b09a..09b30b563295c6085dc1358ac361301e5cf6b2a8 100644
+> --- a/drivers/net/mdio/mdio-xgene.c
+> +++ b/drivers/net/mdio/mdio-xgene.c
+> @@ -265,7 +265,7 @@ struct phy_device *xgene_enet_phy_register(struct mii_bus *bus, int phy_addr)
+>  	struct phy_device *phy_dev;
+>  
+>  	phy_dev = get_phy_device(bus, phy_addr, false);
+> -	if (!phy_dev || IS_ERR(phy_dev))
+> +	if (IS_ERR_OR_NULL(phy_dev))
 
-On Tue, Mar 10, 2026 at 12:48:26PM +0100, Philipp Hahn wrote:
-> While doing some static code analysis I stumbled over a common pattern,
-> where IS_ERR() is combined with a NULL check. For that there is
-> IS_ERR_OR_NULL().
-> 
-> I've written a Coccinelle patch to find and patch those instances.
-> The patches follow grouped by subsystem.
-> 
-> Patches 55-58 may be dropped as they have a (minor?) semantic change:
-> They use WARN_ON() or WARN_ON_ONCE(), but only in the IS_ERR() path, not
-> for the NULL check. Iff it is okay to print the warning also for NULL,
-> then the patches can be applied.
-> 
-> While generating the patch set `checkpatch` complained about mixing
-> [un]likely() with IS_ERR_OR_NULL(), which already uses likely()
-> internally. I found and fixed several locations, where that combination
-> has been used.
+As noted in reply to your cover message, the check for NULL here is
+incorrect - get_phy_device() returns either a valid pointer or an
+error pointer, but never NULL.
 
-Thanks for the patchset. However, I think we need a explanation for why
-switching to IS_ERR_OR_NULL() is an improvement over the existing code.
-
-IMHO, the necessity of IS_ERR_OR_NULL() often highlights a confusing or
-flawed API design. It usually implies that the caller is unsure whether
-a failure results in an error pointer or a NULL pointer. Rather than
-doing a treewide conversion of this pattern, I believe it would be much
-more meaningful to review these instances case-by-case and fix the
-underlying APIs or caller logic instead.
-
-Additionally, a treewide refactoring like this has the practical
-drawback of creating unnecessary merge conflicts when backporting to
-stable trees.
-
-Regards,
-Kuan-Wei
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
 
