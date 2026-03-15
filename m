@@ -1,42 +1,42 @@
-Return-Path: <linux-erofs+bounces-2704-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2705-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55A2FF30273
-	for <linux-erofs@archiver.kernel.org>; Sun, 15 Mar 2026 14:28:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6161F30271
+	for <linux-erofs@archiver.kernel.org>; Sun, 15 Mar 2026 14:28:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fYgYX01jzz2yZ3;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fYgYX2D7Nz2yZ5;
 	Mon, 16 Mar 2026 01:28:00 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.67
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773584879;
-	cv=none; b=WV49FVOQBaO0sWqSxPomlrowxb3xaGfiEYyUUAl7xqNvuUW6vsLukb5ndTrm//4l4BGa0/5c8JUFws2NJJFRyEPStPWxubYoROA1Vaf0iHxuIeHlRtfsThoBJoLEmMZtjcp3bZ6IrWk7sQgGJcCJLuFqcR7G4HdQbqp+C6W4cWYIJr7Usti3eJ7/yEFzR79okw+NxAyiaOVaTPeWCUjB0KWy0Kt6sx0RZw9Q1GiMivFBFz6o1sA1SSZcE0X7bBmSctCmUDEvwApF/TOA6V6EIhoAkl7Lvzzi/15iXqLPCrG9+2/RoLgF6m23fEmR4ZQoe+H5fUDBna33UmiAfoS8NA==
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.64
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773584880;
+	cv=none; b=aexpq1ltaB0q3aNh6XN6H0Iya83o+2JYwpqskG37s2rSXCt4eVq5mynbL9Swjrmr8v9V0axVBFFuW3aQa2DbJDa9eeqmBBvOKxAqhdXmzbRtTF+X8LzLCw0JFfgdzDjOQLW3CfYLknKN2f527DuG2HueQEihufXfoPXnPdK9WfYpZsEe1LZdl3c7Y42vKVaCEhiWWa/ZiFfU3Z/N9dd+6p6cS1fHfQP/siRwwnZbp/NrAWnKLWdRQ1hPF3lvnOnuq7gjCkx4MNVjlzk3z7KXVETgRppUji6cCON23mmqeQcRDjNijazEFmbFeva5GkO68Z2faw6LRHYObmh/e/1UUA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773584879; c=relaxed/relaxed;
-	bh=F+ccKxHaDtG2vdUg4UXjWQ/5bhHXiqc70fDZPEOx+m4=;
+	t=1773584880; c=relaxed/relaxed;
+	bh=q6vPe3nqs2lZNY/0t2/6HZfUgsxpTVmvW1jrx37i5cc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aEuHlJoP6hc1LB80FRwhlNqShRF1iIWJGrNd0TqDWMZBN6wiqTTfY8TZj0aOVcAiZm7TmK/ft4yzjNWWxoMltvodtsit5rpnm2yLk4sHGOFNfl3DIKWCpht/BTK0rtbjbqmbRNLB5P//ov0U06g0g1TDs48mnqh1LjmuXPhWowW29+OgpsVJ48iwToEUytzR//gSY71K8zMEKPwZr7p1/kPPH/3/YHhY9gGTLqMszVftJSlPdAV83KUg0RJVOXac5xPCr/udFIC/2LcBJ7+O/A7OO7SLznqJDu3aufbho1GpUjLxObB1XDLwtKTN7Janfhc6I0IoNZlI5zcxSStPnw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.67; helo=out28-67.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
+	 MIME-Version; b=TPBDsl5iklRyhYNBUFEANBdL4FvVzpY2LfUM5iAbTEqVjF6jcXdlkRyJW44cAgCLEaP96bUc1hb02eUxLnFLn3ppE9Rt/p2SFTNEPnbH+SgIS5tfdGArMb2UQo9t7CmGwSa8IkCDQWFy+hSkSvPdOz43mb1Z4B1NcQHT6PnPteLxX5k0z83LCxD0Ocf5IJ257kFzReyKO+4p2J7/8YtX+5anIyrFL8NZTxpDRaGuz7fDm3DO8k/o+0Ypstv+Hk/9bamghlhxFIY2My1Pj/TcdZ1IvoMMp3qlsaHHw+HQPbh6o7Auod6g1lNN1ektyUci+2g5IXrDSGruoREzPZhrNQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.64; helo=out28-64.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.67; helo=out28-67.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
-Received: from out28-67.mail.aliyun.com (out28-67.mail.aliyun.com [115.124.28.67])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.64; helo=out28-64.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
+Received: from out28-64.mail.aliyun.com (out28-64.mail.aliyun.com [115.124.28.64])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fYgYT3JT2z2yZ5
-	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 01:27:56 +1100 (AEDT)
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.07436259|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.0822712-0.000765939-0.916963;FP=14487635230645126290|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033068005250;MF=hudson@cyzhu.com;NM=1;PH=DS;RN=3;RT=3;SR=0;TI=SMTPD_---.gsmlGyi_1773584869;
-Received: from HUDSONZHU-MB0.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.gsmlGyi_1773584869 cluster:ay29)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fYgYS5Kt1z2yYy
+	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 01:27:55 +1100 (AEDT)
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.07436259|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.00470827-0.000485787-0.994806;FP=9960638990053283063|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033040074035;MF=hudson@cyzhu.com;NM=1;PH=DS;RN=3;RT=3;SR=0;TI=SMTPD_---.gsmlGzT_1773584869;
+Received: from HUDSONZHU-MB0.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.gsmlGzT_1773584869 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Sun, 15 Mar 2026 22:27:49 +0800
+          Sun, 15 Mar 2026 22:27:50 +0800
 From: Chengyu <hudson@cyzhu.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: hsiangkao@linux.alibaba.com,
 	Chengyu Zhu <hudsonzhu@tencent.com>
-Subject: [PATCH 2/4] erofs-utils: mount: extract reusable source-opening and recovery helpers
-Date: Sun, 15 Mar 2026 22:27:43 +0800
-Message-ID: <20260315142745.56845-3-hudson@cyzhu.com>
+Subject: [PATCH 4/4] erofs-utils: mount: integrate ublk backend
+Date: Sun, 15 Mar 2026 22:27:45 +0800
+Message-ID: <20260315142745.56845-5-hudson@cyzhu.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20260315142745.56845-1-hudson@cyzhu.com>
 References: <20260315142745.56845-1-hudson@cyzhu.com>
@@ -55,327 +55,403 @@ Content-Transfer-Encoding: 8bit
 
 From: Chengyu Zhu <hudsonzhu@tencent.com>
 
-Factor out erofsmount_open_source() and erofsmount_open_recovery_source()
-helpers; introduce EROFSMOUNT_RUNDIR / EROFSMOUNT_NBD_REC_FMT macros.
+Wire up the ublk userspace block device backend into mount.erofs,
+providing an alternative to nbd for block device exposure.
 
 Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
 ---
- mount/main.c | 196 +++++++++++++++++++++++++--------------------------
- 1 file changed, 98 insertions(+), 98 deletions(-)
+ mount/main.c | 268 ++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 242 insertions(+), 26 deletions(-)
 
 diff --git a/mount/main.c b/mount/main.c
-index 350738d..93c8444 100644
+index 93c8444..be650f5 100644
 --- a/mount/main.c
 +++ b/mount/main.c
-@@ -41,6 +41,9 @@ struct loop_info {
- /* Device boundary probe */
- #define EROFSMOUNT_NBD_DISK_SIZE	(INT64_MAX >> 9)
+@@ -18,6 +18,7 @@
+ #include "../lib/liberofs_nbd.h"
+ #include "../lib/liberofs_oci.h"
+ #include "../lib/liberofs_gzran.h"
++#include "../lib/liberofs_ublk.h"
  
-+#define EROFSMOUNT_RUNDIR		"/var/run/erofs"
-+#define EROFSMOUNT_NBD_REC_FMT		EROFSMOUNT_RUNDIR "/mountnbd_nbd%d"
-+
+ #ifdef HAVE_LINUX_LOOP_H
+ #include <linux/loop.h>
+@@ -43,12 +44,14 @@ struct loop_info {
+ 
+ #define EROFSMOUNT_RUNDIR		"/var/run/erofs"
+ #define EROFSMOUNT_NBD_REC_FMT		EROFSMOUNT_RUNDIR "/mountnbd_nbd%d"
++#define EROFSMOUNT_UBLK_REC_FMT	EROFSMOUNT_RUNDIR "/mountublk_ublkb%d"
+ 
  enum erofs_backend_drv {
  	EROFSAUTO,
  	EROFSLOCAL,
-@@ -613,6 +616,25 @@ err_out:
- 	return err;
+ 	EROFSFUSE,
+ 	EROFSNBD,
++	EROFSUBLK,
+ };
+ 
+ enum erofsmount_mode {
+@@ -98,10 +101,10 @@ static void usage(int argc, char **argv)
+ 		" -d <0-9>              set output verbosity; 0=quiet, 9=verbose (default=%i)\n"
+ 		" -o options            comma-separated list of mount options\n"
+ 		" -t type[.subtype]     filesystem type (and optional subtype)\n"
+-		"                       subtypes: fuse, local, nbd\n"
++		"                       subtypes: fuse, local, nbd, ublk\n"
+ 		" -u                    unmount the filesystem\n"
+ 		"    --disconnect       abort an existing NBD device forcibly\n"
+-		"    --reattach         reattach to an existing NBD device\n"
++		"    --reattach         reattach to an existing NBD or ublk device\n"
+ #ifdef OCIEROFS_ENABLED
+ 		"\n"
+ 		"OCI-specific options (EXPERIMENTAL, with -o):\n"
+@@ -327,6 +330,8 @@ static int erofsmount_parse_options(int argc, char **argv)
+ 					mountcfg.backend = EROFSLOCAL;
+ 				} else if (!strcmp(dot + 1, "nbd")) {
+ 					mountcfg.backend = EROFSNBD;
++				} else if (!strcmp(dot + 1, "ublk")) {
++					mountcfg.backend = EROFSUBLK;
+ 				} else {
+ 					erofs_err("invalid filesystem subtype `%s`", dot + 1);
+ 					return -EINVAL;
+@@ -1136,11 +1141,30 @@ out_fork:
+ 	return num;
  }
  
-+static int erofsmount_open_source(struct erofs_vfile *vf,
-+				  struct erofsmount_source *source)
++static int erofsmount_ublk_handler(void *ctx, struct erofs_ublk_request *req)
 +{
-+	int err;
++	struct erofs_vfile *vf = ctx;
++	ssize_t ret;
 +
-+	if (source->type == EROFSMOUNT_SOURCE_OCI) {
-+		if (source->ocicfg.tarindex_path || source->ocicfg.zinfo_path)
-+			return erofsmount_tarindex_open(vf, &source->ocicfg,
-+							source->ocicfg.tarindex_path,
-+							source->ocicfg.zinfo_path);
-+		return ocierofs_io_open(vf, &source->ocicfg);
-+	}
-+	err = open(source->device_path, O_RDONLY);
-+	if (err < 0)
-+		return -errno;
-+	vf->fd = err;
++	if (req->op != EROFS_UBLK_OP_READ)
++		return -EOPNOTSUPP;
++
++	ret = erofs_io_pread(vf, req->buf, req->nr_sectors << 9,
++			     req->start_sector << 9);
++	if (ret < 0)
++		return (int)ret;
++
++	req->result = ret;
 +	return 0;
 +}
 +
- struct erofsmount_nbd_ctx {
- 	struct erofs_vfile vd;		/* virtual device */
- 	struct erofs_vfile sk;		/* socket file */
-@@ -671,26 +693,9 @@ static int erofsmount_startnbd(int nbdfd, struct erofsmount_source *source)
- 	pthread_t th;
- 	int err, err2;
- 
--	if (source->type == EROFSMOUNT_SOURCE_OCI) {
--		if (source->ocicfg.tarindex_path || source->ocicfg.zinfo_path) {
--			err = erofsmount_tarindex_open(&ctx.vd, &source->ocicfg,
--						       source->ocicfg.tarindex_path,
--						       source->ocicfg.zinfo_path);
--			if (err)
--				goto out_closefd;
--		} else {
--			err = ocierofs_io_open(&ctx.vd, &source->ocicfg);
--			if (err)
--				goto out_closefd;
--		}
--	} else {
--		err = open(source->device_path, O_RDONLY);
--		if (err < 0) {
--			err = -errno;
--			goto out_closefd;
--		}
--		ctx.vd.fd = err;
--	}
-+	err = erofsmount_open_source(&ctx.vd, source);
-+	if (err)
-+		goto out_closefd;
- 
- 	err = erofs_nbd_connect(nbdfd, 9, EROFSMOUNT_NBD_DISK_SIZE);
- 	if (err < 0) {
-@@ -797,13 +802,13 @@ static int erofsmount_write_recovery_local(FILE *f, struct erofsmount_source *so
- 
- static char *erofsmount_write_recovery_info(struct erofsmount_source *source)
- {
--	char recp[] = "/var/run/erofs/mountnbd_XXXXXX";
-+	char recp[] = EROFSMOUNT_RUNDIR "/mountnbd_XXXXXX";
- 	int fd, err;
- 	FILE *f;
- 
- 	fd = mkstemp(recp);
- 	if (fd < 0 && errno == ENOENT) {
--		err = mkdir("/var/run/erofs", 0700);
-+		err = mkdir(EROFSMOUNT_RUNDIR, 0700);
- 		if (err)
- 			return ERR_PTR(-errno);
- 		fd = mkstemp(recp);
-@@ -945,7 +950,7 @@ static int erofsmount_reattach_oci(struct erofs_vfile *vf,
- }
- #endif
- 
--static int erofsmount_reattach_gzran_oci(struct erofsmount_nbd_ctx *ctx,
-+static int erofsmount_reattach_gzran_oci(struct erofs_vfile *vd,
- 					 char *source)
- {
- 	char *tokens[6] = {0}, *p = source, *space, *oci_source;
-@@ -975,12 +980,12 @@ static int erofsmount_reattach_gzran_oci(struct erofsmount_nbd_ctx *ctx,
- 	if (err < 0)
- 		return -ENOMEM;
- 
--	err = erofsmount_reattach_oci(&ctx->vd, "OCI_NATIVE_BLOB", oci_source);
-+	err = erofsmount_reattach_oci(vd, "OCI_NATIVE_BLOB", oci_source);
- 	free(oci_source);
- 	if (err)
- 		return err;
- 
--	temp_vd = ctx->vd;
-+	temp_vd = *vd;
- 	oci_cfg.image_ref = strdup(source);
- 	if (!oci_cfg.image_ref) {
- 		erofs_io_close(&temp_vd);
-@@ -992,13 +997,60 @@ static int erofsmount_reattach_gzran_oci(struct erofsmount_nbd_ctx *ctx,
- 	if (token_count > 4 && tokens[4] && *tokens[4])
- 		zinfo_path = tokens[4];
- 
--	err = erofsmount_tarindex_open(&ctx->vd, &oci_cfg,
-+	err = erofsmount_tarindex_open(vd, &oci_cfg,
- 				       meta_path, zinfo_path);
- 	free(oci_cfg.image_ref);
- 	erofs_io_close(&temp_vd);
- 	return err;
- }
- 
-+static int erofsmount_open_recovery_source(FILE *f,
-+					   struct erofs_vfile *vd)
-+{
-+	char *line = NULL, *source;
-+	size_t n = 0;
-+	int err;
-+
-+	err = getline(&line, &n, f);
-+	if (err <= 0) {
-+		err = -errno;
-+		fclose(f);
-+		goto out;
-+	}
-+	fclose(f);
-+	if (err && line[err - 1] == '\n')
-+		line[err - 1] = '\0';
-+
-+	source = strchr(line, ' ');
-+	if (!source) {
-+		erofs_err("invalid source in recovery file: %s", line);
-+		err = -EINVAL;
-+		goto out;
-+	}
-+	*(source++) = '\0';
-+
-+	if (!strcmp(line, "LOCAL")) {
-+		err = open(source, O_RDONLY);
-+		if (err < 0) {
-+			err = -errno;
-+			goto out;
-+		}
-+		vd->fd = err;
-+		err = 0;
-+	} else if (!strcmp(line, "TARINDEX_OCI_BLOB")) {
-+		err = erofsmount_reattach_gzran_oci(vd, source);
-+	} else if (!strcmp(line, "OCI_LAYER") || !strcmp(line, "OCI_NATIVE_BLOB")) {
-+		err = erofsmount_reattach_oci(vd, line, source);
-+	} else {
-+		erofs_err("unsupported source type %s in recovery file",
-+			  line);
-+		err = -EOPNOTSUPP;
-+	}
-+out:
-+	free(line);
-+	return err;
-+}
-+
- static int erofsmount_nbd_fix_backend_linkage(int num, char **recp)
- {
- 	char *newrecp;
-@@ -1013,7 +1065,7 @@ static int erofsmount_nbd_fix_backend_linkage(int num, char **recp)
- 		return err;
- 	}
- 
--	if (asprintf(&newrecp, "/var/run/erofs/mountnbd_nbd%d", num) <= 0)
-+	if (asprintf(&newrecp, EROFSMOUNT_NBD_REC_FMT, num) <= 0)
- 		return -ENOMEM;
- 
- 	if (rename(*recp, newrecp) < 0) {
-@@ -1042,24 +1094,9 @@ static int erofsmount_startnbd_nl(pid_t *pid, struct erofsmount_source *source)
- 		if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
- 			exit(EXIT_FAILURE);
- 
--		if (source->type == EROFSMOUNT_SOURCE_OCI) {
--			if (source->ocicfg.tarindex_path || source->ocicfg.zinfo_path) {
--				err = erofsmount_tarindex_open(&ctx.vd, &source->ocicfg,
--							       source->ocicfg.tarindex_path,
--							       source->ocicfg.zinfo_path);
--				if (err)
--					exit(EXIT_FAILURE);
--			} else {
--				err = ocierofs_io_open(&ctx.vd, &source->ocicfg);
--				if (err)
--					exit(EXIT_FAILURE);
--			}
--		} else {
--			err = open(source->device_path, O_RDONLY);
--			if (err < 0)
--				exit(EXIT_FAILURE);
--			ctx.vd.fd = err;
--		}
-+		err = erofsmount_open_source(&ctx.vd, source);
-+		if (err)
-+			exit(EXIT_FAILURE);
- 		recp = erofsmount_write_recovery_info(source);
- 		if (IS_ERR(recp)) {
- 			erofs_io_close(&ctx.vd);
-@@ -1101,11 +1138,10 @@ out_fork:
- 
  static int erofsmount_reattach(const char *target)
  {
--	char *identifier, *line, *source, *recp = NULL;
-+	char *identifier;
+-	char *identifier;
  	struct erofsmount_nbd_ctx ctx = {};
- 	int nbdnum, err;
+-	int nbdnum, err;
++	char *identifier = NULL;
++	char ublk_recp[64];
++	int ublk_dev_id = -1;
++	int nbdnum = -1, err;
  	struct stat st;
--	size_t n;
  	FILE *f;
  
- 	err = lstat(target, &st);
-@@ -1126,65 +1162,31 @@ static int erofsmount_reattach(const char *target)
- 		identifier = NULL;
+@@ -1148,7 +1172,48 @@ static int erofsmount_reattach(const char *target)
+ 	if (err < 0)
+ 		return -errno;
+ 
+-	if (!S_ISBLK(st.st_mode) || major(st.st_rdev) != EROFS_NBD_MAJOR)
++	if (!S_ISBLK(st.st_mode))
++		return -ENOTBLK;
++
++	if (sscanf(target, "/dev/ublkb%d", &ublk_dev_id) == 1) {
++		if (!erofs_ublk_is_recoverable(ublk_dev_id)) {
++			erofs_err("ublk device %d is not recoverable",
++				  ublk_dev_id);
++			return -ENODEV;
++		}
++		snprintf(ublk_recp, sizeof(ublk_recp),
++			 EROFSMOUNT_UBLK_REC_FMT, ublk_dev_id);
++		f = fopen(ublk_recp, "r");
++		if (!f) {
++			erofs_err("cannot open recovery file %s: %s",
++				  ublk_recp, strerror(errno));
++			return -errno;
++		}
++		err = erofsmount_open_recovery_source(f, &ctx.vd);
++		if (err)
++			return err;
++		if (fork() == 0) {
++			if (erofs_ublk_init() < 0)
++				exit(EXIT_FAILURE);
++			err = erofs_ublk_recover_dev(ublk_dev_id,
++						     erofsmount_ublk_handler,
++						     &ctx.vd);
++			if (err) {
++				erofs_err("erofs_ublk_recover_dev: %s",
++					  strerror(-err));
++				exit(EXIT_FAILURE);
++			}
++			erofs_ublk_start(ublk_dev_id, -1);
++			unlink(ublk_recp);
++			erofs_ublk_destroy(ublk_dev_id);
++			erofs_io_close(&ctx.vd);
++			exit(EXIT_SUCCESS);
++		}
++		erofs_io_close(&ctx.vd);
++		return 0;
++	}
++
++	if (major(st.st_rdev) != EROFS_NBD_MAJOR)
+ 		return -ENOTBLK;
+ 
+ 	nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+@@ -1165,7 +1230,8 @@ static int erofsmount_reattach(const char *target)
+ 	if (!identifier) {
+ 		char *recp;
+ 
+-		if (asprintf(&recp, EROFSMOUNT_NBD_REC_FMT, nbdnum) <= 0) {
++		if (asprintf(&recp, EROFSMOUNT_NBD_REC_FMT,
++			     nbdnum) <= 0) {
+ 			err = -ENOMEM;
+ 			goto err_out;
+ 		}
+@@ -1342,6 +1408,131 @@ out_err:
+ 	return -errno;
+ }
+ 
++static int erofsmount_ublk(struct erofsmount_source *source,
++			   const char *mountpoint, const char *fstype,
++			   int flags, const char *options)
++{
++	int pipefd[2];
++	char dev_path[64];
++	pid_t pid;
++	int dev_id, err;
++	char ready;
++
++	err = erofs_ublk_init();
++	if (err) {
++		erofs_err("ublk not supported");
++		return err;
++	}
++
++	if (pipe(pipefd) < 0)
++		return -errno;
++
++	pid = fork();
++	if (pid < 0) {
++		close(pipefd[0]);
++		close(pipefd[1]);
++		return -errno;
++	}
++
++	if (pid == 0) {
++		struct erofs_vfile vf = {};
++		struct erofs_ublk_dev_info info = {};
++		char ublk_recp[64], *recp;
++		struct stat st;
++
++		close(pipefd[0]);
++
++		err = erofsmount_open_source(&vf, source);
++		if (err)
++			exit(EXIT_FAILURE);
++
++		info.nr_hw_queues = 1;
++		info.queue_depth = 64;
++		info.max_io_buf_bytes = 65536;
++		info.dev_id = -1;
++		info.blkbits = 12;
++		info.flags = EROFS_UBLK_F_USER_RECOVERY;
++
++		if (source->type == EROFSMOUNT_SOURCE_LOCAL &&
++		    fstat(vf.fd, &st) == 0)
++			info.dev_size = st.st_size;
++		else
++			info.dev_size = INT64_MAX;
++
++		dev_id = erofs_ublk_create_dev(&info,
++				erofsmount_ublk_handler, &vf);
++		if (dev_id < 0) {
++			erofs_err("erofs_ublk_create_dev failed: %s",
++				  strerror(-dev_id));
++			exit(EXIT_FAILURE);
++		}
++
++		snprintf(ublk_recp, sizeof(ublk_recp),
++			 EROFSMOUNT_UBLK_REC_FMT, dev_id);
++		recp = erofsmount_write_recovery_info(source);
++		if (IS_ERR(recp)) {
++			erofs_err("write_recovery_info: %s",
++				  strerror(-(int)PTR_ERR(recp)));
++		} else {
++			if (rename(recp, ublk_recp))
++				erofs_err("rename recovery: %s",
++					  strerror(errno));
++			free(recp);
++		}
++
++		if (write(pipefd[1], &dev_id,
++			  sizeof(dev_id)) != sizeof(dev_id))
++			exit(EXIT_FAILURE);
++
++		err = erofs_ublk_start(dev_id, pipefd[1]);
++		if (err)
++			erofs_err("erofs_ublk_start: %s",
++				  strerror(-err));
++
++		unlink(ublk_recp);
++		erofs_ublk_destroy(dev_id);
++		if (vf.fd > 0)
++			close(vf.fd);
++		exit(EXIT_SUCCESS);
++	}
++
++	close(pipefd[1]);
++	if (read(pipefd[0], &dev_id, sizeof(dev_id)) !=
++	    sizeof(dev_id)) {
++		waitpid(pid, NULL, 0);
++		close(pipefd[0]);
++		return -EIO;
++	}
++
++	snprintf(dev_path, sizeof(dev_path),
++		 "/dev/ublkb%d", dev_id);
++
++	if (read(pipefd[0], &ready, 1) != 1) {
++		waitpid(pid, NULL, 0);
++		close(pipefd[0]);
++		return -EIO;
++	}
++	close(pipefd[0]);
++
++	err = mount(dev_path, mountpoint, fstype, flags, options);
++	if (err < 0) {
++		err = -errno;
++		kill(pid, SIGTERM);
++		waitpid(pid, NULL, 0);
++		return err;
++	}
++	return 0;
++}
++
++static int ublk_dev_id_from_path(const char *path)
++{
++	int dev_id;
++
++	if (sscanf(path, "/dev/ublkb%d", &dev_id) == 1)
++		return dev_id;
++	return -1;
++}
++
+ int erofsmount_umount(char *target)
+ {
+ 	char *device = NULL, *mountpoint = NULL;
+@@ -1379,7 +1570,7 @@ int erofsmount_umount(char *target)
+ 
+ 	for (s = NULL; (getline(&s, &n, mounts)) > 0;) {
+ 		bool hit = false;
+-		char *f1, *f2, *end;
++		char *f1, *f2 = NULL, *end;
+ 
+ 		f1 = s;
+ 		end = strchr(f1, ' ');
+@@ -1396,31 +1587,48 @@ int erofsmount_umount(char *target)
+ 				hit = true;
+ 		}
+ 		if (hit) {
+-			if (isblk) {
+-				err = -EBUSY;
+-				free(s);
+-				fclose(mounts);
+-				goto err_out;
+-			}
+ 			free(device);
+ 			device = strdup(f1);
+-			if (!mountpoint)
+-				mountpoint = strdup(f2);
++			free(mountpoint);
++			mountpoint = f2 ? strdup(f2) : NULL;
+ 		}
  	}
- 
--	if (!identifier &&
--	    (asprintf(&recp, "/var/run/erofs/mountnbd_nbd%d", nbdnum) <= 0)) {
--		err = -ENOMEM;
--		goto err_identifier;
--	}
-+	if (!identifier) {
-+		char *recp;
- 
--	f = fopen(identifier ?: recp, "r");
--	if (!f) {
--		err = -errno;
-+		if (asprintf(&recp, EROFSMOUNT_NBD_REC_FMT, nbdnum) <= 0) {
-+			err = -ENOMEM;
+ 	free(s);
+ 	fclose(mounts);
++
++	if (isblk && !device) {
++		if (S_ISBLK(st.st_mode) && major(st.st_rdev) == EROFS_NBD_MAJOR) {
++			nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
++			err = erofs_nbd_nl_disconnect(nbdnum);
++			if (err != -EOPNOTSUPP)
++				goto err_out;
++		}
++		err = ublk_dev_id_from_path(target);
++		if (err >= 0) {
++			err = erofs_ublk_del_dev_by_id(err);
 +			goto err_out;
 +		}
-+		f = fopen(recp, "r");
- 		free(recp);
--		goto err_identifier;
-+	} else {
-+		f = fopen(identifier, "r");
++		err = -ENOENT;
++		goto err_out;
++	}
++
+ 	if (!isblk && !device) {
+ 		err = -ENOENT;
+ 		goto err_out;
  	}
--	free(recp);
--
--	line = NULL;
--	if ((err = getline(&line, &n, f)) <= 0) {
-+	if (!f) {
+ 
+-	if (isblk && !mountpoint &&
+-	    S_ISBLK(st.st_mode) && major(st.st_rdev) == EROFS_NBD_MAJOR) {
+-		nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+-		err = erofs_nbd_nl_disconnect(nbdnum);
+-		if (err != -EOPNOTSUPP)
+-			return err;
++	err = ublk_dev_id_from_path(device);
++	if (err >= 0) {
++		if (mountpoint) {
++			int ret = umount(mountpoint);
++
++			if (ret) {
++				err = -errno;
++				goto err_out;
++			}
++		}
++		err = erofs_ublk_del_dev_by_id(err);
++		goto err_out;
+ 	}
+ 
+ 	/* Avoid TOCTOU issue with NBD_CFLAG_DISCONNECT_ON_CLOSE */
+@@ -1438,15 +1646,16 @@ int erofsmount_umount(char *target)
+ 		}
+ 	}
+ 	err = fstat(fd, &st);
+-	if (err < 0)
++	if (err < 0) {
  		err = -errno;
--		fclose(f);
--		goto err_identifier;
--	}
--	fclose(f);
--	if (err && line[err - 1] == '\n')
--		line[err - 1] = '\0';
--
--	source = strchr(line, ' ');
--	if (!source) {
--		erofs_err("invalid source recorded in recovery file: %s", line);
--		err = -EINVAL;
--		goto err_line;
--	} else {
--		*(source++) = '\0';
-+		goto err_out;
+-	else if (S_ISBLK(st.st_mode) && major(st.st_rdev) == EROFS_NBD_MAJOR) {
++	} else if (S_ISBLK(st.st_mode) && major(st.st_rdev) == EROFS_NBD_MAJOR) {
+ 		nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+ 		err = erofs_nbd_nl_disconnect(nbdnum);
+ 		if (err == -EOPNOTSUPP)
+ 			err = erofs_nbd_disconnect(fd);
+ 	}
+ 	close(fd);
++
+ err_out:
+ 	free(device);
+ 	free(mountpoint);
+@@ -1523,13 +1732,20 @@ int main(int argc, char *argv[])
+ 		goto exit;
  	}
  
--	if (!strcmp(line, "LOCAL")) {
--		err = open(source, O_RDONLY);
--		if (err < 0) {
--			err = -errno;
--			goto err_line;
--		}
--		ctx.vd.fd = err;
--	} else if (!strcmp(line, "TARINDEX_OCI_BLOB")) {
--		err = erofsmount_reattach_gzran_oci(&ctx, source);
--		if (err)
--			goto err_line;
--	} else if (!strcmp(line, "OCI_LAYER") || !strcmp(line, "OCI_NATIVE_BLOB")) {
--		err = erofsmount_reattach_oci(&ctx.vd, line, source);
--		if (err)
--			goto err_line;
--	} else {
--		err = -EOPNOTSUPP;
--		erofs_err("unsupported source type %s recorded in recovery file", line);
--		goto err_line;
--	}
-+	err = erofsmount_open_recovery_source(f, &ctx.vd);
-+	if (err)
-+		goto err_out;
- 
- 	err = erofs_nbd_nl_reconnect(nbdnum, identifier);
- 	if (err >= 0) {
- 		ctx.sk.fd = err;
- 		if (fork() == 0) {
--			free(line);
- 			free(identifier);
- 			if ((uintptr_t)erofsmount_nbd_loopfn(&ctx))
- 				return EXIT_FAILURE;
-@@ -1194,9 +1196,7 @@ static int erofsmount_reattach(const char *target)
- 		err = 0;
+-	if (mountcfg.backend == EROFSNBD) {
++	if (mountcfg.backend == EROFSNBD || mountcfg.backend == EROFSUBLK) {
+ 		if (mountsrc.type == EROFSMOUNT_SOURCE_OCI)
+ 			mountsrc.ocicfg.image_ref = mountcfg.device;
+ 		else
+ 			mountsrc.device_path = mountcfg.device;
+-		err = erofsmount_nbd(&mountsrc, mountcfg.target,
+-				     mountcfg.fstype, mountcfg.flags, mountcfg.options);
++
++		if (mountcfg.backend == EROFSNBD)
++			err = erofsmount_nbd(&mountsrc, mountcfg.target,
++					     mountcfg.fstype, mountcfg.flags,
++					     mountcfg.options);
++		else
++			err = erofsmount_ublk(&mountsrc, mountcfg.target,
++					      mountcfg.fstype, mountcfg.flags,
++					      mountcfg.options);
+ 		goto exit;
  	}
- 	erofs_io_close(&ctx.vd);
--err_line:
--	free(line);
--err_identifier:
-+err_out:
- 	free(identifier);
- 	return err;
- }
+ 
 -- 
 2.47.1
 
