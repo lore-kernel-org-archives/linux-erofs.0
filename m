@@ -1,86 +1,45 @@
-Return-Path: <linux-erofs+bounces-2701-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2702-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6359AF30268
-	for <linux-erofs@archiver.kernel.org>; Sun, 15 Mar 2026 14:22:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C20EF3026D
+	for <linux-erofs@archiver.kernel.org>; Sun, 15 Mar 2026 14:28:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fYgRg62FJz2yYy;
-	Mon, 16 Mar 2026 01:22:55 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::52d"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773584575;
-	cv=none; b=U85aXsOOItjSaWr6N3OAlGdZQt8f6VqrJyjBVF066J9DHnuQRsriuZG9WCt+dOGKkwI3gYZZcF+DDCD6kmnQwKFxm7Km6+deuSPQesIfejtdSuOb1+ObyN/z1sc67Ir19zDngbTj0IiN/iJ1TCh6h4qYVoK/C/J3gVxBCjPrdOUKXPOiamGl6I11elQu7uPdMq9R/FCTnwyEveTSt6WixO7Khhvofu7EbCgimVWl8H9BA3tUOlVQFXAiDP5wWdA4BM6ZL1jbkTZp3ZYhRUlaL6SgHNvJxwefWwRAbt46pmMFf0uF06HrVVP1HLAxTsi4IAiZdVLfCJT8haGHX3uH/w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fYgYV6pWLz2yZ6;
+	Mon, 16 Mar 2026 01:27:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.55
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773584878;
+	cv=none; b=NNRMjyctuzxKwjTVV5vS4KHkA5OWtpR7KssKcd9syJffz2Xo7IJDD2U3efongzdngrda/jmDEByB0Dww6zkAHGD37DYp/wPaTSSGdIMHgJ5PeHB9XyLvaVqJx14SfXfrf99omdz13lzhKSSVDbdSxxUywwFvNzSYPj/Q2P983KU+a8qX7SgWpcAYtDuKa/zTi7dgEp4PLrOQVV1SC8eSES1iGVfhHRNy13a6HNId17ulBAZTBXWHPQrNWhlNTLm8D/6eDvnt4quIKi3S8MKU/3tHCE2s6QaY5MSHPIoqRklBw/3T47kfQETgLDeX62roZtKY0VpbGozU3zYELQlrpg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773584575; c=relaxed/relaxed;
-	bh=pwDxGn+TR2Rti8jywkKKBwuviyHYJFzZemsOQcG8ll4=;
+	t=1773584878; c=relaxed/relaxed;
+	bh=LQOx7jCZcdxUizBOr0bONoTjggb8r5D8dmuCbSaJ7oo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dldUiAO9NEO4+dQmMFteBF1wOYVIIAW5Y+8V6v6Vw6LF/oZ6pFNx37SW9VPZCG5TEYXP6ip3wOprEskpmzx6y+exyrNuz8UMp0LegeYyB9WkpnQ94b6Ex1MoQTdQRLvrCCgLd0F+mu3nu+18r43HDvvdZ4jq+6Cn8T+EkzN1Fx2KSRnRySz+xpo78n2OtXkPTekYnmIUKTGTo8sPZ+7YMF4Ogh6hoNX0YwkIQCUMmND2UhiT1Ogfi54U75+gxZbRK7BGJ3LqD0ksu5DpUqiewGTomD7d5TifY70b87p2zZOm25aQJygGpDxl6V4ecKSYcUnoVFjuCN9O77HJssPSeg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=MyF0Qg8h; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::52d; helo=mail-pg1-x52d.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=MyF0Qg8h;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::52d; helo=mail-pg1-x52d.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+	 MIME-Version; b=RvR8nloark9DYN3cwHbPWUmVlpi5niKI30WDff2s1zYs3yLAUsHjLNwtl7VnF2LDE7e6dp7Qw5ojRmztk5R6Y3UVh3VQ6jMFP/LvteFNtisVlNg5TETaL6jh2sv7iGxbeQ1lTKDo/OooFELdwjO/8EJbM8hJy1BD9NElbrFwZqL6jC75pOdNyG02VuqBZ8z1m1xHAfHkoAOPB9wN0zv1CqhZqLcP9GtL712aB9i6jUo7fMzDViVSrL+Q/W0Byf/GaCESmJuonhF6xjjbvAJ/vK1T746RCGEdsEDtqd3IM6IxRPjALXnB149JL1+YpeoXwuQxMCxdI2Dn0EhKgSv43g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com; spf=pass (client-ip=115.124.28.55; helo=out28-55.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyzhu.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=cyzhu.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyzhu.com (client-ip=115.124.28.55; helo=out28-55.mail.aliyun.com; envelope-from=hudson@cyzhu.com; receiver=lists.ozlabs.org)
+Received: from out28-55.mail.aliyun.com (out28-55.mail.aliyun.com [115.124.28.55])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fYgRg1BtGz2xlM
-	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 01:22:55 +1100 (AEDT)
-Received: by mail-pg1-x52d.google.com with SMTP id 41be03b00d2f7-c73874b3ae2so122620a12.3
-        for <linux-erofs@lists.ozlabs.org>; Sun, 15 Mar 2026 07:22:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773584573; x=1774189373; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pwDxGn+TR2Rti8jywkKKBwuviyHYJFzZemsOQcG8ll4=;
-        b=MyF0Qg8hZyJNj3M45KnDTKlhnCMrhybGmlv8M0FCUg1dv6X0XKpu4WEn6JlTFP6HaD
-         xJDCLMUYKjiyFAHRqHBNETF+ljhZOaeSQAKMvy6esBFE3MnIPfgoV9EfBazNeuS/9Bx8
-         pqxugkUWxJEufSVBi8iQAiyVN+i0Xd9rnAR/u0Z/6XO5yUtp4LKgs2CRtpCijwsZeNfQ
-         MWB5NTIJ2hVrgbxRGpWfdZ5ax/cd3x6I1DPJIuf4KjEeBC/oIjmMVg1x4Zp7WeTgrCAI
-         5cjDm01V/B2bcXuLHi0Sj9AxBE5Mv4UDTzjSAvx1jXf45t5+Fw55WsZC57R6jSbLoj40
-         4lQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773584573; x=1774189373;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pwDxGn+TR2Rti8jywkKKBwuviyHYJFzZemsOQcG8ll4=;
-        b=Nkulh59y8OPtGLZDPWHqdOgJNKUDTvd+NicJyvnSbEH0g+iKB0+KChkfAOXt+oApaf
-         VoDetoJNBLqc+vDB/vDlN4ATuQLb3clh3NwkfREJL7X6j74DX2PeANAoeNQ2UDy2em2M
-         TbXjPXdzv0G1g+dsGCihtuNdj4w4zhoX6X4OIuO9Ov36jprXsXR2YyVjADfVppFOuIAD
-         ppBjbrQsmlipjzVmrMlkoRMT/a6bei6BZOV+9D3g7p1nJFwkCc7GlWH7X8rAPGjk0W0l
-         yA0ayGyApp/w6XnhP6/QtP2h9rXmgsrVd2HIdNYnOWZ/Eg6XzXoSE1bTPoax1vVpcGyC
-         8ceQ==
-X-Gm-Message-State: AOJu0Yyy32MSkmLaaJtecwOE5+Z4ozVdP+v13kpFjASbp6LLW6Rv0y7C
-	DohjKf6jp+Yf9qAnyl4cdC2rvTbhpXmBQxlHEB0wF7c7cmdT1Bdw5jMsj6dv1vQU
-X-Gm-Gg: ATEYQzzkH+YF0y6vs87yh77t4OOWsGdqajlGSEP3A3xnJR6DHWrNAGi1FY6KZMRPCyE
-	IHgbtp8xo8hz31VPgJagIU7A98oulnt9lI0h8puITp8qTeoze0o/6Lm/KHZT7TFRYIT4FOirf4H
-	8YK1oFllYjQP+6wQDG3eP142tVSiZ1l/IlPjAxXpH+9C47I3pp9jDuvMUeT9OflajUiKiYoxfS9
-	OGXF+neiBocCXcX9ISRufY0SEWQbjKSIAMfEI1Un59Wd9ehuP7rQPfxZdg+KP1IP4yzXngW7bs0
-	IroZp6mWiWR8nSogGLh7yILKB+lJ5ENIJOit8vmXZSEQUb1XLb1fImt5MWQTEbV4JqdOOA/jd6L
-	3qeutNDzmXzNcAD8/KBU/sGdBySOzaZ2AnmR0sv9aBHWvP7X4znXqXNpD0NY2RrLptLlNi078AS
-	lEA2TlRm81TF57G67ep7t9DKzN13EhnW6X5tJjwZ+a6GHQHdiW2pXmlT9Ch9zLJbIwGpv10GzeI
-	uZCd48Sbux/NiLWT7ZlaNxxOvn++tW6sdDo
-X-Received: by 2002:a05:6a00:1992:b0:7ab:32fb:98b0 with SMTP id d2e1a72fcca58-82a198a5cd9mr5882707b3a.4.1773584572771;
-        Sun, 15 Mar 2026 07:22:52 -0700 (PDT)
-Received: from DESKTOP-PU4IGQQ.localdomain ([112.196.126.3])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a072414f8sm10879640b3a.4.2026.03.15.07.22.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 07:22:52 -0700 (PDT)
-From: Utkal Singh <singhutkal015@gmail.com>
-To: hsiangkao@linux.alibaba.com
-Cc: linux-erofs@lists.ozlabs.org,
-	Utkal Singh <singhutkal015@gmail.com>
-Subject: [PATCH v2] erofs-utils: lib: validate algorithm for encoded extents
-Date: Sun, 15 Mar 2026 14:22:49 +0000
-Message-ID: <20260315142249.4333-1-singhutkal015@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260315072806.17504-1-singhutkal015@gmail.com>
-References: <20260315072806.17504-1-singhutkal015@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fYgYS5B4Mz2xlM
+	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 01:27:55 +1100 (AEDT)
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.07436259|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.0512903-0.000417864-0.948292;FP=11402946485420000946|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037032089;MF=hudson@cyzhu.com;NM=1;PH=DS;RN=3;RT=3;SR=0;TI=SMTPD_---.gsmlGyN_1773584868;
+Received: from HUDSONZHU-MB0.tencent.com(mailfrom:hudson@cyzhu.com fp:SMTPD_---.gsmlGyN_1773584868 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Sun, 15 Mar 2026 22:27:48 +0800
+From: Chengyu <hudson@cyzhu.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: hsiangkao@linux.alibaba.com,
+	Chengyu Zhu <hudsonzhu@tencent.com>
+Subject: [PATCH 1/4] erofs-utils: mount: generalize nbd source types for multi-backend support
+Date: Sun, 15 Mar 2026 22:27:42 +0800
+Message-ID: <20260315142745.56845-2-hudson@cyzhu.com>
+X-Mailer: git-send-email 2.47.1
+In-Reply-To: <20260315142745.56845-1-hudson@cyzhu.com>
+References: <20260315142745.56845-1-hudson@cyzhu.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,44 +53,184 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Encoded extents use fmt field as algorithm index without checking
-available_compr_algs bitmask. The non-encoded path already has this
-check but the encoded extent path in z_erofs_map_blocks_ext() was
-missing equivalent validation.
+From: Chengyu Zhu <hudsonzhu@tencent.com>
 
-Add available_compr_algs consistency check for encoded extents,
-following kernel commit 131897c65e2b.
+Rename nbd-specific source type names to generic mount-level names in
+preparation for adding ublk backend support.
 
-Signed-off-by: Utkal Singh <singhutkal015@gmail.com>
+Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
 ---
- lib/zmap.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ mount/main.c | 52 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/lib/zmap.c b/lib/zmap.c
-index 0e7af4e..a8d1ca6 100644
---- a/lib/zmap.c
-+++ b/lib/zmap.c
-@@ -630,8 +630,17 @@ static int z_erofs_map_blocks_ext(struct erofs_inode *vi,
- 			if (map->m_plen & Z_EROFS_EXTENT_PLEN_PARTIAL)
- 				map->m_flags |= EROFS_MAP_PARTIAL_REF;
- 			map->m_plen &= Z_EROFS_EXTENT_PLEN_MASK;
--			if (fmt)
--				map->m_algorithmformat = fmt - 1;
-+			if (fmt) {
-+				unsigned int afmt = fmt - 1;
-+
-+				if (afmt >= Z_EROFS_COMPRESSION_MAX ||
-+				    !(sbi->available_compr_algs & (1 << afmt))) {
-+					erofs_err("unknown algorithm %u for encoded extent, nid %llu",
-+						  afmt, vi->nid | 0ULL);
-+					return -EOPNOTSUPP;
-+				}
-+				map->m_algorithmformat = afmt;
-+			}
- 			else if (interlaced && !((map->m_pa | map->m_plen) & bmask))
- 				map->m_algorithmformat =
- 					Z_EROFS_COMPRESSION_INTERLACED;
+diff --git a/mount/main.c b/mount/main.c
+index 3ef4e9c..350738d 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -71,18 +71,18 @@ static struct erofsmount_cfg {
+ 	.fstype = "erofs",
+ };
+ 
+-enum erofs_nbd_source_type {
+-	EROFSNBD_SOURCE_LOCAL,
+-	EROFSNBD_SOURCE_OCI,
++enum erofsmount_source_type {
++	EROFSMOUNT_SOURCE_LOCAL,
++	EROFSMOUNT_SOURCE_OCI,
+ };
+ 
+-static struct erofs_nbd_source {
+-	enum erofs_nbd_source_type type;
++static struct erofsmount_source {
++	enum erofsmount_source_type type;
+ 	union {
+ 		const char *device_path;
+ 		struct ocierofs_config ocicfg;
+ 	};
+-} nbdsrc;
++} mountsrc;
+ 
+ static void usage(int argc, char **argv)
+ {
+@@ -122,7 +122,7 @@ static void version(void)
+ #ifdef OCIEROFS_ENABLED
+ static int erofsmount_parse_oci_option(const char *option)
+ {
+-	struct ocierofs_config *oci_cfg = &nbdsrc.ocicfg;
++	struct ocierofs_config *oci_cfg = &mountsrc.ocicfg;
+ 	const char *p;
+ 	long idx;
+ 
+@@ -229,12 +229,12 @@ static long erofsmount_parse_flagopts(char *s, long flags, char **more)
+ 		if (!strcmp(s, "loop")) {
+ 			mountcfg.force_loopdev = true;
+ 		} else if (strncmp(s, "oci", 3) == 0) {
+-			/* Initialize ocicfg here iff != EROFSNBD_SOURCE_OCI */
+-			if (nbdsrc.type != EROFSNBD_SOURCE_OCI) {
++			/* Initialize ocicfg here iff != EROFSMOUNT_SOURCE_OCI */
++			if (mountsrc.type != EROFSMOUNT_SOURCE_OCI) {
+ 				erofs_warn("EXPERIMENTAL OCI mount support in use, use at your own risk.");
+ 				erofs_warn("Note that runtime performance is still unoptimized.");
+-				nbdsrc.type = EROFSNBD_SOURCE_OCI;
+-				nbdsrc.ocicfg.layer_index = -1;
++				mountsrc.type = EROFSMOUNT_SOURCE_OCI;
++				mountsrc.ocicfg.layer_index = -1;
+ 			}
+ 			err = erofsmount_parse_oci_option(s);
+ 			if (err < 0)
+@@ -288,7 +288,7 @@ static int erofsmount_parse_options(int argc, char **argv)
+ 	int opt;
+ 	int i;
+ 
+-	nbdsrc.ocicfg.layer_index = -1;
++	mountsrc.ocicfg.layer_index = -1;
+ 
+ 	while ((opt = getopt_long(argc, argv, "VNfhd:no:st:uv",
+ 				  long_options, NULL)) != -1) {
+@@ -664,14 +664,14 @@ out:
+ 	return (void *)(uintptr_t)err;
+ }
+ 
+-static int erofsmount_startnbd(int nbdfd, struct erofs_nbd_source *source)
++static int erofsmount_startnbd(int nbdfd, struct erofsmount_source *source)
+ {
+ 	struct erofsmount_nbd_ctx ctx = {};
+ 	uintptr_t retcode;
+ 	pthread_t th;
+ 	int err, err2;
+ 
+-	if (source->type == EROFSNBD_SOURCE_OCI) {
++	if (source->type == EROFSMOUNT_SOURCE_OCI) {
+ 		if (source->ocicfg.tarindex_path || source->ocicfg.zinfo_path) {
+ 			err = erofsmount_tarindex_open(&ctx.vd, &source->ocicfg,
+ 						       source->ocicfg.tarindex_path,
+@@ -720,7 +720,7 @@ out_closefd:
+ }
+ 
+ #ifdef OCIEROFS_ENABLED
+-static int erofsmount_write_recovery_oci(FILE *f, struct erofs_nbd_source *source)
++static int erofsmount_write_recovery_oci(FILE *f, struct erofsmount_source *source)
+ {
+ 	char *b64cred = NULL;
+ 	const char *platform;
+@@ -774,13 +774,13 @@ static int erofsmount_write_recovery_oci(FILE *f, struct erofs_nbd_source *sourc
+ 	return -EINVAL;
+ }
+ #else
+-static int erofsmount_write_recovery_oci(FILE *f, struct erofs_nbd_source *source)
++static int erofsmount_write_recovery_oci(FILE *f, struct erofsmount_source *source)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ #endif
+ 
+-static int erofsmount_write_recovery_local(FILE *f, struct erofs_nbd_source *source)
++static int erofsmount_write_recovery_local(FILE *f, struct erofsmount_source *source)
+ {
+ 	char *realp;
+ 	int err;
+@@ -795,7 +795,7 @@ static int erofsmount_write_recovery_local(FILE *f, struct erofs_nbd_source *sou
+ 	return err ? -ENOMEM : 0;
+ }
+ 
+-static char *erofsmount_write_recovery_info(struct erofs_nbd_source *source)
++static char *erofsmount_write_recovery_info(struct erofsmount_source *source)
+ {
+ 	char recp[] = "/var/run/erofs/mountnbd_XXXXXX";
+ 	int fd, err;
+@@ -817,7 +817,7 @@ static char *erofsmount_write_recovery_info(struct erofs_nbd_source *source)
+ 		return ERR_PTR(-errno);
+ 	}
+ 
+-	if (source->type == EROFSNBD_SOURCE_OCI)
++	if (source->type == EROFSMOUNT_SOURCE_OCI)
+ 		err = erofsmount_write_recovery_oci(f, source);
+ 	else
+ 		err = erofsmount_write_recovery_local(f, source);
+@@ -1026,7 +1026,7 @@ static int erofsmount_nbd_fix_backend_linkage(int num, char **recp)
+ 	return 0;
+ }
+ 
+-static int erofsmount_startnbd_nl(pid_t *pid, struct erofs_nbd_source *source)
++static int erofsmount_startnbd_nl(pid_t *pid, struct erofsmount_source *source)
+ {
+ 	int pipefd[2], err, num;
+ 
+@@ -1042,7 +1042,7 @@ static int erofsmount_startnbd_nl(pid_t *pid, struct erofs_nbd_source *source)
+ 		if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+ 			exit(EXIT_FAILURE);
+ 
+-		if (source->type == EROFSNBD_SOURCE_OCI) {
++		if (source->type == EROFSMOUNT_SOURCE_OCI) {
+ 			if (source->ocicfg.tarindex_path || source->ocicfg.zinfo_path) {
+ 				err = erofsmount_tarindex_open(&ctx.vd, &source->ocicfg,
+ 							       source->ocicfg.tarindex_path,
+@@ -1201,7 +1201,7 @@ err_identifier:
+ 	return err;
+ }
+ 
+-static int erofsmount_nbd(struct erofs_nbd_source *source,
++static int erofsmount_nbd(struct erofsmount_source *source,
+ 			  const char *mountpoint, const char *fstype,
+ 			  int flags, const char *options)
+ {
+@@ -1524,11 +1524,11 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	if (mountcfg.backend == EROFSNBD) {
+-		if (nbdsrc.type == EROFSNBD_SOURCE_OCI)
+-			nbdsrc.ocicfg.image_ref = mountcfg.device;
++		if (mountsrc.type == EROFSMOUNT_SOURCE_OCI)
++			mountsrc.ocicfg.image_ref = mountcfg.device;
+ 		else
+-			nbdsrc.device_path = mountcfg.device;
+-		err = erofsmount_nbd(&nbdsrc, mountcfg.target,
++			mountsrc.device_path = mountcfg.device;
++		err = erofsmount_nbd(&mountsrc, mountcfg.target,
+ 				     mountcfg.fstype, mountcfg.flags, mountcfg.options);
+ 		goto exit;
+ 	}
 -- 
-2.43.0
+2.47.1
 
 
