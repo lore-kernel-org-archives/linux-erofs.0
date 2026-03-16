@@ -1,45 +1,45 @@
-Return-Path: <linux-erofs+bounces-2731-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2732-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C61AAEFCBD4
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Mar 2026 08:04:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0663F013C5
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Mar 2026 08:04:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fZ6zz3SWKz2xln;
-	Mon, 16 Mar 2026 19:03:59 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.111
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773648239;
-	cv=none; b=SRN8n/Q3ROm6YEgJB4K4b37lHEyQMemSmKZVJ3WWN2zGWq3GSkDySCiT01obu3Ai3xAHm2qDFhcM6SC0lMaHpLx2FUnFz4GpKLOul4pbNjm9lzzU1gSCY3QLhtrUZ5szOcKfA+wMOolYNPaEKiaHaQiF/B+Lap0kGe9iLqfNbq9n2pknbwWrNwK483JYXmf5H4kT5Y4sC/YwZojFWl4+MB0Xk1RLETHdjE2hO2pDHolukUJmF0atcH8iQW5SNkfCjra5sY4sTluQQ4z0H+IRo+9t7sK2UU022xSbodlzDTaj69rbKJ9I9pJeCtiZFgJ7sZf6C90PgTMyNvLbn2Vtyg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fZ70W3VWhz2xpn;
+	Mon, 16 Mar 2026 19:04:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773648267;
+	cv=none; b=ZQiCePGsW4LMhdtz4aTZ+TTVQBBBzT7xLOGce+TKhGfwOjRPXihjm2dhXTTEfgKkDIuXdzjAFokbxFx3+A4STTaPJZAp6N7TIt/I8E2x+Cq+y9mAhnDw4RCS3KONR7kQ3QN6jzA5XVzeVlJ9jIzil8Uwyw+VewqqcTEOItbLoxnnosG1RCvQJ6hhZ878sFJnfnkw24jfULrpIqqLaL0XXDceTH0+rHe9u7Z/PKa8mN+2fykJzF+wRXc50v1J0iBFBMPdDDwEN9w2ytviMb3NYVzHzbBPxjKA0+CiBp0m7FwYf3M6RAXFvu+b3D1+kgTJ7SGxJd6JBES6Rja6gpplfg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773648239; c=relaxed/relaxed;
-	bh=qTpmdjUGtRg92VGg//AuZO1XS89V6GLJ5tUEBqw+Ocg=;
+	t=1773648267; c=relaxed/relaxed;
+	bh=QbpepUZOAIdDkprCRlikObGh27mJdCxpv3AzkBPt72E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Cr6Iw4BnNMFSVcRPsjo84xodrzPYo72WxUC4UoD43hquwNagk7wbbOb7yxZn4PgFwm7PMaBYrFGymPygtV5i1KnQltJxbUgvp6lZ+SYt4yMOzHfNXUw+bOX0nqFs4Pg0o1tNMOhV+G9RWVD9Wt0Gl1e3aSj0jlyjy5PbifPl0k5ZgixxkKK/B0xgU11pvVkyk4+142ZaQOlpJK5O0+ZEGf8ySo5v0pFWLW1/a2sDSvxcJ9s9k9ShEX4j2Cavq41gCwHyAr2ANvVcMi9r1wGBvLJ3lUBvQwdZZxT584SVvn7Blo+2RKs7SuhuWyEMxp0gG7U9ReydCrL4NVgiwJCtwA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LAdVgKZ4; dkim-atps=neutral; spf=pass (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=hGyFGBfrnSKq+98dsZHpinwnzX2xXM6qA1W0JCH1Ddei3U6mf96bWgFRLtFlqCCkMgyDGQ6opBJxJ+eMM/keZVObae2JZiOZfntC8u2KgmdUqVIY9sCgpXXucUQ3Db432VugMNq7Le5Tx7Rf09GChBHvS812K0uHSXFfFmf8nBPdk253ImgKbl98XdNrXWArMMfH08a/jsSz/RDJbwVNRXclYnQPiTE12h6NAYU2uUrqZQ9OHlJXvwlOCYmURMtC6CodQKKJHaqR80agwphE3opKRl/4RRJdsIpHLbS19Yr7Pbsnx963JNU05qj7f+O9DqMFOihIWsMg0wMJvFI1Jw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=d2nQ9xR8; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=LAdVgKZ4;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=d2nQ9xR8;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.111; helo=out30-111.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZ6zw29XCz2xlP
-	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 19:03:54 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZ70V3MVLz2xlP
+	for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 19:04:26 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1773648229; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=qTpmdjUGtRg92VGg//AuZO1XS89V6GLJ5tUEBqw+Ocg=;
-	b=LAdVgKZ44prtRahO1/wxbqrTGtyn56Flj9HyjaymVr+01C5nAep8afLoCqQTYdHVGl2B9z2ZkKhlknJYWYspxXayTPraO0ovskS9uPVUMWSswwMqvzPmbx0AStEPmWrOeRjaiDZGElGTupFYqYUMBGRAQmjCumjav7uj4q0m+QU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.18iBX_1773648227;
-Received: from 30.221.132.167(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.18iBX_1773648227 cluster:ay36)
+	t=1773648261; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=QbpepUZOAIdDkprCRlikObGh27mJdCxpv3AzkBPt72E=;
+	b=d2nQ9xR8wLwGD45KPT9BZIqgvAClwC3CyYhgYHlmU12ixA74voCeXSzphPQz9THD0uJnvXO0jSc1G2Gl2JWXXnfYwT8+YJKNufMrmOFwR2HixZQAcbdsDMg5JOw43xJW1Uv9vGlFHuoPeCYPD1+guJz24bQkZkc/cwpoYZgqV+Q=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.1GdNh_1773648260;
+Received: from 30.221.132.167(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.1GdNh_1773648260 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 16 Mar 2026 16:03:48 +0800
-Message-ID: <22c5ced3-3fa9-42ba-8255-ac93e411d628@linux.alibaba.com>
-Date: Mon, 16 Mar 2026 16:03:47 +0800
+          Mon, 16 Mar 2026 16:04:20 +0800
+Message-ID: <48a20201-eec8-4457-91cd-f80634a2267f@linux.alibaba.com>
+Date: Mon, 16 Mar 2026 16:04:19 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -52,99 +52,48 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] erofs-utils: lib/tar: reject negative size= value
- in PAX header
+Subject: Re: [PATCH v3 1/2] erofs-utils: lib/tar: skip PAX entries with empty
+ path
 To: Utkal Singh <singhutkal015@gmail.com>, linux-erofs@lists.ozlabs.org
 Cc: xiang@kernel.org, yifan.yfzhao@foxmail.com
 References: <20260316075831.35495-1-singhutkal015@gmail.com>
- <20260316075831.35495-3-singhutkal015@gmail.com>
+ <20260316075831.35495-2-singhutkal015@gmail.com>
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260316075831.35495-3-singhutkal015@gmail.com>
+In-Reply-To: <20260316075831.35495-2-singhutkal015@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 
-DQoNCk9uIDIwMjYvMy8xNiAxNTo1OCwgVXRrYWwgU2luZ2ggd3JvdGU6DQo+IFRoZSBQQVgg
-ZXh0ZW5kZWQgaGVhZGVyIHNpemU9IGZpZWxkIGlzIHBhcnNlZCBpbnRvIGEgc2lnbmVkIGxv
-bmcNCj4gbG9uZyBidXQgbm8gY2hlY2sgaXMgbWFkZSBmb3IgbmVnYXRpdmUgdmFsdWVzIGJl
-Zm9yZSBhc3NpZ25pbmcgdG8NCj4gZWgtPnN0LnN0X3NpemUuIEEgY3JhZnRlZCBQQVggaGVh
-ZGVyIHdpdGggc2l6ZT0tMSBwYXNzZXMgdGhlDQo+IGV4aXN0aW5nIGZvcm1hdCBjaGVjaywg
-cmVzdWx0aW5nIGluIGEgbmVnYXRpdmUgZmlsZSBzaXplIHRoYXQgY2FuDQo+IGNhdXNlIGlu
-Y29ycmVjdCBtZW1vcnkgYWxsb2NhdGlvbiBhbmQgaGVhcCBjb3JydXB0aW9uIGluIHN1YnNl
-cXVlbnQNCj4gcmVhZCBvciBzZWVrIG9wZXJhdGlvbnMuDQo+IA0KPiBBZGQgYW4gZXhwbGlj
-aXQgY2hlY2sgdG8gcmVqZWN0IG5lZ2F0aXZlIHNpemU9IHZhbHVlcyB3aXRoIC1FSU5WQUwu
-DQo+IA0KPiBSZXByb2R1Y2VyIChiYXNlNjQtZW5jb2RlZCBtaW5pbWFsIGNyYWZ0ZWQgdGFy
-KToNCj4gICAgZWNobyAiTGk5UVlYaElaV0ZrWlhKekwzUmxjM1FBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQURBd01EQTJOallBTURB
-d01EQXdNQUF3TURBd01EQXdBREF3TURBd01EQXdNREV6QURBd01EQXdNREF3TURBd0FEQXhN
-VEEzTmdBZ2VBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQjFjM1JoY2lBZ0FBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUF4TXlC
-emFYcGxQUzB4Q2dBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB
-QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQT0iIHwgYmFz
-ZTY0IC1kID4gY3JhZnRlZC1uZWdhdGl2ZS1zaXplLnRhcg0KPiAgICBta2ZzLmVyb2ZzIC0t
-dGFyPWYgb3V0LmltZyA8IGNyYWZ0ZWQtbmVnYXRpdmUtc2l6ZS50YXINCg0KcGxlYXNlIGp1
-c3QgZm9sbG93IHRoZSBmb3JtYXQgbGlrZSB0aGlzLCB5b3UgbmVlZCB0byBjb21wcmVzcyBp
-dA0KdG8gYXZvaWQgdG9vIGxvbmcgbWVzc2FnZToNCg0KY29tbWl0IGFiODU4ZjI5MWExYQ0K
-QXV0aG9yOiBHYW8gWGlhbmcgPGhzaWFuZ2thb0BsaW51eC5hbGliYWJhLmNvbT4NCkRhdGU6
-ICAgV2VkIFNlcCAyNCAxNToxNzo0NiAyMDI1ICswODAwDQoNCiAgICAgZXJvZnMtdXRpbHM6
-IGR1bXA6IGF2b2lkIFNJR1NFR1Ygd2hlbiB0aW1lIGNhbm5vdCBiZSByZXByZXNlbnRlZA0K
-DQogICAgIEp1c3Qgc2hvdyB0aGUgcmF3IHRpbWUgaW4gc2Vjb25kcyBzaW5jZSB0aGUgVU5J
-WCBlcG9jaCBpbnN0ZWFkLg0KDQogICAgIFJlcHJvZHVjaWJsZSBpbWFnZSAoYmFzZTY0LWVu
-Y29kZWQgZ3ppcHBlZCBibG9iKToNCiAgICAgSDRzSUNBQ2EwMmdBQTNKbGNISnZBR05nR0FX
-allCU01WUERvNGRjSHZVNFdJVHBBTmcrRENnTTdWUHdGTTBJTkU1TDZPek5MDQogICAgIHRh
-ZmF1czdaZEh2cGtUeSsybDNvNXJHakN4QUFJR3NPT0RJemxERDgvdi8vUDBnRVFzS0FDcGhr
-WkFHNVFnVXFGZ3BrYTBMWg0KICAgICA0UXlNREtwUWRnSlFQQXpLVGdXS1IwTFpXVWpzZkU0
-b0l5ZFZMemsvSnlVdE15ZlZBRVFZZ2dnakVHR01iRC9RWW9hM2pZd00NCiAgICAgS1VDYUEr
-eTYvLzhaa2VTTEs2dXlFM055VW92UUdhei9ZZlpnU0pIS3dCZCtZUGM1TWpIWVF2a2c5NEhp
-SzZLanVSSEUxNE9LDQogICAgIEd5Q0ZueUdRYlFobEd3UERKaGpLdGdER25wNmVIaUpJa1B3
-dnhZSXdIeWxwb1BtZmlRcStSV2N3azY5ZFVKY0c3aGxsREhVRw0KICAgICBJN29JS0VQRFJj
-VGU3anFOcWVzcDViWXpZczB5ZEdDQUN5NGd3SkM2eEVXWnlXeFFIMkZWZ3lpZlFLVzNPbEw1
-eE1MQUFpOC8NCiAgICAgOUV0eUMvU0JHblF6Y3hQVFU5TlQ4NHlNak0wTVRBd01USTMwd1FV
-UmhNUW85LzdBeXo4T2NQbkVoV1ErSzQ2eWtvMlJqYUVpDQogICAgIHNhU2t5TENDZ1FGSXd2
-bEdFQktweEEzZWx2OEdySWNKWFA0eE1XZ29ROHdBUlNMWTJ6Z3FPa1lvWmdMVElKWUdNM2FW
-bzJBVQ0KICAgICBqSUpSTUxBQUFCZFZLUHNBRUFBQQ0KDQoNClRoYW5rcywNCkdhbyBYaWFu
-Zw0K
+
+
+On 2026/3/16 15:58, Utkal Singh wrote:
+> When a PAX extended header contains 'path=' with an empty value,
+> the computed length becomes zero. The subsequent trailing-slash
+> removal loop accesses eh->path[j - 1] where j is zero, resulting
+> in an out-of-bounds read and undefined behavior.
+> 
+> Skip such entries to avoid unsafe pointer arithmetic and invalid
+> filename handling.
+
+I don't see a reproduciable way here.
+
+> 
+> Signed-off-by: Utkal Singh <singhutkal015@gmail.com>
+> ---
+>   lib/tar.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/lib/tar.c b/lib/tar.c
+> index 26461f8..be86984 100644
+> --- a/lib/tar.c
+> +++ b/lib/tar.c
+> @@ -510,6 +510,8 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+>   
+>   			if (!strncmp(kv, "path=", sizeof("path=") - 1)) {
+>   				int j = p - 1 - value;
+> +				if (!j)
+> +					continue;
+>   				free(eh->path);
+>   				eh->path = strdup(value);
+>   				while (eh->path[j - 1] == '/')
+
 
