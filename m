@@ -1,45 +1,86 @@
-Return-Path: <linux-erofs+bounces-2753-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2754-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 145CEF53D78
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Mar 2026 17:00:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F73FF53D79
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Mar 2026 17:02:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fZLtn5Cs9z2ygl;
-	Tue, 17 Mar 2026 04:00:17 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773680417;
-	cv=none; b=FcUr6sJxch51sDBTsG/zVbl9H6OMtlSSbgDTp7eQH3ETFvkzXHKahfDqdJCCBtwZVLPMGHDoeriAM0jSTaID0cPcTe6U9yZDCMYUShtbHETKAhXKD0uDWsPNgma4kdcppkwVc7jX4gnZZUGcM59COMhlVOP3DoUoDRvfXeXl+ECoxHWU0kfkB1GwZtE4XLnZmOpgMpVBWKAvNxuBQC0H+8ftoIX7FEIWc50/pShKtlIZQ8i5ejuYrTWtn58KKN1AYnDpflDzbnw17hMcD2Z/kYuDgKVvjatiy5LI2TpTyb9PaR1I/uFv44RcmkgAD8Ohslu96PHnBcOFoPHdFf/1ew==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fZLxb6fbJz2ygl;
+	Tue, 17 Mar 2026 04:02:43 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::102d"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773680563;
+	cv=none; b=lXbfBe2b6tv9XBdn9tjjB9dUNA1Muo2lc3abGQ2ryQRd+qKdo4PQ7CrU9u8jo4+9M1V4c+1KEPfvoSx/iGwKSJWwCQV3+4Tl1oqyUFbPj1PznDshSRuGE0RK/71GbBPQ71zNe9sd5bJ+OiFzwLota3TUtfKzzQRvhvzY/bdtL0lRiNYZ78XonJOG5hnzSEmgMbo109QMTCwxW2FQpIAhBLrhImDKk+ci+j5OMzCtRUgDpD9AU5dqGtnoFZE1YJlACQ+glsVp7HuVzrrdCu4muXrtCUh4VMgs+1RiQaKmlGC4yQeppB1vNq0hYWpEQmz6/nM8ZIUw5u9XC0J8GLTZYw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773680417; c=relaxed/relaxed;
-	bh=0A45twAKblJsoYFUgABexUIbN8Gh76AgW4BbNLmtxsc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eUxpF2GVlGewNlbpz5Br2Mj4F2vNsUCsA36/dp2VdngjGZNqlmn2vyXcbh/jrt2ec+P6mDVGPu/xDETiqvBTLvpNHtI8m6pMyDSQpy0PrxQ8EDwaV9wpV5eXDCVZU2wqfStEAdE+K/ZSfmc6jAeDV1ye+vMYXqmILr01RviP9R8N5+5GeLiFwDykrjGqkwk0FaxcsAyF/EVmGTF/9rtlayBnBfZ98AgU0mm+Xuqw9gy0VHZ2ecFDaXDXHLjFaL5F7bBN5asWRwbcktL8ZjRVnKqUF2uVyOYS5xcgZq1kwMZdxIPmottTSSRPHcqoLT+lXorUJradKX7nGu6BYe+ybw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AU7Oj/nq; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1773680563; c=relaxed/relaxed;
+	bh=V/PuJ2FCgl6iVHRPuOeAaJQ5C36/x3upvoooaUwXqi4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dsQJtmR/ZkLnkVYByjGKChyK9xhDFKPakh9XBeXyw5KhNTxYZIAAv76k/tEU2MwzFaHdU3tcdWFr90mCuLlWsdKkxMtoPNxHMSY9ascEP6BDBsNbS8FInMKqaMyxLihd0+jfqqmPHEWltdvmMeg2Pceguic/GEUNLo/C7sPPePwGUMMSZj7Nye6YL5yAyRSfJT/32QJDEA0gBxxcmlqMy3ZTQL6nI38B/eYghRaX11XFZRx9N2jOA3w0BFT6hk/P6LYUadldbHtUetiamnWKLzUbArRKGdlWsaEJEZVeBu/VVARKOygrxS3ZOs+hswAzGjMN5zhWkDGIRiobkTuj7A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=czSyNmtg; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::102d; helo=mail-pj1-x102d.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=AU7Oj/nq;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=czSyNmtg;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::102d; helo=mail-pj1-x102d.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZLtl1fQTz2xS3
-	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Mar 2026 04:00:13 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773680408; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=0A45twAKblJsoYFUgABexUIbN8Gh76AgW4BbNLmtxsc=;
-	b=AU7Oj/nqdpa12zhw+uqaqDQlcx9ZPAt/DOaO4YozUk1gl4olMou8HAu96Lw8rBnSHBx5ZMXwkn/Ni8D7oBPuZ3/m/qIvkRCrlPoK/fKz4TIVmr9d+KSPsgutxZGzhOZbANF5Qp+4B0uPY7uVRiPEEtF1hBW4AUPPGOl3eywWoJo=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X.5royw_1773680406;
-Received: from 30.170.14.2(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.5royw_1773680406 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 17 Mar 2026 01:00:07 +0800
-Message-ID: <19a568d7-17f2-4eac-890c-1e66a9592edc@linux.alibaba.com>
-Date: Tue, 17 Mar 2026 01:00:06 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZLxb1fN3z2xS3
+	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Mar 2026 04:02:42 +1100 (AEDT)
+Received: by mail-pj1-x102d.google.com with SMTP id 98e67ed59e1d1-35b97ed057cso831641a91.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 16 Mar 2026 10:02:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773680560; x=1774285360; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=V/PuJ2FCgl6iVHRPuOeAaJQ5C36/x3upvoooaUwXqi4=;
+        b=czSyNmtgOnDT/8v4a29bQEgQOkWY7Un4zasVb7JO5QAo8+OsUmO337tZcSERGpNnaF
+         LPYHWkWoht9/novvOUf4KySwsq3jT4lLkgGH4fKD4O7BVDmb6OI2/KXS8Py7HHeIFxZD
+         xaKb6drSLwLPfu/wWw5gd8A7vs1fJYypADBQNQs1+UCvQjjhbZLFZAw2wq46h2CEz/Eg
+         pV5jUbwewFvmLWrU9PDTpyRp2MlW5DlrB8nQI9hIej2tIYbKB6PUZkrk0FDZc5+K+xKu
+         5oxIdW2ryr8/vl6OSo/SSd+WUz/C3DykBS827heJ0Gkrhfmr8dC+MkeKUzd41H8916hp
+         SUlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773680560; x=1774285360;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=V/PuJ2FCgl6iVHRPuOeAaJQ5C36/x3upvoooaUwXqi4=;
+        b=MZp8g4dJOunLYbM5DeClbJ+p8bOs3ZECVhC8n9egFfcZhiq2+WGVhWla5Ry860oS3A
+         2TzyHV7qb/NQHwPohd8YKaN6L3J0KfLgNBwQ2QdhvXIr/3NHx0aPvNUqfP3Vi1oo2HD0
+         bkfcxcQ/lKyS0ur2vm3ItDKgpKscWTQFBAz4H4gmUl5MgEq6fxD8du+7nBD6zweOJJu3
+         DXhuN7Hm4au8z3xWmkGA2RrZ8FGXaGbCmq4A9MEUf4zaFHGcYHdudh7HFERfI5PIcYDS
+         9GPt6N3wCJopbLR1MXfXeerdHX/xPMTN/X4/5VzmWXyC6WAaOCX5g14GuTTqQvhj+kcp
+         +uBw==
+X-Gm-Message-State: AOJu0Yz4mUIfVgTJafjk/cctqad92S057vct0gZM36Az03cJ3k/pyCaL
+	cT2M2ow7xXEsWnClf/XEs8iTFLiSdUXMK3z761X0WnsPRsGx+S++aJqjj6wfVlexGxg=
+X-Gm-Gg: ATEYQzwuLq+yMM3Ru1J2PzGUid+U17eAf3dkSm63pSS6wgV6n00k7OIv0M81eNXNjA+
+	ocImknZSwkZAbUIMqcIKjlEWtMOKLrLmLaWDcvpk5NTuSn5BUNUNczgSJiKl4bfmrRVsCmUbo8W
+	IIlpUI9fNUxGr/OJeOwGokozQx1V/h7PJPVWCtIrjW6UhZ7vRJqH7viCA77BWgX32XTxACekiv8
+	zR4S0K+FaO64SpEq8HZQ+k781LL5bF326CE0CQ9pI4aVLWjQkg8+gx1eabz9mzHd0iXPo0e9ylM
+	AHpMWx4mV4yqsz5wJ0TFniVPQoPAiBAzTwkqJ089l5YpJD2khgOAvI84PxpInVhyLBj5LKCnCb4
+	jsBiK063hQZkZoWBjmckb8jMLTQkeOW+qpEUQOZivU5TU7D69JilPC6JZrKr/GajkAlNVnTojVg
+	moq5iNffvzc7yvr5WFdQ7Ma64YSi899gQHNNPtQNhxgCUcstWqub/ufeaMzFiEnA==
+X-Received: by 2002:a17:90b:3f0d:b0:356:9405:759d with SMTP id 98e67ed59e1d1-35a21e4ee18mr11905014a91.9.1773680560421;
+        Mon, 16 Mar 2026 10:02:40 -0700 (PDT)
+Received: from ubuntu-arm-nithurshen.SNU.IN ([45.114.151.61])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35badbcda60sm158217a91.14.2026.03.16.10.02.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Mar 2026 10:02:40 -0700 (PDT)
+From: Nithurshen <nithurshen.dev@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: xiang@kernel.org,
+	hsiangkao@linux.alibaba.com,
+	Nithurshen <nithurshen.dev@gmail.com>
+Subject: [PATCH v3] erofs-utils: lib: name worker threads erofs_compress
+Date: Mon, 16 Mar 2026 22:32:33 +0530
+Message-ID: <20260316170233.30662-1-nithurshen.dev@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <6edda81f-5d2e-49d0-9b31-181e3fdf0b18@linux.alibaba.com>
+References: <6edda81f-5d2e-49d0-9b31-181e3fdf0b18@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,35 +92,53 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs-utils: lib: name worker threads erofs_compress
-To: Nithurshen <nithurshen.dev@gmail.com>, linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org
-References: <6edda81f-5d2e-49d0-9b31-181e3fdf0b18@linux.alibaba.com>
- <20260316165418.7051-1-nithurshen.dev@gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260316165418.7051-1-nithurshen.dev@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Set a specific thread name for the multi-threaded workqueue workers
+to make debugging, profiling, and process monitoring significantly
+easier.
 
+Previously, worker threads inherited the name of the parent process
+(e.g., mkfs.erofs), making it difficult to distinguish them from the
+main thread in tools like top, htop, or ps.
 
-On 2026/3/17 00:54, Nithurshen wrote:
+This utilizes prctl(PR_SET_NAME) on Linux and pthread_setname_np
+on macOS to explicitly label these threads as "erofs_compressor" upon
+initialization in the workqueue's .on_start() callback.
 
-..
+Signed-off-by: Nithurshen <nithurshen.dev@gmail.com>
+---
+ lib/compress.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
->   static void *worker_thread(void *arg)
->   {
-> @@ -9,6 +12,12 @@ static void *worker_thread(void *arg)
->   	struct erofs_work *work;
->   	void *tlsp = NULL;
->   
-> +#if defined(__linux__)
-> +	prctl(PR_SET_NAME, "erofs_compress");
-> +#elif defined(__APPLE__)
-> +	pthread_setname_np("erofs_compress");
-> +#endif
-
-I'm not happy with this part, please read the v1 reply.
+diff --git a/lib/compress.c b/lib/compress.c
+index 4a0d890..66b3b8b 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -26,6 +26,9 @@
+ #include "liberofs_compress.h"
+ #include "liberofs_fragments.h"
+ #include "liberofs_metabox.h"
++#if defined(__linux__)
++#include <sys/prctl.h>
++#endif
+ 
+ #define Z_EROFS_DESTBUF_SZ	(Z_EROFS_PCLUSTER_MAX_SIZE + EROFS_MAX_BLOCK_SIZE * 2)
+ 
+@@ -1427,6 +1430,12 @@ void *z_erofs_mt_wq_tls_alloc(struct erofs_workqueue *wq, void *ptr)
+ {
+ 	struct erofs_compress_wq_tls *tls;
+ 
++#if defined(__linux__)
++	prctl(PR_SET_NAME, "erofs_compress");
++#elif defined(__APPLE__)
++	pthread_setname_np("erofs_compress");
++#endif
++
+ 	tls = calloc(1, sizeof(*tls));
+ 	if (!tls)
+ 		return NULL;
+-- 
+2.51.0
 
 
