@@ -1,88 +1,62 @@
-Return-Path: <linux-erofs+bounces-2809-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2810-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46B6DFED9EC
-	for <linux-erofs@archiver.kernel.org>; Tue, 17 Mar 2026 16:41:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2D3B3FED9E8
+	for <linux-erofs@archiver.kernel.org>; Tue, 17 Mar 2026 16:49:03 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fZyR35mFmz2yhV;
-	Wed, 18 Mar 2026 03:41:51 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::531"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773765711;
-	cv=none; b=MWdaCeDMq1TzC3XNwo3iiG7f1ts+DMbRcqU+2Ke+ansBwNF0tRIF5YBuJ0jvVViV8madHelul+PznWlXrfgq+sPKXnVVF0iMXM0wNNCb2gWRlXpSUsMLTKE3LShbvID0X/fD1F5v6eGxD7WeQndMUj3F9mB2+dzYN33PvS7yGiZctkgq8VCZVZ+OtYSgVx8XqiDBtRM69C7a3j8+eBsoChqGP2u1LExiOaX2oufJCUAfUjBfv/cMXSQwK0Z36I6EYVLu9JR+irHkWzRITXb4PRofGSKYC7FbKUa7lB55a786SYe30LNIKn/vFM2+pkGfrwuSTpuY8LqWmTkF3/LKaA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fZybK41jfz2yhV;
+	Wed, 18 Mar 2026 03:49:01 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1773766141;
+	cv=none; b=KWHBU0w+oDO8xiGgFvRTtoThAUKE+KhADvgqjsUDavRxQ+yurL3NPd2pWMakL4TZhJCA+gTN5qxCFdiEcOtI86NMnNVnx2w6bKUR1hVxUJENutp5AujeT2C74QnsG4Z+MDJf8+lQUJ1WEP5Z+psACHJW6isfbImrCR2qIAU6WNQuOZThFVhn34W0IJZQ5bH1K26rx6YyXPhcnmXYnSEYLfc1cVPme9JkTXKgB49yd0Edbe4gf6LgiiWLCs6w3JTKNQY9AQUzxpylSimxea4iAfdM+S9UQWZdDovIoVt+PX57xgFAH8glsNnLvdnCujX/dbJR+NNtQdLJfL+q37iEnQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1773765711; c=relaxed/relaxed;
-	bh=oi7WFKnjnbvtaDtJnnUDWWC7u3TXz7txHxrui19e8QU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GvARwV9mIYRhGkarlQZIYjCBVgr/q0zidNH6IFGHUAS+k2YierN7mKtaqhzYpwO84dtLF/cNKHKWOYHkFalh9kMHtiz8Oi3Q4SfBjndro5J6SiJ0+0FioM3tzIiTe4sr+5O5OyfNY64UF/gbgJChEb4fPL4eqaMXqDLBFRTEAtDVJ2nerWRAVIkt0TJOYwZIuTW2R/mA7Rxkh8rtN+GzA1g8e1WaxWtzhSvxEgM92DY8UzmUDC0UMVim2JSbjW28j7Xcpml2cIlibvMW/7c0Nv6oL/izhjo9dtH9nGBIHQsVsqUMA79hcNMgv4sddZr6tq7+/2HMPR/6oMs1xtwm5Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=K23LaBvG; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::531; helo=mail-pg1-x531.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1773766141; c=relaxed/relaxed;
+	bh=1Yvk9LqhxX/XToXW17+9d+gmTgV4etSxa0IvfAaAMp0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xiy2J+qAqtGDjYD8B2ry0bkIRquDTt10Qwd9QxbaNK8WWTmjYV8+g4Ags0yi97Xj/7El8CRRch27e5pCKZZ33T074+V4pnWzyJxazk9sWcuQGHaxqWk6iB9uOvTBwyhv8SAB7sPBV1Jdm247ETXyqH3y5tNeKQ5wpRjGzyuoOn/inyIi5FuMk+u6WJKA+Y+P0wjyUMTFSn2tCO20Sah8LgDvQLCxHPk3/kfnYJWti8O/w4Q0DHpPQdS1kaMfUh/9CS8Znp41ZUHk06xBw5bHIISQk8ZLeXTlSSZiBeqRbOl5Kj+MW9Xg0OHFQQEBDvZtBrGQSh8HSWRcsZ3DtquiLQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ClYjRaf9; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=K23LaBvG;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ClYjRaf9;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::531; helo=mail-pg1-x531.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZyR23J3Wz2yFd
-	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Mar 2026 03:41:49 +1100 (AEDT)
-Received: by mail-pg1-x531.google.com with SMTP id 41be03b00d2f7-c73f12fe254so114168a12.1
-        for <linux-erofs@lists.ozlabs.org>; Tue, 17 Mar 2026 09:41:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773765706; x=1774370506; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oi7WFKnjnbvtaDtJnnUDWWC7u3TXz7txHxrui19e8QU=;
-        b=K23LaBvGupIpRBjpvFIWpKUC1BH3hf3flijCC6PFLKTuLmUikaugUTVnaxM4SkPYzV
-         40KnQJl6BxDxHw6AHQ1t0Eakv+D8Ac1Fl0M4V3fhCixCjL3//KGXKBTioOhvs0oixI9z
-         UQy9jDM+F3FSiyVOALRXtbbnLSLmPu1RNfcoB6b70+9P8wJKLYvJEYHJT088QHwLZ9sS
-         ruxpSEpSPBPYfNya1ImAQH85GpAQOK+9lGsl76K6twsItfOIcAapjrD5cujEDjJ7F6GL
-         LuQkaUdZzk6fP4fywv0ykb1OCzFvHRvdl9ufGxMHKNnv22vGdJLiZ5BwsVNVSkkT/ppx
-         AG3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773765706; x=1774370506;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=oi7WFKnjnbvtaDtJnnUDWWC7u3TXz7txHxrui19e8QU=;
-        b=kER6gNylwJQeOxavSNuRuK7a8hBteZ8FxGibb+g1Vyl+JeE9Xev6dRXcy/bBsIaMWv
-         giVTc1/VwfqaAZkZBaXT6lOjGUc0cUVXDZY3BUE6+SI9Dsk8vTMN3p/Mex1FTKPqzcJl
-         re51oeymdx3PY1WbFBA++BQ2NbJ9LxyaQIFORZ2Kf+ZBGE7jFWxV4DvEGUlr/i9fMSw2
-         l7yDo1FUr17ua18dhAQBvPGnzCfDKc0GDeoFlGWl2L4jpwVc9KGEVU6Yh2hjZVg7JJQv
-         KhRzQeeKjHCncw4UwFVfCINnbVFWnQbQEeHPg5srj7KyyxD460TvqteXt3B1cvZsMLgm
-         evKg==
-X-Gm-Message-State: AOJu0Yx7bMi3w20h2RBPfd3RfrCOU0McHIj98heBrOdBUKe2vAbn1zt5
-	nwUJTBgrNpn3hMU9gQE8RxUE5H7/KO2GtifhMrI/IM1lLL70wJ7XOLZkuuQ5A2xX
-X-Gm-Gg: ATEYQzzCI1gyLBg/JiwCclEB91y5ql4kuJPvqvDh6T4SnKVl8isfoLT9B6BwlI2UDEB
-	T3wsArdU6mfCAaBeKgq/7akMIOqfFgm1oLDRj4ZZljikYwDlZfiGltcgdCyRW8jPQ4xe8KoM7hP
-	1BsjCruFUbWd5Cl8/KUZTYzv9JjUc99O8j4V8D4JLFFm+Vj+ddyC5NeazKO2JVFv48hJ4tYgOqr
-	L98Hhg5Z1PQKdpbwKj2JAnraN+M+tLR1q0Ka8e/FaUu01JbaKH9EtCyxFtVI6SV74A1P+e9510t
-	e5WAUNlVoKoZeQBX7KsNdWkuqwsrVoBTsnZ2rRf5uHMZE2/WND9vV/9GpCg+2NXNe46MIz1slSz
-	wDa+FSsc4GY6Wb5KMnYki+vxKQuYJmOLWYyEgTUUDyafHV06nS8Ed1T3DYuPxrxu4vrrM3QMCBk
-	2MkP4kO61VUDEut2kQDICTkNtKsHVeiB+WMHQRf2lJgbDLmA1rW15A+aTfl1/oILwQSoUGUnr5A
-	ntoH6VZKfV8iYvmPK/ycltI3nj6oDBRqF/pRPYpht1TwZU=
-X-Received: by 2002:a05:6a21:32a4:b0:356:3b05:2955 with SMTP id adf61e73a8af0-398ecda31ebmr11679125637.6.1773765706320;
-        Tue, 17 Mar 2026 09:41:46 -0700 (PDT)
-Received: from DESKTOP-PU4IGQQ.localdomain ([112.196.126.3])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a1e72cf33sm12998842b3a.37.2026.03.17.09.41.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Mar 2026 09:41:45 -0700 (PDT)
-From: Utkal Singh <singhutkal015@gmail.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	yifan.yfzhao@linux.dev,
-	linux-kernel@vger.kernel.org,
-	singhutkal015@gmail.com
-Subject: [PATCH v3] erofs: validate h_shared_count in erofs_init_inode_xattrs()
-Date: Tue, 17 Mar 2026 16:41:35 +0000
-Message-ID: <20260317164135.24892-1-singhutkal015@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260317152439.5738-1-singhutkal015@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fZybJ5KKPz2yFd
+	for <linux-erofs@lists.ozlabs.org>; Wed, 18 Mar 2026 03:49:00 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sea.source.kernel.org (Postfix) with ESMTP id 0B616429D1;
+	Tue, 17 Mar 2026 16:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A40EC4CEF7;
+	Tue, 17 Mar 2026 16:48:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773766137;
+	bh=nXLfEz81Gf3gYHnAYQWj5VS95cn73nUWk/srtCPnV5M=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ClYjRaf9Tqp2gbPoOm3ec+iKWyWhA2GTl+nKOG5EpG7t+dopPPIrRUHHxtWchq41o
+	 601+QbKX+9EuKUJacDq7N5j3wLcG3XTDc8QiGm/4hzqVJLGlmm/qcV/Ub/R2QIc/Yv
+	 XMd5oaaW/Y/ts/BtJ5szxcjqccnJPPf8B7liQY0Y9jpQjU0Qex5yffM2OB1iaNZyFr
+	 tv96ooSemOPojNOGFi8BtQrv+WIEPWZYh9F4zOZQjt9Q6w7JqE7hs484xH5H7yQ+ii
+	 cwoX4LOeFjJ7WH0YQX1z4Y8MaWElroR8BZv9YP+7SrXL/3SwgmZBSWLL3qb9nq4IP3
+	 u1HIOn6rFvWmw==
+Date: Wed, 18 Mar 2026 00:48:52 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Utkal Singh <singhutkal015@gmail.com>
+Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org, yifan.yfzhao@linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] erofs: validate h_shared_count in
+ erofs_init_inode_xattrs()
+Message-ID: <abmF9Nn85cz35C1k@debian>
+Mail-Followup-To: Utkal Singh <singhutkal015@gmail.com>,
+	linux-erofs@lists.ozlabs.org, xiang@kernel.org,
+	yifan.yfzhao@linux.dev, linux-kernel@vger.kernel.org
 References: <20260317152439.5738-1-singhutkal015@gmail.com>
+ <20260317164135.24892-1-singhutkal015@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,52 +68,30 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260317164135.24892-1-singhutkal015@gmail.com>
 
-A crafted image can set h_shared_count to a value much larger than
-what xattr_isize allows. The loop in erofs_init_inode_xattrs() then
-reads shared xattr IDs far beyond the inode's xattr region, causing
-an out-of-bounds metadata read.
+On Tue, Mar 17, 2026 at 04:41:35PM +0000, Utkal Singh wrote:
+> A crafted image can set h_shared_count to a value much larger than
+> what xattr_isize allows. The loop in erofs_init_inode_xattrs() then
+> reads shared xattr IDs far beyond the inode's xattr region, causing
+> an out-of-bounds metadata read.
+> 
+> Add a sanity check ensuring:
+> 
+>   h_shared_count <= (xattr_isize - sizeof(erofs_xattr_ibody_header)) / 4
+> 
+> Return -EFSCORRUPTED when the check fails.
+> 
+> Signed-off-by: Utkal Singh <singhutkal015@gmail.com>
 
-Add a sanity check ensuring:
+What happens with your v3?
 
-  h_shared_count <= (xattr_isize - sizeof(erofs_xattr_ibody_header)) / 4
+What happens with the commit message and the division?
 
-Return -EFSCORRUPTED when the check fails.
+Could you explain what happened?
 
-Signed-off-by: Utkal Singh <singhutkal015@gmail.com>
----
-v3:
- - use local variable sb instead of inode->i_sb in erofs_err()
-   to match existing code style in erofs_init_inode_xattrs()
- - confirmed compile-tested with make fs/erofs/xattr.o
-v2:
- - initial patch with bounds check against xattr_isize
-
- fs/erofs/xattr.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index c411df5d9dfc..af16cf634a01 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -85,6 +85,15 @@ static int erofs_init_inode_xattrs(struct inode *inode)
- 	}
- 	vi->xattr_name_filter = le32_to_cpu(ih->h_name_filter);
- 	vi->xattr_shared_count = ih->h_shared_count;
-+	if (vi->xattr_shared_count >
-+	    (vi->xattr_isize - sizeof(struct erofs_xattr_ibody_header)) /
-+	    sizeof(__le32)) {
-+		erofs_err(sb,
-+			  "bogus h_shared_count %u for nid %llu",
-+			  vi->xattr_shared_count, vi->nid);
-+		ret = -EFSCORRUPTED;
-+		goto out_unlock;
-+	}
- 	vi->xattr_shared_xattrs = kmalloc_objs(uint, vi->xattr_shared_count);
- 	if (!vi->xattr_shared_xattrs) {
- 		erofs_put_metabuf(&buf);
--- 
-2.43.0
-
+Thanks,
+Gao Xiang
 
