@@ -1,60 +1,45 @@
-Return-Path: <linux-erofs+bounces-2920-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2921-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A525E1094489
-	for <linux-erofs@archiver.kernel.org>; Sat, 21 Mar 2026 18:36:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7989109448C
+	for <linux-erofs@archiver.kernel.org>; Sun, 22 Mar 2026 00:41:38 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fdSnn56tSz2yfs;
-	Sun, 22 Mar 2026 05:36:45 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=103.117.158.51 arc.chain=zohomail.in
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774118205;
-	cv=pass; b=W5KpenCtSbsSxDArLyYeoztnlOZihZyyYsa5RrJnZQt8JPkdseaSYL+GLTnJyANzNk+5iQgVwvdCxVCA5dgX/c6j/fso06XLYTi0ZJGRRZeSbIqbW7rA4VhLyXKBhDR8fp4ZiIGRji6dGyAiTyGmADNblfGRkSV2I0G9AjrqJe9bFepGFY8bYX15FG45ZrNEPciOjt/m58iJVMTuumWgEKdmsuCmuYJG1i7++z+w26uefVguKcVpb9LkiYDgbVuDrYya247AxEX9VrFA3CZQ4G7PTZRnKE8LNTVDYzy8hwCVVFJGelYBAEiVCHTo5phCyQ6M2PwUBchyjWERZWFMaQ==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774118205; c=relaxed/relaxed;
-	bh=r8DzzNw24+pqbXbFOCtYbfpNMtGLAIEwotjKlCZ8uMc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GQi2tswZatiTZ3ChmKC1duxdUJGDxXS1y54qQRgF/2K+Gvc/5XQCEBRdbp0Z38RJ4Xhv/jF3Huot1tc0KmMUdlCC7K9c1135MtrtjG4McUgCoxNmLsxZ++VJnhdol/kRrvZaBHSecz9OYj3LD6AATwfGi2hAHJaScQ56SFABfPI05gFGzavYqHE/AGIiL9LORuiCBbpYkntbIRi2J8Ogl8h5GPGu3WZdHhsKnX5KWwDf3/3UmvH0wp2BP6FV3KYJD7gEvTU86eER5krV1/QEdR/Jf29/lwmwe/PY0nv0vtJqAZpxy4yRQOY+48CZc7fQBxE1BlqbtkQlgZzL4Xrdcg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in; dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=R7Wi7LY9; dkim-atps=neutral; spf=pass (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org) smtp.mailfrom=vnsh.in
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fdctn0VcFz2xlt;
+	Sun, 22 Mar 2026 11:41:37 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774140096;
+	cv=none; b=Ip1VuP5WiT4TLQx9ZaEP6lraq90/8nGYTJywf9IM00S6Dq8/e79LjoA2tLuUCRgZVWhCabXDdiZJ5oiFYhfecICpjYKL8ccVal4CBPRwZ2lyCHtN3bWv9j0/zMrhUodcq38zYVSeaRsDbl5Oh7R6DyCirR6FOpvzDrLhTT0LtYeEGgljzX7lGQTS/f7SbZiznbhBWI0MdqOQXhzJcW82hoZR/motvLrG1BO0ejcSRwxdeZ5OI/fhCZW4ayCgK6Hl459R8svGbwYxk41aQzluI8yh9P/VLOu0VxVHAeLCU0u14z2gu3PBVjxPEAfauKSwUdxR6IzCOcfxCQ3rJFC0vw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1774140096; c=relaxed/relaxed;
+	bh=y2eQfPGTI7Xo5iKZZtvDMTajRO4+saU4maeK4y9K/4s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=E0vkDQQrRTf9XFqITtCz/VZeQ5v+O8WmyjWKUYLXhwslytHfInIpKBysuSdhj1qOmoQrR+LKT9Yo90Ag4rySyj4ub/GGZfAxDGxGs9BezHjt1nWVNqu8yxrXm6mvk/+OQxZooWMJIGTK1o6TOJ89SOIww8No0RLiYWSGY8dms1wD8el6Ld6HIK2UUvA3JLPRI5lIXDidCyGSRZceDB+NQIyVwwDUhhxA/ShDiJTuK041L9gxZj3/nFqEp4QoFl3VdNwZMRvM2NcL/XK4KpujWVudiYelJ8c2KWMUA56hjlQ5eGZ+qVBTB3F1gFDbtic3mJmuS2Med5cYcN8zNf3bjw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kdpJuJ0u; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=R7Wi7LY9;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kdpJuJ0u;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=vnsh.in (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org)
-Received: from sender-of-o51.zoho.in (sender-of-o51.zoho.in [103.117.158.51])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fdSnm2Gmzz2yYq
-	for <linux-erofs@lists.ozlabs.org>; Sun, 22 Mar 2026 05:36:43 +1100 (AEDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774118199; cv=none; 
-	d=zohomail.in; s=zohoarc; 
-	b=RXA2bYXY0iyXlRXnajL40Vv6RQxXTg6F1jQ3FNIbGr7DnA33EXop06rbjHYe9Uhc+O9XIaoLDFxlUrifxkXqm7sQVrYeqzKUrEsQIA2DG1suW+qGZAWIjEhcU6Nd9XddBOWCUqGXymVpMS9zdh4CkavPZ9SL4fyhMRJoy/tuAxY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
-	t=1774118199; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=r8DzzNw24+pqbXbFOCtYbfpNMtGLAIEwotjKlCZ8uMc=; 
-	b=HBkazMpRgeCngxQBjPRX696WSzPbAQlfb6Nl7EbzuB4FebVlQtNPHbJVHMCftvOrYwY+UYuvTqGiwvaul890XqAibJNhXyAt4lrp/MJvV9b1IgrluBsUjqGBwS1PAmqU5wRLcC6fHeoOEeloXls5D2iK+8zNTnrA6hpa5CVyLHc=
-ARC-Authentication-Results: i=1; mx.zohomail.in;
-	dkim=pass  header.i=vnsh.in;
-	spf=pass  smtp.mailfrom=ch@vnsh.in;
-	dmarc=pass header.from=<ch@vnsh.in>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1774118199;
-	s=zoho; d=vnsh.in; i=ch@vnsh.in;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=r8DzzNw24+pqbXbFOCtYbfpNMtGLAIEwotjKlCZ8uMc=;
-	b=R7Wi7LY9BTnKwD4yhPrcZvcDNQVabFEOJI6GqE9YqaIbEDtV8JPqpnCOoO8uOuQ2
-	T4DC1jGhvKv6KUwvgQgP4DbzkcVQHWDZxdeAimOrdhuTwsRZZ015QyTKk8/9CS5NFUd
-	kpoIrOln9x/Ft8EOW8oT26ZQijIQhqUjchqMUvoI=
-Received: by mx.zoho.in with SMTPS id 1774118198500509.3947448325174;
-	Sun, 22 Mar 2026 00:06:38 +0530 (IST)
-From: Vansh Choudhary <ch@vnsh.in>
-To: linux-erofs@lists.ozlabs.org
-Cc: Vansh Choudhary <ch@vnsh.in>
-Subject: [PATCH] erofs-utils: fsck: check symlink size before allocation
-Date: Sat, 21 Mar 2026 18:36:38 +0000
-Message-ID: <20260321183638.43353-1-ch@vnsh.in>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fdctk2rPmz2xN2
+	for <linux-erofs@lists.ozlabs.org>; Sun, 22 Mar 2026 11:41:32 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1774140088; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=y2eQfPGTI7Xo5iKZZtvDMTajRO4+saU4maeK4y9K/4s=;
+	b=kdpJuJ0uJcq8GjR4umWdXpbpBoU9oMteQAc3iojtw79uVLqGEEKe9u887IzDlNWA0LWoimfHhm/DlHi4NTIItK96JzdkMeJtpPiuz4KcQcBtIR9uIKTae1RVpMn+PUfHeJf9e+rliSr36rgHQRrUJeny4Wa2Qv44I/HUWPM9F0k=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.PoL.z_1774140086;
+Received: from 30.41.54.139(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.PoL.z_1774140086 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sun, 22 Mar 2026 08:41:27 +0800
+Message-ID: <9fa87530-6c44-44fe-86a8-ff546d6b663e@linux.alibaba.com>
+Date: Sun, 22 Mar 2026 08:41:26 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -66,50 +51,34 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs-utils: fsck: fix directory loop tracking
+To: Nithurshen <nithurshen.dev@gmail.com>, ch@vnsh.in
+Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org
+References: <20260321142852.35991-1-ch@vnsh.in>
+ <20260321160551.20683-1-nithurshen.dev@gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20260321160551.20683-1-nithurshen.dev@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-erofs_extract_symlink() uses inode->i_size to allocate a buffer for
-the symlink target and then appends a trailing NUL byte.
 
-Reject symlink sizes larger than SIZE_MAX - 1 before allocating the
-buffer so malformed images cannot overflow the allocation size.
 
-Return -EOVERFLOW for this case and keep the existing extraction flow
-unchanged otherwise.
+On 2026/3/22 00:05, Nithurshen wrote:
+> Hi Xiang,
+> 
+> This patch LGTM.
+> 
+> I tested the fix by compiling fsck with a debug trace and running
+> it against an image with a nested directory structure. I verified
+> that the recursion stack now correctly pushes the current directory's
+> NID (inode.nid) instead of inheriting the parent's NID, successfully
+> fixing the loop tracking logic.
 
-Signed-off-by: Vansh Choudhary <ch@vnsh.in>
----
- fsck/main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Please help work on a testcase too, thanks.
 
-diff --git a/fsck/main.c b/fsck/main.c
-index 16a354f..1254112 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -4,6 +4,7 @@
-  * Author: Daeho Jeong <daehojeong@google.com>
-  */
- #include <stdlib.h>
-+#include <stdint.h>
- #include <getopt.h>
- #include <time.h>
- #include <utime.h>
-@@ -794,6 +795,13 @@ static inline int erofs_extract_symlink(struct erofs_inode *inode)
- 	if (ret)
- 		return ret;
- 
-+	if (inode->i_size > SIZE_MAX - 1) {
-+		erofs_err("symlink size %" PRIu64 " is too large @ nid %llu",
-+			  inode->i_size, inode->nid | 0ULL);
-+		ret = -EOVERFLOW;
-+		goto out;
-+	}
-+
- 	buf = malloc(inode->i_size + 1);
- 	if (!buf) {
- 		ret = -ENOMEM;
--- 
-2.43.0
+> 
+> Reviewed-by: Nithurshen <nithurshen.dev@gmail.com>
+> Tested-by: Nithurshen <nithurshen.dev@gmail.com>
 
 
