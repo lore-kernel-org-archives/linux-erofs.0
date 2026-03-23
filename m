@@ -1,45 +1,86 @@
-Return-Path: <linux-erofs+bounces-2939-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2940-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7112BD58CBE
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 03:36:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A59EAD58CC5
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 04:25:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ffJk800pwz2ySb;
-	Mon, 23 Mar 2026 14:36:32 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774236991;
-	cv=none; b=EmLSigYgB0xRZ7H4wJjn4uX/FjIeNhB0/SkVB1bE8I0RMpw0x2IT0CrdJlu5ZHZxhF87tRP8QwNkRnDSiaDoIC++8Sc833zDBz0BV1XiWpHj/mdg0R4k/Dvaqr1fFa+lmdOKt8+smvoNtMLeWe44O0h5UgGJJl1EHTyTWL4zpneY8oSTLPlBL0kj2isXv71qIBLieLPjx5AfntvlEaZx+2FnbSvcHkI/SZjCb5Lnym+uA5qZ5heBKlKhCuZKFyX0qsnDVKHqzkYZyRW+FgIvT3zwADJBV2JeBdAx9P5eIuUpGr6RiTPsqlgjMlm+Q5aSsgRpUC4bHhkwRE72d62jsA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ffKpc0D1Zz2ySc;
+	Mon, 23 Mar 2026 15:25:28 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::72a"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774239927;
+	cv=none; b=J2X1SM8F3s+zpUwgnihHH4RJE3ONsovJs/7NIU+ByK+uLPl3GcjdYDN8KU1zPDH47JgeFqBMd5iZdcgMTeCTrg0DTustdyF8Xo0UxubzXHSU6H0l/mHe436jrdBu6NAfLAH11LUaURQBa/2nHApOIKhyE7ExF6VEoAwchGkS00guCIkoRLRDVA7pfFgzd+EoeBIb/Gp3pQZ2LQyiiLAdJ8pnFmFiHdmwjkb0/f5K4RktX8+LG6MXNr4WZd3jr6ER0Ok/hYlYUiGVbHpnvH2lUvxyTga42bkCcmEHaTN7rO3kZzWYf8z05R9SiB81vVG7vO7UrqA+vqDpkKcZyhXucw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774236991; c=relaxed/relaxed;
-	bh=hA6C3jQd4m0QVLC+JxyRoTwUaXIqYK4Fk66F34NoccE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=k95HBVtYM/O84EH5eidrmhkOlWaBE2P9Qa1xlNvpoKUon3kp4SybmiB9XReRqDbxTRxWnrh9oGW9xA7w7iSgZx/qDGcXCMWiSz4eBkjhomH3YLDihySMqcC7xBxEtl/K/Iff5uvFX03LKVSe3+qRsYYYxXCYqgiW7XmaT94MAI4x1q4jQzqEBYYvCzFWIUMh8YAPGzFS5kRYl+nmo+lhnyS84xfYBBCZBvJ5eh2ahbawqIfqFyTko7Tbf+vltsH8IctMuFyzDZeasamePMyuBIbWGhzDXcbO+IcFOh9DzkuM++wfYk/INZ4EcG0FS1F4RYUIygGUlxYlyz4PcPQoGQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fwU/dV57; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1774239927; c=relaxed/relaxed;
+	bh=dHNU+T5mQ52dsDV+e3ezWpkvnj+dhj3Dc5R6m19Ae3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VO5QJLhNhfbaZwgCpgm4gO+nCvsr6XE8R3v+iDRNeACUvLTRhYAz6z6R2h3EFvSFm7TPSzmxGB4HIvJdgl7wJGDukg92o1xswsuJuH/s5QPQUeQ67zwkRs27X6iP7HhcaX92UoHD0uh8IqNyn28NFi/I4BIk8hP2MeynDkHhlwNfJflK5JsPDx4chE9zulFo38ZMnP0hR6w3OQJ/m6Zd9ROELCy3ZBmT/6wpN9hvZwD4cnBUbcdCpd+nRyVsMpwZs5Gzq/8qv4wg5WXrKPbTLiCRo5tomewzlczaQ3beOwuftKcDrF6+sNX2H48GWrmJHtcRzyg6R/GgTxiXYeAX2A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; dkim=pass (2048-bit key; unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=ZSzbFSXB; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::72a; helo=mail-qk1-x72a.google.com; envelope-from=paul@paul-moore.com; receiver=lists.ozlabs.org) smtp.mailfrom=paul-moore.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fwU/dV57;
+	dkim=pass (2048-bit key; unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=ZSzbFSXB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=paul-moore.com (client-ip=2607:f8b0:4864:20::72a; helo=mail-qk1-x72a.google.com; envelope-from=paul@paul-moore.com; receiver=lists.ozlabs.org)
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffJk42vkDz2xd6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 14:36:27 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1774236982; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=hA6C3jQd4m0QVLC+JxyRoTwUaXIqYK4Fk66F34NoccE=;
-	b=fwU/dV57iJa6ORazpLaaIuugTW/HRYWqNYgoBz5dLjjSuZ0ewWf5J/zDuxjrgrJ1JS3rqhiwy9tCV+dZnCPiM5AfmC028Ow1O8UtXdKKiFeoM9OI3jJYDkI3i0N4iPd/2LsbC0liywkz2r6vYNO2LBA+mY2RMI7M11QPYgEvlio=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.SGmXh_1774236979;
-Received: from 30.221.131.200(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.SGmXh_1774236979 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 23 Mar 2026 11:36:20 +0800
-Message-ID: <491c421e-90a5-488a-b0ba-9ee0e9be4ec6@linux.alibaba.com>
-Date: Mon, 23 Mar 2026 11:36:19 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffKpZ1js0z2xly
+	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 15:25:25 +1100 (AEDT)
+Received: by mail-qk1-x72a.google.com with SMTP id af79cd13be357-8cfc5941028so362430385a.1
+        for <linux-erofs@lists.ozlabs.org>; Sun, 22 Mar 2026 21:25:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1774239922; x=1774844722; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dHNU+T5mQ52dsDV+e3ezWpkvnj+dhj3Dc5R6m19Ae3g=;
+        b=ZSzbFSXBqSUhq/YbUqJpkqLNfPku/PXv5ZBgGmfRdLQVjNOaSWc5RV4+qEo0SRO7zQ
+         IU70D5RHgD+/sZVhemUsiBSiMyLGfBlQpPSCrPobfraD2F0aXnaI7C4pEX3c6EX/7B6j
+         vFOWm3CPj+whpqbkvdHjQkR9SxLC+luVdDGAPPcON98xsfPd0wyeFtBXkGUCDvsYlwIu
+         VsfFBojpjJgpXWcKiH1bTMDdqeaaMOQs1lL1bob76wgsY1FrHdYAyTPceK4AQ5fT/gFW
+         U1inC+J2QF+BxhJC76mcjZWDDhEsc+lnvu8LfaWwR2nJB3P8p4asrYCVDzL5c1DPmByk
+         wkxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774239922; x=1774844722;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dHNU+T5mQ52dsDV+e3ezWpkvnj+dhj3Dc5R6m19Ae3g=;
+        b=j+wTKL6Q3agWkKo9VN09Inx7V4QyqmQILbs24YlTcfXL60CXlW/qCcc91ZHpwztOsQ
+         mxJxDvC04h8Oj5UmIS4YFl9CIMnpI4huFcNl0uyPOB2UOYFkOH0Cx5vNBSebh+Vylu3/
+         WvWthGRZukKZ4yvb/+xCye6lVsXJbp3mEoyffTzp28qjTPkmG3jClJCC1Dp6oKKDPVtN
+         eP65byguAvk55izm+J/HqpDP9z1MM5wvkY4ew/U9/jZxHqcNiOLA6tUfdQ1XQlPFQAHe
+         ptbiiGb5Y75yhQJktpSo493P2FnkGTRWkbZ/f2eCJ08vgtMpH/4PEiFpCjG7ktSINr2v
+         tVJA==
+X-Forwarded-Encrypted: i=1; AJvYcCWXuC8xCidyQXntiO7oO9wNh/Q4mFq8I1CWcl/N4sMeQNPVgbe3E8OLygpnvksTgQl7OwA9dOmhVQkorQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yz+7PBbHXRNvIh9l76FwQNhmXFHUGK51/PfWkclcm9VtDwk5y3o
+	7XYM1Zg8gqiEszkWvbAVK0pFdTyrEJZA7cZ3s6D0IqP0W1rjNMeXVB20cQTGDGWgqg==
+X-Gm-Gg: ATEYQzy5tTbOxuTSfYLbrlKkxjrv7oPEli0Kl44/aTWLcwQgXZfyttbaWZQrlK0ThKT
+	E6dSM1xYfVSFB38GcMTkPrpkiP2wJYC4FERqbCn3BEeFOuCFRQMO4MgsXCYhtV0cND6vfC+ztI5
+	9BfI3iHOCGK65upnL+jIW1+lsPRKxt+oO041SKVmPQXgaU27qquG/gSvxIHK4ulgDozeofDQ3gT
+	mWC88DWrT3C/YQXRBdAcrN4o8dn8Aa61/mj5LGZY4fIocgYTJNW7tPmqylXzuwuOruxm34jM1w3
+	WpRSspq4kaS4wKTpbkInV3+NFzvKDgssb5tRvu+JbspVUvAlZi3rV+J+YCms3eh8N6JJzwa9QBG
+	RPDxiVER3UpzLGw58bIuhW7IiPnafFtRQDMJcWgGJIPNCIFMgqHcYwvBTSuu94kPpLe5rBndQg5
+	q5gPLa7iSPFlJ39prC+LQDPNJ47F0buyb0/xIyIa9ZTXdGETnwxLWWV5Qxo/yPi618HzsZ
+X-Received: by 2002:a05:620a:3193:b0:8cd:94a5:2f22 with SMTP id af79cd13be357-8cfc7e6d7eamr1552756685a.20.1774239922032;
+        Sun, 22 Mar 2026 21:25:22 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cfc8f5fa29sm677110285a.10.2026.03.22.21.25.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Mar 2026 21:25:21 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-unionfs@vger.kernel.org,
+	linux-erofs@lists.ozlabs.org
+Cc: Amir Goldstein <amir73il@gmail.com>,
+	Gao Xiang <xiang@kernel.org>
+Subject: [RFC PATCH v2 0/2] Fix incorrect overlayfs mmap() and mprotect() LSM access controls
+Date: Mon, 23 Mar 2026 00:24:17 -0400
+Message-ID: <20260323042510.3331778-4-paul@paul-moore.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,41 +92,58 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: fsck: check symlink size before allocation
-To: Nithurshen <nithurshen.dev@gmail.com>, ch@vnsh.in
-Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org
-References: <20260321183638.43353-1-ch@vnsh.in>
- <20260323033204.97472-1-nithurshen.dev@gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260323033204.97472-1-nithurshen.dev@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+This is a follow-up revision to the patchset[1] posted a week ago.  This
+second version has changed significantly in terms of approach and
+implementation, as it has become clear that the overlayfs/VFS devs are
+unable to make the user O_PATH file approach work.  Unfortunately, this
+pushes a lot of the complexity down into the LSM, as opposed to the
+backing file code, and will likely result in code and state duplication
+across the different LSMs, but at this point in time it doesn't appear
+we have any other options.
 
+I'm marking this patchset as a RFC since I've only done basic testing
+on this patchset, and I still haven't satisfied myself that the code
+covers all of the different cases.  Additional inspection and testing
+is required, however, please feel free to take a look and comment on
+anything that looks odd.  As always, additional testing is welcome and
+encouraged.
 
-On 2026/3/23 11:32, Nithurshen wrote:
-> Hi Xiang,
-> 
-> This patch LGTM.
-> 
-> I manually verified this by compiling with `-O0 -g` on macOS (arm64)
-> and using lldb for fault injection. I stepped through
-> erofs_extract_symlink() and allowed erofs_verify_inode_data() to pass
-> with normal metadata. Right before the buffer allocation, I artificially
-> inflated inode->i_size to 0xffffffffffffffff (SIZE_MAX).
-> 
-> Without the patch, bypassing the OS read limits with this size causes
-> a predictable heap buffer overflow and an EXC_BAD_ACCESS crash. With
-> the patch applied, the bounds check successfully catches the malformed
-> size, gracefully bails out with -EOVERFLOW, and prevents the memory
-> corruption.
+[1] https://lore.kernel.org/linux-security-module/20260316213606.374109-5-paul@paul-moore.com/
 
-This patch doesn't look good to me.
-I will submit another patch instead.
+--
+CHANGELOG:
+v2:
+- remove the user O_PATH file patch from Amir
+- add the backing_file LSM blob and lifecycle hooks
+- update the SELinux code to reflect the other changes
+v1:
+- initial version
 
-> 
-> Tested-by: Nithurshen <nithurshen.dev@gmail.com>
-> Reviewed-by: Nithurshen <nithurshen.dev@gmail.com>
+--
+Paul Moore (2):
+      lsm: add backing_file LSM hooks
+      selinux: fix overlayfs mmap() and mprotect() access checks
+
+ fs/backing-file.c                 |   18 +-
+ fs/erofs/ishare.c                 |   10 +
+ fs/file_table.c                   |   21 ++
+ fs/fuse/passthrough.c             |    2 
+ fs/internal.h                     |    3 
+ fs/overlayfs/dir.c                |    2 
+ fs/overlayfs/file.c               |    2 
+ include/linux/backing-file.h      |    4 
+ include/linux/fs.h                |    1 
+ include/linux/lsm_audit.h         |    2 
+ include/linux/lsm_hook_defs.h     |    5 
+ include/linux/lsm_hooks.h         |    1 
+ include/linux/security.h          |   22 ++
+ security/lsm.h                    |    1 
+ security/lsm_init.c               |    9 +
+ security/security.c               |  100 +++++++++++
+ security/selinux/hooks.c          |  252 +++++++++++++++++++++---------
+ security/selinux/include/objsec.h |   17 ++
+ 18 files changed, 387 insertions(+), 85 deletions(-)
 
 
