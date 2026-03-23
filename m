@@ -1,45 +1,51 @@
-Return-Path: <linux-erofs+bounces-2949-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2950-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B067AEC01A9
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 08:59:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63D24EC01B6
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 09:49:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ffRtQ2J4gz2ySb;
-	Mon, 23 Mar 2026 19:59:10 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774256350;
-	cv=none; b=FM+476YHZlHuL5Yx/P5zoz69ca7rTv621PA8kusVjM/A3LXXky3HEkBfn+pLSzMrx9L8tLPdYCMIvKqHyhxItgi/oBHbXQdRMkX1iWecynPrA1bdG5NtQs2TiuR63ZMT8M3dM21fPKNoDbKq8HMAQm/6zJszBM91/THJli3Yn7eEsC00VWlroGziU9R8iZDnyfpnVzgyZGT2I+6xVJ+dp5JKY3HDBMfTPTykjdwMgM65BgeQdi7xeOprAnthjnTFoLQc0gNNUrQhk3KDFFjwQIlLiEmUbbWiUynmL5bZOVcBUzrZvCEjLueahMHfZmmfo6Wn3AyNXlgncmljufsutA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ffT0908HDz2ySc;
+	Mon, 23 Mar 2026 20:49:13 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774259352;
+	cv=none; b=evQ4auNiNNCzredX8oEqUGTfEgY7Pvznso7IEe4q+s8ncPsowdQQfq9shvQwSCL4KF3b0oq3xy//s5lfy0MeuGbRVmmNeUfTtppX5lDOkLfxT9ET3503tJE2sDSmoliSOXzW5ztu8VHnJ55kLgpEvwv4gVMILoNLl93ytZxiFxkNsIC+vDAq47Lv8d37UV7XJbeXSWxDsYTnLE2h0iN432TzH/XWuNVIX3+4jllziedFICyGsZkpYGvp8lM6n0rh6FE0r/4OyuZgzJr5RF4/7lwpPsTESYK142CvukEWSiHW8NDFn30M0q+riSwTHQpQCWq/wCzcFKB89ukXmQSgwQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774256350; c=relaxed/relaxed;
-	bh=H6naz5viM7Xu+VTy8JB833V7Y7xXzzJWGleVlAWy85U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Gsc1sW7oFzzXwyy0mn3IogvLC8/9X2DWmn2MBNcGRiAal3ai6VG60z1B1CvzswIIcBzs9byX35AoVa8M0RnAKHE+6qbJhBg0WWYfFXC2X6jnEV2it/0+/AlloB4o85dqGJmdDzSnFdvmal+gpkJVwPunR6d5GDIQ/IT1KtQVxntOCwfK8O5ch05b6Jcl1/rgBdoYWpq+vypK9U/xVE5IPWSrLeWmDqn8agxf6CR06x7rCDRXB96vaZtgF69ER+fYquwiYCsRm0ucmAhCGhGAyh8Bi2OSmxxZF0ujiVl7Su6+HuKI7PDmTHm6jzGqH3qBWqB9zdaSbZxAnoRWERp/qA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BNIKejrC; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1774259352; c=relaxed/relaxed;
+	bh=0KzACxuDuinzNW8y4KmDnlliv0Pog010pgubfK+alRU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LVQr6OXBI5A4okokzeCHNoDB0RGw9R/KkKcUs3BuZaqKe9epBHEILe295i39b9FJr49OISvi142MkQIRNXnYLHuWXNrkB/YP2ueRr4FiahNcUhRhTp0zXHRhxytxCmqfvDIWfSDdR5+Xz6JKvlUxqQU7utjF3dnvU7lJzbLdaqn8kUxdrB9z9ocSiR04f2wQGxD37ZKjffmDR2Mq89gHtEJDzt4+FXMBD2IDalx48m7XRzbZAcR8Ire1Dxd4RbIoNAZD0aAiCsoC82LXLDM7V0kOa9sp7t52mV/czxqASGPZl4Jn4ACXgQJWbDprdzmJUrcnZ5JGIjBD6ASCWfVt7A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xSR3Arj9; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BNIKejrC;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=xSR3Arj9;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffRtM5Q8zz2xly
-	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 19:59:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffT060DHmz2ySb
+	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 20:49:07 +1100 (AEDT)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1774256339; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=H6naz5viM7Xu+VTy8JB833V7Y7xXzzJWGleVlAWy85U=;
-	b=BNIKejrCJqSfwM2RNH2F1+bWX+hmprReusoqiVuWcrS0nDeAb+X+Xp3/aAeNsvZIsGJWhYA3cguwgCo2jDs4rxd39P9a5BNh0l9AcEzxKNu+OOFUbZNN/TicL3lntrL8/UPCOEVWk+yC76Zg/ozTn1oMuWJS8SXE1HXHcBktgx0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X.VeY6Q_1774256338;
-Received: from 30.221.131.200(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.VeY6Q_1774256338 cluster:ay36)
+	t=1774259343; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=0KzACxuDuinzNW8y4KmDnlliv0Pog010pgubfK+alRU=;
+	b=xSR3Arj9kVsIWB2bRN9eizXImhBdZuViOHX70ZGngBYsoiT2+UfYauCK0a2p1np6e7srVpXFAC+QqD0BvnB/+5h9pIj5CI25xRAXxY8Ojdr5Ors8vjSye8tuYzwDvK9lWPpngFtmZ6/kiRtnSgORK2hD3MJ5hxjqKTVpcQhpr1E=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.W8c8F_1774259338;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.W8c8F_1774259338 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 23 Mar 2026 16:58:58 +0800
-Message-ID: <8ac4cd88-3460-4a34-ad11-45f9d4f27a69@linux.alibaba.com>
-Date: Mon, 23 Mar 2026 16:58:57 +0800
+          Mon, 23 Mar 2026 17:49:02 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org,
+	Chao Yu <chao@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH] erofs: update the Kconfig description
+Date: Mon, 23 Mar 2026 17:48:57 +0800
+Message-ID: <20260323094857.2187994-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,74 +57,84 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6.1] erofs: Fix the slab-out-of-bounds in drop_buffers()
-To: Denis Arefev <arefev@swemel.ru>, stable@vger.kernel.org,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
- Jeffle Xu <jefflexu@linux.alibaba.com>, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, lvc-project@linuxtesting.org,
- syzbot+5b886a2e03529dbcef81@syzkaller.appspotmail.com
-References: <20260323085216.7965-1-arefev@swemel.ru>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260323085216.7965-1-arefev@swemel.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Refine the description to better highlight its features and use cases.
 
+In addition, add instructions for building it as a module and clarify
+the compression option.
 
-On 2026/3/23 16:52, Denis Arefev wrote:
-> No upstream commit exists for this patch.
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/Kconfig | 45 ++++++++++++++++++++++++++++++---------------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-That is also strange, since people would ask why not submiting a patch
-upstream, I think you still need to mention the upstream commit
-
-ce529cc25b184e93397b94a8a322128fc0095cbb
-("erofs: enable large folios for iomap mode").
-
-also see another commit in linux 6.1 branch:
-1ce9ebc96eda ("erofs: ensure that the post-EOF tails are all zeroed").
-
-Thanks,
-Gao Xiang
-
-> 
-> Syzbot reported that a KASAN slab-out-of-bounds bug was discovered in
-> the drop_buffers() function [1].
-> 
-> The root cause is that erofs_raw_access_aops does not define .release_folio
-> and .invalidate_folio. When using iomap-based operations, folio->private
-> may contain iomap-specific data rather than buffer_heads. Without special
-> handlers, the kernel may fall back to generic functions (such as
-> drop_buffers), which incorrectly treat folio->private as a list of
-> buffer_head structures, leading to incorrect memory interpretation and
-> out-of-bounds access.
-> 
-> Fix this by explicitly setting .release_folio and .invalidate_folio to the
-> values of iomap_release_folio and iomap_invalidate_folio, respectively.
-> 
-> [1] https://syzkaller.appspot.com/x/report.txt?x=12e5a142580000
-> 
-> Fixes: 7479c505b4ab ("fs: Convert iomap_readpage to iomap_read_folio")
-> Reported-by: syzbot+5b886a2e03529dbcef81@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?id=c6aeabd0c4ad2466f63a274faf2a123103f8fbf7
-> Signed-off-by: Denis Arefev <arefev@swemel.ru>
-> ---
->   fs/erofs/data.c | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index 7b648bec61fd..302e824827fc 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -406,6 +406,8 @@ const struct address_space_operations erofs_raw_access_aops = {
->   	.readahead = erofs_readahead,
->   	.bmap = erofs_bmap,
->   	.direct_IO = noop_direct_IO,
-> +	.release_folio = iomap_release_folio,
-> +	.invalidate_folio = iomap_invalidate_folio,
->   };
->   
->   #ifdef CONFIG_FS_DAX
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index a9f645f57bb2..9489ed8ad95b 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -16,22 +16,36 @@ config EROFS_FS
+ 	select ZLIB_INFLATE if EROFS_FS_ZIP_DEFLATE
+ 	select ZSTD_DECOMPRESS if EROFS_FS_ZIP_ZSTD
+ 	help
+-	  EROFS (Enhanced Read-Only File System) is a lightweight read-only
+-	  file system with modern designs (e.g. no buffer heads, inline
+-	  xattrs/data, chunk-based deduplication, multiple devices, etc.) for
+-	  scenarios which need high-performance read-only solutions, e.g.
+-	  smartphones with Android OS, LiveCDs and high-density hosts with
+-	  numerous containers;
+-
+-	  It also provides transparent compression and deduplication support to
+-	  improve storage density and maintain relatively high compression
+-	  ratios, and it implements in-place decompression to temporarily reuse
+-	  page cache for compressed data using proper strategies, which is
+-	  quite useful for ensuring guaranteed end-to-end runtime decompression
++	  EROFS (Enhanced Read-Only File System) is a modern, lightweight,
++	  secure read-only filesystem for various use cases, such as immutable
++	  system images, container images, application sandboxes, and datasets.
++
++	  EROFS uses a flexible, hierarchical on-disk design so that features
++	  can be enabled on demand: the core on-disk format is block-aligned in
++	  order to perform optimally on all kinds of devices, including block
++	  and memory-backed devices; the format is easy to parse and has zero
++	  metadata redundancy, unlike generic filesystems, making it ideal for
++	  for filesytem auditing and remote access; inline data, random-access
++	  friendly directory data, inline/shared extended attributes and
++	  chunk-based deduplication ensure space efficiency while maintaining
++	  high performance.
++
++	  Optionally, it supports multiple devices to reference external data,
++	  enabling data sharing for container images.
++
++	  It also has advanced encoded on-disk layouts, particularly for data
++	  compression and fine-grained deduplication. It utilizes fixed-size
++	  output compression to improve storage density while keeping relatively
++	  high compression ratios. Furthermore, it implements in-place
++	  decompression to reuse file pages to keep compressed data temporarily
++	  with proper strategies, which ensures guaranteed end-to-end runtime
+ 	  performance under extreme memory pressure without extra cost.
+ 
+-	  See the documentation at <file:Documentation/filesystems/erofs.rst>
+-	  and the web pages at <https://erofs.docs.kernel.org> for more details.
++	  For more details, see the web pages at <https://erofs.docs.kernel.org>
++	  and the documentation at <file:Documentation/filesystems/erofs.rst>.
++
++	  To compile EROFS filesystem support as a module, choose M here. The
++	  module will be called erofs.
+ 
+ 	  If unsure, say N.
+ 
+@@ -105,7 +119,8 @@ config EROFS_FS_ZIP
+ 	depends on EROFS_FS
+ 	default y
+ 	help
+-	  Enable transparent compression support for EROFS file systems.
++	  Enable EROFS compression layouts so that filesystems containing
++	  compressed files can be parsed by the kernel.
+ 
+ 	  If you don't want to enable compression feature, say N.
+ 
+-- 
+2.43.5
 
 
