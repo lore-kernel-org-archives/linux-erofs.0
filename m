@@ -1,51 +1,86 @@
-Return-Path: <linux-erofs+bounces-2951-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2952-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95CA6EC01B1
-	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 09:59:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A6F1EC01C9
+	for <linux-erofs@archiver.kernel.org>; Mon, 23 Mar 2026 11:19:18 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4ffTDN6Lnkz2ySc;
-	Mon, 23 Mar 2026 20:59:48 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774259988;
-	cv=none; b=KhBxIaD71BSDpK9dc5fiZRo9qsjaWOo/+Hl4hs9oabkbKEdkDsDeY9hUR2HF6GavovwsAsjHJlMzw8YshnQxdYVp9HjSHibLHN/uDMIeemn5T7pKm7IliKOyRnZcbCdhyklTKREDD7+Z9A9rJr5OHsGUpayc4SzhvwauGP/QPkqPoGOWXg8EodhpE9GaQgs1kLh4B70w2BxZ+UpuQQjhXonO3s4YP6CuV2/5o/+o6XIhBoy0ITkrUATl9LuJYJPTEGxejrw8kZsQMT1gAtO2F8H4z4cGUp46NOla4rq1kQ58WBa6ZbQr1hKz9ry9ADK2Io59k2brk3p02NBQa54zUg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ffW046qB7z2ySc;
+	Mon, 23 Mar 2026 22:19:16 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::42a"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774264756;
+	cv=none; b=Jy8aojSjYQE5PnbThkz6LkxK/dlJRmC42R4UUGs796sxG5GlwYis/xQrhhhZX+LEbLPaDc3s7LeXm8V7z84kZ7PTKO/2KLYtf1ishHyGqKd8qm2GdMsnxR0eP7DReV79cMe/d1diqejrrK1ynWOJ3BF0uG0Zh5nsnXrhMOmQDWxRAWK9PGPmxwm+2W0CRjMQOBADqCGIXDSvwEwP1fZOB1jCEsGKaVbDvfn03K8djvI+mUU/jcvzd04vwRyyrb1XnMX05aSiXvmB1PySr5HZiy+ToJo2oAeaDCxM4KB7k21YHEmBkPtKxtuLKYMoIsccFkVIImrylBTwKf9ywj/kIg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774259988; c=relaxed/relaxed;
-	bh=BjsMzS+Q9We+mYzRjTpIH2UdhNZQt4P8O4fGNIk/7JA=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=ILiZiH4tNiXpecB6NsW/b0s7iY/iMwXsNKQPEVLcvz9pbVVjJ9H9bMO/va4hn2Vc3sWkKEOcskPRIpdw7S3e+uqkFynRPmFHKlwScY0Q8XoVo6Ctds4xXiVx6JBbRQ/Q3vVW6OX3XOnBipgDpSb9QUyr/UkIuMHbAayzXXfqsH1LwClUiNMgkoSi7+NqdngHfjPyPdffEwTpcss8qZZcsRc0po7NmTxFluPXLT0xaGVrk2uD3ocESrfAlefvdVJLh4Plcnxblwb+u9ZL0qB1JYeg2r4/M85QI0U1LL/Kl0oyJX12r2d4LrAFYSiAWW5KALNG99RmNDgicAh8cR9cgw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=VX8jDzQJ; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1774264756; c=relaxed/relaxed;
+	bh=1gmTaEoAmJ+H51pzw1QqEPleAoLI0tsf9MdESQRJ5wQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=oHDZMEzD21+s8KTsaNMJTUjbd/STFzN2JXPY/HMfcpbsll/C0PRP0abIrCbw/ttsZXo009Mpx5n7zsZQwCHysUSsXOqwsetiThVhXIDyIOHdD7+jsgG3iBSBTecHjK2WoXS+zjjyM/v2OhG1A+9Z3DTqiKJZvv15oHl0SCclaKLLyWAkZCQIPDcDlIxH36PvN7f1dcfrTwsBkCuLwywJ4cAwby+KtyIebb0lGrnv/bNFfKsUFBBC+9cbf6mgaWNSMWvr9458n1vji76iwcOMjkrhXNx4mRw7uuicmgWYMuadT02VihW0Ozup/a+QAmXrFK8YfJ1DVturcOADYAhNDw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=bl2/xQiV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::42a; helo=mail-wr1-x42a.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=VX8jDzQJ;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=bl2/xQiV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::42a; helo=mail-wr1-x42a.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffTDM6rW2z2ySb
-	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 20:59:47 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 55C06436CA;
-	Mon, 23 Mar 2026 09:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DCD1C4CEF7;
-	Mon, 23 Mar 2026 09:59:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774259985;
-	bh=o9VDcVaeOW+9PxAISKA8BbwHP5JjMc2drei/sa5NuKk=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=VX8jDzQJUG5re5L6rbV2/LwwAYcZZCVfU3aSXZsizRDBKRzrFzpPz1d+kWdQKZpAt
-	 ij/dnMCc0iX/thIVzwGEq0QjpkdvA2jRYV284XEjAIPr2w8j/gWSXwKnEbtKfjjlPo
-	 zW5Oyt8JmdnhBI2C6XI2rn0ahpi0UvF0S1ucCzki3Uiv7vaqtWT5GwTxr7Ke7ZA+Mp
-	 1+n6UP2SpVZvJyfnUWp9kRMTIghaxfPikBGqrWoULvf2UOF+LHL4FWAmmkN4YCoQkf
-	 a7K8lf0kNreH68/0nh2HqYtQeTxq1/ALob4Ax62kc2tsDIlxwbusqowdAIZuopim8a
-	 gO3A/TRBV//Dw==
-Message-ID: <927c52ee-24b5-4b8f-98ee-3a18f13fa8b5@kernel.org>
-Date: Mon, 23 Mar 2026 17:59:42 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ffW031q9Jz2ySb
+	for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 22:19:14 +1100 (AEDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-43b45bb7548so2918848f8f.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 23 Mar 2026 04:19:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774264750; x=1774869550; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1gmTaEoAmJ+H51pzw1QqEPleAoLI0tsf9MdESQRJ5wQ=;
+        b=bl2/xQiVjbxtJ1UN6Xk+rwa+onSqg0vtKDKTeemdqc/9/VEuhBBPqFYnro3A5nHOBL
+         jA5wLV0AB/3yFvCDhiPGgbqYOaRHFdgs4QuyFfwPNRMw85BXynEcXsFTvR/C200wM2jH
+         MjWpSkoViCkLkxKTD+dGDqJvGDqa99mNu6wncoP455kFe0UeuBrewS0/bkUQvdyIVpIO
+         rbd81l9pXNg5YS1rk37rQEK2gjhu5f4IQ45MydFHmJOgJXpEPAGnPp25HgBJas2hgNXN
+         AqiZaU2WZ3OcvSuxrg4xVbWZ/mzigojGPfmNdq+EoLYcaqFlX71EdoclnwM3G4cc580M
+         D4tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774264750; x=1774869550;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1gmTaEoAmJ+H51pzw1QqEPleAoLI0tsf9MdESQRJ5wQ=;
+        b=G0h9gIl8ZKADVHVOneNDF/FRELDl38tIXhahkRCHJk6Khg9uLq59VMQ1iNfmMXJoBd
+         +IS0GoP04MGkPHitkYmoVwy8KvwZmkgwqlCIng3sXlDQzfFKvt1/ljgKJ6GzwiRiruTa
+         pm3Y8cHliGw8QUYFT0y/MnQrjjoJ4o+KRI3Jj5E9FaBHbqYmayavz5qz2Zfcf+bvxBjd
+         qSnVzLXxrxFob8NbaLgQgJq2KuERMmKFyuoaPt2v/ZIkuNNUQXC0Xqnz30rPRVWROsr2
+         quba9Nd8Bundqbnt0Op+AsMVfo3VrMC/ZUZuXsCMUBgV4SEeldBM8rcUlbhzgLKA9mTm
+         aeFA==
+X-Forwarded-Encrypted: i=1; AJvYcCW9yPpuGxOnrpQMuh0V1j10HwBDVy4C1lNxbbW5m2nX+CKVZZ1UgjzI0GbJF0fd3WFSLyAyrE4KjzwM8w==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yw1DpnQO3Ny/yu8eHlwwFc2SrtUVQmZJZI/u6REK3UNxcez/M6l
+	kgZhJWCSehPmN+Ayuy9/zeQFYxtWc7u3/PiEcuTIsOKNk4w7VZ8Fsojm
+X-Gm-Gg: ATEYQzxxoxueI5/C/tnhKjbv9jG2K5+QvFVYY2DirAai5NFY2e21fWZST8AI7qqrxTG
+	DTj3yREjlqN8yX1JzMAzzIktApZjPZgi1okT3PzKgJrhUTd+H0b0Z8rfwc/gFbOND9s/0BPgMAV
+	0nWdNQcyLKFGJiMMaPozMLPPpG0767dm6bZQt7opZC2PkfbPtmjOXdd18j1HsoXuaPrKh+m8Pbk
+	rwko95AThOK4t/2VML+ivrSAk2ZaV8h3/1deVBITuS2bYWN1Gx2n9bs+N8l7h5vsfEYpH+AFSIP
+	NUjmDwajC0BaQj4ypvBbORPXCEBJZyMGOO0SKyP16JVPaWu2LMADOJ/c5gdGO5QgixVOfokWtPi
+	kk1sTDpB+JWxlSyFCF/pglDrxcfQbJ6/+sKvz/Y1AhSh8fU2u1gP3wioXZDOjz2h8guRPmfnNDu
+	b5ElUx0A0KWY48vSuJ6c1ijcPfRlf+L+KsjpUTXZhxhCK7NeabP2bKr3zg
+X-Received: by 2002:a05:6000:3103:b0:439:bcdb:95af with SMTP id ffacd0b85a97d-43b63ff0ee7mr17588578f8f.0.1774264750153;
+        Mon, 23 Mar 2026 04:19:10 -0700 (PDT)
+Received: from localhost.localdomain ([45.114.151.61])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b644bf1c5sm31308860f8f.14.2026.03.23.04.19.07
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 23 Mar 2026 04:19:09 -0700 (PDT)
+From: Nithurshen <nithurshen.dev@gmail.com>
+To: singhutkal015@gmail.com
+Cc: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: Re: [PATCH] erofs-utils: lib: switch ZSTD decompression to streaming API
+Date: Mon, 23 Mar 2026 16:49:01 +0530
+Message-ID: <20260323111901.44548-1-nithurshen.dev@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260323052257.11377-1-singhutkal015@gmail.com>
+References: <20260323052257.11377-1-singhutkal015@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,99 +92,12 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: chao@kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] erofs: update the Kconfig description
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, linux-erofs@lists.ozlabs.org
-References: <20260323094857.2187994-1-hsiangkao@linux.alibaba.com>
-Content-Language: en-US
-From: Chao Yu <chao@kernel.org>
-In-Reply-To: <20260323094857.2187994-1-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 3/23/26 17:48, Gao Xiang wrote:
-> Refine the description to better highlight its features and use cases.
-> 
-> In addition, add instructions for building it as a module and clarify
-> the compression option.
-> 
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> ---
->  fs/erofs/Kconfig | 45 ++++++++++++++++++++++++++++++---------------
->  1 file changed, 30 insertions(+), 15 deletions(-)
-> 
-> diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-> index a9f645f57bb2..9489ed8ad95b 100644
-> --- a/fs/erofs/Kconfig
-> +++ b/fs/erofs/Kconfig
-> @@ -16,22 +16,36 @@ config EROFS_FS
->  	select ZLIB_INFLATE if EROFS_FS_ZIP_DEFLATE
->  	select ZSTD_DECOMPRESS if EROFS_FS_ZIP_ZSTD
->  	help
-> -	  EROFS (Enhanced Read-Only File System) is a lightweight read-only
-> -	  file system with modern designs (e.g. no buffer heads, inline
-> -	  xattrs/data, chunk-based deduplication, multiple devices, etc.) for
-> -	  scenarios which need high-performance read-only solutions, e.g.
-> -	  smartphones with Android OS, LiveCDs and high-density hosts with
-> -	  numerous containers;
-> -
-> -	  It also provides transparent compression and deduplication support to
-> -	  improve storage density and maintain relatively high compression
-> -	  ratios, and it implements in-place decompression to temporarily reuse
-> -	  page cache for compressed data using proper strategies, which is
-> -	  quite useful for ensuring guaranteed end-to-end runtime decompression
-> +	  EROFS (Enhanced Read-Only File System) is a modern, lightweight,
-> +	  secure read-only filesystem for various use cases, such as immutable
-> +	  system images, container images, application sandboxes, and datasets.
-> +
-> +	  EROFS uses a flexible, hierarchical on-disk design so that features
-> +	  can be enabled on demand: the core on-disk format is block-aligned in
-> +	  order to perform optimally on all kinds of devices, including block
-> +	  and memory-backed devices; the format is easy to parse and has zero
-> +	  metadata redundancy, unlike generic filesystems, making it ideal for
-> +	  for filesytem auditing and remote access; inline data, random-access
+Hi Xiang,
 
-duplicated 'for'? otherwise, looks good to me.
-
-Reviewed-by: Chao Yu <chao@kernel.org>
+Can I test and verify this patch?
 
 Thanks,
-
-> +	  friendly directory data, inline/shared extended attributes and
-> +	  chunk-based deduplication ensure space efficiency while maintaining
-> +	  high performance.
-> +
-> +	  Optionally, it supports multiple devices to reference external data,
-> +	  enabling data sharing for container images.
-> +
-> +	  It also has advanced encoded on-disk layouts, particularly for data
-> +	  compression and fine-grained deduplication. It utilizes fixed-size
-> +	  output compression to improve storage density while keeping relatively
-> +	  high compression ratios. Furthermore, it implements in-place
-> +	  decompression to reuse file pages to keep compressed data temporarily
-> +	  with proper strategies, which ensures guaranteed end-to-end runtime
->  	  performance under extreme memory pressure without extra cost.
->  
-> -	  See the documentation at <file:Documentation/filesystems/erofs.rst>
-> -	  and the web pages at <https://erofs.docs.kernel.org> for more details.
-> +	  For more details, see the web pages at <https://erofs.docs.kernel.org>
-> +	  and the documentation at <file:Documentation/filesystems/erofs.rst>.
-> +
-> +	  To compile EROFS filesystem support as a module, choose M here. The
-> +	  module will be called erofs.
->  
->  	  If unsure, say N.
->  
-> @@ -105,7 +119,8 @@ config EROFS_FS_ZIP
->  	depends on EROFS_FS
->  	default y
->  	help
-> -	  Enable transparent compression support for EROFS file systems.
-> +	  Enable EROFS compression layouts so that filesystems containing
-> +	  compressed files can be parsed by the kernel.
->  
->  	  If you don't want to enable compression feature, say N.
->  
-
+Nithurshen
 
