@@ -1,48 +1,77 @@
-Return-Path: <linux-erofs+bounces-2990-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2991-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83630FEC11B
-	for <linux-erofs@archiver.kernel.org>; Wed, 25 Mar 2026 10:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A42C103A9AA
+	for <linux-erofs@archiver.kernel.org>; Wed, 25 Mar 2026 11:02:39 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fgjB60R83z2xS3;
-	Wed, 25 Mar 2026 21:02:06 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.161.70
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774432925;
-	cv=none; b=IVAeUFO9IvBQYmr4IPmKciVnDD/DQ6/cbsrA3qu2HPZ9iaHbkT4giy9aJnUvR2XgHYgeKLvOx1URsbqzlzOXGyVoWdgI05ulj0XKeW0vIva8cq2NNy/jiTU6QwB3cy9rczzoqchYL+WaNGqlhQ42zT4inutL9uY7VlluvzGw6OsfXVtSbnlShra32pfkiCZCG7ABM+8MozLBRPSD05OccZLX0kUeGmM2dZHVrTxCdwykP2VQ3B0jdlUiDTLWPnv2kYOvqcrxUajp3QONobU2Je+RpjjlriACgW7hTzUOn9RWT4umUb9POHSg3CgI/2sFsR5spQ98o90/5ex01r2ruQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fgkWy0blvz2xSX;
+	Wed, 25 Mar 2026 22:02:38 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774436558;
+	cv=none; b=mBU0EQYvigLWC16XeRsvWcJ1C+YjYHrAiFrF8R5+KxC47uhbeT7dPUAwHF2W41b7fDqAeczECzmsN8flehwhVcn3rH8HQDFeFUQDVaaSddn0CHkpjDQfxAFdMNOdbyJhIl4oeDcUAf5X0WjkCRRwT89c2nfIbKuN7x4BcTISIQvPFzanbmT5nt6XUcELhpid6G9UidtGOq8HXR1ecoO9eZ2Tp71oGTMBkv39xWLLVC0CPKMbWDPrb+CybnpFOC7j6NLzTn7CHSa1d6j10PkARzhF5GmMVuUffsndtYO3Gi2ihymTSLGsqDrzAom+GFQCFy6kzHnPqB6pOwEeqVJxtg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774432925; c=relaxed/relaxed;
-	bh=Wt/zP7gPXdc5BLZeGKzYLZVGgArFgcuj62q8DwXFGXM=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=f20u5VjtMPTyOpVRXP/f3PwSL64wJIO2xHGosXvZRo6XCzjsZoElEihiJ9QHdvwFsY3U9taJFr4L+RYR7bluC37zk+9d8i4QKYbPdo8s4Uml0nHiyo3yz1Cfy2XYeYC1LRlyqD7dyHmLvX23DQmmdd7R4JQZBZyaZI4XMFCw3c1NvB+OKw/ihrq8v5JaKyQvLtMGUNB+IHA5pmRsdTOX1A8MTp7Bu5A3fctQU5vywhXy8OF6Fpv94XOKKYSzHEtjXW5VP4iWzRLsFLhh3K1kk4mDjAuSe2Vm1Ct6MuK/cR8VyNYna3vV57qzA6GJ38Xe8LpKr8Qu8wl9VNwXxYNKTQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass (client-ip=209.85.161.70; helo=mail-oo1-f70.google.com; envelope-from=3mbldaqkbagisyzkallerappid.googleusercontent.com@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com
-Authentication-Results: lists.ozlabs.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com (client-ip=209.85.161.70; helo=mail-oo1-f70.google.com; envelope-from=3mbldaqkbagisyzkallerappid.googleusercontent.com@m3kw2wvrgufz5godrsrytgd7.apphosting.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com [209.85.161.70])
+	t=1774436558; c=relaxed/relaxed;
+	bh=tHxS02jyuJdc7xck1OGm67X7JRYetEgUpHsHG3XgLZs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IS/O0YhEq1zcx2yRLuXzaFC55IAVb2w7em9j3A3URELPjH9t5ilZFeI6z9MVEIZAni6mo0IMCtvtbDhZJV9qFWEWNzl3gtLly1SM4A1QxiOjsxUWCJb+1htGMzoSNDpIRApBHY/51tUEutHOn0TR9oBBmnVD7P8/bw4LaE0Rt0y4Z1hpEVa8LJHs/c8hTKE2bDbQjAD8JOLK5POjBJdQgXn2ALeoFw/O8kNEKncPwDvZq1tdsb8H182zgHwCa2DojHpjXSeIaCNkNlz1wlUk3kTNyLlEwwZe1+S4OeyCpgZRfDlxEJz1iPr2V7cVAcFBc7YqvmXlJEbz86Dcg3kklw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=JKfbEpL+; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=ljs@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=JKfbEpL+;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=ljs@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fgjB44Zckz2xMY
-	for <linux-erofs@lists.ozlabs.org>; Wed, 25 Mar 2026 21:02:03 +1100 (AEDT)
-Received: by mail-oo1-f70.google.com with SMTP id 006d021491bc7-66308f16ea1so18801138eaf.2
-        for <linux-erofs@lists.ozlabs.org>; Wed, 25 Mar 2026 03:02:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774432921; x=1775037721;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Wt/zP7gPXdc5BLZeGKzYLZVGgArFgcuj62q8DwXFGXM=;
-        b=qAqk0Fr0++gIji2inwGuk+MRJMiePU0poCWMw1JkqLAZWPsWv5+yAnqNBpUBjKNp2I
-         gc2qagH2D3TwVsFCnuv22+eNnOZa4kvDrQIdcyeoDqQZwpFcVgqA+mWJ0MLmByiYlUxB
-         MCGq931B5DA9h4NsYKzeygy9oWESa9fmFEN6qIja9Gz/hM43cl46CaUm9k565IWfO6Mt
-         ye/QD09q+QSnQYqIthzJP0QBoPeM+X8zdKl4jndR7AYhRx0eZmbe/unFOzbsTIAhJLbi
-         taGa4g9W5FpMneV1XSpZgWktHAGzbOsqZYSzQqeLKCusXmi+O28uUq0TIZWHAozr1mo/
-         gBWw==
-X-Forwarded-Encrypted: i=1; AJvYcCX0UZRLS9hYbxTft0H5wIM4vM+eNnXmot5Bm7AYe0IYwGsO1fF/H/9H5y82HwuNWIKoxULUrAFaMiCYnQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YyX8qlodLFDttVx4UyTd+bFlWGawcVyY302jqsDjD4FazDzxPvp
-	FXQacbk3Qy0TaYov128JGwa6BOvm31F7QQdO9lxPblw2JFPZ69ym+dENK0nQChA3vmP198CKuxB
-	86UZk5/V7izQF1NYA9GCDl4VRwtA8ZAGuqhjP8BlX6QhZf3FV6JhrGEhMDRg=
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fgkWx130Rz2xPL
+	for <linux-erofs@lists.ozlabs.org>; Wed, 25 Mar 2026 22:02:37 +1100 (AEDT)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id 10F13600AC;
+	Wed, 25 Mar 2026 11:02:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A3EC2BCB0;
+	Wed, 25 Mar 2026 11:02:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774436553;
+	bh=tHxS02jyuJdc7xck1OGm67X7JRYetEgUpHsHG3XgLZs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=JKfbEpL+QwqITDp7zft06nKiR08zsFI8szKsw2URrZAwiwXqMmi0+tBx1TGvpubXE
+	 l1nTkzHyAQbNEBGfQ4nGrX3sKCiFHLJaYrjm5zqZQQQEwtQa6RkpNjHFptlR4PAZ9U
+	 IpJ5JeE+RAZ2E9J1YM6Elt355aSIZj/LzRVBQ1/n1qqoMs/OD0sRpg05BMFqsbhi1S
+	 Shw3TorVIm0rtJXQ5yVWpZX5z65od1QSnOK7gT/YAbbvBwHnt++ki1xhQcLDAMvu/F
+	 g11ayMJaLiBZ/F7XKSiKEpI8doQgK5UkRrJQpjVo/DBAKu4Y4jcyhpVjyAsHbayxPG
+	 UmZoSLixBLjOg==
+Date: Wed, 25 Mar 2026 11:02:21 +0000
+From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, 
+	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, Gao Xiang <xiang@kernel.org>, 
+	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>, 
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
+	Hongbo Li <lihongbo22@huawei.com>, Chunhai Guo <guochunhai@vivo.com>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Tony Luck <tony.luck@intel.com>, 
+	Reinette Chatre <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, 
+	James Morse <james.morse@arm.com>, Babu Moger <babu.moger@amd.com>, 
+	Damien Le Moal <dlemoal@kernel.org>, Naohiro Aota <naohiro.aota@wdc.com>, 
+	Johannes Thumshirn <jth@kernel.org>, Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
+	linux-cxl@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-mm@kvack.org, 
+	ntfs3@lists.linux.dev, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/6] mm: add vma_desc_test_all() and use it
+Message-ID: <887da31d-96d0-493f-a248-28ae82925c4d@lucifer.local>
+References: <cover.1772704455.git.ljs@kernel.org>
+ <568c8f8d6a84ff64014f997517cba7a629f7eed6.1772704455.git.ljs@kernel.org>
+ <d0111a86-7fc9-4e2f-b652-9ecbb894ada5@kernel.org>
+ <9203050e-eda6-49a1-97b6-a134da2da313@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -54,36 +83,32 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:4b17:b0:67c:1689:c388 with SMTP id
- 006d021491bc7-67dff56248bmr1652131eaf.56.1774432921702; Wed, 25 Mar 2026
- 03:02:01 -0700 (PDT)
-Date: Wed, 25 Mar 2026 03:02:01 -0700
-In-Reply-To: <5a1e8d3e-6533-4db4-a4d5-14f977d8514b@linux.alibaba.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69c3b299.a70a0220.234938.004b.GAE@google.com>
-Subject: Re: [v6.6] BUG: Bad page state in z_erofs_do_read_page
-From: syzbot <syzbot+b6353e35ae2bab997538@syzkaller.appspotmail.com>
-To: hsiangkao@linux.alibaba.com, linux-erofs@lists.ozlabs.org, 
-	syzkaller-lts-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9203050e-eda6-49a1-97b6-a134da2da313@kernel.org>
 
-Hello,
+On Wed, Mar 25, 2026 at 09:58:53AM +0100, David Hildenbrand (Arm) wrote:
+> On 3/25/26 08:31, Vlastimil Babka (SUSE) wrote:
+> > On 3/5/26 11:50, Lorenzo Stoakes (Oracle) wrote:
+> >> erofs and zonefs are using vma_desc_test_any() twice to check whether all
+> >> of VMA_SHARED_BIT and VMA_MAYWRITE_BIT are set, this is silly, so add
+> >> vma_desc_test_all() to test all flags and update erofs and zonefs to use
+> >> it.
+> >>
+> >> While we're here, update the helper function comments to be more
+> >> consistent.
+> >>
+> >> Also add the same to the VMA test headers.
+> >>
+> >> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
+> >
+> > I thought I saw David review all of the series and so focused on other
+> > stuff, didn't notice he skipped this one :)
+>
+> I think I skipped it because it looked too mechanical when scanning and
+> I was like "ofc I trust Lorenzo on that one blindly". So I missed to reply.
+>
+> Tag provided now if it helps.
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
-
-Reported-by: syzbot+b6353e35ae2bab997538@syzkaller.appspotmail.com
-Tested-by: syzbot+b6353e35ae2bab997538@syzkaller.appspotmail.com
-
-Tested on:
-
-commit:         4fc00fe3 Linux 6.6.129
-git tree:       linux-6.6.y
-console output: https://syzkaller.appspot.com/x/log.txt?x=135ff6da580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=cf30d9e358c58220
-dashboard link: https://syzkaller.appspot.com/bug?extid=b6353e35ae2bab997538
-compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=1029ecba580000
-
-Note: testing is done by a robot and is best-effort only.
+Thanks guys! Appreciated.
 
