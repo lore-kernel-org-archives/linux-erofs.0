@@ -1,77 +1,79 @@
-Return-Path: <linux-erofs+bounces-2991-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-2992-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A42C103A9AA
-	for <linux-erofs@archiver.kernel.org>; Wed, 25 Mar 2026 11:02:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3FD5109C024
+	for <linux-erofs@archiver.kernel.org>; Wed, 25 Mar 2026 14:31:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fgkWy0blvz2xSX;
-	Wed, 25 Mar 2026 22:02:38 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774436558;
-	cv=none; b=mBU0EQYvigLWC16XeRsvWcJ1C+YjYHrAiFrF8R5+KxC47uhbeT7dPUAwHF2W41b7fDqAeczECzmsN8flehwhVcn3rH8HQDFeFUQDVaaSddn0CHkpjDQfxAFdMNOdbyJhIl4oeDcUAf5X0WjkCRRwT89c2nfIbKuN7x4BcTISIQvPFzanbmT5nt6XUcELhpid6G9UidtGOq8HXR1ecoO9eZ2Tp71oGTMBkv39xWLLVC0CPKMbWDPrb+CybnpFOC7j6NLzTn7CHSa1d6j10PkARzhF5GmMVuUffsndtYO3Gi2ihymTSLGsqDrzAom+GFQCFy6kzHnPqB6pOwEeqVJxtg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fgq8N6K2kz2xlf;
+	Thu, 26 Mar 2026 01:31:00 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774449060;
+	cv=none; b=Npm9K2Z3ADR/4H3I4irtaMKqRsdlegydFh+vSf3QWyVj6WJOCUxj5K+s2/FS1skc14gFHO6FZVrZdbf6zAe7Hb4SupmWZuV+YrSQ7JS7PX5r7T2owmvma1fIMSdtCLwf6A3mTtUSnIeFUM0rj2TxQQRPI+nWLSjrJQfbpFXXj266wWS5tf9e6ozrU4Il3FHpKzbVpR1Jt96DIOGqiLBPfoEyUgSdRkMT9PtI3ytuQ+c36BVTgbUNviIGqGJIqR7UlneE+0sd8ac5/JgAW+uJgo0l3aPIerCYMd+N6LQlKMaVWTHd4oZkKOKj7a3r/FotVZWv7fKUWgvyKyGqxncxDg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774436558; c=relaxed/relaxed;
-	bh=tHxS02jyuJdc7xck1OGm67X7JRYetEgUpHsHG3XgLZs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IS/O0YhEq1zcx2yRLuXzaFC55IAVb2w7em9j3A3URELPjH9t5ilZFeI6z9MVEIZAni6mo0IMCtvtbDhZJV9qFWEWNzl3gtLly1SM4A1QxiOjsxUWCJb+1htGMzoSNDpIRApBHY/51tUEutHOn0TR9oBBmnVD7P8/bw4LaE0Rt0y4Z1hpEVa8LJHs/c8hTKE2bDbQjAD8JOLK5POjBJdQgXn2ALeoFw/O8kNEKncPwDvZq1tdsb8H182zgHwCa2DojHpjXSeIaCNkNlz1wlUk3kTNyLlEwwZe1+S4OeyCpgZRfDlxEJz1iPr2V7cVAcFBc7YqvmXlJEbz86Dcg3kklw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=JKfbEpL+; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=ljs@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1774449060; c=relaxed/relaxed;
+	bh=c3GIm7jDRW+XH5XVY90MpKj8RWWo0PpypE2Y+M6Iohw=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=n/KG/IAjiQl7nc5yPyXvfsdJNOkf6TIzmhS5RY05DTanM9FhXym/LZ3dJPwIFRFy14ErANwolb0ofivC3kNgnEVoW6PxUjZXDI0W3vqAcUZ42DHMK2SShu5bqxZR6xnX+3LUattrqolaZeyCNp1MqGec+umR06sYUxBPF1rODCASuvK2/4oAS6PTJrG94TP2U3ScA5PMO7474e2fK2FEOhobOfzpJc2T3TZeODrJnPUMx/id23TumaUQKP0kitpHKvpUQAzkK0wzsH8SdrX9kEzTyVKcnBO63iNO2kAvnvXWja6az8rvmOZlUF2no/kcxK6h7k5KKtxq74F9v9DhpQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; dkim=pass (1024-bit key; unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=korg header.b=TaQIHaHW; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=akpm@linux-foundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linux-foundation.org
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=JKfbEpL+;
+	dkim=pass (1024-bit key; unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=korg header.b=TaQIHaHW;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=ljs@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux-foundation.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=akpm@linux-foundation.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fgkWx130Rz2xPL
-	for <linux-erofs@lists.ozlabs.org>; Wed, 25 Mar 2026 22:02:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fgq8M4ccpz2xcB
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Mar 2026 01:30:58 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id 10F13600AC;
-	Wed, 25 Mar 2026 11:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A3EC2BCB0;
-	Wed, 25 Mar 2026 11:02:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774436553;
-	bh=tHxS02jyuJdc7xck1OGm67X7JRYetEgUpHsHG3XgLZs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=JKfbEpL+QwqITDp7zft06nKiR08zsFI8szKsw2URrZAwiwXqMmi0+tBx1TGvpubXE
-	 l1nTkzHyAQbNEBGfQ4nGrX3sKCiFHLJaYrjm5zqZQQQEwtQa6RkpNjHFptlR4PAZ9U
-	 IpJ5JeE+RAZ2E9J1YM6Elt355aSIZj/LzRVBQ1/n1qqoMs/OD0sRpg05BMFqsbhi1S
-	 Shw3TorVIm0rtJXQ5yVWpZX5z65od1QSnOK7gT/YAbbvBwHnt++ki1xhQcLDAMvu/F
-	 g11ayMJaLiBZ/F7XKSiKEpI8doQgK5UkRrJQpjVo/DBAKu4Y4jcyhpVjyAsHbayxPG
-	 UmZoSLixBLjOg==
-Date: Wed, 25 Mar 2026 11:02:21 +0000
-From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, Gao Xiang <xiang@kernel.org>, 
-	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>, 
-	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
-	Hongbo Li <lihongbo22@huawei.com>, Chunhai Guo <guochunhai@vivo.com>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Tony Luck <tony.luck@intel.com>, 
-	Reinette Chatre <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, 
-	James Morse <james.morse@arm.com>, Babu Moger <babu.moger@amd.com>, 
-	Damien Le Moal <dlemoal@kernel.org>, Naohiro Aota <naohiro.aota@wdc.com>, 
-	Johannes Thumshirn <jth@kernel.org>, Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
-	linux-cxl@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-mm@kvack.org, 
-	ntfs3@lists.linux.dev, linux-fsdevel@vger.kernel.org
+	by sea.source.kernel.org (Postfix) with ESMTP id B04C64384E;
+	Wed, 25 Mar 2026 14:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B78C4CEF7;
+	Wed, 25 Mar 2026 14:30:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1774449056;
+	bh=OQpFqKWwxd25pMaM9w94n955k1tKNdmUpjsCAsICsLw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=TaQIHaHWbJ6OUKi24wqoY+iG7ETzPh3y8yky8t9lE2ya70DC44uMkF+BB78PCkwcf
+	 dqGq2cXMEa/6DXJsiByERFpuL+S53MExhWTyLJBpj6fUQLDZazmgoAqEJiY/0w7QUu
+	 IBdf/pwBSKOzYueJW79w0pMXQ0CEnoslYfFBmKGI=
+Date: Wed, 25 Mar 2026 07:30:54 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>,
+ Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
+ Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, Yue Hu
+ <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep
+ Dhavale <dhavale@google.com>, Hongbo Li <lihongbo22@huawei.com>, Chunhai
+ Guo <guochunhai@vivo.com>, Muchun Song <muchun.song@linux.dev>, Oscar
+ Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>,
+ Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Tony Luck
+ <tony.luck@intel.com>, Reinette Chatre <reinette.chatre@intel.com>, Dave
+ Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>, Babu Moger
+ <babu.moger@amd.com>, Damien Le Moal <dlemoal@kernel.org>, Naohiro Aota
+ <naohiro.aota@wdc.com>, Johannes Thumshirn <jth@kernel.org>, Matthew Wilcox
+ <willy@infradead.org>, Jan Kara <jack@suse.cz>, "Liam R . Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@kernel.org>, Mike
+ Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal
+ Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>, Pedro
+ Falcato <pfalcato@suse.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+ linux-kernel@vger.kernel.org, nvdimm@lists.linux.dev,
+ linux-cxl@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-mm@kvack.org, ntfs3@lists.linux.dev, linux-fsdevel@vger.kernel.org
 Subject: Re: [PATCH 2/6] mm: add vma_desc_test_all() and use it
-Message-ID: <887da31d-96d0-493f-a248-28ae82925c4d@lucifer.local>
+Message-Id: <20260325073054.490f2e9658cbd75312732fbd@linux-foundation.org>
+In-Reply-To: <24163ac9-bb0d-402c-a028-d1af7f56caa1@lucifer.local>
 References: <cover.1772704455.git.ljs@kernel.org>
- <568c8f8d6a84ff64014f997517cba7a629f7eed6.1772704455.git.ljs@kernel.org>
- <d0111a86-7fc9-4e2f-b652-9ecbb894ada5@kernel.org>
- <9203050e-eda6-49a1-97b6-a134da2da313@kernel.org>
+	<568c8f8d6a84ff64014f997517cba7a629f7eed6.1772704455.git.ljs@kernel.org>
+	<20260324161212.4b0a6f4fd5eb57ff2ffa7ea5@linux-foundation.org>
+	<24163ac9-bb0d-402c-a028-d1af7f56caa1@lucifer.local>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -82,33 +84,47 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9203050e-eda6-49a1-97b6-a134da2da313@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Mar 25, 2026 at 09:58:53AM +0100, David Hildenbrand (Arm) wrote:
-> On 3/25/26 08:31, Vlastimil Babka (SUSE) wrote:
-> > On 3/5/26 11:50, Lorenzo Stoakes (Oracle) wrote:
-> >> erofs and zonefs are using vma_desc_test_any() twice to check whether all
-> >> of VMA_SHARED_BIT and VMA_MAYWRITE_BIT are set, this is silly, so add
-> >> vma_desc_test_all() to test all flags and update erofs and zonefs to use
-> >> it.
-> >>
-> >> While we're here, update the helper function comments to be more
-> >> consistent.
-> >>
-> >> Also add the same to the VMA test headers.
-> >>
-> >> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
+On Wed, 25 Mar 2026 07:08:22 +0000 "Lorenzo Stoakes (Oracle)" <ljs@kernel.org> wrote:
+
+> On Tue, Mar 24, 2026 at 04:12:12PM -0700, Andrew Morton wrote:
+> > On Thu,  5 Mar 2026 10:50:15 +0000 "Lorenzo Stoakes (Oracle)" <ljs@kernel.org> wrote:
 > >
-> > I thought I saw David review all of the series and so focused on other
-> > stuff, didn't notice he skipped this one :)
->
-> I think I skipped it because it looked too mechanical when scanning and
-> I was like "ofc I trust Lorenzo on that one blindly". So I missed to reply.
->
-> Tag provided now if it helps.
+> > > erofs and zonefs are using vma_desc_test_any() twice to check whether all
+> > > of VMA_SHARED_BIT and VMA_MAYWRITE_BIT are set, this is silly, so add
+> > > vma_desc_test_all() to test all flags and update erofs and zonefs to use
+> > > it.
+> > >
+> > > While we're here, update the helper function comments to be more
+> > > consistent.
+> > >
+> > > Also add the same to the VMA test headers.
+> >
+> > fwiw, we have no review tags on this one.
+> 
+> Based on the discussion we had about this previously I was under the impression
+> if submitted by a maintainer that wasn't required?
 
-Thanks guys! Appreciated.
+Well, it's a gray area.  Obviously it's better if people's stuff is
+checked by co-maintainers or by others.
+
+I'm not inclined to make a fuss about it though (hence "fwiw").  Quite
+a lot of unreviewed maintainer-authored material ends up going upstream
+and I don't think that's causing much harm.
+
+In a lot of cases this is pretty much unavoidable because the patch
+comes from a sole maintainer (SJ, Sergey, Ulad, Liam come to mind). 
+But when the author has co-maintainers, perhaps those people could step
+up.
+
+> I'll nag people, but I'm a bit surprised if this is why you haven't moved this
+> to mm-stable, given how trivially obviously correct this patch is.
+
+https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/pc/devel-series
+shows my expected merging order.  It looks like this one will be in the
+next batch ->mm-stable.
+
 
