@@ -1,103 +1,69 @@
-Return-Path: <linux-erofs+bounces-3032-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3033-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 162E310A1E65
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Mar 2026 10:49:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A87310A1E67
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Mar 2026 10:49:07 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fhL9q5ch7z2ydN;
-	Thu, 26 Mar 2026 21:49:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774522143;
-	cv=none; b=IUGENK/TYJu/q/z+PPqYRQrUkMfCl/bMIbmVb57h4q6TNY34ePnmroteWzgRDq0DTNaq85QYVM7/5PUi0qU6FZUDHWyRRA28nbBFzLUpR1Lf7xxoARkUjsCaL+rA6BOYgyFaFc8KRFV2VnR+dzjc5Prxb8xioGv39dukAERZoenJ+tLByhbTMuL3FDcpyt+8enGiGOc7iKjlrIf3flV4lL5moa/SueqZUMWsd0dXoHfEuIuifqgL451qNM3KGlU3Jqwv8fLM0zAnP+iS6dfic2q7agPa3kY39vKSlcUR9v2Azd8VvcrGftxfDiSSbd9dzL1NGmOQPFJFVwe9+RE2Cw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fhL9s5ggsz2yhG;
+	Thu, 26 Mar 2026 21:49:05 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.208.41
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774522145;
+	cv=none; b=ivgdBcIvMf4PK1eKV8yf3MYP/Ua4kaF/LScO4IEgIJNmZIS/E/OUZR8w7pLavG3rIglMQhtQxYe8I8KtN7Zq5yD3oOvKi8nh4tpv3mBjDFqXihARo3Q37fSJCgb0/FobTTDQnLSCPyyesUB1BUoiK1574ido9dtWfBPw6FTgMjG/vpXsrinWM2xVhwa5XgycAbpnWWYu7ca4FtUqtfDiOImp5EZg8ylOQmmjkone5CA849/PLTXZn9IRL7E6kHOkVgrrZyqZT25ZFi2b1fj1inpGqpfYTJJbN0BrPdaEvumCk4JBOposcdzudRPm6emImUGIs+Am1iBDklcEy8iV0g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774522143; c=relaxed/relaxed;
-	bh=An9ppvJd90yS+MIu3WT/4ujzY282508ExyNV62oMYCI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=CbwBKRb/eYTNgFHH/3w1OI7RPzsRIUnofweleZzRNBrItafX3USDBGOg6CxisuKISpiQRPFKXfw0cvabTlXlcKjHihts7tk/i6BEpU0sGHgn3zFCAmJU8F7sJMuX0ZxuirMmU6TE8PtOJFHDp+raNqt3H6b02lB4WVQwj+TlX9QWnQ3+9Dwp3DK8Pjo08Otxc1JouQMKYD2PE+WHiNDPBQQbbdyYYyNmhJIaoAFPlCVtTd72hPnmiQdOm3FtlolvQ4MOYUzMZrbbpH0YZaqjCnu+6VikIallU3XNHiXBtxbbKqWhgjnk7XGlH4qiaOVMrSPJd9DwEG/aDT6qLbaY3Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cLDqb/KY; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cLDqb/KY; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cLDqb/KY;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cLDqb/KY;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	t=1774522145; c=relaxed/relaxed;
+	bh=Mn1xHOZ5T8WKdwjK43BW3DNavK71FNOkzxdS3qUbBYU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NvhBSfYRAD5ioBAQTI438afqrUvbSCEsjqZzHEiroF2tRE4I5z9e9SyarrsAxSsFyCcGInBmJhjnG1V4M7XEhVzXNPp6DnGWHn3aqUvJxFVRoUKX37wqeQpZpoCo6HSFX9OW0Hy8yb+aaPiVWZ2yNzeGhOeZUn7NGu5Hytmh9YBWMf1WyTw4JKYw+IyyiFDJ4d4Ll0CJ86WuNhoPp9kpZsLB72X5BCPNLQF7cLsRryCJp9K4yZd5RKstIQ3XP80NIhSYfUsqxGk8xKk34Tisei+6OSXWW1VCDcUChXPOEZ+3e6KkW1HXnGJRAIU4+34wLgGDUMlvyBbBhDsxeoPZTg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=adityakammati.me; spf=pass (client-ip=209.85.208.41; helo=mail-ed1-f41.google.com; envelope-from=adityakammati.workspace@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=adityakammati.me
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=209.85.208.41; helo=mail-ed1-f41.google.com; envelope-from=adityakammati.workspace@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fhL9p6pG3z2xN8
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Mar 2026 21:49:02 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774522140;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=An9ppvJd90yS+MIu3WT/4ujzY282508ExyNV62oMYCI=;
-	b=cLDqb/KYpAnIosxEcpeq5CM9QPG3FhQpY43CdBpaQregtRfmjg83gU7BvyRbZSkbYKPgQz
-	ckATz+hwysnkvKiwq+ETmlCAd8nj0+I5NYX5dP4FyQcc1EiXbsICPi4baRmzmfPIyG9ygD
-	PmyldwiOmVbOee7PdskDfXY1O11bxBI=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774522140;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=An9ppvJd90yS+MIu3WT/4ujzY282508ExyNV62oMYCI=;
-	b=cLDqb/KYpAnIosxEcpeq5CM9QPG3FhQpY43CdBpaQregtRfmjg83gU7BvyRbZSkbYKPgQz
-	ckATz+hwysnkvKiwq+ETmlCAd8nj0+I5NYX5dP4FyQcc1EiXbsICPi4baRmzmfPIyG9ygD
-	PmyldwiOmVbOee7PdskDfXY1O11bxBI=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-180-NVW6woi9PzuY_nXMvCratw-1; Thu,
- 26 Mar 2026 06:48:56 -0400
-X-MC-Unique: NVW6woi9PzuY_nXMvCratw-1
-X-Mimecast-MFC-AGG-ID: NVW6woi9PzuY_nXMvCratw_1774522133
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 31466195608B;
-	Thu, 26 Mar 2026 10:48:53 +0000 (UTC)
-Received: from warthog.procyon.org.com (unknown [10.44.33.121])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4F81F3000223;
-	Thu, 26 Mar 2026 10:48:46 +0000 (UTC)
-From: David Howells <dhowells@redhat.com>
-To: Christian Brauner <christian@brauner.io>,
-	Matthew Wilcox <willy@infradead.org>,
-	Christoph Hellwig <hch@infradead.org>
-Cc: David Howells <dhowells@redhat.com>,
-	Paulo Alcantara <pc@manguebit.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Leon Romanovsky <leon@kernel.org>,
-	Steve French <sfrench@samba.org>,
-	ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	netfs@lists.linux.dev,
-	linux-afs@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	ceph-devel@vger.kernel.org,
-	v9fs@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Paulo Alcantara <pc@manguebit.org>,
-	Shyam Prasad N <sprasad@microsoft.com>,
-	Tom Talpey <tom@talpey.com>
-Subject: [PATCH 19/26] cifs: Remove support for ITER_KVEC/BVEC/FOLIOQ from smb_extract_iter_to_rdma()
-Date: Thu, 26 Mar 2026 10:45:34 +0000
-Message-ID: <20260326104544.509518-20-dhowells@redhat.com>
-In-Reply-To: <20260326104544.509518-1-dhowells@redhat.com>
-References: <20260326104544.509518-1-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fhL9r5DlPz2xN8
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Mar 2026 21:49:04 +1100 (AEDT)
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-667acaeae82so1347416a12.3
+        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Mar 2026 03:49:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774522140; x=1775126940;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mn1xHOZ5T8WKdwjK43BW3DNavK71FNOkzxdS3qUbBYU=;
+        b=mXDY1FPtML8cCcCqTTF2TNl+BafkPtbIcR9hf3WbZfvdafpPnIQsBSdgDrOWv/mOkg
+         jGfIb1qAnfsbTRsb5pgusmGbPAJY717liozP1bIw/qXRhYo7yapP17Glk1V29XPd0bZZ
+         dzOrDr2onEAK3V8MjKqu/skMXvr+MMFhJOk2msLsWqiqH6Im7GwthtmjeIrFTWC0+JuQ
+         yyoBk3AfTqmqXmg1D66kVJLbilS2s7JtigeAIOrXrl6ZIQQ/eWLvbX+8lLEJMCkJfYV2
+         4fYjNsQ4tloftFeIFHEY3mk/wyxEKbaC3ok3m04G0mF/4wBJH95QGQ9Tk1+ywE7/iKwu
+         Q5fg==
+X-Forwarded-Encrypted: i=1; AJvYcCXP2CrRbSNYWeWYIWBp1K22c8+itmI3MjfQQZkCYGPtj/u3A9s/dPDwGIDgsyhj+2EIBU0pWhv41uU5nQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YyIz/5h9C1asb3qlEUQAep+dd2+Ns/IpUHszqtSr/v2hiVhGnRC
+	hyxUkBEgtNjvgxs9kmQ8UlEC4HKDy2ZKXTWZhF+lxA7g316yw2BVlKoFHATqki/B9L0=
+X-Gm-Gg: ATEYQzxnrfdLDTDHGHx3LKcLM3mnwmGlvvW/QyQxBK6sBz/ZnmU1eT7GiLrhYLVRY0e
+	ek0JmgunS+4AKfkxVyxFU7tZlUKfKdVmg6KE+3DMKsdYX3bGsROKK1/N5nZkUwN9jIqvp3027oh
+	zW+HF0Z1uOjiMC8kcq7FQhYFKfCFyj8SM5G+MFyV2zhKD5fWVaG6BaP1IJyT+YDfpVOCjkr4ulJ
+	dxt26m7pvEyaKB8pfNqD0equZJNkE2vpyY6gND0pXhotIx+0OSPix1LxbiO2T+B88D7pDJ9caLa
+	FRThAvjVaxmqFrHl/mDIJKF1MSv0dPVaxc5lphEIIqRanxtDFROybBgZIZXThGBo5fNOudyAj2z
+	9T5lSH3BPzMNoH4ANyNJv1IibexxO9tF9QBgCzVlqO/6UyrEXZJFhqb2cAx51afqv21bM/H7dbL
+	t5Wmr0D6IYl9sd88wphuIb/gSuX2YSk9Yvba8x2QiU4AZc+3Yv35RY80IvWdECCzI6exlHrCvXK
+	8sIDov72G/TKPAwtAcwrMZaxqlRk3OWeS+b3MlNQTQ=
+X-Received: by 2002:a05:6402:400a:b0:663:d74e:9253 with SMTP id 4fb4d7f45d1cf-66a826e17dfmr5259197a12.30.1774522139955;
+        Thu, 26 Mar 2026 03:48:59 -0700 (PDT)
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com. [209.85.218.54])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-66ad6a4c4b3sm845517a12.22.2026.03.26.03.48.58
+        for <linux-erofs@lists.ozlabs.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Mar 2026 03:48:58 -0700 (PDT)
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b97a06d7629so112767366b.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Mar 2026 03:48:58 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXuix2srh6+zm+BnF+ht1keNa4WZM/cbCV2brZQQ5E7eyy/MlRwtA2lwbGQwkQ5bfKOMZeiVTXsQO5jZw==@lists.ozlabs.org
+X-Received: by 2002:a17:907:806:b0:b97:cc05:61b9 with SMTP id
+ a640c23a62f3a-b9a3f19f050mr546569866b.15.1774522138260; Thu, 26 Mar 2026
+ 03:48:58 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -109,210 +75,441 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
-X-Mimecast-MFC-PROC-ID: Qq5fcAgfFv_wVrb66LrmSePNcxKxLGkKENrnFJ_h6n0_1774522133
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+References: <20260326104544.509518-1-dhowells@redhat.com> <20260326104544.509518-8-dhowells@redhat.com>
+In-Reply-To: <20260326104544.509518-8-dhowells@redhat.com>
+From: Aditya <dev@adityakammati.me>
+Date: Thu, 26 Mar 2026 16:18:46 +0530
+X-Gmail-Original-Message-ID: <CA+yaA_=gpTnueByzFNYrqNL_qSC2rE4iGDjLHtJap-=_rhE3HQ@mail.gmail.com>
+X-Gm-Features: AQROBzAXov3KNbV6FNafWthVKp5kTPNbjxUaNaGD8qgMiIq26Xy5U1VILZdh43E
+Message-ID: <CA+yaA_=gpTnueByzFNYrqNL_qSC2rE4iGDjLHtJap-=_rhE3HQ@mail.gmail.com>
+Subject: Re: [PATCH 07/26] cachefiles: Fix excess dput() after end_removing()
+To: David Howells <dhowells@redhat.com>
+Cc: Christian Brauner <christian@brauner.io>, Matthew Wilcox <willy@infradead.org>, 
+	Christoph Hellwig <hch@infradead.org>, Paulo Alcantara <pc@manguebit.com>, Jens Axboe <axboe@kernel.dk>, 
+	Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>, 
+	ChenXiaoSong <chenxiaosong@chenxiaosong.com>, Marc Dionne <marc.dionne@auristor.com>, 
+	Eric Van Hensbergen <ericvh@kernel.org>, Dominique Martinet <asmadeus@codewreck.org>, 
+	Ilya Dryomov <idryomov@gmail.com>, Trond Myklebust <trondmy@kernel.org>, netfs@lists.linux.dev, 
+	linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org, v9fs@lists.linux.dev, 
+	linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, NeilBrown <neil@brown.name>, 
+	Paulo Alcantara <pc@manguebit.org>
+Content-Type: multipart/alternative; boundary="000000000000b27dd5064deb21a2"
 
-netfslib now only presents an bvecq queue and an associated ITER_BVECQ
-iterator to the filesystem, so it isn't going to see ITER_KVEC, ITER_BVEC
-or ITER_FOLIOQ iterators.  So remove that code.
+--000000000000b27dd5064deb21a2
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Steve French <sfrench@samba.org>
-cc: Paulo Alcantara <pc@manguebit.org>
-cc: Shyam Prasad N <sprasad@microsoft.com>
-cc: Tom Talpey <tom@talpey.com>
-cc: linux-cifs@vger.kernel.org
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
----
- fs/smb/client/smbdirect.c | 165 --------------------------------------
- 1 file changed, 165 deletions(-)
+Why are this bulk fixes
 
-diff --git a/fs/smb/client/smbdirect.c b/fs/smb/client/smbdirect.c
-index f8a6be83db98..d9e026d5e9f9 100644
---- a/fs/smb/client/smbdirect.c
-+++ b/fs/smb/client/smbdirect.c
-@@ -3142,162 +3142,6 @@ static bool smb_set_sge(struct smb_extract_to_rdma *rdma,
- 	return true;
- }
- 
--/*
-- * Extract page fragments from a BVEC-class iterator and add them to an RDMA
-- * element list.  The pages are not pinned.
-- */
--static ssize_t smb_extract_bvec_to_rdma(struct iov_iter *iter,
--					struct smb_extract_to_rdma *rdma,
--					ssize_t maxsize)
--{
--	const struct bio_vec *bv = iter->bvec;
--	unsigned long start = iter->iov_offset;
--	unsigned int i;
--	ssize_t ret = 0;
--
--	for (i = 0; i < iter->nr_segs; i++) {
--		size_t off, len;
--
--		len = bv[i].bv_len;
--		if (start >= len) {
--			start -= len;
--			continue;
--		}
--
--		len = min_t(size_t, maxsize, len - start);
--		off = bv[i].bv_offset + start;
--
--		if (!smb_set_sge(rdma, bv[i].bv_page, off, len))
--			return -EIO;
--
--		ret += len;
--		maxsize -= len;
--		if (rdma->nr_sge >= rdma->max_sge || maxsize <= 0)
--			break;
--		start = 0;
--	}
--
--	if (ret > 0)
--		iov_iter_advance(iter, ret);
--	return ret;
--}
--
--/*
-- * Extract fragments from a KVEC-class iterator and add them to an RDMA list.
-- * This can deal with vmalloc'd buffers as well as kmalloc'd or static buffers.
-- * The pages are not pinned.
-- */
--static ssize_t smb_extract_kvec_to_rdma(struct iov_iter *iter,
--					struct smb_extract_to_rdma *rdma,
--					ssize_t maxsize)
--{
--	const struct kvec *kv = iter->kvec;
--	unsigned long start = iter->iov_offset;
--	unsigned int i;
--	ssize_t ret = 0;
--
--	for (i = 0; i < iter->nr_segs; i++) {
--		struct page *page;
--		unsigned long kaddr;
--		size_t off, len, seg;
--
--		len = kv[i].iov_len;
--		if (start >= len) {
--			start -= len;
--			continue;
--		}
--
--		kaddr = (unsigned long)kv[i].iov_base + start;
--		off = kaddr & ~PAGE_MASK;
--		len = min_t(size_t, maxsize, len - start);
--		kaddr &= PAGE_MASK;
--
--		maxsize -= len;
--		do {
--			seg = min_t(size_t, len, PAGE_SIZE - off);
--
--			if (is_vmalloc_or_module_addr((void *)kaddr))
--				page = vmalloc_to_page((void *)kaddr);
--			else
--				page = virt_to_page((void *)kaddr);
--
--			if (!smb_set_sge(rdma, page, off, seg))
--				return -EIO;
--
--			ret += seg;
--			len -= seg;
--			kaddr += PAGE_SIZE;
--			off = 0;
--		} while (len > 0 && rdma->nr_sge < rdma->max_sge);
--
--		if (rdma->nr_sge >= rdma->max_sge || maxsize <= 0)
--			break;
--		start = 0;
--	}
--
--	if (ret > 0)
--		iov_iter_advance(iter, ret);
--	return ret;
--}
--
--/*
-- * Extract folio fragments from a FOLIOQ-class iterator and add them to an RDMA
-- * list.  The folios are not pinned.
-- */
--static ssize_t smb_extract_folioq_to_rdma(struct iov_iter *iter,
--					  struct smb_extract_to_rdma *rdma,
--					  ssize_t maxsize)
--{
--	const struct folio_queue *folioq = iter->folioq;
--	unsigned int slot = iter->folioq_slot;
--	ssize_t ret = 0;
--	size_t offset = iter->iov_offset;
--
--	BUG_ON(!folioq);
--
--	if (slot >= folioq_nr_slots(folioq)) {
--		folioq = folioq->next;
--		if (WARN_ON_ONCE(!folioq))
--			return -EIO;
--		slot = 0;
--	}
--
--	do {
--		struct folio *folio = folioq_folio(folioq, slot);
--		size_t fsize = folioq_folio_size(folioq, slot);
--
--		if (offset < fsize) {
--			size_t part = umin(maxsize, fsize - offset);
--
--			if (!smb_set_sge(rdma, folio_page(folio, 0), offset, part))
--				return -EIO;
--
--			offset += part;
--			ret += part;
--			maxsize -= part;
--		}
--
--		if (offset >= fsize) {
--			offset = 0;
--			slot++;
--			if (slot >= folioq_nr_slots(folioq)) {
--				if (!folioq->next) {
--					WARN_ON_ONCE(ret < iter->count);
--					break;
--				}
--				folioq = folioq->next;
--				slot = 0;
--			}
--		}
--	} while (rdma->nr_sge < rdma->max_sge && maxsize > 0);
--
--	iter->folioq = folioq;
--	iter->folioq_slot = slot;
--	iter->iov_offset = offset;
--	iter->count -= ret;
--	return ret;
--}
--
- /*
-  * Extract memory fragments from a BVECQ-class iterator and add them to an RDMA
-  * list.  The folios are not pinned.
-@@ -3373,15 +3217,6 @@ static ssize_t smb_extract_iter_to_rdma(struct iov_iter *iter, size_t len,
- 	int before = rdma->nr_sge;
- 
- 	switch (iov_iter_type(iter)) {
--	case ITER_BVEC:
--		ret = smb_extract_bvec_to_rdma(iter, rdma, len);
--		break;
--	case ITER_KVEC:
--		ret = smb_extract_kvec_to_rdma(iter, rdma, len);
--		break;
--	case ITER_FOLIOQ:
--		ret = smb_extract_folioq_to_rdma(iter, rdma, len);
--		break;
- 	case ITER_BVECQ:
- 		ret = smb_extract_bvecq_to_rdma(iter, rdma, len);
- 		break;
+On Thu, 26 Mar 2026 at 4:17=E2=80=AFPM, David Howells <dhowells@redhat.com>=
+ wrote:
 
+> When cachefiles_cull() calls cachefiles_bury_object(), the latter eats th=
+e
+> former's ref on the victim dentry that it obtained from
+> cachefiles_lookup_for_cull().  However, commit 7bb1eb45e43c left the dput
+> of the victim in place, resulting in occasional:
+>
+>   WARNING: fs/dcache.c:829 at dput.part.0+0xf5/0x110, CPU#7:
+> cachefilesd/11831
+>   cachefiles_cull+0x8c/0xe0 [cachefiles]
+>   cachefiles_daemon_cull+0xcd/0x120 [cachefiles]
+>   cachefiles_daemon_write+0x14e/0x1d0 [cachefiles]
+>   vfs_write+0xc3/0x480
+>   ...
+>
+> reports.
+>
+> Actually, it's worse than that: cachefiles_bury_object() eats the ref it
+> was
+> given - and then may continue to the now-unref'd dentry it if it turns ou=
+t
+> to
+> be a directory.  So simply removing the aberrant dput() is not sufficient=
+.
+>
+> Fix this by making cachefiles_bury_object() retain the ref itself around
+> end_removing() if it needs to keep it and then drop the ref before
+> returning.
+>
+> Fixes: bd6ede8a06e8 ("VFS/nfsd/cachefiles/ovl: introduce start_removing()
+> and end_removing()")
+> Reported-by: Marc Dionne <marc.dionne@auristor.com>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: NeilBrown <neil@brown.name>
+> cc: Paulo Alcantara <pc@manguebit.org>
+> cc: netfs@lists.linux.dev
+> cc: linux-afs@lists.infradead.org
+> cc: linux-fsdevel@vger.kernel.org
+> ---
+>  fs/cachefiles/namei.c | 36 +++++++++++++++++++++---------------
+>  1 file changed, 21 insertions(+), 15 deletions(-)
+>
+> diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+> index e5ec90dccc27..20138309733f 100644
+> --- a/fs/cachefiles/namei.c
+> +++ b/fs/cachefiles/namei.c
+> @@ -287,14 +287,14 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>         if (!d_is_dir(rep)) {
+>                 ret =3D cachefiles_unlink(cache, object, dir, rep, why);
+>                 end_removing(rep);
+> -
+>                 _leave(" =3D %d", ret);
+>                 return ret;
+>         }
+>
+>         /* directories have to be moved to the graveyard */
+>         _debug("move stale object to graveyard");
+> -       end_removing(rep);
+> +       dget(rep);
+> +       end_removing(rep); /* Drops ref on rep */
+>
+>  try_again:
+>         /* first step is to make up a grave dentry in the graveyard */
+> @@ -304,8 +304,10 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>
+>         /* do the multiway lock magic */
+>         trap =3D lock_rename(cache->graveyard, dir);
+> -       if (IS_ERR(trap))
+> -               return PTR_ERR(trap);
+> +       if (IS_ERR(trap)) {
+> +               ret =3D PTR_ERR(trap);
+> +               goto out;
+> +       }
+>
+>         /* do some checks before getting the grave dentry */
+>         if (rep->d_parent !=3D dir || IS_DEADDIR(d_inode(rep))) {
+> @@ -313,25 +315,27 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>                  * lock */
+>                 unlock_rename(cache->graveyard, dir);
+>                 _leave(" =3D 0 [culled?]");
+> -               return 0;
+> +               ret =3D 0;
+> +               goto out;
+>         }
+>
+> +       ret =3D -EIO;
+>         if (!d_can_lookup(cache->graveyard)) {
+>                 unlock_rename(cache->graveyard, dir);
+>                 cachefiles_io_error(cache, "Graveyard no longer a
+> directory");
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         if (trap =3D=3D rep) {
+>                 unlock_rename(cache->graveyard, dir);
+>                 cachefiles_io_error(cache, "May not make directory loop")=
+;
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         if (d_mountpoint(rep)) {
+>                 unlock_rename(cache->graveyard, dir);
+>                 cachefiles_io_error(cache, "Mountpoint in cache");
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         grave =3D lookup_one(&nop_mnt_idmap, &QSTR(nbuffer),
+> cache->graveyard);
+> @@ -343,11 +347,12 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>
+>                 if (PTR_ERR(grave) =3D=3D -ENOMEM) {
+>                         _leave(" =3D -ENOMEM");
+> -                       return -ENOMEM;
+> +                       ret =3D -ENOMEM;
+> +                       goto out;
+>                 }
+>
+>                 cachefiles_io_error(cache, "Lookup error %ld",
+> PTR_ERR(grave));
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         if (d_is_positive(grave)) {
+> @@ -362,7 +367,7 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>                 unlock_rename(cache->graveyard, dir);
+>                 dput(grave);
+>                 cachefiles_io_error(cache, "Mountpoint in graveyard");
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         /* target should not be an ancestor of source */
+> @@ -370,7 +375,7 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>                 unlock_rename(cache->graveyard, dir);
+>                 dput(grave);
+>                 cachefiles_io_error(cache, "May not make directory loop")=
+;
+> -               return -EIO;
+> +               goto out;
+>         }
+>
+>         /* attempt the rename */
+> @@ -404,8 +409,10 @@ int cachefiles_bury_object(struct cachefiles_cache
+> *cache,
+>         __cachefiles_unmark_inode_in_use(object, d_inode(rep));
+>         unlock_rename(cache->graveyard, dir);
+>         dput(grave);
+> -       _leave(" =3D 0");
+> -       return 0;
+> +       _leave(" =3D %d", ret);
+> +out:
+> +       dput(rep);
+> +       return ret;
+>  }
+>
+>  /*
+> @@ -812,7 +819,6 @@ int cachefiles_cull(struct cachefiles_cache *cache,
+> struct dentry *dir,
+>
+>         ret =3D cachefiles_bury_object(cache, NULL, dir, victim,
+>                                      FSCACHE_OBJECT_WAS_CULLED);
+> -       dput(victim);
+>         if (ret < 0)
+>                 goto error;
+>
+>
+>
+>
+>
+
+--000000000000b27dd5064deb21a2
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Why are this bulk fixes</div><div><br><div class=3D"gmail=
+_quote gmail_quote_container"><div dir=3D"ltr" class=3D"gmail_attr">On Thu,=
+ 26 Mar 2026 at 4:17=E2=80=AFPM, David Howells &lt;<a href=3D"mailto:dhowel=
+ls@redhat.com">dhowells@redhat.com</a>&gt; wrote:<br></div><blockquote clas=
+s=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pad=
+ding-left:1ex">When cachefiles_cull() calls cachefiles_bury_object(), the l=
+atter eats the<br>
+former&#39;s ref on the victim dentry that it obtained from<br>
+cachefiles_lookup_for_cull().=C2=A0 However, commit 7bb1eb45e43c left the d=
+put<br>
+of the victim in place, resulting in occasional:<br>
+<br>
+=C2=A0 WARNING: fs/dcache.c:829 at dput.part.0+0xf5/0x110, CPU#7: cachefile=
+sd/11831<br>
+=C2=A0 cachefiles_cull+0x8c/0xe0 [cachefiles]<br>
+=C2=A0 cachefiles_daemon_cull+0xcd/0x120 [cachefiles]<br>
+=C2=A0 cachefiles_daemon_write+0x14e/0x1d0 [cachefiles]<br>
+=C2=A0 vfs_write+0xc3/0x480<br>
+=C2=A0 ...<br>
+<br>
+reports.<br>
+<br>
+Actually, it&#39;s worse than that: cachefiles_bury_object() eats the ref i=
+t was<br>
+given - and then may continue to the now-unref&#39;d dentry it if it turns =
+out to<br>
+be a directory.=C2=A0 So simply removing the aberrant dput() is not suffici=
+ent.<br>
+<br>
+Fix this by making cachefiles_bury_object() retain the ref itself around<br=
+>
+end_removing() if it needs to keep it and then drop the ref before returnin=
+g.<br>
+<br>
+Fixes: bd6ede8a06e8 (&quot;VFS/nfsd/cachefiles/ovl: introduce start_removin=
+g() and end_removing()&quot;)<br>
+Reported-by: Marc Dionne &lt;<a href=3D"mailto:marc.dionne@auristor.com" ta=
+rget=3D"_blank">marc.dionne@auristor.com</a>&gt;<br>
+Signed-off-by: David Howells &lt;<a href=3D"mailto:dhowells@redhat.com" tar=
+get=3D"_blank">dhowells@redhat.com</a>&gt;<br>
+cc: NeilBrown &lt;<a href=3D"mailto:neil@brown.name" target=3D"_blank">neil=
+@brown.name</a>&gt;<br>
+cc: Paulo Alcantara &lt;<a href=3D"mailto:pc@manguebit.org" target=3D"_blan=
+k">pc@manguebit.org</a>&gt;<br>
+cc: <a href=3D"mailto:netfs@lists.linux.dev" target=3D"_blank">netfs@lists.=
+linux.dev</a><br>
+cc: <a href=3D"mailto:linux-afs@lists.infradead.org" target=3D"_blank">linu=
+x-afs@lists.infradead.org</a><br>
+cc: <a href=3D"mailto:linux-fsdevel@vger.kernel.org" target=3D"_blank">linu=
+x-fsdevel@vger.kernel.org</a><br>
+---<br>
+=C2=A0fs/cachefiles/namei.c | 36 +++++++++++++++++++++---------------<br>
+=C2=A01 file changed, 21 insertions(+), 15 deletions(-)<br>
+<br>
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c<br>
+index e5ec90dccc27..20138309733f 100644<br>
+--- a/fs/cachefiles/namei.c<br>
++++ b/fs/cachefiles/namei.c<br>
+@@ -287,14 +287,14 @@ int cachefiles_bury_object(struct cachefiles_cache *c=
+ache,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!d_is_dir(rep)) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D cachefiles_=
+unlink(cache, object, dir, rep, why);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 end_removing(rep);<=
+br>
+-<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 _leave(&quot; =3D %=
+d&quot;, ret);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return ret;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* directories have to be moved to the graveyar=
+d */<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 _debug(&quot;move stale object to graveyard&quo=
+t;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0end_removing(rep);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0dget(rep);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0end_removing(rep); /* Drops ref on rep */<br>
+<br>
+=C2=A0try_again:<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* first step is to make up a grave dentry in t=
+he graveyard */<br>
+@@ -304,8 +304,10 @@ int cachefiles_bury_object(struct cachefiles_cache *ca=
+che,<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* do the multiway lock magic */<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 trap =3D lock_rename(cache-&gt;graveyard, dir);=
+<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0if (IS_ERR(trap))<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return PTR_ERR(trap=
+);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (IS_ERR(trap)) {<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D PTR_ERR(tra=
+p);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* do some checks before getting the grave dent=
+ry */<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (rep-&gt;d_parent !=3D dir || IS_DEADDIR(d_i=
+node(rep))) {<br>
+@@ -313,25 +315,27 @@ int cachefiles_bury_object(struct cachefiles_cache *c=
+ache,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* lock */<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 _leave(&quot; =3D 0=
+ [culled?]&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D 0;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D -EIO;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!d_can_lookup(cache-&gt;graveyard)) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;Graveyard no longer a directory&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (trap =3D=3D rep) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;May not make directory loop&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (d_mountpoint(rep)) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;Mountpoint in cache&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 grave =3D lookup_one(&amp;nop_mnt_idmap, &amp;Q=
+STR(nbuffer), cache-&gt;graveyard);<br>
+@@ -343,11 +347,12 @@ int cachefiles_bury_object(struct cachefiles_cache *c=
+ache,<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (PTR_ERR(grave) =
+=3D=3D -ENOMEM) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 _leave(&quot; =3D -ENOMEM&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0return -ENOMEM;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0ret =3D -ENOMEM;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;Lookup error %ld&quot;, PTR_ERR(grave));<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (d_is_positive(grave)) {<br>
+@@ -362,7 +367,7 @@ int cachefiles_bury_object(struct cachefiles_cache *cac=
+he,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dput(grave);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;Mountpoint in graveyard&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* target should not be an ancestor of source *=
+/<br>
+@@ -370,7 +375,7 @@ int cachefiles_bury_object(struct cachefiles_cache *cac=
+he,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache=
+-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dput(grave);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 cachefiles_io_error=
+(cache, &quot;May not make directory loop&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EIO;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* attempt the rename */<br>
+@@ -404,8 +409,10 @@ int cachefiles_bury_object(struct cachefiles_cache *ca=
+che,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 __cachefiles_unmark_inode_in_use(object, d_inod=
+e(rep));<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 unlock_rename(cache-&gt;graveyard, dir);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 dput(grave);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0_leave(&quot; =3D 0&quot;);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0_leave(&quot; =3D %d&quot;, ret);<br>
++out:<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0dput(rep);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0return ret;<br>
+=C2=A0}<br>
+<br>
+=C2=A0/*<br>
+@@ -812,7 +819,6 @@ int cachefiles_cull(struct cachefiles_cache *cache, str=
+uct dentry *dir,<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D cachefiles_bury_object(cache, NULL, dir=
+, victim,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0FSCACHE_OBJECT_W=
+AS_CULLED);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0dput(victim);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (ret &lt; 0)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto error;<br>
+<br>
+<br>
+<br>
+<br>
+</blockquote></div></div>
+
+--000000000000b27dd5064deb21a2--
 
