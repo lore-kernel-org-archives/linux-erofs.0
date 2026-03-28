@@ -1,49 +1,49 @@
-Return-Path: <linux-erofs+bounces-3065-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3066-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 114D110F3DEE
-	for <linux-erofs@archiver.kernel.org>; Sat, 28 Mar 2026 18:28:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B135510F3DF2
+	for <linux-erofs@archiver.kernel.org>; Sat, 28 Mar 2026 18:29:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fjmGq51xMz2yfS;
-	Sun, 29 Mar 2026 05:28:19 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fjmJF2rCLz2ygp;
+	Sun, 29 Mar 2026 05:29:33 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=143.255.12.172
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774722499;
-	cv=none; b=C95J3flugQh+BsTcda3Z6MHzdQNIJS25gCkIO914IUo7wV1LYjiXtbHWZo9fiSmrqfWuAt/R7UK1TzviFsEDpMRX3ZDP23xAUrA0a+R3zibT3oKyKhKDEeHddqGEkSf/IJMxcn9OukQkxv5cfRLBL6DKpFFsBm9s6Xlsk5ls0LzVGZCRgEtZMjt8/+4SdEbjPaQsehWumzE2dr8RGafdk6QOuUx1nwDZEUaGt6BPtJ6hCoaAB3xxae/B1YnVUKR3RPEOegijF0tWap8ffgOfzBP+Y8mKVf72sgj2wOilvVWz1Sl2lQYoPdWJiFd/+4DEcD3qKCCnntDzL24NrOGBBg==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774722573;
+	cv=none; b=cFNXox4N+JA4bRWZqjmkTxFlGmSGgJbBRYiu/riB7F8LLpC3VEQpWSfGeXou9jWYIJoExvf8YurHJ1dO3NyCDpWcZQTnpeGnN1L6NHnR9+kTdKq9t/JZniIwtoEVmqG6yDIZmAaebl1V6Fgl+Ezf1pqkpP1nAbATU5h9GKD0+jlchA9tCgySav7fZ+2Bhbey2QGc2J2OJQNLxgYazedR1r68SNAQOeP5/9V+pOQMbQS+iEX2ImLYMDLqppoZ8M9YpOeiaAxtbCFJ7soEVdVXs951LfFkP8BHViRjaNDDCotfl+PCfyxk4g/rxqZ2zxOjaZETmTEfqnGhiqojc761Xw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774722499; c=relaxed/relaxed;
-	bh=reVttJ4xFR0WcZPDlyXMurvNf6WDPPLRFPlRnwcnixk=;
+	t=1774722573; c=relaxed/relaxed;
+	bh=pjWAhC/pRJ11i7dihmGstGNUCTp1Y38MOjqiDtDdmNs=;
 	h=Message-ID:From:To:Cc:Subject:In-Reply-To:References:Date:
-	 MIME-Version:Content-Type; b=aiBsAmIMxiDdOvazURTwZmvzK+VO21FjiOMNC3U/Eu5X972l1cZ+ttrPC/sehlpMekMXWI6gF4Cvt0ZhXv3DcEp2ENTvS34o0OV3NOyOzzw5dpTqnkaOV4Xa574srN+CCPN2r6kpf5Alb2EeXY24v1Rwkpvk+BwjQ1OI0qAnZTeQCukfsqwHB+EhaEWvUMziLtrZlkrO8MtXUrsxRFs9oDh6v//nmLo8QddtpvsKb+wPq15wpjGxdqgavPECtGWi2qRYOzdAM5PgTPKtsGURvXXaU2njBSu1zpo68BCw1JCdxEB9is041kwKtx+UR2H2dbELNaX0r2wklwjoWgh4ZQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=manguebit.org; dkim=pass (2048-bit key; secure) header.d=manguebit.org header.i=@manguebit.org header.a=rsa-sha256 header.s=dkim header.b=sqT5cKpt; dkim-atps=neutral; spf=pass (client-ip=143.255.12.172; helo=mx1.manguebit.org; envelope-from=pc@manguebit.org; receiver=lists.ozlabs.org) smtp.mailfrom=manguebit.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=manguebit.org
+	 MIME-Version:Content-Type; b=mMsGMCTAlOEEXjYTCCQNRwxYyoq6oG60vF9ccck3PqcUCl5Nh1Dup7NYlLDjm4su5IBtBSPwPbIB2qTqSecBN9HUDdR3RNT+FnyqUTisJQeThjnYkrvYpPLOgvEA9ZjIyck8U5mNd6+RAcscSUcakqmJ05Xs0svKR6l9Gplp4WhHZXnapxOXIY0bWywxXqPdC1K0ddQRe3YYhBsDL0WKwmYQ1zRHSvZMwtr6RYtlrxD1ONr6pWGAYcAjm+p1hlOQAPZT6qQ0+/cvoRerhY8sgLR+Gh2q0Ir8r15+r2IoZJmQX+fp+bOZu6k8Mw1fKHU/DfEgzwh7rvXrZRIm05nFaQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=fail (p=quarantine dis=none) header.from=manguebit.com; dkim=pass (2048-bit key; secure) header.d=manguebit.org header.i=@manguebit.org header.a=rsa-sha256 header.s=dkim header.b=INI1qEvU; dkim-atps=neutral; spf=pass (client-ip=143.255.12.172; helo=mx1.manguebit.org; envelope-from=pc@manguebit.org; receiver=lists.ozlabs.org) smtp.mailfrom=manguebit.org
+Authentication-Results: lists.ozlabs.org; dmarc=fail (p=quarantine dis=none) header.from=manguebit.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=manguebit.org header.i=@manguebit.org header.a=rsa-sha256 header.s=dkim header.b=sqT5cKpt;
+	dkim=pass (2048-bit key; secure) header.d=manguebit.org header.i=@manguebit.org header.a=rsa-sha256 header.s=dkim header.b=INI1qEvU;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=manguebit.org (client-ip=143.255.12.172; helo=mx1.manguebit.org; envelope-from=pc@manguebit.org; receiver=lists.ozlabs.org)
 Received: from mx1.manguebit.org (mx1.manguebit.org [143.255.12.172])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fjmGq0jj2z2ySY
-	for <linux-erofs@lists.ozlabs.org>; Sun, 29 Mar 2026 05:28:19 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fjmJD2Y8Vz2ySY
+	for <linux-erofs@lists.ozlabs.org>; Sun, 29 Mar 2026 05:29:32 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=manguebit.org; s=dkim; h=Content-Type:MIME-Version:Date:References:
-	In-Reply-To:Subject:Cc:To:From:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=reVttJ4xFR0WcZPDlyXMurvNf6WDPPLRFPlRnwcnixk=; b=sqT5cKpt/tMHM/kACWo4Il0ZHF
-	IUn796fZuwnC+Wyu5QTqvpyb9bJ6qK8ZoJAGB4agtzpORv3z2VlKCzgEkPc4syqvJNIBWy7OEoOkn
-	c9gCghMvJCWFLiYP4XakWG1pNiMyLAhVENhn9MIXdrLgexLNZu9R6oej67AMc7IyHkkHeY9CNPowv
-	Cxg83PHujJQVOiNsgjiK2ughsIWXPfBn5VbD7eKMYxgTBWCsr+i8d5wQwaZz1X76zNVZGxvyF16Bs
-	tZl4exrAbAMoRFSuzdMDCmT07ly8JceXPTMH0KuLk1ohGPE/60mwdmWtufn4QiD7Q57hCJWEo9U/A
-	zvcmaNUw==;
+	d=manguebit.org; s=dkim; h=Sender:Content-Type:MIME-Version:Date:References:
+	In-Reply-To:Subject:Cc:To:From:Message-ID:Reply-To:Content-Transfer-Encoding:
+	Content-ID:Content-Description;
+	bh=pjWAhC/pRJ11i7dihmGstGNUCTp1Y38MOjqiDtDdmNs=; b=INI1qEvUexzKgv/Xbd2+s18EwR
+	FHn0RIWLefTqo8OnxI0eiHFe9yd7Wgk/um9AhFcKtHPtEj01PXM9wvSUs1TZpqUIivsMSujqn6m4H
+	FCZtN/q1vNxkgyKtNOQXjPsMRItEkBEEQNQF+f24nBty5o3q03Of/pZbvCNmaXH2ohSyObbv6UhIB
+	7kVxtfq63z13dLrvUOvCGkoT1TUXPgcqcT7AEjbl4Coiu0gkejZqcv1EnPTOxgzJEykcTZRPObyVS
+	ir/wFgpEVQaYdVONbf2uxhfixfCy/hJKtlytT0+DYASOdIEVyJmgYwXaxHFqR6Y5NHxFF2vgzdYCf
+	NohctqLA==;
 Received: from pc by mx1.manguebit.org with local (Exim 4.99.1)
-	id 1w6YGz-00000001nf0-3jFV;
-	Sat, 28 Mar 2026 15:20:37 -0300
-Message-ID: <9677d7ab513928a8677a1ce99f18d189@manguebit.org>
-From: Paulo Alcantara <pc@manguebit.org>
+	id 1w6YPY-00000001nlp-2Cuc;
+	Sat, 28 Mar 2026 15:29:28 -0300
+Message-ID: <7e285c78b2f745b0b4c33db2af7b6d26@manguebit.com>
+From: Paulo Alcantara <pc@manguebit.com>
 To: David Howells <dhowells@redhat.com>, Christian Brauner
  <christian@brauner.io>, Matthew Wilcox <willy@infradead.org>, Christoph
  Hellwig <hch@infradead.org>
@@ -57,15 +57,12 @@ Cc: David Howells <dhowells@redhat.com>, Jens Axboe <axboe@kernel.dk>, Leon
  linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org,
  ceph-devel@vger.kernel.org, v9fs@lists.linux.dev,
  linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, Deepanshu Kartikey <kartikey406@gmail.com>,
- syzbot+7227db0fbac9f348dba0@syzkaller.appspotmail.com, Deepanshu Kartikey
- <Kartikey406@gmail.com>
-Subject: Re: [PATCH 01/26] netfs: Fix NULL pointer dereference in
- netfs_unbuffered_write() on retry
-In-Reply-To: <20260326104544.509518-2-dhowells@redhat.com>
+ linux-kernel@vger.kernel.org, NeilBrown <neil@brown.name>
+Subject: Re: [PATCH 07/26] cachefiles: Fix excess dput() after end_removing()
+In-Reply-To: <20260326104544.509518-8-dhowells@redhat.com>
 References: <20260326104544.509518-1-dhowells@redhat.com>
- <20260326104544.509518-2-dhowells@redhat.com>
-Date: Sat, 28 Mar 2026 15:20:37 -0300
+ <20260326104544.509518-8-dhowells@redhat.com>
+Date: Sat, 28 Mar 2026 15:29:28 -0300
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -78,33 +75,42 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain
+Sender: pc@manguebit.org
 
 David Howells <dhowells@redhat.com> writes:
 
-> From: Deepanshu Kartikey <kartikey406@gmail.com>
+> When cachefiles_cull() calls cachefiles_bury_object(), the latter eats the
+> former's ref on the victim dentry that it obtained from
+> cachefiles_lookup_for_cull().  However, commit 7bb1eb45e43c left the dput
+> of the victim in place, resulting in occasional:
 >
-> When a write subrequest is marked NETFS_SREQ_NEED_RETRY, the retry path
-> in netfs_unbuffered_write() unconditionally calls stream->prepare_write()
-> without checking if it is NULL.
+>   WARNING: fs/dcache.c:829 at dput.part.0+0xf5/0x110, CPU#7: cachefilesd/11831
+>   cachefiles_cull+0x8c/0xe0 [cachefiles]
+>   cachefiles_daemon_cull+0xcd/0x120 [cachefiles]
+>   cachefiles_daemon_write+0x14e/0x1d0 [cachefiles]
+>   vfs_write+0xc3/0x480
+>   ...
 >
-> Filesystems such as 9P do not set the prepare_write operation, so
-> stream->prepare_write remains NULL. When get_user_pages() fails with
-> -EFAULT and the subrequest is flagged for retry, this results in a NULL
-> pointer dereference at fs/netfs/direct_write.c:189.
+> reports.
 >
-> Fix this by mirroring the pattern already used in write_retry.c: if
-> stream->prepare_write is NULL, skip renegotiation and directly reissue
-> the subrequest via netfs_reissue_write(), which handles iterator reset,
-> IN_PROGRESS flag, stats update and reissue internally.
+> Actually, it's worse than that: cachefiles_bury_object() eats the ref it was
+> given - and then may continue to the now-unref'd dentry it if it turns out to
+> be a directory.  So simply removing the aberrant dput() is not sufficient.
 >
-> Fixes: a0b4c7a49137 ("netfs: Fix unbuffered/DIO writes to dispatch subrequests in strict sequence")
-> Reported-by: syzbot+7227db0fbac9f348dba0@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=7227db0fbac9f348dba0
-> Signed-off-by: Deepanshu Kartikey <Kartikey406@gmail.com>
+> Fix this by making cachefiles_bury_object() retain the ref itself around
+> end_removing() if it needs to keep it and then drop the ref before returning.
+>
+> Fixes: bd6ede8a06e8 ("VFS/nfsd/cachefiles/ovl: introduce start_removing() and end_removing()")
+> Reported-by: Marc Dionne <marc.dionne@auristor.com>
 > Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: NeilBrown <neil@brown.name>
+> cc: Paulo Alcantara <pc@manguebit.org>
+> cc: netfs@lists.linux.dev
+> cc: linux-afs@lists.infradead.org
+> cc: linux-fsdevel@vger.kernel.org
 > ---
->  fs/netfs/direct_write.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+>  fs/cachefiles/namei.c | 36 +++++++++++++++++++++---------------
+>  1 file changed, 21 insertions(+), 15 deletions(-)
 
-Reviewed-by: Paulo Alcantara (Red Hat) <pc@manguebit.org>
+Acked-by: Paulo Alcantara (Red Hat) <pc@manguebit.org>
 
