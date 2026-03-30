@@ -1,136 +1,88 @@
-Return-Path: <linux-erofs+bounces-3113-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3114-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D5B56FC981D
-	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2026 08:52:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55014FB3D02
+	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2026 10:31:11 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fklPW3r90z2xpt;
-	Mon, 30 Mar 2026 19:52:31 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=185.183.30.70 arc.chain=microsoft.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774860751;
-	cv=pass; b=WKkaVN2z3tRJsdHoEqNAl1Pvb1bZ4g44KqPjL+vhy3S4d1dBheFXDMqklflUzpMzNY0eBI1hcYjjrmN2xIiGJ44/ZpOK4rlPlSLcOljjLCyRvssu9EBtSRZGDmYEyulhK06rFBIrLncIYbRR0cMy5DAJoowoRcNJhm4y3zvNJ6IrdvftFdUoH09uesnTyokimtVCFcM4ocLEba2R8OJxjWT9YLML3t7ZdEYaBtWGHhQJNy4He12oZFR6btnx5Jd3C4DMNcSl56eDytUC1d+kZS3zLeL/szJuf8pgkZ0wPXMAiAE4dqO2tqMecYoGCoa4jbiQ7Iq9N6P15LK9hZcarA==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774860751; c=relaxed/relaxed;
-	bh=Roj6IQbShJzCbQB7phwrnOn+ZYHSGoOsUrzL2NnCmPc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=OjGT87j4sy7KxaIcwnlBoCuTwn+QPP0ISn+HInPTHjCKBMnkr7TzpA2fD6yHNOb2oS8IOG5Vo8rFp4Cw7avkaZbxkVwd5B8opY7Kmrjb3nb7CSUghswaWCuOxkTH8U/bF5CcsV/MeX5c8/v2r9d6bi7afAxJl5P4Es1L2uU+MbajJGPRj9g17EnElnGiJjj/Qkw9XTwu3ZJdxdOpALHa1biDd0TRN4l9fIZQKUvfDJugOeEuHEANDL86fvhXa2cvuQ/1C8/jBEiQyxiHOWaCBwTKEg1HywZDOX6pE07bLvSoOYi7MvJ5Sp3VTKBTU6StgmTooy4iUbWrz8wlvZrKxA==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com; dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=p1 header.b=VRCNtceO; dkim-atps=neutral; spf=pass (client-ip=185.183.30.70; helo=mx08-001d1705.pphosted.com; envelope-from=yuezhang.mo@sony.com; receiver=lists.ozlabs.org) smtp.mailfrom=sony.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fknbK5g8Wz2xpt;
+	Mon, 30 Mar 2026 21:31:09 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1036"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774866669;
+	cv=none; b=dvO2oQVpgL4Kiqg8H2sgP58HJokri9oga3XmxqwDcgGLlsY5QoEovG88oyYR/clakdGPan22cq8n3B7FZ/5iwsUuGNERRjJSh7g7ihbYtPt9PlXwk46XAVY0WBQh8lShNTBcUz9gDdKH1Y1R+neh4mEK+fTXzy9J02Rjtc2ugRdNf1sLrsOdf7JBE4iyI2HVGvp3rtuX7xRl7GW9+M1UBo0ndJKSlJazvVRLEJkWnm8WwEbAOii2vslsJxhMPVNZ92Z2DMVP0zS+Hvly67gHK4z9GWbmkiSu8LZUxiXg1fBNy5YU/0XgCVQwgYppLi4Cg0B3Kz7VEAbIXBu1DNU+Kw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1774866669; c=relaxed/relaxed;
+	bh=uz6fS8lRETbz2t3+whf8Amn55CL6gutKQNQEg4Bd0dA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bgWSGDKijIdTl4iHebbMrz8M3DCStJlol7Km8wIwLNtv5IK2PduoH2H7VjBCbDjZRZREU6pAJm4o6Eeykb35gxi1BFKJKQN78RkYpD1S0wOJ6LdMBjkKZZWayNpFuku50n74dB1nliocUblQ7A21s8vNu3eLMKilIrLTUogrFWhAgRslVA4xd8J58AT35TyLKwn7eo8PBaODQHbqB7X8dufW7BPxB7QdfBcLbfreHrSDWaot2uofcWAFZY/DHJXN+glmt7S/n0C2e5yJwa7pZ32dBGaQBwtm4PA6AyBh7Nivy7mVx5DRBO+MqD8Vc76yzwcAVDQvr2s9Y3DfFcW/+w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=r6V9rlof; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=p1 header.b=VRCNtceO;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=r6V9rlof;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sony.com (client-ip=185.183.30.70; helo=mx08-001d1705.pphosted.com; envelope-from=yuezhang.mo@sony.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 233 seconds by postgrey-1.37 at boromir; Mon, 30 Mar 2026 19:52:30 AEDT
-Received: from mx08-001d1705.pphosted.com (mx08-001d1705.pphosted.com [185.183.30.70])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fklPV1nDJz2xT6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2026 19:52:29 +1100 (AEDT)
-Received: from pps.filterd (m0209322.ppops.net [127.0.0.1])
-	by mx08-001d1705.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62U4dPPU2429036;
-	Mon, 30 Mar 2026 08:48:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sony.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=p1; bh=Roj6IQb
-	ShJzCbQB7phwrnOn+ZYHSGoOsUrzL2NnCmPc=; b=VRCNtceO26baqiBBV3JggO3
-	3FxzlgiIXLC4hgVpmwT0dzqmQ8wygdBwX+9h29sp/gBUc2kfFR/ri1qWr8h8DY4B
-	Wwgv7vVbhrpjYW7jvge1FIErNFowlvWSdJBvuewvuz5jS0n5xbm7z1+tUJDzn6DL
-	WDAqDTqjVQ2egj4wsl35DX0pyARGGmnB0uo+qzxFA8WinQkQgAER8AweA4Anoy81
-	mFbhSNN8atD2USEkmrdThhFUD9OG3uJ+/xDw5QgBYnEcfuqLqggEFGnRPajs91OZ
-	Hhk1Nz0sE1/SXdacKH1U3g525ruMhNXMjI5MMwa653KlLbP469DjHnbNS1ZfTzg=
-	=
-Received: from seypr02cu001.outbound.protection.outlook.com (mail-koreacentralazon11013009.outbound.protection.outlook.com [40.107.44.9])
-	by mx08-001d1705.pphosted.com (PPS) with ESMTPS id 4d65s0sy87-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
-	Mon, 30 Mar 2026 08:48:15 +0000 (GMT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mcaFuo1K8h7ysJM89QcSaDq4AwnDUmgVbVbaR73PAI5LacYSRiShZ11wMMSo+wEB8V6hotG4DQQ1128QO7k8xRgsOGoCin9/9Sngaw7XxzdMNZtIYfA95oLBSIiGsUCjDpfdp8V3Rs68hIZetGaKxdGiMA6i8crVVoLtqhq972O7guJvrbx1PSAHeHT1UuZ9T7GZ+iCADZwJz45lNDyP0OQKZNfxDYnGX8b7SCemHRgsp/w/kIkZJDw2dWIvWtKUBLffSj7F8dyaJzADzuUhhc2fL75pta0AYncYDT7TmMYYWCNH/88jjYSK7cw6898qrkdFAAyK3pMv/rB44H1Z2w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Roj6IQbShJzCbQB7phwrnOn+ZYHSGoOsUrzL2NnCmPc=;
- b=af/BbQVFqhL1FZX8GMCA4FaHZoHY2qw5qJZXT/Pz31UAFymbCBiGq0zp/r/8KdpfB+EOwFI1qFe2lhSPUVG60CcOunGlkUcAbhhHwjVcP+jFktMl+IIQCUhwCKmsS78SVGJ0xq1CbHJYKXyoaA7Df0ZxhbayWcy/sRLovDQy5d+XFoDFDEw6Va0LhQRtkTFAEVxHU1kOUEFd228P9zFhfblJYdH5DHosbV2IZTFEV5Pwex9lieW64qqOI4eMPfSid4cfoTyQnKK6vv7XZVVT7OrjHOkJYA5zl+FfzD72WAXmUCbUL1/haf2vHUuPuh3XrDDY4Lbokxv5Arfc99Wdvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=sony.com; dmarc=pass action=none header.from=sony.com;
- dkim=pass header.d=sony.com; arc=none
-Received: from TY0PR04MB6328.apcprd04.prod.outlook.com (2603:1096:400:279::9)
- by SI2PR04MB5774.apcprd04.prod.outlook.com (2603:1096:4:1e2::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.28; Mon, 30 Mar
- 2026 08:48:09 +0000
-Received: from TY0PR04MB6328.apcprd04.prod.outlook.com
- ([fe80::bc92:94bf:cf9f:313e]) by TY0PR04MB6328.apcprd04.prod.outlook.com
- ([fe80::bc92:94bf:cf9f:313e%5]) with mapi id 15.20.9745.027; Mon, 30 Mar 2026
- 08:48:08 +0000
-From: "Yuezhang.Mo@sony.com" <Yuezhang.Mo@sony.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>,
-        "linux-erofs@lists.ozlabs.org"
-	<linux-erofs@lists.ozlabs.org>
-CC: Hongbo Li <lihongbo22@huawei.com>
-Subject: Re: [PATCH v1] erofs: remove the guard of showing domain_id and fsid
-Thread-Topic: [PATCH v1] erofs: remove the guard of showing domain_id and fsid
-Thread-Index: AQHcwBf2tFxXmbo/Zk6ztqf4PQ/98rXGsq0AgAAP/Lc=
-Date: Mon, 30 Mar 2026 08:48:08 +0000
-Message-ID:
- <TY0PR04MB63282B4D6BAEF754115502548152A@TY0PR04MB6328.apcprd04.prod.outlook.com>
-References: <20260330073235.3328579-2-Yuezhang.Mo@sony.com>
- <bc6ac6ae-ef88-4ff9-96ff-3395f84ce4ef@linux.alibaba.com>
-In-Reply-To: <bc6ac6ae-ef88-4ff9-96ff-3395f84ce4ef@linux.alibaba.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TY0PR04MB6328:EE_|SI2PR04MB5774:EE_
-x-ms-office365-filtering-correlation-id: 7830e53c-5809-450c-3689-08de8e391148
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|366016|10070799003|376014|22082099003|18002099003|56012099003|38070700021;
-x-microsoft-antispam-message-info:
- F5k/51jN9ZloMU38SbntzLOX4ndlAY71nCQ8xcNe5EYpleW7zqff0YiixygbEC0VRmjKUd+gPHhISZKgL4MCeyRQBWzvfBjKX9EH92We0AxciE7XEMhtyrQg96X+gjP0ObHgw0qRtrK4tvdvAb9FqNe5Xp/TGLLTnDYGWXXjzV62eOIGCtgAx4JbMI+5peZxcFgDZk6Zq728s4v8WdQjL93qL2LxeJrSK6gq/nR5G1SC5oBNrcD0zrd3R1JcOiAfwu0GTCcS03Bp9LV+j+EBvmAP9arjikAeiMwiq28ghyNTZhVsqD7Kv347PAUZevFE1d1L9IC5OEtcyT0KX35SdCtgaVoRiDKSd+4htBfn59bcFfVGgGSkCEtT2L0pY6MAhy1P9ituNZ8z0vttDduV4zmbrC1bvXkSbvftLB2ZO1RjYUUFZpQhPQKqya3G0tj8ZxNg0tmw30OF25dxrLcgld2tna/fRm2ikI3cCHICzBk5IChHpb26f+MCPv4Nj1M+bgp4GQLHRnKcvKxHfTznZ2HT+9K/bbNFemEHwW5cGH8Qlo6mzOAyuOdfnK4NRuuZqINwmenDqmzf3lP8m0y5tylOWLjqDYJ3W2nF2osRNnP7TSJnasRkcrdESTCDw1ikRIA7MY2fPTKD/rye2RK3b+ZrWwzXZ6wChqjs0W1PxepDEQnzxjvFCgGGLd+0xQNQX7Fe8C11gcGbGYYD6dGavKNwXw+D6oGcMbnwGUikLmYpkw6Rr97e5G35mvf2KMaIol2VgOQKBIecz9T8HKc8ODz1sSyeLd+YesR9hl34e1M=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY0PR04MB6328.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(10070799003)(376014)(22082099003)(18002099003)(56012099003)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?uuMfKMjl1LvuBHMxOuaf0lol46afdtQ1qXpOFSCjn+uKic44Puwk2RG3Tz?=
- =?iso-8859-1?Q?rwZn5j9JAsKhfIylZpC4NsyfvaMY5J4q8QZzkzAGuMS1k7UsVJLpPgbkBD?=
- =?iso-8859-1?Q?UE/YOw84DC2uSXLZOUF7Z/Zgq/MUwyAZ7D4C8t8TxgIVlhyMWg1oW8jfxZ?=
- =?iso-8859-1?Q?a/YKBh98maJxXHK6y8wEATXTjUl5hTua5VSIstsm2uM7o4dsMEWuo2aH9V?=
- =?iso-8859-1?Q?hHdyL82GYXKj8ZcDRiHRTCbG0jKxGz1PBopjsFdtXfOneCndl7IMfQsThp?=
- =?iso-8859-1?Q?gpxgfyho0j3r0H8fLFc1Tp+kfDa7ItSR/Sn6qKDsnVeykjMOHoK7qgi9cN?=
- =?iso-8859-1?Q?tbWLik0lU5MHHT3ENHCKgbb5RqBgDbyCP+mPOl3Kd8NtZlsshQvBwxOnf5?=
- =?iso-8859-1?Q?QRCZHJzvUC6zIjCmnXeAjanzkafVQ7rHvesIh0sseRNJ5/hAlf7ELNKDks?=
- =?iso-8859-1?Q?iUPD8x5RONERkA48JZCrvYu5ruALoS/MaWZufdB3qMXEhw3DaxnPBqsin4?=
- =?iso-8859-1?Q?X2NvRUWUUDB0kWW+Jl2xSIjedFfY6kfTVlVWj2GNIS7Znn+CdTGR7VQSpF?=
- =?iso-8859-1?Q?HqITtr8u/n8EPPJBBPMx9dxXGSNVS+Lmqo620A42lSonCdra+tjrXEQQ8s?=
- =?iso-8859-1?Q?nKOJVYwxH5MNIP0gZqHika5XI0zhbM7lYUsB+8dB8gJNMWZ60HR74/zyuN?=
- =?iso-8859-1?Q?noK05erl4Fv8KMEmMac4wJinvsIthNbJhhU7jJosXIVddzqAdijNtU7Gcr?=
- =?iso-8859-1?Q?Yk1m9inbZBx0b0KPrSn39vHgl/OCzl34XCPEfOt/UWTZrOJDMBFT2fj9pj?=
- =?iso-8859-1?Q?9Sy1Jg8iJDOs7Lkhrlj/NsKl9qFxzh7SmUypWbWIz4YnYGfE5jF87DpGYk?=
- =?iso-8859-1?Q?qwcWMvq7fqy9KuZhhtxqu5CQ6OZ9uPBJKiZnJXT1x6exZ+Qf3NXb9JdxqK?=
- =?iso-8859-1?Q?MYX2frm+rLFkOTKpNXEkofisSr6543F8lfD7JMFuZ24kG6SC0i1dOBD6Rg?=
- =?iso-8859-1?Q?vqfS8y01jZOp+DohvMpFBMrwhISw9aWG6IAz5Loo9f/o28pzkKsNXSifE0?=
- =?iso-8859-1?Q?jTh+249hV6P9sFDVXcFk6db/rjSh84FI9abvQG2/LETLDvJifT+V6m3lhb?=
- =?iso-8859-1?Q?4nYxndk/2Sc33T/nIkQxh0f+UlBsSTUsHuvjSu3Wdqpg0qk5jRBLaOKF9G?=
- =?iso-8859-1?Q?FfcTAEX09BZhEtMqSS+BptCAcmI0ZIXkTJyMV8YJbawVDUnZvLWHoLIlgi?=
- =?iso-8859-1?Q?CLTPNTZgR+FP1rhRQSLYMc5t3rOua61qVAf+wCbeWyuAYeYjpkjunTwFrC?=
- =?iso-8859-1?Q?GcJcu6yTdwnpQUs25dQxjgXnIxRRhLNjKwryIOvsJzvXai0LIn+7mRr9hZ?=
- =?iso-8859-1?Q?3YKuFqtry+mPlysed3nQgggglFB6nfqpfN6kp74D20hqPuzJQjQs5fnEuT?=
- =?iso-8859-1?Q?QFEmRYKYGiiO+pvtI1C2z8P7PkrgtKbS7TkhT/RmLmHgm4AB2KW7u2TtGF?=
- =?iso-8859-1?Q?Au1bHh8Hjsk9xxSZmMeFam5Ou6Gp4s3121eGoVXsUTDj4GwzvQTsva86DZ?=
- =?iso-8859-1?Q?8j7LRoV5iZyi93/KMAnphqPDP1rR4k64qV5i+8cgrVP4yvrfFaMDUgigxV?=
- =?iso-8859-1?Q?jSzWnq5E04dITzY/3XH57HEnuSAyI3ewV1KJtlPcWOK+yqCDhile+5dKnn?=
- =?iso-8859-1?Q?vio7lw22pbaECVlbzkfPLlx9M3Y202ivn23puxw14ucL+eqrwlLmDwIwj9?=
- =?iso-8859-1?Q?F4BFjzmy3Crkro73mkczpAbyjusnFIDkUXytV68uW/lRO951tyJNXnASw0?=
- =?iso-8859-1?Q?UgFQyNcYcw=3D=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fknbC735Pz2xlK
+	for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2026 21:31:02 +1100 (AEDT)
+Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-3590042fa8eso2816571a91.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2026 03:31:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774866659; x=1775471459; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uz6fS8lRETbz2t3+whf8Amn55CL6gutKQNQEg4Bd0dA=;
+        b=r6V9rlof+WWJ5nshEAvWp32C811eHveutMdY2ly7++HpyIrxA/gncaeqmV1hTNYZ+O
+         oGO8ujWbp39TKxRtsIEzKXpqfEppvqGjVvhN8A53jsoqvS2grqfeuwM0Spv93wGtvMAx
+         fC28RzLTfJqgS4tgw6CVGj27DwbEZ8gn8xXI8rw40w/VxEvcRC4LJWrSNUvDpMBjukxO
+         MkCRbmZbXsS2whoQgVf53z1t3B4a/g1Q7NFM/TB6/gtmgJdLSdAqQxHXMUuHgWFaoxsN
+         5UxlkUZq3hh2qiyCwCvoAcAQadx4gt+oI0e5EFxzV+jabGVbvf6IDe8EJZG0N2NSTjtX
+         zcdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774866659; x=1775471459;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uz6fS8lRETbz2t3+whf8Amn55CL6gutKQNQEg4Bd0dA=;
+        b=dXlZCudmp68pOB+rnmSRD40ZBGCeOlxHiOS4lqNkF176DtDrbsrthkiFixo8zwWxuv
+         MJTIYbfU8fp0a3A2wAc1kgTUdOeDxp9HY4oO/2uNXdUwThgiLrCXTu94OmyXwVHa/9oW
+         ReficYTFb93UqpqUP8rcaCWLiga2Kl9eAaoIv3oRukchlJR7iCSBU4g8iVxXS0mbZXiw
+         WlkI/w2iJu+BeL6UEY059UE9h6tVzSByzufLSyYU3/iJhgywr7yTChVzpoG5JoboPYio
+         d0iNLqk3t1YkfNKP8rzELsVRgLvCRiJmctCIrmbjiuB6fVRcBsqTV71YcteRzo+E2ToR
+         2qtA==
+X-Forwarded-Encrypted: i=1; AJvYcCVXnX4SB8s5cAKlCbE03k/2HyQpUdWxhuaL9wOYPNzTZes6iQjEzZgvtaWhKGUdhNbJLX3+x6/srojFNQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YxYVMUUPwg5+DYq8MJFD3aHEoy6JxI/MgNwHEHaII+SCPQWZwmd
+	vrqynWg/R4rypC7vJUiLAqKXoNlAFWCJWXqqmwvXapOqlMjXliBb3cyS
+X-Gm-Gg: ATEYQzyzN6w+2XwZ/wFtnjB7HQ7FNeBG27gXA2+eF/wfC89IXYzSI/FKJJPkUsIETEK
+	Hitm8kFdluq38CBKUZznMEBV3jdTpEeDXAMbHywo80NI1+HbZPQachWgPCr5P+wOjvWd9iLuMsx
+	TxoL8gQfbfUkGACPjEcZuJ9XvUNo5n80db+KJkdXQA02hMtFm0di29mmgyy1pvLRg3NRuOdQ4or
+	jenxWQ9IP2l9pWNOpRbmQBLyfFhmwxVCwU/aFVfFQBw9MFfUMZpVYz1te5O7T5zjYZoofC0XUam
+	/iKl9Y0tOiwwg71z8F9kqDCpDj4N6GTn6dvGGibFxd+OW0UQeXC1fp42pBoN9xpdlP0dnZutcDn
+	cOZVFNB7tey8WWkXHEiZwP3CSTlE7CjX2pe6S2xRYX9FFiQ+Ea3xmcRoLaulf1gKBfPUe+WDMVE
+	ny3a3mzVy1yedVomI5PuPBpZPk+3YQYuzFyzrpw2zfiexh+RlGWbnDDaKk
+X-Received: by 2002:a17:903:32d2:b0:2b2:4862:78e9 with SMTP id d9443c01a7336-2b24862803bmr74847845ad.15.1774866659334;
+        Mon, 30 Mar 2026 03:30:59 -0700 (PDT)
+Received: from localhost.localdomain ([45.114.151.61])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b2427afa57sm94298765ad.71.2026.03.30.03.30.56
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 30 Mar 2026 03:30:58 -0700 (PDT)
+From: Nithurshen <nithurshen.dev@gmail.com>
+To: nithurshen.dev@gmail.com
+Cc: hsiangkao@linux.alibaba.com,
+	linux-erofs@lists.ozlabs.org,
+	newajay.11r@gmail.com,
+	xiang@kernel.org
+Subject: [PATCH v2 experimental-tests] erofs-utils: tests: test FUSE error handling on corrupted inodes
+Date: Mon, 30 Mar 2026 16:00:51 +0530
+Message-ID: <20260330103051.26877-1-nithurshen.dev@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260330042801.78385-1-nithurshen.dev@gmail.com>
+References: <20260330042801.78385-1-nithurshen.dev@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -142,61 +94,161 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked:
-	AyzskZkhaTF3g1hK5SA02C+SMu5GWHk7iXMK2wSUjKM7wF9YQ1VUemXLHKtplR1wL527jeVlfm+nVteX6xChYBL23mu5ZzJedB6eUaJNTuZs7qMFg+vMwidUGwVM+xMPDDeN+W42SMuPS8p9gJlvFLWn8fgUlmx4Vd+AP65T1Z/UqIS2GLhzl/3cVUxm/Y5FpWr5HQWcEd+8emQkB3p5zgryFneiBKyyFDd3ui5RQXCpgyX7mOQs9ZTy+PMuGY4LaO/TkjhW2ddDisiVUlfKwON+7gdd4SK0zv1fEQdTcZF2P8hIjmDX+wwnyPnMt00lbWDoX/f/ALFeN6mz/4mf8Q==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	0o6mqQvP9IqDS/EsSNIKPorc8uT0xgGIHcew/77uQ0e4fWAy/WaUKy5rG4NOD0gDvDe5ao0cV4MHEyRx7iBdnNe/Sb14MHZe7BFBdbK3K1QYQRWX23Tz5Xe3qqug00JMVYtKbsUDspvNVMXkSMh/xpOjdHDn5mNNNXyMUF7hIRk4hKtiqnS+JON9UNmxfCpsi1Rcidbxom3lSKThKIGsy7sn7dbvRafHWhrLP7+bZLt/fwjJQv/PC/NmIfQLt6be7FmdlmmPlpctYjcsifd7nOB70RYFzLLHjTDlHXVFkxPgJX7KD+M2d5hVbotG6LL1q42yusb+kXaWZONMTm0Bk8NTo69PiLGAIQlYroqCXKpbvDGyZZeHkfcClTsfzMolxRqcPI+Qk5XlnYXitarVh1twIvJXqQ2KXxxIKcBA7XU52PT2tMSqqBk/fiO3Ao4lADSsUMStu+VZDuBRNKBBxeBHkgjNEl/abAsgGN5R+OLZdEAGiApnYei1CGtrkPRLHKe8bWAotpeGqnGXGpBdd2cUq/EnSSvpHUhpM6crw5YDf7HVSqE2zaQDvA0Sic+AjJhgV7Wnw1LQBTZaZrUT+WcN6VOhiKi0sTuiVEPFrFrQtHRmhaS5fguKtAChgyPk
-X-OriginatorOrg: sony.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TY0PR04MB6328.apcprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7830e53c-5809-450c-3689-08de8e391148
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Mar 2026 08:48:08.7374
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 66c65d8a-9158-4521-a2d8-664963db48e4
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 7JhCAKWSyIf3QeX71Dlae1BLXixLdyl6BUhvXXpb2rGr7y/OgzcKP+jDgF3DzrDDULIj2QtjRgmtXA+NYy13mA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SI2PR04MB5774
-X-Authority-Analysis: v=2.4 cv=NvPcssdJ c=1 sm=1 tr=0 ts=69ca38cf cx=c_pps
- a=O5m2r3WRhum99gqPKpwb5A==:117 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=8nJEP1OIZ-IA:10
- a=Yq5XynenixoA:10 a=7j0FZ4iXMVMA:10 a=xR56lInIT_wA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=KAb5x4SsHD3PzxGk7EmX:22 a=cIyGuqrkuvkXWOl_fzuj:22
- a=z6gsHLkEAAAA:8 a=fvPdx_XSbdI_cSiGY3IA:9 a=wPNLvfGTeEIA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzMwMDA2OCBTYWx0ZWRfXyCEP5us+z8JG
- GrlhBwTwAb37yQ38HFv4kNowCoOCOyfunKnIvTeKZYj+3qyjg1QMcO6voxFX/g+er44eqHcAuWU
- q7pucm9/jjWdqZ3AD4iHb0q0rwjmN797VrJpNB5RFM9kZJ4uVplaIq6xpMLbS5RYnOO3DaGtCeh
- n4OJn31g1kfTWEsIxNBaJEoyO77iP55fl7uxIIFl4zv9sgLVZUNy7VvKNekn4bngIvjhj8Y5Cef
- Ww/tgPwf7GDAFjx3FDtvPu+yb4HlvhXB8H23SI2Bb6YJR5SbVLOpAcC6FEg/MA1xCFxVBxAsVzA
- TQFMLGuXNs/qEiTQWxvk9XETpc43ygHmIHI0neCQki6cY/XqQkOdnWZR8Uw3FSfMDdbya6Zemhd
- ODW6S1Mt/++q1TEqe66x0D+bFOSXL8rq8siAQbqUCprosgbeO5lw/pd6G5gGfo+n5KCUYXYLJnw
- utXsAqnaFKinAG0vZ8w==
-X-Proofpoint-ORIG-GUID: 7nodpsZWyOrHW6ehs-Nr3CfBoQDDfloI
-X-Proofpoint-GUID: 7nodpsZWyOrHW6ehs-Nr3CfBoQDDfloI
-X-Sony-Outbound-GUID: 7nodpsZWyOrHW6ehs-Nr3CfBoQDDfloI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-29_05,2026-03-28_01,2025-10-01_01
+Content-Transfer-Encoding: 8bit
 
-> On 2026/3/30 15:32, Yuezhang Mo wrote:=0A=
-> > This change fixes an issue where domain_id was not shown when=0A=
-> > CONFIG_EROFS_FS_PAGE_CACHE_SHARE is enabled, as this configuration=0A=
-> > is mutually exclusive with CONFIG_EROFS_FS_ONDEMAND.=0A=
-> >=0A=
-> > Both domain_id and fsid fields are present in struct erofs_sb_info=0A=
-> > regardless of configuration. They are not set if the configurations=0A=
-> > are not enabled, and remain NULL. Therefore, the conditional guard=0A=
-> > in erofs_show_options() are unnecessary and can be removed.=0A=
-> >=0A=
-> > Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>=0A=
-> > Reviewed-by: Friendy Su <friendy.su@sony.com>=0A=
-> > Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>=0A=
-> =0A=
-> `domain_id` is a user-sensitive information for the page cache=0A=
-> sharing feature (much like passwd), so it shouldn't be shown=0A=
-> in the mount option by design, and only the mounter should=0A=
-> know what it was set.=0A=
-=0A=
-Oh, this is part of the design, not a bug. Thank you for your explanation.=
+This patch introduces a regression test (erofs/099) to verify that
+the FUSE daemon gracefully handles corrupted inodes without crashing
+or violating the FUSE protocol.
+
+Recently, a bug was identified where erofs_read_inode_from_disk()
+would fail, but erofsfuse_getattr() lacked a return statement
+after sending an error reply. This caused a fall-through, sending
+a second reply via fuse_reply_attr() and triggering a libfuse
+segmentation fault.
+
+To prevent future regressions, this test:
+1. Creates a valid EROFS image.
+2. Surgically corrupts the root inode (injecting random data at
+   offset 1152) while leaving the superblock intact so it mounts.
+3. Mounts the image in the foreground to capture daemon stderr.
+4. Runs 'stat' to trigger the inode read failure.
+5. Evaluates the stderr log to ensure no segfaults, aborts, or
+   "multiple replies" warnings are emitted by libfuse.
+
+Signed-off-by: Nithurshen <nithurshen.dev@gmail.com>
+---
+Changes in v2:
+- Added $FSTYP check to ensure the test is skipped when testing the
+  kernel driver (Gao Xiang).
+- Renamed cleanup() to _cleanup() to align with standard rc teardown.
+---
+ tests/Makefile.am   |  3 ++
+ tests/erofs/099     | 90 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/099.out |  2 +
+ 3 files changed, 95 insertions(+)
+ create mode 100755 tests/erofs/099
+ create mode 100644 tests/erofs/099.out
+
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index e376d6a..c0f117c 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -122,6 +122,9 @@ TESTS += erofs/027
+ # 028 - test inode page cache sharing functionality
+ TESTS += erofs/028
+ 
++# 099 - test fuse error handling on truncated images
++TESTS += erofs/099
++
+ EXTRA_DIST = common/rc erofs
+ 
+ clean-local: clean-local-check
+diff --git a/tests/erofs/099 b/tests/erofs/099
+new file mode 100755
+index 0000000..11dab4d
+--- /dev/null
++++ b/tests/erofs/099
+@@ -0,0 +1,90 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Test FUSE daemon and kernel error handling on corrupted inodes
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++_cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++	# Ensure we kill our background daemon if it's still alive
++	[ -n "$fuse_pid" ] && kill -9 $fuse_pid 2>/dev/null
++}
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++# Default to erofs (kernel) if FSTYP is not set
++[ -z "$FSTYP" ] && FSTYP="erofs"
++
++if [ -z "$SCRATCH_DEV" ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f $SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++echo "test data" > $localdir/testfile
++
++_scratch_mkfs $localdir >> $seqres.full 2>&1 || _fail "failed to mkfs"
++
++# Corrupt the root inode to force erofs_read_inode_from_disk to fail.
++# The EROFS superblock is at offset 1024 and is 128 bytes long.
++# The metadata (including the root inode) starts immediately after (offset 1152).
++# We inject 1024 bytes of random garbage starting at offset 1152. This leaves 
++# the SB intact so the mount succeeds, but guarantees the inode read will fail.
++dd if=/dev/urandom of=$SCRATCH_DEV bs=1 seek=1152 count=1024 conv=notrunc >> $seqres.full 2>&1
++
++if [ "$FSTYP" = "erofsfuse" ]; then
++	[ -z "$EROFSFUSE_PROG" ] && _notrun "erofsfuse is not available"
++	# Run erofsfuse in the foreground to capture libfuse's internal stderr
++	$EROFSFUSE_PROG -f $SCRATCH_DEV $SCRATCH_MNT > $tmp/fuse_err.log 2>&1 &
++	fuse_pid=$!
++	# Wait for the mount to establish
++	sleep 1
++else
++	_require_erofs
++	_scratch_mount >> $seqres.full 2>&1
++fi
++
++# Attempt to stat the root directory. We expect this to fail with an error.
++timeout 5 stat $SCRATCH_MNT >> $seqres.full 2>&1
++res=$?
++
++if [ "$FSTYP" = "erofsfuse" ]; then
++	# Clean up the mount
++	umount $SCRATCH_MNT >> $seqres.full 2>&1
++	# Wait for the daemon to cleanly exit, or kill it if stuck
++	kill $fuse_pid 2>/dev/null
++	wait $fuse_pid 2>/dev/null
++	cat $tmp/fuse_err.log >> $seqres.full
++
++	# Evaluate results based on captured stderr and timeout
++	if [ $res -eq 124 ]; then
++		_fail "stat command timed out (FUSE daemon likely hung due to double reply)"
++	elif grep -q -i "multiple replies" $tmp/fuse_err.log; then
++		_fail "Bug detected: libfuse reported multiple replies to request"
++	elif grep -q -i "segmentation fault\|aborted" $tmp/fuse_err.log; then
++		_fail "Bug detected: FUSE daemon crashed"
++	fi
++else
++	# Kernel check: ensure no hang and error is returned
++	[ $res -eq 124 ] && _fail "stat command timed out (kernel hung?)"
++	[ $res -eq 0 ] && _fail "stat unexpectedly succeeded on a corrupted image"
++	_scratch_unmount >> $seqres.full 2>&1
++fi
++
++echo Silence is golden
++status=0
++exit 0
+\ No newline at end of file
+diff --git a/tests/erofs/099.out b/tests/erofs/099.out
+new file mode 100644
+index 0000000..4f36820
+--- /dev/null
++++ b/tests/erofs/099.out
+@@ -0,0 +1,2 @@
++QA output created by 099
++Silence is golden
+-- 
+2.52.0
+
 
