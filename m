@@ -1,91 +1,45 @@
-Return-Path: <linux-erofs+bounces-3082-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3083-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A766FC97EE
-	for <linux-erofs@archiver.kernel.org>; Sun, 29 Mar 2026 20:44:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58D7CFF4923
+	for <linux-erofs@archiver.kernel.org>; Mon, 30 Mar 2026 01:43:07 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fkRFV1BvVz2ySS;
-	Mon, 30 Mar 2026 07:44:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::f32" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774817070;
-	cv=pass; b=M5+eM2WwQj43Xj5eAPEBTvM1yjJSetZT2rQpycQRyqZo0Z38y39s/YIe3fNacmBR6IR9OxHHfep4RvorsNPSvZbf8fJGsRRVrSZ+XsVEIsyf59rQxUs4QUL9Ovy8nb6L25yF/n1/b2qkiUxv5PwoY4wX61U8wBYycVBNuPDkHP05s9mot2ssN05pu7jVVm/D8KBB5hOnhMRqtqpAfhU/YpTeSbbezv50XZ7eIOX2UwzkNP+k2RoHgmA4nqXpiPdV2FrgvAT1TyL/y3lSVNkEoUJ0pgPK4hgP1pJY+qn+Lndqv11k9IBcsp8OBTb0RPQ2UfS9GspdhvtS7dVYk7rDBw==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774817070; c=relaxed/relaxed;
-	bh=uU8bFPEvKYOQUgi+XUOz8oLFKOybQuVC9Y19ToBOkuA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LhUErm812X04d12JjqDSHxi0vgVxApMCQnuXgyCNsawDa/cUvW+J8OAvHRqOxOSMxddkLOUFYzb4I33rAFvT/AT+fwEtX+50cG++ar2/g+5YmZwLLdSmP6fSdU7UUcVYGiAfJuygyFtfdEUDV7PITHL42u9gHl8+lPlwts+RRHHBDsz0iEh1C076X0ZTDyWdJXOwMopMNTj2PXixIPRdiIeA9pKlTke1wxuJfnFfmfwPiXm4aAqk96zaP3FOHR9gOdLU3usnU2AKzMiOY2eHTCsqOeis09XVL35UDRf0sJBnjbG+cZttlpFNyXUyAGXOTPOfSEZC7s5UksGPjs9BTw==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=H4pRLgYL; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::f32; helo=mail-qv1-xf32.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fkYt11yvQz2xly;
+	Mon, 30 Mar 2026 12:43:05 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.112
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774834985;
+	cv=none; b=ksJ/En4RCvpCU+UN71gShcZdmakBFXNRI/yJv3NlrOZtPizdSqmQWE7J8YF9gx3qUHpqbe0TWDKXTj8YbpPKQgf0EXtze3o2RJIEbTPTcZ8sR7Ukh8k2rMMmo4eGPkGeOk+j78SgowxsaY1YIG3o8ELhwAz/CuaO5MiQD3RbKD0gw4PjwTdoFuxObToJQm/RQ6FaOpO0ENvmlJypiwfa2mRkCtNqX/6n1ou9DtKC+q1i25AxYWAlIMH0xGVZ4VPBGbBk08Ez/D+1ZplnlSDoy9xyZ26mPuxeDQ/YEajJdwxC3qEP7WFedBIry3Gl5MGuRE3SwH+HSepQ0LQcQDSbgQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1774834985; c=relaxed/relaxed;
+	bh=h1jvKRVy/dYlXyLKi2q1q2tOEAh3A3BaoHxsyOiw9x8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=itWFYz0eCzwjyVtg3o6/lOfnjnFYioxpJCTzXcmfXc4uBwKkE63XQZer3jSgZYAJoD6pnm+J5uLoQeRcxmNEQLYBP8UR1QfjVocvqPdFQOWwcoJxegg5E6AwBwVGcOsx3GdYqZNq4i/s1yeG+vOXfkzRP7/JJGpsRhwVq1ebwsMvG9K8ZDM5aQfXECxOswKdfZ41MOqGUp07ZaYwgrSQJwMwiy3ZcdElNag2dJk9IpNhhP0azmKTL++LxtwBCIqFx0C7BWMELVYEGdqzTLiclvkyiO5FeaZioHk0EV5niqHf4MJXhm57K/lEYKplbocyxyZW8A5+z46tjE8sT7NuZQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mxBrLbTv; dkim-atps=neutral; spf=pass (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=H4pRLgYL;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mxBrLbTv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::f32; helo=mail-qv1-xf32.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.112; helo=out30-112.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fkRFT1V0dz2xQr
-	for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2026 07:44:28 +1100 (AEDT)
-Received: by mail-qv1-xf32.google.com with SMTP id 6a1803df08f44-899f50ab3f2so7182306d6.0
-        for <linux-erofs@lists.ozlabs.org>; Sun, 29 Mar 2026 13:44:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774817066; cv=none;
-        d=google.com; s=arc-20240605;
-        b=MDD8iZChWj+2ZRPhssrQK5TXGY7zyK3XLByI2OI42az88oi2MLLAV/dllaTX6giHtl
-         T4Aq/APGnAbKEyEj35BJloEoGvKqleyfCjUM1mHU5BOOy9JQNo2OWQf2l5Qkc+g2jO5M
-         /6eYYwEisT22jcW1cnQNyfp/VQoa30wztjYr6iizE496LCgcb7/MGyV0CJuYkeIjTKLI
-         j3CRezUZ4fumoQFufE4NSMsGD04/JN+9innEVrIIHoSw4KfdNlorCg9dFyS/Bjc7QqsS
-         sq56SwFwJPh8TOgDsnpxR4V9wwJqxnTRr+y0JVjrFwTJL3XglmsD2ICzmwDrUmLxg/5k
-         9Jsw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=uU8bFPEvKYOQUgi+XUOz8oLFKOybQuVC9Y19ToBOkuA=;
-        fh=rFIjmt53n1zfWXgPux8IqwKbHHpRVZET4FCyNME6lW8=;
-        b=k9NchKFOrZWx3MWPGnZ/Q6m84oRcY76LjcuSEk7Va2mmB4XjRzIfX7voiU/Ix/Nqki
-         BQE+2djPnG0wHJPFfe7P2V8IdsfABhStxNSM/3ML3ibCWJzhA8aArig+LCy/t2nRBEDq
-         O8kJsrrhGU5WgjS7AbuCHfFbdsS7wbjuKs1dOPkO350oTAMAanmSm6soGDQQtRfUtjn+
-         oCCOrrXpoeNpr64WDlWEHzrQ8ulz19LkqOGh2SK3bTeuy+l+gjB6Pi0MaojqHH4+GSf5
-         LC2+A9Zgvnf265/YM6mtBNXueIrLsV3V2VSyFZAAXrl2NWhyQ9RNmPfk99LLFeGRc/7t
-         pM1A==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774817066; x=1775421866; darn=lists.ozlabs.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=uU8bFPEvKYOQUgi+XUOz8oLFKOybQuVC9Y19ToBOkuA=;
-        b=H4pRLgYL1vN68IiaQ+kN0M+tlUaJyKWUVZt2oflXgmOXb+ZcVPMVGjkQcZYD+aOX36
-         sMtp1QrAgecpQ5qI+0MxU/iWxiGsdXjScjOBWg+I60TV3laakIOUCiq0HPRGAB/DqjC4
-         NSRACBX4UvSaOnaXFUUdtLnELeWrDV8KvWILkp51BU391V4C8XqqH6huJEqOwLWXAE33
-         QlyMcGG7jCXfadflFQi+CWK2DWqdhiALtQpq8+XGyVzqRswLxwDEeUjLFT+PIvbMJ4Vq
-         t5HB4W+UZmvst4vDDZkjsZKE+uB5/xtofAat8oKCMoHP5XpNe/DslLO6RNG4J/sFYXJy
-         eTAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774817066; x=1775421866;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uU8bFPEvKYOQUgi+XUOz8oLFKOybQuVC9Y19ToBOkuA=;
-        b=dCN1g7c9QQ7TkmkNPoVkhmAwyDLgyaVLprqhd7XyLHDPZwlXsT7WJzK3+RWQS/KkrU
-         RHq4r6hFMFA+8xbu6Kr/sl4GLD5YG1xor9SDkcjTZewUHnDYmKfUoa/bXwotRFBHqzen
-         hXRFx1o5WY0y1ch3cdLP3sQiqKfE8gdEN5+nackDxpJDGys4DxlPiCzW9lO/64AjsJih
-         TbL9xqso8ObRuclGyWMz5uzjxracF4Q3grmXiXZ7GhDbdzFFvp0bsDDu4pssS0IQFk18
-         hQmhowbmH9heBAQhYHmPyNT2lL+xFguwosckA5EpRr1Cm3IfAzzV2CzakabG4ZniMShE
-         WHuQ==
-X-Gm-Message-State: AOJu0YwQ5SVDNgHPr0y29uqLRUKxmq5oYBfzgTgZTb9QIOXlPcXHNR22
-	cthuQOm8nl75TvWT9cJk/UrS4NV7z/Yp6yf2Rx4yVabVuc9u5/uyhupa0U7S+m4Bzx1UihpY9JH
-	+l9ldOyKHcRJYA/X1D477zwaEg2ja5OwDnliznVs=
-X-Gm-Gg: ATEYQzwhbC7dgINENJqzPQlkQWZTTQJaIt6tUHQCWuv9NmokVN7sX5/FNZo1d30gIuQ
-	7uWaLHs+KJPK/R/+dTUKsc/EfmHFmsGIDDrV6KNjFdz5eztzv0gIPgfLzxdrTFw9LTyBQAayPB1
-	KXYe4BgphuNb6tYMyrQTkjv0052LV9HFI2QfqOFS6S+/W7PshF49nSP72KpNIuEjS37o6S+f+Ot
-	Xc0eDDJAEG9VmpQm1Gezaq2JzmOnxusRcbPE6/kovadwd6z9Vt+sGXI5fdnYrKuey8vOw9JBBqd
-	6xFEawtTQJlXBaY/ZayB3nLR92/uL18Bsxs5f1VzfldQ29VIRQiNvyHCYDr4s1wBhlu75w==
-X-Received: by 2002:a05:6214:401d:b0:89c:5159:ea52 with SMTP id
- 6a1803df08f44-89ce8e9878cmr108366676d6.7.1774817065639; Sun, 29 Mar 2026
- 13:44:25 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fkYsy1LGSz2xdV
+	for <linux-erofs@lists.ozlabs.org>; Mon, 30 Mar 2026 12:43:00 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1774834975; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=h1jvKRVy/dYlXyLKi2q1q2tOEAh3A3BaoHxsyOiw9x8=;
+	b=mxBrLbTvDaIqWPH+0/pT9jxPwzOXPvTciCRu9Im7enL7gk8VPcLSFq7ocZLVMN0Z8cGiH5tBA4LUprm4vevHkiEjR7WC9cmor390obnSjrrPqMMI5LdXgkHA6IXr3a+L8snJyWC/7+Si3/UX3/ddEubZCYc5zJWs2HbHjZZkMCU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X.toMlf_1774834974;
+Received: from 30.221.131.246(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X.toMlf_1774834974 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 30 Mar 2026 09:42:54 +0800
+Message-ID: <ff4b7e1c-2370-471c-b461-f66dcd28967b@linux.alibaba.com>
+Date: Mon, 30 Mar 2026 09:42:53 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -97,76 +51,42 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260328132047.1869-1-newajay.11r@gmail.com>
-In-Reply-To: <20260328132047.1869-1-newajay.11r@gmail.com>
-From: Utkal Singh <singhutkal015@gmail.com>
-Date: Mon, 30 Mar 2026 02:14:24 +0530
-X-Gm-Features: AQROBzCU_JJi6lFUUgQyR69u9OkAoeS3vVFtJfX6vqiCEmOqL4MYYhbRf45Ha8M
-Message-ID: <CAGSu4WNVJupFg=9Raz3Pyy483Wo6g-vOFjWFc382bMi_NWLL-Q@mail.gmail.com>
-Subject: Re: [PATCH] erofs-utils: lib: fix EINTR mishandling in erofs_io_read()
-To: Ajay Rajera <newajay.11r@gmail.com>
-Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs-utils: lib: switch ZSTD decompression to streaming
+ API
+To: Utkal Singh <singhutkal015@gmail.com>,
+ Nithurshen <nithurshen.dev@gmail.com>
+Cc: xiang@kernel.org, linux-erofs@lists.ozlabs.org
+References: <20260323052257.11377-1-singhutkal015@gmail.com>
+ <20260323111901.44548-1-nithurshen.dev@gmail.com>
+ <CAGSu4WO+q_zwjp_c3Bbk6eGEDiEpjhHf-8BOiKLaW02mJwS5Jg@mail.gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <CAGSu4WO+q_zwjp_c3Bbk6eGEDiEpjhHf-8BOiKLaW02mJwS5Jg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Subject: Re: [PATCH] erofs-utils: lib: fix EINTR mishandling in erofs_io_read()
 
-On Sat, Mar 28, 2026 at 6:51 PM, Ajay Rajera wrote:
-> Fix this by setting ret to 0 on EINTR before falling through,
-> matching the existing pattern in __erofs_io_write() and erofs_io_pread().
 
-Hi Ajay,
+On 2026/3/30 04:25, Utkal Singh wrote:
+> Gentle ping on this — happy to revise if there are concerns
+> about the approach or the streaming API choice.
 
-The fix is correct. Placing ret = 0 after the inner if-else is safe
-because the else branch always returns, so the assignment is only
-reachable on EINTR. It correctly handles the partial-read case too:
-After a short read advances i and decrements bytes, a subsequent EINTR
-leaves both unchanged via ret = 0 and the retry continues from the
-right buffer position.
+Again, I prioritize all patches according to the impacts.
 
-Reviewed-by: Utkal Singh <singhutkal015@gmail.com>
+Thanks,
+Gao Xiang
 
-On Sat, 28 Mar 2026 at 18:51, Ajay Rajera <newajay.11r@gmail.com> wrote:
->
-> When read() is interrupted by a signal and returns -1 with
-> errno == EINTR, erofs_io_read() falls through without zeroing
-> ret. This causes `bytes -= ret` and `i += ret` to execute with
-> ret == -1, corrupting the byte counter (bytes wraps around since
-> it is size_t) and the offset. This can lead to incorrect reads
-> or infinite loops.
->
-> Fix this by setting ret to 0 on EINTR before falling through,
-> matching the existing pattern in __erofs_io_write() and
-> erofs_io_pread().
->
-> Also fix inconsistent whitespace (spaces instead of tabs) on the
-> closing brace and return statement.
->
-> Signed-off-by: Ajay Rajera <newajay.11r@gmail.com>
-> ---
->  lib/io.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/lib/io.c b/lib/io.c
-> index 0c5eb2c..dd5e304 100644
-> --- a/lib/io.c
-> +++ b/lib/io.c
-> @@ -551,11 +551,12 @@ ssize_t erofs_io_read(struct erofs_vfile *vf, void *buf, size_t bytes)
->                                           strerror(errno));
->                                 return -errno;
->                         }
-> +                       ret = 0;
->                 }
->                 bytes -= ret;
->                 i += ret;
-> -        }
-> -        return i;
-> +       }
-> +       return i;
->  }
->
->  ssize_t erofs_io_write(struct erofs_vfile *vf, void *buf, size_t len)
-> --
-> 2.51.0.windows.1
->
->
+> 
+> Regards,
+> Utkal Singh
+> 
+> On Mon, 23 Mar 2026 at 16:49, Nithurshen <nithurshen.dev@gmail.com> wrote:
+>>
+>> Hi Xiang,
+>>
+>> Can I test and verify this patch?
+>>
+>> Thanks,
+>> Nithurshen
+
 
