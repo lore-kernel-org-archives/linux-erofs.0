@@ -1,88 +1,70 @@
-Return-Path: <linux-erofs+bounces-3146-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3148-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EEAA010F92E0
-	for <linux-erofs@archiver.kernel.org>; Tue, 31 Mar 2026 17:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82C2D10F92EB
+	for <linux-erofs@archiver.kernel.org>; Tue, 31 Mar 2026 19:11:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4flZhL3XkGz2yfK;
-	Wed, 01 Apr 2026 04:23:14 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::22c" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774977794;
-	cv=pass; b=STazGs2SkkA2H60b689ordPtsBamxy+mXEsU9b4ykM2KwJVsgDaPLmtdBssr4eZoggA5+ySziwf5UbVbEgdiOFoWEdpVbWmmkuvarpImr9atyeR5Y04Xg0JXSIGdjDBL8TvWIYGzKalQCyeo3a0dy6+4iKShyPd6RwBZj+jmtT3AkUJKzR3VSYUkJkM/S234UiCUxsNeYZ8pdETbVMB60qEhWWgot3M4bfXs3XpzimcZfULysuRiZfzzCqbAmmYfHZiEnyhsvSBv/txkzjDXg+8XWO0VZZ/yYGDonho2kBSWJ16H+FREQGZpqh/bc3h/s7zS/islLtJ6Mz2ldd8W4g==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1774977794; c=relaxed/relaxed;
-	bh=s45MsvRbiRiVvZUd+lkTR2gyJQ0poocb3cgflxbIQmU=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=PiT1LSrgoxYpl8N/fGOA4eOwg/iMjctRw/Qu1savUrOj1n0pUNihBqWI67lRM71Q6+rUF+DYhP1KE7r270v6WrHivnEDQ5eZrdkrfIdLes3FA6t78pPMK8NGWtqG0GLOWOQbDzXvPlfjmf5ij7NoUf5z2Nt7XfoDXp8Nj5T5b1aENl+dOQmTFP/aSyP7MQea36SeWuMWl5fuS2ej60/qtOgAWBXrafCppUG72B8ohXBfvG7Bta3yYA27WF7wsWjs/eNiHzIvijshMNFwz8rSYiAqzQRRETqrN1qXXYhehv4UkjRMw98BsBw5kFG02mCP2ZVwNc/tK2Pc/8sLbCbvfA==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=PcaPaVDd; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::22c; helo=mail-lj1-x22c.google.com; envelope-from=bushrahz.giki@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fld5b1MSqz2ygf;
+	Wed, 01 Apr 2026 06:11:47 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.10
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1774984307;
+	cv=none; b=RHG82q20Pys7N93RcrWO11y9exSL0ROQUMidCp6DODirf5deCRzRNlUDekR4oOt+hWmXq+Tm10aF1cthc0xixYpywcFLmJ5H6ZJpJbfYbKS0lue7Yzy2DfSLh7j+xlgmtE8cHzXxifwg/FNoHz2gmVfxJnXCD7E4Wm11kmIFjgwmjIxVsa23TfQ7xsD/j+xeX9bC5qEBIIRhlxJ2WoMwkCVi8mCdpInUkUlpqklLyO2Lxxy4Yl6aHAXv0n1UvhJWP6WjsQUEACxugayJvWlhnuM40X3pcNF9CTS6HR6KsV8ln87qqKD+ElxxYtWqqVD0F/2ePcnDIm/0KcY0Omh1mA==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1774984307; c=relaxed/relaxed;
+	bh=3hOnV9MSRyK+RPsCePa/Ii7rF6r19RE/Yok9BBe1l7g=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=G7MrBKaiSoK1D0OlboHPe7g5Sv6dBdpgsrvXBFwUaBuujwTD/Z3/6c7ISXFe/ureTQToxJGo+ItqmHkGoNPpx6smxubuVtyJyiDmrOYha15yRNbQG0X11DeamSJ1eFINrBxb4x4GUuJnyeIKEmpk6ooZ8sJ7cfOhUywnMYY+mQZHRPnWoZ1b1HVzPh93xXxnI7GOUqCxvTVJrsl2w1cVLaoCM9Ce/hPlBS5tht3xwQyfbmKxhYAYEcl2rQVEWtgUeSd7DWFXmW5KiwispifJKHaMJlqJohRKLTzrWGXSl+Eb6wwDxuTQ7W19GRse8/cfUzU9SwOgVI5XJTV/CRMwBg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eoE9n1MD; dkim-atps=neutral; spf=pass (client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=PcaPaVDd;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eoE9n1MD;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::22c; helo=mail-lj1-x22c.google.com; envelope-from=bushrahz.giki@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4flZhJ5kDGz2ydn
-	for <linux-erofs@lists.ozlabs.org>; Wed, 01 Apr 2026 04:23:11 +1100 (AEDT)
-Received: by mail-lj1-x22c.google.com with SMTP id 38308e7fff4ca-38bcda08c76so47930041fa.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 31 Mar 2026 10:23:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774977783; cv=none;
-        d=google.com; s=arc-20240605;
-        b=RoMG7OE3Iaqc1UdVtOBmOGtjEdf7H5rIn4rVbJZek8Mxy7g6BtFiFIYtpBAikY1OK6
-         3Z3JPaikok0hkJrhEF6NX6EL1DF5xJPguvGqSlUcGQ0kV6bvoeWve28d2IzGOFOftYiB
-         JVn3unf+6UBmnRDWtrUB0+muqScuQfKHAcBMn86sBC5ieKFxegTA7aJtcA4lDva/xffE
-         WHcdgZ03EgCVZBGtgXCHkuvro8CfAKQRMmw8DG7e+m2lId4J0oVRjXjDbsJKRGa5bFPR
-         mrWpgOCL55qjOMyMPCFC5nio09biI3cxM/EoH/rsUG1jfLzN7Lbpd/fBKs6MmgFai7qT
-         /Qsw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=s45MsvRbiRiVvZUd+lkTR2gyJQ0poocb3cgflxbIQmU=;
-        fh=wOhGMmq2KH+KOElLlPuS8ws9o9ArjDb4wH58JVHh4Vg=;
-        b=XbcxLzbV3lCnvyysNSWvbomS173R6c6kSz+qb4+VCC82xFnhaB6VNPrFmD1/ywQ3ET
-         5p9sUK7YENjrXisVUR46/SQPXAS9zQJDs7gCoblb0XEzc1Vgrhw+nVwcMBr5M0uaZlvB
-         de564Z+dWuFaKBbsb0OySTUbLkWNDsT3FOV70bx4yfCttXLuPfmGrtoFQCY6FYebbjyt
-         E4aq20oy+IGLd/52AI/F2ascO7rbzPJT3Q67ZZNfYF+mePtKb9Db2UKICo3QqzVa8JPg
-         pWTySQRyynh13vZ2o90nG0nVnEZT0282a7UPny1KmWdfwiVoXheC10UOGixzCPUIhn/E
-         IBDA==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774977783; x=1775582583; darn=lists.ozlabs.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=s45MsvRbiRiVvZUd+lkTR2gyJQ0poocb3cgflxbIQmU=;
-        b=PcaPaVDdlkgdWu+ZZERsCNR1xjsvT3sW9AuWgNlVjsGpvKxXRbBuma9KOt+RIE+r9o
-         LNusfhs+PxxJWiGiWvnw9t6nFSBCmj9A8+43mo9Q683xNJscvWiQrzY1X2UxuhPbKPPw
-         4yt0zESQDg54ZF4l68t4bpiWSM9VuWDwxWRCHGdrwxFpNedWK/Yp3oYxr0PlTiGggr1t
-         xplruV+0o7bgvw7hU3B99zyU+sGISZ4ZELXafyMSXLqHvuhXCdtQSj/8t12l0DgQsISy
-         dT7ot5PL/8kwcEwZcJmc6n0UNAucFoIApxpyqWk9OMxkOrkAwIITKxeVmj6uutEMfmQM
-         MsXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774977783; x=1775582583;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=s45MsvRbiRiVvZUd+lkTR2gyJQ0poocb3cgflxbIQmU=;
-        b=FGkVKTCF4F9w2yK4rLvE82Kv0dUPHfBoiYRkZbTE0yjaFwzCmCb0j2uJaSjkFB9Ld3
-         KKtxhziBXca3yb7f8VDsT4Y7sQLisKGLgUYV9JgEDUiUQA7OOR+7I1JG7MxLP9FLm0Hr
-         4D70EQHafX6QgBtaFq7loOlJgAwoL6MNRu+AV9+ZFkCUXyHHl+UHigKx4XLSBR/mK8ZB
-         GYxwFmfVU5rDcQ2KTB2fjnwFGkCHHLRXWnK24SCTOJ24+dASxi7fg9TN+E55swXGmtML
-         gjRuG7Rb1DqXDYArA7GFH7iX+wBlnjheRI4bo5YZj+k3Vo4CVsyUXu4zHqM4HFHRjssX
-         seHg==
-X-Gm-Message-State: AOJu0YwznxIHcGZGsHU/Z+3mDfGrx5ec6XDOXVDrEELgDPO7gLPnh54j
-	lU4vgZCdQCfuR5BLUWPy8nGC8BgPMNwipWhSYLo2/cL/diNuGYy/I86H3seUrIDmngNxEM5iMqw
-	gF+eHnE0srg4EG9JA3azsK2qEG8hDn0t/1zy7164=
-X-Gm-Gg: ATEYQzxWleHxhPyCPux/2/gALkl55CPqoAQZm3Aj0mfIoy6K5Rt+sKj2wEz18pE0W4r
-	72ty3L/RT8Ho7Jg+CWOASFMms8WSz1AnwGgdVhuAsVK/bhi/F+xmRfFVOy/r5F+5czgOvyyErf4
-	CwJgR7IAfFfasnhsghYK1aM+gfG8zDvMMRrakFMTSC/3nRySHmCNcZ+3ICCFaMjap/6cajJvMPU
-	jMVZNa5QvQ70DshKMZPucGqSdvrm2WYZbc5ZkQp0yDJddXtpBYY4iDdKiIhisN+VhGL2b+dDXJv
-	eIeWY5IzWPq5zA==
-X-Received: by 2002:a05:651c:41c8:b0:38a:98fd:d7c3 with SMTP id
- 38308e7fff4ca-38cc3160da4mr538031fa.34.1774977782370; Tue, 31 Mar 2026
- 10:23:02 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fld5X3X7Bz2yfl
+	for <linux-erofs@lists.ozlabs.org>; Wed, 01 Apr 2026 06:11:42 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774984305; x=1806520305;
+  h=date:from:to:cc:subject:message-id;
+  bh=lz0mX1tpqyUOpgPJpZYktHv1t3nWPD8FQ1PbNwnFpnI=;
+  b=eoE9n1MDMrg3DMMpsbuCtRYVLPzEe5NUR2y+td+TuIjKNjST0tqUfAQA
+   Voht/06AIjsIqSvGFXP6W0mCOT0pYH1v+53Rk8aLVhh1bbHZ52ZhAvlQI
+   pJipXgcmOO4h0jJFcly46+CzAJQzCT3zNOd7YMtFmzxDya5B+IV3eCMyR
+   WSIwzTHpH9zzJRIiwS7k0O1+a4SXUUqyRIXUK8ipo6oYlNzRXA+6mMJ28
+   ZtGS/4htWtoUMt8T9iH53txqnb4YCzATekIVVeDlbgDkt0KqwOoSCQ2Fj
+   craS+WMd99gAnpoH1NNpqMqZCbVTD2Mjq8HNscA7yNoP5om6FKUvNAjYM
+   g==;
+X-CSE-ConnectionGUID: e8F+/DhMTMWRKNwyFFVs/w==
+X-CSE-MsgGUID: 88M0j+gvTBaYm764PFs6UQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11745"; a="93402228"
+X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
+   d="scan'208";a="93402228"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 12:11:40 -0700
+X-CSE-ConnectionGUID: Y5IHs7hiQRe+LWmUGV7q2A==
+X-CSE-MsgGUID: PeOUOKq5SWCPqAIIzCnljw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
+   d="scan'208";a="264385167"
+Received: from lkp-server01.sh.intel.com (HELO 283bf2e1b94a) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 31 Mar 2026 12:11:39 -0700
+Received: from kbuild by 283bf2e1b94a with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w7eUy-000000004Aj-0G5r;
+	Tue, 31 Mar 2026 19:11:36 +0000
+Date: Wed, 01 Apr 2026 03:10:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ 1a424156d2ea89d6a996911ea391019d92f4d439
+Message-ID: <202604010337.nVDMgYOq-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -93,61 +75,201 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-From: Bushrah Zulfiqar <bushrahz.giki@gmail.com>
-Date: Tue, 31 Mar 2026 22:22:51 +0500
-X-Gm-Features: AQROBzC1vKCHVIPA4L9MnhWT5VtHmv26q-p4Q4V147KBh1is5uyXywvdFTKj8T8
-Message-ID: <CA+ug3id4+QYbqTFzaMB_9LaE1HivfA34jGj4FgbOKwq94MFVMA@mail.gmail.com>
-Subject: [GSoC 2026 + PATCH erofs-rs] chunk index (8-byte) layout support
-To: linux-erofs@lists.ozlabs.org
-Content-Type: multipart/alternative; boundary="00000000000033d636064e553868"
 
---00000000000033d636064e553868
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: 1a424156d2ea89d6a996911ea391019d92f4d439  erofs: ensure all folios are managed in erofs_try_to_free_all_cached_folios()
 
-Hi,
+elapsed time: 746m
 
-I'm applying for GSoC 2026 for the "Complete Filesystem Feature Support for
-erofs-rs" project. I've submitted a patch implementing the missing
-erofs_inode_chunk_index (8-byte form) parsing:
+configs tested: 180
+configs skipped: 2
 
-https://github.com/erofs/erofs-rs/pull/5
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-The EROFS_CHUNK_FORMAT_INDEXES path was unimplemented. This adds ChunkIndex
-parsing, hole detection, multi-device routing, and a map_chunk_offset()
-resolver for both array forms, with full tests.
+tested configs:
+alpha                             allnoconfig    gcc-15.2.0
+alpha                            allyesconfig    gcc-15.2.0
+alpha                               defconfig    gcc-15.2.0
+arc                              allmodconfig    clang-16
+arc                               allnoconfig    gcc-15.2.0
+arc                              allyesconfig    clang-23
+arc                                 defconfig    gcc-15.2.0
+arc                   randconfig-001-20260331    clang-23
+arc                   randconfig-002-20260331    clang-23
+arm                               allnoconfig    gcc-15.2.0
+arm                              allyesconfig    clang-16
+arm                                 defconfig    gcc-15.2.0
+arm                   randconfig-001-20260331    clang-23
+arm                   randconfig-002-20260331    clang-23
+arm                   randconfig-003-20260331    clang-23
+arm                   randconfig-004-20260331    clang-23
+arm64                            allmodconfig    clang-23
+arm64                             allnoconfig    gcc-15.2.0
+arm64                               defconfig    gcc-15.2.0
+arm64                 randconfig-001-20260331    clang-18
+arm64                 randconfig-002-20260331    clang-18
+arm64                 randconfig-003-20260331    clang-18
+arm64                 randconfig-004-20260331    clang-18
+csky                             allmodconfig    gcc-15.2.0
+csky                              allnoconfig    gcc-15.2.0
+csky                                defconfig    gcc-15.2.0
+csky                  randconfig-001-20260331    clang-18
+csky                  randconfig-002-20260331    clang-18
+hexagon                          allmodconfig    clang-17
+hexagon                          allmodconfig    gcc-15.2.0
+hexagon                           allnoconfig    gcc-15.2.0
+hexagon                             defconfig    gcc-15.2.0
+hexagon               randconfig-001-20260401    gcc-15.2.0
+hexagon               randconfig-002-20260401    gcc-15.2.0
+i386                             allmodconfig    clang-20
+i386                              allnoconfig    gcc-15.2.0
+i386                             allyesconfig    clang-20
+i386        buildonly-randconfig-001-20260331    clang-20
+i386        buildonly-randconfig-002-20260331    clang-20
+i386        buildonly-randconfig-003-20260331    clang-20
+i386        buildonly-randconfig-004-20260331    clang-20
+i386        buildonly-randconfig-005-20260331    clang-20
+i386        buildonly-randconfig-006-20260331    clang-20
+i386                                defconfig    gcc-15.2.0
+i386                  randconfig-001-20260331    gcc-14
+i386                  randconfig-002-20260331    gcc-14
+i386                  randconfig-003-20260331    gcc-14
+i386                  randconfig-004-20260331    gcc-14
+i386                  randconfig-005-20260331    gcc-14
+i386                  randconfig-006-20260331    gcc-14
+i386                  randconfig-007-20260331    gcc-14
+i386                  randconfig-011-20260331    clang-20
+i386                  randconfig-012-20260331    clang-20
+i386                  randconfig-013-20260331    clang-20
+i386                  randconfig-014-20260331    clang-20
+i386                  randconfig-015-20260331    clang-20
+i386                  randconfig-016-20260331    clang-20
+i386                  randconfig-017-20260331    clang-20
+loongarch                        allmodconfig    clang-23
+loongarch                         allnoconfig    gcc-15.2.0
+loongarch                           defconfig    clang-19
+loongarch             randconfig-001-20260401    gcc-15.2.0
+loongarch             randconfig-002-20260401    gcc-15.2.0
+m68k                             allmodconfig    gcc-15.2.0
+m68k                              allnoconfig    gcc-15.2.0
+m68k                             allyesconfig    clang-16
+m68k                                defconfig    clang-19
+microblaze                        allnoconfig    gcc-15.2.0
+microblaze                       allyesconfig    gcc-15.2.0
+microblaze                          defconfig    clang-19
+mips                             allmodconfig    gcc-15.2.0
+mips                              allnoconfig    gcc-15.2.0
+mips                             allyesconfig    gcc-15.2.0
+nios2                            allmodconfig    clang-23
+nios2                             allnoconfig    clang-23
+nios2                             allnoconfig    gcc-11.5.0
+nios2                               defconfig    clang-19
+nios2                 randconfig-001-20260401    gcc-15.2.0
+nios2                 randconfig-002-20260401    gcc-15.2.0
+openrisc                         allmodconfig    clang-23
+openrisc                          allnoconfig    clang-23
+openrisc                          allnoconfig    gcc-15.2.0
+openrisc                            defconfig    gcc-15.2.0
+parisc                           allmodconfig    gcc-15.2.0
+parisc                            allnoconfig    clang-23
+parisc                            allnoconfig    gcc-15.2.0
+parisc                           allyesconfig    clang-19
+parisc                              defconfig    gcc-15.2.0
+parisc                randconfig-001-20260331    clang-23
+parisc                randconfig-002-20260331    clang-23
+parisc64                            defconfig    clang-19
+powerpc                          allmodconfig    gcc-15.2.0
+powerpc                           allnoconfig    clang-23
+powerpc                           allnoconfig    gcc-15.2.0
+powerpc                      pcm030_defconfig    clang-23
+powerpc               randconfig-001-20260331    clang-23
+powerpc               randconfig-002-20260331    clang-23
+powerpc                     taishan_defconfig    clang-17
+powerpc64             randconfig-001-20260331    clang-23
+powerpc64             randconfig-002-20260331    clang-23
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    clang-23
+riscv                             allnoconfig    gcc-15.2.0
+riscv                            allyesconfig    clang-16
+riscv                               defconfig    gcc-15.2.0
+riscv                 randconfig-001-20260331    gcc-15.2.0
+riscv                 randconfig-002-20260331    gcc-15.2.0
+s390                             allmodconfig    clang-19
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-15.2.0
+s390                                defconfig    gcc-15.2.0
+s390                  randconfig-001-20260331    gcc-15.2.0
+s390                  randconfig-002-20260331    gcc-15.2.0
+sh                               allmodconfig    gcc-15.2.0
+sh                                allnoconfig    clang-23
+sh                                allnoconfig    gcc-15.2.0
+sh                               allyesconfig    clang-19
+sh                                  defconfig    gcc-14
+sh                    randconfig-001-20260331    gcc-15.2.0
+sh                    randconfig-002-20260331    gcc-15.2.0
+sparc                             allnoconfig    clang-23
+sparc                             allnoconfig    gcc-15.2.0
+sparc                               defconfig    gcc-15.2.0
+sparc                 randconfig-001-20260331    gcc-15.2.0
+sparc                 randconfig-002-20260331    gcc-15.2.0
+sparc64                          allmodconfig    clang-23
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20260331    gcc-15.2.0
+sparc64               randconfig-002-20260331    gcc-15.2.0
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-14
+um                               allyesconfig    gcc-15.2.0
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260331    gcc-15.2.0
+um                    randconfig-002-20260331    gcc-15.2.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-20
+x86_64                            allnoconfig    clang-20
+x86_64                            allnoconfig    clang-23
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20260331    clang-20
+x86_64      buildonly-randconfig-002-20260331    clang-20
+x86_64      buildonly-randconfig-003-20260331    clang-20
+x86_64      buildonly-randconfig-004-20260331    clang-20
+x86_64      buildonly-randconfig-005-20260331    clang-20
+x86_64      buildonly-randconfig-006-20260331    clang-20
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-20
+x86_64                randconfig-001-20260331    gcc-14
+x86_64                randconfig-002-20260331    gcc-14
+x86_64                randconfig-003-20260331    gcc-14
+x86_64                randconfig-004-20260331    gcc-14
+x86_64                randconfig-005-20260331    gcc-14
+x86_64                randconfig-006-20260331    gcc-14
+x86_64                randconfig-011-20260331    clang-20
+x86_64                randconfig-012-20260331    clang-20
+x86_64                randconfig-013-20260331    clang-20
+x86_64                randconfig-014-20260331    clang-20
+x86_64                randconfig-015-20260331    clang-20
+x86_64                randconfig-016-20260331    clang-20
+x86_64                randconfig-071-20260331    clang-20
+x86_64                randconfig-072-20260331    clang-20
+x86_64                randconfig-073-20260331    clang-20
+x86_64                randconfig-074-20260331    clang-20
+x86_64                randconfig-075-20260331    clang-20
+x86_64                randconfig-076-20260331    clang-20
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    clang-23
+xtensa                            allnoconfig    gcc-15.2.0
+xtensa                           allyesconfig    clang-23
+xtensa                randconfig-001-20260331    gcc-15.2.0
+xtensa                randconfig-002-20260331    gcc-15.2.0
 
-I plan to follow this with DEFLATE and Zstandard decompression backends as
-the GSoC work. Happy to receive any feedback or direction from maintainers.
-
-=E2=80=94 Bushrah Zulfiqar
-
---00000000000033d636064e553868
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><p class=3D"gmail-font-claude-response-body gmail-break-wo=
-rds gmail-whitespace-normal gmail-leading-[1.7]">Hi,</p>
-<p class=3D"gmail-font-claude-response-body gmail-break-words gmail-whitesp=
-ace-normal gmail-leading-[1.7]">I&#39;m applying for GSoC 2026 for the &quo=
-t;Complete Filesystem Feature Support for erofs-rs&quot; project. I&#39;ve =
-submitted a patch implementing the missing erofs_inode_chunk_index (8-byte =
-form) parsing:</p>
-<p class=3D"gmail-font-claude-response-body gmail-break-words gmail-whitesp=
-ace-normal gmail-leading-[1.7]"><a href=3D"https://github.com/erofs/erofs-r=
-s/pull/5">https://github.com/erofs/erofs-rs/pull/5</a></p>
-<p class=3D"gmail-font-claude-response-body gmail-break-words gmail-whitesp=
-ace-normal gmail-leading-[1.7]">The EROFS_CHUNK_FORMAT_INDEXES path was uni=
-mplemented. This adds ChunkIndex parsing, hole detection, multi-device rout=
-ing, and a map_chunk_offset() resolver for both array forms, with full test=
-s.</p>
-<p class=3D"gmail-font-claude-response-body gmail-break-words gmail-whitesp=
-ace-normal gmail-leading-[1.7]">I plan to follow this with DEFLATE and Zsta=
-ndard decompression backends as the GSoC work. Happy to receive any feedbac=
-k or direction from maintainers.</p>
-<p class=3D"gmail-font-claude-response-body gmail-break-words gmail-whitesp=
-ace-normal gmail-leading-[1.7]">=E2=80=94 Bushrah Zulfiqar</p></div>
-
---00000000000033d636064e553868--
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
