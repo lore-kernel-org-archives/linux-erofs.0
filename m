@@ -1,45 +1,83 @@
-Return-Path: <linux-erofs+bounces-3179-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3180-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DB10CC6B03
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Apr 2026 06:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BB66D39417
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Apr 2026 11:21:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fmXZ56ZJBz2ySk;
-	Thu, 02 Apr 2026 17:51:09 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775112669;
-	cv=none; b=Hg4YtKQrYyQ9uUtebiRoGFRr8QEU4XHQPACuxZ52KBpWbx1bN4j8ZzRurcTDcwG0i9uN6Xgmc/2MgoG6hF4RkIXW5hiRiBXfZeg08iF/JLXjtTwBhV6FlBHz4kHw5dK8oQRTKKpfSVHX+l5g3yj81Y0TAwLdTX5/bdShn7puXFg4CyYJSN2mPCZNA+ldJpWIBVV8NPalQOctDd1nvhCoLdnS2f/RzZNKR2eqiuNKwwVz2/A/GQTEmiIauDuqnSfAfyICczl4txVsfm92SepPP1bCjeU/C7oHvbT3SLeV5g/WCBz0kMcFJzrhYniSzqgsKxA47FhKS+348gGmn9ZKUw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fmfYg4JBWz2ygT;
+	Thu, 02 Apr 2026 22:21:11 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::632"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775128871;
+	cv=none; b=NpdFCf8vGM2G7tuCSPLdxg5AepEh7IypeHtBNqgEYCMy9392c8Mp5UB9XM6dCfQmK0X55NmKWicV92qbyuTLk0XYj1t8xmuyQ7busVg5YXYuxBv/ARbICYvuzEucYZcufFhSiznExa8gzRkZUCmAn5dm13kmvdqTO96VKUAzRNcHnvukUpHDdEkkRggOZ1ogz8ey8Aje1g+k7Px6E/PHmndWLCi7uIzXrHNyni/X0NQfRogSJ9pMQxE0pff+JtP0latz+N+waaG+4FhVSCXJZZ3eIoGdYjf6EC3CzTeH18alWklV92CkWMgt6swL/XE7U52nS5pC2KzbRO//X2WyYA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775112669; c=relaxed/relaxed;
-	bh=XPub3ttwgo1nF3b7aGMRD7d4QMa8fEtpxpmqHPa6yDM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jpRFk+Re3q/l2zn4LYcSJxkJlIoyVuxOyxGvBETfPyQuPqVfR9Tpf/Y+amgApTPZH5Aib4gMmdCVgX59r9+BR4UyDQOMd55pnuHfDooI0dgUETkUJ7vC5VcuSGvHZ8gmtFVn1+ujFQt2BL9frvWrB7M1DYHFkuGnoJgs/kzvNsz++RJxqamLijiPnCeYtWbRP/m40kQ1GvyEhOdPBKn7kZJ6AEoYyTM6Afao/jkV3w8+OUc/WUM+uFDFAILVVAUQ0ju9afnR0rFs0F3ViA+Vnx398pnrJkZ4eys8IvVdcEEvKoGhGRwNe8tGi1OWd+2ZVro8KW2R671qUum05FAB/Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=QW5miK0T; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1775128871; c=relaxed/relaxed;
+	bh=uRc0fEF+ONqvVzDqGIKgEG9scIir8NhohKRP5U8geGw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Uz7+tRLUpAKbO7Fty6fUKJHNTmitlMpdtcy4ehdAIng9CWUFCk4oYrXdAVkIYtQee41sASfK6Y/gmuur6SMk+dttvmpw2K6YyHYLqtneqn9QP7/NBd8DurJEwLh4rqr5hR5cTl41NA5ZNDLZctd8X0WK0atuL3JLZjfw2f5q3RWKzqydbcd6+MBTNB6wiLNWhXKSusRq1tXInkQkJOM0sHMn/99nI7axDdDl/II2oKnj9XUt5r9lzUTFwHLvB+u6ZQMzCima13nkbpcVVyw/1+jIMu1A9vqneb1gGExSnUfhSzeO0MSjkVu6lcUPAmbD0SKumpSK6Cv4YvhppwW5kg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dV4JMiVU; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::632; helo=mail-pl1-x632.google.com; envelope-from=deepakpathik2005@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=QW5miK0T;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dV4JMiVU;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::632; helo=mail-pl1-x632.google.com; envelope-from=deepakpathik2005@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fmXZ23Fvmz2xln
-	for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 17:51:05 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1775112661; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=XPub3ttwgo1nF3b7aGMRD7d4QMa8fEtpxpmqHPa6yDM=;
-	b=QW5miK0TzjxKPWv6VY/3cmbqxXo4n0m/RW7PWAkSPWjVpylse6ujtdo3NIrlxkl1A0k5lzCHq6zx5+MC7/cI2+1nzWzccMAf3vF2AtGCocYsH5uBFS4jUjC8jWG0+KG/VEE0puJGsBXFuUOHAJohcgJEPxKDdfB+h2VwHBUHV7o=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X0GCdqV_1775112660;
-Received: from 30.221.132.8(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X0GCdqV_1775112660 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 02 Apr 2026 14:51:01 +0800
-Message-ID: <9ada4eca-3dfa-4f25-8ae4-04ece5d1acbb@linux.alibaba.com>
-Date: Thu, 2 Apr 2026 14:50:59 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fmfYf1v85z2yfl
+	for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 22:21:09 +1100 (AEDT)
+Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-2b256a4c6b5so4240875ad.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 04:21:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775128865; x=1775733665; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uRc0fEF+ONqvVzDqGIKgEG9scIir8NhohKRP5U8geGw=;
+        b=dV4JMiVUsqOsbpx19rSWMjdr/rVVECcPs0zrI8SBroOK2vxQmbvJknJNuRrKMYs6Vb
+         +g9bkSTbS7Xjq3y1sygVUT5kcypqj3Yoqjk6zKByVTJg68ABA4TcMMc8sqDV1nMY7W+Y
+         e12yhP8nNgs7XbgLtrt300ygSiCkqU3U9HKlquGSRIYmXeYxxfjx5eEsPLIxG1gq/v30
+         GpoOMZGC+/lbz39sLgbT30QPVbCQNVinXsmIqLKfGBKMUbm8uqx93q65G/HzqYX9y2KI
+         gUqy2GxdzSF1GY98smvllNiOE/Xijsxf8xj27nawSiTyb3/RZdI2ZJhCtCldUVuEGx2D
+         406w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775128865; x=1775733665;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uRc0fEF+ONqvVzDqGIKgEG9scIir8NhohKRP5U8geGw=;
+        b=Zd9nsV/Xq+JjGsryEiuxPyTV2WK9OTGMxyB435RPL24pmXf7C5btAK7W0JhbjvQM5C
+         /+9Mye9my906ryCjxEFIkR1Hs6dgsjCBC8ayvjNsQLeyPmqnBGMfBVPlZa51ohuSPF4T
+         o39CLtSvdS3W2sOph1qPyFJX0c/N8/2BWwbgUTyrqfLpuLPwswGQiZtqEFUaTQc098kM
+         PG5qTr1TJmfBCyHcs/CmHW6Vzczulb8cnkkMoNA3hmyoYto8lhue1uECYhkgMgo0Z6fq
+         tgSCoyTWQTDlCFH0qmn8CmgdYVNCfG8o+wQJuyrfGsZIIufku+wsXN3vYgX6/8Axyo+N
+         I5Lw==
+X-Gm-Message-State: AOJu0Yz/xQy+BJjGU2zemVpCpEHvLehmPhB4+bqaWAFrH8lBEaxOeTVU
+	7KWHLTE55pT2iagmMoEawKPbe+E27dPPn0jwVXnVjJFu1DWHlA5oVSs4KlfbZq7Z
+X-Gm-Gg: AeBDievrKu231rbM62vnqQjgCZWXIgTQo7Bip667Eajt7PR+SAISEx6gzB5q5n1HzCj
+	k17+6L/lu3SpCxqx0ZqBBEskbLUfsdobS2UvAgEdce3TX7J8RX3Fv3zHGJsRWd6cjfTmpRrdy6t
+	KSv1oTvPNtKKGe669XxxtR5Ju9qlEW3Q0qsLpB6ckjoxiy3zd2H2zl3ONpJdnjgcI1HpZppxwzq
+	I02u/5Fz68IDuqSAWyV2eZirXPG+lz61fe9ELukT5cO5rrSHhuU2d1kU/YgWBnuX3bbpylPDKzD
+	mI09Xau6b4x9X56booSUk5IMyWobgdozAKK700WeFNWcm16t0Fcf2sziqPhhxhYoQFLHvWE0P8T
+	4KhZEKbFglpZlTRcWTdh/iwEVUSFHFOpO09FPbQoFEyCwkNVV8XMGJf/7XRM1xPVRFx4NI7Vy3R
+	K7iLBGGKEyTf4liSou3Ia0D4tnyXIelfnffxCqT+O7l4eSPF/2RL+4
+X-Received: by 2002:a17:903:2986:b0:2b2:5035:dc4e with SMTP id d9443c01a7336-2b26998e690mr75785185ad.0.1775128865378;
+        Thu, 02 Apr 2026 04:21:05 -0700 (PDT)
+Received: from v2-email.patch ([103.181.15.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b2747a7115sm24924115ad.36.2026.04.02.04.21.03
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 02 Apr 2026 04:21:05 -0700 (PDT)
+From: Deepak Pathik <deepakpathik2005@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: hsiangkao@linux.alibaba.com, xiang@kernel.org, Deepak Pathik <deepakpathik2005@gmail.com>
+Subject: [PATCH v2] erofs-utils: lib: fix fd leak in erofs_metamgr_init()
+Date: Wed, 2 Apr 2026 16:50:21 +0530
+Message-ID: <20260402111800.v2-1-deepakpathik2005@gmail.com>
+In-Reply-To: <20260401194000.1-deepakpathik2005@gmail.com>
+References: <20260401194000.1-deepakpathik2005@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,53 +89,46 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: =?UTF-8?Q?Re=3A_Request_for_Late_Proposal_Submission_=E2=80=93_Medi?=
- =?UTF-8?Q?cal_Emergency_During_Application_Period_=5B_ref=3A!00D1U013lbu=2E?=
- =?UTF-8?Q?!500Kd0300s0L=3Aref_=5D?=
-To: GSoC Support <gsoc-support@google.com>
-Cc: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
- "bushrahz.giki@gmail.com" <bushrahz.giki@gmail.com>
-References: <CA+ug3icM1dnMfjtesxSFtM9yJWCxzfG6oyeur1KGPQ8384G-Qw@mail.gmail.com>
- <d_rMO000000000000000000000000000000000000000000000TCTM2J00loEVDwndQfigB8rc9Ozi4Q@sfdc.net>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <d_rMO000000000000000000000000000000000000000000000TCTM2J00loEVDwndQfigB8rc9Ozi4Q@sfdc.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-Hi Admins,
+In erofs_metamgr_init(), erofs_tmpfile() returns a file
+descriptor stored in m2gr->vf.fd. If the subsequent
+erofs_buffer_init() call fails, the function returns -ENOMEM
+without closing this file descriptor.
 
-On 2026/4/1 23:08, GSoC Support wrote:
-> Registration and proposal submissions for Google Summer of Code 2026 closed on March 31 at 18:00 UTC.
-> 
-> To maintain fairness for all participants, we do not grant extensions or exceptions for any reason. This includes:
-> 
-> Misinterpretations of the timeline
-> Technical issues or submission errors
-> Internet outages
-> Any other reason
-> 
-> As stated in our guidelines, it is the applicant's responsibility to submit well in advance of the deadline.
-> 
-> While the window for this year has closed, we encourage you to:
-> 
-> Review the Contributor Guide at g.co/gsoc: Specifically the "Choosing an Organization" section.
-> Stay Connected: Engage with organizations independently to prepare for future applications.
-> 
-> Note: Due to our team's small size, we cannot respond to further inquiries regarding missed deadlines. We hope to see your application in a future cycle!
+The caller erofs_metadata_init() handles this failure at
+err_free, which only frees the m2gr struct. The fd is
+therefore leaked with no remaining reference to close it.
 
-Thanks for the reply!
+The success path correctly cleans up via erofs_metamgr_exit(),
+which calls erofs_io_close(&m2gr->vf). Mirror that behaviour
+on the error path by closing the fd before returning.
 
-Yeah, we already have enough applications, and we don't
-consider (or have any bandwidth to consider) any late
-application as well.
+Signed-off-by: Deepak Pathik <deepakpathik2005@gmail.com>
+---
+v2: use erofs_io_close() instead of raw close(); rebased on latest upstream/dev
 
-Thanks,
-Gao Xiang
+ lib/metabox.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/lib/metabox.c b/lib/metabox.c
+index d5ce9e3..86a7083 100644
+--- a/lib/metabox.c
++++ b/lib/metabox.c
+@@ -32,8 +32,10 @@ static int erofs_metamgr_init(struct erofs_sb_info *sbi,
+ 
+ m2gr->vf = (struct erofs_vfile){ .fd = ret };
+ 	m2gr->bmgr = erofs_buffer_init(sbi, 0, &m2gr->vf);
+- if (!m2gr->bmgr)
++if (!m2gr->bmgr) {
++erofs_io_close(&m2gr->vf);
+ 		return -ENOMEM;
++}
+ 	return 0;
+ }
+ 
+-- 
+2.53.0
 
-> 
-> Best,
-> 
-> GSoC Admins
 
