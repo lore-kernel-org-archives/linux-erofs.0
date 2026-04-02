@@ -1,83 +1,52 @@
-Return-Path: <linux-erofs+bounces-3164-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3165-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00050CC6B00
-	for <linux-erofs@archiver.kernel.org>; Thu,  2 Apr 2026 06:03:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5EDF5CC6B00
+	for <linux-erofs@archiver.kernel.org>; Thu,  2 Apr 2026 06:09:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fmWVb3DFYz2ySk;
-	Thu, 02 Apr 2026 17:03:03 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::634"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775109783;
-	cv=none; b=Ho0o1Gknn5T6cp1lITRHc+InuKgm9O/d9JxqQ1NlYEPT86qpdPkGTvDVzaNT2lx0iZDjGZy49dThwje3mOJrDeHU2VhBsfnwbdiLtdYhVZ5Ke1TZADZv2XjdKRAPqdVtKEOBUcPwLNVyAZn/y8iBnJo1LZp8D1c0t2gbKbX4Z17ez2MQEDSHFr5atLJm5+ccDgi6kNmLVOxOyFqhC7vKD0fFtqOfruEi3Yj8pdPy/PfmAe6VffSUv0rha6baW5/FpY7aB/Ka0j3VlJaUkNKk4vPdzTGwz8f4DNeGLcLpQuWtlz9Z69ctMaeDGynt6TuxFSXSwGw8ntP45gFR2IUFwg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fmWdv57s4z2yYK;
+	Thu, 02 Apr 2026 17:09:23 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775110163;
+	cv=none; b=BT8dfS5NZXGEBUHqQLx0Z48wkzAe+9Jmz7KeYL1ENi3UhdmwKFkWhlx/G0e+4sCrKaK9dcjW4YsFgQJJ4TqnsT73jc//dugVUPURmVD+qtA/wUcZbuibhwieFKiKfe1Gp/oaN5ELgWCaYthjPJZvCbKjzv7wtbqCnABuFQQ8cEWPJEkQyeUDHfkRYRbf0PJF1A0Ro0p5HuMzCW9bxMJ1oW2I0k6QwcXYfzILpTaHqkVaa3FvgrXUza5ZYG+atinZXH2Lg+1RXaPSAFSup8FqUzKiFaxAiI21ICuLXU7X0LMM80HxxAIBy+cpCqsxGdpEgiGqjHCuWEunEeHRMSNZKQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775109783; c=relaxed/relaxed;
-	bh=V385BR5V7RACNs/G0W+7MZqk1hDYP9tm8ZKNvmIEMRo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ch4jAU3tpB/UuOC7xZx+fQf45Qrm0pjYpqYMCp2OTsbgpNtQ9v7FDNWPJLZOA/aITR7+5emWnXb0+pscjJTXm0vQjITrTZb/dqhgcNjKhcdaJd5M1yzC/2auP2fk1lz45zeNNcHlE+SYT++wmhS3M6BaMVq5w4HZZ2kOdT2xWkxXH/Zis/9HDpl6nWbrrb+m82vm6x7w8D4I67euZcVQBqQjcOltDQTfPMYQRpdLKRcwlc9ULvEDaxo64ujVnPTPNml0ajEBA6/RlTgPdjk4UHHoqVwdSegeqlPfObBmhFQmMlhh6+0DhD/VztEgB1HBuiDQYKijDnvS+Nq/5wXJbA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mcDzEykA; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1775110163; c=relaxed/relaxed;
+	bh=OB9hPEvZWiSLqRc+9wGROFcdITQlPMXzRQ+zgsx9aCQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ja19qn6HAUJX0k1VlXjY+KOxRtXJ+NL4adMpRL0qI3eZ5B4pb5Jar+GJ6v+iquEYUEYMolO1Z49Pazw4BmbhZN+2eSi/dExxmTftXAAqCIj9rrqB1IY7utxp1WcT3v8GrR9N2VoBSpRbzZib667RC3utw821wZS5B3rWEFtPwPUZxFB9jVe151HQk6gRFGslAj9m9v9Ko6k04wxC6NWG9UgEUHf37+N2EKiidg4ooHvH9GOHW6KNnXMr8cmD8T0bkOBEtOL9Sm+OvQkWhOycFOea2muIDsY+ibJK0MklJ91JDkElbkiSyvulpMWvq7NeW7Q4ZqgXwKzFCdAmdeLW+A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=tPDMPgQN; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mcDzEykA;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=tPDMPgQN;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::634; helo=mail-pl1-x634.google.com; envelope-from=singhutkal015@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fmWVZ0PHMz2xm5
-	for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 17:03:01 +1100 (AEDT)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-2b0baebcb55so1673525ad.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 01 Apr 2026 23:03:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775109778; x=1775714578; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=V385BR5V7RACNs/G0W+7MZqk1hDYP9tm8ZKNvmIEMRo=;
-        b=mcDzEykAQeJgr1oHs1t40lMz9eg5+1EFu/McfXoR/v54uMtZ+rkYBJfWPqimZ11cXd
-         a2/iwYb1VReU5Co1uEBETqlW+ISYKZy4Ua7menZMIN1sHWp+i3MO2FgbKB7b7agqrMdf
-         khc0+FpfjV6xhrPniKf3w3KLs486EOHzOhKKpLowx7LAp3PX9EIp+PSFEkBCSIQUrmZz
-         ntJprFmXvqq0pAZ/4pq820Yp7S+uRLLKv1BK5dl4LfGywTAVxN59H3rHUb7C5ivPFqyA
-         TBOtLaA78zc7RiWlDTLONtmr+PY0kgHoDMOZE++yBRYDLgfWbArufNAn7e4b73SW4AIG
-         KOog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775109778; x=1775714578;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=V385BR5V7RACNs/G0W+7MZqk1hDYP9tm8ZKNvmIEMRo=;
-        b=hJLIWisOOn6DEMxbGy6s7QJvV3wDpGeZ0L7Kc/0WReI2fjbe3pofmZ7nO1POmPgEHQ
-         c1q/YR2jRllV5JGZ7h2eLeOQ0eVzAlcM9v43iZyHsi2wOUNlFssbPgVq7W9J4c7irLpb
-         Sl5GLVQJbW3cEIU2g4e0JqmC0+kUgp6p+BS2Sy7lZIh4WydF/H43f8B5acQqK7GSIzRw
-         pap5YtqEeerOE1WsoIzrIaIJV87f2iJsdcIgvhPtPvx1YHP+tRqONXxKLZ0Bqm3dhYGS
-         ONI7yhPZfaff59SYgGVy0bBfqB73OiF/zNMgFqggEd+Vn6uLdOyRpYXCpCyvay03CAVU
-         2lwQ==
-X-Gm-Message-State: AOJu0YxW/unpgq7NKNWPDpI4W9xxs2/M/JGQkpt06gO4WILm2WueNtUF
-	4AYlACOcH1N6cvrEzJYzGbyVachpEbz0xs/cldwg03XKxO0hQC34iP2eX+DTaznv
-X-Gm-Gg: AeBDiesxLQC8MiJVWKk2PXhzZUTRLsfO+2P6dMbTXJAsdA+NFFoLxDbipe0OSXClG8h
-	2+i7niuy4k71VP5LWJmj7H1p0RCRTO4bwvlFNQRt9Q+T5KSsp5/r6hv3baB3jioJodhXAM8h5Gb
-	39Ay/M9Q/lijxtXiY+YHLtSAdBSVU4yFnKTyfJLXoYkQlQs+DqBWXvEMTB/kXfQCNqHG8ZLWY80
-	f1rix0Kym4DdNnlkANtJroYKlINw841NHN6RPfVQjfqgt5oJj7a+cj7iDJNgWDB0/PVy3hmCaaq
-	MKnB7njj+ZujFu10ITeIioA8UTK4NjoI5NwT4n3iGtn9BWRXCDwm4YUl1S4UpdifkpD74tgf+m8
-	wuSDZRtBRNrthmzX8iN0dS/Yr/oCr1DT+l2FYN6KlxAStYXu+mNsILVMEK4WbqqJUF0qsONWksr
-	dbpEcNzDzHf9m1kXal0KltTR/6Wyz6QqOop891O7KkBiL18jv/SLUTxZ6TE3LBiPbD9Q2zgnl6H
-	IrTF1k8+8xa8SSNROrRgVR5uH6Z4WJeY4Nu
-X-Received: by 2002:a17:90a:ec86:b0:35b:a241:ffb2 with SMTP id 98e67ed59e1d1-35dc703b635mr3673483a91.7.1775109778289;
-        Wed, 01 Apr 2026 23:02:58 -0700 (PDT)
-Received: from DESKTOP-PU4IGQQ.localdomain ([112.196.126.3])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dd35e360bsm1524516a91.3.2026.04.01.23.02.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2026 23:02:57 -0700 (PDT)
-From: Utkal Singh <singhutkal015@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fmWdq1lX8z2xm5
+	for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 17:09:17 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1775110154; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=OB9hPEvZWiSLqRc+9wGROFcdITQlPMXzRQ+zgsx9aCQ=;
+	b=tPDMPgQNnH+ghaHP9Apc06QQAQ6mvap6K5eQ3NmaBig2U20ptzgV/eSQUvx74bw8GEWpYG+cDOQ8fmzwK1tVQcHgJjGmeVWttG6X4cspRfNIspA612IqEwjCZKEMCF3Fnpnq65FZDgmjdz4U2xFrpDHV6EiuBYLlCkQEdGMdSQk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0X0G4zsA_1775110152;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X0G4zsA_1775110152 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 02 Apr 2026 14:09:12 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: hsiangkao@linux.alibaba.com,
-	chao@kernel.org,
-	Utkal Singh <singhutkal015@gmail.com>
-Subject: [PATCH] erofs-utils: lib/diskbuf: replace bool locked with a real mutex for MT
-Date: Thu,  2 Apr 2026 06:02:50 +0000
-Message-ID: <20260402060250.64080-1-singhutkal015@gmail.com>
-X-Mailer: git-send-email 2.43.0
+Cc: Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/2] erofs-utils: switch other source files into MIT license
+Date: Thu,  2 Apr 2026 14:09:06 +0800
+Message-ID: <20260402060907.2268323-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20260402060907.2268323-1-hsiangkao@linux.alibaba.com>
+References: <20260402060907.2268323-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -91,106 +60,230 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-erofs_diskbufstrm used a plain boolean 'locked' to track stream
-reservation state, with an explicit comment marking it as a
-placeholder: 'need a real lock for MT'.  A boolean provides no
-atomicity or memory-ordering guarantees under concurrent access.
+Let's switch other source files to MIT license since we're absolutely
+NOT working on secret rocket science, so licenses should not be
+a bottleneck to innovation in the Cloud Native and AI era.
 
-Replace 'bool locked' with 'erofs_mutex_t lock' using the existing
-portable wrapper in include/erofs/lock.h.  Acquire the mutex in
-erofs_diskbuf_reserve() and release it in erofs_diskbuf_commit(),
-serialising concurrent access to each stream's tailoffset field.
-Initialisation and destruction are wired into erofs_diskbuf_init()
-and erofs_diskbuf_exit() respectively.
-
-Also add erofs_mutex_destroy() to include/erofs/lock.h, which was
-missing despite erofs_mutex_init() being present.
-
-Signed-off-by: Utkal Singh <singhutkal015@gmail.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- include/erofs/lock.h |  2 ++
- lib/diskbuf.c        | 10 ++++++----
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ COPYING                    | 14 +++++++-------
+ Makefile.am                |  2 +-
+ autogen.sh                 |  2 +-
+ contrib/Makefile.am        |  2 +-
+ contrib/stress.c           |  2 +-
+ dump/Makefile.am           |  2 +-
+ dump/main.c                |  2 +-
+ fsck/Makefile.am           |  2 +-
+ fsck/main.c                |  2 +-
+ fuse/Makefile.am           |  2 +-
+ fuse/macosx.h              |  2 +-
+ fuse/main.c                |  2 +-
+ man/Makefile.am            |  2 +-
+ mkfs/Makefile.am           |  2 +-
+ mkfs/main.c                |  2 +-
+ mount/Makefile.am          |  2 +-
+ mount/main.c               |  2 +-
+ scripts/get-version-number |  2 +-
+ 18 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/include/erofs/lock.h b/include/erofs/lock.h
-index c6e3093..ef4210d 100644
---- a/include/erofs/lock.h
-+++ b/include/erofs/lock.h
-@@ -15,6 +15,7 @@ static inline void erofs_mutex_init(erofs_mutex_t *lock)
- }
- #define erofs_mutex_lock	pthread_mutex_lock
- #define erofs_mutex_unlock	pthread_mutex_unlock
-+#define erofs_mutex_destroy	pthread_mutex_destroy
+diff --git a/COPYING b/COPYING
+index e781cc21ff15..81aee791f173 100644
+--- a/COPYING
++++ b/COPYING
+@@ -3,13 +3,13 @@ erofs-utils uses two different license patterns:
+  - most liberofs files in `lib` and `include` directories
+    use GPL-2.0+ OR MIT dual license;
  
- #define EROFS_DEFINE_MUTEX(lock)	\
- 	erofs_mutex_t lock = PTHREAD_MUTEX_INITIALIZER
-@@ -35,6 +36,7 @@ typedef struct {} erofs_mutex_t;
- static inline void erofs_mutex_init(erofs_mutex_t *lock) {}
- static inline void erofs_mutex_lock(erofs_mutex_t *lock) {}
- static inline void erofs_mutex_unlock(erofs_mutex_t *lock) {}
-+static inline void erofs_mutex_destroy(erofs_mutex_t *lock) {}
+- - all other files use GPL-2.0+ license, unless
+-   explicitly stated otherwise.
++ - all other files use MIT license, unless explicitly stated
++   otherwise.
  
- #define EROFS_DEFINE_MUTEX(lock)	\
- 	erofs_mutex_t lock = {}
-diff --git a/lib/diskbuf.c b/lib/diskbuf.c
-index 0bf42da..7f4e6e1 100644
---- a/lib/diskbuf.c
-+++ b/lib/diskbuf.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
- #include "erofs/diskbuf.h"
- #include "erofs/internal.h"
-+#include "erofs/lock.h"
- #include "erofs/print.h"
- #include <stdio.h>
- #include <errno.h>
-@@ -14,7 +15,7 @@ static struct erofs_diskbufstrm {
- 	u64 tailoffset, devpos;
- 	int fd;
- 	unsigned int alignsize;
--	bool locked;
-+	erofs_mutex_t lock;
- } *dbufstrm;
+ Relevant licenses can be found in the LICENSES directory.
  
- int erofs_diskbuf_getfd(struct erofs_diskbuf *db, u64 *fpos)
-@@ -42,7 +43,7 @@ int erofs_diskbuf_reserve(struct erofs_diskbuf *db, int sid, u64 *off)
- 		*off = db->offset + strm->devpos;
- 	db->sp = strm;
- 	(void)erofs_atomic_inc_return(&strm->count);
--	strm->locked = true;	/* TODO: need a real lock for MT */
-+	erofs_mutex_lock(&strm->lock);
- 	return strm->fd;
- }
+-This model is selected to emphasize that
+-files in `lib` and `include` directories are designed to be included in
+-3rd-party applications, while all other files are intended to be used
+-"as is", as part of their intended scenarios, with no intention to
+-support 3rd-party integration use cases.
++This model is selected to emphasize that erofs-utils can be integrated
++into various ecosystems as much as possible.
++
++However, liberofs should be GPL-2.0+ OR MIT dual license since some
++parts can be shared with the Linux kernel.
+diff --git a/Makefile.am b/Makefile.am
+index 7cb93a697627..e79222e965a9 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
  
-@@ -51,9 +52,9 @@ void erofs_diskbuf_commit(struct erofs_diskbuf *db, u64 len)
- 	struct erofs_diskbufstrm *strm = db->sp;
+ ACLOCAL_AMFLAGS = -I m4
  
- 	DBG_BUGON(!strm);
--	DBG_BUGON(!strm->locked);
- 	DBG_BUGON(strm->tailoffset != db->offset);
- 	strm->tailoffset += len;
-+	erofs_mutex_unlock(&strm->lock);
- }
+diff --git a/autogen.sh b/autogen.sh
+index fd81db4d6fb3..89c510c35cab 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
  
- void erofs_diskbuf_close(struct erofs_diskbuf *db)
-@@ -115,6 +116,7 @@ int erofs_diskbuf_init(unsigned int nstrms)
- setupone:
- 		strm->tailoffset = 0;
- 		erofs_atomic_set(&strm->count, 1);
-+		erofs_mutex_init(&strm->lock);
- 		if (fstat(strm->fd, &st))
- 			return -errno;
- 		strm->alignsize = max_t(u32, st.st_blksize, getpagesize());
-@@ -131,7 +133,7 @@ void erofs_diskbuf_exit(void)
+ aclocal && \
+ autoheader && \
+diff --git a/contrib/Makefile.am b/contrib/Makefile.am
+index 4eb7abed8856..5bedb9441b2e 100644
+--- a/contrib/Makefile.am
++++ b/contrib/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ # Makefile.am
  
- 	for (strm = dbufstrm; strm->fd >= 0; ++strm) {
- 		DBG_BUGON(erofs_atomic_read(&strm->count) != 1);
--
-+		erofs_mutex_destroy(&strm->lock);
- 		close(strm->fd);
- 		strm->fd = -1;
- 	}
+ AUTOMAKE_OPTIONS	= foreign
+diff --git a/contrib/stress.c b/contrib/stress.c
+index 0ef8c67c126b..65773bce9e27 100644
+--- a/contrib/stress.c
++++ b/contrib/stress.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ /*
+  * stress test for EROFS filesystem
+  *
+diff --git a/dump/Makefile.am b/dump/Makefile.am
+index c2e0c745a640..2611fd28c762 100644
+--- a/dump/Makefile.am
++++ b/dump/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ # Makefile.am
+ 
+ AUTOMAKE_OPTIONS = foreign
+diff --git a/dump/main.c b/dump/main.c
+index 78c50d511587..6c7258a5db40 100644
+--- a/dump/main.c
++++ b/dump/main.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ /*
+  * Copyright (C) 2021-2022 HUAWEI, Inc.
+  *             http://www.huawei.com/
+diff --git a/fsck/Makefile.am b/fsck/Makefile.am
+index 488b401c8995..8eebadd7d1e5 100644
+--- a/fsck/Makefile.am
++++ b/fsck/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ # Makefile.am
+ 
+ AUTOMAKE_OPTIONS = foreign
+diff --git a/fsck/main.c b/fsck/main.c
+index 16a354f460a8..21ada195edab 100644
+--- a/fsck/main.c
++++ b/fsck/main.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ /*
+  * Copyright 2021 Google LLC
+  * Author: Daeho Jeong <daehojeong@google.com>
+diff --git a/fuse/Makefile.am b/fuse/Makefile.am
+index 1e8f518bad1d..9fe560849336 100644
+--- a/fuse/Makefile.am
++++ b/fuse/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ 
+ AUTOMAKE_OPTIONS = foreign
+ noinst_HEADERS = $(top_srcdir)/fuse/macosx.h
+diff --git a/fuse/macosx.h b/fuse/macosx.h
+index 81ac47f551d6..4bb4bb75d5a2 100644
+--- a/fuse/macosx.h
++++ b/fuse/macosx.h
+@@ -1,4 +1,4 @@
+-/* SPDX-License-Identifier: GPL-2.0+ */
++/* SPDX-License-Identifier: MIT */
+ #ifdef __APPLE__
+ #undef LIST_HEAD
+ #endif
+diff --git a/fuse/main.c b/fuse/main.c
+index b6347828eacf..40f8684abe43 100644
+--- a/fuse/main.c
++++ b/fuse/main.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ /*
+  * Created by Li Guifu <blucerlee@gmail.com>
+  * Lowlevel added by Li Yiyan <lyy0627@sjtu.edu.cn>
+diff --git a/man/Makefile.am b/man/Makefile.am
+index b9b598954725..88bf3a16d995 100644
+--- a/man/Makefile.am
++++ b/man/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ 
+ dist_man_MANS = mkfs.erofs.1 dump.erofs.1 fsck.erofs.1
+ 
+diff --git a/mkfs/Makefile.am b/mkfs/Makefile.am
+index aaefc11dadc3..386455aced67 100644
+--- a/mkfs/Makefile.am
++++ b/mkfs/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ 
+ AUTOMAKE_OPTIONS = foreign
+ bin_PROGRAMS     = mkfs.erofs
+diff --git a/mkfs/main.c b/mkfs/main.c
+index eb13abaec92b..5006f76fa73b 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ /*
+  * Copyright (C) 2018-2019 HUAWEI, Inc.
+  *             http://www.huawei.com/
+diff --git a/mount/Makefile.am b/mount/Makefile.am
+index 7f6efd8b7cf5..637029d4475a 100644
+--- a/mount/Makefile.am
++++ b/mount/Makefile.am
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0+
++# SPDX-License-Identifier: MIT
+ # Makefile.am
+ 
+ AUTOMAKE_OPTIONS = foreign
+diff --git a/mount/main.c b/mount/main.c
+index b6a2deca4d85..e09e58533ecc 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: MIT
+ #define _GNU_SOURCE
+ #include <dirent.h>
+ #include <fcntl.h>
+diff --git a/scripts/get-version-number b/scripts/get-version-number
+index d216b7a424e0..484baebf53c6 100755
+--- a/scripts/get-version-number
++++ b/scripts/get-version-number
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+-# SPDX-License-Identifier: GPL-2.0
++# SPDX-License-Identifier: MIT
+ 
+ scm_version()
+ {
 -- 
-2.43.0
+2.43.5
 
 
