@@ -1,88 +1,91 @@
-Return-Path: <linux-erofs+bounces-3183-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3184-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2E58D6AB1F
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 00:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E6CBD7308D
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 03:09:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fn09l1rz5z2xQD;
-	Fri, 03 Apr 2026 11:35:07 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::431"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775176507;
-	cv=none; b=AgGARxTzfSZaT25ojRsE5ycZVAMhtoFxhCNdkmEGjnz359Y4LlKrjNPYaLBK3/GU21n8CbzFpoT9OU60VAyyHSASxNFKilESgv3W2u1W7PiqykzZlXI6DVVCXcczmw1Jm1h9ANoFe6J9+MHAE2vt8z/c2WmSVdDlfrBvHWZrBuSXQrB4BcvzU/kpEJd0/VmNrLReFsnDKEIZdtvQRSqigddQhvxJEBVl9T9PE+eHMM75rllB6sWuuy+mZ+j0ZLiyWK6Hnhg5G/8Ga+kLMSxtHOECz/1TfhayLZMcVznqsydn1TgtkoMJ6Cpm3fI8jJOdovvDnp3u3+8IsKOLEugdpQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fn3bX1yqkz2yh4;
+	Fri, 03 Apr 2026 14:09:12 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::834"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775185752;
+	cv=none; b=BQvgXmif+zZMB/GR9aW057hObfSiKD4qYs0cCpPEwy27DIa+10hZi+37b1fUBhXcUyAhlXn9L5+m+osSIxyHqn2sEggxSYtWGNOWBYpqErL/c+JwTByqf4zcA0gz0AE+ifwR30cHnKsw5x45PAMvtPfPGguUJZoyEkRDCyDlm23C0tD491kk0wnVa2RrAsBrbB4pc2hMgQV8wmSC/DOQgt2wZ+baCSg9VQi7fBzGe0qWRkyVXd/1Gqcmc+tGDYQtMIrl3P5euThZsAO9laZ04s02D7JhmYEKZmMBfdGTutaoVaMN5GWJbDc7I18/RXO9IZ9SAs3EfgXzb0Ie2Mxvug==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775176507; c=relaxed/relaxed;
-	bh=iHFhKPKNiUir/OmVbi3o3NODzNBUKZvXi/EjL0vUiZA=;
+	t=1775185752; c=relaxed/relaxed;
+	bh=K8u86zVn3x5mfnTbqvKyzgu+ADF1ErhB2fVGX96rkGw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QwTA2gxuV2i0p73gULX+j19QM15AM+nOmUawHeXpRq+rwgKrKxbTLE3wcKxcxb5wRprVZmre2/0siqUwludHwoxL35RITXjju69NcdycGUrmtkyTytBcsxJkKibQUhIUO1CHUC26nvZfdxvxi5Mnl9R751DGXQ41NGLRaMrmEooJ4r5OuvGU1hebPw7WGcyWnT5Gb+NXaCM/dQgriWz3hXJNq/Wqqwmvb4pORT8EPX5B6jNFGxXVU3KeolBUAaX2iObgvj/+pa5w/EyEGOqZ3Ia/VmHkVATaGNgScRz8UQgkiGHky9S3FU0Opsj45icpNaT0hRkqR78koiwrrLF/dQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=VtDT+rw/; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::431; helo=mail-pf1-x431.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	 MIME-Version; b=Mx3LMpeGQvwRI3Nrf9EIbFATWbVFBj0PHfHTaGjXx9yV/9/vFSLAf7vyj8falQmJmrf908xKQu4ilexusBZwoJtyi+U71YhcM7WmIuUKCurGVNtgLZ6H/UpBUXFmo/CqE/h1Ja9x0tjtCkMm1PoNlCHUUoxLpNuVX+mLgIMwtwGvMbeHvOU/QlDu3OJb5HPSsDCq1nf3MK1BxEQlsljJ9v8zkWrEGapSIWKLdFiLNW7YRdWTsbQlG7JYxpzggCCHJPFY8NGjYgZPoo90+XPqBg6K84BslgmJxZUxvhCsMF0hhcSkOuNdj9PHUodt82MCNEza/eE/vN216VeQJQ78LA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; dkim=pass (2048-bit key; unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=SKw+x3LY; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::834; helo=mail-qt1-x834.google.com; envelope-from=paul@paul-moore.com; receiver=lists.ozlabs.org) smtp.mailfrom=paul-moore.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=VtDT+rw/;
+	dkim=pass (2048-bit key; unprotected) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=SKw+x3LY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::431; helo=mail-pf1-x431.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=paul-moore.com (client-ip=2607:f8b0:4864:20::834; helo=mail-qt1-x834.google.com; envelope-from=paul@paul-moore.com; receiver=lists.ozlabs.org)
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fn09j2Zw2z2xN8
-	for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 11:35:04 +1100 (AEDT)
-Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-824c9da9928so751277b3a.3
-        for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 17:35:04 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fn3bV4Mp5z2yVP
+	for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 14:09:10 +1100 (AEDT)
+Received: by mail-qt1-x834.google.com with SMTP id d75a77b69052e-50b69bf5638so18228141cf.1
+        for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 20:09:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775176502; x=1775781302; darn=lists.ozlabs.org;
+        d=paul-moore.com; s=google; t=1775185748; x=1775790548; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iHFhKPKNiUir/OmVbi3o3NODzNBUKZvXi/EjL0vUiZA=;
-        b=VtDT+rw/6FgdzyuSDpdpHaHmBwtL/buY9yDWrNrAyyz7BuTDVPGsIldCwjWKTrIPRn
-         eeTKNVGDtjsw+yxVSNI2G8S7sjZh889H3ENMo5OzrwKDh6vQBXMSsPbWTLJf4lpyAvTg
-         s6hTvR8/HRSVVs7gnK0v8nFG9wU075kcjSameYQi9/MykByHqBwwy6/xIYrUjrWxP2tV
-         Db3mim+K2buENe8x/aueqb4+qH1T27f1Clrc82OdMw7lxf0hq53ZfnCeUmiO0gMyOowI
-         QOvSwP8YAKWJHM13ht/ScMQQU/wd0MSKXA3dqYKhZl2vWY9m4l2f/YSEM8SkoCBCsf1P
-         pssQ==
+        bh=K8u86zVn3x5mfnTbqvKyzgu+ADF1ErhB2fVGX96rkGw=;
+        b=SKw+x3LYcTakpvqxgbqGD/+hglc/BqyA5AyYSsF5DD6Hsxw03YM8hhFOt1tdnRRJTp
+         bG4IYGFHe56WJ1sTBs0E6WVYyfjKaHxbBNhQOl2Dxd9MJ2PdQ3mItV+2/FKZmcV5qKXM
+         EH1/j6mPo+b+JEKVrLbPlmkvvA9jKFeui39LmYT0Z1fop5LieOfbIY0DeFG0s5+m9HXM
+         gzhRQG5NLsC9nCE+vJCWXZqMXePCgXbl3lFTkI1aCu0HuKpew3XKy+BGmq/6fSwDYp8R
+         xsJzGhwBy4qbYiPPwiiSdSXcOkalffjckaeC8mJpLivEnny8vKr4iNavjj3lT6Xc7T3y
+         EA3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775176502; x=1775781302;
+        d=1e100.net; s=20251104; t=1775185748; x=1775790548;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=iHFhKPKNiUir/OmVbi3o3NODzNBUKZvXi/EjL0vUiZA=;
-        b=AbAQGG62ASXF8Aee9g28NFpHcb5hrhYWWnq8Mgcksf8zfXvO+mfpM0gl73s63KwkK4
-         DMR8e212X35Lmfz/UlHSwGwYfeVH7w9jq89TS8N1j9VSZqxT7V4UpDSFjxBVtZWZu3Lm
-         s4d7ZhLjP2xZvtPhs1mtuLqjNgtIN5YlhxHAtPnQtdXluime6c6geR/l86A2FzN3wiwt
-         T8w4AcJ1yZODNL9RKGoe2caUAfEocgAfPNhx5o3rXFvA0Eh6a5lKfWwsjSXTQFtysbLk
-         x7W0MvUjFO9OOrPw8hl1+e88pynmWJVjJpyJ8jgp+PS5mrcwWnKQFID+IKbIhmf4dgKt
-         Iz4g==
-X-Forwarded-Encrypted: i=1; AJvYcCUqiu9MMlwqfktSqaLL6jfe0pvsBX65HR1aTmMnW6J4neOIRP30D0JxnUS5LYzXXNghbB19Q9Dv+xgNVQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YyJaGlwNt9Wb46wMIUWsg1CY4XqY4BkdFEF/Hf9mWLI6Kgjzc/g
-	DElRpdhVrIQIo2VAiqSfNWrFsvm39jYPypHjQnPz4xXL2d8tdAVati8o
-X-Gm-Gg: ATEYQzyjT/P0hLpjQRuNxH8WuDrvbrSjPhJDSIi2zrlP9yDqprTQ1mie5wEz8UqyrDI
-	5czaA9KATP2Rcfq00QVuRAs0fvq+40v2q9ekUv1u1tgxgAlG8AdY65ZG6LX12xKzDlapUnDUBWn
-	g0IGPLQzC3QWbzCN9e5USvKIYdzXi3pq5pz+bw5JgZhmWU7x6hmXjPnYrMkhrBUqP+ITPtel4pG
-	1YzkcT6+km9p7CRiKJm3JVC8iih4PpnDYOm8IonnvY3nVInMWk2A6GHSIw+7TM09vEgsZJ5lY79
-	YhEWDZC2Pv+s0p2yCCRubMkvdv0x3l5p58B6Uga9Qam1zxIg9mWPrGvHM9M7QV0fmZqMtri739G
-	jL+twBWRApqa+oMUb1JK6P/ePDNVE0LfUInKH/n8t8chfNpGrQwXnir0kVvcuknUCtiz61MxnXO
-	8OQlDCVm2x+ODW/I0Pb12kRcQR1ytn73BtqgEEY9AfOvftPpxx44iQPARcVH9A3i0/9VQ=
-X-Received: by 2002:a05:6a00:414b:b0:829:7a15:9b96 with SMTP id d2e1a72fcca58-82d0dbd3ad4mr1167756b3a.54.1775176501888;
-        Thu, 02 Apr 2026 17:35:01 -0700 (PDT)
-Received: from localhost.localdomain ([45.114.151.61])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9ca14b3sm4990500b3a.54.2026.04.02.17.34.59
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 02 Apr 2026 17:35:01 -0700 (PDT)
-From: Nithurshen <nithurshen.dev@gmail.com>
-To: nithurshen.dev@gmail.com
-Cc: hsiangkao@linux.alibaba.com,
-	linux-erofs@lists.ozlabs.org,
-	newajay.11r@gmail.com,
-	xiang@kernel.org
-Subject: [PATCH v5 experimental-tests] erofs-utils: tests: test FUSE error handling on corrupted inodes
-Date: Fri,  3 Apr 2026 06:04:52 +0530
-Message-ID: <20260403003452.4626-1-nithurshen.dev@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260401075504.88389-1-nithurshen.dev@gmail.com>
-References: <20260401075504.88389-1-nithurshen.dev@gmail.com>
+        bh=K8u86zVn3x5mfnTbqvKyzgu+ADF1ErhB2fVGX96rkGw=;
+        b=I0KhvEPEAUYP/lFj66qw/d9GUr+i+yiuJJ0aT+UCk4K0mRBqn01UXJtFHUtHg8CKM3
+         BVJOA9lPjlwZ9C+kAvA3F5aPn6FhofiSNQ92I+bOKwtUGPjBLo7ADWnVP2C6G36aLOtX
+         44Ix2zA5C0R5NSAkQ+mei/UN8vd2Kyf6qyCz+i7Yi6W6HihnoGXCso4kywDFwDYIVACb
+         SrUFf51Mlh0urrJBbRoNqW3LpH1lDovLWbebSGc83k3JC3O0QC7wYjgYyttJukPofaQ1
+         aaEGOXRaKMTKdNXxx08fumUsiYGG9hid+JgInOqL6JrBAXGYu4V8TIFmN6NiTijCbZsK
+         eW2w==
+X-Forwarded-Encrypted: i=1; AJvYcCVI8bSc/cOJX9+d7ORrej0iYRJXRqAOY9qiRbgRjz0Nhnp9XWFPa11diNpmEnMOTKwxuFbTCaobRwgOrA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YyqBlk90wXsiul/DyhPK193/5RT22IlOvVFgRDLGRfIwU1t9lWA
+	b0yzYsXTkL2GoapDrpHVeAT0Z3clP0SbV3wCXchQv+v/zqOkjt1A8g29zToHXTt1Nw==
+X-Gm-Gg: ATEYQzxrRUeHiFow8DPmjIufsdGQ51h3kyln0FAVQWBh2PJCb1O5Ox58MTOLDMMedkq
+	S/lW1/t1+MKpxF9QxZGIh+ecNeBMmbVweDKYEz24ealhoR8zJ+l3nuwnkZwucGqMtz38rgqtV4M
+	7juGnZlpywQD9RxaczEJXxuNEo0bt/RZpxwWst5bZffcecLocc0U5gYp50rZnmr+qFd+Y1AW0q7
+	DUd738m63/9JV1gMXV8OMzC5bdaLU5VPlkT4bWDcLQf9Xm3SNXNPW9UCNiV701ss/EoEGoG/EaM
+	e/KUlxUs6IZphnOOp9mi3XtreG9qV83CqfeuNsbwaiBTHD2xJ6gUV72P8Ax0HonPhlqVsHMd4e/
+	frU6O+EYyQghjC8Y6EzvL3kCOuFiqqpbGmYuVKV2gGe95ROzDZsbE86tveghpQHOBRaKQ4TovH2
+	XoTJo97fhPrH/Zm+g1kA+pFo17CbzADTpx/41RPzsNKLU7wDgEshVz4Pf0LvUTR+l0A/UZ
+X-Received: by 2002:a05:622a:15:b0:509:1cf9:ea0e with SMTP id d75a77b69052e-50d62a80ddcmr26975991cf.41.1775185748160;
+        Thu, 02 Apr 2026 20:09:08 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8a593ded920sm37724896d6.21.2026.04.02.20.09.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2026 20:09:06 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-unionfs@vger.kernel.org,
+	linux-erofs@lists.ozlabs.org
+Cc: Amir Goldstein <amir73il@gmail.com>,
+	Gao Xiang <xiang@kernel.org>,
+	Christian Brauner <brauner@kernel.org>
+Subject: [PATCH v4 1/3] fs: prepare for adding LSM blob to backing_file
+Date: Thu,  2 Apr 2026 23:08:33 -0400
+Message-ID: <20260403030848.731867-6-paul@paul-moore.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260403030848.731867-5-paul@paul-moore.com>
+References: <20260403030848.731867-5-paul@paul-moore.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,181 +97,82 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2201; i=paul@paul-moore.com; h=from:subject; bh=vO4j5WeMDF8uCaEs+Rdi7vAE5nsJDGp7MtIwbA6jMDM=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBpzy9ABnm7o+Z/R7KK/xs51rLx8PxwZiwo+kbgY FAsqRG/RIeJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCac8vQAAKCRDqIPLalzeJ c0/iD/9AMU4LuXIflLPn+lMMYMXL4wz9r6vZ2+IPv39vdupeEEtbP25ysV3gOBT/AMCJr0YZsyJ nAA+n8pMAjlgBtJIk4TWLq7fpPB0T8u9E0JMzT9gZnOCHnqlqc4ydP0gySv8oT5rkfdlOaWBbpA gZe1wqNYP2HK1Kad7uVTVFets5abIwjgXwzPdXgMV9b/PFeXrp8fedOIAR8WBdlAD1I41BW6IDh HakWAR9mdWgZ3pLFsxddxWCu3jcTQnJ5dbOjjZ5//cWmwt+PKcBsu9PlkjfOPkzaMeJf6BfgLAW 5QukV/rYK3H1Dc+TeuDdbT7HI1cFzi7Xpz5LeW1IFzYyFByGryq3ug1tpSpmMQLUOZzDWARemhj gcqAU8aaBhMkclqN5XrJRdOdkxQJQyXgu4FyOsQ88DCAc6iqS9pTaXO7MXzRFf+Dy65Ue+LfpII d0ryWB+t6fWIUFbpD6lBPVhQGtjc/NI/u1jplqW58aA1T5vqMzmjEMatMUBcG/l5OyspEAsIlka caOfuNSjXvwX1j5JCPbkF1G+yT7fdc9g2D2pu0mIfxcJrUmy7Ti6uxndL6rt/qFXk/gFcbBpaVK p0Ow1dUry8bLwkwqcLWs6Q0F2SR4JIX8e/mNA5jb4FpnBSDrrD5V0+4H20fVhTMfuNcKYskg+Rp pRUE5uqRW8k9irA==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-This patch introduces a regression test (erofs/099) to verify that
-the FUSE daemon gracefully handles corrupted inodes without crashing
-or violating the FUSE protocol.
+From: Amir Goldstein <amir73il@gmail.com>
 
-Recently, a bug was identified where erofs_read_inode_from_disk()
-would fail, but erofsfuse_getattr() lacked a return statement
-after sending an error reply. This caused a fall-through, sending
-a second reply via fuse_reply_attr() and triggering a libfuse
-segmentation fault.
+In preparation to adding LSM blob to backing_file struct, factor out
+helpers init_backing_file() and backing_file_free().
 
-To prevent future regressions, this test:
-1. Creates a valid EROFS image.
-2. Uses dump.erofs to dynamically determine the root directory's
-   inode NID and metadata block address.
-3. Deterministically corrupts the root inode by injecting 32 bytes
-   of 0xFF, invalidating its layout while leaving the superblock intact.
-4. Mounts the image in the foreground to capture daemon stderr.
-5. Runs 'stat' on the root directory to trigger the inode read failure.
-6. Evaluates the stderr log to ensure no segfaults, aborts, or
-   "multiple replies" warnings are emitted by libfuse.
-
-Signed-off-by: Nithurshen <nithurshen.dev@gmail.com>
+Cc: stable@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-unionfs@vger.kernel.org
+Cc: linux-erofs@lists.ozlabs.org
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+[PM: use the term "LSM blob", fix comment style to match file]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
-Changes in v5:
-- Removed hardcoded offset 1152 and /dev/urandom logic.
-- Implemented robust dump.erofs parsing to dynamically calculate 
-  the exact root inode offset.
-- Replaced the corruption payload with a deterministic 32-byte 
-  0xFF sequence to guarantee i_format invalidation across all shells.
+ fs/file_table.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
----
- tests/Makefile.am   |   3 ++
- tests/erofs/099     | 106 ++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/099.out |   2 +
- 3 files changed, 111 insertions(+)
- create mode 100755 tests/erofs/099
- create mode 100644 tests/erofs/099.out
-
-diff --git a/tests/Makefile.am b/tests/Makefile.am
-index e376d6a..c0f117c 100644
---- a/tests/Makefile.am
-+++ b/tests/Makefile.am
-@@ -122,6 +122,9 @@ TESTS += erofs/027
- # 028 - test inode page cache sharing functionality
- TESTS += erofs/028
+diff --git a/fs/file_table.c b/fs/file_table.c
+index aaa5faaace1e..3b3792903185 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -66,6 +66,12 @@ void backing_file_set_user_path(struct file *f, const struct path *path)
+ }
+ EXPORT_SYMBOL_GPL(backing_file_set_user_path);
  
-+# 099 - test fuse error handling on truncated images
-+TESTS += erofs/099
-+
- EXTRA_DIST = common/rc erofs
- 
- clean-local: clean-local-check
-diff --git a/tests/erofs/099 b/tests/erofs/099
-new file mode 100755
-index 0000000..f34403d
---- /dev/null
-+++ b/tests/erofs/099
-@@ -0,0 +1,106 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0+
-+#
-+# Test FUSE daemon and kernel error handling on corrupted inodes
-+#
-+seq=`basename $0`
-+seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
-+
-+# get standard environment, filters and checks
-+. "${srcdir}/common/rc"
-+
-+_cleanup()
++static inline void backing_file_free(struct backing_file *ff)
 +{
-+	cd /
-+	rm -rf $tmp.*
-+	# Ensure we kill our background daemon if it's still alive
-+	[ -n "$fuse_pid" ] && kill -9 $fuse_pid 2>/dev/null
++	path_put(&ff->user_path);
++	kmem_cache_free(bfilp_cachep, ff);
 +}
 +
-+# remove previous $seqres.full before test
-+rm -f $seqres.full
+ static inline void file_free(struct file *f)
+ {
+ 	security_file_free(f);
+@@ -73,8 +79,7 @@ static inline void file_free(struct file *f)
+ 		percpu_counter_dec(&nr_files);
+ 	put_cred(f->f_cred);
+ 	if (unlikely(f->f_mode & FMODE_BACKING)) {
+-		path_put(backing_file_user_path(f));
+-		kmem_cache_free(bfilp_cachep, backing_file(f));
++		backing_file_free(backing_file(f));
+ 	} else {
+ 		kmem_cache_free(filp_cachep, f);
+ 	}
+@@ -283,6 +288,12 @@ struct file *alloc_empty_file_noaccount(int flags, const struct cred *cred)
+ 	return f;
+ }
+ 
++static int init_backing_file(struct backing_file *ff)
++{
++	memset(&ff->user_path, 0, sizeof(ff->user_path));
++	return 0;
++}
 +
-+# real QA test starts here
-+echo "QA output created by $seq"
+ /*
+  * Variant of alloc_empty_file() that allocates a backing_file container
+  * and doesn't check and modify nr_files.
+@@ -305,7 +316,14 @@ struct file *alloc_empty_backing_file(int flags, const struct cred *cred)
+ 		return ERR_PTR(error);
+ 	}
+ 
++	/* The f_mode flags must be set before fput(). */
+ 	ff->file.f_mode |= FMODE_BACKING | FMODE_NOACCOUNT;
++	error = init_backing_file(ff);
++	if (unlikely(error)) {
++		fput(&ff->file);
++		return ERR_PTR(error);
++	}
 +
-+# Default to erofs (kernel) if FSTYP is not set
-+[ -z "$FSTYP" ] && FSTYP="erofs"
-+[ -z "$EROFSDUMP_PROG" ] && EROFSDUMP_PROG="../dump/dump.erofs"
-+
-+if [ -z "$SCRATCH_DEV" ]; then
-+	SCRATCH_DEV=$tmp/erofs_$seq.img
-+	rm -f $SCRATCH_DEV
-+fi
-+
-+localdir="$tmp/$seq"
-+rm -rf $localdir
-+mkdir -p $localdir
-+
-+echo "test data" > $localdir/testfile
-+
-+_scratch_mkfs -Enosbcrc $localdir >> $seqres.full 2>&1 || _fail "failed to mkfs"
-+
-+# Dynamically determine the inode offset of the ROOT directory (/) using dump.erofs.
-+META_BLKADDR=0
-+BLOCK_SIZE=4096
-+
-+META_STR=$($EROFSDUMP_PROG $SCRATCH_DEV | grep -i "meta_blkaddr" | grep -oE '[0-9]+' | head -n 1)
-+[ -n "$META_STR" ] && META_BLKADDR=$META_STR
-+
-+BLK_STR=$($EROFSDUMP_PROG $SCRATCH_DEV | grep -i "block size" | grep -oE '[0-9]+' | head -n 1)
-+[ -n "$BLK_STR" ] && BLOCK_SIZE=$BLK_STR
-+
-+# Extract the NID of the root directory
-+NID=$($EROFSDUMP_PROG --path=/ $SCRATCH_DEV | grep -iE 'nid\s*[:=]?\s*[0-9]+' -o | grep -oE '[0-9]+' | head -n 1)
-+
-+if [ -z "$NID" ]; then
-+	_fail "Could not parse NID from dump.erofs output"
-+fi
-+
-+OFFSET=$(( META_BLKADDR * BLOCK_SIZE + NID * 32 ))
-+
-+# Deterministically corrupt the root inode's layout by writing 32 bytes of 0xFF.
-+awk 'BEGIN { for(i=0;i<32;i++) printf "\377" }' | dd of=$SCRATCH_DEV bs=1 seek=$OFFSET count=32 conv=notrunc >> $seqres.full 2>&1
-+
-+if [ "$FSTYP" = "erofsfuse" ]; then
-+	[ -z "$EROFSFUSE_PROG" ] && _notrun "erofsfuse is not available"
-+	# Run erofsfuse in the foreground to capture libfuse's internal stderr
-+	$EROFSFUSE_PROG -f $SCRATCH_DEV $SCRATCH_MNT > $tmp/fuse_err.log 2>&1 &
-+	fuse_pid=$!
-+	# Wait for the mount to establish
-+	sleep 1
-+else
-+	_require_erofs
-+	_scratch_mount >> $seqres.full 2>&1
-+fi
-+
-+# Attempt to stat the root directory to directly trigger getattr without a lookup.
-+timeout 5 stat $SCRATCH_MNT >> $seqres.full 2>&1
-+res=$?
-+
-+if [ "$FSTYP" = "erofsfuse" ]; then
-+	# Clean up the mount
-+	_scratch_unmount >> $seqres.full 2>&1
-+	# Wait for the daemon to cleanly exit, or kill it if stuck
-+	kill $fuse_pid 2>/dev/null
-+	wait $fuse_pid 2>/dev/null
-+	cat $tmp/fuse_err.log >> $seqres.full
-+
-+	# Evaluate results based on captured stderr and timeout
-+	if [ $res -eq 124 ]; then
-+		_fail "stat command timed out (FUSE daemon likely hung due to double reply)"
-+	elif grep -q -i "multiple replies" $tmp/fuse_err.log; then
-+		_fail "Bug detected: libfuse reported multiple replies to request"
-+	elif grep -q -i "segmentation fault\|aborted" $tmp/fuse_err.log; then
-+		_fail "Bug detected: FUSE daemon crashed"
-+	fi
-+else
-+	# Kernel check: ensure no hang and error is returned
-+	[ $res -eq 124 ] && _fail "stat command timed out (kernel hung?)"
-+	[ $res -eq 0 ] && _fail "stat unexpectedly succeeded on a corrupted image"
-+	_scratch_unmount >> $seqres.full 2>&1
-+fi
-+
-+echo Silence is golden
-+status=0
-+exit 0
-diff --git a/tests/erofs/099.out b/tests/erofs/099.out
-new file mode 100644
-index 0000000..4f36820
---- /dev/null
-+++ b/tests/erofs/099.out
-@@ -0,0 +1,2 @@
-+QA output created by 099
-+Silence is golden
+ 	return &ff->file;
+ }
+ EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
 -- 
-2.52.0
+2.53.0
 
 
