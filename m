@@ -1,86 +1,87 @@
-Return-Path: <linux-erofs+bounces-3196-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3198-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A5ADE85361
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 13:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 131CFE85361
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 13:06:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fnJr76wjkz2yhG;
-	Sat, 04 Apr 2026 00:05:59 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::434"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775221559;
-	cv=none; b=WFX75KwdqU/DJJVsfiHA14JVQu+KV2qEesG2ydFiLcgtYDzJD9+cP6r9+00c7SLgkroyTED5B8JWohrIyLVX5q6TJ63NhNP7R7H3RSSR1vtEUC+UrD96MISpK68/ggjsevRbxCt4tvsYkZiZT2ZFyPgKvzra8JQ/wWdpxpd0Xd2ZBhK+0/v0Q0MlWIQSKZc05IeZqz30V08OMSfF0WXC2HOXlZQu/Sr+pZebLt4JYZm6u/A16Lgxl5P14CdxAWZDtTrUSBqDf338JCkX0eRYfulj0vVO4YAJGgfcd4Ty0XeGES78o1fA64ot3zWmV18T9aPg9SO+twx5I3icmPrTgQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fnJrD4lCpz2ygH;
+	Sat, 04 Apr 2026 00:06:04 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::432"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775221564;
+	cv=none; b=nS1+hydRqN59BuScdh6OyVnsMad9W+L3N2c8kCqAP99RGkgUsprzc39fOADh1yV1hDBowb4oMnUweVExBRI+ivBBsLBOKDFhADOpSnl+fjHSJLF2sE+RKEctr9W+RPohKQonJyPrzcxAdOy27pICdrqta2mRxvRLvjPUulvYTIvnjDNZ9RjvaC59G1jpC1muVM/1aaq8gBhvCaZX1g9DPdxqVUNPrbvuTT2E1WTsVTp2/ykEvNzZ9ZGDktE6VTzDsbe+L9UfXyUnH/iUI5vF8+E/PlzLzAt0OEgizGkfpa3Uvt6Hf+O8jdnKGSxzH0pzMjYLC50OUQbwsmOa3vc1rQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775221559; c=relaxed/relaxed;
-	bh=C1bb1Us2tUbZxfP7XuG/F/PPueGguCFpdxtD60Nsi2E=;
+	t=1775221564; c=relaxed/relaxed;
+	bh=Pwo8GVBloRPUd8HZhGGz94SQBS2QASipsKzXbQ34k2s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OiK53J0PDUZryLSdYJPyb5EZiaG/ZO6bWPFanKFFwq+31CIQi2CIct+1hxFXvC/XdNJLpq2GBgsimvElUuDx+t7+oagQYwUeiEma6Msmp+YcmIeder5SuzCekGt/yFjfxtGuuyKHtExhlugsDHsroGQL6ieri5SKzV6DGM4J6AYHtbnaZ3INeSyx2XNHiYeIrmi8A/v4U1alPxYXPL5iiEUGViMeP2cJGfTtnJN15SZP5RRFKc26AouGtjVegAa/FKhWF0Etlh3L40y3BSNhNY9ukhVpI1BOUeSMHTz6YV003Wiz2HqmiUeesnQ17DPqX4wPf20Mfo1IAQA4jf54SA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=osLsGbbG; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::434; helo=mail-pf1-x434.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 MIME-Version; b=oPqIEpnF0bG7u9KMNV2VC88V0mgcfFmMjX0+BF0+iZe3lzjToHagtmbT2FdDsT16iuPbz3AAPHzCw33PSgI6whFOSTfGJIe6qxYe1gu0WVNx1ctpVh0rAmEhPAec460BQonA4k8rYQjuCRW4FQKMhGYh6WXWN8xbaj3jDFCvVZgqyvmkgf4buRNYTAxB62FxUX6FWyijRyofiBPIKnXKUR6gVQo75OMs3ZXO+x8CDp4FGFq/g3bBFEkpUga5cQUKg6lENghqa441T5+GJF71fYYyvI7Nh2u5xZe4CdiER9hprjq9RlVX4/8bJV4WPRzD4/2Qrz/eU5j+a+bIILcVlA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=F+aluRlO; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::432; helo=mail-pf1-x432.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=osLsGbbG;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=F+aluRlO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::434; helo=mail-pf1-x434.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::432; helo=mail-pf1-x432.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fnJr51y8Kz2yWK
-	for <linux-erofs@lists.ozlabs.org>; Sat, 04 Apr 2026 00:05:55 +1100 (AEDT)
-Received: by mail-pf1-x434.google.com with SMTP id d2e1a72fcca58-82748257f5fso1844625b3a.1
-        for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 06:05:55 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fnJrD0DtGz2yWK
+	for <linux-erofs@lists.ozlabs.org>; Sat, 04 Apr 2026 00:06:03 +1100 (AEDT)
+Received: by mail-pf1-x432.google.com with SMTP id d2e1a72fcca58-82ce09b61beso880868b3a.0
+        for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 06:06:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775221553; x=1775826353; darn=lists.ozlabs.org;
+        d=gmail.com; s=20251104; t=1775221562; x=1775826362; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=C1bb1Us2tUbZxfP7XuG/F/PPueGguCFpdxtD60Nsi2E=;
-        b=osLsGbbGVNhoy/T+j5SNXtJes7i4hx2XoxqLhfthCfPFFIdffsPJ9oRB4iLDmvMHjh
-         7zhjeiTB1V84g88Eza4xiaXvO+/q9VXTJq8WB+4pJ7YzlXToyN2hi1dfmDL1vgrJjr14
-         i1/AklCpLin4dw1yReDxePWWr1O2uG4q6TQYFnB8gk72myXMWncIfjG0hwBmaDtX8wZ1
-         0haUD32K0SbadcksNJdOm92GftBOVwnY8+D4FMKwG4sVqnann+72fpqWKNSpdOWKXSjo
-         Mlfp6LPunPt0Ucvr+5ichql10a2KmeZJ/z5TZ7hltKCEQTCZ101k5DWXUyhQ/YCMV4Lk
-         ZKhw==
+        bh=Pwo8GVBloRPUd8HZhGGz94SQBS2QASipsKzXbQ34k2s=;
+        b=F+aluRlOVTC8tNU/+ZXKp+zXJ/IwGLwDzb8/1k9r9+/uIPPjblksr5iElWa9rYR4Rd
+         iSiW6BfPM9AaAIlO5pPw+C4P4r0vudJ3SbL45WTNi3dLY+gtlqQwmcrD8dvp0h6cjeWX
+         OxHeZW/jfSjkumvNoYBWCB10QgyX7T6HwuPGgSZVJ1VrXwJnrcptOEeqnJNztUc5zG5Y
+         Kbdk5D+6LsgpRh0MnNcSyAC07z5TP1NVDi7oZfIAzYrsOacDeKzC5v5GnbiMUHgWMplO
+         yV9mYS/G0mkuBw2q/6+cX5IpnUhkm30hp2+IPvMY1eLayp7Gbm3jvl9LjorqTPZTKQeJ
+         L1nA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775221553; x=1775826353;
+        d=1e100.net; s=20251104; t=1775221562; x=1775826362;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=C1bb1Us2tUbZxfP7XuG/F/PPueGguCFpdxtD60Nsi2E=;
-        b=l6o/N70WJyba2NI8dq6VKdg4Y9Y9lOe0XEfdi61daFI2WmAGkXcA9/m4OomZVEexPw
-         0tHDhJeayXNKcnp2e7ULHFkacVG5xxeqtrhjaCmuEEOpce9TfEnLxcJ5K2G7oXNoefcd
-         E9xmUIIxZBuEK1JTMBy4MsmAXRrnurhT0BpP97M395mTMZV4xituGLmGv1qSA+jUi9Sl
-         mjX+S5zlGtGqtJtTlRdA1it4eT7jzuWUlATLuF7dnJzwzaLRfyKJH1zprmmi/Eu3xLJM
-         JUvHFOZoaKM8vYiYNw/IADmD1LUVhqGZ0ksuV8deXBU4GQ0L4MyRPxxYxeyPW6tE5CN0
-         ILxA==
-X-Gm-Message-State: AOJu0Yzn8xFrO/yHOVES6zAs9AKvvXrD0ejnmLuVqM0YIxW+D5H53u2Q
-	fX5/iDL5ajj1kCg8oBQhxzCCqwZTcgqKA/tPvzrG+lMb8H55stE+2FNxxNESgQ==
-X-Gm-Gg: AeBDieu+68zA+o9XDHTwBW4G77Tg/jHBStiLJkOy/Nz0LOBaqFXbmkiMcR4jYSg+8Un
-	8hTWV2QZYGseuQpe51e4uFkRxir4wnEr9UafrVhXCzWe7gcL2zSZf0fRiK9O4i8gwVuxMxcxE+T
-	AlmkFYCzyfuo8T5cf3yyoMZw+Dv56XHuvRAbfvL40rUxfC4goK8IACTMUGUfsL21E2Kn8TAlDr0
-	FfaYr0bN92wgYMJaFyAWxNE/ZTpIYA/nPjEl4ho24/k3jiXWU1DCVKbidC6fBpaQOIuKGYbknmo
-	MYCygRV/2SYi0P/tqH7VXklQ8vJuDeO3wn9N2bc34N6UsaZ9yY1z4Hwz71yHpe3TeGGv5jW2Iq+
-	unl88RrNqyRsvwSORzBE81j76dmsEU4xImIlDRv7aWtGwRN1VTg8MRjV53+k6ba8AduNzWCUE2Y
-	upluPIe69I0gQiYG71EhnHe8yLRkIUht9vE7MRYjJL/vR5aHQ=
-X-Received: by 2002:a05:6a00:3926:b0:822:69b2:7ed0 with SMTP id d2e1a72fcca58-82d0db0bc32mr3046446b3a.6.1775221553118;
-        Fri, 03 Apr 2026 06:05:53 -0700 (PDT)
+        bh=Pwo8GVBloRPUd8HZhGGz94SQBS2QASipsKzXbQ34k2s=;
+        b=Z5CHALjD948ttjUdoT5eBftYkk3beCv5I87BhJbnywz12DGX8jA8eRYsJCHWb4107z
+         +SUXZnVTGTdMz05wNA1QRwUyjzmM3xInE6/mlJA32bpw2+az2f21EgXe98d9mm3pxmpJ
+         +U2XAXlMCYUqhC0p1LPN54nXJmR+F2hS6cw9qIhzyv82BP6ZHqHxmouTcciFwJL3l50G
+         p1Mzj1I86reM2SbC4c1jledghejTDUoo7O9ylmvRii/VdQE4131U1dvZLKmRumZkcoE7
+         S99c0f7nOfifJkcBLiW1Od/fHvQJuIoWV2u8MrkSlXI8oXu9hKMglqhTxljWIpqt+MI+
+         /1yg==
+X-Gm-Message-State: AOJu0Yxzkpnfuhp4bQdfUdlekkROG4WKstVF+Cj5CnSb5NYsm0Xx7/Nz
+	Scijx7+LGALBQ9TKdn3j7CJeRMo0WuJHspoUT4QSpnFxMIyRHP6YZzVgjQAayw==
+X-Gm-Gg: AeBDies8KpAlrg2tE9tpYcyFGDoHuZf0yykEQchGApZyNuT/th/YB7oZYdI9I3fifkH
+	dFcgPdxL+UOPKcRb2mzoDt+4I6wZozpXC/Xo6VB0r0Zn3o0p0exE9YiCVM95uVae/v2TKsKF9rg
+	nCIqgNYoBGSxkXDBI3Mb4v8SEIbZG60uSCD3u2bDhst8+pF0hX3QWkgOv9aOC9uiss4pBU1bmj2
+	WrLiT7EwIcnOi2tNoZTYkI18MxJc4JS5wsxl6fX6YJQPSYE24dCSdydZ1V+BkBc3tNsdTBANuCN
+	5mzsfOWHlkzvexrvA7Deoj+zhpdpybxroeDg82HpIQZB/qMtH1tRAyWARTaqlX2fEAxMw3/PPYt
+	IPUwhioc/tfH1GaiUCwUaH4vIANCPkDtNXQQPWVEWOkcupX131Kvg5lZLah+lFNnXAh7E30tWUN
+	qyMR9dNoez6GOfoIrhi5IYQXlid7XKDvNunUUd/uvBJe86PkWN0lUZjDx7Bg==
+X-Received: by 2002:a05:6a00:8008:b0:82a:e3de:27c2 with SMTP id d2e1a72fcca58-82d0dbac754mr2745914b3a.41.1775221561874;
+        Fri, 03 Apr 2026 06:06:01 -0700 (PDT)
 Received: from DESKTOP-MOQC9AF.mioffice.cn ([43.224.245.237])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9b5f1dbsm6064258b3a.27.2026.04.03.06.05.51
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9b5f1dbsm6064258b3a.27.2026.04.03.06.06.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2026 06:05:52 -0700 (PDT)
+        Fri, 03 Apr 2026 06:06:01 -0700 (PDT)
 From: Zhan Xusheng <zhanxusheng1024@gmail.com>
 X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
 To: Gao Xiang <hsiangkao@linux.alibaba.com>
 Cc: linux-erofs@lists.ozlabs.org,
 	Zhan Xusheng <zhanxusheng@xiaomi.com>
-Subject: [PATCH erofs-utils v2 0/2] Fix 48-bit block addressing for extra devices
-Date: Fri,  3 Apr 2026 21:05:44 +0800
-Message-ID: <20260403130546.76579-1-zhanxusheng@xiaomi.com>
+Subject: [PATCH erofs-utils v2 2/2] erofs-utils: handle 48-bit blocks/uniaddr for extra devices
+Date: Fri,  3 Apr 2026 21:05:46 +0800
+Message-ID: <20260403130546.76579-3-zhanxusheng@xiaomi.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <12b129db-0206-44f3-a53c-9eec6fe3fda3@linux.alibaba.com>
+In-Reply-To: <20260403130546.76579-1-zhanxusheng@xiaomi.com>
 References: <12b129db-0206-44f3-a53c-9eec6fe3fda3@linux.alibaba.com>
+ <20260403130546.76579-1-zhanxusheng@xiaomi.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,37 +95,81 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The 48-bit block addressing support extended the on-disk
-erofs_deviceslot with blocks_hi and uniaddr_hi fields, but the read
-and write paths for extra devices were not updated.
+erofs_write_device_table() only writes blocks_lo and uniaddr_lo to
+the on-disk device slot, but does not write blocks_hi or uniaddr_hi.
+Similarly, erofs_init_devices() only reads the _lo fields for extra
+devices.
 
-Additionally, erofs_read_superblock() has a swapped hi/lo combination
-for the primary device blocks -- the same bug fixed in the kernel by
-0b96d9bed324 ("erofs: fix block count report when 48-bit layout is
-on").
+For extra devices whose blocks or uniaddr exceed 32 bits in a 48-bit
+EROFS image, the upper bits are silently lost in both read and write
+paths.  This is inconsistent with the primary device handling, which
+correctly writes blocks_hi (super.c:231) and reads it (super.c:125).
 
-Patch 1 fixes the primary device blocks read order.
-Patch 2 adds read/write support for 48-bit extra device fields, and
-syncs the erofs_deviceslot definition (blocks_hi: __le32 -> __le16)
-with the kernel.
+Also sync the erofs_deviceslot on-disk definition with the kernel:
+blocks_hi should be __le16 (not __le32), matching the 48-bit design
+where all block address high parts are 16-bit.
 
-A corresponding kernel-side fix has been reviewed:
+A corresponding kernel fix has been applied:
   ("erofs: handle 48-bit blocks/uniaddr for extra devices")
 
-Changes since v1:
-  - Use ternary expression for the read path to match the kernel
-    implementation style, as suggested by Gao Xiang.
-  - Cc linux-erofs mailing list.
-
-Zhan Xusheng (2):
-  erofs-utils: fix swapped hi/lo in 48-bit primary blocks read
-  erofs-utils: handle 48-bit blocks/uniaddr for extra devices
-
+Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+---
  include/erofs_fs.h |  4 ++--
- lib/super.c        | 14 ++++++++++----
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ lib/super.c        | 10 ++++++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---
+diff --git a/include/erofs_fs.h b/include/erofs_fs.h
+index ff8ac78..5d12049 100644
+--- a/include/erofs_fs.h
++++ b/include/erofs_fs.h
+@@ -45,9 +45,9 @@ struct erofs_deviceslot {
+ 	u8 tag[64];		/* digest(sha256), etc. */
+ 	__le32 blocks_lo;	/* total blocks count of this device */
+ 	__le32 uniaddr_lo;	/* unified starting block of this device */
+-	__le32 blocks_hi;	/* total blocks count MSB */
++	__le16 blocks_hi;	/* total blocks count MSB */
+ 	__le16 uniaddr_hi;	/* unified starting block MSB */
+-	u8 reserved[50];
++	u8 reserved[52];
+ };
+ #define EROFS_DEVT_SLOT_SIZE	sizeof(struct erofs_deviceslot)
+ 
+diff --git a/lib/super.c b/lib/super.c
+index 86d50a1..fd7972c 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -54,6 +54,8 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
+ 	if (!sbi->devs)
+ 		return -ENOMEM;
+ 	pos = le16_to_cpu(dsb->devt_slotoff) * EROFS_DEVT_SLOT_SIZE;
++	bool _48bit = erofs_sb_has_48bit(sbi);
++
+ 	for (i = 0; i < ondisk_extradevs; ++i) {
+ 		struct erofs_deviceslot dis;
+ 		int ret;
+@@ -65,8 +67,10 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
+ 			return ret;
+ 		}
+ 
+-		sbi->devs[i].uniaddr = le32_to_cpu(dis.uniaddr_lo);
+-		sbi->devs[i].blocks = le32_to_cpu(dis.blocks_lo);
++		sbi->devs[i].blocks = le32_to_cpu(dis.blocks_lo) |
++			(_48bit ? (u64)le16_to_cpu(dis.blocks_hi) << 32 : 0);
++		sbi->devs[i].uniaddr = le32_to_cpu(dis.uniaddr_lo) |
++			(_48bit ? (u64)le16_to_cpu(dis.uniaddr_hi) << 32 : 0);
+ 		memcpy(sbi->devs[i].tag, dis.tag, sizeof(dis.tag));
+ 		sbi->total_blocks += sbi->devs[i].blocks;
+ 		pos += EROFS_DEVT_SLOT_SIZE;
+@@ -423,6 +427,8 @@ int erofs_write_device_table(struct erofs_sb_info *sbi)
+ 		struct erofs_deviceslot dis = {
+ 			.uniaddr_lo = cpu_to_le32(nblocks),
+ 			.blocks_lo = cpu_to_le32(sbi->devs[i].blocks),
++			.blocks_hi = cpu_to_le16(sbi->devs[i].blocks >> 32),
++			.uniaddr_hi = cpu_to_le16(nblocks >> 32),
+ 		};
+ 
+ 		memcpy(dis.tag, sbi->devs[i].tag, sizeof(dis.tag));
+-- 
 2.43.0
 
 
