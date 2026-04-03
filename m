@@ -1,88 +1,60 @@
-Return-Path: <linux-erofs+bounces-3192-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3193-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03436D730A2
-	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 06:37:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40D55D730A9
+	for <linux-erofs@archiver.kernel.org>; Fri,  3 Apr 2026 06:43:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fn8CV4KdTz2yVP;
-	Fri, 03 Apr 2026 17:37:10 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::42e"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775198230;
-	cv=none; b=eXBBH/YHvcQfk0ZfQtc2q8Eb2vAJM89ZfYBZ+6CHB3+Dh/0ze24Sj9a6gVOl+eg18pFg0nFcdxXrOEgpz9CZyTiatsPGAw+70YGGBmW2Qk48Li2KOLpqNrLpwUrvXR3qjno3oGPQ2rFBK8Vn1tcJWL6DQjgETUKEnIliXctnJKU2bJN3b+varED6AFFFXo9VKdON/HpfIFhM5H0adMZ61YjwSo35fPNpSHF1NF8V0YGw05l35uBGIcWplCQ//Mot//ihkn9v07HC4JEAf5bDKhZw9EYxrWpJqptmWvws8IBbvwaRbyEhuM/2E11UEBJ8hG4fWnu3dL4XpxTiOZygRA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fn8LH4h4lz2ygT;
+	Fri, 03 Apr 2026 17:43:03 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.218
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775198583;
+	cv=none; b=GvAOexrvqw0pMxXLKGGgv65REx+O3hnfdqlXgKdGqRbasR1egiT2WKecZz+3IWa/S7H+ecOaLdVlE9ShhXN3T9rg8JPu4M/wtV4QSg/ncMMR7Bq9hEIR7j0rFIRL0eLd4sotm6NJ3CsEf4QiWUYyZ6GMU1EuiQxQK4+mWvtN9z8tw20hROJghzZi5sk2MGE3rYYUTi4l8ShpBDkp0AfTTFvIW1BEiRv2vVstF8HS7Sdd0Ll5rmkiLj0rd/6PFpeG+kbQZSibC7dAujmppHYRO6CdiM1GnuBvEF5pJtxwBEQ0p1xIqon17iQPCTgUgiWHHpnYJRTCaMbUa529hixJ8Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775198230; c=relaxed/relaxed;
-	bh=WznkZC1iLDwREmUmFRaqxDds7AGj7ZhSYjV7CeXw+YQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GYXnf9xLoAiz8ryhh31UmqJLYOzDMSh9LBCbNiCUOxQdE1IrzekyX8sFa6VQdEKMiblHIOcNzRzX5cfA6qIuvTGBuhbKNuuO/l81z+yEIfwh7B7ujhYTh2mSbgjjWUQ/o6pkd9a4xa4qL7h8GVqaghWu4TdAzjDZs6bQWgeeT35qwWcoLwXtC67LH9euyZEIThHHgPMuHQkH/P+Mn2eBulRYYfPkQ6kPlgBMDioHzoZbt623/7ETxdPAftj8xMbwxWE8sdAFah3qxDIaWlGHdWMBVUh8qn9TNfIvAKGPy7kOIrXxY0PPoTRlZLHfg0Hp/EMBAlvx1ThHzGtaDB6CUQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pmhKmiwq; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::42e; helo=mail-pf1-x42e.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1775198583; c=relaxed/relaxed;
+	bh=+Y+BNHrwXS5TUcNQR5uuX3w1Thuscu944ok5H7ydLOM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=izA/+cPJnhb7GbWbXsCfQjTrMjYGT3tc9i7cObfEl4XGigmECI34fjLhPm2RBB7uQ3XLsyO98Q2btbqkozqFQGSWxDdGheyV1knJCdwwotxKxrCZ9JWOK/nPJgiTtx/t+YUWDFpe42URdCfDeUXdo+s1fVKegMoU2+4jS2/NC+O/+pE8fTEbG+F6f705DziQWtAk0thN0EDECzozqL7F4zPB6HqWAuZfpI9Ca9udG2W/GHvBWWytdWEe6FGuiDaXylrZyz2WVJ6ufkqshQISW/TMt7z0kCmEDiSgy6YuQJp5qe14+BsXMZYMsruOuhMU+WjlzfN35tIpcUsPjm0sZw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=3l5o7zVB; dkim-atps=neutral; spf=pass (client-ip=113.46.200.218; helo=canpmsgout03.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pmhKmiwq;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=3l5o7zVB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42e; helo=mail-pf1-x42e.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.218; helo=canpmsgout03.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout03.his.huawei.com (canpmsgout03.his.huawei.com [113.46.200.218])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fn8CT4yDGz2xm3
-	for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 17:37:08 +1100 (AEDT)
-Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-82ce49785a0so719302b3a.2
-        for <linux-erofs@lists.ozlabs.org>; Thu, 02 Apr 2026 23:37:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775198225; x=1775803025; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WznkZC1iLDwREmUmFRaqxDds7AGj7ZhSYjV7CeXw+YQ=;
-        b=pmhKmiwqpBaD/c8UU2aSLwsYWqFJ1ZWFk8hPEAOGbuJ3PPCJ4BPJCayzvphGgFdpcj
-         ptoOzGLrclCySC2MbsfaV7dq8bsfEi+pytFguMhPfkxWiFj7iMzpNCEFueM71n1e2wZh
-         v6Smyxiv2kgq89cWRkOfvnTi/q8/UZ6QwD5YHiQ+fl9cIHIponl3Z21Cnbzz+I6JI/Y7
-         959thqzoPDqVrSmMPTTJMNxexeUgaU6Ug6NvO7S8O4x4JQ2xQFymYEXLmeqW7FpUhMfl
-         8xj9x+hwKYFTHV24cj4Tc/0y/9F+kGeEHUfpdxQl5XTamhWV3tMBeY9CfAAhc52pSPMz
-         uIpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775198225; x=1775803025;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=WznkZC1iLDwREmUmFRaqxDds7AGj7ZhSYjV7CeXw+YQ=;
-        b=q6r4yJei5tVLPWMsDFL6IY+IjgC8zVSHp0o7sfKuuAbZ1Gm58nZmW78AEqaaUUBtIf
-         bZaCrnwSmrbEBt0N6ba8G5AsaOTTvrIlfXMez4VyNmcSvlQm2qll1TDgHvKcx2jWmgO7
-         TkWe5MH4NmWx67ajMPUF9ZZGoApwVQrky1+VBYzJL+0xduVHyzr5QprP9jOwC8TIX9OO
-         /4WZUe0Kp0PrDeLYARvxf30T+ll7wVynWBFIw9WBd6BZWZHlONbBdLJsLlTJmino2ziE
-         cgeB9l8oVAIHndqhPyRMPNmKIpBFrzPGkrYSICucsq92IMlaxx43HKZfXNkMqXyr2s/2
-         AD7Q==
-X-Gm-Message-State: AOJu0YxMncZgTNs1uSK3pbcGY9Mdnu9F6lsA7CZu1vvpSRjmSlw7Yi9s
-	KrjEKlghIKuIM8DVjIQ6HNoOA+R1hoTuT7VjLApTq/YYcsc3uc0DIM+N
-X-Gm-Gg: AeBDieumMm0KNqHP9nG+XRTetyYckAVgT7cOJbiryiP9k1hq72y0778lfTiHwVR5AAb
-	O3HR/f5vKGA90C0fCkBxNdBdBn0l7I79Uyr+r7gW+60DgSJ6fcKfkQS5E4jpuHAIQMtVhOkJYPE
-	d6KKnCeo0QmTkyk7kwf7u6b37a6bWtSLSvinu6/zcWxghFnZYN6nNWbSYlf8gy0Oe55SdsmTBGX
-	Oq9E9M35bIJgpGVCurI8AT7NNnflkPJwtaNUtu481/mMSfTlmzzQaz3oKugZGfvNwrb7PSUjx9Q
-	22FGAqoIWe54J7RPBX8DHccGQX265tc43kSfK8wi1RwPDRI/5fciXuoW7XwyFoRHfeJHkgyK863
-	8RLWGhtwUxE0gCncY7R/wUU/Ij4MlwPQ1RV9uYddUPszXsR/UQHNdettZo/Uenp+KI+Rybdn0nF
-	KGK1p5Fnvh8/2DwhhUHVmBP1jenTFFpoTk9hfC0VWSQJs4vMg=
-X-Received: by 2002:a05:6a00:234a:b0:82a:6167:b1ae with SMTP id d2e1a72fcca58-82d0da8f2b9mr1989714b3a.24.1775198225286;
-        Thu, 02 Apr 2026 23:37:05 -0700 (PDT)
-Received: from DESKTOP-MOQC9AF.mioffice.cn ([43.224.245.237])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9b5fb22sm6418466b3a.26.2026.04.02.23.37.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 23:37:04 -0700 (PDT)
-From: Zhan Xusheng <zhanxusheng1024@gmail.com>
-X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
-To: Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	Zhan Xusheng <zhanxusheng@xiaomi.com>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v2] erofs: handle 48-bit blocks/uniaddr for extra devices
-Date: Fri,  3 Apr 2026 14:36:58 +0800
-Message-ID: <20260403063658.72140-1-zhanxusheng@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <f54ce712-9d7b-488b-8dc2-9d5e2455f80c@linux.alibaba.com>
-References: <f54ce712-9d7b-488b-8dc2-9d5e2455f80c@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fn8LD5rkSz2yVP
+	for <linux-erofs@lists.ozlabs.org>; Fri, 03 Apr 2026 17:43:00 +1100 (AEDT)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=+Y+BNHrwXS5TUcNQR5uuX3w1Thuscu944ok5H7ydLOM=;
+	b=3l5o7zVB1wQUacYXsyqn5PtYSWT4p5wRhmyR6NeOgdaDF2fp0mgJeu0nIZTwctCGjiyK+Kgde
+	JUSEbBBf3LZ8LjLLihOmc1bq3qpBgxvf0oPYtqmSwaD5MJ64ZMcY/7VC1wjzVcgP++LESQoUR+d
+	3Rxjd7Ej7XWpsmvSI1PSBsI=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout03.his.huawei.com (SkyGuard) with ESMTPS id 4fn8CK47VFzpTJn
+	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Apr 2026 14:37:01 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id D4B9940575
+	for <linux-erofs@lists.ozlabs.org>; Fri,  3 Apr 2026 14:42:52 +0800 (CST)
+Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
+ (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Fri, 3 Apr
+ 2026 14:42:52 +0800
+From: Yifan Zhao <zhaoyifan28@huawei.com>
+To: <linux-erofs@lists.ozlabs.org>
+CC: <jingrui@huawei.com>, <zhukeqian1@huawei.com>, <zhaoyifan28@huawei.com>
+Subject: [PATCH 2/2] erofs-utils: mount: add --worker-log for detached workers
+Date: Fri, 3 Apr 2026 14:42:30 +0800
+Message-ID: <20260403064230.914563-2-zhaoyifan28@huawei.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260403064230.914563-1-zhaoyifan28@huawei.com>
+References: <20260403064230.914563-1-zhaoyifan28@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -95,76 +67,162 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.50.159.234]
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-erofs_init_device() only reads blocks_lo and uniaddr_lo from the
-on-disk device slot, ignoring blocks_hi and uniaddr_hi that were
-introduced alongside the 48-bit block addressing feature.
+Detached NBD and fanotify workers currently redirect stdout and stderr
+to /dev/null after fork(), which makes their runtime logs invisible once
+mount.erofs returns.
 
-For the primary device (dif0), erofs_read_superblock() already handles
-this correctly by combining blocks_lo with blocks_hi when 48-bit
-layout is enabled.  But the same logic was not applied to extra
-devices.
+Add a `--worker-log=PATH` option so detached workers can append logs to
+a caller-provided file for better observability.
 
-With a 48-bit EROFS image using extra devices whose uniaddr or blocks
-exceed 32-bit range, the truncated values cause erofs_map_dev() to
-compute wrong physical addresses, leading to silent data corruption.
-
-Fix this by reading blocks_hi and uniaddr_hi in erofs_init_device()
-when 48-bit layout is enabled, consistent with the primary device
-handling.  Also fix the erofs_deviceslot on-disk definition where
-blocks_hi was incorrectly declared as __le32 instead of __le16.
-
-Fixes: 61ba89b57905 ("erofs: add 48-bit block addressing on-disk support")
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+Assisted-by: Codex:GPT-5.4
+Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
 ---
- fs/erofs/erofs_fs.h | 4 ++--
- fs/erofs/super.c    | 8 ++++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ mount/main.c | 58 ++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 43 insertions(+), 15 deletions(-)
 
-diff --git a/fs/erofs/erofs_fs.h b/fs/erofs/erofs_fs.h
-index b80c6bb33a58..7871b16c1d33 100644
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -44,9 +44,9 @@ struct erofs_deviceslot {
- 	u8 tag[64];		/* digest(sha256), etc. */
- 	__le32 blocks_lo;	/* total blocks count of this device */
- 	__le32 uniaddr_lo;	/* unified starting block of this device */
--	__le32 blocks_hi;	/* total blocks count MSB */
-+	__le16 blocks_hi;	/* total blocks count MSB */
- 	__le16 uniaddr_hi;	/* unified starting block MSB */
--	u8 reserved[50];
-+	u8 reserved[52];
- };
- #define EROFS_DEVT_SLOT_SIZE	sizeof(struct erofs_deviceslot)
- 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 972a0c82198d..802add6652fd 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -129,6 +129,7 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
- 	struct erofs_fscache *fscache;
- 	struct erofs_deviceslot *dis;
- 	struct file *file;
-+	bool _48bit;
- 
- 	dis = erofs_read_metabuf(buf, sb, *pos, false);
- 	if (IS_ERR(dis))
-@@ -175,8 +176,11 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
- 		dif->file = file;
- 	}
- 
--	dif->blocks = le32_to_cpu(dis->blocks_lo);
--	dif->uniaddr = le32_to_cpu(dis->uniaddr_lo);
-+	_48bit = erofs_sb_has_48bit(sbi);
-+	dif->blocks = le32_to_cpu(dis->blocks_lo) |
-+		(_48bit ? (u64)le16_to_cpu(dis->blocks_hi) << 32 : 0);
-+	dif->uniaddr = le32_to_cpu(dis->uniaddr_lo) |
-+		(_48bit ? (u64)le16_to_cpu(dis->uniaddr_hi) << 32 : 0);
- 	sbi->total_blocks += dif->blocks;
- 	*pos += EROFS_DEVT_SLOT_SIZE;
+diff --git a/mount/main.c b/mount/main.c
+index 45ac32e..40175e3 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -75,6 +75,7 @@ static struct erofsmount_cfg {
+ 	char *options;
+ 	char *full_options;		/* used for erofsfuse */
+ 	char *fstype;
++	char *worker_log_path;
+ 	long flags;
+ 	enum erofs_backend_drv backend;
+ 	enum erofsmount_mode mountmode;
+@@ -119,10 +120,10 @@ static int erofsmount_worker_set_signal(int signum, sighandler_t handler)
  	return 0;
+ }
+ 
+-static int erofsmount_worker_detach(void)
++static int erofsmount_worker_detach(const char *log_path)
+ {
+ 	sigset_t mask;
+-	int fd, err;
++	int infd, outfd, err;
+ 
+ 	if (setsid() < 0)
+ 		return -errno;
+@@ -148,18 +149,33 @@ static int erofsmount_worker_detach(void)
+ 	if (err)
+ 		return err;
+ 
+-	fd = open("/dev/null", O_RDWR);
+-	if (fd < 0)
++	infd = open("/dev/null", O_RDONLY | O_CLOEXEC);
++	if (infd < 0)
+ 		return -errno;
+-	if (dup2(fd, STDIN_FILENO) < 0 || dup2(fd, STDOUT_FILENO) < 0 ||
+-	    dup2(fd, STDERR_FILENO) < 0) {
++
++	if (log_path)
++		outfd = open(log_path, O_WRONLY | O_CREAT |
++			     O_APPEND | O_CLOEXEC, 0644);
++	else
++		outfd = open("/dev/null", O_WRONLY | O_CLOEXEC);
++	if (outfd < 0) {
+ 		err = -errno;
+-		close(fd);
+-		return err;
++		goto infd;
+ 	}
+-	if (fd > STDERR_FILENO)
+-		close(fd);
+-	return 0;
++	if (dup2(infd, STDIN_FILENO) < 0 || dup2(outfd, STDOUT_FILENO) < 0 ||
++	    dup2(outfd, STDERR_FILENO) < 0) {
++		err = -errno;
++		goto outfd;
++	}
++	err = 0;
++
++outfd:
++	if (outfd > STDERR_FILENO)
++		close(outfd);
++infd:
++	if (infd > STDERR_FILENO)
++		close(infd);
++	return err;
+ }
+ 
+ static void erofsmount_worker_exit(int err)
+@@ -182,6 +198,11 @@ static void usage(int argc, char **argv)
+ 		" -u                    unmount the filesystem\n"
+ 		"    --disconnect       abort an existing NBD device forcibly\n"
+ 		"    --reattach         reattach to an existing NBD device\n"
++#ifdef EROFS_FANOTIFY_ENABLED
++		"    --worker-log=PATH  redirect nbd/fanotify worker logs to PATH\n"
++#else
++		"    --worker-log=PATH  redirect nbd worker logs to PATH\n"
++#endif
+ #ifdef OCIEROFS_ENABLED
+ 		"\n"
+ 		"OCI-specific options (EXPERIMENTAL, with -o):\n"
+@@ -364,6 +385,7 @@ static int erofsmount_parse_options(int argc, char **argv)
+ 		{"version", no_argument, 0, 'V'},
+ 		{"reattach", no_argument, 0, 512},
+ 		{"disconnect", no_argument, 0, 513},
++		{"worker-log", required_argument, 0, 514},
+ 		{0, 0, 0, 0},
+ 	};
+ 	char *dot;
+@@ -431,6 +453,12 @@ static int erofsmount_parse_options(int argc, char **argv)
+ 		case 513:
+ 			mountcfg.mountmode = EROFSMOUNT_MODE_DISCONNECT;
+ 			break;
++		case 514:
++			free(mountcfg.worker_log_path);
++			mountcfg.worker_log_path = strdup(optarg);
++			if (!mountcfg.worker_log_path)
++				return -ENOMEM;
++			break;
+ 		default:
+ 			return -EINVAL;
+ 		}
+@@ -789,7 +817,7 @@ static int erofsmount_startnbd(int nbdfd, struct erofsmount_source *source)
+ 	}
+ 	ctx.sk.fd = err;
+ 
+-	err = erofsmount_worker_detach();
++	err = erofsmount_worker_detach(mountcfg.worker_log_path);
+ 	if (err) {
+ 		erofs_io_close(&ctx.vd);
+ 		erofs_io_close(&ctx.sk);
+@@ -1176,7 +1204,7 @@ static int erofsmount_startnbd_nl(pid_t *pid, struct erofsmount_source *source)
+ 		if (err)
+ 			goto err_sk;
+ 
+-		err = erofsmount_worker_detach();
++		err = erofsmount_worker_detach(mountcfg.worker_log_path);
+ 		if (err)
+ 			goto err_sk;
+ 
+@@ -1301,7 +1329,7 @@ static int erofsmount_reattach(const char *target)
+ 	if (err == 0) {
+ 		free(line);
+ 		free(identifier);
+-		err = erofsmount_worker_detach();
++		err = erofsmount_worker_detach(mountcfg.worker_log_path);
+ 		if (!err)
+ 			err = (int)(uintptr_t)erofsmount_nbd_loopfn(&ctx);
+ 		erofsmount_worker_exit(err);
+@@ -1763,7 +1791,7 @@ static int erofsmount_fanotify_child(struct erofs_fanotify_ctx *ctx,
+ 	if (err)
+ 		goto notify;
+ 
+-	err = erofsmount_worker_detach();
++	err = erofsmount_worker_detach(mountcfg.worker_log_path);
+ 	if (err)
+ 		goto notify;
+ 
 -- 
-2.43.0
+2.47.3
 
 
