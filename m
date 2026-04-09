@@ -1,59 +1,59 @@
-Return-Path: <linux-erofs+bounces-3251-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3252-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 846E3F364A6
-	for <linux-erofs@archiver.kernel.org>; Thu,  9 Apr 2026 17:44:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8D2EF364A3
+	for <linux-erofs@archiver.kernel.org>; Thu,  9 Apr 2026 17:54:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fs6kb0pbkz2yT0;
-	Fri, 10 Apr 2026 03:44:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fs6yL6wNzz2yT0;
+	Fri, 10 Apr 2026 03:54:34 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=103.117.158.51 arc.chain=zohomail.in
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775756663;
-	cv=pass; b=QQKzbixtQbMcSoKa/hdFdjGbP/7AP4umjkBfoNWCUTK6qqISlk0b47jySPaRJFBcv0KxAK9cYjP+BDZxg/Vfgcr7PgQXhKj+D3GGq0kEfqsK46U91AV/+1GxHiQRXQur4AnZivvWGFmrFisWTums0YBdZf9APICuYya4AGO8oHO+Yid0cYd+ZIGHgJAFZHjmwYEdQkV6GDKs6scyYLhD/BQ9G6e2mCMa3iZL86vCfk4yd+5C+UKNujFSUK4xkrITwqMb+3kDlZo/Qx6xqKceJqArLnY1xzyRPnLuWz3/0cEHjSkDGBrhIly16McGmzs4lj7mixMBU3W+2kRIHiDd1Q==
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775757274;
+	cv=pass; b=H1xVD+NWKDyXLCklBH5Tpuhz9ERzoZ/WfFiA3ypx4DzpTCqvyz6T/vrZ6gyQCKzJun/N0KAFcblym4FlJIQhXlWkIfWKV8UjSXkCU7t7Y8oi1pTqBIEaMwL0PA554IWnhf7x+kd+0kIGv29Nx+6QslO85K1itQthF34RCe6H3vvKPq+G+3HAG/o4KHgSVgzxGJ9b5xH4t/fen5+fSuDwCWX03b4ck51nfDbaznO7CrpmzmmGJuFGjhW+kJxfg78EksaQ6kZi1U08vXmRdsUio5B/7Bk1I5CxeTEU2UdPGHue/1Wk9wzYNBL4REDDYnEPM9XpoP2QIUlyDfslX8Agkg==
 ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775756663; c=relaxed/relaxed;
-	bh=ts1cjdurJ15cIR9l0rHXHWt+HIAJntr8K2wXs1MCGvI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=etWvpiXzAblK6Og/ytVKyIsu0ENSe05pK/CL2WxLbWawaTRvxOyb/+v7FwuN/okPzc03D9rIBwj1qKn8A8Hgbjd4UgGvKQdhZvIo84BW+5erI9IIf73x+gshwssmfRRIK8WV/CkcjUDC3NVhbmJWt8rqVtVWgHQ9gCR8JGI7nrssYtaZb05Ahk6dflZcq/NPQyZ+gXgVAQH51MB2VOXN6GuYLg/73yIF/hugpnJOzq7BFTQJnqDhRdfgtCjjELntF1o5+1012ZAhw3GH+IWpdXNxtJp1Uep97x0c5aKrIalkr16cn+mJ7/UmDBZtr+1lczJgJelUDjjIWtXQm+2Zdg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in; dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=aUsz1gT7; dkim-atps=neutral; spf=pass (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org) smtp.mailfrom=vnsh.in
+	t=1775757274; c=relaxed/relaxed;
+	bh=LvTtZdG1+L1cPgatGYPM3emEd0Pb5BtMw4DXDdoqypY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DqsqctKMMQaywltMCXvomNeoz6gSlLT+C+RW/6s59fnXePbwcsWS8tsqWw/O9y2LUaubpDpwJDzl9k660bjgpMeamKJuwBXpON9LRwVaoJMUqNaMGdTJNL1ryBn4KXcQPua8JprzSXsPLZ+p4jGDH+f09DIokIa+KgtHur8cVBx1NsgD3o0Wb9hfsLkmAFLo11bzDD2LBZtddDNC063lV1lMEQ5iIzjGc3CuC5UQj8VtylRioHIquG+iYxmdXeGXL0GZTffKx5opNBIBDqivJOFZs70/VSw7VdhJxraUYGksTLMkyWJZ/R2sYgGyGzyiDrEM9KSdoQ/kDprLSGIwvw==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in; dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=aaeNknpW; dkim-atps=neutral; spf=pass (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org) smtp.mailfrom=vnsh.in
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=aUsz1gT7;
+	dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=aaeNknpW;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=vnsh.in (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org)
 Received: from sender-of-o51.zoho.in (sender-of-o51.zoho.in [103.117.158.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fs6kY6XZmz2xpn
-	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Apr 2026 03:44:21 +1000 (AEST)
-ARC-Seal: i=1; a=rsa-sha256; t=1775756657; cv=none; 
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fs6yK3VJKz2xpn
+	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Apr 2026 03:54:33 +1000 (AEST)
+ARC-Seal: i=1; a=rsa-sha256; t=1775757268; cv=none; 
 	d=zohomail.in; s=zohoarc; 
-	b=C1HXKFs2MpbkWsp9CoOD/7mqyRv32tmMj1cuYC9ovgmAH/4hHHI6d2PwEKdoF9TPzKTBjuQIm4IePjv+qh8ZQxF9rLIu/NVjAadnRrfUXvcxmwCrjbPZEmMwQYB2Orq8XK8Ln9hZyVRFYt+EpG4thdKJPZ/ckFOjM9xCCgPiQpc=
+	b=CccxS2SeLnarVt3yw8MIzRs1Q1Z6Xiprj07D5cFMq2zTmPEn3+DdLYKx8b2XR4nEJGs/s515Ow6BT6ZK3OXLGzU5Vk10sm/rUUolLSgbLJs6LyWnPjymE/bV6PnmQ4OUosXZrHkcSAEJKicpPlz0Q78uPNUWBedZ6jJyaG5HvNY=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
-	t=1775756657; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=ts1cjdurJ15cIR9l0rHXHWt+HIAJntr8K2wXs1MCGvI=; 
-	b=RzBYag9/SENjqcRV57EtZ33NJG4QNbPCVCyTHKBWnbijI/j+/8jjkcpEoWFPi22SxfIYLMk6LdNzrQAYds9UzXsqdTZtFyIiWDmuKf1IxmLxJFTHY29NPkNUI1OiMsSzhJ18ybL5ou/2Q5c8NtS3D+q1cqPwF36H5FtyZLlFhxo=
+	t=1775757268; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=LvTtZdG1+L1cPgatGYPM3emEd0Pb5BtMw4DXDdoqypY=; 
+	b=JbKJwkmCLOrMU43mSX/joLrvCvGiOimozT3km6AdjFPeRSXnRo4BSqZ0ITLNg0UWOVK2myfzpWO9HpJm65kqF4NtZEZcgqB0QVP8tibk0LPKEP4P0/xxgLL0ECgzM88FoOSv35pfoheht9mSGVGUZtztCL6USX5vvljwgMnP4nk=
 ARC-Authentication-Results: i=1; mx.zohomail.in;
 	dkim=pass  header.i=vnsh.in;
 	spf=pass  smtp.mailfrom=ch@vnsh.in;
 	dmarc=pass header.from=<ch@vnsh.in>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775756657;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775757268;
 	s=zoho; d=vnsh.in; i=ch@vnsh.in;
 	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=ts1cjdurJ15cIR9l0rHXHWt+HIAJntr8K2wXs1MCGvI=;
-	b=aUsz1gT7oGC2igS3J8/K720plm9PQUd+1FlT+c/OyOK4ObuL+rpuRt4WlR6x+O+l
-	/VbS3pWpxvik8FeWMZXy9PnTp6lDKH2p2IZp5KeyEN9MmkZYLtEPPrtv1VC9+Hp2TLo
-	UIkPpfhTmVFWIn2UR6rC8XYeULzDBIQvig7nrjpE=
-Received: by mx.zoho.in with SMTPS id 1775756655857437.2961180662503;
-	Thu, 9 Apr 2026 23:14:15 +0530 (IST)
+	bh=LvTtZdG1+L1cPgatGYPM3emEd0Pb5BtMw4DXDdoqypY=;
+	b=aaeNknpWyfkkIeBkwR+FdeR0SV7y0rIEgTcUbiWwRDdy9a8V/FqagdGEdrsrCNPY
+	iw6Ogc9n9IsDouGRkkvO39kRvB2OGBcZw49scr2MU0vkgs17N4X/YZM5v12GwxvEUrx
+	GVnmVdXWcNJXGQmFwYnktEF3xtgZSEIuK0HP93R4=
+Received: by mx.zoho.in with SMTPS id 1775757266548510.31889306885944;
+	Thu, 9 Apr 2026 23:24:26 +0530 (IST)
 From: Vansh Choudhary <ch@vnsh.in>
 To: linux-erofs@lists.ozlabs.org
 Cc: Vansh Choudhary <ch@vnsh.in>
-Subject: [PATCH] erofs-utils: lib: fix packed xattr prefix seek
-Date: Thu,  9 Apr 2026 17:44:15 +0000
-Message-ID: <20260409174415.93704-1-ch@vnsh.in>
+Subject: [PATCH] erofs-utils: lib: handle unexpected EOF in erofs_io_xcopy()
+Date: Thu,  9 Apr 2026 17:54:25 +0000
+Message-ID: <20260409175425.96104-1-ch@vnsh.in>
 X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -69,32 +69,40 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-ZohoMailClient: External
 
-erofs_xattr_flush_name_prefixes() records the current packed file
-offset, writes xattr prefixes with erofs_io_pwrite(), and then seeks
-back to the new absolute end position.
+Treat a zero-length read from erofs_io_read() as an I/O failure when
+erofs_io_xcopy() still has data left to copy.
 
-Use SEEK_SET for that final lseek(). SEEK_CUR adds the tracked offset
-to the unchanged file position and can leave the packed file offset too
-far forward.
+Without that, the copy loop makes no forward progress after an early
+EOF and can spin indefinitely.
 
 Signed-off-by: Vansh Choudhary <ch@vnsh.in>
 ---
- lib/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/io.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 565070a..9247004 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -946,7 +946,7 @@ int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain)
- 		erofs_bdrop(bh, false);
- 	} else {
- 		DBG_BUGON(bmgr);
--		if (lseek(vf->fd, offset, SEEK_CUR) < 0)
-+		if (lseek(vf->fd, offset, SEEK_SET) < 0)
- 			return -errno;
- 	}
- 	erofs_sb_set_xattr_prefixes(sbi);
+diff --git a/lib/io.c b/lib/io.c
+index 0c5eb2c..80b7639 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -667,12 +667,12 @@ int erofs_io_xcopy(struct erofs_vfile *vout, off_t pos,
+ 		ret = erofs_io_read(vin, buf, ret);
+ 		if (ret < 0)
+ 			return ret;
+-		if (ret > 0) {
+-			ret = erofs_io_pwrite(vout, buf, pos, ret);
+-			if (ret < 0)
+-				return ret;
+-			pos += ret;
+-		}
++		if (!ret)
++			return -EIO;
++		ret = erofs_io_pwrite(vout, buf, pos, ret);
++		if (ret < 0)
++			return ret;
++		pos += ret;
+ 		len -= ret;
+ 	} while (len);
+ 	return 0;
 -- 
 2.43.0
 
