@@ -1,45 +1,53 @@
-Return-Path: <linux-erofs+bounces-3259-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3260-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62AA3E99057
-	for <linux-erofs@archiver.kernel.org>; Fri, 10 Apr 2026 08:43:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5DFA6E99057
+	for <linux-erofs@archiver.kernel.org>; Fri, 10 Apr 2026 08:48:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fsVgW6yyCz2yZ6;
-	Fri, 10 Apr 2026 18:43:03 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775810583;
-	cv=none; b=Rg1GUzP/pyBXzpuI4GKtXaBulX76uRMi7iGIm/1EZ+FyWeQNSxNFHuWQOxVQOz/jZ+R5ks7PoRqsR2oYxPr5lBKchKkq6uP34N2f2tqycpcgHn+jWe44VuECHnqtjTWTtb8k/sq0QJM8IAKk/qDWlWT5M5znNI0FL/6VZZ/1GNVdfBoOJEOUAe4hBoD7Kpbq1eMOqAcxwGwOk3AxEXEoeTar7pLa0c3G95YdDjsNWNxK4vZ+6OCpEYy+ey0ofXpBLmxcTzhhErdK9+78XOVCsoWszcLCgQDzjbanPUXRpwvjbAEjrq4M6v2BKi6pe/TTqPxQpJTA73f/9O+d/5ApLw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fsVpC5vxRz2yh4;
+	Fri, 10 Apr 2026 18:48:51 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1775810931;
+	cv=none; b=cjziS0v4e5JiyzP6n7VwW8TWgq2Wv/tTy0LynGtsyqK8onPzYuvptSNl5zUHrC/2xXnayjSLPSCs7iz31P0L3dm5VGGUS93BEXbkF8JYf5OP3sUmmGecaWgFzVhN22+oSZmeqaQsjAEcd/XfcQw/FATV5xgmaZOziVbfIRwBNXXs62aUDTDZ9dsbVDMfPhPr5t9C2s9B5iHNaM1Ci5XYTDhjEsWK6sObpuAluwp2i+yaxP8ssIEDcRIYBkEtLy0Eb9VjEzh73ofDkq1/SBKbiWMFXycvndtrBV5l+0QytFvyiWl4JpGFFB4mLQH2/LveTH8RCylsTIMtMhfBer2wjw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1775810583; c=relaxed/relaxed;
-	bh=OS87c50Ris0nZSruqtFH/mlJQkWYC56MgjvVpxJpGCI=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=hQ3IE4fw8ioQOUpT/UIdxkOWX/VILQ1NFEIoh2LaQofeoAcCGtsPN5NMVQdQBz6Ff4zJ7wM6xoJIkdML06F1xhr7Sn6uua4R/uhQ/AI4XpYpyDaxWLAOmx7Ar39B9L2o1JaObmACW3RV77n1+f4MHhB8xkVPkWwJnXRg2nf/64Fh5Yq7KK45jGYzPUkM7ID6JjkLyc9C57dupl1jgwzwML68ELC+8k6TemPCfU2uxMF7X2eiEhLtrTVNeuinM6C0Jg1ffO/AjV/xCG6KvJDgLl626JXAVcEJNhGaxbqN9Pf4qYkn1jJcq0EQLqFR7ic6Hw4Ff2poMuII5GLnRAC7uQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MCj23/4f; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	t=1775810931; c=relaxed/relaxed;
+	bh=tqNbtPggJ3B4/RDiwTBdMUWCT75AH75+yMvI5oN8pFk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ToiMg0u1TM6C0mhDnTarvguTVRY+ro2MVqvBBxVFUeWWwUfcszGQQPIZxUSKoVvvgPP2DSeCuNfRwBJAOb79XIkRNIq6zKEWye9l6BTz45wyv4A3cLXtrDp8JP3kfkCOPxjvHpkcvD5a5hN1vcPbrCaM8Wv6PAG0sAkxYranEkejukmGpqCPDg71gxvG1U9fADewkz2cwPm5Dtc30pwpVbbpxmvNnfvflFPbB1VoK79B9GrWFZSyxfLD02CxNXbxJp3+uvwzHuKt5rD9T2WqTG72KH/UKRcPQBJGhKTgAI+V/IPiyDHybMOV3OXmU79mjR0nY3tm9yyB48U6gx7akw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kbaAAncQ; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MCj23/4f;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kbaAAncQ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fsVgT2jnyz2xTh
-	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Apr 2026 18:42:59 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fsVpB0N9gz2xTh
+	for <linux-erofs@lists.ozlabs.org>; Fri, 10 Apr 2026 18:48:49 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1775810575; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=OS87c50Ris0nZSruqtFH/mlJQkWYC56MgjvVpxJpGCI=;
-	b=MCj23/4fejV55vgBNSwhzT1q7VOhZn0s16eszc+p7XbgTXmwXPuz1vFJZ1+tC4ety5JUXpl47wSJjHO2aARVqj/L53E1s+yzeFGzwLiq8Yw7tOvifXYT0blQnp6AwIkWqanEa7hz8YAJ9CjbIYUZysLkZRyCyEzKJJxUD/7XS3Y=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0X0kpzeE_1775810572;
-Received: from 30.221.132.105(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X0kpzeE_1775810572 cluster:ay36)
+	t=1775810925; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=tqNbtPggJ3B4/RDiwTBdMUWCT75AH75+yMvI5oN8pFk=;
+	b=kbaAAncQfAChCYaZ0YsCDrV/DoeR+1caj7p3kiKWEKqfwWwTURXk5OqgFAjj83cVjoNSfGaCjlWwFDnRxcfSNl0gxdsm/D5vXR+OaFxNle0wIzh4rQLQ90ZqvbP9HdJFNQaOWpCdbfKTzdxdcMK7eXJxYIpT5aFueFK/O6uVRo4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X0kmhbe_1775810924;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X0kmhbe_1775810924 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Fri, 10 Apr 2026 16:42:52 +0800
-Message-ID: <b2cb6d41-adf0-4c62-8689-70294b9b2fc7@linux.alibaba.com>
-Date: Fri, 10 Apr 2026 16:42:52 +0800
+          Fri, 10 Apr 2026 16:48:44 +0800
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 2/2] erofs: error out obviously illegal extents in advance
+Date: Fri, 10 Apr 2026 16:48:38 +0800
+Message-ID: <20260410084838.512795-2-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.5
+In-Reply-To: <20260410084838.512795-1-hsiangkao@linux.alibaba.com>
+References: <20260410084838.512795-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,202 +59,83 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: erofs pointer corruption and kernel crash
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: oxffffaa@gmail.com, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, kernel@salutedevices.com,
- Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <lihongbo22@huawei.com>,
- Sheng Yong <shengyong1@xiaomi.com>
-References: <4a2f3801-fac1-42fe-ae75-da315822e088@salutedevices.com>
- <f1ed0cff-57ff-4fb3-b102-0a0a6d79f1a9@linux.alibaba.com>
-In-Reply-To: <f1ed0cff-57ff-4fb3-b102-0a0a6d79f1a9@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+Detect some corrupted extent cases during metadata parsing rather
+than letting them result in harmless decompression failures later:
 
+ - For full-reference compressed extents, the compressed size must
+   not exceed the decompressed size, which is a strict on-disk
+   layout constraint;
 
-On 2026/4/10 16:31, Gao Xiang wrote:
-> Hi,
-> 
-> On 2026/4/10 16:13, Arseniy Krasnov wrote:
->> Hi,
->>
->> We found unexpected behaviour of erofs:
->>
->> There is function in erofs - 'erofs_onlinefolio_end()'. It has pointer to
->> 'struct folio' as first argument, and there is loop inside this function,
->> which updates 'private' field of provided folio:
->>
->>    do {
->>            orig = atomic_read((atomic_t *)&folio->private);
->>            DBG_BUGON(orig <= 0);
->>            v = dirty << EROFS_ONLINEFOLIO_DIRTY;
->>            v |= (orig - 1) | (!!err << EROFS_ONLINEFOLIO_EIO);
->>    } while (atomic_cmpxchg((atomic_t *)&folio->private, orig, v) != orig);
->>
->> Now, we see that in some rare case, this function processes folio, where
->> 'private' is pointer, and thus this loop will update some bits in this
->> pointer. Then later kernel dereferences such pointer and crashes.
->>
->> To catch this, the following small debug patch was used (e.g. we check that 'private' field is pointer):
->>
->> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
->> index 33cb0a7330d2..b1d8deffec4d 100644
->> --- a/fs/erofs/data.c
->> +++ b/fs/erofs/data.c
->> @@ -238,6 +238,11 @@ void erofs_onlinefolio_end(struct folio *folio, int err, bool dirty)
->>   {
->>       int orig, v;
->> +    if (((uintptr_t)folio->private) & 0xffff000000000000) {
-> 
-> No, if erofs_onlinefolio_end() is called, `folio->private`
-> shouldn't be a pointer, it's just a counter inside, and
-> storing a pointer is unexpected.
-> 
-> And since the folio is locked, it shouldn't call into
-> try_to_free_buffers().
-> 
-> Is it easy to reproduce? if yes, can you print other
-> values like `folio->mapping` and `folio->index` as
-> well?
-> 
-> I need more informations to find some clues.
+ - For plain (shifted/interlaced) extents, the decoded size must
+   not exceed the encoded size, even accounting for partial decoding.
 
-btw, is that an unmodified upstream kernel "6.15.11-sdkernel"?
-Currently I never heard Android phone vendors using 6.12 LTS
-for example hit this. If it can easily reproduced, is it
-possible to reproduce with the upstream kernel?
+Both ways work but it should be better to report illegal extents as
+metadata layout violations rather than deferring as decompression
+failure.
 
-And is the "0xffff000002b32468" pointer a valid pointer? what
-does it point to? If it looks erofs pointer, the only one I
-can think out is "struct z_erofs_pcluster", if it's not the
-case, I think there should be other thing wrong if the kernel
-is modified.
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+ fs/erofs/decompressor.c |  1 -
+ fs/erofs/zmap.c         | 24 +++++++++++++++---------
+ 2 files changed, 15 insertions(+), 10 deletions(-)
 
-> 
-> Thanks,
-> Gao Xiang
-> 
->> +        pr_emerg("\n[foliodbg] %s:%d EROFS FOLIO %px PRIVATE BEFORE %px\n", __func__, __LINE__, folio, folio->private);
->> +        dump_stack();
->> +    }
->> +
->>       do {
->>           orig = atomic_read((atomic_t *)&folio->private);
->>           DBG_BUGON(orig <= 0);
->> @@ -245,6 +250,9 @@ void erofs_onlinefolio_end(struct folio *folio, int err, bool dirty)
->>           v |= (orig - 1) | (!!err << EROFS_ONLINEFOLIO_EIO);
->>       } while (atomic_cmpxchg((atomic_t *)&folio->private, orig, v) != orig);
->> +    if (((uintptr_t)folio->private) & 0xffff000000000000)
->> +        pr_emerg("\n[foliodbg] %s:%d EROFS FOLIO %px PRIVATE SET %px\n", __func__, __LINE__, folio, folio->private);
->> +
->>       if (v & (BIT(EROFS_ONLINEFOLIO_DIRTY) - 1))
->>           return;
->>       folio->private = 0;
->>
->>
->> And it gives result:
->>
->> [][  T639] [foliodbg] erofs_onlinefolio_end:242 EROFS FOLIO fffffdffc0030440 PRIVATE BEFORE ffff000002b32468
->> [][  T639] CPU: 0 UID: 0 PID: 639 Comm: kworker/0:6H Tainted: G O 6.15.11-sdkernel #1 PREEMPT
->> [][  T639] Tainted: [O]=OOT_MODULE
->> [][  T639] Workqueue: kverityd verity_work
->> [][  T639] Call trace:
->> [][  T639]  show_stack+0x18/0x30 (C)
->> [][  T639]  dump_stack_lvl+0x60/0x80
->> [][  T639]  dump_stack+0x18/0x24
->> [][  T639]  erofs_onlinefolio_end+0x124/0x130
->> [][  T639]  z_erofs_decompress_queue+0x4b0/0x8c0
->> [][  T639]  z_erofs_decompress_kickoff+0x88/0x150
->> [][  T639]  z_erofs_endio+0x144/0x250
->> [][  T639]  bio_endio+0x138/0x150
->> [][  T639]  __dm_io_complete+0x1e0/0x2b0
->> [][  T639]  clone_endio+0xd0/0x270
->> [][  T639]  bio_endio+0x138/0x150
->> [][  T639]  verity_finish_io+0x64/0xf0
->> [][  T639]  verity_work+0x30/0x40
->> [][  T639]  process_one_work+0x180/0x2e0
->> [][  T639]  worker_thread+0x2c4/0x3f0
->> [][  T639]  kthread+0x12c/0x210
->> [][  T639]  ret_from_fork+0x10/0x20
->> [][  T639]
->> [][  T639] [foliodbg] erofs_onlinefolio_end:254 EROFS FOLIO fffffdffc0030440 PRIVATE SET ffff000022b32467
->> [][   T39] Unable to handle kernel paging request at virtual address ffff000022b32467
->> [][   T39] Mem abort info:
->> [][   T39]   ESR = 0x0000000096000006
->> [][   T39]   EC = 0x25: DABT (current EL), IL = 32 bits
->> [][   T39]   SET = 0, FnV = 0
->> [][   T39]   EA = 0, S1PTW = 0
->> [][   T39]   FSC = 0x06: level 2 translation fault
->> [][   T39] Data abort info:
->> [][   T39]   ISV = 0, ISS = 0x00000006, ISS2 = 0x00000000
->> [][   T39]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
->> [][   T39]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
->> [][   T39] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000001e36000
->> [][   T39] [ffff000022b32467] pgd=1800000007fff403, p4d=1800000007fff403, pud=1800000007ffe403, pmd=0000000000000000
->> [][   T39] Internal error: Oops: 0000000096000006 [#1]  SMP
->> [][   T39] Modules linked in: vlsicomm(O)
->> [][   T39] CPU: 1 UID: 0 PID: 39 Comm: kswapd0 Tainted: G O 6.15.11-sdkernel #1 PREEMPT
->> [][   T39] Tainted: [O]=OOT_MODULE
->> [][   T39] pstate: 00400005 (nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
->> [][   T39] pc : drop_buffers.constprop.0+0x34/0x120
->> [][   T39] lr : try_to_free_buffers+0xd0/0x100
->> [][   T39] sp : ffff80008105b780
->> [][   T39] x29: ffff80008105b780 x28: 0000000000000000 x27: fffffdffc0030448
->> [][   T39] x26: ffff80008105b8a0 x25: ffff80008105b868 x24: 0000000000000001
->> [][   T39] x23: fffffdffc0030440 x22: ffff80008105b7b0 x21: fffffdffc0030440
->> [][   T39] x20: ffff000022b32467 x19: ffff000022b32467 x18: 0000000000000000
->> [][   T39] x17: 0000000000000000 x16: 0000000000000000 x15: 00000000d69f4cc0
->> [][   T39] x14: ffff0000000c5dc0 x13: 0000000000000000 x12: ffff800080d59b58
->> [][   T39] x11: 00000000000000c0 x10: 0000000000000000 x9 : 0000000000000000
->> [][   T39] x8 : ffff80008105b7d0 x7 : 0000000000000000 x6 : 000000000000003f
->> [][   T39] x5 : 0000000000000000 x4 : fffffdffc0030440 x3 : 1ff0000000004001
->> [][   T39] x2 : 1ff0000000004001 x1 : ffff80008105b7b0 x0 : fffffdffc0030440
->> [][   T39] Call trace:
->> [][   T39]  drop_buffers.constprop.0+0x34/0x120 (P)
->> [][   T39]  try_to_free_buffers+0xd0/0x100
->> [][   T39]  filemap_release_folio+0x94/0xc0
->> [][   T39]  shrink_folio_list+0x8c8/0xc40
->> [][   T39]  shrink_lruvec+0x740/0xb80
->> [][   T39]  shrink_node+0x2b8/0x9a0
->> [][   T39]  balance_pgdat+0x3b8/0x760
->> [][   T39]  kswapd+0x220/0x3b0
->> [][   T39]  kthread+0x12c/0x210
->> [][   T39]  ret_from_fork+0x10/0x20
->> [][   T39] Code: 14000004 f9400673 eb13029f 54000180 (f9400262)
->> [][   T39] ---[ end trace 0000000000000000 ]---
->> [][   T39] Kernel panic - not syncing: Oops: Fatal exception
->> [][   T39] SMP: stopping secondary CPUs
->> [][   T39] Kernel Offset: disabled
->> [][   T39] CPU features: 0x0000,00000000,01000000,0200420b
->> [][   T39] Memory Limit: none
->> [][   T39] Rebooting in 5 seconds..
->>
->> So 'erofs_onlinefolio_end()' takes some folio with 'private' field contains
->> some pointer (0xffff000002b32468), "corrupts" this pointer (result will be
->> 0xffff000022b32467 - at least we see that 0x20000000 was ORed to original
->> pointer and this is (1 << EROFS_ONLINEFOLIO_DIRTY)), and then kernel crashes.
->> We guess it is not valid case when such folio is passed as argument to
->> 'erofs_onlinefolio_end()'.
->>
->> We have the following erofs configuration in buildroot:
->>
->> BR2_TARGET_ROOTFS_EROFS=y
->> BR2_TARGET_ROOTFS_EROFS_CUSTOM_COMPRESSION=y
->> BR2_TARGET_ROOTFS_EROFS_COMPRESSION_ALGORITHMS="zstd,22 --max-extent-bytes 65536 -E48bit"
->> BR2_TARGET_ROOTFS_EROFS_FRAGMENTS=y
->> BR2_TARGET_ROOTFS_EROFS_PCLUSTERSIZE=65536
->>
->>
->>
->> May be You know how to fix it or some ideas? Because we are new at erofs and need to discover and
->> learn its source code.
->>
->> Thanks
-> 
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 2b065f8c3f71..3c54e95964c9 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -145,7 +145,6 @@ static void *z_erofs_lz4_handle_overlap(const struct z_erofs_decompress_req *rq,
+ 	oend = rq->pageofs_out + rq->outputsize;
+ 	omargin = PAGE_ALIGN(oend) - oend;
+ 	if (!rq->partial_decoding && may_inplace &&
+-	    rq->outpages >= rq->inpages &&
+ 	    omargin >= LZ4_DECOMPRESS_INPLACE_MARGIN(rq->inputsize)) {
+ 		for (i = 0; i < rq->inpages; ++i)
+ 			if (rq->out[rq->outpages - rq->inpages + i] !=
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 67f55b9b57af..72b96e295716 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -473,11 +473,6 @@ static int z_erofs_map_blocks_fo(struct inode *inode,
+ 	}
+ 
+ 	if (m.headtype == Z_EROFS_LCLUSTER_TYPE_PLAIN) {
+-		if (map->m_llen > map->m_plen) {
+-			DBG_BUGON(1);
+-			err = -EFSCORRUPTED;
+-			goto unmap_out;
+-		}
+ 		if (vi->z_advise & Z_EROFS_ADVISE_INTERLACED_PCLUSTER)
+ 			map->m_algorithmformat = Z_EROFS_COMPRESSION_INTERLACED;
+ 		else
+@@ -720,10 +715,21 @@ static int z_erofs_map_sanity_check(struct inode *inode,
+ 			  map->m_algorithmformat, map->m_la, EROFS_I(inode)->nid);
+ 		return -EOPNOTSUPP;
+ 	}
+-	if (unlikely(map->m_algorithmformat < Z_EROFS_COMPRESSION_MAX &&
+-		     !(sbi->available_compr_algs & (1 << map->m_algorithmformat)))) {
+-		erofs_err(inode->i_sb, "inconsistent algorithmtype %u for nid %llu",
+-			  map->m_algorithmformat, EROFS_I(inode)->nid);
++
++	if (map->m_algorithmformat < Z_EROFS_COMPRESSION_MAX) {
++		if (sbi->available_compr_algs ^ BIT(map->m_algorithmformat)) {
++			erofs_err(inode->i_sb, "inconsistent algorithmtype %u for nid %llu",
++				  map->m_algorithmformat, EROFS_I(inode)->nid);
++			return -EFSCORRUPTED;
++		}
++		if (EROFS_MAP_FULL(map->m_flags) && map->m_llen < map->m_plen) {
++			erofs_err(inode->i_sb, "too much compressed data @ la %llu of nid %llu",
++				  map->m_la, EROFS_I(inode)->nid);
++			return -EFSCORRUPTED;
++		}
++	} else if (map->m_llen > map->m_plen) {
++		erofs_err(inode->i_sb, "not enough plain data on disk @ la %llu of nid %llu",
++			  map->m_la, EROFS_I(inode)->nid);
+ 		return -EFSCORRUPTED;
+ 	}
+ 	if (unlikely(map->m_plen > Z_EROFS_PCLUSTER_MAX_SIZE ||
+-- 
+2.43.5
 
 
