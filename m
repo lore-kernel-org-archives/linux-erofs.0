@@ -1,57 +1,45 @@
-Return-Path: <linux-erofs+bounces-3285-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3286-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B8D8E93813
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Apr 2026 04:48:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64EE5EBFD08
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Apr 2026 07:08:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fvFK15RdQz2yYs;
-	Mon, 13 Apr 2026 14:48:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1776055685;
-	cv=none; b=K0EeBUt/2VSLdJ8X3YzeWWWRV43MYAzIV/wSD6kxg0iy0GRTKU8RK4KAZzMoliuxhhYUjx09LZ9mc3noaalVUoNoQRBg74VYU8wtQEZr4Kjtcr87FJDvvC4JTye7RjnB7xHr7TS850rK+HVbN7HteDz+i5Mr7ALupYAlzLc8DKc+CwmvyNpzEdTcE8v55FUt68CE7H726MMWcGHIpRPwv3KwAIxhMa7A7GDC7ZotrvztvGnH66BTXi6k9bk/MZix9HUADjQp9sCRbXV/PutFrCzv6MhhYxYh/8ZnfjAg/Gk4UzBQ+CE+0kJDh2Pnpad5Clu2zXv1Jhj2UlO4Jp0r1A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fvJR008sXz2yjV;
+	Mon, 13 Apr 2026 17:08:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1776064107;
+	cv=none; b=N3US5SuFusJggtBmOx36o+trVR6kJa+a0mWM+fxU5DbsUukKv8IAOiiCI3Hu4ORnEmdvwEgwGc14pFs6R2xH5xI0GFKPAM0JpGbN/iNiC+NvisMeSgJ5q/qV/cmCAQMfey7j+FX1U3pmBnn0KrE8vGyhV0g5IzpfRNt/u1AGWsJMm/+pQxuaBIkc+8HI2iHhZp0b7wpiKs03k6eINVO7eFvF3/rp/UVIpNoSHkFQ9i/KIlRzNF9aE8LFm8DYHknJ/rRwpfXreFOxU5TLdnhgzuJ+kiOpSdrEXLRO0Dn+Wt/zGm9dc59yOp1IJVETzZepNs5nO10gFKqyjhF7d/29nw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1776055685; c=relaxed/relaxed;
-	bh=dgGYw8Uqx8jDf//fuL/HE6l5yZ7dPjm6KPUHzqfZm6Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=NJm3J21zzyl/VhBt+r/pfH+ibdUkjm1i+Viev1ZrGUuY0lI3r5KS7T5CiwHpnNTCO+faYH9hcQ6+yM3n04taL1WqJpGWpvMK+eE8C4XFX4JPbUACvhx9dCZquBEIrfuDPzARtQv/4hJd/btlMl54OaekA6P3Eo0n4jGGZFE9H0DzJjWEZb/0cXV1heIhWhwjQqJqcD3nbUeLgsXuhpLG/+udFvtiBL9FUVxhZhPgUwlG89nW2XT9pkkj5ZRqmEGUEnVl5Pgde53zYTMOTxhfwXJv1Fz82Arc8XC837PYvW3GUKldyS+ILbndYVyWvvGBNboudMV1AXlsvrE277v3Mg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=hqGmO32p; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1776064107; c=relaxed/relaxed;
+	bh=Myd6heIPYY5oZbZGObWNmzfsPoo7eCmh/psW9L72t5A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=m0cJrNIlMCEaSf/hMF+XQMgOLRxWPmWM8EWzMqRr92V6fDknyvaa6T916zvV6VQ9/7po3PiJFt21d928bnhHdlxkGyzGrSEt3Ro7P0Dz38zh66xlEkUGVcnvRXjAXZvSB8X4LFPyGxsCth9h8EsN5C1OamaZNLNh0o+rCzIbsBJ9pFrVMb7UnXA8UydC/X7nWSEtMLLdfKO8WGfIIfshjQPoMJeE73PlXkzgIXyvPhxXimYXqDBhgGuuqLpN/Y8DpwuFuchpCayL7kyoRXq6i2LwgjdvsL8Yjgi5wsh8P3dREhhj1wAlu6NP1SisYD9kvCQsZZiKbG0ETu1HmOWiVw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ktZlt0pN; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=hqGmO32p;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=ktZlt0pN;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fvFK03XQkz2yFc
-	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Apr 2026 14:48:04 +1000 (AEST)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id 4974660180;
-	Mon, 13 Apr 2026 04:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1281C2BCB0;
-	Mon, 13 Apr 2026 04:47:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776055681;
-	bh=12eK+PZixYCIBpa4EXDTXgXPRu+6gqKx9Spidnb4Xyk=;
-	h=Date:From:To:Cc:Subject:From;
-	b=hqGmO32pYFiVxzMLjtGHQqgsL6/8EgtG5pTFF8QSkcNSPZ2htdZOYEjoT7kwp1g18
-	 vPp2tY4HXeUCaSQ6BWRV6jMCzAt+Yv2/Al9ltIUc5Hp6nTH9JK9RzXGycrbc86TH8g
-	 gM8vvuo9QpzHBlpHnBNBwj7k+t6cWjOkAaTPBhGmmpE68tTqYDqCZXCOOJlBAWNmzV
-	 eHgMu9eZHuiOOj0YnQ16Q545+xEySLeB0CaEoCjaFLupLhF5BWG7tTumafwqRMsHMt
-	 7ZFie+S3XwkNeo3rp4i8rHcWFB/nHHsVCKuaOP3eFYnVZVcXwNKdZ9jfODp40uExEF
-	 aJpoJ7eTRkhSQ==
-Date: Mon, 13 Apr 2026 12:47:49 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [GIT PULL] erofs updates for 7.1-rc1
-Message-ID: <adx1dXEp8xyWwgZ2@debian>
-Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
-	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fvJQx2stlz2yYs
+	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Apr 2026 17:08:23 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1776064098; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=Myd6heIPYY5oZbZGObWNmzfsPoo7eCmh/psW9L72t5A=;
+	b=ktZlt0pNQwxTYClLeH0g0NioHQZlCorDr26r+8fMhT4RW2Hr1KwBk7puX/TsHiqshX8YQPQCFzU9Y71Zt9A8NAN2MMKghEk8MnVivxmXQMc3QzPlLoNZOOBM6XHjNjc93a64ljbYL/xcrOW1lu/0SQYQl2hptNSlArpLodBE3PE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R791e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0X0tSL6c_1776064096;
+Received: from 30.221.131.170(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X0tSL6c_1776064096 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 13 Apr 2026 15:08:16 +0800
+Message-ID: <36cddf44-3e08-4a19-82ed-04ca178ffab5@linux.alibaba.com>
+Date: Mon, 13 Apr 2026 15:08:15 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,74 +51,135 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: erofs pointer corruption and kernel crash
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: oxffffaa@gmail.com, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, kernel@salutedevices.com,
+ Gao Xiang <xiang@kernel.org>
+References: <4a2f3801-fac1-42fe-ae75-da315822e088@salutedevices.com>
+ <f1ed0cff-57ff-4fb3-b102-0a0a6d79f1a9@linux.alibaba.com>
+ <2e916997-0557-45e7-831a-b436c07c5ba4@salutedevices.com>
+ <c2d7d5ff-237d-48b5-82a2-ac4618f055cc@linux.alibaba.com>
+ <97ca00c7-822d-4b57-9dc0-9b396049adc9@salutedevices.com>
+ <8c0bdfab-dbf2-4f1e-8e2a-ce18f166d841@linux.alibaba.com>
+ <2ca3c8c6-f3ed-40ca-8f5c-1b43df479ad7@salutedevices.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <2ca3c8c6-f3ed-40ca-8f5c-1b43df479ad7@salutedevices.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Linus,
 
-Could you consider this pull request for 7.1-rc1?
 
-No outstanding feature for this cycle and there are small random
-fixes as below.  No potential merge conflict is observed.
+On 2026/4/11 23:10, Arseniy Krasnov wrote:
+> 
+> 
+> 10.04.2026 18:41, Gao Xiang пишет:
+>> Hi Arseniy,
+>>
+>> On 2026/4/10 21:27, Arseniy Krasnov wrote:
+>>>
+>>>
+>>> 10.04.2026 15:20, Gao Xiang пишет:
+>>>>
+>>>>
+>>>> On 2026/4/10 19:37, Arseniy Krasnov wrote:
+>>>>
+>>>> (drop unrelated folks since they all subscribed erofs mailing list)
+>>>>
+>>>>>
+>>>>>
+>>>>> 10.04.2026 11:31, Gao Xiang wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> On 2026/4/10 16:13, Arseniy Krasnov wrote:
+
+...
+
+>>>>>>
+>>>>>> I need more informations to find some clues.
+>>>>>
+>>>>>
+>>>>>
+>>>>> So reproduced again with this debug patch which adds magic to 'struct z_erofs_pcluster' and prints 'struct folio'
+>>>>> when pointer in 'private' is passed to 'erofs_onlinefolio_end()'. In short - 'private' points to 'struct z_erofs_pcluster'.
+>>>> First, erofs-utils 1.8.10 doesn't support `-E48bit`:
+>>>> only erofs-utils 1.9+ ship it as an experimental
+>>>> feature, see Changelog; so I think you're using
+>>>> modified erofs-utils 1.8.10:
+>>>> https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/tree/ChangeLog
+>>>>
+>>>> ```
+>>>> erofs-utils 1.9
+>>>>
+>>>>    * This release includes the following updates:
+>>>>      - Add 48-bit layout support for larger filesystems (EXPERIMENTAL);
+>>>> ```
+>>>>
+>>>> Second, I'm pretty sure this issue is related to
+>>>> experimenal `-E48bit`, and those information is
+>>>> not enough for me to find the root cause, so I
+>>>> need to find a way to reproduce myself: It may
+>>>> take time; you could debug yourself but I don't
+>>>> think it's an easy task if you don't quite familiar
+>>>> with the EROFS codebase.
+>>>>
+>>>> Anyway I really suggest if you need a rush solution
+>>>> for production, don't use `-E48bit + zstd` like
+>>>> this for now: try to use other options like
+>>>> `-zzstd -C65536 -Efragments` instead since those
+>>>> are common production choices.
+>>>
+>>> Ok thanks for this advice! One more question: currently we use this options:
+>>> "zstd,22 --max-extent-bytes 65536 -E48bit". Ok we remove "zstd,22" and "E48bit",
+>>> but what about "--max-extent-bytes 65536" - is it considered stable option?
+>>> Or it is better to use your version: "-zzstd -C65536 -Efragments" ?
+>>
+>> I'm not sure how you find this
+>> "zstd,22 --max-extent-bytes 65536 -E48bit" combination.
+>>
+>> My suggestion based on production is that as long as
+>> you don't use `-zzstd` ++ `-E48bit`, it should be fine.
+>>
+>> If you need smaller images, I suggest: `-zlzma,9 -C65536 -Efragments`
+>> Or like Android, they all use `-zlz4hc`,
+>> Or zstd, but don't add `-E48bit`.
+>>
+>> As for "--max-extent-bytes 65536", it can be dropped
+>> since if `-E48bit` is not used, it only has negative
+>> impacts.
+>>
+>> In short, `-E48bit` + `-zzstd` + `--max-extent-bytes`
+>> enables new unaligned compression for zstd, but it's
+>> a relatively new feature, I still still some time to
+>> stablize it but my own time is limited and all things
+>> are always prioritized.
+> 
+> Ok, thanks for this advice!
+
+FYI, I can reproduce this issue locally with `-E48bit`
+on in 600s.
+
+I do think it's a `-E48bit` + zstd issue so
+non-`-E48bit` won't be impacted and I will find time
+to troubleshoot it this week.
 
 Thanks,
 Gao Xiang
 
-The following changes since commit 7aaa8047eafd0bd628065b15757d9b48c5f9c07d:
+> 
+> Thanks
+> 
+>>
+>> Thanks,
+>> Gao Xiang
+>>
+>>>
+>>> Thanks
+>>>
+>>>>
+>>>> Thanks,
+>>>> Gao Xiang
+>>
 
-  Linux 7.0-rc6 (2026-03-29 15:40:00 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.1-rc1
-
-for you to fetch changes up to a5242d37c83abe86df95c6941e2ace9f9055ffcb:
-
-  erofs: error out obviously illegal extents in advance (2026-04-10 16:53:39 +0800)
-
-----------------------------------------------------------------
-Changes since last update:
-
- - Validate xattr h_shared_count to report -EFSCORRUPTED explicitly
-   for crafted images
-
- - Verify metadata accesses for file-backed mounts via rw_verify_area()
-
- - Fix FS_IOC_GETFSLABEL to include the trailing NUL byte, consistent
-   with ext4 and xfs
-
- - Properly handle 48-bit on-disk blocks/uniaddr for extra devices
-
- - Fix an index underflow in the LZ4 in-place decompression that can
-   cause out-of-bounds accesses with crafted images
-
- - Minor fixes and cleanups
-
-----------------------------------------------------------------
-Gao Xiang (3):
-      erofs: verify metadata accesses for file-backed mounts
-      erofs: clean up encoded map flags
-      erofs: error out obviously illegal extents in advance
-
-Junrui Luo (1):
-      erofs: fix unsigned underflow in z_erofs_lz4_handle_overlap()
-
-Utkal Singh (1):
-      erofs: harden h_shared_count in erofs_init_inode_xattrs()
-
-Zhan Xusheng (3):
-      erofs: ensure all folios are managed in erofs_try_to_free_all_cached_folios()
-      erofs: include the trailing NUL in FS_IOC_GETFSLABEL
-      erofs: handle 48-bit blocks/uniaddr for extra devices
-
- fs/erofs/data.c              | 14 ++++++++++++++
- fs/erofs/erofs_fs.h          |  4 ++--
- fs/erofs/inode.c             |  2 +-
- fs/erofs/internal.h          | 23 +++++++++++------------
- fs/erofs/super.c             |  8 ++++++--
- fs/erofs/xattr.c             |  8 ++++++++
- fs/erofs/zdata.c             | 22 ++++++++++------------
- fs/erofs/zmap.c              | 43 +++++++++++++++++++++++++------------------
- include/trace/events/erofs.h |  7 +++----
- 9 files changed, 80 insertions(+), 51 deletions(-)
 
