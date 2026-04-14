@@ -1,97 +1,82 @@
-Return-Path: <linux-erofs+bounces-3289-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3290-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E9E2ED7B86
-	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2026 08:02:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 89000F9D0CD
+	for <linux-erofs@archiver.kernel.org>; Tue, 14 Apr 2026 14:13:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4fvxZx0H2cz2yFl;
-	Tue, 14 Apr 2026 18:02:33 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1776153752;
-	cv=none; b=Nb/8kSVZr0WDnnQloQ1OjO2K6tzuR2BgoqPBzf6atHsFVxXCphLtFYcDgjiUFozPv9aFOu4p0EkoGDTrbevmsWXcvwjOD7SFa8iVZDxhfdNCdFf+zEhR+mbyC71Zw4xg+lEzChvP9NbdYy5r1E9vZuQm8o74z3iMY32ZO6H7YlHZW8OIkGKDteC7EUhKIcOirhfKBGmy1NjO9qMG8jPSs96AeaLcFAX2z4ZQmgMle6RMUYwBx9NjFtlVoezRZoUnMgj+CzAxGK3RvNIeMVRtNLK54MzCZdVrRlVSwl35a+9q0obw1s67TRth5z8mj1mu/Ff9cMUJCaTUJw22/X6Q3g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4fw5pq6BtCz2yVL;
+	Wed, 15 Apr 2026 00:13:23 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1036"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1776176003;
+	cv=none; b=C1IB5mvZFvCN1gar/b6m0jIvDN8Ow9DiFLtzqDe845LQKzkRjRtcB6QCubg6v63qEfscTixi6Me1A9aCPTEPaIMlnMv4FzJHgSNqp48e2+ZSkzeaXbqLBeqySzw9It8aVygzFvp9iT6Ds47sBFCcnjiF8yozh6NV317rWx+JHuV6HU9woQjnmRgNEYCNxWNFq+/O25pdX2Px52+OSetlah+nqs65U/Cvhm5wqMIGeGvLDSmnq8pnKToRf2SqQwqfscokmxp9hbBEdAIYoQzcbrm4UEt7k8sz411dlox4hM/NdgYG1ask76Hb3f87Ae+1Pmk/LvxH8m6rwkug7FL/Fg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1776153752; c=relaxed/relaxed;
-	bh=JJFZCN3rB5RE2spFMluEVpX8vCNqZ50mkbSkFhz2niU=;
-	h=From:In-Reply-To:References:To:Cc:Subject:MIME-Version:Date:
-	 Message-ID:Content-Type; b=i1NVKAdkUhHmEpmRQ/t85wIapH48e4R1hSs00F636e6G18/aKhyA8AbFwZNWOKLdJupv+KJzoTSFQk3bpAsZEWN3c3V/pkHCHkOTDNjm1Meb1kdIwpmOWMpNw1kP/MxGFKEpEFOzTrMEvigifwrvRYmXElvylgZ1KHF0JPq1w8yu9M0RWtxsFys5GfY16sl1uHMUNuQWAUNcSzfsp6ssedXXJz4rCIPIr8OC92QBnfQyDjM78WESHCHi3yuxtGZAoOdZWMwvg4/9ZuEDZltfmp53tmI+4gvVIHUeeIK/c9L+jU4CEOGdYW8LSUo+KuKNjZtXkRXSX1RSnLQjFrGCmQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RGxZjl2z; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=feNrTJkR; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1776176003; c=relaxed/relaxed;
+	bh=B6HGGvv4JORa9tLFxWliP0QTKG797ZkEi9mO8VFTf3E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oIr40VwQiJ3pfD7iQVXDq1w1OwcjPO/nDjfyHKmCsy2X1J8xpIO2Exn16K8T+d1Q5b3AiJY4ic8dGPZtSj2uFSaYTlHtACVIPO1q84Xhe+YYbJIbsZ7E1ENjJGkZ20TiKGaisS62beUmaV2yV27kRIt8zpyliSiWjHfL5pDdYrcejKa3zhHxB0hdmJyhKXqPG/6D1z90xOtvnx2bQ4NnmZ7TggdoveIQEwL4MeNQs1wNXp8HHyEtIlBCi35vjloER+THFLsvAu/XL3aUljTy6ec4QFcImqwR5YbeGJ+iLamxDe4WNdc07+ptUXoTWcWOMYPoOVGZvEepGE3kccvvAA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pNLD9WSG; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RGxZjl2z;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=feNrTJkR;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pNLD9WSG;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1036; helo=mail-pj1-x1036.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4fvxZq2Bw5z2xnj
-	for <linux-erofs@lists.ozlabs.org>; Tue, 14 Apr 2026 18:02:25 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776153740;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JJFZCN3rB5RE2spFMluEVpX8vCNqZ50mkbSkFhz2niU=;
-	b=RGxZjl2z6/cfQWb/f1fhIvHSQ5QozDL3lWjRDjqJyYEpvlgzziZ+kyCNpmifTw8510d3aU
-	gotHfV7QGVvZTib9GhWN5I/XsBjIGs6aVSKc6Hon5F1HifVa4S458LU4ni2tV1GZ8Xh0+M
-	xfg0oO2PpyKN67SrYPyLCQNcHdTzjg8=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776153741;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JJFZCN3rB5RE2spFMluEVpX8vCNqZ50mkbSkFhz2niU=;
-	b=feNrTJkR4WiFL5NXDk6u3zqL4e+UjNweWA9DB6zTAH0i5ZITz4mfBwnEM0viAcZagZxfao
-	T3gsHGJpLTkjGS/ZfJNEHp9UOZZsObRcHtAsUR660HXEQ6q9i6j/k2HE41vZna5JVo0QmL
-	fEsdGdQLzsXL56XvvKOwaFpanEY9ohE=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-644-e-mrVy0ROXuXltmJMHSNPA-1; Tue,
- 14 Apr 2026 04:02:16 -0400
-X-MC-Unique: e-mrVy0ROXuXltmJMHSNPA-1
-X-Mimecast-MFC-AGG-ID: e-mrVy0ROXuXltmJMHSNPA_1776153733
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 22DE118011FF;
-	Tue, 14 Apr 2026 08:02:11 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.44.34.160])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 227F518002A6;
-	Tue, 14 Apr 2026 08:02:01 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <9639cd12-5e9d-4eb4-9d9c-f5047ccad7b7@samba.org>
-References: <9639cd12-5e9d-4eb4-9d9c-f5047ccad7b7@samba.org> <52ad0aa6-d8dd-4ba1-adf2-f79128df9d90@samba.org> <20260326104544.509518-1-dhowells@redhat.com> <1180465.1774867781@warthog.procyon.org.uk>
-To: Stefan Metzmacher <metze@samba.org>
-Cc: dhowells@redhat.com, Christian Brauner <christian@brauner.io>,
-    Matthew Wilcox <willy@infradead.org>,
-    Christoph Hellwig <hch@infradead.org>,
-    Steve French <smfrench@gmail.com>,
-    Namjae Jeon <linkinjeon@kernel.org>,
-    Paulo Alcantara <pc@manguebit.com>, Jens Axboe <axboe@kernel.dk>,
-    Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>,
-    ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-    Marc Dionne <marc.dionne@auristor.com>,
-    Eric Van Hensbergen <ericvh@kernel.org>,
-    Dominique Martinet <asmadeus@codewreck.org>,
-    Ilya Dryomov <idryomov@gmail.com>,
-    Trond Myklebust <trondmy@kernel.org>, netfs@lists.linux.dev,
-    linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
-    linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-    v9fs@lists.linux.dev, linux-erofs@lists.ozlabs.org,
-    linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/26] netfs: Keep track of folios in a segmented bio_vec[] chain
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4fw5pp0qDzz2ySS
+	for <linux-erofs@lists.ozlabs.org>; Wed, 15 Apr 2026 00:13:20 +1000 (AEST)
+Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-35d971fb6f1so4678963a91.0
+        for <linux-erofs@lists.ozlabs.org>; Tue, 14 Apr 2026 07:13:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776175999; x=1776780799; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=B6HGGvv4JORa9tLFxWliP0QTKG797ZkEi9mO8VFTf3E=;
+        b=pNLD9WSG9KXgHcihg6e+h/NzMMawfXC3RzaLSERs5zNf3BAcGvCkHvJQ8NTHI+RSWv
+         s07bHw1jx1OvjjKvwhCcXStQsInxM1DB2ZpzPdauEx/2MNQEtxr5U6AIvDtUC5fd+0JI
+         aWa7HlZd06++KD6/zBF8M76hQ7tV4+qPn2sf8hM93dhSs/Thw0CxbJttbx9Pk0GNg7nX
+         bh5ny3VWuVx6HvhUMjZ4tbxU3keu3BIF3g8z0LydZXpomP65qlxO/LGljb27xQjBnJ1Z
+         Xrodu9gnTvfy0R/ZpY4mHK1E9SG6WHZ6uGrzAsdo3taUIWRNJXL2+wQWJjM2N0mRCqqC
+         JH9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776175999; x=1776780799;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B6HGGvv4JORa9tLFxWliP0QTKG797ZkEi9mO8VFTf3E=;
+        b=LlHNn5DnsCp5Ga1LL32bf17z48QTZEAt0xa80uung/XXAO3cgqs1qyXBkY+ewu0ebi
+         sstxSj4VwLC79Aw4w+IKuj8klE75o9ABdbENy1rRRYCDTxivSZPtiYnRm9uSy8139V1s
+         6k0YwoSBLwGC/WM4rNtJMmNw2068/QXU5ebjTJ3OgQwqHmYihUPnYmPt2lqkcDe4INod
+         9fM3G+PzmPVvDB+/nLOD85/kghOuBBki1kjI/xTI+vmOlrsMWbA1ElN5PPidns/3IZmN
+         BwEFTD839BIHRPrvqdLJJzzkWd6jU1jUAeJygECrsFZU3u+zj/m75v5Ng3b/hdDXOj+d
+         KpjQ==
+X-Gm-Message-State: AOJu0YyEZN/F9wAZlxQrL9Trm4kOjlx2PO+GQMdwE1rkjhsrZchjWU0j
+	SY+cHrH1VozNkOuB4Lg+vUeE7MzdyDBkNIiLY4Lb5D0k8qVLz482gv/B
+X-Gm-Gg: AeBDievfHqcLUUAkyz92Zp5eQyX8UQL4Ar/2hq9/LlCrG2CAp7Q9j+/tMB1QETpYoLW
+	+Cf4SfO44XITpal7HqFo9hAkjhhVjxhCPEcqdi44P38uOyETBYwFKiLDw4JZVDP9f6QB5jhpCPu
+	EWzgePoYXRU8ZpdUdVn7Jb7DHe40Rh5RPYchCn7u7L5USc+7TKgefvuUg7yfYOO2fOvF12xBHOi
+	NjP1cc+B1DKho+1+VGN5l3q+BtA50LRH21Yhvv4oVu1FGQDu0pPyxPNLGSdaKY3hbsbNG2nyTa8
+	OHkLCm2AqfK9vs8cmayw3M7M+/g/YCofBvfSWPDKO+ETbA7Nud1VrfcnmdCIMzaFZg5w5KlPGxc
+	phxqlf4c2n99NGFs4lbgZ/x6CkyTJZ4ptFwtTw2+fS9QZ6lwQR/QwalaguW+tpEBwD+PgI99mwv
+	xay8Xnb4OTxBO/D1pjQBqJcfbw0INAYdT7330IhTwlwxO1NKs=
+X-Received: by 2002:a17:903:acf:b0:2ae:ce35:2686 with SMTP id d9443c01a7336-2b2d59393fcmr182873835ad.5.1776175998493;
+        Tue, 14 Apr 2026 07:13:18 -0700 (PDT)
+Received: from DESKTOP-MOQC9AF.mioffice.cn ([43.224.245.179])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b3a73747b8sm81197315ad.47.2026.04.14.07.13.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2026 07:13:17 -0700 (PDT)
+From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: linux-erofs@lists.ozlabs.org,
+	Zhan Xusheng <zhanxusheng@xiaomi.com>
+Subject: [PATCH erofs-utils 0/2] tar: fix parsing issues for pax and GNU extensions
+Date: Tue, 14 Apr 2026 22:13:11 +0800
+Message-ID: <20260414141313.46575-1-zhanxusheng@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -103,31 +88,25 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Tue, 14 Apr 2026 09:02:00 +0100
-Message-ID: <3755493.1776153720@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: 7szJWsTYFbwIht1GObsiqPVTDCnok5IGfpJ-Gh_OcDo_1776153733
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <3755492.1776153720.1@warthog.procyon.org.uk>
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Stefan Metzmacher <metze@samba.org> wrote:
+This series fixes two issues in tar parsing:
 
-> Any idea on how to resolve the actual conflict?
+- An out-of-bounds access when trimming PAX path entries
+- Missing NULL pointer checks when handling GNU long name/link records
 
-I didn't manage to beat the bugs out in time (turned out several were
-preexisting).
+These issues can be triggered by malformed tar archives and may lead
+to crashes. The fixes improve robustness when processing untrusted
+inputs.
 
-However, if you look here:
+Zhan Xusheng (2):
+  erofs-utils: tar: fix out-of-bounds access when trimming pax path
+  erofs-utils: tar: add missing NULL checks for GNU long name/link
 
-https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?=
-h=3Dcifs-next
+ lib/tar.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-I've stacked my patchset on top of yours and modified smbdirect_connection.=
-c
-appropriately.
-
-David
+-- 
+2.43.0
 
 
