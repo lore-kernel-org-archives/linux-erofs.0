@@ -1,45 +1,93 @@
-Return-Path: <linux-erofs+bounces-3364-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3365-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7A57FF885D
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Apr 2026 07:29:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6930FF8867
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Apr 2026 08:01:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4g4XBn3s1xz2xld;
-	Tue, 28 Apr 2026 17:29:53 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777361393;
-	cv=none; b=n9gZ5dkmoAuxzYk4+rp3cNOnc2bEbf1HeB9ksp4kvPuYsVS0S6x1Z8pgYqdW3I9W8mFdltUo6MXmxwGIFTar/S0Fc2S7DexvLUQVesQSoz9/D7F6s6GPOpTnJbLTxhGG3+CRbeOSjDLkPZlQ8sAx9zQkOApcBpwqP9AVxteXMO7iGo4DpL59rHEBaia5Vxm7zQmUeTA6pO39fTAK6bFKY9TEG7wHjLs8qf5O3JOJO0UMgC1pyY31wCQm60YdiJ/FB4DgBxdeMcMWFlNxa9Bq9XWtdoxcfW2vM8Sr8glMBKQh/3qHLj13zAxD9Ag5yiSK2yDVJp84/lOkC/Jmw/uaTw==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1777361393; c=relaxed/relaxed;
-	bh=7e5ZR4uyeEBbnr39YNz57npi3uySWbbJxaEkGaqcIp8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Z5mkbknBKCEoxZhpPawCUxZFeZRUrD4csx6mBM5cWuGI1PmemzGTArhhSAJrT+AVNg3kQuRn2Lvq5C3WARlTCheMH4up4BeUChfgR632lyZuNCDfb9jr5tmGVJsO/Df60mhYUu7uyt+amxwkEJ0R2Z1Rb7JUGTdmZhdBjNqwbl5g+YjNbUoqndZ+8VI4DPQ+x6HK5H0/Fhx834mV3VFxfBH4znh2K8Sl3xjUzvEo0nRZo1fj9BUUrQ3+nabqA791H5MvKYIDKQTPGJJPDjfu7errnL4JszCE7okW8DBs1T1DsxSxiD+IcpZW5okm2GIsqXQIR1xwPg9xthJUBsj0QQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qRIzI5mx; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4g58rW2zKHz2ySf;
+	Wed, 29 Apr 2026 18:01:15 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::333" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777449675;
+	cv=pass; b=KV+ZJTuOLkRLJCJE5FNrn2R2+oqlLrDYgd4oSi6Aw5uiFXVyswpWKUgNe0UcKrIRqw+4Eo4Z5Ycdn920OpgTOif7/pE55sbh7bso9keHHxPghJ1FtdHPeUiJiNso0SPj2gT4ZUlVo9Ksm/kQOv0QyX/Z7ocWZmYxYB5xIShWMb6bAHCh3JF0J7utPLQoBalzQUYC4L0DmA23X3C9N/laRY1fsJblpYPpuv5OR+Ne8JceQz7WpRzgZ3TjblVivhiBXOW2qei6zXUTpjkw9VLqswDZqSSLR9XnTL6ZwJXs7emBUYxUS7gxjr7X63lFH3WX9OCI6m6AsMNXD6XgTZFo1A==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1777449675; c=relaxed/relaxed;
+	bh=i1HkGv08ixkw/NtnH/a+YIiHYWuD41eetNV6JArImdM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RcKfQtGotvz65ZU/AN9GJT0Dc3QhTA+kjHbmPrxr8AtKymjvQIrtKhpURzp6gvjMlmLUTaUSGuWwqsfdt7IH3FXy75Y0dzJLOKBEIzRce8K45vYHvoDwV4rYuP0LkV0oGJQeiSWHAM8Kfkq6UQZ+L957S6UCZy6we/PQJxaiur/vURdLXtbM6G/xSqGNFy2VekdDiTl1bCqHi7ubDWpUQheK4OLVUOV8C/C8jhjuEkTzXGiMKRfMwqNMUq75rLvmMNuRY8bUk1r8trZXgBdA3EHc3PVv1xs/Wm95KpbBi+lz/Y3gHmCVO4hNkQXhX5HuKXcs6aZS+obDCl9OMuNh/w==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dsIQwHfl; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::333; helo=mail-wm1-x333.google.com; envelope-from=niuzhiguo84@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=qRIzI5mx;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dsIQwHfl;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::333; helo=mail-wm1-x333.google.com; envelope-from=niuzhiguo84@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4g4XBl4BCvz2xYw
-	for <linux-erofs@lists.ozlabs.org>; Tue, 28 Apr 2026 17:29:49 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1777361385; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=7e5ZR4uyeEBbnr39YNz57npi3uySWbbJxaEkGaqcIp8=;
-	b=qRIzI5mxhhwc1BPxVvskhtYyj3lJ5HcYEDs65gqU2TmvX2FCk30u0sbfjIeEEwvyAfL3azWKGgx3nGXfQVaTV9ZQNgfy1jqaZbCYthrBQ9w9p+D8Iz+Iw+3NMzZp42HgxxYUJyVka8u3YCXClPhJwBFrGZtyUrFtiRKbhzeHlqY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0X1tlCom_1777361384;
-Received: from 30.221.131.100(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X1tlCom_1777361384 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 28 Apr 2026 15:29:44 +0800
-Message-ID: <f2afe93e-245c-4856-b277-634271f596a0@linux.alibaba.com>
-Date: Tue, 28 Apr 2026 15:29:43 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4g58rQ2dt6z2ySW
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Apr 2026 18:01:09 +1000 (AEST)
+Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-48962cd0864so13945755e9.1
+        for <linux-erofs@lists.ozlabs.org>; Wed, 29 Apr 2026 01:01:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777449666; cv=none;
+        d=google.com; s=arc-20240605;
+        b=FU1dNZ4LkZmJbunkEeNVmqMQYQM5iZmbVMVMDKZnaBFNLsh1g0ija0IyxXC1hU6Qns
+         DNKC56MkUqAXeh+Wcr82KIO61uJ++hoVJmB+IMpmC7vfkijdCcFg9OZzpPdipLnYrQV0
+         a+9O+PEgmDdyP2W5JctYjCW+gxY2qzYQx16Ae0Vnsdx5JCqY7rTJG38aKiCNNjW7F3H0
+         Ne37/sl6nVcYWuA4YYVbJpAFEoHvv/aLU6EoPDnCMvSVldUxoKW4V87qDY1+gOtAfdy+
+         3Y7HhipWQJ0/IQLu3eHKZrHw4/+dJO6+wPEoCwvsBY2V8crsrxM0iqWd1/gRQv0cIE4t
+         Fhdw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=i1HkGv08ixkw/NtnH/a+YIiHYWuD41eetNV6JArImdM=;
+        fh=vncB/LX0K2R1jgcpedCt5Hlx81V8Ss4RygwjSGPeAsE=;
+        b=IQ+/G1/eE0zKCWJ3eKD4r2dBfBTmMEe/QIXMZk6hoopz1uZR8y6U5U7RBP745+6VOn
+         MW8RZt0iSEE3CVDZF5oUwPV09m2PKq3c9mvb5PpW1nxTm48XivXjCQR7DMqYEYWSRgrY
+         tD4+Kgw7s39pHz5sCJtkeKEf/5Smo0Fun/Ezt2LEkITORlojgkKPgGrzO5bxAuLnuwqQ
+         WscVqCmVGi3lwcvm1Gu0gCLPy61F7eTHva/9Z9PDrvvCZMyLx6JaR10vYGaIjizApkZn
+         onK0gzdBhMuRx+sKO5bYOBhpDwK9d2eJapnuUSJ5tdOhRt8aeACVPtkCH7mcFFB5arnH
+         HMXQ==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777449666; x=1778054466; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i1HkGv08ixkw/NtnH/a+YIiHYWuD41eetNV6JArImdM=;
+        b=dsIQwHflOyt+6sJ3Kb8iiL68E0zarffG4AsvIS4pvZwfs4NMZtSHunasDFdxDRR2zi
+         p5hLE4ao9sEFFGrrmDZNNolrtTHmO0wEbYzc9213IYskuC6FyjlrjmUUTphWu2U1YTet
+         pryfw9Vn62oumnI6Wm6sz8ufYUKOUQ3/yvr56a+qb9jH+BnHaeu/TkSukTgQFZRp0whj
+         dtTU4l00xKm6KjLwD4Om8q+lBd7S8mXYn7ApeKfitfXlJAbPlU0YoNZ/e839nuzjR1Sb
+         4w0TS92Sz5iLhw47x5pirfS5dQR2tyC56DEQLf6Ytz6qTmT7z0KjRUiSauuaW1xefxbS
+         OUfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777449666; x=1778054466;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=i1HkGv08ixkw/NtnH/a+YIiHYWuD41eetNV6JArImdM=;
+        b=cBeIE5iUyCg6L5VmrxxY2SZpxCMSZcIE33YsCWWDn0MY2ihclAhsc9+Fsgc8mSSZ/F
+         D9e6u7a4dkBEKNArExB4e7PO4TTx2wwway+qxKfdZcMe3xmSsRFWb8YQteCdc60ah1Cu
+         imik8qb18xiuI/S/4lOqSAXKPuFNsBEFb851eKy5TRYVOzhfR8vPjMyYBHb+Ev0dp12a
+         iJvXhmaS5stTGHBK8nNNctHml1wHnranmMU2IqUzxuq+a32pPDgYit6HUprsxr2TA3lp
+         Frx3xjphhGP86j7W4TZ1mPTQ4qDazRwWv40Bg7j+RHzbajht+gAt5d5wcLi/W05mualu
+         urMg==
+X-Forwarded-Encrypted: i=1; AFNElJ+kdj76p2yH1i8SM+OdbQzQ3u5w8h8mrw2q6xTpotQPrriT3qEnOfroac80Mq9Z6RhG74F6V/uen1rLWw==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YydYSjbsJyaIoDMQ2jjJr1zMMYSJt23FJctzryvfZM4kF66yq6P
+	vkID4+gqNwHuq3OvbQa+j4rRwwptNCgWkkH7jqutoPs+jXylLcMzngT67ORMJ7GlPtc/3dlpNEW
+	FohSnzZGLfhacn7WwVhEctW+03EtFCFQ=
+X-Gm-Gg: AeBDievt+2TLz3/Ug5yz2JRRenANNcCAf9CUSA3qmkrcSEmEsxBIkqTspWAG2vN7WaY
+	C3NK270NTQ3NS70+aE5jD7T7AFDFPTxkgmpgpl2pXzKI/HsSS4DUoViJB+7sIo9mI738gAnJCiq
+	4qo+g/9z+KVR7buLyCSTKudisqB20FzWU6gJbLxe38i3LWBnCeSBXUzWUsQ3Mz9KLxc3aCYLA2y
+	0gVfQAvRZxkYvIlKoG46gTM9DI65icaoRwdZ+qdPHLwuQR0UA50oMH3ds2XBaRUoIZJZIuW4K+r
+	m4k0CxbO4whL4bS2POA=
+X-Received: by 2002:a05:600c:1d1c:b0:486:fc61:541d with SMTP id
+ 5b1f17b1804b1-48a76f612b1mr64267715e9.2.1777449665542; Wed, 29 Apr 2026
+ 01:01:05 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,137 +99,166 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: lib: tar: fix fractional PAX mtime parsing
-To: Vansh Choudhary <ch@vnsh.in>, linux-erofs@lists.ozlabs.org
-References: <20260329173639.54997-1-ch@vnsh.in>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260329173639.54997-1-ch@vnsh.in>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1777449565-22154-1-git-send-email-zhiguo.niu@unisoc.com>
+In-Reply-To: <1777449565-22154-1-git-send-email-zhiguo.niu@unisoc.com>
+From: Zhiguo Niu <niuzhiguo84@gmail.com>
+Date: Wed, 29 Apr 2026 16:00:53 +0800
+X-Gm-Features: AVHnY4IachfcyydJSm9-L7_wLKWLfNNiO5uSMQ6WowBPtvNl5INastPneA0OMf8
+Message-ID: <CAHJ8P3LZk0jETzbetQzvbxx8XL-6nSVd6pUBK-SVOUK4gKPe_Q@mail.gmail.com>
+Subject: Re: [PATCH] erofs-utils: mkfs: also handle last compacted 2B pack in z_erofs_drop_inline_pcluster
+To: Zhiguo Niu <zhiguo.niu@unisoc.com>
+Cc: hsiangkao@linux.alibaba.com, ke.wang@unisoc.com, 
+	linux-erofs@lists.ozlabs.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Vansh,
+version:
+erofs-utils: 1.8.3
+lz4:1.10.0
+Android:17
 
-On 2026/3/30 01:36, Vansh Choudhary wrote:
-> The fractional part of PAX mtime values was parsed as a plain integer,
-> so "123.5" ended up with 5ns instead of 500000000ns.
-> 
-> Scale the fractional part according to its decimal width before storing
-> it as nanoseconds. Also normalize negative fractional timestamps and
-> reject malformed mtime values with missing digits or trailing junk.
-> 
-> Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
-> Signed-off-by: Vansh Choudhary <ch@vnsh.in>
+cmd:
+mkfs.erofs -z lz4hc,9 --compress-hints
+./output/META/erofs_default_compress_hints.txt -d9 -b 4096
+--mount-point product --fs-config-file
+./output/META/product_filesystem_config.txt --file-contexts
+./output/META/framework_file_contexts.bin -T 1230768000 -U
+ad34a95d-293d-5e91-9234-c253209e9c71 -E dedupe,ztailpacking
+./output/PRODUCT/tmp ./output/PRODUCT2/ 1>mkfs.log 2>&1
+./fsck.erofs --extract -d9 output/PRODUCT/2sofiximage
 
-I try to apply as below, does it look good to you?
+error case:
+mkfs 2 source files: libmsc.so.salsa, libmsc.so
 
-Also as before, could you write a regression test for this?
+erofs: failed to full decompress -3066 in[4096, 0] out[6121]
+dump extent:
+1192:  7765862.. 7770924 |    5062 :    9687040..   9691136 |    4096
+1193:  7770924.. 7777021 |    6097 :    9691136..   9695232 |    4096
+1194:  7777021.. 7784118 |    7097 :    9695232..   9699328 |    4096
+1195:  7784118.. 7789918 |    5800 :    9699328..   9703424 |    4096
+1196:  7789918.. 7797526 |    7608 :    9703424..   9707520 |    4096
+1197:  7797526.. 7803647 |    6121 :    9707520..   9711616 |    4096
+1198:  7803647.. 7806972 |    3325 :    9711616..   9715712 |    4096
+mkfs debug log:
+compacted_2b=3D1904  compacted_4b_initial=3D2 compacted_4b_end=3D0
+write di_clusterof=3D2815 type=3D1 di_u.blkaddr=3D2371 d1=3D0 clusterofs=3D=
+2815
+//last pcluster
+last 8 bytes in compacted pack:
+6bfe0016 00000938
+after drop inline operation:
+0bfe0016 00000938
 
-Your patches are also scattered, could you collect them
-all and resend them as a patchset if I'm still missing any?
+good case :
+mkfs 1 source file:libmsc.so.salsa
+dump extent:
+1192:  7765862.. 7770924 |    5062 :    4886528..   4890624 |    4096
+1193:  7770924.. 7777021 |    6097 :    4890624..   4894720 |    4096
+1194:  7777021.. 7784118 |    7097 :    4894720..   4898816 |    4096
+1195:  7784118.. 7789918 |    5800 :    4898816..   4902912 |    4096
+1196:  7789918.. 7797526 |    7608 :    4902912..   4907008 |    4096
+1197:  7797526.. 7805695 |    8169 :    4907008..   4911104 |    4096
+1198:  7805695.. 7806972 |    1277 :    4911104..   4915200 |    4096
+mkfs debug log:
+compacted_2b=3D1904  compacted_4b_initial=3D0 compacted_4b_end=3D2
+write di_clusterof=3D2815 type=3D1 di_u.blkaddr=3D1199 d1=3D0 clusterofs=3D=
+2815
+//last pcluster
+last 8 bytes in compacted pack:
+1aff2001 000004ae
+after drop inline operation:
+0aff2001 000004ae
 
-Thanks,
-Gao Xiang
-
- From 4cd618eaeebb7a5acf5e82074fb1c9d619995f72 Mon Sep 17 00:00:00 2001
-From: Vansh Choudhary <ch@vnsh.in>
-Date: Sun, 29 Mar 2026 17:36:39 +0000
-Subject: [PATCH] erofs-utils: lib: tar: fix fractional PAX mtime parsing
-
-The fractional part of PAX mtime values was parsed as a plain integer,
-so "123.5" ended up with 5ns instead of 500000000ns.
-
-Scale the fractional part according to its decimal width before storing
-it as nanoseconds. Also normalize negative fractional timestamps and
-reject malformed mtime values with missing digits or trailing junk.
-
-Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
-Signed-off-by: Vansh Choudhary <ch@vnsh.in>
----
-  include/erofs/defs.h |  9 +++++++++
-  lib/tar.c            | 29 ++++++++++++++++++++++++++---
-  2 files changed, 35 insertions(+), 3 deletions(-)
-
-diff --git a/include/erofs/defs.h b/include/erofs/defs.h
-index 5724c2794ab0..9f3d0f9c35bc 100644
---- a/include/erofs/defs.h
-+++ b/include/erofs/defs.h
-@@ -387,6 +387,15 @@ unsigned long __roundup_pow_of_two(unsigned long n)
-  #define __erofs_stringify_1(x...)	#x
-  #define __erofs_stringify(x...)		__erofs_stringify_1(x)
-
-+#define check_sub_overflow(a, b, d) ({		\
-+	typeof(a) __a = (a);			\
-+	typeof(b) __b = (b);			\
-+	typeof(d) __d = (d);			\
-+	(void) (&__a == &__b);			\
-+	(void) (&__a == __d);			\
-+	__builtin_sub_overflow(__a, __b, __d);	\
-+})
-+
-  #ifdef __cplusplus
-  }
-  #endif
-diff --git a/lib/tar.c b/lib/tar.c
-index 16e9c22fbdc8..3755c1f5450d 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -2,6 +2,7 @@
-  #include <unistd.h>
-  #include <stdlib.h>
-  #include <string.h>
-+#include <limits.h>
-  #include <sys/stat.h>
-  #include "erofs/print.h"
-  #include "erofs/diskbuf.h"
-@@ -525,6 +526,9 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
-  				eh->link = strdup(value);
-  			} else if (!strncmp(kv, "mtime=",
-  					sizeof("mtime=") - 1)) {
-+				unsigned int ns = 0;
-+				int digits = 0;
-+
-  				ret = sscanf(value, "%lld %n", &lln, &n);
-  				if(ret < 1) {
-  					ret = -EIO;
-@@ -532,12 +536,31 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
-  				}
-  				eh->st.st_mtime = lln;
-  				if (value[n] == '.') {
--					ret = sscanf(value + n + 1, "%d", &n);
--					if (ret < 1) {
-+					while (value[n + 1] >= '0' &&
-+					       value[n + 1] <= '9') {
-+						if (digits < 9)
-+							ns = ns * 10 + value[n + 1] - '0';
-+						++digits;
-+						++n;
-+					}
-+					if (!digits || value[n + 1] != '\0') {
-  						ret = -EIO;
-  						goto out;
-  					}
--					ST_MTIM_NSEC_SET(&eh->st, n);
-+					while (digits++ < 9)
-+						ns *= 10;
-+					if (ns && value[0] == '-') {
-+						if (check_sub_overflow(eh->st.st_mtime, (time_t)1,
-+								       &eh->st.st_mtime)) {
-+							ret = -EIO;
-+							goto out;
-+						}
-+						ns = 1000000000 - ns;
-+					}
-+					ST_MTIM_NSEC_SET(&eh->st, ns);
-+				} else if (value[n] != '\0') {
-+					ret = -EIO;
-+					goto out;
-  				} else {
-  					ST_MTIM_NSEC_SET(&eh->st, 0);
-  				}
---
-2.43.5
-
-
-
+Zhiguo Niu <zhiguo.niu@unisoc.com> =E4=BA=8E2026=E5=B9=B44=E6=9C=8829=E6=97=
+=A5=E5=91=A8=E4=B8=89 16:00=E5=86=99=E9=81=93=EF=BC=9A
+>
+> With ztailpacking enabled, the current process assumes that a compacted_4=
+b_end
+> always exists in the compacted pack. However, in some specific files, the
+> compacted pack may not have a compacted_4b_end. This leads to an incorrec=
+t
+> modification of the last compacted_2B entry, resulting in incorrect modif=
+ication
+> of its clusterofs. In subsequent fsck operations, incorrect parameters wi=
+ll
+> affect the decompression of the penultimate pcluster.
+>
+> This patch determines whether the last entry of the current compacted pac=
+k
+> belongs to compacted 2B or 4B and then updates the correct bits according=
+ly.
+>
+> Fixes: a7c1f0575ef8 ("erofs-utils: lib: refine tailpcluster compression a=
+pproach")
+> Signed-off-by: Zhiguo Niu <zhiguo.niu@unisoc.com>
+> ---
+>  lib/compress.c | 38 +++++++++++++++++++++++++++-----------
+>  1 file changed, 27 insertions(+), 11 deletions(-)
+>
+> diff --git a/lib/compress.c b/lib/compress.c
+> index 62d2672..0eb464b 100644
+> --- a/lib/compress.c
+> +++ b/lib/compress.c
+> @@ -1223,19 +1223,35 @@ void z_erofs_drop_inline_pcluster(struct erofs_in=
+ode *inode)
+>
+>                 di->di_advise =3D cpu_to_le16(type);
+>         } else if (inode->datalayout =3D=3D EROFS_INODE_COMPRESSED_COMPAC=
+T) {
+> -               /* handle the last compacted 4B pack */
+> +               /* handle the last compacted pack */
+>                 unsigned int eofs, base, pos, v, lo;
+>                 u8 *out;
+> -
+> -               eofs =3D inode->extent_isize -
+> -                       (4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
+> -               base =3D round_down(eofs, 8);
+> -               pos =3D 16 /* encodebits */ * ((eofs - base) / 4);
+> -               out =3D inode->compressmeta + base;
+> -               lo =3D erofs_blkoff(sbi, get_unaligned_le32(out + pos / 8=
+));
+> -               v =3D (type << sbi->blkszbits) | lo;
+> -               out[pos / 8] =3D v & 0xff;
+> -               out[pos / 8 + 1] =3D v >> 8;
+> +               unsigned int compacted_4b_initial, compacted_2b, compacte=
+d_4b_end;
+> +               unsigned int totalidx =3D BLK_ROUND_UP(sbi, inode->i_size=
+);
+> +               const erofs_off_t ebase =3D sizeof(struct z_erofs_map_hea=
+der) +
+> +                       round_up(erofs_iloc(inode) + inode->inode_isize +
+> +                                       inode->xattr_isize, 8);
+> +
+> +               compacted_4b_initial =3D ((32 - ebase % 32) / 4) & 7;
+> +               compacted_2b =3D 0;
+> +               if ((le16_to_cpu(h->h_advise) & Z_EROFS_ADVISE_COMPACTED_=
+2B) &&
+> +                       compacted_4b_initial < totalidx)
+> +                       compacted_2b =3D rounddown(totalidx - compacted_4=
+b_initial, 16);
+> +               compacted_4b_end =3D totalidx - compacted_4b_initial - co=
+mpacted_2b;
+> +               if (!compacted_2b || compacted_4b_end) {
+> +                       eofs =3D inode->extent_isize - (4 << (totalidx & =
+1));
+> +                       base =3D round_down(eofs, 8);
+> +                       pos =3D 16 /* encodebits */ * ((eofs - base) / 4)=
+;
+> +                       out =3D inode->compressmeta + base;
+> +                       lo =3D erofs_blkoff(sbi, get_unaligned_le32(out +=
+ pos / 8));
+> +                       v =3D (type << sbi->blkszbits) | lo;
+> +                       out[pos / 8] =3D v & 0xff;
+> +                       out[pos / 8 + 1] =3D v >> 8;
+> +               } else {
+> +                       eofs =3D inode->extent_isize - (4 + 1);
+> +                       out =3D inode->compressmeta + eofs;
+> +                       *out =3D (*out & 0x3f) | (type << 6);
+> +               }
+>         } else {
+>                 DBG_BUGON(1);
+>                 return;
+> --
+> 1.9.1
+>
 
